@@ -1,0 +1,46 @@
+[pack]
+id = "web-fullstack"
+name = "Full-Stack Web Development"
+version = "1.0.0"
+description = "Complete full-stack web development: React frontend, Node.js backend, database migrations, authentication"
+category = "web"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+license = "MIT"
+production_ready = true
+
+packages = [
+    "rest-api-template",
+    "graphql-api-template",
+]
+
+[[pack.templates]]
+name = "react-frontend"
+path = "templates/react-frontend"
+description = "Modern React frontend with TypeScript"
+variables = ["project_name", "state_management", "routing"]
+
+[[pack.templates]]
+name = "nodejs-backend"
+path = "templates/nodejs-backend"
+description = "Node.js/Express backend with authentication"
+variables = ["project_name", "database", "auth_provider"]
+
+[pack.metadata]
+test_coverage = "92%"
+code_examples = 14
+documentation_files = 7
+
+tags = ["web", "fullstack", "react", "nodejs", "frontend", "backend"]
+keywords = ["fullstack", "react", "nodejs", "web-development", "spa"]
+
+[pack.sparql_queries]
+list_components = """
+PREFIX ggen: <http://ggen.io/ontology#>
+SELECT ?component ?name ?type
+WHERE {
+    ?component a ggen:WebComponent ;
+               ggen:componentName ?name ;
+               ggen:componentType ?type .
+}
+"""

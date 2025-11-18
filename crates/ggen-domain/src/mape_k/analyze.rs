@@ -273,9 +273,9 @@ mod tests {
         let mut monitor = MonitorEngine::new();
 
         // Add observation with high ticks
-        let obs = Observation {
+        let obs = crate::mape_k::types::Observation {
             id: "obs-1".to_string(),
-            obs_type: super::super::types::ObservationType::Event,
+            obs_type: crate::mape_k::types::ObservationType::Event,
             timestamp: 1000,
             data: serde_json::json!({
                 "pattern": "expensive_pattern",

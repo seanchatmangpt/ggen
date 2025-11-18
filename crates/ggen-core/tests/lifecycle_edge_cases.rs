@@ -10,6 +10,7 @@
 //! 4. Concurrency issues
 //! 5. Resource exhaustion
 
+use ggen_core::lifecycle::loader::load_make;
 use ggen_core::lifecycle::*;
 use std::fs;
 use std::path::PathBuf;
@@ -278,14 +279,21 @@ before_build = ["build"]
 "#,
     );
 
-    let ctx = fixture.create_context();
+    // Self-reference should be detected during load_make() validation, not during execution
+    let result = load_make(fixture.path().join("make.toml"));
 
-    let result = run_phase(&ctx, "build");
-
-    assert!(result.is_err(), "Should detect self-reference");
+    assert!(
+        result.is_err(),
+        "Should detect self-reference during validation"
+    );
 
     let err_msg = format!("{}", result.unwrap_err());
-    assert!(err_msg.contains("recursion") || err_msg.contains("build"));
+    // Error message should mention self-reference, hook, or build
+    assert!(
+        err_msg.contains("self-reference") || err_msg.contains("Hook") || err_msg.contains("build"),
+        "Error should mention self-reference, hook, or build phase. Got: {}",
+        err_msg
+    );
 }
 
 // ============================================================================

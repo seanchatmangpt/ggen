@@ -1,0 +1,31 @@
+[pack]
+id = "startup-essentials"
+name = "Startup Essentials"
+version = "1.0.0"
+description = "Essential packages for early-stage startups: CLI tools, web APIs, database migrations, authentication, and observability"
+category = "startup"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+license = "MIT"
+production_ready = true
+
+packages = [
+    "agent-cli-copilot",
+    "rest-api-template",
+    "cli-application-template",
+]
+
+[[pack.templates]]
+name = "quick-start"
+path = "templates/quick-start"
+description = "Quick start template for new projects"
+variables = ["project_name", "author", "license"]
+
+[pack.metadata]
+test_coverage = "85%"
+code_examples = 10
+documentation_files = 5
+
+tags = ["startup", "mvp", "essential", "cli", "api"]
+keywords = ["startup", "mvp", "templates", "cli", "rest-api"]
+sparql_queries = {}

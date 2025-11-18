@@ -7,67 +7,74 @@ vars:
 ---
 //! {{ verb | capitalize }} {{ noun_description }} command
 
-use clap::Args;
+use clap_noun_verb_macros::verb;
+use clap_noun_verb::Result;
+use serde::Serialize;
 
-type Result<T> = std::result::Result<T, anyhow::Error>;
-
-#[derive(Debug, Args)]
-pub struct {{ verb | capitalize }}Args {
-    /// ID or name of the {{ noun_description }}
-    pub id: String,
-
-    /// Force deletion without confirmation
-    #[arg(short, long)]
-    pub force: bool,
-
-    /// Dry run (don't actually delete)
-    #[arg(long)]
-    pub dry_run: bool,
-
-    /// Enable verbose output
-    #[arg(short, long)]
-    pub verbose: bool,
+#[derive(Debug, Serialize)]
+pub struct DeleteResult {
+    id: String,
+    message: String,
+    deleted: bool,
+    dry_run: bool,
 }
 
-pub async fn run(args: &{{ verb | capitalize }}Args) -> Result<()> {
-    if args.verbose {
-        println!("{{ verb | capitalize }}ing {{ noun_description }}: {}", args.id);
+/// Delete a {{ noun_description }}
+#[verb] // Verb "delete" auto-inferred, noun "{{ noun }}" auto-inferred from directory
+pub fn delete_{{ noun }}(
+    /// ID or name of the {{ noun_description }}
+    #[arg(index = 0)]
+    id: String,
+    /// Force deletion without confirmation
+    #[arg(short, long)]
+    force: bool,
+    /// Dry run (don't actually delete)
+    #[arg(long)]
+    dry_run: bool,
+    /// Enable verbose output
+    #[arg(short, long)]
+    verbose: bool,
+) -> Result<DeleteResult> {
+    if verbose {
+        eprintln!("Deleting {{ noun_description }}: {}", id);
     }
 
-    if args.dry_run {
-        println!("🔍 Dry run mode - nothing will be deleted");
-    }
-
-    if !args.force && !args.dry_run {
-        println!("⚠️  Are you sure you want to delete '{}' ? Use --force to confirm", args.id);
-        return Ok(());
-    }
-
-    // TODO: Implement {{ verb }} logic here
-    if !args.dry_run {
-        println!("🗑️  {{ verb | capitalize }}ing {{ noun_description }}: {}", args.id);
-        println!("✅ {{ noun | capitalize }} '{}' deleted successfully!", args.id);
+    // TODO: Implement delete logic here
+    let (deleted, message) = if dry_run {
+        (false, format!("Would delete {{ noun_description }}: {}", id))
+    } else if !force {
+        (
+            false,
+            format!(
+                "Deletion requires --force flag. Use --force to confirm deletion of '{}'",
+                id
+            ),
+        )
     } else {
-        println!("Would delete {{ noun_description }}: {}", args.id);
-    }
+        (
+            true,
+            format!("{{ noun | capitalize }} '{}' deleted successfully!", id),
+        )
+    };
 
-    Ok(())
+    Ok(DeleteResult {
+        id,
+        message,
+        deleted,
+        dry_run,
+    })
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    #[tokio::test]
-    async fn test_{{ verb }}_dry_run() {
-        let args = {{ verb | capitalize }}Args {
-            id: "test-123".to_string(),
-            force: true,
-            dry_run: true,
-            verbose: false,
-        };
-
-        let result = run(&args).await;
+    #[test]
+    fn test_{{ verb }}_dry_run() {
+        let result = delete_{{ noun }}("test-123".to_string(), true, true, false);
         assert!(result.is_ok());
+        let output = result.unwrap();
+        assert!(output.dry_run);
+        assert!(!output.deleted);
     }
 }

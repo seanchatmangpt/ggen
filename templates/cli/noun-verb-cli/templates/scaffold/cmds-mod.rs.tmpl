@@ -1,28 +1,21 @@
 ---
 to: "{{ project_name }}/src/cmds/mod.rs"
-vars:
-  project_name: "my-cli"
-  nouns: ["user", "project"]
+sparql:
+  nouns: |
+    PREFIX cli: <http://ggen.dev/schema/cli#>
+    PREFIX cnv: <http://ggen.dev/schema/clap-noun-verb#>
+    SELECT ?nounName ?nounDescription ?modulePath
+    WHERE {
+      ?project a cli:CliProject ;
+               cli:hasNoun ?noun .
+      ?noun cnv:nounName ?nounName ;
+            cnv:nounDescription ?nounDescription ;
+            cnv:nounModulePath ?modulePath .
+    }
+    ORDER BY ?nounName
 ---
 //! CLI command definitions
+//! Commands are auto-discovered by clap-noun-verb from #[verb] attributes
 
-use clap::Subcommand;
-
-{% for noun in nouns %}pub mod {{ noun }};
+{% for noun in sparql_results.nouns %}pub mod {{ noun.nounName }};
 {% endfor %}
-
-type Result<T> = std::result::Result<T, anyhow::Error>;
-
-#[derive(Subcommand, Debug)]
-pub enum Command {
-{% for noun in nouns %}    /// {{ noun | capitalize }} management commands
-    {{ noun | capitalize }}({{ noun }}::{{ noun | capitalize }}Cmd),
-{% endfor %}}
-
-impl Command {
-    pub async fn run(&self) -> Result<()> {
-        match self {
-{% for noun in nouns %}            Command::{{ noun | capitalize }}(cmd) => cmd.run().await,
-{% endfor %}        }
-    }
-}

@@ -1,64 +1,102 @@
 ---
 to: "{{ project_name }}/src/cmds/{{ noun }}/{{ verb }}.rs"
-vars:
-  noun: "resource"
-  verb: "create"
-  noun_description: "resource"
+sparql:
+  verb_info: |
+    PREFIX cnv: <http://ggen.dev/schema/clap-noun-verb#>
+    SELECT ?verbDescription ?alias
+    WHERE {
+      ?noun cnv:nounName "{{ noun }}" ;
+            cnv:hasVerb ?verb .
+      ?verb cnv:verbName "{{ verb }}" ;
+            cnv:verbDescription ?verbDescription .
+      OPTIONAL { ?verb cnv:verbAlias ?alias }
+    }
+  arguments: |
+    PREFIX cnv: <http://ggen.dev/schema/clap-noun-verb#>
+    SELECT ?argName ?argLong ?argShort ?argHelp ?argRequired 
+           ?argDefault ?argPosition ?typeName
+    WHERE {
+      ?noun cnv:nounName "{{ noun }}" ;
+            cnv:hasVerb ?verb .
+      ?verb cnv:verbName "{{ verb }}" ;
+            cnv:hasArgument ?arg .
+      ?arg cnv:argName ?argName ;
+           cnv:argHelp ?argHelp .
+      OPTIONAL { ?arg cnv:argLong ?argLong }
+      OPTIONAL { ?arg cnv:argShort ?argShort }
+      OPTIONAL { ?arg cnv:argRequired ?argRequired }
+      OPTIONAL { ?arg cnv:argDefault ?argDefault }
+      OPTIONAL { ?arg cnv:argPosition ?argPosition }
+      OPTIONAL {
+        ?arg cnv:hasType ?type .
+        ?type cnv:typeName ?typeName
+      }
+    }
+    ORDER BY ?argPosition ?argName
+  noun_info: |
+    PREFIX cnv: <http://ggen.dev/schema/clap-noun-verb#>
+    SELECT ?nounDescription
+    WHERE {
+      ?noun cnv:nounName "{{ noun }}" ;
+            cnv:nounDescription ?nounDescription .
+    }
 ---
-//! {{ verb | capitalize }} {{ noun_description }} command
+//! {% if sparql_results.verb_info | length > 0 %}{{ sparql_results.verb_info[0].verbDescription }}{% else %}{{ verb | capitalize }} {{ noun }} command{% endif %}
 
-use clap::Args;
+use clap_noun_verb_macros::verb;
+use clap_noun_verb::Result;
+use serde::Serialize;
 
-type Result<T> = std::result::Result<T, anyhow::Error>;
-
-#[derive(Debug, Args)]
-pub struct {{ verb | capitalize }}Args {
-    /// Name of the {{ noun_description }}
-    #[arg(short, long)]
-    pub name: String,
-
-    /// Description
-    #[arg(short, long)]
-    pub description: Option<String>,
-
-    /// Output format (json, yaml, table)
-    #[arg(short = 'f', long, default_value = "table")]
-    pub format: String,
-
-    /// Enable verbose output
-    #[arg(short, long)]
-    pub verbose: bool,
+#[derive(Debug, Serialize)]
+pub struct {{ verb | capitalize }}Result {
+    id: String,
+    message: String,
+    {% for arg in sparql_results.arguments %}
+    {% if arg.typeName == "String" or arg.typeName == "Option<String>" %}{{ arg.argName }}: {{ arg.typeName }},
+    {% endif %}
+    {% endfor %}
 }
 
-pub async fn run(args: &{{ verb | capitalize }}Args) -> Result<()> {
-    if args.verbose {
-        println!("{{ verb | capitalize }}ing {{ noun_description }}: {}", args.name);
-    }
-
+/// {% if sparql_results.verb_info | length > 0 %}{{ sparql_results.verb_info[0].verbDescription }}{% else %}{{ verb | capitalize }} a {{ noun }}{% endif %}
+#[verb] // Verb "{{ verb }}" auto-inferred, noun "{{ noun }}" auto-inferred from directory
+pub fn {{ verb }}_{{ noun }}(
+    {% for arg in sparql_results.arguments %}
+    /// {{ arg.argHelp }}
+    {% if arg.argPosition is defined and arg.argPosition != "" %}
+    #[arg(index = {{ arg.argPosition }})]
+    {% elif arg.argLong is defined and arg.argLong != "" %}
+    #[arg(long = "{{ arg.argLong }}"{% if arg.argShort is defined and arg.argShort != "" %}, short = '{{ arg.argShort }}'{% endif %}{% if arg.argDefault is defined and arg.argDefault != "" %}, default_value = "{{ arg.argDefault }}"{% endif %})]
+    {% else %}
+    #[arg]
+    {% endif %}
+    {{ arg.argName }}: {% if arg.typeName is defined and arg.typeName != "" %}{{ arg.typeName }}{% else %}String{% endif %},
+    {% endfor %}
+) -> Result<{{ verb | capitalize }}Result> {
     // TODO: Implement {{ verb }} logic here
-    println!("✅ {{ noun | capitalize }} '{}' {{ verb }}d successfully!", args.name);
+    let result = {{ verb | capitalize }}Result {
+        id: format!("{{ noun }}-{}", {% for arg in sparql_results.arguments %}{% if arg.argPosition is defined and arg.argPosition == "0" %}{{ arg.argName }}{% endif %}{% endfor %}{% if sparql_results.arguments | length == 0 %}"default"{% endif %}),
+        message: format!("{{ noun | capitalize }} {{ verb }}d successfully!"),
+        {% for arg in sparql_results.arguments %}
+        {% if arg.typeName == "String" or arg.typeName == "Option<String>" %}{{ arg.argName }}: {{ arg.argName }},
+        {% endif %}
+        {% endfor %}
+    };
 
-    if let Some(desc) = &args.description {
-        println!("   Description: {}", desc);
-    }
-
-    Ok(())
+    Ok(result)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    #[tokio::test]
-    async fn test_{{ verb }}_basic() {
-        let args = {{ verb | capitalize }}Args {
-            name: "test-{{ noun }}".to_string(),
-            description: Some("Test {{ noun_description }}".to_string()),
-            format: "table".to_string(),
-            verbose: false,
-        };
-
-        let result = run(&args).await;
+    #[test]
+    fn test_{{ verb }}_basic() {
+        let result = {{ verb }}_{{ noun }}(
+            {% for arg in sparql_results.arguments %}
+            {% if arg.argPosition is defined and arg.argPosition == "0" %}"test-{{ noun }}".to_string(){% elif arg.typeName == "bool" %}false{% elif arg.typeName == "Option<String>" %}None{% elif arg.typeName == "String" %}"test".to_string(){% endif %}{% if not loop.last %},
+            {% endif %}
+            {% endfor %}
+        );
         assert!(result.is_ok());
     }
 }

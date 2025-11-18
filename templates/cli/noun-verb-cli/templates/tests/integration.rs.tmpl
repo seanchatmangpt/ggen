@@ -1,9 +1,28 @@
 ---
 to: "{{ project_name }}/tests/integration_test.rs"
-vars:
-  project_name: "my-cli"
-  noun: "resource"
-  verbs: ["create", "list", "get", "update", "delete"]
+sparql:
+  nouns: |
+    PREFIX cli: <http://ggen.dev/schema/cli#>
+    PREFIX cnv: <http://ggen.dev/schema/clap-noun-verb#>
+    SELECT ?nounName
+    WHERE {
+      ?project a cli:CliProject ;
+               cli:hasNoun ?noun .
+      ?noun cnv:nounName ?nounName .
+    }
+    ORDER BY ?nounName
+  all_verbs: |
+    PREFIX cli: <http://ggen.dev/schema/cli#>
+    PREFIX cnv: <http://ggen.dev/schema/clap-noun-verb#>
+    SELECT ?nounName ?verbName
+    WHERE {
+      ?project a cli:CliProject ;
+               cli:hasNoun ?noun .
+      ?noun cnv:nounName ?nounName ;
+            cnv:hasVerb ?verb .
+      ?verb cnv:verbName ?verbName .
+    }
+    ORDER BY ?nounName ?verbName
 ---
 //! Integration tests for {{ project_name }}
 
@@ -29,40 +48,15 @@ fn test_version() {
         .stdout(predicate::str::contains(env!("CARGO_PKG_VERSION")));
 }
 
-{% for verb in verbs %}
+{% for verb_data in sparql_results.all_verbs %}
 #[test]
-fn test_{{ noun }}_{{ verb }}() {
+fn test_{{ verb_data.nounName }}_{{ verb_data.verbName }}() {
     let mut cmd = Command::cargo_bin("{{ project_name }}").unwrap();
-    cmd.arg("{{ noun }}").arg("{{ verb }}");
+    cmd.arg("{{ verb_data.nounName }}").arg("{{ verb_data.verbName }}");
 
-    {% if verb == "create" %}cmd.arg("--name").arg("test-{{ noun }}");{% endif %}
-    {% if verb == "get" or verb == "update" or verb == "delete" %}cmd.arg("test-123");{% endif %}
-    {% if verb == "delete" %}cmd.arg("--dry-run");{% endif %}
-
-    cmd.assert().success();
-}
-{% endfor %}
-
-#[test]
-fn test_{{ noun }}_list_with_format() {
-    let mut cmd = Command::cargo_bin("{{ project_name }}").unwrap();
-    cmd.arg("{{ noun }}")
-        .arg("list")
-        .arg("--format")
-        .arg("json");
-
+    // clap-noun-verb outputs JSON by default
     cmd.assert()
         .success()
-        .stdout(predicate::str::contains("["));
+        .stdout(predicate::str::contains("{"));
 }
-
-#[test]
-fn test_{{ noun }}_list_with_limit() {
-    let mut cmd = Command::cargo_bin("{{ project_name }}").unwrap();
-    cmd.arg("{{ noun }}")
-        .arg("list")
-        .arg("--limit")
-        .arg("2");
-
-    cmd.assert().success();
-}
+{% endfor %}

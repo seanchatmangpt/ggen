@@ -1,38 +1,27 @@
 ---
 to: "{{ project_name }}/src/cmds/{{ noun }}/mod.rs"
-vars:
-  noun: "resource"
-  noun_description: "Manage resources"
-  verbs: ["create", "list", "get", "update", "delete"]
----
-//! {{ noun_description }}
-
-use clap::{Args, Subcommand};
-
-{% for verb in verbs %}pub mod {{ verb }};
-{% endfor %}
-
-type Result<T> = std::result::Result<T, anyhow::Error>;
-
-#[derive(Args, Debug)]
-pub struct {{ noun | capitalize }}Cmd {
-    #[command(subcommand)]
-    pub verb: Verb,
-}
-
-#[derive(Subcommand, Debug)]
-pub enum Verb {
-{% for verb in verbs %}    /// {{ verb | capitalize }} a {{ noun }}
-    ///
-    /// Examples:
-    ///   {{ project_name }} {{ noun }} {{ verb }}{% if verb == "get" or verb == "update" or verb == "delete" %} <id>{% endif %}
-    {{ verb | capitalize }}({{ verb }}::{{ verb | capitalize }}Args),
-{% endfor %}}
-
-impl {{ noun | capitalize }}Cmd {
-    pub async fn run(&self) -> Result<()> {
-        match &self.verb {
-{% for verb in verbs %}            Verb::{{ verb | capitalize }}(args) => {{ verb }}::run(args).await,
-{% endfor %}        }
+sparql:
+  verbs: |
+    PREFIX cnv: <http://ggen.dev/schema/clap-noun-verb#>
+    SELECT ?verbName ?verbDescription ?alias
+    WHERE {
+      ?noun cnv:nounName "{{ noun }}" ;
+            cnv:hasVerb ?verb .
+      ?verb cnv:verbName ?verbName ;
+            cnv:verbDescription ?verbDescription .
+      OPTIONAL { ?verb cnv:verbAlias ?alias }
     }
-}
+    ORDER BY ?verbName
+  noun_info: |
+    PREFIX cnv: <http://ggen.dev/schema/clap-noun-verb#>
+    SELECT ?nounDescription
+    WHERE {
+      ?noun cnv:nounName "{{ noun }}" ;
+            cnv:nounDescription ?nounDescription .
+    }
+---
+//! {% if sparql_results.noun_info | length > 0 %}{{ sparql_results.noun_info[0].nounDescription }}{% else %}Manage {{ noun }}s{% endif %}
+//! Noun name "{{ noun }}" is auto-inferred from directory name by clap-noun-verb
+
+{% for verb in sparql_results.verbs %}pub mod {{ verb.verbName }};
+{% endfor %}

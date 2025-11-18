@@ -20,8 +20,8 @@ pub struct MonitorInput {
 
 /// Execute monitor hooks with input (pure domain function)
 pub async fn execute_monitor(input: MonitorInput) -> Result<MonitorResult> {
-    use crate::hook::list::execute_list;
-    use crate::hook::ListInput;
+    use crate::marketplace::hook::list::execute_list;
+    use crate::marketplace::hook::ListInput;
 
     // Load all hooks that match the graph
     let hooks = execute_list(ListInput {
@@ -44,5 +44,5 @@ pub async fn execute_monitor(input: MonitorInput) -> Result<MonitorResult> {
 pub struct MonitorResult {
     pub active_hooks: usize,
     pub watching: usize,
-    pub hooks: Vec<crate::hook::list::HookInfo>,
+    pub hooks: Vec<crate::marketplace::hook::list::HookInfo>,
 }

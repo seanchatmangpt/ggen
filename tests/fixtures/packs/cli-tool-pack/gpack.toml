@@ -1,0 +1,20 @@
+[gpack]
+id = "test.cli-tool"
+name = "CLI Tool Pack"
+version = "2.0.0"
+description = "CLI application template pack"
+license = "MIT OR Apache-2.0"
+ggen_compat = ">=3.0.0"
+
+[dependencies]
+"test.web-api" = "^1.0"
+
+[templates]
+patterns = ["templates/**/*.tmpl", "templates/**/*.tera"]
+
+[rdf]
+base = "https://example.org/cli/"
+
+[rdf.prefixes]
+cli = "https://example.org/cli/"
+tool = "https://example.org/tool/"

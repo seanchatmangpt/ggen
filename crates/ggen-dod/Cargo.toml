@@ -4,6 +4,8 @@ version = "3.2.0"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Definition of Done: Type-safe observation system, deterministic kernel, provenance tracking, and MAPE-K autonomic governance"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
 
 [dependencies]
 tokio = { workspace = true }
@@ -37,8 +39,9 @@ tracing-opentelemetry = { workspace = true }
 # Testing
 proptest = { workspace = true }
 
-ggen-domain = { path = "../ggen-domain", version = "3.2.0" }
-ggen-core = { path = "../ggen-core", version = "3.2.0" }
+# Use workspace = true pattern for workspace-local crates
+ggen-domain.workspace = true
+ggen-core.workspace = true
 
 [lints]
 workspace = true

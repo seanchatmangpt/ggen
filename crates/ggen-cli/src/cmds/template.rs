@@ -74,13 +74,6 @@ struct GenerateTreeOutput {
     output_directory: String,
 }
 
-#[derive(Serialize)]
-struct GenerateRdfOutput {
-    output_dir: String,
-    files_generated: usize,
-    project_name: String,
-}
-
 // ============================================================================
 // Verb Functions
 // ============================================================================
@@ -290,29 +283,6 @@ fn regenerate(template: Option<PathBuf>) -> NounVerbResult<GenerateTreeOutput> {
     // For now, return placeholder - merge strategies not yet fully implemented
     Ok(GenerateTreeOutput {
         output_directory: template_display,
-    })
-}
-
-/// Generate CLI project from RDF/TTL file
-#[verb]
-fn generate_rdf(
-    ttl_file: PathBuf, output: PathBuf, templates: PathBuf,
-) -> NounVerbResult<GenerateRdfOutput> {
-    use ggen_domain::template::generate_rdf;
-
-    let options = generate_rdf::GenerateFromRdfOptions::new(ttl_file, output, templates);
-
-    let result = generate_rdf::generate_cli_from_rdf(&options).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!(
-            "Failed to generate from RDF: {}",
-            e
-        ))
-    })?;
-
-    Ok(GenerateRdfOutput {
-        output_dir: result.output_dir.display().to_string(),
-        files_generated: result.files_generated,
-        project_name: result.project_name,
     })
 }
 

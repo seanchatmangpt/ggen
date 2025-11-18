@@ -7,106 +7,95 @@ vars:
 ---
 //! {{ verb | capitalize }} {{ noun_description }}s command
 
-use clap::Args;
+use clap_noun_verb_macros::verb;
+use clap_noun_verb::Result;
+use serde::Serialize;
 
-type Result<T> = std::result::Result<T, anyhow::Error>;
-
-#[derive(Debug, Args)]
-pub struct {{ verb | capitalize }}Args {
-    /// Filter by name pattern
-    #[arg(short, long)]
-    pub filter: Option<String>,
-
-    /// Maximum number of items to display
-    #[arg(short, long)]
-    pub limit: Option<usize>,
-
-    /// Output format (json, yaml, table)
-    #[arg(short = 'f', long, default_value = "table")]
-    pub format: String,
-
-    /// Show all fields
-    #[arg(short, long)]
-    pub all: bool,
+#[derive(Debug, Serialize)]
+pub struct {{ noun | capitalize }}Item {
+    id: String,
+    name: String,
+    description: String,
 }
 
-pub async fn run(args: &{{ verb | capitalize }}Args) -> Result<()> {
-    println!("📋 Listing {{ noun_description }}s...");
+#[derive(Debug, Serialize)]
+pub struct ListResult {
+    items: Vec<{{ noun | capitalize }}Item>,
+    total: usize,
+    filtered: usize,
+}
 
-    // TODO: Implement {{ verb }} logic here
-    let items = vec![
-        ("{{ noun }}-1", "First {{ noun_description }}"),
-        ("{{ noun }}-2", "Second {{ noun_description }}"),
-        ("{{ noun }}-3", "Third {{ noun_description }}"),
+/// List all {{ noun_description }}s
+#[verb] // Verb "list" auto-inferred, noun "{{ noun }}" auto-inferred from directory
+pub fn list_{{ noun }}s(
+    /// Filter by name pattern
+    #[arg(short, long)]
+    filter: Option<String>,
+    /// Maximum number of items to display
+    #[arg(short, long)]
+    limit: Option<usize>,
+    /// Show all fields
+    #[arg(short, long)]
+    all: bool,
+) -> Result<ListResult> {
+    // TODO: Implement list logic here
+    let all_items = vec![
+        {{ noun | capitalize }}Item {
+            id: "{{ noun }}-1".to_string(),
+            name: "{{ noun }}-1".to_string(),
+            description: "First {{ noun_description }}".to_string(),
+        },
+        {{ noun | capitalize }}Item {
+            id: "{{ noun }}-2".to_string(),
+            name: "{{ noun }}-2".to_string(),
+            description: "Second {{ noun_description }}".to_string(),
+        },
+        {{ noun | capitalize }}Item {
+            id: "{{ noun }}-3".to_string(),
+            name: "{{ noun }}-3".to_string(),
+            description: "Third {{ noun_description }}".to_string(),
+        },
     ];
 
-    let filtered_items: Vec<_> = if let Some(filter) = &args.filter {
-        items.into_iter()
-            .filter(|(name, _)| name.contains(filter))
+    let filtered_items: Vec<_> = if let Some(ref filter_pattern) = filter {
+        all_items
+            .into_iter()
+            .filter(|item| item.name.contains(filter_pattern))
             .collect()
     } else {
-        items.into_iter().collect()
+        all_items
     };
 
-    let limited_items = if let Some(limit) = args.limit {
-        &filtered_items[..limit.min(filtered_items.len())]
+    let limited_items = if let Some(limit_count) = limit {
+        filtered_items.into_iter().take(limit_count).collect()
     } else {
-        &filtered_items[..]
+        filtered_items
     };
 
-    match args.format.as_str() {
-        "json" => {
-            let json_items: Vec<_> = limited_items
-                .iter()
-                .map(|(name, desc)| serde_json::json!({ "name": name, "description": desc }))
-                .collect();
-            println!("{}", serde_json::to_string_pretty(&json_items)?);
-        }
-        "table" => {
-            println!("\n{:<20} {:<40}", "NAME", "DESCRIPTION");
-            println!("{}", "-".repeat(60));
-            for (name, desc) in limited_items {
-                println!("{:<20} {:<40}", name, desc);
-            }
-            println!("\nTotal: {} {{ noun_description }}(s)", limited_items.len());
-        }
-        _ => {
-            for (name, desc) in limited_items {
-                println!("{}: {}", name, desc);
-            }
-        }
-    }
-
-    Ok(())
+    Ok(ListResult {
+        total: 3, // Would come from actual data source
+        filtered: limited_items.len(),
+        items: limited_items,
+    })
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    #[tokio::test]
-    async fn test_{{ verb }}_basic() {
-        let args = {{ verb | capitalize }}Args {
-            filter: None,
-            limit: None,
-            format: "table".to_string(),
-            all: false,
-        };
-
-        let result = run(&args).await;
+    #[test]
+    fn test_{{ verb }}_basic() {
+        let result = list_{{ noun }}s(None, None, false);
         assert!(result.is_ok());
+        let output = result.unwrap();
+        assert_eq!(output.items.len(), 3);
     }
 
-    #[tokio::test]
-    async fn test_{{ verb }}_with_filter() {
-        let args = {{ verb | capitalize }}Args {
-            filter: Some("{{ noun }}-1".to_string()),
-            limit: None,
-            format: "table".to_string(),
-            all: false,
-        };
-
-        let result = run(&args).await;
+    #[test]
+    fn test_{{ verb }}_with_filter() {
+        let result = list_{{ noun }}s(Some("{{ noun }}-1".to_string()), None, false);
         assert!(result.is_ok());
+        let output = result.unwrap();
+        assert_eq!(output.filtered, 1);
     }
 }
