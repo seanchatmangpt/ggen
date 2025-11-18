@@ -1,0 +1,214 @@
+"use client"
+
+import React, { useRef, useEffect, useState, useCallback } from "react"
+import { useAIAssistant } from "@/hooks/useAIAssistant"
+import { Copy, Loader, AlertCircle, CheckCircle } from "lucide-react"
+
+interface MonacoEditorProps {
+  value: string
+  onChange: (value: string) => void
+  language?: string
+  height?: string
+  enableAI?: boolean
+  placeholder?: string
+  aiContext?: string
+  aiType?: "service" | "template" | "documentation" | "general"
+  readOnly?: boolean
+  theme?: "vs" | "vs-dark"
+}
+
+export function MonacoEditor({
+  value,
+  onChange,
+  language = "yaml",
+  height = "400px",
+  enableAI = true,
+  placeholder = "Enter your code here...",
+  aiContext = "",
+  aiType = "general",
+  readOnly = false,
+  theme = "vs-dark",
+}: MonacoEditorProps) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const editorRef = useRef<any>(null)
+  const monacoRef = useRef<any>(null)
+  const [isMonacoLoaded, setIsMonacoLoaded] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  const { completion, isLoading, error, generateSuggestions } = useAIAssistant({
+    context: aiContext,
+    type: aiType,
+  })
+
+  // Load Monaco Editor
+  useEffect(() => {
+    const loadMonaco = async () => {
+      try {
+        const monaco = await import("monaco-editor")
+        monacoRef.current = monaco
+
+        if (containerRef.current && !editorRef.current) {
+          editorRef.current = monaco.editor.create(containerRef.current, {
+            value,
+            language,
+            theme: theme === "vs-dark" ? "vs-dark" : "vs",
+            automaticLayout: true,
+            readOnly,
+            padding: { top: 16, bottom: 16 },
+            minimap: { enabled: true },
+            lineNumbers: "on",
+            scrollBeyondLastLine: false,
+            smoothScrolling: true,
+            cursorStyle: "line",
+            fontFamily: "'Fira Code', 'Monaco', monospace",
+            fontSize: 13,
+            lineHeight: 24,
+            wordWrap: "on",
+            formatOnPaste: true,
+            formatOnType: true,
+          })
+
+          editorRef.current.onDidChangeModelContent(() => {
+            const newValue = editorRef.current.getValue()
+            onChange(newValue)
+          })
+
+          setIsMonacoLoaded(true)
+        }
+      } catch (err) {
+        console.error("Failed to load Monaco Editor:", err)
+      }
+    }
+
+    loadMonaco()
+
+    return () => {
+      if (editorRef.current) {
+        editorRef.current.dispose()
+        editorRef.current = null
+      }
+    }
+  }, [onChange, language, theme, readOnly])
+
+  // Keyboard shortcut for AI completion (Ctrl+K)
+  useEffect(() => {
+    if (!editorRef.current || !enableAI) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+        e.preventDefault()
+        const currentValue = editorRef.current.getValue()
+        generateSuggestions(currentValue || placeholder)
+      }
+    }
+
+    editorRef.current.onKeyDown((e: any) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+        e.preventDefault()
+        const currentValue = editorRef.current.getValue()
+        generateSuggestions(currentValue || placeholder)
+      }
+    })
+
+    return () => {
+      // Cleanup
+    }
+  }, [enableAI, generateSuggestions, placeholder])
+
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(value)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }, [value])
+
+  const applySuggestion = useCallback(() => {
+    if (editorRef.current && completion) {
+      editorRef.current.setValue(completion)
+      onChange(completion)
+    }
+  }, [completion, onChange])
+
+  const clearEditor = useCallback(() => {
+    if (editorRef.current) {
+      editorRef.current.setValue("")
+      onChange("")
+    }
+  }, [onChange])
+
+  return (
+    <div className="w-full rounded-lg border border-border bg-background overflow-hidden shadow-sm">
+      {/* Toolbar */}
+      <div className="flex items-center justify-between px-4 py-2 bg-muted border-b border-border">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span className="font-mono">{language.toUpperCase()}</span>
+          {enableAI && <span>• Ctrl+K for AI</span>}
+        </div>
+        <div className="flex items-center gap-2">
+          {enableAI && (
+            <button
+              onClick={() => generateSuggestions(value || placeholder)}
+              disabled={isLoading}
+              className="px-2 py-1 rounded text-xs bg-primary/10 hover:bg-primary/20 disabled:opacity-50 transition-colors"
+              title="Generate AI suggestions"
+            >
+              {isLoading ? <Loader className="h-3 w-3 animate-spin" /> : "✨ AI"}
+            </button>
+          )}
+          <button
+            onClick={handleCopy}
+            className="px-2 py-1 rounded text-xs bg-secondary/50 hover:bg-secondary transition-colors flex items-center gap-1"
+            title="Copy to clipboard"
+          >
+            <Copy className="h-3 w-3" />
+            {copied ? "Copied" : "Copy"}
+          </button>
+        </div>
+      </div>
+
+      {/* Editor Container */}
+      <div
+        ref={containerRef}
+        style={{ height }}
+        className="relative"
+      />
+
+      {/* AI Suggestion Panel */}
+      {enableAI && (completion || error) && (
+        <div className={`border-t border-border p-4 ${error ? "bg-destructive/10" : "bg-primary/5"}`}>
+          <div className="flex items-start gap-2 mb-2">
+            {error ? (
+              <>
+                <AlertCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
+                <div className="text-sm text-destructive">{error.message || "Failed to generate suggestions"}</div>
+              </>
+            ) : completion ? (
+              <>
+                <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <div className="text-xs font-medium text-muted-foreground mb-2">AI Suggestion:</div>
+                  <div className="text-sm bg-background border border-border rounded p-2 font-mono max-h-32 overflow-y-auto">
+                    {completion}
+                  </div>
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={applySuggestion}
+                      className="px-3 py-1 rounded text-xs bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                    >
+                      Apply
+                    </button>
+                    <button
+                      onClick={() => generateSuggestions(value)}
+                      className="px-3 py-1 rounded text-xs bg-secondary hover:bg-secondary/80 transition-colors"
+                    >
+                      Regenerate
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : null}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
