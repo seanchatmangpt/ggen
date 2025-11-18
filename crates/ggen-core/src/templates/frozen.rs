@@ -488,9 +488,9 @@ impl FrozenMerger {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::test;
 
-    test!(test_parse_simple_frozen_section, {
+    #[test]
+    fn test_parse_simple_frozen_section() {
         let content = r#"
 Before frozen
 {% frozen %}
@@ -503,9 +503,10 @@ After frozen
         assert_eq!(sections.len(), 1);
         assert!(sections[0].content.contains("user custom code"));
         assert_eq!(sections[0].id, None);
-    });
+    }
 
-    test!(test_parse_frozen_section_with_id, {
+    #[test]
+    fn test_parse_frozen_section_with_id() {
         let content = r#"
 {% frozen id="custom_logic" %}
 my implementation
@@ -516,9 +517,10 @@ my implementation
         assert_eq!(sections.len(), 1);
         assert!(sections[0].content.contains("my implementation"));
         assert_eq!(sections[0].id, Some("custom_logic".to_string()));
-    });
+    }
 
-    test!(test_parse_multiple_frozen_sections, {
+    #[test]
+    fn test_parse_multiple_frozen_sections() {
         let content = r#"
 {% frozen id="section1" %}
 code 1
@@ -535,9 +537,10 @@ code 2
         assert_eq!(sections.len(), 2);
         assert_eq!(sections[0].id, Some("section1".to_string()));
         assert_eq!(sections[1].id, Some("section2".to_string()));
-    });
+    }
 
-    test!(test_parse_unclosed_frozen_tag, {
+    #[test]
+    fn test_parse_unclosed_frozen_tag() {
         let content = r#"
 {% frozen %}
 unclosed section
@@ -545,9 +548,10 @@ unclosed section
 
         let result = FrozenParser::parse_frozen_tags(content);
         assert!(result.is_err());
-    });
+    }
 
-    test!(test_extract_frozen_map, {
+    #[test]
+    fn test_extract_frozen_map() {
         let content = r#"
 {% frozen id="logic" %}
 preserved code
@@ -557,10 +561,11 @@ preserved code
         let map = FrozenParser::extract_frozen_map(content).unwrap();
         assert_eq!(map.len(), 1);
         assert!(map.get("logic").unwrap().contains("preserved code"));
-    });
+    }
 
+    #[test]
     #[ignore = "Frozen section merging needs implementation review - v2.0.1"]
-    test!(test_merge_with_frozen, {
+    fn test_merge_with_frozen() {
         let old_content = r#"
 {% frozen id="custom" %}
 old user code
@@ -576,24 +581,27 @@ new generated code
         let merged = FrozenMerger::merge_with_frozen(old_content, new_content).unwrap();
         assert!(merged.contains("old user code"));
         assert!(!merged.contains("new generated code"));
-    });
+    }
 
-    test!(test_merge_without_frozen_sections, {
+    #[test]
+    fn test_merge_without_frozen_sections() {
         let old_content = "no frozen sections";
         let new_content = "new content";
 
         let merged = FrozenMerger::merge_with_frozen(old_content, new_content).unwrap();
         assert_eq!(merged, "new content");
-    });
+    }
 
-    test!(test_has_frozen_sections, {
+    #[test]
+    fn test_has_frozen_sections() {
         assert!(FrozenMerger::has_frozen_sections(
             "{% frozen %}code{% endfrozen %}"
         ));
         assert!(!FrozenMerger::has_frozen_sections("no frozen sections"));
-    });
+    }
 
-    test!(test_strip_frozen_tags, {
+    #[test]
+    fn test_strip_frozen_tags() {
         let content = r#"
 Before
 {% frozen id="test" %}
@@ -606,10 +614,11 @@ After
         assert!(!stripped.contains("{% frozen"));
         assert!(!stripped.contains("{% endfrozen %}"));
         assert!(stripped.contains("keep this content"));
-    });
+    }
 
+    #[test]
     #[ignore = "Frozen section merging needs implementation review - v2.0.1"]
-    test!(test_merge_numbered_sections, {
+    fn test_merge_numbered_sections() {
         let old_content = r#"
 {% frozen %}
 first section
@@ -633,5 +642,5 @@ new second
         assert!(merged.contains("second section"));
         assert!(!merged.contains("new first"));
         assert!(!merged.contains("new second"));
-    });
+    }
 }

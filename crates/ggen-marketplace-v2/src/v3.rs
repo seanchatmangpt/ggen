@@ -36,10 +36,10 @@ pub struct V3OptimizedRegistry {
     replica_store: Option<Arc<Store>>,
 
     /// Cache for hot query results (5 minute TTL)
-    hot_query_cache: Arc<Cache<String, Vec<String>>>,
+    hot_query_cache: Arc<AsyncCache<String, Vec<String>>>,
 
     /// Cache for package metadata (1 hour TTL)
-    metadata_cache: Arc<Cache<String, Package>>,
+    metadata_cache: Arc<AsyncCache<String, Package>>,
 
     /// Full-text search index (in-memory index of RDF data)
     /// Maps searchable terms → package URIs
@@ -66,15 +66,15 @@ pub struct QueryStats {
 
 impl V3OptimizedRegistry {
     /// Create a new v3 optimized registry
-    pub async fn new(primary_store: Arc<Store>) -> Self {
+    pub async fn new(primary_store: Arc<Store>) -> Result<Self> {
         // Initialize caches with TTLs
-        let hot_query_cache = Cache::builder()
+        let hot_query_cache = AsyncCache::builder()
             .max_capacity(1000)
             .time_to_idle(Duration::from_secs(300))
             .build_async::<tokio::task::AbortHandle>()
             .await;
 
-        let metadata_cache = Cache::builder()
+        let metadata_cache = AsyncCache::builder()
             .max_capacity(5000)
             .time_to_idle(Duration::from_secs(3600))
             .build_async::<tokio::task::AbortHandle>()
@@ -199,7 +199,7 @@ impl V3OptimizedRegistry {
             store_queries,
             avg_latency_us: if total > 0 { total_latency / total } else { 0 },
             cache_hit_rate: if total > 0 {
-                ((hot_hits + meta_hits) as f64 / total as f64)
+                (hot_hits + meta_hits) as f64 / total as f64
             } else {
                 0.0
             },
@@ -298,7 +298,9 @@ mod tests {
     #[tokio::test]
     async fn test_v3_registry_creation() {
         let store = Arc::new(Store::new().unwrap());
-        let _registry = V3OptimizedRegistry::new(store).await;
+        let _registry = V3OptimizedRegistry::new(store)
+            .await
+            .expect("registry initialization should succeed");
         // Verify creation succeeds
     }
 }

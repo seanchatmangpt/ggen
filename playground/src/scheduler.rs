@@ -4,7 +4,7 @@
 
 use crate::models::*;
 use crate::ontology;
-use crate::{Error, Result};
+use crate::Result;
 use std::collections::HashMap;
 
 /// Plan chapters from shards using Λ-ordering
@@ -67,7 +67,7 @@ fn create_chapter(
         }
     }
 
-    families.sort_by_key(|f| (*f as u8));
+    families.sort_by_key(|f| *f as u8);
     families.dedup();
 
     Ok(Chapter {

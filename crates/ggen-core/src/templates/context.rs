@@ -572,7 +572,6 @@ impl Default for TemplateContext {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::test;
 
     test!(test_new_context, {
         let ctx = TemplateContext::new();

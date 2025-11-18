@@ -9,7 +9,6 @@ use std::collections::{HashMap, HashSet};
 
 /// Validate thesis against Q-invariants
 pub fn check_thesis(shards: Vec<DeltaShard>) -> Result<GammaCheckResult> {
-    let invariants = ontology::core_invariants();
     let mut passed = Vec::new();
     let mut failed = Vec::new();
     let mut drift = Vec::new();

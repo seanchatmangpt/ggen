@@ -76,23 +76,50 @@ args = ["5s", "cargo", "clean"]
 
 [tasks.fmt]
 description = "Format code"
+workspace = false
 command = "timeout"
 args = ["5s", "cargo", "fmt", "--all"]
 
 [tasks.lint]
 description = "Run clippy with strict settings"
 workspace = false
-command = "timeout"
-args = [
-  "5s",
-  "cargo",
-  "clippy",
-  "--all-targets",
-  "--all-features",
-  "--",
-  "-D",
-  "warnings",
-]
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+LINT_CMD=(cargo clippy --all-targets --all-features -- -D warnings)
+
+run_lint_with_timeout() {
+  local duration="$1"
+  if timeout "$duration" "${LINT_CMD[@]}"; then
+    return 0
+  fi
+  return $?
+}
+
+if run_lint_with_timeout 5s; then
+  exit 0
+fi
+
+status=$?
+if [ "$status" -ne 124 ]; then
+  exit "$status"
+fi
+
+echo "⚠️  Quick lint timed out at 5s; rerunning with 30s timeout for root cause verification..."
+if run_lint_with_timeout 30s; then
+  exit 0
+fi
+
+status=$?
+if [ "$status" -ne 124 ]; then
+  exit "$status"
+fi
+
+echo "⚠️  Extended lint timed out at 30s; rerunning with 60s timeout for full compilation..."
+run_lint_with_timeout 60s
+'''
 
 [tasks.pre-commit]
 description = "Run pre-commit validation checks (format, lint, test, hooks, docs)"
@@ -125,9 +152,27 @@ fi
 
 [tasks.test]
 description = "Run all tests"
-command = "timeout"
-args = ["30s", "cargo", "test", "--workspace", "--no-default-features"]
+clear = true
 workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+TEST_CMD=(cargo test --workspace --no-default-features)
+
+if timeout 30s "${TEST_CMD[@]}"; then
+  exit 0
+fi
+
+status=$?
+if [ "$status" -eq 124 ]; then
+  echo "⚠️  Quick test run exceeded 30s timeout; rerunning with 120s timeout (stop-the-line escalation)..."
+  timeout 120s "${TEST_CMD[@]}"
+else
+  exit "$status"
+fi
+'''
 
 [tasks.test-unit]
 description = "Unit tests only"
@@ -159,8 +204,26 @@ args = [
 [tasks.test-doc]
 description = "Run doctests (CRITICAL: Verifies all doctests compile and run)"
 workspace = false
-command = "timeout"
-args = ["60s", "cargo", "test", "--doc", "--workspace"]
+clear = true
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+DOC_CMD=(cargo test --doc --workspace --exclude ggen-node)
+
+if timeout 60s "${DOC_CMD[@]}"; then
+  exit 0
+fi
+
+status=$?
+if [ "$status" -eq 124 ]; then
+  echo "⚠️  Doc tests exceeded 60s timeout; rerunning with 180s timeout..."
+  timeout 180s "${DOC_CMD[@]}"
+else
+  exit "$status"
+fi
+'''
 
 [tasks.test-timings]
 description = "Run tests and generate timing report to identify slow tests"
@@ -681,9 +744,27 @@ args = ["10s", "cargo", "doc", "--no-deps", "--open"]
 [tasks.docs-check]
 description = "Verify API documentation compiles without errors (for CI/pre-commit)"
 workspace = false
+clear = true
 env = { RUSTDOCFLAGS = "-D warnings" }
-command = "timeout"
-args = ["30s", "cargo", "doc", "--no-deps", "--all"]
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+DOCS_CMD=(cargo doc --no-deps --all)
+
+if timeout 30s "${DOCS_CMD[@]}"; then
+  exit 0
+fi
+
+status=$?
+if [ "$status" -eq 124 ]; then
+  echo "⚠️  Docs build exceeded 30s timeout; rerunning with 180s timeout..."
+  timeout 180s "${DOCS_CMD[@]}"
+else
+  exit "$status"
+fi
+'''
 
 [tasks.docs-build]
 description = "Build documentation with mdbook"

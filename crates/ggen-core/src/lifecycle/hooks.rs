@@ -244,7 +244,6 @@ pub fn validate_hooks(make: &Make) -> Result<ValidatedHooks> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::test;
 
     test!(test_valid_hooks_pass_validation, {
         let mut hooks = Hooks::default();

@@ -39,6 +39,7 @@ smallvec = "1.11"                    # Stack-allocated vectors
 tinyvec = "1.6"                      # Tiny vectors
 indexmap = { version = "2.0", features = ["serde"] }  # Ordered hash maps with serde
 ahash = "0.8"                        # Fast hashing
+dashmap = "5.5"                      # Concurrent hash maps for metrics/events
 
 # Cryptography & security
 ed25519-dalek = "2.1"                # Ed25519 signatures

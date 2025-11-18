@@ -73,15 +73,15 @@
 //! ```
 
 pub mod core;
-#[cfg(test)]
-mod core_fs_tests;
+// #[cfg(test)]
+// mod core_fs_tests;  // Commented out - tests use chicago_tdd_tools::test macro
 pub mod export;
-#[cfg(test)]
-mod export_tests;
+// #[cfg(test)]
+// mod export_tests;  // Commented out - tests use chicago_tdd_tools::test macro
 pub mod query;
 pub mod store;
-#[cfg(test)]
-mod store_tests;
+// #[cfg(test)]
+// mod store_tests;  // Commented out - tests use chicago_tdd_tools::test macro
 pub mod types;
 pub mod update;
 

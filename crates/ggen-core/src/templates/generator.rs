@@ -494,7 +494,6 @@ mod tests {
     use crate::templates::format::TemplateFormat;
     use std::collections::BTreeMap;
     use tempfile::TempDir;
-    use chicago_tdd_tools::test;
 
     test!(test_generate_simple_tree, {
         let temp_dir = TempDir::new().unwrap();

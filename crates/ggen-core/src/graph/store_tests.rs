@@ -7,11 +7,9 @@
 mod tests {
     use super::super::core::Graph;
     use super::super::store::GraphStore;
-    use chicago_tdd_tools::test;
     use chicago_tdd_tools::testcontainers::{
-        ContainerClient, GenericContainer, TestcontainersResult,
+        exec::SUCCESS_EXIT_CODE, ContainerClient, GenericContainer,
     };
-    use std::path::PathBuf;
     use tempfile::TempDir;
 
     /// Test persistent storage creation and retrieval
@@ -103,7 +101,6 @@ mod tests {
     /// 3. Files persist and can be verified via container.exec()
     #[cfg(feature = "docker")]
     test!(test_store_in_container_with_volume_verification, {
-        use chicago_tdd_tools::testcontainers::exec::SUCCESS_EXIT_CODE;
 
         // Arrange - create container with filesystem
         let client = ContainerClient::default();

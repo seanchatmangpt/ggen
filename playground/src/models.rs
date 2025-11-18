@@ -2,7 +2,6 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use uuid::Uuid;
 
 /// Δ-Shard: Atomic unit of thesis work
 #[derive(Debug, Clone, Serialize, Deserialize)]

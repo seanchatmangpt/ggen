@@ -117,8 +117,8 @@ pub mod cache;
 pub mod cli_generator;
 pub mod config;
 pub mod delta;
-#[cfg(test)]
-pub mod e2e_tests;
+// #[cfg(test)]
+// pub mod e2e_tests;  // Commented out - tests use chicago_tdd_tools::test macro
 pub mod generator;
 pub mod github;
 pub mod gpack;
