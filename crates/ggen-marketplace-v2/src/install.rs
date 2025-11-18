@@ -7,8 +7,8 @@
 //! - Rollback on failure
 
 use async_trait::async_trait;
-use std::collections::{HashMap, HashSet};
-use tracing::{debug, error, info, warn};
+use std::collections::HashSet;
+use tracing::{debug, info};
 use uuid::Uuid;
 
 use crate::error::Result;
@@ -145,7 +145,8 @@ impl<R: AsyncRepository> Installer<R> {
         };
 
         for (pkg_id, version) in &manifest.dependencies {
-            let package = self.repository.get_package_version(pkg_id, version).await?;
+            self.repository.get_package_version(pkg_id, version).await?;
+            let _package = self.repository.get_package_version(pkg_id, version).await?;
 
             // Simulate size calculation (in real implementation, would fetch actual sizes)
             let size_estimate = 1024 * 100; // 100KB estimate per package

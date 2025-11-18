@@ -499,7 +499,8 @@ mod tests {
     use std::fs;
     use tempfile::TempDir;
 
-    test!(test_parse_template_ref, {
+    #[test]
+    fn test_parse_template_ref() {
         let temp_dir = TempDir::new().unwrap();
         let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
         let lockfile_manager = LockfileManager::new(temp_dir.path());
@@ -510,9 +511,10 @@ mod tests {
             .unwrap();
         assert_eq!(pack_id, "io.ggen.test");
         assert_eq!(template_path, "main.tmpl");
-    });
+    }
 
-    test!(test_parse_template_ref_invalid, {
+    #[test]
+    fn test_parse_template_ref_invalid() {
         let temp_dir = TempDir::new().unwrap();
         let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
         let lockfile_manager = LockfileManager::new(temp_dir.path());
@@ -526,9 +528,10 @@ mod tests {
 
         // Empty template path
         assert!(resolver.parse_template_ref("pack:").is_err());
-    });
+    }
 
-    test!(test_resolve_template_path, {
+    #[test]
+    fn test_resolve_template_path() {
         let temp_dir = TempDir::new().unwrap();
         let pack_dir = temp_dir.path().join("pack");
         let templates_dir = pack_dir.join("templates");
@@ -550,9 +553,10 @@ mod tests {
             .resolve_template_path(&cached_pack, "main.tmpl")
             .unwrap();
         assert_eq!(resolved_path, templates_dir.join("main.tmpl"));
-    });
+    }
 
-    test!(test_resolve_template_path_security, {
+    #[test]
+    fn test_resolve_template_path_security() {
         let temp_dir = TempDir::new().unwrap();
         let pack_dir = temp_dir.path().join("pack");
         let cached_pack = CachedPack {
@@ -571,9 +575,10 @@ mod tests {
         assert!(resolver
             .resolve_template_path(&cached_pack, "../outside.tmpl")
             .is_err());
-    });
+    }
 
-    test!(test_template_resolver_new, {
+    #[test]
+    fn test_template_resolver_new() {
         let temp_dir = TempDir::new().unwrap();
         let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
         let lockfile_manager = LockfileManager::new(temp_dir.path());
@@ -582,9 +587,10 @@ mod tests {
 
         // Resolver should be created successfully
         assert!(resolver.cache_manager.cache_dir().exists());
-    });
+    }
 
-    test!(test_resolve_template_path_nested, {
+    #[test]
+    fn test_resolve_template_path_nested() {
         let temp_dir = TempDir::new().unwrap();
         let pack_dir = temp_dir.path().join("pack");
         let templates_dir = pack_dir.join("templates");
@@ -606,9 +612,10 @@ mod tests {
             .resolve_template_path(&cached_pack, "nested/sub.tmpl")
             .unwrap();
         assert_eq!(resolved_path, templates_dir.join("nested").join("sub.tmpl"));
-    });
+    }
 
-    test!(test_resolve_template_path_empty_components, {
+    #[test]
+    fn test_resolve_template_path_empty_components() {
         let temp_dir = TempDir::new().unwrap();
         let pack_dir = temp_dir.path().join("pack");
         let templates_dir = pack_dir.join("templates");
@@ -631,9 +638,10 @@ mod tests {
             .resolve_template_path(&cached_pack, "a//b/")
             .unwrap();
         assert_eq!(resolved_path, templates_dir.join("a").join("b"));
-    });
+    }
 
-    test!(test_parse_frontmatter_basic, {
+    #[test]
+    fn test_parse_frontmatter_basic() {
         let temp_dir = TempDir::new().unwrap();
         let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
         let lockfile_manager = LockfileManager::new(temp_dir.path());
@@ -651,9 +659,10 @@ Hello {{ name }}
 
         assert!(frontmatter.is_some());
         assert!(template_content.contains("Hello {{ name }}"));
-    });
+    }
 
-    test!(test_parse_frontmatter_no_frontmatter, {
+    #[test]
+    fn test_parse_frontmatter_no_frontmatter() {
         let temp_dir = TempDir::new().unwrap();
         let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
         let lockfile_manager = LockfileManager::new(temp_dir.path());
@@ -665,9 +674,10 @@ Hello {{ name }}
 
         assert!(frontmatter.is_none());
         assert_eq!(template_content, "Hello World");
-    });
+    }
 
-    test!(test_find_templates_in_pack_with_manifest, {
+    #[test]
+    fn test_find_templates_in_pack_with_manifest() {
         let temp_dir = TempDir::new().unwrap();
         let pack_dir = temp_dir.path().join("pack");
         let templates_dir = pack_dir.join("templates");
@@ -723,9 +733,10 @@ Hello {{ name }}
         assert_eq!(templates.len(), 2);
         assert!(templates.iter().any(|t| t.ends_with("main.tmpl")));
         assert!(templates.iter().any(|t| t.ends_with("sub.tmpl")));
-    });
+    }
 
-    test!(test_find_templates_in_pack_without_manifest, {
+    #[test]
+    fn test_find_templates_in_pack_without_manifest() {
         let temp_dir = TempDir::new().unwrap();
         let pack_dir = temp_dir.path().join("pack");
         let templates_dir = pack_dir.join("templates");
@@ -752,9 +763,10 @@ Hello {{ name }}
         assert_eq!(templates.len(), 2);
         assert!(templates.iter().any(|t| t.ends_with("main.tmpl")));
         assert!(templates.iter().any(|t| t.ends_with("sub.tmpl")));
-    });
+    }
 
-    test!(test_search_templates_empty, {
+    #[test]
+    fn test_search_templates_empty() {
         let temp_dir = TempDir::new().unwrap();
         let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
         let lockfile_manager = LockfileManager::new(temp_dir.path());
@@ -762,9 +774,10 @@ Hello {{ name }}
 
         let results = resolver.search_templates(None).unwrap();
         assert!(results.is_empty());
-    });
+    }
 
-    test!(test_get_pack_templates_nonexistent_pack, {
+    #[test]
+    fn test_get_pack_templates_nonexistent_pack() {
         let temp_dir = TempDir::new().unwrap();
         let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
         let lockfile_manager = LockfileManager::new(temp_dir.path());
@@ -772,5 +785,5 @@ Hello {{ name }}
 
         // Should fail for nonexistent pack
         assert!(resolver.get_pack_templates("nonexistent.pack").is_err());
-    });
+    }
 }

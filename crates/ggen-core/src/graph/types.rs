@@ -98,7 +98,8 @@ impl CachedResult {
 mod tests {
     use super::*;
 
-    test!(test_cached_result_boolean, {
+    #[test]
+    fn test_cached_result_boolean() {
         // Arrange & Act
         let result = CachedResult::Boolean(true);
 
@@ -107,9 +108,10 @@ mod tests {
             CachedResult::Boolean(b) => assert!(b),
             _ => panic!("Expected Boolean variant"),
         }
-    });
+    }
 
-    test!(test_cached_result_solutions, {
+    #[test]
+    fn test_cached_result_solutions() {
         // Arrange
         let mut row1 = BTreeMap::new();
         row1.insert("name".to_string(), "Alice".to_string());
@@ -129,9 +131,10 @@ mod tests {
             }
             _ => panic!("Expected Solutions variant"),
         }
-    });
+    }
 
-    test!(test_cached_result_graph, {
+    #[test]
+    fn test_cached_result_graph() {
         // Arrange
         let triples = vec![
             "<http://example.org/alice> <http://example.org/name> \"Alice\" .".to_string(),
@@ -149,9 +152,10 @@ mod tests {
             }
             _ => panic!("Expected Graph variant"),
         }
-    });
+    }
 
-    test!(test_cached_result_to_json_boolean, {
+    #[test]
+    fn test_cached_result_to_json_boolean() {
         // Arrange
         let result = CachedResult::Boolean(true);
 
@@ -160,9 +164,10 @@ mod tests {
 
         // Assert
         assert_eq!(json, JsonValue::Bool(true));
-    });
+    }
 
-    test!(test_cached_result_to_json_solutions, {
+    #[test]
+    fn test_cached_result_to_json_solutions() {
         // Arrange
         let mut row1 = BTreeMap::new();
         row1.insert("name".to_string(), "Alice".to_string());
@@ -183,9 +188,10 @@ mod tests {
             }
             _ => panic!("Expected JSON array"),
         }
-    });
+    }
 
-    test!(test_cached_result_to_json_graph, {
+    #[test]
+    fn test_cached_result_to_json_graph() {
         // Arrange
         let triples = vec!["<s> <p> <o> .".to_string()];
         let result = CachedResult::Graph(triples);
@@ -199,9 +205,10 @@ mod tests {
             JsonValue::String(s) => assert!(s.is_empty()),
             _ => panic!("Expected JSON string"),
         }
-    });
+    }
 
-    test!(test_cached_result_clone, {
+    #[test]
+    fn test_cached_result_clone() {
         // Arrange
         let result = CachedResult::Boolean(true);
 
@@ -215,9 +222,10 @@ mod tests {
             }
             _ => panic!("Expected Boolean variants"),
         }
-    });
+    }
 
-    test!(test_cached_result_debug, {
+    #[test]
+    fn test_cached_result_debug() {
         // Arrange
         let result = CachedResult::Boolean(true);
 
@@ -226,9 +234,10 @@ mod tests {
 
         // Assert
         assert!(debug_str.contains("Boolean"));
-    });
+    }
 
-    test!(test_cached_result_solutions_empty, {
+    #[test]
+    fn test_cached_result_solutions_empty() {
         // Arrange & Act
         let result = CachedResult::Solutions(Vec::new());
 
@@ -237,9 +246,10 @@ mod tests {
             CachedResult::Solutions(rows) => assert!(rows.is_empty()),
             _ => panic!("Expected Solutions variant"),
         }
-    });
+    }
 
-    test!(test_cached_result_graph_empty, {
+    #[test]
+    fn test_cached_result_graph_empty() {
         // Arrange & Act
         let result = CachedResult::Graph(Vec::new());
 
@@ -248,5 +258,5 @@ mod tests {
             CachedResult::Graph(triples) => assert!(triples.is_empty()),
             _ => panic!("Expected Graph variant"),
         }
-    });
+    }
 }

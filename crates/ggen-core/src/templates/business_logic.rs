@@ -236,7 +236,6 @@ pub async fn {}(args: {}Args) -> Result<()> {{
 #[cfg(test)]
 mod tests {{
     use super::*;
-    use chicago_tdd_tools::{{{{test, async_test}}}};
 
     #[tokio::test]
     async fn test_{}() {{
@@ -393,25 +392,28 @@ mod tests {
     use super::*;
     use tempfile::TempDir;
 
-    test!(test_generate_cli_wrapper, {
+    #[test]
+    fn test_generate_cli_wrapper() {
         let cli_code = BusinessLogicSeparator::generate_cli_wrapper("create", "project", None);
 
         assert!(cli_code.contains("CreateProjectArgs"));
         assert!(cli_code.contains("#[create]"));
         assert!(cli_code.contains("pub fn create_project"));
         assert!(cli_code.contains("use crate::domain::create_project"));
-    });
+    }
 
-    test!(test_generate_domain_skeleton, {
+    #[test]
+    fn test_generate_domain_skeleton() {
         let domain_code = BusinessLogicSeparator::generate_domain_skeleton("delete", "user");
 
         assert!(domain_code.contains("DeleteUserArgs"));
         assert!(domain_code.contains("pub async fn delete_user"));
         assert!(domain_code.contains("{% frozen id=\"business_logic\" %}"));
         assert!(domain_code.contains("#[tokio::test]"));
-    });
+    }
 
-    test!(test_business_logic_exists, {
+    #[test]
+    fn test_business_logic_exists() {
         let temp_dir = TempDir::new().unwrap();
         let existing_file = temp_dir.path().join("existing.rs");
         let nonexistent_file = temp_dir.path().join("nonexistent.rs");
@@ -424,9 +426,10 @@ mod tests {
         assert!(!BusinessLogicSeparator::business_logic_exists(
             &nonexistent_file
         ));
-    });
+    }
 
-    test!(test_generate_separated_files, {
+    #[test]
+    fn test_generate_separated_files() {
         let temp_dir = TempDir::new().unwrap();
         let cli_path = temp_dir.path().join("cli/list_task.rs");
         let domain_path = temp_dir.path().join("domain/list_task.rs");
@@ -448,9 +451,10 @@ mod tests {
 
         let domain_content = fs::read_to_string(&domain_path).unwrap();
         assert!(domain_content.contains("pub async fn list_task"));
-    });
+    }
 
-    test!(test_no_overwrite_existing_domain, {
+    #[test]
+    fn test_no_overwrite_existing_domain() {
         let temp_dir = TempDir::new().unwrap();
         let cli_path = temp_dir.path().join("cli/update_file.rs");
         let domain_path = temp_dir.path().join("domain/update_file.rs");
@@ -473,9 +477,10 @@ mod tests {
         let domain_content = fs::read_to_string(&domain_path).unwrap();
         assert!(domain_content.contains("// My custom implementation"));
         assert!(!domain_content.contains("pub async fn update_file"));
-    });
+    }
 
-    test!(test_force_overwrite_domain, {
+    #[test]
+    fn test_force_overwrite_domain() {
         let temp_dir = TempDir::new().unwrap();
         let cli_path = temp_dir.path().join("cli/update_file.rs");
         let domain_path = temp_dir.path().join("domain/update_file.rs");
@@ -498,9 +503,10 @@ mod tests {
         let domain_content = fs::read_to_string(&domain_path).unwrap();
         assert!(!domain_content.contains("// Old implementation"));
         assert!(domain_content.contains("pub async fn update_file"));
-    });
+    }
 
-    test!(test_to_pascal_case, {
+    #[test]
+    fn test_to_pascal_case() {
         assert_eq!(
             BusinessLogicSeparator::to_pascal_case("create-project"),
             "CreateProject"
@@ -513,9 +519,10 @@ mod tests {
             BusinessLogicSeparator::to_pascal_case("list-all-tasks"),
             "ListAllTasks"
         );
-    });
+    }
 
-    test!(test_to_snake_case, {
+    #[test]
+    fn test_to_snake_case() {
         assert_eq!(
             BusinessLogicSeparator::to_snake_case("CreateProject"),
             "createproject"
@@ -528,5 +535,5 @@ mod tests {
             BusinessLogicSeparator::to_snake_case("list-all-tasks"),
             "list_all_tasks"
         );
-    });
+    }
 }

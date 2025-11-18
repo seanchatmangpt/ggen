@@ -10,6 +10,7 @@
 
 #[cfg(test)]
 mod e2e_tests {
+    use crate::ontology::sigma_runtime::ValidationResult;
     use crate::ontology::*;
     use std::sync::Arc;
 

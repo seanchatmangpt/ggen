@@ -11,7 +11,8 @@ mod compile_time_tests {
     };
 
     /// Test that phase builder requires at least one command
-    test!(test_phase_builder_requires_command, {
+    #[test]
+    fn test_phase_builder_requires_command() {
         // Arrange
         let builder = PhaseBuilder::new("test");
 
@@ -22,10 +23,11 @@ mod compile_time_tests {
 
         // Assert
         assert!(result.is_err());
-    });
+    }
 
     /// Test that validated phase has commands
-    test!(test_validated_phase_has_commands, {
+    #[test]
+    fn test_validated_phase_has_commands() {
         // Arrange
         let phase = PhaseBuilder::new("build")
             .command("cargo build")
@@ -38,10 +40,11 @@ mod compile_time_tests {
         // Assert
         assert!(!commands.is_empty());
         assert_eq!(commands[0], "cargo build");
-    });
+    }
 
     /// Test state machine valid transitions
-    test!(test_state_machine_valid_transitions, {
+    #[test]
+    fn test_state_machine_valid_transitions() {
         // Arrange
         let mut lifecycle = LifecycleStateMachine::<Initial>::new();
 
@@ -90,10 +93,11 @@ mod compile_time_tests {
         // Assert - All transitions succeeded
         assert!(lifecycle.has_completed_phase("init"));
         assert!(lifecycle.has_completed_phase("deploy"));
-    });
+    }
 
     /// Test that state validation catches invalid state
-    test!(test_state_validation_catches_invalid_state, {
+    #[test]
+    fn test_state_validation_catches_invalid_state() {
         // Arrange
         let mut state = LifecycleState::default();
         // Deploy without test should fail (critical safety check)
@@ -104,10 +108,11 @@ mod compile_time_tests {
 
         // Assert
         assert!(result.is_err());
-    });
+    }
 
     /// Test that validated state can be created from valid state
-    test!(test_validated_state_from_valid_state, {
+    #[test]
+    fn test_validated_state_from_valid_state() {
         // Arrange
         let mut state = LifecycleState::default();
         state.record_run("init".to_string(), 0, 100, true);
@@ -119,7 +124,7 @@ mod compile_time_tests {
         // Assert
         assert!(validated.state().has_completed_phase("init"));
         assert!(validated.state().has_completed_phase("setup"));
-    });
+    }
 }
 
 // Note: True compile-time tests would be in a separate file that's expected to fail compilation.

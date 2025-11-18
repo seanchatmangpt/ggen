@@ -103,16 +103,18 @@ mod tests {
     use super::*;
     use tempfile::TempDir;
 
-    test!(test_store_new, {
+    #[test]
+    fn test_store_new() {
         // Arrange & Act
         let store = GraphStore::new().unwrap();
 
         // Assert
         let graph = store.create_graph().unwrap();
         assert!(graph.is_empty());
-    });
+    }
 
-    test!(test_store_open_and_create_graph, {
+    #[test]
+    fn test_store_open_and_create_graph() {
         // Arrange
         let temp_dir = TempDir::new().unwrap();
         let store_path = temp_dir.path().join("test_store");
@@ -124,9 +126,10 @@ mod tests {
         // Assert
         assert!(graph.is_empty());
         assert!(store_path.exists() || !store_path.exists()); // Store may or may not create directory immediately
-    });
+    }
 
-    test!(test_store_create_graph_and_insert, {
+    #[test]
+    fn test_store_create_graph_and_insert() {
         // Arrange
         let store = GraphStore::new().unwrap();
         let graph = store.create_graph().unwrap();
@@ -144,9 +147,10 @@ mod tests {
         // Assert
         assert!(!graph.is_empty());
         assert!(graph.len() > 0);
-    });
+    }
 
-    test!(test_store_multiple_graphs_share_data, {
+    #[test]
+    fn test_store_multiple_graphs_share_data() {
         // Arrange
         let store = GraphStore::new().unwrap();
         let graph1 = store.create_graph().unwrap();
@@ -167,9 +171,10 @@ mod tests {
         assert!(!graph1.is_empty());
         assert!(!graph2.is_empty());
         assert_eq!(graph1.len(), graph2.len());
-    });
+    }
 
-    test!(test_store_persistent_storage, {
+    #[test]
+    fn test_store_persistent_storage() {
         // Arrange
         let temp_dir = TempDir::new().unwrap();
         let store_path = temp_dir.path().join("persistent_store");
@@ -196,9 +201,10 @@ mod tests {
         // Assert - Data should persist
         assert_eq!(graph2.len(), count1);
         assert!(!graph2.is_empty());
-    });
+    }
 
-    test!(test_store_inner_access, {
+    #[test]
+    fn test_store_inner_access() {
         // Arrange
         let store = GraphStore::new().unwrap();
 
@@ -207,9 +213,10 @@ mod tests {
 
         // Assert - Should be able to access inner store
         assert_eq!(inner.len().unwrap_or(0), 0);
-    });
+    }
 
-    test!(test_store_resource_cleanup, {
+    #[test]
+    fn test_store_resource_cleanup() {
         // Arrange
         let temp_dir = TempDir::new().unwrap();
         let store_path = temp_dir.path().join("cleanup_test");
@@ -235,5 +242,5 @@ mod tests {
         let graph2 = store2.create_graph().unwrap();
         assert!(!graph2.is_empty());
         assert!(graph2.len() > 0);
-    });
+    }
 }

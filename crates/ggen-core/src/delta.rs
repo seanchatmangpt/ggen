@@ -821,7 +821,8 @@ mod tests {
         Ok((baseline, current))
     }
 
-    test!(test_delta_creation, {
+    #[test]
+    fn test_delta_creation() {
         let (baseline, current) = create_test_graph().unwrap();
         let delta = GraphDelta::new(&baseline, &current).unwrap();
 
@@ -833,9 +834,10 @@ mod tests {
         assert_eq!(counts.get("additions"), Some(&2));
         assert_eq!(counts.get("deletions"), None); // No deletions
         assert_eq!(counts.get("modifications"), None); // No modifications
-    });
+    }
 
-    test!(test_delta_affected_iris, {
+    #[test]
+    fn test_delta_affected_iris() {
         let (baseline, current) = create_test_graph().unwrap();
         let delta = GraphDelta::new(&baseline, &current).unwrap();
 
@@ -843,9 +845,10 @@ mod tests {
         assert!(affected.contains("<http://example.org/email>"));
         assert!(affected.contains("<http://example.org/User>"));
         assert!(affected.contains("<http://www.w3.org/2000/01/rdf-schema#domain>"));
-    });
+    }
 
-    test!(test_delta_filtering, {
+    #[test]
+    fn test_delta_filtering() {
         let (baseline, current) = create_test_graph()?;
         let delta = GraphDelta::new(&baseline, &current)?;
 
@@ -856,9 +859,10 @@ mod tests {
         assert!(!filtered.is_empty());
 
         Ok(())
-    });
+    }
 
-    test!(test_impact_analyzer, {
+    #[test]
+    fn test_impact_analyzer() {
         let (baseline, current) = create_test_graph().unwrap();
         let delta = GraphDelta::new(&baseline, &current).unwrap();
 
@@ -878,9 +882,10 @@ mod tests {
         assert!(!impacts.is_empty());
 
         Ok(())
-    });
+    }
 
-    test!(test_graph_hash, {
+    #[test]
+    fn test_graph_hash() {
         let (baseline, current) = create_test_graph().unwrap();
 
         let hash1 = baseline.compute_hash().unwrap();
@@ -894,9 +899,10 @@ mod tests {
         assert_eq!(hash1, hash3);
 
         Ok(())
-    });
+    }
 
-    test!(test_delta_display, {
+    #[test]
+    fn test_delta_display() {
         let (baseline, current) = create_test_graph().unwrap();
         let delta = GraphDelta::new(&baseline, &current).unwrap();
 
@@ -906,5 +912,5 @@ mod tests {
         assert!(display.contains("http://example.org/email"));
 
         Ok(())
-    });
+    }
 }

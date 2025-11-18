@@ -230,7 +230,6 @@ pub fn run() -> Result<()> {{
 #[cfg(test)]
 mod tests {{
     use super::*;
-    use chicago_tdd_tools::{{{{test, async_test}}}};
 
     test!(test_run, {{
         assert!(run().is_ok());
@@ -322,7 +321,8 @@ mod tests {
     use super::*;
     use std::path::PathBuf;
 
-    test!(test_generate_rust_web_project, {
+    #[test]
+    fn test_generate_rust_web_project() {
         let generator = RustProjectGenerator::new();
         let config = ProjectConfig {
             name: "test-web".to_string(),
@@ -350,9 +350,10 @@ mod tests {
 
         assert!(cargo_toml.contains("name = \"test-web\""));
         assert!(cargo_toml.contains("axum"));
-    });
+    }
 
-    test!(test_generate_rust_cli_project, {
+    #[test]
+    fn test_generate_rust_cli_project() {
         let generator = RustProjectGenerator::new();
         let config = ProjectConfig {
             name: "test-cli".to_string(),
@@ -371,9 +372,10 @@ mod tests {
             .unwrap();
 
         assert!(main_rs.contains("clap::Parser"));
-    });
+    }
 
-    test!(test_generate_rust_lib_project, {
+    #[test]
+    fn test_generate_rust_lib_project() {
         let generator = RustProjectGenerator::new();
         let config = ProjectConfig {
             name: "test-lib".to_string(),
@@ -389,5 +391,5 @@ mod tests {
             .files
             .iter()
             .any(|(path, _)| path == "src/main.rs"));
-    });
+    }
 }

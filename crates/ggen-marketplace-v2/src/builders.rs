@@ -3,7 +3,7 @@
 //! Uses builder pattern with compile-time validation to prevent invalid states.
 
 use crate::error::Result;
-use crate::models::{Package, PackageId, PackageMetadata, PackageVersion};
+use crate::models::{PackageId, PackageMetadata};
 
 /// Type-safe package builder
 pub struct PackageBuilder {

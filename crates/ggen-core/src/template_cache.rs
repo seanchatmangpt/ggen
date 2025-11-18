@@ -235,21 +235,24 @@ mod tests {
     use std::io::Write;
     use tempfile::NamedTempFile;
 
-    test!(test_template_cache_new, {
+    #[test]
+    fn test_template_cache_new() {
         let cache = TemplateCache::new(50);
         let stats = cache.stats().unwrap();
         assert_eq!(stats.capacity, 50);
         assert_eq!(stats.size, 0);
-    });
+    }
 
-    test!(test_template_cache_default, {
+    #[test]
+    fn test_template_cache_default() {
         let cache = TemplateCache::default();
         let stats = cache.stats().unwrap();
         assert_eq!(stats.capacity, 100);
         assert_eq!(stats.size, 0);
-    });
+    }
 
-    test!(test_get_or_parse, {
+    #[test]
+    fn test_get_or_parse() {
         let cache = TemplateCache::new(10);
 
         let mut temp = NamedTempFile::new()?;
@@ -273,9 +276,10 @@ fn main() {{}}"#
         assert!(Arc::ptr_eq(&template1, &template2));
 
         Ok(())
-    });
+    }
 
-    test!(test_cache_clear, {
+    #[test]
+    fn test_cache_clear() {
         let cache = TemplateCache::new(10);
 
         let mut temp = NamedTempFile::new()?;
@@ -294,9 +298,10 @@ fn main() {{}}"#
         assert_eq!(cache.stats()?.size, 0);
 
         Ok(())
-    });
+    }
 
-    test!(test_cache_eviction, {
+    #[test]
+    fn test_cache_eviction() {
         let cache = TemplateCache::new(2);
 
         // Create 3 temp files
@@ -318,5 +323,5 @@ fn main() {{}}"#
         assert_eq!(cache.stats()?.size, 2);
 
         Ok(())
-    });
+    }
 }

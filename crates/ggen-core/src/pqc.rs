@@ -197,13 +197,15 @@ pub fn calculate_sha256(data: &[u8]) -> String {
 mod tests {
     use super::*;
 
-    test!(test_pqc_signer_creation, {
+    #[test]
+    fn test_pqc_signer_creation() {
         let signer = PqcSigner::new();
         assert!(!signer.public_key_base64().is_empty());
         assert!(!signer.secret_key_base64().is_empty());
-    });
+    }
 
-    test!(test_pqc_sign_and_verify, {
+    #[test]
+    fn test_pqc_sign_and_verify() {
         let signer = PqcSigner::new();
         let message = b"test message";
 
@@ -213,9 +215,10 @@ mod tests {
         let verifier = PqcVerifier::from_public_key(signer.public_key.as_bytes()).unwrap();
         let verified = verifier.verify(message, &signature).unwrap();
         assert!(verified);
-    });
+    }
 
-    test!(test_pqc_pack_signature, {
+    #[test]
+    fn test_pqc_pack_signature() {
         let signer = PqcSigner::new();
         let pack_id = "io.ggen.test";
         let version = "1.0.0";
@@ -229,9 +232,10 @@ mod tests {
             .verify_pack(pack_id, version, sha256, &signature)
             .unwrap();
         assert!(verified);
-    });
+    }
 
-    test!(test_pqc_invalid_signature, {
+    #[test]
+    fn test_pqc_invalid_signature() {
         let signer = PqcSigner::new();
         let verifier = PqcVerifier::from_public_key(signer.public_key.as_bytes()).unwrap();
 
@@ -242,9 +246,10 @@ mod tests {
         let tampered_message = b"tampered message";
         let verified = verifier.verify(tampered_message, &signature).unwrap();
         assert!(!verified);
-    });
+    }
 
-    test!(test_sha256_calculation, {
+    #[test]
+    fn test_sha256_calculation() {
         let data = b"test data";
         let hash = calculate_sha256(data);
         // SHA256 of "test data"
@@ -252,5 +257,5 @@ mod tests {
             hash,
             "916f0027a575074ce72a331777c3478d6513f786a591bd892da1a577bf2335f9"
         );
-    });
+    }
 }

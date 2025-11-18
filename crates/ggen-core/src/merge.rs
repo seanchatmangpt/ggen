@@ -732,7 +732,8 @@ mod tests {
     use super::*;
     use crate::snapshot::FileSnapshot;
 
-    test!(test_merge_strategies, {
+    #[test]
+    fn test_merge_strategies() {
         let merger = ThreeWayMerger::new(MergeStrategy::GeneratedWins);
 
         let baseline = "line 1\nline 2\n";
@@ -746,9 +747,10 @@ mod tests {
         assert!(!result.has_conflicts);
         assert_eq!(result.strategy, MergeStrategy::GeneratedWins);
         assert_eq!(result.content, generated);
-    });
+    }
 
-    test!(test_region_aware_merge, {
+    #[test]
+    fn test_region_aware_merge() {
         let merger = RegionAwareMerger::new(MergeStrategy::ManualWins);
 
         let baseline = "line 1\n// GENERATED: DO NOT EDIT\nline 2\n// END GENERATED\nline 3\n";
@@ -786,9 +788,10 @@ mod tests {
 
         assert!(!result.has_conflicts);
         assert_eq!(result.strategy, MergeStrategy::ManualWins);
-    });
+    }
 
-    test!(test_region_parsing, {
+    #[test]
+    fn test_region_parsing() {
         let content = r#"
 line 1
 // GENERATED: DO NOT EDIT
@@ -813,9 +816,10 @@ line 4
         assert_eq!(generated[0].end, 6);
         assert_eq!(manual[0].start, 7);
         assert_eq!(manual[0].end, 10);
-    });
+    }
 
-    test!(test_region_check, {
+    #[test]
+    fn test_region_check() {
         let regions = vec![
             Region {
                 start: 2,
@@ -841,5 +845,5 @@ line 4
             &regions,
             &RegionType::Generated
         ));
-    });
+    }
 }

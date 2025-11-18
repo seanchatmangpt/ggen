@@ -402,7 +402,8 @@ mod tests {
         Ok(path)
     }
 
-    test!(test_streaming_generator_new, {
+    #[test]
+    fn test_streaming_generator_new() {
         let temp_dir = TempDir::new()?;
         let output_dir = TempDir::new()?;
 
@@ -415,9 +416,10 @@ mod tests {
         assert_eq!(generator.output_dir, output_dir.path());
 
         Ok(())
-    });
+    }
 
-    test!(test_streaming_generator_single_file, {
+    #[test]
+    fn test_streaming_generator_single_file() {
         let temp_dir = TempDir::new()?;
         let output_dir = TempDir::new()?;
 
@@ -452,9 +454,10 @@ fn main() { println!("Hello, {{ name }}!"); }
         assert!(content.contains("Hello, World!"));
 
         Ok(())
-    });
+    }
 
-    test!(test_streaming_generator_multiple_files, {
+    #[test]
+    fn test_streaming_generator_multiple_files() {
         let temp_dir = TempDir::new()?;
         let output_dir = TempDir::new()?;
 
@@ -487,9 +490,10 @@ fn main_{i}() {{ println!("File {i}"); }}
         assert!(result.throughput() > 0.0);
 
         Ok(())
-    });
+    }
 
-    test!(test_streaming_generator_nested_output, {
+    #[test]
+    fn test_streaming_generator_nested_output() {
         let temp_dir = TempDir::new()?;
         let output_dir = TempDir::new()?;
 
@@ -519,9 +523,10 @@ to: "src/handlers/{{ module }}.rs"
         assert!(output_path.exists());
 
         Ok(())
-    });
+    }
 
-    test!(test_streaming_generator_cache_reuse, {
+    #[test]
+    fn test_streaming_generator_cache_reuse() {
         let temp_dir = TempDir::new()?;
         let output_dir = TempDir::new()?;
 
@@ -553,5 +558,5 @@ fn main() {}
         assert_eq!(stats2.size, 1); // Still 1, reused from cache
 
         Ok(())
-    });
+    }
 }

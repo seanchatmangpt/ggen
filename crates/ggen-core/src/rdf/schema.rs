@@ -683,9 +683,9 @@ pub fn load_schema() -> Result<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::prelude::*;
 
-    test!(test_ontology_uris, {
+    #[test]
+    fn test_ontology_uris() {
         assert_eq!(
             GgenOntology::template(),
             "http://ggen.dev/ontology#Template"
@@ -702,18 +702,20 @@ mod tests {
             GgenOntology::rdf_type(),
             "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
         );
-    });
+    }
 
-    test!(test_load_schema, {
+    #[test]
+    fn test_load_schema() {
         let schema = load_schema().expect("Failed to load schema");
         assert!(schema.contains("@prefix ggen:"));
         assert!(schema.contains("ggen:Template a rdfs:Class"));
         assert!(schema.contains("ggen:generatesFile a rdf:Property"));
-    });
+    }
 
-    test!(test_namespace_constants, {
+    #[test]
+    fn test_namespace_constants() {
         assert_eq!(GGEN_NAMESPACE, "http://ggen.dev/ontology#");
         assert_eq!(RDF_NAMESPACE, "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         assert_eq!(RDFS_NAMESPACE, "http://www.w3.org/2000/01/rdf-schema#");
-    });
+    }
 }

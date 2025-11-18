@@ -368,7 +368,7 @@ mod tests {
             .await;
         let receipt = validation.to_receipt();
 
-        assert_eq!(receipt.result, crate::ontology::ValidationResult::Valid);
+        assert_eq!(receipt.result, ValidationResult::Valid);
         assert!(receipt.invariants_preserved);
         assert!(!receipt.invariants_checked.is_empty());
     }

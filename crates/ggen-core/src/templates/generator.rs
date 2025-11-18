@@ -495,7 +495,8 @@ mod tests {
     use std::collections::BTreeMap;
     use tempfile::TempDir;
 
-    test!(test_generate_simple_tree, {
+    #[test]
+    fn test_generate_simple_tree() {
         let temp_dir = TempDir::new().unwrap();
 
         let mut format = TemplateFormat::new("test");
@@ -509,9 +510,10 @@ mod tests {
 
         assert_eq!(result.directories().len(), 1);
         assert!(temp_dir.path().join("src").exists());
-    });
+    }
 
-    test!(test_generate_with_variables, {
+    #[test]
+    fn test_generate_with_variables() {
         let temp_dir = TempDir::new().unwrap();
 
         let mut format = TemplateFormat::new("test");
@@ -529,9 +531,10 @@ mod tests {
 
         assert_eq!(result.directories().len(), 1);
         assert!(temp_dir.path().join("my-service").exists());
-    });
+    }
 
-    test!(test_generate_file_with_content, {
+    #[test]
+    fn test_generate_file_with_content() {
         let temp_dir = TempDir::new().unwrap();
 
         let mut format = TemplateFormat::new("test");
@@ -558,9 +561,10 @@ mod tests {
 
         let content = fs::read_to_string(&file_path).unwrap();
         assert!(content.contains("Hello, World!"));
-    });
+    }
 
-    test!(test_generation_result, {
+    #[test]
+    fn test_generation_result() {
         let mut result = GenerationResult::new();
 
         assert!(result.is_empty());
@@ -573,9 +577,10 @@ mod tests {
         assert_eq!(result.total_count(), 2);
         assert_eq!(result.directories().len(), 1);
         assert_eq!(result.files().len(), 1);
-    });
+    }
 
-    test!(test_missing_required_variable, {
+    #[test]
+    fn test_missing_required_variable() {
         let temp_dir = TempDir::new().unwrap();
 
         let mut format = TemplateFormat::new("test");
@@ -589,9 +594,10 @@ mod tests {
         let result = generator.generate();
 
         assert!(result.is_err());
-    });
+    }
 
-    test!(test_apply_defaults, {
+    #[test]
+    fn test_apply_defaults() {
         let temp_dir = TempDir::new().unwrap();
 
         let mut format = TemplateFormat::new("test");
@@ -607,6 +613,6 @@ mod tests {
 
         assert_eq!(result.directories().len(), 1);
         assert!(temp_dir.path().join("default-service").exists());
-    });
+    }
 }
 */

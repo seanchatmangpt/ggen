@@ -255,39 +255,44 @@ mod tests {
     use super::*;
     use crate::cleanroom::surfaces::DeterministicSurfaces;
 
-    test!(test_locked_policy, {
+    #[test]
+    fn test_locked_policy() {
         assert_eq!(Locked::name(), "Locked");
         assert_eq!(Locked::security_level(), 100);
         assert!(Locked::requires_determinism());
         assert!(!Locked::allows_network());
         assert!(!Locked::allows_root());
         assert!(!Locked::allows_real_fs());
-    });
+    }
 
-    test!(test_permissive_policy, {
+    #[test]
+    fn test_permissive_policy() {
         assert_eq!(Permissive::name(), "Permissive");
         assert_eq!(Permissive::security_level(), 30);
         assert!(!Permissive::requires_determinism());
         assert!(Permissive::allows_network());
         assert!(Permissive::allows_root());
         assert!(Permissive::allows_real_fs());
-    });
+    }
 
-    test!(test_locked_validator_accepts_deterministic, {
+    #[test]
+    fn test_locked_validator_accepts_deterministic() {
         let validator = PolicyValidator::<Locked>::new();
         let surfaces = DeterministicSurfaces::deterministic(42);
 
         assert!(validator.validate_surfaces(&surfaces).is_ok());
-    });
+    }
 
-    test!(test_locked_validator_rejects_permissive, {
+    #[test]
+    fn test_locked_validator_rejects_permissive() {
         let validator = PolicyValidator::<Locked>::new();
         let surfaces = DeterministicSurfaces::permissive();
 
         assert!(validator.validate_surfaces(&surfaces).is_err());
-    });
+    }
 
-    test!(test_permissive_validator_accepts_all, {
+    #[test]
+    fn test_permissive_validator_accepts_all() {
         let validator = PolicyValidator::<Permissive>::new();
         let surfaces = DeterministicSurfaces::permissive();
 
@@ -295,14 +300,15 @@ mod tests {
 
         let det_surfaces = DeterministicSurfaces::deterministic(42);
         assert!(validator.validate_surfaces(&det_surfaces).is_ok());
-    });
+    }
 
-    test!(test_policy_metadata, {
+    #[test]
+    fn test_policy_metadata() {
         let validator = PolicyValidator::<Locked>::new();
         let metadata = validator.metadata();
 
         assert_eq!(metadata.name, "Locked");
         assert_eq!(metadata.security_level, 100);
         assert!(metadata.requires_determinism);
-    });
+    }
 }

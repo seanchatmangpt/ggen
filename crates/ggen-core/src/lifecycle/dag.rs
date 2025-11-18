@@ -97,16 +97,18 @@ pub fn deps_from_hooks(phase: &str, before: &[String], after: &[String]) -> Vec<
 mod tests {
     use super::*;
 
-    test!(test_topo_simple, {
+    #[test]
+    fn test_topo_simple() {
         let phases = &["init", "setup", "build"];
         let deps = &[("init", "setup"), ("setup", "build")];
 
         let order = topo(phases, deps).expect("topo should succeed");
 
         assert_eq!(order, vec!["init", "setup", "build"]);
-    });
+    }
 
-    test!(test_topo_parallel, {
+    #[test]
+    fn test_topo_parallel() {
         let phases = &["test", "lint", "build"];
         let deps = &[("test", "build"), ("lint", "build")];
 
@@ -114,9 +116,10 @@ mod tests {
 
         // test and lint can be in any order, but both before build
         assert_eq!(order.last(), Some(&"build".to_string()));
-    });
+    }
 
-    test!(test_topo_cycle_detection, {
+    #[test]
+    fn test_topo_cycle_detection() {
         let phases = &["a", "b", "c"];
         let deps = &[("a", "b"), ("b", "c"), ("c", "a")]; // cycle: a->b->c->a
 
@@ -126,13 +129,14 @@ mod tests {
             .unwrap_err()
             .to_string()
             .contains("Circular dependency"));
-    });
+    }
 
-    test!(test_deps_from_hooks, {
+    #[test]
+    fn test_deps_from_hooks() {
         let deps = deps_from_hooks("build", &["test".to_string()], &["deploy".to_string()]);
 
         assert_eq!(deps.len(), 2);
         assert!(deps.contains(&("test".to_string(), "build".to_string())));
         assert!(deps.contains(&("build".to_string(), "deploy".to_string())));
-    });
+    }
 }

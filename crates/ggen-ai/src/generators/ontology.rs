@@ -44,11 +44,11 @@
 //! - Mock different LLM response patterns
 //!
 //! ## REFACTORING PRIORITIES
-//! - [P0] Add Turtle validation after extraction (currently trusts LLM)
-//! - [P0] Standardize error messages with examples
-//! - [P1] Extract code block parsing into reusable utility
-//! - [P1] Add caching for repeated prompts
-//! - [P2] Support SHACL constraint generation
+//! - \[P0]: Add Turtle validation after extraction (currently trusts LLM)
+//! - \[P0]: Standardize error messages with examples
+//! - \[P1]: Extract code block parsing into reusable utility
+//! - \[P1]: Add caching for repeated prompts
+//! - \[P2]: Support SHACL constraint generation
 
 use crate::client::{LlmClient, LlmConfig};
 use crate::error::Result;

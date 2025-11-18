@@ -6,7 +6,7 @@ use async_trait::async_trait;
 use dashmap::DashMap;
 use moka::future::Cache as AsyncCache;
 use std::sync::Arc;
-use tracing::{debug, error, info, warn};
+use tracing::{debug, info, warn};
 
 use crate::error::Result;
 use crate::models::{Package, PackageId, PackageVersion};

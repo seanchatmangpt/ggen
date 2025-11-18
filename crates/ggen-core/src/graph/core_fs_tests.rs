@@ -6,15 +6,14 @@
 #[cfg(test)]
 mod tests {
     use super::super::core::Graph;
-    use chicago_tdd_tools::testcontainers::{
-        exec::SUCCESS_EXIT_CODE, ContainerClient, GenericContainer,
-    };
     use std::fs;
     use std::io::Write;
     use tempfile::TempDir;
+    use testcontainers::{exec::SUCCESS_EXIT_CODE, ContainerClient, GenericContainer};
 
     /// Test loading RDF from file
-    test!(test_load_from_file, {
+    #[test]
+    fn test_load_from_file() {
         // Arrange
         let temp_dir = TempDir::new().unwrap();
         let rdf_file = temp_dir.path().join("data.ttl");
@@ -34,10 +33,11 @@ ex:alice a ex:Person ."#
         // Assert
         assert!(!graph.is_empty());
         assert!(graph.len() > 0);
-    });
+    }
 
     /// Test loading from path with different formats
-    test!(test_load_path_auto_format, {
+    #[test]
+    fn test_load_path_auto_format() {
         // Arrange
         let temp_dir = TempDir::new().unwrap();
         let rdf_file = temp_dir.path().join("data.ttl");
@@ -58,10 +58,11 @@ ex:alice a ex:Person ."#
 
         // Assert
         assert!(!graph.is_empty());
-    });
+    }
 
     /// Test loading from non-existent file returns error
-    test!(test_load_from_nonexistent_file, {
+    #[test]
+    fn test_load_from_nonexistent_file() {
         // Arrange
         let temp_dir = TempDir::new().unwrap();
         let nonexistent = temp_dir.path().join("nonexistent.ttl");
@@ -69,7 +70,7 @@ ex:alice a ex:Person ."#
 
         // Act & Assert
         assert!(graph.load_path(&nonexistent).is_err());
-    });
+    }
 
     /// Test file loading operations inside Docker container with verification
     ///
@@ -78,7 +79,8 @@ ex:alice a ex:Person ."#
     /// 2. RDF files are created in container filesystem (/workspace)
     /// 3. Files can be read and verified via container.exec()
     #[cfg(feature = "docker")]
-    test!(test_load_file_in_container_with_verification, {
+    #[test]
+    fn test_load_file_in_container_with_verification() {
         // Arrange - create container
         let client = ContainerClient::default();
         let container = GenericContainer::with_command(
@@ -167,5 +169,5 @@ ex:bob a ex:Person ."#;
             list_result.stdout.contains("data.ttl"),
             "Should see RDF file in container filesystem listing"
         );
-    });
+    }
 }

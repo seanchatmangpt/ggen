@@ -14,6 +14,8 @@ The HTF framework organizes thesis research into **Δ-Shards** (atomic units of 
 
 ### 1. **Λ-Scheduling (Chapter Planning)**
 ```bash
+htf schedule
+# or with custom chapter size:
 htf schedule --chapter-size 2000
 ```
 
@@ -25,17 +27,24 @@ Plans chapters by:
 **Example Output:**
 ```json
 {
-  "thesis_id": "uuid",
-  "chapters": 6,
+  "thesis_id": "97c40fdc-d2fa-4ace-8adc-02c0d804cc58",
+  "chapters": 2,
   "total_shards": 6,
-  "total_words": 2800,
+  "total_words": 5870,
   "chapters_detail": [
     {
       "number": 1,
       "title": "Chapter 1: Intro",
-      "shards": 1,
-      "words": 500,
-      "families": ["Intro"]
+      "shards": 3,
+      "words": 2940,
+      "families": ["Intro", "Gap", "Problem"]
+    },
+    {
+      "number": 2,
+      "title": "Chapter 2: Method",
+      "shards": 3,
+      "words": 2930,
+      "families": ["Method", "Evaluation", "Artifact"]
     }
   ]
 }

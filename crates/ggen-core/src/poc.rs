@@ -67,7 +67,7 @@
 //!
 //! ## Note
 //!
-//! This is a proof-of-concept module. For production use, see the main [`pipeline`] module
+//! This is a proof-of-concept module. For production use, see the main [`pipeline`](crate::pipeline) module
 //! which provides a more complete and tested implementation.
 
 use std::collections::BTreeMap;
@@ -345,7 +345,8 @@ mod tests {
     use std::fs;
 
     #[ignore = "POC feature - experimental, not production critical"]
-    test!(poc_with_prefixes_and_inline_rdf, {
+    #[test]
+    fn poc_with_prefixes_and_inline_rdf() {
         let dir = tempfile::tempdir().unwrap();
         let root = dir.path();
 
@@ -374,5 +375,5 @@ vars:
         // In dry-run mode, file should not exist but we can still verify the path
         assert!(!out.exists());
         // The test still validates that the template processing works correctly
-    });
+    }
 }

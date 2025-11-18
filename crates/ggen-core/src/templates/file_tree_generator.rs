@@ -666,15 +666,17 @@ impl TemplateParser {
 mod tests {
     use super::*;
 
-    test!(test_create_template, {
+    #[test]
+    fn test_create_template() {
         let format = TemplateFormat::new("test-template");
         let template = FileTreeTemplate::new(format);
 
         assert_eq!(template.name(), "test-template");
         assert!(template.description().is_none());
-    });
+    }
 
-    test!(test_parse_yaml_template, {
+    #[test]
+    fn test_parse_yaml_template() {
         let yaml = r#"
 name: test-template
 description: A test template
@@ -699,9 +701,10 @@ tree:
         assert_eq!(template.required_variables(), &["service_name", "port"]);
         assert_eq!(template.defaults().get("port"), Some(&"8080".to_string()));
         assert_eq!(template.nodes().len(), 1);
-    });
+    }
 
-    test!(test_parse_template_with_rdf, {
+    #[test]
+    fn test_parse_template_with_rdf() {
         let yaml = r#"
 name: microservice-template
 rdf:
@@ -719,23 +722,26 @@ tree:
 
         assert_eq!(template.name(), "microservice-template");
         assert!(template.rdf_turtle.is_some());
-    });
+    }
 
-    test!(test_template_validation, {
+    #[test]
+    fn test_template_validation() {
         let format = TemplateFormat::new("test");
         let template = FileTreeTemplate::new(format);
 
         // Should fail because tree is empty
         assert!(template.validate().is_err());
-    });
+    }
 
-    test!(test_parser_extract_name, {
+    #[test]
+    fn test_parser_extract_name() {
         let line = r#"[directory: "src"]"#;
         let name = TemplateParser::extract_name(line).unwrap();
         assert_eq!(name, "src");
-    });
+    }
 
-    test!(test_parse_simple_format, {
+    #[test]
+    fn test_parse_simple_format() {
         let content = r#"
 [directory: "src"]
 [file: "main.rs"]
@@ -743,5 +749,5 @@ tree:
 
         let template = TemplateParser::parse_simple(content).unwrap();
         assert_eq!(template.nodes().len(), 2);
-    });
+    }
 }

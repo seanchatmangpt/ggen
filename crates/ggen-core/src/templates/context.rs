@@ -573,20 +573,23 @@ impl Default for TemplateContext {
 mod tests {
     use super::*;
 
-    test!(test_new_context, {
+    #[test]
+    fn test_new_context() {
         let ctx = TemplateContext::new();
         assert!(ctx.variables.is_empty());
-    });
+    }
 
-    test!(test_set_and_get, {
+    #[test]
+    fn test_set_and_get() {
         let mut ctx = TemplateContext::new();
         ctx.set("name", "test").unwrap();
 
         assert_eq!(ctx.get_string("name"), Some("test".to_string()));
         assert!(ctx.contains("name"));
-    });
+    }
 
-    test!(test_from_map, {
+    #[test]
+    fn test_from_map() {
         let mut vars = BTreeMap::new();
         vars.insert("service_name".to_string(), "my-service".to_string());
         vars.insert("port".to_string(), "8080".to_string());
@@ -598,9 +601,10 @@ mod tests {
             Some("my-service".to_string())
         );
         assert_eq!(ctx.get_string("port"), Some("8080".to_string()));
-    });
+    }
 
-    test!(test_merge, {
+    #[test]
+    fn test_merge() {
         let mut ctx1 = TemplateContext::new();
         ctx1.set("name", "test1").unwrap();
 
@@ -611,9 +615,10 @@ mod tests {
 
         assert_eq!(ctx1.get_string("name"), Some("test1".to_string()));
         assert_eq!(ctx1.get_string("port"), Some("8080".to_string()));
-    });
+    }
 
-    test!(test_validate_required, {
+    #[test]
+    fn test_validate_required() {
         let mut ctx = TemplateContext::new();
         ctx.set("name", "test").unwrap();
 
@@ -622,9 +627,10 @@ mod tests {
 
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("port"));
-    });
+    }
 
-    test!(test_apply_defaults, {
+    #[test]
+    fn test_apply_defaults() {
         let mut ctx = TemplateContext::new();
         ctx.set("name", "test").unwrap();
 
@@ -638,9 +644,10 @@ mod tests {
         assert_eq!(ctx.get_string("name"), Some("test".to_string()));
         // Default should be applied for missing value
         assert_eq!(ctx.get_string("port"), Some("8080".to_string()));
-    });
+    }
 
-    test!(test_render_string, {
+    #[test]
+    fn test_render_string() {
         let mut ctx = TemplateContext::new();
         ctx.set("name", "World").unwrap();
         ctx.set("count", 42).unwrap();
@@ -649,9 +656,10 @@ mod tests {
             .render_string("Hello, {{ name }}! Count: {{ count }}")
             .unwrap();
         assert_eq!(rendered, "Hello, World! Count: 42");
-    });
+    }
 
-    test!(test_variable_names, {
+    #[test]
+    fn test_variable_names() {
         let mut ctx = TemplateContext::new();
         ctx.set("name", "test").unwrap();
         ctx.set("port", "8080").unwrap();
@@ -660,5 +668,5 @@ mod tests {
         assert_eq!(names.len(), 2);
         assert!(names.contains(&"name"));
         assert!(names.contains(&"port"));
-    });
+    }
 }

@@ -7,10 +7,10 @@
 //! - Filters and facets
 
 use crate::error::Result;
-use crate::models::{Package, PackageId, QualityScore, SearchResult};
-use crate::traits::{DefaultRanker, Filter, Ranker};
+use crate::models::{Package, QualityScore, SearchResult};
+use crate::traits::{DefaultRanker, Ranker};
 use std::sync::Arc;
-use tracing::{debug, info};
+use tracing::debug;
 
 /// Search query with advanced capabilities
 #[derive(Clone, Debug)]

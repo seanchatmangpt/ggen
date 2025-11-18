@@ -8,7 +8,7 @@
 
 use async_trait::async_trait;
 use std::sync::Arc;
-use tracing::{debug, info};
+use tracing::info;
 
 use crate::error::Result;
 use crate::models::{Manifest, Package, QualityScore};

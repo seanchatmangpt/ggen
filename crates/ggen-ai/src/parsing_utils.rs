@@ -321,7 +321,7 @@ pub fn validate_turtle_syntax(content: &str) -> Result<(), String> {
 /// # Core Team Best Practices
 /// - **Lenient**: Accepts many language markers and plain text
 /// - **Defensive**: Validates content is RDF-like before returning
-/// - **Clear**: Returns Option<String> for easy error handling
+/// - **Clear**: Returns `Option<String>` for easy error handling
 pub fn extract_turtle_content(response: &str) -> Option<String> {
     // Try explicit turtle marker
     if let Some(content) = extract_code_block(response, "turtle") {
