@@ -11,7 +11,7 @@ use std::sync::Arc;
 use tracing::info;
 
 use crate::error::Result;
-use crate::models::{Manifest, Package, QualityScore};
+use crate::models::{Manifest, Package};
 use crate::traits::Validatable;
 
 /// Validation result

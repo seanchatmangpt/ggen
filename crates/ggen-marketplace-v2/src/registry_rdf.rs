@@ -7,7 +7,7 @@
 //! - Full-text search over package descriptions
 
 use async_trait::async_trait;
-use oxigraph::model::{Literal, NamedNode, Quad, Term};
+use oxigraph::model::{GraphNameRef, Literal, NamedNode, QuadRef, Term};
 use oxigraph::store::Store;
 use parking_lot::RwLock;
 use std::sync::Arc;
@@ -20,7 +20,6 @@ use crate::traits::AsyncRepository;
 /// RDF namespace for ggen marketplace
 const GGEN_NS: &str = "https://ggen.io/marketplace/";
 const RDFS_NS: &str = "http://www.w3.org/2000/01/rdf-schema#";
-const XSD_NS: &str = "http://www.w3.org/2001/XMLSchema#";
 
 /// High-performance RDF-backed registry
 ///
@@ -68,7 +67,12 @@ impl RdfRegistry {
         let rdfs_class = NamedNode::new(format!("{}Class", RDFS_NS)).expect("Invalid rdfs:Class");
 
         // Define Package as RDF class
-        let quad = Quad::new(package_class.clone(), rdf_type, rdfs_class, None);
+        let quad = QuadRef::new(
+            &package_class,
+            &rdf_type,
+            &rdfs_class,
+            GraphNameRef::DefaultGraph,
+        );
 
         store.insert(quad).expect("Failed to insert Package class");
 
@@ -94,7 +98,12 @@ impl RdfRegistry {
             .map_err(|_| crate::error::Error::Other("Invalid package class URI".to_string()))?;
 
         // Insert package type
-        let type_quad = Quad::new(package_uri.clone(), rdf_type, package_class, None);
+        let type_quad = QuadRef::new(
+            &package_uri,
+            &rdf_type,
+            &package_class,
+            GraphNameRef::DefaultGraph,
+        );
 
         self.store.insert(type_quad).map_err(|e| {
             crate::error::Error::RegistryError(format!("Failed to insert package: {}", e))
@@ -106,7 +115,12 @@ impl RdfRegistry {
 
         let name_literal = Literal::new_simple_literal(&package.metadata.name);
 
-        let name_quad = Quad::new(package_uri.clone(), name_predicate, name_literal, None);
+        let name_quad = QuadRef::new(
+            &package_uri,
+            &name_predicate,
+            &name_literal,
+            GraphNameRef::DefaultGraph,
+        );
 
         self.store.insert(name_quad).map_err(|e| {
             crate::error::Error::RegistryError(format!("Failed to insert name: {}", e))
@@ -118,7 +132,12 @@ impl RdfRegistry {
 
         let desc_literal = Literal::new_simple_literal(&package.metadata.description);
 
-        let desc_quad = Quad::new(package_uri.clone(), desc_predicate, desc_literal, None);
+        let desc_quad = QuadRef::new(
+            &package_uri,
+            &desc_predicate,
+            &desc_literal,
+            GraphNameRef::DefaultGraph,
+        );
 
         self.store.insert(desc_quad).map_err(|e| {
             crate::error::Error::RegistryError(format!("Failed to insert description: {}", e))
@@ -136,7 +155,12 @@ impl RdfRegistry {
                 crate::error::Error::Other("Invalid hasVersion predicate".to_string())
             })?;
 
-            let version_quad = Quad::new(package_uri.clone(), has_version, version_uri, None);
+            let version_quad = QuadRef::new(
+                &package_uri,
+                &has_version,
+                &version_uri,
+                GraphNameRef::DefaultGraph,
+            );
 
             self.store.insert(version_quad).map_err(|e| {
                 crate::error::Error::RegistryError(format!("Failed to insert version: {}", e))
