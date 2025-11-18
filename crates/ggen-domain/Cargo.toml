@@ -26,7 +26,7 @@ ggen-core.workspace = true
 ggen-ai.workspace = true
 ggen-marketplace.workspace = true
 ggen-utils.workspace = true
-ggen-marketplace-v2 = { path = "../ggen-marketplace-v2", version = "0.1.0", optional = true }
+ggen-marketplace-v2 = { path = "../ggen-marketplace-v2", version = "3.0.0", optional = true }
 
 # Crate-specific dependencies
 tera = { workspace = true }
