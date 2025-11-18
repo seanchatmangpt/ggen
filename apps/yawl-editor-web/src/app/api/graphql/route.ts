@@ -16,29 +16,28 @@ interface GraphQLResponse {
   }>
 }
 
-// Mock data store
-const workflowStore = new Map()
-const nodeStore = new Map()
-const userStore = new Map()
+// Mock data store (reserved for future implementation)
+// const workflowStore = new Map()
+// const nodeStore = new Map()
+// const userStore = new Map()
 
-// Simple GraphQL query parser and executor
-function parseGraphQLQuery(query: string): any {
-  // Extract operation type and fields
-  const match = query.match(/(\w+)\s*\{([^}]+)\}/)
-  if (!match) return null
-
-  return {
-    operation: match[1],
-    fields: match[2].trim().split("\n"),
-  }
-}
+// Simple GraphQL query parser and executor (reserved for future implementation)
+// function parseGraphQLQuery(query: string): any {
+//   // Extract operation type and fields
+//   const match = query.match(/(\w+)\s*\{([^}]+)\}/)
+//   if (!match) return null
+//
+//   return {
+//     operation: match[1],
+//     fields: match[2].trim().split("\n"),
+//   }
+// }
 
 function resolveQuery(request: GraphQLRequest): GraphQLResponse {
-  const { query, variables = {}, operationName } = request
+  const { query, variables = {} } = request
 
   try {
-    // Check if it's a query or mutation
-    const isQuery = query.trim().startsWith("query")
+    // Check if it's a mutation
     const isMutation = query.trim().startsWith("mutation")
 
     // Extract the query body

@@ -8,7 +8,7 @@ interface CompletionRequest {
 
 export async function POST(request: Request) {
   try {
-    const { prompt, context = "", maxTokens = 500 } = (await request.json()) as CompletionRequest
+    const { prompt } = (await request.json()) as CompletionRequest
 
     if (!prompt) {
       return new Response(JSON.stringify({ error: "Prompt is required" }), {
@@ -29,7 +29,6 @@ export async function POST(request: Request) {
     }
 
     const isWorkflow = prompt.toLowerCase().includes("workflow")
-    const isAnalysis = prompt.toLowerCase().includes("analyze") || prompt.toLowerCase().includes("identify")
     const isOptimize = prompt.toLowerCase().includes("suggest optimizations") || prompt.toLowerCase().includes("optimize")
 
     let completion = mockCompletions.analyze

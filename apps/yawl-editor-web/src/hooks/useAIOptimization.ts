@@ -1,5 +1,4 @@
 import { useCallback, useState } from "react"
-import { useCompletion } from "ai/react"
 
 export interface OptimizationSuggestion {
   id: string
@@ -36,13 +35,9 @@ export function useAIOptimization() {
   const [insights, setInsights] = useState<PredictiveInsight[]>([])
   const [isAnalyzing, setIsAnalyzing] = useState(false)
 
-  const { complete, completion, isLoading } = useCompletion({
-    api: "/api/ai/optimization",
-  })
-
   // Analyze workflow for optimization opportunities
   const analyzeOptimizations = useCallback(
-    async (workflowJSON: string) => {
+    async (_workflowJSON?: string) => {
       setIsAnalyzing(true)
       try {
         // Mock optimization suggestions based on workflow analysis

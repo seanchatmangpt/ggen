@@ -353,12 +353,13 @@ export function useAutoHealing() {
     const recentLogs = healingLog.slice(0, 100)
     const successCount = recentLogs.filter((l) => l.status === "success").length
     const failureCount = recentLogs.filter((l) => l.status === "failure").length
+    const totalLogActions = recentLogs.length
 
     return {
-      totalActions: recentLogs.length,
+      totalLogActions,
       successCount,
       failureCount,
-      successRate: totalActions > 0 ? successCount / recentLogs.length : 0,
+      successRate: totalLogActions > 0 ? successCount / totalLogActions : 0,
       enabledActions: healingActions.filter((a) => a.enabled).length,
       totalActions: healingActions.length,
     }

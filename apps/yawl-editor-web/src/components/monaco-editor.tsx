@@ -30,7 +30,6 @@ export function MonacoEditor({
   const containerRef = useRef<HTMLDivElement>(null)
   const editorRef = useRef<any>(null)
   const monacoRef = useRef<any>(null)
-  const [isMonacoLoaded, setIsMonacoLoaded] = useState(false)
   const [copied, setCopied] = useState(false)
 
   const { completion, isLoading, error, generateSuggestions, generateWorkflowSuggestions, analyzeWorkflow } =
@@ -70,8 +69,6 @@ export function MonacoEditor({
             const newValue = editorRef.current.getValue()
             onChange(newValue)
           })
-
-          setIsMonacoLoaded(true)
         }
       } catch (err) {
         console.error("Failed to load Monaco Editor:", err)
@@ -123,13 +120,6 @@ export function MonacoEditor({
       onChange(completion)
     }
   }, [completion, onChange])
-
-  const clearEditor = useCallback(() => {
-    if (editorRef.current) {
-      editorRef.current.setValue("")
-      onChange("")
-    }
-  }, [onChange])
 
   return (
     <div className="w-full rounded-lg border border-border bg-background overflow-hidden shadow-sm">
