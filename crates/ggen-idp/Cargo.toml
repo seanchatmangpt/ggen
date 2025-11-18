@@ -1,0 +1,76 @@
+[package]
+name = "ggen-idp"
+version = "0.1.0"
+edition = "2021"
+description = "Innovative Identity Provider (IDP) System for BPMN.js Marketplace - RBAC, OAuth2/OIDC, BPMN Workflows"
+repository = "https://github.com/seanchatmangpt/ggen"
+keywords = ["idp", "identity", "oauth2", "oidc", "rbac"]
+categories = ["authentication", "authorization", "web-programming"]
+license = "MIT"
+
+[dependencies]
+# Web framework
+actix-web = "4.5"
+actix-rt = "2.10"
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Cryptography
+jsonwebtoken = "9.2"
+bcrypt = "0.15"
+sha2 = "0.10"
+
+# Identifiers and dates
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+
+# Database
+sqlx = { version = "0.7", features = ["postgres", "runtime-tokio-rustls", "uuid", "chrono"] }
+
+# Logging and tracing
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+# Encoding
+base64 = "0.21"
+rand = "0.8"
+
+# RDF/Semantic Graph (for identity graph)
+oxigraph = { version = "0.3", optional = true }
+
+# Async traits
+async-trait = "0.1"
+
+# HTTP
+actix-web-httpauth = "0.6"
+
+# Environment variables
+dotenv = "0.15"
+
+# Optional: ggen dependencies for integration
+# ggen-domain = { path = "../ggen-domain" }
+# ggen-core = { path = "../ggen-core" }
+
+[dev-dependencies]
+tokio-test = "0.4"
+
+[features]
+default = ["rdf"]
+# Enable RDF/Semantic Graph support
+rdf = ["oxigraph"]
+# Enable all features
+full = ["rdf"]
+
+[[bin]]
+name = "ggen-idp-server"
+path = "src/bin/main.rs"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
