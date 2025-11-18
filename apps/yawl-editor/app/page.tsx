@@ -15,6 +15,7 @@ import {
   Boxes,
   Code2,
   Shield,
+  Box,
 } from 'lucide-react'
 
 export default function Home() {
@@ -54,6 +55,12 @@ export default function Home() {
       title: 'Team Collaboration',
       description: 'Real-time workspace with presence tracking and activity feeds',
       href: '/collaboration',
+    },
+    {
+      icon: Box,
+      title: '3D Visualization',
+      description: 'AR/VR spatial visualization of processes and code structures',
+      href: '/three-d-viewer',
     },
   ]
 
@@ -185,7 +192,8 @@ export default function Home() {
               { name: 'Zod', desc: 'Validation' },
               { name: 'React Hooks', desc: 'Logic' },
               { name: 'Quantum Crypto', desc: 'Post-Quantum' },
-              { name: 'Vercel', desc: 'Hosting' },
+              { name: 'Three.js', desc: '3D Graphics' },
+              { name: 'WebXR', desc: 'VR/AR' },
             ].map((tech, idx) => (
               <Card key={idx} className="p-3 md:p-4 text-center hover:shadow-md transition-shadow">
                 <p className="font-semibold text-sm">{tech.name}</p>
@@ -278,6 +286,16 @@ export default function Home() {
                   'Hybrid encryption (RSA + Kyber)',
                   'Digital signatures (Multi-layer)',
                   'Quantum-safe key management',
+                ],
+              },
+              {
+                icon: Box,
+                title: '3D Spatial Visualization',
+                items: [
+                  'Interactive 3D process visualization',
+                  'Code structure tree exploration',
+                  'WebXR VR/AR support',
+                  'Real-time rendering at 60 FPS',
                 ],
               },
             ].map((feature, idx) => {
