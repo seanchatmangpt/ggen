@@ -115,19 +115,16 @@ fn bench_template_parsing(c: &mut Criterion) {
 fn bench_frontmatter_rendering(c: &mut Criterion) {
     let mut group = c.benchmark_group("frontmatter_rendering");
 
-    let pipeline = Pipeline::new().unwrap();
-
     for var_count in [1, 10, 50, 100].iter() {
         let template_str = create_simple_template(*var_count);
-        let mut template = Template::parse(&template_str).unwrap();
-
-        let mut ctx = Context::new();
-        ctx.insert("name", "test_app");
 
         group.bench_with_input(BenchmarkId::new("render", var_count), var_count, |b, _| {
             b.iter(|| {
-                let mut tera = pipeline.tera.clone();
-                let result = template.render_frontmatter(&mut tera, &ctx);
+                let mut pipeline = Pipeline::new().unwrap();
+                let mut template = Template::parse(&template_str).unwrap();
+                let mut ctx = Context::new();
+                ctx.insert("name", "test_app");
+                let result = template.render_frontmatter(pipeline.tera_mut(), &ctx);
                 black_box(result)
             });
         });
@@ -143,26 +140,28 @@ fn bench_frontmatter_rendering(c: &mut Criterion) {
 fn bench_rdf_processing(c: &mut Criterion) {
     let mut group = c.benchmark_group("rdf_processing");
 
-    let pipeline = Pipeline::new().unwrap();
     let temp_dir = TempDir::new().unwrap();
     let template_path = temp_dir.path().join("test.tmpl");
 
     for rdf_count in [1, 10, 50, 100].iter() {
         let template_str = create_complex_template(5, *rdf_count, 0);
-        let mut template = Template::parse(&template_str).unwrap();
-
-        let mut ctx = Context::new();
-        ctx.insert("name", "test_app");
 
         group.bench_with_input(
             BenchmarkId::new("rdf_insert", rdf_count),
             rdf_count,
             |b, _| {
                 b.iter(|| {
+                    let mut pipeline = Pipeline::new().unwrap();
+                    let mut template = Template::parse(&template_str).unwrap();
                     let mut graph = Graph::new().unwrap();
-                    let mut tera = pipeline.tera.clone();
-                    let result =
-                        template.process_graph(&mut graph, &mut tera, &ctx, &template_path);
+                    let mut ctx = Context::new();
+                    ctx.insert("name", "test_app");
+                    let result = template.process_graph(
+                        &mut graph,
+                        pipeline.tera_mut(),
+                        &ctx,
+                        &template_path,
+                    );
                     black_box(result)
                 });
             },
@@ -175,26 +174,28 @@ fn bench_rdf_processing(c: &mut Criterion) {
 fn bench_sparql_execution(c: &mut Criterion) {
     let mut group = c.benchmark_group("sparql_execution");
 
-    let pipeline = Pipeline::new().unwrap();
     let temp_dir = TempDir::new().unwrap();
     let template_path = temp_dir.path().join("test.tmpl");
 
     for query_count in [1, 5, 10, 20].iter() {
         let template_str = create_complex_template(5, 10, *query_count);
-        let mut template = Template::parse(&template_str).unwrap();
-
-        let mut ctx = Context::new();
-        ctx.insert("name", "test_app");
 
         group.bench_with_input(
             BenchmarkId::new("sparql_query", query_count),
             query_count,
             |b, _| {
                 b.iter(|| {
+                    let mut pipeline = Pipeline::new().unwrap();
+                    let mut template = Template::parse(&template_str).unwrap();
                     let mut graph = Graph::new().unwrap();
-                    let mut tera = pipeline.tera.clone();
-                    let result =
-                        template.process_graph(&mut graph, &mut tera, &ctx, &template_path);
+                    let mut ctx = Context::new();
+                    ctx.insert("name", "test_app");
+                    let result = template.process_graph(
+                        &mut graph,
+                        pipeline.tera_mut(),
+                        &ctx,
+                        &template_path,
+                    );
                     black_box(result)
                 });
             },
@@ -237,23 +238,22 @@ vars:
 fn bench_variable_substitution(c: &mut Criterion) {
     let mut group = c.benchmark_group("variable_substitution");
 
-    let pipeline = Pipeline::new().unwrap();
-
     for sub_count in [10, 50, 100, 500].iter() {
         let template_str = create_template_with_substitutions(*sub_count);
-        let mut template = Template::parse(&template_str).unwrap();
-
-        let mut ctx = Context::new();
-        ctx.insert("name", "test_app");
 
         group.bench_with_input(
             BenchmarkId::new("substitute", sub_count),
             sub_count,
             |b, _| {
                 b.iter(|| {
-                    let mut tera = pipeline.tera.clone();
-                    template.render_frontmatter(&mut tera, &ctx).unwrap();
-                    let result = template.render(&mut tera, &ctx);
+                    let mut pipeline = Pipeline::new().unwrap();
+                    let mut template = Template::parse(&template_str).unwrap();
+                    let mut ctx = Context::new();
+                    ctx.insert("name", "test_app");
+                    template
+                        .render_frontmatter(pipeline.tera_mut(), &ctx)
+                        .unwrap();
+                    let result = template.render(pipeline.tera_mut(), &ctx);
                     black_box(result)
                 });
             },
@@ -289,8 +289,7 @@ fn bench_file_tree_generation(c: &mut Criterion) {
     let mut group = c.benchmark_group("file_tree_generation");
     group.sample_size(10); // Reduce sample size for large benchmarks
 
-    let pipeline = Pipeline::new().unwrap();
-    let temp_dir = TempDir::new().unwrap();
+    let _temp_dir = TempDir::new().unwrap();
 
     for file_count in [10, 100, 1000].iter() {
         let templates = create_file_tree_template(*file_count);
@@ -302,14 +301,16 @@ fn bench_file_tree_generation(c: &mut Criterion) {
             file_count,
             |b, _| {
                 b.iter(|| {
+                    let mut pipeline = Pipeline::new().unwrap();
                     let mut ctx = Context::new();
                     ctx.insert("name", "test_app");
 
                     for template_str in &templates {
                         let mut template = Template::parse(template_str).unwrap();
-                        let mut tera = pipeline.tera.clone();
-                        template.render_frontmatter(&mut tera, &ctx).unwrap();
-                        let _rendered = template.render(&mut tera, &ctx).unwrap();
+                        template
+                            .render_frontmatter(pipeline.tera_mut(), &ctx)
+                            .unwrap();
+                        let _rendered = template.render(pipeline.tera_mut(), &ctx).unwrap();
                         black_box(_rendered);
                     }
                 });
@@ -327,12 +328,14 @@ fn bench_file_tree_generation(c: &mut Criterion) {
                     let results: Vec<_> = templates
                         .par_iter()
                         .map(|template_str| {
+                            let mut pipeline = Pipeline::new().unwrap();
                             let mut template = Template::parse(template_str).unwrap();
                             let mut ctx = Context::new();
                             ctx.insert("name", "test_app");
-                            let mut tera = pipeline.tera.clone();
-                            template.render_frontmatter(&mut tera, &ctx).unwrap();
-                            template.render(&mut tera, &ctx).unwrap()
+                            template
+                                .render_frontmatter(pipeline.tera_mut(), &ctx)
+                                .unwrap();
+                            template.render(pipeline.tera_mut(), &ctx).unwrap()
                         })
                         .collect();
 
@@ -398,16 +401,17 @@ fn bench_memory_usage(c: &mut Criterion) {
     // Test memory usage with streaming approach (parse + process + discard)
     group.bench_function("1000_templates_streaming", |b| {
         let template_str = create_simple_template(10);
-        let pipeline = Pipeline::new().unwrap();
 
         b.iter(|| {
+            let mut pipeline = Pipeline::new().unwrap();
             for _ in 0..1000 {
                 let mut template = Template::parse(&template_str).unwrap();
                 let mut ctx = Context::new();
                 ctx.insert("name", "test");
-                let mut tera = pipeline.tera.clone();
-                template.render_frontmatter(&mut tera, &ctx).unwrap();
-                let rendered = template.render(&mut tera, &ctx).unwrap();
+                template
+                    .render_frontmatter(pipeline.tera_mut(), &ctx)
+                    .unwrap();
+                let rendered = template.render(pipeline.tera_mut(), &ctx).unwrap();
                 black_box(rendered);
                 // Template is dropped here, memory released
             }
@@ -424,7 +428,6 @@ fn bench_memory_usage(c: &mut Criterion) {
 fn bench_e2e_template_processing(c: &mut Criterion) {
     let mut group = c.benchmark_group("e2e_processing");
 
-    let pipeline = Pipeline::new().unwrap();
     let temp_dir = TempDir::new().unwrap();
     let template_path = temp_dir.path().join("test.tmpl");
 
@@ -433,12 +436,14 @@ fn bench_e2e_template_processing(c: &mut Criterion) {
         let template_str = create_simple_template(5);
 
         b.iter(|| {
+            let mut pipeline = Pipeline::new().unwrap();
             let mut template = Template::parse(&template_str).unwrap();
             let mut ctx = Context::new();
             ctx.insert("name", "test_app");
-            let mut tera = pipeline.tera.clone();
-            template.render_frontmatter(&mut tera, &ctx).unwrap();
-            let rendered = template.render(&mut tera, &ctx).unwrap();
+            template
+                .render_frontmatter(pipeline.tera_mut(), &ctx)
+                .unwrap();
+            let rendered = template.render(pipeline.tera_mut(), &ctx).unwrap();
             black_box(rendered);
         });
     });
@@ -448,16 +453,18 @@ fn bench_e2e_template_processing(c: &mut Criterion) {
         let template_str = create_complex_template(10, 10, 5);
 
         b.iter(|| {
+            let mut pipeline = Pipeline::new().unwrap();
             let mut template = Template::parse(&template_str).unwrap();
             let mut ctx = Context::new();
             ctx.insert("name", "test_app");
             let mut graph = Graph::new().unwrap();
-            let mut tera = pipeline.tera.clone();
-            template.render_frontmatter(&mut tera, &ctx).unwrap();
             template
-                .process_graph(&mut graph, &mut tera, &ctx, &template_path)
+                .render_frontmatter(pipeline.tera_mut(), &ctx)
                 .unwrap();
-            let rendered = template.render(&mut tera, &ctx).unwrap();
+            template
+                .process_graph(&mut graph, pipeline.tera_mut(), &ctx, &template_path)
+                .unwrap();
+            let rendered = template.render(pipeline.tera_mut(), &ctx).unwrap();
             black_box(rendered);
         });
     });

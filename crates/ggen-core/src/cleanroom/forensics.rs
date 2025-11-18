@@ -367,7 +367,6 @@ impl ForensicsBundle {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::test;
 
     test!(test_secret_detection, {
         assert!(ForensicsPack::is_secret("SECRET_KEY"));

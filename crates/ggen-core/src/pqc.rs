@@ -196,7 +196,6 @@ pub fn calculate_sha256(data: &[u8]) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::test;
 
     test!(test_pqc_signer_creation, {
         let signer = PqcSigner::new();

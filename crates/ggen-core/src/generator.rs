@@ -431,7 +431,6 @@ fn insert_env(ctx: &mut Context) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::test;
     use std::collections::BTreeMap;
     use std::fs;
     use tempfile::TempDir;

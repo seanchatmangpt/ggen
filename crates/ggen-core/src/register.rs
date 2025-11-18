@@ -385,7 +385,6 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::test;
     use tera::Context;
 
     fn create_test_tera() -> Tera {

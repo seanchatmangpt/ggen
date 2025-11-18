@@ -91,12 +91,12 @@ pub fn build_tera_minimal() -> Result<Tera> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::test;
     use ggen_utils::error::Error;
     use std::fs;
     use tempfile::TempDir;
 
-    test!(test_build_tera_with_glob, {
+    #[test]
+    fn test_build_tera_with_glob() -> Result<()> {
         let temp_dir = TempDir::new()?;
         let templates_dir = temp_dir.path().join("templates");
         fs::create_dir_all(&templates_dir)?;
@@ -114,9 +114,10 @@ mod tests {
         assert_eq!(result, "Hello World!");
 
         Ok(())
-    });
+    }
 
-    test!(test_build_tera_empty_directory, {
+    #[test]
+    fn test_build_tera_empty_directory() -> Result<()> {
         let temp_dir = TempDir::new()?;
         let templates_dir = temp_dir.path().join("templates");
         fs::create_dir_all(&templates_dir)?;
@@ -131,9 +132,10 @@ mod tests {
         assert_eq!(result, "HelloWorld");
 
         Ok(())
-    });
+    }
 
-    test!(test_build_tera_minimal, {
+    #[test]
+    fn test_build_tera_minimal() -> Result<()> {
         let mut tera = build_tera_minimal()?;
 
         // Should have filters registered
@@ -142,16 +144,17 @@ mod tests {
         let result = tera.render_str("{{ name | snake }}", &ctx)?;
         assert_eq!(result, "hello_world");
         Ok(())
-    });
+    }
 
-    test!(test_autoescape_disabled, {
+    #[test]
+    fn test_autoescape_disabled() -> Result<()> {
         let mut tera = build_tera_minimal()?;
 
         // HTML should not be escaped
         let mut ctx = tera::Context::new();
         ctx.insert("html", "<script>alert('xss')</script>");
-        let result = tera.render_str("{{ html }}", &ctx).map_err(Error::from)?;
+        let result = tera.render_str("{{ html }}", &ctx)?;
         assert_eq!(result, "<script>alert('xss')</script>");
         Ok(())
-    });
+    }
 }

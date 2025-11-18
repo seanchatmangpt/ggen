@@ -394,7 +394,6 @@ impl GenerationResult {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::test;
     use tempfile::TempDir;
 
     fn create_test_template(dir: &Path, name: &str, content: &str) -> Result<PathBuf> {

@@ -731,7 +731,6 @@ impl RegionUtils {
 mod tests {
     use super::*;
     use crate::snapshot::FileSnapshot;
-    use chicago_tdd_tools::test;
 
     test!(test_merge_strategies, {
         let merger = ThreeWayMerger::new(MergeStrategy::GeneratedWins);

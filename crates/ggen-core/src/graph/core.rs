@@ -726,7 +726,6 @@ pub fn build_prolog(prefixes: &BTreeMap<String, String>, base: Option<&str>) -> 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::test;
 
     test!(test_graph_new, {
         // Arrange & Act

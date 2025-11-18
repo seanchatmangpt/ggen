@@ -97,7 +97,6 @@ impl CachedResult {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::test;
 
     test!(test_cached_result_boolean, {
         // Arrange & Act

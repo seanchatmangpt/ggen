@@ -74,6 +74,7 @@ dx = []             # Hyper-advanced developer experience features
 live-llm-tests = [] # Opt-in for OpenAI/Anthropic integration tests
 proptest = []       # Property-based testing with proptest
 docker = []         # Docker testcontainers support
+testcontainers = [] # Testcontainers feature for production validation tests
 
 [dev-dependencies]
 tempfile = "3"
@@ -84,7 +85,8 @@ proptest = { workspace = true }
 tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
 testcontainers = "0.25"
 uuid = { version = "1.18", features = ["v4"] }
-chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras"] }
+chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras", "testcontainers"] }
+anyhow = "1.0"
 
 [[bench]]
 name = "lifecycle_benchmarks"

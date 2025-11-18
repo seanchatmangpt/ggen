@@ -929,7 +929,6 @@ impl ReadinessTracker {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::test;
 
     test!(test_default_requirements, {
         let requirements = ReadinessTracker::default_requirements();

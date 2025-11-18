@@ -269,6 +269,7 @@ fn create_test_lifecycle_make(phases: usize, has_hooks: bool) -> Make {
             after_test: None,
             before_deploy: None,
             after_deploy: None,
+            phase_hooks: std::collections::HashMap::new(),
         })
     } else {
         None

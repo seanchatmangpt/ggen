@@ -108,7 +108,7 @@ pub fn core_invariants() -> Vec<Invariant> {
     ]
 }
 
-/// TTL representation of HTF ontology
+/// TTL representation of HTF ontology with all 26 families
 pub fn ontology_ttl() -> &'static str {
     r#"
 @prefix : <http://thesis.local/htf#> .
@@ -123,7 +123,7 @@ pub fn ontology_ttl() -> &'static str {
     rdfs:label "Hyper-Thesis Framework Ontology"@en ;
     rdfs:comment "Unified μ-architecture for thesis research planning"@en .
 
-# Classes: Δ-Shards
+# Classes
 :DeltaShard a owl:Class ;
     rdfs:label "Δ-Shard"@en ;
     rdfs:comment "Atomic unit of thesis work"@en .
@@ -132,47 +132,69 @@ pub fn ontology_ttl() -> &'static str {
     rdfs:label "Shard Family"@en ;
     rdfs:comment "Category of Δ-Shard (26 types)"@en .
 
-# Properties: Λ-Ordering
+:qInvariant a owl:Class ;
+    rdfs:label "Q-Invariant"@en ;
+    rdfs:comment "Constraint preserved across all layers"@en .
+
+# Properties
+:id a rdf:Property ;
+    rdfs:label "Identifier"@en ;
+    rdfs:domain :ShardFamily ;
+    rdfs:range xsd:string .
+
+:name a rdf:Property ;
+    rdfs:label "Name"@en ;
+    rdfs:domain :ShardFamily ;
+    rdfs:range xsd:string .
+
 :lambdaOrder a rdf:Property ;
     rdfs:label "Λ-Order"@en ;
     rdfs:comment "Total order relation between shards"@en ;
     rdfs:domain :DeltaShard ;
     rdfs:range :DeltaShard .
 
-# Properties: Π-Merge
 :piMerge a rdf:Property ;
     rdfs:label "Π-Merge"@en ;
     rdfs:comment "Composition of multiple shards into thesis"@en ;
     rdfs:domain :DeltaShard .
 
-# Properties: Γ-Globalization
 :gammaGlobal a rdf:Property ;
     rdfs:label "Γ-Global"@en ;
     rdfs:comment "Globalization of shards into coherent whole"@en ;
     rdfs:domain :DeltaShard .
 
-# Properties: Q-Invariants
-:qInvariant a owl:Class ;
-    rdfs:label "Q-Invariant"@en ;
-    rdfs:comment "Constraint preserved across all layers"@en .
-
-# Properties: τ-Evolution
 :tauEvolution a rdf:Property ;
     rdfs:label "τ-Evolution"@en ;
     rdfs:comment "Draft-to-final transformation"@en ;
     rdfs:domain :DeltaShard ;
     rdfs:range xsd:string .
 
-# Shard Families as Individuals
-:IntroFamily a :ShardFamily ; rdfs:label "Intro"@en .
-:MethodFamily a :ShardFamily ; rdfs:label "Method"@en .
-:ResultFamily a :ShardFamily ; rdfs:label "Result"@en .
-:DiscussionFamily a :ShardFamily ; rdfs:label "Discussion"@en .
-:ProblemFamily a :ShardFamily ; rdfs:label "Problem"@en .
-:GapFamily a :ShardFamily ; rdfs:label "Gap"@en .
-:ArtifactFamily a :ShardFamily ; rdfs:label "Artifact"@en .
-:ProofFamily a :ShardFamily ; rdfs:label "Proof"@en .
-:TheoryFamily a :ShardFamily ; rdfs:label "Theory"@en .
-:InsightFamily a :ShardFamily ; rdfs:label "Insight"@en .
+# All 26 Δ-Shard Families (with id and name properties for SPARQL discovery)
+:F01 a :ShardFamily ; :id "F01" ; :name "Problem" .
+:F02 a :ShardFamily ; :id "F02" ; :name "Gap" .
+:F03 a :ShardFamily ; :id "F03" ; :name "Claim" .
+:F04 a :ShardFamily ; :id "F04" ; :name "Intro" .
+:F05 a :ShardFamily ; :id "F05" ; :name "Method" .
+:F06 a :ShardFamily ; :id "F06" ; :name "Context" .
+:F07 a :ShardFamily ; :id "F07" ; :name "Voice" .
+:F08 a :ShardFamily ; :id "F08" ; :name "Canon" .
+:F09 a :ShardFamily ; :id "F09" ; :name "Field" .
+:F10 a :ShardFamily ; :id "F10" ; :name "Artifact" .
+:F11 a :ShardFamily ; :id "F11" ; :name "Proof" .
+:F12 a :ShardFamily ; :id "F12" ; :name "Paper" .
+:F13 a :ShardFamily ; :id "F13" ; :name "Result" .
+:F14 a :ShardFamily ; :id "F14" ; :name "Evaluation" .
+:F15 a :ShardFamily ; :id "F15" ; :name "Objection" .
+:F16 a :ShardFamily ; :id "F16" ; :name "Discussion" .
+:F17 a :ShardFamily ; :id "F17" ; :name "Reply" .
+:F18 a :ShardFamily ; :id "F18" ; :name "Pattern" .
+:F19 a :ShardFamily ; :id "F19" ; :name "Theory" .
+:F20 a :ShardFamily ; :id "F20" ; :name "Analysis" .
+:F21 a :ShardFamily ; :id "F21" ; :name "Synthesis" .
+:F22 a :ShardFamily ; :id "F22" ; :name "Insight" .
+:F23 a :ShardFamily ; :id "F23" ; :name "Impact" .
+:F24 a :ShardFamily ; :id "F24" ; :name "Design" .
+:F25 a :ShardFamily ; :id "F25" ; :name "Ground" .
+:F26 a :ShardFamily ; :id "F26" ; :name "Conclusion" .
 "#
 }

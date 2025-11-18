@@ -109,7 +109,6 @@ impl<'a> GraphQuery<'a> {
 mod tests {
     use super::*;
     use crate::graph::core::Graph;
-    use chicago_tdd_tools::test;
     use std::collections::BTreeMap;
 
     test!(test_query_execute_cached, {

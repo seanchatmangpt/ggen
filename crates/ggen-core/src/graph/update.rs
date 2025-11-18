@@ -240,7 +240,6 @@ impl<'a> GraphUpdate<'a> {
 mod tests {
     use super::*;
     use crate::graph::core::Graph;
-    use chicago_tdd_tools::test;
 
     test!(test_update_insert, {
         // Arrange

@@ -547,8 +547,8 @@ mod tests {
         let snap = create_test_snapshot();
         let mut runtime = SigmaRuntime::new(snap.clone());
 
-        let mut receipt = SigmaReceipt::new(snap.id.clone(), None, "Change".to_string());
-        receipt.mark_valid();
+        let receipt = SigmaReceipt::new(snap.id.clone(), None, "Change".to_string());
+        let receipt = receipt.mark_valid();
 
         runtime.record_receipt(receipt);
         assert_eq!(runtime.receipt_log().len(), 1);
