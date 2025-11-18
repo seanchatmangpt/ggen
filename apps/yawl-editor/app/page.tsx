@@ -16,6 +16,7 @@ import {
   Code2,
   Shield,
   Box,
+  Network,
 } from 'lucide-react'
 
 export default function Home() {
@@ -61,6 +62,12 @@ export default function Home() {
       title: '3D Visualization',
       description: 'AR/VR spatial visualization of processes and code structures',
       href: '/three-d-viewer',
+    },
+    {
+      icon: Network,
+      title: 'Agent Swarms',
+      description: 'Distributed intelligent agents with Byzantine consensus and emergent behavior',
+      href: '/agent-swarms',
     },
   ]
 
@@ -296,6 +303,16 @@ export default function Home() {
                   'Code structure tree exploration',
                   'WebXR VR/AR support',
                   'Real-time rendering at 60 FPS',
+                ],
+              },
+              {
+                icon: Network,
+                title: 'AI Agent Swarms',
+                items: [
+                  'Byzantine Fault Tolerant consensus',
+                  'Particle Swarm & Ant Colony Optimization',
+                  'Self-healing and emergent behavior',
+                  'Real-time swarm monitoring',
                 ],
               },
             ].map((feature, idx) => {
