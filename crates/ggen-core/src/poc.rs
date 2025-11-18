@@ -67,7 +67,7 @@
 //!
 //! ## Note
 //!
-//! This is a proof-of-concept module. For production use, see the main [`pipeline`](crate::pipeline) module
+//! This is a proof-of-concept module. For production use, see the main `crate::pipeline` module
 //! which provides a more complete and tested implementation.
 
 use std::collections::BTreeMap;

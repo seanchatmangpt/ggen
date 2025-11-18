@@ -55,7 +55,7 @@ where
 ///     })
 /// }
 /// ```
-pub fn block_on<F, T>(async_op: F) -> Result<T, String>
+pub fn block_on<F, T>(async_op: F) -> Result<T>
 where
     F: Future<Output = T> + Send,
     T: Send,
@@ -71,13 +71,13 @@ where
                         Err(e) => {
                             let msg = format!("Failed to create Tokio runtime: {}", e);
                             log::error!("{}", msg);
-                            return Err(msg);
+                            return Err(ggen_utils::error::Error::new(&msg));
                         }
                     };
                     Ok(rt.block_on(async_op))
                 })
                 .join()
-                .map_err(|_| "Runtime thread panicked".to_string())?
+                .map_err(|_| ggen_utils::error::Error::new("Runtime thread panicked"))?
             })
         }
         Err(_) => {
@@ -87,7 +87,7 @@ where
                 Err(e) => {
                     let msg = format!("Failed to create Tokio runtime: {}", e);
                     log::error!("{}", msg);
-                    Err(msg)
+                    Err(ggen_utils::error::Error::new(&msg))
                 }
             }
         }

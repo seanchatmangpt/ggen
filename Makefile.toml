@@ -161,6 +161,10 @@ set -euo pipefail
 
 TEST_CMD=(cargo test --workspace --no-default-features)
 
+if [ "$#" -gt 0 ]; then
+  TEST_CMD+=("$@")
+fi
+
 if timeout 30s "${TEST_CMD[@]}"; then
   exit 0
 fi

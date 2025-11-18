@@ -34,7 +34,6 @@
 //! ```
 
 use crate::generator::Generator;
-use ggen_utils::error::Result;
 use std::collections::BTreeMap;
 use tempfile::TempDir;
 

@@ -284,7 +284,7 @@ cargo release
 ### 4.1 Eliminates Dark Matter in ggen's Own Development
 
 **Current (v2) Dark Matter**:
-- 32 CLI commands scattered across `crate/ggen-cli/src/` (~4000 LOC of boilerplate)
+- 32 CLI commands scattered across `crate/ggen-crates/ggen-cli/src/` (~4000 LOC of boilerplate)
 - Marketplace validation rules hard-coded in guards.rs (~2000 LOC)
 - Test patterns copied across crates (~8000 LOC of repetition)
 - API documentation manually written (~3000 LOC)

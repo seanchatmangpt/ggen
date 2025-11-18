@@ -345,6 +345,8 @@ macro_rules! time_operation {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs;
+    use tempfile::TempDir;
 
     #[test]
     fn test_trace_level_ordering() {
@@ -361,7 +363,8 @@ mod tests {
         timer.finish(); // Should not panic
     }
 
-    chicago_tdd_tools::test!(test_tracing_methods, {
+    #[test]
+    fn test_tracing_methods() {
         let temp_dir = TempDir::new().unwrap();
         let test_path = temp_dir.path().join("test.tmpl");
         fs::write(&test_path, "test content").unwrap();
@@ -388,9 +391,10 @@ mod tests {
         SimpleTracer::error(&error, "test context");
         SimpleTracer::warning("Test warning", Some("test context"));
         SimpleTracer::warning("Test warning", None);
-    });
+    }
 
-    chicago_tdd_tools::test!(test_tracing_environment_variables, {
+    #[test]
+    fn test_tracing_environment_variables() {
         // Test different GGEN_TRACE values
         let test_values = [
             "error", "warn", "info", "debug", "trace", "1", "0", "true", "false",
@@ -408,13 +412,14 @@ mod tests {
                     | TraceLevel::Trace
             ));
         }
-    });
+    }
 
-    chicago_tdd_tools::test!(test_time_operation_macro, {
+    #[test]
+    fn test_time_operation_macro() {
         let result = crate::time_operation!("test_op", {
             std::thread::sleep(std::time::Duration::from_millis(2));
             42
         });
         assert_eq!(result, 42);
-    });
+    }
 }

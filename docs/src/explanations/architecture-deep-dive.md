@@ -893,7 +893,7 @@ This allows each layer to be used independently.
 
 ### Adding a New CLI Command
 
-1. **Create command module** in `ggen-cli/src/cmds/`
+1. **Create command module** in `ggen-crates/ggen-cli/src/cmds/`
 2. **Implement domain function** in `ggen-domain/src/<area>/`
 3. **Wire up CLI** with `#[verb]` macro
 4. **Write tests** in `tests/` or crate

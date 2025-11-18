@@ -186,7 +186,7 @@ pub async fn list_packages(
     let mut discovery = PackageDiscoveryService::new();
 
     // Discover all packages
-    let packages = discovery.discover_all(registry).await?;
+    let _packages = discovery.discover_all(registry).await?;
 
     // Build filter
     let mut filter = DiscoveryFilter::new();

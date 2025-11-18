@@ -585,60 +585,46 @@ mod tests {
     use tempfile::TempDir;
 
     #[test]
-    fn test_cache_manager_creation() {
+    fn test_cache_manager_creation() -> Result<()> {
         let temp_dir = TempDir::new()
-            .map_err(|e| Error::with_context("Failed to create temp dir", &e.to_string()))
-            .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
+            .map_err(|e| Error::with_context("Failed to create temp dir", &e.to_string()))?;
         let cache_dir = temp_dir.path().to_path_buf();
 
-        let cache_manager = CacheManager::with_dir(cache_dir.clone())
-            .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
+        let cache_manager = CacheManager::with_dir(cache_dir.clone())?;
         assert_eq!(cache_manager.cache_dir(), cache_dir);
-        Ok::<(), Box<dyn std::error::Error>>(())
+        Ok(())
     }
 
     #[test]
-    fn test_sha256_calculation() {
+    fn test_sha256_calculation() -> Result<()> {
         let temp_dir = TempDir::new()
-            .map_err(|e| Error::with_context("Failed to create temp dir", &e.to_string()))
-            .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
+            .map_err(|e| Error::with_context("Failed to create temp dir", &e.to_string()))?;
         let test_dir = temp_dir.path().join("test");
         fs::create_dir_all(&test_dir)
-            .map_err(|e| Error::with_context("Failed to create test dir", &e.to_string()))
-            .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
+            .map_err(|e| Error::with_context("Failed to create test dir", &e.to_string()))?;
 
         // Create test files
         fs::write(test_dir.join("file1.txt"), "content1")
-            .map_err(|e| Error::with_context("Failed to write file1", &e.to_string()))
-            .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
+            .map_err(|e| Error::with_context("Failed to write file1", &e.to_string()))?;
         fs::write(test_dir.join("file2.txt"), "content2")
-            .map_err(|e| Error::with_context("Failed to write file2", &e.to_string()))
-            .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
+            .map_err(|e| Error::with_context("Failed to write file2", &e.to_string()))?;
 
-        let cache_manager = CacheManager::with_dir(temp_dir.path().to_path_buf())
-            .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
-        let sha256 = cache_manager
-            .calculate_sha256(&test_dir)
-            .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
+        let cache_manager = CacheManager::with_dir(temp_dir.path().to_path_buf())?;
+        let sha256 = cache_manager.calculate_sha256(&test_dir)?;
 
-        // Should be a valid hex string
         assert_eq!(sha256.len(), 64);
         assert!(sha256.chars().all(|c| c.is_ascii_hexdigit()));
-        Ok::<(), Box<dyn std::error::Error>>(())
+        Ok(())
     }
 
     #[test]
-    fn test_list_cached_empty() {
+    fn test_list_cached_empty() -> Result<()> {
         let temp_dir = TempDir::new()
-            .map_err(|e| Error::with_context("Failed to create temp dir", &e.to_string()))
-            .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
-        let cache_manager = CacheManager::with_dir(temp_dir.path().to_path_buf())
-            .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
+            .map_err(|e| Error::with_context("Failed to create temp dir", &e.to_string()))?;
+        let cache_manager = CacheManager::with_dir(temp_dir.path().to_path_buf())?;
 
-        let cached = cache_manager
-            .list_cached()
-            .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
+        let cached = cache_manager.list_cached()?;
         assert!(cached.is_empty());
-        Ok::<(), Box<dyn std::error::Error>>(())
+        Ok(())
     }
 }

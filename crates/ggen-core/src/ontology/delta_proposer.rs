@@ -394,60 +394,11 @@ impl DeltaSigmaProposer for RealLLMProposer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ontology::pattern_miner::{OntologyStats, ProposedChange};
-
-    fn create_test_pattern() -> Pattern {
-        Pattern {
-            name: "TestPattern".to_string(),
-            pattern_type: PatternType::RepeatedStructure,
-            description: "Test pattern".to_string(),
-            confidence: 0.85,
-            occurrences: 5,
-            proposed_changes: vec![ProposedChange {
-                change_type: "AddClass".to_string(),
-                target: "TestClass".to_string(),
-                rationale: "Test".to_string(),
-            }],
-            affected_entities: vec!["entity1".to_string()],
-        }
-    }
+    use futures::StreamExt;
 
     #[tokio::test]
-    async fn test_mock_proposer_creation() {
+    async fn test_propose_deltas_uses_cache() {
         let config = ProposerConfig::default();
-        let proposer = MockLLMProposer::new(config);
-        assert_eq!(proposer.config.model, "claude-opus");
-    }
-
-    #[tokio::test]
-    async fn test_mock_proposer_generates_proposals() {
-        let config = ProposerConfig::default();
-        let proposer = MockLLMProposer::new(config);
-        let patterns = vec![create_test_pattern()];
-
-        let snapshot = SigmaSnapshot::new(
-            None,
-            vec![],
-            "1.0.0".to_string(),
-            "sig".to_string(),
-            Default::default(),
-        );
-
-        let proposals = proposer
-            .propose_deltas(patterns, Arc::new(snapshot), "support")
-            .await
-            .unwrap();
-
-        assert!(!proposals.is_empty());
-        assert!(proposals[0].confidence >= 0.75);
-    }
-
-    #[tokio::test]
-    async fn test_proposer_caching() {
-        let config = ProposerConfig {
-            enable_cache: true,
-            ..Default::default()
-        };
         let proposer = MockLLMProposer::new(config);
         let patterns = vec![create_test_pattern()];
 

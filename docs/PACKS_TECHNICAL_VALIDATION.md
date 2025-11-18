@@ -13,7 +13,7 @@
 
 ```
 crates/
-├── ggen-cli/src/cmds/packs.rs      (293 LOC) - CLI interface
+├── ggen-crates/ggen-cli/src/cmds/packs.rs      (293 LOC) - CLI interface
 └── ggen-domain/src/marketplace/
     └── bundles.rs                  (271 LOC) - Domain logic (separate concept)
 ```

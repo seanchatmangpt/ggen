@@ -36,6 +36,7 @@ pub mod project;
 pub mod rdf;
 pub mod shell;
 pub mod template;
+pub mod utils;
 
 // AHI (Autonomic Hyper-Intelligence) subsystem
 pub mod ahi_contract;

@@ -102,7 +102,7 @@
 ```
 User: ggen packs install web-api-starter
   │
-  ├──> CLI Handler (ggen-cli/src/cmds/packs.rs)
+  ├──> CLI Handler (ggen-crates/ggen-cli/src/cmds/packs.rs)
   │    └──> Parse args, validate input
   │
   ├──> PackInstallService::install()
@@ -192,7 +192,7 @@ User: ggen packs install web-api-starter
 ```
 User: ggen packs generate web-api-starter my-api --var author="Jane"
   │
-  ├──> CLI Handler (ggen-cli/src/cmds/packs.rs)
+  ├──> CLI Handler (ggen-crates/ggen-cli/src/cmds/packs.rs)
   │    └──> Parse args, validate input
   │
   ├──> PackGenerationService::generate()

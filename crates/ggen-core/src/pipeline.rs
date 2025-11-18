@@ -758,7 +758,6 @@ fn print_colorized_new_file(content: &str, path: &Path) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ggen_utils::error::Result;
     use std::collections::BTreeMap;
     use tempfile::TempDir;
 
