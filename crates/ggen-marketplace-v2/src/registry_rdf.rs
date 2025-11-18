@@ -7,10 +7,10 @@
 //! - Full-text search over package descriptions
 
 use async_trait::async_trait;
+use oxigraph::model::{Dataset, Literal, NamedNode, Term, Triple};
 use oxigraph::store::Store;
-use oxigraph::model::{Dataset, Triple, Term, NamedNode, Literal};
-use std::sync::Arc;
 use parking_lot::RwLock;
+use std::sync::Arc;
 use tracing::{debug, info};
 
 use crate::error::Result;
@@ -59,23 +59,20 @@ impl RdfRegistry {
     /// Initialize marketplace ontology
     fn initialize_ontology(store: &Store) {
         // Package class definition
-        let package_class = NamedNode::new(format!("{}Package", GGEN_NS))
-            .expect("Invalid package class URI");
+        let package_class =
+            NamedNode::new(format!("{}Package", GGEN_NS)).expect("Invalid package class URI");
 
         let rdf_type = NamedNode::new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
             .expect("Invalid rdf:type");
 
-        let rdfs_class = NamedNode::new(format!("{}Class", RDFS_NS))
-            .expect("Invalid rdfs:Class");
+        let rdfs_class = NamedNode::new(format!("{}Class", RDFS_NS)).expect("Invalid rdfs:Class");
 
         // Define Package as RDF class
-        let triple = Triple::new(
-            package_class.clone(),
-            rdf_type,
-            rdfs_class,
-        );
+        let triple = Triple::new(package_class.clone(), rdf_type, rdfs_class);
 
-        store.insert(triple).expect("Failed to insert Package class");
+        store
+            .insert(triple)
+            .expect("Failed to insert Package class");
 
         debug!("Initialized RDF marketplace ontology");
     }
@@ -84,11 +81,7 @@ impl RdfRegistry {
     pub async fn insert_package_rdf(&self, package: &Package) -> Result<()> {
         let _lock = self.write_lock.write();
 
-        let package_uri = NamedNode::new(format!(
-            "{}packages/{}",
-            GGEN_NS,
-            package.metadata.id
-        ))?;
+        let package_uri = NamedNode::new(format!("{}packages/{}", GGEN_NS, package.metadata.id))?;
 
         let rdf_type = NamedNode::new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
             .map_err(|_| crate::error::Error::Other("Invalid RDF type URI".to_string()))?;
@@ -97,14 +90,11 @@ impl RdfRegistry {
             .map_err(|_| crate::error::Error::Other("Invalid package class URI".to_string()))?;
 
         // Insert package type
-        let type_triple = Triple::new(
-            package_uri.clone(),
-            rdf_type,
-            package_class,
-        );
+        let type_triple = Triple::new(package_uri.clone(), rdf_type, package_class);
 
-        self.store.insert(type_triple)
-            .map_err(|e| crate::error::Error::RegistryError(format!("Failed to insert package: {}", e)))?;
+        self.store.insert(type_triple).map_err(|e| {
+            crate::error::Error::RegistryError(format!("Failed to insert package: {}", e))
+        })?;
 
         // Insert package name
         let name_predicate = NamedNode::new(format!("{}name", GGEN_NS))
@@ -112,14 +102,11 @@ impl RdfRegistry {
 
         let name_literal = Literal::new_simple_literal(&package.metadata.name);
 
-        let name_triple = Triple::new(
-            package_uri.clone(),
-            name_predicate,
-            name_literal,
-        );
+        let name_triple = Triple::new(package_uri.clone(), name_predicate, name_literal);
 
-        self.store.insert(name_triple)
-            .map_err(|e| crate::error::Error::RegistryError(format!("Failed to insert name: {}", e)))?;
+        self.store.insert(name_triple).map_err(|e| {
+            crate::error::Error::RegistryError(format!("Failed to insert name: {}", e))
+        })?;
 
         // Insert description
         let desc_predicate = NamedNode::new(format!("{}description", GGEN_NS))
@@ -127,36 +114,29 @@ impl RdfRegistry {
 
         let desc_literal = Literal::new_simple_literal(&package.metadata.description);
 
-        let desc_triple = Triple::new(
-            package_uri.clone(),
-            desc_predicate,
-            desc_literal,
-        );
+        let desc_triple = Triple::new(package_uri.clone(), desc_predicate, desc_literal);
 
-        self.store.insert(desc_triple)
-            .map_err(|e| crate::error::Error::RegistryError(format!("Failed to insert description: {}", e)))?;
+        self.store.insert(desc_triple).map_err(|e| {
+            crate::error::Error::RegistryError(format!("Failed to insert description: {}", e))
+        })?;
 
         // Insert versions as RDF facts
         for version in &package.versions {
             let version_uri = NamedNode::new(format!(
                 "{}packages/{}/versions/{}",
-                GGEN_NS,
-                package.metadata.id,
-                version
+                GGEN_NS, package.metadata.id, version
             ))
             .map_err(|_| crate::error::Error::Other("Invalid version URI".to_string()))?;
 
-            let has_version = NamedNode::new(format!("{}hasVersion", GGEN_NS))
-                .map_err(|_| crate::error::Error::Other("Invalid hasVersion predicate".to_string()))?;
+            let has_version = NamedNode::new(format!("{}hasVersion", GGEN_NS)).map_err(|_| {
+                crate::error::Error::Other("Invalid hasVersion predicate".to_string())
+            })?;
 
-            let version_triple = Triple::new(
-                package_uri.clone(),
-                has_version,
-                version_uri,
-            );
+            let version_triple = Triple::new(package_uri.clone(), has_version, version_uri);
 
-            self.store.insert(version_triple)
-                .map_err(|e| crate::error::Error::RegistryError(format!("Failed to insert version: {}", e)))?;
+            self.store.insert(version_triple).map_err(|e| {
+                crate::error::Error::RegistryError(format!("Failed to insert version: {}", e))
+            })?;
         }
 
         info!("Inserted package {} to RDF store", package.metadata.id);
@@ -165,10 +145,13 @@ impl RdfRegistry {
 
     /// Query packages by SPARQL
     pub async fn query_sparql(&self, query: &str) -> Result<Vec<String>> {
-        let results = self.store.query(query)
+        let results = self
+            .store
+            .query(query)
             .map_err(|e| crate::error::Error::SearchError(format!("SPARQL query failed: {}", e)))?;
 
-        self.queries_executed.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        self.queries_executed
+            .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
 
         let mut packages = Vec::new();
 
@@ -193,7 +176,9 @@ impl RdfRegistry {
 
     /// Get statistics about the RDF store
     pub fn stats(&self) -> RdfRegistryStats {
-        let query_count = self.queries_executed.load(std::sync::atomic::Ordering::Relaxed);
+        let query_count = self
+            .queries_executed
+            .load(std::sync::atomic::Ordering::Relaxed);
 
         RdfRegistryStats {
             total_queries: query_count,
@@ -240,9 +225,7 @@ impl AsyncRepository for RdfRegistry {
     }
 
     async fn get_package_version(
-        &self,
-        id: &PackageId,
-        version: &PackageVersion,
+        &self, id: &PackageId, version: &PackageVersion,
     ) -> Result<Package> {
         // Query RDF store for specific version
         let query = format!(
@@ -327,7 +310,9 @@ impl AsyncRepository for RdfRegistry {
             GGEN_NS, id
         );
 
-        let results = self.store.query(&query)
+        let results = self
+            .store
+            .query(&query)
             .map_err(|e| crate::error::Error::SearchError(format!("SPARQL query failed: {}", e)))?;
 
         match results {

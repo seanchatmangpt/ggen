@@ -270,12 +270,14 @@ fn generate_tree(
     // For now, use empty variables - full implementation needs var support
     let variables: HashMap<String, String> = HashMap::new();
 
-    generate_tree::generate_file_tree(&template_pb, &output_pb, &variables, false).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!(
-            "Failed to generate file tree: {}",
-            e
-        ))
-    })?;
+    generate_tree::generate_file_tree(&template_pb, &output_pb, &variables, false).map_err(
+        |e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to generate file tree: {}",
+                e
+            ))
+        },
+    )?;
 
     Ok(GenerateTreeOutput {
         output_directory: output_path,

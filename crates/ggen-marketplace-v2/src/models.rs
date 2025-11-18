@@ -33,10 +33,15 @@ impl PackageId {
         }
 
         if s.len() > 200 {
-            return Err(Error::invalid_package_id("Package ID too long (max 200 chars)"));
+            return Err(Error::invalid_package_id(
+                "Package ID too long (max 200 chars)",
+            ));
         }
 
-        if !s.chars().all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_') {
+        if !s
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_')
+        {
             return Err(Error::invalid_package_id(
                 "Package ID can only contain alphanumeric, hyphens, and underscores",
             ));
@@ -111,7 +116,12 @@ impl PackageVersion {
         // Validate major, minor, patch are numbers
         if !parts[0].parse::<u32>().is_ok()
             || !parts[1].parse::<u32>().is_ok()
-            || !parts[2].split(|c: char| c == '-' || c == '+').next().unwrap_or("").parse::<u32>().is_ok()
+            || !parts[2]
+                .split(|c: char| c == '-' || c == '+')
+                .next()
+                .unwrap_or("")
+                .parse::<u32>()
+                .is_ok()
         {
             return Err(Error::invalid_version(
                 &v,
@@ -151,13 +161,15 @@ impl PartialOrd for PackageVersion {
 impl Ord for PackageVersion {
     fn cmp(&self, other: &Self) -> Ordering {
         // Simple version comparison (real implementation would use semver crate)
-        let self_parts: Vec<u32> = self.0
+        let self_parts: Vec<u32> = self
+            .0
             .split(|c: char| !c.is_numeric())
             .take(3)
             .filter_map(|p| p.parse().ok())
             .collect();
 
-        let other_parts: Vec<u32> = other.0
+        let other_parts: Vec<u32> = other
+            .0
             .split(|c: char| !c.is_numeric())
             .take(3)
             .filter_map(|p| p.parse().ok())
@@ -201,9 +213,11 @@ impl QualityScore {
                 reason: format!("Quality score must be <= 100, got {}", score),
             });
         }
-        NonZeroU32::new(score).map(Self).ok_or_else(|| Error::ValidationFailed {
-            reason: "Quality score must be > 0".to_string(),
-        })
+        NonZeroU32::new(score)
+            .map(Self)
+            .ok_or_else(|| Error::ValidationFailed {
+                reason: "Quality score must be > 0".to_string(),
+            })
     }
 
     /// Get the raw score value
@@ -268,9 +282,7 @@ pub struct PackageMetadata {
 impl PackageMetadata {
     /// Create new package metadata
     pub fn new(
-        id: PackageId,
-        name: impl Into<String>,
-        description: impl Into<String>,
+        id: PackageId, name: impl Into<String>, description: impl Into<String>,
         license: impl Into<String>,
     ) -> Self {
         let now = Utc::now();

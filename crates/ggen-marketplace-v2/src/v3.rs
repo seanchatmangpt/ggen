@@ -136,7 +136,8 @@ impl V3OptimizedRegistry {
 
                         // Index by lowercase name terms (for full-text search)
                         for term in name_str.to_lowercase().split_whitespace() {
-                            index.entry(term.to_string())
+                            index
+                                .entry(term.to_string())
                                 .or_insert_with(Vec::new)
                                 .push(package_uri.clone());
                         }
@@ -159,7 +160,8 @@ impl V3OptimizedRegistry {
 
         // Index by name terms
         for term in package_name.to_lowercase().split_whitespace() {
-            index.entry(term.to_string())
+            index
+                .entry(term.to_string())
                 .or_insert_with(Vec::new)
                 .push(package_uri.clone());
         }
@@ -169,11 +171,26 @@ impl V3OptimizedRegistry {
 
     /// Get query statistics
     pub fn stats(&self) -> V3RegistryStats {
-        let total = self.query_stats.total_queries.load(std::sync::atomic::Ordering::Relaxed);
-        let hot_hits = self.query_stats.hot_cache_hits.load(std::sync::atomic::Ordering::Relaxed);
-        let meta_hits = self.query_stats.metadata_cache_hits.load(std::sync::atomic::Ordering::Relaxed);
-        let store_queries = self.query_stats.store_queries.load(std::sync::atomic::Ordering::Relaxed);
-        let total_latency = self.query_stats.total_latency_us.load(std::sync::atomic::Ordering::Relaxed);
+        let total = self
+            .query_stats
+            .total_queries
+            .load(std::sync::atomic::Ordering::Relaxed);
+        let hot_hits = self
+            .query_stats
+            .hot_cache_hits
+            .load(std::sync::atomic::Ordering::Relaxed);
+        let meta_hits = self
+            .query_stats
+            .metadata_cache_hits
+            .load(std::sync::atomic::Ordering::Relaxed);
+        let store_queries = self
+            .query_stats
+            .store_queries
+            .load(std::sync::atomic::Ordering::Relaxed);
+        let total_latency = self
+            .query_stats
+            .total_latency_us
+            .load(std::sync::atomic::Ordering::Relaxed);
 
         V3RegistryStats {
             total_queries: total,
@@ -191,11 +208,21 @@ impl V3OptimizedRegistry {
 
     /// Reset statistics
     pub fn reset_stats(&self) {
-        self.query_stats.total_queries.store(0, std::sync::atomic::Ordering::Relaxed);
-        self.query_stats.hot_cache_hits.store(0, std::sync::atomic::Ordering::Relaxed);
-        self.query_stats.metadata_cache_hits.store(0, std::sync::atomic::Ordering::Relaxed);
-        self.query_stats.store_queries.store(0, std::sync::atomic::Ordering::Relaxed);
-        self.query_stats.total_latency_us.store(0, std::sync::atomic::Ordering::Relaxed);
+        self.query_stats
+            .total_queries
+            .store(0, std::sync::atomic::Ordering::Relaxed);
+        self.query_stats
+            .hot_cache_hits
+            .store(0, std::sync::atomic::Ordering::Relaxed);
+        self.query_stats
+            .metadata_cache_hits
+            .store(0, std::sync::atomic::Ordering::Relaxed);
+        self.query_stats
+            .store_queries
+            .store(0, std::sync::atomic::Ordering::Relaxed);
+        self.query_stats
+            .total_latency_us
+            .store(0, std::sync::atomic::Ordering::Relaxed);
     }
 }
 
@@ -213,9 +240,7 @@ impl AsyncRepository for V3OptimizedRegistry {
     }
 
     async fn get_package_version(
-        &self,
-        id: &PackageId,
-        version: &PackageVersion,
+        &self, id: &PackageId, version: &PackageVersion,
     ) -> Result<Package> {
         let _cache_key = format!("{}@{}", id, version);
         // Similar two-level cache lookup

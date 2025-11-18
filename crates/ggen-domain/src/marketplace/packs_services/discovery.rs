@@ -4,8 +4,8 @@
 //! sorting, and searching capabilities. Uses the MarketplaceRegistry adapter
 //! to support both v1 (legacy) and v2 (RDF-backed) marketplace implementations.
 
-use crate::marketplace::adapter::{PackageInfo, SearchMatch};
 use crate::error::Result;
+use crate::marketplace::adapter::{PackageInfo, SearchMatch};
 use std::cmp::Ordering;
 use std::collections::HashMap;
 
@@ -100,14 +100,22 @@ impl DiscoveryFilter {
 
         // Check author
         if let Some(ref author_filter) = self.author {
-            if !package.author.to_lowercase().contains(&author_filter.to_lowercase()) {
+            if !package
+                .author
+                .to_lowercase()
+                .contains(&author_filter.to_lowercase())
+            {
                 return false;
             }
         }
 
         // Check name pattern
         if let Some(ref pattern) = self.name_pattern {
-            if !package.name.to_lowercase().contains(&pattern.to_lowercase()) {
+            if !package
+                .name
+                .to_lowercase()
+                .contains(&pattern.to_lowercase())
+            {
                 return false;
             }
         }
@@ -152,8 +160,7 @@ impl PackageDiscoveryService {
     /// println!("Found {} packages", packages.len());
     /// ```
     pub async fn discover_all(
-        &mut self,
-        registry: &dyn crate::marketplace::MarketplaceRegistry,
+        &mut self, registry: &dyn crate::marketplace::MarketplaceRegistry,
     ) -> Result<Vec<PackageInfo>> {
         // List all packages from the registry
         let packages = registry.list_all().await?;
@@ -208,10 +215,7 @@ impl PackageDiscoveryService {
     /// # Returns
     /// Sorted packages
     pub fn sort(
-        &self,
-        mut packages: Vec<PackageInfo>,
-        sort_field: SortField,
-        reverse: bool,
+        &self, mut packages: Vec<PackageInfo>, sort_field: SortField, reverse: bool,
     ) -> Vec<PackageInfo> {
         packages.sort_by(|a, b| {
             let cmp = match sort_field {
@@ -219,7 +223,7 @@ impl PackageDiscoveryService {
                 SortField::Version => a.version.cmp(&b.version),
                 SortField::Size => a.size_bytes.cmp(&b.size_bytes),
                 SortField::Quality => b.quality_score.cmp(&a.quality_score), // Higher scores first
-                SortField::LastUsed => b.last_used.cmp(&a.last_used), // More recent first
+                SortField::LastUsed => b.last_used.cmp(&a.last_used),        // More recent first
             };
 
             if reverse {
@@ -244,10 +248,7 @@ impl PackageDiscoveryService {
 
     /// Get total size of all packages in bytes
     pub fn total_size_bytes(&self) -> u64 {
-        self.packages_cache
-            .values()
-            .map(|p| p.size_bytes)
-            .sum()
+        self.packages_cache.values().map(|p| p.size_bytes).sum()
     }
 
     /// Clear the cache

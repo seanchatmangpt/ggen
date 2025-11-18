@@ -377,9 +377,7 @@ fn compile(tex_file: String, engine: Option<String>, bibtex: bool) -> Result<Com
 /// ggen paper init-bibliography paper.rdf --output refs.bib
 /// ```
 #[verb]
-fn init_bibliography(
-    paper_file: String, output: Option<String>,
-) -> Result<InitBibliographyOutput> {
+fn init_bibliography(paper_file: String, output: Option<String>) -> Result<InitBibliographyOutput> {
     let bibtex_file = output.unwrap_or_else(|| {
         let mut bib_str = paper_file.clone();
         if let Some(pos) = bib_str.rfind('.') {

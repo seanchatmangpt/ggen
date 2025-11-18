@@ -8,8 +8,8 @@
 
 use async_trait::async_trait;
 use dashmap::DashMap;
+use std::sync::atomic::{AtomicI64, AtomicU64, Ordering};
 use std::sync::Arc;
-use std::sync::atomic::{AtomicU64, AtomicI64, Ordering};
 use tracing::{debug, info};
 
 use crate::error::Result;
@@ -70,13 +70,12 @@ impl MetricsCollector {
         let current = self.avg_search_duration_ms.load(Ordering::Relaxed) as u64;
         let count = self.searches.load(Ordering::Relaxed);
         let new_avg = ((current * (count - 1)) + duration_ms) / count;
-        self.avg_search_duration_ms.store(new_avg as i64, Ordering::Relaxed);
+        self.avg_search_duration_ms
+            .store(new_avg as i64, Ordering::Relaxed);
 
         debug!(
             "Search recorded: duration={}ms, results={}, avg={}ms",
-            duration_ms,
-            results_found,
-            new_avg
+            duration_ms, results_found, new_avg
         );
     }
 
@@ -87,7 +86,8 @@ impl MetricsCollector {
         let current = self.avg_install_duration_ms.load(Ordering::Relaxed) as u64;
         let count = self.installations.load(Ordering::Relaxed);
         let new_avg = ((current * (count - 1)) + duration_ms) / count;
-        self.avg_install_duration_ms.store(new_avg as i64, Ordering::Relaxed);
+        self.avg_install_duration_ms
+            .store(new_avg as i64, Ordering::Relaxed);
 
         debug!(
             "Installation recorded: duration={}ms, packages={}, avg={}ms",
@@ -136,7 +136,11 @@ impl MetricsCollector {
         SearchMetrics {
             total_searches: total,
             successful_searches: hits,
-            success_rate: if total > 0 { hits as f64 / total as f64 } else { 0.0 },
+            success_rate: if total > 0 {
+                hits as f64 / total as f64
+            } else {
+                0.0
+            },
             avg_duration_ms: avg_duration as u64,
         }
     }
@@ -256,7 +260,11 @@ impl std::fmt::Display for MetricsSummary {
         writeln!(f, "{}", self.searches)?;
         writeln!(f, "{}", self.installations)?;
         writeln!(f, "Validations: {}", self.validations)?;
-        writeln!(f, "Signature verifications: {}", self.signature_verifications)?;
+        writeln!(
+            f,
+            "Signature verifications: {}",
+            self.signature_verifications
+        )?;
         writeln!(f, "Events: {}", self.events_count)?;
         Ok(())
     }

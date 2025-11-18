@@ -90,21 +90,21 @@ impl PackageBuilder {
 
     /// Build the package
     pub fn build(self) -> Result<PackageMetadata> {
-        let id = self.id.ok_or_else(|| crate::error::Error::Other(
-            "Package ID is required".to_string(),
-        ))?;
+        let id = self
+            .id
+            .ok_or_else(|| crate::error::Error::Other("Package ID is required".to_string()))?;
 
-        let name = self.name.ok_or_else(|| crate::error::Error::Other(
-            "Package name is required".to_string(),
-        ))?;
+        let name = self
+            .name
+            .ok_or_else(|| crate::error::Error::Other("Package name is required".to_string()))?;
 
-        let description = self.description.ok_or_else(|| crate::error::Error::Other(
-            "Package description is required".to_string(),
-        ))?;
+        let description = self.description.ok_or_else(|| {
+            crate::error::Error::Other("Package description is required".to_string())
+        })?;
 
-        let license = self.license.ok_or_else(|| crate::error::Error::Other(
-            "Package license is required".to_string(),
-        ))?;
+        let license = self
+            .license
+            .ok_or_else(|| crate::error::Error::Other("Package license is required".to_string()))?;
 
         let mut metadata = PackageMetadata::new(id, name, description, license);
         metadata.repository = self.repository;

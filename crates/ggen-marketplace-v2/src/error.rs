@@ -15,14 +15,14 @@ pub enum Error {
     #[error("Package not found: {package_id}")]
     PackageNotFound {
         /// The ID of the package that was not found
-        package_id: String
+        package_id: String,
     },
 
     /// Invalid package ID format
     #[error("Invalid package ID format: {reason}")]
     InvalidPackageId {
         /// The reason the package ID is invalid
-        reason: String
+        reason: String,
     },
 
     /// Invalid semantic version
@@ -31,14 +31,14 @@ pub enum Error {
         /// The invalid version string
         version: String,
         /// The reason the version is invalid
-        reason: String
+        reason: String,
     },
 
     /// Package already exists
     #[error("Package already exists: {package_id}")]
     PackageAlreadyExists {
         /// The ID of the package that already exists
-        package_id: String
+        package_id: String,
     },
 
     /// Version already exists
@@ -63,28 +63,28 @@ pub enum Error {
     #[error("Installation failed: {reason}")]
     InstallationFailed {
         /// The reason installation failed
-        reason: String
+        reason: String,
     },
 
     /// Validation failed
     #[error("Validation failed: {reason}")]
     ValidationFailed {
         /// The reason validation failed
-        reason: String
+        reason: String,
     },
 
     /// Security check failed
     #[error("Security check failed: {reason}")]
     SecurityCheckFailed {
         /// The reason the security check failed
-        reason: String
+        reason: String,
     },
 
     /// Signature verification failed
     #[error("Signature verification failed: {reason}")]
     SignatureVerificationFailed {
         /// The reason signature verification failed
-        reason: String
+        reason: String,
     },
 
     /// I/O error
@@ -157,8 +157,7 @@ impl Error {
 
     /// Create a new "Dependency resolution failed" error
     pub fn dependency_resolution_failed(
-        package_id: impl Into<String>,
-        reason: impl Into<String>,
+        package_id: impl Into<String>, reason: impl Into<String>,
     ) -> Self {
         Self::DependencyResolutionFailed {
             package_id: package_id.into(),

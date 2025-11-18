@@ -393,15 +393,17 @@ fn init(path: PathBuf, name: Option<String>, preset: Option<String>) -> Result<I
                     match std::fs::canonicalize(parent) {
                         Ok(p) => p.join(path.file_name().unwrap_or_default()),
                         Err(_) => {
-                            return Err(clap_noun_verb::NounVerbError::execution_error(
-                                format!("Invalid path: {}", path.display()),
-                            ));
+                            return Err(clap_noun_verb::NounVerbError::execution_error(format!(
+                                "Invalid path: {}",
+                                path.display()
+                            )));
                         }
                     }
                 } else {
-                    return Err(clap_noun_verb::NounVerbError::execution_error(
-                        format!("Invalid path: {}", path.display()),
-                    ));
+                    return Err(clap_noun_verb::NounVerbError::execution_error(format!(
+                        "Invalid path: {}",
+                        path.display()
+                    )));
                 }
             }
         };

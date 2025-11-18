@@ -79,7 +79,9 @@ impl SparqlSearchEngine {
 
     /// Execute a SPARQL query and extract results
     async fn execute_query(&self, query: &str) -> Result<Vec<String>> {
-        let results = self.store.query(query)
+        let results = self
+            .store
+            .query(query)
             .map_err(|e| crate::error::Error::SearchError(format!("SPARQL query failed: {}", e)))?;
 
         let mut packages = Vec::new();

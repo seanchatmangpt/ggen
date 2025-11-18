@@ -180,7 +180,7 @@ pub struct SearchMatch {
     pub package_id: String,
     pub name: String,
     pub version: String,
-    pub relevance_score: f64,  // 0.0-1.0
+    pub relevance_score: f64, // 0.0-1.0
     pub description: Option<String>,
 }
 

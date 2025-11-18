@@ -8,7 +8,7 @@
 
 use crate::error::Result;
 use crate::models::{Package, PackageId, QualityScore, SearchResult};
-use crate::traits::{Filter, Ranker, DefaultRanker};
+use crate::traits::{DefaultRanker, Filter, Ranker};
 use std::sync::Arc;
 use tracing::{debug, info};
 
@@ -168,7 +168,10 @@ impl SearchEngine {
 
         debug!(
             "Search for '{}' returned {} results (offset: {}, limit: {})",
-            query.text, end - start, query.offset, query.limit
+            query.text,
+            end - start,
+            query.offset,
+            query.limit
         );
 
         Ok(results)
@@ -221,7 +224,12 @@ impl SearchEngine {
     fn passes_filters(&self, package: &Package, query: &SearchQuery) -> bool {
         // Category filter
         if let Some(ref category) = query.category_filter {
-            if !package.metadata.categories.iter().any(|c| c.to_lowercase() == category.to_lowercase()) {
+            if !package
+                .metadata
+                .categories
+                .iter()
+                .any(|c| c.to_lowercase() == category.to_lowercase())
+            {
                 return false;
             }
         }
@@ -239,7 +247,12 @@ impl SearchEngine {
 
         // Author filter
         if let Some(ref author) = query.author_filter {
-            if !package.metadata.authors.iter().any(|a| a.to_lowercase().contains(&author.to_lowercase())) {
+            if !package
+                .metadata
+                .authors
+                .iter()
+                .any(|a| a.to_lowercase().contains(&author.to_lowercase()))
+            {
                 return false;
             }
         }
@@ -261,11 +274,19 @@ impl SearchEngine {
                 self.ranker.as_ref().rank(&mut results);
             }
             SortBy::Downloads => {
-                results.sort_by(|a, b| b.package.metadata.downloads.cmp(&a.package.metadata.downloads));
+                results.sort_by(|a, b| {
+                    b.package
+                        .metadata
+                        .downloads
+                        .cmp(&a.package.metadata.downloads)
+                });
             }
             SortBy::Quality => {
                 results.sort_by(|a, b| {
-                    match (b.package.metadata.quality_score, a.package.metadata.quality_score) {
+                    match (
+                        b.package.metadata.quality_score,
+                        a.package.metadata.quality_score,
+                    ) {
                         (Some(b_score), Some(a_score)) => b_score.cmp(&a_score),
                         (Some(_), None) => std::cmp::Ordering::Less,
                         (None, Some(_)) => std::cmp::Ordering::Greater,
@@ -274,7 +295,12 @@ impl SearchEngine {
                 });
             }
             SortBy::Newest => {
-                results.sort_by(|a, b| b.package.metadata.created_at.cmp(&a.package.metadata.created_at));
+                results.sort_by(|a, b| {
+                    b.package
+                        .metadata
+                        .created_at
+                        .cmp(&a.package.metadata.created_at)
+                });
             }
             SortBy::Name => {
                 results.sort_by(|a, b| a.package.metadata.name.cmp(&b.package.metadata.name));
@@ -308,10 +334,7 @@ fn levenshtein_distance(s1: &str, s2: &str) -> usize {
         for (j, c2) in s2.chars().enumerate() {
             let cost = if c1 == c2 { 0 } else { 1 };
             matrix[i + 1][j + 1] = std::cmp::min(
-                std::cmp::min(
-                    matrix[i][j + 1] + 1,
-                    matrix[i + 1][j] + 1,
-                ),
+                std::cmp::min(matrix[i][j + 1] + 1, matrix[i + 1][j] + 1),
                 matrix[i][j] + cost,
             );
         }

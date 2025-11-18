@@ -149,20 +149,20 @@ impl AsyncRepository for Registry {
     async fn get_package(&self, id: &PackageId) -> Result<Package> {
         // Check if in primary storage
         if let Some(package) = self.packages.get(id) {
-            self.cache_hits.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+            self.cache_hits
+                .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
             debug!("Cache hit for package: {}", id);
             return Ok(package.clone());
         }
 
-        self.cache_misses.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        self.cache_misses
+            .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         warn!("Package not found: {}", id);
         Err(crate::error::Error::package_not_found(id.to_string()))
     }
 
     async fn get_package_version(
-        &self,
-        id: &PackageId,
-        version: &PackageVersion,
+        &self, id: &PackageId, version: &PackageVersion,
     ) -> Result<Package> {
         let mut package = self.get_package(id).await?;
 
@@ -189,15 +189,18 @@ impl AsyncRepository for Registry {
         // Try cache first
         let cache_key = "all_packages".to_string();
         if let Some(cached) = self.query_cache.get(&cache_key).await {
-            self.cache_hits.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+            self.cache_hits
+                .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
             debug!("Cache hit for all_packages");
             return Ok(cached);
         }
 
-        self.cache_misses.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        self.cache_misses
+            .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
 
         // Fetch from primary storage
-        let packages: Vec<Package> = self.packages
+        let packages: Vec<Package> = self
+            .packages
             .iter()
             .map(|entry| entry.value().clone())
             .collect();
@@ -237,7 +240,8 @@ impl std::fmt::Display for CacheStats {
         write!(
             f,
             "Cache stats: {} hits, {} misses, {:.2}% hit rate",
-            self.hits, self.misses,
+            self.hits,
+            self.misses,
             self.hit_rate * 100.0
         )
     }
@@ -254,12 +258,7 @@ mod tests {
         let registry = Registry::new(100).await;
 
         let id = PackageId::new("test-pkg").unwrap();
-        let metadata = PackageMetadata::new(
-            id.clone(),
-            "Test Package",
-            "A test package",
-            "MIT",
-        );
+        let metadata = PackageMetadata::new(id.clone(), "Test Package", "A test package", "MIT");
         let package = Package {
             metadata,
             latest_version: PackageVersion::new("1.0.0").unwrap(),
@@ -278,12 +277,7 @@ mod tests {
         let registry = Registry::new(100).await;
 
         let id = PackageId::new("test-pkg").unwrap();
-        let metadata = PackageMetadata::new(
-            id.clone(),
-            "Test Package",
-            "A test package",
-            "MIT",
-        );
+        let metadata = PackageMetadata::new(id.clone(), "Test Package", "A test package", "MIT");
         let package = Package {
             metadata,
             latest_version: PackageVersion::new("1.0.0").unwrap(),

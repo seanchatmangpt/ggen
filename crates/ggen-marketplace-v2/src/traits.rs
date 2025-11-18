@@ -8,7 +8,7 @@ use std::future::Future;
 
 use crate::error::Result;
 use crate::models::{
-    Package, PackageId, PackageVersion, SearchResult, Manifest, InstallationManifest,
+    InstallationManifest, Manifest, Package, PackageId, PackageVersion, SearchResult,
 };
 
 /// Generic associated types for async operations (using async_trait for now)
@@ -25,9 +25,7 @@ pub trait AsyncRepository: Send + Sync {
 
     /// Get a specific version of a package
     async fn get_package_version(
-        &self,
-        id: &PackageId,
-        version: &PackageVersion,
+        &self, id: &PackageId, version: &PackageVersion,
     ) -> Result<Package>;
 
     /// Get all packages in the repository
@@ -60,23 +58,15 @@ pub trait Queryable: Send + Sync {
 #[async_trait]
 pub trait Installable: Send + Sync {
     /// Install a package
-    async fn install(
-        &self,
-        manifest: InstallationManifest,
-    ) -> Result<InstallationManifest>;
+    async fn install(&self, manifest: InstallationManifest) -> Result<InstallationManifest>;
 
     /// Resolve dependencies for a package
     async fn resolve_dependencies(
-        &self,
-        id: &PackageId,
-        version: &PackageVersion,
+        &self, id: &PackageId, version: &PackageVersion,
     ) -> Result<Vec<(PackageId, PackageVersion)>>;
 
     /// Dry-run installation without actual changes
-    async fn dry_run_install(
-        &self,
-        manifest: &InstallationManifest,
-    ) -> Result<String>;
+    async fn dry_run_install(&self, manifest: &InstallationManifest) -> Result<String>;
 }
 
 /// Trait for package validation
@@ -159,7 +149,10 @@ pub trait Filter<T>: Send + Sync {
 
     /// Filter a collection
     fn filter_items(&self, items: Vec<T>) -> Vec<T> {
-        items.into_iter().filter(|item| self.matches(item)).collect()
+        items
+            .into_iter()
+            .filter(|item| self.matches(item))
+            .collect()
     }
 }
 
@@ -182,7 +175,11 @@ pub trait Transformer<T, U>: Send + Sync {
 pub trait Ranker {
     /// Rank search results
     fn rank(&self, results: &mut [SearchResult]) {
-        results.sort_by(|a, b| b.relevance.partial_cmp(&a.relevance).unwrap_or(std::cmp::Ordering::Equal));
+        results.sort_by(|a, b| {
+            b.relevance
+                .partial_cmp(&a.relevance)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
     }
 }
 
@@ -193,13 +190,19 @@ impl Ranker for DefaultRanker {
     fn rank(&self, results: &mut [SearchResult]) {
         results.sort_by(|a, b| {
             // First compare by relevance
-            let rel_cmp = b.relevance.partial_cmp(&a.relevance).unwrap_or(std::cmp::Ordering::Equal);
+            let rel_cmp = b
+                .relevance
+                .partial_cmp(&a.relevance)
+                .unwrap_or(std::cmp::Ordering::Equal);
             if rel_cmp != std::cmp::Ordering::Equal {
                 return rel_cmp;
             }
 
             // Then by download count
-            b.package.metadata.downloads.cmp(&a.package.metadata.downloads)
+            b.package
+                .metadata
+                .downloads
+                .cmp(&a.package.metadata.downloads)
         });
     }
 }
