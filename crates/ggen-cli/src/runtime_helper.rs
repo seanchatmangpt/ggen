@@ -16,7 +16,7 @@
 //!         let result = async_operation().await?;
 //!         Ok(result)
 //!     })
-//!     .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))
+//!     .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))
 //! }
 //! ```
 

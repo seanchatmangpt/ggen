@@ -1,0 +1,1072 @@
+@prefix mp: <https://ggen.io/marketplace/> .
+@prefix ggen: <https://ggen.io/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# ============================================================================
+# MARKETPLACE ONTOLOGY - Complete RDF/Turtle Control Plane
+# ============================================================================
+# Version: 3.0.0
+# Description: Comprehensive semantic marketplace with POKA YOKE mistake-proofing
+# Architecture: 100% RDF/SPARQL - No JSON APIs, No SQL
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# CORE CLASSES - Package Management Domain
+# ----------------------------------------------------------------------------
+
+mp:Package a owl:Class ;
+    rdfs:label "Package" ;
+    rdfs:comment "A distributable unit of code/templates in the marketplace" ;
+    rdfs:subClassOf mp:MarketplaceEntity ;
+    sh:property [
+        sh:path mp:packageId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z0-9_/-]{1,200}$" ;
+        sh:message "Package ID must be 1-200 alphanumeric/underscore/hyphen/slash characters"
+    ] ;
+    sh:property [
+        sh:path mp:packageName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 100
+    ] ;
+    sh:property [
+        sh:path mp:version ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9.-]+)?(\\+[a-zA-Z0-9.-]+)?$" ;
+        sh:message "Version must follow semantic versioning (e.g., 1.0.0)"
+    ] ;
+    sh:property [
+        sh:path mp:state ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:PackageState
+    ] ;
+    sh:property [
+        sh:path mp:author ;
+        sh:minCount 1 ;
+        sh:class foaf:Person
+    ] ;
+    sh:property [
+        sh:path mp:license ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:License
+    ] ;
+    sh:property [
+        sh:path mp:checksum ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:Checksum
+    ] ;
+    sh:property [
+        sh:path mp:signature ;
+        sh:class mp:Signature
+    ] .
+
+mp:PackageVersion a owl:Class ;
+    rdfs:label "Package Version" ;
+    rdfs:comment "A specific version of a package with immutable content" ;
+    rdfs:subClassOf mp:MarketplaceEntity ;
+    sh:property [
+        sh:path mp:versionNumber ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    ] ;
+    sh:property [
+        sh:path mp:publishedAt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime
+    ] ;
+    sh:property [
+        sh:path mp:isLatest ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean
+    ] ;
+    sh:property [
+        sh:path mp:deprecationNotice ;
+        sh:datatype xsd:string
+    ] .
+
+mp:Dependency a owl:Class ;
+    rdfs:label "Dependency" ;
+    rdfs:comment "A dependency relationship between packages" ;
+    sh:property [
+        sh:path mp:dependsOnPackage ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:Package
+    ] ;
+    sh:property [
+        sh:path mp:versionConstraint ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^(\\^|~|>=|<=|>|<|=)?[0-9]+\\.[0-9]+\\.[0-9]+$"
+    ] ;
+    sh:property [
+        sh:path mp:dependencyType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( mp:RuntimeDependency mp:DevDependency mp:OptionalDependency )
+    ] .
+
+mp:Author a owl:Class ;
+    rdfs:label "Author" ;
+    rdfs:comment "Package author or maintainer" ;
+    rdfs:subClassOf foaf:Person ;
+    sh:property [
+        sh:path foaf:name ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 200
+    ] ;
+    sh:property [
+        sh:path foaf:mbox ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+    ] ;
+    sh:property [
+        sh:path mp:publicKey ;
+        sh:class mp:PublicKey
+    ] .
+
+mp:License a owl:Class ;
+    rdfs:label "License" ;
+    rdfs:comment "Software license for a package" ;
+    sh:property [
+        sh:path mp:licenseId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "MIT" "Apache-2.0" "GPL-3.0" "BSD-3-Clause" "ISC" "MPL-2.0" "LGPL-3.0" "AGPL-3.0" )
+    ] ;
+    sh:property [
+        sh:path mp:licenseText ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path mp:spdxUrl ;
+        sh:datatype xsd:anyURI
+    ] .
+
+# ----------------------------------------------------------------------------
+# SECURITY & CRYPTOGRAPHY CLASSES
+# ----------------------------------------------------------------------------
+
+mp:Signature a owl:Class ;
+    rdfs:label "Cryptographic Signature" ;
+    rdfs:comment "Ed25519 signature for package integrity verification" ;
+    sh:property [
+        sh:path mp:signatureValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9a-fA-F]{128}$" ;
+        sh:message "Signature must be 128 hex characters (64 bytes)"
+    ] ;
+    sh:property [
+        sh:path mp:algorithm ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "Ed25519" )
+    ] ;
+    sh:property [
+        sh:path mp:signedBy ;
+        sh:minCount 1 ;
+        sh:class mp:PublicKey
+    ] ;
+    sh:property [
+        sh:path mp:signedAt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime
+    ] ;
+    sh:property [
+        sh:path mp:signatureVerified ;
+        sh:datatype xsd:boolean
+    ] .
+
+mp:Checksum a owl:Class ;
+    rdfs:label "Checksum" ;
+    rdfs:comment "SHA-256 checksum for content verification" ;
+    sh:property [
+        sh:path mp:checksumValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9a-fA-F]{64}$" ;
+        sh:message "Checksum must be 64 hex characters (SHA-256)"
+    ] ;
+    sh:property [
+        sh:path mp:algorithm ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "SHA-256" "SHA-512" "BLAKE3" )
+    ] ;
+    sh:property [
+        sh:path mp:verifiedAt ;
+        sh:datatype xsd:dateTime
+    ] ;
+    sh:property [
+        sh:path mp:checksumValid ;
+        sh:datatype xsd:boolean
+    ] .
+
+mp:PublicKey a owl:Class ;
+    rdfs:label "Public Key" ;
+    rdfs:comment "Ed25519 public key for signature verification" ;
+    sh:property [
+        sh:path mp:keyValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9a-fA-F]{64}$" ;
+        sh:message "Public key must be 64 hex characters (32 bytes)"
+    ] ;
+    sh:property [
+        sh:path mp:keyAlgorithm ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "Ed25519" )
+    ] ;
+    sh:property [
+        sh:path mp:keyOwner ;
+        sh:minCount 1 ;
+        sh:class mp:Author
+    ] .
+
+# ----------------------------------------------------------------------------
+# STATE MACHINE - Package Lifecycle FSM
+# ----------------------------------------------------------------------------
+
+mp:PackageState a owl:Class ;
+    rdfs:label "Package State" ;
+    rdfs:comment "Finite state machine for package lifecycle" ;
+    owl:oneOf ( mp:Draft mp:Published mp:Active mp:Deprecated mp:Archived mp:Withdrawn ) .
+
+mp:Draft a mp:PackageState ;
+    rdfs:label "Draft" ;
+    rdfs:comment "Package is being prepared, not yet published" ;
+    mp:canTransitionTo mp:Published .
+
+mp:Published a mp:PackageState ;
+    rdfs:label "Published" ;
+    rdfs:comment "Package has been published but not yet verified" ;
+    mp:canTransitionTo mp:Active ;
+    mp:canTransitionTo mp:Withdrawn ;
+    mp:requiresVerification true .
+
+mp:Active a mp:PackageState ;
+    rdfs:label "Active" ;
+    rdfs:comment "Package is active and available for installation" ;
+    mp:canTransitionTo mp:Deprecated ;
+    mp:canTransitionTo mp:Withdrawn .
+
+mp:Deprecated a mp:PackageState ;
+    rdfs:label "Deprecated" ;
+    rdfs:comment "Package is deprecated but still available" ;
+    mp:canTransitionTo mp:Archived ;
+    mp:canTransitionTo mp:Active ;
+    mp:requiresReplacement true .
+
+mp:Archived a mp:PackageState ;
+    rdfs:label "Archived" ;
+    rdfs:comment "Package is archived and no longer available for new installations" ;
+    mp:isTerminalState true .
+
+mp:Withdrawn a mp:PackageState ;
+    rdfs:label "Withdrawn" ;
+    rdfs:comment "Package was withdrawn due to security or legal issues" ;
+    mp:isTerminalState true ;
+    mp:requiresReason true .
+
+# ----------------------------------------------------------------------------
+# QUALITY & MATURITY ASSESSMENT
+# ----------------------------------------------------------------------------
+
+mp:QualityScore a owl:Class ;
+    rdfs:label "Quality Score" ;
+    rdfs:comment "Comprehensive quality assessment for a package" ;
+    sh:property [
+        sh:path mp:overallScore ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0
+    ] ;
+    sh:property [
+        sh:path mp:testCoverageScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0
+    ] ;
+    sh:property [
+        sh:path mp:documentationScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0
+    ] ;
+    sh:property [
+        sh:path mp:codeQualityScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0
+    ] ;
+    sh:property [
+        sh:path mp:securityScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0
+    ] ;
+    sh:property [
+        sh:path mp:performanceScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0
+    ] .
+
+mp:MaturityLevel a owl:Class ;
+    rdfs:label "Maturity Level" ;
+    rdfs:comment "Maturity assessment based on development practices" ;
+    owl:oneOf ( mp:Experimental mp:Alpha mp:Beta mp:Stable mp:Mature mp:Production ) .
+
+mp:Experimental a mp:MaturityLevel ;
+    rdfs:label "Experimental" ;
+    mp:minQualityScore 0.0 ;
+    mp:stabilityLevel "unstable" .
+
+mp:Alpha a mp:MaturityLevel ;
+    rdfs:label "Alpha" ;
+    mp:minQualityScore 20.0 ;
+    mp:stabilityLevel "unstable" .
+
+mp:Beta a mp:MaturityLevel ;
+    rdfs:label "Beta" ;
+    mp:minQualityScore 40.0 ;
+    mp:stabilityLevel "testing" .
+
+mp:Stable a mp:MaturityLevel ;
+    rdfs:label "Stable" ;
+    mp:minQualityScore 60.0 ;
+    mp:stabilityLevel "stable" .
+
+mp:Mature a mp:MaturityLevel ;
+    rdfs:label "Mature" ;
+    mp:minQualityScore 80.0 ;
+    mp:stabilityLevel "stable" .
+
+mp:Production a mp:MaturityLevel ;
+    rdfs:label "Production" ;
+    mp:minQualityScore 90.0 ;
+    mp:stabilityLevel "production-ready" .
+
+# ----------------------------------------------------------------------------
+# MARKETPLACE INFRASTRUCTURE
+# ----------------------------------------------------------------------------
+
+mp:Marketplace a owl:Class ;
+    rdfs:label "Marketplace" ;
+    rdfs:comment "Root marketplace instance configuration" ;
+    sh:property [
+        sh:path mp:marketplaceName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path mp:marketplaceVersion ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path mp:storageBackend ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:StorageBackend
+    ] ;
+    sh:property [
+        sh:path mp:searchEngine ;
+        sh:class mp:SearchEngine
+    ] ;
+    sh:property [
+        sh:path mp:cacheConfiguration ;
+        sh:class mp:CacheConfiguration
+    ] .
+
+mp:StorageBackend a owl:Class ;
+    rdfs:label "Storage Backend" ;
+    rdfs:comment "RDF triple store backend configuration" ;
+    owl:oneOf ( mp:OxigraphStore mp:AllegroGraphStore mp:BlazegraphStore mp:GraphDBStore mp:InMemoryStore ) .
+
+mp:OxigraphStore a mp:StorageBackend ;
+    rdfs:label "Oxigraph Store" ;
+    rdfs:comment "Embedded Rust-based RDF store" ;
+    mp:persistenceMode mp:Disk ;
+    mp:transactional true ;
+    mp:sparqlCompliant true .
+
+mp:SearchEngine a owl:Class ;
+    rdfs:label "Search Engine" ;
+    rdfs:comment "Full-text search configuration" ;
+    sh:property [
+        sh:path mp:indexType ;
+        sh:in ( mp:FullTextIndex mp:SemanticIndex mp:HybridIndex )
+    ] ;
+    sh:property [
+        sh:path mp:indexPath ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path mp:language ;
+        sh:datatype xsd:string ;
+        sh:in ( "en" "es" "fr" "de" "ja" "zh" )
+    ] .
+
+mp:CacheConfiguration a owl:Class ;
+    rdfs:label "Cache Configuration" ;
+    rdfs:comment "Multi-tier cache settings" ;
+    sh:property [
+        sh:path mp:hotCacheTTL ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:message "Hot cache TTL in seconds"
+    ] ;
+    sh:property [
+        sh:path mp:metadataCacheTTL ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0
+    ] ;
+    sh:property [
+        sh:path mp:cacheCapacity ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 100
+    ] .
+
+# ----------------------------------------------------------------------------
+# SEARCH & DISCOVERY
+# ----------------------------------------------------------------------------
+
+mp:SearchQuery a owl:Class ;
+    rdfs:label "Search Query" ;
+    rdfs:comment "Semantic search query for package discovery" ;
+    sh:property [
+        sh:path mp:queryText ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1
+    ] ;
+    sh:property [
+        sh:path mp:filterByCategory ;
+        sh:class mp:Category
+    ] ;
+    sh:property [
+        sh:path mp:filterByTag ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path mp:filterByMaturity ;
+        sh:class mp:MaturityLevel
+    ] ;
+    sh:property [
+        sh:path mp:minQualityScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0
+    ] .
+
+mp:SearchResult a owl:Class ;
+    rdfs:label "Search Result" ;
+    rdfs:comment "Package search result with relevance scoring" ;
+    sh:property [
+        sh:path mp:matchedPackage ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:Package
+    ] ;
+    sh:property [
+        sh:path mp:relevanceScore ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0
+    ] ;
+    sh:property [
+        sh:path mp:matchedFields ;
+        sh:datatype xsd:string
+    ] .
+
+mp:Category a owl:Class ;
+    rdfs:label "Category" ;
+    rdfs:comment "Package category for organization" ;
+    sh:property [
+        sh:path mp:categoryName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path mp:parentCategory ;
+        sh:class mp:Category
+    ] ;
+    sh:property [
+        sh:path skos:broader ;
+        sh:class mp:Category
+    ] ;
+    sh:property [
+        sh:path skos:narrower ;
+        sh:class mp:Category
+    ] .
+
+# ----------------------------------------------------------------------------
+# FAILURE MODE & EFFECTS ANALYSIS (FMEA)
+# ----------------------------------------------------------------------------
+
+mp:FailureMode a owl:Class ;
+    rdfs:label "Failure Mode" ;
+    rdfs:comment "Detected failure condition in marketplace operation" ;
+    sh:property [
+        sh:path mp:failureType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:FailureType
+    ] ;
+    sh:property [
+        sh:path mp:severity ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 10
+    ] ;
+    sh:property [
+        sh:path mp:detectedAt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime
+    ] ;
+    sh:property [
+        sh:path mp:affectedPackage ;
+        sh:class mp:Package
+    ] ;
+    sh:property [
+        sh:path mp:mitigation ;
+        sh:class mp:Mitigation
+    ] .
+
+mp:FailureType a owl:Class ;
+    rdfs:label "Failure Type" ;
+    owl:oneOf (
+        mp:SignatureVerificationFailed
+        mp:ChecksumMismatch
+        mp:DependencyNotFound
+        mp:VersionConflict
+        mp:InvalidState
+        mp:NetworkFailure
+        mp:StorageCorruption
+        mp:AccessDenied
+    ) .
+
+mp:Mitigation a owl:Class ;
+    rdfs:label "Mitigation" ;
+    rdfs:comment "Automated recovery procedure for failure modes" ;
+    sh:property [
+        sh:path mp:mitigationStrategy ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( mp:Retry mp:Fallback mp:Degrade mp:Alert mp:Rollback )
+    ] ;
+    sh:property [
+        sh:path mp:maxRetries ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 5
+    ] ;
+    sh:property [
+        sh:path mp:backoffMultiplier ;
+        sh:datatype xsd:decimal
+    ] ;
+    sh:property [
+        sh:path mp:applied ;
+        sh:datatype xsd:boolean
+    ] ;
+    sh:property [
+        sh:path mp:appliedAt ;
+        sh:datatype xsd:dateTime
+    ] .
+
+# ----------------------------------------------------------------------------
+# AUDIT & OBSERVABILITY
+# ----------------------------------------------------------------------------
+
+mp:AuditEvent a owl:Class ;
+    rdfs:label "Audit Event" ;
+    rdfs:comment "Immutable audit trail for marketplace operations" ;
+    sh:property [
+        sh:path mp:eventType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:EventType
+    ] ;
+    sh:property [
+        sh:path mp:timestamp ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime
+    ] ;
+    sh:property [
+        sh:path mp:actor ;
+        sh:class mp:Author
+    ] ;
+    sh:property [
+        sh:path mp:targetPackage ;
+        sh:class mp:Package
+    ] ;
+    sh:property [
+        sh:path mp:changeSet ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path mp:eventId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string
+    ] .
+
+mp:EventType a owl:Class ;
+    rdfs:label "Event Type" ;
+    owl:oneOf (
+        mp:PackagePublished
+        mp:PackageUpdated
+        mp:PackageDeprecated
+        mp:PackageWithdrawn
+        mp:PackageInstalled
+        mp:SignatureVerified
+        mp:SearchPerformed
+        mp:ConfigurationChanged
+    ) .
+
+# ----------------------------------------------------------------------------
+# PROPERTIES - Package Attributes
+# ----------------------------------------------------------------------------
+
+mp:packageId a owl:DatatypeProperty ;
+    rdfs:label "Package ID" ;
+    rdfs:domain mp:Package ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique identifier for a package" .
+
+mp:packageName a owl:DatatypeProperty ;
+    rdfs:label "Package Name" ;
+    rdfs:domain mp:Package ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Human-readable package name" .
+
+mp:version a owl:DatatypeProperty ;
+    rdfs:label "Version" ;
+    rdfs:domain mp:Package ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Semantic version string" .
+
+mp:description a owl:DatatypeProperty ;
+    rdfs:label "Description" ;
+    rdfs:domain mp:Package ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Package description" .
+
+mp:state a owl:ObjectProperty ;
+    rdfs:label "State" ;
+    rdfs:domain mp:Package ;
+    rdfs:range mp:PackageState ;
+    rdfs:comment "Current lifecycle state" .
+
+mp:author a owl:ObjectProperty ;
+    rdfs:label "Author" ;
+    rdfs:domain mp:Package ;
+    rdfs:range mp:Author ;
+    rdfs:comment "Package author" .
+
+mp:license a owl:ObjectProperty ;
+    rdfs:label "License" ;
+    rdfs:domain mp:Package ;
+    rdfs:range mp:License ;
+    rdfs:comment "Software license" .
+
+mp:checksum a owl:ObjectProperty ;
+    rdfs:label "Checksum" ;
+    rdfs:domain mp:Package ;
+    rdfs:range mp:Checksum ;
+    rdfs:comment "Content checksum" .
+
+mp:signature a owl:ObjectProperty ;
+    rdfs:label "Signature" ;
+    rdfs:domain mp:Package ;
+    rdfs:range mp:Signature ;
+    rdfs:comment "Cryptographic signature" .
+
+mp:hasDependency a owl:ObjectProperty ;
+    rdfs:label "Has Dependency" ;
+    rdfs:domain mp:Package ;
+    rdfs:range mp:Dependency ;
+    rdfs:comment "Package dependency" .
+
+mp:hasQualityScore a owl:ObjectProperty ;
+    rdfs:label "Has Quality Score" ;
+    rdfs:domain mp:Package ;
+    rdfs:range mp:QualityScore ;
+    rdfs:comment "Quality assessment" .
+
+mp:hasMaturityLevel a owl:ObjectProperty ;
+    rdfs:label "Has Maturity Level" ;
+    rdfs:domain mp:Package ;
+    rdfs:range mp:MaturityLevel ;
+    rdfs:comment "Maturity classification" .
+
+mp:belongsToCategory a owl:ObjectProperty ;
+    rdfs:label "Belongs To Category" ;
+    rdfs:domain mp:Package ;
+    rdfs:range mp:Category ;
+    rdfs:comment "Package category" .
+
+mp:hasTag a owl:DatatypeProperty ;
+    rdfs:label "Has Tag" ;
+    rdfs:domain mp:Package ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Package tag for discovery" .
+
+mp:downloadCount a owl:DatatypeProperty ;
+    rdfs:label "Download Count" ;
+    rdfs:domain mp:Package ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Number of downloads" .
+
+mp:publishedAt a owl:DatatypeProperty ;
+    rdfs:label "Published At" ;
+    rdfs:domain mp:Package ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Publication timestamp" .
+
+mp:updatedAt a owl:DatatypeProperty ;
+    rdfs:label "Updated At" ;
+    rdfs:domain mp:Package ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Last update timestamp" .
+
+# ----------------------------------------------------------------------------
+# PROPERTIES - State Machine Transitions
+# ----------------------------------------------------------------------------
+
+mp:canTransitionTo a owl:ObjectProperty ;
+    rdfs:label "Can Transition To" ;
+    rdfs:domain mp:PackageState ;
+    rdfs:range mp:PackageState ;
+    rdfs:comment "Allowed state transition" .
+
+mp:requiresVerification a owl:DatatypeProperty ;
+    rdfs:label "Requires Verification" ;
+    rdfs:domain mp:PackageState ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether state requires verification" .
+
+mp:requiresReplacement a owl:DatatypeProperty ;
+    rdfs:label "Requires Replacement" ;
+    rdfs:domain mp:PackageState ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether state requires replacement package" .
+
+mp:requiresReason a owl:DatatypeProperty ;
+    rdfs:label "Requires Reason" ;
+    rdfs:domain mp:PackageState ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether state requires reason documentation" .
+
+mp:isTerminalState a owl:DatatypeProperty ;
+    rdfs:label "Is Terminal State" ;
+    rdfs:domain mp:PackageState ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether state is terminal (no further transitions)" .
+
+# ----------------------------------------------------------------------------
+# PROPERTIES - Security & Cryptography
+# ----------------------------------------------------------------------------
+
+mp:signatureValue a owl:DatatypeProperty ;
+    rdfs:label "Signature Value" ;
+    rdfs:domain mp:Signature ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Ed25519 signature bytes (hex)" .
+
+mp:algorithm a owl:DatatypeProperty ;
+    rdfs:label "Algorithm" ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Cryptographic algorithm name" .
+
+mp:signedBy a owl:ObjectProperty ;
+    rdfs:label "Signed By" ;
+    rdfs:domain mp:Signature ;
+    rdfs:range mp:PublicKey ;
+    rdfs:comment "Public key used for signing" .
+
+mp:signedAt a owl:DatatypeProperty ;
+    rdfs:label "Signed At" ;
+    rdfs:domain mp:Signature ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Signature creation timestamp" .
+
+mp:signatureVerified a owl:DatatypeProperty ;
+    rdfs:label "Signature Verified" ;
+    rdfs:domain mp:Signature ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether signature has been verified" .
+
+mp:checksumValue a owl:DatatypeProperty ;
+    rdfs:label "Checksum Value" ;
+    rdfs:domain mp:Checksum ;
+    rdfs:range xsd:string ;
+    rdfs:comment "SHA-256 checksum (hex)" .
+
+mp:verifiedAt a owl:DatatypeProperty ;
+    rdfs:label "Verified At" ;
+    rdfs:domain mp:Checksum ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Checksum verification timestamp" .
+
+mp:checksumValid a owl:DatatypeProperty ;
+    rdfs:label "Checksum Valid" ;
+    rdfs:domain mp:Checksum ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether checksum is valid" .
+
+mp:keyValue a owl:DatatypeProperty ;
+    rdfs:label "Key Value" ;
+    rdfs:domain mp:PublicKey ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Ed25519 public key bytes (hex)" .
+
+mp:keyAlgorithm a owl:DatatypeProperty ;
+    rdfs:label "Key Algorithm" ;
+    rdfs:domain mp:PublicKey ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Public key algorithm" .
+
+mp:keyOwner a owl:ObjectProperty ;
+    rdfs:label "Key Owner" ;
+    rdfs:domain mp:PublicKey ;
+    rdfs:range mp:Author ;
+    rdfs:comment "Public key owner" .
+
+# ----------------------------------------------------------------------------
+# PROPERTIES - Quality & Maturity
+# ----------------------------------------------------------------------------
+
+mp:overallScore a owl:DatatypeProperty ;
+    rdfs:label "Overall Score" ;
+    rdfs:domain mp:QualityScore ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Overall quality score (0-100)" .
+
+mp:testCoverageScore a owl:DatatypeProperty ;
+    rdfs:label "Test Coverage Score" ;
+    rdfs:domain mp:QualityScore ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Test coverage score (0-100)" .
+
+mp:documentationScore a owl:DatatypeProperty ;
+    rdfs:label "Documentation Score" ;
+    rdfs:domain mp:QualityScore ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Documentation quality score (0-100)" .
+
+mp:codeQualityScore a owl:DatatypeProperty ;
+    rdfs:label "Code Quality Score" ;
+    rdfs:domain mp:QualityScore ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Code quality score (0-100)" .
+
+mp:securityScore a owl:DatatypeProperty ;
+    rdfs:label "Security Score" ;
+    rdfs:domain mp:QualityScore ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Security score (0-100)" .
+
+mp:performanceScore a owl:DatatypeProperty ;
+    rdfs:label "Performance Score" ;
+    rdfs:domain mp:QualityScore ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Performance score (0-100)" .
+
+mp:minQualityScore a owl:DatatypeProperty ;
+    rdfs:label "Minimum Quality Score" ;
+    rdfs:domain mp:MaturityLevel ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Minimum quality score for maturity level" .
+
+mp:stabilityLevel a owl:DatatypeProperty ;
+    rdfs:label "Stability Level" ;
+    rdfs:domain mp:MaturityLevel ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Stability classification" .
+
+# ----------------------------------------------------------------------------
+# PROPERTIES - Marketplace Configuration
+# ----------------------------------------------------------------------------
+
+mp:marketplaceName a owl:DatatypeProperty ;
+    rdfs:label "Marketplace Name" ;
+    rdfs:domain mp:Marketplace ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Marketplace instance name" .
+
+mp:marketplaceVersion a owl:DatatypeProperty ;
+    rdfs:label "Marketplace Version" ;
+    rdfs:domain mp:Marketplace ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Marketplace version" .
+
+mp:storageBackend a owl:ObjectProperty ;
+    rdfs:label "Storage Backend" ;
+    rdfs:domain mp:Marketplace ;
+    rdfs:range mp:StorageBackend ;
+    rdfs:comment "RDF storage backend" .
+
+mp:searchEngine a owl:ObjectProperty ;
+    rdfs:label "Search Engine" ;
+    rdfs:domain mp:Marketplace ;
+    rdfs:range mp:SearchEngine ;
+    rdfs:comment "Search engine configuration" .
+
+mp:cacheConfiguration a owl:ObjectProperty ;
+    rdfs:label "Cache Configuration" ;
+    rdfs:domain mp:Marketplace ;
+    rdfs:range mp:CacheConfiguration ;
+    rdfs:comment "Cache settings" .
+
+mp:hotCacheTTL a owl:DatatypeProperty ;
+    rdfs:label "Hot Cache TTL" ;
+    rdfs:domain mp:CacheConfiguration ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Hot cache time-to-live (seconds)" .
+
+mp:metadataCacheTTL a owl:DatatypeProperty ;
+    rdfs:label "Metadata Cache TTL" ;
+    rdfs:domain mp:CacheConfiguration ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Metadata cache time-to-live (seconds)" .
+
+mp:cacheCapacity a owl:DatatypeProperty ;
+    rdfs:label "Cache Capacity" ;
+    rdfs:domain mp:CacheConfiguration ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Cache capacity (items)" .
+
+mp:indexType a owl:DatatypeProperty ;
+    rdfs:label "Index Type" ;
+    rdfs:domain mp:SearchEngine ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Search index type" .
+
+mp:indexPath a owl:DatatypeProperty ;
+    rdfs:label "Index Path" ;
+    rdfs:domain mp:SearchEngine ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Search index file path" .
+
+mp:language a owl:DatatypeProperty ;
+    rdfs:label "Language" ;
+    rdfs:domain mp:SearchEngine ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Search language" .
+
+# ----------------------------------------------------------------------------
+# PROPERTIES - FMEA
+# ----------------------------------------------------------------------------
+
+mp:failureType a owl:ObjectProperty ;
+    rdfs:label "Failure Type" ;
+    rdfs:domain mp:FailureMode ;
+    rdfs:range mp:FailureType ;
+    rdfs:comment "Type of failure detected" .
+
+mp:severity a owl:DatatypeProperty ;
+    rdfs:label "Severity" ;
+    rdfs:domain mp:FailureMode ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Failure severity (1-10)" .
+
+mp:detectedAt a owl:DatatypeProperty ;
+    rdfs:label "Detected At" ;
+    rdfs:domain mp:FailureMode ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Failure detection timestamp" .
+
+mp:affectedPackage a owl:ObjectProperty ;
+    rdfs:label "Affected Package" ;
+    rdfs:domain mp:FailureMode ;
+    rdfs:range mp:Package ;
+    rdfs:comment "Package affected by failure" .
+
+mp:mitigation a owl:ObjectProperty ;
+    rdfs:label "Mitigation" ;
+    rdfs:domain mp:FailureMode ;
+    rdfs:range mp:Mitigation ;
+    rdfs:comment "Recovery procedure" .
+
+mp:mitigationStrategy a owl:DatatypeProperty ;
+    rdfs:label "Mitigation Strategy" ;
+    rdfs:domain mp:Mitigation ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Recovery strategy type" .
+
+mp:maxRetries a owl:DatatypeProperty ;
+    rdfs:label "Max Retries" ;
+    rdfs:domain mp:Mitigation ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Maximum retry attempts" .
+
+mp:backoffMultiplier a owl:DatatypeProperty ;
+    rdfs:label "Backoff Multiplier" ;
+    rdfs:domain mp:Mitigation ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Exponential backoff multiplier" .
+
+mp:applied a owl:DatatypeProperty ;
+    rdfs:label "Applied" ;
+    rdfs:domain mp:Mitigation ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether mitigation was applied" .
+
+mp:appliedAt a owl:DatatypeProperty ;
+    rdfs:label "Applied At" ;
+    rdfs:domain mp:Mitigation ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Mitigation application timestamp" .
+
+# ----------------------------------------------------------------------------
+# END OF ONTOLOGY
+# ----------------------------------------------------------------------------

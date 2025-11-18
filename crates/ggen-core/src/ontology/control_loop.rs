@@ -10,7 +10,9 @@ use std::time::Duration;
 use tokio::sync::RwLock;
 
 use crate::ontology::delta_proposer::DeltaSigmaProposer;
-use crate::ontology::pattern_miner::{MinerConfig, Observation, ObservationSource, PatternMiner};
+#[cfg(test)]
+use crate::ontology::pattern_miner::ObservationSource;
+use crate::ontology::pattern_miner::{MinerConfig, Observation, PatternMiner};
 use crate::ontology::promotion::AtomicSnapshotPromoter;
 use crate::ontology::sigma_runtime::{SigmaReceipt, SigmaRuntime, SigmaSnapshot};
 use crate::ontology::validators::{CompositeValidator, Invariant, ValidationContext};

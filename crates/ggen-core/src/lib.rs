@@ -129,6 +129,7 @@ pub mod lockfile;
 pub mod merge;
 // Ontology system - re-enabled after oxigraph API compatibility fixes
 pub mod ontology;
+pub mod packs; // Pack installation system - Phase 1
 pub mod pipeline;
 pub mod poc;
 pub mod pqc;
@@ -172,6 +173,7 @@ pub use merge::{
     ConflictType, MergeConflict, MergeResult, MergeStrategy, RegionAwareMerger, RegionUtils,
     ThreeWayMerger,
 };
+pub use packs::{LockedPack, PackLockfile, PackSource};
 pub use pipeline::{Pipeline, PipelineBuilder};
 pub use pqc::{calculate_sha256, calculate_sha256_file, PqcSigner, PqcVerifier};
 pub use rdf::{

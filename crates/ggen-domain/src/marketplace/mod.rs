@@ -35,6 +35,7 @@ pub mod search;
 pub mod search_advanced;
 pub mod types; // Poka-yoke types for error prevention
 pub mod update;
+pub mod v2_adapter;
 pub mod validate;
 
 #[cfg(test)]
@@ -92,6 +93,9 @@ pub use search_advanced::{
 };
 pub use types::{Checksum, NonEmptyQuery, SemanticVersion, ValidatedPackageName};
 pub use update::{execute_update, UpdateInput, UpdateOutput};
+pub use v2_adapter::{
+    execute_unified_search, SearchBackend, UnifiedSearchQuery, UnifiedSearchResult,
+};
 pub use validate::{
     validate_all_packages, validate_package, CheckResult, PackageValidation, QualityCheck,
     RequiredCheck,

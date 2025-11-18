@@ -7,7 +7,7 @@
 //! - Full-text search over package descriptions
 
 use async_trait::async_trait;
-use oxigraph::model::{GraphNameRef, Literal, NamedNode, QuadRef, Term};
+use oxigraph::model::{GraphNameRef, NamedNode, QuadRef, Term};
 use oxigraph::store::Store;
 use parking_lot::RwLock;
 use std::sync::Arc;
@@ -15,6 +15,7 @@ use tracing::{debug, info};
 
 use crate::error::Result;
 use crate::models::{Package, PackageId, PackageVersion};
+use crate::rdf_mapper::RdfMapper;
 use crate::traits::AsyncRepository;
 
 /// RDF namespace for ggen marketplace
@@ -33,6 +34,9 @@ pub struct RdfRegistry {
     // RDF triplestore (single source of truth)
     store: Arc<Store>,
 
+    // RDF mapper for bidirectional conversion
+    mapper: Arc<RdfMapper>,
+
     // Read-write lock for atomic updates
     write_lock: Arc<RwLock<()>>,
 
@@ -48,8 +52,12 @@ impl RdfRegistry {
         // Initialize ontology
         Self::initialize_ontology(&store);
 
+        let store_arc = Arc::new(store);
+        let mapper = Arc::new(RdfMapper::new(Arc::clone(&store_arc)));
+
         Self {
-            store: Arc::new(store),
+            store: store_arc,
+            mapper,
             write_lock: Arc::new(RwLock::new(())),
             queries_executed: std::sync::atomic::AtomicU64::new(0),
         }
@@ -79,96 +87,28 @@ impl RdfRegistry {
         debug!("Initialized RDF marketplace ontology");
     }
 
-    /// Insert a package as RDF triples
+    /// Insert a package as RDF triples using the mapper
     pub async fn insert_package_rdf(&self, package: &Package) -> Result<()> {
         let _lock = self.write_lock.write();
+        self.mapper.package_to_rdf(package).await
+    }
 
-        let package_uri = NamedNode::new(format!("{}packages/{}", GGEN_NS, package.metadata.id))
-            .map_err(|err| {
-                crate::error::Error::RegistryError(format!(
-                    "Invalid package URI for {}: {err}",
-                    package.metadata.id
-                ))
-            })?;
+    /// Batch insert multiple packages for efficient loading
+    pub async fn batch_insert_packages(&self, packages: Vec<Package>) -> Result<usize> {
+        let _lock = self.write_lock.write();
+        let mut inserted = 0;
 
-        let rdf_type = NamedNode::new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
-            .map_err(|_| crate::error::Error::Other("Invalid RDF type URI".to_string()))?;
-
-        let package_class = NamedNode::new(format!("{}Package", GGEN_NS))
-            .map_err(|_| crate::error::Error::Other("Invalid package class URI".to_string()))?;
-
-        // Insert package type
-        let type_quad = QuadRef::new(
-            &package_uri,
-            &rdf_type,
-            &package_class,
-            GraphNameRef::DefaultGraph,
-        );
-
-        self.store.insert(type_quad).map_err(|e| {
-            crate::error::Error::RegistryError(format!("Failed to insert package: {}", e))
-        })?;
-
-        // Insert package name
-        let name_predicate = NamedNode::new(format!("{}name", GGEN_NS))
-            .map_err(|_| crate::error::Error::Other("Invalid name predicate".to_string()))?;
-
-        let name_literal = Literal::new_simple_literal(&package.metadata.name);
-
-        let name_quad = QuadRef::new(
-            &package_uri,
-            &name_predicate,
-            &name_literal,
-            GraphNameRef::DefaultGraph,
-        );
-
-        self.store.insert(name_quad).map_err(|e| {
-            crate::error::Error::RegistryError(format!("Failed to insert name: {}", e))
-        })?;
-
-        // Insert description
-        let desc_predicate = NamedNode::new(format!("{}description", GGEN_NS))
-            .map_err(|_| crate::error::Error::Other("Invalid description predicate".to_string()))?;
-
-        let desc_literal = Literal::new_simple_literal(&package.metadata.description);
-
-        let desc_quad = QuadRef::new(
-            &package_uri,
-            &desc_predicate,
-            &desc_literal,
-            GraphNameRef::DefaultGraph,
-        );
-
-        self.store.insert(desc_quad).map_err(|e| {
-            crate::error::Error::RegistryError(format!("Failed to insert description: {}", e))
-        })?;
-
-        // Insert versions as RDF facts
-        for version in &package.versions {
-            let version_uri = NamedNode::new(format!(
-                "{}packages/{}/versions/{}",
-                GGEN_NS, package.metadata.id, version
-            ))
-            .map_err(|_| crate::error::Error::Other("Invalid version URI".to_string()))?;
-
-            let has_version = NamedNode::new(format!("{}hasVersion", GGEN_NS)).map_err(|_| {
-                crate::error::Error::Other("Invalid hasVersion predicate".to_string())
-            })?;
-
-            let version_quad = QuadRef::new(
-                &package_uri,
-                &has_version,
-                &version_uri,
-                GraphNameRef::DefaultGraph,
-            );
-
-            self.store.insert(version_quad).map_err(|e| {
-                crate::error::Error::RegistryError(format!("Failed to insert version: {}", e))
-            })?;
+        for package in packages {
+            match self.mapper.package_to_rdf(&package).await {
+                Ok(_) => inserted += 1,
+                Err(e) => {
+                    tracing::warn!("Failed to insert package {}: {}", package.metadata.id, e);
+                }
+            }
         }
 
-        info!("Inserted package {} to RDF store", package.metadata.id);
-        Ok(())
+        info!("Batch inserted {} packages to RDF store", inserted);
+        Ok(inserted)
     }
 
     /// Query packages by SPARQL
@@ -223,80 +163,66 @@ impl AsyncRepository for RdfRegistry {
     type PackageIterator = std::vec::IntoIter<Package>;
 
     async fn get_package(&self, id: &PackageId) -> Result<Package> {
-        // Query RDF store for package by ID
-        let query = format!(
-            r#"
-            SELECT ?package WHERE {{
-                ?package <{}name> ?name .
-                FILTER(CONTAINS(str(?package), "{}"))
-            }}
-            LIMIT 1
-            "#,
-            GGEN_NS, id
-        );
+        self.queries_executed
+            .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
 
-        let results = self.query_sparql(&query).await?;
-
-        if results.is_empty() {
-            return Err(crate::error::Error::package_not_found(id.to_string()));
-        }
-
-        // In a real implementation, we'd reconstruct the Package from RDF triples
-        // For now, return a minimal package
-        debug!("Retrieved package {} from RDF store", id);
-
-        Err(crate::error::Error::Other(
-            "RDF package reconstruction not yet implemented".to_string(),
-        ))
+        debug!("Retrieving package {} from RDF store", id);
+        self.mapper.rdf_to_package(id).await
     }
 
     async fn get_package_version(
         &self, id: &PackageId, version: &PackageVersion,
     ) -> Result<Package> {
-        // Query RDF store for specific version
-        let query = format!(
-            r#"
-            SELECT ?version WHERE {{
-                ?package <{}hasVersion> ?version .
-                FILTER(CONTAINS(str(?package), "{}"))
-                FILTER(CONTAINS(str(?version), "{}"))
-            }}
-            "#,
-            GGEN_NS, id, version
-        );
+        self.queries_executed
+            .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
 
-        let results = self.query_sparql(&query).await?;
+        // Get full package and filter to specific version
+        let mut package = self.get_package(id).await?;
 
-        if results.is_empty() {
+        if !package.versions.contains(version) {
             return Err(crate::error::Error::InvalidVersion {
                 version: version.to_string(),
-                reason: format!("Version not found for package {}", id),
+                reason: format!("Version {} not found for package {}", version, id),
             });
         }
 
-        // Reconstruct from RDF
-        Err(crate::error::Error::Other(
-            "RDF package reconstruction not yet implemented".to_string(),
-        ))
+        // Filter to only requested version
+        package.versions = vec![version.clone()];
+        package.releases.retain(|v, _| v == version);
+
+        Ok(package)
     }
 
     async fn all_packages(&self) -> Result<Vec<Package>> {
-        // Query all packages from RDF store
+        self.queries_executed
+            .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+
+        // Query all package IDs
         let query = format!(
             r#"
-            SELECT ?package WHERE {{
+            SELECT ?packageId WHERE {{
                 ?package <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <{}Package> .
+                ?package <{}> ?packageId .
             }}
             "#,
-            GGEN_NS
+            GGEN_NS,
+            crate::ontology::Properties::package_id()
         );
 
         let results = self.query_sparql(&query).await?;
-
         debug!("Found {} packages in RDF store", results.len());
 
-        // In a real implementation, reconstruct all packages from RDF
-        Ok(Vec::new())
+        // Reconstruct each package
+        let mut packages = Vec::with_capacity(results.len());
+        for package_id_str in results {
+            if let Ok(package_id) = PackageId::new(package_id_str) {
+                if let Ok(package) = self.mapper.rdf_to_package(&package_id).await {
+                    packages.push(package);
+                }
+            }
+        }
+
+        Ok(packages)
     }
 
     async fn list_versions(&self, id: &PackageId) -> Result<Vec<PackageVersion>> {

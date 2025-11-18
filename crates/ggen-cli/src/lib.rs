@@ -172,7 +172,7 @@ pub async fn run_for_node(args: Vec<String>) -> ggen_utils::error::Result<RunRes
     // Retrieve captured output, handle mutex poisoning gracefully
     let stdout = match stdout_buffer.lock() {
         Ok(guard) => String::from_utf8_lossy(&*guard).to_string(),
-        Err(poisoned) => {
+        Err(_poisoned) => {
             log::warn!("Stdout buffer mutex was poisoned when reading, using empty string");
             String::new()
         }
@@ -180,7 +180,7 @@ pub async fn run_for_node(args: Vec<String>) -> ggen_utils::error::Result<RunRes
 
     let stderr = match stderr_buffer.lock() {
         Ok(guard) => String::from_utf8_lossy(&*guard).to_string(),
-        Err(poisoned) => {
+        Err(_poisoned) => {
             log::warn!("Stderr buffer mutex was poisoned when reading, using empty string");
             String::new()
         }

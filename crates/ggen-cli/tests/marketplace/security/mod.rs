@@ -7,4 +7,8 @@
 //! - Cryptographic verification
 //! - Vulnerability impact assessment
 
+// Existing tests
 mod validation_test;
+
+// V2 security tests
+mod ed25519_signature_test;

@@ -1507,7 +1507,7 @@ fn report(output: Option<PathBuf>) -> Result<serde_json::Value> {
     let marketplace_root = PathBuf::from(".");
 
     let report_data = generate_validation_report(&marketplace_root)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))?;
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
 
     // Print summary
     println!(
@@ -1572,20 +1572,20 @@ fn generate_artifacts(
     let json_output_path =
         json_output.unwrap_or_else(|| PathBuf::from("marketplace/registry/index.json"));
     let registry_json = generate_registry_index(&marketplace_root)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))?;
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
 
     write_registry_index(&registry_json, &json_output_path)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))?;
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
 
     println!("📄 Generated: {}", json_output_path.display());
 
     // Generate Markdown documentation
     let md_output_path = md_output.unwrap_or_else(|| PathBuf::from("marketplace/PACKAGES.md"));
     let packages_md = generate_packages_markdown(&marketplace_root)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))?;
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
 
     write_packages_markdown(&packages_md, &md_output_path)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))?;
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
 
     println!("📚 Generated: {}", md_output_path.display());
 
@@ -1630,7 +1630,7 @@ fn improve(package_id: String, apply: Option<String>) -> Result<serde_json::Valu
 
     // Generate improvement plan
     let plan = generate_improvement_plan(&package_id, &marketplace_root)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))?;
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
 
     println!(
         "\n🚀 Improvement Plan for {}\n\
@@ -1685,7 +1685,9 @@ fn improve(package_id: String, apply: Option<String>) -> Result<serde_json::Valu
                 }));
             }
             Err(e) => {
-                return Err(clap_noun_verb::NounVerbError::execution_error(e));
+                return Err(clap_noun_verb::NounVerbError::execution_error(
+                    e.to_string(),
+                ));
             }
         }
     }

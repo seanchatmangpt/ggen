@@ -6,4 +6,8 @@
 //! - Memory usage validation
 //! - Concurrent operation safety
 
+// Existing tests
 mod benchmark_test;
+
+// V2 performance benchmarks
+mod latency_benchmark;
