@@ -18,8 +18,6 @@
 //! - `marketplace` - Marketplace operations (search, install, publish)
 //! - `template` - Template operations (generate, lint, render)
 //! - `project` - Project operations (create, generate, plan)
-//! - `hook` - Hook management
-//! - `utils` - Utility functions
 //! - `rdf` - RDF metadata operations
 //! - `audit` - Security auditing
 //! - `ci` - CI/CD operations
@@ -38,7 +36,6 @@ pub mod project;
 pub mod rdf;
 pub mod shell;
 pub mod template;
-pub mod utils;
 
 // AHI (Autonomic Hyper-Intelligence) subsystem
 pub mod ahi_contract;

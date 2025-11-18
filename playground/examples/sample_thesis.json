@@ -1,0 +1,55 @@
+{
+  "thesis_id": "phd-2024-001",
+  "title": "Integration of Formal Methods and Machine Learning",
+  "author": "Researcher Name",
+  "shards": [
+    {
+      "id": "intro-1",
+      "name": "Introduction",
+      "family": "Intro",
+      "content": "This thesis explores the intersection of formal methods and machine learning. ",
+      "status": "InProgress",
+      "dependencies": []
+    },
+    {
+      "id": "problem-1",
+      "name": "Problem Statement",
+      "family": "Problem",
+      "content": "The fundamental challenge is bridging the gap between symbolic reasoning and neural learning. ",
+      "status": "InProgress",
+      "dependencies": ["intro-1"]
+    },
+    {
+      "id": "gap-1",
+      "name": "Research Gap",
+      "family": "Gap",
+      "content": "Existing work lacks integration between formal verification and deep learning. ",
+      "status": "Draft",
+      "dependencies": ["problem-1"]
+    },
+    {
+      "id": "method-1",
+      "name": "Research Methodology",
+      "family": "Method",
+      "content": "We employ a mixed-methods approach combining formal analysis with empirical evaluation. ",
+      "status": "InProgress",
+      "dependencies": ["gap-1"]
+    },
+    {
+      "id": "artifact-1",
+      "name": "Research Artifact",
+      "family": "Artifact",
+      "content": "A framework combining Coq verification with PyTorch neural networks. ",
+      "status": "InProgress",
+      "dependencies": ["method-1"]
+    },
+    {
+      "id": "eval-1",
+      "name": "Evaluation",
+      "family": "Evaluation",
+      "content": "Benchmarks show 95% improvement in verification time with acceptable loss in accuracy. ",
+      "status": "Draft",
+      "dependencies": ["artifact-1"]
+    }
+  ]
+}

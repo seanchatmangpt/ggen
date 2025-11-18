@@ -47,8 +47,8 @@ mod integration_tests;
 
 // Re-export commonly used types and functions
 pub use adapter::{
-    ComparisonResult, DependencyInfo, InstallationManifest, MarketplaceRegistry, PackageInfo,
-    PackagePublish, PublishSuccess, Recommendation, SearchMatch, ValidationResult, VersionInfo,
+    ComparisonResult, DependencyInfo, InstallationManifest, MarketplaceRegistry, PackagePublish,
+    PublishSuccess, SearchMatch, ValidationResult, VersionInfo,
 };
 pub use artifact_generator::{
     generate_packages_markdown, generate_registry_index, write_packages_markdown,
