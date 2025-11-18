@@ -71,14 +71,12 @@ impl V3OptimizedRegistry {
         let hot_query_cache = AsyncCache::builder()
             .max_capacity(1000)
             .time_to_idle(Duration::from_secs(300))
-            .build()
-            .await;
+            .build();
 
         let metadata_cache = AsyncCache::builder()
             .max_capacity(5000)
             .time_to_idle(Duration::from_secs(3600))
-            .build()
-            .await;
+            .build();
 
         let registry = Self {
             primary_store,

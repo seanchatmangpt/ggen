@@ -4,7 +4,6 @@
 //! and type safety through advanced Rust patterns.
 
 use async_trait::async_trait;
-use std::future::Future;
 
 use crate::error::Result;
 use crate::models::{
