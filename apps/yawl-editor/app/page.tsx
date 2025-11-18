@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   Boxes,
   Code2,
+  Shield,
 } from 'lucide-react'
 
 export default function Home() {
@@ -29,6 +30,12 @@ export default function Home() {
       title: 'Backstage IDP',
       description: 'Internal Developer Platform with catalog, services, and deployments',
       href: '/backstage',
+    },
+    {
+      icon: Shield,
+      title: 'Quantum Security',
+      description: 'Post-quantum cryptography for tomorrow\'s security threats',
+      href: '/quantum-security',
     },
     {
       icon: Workflow,
@@ -47,12 +54,6 @@ export default function Home() {
       title: 'Team Collaboration',
       description: 'Real-time workspace with presence tracking and activity feeds',
       href: '/collaboration',
-    },
-    {
-      icon: BarChart3,
-      title: 'Advanced Analytics',
-      description: 'Performance metrics, insights, and AI-powered recommendations',
-      href: '/analytics',
     },
   ]
 
@@ -124,7 +125,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {features.map((feature) => {
               const Icon = feature.icon
               return (
@@ -183,7 +184,7 @@ export default function Home() {
               { name: 'WebSocket', desc: 'Real-time' },
               { name: 'Zod', desc: 'Validation' },
               { name: 'React Hooks', desc: 'Logic' },
-              { name: 'AI SDK', desc: 'Intelligence' },
+              { name: 'Quantum Crypto', desc: 'Post-Quantum' },
               { name: 'Vercel', desc: 'Hosting' },
             ].map((tech, idx) => (
               <Card key={idx} className="p-3 md:p-4 text-center hover:shadow-md transition-shadow">
@@ -267,6 +268,16 @@ export default function Home() {
                   'Status management',
                   'Resource allocation',
                   'Historical reporting',
+                ],
+              },
+              {
+                icon: Shield,
+                title: 'Quantum-Ready Security',
+                items: [
+                  'Post-quantum cryptography',
+                  'Hybrid encryption (RSA + Kyber)',
+                  'Digital signatures (Multi-layer)',
+                  'Quantum-safe key management',
                 ],
               },
             ].map((feature, idx) => {
