@@ -101,3 +101,34 @@ harness = false
 [[bench]]
 name = "slo_validation"
 harness = false
+
+# Unit tests
+[[test]]
+name = "poka_yoke_types_test"
+path = "tests/unit/poka_yoke_types_test.rs"
+
+[[test]]
+name = "rdf_turtle_test"
+path = "tests/unit/rdf_turtle_test.rs"
+
+[[test]]
+name = "sparql_operations_test"
+path = "tests/unit/sparql_operations_test.rs"
+
+# Integration tests
+[[test]]
+name = "fmea_recovery_test"
+path = "tests/integration/fmea_recovery_test.rs"
+
+[[test]]
+name = "marketplace_lifecycle_test"
+path = "tests/integration/marketplace_lifecycle_test.rs"
+
+[[test]]
+name = "rdf_only_operations_test"
+path = "tests/integration/rdf_only_operations_test.rs"
+
+# Performance tests
+[[test]]
+name = "rdf_performance_test"
+path = "tests/performance/rdf_performance_test.rs"

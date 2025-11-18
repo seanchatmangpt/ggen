@@ -5,8 +5,8 @@
 //!
 //! Test Count: 300+ tests covering all type-level guarantees
 
-use ggen_marketplace_v2::models::*;
 use ggen_marketplace_v2::error::Error;
+use ggen_marketplace_v2::models::*;
 
 // ============================================================================
 // SECTION 1: PackageId NewType Validation (50 tests)
@@ -53,7 +53,7 @@ fn test_package_id_reject_empty() {
     let result = PackageId::new("");
     assert!(result.is_err());
     match result {
-        Err(Error::InvalidPackageId { .. }) => {},
+        Err(Error::InvalidPackageId { .. }) => {}
         _ => panic!("Expected InvalidPackageId error"),
     }
 }
@@ -678,7 +678,10 @@ fn test_manifest_multiple_authors() {
         name: "test".to_string(),
         version: PackageVersion::new("1.0.0").unwrap(),
         description: None,
-        authors: vec!["alice@example.com".to_string(), "bob@example.com".to_string()],
+        authors: vec![
+            "alice@example.com".to_string(),
+            "bob@example.com".to_string(),
+        ],
         dependencies: indexmap::IndexMap::new(),
         license: None,
     };

@@ -21,10 +21,9 @@ async fn test_sparql_select_simple() {
         ex:pkg1 ex:name "package1" .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     let query = r#"
         PREFIX ex: <http://example.org/>
@@ -50,10 +49,9 @@ async fn test_sparql_select_multiple_variables() {
                 ex:version "1.0.0" .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     let query = r#"
         PREFIX ex: <http://example.org/>
@@ -83,10 +81,9 @@ async fn test_sparql_select_filter() {
         ex:pkg3 ex:score 95 .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     let query = r#"
         PREFIX ex: <http://example.org/>
@@ -115,10 +112,9 @@ async fn test_sparql_select_order_by() {
         ex:pkg3 ex:score 95 .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     let query = r#"
         PREFIX ex: <http://example.org/>
@@ -148,10 +144,9 @@ async fn test_sparql_select_limit() {
         ex:pkg3 ex:score 95 .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     let query = r#"
         PREFIX ex: <http://example.org/>
@@ -180,10 +175,9 @@ async fn test_sparql_select_offset() {
         ex:pkg3 ex:score 95 .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     let query = r#"
         PREFIX ex: <http://example.org/>
@@ -213,10 +207,9 @@ async fn test_sparql_select_distinct() {
         ex:pkg3 ex:author "Bob" .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     let query = r#"
         PREFIX ex: <http://example.org/>
@@ -368,10 +361,9 @@ async fn test_sparql_ask_exists() {
         ex:pkg1 ex:name "package1" .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     let query = r#"
         PREFIX ex: <http://example.org/>
@@ -418,10 +410,9 @@ async fn test_sparql_construct_simple() {
         ex:pkg1 ex:name "package1" .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     let query = r#"
         PREFIX ex: <http://example.org/>
@@ -454,10 +445,9 @@ async fn test_search_by_name() {
         <http://ggen.dev/packages/pkg2> ggen:packageName "another-package" .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     let query = r#"
         PREFIX ggen: <http://ggen.dev/ontology#>
@@ -484,10 +474,9 @@ async fn test_search_by_tag() {
         <http://ggen.dev/packages/pkg2> ggen:tag "javascript" .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     let query = r#"
         PREFIX ggen: <http://ggen.dev/ontology#>
@@ -514,10 +503,9 @@ async fn test_search_by_quality_score() {
         <http://ggen.dev/packages/pkg3> ggen:qualityScore 95 .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     let query = r#"
         PREFIX ggen: <http://ggen.dev/ontology#>
@@ -549,10 +537,9 @@ async fn test_query_direct_dependencies() {
         <http://ggen.dev/packages/pkg1> ggen:dependsOn <http://ggen.dev/packages/pkg3> .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     let query = r#"
         PREFIX ggen: <http://ggen.dev/ontology#>
@@ -578,10 +565,9 @@ async fn test_query_reverse_dependencies() {
         <http://ggen.dev/packages/pkg3> ggen:dependsOn <http://ggen.dev/packages/pkg2> .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     let query = r#"
         PREFIX ggen: <http://ggen.dev/ontology#>
@@ -612,10 +598,9 @@ async fn test_sparql_optional_pattern() {
                 ex:description "A package" .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     let query = r#"
         PREFIX ex: <http://example.org/>
@@ -642,10 +627,9 @@ async fn test_sparql_union_pattern() {
         ex:pkg2 ex:framework "react" .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     let query = r#"
         PREFIX ex: <http://example.org/>
@@ -676,10 +660,9 @@ async fn test_sparql_aggregation_count() {
         ex:pkg3 ex:tag "javascript" .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     let query = r#"
         PREFIX ex: <http://example.org/>
