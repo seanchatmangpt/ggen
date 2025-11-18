@@ -131,7 +131,7 @@ pub enum GgenAiError {
     #[error("Template error: {0}")]
     Tera(#[from] tera::Error),
 
-    /// Generic error from Box<dyn std::error::Error>
+    /// Generic error from `Box<dyn std::error::Error>`
     #[error("Generic error: {message}")]
     Other { message: String },
 }

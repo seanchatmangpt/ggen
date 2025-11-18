@@ -133,9 +133,9 @@ pub fn generate_eslintrc() -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::prelude::*;
 
-    test!(test_validate_project_name, {
+    #[test]
+    fn test_validate_project_name() {
         assert!(validate_project_name("my-project").is_ok());
         assert!(validate_project_name("my_project").is_ok());
         assert!(validate_project_name("myproject123").is_ok());
@@ -144,11 +144,12 @@ mod tests {
         assert!(validate_project_name("my project").is_err());
         assert!(validate_project_name("-myproject").is_err());
         assert!(validate_project_name("my@project").is_err());
-    });
+    }
 
-    test!(test_generate_editorconfig, {
+    #[test]
+    fn test_generate_editorconfig() {
         let config = generate_editorconfig();
         assert!(config.contains("root = true"));
         assert!(config.contains("charset = utf-8"));
-    });
+    }
 }

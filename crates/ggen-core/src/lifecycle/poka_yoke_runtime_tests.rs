@@ -16,7 +16,8 @@ mod runtime_tests {
     use std::collections::BTreeMap;
 
     /// Test complete lifecycle flow with state machine
-    test!(test_complete_lifecycle_flow, {
+    #[test]
+    fn test_complete_lifecycle_flow() {
         // Test state machine with proper phase recording
         // In real usage, exec.rs would record phases during execution
         let mut lifecycle = LifecycleStateMachine::<Initial>::new();
@@ -73,10 +74,11 @@ mod runtime_tests {
         assert!(lifecycle.has_completed_phase("build"));
         assert!(lifecycle.has_completed_phase("test"));
         assert!(lifecycle.has_completed_phase("deploy"));
-    });
+    }
 
     /// Test phase builder with multiple commands
-    test!(test_phase_builder_multiple_commands, {
+    #[test]
+    fn test_phase_builder_multiple_commands() {
         let phase = PhaseBuilder::new("build")
             .add_command("cargo clean")
             .add_command("cargo build --release")
@@ -87,10 +89,11 @@ mod runtime_tests {
         assert_eq!(commands.len(), 2);
         assert_eq!(commands[0], "cargo clean");
         assert_eq!(commands[1], "cargo build --release");
-    });
+    }
 
     /// Test hook validation with valid hooks
-    test!(test_hook_validation_valid, {
+    #[test]
+    fn test_hook_validation_valid() {
         let mut hooks = Hooks::default();
         hooks.before_build = Some(vec!["validate".to_string()]);
         hooks.after_build = Some(vec!["notify".to_string()]);
@@ -138,10 +141,11 @@ mod runtime_tests {
 
         let validated = validate_hooks(&make).unwrap();
         assert!(validated.hooks().before_build.is_some());
-    });
+    }
 
     /// Test hook validation catches invalid phase reference
-    test!(test_hook_validation_invalid_phase, {
+    #[test]
+    fn test_hook_validation_invalid_phase() {
         let mut hooks = Hooks::default();
         hooks.before_build = Some(vec!["nonexistent".to_string()]);
 
@@ -170,10 +174,11 @@ mod runtime_tests {
 
         let result = validate_hooks(&make);
         assert!(result.is_err());
-    });
+    }
 
     /// Test state validation with inconsistent history
-    test!(test_state_validation_inconsistent_history, {
+    #[test]
+    fn test_state_validation_inconsistent_history() {
         let mut state = LifecycleState::default();
         // Run deploy before build (invalid)
         state.record_run("deploy".to_string(), 0, 100, true);
@@ -181,10 +186,11 @@ mod runtime_tests {
 
         let result = ValidatedLifecycleState::new(state);
         assert!(result.is_err());
-    });
+    }
 
     /// Test state validation with valid history
-    test!(test_state_validation_valid_history, {
+    #[test]
+    fn test_state_validation_valid_history() {
         let mut state = LifecycleState::default();
         state.record_run("init".to_string(), 0, 100, true);
         state.record_run("setup".to_string(), 100, 200, true);
@@ -194,5 +200,5 @@ mod runtime_tests {
         let validated = ValidatedLifecycleState::new(state).unwrap();
         assert!(validated.state().has_completed_phase("init"));
         assert!(validated.state().has_completed_phase("test"));
-    });
+    }
 }

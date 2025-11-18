@@ -8,9 +8,8 @@
 
 use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
 use hex::{decode as hex_decode, encode as hex_encode};
-use rand::rngs::OsRng;
 use sha2::{Digest, Sha256};
-use tracing::{debug, error};
+use tracing::debug;
 
 use crate::error::Result;
 use crate::traits::Signable;

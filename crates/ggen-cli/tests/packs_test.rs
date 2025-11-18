@@ -8,6 +8,7 @@
 
 use serde_json::Value;
 use std::process::Command;
+use std::time::Instant;
 
 // ============================================================================
 // TEST UTILITIES

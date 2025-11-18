@@ -328,27 +328,31 @@ pub type Result<T> = std::result::Result<T, LifecycleError>;
 mod tests {
     use super::*;
 
-    test!(test_phase_not_found_error, {
+    #[test]
+    fn test_phase_not_found_error() {
         let err = LifecycleError::phase_not_found("build");
         assert_eq!(err.to_string(), "Phase 'build' not found in configuration");
-    });
+    }
 
-    test!(test_command_failed_error, {
+    #[test]
+    fn test_command_failed_error() {
         let err = LifecycleError::command_failed("test", "cargo test", 101, "test failed");
         let msg = err.to_string();
         assert!(msg.contains("Command failed"));
         assert!(msg.contains("Exit code: 101"));
         assert!(msg.contains("test failed"));
-    });
+    }
 
-    test!(test_hook_recursion_error, {
+    #[test]
+    fn test_hook_recursion_error() {
         let err = LifecycleError::hook_recursion("build");
         let msg = err.to_string();
         assert!(msg.contains("Hook recursion detected"));
         assert!(msg.contains("build"));
-    });
+    }
 
-    test!(test_hook_recursion_with_chain, {
+    #[test]
+    fn test_hook_recursion_with_chain() {
         let chain = vec![
             "init".to_string(),
             "setup".to_string(),
@@ -358,9 +362,10 @@ mod tests {
         let err = LifecycleError::hook_recursion_with_chain("init", chain);
         let msg = err.to_string();
         assert!(msg.contains("init -> setup -> build -> init"));
-    });
+    }
 
-    test!(test_state_errors, {
+    #[test]
+    fn test_state_errors() {
         let path = PathBuf::from("/tmp/state.json");
 
         // Test state load error
@@ -372,9 +377,10 @@ mod tests {
         let io_err = std::io::Error::new(std::io::ErrorKind::PermissionDenied, "denied");
         let err = LifecycleError::state_save(&path, io_err);
         assert!(err.to_string().contains("Failed to save state"));
-    });
+    }
 
-    test!(test_make_toml_errors, {
+    #[test]
+    fn test_make_toml_errors() {
         let path = PathBuf::from("/tmp/make.toml");
 
         // Test load error
@@ -382,9 +388,10 @@ mod tests {
         let err = LifecycleError::make_toml_load(&path, io_err);
         assert!(err.to_string().contains("Failed to load make.toml"));
         assert!(err.to_string().contains("/tmp/make.toml"));
-    });
+    }
 
-    test!(test_cache_errors, {
+    #[test]
+    fn test_cache_errors() {
         let path = PathBuf::from("/tmp/cache");
 
         // Test invalid cache path
@@ -396,9 +403,10 @@ mod tests {
         let err = LifecycleError::cache_create("build", io_err);
         assert!(err.to_string().contains("Failed to create cache directory"));
         assert!(err.to_string().contains("build"));
-    });
+    }
 
-    test!(test_error_downcasting, {
+    #[test]
+    fn test_error_downcasting() {
         let err = LifecycleError::phase_not_found("build");
         let err_ref: &dyn std::error::Error = &err;
         assert!(err_ref.source().is_none());
@@ -407,11 +415,12 @@ mod tests {
         let err = LifecycleError::state_load("/tmp/state.json", io_err);
         let err_ref: &dyn std::error::Error = &err;
         assert!(err_ref.source().is_some());
-    });
+    }
 
-    test!(test_error_display, {
+    #[test]
+    fn test_error_display() {
         let lifecycle_err = LifecycleError::phase_not_found("test");
         let err_str = lifecycle_err.to_string();
         assert!(err_str.contains("Phase 'test' not found"));
-    });
+    }
 }

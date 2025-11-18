@@ -665,30 +665,34 @@ impl FileTreeNode {
 mod tests {
     use super::*;
 
-    test!(test_directory_node, {
+    #[test]
+    fn test_directory_node() {
         let node = FileTreeNode::directory("src");
         assert_eq!(node.node_type, NodeType::Directory);
         assert_eq!(node.name, "src");
         assert!(node.children.is_empty());
-    });
+    }
 
-    test!(test_file_node_with_content, {
+    #[test]
+    fn test_file_node_with_content() {
         let node = FileTreeNode::file_with_content("main.rs", "fn main() {}");
         assert_eq!(node.node_type, NodeType::File);
         assert_eq!(node.name, "main.rs");
         assert_eq!(node.content, Some("fn main() {}".to_string()));
         assert_eq!(node.template, None);
-    });
+    }
 
-    test!(test_file_node_with_template, {
+    #[test]
+    fn test_file_node_with_template() {
         let node = FileTreeNode::file_with_template("lib.rs", "templates/lib.rs.tera");
         assert_eq!(node.node_type, NodeType::File);
         assert_eq!(node.name, "lib.rs");
         assert_eq!(node.template, Some("templates/lib.rs.tera".to_string()));
         assert_eq!(node.content, None);
-    });
+    }
 
-    test!(test_template_format_creation, {
+    #[test]
+    fn test_template_format_creation() {
         let mut format = TemplateFormat::new("test-template");
         format.add_variable("service_name");
         format.add_default("port", "8080");
@@ -696,17 +700,19 @@ mod tests {
         assert_eq!(format.name, "test-template");
         assert_eq!(format.variables, vec!["service_name"]);
         assert_eq!(format.defaults.get("port"), Some(&"8080".to_string()));
-    });
+    }
 
-    test!(test_template_format_validation, {
+    #[test]
+    fn test_template_format_validation() {
         let mut format = TemplateFormat::new("test");
         format.add_node(FileTreeNode::directory("src"));
 
         assert!(format.validate().is_ok());
-    });
+    }
 
-    test!(test_empty_template_validation_fails, {
+    #[test]
+    fn test_empty_template_validation_fails() {
         let format = TemplateFormat::new("test");
         assert!(format.validate().is_err());
-    });
+    }
 }

@@ -21,7 +21,7 @@ mod ontology;
 mod profiler;
 mod scheduler;
 
-use htf_cli::{Error, Result};
+use error::Result;
 use models::*;
 
 // ============================================================================
@@ -148,6 +148,7 @@ fn sample_shards() -> Vec<DeltaShard> {
 // ============================================================================
 
 /// Schedule chapters from shards using Λ-ordering
+#[allow(non_upper_case_globals)]
 #[verb]
 fn schedule(chapter_size: Option<usize>) -> NounVerbResult<ScheduleOutput> {
     let shards = sample_shards();
@@ -181,6 +182,7 @@ fn schedule(chapter_size: Option<usize>) -> NounVerbResult<ScheduleOutput> {
 }
 
 /// Show Π-profile coverage analysis
+#[allow(non_upper_case_globals)]
 #[verb]
 fn profile() -> NounVerbResult<ProfileOutput> {
     let shards = sample_shards();
@@ -207,6 +209,7 @@ fn profile() -> NounVerbResult<ProfileOutput> {
 }
 
 /// Validate thesis against Q-invariants
+#[allow(non_upper_case_globals)]
 #[verb]
 fn check() -> NounVerbResult<CheckOutput> {
     let shards = sample_shards();
@@ -225,6 +228,7 @@ fn check() -> NounVerbResult<CheckOutput> {
 }
 
 /// Add a new Δ-shard
+#[allow(non_upper_case_globals)]
 #[verb]
 fn add(_name: String, family: String) -> NounVerbResult<AddOutput> {
     let shard_id = format!("{}-{}", family.to_lowercase(), uuid::Uuid::new_v4());
@@ -237,6 +241,7 @@ fn add(_name: String, family: String) -> NounVerbResult<AddOutput> {
 }
 
 /// List all shards
+#[allow(non_upper_case_globals)]
 #[verb]
 fn list() -> NounVerbResult<ListOutput> {
     let shards = sample_shards();
@@ -259,6 +264,7 @@ fn list() -> NounVerbResult<ListOutput> {
 }
 
 /// Export thesis
+#[allow(non_upper_case_globals)]
 #[verb]
 fn export(format: Option<String>) -> NounVerbResult<String> {
     let format = format.as_deref().unwrap_or("json");

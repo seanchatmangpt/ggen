@@ -596,7 +596,8 @@ mod tests {
     use std::fs;
     use tempfile::tempdir;
 
-    test!(test_snapshot_creation, {
+    #[test]
+    fn test_snapshot_creation() {
         let graph = Graph::new().unwrap();
         graph
             .insert_turtle("@prefix : <http://example.org/> . :test a :Class .")
@@ -620,9 +621,10 @@ mod tests {
         assert_eq!(snapshot.files.len(), 1);
         assert_eq!(snapshot.templates.len(), 1);
         assert!(!snapshot.graph.hash.is_empty());
-    });
+    }
 
-    test!(test_snapshot_manager, {
+    #[test]
+    fn test_snapshot_manager() {
         let temp_dir = tempdir().unwrap();
         let manager = SnapshotManager::new(temp_dir.path().to_path_buf()).unwrap();
 
@@ -648,9 +650,10 @@ mod tests {
         // Delete snapshot
         manager.delete("manager_test").unwrap();
         assert!(!manager.exists("manager_test"));
-    });
+    }
 
-    test!(test_file_snapshot, {
+    #[test]
+    fn test_file_snapshot() {
         let temp_dir = tempdir().unwrap();
         let file_path = temp_dir.path().join("test.txt");
         fs::write(&file_path, "test content").unwrap();
@@ -664,9 +667,10 @@ mod tests {
         // Test change detection
         assert!(!snapshot.has_changed("test content"));
         assert!(snapshot.has_changed("different content"));
-    });
+    }
 
-    test!(test_template_snapshot, {
+    #[test]
+    fn test_template_snapshot() {
         let temp_dir = tempdir().unwrap();
         let template_path = temp_dir.path().join("test.tmpl");
 
@@ -678,5 +682,5 @@ mod tests {
 
         assert_eq!(snapshot.path, template_path);
         assert!(!snapshot.hash.is_empty());
-    });
+    }
 }

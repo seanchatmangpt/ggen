@@ -174,14 +174,16 @@ macro_rules! telemetry_context {
 mod tests {
     use super::*;
 
-    test!(test_telemetry_config_default, {
+    #[test]
+    fn test_telemetry_config_default() {
         let config = TelemetryConfig::default();
         assert_eq!(config.service_name, "ggen");
         assert_eq!(config.sample_ratio, 1.0);
         assert!(config.console_output);
-    });
+    }
 
-    test!(test_telemetry_config_custom, {
+    #[test]
+    fn test_telemetry_config_custom() {
         let config = TelemetryConfig {
             endpoint: "http://custom:4318".to_string(),
             service_name: "test-service".to_string(),
@@ -192,5 +194,5 @@ mod tests {
         assert_eq!(config.service_name, "test-service");
         assert_eq!(config.sample_ratio, 0.5);
         assert!(!config.console_output);
-    });
+    }
 }

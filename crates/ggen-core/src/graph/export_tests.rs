@@ -7,15 +7,14 @@
 mod tests {
     use super::super::core::Graph;
     use super::super::export::GraphExport;
-    use chicago_tdd_tools::testcontainers::{
-        exec::SUCCESS_EXIT_CODE, ContainerClient, GenericContainer,
-    };
     use oxigraph::io::RdfFormat;
     use std::fs;
     use tempfile::TempDir;
+    use testcontainers::{exec::SUCCESS_EXIT_CODE, ContainerClient, GenericContainer};
 
     /// Test exporting graph to file
-    test!(test_export_to_file, {
+    #[test]
+    fn test_export_to_file() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -41,10 +40,11 @@ mod tests {
         let content = fs::read_to_string(&output_path).unwrap();
         assert!(!content.is_empty());
         assert!(content.contains("alice") || content.contains("Person"));
-    });
+    }
 
     /// Test exporting to string
-    test!(test_export_to_string, {
+    #[test]
+    fn test_export_to_string() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -63,10 +63,11 @@ mod tests {
 
         // Assert
         assert!(!output.is_empty());
-    });
+    }
 
     /// Test auto-detection of format from extension
-    test!(test_export_auto_format, {
+    #[test]
+    fn test_export_auto_format() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -91,7 +92,7 @@ mod tests {
         // Assert - both files should exist
         assert!(ttl_path.exists());
         assert!(nt_path.exists());
-    });
+    }
 
     /// Test export operations inside Docker container with file verification
     ///
@@ -100,7 +101,8 @@ mod tests {
     /// 2. Files are created in container filesystem (/workspace)
     /// 3. Files can be read back via container.exec()
     #[cfg(feature = "docker")]
-    test!(test_export_in_container_with_verification, {
+    #[test]
+    fn test_export_in_container_with_verification() {
         // Arrange - create container
         let client = ContainerClient::default();
         let container = GenericContainer::with_command(
@@ -169,5 +171,5 @@ ex:alice a ex:Person ."#;
             list_result.stdout.contains("input.ttl"),
             "Should see exported file in container filesystem"
         );
-    });
+    }
 }

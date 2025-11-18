@@ -330,9 +330,9 @@ pub async fn create_new_project(config: &ProjectConfig) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::prelude::*;
 
-    test!(test_project_type_from_str, {
+    #[test]
+    fn test_project_type_from_str() {
         assert_eq!(
             "rust-web".parse::<ProjectType>().unwrap(),
             ProjectType::RustWeb
@@ -341,10 +341,11 @@ mod tests {
             "nextjs".parse::<ProjectType>().unwrap(),
             ProjectType::NextJs
         );
-    });
+    }
 
-    test!(test_project_type_display, {
+    #[test]
+    fn test_project_type_display() {
         assert_eq!(ProjectType::RustWeb.to_string(), "rust-web");
         assert_eq!(ProjectType::NextJs.to_string(), "nextjs");
-    });
+    }
 }

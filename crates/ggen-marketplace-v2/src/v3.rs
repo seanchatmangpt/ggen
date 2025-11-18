@@ -71,13 +71,13 @@ impl V3OptimizedRegistry {
         let hot_query_cache = AsyncCache::builder()
             .max_capacity(1000)
             .time_to_idle(Duration::from_secs(300))
-            .build_async::<tokio::task::AbortHandle>()
+            .build()
             .await;
 
         let metadata_cache = AsyncCache::builder()
             .max_capacity(5000)
             .time_to_idle(Duration::from_secs(3600))
-            .build_async::<tokio::task::AbortHandle>()
+            .build()
             .await;
 
         let registry = Self {
@@ -120,17 +120,15 @@ impl V3OptimizedRegistry {
                         let mut name_str = String::new();
                         let mut package_uri = String::new();
 
-                        for binding in solution.iter() {
-                            if let Some(term) = binding.value() {
-                                match term {
-                                    oxigraph::model::Term::Literal(lit) => {
-                                        name_str = lit.value().to_string();
-                                    }
-                                    oxigraph::model::Term::NamedNode(node) => {
-                                        package_uri = node.as_str().to_string();
-                                    }
-                                    _ => {}
+                        for (_, term) in solution.iter() {
+                            match term {
+                                oxigraph::model::Term::Literal(lit) => {
+                                    name_str = lit.value().to_string();
                                 }
+                                oxigraph::model::Term::NamedNode(node) => {
+                                    package_uri = node.as_str().to_string();
+                                }
+                                _ => {}
                             }
                         }
 
@@ -194,8 +192,8 @@ impl V3OptimizedRegistry {
 
         V3RegistryStats {
             total_queries: total,
-            hot_cache_hits,
-            metadata_cache_hits,
+            hot_cache_hits: hot_hits,
+            metadata_cache_hits: meta_hits,
             store_queries,
             avg_latency_us: if total > 0 { total_latency / total } else { 0 },
             cache_hit_rate: if total > 0 {

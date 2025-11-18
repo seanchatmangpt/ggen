@@ -362,10 +362,10 @@ export default function App({ Component, pageProps }: AppProps) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::prelude::*;
     use std::path::PathBuf;
 
-    test!(test_generate_nextjs_project, {
+    #[test]
+    fn test_generate_nextjs_project() {
         let generator = NextJsGenerator::new();
         let config = ProjectConfig {
             name: "test-nextjs".to_string(),
@@ -400,9 +400,10 @@ mod tests {
 
         assert!(package_json.contains(r#""name": "test-nextjs""#));
         assert!(package_json.contains("next"));
-    });
+    }
 
-    test!(test_generate_nuxt_project, {
+    #[test]
+    fn test_generate_nuxt_project() {
         let generator = NextJsGenerator::new();
         let config = ProjectConfig {
             name: "test-nuxt".to_string(),
@@ -425,5 +426,5 @@ mod tests {
 
         // Check directories
         assert!(structure.directories.contains(&"components".to_string()));
-    });
+    }
 }

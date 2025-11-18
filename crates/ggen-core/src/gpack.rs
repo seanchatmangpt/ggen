@@ -306,7 +306,8 @@ mod tests {
     use std::io::Write;
     use tempfile::NamedTempFile;
 
-    test!(test_manifest_parsing, {
+    #[test]
+    fn test_manifest_parsing() {
         let toml_content = r#"
 [gpack]
 id = "io.ggen.rust.cli-subcommand"
@@ -349,9 +350,10 @@ vars = { author = "Acme", license = "MIT" }
         assert_eq!(manifest.templates.patterns.len(), 1);
         assert_eq!(manifest.rdf.patterns.len(), 1);
         assert_eq!(manifest.queries.aliases.len(), 1);
-    });
+    }
 
-    test!(test_manifest_load_from_file, {
+    #[test]
+    fn test_manifest_load_from_file() {
         let mut temp_file = NamedTempFile::new().unwrap();
         let toml_content = r#"
 [gpack]
@@ -366,7 +368,7 @@ ggen_compat = ">=0.1 <0.2"
 
         let manifest = GpackManifest::load_from_file(&temp_file.path().to_path_buf()).unwrap();
         assert_eq!(manifest.metadata.id, "test");
-    });
+    }
 
     #[cfg(feature = "proptest")]
     mod proptest_tests {

@@ -7,7 +7,7 @@
 //! - Full-text search over package descriptions
 
 use async_trait::async_trait;
-use oxigraph::model::{Dataset, Literal, NamedNode, Term, Triple};
+use oxigraph::model::{Literal, NamedNode, Quad, Term};
 use oxigraph::store::Store;
 use parking_lot::RwLock;
 use std::sync::Arc;
@@ -68,11 +68,9 @@ impl RdfRegistry {
         let rdfs_class = NamedNode::new(format!("{}Class", RDFS_NS)).expect("Invalid rdfs:Class");
 
         // Define Package as RDF class
-        let triple = Triple::new(package_class.clone(), rdf_type, rdfs_class);
+        let quad = Quad::new(package_class.clone(), rdf_type, rdfs_class, None);
 
-        store
-            .insert(triple)
-            .expect("Failed to insert Package class");
+        store.insert(quad).expect("Failed to insert Package class");
 
         debug!("Initialized RDF marketplace ontology");
     }
@@ -81,7 +79,13 @@ impl RdfRegistry {
     pub async fn insert_package_rdf(&self, package: &Package) -> Result<()> {
         let _lock = self.write_lock.write();
 
-        let package_uri = NamedNode::new(format!("{}packages/{}", GGEN_NS, package.metadata.id))?;
+        let package_uri = NamedNode::new(format!("{}packages/{}", GGEN_NS, package.metadata.id))
+            .map_err(|err| {
+                crate::error::Error::RegistryError(format!(
+                    "Invalid package URI for {}: {err}",
+                    package.metadata.id
+                ))
+            })?;
 
         let rdf_type = NamedNode::new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
             .map_err(|_| crate::error::Error::Other("Invalid RDF type URI".to_string()))?;
@@ -90,9 +94,9 @@ impl RdfRegistry {
             .map_err(|_| crate::error::Error::Other("Invalid package class URI".to_string()))?;
 
         // Insert package type
-        let type_triple = Triple::new(package_uri.clone(), rdf_type, package_class);
+        let type_quad = Quad::new(package_uri.clone(), rdf_type, package_class, None);
 
-        self.store.insert(type_triple).map_err(|e| {
+        self.store.insert(type_quad).map_err(|e| {
             crate::error::Error::RegistryError(format!("Failed to insert package: {}", e))
         })?;
 
@@ -102,9 +106,9 @@ impl RdfRegistry {
 
         let name_literal = Literal::new_simple_literal(&package.metadata.name);
 
-        let name_triple = Triple::new(package_uri.clone(), name_predicate, name_literal);
+        let name_quad = Quad::new(package_uri.clone(), name_predicate, name_literal, None);
 
-        self.store.insert(name_triple).map_err(|e| {
+        self.store.insert(name_quad).map_err(|e| {
             crate::error::Error::RegistryError(format!("Failed to insert name: {}", e))
         })?;
 
@@ -114,9 +118,9 @@ impl RdfRegistry {
 
         let desc_literal = Literal::new_simple_literal(&package.metadata.description);
 
-        let desc_triple = Triple::new(package_uri.clone(), desc_predicate, desc_literal);
+        let desc_quad = Quad::new(package_uri.clone(), desc_predicate, desc_literal, None);
 
-        self.store.insert(desc_triple).map_err(|e| {
+        self.store.insert(desc_quad).map_err(|e| {
             crate::error::Error::RegistryError(format!("Failed to insert description: {}", e))
         })?;
 
@@ -132,9 +136,9 @@ impl RdfRegistry {
                 crate::error::Error::Other("Invalid hasVersion predicate".to_string())
             })?;
 
-            let version_triple = Triple::new(package_uri.clone(), has_version, version_uri);
+            let version_quad = Quad::new(package_uri.clone(), has_version, version_uri, None);
 
-            self.store.insert(version_triple).map_err(|e| {
+            self.store.insert(version_quad).map_err(|e| {
                 crate::error::Error::RegistryError(format!("Failed to insert version: {}", e))
             })?;
         }
@@ -159,11 +163,9 @@ impl RdfRegistry {
         if let oxigraph::sparql::QueryResults::Solutions(solutions) = results {
             for solution in solutions {
                 if let Ok(solution) = solution {
-                    for binding in solution.iter() {
-                        if let Some(term) = binding.value() {
-                            if let Term::NamedNode(node) = term {
-                                packages.push(node.as_str().to_string());
-                            }
+                    for (_, term) in solution.iter() {
+                        if let Term::NamedNode(node) = term {
+                            packages.push(node.as_str().to_string());
                         }
                     }
                 }

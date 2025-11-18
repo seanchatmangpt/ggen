@@ -662,7 +662,7 @@ impl Clone for Graph {
 ///
 /// # Arguments
 ///
-/// * `prefixes` - Map of prefix names (e.g., "ex") to namespace URIs (e.g., "http://example.org/")
+/// * `prefixes` - Map of prefix names (e.g., "ex") to namespace URIs (e.g., "<http://example.org/>")
 /// * `base` - Optional base IRI for relative IRI resolution
 ///
 /// # Returns
@@ -727,16 +727,18 @@ pub fn build_prolog(prefixes: &BTreeMap<String, String>, base: Option<&str>) -> 
 mod tests {
     use super::*;
 
-    test!(test_graph_new, {
+    #[test]
+    fn test_graph_new() {
         // Arrange & Act
         let graph = Graph::new().unwrap();
 
         // Assert
         assert!(graph.is_empty());
         assert_eq!(graph.len(), 0);
-    });
+    }
 
-    test!(test_graph_insert_turtle, {
+    #[test]
+    fn test_graph_insert_turtle() {
         // Arrange
         let graph = Graph::new().unwrap();
 
@@ -753,9 +755,10 @@ mod tests {
         // Assert
         assert!(!graph.is_empty());
         assert!(graph.len() > 0);
-    });
+    }
 
-    test!(test_graph_query_cached, {
+    #[test]
+    fn test_graph_query_cached() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -781,9 +784,10 @@ mod tests {
             }
             _ => panic!("Expected solutions"),
         }
-    });
+    }
 
-    test!(test_build_prolog_with_prefixes, {
+    #[test]
+    fn test_build_prolog_with_prefixes() {
         // Arrange
         let mut prefixes = BTreeMap::new();
         prefixes.insert("ex".to_string(), "http://example.org/".to_string());
@@ -798,9 +802,10 @@ mod tests {
         // Assert
         assert!(prolog.contains("PREFIX ex: <http://example.org/>"));
         assert!(prolog.contains("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>"));
-    });
+    }
 
-    test!(test_build_prolog_with_base, {
+    #[test]
+    fn test_build_prolog_with_base() {
         // Arrange
         let prefixes = BTreeMap::new();
 
@@ -809,5 +814,5 @@ mod tests {
 
         // Assert
         assert!(prolog.contains("BASE <http://example.org/>"));
-    });
+    }
 }

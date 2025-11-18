@@ -241,7 +241,8 @@ mod tests {
     use super::*;
     use crate::graph::core::Graph;
 
-    test!(test_update_insert, {
+    #[test]
+    fn test_update_insert() {
         // Arrange
         let graph = Graph::new().unwrap();
         let update = GraphUpdate::new(&graph);
@@ -265,9 +266,10 @@ mod tests {
             }
             _ => panic!("Expected solutions"),
         }
-    });
+    }
 
-    test!(test_update_delete, {
+    #[test]
+    fn test_update_delete() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -288,9 +290,10 @@ mod tests {
 
         // Assert
         assert!(graph.len() < initial_len);
-    });
+    }
 
-    test!(test_update_delete_where, {
+    #[test]
+    fn test_update_delete_where() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -319,9 +322,10 @@ mod tests {
             crate::graph::types::CachedResult::Boolean(false) => {}
             _ => panic!("Expected false (triple should be deleted)"),
         }
-    });
+    }
 
-    test!(test_update_update_operation, {
+    #[test]
+    fn test_update_update_operation() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -352,9 +356,10 @@ mod tests {
             }
             _ => panic!("Expected solutions"),
         }
-    });
+    }
 
-    test!(test_update_clear, {
+    #[test]
+    fn test_update_clear() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -373,9 +378,10 @@ mod tests {
 
         // Assert
         assert!(graph.is_empty());
-    });
+    }
 
-    test!(test_update_clear_graph, {
+    #[test]
+    fn test_update_clear_graph() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -395,9 +401,10 @@ mod tests {
 
         // Assert
         assert!(graph.len() < initial_len);
-    });
+    }
 
-    test!(test_update_clear_all, {
+    #[test]
+    fn test_update_clear_all() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -416,9 +423,10 @@ mod tests {
 
         // Assert
         assert!(graph.is_empty());
-    });
+    }
 
-    test!(test_update_execute_invalid_syntax, {
+    #[test]
+    fn test_update_execute_invalid_syntax() {
         // Arrange
         let graph = Graph::new().unwrap();
         let update = GraphUpdate::new(&graph);
@@ -427,9 +435,10 @@ mod tests {
         let result = update.execute("INVALID UPDATE SYNTAX");
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("SPARQL Update"));
-    });
+    }
 
-    test!(test_update_copy, {
+    #[test]
+    fn test_update_copy() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -462,5 +471,5 @@ mod tests {
             ) => {}
             _ => panic!("Both graphs should have data after copy"),
         }
-    });
+    }
 }

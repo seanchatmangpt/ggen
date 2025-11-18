@@ -10,7 +10,7 @@ use async_trait::async_trait;
 use dashmap::DashMap;
 use std::sync::atomic::{AtomicI64, AtomicU64, Ordering};
 use std::sync::Arc;
-use tracing::{debug, info};
+use tracing::debug;
 
 use crate::error::Result;
 use crate::traits::Observable;

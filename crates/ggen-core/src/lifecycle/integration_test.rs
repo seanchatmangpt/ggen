@@ -143,7 +143,8 @@ command = "echo 'Building...'"
         }
     }
 
-    test!(test_load_make_toml, {
+    #[test]
+    fn test_load_make_toml() {
         let fixture = LifecycleTestFixture::new();
         let make = fixture.load_make();
 
@@ -171,9 +172,10 @@ command = "echo 'Building...'"
             hooks.before_build,
             Some(vec!["test".to_string(), "lint".to_string()])
         );
-    });
+    }
 
-    test!(test_run_single_phase, {
+    #[test]
+    fn test_run_single_phase() {
         let fixture = LifecycleTestFixture::new();
         let ctx = fixture.create_context();
 
@@ -193,9 +195,10 @@ command = "echo 'Building...'"
 
         // Verify files were created
         assert!(fixture.path().join("src/test.txt").exists());
-    });
+    }
 
-    test!(test_state_persistence, {
+    #[test]
+    fn test_state_persistence() {
         let fixture = LifecycleTestFixture::new();
         let ctx = fixture.create_context();
 
@@ -220,9 +223,10 @@ command = "echo 'Building...'"
         for record in &state.phase_history {
             assert!(record.success);
         }
-    });
+    }
 
-    test!(test_cache_key_generation, {
+    #[test]
+    fn test_cache_key_generation() {
         let fixture = LifecycleTestFixture::new();
         let ctx = fixture.create_context();
 
@@ -266,11 +270,12 @@ command = "echo 'Building...'"
         // Keys should be identical (deterministic)
         assert_eq!(build_caches[0].key, build_caches[1].key);
         assert_eq!(build_caches[0].key, first_build_key);
-    });
+    }
 
     // Removed test_cache_key_deterministic - covered by test_cache_key_generation
 
-    test!(test_cache_key_changes_with_inputs, {
+    #[test]
+    fn test_cache_key_changes_with_inputs() {
         let cmds = vec!["echo test".to_string()];
         let env = vec![];
         let inputs = vec![];
@@ -289,9 +294,10 @@ command = "echo 'Building...'"
         let env2 = vec![("KEY".to_string(), "value".to_string())];
         let key4 = cache::cache_key("build", &cmds, &env2, &inputs);
         assert_ne!(key1, key4);
-    });
+    }
 
-    test!(test_hooks_execution_order, {
+    #[test]
+    fn test_hooks_execution_order() {
         let fixture = LifecycleTestFixture::new();
         let ctx = fixture.create_context();
 
@@ -310,9 +316,10 @@ command = "echo 'Building...'"
 
         // Last phase should be build
         assert_eq!(state.last_phase, Some("build".to_string()));
-    });
+    }
 
-    test!(test_phase_not_found, {
+    #[test]
+    fn test_phase_not_found() {
         let fixture = LifecycleTestFixture::new();
         let ctx = fixture.create_context();
 
@@ -322,9 +329,10 @@ command = "echo 'Building...'"
 
         let err_msg = format!("{}", result.unwrap_err());
         assert!(err_msg.contains("not found"));
-    });
+    }
 
-    test!(test_get_last_run, {
+    #[test]
+    fn test_get_last_run() {
         let fixture = LifecycleTestFixture::new();
         let ctx = fixture.create_context();
 
@@ -348,9 +356,10 @@ command = "echo 'Building...'"
 
         // Last run should match the most recent execution
         assert_eq!(last_init.unwrap().started_ms, init_runs[1].started_ms);
-    });
+    }
 
-    test!(test_get_cache_key, {
+    #[test]
+    fn test_get_cache_key() {
         let fixture = LifecycleTestFixture::new();
         let ctx = fixture.create_context();
 
@@ -365,9 +374,10 @@ command = "echo 'Building...'"
 
         // Non-existent phase
         assert!(state.get_cache_key("nonexistent").is_none());
-    });
+    }
 
-    test!(test_pipeline_execution, {
+    #[test]
+    fn test_pipeline_execution() {
         let fixture = LifecycleTestFixture::new();
         let ctx = fixture.create_context();
 
@@ -392,9 +402,10 @@ command = "echo 'Building...'"
 
         // Last phase should be the final test
         assert_eq!(state.last_phase, Some("test".to_string()));
-    });
+    }
 
-    test!(test_workspace_support, {
+    #[test]
+    fn test_workspace_support() {
         let fixture = LifecycleTestFixture::new_with_workspaces();
         let make = fixture.load_make();
 
@@ -411,9 +422,10 @@ command = "echo 'Building...'"
         assert_eq!(frontend.path, "frontend");
         assert_eq!(frontend.framework, Some("react".to_string()));
         assert_eq!(frontend.runtime, Some("node".to_string()));
-    });
+    }
 
-    test!(test_phase_commands_extraction, {
+    #[test]
+    fn test_phase_commands_extraction() {
         let fixture = LifecycleTestFixture::new();
         let make = fixture.load_make();
 
@@ -431,9 +443,10 @@ command = "echo 'Building...'"
         // Test non-existent phase
         let empty = make.phase_commands("nonexistent");
         assert_eq!(empty.len(), 0);
-    });
+    }
 
-    test!(test_phase_names_listing, {
+    #[test]
+    fn test_phase_names_listing() {
         let fixture = LifecycleTestFixture::new();
         let make = fixture.load_make();
 
@@ -445,13 +458,14 @@ command = "echo 'Building...'"
         assert!(phases.contains(&"test".to_string()));
         assert!(phases.contains(&"lint".to_string()));
         assert!(phases.contains(&"clean".to_string()));
-    });
+    }
 
     // Removed test_state_record_run - covered by test_state_persistence and test_run_single_phase
 
     // Removed test_state_add_cache_key - covered by test_cache_key_generation
 
-    test!(test_multiple_phase_runs_state_history, {
+    #[test]
+    fn test_multiple_phase_runs_state_history() {
         let fixture = LifecycleTestFixture::new();
         let ctx = fixture.create_context();
 
@@ -470,9 +484,10 @@ command = "echo 'Building...'"
             assert_eq!(record.phase, "test");
             assert!(record.success);
         }
-    });
+    }
 
-    test!(test_cache_storage_and_validation, {
+    #[test]
+    fn test_cache_storage_and_validation() {
         let temp_dir = TempDir::new().unwrap();
         let cache_dir = temp_dir.path().join(".ggen/cache");
 
@@ -491,9 +506,10 @@ command = "echo 'Building...'"
         // Verify file was created
         let cache_path = cache_dir.join(phase).join(key);
         assert!(cache_path.exists());
-    });
+    }
 
-    test!(test_empty_phase_commands, {
+    #[test]
+    fn test_empty_phase_commands() {
         let temp_dir = TempDir::new().unwrap();
 
         let make_toml = r#"
@@ -517,9 +533,10 @@ description = "Phase with no commands"
             }
             _ => panic!("Expected NoCommands error"),
         }
-    });
+    }
 
-    test!(test_load_make_or_default, {
+    #[test]
+    fn test_load_make_or_default() {
         let temp_dir = TempDir::new().unwrap();
 
         // No make.toml exists
@@ -535,9 +552,10 @@ description = "Phase with no commands"
             Some(crate::lifecycle::model::defaults::DEFAULT_PROJECT_VERSION.to_string())
         );
         assert_eq!(make.lifecycle.len(), 0);
-    });
+    }
 
-    test!(test_concurrent_phase_execution_state, {
+    #[test]
+    fn test_concurrent_phase_execution_state() {
         let fixture = LifecycleTestFixture::new();
         let ctx = fixture.create_context();
 
@@ -563,9 +581,10 @@ description = "Phase with no commands"
         assert!(phase_names.contains(&"test"));
         assert!(phase_names.contains(&"lint"));
         assert!(phase_names.contains(&"clean"));
-    });
+    }
 
-    test!(test_parallel_workspace_execution, {
+    #[test]
+    fn test_parallel_workspace_execution() {
         use std::time::Instant;
 
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
@@ -657,12 +676,13 @@ command = "date +%s%N > timestamp.txt"
             let ws_state = load_state(&ws_state_path).expect("Failed to load workspace state");
             assert_eq!(ws_state.last_phase, Some("timestamp".to_string()));
         }
-    });
+    }
 
     // Removed test_parallel_workspace_isolation - covered by test_parallel_workspace_execution
     // which already verifies workspace-specific file creation and state isolation
 
-    test!(test_parallel_workspace_error_handling, {
+    #[test]
+    fn test_parallel_workspace_error_handling() {
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
 
         // Create 3 workspaces, middle one will fail
@@ -727,7 +747,7 @@ command = "echo 'test'"
 
         // Note: Due to parallel execution, we can't guarantee which workspaces completed
         // before the error was detected, but the error should be propagated
-    });
+    }
 
     // Removed test_parallel_vs_sequential_performance - slow benchmark test (~500ms)
     // Parallel execution is already verified by test_parallel_workspace_execution

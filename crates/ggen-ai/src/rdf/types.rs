@@ -90,7 +90,7 @@ pub struct Argument {
     pub required: bool,
     /// Default value if not provided
     pub default: Option<String>,
-    /// Value name shown in help (e.g., "<NAME>")
+    /// Value name shown in help (e.g., `"<NAME>"`)
     pub value_name: Option<String>,
     /// Position if positional argument
     pub position: Option<usize>,

@@ -7,13 +7,12 @@
 mod tests {
     use super::super::core::Graph;
     use super::super::store::GraphStore;
-    use chicago_tdd_tools::testcontainers::{
-        exec::SUCCESS_EXIT_CODE, ContainerClient, GenericContainer,
-    };
     use tempfile::TempDir;
+    use testcontainers::{exec::SUCCESS_EXIT_CODE, ContainerClient, GenericContainer};
 
     /// Test persistent storage creation and retrieval
-    test!(test_persistent_store_creation, {
+    #[test]
+    fn test_persistent_store_creation() {
         // Arrange
         let temp_dir = TempDir::new().unwrap();
         let store_path = temp_dir.path().join("graph_store");
@@ -35,10 +34,11 @@ mod tests {
         // Assert - data should be persisted
         assert!(!graph.is_empty());
         assert!(graph.len() > 0);
-    });
+    }
 
     /// Test that data persists across store reopen
-    test!(test_persistent_store_reopen, {
+    #[test]
+    fn test_persistent_store_reopen() {
         // Arrange
         let temp_dir = TempDir::new().unwrap();
         let store_path = temp_dir.path().join("graph_store");
@@ -65,10 +65,11 @@ mod tests {
         // Assert - data should still be there
         assert!(!graph.is_empty());
         assert!(graph.len() >= 2);
-    });
+    }
 
     /// Test multiple graphs from same store share data
-    test!(test_multiple_graphs_share_store, {
+    #[test]
+    fn test_multiple_graphs_share_store() {
         // Arrange
         let temp_dir = TempDir::new().unwrap();
         let store_path = temp_dir.path().join("graph_store");
@@ -91,7 +92,7 @@ mod tests {
         assert!(!graph1.is_empty());
         assert!(!graph2.is_empty());
         assert_eq!(graph1.len(), graph2.len());
-    });
+    }
 
     /// Test persistent store operations inside Docker container with volume verification
     ///
@@ -100,8 +101,8 @@ mod tests {
     /// 2. Files are created in container filesystem (/workspace)
     /// 3. Files persist and can be verified via container.exec()
     #[cfg(feature = "docker")]
-    test!(test_store_in_container_with_volume_verification, {
-
+    #[test]
+    fn test_store_in_container_with_volume_verification() {
         // Arrange - create container with filesystem
         let client = ContainerClient::default();
         let container = GenericContainer::with_command(
@@ -165,5 +166,5 @@ mod tests {
             list_files.stdout.contains("test.txt"),
             "Should see test.txt in container filesystem"
         );
-    });
+    }
 }

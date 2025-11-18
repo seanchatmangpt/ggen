@@ -42,7 +42,8 @@ use tempfile::TempDir;
 mod tests {
     use super::*;
 
-    test!(test_end_to_end_template_generation, {
+    #[test]
+    fn test_end_to_end_template_generation() {
         // Create a temporary directory for testing
         let temp_dir = TempDir::new()?;
         let output_dir = temp_dir.path().join("output");
@@ -91,9 +92,10 @@ impl {{ name }} {
         assert!(generated_content.contains("impl TestModule"));
 
         Ok(())
-    });
+    }
 
-    test!(test_end_to_end_with_rdf_data, {
+    #[test]
+    fn test_end_to_end_with_rdf_data() {
         let temp_dir = TempDir::new()?;
         let output_dir = temp_dir.path().join("output");
         std::fs::create_dir_all(&output_dir)?;
@@ -157,9 +159,10 @@ pub struct Product {{
         assert!(generated_content.contains("pub struct Product"));
 
         Ok(())
-    });
+    }
 
-    test!(test_end_to_end_deterministic_output, {
+    #[test]
+    fn test_end_to_end_deterministic_output() {
         let temp_dir = TempDir::new()?;
         let output_dir1 = temp_dir.path().join("output1");
         let output_dir2 = temp_dir.path().join("output2");
@@ -210,9 +213,10 @@ pub struct {{ name }} {
         );
 
         Ok(())
-    });
+    }
 
-    test!(test_end_to_end_error_handling, {
+    #[test]
+    fn test_end_to_end_error_handling() {
         let temp_dir = TempDir::new()?;
         let output_dir = temp_dir.path().join("output");
         std::fs::create_dir_all(&output_dir)?;
@@ -249,5 +253,5 @@ pub struct Test {
         );
 
         Ok(())
-    });
+    }
 }

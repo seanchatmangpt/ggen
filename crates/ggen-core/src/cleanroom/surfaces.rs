@@ -304,7 +304,8 @@ impl ControlledRng {
 mod tests {
     use super::*;
 
-    test!(test_time_frozen, {
+    #[test]
+    fn test_time_frozen() {
         let mut time = ControlledTime::new(TimeMode::Frozen(42));
 
         let t1 = time.now();
@@ -312,9 +313,10 @@ mod tests {
 
         // Frozen time should be identical
         assert_eq!(t1, t2);
-    });
+    }
 
-    test!(test_time_stepped, {
+    #[test]
+    fn test_time_stepped() {
         let mut time = ControlledTime::new(TimeMode::Stepped {
             seed: 42,
             step_ms: 1000,
@@ -325,9 +327,10 @@ mod tests {
 
         // Stepped time should advance
         assert!(t2 > t1);
-    });
+    }
 
-    test!(test_rng_seeded_deterministic, {
+    #[test]
+    fn test_rng_seeded_deterministic() {
         let mut rng1 = ControlledRng::new(RngMode::Seeded(42));
         let mut rng2 = ControlledRng::new(RngMode::Seeded(42));
 
@@ -336,21 +339,23 @@ mod tests {
 
         // Same seed should produce same sequence
         assert_eq!(nums1, nums2);
-    });
+    }
 
-    test!(test_determinism_score, {
+    #[test]
+    fn test_determinism_score() {
         let det = DeterministicSurfaces::deterministic(42);
         assert_eq!(det.determinism_score(), 1.0);
 
         let perm = DeterministicSurfaces::permissive();
         assert_eq!(perm.determinism_score(), 0.0);
-    });
+    }
 
-    test!(test_is_fully_deterministic, {
+    #[test]
+    fn test_is_fully_deterministic() {
         let det = DeterministicSurfaces::deterministic(42);
         assert!(det.is_fully_deterministic());
 
         let perm = DeterministicSurfaces::permissive();
         assert!(!perm.is_fully_deterministic());
-    });
+    }
 }

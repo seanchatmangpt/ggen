@@ -3,8 +3,6 @@
 //! Defines the semantic model for packages, versions, dependencies, and metadata
 //! in RDF format. All marketplace data is stored as RDF triples in oxigraph.
 
-use oxigraph::model::NamedNode;
-
 /// Core namespaces for marketplace RDF
 pub struct Namespaces;
 

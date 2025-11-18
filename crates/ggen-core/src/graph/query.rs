@@ -111,7 +111,8 @@ mod tests {
     use crate::graph::core::Graph;
     use std::collections::BTreeMap;
 
-    test!(test_query_execute_cached, {
+    #[test]
+    fn test_query_execute_cached() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -137,9 +138,10 @@ mod tests {
             }
             _ => panic!("Expected solutions"),
         }
-    });
+    }
 
-    test!(test_query_execute, {
+    #[test]
+    fn test_query_execute() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -162,9 +164,10 @@ mod tests {
             QueryResults::Solutions(_) => {}
             _ => panic!("Expected solutions"),
         }
-    });
+    }
 
-    test!(test_query_execute_with_prefixes, {
+    #[test]
+    fn test_query_execute_with_prefixes() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -189,9 +192,10 @@ mod tests {
             QueryResults::Solutions(_) => {}
             _ => panic!("Expected solutions"),
         }
-    });
+    }
 
-    test!(test_query_execute_with_base, {
+    #[test]
+    fn test_query_execute_with_base() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -219,9 +223,10 @@ mod tests {
             QueryResults::Solutions(_) => {}
             _ => panic!("Expected solutions"),
         }
-    });
+    }
 
-    test!(test_query_execute_prepared, {
+    #[test]
+    fn test_query_execute_prepared() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -244,9 +249,10 @@ mod tests {
             QueryResults::Solutions(_) => {}
             _ => panic!("Expected solutions"),
         }
-    });
+    }
 
-    test!(test_query_builder, {
+    #[test]
+    fn test_query_builder() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -273,9 +279,10 @@ mod tests {
             QueryResults::Solutions(_) => {}
             _ => panic!("Expected solutions"),
         }
-    });
+    }
 
-    test!(test_query_ask_query, {
+    #[test]
+    fn test_query_ask_query() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -296,9 +303,10 @@ mod tests {
             crate::graph::types::CachedResult::Boolean(true) => {}
             _ => panic!("Expected true"),
         }
-    });
+    }
 
-    test!(test_query_invalid_syntax, {
+    #[test]
+    fn test_query_invalid_syntax() {
         // Arrange
         let graph = Graph::new().unwrap();
         let query = GraphQuery::new(&graph);
@@ -306,5 +314,5 @@ mod tests {
         // Act & Assert
         let result = query.execute_cached("INVALID SPARQL SYNTAX");
         assert!(result.is_err());
-    });
+    }
 }

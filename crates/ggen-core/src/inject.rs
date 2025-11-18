@@ -325,44 +325,50 @@ mod tests {
     use super::*;
     use tempfile::NamedTempFile;
 
-    test!(test_detect_eol_crlf, {
+    #[test]
+    fn test_detect_eol_crlf() {
         let temp_file = NamedTempFile::new()?;
         fs::write(temp_file.path(), "line1\r\nline2\r\n")?;
 
         let eol = EolNormalizer::detect_eol(temp_file.path())?;
         assert_eq!(eol, "\r\n");
-    });
+    }
 
-    test!(test_detect_eol_lf, {
+    #[test]
+    fn test_detect_eol_lf() {
         let temp_file = NamedTempFile::new()?;
         fs::write(temp_file.path(), "line1\nline2\n")?;
 
         let eol = EolNormalizer::detect_eol(temp_file.path())?;
         assert_eq!(eol, "\n");
-    });
+    }
 
-    test!(test_detect_eol_cr, {
+    #[test]
+    fn test_detect_eol_cr() {
         let temp_file = NamedTempFile::new()?;
         fs::write(temp_file.path(), "line1\rline2\r")?;
 
         let eol = EolNormalizer::detect_eol(temp_file.path())?;
         assert_eq!(eol, "\r");
-    });
+    }
 
-    test!(test_detect_eol_no_eol, {
+    #[test]
+    fn test_detect_eol_no_eol() {
         let temp_file = NamedTempFile::new()?;
         fs::write(temp_file.path(), "single line")?;
 
         let eol = EolNormalizer::detect_eol(temp_file.path())?;
         assert_eq!(eol, EolNormalizer::platform_default());
-    });
+    }
 
-    test!(test_detect_eol_nonexistent_file, {
+    #[test]
+    fn test_detect_eol_nonexistent_file() {
         let eol = EolNormalizer::detect_eol(Path::new("/nonexistent/file"))?;
         assert_eq!(eol, EolNormalizer::platform_default());
-    });
+    }
 
-    test!(test_normalize_to_eol, {
+    #[test]
+    fn test_normalize_to_eol() {
         let content = "line1\r\nline2\rline3\nline4";
 
         // Normalize to LF
@@ -376,9 +382,10 @@ mod tests {
         // Normalize to CR
         let normalized_cr = EolNormalizer::normalize_to_eol(content, "\r");
         assert_eq!(normalized_cr, "line1\rline2\rline3\rline4");
-    });
+    }
 
-    test!(test_normalize_to_match_file, {
+    #[test]
+    fn test_normalize_to_match_file() {
         let temp_file = NamedTempFile::new()?;
         fs::write(temp_file.path(), "existing\r\ncontent")?;
 
@@ -387,9 +394,10 @@ mod tests {
             EolNormalizer::normalize_to_match_file(content_to_inject, temp_file.path())?;
 
         assert_eq!(normalized, "new\r\ncontent");
-    });
+    }
 
-    test!(test_generate_exact_match, {
+    #[test]
+    fn test_generate_exact_match() {
         let content = "function hello() {\n  console.log('world');\n}";
         let pattern = SkipIfGenerator::generate_exact_match(content);
 
@@ -399,9 +407,10 @@ mod tests {
         // Should match the original content
         let regex = regex::Regex::new(&pattern).unwrap();
         assert!(regex.is_match(content));
-    });
+    }
 
-    test!(test_generate_exact_match_with_special_chars, {
+    #[test]
+    fn test_generate_exact_match_with_special_chars() {
         let content = "function test() {\n  return /^[a-z]+$/;\n}";
         let pattern = SkipIfGenerator::generate_exact_match(content);
 
@@ -412,9 +421,10 @@ mod tests {
         // Should not match similar but different content
         let different_content = "function test() {\n  return /^[A-Z]+$/;\n}";
         assert!(!regex.is_match(different_content));
-    });
+    }
 
-    test!(test_content_exists_in_file, {
+    #[test]
+    fn test_content_exists_in_file() {
         let temp_file = NamedTempFile::new()?;
         let content = "function hello() {\n  console.log('world');\n}";
         fs::write(
@@ -434,15 +444,17 @@ mod tests {
             different_content,
             temp_file.path()
         )?);
-    });
+    }
 
-    test!(test_content_exists_in_nonexistent_file, {
+    #[test]
+    fn test_content_exists_in_nonexistent_file() {
         let result =
             SkipIfGenerator::content_exists_in_file("content", Path::new("/nonexistent/file"))?;
         assert!(!result);
-    });
+    }
 
-    test!(test_generate_idempotent_pattern, {
+    #[test]
+    fn test_generate_idempotent_pattern() {
         let content = "function test() {}";
         let pattern = SkipIfGenerator::generate_idempotent_pattern(content);
 
@@ -452,12 +464,13 @@ mod tests {
         // Should match the content
         let regex = regex::Regex::new(&pattern).unwrap();
         assert!(regex.is_match(content));
-    });
+    }
 
-    test!(test_platform_default, {
+    #[test]
+    fn test_platform_default() {
         let default = EolNormalizer::platform_default();
 
         // Should be either \n or \r\n depending on platform
         assert!(default == "\n" || default == "\r\n");
-    });
+    }
 }

@@ -603,9 +603,9 @@ fn escape_literal(s: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::prelude::*;
 
-    test!(test_template_metadata_creation, {
+    #[test]
+    fn test_template_metadata_creation() {
         let metadata = TemplateMetadata::new(
             "http://example.org/template1".to_string(),
             "Test Template".to_string(),
@@ -616,9 +616,10 @@ mod tests {
         assert!(metadata.created_at.is_some());
         assert_eq!(metadata.stability, Some("stable".to_string()));
         assert_eq!(metadata.usage_count, Some(0));
-    });
+    }
 
-    test!(test_template_to_turtle, {
+    #[test]
+    fn test_template_to_turtle() {
         let mut metadata = TemplateMetadata::new(
             "http://example.org/template1".to_string(),
             "Test Template".to_string(),
@@ -633,9 +634,10 @@ mod tests {
         assert!(turtle.contains("ggen:templateName \"Test Template\""));
         assert!(turtle.contains("ggen:templateDescription \"A test template\""));
         assert!(turtle.contains("ggen:category \"testing\""));
-    });
+    }
 
-    test!(test_metadata_store_operations, {
+    #[test]
+    fn test_metadata_store_operations() {
         let store = TemplateMetadataStore::new().unwrap();
         store.load_schema().unwrap();
 
@@ -654,9 +656,10 @@ mod tests {
         assert!(retrieved.is_some());
         let retrieved = retrieved.unwrap();
         assert_eq!(retrieved.name, "Test Template");
-    });
+    }
 
-    test!(test_find_by_category, {
+    #[test]
+    fn test_find_by_category() {
         let store = TemplateMetadataStore::new().unwrap();
         store.load_schema().unwrap();
 
@@ -677,16 +680,18 @@ mod tests {
 
         let found = store.find_by_category("web").unwrap();
         assert_eq!(found.len(), 2);
-    });
+    }
 
-    test!(test_escape_literal, {
+    #[test]
+    fn test_escape_literal() {
         assert_eq!(escape_literal("hello"), "hello");
         assert_eq!(escape_literal("hello\"world"), "hello\\\"world");
         assert_eq!(escape_literal("line1\nline2"), "line1\\nline2");
         assert_eq!(escape_literal("tab\there"), "tab\\there");
-    });
+    }
 
-    test!(test_template_variables, {
+    #[test]
+    fn test_template_variables() {
         let mut metadata = TemplateMetadata::new(
             "http://example.org/template1".to_string(),
             "Test Template".to_string(),
@@ -707,5 +712,5 @@ mod tests {
         assert!(turtle.contains("ggen:isRequired \"true\""));
 
         Ok(())
-    });
+    }
 }

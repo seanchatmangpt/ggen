@@ -763,14 +763,16 @@ mod tests {
     use tempfile::TempDir;
 
     // Test 1: Pipeline initialization
-    test!(test_pipeline_new, {
+    #[test]
+    fn test_pipeline_new() {
         let pipeline = Pipeline::new()?;
         assert!(!pipeline.graph.is_empty() || pipeline.graph.is_empty()); // Just verify it exists
         Ok(())
-    });
+    }
 
     // Test 2: Basic rendering
-    test!(test_pipeline_render_body, {
+    #[test]
+    fn test_pipeline_render_body() {
         let mut pipeline = Pipeline::new()?;
         let mut ctx = Context::new();
         ctx.insert("name", "World");
@@ -778,10 +780,11 @@ mod tests {
         let result = pipeline.render_body("Hello {{ name }}", &ctx)?;
         assert_eq!(result, "Hello World");
         Ok(())
-    });
+    }
 
     // Test 3: Render file with frontmatter
-    test!(test_pipeline_render_file_basic, {
+    #[test]
+    fn test_pipeline_render_file_basic() {
         let temp_dir = TempDir::new()?;
         let template_content = r#"---
 to: "output.txt"
@@ -799,10 +802,11 @@ Hello {{ name }}"#;
         assert_eq!(plan.content, "Hello World");
         assert_eq!(plan.output_path.file_name().unwrap(), "output.txt");
         Ok(())
-    });
+    }
 
     // Test 4: Plan dry run
-    test!(test_plan_apply_dry_run, {
+    #[test]
+    fn test_plan_apply_dry_run() {
         let temp_dir = TempDir::new()?;
         let output_path = temp_dir.path().join("output.txt");
 
@@ -819,10 +823,11 @@ Hello {{ name }}"#;
         // Verify file was NOT created
         assert!(!output_path.exists());
         Ok(())
-    });
+    }
 
     // Test 5: Plan apply creates new file
-    test!(test_plan_apply_creates_file, {
+    #[test]
+    fn test_plan_apply_creates_file() {
         let temp_dir = TempDir::new()?;
         let output_path = temp_dir.path().join("output.txt");
 
@@ -841,10 +846,11 @@ Hello {{ name }}"#;
         let content = std::fs::read_to_string(&output_path)?;
         assert_eq!(content, "Test content");
         Ok(())
-    });
+    }
 
     // Test 6: Plan with unless_exists
-    test!(test_plan_unless_exists, {
+    #[test]
+    fn test_plan_unless_exists() {
         let temp_dir = TempDir::new()?;
         let output_path = temp_dir.path().join("output.txt");
 
@@ -868,10 +874,11 @@ Hello {{ name }}"#;
         let content = std::fs::read_to_string(&output_path)?;
         assert_eq!(content, "Original content");
         Ok(())
-    });
+    }
 
     // Test 7: PipelineBuilder with prefixes
-    test!(test_pipeline_builder_with_prefixes, {
+    #[test]
+    fn test_pipeline_builder_with_prefixes() {
         let mut prefixes = BTreeMap::new();
         prefixes.insert("ex".to_string(), "http://example.org/".to_string());
 
@@ -882,10 +889,11 @@ Hello {{ name }}"#;
         // Just verify it builds successfully
         assert!(!pipeline.graph.is_empty() || pipeline.graph.is_empty());
         Ok(())
-    });
+    }
 
     // Test 8: Register prefixes
-    test!(test_pipeline_register_prefixes, {
+    #[test]
+    fn test_pipeline_register_prefixes() {
         let mut pipeline = Pipeline::new()?;
         let mut prefixes = BTreeMap::new();
         prefixes.insert("ex".to_string(), "http://example.org/".to_string());
@@ -897,5 +905,5 @@ Hello {{ name }}"#;
         let result = pipeline.render_body("{{ 1 + 1 }}", &ctx)?;
         assert_eq!(result, "2");
         Ok(())
-    });
+    }
 }

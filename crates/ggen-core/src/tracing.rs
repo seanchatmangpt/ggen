@@ -293,20 +293,23 @@ mod tests {
     use tempfile::TempDir;
     use std::fs;
     
-    test!(test_tracing_initialization, {
+    #[test]
+    fn test_tracing_initialization() {
         // Test that tracing can be initialized without errors
         std::env::set_var("GGEN_TRACE", "debug");
         let result = init_tracing();
         assert!(result.is_ok());
-    });
+    }
     
-    test!(test_performance_timer, {
+    #[test]
+    fn test_performance_timer() {
         let timer = PerformanceTimer::start("test_operation");
         std::thread::sleep(std::time::Duration::from_millis(10));
         timer.finish(); // Should not panic
-    });
+    }
     
-    test!(test_tracing_macros, {
+    #[test]
+    fn test_tracing_macros() {
         // Test that the macros compile and work
         let _span = trace_span!("test_span", operation = "test");
         
@@ -314,5 +317,5 @@ mod tests {
             42
         });
         assert_eq!(result, 42);
-    });
+    }
 }

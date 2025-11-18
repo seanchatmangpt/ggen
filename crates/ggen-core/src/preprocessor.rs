@@ -453,7 +453,8 @@ mod tests {
         }
     }
 
-    test!(test_freeze_stage_basic, {
+    #[test]
+    fn test_freeze_stage_basic() {
         let temp_dir = TempDir::new()?;
         let stage = FreezeStage {
             slots_dir: temp_dir.path().to_path_buf(),
@@ -474,9 +475,10 @@ World
         assert!(!result.contains("endfreeze"));
 
         Ok(())
-    });
+    }
 
-    test!(test_include_stage_basic, {
+    #[test]
+    fn test_include_stage_basic() {
         let temp_dir = TempDir::new()?;
         let include_file = temp_dir.path().join("included.tmpl");
         fs::write(&include_file, "Included content")?;
@@ -496,9 +498,10 @@ World
         assert!(!result.contains("include"));
 
         Ok(())
-    });
+    }
 
-    test!(test_preprocessor_pipeline, {
+    #[test]
+    fn test_preprocessor_pipeline() {
         let temp_dir = TempDir::new()?;
         let include_file = temp_dir.path().join("included.tmpl");
         fs::write(&include_file, "Included")?;
@@ -528,5 +531,5 @@ Frozen
         assert!(!result.contains("startfreeze"));
 
         Ok(())
-    });
+    }
 }

@@ -29,7 +29,7 @@ use crate::marketplace::adapter::PackageInfo;
 use crate::marketplace::packs_services::discovery::{
     DiscoveryFilter, PackageDiscoveryService, SortField,
 };
-use ggen_utils::error::Result;
+use ggen_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -256,9 +256,9 @@ pub async fn list_packages(
     // Format output
     match options.format {
         OutputFormat::Json => serde_json::to_string_pretty(&output)
-            .map_err(|e| ggen_utils::error::Error::Other(e.to_string())),
+            .map_err(|e| Error::with_source("Failed to render packages as JSON", Box::new(e))),
         OutputFormat::Yaml => serde_yaml::to_string(&output)
-            .map_err(|e| ggen_utils::error::Error::Other(e.to_string())),
+            .map_err(|e| Error::with_source("Failed to render packages as YAML", Box::new(e))),
         OutputFormat::Csv => format_as_csv(&listed_packages),
         OutputFormat::Human => format_as_human(&listed_packages, &output),
     }
@@ -384,6 +384,7 @@ mod tests {
             author: "Test Author".to_string(),
             quality_score: 85,
             is_production_ready: true,
+            downloads: 0,
             description: "A test package".to_string(),
             repository: None,
             license: None,

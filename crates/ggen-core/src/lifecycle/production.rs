@@ -930,7 +930,8 @@ impl ReadinessTracker {
 mod tests {
     use super::*;
 
-    test!(test_default_requirements, {
+    #[test]
+    fn test_default_requirements() {
         let requirements = ReadinessTracker::default_requirements();
 
         // Should have requirements in all categories
@@ -960,9 +961,10 @@ mod tests {
                 );
             }
         }
-    });
+    }
 
-    test!(test_readiness_report_generation, {
+    #[test]
+    fn test_readiness_report_generation() {
         let mut tracker = ReadinessTracker::new("/tmp/test");
         tracker.load().unwrap(); // Load default requirements
         let report = tracker.generate_report();
@@ -980,9 +982,10 @@ mod tests {
             !report.requirements.is_empty(),
             "requirements should not be empty after loading defaults"
         );
-    });
+    }
 
-    test!(test_status_transitions, {
+    #[test]
+    fn test_status_transitions() {
         let mut tracker = ReadinessTracker::new("/tmp/test");
         tracker.load().unwrap();
 
@@ -998,7 +1001,7 @@ mod tests {
         assert!(tracker
             .update_requirement("auth-basic", ReadinessStatus::Missing)
             .is_err());
-    });
+    }
 }
 
 /// Placeholder registry for managing placeholder implementations

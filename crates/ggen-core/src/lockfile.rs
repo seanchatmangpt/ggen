@@ -397,14 +397,16 @@ mod tests {
     use super::*;
     use tempfile::TempDir;
 
-    test!(test_lockfile_manager_creation, {
+    #[test]
+    fn test_lockfile_manager_creation() {
         let temp_dir = TempDir::new().unwrap();
         let manager = LockfileManager::new(temp_dir.path());
 
         assert_eq!(manager.lockfile_path(), temp_dir.path().join("ggen.lock"));
-    });
+    }
 
-    test!(test_lockfile_create_and_save, {
+    #[test]
+    fn test_lockfile_create_and_save() {
         let temp_dir = TempDir::new().unwrap();
         let manager = LockfileManager::new(temp_dir.path());
 
@@ -412,17 +414,19 @@ mod tests {
         manager.save(&lockfile).unwrap();
 
         assert!(manager.lockfile_path().exists());
-    });
+    }
 
-    test!(test_lockfile_load_nonexistent, {
+    #[test]
+    fn test_lockfile_load_nonexistent() {
         let temp_dir = TempDir::new().unwrap();
         let manager = LockfileManager::new(temp_dir.path());
 
         let loaded = manager.load().unwrap();
         assert!(loaded.is_none());
-    });
+    }
 
-    test!(test_lockfile_upsert_and_get, {
+    #[test]
+    fn test_lockfile_upsert_and_get() {
         let temp_dir = TempDir::new().unwrap();
         let manager = LockfileManager::new(temp_dir.path());
 
@@ -439,9 +443,10 @@ mod tests {
         assert_eq!(entry.source, "https://example.com");
         assert!(entry.pqc_signature.is_none());
         assert!(entry.pqc_pubkey.is_none());
-    });
+    }
 
-    test!(test_lockfile_upsert_with_pqc, {
+    #[test]
+    fn test_lockfile_upsert_with_pqc() {
         let temp_dir = TempDir::new().unwrap();
         let manager = LockfileManager::new(temp_dir.path());
 
@@ -462,9 +467,10 @@ mod tests {
         assert_eq!(entry.id, "io.ggen.test");
         assert_eq!(entry.pqc_signature, Some("pqc_sig_base64".to_string()));
         assert_eq!(entry.pqc_pubkey, Some("pqc_pubkey_base64".to_string()));
-    });
+    }
 
-    test!(test_lockfile_remove, {
+    #[test]
+    fn test_lockfile_remove() {
         let temp_dir = TempDir::new().unwrap();
         let manager = LockfileManager::new(temp_dir.path());
 
@@ -478,9 +484,10 @@ mod tests {
         let removed = manager.remove("io.ggen.test").unwrap();
         assert!(removed);
         assert!(!manager.is_installed("io.ggen.test").unwrap());
-    });
+    }
 
-    test!(test_lockfile_stats, {
+    #[test]
+    fn test_lockfile_stats() {
         let temp_dir = TempDir::new().unwrap();
         let manager = LockfileManager::new(temp_dir.path());
 
@@ -499,5 +506,5 @@ mod tests {
         assert_eq!(stats.total_packs, 1);
         assert!(stats.generated.is_some());
         assert_eq!(stats.version, Some("1.0".to_string()));
-    });
+    }
 }

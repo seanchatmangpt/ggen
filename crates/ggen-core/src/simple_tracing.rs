@@ -346,18 +346,20 @@ macro_rules! time_operation {
 mod tests {
     use super::*;
 
-    test!(test_trace_level_ordering, {
+    #[test]
+    fn test_trace_level_ordering() {
         assert!(TraceLevel::Error < TraceLevel::Warn);
         assert!(TraceLevel::Warn < TraceLevel::Info);
         assert!(TraceLevel::Info < TraceLevel::Debug);
         assert!(TraceLevel::Debug < TraceLevel::Trace);
-    });
+    }
 
-    test!(test_simple_timer, {
+    #[test]
+    fn test_simple_timer() {
         let timer = SimpleTimer::start("test_operation");
         std::thread::sleep(std::time::Duration::from_millis(10));
         timer.finish(); // Should not panic
-    });
+    }
 
     chicago_tdd_tools::test!(test_tracing_methods, {
         let temp_dir = TempDir::new().unwrap();

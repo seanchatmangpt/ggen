@@ -187,7 +187,8 @@ mod tests {
     use std::fs;
     use tempfile::TempDir;
 
-    test!(test_export_write_to_file, {
+    #[test]
+    fn test_export_write_to_file() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -211,9 +212,10 @@ mod tests {
         let content = fs::read_to_string(&file_path).unwrap();
         assert!(content.contains("ex:alice"));
         assert!(content.contains("ex:Person"));
-    });
+    }
 
-    test!(test_export_write_to_string_turtle, {
+    #[test]
+    fn test_export_write_to_string_turtle() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -233,9 +235,10 @@ mod tests {
         assert!(!result.is_empty());
         // Turtle format should contain prefix or triples
         assert!(result.contains("ex:") || result.contains("http://example.org/"));
-    });
+    }
 
-    test!(test_export_write_to_string_ntriples, {
+    #[test]
+    fn test_export_write_to_string_ntriples() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -255,9 +258,10 @@ mod tests {
         assert!(!result.is_empty());
         // N-Triples format should contain full IRIs
         assert!(result.contains("http://example.org/alice"));
-    });
+    }
 
-    test!(test_export_write_to_string_rdfxml, {
+    #[test]
+    fn test_export_write_to_string_rdfxml() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -277,9 +281,10 @@ mod tests {
         assert!(!result.is_empty());
         // RDF/XML format should contain XML tags
         assert!(result.contains("<") && result.contains(">"));
-    });
+    }
 
-    test!(test_export_write_to_file_auto_turtle, {
+    #[test]
+    fn test_export_write_to_file_auto_turtle() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -301,9 +306,10 @@ mod tests {
         assert!(file_path.exists());
         let content = fs::read_to_string(&file_path).unwrap();
         assert!(!content.is_empty());
-    });
+    }
 
-    test!(test_export_write_to_file_auto_ntriples, {
+    #[test]
+    fn test_export_write_to_file_auto_ntriples() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -325,9 +331,10 @@ mod tests {
         assert!(file_path.exists());
         let content = fs::read_to_string(&file_path).unwrap();
         assert!(!content.is_empty());
-    });
+    }
 
-    test!(test_export_write_to_file_auto_unsupported_format, {
+    #[test]
+    fn test_export_write_to_file_auto_unsupported_format() {
         // Arrange
         let graph = Graph::new().unwrap();
         let export = GraphExport::new(&graph);
@@ -338,9 +345,10 @@ mod tests {
         let result = export.write_to_file_auto(&file_path);
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("unsupported"));
-    });
+    }
 
-    test!(test_export_format_specific_serialization, {
+    #[test]
+    fn test_export_format_specific_serialization() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -368,9 +376,10 @@ mod tests {
         assert!(!nquads.is_empty());
         // Formats should be different (at least one should differ)
         assert!(turtle != ntriples || turtle != rdfxml || ntriples != rdfxml);
-    });
+    }
 
-    test!(test_export_turtle_format_preserves_prefixes, {
+    #[test]
+    fn test_export_turtle_format_preserves_prefixes() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -391,9 +400,10 @@ mod tests {
         // Assert - Turtle format should preserve prefixes or use full IRIs
         assert!(turtle.contains("ex:") || turtle.contains("http://example.org/"));
         assert!(turtle.contains("alice") || turtle.contains("Alice"));
-    });
+    }
 
-    test!(test_export_ntriples_format_uses_full_iris, {
+    #[test]
+    fn test_export_ntriples_format_uses_full_iris() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -412,9 +422,10 @@ mod tests {
         // Assert - N-Triples format should use full IRIs, not prefixes
         assert!(ntriples.contains("http://example.org/alice"));
         assert!(ntriples.contains("http://example.org/Person"));
-    });
+    }
 
-    test!(test_export_rdfxml_format_has_xml_structure, {
+    #[test]
+    fn test_export_rdfxml_format_has_xml_structure() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -433,9 +444,10 @@ mod tests {
         // Assert - RDF/XML format should have XML structure
         assert!(rdfxml.contains("<") && rdfxml.contains(">"));
         assert!(rdfxml.contains("rdf:") || rdfxml.contains("RDF"));
-    });
+    }
 
-    test!(test_export_trig_format_supports_named_graphs, {
+    #[test]
+    fn test_export_trig_format_supports_named_graphs() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -456,9 +468,10 @@ mod tests {
         assert!(!trig.is_empty());
         // TriG should contain graph information
         assert!(trig.contains("http://example.org/graph1") || trig.contains("alice"));
-    });
+    }
 
-    test!(test_export_nquads_format_includes_graph_context, {
+    #[test]
+    fn test_export_nquads_format_includes_graph_context() {
         // Arrange
         let graph = Graph::new().unwrap();
         graph
@@ -479,9 +492,10 @@ mod tests {
         assert!(!nquads.is_empty());
         // N-Quads should contain graph information
         assert!(nquads.contains("http://example.org/graph1") || nquads.contains("alice"));
-    });
+    }
 
-    test!(test_export_empty_graph, {
+    #[test]
+    fn test_export_empty_graph() {
         // Arrange
         let graph = Graph::new().unwrap();
         let export = GraphExport::new(&graph);
@@ -493,5 +507,5 @@ mod tests {
         // Empty graph may produce empty string or minimal output
         // Just verify it doesn't panic
         assert!(result.is_empty() || !result.is_empty());
-    });
+    }
 }

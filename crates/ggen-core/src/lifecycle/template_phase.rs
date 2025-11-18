@@ -204,15 +204,17 @@ pub fn register_template_phase(make: &mut crate::lifecycle::Make) {
 mod tests {
     use super::*;
 
-    test!(test_default_config, {
+    #[test]
+    fn test_default_config() {
         let config = TemplatePhaseConfig::default();
         assert!(config.template.is_empty());
         assert!(!config.interactive);
         assert!(!config.force);
         assert!(config.post_hooks.is_empty());
-    });
+    }
 
-    test!(test_config_with_variables, {
+    #[test]
+    fn test_config_with_variables() {
         let mut config = TemplatePhaseConfig::default();
         config.variables.insert("name".to_string(), "test".to_string());
         config
@@ -221,5 +223,5 @@ mod tests {
 
         assert_eq!(config.variables.len(), 2);
         assert_eq!(config.variables.get("name").unwrap(), "test");
-    });
+    }
 }

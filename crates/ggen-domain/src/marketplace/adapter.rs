@@ -35,8 +35,10 @@
 //! - `marketplace-parallel`: Enable both (for A/B testing)
 
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 use ggen_utils::error::Result;
 
@@ -155,6 +157,36 @@ pub struct PackageInfo {
 
     /// Whether package is marked as production-ready
     pub is_production_ready: bool,
+
+    /// Repository URL (if available)
+    pub repository: Option<String>,
+
+    /// License (if specified)
+    pub license: Option<String>,
+
+    /// Homepage URL
+    pub homepage: Option<String>,
+
+    /// Installation location on disk
+    pub location: PathBuf,
+
+    /// Disk usage in bytes
+    pub size_bytes: u64,
+
+    /// When the package version was published
+    pub published_at: DateTime<Utc>,
+
+    /// Last time the package was used
+    pub last_used: DateTime<Utc>,
+
+    /// When the package was installed/created locally
+    pub created_at: DateTime<Utc>,
+
+    /// Deprecation flag
+    pub is_deprecated: bool,
+
+    /// Deprecation notice (if any)
+    pub deprecation_notice: Option<String>,
 
     /// Semantic metadata (for v2)
     #[serde(default)]
@@ -283,6 +315,16 @@ mod tests {
             quality_score: 85,
             downloads: 1000,
             is_production_ready: true,
+            repository: Some("https://example.com".to_string()),
+            license: Some("MIT".to_string()),
+            homepage: Some("https://example.com/docs".to_string()),
+            location: PathBuf::from("/opt/packs/test"),
+            size_bytes: 1_024_000,
+            published_at: Utc::now(),
+            last_used: Utc::now(),
+            created_at: Utc::now(),
+            is_deprecated: false,
+            deprecation_notice: None,
             metadata: Default::default(),
         };
 

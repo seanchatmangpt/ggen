@@ -535,22 +535,25 @@ impl GitHubClient {
 mod tests {
     use super::*;
 
-    test!(test_repo_info_parse, {
+    #[test]
+    fn test_repo_info_parse() {
         let repo = RepoInfo::parse("seanchatmangpt/ggen").unwrap();
         assert_eq!(repo.owner, "seanchatmangpt");
         assert_eq!(repo.name, "ggen");
         assert_eq!(repo.as_str(), "seanchatmangpt/ggen");
-    });
+    }
 
-    test!(test_repo_info_parse_invalid, {
+    #[test]
+    fn test_repo_info_parse_invalid() {
         assert!(RepoInfo::parse("invalid").is_err());
         assert!(RepoInfo::parse("too/many/parts").is_err());
-    });
+    }
 
     #[ignore] // Requires network access
-    async_test!(test_github_client_creation, {
+    #[tokio::test]
+    async fn test_github_client_creation() {
         let repo = RepoInfo::parse("seanchatmangpt/ggen").unwrap();
         let client = GitHubClient::new(repo);
         assert!(client.is_ok());
-    });
+    }
 }

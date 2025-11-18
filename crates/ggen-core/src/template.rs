@@ -562,7 +562,8 @@ mod tests {
 
     /* ---------- parsing & frontmatter ---------- */
 
-    test!(parse_variants_and_preserve_body, {
+    #[test]
+    fn parse_variants_and_preserve_body() {
         let cases = [
             (
                 // basic with frontmatter
@@ -590,9 +591,10 @@ fn main() { println!("Hello"); }"#,
             let t = Template::parse(input).unwrap();
             assert_eq!(t.body, want_body);
         }
-    });
+    }
 
-    test!(frontmatter_render_core_fields, {
+    #[test]
+    fn frontmatter_render_core_fields() {
         let input = r#"---
 to: "{{name}}.rs"
 prefixes: { ex: "http://example.org/" }
@@ -616,9 +618,10 @@ body"#;
         assert_eq!(t.front.rdf_inline.len(), 1);
         assert_eq!(t.front.sparql.len(), 1);
         // ❌ REMOVED: vars test - no longer in frontmatter
-    });
+    }
 
-    test!(deserializers_string_or_seq_and_sparql_map, {
+    #[test]
+    fn deserializers_string_or_seq_and_sparql_map() {
         let fm1: Frontmatter = serde_yaml::from_str(r#"rdf_inline: "a""#).unwrap();
         let fm2: Frontmatter = serde_yaml::from_str(r#"rdf_inline: ["a","b"]"#).unwrap();
         assert_eq!(fm1.rdf_inline, vec!["a"]);
@@ -633,9 +636,10 @@ body"#;
         assert!(fm3.sparql.contains_key("default"));
         assert!(fm4.sparql.contains_key("q1"));
         assert!(fm5.sparql.contains_key("query_0"));
-    });
+    }
 
-    test!(boolean_and_injection_flags, {
+    #[test]
+    fn boolean_and_injection_flags() {
         let fm: Frontmatter = serde_yaml::from_str(
             r#"
 force: true
@@ -662,11 +666,12 @@ sh_after: "echo post"
         assert_eq!(fm.skip_if.as_deref(), Some("needle"));
         assert_eq!(fm.sh_before.as_deref(), Some("echo pre"));
         assert_eq!(fm.sh_after.as_deref(), Some("echo post"));
-    });
+    }
 
     /* ---------- body rendering ---------- */
 
-    test!(body_render_inline_and_from_file, {
+    #[test]
+    fn body_render_inline_and_from_file() {
         // inline
         let inline = r#"---
 to: "x"
@@ -691,11 +696,12 @@ ignored"#,
         tmpl.render_frontmatter(&mut tera, &vars).unwrap();
         let got2 = tmpl.render(&mut tera, &vars).unwrap();
         assert_contains!(got2, "Hello, Bob!");
-    });
+    }
 
     /* ---------- graph + sparql ---------- */
 
-    test!(rdf_insert_and_select_visible, {
+    #[test]
+    fn rdf_insert_and_select_visible() {
         let input = r#"---
 prefixes: { ex: "http://example.org/" }
 rdf_inline:
@@ -707,9 +713,10 @@ Count: {{ sparql_results.q | length }}"#;
 
         let out = process_then_render(input, &Context::new()).unwrap();
         assert_contains!(out, "Count: 1");
-    });
+    }
 
-    test!(boolean_ask_and_empty_result_helpers, {
+    #[test]
+    fn boolean_ask_and_empty_result_helpers() {
         let input = r#"---
 prefixes: { ex: "http://example.org/" }
 rdf_inline:
@@ -726,9 +733,10 @@ Count: {{ sparql_count(results=sparql_results.none) }}"#;
         assert_contains!(out, "Has: true");
         assert_contains!(out, "Empty: true");
         assert_contains!(out, "Count: 0");
-    });
+    }
 
-    test!(projection_helpers_and_multiple_queries, {
+    #[test]
+    fn projection_helpers_and_multiple_queries() {
         let input = r#"---
 prefixes: { ex: "http://example.org/" }
 rdf_inline:
@@ -747,9 +755,10 @@ Ages: {{ sparql_values(results=sparql_results.ages, column="age") }}"#;
         assert_contains!(out, "First: \"Alice\"");
         assert_contains!(out, "People count: 2");
         assert_contains!(out, "Ages:");
-    });
+    }
 
-    test!(preprocessor_integration, {
+    #[test]
+    fn preprocessor_integration() {
         use std::path::Path;
         use tempfile::TempDir;
 
@@ -790,7 +799,7 @@ fn main() {
         assert!(template.body.contains("World"));
         assert!(!template.body.contains("startfreeze"));
         assert!(!template.body.contains("endfreeze"));
-    });
+    }
 
     #[cfg(feature = "proptest")]
     mod proptest_tests {

@@ -511,9 +511,9 @@ fn is_valid_identifier(s: &str) -> bool {
 mod tests {
     use super::*;
     use crate::rdf::template_metadata::TemplateVariable;
-    use chicago_tdd_tools::prelude::*;
 
-    test!(test_validate_valid_template, {
+    #[test]
+    fn test_validate_valid_template() {
         let mut metadata = TemplateMetadata::new(
             "http://example.org/template1".to_string(),
             "Test Template".to_string(),
@@ -528,9 +528,10 @@ mod tests {
 
         assert!(report.is_valid());
         assert_eq!(report.errors.len(), 0);
-    });
+    }
 
-    test!(test_validate_empty_name, {
+    #[test]
+    fn test_validate_empty_name() {
         let metadata =
             TemplateMetadata::new("http://example.org/template1".to_string(), "".to_string());
 
@@ -539,9 +540,10 @@ mod tests {
 
         assert!(!report.is_valid());
         assert!(report.errors.iter().any(|e| e.path == "templateName"));
-    });
+    }
 
-    test!(test_validate_invalid_version, {
+    #[test]
+    fn test_validate_invalid_version() {
         let mut metadata = TemplateMetadata::new(
             "http://example.org/template1".to_string(),
             "Test".to_string(),
@@ -552,9 +554,10 @@ mod tests {
         let report = validator.validate(&metadata).unwrap();
 
         assert!(report.warnings.iter().any(|w| w.path == "templateVersion"));
-    });
+    }
 
-    test!(test_validate_invalid_stability, {
+    #[test]
+    fn test_validate_invalid_stability() {
         let mut metadata = TemplateMetadata::new(
             "http://example.org/template1".to_string(),
             "Test".to_string(),
@@ -566,9 +569,10 @@ mod tests {
 
         assert!(!report.is_valid());
         assert!(report.errors.iter().any(|e| e.path == "stability"));
-    });
+    }
 
-    test!(test_validate_variable_name, {
+    #[test]
+    fn test_validate_variable_name() {
         let mut metadata = TemplateMetadata::new(
             "http://example.org/template1".to_string(),
             "Test".to_string(),
@@ -589,9 +593,10 @@ mod tests {
             .errors
             .iter()
             .any(|e| e.path.contains("variableName")));
-    });
+    }
 
-    test!(test_validate_variable_type, {
+    #[test]
+    fn test_validate_variable_type() {
         let mut metadata = TemplateMetadata::new(
             "http://example.org/template1".to_string(),
             "Test".to_string(),
@@ -612,9 +617,10 @@ mod tests {
             .errors
             .iter()
             .any(|e| e.path.contains("variableType")));
-    });
+    }
 
-    test!(test_is_semantic_version, {
+    #[test]
+    fn test_is_semantic_version() {
         assert!(is_semantic_version("1.0.0"));
         assert!(is_semantic_version("1.2.3"));
         assert!(is_semantic_version("10.20.30"));
@@ -624,9 +630,10 @@ mod tests {
         assert!(!is_semantic_version("1.0.0.0"));
         assert!(!is_semantic_version("v1.0.0"));
         assert!(!is_semantic_version("invalid"));
-    });
+    }
 
-    test!(test_is_valid_identifier, {
+    #[test]
+    fn test_is_valid_identifier() {
         assert!(is_valid_identifier("valid_name"));
         assert!(is_valid_identifier("_underscore"));
         assert!(is_valid_identifier("camelCase"));
@@ -637,9 +644,10 @@ mod tests {
         assert!(!is_valid_identifier(""));
         assert!(!is_valid_identifier("invalid-name"));
         assert!(!is_valid_identifier("invalid name"));
-    });
+    }
 
-    test!(test_validation_report, {
+    #[test]
+    fn test_validation_report() {
         let mut report = ValidationReport::new("test".to_string());
 
         assert!(report.is_valid());
@@ -656,5 +664,5 @@ mod tests {
         report.add_info("path".to_string(), "Info".to_string(), None);
         assert_eq!(report.info.len(), 1);
         assert_eq!(report.total_issues(), 3);
-    });
+    }
 }

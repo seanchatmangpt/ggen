@@ -33,8 +33,8 @@
 //! ## INVARIANTS
 //! - Generated templates must be parseable by Template::parse()
 //! - Frontmatter must be rendered before template is returned
-//! - All public methods must return Result<Template>, never partial state
-//! - LLM client must remain immutable (Arc<dyn LlmClient>)
+//! - All public methods must return `Result<Template>`, never partial state
+//! - LLM client must remain immutable (`Arc<dyn LlmClient>`)
 //! - Prompt building must never fail silently
 //!
 //! ## DATA FLOW
@@ -79,16 +79,15 @@
 //! ### Format 1: Markdown with YAML code block
 //! ```text
 //! Here's your template:
-//!
+//! ```
 //! ```yaml
 //! ---
 //! to: "{{name}}.rs"
 //! ---
 //! fn main() {}
 //! ```
-//! ```
 //!
-//! **Action**: Extract content between ```yaml and ```
+//! **Action**: Extract content between \`\`\`yaml and \`\`\`
 //!
 //! ### Format 2: Direct template format
 //! ```text
@@ -101,12 +100,12 @@
 //! **Action**: Use as-is
 //!
 //! ### Format 3: Frontmatter only (no body)
-//! ```text
 //! ```yaml
+//! ---
 //! to: "{{name}}.rs"
 //! vars:
 //!   name: "example"
-//! ```
+//! ---
 //! ```
 //!
 //! **Action**: Auto-add template body section
@@ -161,14 +160,14 @@
 //! - Property test: Any LLM output should produce valid Template
 //!
 //! ## REFACTORING PRIORITIES
-//! - [P0] Improve parse_template() error messages with LLM output preview
-//! - [P0] Add retry logic for transient LLM errors
-//! - [P1] Extract response format detection into shared utility
-//! - [P1] Add caching for identical prompts (save API calls)
-//! - [P1] Support incremental template building (multi-turn conversation)
-//! - [P2] Add template quality scoring (completeness, complexity)
-//! - [P2] Support template refinement (iterative improvement)
-//! - [P3] Add template library search before generation
+//! - \[P0]: Improve parse_template() error messages with LLM output preview
+//! - \[P0]: Add retry logic for transient LLM errors
+//! - \[P1]: Extract response format detection into shared utility
+//! - \[P1]: Add caching for identical prompts (save API calls)
+//! - \[P1]: Support incremental template building (multi-turn conversation)
+//! - \[P2]: Add template quality scoring (completeness, complexity)
+//! - \[P2]: Support template refinement (iterative improvement)
+//! - \[P3]: Add template library search before generation
 //!
 //! ## CORE TEAM BEST PRACTICES APPLIED
 //! 1. **Lenient Parsing**: Accept varied LLM output formats

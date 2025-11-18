@@ -5,7 +5,7 @@
 //! to support both v1 (legacy) and v2 (RDF-backed) marketplace implementations.
 
 use crate::marketplace::adapter::PackageInfo;
-use ggen_utils::error::Result;
+use ggen_utils::error::{Error, Result};
 use std::collections::HashMap;
 
 /// Sorting field for package listings
@@ -189,9 +189,7 @@ impl PackageDiscoveryService {
     /// ```
     pub fn filter(&self, filter: &DiscoveryFilter) -> Result<Vec<PackageInfo>> {
         if !self.cache_valid {
-            return Err(ggen_utils::error::Error::Other(
-                "Cache not valid. Call discover_all first.".into(),
-            ));
+            return Err(Error::new("Cache not valid. Call discover_all first."));
         }
 
         let filtered: Vec<PackageInfo> = self
@@ -274,6 +272,7 @@ mod tests {
             version: "1.0.0".to_string(),
             author: "Test Author".to_string(),
             quality_score: quality,
+            downloads: 0,
             is_production_ready: production,
             description: "Test package".to_string(),
             repository: None,

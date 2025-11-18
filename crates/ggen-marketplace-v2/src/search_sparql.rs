@@ -4,7 +4,6 @@
 //! the RDF knowledge graph. Enables semantic search, filtering, and ranking.
 
 use crate::error::Result;
-use crate::models::{Package, QualityScore};
 use crate::ontology::Queries;
 use oxigraph::store::Store;
 use std::sync::Arc;
@@ -90,11 +89,9 @@ impl SparqlSearchEngine {
             for solution in solutions {
                 match solution {
                     Ok(solution) => {
-                        for binding in solution.iter() {
-                            if let Some(term) = binding.value() {
-                                if let oxigraph::model::Term::NamedNode(node) = term {
-                                    packages.push(node.as_str().to_string());
-                                }
+                        for (_, term) in solution.iter() {
+                            if let oxigraph::model::Term::NamedNode(node) = term {
+                                packages.push(node.as_str().to_string());
                             }
                         }
                     }
