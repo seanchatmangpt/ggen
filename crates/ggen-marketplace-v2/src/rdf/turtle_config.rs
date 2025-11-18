@@ -14,31 +14,47 @@ use super::poka_yoke::{Literal, PokaYokeError, RdfGraph, ResourceId, Triple};
 /// Marketplace configuration loaded from Turtle
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MarketplaceConfig {
+    /// URL of the primary package registry
     pub registry_url: String,
+    /// Directory path for caching downloaded packages
     pub cache_dir: String,
+    /// Maximum size in bytes for package downloads (default: 100MB)
     pub max_download_size: u64,
+    /// Enable package validation against RDF schema
     pub validation_enabled: bool,
+    /// Enable automatic updates for installed packages
     pub auto_update_enabled: bool,
+    /// Enable telemetry and usage tracking
     pub telemetry_enabled: bool,
+    /// List of configured registry endpoints
     pub registries: Vec<RegistryConfig>,
+    /// SPARQL validation rules for packages
     pub validation_rules: Vec<String>,
 }
 
+/// Configuration for a package registry endpoint
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RegistryConfig {
+    /// Human-readable registry name
     pub name: String,
+    /// Full URL to the registry API endpoint
     pub url: String,
+    /// Priority order for registry fallback (lower = higher priority)
     pub priority: u32,
+    /// Whether this registry is currently enabled
     pub enabled: bool,
+    /// Whether authentication credentials are required
     pub auth_required: bool,
 }
 
-/// Turtle configuration loader
+/// Turtle configuration loader for reading RDF/Turtle config files
 pub struct TurtleConfigLoader {
+    /// Directory containing marketplace configuration files (marketplace.ttl, validation-rules.ttl, etc.)
     config_dir: String,
 }
 
 impl TurtleConfigLoader {
+    /// Create a new Turtle configuration loader for the specified directory
     pub fn new(config_dir: impl Into<String>) -> Self {
         Self {
             config_dir: config_dir.into(),
@@ -231,39 +247,81 @@ impl TurtleConfigLoader {
     }
 }
 
-/// State machine definition from Turtle
+/// State machine definition for package lifecycle loaded from Turtle
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StateMachine {
+    /// Unique identifier for this state machine
     pub id: String,
+    /// Human-readable name of the state machine
     pub name: String,
+    /// ID of the initial state
     pub initial_state: String,
+    /// All states in the state machine
     pub states: Vec<State>,
+    /// All possible transitions between states
     pub transitions: Vec<Transition>,
 }
 
+/// A state in a state machine defining package lifecycle stages
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct State {
+    /// Unique identifier for this state
     pub id: String,
+    /// Human-readable label for the state
     pub label: String,
+    /// Whether this state is a terminal/final state
     pub is_final: bool,
 }
 
+/// A transition between states triggered by an event
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Transition {
+    /// ID of the source state
     pub from_state: String,
+    /// ID of the destination state
     pub to_state: String,
+    /// Name of the event that triggers this transition
     pub event: String,
+    /// Conditions that must be met to execute this transition
     pub conditions: Vec<String>,
 }
 
 /// Configuration error types
 #[derive(Debug, Clone)]
 pub enum ConfigError {
-    FileReadError { path: String, error: String },
-    FileWriteError { path: String, error: String },
-    ParseError { line: usize, error: String },
-    MissingRequiredField { field: String },
-    InvalidValue { field: String, value: String },
+    /// Error when reading a configuration file from disk
+    FileReadError {
+        /// Path to the file that failed to read
+        path: String,
+        /// Description of the I/O error
+        error: String,
+    },
+    /// Error when writing a configuration file to disk
+    FileWriteError {
+        /// Path to the file that failed to write
+        path: String,
+        /// Description of the I/O error
+        error: String,
+    },
+    /// Error when parsing Turtle configuration content
+    ParseError {
+        /// Line number where parse error occurred
+        line: usize,
+        /// Description of the parse error
+        error: String,
+    },
+    /// Error when a required configuration field is missing
+    MissingRequiredField {
+        /// Name of the missing field
+        field: String,
+    },
+    /// Error when a configuration field has an invalid value
+    InvalidValue {
+        /// Name of the field with invalid value
+        field: String,
+        /// The invalid value that was provided
+        value: String,
+    },
 }
 
 impl std::fmt::Display for ConfigError {

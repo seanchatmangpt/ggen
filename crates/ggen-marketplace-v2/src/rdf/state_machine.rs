@@ -22,10 +22,15 @@ pub struct StateMachineExecutor {
 /// State definition
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StateDefinition {
+    /// Human-readable name of the state
     pub name: String,
+    /// Description of the state and its purpose
     pub description: String,
+    /// Whether this is the initial state
     pub is_initial: bool,
+    /// Whether this is a terminal/final state
     pub is_final: bool,
+    /// Operations allowed in this state
     pub allowed_operations: Vec<String>,
 }
 
@@ -289,10 +294,15 @@ impl Default for StateMachineExecutor {
 /// Context for evaluating transition guards
 #[derive(Debug, Clone, Default)]
 pub struct TransitionContext {
+    /// Whether the package has author metadata
     pub has_authors: bool,
+    /// Whether the package has keywords
     pub has_keywords: bool,
+    /// Whether the package has categories
     pub has_categories: bool,
+    /// Whether the package has a checksum
     pub has_checksum: bool,
+    /// Optional quality score if available
     pub quality_score: Option<u32>,
 }
 
