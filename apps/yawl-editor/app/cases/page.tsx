@@ -1,43 +1,24 @@
 'use client'
 
-import { useState } from 'react'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { useState, useCallback } from 'react'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Input } from '@/components/ui/input'
+import { DataTable, Column } from '@/components/tables/data-table'
+import { CreateCaseModal } from '@/components/modals/create-case-modal'
+import { useSparqlSort, useSparqlSearch } from '@/hooks/use-sparql'
+import { useModal } from '@/hooks/use-modal'
+import { useAsync } from '@/hooks/use-async'
+import { formatDate } from '@/lib/utils'
 import type { Case, CaseStatus } from '@/lib/types'
-
-const mockCases: Case[] = [
-  {
-    id: 'case-001',
-    status: 'Running' as CaseStatus,
-    createdDate: new Date('2024-01-15'),
-    completedDate: undefined,
-    processId: 'proc-001',
-    processName: 'Loan Application',
-    ownerId: 'user-001',
-    ownerName: 'John Smith',
-  },
-  {
-    id: 'case-002',
-    status: 'Completed' as CaseStatus,
-    createdDate: new Date('2024-01-10'),
-    completedDate: new Date('2024-01-12'),
-    processId: 'proc-002',
-    processName: 'Insurance Claim',
-    ownerId: 'user-002',
-    ownerName: 'Jane Doe',
-  },
-  {
-    id: 'case-003',
-    status: 'Suspended' as CaseStatus,
-    createdDate: new Date('2024-01-18'),
-    completedDate: undefined,
-    processId: 'proc-001',
-    processName: 'Loan Application',
-    ownerId: 'user-001',
-    ownerName: 'John Smith',
-  },
-]
+import { SPARQL_QUERIES } from '@/lib/sparql-queries'
 
 const statusColors: Record<CaseStatus, string> = {
   Created: 'bg-gray-100 text-gray-800',
@@ -47,8 +28,78 @@ const statusColors: Record<CaseStatus, string> = {
   Cancelled: 'bg-red-100 text-red-800',
 }
 
+const columns: Column<Case>[] = [
+  { key: 'id', label: 'Case ID', sortable: true, width: '150px' },
+  { key: 'processName', label: 'Process', sortable: true },
+  {
+    key: 'status',
+    label: 'Status',
+    sortable: true,
+    render: (value) => (
+      <Badge className={statusColors[value as CaseStatus]}>
+        {value}
+      </Badge>
+    ),
+  },
+  { key: 'ownerName', label: 'Owner', sortable: true },
+  {
+    key: 'createdDate',
+    label: 'Created',
+    sortable: true,
+    render: (value) => formatDate(value),
+  },
+]
+
 export default function CasesPage() {
-  const [cases, setCases] = useState<Case[]>(mockCases)
+  const { isOpen, open, close } = useModal()
+  const [statusFilter, setStatusFilter] = useState<string>('')
+
+  // Fetch cases from API
+  const { data: allCases, execute: refetch, loading, error } = useAsync(
+    async () => {
+      const response = await fetch(
+        `/api/cases${statusFilter ? `?status=${statusFilter}` : ''}`
+      )
+      if (!response.ok) throw new Error('Failed to fetch cases')
+      const result = await response.json()
+      return result.data as Case[]
+    },
+    true
+  )
+
+  // Advanced sorting
+  const {
+    data: sortedData,
+    sortField,
+    sortOrder,
+    toggleSort,
+  } = useSparqlSort(
+    SPARQL_QUERIES.getAllCases,
+    'createdDate',
+    'desc'
+  )
+
+  // Search functionality
+  const [searchTerm, setSearchTerm] = useState('')
+  const filteredData = searchTerm
+    ? allCases.filter((c) =>
+        [c.id, c.processName, c.ownerName].some((field) =>
+          field?.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      )
+    : allCases
+
+  const handleRefresh = useCallback(async () => {
+    await refetch()
+  }, [refetch])
+
+  const handleStatusFilter = (status: string) => {
+    setStatusFilter(status === 'all' ? '' : status)
+  }
+
+  const handleSuccess = () => {
+    handleRefresh()
+  }
 
   return (
     <div className="space-y-6">
@@ -57,51 +108,63 @@ export default function CasesPage() {
         <p className="text-slate-600">Manage workflow case instances</p>
       </div>
 
-      <div className="flex gap-2">
-        <Button>Create New Case</Button>
-        <Button variant="outline">Refresh</Button>
-      </div>
-
-      <Card className="p-6">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left py-3 px-4 font-semibold text-slate-700">Case ID</th>
-                <th className="text-left py-3 px-4 font-semibold text-slate-700">Process</th>
-                <th className="text-left py-3 px-4 font-semibold text-slate-700">Status</th>
-                <th className="text-left py-3 px-4 font-semibold text-slate-700">Owner</th>
-                <th className="text-left py-3 px-4 font-semibold text-slate-700">Created</th>
-                <th className="text-left py-3 px-4 font-semibold text-slate-700">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cases.map((c) => (
-                <tr key={c.id} className="border-b hover:bg-slate-50">
-                  <td className="py-3 px-4 font-mono text-xs">{c.id}</td>
-                  <td className="py-3 px-4">{c.processName}</td>
-                  <td className="py-3 px-4">
-                    <Badge className={statusColors[c.status]}>
-                      {c.status}
-                    </Badge>
-                  </td>
-                  <td className="py-3 px-4">{c.ownerName || '-'}</td>
-                  <td className="py-3 px-4 text-xs">
-                    {c.createdDate.toLocaleDateString()}
-                  </td>
-                  <td className="py-3 px-4">
-                    <Button variant="ghost" size="sm">View</Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Toolbar */}
+      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+        <div className="flex gap-2">
+          <Button onClick={open}>Create New Case</Button>
+          <Button variant="outline" onClick={handleRefresh}>
+            Refresh
+          </Button>
         </div>
-      </Card>
 
-      <div className="text-sm text-slate-500">
-        Showing {cases.length} cases. Data will load from SPARQL endpoint when configured.
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Input
+            placeholder="Search cases..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="flex-1 sm:flex-none"
+          />
+
+          <Select value={statusFilter || 'all'} onValueChange={handleStatusFilter}>
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="Created">Created</SelectItem>
+              <SelectItem value="Running">Running</SelectItem>
+              <SelectItem value="Suspended">Suspended</SelectItem>
+              <SelectItem value="Completed">Completed</SelectItem>
+              <SelectItem value="Cancelled">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
+
+      {/* Data Table */}
+      <DataTable
+        columns={columns}
+        data={filteredData}
+        loading={loading}
+        error={error}
+        sortField={sortField}
+        sortOrder={sortOrder}
+        onSort={toggleSort}
+        getRowKey={(row) => row.id}
+      />
+
+      {/* Summary */}
+      <div className="flex justify-between text-sm text-slate-600">
+        <span>Showing {filteredData.length} cases</span>
+        {searchTerm && <span>Search results for "{searchTerm}"</span>}
+      </div>
+
+      {/* Modals */}
+      <CreateCaseModal
+        isOpen={isOpen}
+        onClose={close}
+        onSuccess={handleSuccess}
+      />
     </div>
   )
 }
