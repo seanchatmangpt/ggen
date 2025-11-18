@@ -16,7 +16,6 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 pub mod generate;
-pub mod generate_rdf;
 pub mod generate_tree;
 pub mod lint;
 pub mod list;
@@ -26,7 +25,6 @@ pub mod render_with_rdf;
 pub mod show;
 
 pub use generate::*;
-pub use generate_rdf::*;
 pub use generate_tree::{generate_file_tree, GenerateTreeInput, GenerateTreeOutput};
 pub use lint::{
     lint_template, LintError, LintInput, LintOptions, LintOutput, LintReport, LintWarning,

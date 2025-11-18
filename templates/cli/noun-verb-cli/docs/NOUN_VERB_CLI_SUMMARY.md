@@ -83,20 +83,20 @@ templates/cli/
 
 ```
 cloud-manager/
-├── Cargo.toml                    # Dependencies (clap, tokio, anyhow, serde)
+├── Cargo.toml                    # Dependencies (clap-noun-verb, serde, serde_json)
 ├── Cargo.lock                    # Locked dependencies
 ├── README.md                     # Auto-generated documentation
 ├── src/
-│   ├── main.rs                  # Entry point (async tokio)
+│   ├── main.rs                  # Entry point (clap_noun_verb::run())
 │   └── cmds/
-│       ├── mod.rs               # Top-level command router
+│       ├── mod.rs               # Module exports (auto-discovery)
 │       ├── server/
-│       │   ├── mod.rs           # Server verb router
-│       │   ├── create.rs        # server create
-│       │   ├── list.rs          # server list
-│       │   ├── get.rs           # server get
-│       │   ├── update.rs        # server update
-│       │   └── delete.rs        # server delete
+│       │   ├── mod.rs           # Module exports
+│       │   ├── create.rs        # #[verb] create_server()
+│       │   ├── list.rs          # #[verb] list_servers()
+│       │   ├── get.rs           # #[verb] get_server()
+│       │   ├── update.rs        # #[verb] update_server()
+│       │   └── delete.rs        # #[verb] delete_server()
 │       ├── database/
 │       │   └── ... (same structure)
 │       └── network/
@@ -149,10 +149,10 @@ cloud-manager userver udelete server-1 --force --dry-run
 ### ✅ Core Functionality
 
 - [x] Noun-verb command structure
-- [x] Clap-based argument parsing
-- [x] Async/await with Tokio runtime
-- [x] Multiple output formats (table, JSON, YAML)
-- [x] Error handling with anyhow
+- [x] Auto-discovery via #[verb] macros
+- [x] Zero-boilerplate command registration
+- [x] JSON-first output (automatic serialization)
+- [x] Error handling with clap_noun_verb::Result
 - [x] Comprehensive help messages
 - [x] Version information
 
@@ -264,12 +264,10 @@ test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured
 All generated CLIs use these production-ready crates:
 
 **Runtime:**
-- `clap = "4.5"` - CLI argument parsing with derive macros
-- `tokio = "1.38"` - Async runtime
-- `anyhow = "1.0"` - Error handling
-- `serde = "1.0"` - Serialization
+- `clap-noun-verb = "3.7.1"` - Zero-boilerplate noun-verb CLI framework
+- `clap-noun-verb-macros = "3.7.1"` - Attribute macros for auto-discovery
+- `serde = "1.0"` - Serialization framework
 - `serde_json = "1.0"` - JSON support
-- `serde_yaml = "0.9"` - YAML support
 
 **Development:**
 - `assert_cmd = "2"` - CLI testing
@@ -309,11 +307,11 @@ This generator can create CLIs for:
 
 After generation, customize by editing:
 
-1. **TODO comments** - Implement business logic
-2. **Args structs** - Add custom fields
-3. **Verb enums** - Add custom verbs (start, stop, restart, etc.)
-4. **Output formats** - Add custom formatting
-5. **Configuration** - Add config file support
+1. **TODO comments** - Implement business logic in verb functions
+2. **Function parameters** - Add parameters with `#[arg(...)]` attributes
+3. **Custom verbs** - Create new functions with `#[verb]` attribute
+4. **Return types** - Add `Serialize` to custom result types
+5. **Configuration** - Add config file support via AppContext
 6. **API integration** - Connect to real APIs
 
 ## Integration with ggen

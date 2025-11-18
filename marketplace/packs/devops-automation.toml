@@ -1,0 +1,46 @@
+[pack]
+id = "devops-automation"
+name = "DevOps Automation Stack"
+version = "1.0.0"
+description = "Complete DevOps automation: CI/CD pipelines, infrastructure as code, monitoring, and deployment orchestration"
+category = "devops"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+license = "MIT"
+production_ready = true
+
+packages = [
+    "cicd-pipeline-generator",
+    "docker-compose-template",
+]
+
+[[pack.templates]]
+name = "cicd-pipeline"
+path = "templates/cicd-pipeline"
+description = "CI/CD pipeline template for GitHub Actions"
+variables = ["project_name", "language", "deployment_target"]
+
+[[pack.templates]]
+name = "docker-compose"
+path = "templates/docker-compose"
+description = "Docker Compose configuration for multi-container apps"
+variables = ["services", "networks", "volumes"]
+
+[pack.metadata]
+test_coverage = "88%"
+code_examples = 8
+documentation_files = 6
+
+tags = ["devops", "cicd", "automation", "docker", "infrastructure"]
+keywords = ["devops", "ci-cd", "docker", "kubernetes", "automation"]
+
+[pack.sparql_queries]
+list_pipelines = """
+PREFIX ggen: <http://ggen.io/ontology#>
+SELECT ?pipeline ?name ?status
+WHERE {
+    ?pipeline a ggen:CICDPipeline ;
+              ggen:pipelineName ?name ;
+              ggen:status ?status .
+}
+"""

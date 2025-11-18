@@ -29,7 +29,8 @@ rand = { version = "0.8", optional = true }
 
 # Error handling
 thiserror = "1.0"
-ggen-utils = { path = "../ggen-utils", version = "3.2.0" }
+# Use workspace = true pattern for workspace-local crates
+ggen-utils.workspace = true
 
 # Machine Learning / Recommendations
 ndarray = "0.16"
@@ -76,6 +77,8 @@ tempfile = "3.23"
 mockall = "0.13"
 chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras"] }
 ggen-macros = { path = "../ggen-macros", version = "3.2.0" }
+criterion = { version = "0.5", features = ["html_reports"] }
+rayon = "1.10"
 
 [lib]
 name = "ggen_marketplace"

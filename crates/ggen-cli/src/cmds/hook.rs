@@ -8,7 +8,7 @@ use serde::Serialize;
 use std::path::PathBuf;
 
 use crate::runtime_helper::execute_async_verb;
-use ggen_domain::hook::{
+use ggen_domain::marketplace::hook::{
     execute_create, execute_list, execute_monitor, execute_remove, CreateInput, ListInput,
     MonitorInput, RemoveInput,
 };

@@ -5,6 +5,7 @@
 pub mod artifact_generator;
 pub mod bundles;
 pub mod guards;
+pub mod hook;
 pub mod install;
 pub mod list;
 pub mod mape_k_integration;

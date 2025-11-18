@@ -11,9 +11,9 @@ keywords = ["cli", "code-generation", "rdf", "templates", "llm"]
 categories = ["development-tools", "command-line-utilities"]
 
 [dependencies]
-# Core ggen dependencies
-ggen-core = { path = "../ggen-core", version = "3.2.0" }
-ggen-utils = { path = "../ggen-utils", version = "3.2.0" }
+# Core ggen dependencies (use workspace = true pattern)
+ggen-core.workspace = true
+ggen-utils.workspace = true
 
 # HTTP client and async runtime
 tokio = { workspace = true }

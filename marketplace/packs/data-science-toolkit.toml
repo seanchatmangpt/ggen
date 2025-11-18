@@ -1,0 +1,47 @@
+[pack]
+id = "data-science-toolkit"
+name = "Data Science Toolkit"
+version = "1.0.0"
+description = "Complete ML/AI development stack: data processing pipelines, model training, visualization, and deployment"
+category = "ml"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+license = "MIT"
+production_ready = true
+
+packages = [
+    "data-pipeline-cli",
+    "ai-microservice",
+]
+
+[[pack.templates]]
+name = "ml-pipeline"
+path = "templates/ml-pipeline"
+description = "End-to-end ML pipeline template"
+variables = ["model_type", "dataset", "metrics"]
+
+[[pack.templates]]
+name = "jupyter-notebook"
+path = "templates/jupyter-notebook"
+description = "Jupyter notebook template for experiments"
+variables = ["experiment_name", "data_source"]
+
+[pack.metadata]
+test_coverage = "90%"
+code_examples = 12
+documentation_files = 8
+
+tags = ["ml", "ai", "data-science", "machine-learning", "data-pipeline"]
+keywords = ["machine-learning", "data-science", "ml-pipeline", "jupyter", "visualization"]
+
+[pack.sparql_queries]
+list_models = """
+PREFIX ggen: <http://ggen.io/ontology#>
+SELECT ?model ?name ?type ?accuracy
+WHERE {
+    ?model a ggen:MLModel ;
+           ggen:modelName ?name ;
+           ggen:modelType ?type ;
+           ggen:accuracy ?accuracy .
+}
+"""

@@ -101,6 +101,30 @@ impl ValidatedHooks {
         add_deps("before_deploy", &hooks.before_deploy);
         add_deps("after_deploy", &hooks.after_deploy);
 
+        // **DfLSS Fix**: Also validate dynamic phase_hooks HashMap
+        for (hook_key, deps) in &hooks.phase_hooks {
+            // Skip if this hook key is already handled by explicit fields
+            // (to avoid duplicate validation)
+            let is_explicit_field = matches!(
+                hook_key.as_str(),
+                "before_all"
+                    | "after_all"
+                    | "before_init"
+                    | "after_init"
+                    | "before_setup"
+                    | "after_setup"
+                    | "before_build"
+                    | "after_build"
+                    | "before_test"
+                    | "after_test"
+                    | "before_deploy"
+                    | "after_deploy"
+            );
+            if !is_explicit_field {
+                add_deps(hook_key, &Some(deps.clone()));
+            }
+        }
+
         // Check for invalid phase references and self-references
         for (hook_name, deps) in &graph {
             for dep in deps {

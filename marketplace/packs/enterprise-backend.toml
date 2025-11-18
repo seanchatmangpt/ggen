@@ -1,0 +1,50 @@
+[pack]
+id = "enterprise-backend"
+name = "Enterprise Backend Stack"
+version = "1.0.0"
+description = "Production-ready enterprise backend: microservices, event sourcing, CQRS, distributed tracing, API gateway"
+category = "enterprise"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+license = "MIT"
+production_ready = true
+
+packages = [
+    "microservices-architecture-template",
+    "rest-api-template",
+    "graphql-api-template",
+    "api-gateway-service-mesh",
+]
+
+[[pack.templates]]
+name = "microservice"
+path = "templates/microservice"
+description = "Complete microservice template with observability"
+variables = ["service_name", "database", "messaging"]
+
+[[pack.templates]]
+name = "api-gateway"
+path = "templates/api-gateway"
+description = "API gateway with routing and authentication"
+variables = ["gateway_name", "services"]
+
+[pack.metadata]
+test_coverage = "95%"
+code_examples = 15
+documentation_files = 10
+rdf_ontology_size = "500+ lines"
+sparql_templates = 20
+
+tags = ["enterprise", "microservices", "backend", "distributed", "production"]
+keywords = ["microservices", "api-gateway", "event-sourcing", "cqrs", "distributed-tracing"]
+
+[pack.sparql_queries]
+list_services = """
+PREFIX ggen: <http://ggen.io/ontology#>
+SELECT ?service ?name ?port
+WHERE {
+    ?service a ggen:Microservice ;
+             ggen:serviceName ?name ;
+             ggen:port ?port .
+}
+"""

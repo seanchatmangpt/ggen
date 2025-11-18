@@ -101,19 +101,19 @@ For a CLI with 3 nouns, you get:
 
 ```
 my-cli/
-├── Cargo.toml              # Dependencies: clap, tokio, anyhow, serde
+├── Cargo.toml              # Dependencies: clap-noun-verb, serde, serde_json
 ├── README.md               # Auto-generated documentation
 ├── src/
-│   ├── main.rs            # Entry point
+│   ├── main.rs            # Entry point (clap_noun_verb::run())
 │   └── cmds/
-│       ├── mod.rs         # Command router
+│       ├── mod.rs         # Module exports (auto-discovery)
 │       └── <noun>/        # Per-noun directory
-│           ├── mod.rs     # Verb router
-│           ├── create.rs  # Create command
-│           ├── list.rs    # List command
-│           ├── get.rs     # Get command
-│           ├── update.rs  # Update command
-│           └── delete.rs  # Delete command
+│           ├── mod.rs     # Module exports
+│           ├── create.rs  # #[verb] create_<noun>()
+│           ├── list.rs    # #[verb] list_<noun>s()
+│           ├── get.rs     # #[verb] get_<noun>()
+│           ├── update.rs  # #[verb] update_<noun>()
+│           └── delete.rs  # #[verb] delete_<noun>()
 └── tests/
     └── integration_test.rs
 ```
@@ -124,10 +124,10 @@ my-cli/
 
 ✅ **Noun-verb command structure** (`<cli> <noun> <verb> [args]`)
 ✅ **5 CRUD operations** per noun (create, list, get, update, delete)
-✅ **Multiple output formats** (table, JSON, YAML)
+✅ **JSON-first output** (automatic serialization, perfect for agents/MCP)
 ✅ **Safety features** (dry-run, force flags, confirmations)
-✅ **Error handling** (using anyhow for ergonomic errors)
-✅ **Async support** (Tokio runtime)
+✅ **Auto-discovery** (commands automatically registered via #[verb] macros)
+✅ **Zero boilerplate** (attribute macros handle all command registration)
 ✅ **Complete test suite** (unit + integration tests)
 ✅ **Auto-generated docs** (README with examples)
 
@@ -145,8 +145,8 @@ my-cli/
 
 **Get:**
 - Required: `<id>` (positional)
-- Optional: `--format`, `--detailed`
-- Supports table, JSON, YAML output
+- Optional: `--detailed`
+- Outputs JSON by default
 - Unit tested ✅
 
 **Update:**
@@ -206,12 +206,10 @@ cd templates/cli/noun-verb-cli
 Generated CLIs automatically include:
 
 **Runtime:**
-- clap = "4.5" (CLI parsing)
-- tokio = "1.38" (async runtime)
-- anyhow = "1.0" (error handling)
-- serde = "1.0" (serialization)
-- serde_json = "1.0" (JSON)
-- serde_yaml = "0.9" (YAML)
+- clap-noun-verb = "3.7.1" (Zero-boilerplate noun-verb CLI framework)
+- clap-noun-verb-macros = "3.7.1" (Attribute macros for auto-discovery)
+- serde = "1.0" (Serialization framework)
+- serde_json = "1.0" (JSON support)
 
 **Development:**
 - assert_cmd = "2" (CLI testing)
@@ -295,12 +293,12 @@ cargo test --test integration_test
 
 After generation, customize:
 
-1. **Business logic** - Replace TODO comments with real implementation
-2. **Custom fields** - Add fields to Args structs
-3. **Custom verbs** - Add start, stop, restart, etc.
-4. **Validation** - Add input validation
+1. **Business logic** - Replace TODO comments in verb functions
+2. **Custom parameters** - Add function parameters with `#[arg(...)]` attributes
+3. **Custom verbs** - Create new functions with `#[verb]` attribute
+4. **Validation** - Add input validation logic in verb functions
 5. **API integration** - Connect to real backends
-6. **Configuration** - Add config file support
+6. **Configuration** - Add config file support via AppContext
 
 ## Documentation
 

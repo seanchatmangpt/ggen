@@ -7,84 +7,84 @@ vars:
 ---
 //! {{ verb | capitalize }} {{ noun_description }} command
 
-use clap::Args;
+use clap_noun_verb_macros::verb;
+use clap_noun_verb::Result;
+use serde::Serialize;
 
-type Result<T> = std::result::Result<T, anyhow::Error>;
-
-#[derive(Debug, Args)]
-pub struct {{ verb | capitalize }}Args {
-    /// ID or name of the {{ noun_description }}
-    pub id: String,
-
-    /// New name
-    #[arg(short, long)]
-    pub name: Option<String>,
-
-    /// New description
-    #[arg(short, long)]
-    pub description: Option<String>,
-
-    /// Dry run (don't apply changes)
-    #[arg(long)]
-    pub dry_run: bool,
-
-    /// Enable verbose output
-    #[arg(short, long)]
-    pub verbose: bool,
+#[derive(Debug, Serialize)]
+pub struct UpdateResult {
+    id: String,
+    changes: Vec<String>,
+    message: String,
+    dry_run: bool,
 }
 
-pub async fn run(args: &{{ verb | capitalize }}Args) -> Result<()> {
-    if args.verbose {
-        println!("{{ verb | capitalize }}ing {{ noun_description }}: {}", args.id);
+/// Update a {{ noun_description }}
+#[verb] // Verb "update" auto-inferred, noun "{{ noun }}" auto-inferred from directory
+pub fn update_{{ noun }}(
+    /// ID or name of the {{ noun_description }}
+    #[arg(index = 0)]
+    id: String,
+    /// New name
+    #[arg(short, long)]
+    name: Option<String>,
+    /// New description
+    #[arg(short, long)]
+    description: Option<String>,
+    /// Dry run (don't apply changes)
+    #[arg(long)]
+    dry_run: bool,
+    /// Enable verbose output
+    #[arg(short, long)]
+    verbose: bool,
+) -> Result<UpdateResult> {
+    if verbose {
+        eprintln!("Updating {{ noun_description }}: {}", id);
     }
 
-    if args.dry_run {
-        println!("🔍 Dry run mode - no changes will be applied");
-    }
-
-    // TODO: Implement {{ verb }} logic here
+    // TODO: Implement update logic here
     let mut changes = Vec::new();
 
-    if let Some(name) = &args.name {
-        changes.push(format!("name: {}", name));
+    if let Some(ref new_name) = name {
+        changes.push(format!("name: {}", new_name));
     }
 
-    if let Some(desc) = &args.description {
-        changes.push(format!("description: {}", desc));
+    if let Some(ref new_desc) = description {
+        changes.push(format!("description: {}", new_desc));
     }
 
-    if changes.is_empty() {
-        println!("⚠️  No changes specified");
-        return Ok(());
-    }
+    let message = if changes.is_empty() {
+        "No changes specified".to_string()
+    } else if dry_run {
+        format!("Would update {{ noun_description }} '{}'", id)
+    } else {
+        format!("{{ noun | capitalize }} '{}' updated successfully!", id)
+    };
 
-    println!("\nChanges to apply:");
-    for change in &changes {
-        println!("  • {}", change);
-    }
-
-    if !args.dry_run {
-        println!("\n✅ {{ noun | capitalize }} '{}' updated successfully!", args.id);
-    }
-
-    Ok(())
+    Ok(UpdateResult {
+        id,
+        changes,
+        message,
+        dry_run,
+    })
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    #[tokio::test]
-    async fn test_{{ verb }}_basic() {
-        let args = {{ verb | capitalize }}Args {
-            id: "test-123".to_string(),
-            name: Some("new-name".to_string()),
-            description: None,
-            dry_run: true,
-            verbose: false,
-        };
-
-        let result = run(&args).await;
+    #[test]
+    fn test_{{ verb }}_basic() {
+        let result = update_{{ noun }}(
+            "test-123".to_string(),
+            Some("new-name".to_string()),
+            None,
+            true,
+            false,
+        );
         assert!(result.is_ok());
+        let output = result.unwrap();
+        assert_eq!(output.id, "test-123");
+        assert!(output.dry_run);
     }
 }

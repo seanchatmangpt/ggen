@@ -1,10 +1,18 @@
 ---
 to: "{{ project_name }}/Cargo.toml"
-vars:
-  project_name: "my-cli"
-  version: "0.1.0"
-  description: "A noun-verb CLI application"
-  authors: ["Your Name <your.email@example.com>"]
+sparql:
+  dependencies: |
+    PREFIX cli: <http://ggen.dev/schema/cli#>
+    PREFIX cnv: <http://ggen.dev/schema/clap-noun-verb#>
+    SELECT ?depName ?depVersion ?depFeatures
+    WHERE {
+      ?project a cli:CliProject ;
+               cli:hasDependency ?dep .
+      ?dep cnv:depName ?depName ;
+           cnv:depVersion ?depVersion .
+      OPTIONAL { ?dep cnv:depFeatures ?depFeatures }
+    }
+    ORDER BY ?depName
 ---
 [package]
 name = "{{ project_name }}"
@@ -14,11 +22,13 @@ authors = {{ authors }}
 description = "{{ description }}"
 
 [dependencies]
-clap = { version = "4.5", features = ["derive", "env", "wrap_help"] }
-tokio = { version = "1.38", features = ["full"] }
-anyhow = "1.0"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+{% for dep in sparql_results.dependencies %}
+{% if dep.depFeatures %}
+{{ dep.depName }} = { version = "{{ dep.depVersion }}"{% if dep.depFeatures %}, features = [{% for feature in dep.depFeatures | split(pat=",") %}"{{ feature | trim }}"{% if not loop.last %}, {% endif %}{% endfor %}]{% endif %} }
+{% else %}
+{{ dep.depName }} = "{{ dep.depVersion }}"
+{% endif %}
+{% endfor %}
 
 [dev-dependencies]
 assert_cmd = "2"

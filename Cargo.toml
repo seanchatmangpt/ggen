@@ -65,6 +65,17 @@ regex = "1.12"
 rayon = "1.11"
 log = "0.4.28"
 
+# Workspace-local crates (use workspace = true pattern in workspace members)
+ggen-utils = { path = "crates/ggen-utils", version = "3.2.0" }
+ggen-core = { path = "crates/ggen-core", version = "3.2.0" }
+ggen-ai = { path = "crates/ggen-ai", version = "3.2.0" }
+ggen-marketplace = { path = "crates/ggen-marketplace", version = "3.2.0" }
+ggen-domain = { path = "crates/ggen-domain", version = "3.2.0" }
+ggen-cli-lib = { path = "crates/ggen-cli", version = "3.2.0" }
+ggen-node = { path = "crates/ggen-node", version = "3.2.0" }
+ggen-macros = { path = "crates/ggen-macros", version = "3.2.0" }
+ggen-dod = { path = "crates/ggen-dod", version = "3.2.0" }
+
 # OpenTelemetry dependencies
 opentelemetry = "0.21"
 opentelemetry-otlp = "0.14"

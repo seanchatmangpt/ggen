@@ -14,7 +14,8 @@ categories = ["development-tools", "command-line-utilities"]
 multiple_crate_versions = "allow"
 
 [dependencies]
-ggen-utils = { path = "../ggen-utils", version = "3.2.0" }
+# Use workspace = true pattern for workspace-local crates
+ggen-utils.workspace = true
 tera = "1.20"
 oxigraph = "0.5"
 serde = { version = "1.0", features = ["derive"] }

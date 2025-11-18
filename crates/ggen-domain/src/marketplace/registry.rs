@@ -717,6 +717,10 @@ mod tests {
             repository: Some("https://github.com/test/repo".to_string()),
             license: Some("MIT".to_string()),
             homepage: Some("https://example.com".to_string()),
+            is_8020: false,
+            is_8020_certified: false,
+            dark_matter_reduction_target: None,
+            sector: None,
         }
     }
 

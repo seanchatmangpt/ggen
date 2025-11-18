@@ -7,71 +7,50 @@ vars:
 ---
 //! {{ verb | capitalize }} {{ noun_description }} command
 
-use clap::Args;
+use clap_noun_verb_macros::verb;
+use clap_noun_verb::Result;
+use serde::Serialize;
 
-type Result<T> = std::result::Result<T, anyhow::Error>;
-
-#[derive(Debug, Args)]
-pub struct {{ verb | capitalize }}Args {
-    /// ID or name of the {{ noun_description }}
-    pub id: String,
-
-    /// Output format (json, yaml, table)
-    #[arg(short = 'f', long, default_value = "table")]
-    pub format: String,
-
-    /// Show detailed information
-    #[arg(short, long)]
-    pub detailed: bool,
+#[derive(Debug, Serialize)]
+pub struct GetResult {
+    id: String,
+    name: String,
+    description: String,
+    created_at: String,
+    status: String,
 }
 
-pub async fn run(args: &{{ verb | capitalize }}Args) -> Result<()> {
-    println!("🔍 Getting {{ noun_description }}: {}", args.id);
+/// Get details for a {{ noun_description }}
+#[verb] // Verb "get" auto-inferred, noun "{{ noun }}" auto-inferred from directory
+pub fn get_{{ noun }}(
+    /// ID or name of the {{ noun_description }}
+    #[arg(index = 0)]
+    id: String,
+    /// Show detailed information
+    #[arg(short, long)]
+    detailed: bool,
+) -> Result<GetResult> {
+    // TODO: Implement get logic here
+    let result = GetResult {
+        id: id.clone(),
+        name: format!("{{ noun }}-{}", id),
+        description: "Example {{ noun_description }}".to_string(),
+        created_at: "2025-10-10T12:00:00Z".to_string(),
+        status: "active".to_string(),
+    };
 
-    // TODO: Implement {{ verb }} logic here
-    let resource_data = serde_json::json!({
-        "id": args.id,
-        "name": format!("{{ noun }}-{}", args.id),
-        "description": "Example {{ noun_description }}",
-        "created_at": "2025-10-10T12:00:00Z",
-        "status": "active"
-    });
-
-    match args.format.as_str() {
-        "json" => {
-            println!("{}", serde_json::to_string_pretty(&resource_data)?);
-        }
-        "yaml" => {
-            println!("{}", serde_yaml::to_string(&resource_data)?);
-        }
-        "table" => {
-            println!("\n{{ noun | capitalize }} Details:");
-            println!("{}", "=".repeat(50));
-            if let Some(obj) = resource_data.as_object() {
-                for (key, value) in obj {
-                    println!("{:<15} {}", format!("{}:", key), value);
-                }
-            }
-        }
-        _ => println!("{:?}", resource_data),
-    }
-
-    Ok(())
+    Ok(result)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    #[tokio::test]
-    async fn test_{{ verb }}_basic() {
-        let args = {{ verb | capitalize }}Args {
-            id: "test-123".to_string(),
-            format: "table".to_string(),
-            detailed: false,
-        };
-
-        let result = run(&args).await;
+    #[test]
+    fn test_{{ verb }}_basic() {
+        let result = get_{{ noun }}("test-123".to_string(), false);
         assert!(result.is_ok());
+        let output = result.unwrap();
+        assert_eq!(output.id, "test-123");
     }
 }

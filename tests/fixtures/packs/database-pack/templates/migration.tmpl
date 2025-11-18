@@ -1,0 +1,11 @@
+---
+to: "{{ output_dir }}/migrations/{{ timestamp }}_{{ migration_name }}.sql"
+---
+-- Migration: {{ migration_name }}
+-- Created: {{ timestamp }}
+
+CREATE TABLE IF NOT EXISTS {{ table_name }} (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

@@ -11,9 +11,9 @@ Generate a complete CLI with:
 - ✅ **Noun-verb command structure** (`<cli> <noun> <verb> [args]`)
 - ✅ **5 CRUD operations per noun** (create, list, get, update, delete)
 - ✅ **Complete test suite** (unit + integration tests)
-- ✅ **Multiple output formats** (table, JSON, YAML)
+- ✅ **JSON-first output** (automatic serialization, perfect for agents/MCP)
 - ✅ **Safety features** (dry-run, force flags, confirmations)
-- ✅ **Production-ready** (error handling, async/await, type-safe)
+- ✅ **Production-ready** (error handling, type-safe, zero-boilerplate)
 - ✅ **Auto-generated docs** (README with examples)
 
 **Generated in 30 seconds. Production-ready in minutes.**
@@ -43,29 +43,25 @@ cargo test
 ### Use Your CLI
 
 ```bash
-# Create a server
+# Create a server (outputs JSON by default)
 ./target/debug/cloud-manager server create --name web-1 --description "Web server"
-# Output: ✅ Server 'web-1' created successfully!
+# Output: {"id":"server-web-1","name":"web-1","description":"Web server","message":"Server 'web-1' created successfully!"}
 
-# List servers with JSON output
-./target/debug/cloud-manager server list --format json
-# Output: [{"name": "server-1", "description": "First server"}, ...]
+# List servers (JSON output)
+./target/debug/cloud-manager server list
+# Output: {"items":[{"id":"server-1","name":"server-1","description":"First server"}],"total":3,"filtered":3}
 
-# Get server details
+# Get server details (JSON output)
 ./target/debug/cloud-manager server get web-1
-# Output: Server Details:
-#         id:            web-1
-#         name:          server-web-1
-#         status:        active
+# Output: {"id":"web-1","name":"server-web-1","description":"Example server","created_at":"2025-10-10T12:00:00Z","status":"active"}
 
-# Update with dry-run
+# Update with dry-run (JSON output)
 ./target/debug/cloud-manager server update web-1 --name web-primary --dry-run
-# Output: 🔍 Dry run mode - would apply:
-#           • name: web-primary
+# Output: {"id":"web-1","changes":["name: web-primary"],"message":"Would update server 'web-1'","dry_run":true}
 
-# Safe delete
+# Safe delete (JSON output)
 ./target/debug/cloud-manager server delete web-1 --force --dry-run
-# Output: 🔍 Dry run mode - would delete: web-1
+# Output: {"id":"web-1","message":"Would delete server: web-1","deleted":false,"dry_run":true}
 ```
 
 ## 📊 What Gets Generated
@@ -91,19 +87,19 @@ ggen market use noun-verb-cli-generator \
 
 ```
 cloud-manager/
-├── Cargo.toml              # clap, tokio, anyhow, serde
+├── Cargo.toml              # clap-noun-verb, serde, serde_json
 ├── README.md               # Auto-generated docs
 ├── src/
-│   ├── main.rs            # Entry point
+│   ├── main.rs            # Entry point (clap_noun_verb::run())
 │   └── cmds/
-│       ├── mod.rs         # Command router
+│       ├── mod.rs         # Module exports (auto-discovery)
 │       ├── server/        # Server commands
-│       │   ├── mod.rs
-│       │   ├── create.rs
-│       │   ├── list.rs
-│       │   ├── get.rs
-│       │   ├── update.rs
-│       │   └── delete.rs
+│       │   ├── mod.rs     # Module exports
+│       │   ├── create.rs  # #[verb] create_server()
+│       │   ├── list.rs    # #[verb] list_servers()
+│       │   ├── get.rs     # #[verb] get_server()
+│       │   ├── update.rs  # #[verb] update_server()
+│       │   └── delete.rs  # #[verb] delete_server()
 │       ├── database/      # Database commands
 │       └── network/       # Network commands
 └── tests/
@@ -222,12 +218,12 @@ When using `ggen market use`:
 - **Verbose logging** for debugging
 - **Error messages** with context
 
-### Output Formats
+### Output Format
 
-All list and get commands support:
-- `--format table` (default) - Human-readable table
-- `--format json` - Machine-readable JSON
-- `--format yaml` - YAML configuration format
+All commands output JSON by default (perfect for agents, MCP, and automation):
+- Structured, machine-readable output
+- Automatic serialization via `serde::Serialize`
+- Easy to parse and integrate with other tools
 
 ### Testing
 
@@ -242,12 +238,10 @@ Every generated CLI includes:
 Generated CLIs use these production-ready crates:
 
 **Runtime:**
-- `clap = "4.5"` - CLI argument parsing
-- `tokio = "1.38"` - Async runtime
-- `anyhow = "1.0"` - Error handling
-- `serde = "1.0"` - Serialization
+- `clap-noun-verb = "3.7.1"` - Zero-boilerplate noun-verb CLI framework
+- `clap-noun-verb-macros = "3.7.1"` - Attribute macros for auto-discovery
+- `serde = "1.0"` - Serialization framework
 - `serde_json = "1.0"` - JSON support
-- `serde_yaml = "0.9"` - YAML support
 
 **Development:**
 - `assert_cmd = "2"` - CLI testing
@@ -259,12 +253,12 @@ Generated CLIs use these production-ready crates:
 
 After generation, customize by:
 
-1. **Implement business logic** - Replace TODO comments
-2. **Add custom fields** - Edit Args structs
-3. **Add custom verbs** - Extend Verb enums (start, stop, restart)
-4. **Add validation** - Input validation logic
+1. **Implement business logic** - Replace TODO comments in verb functions
+2. **Add custom parameters** - Add function parameters with `#[arg(...)]` attributes
+3. **Add custom verbs** - Create new functions with `#[verb]` attribute
+4. **Add validation** - Input validation logic in verb functions
 5. **Connect APIs** - Integrate with real backends
-6. **Add configuration** - Config file support
+6. **Add configuration** - Config file support via AppContext
 
 ## 📈 Performance
 
