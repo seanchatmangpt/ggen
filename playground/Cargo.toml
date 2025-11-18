@@ -1,0 +1,55 @@
+[package]
+name = "htf-cli"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+description = "Hyper-Thesis Framework: RDF-backed thesis planning with Λ-scheduling, Π-profiling, and Γ-checking"
+license = "MIT"
+
+[[bin]]
+name = "htf"
+path = "src/main.rs"
+
+[lib]
+name = "htf_cli"
+path = "src/lib.rs"
+
+[dependencies]
+# RDF & semantic data (primary data store)
+oxigraph = "0.5"
+sophia = "0.8"
+
+# CLI framework
+clap = { version = "4.5", features = ["derive", "cargo"] }
+clap-noun-verb = "3.7"
+clap-noun-verb-macros = "3.4.0"
+linkme = "0.3"
+
+# Async runtime
+tokio = { version = "1.40", features = ["full"] }
+async-trait = "0.1"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Utilities
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+indexmap = { version = "2.0", features = ["serde"] }
+
+# Logging & observability
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+# Graph algorithms
+petgraph = "0.6"
+
+[dev-dependencies]
+tokio-test = "0.4"
+tempfile = "3.8"

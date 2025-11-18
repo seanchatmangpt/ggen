@@ -26,6 +26,7 @@ members = [
   "examples/natural-market-search",
   "examples/ai-template-project",
   "crates/ggen-node", "crates/ggen-macros", "crates/ggen-dod",
+  "playground",
 ]
 exclude = [
   "examples/rust-cli-lifecycle",

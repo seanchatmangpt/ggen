@@ -4,9 +4,8 @@
 //! sorting, and searching capabilities. Uses the MarketplaceRegistry adapter
 //! to support both v1 (legacy) and v2 (RDF-backed) marketplace implementations.
 
-use crate::error::Result;
-use crate::marketplace::adapter::{PackageInfo, SearchMatch};
-use std::cmp::Ordering;
+use crate::marketplace::adapter::PackageInfo;
+use ggen_utils::error::Result;
 use std::collections::HashMap;
 
 /// Sorting field for package listings
@@ -190,7 +189,7 @@ impl PackageDiscoveryService {
     /// ```
     pub fn filter(&self, filter: &DiscoveryFilter) -> Result<Vec<PackageInfo>> {
         if !self.cache_valid {
-            return Err(crate::error::Error::Other(
+            return Err(ggen_utils::error::Error::Other(
                 "Cache not valid. Call discover_all first.".into(),
             ));
         }

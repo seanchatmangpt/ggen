@@ -25,11 +25,11 @@
 //! ggen packs list --format json | jq '.packages[] | select(.quality_score > 80)'
 //! ```
 
-use crate::error::Result;
 use crate::marketplace::adapter::PackageInfo;
 use crate::marketplace::packs_services::discovery::{
     DiscoveryFilter, PackageDiscoveryService, SortField,
 };
+use ggen_utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -256,10 +256,9 @@ pub async fn list_packages(
     // Format output
     match options.format {
         OutputFormat::Json => serde_json::to_string_pretty(&output)
-            .map_err(|e| crate::error::Error::Other(e.to_string())),
-        OutputFormat::Yaml => {
-            serde_yaml::to_string(&output).map_err(|e| crate::error::Error::Other(e.to_string()))
-        }
+            .map_err(|e| ggen_utils::error::Error::Other(e.to_string())),
+        OutputFormat::Yaml => serde_yaml::to_string(&output)
+            .map_err(|e| ggen_utils::error::Error::Other(e.to_string())),
         OutputFormat::Csv => format_as_csv(&listed_packages),
         OutputFormat::Human => format_as_human(&listed_packages, &output),
     }

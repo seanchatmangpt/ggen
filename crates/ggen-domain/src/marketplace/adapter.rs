@@ -38,7 +38,7 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-use crate::error::Result;
+use ggen_utils::error::Result;
 
 /// Unified marketplace registry interface supporting multiple backends
 ///
