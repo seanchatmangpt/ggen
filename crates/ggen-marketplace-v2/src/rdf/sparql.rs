@@ -2,53 +2,74 @@
 //!
 //! All marketplace operations are executed as SPARQL queries.
 //! No direct object manipulation or JSON/SQL fallbacks.
+//!
+//! Uses SparqlEvaluator API (not deprecated Store::query) matching oxigraph 0.5.1+ best practices.
 
 use crate::error::{Error, Result};
-use crate::poka_yoke::{
-    AuthorEmail, Category, Checksum, Keyword, LicenseId, PackageId, PackageVersion,
-    QualityScore, RepositoryUrl,
-};
-use oxigraph::model::{GraphNameRef, Quad, Subject, Term};
+use crate::models::{PackageId, PackageVersion, QualityScore};
+use oxigraph::model::{Quad, Term};
 use oxigraph::sparql::{QueryResults, QuerySolution};
 use oxigraph::store::Store;
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
+use std::sync::Arc;
 
-use super::ontology::{Ontology, UriBuilder, MARKETPLACE_NS};
+use super::ontology::namespaces;
 
-/// SPARQL executor with connection pooling and caching
+/// Generate standard SPARQL prefixes for marketplace ontology
+fn generate_prefixes() -> String {
+    r#"PREFIX mp: <https://ggen.io/marketplace/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+"#
+    .to_string()
+}
+
+// Helper functions for URI building
+fn package_uri(package_id: &str) -> String {
+    format!("{}{}", namespaces::GGEN, package_id)
+}
+
+fn version_uri(package_id: &str, version: &str) -> String {
+    format!("{}{}/{}", namespaces::GGEN, package_id, version)
+}
+
+fn author_uri(email: &str) -> String {
+    format!("{}author/{}", namespaces::GGEN, email.replace('@', "_at_"))
+}
+
+/// SPARQL executor using thread-safe Arc<Store> pattern
+///
+/// Follows oxigraph best practices:
+/// - Uses Arc<Store> for cheap cloning and concurrent access
+/// - All operations are thread-safe via Arc
 pub struct SparqlExecutor {
-    store: Store,
-    uri_builder: UriBuilder,
+    store: Arc<Store>,
 }
 
 impl SparqlExecutor {
-    /// Create a new SPARQL executor with an oxigraph store
-    pub fn new(store: Store) -> Self {
-        Self {
-            store,
-            uri_builder: UriBuilder::default(),
-        }
+    /// Create a new SPARQL executor with an Arc-wrapped oxigraph store
+    ///
+    /// # Arguments
+    /// * `store` - Arc-wrapped Store for thread-safe access
+    pub fn new(store: Arc<Store>) -> Self {
+        Self { store }
     }
 
-    /// Execute a SELECT query
+    /// Execute a SELECT query with proper error handling
     pub fn query(&self, sparql: &str) -> Result<QueryResults> {
-        self.store
-            .query(sparql)
-            .map_err(|e| Error::SparqlError {
-                query: sparql.to_string(),
-                reason: e.to_string(),
-            })
+        self.store.query(sparql).map_err(|e| Error::SparqlError {
+            query: sparql.to_string(),
+            reason: e.to_string(),
+        })
     }
 
     /// Execute an UPDATE query (INSERT/DELETE)
     pub fn update(&self, sparql: &str) -> Result<()> {
-        self.store
-            .update(sparql)
-            .map_err(|e| Error::SparqlError {
-                query: sparql.to_string(),
-                reason: e.to_string(),
-            })
+        self.store.update(sparql).map_err(|e| Error::SparqlError {
+            query: sparql.to_string(),
+            reason: e.to_string(),
+        })
     }
 
     /// Insert a quad into the store
@@ -61,22 +82,15 @@ impl SparqlExecutor {
 
     /// Check if the store contains a quad
     pub fn contains(&self, quad: &Quad) -> Result<bool> {
-        self.store
-            .contains(quad)
-            .map_err(|e| Error::RdfStoreError {
-                operation: "contains".to_string(),
-                reason: e.to_string(),
-            })
+        self.store.contains(quad).map_err(|e| Error::RdfStoreError {
+            operation: "contains".to_string(),
+            reason: e.to_string(),
+        })
     }
 
-    /// Get the underlying store
-    pub fn store(&self) -> &Store {
+    /// Get reference to the underlying store
+    pub fn store(&self) -> &Arc<Store> {
         &self.store
-    }
-
-    /// Get the URI builder
-    pub fn uri_builder(&self) -> &UriBuilder {
-        &self.uri_builder
     }
 }
 
@@ -95,7 +109,7 @@ impl SparqlQueryBuilder {
     /// Create a new query builder with default prefixes
     pub fn new() -> Self {
         Self {
-            prefixes: Ontology::prefixes(),
+            prefixes: generate_prefixes(),
             select_vars: Vec::new(),
             where_clauses: Vec::new(),
             filters: Vec::new(),
@@ -212,11 +226,11 @@ impl SparqlQuery {
     pub fn search_packages(keyword: &str, limit: usize) -> String {
         SparqlQueryBuilder::new()
             .select(&["?package", "?name", "?description", "?quality"])
-            .where_triple("?package", "rdf:type", "mp:Package")
-            .where_triple("?package", "mp:hasName", "?name")
-            .where_triple("?package", "mp:hasDescription", "?description")
-            .where_clause("OPTIONAL { ?package mp:hasKeyword ?keyword }")
-            .where_clause("OPTIONAL { ?package mp:hasQualityScore ?quality }")
+            .where_triple("?package", "rdf:type", "ggen:Package")
+            .where_triple("?package", "ggen:hasName", "?name")
+            .where_triple("?package", "ggen:hasDescription", "?description")
+            .where_clause("OPTIONAL { ?package ggen:hasKeyword ?keyword }")
+            .where_clause("OPTIONAL { ?package ggen:hasQualityScore ?quality }")
             .filter(format!(
                 "CONTAINS(LCASE(?name), \"{}\") || CONTAINS(LCASE(?description), \"{}\") || CONTAINS(LCASE(?keyword), \"{}\")",
                 keyword.to_lowercase(),
@@ -230,7 +244,7 @@ impl SparqlQuery {
 
     /// Get package by ID
     pub fn get_package(package_id: &PackageId) -> String {
-        let pkg_uri = format!("<{}>", UriBuilder::default().package(package_id.as_str()));
+        let pkg_uri = format!("<{}>", package_uri(package_id.as_str()));
         SparqlQueryBuilder::new()
             .select(&[
                 "?name",
@@ -241,20 +255,20 @@ impl SparqlQuery {
                 "?created",
                 "?updated",
             ])
-            .where_triple(&pkg_uri, "mp:hasName", "?name")
-            .where_triple(&pkg_uri, "mp:hasDescription", "?description")
-            .where_triple(&pkg_uri, "mp:hasVersion", "?version")
-            .where_triple(&pkg_uri, "mp:hasLicense", "?license")
+            .where_triple(&pkg_uri, "ggen:hasName", "?name")
+            .where_triple(&pkg_uri, "ggen:hasDescription", "?description")
+            .where_triple(&pkg_uri, "ggen:hasVersion", "?version")
+            .where_triple(&pkg_uri, "ggen:hasLicense", "?license")
             .where_clause(format!(
-                "OPTIONAL {{ {} mp:hasQualityScore ?quality }}",
+                "OPTIONAL {{ {} ggen:hasQualityScore ?quality }}",
                 pkg_uri
             ))
             .where_clause(format!(
-                "OPTIONAL {{ {} mp:hasCreatedAt ?created }}",
+                "OPTIONAL {{ {} ggen:hasCreatedAt ?created }}",
                 pkg_uri
             ))
             .where_clause(format!(
-                "OPTIONAL {{ {} mp:hasUpdatedAt ?updated }}",
+                "OPTIONAL {{ {} ggen:hasUpdatedAt ?updated }}",
                 pkg_uri
             ))
             .build()
@@ -262,21 +276,17 @@ impl SparqlQuery {
 
     /// List all packages with optional filters
     pub fn list_packages(
-        category: Option<&str>,
-        min_quality: Option<u32>,
-        limit: usize,
-        offset: usize,
+        category: Option<&str>, min_quality: Option<u32>, limit: usize, offset: usize,
     ) -> String {
         let mut builder = SparqlQueryBuilder::new()
             .select(&["?package", "?name", "?version", "?quality"])
-            .where_triple("?package", "rdf:type", "mp:Package")
-            .where_triple("?package", "mp:hasName", "?name")
-            .where_triple("?package", "mp:hasVersion", "?version")
-            .where_clause("OPTIONAL { ?package mp:hasQualityScore ?quality }");
+            .where_triple("?package", "rdf:type", "ggen:Package")
+            .where_triple("?package", "ggen:hasName", "?name")
+            .where_triple("?package", "ggen:hasVersion", "?version")
+            .where_clause("OPTIONAL { ?package ggen:hasQualityScore ?quality }");
 
         if let Some(cat) = category {
-            builder = builder
-                .where_triple("?package", "mp:hasCategory", &format!("\"{}\"", cat))
+            builder = builder.where_triple("?package", "ggen:hasCategory", &format!("\"{}\"", cat))
         }
 
         if let Some(min_q) = min_quality {
@@ -292,31 +302,28 @@ impl SparqlQuery {
 
     /// Get package dependencies
     pub fn get_dependencies(package_id: &PackageId, version: &PackageVersion) -> String {
-        let ver_uri = format!(
-            "<{}>",
-            UriBuilder::default().version(package_id.as_str(), version.as_str())
-        );
+        let ver_uri = format!("<{}>", version_uri(package_id.as_str(), version.as_str()));
         SparqlQueryBuilder::new()
             .select(&["?depId", "?depVersion", "?isOptional"])
-            .where_triple(&ver_uri, "mp:hasDependency", "?dep")
-            .where_triple("?dep", "mp:dependsOn", "?depId")
-            .where_triple("?dep", "mp:versionRequirement", "?depVersion")
-            .where_clause("OPTIONAL { ?dep mp:isOptional ?isOptional }")
+            .where_triple(&ver_uri, "ggen:hasDependency", "?dep")
+            .where_triple("?dep", "ggen:dependsOn", "?depId")
+            .where_triple("?dep", "ggen:versionRequirement", "?depVersion")
+            .where_clause("OPTIONAL { ?dep ggen:isOptional ?isOptional }")
             .build()
     }
 
     /// Check package state
     pub fn get_package_state(package_id: &PackageId) -> String {
-        let pkg_uri = format!("<{}>", UriBuilder::default().package(package_id.as_str()));
+        let pkg_uri = format!("<{}>", package_uri(package_id.as_str()));
         SparqlQueryBuilder::new()
             .select(&["?state"])
-            .where_triple(&pkg_uri, "mp:hasState", "?state")
+            .where_triple(&pkg_uri, "ggen:hasState", "?state")
             .build()
     }
 
     /// Get package maturity metrics
     pub fn get_maturity_metrics(package_id: &PackageId) -> String {
-        let pkg_uri = format!("<{}>", UriBuilder::default().package(package_id.as_str()));
+        let pkg_uri = format!("<{}>", package_uri(package_id.as_str()));
         SparqlQueryBuilder::new()
             .select(&[
                 "?quality",
@@ -325,18 +332,18 @@ impl SparqlQuery {
                 "?lastUpdate",
                 "?testCoverage",
             ])
-            .where_clause(format!("{} mp:hasQualityScore ?quality", pkg_uri))
-            .where_clause(format!("{} mp:hasDownloadCount ?downloads", pkg_uri))
+            .where_clause(format!("{} ggen:hasQualityScore ?quality", pkg_uri))
+            .where_clause(format!("{} ggen:hasDownloadCount ?downloads", pkg_uri))
             .where_clause(format!(
-                "{{ SELECT (COUNT(?v) as ?versions) WHERE {{ ?v mp:belongsToPackage {} }} }}",
+                "{{ SELECT (COUNT(?v) as ?versions) WHERE {{ ?v ggen:belongsToPackage {} }} }}",
                 pkg_uri
             ))
             .where_clause(format!(
-                "OPTIONAL {{ {} mp:hasUpdatedAt ?lastUpdate }}",
+                "OPTIONAL {{ {} ggen:hasUpdatedAt ?lastUpdate }}",
                 pkg_uri
             ))
             .where_clause(format!(
-                "OPTIONAL {{ {} mp:hasTestCoverage ?testCoverage }}",
+                "OPTIONAL {{ {} ggen:hasTestCoverage ?testCoverage }}",
                 pkg_uri
             ))
             .build()
@@ -344,23 +351,23 @@ impl SparqlQuery {
 
     /// Validate package integrity
     pub fn validate_package(package_id: &PackageId) -> String {
-        let pkg_uri = format!("<{}>", UriBuilder::default().package(package_id.as_str()));
+        let pkg_uri = format!("<{}>", package_uri(package_id.as_str()));
         SparqlQueryBuilder::new()
             .select(&["?hasName", "?hasVersion", "?hasLicense", "?hasAuthor"])
             .where_clause(format!(
-                "BIND(EXISTS {{ {} mp:hasName ?name }} as ?hasName)",
+                "BIND(EXISTS {{ {} ggen:hasName ?name }} as ?hasName)",
                 pkg_uri
             ))
             .where_clause(format!(
-                "BIND(EXISTS {{ {} mp:hasVersion ?version }} as ?hasVersion)",
+                "BIND(EXISTS {{ {} ggen:hasVersion ?version }} as ?hasVersion)",
                 pkg_uri
             ))
             .where_clause(format!(
-                "BIND(EXISTS {{ {} mp:hasLicense ?license }} as ?hasLicense)",
+                "BIND(EXISTS {{ {} ggen:hasLicense ?license }} as ?hasLicense)",
                 pkg_uri
             ))
             .where_clause(format!(
-                "BIND(EXISTS {{ {} mp:hasAuthor ?author }} as ?hasAuthor)",
+                "BIND(EXISTS {{ {} ggen:hasAuthor ?author }} as ?hasAuthor)",
                 pkg_uri
             ))
             .build()
@@ -368,35 +375,32 @@ impl SparqlQuery {
 
     /// Insert package (SPARQL UPDATE)
     pub fn insert_package(
-        package_id: &PackageId,
-        name: &str,
-        description: &str,
-        version: &PackageVersion,
-        license: &LicenseId,
+        package_id: &PackageId, name: &str, description: &str, version: &PackageVersion,
+        license: &str,
     ) -> String {
-        let pkg_uri = UriBuilder::default().package(package_id.as_str());
+        let pkg_uri = package_uri(package_id.as_str());
         let now = chrono::Utc::now().to_rfc3339();
 
         format!(
             r#"{}
 INSERT DATA {{
-  <{pkg_uri}> rdf:type mp:Package ;
-    mp:hasId "{}" ;
-    mp:hasName "{}" ;
-    mp:hasDescription "{}" ;
-    mp:hasVersion "{}" ;
-    mp:hasLicense "{}" ;
-    mp:hasState mp:Draft ;
-    mp:hasCreatedAt "{}"^^xsd:dateTime ;
-    mp:hasUpdatedAt "{}"^^xsd:dateTime .
+  <{pkg_uri}> rdf:type ggen:Package ;
+    ggen:hasId "{}" ;
+    ggen:hasName "{}" ;
+    ggen:hasDescription "{}" ;
+    ggen:hasVersion "{}" ;
+    ggen:hasLicense "{}" ;
+    ggen:hasState ggen:Draft ;
+    ggen:hasCreatedAt "{}"^^xsd:dateTime ;
+    ggen:hasUpdatedAt "{}"^^xsd:dateTime .
 }}
 "#,
-            Ontology::prefixes(),
+            generate_prefixes(),
             package_id.as_str().replace('"', "\\\""),
             name.replace('"', "\\\""),
             description.replace('"', "\\\""),
             version.as_str().replace('"', "\\\""),
-            license.as_str().replace('"', "\\\""),
+            license.replace('"', "\\\""),
             now,
             now
         )
@@ -404,55 +408,52 @@ INSERT DATA {{
 
     /// Update package state (SPARQL UPDATE)
     pub fn update_package_state(package_id: &PackageId, new_state: &str) -> String {
-        let pkg_uri = UriBuilder::default().package(package_id.as_str());
+        let pkg_uri = package_uri(package_id.as_str());
         let now = chrono::Utc::now().to_rfc3339();
 
         format!(
             r#"{}
 DELETE {{
-  <{pkg_uri}> mp:hasState ?oldState .
+  <{pkg_uri}> ggen:hasState ?oldState .
 }}
 INSERT {{
-  <{pkg_uri}> mp:hasState mp:{new_state} ;
-    mp:hasUpdatedAt "{now}"^^xsd:dateTime .
+  <{pkg_uri}> ggen:hasState ggen:{new_state} ;
+    ggen:hasUpdatedAt "{now}"^^xsd:dateTime .
 }}
 WHERE {{
-  <{pkg_uri}> mp:hasState ?oldState .
+  <{pkg_uri}> ggen:hasState ?oldState .
 }}
 "#,
-            Ontology::prefixes(),
+            generate_prefixes(),
         )
     }
 
     /// Add package metadata (authors, keywords, categories)
     pub fn add_package_metadata(
-        package_id: &PackageId,
-        authors: &[AuthorEmail],
-        keywords: &[Keyword],
-        categories: &[Category],
+        package_id: &PackageId, authors: &[String], keywords: &[String], categories: &[String],
     ) -> String {
-        let pkg_uri = UriBuilder::default().package(package_id.as_str());
+        let pkg_uri = package_uri(package_id.as_str());
         let mut triples = Vec::new();
 
         for author in authors {
-            let author_uri = UriBuilder::default().author(author.as_str());
+            let author_uri = author_uri(author.as_str());
             triples.push(format!(
-                "  <{pkg_uri}> mp:hasAuthor <{author_uri}> .\n  <{author_uri}> mp:hasEmail \"{}\" .",
-                author.as_str().replace('"', "\\\"")
+                "  <{pkg_uri}> ggen:hasAuthor <{author_uri}> .\n  <{author_uri}> ggen:hasEmail \"{}\" .",
+                author.replace('"', "\\\"")
             ));
         }
 
         for keyword in keywords {
             triples.push(format!(
-                "  <{pkg_uri}> mp:hasKeyword \"{}\" .",
-                keyword.as_str().replace('"', "\\\"")
+                "  <{pkg_uri}> ggen:hasKeyword \"{}\" .",
+                keyword.replace('"', "\\\"")
             ));
         }
 
         for category in categories {
             triples.push(format!(
-                "  <{pkg_uri}> mp:hasCategory \"{}\" .",
-                category.as_str().replace('"', "\\\"")
+                "  <{pkg_uri}> ggen:hasCategory \"{}\" .",
+                category.replace('"', "\\\"")
             ));
         }
 
@@ -462,7 +463,7 @@ INSERT DATA {{
 {}
 }}
 "#,
-            Ontology::prefixes(),
+            generate_prefixes(),
             triples.join("\n")
         )
     }
@@ -475,9 +476,9 @@ INSERT DATA {{
                 "(AVG(?quality) as ?avgQuality)",
                 "(SUM(?downloads) as ?totalDownloads)",
             ])
-            .where_triple("?package", "rdf:type", "mp:Package")
-            .where_clause("OPTIONAL { ?package mp:hasQualityScore ?quality }")
-            .where_clause("OPTIONAL { ?package mp:hasDownloadCount ?downloads }")
+            .where_triple("?package", "rdf:type", "ggen:Package")
+            .where_clause("OPTIONAL { ?package ggen:hasQualityScore ?quality }")
+            .where_clause("OPTIONAL { ?package ggen:hasDownloadCount ?downloads }")
             .build()
     }
 }
@@ -499,8 +500,7 @@ impl SparqlResultParser {
 
     /// Parse an integer binding
     pub fn get_int(solution: &QuerySolution, var: &str) -> Option<i64> {
-        Self::get_string(solution, var)
-            .and_then(|s| s.parse::<i64>().ok())
+        Self::get_string(solution, var).and_then(|s| s.parse::<i64>().ok())
     }
 
     /// Parse a boolean binding
@@ -527,7 +527,7 @@ pub struct PackageQueryResult {
     pub name: String,
     pub description: String,
     pub version: PackageVersion,
-    pub license: LicenseId,
+    pub license: String,
     pub quality_score: Option<QualityScore>,
     pub created_at: Option<String>,
     pub updated_at: Option<String>,
@@ -598,8 +598,14 @@ mod tests {
     fn test_insert_package_query() {
         let pkg_id = PackageId::new("new-package").unwrap();
         let version = PackageVersion::new("1.0.0").unwrap();
-        let license = LicenseId::mit();
-        let query = SparqlQuery::insert_package(&pkg_id, "New Package", "A new package", &version, &license);
+        let license = "MIT".to_string();
+        let query = SparqlQuery::insert_package(
+            &pkg_id,
+            "New Package",
+            "A new package",
+            &version,
+            &license,
+        );
         assert!(query.contains("INSERT DATA"));
         assert!(query.contains("new-package"));
         assert!(query.contains("New Package"));

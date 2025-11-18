@@ -3,7 +3,6 @@
 //! Contracts (Σ) define the shape of valid observations, decisions, and system states.
 //! They are immutable, versioned, and subject to Q (invariant) constraints.
 
-use crate::error::DoDResult;
 use crate::observation::ObservationSchema;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};

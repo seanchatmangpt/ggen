@@ -32,6 +32,7 @@ pub mod metrics;
 pub mod migration;
 pub mod models;
 pub mod ontology;
+pub mod rdf;
 pub mod rdf_mapper;
 pub mod registry;
 pub mod registry_rdf;

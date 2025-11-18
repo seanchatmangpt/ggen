@@ -33,6 +33,12 @@ impl Default for KernelActionId {
     }
 }
 
+impl std::fmt::Display for KernelActionId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
 /// Type of action the kernel can emit
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActionType {
@@ -131,7 +137,7 @@ impl KernelAction {
 
     /// Get idempotence mode
     pub fn idempotence(&self) -> IdempotenceMode {
-        self.idempotence
+        self.idempotence.clone()
     }
 
     /// Get tenant ID
@@ -277,7 +283,7 @@ impl Kernel {
         &mut self, observations: Vec<Observation>, tenant_id: &str,
     ) -> DoDResult<KernelDecision> {
         let start = Instant::now();
-        let decision_start = TimingMeasurement::new();
+        let _decision_start = TimingMeasurement::new();
 
         // Validate inputs
         if observations.is_empty() {
@@ -287,7 +293,7 @@ impl Kernel {
         }
 
         // Tenant isolation check
-        let tenant = &observations[0].tenant_id();
+        let tenant = observations[0].tenant_id();
         if !observations.iter().all(|o| o.tenant_id() == tenant) {
             return Err(crate::error::DoDError::TenantIsolation(
                 "observations from different tenants".to_string(),
@@ -315,7 +321,7 @@ impl Kernel {
 
         // Measure timing
         let elapsed = start.elapsed().as_millis() as u64;
-        let mut timing = TimingMeasurement::new().finished(elapsed);
+        let _timing = TimingMeasurement::new().finished(elapsed);
 
         // Check timing constraint
         if elapsed > crate::constants::KERNEL_MAX_TIME_MS {
@@ -325,7 +331,8 @@ impl Kernel {
             });
         }
 
-        decision = decision.with_determinism_hash(self.compute_determinism_hash(&decision));
+        let hash = self.compute_determinism_hash(&decision);
+        decision = decision.with_determinism_hash(hash);
 
         // Store in history
         self.execution_history

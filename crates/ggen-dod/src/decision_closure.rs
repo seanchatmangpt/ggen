@@ -166,7 +166,7 @@ impl DecisionClosureChecker {
             .collect();
 
         if !open_world_points.is_empty() {
-            let names = open_world_points
+            let _names = open_world_points
                 .iter()
                 .map(|p| p.name())
                 .collect::<Vec<_>>()
