@@ -6,11 +6,11 @@
 //! - Public key management
 //! - Signature receipts
 
-use ed25519_dalek::{SigningKey, VerifyingKey, Signature, Signer, Verifier};
-use sha2::{Sha256, Digest};
-use hex::{encode as hex_encode, decode as hex_decode};
-use tracing::{debug, error};
+use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
+use hex::{decode as hex_decode, encode as hex_encode};
 use rand::rngs::OsRng;
+use sha2::{Digest, Sha256};
+use tracing::{debug, error};
 
 use crate::error::Result;
 use crate::traits::Signable;
@@ -111,14 +111,15 @@ impl SignatureVerifier {
 
     /// Verify a signature
     pub fn verify_signature(&self, data: &[u8], signature_hex: &str) -> Result<bool> {
-        let sig_bytes = hex_decode(signature_hex)
-            .map_err(|e| crate::error::Error::SignatureVerificationFailed {
-                reason: format!("Invalid hex: {}", e)
-            })?;
+        let sig_bytes = hex_decode(signature_hex).map_err(|e| {
+            crate::error::Error::SignatureVerificationFailed {
+                reason: format!("Invalid hex: {}", e),
+            }
+        })?;
 
         if sig_bytes.len() != 64 {
             return Err(crate::error::Error::SignatureVerificationFailed {
-                reason: "Signature must be 64 bytes".to_string()
+                reason: "Signature must be 64 bytes".to_string(),
             });
         }
 
@@ -271,9 +272,6 @@ mod tests {
 
         let key_pair2 = KeyPair::from_secret_key(&secret_hex).unwrap();
 
-        assert_eq!(
-            key_pair1.public_key_hex(),
-            key_pair2.public_key_hex()
-        );
+        assert_eq!(key_pair1.public_key_hex(), key_pair2.public_key_hex());
     }
 }

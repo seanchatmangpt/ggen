@@ -25,50 +25,48 @@
 //! - SPARQL-based queries
 //! - Version history as RDF facts
 
+pub mod builders;
 pub mod error;
+pub mod install;
+pub mod metrics;
 pub mod models;
-pub mod traits;
 pub mod ontology;
 pub mod registry;
 pub mod registry_rdf;
 pub mod search;
 pub mod search_sparql;
-pub mod install;
-pub mod validation;
 pub mod security;
-pub mod metrics;
-pub mod builders;
+pub mod traits;
 pub mod v3;
+pub mod validation;
 
 pub use error::{Error, Result};
+pub use install::Installer;
+pub use metrics::MetricsCollector;
 pub use models::*;
-pub use traits::*;
 pub use registry::Registry;
 pub use registry_rdf::RdfRegistry;
 pub use search::SearchEngine;
 pub use search_sparql::SparqlSearchEngine;
-pub use install::Installer;
-pub use validation::Validator;
 pub use security::SignatureVerifier;
-pub use metrics::MetricsCollector;
+pub use traits::*;
 pub use v3::V3OptimizedRegistry;
+pub use validation::Validator;
 
 /// Prelude for convenient imports
 pub mod prelude {
     pub use crate::{
         error::{Error, Result},
-        models::{Package, PackageId, PackageVersion, PackageMetadata, Manifest},
-        traits::{
-            AsyncRepository, Queryable, Installable, Validatable, Signable, Observable,
-        },
+        install::Installer,
+        metrics::MetricsCollector,
+        models::{Manifest, Package, PackageId, PackageMetadata, PackageVersion},
         registry::Registry,
         registry_rdf::RdfRegistry,
         search::SearchEngine,
         search_sparql::SparqlSearchEngine,
-        install::Installer,
-        validation::Validator,
         security::SignatureVerifier,
-        metrics::MetricsCollector,
+        traits::{AsyncRepository, Installable, Observable, Queryable, Signable, Validatable},
         v3::V3OptimizedRegistry,
+        validation::Validator,
     };
 }

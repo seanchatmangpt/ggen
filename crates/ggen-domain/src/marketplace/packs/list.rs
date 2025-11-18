@@ -25,11 +25,13 @@
 //! ggen packs list --format json | jq '.packages[] | select(.quality_score > 80)'
 //! ```
 
+use crate::error::Result;
+use crate::marketplace::adapter::PackageInfo;
+use crate::marketplace::packs_services::discovery::{
+    DiscoveryFilter, PackageDiscoveryService, SortField,
+};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use crate::error::Result;
-use crate::marketplace::packs_services::discovery::{PackageDiscoveryService, DiscoveryFilter, SortField};
-use crate::marketplace::adapter::PackageInfo;
 
 /// Output format for list command
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -178,8 +180,7 @@ pub struct SortInfo {
 /// println!("{}", output);
 /// ```
 pub async fn list_packages(
-    registry: &dyn crate::marketplace::MarketplaceRegistry,
-    options: &ListOptions,
+    registry: &dyn crate::marketplace::MarketplaceRegistry, options: &ListOptions,
 ) -> Result<String> {
     // Initialize discovery service
     let mut discovery = PackageDiscoveryService::new();
@@ -254,13 +255,10 @@ pub async fn list_packages(
 
     // Format output
     match options.format {
-        OutputFormat::Json => {
-            serde_json::to_string_pretty(&output)
-                .map_err(|e| crate::error::Error::Other(e.to_string()))
-        }
+        OutputFormat::Json => serde_json::to_string_pretty(&output)
+            .map_err(|e| crate::error::Error::Other(e.to_string())),
         OutputFormat::Yaml => {
-            serde_yaml::to_string(&output)
-                .map_err(|e| crate::error::Error::Other(e.to_string()))
+            serde_yaml::to_string(&output).map_err(|e| crate::error::Error::Other(e.to_string()))
         }
         OutputFormat::Csv => format_as_csv(&listed_packages),
         OutputFormat::Human => format_as_human(&listed_packages, &output),
@@ -308,9 +306,7 @@ fn format_as_human(packages: &[ListedPackage], output: &ListPackagesOutput) -> R
     result.push_str("─────────────────────────────────────────────────────────────────────────────────────────────────────\n");
     result.push_str(&format!(
         "Total: {} packages | Sorted by: {} ({})\n",
-        output.total,
-        output.sort_info.sort_by,
-        output.sort_info.direction
+        output.total, output.sort_info.sort_by, output.sort_info.direction
     ));
 
     Ok(result)
@@ -318,13 +314,20 @@ fn format_as_human(packages: &[ListedPackage], output: &ListPackagesOutput) -> R
 
 /// Format packages as CSV
 fn format_as_csv(packages: &[ListedPackage]) -> Result<String> {
-    let mut result = String::from("id,name,version,author,quality_score,is_production_ready,size_bytes,size\n");
+    let mut result =
+        String::from("id,name,version,author,quality_score,is_production_ready,size_bytes,size\n");
 
     for pkg in packages {
         result.push_str(&format!(
             "\"{}\",\"{}\",\"{}\",\"{}\",{},{},{},\"{}\"\n",
-            pkg.id, pkg.name, pkg.version, pkg.author, pkg.quality_score,
-            pkg.is_production_ready, pkg.size_bytes, pkg.size
+            pkg.id,
+            pkg.name,
+            pkg.version,
+            pkg.author,
+            pkg.quality_score,
+            pkg.is_production_ready,
+            pkg.size_bytes,
+            pkg.size
         ));
     }
 
@@ -363,7 +366,10 @@ mod tests {
 
     #[test]
     fn test_output_format_parsing() {
-        assert_eq!("human".parse::<OutputFormat>().unwrap(), OutputFormat::Human);
+        assert_eq!(
+            "human".parse::<OutputFormat>().unwrap(),
+            OutputFormat::Human
+        );
         assert_eq!("json".parse::<OutputFormat>().unwrap(), OutputFormat::Json);
         assert_eq!("yaml".parse::<OutputFormat>().unwrap(), OutputFormat::Yaml);
         assert_eq!("csv".parse::<OutputFormat>().unwrap(), OutputFormat::Csv);

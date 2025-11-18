@@ -11,7 +11,7 @@ use std::sync::Arc;
 use tracing::{debug, info};
 
 use crate::error::Result;
-use crate::models::{Package, Manifest, QualityScore};
+use crate::models::{Manifest, Package, QualityScore};
 use crate::traits::Validatable;
 
 /// Validation result
@@ -194,7 +194,11 @@ impl Validator for MetadataValidator {
         Ok(ValidationCheck {
             name: "Metadata".to_string(),
             passed,
-            severity: if passed { CheckSeverity::Info } else { CheckSeverity::Critical },
+            severity: if passed {
+                CheckSeverity::Info
+            } else {
+                CheckSeverity::Critical
+            },
             message,
             weight: 20,
         })
@@ -216,13 +220,19 @@ pub struct LicenseValidator;
 impl Validator for LicenseValidator {
     async fn validate(&self, package: &Package) -> Result<ValidationCheck> {
         let valid_licenses = ["MIT", "Apache-2.0", "GPL-3.0", "BSD-3-Clause", "ISC"];
-        let passed = valid_licenses.iter().any(|l| package.metadata.license.contains(l))
+        let passed = valid_licenses
+            .iter()
+            .any(|l| package.metadata.license.contains(l))
             || package.metadata.license.contains("Custom");
 
         Ok(ValidationCheck {
             name: "License".to_string(),
             passed,
-            severity: if passed { CheckSeverity::Info } else { CheckSeverity::Critical },
+            severity: if passed {
+                CheckSeverity::Info
+            } else {
+                CheckSeverity::Critical
+            },
             message: format!("License: {}", package.metadata.license),
             weight: 25,
         })
@@ -338,12 +348,7 @@ mod tests {
         let validator = PackageValidator::new();
 
         let id = PackageId::new("test-pkg").unwrap();
-        let metadata = PackageMetadata::new(
-            id,
-            "Test Package",
-            "A test package",
-            "MIT",
-        );
+        let metadata = PackageMetadata::new(id, "Test Package", "A test package", "MIT");
         let package = Package {
             metadata,
             latest_version: crate::models::PackageVersion::new("1.0.0").unwrap(),

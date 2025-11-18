@@ -47,9 +47,8 @@ mod integration_tests;
 
 // Re-export commonly used types and functions
 pub use adapter::{
-    MarketplaceRegistry, PackageInfo, PackagePublish, SearchMatch, VersionInfo,
-    ValidationResult, Recommendation, ComparisonResult, DependencyInfo, InstallationManifest,
-    PublishSuccess,
+    ComparisonResult, DependencyInfo, InstallationManifest, MarketplaceRegistry, PackageInfo,
+    PackagePublish, PublishSuccess, Recommendation, SearchMatch, ValidationResult, VersionInfo,
 };
 pub use artifact_generator::{
     generate_packages_markdown, generate_registry_index, write_packages_markdown,
@@ -66,8 +65,8 @@ pub use mape_k_integration::{
 pub use observability::{
     HealthCheck, HealthStatus, MetricsSnapshot, ObservabilitySystem, PerformanceMetric,
 };
-pub use packs::{ListPackagesOutput};
-pub use packs_services::{PackageDiscoveryService};
+pub use packs::ListPackagesOutput;
+pub use packs_services::PackageDiscoveryService;
 pub use production_readiness::{
     CheckStatus, DeploymentGuide, ReadinessAssessment, ReadinessCheck, ReadinessChecker,
 };

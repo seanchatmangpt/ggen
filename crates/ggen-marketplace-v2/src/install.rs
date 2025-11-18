@@ -12,7 +12,7 @@ use tracing::{debug, error, info, warn};
 use uuid::Uuid;
 
 use crate::error::Result;
-use crate::models::{PackageId, PackageVersion, InstallationManifest};
+use crate::models::{InstallationManifest, PackageId, PackageVersion};
 use crate::traits::{AsyncRepository, Installable};
 
 /// Package installer with dependency resolution
@@ -28,9 +28,7 @@ impl<R: AsyncRepository> Installer<R> {
 
     /// Resolve a dependency tree (iterative approach for Send compatibility)
     pub async fn resolve_dependencies(
-        &self,
-        root_id: &PackageId,
-        root_version: &PackageVersion,
+        &self, root_id: &PackageId, root_version: &PackageVersion,
     ) -> Result<Vec<(PackageId, PackageVersion)>> {
         let mut resolved = Vec::new();
         let mut visited = HashSet::new();
@@ -72,9 +70,7 @@ impl<R: AsyncRepository> Installer<R> {
 
     /// Create an installation manifest
     pub async fn create_manifest(
-        &self,
-        package_ids: Vec<PackageId>,
-        install_path: String,
+        &self, package_ids: Vec<PackageId>, install_path: String,
     ) -> Result<InstallationManifest> {
         let mut dependencies = indexmap::IndexMap::new();
 
@@ -84,8 +80,7 @@ impl<R: AsyncRepository> Installer<R> {
             dependencies.insert(pkg_id.clone(), latest_version.clone());
 
             // Resolve dependencies
-            let resolved = self.resolve_dependencies(pkg_id, &latest_version)
-                .await?;
+            let resolved = self.resolve_dependencies(pkg_id, &latest_version).await?;
 
             for (dep_id, dep_version) in resolved {
                 if !dependencies.contains_key(&dep_id) {
@@ -113,16 +108,12 @@ impl<R: AsyncRepository> Installer<R> {
 
     /// Check for version conflicts
     pub fn check_conflicts(
-        &self,
-        dependencies: &indexmap::IndexMap<PackageId, PackageVersion>,
+        &self, dependencies: &indexmap::IndexMap<PackageId, PackageVersion>,
     ) -> Result<()> {
         // In a real implementation, this would check semantic version constraints
         // For now, we allow any version combination
 
-        debug!(
-            "Checked {} dependencies for conflicts",
-            dependencies.len()
-        );
+        debug!("Checked {} dependencies for conflicts", dependencies.len());
 
         Ok(())
     }
@@ -137,19 +128,13 @@ impl<R: AsyncRepository> Installer<R> {
         // Check for conflicts
         self.check_conflicts(&manifest.dependencies)?;
 
-        info!(
-            "Validated installation manifest {}",
-            manifest.id
-        );
+        info!("Validated installation manifest {}", manifest.id);
 
         Ok(())
     }
 
     /// Simulate installation without making changes
-    pub async fn dry_run(
-        &self,
-        manifest: &InstallationManifest,
-    ) -> Result<InstallationPlan> {
+    pub async fn dry_run(&self, manifest: &InstallationManifest) -> Result<InstallationPlan> {
         self.validate_manifest(manifest).await?;
 
         let mut plan = InstallationPlan {
@@ -175,7 +160,11 @@ impl<R: AsyncRepository> Installer<R> {
         // Estimate time: 100KB per second
         plan.estimated_time = std::time::Duration::from_secs((plan.total_size / 102400) as u64);
 
-        debug!("Dry-run installation: {} packages, {} bytes", plan.packages.len(), plan.total_size);
+        debug!(
+            "Dry-run installation: {} packages, {} bytes",
+            plan.packages.len(),
+            plan.total_size
+        );
 
         Ok(plan)
     }
@@ -183,10 +172,7 @@ impl<R: AsyncRepository> Installer<R> {
 
 #[async_trait]
 impl<R: AsyncRepository> Installable for Installer<R> {
-    async fn install(
-        &self,
-        manifest: InstallationManifest,
-    ) -> Result<InstallationManifest> {
+    async fn install(&self, manifest: InstallationManifest) -> Result<InstallationManifest> {
         self.validate_manifest(&manifest).await?;
 
         info!(
@@ -206,17 +192,12 @@ impl<R: AsyncRepository> Installable for Installer<R> {
     }
 
     async fn resolve_dependencies(
-        &self,
-        id: &PackageId,
-        version: &PackageVersion,
+        &self, id: &PackageId, version: &PackageVersion,
     ) -> Result<Vec<(PackageId, PackageVersion)>> {
         Installer::resolve_dependencies(self, id, version).await
     }
 
-    async fn dry_run_install(
-        &self,
-        manifest: &InstallationManifest,
-    ) -> Result<String> {
+    async fn dry_run_install(&self, manifest: &InstallationManifest) -> Result<String> {
         let plan = self.dry_run(manifest).await?;
         Ok(plan.to_string())
     }
@@ -248,13 +229,7 @@ impl std::fmt::Display for InstallationPlan {
         writeln!(f)?;
 
         for pkg in &self.packages {
-            writeln!(
-                f,
-                "  - {}@{} ({} KB)",
-                pkg.id,
-                pkg.version,
-                pkg.size / 1024
-            )?;
+            writeln!(f, "  - {}@{} ({} KB)", pkg.id, pkg.version, pkg.size / 1024)?;
         }
 
         Ok(())
