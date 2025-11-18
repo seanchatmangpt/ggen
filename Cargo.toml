@@ -22,6 +22,7 @@ members = [
   "crates/ggen-ai",
   "crates/ggen-marketplace",
   "crates/ggen-marketplace-v2",
+  "crates/ggen-idp",
   "examples/frontmatter-cli",
   "examples/natural-market-search",
   "examples/ai-template-project",
@@ -73,6 +74,7 @@ ggen-ai = { path = "crates/ggen-ai", version = "3.2.0" }
 ggen-marketplace = { path = "crates/ggen-marketplace", version = "3.2.0" }
 ggen-domain = { path = "crates/ggen-domain", version = "3.2.0" }
 ggen-cli-lib = { path = "crates/ggen-cli", version = "3.2.0" }
+ggen-idp = { path = "crates/ggen-idp", version = "0.1.0" }
 ggen-node = { path = "crates/ggen-node", version = "3.2.0" }
 ggen-macros = { path = "crates/ggen-macros", version = "3.2.0" }
 ggen-dod = { path = "crates/ggen-dod", version = "3.2.0" }

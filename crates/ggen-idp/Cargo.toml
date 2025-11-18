@@ -29,8 +29,8 @@ sha2 = "0.10"
 uuid = { version = "1.0", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 
-# Database
-sqlx = { version = "0.7", features = ["postgres", "runtime-tokio-rustls", "uuid", "chrono"] }
+# Database - Using in-memory storage for now
+# sqlx = { version = "0.7", features = ["postgres", "runtime-tokio-rustls", "uuid", "chrono"] }
 
 # Logging and tracing
 tracing = "0.1"
@@ -40,8 +40,8 @@ tracing-subscriber = "0.3"
 base64 = "0.21"
 rand = "0.8"
 
-# RDF/Semantic Graph (for identity graph)
-oxigraph = { version = "0.3", optional = true }
+# RDF/Semantic Graph (for identity graph) - Disabled to avoid rocksdb conflicts
+# oxigraph = { version = "0.3", optional = true }
 
 # Async traits
 async-trait = "0.1"
@@ -60,15 +60,9 @@ dotenv = "0.15"
 tokio-test = "0.4"
 
 [features]
-default = ["rdf"]
-# Enable RDF/Semantic Graph support
-rdf = ["oxigraph"]
-# Enable all features
-full = ["rdf"]
-
-[[bin]]
-name = "ggen-idp-server"
-path = "src/bin/main.rs"
+default = []
+# All features disabled for now to avoid dependency conflicts
+full = []
 
 [profile.release]
 opt-level = 3

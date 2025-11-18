@@ -39,7 +39,7 @@ pub enum CredentialType {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum CredentialFormat {
     VerifiableCredentialJsonLd,            // W3C VC in JSON-LD
-    JsonWeb Token,                         // JWT format
+    JsonWebToken,                          // JWT format
     MDoc,                                  // Mobile Driver License format
     CBOR,                                  // Compact Binary Object Representation
     ZKProof,                               // Zero-knowledge proof format
