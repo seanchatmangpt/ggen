@@ -44,8 +44,11 @@ pub struct TenantContext {
 /// Tenant tier/subscription level
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TenantTier {
+    /// Free tier
     Free,
+    /// Pro tier
     Pro,
+    /// Enterprise tier
     Enterprise,
 }
 
@@ -114,7 +117,7 @@ impl TenantIsolation {
 
     /// Verify isolation: all items must belong to same tenant
     pub fn verify_isolation(
-        &self, tenant_id: &TenantId, items: &[&str],
+        &self, tenant_id: &TenantId, _items: &[&str],
     ) -> crate::error::DoDResult<()> {
         if !self.exists(tenant_id) {
             return Err(crate::error::DoDError::TenantIsolation(

@@ -1,0 +1,630 @@
+@prefix mp: <https://ggen.io/marketplace/> .
+@prefix ggen: <https://ggen.io/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <https://ggen.io/validation/> .
+
+# ============================================================================
+# VALIDATION RULES - POKA YOKE Mistake-Proofing via SHACL
+# ============================================================================
+# Version: 3.0.0
+# Description: Comprehensive validation constraints for marketplace entities
+# Architecture: Type-level validation using SHACL shapes
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# PACKAGE VALIDATION SHAPE
+# ----------------------------------------------------------------------------
+
+:PackageShape a sh:NodeShape ;
+    sh:targetClass mp:Package ;
+    sh:name "Package Validation" ;
+    sh:description "Validates all package invariants" ;
+    sh:severity sh:Violation ;
+
+    # Package ID constraints
+    sh:property [
+        sh:path mp:packageId ;
+        sh:name "Package ID" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 200 ;
+        sh:pattern "^[a-zA-Z0-9_/-]+$" ;
+        sh:message "Package ID must be 1-200 alphanumeric/underscore/hyphen/slash characters" ;
+        sh:severity sh:Violation
+    ] ;
+
+    # Package name constraints
+    sh:property [
+        sh:path mp:packageName ;
+        sh:name "Package Name" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 100 ;
+        sh:pattern "^[a-zA-Z0-9_-]+$" ;
+        sh:message "Package name must be 1-100 alphanumeric/underscore/hyphen characters" ;
+        sh:severity sh:Violation
+    ] ;
+
+    # No path traversal in package ID
+    sh:sparql [
+        sh:message "Package ID cannot contain path traversal sequences (..)" ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this mp:packageId ?id .
+                FILTER (CONTAINS(?id, ".."))
+            }
+        """ ;
+        sh:severity sh:Violation
+    ] ;
+
+    # Version must be semantic versioning
+    sh:property [
+        sh:path mp:version ;
+        sh:name "Version" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9.-]+)?(\\+[a-zA-Z0-9.-]+)?$" ;
+        sh:message "Version must follow semantic versioning (e.g., 1.0.0, 1.0.0-alpha.1, 1.0.0+build.123)" ;
+        sh:severity sh:Violation
+    ] ;
+
+    # Description constraints
+    sh:property [
+        sh:path mp:description ;
+        sh:name "Description" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 10 ;
+        sh:maxLength 5000 ;
+        sh:message "Description must be 10-5000 characters" ;
+        sh:severity sh:Warning
+    ] ;
+
+    # State is required
+    sh:property [
+        sh:path mp:state ;
+        sh:name "State" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:PackageState ;
+        sh:message "Package must have exactly one state" ;
+        sh:severity sh:Violation
+    ] ;
+
+    # Author is required
+    sh:property [
+        sh:path mp:author ;
+        sh:name "Author" ;
+        sh:minCount 1 ;
+        sh:class mp:Author ;
+        sh:message "Package must have at least one author" ;
+        sh:severity sh:Violation
+    ] ;
+
+    # License is required
+    sh:property [
+        sh:path mp:license ;
+        sh:name "License" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:License ;
+        sh:message "Package must have exactly one license" ;
+        sh:severity sh:Violation
+    ] ;
+
+    # Checksum is required
+    sh:property [
+        sh:path mp:checksum ;
+        sh:name "Checksum" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:Checksum ;
+        sh:message "Package must have exactly one checksum" ;
+        sh:severity sh:Violation
+    ] ;
+
+    # Published packages must have signature
+    sh:sparql [
+        sh:message "Published packages must have a valid signature" ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this a mp:Package ;
+                    mp:state ?state .
+                FILTER (?state IN (mp:Published, mp:Active, mp:Deprecated))
+                FILTER NOT EXISTS { $this mp:signature ?sig }
+            }
+        """ ;
+        sh:severity sh:Violation
+    ] ;
+
+    # Active packages must have verified signature
+    sh:sparql [
+        sh:message "Active packages must have verified signature" ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this a mp:Package ;
+                    mp:state mp:Active ;
+                    mp:signature ?sig .
+                ?sig mp:signatureVerified false .
+            }
+        """ ;
+        sh:severity sh:Violation
+    ] ;
+
+    # No duplicate package IDs
+    sh:sparql [
+        sh:message "Package ID must be unique" ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this mp:packageId ?id .
+                FILTER EXISTS {
+                    ?other mp:packageId ?id .
+                    FILTER ($this != ?other)
+                }
+            }
+        """ ;
+        sh:severity sh:Violation
+    ] .
+
+# ----------------------------------------------------------------------------
+# SEMANTIC VERSION VALIDATION
+# ----------------------------------------------------------------------------
+
+:SemanticVersionShape a sh:NodeShape ;
+    sh:targetObjectsOf mp:version ;
+    sh:name "Semantic Version Validation" ;
+    sh:datatype xsd:string ;
+    sh:pattern "^[0-9]+\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9.-]+)?(\\+[a-zA-Z0-9.-]+)?$" ;
+    sh:message "Version must be valid semantic version (major.minor.patch)" ;
+    sh:severity sh:Violation ;
+
+    # Validate individual components
+    sh:sparql [
+        sh:message "Major version must be non-negative integer" ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this mp:version ?v .
+                BIND(STRBEFORE(?v, ".") AS ?major)
+                FILTER (!REGEX(?major, "^[0-9]+$"))
+            }
+        """ ;
+        sh:severity sh:Violation
+    ] .
+
+# ----------------------------------------------------------------------------
+# CHECKSUM VALIDATION
+# ----------------------------------------------------------------------------
+
+:ChecksumShape a sh:NodeShape ;
+    sh:targetClass mp:Checksum ;
+    sh:name "Checksum Validation" ;
+    sh:severity sh:Violation ;
+
+    # Checksum value constraints
+    sh:property [
+        sh:path mp:checksumValue ;
+        sh:name "Checksum Value" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 64 ;
+        sh:maxLength 64 ;
+        sh:pattern "^[0-9a-fA-F]{64}$" ;
+        sh:message "Checksum must be exactly 64 hexadecimal characters (SHA-256)" ;
+        sh:severity sh:Violation
+    ] ;
+
+    # Algorithm must be specified
+    sh:property [
+        sh:path mp:algorithm ;
+        sh:name "Algorithm" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "SHA-256" "SHA-512" "BLAKE3" ) ;
+        sh:message "Checksum algorithm must be SHA-256, SHA-512, or BLAKE3" ;
+        sh:severity sh:Violation
+    ] ;
+
+    # If SHA-256, must be 64 chars
+    sh:sparql [
+        sh:message "SHA-256 checksums must be 64 hex characters" ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this mp:algorithm "SHA-256" ;
+                    mp:checksumValue ?value .
+                FILTER (STRLEN(?value) != 64)
+            }
+        """ ;
+        sh:severity sh:Violation
+    ] ;
+
+    # If SHA-512, must be 128 chars
+    sh:sparql [
+        sh:message "SHA-512 checksums must be 128 hex characters" ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this mp:algorithm "SHA-512" ;
+                    mp:checksumValue ?value .
+                FILTER (STRLEN(?value) != 128)
+            }
+        """ ;
+        sh:severity sh:Violation
+    ] .
+
+# ----------------------------------------------------------------------------
+# SIGNATURE VALIDATION
+# ----------------------------------------------------------------------------
+
+:SignatureShape a sh:NodeShape ;
+    sh:targetClass mp:Signature ;
+    sh:name "Signature Validation" ;
+    sh:severity sh:Violation ;
+
+    # Signature value constraints (Ed25519 is 64 bytes = 128 hex chars)
+    sh:property [
+        sh:path mp:signatureValue ;
+        sh:name "Signature Value" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 128 ;
+        sh:maxLength 128 ;
+        sh:pattern "^[0-9a-fA-F]{128}$" ;
+        sh:message "Ed25519 signature must be exactly 128 hexadecimal characters (64 bytes)" ;
+        sh:severity sh:Violation
+    ] ;
+
+    # Algorithm must be Ed25519
+    sh:property [
+        sh:path mp:algorithm ;
+        sh:name "Algorithm" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "Ed25519" ) ;
+        sh:message "Only Ed25519 signatures are supported" ;
+        sh:severity sh:Violation
+    ] ;
+
+    # Must reference public key
+    sh:property [
+        sh:path mp:signedBy ;
+        sh:name "Signed By" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:PublicKey ;
+        sh:message "Signature must reference signing public key" ;
+        sh:severity sh:Violation
+    ] ;
+
+    # Must have timestamp
+    sh:property [
+        sh:path mp:signedAt ;
+        sh:name "Signed At" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Signature must have timestamp" ;
+        sh:severity sh:Violation
+    ] ;
+
+    # Signature cannot be from the future
+    sh:sparql [
+        sh:message "Signature timestamp cannot be in the future" ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this mp:signedAt ?timestamp .
+                FILTER (?timestamp > NOW())
+            }
+        """ ;
+        sh:severity sh:Violation
+    ] .
+
+# ----------------------------------------------------------------------------
+# PUBLIC KEY VALIDATION
+# ----------------------------------------------------------------------------
+
+:PublicKeyShape a sh:NodeShape ;
+    sh:targetClass mp:PublicKey ;
+    sh:name "Public Key Validation" ;
+    sh:severity sh:Violation ;
+
+    # Key value constraints (Ed25519 public key is 32 bytes = 64 hex chars)
+    sh:property [
+        sh:path mp:keyValue ;
+        sh:name "Key Value" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 64 ;
+        sh:maxLength 64 ;
+        sh:pattern "^[0-9a-fA-F]{64}$" ;
+        sh:message "Ed25519 public key must be exactly 64 hexadecimal characters (32 bytes)" ;
+        sh:severity sh:Violation
+    ] ;
+
+    # Algorithm must be Ed25519
+    sh:property [
+        sh:path mp:keyAlgorithm ;
+        sh:name "Key Algorithm" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( "Ed25519" ) ;
+        sh:message "Only Ed25519 public keys are supported" ;
+        sh:severity sh:Violation
+    ] ;
+
+    # Must have owner
+    sh:property [
+        sh:path mp:keyOwner ;
+        sh:name "Key Owner" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:Author ;
+        sh:message "Public key must have an owner" ;
+        sh:severity sh:Violation
+    ] .
+
+# ----------------------------------------------------------------------------
+# AUTHOR VALIDATION
+# ----------------------------------------------------------------------------
+
+:AuthorShape a sh:NodeShape ;
+    sh:targetClass mp:Author ;
+    sh:name "Author Validation" ;
+    sh:severity sh:Violation ;
+
+    # Name constraints
+    sh:property [
+        sh:path foaf:name ;
+        sh:name "Name" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 200 ;
+        sh:message "Author name must be 1-200 characters" ;
+        sh:severity sh:Violation
+    ] ;
+
+    # Email validation (if provided)
+    sh:property [
+        sh:path foaf:mbox ;
+        sh:name "Email" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:message "Email must be valid email address" ;
+        sh:severity sh:Warning
+    ] .
+
+# ----------------------------------------------------------------------------
+# LICENSE VALIDATION
+# ----------------------------------------------------------------------------
+
+:LicenseShape a sh:NodeShape ;
+    sh:targetClass mp:License ;
+    sh:name "License Validation" ;
+    sh:severity sh:Violation ;
+
+    # License ID must be from approved list
+    sh:property [
+        sh:path mp:licenseId ;
+        sh:name "License ID" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in (
+            "MIT"
+            "Apache-2.0"
+            "GPL-3.0"
+            "BSD-3-Clause"
+            "ISC"
+            "MPL-2.0"
+            "LGPL-3.0"
+            "AGPL-3.0"
+            "BSD-2-Clause"
+            "Unlicense"
+            "CC0-1.0"
+        ) ;
+        sh:message "License must be from approved SPDX list" ;
+        sh:severity sh:Violation
+    ] .
+
+# ----------------------------------------------------------------------------
+# DEPENDENCY VALIDATION
+# ----------------------------------------------------------------------------
+
+:DependencyShape a sh:NodeShape ;
+    sh:targetClass mp:Dependency ;
+    sh:name "Dependency Validation" ;
+    sh:severity sh:Violation ;
+
+    # Must reference a package
+    sh:property [
+        sh:path mp:dependsOnPackage ;
+        sh:name "Depends On Package" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class mp:Package ;
+        sh:message "Dependency must reference exactly one package" ;
+        sh:severity sh:Violation
+    ] ;
+
+    # Version constraint required
+    sh:property [
+        sh:path mp:versionConstraint ;
+        sh:name "Version Constraint" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^(\\^|~|>=|<=|>|<|=)?[0-9]+\\.[0-9]+\\.[0-9]+$" ;
+        sh:message "Version constraint must be valid (e.g., ^1.0.0, ~1.2.3, >=2.0.0)" ;
+        sh:severity sh:Violation
+    ] ;
+
+    # Dependency type required
+    sh:property [
+        sh:path mp:dependencyType ;
+        sh:name "Dependency Type" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( mp:RuntimeDependency mp:DevDependency mp:OptionalDependency ) ;
+        sh:message "Dependency type must be Runtime, Dev, or Optional" ;
+        sh:severity sh:Violation
+    ] ;
+
+    # No circular dependencies
+    sh:sparql [
+        sh:message "Circular dependencies are not allowed" ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this mp:dependsOnPackage ?pkg1 .
+                ?pkg1 mp:hasDependency/mp:dependsOnPackage+ $this .
+            }
+        """ ;
+        sh:severity sh:Violation
+    ] .
+
+# ----------------------------------------------------------------------------
+# STATE MACHINE VALIDATION
+# ----------------------------------------------------------------------------
+
+:StateTransitionShape a sh:NodeShape ;
+    sh:targetClass mp:Package ;
+    sh:name "State Transition Validation" ;
+    sh:severity sh:Violation ;
+
+    # State transitions must be valid
+    sh:sparql [
+        sh:message "Invalid state transition attempted" ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this mp:state ?currentState ;
+                    mp:attemptedTransition ?newState .
+                FILTER NOT EXISTS {
+                    ?currentState mp:canTransitionTo ?newState
+                }
+            }
+        """ ;
+        sh:severity sh:Violation
+    ] ;
+
+    # Published state requires verification
+    sh:sparql [
+        sh:message "Published packages must be verified before becoming Active" ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this mp:state mp:Published ;
+                    mp:attemptedTransition mp:Active .
+                FILTER NOT EXISTS {
+                    $this mp:signature ?sig .
+                    ?sig mp:signatureVerified true
+                }
+            }
+        """ ;
+        sh:severity sh:Violation
+    ] ;
+
+    # Deprecated state requires replacement
+    sh:sparql [
+        sh:message "Deprecated packages must specify replacement" ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this mp:state mp:Deprecated .
+                FILTER NOT EXISTS { $this mp:replacementPackage ?replacement }
+            }
+        """ ;
+        sh:severity sh:Warning
+    ] ;
+
+    # Withdrawn state requires reason
+    sh:sparql [
+        sh:message "Withdrawn packages must document reason" ;
+        sh:prefixes [ sh:declare [ sh:prefix "mp" ; sh:namespace "https://ggen.io/marketplace/" ] ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this mp:state mp:Withdrawn .
+                FILTER NOT EXISTS { $this mp:withdrawalReason ?reason }
+            }
+        """ ;
+        sh:severity sh:Violation
+    ] .
+
+# ----------------------------------------------------------------------------
+# QUALITY SCORE VALIDATION
+# ----------------------------------------------------------------------------
+
+:QualityScoreShape a sh:NodeShape ;
+    sh:targetClass mp:QualityScore ;
+    sh:name "Quality Score Validation" ;
+    sh:severity sh:Violation ;
+
+    # Overall score constraints
+    sh:property [
+        sh:path mp:overallScore ;
+        sh:name "Overall Score" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Overall score must be 0-100" ;
+        sh:severity sh:Violation
+    ] ;
+
+    # All component scores must be 0-100
+    sh:property [
+        sh:path mp:testCoverageScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0
+    ] ;
+    sh:property [
+        sh:path mp:documentationScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0
+    ] ;
+    sh:property [
+        sh:path mp:codeQualityScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0
+    ] ;
+    sh:property [
+        sh:path mp:securityScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0
+    ] ;
+    sh:property [
+        sh:path mp:performanceScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0
+    ] .
+
+# ----------------------------------------------------------------------------
+# END OF VALIDATION RULES
+# ----------------------------------------------------------------------------

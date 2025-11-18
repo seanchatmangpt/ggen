@@ -21,6 +21,40 @@ pub mod namespaces {
 
     // Custom ggen namespace
     pub const GGEN: &str = "http://ggen.dev/ontology#";
+    pub const MARKETPLACE: &str = "http://ggen.dev/marketplace#";
+}
+
+// Re-export commonly used namespaces
+pub use namespaces::{GGEN as GGEN_NS, MARKETPLACE as MARKETPLACE_NS};
+
+/// Ontology helper type
+pub struct Ontology;
+
+impl Ontology {
+    /// Get the GGEN namespace
+    pub fn ggen_ns() -> &'static str {
+        namespaces::GGEN
+    }
+
+    /// Get the marketplace namespace
+    pub fn marketplace_ns() -> &'static str {
+        namespaces::MARKETPLACE
+    }
+}
+
+/// URI builder helper
+pub struct UriBuilder;
+
+impl UriBuilder {
+    /// Build a GGEN namespace URI
+    pub fn ggen(resource: &str) -> String {
+        format!("{}{}", namespaces::GGEN, resource)
+    }
+
+    /// Build a marketplace namespace URI
+    pub fn marketplace(resource: &str) -> String {
+        format!("{}{}", namespaces::MARKETPLACE, resource)
+    }
 }
 
 /// RDF Classes in the ggen ontology
@@ -322,7 +356,8 @@ pub fn generate_prefixes() -> String {
 pub fn generate_ontology_definition() -> String {
     let mut ttl = generate_prefixes();
 
-    ttl.push_str(r#"
+    ttl.push_str(
+        r#"
 # Ontology metadata
 ggen: a owl:Ontology ;
     dc:title "ggen Marketplace Ontology" ;
@@ -548,7 +583,8 @@ ggen:publicKey a owl:DatatypeProperty ;
     rdfs:range xsd:string ;
     rdfs:label "public key" .
 
-"#);
+"#,
+    );
 
     ttl
 }
@@ -560,19 +596,34 @@ mod tests {
     #[test]
     fn test_class_uris() {
         assert_eq!(Class::Package.uri(), "http://ggen.dev/ontology#Package");
-        assert_eq!(Class::PackageVersion.uri(), "http://ggen.dev/ontology#PackageVersion");
+        assert_eq!(
+            Class::PackageVersion.uri(),
+            "http://ggen.dev/ontology#PackageVersion"
+        );
     }
 
     #[test]
     fn test_property_uris() {
-        assert_eq!(Property::PackageName.uri(), "http://purl.org/dc/terms/title");
-        assert_eq!(Property::HasVersion.uri(), "http://ggen.dev/ontology#hasVersion");
+        assert_eq!(
+            Property::PackageName.uri(),
+            "http://purl.org/dc/terms/title"
+        );
+        assert_eq!(
+            Property::HasVersion.uri(),
+            "http://ggen.dev/ontology#hasVersion"
+        );
     }
 
     #[test]
     fn test_xsd_types() {
-        assert_eq!(XsdType::String.uri(), "http://www.w3.org/2001/XMLSchema#string");
-        assert_eq!(XsdType::DateTime.uri(), "http://www.w3.org/2001/XMLSchema#dateTime");
+        assert_eq!(
+            XsdType::String.uri(),
+            "http://www.w3.org/2001/XMLSchema#string"
+        );
+        assert_eq!(
+            XsdType::DateTime.uri(),
+            "http://www.w3.org/2001/XMLSchema#dateTime"
+        );
     }
 
     #[test]

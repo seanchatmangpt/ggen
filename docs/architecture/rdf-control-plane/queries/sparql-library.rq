@@ -1,0 +1,808 @@
+# ============================================================================
+# SPARQL QUERY LIBRARY - Complete RDF Control Plane Operations
+# ============================================================================
+# Version: 3.0.0
+# Description: All marketplace operations as SPARQL queries (NO JSON/REST)
+# Architecture: 100% Semantic - SPARQL only interface
+# ============================================================================
+
+PREFIX mp: <https://ggen.io/marketplace/>
+PREFIX ggen: <https://ggen.io/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+# ============================================================================
+# PACKAGE MANAGEMENT QUERIES
+# ============================================================================
+
+# Query: list_all_packages
+# Description: List all packages with basic metadata
+SELECT ?pkg ?id ?name ?version ?state ?author
+WHERE {
+    ?pkg a mp:Package ;
+        mp:packageId ?id ;
+        mp:packageName ?name ;
+        mp:version ?version ;
+        mp:state ?state ;
+        mp:author ?authorNode .
+    ?authorNode foaf:name ?author .
+}
+ORDER BY ?name ?version
+
+# ----------------------------------------------------------------------------
+
+# Query: get_package_by_id
+# Description: Get complete package information by ID
+# Parameters: $packageId
+CONSTRUCT {
+    ?pkg ?p ?o .
+    ?o ?p2 ?o2 .
+}
+WHERE {
+    ?pkg a mp:Package ;
+        mp:packageId $packageId ;
+        ?p ?o .
+    OPTIONAL {
+        ?o ?p2 ?o2 .
+    }
+}
+
+# ----------------------------------------------------------------------------
+
+# Query: get_package_metadata
+# Description: Get package metadata with all relationships
+# Parameters: $packageId
+SELECT ?pkg ?id ?name ?version ?description ?state ?license
+       ?checksum ?signature ?qualityScore ?maturity ?publishedAt
+WHERE {
+    ?pkg a mp:Package ;
+        mp:packageId $packageId ;
+        mp:packageName ?name ;
+        mp:version ?version ;
+        mp:state ?state .
+
+    OPTIONAL { ?pkg mp:description ?description }
+    OPTIONAL {
+        ?pkg mp:license ?licenseNode .
+        ?licenseNode mp:licenseId ?license .
+    }
+    OPTIONAL {
+        ?pkg mp:checksum ?csNode .
+        ?csNode mp:checksumValue ?checksum .
+    }
+    OPTIONAL {
+        ?pkg mp:signature ?sigNode .
+        ?sigNode mp:signatureValue ?signature .
+    }
+    OPTIONAL {
+        ?pkg mp:hasQualityScore ?qsNode .
+        ?qsNode mp:overallScore ?qualityScore .
+    }
+    OPTIONAL {
+        ?pkg mp:hasMaturityLevel ?maturity .
+    }
+    OPTIONAL { ?pkg mp:publishedAt ?publishedAt }
+}
+
+# ----------------------------------------------------------------------------
+
+# Query: search_packages_by_name
+# Description: Full-text search in package names
+# Parameters: $searchTerm
+SELECT ?pkg ?id ?name ?version ?description ?score
+WHERE {
+    ?pkg a mp:Package ;
+        mp:packageId ?id ;
+        mp:packageName ?name ;
+        mp:version ?version ;
+        mp:description ?description .
+
+    # Simple text matching (replace with full-text search in production)
+    FILTER (CONTAINS(LCASE(?name), LCASE($searchTerm)) ||
+            CONTAINS(LCASE(?description), LCASE($searchTerm)))
+
+    # Calculate relevance score
+    BIND(
+        IF(LCASE(?name) = LCASE($searchTerm), 2.0,
+        IF(CONTAINS(LCASE(?name), LCASE($searchTerm)), 1.5,
+        IF(CONTAINS(LCASE(?description), LCASE($searchTerm)), 1.0, 0.0)))
+        AS ?score
+    )
+}
+ORDER BY DESC(?score) ?name
+LIMIT 100
+
+# ----------------------------------------------------------------------------
+
+# Query: search_packages_advanced
+# Description: Advanced search with quality filters
+# Parameters: $query, $minQuality, $category, $maturityLevel
+SELECT ?pkg ?name ?version ?description ?qualityScore ?maturity ?downloads
+WHERE {
+    ?pkg a mp:Package ;
+        mp:packageName ?name ;
+        mp:version ?version ;
+        mp:description ?description ;
+        mp:state mp:Active .
+
+    # Quality filter
+    ?pkg mp:hasQualityScore ?qsNode .
+    ?qsNode mp:overallScore ?qualityScore .
+    FILTER (?qualityScore >= $minQuality)
+
+    # Maturity filter (optional)
+    OPTIONAL {
+        ?pkg mp:hasMaturityLevel ?maturity .
+        FILTER (?maturity = $maturityLevel)
+    }
+
+    # Category filter (optional)
+    OPTIONAL {
+        ?pkg mp:belongsToCategory ?categoryNode .
+        ?categoryNode mp:categoryName ?categoryName .
+        FILTER (?categoryName = $category)
+    }
+
+    # Text search
+    FILTER (CONTAINS(LCASE(?name), LCASE($query)) ||
+            CONTAINS(LCASE(?description), LCASE($query)))
+
+    # Download count
+    OPTIONAL { ?pkg mp:downloadCount ?downloads }
+}
+ORDER BY DESC(?qualityScore) DESC(?downloads)
+LIMIT 50
+
+# ============================================================================
+# PACKAGE INSTALLATION QUERIES
+# ============================================================================
+
+# Query: get_package_with_signature
+# Description: Retrieve package with signature for installation
+# Parameters: $packageId
+SELECT ?pkg ?checksum ?signature ?publicKey ?signatureVerified
+WHERE {
+    ?pkg a mp:Package ;
+        mp:packageId $packageId ;
+        mp:state mp:Active .
+
+    # Checksum
+    ?pkg mp:checksum ?csNode .
+    ?csNode mp:checksumValue ?checksum ;
+           mp:checksumValid ?checksumValid .
+
+    # Signature
+    ?pkg mp:signature ?sigNode .
+    ?sigNode mp:signatureValue ?signature ;
+            mp:signatureVerified ?signatureVerified ;
+            mp:signedBy ?keyNode .
+
+    # Public key
+    ?keyNode mp:keyValue ?publicKey .
+
+    # Ensure checksum is valid
+    FILTER (?checksumValid = true)
+}
+
+# ----------------------------------------------------------------------------
+
+# Query: get_package_dependencies
+# Description: Get all dependencies for a package (recursive)
+# Parameters: $packageId
+SELECT ?pkg ?depPkg ?depName ?depVersion ?versionConstraint ?depType
+WHERE {
+    ?pkg mp:packageId $packageId .
+
+    # Direct dependencies
+    ?pkg mp:hasDependency ?dep .
+    ?dep mp:dependsOnPackage ?depPkg ;
+        mp:versionConstraint ?versionConstraint ;
+        mp:dependencyType ?depType .
+
+    ?depPkg mp:packageName ?depName ;
+           mp:version ?depVersion .
+}
+
+# ----------------------------------------------------------------------------
+
+# Query: get_dependency_tree_recursive
+# Description: Recursive dependency tree (up to 5 levels)
+# Parameters: $packageId
+SELECT ?level ?pkg ?pkgName ?pkgVersion ?depPkg ?depName ?depVersion
+WHERE {
+    {
+        # Level 0 (root package)
+        ?pkg mp:packageId $packageId .
+        BIND(0 AS ?level)
+        BIND(?pkg AS ?depPkg)
+        ?pkg mp:packageName ?pkgName ;
+            mp:version ?pkgVersion .
+        ?depPkg mp:packageName ?depName ;
+               mp:version ?depVersion .
+    }
+    UNION
+    {
+        # Level 1 dependencies
+        ?pkg mp:packageId $packageId ;
+            mp:hasDependency/mp:dependsOnPackage ?depPkg .
+        BIND(1 AS ?level)
+        ?pkg mp:packageName ?pkgName ;
+            mp:version ?pkgVersion .
+        ?depPkg mp:packageName ?depName ;
+               mp:version ?depVersion .
+    }
+    UNION
+    {
+        # Level 2 dependencies
+        ?pkg mp:packageId $packageId ;
+            mp:hasDependency/mp:dependsOnPackage/
+            mp:hasDependency/mp:dependsOnPackage ?depPkg .
+        BIND(2 AS ?level)
+        ?pkg mp:packageName ?pkgName ;
+            mp:version ?pkgVersion .
+        ?depPkg mp:packageName ?depName ;
+               mp:version ?depVersion .
+    }
+    # Add more levels as needed...
+}
+ORDER BY ?level ?depName
+
+# ============================================================================
+# PACKAGE PUBLISHING OPERATIONS (UPDATES)
+# ============================================================================
+
+# Update: publish_new_package
+# Description: Transition package from Draft to Published
+# Parameters: $packageId, $signature, $publicKeyId, $timestamp
+INSERT {
+    ?pkg mp:state mp:Published ;
+        mp:publishedAt $timestamp ;
+        mp:signature ?sig .
+
+    ?sig a mp:Signature ;
+        mp:signatureValue $signature ;
+        mp:algorithm "Ed25519" ;
+        mp:signedBy ?publicKey ;
+        mp:signedAt $timestamp ;
+        mp:signatureVerified false .
+}
+WHERE {
+    ?pkg mp:packageId $packageId ;
+        mp:state mp:Draft .
+
+    ?publicKey a mp:PublicKey ;
+              mp:keyValue $publicKeyId .
+
+    BIND(IRI(CONCAT("https://ggen.io/signature/", STRUUID())) AS ?sig)
+}
+
+# ----------------------------------------------------------------------------
+
+# Update: verify_signature
+# Description: Mark signature as verified
+# Parameters: $packageId
+DELETE {
+    ?sig mp:signatureVerified false .
+}
+INSERT {
+    ?sig mp:signatureVerified true ;
+        mp:verifiedAt ?now .
+}
+WHERE {
+    ?pkg mp:packageId $packageId ;
+        mp:signature ?sig .
+    ?sig mp:signatureVerified false .
+    BIND(NOW() AS ?now)
+}
+
+# ----------------------------------------------------------------------------
+
+# Update: activate_package
+# Description: Transition package from Published to Active
+# Parameters: $packageId
+DELETE {
+    ?pkg mp:state mp:Published .
+}
+INSERT {
+    ?pkg mp:state mp:Active ;
+        mp:activatedAt ?now .
+}
+WHERE {
+    ?pkg mp:packageId $packageId ;
+        mp:state mp:Published ;
+        mp:signature ?sig .
+
+    # Verify signature is verified
+    ?sig mp:signatureVerified true .
+
+    # Verify checksum is valid
+    ?pkg mp:checksum ?cs .
+    ?cs mp:checksumValid true .
+
+    BIND(NOW() AS ?now)
+}
+
+# ----------------------------------------------------------------------------
+
+# Update: deprecate_package
+# Description: Transition package to deprecated state
+# Parameters: $packageId, $deprecationNotice, $replacementPackageId
+DELETE {
+    ?pkg mp:state mp:Active .
+}
+INSERT {
+    ?pkg mp:state mp:Deprecated ;
+        mp:deprecatedAt ?now ;
+        mp:deprecationNotice $deprecationNotice ;
+        mp:replacementPackage ?replacement .
+}
+WHERE {
+    ?pkg mp:packageId $packageId ;
+        mp:state mp:Active .
+
+    ?replacement mp:packageId $replacementPackageId .
+
+    BIND(NOW() AS ?now)
+}
+
+# ----------------------------------------------------------------------------
+
+# Update: withdraw_package
+# Description: Emergency withdrawal of package
+# Parameters: $packageId, $withdrawalReason
+DELETE {
+    ?pkg mp:state ?oldState .
+}
+INSERT {
+    ?pkg mp:state mp:Withdrawn ;
+        mp:withdrawnAt ?now ;
+        mp:withdrawalReason $withdrawalReason .
+}
+WHERE {
+    ?pkg mp:packageId $packageId ;
+        mp:state ?oldState .
+
+    BIND(NOW() AS ?now)
+}
+
+# ============================================================================
+# QUALITY & MATURITY QUERIES
+# ============================================================================
+
+# Query: get_quality_scores
+# Description: Get detailed quality breakdown
+# Parameters: $packageId
+SELECT ?pkg ?overall ?testCoverage ?documentation ?codeQuality ?security ?performance
+WHERE {
+    ?pkg mp:packageId $packageId ;
+        mp:hasQualityScore ?qs .
+
+    ?qs mp:overallScore ?overall .
+
+    OPTIONAL { ?qs mp:testCoverageScore ?testCoverage }
+    OPTIONAL { ?qs mp:documentationScore ?documentation }
+    OPTIONAL { ?qs mp:codeQualityScore ?codeQuality }
+    OPTIONAL { ?qs mp:securityScore ?security }
+    OPTIONAL { ?qs mp:performanceScore ?performance }
+}
+
+# ----------------------------------------------------------------------------
+
+# Update: update_quality_scores
+# Description: Update package quality scores
+# Parameters: $packageId, $overall, $testCov, $docs, $code, $security, $perf
+DELETE {
+    ?qs mp:overallScore ?oldOverall ;
+       mp:testCoverageScore ?oldTestCov ;
+       mp:documentationScore ?oldDocs ;
+       mp:codeQualityScore ?oldCode ;
+       mp:securityScore ?oldSecurity ;
+       mp:performanceScore ?oldPerf .
+}
+INSERT {
+    ?qs mp:overallScore $overall ;
+       mp:testCoverageScore $testCov ;
+       mp:documentationScore $docs ;
+       mp:codeQualityScore $code ;
+       mp:securityScore $security ;
+       mp:performanceScore $perf ;
+       mp:lastUpdated ?now .
+}
+WHERE {
+    ?pkg mp:packageId $packageId ;
+        mp:hasQualityScore ?qs .
+
+    OPTIONAL { ?qs mp:overallScore ?oldOverall }
+    OPTIONAL { ?qs mp:testCoverageScore ?oldTestCov }
+    OPTIONAL { ?qs mp:documentationScore ?oldDocs }
+    OPTIONAL { ?qs mp:codeQualityScore ?oldCode }
+    OPTIONAL { ?qs mp:securityScore ?oldSecurity }
+    OPTIONAL { ?qs mp:performanceScore ?oldPerf }
+
+    BIND(NOW() AS ?now)
+}
+
+# ----------------------------------------------------------------------------
+
+# Query: packages_by_quality_threshold
+# Description: Find packages above quality threshold
+# Parameters: $minScore
+SELECT ?pkg ?name ?version ?score ?maturity
+WHERE {
+    ?pkg a mp:Package ;
+        mp:packageName ?name ;
+        mp:version ?version ;
+        mp:state mp:Active ;
+        mp:hasQualityScore ?qs .
+
+    ?qs mp:overallScore ?score .
+    FILTER (?score >= $minScore)
+
+    OPTIONAL { ?pkg mp:hasMaturityLevel ?maturity }
+}
+ORDER BY DESC(?score)
+
+# ============================================================================
+# FAILURE MODE DETECTION QUERIES
+# ============================================================================
+
+# Query: detect_signature_failures
+# Description: Find packages with failed signature verification
+SELECT ?pkg ?pkgName ?version ?signature ?failureTime
+WHERE {
+    ?pkg a mp:Package ;
+        mp:packageName ?pkgName ;
+        mp:version ?version ;
+        mp:signature ?sig .
+
+    ?sig mp:signatureVerified false ;
+        mp:signatureValue ?signature .
+
+    OPTIONAL { ?sig mp:verifiedAt ?failureTime }
+}
+
+# ----------------------------------------------------------------------------
+
+# Query: detect_checksum_failures
+# Description: Find packages with invalid checksums
+SELECT ?pkg ?pkgName ?version ?checksum ?checksumValid
+WHERE {
+    ?pkg a mp:Package ;
+        mp:packageName ?pkgName ;
+        mp:version ?version ;
+        mp:checksum ?cs .
+
+    ?cs mp:checksumValue ?checksum ;
+       mp:checksumValid ?checksumValid .
+
+    FILTER (?checksumValid = false)
+}
+
+# ----------------------------------------------------------------------------
+
+# Query: detect_missing_dependencies
+# Description: Find packages with missing dependencies
+SELECT ?pkg ?pkgName ?missingDep ?versionConstraint
+WHERE {
+    ?pkg a mp:Package ;
+        mp:packageName ?pkgName ;
+        mp:hasDependency ?dep .
+
+    ?dep mp:dependsOnPackage ?missingDep ;
+        mp:versionConstraint ?versionConstraint .
+
+    # Dependency package doesn't exist
+    FILTER NOT EXISTS {
+        ?missingDep a mp:Package
+    }
+}
+
+# ----------------------------------------------------------------------------
+
+# Query: detect_circular_dependencies
+# Description: Find circular dependency chains
+SELECT ?pkg1 ?pkg1Name ?pkg2 ?pkg2Name
+WHERE {
+    ?pkg1 a mp:Package ;
+        mp:packageName ?pkg1Name ;
+        mp:hasDependency/mp:dependsOnPackage ?pkg2 .
+
+    ?pkg2 a mp:Package ;
+        mp:packageName ?pkg2Name ;
+        mp:hasDependency/mp:dependsOnPackage+ ?pkg1 .
+}
+
+# ----------------------------------------------------------------------------
+
+# Query: detect_invalid_state_transitions
+# Description: Find attempted invalid state transitions
+SELECT ?pkg ?pkgName ?currentState ?attemptedState
+WHERE {
+    ?pkg a mp:Package ;
+        mp:packageName ?pkgName ;
+        mp:state ?currentState ;
+        mp:attemptedTransition ?attemptedState .
+
+    # Invalid transition (not allowed)
+    FILTER NOT EXISTS {
+        ?currentState mp:canTransitionTo ?attemptedState
+    }
+}
+
+# ============================================================================
+# FMEA MITIGATION OPERATIONS
+# ============================================================================
+
+# Update: record_failure_mode
+# Description: Record detected failure mode
+# Parameters: $packageId, $failureType, $severity
+INSERT {
+    ?failure a mp:FailureMode ;
+        mp:failureType $failureType ;
+        mp:severity $severity ;
+        mp:detectedAt ?now ;
+        mp:affectedPackage ?pkg .
+}
+WHERE {
+    ?pkg mp:packageId $packageId .
+    BIND(NOW() AS ?now)
+    BIND(IRI(CONCAT("https://ggen.io/failure/", STRUUID())) AS ?failure)
+}
+
+# ----------------------------------------------------------------------------
+
+# Update: apply_mitigation
+# Description: Apply mitigation strategy to failure
+# Parameters: $failureId, $mitigationStrategy, $maxRetries
+INSERT {
+    ?failure mp:mitigation ?mit .
+
+    ?mit a mp:Mitigation ;
+        mp:mitigationStrategy $mitigationStrategy ;
+        mp:maxRetries $maxRetries ;
+        mp:applied true ;
+        mp:appliedAt ?now .
+}
+WHERE {
+    ?failure a mp:FailureMode .
+    FILTER (STR(?failure) = $failureId)
+    BIND(NOW() AS ?now)
+    BIND(IRI(CONCAT("https://ggen.io/mitigation/", STRUUID())) AS ?mit)
+}
+
+# ============================================================================
+# AUDIT TRAIL QUERIES
+# ============================================================================
+
+# Query: get_audit_events
+# Description: Retrieve audit trail for package
+# Parameters: $packageId, $startTime, $endTime
+SELECT ?event ?eventType ?timestamp ?actor ?changeSet
+WHERE {
+    ?event a mp:AuditEvent ;
+        mp:targetPackage ?pkg ;
+        mp:eventType ?eventType ;
+        mp:timestamp ?timestamp .
+
+    ?pkg mp:packageId $packageId .
+
+    OPTIONAL { ?event mp:actor ?actor }
+    OPTIONAL { ?event mp:changeSet ?changeSet }
+
+    FILTER (?timestamp >= $startTime && ?timestamp <= $endTime)
+}
+ORDER BY DESC(?timestamp)
+
+# ----------------------------------------------------------------------------
+
+# Update: create_audit_event
+# Description: Create new audit event
+# Parameters: $packageId, $eventType, $actorId, $changeSet
+INSERT {
+    ?event a mp:AuditEvent ;
+        mp:eventId ?eventId ;
+        mp:eventType $eventType ;
+        mp:timestamp ?now ;
+        mp:targetPackage ?pkg ;
+        mp:actor ?actor ;
+        mp:changeSet $changeSet .
+}
+WHERE {
+    ?pkg mp:packageId $packageId .
+    OPTIONAL { ?actor a mp:Author ; foaf:name $actorId }
+
+    BIND(NOW() AS ?now)
+    BIND(STRUUID() AS ?eventId)
+    BIND(IRI(CONCAT("https://ggen.io/audit/", ?eventId)) AS ?event)
+}
+
+# ============================================================================
+# STATISTICS & ANALYTICS QUERIES
+# ============================================================================
+
+# Query: package_statistics
+# Description: Get overall marketplace statistics
+SELECT
+    (COUNT(DISTINCT ?pkg) AS ?totalPackages)
+    (COUNT(DISTINCT ?active) AS ?activePackages)
+    (COUNT(DISTINCT ?deprecated) AS ?deprecatedPackages)
+    (AVG(?score) AS ?avgQuality)
+    (SUM(?downloads) AS ?totalDownloads)
+WHERE {
+    ?pkg a mp:Package .
+
+    OPTIONAL {
+        ?active a mp:Package ;
+               mp:state mp:Active .
+    }
+
+    OPTIONAL {
+        ?deprecated a mp:Package ;
+                   mp:state mp:Deprecated .
+    }
+
+    OPTIONAL {
+        ?pkg mp:hasQualityScore/mp:overallScore ?score .
+    }
+
+    OPTIONAL {
+        ?pkg mp:downloadCount ?downloads .
+    }
+}
+
+# ----------------------------------------------------------------------------
+
+# Query: top_packages_by_downloads
+# Description: Most downloaded packages
+# Parameters: $limit
+SELECT ?pkg ?name ?version ?downloads ?qualityScore
+WHERE {
+    ?pkg a mp:Package ;
+        mp:packageName ?name ;
+        mp:version ?version ;
+        mp:downloadCount ?downloads ;
+        mp:state mp:Active .
+
+    OPTIONAL {
+        ?pkg mp:hasQualityScore/mp:overallScore ?qualityScore .
+    }
+}
+ORDER BY DESC(?downloads)
+LIMIT $limit
+
+# ----------------------------------------------------------------------------
+
+# Query: trending_packages
+# Description: Packages with increasing download rates
+# Parameters: $days
+SELECT ?pkg ?name ?version ?recentDownloads ?growthRate
+WHERE {
+    ?pkg a mp:Package ;
+        mp:packageName ?name ;
+        mp:version ?version ;
+        mp:state mp:Active .
+
+    # Recent downloads (simplified - would need time-series data)
+    ?pkg mp:downloadCount ?totalDownloads .
+
+    # Calculate growth (placeholder - needs temporal data)
+    BIND(?totalDownloads / $days AS ?recentDownloads)
+    BIND(1.5 AS ?growthRate)  # Placeholder
+
+    FILTER (?growthRate > 1.2)
+}
+ORDER BY DESC(?growthRate)
+
+# ============================================================================
+# CATEGORY & TAG QUERIES
+# ============================================================================
+
+# Query: list_categories
+# Description: List all package categories with counts
+SELECT ?category ?categoryName ?parentCategory (COUNT(?pkg) AS ?packageCount)
+WHERE {
+    ?category a mp:Category ;
+             mp:categoryName ?categoryName .
+
+    OPTIONAL { ?category mp:parentCategory/mp:categoryName ?parentCategory }
+
+    OPTIONAL {
+        ?pkg mp:belongsToCategory ?category .
+    }
+}
+GROUP BY ?category ?categoryName ?parentCategory
+ORDER BY ?categoryName
+
+# ----------------------------------------------------------------------------
+
+# Query: packages_by_category
+# Description: Get all packages in a category
+# Parameters: $categoryName
+SELECT ?pkg ?name ?version ?description ?qualityScore
+WHERE {
+    ?pkg a mp:Package ;
+        mp:packageName ?name ;
+        mp:version ?version ;
+        mp:belongsToCategory ?cat ;
+        mp:state mp:Active .
+
+    ?cat mp:categoryName $categoryName .
+
+    OPTIONAL { ?pkg mp:description ?description }
+    OPTIONAL {
+        ?pkg mp:hasQualityScore/mp:overallScore ?qualityScore .
+    }
+}
+ORDER BY DESC(?qualityScore) ?name
+
+# ----------------------------------------------------------------------------
+
+# Query: packages_by_tags
+# Description: Find packages matching any of the given tags
+# Parameters: $tag1, $tag2, $tag3
+SELECT DISTINCT ?pkg ?name ?version ?tags
+WHERE {
+    ?pkg a mp:Package ;
+        mp:packageName ?name ;
+        mp:version ?version ;
+        mp:hasTag ?tag ;
+        mp:state mp:Active .
+
+    FILTER (?tag IN ($tag1, $tag2, $tag3))
+
+    # Aggregate all tags
+    {
+        SELECT ?pkg (GROUP_CONCAT(?tag; separator=", ") AS ?tags)
+        WHERE {
+            ?pkg mp:hasTag ?tag .
+        }
+        GROUP BY ?pkg
+    }
+}
+
+# ============================================================================
+# MAINTENANCE QUERIES
+# ============================================================================
+
+# Query: packages_needing_update
+# Description: Find packages that haven't been updated recently
+# Parameters: $daysOld
+SELECT ?pkg ?name ?version ?lastUpdate ?daysSinceUpdate
+WHERE {
+    ?pkg a mp:Package ;
+        mp:packageName ?name ;
+        mp:version ?version ;
+        mp:updatedAt ?lastUpdate ;
+        mp:state mp:Active .
+
+    BIND((NOW() - ?lastUpdate) AS ?age)
+    BIND(?age / "P1D"^^xsd:duration AS ?daysSinceUpdate)
+
+    FILTER (?daysSinceUpdate > $daysOld)
+}
+ORDER BY DESC(?daysSinceUpdate)
+
+# ----------------------------------------------------------------------------
+
+# Query: cleanup_old_drafts
+# Description: Find draft packages older than threshold
+# Parameters: $daysOld
+SELECT ?pkg ?name ?version ?createdAt
+WHERE {
+    ?pkg a mp:Package ;
+        mp:packageName ?name ;
+        mp:version ?version ;
+        mp:state mp:Draft ;
+        mp:createdAt ?createdAt .
+
+    BIND((NOW() - ?createdAt) AS ?age)
+    BIND(?age / "P1D"^^xsd:duration AS ?daysSinceCreation)
+
+    FILTER (?daysSinceCreation > $daysOld)
+}
+
+# ============================================================================
+# END OF SPARQL QUERY LIBRARY
+# ============================================================================

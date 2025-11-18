@@ -3,13 +3,13 @@
 //! This module provides loading and parsing of Turtle (.ttl) configuration files.
 //! All marketplace configuration is stored in RDF/Turtle format, not YAML/JSON.
 
-use std::fs;
-use std::path::Path;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::fs;
+use std::path::Path;
 
-use super::poka_yoke::{RdfGraph, Triple, ResourceId, Literal, PokaYokeError};
 use super::ontology::{generate_prefixes, namespaces};
+use super::poka_yoke::{Literal, PokaYokeError, RdfGraph, ResourceId, Triple};
 
 /// Marketplace configuration loaded from Turtle
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -48,8 +48,8 @@ impl TurtleConfigLoader {
     /// Load main marketplace configuration
     pub fn load_marketplace_config(&self) -> Result<MarketplaceConfig, ConfigError> {
         let config_path = format!("{}/marketplace.ttl", self.config_dir);
-        let turtle_content = fs::read_to_string(&config_path)
-            .map_err(|e| ConfigError::FileReadError {
+        let turtle_content =
+            fs::read_to_string(&config_path).map_err(|e| ConfigError::FileReadError {
                 path: config_path.clone(),
                 error: e.to_string(),
             })?;
@@ -60,8 +60,8 @@ impl TurtleConfigLoader {
     /// Load validation rules from Turtle
     pub fn load_validation_rules(&self) -> Result<Vec<String>, ConfigError> {
         let rules_path = format!("{}/validation-rules.ttl", self.config_dir);
-        let turtle_content = fs::read_to_string(&rules_path)
-            .map_err(|e| ConfigError::FileReadError {
+        let turtle_content =
+            fs::read_to_string(&rules_path).map_err(|e| ConfigError::FileReadError {
                 path: rules_path.clone(),
                 error: e.to_string(),
             })?;
@@ -72,8 +72,8 @@ impl TurtleConfigLoader {
     /// Load state machine definitions
     pub fn load_state_machines(&self) -> Result<Vec<StateMachine>, ConfigError> {
         let sm_path = format!("{}/state-machines.ttl", self.config_dir);
-        let turtle_content = fs::read_to_string(&sm_path)
-            .map_err(|e| ConfigError::FileReadError {
+        let turtle_content =
+            fs::read_to_string(&sm_path).map_err(|e| ConfigError::FileReadError {
                 path: sm_path.clone(),
                 error: e.to_string(),
             })?;
@@ -306,10 +306,7 @@ mod tests {
     #[test]
     fn test_extract_boolean_value() {
         let line = r#"ggen:validationEnabled "true"^^xsd:boolean ;"#;
-        assert_eq!(
-            TurtleConfigLoader::extract_boolean_value(line),
-            Some(true)
-        );
+        assert_eq!(TurtleConfigLoader::extract_boolean_value(line), Some(true));
     }
 
     #[test]

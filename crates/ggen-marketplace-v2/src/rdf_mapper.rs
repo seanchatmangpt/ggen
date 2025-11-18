@@ -519,40 +519,53 @@ impl RdfMapper {
             Namespaces::GGEN,
         );
 
-        let results = self
-            .store
-            .query(&query)
-            .map_err(|e| Error::SearchError(format!("Release info query failed: {}", e)))?;
+        // Extract all data from the iterator before await to ensure Send
+        // Use a block scope to ensure results is dropped before await
+        let (released_at, changelog, checksum, download_url) = {
+            let results = self
+                .store
+                .query(&query)
+                .map_err(|e| Error::SearchError(format!("Release info query failed: {}", e)))?;
 
-        if let oxigraph::sparql::QueryResults::Solutions(mut solutions) = results {
-            if let Some(Ok(solution)) = solutions.next() {
-                let released_at = Self::extract_optional_literal(&solution, "releasedAt")
-                    .and_then(|s| DateTime::parse_from_rfc3339(&s).ok())
-                    .map(|dt| dt.with_timezone(&Utc))
-                    .unwrap_or_else(Utc::now);
+            match results {
+                oxigraph::sparql::QueryResults::Solutions(mut solutions) => {
+                    if let Some(Ok(solution)) = solutions.next() {
+                        let released_at = Self::extract_optional_literal(&solution, "releasedAt")
+                            .and_then(|s| DateTime::parse_from_rfc3339(&s).ok())
+                            .map(|dt| dt.with_timezone(&Utc))
+                            .unwrap_or_else(Utc::now);
 
-                let changelog = Self::extract_literal(&solution, "changelog")?;
-                let checksum = Self::extract_literal(&solution, "checksum")?;
-                let download_url = Self::extract_literal(&solution, "downloadUrl")?;
+                        let changelog = Self::extract_literal(&solution, "changelog")?;
+                        let checksum = Self::extract_literal(&solution, "checksum")?;
+                        let download_url = Self::extract_literal(&solution, "downloadUrl")?;
 
-                // Query dependencies
-                let dependencies = self.query_dependencies(&version_uri).await?;
-
-                return Ok(ReleaseInfo {
-                    version: version.clone(),
-                    released_at,
-                    changelog,
-                    checksum,
-                    download_url,
-                    dependencies,
-                });
+                        // Iterator and results are dropped here when block exits
+                        Ok((released_at, changelog, checksum, download_url))
+                    } else {
+                        Err(Error::RegistryError(format!(
+                            "Release info not found for version {}",
+                            version
+                        )))
+                    }
+                }
+                _ => Err(Error::RegistryError(format!(
+                    "Release info not found for version {}",
+                    version
+                ))),
             }
-        }
+        }?;
 
-        Err(Error::RegistryError(format!(
-            "Release info not found for version {}",
-            version
-        )))
+        // Now we can await safely - results and iterator are dropped
+        let dependencies = self.query_dependencies(&version_uri).await?;
+
+        Ok(ReleaseInfo {
+            version: version.clone(),
+            released_at,
+            changelog,
+            checksum,
+            download_url,
+            dependencies,
+        })
     }
 
     /// Query authors for a package

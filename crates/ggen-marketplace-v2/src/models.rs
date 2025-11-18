@@ -12,6 +12,108 @@ use uuid::Uuid;
 
 use crate::error::{Error, Result};
 
+/// Typestate marker for draft packages
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Draft;
+
+/// Typestate marker for published packages
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Published;
+
+/// License identifier (SPDX format)
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
+pub struct LicenseId(String);
+
+impl LicenseId {
+    pub fn new(s: impl Into<String>) -> Self {
+        Self(s.into())
+    }
+
+    pub fn mit() -> Self {
+        Self("MIT".to_string())
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl AsRef<str> for LicenseId {
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
+}
+
+/// Author email address
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
+pub struct AuthorEmail(String);
+
+impl AuthorEmail {
+    pub fn new(s: impl Into<String>) -> Self {
+        Self(s.into())
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+/// Package keyword
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
+pub struct Keyword(String);
+
+impl Keyword {
+    pub fn new(s: impl Into<String>) -> Self {
+        Self(s.into())
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+/// Package category
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
+pub struct Category(String);
+
+impl Category {
+    pub fn new(s: impl Into<String>) -> Self {
+        Self(s.into())
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+/// Package checksum
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
+pub struct Checksum(String);
+
+impl Checksum {
+    pub fn new(s: impl Into<String>) -> Self {
+        Self(s.into())
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+/// Repository URL
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
+pub struct RepositoryUrl(String);
+
+impl RepositoryUrl {
+    pub fn new(s: impl Into<String>) -> Self {
+        Self(s.into())
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
 /// A validated package identifier
 ///
 /// Guarantees:

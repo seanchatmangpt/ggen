@@ -143,10 +143,6 @@ pub enum Error {
     #[error("Unknown state: {state}")]
     UnknownState { state: String },
 
-    /// Package not found (POKA YOKE version)
-    #[error("Package not found: {id}")]
-    PackageNotFound { id: crate::poka_yoke::PackageId },
-
     /// Configuration error (from Turtle config)
     #[error("Configuration error: {message}")]
     ConfigurationError { message: String },

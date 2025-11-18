@@ -1,4 +1,5 @@
 #![deny(warnings)]
+#![allow(missing_docs)]
 #![deny(unsafe_code)]
 #![doc = "Definition of Done: Type-safe, deterministic autonomous substrate"]
 

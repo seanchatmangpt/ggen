@@ -9,8 +9,8 @@
 //!
 //! All queries use the POKA YOKE type system for compile-time safety.
 
-use super::ontology::{Class, Property, namespaces};
-use super::poka_yoke::{SparqlQuery, typestate, ResourceId, Literal, PokaYokeError};
+use super::ontology::{namespaces, Class, Property};
+use super::poka_yoke::{typestate, Literal, PokaYokeError, ResourceId, SparqlQuery};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -74,7 +74,9 @@ pub struct MarketplaceQueries;
 
 impl MarketplaceQueries {
     /// Search for packages matching criteria
-    pub fn search_packages(params: &SearchParams) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
+    pub fn search_packages(
+        params: &SearchParams,
+    ) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
         let mut query = SparqlQuery::new()
             .prefix("ggen", namespaces::GGEN)
             .prefix("dc", namespaces::DC)
@@ -97,7 +99,9 @@ impl MarketplaceQueries {
 
         // Optional fields
         query = query.where_pattern("OPTIONAL { ?package dc:description ?description }");
-        query = query.where_pattern("OPTIONAL { ?package foaf:maker ?authorNode . ?authorNode foaf:name ?author }");
+        query = query.where_pattern(
+            "OPTIONAL { ?package foaf:maker ?authorNode . ?authorNode foaf:name ?author }",
+        );
         query = query.where_pattern("OPTIONAL { ?package ggen:rating ?rating }");
         query = query.where_pattern("OPTIONAL { ?package ggen:downloadCount ?downloads }");
         query = query.where_pattern("OPTIONAL { ?versionNode dc:created ?published }");
@@ -144,7 +148,9 @@ impl MarketplaceQueries {
     }
 
     /// Get package details by ID
-    pub fn get_package_details(package_id: &str) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
+    pub fn get_package_details(
+        package_id: &str,
+    ) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
         SparqlQuery::new()
             .prefix("ggen", namespaces::GGEN)
             .prefix("dc", namespaces::DC)
@@ -165,16 +171,26 @@ impl MarketplaceQueries {
             .where_pattern("OPTIONAL { ?package ggen:repository ?repository }")
             .where_pattern("OPTIONAL { ?package ggen:readme ?readme }")
             .where_pattern("OPTIONAL { ?package dc:license ?license }")
-            .where_pattern("OPTIONAL { ?package foaf:maker ?authorNode . ?authorNode foaf:name ?author }")
+            .where_pattern(
+                "OPTIONAL { ?package foaf:maker ?authorNode . ?authorNode foaf:name ?author }",
+            )
             .validate()
     }
 
     /// Get all versions of a package
-    pub fn get_package_versions(package_id: &str) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
+    pub fn get_package_versions(
+        package_id: &str,
+    ) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
         SparqlQuery::new()
             .prefix("ggen", namespaces::GGEN)
             .prefix("dc", namespaces::DC)
-            .select(&["?version", "?versionNumber", "?published", "?deprecated", "?yanked"])
+            .select(&[
+                "?version",
+                "?versionNumber",
+                "?published",
+                "?deprecated",
+                "?yanked",
+            ])
             .where_pattern(&format!("<{}> ggen:hasVersion ?version", package_id))
             .where_pattern("?version ggen:versionNumber ?versionNumber")
             .where_pattern("?version dc:created ?published")
@@ -185,7 +201,9 @@ impl MarketplaceQueries {
     }
 
     /// Get dependencies for a package version
-    pub fn get_dependencies(package_id: &str, version: &str) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
+    pub fn get_dependencies(
+        package_id: &str, version: &str,
+    ) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
         SparqlQuery::new()
             .prefix("ggen", namespaces::GGEN)
             .select(&[
@@ -207,7 +225,9 @@ impl MarketplaceQueries {
     }
 
     /// Check if package is installed
-    pub fn get_installation_status(package_id: &str) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
+    pub fn get_installation_status(
+        package_id: &str,
+    ) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
         SparqlQuery::new()
             .prefix("ggen", namespaces::GGEN)
             .prefix("prov", namespaces::PROV)
@@ -225,10 +245,7 @@ impl MarketplaceQueries {
 
     /// Record package installation
     pub fn insert_installation(
-        package_id: &str,
-        version: &str,
-        status: &str,
-        path: &str,
+        package_id: &str, version: &str, status: &str, path: &str,
     ) -> String {
         let install_id = format!("{}#install-{}", package_id, chrono::Utc::now().timestamp());
         format!(
@@ -259,7 +276,9 @@ INSERT DATA {{
     }
 
     /// Get validation results for a package version
-    pub fn get_validation_results(package_id: &str, version: &str) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
+    pub fn get_validation_results(
+        package_id: &str, version: &str,
+    ) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
         SparqlQuery::new()
             .prefix("ggen", namespaces::GGEN)
             .prefix("prov", namespaces::PROV)
@@ -278,12 +297,13 @@ INSERT DATA {{
 
     /// Insert validation result
     pub fn insert_validation_result(
-        package_id: &str,
-        version: &str,
-        status: &str,
-        violations: &[String],
+        package_id: &str, version: &str, status: &str, violations: &[String],
     ) -> String {
-        let result_id = format!("{}#validation-{}", package_id, chrono::Utc::now().timestamp());
+        let result_id = format!(
+            "{}#validation-{}",
+            package_id,
+            chrono::Utc::now().timestamp()
+        );
         let violations_ttl = if violations.is_empty() {
             String::new()
         } else {
@@ -340,7 +360,9 @@ INSERT DATA {{
     }
 
     /// Get most popular packages
-    pub fn get_popular_packages(limit: usize) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
+    pub fn get_popular_packages(
+        limit: usize,
+    ) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
         SparqlQuery::new()
             .prefix("ggen", namespaces::GGEN)
             .prefix("dc", namespaces::DC)
@@ -355,7 +377,9 @@ INSERT DATA {{
     }
 
     /// Get recently published packages
-    pub fn get_recent_packages(limit: usize) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
+    pub fn get_recent_packages(
+        limit: usize,
+    ) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
         SparqlQuery::new()
             .prefix("ggen", namespaces::GGEN)
             .prefix("dc", namespaces::DC)
@@ -371,7 +395,9 @@ INSERT DATA {{
     }
 
     /// Get packages by category
-    pub fn get_packages_by_category(category: &str) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
+    pub fn get_packages_by_category(
+        category: &str,
+    ) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
         SparqlQuery::new()
             .prefix("ggen", namespaces::GGEN)
             .prefix("dc", namespaces::DC)
@@ -385,7 +411,9 @@ INSERT DATA {{
     }
 
     /// Get packages by author
-    pub fn get_packages_by_author(author: &str) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
+    pub fn get_packages_by_author(
+        author: &str,
+    ) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
         SparqlQuery::new()
             .prefix("ggen", namespaces::GGEN)
             .prefix("dc", namespaces::DC)
@@ -400,11 +428,16 @@ INSERT DATA {{
     }
 
     /// Check for circular dependencies
-    pub fn detect_circular_dependencies(package_id: &str) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
+    pub fn detect_circular_dependencies(
+        package_id: &str,
+    ) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
         SparqlQuery::new()
             .prefix("ggen", namespaces::GGEN)
             .select(&["?dep1", "?dep2", "?dep3"])
-            .where_pattern(&format!("<{}> ggen:hasVersion/ggen:hasDependency/ggen:dependsOn ?dep1", package_id))
+            .where_pattern(&format!(
+                "<{}> ggen:hasVersion/ggen:hasDependency/ggen:dependsOn ?dep1",
+                package_id
+            ))
             .where_pattern("?dep1 ggen:hasVersion/ggen:hasDependency/ggen:dependsOn ?dep2")
             .where_pattern("?dep2 ggen:hasVersion/ggen:hasDependency/ggen:dependsOn ?dep3")
             .where_pattern(&format!("FILTER (?dep3 = <{}>)", package_id))
@@ -494,7 +527,9 @@ WHERE {{
     }
 
     /// Get dependency tree (recursive)
-    pub fn get_dependency_tree(package_id: &str, version: &str, max_depth: usize) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
+    pub fn get_dependency_tree(
+        package_id: &str, version: &str, max_depth: usize,
+    ) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
         // Use property paths for recursive dependencies
         let depth_path = (1..=max_depth)
             .map(|_| "ggen:hasVersion/ggen:hasDependency/ggen:dependsOn")
@@ -553,10 +588,7 @@ mod tests {
 
     #[test]
     fn test_get_dependencies() {
-        let query = MarketplaceQueries::get_dependencies(
-            "http://ggen.dev/packages/test",
-            "1.0.0",
-        );
+        let query = MarketplaceQueries::get_dependencies("http://ggen.dev/packages/test", "1.0.0");
         assert!(query.is_ok());
     }
 

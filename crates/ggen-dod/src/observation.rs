@@ -4,10 +4,9 @@
 //! where all decisions derive their truth. Observations are immutable, schema-validated,
 //! and carry cryptographic proofs of origin.
 
-use crate::error::{DoDError, DoDResult, ObservationValidationError};
+use crate::error::{DoDError, DoDResult};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 use std::collections::BTreeMap;
 use std::fmt;
 use uuid::Uuid;
@@ -90,7 +89,7 @@ pub enum AnomalyType {
 }
 
 /// Schema version for observations - ensures Σ is stable
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ObservationSchema {
     /// Version identifier (e.g., "1.0", "2.1")
     version: String,
@@ -120,9 +119,14 @@ impl ObservationSchema {
 
     /// Validate an observation against this schema
     pub fn validate(&self, observation: &Observation) -> DoDResult<()> {
+        // Ensure data is an object
+        let data_obj = observation.data.as_object().ok_or_else(|| {
+            DoDError::ObservationValidation("observation data must be a JSON object".to_string())
+        })?;
+
         // Check all required fields are present
         for required in &self.required_fields {
-            if !observation.data.contains_key(required) {
+            if !data_obj.contains_key(required) {
                 return Err(DoDError::ObservationValidation(format!(
                     "missing required field: {}",
                     required
@@ -132,7 +136,7 @@ impl ObservationSchema {
 
         // Check field types match
         for (field, expected_type) in &self.field_types {
-            if let Some(value) = observation.data.get(field) {
+            if let Some(value) = data_obj.get(field) {
                 if !expected_type.matches(value) {
                     return Err(DoDError::ObservationValidation(format!(
                         "field '{}' type mismatch: expected {}, got {}",
@@ -164,13 +168,21 @@ impl ObservationSchema {
 /// Field type constraint for schema validation
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum FieldType {
+    /// String field type
     String,
+    /// Numeric field type
     Number,
+    /// Integer field type
     Integer,
+    /// Boolean field type
     Boolean,
+    /// Object field type
     Object,
+    /// Array field type
     Array,
+    /// Enum field type with allowed values
     Enum(Vec<String>),
+    /// Optional field type wrapper
     Optional(Box<FieldType>),
 }
 

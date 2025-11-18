@@ -7,10 +7,10 @@
 //! - Metrics tracking
 //! - Logging and alerting
 
-use std::time::{Duration, Instant};
-use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
-use tracing::{error, warn, info};
+use std::collections::HashMap;
+use std::time::{Duration, Instant};
+use tracing::{error, info, warn};
 
 /// Failure mode categories
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -31,20 +31,16 @@ pub struct FailureMode {
     pub id: &'static str,
     pub category: FailureCategory,
     pub description: &'static str,
-    pub severity: u8, // 1-10
+    pub severity: u8,   // 1-10
     pub occurrence: u8, // 1-10
-    pub detection: u8, // 1-10 (10 = hard to detect)
-    pub rpn: u16, // Risk Priority Number = severity * occurrence * detection
+    pub detection: u8,  // 1-10 (10 = hard to detect)
+    pub rpn: u16,       // Risk Priority Number = severity * occurrence * detection
 }
 
 impl FailureMode {
     const fn new(
-        id: &'static str,
-        category: FailureCategory,
-        description: &'static str,
-        severity: u8,
-        occurrence: u8,
-        detection: u8,
+        id: &'static str, category: FailureCategory, description: &'static str, severity: u8,
+        occurrence: u8, detection: u8,
     ) -> Self {
         Self {
             id,
@@ -66,105 +62,135 @@ impl FmeaFailureModes {
         "FM-001",
         FailureCategory::DataIntegrity,
         "Malformed RDF triple inserted into graph",
-        9, 3, 2,
+        9,
+        3,
+        2,
     );
 
     pub const ORPHANED_RESOURCE: FailureMode = FailureMode::new(
         "FM-002",
         FailureCategory::DataIntegrity,
         "Resource created without required relationships",
-        7, 4, 3,
+        7,
+        4,
+        3,
     );
 
     pub const CIRCULAR_DEPENDENCY: FailureMode = FailureMode::new(
         "FM-003",
         FailureCategory::DependencyManagement,
         "Circular dependency in package graph",
-        10, 5, 4,
+        10,
+        5,
+        4,
     );
 
     pub const INVALID_SPARQL_SYNTAX: FailureMode = FailureMode::new(
         "FM-004",
         FailureCategory::QueryExecution,
         "SPARQL query with invalid syntax",
-        8, 2, 1,
+        8,
+        2,
+        1,
     );
 
     pub const SPARQL_INJECTION: FailureMode = FailureMode::new(
         "FM-005",
         FailureCategory::Security,
         "SQL-injection-like attack via SPARQL",
-        10, 3, 5,
+        10,
+        3,
+        5,
     );
 
     pub const MISSING_VALIDATION: FailureMode = FailureMode::new(
         "FM-006",
         FailureCategory::Validation,
         "Package published without validation",
-        8, 4, 3,
+        8,
+        4,
+        3,
     );
 
     pub const CONSTRAINT_VIOLATION: FailureMode = FailureMode::new(
         "FM-007",
         FailureCategory::Validation,
         "SHACL constraint violation not detected",
-        7, 5, 4,
+        7,
+        5,
+        4,
     );
 
     pub const INVALID_VERSION_TRANSITION: FailureMode = FailureMode::new(
         "FM-008",
         FailureCategory::StateTransition,
         "Invalid state transition in version lifecycle",
-        6, 4, 3,
+        6,
+        4,
+        3,
     );
 
     pub const CONCURRENT_MODIFICATION: FailureMode = FailureMode::new(
         "FM-009",
         FailureCategory::DataIntegrity,
         "Concurrent modification of graph without locking",
-        9, 6, 5,
+        9,
+        6,
+        5,
     );
 
     pub const QUERY_TIMEOUT: FailureMode = FailureMode::new(
         "FM-010",
         FailureCategory::Performance,
         "SPARQL query execution timeout",
-        5, 7, 2,
+        5,
+        7,
+        2,
     );
 
     pub const MEMORY_EXHAUSTION: FailureMode = FailureMode::new(
         "FM-011",
         FailureCategory::Performance,
         "RDF graph grows beyond available memory",
-        10, 4, 6,
+        10,
+        4,
+        6,
     );
 
     pub const CONFIG_PARSE_ERROR: FailureMode = FailureMode::new(
         "FM-012",
         FailureCategory::Configuration,
         "Turtle configuration file parse error",
-        9, 3, 2,
+        9,
+        3,
+        2,
     );
 
     pub const MISSING_PREFIX: FailureMode = FailureMode::new(
         "FM-013",
         FailureCategory::Configuration,
         "Required namespace prefix not defined",
-        6, 4, 2,
+        6,
+        4,
+        2,
     );
 
     pub const INVALID_DATATYPE: FailureMode = FailureMode::new(
         "FM-014",
         FailureCategory::DataIntegrity,
         "Literal value with incorrect XSD datatype",
-        7, 5, 3,
+        7,
+        5,
+        3,
     );
 
     pub const BROKEN_DEPENDENCY_LINK: FailureMode = FailureMode::new(
         "FM-015",
         FailureCategory::DependencyManagement,
         "Dependency points to non-existent package",
-        8, 6, 4,
+        8,
+        6,
+        4,
     );
 
     // Additional failure modes (16-47)
@@ -204,7 +230,7 @@ pub struct FmeaMitigationManager {
 }
 
 #[derive(Debug, Clone, Default)]
-struct FailureMetrics {
+pub struct FailureMetrics {
     occurrences: usize,
     last_occurrence: Option<Instant>,
     successful_recoveries: usize,
@@ -258,7 +284,10 @@ impl FmeaMitigationManager {
         } else {
             self.record_failure(FmeaFailureModes::ORPHANED_RESOURCE.id);
             MitigationResult::ManualInterventionRequired {
-                details: format!("Resource {} has some references but is incomplete", resource_id),
+                details: format!(
+                    "Resource {} has some references but is incomplete",
+                    resource_id
+                ),
             }
         }
     }
@@ -282,16 +311,24 @@ impl FmeaMitigationManager {
     }
 
     /// Detect and prevent SPARQL injection
-    pub fn mitigate_sparql_injection(&mut self, query: &str, suspicious_pattern: &str) -> MitigationResult {
+    pub fn mitigate_sparql_injection(
+        &mut self, query: &str, suspicious_pattern: &str,
+    ) -> MitigationResult {
         let start = Instant::now();
         self.record_occurrence(FmeaFailureModes::SPARQL_INJECTION.id);
 
-        error!("FM-005: Potential SPARQL injection detected: {}", suspicious_pattern);
+        error!(
+            "FM-005: Potential SPARQL injection detected: {}",
+            suspicious_pattern
+        );
 
         // Block the query
         self.record_success(FmeaFailureModes::SPARQL_INJECTION.id, start.elapsed());
         MitigationResult::Success {
-            action_taken: format!("Blocked query with suspicious pattern: {}", suspicious_pattern),
+            action_taken: format!(
+                "Blocked query with suspicious pattern: {}",
+                suspicious_pattern
+            ),
         }
     }
 
@@ -321,23 +358,36 @@ impl FmeaMitigationManager {
         let start = Instant::now();
         self.record_occurrence(FmeaFailureModes::CONCURRENT_MODIFICATION.id);
 
-        warn!("FM-009: Concurrent modification detected for: {}", resource_id);
+        warn!(
+            "FM-009: Concurrent modification detected for: {}",
+            resource_id
+        );
 
         // Retry with exponential backoff
-        let attempts = self.recovery_attempts.entry(FmeaFailureModes::CONCURRENT_MODIFICATION.id)
-            .or_insert(0);
-        *attempts += 1;
+        let attempt_count = {
+            let attempts = self
+                .recovery_attempts
+                .entry(FmeaFailureModes::CONCURRENT_MODIFICATION.id)
+                .or_insert(0);
+            *attempts += 1;
+            *attempts
+        };
 
-        if *attempts < 5 {
-            let backoff = Duration::from_millis(100 * 2_u64.pow(*attempts as u32));
+        if attempt_count < 5 {
+            let backoff = Duration::from_millis(100 * 2_u64.pow(attempt_count as u32));
             std::thread::sleep(backoff);
 
-            self.record_success(FmeaFailureModes::CONCURRENT_MODIFICATION.id, start.elapsed());
+            self.record_success(
+                FmeaFailureModes::CONCURRENT_MODIFICATION.id,
+                start.elapsed(),
+            );
             MitigationResult::Success {
-                action_taken: format!("Retried with backoff (attempt {})", attempts),
+                action_taken: format!("Retried with backoff (attempt {})", attempt_count),
             }
         } else {
-            *attempts = 0; // Reset counter
+            // Reset counter
+            self.recovery_attempts
+                .insert(FmeaFailureModes::CONCURRENT_MODIFICATION.id, 0);
             self.record_failure(FmeaFailureModes::CONCURRENT_MODIFICATION.id);
             MitigationResult::Failure {
                 reason: "Max retry attempts exceeded".to_string(),
@@ -362,7 +412,9 @@ impl FmeaMitigationManager {
     }
 
     /// Mitigate configuration parse error
-    pub fn mitigate_config_parse_error(&mut self, file_path: &str, error: &str) -> MitigationResult {
+    pub fn mitigate_config_parse_error(
+        &mut self, file_path: &str, error: &str,
+    ) -> MitigationResult {
         let start = Instant::now();
         self.record_occurrence(FmeaFailureModes::CONFIG_PARSE_ERROR.id);
 

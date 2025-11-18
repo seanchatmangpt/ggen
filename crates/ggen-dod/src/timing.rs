@@ -5,7 +5,7 @@
 
 use crate::error::DoDResult;
 use serde::{Deserialize, Serialize};
-use std::time::{Duration, Instant};
+// Removed unused imports: Duration, Instant
 
 /// Timing measurement for a kernel operation
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -150,7 +150,7 @@ impl TimingEnforcer {
 
     /// Check all measurements against constraints
     pub fn verify(&self) -> DoDResult<()> {
-        for (name, measurement) in &self.measurements {
+        for (_name, measurement) in &self.measurements {
             for (_constraint_name, constraint) in &self.constraints {
                 constraint.check(measurement)?;
             }

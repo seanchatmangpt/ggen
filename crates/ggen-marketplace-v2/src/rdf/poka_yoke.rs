@@ -12,9 +12,9 @@
 //! All safety guarantees are enforced at compile time through phantom types
 //! and builder patterns with typestate.
 
-use std::marker::PhantomData;
-use std::fmt;
 use serde::{Deserialize, Serialize};
+use std::fmt;
+use std::marker::PhantomData;
 
 use super::ontology::{Class, Property, XsdType};
 
@@ -190,7 +190,9 @@ impl TripleBuilder<typestate::HasSubject> {
         }
     }
 
-    pub fn predicate_from_property(self, property: Property) -> TripleBuilder<typestate::HasPredicate> {
+    pub fn predicate_from_property(
+        self, property: Property,
+    ) -> TripleBuilder<typestate::HasPredicate> {
         self.predicate(ResourceId(property.uri()))
     }
 }
@@ -549,7 +551,11 @@ impl fmt::Display for PokaYokeError {
                 write!(f, "Expected datatype {:?}, got {}", expected, got)
             }
             Self::ConstraintViolation { constraint, value } => {
-                write!(f, "Constraint '{}' violated by value '{}'", constraint, value)
+                write!(
+                    f,
+                    "Constraint '{}' violated by value '{}'",
+                    constraint, value
+                )
             }
             Self::OrphanedResource(id) => write!(f, "Orphaned resource: {}", id),
             Self::CircularDependency { resources } => {
@@ -603,9 +609,7 @@ mod tests {
 
     #[test]
     fn test_sparql_query_missing_select() {
-        let query = SparqlQuery::new()
-            .where_pattern("?s ?p ?o")
-            .validate();
+        let query = SparqlQuery::new().where_pattern("?s ?p ?o").validate();
 
         assert!(matches!(query, Err(PokaYokeError::MissingSelectVars)));
     }
@@ -633,7 +637,10 @@ mod tests {
 
     #[test]
     fn test_literal_types() {
-        assert_eq!(Literal::String("test".to_string()).xsd_type(), XsdType::String);
+        assert_eq!(
+            Literal::String("test".to_string()).xsd_type(),
+            XsdType::String
+        );
         assert_eq!(Literal::Integer(42).xsd_type(), XsdType::Integer);
         assert_eq!(Literal::Boolean(true).xsd_type(), XsdType::Boolean);
     }

@@ -195,7 +195,9 @@ ex:eve a ex:Person ; ex:name "Eve" ; ex:age 32 .
         graph.insert_turtle(small_graph_data).unwrap();
 
         b.iter(|| {
-            let result = graph.query(black_box("SELECT ?name WHERE { ?s <http://example.org/name> ?name }"));
+            let result = graph.query(black_box(
+                "SELECT ?name WHERE { ?s <http://example.org/name> ?name }",
+            ));
             assert!(result.is_ok());
         })
     });
@@ -208,7 +210,9 @@ ex:eve a ex:Person ; ex:name "Eve" ; ex:age 32 .
         let _ = graph.query("SELECT ?name WHERE { ?s <http://example.org/name> ?name }");
 
         b.iter(|| {
-            let result = graph.query(black_box("SELECT ?name WHERE { ?s <http://example.org/name> ?name }"));
+            let result = graph.query(black_box(
+                "SELECT ?name WHERE { ?s <http://example.org/name> ?name }",
+            ));
             assert!(result.is_ok());
         })
     });

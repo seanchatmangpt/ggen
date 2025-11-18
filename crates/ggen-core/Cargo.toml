@@ -108,6 +108,10 @@ harness = false
 name = "template_generation"
 harness = false
 
+[[bench]]
+name = "performance_benchmark"
+harness = false
+
 [[test]]
 name = "marketplace_tests_main"
 path = "tests/marketplace_tests_main.rs"
