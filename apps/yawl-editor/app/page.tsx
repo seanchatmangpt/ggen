@@ -12,10 +12,17 @@ import {
   ArrowRight,
   Sparkles,
   CheckCircle2,
+  Boxes,
 } from 'lucide-react'
 
 export default function Home() {
   const features = [
+    {
+      icon: Boxes,
+      title: 'Backstage IDP',
+      description: 'Internal Developer Platform with catalog, services, and deployments',
+      href: '/backstage',
+    },
     {
       icon: Workflow,
       title: 'Process Designer',
@@ -110,7 +117,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
             {features.map((feature) => {
               const Icon = feature.icon
               return (
@@ -195,6 +202,16 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             {[
+              {
+                icon: Boxes,
+                title: 'Developer Platform (Backstage IDP)',
+                items: [
+                  'Component catalog with discovery',
+                  'Service registry management',
+                  'CI/CD deployment pipelines',
+                  'Team organization & API management',
+                ],
+              },
               {
                 icon: CheckCircle2,
                 title: 'Visual Process Design',
