@@ -91,7 +91,6 @@ pub fn build_tera_minimal() -> Result<Tera> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ggen_utils::error::Error;
     use std::fs;
     use tempfile::TempDir;
 

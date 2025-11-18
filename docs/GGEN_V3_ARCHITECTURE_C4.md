@@ -563,7 +563,7 @@ How an ontology becomes code:
 │  │   ├── graph/mod.rs       [generated]                    │
 │  │   ├── lifecycle/mod.rs   [generated]                    │
 │  │   └── ...                                               │
-│  ├── ggen-cli/src/                                         │
+│  ├── ggen-crates/ggen-cli/src/                                         │
 │  │   ├── commands/mod.rs    [generated]                    │
 │  │   └── ...                                               │
 │  ├── ggen-marketplace/src/                                 │

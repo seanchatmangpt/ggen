@@ -159,14 +159,16 @@ impl TemplateConfig {
 mod tests {
     use super::*;
 
-    chicago_tdd_tools::test!(test_default_config, {
+    #[test]
+    fn test_default_config() {
         let config = TemplateConfig::default();
         assert_eq!(config.search_paths.len(), 2);
         assert!(config.generation.auto_format);
         assert!(config.marketplace.enabled);
-    });
+    }
 
-    chicago_tdd_tools::test!(test_add_search_path, {
+    #[test]
+    fn test_add_search_path() {
         let mut config = TemplateConfig::default();
         let new_path = PathBuf::from("/custom/templates");
 
@@ -177,9 +179,10 @@ mod tests {
         let len_before = config.search_paths.len();
         config.add_search_path(new_path);
         assert_eq!(config.search_paths.len(), len_before);
-    });
+    }
 
-    chicago_tdd_tools::test!(test_default_variables, {
+    #[test]
+    fn test_default_variables() {
         let mut config = TemplateConfig::default();
 
         config.set_default_variable("project_name".to_string(), "my-project".to_string());
@@ -191,5 +194,5 @@ mod tests {
         );
         assert_eq!(config.get_default_variable("version").unwrap(), "1.0.0");
         assert!(config.get_default_variable("nonexistent").is_none());
-    });
+    }
 }

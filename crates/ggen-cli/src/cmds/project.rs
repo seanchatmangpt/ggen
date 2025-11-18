@@ -113,7 +113,11 @@ fn new(
 ) -> Result<NewOutput> {
     use ggen_domain::project;
 
-    crate::runtime::block_on(async move {
+    // Helper function to bridge sync/async and handle errors
+    async fn new_impl(
+        name: String, project_type: String, framework: Option<String>, output: PathBuf,
+        skip_install: bool,
+    ) -> Result<NewOutput> {
         // Construct args for domain layer
         let args = project::new::NewInput {
             name: name.clone(),
@@ -135,8 +139,17 @@ fn new(
             files_created: 0, // CreationResult doesn't have files_created field
             next_steps: result.next_steps,
         })
-    })
-    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))
+    }
+
+    // Execute the async function and convert errors
+    crate::runtime::block_on(new_impl(
+        name,
+        project_type,
+        framework,
+        output,
+        skip_install,
+    ))
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))
 }
 
 /// Generate project plan from template with variable substitution
@@ -163,6 +176,8 @@ fn new(
 fn plan(
     template_ref: String, vars: Option<String>, output: Option<String>, format: Option<String>,
 ) -> Result<PlanOutput> {
+    use ggen_domain::project;
+
     // Validate and sanitize variables
     let vars: Vec<String> = vars
         .map(|v| {
@@ -184,9 +199,11 @@ fn plan(
         })
         .unwrap_or_default();
     let format = format.unwrap_or_else(|| "json".to_string());
-    use ggen_domain::project;
 
-    crate::runtime::block_on(async move {
+    // Helper function to bridge sync/async and handle errors
+    async fn plan_impl(
+        template_ref: String, vars: Vec<String>, output: Option<String>, format: String,
+    ) -> Result<PlanOutput> {
         let args = project::plan::PlanInput {
             template_ref: template_ref.clone(),
             vars: vars.clone(),
@@ -205,8 +222,11 @@ fn plan(
             variables_count: result.variables_count,
             operations_count: 0, // PlanResult doesn't have operations_count field
         })
-    })
-    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))
+    }
+
+    // Execute the async function and convert errors
+    crate::runtime::block_on(plan_impl(template_ref, vars, output, format))
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))
 }
 
 /// Generate code from template with RDF/SPARQL integration
@@ -232,6 +252,8 @@ fn plan(
 /// ```
 #[verb]
 fn gen(template_ref: String, vars: Option<String>, dry_run: bool) -> Result<GenOutput> {
+    use ggen_domain::project;
+
     // Validate and sanitize variables
     let vars: Vec<String> = vars
         .map(|v| {
@@ -252,9 +274,9 @@ fn gen(template_ref: String, vars: Option<String>, dry_run: bool) -> Result<GenO
                 .collect()
         })
         .unwrap_or_default();
-    use ggen_domain::project;
 
-    crate::runtime::block_on(async move {
+    // Helper function to bridge sync/async and handle errors
+    async fn gen_impl(template_ref: String, vars: Vec<String>, dry_run: bool) -> Result<GenOutput> {
         let input = project::gen::GenInput {
             template_ref: template_ref.clone(),
             vars: vars.clone(),
@@ -293,8 +315,11 @@ fn gen(template_ref: String, vars: Option<String>, dry_run: bool) -> Result<GenO
             operations,
             dry_run,
         })
-    })
-    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))
+    }
+
+    // Execute the async function and convert errors
+    crate::runtime::block_on(gen_impl(template_ref, vars, dry_run))
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))
 }
 
 /// Apply generation plan to create/modify files
@@ -319,7 +344,8 @@ fn gen(template_ref: String, vars: Option<String>, dry_run: bool) -> Result<GenO
 fn apply(plan_file: String, yes: bool, dry_run: bool) -> Result<ApplyOutput> {
     use ggen_domain::project;
 
-    crate::runtime::block_on(async move {
+    // Helper function to bridge sync/async and handle errors
+    async fn apply_impl(plan_file: String, yes: bool, dry_run: bool) -> Result<ApplyOutput> {
         let input = project::apply::ApplyInput {
             plan_file: plan_file.clone(),
             auto_confirm: yes,
@@ -338,8 +364,11 @@ fn apply(plan_file: String, yes: bool, dry_run: bool) -> Result<ApplyOutput> {
             files_deleted: 0,  // ApplicationResult doesn't have files_deleted
             dry_run,
         })
-    })
-    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))
+    }
+
+    // Execute the async function and convert errors
+    crate::runtime::block_on(apply_impl(plan_file, yes, dry_run))
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))
 }
 
 /// Initialize project with file-based routing conventions
@@ -379,7 +408,10 @@ fn init(path: PathBuf, name: Option<String>, preset: Option<String>) -> Result<I
         }
     }
 
-    crate::runtime::block_on(async move {
+    // Helper function to bridge sync/async and handle errors
+    async fn init_impl(
+        path: PathBuf, name: Option<String>, preset: Option<String>,
+    ) -> Result<InitOutput> {
         let project_name = name.as_deref().unwrap_or("my-project").to_string();
         let mut files_created = Vec::new();
         let mut directories_created = Vec::new();
@@ -552,8 +584,11 @@ fn init(path: PathBuf, name: Option<String>, preset: Option<String>) -> Result<I
             directories_created,
             next_steps,
         })
-    })
-    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))
+    }
+
+    // Execute the async function and convert errors
+    crate::runtime::block_on(init_impl(path, name, preset))
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))
 }
 
 /// Generate code using zero-config conventions
@@ -586,7 +621,10 @@ fn generate(
     use ggen_domain::template;
     use std::fs;
 
-    crate::runtime::block_on(async move {
+    // Helper function to bridge sync/async and handle errors
+    async fn generate_impl(
+        template: Option<String>, path: PathBuf, output: Option<String>, force: bool,
+    ) -> Result<GenerateOutput> {
         // Auto-discover templates
         let templates_dir = path.join("templates");
         let mut templates = Vec::new();
@@ -685,8 +723,11 @@ fn generate(
             bytes_written,
             output_paths,
         })
-    })
-    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))
+    }
+
+    // Execute the async function and convert errors
+    crate::runtime::block_on(generate_impl(template, path, output, force))
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))
 }
 
 /// Watch for changes and auto-regenerate

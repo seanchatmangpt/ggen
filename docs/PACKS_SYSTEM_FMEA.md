@@ -721,7 +721,7 @@ Remove packs commands from v3.2.0 and implement properly. The current state is m
 
 **Code Analysis**:
 ```rust
-// Location: ggen-cli/src/cmds/packs.rs:161-182
+// Location: ggen-crates/ggen-cli/src/cmds/packs.rs:161-182
 fn list(category: Option<String>) -> Result<ListOutput> {
     let filtered_packs: Vec<&Pack> = if let Some(cat) = category {
         PACKS.iter().filter(|p| p.category == cat).collect()
@@ -767,7 +767,7 @@ fn list(category: Option<String>) -> Result<ListOutput> {
 
 **Code Analysis**:
 ```rust
-// Location: ggen-cli/src/cmds/packs.rs:194-207
+// Location: ggen-crates/ggen-cli/src/cmds/packs.rs:194-207
 fn show(pack_id: String) -> Result<ShowOutput> {
     let pack = find_pack(&pack_id).ok_or_else(|| {
         clap_noun_verb::NounVerbError::execution_error(
@@ -814,7 +814,7 @@ fn show(pack_id: String) -> Result<ShowOutput> {
 
 **Code Analysis**:
 ```rust
-// Location: ggen-cli/src/cmds/packs.rs:221-249
+// Location: ggen-crates/ggen-cli/src/cmds/packs.rs:221-249
 fn install(pack_id: String, dry_run: bool) -> Result<InstallOutput> {
     let pack = find_pack(&pack_id).ok_or_else(|| ...)?;
 
@@ -922,7 +922,7 @@ async fn install(pack_id: String, dry_run: bool) -> Result<InstallOutput> {
 
 **Code Analysis**:
 ```rust
-// Location: ggen-cli/src/cmds/packs.rs:260-293
+// Location: ggen-crates/ggen-cli/src/cmds/packs.rs:260-293
 fn validate(pack_id: String) -> Result<ValidateOutput> {
     match find_pack(&pack_id) {
         Some(pack) => {

@@ -662,7 +662,7 @@ impl Clone for Graph {
 ///
 /// # Arguments
 ///
-/// * `prefixes` - Map of prefix names (e.g., "ex") to namespace URIs (e.g., "<http://example.org/>")
+/// * `prefixes` - Map of prefix names (e.g., "ex") to namespace URIs (e.g., `<http://example.org/>`)
 /// * `base` - Optional base IRI for relative IRI resolution
 ///
 /// # Returns
