@@ -31,9 +31,9 @@ use std::collections::HashMap;
 struct FailureMode {
     error_code: &'static str,
     description: &'static str,
-    severity: u8,      // 1-10
-    occurrence: u8,    // 1-10
-    detection: u8,     // 1-10
+    severity: u8,   // 1-10
+    occurrence: u8, // 1-10
+    detection: u8,  // 1-10
 }
 
 impl FailureMode {
@@ -54,7 +54,7 @@ impl FailureMode {
 }
 
 /// Risk level classification
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 enum RiskLevel {
     Low,
     Medium,
@@ -241,7 +241,10 @@ mod tests {
         println!("Error Code: {}", failure.error_code);
         println!("Description: {}", failure.description);
         println!("Severity: {} (compilation blocked)", failure.severity);
-        println!("Occurrence: {} (moderate with inference)", failure.occurrence);
+        println!(
+            "Occurrence: {} (moderate with inference)",
+            failure.occurrence
+        );
         println!("Detection: {} (needs careful review)", failure.detection);
         println!("RPN: {} (expected {})", rpn, expected_rpn);
         println!("Risk Level: {}", failure.risk_level().as_str());
@@ -276,8 +279,14 @@ mod tests {
         println!("Error Code: {}", failure.error_code);
         println!("Description: {}", failure.description);
         println!("Severity: {} (compilation fails)", failure.severity);
-        println!("Occurrence: {} (very common with traits)", failure.occurrence);
-        println!("Detection: {} (hard to detect root cause)", failure.detection);
+        println!(
+            "Occurrence: {} (very common with traits)",
+            failure.occurrence
+        );
+        println!(
+            "Detection: {} (hard to detect root cause)",
+            failure.detection
+        );
         println!("RPN: {} (expected {})", rpn, expected_rpn);
         println!("Risk Level: {}", failure.risk_level().as_str());
 
@@ -328,7 +337,12 @@ mod tests {
         let distribution = assessment.rpn_distribution();
 
         println!("\nRPN Distribution:");
-        for level in &[RiskLevel::Low, RiskLevel::Medium, RiskLevel::High, RiskLevel::Critical] {
+        for level in &[
+            RiskLevel::Low,
+            RiskLevel::Medium,
+            RiskLevel::High,
+            RiskLevel::Critical,
+        ] {
             let count = distribution.get(level).unwrap_or(&0);
             println!("  {}: {} failures", level.as_str(), count);
         }
@@ -445,7 +459,7 @@ mod tests {
             error_code: "E0277",
             description: "trait bound not satisfied",
             severity: 9,
-            occurrence: 2,  // Much less likely with proper bounds
+            occurrence: 2, // Much less likely with proper bounds
             detection: 10,
         };
 
@@ -522,28 +536,28 @@ mod tests {
                 error_code: "E0277",
                 description: "trait bound not satisfied",
                 severity: 9,
-                occurrence: 2,  // Fixed with proper bounds
+                occurrence: 2, // Fixed with proper bounds
                 detection: 10,
             },
             FailureMode {
                 error_code: "E0308",
                 description: "mismatched types",
                 severity: 8,
-                occurrence: 3,  // Fixed with type annotations
+                occurrence: 3, // Fixed with type annotations
                 detection: 9,
             },
             FailureMode {
                 error_code: "E0283",
                 description: "type annotations needed",
                 severity: 7,
-                occurrence: 2,  // Fixed with explicit types
+                occurrence: 2, // Fixed with explicit types
                 detection: 8,
             },
             FailureMode {
                 error_code: "E0599",
                 description: "method not found",
                 severity: 9,
-                occurrence: 2,  // Fixed with trait imports
+                occurrence: 2, // Fixed with trait imports
                 detection: 10,
             },
         ];
@@ -554,8 +568,8 @@ mod tests {
         println!("   Total RPN: {}", fixed.total_rpn);
         println!("   Average RPN: {:.1}", fixed.average_rpn());
 
-        let total_reduction = ((initial.total_rpn - fixed.total_rpn) as f64
-            / initial.total_rpn as f64) * 100.0;
+        let total_reduction =
+            ((initial.total_rpn - fixed.total_rpn) as f64 / initial.total_rpn as f64) * 100.0;
 
         println!("\n3. Overall Effectiveness:");
         println!("   Total RPN Reduction: {:.1}%", total_reduction);
@@ -565,7 +579,9 @@ mod tests {
         assert!(total_reduction > 60.0, "Expected >60% risk reduction");
 
         println!("\n✓ FMEA workflow completed successfully!");
-        println!("✓ Risk reduced from {} to {} ({:.1}% improvement)",
-                 initial.total_rpn, fixed.total_rpn, total_reduction);
+        println!(
+            "✓ Risk reduced from {} to {} ({:.1}% improvement)",
+            initial.total_rpn, fixed.total_rpn, total_reduction
+        );
     }
 }

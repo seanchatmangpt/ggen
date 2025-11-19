@@ -230,7 +230,8 @@ fn test_file_permission_denied_error_quality() {
 #[test]
 fn test_file_invalid_format_error_quality() {
     // Simulate invalid file format
-    let error = simulate_invalid_file_format("config.yaml", "Expected YAML but found invalid syntax");
+    let error =
+        simulate_invalid_file_format("config.yaml", "Expected YAML but found invalid syntax");
 
     ErrorQualityAssertion::new(error.clone())
         .has_context("invalid")
@@ -325,12 +326,7 @@ fn test_ontology_shacl_validation_error_quality() {
 #[test]
 fn test_ontology_constraint_violation_error_quality() {
     // Simulate constraint violation
-    let error = simulate_constraint_violation(
-        "age",
-        "xsd:integer",
-        "\"not a number\"",
-        "Person",
-    );
+    let error = simulate_constraint_violation("age", "xsd:integer", "\"not a number\"", "Person");
 
     ErrorQualityAssertion::new(error)
         .has_context("constraint")
@@ -388,7 +384,8 @@ fn test_sparql_query_timeout_error_quality() {
 #[test]
 fn test_sparql_no_results_warning_quality() {
     // Simulate empty result set (warning, not error)
-    let warning = simulate_sparql_empty_results("SELECT ?person WHERE { ?person rdf:type ex:NonExistent }");
+    let warning =
+        simulate_sparql_empty_results("SELECT ?person WHERE { ?person rdf:type ex:NonExistent }");
 
     // Warnings should still be informative
     assert!(
@@ -421,11 +418,7 @@ fn test_template_missing_variable_error_quality() {
 #[test]
 fn test_template_syntax_error_quality() {
     // Simulate template syntax error
-    let error = simulate_template_syntax_error(
-        "greeting.tmpl",
-        15,
-        "Unclosed tag: {% if user %}",
-    );
+    let error = simulate_template_syntax_error("greeting.tmpl", 15, "Unclosed tag: {% if user %}");
 
     ErrorQualityAssertion::new(error.clone())
         .has_context("syntax")
@@ -478,7 +471,11 @@ fn test_template_not_found_with_suggestions_error_quality() {
     // Simulate template not found with did-you-mean suggestions
     let error = simulate_template_not_found(
         "rust-servce.tmpl",
-        &["rust-service.tmpl", "rust-server.tmpl", "python-service.tmpl"],
+        &[
+            "rust-service.tmpl",
+            "rust-server.tmpl",
+            "python-service.tmpl",
+        ],
     );
 
     ErrorQualityAssertion::new(error)
@@ -493,11 +490,7 @@ fn test_template_not_found_with_suggestions_error_quality() {
 #[test]
 fn test_template_frontmatter_parse_error_quality() {
     // Simulate frontmatter parsing error
-    let error = simulate_frontmatter_parse_error(
-        "template.tmpl",
-        "Invalid YAML in frontmatter",
-        3,
-    );
+    let error = simulate_frontmatter_parse_error("template.tmpl", "Invalid YAML in frontmatter", 3);
 
     ErrorQualityAssertion::new(error.clone())
         .has_context("frontmatter")
@@ -734,10 +727,7 @@ fn simulate_shacl_validation_error(shape: &str, constraint: &str, details: &str)
 }
 
 fn simulate_constraint_violation(
-    property: &str,
-    expected_type: &str,
-    actual_value: &str,
-    class: &str,
+    property: &str, expected_type: &str, actual_value: &str, class: &str,
 ) -> String {
     format!(
         "Error: Constraint violation in {}\n\
@@ -841,10 +831,7 @@ fn simulate_template_invalid_filter(filter: &str, usage: &str) -> String {
 }
 
 fn simulate_template_type_mismatch(
-    var: &str,
-    expected: &str,
-    actual: &str,
-    details: &str,
+    var: &str, expected: &str, actual: &str, details: &str,
 ) -> String {
     format!(
         "Error: Type mismatch for variable '{}'\n\
@@ -882,8 +869,8 @@ fn simulate_frontmatter_parse_error(file: &str, details: &str, line: usize) -> S
 
 fn has_actionable_guidance(error: &str) -> bool {
     let actionable_keywords = [
-        "try", "use", "run", "check", "add", "remove", "fix", "see", "example", "tip",
-        "install", "chmod", "provide",
+        "try", "use", "run", "check", "add", "remove", "fix", "see", "example", "tip", "install",
+        "chmod", "provide",
     ];
 
     actionable_keywords

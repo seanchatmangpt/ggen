@@ -164,9 +164,16 @@ fn test_complex_union_queries() -> Result<()> {
     // Assert
     match results {
         ggen_core::graph::types::CachedResult::Solutions(rows) => {
-            assert!(rows.len() >= 3, "Should find at least 3 people in engineering or sales");
-            assert!(rows.iter().any(|r| r.get("name").map(|v| v.contains("Alice")).unwrap_or(false)));
-            assert!(rows.iter().any(|r| r.get("name").map(|v| v.contains("Bob")).unwrap_or(false)));
+            assert!(
+                rows.len() >= 3,
+                "Should find at least 3 people in engineering or sales"
+            );
+            assert!(rows
+                .iter()
+                .any(|r| r.get("name").map(|v| v.contains("Alice")).unwrap_or(false)));
+            assert!(rows
+                .iter()
+                .any(|r| r.get("name").map(|v| v.contains("Bob")).unwrap_or(false)));
         }
         _ => panic!("Expected solutions"),
     }
@@ -204,7 +211,10 @@ fn test_nested_union_queries() -> Result<()> {
     // Assert
     match results {
         ggen_core::graph::types::CachedResult::Solutions(rows) => {
-            assert!(!rows.is_empty(), "Should find people matching nested UNION criteria");
+            assert!(
+                !rows.is_empty(),
+                "Should find people matching nested UNION criteria"
+            );
         }
         _ => panic!("Expected solutions"),
     }
@@ -237,12 +247,15 @@ fn test_optional_queries() -> Result<()> {
     // Assert
     match results {
         ggen_core::graph::types::CachedResult::Solutions(rows) => {
-            assert!(rows.len() >= 5, "Should find all people including those without salary");
+            assert!(
+                rows.len() >= 5,
+                "Should find all people including those without salary"
+            );
 
             // Check that Eve exists but may not have salary
-            let eve_row = rows.iter().find(|r|
-                r.get("name").map(|v| v.contains("Eve")).unwrap_or(false)
-            );
+            let eve_row = rows
+                .iter()
+                .find(|r| r.get("name").map(|v| v.contains("Eve")).unwrap_or(false));
             assert!(eve_row.is_some(), "Should find Eve in results");
         }
         _ => panic!("Expected solutions"),
@@ -281,7 +294,10 @@ fn test_complex_optional_union_combination() -> Result<()> {
     // Assert
     match results {
         ggen_core::graph::types::CachedResult::Solutions(rows) => {
-            assert!(!rows.is_empty(), "Should find results from complex OPTIONAL/UNION");
+            assert!(
+                !rows.is_empty(),
+                "Should find results from complex OPTIONAL/UNION"
+            );
         }
         _ => panic!("Expected solutions"),
     }
@@ -322,7 +338,10 @@ fn test_nested_filter_with_logical_operators() -> Result<()> {
     // Assert
     match results {
         ggen_core::graph::types::CachedResult::Solutions(rows) => {
-            assert!(!rows.is_empty(), "Should find people matching complex filter criteria");
+            assert!(
+                !rows.is_empty(),
+                "Should find people matching complex filter criteria"
+            );
 
             // Verify filter logic
             for row in &rows {
@@ -367,7 +386,10 @@ fn test_filter_with_string_operations() -> Result<()> {
     // Assert
     match results {
         ggen_core::graph::types::CachedResult::Solutions(rows) => {
-            assert!(!rows.is_empty(), "Should find names matching string filters");
+            assert!(
+                !rows.is_empty(),
+                "Should find names matching string filters"
+            );
 
             for row in &rows {
                 if let Some(name) = row.get("name") {
@@ -407,7 +429,10 @@ fn test_filter_with_bound_and_exists() -> Result<()> {
     // Assert
     match results {
         ggen_core::graph::types::CachedResult::Solutions(rows) => {
-            assert!(!rows.is_empty(), "Should find people with salary and department");
+            assert!(
+                !rows.is_empty(),
+                "Should find people with salary and department"
+            );
 
             // All results should have salary bound
             for row in &rows {
@@ -580,7 +605,10 @@ fn test_property_path_transitive_closure() -> Result<()> {
     match results {
         ggen_core::graph::types::CachedResult::Solutions(rows) => {
             // Alice manages Bob, Bob manages Frank, so Alice should transitively manage Frank
-            assert!(!rows.is_empty(), "Should find transitive management relationships");
+            assert!(
+                !rows.is_empty(),
+                "Should find transitive management relationships"
+            );
         }
         _ => panic!("Expected solutions"),
     }
@@ -609,7 +637,10 @@ fn test_property_path_alternative() -> Result<()> {
     // Assert
     match results {
         ggen_core::graph::types::CachedResult::Solutions(rows) => {
-            assert!(!rows.is_empty(), "Should find management or supervision relationships");
+            assert!(
+                !rows.is_empty(),
+                "Should find management or supervision relationships"
+            );
         }
         _ => panic!("Expected solutions"),
     }
@@ -671,7 +702,10 @@ fn test_property_path_inverse() -> Result<()> {
     // Assert
     match results {
         ggen_core::graph::types::CachedResult::Solutions(rows) => {
-            assert!(!rows.is_empty(), "Should find inverse management relationships");
+            assert!(
+                !rows.is_empty(),
+                "Should find inverse management relationships"
+            );
         }
         _ => panic!("Expected solutions"),
     }
@@ -741,7 +775,10 @@ fn test_aggregation_sum() -> Result<()> {
     match results {
         ggen_core::graph::types::CachedResult::Solutions(rows) => {
             assert_eq!(rows.len(), 1, "Should have one aggregated row");
-            assert!(rows[0].contains_key("totalSalary"), "Should have totalSalary binding");
+            assert!(
+                rows[0].contains_key("totalSalary"),
+                "Should have totalSalary binding"
+            );
 
             if let Some(total_str) = rows[0].get("totalSalary") {
                 let total: i32 = total_str.parse().unwrap_or(0);
@@ -811,7 +848,9 @@ fn test_aggregation_min_max() -> Result<()> {
             assert!(rows[0].contains_key("minSalary"), "Should have minSalary");
             assert!(rows[0].contains_key("maxSalary"), "Should have maxSalary");
 
-            if let (Some(min_str), Some(max_str)) = (rows[0].get("minSalary"), rows[0].get("maxSalary")) {
+            if let (Some(min_str), Some(max_str)) =
+                (rows[0].get("minSalary"), rows[0].get("maxSalary"))
+            {
                 let min: i32 = min_str.parse().unwrap_or(0);
                 let max: i32 = max_str.parse().unwrap_or(0);
                 assert!(max >= min, "Max should be >= min");
@@ -935,10 +974,16 @@ fn test_bind_simple_expressions() -> Result<()> {
             for row in &rows {
                 assert!(row.contains_key("ageIn10Years"), "Should have computed age");
 
-                if let (Some(age_str), Some(future_age_str)) = (row.get("age"), row.get("ageIn10Years")) {
+                if let (Some(age_str), Some(future_age_str)) =
+                    (row.get("age"), row.get("ageIn10Years"))
+                {
                     let age: i32 = age_str.parse().unwrap_or(0);
                     let future_age: i32 = future_age_str.parse().unwrap_or(0);
-                    assert_eq!(future_age, age + 10, "Future age should be current age + 10");
+                    assert_eq!(
+                        future_age,
+                        age + 10,
+                        "Future age should be current age + 10"
+                    );
                 }
             }
         }
@@ -971,7 +1016,10 @@ fn test_bind_with_string_functions() -> Result<()> {
     // Assert
     match results {
         ggen_core::graph::types::CachedResult::Solutions(rows) => {
-            assert!(!rows.is_empty(), "Should have BIND results with string functions");
+            assert!(
+                !rows.is_empty(),
+                "Should have BIND results with string functions"
+            );
 
             for row in &rows {
                 assert!(row.contains_key("upperName"), "Should have uppercase name");
@@ -1011,10 +1059,16 @@ fn test_bind_with_conditional_expressions() -> Result<()> {
     // Assert
     match results {
         ggen_core::graph::types::CachedResult::Solutions(rows) => {
-            assert!(!rows.is_empty(), "Should have BIND results with conditionals");
+            assert!(
+                !rows.is_empty(),
+                "Should have BIND results with conditionals"
+            );
 
             for row in &rows {
-                assert!(row.contains_key("salaryCategory"), "Should have salary category");
+                assert!(
+                    row.contains_key("salaryCategory"),
+                    "Should have salary category"
+                );
             }
         }
         _ => panic!("Expected solutions"),
@@ -1050,7 +1104,10 @@ fn test_bind_with_multiple_bindings() -> Result<()> {
             assert!(!rows.is_empty(), "Should have results with multiple BINDs");
 
             for row in &rows {
-                assert!(row.contains_key("totalComp"), "Should have total compensation");
+                assert!(
+                    row.contains_key("totalComp"),
+                    "Should have total compensation"
+                );
                 assert!(row.contains_key("bonus"), "Should have bonus");
             }
         }
@@ -1130,7 +1187,10 @@ fn test_subquery_with_limit() -> Result<()> {
     // Assert
     match results {
         ggen_core::graph::types::CachedResult::Solutions(rows) => {
-            assert!(rows.len() <= 3, "Subquery LIMIT should restrict results to 3");
+            assert!(
+                rows.len() <= 3,
+                "Subquery LIMIT should restrict results to 3"
+            );
         }
         _ => panic!("Expected solutions"),
     }
@@ -1250,7 +1310,7 @@ fn test_concurrent_mixed_operations() -> Result<()> {
                 1 => {
                     // ASK query
                     graph_clone.query_cached(
-                        "PREFIX foaf: <http://xmlns.com/foaf/0.1/> ASK { ?p a foaf:Person }"
+                        "PREFIX foaf: <http://xmlns.com/foaf/0.1/> ASK { ?p a foaf:Person }",
                     )
                 }
                 _ => {
@@ -1366,7 +1426,10 @@ fn test_malformed_query_type_mismatch() -> Result<()> {
 
     // Assert: May error or return empty results depending on implementation
     // The important thing is it doesn't crash
-    assert!(result.is_ok() || result.is_err(), "Query should handle type mismatch gracefully");
+    assert!(
+        result.is_ok() || result.is_err(),
+        "Query should handle type mismatch gracefully"
+    );
 
     Ok(())
 }
@@ -1406,7 +1469,10 @@ fn test_order_by_with_limit() -> Result<()> {
             for row in &rows {
                 if let Some(salary_str) = row.get("salary") {
                     let salary: i32 = salary_str.parse().unwrap_or(0);
-                    assert!(salary <= prev_salary, "Results should be ordered by salary DESC");
+                    assert!(
+                        salary <= prev_salary,
+                        "Results should be ordered by salary DESC"
+                    );
                     prev_salary = salary;
                 }
             }
@@ -1456,10 +1522,17 @@ fn test_order_by_with_offset() -> Result<()> {
     match (all_results, offset_results) {
         (
             ggen_core::graph::types::CachedResult::Solutions(all_rows),
-            ggen_core::graph::types::CachedResult::Solutions(offset_rows)
+            ggen_core::graph::types::CachedResult::Solutions(offset_rows),
         ) => {
-            assert!(offset_rows.len() <= all_rows.len(), "Offset results should be <= total results");
-            assert_eq!(offset_rows.len(), all_rows.len().saturating_sub(2), "Should skip first 2 results");
+            assert!(
+                offset_rows.len() <= all_rows.len(),
+                "Offset results should be <= total results"
+            );
+            assert_eq!(
+                offset_rows.len(),
+                all_rows.len().saturating_sub(2),
+                "Should skip first 2 results"
+            );
         }
         _ => panic!("Expected solutions"),
     }
@@ -1478,7 +1551,8 @@ fn test_order_by_limit_offset_pagination() -> Result<()> {
     let mut all_paginated_results = Vec::new();
 
     for page in 0..3 {
-        let query = format!(r#"
+        let query = format!(
+            r#"
             PREFIX ex: <http://example.org/>
             PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 
@@ -1489,7 +1563,10 @@ fn test_order_by_limit_offset_pagination() -> Result<()> {
             ORDER BY ?age
             LIMIT {}
             OFFSET {}
-        "#, page_size, page * page_size);
+        "#,
+            page_size,
+            page * page_size
+        );
 
         let results = fixture.graph.query_cached(&query)?;
 
@@ -1502,7 +1579,10 @@ fn test_order_by_limit_offset_pagination() -> Result<()> {
     }
 
     // Assert: Pagination should work correctly
-    assert!(!all_paginated_results.is_empty(), "Should get paginated results");
+    assert!(
+        !all_paginated_results.is_empty(),
+        "Should get paginated results"
+    );
 
     // Verify ordering across pages
     let mut prev_age = 0;
@@ -1541,7 +1621,10 @@ fn test_order_by_multiple_columns() -> Result<()> {
     // Assert
     match results {
         ggen_core::graph::types::CachedResult::Solutions(rows) => {
-            assert!(!rows.is_empty(), "Should have results with multi-column ordering");
+            assert!(
+                !rows.is_empty(),
+                "Should have results with multi-column ordering"
+            );
 
             // Verify ordering is maintained
             for row in &rows {
@@ -1711,7 +1794,10 @@ fn test_describe_query() -> Result<()> {
                 assert!(quad_result.is_ok());
                 count += 1;
             }
-            assert!(count > 0, "DESCRIBE should return triples about the resource");
+            assert!(
+                count > 0,
+                "DESCRIBE should return triples about the resource"
+            );
         }
         _ => panic!("Expected graph results from DESCRIBE"),
     }
@@ -1780,7 +1866,10 @@ fn test_service_clause_not_supported() -> Result<()> {
 
     // Assert: Should either error or handle gracefully
     // The important thing is no crash
-    assert!(result.is_ok() || result.is_err(), "SERVICE queries should be handled gracefully");
+    assert!(
+        result.is_ok() || result.is_err(),
+        "SERVICE queries should be handled gracefully"
+    );
 
     Ok(())
 }

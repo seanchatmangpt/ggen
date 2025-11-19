@@ -424,15 +424,25 @@ mod tests {
 
         println!("Pattern Verification Results:");
         for (i, (name, purpose, verified)) in patterns.iter().enumerate() {
-            let status = if *verified { "✓ VERIFIED" } else { "✗ FAILED" };
+            let status = if *verified {
+                "✓ VERIFIED"
+            } else {
+                "✗ FAILED"
+            };
             println!("  {}. {}: {} - {}", i + 1, name, purpose, status);
         }
 
         let all_verified = patterns.iter().all(|(_, _, v)| *v);
 
         println!("\nTotal Patterns: {}", patterns.len());
-        println!("Verified: {}", patterns.iter().filter(|(_, _, v)| *v).count());
-        println!("Failed: {}", patterns.iter().filter(|(_, _, v)| !*v).count());
+        println!(
+            "Verified: {}",
+            patterns.iter().filter(|(_, _, v)| *v).count()
+        );
+        println!(
+            "Failed: {}",
+            patterns.iter().filter(|(_, _, v)| !*v).count()
+        );
 
         println!("\n✓ All Poka-Yoke patterns prevent mistakes at compile time!");
         println!("✓ Documentation tasks are fully achievable!");
