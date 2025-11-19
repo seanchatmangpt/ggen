@@ -10,6 +10,7 @@
 
 // Command modules - clap-noun-verb auto-discovery
 pub mod ai;
+pub mod gemba;
 pub mod graph;
 pub mod hook;
 pub mod marketplace;

@@ -119,6 +119,7 @@ pub mod config;
 pub mod delta;
 #[cfg(test)]
 pub mod e2e_tests;
+pub mod gemba; // Gemba Walk observability for code generation
 pub mod generator;
 pub mod github;
 pub mod gpack;
@@ -187,4 +188,29 @@ pub use template::Template;
 pub use templates::{
     generate_file_tree, FileTreeGenerator, FileTreeNode, FileTreeTemplate, GenerationResult,
     NodeType, TemplateContext, TemplateFormat, TemplateParser,
+};
+
+// Re-export Gemba Walk observability types
+pub use gemba::{
+    feedback::{
+        DeveloperContext, FeedbackEntry, FeedbackLoop, FeedbackStatus, FeedbackType, Impact,
+        PainPoint, Priority, Sentiment, Suggestion, VodInsight,
+    },
+    kaizen::{
+        ActDecision, ActPhase, CheckPhase, DoPhase, ImprovementTrend, KaizenEvent, KaizenMetrics,
+        KaizenStatus, KaizenTracker, PdcaCycle, PdcaPhase, PlanPhase, StandardWork, StateSnapshot,
+    },
+    observer::{GembaObserver, GembaObserverBuilder, ObserverConfig},
+    root_cause::{
+        A3Analysis, Cause, CauseCategory, Countermeasure, CountermeasureStatus, FishboneDiagram,
+        FiveWhys, Problem, ProblemStatus, RootCauseAnalyzer, RootCauseResults, Why,
+    },
+    value_stream::{
+        ValueStreamAnalysis, ValueStreamAnalyzer, ValueStreamComparison, ValueStreamMap,
+        ValueStreamMapper, ValueStreamStage,
+    },
+    waste::{DetectedWaste, WasteDetector, WasteMetrics, WasteReport},
+    Activity, AutomationLevel, Frequency, GenerationSite, GembaMetrics, GembaObservation,
+    GembaSession, ImprovementOpportunity, ImprovementStatus, ImprovementType, PipelinePhase,
+    SessionMetrics, ValueType, WasteType,
 };

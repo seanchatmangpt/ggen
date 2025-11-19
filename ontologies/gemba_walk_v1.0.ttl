@@ -1,0 +1,471 @@
+@prefix gemba: <http://ggen.dev/schema/gemba#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Ontology metadata
+gemba:GembaWalkOntology a owl:Ontology ;
+    rdfs:label "Gemba Walk Ontology for Code Generation v1.0"@en ;
+    rdfs:comment "Codifies lean manufacturing principles applied to code generation observability"@en ;
+    dcterms:created "2025-11-19"^^xsd:date ;
+    dcterms:creator "ggen Team" ;
+    dcterms:description """
+        This ontology defines concepts for Gemba Walk observability in code generation:
+        - Value Stream Mapping
+        - Waste Identification (TIMWOOD)
+        - Root Cause Analysis (5 Whys, Fishbone)
+        - Kaizen (Continuous Improvement)
+        - Developer Feedback Loops
+    """@en ;
+    owl:versionInfo "1.0.0" .
+
+# ============================================================================
+# CORE CONCEPTS
+# ============================================================================
+
+gemba:GembaObservation a owl:Class ;
+    rdfs:label "Gemba Observation"@en ;
+    rdfs:comment "A real-time observation at the actual place where code generation occurs"@en .
+
+gemba:GenerationSite a owl:Class ;
+    rdfs:label "Generation Site"@en ;
+    rdfs:comment "The actual location where code generation work happens (the 'Gemba')"@en .
+
+gemba:Activity a owl:Class ;
+    rdfs:label "Activity"@en ;
+    rdfs:comment "A discrete unit of work in the generation pipeline"@en .
+
+gemba:GembaSession a owl:Class ;
+    rdfs:label "Gemba Session"@en ;
+    rdfs:comment "A complete observation session tracking multiple generation activities"@en .
+
+# ============================================================================
+# VALUE STREAM MAPPING
+# ============================================================================
+
+gemba:ValueStreamMap a owl:Class ;
+    rdfs:label "Value Stream Map"@en ;
+    rdfs:comment "Visual representation of the flow of value through the generation pipeline"@en .
+
+gemba:ValueStreamStage a owl:Class ;
+    rdfs:label "Value Stream Stage"@en ;
+    rdfs:comment "A stage in the value stream with processing and queue time"@en .
+
+gemba:ValueType a owl:Class ;
+    rdfs:label "Value Type"@en ;
+    rdfs:comment "Classification of activity value contribution"@en .
+
+gemba:ValueAdding a gemba:ValueType ;
+    rdfs:label "Value Adding"@en ;
+    rdfs:comment "Activity that directly creates value for the end user"@en .
+
+gemba:NecessaryNonValueAdding a gemba:ValueType ;
+    rdfs:label "Necessary Non-Value Adding"@en ;
+    rdfs:comment "Activity necessary but does not directly add value (validation, safety)"@en .
+
+gemba:Waste a gemba:ValueType ;
+    rdfs:label "Waste"@en ;
+    rdfs:comment "Activity that adds no value and should be eliminated"@en .
+
+# ============================================================================
+# WASTE TYPES (TIMWOOD)
+# ============================================================================
+
+gemba:WasteType a owl:Class ;
+    rdfs:label "Waste Type"@en ;
+    rdfs:comment "Category of waste based on lean manufacturing TIMWOOD framework"@en .
+
+gemba:Transport a gemba:WasteType ;
+    rdfs:label "Transport Waste"@en ;
+    rdfs:comment "Moving data or information unnecessarily"@en ;
+    gemba:wasteImpact "Medium"@en ;
+    gemba:countermeasure "Cache intermediate results, use in-memory data structures"@en .
+
+gemba:Inventory a gemba:WasteType ;
+    rdfs:label "Inventory Waste"@en ;
+    rdfs:comment "Excess work in progress, buffered data not yet processed"@en ;
+    gemba:wasteImpact "Low"@en ;
+    gemba:countermeasure "Implement streaming, reduce batch sizes, use lazy evaluation"@en .
+
+gemba:Motion a gemba:WasteType ;
+    rdfs:label "Motion Waste"@en ;
+    rdfs:comment "Unnecessary process steps or movements"@en ;
+    gemba:wasteImpact "Medium"@en ;
+    gemba:countermeasure "Eliminate redundant steps, simplify workflow"@en .
+
+gemba:Waiting a gemba:WasteType ;
+    rdfs:label "Waiting Waste"@en ;
+    rdfs:comment "Idle time waiting for I/O, network, or dependencies"@en ;
+    gemba:wasteImpact "High"@en ;
+    gemba:countermeasure "Use async I/O, parallelize operations, implement caching"@en .
+
+gemba:Overproduction a gemba:WasteType ;
+    rdfs:label "Overproduction Waste"@en ;
+    rdfs:comment "Generating more code or artifacts than needed"@en ;
+    gemba:wasteImpact "Medium"@en ;
+    gemba:countermeasure "Generate on-demand, use lazy generation, follow YAGNI"@en .
+
+gemba:Overprocessing a gemba:WasteType ;
+    rdfs:label "Overprocessing Waste"@en ;
+    rdfs:comment "Unnecessary complexity or over-engineering"@en ;
+    gemba:wasteImpact "Medium"@en ;
+    gemba:countermeasure "Simplify design, remove abstractions, apply KISS principle"@en .
+
+gemba:Defects a gemba:WasteType ;
+    rdfs:label "Defects Waste"@en ;
+    rdfs:comment "Errors requiring rework or fixing"@en ;
+    gemba:wasteImpact "Critical"@en ;
+    gemba:countermeasure "Implement poka-yoke (error prevention), add testing, use type system"@en .
+
+# ============================================================================
+# ROOT CAUSE ANALYSIS
+# ============================================================================
+
+gemba:Problem a owl:Class ;
+    rdfs:label "Problem"@en ;
+    rdfs:comment "An issue requiring root cause analysis"@en .
+
+gemba:FiveWhys a owl:Class ;
+    rdfs:label "5 Whys Analysis"@en ;
+    rdfs:comment "Iterative questioning technique to find root cause"@en .
+
+gemba:FishboneDiagram a owl:Class ;
+    rdfs:label "Fishbone Diagram"@en ;
+    rdfs:comment "Ishikawa diagram for categorized cause analysis"@en .
+
+gemba:CauseCategory a owl:Class ;
+    rdfs:label "Cause Category"@en ;
+    rdfs:comment "6M categories for fishbone analysis"@en .
+
+gemba:Man a gemba:CauseCategory ;
+    rdfs:label "Man/People"@en ;
+    rdfs:comment "Human factors and skills"@en .
+
+gemba:Machine a gemba:CauseCategory ;
+    rdfs:label "Machine"@en ;
+    rdfs:comment "Technology, tools, and systems"@en .
+
+gemba:Method a gemba:CauseCategory ;
+    rdfs:label "Method"@en ;
+    rdfs:comment "Processes and procedures"@en .
+
+gemba:Material a gemba:CauseCategory ;
+    rdfs:label "Material"@en ;
+    rdfs:comment "Inputs, data, and dependencies"@en .
+
+gemba:Measurement a gemba:CauseCategory ;
+    rdfs:label "Measurement"@en ;
+    rdfs:comment "Metrics and monitoring"@en .
+
+gemba:MotherNature a gemba:CauseCategory ;
+    rdfs:label "Mother Nature"@en ;
+    rdfs:comment "Environment and external factors"@en .
+
+gemba:A3Analysis a owl:Class ;
+    rdfs:label "A3 Problem Solving"@en ;
+    rdfs:comment "Structured problem-solving on a single A3-sized paper"@en .
+
+gemba:Countermeasure a owl:Class ;
+    rdfs:label "Countermeasure"@en ;
+    rdfs:comment "Action to address root cause"@en .
+
+# ============================================================================
+# KAIZEN (Continuous Improvement)
+# ============================================================================
+
+gemba:KaizenEvent a owl:Class ;
+    rdfs:label "Kaizen Event"@en ;
+    rdfs:comment "Structured improvement event"@en .
+
+gemba:KaizenBlitz a gemba:KaizenEvent ;
+    rdfs:label "Kaizen Blitz"@en ;
+    rdfs:comment "Quick improvement event (hours to days)"@en .
+
+gemba:DailyKaizen a gemba:KaizenEvent ;
+    rdfs:label "Daily Kaizen"@en ;
+    rdfs:comment "Daily improvement suggestion"@en .
+
+gemba:Kaikaku a gemba:KaizenEvent ;
+    rdfs:label "Kaikaku"@en ;
+    rdfs:comment "Radical system-level improvement"@en .
+
+gemba:PdcaCycle a owl:Class ;
+    rdfs:label "PDCA Cycle"@en ;
+    rdfs:comment "Plan-Do-Check-Act continuous improvement cycle"@en .
+
+gemba:PlanPhase a owl:Class ;
+    rdfs:label "Plan Phase"@en ;
+    rdfs:comment "Planning phase of PDCA with hypothesis and countermeasures"@en .
+
+gemba:DoPhase a owl:Class ;
+    rdfs:label "Do Phase"@en ;
+    rdfs:comment "Implementation phase of PDCA"@en .
+
+gemba:CheckPhase a owl:Class ;
+    rdfs:label "Check Phase"@en ;
+    rdfs:comment "Verification phase comparing results to targets"@en .
+
+gemba:ActPhase a owl:Class ;
+    rdfs:label "Act Phase"@en ;
+    rdfs:comment "Standardization or adjustment phase"@en .
+
+gemba:StandardWork a owl:Class ;
+    rdfs:label "Standard Work"@en ;
+    rdfs:comment "Documented best practice resulting from successful improvement"@en .
+
+gemba:ImprovementOpportunity a owl:Class ;
+    rdfs:label "Improvement Opportunity"@en ;
+    rdfs:comment "Identified opportunity for process improvement"@en .
+
+# ============================================================================
+# DEVELOPER FEEDBACK
+# ============================================================================
+
+gemba:FeedbackEntry a owl:Class ;
+    rdfs:label "Feedback Entry"@en ;
+    rdfs:comment "Developer feedback from actual generation experience"@en .
+
+gemba:PainPoint a owl:Class ;
+    rdfs:label "Pain Point"@en ;
+    rdfs:comment "Friction or difficulty encountered by developer"@en .
+
+gemba:Suggestion a owl:Class ;
+    rdfs:label "Suggestion"@en ;
+    rdfs:comment "Developer suggestion for improvement"@en .
+
+gemba:VodInsight a owl:Class ;
+    rdfs:label "Voice of Developer Insight"@en ;
+    rdfs:comment "Insight derived from aggregated developer feedback"@en .
+
+gemba:DeveloperContext a owl:Class ;
+    rdfs:label "Developer Context"@en ;
+    rdfs:comment "Context and intent of developer during generation"@en .
+
+gemba:Sentiment a owl:Class ;
+    rdfs:label "Sentiment"@en ;
+    rdfs:comment "Emotional sentiment of feedback"@en .
+
+# ============================================================================
+# PROPERTIES
+# ============================================================================
+
+# Observation properties
+gemba:observedAt a owl:DatatypeProperty ;
+    rdfs:label "observed at"@en ;
+    rdfs:domain gemba:GembaObservation ;
+    rdfs:range xsd:dateTime .
+
+gemba:hasLocation a owl:ObjectProperty ;
+    rdfs:label "has location"@en ;
+    rdfs:domain gemba:GembaObservation ;
+    rdfs:range gemba:GenerationSite .
+
+gemba:hasActivity a owl:ObjectProperty ;
+    rdfs:label "has activity"@en ;
+    rdfs:domain gemba:GembaObservation ;
+    rdfs:range gemba:Activity .
+
+gemba:hasValueType a owl:ObjectProperty ;
+    rdfs:label "has value type"@en ;
+    rdfs:domain gemba:Activity ;
+    rdfs:range gemba:ValueType .
+
+gemba:hasWasteType a owl:ObjectProperty ;
+    rdfs:label "has waste type"@en ;
+    rdfs:domain gemba:GembaObservation ;
+    rdfs:range gemba:WasteType .
+
+gemba:duration a owl:DatatypeProperty ;
+    rdfs:label "duration"@en ;
+    rdfs:comment "Duration in milliseconds"@en ;
+    rdfs:domain gemba:GembaObservation ;
+    rdfs:range xsd:integer .
+
+# Value stream properties
+gemba:hasStage a owl:ObjectProperty ;
+    rdfs:label "has stage"@en ;
+    rdfs:domain gemba:ValueStreamMap ;
+    rdfs:range gemba:ValueStreamStage .
+
+gemba:processingTime a owl:DatatypeProperty ;
+    rdfs:label "processing time"@en ;
+    rdfs:comment "Processing time in milliseconds"@en ;
+    rdfs:range xsd:integer .
+
+gemba:queueTime a owl:DatatypeProperty ;
+    rdfs:label "queue time"@en ;
+    rdfs:comment "Queue/waiting time in milliseconds"@en ;
+    rdfs:range xsd:integer .
+
+gemba:flowEfficiency a owl:DatatypeProperty ;
+    rdfs:label "flow efficiency"@en ;
+    rdfs:comment "Ratio of processing time to total lead time (0.0-1.0)"@en ;
+    rdfs:range xsd:decimal .
+
+gemba:valueAddedRatio a owl:DatatypeProperty ;
+    rdfs:label "value added ratio"@en ;
+    rdfs:comment "Ratio of value-adding time to total time (0.0-1.0)"@en ;
+    rdfs:range xsd:decimal .
+
+gemba:isBottleneck a owl:DatatypeProperty ;
+    rdfs:label "is bottleneck"@en ;
+    rdfs:domain gemba:ValueStreamStage ;
+    rdfs:range xsd:boolean .
+
+# Problem and root cause properties
+gemba:hasProblem a owl:ObjectProperty ;
+    rdfs:label "has problem"@en ;
+    rdfs:range gemba:Problem .
+
+gemba:severity a owl:DatatypeProperty ;
+    rdfs:label "severity"@en ;
+    rdfs:comment "Severity score from 1 (low) to 10 (critical)"@en ;
+    rdfs:range xsd:integer .
+
+gemba:hasRootCause a owl:ObjectProperty ;
+    rdfs:label "has root cause"@en ;
+    rdfs:domain gemba:Problem ;
+    rdfs:range rdfs:Literal .
+
+gemba:hasCountermeasure a owl:ObjectProperty ;
+    rdfs:label "has countermeasure"@en ;
+    rdfs:domain gemba:Problem ;
+    rdfs:range gemba:Countermeasure .
+
+# Kaizen properties
+gemba:hasKaizenEvent a owl:ObjectProperty ;
+    rdfs:label "has kaizen event"@en ;
+    rdfs:range gemba:KaizenEvent .
+
+gemba:hasPdcaCycle a owl:ObjectProperty ;
+    rdfs:label "has PDCA cycle"@en ;
+    rdfs:range gemba:PdcaCycle .
+
+gemba:implementsStandardWork a owl:ObjectProperty ;
+    rdfs:label "implements standard work"@en ;
+    rdfs:range gemba:StandardWork .
+
+gemba:expectedImpact a owl:DatatypeProperty ;
+    rdfs:label "expected impact"@en ;
+    rdfs:comment "Expected impact score from 1 (low) to 10 (high)"@en ;
+    rdfs:range xsd:integer .
+
+gemba:effortRequired a owl:DatatypeProperty ;
+    rdfs:label "effort required"@en ;
+    rdfs:comment "Effort score from 1 (trivial) to 10 (very large)"@en ;
+    rdfs:range xsd:integer .
+
+gemba:priorityScore a owl:DatatypeProperty ;
+    rdfs:label "priority score"@en ;
+    rdfs:comment "Priority score (impact / effort)"@en ;
+    rdfs:range xsd:decimal .
+
+# Feedback properties
+gemba:hasFeedback a owl:ObjectProperty ;
+    rdfs:label "has feedback"@en ;
+    rdfs:range gemba:FeedbackEntry .
+
+gemba:hasPainPoint a owl:ObjectProperty ;
+    rdfs:label "has pain point"@en ;
+    rdfs:range gemba:PainPoint .
+
+gemba:hasSuggestion a owl:ObjectProperty ;
+    rdfs:label "has suggestion"@en ;
+    rdfs:range gemba:Suggestion .
+
+gemba:satisfactionScore a owl:DatatypeProperty ;
+    rdfs:label "satisfaction score"@en ;
+    rdfs:comment "Developer satisfaction from 1 (very dissatisfied) to 10 (very satisfied)"@en ;
+    rdfs:range xsd:integer .
+
+gemba:npsScore a owl:DatatypeProperty ;
+    rdfs:label "NPS score"@en ;
+    rdfs:comment "Net Promoter Score from -100 to 100"@en ;
+    rdfs:range xsd:integer .
+
+# Metrics properties
+gemba:wasteTimeMs a owl:DatatypeProperty ;
+    rdfs:label "waste time (ms)"@en ;
+    rdfs:range xsd:integer .
+
+gemba:valueAddingTimeMs a owl:DatatypeProperty ;
+    rdfs:label "value adding time (ms)"@en ;
+    rdfs:range xsd:integer .
+
+gemba:qualityScore a owl:DatatypeProperty ;
+    rdfs:label "quality score"@en ;
+    rdfs:comment "Quality score from 0.0 (many defects) to 1.0 (zero defects)"@en ;
+    rdfs:range xsd:decimal .
+
+# ============================================================================
+# METRICS AND MEASUREMENTS
+# ============================================================================
+
+gemba:GembaMetrics a owl:Class ;
+    rdfs:label "Gemba Metrics"@en ;
+    rdfs:comment "Quantitative measurements collected at observation point"@en .
+
+gemba:SessionMetrics a owl:Class ;
+    rdfs:label "Session Metrics"@en ;
+    rdfs:comment "Aggregated metrics for entire Gemba session"@en .
+
+gemba:sparqlCacheHitRate a owl:DatatypeProperty ;
+    rdfs:label "SPARQL cache hit rate"@en ;
+    rdfs:range xsd:decimal .
+
+gemba:filesGenerated a owl:DatatypeProperty ;
+    rdfs:label "files generated"@en ;
+    rdfs:range xsd:integer .
+
+gemba:linesOfCodeGenerated a owl:DatatypeProperty ;
+    rdfs:label "lines of code generated"@en ;
+    rdfs:range xsd:integer .
+
+gemba:errorCount a owl:DatatypeProperty ;
+    rdfs:label "error count"@en ;
+    rdfs:range xsd:integer .
+
+# ============================================================================
+# RESPECT FOR PEOPLE PRINCIPLES
+# ============================================================================
+
+gemba:RespectForPeople a owl:Class ;
+    rdfs:label "Respect for People"@en ;
+    rdfs:comment "Lean principle of respecting people's knowledge and experience"@en .
+
+gemba:developerIntent a owl:DatatypeProperty ;
+    rdfs:label "developer intent"@en ;
+    rdfs:comment "What the developer intended to accomplish"@en ;
+    rdfs:range xsd:string .
+
+gemba:expectedOutcome a owl:DatatypeProperty ;
+    rdfs:label "expected outcome"@en ;
+    rdfs:range xsd:string .
+
+gemba:actualOutcome a owl:DatatypeProperty ;
+    rdfs:label "actual outcome"@en ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# CONTINUOUS IMPROVEMENT CULTURE
+# ============================================================================
+
+gemba:ContinuousImprovement a owl:Class ;
+    rdfs:label "Continuous Improvement"@en ;
+    rdfs:comment "Culture of ongoing incremental improvements"@en .
+
+gemba:hasImprovementTrend a owl:ObjectProperty ;
+    rdfs:label "has improvement trend"@en ;
+    rdfs:comment "Trend showing improvement over time"@en .
+
+gemba:improvementRate a owl:DatatypeProperty ;
+    rdfs:label "improvement rate"@en ;
+    rdfs:comment "Percentage improvement"@en ;
+    rdfs:range xsd:decimal .
+
+gemba:wasteEliminated a owl:DatatypeProperty ;
+    rdfs:label "waste eliminated"@en ;
+    rdfs:comment "Total waste eliminated in milliseconds"@en ;
+    rdfs:range xsd:integer .
