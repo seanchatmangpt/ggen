@@ -1,24 +1,33 @@
 //! Specialized agents for the ultrathink swarm
 //!
 //! Each agent handles a specific aspect of the autonomous software generation pipeline.
+//!
+//! ## Swarm Intelligence Agents
+//!
+//! - **AcoSparqlAgent**: Uses Ant Colony Optimization for SPARQL query path finding
+//! - **PsoTemplateAgent**: Uses Particle Swarm Optimization for template parameter tuning
 
+pub mod aco_sparql_agent;
+pub mod code_generator;
 pub mod event_monitor;
 pub mod graph_extender;
-pub mod validator;
-pub mod template_generator;
-pub mod code_generator;
-pub mod quality_assurance;
 pub mod learning_agent;
 pub mod mock_agent;
+pub mod pso_template_agent;
+pub mod quality_assurance;
+pub mod template_generator;
+pub mod validator;
 
+pub use aco_sparql_agent::*;
+pub use code_generator::*;
 pub use event_monitor::*;
 pub use graph_extender::*;
-pub use validator::*;
-pub use template_generator::*;
-pub use code_generator::*;
-pub use quality_assurance::*;
 pub use learning_agent::*;
 pub use mock_agent::*;
+pub use pso_template_agent::*;
+pub use quality_assurance::*;
+pub use template_generator::*;
+pub use validator::*;
 
 use crate::error::{GgenAiError, Result};
 use crate::swarm::{AgentInput, AgentOutput, SwarmAgent, SwarmContext, AgentHealth, HealthStatus};
