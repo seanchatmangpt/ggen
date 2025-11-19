@@ -128,6 +128,18 @@ harness = false
 name = "hive_coordination"
 harness = false
 
+[[bench]]
+name = "pattern_performance"
+harness = false
+
+[[bench]]
+name = "memory_profiling"
+harness = false
+
+[[bench]]
+name = "regression_detection"
+harness = false
+
 [[test]]
 name = "marketplace_tests_main"
 path = "tests/marketplace_tests_main.rs"

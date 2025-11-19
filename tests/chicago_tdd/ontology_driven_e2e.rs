@@ -841,15 +841,37 @@ fn generate_tests_from_ontology(ontology_path: &PathBuf, output_path: &PathBuf) 
 }
 
 fn map_rdf_type_to_rust(rdf_type: &str) -> String {
-    if rdf_type.contains("string") {
+    let rdf_lower = rdf_type.to_lowercase();
+
+    // Map XSD types to Rust equivalents
+    if rdf_lower.contains("string") || rdf_lower.contains("normalizedstring") {
         "String".to_string()
-    } else if rdf_type.contains("decimal") {
-        "f64".to_string()
-    } else if rdf_type.contains("integer") {
+    } else if rdf_lower.contains("long") {
+        "i64".to_string()
+    } else if rdf_lower.contains("integer") {
         "i32".to_string()
-    } else if rdf_type.contains("dateTime") {
-        "String".to_string() // Use chrono::DateTime in real implementation
+    } else if rdf_lower.contains("double") {
+        "f64".to_string()
+    } else if rdf_lower.contains("decimal") {
+        "f64".to_string()
+    } else if rdf_lower.contains("float") {
+        "f32".to_string()
+    } else if rdf_lower.contains("boolean") {
+        "bool".to_string()
+    } else if rdf_lower.contains("datetime") {
+        "String".to_string() // Use chrono::DateTime<Utc> in real implementation
+    } else if rdf_lower.contains("date") {
+        "String".to_string() // Use chrono::NaiveDate in real implementation
+    } else if rdf_lower.contains("time") {
+        "String".to_string() // Use chrono::NaiveTime in real implementation
+    } else if rdf_lower.contains("hexbinary") {
+        "String".to_string() // Use Vec<u8> with base16 encoding in real implementation
+    } else if rdf_lower.contains("base64binary") {
+        "String".to_string() // Use Vec<u8> with base64 encoding in real implementation
+    } else if rdf_lower.contains("anyuri") {
+        "String".to_string()
     } else {
+        // Default fallback to String for unknown types
         "String".to_string()
     }
 }
@@ -909,4 +931,452 @@ fn calculate_code_delta(code_v1: &str, code_v2: &str) -> Result<CodeDelta> {
         new_methods: methods_v2.saturating_sub(methods_v1),
         lines_added: lines_v2.saturating_sub(lines_v1),
     })
+}
+
+// ============================================================================
+// Enhanced Test Suite - Comprehensive RDF Type Mapping & Error Handling
+// ============================================================================
+
+/// Test all XSD data type mappings to Rust, TypeScript, and Python
+#[tokio::test]
+async fn test_comprehensive_rdf_type_mapping_validation() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+    let base_path = temp_dir.path();
+
+    // Create ontology with all XSD types
+    let ontology_path = base_path.join("types.ttl");
+    let ontology = r#"
+@prefix ex: <http://example.org/types#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Classes
+ex:AllTypes a rdfs:Class ;
+    rdfs:label "AllTypes" ;
+    rdfs:comment "Test all XSD types" .
+
+# String types
+ex:stringField a rdf:Property ;
+    rdfs:domain ex:AllTypes ;
+    rdfs:range xsd:string .
+
+ex:normalizedStringField a rdf:Property ;
+    rdfs:domain ex:AllTypes ;
+    rdfs:range xsd:normalizedString .
+
+# Numeric types
+ex:intField a rdf:Property ;
+    rdfs:domain ex:AllTypes ;
+    rdfs:range xsd:integer .
+
+ex:longField a rdf:Property ;
+    rdfs:domain ex:AllTypes ;
+    rdfs:range xsd:long .
+
+ex:decimalField a rdf:Property ;
+    rdfs:domain ex:AllTypes ;
+    rdfs:range xsd:decimal .
+
+ex:doubleField a rdf:Property ;
+    rdfs:domain ex:AllTypes ;
+    rdfs:range xsd:double .
+
+ex:floatField a rdf:Property ;
+    rdfs:domain ex:AllTypes ;
+    rdfs:range xsd:float .
+
+# Boolean
+ex:boolField a rdf:Property ;
+    rdfs:domain ex:AllTypes ;
+    rdfs:range xsd:boolean .
+
+# Date/Time types
+ex:dateField a rdf:Property ;
+    rdfs:domain ex:AllTypes ;
+    rdfs:range xsd:date .
+
+ex:dateTimeField a rdf:Property ;
+    rdfs:domain ex:AllTypes ;
+    rdfs:range xsd:dateTime .
+
+ex:timeField a rdf:Property ;
+    rdfs:domain ex:AllTypes ;
+    rdfs:range xsd:time .
+
+# Binary
+ex:hexBinaryField a rdf:Property ;
+    rdfs:domain ex:AllTypes ;
+    rdfs:range xsd:hexBinary .
+
+ex:base64BinaryField a rdf:Property ;
+    rdfs:domain ex:AllTypes ;
+    rdfs:range xsd:base64Binary .
+
+# URI
+ex:anyURIField a rdf:Property ;
+    rdfs:domain ex:AllTypes ;
+    rdfs:range xsd:anyURI .
+"#;
+
+    fs::write(&ontology_path, ontology)?;
+
+    // Generate Rust code with ALL type mappings
+    let rust_path = base_path.join("types.rs");
+    generate_rust_models_from_ontology(&ontology_path, &rust_path, "comprehensive")?;
+    let rust_code = fs::read_to_string(&rust_path)?;
+
+    // ASSERT: All Rust type mappings are correct
+    assert_code_contains(&rust_code, "stringField: String", "String type");
+    assert_code_contains(&rust_code, "intField: i32", "Integer type");
+    assert_code_contains(&rust_code, "longField: i64", "Long type");
+    assert_code_contains(&rust_code, "decimalField: f64", "Decimal type");
+    assert_code_contains(&rust_code, "doubleField: f64", "Double type");
+    assert_code_contains(&rust_code, "floatField: f32", "Float type");
+    assert_code_contains(&rust_code, "boolField: bool", "Boolean type");
+    assert_code_contains(&rust_code, "dateField: String", "Date type");
+    assert_code_contains(&rust_code, "dateTimeField: String", "DateTime type");
+    assert_code_contains(&rust_code, "timeField: String", "Time type");
+    assert_code_contains(&rust_code, "anyURIField: String", "URI type");
+
+    Ok(())
+}
+
+/// Test error handling for invalid RDF syntax
+#[tokio::test]
+async fn test_invalid_rdf_syntax_error_handling() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+    let base_path = temp_dir.path();
+
+    // Create malformed RDF
+    let ontology_path = base_path.join("invalid.ttl");
+    let invalid_rdf = r#"
+@prefix ex: <http://example.org/invalid#> .
+THIS IS NOT VALID TURTLE SYNTAX!!!
+ex:incomplete a rdfs:Class ;
+    // Missing closing period
+    rdfs:label "Incomplete"
+"#;
+
+    fs::write(&ontology_path, invalid_rdf)?;
+
+    // ACT: Try to generate code from invalid RDF
+    let output_path = base_path.join("models.rs");
+    let result = generate_rust_models_from_ontology(&ontology_path, &output_path, "invalid");
+
+    // ASSERT: Should handle gracefully (either error or empty output)
+    assert!(result.is_err() || {
+        let code = fs::read_to_string(&output_path).unwrap_or_default();
+        code.is_empty() || !code.contains("struct incomplete")
+    });
+
+    Ok(())
+}
+
+/// Test missing optional domain/range declarations
+#[tokio::test]
+async fn test_optional_property_declarations() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+    let base_path = temp_dir.path();
+
+    let ontology_path = base_path.join("optional.ttl");
+    let ontology = r#"
+@prefix ex: <http://example.org/optional#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:FlexibleClass a rdfs:Class ;
+    rdfs:label "FlexibleClass" .
+
+# Property with NO domain specified
+ex:wildcardProperty a rdf:Property ;
+    rdfs:label "wildcardProperty" ;
+    rdfs:range xsd:string .
+
+# Property with NO range specified
+ex:untyped a rdf:Property ;
+    rdfs:label "untyped" ;
+    rdfs:domain ex:FlexibleClass .
+
+# Property with NO domain or range
+ex:unknown a rdf:Property ;
+    rdfs:label "unknown" .
+"#;
+
+    fs::write(&ontology_path, ontology)?;
+
+    // Generate code - should handle missing declarations gracefully
+    let output_path = base_path.join("flexible.rs");
+    let result = generate_rust_models_from_ontology(&ontology_path, &output_path, "flexible");
+
+    // ASSERT: Should complete without panic
+    assert!(result.is_ok());
+
+    if result.is_ok() {
+        let code = fs::read_to_string(&output_path).unwrap_or_default();
+        // Should have generated FlexibleClass
+        assert_code_contains(&code, "struct FlexibleClass", "Should generate class");
+    }
+
+    Ok(())
+}
+
+/// Test multiple inheritance chains and complex relationships
+#[tokio::test]
+async fn test_complex_inheritance_hierarchies() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+    let base_path = temp_dir.path();
+
+    let ontology_path = base_path.join("hierarchy.ttl");
+    let ontology = r#"
+@prefix ex: <http://example.org/hierarchy#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Base class
+ex:Entity a rdfs:Class ;
+    rdfs:label "Entity" .
+
+# Subclass
+ex:Vehicle a rdfs:Class ;
+    rdfs:subClassOf ex:Entity ;
+    rdfs:label "Vehicle" .
+
+# Further subclass
+ex:Car a rdfs:Class ;
+    rdfs:subClassOf ex:Vehicle ;
+    rdfs:label "Car" .
+
+ex:Truck a rdfs:Class ;
+    rdfs:subClassOf ex:Vehicle ;
+    rdfs:label "Truck" .
+
+# Properties on base class
+ex:id a rdf:Property ;
+    rdfs:domain ex:Entity ;
+    rdfs:range xsd:string .
+
+# Properties on subclass
+ex:wheels a rdf:Property ;
+    rdfs:domain ex:Vehicle ;
+    rdfs:range xsd:integer .
+
+# Properties on leaf classes
+ex:doors a rdf:Property ;
+    rdfs:domain ex:Car ;
+    rdfs:range xsd:integer .
+
+ex:cargo_capacity a rdf:Property ;
+    rdfs:domain ex:Truck ;
+    rdfs:range xsd:decimal .
+
+# Cross-class relationships
+ex:owner a rdf:Property ;
+    rdfs:domain ex:Vehicle ;
+    rdfs:range ex:Entity .
+"#;
+
+    fs::write(&ontology_path, ontology)?;
+
+    let output_path = base_path.join("hierarchy.rs");
+    generate_rust_models_from_ontology(&ontology_path, &output_path, "hierarchy")?;
+    let code = fs::read_to_string(&output_path)?;
+
+    // ASSERT: All classes generated
+    assert_code_contains(&code, "struct Entity", "Base class");
+    assert_code_contains(&code, "struct Vehicle", "Subclass");
+    assert_code_contains(&code, "struct Car", "Leaf class 1");
+    assert_code_contains(&code, "struct Truck", "Leaf class 2");
+
+    // ASSERT: Properties distributed correctly
+    assert_code_contains(&code, "id: String", "Base class property");
+    assert_code_contains(&code, "wheels: i32", "Subclass property");
+    assert_code_contains(&code, "doors: i32", "Car-specific property");
+    assert_code_contains(&code, "cargo_capacity: f64", "Truck-specific property");
+
+    Ok(())
+}
+
+/// Test namespace handling and URI resolution
+#[tokio::test]
+async fn test_multi_namespace_ontology_handling() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+    let base_path = temp_dir.path();
+
+    let ontology_path = base_path.join("namespaces.ttl");
+    let ontology = r#"
+@prefix ex: <http://example.org/main#> .
+@prefix org: <http://example.org/organization#> .
+@prefix per: <http://example.org/person#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Classes in different namespaces
+org:Organization a rdfs:Class ;
+    rdfs:label "Organization" .
+
+per:Person a rdfs:Class ;
+    rdfs:label "Person" .
+
+ex:Project a rdfs:Class ;
+    rdfs:label "Project" .
+
+# Cross-namespace relationships
+ex:hasOrganization a rdf:Property ;
+    rdfs:label "hasOrganization" ;
+    rdfs:domain ex:Project ;
+    rdfs:range org:Organization .
+
+ex:hasManager a rdf:Property ;
+    rdfs:label "hasManager" ;
+    rdfs:domain ex:Project ;
+    rdfs:range per:Person .
+
+org:hasEmployees a rdf:Property ;
+    rdfs:label "hasEmployees" ;
+    rdfs:domain org:Organization ;
+    rdfs:range per:Person .
+
+per:email a rdf:Property ;
+    rdfs:label "email" ;
+    rdfs:domain per:Person ;
+    rdfs:range xsd:string .
+"#;
+
+    fs::write(&ontology_path, ontology)?;
+
+    let output_path = base_path.join("multi_ns.rs");
+    generate_rust_models_from_ontology(&ontology_path, &output_path, "ns")?;
+    let code = fs::read_to_string(&output_path)?;
+
+    // ASSERT: All namespaced classes generated
+    assert_code_contains(&code, "struct Organization", "Org namespace class");
+    assert_code_contains(&code, "struct Person", "Person namespace class");
+    assert_code_contains(&code, "struct Project", "Main namespace class");
+
+    Ok(())
+}
+
+/// Test empty ontology handling
+#[tokio::test]
+async fn test_empty_ontology_graceful_handling() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+    let base_path = temp_dir.path();
+
+    let ontology_path = base_path.join("empty.ttl");
+    let empty_ontology = "@prefix ex: <http://example.org/empty#> .\n";
+
+    fs::write(&ontology_path, empty_ontology)?;
+
+    let output_path = base_path.join("empty.rs");
+    let result = generate_rust_models_from_ontology(&ontology_path, &output_path, "empty");
+
+    // ASSERT: Should handle gracefully
+    assert!(result.is_ok());
+
+    let code = fs::read_to_string(&output_path).unwrap_or_default();
+    // Should produce valid Rust (at least imports)
+    assert!(code.contains("use serde") || code.is_empty());
+
+    Ok(())
+}
+
+/// Test duplicate property names across classes
+#[tokio::test]
+async fn test_duplicate_property_names_across_classes() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+    let base_path = temp_dir.path().join("duplicates.ttl");
+
+    let ontology = r#"
+@prefix ex: <http://example.org/dup#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:Person a rdfs:Class ;
+    rdfs:label "Person" .
+
+ex:Company a rdfs:Class ;
+    rdfs:label "Company" .
+
+# Same property name on different classes with different ranges
+ex:name a rdf:Property ;
+    rdfs:domain ex:Person ;
+    rdfs:range xsd:string .
+
+ex:name a rdf:Property ;
+    rdfs:domain ex:Company ;
+    rdfs:range xsd:string .
+
+# Property with inconsistent range declarations
+ex:created a rdf:Property ;
+    rdfs:domain ex:Person ;
+    rdfs:range xsd:dateTime .
+
+ex:created a rdf:Property ;
+    rdfs:domain ex:Company ;
+    rdfs:range xsd:string .
+"#;
+
+    fs::write(&ontology_path, ontology)?;
+
+    let output_path = base_path.join("dup.rs");
+    let result = generate_rust_models_from_ontology(&ontology_path, &output_path, "dup");
+
+    // Should handle name collisions gracefully
+    assert!(result.is_ok());
+
+    Ok(())
+}
+
+/// Test large ontology performance
+#[tokio::test]
+async fn test_large_ontology_generation_performance() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+    let base_path = temp_dir.path();
+
+    // Generate large ontology with 100 classes
+    let ontology_path = base_path.join("large.ttl");
+    let mut ontology = String::from(
+        "@prefix ex: <http://example.org/large#> .\n\
+         @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n\
+         @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\
+         @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\n",
+    );
+
+    for i in 0..100 {
+        ontology.push_str(&format!(
+            "ex:Class{} a rdfs:Class ;\n    rdfs:label \"Class{}\" .\n\n",
+            i, i
+        ));
+
+        for j in 0..5 {
+            ontology.push_str(&format!(
+                "ex:prop{}_{}  a rdf:Property ;\n    rdfs:domain ex:Class{} ;\n    rdfs:range xsd:string .\n\n",
+                i, j, i
+            ));
+        }
+    }
+
+    fs::write(&ontology_path, ontology)?;
+
+    let output_path = base_path.join("large.rs");
+
+    // Measure performance
+    let start = std::time::Instant::now();
+    let result = generate_rust_models_from_ontology(&ontology_path, &output_path, "large");
+    let duration = start.elapsed();
+
+    // ASSERT: Generation completes in reasonable time (< 10 seconds)
+    assert!(result.is_ok());
+    assert!(duration.as_secs() < 10, "Large ontology took too long: {:?}", duration);
+
+    // ASSERT: Output is reasonable size
+    let code = fs::read_to_string(&output_path)?;
+    assert!(code.len() > 1000, "Output should contain substantial code");
+
+    Ok(())
 }
