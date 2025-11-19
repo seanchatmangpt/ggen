@@ -1,0 +1,29 @@
+[package]
+name = "ggen-ontology-macros"
+version = "0.1.0"
+edition = "2021"
+authors = ["ggen contributors"]
+description = "Procedural macros for semantic code synthesis in ontology parsing"
+license = "MIT"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1.0"
+quote = "1.0"
+syn = { version = "2.0", features = ["full", "extra-traits"] }
+
+# SPARQL parsing for compile-time validation
+sparql-parser = { package = "spargebra", version = "0.3" }
+
+# Const evaluation helpers
+const-fnv1a-hash = "1.1"
+
+[lints.rust]
+unsafe_code = "deny"
+missing_docs = "warn"
+
+[lints.clippy]
+all = { level = "deny", priority = -1 }
+pedantic = { level = "deny", priority = -1 }

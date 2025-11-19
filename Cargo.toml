@@ -21,10 +21,12 @@ members = [
   "crates/ggen-core",
   "crates/ggen-ai",
   "crates/ggen-marketplace",
+  "crates/ggen-node",
+  "crates/ggen-ontology-advanced",
+  "crates/ggen-ontology-advanced/macros",
   "examples/frontmatter-cli",
   "examples/natural-market-search",
   "examples/ai-template-project",
-  "crates/ggen-node",
 ]
 exclude = [
   "examples/rust-cli-lifecycle",
@@ -76,7 +78,6 @@ console = "0.16"
 
 # Testing libraries
 proptest = "1.8"
-chicago-tdd-tools = { path = "/Users/sac/chicago-tdd-tools", version = "1.1.0" }
 
 # Force base64 version to resolve duplicate dependency issue
 # config -> ron -> base64 0.21.7 conflicts with reqwest -> base64 0.22.1
