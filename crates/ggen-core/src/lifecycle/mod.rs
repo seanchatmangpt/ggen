@@ -37,6 +37,11 @@ pub mod validation;
 // Performance optimization for <60s deployment target
 pub mod optimization;
 
+// Mura (unevenness) leveling and Heijunka (level scheduling) modules
+// Implements Toyota Production System principles for workload distribution
+pub mod mura_leveling;
+pub mod heijunka_scheduler;
+
 // Template generation phase integration
 // TEMPORARILY DISABLED: needs ggen_template crate which doesn't exist yet
 // pub mod template_phase;
@@ -89,6 +94,17 @@ pub use validation::{ReadinessValidator, ValidationIssue, ValidationResult, Vali
 pub use optimization::{
     run_fast_validation, run_optimized_pipeline, ContainerPool, DependencyCache,
     ParallelOrchestrator, PerformanceTargets, PipelineProfiler, StageMetrics,
+};
+
+// Mura leveling exports
+pub use mura_leveling::{
+    BatchMetrics, MuraConfig, TargetWorkload, WorkloadLeveler,
+};
+
+// Heijunka scheduling exports
+pub use heijunka_scheduler::{
+    HeijunkaConfig, HeijunkaScheduler, ScheduledBatch, StandardWorkSequence,
+    StepResult, WorkSequenceResult, WorkStep,
 };
 
 // Template phase exports

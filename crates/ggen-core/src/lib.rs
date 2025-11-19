@@ -138,6 +138,7 @@ pub mod registry;
 pub mod resolver;
 pub mod snapshot;
 pub mod streaming_generator;
+pub mod leveled_generator;
 pub mod telemetry;
 pub mod template;
 pub mod template_cache;
@@ -187,4 +188,10 @@ pub use template::Template;
 pub use templates::{
     generate_file_tree, FileTreeGenerator, FileTreeNode, FileTreeTemplate, GenerationResult,
     NodeType, TemplateContext, TemplateFormat, TemplateParser,
+};
+
+// Re-export leveled generator types (Mura + Heijunka)
+pub use leveled_generator::{
+    LeveledGenerator, LeveledGeneratorConfig, LeveledGenerationResult,
+    TargetResult, TemplateItem,
 };
