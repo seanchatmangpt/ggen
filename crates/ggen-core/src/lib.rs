@@ -115,6 +115,7 @@
 
 pub mod cache;
 pub mod cli_generator;
+pub mod codegen;
 pub mod config;
 pub mod delta;
 #[cfg(test)]
