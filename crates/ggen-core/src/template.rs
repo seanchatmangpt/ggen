@@ -514,7 +514,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ggen_utils::error::{Error, Result};
+    use ggen_utils::error::Result;
     use std::{io::Write, path::Path};
     use tempfile::NamedTempFile;
     use tera::Context;

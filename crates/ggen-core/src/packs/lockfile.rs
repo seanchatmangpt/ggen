@@ -431,7 +431,6 @@ impl fmt::Display for PackSource {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tempfile::TempDir;
 
     fn create_test_pack(version: &str, deps: Vec<String>) -> LockedPack {
         LockedPack {
