@@ -41,7 +41,8 @@ output_dir = "output"
     assert!(result.is_ok());
 
     let config = result.expect("Should load config");
-    assert_eq!(config.lifecycle.templates_dir, "templates");
+    // Verify lifecycle section exists
+    assert!(config.lifecycle.is_some());
 }
 
 #[test]

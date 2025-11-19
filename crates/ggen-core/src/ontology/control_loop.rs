@@ -161,7 +161,9 @@ impl AutonomousControlLoop {
 
         // 3. PROPOSE: Generate ΔΣ² proposals
         *self.state.write().await = LoopState::Proposing;
-        let current_snapshot = self.promoter.get_current()
+        let current_snapshot = self
+            .promoter
+            .get_current()
             .map_err(|e| format!("Failed to get current snapshot: {}", e))?;
         let proposals = self
             .proposer
@@ -181,7 +183,9 @@ impl AutonomousControlLoop {
         // 4. VALIDATE: Check invariants (Q)
         *self.state.write().await = LoopState::Validating;
         for proposal in &valid_proposals {
-            let current_snap = self.promoter.get_current()
+            let current_snap = self
+                .promoter
+                .get_current()
                 .map_err(|e| format!("Failed to get current snapshot: {}", e))?;
 
             // Apply proposal changes to create new snapshot
@@ -241,10 +245,12 @@ impl AutonomousControlLoop {
 
                 if self.config.auto_promote {
                     // Create the promoted snapshot with applied changes
-                    let current_snap_for_promote = self.promoter.get_current()
-                        .map_err(|e| format!("Failed to get current snapshot for promotion: {}", e))?;
+                    let current_snap_for_promote = self.promoter.get_current().map_err(|e| {
+                        format!("Failed to get current snapshot for promotion: {}", e)
+                    })?;
 
-                    let mut promoted_triples = current_snap_for_promote.snapshot().triples.as_ref().clone();
+                    let mut promoted_triples =
+                        current_snap_for_promote.snapshot().triples.as_ref().clone();
 
                     // Apply the same changes for promotion
                     for triple_pattern in &proposal.triples_to_remove {
@@ -275,7 +281,9 @@ impl AutonomousControlLoop {
                         current_snap_for_promote.snapshot().metadata.clone(),
                     );
 
-                    let _promotion_result = self.promoter.promote(Arc::new(promoted_snapshot))
+                    let _promotion_result = self
+                        .promoter
+                        .promote(Arc::new(promoted_snapshot))
                         .expect("Failed to promote snapshot");
 
                     telemetry.proposals_promoted += 1;
@@ -358,7 +366,8 @@ impl AutonomousControlLoop {
 
     /// Get current snapshot
     pub fn current_snapshot(&self) -> Arc<SigmaSnapshot> {
-        self.promoter.get_current()
+        self.promoter
+            .get_current()
             .expect("Failed to get current snapshot - lock poisoned")
             .snapshot()
     }

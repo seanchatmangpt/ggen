@@ -71,14 +71,8 @@ pub struct SafeCommand {
 
 impl SafeCommand {
     /// Allowed commands whitelist
-    const ALLOWED_COMMANDS: &'static [&'static str] = &[
-        "git",
-        "cargo",
-        "npm",
-        "node",
-        "rustc",
-        "rustup",
-    ];
+    const ALLOWED_COMMANDS: &'static [&'static str] =
+        &["git", "cargo", "npm", "node", "rustc", "rustup"];
 
     /// Dangerous shell metacharacters to reject
     const DANGEROUS_CHARS: &'static [char] = &[
@@ -100,16 +94,20 @@ impl SafeCommand {
 
         // Check for dangerous characters
         if program.chars().any(|c| Self::DANGEROUS_CHARS.contains(&c)) {
-            return Err(CommandError::InvalidCommand(
-                format!("Command contains dangerous characters: {}", program)
-            ).into());
+            return Err(CommandError::InvalidCommand(format!(
+                "Command contains dangerous characters: {}",
+                program
+            ))
+            .into());
         }
 
         // Check whitelist
         if !Self::ALLOWED_COMMANDS.contains(&program) {
-            return Err(CommandError::NotAllowed(
-                format!("Command '{}' is not in allowed list", program)
-            ).into());
+            return Err(CommandError::NotAllowed(format!(
+                "Command '{}' is not in allowed list",
+                program
+            ))
+            .into());
         }
 
         Ok(Self {
@@ -128,9 +126,11 @@ impl SafeCommand {
     pub fn arg(mut self, arg: &str) -> Result<Self> {
         // Validate argument
         if arg.chars().any(|c| Self::DANGEROUS_CHARS.contains(&c)) {
-            return Err(CommandError::InvalidArgument(
-                format!("Argument contains dangerous characters: {}", arg)
-            ).into());
+            return Err(CommandError::InvalidArgument(format!(
+                "Argument contains dangerous characters: {}",
+                arg
+            ))
+            .into());
         }
 
         self.args.push(arg.to_string());
@@ -158,11 +158,17 @@ impl SafeCommand {
     pub fn current_dir(mut self, dir: &Path) -> Result<Self> {
         // Validate directory exists
         if !dir.exists() {
-            return Err(Error::new(&format!("Directory does not exist: {}", dir.display())));
+            return Err(Error::new(&format!(
+                "Directory does not exist: {}",
+                dir.display()
+            )));
         }
 
         if !dir.is_dir() {
-            return Err(Error::new(&format!("Path is not a directory: {}", dir.display())));
+            return Err(Error::new(&format!(
+                "Path is not a directory: {}",
+                dir.display()
+            )));
         }
 
         // Store as string for later use
@@ -191,9 +197,9 @@ impl SafeCommand {
         }
 
         // Execute command
-        let output = cmd.output().map_err(|e| {
-            CommandError::ExecutionFailed(format!("{}: {}", self.program, e))
-        })?;
+        let output = cmd
+            .output()
+            .map_err(|e| CommandError::ExecutionFailed(format!("{}: {}", self.program, e)))?;
 
         Ok(output)
     }
@@ -210,13 +216,10 @@ impl SafeCommand {
 
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);
-            return Err(CommandError::ExecutionFailed(
-                format!("{}: {}", program, stderr)
-            ).into());
+            return Err(CommandError::ExecutionFailed(format!("{}: {}", program, stderr)).into());
         }
 
-        String::from_utf8(output.stdout)
-            .map_err(|_| CommandError::InvalidUtf8.into())
+        String::from_utf8(output.stdout).map_err(|_| CommandError::InvalidUtf8.into())
     }
 }
 
@@ -275,9 +278,11 @@ mod tests {
         assert!(SafeCommand::new("git && ls").is_err());
 
         // Dangerous characters in arguments
-        let cmd = SafeCommand::new("git").unwrap();
-        assert!(cmd.arg("init; rm -rf /").is_err());
-        assert!(cmd.arg("init | cat").is_err());
+        let cmd1 = SafeCommand::new("git").unwrap();
+        assert!(cmd1.arg("init; rm -rf /").is_err());
+
+        let cmd2 = SafeCommand::new("git").unwrap();
+        assert!(cmd2.arg("init | cat").is_err());
     }
 
     #[test]

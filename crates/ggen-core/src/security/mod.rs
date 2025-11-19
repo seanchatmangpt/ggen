@@ -21,9 +21,9 @@ pub mod command;
 pub mod error;
 pub mod validation;
 
-pub use command::{SafeCommand, CommandExecutor, CommandError};
-pub use error::{SanitizedError, ErrorSanitizer};
-pub use validation::{PathValidator, EnvVarValidator, InputValidator, ValidationError};
+pub use command::{CommandError, CommandExecutor, SafeCommand};
+pub use error::{ErrorSanitizer, SanitizedError};
+pub use validation::{EnvVarValidator, InputValidator, PathValidator, ValidationError};
 
 #[cfg(test)]
 mod tests;

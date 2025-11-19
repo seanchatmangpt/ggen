@@ -125,8 +125,7 @@ impl ConfigLoader {
     ///
     /// Returns an error if no configuration file is found
     pub fn find_config_file() -> Result<PathBuf> {
-        let mut current = std::env::current_dir()
-            .map_err(|e| ConfigError::Io(e))?;
+        let mut current = std::env::current_dir().map_err(|e| ConfigError::Io(e))?;
 
         loop {
             let candidate = current.join("ggen.toml");
@@ -137,9 +136,9 @@ impl ConfigLoader {
             // Try parent directory
             if !current.pop() {
                 // Reached filesystem root
-                return Err(ConfigError::FileNotFound(
-                    PathBuf::from("ggen.toml (searched all parent directories)")
-                ));
+                return Err(ConfigError::FileNotFound(PathBuf::from(
+                    "ggen.toml (searched all parent directories)",
+                )));
             }
         }
     }
@@ -176,10 +175,7 @@ impl ConfigLoader {
 /// Apply environment-specific overrides to configuration
 ///
 /// Uses JSON pointer notation to update nested fields
-fn apply_env_overrides(
-    config: &mut GgenConfig,
-    overrides: &serde_json::Value,
-) -> Result<()> {
+fn apply_env_overrides(config: &mut GgenConfig, overrides: &serde_json::Value) -> Result<()> {
     if let Some(obj) = overrides.as_object() {
         for (key, value) in obj {
             // Simple key-based override (supports one level of nesting)
@@ -191,9 +187,7 @@ fn apply_env_overrides(
 
 /// Apply a single configuration override
 fn apply_single_override(
-    config: &mut GgenConfig,
-    key: &str,
-    value: &serde_json::Value,
+    config: &mut GgenConfig, key: &str, value: &serde_json::Value,
 ) -> Result<()> {
     // Parse dotted key notation (e.g., "ai.temperature")
     let parts: Vec<&str> = key.split('.').collect();
@@ -226,9 +220,7 @@ fn apply_single_override(
 
 /// Update AI configuration field
 fn update_ai_field(
-    ai: &mut crate::schema::AiConfig,
-    field: &str,
-    value: &serde_json::Value,
+    ai: &mut crate::schema::AiConfig, field: &str, value: &serde_json::Value,
 ) -> Result<()> {
     match field {
         "model" => {
@@ -253,9 +245,7 @@ fn update_ai_field(
 
 /// Update security configuration field
 fn update_security_field(
-    security: &mut crate::schema::SecurityConfig,
-    field: &str,
-    value: &serde_json::Value,
+    security: &mut crate::schema::SecurityConfig, field: &str, value: &serde_json::Value,
 ) -> Result<()> {
     match field {
         "require_confirmation" => {

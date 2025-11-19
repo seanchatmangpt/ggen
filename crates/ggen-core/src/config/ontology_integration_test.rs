@@ -3,9 +3,8 @@
 #[cfg(test)]
 mod tests {
     use crate::config::{
-        OntologyConfig, OntologyPackRef, CompositionStrategy, TargetConfig,
-        OntologyLockfile, LockedPackage, LockfileManager, CompositionMetadata,
-        HiveQueen, AgentRole,
+        AgentRole, CompositionMetadata, CompositionStrategy, HiveQueen, LockedPackage,
+        LockfileManager, OntologyConfig, OntologyLockfile, OntologyPackRef, TargetConfig,
     };
     use std::collections::BTreeMap;
     use std::path::PathBuf;
@@ -57,7 +56,8 @@ mod tests {
             validation_status: "valid".to_string(),
         };
 
-        let lockfile = LockfileManager::create(packages, composition).expect("Should create lockfile");
+        let lockfile =
+            LockfileManager::create(packages, composition).expect("Should create lockfile");
 
         assert!(lockfile.validate().is_ok());
         assert_eq!(lockfile.packages.len(), 1);
@@ -138,7 +138,10 @@ mod tests {
 
         // Verify required agents exist
         let has_analyzer = hive.agents.iter().any(|a| a.role == AgentRole::Analyzer);
-        let has_resolver = hive.agents.iter().any(|a| a.role == AgentRole::VersionResolver);
+        let has_resolver = hive
+            .agents
+            .iter()
+            .any(|a| a.role == AgentRole::VersionResolver);
         let has_validator = hive.agents.iter().any(|a| a.role == AgentRole::Validator);
 
         assert!(has_analyzer);
@@ -149,15 +152,14 @@ mod tests {
     /// Test code generation target configuration
     #[test]
     fn test_generation_targets() {
-        let mut config = OntologyConfig::new()
-            .with_pack(OntologyPackRef {
-                name: "schema-org".to_string(),
-                version: "3.13.0".to_string(),
-                namespace: None,
-                classes: None,
-                properties: None,
-                source: None,
-            });
+        let mut config = OntologyConfig::new().with_pack(OntologyPackRef {
+            name: "schema-org".to_string(),
+            version: "3.13.0".to_string(),
+            namespace: None,
+            classes: None,
+            properties: None,
+            source: None,
+        });
 
         let typescript_target = TargetConfig {
             language: "typescript".to_string(),
@@ -183,24 +185,25 @@ mod tests {
         assert_eq!(config.targets.len(), 2);
         assert_eq!(
             config.target_languages(),
-            vec!["rust", "typescript"]  // BTreeMap is sorted
+            vec!["rust", "typescript"] // BTreeMap is sorted
         );
     }
 
     /// Test composition strategy selection
     #[test]
     fn test_composition_strategies() {
-        let union_config = OntologyConfig::new()
-            .with_composition(CompositionStrategy::Union);
+        let union_config = OntologyConfig::new().with_composition(CompositionStrategy::Union);
 
-        let intersection_config = OntologyConfig::new()
-            .with_composition(CompositionStrategy::Intersection);
+        let intersection_config =
+            OntologyConfig::new().with_composition(CompositionStrategy::Intersection);
 
-        let priority_config = OntologyConfig::new()
-            .with_composition(CompositionStrategy::Priority);
+        let priority_config = OntologyConfig::new().with_composition(CompositionStrategy::Priority);
 
         assert_eq!(union_config.composition, CompositionStrategy::Union);
-        assert_eq!(intersection_config.composition, CompositionStrategy::Intersection);
+        assert_eq!(
+            intersection_config.composition,
+            CompositionStrategy::Intersection
+        );
         assert_eq!(priority_config.composition, CompositionStrategy::Priority);
     }
 
@@ -216,11 +219,13 @@ mod tests {
             source: None,
         };
 
-        let config = OntologyConfig::new()
-            .with_pack(pack_with_namespace);
+        let config = OntologyConfig::new().with_pack(pack_with_namespace);
 
         let pack = &config.packs[0];
-        assert_eq!(pack.namespace, Some("https://schema.org/ecommerce".to_string()));
+        assert_eq!(
+            pack.namespace,
+            Some("https://schema.org/ecommerce".to_string())
+        );
         assert_eq!(pack.classes, Some(vec!["Product".to_string()]));
     }
 

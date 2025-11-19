@@ -6,10 +6,10 @@
 //! - Version constraints and lock files
 //! - Multi-language code generation configuration
 
+use ggen_utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap};
 use std::path::PathBuf;
-use ggen_utils::error::Result;
 
 /// Ontology configuration section in ggen.toml
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -203,7 +203,9 @@ impl OntologyConfig {
     /// Validate configuration
     pub fn validate(&self) -> Result<()> {
         if self.packs.is_empty() {
-            return Err(ggen_utils::error::Error::new("No ontology packs configured"));
+            return Err(ggen_utils::error::Error::new(
+                "No ontology packs configured",
+            ));
         }
 
         // Validate pack references
@@ -213,18 +215,20 @@ impl OntologyConfig {
             }
 
             if pack.version.is_empty() {
-                return Err(ggen_utils::error::Error::new(
-                    &format!("Version for pack '{}' cannot be empty", pack.name),
-                ));
+                return Err(ggen_utils::error::Error::new(&format!(
+                    "Version for pack '{}' cannot be empty",
+                    pack.name
+                )));
             }
         }
 
         // Validate targets
         for (name, target) in &self.targets {
             if target.language.is_empty() {
-                return Err(ggen_utils::error::Error::new(
-                    &format!("Language for target '{}' cannot be empty", name),
-                ));
+                return Err(ggen_utils::error::Error::new(&format!(
+                    "Language for target '{}' cannot be empty",
+                    name
+                )));
             }
         }
 
@@ -238,10 +242,7 @@ impl OntologyConfig {
 
     /// Get all target languages
     pub fn target_languages(&self) -> Vec<&str> {
-        self.targets
-            .values()
-            .map(|t| t.language.as_str())
-            .collect()
+        self.targets.values().map(|t| t.language.as_str()).collect()
     }
 
     /// Check if a feature is enabled
@@ -294,6 +295,9 @@ mod tests {
     #[test]
     fn test_composition_strategies() {
         assert_eq!(CompositionStrategy::Union, CompositionStrategy::Union);
-        assert_ne!(CompositionStrategy::Union, CompositionStrategy::Intersection);
+        assert_ne!(
+            CompositionStrategy::Union,
+            CompositionStrategy::Intersection
+        );
     }
 }

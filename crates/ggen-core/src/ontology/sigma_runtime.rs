@@ -31,7 +31,7 @@ impl From<oxigraph::model::Quad> for Statement {
         // Strip angle brackets from IRIs for cleaner storage
         fn strip_brackets(s: &str) -> String {
             if s.starts_with('<') && s.ends_with('>') {
-                s[1..s.len()-1].to_string()
+                s[1..s.len() - 1].to_string()
             } else {
                 s.to_string()
             }

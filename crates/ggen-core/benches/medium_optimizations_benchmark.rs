@@ -13,7 +13,7 @@
 //!    - Lazy Tera compilation
 
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use ggen_core::lockfile::{LockfileManager, LockEntry};
+use ggen_core::lockfile::{LockEntry, LockfileManager};
 use ggen_core::rdf::query::QueryCache;
 use ggen_core::template_cache::TemplateCache;
 use oxigraph::store::Store;
@@ -31,12 +31,14 @@ fn bench_lockfile_optimization(c: &mut Criterion) {
 
         // Create test pack data
         let packs: Vec<(String, String, String, String)> = (0..count)
-            .map(|i| (
-                format!("io.ggen.pack{}", i),
-                "1.0.0".to_string(),
-                format!("sha256_{}", i),
-                "https://example.com".to_string(),
-            ))
+            .map(|i| {
+                (
+                    format!("io.ggen.pack{}", i),
+                    "1.0.0".to_string(),
+                    format!("sha256_{}", i),
+                    "https://example.com".to_string(),
+                )
+            })
             .collect();
 
         group.throughput(Throughput::Elements(count as u64));
@@ -100,10 +102,9 @@ fn bench_rdf_query_optimization(c: &mut Criterion) {
             "<http://example.org/subject{}> <http://example.org/predicate> \"Object {}\" .",
             i, i
         );
-        store.load_from_reader(
-            oxigraph::io::RdfFormat::NTriples,
-            triple.as_bytes()
-        ).unwrap();
+        store
+            .load_from_reader(oxigraph::io::RdfFormat::NTriples, triple.as_bytes())
+            .unwrap();
     }
 
     let query = "SELECT ?s ?o WHERE { ?s <http://example.org/predicate> ?o } LIMIT 10";
@@ -208,28 +209,23 @@ fn main() {{
                     for (i, path) in template_paths.iter().enumerate() {
                         let content = fs::read_to_string(path).unwrap();
                         let key = format!("template_{}", i);
-                        black_box(
-                            cache.get_or_parse_frontmatter(&content, &key).unwrap()
-                        );
+                        black_box(cache.get_or_parse_frontmatter(&content, &key).unwrap());
                     }
                 });
             },
         );
 
         // Baseline: Parse frontmatter without cache
-        group.bench_function(
-            BenchmarkId::new("frontmatter_uncached", capacity),
-            |b| {
-                b.iter(|| {
-                    for path in &template_paths {
-                        let content = fs::read_to_string(path).unwrap();
-                        let matter = gray_matter::Matter::<gray_matter::engine::YAML>::new();
-                        let parsed = matter.parse(&content);
-                        black_box(parsed);
-                    }
-                });
-            },
-        );
+        group.bench_function(BenchmarkId::new("frontmatter_uncached", capacity), |b| {
+            b.iter(|| {
+                for path in &template_paths {
+                    let content = fs::read_to_string(path).unwrap();
+                    let matter = gray_matter::Matter::<gray_matter::engine::YAML>::new();
+                    let parsed = matter.parse(&content);
+                    black_box(parsed);
+                }
+            });
+        });
 
         // OPTIMIZATION 3.2: Tera template caching
         let template_content = "Hello {{ name }}, you are {{ age }} years old.";
@@ -268,8 +264,18 @@ fn bench_combined_optimizations(c: &mut Criterion) {
             // Lockfile optimization
             let lockfile_manager = LockfileManager::new(temp_dir.path());
             let packs = vec![
-                ("io.ggen.pack1".to_string(), "1.0.0".to_string(), "sha1".to_string(), "https://example.com".to_string()),
-                ("io.ggen.pack2".to_string(), "1.0.0".to_string(), "sha2".to_string(), "https://example.com".to_string()),
+                (
+                    "io.ggen.pack1".to_string(),
+                    "1.0.0".to_string(),
+                    "sha1".to_string(),
+                    "https://example.com".to_string(),
+                ),
+                (
+                    "io.ggen.pack2".to_string(),
+                    "1.0.0".to_string(),
+                    "sha2".to_string(),
+                    "https://example.com".to_string(),
+                ),
             ];
             black_box(lockfile_manager.upsert_bulk(&packs).unwrap());
 
@@ -282,7 +288,11 @@ fn bench_combined_optimizations(c: &mut Criterion) {
             // Template optimization
             let template_cache = TemplateCache::new(5000);
             let content = "---\nto: test.rs\n---\nfn main() {}";
-            black_box(template_cache.get_or_parse_frontmatter(content, "test").unwrap());
+            black_box(
+                template_cache
+                    .get_or_parse_frontmatter(content, "test")
+                    .unwrap(),
+            );
         });
     });
 

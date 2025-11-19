@@ -3,10 +3,10 @@
 //! Implements ggen.lock pattern for freezing ontology pack versions,
 //! enabling reproducible code generation across environments.
 
+use ggen_utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::Path;
-use ggen_utils::error::Result;
 
 /// Lock file structure (ggen.lock)
 ///
@@ -89,8 +89,7 @@ pub struct LockfileManager;
 impl LockfileManager {
     /// Create a new lockfile from current configuration
     pub fn create(
-        packages: BTreeMap<String, LockedPackage>,
-        composition: CompositionMetadata,
+        packages: BTreeMap<String, LockedPackage>, composition: CompositionMetadata,
     ) -> Result<OntologyLockfile> {
         let lockfile = OntologyLockfile {
             version: 1,
@@ -123,7 +122,10 @@ impl LockfileManager {
     pub fn save(lockfile: &OntologyLockfile, path: &Path) -> Result<()> {
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent).map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Failed to create lock file directory: {}", e))
+                ggen_utils::error::Error::new(&format!(
+                    "Failed to create lock file directory: {}",
+                    e
+                ))
             })?;
         }
 
@@ -165,8 +167,7 @@ impl LockfileManager {
 
     /// Get a specific locked package
     pub fn get_package<'a>(
-        lockfile: &'a OntologyLockfile,
-        name: &'a str,
+        lockfile: &'a OntologyLockfile, name: &str,
     ) -> Option<&'a LockedPackage> {
         lockfile.packages.get(name)
     }
@@ -193,7 +194,9 @@ impl LockfileManager {
             // Create a deterministic representation for hashing
             let data = format!(
                 "{}:{}:{}:{}",
-                name, package.version, package.namespace.as_deref().unwrap_or(""),
+                name,
+                package.version,
+                package.namespace.as_deref().unwrap_or(""),
                 package.integrity
             );
 
@@ -220,9 +223,10 @@ impl OntologyLockfile {
     /// Validate lockfile structure
     pub fn validate(&self) -> Result<()> {
         if self.version != 1 {
-            return Err(ggen_utils::error::Error::new(
-                &format!("Unsupported lock file version: {}", self.version),
-            ));
+            return Err(ggen_utils::error::Error::new(&format!(
+                "Unsupported lock file version: {}",
+                self.version
+            )));
         }
 
         if self.packages.is_empty() {
@@ -234,15 +238,17 @@ impl OntologyLockfile {
         // Validate each package
         for (name, package) in &self.packages {
             if package.version.is_empty() {
-                return Err(ggen_utils::error::Error::new(
-                    &format!("Package '{}' has no version", name),
-                ));
+                return Err(ggen_utils::error::Error::new(&format!(
+                    "Package '{}' has no version",
+                    name
+                )));
             }
 
             if package.integrity.is_empty() {
-                return Err(ggen_utils::error::Error::new(
-                    &format!("Package '{}' has no integrity hash", name),
-                ));
+                return Err(ggen_utils::error::Error::new(&format!(
+                    "Package '{}' has no integrity hash",
+                    name
+                )));
             }
         }
 

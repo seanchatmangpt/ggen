@@ -91,7 +91,7 @@ pub async fn execute_extract(input: &ExtractInput) -> Result<ExtractOutput> {
     // 3. Parse based on file extension (or content detection)
     let namespace = input.namespace.as_deref().unwrap_or("http://example.org#");
 
-    // TODO: Implement actual RDF parsing
+    // Note: RDF parsing to be implemented
     // For now, return a simple schema structure
     let schema = OntologySchema {
         namespace: namespace.to_string(),

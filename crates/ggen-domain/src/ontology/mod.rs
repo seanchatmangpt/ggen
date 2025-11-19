@@ -27,18 +27,18 @@
 //! - Returns an `Output` struct with results and statistics
 //! - Is testable, reusable, and async-compatible
 
+pub mod compose;
+pub mod discover;
 pub mod extract;
 pub mod generate;
 pub mod validate;
-pub mod compose;
-pub mod discover;
 
 // Re-export core functions and types for easy access
+pub use compose::{execute_compose, ComposeInput, ComposeOutput};
+pub use discover::{execute_discover, DiscoverInput, DiscoverOutput};
 pub use extract::{execute_extract, ExtractInput, ExtractOutput};
 pub use generate::{execute_generate, GenerateInput, GenerateOutput};
 pub use validate::{execute_validate, ValidateInput, ValidateOutput};
-pub use compose::{execute_compose, ComposeInput, ComposeOutput};
-pub use discover::{execute_discover, DiscoverInput, DiscoverOutput};
 
 /// Common trait for ontology operations
 pub trait OntologyOperation: Sized {

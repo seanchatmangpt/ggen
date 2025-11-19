@@ -38,7 +38,7 @@ pub enum ConfigError {
         /// Field name
         field: String,
         /// Reason for invalidity
-        reason: String
+        reason: String,
     },
 
     /// Environment variable expansion error

@@ -525,12 +525,20 @@ mod tests {
         assert_eq!(metric.improvement_percent(), 0.0);
 
         // Just under target
-        let metric_under = StageMetrics::new("under", Duration::from_millis(9999), Duration::from_secs(10));
+        let metric_under = StageMetrics::new(
+            "under",
+            Duration::from_millis(9999),
+            Duration::from_secs(10),
+        );
         assert!(metric_under.met_target);
         assert!(metric_under.improvement_percent() > 0.0);
 
         // Just over target
-        let metric_over = StageMetrics::new("over", Duration::from_millis(10001), Duration::from_secs(10));
+        let metric_over = StageMetrics::new(
+            "over",
+            Duration::from_millis(10001),
+            Duration::from_secs(10),
+        );
         assert!(!metric_over.met_target);
         assert!(metric_over.improvement_percent() < 0.0);
     }
@@ -541,9 +549,21 @@ mod tests {
         profiler.start_pipeline();
 
         // Profile multiple stages
-        profiler.profile_stage("stage1", async { tokio::time::sleep(Duration::from_millis(50)).await }).await;
-        profiler.profile_stage("stage2", async { tokio::time::sleep(Duration::from_millis(30)).await }).await;
-        profiler.profile_stage("stage3", async { tokio::time::sleep(Duration::from_millis(20)).await }).await;
+        profiler
+            .profile_stage("stage1", async {
+                tokio::time::sleep(Duration::from_millis(50)).await
+            })
+            .await;
+        profiler
+            .profile_stage("stage2", async {
+                tokio::time::sleep(Duration::from_millis(30)).await
+            })
+            .await;
+        profiler
+            .profile_stage("stage3", async {
+                tokio::time::sleep(Duration::from_millis(20)).await
+            })
+            .await;
 
         let metrics = profiler.get_metrics();
         assert_eq!(metrics.len(), 3);
@@ -624,9 +644,11 @@ mod tests {
     async fn test_profiler_stage_target_matching() {
         let mut profiler = PipelineProfiler::new(PerformanceTargets::default());
 
-        profiler.profile_stage("template_selection", async {
-            tokio::time::sleep(Duration::from_millis(100)).await
-        }).await;
+        profiler
+            .profile_stage("template_selection", async {
+                tokio::time::sleep(Duration::from_millis(100)).await
+            })
+            .await;
 
         let metrics = profiler.get_metrics();
         assert_eq!(metrics.len(), 1);
@@ -650,7 +672,9 @@ mod tests {
 
         // Simulate concurrent stage execution
         tokio::join!(
-            profiler.profile_stage("concurrent1", async { tokio::time::sleep(Duration::from_millis(50)).await }),
+            profiler.profile_stage("concurrent1", async {
+                tokio::time::sleep(Duration::from_millis(50)).await
+            }),
             async {
                 tokio::time::sleep(Duration::from_millis(25)).await;
                 // Note: We can't profile the same stage concurrently with the same profiler
@@ -702,9 +726,11 @@ mod tests {
         let mut profiler = PipelineProfiler::new(PerformanceTargets::default());
         profiler.start_pipeline();
 
-        profiler.profile_stage("test", async {
-            tokio::time::sleep(Duration::from_millis(10)).await;
-        }).await;
+        profiler
+            .profile_stage("test", async {
+                tokio::time::sleep(Duration::from_millis(10)).await;
+            })
+            .await;
 
         // This should not panic
         profiler.report();

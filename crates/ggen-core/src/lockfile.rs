@@ -84,14 +84,14 @@
 
 use chrono::{DateTime, Utc};
 use ggen_utils::error::{Error, Result};
+use lru::LruCache;
+use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
+use std::num::NonZeroUsize;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
-use rayon::prelude::*;
-use lru::LruCache;
-use std::num::NonZeroUsize;
 
 // use crate::cache::GpackManifest;
 
@@ -145,18 +145,20 @@ impl LockfileManager {
     pub fn new(project_dir: &Path) -> Self {
         let lockfile_path = project_dir.join("ggen.lock");
         // OPTIMIZATION 1: Initialize dependency cache with capacity of 1000 entries
-        let dep_cache = Arc::new(Mutex::new(
-            LruCache::new(NonZeroUsize::new(1000).unwrap())
-        ));
-        Self { lockfile_path, dep_cache }
+        let dep_cache = Arc::new(Mutex::new(LruCache::new(NonZeroUsize::new(1000).unwrap())));
+        Self {
+            lockfile_path,
+            dep_cache,
+        }
     }
 
     /// Create a lockfile manager with custom path
     pub fn with_path(lockfile_path: PathBuf) -> Self {
-        let dep_cache = Arc::new(Mutex::new(
-            LruCache::new(NonZeroUsize::new(1000).unwrap())
-        ));
-        Self { lockfile_path, dep_cache }
+        let dep_cache = Arc::new(Mutex::new(LruCache::new(NonZeroUsize::new(1000).unwrap())));
+        Self {
+            lockfile_path,
+            dep_cache,
+        }
     }
 
     /// Get the lockfile path
@@ -278,9 +280,7 @@ impl LockfileManager {
                 let resolved_deps: Vec<_> = manifest
                     .dependencies
                     .par_iter()
-                    .map(|(dep_id, dep_version)| {
-                        format!("{}@{}", dep_id, dep_version)
-                    })
+                    .map(|(dep_id, dep_version)| format!("{}@{}", dep_id, dep_version))
                     .collect();
 
                 // Sort for deterministic output
@@ -451,7 +451,9 @@ impl LockfileManager {
         // Remove existing entries for the packs being updated
         let pack_ids: std::collections::HashSet<_> =
             packs.iter().map(|(id, _, _, _)| id.as_str()).collect();
-        lockfile.packs.retain(|entry| !pack_ids.contains(entry.id.as_str()));
+        lockfile
+            .packs
+            .retain(|entry| !pack_ids.contains(entry.id.as_str()));
 
         // Add new entries
         lockfile.packs.extend(new_entries);

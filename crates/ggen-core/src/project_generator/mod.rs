@@ -259,8 +259,7 @@ impl DependencyInstaller {
         let output = SafeCommand::new("npm")?
             .arg("install")?
             .current_dir(path)?
-            .execute()
-            .map_err(|e| Error::with_source("Failed to run npm install", Box::new(e)))?;
+            .execute()?;
 
         if !output.status.success() {
             return Err(Error::new(&format!(

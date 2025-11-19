@@ -152,7 +152,7 @@ impl ErrorSanitizer {
             } else {
                 user_msg
             },
-            internal_msg
+            internal_msg,
         )
     }
 
@@ -171,8 +171,7 @@ impl ErrorSanitizer {
             error
         );
 
-        SanitizedError::new(user_msg, internal_msg)
-            .with_code("FILE_ERROR")
+        SanitizedError::new(user_msg, internal_msg).with_code("FILE_ERROR")
     }
 
     /// Create template error (sanitized)
@@ -180,8 +179,7 @@ impl ErrorSanitizer {
         let user_msg = format!("Template processing failed: {}", template);
         let internal_msg = format!("Template '{}' error: {}", template, error);
 
-        SanitizedError::new(user_msg, internal_msg)
-            .with_code("TEMPLATE_ERROR")
+        SanitizedError::new(user_msg, internal_msg).with_code("TEMPLATE_ERROR")
     }
 
     /// Create command error (sanitized)
@@ -189,8 +187,7 @@ impl ErrorSanitizer {
         let user_msg = format!("Command execution failed: {}", command);
         let internal_msg = format!("Command '{}' failed: {}", command, error);
 
-        SanitizedError::new(user_msg, internal_msg)
-            .with_code("COMMAND_ERROR")
+        SanitizedError::new(user_msg, internal_msg).with_code("COMMAND_ERROR")
     }
 }
 
@@ -240,10 +237,8 @@ mod tests {
 
     #[test]
     fn test_sanitized_error_display() {
-        let err = SanitizedError::new(
-            "An error occurred",
-            "Internal error at /home/user/file.txt"
-        ).with_code("TEST001");
+        let err = SanitizedError::new("An error occurred", "Internal error at /home/user/file.txt")
+            .with_code("TEST001");
 
         let display = format!("{}", err);
         assert!(display.contains("An error occurred"));
@@ -253,11 +248,7 @@ mod tests {
 
     #[test]
     fn test_file_error_sanitization() {
-        let err = ErrorSanitizer::file_error(
-            "read",
-            Path::new("/etc/passwd"),
-            "Permission denied"
-        );
+        let err = ErrorSanitizer::file_error("read", Path::new("/etc/passwd"), "Permission denied");
 
         // User message should be safe
         assert!(!err.user_message().contains("/etc"));

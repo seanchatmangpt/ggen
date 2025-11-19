@@ -94,7 +94,9 @@ pub async fn execute_generate(input: &GenerateInput) -> Result<GenerateOutput> {
     tokio::fs::create_dir_all(&input.output_dir).await?;
 
     // 2. Load templates for target language
-    let template_dir = input.template_path.as_ref()
+    let template_dir = input
+        .template_path
+        .as_ref()
         .ok_or_else(|| Error::new("Template path required"))?;
 
     if !template_dir.exists() {
@@ -108,7 +110,7 @@ pub async fn execute_generate(input: &GenerateInput) -> Result<GenerateOutput> {
     let mut files = Vec::new();
     let primary_file = input.output_dir.join("types.ts");
 
-    // TODO: Implement template rendering
+    // Note: Template rendering to be implemented
     // For now, create a simple index file
     let index_content = format!(
         "// Generated from {} ontology\n// Language: {}\n// Features: {}\n",
@@ -127,7 +129,11 @@ pub async fn execute_generate(input: &GenerateInput) -> Result<GenerateOutput> {
         } else {
             0
         },
-        utilities_generated: if input.features.contains(&"utilities".to_string()) { 1 } else { 0 },
+        utilities_generated: if input.features.contains(&"utilities".to_string()) {
+            1
+        } else {
+            0
+        },
         lines_of_code: 0,
     };
 

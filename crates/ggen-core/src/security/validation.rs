@@ -86,9 +86,11 @@ impl PathValidator {
 
             for dangerous in Self::DANGEROUS_COMPONENTS {
                 if component_str.contains(dangerous) {
-                    return Err(ValidationError::PathTraversal(
-                        format!("Path contains dangerous component: {}", component_str)
-                    ).into());
+                    return Err(ValidationError::PathTraversal(format!(
+                        "Path contains dangerous component: {}",
+                        component_str
+                    ))
+                    .into());
                 }
             }
         }
@@ -116,10 +118,12 @@ impl PathValidator {
 
         // Check if path starts with base
         if !abs_path.starts_with(base) {
-            return Err(ValidationError::PathTraversal(
-                format!("Path escapes base directory: {} not in {}",
-                    abs_path.display(), base.display())
-            ).into());
+            return Err(ValidationError::PathTraversal(format!(
+                "Path escapes base directory: {} not in {}",
+                abs_path.display(),
+                base.display()
+            ))
+            .into());
         }
 
         Ok(validated)
@@ -127,14 +131,17 @@ impl PathValidator {
 
     /// Validate file extension is in allowed list
     pub fn validate_extension(path: &Path, allowed: &[&str]) -> Result<()> {
-        let ext = path.extension()
+        let ext = path
+            .extension()
             .and_then(|e| e.to_str())
             .ok_or_else(|| ValidationError::InvalidPath("No file extension".to_string()))?;
 
         if !allowed.contains(&ext) {
-            return Err(ValidationError::InvalidPath(
-                format!("Extension '{}' not in allowed list", ext)
-            ).into());
+            return Err(ValidationError::InvalidPath(format!(
+                "Extension '{}' not in allowed list",
+                ext
+            ))
+            .into());
         }
 
         Ok(())
@@ -166,16 +173,20 @@ impl EnvVarValidator {
 
         // Check for dangerous characters
         if name.chars().any(|c| Self::DANGEROUS_CHARS.contains(&c)) {
-            return Err(ValidationError::InvalidCharacters(
-                format!("Environment variable name contains dangerous characters: {}", name)
-            ).into());
+            return Err(ValidationError::InvalidCharacters(format!(
+                "Environment variable name contains dangerous characters: {}",
+                name
+            ))
+            .into());
         }
 
         // Ensure alphanumeric + underscore only
         if !name.chars().all(|c| c.is_alphanumeric() || c == '_') {
-            return Err(ValidationError::InvalidCharacters(
-                format!("Environment variable name must be alphanumeric: {}", name)
-            ).into());
+            return Err(ValidationError::InvalidCharacters(format!(
+                "Environment variable name must be alphanumeric: {}",
+                name
+            ))
+            .into());
         }
 
         Ok(name.to_string())
@@ -191,8 +202,9 @@ impl EnvVarValidator {
         // Check for shell metacharacters that could be dangerous
         if value.chars().any(|c| Self::DANGEROUS_CHARS.contains(&c)) {
             return Err(ValidationError::InvalidCharacters(
-                "Environment variable value contains dangerous characters".to_string()
-            ).into());
+                "Environment variable value contains dangerous characters".to_string(),
+            )
+            .into());
         }
 
         Ok(value.to_string())
@@ -205,9 +217,7 @@ pub struct InputValidator;
 impl InputValidator {
     /// Validate string input with length and character restrictions
     pub fn validate_string(
-        input: &str,
-        max_length: usize,
-        allowed_chars: fn(char) -> bool,
+        input: &str, max_length: usize, allowed_chars: fn(char) -> bool,
     ) -> Result<String> {
         if input.is_empty() {
             return Err(ValidationError::EmptyInput.into());
@@ -219,8 +229,9 @@ impl InputValidator {
 
         if !input.chars().all(allowed_chars) {
             return Err(ValidationError::InvalidCharacters(
-                "Input contains invalid characters".to_string()
-            ).into());
+                "Input contains invalid characters".to_string(),
+            )
+            .into());
         }
 
         Ok(input.to_string())
@@ -228,9 +239,7 @@ impl InputValidator {
 
     /// Validate identifier (alphanumeric + underscore/hyphen)
     pub fn validate_identifier(input: &str) -> Result<String> {
-        Self::validate_string(input, 256, |c| {
-            c.is_alphanumeric() || c == '_' || c == '-'
-        })
+        Self::validate_string(input, 256, |c| c.is_alphanumeric() || c == '_' || c == '-')
     }
 
     /// Validate template name

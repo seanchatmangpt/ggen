@@ -70,3 +70,8 @@ predicates = "3"
 tempfile = { workspace = true }
 tokio-test = "0.4"
 chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras"] }
+criterion = { version = "0.7", features = ["html_reports"] }
+
+[[bench]]
+name = "swarm_primitives"
+harness = false

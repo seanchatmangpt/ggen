@@ -46,10 +46,14 @@ fn test_graph_load_from_file_nonexistent() {
 #[test]
 fn test_graph_clone_shares_store() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         ex:alice a ex:Person .
-    "#).unwrap();
+    "#,
+        )
+        .unwrap();
 
     let graph2 = graph.clone();
     assert_eq!(graph.len(), graph2.len());
@@ -83,12 +87,16 @@ fn test_empty_graph_operations() {
 #[test]
 fn test_graph_with_multiple_namespaces() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex1: <http://example1.org/> .
         @prefix ex2: <http://example2.org/> .
         ex1:alice a ex2:Person .
         ex1:bob a ex2:Person .
-    "#).unwrap();
+    "#,
+        )
+        .unwrap();
 
     assert!(graph.len() >= 2);
 }
@@ -96,10 +104,14 @@ fn test_graph_with_multiple_namespaces() {
 #[test]
 fn test_graph_concurrent_clones() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         ex:alice a ex:Person .
-    "#).unwrap();
+    "#,
+        )
+        .unwrap();
 
     let clones: Vec<_> = (0..10).map(|_| graph.clone()).collect();
     for clone in clones {
@@ -110,7 +122,9 @@ fn test_graph_concurrent_clones() {
 #[test]
 fn test_graph_reinitialization() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#).unwrap();
+    graph
+        .insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#)
+        .unwrap();
     assert!(!graph.is_empty());
 
     // Create new graph
@@ -133,10 +147,14 @@ fn test_graph_initial_state() {
 #[test]
 fn test_insert_turtle_basic() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         ex:alice a ex:Person .
-    "#).unwrap();
+    "#,
+        )
+        .unwrap();
     assert!(!graph.is_empty());
 }
 
@@ -153,31 +171,34 @@ fn test_insert_turtle_basic() {
 #[test]
 fn test_insert_turtle_with_base() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle_with_base(
-        r#"<alice> a <Person> ."#,
-        "http://example.org/"
-    ).unwrap();
+    graph
+        .insert_turtle_with_base(r#"<alice> a <Person> ."#, "http://example.org/")
+        .unwrap();
     assert!(!graph.is_empty());
 }
 
 #[test]
 fn test_insert_turtle_in_named_graph() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle_in(
-        r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#,
-        "http://example.org/graph1"
-    ).unwrap();
+    graph
+        .insert_turtle_in(
+            r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#,
+            "http://example.org/graph1",
+        )
+        .unwrap();
     assert!(!graph.is_empty());
 }
 
 #[test]
 fn test_insert_quad_basic() {
     let graph = Graph::new().unwrap();
-    graph.insert_quad(
-        "http://example.org/alice",
-        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        "http://example.org/Person"
-    ).unwrap();
+    graph
+        .insert_quad(
+            "http://example.org/alice",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+            "http://example.org/Person",
+        )
+        .unwrap();
     assert_eq!(graph.len(), 1);
 }
 
@@ -187,7 +208,7 @@ fn test_insert_quad_invalid_subject_iri() {
     let result = graph.insert_quad(
         "not a valid IRI",
         "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        "http://example.org/Person"
+        "http://example.org/Person",
     );
     assert!(result.is_err());
 }
@@ -198,7 +219,7 @@ fn test_insert_quad_invalid_predicate_iri() {
     let result = graph.insert_quad(
         "http://example.org/alice",
         "invalid predicate",
-        "http://example.org/Person"
+        "http://example.org/Person",
     );
     assert!(result.is_err());
 }
@@ -206,12 +227,14 @@ fn test_insert_quad_invalid_predicate_iri() {
 #[test]
 fn test_insert_quad_in_named_graph() {
     let graph = Graph::new().unwrap();
-    graph.insert_quad_in(
-        "http://example.org/alice",
-        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        "http://example.org/Person",
-        "http://example.org/graph1"
-    ).unwrap();
+    graph
+        .insert_quad_in(
+            "http://example.org/alice",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+            "http://example.org/Person",
+            "http://example.org/graph1",
+        )
+        .unwrap();
     assert_eq!(graph.len(), 1);
 }
 
@@ -231,11 +254,13 @@ fn test_insert_quad_object_directly() {
 fn test_insert_multiple_quads() {
     let graph = Graph::new().unwrap();
     for i in 0..10 {
-        graph.insert_quad(
-            &format!("http://example.org/person{}", i),
-            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-            "http://example.org/Person"
-        ).unwrap();
+        graph
+            .insert_quad(
+                &format!("http://example.org/person{}", i),
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                "http://example.org/Person",
+            )
+            .unwrap();
     }
     assert_eq!(graph.len(), 10);
 }
@@ -273,22 +298,30 @@ fn test_insert_duplicate_triples() {
 #[test]
 fn test_insert_with_literals() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         ex:alice ex:name "Alice" ;
                  ex:age 30 ;
                  ex:active true .
-    "#).unwrap();
+    "#,
+        )
+        .unwrap();
     assert!(graph.len() >= 3);
 }
 
 #[test]
 fn test_insert_with_blank_nodes() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         ex:alice ex:friend [ a ex:Person ; ex:name "Bob" ] .
-    "#).unwrap();
+    "#,
+        )
+        .unwrap();
     assert!(graph.len() >= 2);
 }
 
@@ -299,37 +332,45 @@ fn test_insert_with_blank_nodes() {
 #[test]
 fn test_remove_quad_basic() {
     let graph = Graph::new().unwrap();
-    graph.insert_quad(
-        "http://example.org/alice",
-        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        "http://example.org/Person"
-    ).unwrap();
+    graph
+        .insert_quad(
+            "http://example.org/alice",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+            "http://example.org/Person",
+        )
+        .unwrap();
     assert_eq!(graph.len(), 1);
 
-    graph.remove_quad(
-        "http://example.org/alice",
-        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        "http://example.org/Person"
-    ).unwrap();
+    graph
+        .remove_quad(
+            "http://example.org/alice",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+            "http://example.org/Person",
+        )
+        .unwrap();
     assert_eq!(graph.len(), 0);
 }
 
 #[test]
 fn test_remove_quad_from_named_graph() {
     let graph = Graph::new().unwrap();
-    graph.insert_quad_in(
-        "http://example.org/alice",
-        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        "http://example.org/Person",
-        "http://example.org/graph1"
-    ).unwrap();
+    graph
+        .insert_quad_in(
+            "http://example.org/alice",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+            "http://example.org/Person",
+            "http://example.org/graph1",
+        )
+        .unwrap();
 
-    graph.remove_quad_from(
-        "http://example.org/alice",
-        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        "http://example.org/Person",
-        "http://example.org/graph1"
-    ).unwrap();
+    graph
+        .remove_quad_from(
+            "http://example.org/alice",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+            "http://example.org/Person",
+            "http://example.org/graph1",
+        )
+        .unwrap();
     assert_eq!(graph.len(), 0);
 }
 
@@ -354,7 +395,7 @@ fn test_remove_nonexistent_quad() {
     let result = graph.remove_quad(
         "http://example.org/alice",
         "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        "http://example.org/Person"
+        "http://example.org/Person",
     );
     assert!(result.is_ok());
     assert_eq!(graph.len(), 0);
@@ -363,12 +404,16 @@ fn test_remove_nonexistent_quad() {
 #[test]
 fn test_remove_for_pattern_all() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         ex:alice a ex:Person .
         ex:bob a ex:Person .
         ex:carol a ex:Dog .
-    "#).unwrap();
+    "#,
+        )
+        .unwrap();
 
     let count = graph.remove_for_pattern(None, None, None, None).unwrap();
     assert!(count >= 3);
@@ -378,33 +423,43 @@ fn test_remove_for_pattern_all() {
 #[test]
 fn test_remove_for_pattern_specific_predicate() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         ex:alice ex:name "Alice" ;
                  ex:age 30 .
         ex:bob ex:name "Bob" .
-    "#).unwrap();
+    "#,
+        )
+        .unwrap();
 
     let name_pred = NamedNode::new("http://example.org/name").unwrap();
-    let count = graph.remove_for_pattern(None, Some(&name_pred), None, None).unwrap();
+    let count = graph
+        .remove_for_pattern(None, Some(&name_pred), None, None)
+        .unwrap();
     assert_eq!(count, 2);
 }
 
 #[test]
 fn test_remove_increments_epoch() {
     let graph = Graph::new().unwrap();
-    graph.insert_quad(
-        "http://example.org/alice",
-        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        "http://example.org/Person"
-    ).unwrap();
+    graph
+        .insert_quad(
+            "http://example.org/alice",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+            "http://example.org/Person",
+        )
+        .unwrap();
 
     // Note: current_epoch() is private - not testing epoch increments
-    graph.remove_quad(
-        "http://example.org/alice",
-        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        "http://example.org/Person"
-    ).unwrap();
+    graph
+        .remove_quad(
+            "http://example.org/alice",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+            "http://example.org/Person",
+        )
+        .unwrap();
 
     // Verify quad was removed
     assert_eq!(graph.len(), 0);
@@ -413,11 +468,15 @@ fn test_remove_increments_epoch() {
 #[test]
 fn test_clear_graph() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         ex:alice a ex:Person .
         ex:bob a ex:Person .
-    "#).unwrap();
+    "#,
+        )
+        .unwrap();
     assert!(!graph.is_empty());
 
     graph.clear().unwrap();
@@ -454,10 +513,14 @@ fn test_clear_empty_graph() {
 #[test]
 fn test_query_cached_simple_select() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         ex:alice ex:name "Alice" .
-    "#).unwrap();
+    "#,
+        )
+        .unwrap();
 
     let result = graph.query_cached("SELECT ?name WHERE { ?s <http://example.org/name> ?name }");
     assert!(result.is_ok());
@@ -466,7 +529,9 @@ fn test_query_cached_simple_select() {
 #[test]
 fn test_query_cached_returns_from_cache() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice ex:name "Alice" ."#).unwrap();
+    graph
+        .insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice ex:name "Alice" ."#)
+        .unwrap();
 
     let query = "SELECT ?name WHERE { ?s <http://example.org/name> ?name }";
 
@@ -476,48 +541,74 @@ fn test_query_cached_returns_from_cache() {
     let result2 = graph.query_cached(query).unwrap();
 
     // Both should succeed
-    assert!(matches!(result1, ggen_core::graph::types::CachedResult::Solutions(_)));
-    assert!(matches!(result2, ggen_core::graph::types::CachedResult::Solutions(_)));
+    assert!(matches!(
+        result1,
+        ggen_core::graph::types::CachedResult::Solutions(_)
+    ));
+    assert!(matches!(
+        result2,
+        ggen_core::graph::types::CachedResult::Solutions(_)
+    ));
 }
 
 #[test]
 fn test_query_cache_invalidation_on_insert() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice ex:name "Alice" ."#).unwrap();
+    graph
+        .insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice ex:name "Alice" ."#)
+        .unwrap();
 
     let query = "SELECT ?name WHERE { ?s <http://example.org/name> ?name }";
     let _result1 = graph.query_cached(query).unwrap();
 
     // Insert new data (increments epoch, invalidates cache)
-    graph.insert_turtle(r#"@prefix ex: <http://example.org/> . ex:bob ex:name "Bob" ."#).unwrap();
+    graph
+        .insert_turtle(r#"@prefix ex: <http://example.org/> . ex:bob ex:name "Bob" ."#)
+        .unwrap();
 
     // Query again (should return updated results)
     let result2 = graph.query_cached(query).unwrap();
-    assert!(matches!(result2, ggen_core::graph::types::CachedResult::Solutions(_)));
+    assert!(matches!(
+        result2,
+        ggen_core::graph::types::CachedResult::Solutions(_)
+    ));
 }
 
 #[test]
 fn test_query_ask() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#).unwrap();
+    graph
+        .insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#)
+        .unwrap();
 
-    let result = graph.query_cached("ASK { ?s a <http://example.org/Person> }").unwrap();
-    assert!(matches!(result, ggen_core::graph::types::CachedResult::Boolean(true)));
+    let result = graph
+        .query_cached("ASK { ?s a <http://example.org/Person> }")
+        .unwrap();
+    assert!(matches!(
+        result,
+        ggen_core::graph::types::CachedResult::Boolean(true)
+    ));
 }
 
 #[test]
 fn test_query_construct() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#).unwrap();
+    graph
+        .insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#)
+        .unwrap();
 
-    let result = graph.query_cached("CONSTRUCT { ?s a <http://example.org/Person> } WHERE { ?s a <http://example.org/Person> }");
+    let result = graph.query_cached(
+        "CONSTRUCT { ?s a <http://example.org/Person> } WHERE { ?s a <http://example.org/Person> }",
+    );
     assert!(result.is_ok());
 }
 
 #[test]
 fn test_query_with_prolog() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#).unwrap();
+    graph
+        .insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#)
+        .unwrap();
 
     let mut prefixes = BTreeMap::new();
     prefixes.insert("ex".to_string(), "http://example.org/".to_string());
@@ -537,17 +628,24 @@ fn test_query_invalid_sparql() {
 fn test_query_empty_result() {
     let graph = Graph::new().unwrap();
     let result = graph.query_cached("SELECT ?s WHERE { ?s ?p ?o }").unwrap();
-    assert!(matches!(result, ggen_core::graph::types::CachedResult::Solutions(_)));
+    assert!(matches!(
+        result,
+        ggen_core::graph::types::CachedResult::Solutions(_)
+    ));
 }
 
 #[test]
 fn test_quads_for_pattern_all() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         ex:alice a ex:Person .
         ex:bob a ex:Person .
-    "#).unwrap();
+    "#,
+        )
+        .unwrap();
 
     let quads = graph.quads_for_pattern(None, None, None, None).unwrap();
     assert!(quads.len() >= 2);
@@ -556,24 +654,34 @@ fn test_quads_for_pattern_all() {
 #[test]
 fn test_quads_for_pattern_specific_subject() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         ex:alice a ex:Person ;
                  ex:name "Alice" .
-    "#).unwrap();
+    "#,
+        )
+        .unwrap();
 
     let subject = NamedNode::new("http://example.org/alice").unwrap();
-    let quads = graph.quads_for_pattern(Some(&subject.into()), None, None, None).unwrap();
+    let quads = graph
+        .quads_for_pattern(Some(&subject.into()), None, None, None)
+        .unwrap();
     assert!(quads.len() >= 2);
 }
 
 #[test]
 fn test_quads_iterator() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         ex:alice a ex:Person .
-    "#).unwrap();
+    "#,
+        )
+        .unwrap();
 
     let mut count = 0;
     for quad in graph.quads() {
@@ -586,27 +694,34 @@ fn test_quads_iterator() {
 #[test]
 fn test_query_with_filter() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         ex:alice ex:age 30 .
         ex:bob ex:age 25 .
-    "#).unwrap();
+    "#,
+        )
+        .unwrap();
 
-    let result = graph.query_cached(
-        "SELECT ?s WHERE { ?s <http://example.org/age> ?age . FILTER(?age > 26) }"
-    );
+    let result = graph
+        .query_cached("SELECT ?s WHERE { ?s <http://example.org/age> ?age . FILTER(?age > 26) }");
     assert!(result.is_ok());
 }
 
 #[test]
 fn test_query_with_optional() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         ex:alice a ex:Person ;
                  ex:name "Alice" .
         ex:bob a ex:Person .
-    "#).unwrap();
+    "#,
+        )
+        .unwrap();
 
     let result = graph.query_cached(
         "SELECT ?s ?name WHERE { ?s a <http://example.org/Person> . OPTIONAL { ?s <http://example.org/name> ?name } }"
@@ -617,11 +732,15 @@ fn test_query_with_optional() {
 #[test]
 fn test_query_with_union() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         ex:alice a ex:Person .
         ex:fido a ex:Dog .
-    "#).unwrap();
+    "#,
+        )
+        .unwrap();
 
     let result = graph.query_cached(
         "SELECT ?s WHERE { { ?s a <http://example.org/Person> } UNION { ?s a <http://example.org/Dog> } }"
@@ -632,12 +751,16 @@ fn test_query_with_union() {
 #[test]
 fn test_query_with_limit() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         ex:alice a ex:Person .
         ex:bob a ex:Person .
         ex:carol a ex:Person .
-    "#).unwrap();
+    "#,
+        )
+        .unwrap();
 
     let result = graph.query_cached("SELECT ?s WHERE { ?s a <http://example.org/Person> } LIMIT 2");
     assert!(result.is_ok());
@@ -651,11 +774,13 @@ fn test_query_with_limit() {
 fn test_large_graph_insertion() {
     let graph = Graph::new().unwrap();
     for i in 0..1000 {
-        graph.insert_quad(
-            &format!("http://example.org/person{}", i),
-            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-            "http://example.org/Person"
-        ).unwrap();
+        graph
+            .insert_quad(
+                &format!("http://example.org/person{}", i),
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                "http://example.org/Person",
+            )
+            .unwrap();
     }
     assert_eq!(graph.len(), 1000);
 }
@@ -674,10 +799,14 @@ fn test_large_turtle_document() {
 #[test]
 fn test_query_performance_with_cache() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         ex:alice ex:name "Alice" .
-    "#).unwrap();
+    "#,
+        )
+        .unwrap();
 
     let query = "SELECT ?name WHERE { ?s <http://example.org/name> ?name }";
 
@@ -693,7 +822,9 @@ fn test_query_performance_with_cache() {
 #[test]
 fn test_concurrent_reads() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#).unwrap();
+    graph
+        .insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#)
+        .unwrap();
 
     let graphs: Vec<_> = (0..10).map(|_| graph.clone()).collect();
     for g in graphs {
@@ -719,7 +850,7 @@ fn test_very_long_iri() {
     let result = graph.insert_quad(
         &long_iri,
         "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        "http://example.org/Person"
+        "http://example.org/Person",
     );
     assert!(result.is_ok());
 }
@@ -728,12 +859,14 @@ fn test_very_long_iri() {
 fn test_many_named_graphs() {
     let graph = Graph::new().unwrap();
     for i in 0..10 {
-        graph.insert_quad_in(
-            "http://example.org/alice",
-            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-            "http://example.org/Person",
-            &format!("http://example.org/graph{}", i)
-        ).unwrap();
+        graph
+            .insert_quad_in(
+                "http://example.org/alice",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                "http://example.org/Person",
+                &format!("http://example.org/graph{}", i),
+            )
+            .unwrap();
     }
     assert_eq!(graph.len(), 10);
 }
@@ -741,7 +874,9 @@ fn test_many_named_graphs() {
 #[test]
 fn test_complex_query_with_multiple_patterns() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         ex:alice a ex:Person ;
                  ex:name "Alice" ;
@@ -750,14 +885,16 @@ fn test_complex_query_with_multiple_patterns() {
         ex:bob a ex:Person ;
                ex:name "Bob" ;
                ex:age 25 .
-    "#).unwrap();
+    "#,
+        )
+        .unwrap();
 
     let result = graph.query_cached(
         "SELECT ?name1 ?name2 WHERE {
             ?p1 <http://example.org/friend> ?p2 .
             ?p1 <http://example.org/name> ?name1 .
             ?p2 <http://example.org/name> ?name2
-        }"
+        }",
     );
     assert!(result.is_ok());
 }
@@ -765,29 +902,35 @@ fn test_complex_query_with_multiple_patterns() {
 #[test]
 fn test_graph_len_with_named_graphs() {
     let graph = Graph::new().unwrap();
-    graph.insert_quad_in(
-        "http://example.org/alice",
-        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        "http://example.org/Person",
-        "http://example.org/graph1"
-    ).unwrap();
-    graph.insert_quad(
-        "http://example.org/bob",
-        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        "http://example.org/Person"
-    ).unwrap();
+    graph
+        .insert_quad_in(
+            "http://example.org/alice",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+            "http://example.org/Person",
+            "http://example.org/graph1",
+        )
+        .unwrap();
+    graph
+        .insert_quad(
+            "http://example.org/bob",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+            "http://example.org/Person",
+        )
+        .unwrap();
     assert_eq!(graph.len(), 2);
 }
 
 #[test]
 fn test_batch_operations() {
     let graph = Graph::new().unwrap();
-    let quads: Vec<_> = (0..100).map(|i| {
-        let s = NamedNode::new(&format!("http://example.org/person{}", i)).unwrap();
-        let p = NamedNode::new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type").unwrap();
-        let o = NamedNode::new("http://example.org/Person").unwrap();
-        Quad::new(s, p, o, GraphName::DefaultGraph)
-    }).collect();
+    let quads: Vec<_> = (0..100)
+        .map(|i| {
+            let s = NamedNode::new(&format!("http://example.org/person{}", i)).unwrap();
+            let p = NamedNode::new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type").unwrap();
+            let o = NamedNode::new("http://example.org/Person").unwrap();
+            Quad::new(s, p, o, GraphName::DefaultGraph)
+        })
+        .collect();
 
     for quad in quads {
         graph.insert_quad_object(&quad).unwrap();
@@ -798,13 +941,17 @@ fn test_batch_operations() {
 #[test]
 fn test_query_result_materialization() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"
+    graph
+        .insert_turtle(
+            r#"
         @prefix ex: <http://example.org/> .
         ex:alice ex:name "Alice" ;
                  ex:age 30 .
         ex:bob ex:name "Bob" ;
                ex:age 25 .
-    "#).unwrap();
+    "#,
+        )
+        .unwrap();
 
     let result = graph.query_cached("SELECT ?s ?name ?age WHERE { ?s <http://example.org/name> ?name ; <http://example.org/age> ?age }").unwrap();
     match result {
@@ -829,11 +976,13 @@ fn test_memory_usage_growth() {
 
     // Add 100 triples
     for i in 0..100 {
-        graph.insert_quad(
-            &format!("http://example.org/person{}", i),
-            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-            "http://example.org/Person"
-        ).unwrap();
+        graph
+            .insert_quad(
+                &format!("http://example.org/person{}", i),
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                "http://example.org/Person",
+            )
+            .unwrap();
     }
 
     assert_eq!(graph.len(), initial_len + 100);
@@ -842,7 +991,9 @@ fn test_memory_usage_growth() {
 #[test]
 fn test_cache_size_boundaries() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#).unwrap();
+    graph
+        .insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#)
+        .unwrap();
 
     // Create many unique queries to stress cache
     for i in 0..150 {
@@ -880,7 +1031,9 @@ fn test_store_persistence() {
     // Create store and add data
     let store1 = GraphStore::open(&store_path).unwrap();
     let graph1 = store1.create_graph().unwrap();
-    graph1.insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#).unwrap();
+    graph1
+        .insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#)
+        .unwrap();
     let count1 = graph1.len();
     drop(graph1);
     drop(store1);
@@ -895,7 +1048,9 @@ fn test_store_persistence() {
 fn test_store_multiple_graphs_share_data() {
     let store = GraphStore::new().unwrap();
     let graph1 = store.create_graph().unwrap();
-    graph1.insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#).unwrap();
+    graph1
+        .insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#)
+        .unwrap();
 
     let graph2 = store.create_graph().unwrap();
     assert_eq!(graph1.len(), graph2.len());
@@ -915,8 +1070,12 @@ fn test_store_reopen_after_modifications() {
 
     let store1 = GraphStore::open(&store_path).unwrap();
     let graph1 = store1.create_graph().unwrap();
-    graph1.insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#).unwrap();
-    graph1.insert_turtle(r#"@prefix ex: <http://example.org/> . ex:bob a ex:Person ."#).unwrap();
+    graph1
+        .insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#)
+        .unwrap();
+    graph1
+        .insert_turtle(r#"@prefix ex: <http://example.org/> . ex:bob a ex:Person ."#)
+        .unwrap();
     drop(graph1);
     drop(store1);
 
@@ -933,11 +1092,13 @@ fn test_store_large_dataset_persistence() {
     let store1 = GraphStore::open(&store_path).unwrap();
     let graph1 = store1.create_graph().unwrap();
     for i in 0..100 {
-        graph1.insert_quad(
-            &format!("http://example.org/person{}", i),
-            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-            "http://example.org/Person"
-        ).unwrap();
+        graph1
+            .insert_quad(
+                &format!("http://example.org/person{}", i),
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                "http://example.org/Person",
+            )
+            .unwrap();
     }
     drop(graph1);
     drop(store1);
@@ -953,7 +1114,9 @@ fn test_store_concurrent_access() {
     let graph1 = store.create_graph().unwrap();
     let graph2 = store.create_graph().unwrap();
 
-    graph1.insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#).unwrap();
+    graph1
+        .insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#)
+        .unwrap();
 
     // Both graphs should see the update
     assert_eq!(graph1.len(), graph2.len());
@@ -966,7 +1129,9 @@ fn test_store_query_after_reopen() {
 
     let store1 = GraphStore::open(&store_path).unwrap();
     let graph1 = store1.create_graph().unwrap();
-    graph1.insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice ex:name "Alice" ."#).unwrap();
+    graph1
+        .insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice ex:name "Alice" ."#)
+        .unwrap();
     drop(graph1);
     drop(store1);
 
@@ -983,16 +1148,20 @@ fn test_store_deletion_persistence() {
 
     let store1 = GraphStore::open(&store_path).unwrap();
     let graph1 = store1.create_graph().unwrap();
-    graph1.insert_quad(
-        "http://example.org/alice",
-        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        "http://example.org/Person"
-    ).unwrap();
-    graph1.remove_quad(
-        "http://example.org/alice",
-        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        "http://example.org/Person"
-    ).unwrap();
+    graph1
+        .insert_quad(
+            "http://example.org/alice",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+            "http://example.org/Person",
+        )
+        .unwrap();
+    graph1
+        .remove_quad(
+            "http://example.org/alice",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+            "http://example.org/Person",
+        )
+        .unwrap();
     drop(graph1);
     drop(store1);
 
@@ -1008,7 +1177,9 @@ fn test_store_clear_persistence() {
 
     let store1 = GraphStore::open(&store_path).unwrap();
     let graph1 = store1.create_graph().unwrap();
-    graph1.insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#).unwrap();
+    graph1
+        .insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#)
+        .unwrap();
     graph1.clear().unwrap();
     drop(graph1);
     drop(store1);
@@ -1025,12 +1196,14 @@ fn test_store_named_graphs_persistence() {
 
     let store1 = GraphStore::open(&store_path).unwrap();
     let graph1 = store1.create_graph().unwrap();
-    graph1.insert_quad_in(
-        "http://example.org/alice",
-        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        "http://example.org/Person",
-        "http://example.org/graph1"
-    ).unwrap();
+    graph1
+        .insert_quad_in(
+            "http://example.org/alice",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+            "http://example.org/Person",
+            "http://example.org/graph1",
+        )
+        .unwrap();
     drop(graph1);
     drop(store1);
 
@@ -1047,7 +1220,9 @@ fn test_store_incremental_updates() {
     // First session
     let store1 = GraphStore::open(&store_path).unwrap();
     let graph1 = store1.create_graph().unwrap();
-    graph1.insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#).unwrap();
+    graph1
+        .insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#)
+        .unwrap();
     drop(graph1);
     drop(store1);
 
@@ -1055,7 +1230,9 @@ fn test_store_incremental_updates() {
     let store2 = GraphStore::open(&store_path).unwrap();
     let graph2 = store2.create_graph().unwrap();
     assert_eq!(graph2.len(), 1);
-    graph2.insert_turtle(r#"@prefix ex: <http://example.org/> . ex:bob a ex:Person ."#).unwrap();
+    graph2
+        .insert_turtle(r#"@prefix ex: <http://example.org/> . ex:bob a ex:Person ."#)
+        .unwrap();
     drop(graph2);
     drop(store2);
 
@@ -1069,10 +1246,14 @@ fn test_store_incremental_updates() {
 fn test_store_load_path() {
     let temp_dir = TempDir::new().unwrap();
     let turtle_file = temp_dir.path().join("data.ttl");
-    std::fs::write(&turtle_file, r#"
+    std::fs::write(
+        &turtle_file,
+        r#"
         @prefix ex: <http://example.org/> .
         ex:alice a ex:Person .
-    "#).unwrap();
+    "#,
+    )
+    .unwrap();
 
     let store = GraphStore::new().unwrap();
     let graph = store.create_graph().unwrap();
@@ -1088,7 +1269,9 @@ fn test_store_resource_cleanup() {
     {
         let store = GraphStore::open(&store_path).unwrap();
         let graph = store.create_graph().unwrap();
-        graph.insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#).unwrap();
+        graph
+            .insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#)
+            .unwrap();
         // Explicit drop
     }
 
@@ -1122,11 +1305,13 @@ fn test_store_multiple_sessions() {
     for i in 0..5 {
         let store = GraphStore::open(&store_path).unwrap();
         let graph = store.create_graph().unwrap();
-        graph.insert_quad(
-            &format!("http://example.org/person{}", i),
-            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-            "http://example.org/Person"
-        ).unwrap();
+        graph
+            .insert_quad(
+                &format!("http://example.org/person{}", i),
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                "http://example.org/Person",
+            )
+            .unwrap();
         drop(graph);
         drop(store);
     }
@@ -1143,8 +1328,12 @@ fn test_store_query_caching_across_sessions() {
 
     let store1 = GraphStore::open(&store_path).unwrap();
     let graph1 = store1.create_graph().unwrap();
-    graph1.insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice ex:name "Alice" ."#).unwrap();
-    let _result1 = graph1.query_cached("SELECT ?name WHERE { ?s <http://example.org/name> ?name }").unwrap();
+    graph1
+        .insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice ex:name "Alice" ."#)
+        .unwrap();
+    let _result1 = graph1
+        .query_cached("SELECT ?name WHERE { ?s <http://example.org/name> ?name }")
+        .unwrap();
     drop(graph1);
     drop(store1);
 
@@ -1164,11 +1353,13 @@ fn test_store_batch_persistence() {
     let graph = store.create_graph().unwrap();
 
     for i in 0..50 {
-        graph.insert_quad(
-            &format!("http://example.org/person{}", i),
-            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-            "http://example.org/Person"
-        ).unwrap();
+        graph
+            .insert_quad(
+                &format!("http://example.org/person{}", i),
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                "http://example.org/Person",
+            )
+            .unwrap();
     }
     drop(graph);
     drop(store);
@@ -1208,8 +1399,14 @@ fn test_build_prolog_with_single_prefix() {
 fn test_build_prolog_with_multiple_prefixes() {
     let mut prefixes = BTreeMap::new();
     prefixes.insert("ex".to_string(), "http://example.org/".to_string());
-    prefixes.insert("rdf".to_string(), "http://www.w3.org/1999/02/22-rdf-syntax-ns#".to_string());
-    prefixes.insert("rdfs".to_string(), "http://www.w3.org/2000/01/rdf-schema#".to_string());
+    prefixes.insert(
+        "rdf".to_string(),
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#".to_string(),
+    );
+    prefixes.insert(
+        "rdfs".to_string(),
+        "http://www.w3.org/2000/01/rdf-schema#".to_string(),
+    );
 
     let prolog = build_prolog(&prefixes, None);
     assert!(prolog.contains("PREFIX ex: <http://example.org/>"));
@@ -1251,7 +1448,10 @@ fn test_build_prolog_ordering() {
 #[test]
 fn test_build_prolog_special_characters() {
     let mut prefixes = BTreeMap::new();
-    prefixes.insert("test-prefix".to_string(), "http://example.org/test#".to_string());
+    prefixes.insert(
+        "test-prefix".to_string(),
+        "http://example.org/test#".to_string(),
+    );
 
     let prolog = build_prolog(&prefixes, None);
     assert!(prolog.contains("PREFIX test-prefix: <http://example.org/test#>"));
@@ -1283,10 +1483,22 @@ fn test_build_prolog_format() {
 #[test]
 fn test_build_prolog_with_standard_vocabularies() {
     let mut prefixes = BTreeMap::new();
-    prefixes.insert("rdf".to_string(), "http://www.w3.org/1999/02/22-rdf-syntax-ns#".to_string());
-    prefixes.insert("rdfs".to_string(), "http://www.w3.org/2000/01/rdf-schema#".to_string());
-    prefixes.insert("owl".to_string(), "http://www.w3.org/2002/07/owl#".to_string());
-    prefixes.insert("xsd".to_string(), "http://www.w3.org/2001/XMLSchema#".to_string());
+    prefixes.insert(
+        "rdf".to_string(),
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#".to_string(),
+    );
+    prefixes.insert(
+        "rdfs".to_string(),
+        "http://www.w3.org/2000/01/rdf-schema#".to_string(),
+    );
+    prefixes.insert(
+        "owl".to_string(),
+        "http://www.w3.org/2002/07/owl#".to_string(),
+    );
+    prefixes.insert(
+        "xsd".to_string(),
+        "http://www.w3.org/2001/XMLSchema#".to_string(),
+    );
 
     let prolog = build_prolog(&prefixes, None);
     assert!(prolog.contains("PREFIX rdf:"));
@@ -1312,7 +1524,7 @@ fn test_invalid_subject_iri() {
     let result = graph.insert_quad(
         "invalid iri with spaces",
         "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        "http://example.org/Person"
+        "http://example.org/Person",
     );
     assert!(result.is_err());
 }
@@ -1323,7 +1535,7 @@ fn test_invalid_predicate_iri() {
     let result = graph.insert_quad(
         "http://example.org/alice",
         "not@valid",
-        "http://example.org/Person"
+        "http://example.org/Person",
     );
     assert!(result.is_err());
 }
@@ -1334,7 +1546,7 @@ fn test_invalid_object_iri() {
     let result = graph.insert_quad(
         "http://example.org/alice",
         "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        "spaces in iri"
+        "spaces in iri",
     );
     assert!(result.is_err());
 }
@@ -1346,7 +1558,7 @@ fn test_invalid_graph_iri() {
         "http://example.org/alice",
         "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
         "http://example.org/Person",
-        "invalid graph"
+        "invalid graph",
     );
     assert!(result.is_err());
 }
@@ -1361,7 +1573,9 @@ fn test_invalid_sparql_syntax() {
 #[test]
 fn test_query_undefined_prefix() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#).unwrap();
+    graph
+        .insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#)
+        .unwrap();
 
     // Query uses undefined prefix
     let result = graph.query_cached("SELECT ?s WHERE { ?s a undefined:Type }");
@@ -1374,7 +1588,7 @@ fn test_remove_with_invalid_iri() {
     let result = graph.remove_quad(
         "invalid iri",
         "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-        "http://example.org/Person"
+        "http://example.org/Person",
     );
     assert!(result.is_err());
 }
@@ -1384,7 +1598,7 @@ fn test_insert_turtle_in_with_invalid_graph_iri() {
     let graph = Graph::new().unwrap();
     let result = graph.insert_turtle_in(
         r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#,
-        "not a valid iri"
+        "not a valid iri",
     );
     assert!(result.is_err());
 }
@@ -1418,10 +1632,7 @@ fn test_query_with_syntax_error() {
 fn test_insert_turtle_with_wrong_base() {
     let graph = Graph::new().unwrap();
     // Base IRI doesn't match actual IRIs
-    let result = graph.insert_turtle_with_base(
-        r#"<alice> <knows> <bob> ."#,
-        "invalid base"
-    );
+    let result = graph.insert_turtle_with_base(r#"<alice> <knows> <bob> ."#, "invalid base");
     assert!(result.is_err());
 }
 
@@ -1458,12 +1669,16 @@ fn test_store_open_invalid_path() {
 #[test]
 fn test_concurrent_modification_safety() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#).unwrap();
+    graph
+        .insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice a ex:Person ."#)
+        .unwrap();
 
     let graph2 = graph.clone();
 
     // Modify via clone
-    graph2.insert_turtle(r#"@prefix ex: <http://example.org/> . ex:bob a ex:Person ."#).unwrap();
+    graph2
+        .insert_turtle(r#"@prefix ex: <http://example.org/> . ex:bob a ex:Person ."#)
+        .unwrap();
 
     // Both should see the change (shared store)
     assert_eq!(graph.len(), graph2.len());
@@ -1472,7 +1687,9 @@ fn test_concurrent_modification_safety() {
 #[test]
 fn test_query_with_missing_variable() {
     let graph = Graph::new().unwrap();
-    graph.insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice ex:name "Alice" ."#).unwrap();
+    graph
+        .insert_turtle(r#"@prefix ex: <http://example.org/> . ex:alice ex:name "Alice" ."#)
+        .unwrap();
 
     // Query uses variable but doesn't bind it
     let result = graph.query_cached("SELECT ?name WHERE { ?s <http://example.org/age> ?age }");
@@ -1484,7 +1701,11 @@ fn test_load_corrupted_turtle() {
     let graph = Graph::new().unwrap();
     let temp_dir = TempDir::new().unwrap();
     let file_path = temp_dir.path().join("corrupted.ttl");
-    std::fs::write(&file_path, "@prefix ex: <http://example.org/> . ex:alice a ").unwrap();
+    std::fs::write(
+        &file_path,
+        "@prefix ex: <http://example.org/> . ex:alice a ",
+    )
+    .unwrap();
 
     let result = graph.load_path(&file_path);
     assert!(result.is_err());

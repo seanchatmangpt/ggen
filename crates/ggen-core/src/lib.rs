@@ -124,7 +124,6 @@ pub mod delta;
 #[cfg(test)]
 pub mod e2e_tests;
 pub mod generator;
-pub mod parallel_generator;
 pub mod github;
 pub mod gpack;
 pub mod graph;
@@ -132,6 +131,7 @@ pub mod inject;
 pub mod lifecycle;
 pub mod lockfile;
 pub mod merge;
+pub mod parallel_generator;
 // Ontology system - re-enabled after oxigraph API compatibility fixes
 pub mod ontology;
 pub mod ontology_pack;

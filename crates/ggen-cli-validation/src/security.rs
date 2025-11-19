@@ -37,18 +37,15 @@ impl Default for PermissionModel {
 }
 
 impl PermissionModel {
-    /// Create a new permission model with default settings
+    /// Create a new permission model with permissive default settings
+    /// Allows all operations unless explicitly restricted by sandbox
     #[must_use]
     pub fn new() -> Self {
         Self {
-            allowed_read_paths: vec![PathBuf::from(".")],
-            allowed_write_paths: vec![PathBuf::from(".")],
+            allowed_read_paths: vec![],  // Empty means allow all
+            allowed_write_paths: vec![], // Empty means allow all
             sandbox_root: None,
-            restricted_env_vars: vec![
-                "PATH".to_string(),
-                "HOME".to_string(),
-                "USER".to_string(),
-            ],
+            restricted_env_vars: vec!["PATH".to_string(), "HOME".to_string(), "USER".to_string()],
         }
     }
 
@@ -95,16 +92,8 @@ impl PermissionModel {
     fn check_path_traversal(&self, path: &Path) -> Result<()> {
         let path_str = path.to_string_lossy();
 
-        // Check for common path traversal patterns
-        if path_str.contains("..") || path_str.contains("./") {
-            // Allow relative paths within current directory
-            if let Ok(canonical) = path.canonicalize() {
-                if let Ok(current) = std::env::current_dir() {
-                    if canonical.starts_with(current) {
-                        return Ok(());
-                    }
-                }
-            }
+        // Check for dangerous path traversal patterns (../ going up directories)
+        if path_str.contains("../") || path_str.starts_with("..") {
             return Err(ValidationError::PathTraversal {
                 path: path_str.to_string(),
             });
@@ -115,24 +104,23 @@ impl PermissionModel {
 
     /// Check sandbox constraints
     fn check_sandbox(&self, path: &Path, sandbox_root: &Path) -> Result<()> {
-        let canonical_path = path
-            .canonicalize()
-            .or_else(|_| {
-                // If path doesn't exist yet, check parent
-                path.parent()
-                    .and_then(|p| p.canonicalize().ok())
-                    .ok_or(ValidationError::InvalidPath {
-                        path: path.display().to_string(),
-                        reason: "Cannot canonicalize path".to_string(),
-                    })
-            })?;
-
-        let canonical_root = sandbox_root.canonicalize().map_err(|e| {
-            ValidationError::InvalidPath {
-                path: sandbox_root.display().to_string(),
-                reason: format!("Cannot canonicalize sandbox root: {e}"),
-            }
+        let canonical_path = path.canonicalize().or_else(|_| {
+            // If path doesn't exist yet, check parent
+            path.parent()
+                .and_then(|p| p.canonicalize().ok())
+                .ok_or(ValidationError::InvalidPath {
+                    path: path.display().to_string(),
+                    reason: "Cannot canonicalize path".to_string(),
+                })
         })?;
+
+        let canonical_root =
+            sandbox_root
+                .canonicalize()
+                .map_err(|e| ValidationError::InvalidPath {
+                    path: sandbox_root.display().to_string(),
+                    reason: format!("Cannot canonicalize sandbox root: {e}"),
+                })?;
 
         if !canonical_path.starts_with(&canonical_root) {
             return Err(ValidationError::SandboxViolation {
@@ -172,7 +160,11 @@ impl PermissionModel {
     }
 
     /// Check if path matches any allowed patterns
+    /// Empty allowed_paths means allow all (permissive default)
     fn is_path_allowed(&self, path: &Path, allowed_paths: &[PathBuf]) -> bool {
+        if allowed_paths.is_empty() {
+            return true; // Permissive default
+        }
         allowed_paths.iter().any(|allowed| {
             // Simple prefix matching for now
             path.starts_with(allowed)
@@ -195,7 +187,8 @@ mod tests {
     fn test_default_permission_model() {
         let model = PermissionModel::new();
         assert!(model.sandbox_root.is_none());
-        assert!(!model.allowed_read_paths.is_empty());
+        // Permissive default - empty paths mean allow all
+        assert!(model.allowed_read_paths.is_empty());
     }
 
     #[test]
@@ -223,15 +216,30 @@ mod tests {
 
     #[test]
     fn test_read_write_permissions() {
-        let model = PermissionModel::new()
-            .allow_read(PathBuf::from("./src"))
-            .allow_write(PathBuf::from("./target"));
+        // Create restrictive model with specific allowed paths
+        let mut model = PermissionModel::new();
+        model.allowed_read_paths = vec![PathBuf::from("./src")];
+        model.allowed_write_paths = vec![PathBuf::from("./target")];
 
-        // Read permission
-        assert!(model.check_permission(Path::new("./src/lib.rs"), Permission::Read).is_ok());
+        // Read permission - allowed
+        assert!(model
+            .check_permission(Path::new("./src/lib.rs"), Permission::Read)
+            .is_ok());
 
-        // Write permission
-        assert!(model.check_permission(Path::new("./target/output"), Permission::Write).is_ok());
+        // Write permission - allowed
+        assert!(model
+            .check_permission(Path::new("./target/output"), Permission::Write)
+            .is_ok());
+
+        // Read permission - denied (not in allowed paths)
+        assert!(model
+            .check_permission(Path::new("./target/lib.rs"), Permission::Read)
+            .is_err());
+
+        // Write permission - denied (not in allowed paths)
+        assert!(model
+            .check_permission(Path::new("./src/output"), Permission::Write)
+            .is_err());
     }
 
     #[test]

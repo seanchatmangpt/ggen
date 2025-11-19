@@ -30,11 +30,14 @@
 
 use ggen_utils::error::{Error, Result};
 use lru::LruCache;
+use oxigraph::sparql::QueryResults;
+use oxigraph::store::Store;
 use std::collections::HashMap;
 use std::num::NonZeroUsize;
 use std::sync::{Arc, Mutex};
-use oxigraph::store::Store;
-use oxigraph::sparql::QueryResults;
+
+/// Type alias for predicate index: maps predicate URIs to subject-object pairs
+type PredicateIndex = Arc<Mutex<HashMap<String, Vec<(String, String)>>>>;
 
 /// SPARQL query result cache
 /// OPTIMIZATION 2.1: Cache query results to avoid re-evaluation (50-100% speedup)
@@ -43,7 +46,7 @@ pub struct QueryCache {
     /// LRU cache mapping query string -> serialized results
     cache: Arc<Mutex<LruCache<String, CachedResult>>>,
     /// Cache for predicate indexes
-    predicate_index: Arc<Mutex<HashMap<String, Vec<(String, String)>>>>,
+    predicate_index: PredicateIndex,
     /// Cache invalidation counter (incremented on graph changes)
     version: Arc<Mutex<u64>>,
 }
@@ -73,9 +76,9 @@ impl QueryCache {
     /// ```
     pub fn new(capacity: usize) -> Self {
         Self {
-            cache: Arc::new(Mutex::new(
-                LruCache::new(NonZeroUsize::new(capacity).unwrap()),
-            )),
+            cache: Arc::new(Mutex::new(LruCache::new(
+                NonZeroUsize::new(capacity).unwrap(),
+            ))),
             predicate_index: Arc::new(Mutex::new(HashMap::new())),
             version: Arc::new(Mutex::new(0)),
         }
@@ -135,8 +138,9 @@ impl QueryCache {
                 // Convert solutions to JSON
                 let mut results = Vec::new();
                 for solution in solutions {
-                    let solution = solution
-                        .map_err(|e| Error::with_context("Query execution failed", &e.to_string()))?;
+                    let solution = solution.map_err(|e| {
+                        Error::with_context("Query execution failed", &e.to_string())
+                    })?;
                     let mut row = HashMap::new();
                     for (var, term) in solution.iter() {
                         row.insert(var.as_str().to_string(), term.to_string());
@@ -150,7 +154,10 @@ impl QueryCache {
             Ok(QueryResults::Graph(_)) => {
                 Err(Error::new("Graph query results not yet supported in cache"))
             }
-            Err(e) => Err(Error::with_context("Query execution failed", &e.to_string())),
+            Err(e) => Err(Error::with_context(
+                "Query execution failed",
+                &e.to_string(),
+            )),
         }
     }
 
@@ -183,14 +190,13 @@ impl QueryCache {
 
         for predicate in predicates {
             // Query all triples with this predicate
-            let query = format!(
-                "SELECT ?s ?o WHERE {{ ?s <{}> ?o }}",
-                predicate
-            );
+            let query = format!("SELECT ?s ?o WHERE {{ ?s <{}> ?o }}", predicate);
 
             let results = self.execute_query(store, &query)?;
-            let parsed: Vec<HashMap<String, String>> = serde_json::from_str(&results)
-                .map_err(|e| Error::with_context("Failed to parse index results", &e.to_string()))?;
+            let parsed: Vec<HashMap<String, String>> =
+                serde_json::from_str(&results).map_err(|e| {
+                    Error::with_context("Failed to parse index results", &e.to_string())
+                })?;
 
             let entries: Vec<(String, String)> = parsed
                 .into_iter()

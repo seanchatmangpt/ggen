@@ -115,7 +115,9 @@ fn test_sigma_snapshot_metadata() {
 #[test]
 fn test_sigma_snapshot_custom_tags() {
     let mut metadata = SnapshotMetadata::default();
-    metadata.tags.insert("author".to_string(), "test".to_string());
+    metadata
+        .tags
+        .insert("author".to_string(), "test".to_string());
     metadata.tags.insert("env".to_string(), "dev".to_string());
 
     let snapshot = SigmaSnapshot::new(
@@ -126,7 +128,10 @@ fn test_sigma_snapshot_custom_tags() {
         metadata,
     );
 
-    assert_eq!(snapshot.metadata.tags.get("author"), Some(&"test".to_string()));
+    assert_eq!(
+        snapshot.metadata.tags.get("author"),
+        Some(&"test".to_string())
+    );
     assert_eq!(snapshot.metadata.tags.get("env"), Some(&"dev".to_string()));
 }
 
@@ -311,11 +316,7 @@ fn test_snapshot_metadata_backward_compatibility() {
 #[test]
 fn test_snapshot_metadata_sectors() {
     let mut metadata = SnapshotMetadata::default();
-    metadata.sectors = vec![
-        "auth".to_string(),
-        "api".to_string(),
-        "db".to_string(),
-    ];
+    metadata.sectors = vec!["auth".to_string(), "api".to_string(), "db".to_string()];
 
     assert_eq!(metadata.sectors.len(), 3);
     assert!(metadata.sectors.contains(&"auth".to_string()));
@@ -778,9 +779,7 @@ fn test_mock_dynamic_validator() {
 
 #[test]
 fn test_composite_validator_empty() {
-    let composite = CompositeValidator {
-        validators: vec![],
-    };
+    let composite = CompositeValidator { validators: vec![] };
 
     let ctx = ValidationContext {
         snapshot_id: SigmaSnapshotId::from_digest(b"test"),
@@ -915,7 +914,9 @@ fn test_projection_determinism_check() {
 
 #[test]
 fn test_slo_preservation_check() {
-    let check = SLOPreservationCheck { max_latency_us: 1000 };
+    let check = SLOPreservationCheck {
+        max_latency_us: 1000,
+    };
     let snapshot = create_test_snapshot();
 
     let result = check.validate(&snapshot);
