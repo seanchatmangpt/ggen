@@ -1,0 +1,46 @@
+[package]
+name = "ggen-xeno"
+version = "0.1.0"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+description = "Xenobiological ontology adapter for non-human intelligence communication protocols"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+readme = "README.md"
+keywords = ["xenobiology", "ontology", "alien", "exo-computing", "semantic-translation"]
+categories = ["development-tools", "science"]
+
+[dependencies]
+# Core dependencies
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+async-trait = { workspace = true }
+
+# Graph and RDF support
+oxigraph = { workspace = true }
+
+# Utilities
+uuid = { workspace = true }
+chrono = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+
+# Cryptography for secure alien communication
+base64 = { workspace = true }
+
+# Advanced computing paradigms
+rayon = { workspace = true }  # Parallel processing
+futures = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+proptest = { workspace = true }
+
+[features]
+default = []
+quantum = []        # Quantum computing paradigm support
+crystalline = []    # Crystalline logic systems
+collective = []     # Hive-mind ontologies
+temporal = []       # Non-linear temporal reasoning
