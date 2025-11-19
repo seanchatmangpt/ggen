@@ -22,6 +22,9 @@ mod quickstart_test;
 #[path = "london_tdd/cli_commands/enhanced_errors_test.rs"]
 mod enhanced_errors_test;
 
+#[path = "london_tdd/cli_commands/error_message_quality_comprehensive_test.rs"]
+mod error_message_quality_comprehensive_test;
+
 #[path = "london_tdd/cli_commands/new_command_test.rs"]
 mod new_command_test;
 
@@ -62,14 +65,14 @@ mod v2_arch_comprehensive_test;
 fn test_suite_statistics() {
     println!("\n📊 London TDD Test Suite Statistics:");
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    println!("✅ CLI Commands: 4 modules");
+    println!("✅ CLI Commands: 5 modules (includes comprehensive error quality tests)");
     println!("✅ Marketplace: 3 modules (search, install, registry)");
     println!("✅ AI Generation: 2 modules");
     println!("✅ Template Engine: 2 modules");
     println!("✅ OpenTelemetry: 1 module");
     println!("✅ v2.0 Architecture: 3 modules (unit, component, integration)");
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    println!("📝 Total: 15 test modules covering README.md capabilities");
+    println!("📝 Total: 16 test modules covering README.md capabilities");
     println!("⚡ Performance: All tests <100ms each");
     println!("🎭 Mocking: All external dependencies mocked");
     println!("🔁 Reproducibility: 100% deterministic");
