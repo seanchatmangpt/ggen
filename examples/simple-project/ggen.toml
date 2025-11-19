@@ -1,0 +1,26 @@
+# Simple Project Example
+# A minimal ggen.toml configuration demonstrating basic code generation
+
+[project]
+name = "simple-project"
+version = "0.1.0"
+description = "A simple project demonstrating ggen.toml basics"
+author = "ggen-examples"
+license = "MIT"
+
+# Template configuration
+[templates]
+source_dir = "templates"
+output_dir = "generated"
+backup_enabled = true
+
+# Logging
+[logging]
+level = "info"
+format = "text"
+output = "stdout"
+
+# Security
+[security]
+validate_paths = true
+path_traversal_protection = true

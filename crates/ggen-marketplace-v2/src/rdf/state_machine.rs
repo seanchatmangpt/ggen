@@ -143,7 +143,7 @@ impl StateMachineExecutor {
     }
 
     /// Load state machine configuration from Turtle files
-    pub fn load_from_config(&self, config: &TurtleConfigLoader) -> Result<()> {
+    pub fn load_from_config(&self, _config: &TurtleConfigLoader) -> Result<()> {
         // In production, this would parse state definitions from RDF
         // For now, using default states defined in new()
         Ok(())

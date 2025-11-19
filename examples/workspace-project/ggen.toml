@@ -1,0 +1,68 @@
+# Workspace Project Example
+# Demonstrates multi-crate workspace configuration with ggen.toml
+
+[project]
+name = "workspace-project"
+version = "1.0.0"
+description = "Multi-crate workspace demonstrating ggen.toml in workspaces"
+author = "ggen-examples"
+license = "MIT"
+repository = "https://github.com/example/workspace-project"
+
+# Global template configuration
+[templates]
+source_dir = "templates"
+output_dir = "generated"
+backup_enabled = true
+idempotent = true
+
+# Rust-specific templates
+[templates.rust]
+style = "core-team"
+error_handling = "thiserror"
+async_runtime = "tokio"
+testing = "comprehensive"
+
+# RDF configuration for knowledge-driven generation
+[rdf]
+base_uri = "https://example.com/workspace/"
+prefixes = {
+    ex = "https://example.com/workspace/",
+    schema = "http://schema.org/"
+}
+
+# Workspace members
+[workspace]
+members = [
+    "crates/core/ggen.toml",
+    "crates/cli/ggen.toml",
+    "crates/utils/ggen.toml"
+]
+
+# Lifecycle management
+[lifecycle]
+enabled = true
+config_file = "make.toml"
+
+[lifecycle.phases]
+default = ["generate-all", "build-all", "test-all"]
+generate-all = ["generate-core", "generate-cli", "generate-utils"]
+build-all = ["build-core", "build-cli", "build-utils"]
+test-all = ["test-core", "test-cli", "test-utils"]
+
+# Logging
+[logging]
+level = "info"
+format = "json"
+output = "file"
+file_path = "logs/ggen.log"
+
+# Performance
+[performance]
+parallel_execution = true
+max_workers = 4
+
+# Security
+[security]
+validate_paths = true
+audit_operations = true

@@ -3,7 +3,9 @@
 use crate::models::*;
 
 /// Base ontology namespace
+#[allow(dead_code)]
 pub const HTF_NS: &str = "http://thesis.local/htf#";
+#[allow(dead_code)]
 pub const SHACL_NS: &str = "http://www.w3.org/ns/shacl#";
 
 /// Canonical Λ-ordering (total order chain)
@@ -78,6 +80,7 @@ pub fn all_families() -> Vec<ShardFamily> {
 }
 
 /// Core Q-invariants
+#[allow(dead_code)]
 pub fn core_invariants() -> Vec<Invariant> {
     vec![
         Invariant {
@@ -109,6 +112,7 @@ pub fn core_invariants() -> Vec<Invariant> {
 }
 
 /// TTL representation of HTF ontology with all 26 families
+#[allow(dead_code)]
 pub fn ontology_ttl() -> &'static str {
     r#"
 @prefix : <http://thesis.local/htf#> .

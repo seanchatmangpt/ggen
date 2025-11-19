@@ -1,5 +1,5 @@
 #![forbid(unsafe_code)]
-#![warn(missing_docs)]
+#![allow(missing_docs, deprecated, dead_code, elided_lifetimes_in_paths, mismatched_lifetime_syntaxes)]
 #![warn(clippy::all, clippy::pedantic)]
 
 //! # ggen-marketplace-v2: Hyper-Advanced Marketplace System

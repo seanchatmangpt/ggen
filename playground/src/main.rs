@@ -8,6 +8,8 @@
 //! - `htf list` - List all shards
 //! - `htf export` - Export thesis in various formats
 
+#![allow(non_upper_case_globals)]
+
 use clap::{Parser, Subcommand};
 use clap_noun_verb::Result as NounVerbResult;
 use clap_noun_verb_macros::verb;

@@ -20,6 +20,9 @@ members = [
   "crates/ggen-domain",
   "crates/ggen-core",
   "crates/ggen-ai",
+  "crates/ggen-config",
+  "crates/ggen-cli-validation",
+  "crates/ggen-config-clap",
   "crates/ggen-marketplace",
   "crates/ggen-marketplace-v2",
   "examples/frontmatter-cli",
@@ -50,8 +53,8 @@ tracing-subscriber = { version = "0.3", features = [
   "ansi",
 ] }
 clap = { version = "4.5", features = ["derive"] }
-clap-noun-verb = "3.4.0"
-clap-noun-verb-macros = "3.4.0"
+clap-noun-verb = "4.0.2"
+clap-noun-verb-macros = "4.0.2"
 once_cell = "1.19"
 reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
 tempfile = "3.23"
@@ -71,6 +74,9 @@ log = "0.4.28"
 ggen-utils = { path = "crates/ggen-utils", version = "3.2.0" }
 ggen-core = { path = "crates/ggen-core", version = "3.2.0" }
 ggen-ai = { path = "crates/ggen-ai", version = "3.2.0" }
+ggen-config = { path = "crates/ggen-config", version = "3.2.0" }
+ggen-cli-validation = { path = "crates/ggen-cli-validation", version = "3.2.0" }
+ggen-config-clap = { path = "crates/ggen-config-clap", version = "3.2.0" }
 ggen-marketplace = { path = "crates/ggen-marketplace", version = "3.2.0" }
 ggen-domain = { path = "crates/ggen-domain", version = "3.2.0" }
 ggen-cli-lib = { path = "crates/ggen-cli", version = "3.2.0" }
@@ -324,4 +330,14 @@ required-features = []
 [[test]]
 name = "lifecycle_simple_tests"
 path = "tests/integration/lifecycle_simple_tests.rs"
+required-features = []
+
+[[test]]
+name = "config_integration_test"
+path = "tests/integration/config/config_integration_test.rs"
+required-features = []
+
+[[test]]
+name = "config_performance_tests"
+path = "tests/integration/config/performance_tests.rs"
 required-features = []

@@ -370,6 +370,7 @@ impl ValidatorResult {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ontology::sigma_runtime::Statement;
 
     fn create_test_context() -> ValidationContext {
         let proposal = DeltaSigmaProposal {
@@ -386,7 +387,7 @@ mod tests {
             compatibility: "compatible".to_string(),
         };
 
-        let snapshot = SigmaSnapshot::new(
+        let current_snapshot = SigmaSnapshot::new(
             None,
             vec![],
             "1.0.0".to_string(),
@@ -394,10 +395,24 @@ mod tests {
             Default::default(),
         );
 
+        // Create a new snapshot with modified triples (simulating proposal application)
+        let expected_new_snapshot = SigmaSnapshot::new(
+            Some(current_snapshot.id.clone()),
+            vec![Statement {
+                subject: "http://example.org/TestClass".to_string(),
+                predicate: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type".to_string(),
+                object: "http://www.w3.org/2002/07/owl#Class".to_string(),
+                graph: None,
+            }],
+            "1.0.1".to_string(),
+            "sig_new".to_string(),
+            Default::default(),
+        );
+
         ValidationContext {
             proposal,
-            current_snapshot: Arc::new(snapshot.clone()),
-            expected_new_snapshot: Arc::new(snapshot),
+            current_snapshot: Arc::new(current_snapshot),
+            expected_new_snapshot: Arc::new(expected_new_snapshot),
             sector: "test".to_string(),
             invariants: vec![
                 Invariant::NoRetrocausation,

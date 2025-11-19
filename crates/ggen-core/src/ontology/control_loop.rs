@@ -161,7 +161,8 @@ impl AutonomousControlLoop {
 
         // 3. PROPOSE: Generate ΔΣ² proposals
         *self.state.write().await = LoopState::Proposing;
-        let current_snapshot = self.promoter.get_current();
+        let current_snapshot = self.promoter.get_current()
+            .map_err(|e| format!("Failed to get current snapshot: {}", e))?;
         let proposals = self
             .proposer
             .propose_deltas(patterns, current_snapshot.snapshot(), &self.config.sector)
@@ -180,12 +181,34 @@ impl AutonomousControlLoop {
         // 4. VALIDATE: Check invariants (Q)
         *self.state.write().await = LoopState::Validating;
         for proposal in &valid_proposals {
-            let current_snap = self.promoter.get_current();
+            let current_snap = self.promoter.get_current()
+                .map_err(|e| format!("Failed to get current snapshot: {}", e))?;
 
-            // Create expected new snapshot (mock for now)
+            // Apply proposal changes to create new snapshot
+            let mut new_triples = current_snap.snapshot().triples.as_ref().clone();
+
+            // Remove triples (for now, just filter out matching subjects)
+            for triple_pattern in &proposal.triples_to_remove {
+                new_triples.retain(|stmt| !stmt.subject.contains(triple_pattern));
+            }
+
+            // Add new triples
+            for triple_str in &proposal.triples_to_add {
+                // Parse simple triple format: "subject predicate object"
+                let parts: Vec<&str> = triple_str.split_whitespace().collect();
+                if parts.len() >= 3 {
+                    new_triples.push(crate::ontology::sigma_runtime::Statement {
+                        subject: parts[0].to_string(),
+                        predicate: parts[1].to_string(),
+                        object: parts[2].to_string(),
+                        graph: None,
+                    });
+                }
+            }
+
             let new_snap = SigmaSnapshot::new(
                 Some(current_snap.snapshot().id.clone()),
-                vec![],
+                new_triples,
                 format!("{}_updated", current_snap.snapshot().version),
                 "sig_updated".to_string(),
                 current_snap.snapshot().metadata.clone(),
@@ -217,17 +240,43 @@ impl AutonomousControlLoop {
                 *self.state.write().await = LoopState::Promoting;
 
                 if self.config.auto_promote {
-                    let _promotion_result = self.promoter.promote(Arc::new(SigmaSnapshot::new(
-                        Some(current_snap.snapshot().id.clone()),
-                        vec![],
+                    // Create the promoted snapshot with applied changes
+                    let current_snap_for_promote = self.promoter.get_current()
+                        .map_err(|e| format!("Failed to get current snapshot for promotion: {}", e))?;
+
+                    let mut promoted_triples = current_snap_for_promote.snapshot().triples.as_ref().clone();
+
+                    // Apply the same changes for promotion
+                    for triple_pattern in &proposal.triples_to_remove {
+                        promoted_triples.retain(|stmt| !stmt.subject.contains(triple_pattern));
+                    }
+
+                    for triple_str in &proposal.triples_to_add {
+                        let parts: Vec<&str> = triple_str.split_whitespace().collect();
+                        if parts.len() >= 3 {
+                            promoted_triples.push(crate::ontology::sigma_runtime::Statement {
+                                subject: parts[0].to_string(),
+                                predicate: parts[1].to_string(),
+                                object: parts[2].to_string(),
+                                graph: None,
+                            });
+                        }
+                    }
+
+                    let promoted_snapshot = SigmaSnapshot::new(
+                        Some(current_snap_for_promote.snapshot().id.clone()),
+                        promoted_triples,
                         format!(
                             "{}_v{}",
-                            current_snap.snapshot().version,
+                            current_snap_for_promote.snapshot().version,
                             telemetry.iteration
                         ),
                         "promoted_sig".to_string(),
-                        current_snap.snapshot().metadata.clone(),
-                    )));
+                        current_snap_for_promote.snapshot().metadata.clone(),
+                    );
+
+                    let _promotion_result = self.promoter.promote(Arc::new(promoted_snapshot))
+                        .expect("Failed to promote snapshot");
 
                     telemetry.proposals_promoted += 1;
 
@@ -309,7 +358,9 @@ impl AutonomousControlLoop {
 
     /// Get current snapshot
     pub fn current_snapshot(&self) -> Arc<SigmaSnapshot> {
-        self.promoter.get_current().snapshot()
+        self.promoter.get_current()
+            .expect("Failed to get current snapshot - lock poisoned")
+            .snapshot()
     }
 }
 

@@ -31,6 +31,7 @@ pub mod ci;
 pub mod graph;
 pub mod mape_k;
 pub mod marketplace;
+pub mod ontology;
 pub mod packs;
 pub mod project;
 pub mod rdf;

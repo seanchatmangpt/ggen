@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 /// and cannot be circumvented.
 use std::sync::Arc;
 
+#[cfg(test)]
 use crate::ontology::sigma_runtime::ValidationResult;
 use crate::ontology::{DeltaSigmaProposal, SigmaReceipt, SigmaSnapshot};
 
@@ -311,9 +312,19 @@ mod tests {
     }
 
     fn create_test_snapshot(version: &str) -> SigmaSnapshot {
+        use crate::ontology::sigma_runtime::Statement;
+
+        // Create different triples for different versions to ensure different IDs
+        let triple = Statement {
+            subject: format!("http://example.org/snapshot/{}", version),
+            predicate: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type".to_string(),
+            object: "http://example.org/Snapshot".to_string(),
+            graph: None,
+        };
+
         SigmaSnapshot::new(
             None,
-            vec![],
+            vec![triple],
             version.to_string(),
             "sig".to_string(),
             Default::default(),

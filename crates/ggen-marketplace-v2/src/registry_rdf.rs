@@ -316,6 +316,7 @@ mod tests {
             RDFS_NS
         );
 
+        #[allow(deprecated)]
         let results = registry.store.query(&query);
         assert!(results.is_ok());
     }

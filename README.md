@@ -154,6 +154,71 @@ ggen 2.7.0 introduces comprehensive documentation for positioning ggen as the re
 
 ---
 
+## ⚙️ Configuration: ggen.toml
+
+**ggen.toml** is the declarative project configuration format for ggen, providing comprehensive control over code generation, RDF/SPARQL integration, AI features, and lifecycle automation.
+
+### Quick Example
+
+```toml
+[project]
+name = "my-project"
+version = "1.0.0"
+description = "Knowledge-driven code generation"
+
+[templates]
+source_dir = "templates"
+output_dir = "generated"
+
+[rdf]
+base_uri = "https://example.com/ontology/"
+prefixes = { ex = "https://example.com/ontology/", schema = "http://schema.org/" }
+
+[ai]
+provider = "openai"
+model = "gpt-4"
+temperature = 0.7
+```
+
+### Key Features
+
+- **Project Metadata**: name, version, description, license, repository
+- **Template Configuration**: source directories, output paths, backup control
+- **RDF/SPARQL**: ontology integration, namespace prefixes, query configuration
+- **AI Integration**: OpenAI, Anthropic, Ollama support with caching and validation
+- **Marketplace**: registry URL, offline mode, package caching
+- **Lifecycle**: declarative build phases, task dependencies, automation
+- **Security**: path validation, injection protection, sandboxing
+- **Performance**: parallel execution, profiling, memory limits
+- **Logging**: levels, formats, rotation
+
+### Documentation
+
+- **[User Guide](docs/ggen-toml-guide.md)** - Comprehensive tutorial with examples
+- **[Complete Reference](docs/ggen-toml-reference.md)** - Full API documentation (11 sections)
+- **[Migration Guide](docs/ggen-toml-migration.md)** - Migrate from Cargo.toml, pyproject.toml, package.json
+- **[Implementation Analysis](docs/ggen-toml-analysis.md)** - Technical deep-dive and comparison
+
+### Examples
+
+- **[Simple Project](examples/simple-project/)** - Minimal configuration example
+- **[Workspace Project](examples/workspace-project/)** - Multi-crate workspace setup
+- **[AI Microservice](examples/ai-microservice/)** - Full AI-powered project
+- **[Comprehensive Showcase](examples/comprehensive-rust-showcase/)** - All features demonstrated
+
+### Unique to ggen
+
+ggen.toml is the **only** configuration format with:
+- ✅ **Native RDF/SPARQL** (semantic knowledge graphs)
+- ✅ **AI-Powered Generation** (OpenAI, Anthropic, Ollama)
+- ✅ **Polyglot Synchronization** (one ontology → Rust + TS + Python, zero drift)
+- ✅ **Declarative Lifecycle** (dependency-aware task orchestration)
+- ✅ **Template Marketplace** (install proven templates)
+
+**Learn More**: Start with the [ggen.toml User Guide](docs/ggen-toml-guide.md) or explore [examples/](examples/).
+
+---
+
 ## 📚 Learn More
 
 **Documentation**: [Full Documentation](docs/README.md) - [Getting Started](docs/tutorials/getting-started.md) | [Installation](docs/how-to-guides/installation.md) | [CLI Reference](docs/reference/cli.md) | [Architecture](docs/explanations/architecture.md)

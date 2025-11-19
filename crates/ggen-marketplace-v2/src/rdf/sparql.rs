@@ -57,6 +57,7 @@ impl SparqlExecutor {
     }
 
     /// Execute a SELECT query with proper error handling
+    #[allow(deprecated)]
     pub fn query(&self, sparql: &str) -> Result<QueryResults> {
         self.store.query(sparql).map_err(|e| Error::SparqlError {
             query: sparql.to_string(),

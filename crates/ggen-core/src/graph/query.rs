@@ -125,9 +125,9 @@ mod tests {
             .unwrap();
         let query = GraphQuery::new(&graph);
 
-        // Act
+        // Act - Use full IRI since we're not declaring prefixes in the query
         let result = query
-            .execute_cached("SELECT ?name WHERE { ?s ex:name ?name }")
+            .execute_cached("SELECT ?name WHERE { ?s <http://example.org/name> ?name }")
             .unwrap();
 
         // Assert
@@ -154,9 +154,9 @@ mod tests {
             .unwrap();
         let query = GraphQuery::new(&graph);
 
-        // Act
+        // Act - Use full IRI since we're not declaring prefixes in the query
         let results = query
-            .execute("SELECT ?name WHERE { ?s ex:name ?name }")
+            .execute("SELECT ?name WHERE { ?s <http://example.org/name> ?name }")
             .unwrap();
 
         // Assert
@@ -209,10 +209,10 @@ mod tests {
         let query = GraphQuery::new(&graph);
         let prefixes = BTreeMap::new();
 
-        // Act
+        // Act - Use full IRI since prefix map is empty
         let results = query
             .execute_with_prefixes(
-                "SELECT ?name WHERE { ?s ex:name ?name }",
+                "SELECT ?name WHERE { ?s <http://example.org/name> ?name }",
                 &prefixes,
                 Some("http://example.org/"),
             )
@@ -239,9 +239,9 @@ mod tests {
             .unwrap();
         let query = GraphQuery::new(&graph);
 
-        // Act
+        // Act - Use full IRI since we're not declaring prefixes in the query
         let results = query
-            .execute_prepared("SELECT ?name WHERE { ?s ex:name ?name }")
+            .execute_prepared("SELECT ?name WHERE { ?s <http://example.org/name> ?name }")
             .unwrap();
 
         // Assert
@@ -265,10 +265,10 @@ mod tests {
             .unwrap();
         let query = GraphQuery::new(&graph);
 
-        // Act
+        // Act - Use full IRI since we're not declaring prefixes in the query
         let builder = query.builder();
         let results = builder
-            .parse_query("SELECT ?name WHERE { ?s ex:name ?name }")
+            .parse_query("SELECT ?name WHERE { ?s <http://example.org/name> ?name }")
             .unwrap()
             .on_store(graph.inner())
             .execute()
@@ -295,8 +295,8 @@ mod tests {
             .unwrap();
         let query = GraphQuery::new(&graph);
 
-        // Act
-        let result = query.execute_cached("ASK { ?s a ex:Person }").unwrap();
+        // Act - Use full IRI since we're not declaring prefixes in the query
+        let result = query.execute_cached("ASK { ?s a <http://example.org/Person> }").unwrap();
 
         // Assert
         match result {

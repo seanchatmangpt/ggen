@@ -1,0 +1,20 @@
+[package]
+name = "ggen-config-clap"
+version = "3.2.0"
+edition = "2021"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+license = "MIT"
+description = "Integration layer for loading ggen.toml into clap applications"
+
+[dependencies]
+ggen-config.workspace = true
+clap.workspace = true
+clap-noun-verb.workspace = true
+anyhow.workspace = true
+thiserror.workspace = true
+serde.workspace = true
+toml.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+toml.workspace = true

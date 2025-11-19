@@ -294,7 +294,7 @@ impl FmeaMitigationManager {
 
     /// Detect and mitigate circular dependencies
     pub fn mitigate_circular_dependency(&mut self, cycle_path: &[String]) -> MitigationResult {
-        let start = Instant::now();
+        let _start = Instant::now();
         self.record_occurrence(FmeaFailureModes::CIRCULAR_DEPENDENCY.id);
 
         error!("FM-003: Circular dependency detected: {:?}", cycle_path);
@@ -312,7 +312,7 @@ impl FmeaMitigationManager {
 
     /// Detect and prevent SPARQL injection
     pub fn mitigate_sparql_injection(
-        &mut self, query: &str, suspicious_pattern: &str,
+        &mut self, _query: &str, suspicious_pattern: &str,
     ) -> MitigationResult {
         let start = Instant::now();
         self.record_occurrence(FmeaFailureModes::SPARQL_INJECTION.id);
@@ -340,7 +340,7 @@ impl FmeaMitigationManager {
         warn!("FM-010: Query timeout detected");
 
         // Try to optimize query or add limits
-        if let Some(optimized) = self.optimize_query(query) {
+        if let Some(_optimized) = self.optimize_query(query) {
             self.record_success(FmeaFailureModes::QUERY_TIMEOUT.id, start.elapsed());
             MitigationResult::Success {
                 action_taken: format!("Optimized query and added LIMIT clause"),
@@ -421,7 +421,7 @@ impl FmeaMitigationManager {
         error!("FM-012: Config parse error in {}: {}", file_path, error);
 
         // Try to load backup configuration
-        if let Some(backup) = self.load_backup_config(file_path) {
+        if let Some(_backup) = self.load_backup_config(file_path) {
             self.record_success(FmeaFailureModes::CONFIG_PARSE_ERROR.id, start.elapsed());
             MitigationResult::Success {
                 action_taken: "Loaded backup configuration".to_string(),

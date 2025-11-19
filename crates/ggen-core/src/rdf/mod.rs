@@ -72,9 +72,11 @@ pub mod schema;
 pub mod template_metadata;
 mod template_metadata_helper;
 pub mod validation;
+pub mod query;
 
 pub use schema::{GgenOntology, GGEN_NAMESPACE};
 pub use template_metadata::{
     TemplateMetadata, TemplateMetadataStore, TemplateRelationship, TemplateVariable,
 };
 pub use validation::{ValidationReport, ValidationResult, Validator};
+pub use query::{QueryCache, CacheStats};

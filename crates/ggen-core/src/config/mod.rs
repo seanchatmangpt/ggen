@@ -32,5 +32,17 @@
 //! ```
 
 pub mod template_config;
+pub mod ontology_config;
+pub mod lock_manager;
+pub mod hive_coordinator;
+
+#[cfg(test)]
+mod ontology_integration_test;
 
 pub use template_config::{GenerationOptions, MarketplaceSettings, TemplateConfig};
+pub use ontology_config::{
+    CompositionStrategy, ConflictResolution, OntologyConfig, OntologyPackRef, TargetConfig,
+    GenerationHooks, LockConfig,
+};
+pub use lock_manager::{OntologyLockfile, LockedPackage, LockfileManager, CompositionMetadata};
+pub use hive_coordinator::{HiveQueen, HiveAgent, AgentRole, ResolutionSuggestion, ResolvedConfiguration};

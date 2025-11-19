@@ -4,12 +4,9 @@
 //! All marketplace configuration is stored in RDF/Turtle format, not YAML/JSON.
 
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::fs;
-use std::path::Path;
 
-use super::ontology::{generate_prefixes, namespaces};
-use super::poka_yoke::{Literal, PokaYokeError, RdfGraph, ResourceId, Triple};
+use super::ontology::generate_prefixes;
 
 /// Marketplace configuration loaded from Turtle
 #[derive(Debug, Clone, Serialize, Deserialize)]

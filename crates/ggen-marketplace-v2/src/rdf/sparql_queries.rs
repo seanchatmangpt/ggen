@@ -9,10 +9,9 @@
 //!
 //! All queries use the POKA YOKE type system for compile-time safety.
 
-use super::ontology::{namespaces, Class, Property};
-use super::poka_yoke::{typestate, Literal, PokaYokeError, ResourceId, SparqlQuery};
+use super::ontology::{namespaces, Property};
+use super::poka_yoke::{typestate, PokaYokeError, SparqlQuery};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 /// Search parameters for package queries
 #[derive(Debug, Clone, Default)]
@@ -62,10 +61,15 @@ pub struct ValidationRecord {
 /// Dependency information
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DependencyInfo {
+    /// The ID of the package that has dependencies
     pub package_id: String,
+    /// The ID of the dependency package
     pub dependency_id: String,
+    /// The version constraint for the dependency
     pub dependency_version: String,
+    /// The type of dependency (e.g., "runtime", "dev", "build")
     pub dependency_type: String,
+    /// Whether this dependency is optional
     pub is_optional: bool,
 }
 
@@ -528,7 +532,7 @@ WHERE {{
 
     /// Get dependency tree (recursive)
     pub fn get_dependency_tree(
-        package_id: &str, version: &str, max_depth: usize,
+        package_id: &str, _version: &str, max_depth: usize,
     ) -> Result<SparqlQuery<typestate::Validated>, PokaYokeError> {
         // Use property paths for recursive dependencies
         let depth_path = (1..=max_depth)

@@ -1,0 +1,34 @@
+[package]
+name = "ggen-config"
+version = "3.2.0"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+edition = "2021"
+license = "MIT"
+description = "Configuration parser and validator for ggen.toml files"
+keywords = ["config", "toml", "parser"]
+categories = ["config"]
+repository = "https://github.com/seanchatmangpt/ggen"
+
+[dependencies]
+# Core dependencies
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+toml = { workspace = true }
+anyhow = { workspace = true }
+
+# Optional dependencies for advanced features
+ggen-core = { workspace = true, optional = true }
+ggen-domain = { workspace = true, optional = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+
+[features]
+default = []
+graph = ["ggen-core"]
+ontology = ["ggen-domain"]
+full = ["graph", "ontology"]
+
+[lints]
+workspace = true

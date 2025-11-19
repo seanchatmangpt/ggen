@@ -20,23 +20,32 @@ use std::time::SystemTime;
 // all objects are expected to be NamedNodes (class/property IRIs).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Statement {
-    subject: String,
-    predicate: String,
-    object: String,
-    graph: Option<String>,
+    pub subject: String,
+    pub predicate: String,
+    pub object: String,
+    pub graph: Option<String>,
 }
 
 impl From<oxigraph::model::Quad> for Statement {
     fn from(quad: oxigraph::model::Quad) -> Self {
+        // Strip angle brackets from IRIs for cleaner storage
+        fn strip_brackets(s: &str) -> String {
+            if s.starts_with('<') && s.ends_with('>') {
+                s[1..s.len()-1].to_string()
+            } else {
+                s.to_string()
+            }
+        }
+
         let graph = match &quad.graph_name {
             oxigraph::model::GraphName::DefaultGraph => None,
-            oxigraph::model::GraphName::NamedNode(nn) => Some(nn.to_string()),
+            oxigraph::model::GraphName::NamedNode(nn) => Some(strip_brackets(&nn.to_string())),
             oxigraph::model::GraphName::BlankNode(bn) => Some(bn.to_string()),
         };
         Self {
-            subject: quad.subject.to_string(),
-            predicate: quad.predicate.to_string(),
-            object: quad.object.to_string(),
+            subject: strip_brackets(&quad.subject.to_string()),
+            predicate: strip_brackets(&quad.predicate.to_string()),
+            object: strip_brackets(&quad.object.to_string()),
             graph,
         }
     }

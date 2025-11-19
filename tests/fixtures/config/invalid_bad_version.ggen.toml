@@ -1,0 +1,7 @@
+# Invalid ggen.toml - Invalid version format
+# Should fail semver validation
+
+[project]
+name = "bad-version"
+version = "not-a-version"
+description = "Project with invalid version"

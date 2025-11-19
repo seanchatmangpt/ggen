@@ -47,6 +47,9 @@
 //! - [`register`] - Tera filter and function registration
 //! - [`tera_env`] - Tera template engine environment utilities
 //!
+//! ### Security (Week 4 Hardening)
+//! - [`security`] - Security hardening module (command injection prevention, input validation)
+//!
 //! ## Quick Start
 //!
 //! ### Basic Template Generation
@@ -121,6 +124,7 @@ pub mod delta;
 #[cfg(test)]
 pub mod e2e_tests;
 pub mod generator;
+pub mod parallel_generator;
 pub mod github;
 pub mod gpack;
 pub mod graph;
@@ -130,6 +134,7 @@ pub mod lockfile;
 pub mod merge;
 // Ontology system - re-enabled after oxigraph API compatibility fixes
 pub mod ontology;
+pub mod ontology_pack;
 pub mod packs; // Pack installation system - Phase 1
 pub mod pipeline;
 pub mod poc;
@@ -140,6 +145,7 @@ pub mod rdf;
 pub mod register;
 pub mod registry;
 pub mod resolver;
+pub mod security; // Week 4 Security Hardening
 pub mod snapshot;
 pub mod streaming_generator;
 pub mod telemetry;
@@ -194,6 +200,13 @@ pub use templates::{
     NodeType, TemplateContext, TemplateFormat, TemplateParser,
 };
 
+// Re-export ontology pack types
+pub use ontology_pack::{
+    Cardinality, CodeGenTarget, OntologyClass, OntologyConfig, OntologyDefinition, OntologyFormat,
+    OntologyPackMetadata, OntologyProperty, OntologyRelationship, OntologySchema, PropertyRange,
+    RelationshipType,
+};
+
 // Ontology system re-exports
 // Re-enabled after oxigraph API compatibility fixes (Statement::From<Quad> and as_dataset)
 pub use ontology::{
@@ -202,7 +215,6 @@ pub use ontology::{
     AtomicSnapshotPromoter,
     // Control loop
     AutonomousControlLoop,
-    Cardinality,
     CompositeValidator,
     Constitution,
     ConstitutionValidation,
@@ -232,7 +244,6 @@ pub use ontology::{
     OntologyError,
     OntologyExtractor,
     OntologyResult,
-    OntologySchema,
     OntologyStats,
     // Pattern mining
     Pattern,
@@ -243,7 +254,6 @@ pub use ontology::{
     ProjectionDeterminismCheck,
     PromotionMetrics,
     PromotionResult,
-    PropertyRange,
     ProposedChange,
     ProposerConfig,
     RealLLMProposer,
@@ -264,3 +274,6 @@ pub use ontology::{
     ValidationEvidence,
     ValidatorResult,
 };
+
+// Note: Cardinality, OntologySchema, PropertyRange are exported from ontology_pack module above
+// to avoid conflicts with ontology module exports

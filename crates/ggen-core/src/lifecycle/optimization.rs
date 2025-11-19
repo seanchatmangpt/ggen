@@ -502,4 +502,218 @@ mod tests {
         let metric_over = StageMetrics::new("test", Duration::from_secs(7), Duration::from_secs(5));
         assert!((metric_over.improvement_percent() + 40.0).abs() < 0.01);
     }
+
+    // === CRITICAL 80/20 TESTS: High-Impact Scenarios ===
+
+    #[test]
+    fn test_performance_targets_defaults() {
+        let targets = PerformanceTargets::default();
+        assert!(targets.template_selection <= Duration::from_secs(3));
+        assert!(targets.code_generation <= Duration::from_secs(8));
+        assert!(targets.cleanroom_setup <= Duration::from_secs(7));
+        assert!(targets.testing <= Duration::from_secs(15));
+        assert!(targets.validation <= Duration::from_secs(7));
+        assert!(targets.reporting <= Duration::from_secs(3));
+        assert_eq!(targets.total, Duration::from_secs(45)); // Stretch goal
+    }
+
+    #[test]
+    fn test_stage_metrics_boundary_conditions() {
+        // Exact match on target
+        let metric = StageMetrics::new("exact", Duration::from_secs(10), Duration::from_secs(10));
+        assert!(metric.met_target);
+        assert_eq!(metric.improvement_percent(), 0.0);
+
+        // Just under target
+        let metric_under = StageMetrics::new("under", Duration::from_millis(9999), Duration::from_secs(10));
+        assert!(metric_under.met_target);
+        assert!(metric_under.improvement_percent() > 0.0);
+
+        // Just over target
+        let metric_over = StageMetrics::new("over", Duration::from_millis(10001), Duration::from_secs(10));
+        assert!(!metric_over.met_target);
+        assert!(metric_over.improvement_percent() < 0.0);
+    }
+
+    #[tokio::test]
+    async fn test_profiler_multiple_stages() {
+        let mut profiler = PipelineProfiler::new(PerformanceTargets::default());
+        profiler.start_pipeline();
+
+        // Profile multiple stages
+        profiler.profile_stage("stage1", async { tokio::time::sleep(Duration::from_millis(50)).await }).await;
+        profiler.profile_stage("stage2", async { tokio::time::sleep(Duration::from_millis(30)).await }).await;
+        profiler.profile_stage("stage3", async { tokio::time::sleep(Duration::from_millis(20)).await }).await;
+
+        let metrics = profiler.get_metrics();
+        assert_eq!(metrics.len(), 3);
+
+        // Metrics should be sorted by duration (longest first)
+        assert!(metrics[0].duration >= metrics[1].duration);
+        assert!(metrics[1].duration >= metrics[2].duration);
+    }
+
+    #[tokio::test]
+    async fn test_profiler_total_duration() {
+        let mut profiler = PipelineProfiler::new(PerformanceTargets::default());
+        profiler.start_pipeline();
+
+        tokio::time::sleep(Duration::from_millis(100)).await;
+
+        let total = profiler.total_duration();
+        assert!(total.is_some());
+        assert!(total.unwrap() >= Duration::from_millis(100));
+    }
+
+    #[test]
+    fn test_profiler_no_start() {
+        let profiler = PipelineProfiler::new(PerformanceTargets::default());
+        assert!(profiler.total_duration().is_none());
+    }
+
+    #[tokio::test]
+    async fn test_parallel_orchestrator_empty() {
+        let orchestrator = ParallelOrchestrator::new(4);
+        let results: Result<Vec<i32>> = orchestrator.run_parallel(vec![]).await;
+        assert!(results.is_ok());
+        assert_eq!(results.unwrap().len(), 0);
+    }
+
+    #[tokio::test]
+    async fn test_container_pool_size() {
+        let pool = ContainerPool::new(5).await.unwrap();
+        assert_eq!(pool.total(), 5);
+        assert_eq!(pool.available(), 5);
+    }
+
+    #[tokio::test]
+    async fn test_container_pool_zero_size() {
+        let pool = ContainerPool::new(0).await.unwrap();
+        assert_eq!(pool.total(), 0);
+        assert_eq!(pool.available(), 0);
+    }
+
+    #[tokio::test]
+    async fn test_dependency_cache_is_cached() {
+        let temp_dir = std::env::temp_dir().join("ggen_test_cache");
+        std::fs::create_dir_all(&temp_dir).ok();
+
+        let cache = DependencyCache::new(temp_dir.clone());
+
+        // Non-existent package should not be cached
+        assert!(!cache.is_cached("nonexistent_package_12345"));
+
+        std::fs::remove_dir_all(&temp_dir).ok();
+    }
+
+    #[test]
+    fn test_stage_metrics_sorting() {
+        let metric1 = StageMetrics::new("fast", Duration::from_secs(1), Duration::from_secs(5));
+        let metric2 = StageMetrics::new("slow", Duration::from_secs(10), Duration::from_secs(5));
+        let metric3 = StageMetrics::new("medium", Duration::from_secs(5), Duration::from_secs(5));
+
+        let mut metrics = vec![metric1.clone(), metric2.clone(), metric3.clone()];
+        metrics.sort_by(|a, b| b.duration.cmp(&a.duration));
+
+        assert_eq!(metrics[0].name, "slow");
+        assert_eq!(metrics[1].name, "medium");
+        assert_eq!(metrics[2].name, "fast");
+    }
+
+    #[tokio::test]
+    async fn test_profiler_stage_target_matching() {
+        let mut profiler = PipelineProfiler::new(PerformanceTargets::default());
+
+        profiler.profile_stage("template_selection", async {
+            tokio::time::sleep(Duration::from_millis(100)).await
+        }).await;
+
+        let metrics = profiler.get_metrics();
+        assert_eq!(metrics.len(), 1);
+        assert_eq!(metrics[0].target, profiler.targets.template_selection);
+    }
+
+    #[test]
+    fn test_performance_targets_required_vs_stretch() {
+        let required = PerformanceTargets::required();
+        let stretch = PerformanceTargets::stretch();
+
+        assert_eq!(required.total, Duration::from_secs(60));
+        assert_eq!(stretch.total, Duration::from_secs(45));
+        assert!(required.total > stretch.total);
+    }
+
+    #[tokio::test]
+    async fn test_profiler_concurrent_stages() {
+        let mut profiler = PipelineProfiler::new(PerformanceTargets::default());
+        profiler.start_pipeline();
+
+        // Simulate concurrent stage execution
+        tokio::join!(
+            profiler.profile_stage("concurrent1", async { tokio::time::sleep(Duration::from_millis(50)).await }),
+            async {
+                tokio::time::sleep(Duration::from_millis(25)).await;
+                // Note: We can't profile the same stage concurrently with the same profiler
+                // This is testing that the profiler doesn't deadlock
+            }
+        );
+
+        let metrics = profiler.get_metrics();
+        assert!(!metrics.is_empty());
+    }
+
+    #[test]
+    fn test_stage_metrics_percentage_precision() {
+        // Test edge case: very small durations
+        let metric = StageMetrics::new("micro", Duration::from_micros(1), Duration::from_micros(2));
+        assert!(metric.met_target);
+        let pct = metric.improvement_percent();
+        assert!((pct - 50.0).abs() < 1.0);
+    }
+
+    #[tokio::test]
+    async fn test_container_pool_concurrent_init() {
+        // Test that multiple container inits don't interfere
+        let (pool1, pool2, pool3) = tokio::join!(
+            ContainerPool::new(2),
+            ContainerPool::new(3),
+            ContainerPool::new(1)
+        );
+
+        assert!(pool1.is_ok());
+        assert!(pool2.is_ok());
+        assert!(pool3.is_ok());
+
+        assert_eq!(pool1.unwrap().total(), 2);
+        assert_eq!(pool2.unwrap().total(), 3);
+        assert_eq!(pool3.unwrap().total(), 1);
+    }
+
+    #[test]
+    fn test_parallel_orchestrator_max_parallelism() {
+        let orch = ParallelOrchestrator::new(10);
+        // Just verify construction doesn't panic
+        assert_eq!(orch.max_parallelism, 10);
+    }
+
+    #[tokio::test]
+    async fn test_profiler_report_output() {
+        // Test that report generation doesn't panic
+        let mut profiler = PipelineProfiler::new(PerformanceTargets::default());
+        profiler.start_pipeline();
+
+        profiler.profile_stage("test", async {
+            tokio::time::sleep(Duration::from_millis(10)).await;
+        }).await;
+
+        // This should not panic
+        profiler.report();
+    }
+
+    #[test]
+    fn test_stage_metrics_zero_duration() {
+        let metric = StageMetrics::new("instant", Duration::from_secs(0), Duration::from_secs(5));
+        assert!(metric.met_target);
+        assert_eq!(metric.improvement_percent(), 100.0);
+    }
 }
