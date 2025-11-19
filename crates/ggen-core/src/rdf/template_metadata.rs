@@ -691,7 +691,7 @@ mod tests {
     }
 
     #[test]
-    fn test_template_variables() {
+    fn test_template_variables() -> Result<()> {
         let mut metadata = TemplateMetadata::new(
             "http://example.org/template1".to_string(),
             "Test Template".to_string(),

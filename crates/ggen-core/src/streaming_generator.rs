@@ -403,7 +403,7 @@ mod tests {
     }
 
     #[test]
-    fn test_streaming_generator_new() -> Result<(), Box<dyn std::error::Error>> {
+    fn test_streaming_generator_new() -> Result<()> {
         let temp_dir = TempDir::new()?;
         let output_dir = TempDir::new()?;
 
@@ -419,7 +419,7 @@ mod tests {
     }
 
     #[test]
-    fn test_streaming_generator_single_file() -> Result<(), Box<dyn std::error::Error>> {
+    fn test_streaming_generator_single_file() -> Result<()> {
         let temp_dir = TempDir::new()?;
         let output_dir = TempDir::new()?;
 
@@ -457,7 +457,7 @@ fn main() { println!("Hello, {{ name }}!"); }
     }
 
     #[test]
-    fn test_streaming_generator_multiple_files() -> Result<(), Box<dyn std::error::Error>> {
+    fn test_streaming_generator_multiple_files() -> Result<()> {
         let temp_dir = TempDir::new()?;
         let output_dir = TempDir::new()?;
 
@@ -493,7 +493,7 @@ fn main_{i}() {{ println!("File {i}"); }}
     }
 
     #[test]
-    fn test_streaming_generator_nested_output() -> Result<(), Box<dyn std::error::Error>> {
+    fn test_streaming_generator_nested_output() -> Result<()> {
         let temp_dir = TempDir::new()?;
         let output_dir = TempDir::new()?;
 
@@ -526,7 +526,7 @@ to: "src/handlers/{{ module }}.rs"
     }
 
     #[test]
-    fn test_streaming_generator_cache_reuse() -> Result<(), Box<dyn std::error::Error>> {
+    fn test_streaming_generator_cache_reuse() -> Result<()> {
         let temp_dir = TempDir::new()?;
         let output_dir = TempDir::new()?;
 

@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 /// and cannot be circumvented.
 use std::sync::Arc;
 
+use crate::ontology::sigma_runtime::ValidationResult;
 use crate::ontology::{DeltaSigmaProposal, SigmaReceipt, SigmaSnapshot};
 
 /// Executable invariant check
