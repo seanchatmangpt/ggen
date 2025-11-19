@@ -1,0 +1,65 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix test: <http://example.org/test#> .
+
+# Small ontology with 10 classes
+test:Class01 a owl:Class ;
+    rdfs:label "Class 01" ;
+    rdfs:comment "Test class 01" .
+
+test:Class02 a owl:Class ;
+    rdfs:label "Class 02" ;
+    rdfs:comment "Test class 02" ;
+    rdfs:subClassOf test:Class01 .
+
+test:Class03 a owl:Class ;
+    rdfs:label "Class 03" ;
+    rdfs:comment "Test class 03" ;
+    rdfs:subClassOf test:Class01 .
+
+test:Class04 a owl:Class ;
+    rdfs:label "Class 04" ;
+    rdfs:comment "Test class 04" ;
+    rdfs:subClassOf test:Class02 .
+
+test:Class05 a owl:Class ;
+    rdfs:label "Class 05" ;
+    rdfs:comment "Test class 05" ;
+    rdfs:subClassOf test:Class02 .
+
+test:Class06 a owl:Class ;
+    rdfs:label "Class 06" ;
+    rdfs:comment "Test class 06" ;
+    rdfs:subClassOf test:Class03 .
+
+test:Class07 a owl:Class ;
+    rdfs:label "Class 07" ;
+    rdfs:comment "Test class 07" ;
+    rdfs:subClassOf test:Class03 .
+
+test:Class08 a owl:Class ;
+    rdfs:label "Class 08" ;
+    rdfs:comment "Test class 08" ;
+    rdfs:subClassOf test:Class04 .
+
+test:Class09 a owl:Class ;
+    rdfs:label "Class 09" ;
+    rdfs:comment "Test class 09" ;
+    rdfs:subClassOf test:Class05 .
+
+test:Class10 a owl:Class ;
+    rdfs:label "Class 10" ;
+    rdfs:comment "Test class 10" ;
+    rdfs:subClassOf test:Class06 .
+
+# Properties
+test:hasProperty a owl:ObjectProperty ;
+    rdfs:label "has property" ;
+    rdfs:domain test:Class01 ;
+    rdfs:range test:Class10 .
+
+test:hasName a owl:DatatypeProperty ;
+    rdfs:label "has name" ;
+    rdfs:domain test:Class01 ;
+    rdfs:range rdfs:Literal .
