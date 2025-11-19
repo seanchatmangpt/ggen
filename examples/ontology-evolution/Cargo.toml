@@ -1,0 +1,9 @@
+[package]
+name = "ontology-evolution-example"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ggen-ai = { path = "../../crates/ggen-ai" }
+tokio = { version = "1", features = ["full"] }
+rand = "0.9"
