@@ -1,0 +1,40 @@
+[package]
+name = "ggen-temporal"
+version = "0.1.0"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+description = "Temporal logic reasoning engine with 4D ontologies, event sourcing, and time-travel debugging"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+homepage = "https://github.com/seanchatmangpt/ggen"
+keywords = ["temporal-logic", "event-sourcing", "4d-ontology", "time-travel", "vector-clock"]
+categories = ["development-tools"]
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+tracing = { workspace = true }
+async-trait = { workspace = true }
+
+# Local dependencies
+ggen-core = { path = "../ggen-core", version = "2.6.0" }
+ggen-utils = { path = "../ggen-utils", version = "2.6.0" }
+
+# Temporal-specific dependencies
+oxigraph = { workspace = true }
+dashmap = "6.1"
+parking_lot = "0.12"
+indexmap = "2.7"
+
+[dev-dependencies]
+tempfile = { workspace = true }
+tokio-test = "0.4"
+
+[features]
+default = []
