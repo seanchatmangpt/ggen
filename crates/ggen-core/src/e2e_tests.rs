@@ -42,7 +42,8 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_end_to_end_template_generation() {
+    fn test_end_to_end_template_generation() -> std::result::Result<(), Box<dyn std::error::Error>>
+    {
         // Create a temporary directory for testing
         let temp_dir = TempDir::new()?;
         let output_dir = temp_dir.path().join("output");
@@ -94,7 +95,7 @@ impl {{ name }} {
     }
 
     #[test]
-    fn test_end_to_end_with_rdf_data() {
+    fn test_end_to_end_with_rdf_data() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let temp_dir = TempDir::new()?;
         let output_dir = temp_dir.path().join("output");
         std::fs::create_dir_all(&output_dir)?;
@@ -161,7 +162,8 @@ pub struct Product {{
     }
 
     #[test]
-    fn test_end_to_end_deterministic_output() {
+    fn test_end_to_end_deterministic_output() -> std::result::Result<(), Box<dyn std::error::Error>>
+    {
         let temp_dir = TempDir::new()?;
         let output_dir1 = temp_dir.path().join("output1");
         let output_dir2 = temp_dir.path().join("output2");
@@ -215,7 +217,7 @@ pub struct {{ name }} {
     }
 
     #[test]
-    fn test_end_to_end_error_handling() {
+    fn test_end_to_end_error_handling() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let temp_dir = TempDir::new()?;
         let output_dir = temp_dir.path().join("output");
         std::fs::create_dir_all(&output_dir)?;

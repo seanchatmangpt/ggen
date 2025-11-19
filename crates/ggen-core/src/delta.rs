@@ -848,7 +848,7 @@ mod tests {
     }
 
     #[test]
-    fn test_delta_filtering() {
+    fn test_delta_filtering() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let (baseline, current) = create_test_graph()?;
         let delta = GraphDelta::new(&baseline, &current)?;
 
@@ -862,7 +862,7 @@ mod tests {
     }
 
     #[test]
-    fn test_impact_analyzer() {
+    fn test_impact_analyzer() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let (baseline, current) = create_test_graph().unwrap();
         let delta = GraphDelta::new(&baseline, &current).unwrap();
 
@@ -885,7 +885,7 @@ mod tests {
     }
 
     #[test]
-    fn test_graph_hash() {
+    fn test_graph_hash() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let (baseline, current) = create_test_graph().unwrap();
 
         let hash1 = baseline.compute_hash().unwrap();
@@ -902,7 +902,7 @@ mod tests {
     }
 
     #[test]
-    fn test_delta_display() {
+    fn test_delta_display() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let (baseline, current) = create_test_graph().unwrap();
         let delta = GraphDelta::new(&baseline, &current).unwrap();
 

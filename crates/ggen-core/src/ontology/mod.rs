@@ -5,7 +5,7 @@ pub mod delta_proposer;
 pub mod e2e_example;
 pub mod pattern_miner;
 pub mod promotion;
-/// Ontology System Module
+/// Autonomous Ontology Management System Module
 ///
 /// This module provides the autonomous ontology management system (Σ) including:
 /// - Meta-ontology definitions (Σ²)
@@ -16,6 +16,18 @@ pub mod promotion;
 /// - Lock-free atomic promotion
 pub mod sigma_runtime;
 pub mod validators;
+
+/// Semantic Ontology Extraction System
+///
+/// This module provides RDF/OWL ontology extraction and transformation into
+/// strongly-typed Rust schema representations for code generation:
+/// - SPARQL-based class and property extraction
+/// - Type mapping (TypeScript, GraphQL, SQL, React)
+/// - Relationship derivation and cardinality constraints
+/// - Snapshot testing for schema extraction
+pub mod error;
+pub mod extractor;
+pub mod schema;
 
 pub use sigma_runtime::{
     PerformanceMetrics,
@@ -54,3 +66,7 @@ pub use constitution::{
     ImmutabilityCheck, InvariantCheck, InvariantResult, NoRetrocausationCheck,
     ProjectionDeterminismCheck, SLOPreservationCheck, TypeSoundnessCheck,
 };
+
+pub use error::{OntologyError, OntologyResult};
+pub use extractor::OntologyExtractor;
+pub use schema::*;

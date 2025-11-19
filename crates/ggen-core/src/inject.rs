@@ -326,45 +326,50 @@ mod tests {
     use tempfile::NamedTempFile;
 
     #[test]
-    fn test_detect_eol_crlf() {
+    fn test_detect_eol_crlf() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let temp_file = NamedTempFile::new()?;
         fs::write(temp_file.path(), "line1\r\nline2\r\n")?;
 
         let eol = EolNormalizer::detect_eol(temp_file.path())?;
         assert_eq!(eol, "\r\n");
+        Ok(())
     }
 
     #[test]
-    fn test_detect_eol_lf() {
+    fn test_detect_eol_lf() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let temp_file = NamedTempFile::new()?;
         fs::write(temp_file.path(), "line1\nline2\n")?;
 
         let eol = EolNormalizer::detect_eol(temp_file.path())?;
         assert_eq!(eol, "\n");
+        Ok(())
     }
 
     #[test]
-    fn test_detect_eol_cr() {
+    fn test_detect_eol_cr() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let temp_file = NamedTempFile::new()?;
         fs::write(temp_file.path(), "line1\rline2\r")?;
 
         let eol = EolNormalizer::detect_eol(temp_file.path())?;
         assert_eq!(eol, "\r");
+        Ok(())
     }
 
     #[test]
-    fn test_detect_eol_no_eol() {
+    fn test_detect_eol_no_eol() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let temp_file = NamedTempFile::new()?;
         fs::write(temp_file.path(), "single line")?;
 
         let eol = EolNormalizer::detect_eol(temp_file.path())?;
         assert_eq!(eol, EolNormalizer::platform_default());
+        Ok(())
     }
 
     #[test]
-    fn test_detect_eol_nonexistent_file() {
+    fn test_detect_eol_nonexistent_file() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let eol = EolNormalizer::detect_eol(Path::new("/nonexistent/file"))?;
         assert_eq!(eol, EolNormalizer::platform_default());
+        Ok(())
     }
 
     #[test]
@@ -385,7 +390,7 @@ mod tests {
     }
 
     #[test]
-    fn test_normalize_to_match_file() {
+    fn test_normalize_to_match_file() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let temp_file = NamedTempFile::new()?;
         fs::write(temp_file.path(), "existing\r\ncontent")?;
 
@@ -394,6 +399,7 @@ mod tests {
             EolNormalizer::normalize_to_match_file(content_to_inject, temp_file.path())?;
 
         assert_eq!(normalized, "new\r\ncontent");
+        Ok(())
     }
 
     #[test]
@@ -424,7 +430,7 @@ mod tests {
     }
 
     #[test]
-    fn test_content_exists_in_file() {
+    fn test_content_exists_in_file() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let temp_file = NamedTempFile::new()?;
         let content = "function hello() {\n  console.log('world');\n}";
         fs::write(
@@ -444,13 +450,16 @@ mod tests {
             different_content,
             temp_file.path()
         )?);
+        Ok(())
     }
 
     #[test]
-    fn test_content_exists_in_nonexistent_file() {
+    fn test_content_exists_in_nonexistent_file(
+    ) -> std::result::Result<(), Box<dyn std::error::Error>> {
         let result =
             SkipIfGenerator::content_exists_in_file("content", Path::new("/nonexistent/file"))?;
         assert!(!result);
+        Ok(())
     }
 
     #[test]
