@@ -30,6 +30,7 @@
 pub mod ai;
 pub mod audit;
 pub mod ci;
+pub mod docs;
 pub mod graph;
 pub mod hook;
 pub mod marketplace;

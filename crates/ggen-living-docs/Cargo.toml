@@ -1,0 +1,68 @@
+[package]
+name = "ggen-living-docs"
+version = "0.1.0"
+edition = "2021"
+authors = ["ggen contributors"]
+description = "Living documentation ecosystem with semantic ontology, narrative generation, and interactive interfaces"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/ggenai/ggen"
+homepage = "https://ggen.dev"
+documentation = "https://docs.rs/ggen-living-docs"
+keywords = ["documentation", "ontology", "rdf", "narrative", "interactive"]
+categories = ["development-tools::documentation", "web-programming"]
+
+[dependencies]
+# Core ggen dependencies
+ggen-core = { path = "../ggen-core" }
+ggen-utils = { path = "../ggen-utils" }
+ggen-ai = { path = "../ggen-ai" }
+
+# RDF and semantic web
+oxigraph = "0.4"
+
+# AST parsing and code analysis
+syn = { version = "2.0", features = ["full", "extra-traits", "visit"] }
+quote = "1.0"
+proc-macro2 = "1.0"
+
+# Web server and API
+actix-web = "4.9"
+actix-ws = "0.3"
+actix-files = "0.6"
+tokio = { version = "1.42", features = ["full"] }
+
+# Templates and narrative generation
+tera = "1.20"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.8"
+
+# Utilities
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.11", features = ["v4", "serde"] }
+async-trait = "0.1"
+anyhow = "1.0"
+thiserror = "2.0"
+tracing = "0.1"
+regex = "1.11"
+
+# Graph visualization data
+petgraph = "0.6"
+
+# File watching for live updates
+notify = "7.0"
+walkdir = "2.5"
+
+[dev-dependencies]
+tokio-test = "0.4"
+tempfile = "3.14"
+pretty_assertions = "1.4"
+
+[features]
+default = ["web-interface"]
+web-interface = ["actix-web", "actix-ws", "actix-files"]
+
+[lints]
+workspace = true

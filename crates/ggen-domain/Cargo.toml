@@ -26,6 +26,7 @@ ggen-core = { path = "../ggen-core", version = "2.6.0" }
 ggen-ai = { path = "../ggen-ai", version = "2.6.0" }
 ggen-marketplace = { path = "../ggen-marketplace", version = "2.6.0" }
 ggen-utils = { path = "../ggen-utils", version = "2.6.0" }
+ggen-living-docs = { path = "../ggen-living-docs", version = "0.1.0" }
 
 # Crate-specific dependencies
 tera = { workspace = true }
