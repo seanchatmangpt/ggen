@@ -202,7 +202,6 @@ pub use ontology::{
     AtomicSnapshotPromoter,
     // Control loop
     AutonomousControlLoop,
-    Cardinality,
     CompositeValidator,
     Constitution,
     ConstitutionValidation,
@@ -227,12 +226,6 @@ pub use ontology::{
     NoRetrocausationCheck,
     Observation,
     ObservationSource,
-    OntClass,
-    OntProperty,
-    OntologyError,
-    OntologyExtractor,
-    OntologyResult,
-    OntologySchema,
     OntologyStats,
     // Pattern mining
     Pattern,
@@ -243,7 +236,6 @@ pub use ontology::{
     ProjectionDeterminismCheck,
     PromotionMetrics,
     PromotionResult,
-    PropertyRange,
     ProposedChange,
     ProposerConfig,
     RealLLMProposer,
