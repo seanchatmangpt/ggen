@@ -2,14 +2,25 @@
 //!
 //! A collaborative swarm of specialized AI agents that work together to achieve
 //! autonomous software generation and evolution.
+//!
+//! ## Swarm Intelligence Features
+//!
+//! - **Ant Colony Optimization (ACO)**: Optimize SPARQL query execution paths
+//! - **Particle Swarm Optimization (PSO)**: Tune template parameters
+//! - **Collaborative Evolution**: Multi-agent genetic algorithms for templates
+//! - **Emergent Behaviors**: Polyglot code synthesis through agent collaboration
 
 pub mod agents;
+pub mod algorithms;
 pub mod coordinator;
+pub mod emergent;
 pub mod events;
 pub mod orchestration;
 
 pub use agents::*;
+pub use algorithms::*;
 pub use coordinator::*;
+pub use emergent::*;
 pub use events::*;
 pub use orchestration::*;
 
