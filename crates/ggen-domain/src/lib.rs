@@ -24,6 +24,7 @@
 //! - `audit` - Security auditing
 //! - `ci` - CI/CD operations
 //! - `shell` - Shell completion generation
+//! - `kanban` - Kanban workflow management for ontology evolution
 
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 
@@ -32,6 +33,7 @@ pub mod audit;
 pub mod ci;
 pub mod graph;
 pub mod hook;
+pub mod kanban;
 pub mod marketplace;
 pub mod project;
 pub mod rdf;
