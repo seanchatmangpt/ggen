@@ -125,13 +125,104 @@ impl EventRouter {
     }
 
     /// Start event monitoring
+    ///
+    /// # Safety
+    ///
+    /// This function contains UNSAFE code that can cause undefined behavior:
+    ///
+    /// ## Invariants Required (NOT currently enforced):
+    /// 1. EventRouter must not be dropped while spawned tasks are running
+    /// 2. Event sources in the HashMap must remain valid for the entire task lifetime
+    /// 3. No mutation of `event_sources` HashMap while tasks hold raw pointers to its contents
+    ///
+    /// ## Current Implementation Issues:
+    ///
+    /// The pattern used here is fundamentally unsound:
+    /// ```rust
+    /// let source_clone = source.as_ref() as *const dyn EventSource;
+    /// tokio::spawn(async move {
+    ///     let source = unsafe { &*source_clone };  // UNSOUND
+    ///     ...
+    /// });
+    /// ```
+    ///
+    /// ## Why This Is Unsound:
+    ///
+    /// 1. **Lifetime Violation**: The raw pointer `source_clone` points to data owned by
+    ///    `self.event_sources` HashMap, but the spawned task is 'static and can outlive
+    ///    the EventRouter instance.
+    ///
+    /// 2. **Use-After-Free**: If EventRouter is dropped:
+    ///    - The HashMap is deallocated
+    ///    - The Box<dyn EventSource> is dropped
+    ///    - The spawned tasks still hold raw pointers to freed memory
+    ///    - Dereferencing these pointers is undefined behavior
+    ///
+    /// 3. **Dangling Pointer**: Even without drop, if the HashMap is mutated (e.g., via
+    ///    another method that takes &mut self), the Box could be reallocated, making all
+    ///    raw pointers invalid.
+    ///
+    /// 4. **No Lifetime Binding**: The 'static bound of tokio::spawn means the compiler
+    ///    cannot verify the pointer remains valid. We're lying to the type system.
+    ///
+    /// ## Potential Undefined Behavior:
+    /// - Dereferencing freed memory if EventRouter is dropped
+    /// - Reading corrupted data if HashMap is modified
+    /// - Memory corruption if pointer targets are deallocated
+    /// - Crashes or silent data corruption
+    ///
+    /// # Safety Analysis Result: UNSOUND
+    ///
+    /// This code violates Rust's safety guarantees and can cause use-after-free.
+    ///
+    /// # Recommended Fix:
+    ///
+    /// Use Arc to share ownership:
+    /// ```rust
+    /// for (name, source) in &self.event_sources {
+    ///     let source_clone: Arc<dyn EventSource> = Arc::from(source.as_ref());
+    ///     let event_tx = self.event_broadcaster.clone();
+    ///     tokio::spawn(async move {
+    ///         // source_clone is owned by the task, guaranteed valid
+    ///         if let Err(e) = Self::monitor_event_source(&*source_clone, event_tx).await {
+    ///             ...
+    ///         }
+    ///     });
+    /// }
+    /// ```
     pub async fn start_monitoring(&self) -> Result<()> {
         // Start all event sources
         for (name, source) in &self.event_sources {
+            // Creates a raw pointer to the trait object inside the Box
             let source_clone = source.as_ref() as *const dyn EventSource;
             let event_tx = self.event_broadcaster.clone();
 
             tokio::spawn(async move {
+                // SAFETY: This is UNSAFE and UNSOUND:
+                //
+                // This dereferences a raw pointer to data owned by EventRouter.event_sources,
+                // but the spawned task has 'static lifetime and can outlive EventRouter.
+                //
+                // ## Assumptions (NOT VERIFIED):
+                // 1. EventRouter lives as long as all spawned tasks (no mechanism ensures this)
+                // 2. event_sources HashMap is never modified after this call (not enforced)
+                // 3. No reallocation of the Box<dyn EventSource> occurs (not guaranteed)
+                //
+                // ## How This Can Fail:
+                // - If EventRouter is dropped, source_clone becomes a dangling pointer
+                // - If event_sources is mutated, the Box could be moved/freed
+                // - No lifetime relationship exists between the pointer and its target
+                //
+                // ## Undefined Behavior Risk:
+                // - Use-after-free: Dereferencing freed memory
+                // - Memory corruption: Reading/writing to reallocated memory
+                // - Crashes: Accessing unmapped memory regions
+                //
+                // VERDICT: This code is unsound. The spawned task can outlive the data
+                // it references, violating Rust's lifetime guarantees.
+                //
+                // FIX: Convert Box<dyn EventSource> to Arc<dyn EventSource> and clone Arc
+                // instead of creating raw pointers.
                 let source = unsafe { &*source_clone };
                 if let Err(e) = Self::monitor_event_source(source, event_tx).await {
                     eprintln!("Error monitoring event source {}: {}", name, e);

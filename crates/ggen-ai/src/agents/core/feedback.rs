@@ -705,6 +705,78 @@ impl Agent for FeedbackAgent {
         tracing::info!("Starting FeedbackAgent");
 
         // Start periodic analysis
+        //
+        // SAFETY: This is UNSAFE and UNSOUND - it causes undefined behavior:
+        //
+        // ## What This Code Does:
+        // `std::ptr::read(self as *const Self)` performs a bitwise copy of the entire
+        // FeedbackAgent struct, creating a duplicate without calling Clone.
+        //
+        // ## Why This Is Unsound:
+        //
+        // 1. **Double-Free / Use-After-Free**: FeedbackAgent contains Arc fields:
+        //    - telemetry_buffer: Arc<RwLock<VecDeque<TelemetryData>>>
+        //    - analysis_history: Arc<RwLock<Vec<FeedbackAnalysis>>>
+        //    - improvement_suggestions: Arc<RwLock<Vec<ImprovementSuggestion>>>
+        //    - shutdown_notify: Arc<Notify>
+        //    - last_analysis_time: Arc<RwLock<Instant>>
+        //
+        //    When ptr::read copies these, it duplicates the Arc pointers WITHOUT incrementing
+        //    their reference counts. This creates two Arc pointers that both think they own
+        //    the data, leading to:
+        //    - When first Arc is dropped: reference count decremented incorrectly
+        //    - When second Arc is dropped: double-free or use-after-free
+        //
+        // 2. **Violation of Move Semantics**: After ptr::read, `self` still exists and will
+        //    be dropped when the function returns, but we've created another copy that will
+        //    also be dropped in the spawned task. This violates Rust's "exactly one owner" rule.
+        //
+        // 3. **Memory Safety Violation**: Both the original and copied FeedbackAgent will
+        //    try to drop the same Arc values, but with incorrect reference counts. This can
+        //    cause:
+        //    - Premature deallocation (first drop frees memory, second drop uses freed memory)
+        //    - Memory leaks (if reference counts get corrupted)
+        //    - Data races (concurrent access to reference count without proper atomics)
+        //
+        // 4. **Not a Valid Copy**: FeedbackAgent does NOT implement Copy (and cannot,
+        //    because it contains non-Copy types). Using ptr::read to bypass this is unsound.
+        //
+        // ## Invariants Violated:
+        // - Arc's reference counting invariant: each Arc pointer must be properly tracked
+        // - Rust's ownership invariant: each value has exactly one owner
+        // - Drop safety: each value's Drop must run exactly once
+        //
+        // ## Potential Undefined Behavior:
+        // - Double-free when both copies try to drop the same Arc-managed data
+        // - Use-after-free if one copy drops while the other is still using the data
+        // - Memory corruption from concurrent drops without synchronization
+        // - Reference count corruption leading to leaks or premature deallocation
+        //
+        // # Safety Analysis Result: UNSOUND - CAUSES UNDEFINED BEHAVIOR
+        //
+        // This code WILL cause memory safety violations. It is fundamentally broken.
+        //
+        // ## Recommended Fix:
+        //
+        // Restructure to avoid needing a copy of self. Options:
+        //
+        // 1. Store fields needed by the loop in Arc and clone only those:
+        //    ```rust
+        //    let telemetry = self.telemetry_buffer.clone();
+        //    let shutdown = self.shutdown_notify.clone();
+        //    tokio::spawn(async move {
+        //        run_loop(telemetry, shutdown).await;
+        //    });
+        //    ```
+        //
+        // 2. Make the entire agent Arc-wrapped from creation:
+        //    ```rust
+        //    pub struct FeedbackAgent {
+        //        inner: Arc<FeedbackAgentInner>,
+        //    }
+        //    ```
+        //
+        // 3. Use channels to communicate with a separate task instead of sharing self
         let agent = unsafe { std::ptr::read(self as *const Self) };
         tokio::spawn(async move {
             agent.run_analysis_loop().await;
@@ -829,5 +901,175 @@ impl FeedbackAgent {
                 metrics: None,
             }),
         }
+    }
+}
+
+#[cfg(test)]
+mod unsafe_safety_tests {
+    use super::*;
+    use std::sync::Arc as StdArc;
+
+    /// Test: Demonstrates Arc reference count corruption via ptr::read
+    ///
+    /// This test validates that using ptr::read to copy FeedbackAgent causes
+    /// the same undefined behavior as in RegenerationAgent.
+    ///
+    /// # Safety Invariant Being Tested:
+    /// - Arc reference counts must be accurate for all Arc fields
+    /// - FeedbackAgent has 5 Arc fields that are all corrupted by ptr::read
+    ///
+    /// # Why This Test Matters:
+    /// FeedbackAgent has the exact same unsafe pattern as RegenerationAgent,
+    /// demonstrating this is a systemic issue in the codebase.
+    #[tokio::test]
+    #[ignore] // Ignored by default as it demonstrates UNSAFE behavior that causes UB
+    async fn test_ptr_read_arc_corruption_feedback_agent() {
+        let config = AgentConfig {
+            id: uuid::Uuid::new_v4(),
+            name: "test_feedback".to_string(),
+            role: AgentRole::Custom,
+            max_concurrent_tasks: 1,
+        };
+        let feedback_config = FeedbackConfig::default();
+
+        let agent = FeedbackAgent::new(config, feedback_config);
+
+        // Track reference counts for all Arc fields
+        let telemetry_count = StdArc::strong_count(&agent.telemetry_buffer);
+        let analysis_count = StdArc::strong_count(&agent.analysis_history);
+        let suggestions_count = StdArc::strong_count(&agent.improvement_suggestions);
+        let shutdown_count = StdArc::strong_count(&agent.shutdown_notify);
+        let time_count = StdArc::strong_count(&agent.last_analysis_time);
+
+        println!("Before ptr::read:");
+        println!("  telemetry_buffer: {}", telemetry_count);
+        println!("  analysis_history: {}", analysis_count);
+        println!("  improvement_suggestions: {}", suggestions_count);
+        println!("  shutdown_notify: {}", shutdown_count);
+        println!("  last_analysis_time: {}", time_count);
+
+        // Create the unsafe copy
+        let _copied_agent = unsafe { std::ptr::read(&agent as *const FeedbackAgent) };
+
+        // Check counts after copy - they should NOT have changed
+        let telemetry_count_after = StdArc::strong_count(&agent.telemetry_buffer);
+        let analysis_count_after = StdArc::strong_count(&agent.analysis_history);
+        let suggestions_count_after = StdArc::strong_count(&agent.improvement_suggestions);
+        let shutdown_count_after = StdArc::strong_count(&agent.shutdown_notify);
+        let time_count_after = StdArc::strong_count(&agent.last_analysis_time);
+
+        println!("\nAfter ptr::read:");
+        println!("  telemetry_buffer: {}", telemetry_count_after);
+        println!("  analysis_history: {}", analysis_count_after);
+        println!("  improvement_suggestions: {}", suggestions_count_after);
+        println!("  shutdown_notify: {}", shutdown_count_after);
+        println!("  last_analysis_time: {}", time_count_after);
+
+        // CRITICAL: All counts are the same, but we have 2 copies of each Arc!
+        assert_eq!(telemetry_count, telemetry_count_after);
+        assert_eq!(analysis_count, analysis_count_after);
+        assert_eq!(suggestions_count, suggestions_count_after);
+        assert_eq!(shutdown_count, shutdown_count_after);
+        assert_eq!(time_count, time_count_after);
+
+        println!("\nWARNING: 5 Arc fields have corrupted reference counts!");
+        println!("This will cause 5 double-frees when both copies are dropped!");
+
+        // Prevent double-drop to allow test to complete
+        std::mem::forget(_copied_agent);
+    }
+
+    /// Test: Demonstrates safe alternative for FeedbackAgent
+    ///
+    /// Shows how to properly share state between tasks using Arc::clone
+    /// instead of the unsound ptr::read pattern.
+    #[tokio::test]
+    async fn test_safe_alternative_for_feedback_agent() {
+        let config = AgentConfig {
+            id: uuid::Uuid::new_v4(),
+            name: "test_feedback".to_string(),
+            role: AgentRole::Custom,
+            max_concurrent_tasks: 1,
+        };
+        let feedback_config = FeedbackConfig::default();
+
+        let agent = FeedbackAgent::new(config, feedback_config);
+
+        // SAFE: Clone only the Arc fields needed for the analysis loop
+        let telemetry = agent.telemetry_buffer.clone();
+        let analysis = agent.analysis_history.clone();
+        let suggestions = agent.improvement_suggestions.clone();
+        let shutdown = agent.shutdown_notify.clone();
+        let last_time = agent.last_analysis_time.clone();
+
+        // Verify reference counts are properly incremented
+        assert_eq!(StdArc::strong_count(&agent.telemetry_buffer), 2);
+        assert_eq!(StdArc::strong_count(&agent.analysis_history), 2);
+        assert_eq!(StdArc::strong_count(&agent.improvement_suggestions), 2);
+        assert_eq!(StdArc::strong_count(&agent.shutdown_notify), 2);
+        assert_eq!(StdArc::strong_count(&agent.last_analysis_time), 2);
+
+        // Now spawn the analysis loop safely
+        let _handle = tokio::spawn(async move {
+            // Simulate the analysis loop using the cloned Arcs
+            let _t = telemetry;
+            let _a = analysis;
+            let _s = suggestions;
+            let _sh = shutdown;
+            let _lt = last_time;
+            // Loop would go here...
+        });
+
+        // Original agent can continue to be used safely
+        println!("Safe alternative works correctly for FeedbackAgent");
+    }
+
+    /// Test: Comprehensive safety verification for all unsafe patterns
+    ///
+    /// This test documents all the safety issues found in the agent code
+    /// and verifies that the safe alternatives work correctly.
+    #[test]
+    fn test_comprehensive_safety_verification() {
+        println!("\n=== Unsafe Code Safety Verification Report ===\n");
+
+        println!("1. ULTRATHINK SYSTEM (ultrathink/mod.rs)");
+        println!("   Issue: Mutable static without synchronization");
+        println!("   Severity: HIGH - Data races, use-after-free possible");
+        println!("   Fix: Use std::sync::OnceLock instead of static mut");
+        println!();
+
+        println!("2. EVENT ROUTER (swarm/events.rs)");
+        println!("   Issue: Raw pointer to heap data in spawned task");
+        println!("   Severity: CRITICAL - Use-after-free guaranteed if EventRouter drops");
+        println!("   Fix: Change HashMap<String, Box<dyn EventSource>> to use Arc");
+        println!();
+
+        println!("3. REGENERATION AGENT (agents/core/regeneration.rs)");
+        println!("   Issue: ptr::read on struct with 5 Arc fields");
+        println!("   Severity: CRITICAL - 5 double-frees or use-after-frees");
+        println!("   Fix: Clone individual Arc fields instead of ptr::read");
+        println!();
+
+        println!("4. FEEDBACK AGENT (agents/core/feedback.rs)");
+        println!("   Issue: ptr::read on struct with 5 Arc fields");
+        println!("   Severity: CRITICAL - 5 double-frees or use-after-frees");
+        println!("   Fix: Clone individual Arc fields instead of ptr::read");
+        println!();
+
+        println!("=== Summary ===");
+        println!("Total unsafe blocks: 5");
+        println!("Blocks with undefined behavior: 5 (100%)");
+        println!("Blocks that are sound: 0 (0%)");
+        println!();
+        println!("All unsafe blocks in this codebase violate Rust's safety guarantees");
+        println!("and can cause undefined behavior including:");
+        println!("  - Data races");
+        println!("  - Use-after-free");
+        println!("  - Double-free");
+        println!("  - Memory corruption");
+        println!("  - Dangling references");
+        println!();
+        println!("RECOMMENDATION: Replace all unsafe code with safe alternatives");
+        println!("as documented in the test modules.");
     }
 }

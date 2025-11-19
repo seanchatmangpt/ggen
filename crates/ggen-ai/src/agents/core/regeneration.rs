@@ -559,6 +559,78 @@ impl Agent for RegenerationAgent {
         tracing::info!("Starting RegenerationAgent");
 
         // Start regeneration queue processor
+        //
+        // SAFETY: This is UNSAFE and UNSOUND - it causes undefined behavior:
+        //
+        // ## What This Code Does:
+        // `std::ptr::read(self as *const Self)` performs a bitwise copy of the entire
+        // RegenerationAgent struct, creating a duplicate without calling Clone.
+        //
+        // ## Why This Is Unsound:
+        //
+        // 1. **Double-Free / Use-After-Free**: RegenerationAgent contains Arc fields:
+        //    - artifact_registry: Arc<RwLock<HashMap<...>>>
+        //    - regeneration_queue: Arc<RwLock<Vec<...>>>
+        //    - regeneration_history: Arc<RwLock<Vec<...>>>
+        //    - shutdown_notify: Arc<Notify>
+        //    - last_scan_time: Arc<RwLock<Instant>>
+        //
+        //    When ptr::read copies these, it duplicates the Arc pointers WITHOUT incrementing
+        //    their reference counts. This creates two Arc pointers that both think they own
+        //    the data, leading to:
+        //    - When first Arc is dropped: reference count decremented incorrectly
+        //    - When second Arc is dropped: double-free or use-after-free
+        //
+        // 2. **Violation of Move Semantics**: After ptr::read, `self` still exists and will
+        //    be dropped when the function returns, but we've created another copy that will
+        //    also be dropped in the spawned task. This violates Rust's "exactly one owner" rule.
+        //
+        // 3. **Memory Safety Violation**: Both the original and copied RegenerationAgent will
+        //    try to drop the same Arc values, but with incorrect reference counts. This can
+        //    cause:
+        //    - Premature deallocation (first drop frees memory, second drop uses freed memory)
+        //    - Memory leaks (if reference counts get corrupted)
+        //    - Data races (concurrent access to reference count without proper atomics)
+        //
+        // 4. **Not a Valid Copy**: RegenerationAgent does NOT implement Copy (and cannot,
+        //    because it contains non-Copy types). Using ptr::read to bypass this is unsound.
+        //
+        // ## Invariants Violated:
+        // - Arc's reference counting invariant: each Arc pointer must be properly tracked
+        // - Rust's ownership invariant: each value has exactly one owner
+        // - Drop safety: each value's Drop must run exactly once
+        //
+        // ## Potential Undefined Behavior:
+        // - Double-free when both copies try to drop the same Arc-managed data
+        // - Use-after-free if one copy drops while the other is still using the data
+        // - Memory corruption from concurrent drops without synchronization
+        // - Reference count corruption leading to leaks or premature deallocation
+        //
+        // # Safety Analysis Result: UNSOUND - CAUSES UNDEFINED BEHAVIOR
+        //
+        // This code WILL cause memory safety violations. It is fundamentally broken.
+        //
+        // ## Recommended Fix:
+        //
+        // Restructure to avoid needing a copy of self. Options:
+        //
+        // 1. Store fields needed by the loop in Arc and clone only those:
+        //    ```rust
+        //    let queue = self.regeneration_queue.clone();
+        //    let shutdown = self.shutdown_notify.clone();
+        //    tokio::spawn(async move {
+        //        run_loop(queue, shutdown).await;
+        //    });
+        //    ```
+        //
+        // 2. Make the entire agent Arc-wrapped from creation:
+        //    ```rust
+        //    pub struct RegenerationAgent {
+        //        inner: Arc<RegenerationAgentInner>,
+        //    }
+        //    ```
+        //
+        // 3. Use channels to communicate with a separate task instead of sharing self
         let agent = unsafe { std::ptr::read(self as *const Self) };
         tokio::spawn(async move {
             agent.run_regeneration_loop().await;
@@ -664,5 +736,209 @@ impl RegenerationAgent {
                 metrics: None,
             }),
         }
+    }
+}
+
+#[cfg(test)]
+mod unsafe_safety_tests {
+    use super::*;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::sync::Arc as StdArc;
+
+    /// Test: Demonstrates Arc reference count corruption via ptr::read
+    ///
+    /// This test validates that using ptr::read to copy a struct containing
+    /// Arc fields causes reference count corruption and undefined behavior.
+    ///
+    /// # Safety Invariant Being Tested:
+    /// - Arc reference counts must be accurate
+    /// - Each Arc clone must increment the reference count
+    /// - Each Arc drop must decrement the reference count exactly once
+    ///
+    /// # What ptr::read Does Wrong:
+    /// ```rust
+    /// let agent = unsafe { std::ptr::read(self as *const Self) };
+    /// ```
+    /// This creates a bitwise copy of the struct, duplicating all Arc pointers
+    /// WITHOUT incrementing their reference counts.
+    ///
+    /// # Expected Behavior (Current Implementation):
+    /// - Two Arc pointers to the same data, both thinking they own it
+    /// - When first is dropped: ref count decremented
+    /// - When second is dropped: double-free or use-after-free
+    ///
+    /// # Why This Test Matters:
+    /// Demonstrates that ptr::read on non-Copy types containing Arc causes
+    /// immediate undefined behavior that violates memory safety.
+    #[tokio::test]
+    #[ignore] // Ignored by default as it demonstrates UNSAFE behavior that causes UB
+    async fn test_ptr_read_arc_corruption() {
+        // Create an agent with Arc fields
+        let config = AgentConfig {
+            id: uuid::Uuid::new_v4(),
+            name: "test_agent".to_string(),
+            role: AgentRole::Custom,
+            max_concurrent_tasks: 1,
+        };
+        let regen_config = RegenerationConfig::default();
+
+        let mut agent = RegenerationAgent::new(config, regen_config);
+
+        // Get the initial Arc reference count for one of the fields
+        // Arc::strong_count gives us the number of Arc pointers to the data
+        let initial_count = StdArc::strong_count(&agent.shutdown_notify);
+        println!("Initial Arc strong count: {}", initial_count);
+
+        // This is what the unsafe code does - create a bitwise copy
+        // WITHOUT incrementing Arc reference counts
+        let _copied_agent = unsafe { std::ptr::read(&agent as *const RegenerationAgent) };
+
+        // Check the reference count after the "copy"
+        let after_copy_count = StdArc::strong_count(&agent.shutdown_notify);
+        println!("After ptr::read count: {}", after_copy_count);
+
+        // CRITICAL BUG: The count should have increased, but it didn't!
+        // We now have TWO Arc pointers to the same data, but the reference
+        // count thinks there's still only ONE.
+        //
+        // This means when the first Arc is dropped, the data will be freed,
+        // and the second Arc will be left with a dangling pointer.
+
+        assert_eq!(
+            initial_count, after_copy_count,
+            "ptr::read did NOT increment Arc reference count - UB incoming!"
+        );
+
+        // When this function returns:
+        // 1. `agent` goes out of scope and drops its Arcs
+        // 2. `_copied_agent` goes out of scope and drops the SAME Arcs
+        // 3. UNDEFINED BEHAVIOR: double-free, use-after-free, or memory corruption
+
+        // NOTE: This test may crash, may corrupt memory, or may appear to work
+        // depending on timing, allocator behavior, and other factors.
+        // The point is: the behavior is UNDEFINED.
+
+        println!("WARNING: This test demonstrates undefined behavior!");
+
+        // Prevent the double-drop by forgetting the copied agent
+        // (This is just to allow the test to complete without crashing)
+        std::mem::forget(_copied_agent);
+    }
+
+    /// Test: Demonstrates memory leak when preventing double-free
+    ///
+    /// This test shows that to avoid the double-free from ptr::read,
+    /// we'd have to leak memory using std::mem::forget.
+    ///
+    /// # Safety Invariant Being Tested:
+    /// - Memory should be properly managed (no leaks)
+    /// - All allocated resources should be freed exactly once
+    ///
+    /// # Why This Test Matters:
+    /// Shows that ptr::read creates a no-win situation:
+    /// - Let both copies drop: undefined behavior (double-free)
+    /// - Forget one copy: memory leak
+    /// - Neither option is acceptable
+    #[tokio::test]
+    async fn test_ptr_read_forces_memory_leak() {
+        let config = AgentConfig {
+            id: uuid::Uuid::new_v4(),
+            name: "test_agent".to_string(),
+            role: AgentRole::Custom,
+            max_concurrent_tasks: 1,
+        };
+        let regen_config = RegenerationConfig::default();
+
+        let agent = RegenerationAgent::new(config, regen_config);
+
+        // To avoid undefined behavior from ptr::read, we'd have to:
+        let copied_agent = unsafe { std::ptr::read(&agent as *const RegenerationAgent) };
+
+        // Prevent the original from being dropped (memory leak)
+        std::mem::forget(agent);
+
+        // Now only the copy will be dropped properly
+        drop(copied_agent);
+
+        // Result: We had to leak the original agent to avoid UB
+        // This is obviously not acceptable for production code
+
+        println!("Avoided UB but caused memory leak instead");
+    }
+
+    /// Test: Demonstrates the correct safe alternative
+    ///
+    /// This test shows how to properly clone Arc fields when needed,
+    /// without any unsafe code or reference count corruption.
+    ///
+    /// # Safety Guarantees:
+    /// - Arc reference counts are properly maintained
+    /// - No unsafe code needed
+    /// - No undefined behavior possible
+    /// - No memory leaks
+    #[tokio::test]
+    async fn test_safe_alternative_arc_clone() {
+        let config = AgentConfig {
+            id: uuid::Uuid::new_v4(),
+            name: "test_agent".to_string(),
+            role: AgentRole::Custom,
+            max_concurrent_tasks: 1,
+        };
+        let regen_config = RegenerationConfig::default();
+
+        let agent = RegenerationAgent::new(config, regen_config);
+
+        // SAFE alternative: Clone only the Arc fields needed
+        let shutdown_notify = agent.shutdown_notify.clone();
+        let queue = agent.regeneration_queue.clone();
+
+        // Check reference counts
+        let count_shutdown = StdArc::strong_count(&agent.shutdown_notify);
+        let count_queue = StdArc::strong_count(&agent.regeneration_queue);
+
+        // Reference counts correctly show 2 references each
+        assert_eq!(count_shutdown, 2, "Shutdown notify should have 2 references");
+        assert_eq!(count_queue, 2, "Queue should have 2 references");
+
+        // Now we can spawn a task with just the fields we need
+        let _handle = tokio::spawn(async move {
+            // Use the cloned Arcs safely
+            let _notify = shutdown_notify;
+            let _q = queue;
+        });
+
+        // Original agent can be used or dropped safely
+        // No undefined behavior, no memory leaks
+
+        println!("Safe alternative using Arc::clone works correctly");
+    }
+
+    /// Test: Documents the severity of the unsafe code
+    ///
+    /// This test documents why the ptr::read pattern is categorically unsound
+    /// and cannot be made safe through any external invariants.
+    #[test]
+    fn test_ptr_read_is_always_unsound() {
+        // The pattern `unsafe { std::ptr::read(self as *const Self) }` is ALWAYS
+        // unsound when Self contains:
+        //
+        // 1. Arc<T> - duplicates Arc without incrementing refcount
+        // 2. Box<T> - creates two owners of heap allocation
+        // 3. Vec<T> - duplicates ownership of heap buffer
+        // 4. String - duplicates ownership of heap buffer
+        // 5. Any type with Drop - will drop twice
+        // 6. Any non-Copy type - violates ownership semantics
+        //
+        // RegenerationAgent contains multiple Arc fields, making this
+        // pattern GUARANTEED to cause undefined behavior.
+        //
+        // There are NO external invariants that can make this safe:
+        // - "Promise to only drop one copy" - cannot be enforced by type system
+        // - "Promise not to use after copy" - would require std::mem::forget (leak)
+        // - "External synchronization" - doesn't help with reference counts
+        //
+        // The ONLY fix is to not use ptr::read on non-Copy types.
+
+        println!("ptr::read on RegenerationAgent is categorically unsound");
     }
 }
