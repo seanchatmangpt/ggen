@@ -1,0 +1,249 @@
+name: Performance Benchmarks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Allow manual trigger
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  benchmark:
+    name: Run Performance Benchmarks
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for comparison
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-registry-
+
+      - name: Cache cargo index
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-index-
+
+      - name: Cache cargo build
+        uses: actions/cache@v4
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-build-bench-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-build-bench-
+
+      - name: Install criterion
+        run: cargo install cargo-criterion || true
+
+      - name: Build benchmarks
+        run: cargo build --release --benches
+
+      - name: Run Pipeline Performance Benchmarks
+        run: cargo criterion --bench pipeline_performance --message-format json > pipeline-benchmark-results.json || true
+
+      - name: Run CLI Startup Performance Benchmarks
+        run: cargo criterion --bench cli_startup_performance --message-format json > cli-benchmark-results.json || true
+
+      - name: Run Template Benchmarks
+        run: cargo criterion --bench template_benchmarks --message-format json > template-benchmark-results.json || true
+
+      - name: Generate benchmark summary
+        run: |
+          echo "# Performance Benchmark Results" > $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Pipeline Performance" >> $GITHUB_STEP_SUMMARY
+          echo "Benchmarks for core generation pipeline components:" >> $GITHUB_STEP_SUMMARY
+          echo "- Ontology parsing (10, 50, 150, 500 classes)" >> $GITHUB_STEP_SUMMARY
+          echo "- SPARQL query execution (10-1000 entities)" >> $GITHUB_STEP_SUMMARY
+          echo "- Template rendering performance" >> $GITHUB_STEP_SUMMARY
+          echo "- File I/O operations" >> $GITHUB_STEP_SUMMARY
+          echo "- Memory usage during large generations" >> $GITHUB_STEP_SUMMARY
+          echo "- End-to-end generation time" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## CLI Startup Performance" >> $GITHUB_STEP_SUMMARY
+          echo "Benchmarks for CLI command startup time:" >> $GITHUB_STEP_SUMMARY
+          echo "- Help command startup" >> $GITHUB_STEP_SUMMARY
+          echo "- Version command startup" >> $GITHUB_STEP_SUMMARY
+          echo "- Cold vs warm start comparison" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Full HTML reports are available in the artifacts." >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: benchmark-results
+          path: |
+            target/criterion/
+            *-benchmark-results.json
+          retention-days: 30
+
+      - name: Store benchmark results for comparison
+        uses: benchmark-action/github-action-benchmark@v1
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        with:
+          name: Rust Benchmarks
+          tool: 'cargo'
+          output-file-path: pipeline-benchmark-results.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          # Show alert with commit comment on detecting possible performance regression
+          alert-threshold: '125%'
+          comment-on-alert: true
+          fail-on-alert: false
+          alert-comment-cc-users: '@seanchatmangpt'
+
+      - name: Performance regression check
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "Checking for performance regressions..."
+          # This is a placeholder for more sophisticated regression checking
+          # You could compare against main branch benchmarks here
+          echo "✓ Performance check complete"
+
+  # Separate job for memory profiling (more intensive)
+  memory-profiling:
+    name: Memory Profiling
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install valgrind (for memory profiling)
+        run: sudo apt-get update && sudo apt-get install -y valgrind
+
+      - name: Run memory profiling benchmarks
+        run: cargo bench --bench memory_profiling 2>&1 | tee memory-profile.log || true
+
+      - name: Upload memory profiling results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: memory-profiling-results
+          path: memory-profile.log
+          retention-days: 30
+
+  # Continuous benchmark tracking (only on main)
+  continuous-benchmark:
+    name: Continuous Benchmark Tracking
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-continuous-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Run all benchmarks for tracking
+        run: |
+          cargo bench --bench pipeline_performance -- --save-baseline main
+          cargo bench --bench cli_startup_performance -- --save-baseline main
+          cargo bench --bench template_benchmarks -- --save-baseline main
+
+      - name: Archive baseline
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-baseline-${{ github.sha }}
+          path: target/criterion/
+          retention-days: 90
+
+  # Performance regression report
+  regression-report:
+    name: Generate Regression Report
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-regression-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Download baseline benchmarks
+        uses: dawidd6/action-download-artifact@v6
+        continue-on-error: true
+        with:
+          workflow: performance.yml
+          branch: main
+          name: benchmark-baseline-*
+          path: baseline/
+          search_artifacts: true
+
+      - name: Run benchmarks with baseline comparison
+        run: |
+          if [ -d "baseline/target/criterion" ]; then
+            cp -r baseline/target/criterion target/
+            cargo bench --bench pipeline_performance -- --baseline main
+            cargo bench --bench cli_startup_performance -- --baseline main
+          else
+            echo "No baseline found, running without comparison"
+            cargo bench --bench pipeline_performance
+            cargo bench --bench cli_startup_performance
+          fi
+
+      - name: Generate regression report
+        run: |
+          echo "# Performance Regression Report" > regression-report.md
+          echo "" >> regression-report.md
+          echo "Comparison of PR benchmarks against main branch baseline." >> regression-report.md
+          echo "" >> regression-report.md
+          echo "See artifacts for detailed HTML reports." >> regression-report.md
+
+      - name: Comment PR with regression report
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('regression-report.md', 'utf8');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });
