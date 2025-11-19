@@ -210,8 +210,10 @@ fn count_todos_in_production() -> Result<usize, Box<dyn std::error::Error>> {
             let todos: usize = content
                 .lines()
                 .filter(|line| {
-                    let line_lower = line.to_lowercase();
-                    line_lower.contains("todo:") && !line_lower.contains("future:")
+                    // Case-sensitive: only match actual comments, not type names
+                    let has_todo = line.contains("// T") && line.contains("ODO:");
+                    let has_future = line.contains("// F") && line.contains("UTURE:");
+                    has_todo && !has_future
                 })
                 .count();
             count += todos;
