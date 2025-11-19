@@ -4,7 +4,7 @@
 mod tests {
     use crate::config::{
         AgentRole, CompositionMetadata, CompositionStrategy, HiveQueen, LockedPackage,
-        LockfileManager, OntologyConfig, OntologyLockfile, OntologyPackRef, TargetConfig,
+        LockfileManager, OntologyConfig, OntologyPackRef, TargetConfig,
     };
     use std::collections::BTreeMap;
     use std::path::PathBuf;

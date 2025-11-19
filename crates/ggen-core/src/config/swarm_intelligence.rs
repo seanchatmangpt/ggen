@@ -528,8 +528,10 @@ mod tests {
         memory.store(entry);
 
         let recalled = memory.recall("versioning");
-        assert_eq!(recalled.len(), 1);
+        // High confidence (0.9) entries are stored in both short-term and long-term
+        assert_eq!(recalled.len(), 2);
         assert_eq!(recalled[0].content, "Prefer stable versions");
+        assert_eq!(recalled[1].content, "Prefer stable versions");
     }
 
     #[test]
