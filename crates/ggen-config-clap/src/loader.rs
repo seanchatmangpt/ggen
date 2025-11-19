@@ -23,13 +23,11 @@ pub trait LoadConfigFromGgenToml: Sized {
 /// # Errors
 /// Returns error if file cannot be read or parsed
 pub fn load_ggen_config<P: AsRef<Path>>(path: P) -> Result<GgenConfig> {
-    let config_str = std::fs::read_to_string(path.as_ref()).map_err(|e| {
-        ConfigClapError::LoadError(format!("Failed to read ggen.toml: {e}"))
-    })?;
+    let config_str = std::fs::read_to_string(path.as_ref())
+        .map_err(|e| ConfigClapError::LoadError(format!("Failed to read ggen.toml: {e}")))?;
 
-    let config: GgenConfig = toml::from_str(&config_str).map_err(|e| {
-        ConfigClapError::ParseError(format!("Failed to parse ggen.toml: {e}"))
-    })?;
+    let config: GgenConfig = toml::from_str(&config_str)
+        .map_err(|e| ConfigClapError::ParseError(format!("Failed to parse ggen.toml: {e}")))?;
 
     Ok(config)
 }
@@ -65,10 +63,7 @@ pub fn expand_env_vars(input: &str) -> String {
             }
             let var_name: String = chars[start + 1..i].iter().collect();
             if let Ok(value) = std::env::var(&var_name) {
-                result.replace_range(
-                    start..start + var_name.len() + 1,
-                    &value,
-                );
+                result.replace_range(start..start + var_name.len() + 1, &value);
                 chars = result.chars().collect();
                 i = start + value.len();
             }

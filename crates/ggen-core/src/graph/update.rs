@@ -340,7 +340,11 @@ mod tests {
 
         // Act - Use full IRIs since we're not declaring prefixes
         update
-            .update("?s <http://example.org/age> ?o", "?s <http://example.org/age> \"31\"", "?s <http://example.org/age> ?o")
+            .update(
+                "?s <http://example.org/age> ?o",
+                "?s <http://example.org/age> \"31\"",
+                "?s <http://example.org/age> ?o",
+            )
             .unwrap();
 
         // Assert

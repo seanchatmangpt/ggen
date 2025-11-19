@@ -29,10 +29,10 @@
 
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use ggen_core::lockfile::LockfileManager;
+use ggen_core::parallel_generator::ParallelGenerator;
 use ggen_core::rdf::query::QueryCache;
 use ggen_core::template::Template;
 use ggen_core::template_cache::TemplateCache;
-use ggen_core::parallel_generator::ParallelGenerator;
 use oxigraph::store::Store;
 use std::fs;
 use std::path::Path;
@@ -49,12 +49,14 @@ fn bench_lockfile_refinement(c: &mut Criterion) {
         let manager = LockfileManager::new(temp_dir.path());
 
         let packs: Vec<(String, String, String, String)> = (0..count)
-            .map(|i| (
-                format!("io.ggen.pack{}", i),
-                "1.0.0".to_string(),
-                format!("sha256_{}", i),
-                format!("https://example.com/pack{}", i),
-            ))
+            .map(|i| {
+                (
+                    format!("io.ggen.pack{}", i),
+                    "1.0.0".to_string(),
+                    format!("sha256_{}", i),
+                    format!("https://example.com/pack{}", i),
+                )
+            })
             .collect();
 
         group.throughput(Throughput::Elements(count as u64));
@@ -106,8 +108,10 @@ fn bench_lockfile_refinement(c: &mut Criterion) {
         } else {
             0.0
         };
-        println!("Lockfile cache ({} packs): {}/{} entries, hit rate: {:.2}%",
-            count, stats.0, stats.1, hit_rate);
+        println!(
+            "Lockfile cache ({} packs): {}/{} entries, hit rate: {:.2}%",
+            count, stats.0, stats.1, hit_rate
+        );
     }
 
     group.finish();
@@ -124,12 +128,13 @@ fn bench_rdf_query_tuning(c: &mut Criterion) {
     for i in 0..500 {
         let triple = format!(
             "<http://example.org/subject{}> <http://example.org/predicate{}> \"Object {}\" .",
-            i, i % 10, i
+            i,
+            i % 10,
+            i
         );
-        store.load_from_reader(
-            oxigraph::io::RdfFormat::NTriples,
-            triple.as_bytes()
-        ).unwrap();
+        store
+            .load_from_reader(oxigraph::io::RdfFormat::NTriples, triple.as_bytes())
+            .unwrap();
     }
 
     // Test different cache sizes to find optimal configuration
@@ -139,7 +144,8 @@ fn bench_rdf_query_tuning(c: &mut Criterion) {
         group.throughput(Throughput::Elements(50));
 
         // Test 1: Repeated queries (should benefit from caching)
-        let repeated_query = "SELECT ?s ?o WHERE { ?s <http://example.org/predicate0> ?o } LIMIT 10";
+        let repeated_query =
+            "SELECT ?s ?o WHERE { ?s <http://example.org/predicate0> ?o } LIMIT 10";
 
         group.bench_with_input(
             BenchmarkId::new("repeated_query_cached", cache_capacity),
@@ -184,13 +190,19 @@ fn bench_rdf_query_tuning(c: &mut Criterion) {
             &cache,
             |b, cache| {
                 b.iter(|| {
-                    black_box(cache.build_predicate_index(&store, &predicate_refs).unwrap());
+                    black_box(
+                        cache
+                            .build_predicate_index(&store, &predicate_refs)
+                            .unwrap(),
+                    );
                 });
             },
         );
 
         // Test 4: Predicate index query (should be fast)
-        cache.build_predicate_index(&store, &predicate_refs).unwrap();
+        cache
+            .build_predicate_index(&store, &predicate_refs)
+            .unwrap();
         group.bench_with_input(
             BenchmarkId::new("predicate_index_query", cache_capacity),
             &cache,
@@ -269,9 +281,7 @@ fn main_{}() {{
                     for (i, path) in template_paths.iter().enumerate() {
                         let content = fs::read_to_string(path).unwrap();
                         let key = format!("template_{}", i);
-                        black_box(
-                            cache.get_or_parse_frontmatter(&content, &key).unwrap()
-                        );
+                        black_box(cache.get_or_parse_frontmatter(&content, &key).unwrap());
                     }
                 });
             },
@@ -287,9 +297,7 @@ fn main_{}() {{
                     for (i, path) in template_paths.iter().enumerate() {
                         let content = fs::read_to_string(path).unwrap();
                         let key = format!("template_{}", i);
-                        black_box(
-                            cache.get_or_parse_frontmatter(&content, &key).unwrap()
-                        );
+                        black_box(cache.get_or_parse_frontmatter(&content, &key).unwrap());
                     }
                 });
             },
@@ -316,8 +324,10 @@ fn main_{}() {{
         // Test 4: Memory usage optimization
         let stats = cache.stats().unwrap();
         let memory_mb = (stats.total_entries * 1024) as f64 / (1024.0 * 1024.0); // rough estimate
-        println!("Template cache (capacity {}): {} entries, ~{:.2}MB estimated memory",
-            capacity, stats.total_entries, memory_mb);
+        println!(
+            "Template cache (capacity {}): {} entries, ~{:.2}MB estimated memory",
+            capacity, stats.total_entries, memory_mb
+        );
     }
 
     group.finish();
@@ -374,12 +384,8 @@ pub fn function_{}() {{
     group.bench_function("bulk_template_generation_100", |b| {
         b.iter(|| {
             let output_dir_temp = TempDir::new().unwrap();
-            ParallelGenerator::generate_all(
-                &template_dir,
-                output_dir_temp.path(),
-                &Context::new(),
-            )
-            .unwrap();
+            ParallelGenerator::generate_all(&template_dir, output_dir_temp.path(), &Context::new())
+                .unwrap();
         });
     });
 
@@ -392,12 +398,14 @@ pub fn function_{}() {{
                 let lockfile_dir = TempDir::new().unwrap();
                 let manager = LockfileManager::new(lockfile_dir.path());
                 let packs: Vec<(String, String, String, String)> = (0..count)
-                    .map(|i| (
-                        format!("io.ggen.pack{}", i),
-                        "1.0.0".to_string(),
-                        format!("sha256_{}", i),
-                        format!("https://example.com/pack{}", i),
-                    ))
+                    .map(|i| {
+                        (
+                            format!("io.ggen.pack{}", i),
+                            "1.0.0".to_string(),
+                            format!("sha256_{}", i),
+                            format!("https://example.com/pack{}", i),
+                        )
+                    })
                     .collect();
 
                 b.iter(|| {
@@ -417,10 +425,9 @@ pub fn function_{}() {{
                 "<http://example.org/subject{}> <http://example.org/predicate> \"Object {}\" .",
                 i, i
             );
-            store.load_from_reader(
-                oxigraph::io::RdfFormat::NTriples,
-                triple.as_bytes()
-            ).unwrap();
+            store
+                .load_from_reader(oxigraph::io::RdfFormat::NTriples, triple.as_bytes())
+                .unwrap();
         }
 
         let cache = QueryCache::new(1000);

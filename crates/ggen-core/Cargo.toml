@@ -124,6 +124,10 @@ harness = false
 name = "week4_optimization_benchmark"
 harness = false
 
+[[bench]]
+name = "hive_coordination"
+harness = false
+
 [[test]]
 name = "marketplace_tests_main"
 path = "tests/marketplace_tests_main.rs"

@@ -113,7 +113,7 @@ pub struct OntologyPackSummary {
 /// }
 /// ```
 pub async fn execute_discover(input: &DiscoverInput) -> Result<DiscoverOutput> {
-    // TODO: Implement marketplace search
+    // Note: Marketplace search to be implemented
     // For now, return empty results
 
     Ok(DiscoverOutput {

@@ -95,7 +95,9 @@ fn bench_lazy_rdf_loading(c: &mut Criterion) {
                         let mut template = Template::parse(&content).unwrap();
                         template.render_frontmatter(&mut tera, &vars).unwrap();
                         // QUICK WIN 1: process_graph returns early for non-RDF templates
-                        template.process_graph(&mut graph, &mut tera, &vars, path).unwrap();
+                        template
+                            .process_graph(&mut graph, &mut tera, &vars, path)
+                            .unwrap();
                         template.render(&mut tera, &vars).unwrap();
                     }
                 });
@@ -120,7 +122,9 @@ fn bench_lazy_rdf_loading(c: &mut Criterion) {
                         let content = fs::read_to_string(path).unwrap();
                         let mut template = Template::parse(&content).unwrap();
                         template.render_frontmatter(&mut tera, &vars).unwrap();
-                        template.process_graph(&mut graph, &mut tera, &vars, path).unwrap();
+                        template
+                            .process_graph(&mut graph, &mut tera, &vars, path)
+                            .unwrap();
                         template.render(&mut tera, &vars).unwrap();
                     }
                 });
@@ -145,32 +149,24 @@ fn bench_parallel_generation(c: &mut Criterion) {
         group.throughput(Throughput::Elements(count as u64));
 
         // Sequential generation
-        group.bench_with_input(
-            BenchmarkId::new("sequential", count),
-            &count,
-            |b, _| {
-                b.iter(|| {
-                    let output_dir_temp = TempDir::new().unwrap();
-                    let mut generator = StreamingGenerator::new(
-                        template_dir.path().to_path_buf(),
-                        output_dir_temp.path().to_path_buf(),
-                    )
-                    .unwrap();
-                    generator.generate_all(&vars).unwrap();
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::new("sequential", count), &count, |b, _| {
+            b.iter(|| {
+                let output_dir_temp = TempDir::new().unwrap();
+                let mut generator = StreamingGenerator::new(
+                    template_dir.path().to_path_buf(),
+                    output_dir_temp.path().to_path_buf(),
+                )
+                .unwrap();
+                generator.generate_all(&vars).unwrap();
+            });
+        });
 
         // Parallel generation (QUICK WIN 2)
         group.bench_with_input(BenchmarkId::new("parallel", count), &count, |b, _| {
             b.iter(|| {
                 let output_dir_temp = TempDir::new().unwrap();
-                ParallelGenerator::generate_all(
-                    template_dir.path(),
-                    output_dir_temp.path(),
-                    &vars,
-                )
-                .unwrap();
+                ParallelGenerator::generate_all(template_dir.path(), output_dir_temp.path(), &vars)
+                    .unwrap();
             });
         });
     }

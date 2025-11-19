@@ -128,13 +128,15 @@ impl<'a> GraphExport<'a> {
 
                 // Serialize each quad from the default graph
                 for quad in default_graph_quads {
-                    serializer.serialize_quad(&quad)
+                    serializer
+                        .serialize_quad(&quad)
                         .map_err(|e| Error::new(&format!("Failed to serialize quad: {}", e)))?;
                 }
 
                 // Finish serialization
-                serializer.finish()
-                    .map_err(|e| Error::new(&format!("Failed to finish RDF serialization: {}", e)))?;
+                serializer.finish().map_err(|e| {
+                    Error::new(&format!("Failed to finish RDF serialization: {}", e))
+                })?;
             }
             RdfFormat::TriG | RdfFormat::NQuads => {
                 // For dataset formats, dump all graphs

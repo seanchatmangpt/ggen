@@ -1275,7 +1275,10 @@ to: "output_{:04}.rs"
 #[test]
 fn test_generate_with_very_long_path() -> Result<()> {
     let temp_dir = TempDir::new()?;
-    let long_path = (0..10).map(|i| format!("level{}", i)).collect::<Vec<_>>().join("/");
+    let long_path = (0..10)
+        .map(|i| format!("level{}", i))
+        .collect::<Vec<_>>()
+        .join("/");
 
     let template_path = create_test_template(
         temp_dir.path(),

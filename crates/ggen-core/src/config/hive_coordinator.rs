@@ -4,11 +4,12 @@
 //! Implements distributed decision-making patterns for optimal pack composition, version
 //! resolution, and conflict resolution using swarm intelligence principles.
 
+#![allow(dead_code)]
+use ggen_utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use ggen_utils::error::Result;
 
 use crate::config::ontology_config::{
     CompositionStrategy, ConflictResolution, OntologyConfig, OntologyPackRef,
@@ -23,11 +24,12 @@ pub struct HiveQueen {
     config: OntologyConfig,
 
     /// Agent pool
-    agents: Vec<HiveAgent>,
+    pub agents: Vec<HiveAgent>,
 }
 
 /// Distributed state maintained by the hive
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct HiveState {
     /// Current resolution suggestions from agents
     suggestions: Vec<ResolutionSuggestion>,
@@ -66,6 +68,7 @@ pub struct ResolutionSuggestion {
 
 /// Consensus on a specific topic
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct ConsensusTopic {
     /// Topic identifier (e.g., "composition_strategy")
     id: String,
@@ -82,6 +85,7 @@ struct ConsensusTopic {
 
 /// Detected package conflict
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct PackageConflict {
     /// First package
     package_a: String,
@@ -98,6 +102,7 @@ struct PackageConflict {
 
 /// Type of conflict
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[allow(dead_code)]
 enum ConflictType {
     /// Version incompatibility
     VersionMismatch,
@@ -114,6 +119,7 @@ enum ConflictType {
 
 /// Tracks compatibility between package versions
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct CompatibilityMatrix {
     /// Known compatibility pairs: (pkg_a@v_a, pkg_b@v_b) -> compatible
     pairs: BTreeMap<String, bool>,
@@ -158,6 +164,7 @@ pub enum AgentRole {
 
 /// Agent's internal state
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct AgentState {
     /// Tasks completed
     tasks_completed: u32,
@@ -195,10 +202,26 @@ impl HiveQueen {
     /// Spawn agent swarm based on configuration complexity
     async fn spawn_agents(complexity: usize) -> Vec<HiveAgent> {
         let mut agents = vec![
-            HiveAgent::new("analyzer-1", AgentRole::Analyzer, vec!["versioning".to_string()]),
-            HiveAgent::new("resolver-1", AgentRole::VersionResolver, vec!["composition".to_string()]),
-            HiveAgent::new("detector-1", AgentRole::ConflictDetector, vec!["compatibility".to_string()]),
-            HiveAgent::new("validator-1", AgentRole::Validator, vec!["schema".to_string()]),
+            HiveAgent::new(
+                "analyzer-1",
+                AgentRole::Analyzer,
+                vec!["versioning".to_string()],
+            ),
+            HiveAgent::new(
+                "resolver-1",
+                AgentRole::VersionResolver,
+                vec!["composition".to_string()],
+            ),
+            HiveAgent::new(
+                "detector-1",
+                AgentRole::ConflictDetector,
+                vec!["compatibility".to_string()],
+            ),
+            HiveAgent::new(
+                "validator-1",
+                AgentRole::Validator,
+                vec!["schema".to_string()],
+            ),
         ];
 
         // Spawn additional agents for complex configurations
@@ -308,7 +331,9 @@ impl HiveQueen {
         let composition_strategy = &self.config.composition;
 
         for conflict in &mut state.conflicts {
-            let resolution = self.resolve_conflict(conflict, composition_strategy).await?;
+            let resolution = self
+                .resolve_conflict(conflict, composition_strategy)
+                .await?;
 
             conflict.resolutions_tried.push(resolution);
         }
@@ -342,7 +367,9 @@ impl HiveQueen {
             resolved_packs: self.config.packs.clone(),
             composition_strategy: self.config.composition.clone(),
             conflicts_found: state.conflicts.len(),
-            conflicts_resolved: state.conflicts.iter()
+            conflicts_resolved: state
+                .conflicts
+                .iter()
                 .filter(|c| !c.resolutions_tried.is_empty())
                 .count(),
             validation_status: "valid".to_string(),
@@ -352,9 +379,7 @@ impl HiveQueen {
 
     /// Resolve a specific conflict
     async fn resolve_conflict(
-        &self,
-        _conflict: &PackageConflict,
-        composition_strategy: &CompositionStrategy,
+        &self, _conflict: &PackageConflict, composition_strategy: &CompositionStrategy,
     ) -> Result<ConflictResolution> {
         // Apply composition strategy to determine resolution
         match composition_strategy {
@@ -417,10 +442,7 @@ impl HiveAgent {
         match self.role {
             AgentRole::Analyzer => {
                 insights.push(format!("Found {} packs to analyze", config.packs.len()));
-                insights.push(format!(
-                    "Composition strategy: {:?}",
-                    config.composition
-                ));
+                insights.push(format!("Composition strategy: {:?}", config.composition));
             }
             AgentRole::VersionResolver => {
                 insights.push("Checking version compatibility...".to_string());
@@ -447,7 +469,8 @@ impl HiveAgent {
     pub fn report(&self) -> String {
         format!(
             "Agent {} ({:?}) - Expertise: {:?}",
-            self.id, self.role,
+            self.id,
+            self.role,
             self.expertise.join(", ")
         )
     }
@@ -456,7 +479,7 @@ impl HiveAgent {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::config::ontology_config::{OntologyPackRef, CompositionStrategy};
+    use crate::config::ontology_config::{CompositionStrategy, OntologyPackRef};
 
     #[tokio::test]
     async fn test_hive_queen_creation() {
@@ -480,15 +503,14 @@ mod tests {
 
     #[tokio::test]
     async fn test_hive_orchestration() {
-        let config = OntologyConfig::new()
-            .with_pack(OntologyPackRef {
-                name: "schema-org".to_string(),
-                version: "3.13.0".to_string(),
-                namespace: None,
-                classes: None,
-                properties: None,
-                source: None,
-            });
+        let config = OntologyConfig::new().with_pack(OntologyPackRef {
+            name: "schema-org".to_string(),
+            version: "3.13.0".to_string(),
+            namespace: None,
+            classes: None,
+            properties: None,
+            source: None,
+        });
 
         let mut hive = HiveQueen::new(config).await.unwrap();
         let resolved = hive.orchestrate().await;

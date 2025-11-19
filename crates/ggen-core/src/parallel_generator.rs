@@ -57,9 +57,7 @@ impl ParallelGenerator {
     /// **QUICK WIN 2:** Uses Rayon to process templates concurrently,
     /// providing 2-4x speedup for bulk operations.
     pub fn generate_all(
-        template_dir: &Path,
-        output_dir: &Path,
-        vars: &Context,
+        template_dir: &Path, output_dir: &Path, vars: &Context,
     ) -> Result<GenerationResult> {
         let start = std::time::Instant::now();
 
@@ -75,9 +73,7 @@ impl ParallelGenerator {
         // QUICK WIN 2: Process templates in parallel using Rayon
         let results: Vec<_> = template_paths
             .par_iter()
-            .map(|template_path| {
-                Self::process_template_isolated(template_path, output_dir, vars)
-            })
+            .map(|template_path| Self::process_template_isolated(template_path, output_dir, vars))
             .collect();
 
         // Aggregate results
@@ -101,9 +97,7 @@ impl ParallelGenerator {
 
     /// Process a single template in isolation (thread-safe)
     fn process_template_isolated(
-        template_path: &Path,
-        output_dir: &Path,
-        vars: &Context,
+        template_path: &Path, output_dir: &Path, vars: &Context,
     ) -> Result<PathBuf> {
         // Create isolated pipeline for this template (thread-safe)
         let mut pipeline = Pipeline::new()?;
@@ -201,8 +195,7 @@ File {i} content"#
         }
 
         let vars = Context::new();
-        let result =
-            ParallelGenerator::generate_all(temp_dir.path(), output_dir.path(), &vars)?;
+        let result = ParallelGenerator::generate_all(temp_dir.path(), output_dir.path(), &vars)?;
 
         assert_eq!(result.success_count, 10);
         assert_eq!(result.error_count, 0);
@@ -229,8 +222,7 @@ Simple template without RDF"#,
         }
 
         let vars = Context::new();
-        let result =
-            ParallelGenerator::generate_all(temp_dir.path(), output_dir.path(), &vars)?;
+        let result = ParallelGenerator::generate_all(temp_dir.path(), output_dir.path(), &vars)?;
 
         assert_eq!(result.success_count, 5);
         assert_eq!(result.error_count, 0);

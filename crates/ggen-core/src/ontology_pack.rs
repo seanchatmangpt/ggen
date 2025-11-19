@@ -234,19 +234,19 @@ pub enum PropertyRange {
     /// Primitive type (string, integer, boolean, etc.)
     Datatype {
         /// XSD datatype (xsd:string, xsd:integer, etc.)
-        datatype: String
+        datatype: String,
     },
 
     /// Reference to another class
     Reference {
         /// Class URI
-        class_uri: String
+        class_uri: String,
     },
 
     /// Array of values
     Array {
         /// Item type
-        item_type: Box<PropertyRange>
+        item_type: Box<PropertyRange>,
     },
 }
 

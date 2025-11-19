@@ -55,9 +55,7 @@ impl NounVerbValidator {
 
     /// Check for circular dependencies recursively
     fn check_circular_dependencies(
-        &self,
-        command: &str,
-        visited: &mut HashSet<String>,
+        &self, command: &str, visited: &mut HashSet<String>,
     ) -> Result<()> {
         if visited.contains(command) {
             return Err(ValidationError::CircularDependency);
@@ -113,12 +111,7 @@ impl NounVerbValidator {
     }
 
     /// Record command execution in audit trail
-    pub fn record_execution(
-        &mut self,
-        command: String,
-        dependencies: Vec<String>,
-        success: bool,
-    ) {
+    pub fn record_execution(&mut self, command: String, dependencies: Vec<String>, success: bool) {
         let entry = AuditEntry {
             command,
             timestamp: chrono::Utc::now().to_rfc3339(),
@@ -169,9 +162,15 @@ mod tests {
     fn test_valid_command_structure() {
         let validator = NounVerbValidator::new();
 
-        assert!(validator.validate_command_structure("template", "generate").is_ok());
-        assert!(validator.validate_command_structure("ontology", "extract").is_ok());
-        assert!(validator.validate_command_structure("hook", "create").is_ok());
+        assert!(validator
+            .validate_command_structure("template", "generate")
+            .is_ok());
+        assert!(validator
+            .validate_command_structure("ontology", "extract")
+            .is_ok());
+        assert!(validator
+            .validate_command_structure("hook", "create")
+            .is_ok());
     }
 
     #[test]
@@ -183,8 +182,12 @@ mod tests {
         assert!(validator.validate_command_structure("noun", "").is_err());
 
         // Invalid characters
-        assert!(validator.validate_command_structure("noun!", "verb").is_err());
-        assert!(validator.validate_command_structure("noun", "verb*").is_err());
+        assert!(validator
+            .validate_command_structure("noun!", "verb")
+            .is_err());
+        assert!(validator
+            .validate_command_structure("noun", "verb*")
+            .is_err());
     }
 
     #[test]

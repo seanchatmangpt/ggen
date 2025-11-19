@@ -79,7 +79,9 @@ impl AtomicSnapshotPromoter {
     pub fn get_current(&self) -> Result<SnapshotGuard, PromotionError> {
         // Safe: RwLock guarantees valid access
         let handle = {
-            let guard = self.current.read()
+            let guard = self
+                .current
+                .read()
                 .map_err(|_| PromotionError::LockPoisoned("current snapshot lock poisoned"))?;
             Arc::clone(&*guard)
         };
@@ -92,13 +94,17 @@ impl AtomicSnapshotPromoter {
     /// Returns: promotion metrics
     ///
     /// **SECURITY FIX**: Replaced raw pointer swap with safe Arc swap via RwLock
-    pub fn promote(&self, new_snapshot: Arc<SigmaSnapshot>) -> Result<PromotionResult, PromotionError> {
+    pub fn promote(
+        &self, new_snapshot: Arc<SigmaSnapshot>,
+    ) -> Result<PromotionResult, PromotionError> {
         let start_ns = get_time_ns();
         let new_handle = Arc::new(SnapshotHandle::new(new_snapshot));
 
         // Safe atomic swap using RwLock write lock
         let old_handle = {
-            let mut current_guard = self.current.write()
+            let mut current_guard = self
+                .current
+                .write()
                 .map_err(|_| PromotionError::LockPoisoned("current snapshot lock poisoned"))?;
             let old = Arc::clone(&*current_guard);
             *current_guard = new_handle;

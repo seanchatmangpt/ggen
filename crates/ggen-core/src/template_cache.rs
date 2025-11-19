@@ -5,11 +5,11 @@
 
 use ggen_utils::error::{Error, Result};
 use lru::LruCache;
+use serde_yaml::Value as YamlValue;
+use std::collections::HashMap;
 use std::num::NonZeroUsize;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
-use std::collections::HashMap;
-use serde_yaml::Value as YamlValue;
 
 use crate::template::Template;
 
@@ -184,7 +184,9 @@ impl TemplateCache {
     pub fn get_or_parse_frontmatter(&self, content: &str, key: &str) -> Result<Arc<YamlValue>> {
         // Check cache first
         {
-            let cache = self.frontmatter_cache.lock()
+            let cache = self
+                .frontmatter_cache
+                .lock()
                 .map_err(|_| Error::new("Frontmatter cache lock poisoned"))?;
             if let Some(fm) = cache.get(key) {
                 return Ok(Arc::clone(fm));
@@ -193,7 +195,8 @@ impl TemplateCache {
 
         // Parse frontmatter using gray_matter
         let matter = gray_matter::Matter::<gray_matter::engine::YAML>::new();
-        let parsed = matter.parse(content)
+        let parsed = matter
+            .parse(content)
             .map_err(|e| Error::with_context("Failed to parse frontmatter", &e.to_string()))?;
 
         let yaml_value = if let Some(data) = parsed.data {
@@ -206,7 +209,9 @@ impl TemplateCache {
 
         // Store in cache
         {
-            let mut cache = self.frontmatter_cache.lock()
+            let mut cache = self
+                .frontmatter_cache
+                .lock()
                 .map_err(|_| Error::new("Frontmatter cache lock poisoned"))?;
             cache.insert(key.to_string(), Arc::clone(&arc_value));
         }
@@ -322,12 +327,8 @@ impl TemplateCache {
         let misses = self.misses.lock().map(|m| *m).unwrap_or(0);
 
         // OPTIMIZATION 3: Include frontmatter and Tera cache statistics
-        let frontmatter_size = self.frontmatter_cache.lock()
-            .map(|c| c.len())
-            .unwrap_or(0);
-        let tera_size = self.tera_cache.lock()
-            .map(|c| c.len())
-            .unwrap_or(0);
+        let frontmatter_size = self.frontmatter_cache.lock().map(|c| c.len()).unwrap_or(0);
+        let tera_size = self.tera_cache.lock().map(|c| c.len()).unwrap_or(0);
 
         Ok(CacheStats {
             size: cache.len(),

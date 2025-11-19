@@ -1017,31 +1017,36 @@ mod tests {
         assert!(ReadinessTracker::validate_transition_static(
             &ReadinessStatus::Missing,
             &ReadinessStatus::Placeholder
-        ).is_ok());
+        )
+        .is_ok());
 
         // Missing -> Complete
         assert!(ReadinessTracker::validate_transition_static(
             &ReadinessStatus::Missing,
             &ReadinessStatus::Complete
-        ).is_ok());
+        )
+        .is_ok());
 
         // Placeholder -> Complete
         assert!(ReadinessTracker::validate_transition_static(
             &ReadinessStatus::Placeholder,
             &ReadinessStatus::Complete
-        ).is_ok());
+        )
+        .is_ok());
 
         // Placeholder -> NeedsReview
         assert!(ReadinessTracker::validate_transition_static(
             &ReadinessStatus::Placeholder,
             &ReadinessStatus::NeedsReview
-        ).is_ok());
+        )
+        .is_ok());
 
         // Complete -> NeedsReview
         assert!(ReadinessTracker::validate_transition_static(
             &ReadinessStatus::Complete,
             &ReadinessStatus::NeedsReview
-        ).is_ok());
+        )
+        .is_ok());
     }
 
     #[test]
@@ -1050,13 +1055,15 @@ mod tests {
         assert!(ReadinessTracker::validate_transition_static(
             &ReadinessStatus::Complete,
             &ReadinessStatus::Missing
-        ).is_err());
+        )
+        .is_err());
 
         // Complete -> Placeholder (invalid)
         assert!(ReadinessTracker::validate_transition_static(
             &ReadinessStatus::Complete,
             &ReadinessStatus::Placeholder
-        ).is_err());
+        )
+        .is_err());
     }
 
     #[test]
@@ -1070,9 +1077,15 @@ mod tests {
         assert!(report.overall_score >= 0.0 && report.overall_score <= 100.0);
 
         // Should have all three categories
-        assert!(report.by_category.contains_key(&ReadinessCategory::Critical));
-        assert!(report.by_category.contains_key(&ReadinessCategory::Important));
-        assert!(report.by_category.contains_key(&ReadinessCategory::NiceToHave));
+        assert!(report
+            .by_category
+            .contains_key(&ReadinessCategory::Critical));
+        assert!(report
+            .by_category
+            .contains_key(&ReadinessCategory::Important));
+        assert!(report
+            .by_category
+            .contains_key(&ReadinessCategory::NiceToHave));
     }
 
     #[test]
@@ -1081,11 +1094,18 @@ mod tests {
         tracker.load().unwrap();
 
         // Mark some as complete
-        tracker.update_requirement("auth-basic", ReadinessStatus::Complete).ok();
-        tracker.update_requirement("error-handling", ReadinessStatus::Complete).ok();
+        tracker
+            .update_requirement("auth-basic", ReadinessStatus::Complete)
+            .ok();
+        tracker
+            .update_requirement("error-handling", ReadinessStatus::Complete)
+            .ok();
 
         let report = tracker.generate_report();
-        let critical_report = report.by_category.get(&ReadinessCategory::Critical).unwrap();
+        let critical_report = report
+            .by_category
+            .get(&ReadinessCategory::Critical)
+            .unwrap();
 
         assert!(critical_report.completed > 0);
         assert!(critical_report.score > 0.0);
@@ -1099,7 +1119,9 @@ mod tests {
         let missing = tracker.get_by_status(&ReadinessStatus::Missing);
         assert!(!missing.is_empty());
 
-        tracker.update_requirement("auth-basic", ReadinessStatus::Complete).ok();
+        tracker
+            .update_requirement("auth-basic", ReadinessStatus::Complete)
+            .ok();
         let complete = tracker.get_by_status(&ReadinessStatus::Complete);
         assert!(!complete.is_empty());
     }
@@ -1269,7 +1291,9 @@ mod tests {
             8,
         );
 
-        processor.registry_mut().register("test".to_string(), placeholder);
+        processor
+            .registry_mut()
+            .register("test".to_string(), placeholder);
 
         assert!(processor.process("test").is_ok());
         assert!(processor.process("nonexistent").is_err());

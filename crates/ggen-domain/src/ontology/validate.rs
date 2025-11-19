@@ -72,7 +72,9 @@ pub async fn execute_validate(input: &ValidateInput) -> Result<ValidateOutput> {
     // 2. Check gpack.toml exists
     let gpack_path = input.pack_path.join("gpack.toml");
     if !gpack_path.exists() {
-        return Err(ggen_utils::error::Error::new("gpack.toml not found in pack"));
+        return Err(ggen_utils::error::Error::new(
+            "gpack.toml not found in pack",
+        ));
     }
 
     // 3. Validate structure (placeholder)

@@ -104,12 +104,14 @@ impl<'a> ConfigValidator<'a> {
 
             // Max tokens validation
             if ai.max_tokens == 0 {
-                self.errors.push("AI max_tokens must be greater than 0".to_string());
+                self.errors
+                    .push("AI max_tokens must be greater than 0".to_string());
             }
 
             // Timeout validation
             if ai.timeout == 0 {
-                self.errors.push("AI timeout must be greater than 0".to_string());
+                self.errors
+                    .push("AI timeout must be greater than 0".to_string());
             }
 
             // Validation settings
@@ -130,13 +132,15 @@ impl<'a> ConfigValidator<'a> {
             // Check that directories are not empty strings
             if let Some(dir) = &templates.directory {
                 if dir.is_empty() {
-                    self.errors.push("Templates directory cannot be empty".to_string());
+                    self.errors
+                        .push("Templates directory cannot be empty".to_string());
                 }
             }
 
             if let Some(out_dir) = &templates.output_directory {
                 if out_dir.is_empty() {
-                    self.errors.push("Templates output_directory cannot be empty".to_string());
+                    self.errors
+                        .push("Templates output_directory cannot be empty".to_string());
                 }
             }
         }
@@ -210,7 +214,8 @@ fn is_valid_size_format(size: &str) -> bool {
     let valid_suffixes = ["B", "KB", "MB", "GB", "TB"];
 
     valid_suffixes.iter().any(|suffix| {
-        size.strip_suffix(suffix).map_or(false, |num_str| num_str.parse::<u32>().is_ok())
+        size.strip_suffix(suffix)
+            .map_or(false, |num_str| num_str.parse::<u32>().is_ok())
     })
 }
 

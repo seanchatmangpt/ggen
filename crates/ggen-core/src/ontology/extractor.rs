@@ -327,7 +327,7 @@ impl OntologyExtractor {
         // If no '#', try splitting on '/' and get the last segment
         clean_uri
             .split('/')
-            .last()
+            .next_back()
             .unwrap_or("unknown")
             .to_string()
     }
@@ -346,9 +346,13 @@ impl OntologyExtractor {
         if uri_lower.ends_with("#boolean") || uri_lower.ends_with("/boolean") {
             return PropertyRange::Boolean;
         }
-        if uri_lower.ends_with("#float") || uri_lower.ends_with("/float")
-            || uri_lower.ends_with("#double") || uri_lower.ends_with("/double")
-            || uri_lower.ends_with("#decimal") || uri_lower.ends_with("/decimal") {
+        if uri_lower.ends_with("#float")
+            || uri_lower.ends_with("/float")
+            || uri_lower.ends_with("#double")
+            || uri_lower.ends_with("/double")
+            || uri_lower.ends_with("#decimal")
+            || uri_lower.ends_with("/decimal")
+        {
             return PropertyRange::Float;
         }
         if uri_lower.ends_with("#datetime") || uri_lower.ends_with("/datetime") {
@@ -368,7 +372,10 @@ impl OntologyExtractor {
         if uri_lower.contains("boolean") {
             return PropertyRange::Boolean;
         }
-        if uri_lower.contains("float") || uri_lower.contains("double") || uri_lower.contains("decimal") {
+        if uri_lower.contains("float")
+            || uri_lower.contains("double")
+            || uri_lower.contains("decimal")
+        {
             return PropertyRange::Float;
         }
         if uri_lower.contains("datetime") {

@@ -296,7 +296,9 @@ mod tests {
         let query = GraphQuery::new(&graph);
 
         // Act - Use full IRI since we're not declaring prefixes in the query
-        let result = query.execute_cached("ASK { ?s a <http://example.org/Person> }").unwrap();
+        let result = query
+            .execute_cached("ASK { ?s a <http://example.org/Person> }")
+            .unwrap();
 
         // Assert
         match result {

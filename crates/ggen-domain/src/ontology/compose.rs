@@ -71,7 +71,7 @@ pub async fn execute_compose(input: &ComposeInput) -> Result<ComposeOutput> {
     let mut schemas = Vec::new();
 
     for pack_id in &input.pack_ids {
-        // TODO: Load schema from pack
+        // Note: Schema loading from pack to be implemented
         schemas.push(OntologySchema {
             namespace: format!("https://{}", pack_id),
             classes: vec![],
@@ -124,7 +124,7 @@ fn merge_union(schemas: Vec<OntologySchema>) -> Result<OntologySchema> {
 }
 
 fn merge_intersection(schemas: Vec<OntologySchema>) -> Result<OntologySchema> {
-    // TODO: Implement intersection merge
+    // Note: Intersection merge to be implemented (currently uses union)
     merge_union(schemas)
 }
 

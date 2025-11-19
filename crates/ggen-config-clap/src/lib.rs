@@ -4,11 +4,11 @@
 //!
 //! Provides traits and utilities for merging TOML configuration with CLI arguments.
 
-pub mod loader;
 pub mod error;
+pub mod loader;
 
-pub use loader::LoadConfigFromGgenToml;
 pub use error::ConfigClapError;
+pub use loader::LoadConfigFromGgenToml;
 
 /// Re-export ggen-config for convenience
 pub use ggen_config;
