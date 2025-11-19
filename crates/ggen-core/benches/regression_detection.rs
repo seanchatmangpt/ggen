@@ -1,7 +1,7 @@
 // Regression Detection Benchmarks
 // Establishes baselines and detects performance regressions
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use std::time::Duration;
 
 // ============================================================================
@@ -57,7 +57,9 @@ mod error_fix_regression {
         trait NeedsClone: Clone {}
 
         #[derive(Clone)]
-        struct FixedType { value: i32 }
+        struct FixedType {
+            value: i32,
+        }
 
         impl NeedsClone for FixedType {}
 

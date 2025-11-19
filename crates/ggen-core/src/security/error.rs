@@ -134,11 +134,13 @@ impl ErrorSanitizer {
         sanitized
     }
 
-    /// Remove pattern from string using simple replacement
-    fn remove_pattern(text: &str, _pattern: &str) -> String {
-        // Simple pattern matching without regex dependency
-        // For production, use regex crate
-        text.to_string()
+    /// Remove pattern from string using regex
+    fn remove_pattern(text: &str, pattern: &str) -> String {
+        // Use regex crate for production pattern matching
+        match regex::Regex::new(pattern) {
+            Ok(re) => re.replace_all(text, "<redacted>").to_string(),
+            Err(_) => text.to_string(), // Fallback if regex is invalid
+        }
     }
 
     /// Create a sanitized error from an internal error
@@ -203,7 +205,8 @@ mod tests {
             "file.txt"
         );
 
-        // Windows paths
+        // Windows paths (skip on Unix as Path interpretation differs)
+        #[cfg(windows)]
         assert_eq!(
             ErrorSanitizer::sanitize_path(Path::new("C:\\Users\\User\\file.txt")),
             "file.txt"
@@ -222,7 +225,11 @@ mod tests {
         let sanitized = ErrorSanitizer::sanitize_message(internal);
 
         // Should not contain full path
-        assert!(!sanitized.contains("/home/user"));
+        assert!(
+            !sanitized.contains("/home/user"),
+            "Sanitized message should not contain /home/user, got: {}",
+            sanitized
+        );
     }
 
     #[test]
@@ -231,8 +238,16 @@ mod tests {
         let sanitized = ErrorSanitizer::sanitize_message(internal);
 
         // Should not contain credentials
-        assert!(!sanitized.contains("secret123"));
-        assert!(!sanitized.contains("abc123"));
+        assert!(
+            !sanitized.contains("secret123"),
+            "Sanitized message should not contain secret123, got: {}",
+            sanitized
+        );
+        assert!(
+            !sanitized.contains("abc123"),
+            "Sanitized message should not contain abc123, got: {}",
+            sanitized
+        );
     }
 
     #[test]

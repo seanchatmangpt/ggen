@@ -133,10 +133,7 @@ mod builder_allocations {
         }
 
         fn build(self) -> (i32, String) {
-            (
-                self.field1.unwrap_or(0),
-                self.field2.unwrap_or_default(),
-            )
+            (self.field1.unwrap_or(0), self.field2.unwrap_or_default())
         }
     }
 

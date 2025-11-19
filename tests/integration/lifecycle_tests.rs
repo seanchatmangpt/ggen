@@ -189,7 +189,7 @@ fn test_complete_lifecycle_pipeline() -> Result<()> {
     // Act - Run all phases in order
     let result = run_pipeline(
         &ctx,
-        &vec!["init".to_string(), "build".to_string(), "test".to_string()],
+        &["init".to_string(), "build".to_string(), "test".to_string()],
     );
 
     // Assert
@@ -247,7 +247,7 @@ fn test_pipeline_with_phase_names() -> Result<()> {
     );
 
     // Act - Run only specific phases
-    let result = run_pipeline(&ctx, &vec!["init".to_string(), "build".to_string()]);
+    let result = run_pipeline(&ctx, &["init".to_string(), "build".to_string()]);
 
     // Assert
     assert!(
@@ -400,8 +400,10 @@ fn test_after_hooks_execution() -> Result<()> {
             .clone(),
     );
 
-    let mut hooks = ggen_core::lifecycle::model::Hooks::default();
-    hooks.after_test = Some(vec!["cleanup".to_string()]);
+    let hooks = ggen_core::lifecycle::model::Hooks {
+        after_test: Some(vec!["cleanup".to_string()]),
+        ..Default::default()
+    };
 
     let make = Make {
         project: Project {
@@ -463,8 +465,10 @@ fn test_phase_dependencies_respected() -> Result<()> {
     );
 
     // Use hooks to express dependency: build depends on init
-    let mut hooks = ggen_core::lifecycle::model::Hooks::default();
-    hooks.before_build = Some(vec!["init".to_string()]);
+    let hooks = ggen_core::lifecycle::model::Hooks {
+        before_build: Some(vec!["init".to_string()]),
+        ..Default::default()
+    };
 
     let make_config = Make {
         project: Project {
@@ -486,7 +490,7 @@ fn test_phase_dependencies_respected() -> Result<()> {
     );
 
     // Act
-    let result = run_pipeline(&ctx, &vec!["build".to_string()]);
+    let result = run_pipeline(&ctx, &["build".to_string()]);
 
     // Assert
     assert!(
@@ -609,7 +613,7 @@ fn test_pipeline_completes_in_reasonable_time() -> Result<()> {
     let start = std::time::Instant::now();
     let result = run_pipeline(
         &ctx,
-        &vec!["init".to_string(), "build".to_string(), "test".to_string()],
+        &["init".to_string(), "build".to_string(), "test".to_string()],
     );
     let duration = start.elapsed();
 

@@ -9,7 +9,6 @@
 
 use sha2::{Digest, Sha256};
 use std::fmt::Debug;
-use std::future::Future;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
@@ -28,9 +27,7 @@ pub trait Deterministic: Send + Sync + Debug {
 
     /// Validate determinism across N runs
     fn validate_determinism(&self, iterations: usize) -> DeterminismResult {
-        let hashes: Vec<_> = (0..iterations)
-            .map(|_| self.output_hash())
-            .collect();
+        let hashes: Vec<_> = (0..iterations).map(|_| self.output_hash()).collect();
 
         let first_hash = &hashes[0];
         let all_identical = hashes.iter().all(|h| h == first_hash);
@@ -38,7 +35,7 @@ pub trait Deterministic: Send + Sync + Debug {
         let variance = if all_identical {
             0.0
         } else {
-            let different_count = hashes.iter().filter(|h| h != first_hash).count();
+            let different_count = hashes.iter().filter(|h| **h != **first_hash).count();
             different_count as f32 / iterations as f32
         };
 
@@ -77,7 +74,7 @@ pub trait AsyncDeterministic: Send + Sync + Debug {
         let variance = if all_identical {
             0.0
         } else {
-            hashes.iter().filter(|h| h != first_hash).count() as f32 / iterations as f32
+            hashes.iter().filter(|h| **h != **first_hash).count() as f32 / iterations as f32
         };
 
         DeterminismResult {
@@ -147,10 +144,7 @@ impl ParallelTestExecutor {
     }
 
     /// Execute tests in parallel with safety guarantees
-    pub async fn execute<F, T>(
-        &self,
-        tests: Vec<(&str, F)>,
-    ) -> Vec<TestExecutionResult>
+    pub async fn execute<F, T>(&self, tests: Vec<(&str, F)>) -> Vec<TestExecutionResult>
     where
         F: Fn() -> T + Send + 'static,
         T: Send + 'static,
@@ -215,8 +209,7 @@ impl RegressionDetector {
         let current = &self.history[self.history.len() - 1];
         let previous = &self.history[self.history.len() - 2];
 
-        let consistency_delta =
-            (previous.consistency_score - current.consistency_score).abs();
+        let consistency_delta = (previous.consistency_score - current.consistency_score).abs();
         if consistency_delta > self.threshold {
             alerts.push(RegressionAlert {
                 metric: "consistency_score".to_string(),
@@ -226,8 +219,7 @@ impl RegressionDetector {
             });
         }
 
-        let performance_delta = (current.duration.as_secs_f64()
-            - previous.duration.as_secs_f64())
+        let performance_delta = (current.duration.as_secs_f64() - previous.duration.as_secs_f64())
             / previous.duration.as_secs_f64();
 
         if performance_delta > self.threshold as f64 {
