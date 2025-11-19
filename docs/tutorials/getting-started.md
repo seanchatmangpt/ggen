@@ -54,7 +54,7 @@ cargo install --path crates/ggen-cli --bin ggen --force
 Verify installation:
 ```bash
 ggen --version
-# Should output: ggen 2.7.0
+# Should output: ggen 3.2.0
 ```
 
 ## Step 2: Generate Your First Ontology (1 minute)
