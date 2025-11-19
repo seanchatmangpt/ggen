@@ -124,6 +124,7 @@ pub mod github;
 pub mod gpack;
 pub mod graph;
 pub mod inject;
+pub mod lean_template;
 pub mod lifecycle;
 pub mod lockfile;
 pub mod merge;
@@ -165,6 +166,7 @@ pub use generator::{GenContext, Generator};
 pub use github::{GitHubClient, PagesConfig, RepoInfo, WorkflowRun, WorkflowRunsResponse};
 pub use gpack::GpackManifest;
 pub use graph::Graph;
+pub use lean_template::{CacheStats, LeanTemplateEngine};
 pub use lockfile::{LockEntry, Lockfile, LockfileManager};
 pub use merge::{
     ConflictType, MergeConflict, MergeResult, MergeStrategy, RegionAwareMerger, RegionUtils,
