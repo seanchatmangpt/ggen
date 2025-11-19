@@ -98,10 +98,7 @@ impl MonitorEngine {
                         .unwrap_or("unknown")
                         .to_string();
 
-                    metrics_by_name
-                        .entry(metric_name)
-                        .or_insert_with(Vec::new)
-                        .push(value);
+                    metrics_by_name.entry(metric_name).or_default().push(value);
                 }
             }
         }
@@ -168,7 +165,7 @@ impl MonitorEngine {
                     if let Some(ticks) = obs.data.get("ticks").and_then(|t| t.as_f64()) {
                         pattern_ticks
                             .entry(pattern.to_string())
-                            .or_insert_with(Vec::new)
+                            .or_default()
                             .push(ticks);
                     }
                 }

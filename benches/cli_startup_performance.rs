@@ -21,12 +21,13 @@ fn bench_cli_startup(c: &mut Criterion) {
         return;
     }
 
-    let binary_path = std::env::current_dir()
-        .unwrap()
-        .join("target/release/ggen");
+    let binary_path = std::env::current_dir().unwrap().join("target/release/ggen");
 
     if !binary_path.exists() {
-        eprintln!("Warning: ggen binary not found at {:?}. Skipping CLI startup benchmarks.", binary_path);
+        eprintln!(
+            "Warning: ggen binary not found at {:?}. Skipping CLI startup benchmarks.",
+            binary_path
+        );
         return;
     }
 
@@ -76,9 +77,7 @@ fn bench_cli_startup(c: &mut Criterion) {
 fn bench_cli_execution(c: &mut Criterion) {
     let mut group = c.benchmark_group("cli_execution");
 
-    let binary_path = std::env::current_dir()
-        .unwrap()
-        .join("target/release/ggen");
+    let binary_path = std::env::current_dir().unwrap().join("target/release/ggen");
 
     if !binary_path.exists() {
         eprintln!("Warning: ggen binary not found. Skipping CLI execution benchmarks.");
@@ -122,9 +121,7 @@ fn main() {
 fn bench_cold_vs_warm_start(c: &mut Criterion) {
     let mut group = c.benchmark_group("cold_warm_start");
 
-    let binary_path = std::env::current_dir()
-        .unwrap()
-        .join("target/release/ggen");
+    let binary_path = std::env::current_dir().unwrap().join("target/release/ggen");
 
     if !binary_path.exists() {
         eprintln!("Warning: ggen binary not found. Skipping cold/warm start benchmarks.");
@@ -192,9 +189,7 @@ fn bench_startup_components(c: &mut Criterion) {
 
     // Benchmark: Binary loading time (minimal execution)
     group.bench_function("binary_load", |b| {
-        let binary_path = std::env::current_dir()
-            .unwrap()
-            .join("target/release/ggen");
+        let binary_path = std::env::current_dir().unwrap().join("target/release/ggen");
 
         if !binary_path.exists() {
             return;

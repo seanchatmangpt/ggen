@@ -135,13 +135,13 @@ pub enum OverlayKind {
     Refactoring,
 }
 
-impl ToString for OverlayKind {
-    fn to_string(&self) -> String {
+impl std::fmt::Display for OverlayKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            OverlayKind::Addition => "Addition".to_string(),
-            OverlayKind::Modification => "Modification".to_string(),
-            OverlayKind::Removal => "Removal".to_string(),
-            OverlayKind::Refactoring => "Refactoring".to_string(),
+            OverlayKind::Addition => write!(f, "Addition"),
+            OverlayKind::Modification => write!(f, "Modification"),
+            OverlayKind::Removal => write!(f, "Removal"),
+            OverlayKind::Refactoring => write!(f, "Refactoring"),
         }
     }
 }

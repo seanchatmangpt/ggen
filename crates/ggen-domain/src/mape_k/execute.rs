@@ -57,6 +57,12 @@ pub struct TDDValidator {
     required_tests: Vec<String>,
 }
 
+impl Default for TDDValidator {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TDDValidator {
     pub fn new() -> Self {
         Self {
@@ -106,6 +112,12 @@ impl Validator for TDDValidator {
 pub struct PerformanceValidator {
     #[allow(dead_code)]
     max_latency_increase_percent: f64,
+}
+
+impl Default for PerformanceValidator {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl PerformanceValidator {
@@ -248,7 +260,7 @@ impl ValidatorOrchestrator {
         // so no unsafe code or casting is needed. The function already takes exclusive
         // mutable access to the overlay.
         overlay.validation_results = results;
-        overlay.validation_status = status.clone();
+        overlay.validation_status = status;
 
         status
     }

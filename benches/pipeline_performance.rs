@@ -1,6 +1,4 @@
-use criterion::{
-    black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput,
-};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use ggen_core::graph::Graph;
 use ggen_core::pipeline::Pipeline;
 use ggen_core::template::Template;
@@ -18,10 +16,26 @@ fn bench_ontology_parsing(c: &mut Criterion) {
     let mut group = c.benchmark_group("ontology_parsing");
 
     let ontology_sizes = vec![
-        ("small", "benches/fixtures/ontologies/small_ontology.ttl", 10),
-        ("medium", "benches/fixtures/ontologies/medium_ontology.ttl", 50),
-        ("large", "benches/fixtures/ontologies/large_ontology.ttl", 150),
-        ("very_large", "benches/fixtures/ontologies/very_large_ontology.ttl", 500),
+        (
+            "small",
+            "benches/fixtures/ontologies/small_ontology.ttl",
+            10,
+        ),
+        (
+            "medium",
+            "benches/fixtures/ontologies/medium_ontology.ttl",
+            50,
+        ),
+        (
+            "large",
+            "benches/fixtures/ontologies/large_ontology.ttl",
+            150,
+        ),
+        (
+            "very_large",
+            "benches/fixtures/ontologies/very_large_ontology.ttl",
+            500,
+        ),
     ];
 
     for (name, path, class_count) in ontology_sizes {
@@ -55,10 +69,12 @@ fn bench_ontology_parsing(c: &mut Criterion) {
 // BENCHMARK 2: SPARQL Query Execution Time
 // ============================================================================
 
-fn create_sparql_test_data(graph: &mut Graph, entity_count: usize) -> Result<(), Box<dyn std::error::Error>> {
+fn create_sparql_test_data(
+    graph: &mut Graph, entity_count: usize,
+) -> Result<(), Box<dyn std::error::Error>> {
     let mut rdf_data = String::from(
         "@prefix ex: <http://example.org/> .\n\
-         @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n\n"
+         @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n\n",
     );
 
     for i in 0..entity_count {
@@ -81,21 +97,17 @@ fn bench_sparql_query_execution(c: &mut Criterion) {
         group.throughput(Throughput::Elements(count));
 
         // Simple SELECT query
-        group.bench_with_input(
-            BenchmarkId::new("select_all", count),
-            &count,
-            |b, &cnt| {
-                b.iter(|| {
-                    let mut graph = Graph::new().unwrap();
-                    create_sparql_test_data(&mut graph, cnt).unwrap();
+        group.bench_with_input(BenchmarkId::new("select_all", count), &count, |b, &cnt| {
+            b.iter(|| {
+                let mut graph = Graph::new().unwrap();
+                create_sparql_test_data(&mut graph, cnt).unwrap();
 
-                    let query = "PREFIX ex: <http://example.org/>\n\
+                let query = "PREFIX ex: <http://example.org/>\n\
                                 SELECT ?s ?name WHERE { ?s ex:hasName ?name }";
-                    let result = graph.query(black_box(query));
-                    black_box(result)
-                });
-            },
-        );
+                let result = graph.query(black_box(query));
+                black_box(result)
+            });
+        });
 
         // Filtered query
         group.bench_with_input(
@@ -188,13 +200,7 @@ fn bench_template_rendering(c: &mut Criterion) {
 
     let pipeline = Pipeline::new().unwrap();
 
-    let configs = vec![
-        (10, 10),
-        (50, 50),
-        (100, 100),
-        (200, 200),
-        (500, 100),
-    ];
+    let configs = vec![(10, 10), (50, 50), (100, 100), (200, 200), (500, 100)];
 
     for (var_count, loop_count) in configs {
         group.throughput(Throughput::Elements((var_count + loop_count) as u64));
@@ -243,55 +249,43 @@ fn bench_file_io_operations(c: &mut Criterion) {
         group.throughput(Throughput::Bytes(size as u64));
 
         // Write benchmark
-        group.bench_with_input(
-            BenchmarkId::new("write", name),
-            &content,
-            |b, data| {
-                b.iter(|| {
-                    let temp_dir = TempDir::new().unwrap();
-                    let file_path = temp_dir.path().join("test.txt");
-                    let result = fs::write(black_box(&file_path), black_box(data));
-                    black_box(result)
-                });
-            },
-        );
-
-        // Read benchmark
-        group.bench_with_input(
-            BenchmarkId::new("read", name),
-            &content,
-            |b, data| {
+        group.bench_with_input(BenchmarkId::new("write", name), &content, |b, data| {
+            b.iter(|| {
                 let temp_dir = TempDir::new().unwrap();
                 let file_path = temp_dir.path().join("test.txt");
-                fs::write(&file_path, data).unwrap();
+                let result = fs::write(black_box(&file_path), black_box(data));
+                black_box(result)
+            });
+        });
 
-                b.iter(|| {
-                    let result = fs::read_to_string(black_box(&file_path));
-                    black_box(result)
-                });
-            },
-        );
+        // Read benchmark
+        group.bench_with_input(BenchmarkId::new("read", name), &content, |b, data| {
+            let temp_dir = TempDir::new().unwrap();
+            let file_path = temp_dir.path().join("test.txt");
+            fs::write(&file_path, data).unwrap();
+
+            b.iter(|| {
+                let result = fs::read_to_string(black_box(&file_path));
+                black_box(result)
+            });
+        });
 
         // Append benchmark
-        group.bench_with_input(
-            BenchmarkId::new("append", name),
-            &content,
-            |b, data| {
-                b.iter(|| {
-                    let temp_dir = TempDir::new().unwrap();
-                    let file_path = temp_dir.path().join("test.txt");
+        group.bench_with_input(BenchmarkId::new("append", name), &content, |b, data| {
+            b.iter(|| {
+                let temp_dir = TempDir::new().unwrap();
+                let file_path = temp_dir.path().join("test.txt");
 
-                    let mut file = fs::OpenOptions::new()
-                        .create(true)
-                        .append(true)
-                        .open(black_box(&file_path))
-                        .unwrap();
+                let mut file = fs::OpenOptions::new()
+                    .create(true)
+                    .append(true)
+                    .open(black_box(&file_path))
+                    .unwrap();
 
-                    let result = file.write_all(black_box(data.as_bytes()));
-                    black_box(result)
-                });
-            },
-        );
+                let result = file.write_all(black_box(data.as_bytes()));
+                black_box(result)
+            });
+        });
     }
 
     group.finish();
@@ -311,53 +305,45 @@ fn bench_memory_large_generations(c: &mut Criterion) {
         group.throughput(Throughput::Elements(count));
 
         // Sequential generation (memory-efficient)
-        group.bench_with_input(
-            BenchmarkId::new("sequential", count),
-            &count,
-            |b, &cnt| {
-                let template_str = create_rendering_template(10, 10);
-                let pipeline = Pipeline::new().unwrap();
+        group.bench_with_input(BenchmarkId::new("sequential", count), &count, |b, &cnt| {
+            let template_str = create_rendering_template(10, 10);
+            let pipeline = Pipeline::new().unwrap();
 
-                b.iter(|| {
-                    for i in 0..cnt {
-                        let mut template = Template::parse(&template_str).unwrap();
-                        let mut ctx = Context::new();
-                        ctx.insert("name", &format!("app_{}", i));
+            b.iter(|| {
+                for i in 0..cnt {
+                    let mut template = Template::parse(&template_str).unwrap();
+                    let mut ctx = Context::new();
+                    ctx.insert("name", &format!("app_{}", i));
 
-                        let mut tera = pipeline.tera.clone();
-                        template.render_frontmatter(&mut tera, &ctx).unwrap();
-                        let rendered = template.render(&mut tera, &ctx).unwrap();
-                        black_box(rendered);
-                        // Template and rendered content dropped here
-                    }
-                });
-            },
-        );
+                    let mut tera = pipeline.tera.clone();
+                    template.render_frontmatter(&mut tera, &ctx).unwrap();
+                    let rendered = template.render(&mut tera, &ctx).unwrap();
+                    black_box(rendered);
+                    // Template and rendered content dropped here
+                }
+            });
+        });
 
         // Batch generation (holds all in memory)
-        group.bench_with_input(
-            BenchmarkId::new("batch", count),
-            &count,
-            |b, &cnt| {
-                let template_str = create_rendering_template(10, 10);
-                let pipeline = Pipeline::new().unwrap();
+        group.bench_with_input(BenchmarkId::new("batch", count), &count, |b, &cnt| {
+            let template_str = create_rendering_template(10, 10);
+            let pipeline = Pipeline::new().unwrap();
 
-                b.iter(|| {
-                    let mut results = Vec::new();
-                    for i in 0..cnt {
-                        let mut template = Template::parse(&template_str).unwrap();
-                        let mut ctx = Context::new();
-                        ctx.insert("name", &format!("app_{}", i));
+            b.iter(|| {
+                let mut results = Vec::new();
+                for i in 0..cnt {
+                    let mut template = Template::parse(&template_str).unwrap();
+                    let mut ctx = Context::new();
+                    ctx.insert("name", &format!("app_{}", i));
 
-                        let mut tera = pipeline.tera.clone();
-                        template.render_frontmatter(&mut tera, &ctx).unwrap();
-                        let rendered = template.render(&mut tera, &ctx).unwrap();
-                        results.push(rendered);
-                    }
-                    black_box(results);
-                });
-            },
-        );
+                    let mut tera = pipeline.tera.clone();
+                    template.render_frontmatter(&mut tera, &ctx).unwrap();
+                    let rendered = template.render(&mut tera, &ctx).unwrap();
+                    results.push(rendered);
+                }
+                black_box(results);
+            });
+        });
     }
 
     group.finish();
@@ -483,7 +469,9 @@ fn bench_e2e_generation(c: &mut Criterion) {
 
                     // Full pipeline: parse -> render frontmatter -> process graph -> render
                     template.render_frontmatter(&mut tera, &ctx).unwrap();
-                    template.process_graph(&mut graph, &mut tera, &ctx, &template_path).ok();
+                    template
+                        .process_graph(&mut graph, &mut tera, &ctx, &template_path)
+                        .ok();
                     let result = template.render(&mut tera, &ctx);
 
                     black_box(result)
@@ -509,32 +497,28 @@ fn bench_multi_file_generation(c: &mut Criterion) {
     for count in file_counts {
         group.throughput(Throughput::Elements(count));
 
-        group.bench_with_input(
-            BenchmarkId::new("files", count),
-            &count,
-            |b, &cnt| {
-                let template_str = create_rendering_template(10, 10);
+        group.bench_with_input(BenchmarkId::new("files", count), &count, |b, &cnt| {
+            let template_str = create_rendering_template(10, 10);
 
-                b.iter(|| {
-                    let temp_dir = TempDir::new().unwrap();
+            b.iter(|| {
+                let temp_dir = TempDir::new().unwrap();
 
-                    for i in 0..cnt {
-                        let mut template = Template::parse(&template_str).unwrap();
-                        let mut ctx = Context::new();
-                        ctx.insert("name", &format!("file_{}", i));
+                for i in 0..cnt {
+                    let mut template = Template::parse(&template_str).unwrap();
+                    let mut ctx = Context::new();
+                    ctx.insert("name", &format!("file_{}", i));
 
-                        let mut tera = pipeline.tera.clone();
-                        template.render_frontmatter(&mut tera, &ctx).unwrap();
-                        let rendered = template.render(&mut tera, &ctx).unwrap();
+                    let mut tera = pipeline.tera.clone();
+                    template.render_frontmatter(&mut tera, &ctx).unwrap();
+                    let rendered = template.render(&mut tera, &ctx).unwrap();
 
-                        let output_path = temp_dir.path().join(format!("file_{}.rs", i));
-                        fs::write(output_path, rendered).unwrap();
-                    }
+                    let output_path = temp_dir.path().join(format!("file_{}.rs", i));
+                    fs::write(output_path, rendered).unwrap();
+                }
 
-                    black_box(temp_dir);
-                });
-            },
-        );
+                black_box(temp_dir);
+            });
+        });
     }
 
     group.finish();
@@ -556,10 +540,7 @@ criterion_group!(
     bench_file_io_operations
 );
 
-criterion_group!(
-    memory_benches,
-    bench_memory_large_generations
-);
+criterion_group!(memory_benches, bench_memory_large_generations);
 
 criterion_group!(
     e2e_benches,

@@ -55,14 +55,14 @@ struct TestData<'a> {
 /// Gemba Walk scoring result
 #[derive(Debug, Clone)]
 struct GembaScore {
-    observability: u8,      // 0-1: OTEL spans present
-    isolation: u8,          // 0-1: State cleanup verified
-    assertion_clarity: u8,  // 0-1: Readable errors
-    edge_coverage: u8,      // 0-1: Boundary conditions
-    performance: u8,        // 0-1: Sub-100ms execution
-    reliability: u8,        // 0-1: Deterministic results
-    coverage: u8,           // 0-1: Critical paths tested
-    maintainability: u8,    // 0-1: Code organization
+    observability: u8,     // 0-1: OTEL spans present
+    isolation: u8,         // 0-1: State cleanup verified
+    assertion_clarity: u8, // 0-1: Readable errors
+    edge_coverage: u8,     // 0-1: Boundary conditions
+    performance: u8,       // 0-1: Sub-100ms execution
+    reliability: u8,       // 0-1: Deterministic results
+    coverage: u8,          // 0-1: Critical paths tested
+    maintainability: u8,   // 0-1: Code organization
 }
 
 impl GembaScore {
@@ -162,11 +162,13 @@ mod tests {
             .execute();
 
         // Simulate OTEL span recording
-        ctx.record_trace("span: test_execution_start".to_string()).await;
+        ctx.record_trace("span: test_execution_start".to_string())
+            .await;
         ctx.record_trace("span: setup_phase".to_string()).await;
         ctx.record_trace("span: execution_phase".to_string()).await;
         ctx.record_trace("span: teardown_phase".to_string()).await;
-        ctx.record_trace("span: test_execution_end".to_string()).await;
+        ctx.record_trace("span: test_execution_end".to_string())
+            .await;
 
         let completed = ctx.complete();
         let trace_count = completed.trace_count().await;
@@ -178,7 +180,10 @@ mod tests {
         println!("Expected minimum: 5");
         println!("Observability score: {}/1", score);
 
-        assert!(trace_count >= 5, "Expected at least 5 OTEL-compatible traces");
+        assert!(
+            trace_count >= 5,
+            "Expected at least 5 OTEL-compatible traces"
+        );
         assert_eq!(score, 1, "Observability scoring failed");
     }
 
@@ -428,10 +433,10 @@ mod tests {
         println!("\n=== Test 8: Maintainability Scoring ===");
 
         // Evaluate test organization metrics
-        let has_modules = true;          // Tests organized in modules
-        let has_doc_comments = true;     // All tests have doc comments
+        let has_modules = true; // Tests organized in modules
+        let has_doc_comments = true; // All tests have doc comments
         let has_helper_functions = true; // Reusable helpers present
-        let follows_naming = true;       // Consistent naming convention
+        let follows_naming = true; // Consistent naming convention
 
         let maintainability_checks = vec![
             has_modules,
@@ -476,13 +481,23 @@ mod tests {
         println!("Quality Dimension Scores:");
         println!("  1. Observability (OTEL):      {}/1", score.observability);
         println!("  2. Isolation (Cleanup):       {}/1", score.isolation);
-        println!("  3. Assertion Clarity:         {}/1", score.assertion_clarity);
+        println!(
+            "  3. Assertion Clarity:         {}/1",
+            score.assertion_clarity
+        );
         println!("  4. Edge Coverage:             {}/1", score.edge_coverage);
         println!("  5. Performance (<100ms):      {}/1", score.performance);
         println!("  6. Reliability (Determinism): {}/1", score.reliability);
         println!("  7. Coverage (Critical Paths): {}/1", score.coverage);
-        println!("  8. Maintainability:           {}/1", score.maintainability);
-        println!("\n  Total Gemba Score: {}/8 ({:.1}%)", score.total(), score.percentage());
+        println!(
+            "  8. Maintainability:           {}/1",
+            score.maintainability
+        );
+        println!(
+            "\n  Total Gemba Score: {}/8 ({:.1}%)",
+            score.total(),
+            score.percentage()
+        );
 
         // Final assertion: All tests must pass
         assert_eq!(score.total(), 8, "Gemba Walk quality assessment incomplete");

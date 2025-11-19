@@ -74,34 +74,35 @@ impl AnalyzeEngine {
     /// Detect patterns exceeding tick budget
     fn detect_tick_budget_violations(&mut self, monitor: &MonitorEngine) {
         for (metric_name, agg) in monitor.aggregations() {
-            if metric_name.contains("pattern") && metric_name.contains("ticks") {
-                if agg.p99 > self.slo_config.max_ticks_p99 {
-                    let pattern_name = metric_name
-                        .strip_prefix("pattern.")
-                        .and_then(|s| s.strip_suffix(".ticks"))
-                        .unwrap_or(&metric_name)
-                        .to_string();
+            if metric_name.contains("pattern")
+                && metric_name.contains("ticks")
+                && agg.p99 > self.slo_config.max_ticks_p99
+            {
+                let pattern_name = metric_name
+                    .strip_prefix("pattern.")
+                    .and_then(|s| s.strip_suffix(".ticks"))
+                    .unwrap_or(metric_name)
+                    .to_string();
 
-                    let finding = Finding {
-                        id: format!("finding-tick-{}", pattern_name),
-                        kind: FindingKind::TickBudgetViolation,
-                        severity: "High".to_string(),
-                        description: format!(
-                            "Pattern '{}' exceeds tick budget: P99 = {} ticks (max = {})",
-                            pattern_name, agg.p99, self.slo_config.max_ticks_p99
-                        ),
-                        component: pattern_name,
-                        evidence: vec![metric_name.clone()],
-                        suggested_action: Some(
-                            "Consider breaking pattern into smaller units or optimizing hot path"
-                                .to_string(),
-                        ),
-                        timestamp: get_timestamp(),
-                        metadata: HashMap::new(),
-                    };
+                let finding = Finding {
+                    id: format!("finding-tick-{}", pattern_name),
+                    kind: FindingKind::TickBudgetViolation,
+                    severity: "High".to_string(),
+                    description: format!(
+                        "Pattern '{}' exceeds tick budget: P99 = {} ticks (max = {})",
+                        pattern_name, agg.p99, self.slo_config.max_ticks_p99
+                    ),
+                    component: pattern_name,
+                    evidence: vec![metric_name.clone()],
+                    suggested_action: Some(
+                        "Consider breaking pattern into smaller units or optimizing hot path"
+                            .to_string(),
+                    ),
+                    timestamp: get_timestamp(),
+                    metadata: HashMap::new(),
+                };
 
-                    self.findings.push(finding);
-                }
+                self.findings.push(finding);
             }
         }
     }
@@ -109,34 +110,35 @@ impl AnalyzeEngine {
     /// Detect guards with high failure rates
     fn detect_guard_failures(&mut self, monitor: &MonitorEngine) {
         for (metric_name, agg) in monitor.aggregations() {
-            if metric_name.contains("guard") && metric_name.contains("failure_rate") {
-                if agg.avg > self.slo_config.max_guard_failure_rate {
-                    let guard_id = metric_name
-                        .strip_prefix("guard.")
-                        .and_then(|s| s.strip_suffix(".failure_rate"))
-                        .unwrap_or(&metric_name)
-                        .to_string();
+            if metric_name.contains("guard")
+                && metric_name.contains("failure_rate")
+                && agg.avg > self.slo_config.max_guard_failure_rate
+            {
+                let guard_id = metric_name
+                    .strip_prefix("guard.")
+                    .and_then(|s| s.strip_suffix(".failure_rate"))
+                    .unwrap_or(metric_name)
+                    .to_string();
 
-                    let finding = Finding {
-                        id: format!("finding-guard-{}", guard_id),
-                        kind: FindingKind::GuardFailureRate,
-                        severity: if agg.avg > 5.0 { "Critical" } else { "High" }.to_string(),
-                        description: format!(
-                            "Guard '{}' has high failure rate: {:.2}% (threshold = {}%)",
-                            guard_id, agg.avg, self.slo_config.max_guard_failure_rate
-                        ),
-                        component: guard_id,
-                        evidence: vec![metric_name.clone()],
-                        suggested_action: Some(
-                            "Analyze failures, consider relaxing guard or fixing root cause"
-                                .to_string(),
-                        ),
-                        timestamp: get_timestamp(),
-                        metadata: HashMap::new(),
-                    };
+                let finding = Finding {
+                    id: format!("finding-guard-{}", guard_id),
+                    kind: FindingKind::GuardFailureRate,
+                    severity: if agg.avg > 5.0 { "Critical" } else { "High" }.to_string(),
+                    description: format!(
+                        "Guard '{}' has high failure rate: {:.2}% (threshold = {}%)",
+                        guard_id, agg.avg, self.slo_config.max_guard_failure_rate
+                    ),
+                    component: guard_id,
+                    evidence: vec![metric_name.clone()],
+                    suggested_action: Some(
+                        "Analyze failures, consider relaxing guard or fixing root cause"
+                            .to_string(),
+                    ),
+                    timestamp: get_timestamp(),
+                    metadata: HashMap::new(),
+                };
 
-                    self.findings.push(finding);
-                }
+                self.findings.push(finding);
             }
         }
     }
@@ -144,28 +146,26 @@ impl AnalyzeEngine {
     /// Detect SLO breaches
     fn detect_slo_breaches(&mut self, monitor: &MonitorEngine) {
         for (metric_name, agg) in monitor.aggregations() {
-            if metric_name.contains("latency") {
-                if agg.avg > self.slo_config.max_avg_latency_ms {
-                    let finding = Finding {
-                        id: format!("finding-slo-{}", metric_name),
-                        kind: FindingKind::SLOBreach,
-                        severity: "High".to_string(),
-                        description: format!(
-                            "Latency SLO breach: {} (avg={:.1}ms, threshold={}ms)",
-                            metric_name, agg.avg, self.slo_config.max_avg_latency_ms
-                        ),
-                        component: metric_name.clone(),
-                        evidence: vec![metric_name.clone()],
-                        suggested_action: Some(
-                            "Investigate latency causes, may require query optimization or caching"
-                                .to_string(),
-                        ),
-                        timestamp: get_timestamp(),
-                        metadata: HashMap::new(),
-                    };
+            if metric_name.contains("latency") && agg.avg > self.slo_config.max_avg_latency_ms {
+                let finding = Finding {
+                    id: format!("finding-slo-{}", metric_name),
+                    kind: FindingKind::SLOBreach,
+                    severity: "High".to_string(),
+                    description: format!(
+                        "Latency SLO breach: {} (avg={:.1}ms, threshold={}ms)",
+                        metric_name, agg.avg, self.slo_config.max_avg_latency_ms
+                    ),
+                    component: metric_name.clone(),
+                    evidence: vec![metric_name.clone()],
+                    suggested_action: Some(
+                        "Investigate latency causes, may require query optimization or caching"
+                            .to_string(),
+                    ),
+                    timestamp: get_timestamp(),
+                    metadata: HashMap::new(),
+                };
 
-                    self.findings.push(finding);
-                }
+                self.findings.push(finding);
             }
         }
     }
@@ -204,15 +204,18 @@ impl AnalyzeEngine {
     fn detect_optimization_opportunities(&mut self, monitor: &MonitorEngine) {
         // Identify patterns with consistently low tick usage
         for (metric_name, agg) in monitor.aggregations() {
-            if metric_name.contains("pattern") && metric_name.contains("ticks") {
-                if agg.p99 < 2.0 && agg.count >= 10 {
-                    let pattern_name = metric_name
-                        .strip_prefix("pattern.")
-                        .and_then(|s| s.strip_suffix(".ticks"))
-                        .unwrap_or(&metric_name)
-                        .to_string();
+            if metric_name.contains("pattern")
+                && metric_name.contains("ticks")
+                && agg.p99 < 2.0
+                && agg.count >= 10
+            {
+                let pattern_name = metric_name
+                    .strip_prefix("pattern.")
+                    .and_then(|s| s.strip_suffix(".ticks"))
+                    .unwrap_or(metric_name)
+                    .to_string();
 
-                    let finding = Finding {
+                let finding = Finding {
                         id: format!("finding-opt-{}", pattern_name),
                         kind: FindingKind::OptimizationOpportunity,
                         severity: "Low".to_string(),
@@ -230,8 +233,7 @@ impl AnalyzeEngine {
                         metadata: HashMap::new(),
                     };
 
-                    self.findings.push(finding);
-                }
+                self.findings.push(finding);
             }
         }
     }
