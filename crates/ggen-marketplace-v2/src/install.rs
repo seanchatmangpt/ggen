@@ -159,7 +159,7 @@ impl<R: AsyncRepository> Installer<R> {
         }
 
         // Estimate time: 100KB per second
-        plan.estimated_time = std::time::Duration::from_secs((plan.total_size / 102400) as u64);
+        plan.estimated_time = std::time::Duration::from_secs((plan.total_size / 102_400) as u64);
 
         debug!(
             "Dry-run installation: {} packages, {} bytes",

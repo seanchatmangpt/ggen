@@ -75,10 +75,9 @@ impl OntologyExtractor {
                             let name = Self::extract_local_name(&class_uri);
                             let label = bindings
                                 .get("label")
-                                .map(|t| Self::term_to_string(t))
+                                .map(Self::term_to_string)
                                 .unwrap_or_else(|| name.clone());
-                            let description =
-                                bindings.get("comment").map(|t| Self::term_to_string(t));
+                            let description = bindings.get("comment").map(Self::term_to_string);
 
                             let mut parent_classes = Vec::new();
                             if let Some(parent_term) = bindings.get("parent") {
@@ -164,10 +163,9 @@ impl OntologyExtractor {
                             let name = Self::extract_local_name(&prop_uri);
                             let label = bindings
                                 .get("label")
-                                .map(|t| Self::term_to_string(t))
+                                .map(Self::term_to_string)
                                 .unwrap_or_else(|| name.clone());
-                            let description =
-                                bindings.get("comment").map(|t| Self::term_to_string(t));
+                            let description = bindings.get("comment").map(Self::term_to_string);
                             let prop_type = bindings
                                 .get("type")
                                 .map(|t| Self::term_to_string(t))
@@ -234,7 +232,7 @@ impl OntologyExtractor {
     pub fn extract_cardinality(
         graph: &Graph, class_uri: &str,
     ) -> Result<BTreeMap<String, Cardinality>, String> {
-        let escaped_class = class_uri.replace('<', "").replace('>', "");
+        let escaped_class = class_uri.replace(['<', '>'], "");
         let query = format!(
             r#"
             PREFIX owl: <http://www.w3.org/2002/07/owl#>
@@ -322,8 +320,8 @@ impl OntologyExtractor {
         let clean_uri = uri.trim_start_matches('<').trim_end_matches('>');
         clean_uri
             .split('#')
-            .last()
-            .or_else(|| clean_uri.split('/').last())
+            .next_back()
+            .or_else(|| clean_uri.split('/').next_back())
             .unwrap_or("unknown")
             .to_string()
     }
@@ -354,7 +352,7 @@ impl OntologyExtractor {
 
     /// Check if property is functional (has at most one value)
     fn check_functional(graph: &Graph, prop_uri: &str) -> Result<bool, String> {
-        let escaped_uri = prop_uri.replace('<', "").replace('>', "");
+        let escaped_uri = prop_uri.replace(['<', '>'], "");
         let query = format!(
             r#"
             PREFIX owl: <http://www.w3.org/2002/07/owl#>
@@ -421,12 +419,10 @@ impl OntologyExtractor {
             namespace
         );
 
-        if let Ok(results) = graph.query(&query) {
-            if let QueryResults::Solutions(mut solutions) = results {
-                if let Some(Ok(bindings)) = solutions.next() {
-                    if let Some(comment_term) = bindings.get("comment") {
-                        return Some(Self::term_to_string(comment_term));
-                    }
+        if let Ok(QueryResults::Solutions(mut solutions)) = graph.query(&query) {
+            if let Some(Ok(bindings)) = solutions.next() {
+                if let Some(comment_term) = bindings.get("comment") {
+                    return Some(Self::term_to_string(comment_term));
                 }
             }
         }

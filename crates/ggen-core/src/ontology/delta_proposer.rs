@@ -453,4 +453,17 @@ mod tests {
 
         assert!(count > 0);
     }
+
+    /// Helper function to create a test pattern for unit tests
+    fn create_test_pattern() -> Pattern {
+        Pattern {
+            name: "test_pattern".to_string(),
+            pattern_type: PatternType::RepeatedStructure,
+            description: "A test pattern for unit testing".to_string(),
+            confidence: 0.8,
+            occurrences: 1,
+            proposed_changes: vec![],
+            affected_entities: vec!["test_entity".to_string()],
+        }
+    }
 }

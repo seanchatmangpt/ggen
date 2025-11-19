@@ -268,7 +268,11 @@ impl PropertyRange {
             Self::Time => "string".to_string(),
             Self::Reference(class_uri) => {
                 // Extract class name from URI
-                class_uri.split('#').last().unwrap_or("unknown").to_string()
+                class_uri
+                    .split('#')
+                    .next_back()
+                    .unwrap_or("unknown")
+                    .to_string()
             }
             Self::Literal(type_name) => type_name.clone(),
             Self::Enum(values) => format!("'{}'", values.join("' | '")),
@@ -285,11 +289,13 @@ impl PropertyRange {
             Self::DateTime => "DateTime".to_string(),
             Self::Date => "Date".to_string(),
             Self::Time => "Time".to_string(),
-            Self::Reference(class_uri) => {
-                class_uri.split('#').last().unwrap_or("Unknown").to_string()
-            }
+            Self::Reference(class_uri) => class_uri
+                .split('#')
+                .next_back()
+                .unwrap_or("Unknown")
+                .to_string(),
             Self::Literal(type_name) => type_name.clone(),
-            Self::Enum(values) => format!("{}", values[0]),
+            Self::Enum(values) => values[0].clone(),
         };
 
         match cardinality {

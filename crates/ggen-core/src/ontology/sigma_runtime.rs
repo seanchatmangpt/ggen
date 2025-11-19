@@ -120,7 +120,7 @@ pub struct SigmaSnapshot {
     pub metadata: SnapshotMetadata,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct SnapshotMetadata {
     /// Backward compatibility flag
     pub backward_compatible: bool,
