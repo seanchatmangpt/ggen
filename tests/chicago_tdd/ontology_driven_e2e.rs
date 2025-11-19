@@ -449,6 +449,141 @@ async fn test_sparql_results_as_template_variables() -> Result<()> {
     Ok(())
 }
 
+/// Test comprehensive RDF type mapping validation for multi-language code generation
+/// Validates: xsd:string → String/string/str, xsd:decimal → f64/number/Decimal,
+/// xsd:integer → i32/number/int, rdfs:Class → struct/interface/class,
+/// rdf:Property → getter methods
+#[tokio::test]
+async fn test_comprehensive_rdf_type_mapping_validation() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+    let base_path = temp_dir.path();
+
+    // ARRANGE: Create comprehensive ontology with all XSD types
+    let ontology_path = base_path.join("comprehensive_types.ttl");
+    create_comprehensive_type_ontology(&ontology_path)?;
+
+    // Step 1: VERIFY TYPE MAPPINGS - Query all property types from ontology
+    let types_query = execute_query(QueryInput {
+        query: r#"
+            PREFIX pc: <http://example.org/product_catalog#>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+            SELECT ?property ?label ?range WHERE {
+                ?property a rdf:Property .
+                ?property rdfs:label ?label .
+                ?property rdfs:range ?range .
+            }
+            ORDER BY ?label
+        "#
+        .to_string(),
+        graph_file: Some(ontology_path.clone()),
+        format: "json".to_string(),
+    })
+    .await?;
+
+    eprintln!("Type mapping query results: {} properties found", types_query.result_count);
+
+    // ASSERT: All XSD types present in ontology
+    assert!(
+        types_query.result_count >= 8,
+        "Should have at least 8 properties with different XSD types"
+    );
+
+    // Step 2: GENERATE RUST CODE - Test xsd:* → Rust type mappings
+    let rust_output_path = base_path.join("types_rust.rs");
+    generate_code_with_type_mapping(&ontology_path, &rust_output_path, TargetLanguage::Rust)?;
+
+    let rust_code = fs::read_to_string(&rust_output_path)?;
+    eprintln!("\n=== Generated Rust Code ===\n{}\n", rust_code);
+
+    // ASSERT: Rust type mappings are correct
+    assert_code_contains(&rust_code, "struct Product", "Rust: rdfs:Class should generate struct");
+    assert_code_contains(&rust_code, "name: String", "Rust: xsd:string → String");
+    assert_code_contains(&rust_code, "sku: String", "Rust: xsd:string → String for SKU field");
+    assert_code_contains(&rust_code, "price: f64", "Rust: xsd:decimal → f64");
+    assert_code_contains(&rust_code, "rating: f64", "Rust: xsd:decimal → f64 for rating");
+    assert_code_contains(&rust_code, "quantity: i32", "Rust: xsd:integer → i32");
+    assert_code_contains(&rust_code, "inventory_count: i32", "Rust: xsd:integer → i32 for inventory");
+    assert_code_contains(&rust_code, "is_active: bool", "Rust: xsd:boolean → bool");
+    assert_code_contains(&rust_code, "created_at: String", "Rust: xsd:dateTime → String (or chrono::DateTime)");
+
+    // ASSERT: rdf:Property → getter methods (for object properties)
+    assert_code_contains(&rust_code, "pub fn get_category(&self)", "Rust: rdf:Property (object) → getter method");
+    assert_code_contains(&rust_code, "pub fn get_supplier(&self)", "Rust: rdf:Property (object) → getter method");
+
+    // Step 3: GENERATE TYPESCRIPT CODE - Test xsd:* → TypeScript type mappings
+    let typescript_output_path = base_path.join("types.ts");
+    generate_code_with_type_mapping(&ontology_path, &typescript_output_path, TargetLanguage::TypeScript)?;
+
+    let typescript_code = fs::read_to_string(&typescript_output_path)?;
+    eprintln!("\n=== Generated TypeScript Code ===\n{}\n", typescript_code);
+
+    // ASSERT: TypeScript type mappings are correct
+    assert_code_contains(&typescript_code, "interface Product", "TypeScript: rdfs:Class should generate interface");
+    assert_code_contains(&typescript_code, "name: string", "TypeScript: xsd:string → string");
+    assert_code_contains(&typescript_code, "sku: string", "TypeScript: xsd:string → string for SKU");
+    assert_code_contains(&typescript_code, "price: number", "TypeScript: xsd:decimal → number");
+    assert_code_contains(&typescript_code, "rating: number", "TypeScript: xsd:decimal → number for rating");
+    assert_code_contains(&typescript_code, "quantity: number", "TypeScript: xsd:integer → number");
+    assert_code_contains(&typescript_code, "inventory_count: number", "TypeScript: xsd:integer → number");
+    assert_code_contains(&typescript_code, "is_active: boolean", "TypeScript: xsd:boolean → boolean");
+    assert_code_contains(&typescript_code, "created_at: string", "TypeScript: xsd:dateTime → string (or Date)");
+
+    // ASSERT: rdf:Property → getter methods
+    assert_code_contains(&typescript_code, "getCategory()", "TypeScript: rdf:Property → getter method");
+    assert_code_contains(&typescript_code, "getSupplier()", "TypeScript: rdf:Property → getter method");
+
+    // Step 4: GENERATE PYTHON CODE - Test xsd:* → Python type mappings
+    let python_output_path = base_path.join("types.py");
+    generate_code_with_type_mapping(&ontology_path, &python_output_path, TargetLanguage::Python)?;
+
+    let python_code = fs::read_to_string(&python_output_path)?;
+    eprintln!("\n=== Generated Python Code ===\n{}\n", python_code);
+
+    // ASSERT: Python type mappings are correct
+    assert_code_contains(&python_code, "class Product", "Python: rdfs:Class should generate class");
+    assert_code_contains(&python_code, "name: str", "Python: xsd:string → str");
+    assert_code_contains(&python_code, "sku: str", "Python: xsd:string → str for SKU");
+    assert_code_contains(&python_code, "price: Decimal", "Python: xsd:decimal → Decimal");
+    assert_code_contains(&python_code, "rating: Decimal", "Python: xsd:decimal → Decimal for rating");
+    assert_code_contains(&python_code, "quantity: int", "Python: xsd:integer → int");
+    assert_code_contains(&python_code, "inventory_count: int", "Python: xsd:integer → int");
+    assert_code_contains(&python_code, "is_active: bool", "Python: xsd:boolean → bool");
+    assert_code_contains(&python_code, "created_at: str", "Python: xsd:dateTime → str (or datetime)");
+
+    // ASSERT: rdf:Property → getter methods
+    assert_code_contains(&python_code, "def get_category(self)", "Python: rdf:Property → getter method");
+    assert_code_contains(&python_code, "def get_supplier(self)", "Python: rdf:Property → getter method");
+
+    // Step 5: TEST PRODUCT.SKU ONTOLOGY CHANGES - Modify ontology and verify
+    let ontology_v2_path = base_path.join("comprehensive_types_v2.ttl");
+    modify_ontology_add_extra_sku_properties(&ontology_path, &ontology_v2_path)?;
+
+    // Regenerate code for all languages
+    let rust_v2_path = base_path.join("types_rust_v2.rs");
+    let typescript_v2_path = base_path.join("types_v2.ts");
+    let python_v2_path = base_path.join("types_v2.py");
+
+    generate_code_with_type_mapping(&ontology_v2_path, &rust_v2_path, TargetLanguage::Rust)?;
+    generate_code_with_type_mapping(&ontology_v2_path, &typescript_v2_path, TargetLanguage::TypeScript)?;
+    generate_code_with_type_mapping(&ontology_v2_path, &python_v2_path, TargetLanguage::Python)?;
+
+    // ASSERT: Product.sku changes propagated to all languages
+    let rust_v2 = fs::read_to_string(&rust_v2_path)?;
+    let typescript_v2 = fs::read_to_string(&typescript_v2_path)?;
+    let python_v2 = fs::read_to_string(&python_v2_path)?;
+
+    // New SKU-related fields should appear in all languages
+    assert_code_contains(&rust_v2, "sku_prefix: String", "Rust v2: New SKU field added");
+    assert_code_contains(&typescript_v2, "sku_prefix: string", "TypeScript v2: New SKU field added");
+    assert_code_contains(&python_v2, "sku_prefix: str", "Python v2: New SKU field added");
+
+    eprintln!("\n✅ All type mappings validated successfully across Rust, TypeScript, and Python!");
+
+    Ok(())
+}
+
 // ============================================================================
 // Helper Functions - Ontology Creation
 // ============================================================================
@@ -849,9 +984,417 @@ fn map_rdf_type_to_rust(rdf_type: &str) -> String {
         "i32".to_string()
     } else if rdf_type.contains("dateTime") {
         "String".to_string() // Use chrono::DateTime in real implementation
+    } else if rdf_type.contains("boolean") {
+        "bool".to_string()
     } else {
         "String".to_string()
     }
+}
+
+/// Target programming language for code generation
+#[derive(Debug, Clone, Copy)]
+enum TargetLanguage {
+    Rust,
+    TypeScript,
+    Python,
+}
+
+/// Comprehensive RDF type mapping to target language types
+fn map_rdf_type_to_language(rdf_type: &str, language: TargetLanguage) -> String {
+    match language {
+        TargetLanguage::Rust => {
+            if rdf_type.contains("string") {
+                "String".to_string()
+            } else if rdf_type.contains("decimal") {
+                "f64".to_string()
+            } else if rdf_type.contains("integer") {
+                "i32".to_string()
+            } else if rdf_type.contains("boolean") {
+                "bool".to_string()
+            } else if rdf_type.contains("dateTime") {
+                "String".to_string() // Could be chrono::DateTime<Utc>
+            } else if rdf_type.contains("float") {
+                "f32".to_string()
+            } else if rdf_type.contains("double") {
+                "f64".to_string()
+            } else if rdf_type.contains("long") {
+                "i64".to_string()
+            } else {
+                "String".to_string()
+            }
+        }
+        TargetLanguage::TypeScript => {
+            if rdf_type.contains("string") {
+                "string".to_string()
+            } else if rdf_type.contains("decimal") || rdf_type.contains("integer")
+                || rdf_type.contains("float") || rdf_type.contains("double")
+                || rdf_type.contains("long") {
+                "number".to_string()
+            } else if rdf_type.contains("boolean") {
+                "boolean".to_string()
+            } else if rdf_type.contains("dateTime") {
+                "string".to_string() // Could be Date
+            } else {
+                "string".to_string()
+            }
+        }
+        TargetLanguage::Python => {
+            if rdf_type.contains("string") {
+                "str".to_string()
+            } else if rdf_type.contains("decimal") {
+                "Decimal".to_string()
+            } else if rdf_type.contains("integer") || rdf_type.contains("long") {
+                "int".to_string()
+            } else if rdf_type.contains("float") || rdf_type.contains("double") {
+                "float".to_string()
+            } else if rdf_type.contains("boolean") {
+                "bool".to_string()
+            } else if rdf_type.contains("dateTime") {
+                "str".to_string() // Could be datetime
+            } else {
+                "str".to_string()
+            }
+        }
+    }
+}
+
+/// Create comprehensive ontology with all XSD data types for testing
+fn create_comprehensive_type_ontology(path: &PathBuf) -> Result<()> {
+    let ontology = r#"
+@prefix pc: <http://example.org/product_catalog#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Classes
+pc:Product a rdfs:Class ;
+    rdfs:label "Product" ;
+    rdfs:comment "A product with comprehensive type coverage" .
+
+pc:Category a rdfs:Class ;
+    rdfs:label "Category" ;
+    rdfs:comment "Product category" .
+
+pc:Supplier a rdfs:Class ;
+    rdfs:label "Supplier" ;
+    rdfs:comment "Product supplier" .
+
+# Data Properties - Testing all XSD type mappings
+
+# xsd:string → String/string/str
+pc:name a rdf:Property ;
+    rdfs:label "name" ;
+    rdfs:domain pc:Product ;
+    rdfs:range xsd:string .
+
+pc:sku a rdf:Property ;
+    rdfs:label "sku" ;
+    rdfs:comment "Stock Keeping Unit" ;
+    rdfs:domain pc:Product ;
+    rdfs:range xsd:string .
+
+pc:description a rdf:Property ;
+    rdfs:label "description" ;
+    rdfs:domain pc:Product ;
+    rdfs:range xsd:string .
+
+# xsd:decimal → f64/number/Decimal
+pc:price a rdf:Property ;
+    rdfs:label "price" ;
+    rdfs:domain pc:Product ;
+    rdfs:range xsd:decimal .
+
+pc:rating a rdf:Property ;
+    rdfs:label "rating" ;
+    rdfs:comment "Product rating 0-5" ;
+    rdfs:domain pc:Product ;
+    rdfs:range xsd:decimal .
+
+# xsd:integer → i32/number/int
+pc:quantity a rdf:Property ;
+    rdfs:label "quantity" ;
+    rdfs:domain pc:Product ;
+    rdfs:range xsd:integer .
+
+pc:inventory_count a rdf:Property ;
+    rdfs:label "inventory_count" ;
+    rdfs:domain pc:Product ;
+    rdfs:range xsd:integer .
+
+# xsd:boolean → bool/boolean/bool
+pc:is_active a rdf:Property ;
+    rdfs:label "is_active" ;
+    rdfs:domain pc:Product ;
+    rdfs:range xsd:boolean .
+
+# xsd:dateTime → String/string/str (or DateTime types)
+pc:created_at a rdf:Property ;
+    rdfs:label "created_at" ;
+    rdfs:domain pc:Product ;
+    rdfs:range xsd:dateTime .
+
+# Object Properties - Testing rdf:Property → getter methods
+
+pc:category a rdf:Property ;
+    rdfs:label "category" ;
+    rdfs:comment "Product category relationship" ;
+    rdfs:domain pc:Product ;
+    rdfs:range pc:Category .
+
+pc:supplier a rdf:Property ;
+    rdfs:label "supplier" ;
+    rdfs:comment "Product supplier relationship" ;
+    rdfs:domain pc:Product ;
+    rdfs:range pc:Supplier .
+"#;
+    fs::write(path, ontology)?;
+    Ok(())
+}
+
+/// Modify ontology to add extra SKU-related properties for testing
+fn modify_ontology_add_extra_sku_properties(
+    source_path: &PathBuf,
+    dest_path: &PathBuf
+) -> Result<()> {
+    let mut ontology = fs::read_to_string(source_path)?;
+    ontology.push_str(
+        r#"
+
+# Additional SKU-related properties (v2)
+pc:sku_prefix a rdf:Property ;
+    rdfs:label "sku_prefix" ;
+    rdfs:comment "SKU prefix for categorization" ;
+    rdfs:domain pc:Product ;
+    rdfs:range xsd:string .
+
+pc:sku_sequence a rdf:Property ;
+    rdfs:label "sku_sequence" ;
+    rdfs:comment "SKU sequence number" ;
+    rdfs:domain pc:Product ;
+    rdfs:range xsd:integer .
+"#,
+    );
+    fs::write(dest_path, ontology)?;
+    Ok(())
+}
+
+/// Generate code with comprehensive type mapping for target language
+fn generate_code_with_type_mapping(
+    ontology_path: &PathBuf,
+    output_path: &PathBuf,
+    language: TargetLanguage,
+) -> Result<()> {
+    let graph = Graph::load_from_file(ontology_path.to_str().unwrap())?;
+
+    // Query for all classes
+    let classes_query = r#"
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        SELECT ?class ?label WHERE {
+            ?class a rdfs:Class .
+            ?class rdfs:label ?label .
+        }
+    "#;
+
+    let classes = graph.query(classes_query)?;
+
+    let mut code = match language {
+        TargetLanguage::Rust => {
+            let mut s = "// Generated Rust code from RDF ontology\n\n".to_string();
+            s.push_str("use serde::{Deserialize, Serialize};\n\n");
+            s
+        }
+        TargetLanguage::TypeScript => {
+            "// Generated TypeScript code from RDF ontology\n\n".to_string()
+        }
+        TargetLanguage::Python => {
+            let mut s = "# Generated Python code from RDF ontology\n\n".to_string();
+            s.push_str("from decimal import Decimal\n");
+            s.push_str("from dataclasses import dataclass\n");
+            s.push_str("from typing import Optional\n\n");
+            s
+        }
+    };
+
+    // Generate code for each class
+    if let oxigraph::sparql::QueryResults::Solutions(solutions) = classes {
+        for solution_result in solutions {
+            let solution = solution_result?;
+            if let Some(label) = solution.get("label") {
+                let class_name = label.to_string().trim_matches('"').to_string();
+                let struct_code = generate_struct_for_class_multi_language(
+                    ontology_path,
+                    &class_name,
+                    language,
+                )?;
+                code.push_str(&struct_code);
+            }
+        }
+    }
+
+    fs::write(output_path, code)?;
+    Ok(())
+}
+
+/// Generate struct/interface/class for a specific class in target language
+fn generate_struct_for_class_multi_language(
+    ontology_path: &PathBuf,
+    class_name: &str,
+    language: TargetLanguage,
+) -> Result<String> {
+    let graph = Graph::load_from_file(ontology_path.to_str().unwrap())?;
+
+    // Query for all properties of this class
+    let properties_query = format!(
+        r#"
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX pc: <http://example.org/product_catalog#>
+
+        SELECT ?property ?label ?range WHERE {{
+            ?property rdfs:domain pc:{} .
+            ?property rdfs:label ?label .
+            OPTIONAL {{ ?property rdfs:range ?range }}
+        }}
+    "#,
+        class_name
+    );
+
+    let properties = graph.query(&properties_query)?;
+
+    let mut struct_code = String::new();
+    let mut data_properties = Vec::new();
+    let mut object_properties = Vec::new();
+
+    // Collect properties
+    if let oxigraph::sparql::QueryResults::Solutions(solutions) = properties {
+        for solution in solutions {
+            let solution = solution?;
+            if let Some(label) = solution.get("label") {
+                let field_name = label.to_string().trim_matches('"').to_string();
+                let range = solution.get("range").map(|r| r.to_string());
+
+                // Determine if object property or data property
+                let is_object_property = if let Some(ref range_str) = range {
+                    range_str.contains("product_catalog#")
+                } else {
+                    false
+                };
+
+                if is_object_property {
+                    object_properties.push((field_name, range.unwrap_or_default()));
+                } else {
+                    let field_type = if let Some(range_str) = range {
+                        map_rdf_type_to_language(&range_str, language)
+                    } else {
+                        match language {
+                            TargetLanguage::Rust => "String".to_string(),
+                            TargetLanguage::TypeScript => "string".to_string(),
+                            TargetLanguage::Python => "str".to_string(),
+                        }
+                    };
+                    data_properties.push((field_name, field_type));
+                }
+            }
+        }
+    }
+
+    // Generate struct/interface/class definition
+    match language {
+        TargetLanguage::Rust => {
+            struct_code.push_str("#[derive(Debug, Clone, Serialize, Deserialize)]\n");
+            struct_code.push_str(&format!("pub struct {} {{\n", class_name));
+            for (field_name, field_type) in &data_properties {
+                struct_code.push_str(&format!("    pub {}: {},\n", field_name, field_type));
+            }
+            struct_code.push_str("}\n\n");
+
+            // Add methods for object properties (relationships)
+            if !object_properties.is_empty() {
+                struct_code.push_str(&format!("impl {} {{\n", class_name));
+                for (prop_name, range) in &object_properties {
+                    let return_type = range
+                        .split('#')
+                        .last()
+                        .unwrap_or("Unknown")
+                        .trim_end_matches('>');
+                    struct_code.push_str(&format!(
+                        "    pub fn get_{}(&self) -> Option<{}> {{\n",
+                        prop_name, return_type
+                    ));
+                    struct_code.push_str("        // Fetch related object from database\n");
+                    struct_code.push_str("        None\n");
+                    struct_code.push_str("    }\n");
+                }
+                struct_code.push_str("}\n\n");
+            }
+        }
+        TargetLanguage::TypeScript => {
+            struct_code.push_str(&format!("export interface {} {{\n", class_name));
+            for (field_name, field_type) in &data_properties {
+                struct_code.push_str(&format!("  {}: {};\n", field_name, field_type));
+            }
+            struct_code.push_str("}\n\n");
+
+            // Add class with methods for object properties
+            if !object_properties.is_empty() {
+                struct_code.push_str(&format!("export class {}Impl implements {} {{\n", class_name, class_name));
+
+                // Add constructor and fields
+                for (field_name, field_type) in &data_properties {
+                    struct_code.push_str(&format!("  {}: {};\n", field_name, field_type));
+                }
+                struct_code.push_str("\n");
+
+                // Add getter methods for object properties
+                for (prop_name, range) in &object_properties {
+                    let return_type = range
+                        .split('#')
+                        .last()
+                        .unwrap_or("unknown")
+                        .trim_end_matches('>');
+                    struct_code.push_str(&format!(
+                        "  {}(): {} | null {{\n",
+                        prop_name, return_type
+                    ));
+                    struct_code.push_str("    // Fetch related object\n");
+                    struct_code.push_str("    return null;\n");
+                    struct_code.push_str("  }\n");
+                }
+                struct_code.push_str("}\n\n");
+            }
+        }
+        TargetLanguage::Python => {
+            struct_code.push_str("@dataclass\n");
+            struct_code.push_str(&format!("class {}:\n", class_name));
+            if data_properties.is_empty() && object_properties.is_empty() {
+                struct_code.push_str("    pass\n\n");
+            } else {
+                for (field_name, field_type) in &data_properties {
+                    struct_code.push_str(&format!("    {}: {}\n", field_name, field_type));
+                }
+
+                // Add getter methods for object properties
+                if !object_properties.is_empty() {
+                    struct_code.push_str("\n");
+                    for (prop_name, range) in &object_properties {
+                        let return_type = range
+                            .split('#')
+                            .last()
+                            .unwrap_or("object")
+                            .trim_end_matches('>');
+                        struct_code.push_str(&format!(
+                            "    def get_{}(self) -> Optional['{}']:\n",
+                            prop_name, return_type
+                        ));
+                        struct_code.push_str("        # Fetch related object\n");
+                        struct_code.push_str("        return None\n\n");
+                    }
+                }
+                struct_code.push_str("\n");
+            }
+        }
+    }
+
+    Ok(struct_code)
 }
 
 // ============================================================================
