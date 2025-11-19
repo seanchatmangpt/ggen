@@ -24,6 +24,7 @@
 //! - `audit` - Security auditing
 //! - `ci` - CI/CD operations
 //! - `shell` - Shell completion generation
+//! - `poka_yoke` - Compile-time mistake-proofing and type-safe code generation
 
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 
@@ -33,6 +34,7 @@ pub mod ci;
 pub mod graph;
 pub mod hook;
 pub mod marketplace;
+pub mod poka_yoke; // Poka-Yoke mistake-proofing for code generation
 pub mod project;
 pub mod rdf;
 pub mod shell;
