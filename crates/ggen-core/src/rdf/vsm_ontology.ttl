@@ -1,0 +1,505 @@
+@prefix vsm: <http://ggen.dev/ontology/vsm#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ============================================================================
+# Value Stream Mapping Ontology for GGen
+# ============================================================================
+# Comprehensive semantic model for end-to-end value stream analysis from
+# ontology design through deployment, with stakeholder swim lanes and
+# moonshot 2028 future state mapping.
+# ============================================================================
+
+vsm: a owl:Ontology ;
+    dcterms:title "GGen Value Stream Mapping Ontology" ;
+    dcterms:description "Semantic model for value stream analysis of code generation pipelines" ;
+    owl:versionInfo "1.0.0" .
+
+# ============================================================================
+# Core Classes
+# ============================================================================
+
+vsm:ValueStream a owl:Class ;
+    rdfs:label "Value Stream" ;
+    rdfs:comment "End-to-end flow from ontology design to deployed code" .
+
+vsm:Stage a owl:Class ;
+    rdfs:label "VSM Stage" ;
+    rdfs:comment "Discrete step in the value stream with measurable inputs and outputs" .
+
+vsm:Transition a owl:Class ;
+    rdfs:label "Stage Transition" ;
+    rdfs:comment "Flow between stages, capturing handoffs and wait times" .
+
+vsm:Metric a owl:Class ;
+    rdfs:label "VSM Metric" ;
+    rdfs:comment "Measurable indicator of value stream performance" .
+
+vsm:Bottleneck a owl:Class ;
+    rdfs:label "Bottleneck" ;
+    rdfs:comment "Constraint limiting overall value stream throughput" .
+
+vsm:SwimLane a owl:Class ;
+    rdfs:label "Swim Lane" ;
+    rdfs:comment "Stakeholder role or system involved in value stream" .
+
+vsm:Touchpoint a owl:Class ;
+    rdfs:label "Touchpoint" ;
+    rdfs:comment "Interaction point between stakeholders or systems" .
+
+vsm:FutureState a owl:Class ;
+    rdfs:label "Future State" ;
+    rdfs:comment "Target value stream configuration with improvement goals" .
+
+vsm:MoonshotTarget a owl:Class ;
+    rdfs:label "Moonshot Target" ;
+    rdfs:comment "Ambitious 2028 goal for transformational improvement" .
+
+# ============================================================================
+# Stage Types (Ontology → Deployment Pipeline)
+# ============================================================================
+
+vsm:OntologyDesign a owl:Class ;
+    rdfs:subClassOf vsm:Stage ;
+    rdfs:label "Ontology Design Stage" ;
+    rdfs:comment "Semantic modeling and schema definition" .
+
+vsm:TemplateCreation a owl:Class ;
+    rdfs:subClassOf vsm:Stage ;
+    rdfs:label "Template Creation Stage" ;
+    rdfs:comment "Template authoring with RDF integration" .
+
+vsm:DataBinding a owl:Class ;
+    rdfs:subClassOf vsm:Stage ;
+    rdfs:label "Data Binding Stage" ;
+    rdfs:comment "Linking RDF data to template variables via SPARQL" .
+
+vsm:TemplateProcessing a owl:Class ;
+    rdfs:subClassOf vsm:Stage ;
+    rdfs:label "Template Processing Stage" ;
+    rdfs:comment "Tera template rendering with frontmatter processing" .
+
+vsm:GraphQuerying a owl:Class ;
+    rdfs:subClassOf vsm:Stage ;
+    rdfs:label "Graph Querying Stage" ;
+    rdfs:comment "SPARQL query execution against RDF store" .
+
+vsm:CodeGeneration a owl:Class ;
+    rdfs:subClassOf vsm:Stage ;
+    rdfs:label "Code Generation Stage" ;
+    rdfs:comment "Final code artifact generation" .
+
+vsm:Validation a owl:Class ;
+    rdfs:subClassOf vsm:Stage ;
+    rdfs:label "Validation Stage" ;
+    rdfs:comment "Quality checks and governance approvals" .
+
+vsm:Testing a owl:Class ;
+    rdfs:subClassOf vsm:Stage ;
+    rdfs:label "Testing Stage" ;
+    rdfs:comment "Automated test execution" .
+
+vsm:Deployment a owl:Class ;
+    rdfs:subClassOf vsm:Stage ;
+    rdfs:label "Deployment Stage" ;
+    rdfs:comment "Code deployment to target environment" .
+
+# ============================================================================
+# Stakeholder Swim Lanes
+# ============================================================================
+
+vsm:OntologyArchitect a owl:Class ;
+    rdfs:subClassOf vsm:SwimLane ;
+    rdfs:label "Ontology Architect" ;
+    rdfs:comment "Designs semantic models and RDF schemas" .
+
+vsm:TemplateAuthor a owl:Class ;
+    rdfs:subClassOf vsm:SwimLane ;
+    rdfs:label "Template Author" ;
+    rdfs:comment "Creates and maintains generation templates" .
+
+vsm:DataEngineer a owl:Class ;
+    rdfs:subClassOf vsm:SwimLane ;
+    rdfs:label "Data Engineer" ;
+    rdfs:comment "Manages RDF data and SPARQL queries" .
+
+vsm:Developer a owl:Class ;
+    rdfs:subClassOf vsm:SwimLane ;
+    rdfs:label "Developer" ;
+    rdfs:comment "Consumes generated code and provides feedback" .
+
+vsm:QualityAssurance a owl:Class ;
+    rdfs:subClassOf vsm:SwimLane ;
+    rdfs:label "Quality Assurance" ;
+    rdfs:comment "Validates outputs and enforces quality gates" .
+
+vsm:DevOps a owl:Class ;
+    rdfs:subClassOf vsm:SwimLane ;
+    rdfs:label "DevOps Engineer" ;
+    rdfs:comment "Handles deployment and operations" .
+
+vsm:AISystem a owl:Class ;
+    rdfs:subClassOf vsm:SwimLane ;
+    rdfs:label "AI System" ;
+    rdfs:comment "Automated AI-driven generation and governance" .
+
+vsm:GovernanceBoard a owl:Class ;
+    rdfs:subClassOf vsm:SwimLane ;
+    rdfs:label "Governance Board" ;
+    rdfs:comment "Approval authority for critical decisions" .
+
+# ============================================================================
+# Properties - Structure & Relationships
+# ============================================================================
+
+vsm:hasStage a owl:ObjectProperty ;
+    rdfs:domain vsm:ValueStream ;
+    rdfs:range vsm:Stage ;
+    rdfs:label "has stage" ;
+    rdfs:comment "Value stream contains this stage" .
+
+vsm:previousStage a owl:ObjectProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range vsm:Stage ;
+    rdfs:label "previous stage" ;
+    rdfs:comment "Immediately preceding stage in value stream" .
+
+vsm:nextStage a owl:ObjectProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range vsm:Stage ;
+    rdfs:label "next stage" ;
+    rdfs:comment "Immediately following stage in value stream" .
+
+vsm:hasTransition a owl:ObjectProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range vsm:Transition ;
+    rdfs:label "has transition" ;
+    rdfs:comment "Outbound transition to next stage" .
+
+vsm:belongsToSwimLane a owl:ObjectProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range vsm:SwimLane ;
+    rdfs:label "belongs to swim lane" ;
+    rdfs:comment "Stakeholder responsible for this stage" .
+
+vsm:hasTouchpoint a owl:ObjectProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range vsm:Touchpoint ;
+    rdfs:label "has touchpoint" ;
+    rdfs:comment "Stakeholder interaction point at this stage" .
+
+vsm:hasBottleneck a owl:ObjectProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range vsm:Bottleneck ;
+    rdfs:label "has bottleneck" ;
+    rdfs:comment "Performance constraint at this stage" .
+
+vsm:hasFutureState a owl:ObjectProperty ;
+    rdfs:domain vsm:ValueStream ;
+    rdfs:range vsm:FutureState ;
+    rdfs:label "has future state" ;
+    rdfs:comment "Target improvement state" .
+
+vsm:hasMoonshotTarget a owl:ObjectProperty ;
+    rdfs:domain vsm:FutureState ;
+    rdfs:range vsm:MoonshotTarget ;
+    rdfs:label "has moonshot target" ;
+    rdfs:comment "2028 transformational goal" .
+
+# ============================================================================
+# Properties - Timing Metrics (in milliseconds)
+# ============================================================================
+
+vsm:leadTime a owl:DatatypeProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range xsd:double ;
+    rdfs:label "lead time (ms)" ;
+    rdfs:comment "Total elapsed time from stage entry to exit" .
+
+vsm:processTime a owl:DatatypeProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range xsd:double ;
+    rdfs:label "process time (ms)" ;
+    rdfs:comment "Active processing time (value-added work)" .
+
+vsm:waitTime a owl:DatatypeProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range xsd:double ;
+    rdfs:label "wait time (ms)" ;
+    rdfs:comment "Idle time waiting for resources or approvals" .
+
+vsm:cycleTime a owl:DatatypeProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range xsd:double ;
+    rdfs:label "cycle time (ms)" ;
+    rdfs:comment "Average time between stage completions" .
+
+vsm:touchTime a owl:DatatypeProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range xsd:double ;
+    rdfs:label "touch time (ms)" ;
+    rdfs:comment "Actual hands-on work time" .
+
+vsm:transitionTime a owl:DatatypeProperty ;
+    rdfs:domain vsm:Transition ;
+    rdfs:range xsd:double ;
+    rdfs:label "transition time (ms)" ;
+    rdfs:comment "Handoff time between stages" .
+
+# ============================================================================
+# Properties - Efficiency Metrics
+# ============================================================================
+
+vsm:processEfficiency a owl:DatatypeProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range xsd:double ;
+    rdfs:label "process efficiency ratio" ;
+    rdfs:comment "Ratio of process time to lead time (0.0 to 1.0)" .
+
+vsm:valueAddedRatio a owl:DatatypeProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range xsd:double ;
+    rdfs:label "value-added ratio" ;
+    rdfs:comment "Proportion of time adding customer value (0.0 to 1.0)" .
+
+vsm:throughput a owl:DatatypeProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range xsd:double ;
+    rdfs:label "throughput (items/hour)" ;
+    rdfs:comment "Processing rate per hour" .
+
+vsm:capacity a owl:DatatypeProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range xsd:double ;
+    rdfs:label "capacity (items/hour)" ;
+    rdfs:comment "Maximum theoretical throughput" .
+
+vsm:utilization a owl:DatatypeProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range xsd:double ;
+    rdfs:label "utilization ratio" ;
+    rdfs:comment "Actual throughput / capacity (0.0 to 1.0)" .
+
+vsm:firstPassYield a owl:DatatypeProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range xsd:double ;
+    rdfs:label "first pass yield" ;
+    rdfs:comment "Proportion passing without rework (0.0 to 1.0)" .
+
+vsm:reworkRate a owl:DatatypeProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range xsd:double ;
+    rdfs:label "rework rate" ;
+    rdfs:comment "Proportion requiring rework (0.0 to 1.0)" .
+
+vsm:queueLength a owl:DatatypeProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range xsd:integer ;
+    rdfs:label "queue length" ;
+    rdfs:comment "Work items waiting to enter stage" .
+
+# ============================================================================
+# Properties - Quality & Governance
+# ============================================================================
+
+vsm:defectRate a owl:DatatypeProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range xsd:double ;
+    rdfs:label "defect rate" ;
+    rdfs:comment "Defects per thousand opportunities" .
+
+vsm:approvalRequired a owl:DatatypeProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "approval required" ;
+    rdfs:comment "Whether governance approval is required" .
+
+vsm:approvalTime a owl:DatatypeProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range xsd:double ;
+    rdfs:label "approval time (ms)" ;
+    rdfs:comment "Average time for approval decisions" .
+
+vsm:complianceRate a owl:DatatypeProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range xsd:double ;
+    rdfs:label "compliance rate" ;
+    rdfs:comment "Proportion meeting compliance rules (0.0 to 1.0)" .
+
+# ============================================================================
+# Properties - Bottleneck Analysis
+# ============================================================================
+
+vsm:bottleneckSeverity a owl:DatatypeProperty ;
+    rdfs:domain vsm:Bottleneck ;
+    rdfs:range xsd:string ;
+    rdfs:label "bottleneck severity" ;
+    rdfs:comment "Critical, High, Medium, Low" .
+
+vsm:bottleneckType a owl:DatatypeProperty ;
+    rdfs:domain vsm:Bottleneck ;
+    rdfs:range xsd:string ;
+    rdfs:label "bottleneck type" ;
+    rdfs:comment "Capacity, Quality, Approval, Dependency, Resource" .
+
+vsm:impactOnLeadTime a owl:DatatypeProperty ;
+    rdfs:domain vsm:Bottleneck ;
+    rdfs:range xsd:double ;
+    rdfs:label "impact on lead time (ms)" ;
+    rdfs:comment "Delay caused by this bottleneck" .
+
+vsm:improvementOpportunity a owl:DatatypeProperty ;
+    rdfs:domain vsm:Bottleneck ;
+    rdfs:range xsd:string ;
+    rdfs:label "improvement opportunity" ;
+    rdfs:comment "Recommended action to address bottleneck" .
+
+# ============================================================================
+# Properties - Touchpoint Tracking
+# ============================================================================
+
+vsm:touchpointType a owl:DatatypeProperty ;
+    rdfs:domain vsm:Touchpoint ;
+    rdfs:range xsd:string ;
+    rdfs:label "touchpoint type" ;
+    rdfs:comment "Handoff, Review, Approval, Collaboration, Notification" .
+
+vsm:fromSwimLane a owl:ObjectProperty ;
+    rdfs:domain vsm:Touchpoint ;
+    rdfs:range vsm:SwimLane ;
+    rdfs:label "from swim lane" ;
+    rdfs:comment "Originating stakeholder" .
+
+vsm:toSwimLane a owl:ObjectProperty ;
+    rdfs:domain vsm:Touchpoint ;
+    rdfs:range vsm:SwimLane ;
+    rdfs:label "to swim lane" ;
+    rdfs:comment "Receiving stakeholder" .
+
+vsm:touchpointDuration a owl:DatatypeProperty ;
+    rdfs:domain vsm:Touchpoint ;
+    rdfs:range xsd:double ;
+    rdfs:label "touchpoint duration (ms)" ;
+    rdfs:comment "Time spent in stakeholder interaction" .
+
+# ============================================================================
+# Properties - Future State & Moonshot Targets
+# ============================================================================
+
+vsm:targetLeadTime a owl:DatatypeProperty ;
+    rdfs:domain vsm:FutureState ;
+    rdfs:range xsd:double ;
+    rdfs:label "target lead time (ms)" ;
+    rdfs:comment "Goal for total value stream lead time" .
+
+vsm:targetProcessEfficiency a owl:DatatypeProperty ;
+    rdfs:domain vsm:FutureState ;
+    rdfs:range xsd:double ;
+    rdfs:label "target process efficiency" ;
+    rdfs:comment "Goal efficiency ratio (0.0 to 1.0)" .
+
+vsm:targetThroughput a owl:DatatypeProperty ;
+    rdfs:domain vsm:FutureState ;
+    rdfs:range xsd:double ;
+    rdfs:label "target throughput (items/hour)" ;
+    rdfs:comment "Goal processing rate" .
+
+vsm:targetDate a owl:DatatypeProperty ;
+    rdfs:domain vsm:FutureState ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "target date" ;
+    rdfs:comment "When future state should be achieved" .
+
+vsm:improvementInitiative a owl:DatatypeProperty ;
+    rdfs:domain vsm:FutureState ;
+    rdfs:range xsd:string ;
+    rdfs:label "improvement initiative" ;
+    rdfs:comment "Strategic initiative to achieve future state" .
+
+vsm:moonshotMetric a owl:DatatypeProperty ;
+    rdfs:domain vsm:MoonshotTarget ;
+    rdfs:range xsd:string ;
+    rdfs:label "moonshot metric" ;
+    rdfs:comment "Metric targeted for breakthrough improvement" .
+
+vsm:moonshotValue a owl:DatatypeProperty ;
+    rdfs:domain vsm:MoonshotTarget ;
+    rdfs:range xsd:double ;
+    rdfs:label "moonshot value" ;
+    rdfs:comment "Ambitious 2028 target value" .
+
+vsm:currentBaseline a owl:DatatypeProperty ;
+    rdfs:domain vsm:MoonshotTarget ;
+    rdfs:range xsd:double ;
+    rdfs:label "current baseline" ;
+    rdfs:comment "Current performance baseline" .
+
+vsm:improvementMultiplier a owl:DatatypeProperty ;
+    rdfs:domain vsm:MoonshotTarget ;
+    rdfs:range xsd:double ;
+    rdfs:label "improvement multiplier" ;
+    rdfs:comment "Factor of improvement (e.g., 10x)" .
+
+# ============================================================================
+# Properties - Metadata
+# ============================================================================
+
+vsm:stageName a owl:DatatypeProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range xsd:string ;
+    rdfs:label "stage name" ;
+    rdfs:comment "Human-readable stage identifier" .
+
+vsm:stageDescription a owl:DatatypeProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range xsd:string ;
+    rdfs:label "stage description" ;
+    rdfs:comment "Detailed description of stage purpose" .
+
+vsm:startTime a owl:DatatypeProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "start time" ;
+    rdfs:comment "When stage execution began" .
+
+vsm:endTime a owl:DatatypeProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "end time" ;
+    rdfs:comment "When stage execution completed" .
+
+vsm:executionId a owl:DatatypeProperty ;
+    rdfs:domain vsm:Stage ;
+    rdfs:range xsd:string ;
+    rdfs:label "execution ID" ;
+    rdfs:comment "Unique identifier for this stage execution" .
+
+vsm:streamVersion a owl:DatatypeProperty ;
+    rdfs:domain vsm:ValueStream ;
+    rdfs:range xsd:string ;
+    rdfs:label "stream version" ;
+    rdfs:comment "Version of value stream configuration" .
+
+# ============================================================================
+# Example Instances
+# ============================================================================
+
+vsm:SemanticGenerationStream a vsm:ValueStream ;
+    rdfs:label "Semantic Code Generation Stream" ;
+    vsm:streamVersion "1.0.0" ;
+    rdfs:comment "Complete flow from ontology to deployed code" .
+
+vsm:Moonshot2028 a vsm:FutureState ;
+    rdfs:label "2028 Moonshot State" ;
+    vsm:targetDate "2028-12-31T23:59:59Z"^^xsd:dateTime ;
+    vsm:improvementInitiative "AI-accelerated semantic generation" .
+
+vsm:TenXLeadTimeReduction a vsm:MoonshotTarget ;
+    rdfs:label "10x Lead Time Reduction" ;
+    vsm:moonshotMetric "End-to-end lead time" ;
+    vsm:currentBaseline 3600000.0 ; # 1 hour in ms
+    vsm:moonshotValue 360000.0 ; # 6 minutes in ms
+    vsm:improvementMultiplier 10.0 .

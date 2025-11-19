@@ -24,6 +24,7 @@
 //! - `audit` - Security auditing
 //! - `ci` - CI/CD operations
 //! - `shell` - Shell completion generation
+//! - `vsm` - Value Stream Mapping (lead time tracking, bottleneck detection, efficiency analysis)
 
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 
@@ -38,6 +39,7 @@ pub mod rdf;
 pub mod shell;
 pub mod template;
 pub mod utils;
+pub mod vsm;
 
 // Re-export commonly used types for convenience
 pub use ggen_utils::error::{Error, Result};
