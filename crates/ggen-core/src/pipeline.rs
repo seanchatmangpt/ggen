@@ -877,7 +877,7 @@ Hello {{ name }}"#;
 
     // Test 7: PipelineBuilder with prefixes
     #[test]
-    fn test_pipeline_builder_with_prefixes() {
+    fn test_pipeline_builder_with_prefixes() -> Result<(), Box<dyn std::error::Error>> {
         let mut prefixes = BTreeMap::new();
         prefixes.insert("ex".to_string(), "http://example.org/".to_string());
 
@@ -892,7 +892,7 @@ Hello {{ name }}"#;
 
     // Test 8: Register prefixes
     #[test]
-    fn test_pipeline_register_prefixes() {
+    fn test_pipeline_register_prefixes() -> Result<(), Box<dyn std::error::Error>> {
         let mut pipeline = Pipeline::new()?;
         let mut prefixes = BTreeMap::new();
         prefixes.insert("ex".to_string(), "http://example.org/".to_string());

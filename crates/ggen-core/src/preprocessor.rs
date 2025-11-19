@@ -454,7 +454,7 @@ mod tests {
     }
 
     #[test]
-    fn test_freeze_stage_basic() {
+    fn test_freeze_stage_basic() -> Result<(), Box<dyn std::error::Error>> {
         let temp_dir = TempDir::new()?;
         let stage = FreezeStage {
             slots_dir: temp_dir.path().to_path_buf(),
@@ -478,7 +478,7 @@ World
     }
 
     #[test]
-    fn test_include_stage_basic() {
+    fn test_include_stage_basic() -> Result<(), Box<dyn std::error::Error>> {
         let temp_dir = TempDir::new()?;
         let include_file = temp_dir.path().join("included.tmpl");
         fs::write(&include_file, "Included content")?;
@@ -501,7 +501,7 @@ World
     }
 
     #[test]
-    fn test_preprocessor_pipeline() {
+    fn test_preprocessor_pipeline() -> Result<(), Box<dyn std::error::Error>> {
         let temp_dir = TempDir::new()?;
         let include_file = temp_dir.path().join("included.tmpl");
         fs::write(&include_file, "Included")?;
