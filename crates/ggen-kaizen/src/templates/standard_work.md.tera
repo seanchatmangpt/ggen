@@ -1,0 +1,138 @@
+# {{ document.title }}
+
+**Version:** {{ document.version }}
+**Generated:** {{ document.generated_at }}
+
+---
+
+## Purpose
+
+{{ document.purpose }}
+
+## Scope
+
+{{ document.scope }}
+
+---
+
+## Best Practices
+
+{% for practice in document.best_practices %}
+### {{ practice.title }}
+
+**Category:** {{ practice.category }}
+**Confidence:** {{ practice.confidence | round(precision=2) }}
+**Success Rate:** {{ practice.success_rate | round(precision=2) }}
+**Evidence Count:** {{ practice.evidence_count }}
+
+{{ practice.description }}
+
+#### Steps
+
+{% for step in practice.steps %}
+{{ step.step_number }}. **{{ step.action }}**
+   - *Rationale:* {{ step.rationale }}
+   - *Expected Outcome:* {{ step.expected_outcome }}
+   {% if step.common_pitfalls %}
+   - *Common Pitfalls:*
+     {% for pitfall in step.common_pitfalls %}
+     - {{ pitfall }}
+     {% endfor %}
+   {% endif %}
+
+{% endfor %}
+
+{% if practice.examples %}
+#### Examples
+
+{% for example in practice.examples %}
+**{{ example.title }}**
+
+{{ example.description }}
+
+*Context:* {{ example.context }}
+
+{% if example.before %}
+Before:
+```
+{{ example.before }}
+```
+{% endif %}
+
+After:
+```
+{{ example.after }}
+```
+
+{% endfor %}
+{% endif %}
+
+---
+
+{% endfor %}
+
+## Standard Procedures
+
+{% for procedure in document.procedures %}
+### {{ procedure.name }}
+
+{{ procedure.description }}
+
+**When to use:** {{ procedure.when_to_use }}
+
+#### Prerequisites
+{% for prereq in procedure.prerequisites %}
+- {{ prereq }}
+{% endfor %}
+
+#### Steps
+{% for step in procedure.steps %}
+{{ loop.index }}. {{ step }}
+{% endfor %}
+
+#### Quality Checks
+{% for check in procedure.quality_checks %}
+- **{{ check.name }}**: {{ check.description }}
+  - *Acceptance Criteria:* {{ check.acceptance_criteria }}
+{% endfor %}
+
+---
+
+{% endfor %}
+
+## Decision Trees
+
+{% for tree in document.decision_trees %}
+### {{ tree.title }}
+
+**Root Question:** {{ tree.root_question }}
+
+{% for node in tree.nodes %}
+#### {{ node.question }}
+
+{% for option in node.options %}
+- **{{ option.label }}**
+  {% if option.next_node %}
+  → Continue to next question
+  {% endif %}
+  {% if option.recommendation %}
+  → *Recommendation:* {{ option.recommendation }}
+  {% endif %}
+{% endfor %}
+
+{% endfor %}
+
+---
+
+{% endfor %}
+
+## Glossary
+
+{% for term, definition in document.glossary %}
+**{{ term }}**: {{ definition }}
+
+{% endfor %}
+
+---
+
+*This document was automatically generated from identified best practices and usage patterns.*

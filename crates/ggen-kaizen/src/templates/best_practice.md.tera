@@ -1,0 +1,62 @@
+# Best Practice: {{ practice.title }}
+
+**Category:** {{ practice.category }}
+**Confidence:** {{ practice.confidence | round(precision=2) }}
+**Success Rate:** {{ practice.success_rate | round(precision=2) }}
+**Evidence:** Based on {{ practice.evidence_count }} observations
+**Identified:** {{ practice.identified_at }}
+
+---
+
+## Description
+
+{{ practice.description }}
+
+## Implementation Steps
+
+{% for step in practice.steps %}
+### Step {{ step.step_number }}: {{ step.action }}
+
+**Rationale:** {{ step.rationale }}
+
+**Expected Outcome:** {{ step.expected_outcome }}
+
+{% if step.common_pitfalls %}
+**Common Pitfalls to Avoid:**
+{% for pitfall in step.common_pitfalls %}
+- {{ pitfall }}
+{% endfor %}
+{% endif %}
+
+{% endfor %}
+
+{% if practice.examples %}
+## Examples
+
+{% for example in practice.examples %}
+### {{ example.title }}
+
+{{ example.description }}
+
+**Context:** {{ example.context }}
+
+{% if example.before %}
+#### Before
+
+```
+{{ example.before }}
+```
+{% endif %}
+
+#### After
+
+```
+{{ example.after }}
+```
+
+{% endfor %}
+{% endif %}
+
+---
+
+*This best practice was automatically identified through continuous improvement monitoring.*
