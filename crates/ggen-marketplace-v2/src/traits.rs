@@ -161,6 +161,7 @@ pub trait Transformer<T, U>: Send + Sync {
     fn transform(&self, item: T) -> Result<U>;
 
     /// Transform multiple items
+    #[allow(async_fn_in_trait)]
     async fn transform_batch(&self, items: Vec<T>) -> Result<Vec<U>> {
         let mut results = Vec::with_capacity(items.len());
         for item in items {

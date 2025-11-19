@@ -153,7 +153,7 @@ fn generate(
         let schema_content = std::fs::read_to_string(&schema_path)
             .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to read schema: {}", e)))?;
 
-        let schema: ggen_core::OntologySchema = serde_json::from_str(&schema_content)
+        let schema: ggen_core::ontology::OntologySchema = serde_json::from_str(&schema_content)
             .map_err(|e| ggen_utils::error::Error::new(&format!("Invalid schema JSON: {}", e)))?;
 
         // Create output directory
@@ -251,7 +251,7 @@ fn validate(schema_file: String, strict: bool) -> VerbResult<ValidateOutput> {
         let schema_content = std::fs::read_to_string(&schema_path)
             .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to read schema: {}", e)))?;
 
-        let schema: ggen_core::OntologySchema = serde_json::from_str(&schema_content)
+        let schema: ggen_core::ontology::OntologySchema = serde_json::from_str(&schema_content)
             .map_err(|e| ggen_utils::error::Error::new(&format!("Invalid schema JSON: {}", e)))?;
 
         let mut warnings = Vec::new();
@@ -274,9 +274,9 @@ fn validate(schema_file: String, strict: bool) -> VerbResult<ValidateOutput> {
         // Check for circular references in strict mode
         if strict {
             for prop in &schema.properties {
-                if let ggen_core::PropertyRange::Reference(ref_class) = &prop.range {
+                if let ggen_core::ontology::PropertyRange::Reference(ref_class) = &prop.range {
                     // Check if reference exists
-                    if !schema.classes.iter().any(|c| c.uri == *ref_class) {
+                    if !schema.classes.iter().any(|c| &c.uri == ref_class) {
                         errors.push(format!(
                             "Property '{}' references undefined class '{}'",
                             prop.name, ref_class

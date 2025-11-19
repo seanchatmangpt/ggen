@@ -183,12 +183,13 @@ impl GitInitializer {
     }
 
     pub fn initialize(&self, path: &Path) -> Result<()> {
-        use std::process::Command;
+        // SECURITY FIX (Week 4): Use SafeCommand instead of raw std::process::Command
+        use crate::security::command::SafeCommand;
 
-        let output = Command::new("git")
-            .arg("init")
-            .current_dir(path)
-            .output()
+        let output = SafeCommand::new("git")?
+            .arg("init")?
+            .current_dir(path)?
+            .execute()
             .map_err(|e| Error::with_source("Failed to run git init", Box::new(e)))?;
 
         if !output.status.success() {
@@ -226,14 +227,15 @@ impl DependencyInstaller {
     }
 
     fn install_cargo_deps(&self, path: &Path) -> Result<()> {
-        use std::process::Command;
+        // SECURITY FIX (Week 4): Use SafeCommand instead of raw std::process::Command
+        use crate::security::command::SafeCommand;
 
         ggen_utils::alert_info!("Installing Cargo dependencies...");
 
-        let output = Command::new("cargo")
-            .arg("fetch")
-            .current_dir(path)
-            .output()
+        let output = SafeCommand::new("cargo")?
+            .arg("fetch")?
+            .current_dir(path)?
+            .execute()
             .map_err(|e| Error::with_source("Failed to run cargo fetch", Box::new(e)))?;
 
         if !output.status.success() {
@@ -249,14 +251,15 @@ impl DependencyInstaller {
     }
 
     fn install_npm_deps(&self, path: &Path) -> Result<()> {
-        use std::process::Command;
+        // SECURITY FIX (Week 4): Use SafeCommand instead of raw std::process::Command
+        use crate::security::command::SafeCommand;
 
         ggen_utils::alert_info!("Installing npm dependencies...");
 
-        let output = Command::new("npm")
-            .arg("install")
-            .current_dir(path)
-            .output()
+        let output = SafeCommand::new("npm")?
+            .arg("install")?
+            .current_dir(path)?
+            .execute()
             .map_err(|e| Error::with_source("Failed to run npm install", Box::new(e)))?;
 
         if !output.status.success() {

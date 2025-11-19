@@ -99,23 +99,54 @@ impl<'a> GraphExport<'a> {
 
     /// Write the graph to a writer in the specified format.
     ///
-    /// Uses Oxigraph's higher-level `Store::dump_to_writer` API.
-    /// This is the official, recommended way to serialize RDF data in oxigraph 0.5.
-    /// The API handles all serialization internally - no manual iteration needed.
+    /// Uses Oxigraph's Store API appropriately:
+    /// - For graph formats (Turtle, N-Triples, RDF/XML): manually serializes default graph only
+    /// - For dataset formats (TriG, N-Quads): uses `dump_to_writer` for all graphs
     ///
     /// # Arguments
     ///
     /// * `writer` - Writer to write to
     /// * `format` - RDF format to use (Turtle, N-Triples, RDF/XML, TriG, N-Quads)
     pub fn write_to_writer<W: Write>(&self, mut writer: W, format: RdfFormat) -> Result<()> {
-        // Use Oxigraph's higher-level Store::dump_to_writer API
-        // This is the official, recommended way to serialize RDF data in oxigraph 0.5
-        // Signature: dump_to_writer(serializer: impl Into<RdfSerializer>, writer: &mut W)
-        // This API handles all serialization internally - no manual iteration needed
-        let serializer = RdfSerializer::from_format(format);
-        // dump_to_writer returns Result<usize, SerializerError>
-        // We have From<SerializerError> implementation, so we can use ? directly
-        self.graph.inner().dump_to_writer(serializer, &mut writer)?;
+        use oxigraph::model::GraphName;
+
+        // Graph formats (Turtle, N-Triples, RDF/XML) only support single graphs
+        // Dataset formats (TriG, N-Quads) support multiple named graphs
+        match format {
+            RdfFormat::Turtle | RdfFormat::NTriples | RdfFormat::RdfXml => {
+                // For single-graph formats, manually serialize only the default graph
+                // This prevents "dataset format expected" errors
+                let mut serializer = RdfSerializer::from_format(format).for_writer(&mut writer);
+
+                // Query only the default graph quads
+                let default_graph_quads = self.graph.quads_for_pattern(
+                    None,                           // subject: any
+                    None,                           // predicate: any
+                    None,                           // object: any
+                    Some(&GraphName::DefaultGraph), // graph_name: default graph only
+                )?;
+
+                // Serialize each quad from the default graph
+                for quad in default_graph_quads {
+                    serializer.serialize_quad(&quad)
+                        .map_err(|e| Error::new(&format!("Failed to serialize quad: {}", e)))?;
+                }
+
+                // Finish serialization
+                serializer.finish()
+                    .map_err(|e| Error::new(&format!("Failed to finish RDF serialization: {}", e)))?;
+            }
+            RdfFormat::TriG | RdfFormat::NQuads => {
+                // For dataset formats, dump all graphs
+                let serializer = RdfSerializer::from_format(format);
+                self.graph.inner().dump_to_writer(serializer, &mut writer)?;
+            }
+            _ => {
+                // For any other formats, try the dataset approach
+                let serializer = RdfSerializer::from_format(format);
+                self.graph.inner().dump_to_writer(serializer, &mut writer)?;
+            }
+        }
         Ok(())
     }
 
@@ -210,8 +241,10 @@ mod tests {
         // Assert
         assert!(file_path.exists());
         let content = fs::read_to_string(&file_path).unwrap();
-        assert!(content.contains("ex:alice"));
-        assert!(content.contains("ex:Person"));
+        // Turtle serialization may use full IRIs or prefixes depending on serializer config
+        // Check for either the prefix form or the full IRI
+        assert!(content.contains("ex:alice") || content.contains("http://example.org/alice"));
+        assert!(content.contains("ex:Person") || content.contains("http://example.org/Person"));
     }
 
     #[test]

@@ -112,6 +112,18 @@ harness = false
 name = "performance_benchmark"
 harness = false
 
+[[bench]]
+name = "medium_optimizations_benchmark"
+harness = false
+
+[[bench]]
+name = "quick_wins_benchmark"
+harness = false
+
+[[bench]]
+name = "week4_optimization_benchmark"
+harness = false
+
 [[test]]
 name = "marketplace_tests_main"
 path = "tests/marketplace_tests_main.rs"

@@ -150,8 +150,27 @@ struct PackInfo {
 /// Get pack information
 /// Phase 1: Returns basic pack info. In Phase 2-3, this will query the marketplace.
 fn get_pack_info(pack_id: &str) -> Result<PackInfo> {
-    // Phase 1: Return placeholder info
+    // Phase 1: Check if pack exists in our known set
     // In Phase 2-3, this will integrate with marketplace to get actual pack metadata
+
+    // List of known packs (placeholder - will be marketplace API in Phase 2-3)
+    const KNOWN_PACKS: &[&str] = &[
+        "rust-cli",
+        "nextjs-web",
+        "python-api",
+        "rust-backend",
+        "full-stack",
+        "web-app",
+        "backend-api",
+    ];
+
+    if !KNOWN_PACKS.contains(&pack_id) {
+        return Err(Error::new(&format!(
+            "Pack '{}' not found in marketplace",
+            pack_id
+        )));
+    }
+
     Ok(PackInfo {
         packages_count: estimate_package_count(pack_id),
         repository: Some(format!("marketplace://packs/{}", pack_id)),

@@ -338,9 +338,9 @@ mod tests {
             .unwrap();
         let update = GraphUpdate::new(&graph);
 
-        // Act
+        // Act - Use full IRIs since we're not declaring prefixes
         update
-            .update("?s ex:age ?o", "?s ex:age \"31\"", "?s ex:age ?o")
+            .update("?s <http://example.org/age> ?o", "?s <http://example.org/age> \"31\"", "?s <http://example.org/age> ?o")
             .unwrap();
 
         // Assert

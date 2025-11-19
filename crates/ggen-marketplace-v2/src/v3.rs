@@ -109,6 +109,7 @@ impl V3OptimizedRegistry {
             }
         "#;
 
+        #[allow(deprecated)]
         match self.primary_store.query(query) {
             Ok(oxigraph::sparql::QueryResults::Solutions(solutions)) => {
                 let mut index = self.search_index.write();

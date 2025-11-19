@@ -47,6 +47,7 @@ This agent specializes in managing the complete lifecycle of pull requests, from
 ### 3. Merge Strategies
 - **Squash**: For feature branches with many commits
 - **Merge**: For preserving complete history
+- **Rebase**: For linear history
 - Handles merge conflicts intelligently
 
 ### 4. CI/CD Integration
@@ -170,7 +171,7 @@ Why these changes are needed
 4. **Branch Protection**: Handle required reviews and status checks
 
 ### Recovery Strategies
-- Merge conflict resolution assistance
+- Automatic rebase for outdated branches
 - Conflict resolution assistance
 - Alternative merge strategies
 - Rollback procedures

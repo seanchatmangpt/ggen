@@ -17,18 +17,22 @@
 //! cargo test --test package_scoring_tests
 //! ```
 
-use chicago_tdd_tools::test;
+// Note: Replacing custom test!() macro with standard #[test] attribute
+// use chicago_tdd_tools::test;
 use ggen_marketplace::prelude::*;
 
 // Import common test utilities
 #[path = "../common/mod.rs"]
 mod common;
 
+type TestResult = Result<(), Box<dyn std::error::Error>>;
+
 // ============================================================================
 // Basic Scoring Tests
 // ============================================================================
 
-test!(test_package_base_score_calculation, {
+#[test]
+fn test_package_base_score_calculation() -> TestResult {
     // Arrange
     let input = EvaluationInput {
         package_id: "test-package".to_string(),
@@ -46,10 +50,11 @@ test!(test_package_base_score_calculation, {
         "Score should be in 0-100 range, got {}",
         total_score
     );
-    Ok::<(), Box<dyn std::error::Error>>(())
-});
+    Ok(())
+}
 
-test!(test_empty_package_low_score, {
+#[test]
+fn test_empty_package_low_score() -> TestResult {
     // Arrange - Minimal package with no features
     let input = EvaluationInput {
         package_id: "minimal-package".to_string(),
@@ -86,10 +91,11 @@ test!(test_empty_package_low_score, {
         "Minimal package should have low score, got {}",
         total_score
     );
-    Ok::<(), Box<dyn std::error::Error>>(())
-});
+    Ok(())
+}
 
-test!(test_well_documented_package_higher_score, {
+#[test]
+fn test_well_documented_package_higher_score() -> TestResult {
     // Arrange - Well-documented package
     let input = EvaluationInput {
         package_id: "documented-package".to_string(),
@@ -126,14 +132,15 @@ test!(test_well_documented_package_higher_score, {
         "Well-documented package should have good documentation score, got {}",
         doc_score
     );
-    Ok::<(), Box<dyn std::error::Error>>(())
-});
+    Ok(())
+}
 
 // ============================================================================
 // Documentation Scoring Tests
 // ============================================================================
 
-test!(test_documentation_score_with_readme, {
+#[test]
+fn test_documentation_score_with_readme() -> TestResult {
     // Arrange
     let input = EvaluationInput {
         package_id: "test-package".to_string(),
@@ -155,10 +162,11 @@ test!(test_documentation_score_with_readme, {
         "Package with README should have positive documentation score, got {}",
         doc_score
     );
-    Ok::<(), Box<dyn std::error::Error>>(())
-});
+    Ok(())
+}
 
-test!(test_documentation_score_comprehensive, {
+#[test]
+fn test_documentation_score_comprehensive() -> TestResult {
     // Arrange
     let input = EvaluationInput {
         package_id: "test-package".to_string(),
@@ -180,10 +188,11 @@ test!(test_documentation_score_comprehensive, {
         "Comprehensive documentation should score highly, got {}",
         doc_score
     );
-    Ok::<(), Box<dyn std::error::Error>>(())
-});
+    Ok(())
+}
 
-test!(test_documentation_score_no_docs, {
+#[test]
+fn test_documentation_score_no_docs() -> TestResult {
     // Arrange
     let input = EvaluationInput {
         package_id: "test-package".to_string(),
@@ -205,14 +214,15 @@ test!(test_documentation_score_no_docs, {
         "No documentation should score 0, got {}",
         doc_score
     );
-    Ok::<(), Box<dyn std::error::Error>>(())
-});
+    Ok(())
+}
 
 // ============================================================================
 // Maturity Level Tests
 // ============================================================================
 
-test!(test_maturity_level_experimental, {
+#[test]
+fn test_maturity_level_experimental() -> TestResult {
     // Arrange - Low score package (0-40 = Experimental)
     let input = EvaluationInput {
         package_id: "experimental-package".to_string(),
@@ -251,10 +261,11 @@ test!(test_maturity_level_experimental, {
         level,
         assessment.total_score()
     );
-    Ok::<(), Box<dyn std::error::Error>>(())
-});
+    Ok(())
+}
 
-test!(test_maturity_level_stable, {
+#[test]
+fn test_maturity_level_stable() -> TestResult {
     // Arrange - Moderate score package (41-60 = Beta, 61-80 = Stable)
     let input = EvaluationInput {
         package_id: "stable-package".to_string(),
@@ -292,10 +303,11 @@ test!(test_maturity_level_stable, {
         level,
         assessment.total_score()
     );
-    Ok::<(), Box<dyn std::error::Error>>(())
-});
+    Ok(())
+}
 
-test!(test_maturity_level_production, {
+#[test]
+fn test_maturity_level_production() -> TestResult {
     // Arrange - High score package (81-100 = Enterprise/Production)
     let input = EvaluationInput {
         package_id: "production-package".to_string(),
@@ -333,14 +345,15 @@ test!(test_maturity_level_production, {
         level,
         assessment.total_score()
     );
-    Ok::<(), Box<dyn std::error::Error>>(())
-});
+    Ok(())
+}
 
 // ============================================================================
 // Security Scoring Tests
 // ============================================================================
 
-test!(test_security_score_with_audit, {
+#[test]
+fn test_security_score_with_audit() -> TestResult {
     // Arrange - Package with security audit
     let input = EvaluationInput {
         package_id: "secure-package".to_string(),
@@ -361,10 +374,11 @@ test!(test_security_score_with_audit, {
         "Package with security audit should have positive security score, got {}",
         security_score
     );
-    Ok::<(), Box<dyn std::error::Error>>(())
-});
+    Ok(())
+}
 
-test!(test_security_score_with_vulnerabilities, {
+#[test]
+fn test_security_score_with_vulnerabilities() -> TestResult {
     // Arrange - Package with vulnerabilities
     let input = EvaluationInput {
         package_id: "vulnerable-package".to_string(),
@@ -385,14 +399,15 @@ test!(test_security_score_with_vulnerabilities, {
         "Package with vulnerabilities should have low security score, got {}",
         security_score
     );
-    Ok::<(), Box<dyn std::error::Error>>(())
-});
+    Ok(())
+}
 
 // ============================================================================
 // Adoption Scoring Tests
 // ============================================================================
 
-test!(test_adoption_score_with_downloads, {
+#[test]
+fn test_adoption_score_with_downloads() -> TestResult {
     // Arrange - Package with high adoption
     let input = EvaluationInput {
         package_id: "popular-package".to_string(),
@@ -413,14 +428,15 @@ test!(test_adoption_score_with_downloads, {
         "Package with high adoption should have positive adoption score, got {}",
         adoption_score
     );
-    Ok::<(), Box<dyn std::error::Error>>(())
-});
+    Ok(())
+}
 
 // ============================================================================
 // Score Consistency Tests
 // ============================================================================
 
-test!(test_score_consistency_across_evaluations, {
+#[test]
+fn test_score_consistency_across_evaluations() -> TestResult {
     // Arrange
     let input = EvaluationInput {
         package_id: "test-package".to_string(),
@@ -454,10 +470,11 @@ test!(test_score_consistency_across_evaluations, {
         assessment2.level(),
         "Maturity level should be consistent"
     );
-    Ok::<(), Box<dyn std::error::Error>>(())
-});
+    Ok(())
+}
 
-test!(test_all_scores_within_bounds, {
+#[test]
+fn test_all_scores_within_bounds() -> TestResult {
     // Arrange
     let input = EvaluationInput {
         package_id: "test-package".to_string(),
@@ -525,14 +542,15 @@ test!(test_all_scores_within_bounds, {
         "Total score should be <= 100, got {}",
         assessment.total_score()
     );
-    Ok::<(), Box<dyn std::error::Error>>(())
-});
+    Ok(())
+}
 
 // ============================================================================
 // Comparison and Recommendation Tests
 // ============================================================================
 
-test!(test_compare_package_assessments, {
+#[test]
+fn test_compare_package_assessments() -> TestResult {
     // Arrange - Two different packages
     let input1 = EvaluationInput {
         package_id: "package1".to_string(),
@@ -567,10 +585,11 @@ test!(test_compare_package_assessments, {
         assessment2.total_score() > assessment1.total_score(),
         "Better package should have higher score"
     );
-    Ok::<(), Box<dyn std::error::Error>>(())
-});
+    Ok(())
+}
 
-test!(test_filter_by_maturity_level, {
+#[test]
+fn test_filter_by_maturity_level() -> TestResult {
     // Arrange - Two packages with different maturity levels
     let inputs = vec![
         EvaluationInput {
@@ -610,14 +629,15 @@ test!(test_filter_by_maturity_level, {
 
     // Assert
     assert_eq!(stable_packages.len(), 1, "Should find one stable package");
-    Ok::<(), Box<dyn std::error::Error>>(())
-});
+    Ok(())
+}
 
 // ============================================================================
 // Performance Tests
 // ============================================================================
 
-test!(test_scoring_performance, {
+#[test]
+fn test_scoring_performance() -> TestResult {
     // Arrange
     let input = EvaluationInput {
         package_id: "test-package".to_string(),
@@ -642,10 +662,11 @@ test!(test_scoring_performance, {
         "Package scoring should be fast (< 50ms), took {:?}",
         duration
     );
-    Ok::<(), Box<dyn std::error::Error>>(())
-});
+    Ok(())
+}
 
-test!(test_batch_scoring_performance, {
+#[test]
+fn test_batch_scoring_performance() -> TestResult {
     // Arrange
     let inputs: Vec<_> = (0..100)
         .map(|i| EvaluationInput {
@@ -672,5 +693,5 @@ test!(test_batch_scoring_performance, {
         "Batch scoring should be fast (< 1s for 100 packages), took {:?}",
         duration
     );
-    Ok::<(), Box<dyn std::error::Error>>(())
-});
+    Ok(())
+}

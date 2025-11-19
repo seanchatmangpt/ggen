@@ -771,9 +771,9 @@ mod tests {
             )
             .unwrap();
 
-        // Act
+        // Act - Use full IRI since we're not declaring prefixes in the query
         let result = graph
-            .query_cached("SELECT ?name WHERE { ?s ex:name ?name }")
+            .query_cached("SELECT ?name WHERE { ?s <http://example.org/name> ?name }")
             .unwrap();
 
         // Assert

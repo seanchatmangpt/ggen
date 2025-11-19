@@ -152,7 +152,7 @@ impl RdfControlPlane {
     }
 
     /// Load Turtle configuration files
-    pub fn load_config(&self, config_dir: impl AsRef<Path>) -> Result<()> {
+    pub fn load_config(&self, _config_dir: impl AsRef<Path>) -> Result<()> {
         // Load marketplace config (this will read from the config_dir set in TurtleConfigLoader)
         let _config = self.config_loader.load_marketplace_config().map_err(|e| {
             Error::ConfigurationError {
@@ -259,7 +259,7 @@ impl RdfControlPlane {
     }
 
     /// Publish a draft package
-    pub fn publish_package(&self, package_id: PackageId, checksum: String) -> Result<Package> {
+    pub fn publish_package(&self, package_id: PackageId, _checksum: String) -> Result<Package> {
         // Check current state
         let current_state = self.get_package_state(&package_id)?;
         if current_state != "Draft" {
@@ -321,7 +321,7 @@ impl RdfControlPlane {
     }
 
     /// Get a published package
-    fn get_published_package(&self, package_id: &PackageId) -> Result<Package> {
+    fn get_published_package(&self, _package_id: &PackageId) -> Result<Package> {
         // This is a simplified version - in production would fully reconstruct from RDF
         Err(Error::NotImplemented {
             feature: "get_published_package".to_string(),

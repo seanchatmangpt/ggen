@@ -1002,6 +1002,278 @@ mod tests {
             .update_requirement("auth-basic", ReadinessStatus::Missing)
             .is_err());
     }
+
+    // === CRITICAL 80/20 TESTS: Production Readiness ===
+
+    #[test]
+    fn test_readiness_category_ordering() {
+        assert!(ReadinessCategory::Critical < ReadinessCategory::Important);
+        assert!(ReadinessCategory::Important < ReadinessCategory::NiceToHave);
+    }
+
+    #[test]
+    fn test_readiness_status_valid_transitions() {
+        // Missing -> Placeholder
+        assert!(ReadinessTracker::validate_transition_static(
+            &ReadinessStatus::Missing,
+            &ReadinessStatus::Placeholder
+        ).is_ok());
+
+        // Missing -> Complete
+        assert!(ReadinessTracker::validate_transition_static(
+            &ReadinessStatus::Missing,
+            &ReadinessStatus::Complete
+        ).is_ok());
+
+        // Placeholder -> Complete
+        assert!(ReadinessTracker::validate_transition_static(
+            &ReadinessStatus::Placeholder,
+            &ReadinessStatus::Complete
+        ).is_ok());
+
+        // Placeholder -> NeedsReview
+        assert!(ReadinessTracker::validate_transition_static(
+            &ReadinessStatus::Placeholder,
+            &ReadinessStatus::NeedsReview
+        ).is_ok());
+
+        // Complete -> NeedsReview
+        assert!(ReadinessTracker::validate_transition_static(
+            &ReadinessStatus::Complete,
+            &ReadinessStatus::NeedsReview
+        ).is_ok());
+    }
+
+    #[test]
+    fn test_readiness_status_invalid_transitions() {
+        // Complete -> Missing (invalid)
+        assert!(ReadinessTracker::validate_transition_static(
+            &ReadinessStatus::Complete,
+            &ReadinessStatus::Missing
+        ).is_err());
+
+        // Complete -> Placeholder (invalid)
+        assert!(ReadinessTracker::validate_transition_static(
+            &ReadinessStatus::Complete,
+            &ReadinessStatus::Placeholder
+        ).is_err());
+    }
+
+    #[test]
+    fn test_readiness_report_scoring() {
+        let mut tracker = ReadinessTracker::new("/tmp/test");
+        tracker.load().unwrap();
+
+        let report = tracker.generate_report();
+
+        // Score should be between 0-100
+        assert!(report.overall_score >= 0.0 && report.overall_score <= 100.0);
+
+        // Should have all three categories
+        assert!(report.by_category.contains_key(&ReadinessCategory::Critical));
+        assert!(report.by_category.contains_key(&ReadinessCategory::Important));
+        assert!(report.by_category.contains_key(&ReadinessCategory::NiceToHave));
+    }
+
+    #[test]
+    fn test_category_report_calculation() {
+        let mut tracker = ReadinessTracker::new("/tmp/test");
+        tracker.load().unwrap();
+
+        // Mark some as complete
+        tracker.update_requirement("auth-basic", ReadinessStatus::Complete).ok();
+        tracker.update_requirement("error-handling", ReadinessStatus::Complete).ok();
+
+        let report = tracker.generate_report();
+        let critical_report = report.by_category.get(&ReadinessCategory::Critical).unwrap();
+
+        assert!(critical_report.completed > 0);
+        assert!(critical_report.score > 0.0);
+    }
+
+    #[test]
+    fn test_get_by_status() {
+        let mut tracker = ReadinessTracker::new("/tmp/test");
+        tracker.load().unwrap();
+
+        let missing = tracker.get_by_status(&ReadinessStatus::Missing);
+        assert!(!missing.is_empty());
+
+        tracker.update_requirement("auth-basic", ReadinessStatus::Complete).ok();
+        let complete = tracker.get_by_status(&ReadinessStatus::Complete);
+        assert!(!complete.is_empty());
+    }
+
+    #[test]
+    fn test_get_by_category() {
+        let mut tracker = ReadinessTracker::new("/tmp/test");
+        tracker.load().unwrap();
+
+        let critical = tracker.get_by_category(&ReadinessCategory::Critical);
+        let important = tracker.get_by_category(&ReadinessCategory::Important);
+        let nice = tracker.get_by_category(&ReadinessCategory::NiceToHave);
+
+        assert!(!critical.is_empty());
+        assert!(!important.is_empty());
+        assert!(!nice.is_empty());
+    }
+
+    #[test]
+    fn test_requirement_not_found() {
+        let mut tracker = ReadinessTracker::new("/tmp/test");
+        tracker.load().unwrap();
+
+        let result = tracker.update_requirement("nonexistent", ReadinessStatus::Complete);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_add_requirement_success() {
+        let mut tracker = ReadinessTracker::new("/tmp/test");
+        tracker.load().unwrap();
+
+        let req = ReadinessRequirement {
+            id: "custom-req".to_string(),
+            name: "Custom Requirement".to_string(),
+            description: "Test requirement".to_string(),
+            category: ReadinessCategory::Critical,
+            status: ReadinessStatus::Missing,
+            components: vec![],
+            dependencies: vec![],
+            effort_hours: Some(4),
+            priority: 8,
+            last_assessed: Utc::now(),
+            notes: None,
+        };
+
+        assert!(tracker.add_requirement(req).is_ok());
+    }
+
+    #[test]
+    fn test_dependency_validation() {
+        let mut tracker = ReadinessTracker::new("/tmp/test");
+        tracker.load().unwrap();
+
+        // Add requirement with non-circular dependency (auth-basic already exists)
+        let req = ReadinessRequirement {
+            id: "req1".to_string(),
+            name: "Req 1".to_string(),
+            description: "Test".to_string(),
+            category: ReadinessCategory::Critical,
+            status: ReadinessStatus::Missing,
+            components: vec![],
+            dependencies: vec!["auth-basic".to_string()],
+            effort_hours: Some(4),
+            priority: 8,
+            last_assessed: Utc::now(),
+            notes: None,
+        };
+
+        // Should succeed - no circular dependency
+        assert!(tracker.add_requirement(req).is_ok());
+    }
+
+    #[test]
+    fn test_placeholder_creation() {
+        let placeholder = Placeholder::new(
+            "test-placeholder".to_string(),
+            "Test description".to_string(),
+            ReadinessCategory::Critical,
+            vec!["file.rs".to_string()],
+            "Implement this feature".to_string(),
+            9,
+        );
+
+        assert_eq!(placeholder.id, "test-placeholder");
+        assert_eq!(placeholder.priority, 9);
+    }
+
+    #[test]
+    fn test_placeholder_to_comment() {
+        let placeholder = Placeholder::new(
+            "test".to_string(),
+            "Test placeholder".to_string(),
+            ReadinessCategory::Critical,
+            vec![],
+            "Implement this".to_string(),
+            8,
+        );
+
+        let comment = placeholder.to_comment();
+        assert!(comment.contains("PLACEHOLDER"));
+        assert!(comment.contains("Test placeholder"));
+        assert!(comment.contains("Priority: 8"));
+    }
+
+    #[test]
+    fn test_placeholder_registry() {
+        let mut registry = PlaceholderRegistry::new();
+
+        let placeholder = Placeholder::new(
+            "test".to_string(),
+            "Test".to_string(),
+            ReadinessCategory::Critical,
+            vec![],
+            "Implement".to_string(),
+            8,
+        );
+
+        registry.register("test".to_string(), placeholder);
+
+        assert!(registry.get("test").is_some());
+        assert_eq!(registry.list().len(), 1);
+    }
+
+    #[test]
+    fn test_placeholder_registry_by_category() {
+        let mut registry = PlaceholderRegistry::new();
+
+        let p1 = Placeholder::new(
+            "critical".to_string(),
+            "Critical".to_string(),
+            ReadinessCategory::Critical,
+            vec![],
+            "Impl".to_string(),
+            9,
+        );
+
+        let p2 = Placeholder::new(
+            "important".to_string(),
+            "Important".to_string(),
+            ReadinessCategory::Important,
+            vec![],
+            "Impl".to_string(),
+            7,
+        );
+
+        registry.register("critical".to_string(), p1);
+        registry.register("important".to_string(), p2);
+
+        let critical = registry.get_by_category(&ReadinessCategory::Critical);
+        assert_eq!(critical.len(), 1);
+
+        let important = registry.get_by_category(&ReadinessCategory::Important);
+        assert_eq!(important.len(), 1);
+    }
+
+    #[test]
+    fn test_placeholder_processor() {
+        let mut processor = PlaceholderProcessor::new();
+
+        let placeholder = Placeholder::new(
+            "test".to_string(),
+            "Test".to_string(),
+            ReadinessCategory::Critical,
+            vec![],
+            "Impl".to_string(),
+            8,
+        );
+
+        processor.registry_mut().register("test".to_string(), placeholder);
+
+        assert!(processor.process("test").is_ok());
+        assert!(processor.process("nonexistent").is_err());
+    }
 }
 
 /// Placeholder registry for managing placeholder implementations

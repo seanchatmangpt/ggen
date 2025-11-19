@@ -68,6 +68,7 @@ pub enum ShardStatus {
 
 /// Λ-Ordering: Total order across all families
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(dead_code)]
 pub struct LambdaOrder {
     pub shards: Vec<String>, // Ordered list of shard IDs
 }
@@ -83,6 +84,7 @@ pub struct PiProfile {
 
 /// Q-Invariants: Constraints that must hold
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(dead_code)]
 pub struct Invariant {
     pub name: String,
     pub description: String,
@@ -90,6 +92,7 @@ pub struct Invariant {
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[allow(dead_code)]
 pub enum ConstraintType {
     AllFamiliesCovered,
     NoCyclicDependencies,

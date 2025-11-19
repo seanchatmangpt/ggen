@@ -318,10 +318,16 @@ impl OntologyExtractor {
     fn extract_local_name(uri: &str) -> String {
         // Remove URI brackets if present
         let clean_uri = uri.trim_start_matches('<').trim_end_matches('>');
+
+        // Try splitting on '#' first
+        if let Some(local) = clean_uri.split('#').nth(1) {
+            return local.to_string();
+        }
+
+        // If no '#', try splitting on '/' and get the last segment
         clean_uri
-            .split('#')
-            .next_back()
-            .or_else(|| clean_uri.split('/').next_back())
+            .split('/')
+            .last()
             .unwrap_or("unknown")
             .to_string()
     }
@@ -329,25 +335,54 @@ impl OntologyExtractor {
     /// Infer property range from XSD type URI
     fn infer_property_range(range_uri: &str) -> PropertyRange {
         let uri_lower = range_uri.to_lowercase();
-        match range_uri {
-            _uri if uri_lower.contains("xsd:string") || range_uri.contains("String") => {
-                PropertyRange::String
-            }
-            _uri if uri_lower.contains("xsd:integer") || range_uri.contains("Integer") => {
-                PropertyRange::Integer
-            }
-            _uri if uri_lower.contains("xsd:float")
-                || uri_lower.contains("xsd:double")
-                || uri_lower.contains("xsd:decimal") =>
-            {
-                PropertyRange::Float
-            }
-            _uri if uri_lower.contains("xsd:boolean") => PropertyRange::Boolean,
-            _uri if uri_lower.contains("xsd:datetime") => PropertyRange::DateTime,
-            _uri if uri_lower.contains("xsd:date") => PropertyRange::Date,
-            _uri if uri_lower.contains("xsd:time") => PropertyRange::Time,
-            _ => PropertyRange::String,
+
+        // Check for full XSD URIs first (most specific)
+        if uri_lower.ends_with("#integer") || uri_lower.ends_with("/integer") {
+            return PropertyRange::Integer;
         }
+        if uri_lower.ends_with("#string") || uri_lower.ends_with("/string") {
+            return PropertyRange::String;
+        }
+        if uri_lower.ends_with("#boolean") || uri_lower.ends_with("/boolean") {
+            return PropertyRange::Boolean;
+        }
+        if uri_lower.ends_with("#float") || uri_lower.ends_with("/float")
+            || uri_lower.ends_with("#double") || uri_lower.ends_with("/double")
+            || uri_lower.ends_with("#decimal") || uri_lower.ends_with("/decimal") {
+            return PropertyRange::Float;
+        }
+        if uri_lower.ends_with("#datetime") || uri_lower.ends_with("/datetime") {
+            return PropertyRange::DateTime;
+        }
+        if uri_lower.ends_with("#date") || uri_lower.ends_with("/date") {
+            return PropertyRange::Date;
+        }
+        if uri_lower.ends_with("#time") || uri_lower.ends_with("/time") {
+            return PropertyRange::Time;
+        }
+
+        // Fallback to checking for patterns in the URI
+        if uri_lower.contains("integer") {
+            return PropertyRange::Integer;
+        }
+        if uri_lower.contains("boolean") {
+            return PropertyRange::Boolean;
+        }
+        if uri_lower.contains("float") || uri_lower.contains("double") || uri_lower.contains("decimal") {
+            return PropertyRange::Float;
+        }
+        if uri_lower.contains("datetime") {
+            return PropertyRange::DateTime;
+        }
+        if uri_lower.contains("date") {
+            return PropertyRange::Date;
+        }
+        if uri_lower.contains("time") {
+            return PropertyRange::Time;
+        }
+
+        // Default to String for unknown types
+        PropertyRange::String
     }
 
     /// Check if property is functional (has at most one value)

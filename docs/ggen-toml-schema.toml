@@ -1,0 +1,649 @@
+# ggen.toml - Complete Example Schema
+# This demonstrates all features of the ggen configuration system
+
+# ============================================================================
+# PROJECT SECTION - Core project metadata
+# ============================================================================
+
+[project]
+# Required fields
+name = "ggen-example"
+version = "1.0.0"
+
+# Optional metadata
+description = "Example ggen project demonstrating all features"
+authors = ["Developer <dev@example.org>"]
+license = "MIT"
+edition = "2021"
+
+# Smart detection (auto-infer from project structure)
+type = "auto"        # auto | library | binary | workspace
+language = "auto"    # auto | rust | typescript | python | multi
+
+# Graph identity - RDF URI for this project
+uri = "http://example.org/ggen-example"
+namespace = "ex"     # Short prefix for RDF queries
+
+# Template inheritance - inherit defaults from base template
+extends = "ggen:rust-cli"
+
+# ============================================================================
+# WORKSPACE SECTION - Mono-repo configuration
+# ============================================================================
+
+[workspace]
+# Workspace members (glob patterns supported)
+members = [
+    "crates/*",
+    "packages/*",
+    "examples/*"
+]
+
+# Exclude from workspace
+exclude = [
+    "target",
+    "node_modules",
+    "dist"
+]
+
+# Shared dependencies across workspace (DRY)
+[workspace.dependencies]
+serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "1.0", features = ["full"] }
+anyhow = "1.0"
+
+# Workspace-level graph queries
+[workspace.graph]
+query = """
+SELECT ?member ?dependency
+WHERE {
+    ?member a :WorkspaceMember .
+    ?member :dependsOn ?dependency .
+}
+"""
+
+# ============================================================================
+# GRAPH SECTION - Graph-based dependency resolution
+# ============================================================================
+
+[graph]
+# Resolution strategy
+strategy = "smart"           # smart | conservative | aggressive
+
+# Conflict resolution
+conflict_resolution = "newest"  # newest | oldest | semver-compatible
+
+# Graph-based queries for dependencies
+[graph.queries]
+# Find critical path dependencies
+critical_path = """
+SELECT ?dep ?version
+WHERE {
+    ?dep a :Dependency .
+    ?dep :version ?version .
+    ?dep :criticalPath true .
+}
+ORDER BY ?dep
+"""
+
+# Find duplicate dependencies
+duplicates = """
+SELECT ?dep (COUNT(?version) AS ?count)
+WHERE {
+    ?dep a :Dependency .
+    ?dep :version ?version .
+}
+GROUP BY ?dep
+HAVING (COUNT(?version) > 1)
+"""
+
+# Feature flags as graph nodes
+[graph.features]
+default = ["cli", "templates"]
+cli = ["clap", "anyhow"]
+templates = ["tera", "serde_yaml"]
+async = ["tokio", "async-trait"]
+full = ["cli", "templates", "async"]
+
+# ============================================================================
+# DEPENDENCIES - Graph-based dependency specification
+# ============================================================================
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+anyhow = "1.0"
+tokio = { version = "1.0", features = ["full"], optional = true }
+tera = { version = "1.20", optional = true }
+
+[dev-dependencies]
+proptest = "1.0"
+criterion = { version = "0.5", features = ["html_reports"] }
+assert_cmd = "2.0"
+
+[build-dependencies]
+cc = "1.0"
+
+# Conditional dependencies (graph guards)
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = ["processthreadsapi"] }
+
+# ============================================================================
+# ONTOLOGY SECTION - RDF/OWL integration
+# ============================================================================
+
+[ontology]
+# Base ontology files (Turtle format)
+files = [
+    "ontology/core.ttl",
+    "ontology/domain.ttl",
+    "ontology/cli.ttl"
+]
+
+# Inline RDF (Turtle format) - embedded in config
+inline = """
+@prefix ex: <http://example.org/> .
+@prefix ggen: <http://ggen.org/ontology/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ex:GgenExample a ggen:RustProject ;
+    rdfs:label "ggen Example Project" ;
+    ggen:hasFeature ex:AsyncRuntime ;
+    ggen:hasFeature ex:TemplateEngine ;
+    ggen:requiresVersion "1.75.0" ;
+    ggen:targetPlatform "unix", "windows" .
+
+ex:AsyncRuntime a ggen:Feature ;
+    rdfs:label "Async Runtime" ;
+    ggen:provides ex:TokioRuntime .
+
+ex:TemplateEngine a ggen:Feature ;
+    rdfs:label "Template Engine" ;
+    ggen:provides ex:TeraTemplates .
+"""
+
+# Ontology validation (SHACL shapes)
+shapes = [
+    "shapes/project-shape.ttl",
+    "shapes/dependency-shape.ttl"
+]
+
+# Constitution (invariant checks)
+[ontology.constitution]
+# Built-in checks
+checks = [
+    "NoRetrocausation",
+    "TypeSoundness",
+    "GuardSoundness"
+]
+
+# Custom invariants (SPARQL ASK queries)
+[ontology.constitution.custom]
+# Fail if circular dependencies detected
+no_circular_deps = """
+ASK {
+    ?a :dependsOn+ ?a .
+}
+"""
+
+# Fail if semantic versioning violated
+semantic_versioning = """
+ASK {
+    ?dep :version ?v .
+    FILTER(!regex(str(?v), "^[0-9]+\\.[0-9]+\\.[0-9]+"))
+}
+"""
+
+# Ensure all features are defined
+feature_soundness = """
+ASK {
+    ?project :requiresFeature ?feature .
+    FILTER NOT EXISTS { ?feature a :Feature }
+}
+"""
+
+# ============================================================================
+# TEMPLATES SECTION - Template composition and inheritance
+# ============================================================================
+
+[templates]
+# Template search paths (checked in order)
+paths = [
+    ".ggen/templates",           # Project-local templates
+    "~/.ggen/templates",         # User templates
+    "registry://ggen/templates"  # Remote registry
+]
+
+# Default template variables (available to all templates)
+[templates.vars]
+project_name = "{{ project.name }}"
+author = "{{ project.authors[0] }}"
+year = "2024"
+license = "{{ project.license }}"
+rust_edition = "{{ project.edition }}"
+
+# Template inheritance chain (base template → customization)
+[templates.extends]
+"src/lib.rs" = "ggen:rust-lib"
+"src/main.rs" = "ggen:rust-cli"
+"README.md" = "ggen:readme"
+"LICENSE" = "ggen:license-mit"
+"Cargo.toml" = "ggen:cargo-base"
+
+# Template composition (merge multiple templates)
+[templates.compose]
+"Cargo.toml" = [
+    "ggen:cargo-base",
+    "ggen:cargo-workspace",
+    ".ggen/cargo-custom.toml"
+]
+"src/lib.rs" = [
+    "ggen:rust-lib-header",
+    ".ggen/custom-exports.rs",
+    "ggen:rust-lib-footer"
+]
+
+# Template guards (conditional rendering)
+[templates.guards]
+"tests/integration.rs" = "graph.features.contains('testing')"
+"benches/perf.rs" = "graph.features.contains('benchmarks')"
+"src/async_runtime.rs" = "dependencies.contains_key('tokio')"
+"docs/api.md" = "project.type == 'library'"
+
+# SPARQL-driven template selection
+[templates.queries]
+# Find all applicable templates for current project
+find_templates = """
+SELECT ?template ?targetFile ?priority
+WHERE {
+    ?template a ggen:Template .
+    ?template ggen:targetFile ?targetFile .
+    ?template ggen:applicableWhen ?condition .
+    ?template ggen:priority ?priority .
+    FILTER(eval(?condition))
+}
+ORDER BY DESC(?priority)
+"""
+
+# Find template inheritance chain
+template_chain = """
+SELECT ?template ?extends
+WHERE {
+    ?template a ggen:Template .
+    ?template ggen:extends* ?extends .
+}
+"""
+
+# ============================================================================
+# GENERATORS SECTION - Code generation pipelines
+# ============================================================================
+
+[generators]
+# Generator registry URL
+registry = "https://registry.ggen.org"
+
+# Installed generators (downloaded from registry)
+[generators.installed]
+rust-cli = { version = "1.0.0", registry = "ggen" }
+typescript-api = { version = "2.1.0", registry = "ggen" }
+openapi-codegen = { version = "3.0.0", registry = "community" }
+
+# Generator pipelines (multi-step workflows)
+[[generators.pipeline]]
+name = "scaffold"
+description = "Generate complete project scaffold"
+steps = [
+    { action = "template", template = "Cargo.toml" },
+    { action = "template", template = "src/main.rs" },
+    { action = "template", template = "src/lib.rs" },
+    { action = "template", template = "README.md" },
+    { action = "template", template = "LICENSE" },
+    { action = "exec", command = "cargo fmt" },
+    { action = "exec", command = "cargo check" }
+]
+
+[[generators.pipeline]]
+name = "api"
+description = "Generate REST API from OpenAPI spec"
+inputs = ["openapi.yaml"]
+steps = [
+    { action = "parse", parser = "openapi" },
+    { action = "transform", query = "sparql/extract-endpoints.rq" },
+    { action = "template", template = "api/handler.rs.tera" },
+    { action = "template", template = "api/routes.rs.tera" },
+    { action = "template", template = "api/models.rs.tera" },
+    { action = "exec", command = "cargo fmt" }
+]
+
+[[generators.pipeline]]
+name = "database"
+description = "Generate database schema and migrations"
+inputs = ["schema.yaml"]
+steps = [
+    { action = "parse", parser = "yaml" },
+    { action = "transform", query = "sparql/schema-to-sql.rq" },
+    { action = "template", template = "migrations/001_initial.sql.tera" },
+    { action = "template", template = "src/models.rs.tera" },
+    { action = "exec", command = "sqlx database create" },
+    { action = "exec", command = "sqlx migrate run" }
+]
+
+# Generator hooks (lifecycle integration)
+[generators.hooks]
+before_generate = "ggen validate && cargo check"
+after_generate = "cargo fmt && cargo test"
+on_error = "echo 'Generation failed' >&2 && exit 1"
+
+# ============================================================================
+# LIFECYCLE SECTION - Build lifecycle and hooks
+# ============================================================================
+
+[lifecycle]
+# Lifecycle phases (cargo-make compatible)
+phases = [
+    "init",
+    "setup",
+    "format",
+    "lint",
+    "build",
+    "test",
+    "bench",
+    "audit",
+    "doc",
+    "deploy"
+]
+
+# Hooks for each phase
+[lifecycle.hooks]
+before_build = [
+    "cargo check",
+    "ggen validate"
+]
+after_build = [
+    "cargo test",
+    "ggen audit"
+]
+before_test = [
+    "ggen setup-test-db"
+]
+after_test = [
+    "ggen cleanup-test-db"
+]
+before_deploy = [
+    "cargo test --release",
+    "cargo audit"
+]
+
+# Task definitions (cargo-make style)
+[lifecycle.tasks.init]
+description = "Initialize project environment"
+command = "rustup component add rustfmt clippy"
+
+[lifecycle.tasks.setup]
+description = "Setup dependencies"
+dependencies = ["init"]
+command = "cargo fetch"
+
+[lifecycle.tasks.format]
+description = "Format code"
+command = "cargo fmt --all"
+
+[lifecycle.tasks.lint]
+description = "Lint code"
+dependencies = ["format"]
+command = "cargo clippy -- -D warnings"
+
+[lifecycle.tasks.build]
+description = "Build project"
+dependencies = ["lint"]
+command = "cargo build --all-features"
+
+[lifecycle.tasks.test]
+description = "Run tests"
+dependencies = ["build"]
+command = "cargo test --all-features"
+
+[lifecycle.tasks.bench]
+description = "Run benchmarks"
+command = "cargo bench"
+
+[lifecycle.tasks.audit]
+description = "Security audit"
+command = "cargo audit"
+
+[lifecycle.tasks.doc]
+description = "Generate documentation"
+command = "cargo doc --no-deps --all-features"
+
+[lifecycle.tasks.deploy]
+description = "Deploy artifacts"
+dependencies = ["test", "audit"]
+command = "cargo build --release"
+
+# Parallel execution groups
+[lifecycle.parallel]
+format_and_lint = ["format", "lint"]
+test_suite = ["test-unit", "test-integration", "test-e2e"]
+checks = ["format", "lint", "audit"]
+
+# ============================================================================
+# PLUGINS SECTION - Plugin system configuration
+# ============================================================================
+
+[plugins]
+# Plugin discovery paths
+paths = [
+    ".ggen/plugins",      # Project-local plugins
+    "~/.ggen/plugins"     # User plugins
+]
+
+# Installed plugins
+[plugins.installed]
+openapi = { version = "1.0.0", source = "ggen-plugins/openapi" }
+graphql = { version = "0.9.0", source = "git+https://github.com/ggen/graphql-plugin" }
+database = { version = "2.1.0", source = "registry://ggen/database-plugin" }
+
+# Plugin-specific configuration
+[plugins.config.openapi]
+spec_file = "openapi.yaml"
+output_dir = "src/api"
+generate_models = true
+generate_routes = true
+generate_tests = true
+
+[plugins.config.graphql]
+schema_file = "schema.graphql"
+output_dir = "src/graphql"
+async_resolvers = true
+
+[plugins.config.database]
+connection_string = "${DATABASE_URL}"
+migrations_dir = "migrations"
+auto_migrate = false
+
+# Plugin lifecycle hooks
+[plugins.hooks]
+openapi = ["before_build", "on_spec_change"]
+graphql = ["after_generate"]
+database = ["before_test", "after_test"]
+
+# Plugin permissions (security sandboxing)
+[plugins.permissions.openapi]
+filesystem = [
+    "read:openapi.yaml",
+    "write:src/api/**"
+]
+network = ["https://api.example.org"]
+exec = ["rustfmt"]
+
+[plugins.permissions.graphql]
+filesystem = [
+    "read:schema.graphql",
+    "write:src/graphql/**"
+]
+network = []
+exec = ["rustfmt"]
+
+[plugins.permissions.database]
+filesystem = [
+    "read:migrations/**",
+    "write:migrations/**"
+]
+network = ["postgresql://localhost:5432"]
+exec = ["sqlx"]
+
+# ============================================================================
+# PROFILES SECTION - Environment-specific overrides
+# ============================================================================
+
+[profiles]
+# Default profile (used if none specified)
+default = "dev"
+
+# Development profile
+[profiles.dev]
+optimization = "debug"
+debug_assertions = true
+overflow_checks = true
+
+[profiles.dev.dependencies]
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+better-panic = "0.3"
+
+[profiles.dev.templates.vars]
+log_level = "debug"
+telemetry_enabled = false
+
+[profiles.dev.lifecycle.hooks]
+before_test = ["ggen setup-dev-db"]
+after_test = ["ggen cleanup-dev-db"]
+
+# Production profile
+[profiles.production]
+optimization = "release"
+debug_assertions = false
+overflow_checks = false
+lto = "thin"
+strip = true
+
+[profiles.production.dependencies]
+tracing-subscriber = { version = "0.3", features = ["json"] }
+
+[profiles.production.templates.vars]
+log_level = "info"
+telemetry_enabled = true
+metrics_endpoint = "https://metrics.example.org"
+
+[profiles.production.ontology.constitution]
+enforce_strict = true
+fail_on_warning = true
+
+[profiles.production.lifecycle.hooks]
+before_deploy = [
+    "cargo test --release",
+    "cargo audit",
+    "ggen validate-strict"
+]
+
+# Testing profile
+[profiles.test]
+extends = "dev"
+code_coverage = true
+test_threads = 4
+
+[profiles.test.dependencies]
+proptest = "1.0"
+criterion = "0.5"
+assert_cmd = "2.0"
+
+[profiles.test.lifecycle.hooks]
+before_test = [
+    "ggen setup-test-db",
+    "ggen seed-test-data"
+]
+after_test = [
+    "ggen cleanup-test-db",
+    "ggen generate-coverage-report"
+]
+
+# CI profile (GitHub Actions, GitLab CI, etc.)
+[profiles.ci]
+extends = "test"
+optimization = "release"
+
+[profiles.ci.lifecycle.hooks]
+before_build = [
+    "cargo check --all-features",
+    "cargo fmt -- --check",
+    "cargo clippy -- -D warnings"
+]
+after_test = [
+    "cargo tarpaulin --out Xml",
+    "ggen upload-coverage"
+]
+
+# Benchmark profile
+[profiles.bench]
+optimization = "release"
+lto = "fat"
+codegen_units = 1
+
+[profiles.bench.lifecycle.hooks]
+before_bench = ["ggen setup-benchmark-env"]
+after_bench = ["ggen generate-benchmark-report"]
+
+# ============================================================================
+# ADVANCED FEATURES
+# ============================================================================
+
+# Custom metadata (project-specific)
+[metadata]
+homepage = "https://example.org/ggen-example"
+documentation = "https://docs.example.org/ggen-example"
+repository = "https://github.com/example/ggen-example"
+changelog = "CHANGELOG.md"
+
+# Build metadata
+[metadata.build]
+rustc_version = "1.75.0"
+llvm_version = "17.0"
+target_triple = "x86_64-unknown-linux-gnu"
+
+# Package metadata (for registry publication)
+[metadata.package]
+categories = ["development-tools", "code-generation"]
+keywords = ["cli", "template", "rdf", "ontology"]
+readme = "README.md"
+include = [
+    "src/**/*",
+    "templates/**/*",
+    "Cargo.toml",
+    "README.md",
+    "LICENSE"
+]
+exclude = [
+    "target/**",
+    ".git/**",
+    "tests/**"
+]
+
+# Validation rules
+[validation]
+# Require specific Rust version
+min_rust_version = "1.75.0"
+
+# Enforce dependency constraints
+[validation.dependencies]
+max_duplicates = 0
+allow_yanked = false
+require_checksums = true
+
+# Code quality thresholds
+[validation.quality]
+min_coverage = 80
+max_complexity = 15
+max_function_lines = 100

@@ -12,10 +12,10 @@
 
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
-use tracing::{error, info, warn};
+use tracing::{info, warn};
 
-use super::fmea_mitigations::{FmeaMitigationManager, MitigationResult};
-use super::ontology::{generate_ontology_definition, Class, Property};
+use super::fmea_mitigations::FmeaMitigationManager;
+use super::ontology::{Class, Property};
 use super::poka_yoke::{
     typestate, Literal, PokaYokeError, RdfGraph, ResourceId, SparqlQuery, Triple,
     ValidationConstraint,
@@ -129,7 +129,7 @@ impl RdfControlPlane {
 
     /// Add a new package to the marketplace
     pub fn add_package(
-        &self, name: &str, description: &str, version: &str, author: &str,
+        &self, name: &str, description: &str, _version: &str, _author: &str,
     ) -> Result<ResourceId, ControlPlaneError> {
         info!("Adding new package: {}", name);
 
@@ -187,7 +187,7 @@ impl RdfControlPlane {
     ) -> Result<ValidationResult, ControlPlaneError> {
         info!("Validating package: {}", package_id);
 
-        let mut violations = Vec::new();
+        let violations = Vec::new();
 
         // Run SHACL validation (stub)
         // In production, use a SHACL validator like rudolf or shacl-rs
@@ -255,7 +255,7 @@ impl RdfControlPlane {
 
     // Private helper methods
 
-    fn build_constraints(validation_rules: &[String]) -> Vec<ValidationConstraint> {
+    fn build_constraints(_validation_rules: &[String]) -> Vec<ValidationConstraint> {
         // Parse SHACL rules and build ValidationConstraints
         // For now, return basic constraints
         vec![
