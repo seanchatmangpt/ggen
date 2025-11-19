@@ -143,6 +143,7 @@ pub mod template;
 pub mod template_cache;
 pub mod templates;
 pub mod tera_env;
+pub mod tps; // Toyota Production System integration
 // pub mod tracing; // Temporarily disabled due to missing tracing_subscriber dependency
 pub mod simple_tracing;
 
@@ -187,4 +188,20 @@ pub use template::Template;
 pub use templates::{
     generate_file_tree, FileTreeGenerator, FileTreeNode, FileTreeTemplate, GenerationResult,
     NodeType, TemplateContext, TemplateFormat, TemplateParser,
+};
+
+// Re-export Toyota Production System (TPS) integration types
+pub use tps::{
+    // JIT - Just-In-Time ontology updates
+    jit::{ChangeType, FieldDelta, IncrementalGenerator, TemplateMetadata as TpsTemplateMetadata, TemplateSelector},
+    // Jidoka - Autonomous error detection
+    jidoka::{InvariantAssertion, InvariantRegistry, IssueType, SemanticValidator, ValidationIssue},
+    // Heijunka - Load leveling
+    heijunka::{AdaptiveScheduler, RateLimiter, ResourceQuotas, SystemLoad},
+    // Genchi Genbutsu - Reality verification
+    genchi_genbutsu::{AuditAction, AuditEntry, AuditLog, ExecutionStatus, FileChange, FileChangeType},
+    // Nemawashi - Consensus building
+    nemawashi::{Annotation, AnnotationAnchor, AnnotationStore, ApprovalRequest, ApprovalStatus},
+    // Hansei - Reflection ceremonies
+    hansei::{GenerationEvent, MetricsCollector, QualityMetrics, SprintReport, Trends},
 };
