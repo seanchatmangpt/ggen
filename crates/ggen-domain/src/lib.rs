@@ -24,6 +24,7 @@
 //! - `audit` - Security auditing
 //! - `ci` - CI/CD operations
 //! - `shell` - Shell completion generation
+//! - `six_sigma` - Six Sigma quality methodology for ontology quality
 
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 
@@ -36,6 +37,7 @@ pub mod marketplace;
 pub mod project;
 pub mod rdf;
 pub mod shell;
+pub mod six_sigma;
 pub mod template;
 pub mod utils;
 
