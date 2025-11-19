@@ -119,6 +119,7 @@ pub mod config;
 pub mod delta;
 #[cfg(test)]
 pub mod e2e_tests;
+pub mod fmea;
 pub mod generator;
 pub mod github;
 pub mod gpack;
@@ -187,4 +188,12 @@ pub use template::Template;
 pub use templates::{
     generate_file_tree, FileTreeGenerator, FileTreeNode, FileTreeTemplate, GenerationResult,
     NodeType, TemplateContext, TemplateFormat, TemplateParser,
+};
+
+// Re-export FMEA (Failure Mode and Effects Analysis) types
+pub use fmea::{
+    Detection, FailureMode, FailureModeCategory, FmeaAnalysis, FmeaReport, ImpactTarget,
+    MitigationCost, MitigationStatus, MitigationStrategy, Occurrence, PreventionAction,
+    PreventionReport, QueryPathAnalyzer, QueryRisk, RiskPriorityNumber, SchemaChange,
+    SchemaChangeAnalyzer, Severity, SodScorer, TemplateRiskAnalyzer, FailurePreventionEngine,
 };
