@@ -275,12 +275,14 @@ impl OntologyLockfile {
         let mut vars = BTreeMap::new();
 
         for (name, package) in &self.packages {
+            // Convert package name to valid env var format (replace hyphens with underscores)
+            let env_name = name.to_uppercase().replace('-', "_");
             vars.insert(
-                format!("GGEN_PACK_{}_VERSION", name.to_uppercase()),
+                format!("GGEN_PACK_{}_VERSION", env_name),
                 package.version.clone(),
             );
             vars.insert(
-                format!("GGEN_PACK_{}_INTEGRITY", name.to_uppercase()),
+                format!("GGEN_PACK_{}_INTEGRITY", env_name),
                 package.integrity.clone(),
             );
         }

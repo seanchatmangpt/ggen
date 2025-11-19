@@ -25,7 +25,7 @@ use ggen_marketplace::prelude::*;
 #[path = "../common/mod.rs"]
 mod common;
 
-type TestResult = Result<(), Box<dyn std::error::Error>>;
+type TestResult = std::result::Result<(), Box<dyn std::error::Error>>;
 
 // ============================================================================
 // Basic Scoring Tests
@@ -295,11 +295,11 @@ fn test_maturity_level_stable() -> TestResult {
     // Act
     let assessment = MaturityEvaluator::evaluate(input);
 
-    // Assert - Should be Stable (61-80) or higher
+    // Assert - Should be Production (61-80) or higher
     let level = assessment.level();
     assert!(
-        level >= MaturityLevel::Stable,
-        "Well-maintained package should be stable or higher, got {:?} with score {}",
+        level >= MaturityLevel::Production,
+        "Well-maintained package should be production or higher, got {:?} with score {}",
         level,
         assessment.total_score()
     );
@@ -624,11 +624,15 @@ fn test_filter_by_maturity_level() -> TestResult {
 
     let stable_packages: Vec<_> = assessments
         .iter()
-        .filter(|a| a.level() >= MaturityLevel::Stable)
+        .filter(|a| a.level() >= MaturityLevel::Production)
         .collect();
 
     // Assert
-    assert_eq!(stable_packages.len(), 1, "Should find one stable package");
+    assert_eq!(
+        stable_packages.len(),
+        1,
+        "Should find one production package"
+    );
     Ok(())
 }
 

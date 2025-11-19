@@ -2,7 +2,6 @@
 // Run with: cargo run --example andon_gemba_demo
 
 use std::collections::HashMap;
-use std::path::PathBuf;
 use std::time::SystemTime;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -146,7 +145,7 @@ impl TestHealthDashboard {
 
         self.test_history
             .entry(test_name.to_string())
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(passed);
     }
 

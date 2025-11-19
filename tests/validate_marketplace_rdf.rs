@@ -25,10 +25,9 @@ mod tests {
         let graph = Graph::new().expect("Failed to create graph");
 
         // Load and validate RDF syntax
-        graph.load_path(rdf_file).expect(&format!(
-            "Failed to load/validate RDF file: {}",
-            rdf_file.display()
-        ));
+        graph
+            .load_path(rdf_file)
+            .unwrap_or_else(|_| panic!("Failed to load/validate RDF file: {}", rdf_file.display()));
 
         // Verify file contains triples
         let triple_count = graph.len();

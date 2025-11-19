@@ -68,9 +68,7 @@ mod error_fix_patterns {
         let mut group = c.benchmark_group("error_fix_patterns");
         group.measurement_time(Duration::from_secs(10));
 
-        group.bench_function("E0277_trait_bound_fix", |b| {
-            b.iter(|| e0277_fix_pattern())
-        });
+        group.bench_function("E0277_trait_bound_fix", |b| b.iter(|| e0277_fix_pattern()));
 
         group.bench_function("E0308_type_mismatch_fix", |b| {
             b.iter(|| e0308_fix_pattern())

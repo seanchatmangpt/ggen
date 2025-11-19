@@ -278,7 +278,7 @@ impl HiveQueen {
 
                     // Store insights for later use
                     if let Some(agent_state) = Arc::get_mut(&mut agent.state) {
-                        agent_state.blocking_write().insights.push(insight);
+                        agent_state.write().await.insights.push(insight);
                     }
                 }
             }
