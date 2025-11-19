@@ -73,7 +73,7 @@ tracing-subscriber = { version = "0.3", features = [
 tokio-test = "0.4"
 tempfile = "3.23"
 mockall = "0.13"
-chicago-tdd-tools = { workspace = true }
+# chicago-tdd-tools = { workspace = true }
 
 [lib]
 name = "ggen_marketplace"

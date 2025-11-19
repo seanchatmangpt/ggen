@@ -58,7 +58,7 @@ regex = "1.10"
 
 [dev-dependencies]
 tempfile = "3"
-chicago-tdd-tools = { workspace = true }
+# chicago-tdd-tools = { workspace = true }
 
 [[bin]]
 name = "git_hook_pre_commit"

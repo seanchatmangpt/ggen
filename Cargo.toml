@@ -76,7 +76,7 @@ console = "0.16"
 
 # Testing libraries
 proptest = "1.8"
-chicago-tdd-tools = { path = "/Users/sac/chicago-tdd-tools", version = "1.1.0" }
+# chicago-tdd-tools = { path = "/Users/sac/chicago-tdd-tools", version = "1.1.0" }
 
 # Force base64 version to resolve duplicate dependency issue
 # config -> ron -> base64 0.21.7 conflicts with reqwest -> base64 0.22.1
@@ -170,7 +170,7 @@ toml = "0.9"
 reqwest = { version = "0.12", features = ["blocking", "json"] }
 genai = "0.4"
 proptest.workspace = true
-chicago-tdd-tools = { workspace = true, features = ["testcontainers"] }
+# chicago-tdd-tools = { workspace = true, features = ["testcontainers"] }
 # Cleanroom integration for CLI testing
 clnrm = "0.1.0"
 testcontainers = "0.25"

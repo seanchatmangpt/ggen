@@ -114,6 +114,7 @@
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 
 pub mod cache;
+pub mod category;
 pub mod cli_generator;
 pub mod config;
 pub mod delta;
@@ -160,6 +161,11 @@ pub use lifecycle::{
 
 // Re-export commonly used types for convenience
 pub use cache::{CacheManager, CachedPack};
+pub use category::{
+    Category, CodeGenerator, Functor, MonoidalCategory, Morphism, NaturalTransformation,
+    Object, OntologyMorphism, Representable, TemplatePipelineMonoid, TypeSafeMorphism,
+    YonedaEmbedding,
+};
 pub use delta::{DeltaType, GraphDelta, ImpactAnalyzer, TemplateImpact};
 pub use generator::{GenContext, Generator};
 pub use github::{GitHubClient, PagesConfig, RepoInfo, WorkflowRun, WorkflowRunsResponse};
