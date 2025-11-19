@@ -21,6 +21,7 @@ members = [
   "crates/ggen-core",
   "crates/ggen-ai",
   "crates/ggen-marketplace",
+  "crates/ggen-prob",
   "examples/frontmatter-cli",
   "examples/natural-market-search",
   "examples/ai-template-project",
@@ -76,7 +77,17 @@ console = "0.16"
 
 # Testing libraries
 proptest = "1.8"
-chicago-tdd-tools = { path = "/Users/sac/chicago-tdd-tools", version = "1.1.0" }
+chicago-tdd-tools = "1.1.0"  # Using version only, local path removed
+
+# Probabilistic computing libraries
+ndarray = "0.16"
+ndarray-stats = "0.6"
+rand = "0.8"
+rand_distr = "0.4"
+statrs = "0.17"
+
+# Benchmarking
+criterion = { version = "0.7", features = ["html_reports"] }
 
 # Force base64 version to resolve duplicate dependency issue
 # config -> ron -> base64 0.21.7 conflicts with reqwest -> base64 0.22.1

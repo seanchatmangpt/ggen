@@ -1,0 +1,39 @@
+[package]
+name = "ggen-prob"
+version = "0.1.0"
+edition = "2021"
+authors = ["ggen contributors"]
+description = "Probabilistic programming framework for uncertain ontologies with Bayesian inference"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# Workspace dependencies
+ggen-core = { path = "../ggen-core" }
+ggen-utils = { path = "../ggen-utils" }
+
+# Core dependencies
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+
+# Probabilistic computing
+ndarray = "0.16"
+ndarray-stats = "0.6"
+rand = { workspace = true }
+rand_distr = "0.4"
+statrs = "0.17"
+
+# Optional advanced features
+# pgm = { version = "0.0.8", optional = true }  # Disabled for now
+
+[dev-dependencies]
+proptest = { workspace = true }
+criterion = { workspace = true }
+tokio-test = "0.4"
+approx = "0.5"
+
+[features]
+default = []
+# advanced = ["pgm"]  # Disabled for now
