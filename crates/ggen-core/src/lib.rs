@@ -119,6 +119,7 @@ pub mod config;
 pub mod delta;
 #[cfg(test)]
 pub mod e2e_tests;
+pub mod federation;
 pub mod generator;
 pub mod github;
 pub mod gpack;
@@ -187,4 +188,20 @@ pub use template::Template;
 pub use templates::{
     generate_file_tree, FileTreeGenerator, FileTreeNode, FileTreeTemplate, GenerationResult,
     NodeType, TemplateContext, TemplateFormat, TemplateParser,
+};
+
+// Re-export edge computing ontology federation types
+pub use federation::{
+    // Core types
+    NodeId, VectorClock, NetworkTopology, QosMetrics, DeviceCapabilities,
+    // Gossip protocol
+    GossipNode, GossipMessage, GossipConfig,
+    // RDF delta encoding
+    RdfDelta, DeltaEncoder, CompressionStrategy,
+    // CRDT for distributed knowledge graphs
+    DistributedKnowledgeGraph, CrdtOperation, MergeStrategy as CrdtMergeStrategy,
+    // Fog computing nodes
+    FogNode, TemplateGenerationNode, EdgeDevice,
+    // Federation protocol
+    FederationProtocol, SyncRequest, SyncResponse,
 };
