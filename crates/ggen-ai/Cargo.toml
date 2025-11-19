@@ -64,6 +64,9 @@ oxigraph = "0.5"
 # Crypto for caching
 sha2 = "0.10"
 
+# Random number generation for quantum algorithms
+rand = "0.9"
+
 [features]
 default = []
 all-integrations = []

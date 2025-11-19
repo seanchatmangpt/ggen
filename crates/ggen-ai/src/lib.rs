@@ -50,6 +50,7 @@
 //! - `security` - API key masking and security
 //! - `streaming` - Streaming response support
 //! - `types` - Type definitions
+//! - `ontology_evolution` - AI-native ontology evolution engine
 
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 
@@ -60,6 +61,7 @@ pub mod constants;
 pub mod error;
 pub mod error_utils;
 pub mod generators;
+pub mod ontology_evolution;
 pub mod parsing_utils;
 pub mod prompts;
 pub mod providers;
@@ -80,6 +82,11 @@ pub use error::{GgenAiError, Result};
 pub use generators::{
     NaturalSearchGenerator, OntologyGenerator, QualityMetrics, RefactorAssistant, SparqlGenerator,
     TemplateGenerator, TemplateValidator, ValidationIssue,
+};
+pub use ontology_evolution::{
+    EvolutionConfig, EvolutionMetrics, FeedbackSignal, LanguageTarget, NeuralRepresentation,
+    NeuralSymbolicReasoner, OntologyEvolutionCoordinator, PolyglotTypeInferencer,
+    QuantumTemplateSelector, RLFeedbackLoop, SchemaEvolution, SymbolicKnowledge, TypeSignature,
 };
 pub use providers::adapter::{ollama_default_config, ollama_qwen3_coder_config, MockClient};
 pub use rdf::{
