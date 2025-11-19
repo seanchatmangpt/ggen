@@ -226,11 +226,11 @@ impl Queries {
     /// Query to find all packages
     pub fn all_packages() -> String {
         format!(
-            r#"
+            r"
             SELECT ?package WHERE {{
                 ?package <{}type> <{}> .
             }}
-            "#,
+            ",
             Namespaces::RDF,
             Classes::package()
         )
@@ -273,12 +273,12 @@ impl Queries {
     /// Query to get package versions
     pub fn package_versions(package_id: &str) -> String {
         format!(
-            r#"
+            r"
             SELECT ?version WHERE {{
                 <{}packages/{}> <{}> ?version .
             }}
             ORDER BY DESC(?version)
-            "#,
+            ",
             Namespaces::GGEN,
             package_id,
             Properties::has_version()
@@ -288,13 +288,13 @@ impl Queries {
     /// Query to get package dependencies
     pub fn package_dependencies(package_id: &str, version: &str) -> String {
         format!(
-            r#"
+            r"
             SELECT ?dep_package ?dep_version WHERE {{
                 <{}packages/{}/versions/{}> <{}> ?dep_node .
                 ?dep_node <{}> ?dep_package .
                 ?dep_node <{}> ?dep_version .
             }}
-            "#,
+            ",
             Namespaces::GGEN,
             package_id,
             version,
@@ -307,14 +307,14 @@ impl Queries {
     /// Query to find packages by quality score
     pub fn packages_by_quality(min_score: u32) -> String {
         format!(
-            r#"
+            r"
             SELECT ?package WHERE {{
                 ?package <{}type> <{}> .
                 ?package <{}> ?score .
                 FILTER(?score >= {})
             }}
             ORDER BY DESC(?score)
-            "#,
+            ",
             Namespaces::RDF,
             Classes::package(),
             Properties::quality_score(),
@@ -342,12 +342,12 @@ impl Queries {
     /// Query to get all authors
     pub fn all_authors() -> String {
         format!(
-            r#"
+            r"
             SELECT DISTINCT ?author WHERE {{
                 ?package <{}type> <{}> .
                 ?package <{}> ?author .
             }}
-            "#,
+            ",
             Namespaces::RDF,
             Classes::package(),
             Properties::has_author()
@@ -376,14 +376,14 @@ impl Queries {
     /// Query trending packages (by downloads)
     pub fn trending_packages(limit: usize) -> String {
         format!(
-            r#"
+            r"
             SELECT ?package WHERE {{
                 ?package <{}type> <{}> .
                 ?package <{}> ?downloads .
             }}
             ORDER BY DESC(?downloads)
             LIMIT {}
-            "#,
+            ",
             Namespaces::RDF,
             Classes::package(),
             Properties::downloads(),
@@ -394,14 +394,14 @@ impl Queries {
     /// Query recent packages
     pub fn recent_packages(limit: usize) -> String {
         format!(
-            r#"
+            r"
             SELECT ?package WHERE {{
                 ?package <{}type> <{}> .
                 ?package <{}> ?created .
             }}
             ORDER BY DESC(?created)
             LIMIT {}
-            "#,
+            ",
             Namespaces::RDF,
             Classes::package(),
             Properties::created_at(),

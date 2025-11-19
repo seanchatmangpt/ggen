@@ -763,7 +763,7 @@ mod tests {
 
     // Test 1: Pipeline initialization
     #[test]
-    fn test_pipeline_new() {
+    fn test_pipeline_new() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let pipeline = Pipeline::new()?;
         assert!(!pipeline.graph.is_empty() || pipeline.graph.is_empty()); // Just verify it exists
         Ok(())
@@ -771,7 +771,7 @@ mod tests {
 
     // Test 2: Basic rendering
     #[test]
-    fn test_pipeline_render_body() {
+    fn test_pipeline_render_body() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let mut pipeline = Pipeline::new()?;
         let mut ctx = Context::new();
         ctx.insert("name", "World");
@@ -783,7 +783,7 @@ mod tests {
 
     // Test 3: Render file with frontmatter
     #[test]
-    fn test_pipeline_render_file_basic() {
+    fn test_pipeline_render_file_basic() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let temp_dir = TempDir::new()?;
         let template_content = r#"---
 to: "output.txt"
@@ -805,7 +805,7 @@ Hello {{ name }}"#;
 
     // Test 4: Plan dry run
     #[test]
-    fn test_plan_apply_dry_run() {
+    fn test_plan_apply_dry_run() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let temp_dir = TempDir::new()?;
         let output_path = temp_dir.path().join("output.txt");
 
@@ -826,7 +826,7 @@ Hello {{ name }}"#;
 
     // Test 5: Plan apply creates new file
     #[test]
-    fn test_plan_apply_creates_file() {
+    fn test_plan_apply_creates_file() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let temp_dir = TempDir::new()?;
         let output_path = temp_dir.path().join("output.txt");
 
@@ -849,7 +849,7 @@ Hello {{ name }}"#;
 
     // Test 6: Plan with unless_exists
     #[test]
-    fn test_plan_unless_exists() {
+    fn test_plan_unless_exists() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let temp_dir = TempDir::new()?;
         let output_path = temp_dir.path().join("output.txt");
 
