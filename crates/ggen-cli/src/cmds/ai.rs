@@ -661,6 +661,148 @@ fn estimate_complexity(code: &str) -> f64 {
     (complexity.min(100.0) * 10.0).round() / 10.0
 }
 
+#[derive(Serialize)]
+pub struct EvolveOutput {
+    cycles_completed: usize,
+    schema_modifications: usize,
+    cumulative_reward: f64,
+    converged: bool,
+    language_quality_scores: HashMap<String, f64>,
+    evolved_ontology: Option<String>,
+}
+
+/// Evolve RDF ontologies using AI with RL feedback loops and quantum-inspired algorithms
+///
+/// # Examples
+///
+/// Basic evolution:
+/// ```bash
+/// ggen ai evolve --cycles 10
+/// ```
+///
+/// With custom parameters:
+/// ```bash
+/// ggen ai evolve --cycles 20 --learning-rate 0.05 --quantum-temperature 2.0
+/// ```
+///
+/// Export results:
+/// ```bash
+/// ggen ai evolve --cycles 15 --output ontology.ttl --metrics metrics.json
+/// ```
+#[allow(clippy::too_many_arguments)]
+#[verb]
+fn evolve(
+    cycles: u32,
+    learning_rate: f64,
+    discount_factor: f64,
+    exploration_rate: f64,
+    quantum_temperature: f64,
+    quantum_states: u32,
+    target_languages: String,
+    output: Option<PathBuf>,
+    metrics_output: Option<PathBuf>,
+) -> Result<EvolveOutput> {
+    use ggen_ai::{EvolutionConfig, OntologyEvolutionCoordinator};
+
+    crate::runtime::block_on(async move {
+        // Parse target languages
+        let target_langs: Vec<String> = target_languages
+            .split(',')
+            .map(|s| s.trim().to_string())
+            .collect();
+
+        // Create evolution configuration
+        let config = EvolutionConfig {
+            learning_rate,
+            discount_factor,
+            exploration_rate,
+            quantum_temperature,
+            quantum_states: quantum_states as usize,
+            max_iterations: cycles as usize,
+            target_languages: target_langs,
+            ..Default::default()
+        };
+
+        ggen_utils::alert_info!("🧬 AI-Native Ontology Evolution Engine\n");
+        ggen_utils::alert_info!("Initializing coordinator...\n");
+
+        let coordinator = OntologyEvolutionCoordinator::new(config);
+
+        ggen_utils::alert_info!("Running {} evolution cycles...\n", cycles);
+
+        let evolution_cycles = coordinator
+            .evolve_n_cycles(cycles as usize)
+            .await
+            .map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!(
+                    "Evolution failed: {}",
+                    e
+                ))
+            })?;
+
+        // Get final metrics
+        let metrics = coordinator.get_metrics().await;
+
+        ggen_utils::alert_success!("✅ Evolution Complete!\n");
+        ggen_utils::alert_info!("Cycles: {}\n", metrics.iterations_completed);
+        ggen_utils::alert_info!("Schema Modifications: {}\n", metrics.schema_modifications);
+        ggen_utils::alert_info!("Cumulative Reward: {:.4}\n", metrics.cumulative_reward);
+        ggen_utils::alert_info!("Converged: {}\n", metrics.converged);
+
+        // Export evolved ontology if requested
+        let evolved_ontology = if output.is_some() {
+            let ontology_rdf = coordinator.export_ontology().await.map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!(
+                    "Failed to export ontology: {}",
+                    e
+                ))
+            })?;
+
+            if let Some(path) = &output {
+                std::fs::write(path, &ontology_rdf).map_err(|e| {
+                    clap_noun_verb::NounVerbError::execution_error(format!(
+                        "Failed to write ontology file: {}",
+                        e
+                    ))
+                })?;
+                ggen_utils::alert_success!("💾 Ontology exported to: {:?}\n", path);
+            }
+
+            Some(ontology_rdf)
+        } else {
+            None
+        };
+
+        // Export metrics if requested
+        if let Some(metrics_path) = &metrics_output {
+            let metrics_json = serde_json::to_string_pretty(&metrics).map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!(
+                    "Failed to serialize metrics: {}",
+                    e
+                ))
+            })?;
+
+            std::fs::write(metrics_path, metrics_json).map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!(
+                    "Failed to write metrics file: {}",
+                    e
+                ))
+            })?;
+
+            ggen_utils::alert_success!("📈 Metrics exported to: {:?}\n", metrics_path);
+        }
+
+        Ok(EvolveOutput {
+            cycles_completed: metrics.iterations_completed,
+            schema_modifications: metrics.schema_modifications,
+            cumulative_reward: metrics.cumulative_reward,
+            converged: metrics.converged,
+            language_quality_scores: metrics.language_quality_scores,
+            evolved_ontology,
+        })
+    })
+}
+
 // ============================================================================
 // Usage Notes
 // ============================================================================
