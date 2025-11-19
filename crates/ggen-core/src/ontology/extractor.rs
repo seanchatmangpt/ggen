@@ -168,7 +168,7 @@ impl OntologyExtractor {
                             let description = bindings.get("comment").map(Self::term_to_string);
                             let prop_type = bindings
                                 .get("type")
-                                .map(|t| Self::term_to_string(t))
+                                .map(Self::term_to_string)
                                 .unwrap_or_else(|| "datatype".to_string());
 
                             let mut domain = Vec::new();
