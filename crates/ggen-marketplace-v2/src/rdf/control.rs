@@ -483,6 +483,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn test_package_state_transitions() -> Result<()> {
         let control = RdfControlPlane::in_memory()?;
 

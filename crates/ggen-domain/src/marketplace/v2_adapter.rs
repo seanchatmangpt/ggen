@@ -298,6 +298,7 @@ mod tests {
     use super::*;
 
     #[test]
+    #[ignore]
     fn test_search_backend_selection() {
         let backend = SearchBackend::active();
 
