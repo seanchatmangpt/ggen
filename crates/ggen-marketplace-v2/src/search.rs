@@ -346,7 +346,6 @@ fn levenshtein_distance(s1: &str, s2: &str) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::PackageMetadata;
 
     #[test]
     fn test_levenshtein_distance() {

@@ -250,8 +250,7 @@ impl std::fmt::Display for CacheStats {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::{PackageId, PackageMetadata, PackageVersion};
-    use chrono::Utc;
+    use crate::models::{PackageId, PackageMetadata};
 
     #[tokio::test]
     async fn test_registry_insert_and_get() {

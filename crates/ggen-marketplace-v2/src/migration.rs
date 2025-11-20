@@ -411,7 +411,6 @@ impl std::fmt::Display for ConsistencyReport {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::{PackageMetadata, PackageVersion};
 
     #[tokio::test]
     async fn test_migration_report() {
