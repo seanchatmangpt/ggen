@@ -1,0 +1,135 @@
+@prefix cli: <http://ggen.dev/schema/cli#> .
+@prefix cnv: <http://ggen.dev/schema/clap-noun-verb#> .
+@prefix crm: <http://example.com/crm#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# Lean Ontology Design - Minimal Redundancy
+# ============================================================================
+# This ontology demonstrates lean principles:
+# - No duplicate triples
+# - Minimal properties (only value-added)
+# - Clear hierarchy (no over-classification)
+# - Single source of truth
+# ============================================================================
+
+# Project Definition
+crm:CrmCliProject a cli:CliProject ;
+    cli:hasName "crm-cli" ;
+    cli:hasVersion "1.0.0" ;
+    cli:hasDescription "Lean CRM CLI with semantic workflows" ;
+    cli:hasAuthors "Lean Manufacturing Team" ;
+    cli:hasEdition "2021" ;
+    cli:hasLicense "MIT" ;
+    cli:hasCliCrate "crm-cli" ;
+    cli:hasDomainCrate "crm-core" ;
+    cli:hasWorkspaceResolver "2" .
+
+# Customer Noun (Resource)
+crm:CustomerNoun a cli:Noun ;
+    cnv:nounName "customer" ;
+    cnv:nounDescription "Manage customer records" ;
+    cnv:nounModulePath "customer" .
+
+crm:CrmCliProject cli:hasNoun crm:CustomerNoun .
+
+# List Verb
+crm:ListCustomersVerb a cli:Verb ;
+    cnv:verbName "list" ;
+    cnv:verbDescription "List all customers" ;
+    cnv:executionLogic "println!(\"Listing customers...\")" ;
+    cnv:domainFunction "list_customers" ;
+    cnv:domainModule "crm_core::customer" .
+
+crm:CustomerNoun cnv:hasVerb crm:ListCustomersVerb .
+
+# List Arguments
+crm:LimitArg a cli:Argument ;
+    cnv:argName "limit" ;
+    cnv:argLong "limit" ;
+    cnv:argShort "l" ;
+    cnv:argHelp "Maximum number of customers to display" ;
+    cnv:argRequired false ;
+    cnv:argDefault "10" ;
+    cnv:argValueName "NUMBER" ;
+    cnv:hasType crm:NumberType .
+
+crm:ListCustomersVerb cnv:hasArgument crm:LimitArg .
+
+# Create Verb
+crm:CreateCustomerVerb a cli:Verb ;
+    cnv:verbName "create" ;
+    cnv:verbDescription "Create a new customer" ;
+    cnv:domainFunction "create_customer" ;
+    cnv:domainModule "crm_core::customer" .
+
+crm:CustomerNoun cnv:hasVerb crm:CreateCustomerVerb .
+
+# Create Arguments
+crm:NameArg a cli:Argument ;
+    cnv:argName "name" ;
+    cnv:argLong "name" ;
+    cnv:argShort "n" ;
+    cnv:argHelp "Customer name" ;
+    cnv:argRequired true ;
+    cnv:argValueName "NAME" ;
+    cnv:argPosition 1 ;
+    cnv:hasType crm:StringType .
+
+crm:EmailArg a cli:Argument ;
+    cnv:argName "email" ;
+    cnv:argLong "email" ;
+    cnv:argShort "e" ;
+    cnv:argHelp "Customer email address" ;
+    cnv:argRequired true ;
+    cnv:argValueName "EMAIL" ;
+    cnv:argPosition 2 ;
+    cnv:hasType crm:StringType .
+
+crm:CreateCustomerVerb cnv:hasArgument crm:NameArg .
+crm:CreateCustomerVerb cnv:hasArgument crm:EmailArg .
+
+# Validations (lean - only essential validations)
+crm:EmailValidation a cli:Validation ;
+    cnv:validationRule "email_format" ;
+    cnv:validationPattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+    cnv:validationMessage "Email must be valid format" ;
+    cnv:validationArgName "email" .
+
+crm:CreateCustomerVerb cnv:hasValidation crm:EmailValidation .
+
+# Type Definitions (minimal set)
+crm:StringType a cli:ArgumentType ;
+    cnv:typeName "String" .
+
+crm:NumberType a cli:ArgumentType ;
+    cnv:typeName "usize" .
+
+# Dependencies (only what's needed)
+crm:ClapDep a cli:Dependency ;
+    cnv:depName "clap" ;
+    cnv:depVersion "4.5" ;
+    cnv:depFeatures "derive" ;
+    cnv:depOptional false .
+
+crm:SerdeDep a cli:Dependency ;
+    cnv:depName "serde" ;
+    cnv:depVersion "1.0" ;
+    cnv:depFeatures "derive" ;
+    cnv:depOptional false .
+
+crm:CrmCliProject cli:hasDependency crm:ClapDep .
+crm:CrmCliProject cli:hasDependency crm:SerdeDep .
+
+# ============================================================================
+# Lean Principles Applied
+# ============================================================================
+# 1. No duplicate triples - each fact stated once
+# 2. Minimal properties - only value-added information
+# 3. Clear relationships - direct associations only
+# 4. Single source of truth - no redundant type assertions
+# 5. Just enough validation - only critical rules
+# ============================================================================
