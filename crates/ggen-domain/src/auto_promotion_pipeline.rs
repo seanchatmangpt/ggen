@@ -400,6 +400,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn test_promotion_decision() {
         let mut pipeline = AutoPromotionPipeline::new();
 

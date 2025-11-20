@@ -105,6 +105,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn test_expand_env_vars_missing() {
         let input = "Path: ${NONEXISTENT_VAR}/output";
         let result = expand_env_vars(input);

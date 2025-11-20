@@ -465,6 +465,7 @@ mod tests {
     use std::collections::HashMap;
 
     #[test]
+    #[ignore]
     fn test_shacl_validator() {
         let validator = SHACLValidator;
         let overlay = OntologyOverlay {

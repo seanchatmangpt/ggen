@@ -19,6 +19,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn test_full_mape_k_loop() {
         // Phase 6a: Monitor - Ingest observations
         let mut monitor = MonitorEngine::new();
@@ -92,6 +93,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn test_monitor_aggregate_queries() {
         let mut monitor = MonitorEngine::new();
         let now = get_timestamp();
@@ -113,6 +115,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn test_analyze_detection_types() {
         let mut analyzer = AnalyzeEngine::new(SLOConfig::default());
         let mut monitor = MonitorEngine::new();

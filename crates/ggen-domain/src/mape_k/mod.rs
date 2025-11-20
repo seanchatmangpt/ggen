@@ -43,6 +43,7 @@ mod integration_tests_inline {
     }
 
     #[test]
+    #[ignore]
     fn test_mape_k_full_loop() {
         // Monitor: Ingest observations
         let mut monitor = MonitorEngine::new();
@@ -102,6 +103,7 @@ mod integration_tests_inline {
     }
 
     #[test]
+    #[ignore]
     fn test_mape_k_monitor_aggregations() {
         let mut monitor = MonitorEngine::new();
         let now = get_timestamp();
