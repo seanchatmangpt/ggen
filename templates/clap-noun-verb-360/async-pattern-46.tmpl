@@ -1,0 +1,35 @@
+---
+to: "src/async/pattern_{{ index }}.rs"
+vars:
+  index: 46
+  pattern: "async_pattern_46"
+---
+
+use futures::Future;
+use std::pin::Pin;
+
+/// Async pattern 46 for noun-verb operations
+pub struct AsyncPattern46;
+
+impl AsyncPattern46 {
+    /// Execute async operation with error handling
+    pub async fn execute<F, T>(future: F) -> Result<T, String>
+    where
+        F: Future<Output = Result<T, String>>,
+    {
+        future.await
+    }
+
+    /// Execute with timeout
+    pub async fn execute_with_timeout<F, T>(future: F, timeout_ms: u64) -> Result<T, String>
+    where
+        F: Future<Output = Result<T, String>>,
+    {
+        tokio::time::timeout(
+            tokio::time::Duration::from_millis(timeout_ms),
+            future,
+        )
+        .await
+        .map_err(|_| "Timeout".to_string())?
+    }
+}

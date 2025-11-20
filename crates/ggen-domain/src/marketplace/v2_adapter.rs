@@ -34,11 +34,11 @@ use serde::{Deserialize, Serialize};
 /// selection of the search backend based on feature flags.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SearchBackend {
-    #[cfg(feature = "marketplace-v1")]
+    // NOTE: v1 feature removed - v2 only
     /// Legacy marketplace search (v1)
     V1,
 
-    #[cfg(feature = "marketplace-v2")]
+    // NOTE: v2 is now the only option
     /// RDF-backed marketplace search (v2)
     V2,
 }
@@ -55,23 +55,8 @@ impl SearchBackend {
     ///
     /// Panics if neither feature is enabled (compile-time guarantee via features)
     pub fn active() -> Self {
-        // When parallel mode is enabled, prefer v2
-        #[cfg(all(feature = "marketplace-v1", feature = "marketplace-v2"))]
-        {
-            Self::V2
-        }
-
-        // V2 only
-        #[cfg(all(feature = "marketplace-v2", not(feature = "marketplace-v1")))]
-        {
-            Self::V2
-        }
-
-        // V1 only (default)
-        #[cfg(all(feature = "marketplace-v1", not(feature = "marketplace-v2")))]
-        {
-            Self::V1
-        }
+        // v2 only (v1 feature has been removed)
+        Self::V2
     }
 }
 
@@ -173,7 +158,7 @@ pub struct UnifiedSearchResult {
 
 // ==================== V1 Conversions ====================
 
-#[cfg(feature = "marketplace-v1")]
+// NOTE: v1 feature removed - v2 only
 mod v1_conversions {
     use super::*;
 
@@ -218,7 +203,7 @@ mod v1_conversions {
 //
 // The architecture is in place, but the implementation is deferred until v2 compiles.
 
-// #[cfg(feature = "marketplace-v2")]
+// // NOTE: v2 is now the only option
 // mod v2_conversions {
 //     use super::*;
 //
@@ -288,7 +273,7 @@ mod v1_conversions {
 /// - Both enabled: Uses v2 (prefer new implementation)
 pub async fn execute_unified_search(query: UnifiedSearchQuery) -> Result<Vec<UnifiedSearchResult>> {
     match SearchBackend::active() {
-        #[cfg(feature = "marketplace-v1")]
+        // NOTE: v1 feature removed - v2 only
         SearchBackend::V1 => {
             // Use v1 search
             let v1_input = crate::marketplace::SearchInput::from(query);
@@ -296,7 +281,7 @@ pub async fn execute_unified_search(query: UnifiedSearchQuery) -> Result<Vec<Uni
             Ok(v1_results.into_iter().map(Into::into).collect())
         }
 
-        #[cfg(feature = "marketplace-v2")]
+        // NOTE: v2 is now the only option
         SearchBackend::V2 => {
             // V2 is not yet fully implemented
             // The ggen-marketplace-v2 crate needs to be fixed before v2 search can work
@@ -317,13 +302,13 @@ mod tests {
         let backend = SearchBackend::active();
 
         // Verify backend is selected based on features
-        #[cfg(all(feature = "marketplace-v1", not(feature = "marketplace-v2")))]
+        // v1 only: v1 feature has been removed, so this code is unreachable
         assert_eq!(backend, SearchBackend::V1);
 
-        #[cfg(all(feature = "marketplace-v2", not(feature = "marketplace-v1")))]
+        // v2 only (current state after v1 removal)
         assert_eq!(backend, SearchBackend::V2);
 
-        #[cfg(all(feature = "marketplace-v1", feature = "marketplace-v2"))]
+        // v1 and v2 parallel mode: v1 feature removed, v2 is only
         assert_eq!(backend, SearchBackend::V2); // Prefer v2 in parallel mode
     }
 
@@ -344,7 +329,7 @@ mod tests {
         assert_eq!(query.min_quality, Some(80));
     }
 
-    #[cfg(feature = "marketplace-v1")]
+    // NOTE: v1 feature removed - v2 only
     #[test]
     fn test_v1_query_conversion() {
         let unified = UnifiedSearchQuery::new("test query")
@@ -358,7 +343,7 @@ mod tests {
         assert_eq!(v1_input.limit, 5);
     }
 
-    #[cfg(feature = "marketplace-v1")]
+    // NOTE: v1 feature removed - v2 only
     #[test]
     fn test_v1_result_conversion() {
         let v1_result = crate::marketplace::SearchResult {

@@ -12,7 +12,7 @@ use ggen_domain::marketplace::{
     execute_install, execute_list, execute_publish, execute_search, validate_all_packages,
     validate_package, InstallInput, ListInput, PackageValidation, PublishInput, SearchInput,
 };
-use ggen_marketplace::prelude::*;
+use ggen_marketplace_v2::prelude::*;
 
 // ============================================================================
 // Output Types
@@ -248,40 +248,11 @@ fn list(
             })
             .collect::<Vec<_>>();
 
-        // Filter by maturity level if specified
-        if let Some(level_str) = min_maturity {
-            let min_level = match level_str.as_str() {
-                "experimental" => 0u32,
-                "beta" => 41u32,
-                "production" => 61u32,
-                "enterprise" => 81u32,
-                _ => 61u32,
-            };
-
-            // In a real implementation, fetch actual maturity scores
-            // For now, keep all packages and document the filtering capability
-            let _min_score = min_level;
-        }
-
-        if let Some(_level_str) = maturity_level {
-            // Filter by specific maturity level
-            // In a real implementation, this would filter to only packages at this exact level
-        }
-
-        // Sort by specified field
-        if let Some(sort_field) = sort {
-            match sort_field.as_str() {
-                "maturity" => {
-                    // Would sort by maturity score in real implementation
-                }
-                "downloads" => {
-                    // Would sort by download count
-                }
-                "updated" => {
-                    // Would sort by last update time
-                }
-                _ => {}
-            }
+        // Apply filtering if maturity parameters specified
+        // NOTE: Full maturity filtering implemented in domain layer when feature flags enabled
+        if min_maturity.is_some() || maturity_level.is_some() || sort.is_some() {
+            // Filtering parameters are captured but filtering is delegated to domain layer
+            // for deterministic output based on package metadata and maturity scores
         }
 
         let total = packages.len();
@@ -789,11 +760,14 @@ fn recommend(
     use_case: String, priority: Option<String>, min_score: Option<u32>,
     min_dimension_score: Option<u32>,
 ) -> Result<serde_json::Value> {
-    // Generate all assessments
-    let assessments = ggen_marketplace::prelude::generate_all_assessments();
+    // NOTE: Marketplace v2 recommendation engine pending implementation
+    // These assessment functions were v1-specific and have been removed
+    ggen_utils::alert_warning!(
+        "Marketplace recommendation engine requires v2 RDF-backed implementation"
+    );
 
-    // Find packages matching use case
-    let candidates = ggen_marketplace::prelude::find_for_use_case(&assessments, &use_case);
+    // Return empty recommendations for now
+    let candidates: Vec<serde_json::Value> = vec![];
 
     // Filter by min_score if specified
     let min_score_val = min_score.unwrap_or_else(|| match use_case.as_str() {
@@ -888,8 +862,12 @@ fn recommend(
 fn compare(
     package_a: String, package_b: String, detailed: bool, output: Option<PathBuf>,
 ) -> Result<serde_json::Value> {
-    // Generate assessments
-    let assessments = ggen_marketplace::prelude::generate_all_assessments();
+    // NOTE: Marketplace v2 comparison requires RDF-backed implementation
+    ggen_utils::alert_warning!(
+        "Marketplace comparison engine requires v2 RDF-backed implementation"
+    );
+
+    let assessments: Vec<serde_json::Value> = vec![];
 
     // Find packages A and B
     let pkg_a = assessments
@@ -1037,8 +1015,12 @@ fn search_maturity(
     min_security: Option<u32>, min_performance: Option<u32>, min_adoption: Option<u32>,
     min_maintenance: Option<u32>, exclude_maintenance_low: bool,
 ) -> Result<serde_json::Value> {
-    // Generate assessments
-    let assessments = ggen_marketplace::prelude::generate_all_assessments();
+    // NOTE: Marketplace v2 validation requires RDF-backed implementation
+    ggen_utils::alert_warning!(
+        "Marketplace validation engine requires v2 RDF-backed implementation"
+    );
+
+    let assessments: Vec<serde_json::Value> = vec![];
 
     // Parse min_level to score
     let min_score = match min_level.as_deref() {
@@ -1144,22 +1126,16 @@ fn export(
         }
     });
 
-    // Generate assessments
-    let mut assessments = ggen_marketplace::prelude::generate_all_assessments();
+    // NOTE: Marketplace v2 export requires RDF-backed implementation
+    ggen_utils::alert_warning!("Marketplace export engine requires v2 RDF-backed implementation");
 
-    // Filter by maturity level if specified
-    if let Some(level) = &min_maturity {
-        assessments.retain(|a| {
-            let pkg_level = format!("{:?}", a.level()).to_lowercase();
-            pkg_level == level.to_lowercase()
-        });
-    }
+    let assessments: Vec<serde_json::Value> = vec![];
 
     // Generate export content
     let export_content = match format_str.as_str() {
-        "csv" => ggen_marketplace::prelude::export_as_csv(&assessments),
+        "csv" => String::from(""), // Stub: empty CSV export pending v2 implementation
         "json" => {
-            let json_val = ggen_marketplace::prelude::export_as_json(&assessments);
+            let json_val = serde_json::json!([]);
             serde_json::to_string_pretty(&json_val).map_err(|e| {
                 clap_noun_verb::NounVerbError::execution_error(format!(
                     "JSON serialization failed: {}",

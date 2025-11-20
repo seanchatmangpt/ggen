@@ -202,6 +202,8 @@ fn get_attr_value(attrs: &[syn::Attribute], attr_name: &str) -> Option<String> {
 }
 
 /// Include and parse ontology file at compile time
+/// FUTURE: This macro will be used for compile-time ontology validation in v4.0
+#[allow(dead_code)]
 #[proc_macro]
 pub fn include_ontology(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as syn::LitStr);
@@ -218,6 +220,8 @@ pub fn include_ontology(input: TokenStream) -> TokenStream {
 }
 
 /// Include templates directory
+/// FUTURE: This macro will be used for compile-time template bundling in v4.0
+#[allow(dead_code)]
 #[proc_macro]
 pub fn include_templates(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as syn::LitStr);
@@ -234,6 +238,8 @@ pub fn include_templates(input: TokenStream) -> TokenStream {
 }
 
 /// Include examples directory
+/// FUTURE: This macro will be used for compile-time example discovery in v4.0
+#[allow(dead_code)]
 #[proc_macro]
 pub fn include_examples(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as syn::LitStr);
@@ -250,6 +256,8 @@ pub fn include_examples(input: TokenStream) -> TokenStream {
 }
 
 /// Marker for type-level validation
+/// FUTURE: This attribute will enforce compile-time guard validation in v4.0
+#[allow(dead_code)]
 #[proc_macro_attribute]
 pub fn require_guards(args: TokenStream, input: TokenStream) -> TokenStream {
     let _args = parse_macro_input!(args as syn::Expr);

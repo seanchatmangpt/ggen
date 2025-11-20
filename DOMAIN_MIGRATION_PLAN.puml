@@ -1,0 +1,340 @@
+@startuml GGEN_DOMAIN_MIGRATION_PLAN
+!theme plain
+title ggen Business Logic Migration to Domain Layer - Migration Plan
+
+' Define styling
+skinparam backgroundColor #f8f9fa
+skinparam defaultFontName Courier New
+skinparam defaultFontSize 11
+
+package "Phase 0: Current State (v5.0.0 Baseline)" {
+  package "CLI Layer (ggen-cli)" {
+    component "cmds/ai.rs (MIGRATED)" as ai_cli {
+      note right of ai_cli
+        ✅ THIN DELEGATION LAYER
+        - Accepts CLI params
+        - Validates inputs
+        - Delegates to domain
+        - Returns JSON
+      end note
+    }
+    component "cmds/marketplace.rs (MIXED)" as market_cli {
+      note right of market_cli
+        ⚠️ BUSINESS LOGIC MIXED IN
+        - Marketplace operations
+        - Search logic
+        - Install logic
+      end note
+    }
+    component "cmds/template.rs (MIXED)" as template_cli {
+      note right of template_cli
+        ⚠️ BUSINESS LOGIC MIXED IN
+        - Template generation
+        - Rendering logic
+        - Validation rules
+      end note
+    }
+    component "cmds/project.rs (MIXED)" as project_cli {
+      note right of project_cli
+        ⚠️ BUSINESS LOGIC MIXED IN
+        - Project creation
+        - Generation flow
+        - Configuration
+      end note
+    }
+  }
+
+  package "Domain Layer (ggen-domain)" {
+    component "ai/mod.rs (COMPLETE)" as ai_domain {
+      note right of ai_domain
+        ✅ FULL IMPLEMENTATION
+        - generate()
+        - chat()
+        - analyze()
+        - All business logic
+      end note
+    }
+    component "marketplace/mod.rs (PARTIAL)" as market_domain {
+      note right of market_domain
+        ⚠️ PLACEHOLDER
+        - Needs implementation
+        - No business logic
+      end note
+    }
+    component "template/mod.rs (PARTIAL)" as template_domain {
+      note right of template_domain
+        ⚠️ PLACEHOLDER
+        - Needs implementation
+        - No business logic
+      end note
+    }
+    component "project/mod.rs (PARTIAL)" as project_domain {
+      note right of project_domain
+        ⚠️ PLACEHOLDER
+        - Needs implementation
+        - No business logic
+      end note
+    }
+  }
+
+  ai_cli --> ai_domain: "delegates to"
+  market_cli -.-> market_domain: "should delegate"
+  template_cli -.-> template_domain: "should delegate"
+  project_cli -.-> project_domain: "should delegate"
+}
+
+package "Phase 1: Marketplace Refactoring" {
+  package "Extract Marketplace Logic" {
+    component "market/search.rs" as market_search {
+      note right of market_search
+        Business Logic:
+        - Search algorithms
+        - Filtering
+        - Ranking
+      end note
+    }
+    component "market/install.rs" as market_install {
+      note right of market_install
+        Business Logic:
+        - Dependency resolution
+        - Installation flow
+        - Verification
+      end note
+    }
+    component "market/publish.rs" as market_publish {
+      note right of market_publish
+        Business Logic:
+        - Package publishing
+        - Validation
+        - Versioning
+      end note
+    }
+  }
+
+  package "Create Marketplace Domain" {
+    component "ggen-domain/src/marketplace/mod.rs" as market_domain_new {
+      note right of market_domain_new
+        ✅ NEW IMPLEMENTATION
+        - Public search()
+        - Public install()
+        - Public publish()
+        - Full business logic
+      end note
+    }
+  }
+
+  package "Thin CLI Layer" {
+    component "ggen-cli/cmds/marketplace.rs (v2)" as market_cli_v2 {
+      note right of market_cli_v2
+        ✅ REFACTORED
+        - Accepts CLI params
+        - Delegates to domain
+        - Returns JSON
+      end note
+    }
+  }
+
+  market_search -.-> market_domain_new: "extract"
+  market_install -.-> market_domain_new: "extract"
+  market_publish -.-> market_domain_new: "extract"
+  market_domain_new --> market_cli_v2: "reuse"
+}
+
+package "Phase 2: Template Refactoring" {
+  package "Extract Template Logic" {
+    component "template/generate.rs" as template_gen {
+      note right of template_gen
+        Business Logic:
+        - Template rendering
+        - Variable interpolation
+        - Output generation
+      end note
+    }
+    component "template/validate.rs" as template_val {
+      note right of template_val
+        Business Logic:
+        - Schema validation
+        - Constraint checking
+        - Error detection
+      end note
+    }
+    component "template/discover.rs" as template_disc {
+      note right of template_disc
+        Business Logic:
+        - Template discovery
+        - Metadata extraction
+        - Cataloging
+      end note
+    }
+  }
+
+  package "Create Template Domain" {
+    component "ggen-domain/src/template/mod.rs" as template_domain_new {
+      note right of template_domain_new
+        ✅ NEW IMPLEMENTATION
+        - Public generate()
+        - Public validate()
+        - Public discover()
+        - Full business logic
+      end note
+    }
+  }
+
+  package "Thin CLI Layer" {
+    component "ggen-cli/cmds/template.rs (v2)" as template_cli_v2 {
+      note right of template_cli_v2
+        ✅ REFACTORED
+        - Accepts CLI params
+        - Delegates to domain
+        - Returns JSON
+      end note
+    }
+  }
+
+  template_gen -.-> template_domain_new: "extract"
+  template_val -.-> template_domain_new: "extract"
+  template_disc -.-> template_domain_new: "extract"
+  template_domain_new --> template_cli_v2: "reuse"
+}
+
+package "Phase 3: Project Refactoring" {
+  package "Extract Project Logic" {
+    component "project/create.rs" as project_create {
+      note right of project_create
+        Business Logic:
+        - Project scaffolding
+        - Directory creation
+        - File generation
+      end note
+    }
+    component "project/configure.rs" as project_config {
+      note right of project_config
+        Business Logic:
+        - Configuration logic
+        - Dependency management
+        - Settings application
+      end note
+    }
+    component "project/generate.rs" as project_gen {
+      note right of project_gen
+        Business Logic:
+        - Code generation flow
+        - Artifact creation
+        - Integration
+      end note
+    }
+  }
+
+  package "Create Project Domain" {
+    component "ggen-domain/src/project/mod.rs" as project_domain_new {
+      note right of project_domain_new
+        ✅ NEW IMPLEMENTATION
+        - Public create()
+        - Public configure()
+        - Public generate()
+        - Full business logic
+      end note
+    }
+  }
+
+  package "Thin CLI Layer" {
+    component "ggen-cli/cmds/project.rs (v2)" as project_cli_v2 {
+      note right of project_cli_v2
+        ✅ REFACTORED
+        - Accepts CLI params
+        - Delegates to domain
+        - Returns JSON
+      end note
+    }
+  }
+
+  project_create -.-> project_domain_new: "extract"
+  project_config -.-> project_domain_new: "extract"
+  project_gen -.-> project_domain_new: "extract"
+  project_domain_new --> project_cli_v2: "reuse"
+}
+
+package "Phase 4: Final State - Complete Separation" {
+  package "CLI Layer (100% Delegation)" {
+    component "cmds/ai.rs" as final_ai_cli
+    component "cmds/marketplace.rs" as final_market_cli
+    component "cmds/template.rs" as final_template_cli
+    component "cmds/project.rs" as final_project_cli
+
+    note bottom of final_ai_cli
+      ✅ All commands are thin delegation layers
+      - Accept CLI parameters
+      - Validate inputs only
+      - Delegate to domain
+      - Return JSON-serialized results
+      - ZERO business logic
+    end note
+  }
+
+  package "Domain Layer (100% Implementation)" {
+    component "ai/mod.rs" as final_ai_domain
+    component "marketplace/mod.rs" as final_market_domain
+    component "template/mod.rs" as final_template_domain
+    component "project/mod.rs" as final_project_domain
+
+    note bottom of final_ai_domain
+      ✅ All domain modules are complete
+      - Pure business logic
+      - No CLI dependencies
+      - Reusable everywhere
+      - Testable in isolation
+      - No clap/clap-noun-verb deps
+    end note
+  }
+
+  final_ai_cli --> final_ai_domain: "delegates"
+  final_market_cli --> final_market_domain: "delegates"
+  final_template_cli --> final_template_domain: "delegates"
+  final_project_cli --> final_project_domain: "delegates"
+}
+
+package "Testing Strategy" {
+  component "Unit Tests (domain)" as unit_tests {
+    note right of unit_tests
+      - Test domain functions in isolation
+      - Use mocks for external dependencies
+      - Fast execution (≤10s)
+      - No CLI coupling
+    end note
+  }
+
+  component "Integration Tests" as integration_tests {
+    note right of integration_tests
+      - Test domain ↔ infrastructure
+      - Test CLI ↔ domain delegation
+      - Use Chicago TDD
+      - Real collaborators where possible
+    end note
+  }
+
+  component "E2E CLI Tests" as e2e_tests {
+    note right of e2e_tests
+      - Test CLI end-to-end
+      - Verify JSON output
+      - Test help/version
+      - Verify error handling
+    end note
+  }
+
+  final_ai_domain ..> unit_tests: "tested by"
+  final_market_domain ..> unit_tests: "tested by"
+  final_template_domain ..> unit_tests: "tested by"
+  final_project_domain ..> unit_tests: "tested by"
+}
+
+package "Success Criteria" {
+  rectangle "✅ All CLI commands are < 100 lines (delegation only)" as success1
+  rectangle "✅ All domain modules are complete (full logic)" as success2
+  rectangle "✅ Zero clap/clap-noun-verb in domain layer" as success3
+  rectangle "✅ All tests pass (unit + integration + E2E)" as success4
+  rectangle "✅ Compilation clean (cargo make check)" as success5
+  rectangle "✅ Linting clean (cargo make lint)" as success6
+  rectangle "✅ No clippy warnings" as success7
+}
+
+@enduml

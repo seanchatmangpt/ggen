@@ -1,0 +1,58 @@
+---
+to: "src/commands/nouns/{{ name | snake_case }}_command.rs"
+vars:
+  name: "ModuleCommand"
+  noun: "Module"
+  description: "Module noun command handler"
+---
+
+use clap::Parser;
+use crate::CommandResult;
+
+/// Module command for noun-verb CLI
+#[derive(Parser, Debug)]
+#[command(name = "Module_LOWER")]
+#[command(about = "Module operations")]
+pub struct ModuleCommand {
+    /// The action to perform
+    #[arg(value_name = "ACTION")]
+    pub action: String,
+
+    /// Additional arguments
+    #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
+    pub args: Vec<String>,
+}
+
+impl ModuleCommand {
+    /// Execute the Module command
+    pub async fn execute(&self) -> CommandResult<String> {
+        match self.action.as_str() {
+            "create" => self.create().await,
+            "read" | "get" => self.read().await,
+            "update" => self.update().await,
+            "delete" | "remove" => self.delete().await,
+            "list" => self.list().await,
+            _ => Err(format!("Unknown Module_LOWER action: {}", self.action).into()),
+        }
+    }
+
+    async fn create(&self) -> CommandResult<String> {
+        Ok(format!("Creating new Module_LOWER"))
+    }
+
+    async fn read(&self) -> CommandResult<String> {
+        Ok(format!("Reading Module_LOWER"))
+    }
+
+    async fn update(&self) -> CommandResult<String> {
+        Ok(format!("Updating Module_LOWER"))
+    }
+
+    async fn delete(&self) -> CommandResult<String> {
+        Ok(format!("Deleting Module_LOWER"))
+    }
+
+    async fn list(&self) -> CommandResult<String> {
+        Ok(format!("Listing Module_LOWERs"))
+    }
+}

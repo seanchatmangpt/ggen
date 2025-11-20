@@ -1,0 +1,29 @@
+---
+to: "src/verbs/{{ verb | snake_case }}_verb.rs"
+vars:
+  verb: "ExecuteVerb"
+  action: "Execute_LOWER"
+  description: "Execute verb for noun operations"
+---
+
+use crate::CommandResult;
+
+/// Execute verb for noun-verb operations
+pub struct ExecuteVerb;
+
+impl ExecuteVerb {
+    /// Execute Execute action on a noun
+    pub async fn execute(noun: &str) -> CommandResult<String> {
+        Ok(format!("Execute_LOWER({})", noun))
+    }
+
+    /// Validate Execute preconditions
+    pub fn validate(&self) -> CommandResult<()> {
+        Ok(())
+    }
+
+    /// Describe what Execute does
+    pub fn describe() -> &'static str {
+        "Execute operation"
+    }
+}

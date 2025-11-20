@@ -374,6 +374,7 @@ impl fmt::Display for Observation {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::json;
 
     #[test]
     fn test_observation_creation() {

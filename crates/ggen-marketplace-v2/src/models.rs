@@ -20,6 +20,40 @@ pub struct Draft;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Published;
 
+/// Package state enum for backward compatibility with tests
+/// NOTE: Deprecated - use typestate markers (Draft, Published) instead
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PackageState {
+    Draft,
+    Published,
+    Deprecated,
+    Yanked,
+}
+
+// QualityScore is defined below with manual Serialize/Deserialize implementation
+
+/// Ggen ontology wrapper
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GgenOntology {
+    pub namespace: String,
+}
+
+impl GgenOntology {
+    pub fn new(namespace: impl Into<String>) -> Self {
+        Self {
+            namespace: namespace.into(),
+        }
+    }
+}
+
+/// Signature algorithm for package verification
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum SignatureAlgorithm {
+    Ed25519,
+    Rsa2048,
+    Rsa4096,
+}
+
 /// License identifier (SPDX format)
 #[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct LicenseId(String);

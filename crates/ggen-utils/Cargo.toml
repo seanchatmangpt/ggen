@@ -24,6 +24,7 @@ anyhow = "1.0"
 thiserror = "2.0.17"
 backtrace = "0.3.76"
 color-backtrace = "0.7.1"
+chrono = "0.4"
 # Disable ron feature in config to avoid base64 v0.21.7 duplicate
 # (config's ron 0.8 -> base64 0.21.7 conflicts with reqwest -> base64 0.22.1)
 config = { version = "0.15.18", default-features = false, features = [
@@ -71,6 +72,10 @@ path = "src/bin/git_hook_pre_push.rs"
 [[bin]]
 name = "git_hook_installer"
 path = "src/bin/git_hook_installer.rs"
+
+[[bin]]
+name = "collect-metrics"
+path = "src/bin/collect-metrics.rs"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 slog-journald = "2.2.0"

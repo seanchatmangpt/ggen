@@ -24,9 +24,8 @@ thiserror = { workspace = true }
 # Local infrastructure dependencies (use workspace = true pattern)
 ggen-core.workspace = true
 ggen-ai.workspace = true
-ggen-marketplace.workspace = true
 ggen-utils.workspace = true
-ggen-marketplace-v2 = { path = "../ggen-marketplace-v2", version = "3.0.0", optional = true }
+ggen-marketplace-v2 = { path = "../ggen-marketplace-v2", version = "3.0.0" }
 
 # Crate-specific dependencies
 tera = { workspace = true }
@@ -55,13 +54,8 @@ async-trait = "0.1"
 # Domain must be CLI-agnostic
 
 [features]
-# Marketplace backend selection (for gradual v1→v2 migration)
-marketplace-v1 = []                           # Legacy marketplace (default)
-marketplace-v2 = ["ggen-marketplace-v2"]     # RDF-backed marketplace (new)
-marketplace-parallel = ["marketplace-v1", "marketplace-v2"]  # Both for A/B testing
-
-# Default to v1 for backward compatibility
-default = ["marketplace-v1"]
+# Marketplace v2 only (RDF-backed semantic marketplace)
+default = []
 
 [dev-dependencies]
 assert_cmd = "2"

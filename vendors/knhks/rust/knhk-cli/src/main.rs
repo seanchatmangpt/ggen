@@ -354,6 +354,57 @@ fn show_hook(name: String) {
     }
 }
 
+/// Template noun - template management
+#[noun]
+fn template() {
+    // Template commands registered via verbs
+}
+
+/// List templates
+#[verb]
+fn list_templates() {
+    if let Err(e) = commands::template::list() {
+        eprintln!("Error: {}", e);
+        std::process::exit(1);
+    }
+}
+
+/// Create new template
+#[verb]
+fn new_template(name: String, template_type: String) {
+    if let Err(e) = commands::template::new(name, template_type) {
+        eprintln!("Error: {}", e);
+        std::process::exit(1);
+    }
+}
+
+/// Show template content
+#[verb]
+fn show_template(name: String) {
+    if let Err(e) = commands::template::show(name) {
+        eprintln!("Error: {}", e);
+        std::process::exit(1);
+    }
+}
+
+/// Generate code from template
+#[verb]
+fn generate_template(template_name: String, output_path: String) {
+    if let Err(e) = commands::template::generate(template_name, output_path) {
+        eprintln!("Error: {}", e);
+        std::process::exit(1);
+    }
+}
+
+/// Lint template for syntax errors
+#[verb]
+fn lint_template(name: String) {
+    if let Err(e) = commands::template::lint(name) {
+        eprintln!("Error: {}", e);
+        std::process::exit(1);
+    }
+}
+
 fn main() {
     CliBuilder::default()
         .noun(boot)
@@ -369,5 +420,6 @@ fn main() {
         .noun(coverage)
         .noun(hook)
         .noun(context)
+        .noun(template)
         .run();
 }

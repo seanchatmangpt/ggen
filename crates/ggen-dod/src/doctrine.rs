@@ -223,7 +223,7 @@ mod tests {
 
     #[test]
     fn test_doctrine_compliance() -> crate::error::DoDResult<()> {
-        let mut compliance = doctrine_2027();
+        let compliance = doctrine_2027();
         compliance.check()?;
         Ok(())
     }

@@ -1,0 +1,33 @@
+---
+to: "src/middleware/pattern_{{ index }}.rs"
+vars:
+  index: 31
+  middleware: "middleware_pattern_31"
+---
+
+use std::future::Future;
+use std::pin::Pin;
+
+pub type Middleware31Fn = Box<
+    dyn Fn(String) -> Pin<Box<dyn Future<Output = Result<String, String>> + Send>> + Send + Sync,
+>;
+
+/// Middleware pattern 31 for request/response handling
+pub struct MiddlewarePattern31 {
+    handler: Middleware31Fn,
+}
+
+impl MiddlewarePattern31 {
+    pub fn new<F>(handler: F) -> Self
+    where
+        F: Fn(String) -> Pin<Box<dyn Future<Output = Result<String, String>> + Send>> + Send + Sync + 'static,
+    {
+        Self {
+            handler: Box::new(handler),
+        }
+    }
+
+    pub async fn handle(&self, input: String) -> Result<String, String> {
+        (self.handler)(input).await
+    }
+}

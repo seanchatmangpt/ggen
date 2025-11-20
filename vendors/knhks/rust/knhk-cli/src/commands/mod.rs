@@ -14,4 +14,5 @@ pub mod coverage;
 pub mod pipeline;
 pub mod hook;
 pub mod context;
+pub mod template;
 

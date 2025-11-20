@@ -1,0 +1,30 @@
+---
+to: "tests/integration/test_{{ noun | snake_case }}_{{ verb | snake_case }}.rs"
+vars:
+  noun: "Repository"
+  verb: "Update"
+---
+
+#[tokio::test]
+async fn test_Repository_LOWER_Update_LOWER() {
+    // Setup
+    let noun = "Repository";
+    let verb = "Update";
+
+    // Execute
+    let result = execute_noun_verb(noun, verb).await;
+
+    // Assert
+    assert!(result.is_ok());
+}
+
+#[tokio::test]
+async fn test_Repository_LOWER_Update_LOWER_invalid_input() {
+    // Test with invalid input
+    let result = execute_noun_verb("", "Update").await;
+    assert!(result.is_err());
+}
+
+async fn execute_noun_verb(noun: &str, verb: &str) -> Result<String, Box<dyn std::error::Error>> {
+    Ok(format!("{}({})", verb, noun))
+}

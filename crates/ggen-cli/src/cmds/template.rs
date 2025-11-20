@@ -5,7 +5,6 @@
 use clap_noun_verb::Result as NounVerbResult;
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
-use std::collections::BTreeMap;
 use std::path::PathBuf;
 
 // ============================================================================
@@ -298,19 +297,4 @@ fn regenerate(template: Option<String>) -> NounVerbResult<GenerateTreeOutput> {
 // Helper Functions
 // ============================================================================
 
-/// Parse variable arguments (key=value format)
-#[allow(dead_code)]
-fn parse_variables(vars: &[String]) -> Result<BTreeMap<String, String>, String> {
-    let mut map = BTreeMap::new();
-    for var in vars {
-        if let Some((key, value)) = var.split_once('=') {
-            map.insert(key.to_string(), value.to_string());
-        } else {
-            return Err(format!(
-                "Invalid variable format: {}. Expected key=value",
-                var
-            ));
-        }
-    }
-    Ok(map)
-}
+// Use utility function from ggen_utils::cli instead of duplicating here
