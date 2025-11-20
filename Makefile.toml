@@ -19,10 +19,10 @@ ignore_errors = false
 
 # Core development tasks - with timeout wrappers
 [tasks.check]
-description = "Check code without building (quick feedback, 5s timeout)"
+description = "Check code without building (15s timeout for lock contention & workspace rebuild)"
 workspace = false
 command = "timeout"
-args = ["5s", "cargo", "check"]
+args = ["15s", "cargo", "check"]
 
 # Pre-push check with longer timeout for lock contention scenarios
 [tasks.check-pre-push]
@@ -317,10 +317,10 @@ fi
 '''
 
 [tasks.test-unit]
-description = "Unit tests only (90s timeout for oxrocksdb-sys compilation on first run)"
+description = "Unit tests only (150s timeout for full workspace rebuild after cargo clean)"
 workspace = false
 command = "timeout"
-args = ["90s", "cargo", "test", "--workspace", "--lib"]
+args = ["150s", "cargo", "test", "--workspace", "--lib"]
 
 [tasks.test-integration]
 description = "Integration tests only"

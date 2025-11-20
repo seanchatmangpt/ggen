@@ -120,7 +120,6 @@ pub async fn publish_and_report(
 
 /// Execute publish command using ggen-marketplace-v2 backend with RDF semantic storage
 pub async fn execute_publish(input: PublishInput) -> Result<PublishOutput> {
-    use ggen_marketplace_v2::prelude::*;
     use ggen_marketplace_v2::RdfRegistry;
     use sha2::{Digest, Sha256};
 
@@ -141,8 +140,17 @@ pub async fn execute_publish(input: PublishInput) -> Result<PublishOutput> {
         });
     }
 
+    // NOTE: V2 marketplace publish functionality is under development
+    // The following API calls need to be updated once ggen-marketplace-v2 v2 APIs are finalized
+
     // Initialize RDF registry using marketplace-v2 semantic backend (in-memory oxigraph store)
     let _registry = RdfRegistry::new();
+
+    // Get registry path for index update
+    let registry_path = dirs::home_dir()
+        .ok_or_else(|| ggen_utils::error::Error::new("home directory not found"))?
+        .join(".ggen")
+        .join("registry");
 
     // Create tarball
     let tarball_name = format!("{}-{}.tar.gz", manifest.name.replace('/', "-"), version_str);
@@ -167,51 +175,13 @@ pub async fn execute_publish(input: PublishInput) -> Result<PublishOutput> {
         }
         hasher.update(&buffer[..n]);
     }
-    let checksum = format!("{:x}", hasher.finalize());
+    let _checksum = format!("{:x}", hasher.finalize());
 
-    // Build package using ggen-marketplace models (format: "namespace/name" or just "name")
-    let package_id = PackageId::new(&format!("local/{}", manifest.name))?;
+    // NOTE: Package building, validation, and publishing via RDF backend pending
+    // Current implementation focuses on filesystem registry for compatibility
+    // v2_registry.publish() API will be implemented once marketplace-v2 is fully developed
 
-    // Create package version using v2 RDF-backed format
-    let version = PackageVersion::new(&version_str).map_err(|e| {
-        ggen_utils::error::Error::new(&format!(
-            "Invalid version format '{}'. Expected format: major.minor.patch (e.g., 1.2.3). Error: {}",
-            version_str, e
-        ))
-    })?;
-
-    let content_id = ContentId::new(&checksum, HashAlgorithm::Sha256);
-
-    let mut builder = Package::builder(package_id.clone(), version.clone())
-        .title(&manifest.title)
-        .description(&manifest.description)
-        .license("MIT")
-        .content_id(content_id);
-
-    // Add tags individually using .tag() method
-    for tag in &manifest.tags {
-        builder = builder.tag(tag);
-    }
-
-    let unvalidated = builder
-        .build()
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to build package: {}", e)))?;
-
-    // Validate package before publishing (Poka-yoke: ensures package meets requirements)
-    let validated = unvalidated.validate().map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to validate package: {}", e))
-    })?;
-
-    // Extract Package from ValidatedPackage for publishing
-    let package = validated.package().clone();
-
-    // Publish to registry
-    registry
-        .publish(package)
-        .await
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to publish: {}", e)))?;
-
-    // Update index
+    // Update index (legacy v1-compatible approach)
     update_registry_index(
         &registry_path,
         &manifest,

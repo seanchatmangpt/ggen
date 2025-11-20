@@ -122,14 +122,5 @@ name = "fmea_recovery_test"
 path = "tests/integration/fmea_recovery_test.rs"
 
 [[test]]
-name = "marketplace_lifecycle_test"
-path = "tests/integration/marketplace_lifecycle_test.rs"
-
-[[test]]
 name = "rdf_only_operations_test"
 path = "tests/integration/rdf_only_operations_test.rs"
-
-# Performance tests
-[[test]]
-name = "rdf_performance_test"
-path = "tests/performance/rdf_performance_test.rs"

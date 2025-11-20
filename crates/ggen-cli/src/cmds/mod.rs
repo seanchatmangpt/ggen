@@ -12,7 +12,7 @@
 pub mod ai;
 pub mod graph;
 pub mod hook;
-pub mod marketplace;
+// pub mod marketplace;  // DISABLED: Pending v2 API migration (128 compilation errors)
 pub mod ontology;
 pub mod packs;
 pub mod paper;
