@@ -46,24 +46,24 @@ fi
 FAILED=0
 
 # 1. Compilation check (CRITICAL ANDON SIGNAL)
-if ! run_check "Compilation check (cargo make check)" "cargo make check" "10s"; then
+if ! run_check "Compilation check (cargo make check)" "cargo make check" "15s"; then
     FAILED=1
 fi
 
 # 2. Formatting check
-if ! run_check "Format check (cargo make fmt)" "cargo make fmt -- --check" "5s"; then
+if ! run_check "Format check (cargo make fmt)" "cargo make fmt -- --check" "10s"; then
     echo -e "${YELLOW}  Run 'cargo make fmt' to fix formatting${NC}"
     FAILED=1
 fi
 
 # 3. Linting check (HIGH ANDON SIGNAL)
-if ! run_check "Linting (cargo make lint)" "cargo make lint" "10s"; then
+if ! run_check "Linting (cargo make lint)" "cargo make lint" "15s"; then
     FAILED=1
 fi
 
-# 4. Unit tests (CRITICAL ANDON SIGNAL) - 100s timeout for oxrocksdb-sys compilation
-# Note: First build with oxrocksdb-sys compilation can take ~80-90s
-if ! run_check "Unit tests (cargo make test-unit)" "cargo make test-unit" "100s"; then
+# 4. Unit tests (CRITICAL ANDON SIGNAL) - 160s timeout for full workspace rebuild
+# Note: After cargo clean, full rebuild with oxrocksdb-sys can take ~150s
+if ! run_check "Unit tests (cargo make test-unit)" "cargo make test-unit" "160s"; then
     FAILED=1
 fi
 

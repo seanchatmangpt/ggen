@@ -2,9 +2,7 @@
 //!
 //! Real implementation of installed packages listing functionality using ggen-marketplace-v2.
 
-use ggen_marketplace_v2::prelude::*;
 use ggen_utils::error::Result;
-use serde_json;
 
 /// List command arguments
 #[derive(Debug, Clone, Default)]
@@ -157,7 +155,7 @@ pub async fn execute_list(_input: ListInput) -> Result<ListOutput> {
     use std::path::PathBuf;
 
     // FM22 (RPN 350): Missing home directory - fail fast for determinism (no temp fallback)
-    let registry_path = dirs::home_dir()
+    let _registry_path = dirs::home_dir()
         .ok_or_else(|| {
             ggen_utils::error::Error::new(
                 "❌ Home directory not found. Cannot determine registry directory. Marketplace operations require a valid home directory."
@@ -167,7 +165,7 @@ pub async fn execute_list(_input: ListInput) -> Result<ListOutput> {
         .join("registry");
 
     // Initialize RDF registry (v2 backend - in-memory oxigraph store)
-    let _registry = RdfRegistry::new();
+    let registry = RdfRegistry::new();
 
     // FM22 (RPN 350): Missing home directory - fail fast for determinism (no temp fallback)
     let packages_dir = dirs::home_dir()
@@ -190,23 +188,24 @@ pub async fn execute_list(_input: ListInput) -> Result<ListOutput> {
         }
     };
 
-    // Get registry metadata (unused but shows we can interact with registry)
-    let _metadata = registry
-        .metadata()
-        .await
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to get metadata: {}", e)))?;
+    // Note: v2 RDF registry is in-memory, metadata operations pending
+    // let _metadata = registry.metadata().await?;
 
     let mut packages = vec![];
 
     // Iterate through lockfile packages
     for (name, info) in &lockfile.packages {
-        let package_id = PackageId::new("local", name);
+        // Note: PackageId in v2 uses qualified format "namespace/name"
+        let package_id = match PackageId::new(&format!("local/{}", name)) {
+            Ok(id) => id,
+            Err(_) => continue, // Skip invalid package IDs
+        };
 
         if let Ok(pkg) = registry.get_package(&package_id).await {
             packages.push(PackageListItem {
                 name: name.clone(),
                 version: info.version.clone(),
-                title: pkg.metadata.title.clone(),
+                title: pkg.metadata.name.clone(),
                 description: pkg.metadata.description.clone(),
                 installed_at: info.installed_at.clone(),
             });
