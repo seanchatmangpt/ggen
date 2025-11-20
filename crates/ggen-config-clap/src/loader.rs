@@ -40,11 +40,18 @@ pub fn expand_env_vars(input: &str) -> String {
     let mut result = input.to_string();
 
     // Replace ${VAR} patterns
-    while let Some(start) = result.find("${") {
+    let mut last_pos = 0;
+    while let Some(start) = result[last_pos..].find("${") {
+        let start = last_pos + start;
         if let Some(end) = result[start..].find('}') {
             let var_name = &result[start + 2..start + end];
             if let Ok(value) = std::env::var(var_name) {
                 result.replace_range(start..start + end + 1, &value);
+                // Continue searching from after the replacement
+                last_pos = start + value.len();
+            } else {
+                // Variable not found - skip past this pattern to avoid infinite loop
+                last_pos = start + end + 1;
             }
         } else {
             break;

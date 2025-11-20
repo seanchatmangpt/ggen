@@ -251,7 +251,6 @@ pub struct PackageInstallPlan {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::{Package, PackageMetadata, PackageVersion};
     use crate::registry::Registry;
 
     #[tokio::test]
