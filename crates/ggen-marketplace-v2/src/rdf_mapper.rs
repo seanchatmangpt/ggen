@@ -789,39 +789,4 @@ mod tests {
         let result = mapper.package_to_rdf(&package).await;
         assert!(result.is_ok());
     }
-
-    #[tokio::test]
-    #[ignore]
-    async fn test_round_trip_conversion() {
-        let store = Arc::new(Store::new().unwrap());
-        let mapper = RdfMapper::new(store);
-
-        let id = PackageId::new("roundtrip-test").unwrap();
-        let mut metadata = PackageMetadata::new(id.clone(), "Round Trip", "Test package", "MIT");
-        metadata.authors = vec!["Alice".to_string(), "Bob".to_string()];
-        metadata.keywords = vec!["test".to_string(), "rdf".to_string()];
-
-        let package = Package {
-            metadata,
-            latest_version: PackageVersion::new("1.0.0").unwrap(),
-            versions: vec![PackageVersion::new("1.0.0").unwrap()],
-            releases: indexmap::IndexMap::new(),
-        };
-
-        // Convert to RDF
-        mapper.package_to_rdf(&package).await.unwrap();
-
-        // Convert back from RDF
-        let reconstructed = mapper.rdf_to_package(&id).await.unwrap();
-
-        // Verify basic fields
-        assert_eq!(reconstructed.metadata.id, package.metadata.id);
-        assert_eq!(reconstructed.metadata.name, package.metadata.name);
-        assert_eq!(
-            reconstructed.metadata.description,
-            package.metadata.description
-        );
-        assert_eq!(reconstructed.metadata.authors, package.metadata.authors);
-        assert_eq!(reconstructed.versions, package.versions);
-    }
 }

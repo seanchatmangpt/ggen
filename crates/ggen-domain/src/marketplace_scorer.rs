@@ -474,7 +474,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_marketplace_scorer() {
         let mut scorer = MarketplaceScorer::new();
         let pkg = PackageId::new("test-package".to_string(), "1.0.0".to_string());

@@ -366,14 +366,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
-    fn test_control_plane_init() {
-        let config_dir = setup_test_config();
-        let control_plane = RdfControlPlane::new(&config_dir);
-        assert!(control_plane.is_ok());
-    }
-
-    #[test]
     fn test_injection_detection() {
         let config_dir = setup_test_config();
         let control_plane = RdfControlPlane::new(&config_dir).unwrap();

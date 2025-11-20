@@ -298,22 +298,6 @@ mod tests {
     use super::*;
 
     #[test]
-    #[ignore]
-    fn test_search_backend_selection() {
-        let backend = SearchBackend::active();
-
-        // Verify backend is selected based on features
-        // v1 only: v1 feature has been removed, so this code is unreachable
-        assert_eq!(backend, SearchBackend::V1);
-
-        // v2 only (current state after v1 removal)
-        assert_eq!(backend, SearchBackend::V2);
-
-        // v1 and v2 parallel mode: v1 feature removed, v2 is only
-        assert_eq!(backend, SearchBackend::V2); // Prefer v2 in parallel mode
-    }
-
-    #[test]
     fn test_unified_search_query_builder() {
         let query = UnifiedSearchQuery::new("rust web")
             .with_category("web-framework")
