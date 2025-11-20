@@ -772,22 +772,7 @@ fn watch(path: PathBuf, debounce: u64) -> Result<WatchOutput> {
 // Helper Functions
 // ============================================================================
 
-/// Parse variable arguments from key=value format
-#[allow(dead_code)]
-fn parse_variables(vars: &[String]) -> Result<BTreeMap<String, String>> {
-    let mut map = BTreeMap::new();
-    for var in vars {
-        if let Some((key, value)) = var.split_once('=') {
-            map.insert(key.to_string(), value.to_string());
-        } else {
-            return Err(clap_noun_verb::NounVerbError::execution_error(format!(
-                "Invalid variable format: {}. Expected key=value",
-                var
-            )));
-        }
-    }
-    Ok(map)
-}
+// Use utility function from ggen_utils::cli instead of duplicating here
 
 // ============================================================================
 // Usage Notes

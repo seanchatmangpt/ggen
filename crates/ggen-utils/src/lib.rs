@@ -45,6 +45,7 @@
 
 pub mod alert;
 pub mod app_config;
+pub mod cli;
 pub mod enhanced_error;
 pub mod error;
 pub mod logger;
@@ -52,6 +53,7 @@ pub mod project_config;
 pub mod time;
 pub mod types;
 pub mod user_level;
+pub mod versioning;
 
 pub use project_config::{GgenConfig as UtilsGgenConfig, Project, RdfConfig};
 

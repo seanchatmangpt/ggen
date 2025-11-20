@@ -229,7 +229,7 @@ pub struct {}Args {{
 /// {} {} business logic (async)
 pub async fn {}(args: {}Args) -> Result<()> {{
     // Default implementation - replace with your logic
-    println!("Executing {} {} with args: {{:?}}", args);
+    // TODO: Implement actual business logic here
     Ok(())
 }}
 
@@ -254,8 +254,6 @@ mod tests {{
             noun,
             function_name,
             struct_name,
-            verb,
-            noun,
             function_name,
             struct_name,
             function_name

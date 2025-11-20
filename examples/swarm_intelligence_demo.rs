@@ -11,18 +11,17 @@
 
 #[allow(dead_code)]
 mod demo {
-    use ggen_ai::swarm::algorithms::aco::{AcoConfig, SparqlAcoOptimizer, parse_sparql_to_nodes};
-    use ggen_ai::swarm::algorithms::pso::{
-        PsoConfig, TemplateParameter, TemplateParameterOptimizer,
-        ParameterType, DefaultTemplateFitness, TemplateQuality,
-    };
+    use ggen_ai::swarm::algorithms::aco::{parse_sparql_to_nodes, AcoConfig, SparqlAcoOptimizer};
     use ggen_ai::swarm::algorithms::evolution::{
-        EvolutionConfig, TemplateEvolutionEngine, TemplateGenome,
-        GenomeFitnessEvaluator,
+        EvolutionConfig, GenomeFitnessEvaluator, TemplateEvolutionEngine, TemplateGenome,
+    };
+    use ggen_ai::swarm::algorithms::pso::{
+        DefaultTemplateFitness, ParameterType, PsoConfig, TemplateParameter,
+        TemplateParameterOptimizer, TemplateQuality,
     };
     use ggen_ai::swarm::emergent::{
-        PolyglotSynthesisCoordinator, LanguageAgent, Language,
-        PolyglotRequirements, QualityRequirements,
+        Language, LanguageAgent, PolyglotRequirements, PolyglotSynthesisCoordinator,
+        QualityRequirements,
     };
     use std::collections::HashMap;
 
@@ -100,8 +99,10 @@ mod demo {
 
         println!("Template parameters:");
         for param in &parameters {
-            println!("  - {} ({:?}): [{}, {}]",
-                param.name, param.param_type, param.min, param.max);
+            println!(
+                "  - {} ({:?}): [{}, {}]",
+                param.name, param.param_type, param.min, param.max
+            );
         }
 
         // Create fitness function
@@ -180,7 +181,9 @@ mod demo {
                 Ok(genome.attributes.values().sum::<f64>() / genome.attributes.len() as f64)
             }
 
-            async fn evaluate_objectives(&self, genome: &TemplateGenome) -> ggen_ai::Result<HashMap<String, f64>> {
+            async fn evaluate_objectives(
+                &self, genome: &TemplateGenome,
+            ) -> ggen_ai::Result<HashMap<String, f64>> {
                 Ok(genome.attributes.clone())
             }
         }
@@ -208,8 +211,10 @@ mod demo {
             if let Some(last) = stats.last() {
                 println!("    Initial best fitness: {:.4}", first.best_fitness);
                 println!("    Final best fitness: {:.4}", last.best_fitness);
-                println!("    Improvement: {:.2}%",
-                    ((last.best_fitness - first.best_fitness) / first.best_fitness) * 100.0);
+                println!(
+                    "    Improvement: {:.2}%",
+                    ((last.best_fitness - first.best_fitness) / first.best_fitness) * 100.0
+                );
             }
         }
 
@@ -285,7 +290,10 @@ mod demo {
 
         let solution = coordinator.synthesize_polyglot_code(&requirements).await?;
 
-        println!("  ✓ Generated code for {} languages", solution.outputs.len());
+        println!(
+            "  ✓ Generated code for {} languages",
+            solution.outputs.len()
+        );
         println!("  Quality score: {:.4}", solution.quality_score);
 
         println!("\nGenerated code:");

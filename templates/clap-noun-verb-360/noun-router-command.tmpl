@@ -1,0 +1,58 @@
+---
+to: "src/commands/nouns/{{ name | snake_case }}_command.rs"
+vars:
+  name: "RouterCommand"
+  noun: "Router"
+  description: "Router noun command handler"
+---
+
+use clap::Parser;
+use crate::CommandResult;
+
+/// Router command for noun-verb CLI
+#[derive(Parser, Debug)]
+#[command(name = "Router_LOWER")]
+#[command(about = "Router operations")]
+pub struct RouterCommand {
+    /// The action to perform
+    #[arg(value_name = "ACTION")]
+    pub action: String,
+
+    /// Additional arguments
+    #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
+    pub args: Vec<String>,
+}
+
+impl RouterCommand {
+    /// Execute the Router command
+    pub async fn execute(&self) -> CommandResult<String> {
+        match self.action.as_str() {
+            "create" => self.create().await,
+            "read" | "get" => self.read().await,
+            "update" => self.update().await,
+            "delete" | "remove" => self.delete().await,
+            "list" => self.list().await,
+            _ => Err(format!("Unknown Router_LOWER action: {}", self.action).into()),
+        }
+    }
+
+    async fn create(&self) -> CommandResult<String> {
+        Ok(format!("Creating new Router_LOWER"))
+    }
+
+    async fn read(&self) -> CommandResult<String> {
+        Ok(format!("Reading Router_LOWER"))
+    }
+
+    async fn update(&self) -> CommandResult<String> {
+        Ok(format!("Updating Router_LOWER"))
+    }
+
+    async fn delete(&self) -> CommandResult<String> {
+        Ok(format!("Deleting Router_LOWER"))
+    }
+
+    async fn list(&self) -> CommandResult<String> {
+        Ok(format!("Listing Router_LOWERs"))
+    }
+}

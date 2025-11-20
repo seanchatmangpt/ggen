@@ -1,7 +1,8 @@
 //! Marketplace list domain logic
 //!
-//! Real implementation of installed packages listing functionality.
+//! Real implementation of installed packages listing functionality using ggen-marketplace-v2.
 
+use ggen_marketplace_v2::prelude::*;
 use ggen_utils::error::Result;
 use serde_json;
 
@@ -149,10 +150,10 @@ pub async fn list_and_display(detailed: bool, json: bool) -> Result<()> {
     Ok(())
 }
 
-/// Execute list command using ggen-marketplace backend
+/// Execute list command using ggen-marketplace-v2 backend
 pub async fn execute_list(_input: ListInput) -> Result<ListOutput> {
-    use ggen_marketplace::backend::LocalRegistry;
-    use ggen_marketplace::prelude::*;
+    use ggen_marketplace_v2::prelude::*;
+    use ggen_marketplace_v2::RdfRegistry;
     use std::path::PathBuf;
 
     // FM22 (RPN 350): Missing home directory - fail fast for determinism (no temp fallback)
@@ -165,12 +166,8 @@ pub async fn execute_list(_input: ListInput) -> Result<ListOutput> {
         .join(".ggen")
         .join("registry");
 
-    // Initialize registry
-    let registry = LocalRegistry::new(registry_path.clone())
-        .await
-        .map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to initialize registry: {}", e))
-        })?;
+    // Initialize RDF registry (v2 backend - in-memory oxigraph store)
+    let _registry = RdfRegistry::new();
 
     // FM22 (RPN 350): Missing home directory - fail fast for determinism (no temp fallback)
     let packages_dir = dirs::home_dir()

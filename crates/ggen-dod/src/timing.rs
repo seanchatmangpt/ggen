@@ -121,6 +121,7 @@ pub fn schema_validation_timing() -> TimingGuarantee {
 }
 
 /// Timing enforcer for execution
+#[derive(Clone)]
 pub struct TimingEnforcer {
     /// Constraints being enforced
     constraints: Vec<(String, TimingGuarantee)>,
@@ -144,8 +145,11 @@ impl TimingEnforcer {
     }
 
     /// Register a measurement
-    pub fn record_measurement(mut self, name: impl Into<String>, measurement: TimingMeasurement) {
+    pub fn record_measurement(
+        mut self, name: impl Into<String>, measurement: TimingMeasurement,
+    ) -> Self {
         self.measurements.push((name.into(), measurement));
+        self
     }
 
     /// Check all measurements against constraints
@@ -279,10 +283,9 @@ mod tests {
 
     #[test]
     fn test_timing_enforcer() -> DoDResult<()> {
-        let mut enforcer =
-            TimingEnforcer::new().with_constraint("kernel", kernel_timing_constraint());
-
-        enforcer.record_measurement("test", TimingMeasurement::new().finished(5));
+        let enforcer = TimingEnforcer::new()
+            .with_constraint("kernel", kernel_timing_constraint())
+            .record_measurement("test", TimingMeasurement::new().finished(5));
 
         enforcer.verify()?;
         Ok(())
@@ -290,13 +293,12 @@ mod tests {
 
     #[test]
     fn test_timing_stats() {
-        let enforcer = TimingEnforcer::new();
-        let mut e2 = enforcer;
-        e2.record_measurement("m1", TimingMeasurement::new().finished(5));
-        e2.record_measurement("m2", TimingMeasurement::new().finished(10));
-        e2.record_measurement("m3", TimingMeasurement::new().finished(7));
+        let enforcer = TimingEnforcer::new()
+            .record_measurement("m1", TimingMeasurement::new().finished(5))
+            .record_measurement("m2", TimingMeasurement::new().finished(10))
+            .record_measurement("m3", TimingMeasurement::new().finished(7));
 
-        let stats = e2.stats();
+        let stats = enforcer.stats();
         assert_eq!(stats.count, 3);
         assert_eq!(stats.min, 5);
         assert_eq!(stats.max, 10);

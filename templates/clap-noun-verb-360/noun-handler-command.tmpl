@@ -1,0 +1,58 @@
+---
+to: "src/commands/nouns/{{ name | snake_case }}_command.rs"
+vars:
+  name: "HandlerCommand"
+  noun: "Handler"
+  description: "Handler noun command handler"
+---
+
+use clap::Parser;
+use crate::CommandResult;
+
+/// Handler command for noun-verb CLI
+#[derive(Parser, Debug)]
+#[command(name = "Handler_LOWER")]
+#[command(about = "Handler operations")]
+pub struct HandlerCommand {
+    /// The action to perform
+    #[arg(value_name = "ACTION")]
+    pub action: String,
+
+    /// Additional arguments
+    #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
+    pub args: Vec<String>,
+}
+
+impl HandlerCommand {
+    /// Execute the Handler command
+    pub async fn execute(&self) -> CommandResult<String> {
+        match self.action.as_str() {
+            "create" => self.create().await,
+            "read" | "get" => self.read().await,
+            "update" => self.update().await,
+            "delete" | "remove" => self.delete().await,
+            "list" => self.list().await,
+            _ => Err(format!("Unknown Handler_LOWER action: {}", self.action).into()),
+        }
+    }
+
+    async fn create(&self) -> CommandResult<String> {
+        Ok(format!("Creating new Handler_LOWER"))
+    }
+
+    async fn read(&self) -> CommandResult<String> {
+        Ok(format!("Reading Handler_LOWER"))
+    }
+
+    async fn update(&self) -> CommandResult<String> {
+        Ok(format!("Updating Handler_LOWER"))
+    }
+
+    async fn delete(&self) -> CommandResult<String> {
+        Ok(format!("Deleting Handler_LOWER"))
+    }
+
+    async fn list(&self) -> CommandResult<String> {
+        Ok(format!("Listing Handler_LOWERs"))
+    }
+}

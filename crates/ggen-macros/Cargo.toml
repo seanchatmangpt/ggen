@@ -18,8 +18,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
 [dev-dependencies]
-# Use workspace = true pattern for workspace-local crates
-ggen-marketplace.workspace = true
+# No marketplace dependencies needed for macro tests
 
 [lints]
 workspace = true

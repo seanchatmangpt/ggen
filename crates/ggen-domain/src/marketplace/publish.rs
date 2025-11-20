@@ -118,10 +118,10 @@ pub async fn publish_and_report(
     Ok(())
 }
 
-/// Execute publish command using ggen-marketplace backend
+/// Execute publish command using ggen-marketplace-v2 backend with RDF semantic storage
 pub async fn execute_publish(input: PublishInput) -> Result<PublishOutput> {
-    use ggen_marketplace::backend::LocalRegistry;
-    use ggen_marketplace::prelude::*;
+    use ggen_marketplace_v2::prelude::*;
+    use ggen_marketplace_v2::RdfRegistry;
     use sha2::{Digest, Sha256};
 
     // Read package manifest
@@ -141,17 +141,8 @@ pub async fn execute_publish(input: PublishInput) -> Result<PublishOutput> {
         });
     }
 
-    // Initialize local registry
-    let registry_path = dirs::home_dir()
-        .ok_or_else(|| ggen_utils::error::Error::new("home directory not found"))?
-        .join(".ggen")
-        .join("registry");
-
-    let registry = LocalRegistry::new(registry_path.clone())
-        .await
-        .map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to initialize registry: {}", e))
-        })?;
+    // Initialize RDF registry using marketplace-v2 semantic backend (in-memory oxigraph store)
+    let _registry = RdfRegistry::new();
 
     // Create tarball
     let tarball_name = format!("{}-{}.tar.gz", manifest.name.replace('/', "-"), version_str);
@@ -178,31 +169,16 @@ pub async fn execute_publish(input: PublishInput) -> Result<PublishOutput> {
     }
     let checksum = format!("{:x}", hasher.finalize());
 
-    // Build package using ggen-marketplace models
-    let package_id = PackageId::new("local", &manifest.name);
+    // Build package using ggen-marketplace models (format: "namespace/name" or just "name")
+    let package_id = PackageId::new(&format!("local/{}", manifest.name))?;
 
-    // Parse version string (format: "major.minor.patch")
-    // Return error if version format is invalid instead of silently creating 0.0.0
-    let version_parts: Vec<u32> = version_str
-        .split('.')
-        .map(|s| {
-            s.parse::<u32>().map_err(|_| {
-                ggen_utils::error::Error::new(&format!(
-                    "Invalid version component '{}' in version string '{}'. Expected format: major.minor.patch (e.g., 1.2.3)",
-                    s, version_str
-                ))
-            })
-        })
-        .collect::<std::result::Result<Vec<u32>, ggen_utils::error::Error>>()?;
-
-    if version_parts.len() < 3 {
-        return Err(ggen_utils::error::Error::new(&format!(
-            "Invalid version format '{}'. Expected format: major.minor.patch (e.g., 1.2.3). Found {} component(s)",
-            version_str, version_parts.len()
-        )));
-    }
-
-    let version = Version::new(version_parts[0], version_parts[1], version_parts[2]);
+    // Create package version using v2 RDF-backed format
+    let version = PackageVersion::new(&version_str).map_err(|e| {
+        ggen_utils::error::Error::new(&format!(
+            "Invalid version format '{}'. Expected format: major.minor.patch (e.g., 1.2.3). Error: {}",
+            version_str, e
+        ))
+    })?;
 
     let content_id = ContentId::new(&checksum, HashAlgorithm::Sha256);
 

@@ -1,0 +1,58 @@
+---
+to: "src/commands/nouns/{{ name | snake_case }}_command.rs"
+vars:
+  name: "TemplateCommand"
+  noun: "Template"
+  description: "Template noun command handler"
+---
+
+use clap::Parser;
+use crate::CommandResult;
+
+/// Template command for noun-verb CLI
+#[derive(Parser, Debug)]
+#[command(name = "Template_LOWER")]
+#[command(about = "Template operations")]
+pub struct TemplateCommand {
+    /// The action to perform
+    #[arg(value_name = "ACTION")]
+    pub action: String,
+
+    /// Additional arguments
+    #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
+    pub args: Vec<String>,
+}
+
+impl TemplateCommand {
+    /// Execute the Template command
+    pub async fn execute(&self) -> CommandResult<String> {
+        match self.action.as_str() {
+            "create" => self.create().await,
+            "read" | "get" => self.read().await,
+            "update" => self.update().await,
+            "delete" | "remove" => self.delete().await,
+            "list" => self.list().await,
+            _ => Err(format!("Unknown Template_LOWER action: {}", self.action).into()),
+        }
+    }
+
+    async fn create(&self) -> CommandResult<String> {
+        Ok(format!("Creating new Template_LOWER"))
+    }
+
+    async fn read(&self) -> CommandResult<String> {
+        Ok(format!("Reading Template_LOWER"))
+    }
+
+    async fn update(&self) -> CommandResult<String> {
+        Ok(format!("Updating Template_LOWER"))
+    }
+
+    async fn delete(&self) -> CommandResult<String> {
+        Ok(format!("Deleting Template_LOWER"))
+    }
+
+    async fn list(&self) -> CommandResult<String> {
+        Ok(format!("Listing Template_LOWERs"))
+    }
+}

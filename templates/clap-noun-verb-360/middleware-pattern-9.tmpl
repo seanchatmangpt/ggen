@@ -1,0 +1,33 @@
+---
+to: "src/middleware/pattern_{{ index }}.rs"
+vars:
+  index: 9
+  middleware: "middleware_pattern_9"
+---
+
+use std::future::Future;
+use std::pin::Pin;
+
+pub type Middleware9Fn = Box<
+    dyn Fn(String) -> Pin<Box<dyn Future<Output = Result<String, String>> + Send>> + Send + Sync,
+>;
+
+/// Middleware pattern 9 for request/response handling
+pub struct MiddlewarePattern9 {
+    handler: Middleware9Fn,
+}
+
+impl MiddlewarePattern9 {
+    pub fn new<F>(handler: F) -> Self
+    where
+        F: Fn(String) -> Pin<Box<dyn Future<Output = Result<String, String>> + Send>> + Send + Sync + 'static,
+    {
+        Self {
+            handler: Box::new(handler),
+        }
+    }
+
+    pub async fn handle(&self, input: String) -> Result<String, String> {
+        (self.handler)(input).await
+    }
+}

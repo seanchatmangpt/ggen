@@ -22,7 +22,7 @@ async fn test_sparql_select_simple() {
     "#;
 
     store
-        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .load_from_reader(oxigraph::io::RdfFormat::Turtle, turtle.as_bytes())
         .unwrap();
 
     let query = r#"
@@ -50,7 +50,7 @@ async fn test_sparql_select_multiple_variables() {
     "#;
 
     store
-        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .load_from_reader(oxigraph::io::RdfFormat::Turtle, turtle.as_bytes())
         .unwrap();
 
     let query = r#"
@@ -82,7 +82,7 @@ async fn test_sparql_select_filter() {
     "#;
 
     store
-        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .load_from_reader(oxigraph::io::RdfFormat::Turtle, turtle.as_bytes())
         .unwrap();
 
     let query = r#"
@@ -113,7 +113,7 @@ async fn test_sparql_select_order_by() {
     "#;
 
     store
-        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .load_from_reader(oxigraph::io::RdfFormat::Turtle, turtle.as_bytes())
         .unwrap();
 
     let query = r#"
@@ -145,7 +145,7 @@ async fn test_sparql_select_limit() {
     "#;
 
     store
-        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .load_from_reader(oxigraph::io::RdfFormat::Turtle, turtle.as_bytes())
         .unwrap();
 
     let query = r#"
@@ -176,7 +176,7 @@ async fn test_sparql_select_offset() {
     "#;
 
     store
-        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .load_from_reader(oxigraph::io::RdfFormat::Turtle, turtle.as_bytes())
         .unwrap();
 
     let query = r#"
@@ -208,7 +208,7 @@ async fn test_sparql_select_distinct() {
     "#;
 
     store
-        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .load_from_reader(oxigraph::io::RdfFormat::Turtle, turtle.as_bytes())
         .unwrap();
 
     let query = r#"
@@ -362,7 +362,7 @@ async fn test_sparql_ask_exists() {
     "#;
 
     store
-        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .load_from_reader(oxigraph::io::RdfFormat::Turtle, turtle.as_bytes())
         .unwrap();
 
     let query = r#"
@@ -411,7 +411,7 @@ async fn test_sparql_construct_simple() {
     "#;
 
     store
-        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .load_from_reader(oxigraph::io::RdfFormat::Turtle, turtle.as_bytes())
         .unwrap();
 
     let query = r#"
@@ -446,7 +446,7 @@ async fn test_search_by_name() {
     "#;
 
     store
-        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .load_from_reader(oxigraph::io::RdfFormat::Turtle, turtle.as_bytes())
         .unwrap();
 
     let query = r#"
@@ -475,7 +475,7 @@ async fn test_search_by_tag() {
     "#;
 
     store
-        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .load_from_reader(oxigraph::io::RdfFormat::Turtle, turtle.as_bytes())
         .unwrap();
 
     let query = r#"
@@ -504,7 +504,7 @@ async fn test_search_by_quality_score() {
     "#;
 
     store
-        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .load_from_reader(oxigraph::io::RdfFormat::Turtle, turtle.as_bytes())
         .unwrap();
 
     let query = r#"
@@ -538,7 +538,7 @@ async fn test_query_direct_dependencies() {
     "#;
 
     store
-        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .load_from_reader(oxigraph::io::RdfFormat::Turtle, turtle.as_bytes())
         .unwrap();
 
     let query = r#"
@@ -566,7 +566,7 @@ async fn test_query_reverse_dependencies() {
     "#;
 
     store
-        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .load_from_reader(oxigraph::io::RdfFormat::Turtle, turtle.as_bytes())
         .unwrap();
 
     let query = r#"
@@ -599,7 +599,7 @@ async fn test_sparql_optional_pattern() {
     "#;
 
     store
-        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .load_from_reader(oxigraph::io::RdfFormat::Turtle, turtle.as_bytes())
         .unwrap();
 
     let query = r#"
@@ -628,7 +628,7 @@ async fn test_sparql_union_pattern() {
     "#;
 
     store
-        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .load_from_reader(oxigraph::io::RdfFormat::Turtle, turtle.as_bytes())
         .unwrap();
 
     let query = r#"
@@ -661,7 +661,7 @@ async fn test_sparql_aggregation_count() {
     "#;
 
     store
-        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .load_from_reader(oxigraph::io::RdfFormat::Turtle, turtle.as_bytes())
         .unwrap();
 
     let query = r#"

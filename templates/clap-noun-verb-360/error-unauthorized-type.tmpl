@@ -1,0 +1,44 @@
+---
+to: "src/errors/{{ error | snake_case }}_error.rs"
+vars:
+  error: "UnauthorizedError"
+  type: "Unauthorized_LOWER"
+---
+
+use std::error::Error;
+use std::fmt;
+
+/// Unauthorized error type
+#[derive(Debug, Clone)]
+pub struct UnauthorizedError {
+    pub message: String,
+    pub details: Option<String>,
+}
+
+impl UnauthorizedError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+            details: None,
+        }
+    }
+
+    pub fn with_details(message: impl Into<String>, details: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+            details: Some(details.into()),
+        }
+    }
+}
+
+impl fmt::Display for UnauthorizedError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Unauthorized: {}", self.message)?;
+        if let Some(ref details) = self.details {
+            write!(f, " ({})", details)?;
+        }
+        Ok(())
+    }
+}
+
+impl Error for UnauthorizedError {}

@@ -121,6 +121,144 @@ echo "⚠️  Extended lint timed out at 30s; rerunning with 60s timeout for ful
 run_lint_with_timeout 60s
 '''
 
+[tasks.pre-commit-hook]
+description = "Pre-commit hook with comprehensive validation (Week 2 efficiency improvement)"
+workspace = false
+dependencies = ["timeout-check"]
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+echo "🚦 Pre-commit validation started..."
+echo ""
+
+# Track failures
+FAILURES=0
+
+# 1. Format check
+echo "1️⃣ Checking code formatting..."
+if timeout 5s cargo fmt --all -- --check; then
+  echo "   ✅ Code formatting is correct"
+else
+  echo "   ❌ Code formatting failed - run: cargo make fmt"
+  FAILURES=$((FAILURES + 1))
+fi
+echo ""
+
+# 2. Quick compilation check
+echo "2️⃣ Quick compilation check..."
+if timeout 5s cargo check 2>&1 | grep -q "Finished"; then
+  echo "   ✅ Compilation successful"
+else
+  echo "   ❌ Compilation failed"
+  FAILURES=$((FAILURES + 1))
+fi
+echo ""
+
+# 3. Linting
+echo "3️⃣ Running clippy lints..."
+if timeout 10s cargo clippy --workspace --all-targets -- -D warnings 2>&1 | tail -10; then
+  echo "   ✅ Linting passed"
+else
+  echo "   ❌ Linting failed"
+  FAILURES=$((FAILURES + 1))
+fi
+echo ""
+
+# 4. Unit tests
+echo "4️⃣ Running unit tests..."
+if timeout 10s cargo test --lib --workspace 2>&1 | tail -20; then
+  echo "   ✅ Unit tests passed"
+else
+  echo "   ❌ Unit tests failed"
+  FAILURES=$((FAILURES + 1))
+fi
+echo ""
+
+# Summary
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+if [ $FAILURES -eq 0 ]; then
+  echo "✅ All pre-commit checks passed!"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  exit 0
+else
+  echo "❌ $FAILURES check(s) failed"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "Fix all issues before committing"
+  exit 1
+fi
+'''
+
+[tasks.ci-gate]
+description = "CI gate validation with semver and audit checks (Week 2 efficiency improvement)"
+workspace = false
+dependencies = ["timeout-check"]
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+echo "🚦 CI Gate validation started..."
+echo ""
+
+# Track failures
+FAILURES=0
+
+# 1. Pre-commit hook
+echo "1️⃣ Running pre-commit hook..."
+if cargo make pre-commit-hook; then
+  echo "   ✅ Pre-commit hook passed"
+else
+  echo "   ❌ Pre-commit hook failed"
+  FAILURES=$((FAILURES + 1))
+fi
+echo ""
+
+# 2. Integration tests
+echo "2️⃣ Running integration tests..."
+if timeout 30s cargo test --test --workspace 2>&1 | tail -20; then
+  echo "   ✅ Integration tests passed"
+else
+  echo "   ❌ Integration tests failed"
+  FAILURES=$((FAILURES + 1))
+fi
+echo ""
+
+# 3. Security audit
+echo "3️⃣ Running security audit..."
+if cargo audit --deny warnings 2>&1 | tail -10; then
+  echo "   ✅ Security audit passed"
+else
+  echo "   ❌ Security audit failed"
+  FAILURES=$((FAILURES + 1))
+fi
+echo ""
+
+# 4. Documentation check
+echo "4️⃣ Checking documentation..."
+if timeout 30s cargo doc --no-deps --all 2>&1 | tail -10; then
+  echo "   ✅ Documentation builds successfully"
+else
+  echo "   ❌ Documentation build failed"
+  FAILURES=$((FAILURES + 1))
+fi
+echo ""
+
+# Summary
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+if [ $FAILURES -eq 0 ]; then
+  echo "✅ All CI gate checks passed!"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  exit 0
+else
+  echo "❌ $FAILURES check(s) failed"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "Fix all issues before merging"
+  exit 1
+fi
+'''
+
 [tasks.pre-commit]
 description = "Run pre-commit validation checks (format, lint, test, hooks, docs)"
 workspace = false
@@ -179,10 +317,10 @@ fi
 '''
 
 [tasks.test-unit]
-description = "Unit tests only"
+description = "Unit tests only (90s timeout for oxrocksdb-sys compilation on first run)"
 workspace = false
 command = "timeout"
-args = ["10s", "cargo", "test", "--workspace", "--lib"]
+args = ["90s", "cargo", "test", "--workspace", "--lib"]
 
 [tasks.test-integration]
 description = "Integration tests only"
@@ -1173,4 +1311,151 @@ cd node && (
   (command -v corepack >/dev/null 2>&1 && corepack pnpm dlx @napi-rs/cli@2.18.0 prebuild -t x86_64-unknown-linux-gnu -t aarch64-apple-darwin -t x86_64-apple-darwin -t x86_64-pc-windows-msvc) || \
   (command -v yarn >/dev/null 2>&1 && yarn dlx @napi-rs/cli@2.18.0 prebuild -t x86_64-unknown-linux-gnu -t aarch64-apple-darwin -t x86_64-apple-darwin -t x86_64-pc-windows-msvc)
 )
+'''
+
+# ========================================
+# KAIZEN METRICS TRACKING
+# ========================================
+
+[tasks.metrics-collect]
+description = "Collect daily Kaizen metrics (automated tracking)"
+workspace = false
+script = '''
+#!/bin/bash
+set -e
+echo "📊 Collecting Kaizen metrics..."
+./scripts/metrics/collect_metrics.sh ${WEEK:-1}
+'''
+
+[tasks.metrics-baseline]
+description = "Create Week 0 baseline snapshot"
+workspace = false
+script = '''
+#!/bin/bash
+set -e
+echo "📸 Creating baseline snapshot..."
+./scripts/metrics/baseline_snapshot.sh
+'''
+
+[tasks.metrics-weekly]
+description = "Generate weekly trend report"
+workspace = false
+script = '''
+#!/bin/bash
+set -e
+echo "📊 Generating weekly report..."
+WEEK=${WEEK:-1}
+./scripts/metrics/weekly_report.sh "$WEEK"
+'''
+
+[tasks.metrics-monthly]
+description = "Generate month-end comprehensive report"
+workspace = false
+script = '''
+#!/bin/bash
+set -e
+echo "📊 Generating month-end report..."
+./scripts/metrics/month_end_report.sh
+'''
+
+[tasks.metrics-dashboard]
+description = "Open latest metrics dashboard in browser"
+workspace = false
+script = '''
+#!/bin/bash
+DASHBOARD="/Users/sac/ggen/docs/metrics/latest.html"
+if [[ -f "$DASHBOARD" ]]; then
+    open "$DASHBOARD" 2>/dev/null || xdg-open "$DASHBOARD" 2>/dev/null || echo "Dashboard: $DASHBOARD"
+else
+    echo "⚠️  Dashboard not found. Run: cargo make metrics-collect"
+fi
+'''
+
+[tasks.metrics-status]
+description = "Show current Kaizen metrics status"
+workspace = false
+script = '''
+#!/bin/bash
+LATEST="/Users/sac/ggen/.metrics/latest.json"
+if [[ ! -f "$LATEST" ]]; then
+    echo "⚠️  No metrics collected yet. Run: cargo make metrics-collect"
+    exit 1
+fi
+
+echo "📊 Current Kaizen Metrics Status"
+echo "=================================="
+echo ""
+
+if command -v jq &> /dev/null; then
+    echo "Compiler Errors:     $(jq -r '.metrics.compiler_errors.total_errors' "$LATEST")"
+    echo "Test Pass Rate:      $(jq -r '.metrics.test_pass_rate.overall_percentage' "$LATEST")%"
+    echo "Build Time:          $(jq -r '.metrics.build_time.first_build_seconds' "$LATEST")s"
+    echo "Template Access:     $(jq -r '.metrics.template_accessibility.accessibility_percentage' "$LATEST")%"
+    echo "Waste Score:         $(jq -r '.metrics.waste_score.overall_waste_score' "$LATEST")"
+    echo "Code Quality:        $(jq -r '.metrics.code_quality.quality_score' "$LATEST")"
+    echo ""
+
+    CRITICAL=$(jq -r '.andon_signals.critical | length' "$LATEST")
+    HIGH=$(jq -r '.andon_signals.high | length' "$LATEST")
+
+    if [[ "$CRITICAL" -gt 0 ]]; then
+        echo "🔴 CRITICAL ANDON SIGNALS: $CRITICAL"
+        jq -r '.andon_signals.critical[] | "  - \(.message)"' "$LATEST"
+    elif [[ "$HIGH" -gt 0 ]]; then
+        echo "🟡 HIGH ANDON SIGNALS: $HIGH"
+        jq -r '.andon_signals.high[] | "  - \(.message)"' "$LATEST"
+    else
+        echo "✅ No active Andon signals - All systems green!"
+    fi
+else
+    echo "⚠️  Install jq for detailed metrics: brew install jq"
+    echo "Raw metrics: $LATEST"
+fi
+'''
+
+[tasks.metrics-help]
+description = "Show Kaizen metrics commands"
+workspace = false
+script = '''
+#!/bin/bash
+cat << 'HELP_EOF'
+📊 Kaizen Metrics Tracking Commands
+====================================
+
+Daily Operations:
+  cargo make metrics-collect      - Collect daily metrics (run Mon/Wed/Fri)
+  cargo make metrics-status        - Show current metrics status
+  cargo make metrics-dashboard     - Open live dashboard in browser
+
+Reporting:
+  cargo make metrics-weekly        - Generate weekly trend report
+  cargo make metrics-monthly       - Generate month-end comprehensive report
+  cargo make metrics-baseline      - Create Week 0 baseline snapshot
+
+Integration:
+  cargo make pre-commit            - Run before each commit (includes metrics)
+  cargo make ci                    - Full CI pipeline with metrics validation
+
+Metrics Tracked (8 Categories):
+  1. Build Time          - Target: <15s (47% reduction)
+  2. Test Pass Rate      - Target: 100% (from 15%)
+  3. Compiler Errors     - Target: 0 (from 158)
+  4. Code Quality        - Target: 9.5 (from 7.2)
+  5. Template Access     - Target: 100% (from 5%)
+  6. Waste Score         - Target: 2.0 (from 8.4) - 76% reduction
+  7. Velocity            - Target: 5 features/sprint (from 2)
+  8. Cost of Waste       - Target: $8k/year (from $33k) - 76% reduction
+
+Andon Signals (Stop-the-Line):
+  🔴 CRITICAL - Compiler errors, test failures (STOP IMMEDIATELY)
+  🟡 HIGH     - Linting errors, performance regressions (FIX SOON)
+  🟢 MEDIUM   - Code quality warnings (INVESTIGATE)
+
+Files:
+  .metrics/                       - Metrics data storage
+  docs/metrics/                   - HTML dashboards and reports
+  scripts/metrics/                - Metrics collection scripts
+
+Learn more: docs/KAIZEN_METRICS.md
+HELP_EOF
 '''
