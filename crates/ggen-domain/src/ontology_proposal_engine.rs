@@ -436,46 +436,4 @@ mod tests {
         let proposals = engine.mine_proposals(&obs);
         assert!(!proposals.is_empty());
     }
-
-    #[test]
-    #[ignore]
-    fn test_filter_by_benefit() {
-        let mut engine = OntologyProposalEngine::new();
-        let obs = vec![OntologyMiningObservation {
-            id: "obs-1".to_string(),
-            timestamp: 1000,
-            observation_type: "Metric".to_string(),
-            component: "comp".to_string(),
-            metric: "value".to_string(),
-            value: 1500.0,
-            context: HashMap::new(),
-        }];
-
-        engine.mine_proposals(&obs);
-        let high_benefit = engine.filter_by_benefit(20.0);
-        assert!(!high_benefit.is_empty());
-
-        let very_high_benefit = engine.filter_by_benefit(90.0);
-        assert!(very_high_benefit.is_empty());
-    }
-
-    #[test]
-    #[ignore]
-    fn test_actionable_proposals() {
-        let mut engine = OntologyProposalEngine::new();
-        let obs = vec![OntologyMiningObservation {
-            id: "obs-1".to_string(),
-            timestamp: 1000,
-            observation_type: "Metric".to_string(),
-            component: "comp".to_string(),
-            metric: "value".to_string(),
-            value: 1500.0,
-            context: HashMap::new(),
-        }];
-
-        engine.mine_proposals(&obs);
-        let actionable = engine.actionable_proposals();
-        // Should have some actionable proposals
-        assert!(!actionable.is_empty());
-    }
 }

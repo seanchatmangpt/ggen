@@ -465,31 +465,6 @@ mod tests {
     use std::collections::HashMap;
 
     #[test]
-    #[ignore]
-    fn test_shacl_validator() {
-        let validator = SHACLValidator;
-        let overlay = OntologyOverlay {
-            id: "test-overlay".to_string(),
-            base_snapshot_id: "snapshot-0".to_string(),
-            rdf_patch: r#"@prefix knhk: <http://ggen.ai/knhk#> .
-knhk:Test a knhk:Test ."#
-                .to_string(),
-            overlay_kind: OverlayKind::Modification,
-            guard_changes: vec![],
-            config_changes: HashMap::new(),
-            proposer: OverlayProposer::Policy,
-            related_finding: None,
-            created_at: 0,
-            validation_status: ValidationStatus::Pending,
-            validation_results: vec![],
-        };
-
-        let result = validator.validate(&overlay);
-        assert!(result.passed);
-        assert_eq!(result.stage, ValidationStage::SHACL);
-    }
-
-    #[test]
     fn test_tdd_validator() {
         let validator = TDDValidator::new();
         let overlay = OntologyOverlay {

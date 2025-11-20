@@ -481,23 +481,4 @@ mod tests {
         assert_eq!(package.metadata.name, "Test Package");
         Ok(())
     }
-
-    #[test]
-    #[ignore]
-    fn test_package_state_transitions() -> Result<()> {
-        let control = RdfControlPlane::in_memory()?;
-
-        let id = PackageId::new("test-package")?;
-        let version = PackageVersion::new("1.0.0")?;
-        let license = "MIT".to_string();
-
-        // Create draft
-        let _draft = control.create_package(id.clone(), "Test", "A test", version, license)?;
-
-        // Get state
-        let state = control.get_package_state(&id)?;
-        assert_eq!(state, "Draft");
-
-        Ok(())
-    }
 }

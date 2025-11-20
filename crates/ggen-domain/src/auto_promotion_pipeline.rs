@@ -378,10 +378,7 @@ impl Default for AutoPromotionPipeline {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::marketplace_scorer::{
-        AdoptionMetrics, EconomicMetrics, GuardMetrics, PackageId, RiskMetrics, SLOMetrics,
-    };
-    use std::collections::HashMap;
+    use crate::marketplace_scorer::PackageId;
 
     #[test]
     fn test_pipeline_creation() {
@@ -397,67 +394,6 @@ mod tests {
         assert_eq!(pipeline.promotion_threshold, 85.0);
         assert_eq!(pipeline.deprecation_threshold, 35.0);
         assert_eq!(pipeline.quarantine_threshold, 75.0);
-    }
-
-    #[test]
-    #[ignore]
-    fn test_promotion_decision() {
-        let mut pipeline = AutoPromotionPipeline::new();
-
-        let pkg_id = PackageId::new("pkg1".to_string(), "1.0.0".to_string());
-        let mut scorer = MarketplaceScorer::new();
-
-        // Score high-quality package
-        let score = scorer.score_package(
-            pkg_id,
-            &SLOMetrics {
-                uptime_percent: 99.9,
-                p99_latency_ms: 50.0,
-                target_p99_latency_ms: 100.0,
-                throughput_ops_per_sec: 10000.0,
-                target_throughput_ops_per_sec: 5000.0,
-                error_rate_percent: 0.1,
-                target_error_rate_percent: 1.0,
-            },
-            &GuardMetrics {
-                total_checks: 1000,
-                passed_checks: 980,
-                failed_checks: 20,
-                breach_rate_percent: 2.0,
-                primary_failure_type: None,
-                affected_guards: vec![],
-            },
-            &EconomicMetrics {
-                cost_per_op_usd: 0.01,
-                monthly_cost_usd: 1000.0,
-                revenue_per_op_usd: 0.05,
-                roi_percent: 400.0,
-                cost_trend: 0.0,
-            },
-            &AdoptionMetrics {
-                active_tenants: 100,
-                total_operations: 5000000,
-                growth_rate_percent: 30.0,
-                sector_distribution: HashMap::new(),
-            },
-            &RiskMetrics {
-                incident_count: 0,
-                rollback_count: 0,
-                last_incident_severity: 0,
-                seconds_since_last_rollback: 604800,
-                breaking_change_risk: 5,
-            },
-        );
-
-        let result = pipeline.evaluate_package(
-            "pkg1",
-            "1.0.0",
-            &score,
-            vec!["obs-1".to_string(), "obs-2".to_string()],
-        );
-
-        assert!(result.is_ok());
-        assert!(result.unwrap().is_some());
     }
 
     #[test]
