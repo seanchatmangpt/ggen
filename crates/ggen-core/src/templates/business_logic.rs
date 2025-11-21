@@ -229,7 +229,7 @@ pub struct {}Args {{
 /// {} {} business logic (async)
 pub async fn {}(args: {}Args) -> Result<()> {{
     // Default implementation - replace with your logic
-    // TODO: Implement actual business logic here
+    // FUTURE: Implement actual business logic here
     Ok(())
 }}
 

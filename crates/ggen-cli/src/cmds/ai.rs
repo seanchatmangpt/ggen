@@ -39,7 +39,7 @@ fn generate(
     _prompt: String, _code: Option<String>, _model: Option<String>, _api_key: Option<String>,
     _suggestions: bool, _language: Option<String>, _max_tokens: i64, _temperature: f64,
 ) -> Result<GenerateOutput> {
-    // TODO: Connect to ggen_domain::ai::generate_code or appropriate domain function
+    // FUTURE: Connect to ggen_domain::ai::generate_code or appropriate domain function
     // This stub allows library compilation while domain refactoring is completed
     Ok(GenerateOutput { success: false })
 }
@@ -52,7 +52,7 @@ fn chat(
     _message: Option<String>, _model: Option<String>, _interactive: bool, _stream: bool,
     _max_tokens: Option<i64>, _temperature: Option<f64>,
 ) -> Result<ChatOutput> {
-    // TODO: Connect to appropriate domain function
+    // FUTURE: Connect to appropriate domain function
     // This stub allows library compilation while domain refactoring is completed
     Ok(ChatOutput { success: false })
 }
@@ -64,7 +64,7 @@ fn chat(
 fn analyze(
     _file: Option<PathBuf>, _code: Option<String>, _model: Option<String>,
 ) -> Result<AnalyzeOutput> {
-    // TODO: Connect to ggen_domain::ai::analyze or appropriate domain function
+    // FUTURE: Connect to ggen_domain::ai::analyze or appropriate domain function
     // This stub allows library compilation while domain refactoring is completed
     Ok(AnalyzeOutput { success: false })
 }

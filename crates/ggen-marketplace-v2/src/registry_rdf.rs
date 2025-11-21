@@ -112,7 +112,7 @@ impl RdfRegistry {
     }
 
     /// Query packages by SPARQL
-    pub async fn query_sparql(&self, query: &str) -> Result<Vec<String>> {
+    pub fn query_sparql(&self, query: &str) -> Result<Vec<String>> {
         let results = self
             .store
             .query(query)
@@ -209,7 +209,7 @@ impl AsyncRepository for RdfRegistry {
             crate::ontology::Properties::package_id()
         );
 
-        let results = self.query_sparql(&query).await?;
+        let results = self.query_sparql(&query)?;
         debug!("Found {} packages in RDF store", results.len());
 
         // Reconstruct each package
@@ -236,7 +236,7 @@ impl AsyncRepository for RdfRegistry {
             GGEN_NS, id
         );
 
-        let results = self.query_sparql(&query).await?;
+        let results = self.query_sparql(&query)?;
 
         // Parse versions from URIs
         let mut versions = Vec::new();
