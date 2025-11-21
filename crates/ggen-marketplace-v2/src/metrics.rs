@@ -220,6 +220,53 @@ impl Default for ErrorRateTracker {
     }
 }
 
+/// Latency metrics summary with percentile tracking
+#[derive(Clone, Debug)]
+pub struct LatencyMetrics {
+    /// Average latency in milliseconds
+    pub avg_ms: u64,
+    /// 50th percentile latency
+    pub p50_ms: u64,
+    /// 95th percentile latency
+    pub p95_ms: u64,
+    /// 99th percentile latency
+    pub p99_ms: u64,
+    /// Minimum latency observed
+    pub min_ms: u64,
+    /// Maximum latency observed
+    pub max_ms: u64,
+    /// Total number of samples
+    pub count: u64,
+}
+
+/// Error metrics summary
+#[derive(Clone, Debug)]
+pub struct ErrorMetrics {
+    /// Total errors recorded
+    pub total_errors: u64,
+    /// Overall error rate
+    pub error_rate: f64,
+    /// Errors by category
+    pub errors_by_category: std::collections::HashMap<String, u64>,
+    /// Recent error rate (5 minute window)
+    pub recent_error_rate_5m: f64,
+}
+
+/// Cache hit metrics summary
+#[derive(Clone, Debug)]
+pub struct CacheHitMetrics {
+    /// Total cache hits
+    pub hits: u64,
+    /// Total cache misses
+    pub misses: u64,
+    /// Total evictions
+    pub evictions: u64,
+    /// Current cache size
+    pub size: u64,
+    /// Hit rate (0.0-1.0)
+    pub hit_rate: f64,
+}
+
 /// Cache metrics tracker
 #[derive(Debug)]
 pub struct CacheMetrics {
