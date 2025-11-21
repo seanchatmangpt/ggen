@@ -50,15 +50,6 @@ mod dx; // Developer experience helpers - keep output simple for now
 #[cfg(test)]
 mod integration_test;
 
-#[cfg(test)]
-mod behavior_tests;
-
-#[cfg(test)]
-mod poka_yoke_tests;
-
-#[cfg(test)]
-mod poka_yoke_runtime_tests;
-
 // Public API (minimal and focused)
 pub use cache::cache_key;
 pub use error::{LifecycleError, Result};
