@@ -98,6 +98,7 @@ mod tests {
     use super::*;
 
     #[test]
+    #[allow(clippy::expect_used)]
     fn test_topo_simple() {
         let phases = &["init", "setup", "build"];
         let deps = &[("init", "setup"), ("setup", "build")];
@@ -108,6 +109,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::expect_used)]
     fn test_topo_parallel() {
         let phases = &["test", "lint", "build"];
         let deps = &[("test", "build"), ("lint", "build")];

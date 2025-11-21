@@ -223,6 +223,7 @@ mod tests {
     use crate::cleanroom::policy::{Locked, Permissive};
 
     #[test]
+    #[allow(clippy::expect_used)]
     fn test_cleanroom_core_builder() {
         let env = CleanroomCore::<Locked>::builder()
             .time_frozen(42)
@@ -236,6 +237,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::expect_used)]
     fn test_cleanroom_deterministic_surfaces() {
         let env = CleanroomCore::<Locked>::builder()
             .time_frozen(42)
@@ -251,6 +253,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::expect_used)]
     fn test_cleanroom_attestation() {
         let env = CleanroomCore::<Locked>::builder()
             .build()

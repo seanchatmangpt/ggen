@@ -311,6 +311,7 @@ mod tests {
     use super::*;
 
     #[test]
+    #[allow(clippy::expect_used)]
     fn test_state_machine_valid_transitions() {
         // ✅ This compiles and runs correctly
         let registry = Registry::new();
@@ -340,6 +341,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::expect_used)]
     fn test_validated_state_methods_available() {
         let registry = Registry::new()
             .initialize(Path::new("templates"))

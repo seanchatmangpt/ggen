@@ -127,6 +127,7 @@ impl AutonomousControlLoop {
     }
 
     /// Run one iteration of the control loop
+    #[allow(clippy::expect_used)]
     async fn iterate(&self) -> Result<IterationTelemetry, String> {
         let start_ms = get_time_ms();
         let mut telemetry = IterationTelemetry {
@@ -365,6 +366,7 @@ impl AutonomousControlLoop {
     }
 
     /// Get current snapshot
+    #[allow(clippy::expect_used)]
     pub fn current_snapshot(&self) -> Arc<SigmaSnapshot> {
         self.promoter
             .get_current()
