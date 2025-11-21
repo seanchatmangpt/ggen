@@ -46,60 +46,45 @@ mod expert_tests;
 #[path = "integration_tests.rs"]
 mod integration_tests;
 
-// Re-export commonly used types and functions
-pub use adapter::{
-    ComparisonResult, DependencyInfo, InstallationManifest, MarketplaceRegistry, PackagePublish,
-    PublishSuccess, SearchMatch, ValidationResult, VersionInfo,
-};
-pub use artifact_generator::{
-    generate_packages_markdown, generate_registry_index, write_packages_markdown,
-    write_registry_index,
-};
-pub use bundles::{generate_bundle_docs, BundleInstallManifest, BundleRegistry, SectorBundle};
-pub use guards::{Guard, GuardCheckResult, GuardError, GuardResult, Severity, ValidationReceipt};
+/// ## 80/20 Consolidation
+///
+/// **Public API (20% core operations):** Only the 5 critical operations and their I/O types
+/// - install, search, publish, update, list (command layer)
+/// - Core domain types (types, registry)
+///
+/// **Internal Implementation (80% supporting):** Consolidated into private modules
+/// - Validation (guards, validate)
+/// - Reporting (artifact_generator, receipt_emitter)
+/// - Metrics (observability, mape_k_integration)
+/// - Suggestions (quality_autopilot, recommender)
+/// - Specialized (bundles, packs, production_readiness, search_advanced, v2_adapter)
+// ============================================================================
+// CORE PUBLIC API (The 20% that delivers 80% of functionality)
+// ============================================================================
 pub use install::{execute_install, InstallInput, InstallOptions, InstallResult};
 pub use list::{execute_list, ListInput, ListOutput};
-pub use mape_k_integration::{
-    AutonomicMarketplace, AutonomicStatus, MarketplaceHealth, MarketplaceObservation,
-    MarketplaceObservationType, ObservationStats, ReceiptObserver,
-};
-pub use observability::{
-    HealthCheck, HealthStatus, MetricsSnapshot, ObservabilitySystem, PerformanceMetric,
-};
-pub use packs::ListPackagesOutput;
-pub use packs_services::PackageDiscoveryService;
-pub use production_readiness::{
-    CheckStatus, DeploymentGuide, ReadinessAssessment, ReadinessCheck, ReadinessChecker,
-};
 pub use publish::{execute_publish, PublishInput, PublishOutput};
-pub use quality_autopilot::{
-    apply_template_improvements, generate_improvement_plan, ImprovementPlan, ImprovementSuggestion,
-};
-pub use receipt_emitter::{
-    emit_receipt_for_package, emit_receipts_for_marketplace, generate_validation_report,
-    update_production_flags, PackageReport, ValidationReport,
-};
-pub use recommender::{
-    PackageInfo, Recommendation, RecommendationReason, RecommendationSet, Recommender,
-    RecommenderConfig,
-};
-pub use registry::{
-    CacheManager, Dependency, PackageMetadata, Registry, RegistryIndex, VersionMetadata,
-};
 pub use search::{execute_search, SearchFilters, SearchInput, SearchResult};
-pub use search_advanced::{
-    AdvancedSearchQuery, AdvancedSearchResults, SearchEngine, SearchResultEntry, SearchStatistics,
-    SortField,
-};
-pub use types::{Checksum, NonEmptyQuery, SemanticVersion, ValidatedPackageName};
 pub use update::{execute_update, UpdateInput, UpdateOutput};
-pub use v2_adapter::{
-    execute_unified_search, SearchBackend, UnifiedSearchQuery, UnifiedSearchResult,
-};
-pub use validate::{
-    validate_all_packages, validate_package, CheckResult, PackageValidation, QualityCheck,
-    RequiredCheck,
-};
+
+// Core domain types
+pub use adapter::MarketplaceRegistry;
+pub use registry::{PackageMetadata, Registry};
+pub use types::{Checksum, NonEmptyQuery, SemanticVersion, ValidatedPackageName};
+
+// ============================================================================
+// INTERNAL SUPPORTING TYPES (Still exported for cross-module use, but not primary API)
+// ============================================================================
+
+// Validation infrastructure (internal, but needed by multiple modules)
+pub use guards::{Guard, GuardCheckResult, ValidationReceipt};
+
+// Observability (internal, but needed for metrics collection)
+pub use observability::{HealthCheck, HealthStatus};
+
+// Reporting (internal, but needed for documentation generation)
+pub use artifact_generator::{generate_packages_markdown, generate_registry_index};
+pub use receipt_emitter::{emit_receipt_for_package, ValidationReport};
 
 // Legacy types for backwards compatibility
 use serde::{Deserialize, Serialize};

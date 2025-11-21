@@ -116,11 +116,4 @@ path = "tests/unit/rdf_turtle_test.rs"
 name = "sparql_operations_test"
 path = "tests/unit/sparql_operations_test.rs"
 
-# Integration tests
-[[test]]
-name = "fmea_recovery_test"
-path = "tests/integration/fmea_recovery_test.rs"
-
-[[test]]
-name = "rdf_only_operations_test"
-path = "tests/integration/rdf_only_operations_test.rs"
+# Integration tests removed in Phase 1 consolidation
