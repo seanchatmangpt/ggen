@@ -1,13 +1,11 @@
 //! Performance tests for marketplace operations
 //!
-//! This module contains benchmarks and performance tests:
+//! This module contains consolidated benchmarks and performance tests:
 //! - Search performance with large datasets
 //! - Batch processing efficiency
 //! - Memory usage validation
 //! - Concurrent operation safety
+//! - Latency SLO validation (lookup <100ms, search <200ms)
+//! - Cache efficiency and throughput benchmarks
 
-// Existing tests
-mod benchmark_test;
-
-// V2 performance benchmarks
-mod latency_benchmark;
+mod consolidated_performance;
