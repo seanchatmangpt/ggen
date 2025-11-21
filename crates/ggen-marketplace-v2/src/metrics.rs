@@ -247,7 +247,7 @@ pub struct ErrorMetrics {
     /// Overall error rate
     pub error_rate: f64,
     /// Errors by category
-    pub errors_by_category: std::collections::HashMap<String, u64>,
+    pub errors_by_category: Vec<(String, u64)>,
     /// Recent error rate (5 minute window)
     pub recent_error_rate_5m: f64,
 }
