@@ -269,6 +269,7 @@ pub fn verify_command_env(
 pub fn assert_reasonable_duration(state: &LifecycleStateData, phase: &str) {
     let record = state.phase_history.iter()
         .find(|r| r.phase == phase)
+        #[allow(clippy::expect_used)]
         .expect(&format!("Phase '{}' should be in history", phase));
 
     assert!(record.duration_ms > 0, "Duration should be positive");

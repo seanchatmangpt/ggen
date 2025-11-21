@@ -22,6 +22,7 @@ fn have_github_repository(world: &mut GgenWorld) {
 
     // Create mock .git directory
     let git_dir = world.project_dir.join(".git");
+    #[allow(clippy::expect_used)]
     fs::create_dir_all(&git_dir).expect("Failed to create .git directory");
 }
 
@@ -36,7 +37,9 @@ fn have_github_pages_enabled(world: &mut GgenWorld) {
     }"#;
 
     let config_path = world.project_dir.join(".github/pages.json");
+    #[allow(clippy::expect_used)]
     fs::create_dir_all(config_path.parent().unwrap()).expect("Failed to create .github directory");
+    #[allow(clippy::expect_used)]
     fs::write(&config_path, pages_config).expect("Failed to write pages config");
 }
 
@@ -54,7 +57,9 @@ jobs:
 
     let workflow_path = world.project_dir.join(".github/workflows/ci.yml");
     fs::create_dir_all(workflow_path.parent().unwrap())
+        #[allow(clippy::expect_used)]
         .expect("Failed to create workflows directory");
+    #[allow(clippy::expect_used)]
     fs::write(&workflow_path, workflow_content).expect("Failed to write workflow");
 }
 
@@ -62,14 +67,17 @@ jobs:
 fn have_documentation_files(world: &mut GgenWorld) {
     // Create mock documentation files
     let docs_dir = world.project_dir.join("docs");
+    #[allow(clippy::expect_used)]
     fs::create_dir_all(&docs_dir).expect("Failed to create docs directory");
 
     let index_content = r#"# Project Documentation
 This is the main documentation page."#;
+    #[allow(clippy::expect_used)]
     fs::write(docs_dir.join("index.md"), index_content).expect("Failed to write index.md");
 
     let api_content = r#"# API Reference
 API documentation goes here."#;
+    #[allow(clippy::expect_used)]
     fs::write(docs_dir.join("api.md"), api_content).expect("Failed to write api.md");
 }
 
@@ -77,13 +85,16 @@ API documentation goes here."#;
 fn have_build_artifacts(world: &mut GgenWorld) {
     // Create mock build artifacts
     let artifacts_dir = world.project_dir.join("target/release");
+    #[allow(clippy::expect_used)]
     fs::create_dir_all(&artifacts_dir).expect("Failed to create artifacts directory");
 
     let binary_content = b"mock binary content";
+    #[allow(clippy::expect_used)]
     fs::write(artifacts_dir.join("ggen"), binary_content).expect("Failed to write binary");
 
     let docs_content = r#"# Generated Documentation
 This is generated documentation."#;
+    #[allow(clippy::expect_used)]
     fs::write(artifacts_dir.join("docs.html"), docs_content).expect("Failed to write docs.html");
 }
 
@@ -94,12 +105,14 @@ This is generated documentation."#;
 #[when(regex = r#"^I run "ggen ci pages deploy"$"#)]
 fn run_ci_pages_deploy(world: &mut GgenWorld) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("ci")
         .arg("pages")
         .arg("deploy")
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run ci pages deploy");
 
     world.last_output = Some(output.clone());
@@ -109,12 +122,14 @@ fn run_ci_pages_deploy(world: &mut GgenWorld) {
 #[when(regex = r#"^I run "ggen ci pages setup"$"#)]
 fn run_ci_pages_setup(world: &mut GgenWorld) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("ci")
         .arg("pages")
         .arg("setup")
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run ci pages setup");
 
     world.last_output = Some(output.clone());
@@ -124,12 +139,14 @@ fn run_ci_pages_setup(world: &mut GgenWorld) {
 #[when(regex = r#"^I run "ggen ci trigger (.+)"$"#)]
 fn run_ci_trigger(world: &mut GgenWorld, workflow: String) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("ci")
         .arg("trigger")
         .arg(&workflow)
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run ci trigger");
 
     world.last_output = Some(output.clone());
@@ -139,12 +156,14 @@ fn run_ci_trigger(world: &mut GgenWorld, workflow: String) {
 #[when(regex = r#"^I run "ggen ci workflow (.+)"$"#)]
 fn run_ci_workflow(world: &mut GgenWorld, action: String) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("ci")
         .arg("workflow")
         .arg(&action)
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run ci workflow");
 
     world.last_output = Some(output.clone());
@@ -156,12 +175,14 @@ fn run_ci_command(world: &mut GgenWorld, args: String) {
     let arg_list = shell_words::split(&args)
         .unwrap_or_else(|e| panic!("Failed to parse arguments '{}': {}", args, e));
 
+    #[allow(clippy::expect_used)]
     let mut cmd = Command::cargo_bin("ggen").expect("ggen binary not found");
     let output = cmd
         .arg("ci")
         .args(&arg_list)
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run ci command");
 
     world.last_output = Some(output.clone());

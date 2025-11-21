@@ -536,9 +536,13 @@ mod test_helpers {
 
         pub fn build(self) -> PhaseExecutor {
             PhaseExecutor::new(
+                #[allow(clippy::expect_used)]
                 self.cmd_executor.expect("cmd_executor not set"),
+                #[allow(clippy::expect_used)]
                 self.state_repo.expect("state_repo not set"),
+                #[allow(clippy::expect_used)]
                 self.hook_registry.expect("hook_registry not set"),
+                #[allow(clippy::expect_used)]
                 self.observer.expect("observer not set"),
             )
         }

@@ -297,6 +297,7 @@ pub struct PublishSuccess {
 mod tests {
     use super::*;
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_trait_is_object_safe() {
         // Verify MarketplaceRegistry can be used as &dyn MarketplaceRegistry
@@ -304,6 +305,7 @@ mod tests {
         fn _takes_dyn_registry(_: &dyn MarketplaceRegistry) {}
     }
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_package_info_serialization() {
         let pkg = PackageInfo {

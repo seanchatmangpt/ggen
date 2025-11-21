@@ -181,8 +181,11 @@ fn test_composition_strategy_serialization() {
     });
 
     // Act
+    #[allow(clippy::expect_used)]
     let merge_json = serde_json::to_string(&merge).expect("Should serialize");
+    #[allow(clippy::expect_used)]
     let layer_json = serde_json::to_string(&layer).expect("Should serialize");
+    #[allow(clippy::expect_used)]
     let custom_json = serde_json::to_string(&custom).expect("Should serialize");
 
     // Assert
@@ -259,8 +262,10 @@ fn test_compose_input_serialization() {
     };
 
     // Act
+    #[allow(clippy::expect_used)]
     let json = serde_json::to_string(&input).expect("Should serialize");
     let deserialized: ComposePacksInput =
+        #[allow(clippy::expect_used)]
         serde_json::from_str(&json).expect("Should deserialize");
 
     // Assert

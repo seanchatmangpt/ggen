@@ -71,16 +71,19 @@ fn test_completion_generator_produces_valid_scripts() {
 #[test]
 fn test_file_system_installer_creates_files() {
     // Use REAL temporary directory
+    #[allow(clippy::expect_used)]
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
     let install_path = temp_dir.path().join("completions").join("ggen.bash");
 
     // Create parent directory
+    #[allow(clippy::expect_used)]
     std::fs::create_dir_all(install_path.parent().unwrap()).expect("Failed to create parent dir");
 
     let installer = FileSystemCompletionInstaller;
     let generator = ClapCompletionGenerator::new("ggen");
 
     // Generate completion
+    #[allow(clippy::expect_used)]
     let completion = generator.generate(ShellType::Bash).expect("Failed to generate");
 
     // Install to custom path
@@ -89,17 +92,20 @@ fn test_file_system_installer_creates_files() {
 
     // Verify file exists and contains script
     assert!(install_path.exists(), "Completion file not created");
+    #[allow(clippy::expect_used)]
     let content = std::fs::read_to_string(&install_path).expect("Failed to read file");
     assert_eq!(content, completion.script);
 }
 
 #[test]
 fn test_file_system_installer_respects_force_flag() {
+    #[allow(clippy::expect_used)]
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
     let install_path = temp_dir.path().join("ggen.bash");
 
     let installer = FileSystemCompletionInstaller;
     let generator = ClapCompletionGenerator::new("ggen");
+    #[allow(clippy::expect_used)]
     let completion = generator.generate(ShellType::Bash).expect("Failed to generate");
 
     // First installation should succeed
@@ -156,6 +162,7 @@ fn test_shell_default_completion_dirs() {
 #[test]
 fn test_completion_script_contains_commands() {
     let generator = ClapCompletionGenerator::new("ggen");
+    #[allow(clippy::expect_used)]
     let result = generator.generate(ShellType::Bash).expect("Failed to generate");
 
     // Verify script contains main ggen command
@@ -170,6 +177,7 @@ fn test_completion_script_contains_commands() {
 
 #[test]
 fn test_installer_creates_parent_directories() {
+    #[allow(clippy::expect_used)]
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
     let nested_path = temp_dir.path()
         .join("deeply")
@@ -179,6 +187,7 @@ fn test_installer_creates_parent_directories() {
 
     let installer = FileSystemCompletionInstaller;
     let generator = ClapCompletionGenerator::new("ggen");
+    #[allow(clippy::expect_used)]
     let completion = generator.generate(ShellType::Zsh).expect("Failed to generate");
 
     // Install to deeply nested path
@@ -195,6 +204,7 @@ fn test_completion_scripts_are_non_empty_and_valid_utf8() {
     let generator = ClapCompletionGenerator::new("ggen");
 
     for shell in &[ShellType::Bash, ShellType::Zsh, ShellType::Fish, ShellType::PowerShell] {
+        #[allow(clippy::expect_used)]
         let result = generator.generate(*shell).expect("Generation failed");
 
         // Must not be empty
@@ -210,6 +220,7 @@ fn test_completion_scripts_are_non_empty_and_valid_utf8() {
 
 #[test]
 fn test_multiple_installations_with_force() {
+    #[allow(clippy::expect_used)]
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
     let path = temp_dir.path().join("ggen.fish");
 
@@ -218,6 +229,7 @@ fn test_multiple_installations_with_force() {
 
     // Install multiple times with force=true
     for _ in 0..3 {
+        #[allow(clippy::expect_used)]
         let completion = generator.generate(ShellType::Fish).expect("Generation failed");
         let result = installer.install_to(&completion, path.clone(), true);
         assert!(result.is_ok(), "Force installation failed");
@@ -225,6 +237,7 @@ fn test_multiple_installations_with_force() {
 
     // Verify file still exists and is correct
     assert!(path.exists());
+    #[allow(clippy::expect_used)]
     let content = std::fs::read_to_string(&path).expect("Failed to read");
     assert!(!content.is_empty());
 }

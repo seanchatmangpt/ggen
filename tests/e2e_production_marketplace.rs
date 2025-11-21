@@ -132,6 +132,7 @@ fn test_lockfile_created_with_sha256() -> Result<()> {
         let packs = lockfile
             .get("packs")
             .and_then(|p| p.as_array())
+            #[allow(clippy::expect_used)]
             .expect("Lockfile should have packs array");
 
         assert!(!packs.is_empty());
@@ -139,6 +140,7 @@ fn test_lockfile_created_with_sha256() -> Result<()> {
         let sha256 = packs[0]
             .get("sha256")
             .and_then(|s| s.as_str())
+            #[allow(clippy::expect_used)]
             .expect("Pack should have sha256 field");
 
         // Verify SHA256 is real (not placeholder)

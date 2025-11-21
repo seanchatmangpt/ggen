@@ -31,6 +31,7 @@ fn test_deterministic_code_generation() {
         let main_rs = output_dir.join("test-app/src/main.rs");
         assert!(main_rs.exists(), "Generated file should exist (run {})", i);
 
+        #[allow(clippy::expect_used)]
         let content = fs::read_to_string(&main_rs).expect("Should be able to read generated file");
         generated_files.push(content);
     }

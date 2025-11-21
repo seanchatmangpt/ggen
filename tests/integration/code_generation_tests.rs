@@ -165,6 +165,7 @@ Project: {{ project_name }}"#;
     let output_path = generator.generate()?;
 
     // Assert
+    #[allow(clippy::expect_used)]
     assert_eq!(output_path.file_name().expect("No filename"), "README.md");
     assert!(output_path.exists());
     Ok::<(), ggen_utils::error::Error>(())

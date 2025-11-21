@@ -21,15 +21,18 @@ use tempfile::TempDir;
 
 /// Helper to create ggen command
 fn ggen() -> Command {
+    #[allow(clippy::expect_used)]
     Command::cargo_bin("ggen").expect("Failed to find ggen binary")
 }
 
 /// Helper to create test template
 fn create_test_template(temp_dir: &TempDir, name: &str) -> std::path::PathBuf {
     let templates_dir = temp_dir.path().join(".ggen/templates");
+    #[allow(clippy::expect_used)]
     fs::create_dir_all(&templates_dir).expect("Failed to create templates dir");
 
     let template_dir = templates_dir.join(name);
+    #[allow(clippy::expect_used)]
     fs::create_dir_all(&template_dir).expect("Failed to create template dir");
 
     // Create template file with Tera syntax
@@ -45,6 +48,7 @@ fn create_test_template(temp_dir: &TempDir, name: &str) -> std::path::PathBuf {
 "#;
 
     fs::write(template_dir.join("README.md.tera"), template_content)
+        #[allow(clippy::expect_used)]
         .expect("Failed to write template");
 
     // Create template metadata
@@ -59,6 +63,7 @@ description = { type = "string", optional = true }
 features = { type = "array", default = [] }
 "#;
 
+    #[allow(clippy::expect_used)]
     fs::write(template_dir.join("template.toml"), metadata).expect("Failed to write metadata");
 
     template_dir
@@ -136,6 +141,7 @@ fn test_template_list_json_format() {
         .arg("--json")
         .current_dir(&temp_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to execute");
 
     assert!(output.status.success());
@@ -143,6 +149,7 @@ fn test_template_list_json_format() {
     // Verify valid JSON state
     let stdout = String::from_utf8_lossy(&output.stdout);
     if !stdout.is_empty() {
+        #[allow(clippy::expect_used)]
         serde_json::from_str::<serde_json::Value>(&stdout).expect("Output should be valid JSON");
     }
 }

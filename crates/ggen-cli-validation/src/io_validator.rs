@@ -154,6 +154,7 @@ mod tests {
     use std::io::Write;
     use tempfile::tempdir;
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_validate_read_existing_file() {
         let dir = tempdir().expect("Failed to create temp dir");
@@ -165,6 +166,7 @@ mod tests {
         assert!(validator.validate_read(&file_path).is_ok());
     }
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_validate_read_missing_file() {
         let validator = IoValidator::new();
@@ -173,6 +175,7 @@ mod tests {
         assert!(matches!(result, Err(ValidationError::FileNotFound { .. })));
     }
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_validate_write_existing_directory() {
         let dir = tempdir().expect("Failed to create temp dir");
@@ -182,6 +185,7 @@ mod tests {
         assert!(validator.validate_write(&file_path).is_ok());
     }
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_validate_write_missing_parent() {
         let validator = IoValidator::new();
@@ -189,6 +193,7 @@ mod tests {
         assert!(result.is_err());
     }
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_batch_read_validation() {
         let dir = tempdir().expect("Failed to create temp dir");

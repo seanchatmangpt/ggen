@@ -46,6 +46,7 @@ fn test_new_user_complete_workflow() {
 
     // Step 5: Verify project builds (critical!)
     // This proves the generated code is actually valid
+    #[allow(clippy::expect_used)]
     verify_rust_project_builds(&project_dir).expect("Generated project should build successfully");
 
     // Step 6: Verify generated binary can be run
@@ -53,6 +54,7 @@ fn test_new_user_complete_workflow() {
         .arg("build")
         .current_dir(&project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to build project");
 
     assert!(

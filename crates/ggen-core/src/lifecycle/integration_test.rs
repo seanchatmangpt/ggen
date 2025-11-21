@@ -24,6 +24,7 @@ mod integration_tests {
     impl LifecycleTestFixture {
         /// Create new test fixture with make.toml
         fn new() -> Self {
+            #[allow(clippy::expect_used)]
             let temp_dir = TempDir::new().expect("Failed to create temp dir");
             let state_path = temp_dir.path().join(".ggen/state.json");
 
@@ -66,6 +67,7 @@ after_build = []
 "#;
 
             fs::write(temp_dir.path().join("make.toml"), make_toml)
+                #[allow(clippy::expect_used)]
                 .expect("Failed to write make.toml");
 
             Self {
@@ -76,6 +78,7 @@ after_build = []
 
         /// Create fixture with workspace configuration
         fn new_with_workspaces() -> Self {
+            #[allow(clippy::expect_used)]
             let temp_dir = TempDir::new().expect("Failed to create temp dir");
             let state_path = temp_dir.path().join(".ggen/state.json");
 
@@ -108,6 +111,7 @@ command = "echo 'Building...'"
 "#;
 
             fs::write(temp_dir.path().join("make.toml"), make_toml)
+                #[allow(clippy::expect_used)]
                 .expect("Failed to write make.toml");
 
             Self {
@@ -123,6 +127,7 @@ command = "echo 'Building...'"
 
         /// Load make.toml from fixture
         fn load_make(&self) -> Make {
+            #[allow(clippy::expect_used)]
             load_make(self.path().join("make.toml")).expect("Failed to load make.toml")
         }
 
@@ -139,6 +144,7 @@ command = "echo 'Building...'"
 
         /// Load current state
         fn load_state(&self) -> LifecycleState {
+            #[allow(clippy::expect_used)]
             load_state(&self.state_path).expect("Failed to load state")
         }
     }
@@ -225,6 +231,7 @@ command = "echo 'Building...'"
         }
     }
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_cache_key_generation() {
         let fixture = LifecycleTestFixture::new();
@@ -244,6 +251,7 @@ command = "echo 'Building...'"
             .cache_keys
             .iter()
             .find(|k| k.phase == "build")
+            #[allow(clippy::expect_used)]
             .expect("Build cache key should exist");
 
         assert!(!build_cache.key.is_empty());
@@ -554,6 +562,7 @@ description = "Phase with no commands"
         assert_eq!(make.lifecycle.len(), 0);
     }
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_concurrent_phase_execution_state() {
         let fixture = LifecycleTestFixture::new();
@@ -583,10 +592,12 @@ description = "Phase with no commands"
         assert!(phase_names.contains(&"clean"));
     }
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_parallel_workspace_execution() {
         use std::time::Instant;
 
+        #[allow(clippy::expect_used)]
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
 
         // Create 3 workspaces
@@ -673,6 +684,7 @@ command = "date +%s%N > timestamp.txt"
                 i
             );
 
+            #[allow(clippy::expect_used)]
             let ws_state = load_state(&ws_state_path).expect("Failed to load workspace state");
             assert_eq!(ws_state.last_phase, Some("timestamp".to_string()));
         }
@@ -681,8 +693,10 @@ command = "date +%s%N > timestamp.txt"
     // Removed test_parallel_workspace_isolation - covered by test_parallel_workspace_execution
     // which already verifies workspace-specific file creation and state isolation
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_parallel_workspace_error_handling() {
+        #[allow(clippy::expect_used)]
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
 
         // Create 3 workspaces, middle one will fail

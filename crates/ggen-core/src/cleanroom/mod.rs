@@ -222,6 +222,7 @@ mod tests {
     use super::*;
     use crate::cleanroom::policy::{Locked, Permissive};
 
+    #[allow(clippy::expect_used)]
     #[test]
     #[allow(clippy::expect_used)]
     fn test_cleanroom_core_builder() {
@@ -236,6 +237,7 @@ mod tests {
         assert!(env.root().exists());
     }
 
+    #[allow(clippy::expect_used)]
     #[test]
     #[allow(clippy::expect_used)]
     fn test_cleanroom_deterministic_surfaces() {
@@ -252,6 +254,7 @@ mod tests {
         assert!(matches!(env.surfaces.rng_mode(), RngMode::Seeded(42)));
     }
 
+    #[allow(clippy::expect_used)]
     #[test]
     #[allow(clippy::expect_used)]
     fn test_cleanroom_attestation() {

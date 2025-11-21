@@ -85,6 +85,7 @@ fn capture_project_snapshot() -> ProjectSnapshot {
     let output = Command::new("sh")
         .args(["-c", "find . -type f -not -path '*/target/*' -not -path '*/.git/*' -not -path '*/node_modules/*' 2>/dev/null | wc -l"])
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to count files");
 
     let file_count = String::from_utf8_lossy(&output.stdout)
@@ -95,6 +96,7 @@ fn capture_project_snapshot() -> ProjectSnapshot {
     let output = Command::new("sh")
         .args(["-c", "find . -type d -not -path '*/target/*' -not -path '*/.git/*' -not -path '*/node_modules/*' 2>/dev/null | wc -l"])
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to count directories");
 
     let dir_count = String::from_utf8_lossy(&output.stdout)
@@ -106,6 +108,7 @@ fn capture_project_snapshot() -> ProjectSnapshot {
     let output = Command::new("git")
         .args(["status", "--porcelain"])
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to get git status");
 
     let git_status = String::from_utf8_lossy(&output.stdout);

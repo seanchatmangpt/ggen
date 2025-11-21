@@ -43,6 +43,7 @@ impl GgenWorld {
     /// Create a new world with a temporary directory
     #[allow(dead_code)]
     pub fn new() -> Self {
+        #[allow(clippy::expect_used)]
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
         let project_dir = temp_dir.path().to_path_buf();
 

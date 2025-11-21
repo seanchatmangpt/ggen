@@ -270,6 +270,7 @@ mod tests {
         // unvalidated.send();  // Error: no method `send` on `Email<Unvalidated>`
 
         // Validate and send
+        #[allow(clippy::expect_used)]
         let validated = unvalidated.validate().expect("Validation failed");
         let result = validated.send();
 

@@ -40,6 +40,7 @@ fn test_add_command_calculates_real_sha256() -> Result<()> {
         let packs = lockfile
             .get("packs")
             .and_then(|p| p.as_array())
+            #[allow(clippy::expect_used)]
             .expect("Lockfile should have packs array");
 
         assert!(!packs.is_empty(), "Lockfile should have at least one pack");
@@ -48,6 +49,7 @@ fn test_add_command_calculates_real_sha256() -> Result<()> {
         let sha256 = first_pack
             .get("sha256")
             .and_then(|s| s.as_str())
+            #[allow(clippy::expect_used)]
             .expect("Pack should have sha256 field");
 
         // SHA256 should be 64 hex characters (not zeros or placeholder)

@@ -42,9 +42,11 @@ fn parse_json_output(output: &str) -> Result<Value, String> {
 #[test]
 fn test_packs_list_returns_valid_json() {
     // Execute: ggen packs list
+    #[allow(clippy::expect_used)]
     let output = run_packs_command(&["list"]).expect("packs list should execute successfully");
 
     // Verify output is valid JSON
+    #[allow(clippy::expect_used)]
     let json = parse_json_output(&output).expect("Output should be valid JSON");
 
     // Verify contains expected structure
@@ -52,6 +54,7 @@ fn test_packs_list_returns_valid_json() {
     assert!(json.get("total").is_some(), "Should have 'total' field");
 
     // Verify contains 5 packs
+    #[allow(clippy::expect_used)]
     let packs = json["packs"].as_array().expect("packs should be an array");
     assert_eq!(packs.len(), 5, "Should have exactly 5 packs");
 
@@ -78,9 +81,11 @@ fn test_packs_list_returns_valid_json() {
 fn test_packs_show_returns_pack_details() {
     // Execute: ggen packs show --pack_id startup-essentials
     let output = run_packs_command(&["show", "--pack_id", "startup-essentials"])
+        #[allow(clippy::expect_used)]
         .expect("packs show should execute successfully");
 
     // Verify output is valid JSON
+    #[allow(clippy::expect_used)]
     let json = parse_json_output(&output).expect("Output should be valid JSON");
 
     // Verify pack details
@@ -99,6 +104,7 @@ fn test_packs_show_returns_pack_details() {
     // Verify packages list
     let packages = json["packages"]
         .as_array()
+        #[allow(clippy::expect_used)]
         .expect("packages should be an array");
     assert!(packages.len() > 0, "Should have at least one package");
     assert_eq!(
@@ -118,6 +124,7 @@ fn test_packs_install_lists_packages() {
     match result {
         Ok(output) => {
             // Verify output is valid JSON
+            #[allow(clippy::expect_used)]
             let json = parse_json_output(&output).expect("Output should be valid JSON");
 
             // Verify install output structure
@@ -129,6 +136,7 @@ fn test_packs_install_lists_packages() {
             assert!(json.get("status").is_some(), "Should have status");
 
             // Verify status message contains dry run indicator
+            #[allow(clippy::expect_used)]
             let status = json["status"].as_str().expect("status should be string");
             assert!(
                 status.contains("DRY RUN") || status.contains("Would install"),
@@ -149,9 +157,11 @@ fn test_packs_install_lists_packages() {
 fn test_packs_validate_checks_pack() {
     // Execute: ggen packs validate --pack_id startup-essentials
     let output = run_packs_command(&["validate", "--pack_id", "startup-essentials"])
+        #[allow(clippy::expect_used)]
         .expect("packs validate should execute successfully");
 
     // Verify output is valid JSON
+    #[allow(clippy::expect_used)]
     let json = parse_json_output(&output).expect("Output should be valid JSON");
 
     // Verify validation output structure
@@ -167,6 +177,7 @@ fn test_packs_validate_checks_pack() {
     );
 
     // Verify message indicates success
+    #[allow(clippy::expect_used)]
     let message = json["message"].as_str().expect("message should be string");
     assert!(
         message.contains("valid"),
@@ -197,9 +208,11 @@ fn test_packs_invalid_id_returns_error() {
 fn test_packs_validate_invalid_pack_returns_false() {
     // Execute: ggen packs validate --pack_id invalid-pack-xyz
     let output = run_packs_command(&["validate", "--pack_id", "invalid-pack-xyz"])
+        #[allow(clippy::expect_used)]
         .expect("validate should handle invalid packs gracefully");
 
     // Verify output is valid JSON
+    #[allow(clippy::expect_used)]
     let json = parse_json_output(&output).expect("Output should be valid JSON");
 
     // Verify validation correctly identifies invalid pack
@@ -213,6 +226,7 @@ fn test_packs_validate_invalid_pack_returns_false() {
         "Invalid pack should have null package_count"
     );
 
+    #[allow(clippy::expect_used)]
     let message = json["message"].as_str().expect("message should be string");
     assert!(
         message.contains("not found"),
@@ -229,15 +243,20 @@ fn test_packs_all_commands_work_end_to_end() {
     // Test complete workflow: list -> show -> validate (skip install due to marketplace availability)
 
     // 1. List packs
+    #[allow(clippy::expect_used)]
     let list_output = run_packs_command(&["list"]).expect("list should work");
+    #[allow(clippy::expect_used)]
     let list_json = parse_json_output(&list_output).expect("list should return JSON");
     assert_eq!(list_json["total"], 5, "Should have 5 packs");
 
     // 2. Show first pack
     let pack_id = list_json["packs"][0]["id"]
         .as_str()
+        #[allow(clippy::expect_used)]
         .expect("First pack should have ID");
+    #[allow(clippy::expect_used)]
     let show_output = run_packs_command(&["show", "--pack_id", pack_id]).expect("show should work");
+    #[allow(clippy::expect_used)]
     let show_json = parse_json_output(&show_output).expect("show should return JSON");
     assert_eq!(show_json["id"], pack_id, "Should return correct pack");
 
@@ -248,7 +267,9 @@ fn test_packs_all_commands_work_end_to_end() {
 
     // 4. Validate pack
     let validate_output =
+        #[allow(clippy::expect_used)]
         run_packs_command(&["validate", "--pack_id", pack_id]).expect("validate should work");
+    #[allow(clippy::expect_used)]
     let validate_json = parse_json_output(&validate_output).expect("validate should return JSON");
     assert_eq!(validate_json["valid"], true, "Pack should be valid");
 }
@@ -257,15 +278,19 @@ fn test_packs_all_commands_work_end_to_end() {
 fn test_packs_list_with_category_filter() {
     // Execute: ggen packs list --category startup
     let output = run_packs_command(&["list", "--category", "startup"])
+        #[allow(clippy::expect_used)]
         .expect("list with category should work");
 
+    #[allow(clippy::expect_used)]
     let json = parse_json_output(&output).expect("Should return JSON");
+    #[allow(clippy::expect_used)]
     let packs = json["packs"].as_array().expect("Should have packs array");
 
     // Verify all returned packs match the category
     for pack in packs {
         let category = pack["category"]
             .as_str()
+            #[allow(clippy::expect_used)]
             .expect("Pack should have category");
         assert_eq!(
             category, "startup",
@@ -287,6 +312,7 @@ fn test_packs_commands_execute_quickly() {
 
     // Test list command
     let start = Instant::now();
+    #[allow(clippy::expect_used)]
     run_packs_command(&["list"]).expect("list should work");
     let list_duration = start.elapsed();
     assert!(
@@ -297,6 +323,7 @@ fn test_packs_commands_execute_quickly() {
 
     // Test show command
     let start = Instant::now();
+    #[allow(clippy::expect_used)]
     run_packs_command(&["show", "--pack_id", "startup-essentials"]).expect("show should work");
     let show_duration = start.elapsed();
     assert!(
@@ -319,6 +346,7 @@ fn test_packs_commands_execute_quickly() {
     // Test validate command
     let start = Instant::now();
     run_packs_command(&["validate", "--pack_id", "startup-essentials"])
+        #[allow(clippy::expect_used)]
         .expect("validate should work");
     let validate_duration = start.elapsed();
     assert!(
@@ -335,17 +363,23 @@ fn test_packs_commands_execute_quickly() {
 #[test]
 fn test_packs_all_defined_packs_are_valid() {
     // Get all packs
+    #[allow(clippy::expect_used)]
     let output = run_packs_command(&["list"]).expect("list should work");
+    #[allow(clippy::expect_used)]
     let json = parse_json_output(&output).expect("Should return JSON");
+    #[allow(clippy::expect_used)]
     let packs = json["packs"].as_array().expect("Should have packs array");
 
     // Validate each pack
     for pack in packs {
+        #[allow(clippy::expect_used)]
         let pack_id = pack["id"].as_str().expect("Pack should have ID");
 
         let validate_output = run_packs_command(&["validate", "--pack_id", pack_id])
+            #[allow(clippy::expect_used)]
             .expect(&format!("validate should work for pack {}", pack_id));
         let validate_json = parse_json_output(&validate_output)
+            #[allow(clippy::expect_used)]
             .expect(&format!("validate should return JSON for pack {}", pack_id));
 
         assert_eq!(

@@ -33,6 +33,7 @@ async fn test_workflow_5_template_reuse_with_variables() {
     }
 
     let pack_id = &pack_with_templates.unwrap().id;
+    #[allow(clippy::expect_used)]
     let pack = show_pack(pack_id).expect("Should show pack");
 
     assert!(

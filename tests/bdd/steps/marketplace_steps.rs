@@ -23,11 +23,13 @@ fn marketplace_registry_available_at(world: &mut GgenWorld, registry_url: String
 #[when(regex = r"^I search for (.+)$")]
 fn search_for_gpack(world: &mut GgenWorld, query: String) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("search")
         .arg(&query)
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen search");
 
     world.last_output = Some(output.clone());
@@ -37,11 +39,13 @@ fn search_for_gpack(world: &mut GgenWorld, query: String) {
 #[when(regex = r"^I run ggen search (.+)$")]
 fn run_ggen_search(world: &mut GgenWorld, query: String) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("search")
         .arg(&query)
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen search");
 
     world.last_output = Some(output.clone());
@@ -51,10 +55,12 @@ fn run_ggen_search(world: &mut GgenWorld, query: String) {
 #[when(regex = r"^I run ggen categories$")]
 fn run_ggen_categories(world: &mut GgenWorld) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("categories")
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen categories");
 
     world.last_output = Some(output.clone());
@@ -64,11 +70,13 @@ fn run_ggen_categories(world: &mut GgenWorld) {
 #[when(regex = r"^I run ggen show (.+)$")]
 fn run_ggen_show(world: &mut GgenWorld, package_id: String) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("show")
         .arg(&package_id)
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen show");
 
     world.last_output = Some(output.clone());
@@ -78,11 +86,13 @@ fn run_ggen_show(world: &mut GgenWorld, package_id: String) {
 #[when(regex = r"^I run ggen add (.+)$")]
 fn run_ggen_add(world: &mut GgenWorld, package_id: String) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("add")
         .arg(&package_id)
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen add");
 
     world.last_output = Some(output.clone());
@@ -92,10 +102,12 @@ fn run_ggen_add(world: &mut GgenWorld, package_id: String) {
 #[when(regex = r"^I run ggen packs$")]
 fn run_ggen_packs(world: &mut GgenWorld) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("packs")
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen packs");
 
     world.last_output = Some(output.clone());
@@ -112,11 +124,13 @@ fn run_ggen_packs(world: &mut GgenWorld) {
 fn run_ggen_add_with_version(world: &mut GgenWorld, package_id: String, version: String) {
     let package_with_version = format!("{}@{}", package_id, version);
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("add")
         .arg(&package_with_version)
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen add");
 
     world.last_output = Some(output.clone());
@@ -131,6 +145,7 @@ fn have_installed_package(world: &mut GgenWorld, package_id: String) {
         r#"{{"packages": {{"{}": {{"version": "0.2.0", "sha256": "abc123", "installed": true}}}}}}"#,
         package_id
     );
+    #[allow(clippy::expect_used)]
     fs::write(&lockfile_path, lockfile_content).expect("Failed to write mock lockfile");
 }
 
@@ -142,16 +157,19 @@ fn have_installed_package_with_version(world: &mut GgenWorld, package_id: String
         r#"{{"packages": {{"{}": {{"version": "{}", "sha256": "abc123", "installed": true}}}}}}"#,
         package_id, version
     );
+    #[allow(clippy::expect_used)]
     fs::write(&lockfile_path, lockfile_content).expect("Failed to write mock lockfile");
 }
 
 #[when(regex = r"^I run ggen update$")]
 fn run_ggen_update(world: &mut GgenWorld) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("update")
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen update");
 
     world.last_output = Some(output.clone());
@@ -218,10 +236,12 @@ fn package_should_be_installed(_world: &mut GgenWorld) {
 #[then(regex = r"^ggen packs should list (.+)$")]
 fn ggen_packs_should_list(world: &mut GgenWorld, package_id: String) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("packs")
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen packs");
 
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -248,11 +268,13 @@ fn package_should_be_updated(_world: &mut GgenWorld) {
 #[when(regex = r"^I run ggen remove (.+)$")]
 fn run_ggen_remove(world: &mut GgenWorld, package_id: String) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("remove")
         .arg(&package_id)
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen remove");
 
     world.last_output = Some(output.clone());

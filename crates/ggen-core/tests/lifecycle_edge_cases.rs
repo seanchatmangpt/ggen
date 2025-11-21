@@ -28,6 +28,7 @@ struct EdgeCaseFixture {
 
 impl EdgeCaseFixture {
     fn new() -> Self {
+        #[allow(clippy::expect_used)]
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
         let state_path = temp_dir.path().join(".ggen/state.json");
         Self {
@@ -41,11 +42,13 @@ impl EdgeCaseFixture {
     }
 
     fn write_make_toml(&self, content: &str) {
+        #[allow(clippy::expect_used)]
         fs::write(self.path().join("make.toml"), content).expect("Failed to write make.toml");
     }
 
     fn write_corrupted_state(&self, content: &str) {
         fs::create_dir_all(self.state_path.parent().unwrap()).unwrap();
+        #[allow(clippy::expect_used)]
         fs::write(&self.state_path, content).expect("Failed to write state");
     }
 

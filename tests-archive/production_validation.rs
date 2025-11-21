@@ -66,11 +66,13 @@ mod production_validation {
 
         let cleanroom_env = CleanroomEnvironment::new(config.clone())
             .await
+            #[allow(clippy::expect_used)]
             .expect("Failed to create cleanroom environment");
 
         let test_result = cleanroom_env
             .run_cleanroom_tests(config)
             .await
+            #[allow(clippy::expect_used)]
             .expect("Cleanroom tests failed");
 
         // Validate test results
@@ -121,6 +123,7 @@ mod production_validation {
         cleanroom_env
             .cleanup()
             .await
+            #[allow(clippy::expect_used)]
             .expect("Failed to cleanup cleanroom environment");
 
         println!("✅ Ultrathink cleanroom production validation completed successfully");
@@ -145,6 +148,7 @@ mod production_validation {
 
         let cleanroom_env = CleanroomEnvironment::new(config.clone())
             .await
+            #[allow(clippy::expect_used)]
             .expect("Failed to create cleanroom environment");
 
         // Submit WIP-related tasks for testing
@@ -159,12 +163,14 @@ mod production_validation {
                 .ultrathink_core
                 .submit_task(task)
                 .await
+                #[allow(clippy::expect_used)]
                 .expect("Failed to submit WIP task");
         }
 
         let test_result = cleanroom_env
             .run_cleanroom_tests(config)
             .await
+            #[allow(clippy::expect_used)]
             .expect("WIP integration tests failed");
 
         // Validate WIP operations
@@ -177,6 +183,7 @@ mod production_validation {
             "More tasks completed than processed"
         );
 
+        #[allow(clippy::expect_used)]
         cleanroom_env.cleanup().await.expect("Failed to cleanup");
     }
 
@@ -339,6 +346,7 @@ mod production_validation {
         let pool = ThreadPoolBuilder::new()
             .num_threads(max_threads)
             .build()
+            #[allow(clippy::expect_used)]
             .expect("Failed to create thread pool");
 
         // Validate thread pool size
@@ -421,13 +429,16 @@ mod production_validation {
         use std::path::PathBuf;
 
         let temp_dir = std::env::temp_dir().join("ggen-test-cache");
+        #[allow(clippy::expect_used)]
         fs::create_dir_all(&temp_dir).expect("Failed to create temp dir");
 
         let state_file = temp_dir.join(".ggen/state.json");
 
         // Simulate state write
+        #[allow(clippy::expect_used)]
         fs::create_dir_all(state_file.parent().unwrap()).expect("Failed to create .ggen dir");
         fs::write(&state_file, r#"{"phase":"build","timestamp":1234567890}"#)
+            #[allow(clippy::expect_used)]
             .expect("Failed to write state");
 
         // Validate state persists

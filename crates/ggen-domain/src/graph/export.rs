@@ -302,6 +302,7 @@ mod tests {
     use tempfile::tempdir;
 
     /// Chicago TDD: Test REAL Turtle export to file
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_export_turtle_to_file() -> Result<()> {
         let temp_dir = tempdir()?;
@@ -343,6 +344,7 @@ mod tests {
     }
 
     /// Chicago TDD: Test all export formats write REAL files
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_export_all_formats() -> Result<()> {
         let temp_dir = tempdir()?;
@@ -388,6 +390,7 @@ mod tests {
     }
 
     /// Chicago TDD: Test pretty printing creates different output
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_export_pretty_vs_compact() -> Result<()> {
         let temp_dir = tempdir()?;

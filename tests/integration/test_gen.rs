@@ -9,6 +9,7 @@ test!(test_gen_cli_subcommand, {
         .current_dir("..");
 
     // Act
+    #[allow(clippy::expect_used)]
     let output = cmd.output().expect("Failed to execute command");
 
     // Assert
@@ -24,6 +25,7 @@ test!(test_gen_with_invalid_template, {
         .current_dir("..");
 
     // Act
+    #[allow(clippy::expect_used)]
     let output = cmd.output().expect("Failed to execute command");
 
     // Assert

@@ -367,10 +367,12 @@ mod tests {
             include_destructive: false,
         };
 
+        #[allow(clippy::expect_used)]
         let runner = StressTestRunner::new(config).expect("Failed to create runner");
         let metrics = runner
             .run_concurrent_search_stress()
             .await
+            #[allow(clippy::expect_used)]
             .expect("Stress test failed");
 
         assert!(metrics.operations_completed > 0);
@@ -386,10 +388,12 @@ mod tests {
             include_destructive: false,
         };
 
+        #[allow(clippy::expect_used)]
         let runner = StressTestRunner::new(config).expect("Failed to create runner");
         let metrics = runner
             .run_rapid_sequential_stress()
             .await
+            #[allow(clippy::expect_used)]
             .expect("Stress test failed");
 
         assert!(metrics.operations_completed > 0);
@@ -405,10 +409,12 @@ mod tests {
             include_destructive: false,
         };
 
+        #[allow(clippy::expect_used)]
         let runner = StressTestRunner::new(config).expect("Failed to create runner");
         let metrics = runner
             .run_memory_stress()
             .await
+            #[allow(clippy::expect_used)]
             .expect("Stress test failed");
 
         assert!(metrics.operations_completed > 0);
@@ -425,10 +431,12 @@ mod tests {
             include_destructive: false,
         };
 
+        #[allow(clippy::expect_used)]
         let runner = StressTestRunner::new(config).expect("Failed to create runner");
         let metrics = runner
             .run_filesystem_stress()
             .await
+            #[allow(clippy::expect_used)]
             .expect("Stress test failed");
 
         assert!(metrics.operations_completed > 0);

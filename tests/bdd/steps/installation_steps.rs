@@ -13,6 +13,7 @@ fn install_ggen_via_cargo(world: &mut GgenWorld) {
         .args(["install", "--path", "."])
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run cargo install");
 
     world.last_output = Some(output.clone());
@@ -26,6 +27,7 @@ fn install_ggen_via_homebrew(world: &mut GgenWorld) {
     let output = StdCommand::new("brew")
         .args(["install", "ggen"])
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run brew install");
 
     world.last_output = Some(output.clone());
@@ -36,6 +38,7 @@ fn install_ggen_via_homebrew(world: &mut GgenWorld) {
 fn clone_repository(world: &mut GgenWorld) {
     // For BDD tests, we're already in the repository
     // In real scenarios, this would run: git clone https://github.com/seanchatmangpt/ggen.git
+    #[allow(clippy::expect_used)]
     world.project_dir = std::env::current_dir().expect("Failed to get current directory");
 }
 
@@ -46,6 +49,7 @@ fn have_built_from_source(world: &mut GgenWorld) {
         .args(["build"])
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run cargo build");
 
     assert!(
@@ -61,6 +65,7 @@ fn run_cargo_install_ggen(world: &mut GgenWorld) {
     // For now, just simulate success
     // Create a mock successful output
     let mut cmd = std::process::Command::new("true");
+    #[allow(clippy::expect_used)]
     let output = cmd.output().expect("Failed to run true command");
     world.last_output = Some(output);
     world.last_exit_code = Some(0);
@@ -72,6 +77,7 @@ fn run_cargo_make_build(world: &mut GgenWorld) {
         .args(["make", "build"])
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run cargo make build");
 
     world.last_output = Some(output.clone());
@@ -84,6 +90,7 @@ fn run_cargo_make_install(world: &mut GgenWorld) {
         .args(["make", "install"])
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run cargo make install");
 
     world.last_output = Some(output.clone());
@@ -93,10 +100,12 @@ fn run_cargo_make_install(world: &mut GgenWorld) {
 #[then(regex = r"^ggen should be installed$")]
 fn ggen_should_be_installed(_world: &mut GgenWorld) {
     // Verify ggen binary exists and is executable
+    #[allow(clippy::expect_used)]
     let mut cmd = Command::cargo_bin("ggen").expect("ggen binary not found");
     let output = cmd
         .arg("--version")
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen --version");
 
     assert!(
@@ -122,6 +131,7 @@ fn should_be_in_path(_world: &mut GgenWorld, binary_name: String) {
     let output = StdCommand::new("which")
         .arg(&binary_name)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run which command");
 
     assert!(output.status.success(), "{} should be in PATH", binary_name);

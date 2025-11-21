@@ -26,6 +26,7 @@ Hello, {{ name }}!
 "#;
 
     let templates_dir = world.project_dir.join("templates");
+    #[allow(clippy::expect_used)]
     fs::create_dir_all(&templates_dir).expect("Failed to create templates directory");
 
     let file_path = templates_dir.join(&filename);
@@ -60,11 +61,14 @@ Content
 "#;
 
     let templates_dir = world.project_dir.join("templates");
+    #[allow(clippy::expect_used)]
     fs::create_dir_all(&templates_dir).expect("Failed to create templates directory");
 
     fs::write(templates_dir.join("tmpl1.tmpl"), template_with_desc)
+        #[allow(clippy::expect_used)]
         .expect("Failed to write template");
     fs::write(templates_dir.join("tmpl2.tmpl"), template_with_desc)
+        #[allow(clippy::expect_used)]
         .expect("Failed to write template");
 }
 
@@ -95,12 +99,14 @@ fn run_ggen_template_management_command(world: &mut GgenWorld, args: String) {
     let arg_list = shell_words::split(&args)
         .unwrap_or_else(|e| panic!("Failed to parse arguments '{}': {}", args, e));
 
+    #[allow(clippy::expect_used)]
     let mut cmd = Command::cargo_bin("ggen").expect("ggen binary not found");
     let output = cmd
         .arg("template")
         .args(&arg_list)
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen template command");
 
     world.last_output = Some(output.clone());
@@ -243,6 +249,7 @@ fn command_should_fail(world: &mut GgenWorld) {
 fn run_ggen_template_command(world: &mut GgenWorld, args: String) {
     // Parse the command line, handling quoted arguments
     let parts: Vec<&str> = args.split_whitespace().collect();
+    #[allow(clippy::expect_used)]
     let mut cmd = Command::cargo_bin("ggen").expect("ggen binary not found");
     cmd.arg("template");
 
@@ -253,6 +260,7 @@ fn run_ggen_template_command(world: &mut GgenWorld, args: String) {
     let output = cmd
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen template command");
 
     world.last_output = Some(output.clone());
@@ -263,6 +271,7 @@ fn run_ggen_template_command(world: &mut GgenWorld, args: String) {
 fn have_template_with_content_named(world: &mut GgenWorld, filename: String, content: String) {
     let file_path = world.project_dir.join(&filename);
     if let Some(parent) = file_path.parent() {
+        #[allow(clippy::expect_used)]
         fs::create_dir_all(parent).expect("Failed to create template dir");
     }
     fs::write(&file_path, content.trim())
@@ -285,6 +294,7 @@ fn main() {{
 
     let file_path = world.project_dir.join(&filename);
     if let Some(parent) = file_path.parent() {
+        #[allow(clippy::expect_used)]
         fs::create_dir_all(parent).expect("Failed to create template dir");
     }
     fs::write(&file_path, template_content)
@@ -308,6 +318,7 @@ fn main() {{
 
     let file_path = world.project_dir.join(&filename);
     if let Some(parent) = file_path.parent() {
+        #[allow(clippy::expect_used)]
         fs::create_dir_all(parent).expect("Failed to create template dir");
     }
     fs::write(&file_path, template_content)
@@ -317,6 +328,7 @@ fn main() {{
 #[given(regex = r"^I have multiple templates with descriptions$")]
 fn have_multiple_templates_with_descriptions(world: &mut GgenWorld) {
     let templates_dir = world.project_dir.join("templates");
+    #[allow(clippy::expect_used)]
     fs::create_dir_all(&templates_dir).expect("Failed to create templates directory");
 
     let templates = vec![

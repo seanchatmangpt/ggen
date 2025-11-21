@@ -41,12 +41,14 @@ async fn test_complete_real_world_workflow() {
     // Step 1: Initialize swarm
     let mut hive = HiveQueen::new(config)
         .await
+        #[allow(clippy::expect_used)]
         .expect("Failed to initialize swarm");
 
     // Step 2: Verify agents spawned
     assert!(hive.agents.len() >= 4, "Insufficient agents spawned");
 
     // Step 3: Execute orchestration
+    #[allow(clippy::expect_used)]
     let resolved = hive.orchestrate().await.expect("Orchestration failed");
 
     // Step 4: Validate results

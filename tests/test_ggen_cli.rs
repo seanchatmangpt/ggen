@@ -90,6 +90,7 @@ fn run_ggen_command(args: &[&str]) -> TestResult {
     let mut cmd = Command::new(&ggen_binary);
     cmd.args(args);
 
+    #[allow(clippy::expect_used)]
     let output = cmd.output().expect("Failed to execute ggen command");
     let duration_ms = start.elapsed().as_millis();
 

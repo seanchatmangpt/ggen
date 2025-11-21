@@ -21,6 +21,7 @@ use tempfile::TempDir;
 // Phase 3: Integration Tests for Receipt Emission
 // ============================================================================
 
+#[allow(clippy::expect_used)]
 #[test]
 fn test_receipt_emission_single_package() {
     // Arrange: Create a test package structure

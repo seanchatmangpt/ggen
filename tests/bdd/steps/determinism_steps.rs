@@ -11,8 +11,10 @@ fn have_identical_input_files(world: &mut GgenWorld) {
     let input_content = r#"{"name": "test", "version": "1.0.0"}"#;
 
     fs::write(world.project_dir.join("input1.json"), input_content)
+        #[allow(clippy::expect_used)]
         .expect("Failed to write input1.json");
     fs::write(world.project_dir.join("input2.json"), input_content)
+        #[allow(clippy::expect_used)]
         .expect("Failed to write input2.json");
 }
 
@@ -30,6 +32,7 @@ Hello {{name}}!
         world.project_dir.join("test-template.tmpl"),
         template_content,
     )
+    #[allow(clippy::expect_used)]
     .expect("Failed to write template");
 }
 
@@ -37,6 +40,7 @@ Hello {{name}}!
 fn generate_code_twice(world: &mut GgenWorld) {
     // First generation
     let output1 = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("gen")
         .arg("test-template.tmpl")
@@ -44,10 +48,12 @@ fn generate_code_twice(world: &mut GgenWorld) {
         .arg("test")
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run first generation");
 
     // Second generation
     let _output2 = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("gen")
         .arg("test-template.tmpl")
@@ -55,6 +61,7 @@ fn generate_code_twice(world: &mut GgenWorld) {
         .arg("test")
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run second generation");
 
     // Store both outputs for comparison
@@ -64,6 +71,7 @@ fn generate_code_twice(world: &mut GgenWorld) {
     // Capture hash of first output
     let output_file = world.project_dir.join("output.txt");
     if output_file.exists() {
+        #[allow(clippy::expect_used)]
         let content = fs::read_to_string(&output_file).expect("Failed to read output");
         let hash = format!("{:x}", md5::compute(content));
         world.capture_hash(hash);
@@ -73,6 +81,7 @@ fn generate_code_twice(world: &mut GgenWorld) {
 #[when(regex = r"^I run ggen gen (.+) with seed (.+)$")]
 fn run_ggen_gen_with_seed(world: &mut GgenWorld, template_path: String, seed: String) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("gen")
         .arg(&template_path)
@@ -80,6 +89,7 @@ fn run_ggen_gen_with_seed(world: &mut GgenWorld, template_path: String, seed: St
         .arg(&seed)
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen gen");
 
     world.last_output = Some(output.clone());
@@ -90,6 +100,7 @@ fn run_ggen_gen_with_seed(world: &mut GgenWorld, template_path: String, seed: St
 fn capture_output_hash(world: &mut GgenWorld) {
     let output_file = world.project_dir.join("output.txt");
     if output_file.exists() {
+        #[allow(clippy::expect_used)]
         let content = fs::read_to_string(&output_file).expect("Failed to read output");
         let hash = format!("{:x}", md5::compute(content));
         world.capture_hash(hash);
@@ -100,6 +111,7 @@ fn capture_output_hash(world: &mut GgenWorld) {
 fn capture_first_output(world: &mut GgenWorld) {
     let output_file = world.project_dir.join("output.txt");
     if output_file.exists() {
+        #[allow(clippy::expect_used)]
         let content = fs::read_to_string(&output_file).expect("Failed to read output");
         world.capture_file("output1.txt", content);
     }
@@ -109,6 +121,7 @@ fn capture_first_output(world: &mut GgenWorld) {
 fn capture_second_output(world: &mut GgenWorld) {
     let output_file = world.project_dir.join("output.txt");
     if output_file.exists() {
+        #[allow(clippy::expect_used)]
         let content = fs::read_to_string(&output_file).expect("Failed to read output");
         world.capture_file("output2.txt", content);
     }
@@ -118,6 +131,7 @@ fn capture_second_output(world: &mut GgenWorld) {
 fn capture_second_output_hash(world: &mut GgenWorld) {
     let output_file = world.project_dir.join("output.txt");
     if output_file.exists() {
+        #[allow(clippy::expect_used)]
         let content = fs::read_to_string(&output_file).expect("Failed to read output");
         let hash = format!("{:x}", md5::compute(content));
         world.capture_hash(hash);
@@ -131,7 +145,9 @@ fn outputs_should_be_identical(world: &mut GgenWorld) {
     let output2_path = world.project_dir.join("output2.txt");
 
     if output1_path.exists() && output2_path.exists() {
+        #[allow(clippy::expect_used)]
         let content1 = fs::read_to_string(&output1_path).expect("Failed to read output1");
+        #[allow(clippy::expect_used)]
         let content2 = fs::read_to_string(&output2_path).expect("Failed to read output2");
 
         assert_eq!(content1, content2, "Generated outputs should be identical");
@@ -160,7 +176,9 @@ fn outputs_should_be_different(world: &mut GgenWorld) {
     let output2_path = world.project_dir.join("output2.txt");
 
     if output1_path.exists() && output2_path.exists() {
+        #[allow(clippy::expect_used)]
         let content1 = fs::read_to_string(&output1_path).expect("Failed to read output1");
+        #[allow(clippy::expect_used)]
         let content2 = fs::read_to_string(&output2_path).expect("Failed to read output2");
 
         assert_ne!(content1, content2, "Generated outputs should be different");
@@ -194,6 +212,7 @@ fn same_inputs_should_produce_same_manifest_hash(world: &mut GgenWorld) {
 #[when(regex = r#"^I run "ggen gen test-template" with seed "([^"]+)"$"#)]
 fn run_ggen_gen_test_template_with_seed(world: &mut GgenWorld, seed: String) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("gen")
         .arg("test-template.tmpl")
@@ -201,6 +220,7 @@ fn run_ggen_gen_test_template_with_seed(world: &mut GgenWorld, seed: String) {
         .arg(&seed)
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run generation with seed");
 
     world.last_output = Some(output.clone());
