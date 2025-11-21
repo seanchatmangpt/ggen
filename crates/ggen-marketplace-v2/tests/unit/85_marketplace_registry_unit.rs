@@ -94,7 +94,8 @@ async fn test_registry_insert_with_multiple_versions() {
     // Arrange
     let registry = Registry::new(100).await;
     let id = PackageId::new("multi-version-pkg").unwrap();
-    let metadata = PackageMetadata::new(id.clone(), "Multi Version", "Has multiple versions", "MIT");
+    let metadata =
+        PackageMetadata::new(id.clone(), "Multi Version", "Has multiple versions", "MIT");
     let package = Package {
         metadata,
         latest_version: PackageVersion::new("2.0.0").unwrap(),
@@ -214,9 +215,15 @@ async fn test_registry_all_packages_empty() {
 async fn test_registry_all_packages() {
     // Arrange
     let registry = Registry::new(100).await;
-    registry.insert(create_test_package("pkg1", "1.0.0")).unwrap();
-    registry.insert(create_test_package("pkg2", "1.0.0")).unwrap();
-    registry.insert(create_test_package("pkg3", "1.0.0")).unwrap();
+    registry
+        .insert(create_test_package("pkg1", "1.0.0"))
+        .unwrap();
+    registry
+        .insert(create_test_package("pkg2", "1.0.0"))
+        .unwrap();
+    registry
+        .insert(create_test_package("pkg3", "1.0.0"))
+        .unwrap();
 
     // Act
     let result = registry.all_packages().await.unwrap();
@@ -294,7 +301,9 @@ async fn test_registry_remove_existing_package() {
     registry.insert(package).unwrap();
 
     // Act
-    let result = registry.remove(&PackageId::new("test-pkg").unwrap()).unwrap();
+    let result = registry
+        .remove(&PackageId::new("test-pkg").unwrap())
+        .unwrap();
 
     // Assert
     assert!(result.is_some());
@@ -307,7 +316,9 @@ async fn test_registry_remove_nonexistent_package() {
     let registry = Registry::new(100).await;
 
     // Act
-    let result = registry.remove(&PackageId::new("nonexistent").unwrap()).unwrap();
+    let result = registry
+        .remove(&PackageId::new("nonexistent").unwrap())
+        .unwrap();
 
     // Assert
     assert!(result.is_none());
@@ -333,8 +344,12 @@ async fn test_registry_remove_then_get_fails() {
 async fn test_registry_remove_updates_length() {
     // Arrange
     let registry = Registry::new(100).await;
-    registry.insert(create_test_package("pkg1", "1.0.0")).unwrap();
-    registry.insert(create_test_package("pkg2", "1.0.0")).unwrap();
+    registry
+        .insert(create_test_package("pkg1", "1.0.0"))
+        .unwrap();
+    registry
+        .insert(create_test_package("pkg2", "1.0.0"))
+        .unwrap();
     assert_eq!(registry.len(), 2);
 
     // Act
@@ -447,8 +462,12 @@ async fn test_registry_cache_stats_display() {
 async fn test_registry_clear() {
     // Arrange
     let registry = Registry::new(100).await;
-    registry.insert(create_test_package("pkg1", "1.0.0")).unwrap();
-    registry.insert(create_test_package("pkg2", "1.0.0")).unwrap();
+    registry
+        .insert(create_test_package("pkg1", "1.0.0"))
+        .unwrap();
+    registry
+        .insert(create_test_package("pkg2", "1.0.0"))
+        .unwrap();
     assert_eq!(registry.len(), 2);
 
     // Act

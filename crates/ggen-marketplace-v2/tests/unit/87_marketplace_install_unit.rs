@@ -37,7 +37,9 @@ async fn test_installer_creation() {
 async fn test_installer_with_populated_registry() {
     // Arrange
     let registry = Registry::new(100).await;
-    registry.insert(create_test_package("test-pkg", "1.0.0", vec![])).unwrap();
+    registry
+        .insert(create_test_package("test-pkg", "1.0.0", vec![]))
+        .unwrap();
 
     // Act
     let installer = Installer::new(registry);
@@ -91,16 +93,24 @@ async fn test_create_manifest_single_package() {
 
     // Assert
     assert_eq!(manifest.packages.len(), 1);
-    assert!(manifest.dependencies.contains_key(&PackageId::new("my-pkg").unwrap()));
+    assert!(manifest
+        .dependencies
+        .contains_key(&PackageId::new("my-pkg").unwrap()));
 }
 
 #[tokio::test]
 async fn test_create_manifest_multiple_packages() {
     // Arrange
     let registry = Registry::new(100).await;
-    registry.insert(create_test_package("pkg1", "1.0.0", vec![])).unwrap();
-    registry.insert(create_test_package("pkg2", "1.0.0", vec![])).unwrap();
-    registry.insert(create_test_package("pkg3", "1.0.0", vec![])).unwrap();
+    registry
+        .insert(create_test_package("pkg1", "1.0.0", vec![]))
+        .unwrap();
+    registry
+        .insert(create_test_package("pkg2", "1.0.0", vec![]))
+        .unwrap();
+    registry
+        .insert(create_test_package("pkg3", "1.0.0", vec![]))
+        .unwrap();
     let installer = Installer::new(registry);
 
     // Act
@@ -658,7 +668,8 @@ fn test_installation_plan_clone() {
 
 fn create_test_package(name: &str, version: &str, deps: Vec<PackageDependency>) -> Package {
     let id = PackageId::new(name).unwrap();
-    let metadata = PackageMetadata::new(id.clone(), name, format!("Description for {}", name), "MIT");
+    let metadata =
+        PackageMetadata::new(id.clone(), name, format!("Description for {}", name), "MIT");
     let ver = PackageVersion::new(version).unwrap();
 
     let mut releases = indexmap::IndexMap::new();

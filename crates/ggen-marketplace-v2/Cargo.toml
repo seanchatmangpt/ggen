@@ -120,6 +120,27 @@ path = "tests/unit/rdf_turtle_test.rs"
 name = "sparql_operations_test"
 path = "tests/unit/sparql_operations_test.rs"
 
+# Phase 3A: Comprehensive Unit Tests (Chicago TDD)
+[[test]]
+name = "84_marketplace_core_unit"
+path = "tests/unit/84_marketplace_core_unit.rs"
+
+[[test]]
+name = "85_marketplace_registry_unit"
+path = "tests/unit/85_marketplace_registry_unit.rs"
+
+[[test]]
+name = "86_marketplace_search_unit"
+path = "tests/unit/86_marketplace_search_unit.rs"
+
+[[test]]
+name = "87_marketplace_install_unit"
+path = "tests/unit/87_marketplace_install_unit.rs"
+
+[[test]]
+name = "88_marketplace_security_unit"
+path = "tests/unit/88_marketplace_security_unit.rs"
+
 # Phase 3B: Integration tests
 [[test]]
 name = "marketplace_integration"

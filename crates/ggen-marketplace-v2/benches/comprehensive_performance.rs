@@ -17,12 +17,14 @@
 //! 5. Memory Profiling (1000+ package sets)
 //! 6. Concurrent Operations
 
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use ggen_marketplace_v2::{
     models::*,
     registry::Registry,
     search::{SearchEngine, SearchQuery},
+    traits::AsyncRepository,
 };
+use std::hint::black_box;
 use std::time::Duration;
 use tokio::runtime::Runtime;
 

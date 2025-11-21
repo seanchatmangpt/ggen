@@ -10,12 +10,14 @@
 //!
 //! These benchmarks FAIL if SLOs are not met, ensuring production readiness.
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
 use ggen_marketplace_v2::{
     models::*,
     registry::Registry,
     search::{SearchEngine, SearchQuery},
+    traits::AsyncRepository,
 };
+use std::hint::black_box;
 use std::time::{Duration, Instant};
 use tokio::runtime::Runtime;
 

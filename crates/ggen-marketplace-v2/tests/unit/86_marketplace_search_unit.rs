@@ -5,7 +5,9 @@
 //!
 //! Test Count: 50+ tests covering search operations
 
-use ggen_marketplace_v2::models::{Package, PackageId, PackageMetadata, PackageVersion, QualityScore};
+use ggen_marketplace_v2::models::{
+    Package, PackageId, PackageMetadata, PackageVersion, QualityScore,
+};
 use ggen_marketplace_v2::search::{SearchEngine, SearchQuery, SortBy};
 
 // ============================================================================
@@ -555,7 +557,10 @@ fn test_search_sort_by_quality() {
 
     // Assert
     assert_eq!(results.len(), 3);
-    assert_eq!(results[0].package.metadata.quality_score.unwrap().value(), 95);
+    assert_eq!(
+        results[0].package.metadata.quality_score.unwrap().value(),
+        95
+    );
 }
 
 #[test]
@@ -627,8 +632,12 @@ fn test_search_exact_match_higher_relevance() {
     // Assert - sorted by relevance, exact match should be first
     assert_eq!(results.len(), 2);
     // The exact match should have higher relevance
-    let exact_match = results.iter().find(|r| r.package.metadata.id.as_str() == "database");
-    let partial_match = results.iter().find(|r| r.package.metadata.id.as_str() == "my-database-client");
+    let exact_match = results
+        .iter()
+        .find(|r| r.package.metadata.id.as_str() == "database");
+    let partial_match = results
+        .iter()
+        .find(|r| r.package.metadata.id.as_str() == "my-database-client");
     assert!(exact_match.is_some());
     assert!(partial_match.is_some());
 }
