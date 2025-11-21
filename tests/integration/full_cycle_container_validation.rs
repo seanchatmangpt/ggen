@@ -177,7 +177,6 @@ fn capture_project_snapshot() -> ProjectSnapshot {
     let output = Command::new("sh")
         .args(["-c", "find . -type f -not -path '*/target/*' -not -path '*/.git/*' -not -path '*/node_modules/*' 2>/dev/null | wc -l"])
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to count files");
 
     let file_count = String::from_utf8_lossy(&output.stdout)
@@ -188,7 +187,6 @@ fn capture_project_snapshot() -> ProjectSnapshot {
     let output = Command::new("sh")
         .args(["-c", "find . -type d -not -path '*/target/*' -not -path '*/.git/*' -not -path '*/node_modules/*' 2>/dev/null | wc -l"])
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to count directories");
 
     let dir_count = String::from_utf8_lossy(&output.stdout)
@@ -200,7 +198,6 @@ fn capture_project_snapshot() -> ProjectSnapshot {
     let output = Command::new("git")
         .args(["status", "--porcelain"])
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to get git status");
 
     let git_status = String::from_utf8_lossy(&output.stdout);
@@ -563,17 +560,13 @@ fn concurrent_full_cycle_validation() {
     });
 
     // Wait for all agents to complete
-    #[allow(clippy::expect_used)]
     let build_result = build_handle.join().expect("Build thread should complete");
     let marketplace_result = marketplace_handle
         .join()
-        #[allow(clippy::expect_used)]
         .expect("Marketplace thread should complete");
-    #[allow(clippy::expect_used)]
     let hooks_result = hooks_handle.join().expect("Hooks thread should complete");
     let validation_result = validation_handle
         .join()
-        #[allow(clippy::expect_used)]
         .expect("Validation thread should complete");
 
     // Assert all phases completed successfully

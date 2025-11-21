@@ -38,7 +38,6 @@ use tempfile::TempDir;
 
 /// Helper to create a ggen Command
 fn ggen() -> Command {
-    #[allow(clippy::expect_used)]
     Command::cargo_bin("ggen").expect("Failed to find ggen binary")
 }
 
@@ -57,7 +56,6 @@ fn ggen() -> Command {
 /// **Chicago TDD:** Tests REAL code generation, file operations, and compilation
 #[test]
 fn test_generate_from_ttl() {
-    #[allow(clippy::expect_used)]
     let temp_dir = TempDir::new().expect("Failed to create temp directory");
     let output_dir = temp_dir.path().join("my-cli");
 
@@ -143,7 +141,6 @@ fn test_generate_from_ttl() {
     println!("Phase 3: Validating Cargo.toml content...");
 
     let cargo_toml = fs::read_to_string(output_dir.join("Cargo.toml"))
-        #[allow(clippy::expect_used)]
         .expect("Failed to read generated Cargo.toml");
 
     assert!(
@@ -175,7 +172,6 @@ fn test_generate_from_ttl() {
     println!("Phase 4: Validating main.rs structure...");
 
     let main_rs = fs::read_to_string(output_dir.join("src/main.rs"))
-        #[allow(clippy::expect_used)]
         .expect("Failed to read generated main.rs");
 
     assert!(
@@ -202,7 +198,6 @@ fn test_generate_from_ttl() {
         .arg("check")
         .current_dir(&output_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run cargo check");
 
     if !check_result.status.success() {
@@ -224,7 +219,6 @@ fn test_generate_from_ttl() {
         .args(&["run", "--", "--help"])
         .current_dir(&output_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run cargo run -- --help");
 
     let help_output = String::from_utf8_lossy(&help_result.stdout);
@@ -265,7 +259,6 @@ fn test_generated_commands_match_ttl_spec() {
 
     // Verify template commands from sample-cli.ttl
     let template_mod = fs::read_to_string(output_dir.join("src/cmds/template/mod.rs"))
-        #[allow(clippy::expect_used)]
         .expect("Failed to read template/mod.rs");
 
     assert!(
@@ -284,7 +277,6 @@ fn test_generated_commands_match_ttl_spec() {
     // Verify project commands from sample-cli.ttl
     if output_dir.join("src/cmds/project/mod.rs").exists() {
         let project_mod = fs::read_to_string(output_dir.join("src/cmds/project/mod.rs"))
-            #[allow(clippy::expect_used)]
             .expect("Failed to read project/mod.rs");
 
         assert!(
@@ -320,7 +312,6 @@ fn test_generated_execution_logic() {
     // Read template/generate.rs which should have execution logic
     if output_dir.join("src/cmds/template/generate.rs").exists() {
         let generate_rs = fs::read_to_string(output_dir.join("src/cmds/template/generate.rs"))
-            #[allow(clippy::expect_used)]
             .expect("Failed to read template/generate.rs");
 
         // Verify execution logic patterns from sample-cli.ttl
@@ -392,7 +383,6 @@ fn test_invalid_rdf_syntax() {
         # Missing final period will cause parser error
         "#,
     )
-    #[allow(clippy::expect_used)]
     .expect("Failed to write invalid TTL");
 
     ggen()
@@ -442,7 +432,6 @@ fn test_missing_required_fields() {
         # No nouns/verbs defined - will fail validation
         "#,
     )
-    #[allow(clippy::expect_used)]
     .expect("Failed to write incomplete TTL");
 
     ggen()
@@ -495,7 +484,6 @@ fn test_missing_dependencies() {
         # Note: No cli:hasDependency defined
         "#,
     )
-    #[allow(clippy::expect_used)]
     .expect("Failed to write no-deps TTL");
 
     // This might succeed but generate a Cargo.toml with minimal dependencies
@@ -507,13 +495,11 @@ fn test_missing_dependencies() {
         .arg("--output")
         .arg(&output_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run command");
 
     // If it succeeds, verify Cargo.toml has minimal dependencies
     if result.status.success() && output_dir.join("Cargo.toml").exists() {
         let cargo_toml =
-            #[allow(clippy::expect_used)]
             fs::read_to_string(output_dir.join("Cargo.toml")).expect("Failed to read Cargo.toml");
 
         // Should at least have clap and anyhow as default dependencies
@@ -540,7 +526,6 @@ fn test_output_directory_defaults() {
         .arg("examples/clap-noun-verb-demo/sample-cli.ttl")
         .current_dir(&temp_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run command");
 
     // Either succeeds and generates in current dir, or fails requesting --output
@@ -582,7 +567,6 @@ fn test_force_overwrite() {
         .arg("--output")
         .arg(&output_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run command");
 
     if !result.status.success() {
@@ -626,7 +610,6 @@ fn test_generated_module_structure() {
 
     // Verify mod.rs files properly export submodules
     let cmds_mod =
-        #[allow(clippy::expect_used)]
         fs::read_to_string(output_dir.join("src/cmds/mod.rs")).expect("Failed to read cmds/mod.rs");
 
     assert!(
@@ -657,7 +640,6 @@ fn test_generated_tests() {
     // Verify integration test exists
     if output_dir.join("tests/integration_test.rs").exists() {
         let integration_test = fs::read_to_string(output_dir.join("tests/integration_test.rs"))
-            #[allow(clippy::expect_used)]
             .expect("Failed to read integration_test.rs");
 
         assert!(
@@ -689,7 +671,6 @@ fn test_generated_readme() {
     // Verify README exists and has content
     if output_dir.join("README.md").exists() {
         let readme =
-            #[allow(clippy::expect_used)]
             fs::read_to_string(output_dir.join("README.md")).expect("Failed to read README.md");
 
         assert!(
@@ -749,7 +730,6 @@ fn test_sample_ttl_file_exists() {
         "Sample TTL file should exist at examples/clap-noun-verb-demo/sample-cli.ttl"
     );
 
-    #[allow(clippy::expect_used)]
     let content = fs::read_to_string(sample_ttl).expect("Failed to read sample-cli.ttl");
     assert!(
         content.contains("cli:CliProject"),

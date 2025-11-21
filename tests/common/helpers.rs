@@ -12,18 +12,15 @@ pub fn write_file_in_temp(temp_dir: &TempDir, relative_path: &str, content: &str
 
     // Create parent directories if needed
     if let Some(parent) = file_path.parent() {
-        #[allow(clippy::expect_used)]
         fs::create_dir_all(parent).expect("Failed to create parent directories");
     }
 
-    #[allow(clippy::expect_used)]
     fs::write(&file_path, content).expect("Failed to write file");
     file_path.to_string_lossy().to_string()
 }
 
 /// Reads content from a file
 pub fn read_file<P: AsRef<Path>>(path: P) -> String {
-    #[allow(clippy::expect_used)]
     fs::read_to_string(path).expect("Failed to read file")
 }
 
@@ -41,7 +38,6 @@ pub fn dir_exists<P: AsRef<Path>>(path: P) -> bool {
 pub fn create_test_structure(temp_dir: &TempDir, dirs: &[&str]) {
     for dir in dirs {
         let dir_path = temp_dir.path().join(dir);
-        #[allow(clippy::expect_used)]
         fs::create_dir_all(dir_path).expect("Failed to create test directory");
     }
 }

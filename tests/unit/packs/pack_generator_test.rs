@@ -230,9 +230,7 @@ fn test_generate_input_serialization() {
     };
 
     // Act
-    #[allow(clippy::expect_used)]
     let json = serde_json::to_string(&input).expect("Should serialize");
-    #[allow(clippy::expect_used)]
     let deserialized: GenerateInput = serde_json::from_str(&json).expect("Should deserialize");
 
     // Assert
@@ -254,10 +252,8 @@ fn test_generate_output_structure() {
     };
 
     // Act
-    #[allow(clippy::expect_used)]
     let json = serde_json::to_string(&output).expect("Should serialize");
     let deserialized: ggen_domain::packs::GenerateOutput =
-        #[allow(clippy::expect_used)]
         serde_json::from_str(&json).expect("Should deserialize");
 
     // Assert

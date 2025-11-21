@@ -62,7 +62,6 @@ async_test!(test_validate_actually_parses_template, async {
     vars.insert("output_path", "output/test.rs");
     template
         .render_frontmatter(&mut tera, &vars)
-        #[allow(clippy::expect_used)]
         .expect("Frontmatter rendering should succeed");
 
     // Verify parsed frontmatter contains expected variables
@@ -454,7 +453,6 @@ User: {{ name }}
     context.insert("output", "user.txt");
     template
         .render_frontmatter(&mut tera, &context)
-        #[allow(clippy::expect_used)]
         .expect("Frontmatter rendering should succeed");
 
     // Verify variables are parsed correctly

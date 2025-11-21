@@ -12,12 +12,10 @@ fn have_new_project_directory(_world: &mut GgenWorld) {
 fn initialize_ggen(world: &mut GgenWorld) {
     use assert_cmd::Command;
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("init")
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen init");
 
     world.last_output = Some(output.clone());

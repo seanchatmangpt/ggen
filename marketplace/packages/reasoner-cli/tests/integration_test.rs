@@ -5,7 +5,6 @@ fn test_help_command() {
     let output = Command::new("cargo")
         .args(&["run", "--", "--help"])
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to execute command");
 
     assert!(output.status.success());
@@ -18,7 +17,6 @@ fn test_classifier_help() {
     let output = Command::new("cargo")
         .args(&["run", "--", "classifier", "--help"])
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to execute command");
 
     assert!(output.status.success());
@@ -31,7 +29,6 @@ fn test_ontology_help() {
     let output = Command::new("cargo")
         .args(&["run", "--", "ontology", "--help"])
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to execute command");
 
     assert!(output.status.success());
@@ -44,7 +41,6 @@ fn test_inference_help() {
     let output = Command::new("cargo")
         .args(&["run", "--", "inference", "--help"])
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to execute command");
 
     assert!(output.status.success());
@@ -57,7 +53,6 @@ fn test_validator_help() {
     let output = Command::new("cargo")
         .args(&["run", "--", "validator", "--help"])
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to execute command");
 
     assert!(output.status.success());

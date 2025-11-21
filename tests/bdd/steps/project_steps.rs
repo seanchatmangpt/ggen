@@ -19,10 +19,8 @@ use std::fs;
 fn clean_project_directory(world: &mut GgenWorld) {
     // World is already initialized with temp directory
     if world.project_dir.exists() {
-        #[allow(clippy::expect_used)]
         fs::remove_dir_all(&world.project_dir).expect("Failed to clean project dir");
     }
-    #[allow(clippy::expect_used)]
     fs::create_dir_all(&world.project_dir).expect("Failed to create project dir");
 }
 
@@ -30,7 +28,6 @@ fn clean_project_directory(world: &mut GgenWorld) {
 fn create_project_template_file(world: &mut GgenWorld, filename: String, content: String) {
     let file_path = world.project_dir.join(&filename);
     if let Some(parent) = file_path.parent() {
-        #[allow(clippy::expect_used)]
         fs::create_dir_all(parent).expect("Failed to create template directory");
     }
     fs::write(&file_path, content.trim())
@@ -61,14 +58,12 @@ fn run_ggen_project_command(world: &mut GgenWorld, args: String) {
     let arg_list = shell_words::split(&args)
         .unwrap_or_else(|e| panic!("Failed to parse arguments '{}': {}", args, e));
 
-    #[allow(clippy::expect_used)]
     let mut cmd = Command::cargo_bin("ggen").expect("ggen binary not found");
     let output = cmd
         .arg("project")
         .args(&arg_list)
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen project command");
 
     world.last_output = Some(output.clone());
@@ -226,7 +221,6 @@ fn should_see_generated_in_output(world: &mut GgenWorld) {
 #[when(regex = r#"^I run "ggen project gen (.+)" with seed "([^"]+)"$"#)]
 fn run_project_gen_with_seed(world: &mut GgenWorld, template: String, seed: String) {
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("project")
         .arg("gen")
@@ -235,7 +229,6 @@ fn run_project_gen_with_seed(world: &mut GgenWorld, template: String, seed: Stri
         .arg(&seed)
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run project gen with seed");
 
     world.last_output = Some(output.clone());
@@ -245,7 +238,6 @@ fn run_project_gen_with_seed(world: &mut GgenWorld, template: String, seed: Stri
 #[when(regex = r#"^I run "ggen project gen (.+)" with variable "([^"]+)"$"#)]
 fn run_project_gen_with_variable(world: &mut GgenWorld, template: String, variable: String) {
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("project")
         .arg("gen")
@@ -254,7 +246,6 @@ fn run_project_gen_with_variable(world: &mut GgenWorld, template: String, variab
         .arg(&variable)
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run project gen with variable");
 
     world.last_output = Some(output.clone());
@@ -266,7 +257,6 @@ fn run_project_gen_with_multiple_variables(
     world: &mut GgenWorld, template: String, var1: String, var2: String,
 ) {
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("project")
         .arg("gen")
@@ -277,7 +267,6 @@ fn run_project_gen_with_multiple_variables(
         .arg(&var2)
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run project gen with multiple variables");
 
     world.last_output = Some(output.clone());
@@ -287,7 +276,6 @@ fn run_project_gen_with_multiple_variables(
 #[when(regex = r#"^I run "ggen project plan (.+)" with seed "([^"]+)"$"#)]
 fn run_project_plan_with_seed(world: &mut GgenWorld, template: String, seed: String) {
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("project")
         .arg("plan")
@@ -296,7 +284,6 @@ fn run_project_plan_with_seed(world: &mut GgenWorld, template: String, seed: Str
         .arg(&seed)
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run project plan with seed");
 
     world.last_output = Some(output.clone());
@@ -306,7 +293,6 @@ fn run_project_plan_with_seed(world: &mut GgenWorld, template: String, seed: Str
 #[when(regex = r#"^I run "ggen project diff (.+)" with variable "([^"]+)"$"#)]
 fn run_project_diff_with_variable(world: &mut GgenWorld, template: String, variable: String) {
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("project")
         .arg("diff")
@@ -315,7 +301,6 @@ fn run_project_diff_with_variable(world: &mut GgenWorld, template: String, varia
         .arg(&variable)
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run project diff with variable");
 
     world.last_output = Some(output.clone());
@@ -325,14 +310,12 @@ fn run_project_diff_with_variable(world: &mut GgenWorld, template: String, varia
 #[when(regex = r#"^I run "ggen project apply (.+)"$"#)]
 fn run_project_apply(world: &mut GgenWorld, plan_file: String) {
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("project")
         .arg("apply")
         .arg(&plan_file)
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run project apply");
 
     world.last_output = Some(output.clone());

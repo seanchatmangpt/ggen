@@ -8,13 +8,11 @@ use cucumber::{then, when};
 fn run_ggen_command(world: &mut GgenWorld, args: String) {
     let arg_list: Vec<&str> = args.split_whitespace().collect();
 
-    #[allow(clippy::expect_used)]
     let mut cmd = Command::cargo_bin("ggen").expect("ggen binary not found");
     let output = cmd
         .args(&arg_list)
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen command");
 
     world.last_output = Some(output.clone());
@@ -24,12 +22,10 @@ fn run_ggen_command(world: &mut GgenWorld, args: String) {
 #[when(regex = r"^I run ggen list$")]
 fn run_ggen_list(world: &mut GgenWorld) {
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("list")
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen list");
 
     world.last_output = Some(output.clone());
@@ -39,13 +35,11 @@ fn run_ggen_list(world: &mut GgenWorld) {
 #[when(regex = r"^I run ggen lint (.+)$")]
 fn run_ggen_lint(world: &mut GgenWorld, template_path: String) {
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("lint")
         .arg(&template_path)
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen lint");
 
     world.last_output = Some(output.clone());
@@ -55,12 +49,10 @@ fn run_ggen_lint(world: &mut GgenWorld, template_path: String) {
 #[when(regex = r"^I run ggen hazard$")]
 fn run_ggen_hazard(world: &mut GgenWorld) {
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("hazard")
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen hazard");
 
     world.last_output = Some(output.clone());
@@ -70,13 +62,11 @@ fn run_ggen_hazard(world: &mut GgenWorld) {
 #[when(regex = r"^I run ggen completion (.+)$")]
 fn run_ggen_completion(world: &mut GgenWorld, shell: String) {
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("completion")
         .arg(&shell)
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen completion");
 
     world.last_output = Some(output.clone());
@@ -86,12 +76,10 @@ fn run_ggen_completion(world: &mut GgenWorld, shell: String) {
 #[when(regex = r"^I run ggen init$")]
 fn run_ggen_init(world: &mut GgenWorld) {
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("init")
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen init");
 
     world.last_output = Some(output.clone());

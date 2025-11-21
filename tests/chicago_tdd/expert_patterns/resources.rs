@@ -23,7 +23,6 @@ use tempfile::TempDir;
 
 test!(test_temp_dir_cleanup, {
     // Arrange: Create a temporary directory
-    #[allow(clippy::expect_used)]
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
     let temp_path = temp_dir.path().to_path_buf();
     let temp_path_clone = temp_path.clone();
@@ -33,9 +32,7 @@ test!(test_temp_dir_cleanup, {
         let file1 = temp_path_clone.join("file1.txt");
         let file2 = temp_path_clone.join("file2.txt");
 
-        #[allow(clippy::expect_used)]
         std::fs::write(&file1, "content1").expect("Failed to write file1");
-        #[allow(clippy::expect_used)]
         std::fs::write(&file2, "content2").expect("Failed to write file2");
 
         // Verify files exist
@@ -58,13 +55,11 @@ test!(test_temp_dir_cleanup_with_panic, {
 
     // Act: Create temp dir and panic
     let panic_result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-        #[allow(clippy::expect_used)]
         let _temp_dir = TempDir::new().expect("Failed to create temp dir");
         let temp_path = _temp_dir.path().to_path_buf();
 
         // Create a file
         let test_file = temp_path.join("test.txt");
-        #[allow(clippy::expect_used)]
         std::fs::write(&test_file, "test").expect("Failed to write");
 
         // Verify file exists
@@ -149,17 +144,14 @@ test!(test_concurrent_insert_and_query, {
 
 test!(test_tempdir_creates_cleanup_on_drop, {
     // Arrange: Create temp dir
-    #[allow(clippy::expect_used)]
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
     let temp_path = temp_dir.path().to_path_buf();
 
     // Act: Create nested directory structure
     let nested_dir = temp_path.join("nested").join("dir");
-    #[allow(clippy::expect_used)]
     std::fs::create_dir_all(&nested_dir).expect("Failed to create nested dir");
 
     let test_file = nested_dir.join("test.txt");
-    #[allow(clippy::expect_used)]
     std::fs::write(&test_file, "test content").expect("Failed to write file");
 
     // Verify structure exists
@@ -175,14 +167,12 @@ test!(test_tempdir_creates_cleanup_on_drop, {
 test!(test_multiple_temp_dirs_cleanup, {
     // Arrange: Create multiple temp directories
     let dirs: Vec<_> = (0..5)
-        #[allow(clippy::expect_used)]
         .map(|_| TempDir::new().expect("Failed to create temp dir"))
         .collect();
 
     // Act: Create files in each
     for (i, dir) in dirs.iter().enumerate() {
         let file = dir.path().join(format!("file{}.txt", i));
-        #[allow(clippy::expect_used)]
         std::fs::write(file, format!("content{}", i)).expect("Failed to write");
     }
 
@@ -204,7 +194,6 @@ test!(test_large_number_temp_dirs, {
     // Arrange: Create many temp directories
     let num_dirs = 10;
     let temp_dirs: Vec<_> = (0..num_dirs)
-        #[allow(clippy::expect_used)]
         .map(|_| TempDir::new().expect("Failed to create temp dir"))
         .collect();
 
@@ -214,7 +203,6 @@ test!(test_large_number_temp_dirs, {
     // Act: Create files in each
     for (i, dir) in temp_dirs.iter().enumerate() {
         let file = dir.path().join(format!("file{}.txt", i));
-        #[allow(clippy::expect_used)]
         std::fs::write(&file, format!("content{}", i)).expect("Failed to write");
         assert!(file.exists(), "File should exist");
     }
@@ -238,23 +226,19 @@ test!(test_large_number_temp_dirs, {
 
 test!(test_state_file_creation_and_deletion, {
     // Arrange: Create a temp directory for state files
-    #[allow(clippy::expect_used)]
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
     let state_file = temp_dir.path().join("state.json");
 
     // Act: Write state file
     let state_json = r#"{"status": "in_progress"}"#;
-    #[allow(clippy::expect_used)]
     std::fs::write(&state_file, state_json).expect("Failed to write state");
 
     // Assert: State file should exist
     assert!(state_file.exists(), "State file should exist");
-    #[allow(clippy::expect_used)]
     let content = std::fs::read_to_string(&state_file).expect("Failed to read state");
     assert_eq!(content, state_json, "State content should match");
 
     // Act: Delete state file (simulating cleanup on completion)
-    #[allow(clippy::expect_used)]
     std::fs::remove_file(&state_file).expect("Failed to delete state");
 
     // Assert: State file should be deleted
@@ -263,16 +247,13 @@ test!(test_state_file_creation_and_deletion, {
 
 test!(test_multiple_state_files_cleanup, {
     // Arrange: Create multiple state files
-    #[allow(clippy::expect_used)]
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
     let state_dir = temp_dir.path().join("states");
-    #[allow(clippy::expect_used)]
     std::fs::create_dir(&state_dir).expect("Failed to create state dir");
 
     // Act: Create multiple state files
     for i in 0..3 {
         let state_file = state_dir.join(format!("state{}.json", i));
-        #[allow(clippy::expect_used)]
         std::fs::write(&state_file, format!(r#"{{"id": {}}}"#, i)).expect("Failed to write");
         assert!(state_file.exists(), "State file {} should exist", i);
     }
@@ -280,7 +261,6 @@ test!(test_multiple_state_files_cleanup, {
     // Act: Cleanup - delete all state files
     for i in 0..3 {
         let state_file = state_dir.join(format!("state{}.json", i));
-        #[allow(clippy::expect_used)]
         std::fs::remove_file(&state_file).expect("Failed to delete");
     }
 
@@ -292,18 +272,15 @@ test!(test_multiple_state_files_cleanup, {
     assert_eq!(remaining.len(), 0, "All state files should be deleted");
 
     // Clean up the state directory itself
-    #[allow(clippy::expect_used)]
     std::fs::remove_dir(&state_dir).expect("Failed to remove state dir");
 });
 
 test!(test_resource_cleanup_on_error_path, {
     // Arrange: Create a temp directory
-    #[allow(clippy::expect_used)]
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
     let file_path = temp_dir.path().join("test.txt");
 
     // Act: Write file
-    #[allow(clippy::expect_used)]
     std::fs::write(&file_path, "test").expect("Failed to write");
     assert!(file_path.exists(), "File should exist");
 
@@ -317,7 +294,6 @@ test!(test_resource_cleanup_on_error_path, {
     assert!(result.is_err(), "Should return error");
 
     // Act: Cleanup (explicit, simulating error recovery)
-    #[allow(clippy::expect_used)]
     std::fs::remove_file(&file_path).expect("Failed to cleanup");
 
     // Assert: File should be cleaned up
@@ -332,10 +308,8 @@ test!(test_resource_cleanup_on_error_path, {
 test!(test_comprehensive_resource_cleanup, {
     // Arrange: Scenario 1 - Normal cleanup
     {
-        #[allow(clippy::expect_used)]
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
         let file = temp_dir.path().join("file.txt");
-        #[allow(clippy::expect_used)]
         std::fs::write(&file, "content").expect("Failed to write");
         assert!(file.exists(), "File should exist");
         // Drop temp_dir - automatic cleanup
@@ -343,12 +317,10 @@ test!(test_comprehensive_resource_cleanup, {
 
     // Arrange: Scenario 2 - Multiple resources
     {
-        #[allow(clippy::expect_used)]
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
         let files: Vec<_> = (0..3)
             .map(|i| {
                 let f = temp_dir.path().join(format!("file{}.txt", i));
-                #[allow(clippy::expect_used)]
                 std::fs::write(&f, format!("content{}", i)).expect("Failed to write");
                 f
             })
@@ -366,12 +338,10 @@ test!(test_comprehensive_resource_cleanup, {
 
     // Arrange: Scenario 3 - Error handling
     {
-        #[allow(clippy::expect_used)]
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
         let file = temp_dir.path().join("file.txt");
 
         let result: Result<(), &str> = (|| {
-            #[allow(clippy::expect_used)]
             std::fs::write(&file, "content").expect("Failed to write");
             Err("Error occurred")
         })();

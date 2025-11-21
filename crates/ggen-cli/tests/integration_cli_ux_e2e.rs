@@ -19,7 +19,6 @@ use predicates::prelude::*;
 
 /// Helper to create ggen command
 fn ggen() -> Command {
-    #[allow(clippy::expect_used)]
     Command::cargo_bin("ggen").expect("Failed to find ggen binary")
 }
 
@@ -311,7 +310,6 @@ fn test_cli_json_output_flag() {
             let stdout = String::from_utf8_lossy(&output.stdout);
             if !stdout.trim().is_empty() {
                 serde_json::from_str::<serde_json::Value>(&stdout)
-                    #[allow(clippy::expect_used)]
                     .expect("JSON output should be valid");
             }
         }

@@ -33,7 +33,6 @@ fn test_marketplace_project_with_git_hooks() {
         .with_env_var("CARGO_HOME", "/root/.cargo")
         .with_env_var("RUSTUP_HOME", "/root/.rustup");
 
-    #[allow(clippy::expect_used)]
     let container = image.start().expect("Failed to start container");
 
     // Helper closure to run commands and check output
@@ -160,7 +159,6 @@ fn test_marketplace_project_with_git_hooks() {
             "cd /workspace/test-project && git commit -m 'Initial commit'",
         ])
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to execute commit");
 
     let commit_stdout = String::from_utf8_lossy(&commit_result.stdout);
@@ -180,7 +178,6 @@ fn test_marketplace_project_with_git_hooks() {
             r#"cd /workspace/test-project && find . -type f \( -name '*.ttl' -o -name '*.rdf' -o -name '*.jsonld' \) 2>/dev/null | head -20"#,
         ])
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to list files");
 
     let files_output = String::from_utf8_lossy(&list_result.stdout);
@@ -201,7 +198,6 @@ fn test_marketplace_project_with_git_hooks() {
             "cd /workspace/test-project && ls -la ontology/ 2>&1 || echo 'No ontology directory'",
         ])
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to check ontology");
 
     println!(
@@ -220,7 +216,6 @@ fn test_marketplace_project_with_git_hooks() {
             "cd /workspace/test-project && head -20 .git/hooks/pre-commit 2>&1 || echo 'Hook not readable'",
         ])
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to read hook");
 
     let hook_content = String::from_utf8_lossy(&hook_result.stdout);
@@ -237,7 +232,6 @@ fn test_marketplace_project_with_git_hooks() {
             "cd /workspace/test-project && find . -maxdepth 3 -type f 2>/dev/null | sort | head -30",
         ])
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to check structure");
 
     println!(
@@ -276,14 +270,12 @@ fn test_container_basic_setup() {
     println!("🐳 Testing basic container setup...");
 
     let image = GenericImage::new(RUST_IMAGE, RUST_TAG);
-    #[allow(clippy::expect_used)]
     let container = image.start().expect("Failed to start container");
 
     // Verify Rust is installed using docker exec
     let output = Command::new("docker")
         .args(["exec", container.id(), "rustc", "--version"])
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to check rustc version");
 
     let version_output = String::from_utf8_lossy(&output.stdout);

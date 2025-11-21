@@ -645,61 +645,76 @@ fn test_package_state_deserialize() {
 
 #[test]
 fn test_manifest_valid_minimal() {
+    let pkg_id = PackageId::new("test-package").unwrap();
+    let version = PackageVersion::new("1.0.0").unwrap();
+    let metadata = PackageMetadata::new(pkg_id.clone(), "test-package", "Test package", "MIT");
     let manifest = Manifest {
-        name: "test-package".to_string(),
-        version: PackageVersion::new("1.0.0").unwrap(),
-        description: Some("Test package".to_string()),
-        authors: vec!["test@example.com".to_string()],
-        dependencies: indexmap::IndexMap::new(),
-        license: Some("MIT".to_string()),
+        id: pkg_id,
+        version,
+        metadata: metadata.clone(),
+        dependencies: Vec::new(),
+        features: indexmap::IndexMap::new(),
     };
-    assert_eq!(manifest.name, "test-package");
+    assert_eq!(manifest.metadata.name, "test-package");
 }
 
 #[test]
 fn test_manifest_with_dependencies() {
-    let mut deps = indexmap::IndexMap::new();
-    deps.insert("dep1".to_string(), PackageVersion::new("1.0.0").unwrap());
+    let pkg_id = PackageId::new("test").unwrap();
+    let version = PackageVersion::new("1.0.0").unwrap();
+    let metadata = PackageMetadata::new(pkg_id.clone(), "test", "Test", "MIT");
+
+    let dep = PackageDependency {
+        id: PackageId::new("dep1").unwrap(),
+        version_req: "1.0.0".to_string(),
+        optional: false,
+    };
 
     let manifest = Manifest {
-        name: "test".to_string(),
-        version: PackageVersion::new("1.0.0").unwrap(),
-        description: None,
-        authors: vec![],
-        dependencies: deps,
-        license: None,
+        id: pkg_id,
+        version,
+        metadata,
+        dependencies: vec![dep],
+        features: indexmap::IndexMap::new(),
     };
     assert_eq!(manifest.dependencies.len(), 1);
 }
 
 #[test]
 fn test_manifest_multiple_authors() {
+    let pkg_id = PackageId::new("test").unwrap();
+    let version = PackageVersion::new("1.0.0").unwrap();
+    let mut metadata = PackageMetadata::new(pkg_id.clone(), "test", "Test", "MIT");
+    metadata.authors = vec![
+        "alice@example.com".to_string(),
+        "bob@example.com".to_string(),
+    ];
+
     let manifest = Manifest {
-        name: "test".to_string(),
-        version: PackageVersion::new("1.0.0").unwrap(),
-        description: None,
-        authors: vec![
-            "alice@example.com".to_string(),
-            "bob@example.com".to_string(),
-        ],
-        dependencies: indexmap::IndexMap::new(),
-        license: None,
+        id: pkg_id,
+        version,
+        metadata: metadata.clone(),
+        dependencies: Vec::new(),
+        features: indexmap::IndexMap::new(),
     };
-    assert_eq!(manifest.authors.len(), 2);
+    assert_eq!(manifest.metadata.authors.len(), 2);
 }
 
 #[test]
 fn test_manifest_clone() {
+    let pkg_id = PackageId::new("test").unwrap();
+    let version = PackageVersion::new("1.0.0").unwrap();
+    let metadata = PackageMetadata::new(pkg_id.clone(), "test", "Test", "MIT");
+
     let m1 = Manifest {
-        name: "test".to_string(),
-        version: PackageVersion::new("1.0.0").unwrap(),
-        description: None,
-        authors: vec![],
-        dependencies: indexmap::IndexMap::new(),
-        license: None,
+        id: pkg_id,
+        version,
+        metadata,
+        dependencies: Vec::new(),
+        features: indexmap::IndexMap::new(),
     };
     let m2 = m1.clone();
-    assert_eq!(m1.name, m2.name);
+    assert_eq!(m1.metadata.name, m2.metadata.name);
 }
 
 // ============================================================================

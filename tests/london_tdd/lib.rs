@@ -91,14 +91,12 @@ pub struct WorkflowRun {
 
 /// Test helper to create a temporary directory
 pub fn setup_test_dir() -> TempDir {
-    #[allow(clippy::expect_used)]
     TempDir::new().expect("Failed to create temp dir")
 }
 
 /// Test helper to create a mock template file
 pub fn create_mock_template(dir: &TempDir, name: &str, content: &str) -> PathBuf {
     let path = dir.path().join(name);
-    #[allow(clippy::expect_used)]
     std::fs::write(&path, content).expect("Failed to write template");
     path
 }
@@ -107,7 +105,6 @@ pub fn create_mock_template(dir: &TempDir, name: &str, content: &str) -> PathBuf
 #[allow(dead_code)]
 pub fn create_mock_config(dir: &TempDir, config: &str) -> PathBuf {
     let path = dir.path().join("config.toml");
-    #[allow(clippy::expect_used)]
     std::fs::write(&path, config).expect("Failed to write config");
     path
 }

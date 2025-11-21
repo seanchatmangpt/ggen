@@ -128,7 +128,8 @@ command = "echo 'Building...'"
         /// Load make.toml from fixture
         fn load_make(&self) -> Make {
             #[allow(clippy::expect_used)]
-            let result = load_make(self.path().join("make.toml")).expect("Failed to load make.toml");
+            let result =
+                load_make(self.path().join("make.toml")).expect("Failed to load make.toml");
             result
         }
 

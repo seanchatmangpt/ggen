@@ -21,7 +21,6 @@ use tempfile::TempDir;
 
 /// Helper to create ggen command
 fn ggen() -> Command {
-    #[allow(clippy::expect_used)]
     Command::cargo_bin("ggen").expect("Failed to find ggen binary")
 }
 
@@ -57,7 +56,6 @@ ex:jane a ex:Person ;
     ex:age "28" .
 "#;
 
-    #[allow(clippy::expect_used)]
     fs::write(&rdf_file, rdf_content).expect("Failed to write RDF file");
     rdf_file
 }

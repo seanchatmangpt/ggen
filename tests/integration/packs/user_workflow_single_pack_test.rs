@@ -251,7 +251,6 @@ async fn test_single_pack_list_show_install_chain() {
     let pack_id = &packs[0].id;
 
     // Show
-    #[allow(clippy::expect_used)]
     let pack = show_pack(pack_id).expect("Should show pack");
     assert_eq!(&pack.id, pack_id);
 
@@ -263,7 +262,6 @@ async fn test_single_pack_list_show_install_chain() {
         dry_run: true,
     };
 
-    #[allow(clippy::expect_used)]
     let install_output = install_pack(&install_input).await.expect("Should install");
     assert_eq!(&install_output.pack_id, pack_id);
 

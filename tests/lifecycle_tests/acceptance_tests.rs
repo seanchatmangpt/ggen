@@ -445,7 +445,6 @@ pub struct PhaseConfig {
 fn current_time_ms() -> u128 {
     std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
-        #[allow(clippy::expect_used)]
         .expect("Time went backwards")
         .as_millis()
 }

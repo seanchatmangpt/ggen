@@ -54,14 +54,12 @@ ex:Alice a ex:Person ;
 
     // Load it into the graph
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("graph")
         .arg("load")
         .arg("person_data.ttl")
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to load graph");
 
     world.last_output = Some(output.clone());
@@ -91,14 +89,12 @@ fn create_graph_with_n_triples(world: &mut GgenWorld, count: usize) {
 
     // Load it
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("graph")
         .arg("load")
         .arg("data.ttl")
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to load graph");
 
     world.last_output = Some(output);
@@ -118,14 +114,12 @@ ex:RustLang a ex:ProgrammingLanguage .
     fs::write(&file_path, turtle).unwrap_or_else(|e| panic!("Failed to write types data: {}", e));
 
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("graph")
         .arg("load")
         .arg("types.ttl")
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to load graph");
 
     world.last_output = Some(output);
@@ -146,14 +140,12 @@ fn create_graph_with_n_people(world: &mut GgenWorld, count: usize) {
     fs::write(&file_path, turtle).unwrap_or_else(|e| panic!("Failed to write people data: {}", e));
 
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("graph")
         .arg("load")
         .arg("people.ttl")
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to load graph");
 
     world.last_output = Some(output);
@@ -167,14 +159,12 @@ fn create_graph_with_n_people(world: &mut GgenWorld, count: usize) {
 fn run_ggen_graph_command(world: &mut GgenWorld, args: String) {
     let arg_list: Vec<&str> = args.split_whitespace().collect();
 
-    #[allow(clippy::expect_used)]
     let mut cmd = Command::cargo_bin("ggen").expect("ggen binary not found");
     let output = cmd
         .arg("graph")
         .args(&arg_list)
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen graph command");
 
     world.last_output = Some(output.clone());
@@ -203,14 +193,12 @@ fn should_see_in_output(world: &mut GgenWorld, expected: String) {
 fn graph_should_contain_triples(world: &mut GgenWorld) {
     // Query the graph to verify it has data
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("graph")
         .arg("query")
         .arg("SELECT (COUNT(*) as ?count) WHERE { ?s ?p ?o }")
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to query graph");
 
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -287,7 +275,6 @@ fn file_should_contain_valid_turtle(world: &mut GgenWorld) {
 fn file_should_be_valid_jsonld(world: &mut GgenWorld) {
     let file_path = world.project_dir.join("export.jsonld");
     if file_path.exists() {
-        #[allow(clippy::expect_used)]
         let content = fs::read_to_string(&file_path).expect("Failed to read JSON-LD file");
         serde_json::from_str::<serde_json::Value>(&content)
             .unwrap_or_else(|e| panic!("File is not valid JSON-LD: {}", e));
@@ -371,9 +358,7 @@ ex:Resource1 ex:prop "value1" ."#;
     let turtle2 = r#"@prefix ex: <http://example.org/> .
 ex:Resource2 ex:prop "value2" ."#;
 
-    #[allow(clippy::expect_used)]
     fs::write(world.project_dir.join(&file1), turtle1).expect("Failed to write first RDF file");
-    #[allow(clippy::expect_used)]
     fs::write(world.project_dir.join(&file2), turtle2).expect("Failed to write second RDF file");
 }
 
@@ -404,19 +389,16 @@ ex:Charlie rel:worksFor ex:ACME .
 "#;
 
     let file_path = world.project_dir.join("relationships_turtle");
-    #[allow(clippy::expect_used)]
     fs::write(&file_path, turtle).expect("Failed to write relationships file");
 
     // Load into graph
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("graph")
         .arg("load")
         .arg("relationships_turtle")
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to load file");
 
     world.last_output = Some(output);
@@ -437,19 +419,16 @@ fn create_large_graph(world: &mut GgenWorld) {
     }
 
     let file_path = world.project_dir.join("large.turtle");
-    #[allow(clippy::expect_used)]
     fs::write(&file_path, turtle).expect("Failed to write large graph");
 
     // Load it
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("graph")
         .arg("load")
         .arg("large.turtle")
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to load file");
 
     world.last_output = Some(output);
@@ -470,19 +449,16 @@ fn create_graph_with_50_people(world: &mut GgenWorld) {
     }
 
     let file_path = world.project_dir.join("people50.ttl");
-    #[allow(clippy::expect_used)]
     fs::write(&file_path, turtle).expect("Failed to write people50.ttl");
 
     // Load it
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("graph")
         .arg("load")
         .arg("people50.turtle")
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to load file");
 
     world.last_output = Some(output);
@@ -501,7 +477,6 @@ ex:PersonShape a sh:NodeShape ;
     sh:property [ sh:path ex:name ; sh:minCount 1 ] ."#;
 
     let file_path = world.project_dir.join("shapes.ttl");
-    #[allow(clippy::expect_used)]
     fs::write(&file_path, shacl).expect("Failed to write SHACL shapes");
 }
 
@@ -518,7 +493,6 @@ ex:ValidationShape a sh:NodeShape ;
     ] ."#;
 
     let file_path = world.project_dir.join("validation_shapes.ttl");
-    #[allow(clippy::expect_used)]
     fs::write(&file_path, shacl).expect("Failed to write validation shapes");
 }
 

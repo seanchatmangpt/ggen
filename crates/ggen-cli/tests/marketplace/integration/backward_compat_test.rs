@@ -200,7 +200,6 @@ mod backward_compat_tests {
         let output = Command::new("cargo")
             .args(&["run", "--features", "marketplace-v1", "--", "--version"])
             .output()
-            #[allow(clippy::expect_used)]
             .expect("Failed to execute version command");
 
         assert!(output.status.success());
