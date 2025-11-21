@@ -16,10 +16,12 @@ fn load_fixture(filename: &str) -> String {
 
 /// Create a test graph with ecommerce ontology
 fn setup_ecommerce_graph() -> Graph {
+    #[allow(clippy::expect_used)]
     let graph = Graph::new().expect("Failed to create graph");
     let turtle = load_fixture("ecommerce.ttl");
     graph
         .insert_turtle(&turtle)
+        #[allow(clippy::expect_used)]
         .expect("Failed to insert ecommerce ontology");
     graph
 }
@@ -28,6 +30,7 @@ fn setup_ecommerce_graph() -> Graph {
 fn test_ecommerce_ontology_extraction() {
     let graph = setup_ecommerce_graph();
     let schema = OntologyExtractor::extract(&graph, "http://example.org/ecommerce#")
+        #[allow(clippy::expect_used)]
         .expect("Failed to extract ontology");
 
     // Verify basic schema metadata
@@ -45,10 +48,12 @@ fn test_ecommerce_ontology_extraction() {
 fn test_product_class_extraction() {
     let graph = setup_ecommerce_graph();
     let schema =
+        #[allow(clippy::expect_used)]
         OntologyExtractor::extract(&graph, "http://example.org/ecommerce#").expect("Failed");
 
     let product_class = schema
         .find_class("Product")
+        #[allow(clippy::expect_used)]
         .expect("Product class not found");
 
     assert_eq!(product_class.name, "Product");
@@ -65,8 +70,10 @@ fn test_product_class_extraction() {
 fn test_order_class_extraction() {
     let graph = setup_ecommerce_graph();
     let schema =
+        #[allow(clippy::expect_used)]
         OntologyExtractor::extract(&graph, "http://example.org/ecommerce#").expect("Failed");
 
+    #[allow(clippy::expect_used)]
     let order_class = schema.find_class("Order").expect("Order class not found");
 
     assert_eq!(order_class.name, "Order");
@@ -77,6 +84,7 @@ fn test_order_class_extraction() {
 fn test_property_extraction() {
     let graph = setup_ecommerce_graph();
     let schema =
+        #[allow(clippy::expect_used)]
         OntologyExtractor::extract(&graph, "http://example.org/ecommerce#").expect("Failed");
 
     // Verify properties were extracted
@@ -85,6 +93,7 @@ fn test_property_extraction() {
     // Check specific properties
     let product_name_prop = schema
         .find_property("productName")
+        #[allow(clippy::expect_used)]
         .expect("productName property not found");
     assert_eq!(product_name_prop.name, "productName");
     assert_eq!(product_name_prop.range, PropertyRange::String);
@@ -92,6 +101,7 @@ fn test_property_extraction() {
 
     let price_prop = schema
         .find_property("price")
+        #[allow(clippy::expect_used)]
         .expect("price property not found");
     assert_eq!(price_prop.name, "price");
     // Price can be inferred as Float (from xsd:decimal or xsd:float)
@@ -108,11 +118,13 @@ fn test_property_extraction() {
 fn test_object_property_extraction() {
     let graph = setup_ecommerce_graph();
     let schema =
+        #[allow(clippy::expect_used)]
         OntologyExtractor::extract(&graph, "http://example.org/ecommerce#").expect("Failed");
 
     // Find a reference property
     let has_category = schema
         .find_property("hasCategory")
+        #[allow(clippy::expect_used)]
         .expect("hasCategory property not found");
 
     assert_eq!(has_category.name, "hasCategory");
@@ -128,6 +140,7 @@ fn test_object_property_extraction() {
 fn test_relationship_derivation() {
     let graph = setup_ecommerce_graph();
     let schema =
+        #[allow(clippy::expect_used)]
         OntologyExtractor::extract(&graph, "http://example.org/ecommerce#").expect("Failed");
 
     // Verify relationships were derived from properties
@@ -141,6 +154,7 @@ fn test_relationship_derivation() {
         .relationships
         .iter()
         .find(|r| r.label.contains("Category"))
+        #[allow(clippy::expect_used)]
         .expect("Product -> Category relationship not found");
 
     assert!(has_category_rel.from_class.contains("Product"));
@@ -153,6 +167,7 @@ fn test_cardinality_extraction() {
 
     let order_uri = "http://example.org/ecommerce#Order";
     let cardinalities = OntologyExtractor::extract_cardinality(&graph, order_uri)
+        #[allow(clippy::expect_used)]
         .expect("Failed to extract cardinality");
 
     // The ecommerce ontology may or may not have cardinality constraints,
@@ -165,11 +180,13 @@ fn test_cardinality_extraction() {
 fn test_properties_for_class() {
     let graph = setup_ecommerce_graph();
     let schema =
+        #[allow(clippy::expect_used)]
         OntologyExtractor::extract(&graph, "http://example.org/ecommerce#").expect("Failed");
 
     let product_uri = schema
         .find_class("Product")
         .map(|c| c.uri.clone())
+        #[allow(clippy::expect_used)]
         .expect("Product class not found");
 
     let product_props = schema.properties_for_class(&product_uri);
@@ -272,6 +289,7 @@ fn test_cardinality_bounds() {
 fn test_schema_find_operations() {
     let graph = setup_ecommerce_graph();
     let schema =
+        #[allow(clippy::expect_used)]
         OntologyExtractor::extract(&graph, "http://example.org/ecommerce#").expect("Failed");
 
     // Test find by name
@@ -283,11 +301,13 @@ fn test_schema_find_operations() {
     assert!(schema.find_property("nonExistent").is_none());
 
     // Test find by URI
+    #[allow(clippy::expect_used)]
     let product = schema.find_class("Product").expect("Product not found");
     assert!(schema.find_class_by_uri(&product.uri).is_some());
 
     let prop = schema
         .find_property("productName")
+        #[allow(clippy::expect_used)]
         .expect("productName not found");
     assert!(schema.find_property_by_uri(&prop.uri).is_some());
 }
@@ -296,8 +316,10 @@ fn test_schema_find_operations() {
 fn test_class_hierarchy() {
     let graph = setup_ecommerce_graph();
     let schema =
+        #[allow(clippy::expect_used)]
         OntologyExtractor::extract(&graph, "http://example.org/ecommerce#").expect("Failed");
 
+    #[allow(clippy::expect_used)]
     let product = schema.find_class("Product").expect("Product not found");
     let hierarchy = schema.get_class_hierarchy(&product.uri);
 
@@ -315,6 +337,7 @@ fn test_extraction_performance() {
     let namespace = "http://example.org/ecommerce#";
 
     let start = Instant::now();
+    #[allow(clippy::expect_used)]
     let _schema = OntologyExtractor::extract(&graph, namespace).expect("Failed");
     let duration = start.elapsed();
 
@@ -330,10 +353,12 @@ fn test_extraction_performance() {
 fn test_functional_property_detection() {
     let graph = setup_ecommerce_graph();
     let schema =
+        #[allow(clippy::expect_used)]
         OntologyExtractor::extract(&graph, "http://example.org/ecommerce#").expect("Failed");
 
     let product_id = schema
         .find_property("productId")
+        #[allow(clippy::expect_used)]
         .expect("productId property not found");
 
     // productId is marked as FunctionalProperty in the ontology
@@ -341,6 +366,7 @@ fn test_functional_property_detection() {
 
     let product_name = schema
         .find_property("productName")
+        #[allow(clippy::expect_used)]
         .expect("productName property not found");
 
     // productName is marked as FunctionalProperty
@@ -351,11 +377,13 @@ fn test_functional_property_detection() {
 fn test_inverse_property_relationships() {
     let graph = setup_ecommerce_graph();
     let schema =
+        #[allow(clippy::expect_used)]
         OntologyExtractor::extract(&graph, "http://example.org/ecommerce#").expect("Failed");
 
     // The ontology defines orderedBy with inverse of hasOrders
     let ordered_by = schema
         .find_property("orderedBy")
+        #[allow(clippy::expect_used)]
         .expect("orderedBy not found");
 
     // The inverse_of field can be populated by extracting owl:inverseOf from SPARQL queries
@@ -368,6 +396,7 @@ fn test_inverse_property_relationships() {
 fn test_bidirectional_relationships() {
     let graph = setup_ecommerce_graph();
     let schema =
+        #[allow(clippy::expect_used)]
         OntologyExtractor::extract(&graph, "http://example.org/ecommerce#").expect("Failed");
 
     // Check if any relationships are marked as bidirectional
@@ -389,6 +418,7 @@ fn test_bidirectional_relationships() {
 fn test_many_to_many_relationship_detection() {
     let graph = setup_ecommerce_graph();
     let schema =
+        #[allow(clippy::expect_used)]
         OntologyExtractor::extract(&graph, "http://example.org/ecommerce#").expect("Failed");
 
     // Find many-to-many relationships
@@ -424,6 +454,7 @@ fn test_many_to_many_relationship_detection() {
 fn test_multiple_domain_properties() {
     let graph = setup_ecommerce_graph();
     let schema =
+        #[allow(clippy::expect_used)]
         OntologyExtractor::extract(&graph, "http://example.org/ecommerce#").expect("Failed");
 
     // Find properties with multiple domain classes
@@ -446,9 +477,11 @@ fn test_multiple_domain_properties() {
 fn test_ecommerce_schema_serialization() {
     let graph = setup_ecommerce_graph();
     let schema = OntologyExtractor::extract(&graph, "http://example.org/ecommerce#")
+        #[allow(clippy::expect_used)]
         .expect("Failed to extract");
 
     // Serialize to JSON for inspection
+    #[allow(clippy::expect_used)]
     let json = serde_json::to_string_pretty(&schema).expect("Failed to serialize");
     assert!(json.contains("Product"));
     assert!(json.contains("Order"));
@@ -463,6 +496,7 @@ fn test_ecommerce_schema_serialization() {
 fn test_class_count_validation() {
     let graph = setup_ecommerce_graph();
     let schema =
+        #[allow(clippy::expect_used)]
         OntologyExtractor::extract(&graph, "http://example.org/ecommerce#").expect("Failed");
 
     // Expected classes in ecommerce ontology
@@ -490,6 +524,7 @@ fn test_class_count_validation() {
 fn test_property_count_validation() {
     let graph = setup_ecommerce_graph();
     let schema =
+        #[allow(clippy::expect_used)]
         OntologyExtractor::extract(&graph, "http://example.org/ecommerce#").expect("Failed");
 
     // Should extract significant number of properties (20+)

@@ -40,6 +40,7 @@ async fn test_package_add_and_retrieve() {
     let temp_dir = TempDir::new().unwrap();
     let registry = LocalRegistry::new(temp_dir.path().to_path_buf())
         .await
+        #[allow(clippy::expect_used)]
         .expect("Failed to create registry");
 
     // AND: A test package
@@ -99,6 +100,7 @@ async fn test_search_by_name() {
     let temp_dir = TempDir::new().unwrap();
     let registry = LocalRegistry::new(temp_dir.path().to_path_buf())
         .await
+        #[allow(clippy::expect_used)]
         .expect("Failed to create registry");
 
     // Add test packages
@@ -109,18 +111,22 @@ async fn test_search_by_name() {
     registry
         .add_package(package1)
         .await
+        #[allow(clippy::expect_used)]
         .expect("Failed to add package1");
     registry
         .add_package(package2)
         .await
+        #[allow(clippy::expect_used)]
         .expect("Failed to add package2");
     registry
         .add_package(package3)
         .await
+        #[allow(clippy::expect_used)]
         .expect("Failed to add package3");
 
     // WHEN: Searching for "web" packages
     let query = ggen_marketplace::models::Query::new("web");
+    #[allow(clippy::expect_used)]
     let results = registry.search(&query).await.expect("Search failed");
 
     // THEN: Should find web-related packages

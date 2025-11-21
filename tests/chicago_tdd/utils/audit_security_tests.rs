@@ -53,6 +53,7 @@ fn test_severity_summary_calculations() {
 #[test]
 fn test_config_auditor_detects_secrets() {
     // Create temporary config file with potential secrets
+    #[allow(clippy::expect_used)]
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
     let config_path = temp_dir.path().join("test_config.toml");
 
@@ -63,6 +64,7 @@ password = "super_secret_password"
 api_key = "sk_test_12345"
 "#;
 
+    #[allow(clippy::expect_used)]
     std::fs::write(&config_path, config_content).expect("Failed to write config");
 
     // Run REAL config auditor
@@ -87,6 +89,7 @@ api_key = "sk_test_12345"
 #[test]
 fn test_config_auditor_clean_config() {
     // Create temporary config file without secrets
+    #[allow(clippy::expect_used)]
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
     let config_path = temp_dir.path().join("clean_config.toml");
 
@@ -97,6 +100,7 @@ retries = 3
 enabled = true
 "#;
 
+    #[allow(clippy::expect_used)]
     std::fs::write(&config_path, config_content).expect("Failed to write config");
 
     let auditor = FileSystemConfigAuditor;
@@ -261,12 +265,15 @@ fn test_all_config_issue_types() {
 
 #[test]
 fn test_config_auditor_measures_duration() {
+    #[allow(clippy::expect_used)]
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
     let config_path = temp_dir.path().join("timing_test.toml");
 
+    #[allow(clippy::expect_used)]
     std::fs::write(&config_path, "[test]\nvalue = 1").expect("Failed to write");
 
     let auditor = FileSystemConfigAuditor;
+    #[allow(clippy::expect_used)]
     let result = auditor.audit(Some(&config_path)).expect("Audit failed");
 
     // Duration should be measured

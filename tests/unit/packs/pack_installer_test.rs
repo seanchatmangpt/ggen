@@ -182,7 +182,9 @@ fn test_install_input_serialization() {
     };
 
     // Act
+    #[allow(clippy::expect_used)]
     let json = serde_json::to_string(&input).expect("Should serialize");
+    #[allow(clippy::expect_used)]
     let deserialized: InstallInput = serde_json::from_str(&json).expect("Should deserialize");
 
     // Assert
@@ -198,6 +200,7 @@ fn test_install_input_defaults() {
     let json = r#"{"pack_id": "test-pack"}"#;
 
     // Act
+    #[allow(clippy::expect_used)]
     let input: InstallInput = serde_json::from_str(json).expect("Should deserialize");
 
     // Assert - force and dry_run should default to false

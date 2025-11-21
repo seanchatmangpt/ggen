@@ -319,7 +319,9 @@ fn test_pack_serialization_performance() {
     };
 
     let start = Instant::now();
+    #[allow(clippy::expect_used)]
     let json = serde_json::to_string(&pack).expect("Should serialize");
+    #[allow(clippy::expect_used)]
     let _deserialized: Pack = serde_json::from_str(&json).expect("Should deserialize");
     let duration = start.elapsed();
 

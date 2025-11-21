@@ -22,6 +22,7 @@ mod tests {
         );
 
         // Create graph and load RDF file
+        #[allow(clippy::expect_used)]
         let graph = Graph::new().expect("Failed to create graph");
 
         // Load and validate RDF syntax

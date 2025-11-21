@@ -331,6 +331,7 @@ impl CodePrompts {
 mod tests {
     use super::*;
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_code_prompt_builder() {
         let prompt =
@@ -348,6 +349,7 @@ mod tests {
         assert!(prompt.contains("User registration"));
     }
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_rest_controller_prompt() {
         let prompt = CodePrompts::rest_controller("User API", "TypeScript", "Express")
@@ -359,6 +361,7 @@ mod tests {
         assert!(prompt.contains("CRUD operations"));
     }
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_data_model_prompt() {
         let prompt = CodePrompts::data_model("User entity", "Rust")

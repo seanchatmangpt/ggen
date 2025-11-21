@@ -19,6 +19,7 @@ ex:name a rdf:Property ;
 "#;
 
     fs::write(world.project_dir.join("ontology.ttl"), rdf_content)
+        #[allow(clippy::expect_used)]
         .expect("Failed to write ontology file");
 }
 
@@ -36,6 +37,7 @@ SELECT ?class ?property WHERE {
 "#;
 
     fs::write(world.project_dir.join("query.sparql"), sparql_content)
+        #[allow(clippy::expect_used)]
         .expect("Failed to write SPARQL query file");
 }
 
@@ -44,12 +46,14 @@ fn run_sparql_query(world: &mut GgenWorld) {
     use assert_cmd::Command;
 
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("query")
         .arg("ontology.ttl")
         .arg("query.sparql")
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run SPARQL query");
 
     world.last_output = Some(output.clone());
@@ -109,8 +113,10 @@ ex:alice a ex:Person ;
 
     let file_path = world.project_dir.join(&filename);
     if let Some(parent) = file_path.parent() {
+        #[allow(clippy::expect_used)]
         fs::create_dir_all(parent).expect("Failed to create RDF directory");
     }
+    #[allow(clippy::expect_used)]
     fs::write(&file_path, rdf_content).expect("Failed to write RDF file");
 }
 
@@ -132,6 +138,7 @@ Hello {{name}}!
         world.project_dir.join("test-template.tmpl"),
         template_content,
     )
+    #[allow(clippy::expect_used)]
     .expect("Failed to write template file");
 }
 
@@ -156,6 +163,7 @@ Hello {{name}}!
         world.project_dir.join("test-template.tmpl"),
         template_content,
     )
+    #[allow(clippy::expect_used)]
     .expect("Failed to write template file");
 }
 
@@ -178,6 +186,7 @@ ex:bob a ex:Person ;
 "#;
 
     fs::write(world.project_dir.join("entities.ttl"), rdf_content)
+        #[allow(clippy::expect_used)]
         .expect("Failed to write entities file");
 }
 
@@ -202,6 +211,7 @@ Hello {{name}}!
         world.project_dir.join("test-template.tmpl"),
         template_content,
     )
+    #[allow(clippy::expect_used)]
     .expect("Failed to write template file");
 }
 
@@ -233,6 +243,7 @@ Hello {{name}}!
         world.project_dir.join("test-template.tmpl"),
         template_content,
     )
+    #[allow(clippy::expect_used)]
     .expect("Failed to write template file");
 }
 

@@ -185,6 +185,7 @@ pub fn load_schema() -> Result<String> {
 mod tests {
     use super::*;
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_ontology_uris() {
         assert_eq!(
@@ -205,6 +206,7 @@ mod tests {
         );
     }
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_load_schema() {
         let schema = load_schema().expect("Failed to load schema");

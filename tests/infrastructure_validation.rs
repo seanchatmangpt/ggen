@@ -24,6 +24,7 @@ mod infrastructure_tests {
             #[cfg(unix)]
             {
                 use std::os::unix::fs::PermissionsExt;
+                #[allow(clippy::expect_used)]
                 let metadata = path.metadata().expect("Failed to get metadata");
                 let permissions = metadata.permissions();
                 let mode = permissions.mode();
@@ -69,6 +70,7 @@ mod infrastructure_tests {
 
         // Create if not exists
         if !metrics_dir.exists() {
+            #[allow(clippy::expect_used)]
             std::fs::create_dir_all(metrics_dir).expect("Failed to create metrics directory");
         }
 
@@ -83,6 +85,7 @@ mod infrastructure_tests {
         let output = Command::new("cargo")
             .args(&["make", "--list-all-steps"])
             .output()
+            #[allow(clippy::expect_used)]
             .expect("Failed to run cargo make");
 
         let stdout = String::from_utf8_lossy(&output.stdout);
@@ -100,6 +103,7 @@ mod infrastructure_tests {
         let output = Command::new("cargo")
             .args(&["make", "--list-all-steps"])
             .output()
+            #[allow(clippy::expect_used)]
             .expect("Failed to run cargo make");
 
         let stdout = String::from_utf8_lossy(&output.stdout);
@@ -117,6 +121,7 @@ mod infrastructure_tests {
         let output = Command::new("cargo")
             .args(&["make", "--list-all-steps"])
             .output()
+            #[allow(clippy::expect_used)]
             .expect("Failed to run cargo make");
 
         let stdout = String::from_utf8_lossy(&output.stdout);

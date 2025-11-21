@@ -266,6 +266,7 @@ fn test_state_persistence() -> Result<()> {
     // Arrange
     let temp_dir = create_temp_dir();
     let state_path = temp_dir.path().join(".ggen").join("state.json");
+    #[allow(clippy::expect_used)]
     fs::create_dir_all(state_path.parent().expect("No parent"))?;
 
     let mut state = LifecycleState::default();
@@ -293,6 +294,7 @@ fn test_state_recovery_after_failure() -> Result<()> {
     // Arrange
     let temp_dir = create_temp_dir();
     let state_path = temp_dir.path().join(".ggen").join("state.json");
+    #[allow(clippy::expect_used)]
     fs::create_dir_all(state_path.parent().expect("No parent"))?;
 
     let mut state = LifecycleState::default();
@@ -509,6 +511,7 @@ fn test_cache_hit_skips_phase() -> Result<()> {
     // Arrange
     let temp_dir = create_temp_dir();
     let state_path = temp_dir.path().join(".ggen").join("state.json");
+    #[allow(clippy::expect_used)]
     fs::create_dir_all(state_path.parent().expect("No parent"))?;
 
     let mut state = LifecycleState::default();

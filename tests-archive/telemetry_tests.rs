@@ -32,9 +32,11 @@ async fn test_registry_search_generates_spans() {
         sample_ratio: 1.0,
         console_output: false,
     };
+    #[allow(clippy::expect_used)]
     init_telemetry(config).expect("Failed to init telemetry");
 
     // Create registry client and perform search
+    #[allow(clippy::expect_used)]
     let client = RegistryClient::new().expect("Failed to create client");
 
     // This should generate a "ggen.market.search" span
@@ -55,8 +57,10 @@ async fn test_registry_resolve_generates_spans() {
         sample_ratio: 1.0,
         console_output: false,
     };
+    #[allow(clippy::expect_used)]
     init_telemetry(config).expect("Failed to init telemetry");
 
+    #[allow(clippy::expect_used)]
     let client = RegistryClient::new().expect("Failed to create client");
 
     // This should generate a "ggen.market.resolve" span
@@ -74,8 +78,10 @@ async fn test_advanced_search_generates_spans() {
         sample_ratio: 1.0,
         console_output: false,
     };
+    #[allow(clippy::expect_used)]
     init_telemetry(config).expect("Failed to init telemetry");
 
+    #[allow(clippy::expect_used)]
     let client = RegistryClient::new().expect("Failed to create client");
 
     let params = SearchParams {
@@ -126,8 +132,10 @@ async fn test_span_attributes_correctness() {
         sample_ratio: 1.0,
         console_output: true, // Enable console for debugging
     };
+    #[allow(clippy::expect_used)]
     init_telemetry(config).expect("Failed to init telemetry");
 
+    #[allow(clippy::expect_used)]
     let client = RegistryClient::new().expect("Failed to create client");
 
     // Perform search - should create span with:

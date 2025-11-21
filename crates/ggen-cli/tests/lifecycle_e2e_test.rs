@@ -15,6 +15,7 @@ use tempfile::TempDir;
 
 /// Helper to create a test project with make.toml
 fn create_test_project() -> TempDir {
+    #[allow(clippy::expect_used)]
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
 
     let make_toml = r#"
@@ -82,6 +83,7 @@ before_build = ["lint"]
 after_build = ["test"]
 "#;
 
+    #[allow(clippy::expect_used)]
     fs::write(temp_dir.path().join("make.toml"), make_toml).expect("Failed to write make.toml");
 
     temp_dir
@@ -89,6 +91,7 @@ after_build = ["test"]
 
 /// Helper to get the ggen binary path
 fn ggen_cmd() -> Command {
+    #[allow(clippy::expect_used)]
     Command::cargo_bin("ggen").expect("Failed to find ggen binary")
 }
 
@@ -101,8 +104,10 @@ fn assert_state_exists(root: &std::path::Path) {
         state_path.display()
     );
 
+    #[allow(clippy::expect_used)]
     let state_content = fs::read_to_string(&state_path).expect("Failed to read state.json");
     serde_json::from_str::<serde_json::Value>(&state_content)
+        #[allow(clippy::expect_used)]
         .expect("State file should be valid JSON");
 }
 
@@ -505,6 +510,7 @@ fn test_hooks_execution_order() {
         .arg("--root")
         .arg(temp_dir.path())
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to execute command");
 
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -633,6 +639,7 @@ fn test_phase_without_hooks() {
         .arg("--root")
         .arg(temp_dir.path())
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to execute command");
 
     let stdout = String::from_utf8_lossy(&output.stdout);

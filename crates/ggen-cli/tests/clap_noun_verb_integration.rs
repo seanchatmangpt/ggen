@@ -21,6 +21,7 @@ use tempfile::TempDir;
 
 /// Helper to create ggen command
 fn ggen() -> Command {
+    #[allow(clippy::expect_used)]
     Command::cargo_bin("ggen").expect("Failed to find ggen binary")
 }
 
@@ -88,6 +89,7 @@ files:
     );
 
     let tree_file = temp_dir.path().join("cli-tree.yaml");
+    #[allow(clippy::expect_used)]
     fs::write(&tree_file, tree_spec).expect("Failed to write tree spec");
     tree_file
 }
@@ -294,6 +296,7 @@ cli:ProjectBuildReleaseArg a cli:Argument ;
 "#;
 
     let ttl_path = temp_dir.path().join("cli-spec.ttl");
+    #[allow(clippy::expect_used)]
     fs::write(&ttl_path, ttl_content).expect("Failed to write TTL file");
     ttl_path
 }
@@ -301,9 +304,11 @@ cli:ProjectBuildReleaseArg a cli:Argument ;
 /// Create a Tera template for generating clap-noun-verb CLI
 fn create_cli_template(temp_dir: &TempDir, template_name: &str) -> PathBuf {
     let templates_dir = temp_dir.path().join(".ggen/templates");
+    #[allow(clippy::expect_used)]
     fs::create_dir_all(&templates_dir).expect("Failed to create templates dir");
 
     let template_dir = templates_dir.join(template_name);
+    #[allow(clippy::expect_used)]
     fs::create_dir_all(&template_dir).expect("Failed to create template dir");
 
     // Create Cargo.toml template
@@ -319,6 +324,7 @@ anyhow = "1.0"
 "#;
 
     fs::write(template_dir.join("Cargo.toml.tera"), cargo_toml_template)
+        #[allow(clippy::expect_used)]
         .expect("Failed to write Cargo.toml template");
 
     // Create main.rs template
@@ -424,8 +430,10 @@ fn handle_project(action: ProjectCommands) -> anyhow::Result<()> {
 "#;
 
     let src_dir = template_dir.join("src");
+    #[allow(clippy::expect_used)]
     fs::create_dir_all(&src_dir).expect("Failed to create src dir");
     fs::write(src_dir.join("main.rs.tera"), main_rs_template)
+        #[allow(clippy::expect_used)]
         .expect("Failed to write main.rs template");
 
     // Create template metadata
@@ -441,6 +449,7 @@ user_description = { type = "string", default = "User management commands" }
 project_description = { type = "string", default = "Project management commands" }
 "#;
 
+    #[allow(clippy::expect_used)]
     fs::write(template_dir.join("template.toml"), metadata).expect("Failed to write metadata");
 
     template_dir
@@ -516,9 +525,11 @@ project_description: "Project management commands"
 "#;
 
     let data_file = temp_dir.path().join("data.yaml");
+    #[allow(clippy::expect_used)]
     fs::write(&data_file, data).expect("Failed to write data file");
 
     let output_dir = temp_dir.path().join("output");
+    #[allow(clippy::expect_used)]
     fs::create_dir_all(&output_dir).expect("Failed to create output dir");
 
     // Note: generate-tree expects --template <file.yaml>, not a template name
@@ -628,6 +639,7 @@ fn test_generated_cargo_toml_has_clap_dependency() {
 
     // Read and verify Cargo.toml
     let cargo_toml =
+        #[allow(clippy::expect_used)]
         fs::read_to_string(output_dir.join("Cargo.toml")).expect("Failed to read Cargo.toml");
 
     assert!(
@@ -662,6 +674,7 @@ fn test_generated_cli_code_matches_rdf_spec() {
 
     // Read generated main.rs
     let main_rs =
+        #[allow(clippy::expect_used)]
         fs::read_to_string(output_dir.join("src/main.rs")).expect("Failed to read main.rs");
 
     // Verify it contains expected commands from RDF spec
@@ -691,6 +704,7 @@ fn test_e2e_ttl_to_working_cli_project() {
 
     // Step 3: Generate project from tree spec
     let output_dir = temp_dir.path().join("e2e-output");
+    #[allow(clippy::expect_used)]
     fs::create_dir_all(&output_dir).expect("Failed to create output dir");
 
     ggen()
@@ -710,6 +724,7 @@ fn test_e2e_ttl_to_working_cli_project() {
 
     // Step 5: Verify Cargo.toml is valid TOML
     let cargo_toml_content = fs::read_to_string(output_dir.join("Cargo.toml")).unwrap();
+    #[allow(clippy::expect_used)]
     toml::from_str::<toml::Value>(&cargo_toml_content).expect("Cargo.toml should be valid TOML");
 
     // Step 6: Verify main.rs is valid Rust

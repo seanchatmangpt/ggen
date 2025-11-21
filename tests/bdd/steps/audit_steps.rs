@@ -33,6 +33,7 @@ fn have_project_with_dependencies(world: &mut GgenWorld) {
     }"#;
 
     let lockfile_path = world.project_dir.join("ggen.lock");
+    #[allow(clippy::expect_used)]
     fs::write(&lockfile_path, lockfile_content).expect("Failed to write mock lockfile");
 }
 
@@ -51,6 +52,7 @@ fn have_vulnerable_dependencies(world: &mut GgenWorld) {
     }"#;
 
     let lockfile_path = world.project_dir.join("ggen.lock");
+    #[allow(clippy::expect_used)]
     fs::write(&lockfile_path, lockfile_content).expect("Failed to write vulnerable lockfile");
 }
 
@@ -66,7 +68,9 @@ fn slow_function() {
 }"#;
 
     let source_path = world.project_dir.join("src/main.rs");
+    #[allow(clippy::expect_used)]
     fs::create_dir_all(source_path.parent().unwrap()).expect("Failed to create src directory");
+    #[allow(clippy::expect_used)]
     fs::write(&source_path, source_content).expect("Failed to write performance-critical code");
 }
 
@@ -77,11 +81,13 @@ fn slow_function() {
 #[when(regex = r#"^I run "ggen audit hazard"$"#)]
 fn run_audit_hazard(world: &mut GgenWorld) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("audit")
         .arg("hazard")
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run audit hazard");
 
     world.last_output = Some(output.clone());
@@ -91,11 +97,13 @@ fn run_audit_hazard(world: &mut GgenWorld) {
 #[when(regex = r#"^I run "ggen audit performance"$"#)]
 fn run_audit_performance(world: &mut GgenWorld) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("audit")
         .arg("performance")
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run audit performance");
 
     world.last_output = Some(output.clone());
@@ -105,11 +113,13 @@ fn run_audit_performance(world: &mut GgenWorld) {
 #[when(regex = r#"^I run "ggen audit security"$"#)]
 fn run_audit_security(world: &mut GgenWorld) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("audit")
         .arg("security")
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run audit security");
 
     world.last_output = Some(output.clone());
@@ -119,11 +129,13 @@ fn run_audit_security(world: &mut GgenWorld) {
 #[when(regex = r#"^I run "ggen audit (.+)"$"#)]
 fn run_audit_command(world: &mut GgenWorld, subcommand: String) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("audit")
         .arg(&subcommand)
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run audit command");
 
     world.last_output = Some(output.clone());

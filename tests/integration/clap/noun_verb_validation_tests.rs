@@ -8,6 +8,7 @@ use predicates::prelude::*;
 
 /// Helper to create ggen command
 fn ggen() -> Command {
+    #[allow(clippy::expect_used)]
     Command::cargo_bin("ggen").expect("Failed to find ggen binary")
 }
 

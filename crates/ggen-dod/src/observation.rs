@@ -376,6 +376,7 @@ mod tests {
     use super::*;
     use serde_json::json;
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_observation_creation() {
         let obs = Observation::new(
@@ -392,6 +393,7 @@ mod tests {
         assert_eq!(obs.schema_version(), "1.0");
     }
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_observation_signature() {
         let key = b"test-key";
@@ -410,6 +412,7 @@ mod tests {
         assert!(valid);
     }
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_schema_validation() {
         let schema = ObservationSchema::new("1.0").with_required_field("value", FieldType::Number);
@@ -426,6 +429,7 @@ mod tests {
         assert!(schema.validate(&obs).is_ok());
     }
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_schema_validation_missing_field() {
         let schema =
@@ -443,6 +447,7 @@ mod tests {
         assert!(schema.validate(&obs).is_err());
     }
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_field_type_validation() {
         let schema = ObservationSchema::new("1.0").with_required_field("value", FieldType::Integer);

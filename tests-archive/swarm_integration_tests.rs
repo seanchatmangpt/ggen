@@ -33,12 +33,14 @@ async fn test_full_swarm_workflow() {
     // Initialize swarm
     let mut hive = HiveQueen::new(config)
         .await
+        #[allow(clippy::expect_used)]
         .expect("Swarm initialization failed");
 
     // Verify agent spawning
     assert!(hive.agents.len() >= 4, "Should spawn minimum agents");
 
     // Execute orchestration
+    #[allow(clippy::expect_used)]
     let resolved = hive.orchestrate().await.expect("Orchestration failed");
 
     // Validate results
@@ -66,6 +68,7 @@ async fn test_complex_multi_pack_orchestration() {
 
     let mut hive = HiveQueen::new(config)
         .await
+        #[allow(clippy::expect_used)]
         .expect("Complex config initialization failed");
 
     // Should spawn 6 agents (4 base + optimizer + performance)
@@ -74,6 +77,7 @@ async fn test_complex_multi_pack_orchestration() {
     let resolved = hive
         .orchestrate()
         .await
+        #[allow(clippy::expect_used)]
         .expect("Complex orchestration failed");
 
     assert_eq!(resolved.resolved_packs.len(), 8);

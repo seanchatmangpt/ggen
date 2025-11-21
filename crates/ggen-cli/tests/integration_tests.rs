@@ -7,6 +7,7 @@ fn test_cli_help() {
         .args(&["run", "--", "--help"])
         .current_dir("/Users/sac/ggen")
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to execute command");
 
     assert!(output.status.success());
@@ -28,6 +29,7 @@ fn test_cli_help() {
 //         .args(&["run", "--", "hazard"])
 //         .current_dir("/Users/sac/ggen")
 //         .output()
+#[allow(clippy::expect_used)]
 //         .expect("Failed to execute command");
 //
 //     // Test passes if command runs without panicking
@@ -41,6 +43,7 @@ fn test_error_command() {
         .args(&["run", "--", "error"])
         .current_dir("/Users/sac/ggen")
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to execute command");
 
     // Test passes if command runs without panicking
@@ -54,6 +57,7 @@ fn test_config_command() {
         .args(&["run", "--", "config"])
         .current_dir("/Users/sac/ggen")
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to execute command");
 
     // Test passes if command runs without panicking
@@ -67,6 +71,7 @@ fn test_config_command() {
 //         .args(&["run", "--", "shell", "completion", "generate", "--shell", "bash"])
 //         .current_dir("/Users/sac/ggen")
 //         .output()
+#[allow(clippy::expect_used)]
 //         .expect("Failed to execute command");
 
 //     assert!(output.status.success());
@@ -81,6 +86,7 @@ fn test_config_command() {
 //         .args(&["run", "--", "shell", "completion", "generate", "--shell", "zsh"])
 //         .current_dir("/Users/sac/ggen")
 //         .output()
+#[allow(clippy::expect_used)]
 //         .expect("Failed to execute command");
 
 //     assert!(output.status.success());
@@ -95,6 +101,7 @@ fn test_config_command() {
 //         .args(&["run", "--", "shell", "completion", "generate", "--shell", "fish"])
 //         .current_dir("/Users/sac/ggen")
 //         .output()
+#[allow(clippy::expect_used)]
 //         .expect("Failed to execute command");
 
 //     assert!(output.status.success());
@@ -109,6 +116,7 @@ fn test_invalid_command() {
         .args(&["run", "--", "invalid-command"])
         .current_dir("/Users/sac/ggen")
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to execute command");
 
     assert!(!output.status.success());
@@ -123,6 +131,7 @@ fn test_invalid_command() {
 //         .args(&["run", "--", "--config", "/nonexistent/path", "hazard"])
 //         .current_dir("/Users/sac/ggen")
 //         .output()
+#[allow(clippy::expect_used)]
 //         .expect("Failed to execute command");
 //
 //     // Should handle config file not found gracefully
@@ -136,6 +145,7 @@ fn test_invalid_command() {
 //         .args(&["run", "--", "--debug", "true", "hazard"])
 //         .current_dir("/Users/sac/ggen")
 //         .output()
+#[allow(clippy::expect_used)]
 //         .expect("Failed to execute command");
 //
 //     // Should handle debug flag without issues
@@ -150,6 +160,7 @@ fn test_audit_hazard_help() {
         .args(&["run", "--", "audit", "hazard", "--help"])
         .current_dir("/Users/sac/ggen")
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to execute command");
 
     assert!(output.status.success());
@@ -166,6 +177,7 @@ fn test_audit_security_help() {
         .args(&["run", "--", "audit", "security", "--help"])
         .current_dir("/Users/sac/ggen")
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to execute command");
 
     assert!(output.status.success());
@@ -180,6 +192,7 @@ fn test_audit_performance_help() {
         .args(&["run", "--", "audit", "performance", "--help"])
         .current_dir("/Users/sac/ggen")
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to execute command");
 
     assert!(output.status.success());
@@ -194,6 +207,7 @@ fn test_ci_pages_help() {
         .args(&["run", "--", "ci", "pages", "--help"])
         .current_dir("/Users/sac/ggen")
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to execute command");
 
     assert!(output.status.success());
@@ -211,6 +225,7 @@ fn test_ci_workflow_help() {
         .args(&["run", "--", "ci", "workflow", "--help"])
         .current_dir("/Users/sac/ggen")
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to execute command");
 
     assert!(output.status.success());
@@ -228,6 +243,7 @@ fn test_ci_trigger_help() {
         .args(&["run", "--", "ci", "trigger", "--help"])
         .current_dir("/Users/sac/ggen")
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to execute command");
 
     assert!(output.status.success());
@@ -242,6 +258,7 @@ fn test_ci_trigger_help() {
 //         .args(&["run", "--", "shell", "completion", "--help"])
 //         .current_dir("/Users/sac/ggen")
 //         .output()
+#[allow(clippy::expect_used)]
 //         .expect("Failed to execute command");
 
 //     assert!(output.status.success());
@@ -258,6 +275,7 @@ fn test_shell_init_help() {
         .args(&["run", "--", "shell", "init", "--help"])
         .current_dir("/Users/sac/ggen")
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to execute command");
 
     assert!(output.status.success());
@@ -274,6 +292,7 @@ fn test_audit_hazard_scan_help() {
         .args(&["run", "--", "audit", "hazard", "scan", "--help"])
         .current_dir("/Users/sac/ggen")
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to execute command");
 
     assert!(output.status.success());
@@ -291,6 +310,7 @@ fn test_ci_pages_deploy_help() {
         .args(&["run", "--", "ci", "pages", "deploy", "--help"])
         .current_dir("/Users/sac/ggen")
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to execute command");
 
     assert!(output.status.success());
@@ -307,6 +327,7 @@ fn test_ci_pages_deploy_help() {
 //         .args(&["run", "--", "shell", "completion", "generate", "--help"])
 //         .current_dir("/Users/sac/ggen")
 //         .output()
+#[allow(clippy::expect_used)]
 //         .expect("Failed to execute command");
 
 //     assert!(output.status.success());
@@ -322,6 +343,7 @@ fn test_shell_init_shell_help() {
         .args(&["run", "--", "shell", "init", "shell", "--help"])
         .current_dir("/Users/sac/ggen")
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to execute command");
 
     assert!(output.status.success());
@@ -339,6 +361,7 @@ fn test_audit_invalid_subcommand() {
         .args(&["run", "--", "audit", "invalid"])
         .current_dir("/Users/sac/ggen")
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to execute command");
 
     assert!(!output.status.success());
@@ -352,6 +375,7 @@ fn test_ci_invalid_subcommand() {
         .args(&["run", "--", "ci", "invalid"])
         .current_dir("/Users/sac/ggen")
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to execute command");
 
     assert!(!output.status.success());
@@ -365,6 +389,7 @@ fn test_shell_invalid_subcommand() {
         .args(&["run", "--", "shell", "invalid"])
         .current_dir("/Users/sac/ggen")
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to execute command");
 
     assert!(!output.status.success());

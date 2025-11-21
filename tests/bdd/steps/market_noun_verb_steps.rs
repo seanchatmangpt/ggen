@@ -44,6 +44,7 @@ fn have_installed_gpack(world: &mut GgenWorld, package_id: String) {
         r#"{{"packages": {{"{}": {{"version": "0.2.0", "sha256": "abc123", "installed": true}}}}}}"#,
         package_id
     );
+    #[allow(clippy::expect_used)]
     fs::write(&lockfile_path, lockfile_content).expect("Failed to write mock lockfile");
 }
 
@@ -54,6 +55,7 @@ fn have_installed_gpack_with_version(world: &mut GgenWorld, package_id: String, 
         r#"{{"packages": {{"{}": {{"version": "{}", "sha256": "abc123", "installed": true}}}}}}"#,
         package_id, version
     );
+    #[allow(clippy::expect_used)]
     fs::write(&lockfile_path, lockfile_content).expect("Failed to write mock lockfile");
 }
 
@@ -78,12 +80,14 @@ fn run_ggen_market_command(world: &mut GgenWorld, args: String) {
     let arg_list = shell_words::split(&args)
         .unwrap_or_else(|e| panic!("Failed to parse arguments '{}': {}", args, e));
 
+    #[allow(clippy::expect_used)]
     let mut cmd = Command::cargo_bin("ggen").expect("ggen binary not found");
     let output = cmd
         .arg("market")
         .args(&arg_list)
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen market command");
 
     world.last_output = Some(output.clone());
@@ -307,12 +311,14 @@ fn lockfile_should_contain_pqc_public_key(_world: &mut GgenWorld) {
 #[when(regex = r#"^I run "ggen market search (.+)"$"#)]
 fn run_market_search(world: &mut GgenWorld, query: String) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("market")
         .arg("search")
         .arg(&query)
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run market search");
 
     world.last_output = Some(output.clone());
@@ -322,12 +328,14 @@ fn run_market_search(world: &mut GgenWorld, query: String) {
 #[when(regex = r#"^I run "ggen market remove (.+)"$"#)]
 fn run_market_remove(world: &mut GgenWorld, package_id: String) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("market")
         .arg("remove")
         .arg(&package_id)
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run market remove");
 
     world.last_output = Some(output.clone());
@@ -337,12 +345,14 @@ fn run_market_remove(world: &mut GgenWorld, package_id: String) {
 #[when(regex = r#"^I run "ggen market info (.+)"$"#)]
 fn run_market_info(world: &mut GgenWorld, package_id: String) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("market")
         .arg("info")
         .arg(&package_id)
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run market info");
 
     world.last_output = Some(output.clone());
@@ -352,11 +362,13 @@ fn run_market_info(world: &mut GgenWorld, package_id: String) {
 #[when(regex = r#"^I run "ggen market categories"$"#)]
 fn run_market_categories(world: &mut GgenWorld) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("market")
         .arg("categories")
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run market categories");
 
     world.last_output = Some(output.clone());
@@ -366,11 +378,13 @@ fn run_market_categories(world: &mut GgenWorld) {
 #[when(regex = r#"^I run "ggen market list"$"#)]
 fn run_market_list(world: &mut GgenWorld) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("market")
         .arg("list")
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run market list");
 
     world.last_output = Some(output.clone());
@@ -380,11 +394,13 @@ fn run_market_list(world: &mut GgenWorld) {
 #[when(regex = r#"^I run "ggen market update"$"#)]
 fn run_market_update(world: &mut GgenWorld) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("market")
         .arg("update")
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run market update");
 
     world.last_output = Some(output.clone());
@@ -394,12 +410,14 @@ fn run_market_update(world: &mut GgenWorld) {
 #[when(regex = r#"^I run "ggen market update (.+)"$"#)]
 fn run_market_update_specific(world: &mut GgenWorld, package_id: String) {
     let output = Command::cargo_bin("ggen")
+        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("market")
         .arg("update")
         .arg(&package_id)
         .current_dir(&world.project_dir)
         .output()
+        #[allow(clippy::expect_used)]
         .expect("Failed to run market update specific");
 
     world.last_output = Some(output.clone());

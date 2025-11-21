@@ -169,6 +169,7 @@ mod phase_execution {
     fn should_execute_single_command_phase() {
         // GIVEN a phase with a single command
         let mut executor = MockCommandExecutor::new();
+        #[allow(clippy::expect_used)]
         executor.expect(
             "npm run build",
             Ok(CommandOutput {
@@ -215,8 +216,11 @@ mod phase_execution {
     fn should_execute_multiple_commands_sequentially() {
         // GIVEN a phase with multiple commands
         let mut executor = MockCommandExecutor::new();
+        #[allow(clippy::expect_used)]
         executor.expect("echo 'Step 1'", Ok(CommandOutput::default()));
+        #[allow(clippy::expect_used)]
         executor.expect("echo 'Step 2'", Ok(CommandOutput::default()));
+        #[allow(clippy::expect_used)]
         executor.expect("echo 'Step 3'", Ok(CommandOutput::default()));
 
         let state_repo = MockStateRepository::new(LifecycleState::new());
@@ -239,8 +243,11 @@ mod phase_execution {
     fn should_stop_on_first_command_failure() {
         // GIVEN a phase where the second command fails
         let mut executor = MockCommandExecutor::new();
+        #[allow(clippy::expect_used)]
         executor.expect("echo 'OK'", Ok(CommandOutput::default()));
+        #[allow(clippy::expect_used)]
         executor.expect("exit 1", Err("Command failed".to_string()));
+        #[allow(clippy::expect_used)]
         executor.expect("echo 'Should not run'", Ok(CommandOutput::default()));
 
         let state_repo = MockStateRepository::new(LifecycleState::new());
@@ -313,8 +320,11 @@ mod hook_execution {
             execution_order.borrow_mut().push(name.to_string());
         };
 
+        #[allow(clippy::expect_used)]
         executor.expect("validate", Ok(CommandOutput::default()));
+        #[allow(clippy::expect_used)]
         executor.expect("lint", Ok(CommandOutput::default()));
+        #[allow(clippy::expect_used)]
         executor.expect("build", Ok(CommandOutput::default()));
 
         let state_repo = MockStateRepository::new(LifecycleState::new());
@@ -344,8 +354,11 @@ mod hook_execution {
         let mut executor = MockCommandExecutor::new();
         let execution_order = std::cell::RefCell::new(Vec::new());
 
+        #[allow(clippy::expect_used)]
         executor.expect("build", Ok(CommandOutput::default()));
+        #[allow(clippy::expect_used)]
         executor.expect("notify", Ok(CommandOutput::default()));
+        #[allow(clippy::expect_used)]
         executor.expect("cleanup", Ok(CommandOutput::default()));
 
         let state_repo = MockStateRepository::new(LifecycleState::new());
@@ -583,8 +596,11 @@ mod pipeline_execution {
         let mut executor = MockCommandExecutor::new();
         let execution_order = std::cell::RefCell::new(Vec::new());
 
+        #[allow(clippy::expect_used)]
         executor.expect("init", Ok(CommandOutput::default()));
+        #[allow(clippy::expect_used)]
         executor.expect("build", Ok(CommandOutput::default()));
+        #[allow(clippy::expect_used)]
         executor.expect("test", Ok(CommandOutput::default()));
 
         let state_repo = MockStateRepository::new(LifecycleState::new());
@@ -606,8 +622,11 @@ mod pipeline_execution {
     fn should_stop_pipeline_on_failure() {
         // GIVEN a pipeline where the second phase fails
         let mut executor = MockCommandExecutor::new();
+        #[allow(clippy::expect_used)]
         executor.expect("init", Ok(CommandOutput::default()));
+        #[allow(clippy::expect_used)]
         executor.expect("build", Err("Build failed".to_string()));
+        #[allow(clippy::expect_used)]
         executor.expect("test", Ok(CommandOutput::default()));
 
         let state_repo = MockStateRepository::new(LifecycleState::new());

@@ -523,6 +523,7 @@ mod tests {
             .contains("output"));
     }
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_generate_simple_template() {
         let (_temp_dir, template_path) = create_test_template(
@@ -590,6 +591,7 @@ to: "output/{{ name | lower }}.rs"
         assert!(!output_path.exists());
     }
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_generate_with_default_output() {
         let (_temp_dir, template_path) = create_test_template(
@@ -619,6 +621,7 @@ to: "output/{{ name | lower }}.rs"
         assert!(content.contains("// Default output content"));
     }
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_generate_with_nested_output_path() {
         let (_temp_dir, template_path) = create_test_template(
@@ -650,6 +653,7 @@ to: "src/{{ module }}/{{ name | lower }}.rs"
         assert!(content.contains("// Nested output content"));
     }
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_generate_invalid_template() {
         let (_temp_dir, template_path) = create_test_template(
@@ -671,6 +675,7 @@ invalid_yaml: [unclosed
         assert!(result.is_err());
     }
 
+    #[allow(clippy::expect_used)]
     #[test]
     fn test_generate_missing_template_file() {
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
