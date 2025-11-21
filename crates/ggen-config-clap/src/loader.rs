@@ -54,7 +54,8 @@ pub fn expand_env_vars(input: &str) -> String {
                 last_pos = start + end + 1;
             }
         } else {
-            break;
+            // No closing brace found - skip past this pattern
+            last_pos = start + 2;
         }
     }
 

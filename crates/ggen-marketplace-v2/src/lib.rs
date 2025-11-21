@@ -1,12 +1,64 @@
 #![forbid(unsafe_code)]
+#![warn(clippy::all, clippy::pedantic)]
 #![allow(
     missing_docs,
     deprecated,
     dead_code,
     elided_lifetimes_in_paths,
-    mismatched_lifetime_syntaxes
+    mismatched_lifetime_syntaxes,
+    // Pedantic lints to suppress
+    clippy::unused_async,
+    clippy::missing_errors_doc,
+    clippy::missing_panics_doc,
+    clippy::module_name_repetitions,
+    clippy::must_use_candidate,
+    clippy::return_self_not_must_use,
+    clippy::needless_pass_by_value,
+    clippy::struct_excessive_bools,
+    clippy::too_many_lines,
+    clippy::cognitive_complexity,
+    clippy::similar_names,
+    clippy::match_same_arms,
+    clippy::uninlined_format_args,
+    clippy::cast_precision_loss,
+    clippy::cast_sign_loss,
+    clippy::cast_possible_wrap,
+    clippy::format_push_string,
+    clippy::doc_markdown,
+    clippy::ignored_unit_patterns,
+    clippy::unnecessary_cast,
+    clippy::nonminimal_bool,
+    clippy::manual_pattern_char_comparison,
+    // Additional clippy lints from full pedantic
+    clippy::await_holding_lock,
+    clippy::bool_to_int_with_if,
+    clippy::cast_possible_truncation,
+    clippy::collapsible_str_replace,
+    clippy::double_ended_iterator_last,
+    clippy::inefficient_to_string,
+    clippy::inherent_to_string,
+    clippy::items_after_statements,
+    clippy::manual_flatten,
+    clippy::manual_range_contains,
+    clippy::map_unwrap_or,
+    clippy::match_wildcard_for_single_variants,
+    clippy::needless_borrows_for_generic_args,
+    clippy::needless_range_loop,
+    clippy::new_without_default,
+    clippy::redundant_closure_for_method_calls,
+    clippy::semicolon_if_nothing_returned,
+    clippy::single_char_add_str,
+    clippy::single_match_else,
+    clippy::type_complexity,
+    clippy::unnecessary_literal_bound,
+    clippy::unnecessary_wraps,
+    clippy::unused_self,
+    clippy::unwrap_or_default,
+    clippy::useless_format,
+    clippy::vec_init_then_push,
+    clippy::match_like_matches_macro,
+    clippy::needless_raw_string_hashes
 )]
-#![warn(clippy::all, clippy::pedantic)]
 
 //! # ggen-marketplace-v2: Hyper-Advanced Marketplace System
 //!

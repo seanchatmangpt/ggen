@@ -52,6 +52,7 @@ fn test_turtle_prefix_declaration() {
     let turtle = r#"
         @prefix ggen: <http://ggen.dev/ontology#> .
         @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+        @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
         ggen:Package rdf:type rdfs:Class .
     "#;

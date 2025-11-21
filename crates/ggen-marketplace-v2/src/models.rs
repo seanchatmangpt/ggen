@@ -384,6 +384,14 @@ impl fmt::Display for QualityScore {
     }
 }
 
+impl Default for QualityScore {
+    fn default() -> Self {
+        // SAFETY: 50 is a valid quality score (> 0 and <= 100)
+        #[allow(clippy::expect_used)]
+        Self::new(50).expect("50 is a valid quality score")
+    }
+}
+
 /// Package metadata
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct PackageMetadata {

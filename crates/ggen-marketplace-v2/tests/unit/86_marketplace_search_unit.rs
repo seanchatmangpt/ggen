@@ -567,12 +567,12 @@ fn test_search_sort_by_quality() {
 fn test_search_sort_by_name() {
     // Arrange
     let engine = SearchEngine::new();
-    let packages = vec![
+    let _packages = vec![
         create_test_package("charlie", "1.0.0"),
         create_test_package("alice", "1.0.0"),
         create_test_package("bob", "1.0.0"),
     ];
-    let query = SearchQuery::new("").with_sort(SortBy::Name).with_limit(100);
+    let _query = SearchQuery::new("").with_sort(SortBy::Name).with_limit(100);
 
     // Note: Empty search might not match - let's use a common pattern
     let mut pkgs = vec![

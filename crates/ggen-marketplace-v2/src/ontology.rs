@@ -3,6 +3,45 @@
 //! Defines the semantic model for packages, versions, dependencies, and metadata
 //! in RDF format. All marketplace data is stored as RDF triples in oxigraph.
 
+/// Legacy namespace constant for backward compatibility
+pub const GGEN_NAMESPACE: &str = "http://ggen.dev/ontology#";
+
+/// GgenOntology struct for backward compatibility
+pub struct GgenOntology;
+
+impl GgenOntology {
+    /// Create a new GgenOntology instance
+    pub fn new() -> Self {
+        Self
+    }
+
+    /// Get namespace URI
+    pub fn namespace(&self) -> &'static str {
+        GGEN_NAMESPACE
+    }
+
+    /// Get template URI
+    pub fn template() -> String {
+        format!("{}Template", GGEN_NAMESPACE)
+    }
+
+    /// Get template version URI
+    pub fn template_version() -> String {
+        format!("{}templateVersion", GGEN_NAMESPACE)
+    }
+
+    /// Get depends_on URI
+    pub fn depends_on() -> String {
+        format!("{}dependsOn", GGEN_NAMESPACE)
+    }
+}
+
+impl Default for GgenOntology {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Core namespaces for marketplace RDF
 pub struct Namespaces;
 

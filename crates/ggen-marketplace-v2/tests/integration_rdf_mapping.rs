@@ -371,10 +371,12 @@ async fn test_round_trip_data_integrity() {
         reconstructed.metadata.authors,
         original_package.metadata.authors
     );
-    assert_eq!(
-        reconstructed.metadata.keywords,
-        original_package.metadata.keywords
-    );
+    // Keywords may be in different order due to RDF storage
+    let mut reconstructed_keywords = reconstructed.metadata.keywords.clone();
+    let mut original_keywords = original_package.metadata.keywords.clone();
+    reconstructed_keywords.sort();
+    original_keywords.sort();
+    assert_eq!(reconstructed_keywords, original_keywords);
     assert_eq!(
         reconstructed.metadata.repository,
         original_package.metadata.repository
