@@ -13,7 +13,7 @@ mod semantic_ontology {
     use std::collections::HashMap;
 
     // ================================================================
-    // ONTOLOGY: Semantic Web & RDF Concepts (Critical)
+    // ONTOLOGY: Semantic Web & RDF Concepts (Self-Contained)
     // ================================================================
 
     #[test]
@@ -73,6 +73,7 @@ mod semantic_ontology {
     fn test_ontology_property_constraints() {
         // Arrange: Property definitions with constraints
         struct Property {
+            #[allow(dead_code)]
             name: String,
             domain: String,
             range: String,
@@ -206,7 +207,7 @@ mod semantic_rdf {
     #[test]
     fn test_rdf_triple_query() {
         // Arrange: Query graph structure
-        let mut triples = vec![
+        let triples = vec![
             ("Bob", "knows", "Alice"),
             ("Bob", "age", "30"),
             ("Alice", "knows", "Bob"),
@@ -233,7 +234,7 @@ mod semantic_rdf {
 
         // Act: Resolve prefixed name
         let prefixed = "foaf:Person";
-        let expanded = if let Some((prefix, uri_base)) = prefixed.split_once(':') {
+        let expanded = if let Some((prefix, _uri_base)) = prefixed.split_once(':') {
             format!(
                 "{}{}",
                 namespaces.get(prefix).unwrap_or(&""),
@@ -301,7 +302,6 @@ mod semantic_sparql {
     #[test]
     fn test_sparql_triple_pattern_matching() {
         // Arrange: Triple patterns in SPARQL
-        let triple_pattern = "?subject rdf:type ?class";
         let subject = "?subject";
         let predicate = "rdf:type";
         let object = "?class";
@@ -400,9 +400,7 @@ mod semantic_graph_consistency {
 
         // Act: Detect cycle using DFS
         fn has_cycle(
-            node: &str,
-            graph: &HashMap<String, Vec<String>>,
-            visited: &mut HashSet<String>,
+            node: &str, graph: &HashMap<String, Vec<String>>, visited: &mut HashSet<String>,
             rec_stack: &mut HashSet<String>,
         ) -> bool {
             visited.insert(node.to_string());
@@ -472,6 +470,7 @@ mod semantic_graph_consistency {
         // Arrange: Data type constraints
         struct TypedValue {
             value: String,
+            #[allow(dead_code)]
             data_type: String,
         }
 

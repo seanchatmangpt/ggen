@@ -66,8 +66,8 @@ before_build = ["test", "lint"]
 after_build = []
 "#;
 
+            #[allow(clippy::expect_used)]
             fs::write(temp_dir.path().join("make.toml"), make_toml)
-                #[allow(clippy::expect_used)]
                 .expect("Failed to write make.toml");
 
             Self {
@@ -110,8 +110,8 @@ description = "Build workspace"
 command = "echo 'Building...'"
 "#;
 
+            #[allow(clippy::expect_used)]
             fs::write(temp_dir.path().join("make.toml"), make_toml)
-                #[allow(clippy::expect_used)]
                 .expect("Failed to write make.toml");
 
             Self {
@@ -128,7 +128,8 @@ command = "echo 'Building...'"
         /// Load make.toml from fixture
         fn load_make(&self) -> Make {
             #[allow(clippy::expect_used)]
-            load_make(self.path().join("make.toml")).expect("Failed to load make.toml")
+            let result = load_make(self.path().join("make.toml")).expect("Failed to load make.toml");
+            result
         }
 
         /// Create execution context
@@ -247,11 +248,11 @@ command = "echo 'Building...'"
         assert!(state.cache_keys.len() >= 1);
 
         // Find the build cache entry
+        #[allow(clippy::expect_used)]
         let build_cache = state
             .cache_keys
             .iter()
             .find(|k| k.phase == "build")
-            #[allow(clippy::expect_used)]
             .expect("Build cache key should exist");
 
         assert!(!build_cache.key.is_empty());
