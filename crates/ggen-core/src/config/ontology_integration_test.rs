@@ -57,9 +57,8 @@ mod tests {
             validation_status: "valid".to_string(),
         };
 
-        let lockfile =
-            #[allow(clippy::expect_used)]
-            LockfileManager::create(packages, composition).expect("Should create lockfile");
+        #[allow(clippy::expect_used)]
+        let lockfile = LockfileManager::create(packages, composition).expect("Should create lockfile");
 
         assert!(lockfile.validate().is_ok());
         assert_eq!(lockfile.packages.len(), 1);

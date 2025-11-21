@@ -11,10 +11,8 @@
 
 #[cfg(test)]
 mod core_tests {
-    use std::collections::HashMap;
-
     // ================================================================
-    // TYPE DEFINITIONS: Package Management Types
+    // TYPE DEFINITIONS: Package Management Types (Self-Contained)
     // ================================================================
 
     fn validate_package_id(id: &str) -> Result<String, String> {
@@ -67,9 +65,18 @@ mod core_tests {
 
         // Invalid IDs
         assert!(validate_package_id("").is_err(), "Empty ID rejected");
-        assert!(validate_package_id("-invalid").is_err(), "Leading hyphen rejected");
-        assert!(validate_package_id("invalid-").is_err(), "Trailing hyphen rejected");
-        assert!(validate_package_id("invalid package").is_err(), "Space rejected");
+        assert!(
+            validate_package_id("-invalid").is_err(),
+            "Leading hyphen rejected"
+        );
+        assert!(
+            validate_package_id("invalid-").is_err(),
+            "Trailing hyphen rejected"
+        );
+        assert!(
+            validate_package_id("invalid package").is_err(),
+            "Space rejected"
+        );
     }
 
     #[test]
@@ -81,8 +88,14 @@ mod core_tests {
         assert!(validate_package_version("2.5.3+build").is_ok());
 
         // Invalid versions
-        assert!(validate_package_version("1.0").is_err(), "Missing patch version");
-        assert!(validate_package_version("abc").is_err(), "Non-numeric version");
+        assert!(
+            validate_package_version("1.0").is_err(),
+            "Missing patch version"
+        );
+        assert!(
+            validate_package_version("abc").is_err(),
+            "Non-numeric version"
+        );
         assert!(validate_package_version("").is_err(), "Empty version");
     }
 
@@ -266,9 +279,7 @@ mod core_integration {
         let mut visited = std::collections::HashSet::new();
 
         fn resolve_recursive(
-            pkg: &str,
-            deps: &HashMap<String, Vec<String>>,
-            resolved: &mut Vec<String>,
+            pkg: &str, deps: &HashMap<String, Vec<String>>, resolved: &mut Vec<String>,
             visited: &mut std::collections::HashSet<String>,
         ) {
             if visited.contains(pkg) {
