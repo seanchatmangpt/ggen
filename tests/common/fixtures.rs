@@ -16,7 +16,6 @@ pub fn sample_phase_init() -> Phase {
         .description("Initialize project".to_string())
         .command("echo Initializing".to_string())
         .build()
-        #[allow(clippy::expect_used)]
         .expect("Failed to build init phase")
         .phase()
         .clone()
@@ -29,7 +28,6 @@ pub fn sample_phase_build() -> Phase {
         .description("Build project".to_string())
         .command("echo Building".to_string())
         .build()
-        #[allow(clippy::expect_used)]
         .expect("Failed to build build phase")
         .phase()
         .clone()
@@ -42,7 +40,6 @@ pub fn sample_phase_test() -> Phase {
         .description("Run tests".to_string())
         .command("echo Testing".to_string())
         .build()
-        #[allow(clippy::expect_used)]
         .expect("Failed to build test phase")
         .phase()
         .clone()
@@ -102,7 +99,6 @@ pub fn sample_package() -> Package {
 
 /// Creates a temporary directory for test isolation
 pub fn create_temp_dir() -> TempDir {
-    #[allow(clippy::expect_used)]
     TempDir::new().expect("Failed to create temp directory")
 }
 

@@ -7,7 +7,6 @@ test!(test_load_ttl_into_store, {
     let sources = vec!["tests/fixtures/sample.ttl".to_string()];
     
     // Act
-    #[allow(clippy::expect_used)]
     let store = rdf::load_graph(&sources).expect("Failed to load graph");
     
     // Assert
@@ -17,13 +16,10 @@ test!(test_load_ttl_into_store, {
 test!(test_deterministic_nquads_output, {
     // Arrange
     let sources = vec!["tests/fixtures/sample.ttl".to_string()];
-    #[allow(clippy::expect_used)]
     let store = rdf::load_graph(&sources).expect("Failed to load graph");
     
     // Act
-    #[allow(clippy::expect_used)]
     let nquads1 = rdf::to_nquads(&store).expect("Failed to serialize");
-    #[allow(clippy::expect_used)]
     let nquads2 = rdf::to_nquads(&store).expect("Failed to serialize");
     
     // Assert

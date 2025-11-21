@@ -6,8 +6,9 @@
 //! Test Count: 250+ tests
 
 use ggen_marketplace_v2::ontology::*;
+#[allow(unused_imports)]
 use ggen_marketplace_v2::prelude::*;
-use oxigraph::model::{NamedNode, Quad, Subject, Term};
+use oxigraph::model::{GraphName, NamedNode, NamedOrBlankNode, Quad, Term};
 use oxigraph::store::Store;
 
 // ============================================================================
@@ -282,10 +283,10 @@ fn test_triple_complete() {
     let object = NamedNode::new("http://example.org/o").unwrap();
 
     let quad = Quad::new(
-        Subject::NamedNode(subject),
+        NamedOrBlankNode::from(subject),
         predicate,
         Term::NamedNode(object),
-        None,
+        GraphName::DefaultGraph,
     );
 
     store.insert(&quad).unwrap();

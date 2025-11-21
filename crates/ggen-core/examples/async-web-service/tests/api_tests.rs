@@ -10,11 +10,9 @@ async fn test_health_check() {
         .get(&format!("{}/health", API_BASE))
         .send()
         .await
-        #[allow(clippy::expect_used)]
         .expect("Failed to send request");
 
     assert_eq!(response.status(), StatusCode::OK);
-    #[allow(clippy::expect_used)]
     let body: serde_json::Value = response.json().await.expect("Failed to parse JSON");
     assert_eq!(body["status"], "healthy");
 }
@@ -35,7 +33,6 @@ async fn test_user_registration_and_login() {
         .json(&register_body)
         .send()
         .await
-        #[allow(clippy::expect_used)]
         .expect("Failed to register");
 
     assert!(
@@ -54,11 +51,9 @@ async fn test_user_registration_and_login() {
         .json(&login_body)
         .send()
         .await
-        #[allow(clippy::expect_used)]
         .expect("Failed to login");
 
     assert_eq!(login_response.status(), StatusCode::OK);
-    #[allow(clippy::expect_used)]
     let login_data: serde_json::Value = login_response.json().await.expect("Failed to parse");
     assert!(login_data["token"].is_string());
     assert_eq!(login_data["user"]["email"], "test@example.com");
@@ -71,7 +66,6 @@ async fn test_protected_endpoint_without_auth() {
         .get(&format!("{}/users", API_BASE))
         .send()
         .await
-        #[allow(clippy::expect_used)]
         .expect("Failed to send request");
 
     assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
@@ -92,10 +86,8 @@ async fn test_user_crud_operations() {
         .json(&login_body)
         .send()
         .await
-        #[allow(clippy::expect_used)]
         .expect("Failed to login");
 
-    #[allow(clippy::expect_used)]
     let login_data: serde_json::Value = login_response.json().await.expect("Failed to parse");
     let token = login_data["token"].as_str().unwrap();
     let user_id = login_data["user"]["id"].as_str().unwrap();
@@ -106,7 +98,6 @@ async fn test_user_crud_operations() {
         .bearer_auth(token)
         .send()
         .await
-        #[allow(clippy::expect_used)]
         .expect("Failed to get user");
 
     assert_eq!(get_response.status(), StatusCode::OK);
@@ -122,7 +113,6 @@ async fn test_user_crud_operations() {
         .json(&update_body)
         .send()
         .await
-        #[allow(clippy::expect_used)]
         .expect("Failed to update user");
 
     assert_eq!(update_response.status(), StatusCode::OK);

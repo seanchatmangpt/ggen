@@ -103,6 +103,10 @@ harness = false
 name = "slo_validation"
 harness = false
 
+[[bench]]
+name = "marketplace_load_test"
+harness = false
+
 # Unit tests
 [[test]]
 name = "poka_yoke_types_test"
@@ -116,4 +120,12 @@ path = "tests/unit/rdf_turtle_test.rs"
 name = "sparql_operations_test"
 path = "tests/unit/sparql_operations_test.rs"
 
-# Integration tests removed in Phase 1 consolidation
+# Phase 3B: Integration tests
+[[test]]
+name = "marketplace_integration"
+path = "tests/89_marketplace_integration.rs"
+
+# Phase 3C: Property-based tests
+[[test]]
+name = "marketplace_property_based"
+path = "tests/90_marketplace_property_based.rs"

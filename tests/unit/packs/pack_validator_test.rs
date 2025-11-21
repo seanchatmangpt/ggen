@@ -205,9 +205,7 @@ fn test_validation_result_serialization() {
     };
 
     // Act
-    #[allow(clippy::expect_used)]
     let json = serde_json::to_string(&validation).expect("Should serialize");
-    #[allow(clippy::expect_used)]
     let deserialized: ValidationResult = serde_json::from_str(&json).expect("Should deserialize");
 
     // Assert
@@ -237,9 +235,7 @@ fn test_pack_score_serialization() {
     };
 
     // Act
-    #[allow(clippy::expect_used)]
     let json = serde_json::to_string(&score).expect("Should serialize");
-    #[allow(clippy::expect_used)]
     let deserialized: PackScore = serde_json::from_str(&json).expect("Should deserialize");
 
     // Assert

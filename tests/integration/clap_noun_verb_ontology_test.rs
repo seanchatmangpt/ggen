@@ -93,7 +93,6 @@ ex:StringType a cnv:ArgumentType ;
 ex:OptionStringType a cnv:ArgumentType ;
     cnv:typeName "Option<String>" .
 "#;
-    #[allow(clippy::expect_used)]
     fs::write(&ontology_path, ontology_content).expect("Failed to write ontology file");
     ontology_path
 }

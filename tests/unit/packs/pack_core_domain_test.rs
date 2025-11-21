@@ -129,9 +129,7 @@ fn test_pack_type_serialization() {
     };
 
     // Act - Serialize and deserialize
-    #[allow(clippy::expect_used)]
     let json = serde_json::to_string(&pack).expect("Should serialize");
-    #[allow(clippy::expect_used)]
     let deserialized: Pack = serde_json::from_str(&json).expect("Should deserialize");
 
     // Assert
@@ -165,7 +163,6 @@ fn test_pack_with_optional_fields() {
     };
 
     // Act - Serialize
-    #[allow(clippy::expect_used)]
     let json = serde_json::to_string(&pack).expect("Should serialize");
 
     // Assert - Should handle optional fields
@@ -183,9 +180,7 @@ fn test_pack_dependency_structure() {
     };
 
     // Act
-    #[allow(clippy::expect_used)]
     let json = serde_json::to_string(&dep).expect("Should serialize");
-    #[allow(clippy::expect_used)]
     let deserialized: PackDependency = serde_json::from_str(&json).expect("Should deserialize");
 
     // Assert
@@ -205,9 +200,7 @@ fn test_pack_template_structure() {
     };
 
     // Act
-    #[allow(clippy::expect_used)]
     let json = serde_json::to_string(&template).expect("Should serialize");
-    #[allow(clippy::expect_used)]
     let deserialized: PackTemplate = serde_json::from_str(&json).expect("Should deserialize");
 
     // Assert

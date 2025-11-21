@@ -245,6 +245,282 @@ impl fmt::Display for ErrorContext {
     }
 }
 
+/// Error severity level for categorization
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum ErrorSeverity {
+    /// Informational - operation completed with notes
+    Info,
+    /// Warning - operation completed but with issues
+    Warning,
+    /// Error - operation failed but recoverable
+    Error,
+    /// Critical - operation failed, requires intervention
+    Critical,
+}
+
+impl fmt::Display for ErrorSeverity {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Info => write!(f, "INFO"),
+            Self::Warning => write!(f, "WARN"),
+            Self::Error => write!(f, "ERROR"),
+            Self::Critical => write!(f, "CRITICAL"),
+        }
+    }
+}
+
+/// Error category for grouping and metrics
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum ErrorCategory {
+    /// Registry-related errors (not found, already exists)
+    Registry,
+    /// Installation errors (dependency failed, conflict)
+    Installation,
+    /// Validation errors (invalid package, failed checks)
+    Validation,
+    /// Security errors (signature invalid, auth failed)
+    Security,
+    /// Search errors (query invalid, index error)
+    Search,
+    /// RDF/SPARQL errors (store operation failed)
+    Rdf,
+    /// I/O errors (file, network)
+    Io,
+    /// Configuration errors
+    Config,
+    /// Timeout errors
+    Timeout,
+    /// Unknown/other errors
+    Unknown,
+}
+
+impl fmt::Display for ErrorCategory {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Registry => write!(f, "registry"),
+            Self::Installation => write!(f, "installation"),
+            Self::Validation => write!(f, "validation"),
+            Self::Security => write!(f, "security"),
+            Self::Search => write!(f, "search"),
+            Self::Rdf => write!(f, "rdf"),
+            Self::Io => write!(f, "io"),
+            Self::Config => write!(f, "config"),
+            Self::Timeout => write!(f, "timeout"),
+            Self::Unknown => write!(f, "unknown"),
+        }
+    }
+}
+
+impl Error {
+    /// Get the error category for metrics and logging
+    pub fn category(&self) -> ErrorCategory {
+        match self {
+            Self::PackageNotFound { .. }
+            | Self::PackageAlreadyExists { .. }
+            | Self::VersionAlreadyExists { .. }
+            | Self::RegistryError(_) => ErrorCategory::Registry,
+
+            Self::DependencyResolutionFailed { .. } | Self::InstallationFailed { .. } => {
+                ErrorCategory::Installation
+            }
+
+            Self::InvalidPackageId { .. }
+            | Self::InvalidVersion { .. }
+            | Self::ValidationFailed { .. }
+            | Self::InvalidStateTransition { .. }
+            | Self::UnknownState { .. } => ErrorCategory::Validation,
+
+            Self::SecurityCheckFailed { .. }
+            | Self::SignatureVerificationFailed { .. }
+            | Self::CryptoError(_) => ErrorCategory::Security,
+
+            Self::SearchError(_) | Self::SparqlError { .. } => ErrorCategory::Search,
+
+            Self::RdfStoreError { .. } => ErrorCategory::Rdf,
+
+            Self::IoError(_) | Self::SerializationError(_) | Self::Utf8Error(_) => {
+                ErrorCategory::Io
+            }
+
+            Self::ConfigError(_) | Self::ConfigurationError { .. } | Self::TomlError(_) => {
+                ErrorCategory::Config
+            }
+
+            Self::Timeout(_) => ErrorCategory::Timeout,
+
+            Self::ConcurrencyError(_)
+            | Self::NotImplemented { .. }
+            | Self::Other(_) => ErrorCategory::Unknown,
+        }
+    }
+
+    /// Get the error severity
+    pub fn severity(&self) -> ErrorSeverity {
+        match self {
+            Self::PackageNotFound { .. }
+            | Self::InvalidPackageId { .. }
+            | Self::InvalidVersion { .. } => ErrorSeverity::Error,
+
+            Self::PackageAlreadyExists { .. }
+            | Self::VersionAlreadyExists { .. } => ErrorSeverity::Warning,
+
+            Self::SecurityCheckFailed { .. }
+            | Self::SignatureVerificationFailed { .. }
+            | Self::CryptoError(_) => ErrorSeverity::Critical,
+
+            Self::DependencyResolutionFailed { .. }
+            | Self::InstallationFailed { .. }
+            | Self::ValidationFailed { .. } => ErrorSeverity::Error,
+
+            Self::RdfStoreError { .. }
+            | Self::SparqlError { .. } => ErrorSeverity::Error,
+
+            Self::Timeout(_) => ErrorSeverity::Warning,
+
+            Self::NotImplemented { .. } => ErrorSeverity::Info,
+
+            _ => ErrorSeverity::Error,
+        }
+    }
+
+    /// Get a recovery suggestion for this error
+    pub fn recovery_suggestion(&self) -> Option<String> {
+        match self {
+            Self::PackageNotFound { package_id } => Some(format!(
+                "Use 'ggen marketplace search' to find available packages. \
+                 Check spelling of '{}'.",
+                package_id
+            )),
+
+            Self::InvalidPackageId { .. } => Some(
+                "Package IDs must be lowercase, contain only alphanumeric characters, \
+                 hyphens, and underscores. They cannot start or end with a hyphen."
+                    .to_string(),
+            ),
+
+            Self::InvalidVersion { .. } => {
+                Some("Use semantic versioning format (e.g., 1.0.0, 2.1.0-alpha).".to_string())
+            }
+
+            Self::PackageAlreadyExists { .. } => {
+                Some("Use a different package ID or publish a new version.".to_string())
+            }
+
+            Self::VersionAlreadyExists { .. } => {
+                Some("Increment the version number before publishing.".to_string())
+            }
+
+            Self::DependencyResolutionFailed { .. } => Some(
+                "Check that all dependencies exist and version constraints are satisfiable."
+                    .to_string(),
+            ),
+
+            Self::InstallationFailed { .. } => {
+                Some("Check disk space, permissions, and network connectivity.".to_string())
+            }
+
+            Self::ValidationFailed { .. } => {
+                Some("Fix the validation errors before publishing.".to_string())
+            }
+
+            Self::SecurityCheckFailed { .. } => {
+                Some("Review the security requirements and fix any issues.".to_string())
+            }
+
+            Self::SignatureVerificationFailed { .. } => Some(
+                "Ensure the package was signed correctly and the signing key is valid.".to_string(),
+            ),
+
+            Self::SearchError(_) => Some("Check your query syntax and try again.".to_string()),
+
+            Self::Timeout(_) => Some("Try again or check network connectivity.".to_string()),
+
+            Self::RdfStoreError { .. } => {
+                Some("This may be a temporary issue. Try again or check the store status.".to_string())
+            }
+
+            Self::SparqlError { .. } => Some("Check the SPARQL query syntax.".to_string()),
+
+            Self::ConfigError(_) | Self::ConfigurationError { .. } => {
+                Some("Check your configuration file for errors.".to_string())
+            }
+
+            Self::IoError(_) => {
+                Some("Check file permissions and that the file exists.".to_string())
+            }
+
+            _ => None,
+        }
+    }
+
+    /// Create error with context chain
+    pub fn with_context(self, context: ErrorContext) -> ErrorChain {
+        ErrorChain {
+            error: self,
+            context: vec![context],
+        }
+    }
+
+    /// Check if this error is retryable
+    pub fn is_retryable(&self) -> bool {
+        matches!(
+            self,
+            Self::Timeout(_)
+                | Self::RdfStoreError { .. }
+                | Self::ConcurrencyError(_)
+                | Self::IoError(_)
+        )
+    }
+}
+
+/// Error chain with context for detailed debugging
+#[derive(Debug)]
+pub struct ErrorChain {
+    /// The root error
+    pub error: Error,
+    /// Context chain (most recent first)
+    pub context: Vec<ErrorContext>,
+}
+
+impl ErrorChain {
+    /// Add more context to the chain
+    pub fn with_context(mut self, context: ErrorContext) -> Self {
+        self.context.push(context);
+        self
+    }
+
+    /// Get the full context path
+    pub fn context_path(&self) -> String {
+        self.context
+            .iter()
+            .map(|c| c.operation.as_str())
+            .collect::<Vec<_>>()
+            .join(" -> ")
+    }
+}
+
+impl fmt::Display for ErrorChain {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "Error: {}", self.error)?;
+        if !self.context.is_empty() {
+            writeln!(f, "Context:")?;
+            for ctx in &self.context {
+                writeln!(f, "  - {}", ctx)?;
+            }
+        }
+        if let Some(suggestion) = self.error.recovery_suggestion() {
+            writeln!(f, "Suggestion: {}", suggestion)?;
+        }
+        Ok(())
+    }
+}
+
+impl std::error::Error for ErrorChain {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        Some(&self.error)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -263,5 +539,59 @@ mod tests {
         let ctx = ErrorContext::new("searching", "query too short");
         assert_eq!(ctx.operation, "searching");
         assert_eq!(ctx.context, "query too short");
+    }
+
+    #[test]
+    fn test_error_category() {
+        let err = Error::package_not_found("test");
+        assert_eq!(err.category(), ErrorCategory::Registry);
+
+        let err = Error::SignatureVerificationFailed {
+            reason: "invalid".to_string(),
+        };
+        assert_eq!(err.category(), ErrorCategory::Security);
+    }
+
+    #[test]
+    fn test_error_severity() {
+        let err = Error::SecurityCheckFailed {
+            reason: "test".to_string(),
+        };
+        assert_eq!(err.severity(), ErrorSeverity::Critical);
+
+        let err = Error::package_not_found("test");
+        assert_eq!(err.severity(), ErrorSeverity::Error);
+    }
+
+    #[test]
+    fn test_error_recovery_suggestion() {
+        let err = Error::package_not_found("test-pkg");
+        assert!(err.recovery_suggestion().is_some());
+
+        let err = Error::InvalidVersion {
+            version: "bad".to_string(),
+            reason: "test".to_string(),
+        };
+        assert!(err.recovery_suggestion().unwrap().contains("semantic"));
+    }
+
+    #[test]
+    fn test_error_chain() {
+        let err = Error::package_not_found("test-pkg");
+        let chain = err
+            .with_context(ErrorContext::new("install", "during dependency resolution"))
+            .with_context(ErrorContext::new("cli", "user request"));
+
+        assert_eq!(chain.context.len(), 2);
+        assert!(chain.context_path().contains("install"));
+    }
+
+    #[test]
+    fn test_is_retryable() {
+        let err = Error::Timeout("test".to_string());
+        assert!(err.is_retryable());
+
+        let err = Error::package_not_found("test");
+        assert!(!err.is_retryable());
     }
 }

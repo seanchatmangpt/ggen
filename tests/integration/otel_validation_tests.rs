@@ -53,7 +53,6 @@ async_test_with_timeout!(test_otel_collector_is_healthy, 30, async {
         .timeout(http_connection_timeout())
         .send()
         .await
-        #[allow(clippy::expect_used)]
         .expect("Failed to connect to OTEL collector health endpoint");
 
     // Assert
@@ -63,7 +62,6 @@ async_test_with_timeout!(test_otel_collector_is_healthy, 30, async {
         response.status()
     );
 
-    #[allow(clippy::expect_used)]
     let body = response.text().await.expect("Failed to read health response");
 
     assert!(
@@ -112,7 +110,6 @@ async_test_with_timeout!(test_marketplace_search_emits_spans_to_collector, 30, a
         .env("OTEL_SERVICE_NAME", SERVICE_NAME)
         .env("RUST_LOG", "info")
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run marketplace search");
 
     assert!(
@@ -154,7 +151,6 @@ async_test_with_timeout!(test_p2p_operations_emit_trace_context, 30, async {
         .env("OTEL_SERVICE_NAME", SERVICE_NAME)
         .env("RUST_LOG", "debug")
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run P2P search");
 
     if !output.status.success() {
@@ -189,7 +185,6 @@ async_test_with_timeout!(test_span_attributes_contain_operation_metadata, 30, as
         .env("OTEL_EXPORTER_OTLP_ENDPOINT", COLLECTOR_OTLP_HTTP)
         .env("OTEL_SERVICE_NAME", SERVICE_NAME)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run search");
 
     tokio::time::sleep(Duration::from_secs(2)).await;
@@ -248,7 +243,6 @@ async_test_with_timeout!(test_parent_child_span_relationships_preserved, 30, asy
         .env("OTEL_EXPORTER_OTLP_ENDPOINT", COLLECTOR_OTLP_HTTP)
         .env("OTEL_SERVICE_NAME", SERVICE_NAME)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run search");
 
     tokio::time::sleep(Duration::from_secs(2)).await;
@@ -294,7 +288,6 @@ async_test_with_timeout!(test_trace_context_propagates_across_operations, 30, as
         .env("OTEL_EXPORTER_OTLP_ENDPOINT", COLLECTOR_OTLP_HTTP)
         .env("OTEL_SERVICE_NAME", SERVICE_NAME)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run search");
 
     tokio::time::sleep(Duration::from_secs(2)).await;
@@ -316,7 +309,6 @@ async_test_with_timeout!(test_trace_context_propagates_across_operations, 30, as
             let trace_id = spans[0]
                 .get("traceID")
                 .and_then(|t| t.as_str())
-                #[allow(clippy::expect_used)]
                 .expect("Missing trace ID");
 
             // All spans should have same trace_id
@@ -324,7 +316,6 @@ async_test_with_timeout!(test_trace_context_propagates_across_operations, 30, as
                 let span_trace_id = span
                     .get("traceID")
                     .and_then(|t| t.as_str())
-                    #[allow(clippy::expect_used)]
                     .expect("Missing span trace ID");
 
                 assert_eq!(
@@ -351,7 +342,6 @@ async_test_with_timeout!(test_spans_have_correct_service_name, 30, async {
         .env("OTEL_EXPORTER_OTLP_ENDPOINT", COLLECTOR_OTLP_HTTP)
         .env("OTEL_SERVICE_NAME", SERVICE_NAME)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run search");
 
     tokio::time::sleep(Duration::from_secs(2)).await;
@@ -399,7 +389,6 @@ async_test_with_timeout!(test_span_export_does_not_block_operation, 30, async {
     let _output1 = Command::new("cargo")
         .args(["run", "--bin", "ggen", "--", "marketplace", "search", "--query", "perf-test"])
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run search without OTEL");
     let duration_no_otel = start_no_otel.elapsed();
 
@@ -411,7 +400,6 @@ async_test_with_timeout!(test_span_export_does_not_block_operation, 30, async {
         .env("OTEL_EXPORTER_OTLP_ENDPOINT", COLLECTOR_OTLP_HTTP)
         .env("OTEL_SERVICE_NAME", SERVICE_NAME)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run search with OTEL");
     let duration_with_otel = start_with_otel.elapsed();
 
@@ -452,7 +440,6 @@ async_test_with_timeout!(test_collector_handles_burst_of_spans, 30, async {
                 .env("OTEL_EXPORTER_OTLP_ENDPOINT", COLLECTOR_OTLP_HTTP)
                 .env("OTEL_SERVICE_NAME", SERVICE_NAME)
                 .output()
-                #[allow(clippy::expect_used)]
                 .expect("Failed to run search")
         });
         handles.push(handle);
@@ -492,10 +479,8 @@ async fn get_collector_span_count() -> u64 {
         .timeout(http_connection_timeout())
         .send()
         .await
-        #[allow(clippy::expect_used)]
         .expect("Failed to get collector metrics");
 
-    #[allow(clippy::expect_used)]
     let body = response.text().await.expect("Failed to read metrics");
 
     // Parse Prometheus metrics for span count

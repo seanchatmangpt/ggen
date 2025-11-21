@@ -221,7 +221,6 @@ impl MockRegistryClient {
 
 #[test]
 fn test_cli_basic() {
-    #[allow(clippy::expect_used)]
     let mut cmd = Command::cargo_bin("ggen").expect("Calling binary failed");
     cmd.assert().failure();
 }
@@ -229,14 +228,12 @@ fn test_cli_basic() {
 #[test]
 fn test_version() {
     let expected_version = "ggen 1.2.0\n";
-    #[allow(clippy::expect_used)]
     let mut cmd = Command::cargo_bin("ggen").expect("Calling binary failed");
     cmd.arg("--version").assert().stdout(expected_version);
 }
 
 #[test]
 fn test_hazard_exit_code() {
-    #[allow(clippy::expect_used)]
     let mut cmd = Command::cargo_bin("ggen").expect("Calling binary failed");
     cmd.arg("audit")
         .arg("hazard")
@@ -247,7 +244,6 @@ fn test_hazard_exit_code() {
 
 #[test]
 fn test_hazard_stdout() {
-    #[allow(clippy::expect_used)]
     let mut cmd = Command::cargo_bin("ggen").expect("Calling binary failed");
     cmd.arg("audit")
         .arg("hazard")

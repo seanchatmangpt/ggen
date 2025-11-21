@@ -66,7 +66,6 @@ mod version_tests {
     async_test!(test_version_returns_valid_semver, async {
         let result = run_for_node(vec!["--version".to_string()])
             .await
-            #[allow(clippy::expect_used)]
             .expect("version command should not panic");
 
         // Should succeed
@@ -105,7 +104,6 @@ mod version_tests {
         let start = Instant::now();
         let result = run_for_node(vec!["--version".to_string()])
             .await
-            #[allow(clippy::expect_used)]
             .expect("version command should not panic");
         let duration = start.elapsed();
 
@@ -126,7 +124,6 @@ mod help_tests {
     async_test!(test_help_shows_usage, async {
         let result = run_for_node(vec!["--help".to_string()])
             .await
-            #[allow(clippy::expect_used)]
             .expect("help command should not panic");
 
         assert_eq!(result.code, 0, "help should succeed");
@@ -151,7 +148,6 @@ mod help_tests {
     async_test!(test_help_for_market_command, async {
         let result = run_for_node(vec!["market".to_string(), "--help".to_string()])
             .await
-            #[allow(clippy::expect_used)]
             .expect("market help should not panic");
 
         assert_eq!(result.code, 0, "market help should succeed");
@@ -175,7 +171,6 @@ mod marketplace_tests {
     async_test!(test_market_list_returns_packages, async {
         let result = run_for_node(vec!["market".to_string(), "list".to_string()])
             .await
-            #[allow(clippy::expect_used)]
             .expect("market list should not panic");
 
         // Should succeed
@@ -192,7 +187,6 @@ mod marketplace_tests {
     async_test!(test_market_categories_returns_list, async {
         let result = run_for_node(vec!["market".to_string(), "categories".to_string()])
             .await
-            #[allow(clippy::expect_used)]
             .expect("market categories should not panic");
 
         assert_eq!(result.code, 0, "market categories should succeed");
@@ -212,7 +206,6 @@ mod marketplace_tests {
             "rust".to_string(),
         ])
         .await
-        #[allow(clippy::expect_used)]
         .expect("market search should not panic");
 
         // Should complete (success or no results found)
@@ -238,7 +231,6 @@ mod marketplace_tests {
             "definitely-not-a-real-package-12345".to_string(),
         ])
         .await
-        #[allow(clippy::expect_used)]
         .expect("market add should not panic");
 
         // Should fail (package doesn't exist)
@@ -260,7 +252,6 @@ mod lifecycle_tests {
     async_test!(test_lifecycle_list_returns_phases, async {
         let result = run_for_node(vec!["lifecycle".to_string(), "list".to_string()])
             .await
-            #[allow(clippy::expect_used)]
             .expect("lifecycle list should not panic");
 
         assert_eq!(result.code, 0, "lifecycle list should succeed");
@@ -283,7 +274,6 @@ mod lifecycle_tests {
     async_test!(test_lifecycle_readiness_returns_status, async {
         let result = run_for_node(vec!["lifecycle".to_string(), "readiness".to_string()])
             .await
-            #[allow(clippy::expect_used)]
             .expect("lifecycle readiness should not panic");
 
         // Should complete (may succeed or fail depending on project state)
@@ -308,7 +298,6 @@ mod template_tests {
     async_test!(test_template_list_returns_templates, async {
         let result = run_for_node(vec!["list".to_string()])
             .await
-            #[allow(clippy::expect_used)]
             .expect("list command should not panic");
 
         // Should complete
@@ -331,7 +320,6 @@ mod template_tests {
             "definitely-not-a-template-12345.tmpl".to_string(),
         ])
         .await
-        #[allow(clippy::expect_used)]
         .expect("gen command should not panic");
 
         // Should fail (template doesn't exist)
@@ -356,7 +344,6 @@ mod utility_tests {
     async_test!(test_doctor_runs_diagnostics, async {
         let result = run_for_node(vec!["doctor".to_string()])
             .await
-            #[allow(clippy::expect_used)]
             .expect("doctor command should not panic");
 
         assert_eq!(result.code, 0, "doctor should succeed");
@@ -384,7 +371,6 @@ mod error_handling_tests {
     async_test!(test_empty_args_handled, async {
         let result = run_for_node(vec![])
             .await
-            #[allow(clippy::expect_used)]
             .expect("empty args should not panic");
 
         // Should complete (help or error)
@@ -401,7 +387,6 @@ mod error_handling_tests {
     async_test!(test_invalid_command_produces_error, async {
         let result = run_for_node(vec!["definitely-not-a-valid-command-12345".to_string()])
             .await
-            #[allow(clippy::expect_used)]
             .expect("invalid command should not panic");
 
         // Should fail
@@ -422,7 +407,6 @@ mod error_handling_tests {
             "rust-web@1.0-beta!".to_string(),
         ])
         .await
-        #[allow(clippy::expect_used)]
         .expect("special characters should not panic");
 
         // Should complete (doesn't matter if success or failure)
@@ -437,7 +421,6 @@ mod error_handling_tests {
             "Créer 日本語 🚀".to_string(),
         ])
         .await
-        #[allow(clippy::expect_used)]
         .expect("unicode should not panic");
 
         // Should complete
@@ -453,7 +436,6 @@ mod error_handling_tests {
         let long_arg = "a".repeat(10_000);
         let result = run_for_node(vec!["market".to_string(), "search".to_string(), long_arg])
             .await
-            #[allow(clippy::expect_used)]
             .expect("very long args should not panic");
 
         // Should complete (may succeed or fail)
@@ -469,7 +451,6 @@ mod ggen_broken_detection_tests {
     async_test!(test_detects_false_success, async {
         let result = run_for_node(vec!["--version".to_string()])
             .await
-            #[allow(clippy::expect_used)]
             .expect("version should not panic");
 
         if result.code == 0 {
@@ -490,7 +471,6 @@ mod ggen_broken_detection_tests {
     async_test!(test_detects_silent_failure, async {
         let result = run_for_node(vec!["--version".to_string()])
             .await
-            #[allow(clippy::expect_used)]
             .expect("version should not panic");
 
         if result.code == 0 {
@@ -505,7 +485,6 @@ mod ggen_broken_detection_tests {
     async_test!(test_validates_version_format, async {
         let result = run_for_node(vec!["--version".to_string()])
             .await
-            #[allow(clippy::expect_used)]
             .expect("version should not panic");
 
         if result.code == 0 {
@@ -525,7 +504,6 @@ mod ggen_broken_detection_tests {
     async_test!(test_detects_silent_error, async {
         let result = run_for_node(vec!["definitely-invalid-command-xyz".to_string()])
             .await
-            #[allow(clippy::expect_used)]
             .expect("invalid command should not panic");
 
         if result.code != 0 {
@@ -541,7 +519,6 @@ mod ggen_broken_detection_tests {
         // Invalid commands should error, not crash
         let result = run_for_node(vec!["invalid".to_string()])
             .await
-            #[allow(clippy::expect_used)]
             .expect("Invalid command should return error, not panic");
 
         // Should have valid exit code (not a crash signal)
@@ -561,7 +538,6 @@ mod data_structure_validation_tests {
     async_test!(test_version_is_semver, async {
         let result = run_for_node(vec!["--version".to_string()])
             .await
-            #[allow(clippy::expect_used)]
             .expect("version should not panic");
 
         if result.code == 0 {

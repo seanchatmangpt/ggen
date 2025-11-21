@@ -79,7 +79,9 @@ fn generate_test_packages(count: usize) -> Vec<TestPackage> {
         .collect()
 }
 
-fn search_packages<'a>(packages: &'a [TestPackage], query: &str, limit: usize) -> Vec<&'a TestPackage> {
+fn search_packages<'a>(
+    packages: &'a [TestPackage], query: &str, limit: usize,
+) -> Vec<&'a TestPackage> {
     packages
         .iter()
         .filter(|p| {

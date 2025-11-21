@@ -185,7 +185,6 @@ test!(test_package_name_validation_invalid, {
 
 test!(test_cache_directory_handling, {
     // Arrange: Create a temporary directory to use as cache
-    #[allow(clippy::expect_used)]
     let temp_dir = tempfile::tempdir().expect("Failed to create temp dir");
     let cache_path = temp_dir.path().join("cache");
 

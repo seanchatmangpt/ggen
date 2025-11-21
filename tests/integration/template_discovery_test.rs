@@ -49,7 +49,6 @@ fn test_templates_discovered() {
             Ok(())
         }
 
-        #[allow(clippy::expect_used)]
         count_templates(templates_dir, &mut actual_count).expect("failed to count templates");
     }
 
@@ -148,7 +147,6 @@ fn test_no_empty_templates() {
 
     if templates_dir.exists() {
         check_templates(templates_dir, &mut empty_templates)
-            #[allow(clippy::expect_used)]
             .expect("failed to check templates");
     }
 

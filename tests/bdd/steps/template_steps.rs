@@ -9,7 +9,6 @@ use std::fs;
 fn have_template_file_at_path(world: &mut GgenWorld, template_path: String) {
     let full_path = world.project_dir.join(&template_path);
     let parent_dir = full_path.parent().unwrap();
-    #[allow(clippy::expect_used)]
     fs::create_dir_all(parent_dir).expect("Failed to create template directory");
 
     // Create a basic template file
@@ -21,7 +20,6 @@ vars: ["name", "version"]
 Hello {{name}}! Version {{version}}.
 "#;
 
-    #[allow(clippy::expect_used)]
     fs::write(&full_path, template_content).expect("Failed to write template file");
 }
 
@@ -33,21 +31,18 @@ fn have_template_file_located_at(world: &mut GgenWorld, template_path: String) {
 #[given(regex = r"^I have a template with:$")]
 fn have_template_with_content(world: &mut GgenWorld, content: String) {
     let template_path = world.project_dir.join("test-template.tmpl");
-    #[allow(clippy::expect_used)]
     fs::write(&template_path, content.trim()).expect("Failed to write template file");
 }
 
 #[given(regex = r"^I have a basic template with:$")]
 fn have_basic_template_with_content(world: &mut GgenWorld, content: String) {
     let template_path = world.project_dir.join("test-template.tmpl");
-    #[allow(clippy::expect_used)]
     fs::write(&template_path, content).expect("Failed to write template file");
 }
 
 #[given(regex = r"^I have templates in (.+)$")]
 fn have_templates_in_directory(world: &mut GgenWorld, templates_dir: String) {
     let full_path = world.project_dir.join(&templates_dir);
-    #[allow(clippy::expect_used)]
     fs::create_dir_all(&full_path).expect("Failed to create templates directory");
 
     // Create a sample template
@@ -68,56 +63,48 @@ impl {{name}} {
 "#;
 
     fs::write(full_path.join("sample.tmpl"), template_content)
-        #[allow(clippy::expect_used)]
         .expect("Failed to write sample template");
 }
 
 #[given(regex = r"^I have a template with RDF inline data:$")]
 fn have_template_with_rdf_inline_data(world: &mut GgenWorld, content: String) {
     let template_path = world.project_dir.join("test-template.tmpl");
-    #[allow(clippy::expect_used)]
     fs::write(&template_path, content).expect("Failed to write template file");
 }
 
 #[given(regex = r"^I have a template with SPARQL query definition:$")]
 fn have_template_with_sparql_query_definition(world: &mut GgenWorld, content: String) {
     let template_path = world.project_dir.join("test-template.tmpl");
-    #[allow(clippy::expect_used)]
     fs::write(&template_path, content).expect("Failed to write template file");
 }
 
 #[given(regex = r"^I have a template with determinism configuration:$")]
 fn have_template_with_determinism_configuration(world: &mut GgenWorld, content: String) {
     let template_path = world.project_dir.join("test-template.tmpl");
-    #[allow(clippy::expect_used)]
     fs::write(&template_path, content).expect("Failed to write template file");
 }
 
 #[given(regex = r"^I have a template with RDF inline:$")]
 fn have_template_with_rdf_inline(world: &mut GgenWorld, content: String) {
     let template_path = world.project_dir.join("test-template.tmpl");
-    #[allow(clippy::expect_used)]
     fs::write(&template_path, content.trim()).expect("Failed to write template file");
 }
 
 #[given(regex = r"^I have a template with SPARQL query:$")]
 fn have_template_with_sparql_query(world: &mut GgenWorld, content: String) {
     let template_path = world.project_dir.join("test-template.tmpl");
-    #[allow(clippy::expect_used)]
     fs::write(&template_path, content.trim()).expect("Failed to write template file");
 }
 
 #[given(regex = r"^I have a template with determinism config:$")]
 fn have_template_with_determinism_config(world: &mut GgenWorld, content: String) {
     let template_path = world.project_dir.join("test-template.tmpl");
-    #[allow(clippy::expect_used)]
     fs::write(&template_path, content.trim()).expect("Failed to write template file");
 }
 
 #[given(regex = r"^I have templates for Rust, Python, and Bash$")]
 fn have_templates_for_multiple_languages(world: &mut GgenWorld) {
     let templates_dir = world.project_dir.join("templates");
-    #[allow(clippy::expect_used)]
     fs::create_dir_all(&templates_dir).expect("Failed to create templates directory");
 
     // Rust template
@@ -130,7 +117,6 @@ fn main() {{
 }}
 "#;
     fs::write(templates_dir.join("rust.tmpl"), rust_template)
-        #[allow(clippy::expect_used)]
         .expect("Failed to write Rust template");
 
     // Python template
@@ -145,7 +131,6 @@ if __name__ == "__main__":
     main()
 "#;
     fs::write(templates_dir.join("python.tmpl"), python_template)
-        #[allow(clippy::expect_used)]
         .expect("Failed to write Python template");
 
     // Bash template
@@ -157,7 +142,6 @@ vars: { name: "hello" }
 echo "Hello, {{name}}!"
 "#;
     fs::write(templates_dir.join("bash.tmpl"), bash_template)
-        #[allow(clippy::expect_used)]
         .expect("Failed to write Bash template");
 }
 
@@ -176,7 +160,6 @@ Generated content with seed: {}
     );
 
     let template_path = world.project_dir.join("test-template.tmpl");
-    #[allow(clippy::expect_used)]
     fs::write(&template_path, template_content).expect("Failed to write template file");
 }
 
@@ -190,14 +173,12 @@ ex:testProperty a rdf:Property .
 "#;
 
     let rdf_path = world.project_dir.join("test-data.ttl");
-    #[allow(clippy::expect_used)]
     fs::write(&rdf_path, rdf_content).expect("Failed to write RDF file");
 }
 
 #[when(regex = r"^I generate code from (.+)$")]
 fn generate_code_from_template(world: &mut GgenWorld, template_path: String) {
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("gen")
         .arg(&template_path)
@@ -207,7 +188,6 @@ fn generate_code_from_template(world: &mut GgenWorld, template_path: String) {
         .arg("1.0.0")
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen gen");
 
     world.last_output = Some(output.clone());
@@ -217,13 +197,11 @@ fn generate_code_from_template(world: &mut GgenWorld, template_path: String) {
 #[when(regex = r"^I run ggen gen (.+)$")]
 fn run_ggen_gen(world: &mut GgenWorld, template_path: String) {
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("gen")
         .arg(&template_path)
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen gen");
 
     world.last_output = Some(output.clone());
@@ -233,7 +211,6 @@ fn run_ggen_gen(world: &mut GgenWorld, template_path: String) {
 #[when(regex = r"^I run ggen gen (.+) with seed (.+)$")]
 fn run_ggen_gen_with_seed(world: &mut GgenWorld, template_path: String, seed: String) {
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("gen")
         .arg(&template_path)
@@ -241,7 +218,6 @@ fn run_ggen_gen_with_seed(world: &mut GgenWorld, template_path: String, seed: St
         .arg(&seed)
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen gen");
 
     world.last_output = Some(output.clone());
@@ -253,13 +229,11 @@ fn run_ggen_gen_multiple_times(world: &mut GgenWorld, template_path: String) {
     // Run the command multiple times to test determinism
     for i in 0..3 {
         let output = Command::cargo_bin("ggen")
-            #[allow(clippy::expect_used)]
             .expect("ggen binary not found")
             .arg("gen")
             .arg(&template_path)
             .current_dir(&world.project_dir)
             .output()
-            #[allow(clippy::expect_used)]
             .expect("Failed to run ggen gen");
 
         if i == 0 {
@@ -272,7 +246,6 @@ fn run_ggen_gen_multiple_times(world: &mut GgenWorld, template_path: String) {
 #[when(regex = r"^I run ggen gen (.+) with seed (.+) again$")]
 fn run_ggen_gen_with_seed_again(world: &mut GgenWorld, template_path: String, seed: String) {
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("gen")
         .arg(&template_path)
@@ -280,7 +253,6 @@ fn run_ggen_gen_with_seed_again(world: &mut GgenWorld, template_path: String, se
         .arg(&seed)
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen gen");
 
     world.last_output = Some(output.clone());
@@ -299,7 +271,6 @@ fn generated_file_should_contain(
         file_path
     );
 
-    #[allow(clippy::expect_used)]
     let content = fs::read_to_string(&full_path).expect("Failed to read generated file");
     assert!(
         content.contains(&expected_content),
@@ -314,7 +285,6 @@ fn generated_file_should_contain(
 fn a_file_should_be_generated(world: &mut GgenWorld) {
     // Check if any files were created in the project directory
     let entries: Vec<_> = fs::read_dir(&world.project_dir)
-        #[allow(clippy::expect_used)]
         .expect("Failed to read project directory")
         .filter_map(|entry| entry.ok())
         .filter(|entry| entry.path().is_file())

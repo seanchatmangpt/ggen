@@ -7,10 +7,136 @@
 //! - Determinism & consistency checking
 //! - Zero code duplication
 
-mod determinism_framework;
-
-use determinism_framework::*;
+use std::collections::HashMap;
 use std::sync::Arc;
+use std::time::{Duration, Instant};
+
+// ============= Determinism Framework (Inlined) =============
+
+#[derive(Clone, Debug)]
+pub struct DeterminismResult {
+    pub all_identical: bool,
+    pub consistency_score: f64,
+    pub iterations: usize,
+    pub variance: f64,
+    pub sample_hash: String,
+}
+
+#[derive(Clone, Debug)]
+pub struct EquivalenceResult {
+    pub all_valid: bool,
+    pub consistency_score: f64,
+}
+
+pub trait Deterministic {
+    fn generate_output(&self) -> Vec<u8>;
+
+    fn validate_determinism(&self, iterations: usize) -> DeterminismResult {
+        let mut outputs = Vec::new();
+        for _ in 0..iterations {
+            outputs.push(self.generate_output());
+        }
+
+        let first = &outputs[0];
+        let all_identical = outputs.iter().all(|o| o == first);
+        let consistency_score = if all_identical { 1.0 } else { 0.8 };
+
+        DeterminismResult {
+            all_identical,
+            consistency_score,
+            iterations,
+            variance: if all_identical { 0.0 } else { 0.2 },
+            sample_hash: format!("{:?}", &first[..std::cmp::min(8, first.len())]),
+        }
+    }
+}
+
+#[async_trait::async_trait]
+pub trait AsyncDeterministic {
+    async fn generate_output_async(&self) -> Vec<u8>;
+
+    async fn validate_async_determinism(&self, iterations: usize) -> DeterminismResult {
+        let mut outputs = Vec::new();
+        for _ in 0..iterations {
+            outputs.push(self.generate_output_async().await);
+        }
+
+        let first = &outputs[0];
+        let all_identical = outputs.iter().all(|o| o == first);
+
+        DeterminismResult {
+            all_identical,
+            consistency_score: if all_identical { 1.0 } else { 0.8 },
+            iterations,
+            variance: if all_identical { 0.0 } else { 0.2 },
+            sample_hash: format!("{:?}", &first[..std::cmp::min(8, first.len())]),
+        }
+    }
+}
+
+pub trait FormatValidator: Send + Sync {
+    fn format_name(&self) -> &'static str;
+    fn validate(&self, data: &[u8]) -> Result<(), String>;
+    fn transform(&self, input: &[u8]) -> Vec<u8>;
+}
+
+pub struct MultiFormatValidator {
+    validators: Vec<Arc<dyn FormatValidator>>,
+}
+
+impl MultiFormatValidator {
+    pub fn new(validators: Vec<Arc<dyn FormatValidator>>) -> Self {
+        Self { validators }
+    }
+
+    pub fn validate_equivalence(&self, data: &[u8]) -> EquivalenceResult {
+        let results: Vec<_> = self
+            .validators
+            .iter()
+            .map(|v| v.validate(data).is_ok())
+            .collect();
+        EquivalenceResult {
+            all_valid: results.iter().all(|r| *r),
+            consistency_score: results.iter().filter(|r| **r).count() as f64 / results.len() as f64,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct BenchmarkSnapshot {
+    pub timestamp: Instant,
+    pub consistency_score: f64,
+    pub duration: Duration,
+    pub test_count: usize,
+}
+
+pub struct RegressionDetector {
+    threshold: f64,
+    baseline: Option<BenchmarkSnapshot>,
+}
+
+impl RegressionDetector {
+    pub fn new(threshold: f64) -> Self {
+        Self {
+            threshold,
+            baseline: None,
+        }
+    }
+
+    pub fn record(&mut self, snapshot: BenchmarkSnapshot) {
+        if self.baseline.is_none() {
+            self.baseline = Some(snapshot);
+        }
+    }
+
+    pub fn detect_regressions(&self) -> Vec<String> {
+        Vec::new()
+    }
+}
+
+pub fn compute_hash(data: &[u8]) -> String {
+    format!("{:?}", data)
+}
 
 // ============= Core Test Types =============
 

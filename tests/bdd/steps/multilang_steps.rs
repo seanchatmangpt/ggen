@@ -67,7 +67,6 @@ vars: ["name"]
     let template_path = world
         .project_dir
         .join(format!("{}.tmpl", language.to_lowercase()));
-    #[allow(clippy::expect_used)]
     fs::write(&template_path, template_content).expect("Failed to write template");
 }
 
@@ -77,7 +76,6 @@ fn generate_language_code(world: &mut GgenWorld, language: String) {
     let template_path = format!("{}.tmpl", language.to_lowercase());
 
     let output = Command::cargo_bin("ggen")
-        #[allow(clippy::expect_used)]
         .expect("ggen binary not found")
         .arg("gen")
         .arg(&template_path)
@@ -85,7 +83,6 @@ fn generate_language_code(world: &mut GgenWorld, language: String) {
         .arg("TestClass")
         .current_dir(&world.project_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen gen");
 
     world.last_output = Some(output.clone());
@@ -110,7 +107,6 @@ fn should_have_valid_language_code(world: &mut GgenWorld, language: String) {
         language
     );
 
-    #[allow(clippy::expect_used)]
     let content = fs::read_to_string(&file_path).expect("Failed to read generated file");
     assert!(
         content.contains("TestClass"),

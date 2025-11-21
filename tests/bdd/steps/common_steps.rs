@@ -17,22 +17,18 @@ fn clean_project_directory(world: &mut GgenWorld) {
     // World is already initialized with temp directory
     // Ensure it's clean
     if world.project_dir.exists() {
-        #[allow(clippy::expect_used)]
         fs::remove_dir_all(&world.project_dir).expect("Failed to clean project dir");
     }
-    #[allow(clippy::expect_used)]
     fs::create_dir_all(&world.project_dir).expect("Failed to create project dir");
 }
 
 #[given(regex = r"^ggen is installed$")]
 fn ggen_is_installed(_world: &mut GgenWorld) {
     // Verify ggen binary exists and is executable
-    #[allow(clippy::expect_used)]
     let mut cmd = Command::cargo_bin("ggen").expect("ggen binary not found");
     let output = cmd
         .arg("--version")
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to run ggen --version");
 
     assert!(
@@ -61,7 +57,6 @@ fn run_generic_command(world: &mut GgenWorld, command: String) {
     let cmd_args = &args[1..];
 
     let mut cmd = if binary == "ggen" {
-        #[allow(clippy::expect_used)]
         Command::cargo_bin("ggen").expect("ggen binary not found")
     } else if binary == "cargo" {
         Command::new("cargo")

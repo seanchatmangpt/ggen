@@ -338,25 +338,478 @@ impl Validator for AuthorValidator {
     }
 }
 
+/// Validates package dependencies (semantic validation)
+///
+/// Checks for:
+/// - Dependency existence (optional with repository)
+/// - Circular dependency detection
+/// - Valid version requirements
+pub struct DependencyValidator;
+
+#[async_trait]
+impl Validator for DependencyValidator {
+    async fn validate(&self, package: &Package) -> Result<ValidationCheck> {
+        let mut issues = Vec::new();
+        let mut dependency_ids: std::collections::HashSet<&crate::models::PackageId> =
+            std::collections::HashSet::new();
+
+        for release in package.releases.values() {
+            for dep in &release.dependencies {
+                // Check for self-dependency (circular)
+                if dep.id == package.metadata.id {
+                    issues.push(format!(
+                        "Self-dependency detected: {} depends on itself",
+                        package.metadata.id
+                    ));
+                }
+
+                // Check for duplicate dependencies
+                if !dependency_ids.insert(&dep.id) {
+                    issues.push(format!("Duplicate dependency: {}", dep.id));
+                }
+
+                // Validate version requirement format
+                if dep.version_req.is_empty() {
+                    issues.push(format!(
+                        "Empty version requirement for dependency: {}",
+                        dep.id
+                    ));
+                }
+            }
+        }
+
+        let passed = issues.is_empty();
+        let message = if passed {
+            "All dependencies are valid".to_string()
+        } else {
+            issues.join("; ")
+        };
+
+        Ok(ValidationCheck {
+            name: "Dependencies".to_string(),
+            passed,
+            severity: if passed {
+                CheckSeverity::Info
+            } else {
+                CheckSeverity::Critical
+            },
+            message,
+            weight: 25,
+        })
+    }
+
+    fn name(&self) -> &str {
+        "DependencyValidator"
+    }
+
+    fn weight(&self) -> u32 {
+        25
+    }
+}
+
+/// Validates version format compliance
+///
+/// Ensures all versions follow semantic versioning (MAJOR.MINOR.PATCH)
+pub struct VersionFormatValidator;
+
+#[async_trait]
+impl Validator for VersionFormatValidator {
+    async fn validate(&self, package: &Package) -> Result<ValidationCheck> {
+        let mut issues = Vec::new();
+
+        // Validate latest version
+        if !Self::is_valid_semver(package.latest_version.as_str()) {
+            issues.push(format!(
+                "Latest version '{}' is not valid semver",
+                package.latest_version
+            ));
+        }
+
+        // Validate all versions
+        for version in &package.versions {
+            if !Self::is_valid_semver(version.as_str()) {
+                issues.push(format!("Version '{}' is not valid semver", version));
+            }
+        }
+
+        // Check versions are sorted (newest first)
+        if package.versions.len() > 1 {
+            let mut sorted = package.versions.clone();
+            sorted.sort();
+            sorted.reverse();
+            if package.versions != sorted {
+                issues.push("Versions are not sorted in descending order".to_string());
+            }
+        }
+
+        let passed = issues.is_empty();
+        let message = if passed {
+            format!(
+                "All {} versions follow semantic versioning",
+                package.versions.len()
+            )
+        } else {
+            issues.join("; ")
+        };
+
+        Ok(ValidationCheck {
+            name: "VersionFormat".to_string(),
+            passed,
+            severity: if passed {
+                CheckSeverity::Info
+            } else {
+                CheckSeverity::Major
+            },
+            message,
+            weight: 15,
+        })
+    }
+
+    fn name(&self) -> &str {
+        "VersionFormatValidator"
+    }
+
+    fn weight(&self) -> u32 {
+        15
+    }
+}
+
+impl VersionFormatValidator {
+    fn is_valid_semver(version: &str) -> bool {
+        let normalized = version.strip_prefix('v').unwrap_or(version);
+        let parts: Vec<&str> = normalized.split('.').collect();
+
+        if parts.len() < 3 {
+            return false;
+        }
+
+        // Check major, minor, patch are valid numbers
+        parts[0].parse::<u32>().is_ok()
+            && parts[1].parse::<u32>().is_ok()
+            && parts[2]
+                .split(|c: char| c == '-' || c == '+')
+                .next()
+                .map(|p| p.parse::<u32>().is_ok())
+                .unwrap_or(false)
+    }
+}
+
+/// Validates package ID format and constraints
+pub struct PackageIdValidator;
+
+#[async_trait]
+impl Validator for PackageIdValidator {
+    async fn validate(&self, package: &Package) -> Result<ValidationCheck> {
+        let id = package.metadata.id.as_str();
+        let mut issues = Vec::new();
+
+        // Check length constraints
+        if id.len() < 2 {
+            issues.push("Package ID too short (minimum 2 characters)".to_string());
+        }
+        if id.len() > 64 {
+            issues.push("Package ID too long (maximum 64 characters recommended)".to_string());
+        }
+
+        // Check for reserved names
+        let reserved = ["test", "example", "sample", "temp", "tmp"];
+        if reserved.contains(&id) {
+            issues.push(format!("Package ID '{}' is reserved", id));
+        }
+
+        // Check name consistency with ID
+        let name_slug = package
+            .metadata
+            .name
+            .to_lowercase()
+            .replace(' ', "-")
+            .replace('_', "-");
+        if !name_slug.contains(id) && !id.contains(&name_slug) {
+            // Relaxed check - just a warning
+            issues.push("Package name does not match ID pattern".to_string());
+        }
+
+        let passed = issues.is_empty()
+            || issues
+                .iter()
+                .all(|i| i.contains("does not match") || i.contains("too long"));
+        let message = if issues.is_empty() {
+            format!("Package ID '{}' is valid", id)
+        } else {
+            issues.join("; ")
+        };
+
+        Ok(ValidationCheck {
+            name: "PackageId".to_string(),
+            passed,
+            severity: if passed {
+                CheckSeverity::Info
+            } else {
+                CheckSeverity::Critical
+            },
+            message,
+            weight: 10,
+        })
+    }
+
+    fn name(&self) -> &str {
+        "PackageIdValidator"
+    }
+
+    fn weight(&self) -> u32 {
+        10
+    }
+}
+
+/// Validates package integrity (checksums, signatures)
+pub struct IntegrityValidator;
+
+#[async_trait]
+impl Validator for IntegrityValidator {
+    async fn validate(&self, package: &Package) -> Result<ValidationCheck> {
+        let mut issues = Vec::new();
+        let mut releases_checked = 0;
+
+        for (version, release) in &package.releases {
+            releases_checked += 1;
+
+            // Check checksum format (should be hex SHA256)
+            if !Self::is_valid_sha256(&release.checksum) {
+                issues.push(format!(
+                    "Invalid checksum format for version {}: expected SHA256 hex",
+                    version
+                ));
+            }
+
+            // Check download URL format
+            if !release.download_url.starts_with("http://")
+                && !release.download_url.starts_with("https://")
+            {
+                issues.push(format!(
+                    "Invalid download URL for version {}: must be http(s)",
+                    version
+                ));
+            }
+        }
+
+        let passed = issues.is_empty();
+        let message = if passed {
+            format!("Integrity verified for {} release(s)", releases_checked)
+        } else {
+            issues.join("; ")
+        };
+
+        Ok(ValidationCheck {
+            name: "Integrity".to_string(),
+            passed,
+            severity: if passed {
+                CheckSeverity::Info
+            } else {
+                CheckSeverity::Critical
+            },
+            message,
+            weight: 30,
+        })
+    }
+
+    fn name(&self) -> &str {
+        "IntegrityValidator"
+    }
+
+    fn weight(&self) -> u32 {
+        30
+    }
+}
+
+impl IntegrityValidator {
+    fn is_valid_sha256(checksum: &str) -> bool {
+        // SHA256 is 64 hex characters
+        checksum.len() == 64 && checksum.chars().all(|c| c.is_ascii_hexdigit())
+    }
+}
+
+/// Comprehensive validator combining all validation checks
+pub struct ComprehensiveValidator {
+    validators: Vec<Arc<dyn Validator>>,
+}
+
+impl ComprehensiveValidator {
+    /// Create a comprehensive validator with all built-in validators
+    pub fn new() -> Self {
+        Self {
+            validators: vec![
+                Arc::new(MetadataValidator),
+                Arc::new(LicenseValidator),
+                Arc::new(ReadmeValidator),
+                Arc::new(RepositoryValidator),
+                Arc::new(AuthorValidator),
+                Arc::new(DependencyValidator),
+                Arc::new(VersionFormatValidator),
+                Arc::new(PackageIdValidator),
+                Arc::new(IntegrityValidator),
+            ],
+        }
+    }
+
+    /// Create a minimal validator for quick checks
+    pub fn minimal() -> Self {
+        Self {
+            validators: vec![
+                Arc::new(MetadataValidator),
+                Arc::new(PackageIdValidator),
+                Arc::new(VersionFormatValidator),
+            ],
+        }
+    }
+
+    /// Run all validations and return detailed result
+    pub async fn validate_comprehensive(&self, package: &Package) -> Result<ValidationResult> {
+        let mut checks = Vec::new();
+        let mut total_weight = 0;
+        let mut weighted_score = 0;
+        let mut critical_failures = 0;
+
+        for validator in &self.validators {
+            let check = validator.validate(package).await?;
+            let weight = validator.weight();
+            total_weight += weight;
+
+            if check.passed {
+                weighted_score += weight;
+            } else if check.severity == CheckSeverity::Critical {
+                critical_failures += 1;
+            }
+
+            checks.push(check);
+        }
+
+        let quality_score = if total_weight > 0 {
+            (weighted_score * 100 / total_weight) as u32
+        } else {
+            0
+        };
+
+        // Pass requires 80% score AND no critical failures
+        let passed = quality_score >= 80 && critical_failures == 0;
+
+        Ok(ValidationResult {
+            passed,
+            quality_score,
+            checks,
+        })
+    }
+}
+
+impl Default for ComprehensiveValidator {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::{PackageId, PackageMetadata};
+    use crate::models::{PackageId, PackageMetadata, PackageVersion, ReleaseInfo};
+
+    fn create_test_package() -> Package {
+        let id = PackageId::new("test-pkg").unwrap();
+        let metadata = PackageMetadata::new(id, "Test Package", "A test package", "MIT");
+        Package {
+            metadata,
+            latest_version: PackageVersion::new("1.0.0").unwrap(),
+            versions: vec![PackageVersion::new("1.0.0").unwrap()],
+            releases: indexmap::IndexMap::new(),
+        }
+    }
+
+    fn create_package_with_release() -> Package {
+        let id = PackageId::new("test-pkg").unwrap();
+        let metadata = PackageMetadata::new(id, "Test Package", "A test package", "MIT");
+        let version = PackageVersion::new("1.0.0").unwrap();
+        let mut releases = indexmap::IndexMap::new();
+        releases.insert(
+            version.clone(),
+            ReleaseInfo {
+                version: version.clone(),
+                released_at: chrono::Utc::now(),
+                changelog: "Initial release".to_string(),
+                checksum: "a".repeat(64), // Valid SHA256 format
+                download_url: "https://example.com/pkg.tar.gz".to_string(),
+                dependencies: vec![],
+            },
+        );
+        Package {
+            metadata,
+            latest_version: version.clone(),
+            versions: vec![version],
+            releases,
+        }
+    }
 
     #[tokio::test]
     async fn test_validation() {
         let validator = PackageValidator::new();
-
-        let id = PackageId::new("test-pkg").unwrap();
-        let metadata = PackageMetadata::new(id, "Test Package", "A test package", "MIT");
-        let package = Package {
-            metadata,
-            latest_version: crate::models::PackageVersion::new("1.0.0").unwrap(),
-            versions: vec![],
-            releases: indexmap::IndexMap::new(),
-        };
-
+        let package = create_test_package();
         let result = validator.validate(&package).await.unwrap();
         assert!(result.quality_score > 0);
+    }
+
+    #[tokio::test]
+    async fn test_dependency_validator_no_deps() {
+        let validator = DependencyValidator;
+        let package = create_test_package();
+        let result = validator.validate(&package).await.unwrap();
+        assert!(result.passed);
+    }
+
+    #[tokio::test]
+    async fn test_version_format_validator() {
+        let validator = VersionFormatValidator;
+        let package = create_test_package();
+        let result = validator.validate(&package).await.unwrap();
+        assert!(result.passed);
+    }
+
+    #[tokio::test]
+    async fn test_package_id_validator() {
+        let validator = PackageIdValidator;
+        let package = create_test_package();
+        let result = validator.validate(&package).await.unwrap();
+        assert!(result.passed);
+    }
+
+    #[tokio::test]
+    async fn test_integrity_validator_with_release() {
+        let validator = IntegrityValidator;
+        let package = create_package_with_release();
+        let result = validator.validate(&package).await.unwrap();
+        assert!(result.passed);
+    }
+
+    #[tokio::test]
+    async fn test_comprehensive_validator() {
+        let validator = ComprehensiveValidator::new();
+        let package = create_package_with_release();
+        let result = validator.validate_comprehensive(&package).await.unwrap();
+        assert!(result.quality_score > 0);
+        assert!(!result.checks.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_semver_validation() {
+        assert!(VersionFormatValidator::is_valid_semver("1.0.0"));
+        assert!(VersionFormatValidator::is_valid_semver("v1.0.0"));
+        assert!(VersionFormatValidator::is_valid_semver("1.0.0-alpha"));
+        assert!(VersionFormatValidator::is_valid_semver("1.0.0+build"));
+        assert!(!VersionFormatValidator::is_valid_semver("1.0"));
+        assert!(!VersionFormatValidator::is_valid_semver("abc"));
+    }
+
+    #[tokio::test]
+    async fn test_sha256_validation() {
+        let valid_hash = "a".repeat(64);
+        assert!(IntegrityValidator::is_valid_sha256(&valid_hash));
+        assert!(!IntegrityValidator::is_valid_sha256("tooshort"));
+        assert!(!IntegrityValidator::is_valid_sha256(&"z".repeat(64)));
     }
 }

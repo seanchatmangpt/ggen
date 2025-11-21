@@ -21,14 +21,12 @@ use tempfile::TempDir;
 
 /// Helper to create ggen command
 fn ggen() -> Command {
-    #[allow(clippy::expect_used)]
     Command::cargo_bin("ggen").expect("Failed to find ggen binary")
 }
 
 /// Helper to create test marketplace cache
 fn create_test_cache(temp_dir: &TempDir) -> std::path::PathBuf {
     let cache_dir = temp_dir.path().join(".ggen/cache/marketplace");
-    #[allow(clippy::expect_used)]
     fs::create_dir_all(&cache_dir).expect("Failed to create cache dir");
     cache_dir
 }
@@ -71,7 +69,6 @@ fn test_marketplace_search_json_output() {
         .arg("test")
         .arg("--json")
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to execute");
 
     // Command may succeed or fail (marketplace network dependent)
@@ -110,7 +107,6 @@ fn test_marketplace_list_json() {
         .arg("--json")
         .current_dir(&temp_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to execute");
 
     // Command may succeed or fail (implementation dependent)
@@ -130,7 +126,6 @@ fn test_marketplace_info_missing_package() {
         .arg("info")
         .arg("nonexistent-package-12345")
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to execute");
 
     // Command should complete (may succeed with mock data or fail)
@@ -163,7 +158,6 @@ fn test_marketplace_categories_list() {
         .arg("categories")
         .arg("list")
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to execute");
 
     // Command should complete
@@ -184,7 +178,6 @@ fn test_marketplace_cache_clean() {
         .arg("clean")
         .current_dir(&temp_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to execute");
 
     // Command should complete (may succeed or fail based on implementation)
@@ -220,7 +213,6 @@ fn test_marketplace_lockfile_generate() {
         .arg("generate")
         .current_dir(&temp_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to execute");
 
     // Command should complete
@@ -238,7 +230,6 @@ fn test_marketplace_registry_info() {
         .arg("registry")
         .arg("info")
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to execute");
 
     // Command should complete
@@ -259,7 +250,6 @@ fn test_marketplace_offline_sync() {
         .arg("sync")
         .current_dir(&temp_dir)
         .output()
-        #[allow(clippy::expect_used)]
         .expect("Failed to execute");
 
     // Command should complete
