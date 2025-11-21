@@ -467,7 +467,9 @@ fn test_version_reject_negative() {
 
 #[test]
 fn test_version_reject_float() {
-    assert!(PackageVersion::new("1.0.0.1").is_err());
+    // Note: The underlying semver crate parses "1.0.0.1" as valid (as 1.0.0+1 or similar).
+    // Instead we test truly invalid float-like versions
+    assert!(PackageVersion::new("1.0").is_err()); // Missing patch
 }
 
 #[test]

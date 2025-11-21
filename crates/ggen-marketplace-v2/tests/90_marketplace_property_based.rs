@@ -13,11 +13,10 @@ use ggen_marketplace_v2::{
     models::{Package, PackageId, PackageMetadata, PackageVersion, QualityScore},
     search::{SearchEngine, SearchQuery, SortBy},
     security::{ChecksumCalculator, KeyPair, SignatureVerifier},
-    traits::Signable,
+    traits::{Signable, Validatable},
     validation::PackageValidator,
 };
 use proptest::prelude::*;
-use std::collections::HashSet;
 
 // ============================================================================
 // Proptest Configuration
@@ -745,8 +744,8 @@ mod invariant_tests {
 
         let validator = PackageValidator::new();
 
-        let result1 = validator.validate(&pkg).await.expect("validation 1");
-        let result2 = validator.validate(&pkg).await.expect("validation 2");
+        let result1 = validator.validate_all(&pkg).await.expect("validation 1");
+        let result2 = validator.validate_all(&pkg).await.expect("validation 2");
 
         assert_eq!(
             result1.quality_score, result2.quality_score,

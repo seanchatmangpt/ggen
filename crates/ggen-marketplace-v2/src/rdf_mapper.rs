@@ -767,6 +767,163 @@ fn xsd_datetime() -> NamedNode {
     NamedNode::new_unchecked("http://www.w3.org/2001/XMLSchema#dateTime")
 }
 
+// ============================================================================
+// Phase 5C: SPARQL Query Builder and RDF CRUD Operations
+// ============================================================================
+
+impl RdfMapper {
+    /// Delete a package from the RDF store
+    pub async fn delete_package(&self, package_id: &PackageId) -> crate::error::Result<()> {
+        let query = format!(
+            r#"DELETE WHERE {{ ?s ?p ?o . FILTER(CONTAINS(str(?s), "{}")) }}"#,
+            package_id
+        );
+        self.store
+            .update(&query)
+            .map_err(|e| crate::error::Error::RdfStoreError {
+                operation: "delete_package".to_string(),
+                reason: e.to_string(),
+            })?;
+        Ok(())
+    }
+
+    /// Update a package (delete then insert)
+    pub async fn update_package(&self, package: &Package) -> crate::error::Result<()> {
+        self.delete_package(&package.metadata.id).await?;
+        self.package_to_rdf(package).await
+    }
+}
+
+/// SPARQL Query Builder for common marketplace queries
+pub struct SparqlQueryBuilder;
+
+impl SparqlQueryBuilder {
+    /// Find package by ID
+    pub fn find_package_by_id(package_id: &str) -> String {
+        format!(
+            r#"SELECT ?name ?description ?license ?version WHERE {{
+                ?package <{ns}id> "{id}" .
+                ?package <{ns}name> ?name .
+                ?package <{ns}description> ?description .
+                ?package <{ns}license> ?license .
+                OPTIONAL {{ ?package <{ns}hasVersion> ?version }}
+            }}"#,
+            ns = "https://ggen.io/marketplace/properties/",
+            id = Self::escape_sparql_string(package_id)
+        )
+    }
+
+    /// Search packages by name (case-insensitive)
+    pub fn search_by_name(query: &str) -> String {
+        format!(
+            r#"SELECT ?package ?name ?description WHERE {{
+                ?package <https://ggen.io/marketplace/properties/name> ?name .
+                ?package <https://ggen.io/marketplace/properties/description> ?description .
+                FILTER(CONTAINS(LCASE(?name), LCASE("{}")))
+            }}"#,
+            Self::escape_sparql_string(query)
+        )
+    }
+
+    /// Search packages by description
+    pub fn search_by_description(query: &str) -> String {
+        format!(
+            r#"SELECT ?package ?name ?description WHERE {{
+                ?package <https://ggen.io/marketplace/properties/name> ?name .
+                ?package <https://ggen.io/marketplace/properties/description> ?description .
+                FILTER(CONTAINS(LCASE(?description), LCASE("{}")))
+            }}"#,
+            Self::escape_sparql_string(query)
+        )
+    }
+
+    /// Get all versions of a package
+    pub fn get_versions(package_id: &str) -> String {
+        format!(
+            r#"SELECT ?version WHERE {{
+                ?package <https://ggen.io/marketplace/properties/id> "{}" .
+                ?package <https://ggen.io/marketplace/properties/hasVersion> ?version
+            }} ORDER BY DESC(?version)"#,
+            Self::escape_sparql_string(package_id)
+        )
+    }
+
+    /// Get package dependencies
+    pub fn get_dependencies(package_id: &str) -> String {
+        format!(
+            r#"SELECT ?dep ?version WHERE {{
+                ?package <https://ggen.io/marketplace/properties/id> "{}" .
+                ?package <https://ggen.io/marketplace/properties/dependsOn> ?dep .
+                OPTIONAL {{ ?dep <https://ggen.io/marketplace/properties/version> ?version }}
+            }}"#,
+            Self::escape_sparql_string(package_id)
+        )
+    }
+
+    /// Find packages by quality score
+    pub fn find_by_quality(min_score: f64) -> String {
+        format!(
+            r#"SELECT ?package ?name ?score WHERE {{
+                ?package <https://ggen.io/marketplace/properties/name> ?name .
+                ?package <https://ggen.io/marketplace/properties/qualityScore> ?score .
+                FILTER(?score >= {})
+            }} ORDER BY DESC(?score)"#,
+            min_score
+        )
+    }
+
+    /// Get trending packages (by download count)
+    pub fn trending_packages(limit: usize) -> String {
+        format!(
+            r#"SELECT ?package ?name ?downloads WHERE {{
+                ?package <https://ggen.io/marketplace/properties/name> ?name .
+                ?package <https://ggen.io/marketplace/properties/downloads> ?downloads
+            }} ORDER BY DESC(?downloads) LIMIT {}"#,
+            limit
+        )
+    }
+
+    /// Find packages by license
+    pub fn find_by_license(license: &str) -> String {
+        format!(
+            r#"SELECT ?package ?name WHERE {{
+                ?package <https://ggen.io/marketplace/properties/name> ?name .
+                ?package <https://ggen.io/marketplace/properties/license> "{}"
+            }}"#,
+            Self::escape_sparql_string(license)
+        )
+    }
+
+    /// Get full dependency graph
+    pub fn dependency_graph(package_id: &str) -> String {
+        format!(
+            r#"SELECT ?package ?dep ?depDep WHERE {{
+                ?package <https://ggen.io/marketplace/properties/id> "{}" .
+                ?package <https://ggen.io/marketplace/properties/dependsOn> ?dep .
+                OPTIONAL {{ ?dep <https://ggen.io/marketplace/properties/dependsOn> ?depDep }}
+            }}"#,
+            Self::escape_sparql_string(package_id)
+        )
+    }
+
+    /// Check if package exists (ASK query)
+    pub fn package_exists(package_id: &str) -> String {
+        format!(
+            r#"ASK {{ ?package <https://ggen.io/marketplace/properties/id> "{}" }}"#,
+            Self::escape_sparql_string(package_id)
+        )
+    }
+
+    /// Escape special characters in SPARQL string literals
+    pub fn escape_sparql_string(s: &str) -> String {
+        s.replace('\\', "\\\\")
+            .replace('"', "\\\"")
+            .replace('\n', "\\n")
+            .replace('\r', "\\r")
+            .replace('\t', "\\t")
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

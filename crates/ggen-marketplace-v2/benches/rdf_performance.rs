@@ -5,7 +5,8 @@
 //! - Search operations: <200ms
 //! - Batch insert: <1s for 100 packages
 
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use std::hint::black_box;
 use ggen_marketplace_v2::{
     models::{Package, PackageId, PackageMetadata, PackageVersion},
     registry_rdf::RdfRegistry,
@@ -41,8 +42,9 @@ fn bench_package_insert(c: &mut Criterion) {
         b.to_async(&rt).iter(|| {
             let pkg = create_test_package(&format!("bench-insert-{}", counter));
             counter += 1;
-            async {
-                registry.insert_package_rdf(&pkg).await.unwrap();
+            let reg = &registry;
+            async move {
+                black_box(reg.insert_package_rdf(&pkg).await.unwrap());
             }
         });
     });
@@ -115,7 +117,7 @@ fn bench_list_versions(c: &mut Criterion) {
     let registry = RdfRegistry::new();
 
     let id = PackageId::new("versions-test").unwrap();
-    let mut metadata = PackageMetadata::new(id.clone(), "Versions Test", "Test", "MIT");
+    let metadata = PackageMetadata::new(id.clone(), "Versions Test", "Test", "MIT");
 
     rt.block_on(async {
         let package = Package {

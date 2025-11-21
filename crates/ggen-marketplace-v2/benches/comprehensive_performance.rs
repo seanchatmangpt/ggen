@@ -292,7 +292,7 @@ fn bench_registry_delete(c: &mut Criterion) {
 fn bench_search_keyword(c: &mut Criterion) {
     let mut group = c.benchmark_group("phase4a_search_keyword");
     group.measurement_time(Duration::from_secs(10));
-    let rt = Runtime::new().unwrap();
+    let _rt = Runtime::new().unwrap();
 
     for size in [100, 1000, 10000].iter() {
         let packages = generate_test_packages(*size);
@@ -345,7 +345,7 @@ fn bench_search_keyword(c: &mut Criterion) {
 
 fn bench_search_pagination(c: &mut Criterion) {
     let mut group = c.benchmark_group("phase4a_search_pagination");
-    let rt = Runtime::new().unwrap();
+    let _rt = Runtime::new().unwrap();
 
     let packages = generate_test_packages(10000);
     let engine = SearchEngine::new();

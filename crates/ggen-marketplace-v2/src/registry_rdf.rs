@@ -128,8 +128,14 @@ impl RdfRegistry {
             for solution in solutions {
                 if let Ok(solution) = solution {
                     for (_, term) in solution.iter() {
-                        if let Term::NamedNode(node) = term {
-                            packages.push(node.as_str().to_string());
+                        match term {
+                            Term::NamedNode(node) => {
+                                packages.push(node.as_str().to_string());
+                            }
+                            Term::Literal(lit) => {
+                                packages.push(lit.value().to_string());
+                            }
+                            _ => {}
                         }
                     }
                 }
@@ -201,7 +207,7 @@ impl AsyncRepository for RdfRegistry {
         let query = format!(
             r"
             SELECT ?packageId WHERE {{
-                ?package <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <{}Package> .
+                ?package <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <{}classes/Package> .
                 ?package <{}> ?packageId .
             }}
             ",
@@ -229,7 +235,7 @@ impl AsyncRepository for RdfRegistry {
         let query = format!(
             r#"
             SELECT ?version WHERE {{
-                ?package <{}hasVersion> ?version .
+                ?package <{}properties/hasVersion> ?version .
                 FILTER(CONTAINS(str(?package), "{}"))
             }}
             "#,
@@ -255,7 +261,7 @@ impl AsyncRepository for RdfRegistry {
         let query = format!(
             r#"
             ASK {{
-                ?package <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <{}Package> .
+                ?package <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <{}classes/Package> .
                 FILTER(CONTAINS(str(?package), "{}"))
             }}
             "#,

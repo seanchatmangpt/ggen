@@ -177,7 +177,7 @@ fn compare_lookup_performance(c: &mut Criterion) {
 
 fn compare_search_performance(c: &mut Criterion) {
     let mut group = c.benchmark_group("comparison_search");
-    let rt = Runtime::new().unwrap();
+    let _rt = Runtime::new().unwrap();
 
     for size in [100, 1000, 10000].iter() {
         // V1 setup
@@ -264,7 +264,7 @@ fn compare_batch_operations(c: &mut Criterion) {
 
 fn compare_filtered_search(c: &mut Criterion) {
     let mut group = c.benchmark_group("comparison_filtered_search");
-    let rt = Runtime::new().unwrap();
+    let _rt = Runtime::new().unwrap();
 
     // V1 setup (no built-in filtering)
     let v1_packages = generate_v1_packages(1000);

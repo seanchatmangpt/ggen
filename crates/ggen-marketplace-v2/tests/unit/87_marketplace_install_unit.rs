@@ -11,7 +11,7 @@ use ggen_marketplace_v2::models::{
     ReleaseInfo,
 };
 use ggen_marketplace_v2::registry::Registry;
-use ggen_marketplace_v2::traits::{AsyncRepository, Installable};
+use ggen_marketplace_v2::traits::Installable;
 
 // ============================================================================
 // SECTION 1: Installer Creation Tests (5 tests)

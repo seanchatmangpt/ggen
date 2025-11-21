@@ -323,25 +323,27 @@ async fn test_sparql_delete_single_triple() {
 async fn test_sparql_delete_with_where() {
     let store = Store::new().unwrap();
 
-    // Insert data
+    // Insert data using string literals
     let setup = r#"
         PREFIX ex: <http://example.org/>
         INSERT DATA {
-            ex:pkg1 ex:deprecated true .
-            ex:pkg2 ex:deprecated false .
+            ex:pkg1 ex:deprecated "yes" .
+            ex:pkg2 ex:deprecated "no" .
         }
     "#;
     store.update(setup).unwrap();
     assert_eq!(store.len().unwrap(), 2);
 
-    // Delete deprecated packages
+    // Delete deprecated packages - bind ?val in WHERE to use in DELETE
+    // WHERE clause must bind all variables used in DELETE template
     let delete = r#"
         PREFIX ex: <http://example.org/>
         DELETE {
             ?pkg ex:deprecated ?val .
         }
         WHERE {
-            ?pkg ex:deprecated true .
+            ?pkg ex:deprecated ?val .
+            FILTER(?val = "yes")
         }
     "#;
     store.update(delete).unwrap();
