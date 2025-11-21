@@ -269,6 +269,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::expect_used)]
     fn test_concurrent_reads() {
         let snap1 = create_test_snapshot("1.0.0");
         let promoter = Arc::new(AtomicSnapshotPromoter::new(snap1));
@@ -326,6 +327,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::expect_used)]
     fn test_safe_concurrent_promotion_and_reads() {
         // Stress test: concurrent promotions and reads
         let snap1 = create_test_snapshot("1.0.0");
