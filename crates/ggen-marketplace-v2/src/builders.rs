@@ -20,7 +20,6 @@ pub struct PackageBuilder {
 
 impl PackageBuilder {
     /// Create a new builder
-    #[must_use]
     pub fn new() -> Self {
         Self {
             id: None,
@@ -36,63 +35,54 @@ impl PackageBuilder {
     }
 
     /// Set package ID
-    #[must_use]
     pub fn id(mut self, id: PackageId) -> Self {
         self.id = Some(id);
         self
     }
 
     /// Set package name
-    #[must_use]
     pub fn name(mut self, name: impl Into<String>) -> Self {
         self.name = Some(name.into());
         self
     }
 
     /// Set description
-    #[must_use]
     pub fn description(mut self, desc: impl Into<String>) -> Self {
         self.description = Some(desc.into());
         self
     }
 
     /// Set license
-    #[must_use]
     pub fn license(mut self, license: impl Into<String>) -> Self {
         self.license = Some(license.into());
         self
     }
 
     /// Set repository URL
-    #[must_use]
     pub fn repository(mut self, repo: impl Into<String>) -> Self {
         self.repository = Some(repo.into());
         self
     }
 
     /// Set homepage URL
-    #[must_use]
     pub fn homepage(mut self, homepage: impl Into<String>) -> Self {
         self.homepage = Some(homepage.into());
         self
     }
 
     /// Add author
-    #[must_use]
     pub fn author(mut self, author: impl Into<String>) -> Self {
         self.authors.push(author.into());
         self
     }
 
     /// Add keyword
-    #[must_use]
     pub fn keyword(mut self, keyword: impl Into<String>) -> Self {
         self.keywords.push(keyword.into());
         self
     }
 
     /// Add category
-    #[must_use]
     pub fn category(mut self, category: impl Into<String>) -> Self {
         self.categories.push(category.into());
         self
