@@ -102,12 +102,12 @@ impl V3OptimizedRegistry {
         self.search_index.write().clear();
 
         // Query all packages from RDF store
-        let query = r#"
+        let query = r"
             SELECT ?name ?package WHERE {
                 ?package <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://ggen.io/marketplace/classes/Package> .
                 ?package <https://ggen.io/marketplace/properties/name> ?name .
             }
-        "#;
+        ";
 
         #[allow(deprecated)]
         match self.primary_store.query(query) {

@@ -227,8 +227,8 @@ impl RdfControlPlane {
     ) -> Result<()> {
         // Build SPARQL INSERT for metadata via direct RDF operations
         let mut metadata_query = String::from(
-            r#"PREFIX mp: <https://ggen.io/marketplace/>
-            INSERT DATA {"#,
+            r"PREFIX mp: <https://ggen.io/marketplace/>
+            INSERT DATA {",
         );
 
         let pkg_uri = format!("<https://ggen.io/marketplace/{}>", package_id);
@@ -299,9 +299,9 @@ impl RdfControlPlane {
 
         // Direct SPARQL query
         let query = format!(
-            r#"PREFIX mp: <https://ggen.io/marketplace/>
+            r"PREFIX mp: <https://ggen.io/marketplace/>
             SELECT ?state
-            WHERE {{ <https://ggen.io/marketplace/{}> mp:state ?state . }}"#,
+            WHERE {{ <https://ggen.io/marketplace/{}> mp:state ?state . }}",
             package_id
         );
 

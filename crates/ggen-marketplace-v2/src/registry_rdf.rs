@@ -199,12 +199,12 @@ impl AsyncRepository for RdfRegistry {
 
         // Query all package IDs
         let query = format!(
-            r#"
+            r"
             SELECT ?packageId WHERE {{
                 ?package <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <{}Package> .
                 ?package <{}> ?packageId .
             }}
-            "#,
+            ",
             GGEN_NS,
             crate::ontology::Properties::package_id()
         );

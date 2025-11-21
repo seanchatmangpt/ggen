@@ -73,6 +73,9 @@ pub fn expand_env_vars(input: &str) -> String {
                 result.replace_range(start..start + var_name.len() + 1, &value);
                 chars = result.chars().collect();
                 i = start + value.len();
+            } else {
+                // Variable not found - skip past this pattern to avoid infinite loop
+                i = start + var_name.len() + 1;
             }
         } else {
             i += 1;
