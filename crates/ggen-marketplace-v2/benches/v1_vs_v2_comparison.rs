@@ -10,12 +10,14 @@
 //! - Cache effectiveness
 //! - Scalability characteristics
 
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use ggen_marketplace_v2::{
     models::*,
     registry::Registry as V2Registry,
     search::{SearchEngine, SearchQuery as V2SearchQuery},
+    traits::AsyncRepository,
 };
+use std::hint::black_box;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::runtime::Runtime;

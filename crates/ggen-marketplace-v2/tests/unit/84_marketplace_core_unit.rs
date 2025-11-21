@@ -1337,7 +1337,7 @@ fn test_package_version_send_sync() {
 }
 
 #[test]
-fn test_quality_score_copy() {
+fn test_quality_score_implements_copy() {
     fn assert_copy<T: Copy>() {}
     assert_copy::<QualityScore>();
 }
@@ -1361,7 +1361,7 @@ fn test_package_clone() {
 }
 
 #[test]
-fn test_metadata_clone() {
+fn test_metadata_implements_clone() {
     fn assert_clone<T: Clone>() {}
     assert_clone::<PackageMetadata>();
 }

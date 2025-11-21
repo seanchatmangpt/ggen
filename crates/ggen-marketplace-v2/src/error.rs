@@ -348,9 +348,9 @@ impl Error {
 
             Self::Timeout(_) => ErrorCategory::Timeout,
 
-            Self::ConcurrencyError(_)
-            | Self::NotImplemented { .. }
-            | Self::Other(_) => ErrorCategory::Unknown,
+            Self::ConcurrencyError(_) | Self::NotImplemented { .. } | Self::Other(_) => {
+                ErrorCategory::Unknown
+            }
         }
     }
 
@@ -361,8 +361,9 @@ impl Error {
             | Self::InvalidPackageId { .. }
             | Self::InvalidVersion { .. } => ErrorSeverity::Error,
 
-            Self::PackageAlreadyExists { .. }
-            | Self::VersionAlreadyExists { .. } => ErrorSeverity::Warning,
+            Self::PackageAlreadyExists { .. } | Self::VersionAlreadyExists { .. } => {
+                ErrorSeverity::Warning
+            }
 
             Self::SecurityCheckFailed { .. }
             | Self::SignatureVerificationFailed { .. }
@@ -372,8 +373,7 @@ impl Error {
             | Self::InstallationFailed { .. }
             | Self::ValidationFailed { .. } => ErrorSeverity::Error,
 
-            Self::RdfStoreError { .. }
-            | Self::SparqlError { .. } => ErrorSeverity::Error,
+            Self::RdfStoreError { .. } | Self::SparqlError { .. } => ErrorSeverity::Error,
 
             Self::Timeout(_) => ErrorSeverity::Warning,
 
@@ -435,9 +435,9 @@ impl Error {
 
             Self::Timeout(_) => Some("Try again or check network connectivity.".to_string()),
 
-            Self::RdfStoreError { .. } => {
-                Some("This may be a temporary issue. Try again or check the store status.".to_string())
-            }
+            Self::RdfStoreError { .. } => Some(
+                "This may be a temporary issue. Try again or check the store status.".to_string(),
+            ),
 
             Self::SparqlError { .. } => Some("Check the SPARQL query syntax.".to_string()),
 

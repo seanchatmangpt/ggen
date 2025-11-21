@@ -38,10 +38,10 @@ fn author_uri(email: &str) -> String {
     format!("{}author/{}", namespaces::GGEN, email.replace('@', "_at_"))
 }
 
-/// SPARQL executor using thread-safe Arc<Store> pattern
+/// SPARQL executor using thread-safe `Arc<Store>` pattern
 ///
 /// Follows oxigraph best practices:
-/// - Uses Arc<Store> for cheap cloning and concurrent access
+/// - Uses `Arc<Store>` for cheap cloning and concurrent access
 /// - All operations are thread-safe via Arc
 pub struct SparqlExecutor {
     store: Arc<Store>,

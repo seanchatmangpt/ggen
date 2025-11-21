@@ -5,7 +5,9 @@
 //!
 //! Test Count: 50+ tests covering cryptographic operations
 
-use ggen_marketplace_v2::security::{ChecksumCalculator, KeyPair, SignatureReceipt, SignatureVerifier};
+use ggen_marketplace_v2::security::{
+    ChecksumCalculator, KeyPair, SignatureReceipt, SignatureVerifier,
+};
 use ggen_marketplace_v2::traits::Signable;
 
 // ============================================================================
