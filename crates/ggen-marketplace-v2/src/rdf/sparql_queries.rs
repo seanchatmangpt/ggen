@@ -451,7 +451,7 @@ INSERT DATA {{
     /// Update package download count
     pub fn increment_download_count(package_id: &str) -> String {
         format!(
-            r#"PREFIX ggen: <{}>
+            r"PREFIX ggen: <{}>
 
 DELETE {{
     <{package_id}> ggen:downloadCount ?oldCount .
@@ -462,7 +462,7 @@ INSERT {{
 WHERE {{
     <{package_id}> ggen:downloadCount ?oldCount .
     BIND(?oldCount + 1 AS ?newCount)
-}}"#,
+}}",
             namespaces::GGEN,
             package_id = package_id,
         )

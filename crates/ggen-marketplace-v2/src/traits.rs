@@ -12,7 +12,6 @@ use crate::models::{
 
 /// Generic associated types for async operations (using async_trait for now)
 /// Note: Can be migrated to native GATs when Rust stabilizes them
-
 /// A repository that can be queried for packages
 #[async_trait]
 pub trait AsyncRepository: Send + Sync {

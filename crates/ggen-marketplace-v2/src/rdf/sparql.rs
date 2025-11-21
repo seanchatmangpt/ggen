@@ -17,11 +17,11 @@ use super::ontology::namespaces;
 
 /// Generate standard SPARQL prefixes for marketplace ontology
 fn generate_prefixes() -> String {
-    r#"PREFIX mp: <https://ggen.io/marketplace/>
+    r"PREFIX mp: <https://ggen.io/marketplace/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-"#
+"
     .to_string()
 }
 
@@ -459,11 +459,11 @@ WHERE {{
         }
 
         format!(
-            r#"{}
+            r"{}
 INSERT DATA {{
 {}
 }}
-"#,
+",
             generate_prefixes(),
             triples.join("\n")
         )

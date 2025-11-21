@@ -500,10 +500,10 @@ impl ValidationConstraint {
 
     pub fn to_shacl(&self) -> String {
         format!(
-            r#"[] a sh:PropertyShape ;
+            r"[] a sh:PropertyShape ;
     sh:targetClass {} ;
     sh:path {} ;
-    {} ."#,
+    {} .",
             self.target_class,
             self.property,
             self.constraint_turtle()

@@ -311,7 +311,7 @@ impl RdfMapper {
     ) -> Result<PackageMetadata> {
         // Query for all metadata fields
         let query = format!(
-            r#"
+            r"
             SELECT ?name ?desc ?license ?repo ?homepage ?quality ?downloads ?created ?updated WHERE {{
                 <{}> <{}> ?name .
                 <{}> <{}> ?desc .
@@ -323,7 +323,7 @@ impl RdfMapper {
                 OPTIONAL {{ <{}> <{}> ?created }}
                 OPTIONAL {{ <{}> <{}> ?updated }}
             }}
-            "#,
+            ",
             package_uri.as_str(),
             Properties::name(),
             package_uri.as_str(),
@@ -430,13 +430,13 @@ impl RdfMapper {
     /// Query package versions
     async fn query_package_versions(&self, package_uri: &NamedNode) -> Result<Vec<PackageVersion>> {
         let query = format!(
-            r#"
+            r"
             SELECT ?version WHERE {{
                 <{}> <{}> ?versionUri .
                 ?versionUri <{}> ?version .
             }}
             ORDER BY DESC(?version)
-            "#,
+            ",
             package_uri.as_str(),
             Properties::has_version(),
             Properties::version(),
@@ -467,11 +467,11 @@ impl RdfMapper {
     /// Query latest version
     async fn query_latest_version(&self, package_uri: &NamedNode) -> Result<PackageVersion> {
         let query = format!(
-            r#"
+            r"
             SELECT ?latestVersion WHERE {{
                 <{}> <{}latestVersion> ?latestVersion .
             }}
-            "#,
+            ",
             package_uri.as_str(),
             Namespaces::GGEN,
         );
@@ -501,14 +501,14 @@ impl RdfMapper {
         let version_uri = self.create_version_uri(package_id, version)?;
 
         let query = format!(
-            r#"
+            r"
             SELECT ?releasedAt ?changelog ?checksum ?downloadUrl WHERE {{
                 <{}> <{}releasedAt> ?releasedAt .
                 <{}> <{}changelog> ?changelog .
                 <{}> <{}> ?checksum .
                 <{}> <{}downloadUrl> ?downloadUrl .
             }}
-            "#,
+            ",
             version_uri.as_str(),
             Namespaces::GGEN,
             version_uri.as_str(),
@@ -571,12 +571,12 @@ impl RdfMapper {
     /// Query authors for a package
     async fn query_authors(&self, package_uri: &NamedNode) -> Result<Vec<String>> {
         let query = format!(
-            r#"
+            r"
             SELECT ?authorName WHERE {{
                 <{}> <{}> ?author .
                 ?author <{}> ?authorName .
             }}
-            "#,
+            ",
             package_uri.as_str(),
             Properties::has_author(),
             Properties::author_name(),
@@ -588,11 +588,11 @@ impl RdfMapper {
     /// Query keywords for a package
     async fn query_keywords(&self, package_uri: &NamedNode) -> Result<Vec<String>> {
         let query = format!(
-            r#"
+            r"
             SELECT ?keyword WHERE {{
                 <{}> <{}> ?keyword .
             }}
-            "#,
+            ",
             package_uri.as_str(),
             Properties::keywords(),
         );
@@ -605,14 +605,14 @@ impl RdfMapper {
         &self, version_uri: &NamedNode,
     ) -> Result<Vec<crate::models::PackageDependency>> {
         let query = format!(
-            r#"
+            r"
             SELECT ?depId ?versionReq ?optional WHERE {{
                 <{}> <{}> ?dep .
                 ?dep <{}> ?depId .
                 ?dep <{}versionReq> ?versionReq .
                 ?dep <{}optional> ?optional .
             }}
-            "#,
+            ",
             version_uri.as_str(),
             Properties::has_dependency(),
             Properties::package_id(),

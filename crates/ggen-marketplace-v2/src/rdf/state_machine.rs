@@ -157,17 +157,15 @@ impl StateMachineExecutor {
             if let Some(state_def) = self.states.get(to_state) {
                 if state_def.is_initial {
                     return Ok(());
-                } else {
-                    return Err(Error::InvalidStateTransition {
-                        from: "None".to_string(),
-                        to: to_state.to_string(),
-                    });
                 }
-            } else {
-                return Err(Error::UnknownState {
-                    state: to_state.to_string(),
+                return Err(Error::InvalidStateTransition {
+                    from: "None".to_string(),
+                    to: to_state.to_string(),
                 });
             }
+            return Err(Error::UnknownState {
+                state: to_state.to_string(),
+            });
         }
 
         let from = from_state.unwrap();

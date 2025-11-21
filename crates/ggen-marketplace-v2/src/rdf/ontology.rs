@@ -325,7 +325,7 @@ impl XsdType {
 /// Generate Turtle prefix declarations
 pub fn generate_prefixes() -> String {
     format!(
-        r#"@prefix rdf: <{}> .
+        r"@prefix rdf: <{}> .
 @prefix rdfs: <{}> .
 @prefix xsd: <{}> .
 @prefix owl: <{}> .
@@ -337,7 +337,7 @@ pub fn generate_prefixes() -> String {
 @prefix spdx: <{}> .
 @prefix ggen: <{}> .
 
-"#,
+",
         namespaces::RDF,
         namespaces::RDFS,
         namespaces::XSD,
