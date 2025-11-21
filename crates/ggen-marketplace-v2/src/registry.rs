@@ -49,7 +49,7 @@ impl Registry {
     }
 
     /// Insert a package into the registry
-    pub async fn insert(&self, package: Package) -> Result<()> {
+    pub fn insert(&self, package: Package) -> Result<()> {
         let package_id = package.metadata.id.clone();
 
         // Add to primary storage
@@ -69,7 +69,7 @@ impl Registry {
     }
 
     /// Remove a package from the registry
-    pub async fn remove(&self, id: &PackageId) -> Result<Option<Package>> {
+    pub fn remove(&self, id: &PackageId) -> Result<Option<Package>> {
         let removed = self.packages.remove(id).map(|(_, pkg)| pkg);
 
         if removed.is_some() {
@@ -93,7 +93,7 @@ impl Registry {
     }
 
     /// Update a package
-    pub async fn update(&self, id: &PackageId, package: Package) -> Result<()> {
+    pub fn update(&self, id: &PackageId, package: Package) -> Result<()> {
         if !self.packages.contains_key(id) {
             return Err(crate::error::Error::package_not_found(id.to_string()));
         }
@@ -134,7 +134,7 @@ impl Registry {
     }
 
     /// Clear the entire registry
-    pub async fn clear(&self) {
+    pub fn clear(&self) {
         self.packages.clear();
         self.version_index.clear();
         self.query_cache.invalidate_all();
@@ -265,7 +265,7 @@ mod tests {
             releases: indexmap::IndexMap::new(),
         };
 
-        registry.insert(package.clone()).await.unwrap();
+        registry.insert(package.clone()).unwrap();
         let retrieved = registry.get_package(&id).await.unwrap();
 
         assert_eq!(retrieved.metadata.id, id);
@@ -284,8 +284,8 @@ mod tests {
             releases: indexmap::IndexMap::new(),
         };
 
-        registry.insert(package).await.unwrap();
-        let removed = registry.remove(&id).await.unwrap();
+        registry.insert(package).unwrap();
+        let removed = registry.remove(&id).unwrap();
 
         assert!(removed.is_some());
         assert!(registry.get_package(&id).await.is_err());

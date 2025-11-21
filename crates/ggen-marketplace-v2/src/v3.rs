@@ -66,7 +66,7 @@ pub struct QueryStats {
 
 impl V3OptimizedRegistry {
     /// Create a new v3 optimized registry
-    pub async fn new(primary_store: Arc<Store>) -> Result<Self> {
+    pub fn new(primary_store: Arc<Store>) -> Result<Self> {
         // Initialize caches with TTLs
         let hot_query_cache = AsyncCache::builder()
             .max_capacity(1000)
@@ -88,14 +88,14 @@ impl V3OptimizedRegistry {
         };
 
         // Build initial search index
-        registry.rebuild_search_index().await.ok();
+        registry.rebuild_search_index().ok();
 
         info!("Initialized v3 optimized registry with distributed caching");
         Ok(registry)
     }
 
     /// Rebuild full-text search index from RDF store
-    async fn rebuild_search_index(&self) -> Result<()> {
+    fn rebuild_search_index(&self) -> Result<()> {
         debug!("Rebuilding search index from RDF store");
 
         // Clear existing index
@@ -151,7 +151,7 @@ impl V3OptimizedRegistry {
     }
 
     /// Update search index for a single package
-    pub async fn update_search_index(&self, package_id: &str, package_name: &str) -> Result<()> {
+    pub fn update_search_index(&self, package_id: &str, package_name: &str) -> Result<()> {
         let package_uri = format!("https://ggen.io/marketplace/packages/{}", package_id);
         let mut index = self.search_index.write();
 
@@ -296,7 +296,6 @@ mod tests {
     async fn test_v3_registry_creation() {
         let store = Arc::new(Store::new().unwrap());
         let _registry = V3OptimizedRegistry::new(store)
-            .await
             .expect("registry initialization should succeed");
         // Verify creation succeeds
     }

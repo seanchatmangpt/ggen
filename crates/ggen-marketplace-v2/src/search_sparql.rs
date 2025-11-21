@@ -29,55 +29,55 @@ impl SparqlSearchEngine {
     }
 
     /// Search packages by name (semantic search)
-    pub async fn search_by_name(&self, name: &str) -> Result<Vec<String>> {
+    pub fn search_by_name(&self, name: &str) -> Result<Vec<String>> {
         let query = Queries::search_by_name(name);
-        self.execute_query(&query).await
+        self.execute_query(&query)
     }
 
     /// Search packages by description content
-    pub async fn search_by_description(&self, text: &str) -> Result<Vec<String>> {
+    pub fn search_by_description(&self, text: &str) -> Result<Vec<String>> {
         let query = Queries::search_by_description(text);
-        self.execute_query(&query).await
+        self.execute_query(&query)
     }
 
     /// Search packages by keyword/category
-    pub async fn search_by_keyword(&self, keyword: &str) -> Result<Vec<String>> {
+    pub fn search_by_keyword(&self, keyword: &str) -> Result<Vec<String>> {
         let query = Queries::packages_by_keyword(keyword);
-        self.execute_query(&query).await
+        self.execute_query(&query)
     }
 
     /// Find packages by author
-    pub async fn search_by_author(&self, author: &str) -> Result<Vec<String>> {
+    pub fn search_by_author(&self, author: &str) -> Result<Vec<String>> {
         let query = Queries::packages_by_author(author);
-        self.execute_query(&query).await
+        self.execute_query(&query)
     }
 
     /// Get trending packages (sorted by downloads)
-    pub async fn trending_packages(&self, limit: usize) -> Result<Vec<String>> {
+    pub fn trending_packages(&self, limit: usize) -> Result<Vec<String>> {
         let query = Queries::trending_packages(limit);
-        self.execute_query(&query).await
+        self.execute_query(&query)
     }
 
     /// Get recent packages (newly added)
-    pub async fn recent_packages(&self, limit: usize) -> Result<Vec<String>> {
+    pub fn recent_packages(&self, limit: usize) -> Result<Vec<String>> {
         let query = Queries::recent_packages(limit);
-        self.execute_query(&query).await
+        self.execute_query(&query)
     }
 
     /// Find high-quality packages (quality score >= threshold)
-    pub async fn search_by_quality(&self, min_score: u32) -> Result<Vec<String>> {
+    pub fn search_by_quality(&self, min_score: u32) -> Result<Vec<String>> {
         let query = Queries::packages_by_quality(min_score);
-        self.execute_query(&query).await
+        self.execute_query(&query)
     }
 
     /// Get all packages
-    pub async fn all_packages(&self) -> Result<Vec<String>> {
+    pub fn all_packages(&self) -> Result<Vec<String>> {
         let query = Queries::all_packages();
-        self.execute_query(&query).await
+        self.execute_query(&query)
     }
 
     /// Execute a SPARQL query and extract results
-    async fn execute_query(&self, query: &str) -> Result<Vec<String>> {
+    fn execute_query(&self, query: &str) -> Result<Vec<String>> {
         let results = self
             .store
             .query(query)
