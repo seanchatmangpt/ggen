@@ -2,6 +2,11 @@
 name = "ai-template-project"
 version = "0.1.0"
 edition = "2021"
+description = "Example AI-powered template generation"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+keywords = ["example", "ai", "template"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 clap = { version = "4.5", features = ["derive"] }

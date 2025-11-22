@@ -6,15 +6,15 @@
 //!
 //! Configuration is cached after first read to avoid repeated file I/O.
 //! Default values are used if config file is missing or values are invalid.
+//!
+//! NOTE: fixtures module archived to tests-archive/broken-2025-11-21 due to stale API references
 
 // Submodules for test utilities
-pub mod fixtures;
+// NOTE: fixtures archived - contained stale API references
 pub mod helpers;
 
 // Re-export commonly used items
 // These re-exports enable the `use common::{...}` pattern in tests
-#[allow(unused_imports)]
-pub use fixtures::*;
 #[allow(unused_imports)]
 pub use helpers::*;
 

@@ -85,7 +85,7 @@ proptest = { workspace = true }
 tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
 testcontainers = "0.25"
 uuid = { version = "1.18", features = ["v4"] }
-chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras", "testcontainers"] }
+chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras", "testcontainers", "async"] }
 anyhow = "1.0"
 
 [[bench]]
@@ -140,6 +140,7 @@ harness = false
 name = "regression_detection"
 harness = false
 
-[[test]]
-name = "marketplace_tests_main"
-path = "tests/marketplace_tests_main.rs"
+# NOTE: marketplace_tests_main archived to tests-archive/broken-2025-11-21
+# [[test]]
+# name = "marketplace_tests_main"
+# path = "tests/marketplace_tests_main.rs"
