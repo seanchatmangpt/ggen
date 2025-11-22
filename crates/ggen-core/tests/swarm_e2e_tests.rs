@@ -340,8 +340,8 @@ async fn test_stress_workflow() {
 /// Test end-to-end with custom composition rules
 #[tokio::test]
 async fn test_custom_composition_workflow() {
-    use std::collections::HashMap;
     use ggen_core::config::ontology_config::ConflictResolution;
+    use std::collections::HashMap;
 
     let mut custom_rules = HashMap::new();
     custom_rules.insert("custom-pack-1".to_string(), ConflictResolution::Merge);

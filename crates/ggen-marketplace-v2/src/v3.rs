@@ -294,7 +294,9 @@ impl V3OptimizedRegistry {
         let results = self.search_engine.search_by_name(query)?;
 
         // Cache results
-        self.hot_query_cache.insert(cache_key, results.clone()).await;
+        self.hot_query_cache
+            .insert(cache_key, results.clone())
+            .await;
 
         let latency = start.elapsed().as_micros() as u64;
         self.query_stats
@@ -306,7 +308,9 @@ impl V3OptimizedRegistry {
 
     /// Search packages with advanced filters
     /// Supports quality, author, keyword filtering with caching
-    pub async fn search_with_filters(&self, query: &str, filters: &SearchFilters) -> Result<Vec<String>> {
+    pub async fn search_with_filters(
+        &self, query: &str, filters: &SearchFilters,
+    ) -> Result<Vec<String>> {
         let start = Instant::now();
         self.query_stats
             .total_queries
@@ -366,7 +370,9 @@ impl V3OptimizedRegistry {
         results.truncate(filters.limit);
 
         // Cache results
-        self.hot_query_cache.insert(cache_key, results.clone()).await;
+        self.hot_query_cache
+            .insert(cache_key, results.clone())
+            .await;
 
         let latency = start.elapsed().as_micros() as u64;
         self.query_stats
@@ -401,7 +407,9 @@ impl V3OptimizedRegistry {
             .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
 
         let results = self.search_engine.trending_packages(limit)?;
-        self.hot_query_cache.insert(cache_key, results.clone()).await;
+        self.hot_query_cache
+            .insert(cache_key, results.clone())
+            .await;
 
         let latency = start.elapsed().as_micros() as u64;
         self.query_stats
@@ -436,7 +444,9 @@ impl V3OptimizedRegistry {
             .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
 
         let results = self.search_engine.recent_packages(limit)?;
-        self.hot_query_cache.insert(cache_key, results.clone()).await;
+        self.hot_query_cache
+            .insert(cache_key, results.clone())
+            .await;
 
         let latency = start.elapsed().as_micros() as u64;
         self.query_stats
@@ -518,7 +528,10 @@ impl AsyncRepository for V3OptimizedRegistry {
         self.query_stats
             .store_queries
             .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-        debug!("Cache miss for package {}@{}, querying RDF store", id, version);
+        debug!(
+            "Cache miss for package {}@{}, querying RDF store",
+            id, version
+        );
 
         let mut package = self.mapper.rdf_to_package(id).await?;
 
@@ -603,7 +616,9 @@ impl AsyncRepository for V3OptimizedRegistry {
         };
 
         // Cache the package IDs
-        self.hot_query_cache.insert(cache_key, package_ids.clone()).await;
+        self.hot_query_cache
+            .insert(cache_key, package_ids.clone())
+            .await;
 
         // Reconstruct packages
         let mut packages = Vec::with_capacity(package_ids.len());
@@ -680,7 +695,9 @@ impl AsyncRepository for V3OptimizedRegistry {
         };
 
         // Cache the version strings
-        self.hot_query_cache.insert(cache_key, version_strs.clone()).await;
+        self.hot_query_cache
+            .insert(cache_key, version_strs.clone())
+            .await;
 
         let versions: Vec<PackageVersion> = version_strs
             .iter()
@@ -840,9 +857,7 @@ mod tests {
         let registry =
             V3OptimizedRegistry::new(store).expect("registry initialization should succeed");
 
-        let filters = SearchFilters::new()
-            .with_quality(80)
-            .with_limit(10);
+        let filters = SearchFilters::new().with_quality(80).with_limit(10);
 
         let results = registry.search_with_filters("test", &filters).await;
         assert!(results.is_ok());
@@ -882,7 +897,10 @@ mod tests {
         let stats_after_second = registry.stats();
 
         // Verify second query had better cache performance
-        assert_eq!(stats_after_second.total_queries, stats_after_first.total_queries + 1);
+        assert_eq!(
+            stats_after_second.total_queries,
+            stats_after_first.total_queries + 1
+        );
         // Hot cache hit count should increase
         assert!(stats_after_second.hot_cache_hits > stats_after_first.hot_cache_hits);
     }
@@ -901,8 +919,14 @@ mod tests {
         let slo_result = registry.validate_slos();
 
         // In-memory operations should easily meet latency SLOs
-        assert!(slo_result.lookup_latency_ok, "Lookup latency SLO should pass");
-        assert!(slo_result.search_latency_ok, "Search latency SLO should pass");
+        assert!(
+            slo_result.lookup_latency_ok,
+            "Lookup latency SLO should pass"
+        );
+        assert!(
+            slo_result.search_latency_ok,
+            "Search latency SLO should pass"
+        );
         // With < 10 queries, cache hit rate requirement is waived
         assert!(slo_result.all_slos_met, "All SLOs should be met");
 
@@ -924,7 +948,13 @@ mod tests {
 
         // After warming, cache hit rate should be high
         let slo_result = registry.validate_slos();
-        assert!(slo_result.cache_hit_rate > 0.5, "Cache should be warm with >50% hit rate");
-        assert!(slo_result.cache_hit_rate_ok, "Cache hit rate SLO should pass");
+        assert!(
+            slo_result.cache_hit_rate > 0.5,
+            "Cache should be warm with >50% hit rate"
+        );
+        assert!(
+            slo_result.cache_hit_rate_ok,
+            "Cache hit rate SLO should pass"
+        );
     }
 }

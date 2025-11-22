@@ -6,12 +6,12 @@
 //! - Batch insert: <1s for 100 packages
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use std::hint::black_box;
 use ggen_marketplace_v2::{
     models::{Package, PackageId, PackageMetadata, PackageVersion},
     registry_rdf::RdfRegistry,
     traits::AsyncRepository,
 };
+use std::hint::black_box;
 use tokio::runtime::Runtime;
 
 fn create_test_package(id: &str) -> Package {

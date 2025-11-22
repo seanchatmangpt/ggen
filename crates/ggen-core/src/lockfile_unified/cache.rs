@@ -320,8 +320,7 @@ mod tests {
 
     #[test]
     fn test_cache_expiration() {
-        let cache: CoherentCache<String, i32> =
-            CoherentCache::new(100, Duration::from_millis(50));
+        let cache: CoherentCache<String, i32> = CoherentCache::new(100, Duration::from_millis(50));
 
         cache.insert("key1".into(), 42);
         assert_eq!(cache.get(&"key1".into()), Some(42));

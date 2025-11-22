@@ -541,7 +541,9 @@ impl TransactionalMigration {
             match self.target.insert_package_rdf(&package).await {
                 Ok(_) => result.migrated_packages += 1,
                 Err(e) => {
-                    result.errors.push(format!("{}: {}", package.metadata.id, e));
+                    result
+                        .errors
+                        .push(format!("{}: {}", package.metadata.id, e));
                 }
             }
         }
@@ -688,9 +690,7 @@ impl MigrationValidator {
                     if self.packages_match(original, &migrated) {
                         result.validated_packages += 1;
                     } else {
-                        result
-                            .mismatches
-                            .push(original.metadata.id.to_string());
+                        result.mismatches.push(original.metadata.id.to_string());
                     }
                 }
                 Err(e) => {

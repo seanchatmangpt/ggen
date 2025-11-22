@@ -50,9 +50,7 @@ pub struct UnifiedLockEntry {
 impl UnifiedLockEntry {
     /// Create a new unified lock entry
     pub fn new(
-        id: impl Into<String>,
-        version: impl Into<String>,
-        integrity: impl Into<String>,
+        id: impl Into<String>, version: impl Into<String>, integrity: impl Into<String>,
         source: LockSource,
     ) -> Self {
         Self {
@@ -188,9 +186,7 @@ pub struct PqcSignature {
 impl PqcSignature {
     /// Create a new PQC signature
     pub fn new(
-        algorithm: impl Into<String>,
-        signature: impl Into<String>,
-        pubkey: impl Into<String>,
+        algorithm: impl Into<String>, signature: impl Into<String>, pubkey: impl Into<String>,
     ) -> Self {
         Self {
             algorithm: algorithm.into(),
@@ -292,9 +288,10 @@ impl From<crate::packs::lockfile::LockedPack> for UnifiedLockEntry {
             version: pack.version,
             integrity: pack.integrity.unwrap_or_default(),
             source: match pack.source {
-                crate::packs::lockfile::PackSource::Registry { url } => {
-                    LockSource::Registry { url, resolved: None }
-                }
+                crate::packs::lockfile::PackSource::Registry { url } => LockSource::Registry {
+                    url,
+                    resolved: None,
+                },
                 crate::packs::lockfile::PackSource::GitHub { org, repo, branch } => {
                     LockSource::GitHub { org, repo, branch }
                 }

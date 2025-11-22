@@ -430,7 +430,9 @@ impl MetricsCollector {
 
         debug!(
             "Search recorded: duration={}ms, results={}, avg={}ms, p50={}ms, p95={}ms, p99={}ms",
-            duration_ms, results_found, new_avg,
+            duration_ms,
+            results_found,
+            new_avg,
             self.search_latency.p50(),
             self.search_latency.p95(),
             self.search_latency.p99()
@@ -651,7 +653,9 @@ impl MetricsCollector {
         ));
 
         // Search latency histogram
-        output.push_str("# HELP ggen_marketplace_search_duration_ms Search latency in milliseconds\n");
+        output.push_str(
+            "# HELP ggen_marketplace_search_duration_ms Search latency in milliseconds\n",
+        );
         output.push_str("# TYPE ggen_marketplace_search_duration_ms histogram\n");
         for (bucket, count) in self.search_latency.prometheus_buckets() {
             output.push_str(&format!(
@@ -681,7 +685,9 @@ impl MetricsCollector {
         ));
 
         // Install latency histogram
-        output.push_str("# HELP ggen_marketplace_install_duration_ms Install latency in milliseconds\n");
+        output.push_str(
+            "# HELP ggen_marketplace_install_duration_ms Install latency in milliseconds\n",
+        );
         output.push_str("# TYPE ggen_marketplace_install_duration_ms histogram\n");
         for (bucket, count) in self.install_latency.prometheus_buckets() {
             output.push_str(&format!(
@@ -711,7 +717,9 @@ impl MetricsCollector {
         ));
 
         // Signature verifications
-        output.push_str("# HELP ggen_marketplace_signature_verifications_total Total signature verifications\n");
+        output.push_str(
+            "# HELP ggen_marketplace_signature_verifications_total Total signature verifications\n",
+        );
         output.push_str("# TYPE ggen_marketplace_signature_verifications_total counter\n");
         output.push_str(&format!(
             "ggen_marketplace_signature_verifications_total {}\n",
@@ -748,7 +756,10 @@ impl MetricsCollector {
 
         output.push_str("# HELP ggen_marketplace_cache_evictions_total Cache evictions\n");
         output.push_str("# TYPE ggen_marketplace_cache_evictions_total counter\n");
-        output.push_str(&format!("ggen_marketplace_cache_evictions_total {}\n", evictions));
+        output.push_str(&format!(
+            "ggen_marketplace_cache_evictions_total {}\n",
+            evictions
+        ));
 
         output.push_str("# HELP ggen_marketplace_cache_size Current cache size\n");
         output.push_str("# TYPE ggen_marketplace_cache_size gauge\n");

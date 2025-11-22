@@ -40,24 +40,24 @@
 //! let lockfile = manager.load_or_create()?;
 //! ```
 
-pub mod traits;
+pub mod cache;
 pub mod entry;
 pub mod format;
-pub mod cache;
+pub mod traits;
 pub mod validation;
 
 pub mod prelude {
     //! Prelude for convenient imports
-    pub use super::traits::*;
+    pub use super::cache::*;
     pub use super::entry::*;
     pub use super::format::*;
-    pub use super::cache::*;
+    pub use super::traits::*;
     pub use super::validation::*;
 }
 
 // Re-exports for backward compatibility
+pub use cache::{CacheStats, CoherentCache};
+pub use entry::{ExtendedMetadata, LockSource, PqcSignature, UnifiedLockEntry};
+pub use format::{detect_format, FormatType, JsonFormat, TomlFormat};
 pub use traits::{LockEntry, Lockfile, LockfileFormat, LockfileManager};
-pub use entry::{UnifiedLockEntry, LockSource, PqcSignature, ExtendedMetadata};
-pub use format::{TomlFormat, JsonFormat, FormatType, detect_format};
-pub use cache::{CoherentCache, CacheStats};
-pub use validation::{ValidationResult, IntegrityCheck};
+pub use validation::{IntegrityCheck, ValidationResult};

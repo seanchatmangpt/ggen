@@ -15,11 +15,11 @@
 //!
 //! Prevention is 10x cheaper than detection, 100x cheaper than correction.
 
-pub mod state_machine;
 pub mod contracts;
 pub mod errors;
+pub mod state_machine;
 
 // Re-export commonly used types
-pub use state_machine::{Registry, Initialized, Uninitialized, Validated};
-pub use contracts::{TemplateProvider, CliBridge, RenderEngine};
-pub use errors::{GgenError, Result, ErrorContext};
+pub use contracts::{CliBridge, RenderEngine, TemplateProvider};
+pub use errors::{ErrorContext, GgenError, Result};
+pub use state_machine::{Initialized, Registry, Uninitialized, Validated};
