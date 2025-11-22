@@ -356,7 +356,14 @@ mod lockfile_manager_tests {
 
         // Act - No PQC fields
         manager
-            .upsert_with_pqc("io.ggen.test", "1.0.0", "hash", "https://example.com", None, None)
+            .upsert_with_pqc(
+                "io.ggen.test",
+                "1.0.0",
+                "hash",
+                "https://example.com",
+                None,
+                None,
+            )
             .unwrap();
 
         // Assert
@@ -1350,7 +1357,9 @@ mod edge_case_tests {
         let manager = LockfileManager::new(temp_dir.path());
 
         // Act - Empty ID should still work (no validation on ID format)
-        manager.upsert("", "1.0.0", "hash", "https://empty.com").unwrap();
+        manager
+            .upsert("", "1.0.0", "hash", "https://empty.com")
+            .unwrap();
 
         // Assert
         assert!(manager.get("").unwrap().is_some());

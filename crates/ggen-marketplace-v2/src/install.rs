@@ -162,7 +162,10 @@ pub enum RollbackAction {
         path: String,
     },
     /// Restore a backup file
-    RestoreBackup { backup_path: String, target_path: String },
+    RestoreBackup {
+        backup_path: String,
+        target_path: String,
+    },
     /// Execute a cleanup script
     ExecuteCleanup { script: String },
 }
@@ -417,8 +420,7 @@ impl<R: AsyncRepository> Installer<R> {
             return Err(crate::error::Error::InstallationFailed {
                 reason: format!(
                     "Package {} failed: {}",
-                    transaction.failed_packages[0].0,
-                    transaction.failed_packages[0].2
+                    transaction.failed_packages[0].0, transaction.failed_packages[0].2
                 ),
             });
         }

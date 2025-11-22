@@ -203,7 +203,9 @@ pub struct IntegrityCheck {
 
 impl IntegrityCheck {
     /// Create new integrity check
-    pub fn new(id: impl Into<String>, expected: impl Into<String>, actual: impl Into<String>) -> Self {
+    pub fn new(
+        id: impl Into<String>, expected: impl Into<String>, actual: impl Into<String>,
+    ) -> Self {
         let expected = expected.into();
         let actual = actual.into();
         let passed = expected == actual;
@@ -260,16 +262,22 @@ pub fn validate_lockfile<L: Lockfile>(lockfile: &L) -> ValidationResult {
         // Check for duplicates
         if !seen_ids.insert(id.to_string()) {
             result = result.with_error(
-                ValidationError::new(ValidationErrorCode::DuplicateEntry, format!("Duplicate entry: {}", id))
-                    .with_entry(id),
+                ValidationError::new(
+                    ValidationErrorCode::DuplicateEntry,
+                    format!("Duplicate entry: {}", id),
+                )
+                .with_entry(id),
             );
         }
 
         // Validate entry fields
         if entry.version().is_empty() {
             result = result.with_error(
-                ValidationError::new(ValidationErrorCode::MissingField, format!("Entry '{}' missing version", id))
-                    .with_entry(id),
+                ValidationError::new(
+                    ValidationErrorCode::MissingField,
+                    format!("Entry '{}' missing version", id),
+                )
+                .with_entry(id),
             );
         }
 
@@ -292,7 +300,10 @@ pub fn validate_lockfile<L: Lockfile>(lockfile: &L) -> ValidationResult {
             if !lockfile.get(dep_id).is_some() && !seen_ids.contains(dep_id) {
                 result = result.with_warning(ValidationWarning {
                     code: WarningCode::MissingOptionalField,
-                    message: format!("Entry '{}' depends on '{}' which is not in lockfile", id, dep_id),
+                    message: format!(
+                        "Entry '{}' depends on '{}' which is not in lockfile",
+                        id, dep_id
+                    ),
                     entry_id: Some(id.to_string()),
                 });
             }
@@ -323,7 +334,9 @@ pub fn check_circular_dependencies<L: Lockfile>(lockfile: &L) -> Result<()> {
 
     for id in graph.keys() {
         if !visited.contains(id) {
-            if let Some(cycle) = detect_cycle(&graph, id, &mut visited, &mut rec_stack, &mut Vec::new()) {
+            if let Some(cycle) =
+                detect_cycle(&graph, id, &mut visited, &mut rec_stack, &mut Vec::new())
+            {
                 return Err(Error::new(&format!(
                     "Circular dependency detected: {}",
                     cycle.join(" -> ")
@@ -337,11 +350,8 @@ pub fn check_circular_dependencies<L: Lockfile>(lockfile: &L) -> Result<()> {
 
 // DFS helper for cycle detection
 fn detect_cycle(
-    graph: &HashMap<String, Vec<String>>,
-    node: &str,
-    visited: &mut HashSet<String>,
-    rec_stack: &mut HashSet<String>,
-    path: &mut Vec<String>,
+    graph: &HashMap<String, Vec<String>>, node: &str, visited: &mut HashSet<String>,
+    rec_stack: &mut HashSet<String>, path: &mut Vec<String>,
 ) -> Option<Vec<String>> {
     visited.insert(node.to_string());
     rec_stack.insert(node.to_string());
@@ -412,8 +422,10 @@ mod tests {
 
     #[test]
     fn test_validation_result_merge() {
-        let result1 = ValidationResult::ok()
-            .with_warning(ValidationWarning::new(WarningCode::UnusedEntry, "Warning 1"));
+        let result1 = ValidationResult::ok().with_warning(ValidationWarning::new(
+            WarningCode::UnusedEntry,
+            "Warning 1",
+        ));
 
         let result2 = ValidationResult::fail(vec![ValidationError::new(
             ValidationErrorCode::InvalidIntegrity,
@@ -468,6 +480,13 @@ mod tests {
         visited.clear();
         rec_stack.clear();
 
-        assert!(detect_cycle(&graph_cycle, "a", &mut visited, &mut rec_stack, &mut Vec::new()).is_some());
+        assert!(detect_cycle(
+            &graph_cycle,
+            "a",
+            &mut visited,
+            &mut rec_stack,
+            &mut Vec::new()
+        )
+        .is_some());
     }
 }

@@ -122,10 +122,7 @@ pub trait PqcSignable: LockEntry {
 
     /// Set PQC signature data
     fn set_pqc(
-        &mut self,
-        algorithm: Option<String>,
-        signature: Option<String>,
-        pubkey: Option<String>,
+        &mut self, algorithm: Option<String>, signature: Option<String>, pubkey: Option<String>,
     );
 }
 

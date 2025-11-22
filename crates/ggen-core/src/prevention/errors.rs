@@ -194,10 +194,7 @@ pub enum ValidationError {
 #[derive(Error, Debug)]
 pub enum ConfigError {
     #[error("Configuration file not found: {path}\nSearched locations: {searched:?}")]
-    FileNotFound {
-        path: String,
-        searched: Vec<String>,
-    },
+    FileNotFound { path: String, searched: Vec<String> },
 
     #[error("Invalid configuration: {reason}\nFile: {file}\nLine: {line}")]
     InvalidConfig {
@@ -366,7 +363,10 @@ impl ErrorBuilder {
 /// ```
 pub fn format_error(error: &GgenError) -> String {
     // Implementation would create rich, colorized output
-    format!("ERROR: {}\n\nFor more information, run with RUST_LOG=debug", error)
+    format!(
+        "ERROR: {}\n\nFor more information, run with RUST_LOG=debug",
+        error
+    )
 }
 
 /// Report error with full diagnostic information

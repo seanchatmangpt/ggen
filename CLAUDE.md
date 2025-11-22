@@ -504,11 +504,18 @@ If any signals found:
 - No TODO comments (use FUTURE: prefix for documented future enhancements)
 - No `unimplemented!()` - Complete implementations required
 - No `unwrap()`/`expect()` in production code - Use `Result<T, E>`
+  - **Test Code Exception**: `expect()` is allowed in test functions with `#[allow(clippy::expect_used)]` on the function
+  - Place `#[allow(clippy::expect_used)]` directly on `#[test]` functions that use expect()
+  - Pre-push hook checks 5 lines of context before expect() call for the allow attribute
+  - Test modules can also use `#[allow(clippy::expect_used)]` at the `#[cfg(test)] mod tests` level
 - No stubs - No functions that always succeed without implementation
 - No claims without verification - Never claim code works without test validation
 - No meaningless tests - Tests must verify observable outputs/state changes
 - No Chicago TDD violations - Must use state-based testing, real collaborators, AAA pattern
 - No `print!` or `println!` in library code - Use `log!` macros or alert macros
+- **NEVER USE --no-verify FOR GIT PUSH** - This bypasses the pre-push hook validation
+  - If pre-push hook fails, fix the root cause (add allow attributes, remove expect, etc.)
+  - The hook enforces production standards - blocking a push is intentional
 
 ## 🎯 SLOs (Service Level Objectives)
 

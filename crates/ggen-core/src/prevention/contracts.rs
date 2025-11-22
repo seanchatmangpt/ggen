@@ -103,9 +103,7 @@ pub trait CliBridge: Send + Sync {
     /// - Provider error
     /// - Output formatting error
     fn execute<P: TemplateProvider>(
-        &self,
-        cmd: Command,
-        provider: &P,
+        &self, cmd: Command, provider: &P,
     ) -> Result<Output, BridgeError>;
 
     /// Format output for display
@@ -310,9 +308,7 @@ pub enum RenderError {
 /// }
 /// ```
 #[cfg(test)]
-pub fn verify_template_provider_contract<P: TemplateProvider>(
-    provider: P,
-) -> Result<(), String> {
+pub fn verify_template_provider_contract<P: TemplateProvider>(provider: P) -> Result<(), String> {
     use std::path::PathBuf;
 
     // Contract requirement: discover must return valid templates

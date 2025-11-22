@@ -182,14 +182,18 @@ mod error_type_tests {
             location: "config.toml".to_string(),
             expected_type: "String".to_string(),
         };
-        assert!(validation_error.to_string().contains("Missing required field"));
+        assert!(validation_error
+            .to_string()
+            .contains("Missing required field"));
 
         // Config errors
         let config_error = ConfigError::FileNotFound {
             path: "ggen.toml".to_string(),
             searched: vec!["./".to_string(), "~/.config/".to_string()],
         };
-        assert!(config_error.to_string().contains("Configuration file not found"));
+        assert!(config_error
+            .to_string()
+            .contains("Configuration file not found"));
     }
 
     /// Test: From<T> trait implementations for automatic conversion
@@ -351,9 +355,7 @@ mod mapek_tests {
         use ggen_core::prevention::state_machine::Registry;
 
         let registry = Registry::new();
-        let initialized = registry
-            .initialize(Path::new("templates"))
-            .expect("init");
+        let initialized = registry.initialize(Path::new("templates")).expect("init");
         let validated = initialized.validate().expect("validate");
 
         // Only validated registries expose search()
@@ -469,7 +471,9 @@ mod async_sync_tests {
             let initialized = registry.initialize(Path::new("templates"))?;
             let validated = initialized.validate()?;
             // Return count of templates instead of references
-            Ok::<usize, ggen_core::prevention::state_machine::RegistryError>(validated.templates().len())
+            Ok::<usize, ggen_core::prevention::state_machine::RegistryError>(
+                validated.templates().len(),
+            )
         })
         .await;
 
@@ -494,7 +498,10 @@ mod async_sync_tests {
                         let initialized = registry.initialize(Path::new("templates"))?;
                         let validated = initialized.validate()?;
                         // Return template count to avoid lifetime issues with search()
-                        Ok::<(usize, usize), ggen_core::prevention::state_machine::RegistryError>((i, validated.templates().len()))
+                        Ok::<(usize, usize), ggen_core::prevention::state_machine::RegistryError>((
+                            i,
+                            validated.templates().len(),
+                        ))
                     })
                     .await
                 })
@@ -513,7 +520,10 @@ mod async_sync_tests {
         })
         .await;
 
-        assert!(results.is_ok(), "Operations should complete without deadlock");
+        assert!(
+            results.is_ok(),
+            "Operations should complete without deadlock"
+        );
         assert_eq!(results.unwrap(), 10, "All operations should succeed");
     }
 
@@ -597,9 +607,7 @@ mod contract_tests {
             }
 
             fn render(
-                &self,
-                template: &Template,
-                _context: Context,
+                &self, template: &Template, _context: Context,
             ) -> Result<String, ProviderError> {
                 Ok(template.content.clone())
             }

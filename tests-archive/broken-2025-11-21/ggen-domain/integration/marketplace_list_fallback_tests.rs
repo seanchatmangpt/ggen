@@ -4,6 +4,7 @@
 //! that falls back to repo packages when installed packages are empty.
 
 use chicago_tdd_tools::prelude::*;
+use chicago_tdd_tools::async_test;
 use ggen_domain::marketplace::list::{execute_list, ListInput, ListOutput};
 use std::fs;
 use std::path::PathBuf;

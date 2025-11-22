@@ -223,7 +223,9 @@ pub struct IntegrityValidationResult {
 
 impl IntegrityValidationResult {
     /// Create a successful validation result
-    pub fn success(package_identifier: String, checksum_valid: bool, signature_valid: Option<bool>) -> Self {
+    pub fn success(
+        package_identifier: String, checksum_valid: bool, signature_valid: Option<bool>,
+    ) -> Self {
         Self {
             is_valid: checksum_valid && signature_valid.unwrap_or(true),
             package_identifier,
@@ -252,7 +254,11 @@ impl std::fmt::Display for IntegrityValidationResult {
         writeln!(f, "Integrity Validation Result")?;
         writeln!(f, "Package: {}", self.package_identifier)?;
         writeln!(f, "Valid: {}", self.is_valid)?;
-        writeln!(f, "Checksum: {}", if self.checksum_valid { "PASS" } else { "FAIL" })?;
+        writeln!(
+            f,
+            "Checksum: {}",
+            if self.checksum_valid { "PASS" } else { "FAIL" }
+        )?;
         if let Some(sig_valid) = self.signature_valid {
             writeln!(f, "Signature: {}", if sig_valid { "PASS" } else { "FAIL" })?;
         }
@@ -347,9 +353,15 @@ impl IntegrityValidator {
         let is_valid = checksum_valid && signature_valid.unwrap_or(true);
 
         if is_valid {
-            debug!("Full integrity validation passed for {}", package_identifier);
+            debug!(
+                "Full integrity validation passed for {}",
+                package_identifier
+            );
         } else {
-            debug!("Full integrity validation failed for {}", package_identifier);
+            debug!(
+                "Full integrity validation failed for {}",
+                package_identifier
+            );
         }
 
         IntegrityValidationResult {
@@ -368,9 +380,7 @@ impl IntegrityValidator {
     ) -> Vec<IntegrityValidationResult> {
         packages
             .iter()
-            .map(|(id, data, checksum, sig)| {
-                self.validate_full(id, data, checksum, sig.as_deref())
-            })
+            .map(|(id, data, checksum, sig)| self.validate_full(id, data, checksum, sig.as_deref()))
             .collect()
     }
 }
@@ -512,7 +522,8 @@ mod tests {
 
     #[test]
     fn test_integrity_validation_result_display() {
-        let result = IntegrityValidationResult::success("test-pkg@1.0.0".to_string(), true, Some(true));
+        let result =
+            IntegrityValidationResult::success("test-pkg@1.0.0".to_string(), true, Some(true));
         let display = format!("{}", result);
         assert!(display.contains("test-pkg@1.0.0"));
         assert!(display.contains("PASS"));
