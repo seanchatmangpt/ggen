@@ -5,6 +5,9 @@ edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Hyper-Thesis Framework: RDF-backed thesis planning with Λ-scheduling, Π-profiling, and Γ-checking"
 license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+keywords = ["thesis", "planning", "rdf"]
+categories = ["command-line-utilities"]
 
 [[bin]]
 name = "htf"

@@ -244,6 +244,8 @@ impl Template {
 /// Rendering context
 #[derive(Debug, Clone, Default)]
 pub struct Context {
+    /// Template rendering variables
+    #[allow(dead_code)] // Reserved for future template variable rendering
     variables: std::collections::HashMap<String, String>,
 }
 
@@ -307,10 +309,10 @@ fn render_template(template: &Template, _context: Context) -> Result<String, Reg
 // ============================================================================
 
 #[cfg(test)]
+#[allow(clippy::expect_used)]
 mod tests {
     use super::*;
 
-    #[allow(clippy::expect_used)]
     #[test]
     #[allow(clippy::expect_used)]
     fn test_state_machine_valid_transitions() {
@@ -323,7 +325,6 @@ mod tests {
         let _results = registry.search("test").expect("search failed");
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_uninitialized_count_not_available() {
         // This test documents that count() is not available in Uninitialized state
@@ -332,7 +333,6 @@ mod tests {
         // let _ = registry.count();  // ERROR: No method `count` for Registry<Uninitialized>
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_initialized_search_not_available() {
         // This test documents that search() is not available in Initialized state
@@ -343,7 +343,6 @@ mod tests {
         // let _ = registry.search("test");  // ERROR: No method `search` for Registry<Initialized>
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     #[allow(clippy::expect_used)]
     fn test_validated_state_methods_available() {

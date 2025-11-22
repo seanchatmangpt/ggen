@@ -262,7 +262,7 @@ pub trait ErrorContext<T> {
 }
 
 impl<T, E: Into<GgenError>> ErrorContext<T> for std::result::Result<T, E> {
-    fn context(self, msg: impl Into<String>) -> Result<T> {
+    fn context(self, _msg: impl Into<String>) -> Result<T> {
         self.map_err(|e| {
             let error: GgenError = e.into();
             // Enhance error with context (implementation would wrap error)
@@ -305,6 +305,7 @@ pub struct ErrorBuilder {
     suggestion: Option<String>,
 }
 
+#[allow(dead_code)] // Some variants reserved for future error builder patterns
 enum ErrorType {
     TemplateNotFound { path: String },
     InvalidSyntax { file: String, line: usize },

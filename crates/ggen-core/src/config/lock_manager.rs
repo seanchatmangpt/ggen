@@ -200,22 +200,23 @@ impl LockfileManager {
                 package.integrity
             );
 
-            // Use SHA256 for integrity
-            let hash = format!("{:x}", Self::sha256(&data));
+            // Use proper SHA256 for integrity (returns hex string)
+            let hash = Self::sha256(&data);
             hashes.insert(name.clone(), hash);
         }
 
         hashes
     }
 
-    /// Simple SHA256 hash (in real implementation, use sha2 crate)
-    fn sha256(data: &str) -> u64 {
-        // Simplified for demonstration - use sha2 crate in production
-        let mut hash = 0u64;
-        for byte in data.as_bytes() {
-            hash = hash.wrapping_mul(31).wrapping_add(*byte as u64);
-        }
-        hash
+    /// Compute SHA256 hash using the sha2 crate
+    /// Returns lowercase hexadecimal representation (64 characters)
+    fn sha256(data: &str) -> String {
+        use sha2::{Digest, Sha256};
+        let mut hasher = Sha256::new();
+        hasher.update(data.as_bytes());
+        let result = hasher.finalize();
+        // Convert to lowercase hex string
+        result.iter().map(|b| format!("{:02x}", b)).collect()
     }
 }
 

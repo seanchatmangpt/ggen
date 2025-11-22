@@ -130,6 +130,7 @@ pub mod graph;
 pub mod inject;
 pub mod lifecycle;
 pub mod lockfile;
+pub mod lockfile_unified; // Unified lockfile trait system (v4.0)
 pub mod merge;
 pub mod parallel_generator;
 // Ontology system - re-enabled after oxigraph API compatibility fixes
@@ -140,6 +141,7 @@ pub mod pipeline;
 pub mod poc;
 pub mod pqc;
 pub mod preprocessor;
+pub mod prevention; // Week 3 Prevention Systems - DfLSS
 pub mod project_generator;
 pub mod rdf;
 pub mod register;

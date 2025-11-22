@@ -5,6 +5,11 @@ edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Next-generation marketplace system for ggen using hyper-advanced Rust patterns"
 license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+homepage = "https://github.com/seanchatmangpt/ggen"
+readme = "README.md"
+keywords = ["marketplace", "rdf", "semantic", "packages"]
+categories = ["development-tools"]
 
 [dependencies]
 # Async runtime

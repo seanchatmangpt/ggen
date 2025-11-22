@@ -222,9 +222,12 @@ async fn test_multi_strategy_workflow() {
     ];
 
     for strategy in strategies {
-        let config = OntologyConfig::new()
-            .with_packs(base_packs.clone())
-            .with_composition(strategy.clone());
+        // Build config by adding each pack individually (no with_packs method)
+        let mut config = OntologyConfig::new();
+        for pack in base_packs.clone() {
+            config = config.with_pack(pack);
+        }
+        config = config.with_composition(strategy.clone());
 
         let mut hive = HiveQueen::new(config).await.unwrap();
         let resolved = hive.orchestrate().await.unwrap();
@@ -337,10 +340,11 @@ async fn test_stress_workflow() {
 /// Test end-to-end with custom composition rules
 #[tokio::test]
 async fn test_custom_composition_workflow() {
-    use std::collections::BTreeMap;
+    use std::collections::HashMap;
+    use ggen_core::config::ontology_config::ConflictResolution;
 
-    let mut custom_rules = BTreeMap::new();
-    custom_rules.insert("merge_strategy".to_string(), "intelligent".to_string());
+    let mut custom_rules = HashMap::new();
+    custom_rules.insert("custom-pack-1".to_string(), ConflictResolution::Merge);
 
     let config = OntologyConfig::new()
         .with_pack(OntologyPackRef {

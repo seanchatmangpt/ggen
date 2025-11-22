@@ -7,6 +7,7 @@ edition = "2021"
 license = "MIT"
 repository = "https://github.com/seanchatmangpt/ggen"
 homepage = "https://github.com/seanchatmangpt/ggen"
+readme = "README.md"
 keywords = ["code-generation", "rdf", "templates", "domain"]
 categories = ["development-tools"]
 
@@ -63,7 +64,7 @@ assert_fs = "1"
 predicates = "3"
 tempfile = { workspace = true }
 tokio-test = "0.4"
-chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras"] }
+chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras", "async"] }
 criterion = { version = "0.7", features = ["html_reports"] }
 
 [[bench]]
