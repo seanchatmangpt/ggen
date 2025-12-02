@@ -17,19 +17,18 @@
 //! - **Pareto focus**: Top 20% of failures = 80% of risk
 //! - **DfLSS alignment**: Prevent defects at source
 
-pub mod types;
-pub mod registry;
 pub mod catalog;
 pub mod context;
+pub mod registry;
+pub mod types;
 
 // Re-export core types for ergonomic usage
-pub use types::{
-    Severity, Occurrence, Detection, RPN,
-    FailureCategory, FailureMode, FailureModeBuilder,
-};
-pub use registry::{FmeaRegistry, FailureEvent, FMEA_REGISTRY};
 pub use catalog::register_critical_failures;
 pub use context::FmeaContext;
+pub use registry::{FailureEvent, FmeaRegistry, FMEA_REGISTRY};
+pub use types::{
+    Detection, FailureCategory, FailureMode, FailureModeBuilder, Occurrence, Severity, RPN,
+};
 
 #[cfg(test)]
 mod tests;

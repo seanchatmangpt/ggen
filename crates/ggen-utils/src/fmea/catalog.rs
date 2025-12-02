@@ -13,10 +13,7 @@
 //! 7. mutex_poisoned (RPN 144) - 6.0% of risk
 //! 8. deser_invalid_format (RPN 120) - 5.0% of risk
 
-use super::{
-    FmeaRegistry, FailureMode, FailureCategory,
-    Severity, Occurrence, Detection,
-};
+use super::{Detection, FailureCategory, FailureMode, FmeaRegistry, Occurrence, Severity};
 
 /// Registers all critical failure modes in the registry.
 ///
