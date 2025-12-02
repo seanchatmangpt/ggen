@@ -5,6 +5,45 @@
 - [CLI Reference](#cli-reference)
   - [Global Options](#global-options)
   - [Commands Overview](#commands-overview)
+  - [Ontology Commands](#ontology-commands)
+    - [ggen ontology extract](#ggen-ontology-extract)
+    - [ggen ontology generate](#ggen-ontology-generate)
+    - [ggen ontology validate](#ggen-ontology-validate)
+    - [ggen ontology init](#ggen-ontology-init)
+  - [Packs Commands](#packs-commands)
+    - [ggen packs list](#ggen-packs-list)
+    - [ggen packs show](#ggen-packs-show)
+    - [ggen packs install](#ggen-packs-install)
+    - [ggen packs validate](#ggen-packs-validate)
+    - [ggen packs score](#ggen-packs-score)
+    - [ggen packs compose](#ggen-packs-compose)
+    - [ggen packs dependencies](#ggen-packs-dependencies)
+    - [ggen packs list_templates](#ggen-packs-list_templates)
+    - [ggen packs check_compatibility](#ggen-packs-check_compatibility)
+    - [ggen packs sparql](#ggen-packs-sparql)
+    - [ggen packs generate](#ggen-packs-generate)
+    - [ggen packs publish](#ggen-packs-publish)
+    - [ggen packs search_registry](#ggen-packs-search_registry)
+    - [ggen packs versions](#ggen-packs-versions)
+    - [ggen packs cache](#ggen-packs-cache)
+  - [Paper Commands](#paper-commands)
+    - [ggen paper new](#ggen-paper-new)
+    - [ggen paper generate](#ggen-paper-generate)
+    - [ggen paper validate](#ggen-paper-validate)
+    - [ggen paper export](#ggen-paper-export)
+    - [ggen paper list_templates](#ggen-paper-list_templates)
+    - [ggen paper compile](#ggen-paper-compile)
+    - [ggen paper init_bibliography](#ggen-paper-init_bibliography)
+    - [ggen paper submit](#ggen-paper-submit)
+    - [ggen paper track](#ggen-paper-track)
+  - [CI Commands](#ci-commands)
+    - [ggen ci workflow](#ggen-ci-workflow)
+  - [Workflow Commands](#workflow-commands)
+    - [ggen workflow init](#ggen-workflow-init)
+    - [ggen workflow analyze](#ggen-workflow-analyze)
+    - [ggen workflow discover](#ggen-workflow-discover)
+    - [ggen workflow event](#ggen-workflow-event)
+    - [ggen workflow report](#ggen-workflow-report)
   - [Marketplace Commands](#marketplace-commands)
     - [ggen marketplace search](#ggen-marketplace-search)
     - [ggen marketplace install](#ggen-marketplace-install)
@@ -34,6 +73,7 @@
   - [Utils Commands](#utils-commands)
     - [ggen utils doctor](#ggen-utils-doctor)
     - [ggen utils env](#ggen-utils-env)
+    - [ggen utils fmea](#ggen-utils-fmea)
   - [Command Examples](#command-examples)
     - [Complete Workflow](#complete-workflow)
     - [Marketplace Workflow](#marketplace-workflow)
@@ -60,17 +100,713 @@ All commands support these global flags:
 
 ## Commands Overview
 
-ggen provides seven main command categories:
+ggen provides 13 main command categories:
 
-- **marketplace** - Search, install, and publish templates
-- **project** - Create and manage projects
 - **ai** - AI-powered code generation and analysis
-- **template** - Template management and generation
-- **hook** - Git hooks and automation
+- **ci** - CI/CD workflow generation
 - **graph** - RDF graph operations
+- **hook** - Git hooks and automation
+- **ontology** - RDF/OWL ontology management
+- **packs** - Package management and composition
+- **paper** - Academic paper generation and management
+- **project** - Create and manage projects
+- **template** - Template management and generation
 - **utils** - System utilities and diagnostics
+- **workflow** - Process mining and workflow analytics
+- **marketplace** - Search, install, and publish templates (DISABLED - v2 migration)
+- **fmea** - Failure Mode and Effects Analysis (via utils)
+
+## Ontology Commands
+
+RDF/OWL ontology management: extract, generate code, validate, and initialize projects.
+
+### ggen ontology extract
+
+Extract ontology schema from RDF/OWL files.
+
+**Usage:**
+```bash
+ggen ontology extract <FILE> [OPTIONS]
+```
+
+**Arguments:**
+- `<FILE>` - Ontology file path (Turtle, RDF/XML, N-Triples)
+
+**Options:**
+- `--namespace <URI>` - Namespace URI (default: http://example.org#)
+- `--output <FILE>` - Output JSON schema file
+
+**Examples:**
+```bash
+ggen ontology extract schema.ttl
+ggen ontology extract ecommerce.rdf --namespace http://ecommerce.org#
+ggen ontology extract domain.ttl --output schema.json
+```
+
+### ggen ontology generate
+
+Generate code from ontology schema (TypeScript, Zod, utilities).
+
+**Usage:**
+```bash
+ggen ontology generate <SCHEMA_FILE> <LANGUAGE> [OPTIONS]
+```
+
+**Arguments:**
+- `<SCHEMA_FILE>` - Schema JSON file from extract command
+- `<LANGUAGE>` - Target language (typescript)
+
+**Options:**
+- `--output <DIR>` - Output directory (default: generated)
+- `--zod` - Generate Zod validation schemas
+- `--utilities` - Generate utility types
+
+**Examples:**
+```bash
+ggen ontology generate schema.json typescript --output src/types
+ggen ontology generate schema.json typescript --zod --utilities
+```
+
+### ggen ontology validate
+
+Validate ontology quality and structure.
+
+**Usage:**
+```bash
+ggen ontology validate <SCHEMA_FILE> [OPTIONS]
+```
+
+**Arguments:**
+- `<SCHEMA_FILE>` - Schema JSON file to validate
+
+**Options:**
+- `--strict` - Enable strict validation (checks circular references)
+
+**Examples:**
+```bash
+ggen ontology validate schema.json
+ggen ontology validate domain.json --strict
+```
+
+### ggen ontology init
+
+Initialize new ontology project with templates.
+
+**Usage:**
+```bash
+ggen ontology init <PROJECT_NAME> [OPTIONS]
+```
+
+**Arguments:**
+- `<PROJECT_NAME>` - New project name
+
+**Options:**
+- `--template <TEMPLATE>` - Template (schema.org, foaf, dublincore)
+
+**Examples:**
+```bash
+ggen ontology init my-project
+ggen ontology init ecommerce-api --template schema.org
+ggen ontology init social-network --template foaf
+```
+
+---
+
+## Packs Commands
+
+Package management: install, compose, validate, and publish templates.
+
+### ggen packs list
+
+List all available packs.
+
+**Usage:**
+```bash
+ggen packs list [OPTIONS]
+```
+
+**Options:**
+- `--category <CAT>` - Filter by category (startup, enterprise, data-science)
+
+**Examples:**
+```bash
+ggen packs list
+ggen packs list --category startup
+```
+
+### ggen packs show
+
+Show detailed pack information.
+
+**Usage:**
+```bash
+ggen packs show --pack_id <ID>
+```
+
+**Options:**
+- `--pack_id <ID>` - Pack identifier
+
+**Examples:**
+```bash
+ggen packs show --pack_id startup-essentials
+ggen packs show --pack_id enterprise-backend
+```
+
+### ggen packs install
+
+Install a pack (all packages, templates, and queries).
+
+**Usage:**
+```bash
+ggen packs install --pack_id <ID> [OPTIONS]
+```
+
+**Options:**
+- `--pack_id <ID>` - Pack identifier
+- `--target_dir <DIR>` - Installation directory
+- `--force` - Force reinstall
+- `--dry_run` - Show what would be installed
+
+**Examples:**
+```bash
+ggen packs install --pack_id startup-essentials
+ggen packs install --pack_id data-science --target_dir ./my-project
+ggen packs install --pack_id enterprise-backend --dry_run
+```
+
+### ggen packs validate
+
+Validate pack structure and completeness.
+
+**Usage:**
+```bash
+ggen packs validate --pack_id <ID>
+```
+
+**Examples:**
+```bash
+ggen packs validate --pack_id startup-essentials
+```
+
+### ggen packs score
+
+Score pack maturity across 4 dimensions.
+
+**Usage:**
+```bash
+ggen packs score --pack_id <ID>
+```
+
+**Dimensions:**
+- Documentation
+- Completeness
+- Quality
+- Usability
+
+**Examples:**
+```bash
+ggen packs score --pack_id enterprise-backend
+```
+
+### ggen packs compose
+
+Compose multiple packs into single project.
+
+**Usage:**
+```bash
+ggen packs compose --pack_ids <ID1,ID2,...> --project_name <NAME> [OPTIONS]
+```
+
+**Options:**
+- `--output_dir <DIR>` - Output directory
+
+**Examples:**
+```bash
+ggen packs compose --pack_ids startup-essentials,data-science --project_name my-app
+ggen packs compose --pack_ids pack1,pack2,pack3 --project_name enterprise-project
+```
+
+### ggen packs dependencies
+
+Show pack dependency graph.
+
+**Usage:**
+```bash
+ggen packs dependencies --pack_id <ID>
+```
+
+**Examples:**
+```bash
+ggen packs dependencies --pack_id enterprise-backend
+```
+
+### ggen packs list_templates
+
+List templates in a pack.
+
+**Usage:**
+```bash
+ggen packs list_templates --pack_id <ID>
+```
+
+**Examples:**
+```bash
+ggen packs list_templates --pack_id startup-essentials
+```
+
+### ggen packs check_compatibility
+
+Check if multiple packs are compatible.
+
+**Usage:**
+```bash
+ggen packs check_compatibility --pack_ids <ID1,ID2,...>
+```
+
+**Examples:**
+```bash
+ggen packs check_compatibility --pack_ids startup-essentials,enterprise-backend
+ggen packs check_compatibility --pack_ids pack1,pack2,pack3
+```
+
+### ggen packs sparql
+
+Execute SPARQL query on pack metadata.
+
+**Usage:**
+```bash
+ggen packs sparql --pack_id <ID> --query <QUERY>
+```
+
+**Examples:**
+```bash
+ggen packs sparql --pack_id enterprise-backend --query "SELECT * WHERE { ?s ?p ?o }"
+ggen packs sparql --pack_id startup-essentials --query "SELECT ?package WHERE { ?package rdf:type ggen:Package }"
+```
+
+### ggen packs generate
+
+Generate project from pack template.
+
+**Usage:**
+```bash
+ggen packs generate --pack_id <ID> --project_name <NAME> [OPTIONS]
+```
+
+**Options:**
+- `--template <NAME>` - Specific template (default: main)
+
+**Examples:**
+```bash
+ggen packs generate --pack_id startup-essentials --project_name my-app
+ggen packs generate --pack_id startup-essentials --project_name my-app --template quick-start
+```
+
+### ggen packs publish
+
+Publish pack to registry.
+
+**Usage:**
+```bash
+ggen packs publish --pack_dir <DIR> --version <VERSION> [OPTIONS]
+```
+
+**Options:**
+- `--changelog <TEXT>` - Changelog entry
+
+**Examples:**
+```bash
+ggen packs publish --pack_dir ./my-pack --version 1.0.0
+ggen packs publish --pack_dir ./my-pack --version 1.1.0 --changelog "Bug fixes"
+```
+
+### ggen packs search_registry
+
+Search packs in registry.
+
+**Usage:**
+```bash
+ggen packs search_registry [OPTIONS]
+```
+
+**Options:**
+- `--query <TEXT>` - Search query
+- `--category <CAT>` - Filter by category
+- `--tags <TAGS>` - Filter by tags (comma-separated)
+- `--production_ready` - Only production-ready packs
+- `--limit <N>` - Max results (default: 20)
+
+**Examples:**
+```bash
+ggen packs search_registry --query "web"
+ggen packs search_registry --query "api" --category backend --production_ready
+```
+
+### ggen packs versions
+
+List all versions of a pack.
+
+**Usage:**
+```bash
+ggen packs versions --pack_id <ID>
+```
+
+**Examples:**
+```bash
+ggen packs versions --pack_id my-pack
+```
+
+### ggen packs cache
+
+Manage CDN cache for packs.
+
+**Usage:**
+```bash
+ggen packs cache --action <ACTION> [OPTIONS]
+```
+
+**Actions:**
+- `cache` - Cache a pack
+- `stats` - Get cache statistics
+- `clear` - Clear all cache
+
+**Examples:**
+```bash
+ggen packs cache --action cache --pack_id my-pack
+ggen packs cache --action stats --pack_id my-pack
+ggen packs cache --action clear
+```
+
+---
+
+## Paper Commands
+
+Academic paper generation and management with LaTeX, BibTeX, and submission tracking.
+
+### ggen paper new
+
+Create new academic paper project.
+
+**Usage:**
+```bash
+ggen paper new <NAME> [OPTIONS]
+```
+
+**Arguments:**
+- `<NAME>` - Paper name
+
+**Options:**
+- `--template <TEMPLATE>` - Paper template (ieee, acm, neurips, arxiv, phd, etc.)
+- `--output <DIR>` - Output directory
+
+**Available Templates:**
+- ieee-conference, acm-journal, neurips-conference, arxiv-preprint
+- phd-thesis, masters-thesis, nature-journal, science-journal, pnas-journal
+- icml-conference, iclr-conference, cvpr-conference, iccv-conference
+
+**Examples:**
+```bash
+ggen paper new "Deep Learning for Code Generation" --template ieee
+ggen paper new "Semantic Code Projections" --template arxiv --output ./papers
+```
+
+### ggen paper generate
+
+Generate LaTeX from paper ontology.
+
+**Usage:**
+```bash
+ggen paper generate <FILE> [OPTIONS]
+```
+
+**Arguments:**
+- `<FILE>` - Paper RDF file
+
+**Options:**
+- `--style <STYLE>` - Output style (default: arxiv)
+- `--output <FILE>` - Output LaTeX file
+
+**Examples:**
+```bash
+ggen paper generate my-paper.rdf --style ieee --output my-paper.tex
+ggen paper generate thesis.rdf --style phd --output thesis.tex
+```
+
+### ggen paper validate
+
+Validate paper ontology and structure.
+
+**Usage:**
+```bash
+ggen paper validate <FILE> [OPTIONS]
+```
+
+**Arguments:**
+- `<FILE>` - Paper RDF file
+
+**Options:**
+- `--check <CHECKS>` - Specific checks (formatting, citations, metadata)
+- `--strict` - Strict validation mode
+
+**Examples:**
+```bash
+ggen paper validate my-paper.rdf
+ggen paper validate research.rdf --check formatting,citations --strict
+```
+
+### ggen paper export
+
+Export paper to multiple formats.
+
+**Usage:**
+```bash
+ggen paper export <FILE> --format <FORMAT> [OPTIONS]
+```
+
+**Arguments:**
+- `<FILE>` - Paper RDF file
+- `--format` - Export format (pdf, html, json-ld, docx)
+
+**Options:**
+- `--output <DIR>` - Output directory
+
+**Examples:**
+```bash
+ggen paper export my-paper.rdf --format pdf
+ggen paper export research.rdf --format html --output ./public
+ggen paper export paper.rdf --format json-ld
+```
+
+### ggen paper list_templates
+
+List available paper templates.
+
+**Usage:**
+```bash
+ggen paper list-templates [OPTIONS]
+```
+
+**Options:**
+- `--filter <FILTER>` - Filter templates (conference, journal, thesis)
+
+**Examples:**
+```bash
+ggen paper list-templates
+ggen paper list-templates --filter conference
+```
+
+### ggen paper compile
+
+Compile LaTeX to PDF.
+
+**Usage:**
+```bash
+ggen paper compile <FILE> [OPTIONS]
+```
+
+**Arguments:**
+- `<FILE>` - LaTeX file
+
+**Options:**
+- `--engine <ENGINE>` - LaTeX engine (pdflatex, xelatex)
+- `--bibtex` - Run BibTeX for bibliography
+
+**Examples:**
+```bash
+ggen paper compile my-paper.tex
+ggen paper compile thesis.tex --engine xelatex --bibtex
+```
+
+### ggen paper init_bibliography
+
+Initialize BibTeX bibliography.
+
+**Usage:**
+```bash
+ggen paper init-bibliography <FILE> [OPTIONS]
+```
+
+**Arguments:**
+- `<FILE>` - Paper RDF file
+
+**Options:**
+- `--output <FILE>` - Output BibTeX file
+
+**Examples:**
+```bash
+ggen paper init-bibliography my-paper.rdf
+ggen paper init-bibliography paper.rdf --output refs.bib
+```
+
+### ggen paper submit
+
+Submit paper to venue (arXiv, conference, journal).
+
+**Usage:**
+```bash
+ggen paper submit <FILE> --venue <VENUE> [OPTIONS]
+```
+
+**Arguments:**
+- `<FILE>` - Paper PDF file
+- `--venue` - Target venue
+
+**Options:**
+- `--metadata <FILE>` - Paper metadata RDF file
+
+**Examples:**
+```bash
+ggen paper submit my-paper.pdf --venue arxiv --category cs.AI
+ggen paper submit research.pdf --venue neurips-2024
+```
+
+### ggen paper track
+
+Track paper submission and peer review status.
+
+**Usage:**
+```bash
+ggen paper track <FILE> [OPTIONS]
+```
+
+**Arguments:**
+- `<FILE>` - Paper RDF file
+
+**Options:**
+- `--venue <VENUE>` - Track specific venue
+
+**Examples:**
+```bash
+ggen paper track my-paper.rdf
+ggen paper track research.rdf --venue neurips-2024
+```
+
+---
+
+## CI Commands
+
+CI/CD workflow generation and integration.
+
+### ggen ci workflow
+
+Generate CI workflow configuration.
+
+**Usage:**
+```bash
+ggen ci workflow [OPTIONS]
+```
+
+**Examples:**
+```bash
+ggen ci workflow
+ggen ci workflow --help
+```
+
+---
+
+## Workflow Commands
+
+Process mining and workflow analytics using event logs.
+
+### ggen workflow init
+
+Initialize workflow for tracking and analysis.
+
+**Usage:**
+```bash
+ggen workflow init --name <NAME> [OPTIONS]
+```
+
+**Options:**
+- `--name <NAME>` - Workflow name
+- `--type <TYPE>` - Workflow type (research, maturity, revops)
+- `--output_dir <DIR>` - Output directory
+
+**Examples:**
+```bash
+ggen workflow init --name "university-research" --type research
+ggen workflow init --name "package-maturity" --type maturity
+ggen workflow init --name "revops-pipeline" --type revops
+```
+
+### ggen workflow analyze
+
+Analyze workflow events and generate statistics.
+
+**Usage:**
+```bash
+ggen workflow analyze --workflow-file <FILE> [OPTIONS]
+```
+
+**Options:**
+- `--summary` - Show summary statistics
+
+**Examples:**
+```bash
+ggen workflow analyze --workflow-file workflow.json
+ggen workflow analyze --workflow-file workflow.json --summary
+```
+
+### ggen workflow discover
+
+Discover process patterns and generate visualization.
+
+**Usage:**
+```bash
+ggen workflow discover --workflow-file <FILE> [OPTIONS]
+```
+
+**Options:**
+- `--export <FORMAT>` - Export format (mermaid, svg, png)
+- `--pareto` - Show 80/20 critical path
+
+**Examples:**
+```bash
+ggen workflow discover --workflow-file workflow.json
+ggen workflow discover --workflow-file workflow.json --export mermaid --pareto
+```
+
+### ggen workflow event
+
+Record workflow event in log.
+
+**Usage:**
+```bash
+ggen workflow event --workflow-file <FILE> --case-id <ID> --activity <ACTIVITY> [OPTIONS]
+```
+
+**Options:**
+- `--resource <RESOURCE>` - Resource/actor performing activity
+
+**Examples:**
+```bash
+ggen workflow event --workflow-file workflow.json --case-id paper-123 --activity "CodeGenerated" --resource "researcher-1"
+```
+
+### ggen workflow report
+
+Generate workflow report.
+
+**Usage:**
+```bash
+ggen workflow report --workflow-file <FILE> [OPTIONS]
+```
+
+**Options:**
+- `--format <FORMAT>` - Report format (html, json)
+- `--output <FILE>` - Output file path
+
+**Examples:**
+```bash
+ggen workflow report --workflow-file workflow.json --format html --output report.html
+ggen workflow report --workflow-file workflow.json --format json --output report.json
+```
+
+---
 
 ## Marketplace Commands
+
+Search, install, and publish templates (DISABLED - v2 migration in progress).
 
 ### ggen marketplace search
 
@@ -467,6 +1203,8 @@ ggen project gen my-service --template io.ggen.rust.microservice
 
 ## Utils Commands
 
+Utility commands for system diagnostics, environment management, and FMEA analysis.
+
 ### ggen utils doctor
 
 System diagnostics and health check.
@@ -476,9 +1214,16 @@ System diagnostics and health check.
 ggen utils doctor [OPTIONS]
 ```
 
+**Options:**
+- `--all` - Run all checks (verbose)
+- `--fix` - Attempt to fix issues
+- `--format <FORMAT>` - Output format (table, json)
+
 **Examples:**
 ```bash
 ggen utils doctor
+ggen utils doctor --all
+ggen utils doctor --fix
 ```
 
 ### ggen utils env
@@ -490,9 +1235,126 @@ Environment variable management.
 ggen utils env [OPTIONS]
 ```
 
+**Options:**
+- `--list` - List all GGEN_ environment variables
+- `--get <KEY>` - Get specific variable value
+- `--set <KEY=VALUE>` - Set environment variable
+- `--system` - Manage system-level variables
+
 **Examples:**
 ```bash
-ggen utils env
+ggen utils env --list
+ggen utils env --get GGEN_HOME
+ggen utils env --set GGEN_HOME=/usr/local/ggen
+```
+
+### ggen utils fmea
+
+Failure Mode and Effects Analysis (FMEA) reporting and analysis.
+
+**Usage:**
+```bash
+ggen utils fmea <SUBCOMMAND> [OPTIONS]
+```
+
+**Subcommands:**
+
+#### ggen utils fmea report
+
+Generate FMEA report with failure modes sorted by risk priority.
+
+**Usage:**
+```bash
+ggen utils fmea report [OPTIONS]
+```
+
+**Options:**
+- `--format <FORMAT>` - Output format (text, json) - default: text
+- `--risk <LEVEL>` - Filter by risk level (LOW, MEDIUM, HIGH, CRITICAL)
+- `--top <N>` - Limit to top N modes (default: 20)
+
+**Examples:**
+```bash
+ggen utils fmea report
+ggen utils fmea report --format json
+ggen utils fmea report --risk HIGH --top 10
+```
+
+#### ggen utils fmea pareto
+
+Generate Pareto analysis showing 80/20 distribution of risk.
+
+**Usage:**
+```bash
+ggen utils fmea pareto
+```
+
+**Examples:**
+```bash
+ggen utils fmea pareto
+```
+
+#### ggen utils fmea list
+
+List failure modes with filtering and sorting.
+
+**Usage:**
+```bash
+ggen utils fmea list [OPTIONS]
+```
+
+**Options:**
+- `--category <CAT>` - Filter by category (fileio, networkops, concurrencyrace, etc.)
+- `--sort <FIELD>` - Sort by field (rpn, id, severity)
+
+**Categories:**
+- fileio, networkops, concurrencyrace, inputvalidation
+- templaterendering, dependencyresolution, memoryexhaustion
+- deserialization
+
+**Examples:**
+```bash
+ggen utils fmea list
+ggen utils fmea list --category fileio --sort severity
+```
+
+#### ggen utils fmea show
+
+Show detailed information about a failure mode.
+
+**Usage:**
+```bash
+ggen utils fmea show <MODE_ID> [OPTIONS]
+```
+
+**Arguments:**
+- `<MODE_ID>` - Failure mode identifier
+
+**Options:**
+- `--events` - Show recorded events for this failure mode
+
+**Examples:**
+```bash
+ggen utils fmea show FM-001
+ggen utils fmea show FM-003 --events
+```
+
+#### ggen utils fmea export
+
+Export FMEA data to JSON for integration or analysis.
+
+**Usage:**
+```bash
+ggen utils fmea export [OPTIONS]
+```
+
+**Options:**
+- `--output <FILE>` - Output JSON file (default: fmea-report.json)
+
+**Examples:**
+```bash
+ggen utils fmea export
+ggen utils fmea export --output risk-analysis.json
 ```
 
 ## Command Examples
