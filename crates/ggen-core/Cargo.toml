@@ -43,7 +43,9 @@ tokio = { version = "1.47", features = ["full"] }
 reqwest = { workspace = true, features = ["rustls-tls", "stream"] }
 url = "2.5"
 chrono = { version = "0.4", features = ["serde"] }
-git2 = { version = "0.20", features = ["vendored-openssl"] }
+# git2: Using vendored-libgit2 with native TLS backend (macOS: Security.framework, Linux: system OpenSSL)
+# This eliminates the OpenSSL from-source compilation bottleneck (PHASE 1.2 optimization)
+git2 = { version = "0.20", default-features = false, features = ["vendored-libgit2", "https"] }
 tar = "0.4"
 flate2 = "1.1"
 dirs = "6.0"

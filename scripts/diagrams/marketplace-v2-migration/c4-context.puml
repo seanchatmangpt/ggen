@@ -1,0 +1,30 @@
+@startuml c4-context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title **ggen Marketplace-V2: C4 Context Diagram**\n<size:12>//System Integration Architecture//</size>
+
+Person(developer, "Developer", "Uses ggen CLI\nto manage packages")
+Person(publisher, "Package Publisher", "Creates and\npublishes packages")
+
+System_Boundary(ggen_system, "ggen Code Generation Platform") {
+    System(cli, "ggen CLI", "Command-line interface\nfor code generation\nand package management")
+    System(marketplace_v2, "Marketplace-V2", "RDF-backed package\nregistry and search\nengine (DISABLED)")
+    System(template_engine, "Template Engine", "Code generation\nusing ontologies\nand templates")
+}
+
+System_Ext(github, "GitHub", "Package distribution\nand version control")
+System_Ext(rdf_store, "RDF Triplestore\n(oxigraph)", "Semantic data store\nfor package metadata\nand relationships")
+System_Ext(package_server, "Package Server", "HTTP server for\npackage downloads")
+
+Rel(developer, cli, "runs: ggen marketplace ...\n(CURRENTLY DISABLED)")
+Rel(developer, marketplace_v2, "WANTS: install, search,\npublish packages\n(NOT INTEGRATED)")
+Rel(publisher, marketplace_v2, "WANTS: publish packages\n(NOT INTEGRATED)")
+
+Rel(cli, template_engine, "delegates code\ngeneration")
+Rel(cli, marketplace_v2, "BLOCKED: 128 compilation errors\nmodule commented out")
+Rel(marketplace_v2, rdf_store, "stores/queries package\nmetadata as RDF")
+Rel(marketplace_v2, package_server, "fetches packages")
+Rel(marketplace_v2, github, "resolves package\nsources")
+
+SHOW_LEGEND()
+@enduml

@@ -1,0 +1,181 @@
+@startuml error-resolution-plan
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam shadowing false
+
+title **Compilation Error Resolution Strategy**\n<size:12>//128 Errors → 0 Errors Migration Path//</size>
+
+|Analyzer|
+start
+
+:Count errors by category;
+note right: Parse cargo build output
+            Group by error type
+
+if (API signature errors?) then (51 errors)
+    |Dev|
+    :Update function signatures;
+    note right: **Error Pattern:**
+                "no method/field X on type Y"
+                
+                **Fix Strategy:**
+                1. Check v2 API in lib.rs
+                2. Verify export in pub use
+                3. Update imports
+                4. Test with cargo check
+    
+    :Add missing trait bounds;
+    note right: **Error Pattern:**
+                "the trait bound T: Send is not satisfied"
+                
+                **Fix Strategy:**
+                1. Add Send + Sync bounds
+                2. Add 'static bounds if needed
+                3. Update where clauses
+    
+    :Fix lifetime issues;
+    note right: **Error Pattern:**
+                "lifetime mismatch"
+                "expected 'a, found 'b"
+                
+                **Fix Strategy:**
+                1. Use HRTB: for<'a> T: Trait
+                2. Add explicit lifetimes
+                3. Use 'static for statics
+else (no)
+endif
+
+if (Trait bound errors?) then (38 errors)
+    |Dev|
+    :Add async_trait bounds;
+    note right: **Error Pattern:**
+                "E0277: the trait bound 'T: 
+                std::marker::Send' is not satisfied"
+                
+                **Fix Strategy:**
+                1. Add #[async_trait]
+                2. Add T: Send + Sync
+                3. Add for<'a> bounds
+    
+    :Fix GAT constraints;
+    note right: **Error Pattern:**
+                "E0308: mismatched types in 
+                associated type"
+                
+                **Fix Strategy:**
+                1. Add explicit where clauses
+                2. Use type_alias_impl_trait
+                3. Test with HRTB
+    
+    :Update trait object bounds;
+    note right: **Error Pattern:**
+                "E0436: can't find field X in 
+                the trait object"
+                
+                **Fix Strategy:**
+                1. Check trait definition
+                2. Verify dyn Trait usage
+                3. Add required bounds
+else (no)
+endif
+
+if (Import/Module errors?) then (25 errors)
+    |Dev|
+    :Fix use path errors;
+    note right: **Error Pattern:**
+                "E0432: unresolved import 
+                'marketplace_v2::xyz'"
+                
+                **Fix Strategy:**
+                1. Check lib.rs pub use
+                2. Verify module exists
+                3. Update path (module→struct)
+    
+    :Add missing re-exports;
+    note right: **Error Pattern:**
+                "E0516: item type E is 
+                private"
+                
+                **Fix Strategy:**
+                1. Make type pub in module
+                2. Add to pub use in lib.rs
+                3. Test visibility
+    
+    :Fix qualified paths;
+    note right: **Error Pattern:**
+                "E0433: cannot find 
+                function in scope"
+                
+                **Fix Strategy:**
+                1. Use crate:: prefix
+                2. Use ggen_marketplace_v2::
+                3. Check feature flags
+else (no)
+endif
+
+if (Dependency errors?) then (14 errors)
+    |DevOps|
+    :Update Cargo.toml versions;
+    note right: **Error Pattern:**
+                "E0433: cannot find 'feature' 
+                in dependency"
+                
+                **Fix Strategy:**
+                1. Check workspace Cargo.toml
+                2. Verify feature enabled
+                3. Update if necessary
+    
+    :Add missing features;
+    note right: **Error Pattern:**
+                "E1234: feature 'X' 
+                required but not enabled"
+                
+                **Fix Strategy:**
+                1. Enable in Cargo.toml
+                2. Re-run build
+                3. Verify feature cfg(feature)
+else (no)
+endif
+
+|Validator|
+:Run cargo build --release;
+note right: Verify no more compilation errors
+
+if (Build succeeds?) then (yes)
+    :Run cargo test;
+    note right: Target: All 107 tests PASS
+    
+    if (All tests pass?) then (yes)
+        :Run cargo make lint;
+        note right: Verify no clippy warnings
+        
+        if (No warnings?) then (yes)
+            :Update documentation;
+            :Mark migration COMPLETE;
+            stop
+        else (warnings remain)
+            :Fix clippy warnings;
+            :(back to cargo build)
+        endif
+    else (tests fail)
+        |DebugDev|
+        :Debug test failures;
+        :Fix test issues;
+        :(back to cargo test)
+    endif
+else (build fails)
+    |DebugDev|
+    :Analyze new errors;
+    :(back to error categorization)
+endif
+
+legend right
+    <b>Error Resolution Priority</b>
+    |= Priority |= Category |= Count |= Impact |
+    | P0 | API Changes | 51 | Blocks compilation |
+    | P1 | Trait Bounds | 38 | Breaks types |
+    | P2 | Imports | 25 | Module scope |
+    | P3 | Dependencies | 14 | Feature flags |
+endlegend
+
+@enduml

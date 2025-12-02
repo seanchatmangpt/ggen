@@ -1,0 +1,136 @@
+@startuml migration-strategy
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam shadowing false
+
+title **Marketplace-V2 Migration Strategy**\n<size:12>//From Disabled (128 errors) to Production Integration//</size>
+
+|Developer|
+start
+
+partition "Phase 1: Error Analysis & Root Cause" #FFE4E4 {
+    :Run cargo build -p ggen-marketplace-v2;
+    note right: Target: Identify all 128 compilation errors
+    
+    :Categorize errors by type;
+    note right: API changes, trait bounds, imports, 
+                dependencies, clap integration
+    
+    :Create error mapping document;
+    note right: Error → Root Cause → Required Fix
+    
+    :Assign priority (P0=blocking, P1=critical);
+}
+
+|Integration|
+partition "Phase 2: CLI Module Integration" #FFF4E4 {
+    :Uncomment pub mod marketplace in cmds/mod.rs;
+    note right: Line 15 in crates/ggen-cli/src/cmds/mod.rs
+    
+    :Verify clap-noun-verb discovery;
+    note right: Auto-discover [verb] marketplace_install, etc
+    
+    :Wire marketplace to CLI router;
+    note right: Test: ggen marketplace --help
+}
+
+|Core Dev|
+partition "Phase 3: Fix Compilation Errors" #FFFBE4 {
+    :Fix P0 blocking errors;
+    note right: Prevents compilation
+    
+    :Fix P1 critical errors;
+    note right: Breaks functionality
+    
+    :Resolve trait bound issues;
+    note right: Check async_trait, GATs, HRTB
+    
+    :Update imports & dependencies;
+    note right: Fix missing exports
+    
+    :Address API breaking changes;
+    note right: Update signatures to v3 patterns
+}
+
+|Testing|
+partition "Phase 4: Unit Test Validation" #E4F4FF {
+    :Run cargo test -p ggen-marketplace-v2;
+    note right: 107 tests should PASS
+    
+    if (All tests pass?) then (yes)
+        :Verify test coverage;
+        note right: Core, Registry, Search, Install,
+                    Security unit tests pass
+    else (no)
+        :Debug failing tests;
+        :Fix test-related issues;
+        :(back to unit test validation)
+    endif
+}
+
+|Integration|
+partition "Phase 5: CLI Command Integration" #F4FFE4 {
+    :Implement marketplace::install verb;
+    :Implement marketplace::search verb;
+    :Implement marketplace::publish verb;
+    :Implement marketplace::info verb;
+    :Implement marketplace::validate verb;
+    :Implement marketplace::versions verb;
+    :Implement marketplace::metrics verb;
+    :Implement marketplace::sparql verb;
+    :Implement marketplace::rdf_stats verb;
+    note right: Bridge async domain logic
+                to CLI execution
+}
+
+|QA|
+partition "Phase 6: Integration Testing" #FFE4F4 {
+    :Run integration test suite;
+    :Test marketplace::install workflow;
+    :Test marketplace::search workflow;
+    :Test marketplace::publish workflow;
+    :Test error handling & edge cases;
+}
+
+|Perf|
+partition "Phase 7: Performance Validation" #F4E4FF {
+    :Benchmark search performance;
+    note right: Target: <100ms for 10k packages
+    
+    :Benchmark install performance;
+    note right: Target: <5s for typical package
+    
+    :Verify SLOs met;
+    note right: Memory, latency, throughput
+    
+    if (SLOs met?) then (yes)
+        :Performance GREEN;
+    else (no)
+        :Optimize bottlenecks;
+        :(back to perf validation)
+    endif
+}
+
+|Ops|
+partition "Phase 8: Production Readiness" #E4FFE4 {
+    :Security audit (cargo audit);
+    :Dependency verification;
+    :Release notes preparation;
+    :Version bump: v2 → v3;
+    :Tag release in git;
+}
+
+|Developer|
+:Production deployment;
+stop
+
+legend right
+    <b>Status Indicators</b>
+    |= Current |= Description |
+    | <b>Phase 1-2</b> | Analysis & Setup (IN PROGRESS) |
+    | <b>Phase 3-4</b> | Core Implementation |
+    | <b>Phase 5-6</b> | Integration & Testing |
+    | <b>Phase 7-8</b> | Optimization & Release |
+endlegend
+
+@enduml

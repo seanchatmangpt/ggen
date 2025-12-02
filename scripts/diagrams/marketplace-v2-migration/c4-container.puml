@@ -1,0 +1,78 @@
+@startuml c4-container
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title **ggen Marketplace-V2: C4 Container Diagram**\n<size:12>//Internal Architecture & Integration Points//</size>
+
+Person(dev, "Developer/Publisher")
+
+System_Boundary(marketplace_v2_system, "Marketplace-V2 Crate") {
+    Container(cli_commands, "CLI Commands Module\n(DISABLED)", "Rust Module\ncrates/ggen-cli/src/cmds/marketplace.rs", "Provides marketplace\ncommands to CLI:\ninstall, search, publish,\ninfo, validate, versions,\nmetrics, sparql, rdf_stats\n\nSTATUS: File exists but\nmodule disabled in mod.rs")
+    
+    Container(models, "Data Models", "Rust Modules\nmodels.rs, ontology.rs", "Package, PackageVersion,\nManifest, PackageMetadata,\nPackageId\n\nDefines package structure\nand ontology semantics")
+    
+    Container(registry, "Registry Layer", "Rust Modules\nregistry.rs, registry_rdf.rs,\nv3.rs", "Package storage & indexing:\n- Registry: Basic traits\n- RdfRegistry: RDF-backed\n- V3OptimizedRegistry:\nPerformance-optimized\n\nProvides CRUD operations")
+    
+    Container(search_engine, "Search Engine", "Rust Modules\nsearch.rs, search_sparql.rs", "Package discovery:\n- SearchEngine: In-memory\n- SparqlSearchEngine:\nSPARQL queries on RDF\n\nFull-text & semantic search")
+    
+    Container(install, "Installation System", "Rust Module\ninstall.rs", "Package installation:\n- Downloads packages\n- Validates checksums\n- Manages dependencies\n- Conflict detection\n\nImplements Installer trait")
+    
+    Container(security, "Security Layer", "Rust Module\nsecurity.rs", "Cryptographic operations:\n- Ed25519 signatures\n- Signature verification\n- Key management\n- Checksum validation")
+    
+    Container(validation, "Validation Engine", "Rust Module\nvalidation.rs", "Package validation:\n- Manifest schema\n- Dependency resolution\n- Version constraints\n- Security checks")
+    
+    Container(metrics, "Observability", "Rust Module\nmetrics.rs", "Metrics & telemetry:\n- Download counts\n- Installation stats\n- Performance metrics\n- Event tracing")
+    
+    Container(rdf_backend, "RDF Backend", "Rust Modules\nrdf/*.rs, rdf_mapper.rs", "Semantic data store:\n- RDF triple store (oxigraph)\n- SPARQL query engine\n- Turtle format support\n- Graph serialization")
+    
+    Container(traits, "Trait Definitions", "Rust Module\ntraits.rs", "Core trait interfaces:\n- AsyncRepository\n- Installable\n- Observable\n- Queryable\n- Signable\n- Validatable\n\nDefines contracts for\nall subsystems")
+    
+    Container(builders, "Builder Patterns", "Rust Module\nbuilders.rs", "Type-safe builders:\n- Package builder\n- Version builder\n- Registry builder\n\nErgonomic construction")
+    
+    Container(migration, "V1→V2 Migration", "Rust Module\nmigration.rs", "Data migration tools:\n- Convert v1 packages to v2\n- Handle legacy formats\n- Preserve metadata\n- Validate migrations")
+    
+    Container(error_handling, "Error Types", "Rust Module\nerror.rs", "Result<T, Error> types:\n- Custom error variants\n- Error context\n- Display & Debug impl\n- Error chains")
+    
+    Container(tests, "Test Suites\n(PASSING)", "Test Modules\ntests/*.rs", "Comprehensive testing:\n- 84: Core unit tests\n- 85: Registry unit tests\n- 86: Search unit tests\n- 87: Install unit tests\n- 88: Security unit tests\n- 89: Integration tests\n- 90: Property tests\n\n107 tests PASSING")
+}
+
+System_Boundary(cli_integration, "CLI Integration Layer (DISABLED)") {
+    Container(cli_router, "Command Router", "Rust Module\ncrates/ggen-cli/src/cmds/mod.rs", "clap-noun-verb auto-discovery\n\nCURRENTLY DISABLED:\n// pub mod marketplace;\n\nMUST: Uncomment to enable\nmarketplace command discovery")
+}
+
+System_Boundary(rdf_system, "RDF Data Store") {
+    Container(oxigraph, "Oxigraph Triplestore", "RDF Database", "In-memory or persistent\nRDF triple store\nSPARQL query support")
+}
+
+System_Boundary(external, "External Systems") {
+    Container(http_server, "HTTP Server", "axum/hyper", "REST API endpoints\n(future implementation)")
+    Container(package_repo, "Package Repository", "HTTP/File", "Package downloads\nand distribution")
+}
+
+' Relationships
+Rel(dev, cli_commands, "wants: ggen marketplace")
+Rel(cli_router, cli_commands, "BLOCKED: module disabled")
+
+Rel(cli_commands, models, "uses")
+Rel(cli_commands, registry, "delegates storage")
+Rel(cli_commands, search_engine, "delegates search")
+Rel(cli_commands, install, "delegates install")
+Rel(cli_commands, security, "delegates verification")
+Rel(cli_commands, validation, "delegates validation")
+
+Rel(registry, rdf_backend, "persists data as RDF")
+Rel(search_engine, rdf_backend, "queries via SPARQL")
+Rel(install, security, "verifies signatures")
+Rel(install, package_repo, "downloads packages")
+
+Rel(metrics, cli_commands, "collects telemetry")
+Rel(builders, models, "constructs")
+Rel(migration, models, "converts v1→v2")
+Rel(validation, models, "validates")
+Rel(error_handling, traits, "defines Result<T>")
+Rel(traits, registry, "defines contracts")
+Rel(traits, install, "defines contracts")
+Rel(traits, security, "defines contracts")
+Rel(rdf_backend, oxigraph, "uses")
+
+SHOW_LEGEND()
+@enduml

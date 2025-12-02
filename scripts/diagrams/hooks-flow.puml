@@ -1,0 +1,57 @@
+@startuml hooks-flow
+' Git Hooks System - Sequence Diagram
+
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam sequenceMessageAlign center
+skinparam shadowing false
+
+title **ggen Git Hooks - Execution Flow**\n<size:12>//TRIZ-Optimized: Separation in Time//</size>
+
+actor Developer as DEV
+participant "git" as GIT
+box "Pre-Commit (Fast)" #E4FFE4
+    participant "pre-commit.sh" as PC
+end box
+box "Pre-Push (Full)" #FFF4E4
+    participant "pre-push.sh" as PP
+end box
+participant "Andon System" as ANDON
+
+== Pre-Commit Flow (Target: <5s) ==
+
+DEV -> GIT : git commit
+GIT -> PC : hook triggered
+PC -> PC : Gate 1: cargo check (5s)
+alt Compilation Error
+    PC -> ANDON : RED Signal
+    ANDON --> DEV : STOP THE LINE
+    PC --> GIT : exit 1
+else Success
+    PC -> PC : Gate 2: format check (2s)
+    alt Format Issues
+        PC -> PC : Auto-fix: cargo fmt
+        PC -> ANDON : YELLOW Signal
+    end
+    PC --> GIT : exit 0
+end
+GIT --> DEV : Commit complete
+
+== Pre-Push Flow (Target: <60s) ==
+
+DEV -> GIT : git push
+GIT -> PP : hook triggered
+PP -> PP : Gate 1: cargo check (15s)
+PP -> PP : Gate 2: clippy (60s)
+PP -> PP : Gate 3: format (10s)
+PP -> PP : Gate 4: tests (120s)
+PP -> PP : Gate 5: audit (30s, warn only)
+alt Any Critical Failure
+    PP -> ANDON : RED Signal
+    PP --> GIT : exit 1
+else All Pass
+    PP --> GIT : exit 0
+end
+GIT --> DEV : Push complete
+
+@enduml

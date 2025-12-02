@@ -2,6 +2,8 @@
 //!
 //! This module implements utility commands using the v3.4.0 #[verb] pattern.
 
+pub mod fmea;
+
 use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
 use serde::Serialize;

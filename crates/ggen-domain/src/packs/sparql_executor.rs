@@ -368,11 +368,9 @@ impl SparqlExecutor {
     }
 }
 
-impl Default for SparqlExecutor {
-    fn default() -> Self {
-        Self::new().expect("Failed to create default SPARQL executor")
-    }
-}
+// NOTE: Default implementation removed - SparqlExecutor::new() can fail
+// Use SparqlExecutor::new() explicitly and handle the Result
+// This prevents panic!() in production code per PHASE 1.1 requirements
 
 /// Cache statistics
 #[derive(Debug, Clone)]
