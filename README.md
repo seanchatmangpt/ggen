@@ -4,6 +4,31 @@
 
 **ggen** is a knowledge graph code generator. RDF ontology → polyglot code (Rust, TypeScript, Python). One source of truth, zero drift.
 
+---
+
+## 🚀 Quick Start by Role
+
+### 👤 End Users (Generate Code from Ontologies)
+**Goal:** Use ggen to generate code from RDF/OWL ontologies
+
+1. **Install:** [Installation Guide](docs/src/how-to-guides/installation.md)
+2. **Learn:** [Getting Started Tutorial](docs/src/tutorials/getting-started.md) (5 minutes)
+3. **Reference:** [CLI Reference](docs/src/reference/cli.md)
+
+### 🤖 AI Agents (Build ggen Features)
+**Goal:** Build production ggen features
+
+1. **Start:** [`docs/agent/README.md`](docs/agent/README.md) - Agent knowledge base
+2. **Architecture:** [`docs/agent/cli-patterns.md`](docs/agent/cli-patterns.md) - clap-noun-verb patterns
+3. **Reference:** [Main CLAUDE.md](CLAUDE.md) - Build system rules
+
+### 📚 Contributors (Improve ggen)
+**Goal:** Contribute to ggen codebase
+
+1. **Architecture:** [Architecture Explanation](docs/src/explanations/architecture.md)
+2. **Testing:** [Testing Strategy](docs/src/how-to-guides/testing-strategy.md)
+3. **Build System:** [cargo make reference](Makefile.toml)
+
 ```bash
 # Define domain once (RDF)
 ggen ai generate-ontology --prompt "E-commerce: Product, Order, Review" --output domain.ttl

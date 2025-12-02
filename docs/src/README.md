@@ -35,6 +35,38 @@ This documentation follows the **Diataxis framework**, which organizes content i
 
 Each document type serves a different purpose and answers different questions.
 
+## I Am...
+
+### A New User
+**I want to generate code from my domain model:**
+
+→ **Start:** [Getting Started Tutorial](tutorials/getting-started.md) (5 minutes)
+→ **Then:** [Ontology-to-Code Workflow](tutorials/ontology-to-code.md)
+→ **Reference:** [CLI Commands](reference/cli.md)
+
+### An AI Developer
+**I'm integrating ggen into my AI pipeline:**
+
+→ **Start:** [AI-Powered Generation Tutorial](tutorials/ai-powered-generation.md)
+→ **Then:** [AI Commands Reference](reference/cli.md#ai-commands)
+→ **Integrate:** [API Reference](reference/api.md)
+
+### A Template Author
+**I want to create custom code generation templates:**
+
+→ **Start:** [Create Templates Guide](how-to-guides/create-templates.md)
+→ **Then:** [Template Reference](reference/templates.md)
+→ **Advanced:** [Template System Explanation](explanations/template-system.md)
+
+### A Marketplace User
+**I want to find/publish packages:**
+
+→ **Start:** [Marketplace Workflow Tutorial](tutorials/marketplace-workflow.md)
+→ **Then:** [Marketplace Commands](reference/cli.md#marketplace-commands)
+→ **Note:** *Marketplace currently disabled (v2 migration in progress)*
+
+---
+
 ## Common Tasks
 
 ### I want to...
