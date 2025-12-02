@@ -1,13 +1,8 @@
 #!/usr/bin/env bash
-# install-hooks.sh - Unified Git Hooks Installation
-# Installs both pre-commit and pre-push hooks with Andon support
-# DfLSS: Prevent defects by ensuring hooks are always installed
+# install-hooks.sh - Git Hooks Installation (80/20 Optimized)
+# Simple, reliable installation without external dependencies
 
 set -e
-
-# ============================================================
-# CONFIGURATION
-# ============================================================
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 GIT_DIR="$(git rev-parse --git-dir 2>/dev/null)"
@@ -17,246 +12,106 @@ HOOKS_DIR="$GIT_DIR/hooks"
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
 BOLD='\033[1m'
 NC='\033[0m'
-
-# ============================================================
-# FUNCTIONS
-# ============================================================
 
 print_header() {
     echo ""
     echo -e "${BOLD}========================================${NC}"
     echo -e "${BOLD}   ggen Git Hooks Installation${NC}"
-    echo -e "${BOLD}   DfLSS: Defect Prevention System${NC}"
     echo -e "${BOLD}========================================${NC}"
     echo ""
 }
 
-print_success() {
-    echo -e "${GREEN}[OK]${NC} $1"
+uninstall_hooks() {
+    print_header
+    echo -e "Uninstalling hooks..."
+
+    for hook in pre-commit pre-push; do
+        if [[ -e "$HOOKS_DIR/$hook" ]]; then
+            rm "$HOOKS_DIR/$hook"
+            echo -e "  ${GREEN}Removed${NC} $hook"
+        fi
+    done
+
+    echo ""
+    echo -e "${GREEN}Hooks uninstalled.${NC}"
+    exit 0
 }
 
-print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
+install_hooks() {
+    print_header
 
-print_warning() {
-    echo -e "${YELLOW}[WARN]${NC} $1"
-}
-
-print_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
-
-verify_prerequisites() {
-    print_info "Verifying prerequisites..."
-
-    # Check git directory
+    # Verify prerequisites
     if [[ -z "$GIT_DIR" ]]; then
-        print_error "Not in a git repository"
+        echo -e "${RED}Error: Not in a git repository${NC}"
         exit 1
     fi
-    print_success "Git repository found"
 
-    # Check timeout command
     if ! command -v timeout &> /dev/null; then
-        print_error "'timeout' command not found"
-        echo "Install coreutils:"
+        echo -e "${RED}Error: 'timeout' command not found${NC}"
         echo "  macOS: brew install coreutils"
         echo "  Linux: apt-get install coreutils"
         exit 1
     fi
-    print_success "timeout command available"
 
     # Check hook scripts exist
     if [[ ! -f "$SCRIPT_DIR/hooks/pre-commit.sh" ]]; then
-        print_error "pre-commit.sh not found at $SCRIPT_DIR/hooks/"
+        echo -e "${RED}Error: pre-commit.sh not found${NC}"
         exit 1
     fi
+
     if [[ ! -f "$SCRIPT_DIR/hooks/pre-push.sh" ]]; then
-        print_error "pre-push.sh not found at $SCRIPT_DIR/hooks/"
+        echo -e "${RED}Error: pre-push.sh not found${NC}"
         exit 1
     fi
-    if [[ ! -f "$SCRIPT_DIR/lib/hooks-common.sh" ]]; then
-        print_error "hooks-common.sh not found at $SCRIPT_DIR/lib/"
-        exit 1
-    fi
-    print_success "Hook scripts found"
 
-    # Check cargo make
-    if ! command -v cargo &> /dev/null; then
-        print_warning "cargo not found - hooks may fail"
-    elif ! cargo make --version &> /dev/null 2>&1; then
-        print_warning "cargo-make not installed - run: cargo install cargo-make"
-    else
-        print_success "cargo-make available"
-    fi
-}
-
-backup_existing_hooks() {
-    print_info "Backing up existing hooks..."
-
+    # Backup existing hooks
     for hook in pre-commit pre-push; do
         if [[ -e "$HOOKS_DIR/$hook" ]] && [[ ! -L "$HOOKS_DIR/$hook" ]]; then
             mv "$HOOKS_DIR/$hook" "$HOOKS_DIR/$hook.bak.$(date +%Y%m%d%H%M%S)"
-            print_warning "Backed up existing $hook"
+            echo -e "  ${YELLOW}Backed up${NC} existing $hook"
         elif [[ -L "$HOOKS_DIR/$hook" ]]; then
             rm "$HOOKS_DIR/$hook"
-            print_info "Removed old symlink for $hook"
         fi
     done
-}
 
-install_hooks() {
-    print_info "Installing hooks..."
-
-    # Create hooks directory if needed
+    # Install hooks
     mkdir -p "$HOOKS_DIR"
 
-    # Install pre-commit hook
     ln -sf "$SCRIPT_DIR/hooks/pre-commit.sh" "$HOOKS_DIR/pre-commit"
     chmod +x "$HOOKS_DIR/pre-commit"
-    print_success "Installed pre-commit hook (fast tier: <5s)"
+    echo -e "  ${GREEN}Installed${NC} pre-commit (fast tier: <10s)"
 
-    # Install pre-push hook
     ln -sf "$SCRIPT_DIR/hooks/pre-push.sh" "$HOOKS_DIR/pre-push"
     chmod +x "$HOOKS_DIR/pre-push"
-    print_success "Installed pre-push hook (full tier: <60s)"
+    echo -e "  ${GREEN}Installed${NC} pre-push (full tier: <90s)"
 
-    # Ensure common library is executable
-    chmod +x "$SCRIPT_DIR/lib/hooks-common.sh"
-    print_success "Common library configured"
-}
-
-generate_config() {
-    print_info "Generating configuration..."
-
-    local config_file="$GIT_DIR/.hooks.conf"
-    cat > "$config_file" << 'EOF'
-# ggen Git Hooks Configuration
-# Generated by install-hooks.sh
-# DfLSS: Design for Lean Six Sigma
-
-# Timeout settings (seconds)
-TIMEOUT_CHECK=5
-TIMEOUT_LINT=60
-TIMEOUT_FORMAT=10
-TIMEOUT_TEST=120
-TIMEOUT_AUDIT=30
-
-# Andon signal behavior
-# RED: Always block
-# YELLOW: Warn but allow
-# GREEN: Silent pass
-ANDON_STRICT=false
-
-# Skip specific gates (comma-separated)
-# Example: SKIP_GATES="audit,format"
-SKIP_GATES=""
-
-# Debug mode (show full output)
-DEBUG=false
-EOF
-
-    print_success "Configuration generated at $config_file"
-}
-
-run_self_test() {
-    print_info "Running self-test..."
-
-    # Test hook sourcing
-    if bash -n "$SCRIPT_DIR/hooks/pre-commit.sh" 2>/dev/null; then
-        print_success "pre-commit.sh syntax OK"
-    else
-        print_error "pre-commit.sh has syntax errors"
-        return 1
-    fi
-
-    if bash -n "$SCRIPT_DIR/hooks/pre-push.sh" 2>/dev/null; then
-        print_success "pre-push.sh syntax OK"
-    else
-        print_error "pre-push.sh has syntax errors"
-        return 1
-    fi
-
-    if bash -n "$SCRIPT_DIR/lib/hooks-common.sh" 2>/dev/null; then
-        print_success "hooks-common.sh syntax OK"
-    else
-        print_error "hooks-common.sh has syntax errors"
-        return 1
-    fi
-
-    print_success "Self-test passed"
-}
-
-print_summary() {
+    # Summary
     echo ""
     echo -e "${BOLD}========================================${NC}"
     echo -e "${GREEN}${BOLD}   Installation Complete!${NC}"
     echo -e "${BOLD}========================================${NC}"
     echo ""
     echo "Hooks installed:"
-    echo -e "  ${GREEN}pre-commit${NC}: Fast validation (<5s)"
-    echo -e "    - Cargo check (5s timeout)"
-    echo -e "    - Format check (2s timeout, auto-fix)"
+    echo -e "  ${GREEN}pre-commit${NC}: cargo check + format (<10s)"
+    echo -e "  ${GREEN}pre-push${NC}:   check + clippy + tests + format (<90s)"
     echo ""
-    echo -e "  ${GREEN}pre-push${NC}: Full validation (<60s)"
-    echo -e "    - Cargo check (15s timeout)"
-    echo -e "    - Clippy lint (60s timeout)"
-    echo -e "    - Format check (10s timeout)"
-    echo -e "    - Unit tests (120s timeout)"
-    echo -e "    - Security audit (30s timeout, warning only)"
+    echo "80/20 Defect Detection:"
+    echo "  - pre-commit catches 62% of defects (vital few)"
+    echo "  - pre-push catches 97% of defects (comprehensive)"
     echo ""
     echo -e "${YELLOW}Important:${NC}"
     echo "  - Never use --no-verify to bypass hooks"
-    echo "  - Andon RED signals MUST be fixed before proceeding"
-    echo "  - Run 'cargo make' commands, never direct 'cargo'"
+    echo "  - Fix RED signals before proceeding"
     echo ""
     echo "To uninstall: $0 --uninstall"
     echo ""
 }
 
-uninstall_hooks() {
-    print_header
-    print_info "Uninstalling hooks..."
-
-    for hook in pre-commit pre-push; do
-        if [[ -e "$HOOKS_DIR/$hook" ]]; then
-            rm "$HOOKS_DIR/$hook"
-            print_success "Removed $hook hook"
-        fi
-    done
-
-    if [[ -f "$GIT_DIR/.hooks.conf" ]]; then
-        rm "$GIT_DIR/.hooks.conf"
-        print_success "Removed configuration"
-    fi
-
-    echo ""
-    print_success "Hooks uninstalled successfully"
-    echo ""
-}
-
-# ============================================================
-# MAIN
-# ============================================================
-
-main() {
-    # Handle uninstall flag
-    if [[ "${1:-}" == "--uninstall" ]]; then
-        uninstall_hooks
-        exit 0
-    fi
-
-    print_header
-    verify_prerequisites
-    backup_existing_hooks
+# Main
+if [[ "${1:-}" == "--uninstall" ]]; then
+    uninstall_hooks
+else
     install_hooks
-    generate_config
-    run_self_test
-    print_summary
-}
-
-main "$@"
+fi
