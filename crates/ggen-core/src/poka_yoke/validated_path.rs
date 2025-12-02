@@ -2,7 +2,7 @@
 //!
 //! Prevents path traversal attacks, shell injection, and TOCTOU races.
 
-use std::path::{Path, PathBuf, Component};
+use std::path::{Component, Path, PathBuf};
 use std::str::FromStr;
 
 use ggen_utils::error::{Error, Result};

@@ -75,7 +75,10 @@ impl SanitizedInput {
             InputType::FilePath => Self::validate_file_path(&input)?,
         }
 
-        Ok(Self { inner: input, input_type })
+        Ok(Self {
+            inner: input,
+            input_type,
+        })
     }
 
     /// Returns the inner string.
@@ -143,7 +146,14 @@ impl SanitizedInput {
     fn validate_template_var(input: &str) -> Result<()> {
         // Check for SSTI injection patterns
         const INJECTION_PATTERNS: &[&str] = &[
-            "{{", "{%", "${", "<%", "<script", "javascript:", "onerror=", "onload=",
+            "{{",
+            "{%",
+            "${",
+            "<%",
+            "<script",
+            "javascript:",
+            "onerror=",
+            "onload=",
         ];
 
         let lower = input.to_lowercase();

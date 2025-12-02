@@ -2,39 +2,24 @@
 //!
 //! Allows users to preview destructive operations before committing.
 
-use ggen_utils::error::Result;
 use crate::poka_yoke::ValidatedPath;
+use ggen_utils::error::Result;
 
 /// Operation to be performed.
 #[derive(Debug, Clone)]
 pub enum Operation {
     /// Create a file.
-    FileCreate {
-        path: ValidatedPath,
-        size: u64,
-    },
+    FileCreate { path: ValidatedPath, size: u64 },
     /// Write to a file.
-    FileWrite {
-        path: ValidatedPath,
-        size: u64,
-    },
+    FileWrite { path: ValidatedPath, size: u64 },
     /// Delete a file.
-    FileDelete {
-        path: ValidatedPath,
-    },
+    FileDelete { path: ValidatedPath },
     /// Execute a command.
-    CommandExec {
-        command: String,
-        args: Vec<String>,
-    },
+    CommandExec { command: String, args: Vec<String> },
     /// Create a directory.
-    DirCreate {
-        path: ValidatedPath,
-    },
+    DirCreate { path: ValidatedPath },
     /// Delete a directory.
-    DirDelete {
-        path: ValidatedPath,
-    },
+    DirDelete { path: ValidatedPath },
 }
 
 /// Dry-run mode for previewing operations.
@@ -226,12 +211,18 @@ impl DryRunMode {
             }
             Operation::DirCreate { path } => {
                 std::fs::create_dir_all(path.as_path()).map_err(|e| {
-                    ggen_utils::error::Error::io_error(&format!("Failed to create directory: {}", e))
+                    ggen_utils::error::Error::io_error(&format!(
+                        "Failed to create directory: {}",
+                        e
+                    ))
                 })?;
             }
             Operation::DirDelete { path } => {
                 std::fs::remove_dir_all(path.as_path()).map_err(|e| {
-                    ggen_utils::error::Error::io_error(&format!("Failed to delete directory: {}", e))
+                    ggen_utils::error::Error::io_error(&format!(
+                        "Failed to delete directory: {}",
+                        e
+                    ))
                 })?;
             }
         }

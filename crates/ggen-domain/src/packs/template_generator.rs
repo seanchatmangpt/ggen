@@ -303,7 +303,10 @@ impl TemplateGenerator {
         ggen_utils::fmea_track!(
             "file_io_write_fail",
             &format!("write_{}", output_file.display()),
-            { std::fs::write(&output_file, content) }
+            {
+                std::fs::write(&output_file, &content)
+                    .map_err(|e| ggen_utils::error::Error::io_error(&e.to_string()))
+            }
         )?;
         files_created.push(output_file);
 

@@ -11,9 +11,10 @@ use ggen_utils::error::{Error, Result};
 /// Circuit breaker state.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum CircuitState {
-    Closed,  // Normal operation
-    Open,    // Too many failures, reject requests
-    HalfOpen, // Testing recovery
+    Closed, // Normal operation
+    Open,   // Too many failures, reject requests
+    #[allow(dead_code)] // Reserved for future half-open recovery testing
+    HalfOpen,
 }
 
 /// Circuit breaker for preventing cascading failures.
@@ -111,10 +112,7 @@ impl NetworkRetry {
             max_retries,
             initial_backoff,
             max_backoff: Duration::from_secs(60),
-            circuit_breaker: Arc::new(Mutex::new(CircuitBreaker::new(
-                5,
-                Duration::from_secs(30),
-            ))),
+            circuit_breaker: Arc::new(Mutex::new(CircuitBreaker::new(5, Duration::from_secs(30)))),
         }
     }
 
@@ -130,7 +128,10 @@ impl NetworkRetry {
     {
         // Check circuit breaker
         {
-            let breaker = self.circuit_breaker.lock().expect("Circuit breaker lock poisoned");
+            let breaker = self
+                .circuit_breaker
+                .lock()
+                .expect("Circuit breaker lock poisoned");
             if breaker.is_open() {
                 return Err(Error::network_error(
                     "Circuit breaker open - too many failures",
@@ -159,11 +160,7 @@ impl NetworkRetry {
                         backoff
                     );
 
-                    // Exponential backoff
-                    #[cfg(feature = "async")]
-                    tokio::time::sleep(backoff).await;
-
-                    #[cfg(not(feature = "async"))]
+                    // Exponential backoff (synchronous)
                     std::thread::sleep(backoff);
 
                     backoff = (backoff * 2).min(self.max_backoff);

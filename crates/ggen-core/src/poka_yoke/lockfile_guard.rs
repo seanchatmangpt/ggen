@@ -5,9 +5,9 @@
 use std::fs::{File, OpenOptions};
 use std::path::{Path, PathBuf};
 
-use ggen_utils::error::{Error, Result};
-use crate::lockfile::PackLockfile;
 use super::atomic_writer::AtomicFileWriter;
+use crate::packs::lockfile::PackLockfile;
+use ggen_utils::error::{Error, Result};
 
 /// Lockfile guard with exclusive file locking.
 ///
@@ -37,6 +37,7 @@ use super::atomic_writer::AtomicFileWriter;
 pub struct LockfileGuard {
     lockfile: PackLockfile,
     lock_path: PathBuf,
+    #[allow(dead_code)] // Held for RAII lock release on Drop
     lock_file: File,
 }
 
@@ -62,9 +63,8 @@ impl LockfileGuard {
         // Acquire exclusive lock (blocks until available)
         #[cfg(unix)]
         {
-            use std::os::unix::fs::FileExt;
-            // Use fcntl for exclusive lock (F_SETLKW - blocking)
-            // Note: Simplified implementation, production should use libc::flock
+            use crate::poka_yoke::lockfile_guard::FileExt;
+            // Use local FileExt trait for exclusive lock
             lock_file
                 .try_lock_exclusive()
                 .map_err(|_| Error::new("Lockfile in use by another process"))?;
@@ -81,7 +81,7 @@ impl LockfileGuard {
         let lockfile = if lock_path.exists() {
             PackLockfile::from_file(&lock_path)?
         } else {
-            PackLockfile::new()
+            PackLockfile::new(env!("CARGO_PKG_VERSION"))
         };
 
         Ok(Self {
@@ -110,9 +110,8 @@ impl LockfileGuard {
         // Create backup first
         if self.lock_path.exists() {
             let backup_path = self.lock_path.with_extension("lock.backup");
-            std::fs::copy(&self.lock_path, &backup_path).map_err(|e| {
-                Error::io_error(&format!("Failed to create backup: {}", e))
-            })?;
+            std::fs::copy(&self.lock_path, &backup_path)
+                .map_err(|e| Error::io_error(&format!("Failed to create backup: {}", e)))?;
         }
 
         // Use AtomicFileWriter for atomicity
