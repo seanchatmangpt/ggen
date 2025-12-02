@@ -6,8 +6,8 @@
 //! - Zero overhead on success path
 //! - Minimal overhead on error path (<1μs)
 
+use super::{FailureEvent, FMEA_REGISTRY};
 use crate::error::{Error, Result};
-use super::{FMEA_REGISTRY, FailureEvent};
 
 /// Extension trait for instrumenting Result<T, E> with FMEA tracking.
 ///

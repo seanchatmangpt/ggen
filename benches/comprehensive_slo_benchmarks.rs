@@ -73,9 +73,7 @@ mod slo {
 // ============================================================================
 
 fn get_binary_path() -> Option<std::path::PathBuf> {
-    let binary_path = std::env::current_dir()
-        .ok()?
-        .join("target/release/ggen");
+    let binary_path = std::env::current_dir().ok()?.join("target/release/ggen");
 
     if binary_path.exists() {
         Some(binary_path)
@@ -538,40 +536,19 @@ fn bench_cache_performance_slo(c: &mut Criterion) {
 // CRITERION GROUPS
 // ============================================================================
 
-criterion_group!(
-    cli_slo_benches,
-    bench_cli_startup_slo
-);
+criterion_group!(cli_slo_benches, bench_cli_startup_slo);
 
-criterion_group!(
-    template_slo_benches,
-    bench_template_parsing_slo
-);
+criterion_group!(template_slo_benches, bench_template_parsing_slo);
 
-criterion_group!(
-    json_slo_benches,
-    bench_json_serialization_slo
-);
+criterion_group!(json_slo_benches, bench_json_serialization_slo);
 
-criterion_group!(
-    allocation_benches,
-    bench_string_allocation_patterns
-);
+criterion_group!(allocation_benches, bench_string_allocation_patterns);
 
-criterion_group!(
-    memory_slo_benches,
-    bench_memory_usage_slo
-);
+criterion_group!(memory_slo_benches, bench_memory_usage_slo);
 
-criterion_group!(
-    e2e_slo_benches,
-    bench_e2e_workflow_slo
-);
+criterion_group!(e2e_slo_benches, bench_e2e_workflow_slo);
 
-criterion_group!(
-    cache_slo_benches,
-    bench_cache_performance_slo
-);
+criterion_group!(cache_slo_benches, bench_cache_performance_slo);
 
 criterion_main!(
     cli_slo_benches,

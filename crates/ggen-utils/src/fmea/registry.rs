@@ -16,7 +16,7 @@ use std::time::Instant;
 
 use once_cell::sync::Lazy;
 
-use super::types::{FailureMode, FailureCategory};
+use super::types::{FailureCategory, FailureMode};
 
 /// Global FMEA registry singleton.
 ///
@@ -83,8 +83,12 @@ impl FmeaRegistry {
     }
 
     /// Returns all failure modes in a category.
-    pub fn failure_modes_by_category(&self, category: FailureCategory) -> impl Iterator<Item = &FailureMode> {
-        self.failure_modes.values().filter(move |m| m.category == category)
+    pub fn failure_modes_by_category(
+        &self, category: FailureCategory,
+    ) -> impl Iterator<Item = &FailureMode> {
+        self.failure_modes
+            .values()
+            .filter(move |m| m.category == category)
     }
 
     /// Returns recent failure events.
@@ -93,7 +97,9 @@ impl FmeaRegistry {
     }
 
     /// Returns events for a specific failure mode.
-    pub fn events_for_mode<'a>(&'a self, mode_id: &'a str) -> impl Iterator<Item = &'a FailureEvent> {
+    pub fn events_for_mode<'a>(
+        &'a self, mode_id: &'a str,
+    ) -> impl Iterator<Item = &'a FailureEvent> {
         self.events.iter().filter(move |e| e.mode_id == mode_id)
     }
 

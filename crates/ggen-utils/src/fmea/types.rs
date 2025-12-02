@@ -172,8 +172,11 @@ pub struct RPN(u16);
 impl RPN {
     /// Creates RPN from Severity × Occurrence × Detection.
     #[inline]
-    pub const fn calculate(severity: Severity, occurrence: Occurrence, detection: Detection) -> Self {
-        let value = (severity.value() as u16) * (occurrence.value() as u16) * (detection.value() as u16);
+    pub const fn calculate(
+        severity: Severity, occurrence: Occurrence, detection: Detection,
+    ) -> Self {
+        let value =
+            (severity.value() as u16) * (occurrence.value() as u16) * (detection.value() as u16);
         Self(value)
     }
 
@@ -401,9 +404,13 @@ impl FailureModeBuilder {
     pub fn build(self) -> Result<FailureMode, String> {
         let id = self.id.ok_or("Missing required field: id")?;
         let category = self.category.ok_or("Missing required field: category")?;
-        let description = self.description.ok_or("Missing required field: description")?;
+        let description = self
+            .description
+            .ok_or("Missing required field: description")?;
         let severity = self.severity.ok_or("Missing required field: severity")?;
-        let occurrence = self.occurrence.ok_or("Missing required field: occurrence")?;
+        let occurrence = self
+            .occurrence
+            .ok_or("Missing required field: occurrence")?;
         let detection = self.detection.ok_or("Missing required field: detection")?;
 
         // Auto-calculate RPN

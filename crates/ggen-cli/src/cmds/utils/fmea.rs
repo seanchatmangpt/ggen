@@ -33,13 +33,13 @@ impl std::str::FromStr for ReportFormat {
 /// * `top` - Optional limit to top N failure modes
 #[clap_noun_verb::verb]
 pub fn report(
-    #[clap(long, default_value = "text")] format: String,
-    #[clap(long)] risk: Option<String>,
+    #[clap(long, default_value = "text")] format: String, #[clap(long)] risk: Option<String>,
     #[clap(long, default_value = "20")] top: usize,
 ) -> Result<()> {
     let format: ReportFormat = format.parse()?;
 
-    let registry = FMEA_REGISTRY.read()
+    let registry = FMEA_REGISTRY
+        .read()
         .map_err(|_| Error::new("Failed to acquire FMEA registry lock"))?;
 
     let mut failure_modes: Vec<_> = registry.failure_modes().collect();
@@ -66,7 +66,8 @@ pub fn report(
 /// Generate Pareto analysis (80/20 chart)
 #[clap_noun_verb::verb]
 pub fn pareto() -> Result<()> {
-    let registry = FMEA_REGISTRY.read()
+    let registry = FMEA_REGISTRY
+        .read()
         .map_err(|_| Error::new("Failed to acquire FMEA registry lock"))?;
 
     let mut failure_modes: Vec<_> = registry.failure_modes().collect();
@@ -86,15 +87,18 @@ pub fn pareto() -> Result<()> {
         let percentage = (cumulative as f64 / total_rpn as f64) * 100.0;
 
         // Visual bar (30 chars max)
-        let bar_length = ((fm.rpn.value() as f64 / failure_modes[0].rpn.value() as f64) * 30.0) as usize;
+        let bar_length =
+            ((fm.rpn.value() as f64 / failure_modes[0].rpn.value() as f64) * 30.0) as usize;
         let bar = "█".repeat(bar_length);
         let empty = " ".repeat(30 - bar_length);
 
-        println!("{:2}. [{}{bar}{empty}] {:3} - {}",
-                 i + 1,
-                 if percentage <= 80.0 { "█" } else { " " },
-                 fm.rpn.value(),
-                 fm.id);
+        println!(
+            "{:2}. [{}{bar}{empty}] {:3} - {}",
+            i + 1,
+            if percentage <= 80.0 { "█" } else { " " },
+            fm.rpn.value(),
+            fm.id
+        );
 
         // Draw 80% line
         if !found_80_line && percentage > 80.0 {
@@ -105,14 +109,17 @@ pub fn pareto() -> Result<()> {
     }
 
     println!("\nTotal RPN: {}", total_rpn);
-    println!("Focus on top {} modes for 80% impact",
-             failure_modes.iter()
-                 .scan(0u32, |acc, fm| {
-                     *acc += fm.rpn.value() as u32;
-                     Some((*acc as f64 / total_rpn as f64) <= 0.80)
-                 })
-                 .filter(|&x| x)
-                 .count());
+    println!(
+        "Focus on top {} modes for 80% impact",
+        failure_modes
+            .iter()
+            .scan(0u32, |acc, fm| {
+                *acc += fm.rpn.value() as u32;
+                Some((*acc as f64 / total_rpn as f64) <= 0.80)
+            })
+            .filter(|&x| x)
+            .count()
+    );
 
     Ok(())
 }
@@ -120,10 +127,10 @@ pub fn pareto() -> Result<()> {
 /// List failure modes with filters
 #[clap_noun_verb::verb]
 pub fn list(
-    #[clap(long)] category: Option<String>,
-    #[clap(long, default_value = "rpn")] sort: String,
+    #[clap(long)] category: Option<String>, #[clap(long, default_value = "rpn")] sort: String,
 ) -> Result<()> {
-    let registry = FMEA_REGISTRY.read()
+    let registry = FMEA_REGISTRY
+        .read()
         .map_err(|_| Error::new("Failed to acquire FMEA registry lock"))?;
 
     let mut failure_modes: Vec<_> = registry.failure_modes().collect();
@@ -149,7 +156,12 @@ pub fn list(
         println!("ID: {}", fm.id);
         println!("  Category: {:?}", fm.category);
         println!("  RPN: {} ({})", fm.rpn.value(), fm.rpn.risk_level());
-        println!("  S={} O={} D={}", fm.severity.value(), fm.occurrence.value(), fm.detection.value());
+        println!(
+            "  S={} O={} D={}",
+            fm.severity.value(),
+            fm.occurrence.value(),
+            fm.detection.value()
+        );
         println!("  Description: {}", fm.description);
         println!();
     }
@@ -159,14 +171,13 @@ pub fn list(
 
 /// Show specific failure mode details
 #[clap_noun_verb::verb]
-pub fn show(
-    #[clap()] mode_id: String,
-    #[clap(long)] events: bool,
-) -> Result<()> {
-    let registry = FMEA_REGISTRY.read()
+pub fn show(#[clap()] mode_id: String, #[clap(long)] events: bool) -> Result<()> {
+    let registry = FMEA_REGISTRY
+        .read()
         .map_err(|_| Error::new("Failed to acquire FMEA registry lock"))?;
 
-    let failure_mode = registry.get_failure_mode(&mode_id)
+    let failure_mode = registry
+        .get_failure_mode(&mode_id)
         .ok_or_else(|| Error::not_found(&format!("Failure mode not found: {}", mode_id)))?;
 
     println!("\nFailure Mode Details");
@@ -175,12 +186,26 @@ pub fn show(
     println!("Category: {:?}", failure_mode.category);
     println!("Description: {}", failure_mode.description);
     println!();
-    println!("Risk Priority Number (RPN): {} ({})",
-             failure_mode.rpn.value(),
-             failure_mode.rpn.risk_level());
-    println!("  Severity:    {} ({})", failure_mode.severity.value(), failure_mode.severity.level());
-    println!("  Occurrence:  {} ({})", failure_mode.occurrence.value(), failure_mode.occurrence.level());
-    println!("  Detection:   {} ({})", failure_mode.detection.value(), failure_mode.detection.level());
+    println!(
+        "Risk Priority Number (RPN): {} ({})",
+        failure_mode.rpn.value(),
+        failure_mode.rpn.risk_level()
+    );
+    println!(
+        "  Severity:    {} ({})",
+        failure_mode.severity.value(),
+        failure_mode.severity.level()
+    );
+    println!(
+        "  Occurrence:  {} ({})",
+        failure_mode.occurrence.value(),
+        failure_mode.occurrence.level()
+    );
+    println!(
+        "  Detection:   {} ({})",
+        failure_mode.detection.value(),
+        failure_mode.detection.level()
+    );
     println!();
     println!("Effects:");
     for effect in &failure_mode.effects {
@@ -211,10 +236,7 @@ pub fn show(
         if !events.is_empty() {
             println!("─────────────────");
             for (i, event) in events.iter().rev().take(10).enumerate() {
-                println!("{}. [{}] {}",
-                         i + 1,
-                         event.operation,
-                         event.error_message);
+                println!("{}. [{}] {}", i + 1, event.operation, event.error_message);
                 if let Some(ctx) = &event.context {
                     println!("   Context: {}", ctx);
                 }
@@ -230,10 +252,9 @@ pub fn show(
 
 /// Export FMEA data to JSON
 #[clap_noun_verb::verb]
-pub fn export(
-    #[clap(long, default_value = "fmea-report.json")] output: String,
-) -> Result<()> {
-    let registry = FMEA_REGISTRY.read()
+pub fn export(#[clap(long, default_value = "fmea-report.json")] output: String) -> Result<()> {
+    let registry = FMEA_REGISTRY
+        .read()
         .map_err(|_| Error::new("Failed to acquire FMEA registry lock"))?;
 
     let failure_modes: Vec<_> = registry.failure_modes().collect();
@@ -286,7 +307,9 @@ pub fn export(
 
 // Helper functions
 
-fn print_text_report(failure_modes: &[&ggen_utils::fmea::FailureMode], registry: &ggen_utils::fmea::FmeaRegistry) {
+fn print_text_report(
+    failure_modes: &[&ggen_utils::fmea::FailureMode], registry: &ggen_utils::fmea::FmeaRegistry,
+) {
     println!("\nFMEA Report - ggen CLI");
     println!("======================\n");
     println!("Top Failure Modes by RPN (Pareto: 80% of risk)");
@@ -295,16 +318,27 @@ fn print_text_report(failure_modes: &[&ggen_utils::fmea::FailureMode], registry:
     for (i, fm) in failure_modes.iter().enumerate() {
         let events: Vec<_> = registry.events_for_mode(&fm.id).collect();
 
-        println!("{}. {} (RPN {} - {})",
-                 i + 1,
-                 fm.id,
-                 fm.rpn.value(),
-                 fm.rpn.risk_level());
-        println!("   Effect: {}", fm.effects.first().unwrap_or(&"N/A".to_string()));
-        println!("   Control: {}", fm.controls.first().unwrap_or(&"N/A".to_string()));
+        println!(
+            "{}. {} (RPN {} - {})",
+            i + 1,
+            fm.id,
+            fm.rpn.value(),
+            fm.rpn.risk_level()
+        );
+        println!(
+            "   Effect: {}",
+            fm.effects.first().unwrap_or(&"N/A".to_string())
+        );
+        println!(
+            "   Control: {}",
+            fm.controls.first().unwrap_or(&"N/A".to_string())
+        );
         println!("   Events: {} occurrences", events.len());
         if let Some(last_event) = events.last() {
-            println!("   Last: {}", last_event.error_message.lines().next().unwrap_or(""));
+            println!(
+                "   Last: {}",
+                last_event.error_message.lines().next().unwrap_or("")
+            );
         }
         println!();
     }

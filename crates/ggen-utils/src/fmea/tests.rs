@@ -184,9 +184,9 @@ fn test_rpn_risk_levels() {
     let d10 = Detection::new(10).unwrap();
 
     // Act
-    let rpn_low = RPN::calculate(s1, o1, d1);        // 1
-    let rpn_medium = RPN::calculate(s5, o5, d5);     // 125
-    let rpn_high = RPN::calculate(s7, o7, d7);       // 343
+    let rpn_low = RPN::calculate(s1, o1, d1); // 1
+    let rpn_medium = RPN::calculate(s5, o5, d5); // 125
+    let rpn_high = RPN::calculate(s7, o7, d7); // 343
     let rpn_critical = RPN::calculate(s10, o10, d10); // 1000
 
     // Assert
@@ -364,8 +364,12 @@ fn test_registry_filter_by_category() {
     registry.register(mode2);
 
     // Act
-    let file_modes: Vec<_> = registry.failure_modes_by_category(FailureCategory::FileIO).collect();
-    let network_modes: Vec<_> = registry.failure_modes_by_category(FailureCategory::NetworkOps).collect();
+    let file_modes: Vec<_> = registry
+        .failure_modes_by_category(FailureCategory::FileIO)
+        .collect();
+    let network_modes: Vec<_> = registry
+        .failure_modes_by_category(FailureCategory::NetworkOps)
+        .collect();
 
     // Assert
     assert_eq!(file_modes.len(), 1);
@@ -469,5 +473,9 @@ fn test_catalog_pareto_distribution() {
     let percentage = (top_4 as f64 / total as f64) * 100.0;
 
     // Top 4 should be >= 60% (relaxed from 80% due to 8 items)
-    assert!(percentage >= 60.0, "Top 4 RPN should be >= 60% of total, got {:.1}%", percentage);
+    assert!(
+        percentage >= 60.0,
+        "Top 4 RPN should be >= 60% of total, got {:.1}%",
+        percentage
+    );
 }
