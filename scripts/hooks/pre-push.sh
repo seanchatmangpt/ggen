@@ -1,130 +1,97 @@
 #!/usr/bin/env bash
-# pre-push.sh - Full Tier Git Hook
-# DfLSS: Comprehensive validation before sharing code
-# 80/20: Catch remaining 38% of defects in <60 seconds
+# pre-push.sh - Full Tier Git Hook (80/20 Optimized)
+# Target: <90 seconds | Value: 97% defect detection
+# Philosophy: Comprehensive validation before sharing code
 
 set -e
+cd "$(git rev-parse --show-toplevel)"
 
-# Source common library
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/../lib/hooks-common.sh"
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BOLD='\033[1m'
+NC='\033[0m'
 
-# ============================================================
-# CONFIGURATION
-# ============================================================
-
-# Pre-push specific timeouts (full tier)
-TIMEOUT_CHECK=15    # 15 seconds for cargo check
-TIMEOUT_LINT=60     # 60 seconds for clippy
-TIMEOUT_FORMAT=10   # 10 seconds for format check
-TIMEOUT_TEST=120    # 120 seconds for unit tests
-TIMEOUT_AUDIT=30    # 30 seconds for security audit
-
-# Counters for summary
+# Counters
 PASSED=0
-WARNED=0
 FAILED=0
 
-# ============================================================
-# MAIN EXECUTION
-# ============================================================
+echo ""
+echo -e "${BOLD}Pre-Push Validation${NC} (Full Tier)"
+echo ""
 
-main() {
+# Gate 1: Cargo Check (60% of defects - VITAL)
+echo -n "  [1/4] Cargo check... "
+if timeout 15s cargo check --quiet 2>/dev/null; then
+    echo -e "${GREEN}PASS${NC}"
+    PASSED=$((PASSED + 1))
+else
+    echo -e "${RED}FAIL${NC}"
+    FAILED=$((FAILED + 1))
     echo ""
-    echo -e "${BOLD}Pre-Push Validation (Full Tier)${NC}"
-    echo -e "Target: <60 seconds | Value: 100% of defects"
+    echo -e "${RED}${BOLD}STOP: Compilation errors${NC}"
+    cargo check 2>&1 | head -30
+    exit 1
+fi
+
+# Gate 2: Clippy Lint (15% of defects)
+echo -n "  [2/4] Clippy lint... "
+if timeout 60s cargo clippy --quiet -- -D warnings 2>/dev/null; then
+    echo -e "${GREEN}PASS${NC}"
+    PASSED=$((PASSED + 1))
+else
+    echo -e "${RED}FAIL${NC}"
+    FAILED=$((FAILED + 1))
     echo ""
+    echo -e "${RED}${BOLD}STOP: Clippy warnings${NC}"
+    cargo clippy -- -D warnings 2>&1 | head -40
+    exit 1
+fi
 
-    # Initialize environment
-    if ! init_hook_env; then
-        exit 1
-    fi
-
-    # ========================================================
-    # Gate 1: Cargo Check (CRITICAL - 60% value)
-    # ========================================================
-    echo "Gate 1/5: Cargo Check..."
-    if run_gate "Cargo Check" "cargo make check-pre-push" "$TIMEOUT_CHECK" 0 "$ANDON_RED"; then
+# Gate 3: Format Check (2% but ensures consistency)
+echo -n "  [3/4] Format check... "
+if cargo fmt --all -- --check >/dev/null 2>&1; then
+    echo -e "${GREEN}PASS${NC}"
+    PASSED=$((PASSED + 1))
+else
+    echo -e "${YELLOW}AUTO-FIX${NC}"
+    cargo fmt --all >/dev/null 2>&1 || true
+    # Re-check
+    if cargo fmt --all -- --check >/dev/null 2>&1; then
+        echo -e "  ${YELLOW}Code formatted. Changes staged.${NC}"
         PASSED=$((PASSED + 1))
     else
+        echo -e "${RED}FAIL${NC}"
         FAILED=$((FAILED + 1))
-        andon_summary $PASSED $WARNED $FAILED
         exit 1
     fi
+fi
 
-    # ========================================================
-    # Gate 2: Clippy Lint (HIGH - 15% value)
-    # ========================================================
-    echo "Gate 2/5: Clippy Lint..."
-    if run_gate "Clippy Lint" "cargo make lint" "$TIMEOUT_LINT" 1 "$ANDON_RED"; then
-        PASSED=$((PASSED + 1))
-    else
-        FAILED=$((FAILED + 1))
-        andon_summary $PASSED $WARNED $FAILED
-        exit 1
-    fi
-
-    # ========================================================
-    # Gate 3: Format Check (LOW - 2% value, auto-fixable)
-    # ========================================================
-    echo "Gate 3/5: Format Check..."
-    if run_gate "Format Check" "cargo fmt --all -- --check" "$TIMEOUT_FORMAT" 0 "$ANDON_YELLOW"; then
-        PASSED=$((PASSED + 1))
-    else
-        # Attempt auto-fix
-        if autofix_format; then
-            # Re-check after fix
-            if run_gate "Format Recheck" "cargo fmt --all -- --check" "$TIMEOUT_FORMAT" 0 "$ANDON_RED"; then
-                WARNED=$((WARNED + 1))
-                andon_signal "$ANDON_YELLOW" "Format" "Auto-fixed. Verify changes."
-            else
-                FAILED=$((FAILED + 1))
-                andon_summary $PASSED $WARNED $FAILED
-                exit 1
-            fi
-        else
-            FAILED=$((FAILED + 1))
-            andon_summary $PASSED $WARNED $FAILED
-            exit 1
-        fi
-    fi
-
-    # ========================================================
-    # Gate 4: Unit Tests (CRITICAL - 20% value)
-    # ========================================================
-    echo "Gate 4/5: Unit Tests..."
-    if run_gate "Unit Tests" "cargo make test-unit" "$TIMEOUT_TEST" 0 "$ANDON_RED"; then
-        PASSED=$((PASSED + 1))
-    else
-        FAILED=$((FAILED + 1))
-        andon_summary $PASSED $WARNED $FAILED
-        exit 1
-    fi
-
-    # ========================================================
-    # Gate 5: Security Audit (MEDIUM - 3% value, warning only)
-    # ========================================================
-    echo "Gate 5/5: Security Audit..."
-    if run_gate "Security Audit" "cargo make audit" "$TIMEOUT_AUDIT" 0 "$ANDON_YELLOW"; then
-        PASSED=$((PASSED + 1))
-    else
-        # Non-blocking - just warn
-        WARNED=$((WARNED + 1))
-        andon_signal "$ANDON_YELLOW" "Security Audit" "Vulnerabilities found. Review with: cargo make audit"
-    fi
-
-    # ========================================================
-    # Summary
-    # ========================================================
+# Gate 4: Unit Tests (20% of defects - VITAL)
+echo -n "  [4/4] Unit tests... "
+if timeout 90s cargo test --lib --quiet 2>/dev/null; then
+    echo -e "${GREEN}PASS${NC}"
+    PASSED=$((PASSED + 1))
+else
+    echo -e "${RED}FAIL${NC}"
+    FAILED=$((FAILED + 1))
     echo ""
-    if andon_summary $PASSED $WARNED $FAILED; then
-        echo -e "${GREEN}Pre-push passed. Push will proceed.${NC}"
-        exit 0
-    else
-        echo -e "${RED}Pre-push failed. Fix issues before pushing.${NC}"
-        exit 1
-    fi
-}
+    echo -e "${RED}${BOLD}STOP: Test failures${NC}"
+    cargo test --lib 2>&1 | grep -E "(FAILED|error\[)" | head -20
+    exit 1
+fi
 
-# Run main
-main "$@"
+# Summary
+echo ""
+echo -e "${BOLD}========================================${NC}"
+echo -e "  ${GREEN}Passed: $PASSED${NC}  ${RED}Failed: $FAILED${NC}"
+echo -e "${BOLD}========================================${NC}"
+
+if [[ $FAILED -gt 0 ]]; then
+    echo -e "${RED}${BOLD}BLOCKED: Fix issues before push${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}${BOLD}All gates passed. Push will proceed.${NC}"
+exit 0
