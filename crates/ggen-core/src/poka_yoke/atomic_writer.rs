@@ -39,7 +39,7 @@ pub struct AtomicFileWriter<State = Uncommitted> {
     target_path: PathBuf,
     temp_path: PathBuf,
     file: File,
-    committed: bool,  // Track if file was committed (for Drop)
+    committed: bool, // Track if file was committed (for Drop)
     _state: PhantomData<State>,
 }
 
@@ -126,10 +126,7 @@ impl AtomicFileWriter<Uncommitted> {
     pub fn commit(mut self) -> Result<AtomicFileWriter<Committed>> {
         // Atomic rename (POSIX guarantees atomicity)
         fs::rename(&self.temp_path, &self.target_path).map_err(|e| {
-            Error::io_error(&format!(
-                "Failed to commit file (rename failed): {}",
-                e
-            ))
+            Error::io_error(&format!("Failed to commit file (rename failed): {}", e))
         })?;
 
         // Mark as committed to prevent cleanup in Drop
@@ -138,7 +135,10 @@ impl AtomicFileWriter<Uncommitted> {
         Ok(AtomicFileWriter {
             target_path: self.target_path.clone(),
             temp_path: self.temp_path.clone(),
-            file: self.file.try_clone().map_err(|e| Error::io_error(&format!("Failed to clone file handle: {}", e)))?,
+            file: self
+                .file
+                .try_clone()
+                .map_err(|e| Error::io_error(&format!("Failed to clone file handle: {}", e)))?,
             committed: true,
             _state: PhantomData,
         })

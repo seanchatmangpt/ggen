@@ -70,7 +70,7 @@ fi
 
 # Gate 4: Unit Tests (20% of defects - VITAL)
 echo -n "  [4/4] Unit tests... "
-if timeout 90s cargo test --lib --quiet 2>/dev/null; then
+if timeout 90s cargo test --workspace --lib --quiet 2>/dev/null; then
     echo -e "${GREEN}PASS${NC}"
     PASSED=$((PASSED + 1))
 else
@@ -78,7 +78,7 @@ else
     FAILED=$((FAILED + 1))
     echo ""
     echo -e "${RED}${BOLD}STOP: Test failures${NC}"
-    cargo test --lib 2>&1 | grep -E "(FAILED|error\[)" | head -20
+    cargo test --workspace --lib 2>&1 | grep -E "(FAILED|error\[)" | head -20
     exit 1
 fi
 

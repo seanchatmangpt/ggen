@@ -17,21 +17,21 @@
 //! 7. [`DryRunMode`] - Preview before execution
 
 pub mod atomic_writer;
-pub mod validated_path;
-pub mod timeout_io;
-pub mod sanitized_input;
+pub mod dry_run;
 pub mod lockfile_guard;
 pub mod network_retry;
-pub mod dry_run;
+pub mod sanitized_input;
+pub mod timeout_io;
+pub mod validated_path;
 
 // Re-export core types
-pub use atomic_writer::{AtomicFileWriter, Uncommitted, Committed};
-pub use validated_path::ValidatedPath;
-pub use timeout_io::TimeoutIO;
-pub use sanitized_input::{SanitizedInput, InputType};
+pub use atomic_writer::{AtomicFileWriter, Committed, Uncommitted};
+pub use dry_run::{DryRunMode, Operation};
 pub use lockfile_guard::LockfileGuard;
 pub use network_retry::NetworkRetry;
-pub use dry_run::{DryRunMode, Operation};
+pub use sanitized_input::{InputType, SanitizedInput};
+pub use timeout_io::TimeoutIO;
+pub use validated_path::ValidatedPath;
 
 #[cfg(test)]
 mod tests;

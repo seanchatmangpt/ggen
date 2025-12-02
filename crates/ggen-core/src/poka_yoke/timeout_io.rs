@@ -50,47 +50,4 @@ impl TimeoutIO {
             .build()
             .map_err(|e| Error::network_error(&format!("Failed to create HTTP client: {}", e)))
     }
-
-    /// Reads a file with timeout enforcement.
-    ///
-    /// # Errors
-    ///
-    /// Returns error if read times out or I/O error occurs.
-    #[cfg(feature = "async")]
-    pub async fn read_file_with_timeout(
-        path: impl AsRef<std::path::Path>,
-        timeout: Duration,
-    ) -> Result<Vec<u8>> {
-        tokio::time::timeout(timeout, tokio::fs::read(path.as_ref()))
-            .await
-            .map_err(|_| {
-                Error::io_error(&format!(
-                    "File read timeout after {:?}",
-                    timeout
-                ))
-            })?
-            .map_err(|e| Error::io_error(&format!("File read error: {}", e)))
-    }
-
-    /// Writes a file with timeout enforcement.
-    ///
-    /// # Errors
-    ///
-    /// Returns error if write times out or I/O error occurs.
-    #[cfg(feature = "async")]
-    pub async fn write_file_with_timeout(
-        path: impl AsRef<std::path::Path>,
-        contents: &[u8],
-        timeout: Duration,
-    ) -> Result<()> {
-        tokio::time::timeout(timeout, tokio::fs::write(path.as_ref(), contents))
-            .await
-            .map_err(|_| {
-                Error::io_error(&format!(
-                    "File write timeout after {:?}",
-                    timeout
-                ))
-            })?
-            .map_err(|e| Error::io_error(&format!("File write error: {}", e)))
-    }
 }

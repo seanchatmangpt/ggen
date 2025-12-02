@@ -270,7 +270,9 @@ impl LockfileManager {
 
         // OPTIMIZATION 1.2: Check cache first for memoization (30-50% speedup)
         {
-            let mut cache = self.dep_cache.lock()
+            let mut cache = self
+                .dep_cache
+                .lock()
                 .map_err(|e| Error::new(&format!("Dependency cache lock poisoned: {}", e)))?;
             if let Some(cached_deps) = cache.get(&cache_key) {
                 return Ok(cached_deps.clone());
@@ -302,7 +304,9 @@ impl LockfileManager {
 
         // OPTIMIZATION 1.2: Store in cache for future lookups
         {
-            let mut cache = self.dep_cache.lock()
+            let mut cache = self
+                .dep_cache
+                .lock()
                 .map_err(|e| Error::new(&format!("Dependency cache lock poisoned: {}", e)))?;
             cache.put(cache_key, result.clone());
         }
@@ -482,7 +486,8 @@ impl LockfileManager {
     /// Get cache statistics
     pub fn cache_stats(&self) -> (usize, usize) {
         // Return (0, 0) if mutex is poisoned - cache stats are non-critical
-        self.dep_cache.lock()
+        self.dep_cache
+            .lock()
             .map(|cache| (cache.len(), cache.cap().get()))
             .unwrap_or((0, 0))
     }
