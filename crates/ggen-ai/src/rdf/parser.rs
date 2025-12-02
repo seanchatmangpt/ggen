@@ -159,11 +159,9 @@ impl RdfParser {
     }
 }
 
-impl Default for RdfParser {
-    fn default() -> Self {
-        Self::new().expect("Failed to create default RdfParser")
-    }
-}
+// NOTE: Default implementation removed - RdfParser::new() can fail (Store::new())
+// Use RdfParser::new() explicitly and handle the Result
+// This prevents panic!() in production code per PHASE 1.1 requirements
 
 #[cfg(test)]
 mod tests {
@@ -267,8 +265,8 @@ ex2:subject3 ex2:predicate3 "value3" .
     }
 
     #[test]
-    fn test_default_parser() {
-        let parser = RdfParser::default();
+    fn test_new_parser() {
+        let parser = RdfParser::new().unwrap();
         assert_eq!(parser.triple_count(), 0);
     }
 

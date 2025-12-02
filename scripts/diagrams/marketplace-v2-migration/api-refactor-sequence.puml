@@ -1,0 +1,167 @@
+@startuml api-refactor-sequence
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam sequenceMessageAlign center
+skinparam shadowing false
+
+title **Marketplace-V2: API Refactor & CLI Integration**\n<size:12>//Fixing 128 Compilation Errors//</size>
+
+actor Developer as DEV
+participant "cargo build" as BUILD
+participant "Error Analyzer" as ANALYZER
+participant "marketplace.rs\n(CLI Command)" as CMD
+participant "marketplace-v2\n(Crate)" as LIB
+participant "clap-noun-verb\n(Router)" as ROUTER
+participant "Test Suite" as TESTS
+
+== Phase 1: Identify Compilation Errors ==
+
+DEV -> BUILD: cargo build -p ggen-marketplace-v2
+BUILD -> BUILD: Compile fails with 128 errors
+BUILD --> DEV: Error output
+
+DEV -> ANALYZER: Parse & categorize errors
+ANALYZER -> ANALYZER: Group by type:\n- API changes (40%)\n- Trait bounds (30%)\n- Imports (20%)\n- Dependencies (10%)
+
+ANALYZER --> DEV: Error classification report
+
+== Phase 2: Fix API Integration Issues ==
+
+DEV -> CMD: Update marketplace.rs\n(crates/ggen-cli/src/cmds/marketplace.rs)
+
+note over CMD
+    Current state: File exists but module disabled
+    
+    Required changes:
+    1. Add [verb] attributes for clap-noun-verb
+    2. Implement command functions
+    3. Bridge async→sync CLI execution
+    4. Add error handling & output formatting
+end note
+
+CMD -> LIB: Import types from marketplace-v2
+LIB --> CMD: Re-export prelude
+
+CMD -> CMD: Implement [verb] functions:\n- marketplace_install()\n- marketplace_search()\n- marketplace_publish()\n- marketplace_info()\n- etc.
+
+note over CMD
+    Pattern for each command:
+    
+    #[verb]
+    pub async fn marketplace_VERB(args: Args) -> Result<()> {
+        let client = Marketplace::new()?;
+        client.VERB(args).await?;
+        Ok(())
+    }
+    
+    Uses async_trait for command bridge
+end note
+
+== Phase 3: Enable CLI Module ==
+
+DEV -> ROUTER: Uncomment: pub mod marketplace\n(crates/ggen-cli/src/cmds/mod.rs:15)
+
+ROUTER -> ROUTER: Scan marketplace module\nfor [verb] functions
+
+ROUTER -> ROUTER: Auto-register commands:\n- marketplace install\n- marketplace search\n- marketplace publish\n- marketplace info\n- marketplace validate\n- marketplace versions\n- marketplace metrics\n- marketplace sparql\n- marketplace rdf_stats
+
+== Phase 4: Fix Trait Bounds & Generics ==
+
+DEV -> LIB: Review compilation errors\nabout trait bounds
+
+note over LIB
+    Common issues in marketplace-v2:
+    
+    1. async_trait requires proper bounds:
+       pub async fn foo<T: Trait + Send>(...)
+    
+    2. GATs need explicit where clauses:
+       where for<'a> Self::Item<'a>: Send
+    
+    3. HRTB bounds in search:
+       where for<'a> T: Fn(&'a str) -> bool
+    
+    4. Missing PhantomData for type state:
+       struct State<T>(PhantomData<T>);
+end note
+
+DEV -> LIB: Add Send + Sync bounds\nto async functions
+DEV -> LIB: Fix lifetime issues\nin trait definitions
+DEV -> LIB: Update where clauses\nfor generic constraints
+
+BUILD -> BUILD: Verify fixes compile
+
+== Phase 5: Resolve Import & Module Issues ==
+
+DEV -> LIB: Check all pub use exports\nin lib.rs
+
+note over LIB
+    Ensure these are exported (line 104-114):
+    
+    pub use error::{Error, Result};
+    pub use install::Installer;
+    pub use metrics::MetricsCollector;
+    pub use models::*;
+    pub use registry::Registry;
+    pub use registry_rdf::RdfRegistry;
+    pub use search::SearchEngine;
+    pub use search_sparql::SparqlSearchEngine;
+    pub use security::SignatureVerifier;
+    pub use traits::*;
+    pub use v3::V3OptimizedRegistry;
+    pub use validation::Validator;
+end note
+
+DEV -> CMD: Update use statements\nto match exports
+DEV -> LIB: Verify all modules compile\nindependently
+
+== Phase 6: Validate Command Bridge ==
+
+DEV -> TESTS: Verify test suite compiles
+
+TESTS -> TESTS: Run unit tests (84-88)
+TESTS -> TESTS: Run integration tests (89)
+TESTS -> TESTS: Run property tests (90)
+
+note over TESTS
+    Expected: 107 tests PASSING
+    
+    If failures:
+    - Fix test-specific imports
+    - Update mock implementations
+    - Verify trait implementations
+end note
+
+TESTS --> DEV: All tests PASS ✓
+
+== Phase 7: Integration Verification ==
+
+DEV -> BUILD: cargo build (full workspace)
+BUILD --> DEV: Success ✓
+
+DEV -> CMD: Test CLI discovery
+CMD -> ROUTER: ggen marketplace --help
+ROUTER --> CMD: Show all marketplace subcommands
+CMD --> DEV: ✓ Commands available
+
+DEV -> CMD: Test actual command
+CMD -> LIB: ggen marketplace search "test"
+LIB -> LIB: Execute search
+LIB --> CMD: Return results
+CMD --> DEV: ✓ Command works
+
+== Phase 8: Production Validation ==
+
+DEV -> BUILD: cargo make ci\n(full CI pipeline)
+BUILD --> DEV: All checks PASS ✓
+
+legend right
+    <b>Error Categories (128 total)</b>
+    |= Category |= Count |= Resolution |
+    | API Changes | 51 | Update signatures |
+    | Trait Bounds | 38 | Add Send+Sync |
+    | Imports | 25 | Fix use statements |
+    | Dependencies | 14 | Update versions |
+endlegend
+
+@enduml

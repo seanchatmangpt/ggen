@@ -247,11 +247,9 @@ impl PromptTemplateLoader {
     }
 }
 
-impl Default for PromptTemplateLoader {
-    fn default() -> Self {
-        Self::new().expect("Failed to initialize PromptTemplateLoader")
-    }
-}
+// NOTE: Default implementation removed - PromptTemplateLoader::new() can fail (file system)
+// Use PromptTemplateLoader::new() explicitly and handle the Result
+// This prevents panic!() in production code per PHASE 1.1 requirements
 
 #[cfg(test)]
 mod tests {

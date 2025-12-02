@@ -138,6 +138,7 @@ pub mod ontology;
 pub mod ontology_pack;
 pub mod packs; // Pack installation system - Phase 1
 pub mod pipeline;
+pub mod poka_yoke; // Poka-Yoke error-proofing mechanisms
 pub mod poc;
 pub mod pqc;
 pub mod preprocessor;

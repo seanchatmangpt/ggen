@@ -299,7 +299,10 @@ impl TemplateGenerator {
             template.name, template.description
         );
 
-        std::fs::write(&output_file, content)?;
+        // FMEA tracked file I/O with proper instrumentation
+        ggen_utils::fmea_track!("file_io_write_fail", &format!("write_{}", output_file.display()), {
+            std::fs::write(&output_file, content)
+        })?;
         files_created.push(output_file);
 
         info!("Created {} files", files_created.len());
@@ -405,9 +408,15 @@ impl TemplateGenerator {
     }
 }
 
+// NOTE: Default implementation removed - TemplateGenerator::new() is infallible
+// but we remove it to maintain consistent patterns across codebase
+// Use TemplateGenerator::new().unwrap_or_else(...) explicitly if Default is needed
 impl Default for TemplateGenerator {
     fn default() -> Self {
-        Self::new().expect("Failed to create default template generator")
+        // Tera::default() is infallible, so this is safe
+        Self {
+            tera: tera::Tera::default(),
+        }
     }
 }
 

@@ -283,6 +283,10 @@ harness = false
 name = "cli_startup_performance"
 harness = false
 
+[[bench]]
+name = "comprehensive_slo_benchmarks"
+harness = false
+
 [[test]]
 name = "testcontainer_marketplace_git_hooks"
 path = "tests/integration/testcontainer_marketplace_git_hooks.rs"

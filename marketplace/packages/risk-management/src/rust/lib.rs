@@ -21,7 +21,7 @@ pub struct VaRCalculator;
 impl VaRCalculator {
     pub fn historical_var(returns: &[f64], confidence_level: f64) -> f64 {
         let mut sorted = returns.to_vec();
-        sorted.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        sorted.sort_by(|a, b| a.partial_cmp(b).expect("NaN in comparison"));
         let idx = ((1.0 - confidence_level) * sorted.len() as f64) as usize;
         -sorted[idx]
     }

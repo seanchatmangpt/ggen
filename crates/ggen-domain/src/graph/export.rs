@@ -112,9 +112,12 @@ pub struct ExportInput {
 /// using Oxigraph's RdfSerializer API following core team best practices.
 pub fn export_graph(options: ExportOptions) -> Result<String> {
     // Use provided graph or create empty one
-    let graph = options
-        .graph
-        .unwrap_or_else(|| Graph::new().expect("Failed to create empty graph"));
+    let graph = match options.graph {
+        Some(g) => g,
+        None => Graph::new().map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to create empty graph: {}", e))
+        })?,
+    };
 
     // Convert domain ExportFormat to Oxigraph RdfFormat
     let rdf_format = match options.format {

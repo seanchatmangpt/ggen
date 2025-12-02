@@ -537,6 +537,30 @@ workspace = false
 command = "./scripts/production-readiness-validation.sh"
 args = ["--full"]
 
+[tasks.fmea-report]
+description = "Generate FMEA report"
+workspace = false
+command = "cargo"
+args = ["run", "--bin", "ggen", "--", "utils", "fmea", "report"]
+
+[tasks.fmea-pareto]
+description = "Generate Pareto analysis (80/20)"
+workspace = false
+command = "cargo"
+args = ["run", "--bin", "ggen", "--", "utils", "fmea", "pareto"]
+
+[tasks.fmea-list]
+description = "List failure modes"
+workspace = false
+command = "cargo"
+args = ["run", "--bin", "ggen", "--", "utils", "fmea", "list"]
+
+[tasks.fmea-export]
+description = "Export FMEA data to JSON"
+workspace = false
+command = "cargo"
+args = ["run", "--bin", "ggen", "--", "utils", "fmea", "export", "--output", "fmea-report.json"]
+
 [tasks.test-live]
 description = "Run tests with live LLM integrations (requires API keys)"
 command = "cargo"

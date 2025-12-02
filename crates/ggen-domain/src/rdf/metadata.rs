@@ -610,11 +610,9 @@ impl TemplateMetadataStore {
     }
 }
 
-impl Default for TemplateMetadataStore {
-    fn default() -> Self {
-        Self::new().expect("Failed to create default metadata store")
-    }
-}
+// NOTE: Default implementation removed - TemplateMetadataStore::new() can fail
+// Use TemplateMetadataStore::new() explicitly and handle the Result
+// This prevents panic!() in production code per PHASE 1.1 requirements
 
 /// Escape special characters in RDF literals
 fn escape_literal(s: &str) -> String {

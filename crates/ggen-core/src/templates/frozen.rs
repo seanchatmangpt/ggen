@@ -215,7 +215,10 @@ impl FrozenParser {
 
         // Find all start tags
         for start_match in start_regex.captures_iter(template_content) {
-            let start_pos = start_match.get(0).unwrap().end();
+            let full_match = start_match
+                .get(0)
+                .ok_or_else(|| Error::new("Invalid regex match"))?;
+            let start_pos = full_match.end();
             let id = start_match.get(1).map(|m| m.as_str().to_string());
 
             // Find corresponding end tag
@@ -224,7 +227,7 @@ impl FrozenParser {
                 let content = template_content[start_pos..end_pos].to_string();
 
                 sections.push(FrozenSection {
-                    start: start_match.get(0).unwrap().start(),
+                    start: full_match.start(),
                     end: end_match.end(),
                     content,
                     id,
@@ -232,7 +235,7 @@ impl FrozenParser {
             } else {
                 return Err(Error::new(&format!(
                     "Unclosed frozen tag at position {}",
-                    start_match.get(0).unwrap().start()
+                    full_match.start()
                 )));
             }
         }
@@ -414,7 +417,9 @@ impl FrozenMerger {
                     }
                 } else {
                     // Keep new content if no preserved version exists
-                    caps.get(0).unwrap().as_str().to_string()
+                    caps.get(0)
+                        .map(|m| m.as_str().to_string())
+                        .unwrap_or_default()
                 }
             })
             .to_string();
@@ -477,8 +482,16 @@ impl FrozenMerger {
     /// assert!(stripped.contains("preserved code"));
     /// ```
     pub fn strip_frozen_tags(content: &str) -> String {
-        let start_regex = Regex::new(r#"\{%\s*frozen(?:\s+id\s*=\s*"[^"]+")?\s*%\}"#).unwrap();
-        let end_regex = Regex::new(r"\{%\s*endfrozen\s*%\}").unwrap();
+        // Use lazy_static or hardcoded patterns - if regex compilation fails, return original
+        let start_pattern = r#"\{%\s*frozen(?:\s+id\s*=\s*"[^"]+")?\s*%\}"#;
+        let end_pattern = r"\{%\s*endfrozen\s*%\}";
+
+        let Ok(start_regex) = Regex::new(start_pattern) else {
+            return content.to_string();
+        };
+        let Ok(end_regex) = Regex::new(end_pattern) else {
+            return content.to_string();
+        };
 
         let content = start_regex.replace_all(content, "");
         end_regex.replace_all(&content, "").to_string()

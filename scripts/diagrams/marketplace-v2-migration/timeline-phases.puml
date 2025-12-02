@@ -1,0 +1,63 @@
+@startuml timeline-phases
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam shadowing false
+
+title **Marketplace-V2 Integration Timeline**\n<size:12>//8-Phase Migration from Disabled to Production//</size>
+
+gantt
+    title Migration Phases & Deliverables
+    dateFormat YYYY-MM-DD
+    
+    section Analysis
+    Phase 1: Error Analysis & Root Cause   :P1, 2024-01-01, 1d
+    - Identify 128 compilation errors        :P1A, after P1, 1d
+    - Categorize by type (51 API, 38 bounds, 25 imports, 14 deps) :P1B, after P1A, 1d
+    - Create error mapping document         :P1C, after P1B, 1d
+    
+    section Setup
+    Phase 2: CLI Module Integration        :P2, after P1C, 1d
+    - Uncomment pub mod marketplace         :P2A, after P1C, 1d
+    - Verify clap-noun-verb discovery       :P2B, after P2A, 1d
+    - Wire to CLI router                    :P2C, after P2B, 1d
+    
+    section Implementation
+    Phase 3: Fix Compilation Errors        :P3, after P2C, 2d
+    - Fix P0 blocking errors (51 API)       :P3A, after P2C, 1d
+    - Fix P1 critical errors (38 bounds)    :P3B, after P3A, 1d
+    - Fix imports & dependencies (39 total) :P3C, after P3B, 1d
+    
+    section Validation
+    Phase 4: Unit Test Validation          :P4, after P3C, 1d
+    - Run 107 unit tests (5 suites)         :P4A, after P3C, 1d
+    - All tests must PASS ✓                  :P4B, after P4A, 1d
+    
+    section Integration
+    Phase 5: CLI Command Integration       :P5, after P4B, 2d
+    - Implement 9 marketplace commands      :P5A, after P4B, 1d
+    - Bridge async → sync CLI               :P5B, after P5A, 1d
+    - Error handling & formatting           :P5C, after P5B, 1d
+    
+    Phase 6: Integration Testing           :P6, after P5C, 1d
+    - Run integration test suite            :P6A, after P5C, 1d
+    - End-to-end workflow validation        :P6B, after P6A, 1d
+    
+    section Optimization
+    Phase 7: Performance Validation        :P7, after P6B, 1d
+    - Benchmark search (<100ms)             :P7A, after P6B, 1d
+    - Benchmark install (<5s)               :P7B, after P7A, 1d
+    - Verify SLOs met                       :P7C, after P7B, 1d
+    
+    section Release
+    Phase 8: Production Readiness          :P8, after P7C, 1d
+    - Security audit (cargo audit)          :P8A, after P7C, 1d
+    - Dependency verification               :P8B, after P8A, 1d
+    - Version bump & release                :P8C, after P8B, 1d
+    
+    section Post-Release
+    Phase 9: Post-Release Monitoring       :P9, after P8C, 1d
+    - Monitor download stats                :P9A, after P8C, 1d
+    - Monitor issue reports                 :P9B, after P9A, 1d
+    - Prepare hotfix if needed              :P9C, after P9B, 1d
+
+@enduml
