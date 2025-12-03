@@ -1,7 +1,7 @@
-//! Workflow Analytics Commands - Process Mining Integration
+//! Workflow Analytics Commands - clap-noun-verb v5.3.0 Migration
 //!
 //! Commands for tracking and analyzing marketplace and university research workflows
-//! using process mining techniques.
+//! using process mining techniques with the v5.3.0 #[verb("verb", "noun")] pattern.
 
 use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
@@ -58,7 +58,7 @@ struct WorkflowDiscoveryOutput {
 /// # Create RevOps workflow
 /// ggen workflow init --name "revops-pipeline" --type revops
 /// ```
-#[verb]
+#[verb("init", "workflow")]
 fn init(
     name: String, workflow_type: Option<String>, output_dir: Option<PathBuf>,
 ) -> Result<WorkflowInitOutput> {
@@ -83,7 +83,7 @@ fn init(
 /// # Show summary
 /// ggen workflow analyze --workflow-file workflow.json --summary
 /// ```
-#[verb]
+#[verb("analyze", "workflow")]
 fn analyze(workflow_file: String, summary: bool) -> Result<WorkflowAnalysisOutput> {
     let _workflow_file = workflow_file;
     let _summary = summary;
@@ -117,7 +117,7 @@ fn analyze(workflow_file: String, summary: bool) -> Result<WorkflowAnalysisOutpu
 /// # Show 80/20 critical path
 /// ggen workflow discover --workflow-file workflow.json --pareto
 /// ```
-#[verb]
+#[verb("discover", "workflow")]
 fn discover(
     workflow_file: String, export_format: Option<String>, pareto: bool,
 ) -> Result<WorkflowDiscoveryOutput> {
@@ -170,7 +170,7 @@ fn discover(
 ///   --activity "CodeGenerated" \
 ///   --resource "researcher-1"
 /// ```
-#[verb]
+#[verb("event", "workflow")]
 fn event(
     workflow_file: String, case_id: String, activity: String, resource: Option<String>,
 ) -> Result<serde_json::Value> {
@@ -196,7 +196,7 @@ fn event(
 /// # Generate JSON report
 /// ggen workflow report --workflow-file workflow.json --format json --output report.json
 /// ```
-#[verb]
+#[verb("report", "workflow")]
 fn report(
     workflow_file: String, format: Option<String>, output: Option<String>,
 ) -> Result<serde_json::Value> {

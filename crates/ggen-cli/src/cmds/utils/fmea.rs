@@ -1,46 +1,21 @@
-//! FMEA (Failure Mode and Effects Analysis) CLI commands
+//! FMEA (Failure Mode and Effects Analysis) CLI commands - clap-noun-verb v5.3.0 Migration
 //!
-//! Provides CLI commands for viewing FMEA reports, Pareto analysis, and failure mode details.
+//! Provides CLI commands for viewing FMEA reports, Pareto analysis, and failure mode details
+//! using the v5.3.0 #[verb("verb", "noun")] pattern.
 
-use ggen_utils::error::{Error, Result};
+use clap_noun_verb::Result;
+use clap_noun_verb_macros::verb;
 use ggen_utils::fmea::{FailureCategory, FMEA_REGISTRY};
-use std::collections::HashMap;
-
-/// Report format options
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ReportFormat {
-    Text,
-    Json,
-}
-
-impl std::str::FromStr for ReportFormat {
-    type Err = Error;
-
-    fn from_str(s: &str) -> Result<Self> {
-        match s.to_lowercase().as_str() {
-            "text" => Ok(Self::Text),
-            "json" => Ok(Self::Json),
-            _ => Err(Error::invalid_input(&format!("Invalid format: {}", s))),
-        }
-    }
-}
 
 /// Generate FMEA report
-///
-/// # Arguments
-/// * `format` - Output format (text or json)
-/// * `risk_filter` - Optional risk level filter (LOW, MEDIUM, HIGH, CRITICAL)
-/// * `top` - Optional limit to top N failure modes
-#[clap_noun_verb::verb]
-pub fn report(
-    #[clap(long, default_value = "text")] format: String, #[clap(long)] risk: Option<String>,
-    #[clap(long, default_value = "20")] top: usize,
-) -> Result<()> {
-    let format: ReportFormat = format.parse()?;
+#[verb("report", "fmea")]
+pub fn report(format: Option<String>, risk: Option<String>, top: Option<usize>) -> Result<()> {
+    let format = format.unwrap_or_else(|| "text".to_string());
+    let top = top.unwrap_or(20);
 
     let registry = FMEA_REGISTRY
         .read()
-        .map_err(|_| Error::new("Failed to acquire FMEA registry lock"))?;
+        .map_err(|_| clap_noun_verb::NounVerbError::execution_error("Failed to acquire FMEA registry lock"))?;
 
     let mut failure_modes: Vec<_> = registry.all_failure_modes().collect();
 
@@ -55,20 +30,20 @@ pub fn report(
     // Limit to top N
     failure_modes.truncate(top);
 
-    match format {
-        ReportFormat::Text => print_text_report(&failure_modes, &registry),
-        ReportFormat::Json => print_json_report(&failure_modes),
+    match format.as_str() {
+        "json" => print_json_report(&failure_modes),
+        _ => print_text_report(&failure_modes, &registry),
     }
 
     Ok(())
 }
 
 /// Generate Pareto analysis (80/20 chart)
-#[clap_noun_verb::verb]
+#[verb("pareto", "fmea")]
 pub fn pareto() -> Result<()> {
     let registry = FMEA_REGISTRY
         .read()
-        .map_err(|_| Error::new("Failed to acquire FMEA registry lock"))?;
+        .map_err(|_| clap_noun_verb::NounVerbError::execution_error("Failed to acquire FMEA registry lock"))?;
 
     let mut failure_modes: Vec<_> = registry.all_failure_modes().collect();
     failure_modes.sort_by(|a, b| b.rpn.value().cmp(&a.rpn.value()));
@@ -125,19 +100,20 @@ pub fn pareto() -> Result<()> {
 }
 
 /// List failure modes with filters
-#[clap_noun_verb::verb]
-pub fn list(
-    #[clap(long)] category: Option<String>, #[clap(long, default_value = "rpn")] sort: String,
-) -> Result<()> {
+#[verb("list", "fmea")]
+pub fn list(category: Option<String>, sort: Option<String>) -> Result<()> {
+    let sort = sort.unwrap_or_else(|| "rpn".to_string());
+
     let registry = FMEA_REGISTRY
         .read()
-        .map_err(|_| Error::new("Failed to acquire FMEA registry lock"))?;
+        .map_err(|_| clap_noun_verb::NounVerbError::execution_error("Failed to acquire FMEA registry lock"))?;
 
     let mut failure_modes: Vec<_> = registry.all_failure_modes().collect();
 
     // Filter by category if specified
     if let Some(cat) = category {
-        let target_category = parse_category(&cat)?;
+        let target_category = parse_category(&cat)
+            .map_err(|_| clap_noun_verb::NounVerbError::execution_error(&format!("Invalid category: {}", cat)))?;
         failure_modes.retain(|fm| fm.category == target_category);
     }
 
@@ -146,7 +122,7 @@ pub fn list(
         "rpn" => failure_modes.sort_by(|a, b| b.rpn.value().cmp(&a.rpn.value())),
         "id" => failure_modes.sort_by(|a, b| a.id.cmp(&b.id)),
         "severity" => failure_modes.sort_by(|a, b| b.severity.value().cmp(&a.severity.value())),
-        _ => return Err(Error::invalid_input(&format!("Invalid sort: {}", sort))),
+        _ => return Err(clap_noun_verb::NounVerbError::argument_error(&format!("Invalid sort: {}", sort))),
     }
 
     println!("\nFailure Modes");
@@ -170,15 +146,17 @@ pub fn list(
 }
 
 /// Show specific failure mode details
-#[clap_noun_verb::verb]
-pub fn show(#[clap()] mode_id: String, #[clap(long)] events: bool) -> Result<()> {
+#[verb("show", "fmea")]
+pub fn show(mode_id: String, events: Option<bool>) -> Result<()> {
+    let events = events.unwrap_or(false);
+
     let registry = FMEA_REGISTRY
         .read()
-        .map_err(|_| Error::new("Failed to acquire FMEA registry lock"))?;
+        .map_err(|_| clap_noun_verb::NounVerbError::execution_error("Failed to acquire FMEA registry lock"))?;
 
     let failure_mode = registry
         .get_failure_mode(&mode_id)
-        .ok_or_else(|| Error::invalid_input(&format!("Failure mode not found: {}", mode_id)))?;
+        .ok_or_else(|| clap_noun_verb::NounVerbError::argument_error(&format!("Failure mode not found: {}", mode_id)))?;
 
     println!("\nFailure Mode Details");
     println!("====================\n");
@@ -251,18 +229,15 @@ pub fn show(#[clap()] mode_id: String, #[clap(long)] events: bool) -> Result<()>
 }
 
 /// Export FMEA data to JSON
-#[clap_noun_verb::verb]
-pub fn export(#[clap(long, default_value = "fmea-report.json")] output: String) -> Result<()> {
+#[verb("export", "fmea")]
+pub fn export(output: Option<String>) -> Result<()> {
+    let output = output.unwrap_or_else(|| "fmea-report.json".to_string());
+
     let registry = FMEA_REGISTRY
         .read()
-        .map_err(|_| Error::new("Failed to acquire FMEA registry lock"))?;
+        .map_err(|_| clap_noun_verb::NounVerbError::execution_error("Failed to acquire FMEA registry lock"))?;
 
     let failure_modes: Vec<_> = registry.all_failure_modes().collect();
-
-    // Build JSON structure
-    let mut data = HashMap::new();
-    data.insert("version", "1.0");
-    data.insert("timestamp", &chrono::Utc::now().to_rfc3339());
 
     let json = serde_json::json!({
         "version": "1.0",
@@ -297,8 +272,10 @@ pub fn export(#[clap(long, default_value = "fmea-report.json")] output: String) 
         "total_modes": failure_modes.len(),
     });
 
-    std::fs::write(&output, serde_json::to_string_pretty(&json)?)
-        .map_err(|e| Error::io_error(&format!("Failed to write file: {}", e)))?;
+    std::fs::write(&output, serde_json::to_string_pretty(&json).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(&format!("Failed to write file: {}", e))
+    })?)
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(&format!("Failed to write file: {}", e)))?;
 
     println!("FMEA data exported to: {}", output);
 
@@ -307,9 +284,7 @@ pub fn export(#[clap(long, default_value = "fmea-report.json")] output: String) 
 
 // Helper functions
 
-fn print_text_report(
-    failure_modes: &[&ggen_utils::fmea::FailureMode], registry: &ggen_utils::fmea::FmeaRegistry,
-) {
+fn print_text_report(failure_modes: &[&ggen_utils::fmea::FailureMode], registry: &ggen_utils::fmea::FmeaRegistry) {
     println!("\nFMEA Report - ggen CLI");
     println!("======================\n");
     println!("Top Failure Modes by RPN (Pareto: 80% of risk)");
@@ -359,7 +334,7 @@ fn print_json_report(failure_modes: &[&ggen_utils::fmea::FailureMode]) {
     println!("{}", serde_json::to_string_pretty(&json).unwrap());
 }
 
-fn parse_category(s: &str) -> Result<FailureCategory> {
+fn parse_category(s: &str) -> std::result::Result<FailureCategory, String> {
     match s.to_lowercase().as_str() {
         "fileio" => Ok(FailureCategory::FileIO),
         "networkops" => Ok(FailureCategory::NetworkOps),
@@ -369,6 +344,6 @@ fn parse_category(s: &str) -> Result<FailureCategory> {
         "dependencyresolution" => Ok(FailureCategory::DependencyResolution),
         "memoryexhaustion" => Ok(FailureCategory::MemoryExhaustion),
         "deserialization" => Ok(FailureCategory::Deserialization),
-        _ => Err(Error::invalid_input(&format!("Invalid category: {}", s))),
+        _ => Err(format!("Invalid category: {}", s)),
     }
 }
