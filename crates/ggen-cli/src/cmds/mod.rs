@@ -11,10 +11,10 @@
 // Command modules - clap-noun-verb auto-discovery
 pub mod ai;
 pub mod graph;
-pub mod hook;
-// pub mod marketplace;  // DISABLED: Pending v2 API migration (128 compilation errors)
+// pub mod hook;        // DISABLED: Deferred to v4.0.0 - Depends on marketplace-v2 feature
+// pub mod marketplace;  // DISABLED: Deferred to v4.0.0 - RDF-backed marketplace deferred
+// pub mod packs;        // DISABLED: Deferred to v4.0.0 - Depends on marketplace-v2 feature
 pub mod ontology;
-pub mod packs;
 pub mod paper;
 pub mod project;
 pub mod template;
