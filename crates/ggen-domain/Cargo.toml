@@ -25,7 +25,7 @@ thiserror = { workspace = true }
 ggen-core.workspace = true
 ggen-ai.workspace = true
 ggen-utils.workspace = true
-ggen-marketplace-v2 = { path = "../ggen-marketplace-v2", version = "3.0.0" }
+ggen-marketplace-v2.workspace = true
 
 # Crate-specific dependencies
 tera = { workspace = true }
