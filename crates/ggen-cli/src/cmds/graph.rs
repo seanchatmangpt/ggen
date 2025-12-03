@@ -1,6 +1,12 @@
-//! Graph Commands - clap-noun-verb v3.4.0 Migration
+//! Graph Commands - clap-noun-verb v5.3.0 Migration
 //!
-//! This module implements RDF graph operations using the v3.4.0 #[verb] pattern.
+//! This module implements RDF graph operations using the v5.3.0 #[verb(\"verb\", \"noun\")] pattern.
+//!
+//! ## Architecture: Three-Layer Pattern
+//!
+//! - **Layer 3 (CLI)**: Input validation, output formatting, thin routing
+//! - **Layer 2 (Integration)**: Async execution via crate::runtime::block_on, error handling
+//! - **Layer 1 (Domain)**: Pure RDF logic from ggen_domain::graph
 
 use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
@@ -47,7 +53,7 @@ struct VisualizeOutput {
 // ============================================================================
 
 /// Load RDF data into graph
-#[verb]
+#[verb("load", "graph")]
 fn load(file: String, format: Option<String>) -> Result<LoadOutput> {
     use ggen_domain::graph::{execute_load, LoadInput};
 
@@ -77,7 +83,7 @@ fn load(file: String, format: Option<String>) -> Result<LoadOutput> {
 }
 
 /// Query graph with SPARQL
-#[verb]
+#[verb("query", "graph")]
 fn query(
     sparql_query: String, graph_file: Option<String>, format: Option<String>,
 ) -> Result<QueryOutput> {
@@ -107,7 +113,7 @@ fn query(
 }
 
 /// Export graph to file
-#[verb]
+#[verb("export", "graph")]
 fn export(input_file: String, output: String, format: String) -> Result<ExportOutput> {
     use ggen_domain::graph::{execute_export, ExportInput};
 
@@ -137,7 +143,7 @@ fn export(input_file: String, output: String, format: String) -> Result<ExportOu
 }
 
 /// Visualize graph structure
-#[verb]
+#[verb("visualize", "graph")]
 fn visualize(input_file: String, format: Option<String>) -> Result<VisualizeOutput> {
     use ggen_domain::graph::{execute_visualize, VisualizeInput};
 
