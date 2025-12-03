@@ -191,7 +191,10 @@ fn analyze(
 
         Ok(AnalyzeOutput {
             success: true,
-            analysis: Some(format!("Analysis of {} characters of code", code_content.len())),
+            analysis: Some(format!(
+                "Analysis of {} characters of code",
+                code_content.len()
+            )),
             file_analyzed: None,
         })
     } else if let Some(file_path) = file {
@@ -205,10 +208,7 @@ fn analyze(
 
         Ok(AnalyzeOutput {
             success: true,
-            analysis: Some(format!(
-                "Project analysis for: {}",
-                file_path.display()
-            )),
+            analysis: Some(format!("Project analysis for: {}", file_path.display())),
             file_analyzed: Some(file_path.display().to_string()),
         })
     } else {
@@ -265,16 +265,7 @@ mod tests {
 
     #[test]
     fn test_generate_empty_prompt_fails() {
-        let result = generate(
-            "".to_string(),
-            None,
-            None,
-            None,
-            false,
-            None,
-            -1,
-            0.0,
-        );
+        let result = generate("".to_string(), None, None, None, false, None, -1, 0.0);
 
         assert!(result.is_err());
     }

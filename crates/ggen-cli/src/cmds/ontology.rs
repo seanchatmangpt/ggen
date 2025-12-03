@@ -1,8 +1,12 @@
-//! Ontology Commands - Work with RDF/OWL ontologies
+//! Ontology Commands - clap-noun-verb v5.3.0 Migration
 //!
-//! This module provides commands for extracting, generating, and validating ontologies.
-//! Supports common ontology formats (Turtle, RDF/XML) and practical examples for
-//! SCHEMA.org, FOAF, Dublin Core, and other standard ontologies.
+//! This module implements RDF/OWL ontology operations using the v5.3.0 #[verb("verb", "noun")] pattern.
+//!
+//! ## Architecture: Three-Layer Pattern
+//!
+//! - **Layer 3 (CLI)**: Input validation, output formatting, thin routing
+//! - **Layer 2 (Integration)**: Async execution, error handling
+//! - **Layer 1 (Domain)**: Pure RDF logic from ggen_domain::ontology
 
 use clap_noun_verb::Result as VerbResult;
 use clap_noun_verb_macros::verb;
@@ -60,7 +64,7 @@ struct InitOutput {
 ///   ggen ontology extract schema.ttl
 ///   ggen ontology extract ecommerce.rdf --namespace http://example.org#
 ///   ggen ontology extract foaf.ttl --output schema.json
-#[verb]
+#[verb("extract", "ontology")]
 fn extract(
     ontology_file: String, namespace: Option<String>, output: Option<String>,
 ) -> VerbResult<ExtractOutput> {
@@ -131,7 +135,7 @@ fn extract(
 ///   ggen ontology generate schema.json --language typescript --output src/types
 ///   ggen ontology generate schema.json --language typescript --zod
 ///   ggen ontology generate ecommerce.json --language typescript --utilities
-#[verb]
+#[verb("generate", "ontology")]
 fn generate(
     schema_file: String, language: String, output: Option<String>, zod: bool, utilities: bool,
 ) -> VerbResult<GenerateOutput> {
@@ -234,7 +238,7 @@ fn generate(
 /// Examples:
 ///   ggen ontology validate schema.json
 ///   ggen ontology validate ecommerce.json --strict
-#[verb]
+#[verb("validate", "ontology")]
 fn validate(schema_file: String, strict: bool) -> VerbResult<ValidateOutput> {
     let schema_path = PathBuf::from(&schema_file);
 
@@ -319,7 +323,7 @@ fn validate(schema_file: String, strict: bool) -> VerbResult<ValidateOutput> {
 ///   ggen ontology init my-project
 ///   ggen ontology init ecommerce-api --template schema.org
 ///   ggen ontology init foaf-explorer --template foaf
-#[verb]
+#[verb("init", "ontology")]
 fn init(project_name: String, template: Option<String>) -> VerbResult<InitOutput> {
     let proj_name = project_name.clone();
     let result = crate::runtime::block_on(async move {

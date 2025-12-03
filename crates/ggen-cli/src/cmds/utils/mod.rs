@@ -1,13 +1,20 @@
-//! Utils Commands - clap-noun-verb v3.4.0 Migration
+//! Utility CLI commands - clap-noun-verb v5.3.0 Migration
 //!
-//! This module implements utility commands using the v3.4.0 #[verb] pattern.
-
-pub mod fmea;
+//! FMEA (Failure Mode and Effects Analysis) and other utility commands using
+//! the v5.3.0 #[verb("verb_name", "noun")] pattern.
+//!
+//! ## Architecture: Three-Layer Pattern
+//!
+//! - **Layer 3 (CLI)**: Input validation, output formatting, structured JSON responses
+//! - **Layer 2 (Integration)**: Async coordination, resource management
+//! - **Layer 1 (Domain)**: Pure business logic from ggen_domain::utils
 
 use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
 use std::collections::HashMap;
+
+pub mod fmea;
 
 // ============================================================================
 // Output Types
@@ -35,21 +42,12 @@ struct EnvOutput {
     total: usize,
 }
 
-/// Output for setting environment variables
-#[derive(Serialize)]
-#[allow(dead_code)]
-struct EnvSetOutput {
-    key: String,
-    value: String,
-    success: bool,
-}
-
 // ============================================================================
 // Verb Functions
 // ============================================================================
 
 /// Run system diagnostics
-#[verb]
+#[verb("doctor", "utils")]
 fn doctor(all: bool, _fix: bool, format: Option<String>) -> Result<DoctorOutput> {
     let format = format.unwrap_or_else(|| "table".to_string());
     use ggen_domain::utils::{execute_doctor, DoctorInput};
@@ -100,7 +98,7 @@ fn doctor(all: bool, _fix: bool, format: Option<String>) -> Result<DoctorOutput>
 }
 
 /// Manage environment variables
-#[verb]
+#[verb("env", "utils")]
 fn env(list: bool, get: Option<String>, set: Option<String>, _system: bool) -> Result<EnvOutput> {
     use ggen_domain::utils::{execute_env_get, execute_env_list, execute_env_set};
 
@@ -132,7 +130,7 @@ fn env(list: bool, get: Option<String>, set: Option<String>, _system: bool) -> R
             clap_noun_verb::NounVerbError::execution_error(e.to_string())
         })?;
 
-        let mut vars = std::collections::HashMap::new();
+        let mut vars = HashMap::new();
         if let Some(v) = value {
             vars.insert(key, v);
         }
@@ -156,7 +154,7 @@ fn env(list: bool, get: Option<String>, set: Option<String>, _system: bool) -> R
                 clap_noun_verb::NounVerbError::execution_error(e.to_string())
             })?;
 
-            let mut vars = std::collections::HashMap::new();
+            let mut vars = HashMap::new();
             vars.insert(key.to_string(), value.to_string());
             vars
         } else {
@@ -165,7 +163,7 @@ fn env(list: bool, get: Option<String>, set: Option<String>, _system: bool) -> R
             ));
         }
     } else {
-        std::collections::HashMap::new()
+        HashMap::new()
     };
 
     let total = variables.len();

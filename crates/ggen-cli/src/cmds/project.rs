@@ -1,7 +1,12 @@
-//! Project Commands for clap-noun-verb v3.4.0
+//! Project Commands - clap-noun-verb v5.3.0 Migration
 //!
-//! Migrated from project.rs to use #[verb] macros for project scaffolding,
-//! code generation, and project management operations.
+//! This module implements project operations using the v5.3.0 #[verb("verb", "noun")] pattern.
+//!
+//! ## Architecture: Three-Layer Pattern
+//!
+//! - **Layer 3 (CLI)**: Input validation, output formatting, thin routing
+//! - **Layer 2 (Integration)**: Async execution via crate::runtime::block_on, error handling
+//! - **Layer 1 (Domain)**: Pure project logic from ggen_domain::project
 
 use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
@@ -106,7 +111,7 @@ struct WatchOutput {
 /// ```bash
 /// ggen project new my-project --type rust-web --output ./workspace
 /// ```
-#[verb]
+#[verb("new", "project")]
 fn new(
     name: String, project_type: String, framework: Option<String>, output: PathBuf,
     skip_install: bool,
@@ -172,7 +177,7 @@ fn new(
 /// cat plan.json  # Review before applying
 /// ggen project apply plan.json
 /// ```
-#[verb]
+#[verb("plan", "project")]
 fn plan(
     template_ref: String, vars: Option<String>, output: Option<String>, format: Option<String>,
 ) -> Result<PlanOutput> {
@@ -250,7 +255,7 @@ fn plan(
 ///   --var port=8080 \
 ///   --var db=postgres
 /// ```
-#[verb]
+#[verb("gen", "project")]
 fn gen(template_ref: String, vars: Option<String>, dry_run: bool) -> Result<GenOutput> {
     use ggen_domain::project;
 
@@ -340,7 +345,7 @@ fn gen(template_ref: String, vars: Option<String>, dry_run: bool) -> Result<GenO
 /// ```bash
 /// ggen project apply plan.toml --dry-run
 /// ```
-#[verb]
+#[verb("apply", "project")]
 fn apply(plan_file: String, yes: bool, dry_run: bool) -> Result<ApplyOutput> {
     use ggen_domain::project;
 
@@ -389,7 +394,7 @@ fn apply(plan_file: String, yes: bool, dry_run: bool) -> Result<ApplyOutput> {
 /// ```bash
 /// ggen project init ./my-workspace --name workspace --preset custom
 /// ```
-#[verb]
+#[verb("init", "project")]
 fn init(path: PathBuf, name: Option<String>, preset: Option<String>) -> Result<InitOutput> {
     use crate::conventions::presets;
     use std::fs;
@@ -614,7 +619,7 @@ fn init(path: PathBuf, name: Option<String>, preset: Option<String>) -> Result<I
 /// ```bash
 /// ggen project generate --path ./my-project my-template
 /// ```
-#[verb]
+#[verb("generate", "project")]
 fn generate(
     template: Option<String>, path: PathBuf, output: Option<String>, force: bool,
 ) -> Result<GenerateOutput> {
@@ -743,7 +748,7 @@ fn generate(
 /// ```bash
 /// ggen project watch --path ./my-project --debounce 500
 /// ```
-#[verb]
+#[verb("watch", "project")]
 fn watch(path: PathBuf, debounce: u64) -> Result<WatchOutput> {
     use crate::conventions::ProjectWatcher;
 

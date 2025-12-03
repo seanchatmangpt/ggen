@@ -1,7 +1,13 @@
-//! Paper Management Commands for clap-noun-verb v3.4.0
+//! Paper Management Commands - clap-noun-verb v5.3.0 Migration
 //!
 //! Academic paper lifecycle management with LaTeX generation,
 //! bibliography management, and publishing workflow support.
+//!
+//! ## Architecture: Three-Layer Pattern
+//!
+//! - **Layer 3 (CLI)**: Input validation, output formatting, thin routing
+//! - **Layer 2 (Integration)**: Async coordination, resource management
+//! - **Layer 1 (Domain)**: Pure paper logic from ggen_domain::paper
 
 use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
@@ -122,7 +128,7 @@ struct SubmissionInfo {
 /// ```bash
 /// ggen paper new my-paper --template neurips --output /workspace/papers
 /// ```
-#[verb]
+#[verb("new", "paper")]
 fn new(
     name: String, template: Option<String>, _discipline: Option<String>, output: Option<String>,
 ) -> Result<NewPaperOutput> {
@@ -161,7 +167,7 @@ fn new(
 /// ```bash
 /// ggen paper generate thesis.rdf --style phd --output thesis.tex
 /// ```
-#[verb]
+#[verb("generate", "paper")]
 fn generate(
     paper_file: String, style: Option<String>, _template: Option<String>, output: Option<String>,
 ) -> Result<GenerateOutput> {
@@ -203,7 +209,7 @@ fn generate(
 /// ```bash
 /// ggen paper validate thesis.rdf --strict
 /// ```
-#[verb]
+#[verb("validate", "paper")]
 fn validate(paper_file: String, _check: Option<String>, strict: bool) -> Result<ValidateOutput> {
     use std::path::Path;
     let mut errors = vec![];
@@ -247,7 +253,7 @@ fn validate(paper_file: String, _check: Option<String>, strict: bool) -> Result<
 /// ```bash
 /// ggen paper export paper.rdf --format json-ld
 /// ```
-#[verb]
+#[verb("export", "paper")]
 fn export(paper_file: String, format: String, output: Option<String>) -> Result<ExportOutput> {
     let output_path = output.unwrap_or_else(|| {
         let mut output_str = paper_file.clone();
@@ -281,7 +287,7 @@ fn export(paper_file: String, format: String, output: Option<String>) -> Result<
 /// ```bash
 /// ggen paper list-templates --filter conference
 /// ```
-#[verb]
+#[verb("list-templates", "paper")]
 fn list_templates(filter: Option<String>) -> Result<ListTemplatesOutput> {
     let all_templates = vec![
         "ieee-conference".to_string(),
@@ -340,7 +346,7 @@ fn list_templates(filter: Option<String>) -> Result<ListTemplatesOutput> {
 /// ```bash
 /// ggen paper compile research.tex --bibtex
 /// ```
-#[verb]
+#[verb("compile", "paper")]
 fn compile(tex_file: String, engine: Option<String>, bibtex: bool) -> Result<CompileOutput> {
     let _engine = engine.unwrap_or_else(|| "pdflatex".to_string());
     let mut output_pdf = tex_file.clone();
@@ -376,7 +382,7 @@ fn compile(tex_file: String, engine: Option<String>, bibtex: bool) -> Result<Com
 /// ```bash
 /// ggen paper init-bibliography paper.rdf --output refs.bib
 /// ```
-#[verb]
+#[verb("init-bibliography", "paper")]
 fn init_bibliography(paper_file: String, output: Option<String>) -> Result<InitBibliographyOutput> {
     let bibtex_file = output.unwrap_or_else(|| {
         let mut bib_str = paper_file.clone();
@@ -413,7 +419,7 @@ fn init_bibliography(paper_file: String, output: Option<String>) -> Result<InitB
 /// ```bash
 /// ggen paper submit paper.pdf --venue journal --metadata paper.rdf
 /// ```
-#[verb]
+#[verb("submit", "paper")]
 fn submit(paper_file: String, venue: String, _metadata: Option<String>) -> Result<SubmitOutput> {
     Ok(SubmitOutput {
         paper_file,
@@ -438,7 +444,7 @@ fn submit(paper_file: String, venue: String, _metadata: Option<String>) -> Resul
 /// ```bash
 /// ggen paper track research.rdf --venue neurips-2024
 /// ```
-#[verb]
+#[verb("track", "paper")]
 fn track(paper_file: String, _venue: Option<String>) -> Result<TrackOutput> {
     Ok(TrackOutput {
         paper_file,
