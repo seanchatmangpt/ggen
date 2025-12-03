@@ -42,7 +42,7 @@ pub fn report(
         .read()
         .map_err(|_| Error::new("Failed to acquire FMEA registry lock"))?;
 
-    let mut failure_modes: Vec<_> = registry.failure_modes().collect();
+    let mut failure_modes: Vec<_> = registry.all_failure_modes().collect();
 
     // Filter by risk level if specified
     if let Some(risk_level) = risk {
@@ -70,7 +70,7 @@ pub fn pareto() -> Result<()> {
         .read()
         .map_err(|_| Error::new("Failed to acquire FMEA registry lock"))?;
 
-    let mut failure_modes: Vec<_> = registry.failure_modes().collect();
+    let mut failure_modes: Vec<_> = registry.all_failure_modes().collect();
     failure_modes.sort_by(|a, b| b.rpn.value().cmp(&a.rpn.value()));
 
     // Calculate total RPN
@@ -133,7 +133,7 @@ pub fn list(
         .read()
         .map_err(|_| Error::new("Failed to acquire FMEA registry lock"))?;
 
-    let mut failure_modes: Vec<_> = registry.failure_modes().collect();
+    let mut failure_modes: Vec<_> = registry.all_failure_modes().collect();
 
     // Filter by category if specified
     if let Some(cat) = category {
@@ -178,7 +178,7 @@ pub fn show(#[clap()] mode_id: String, #[clap(long)] events: bool) -> Result<()>
 
     let failure_mode = registry
         .get_failure_mode(&mode_id)
-        .ok_or_else(|| Error::not_found(&format!("Failure mode not found: {}", mode_id)))?;
+        .ok_or_else(|| Error::invalid_input(&format!("Failure mode not found: {}", mode_id)))?;
 
     println!("\nFailure Mode Details");
     println!("====================\n");
@@ -257,7 +257,7 @@ pub fn export(#[clap(long, default_value = "fmea-report.json")] output: String) 
         .read()
         .map_err(|_| Error::new("Failed to acquire FMEA registry lock"))?;
 
-    let failure_modes: Vec<_> = registry.failure_modes().collect();
+    let failure_modes: Vec<_> = registry.all_failure_modes().collect();
 
     // Build JSON structure
     let mut data = HashMap::new();
