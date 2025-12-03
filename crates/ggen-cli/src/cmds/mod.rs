@@ -21,7 +21,7 @@ pub mod ontology;
 pub mod paper;
 pub mod project;
 pub mod template;
-pub mod utils;  // ENABLED: FMEA (Failure Mode and Effects Analysis) utility commands
+pub mod utils; // ENABLED: FMEA (Failure Mode and Effects Analysis) utility commands
 pub mod workflow;
 
 use ggen_utils::error::Result;

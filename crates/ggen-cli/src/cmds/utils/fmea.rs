@@ -13,9 +13,9 @@ pub fn report(format: Option<String>, risk: Option<String>, top: Option<usize>) 
     let format = format.unwrap_or_else(|| "text".to_string());
     let top = top.unwrap_or(20);
 
-    let registry = FMEA_REGISTRY
-        .read()
-        .map_err(|_| clap_noun_verb::NounVerbError::execution_error("Failed to acquire FMEA registry lock"))?;
+    let registry = FMEA_REGISTRY.read().map_err(|_| {
+        clap_noun_verb::NounVerbError::execution_error("Failed to acquire FMEA registry lock")
+    })?;
 
     let mut failure_modes: Vec<_> = registry.all_failure_modes().collect();
 
@@ -41,9 +41,9 @@ pub fn report(format: Option<String>, risk: Option<String>, top: Option<usize>) 
 /// Generate Pareto analysis (80/20 chart)
 #[verb("pareto", "fmea")]
 pub fn pareto() -> Result<()> {
-    let registry = FMEA_REGISTRY
-        .read()
-        .map_err(|_| clap_noun_verb::NounVerbError::execution_error("Failed to acquire FMEA registry lock"))?;
+    let registry = FMEA_REGISTRY.read().map_err(|_| {
+        clap_noun_verb::NounVerbError::execution_error("Failed to acquire FMEA registry lock")
+    })?;
 
     let mut failure_modes: Vec<_> = registry.all_failure_modes().collect();
     failure_modes.sort_by(|a, b| b.rpn.value().cmp(&a.rpn.value()));
@@ -104,16 +104,17 @@ pub fn pareto() -> Result<()> {
 pub fn list(category: Option<String>, sort: Option<String>) -> Result<()> {
     let sort = sort.unwrap_or_else(|| "rpn".to_string());
 
-    let registry = FMEA_REGISTRY
-        .read()
-        .map_err(|_| clap_noun_verb::NounVerbError::execution_error("Failed to acquire FMEA registry lock"))?;
+    let registry = FMEA_REGISTRY.read().map_err(|_| {
+        clap_noun_verb::NounVerbError::execution_error("Failed to acquire FMEA registry lock")
+    })?;
 
     let mut failure_modes: Vec<_> = registry.all_failure_modes().collect();
 
     // Filter by category if specified
     if let Some(cat) = category {
-        let target_category = parse_category(&cat)
-            .map_err(|_| clap_noun_verb::NounVerbError::execution_error(&format!("Invalid category: {}", cat)))?;
+        let target_category = parse_category(&cat).map_err(|_| {
+            clap_noun_verb::NounVerbError::execution_error(&format!("Invalid category: {}", cat))
+        })?;
         failure_modes.retain(|fm| fm.category == target_category);
     }
 
@@ -122,7 +123,12 @@ pub fn list(category: Option<String>, sort: Option<String>) -> Result<()> {
         "rpn" => failure_modes.sort_by(|a, b| b.rpn.value().cmp(&a.rpn.value())),
         "id" => failure_modes.sort_by(|a, b| a.id.cmp(&b.id)),
         "severity" => failure_modes.sort_by(|a, b| b.severity.value().cmp(&a.severity.value())),
-        _ => return Err(clap_noun_verb::NounVerbError::argument_error(&format!("Invalid sort: {}", sort))),
+        _ => {
+            return Err(clap_noun_verb::NounVerbError::argument_error(&format!(
+                "Invalid sort: {}",
+                sort
+            )))
+        }
     }
 
     println!("\nFailure Modes");
@@ -150,13 +156,16 @@ pub fn list(category: Option<String>, sort: Option<String>) -> Result<()> {
 pub fn show(mode_id: String, events: Option<bool>) -> Result<()> {
     let events = events.unwrap_or(false);
 
-    let registry = FMEA_REGISTRY
-        .read()
-        .map_err(|_| clap_noun_verb::NounVerbError::execution_error("Failed to acquire FMEA registry lock"))?;
+    let registry = FMEA_REGISTRY.read().map_err(|_| {
+        clap_noun_verb::NounVerbError::execution_error("Failed to acquire FMEA registry lock")
+    })?;
 
-    let failure_mode = registry
-        .get_failure_mode(&mode_id)
-        .ok_or_else(|| clap_noun_verb::NounVerbError::argument_error(&format!("Failure mode not found: {}", mode_id)))?;
+    let failure_mode = registry.get_failure_mode(&mode_id).ok_or_else(|| {
+        clap_noun_verb::NounVerbError::argument_error(&format!(
+            "Failure mode not found: {}",
+            mode_id
+        ))
+    })?;
 
     println!("\nFailure Mode Details");
     println!("====================\n");
@@ -233,9 +242,9 @@ pub fn show(mode_id: String, events: Option<bool>) -> Result<()> {
 pub fn export(output: Option<String>) -> Result<()> {
     let output = output.unwrap_or_else(|| "fmea-report.json".to_string());
 
-    let registry = FMEA_REGISTRY
-        .read()
-        .map_err(|_| clap_noun_verb::NounVerbError::execution_error("Failed to acquire FMEA registry lock"))?;
+    let registry = FMEA_REGISTRY.read().map_err(|_| {
+        clap_noun_verb::NounVerbError::execution_error("Failed to acquire FMEA registry lock")
+    })?;
 
     let failure_modes: Vec<_> = registry.all_failure_modes().collect();
 
@@ -272,10 +281,15 @@ pub fn export(output: Option<String>) -> Result<()> {
         "total_modes": failure_modes.len(),
     });
 
-    std::fs::write(&output, serde_json::to_string_pretty(&json).map_err(|e| {
+    std::fs::write(
+        &output,
+        serde_json::to_string_pretty(&json).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(&format!("Failed to write file: {}", e))
+        })?,
+    )
+    .map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(&format!("Failed to write file: {}", e))
-    })?)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(&format!("Failed to write file: {}", e)))?;
+    })?;
 
     println!("FMEA data exported to: {}", output);
 
@@ -284,7 +298,9 @@ pub fn export(output: Option<String>) -> Result<()> {
 
 // Helper functions
 
-fn print_text_report(failure_modes: &[&ggen_utils::fmea::FailureMode], registry: &ggen_utils::fmea::FmeaRegistry) {
+fn print_text_report(
+    failure_modes: &[&ggen_utils::fmea::FailureMode], registry: &ggen_utils::fmea::FmeaRegistry,
+) {
     println!("\nFMEA Report - ggen CLI");
     println!("======================\n");
     println!("Top Failure Modes by RPN (Pareto: 80% of risk)");
