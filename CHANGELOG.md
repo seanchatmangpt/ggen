@@ -5,6 +5,49 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.0] - 2025-12-03
+
+### Added
+
+#### Documentation & Quality
+- **Diataxis Documentation Refactor**: Complete documentation restructure with persona-based navigation
+  - 23 new documentation files covering tutorials, how-to guides, reference, and explanations
+  - Complete CLI reference for all 13 command modules
+  - "I Am..." navigation sections for different user personas
+
+#### Git Hooks System (80/20 Optimized)
+- **Two-tier hook architecture**: Pre-commit (<5s) and pre-push (<60s) hooks
+- **Andon signal integration**: Visual problem indicators with stop-the-line quality control
+- **DfLSS alignment**: Prevent defects AND waste from start
+- **80/20 Pareto optimization**: Focus on vital few checks that catch most defects
+
+#### FMEA System Improvements
+- **Enhanced FMEA registry**: Improved failure mode tracking with `all_failure_modes()` API
+- **SLO benchmarks**: Comprehensive performance benchmarking system
+- **Poka-yoke tests**: Error-proofing test module
+
+### Changed
+
+#### Architecture
+- **Unified lockfile architecture**: Phase 1 prevention system with consistent lockfile handling
+- **Test consolidation**: 80/20 principle applied - reduced 8,274 lines to 1,300 lines
+- **Git hooks simplification**: pre-commit.sh 87→45 lines, pre-push.sh 131→97 lines
+
+### Fixed
+
+- **Utils/FMEA CLI module**: Disabled broken module and fixed method calls
+- **Poka-yoke tests module**: Added missing test module and formatted code
+- **Environment variable expansion**: Added safeguard to prevent infinite loops
+
+### Technical Details
+
+- **Version**: 3.3.0
+- **All workspace crates synchronized** to 3.3.0 (except ggen-marketplace-v2 at 3.0.0)
+- **78+ unit tests passing**
+- **Zero clippy warnings in core crates**
+
+---
+
 ## [3.0.0] - 2025-01-XX
 
 ### Changed
