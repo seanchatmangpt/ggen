@@ -42,9 +42,7 @@ struct WorkflowOutput {
 #[verb("workflow", "ci")]
 fn workflow(name: Option<String>, output: Option<String>) -> Result<WorkflowOutput> {
     let workflow_name = name.unwrap_or_else(|| "build".to_string());
-    let output_path = output.unwrap_or_else(|| {
-        format!(".github/workflows/{}.yml", workflow_name)
-    });
+    let output_path = output.unwrap_or_else(|| format!(".github/workflows/{}.yml", workflow_name));
 
     Ok(WorkflowOutput {
         workflow_name,
