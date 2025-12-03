@@ -7,7 +7,6 @@ edition = "2021"
 license = "MIT"
 repository = "https://github.com/seanchatmangpt/ggen"
 homepage = "https://github.com/seanchatmangpt/ggen"
-readme = "README.md"
 keywords = ["code-generation", "rdf", "templates", "domain"]
 categories = ["development-tools"]
 
