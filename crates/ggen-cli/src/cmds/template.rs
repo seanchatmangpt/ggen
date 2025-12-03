@@ -1,6 +1,12 @@
-//! Template Commands - clap-noun-verb v3.4.0 Migration
+//! Template Commands - clap-noun-verb v5.3.0 Migration
 //!
-//! This module implements template commands using the v3.4.0 #[verb] pattern.
+//! This module implements template commands using the v5.3.0 #[verb(\"verb\", \"noun\")] pattern.
+//!
+//! ## Architecture: Three-Layer Pattern
+//!
+//! - **Layer 3 (CLI)**: Input validation, output formatting, thin routing
+//! - **Layer 2 (Integration)**: Async coordination, resource management (via ggen_domain)
+//! - **Layer 1 (Domain)**: Pure business logic from ggen_domain::template
 
 use clap_noun_verb::Result as NounVerbResult;
 use clap_noun_verb_macros::verb;
@@ -78,7 +84,7 @@ struct GenerateTreeOutput {
 // ============================================================================
 
 /// Show template metadata
-#[verb]
+#[verb("show", "template")]
 fn show(template: String) -> NounVerbResult<ShowOutput> {
     use ggen_domain::template::show;
 
@@ -99,13 +105,13 @@ fn show(template: String) -> NounVerbResult<ShowOutput> {
 }
 
 /// Alias for show - common CLI pattern
-#[verb]
+#[verb("get", "template")]
 fn get(template: String) -> NounVerbResult<ShowOutput> {
     show(template)
 }
 
 /// Create new template
-#[verb]
+#[verb("new", "template")]
 fn new(name: String, template_type: Option<String>) -> NounVerbResult<NewOutput> {
     use ggen_domain::template::new as template_new;
     use ggen_domain::template::TemplateService;
@@ -133,7 +139,7 @@ fn new(name: String, template_type: Option<String>) -> NounVerbResult<NewOutput>
 }
 
 /// List templates
-#[verb]
+#[verb("list", "template")]
 fn list(directory: Option<PathBuf>) -> NounVerbResult<ListOutput> {
     use ggen_domain::template::list;
 
@@ -173,7 +179,7 @@ fn list(directory: Option<PathBuf>) -> NounVerbResult<ListOutput> {
 }
 
 /// Lint a template
-#[verb]
+#[verb("lint", "template")]
 fn lint(template: String) -> NounVerbResult<LintOutput> {
     use ggen_domain::template::lint;
 
@@ -216,7 +222,7 @@ fn lint(template: String) -> NounVerbResult<LintOutput> {
 }
 
 /// Generate from template (basic version without Vec support)
-#[verb]
+#[verb("generate", "template")]
 fn generate(
     template: Option<String>, output: Option<String>, force: bool,
 ) -> NounVerbResult<GenerateOutput> {
@@ -248,7 +254,7 @@ fn generate(
 }
 
 /// Generate file tree from template
-#[verb]
+#[verb("generate-tree", "template")]
 fn generate_tree(
     template: Option<String>, output: Option<String>,
 ) -> NounVerbResult<GenerateTreeOutput> {
@@ -284,7 +290,7 @@ fn generate_tree(
 }
 
 /// Regenerate from template
-#[verb]
+#[verb("regenerate", "template")]
 fn regenerate(template: Option<String>) -> NounVerbResult<GenerateTreeOutput> {
     let template_path = template.unwrap_or_else(|| "template.tmpl".to_string());
 
