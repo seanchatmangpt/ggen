@@ -18,7 +18,7 @@ pub mod packs;
 pub mod paper;
 pub mod project;
 pub mod template;
-pub mod utils;
+// pub mod utils;  // DISABLED: FMEA module missing mod.rs and uses incorrect clap-noun-verb syntax
 pub mod workflow;
 
 use ggen_utils::error::Result;
