@@ -1,17 +1,29 @@
 {
   "name": "@ggen/node",
-  "version": "1.2.0",
+  "version": "3.4.0",
   "description": "Production-grade Node.js N-API bindings for ggen CLI - marketplace, lifecycle, templates, and AI code generation",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./index.mjs",
+      "require": "./index.js",
+      "types": "./index.d.ts"
+    }
+  },
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "module": "./index.mjs",
   "author": "Sean Chatman <sean@chatmangpt.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/seanchatmangpt/ggen.git",
-    "directory": "node"
+    "directory": "crates/ggen-node"
   },
   "homepage": "https://github.com/seanchatmangpt/ggen",
+  "bugs": {
+    "url": "https://github.com/seanchatmangpt/ggen/issues"
+  },
   "keywords": [
     "ggen",
     "code-generation",
@@ -24,18 +36,25 @@
     "ai",
     "rdf",
     "sparql",
-    "node-addon"
+    "node-addon",
+    "esm",
+    "es-modules",
+    "jsdoc"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=18.0.0"
   },
   "files": [
     "index.js",
+    "index.mjs",
     "index.d.ts",
     "index.node",
+    "README.md",
+    "LICENSE",
     "build.rs",
     "Cargo.toml",
-    "src/"
+    "src/",
+    "vitest.config.ts"
   ],
   "scripts": {
     "build": "npx @napi-rs/cli@2.18.0 build --release",
@@ -43,12 +62,20 @@
     "prebuild": "npx @napi-rs/cli@2.18.0 prebuild -t x86_64-unknown-linux-gnu -t aarch64-apple-darwin -t x86_64-apple-darwin -t x86_64-pc-windows-msvc",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:browser": "vitest run --environment browser",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run build"
+    "lint": "eslint . --ext .js,.ts,.mjs",
+    "fmt": "prettier --write 'index.mjs' '**/*.test.js'",
+    "prepublishOnly": "npm run build && npm run test"
   },
   "devDependencies": {
-    "@napi-rs/cli": "2.18.0",
+    "@napi-rs/cli": "^2.18.0",
     "@types/node": "^20.0.0",
+    "@vitest/browser": "^1.6.0",
+    "@vitest/ui": "^1.6.0",
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0",
     "typescript": "^5.4.0",
     "vitest": "^1.6.0"
   },
@@ -64,5 +91,5 @@
       ]
     }
   },
-  "packageManager": "pnpm@9.11.0"
+  "packageManager": "npm@10.0.0"
 }
