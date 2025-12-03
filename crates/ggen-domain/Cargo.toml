@@ -25,8 +25,8 @@ thiserror = { workspace = true }
 ggen-core.workspace = true
 ggen-ai.workspace = true
 ggen-utils.workspace = true
-ggen-marketplace-v2.workspace = true
 
+# NOTE: ggen-marketplace-v2 deferred to v4.0.0 via optional feature
 # Crate-specific dependencies
 tera = { workspace = true }
 toml = { workspace = true }
@@ -54,8 +54,9 @@ async-trait = "0.1"
 # Domain must be CLI-agnostic
 
 [features]
-# Marketplace v2 only (RDF-backed semantic marketplace)
 default = []
+# EXPERIMENTAL: Marketplace v2 (planned for v4.0.0)
+marketplace-v2 = []
 
 [dev-dependencies]
 assert_cmd = "2"

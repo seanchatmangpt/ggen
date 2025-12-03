@@ -46,7 +46,7 @@ ggen-utils.workspace = true
 ggen-core.workspace = true
 ggen-ai.workspace = true
 ggen-domain.workspace = true
-ggen-marketplace-v2 = { path = "../ggen-marketplace-v2", version = "3.0.0" }
+# NOTE: ggen-marketplace-v2 deferred to v4.0.0
 
 # Crate-specific dependencies
 gag = "0.1"

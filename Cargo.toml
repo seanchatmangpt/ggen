@@ -76,7 +76,8 @@ ggen-ai = { path = "crates/ggen-ai", version = "3.4.0" }
 ggen-config = { path = "crates/ggen-config", version = "3.4.0" }
 ggen-cli-validation = { path = "crates/ggen-cli-validation", version = "3.4.0" }
 ggen-config-clap = { path = "crates/ggen-config-clap", version = "3.4.0" }
-ggen-marketplace-v2 = { path = "crates/ggen-marketplace-v2", version = "3.0.0" }
+# NOTE: ggen-marketplace-v2 deferred to v4 - see migration guide in docs
+# ggen-marketplace-v2 = { path = "crates/ggen-marketplace-v2", version = "4.0.0-alpha" }
 ggen-domain = { path = "crates/ggen-domain", version = "3.4.0" }
 ggen-cli-lib = { path = "crates/ggen-cli", version = "3.4.0" }
 ggen-node = { path = "crates/ggen-node", version = "3.4.0" }
@@ -136,11 +137,16 @@ unimplemented = "deny"
 multiple_crate_versions = "allow"
 
 [features]
+default = []
+# Stable v3.x features
 nightly = ["ggen-utils/nightly"]
 termlog = ["ggen-utils/termlog"]
 journald = ["ggen-utils/journald"]
 syslog = ["ggen-utils/syslog"]
 london_tdd = []
+# EXPERIMENTAL: Marketplace v2 (planned for v4.0.0)
+# To enable: cargo build --features marketplace-v2
+marketplace-v2 = []
 
 [dependencies]
 ggen-utils = { path = "crates/ggen-utils", version = "3.4.0" }
