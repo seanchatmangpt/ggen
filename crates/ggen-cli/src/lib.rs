@@ -81,8 +81,9 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
     // Handle --graph flag (export complete command graph)
     if args.contains(&"--graph".to_string()) {
         let graph = introspection::build_command_graph();
-        let json = serde_json::to_string_pretty(&graph)
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to serialize command graph: {}", e)))?;
+        let json = serde_json::to_string_pretty(&graph).map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to serialize command graph: {}", e))
+        })?;
         println!("{}", json);
         return Ok(());
     }
@@ -95,18 +96,27 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
 
             match introspection::get_verb_metadata(noun, verb) {
                 Some(metadata) => {
-                    let json = serde_json::to_string_pretty(&metadata)
-                        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to serialize metadata: {}", e)))?;
+                    let json = serde_json::to_string_pretty(&metadata).map_err(|e| {
+                        ggen_utils::error::Error::new(&format!(
+                            "Failed to serialize metadata: {}",
+                            e
+                        ))
+                    })?;
                     println!("{}", json);
                     return Ok(());
                 }
                 None => {
                     eprintln!("Verb not found: {}::{}", noun, verb);
-                    return Err(ggen_utils::error::Error::new(&format!("Verb {}::{} not found", noun, verb)));
+                    return Err(ggen_utils::error::Error::new(&format!(
+                        "Verb {}::{} not found",
+                        noun, verb
+                    )));
                 }
             }
         } else {
-            return Err(ggen_utils::error::Error::new("Usage: ggen --capabilities <noun> <verb>"));
+            return Err(ggen_utils::error::Error::new(
+                "Usage: ggen --capabilities <noun> <verb>",
+            ));
         }
     }
 
@@ -125,7 +135,10 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
                     println!("JSON Output: {}", metadata.supports_json_output);
                     println!("\nArguments:");
                     for arg in metadata.arguments {
-                        println!("  - {} ({}): {}", arg.name, arg.argument_type, arg.description);
+                        println!(
+                            "  - {} ({}): {}",
+                            arg.name, arg.argument_type, arg.description
+                        );
                         if let Some(default) = arg.default_value {
                             println!("    Default: {}", default);
                         }
@@ -139,11 +152,16 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
                 }
                 None => {
                     eprintln!("Verb not found: {}::{}", noun, verb);
-                    return Err(ggen_utils::error::Error::new(&format!("Verb {}::{} not found", noun, verb)));
+                    return Err(ggen_utils::error::Error::new(&format!(
+                        "Verb {}::{} not found",
+                        noun, verb
+                    )));
                 }
             }
         } else {
-            return Err(ggen_utils::error::Error::new("Usage: ggen --introspect <noun> <verb>"));
+            return Err(ggen_utils::error::Error::new(
+                "Usage: ggen --introspect <noun> <verb>",
+            ));
         }
     }
 

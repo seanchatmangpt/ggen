@@ -4,7 +4,7 @@
 #[test]
 fn test_capabilities_flag_template_generate() {
     // Simulate: ggen --capabilities template generate
-    use ggen_cli::introspection;
+    use ggen_cli_lib::introspection;
 
     let metadata = introspection::get_verb_metadata("template", "generate");
     assert!(metadata.is_some(), "template::generate should exist");
@@ -50,7 +50,10 @@ fn test_introspect_flag_shows_type_information() {
     assert!(metadata.is_some());
 
     let m = metadata.unwrap();
-    assert!(!m.return_type.is_empty(), "Return type should be documented");
+    assert!(
+        !m.return_type.is_empty(),
+        "Return type should be documented"
+    );
     assert_eq!(m.return_type, "LoadOutput");
 }
 
@@ -104,7 +107,10 @@ fn test_graph_noun_has_verbs() {
     assert!(template_noun.is_some());
 
     let noun_desc = template_noun.unwrap();
-    assert!(!noun_desc.verbs.is_empty(), "template noun should have verbs");
+    assert!(
+        !noun_desc.verbs.is_empty(),
+        "template noun should have verbs"
+    );
 }
 
 #[test]
