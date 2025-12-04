@@ -10,7 +10,7 @@
 
 use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
-use ggen_domain::ai::{self, generate::OutputFormat};
+use ggen_domain::ai::execute;
 use serde::Serialize;
 use std::path::PathBuf;
 
@@ -73,60 +73,25 @@ fn generate(
         ));
     }
 
-    // Layer 2: Call domain layer (blocking for now, could be async)
-    // FUTURE: Make this async when clap-noun-verb supports async verbs
-    let _options = ai::generate::GenerateOptions::new(&prompt)
-        .with_format(OutputFormat::Json)
-        .with_suggestions();
+    // Layer 2: Call execute layer (async coordination)
+    let result = tokio::runtime::Runtime::new()
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e)))?
+        .block_on(execute::execute_generate(
+            &prompt,
+            code.as_deref(),
+            model.as_deref(),
+            suggestions,
+        ))
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Generation failed: {}", e)))?;
 
-    if let Some(code_content) = code {
-        let _opts_with_code = _options.with_code(code_content);
-        if let Some(ref model_name) = model {
-            let _opts_final = _opts_with_code.with_model(model_name);
-            // FUTURE: Execute async function when verb handlers support async
-            // For now, return structured output
-            Ok(GenerateOutput {
-                success: true,
-                analysis: Some("Code generation analysis with AI".to_string()),
-                suggestions: if suggestions {
-                    Some(vec![
-                        "Add error handling".to_string(),
-                        "Add documentation".to_string(),
-                    ])
-                } else {
-                    None
-                },
-                model_used: model,
-                processing_time_ms: Some(100),
-            })
-        } else {
-            // No model specified, use default
-            Ok(GenerateOutput {
-                success: true,
-                analysis: Some("Code generation analysis with default model".to_string()),
-                suggestions: if suggestions {
-                    Some(vec!["Add tests".to_string()])
-                } else {
-                    None
-                },
-                model_used: Some("default".to_string()),
-                processing_time_ms: Some(50),
-            })
-        }
-    } else {
-        // Only prompt provided
-        Ok(GenerateOutput {
-            success: true,
-            analysis: Some(format!("Analyzing prompt: {}", prompt)),
-            suggestions: if suggestions {
-                Some(vec!["Request too general".to_string()])
-            } else {
-                None
-            },
-            model_used: model,
-            processing_time_ms: Some(30),
-        })
-    }
+    // Layer 3: Format output for CLI
+    Ok(GenerateOutput {
+        success: true,
+        analysis: Some(result.analysis),
+        suggestions: Some(result.suggestions),
+        model_used: Some(result.model_used),
+        processing_time_ms: Some(result.processing_time_ms),
+    })
 }
 
 /// Interactive AI chat session
@@ -151,12 +116,17 @@ fn chat(
         ));
     }
 
-    // Layer 2: Chat integration (placeholder)
-    // FUTURE: Connect to ggen_domain::ai::chat when domain function is created
+    // Layer 2: Call execute layer (async coordination)
+    let result = tokio::runtime::Runtime::new()
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e)))?
+        .block_on(execute::execute_chat(&msg, model.as_deref()))
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Chat failed: {}", e)))?;
+
+    // Layer 3: Format output for CLI
     Ok(ChatOutput {
         success: true,
-        message: Some(format!("Chatbot response to: {}", msg)),
-        model_used: model.or(Some("default-chat".to_string())),
+        message: Some(result.response),
+        model_used: Some(result.model_used),
     })
 }
 
@@ -179,41 +149,21 @@ fn analyze(
         ));
     }
 
-    // Layer 2: Call domain analysis functions
-    // FUTURE: Make async when verb handlers support async
-    if let Some(code_content) = code {
-        // Analyze code snippet
-        if code_content.is_empty() {
-            return Err(clap_noun_verb::NounVerbError::execution_error(
-                "Code cannot be empty",
-            ));
-        }
+    // Layer 2: Call execute layer (async coordination)
+    let result = tokio::runtime::Runtime::new()
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e)))?
+        .block_on(execute::execute_analyze(
+            code.as_deref(),
+            file.as_deref(),
+        ))
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Analysis failed: {}", e)))?;
 
-        Ok(AnalyzeOutput {
-            success: true,
-            analysis: Some(format!(
-                "Analysis of {} characters of code",
-                code_content.len()
-            )),
-            file_analyzed: None,
-        })
-    } else if let Some(file_path) = file {
-        // Analyze project directory
-        if !file_path.exists() {
-            return Err(clap_noun_verb::NounVerbError::execution_error(format!(
-                "Path does not exist: {}",
-                file_path.display()
-            )));
-        }
-
-        Ok(AnalyzeOutput {
-            success: true,
-            analysis: Some(format!("Project analysis for: {}", file_path.display())),
-            file_analyzed: Some(file_path.display().to_string()),
-        })
-    } else {
-        unreachable!()
-    }
+    // Layer 3: Format output for CLI
+    Ok(AnalyzeOutput {
+        success: true,
+        analysis: Some(result.analysis),
+        file_analyzed: result.file_analyzed,
+    })
 }
 
 // ============================================================================
