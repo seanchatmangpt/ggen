@@ -58,6 +58,7 @@ use std::io::{Read, Write};
 pub mod cmds; // clap-noun-verb v4 entry points with #[verb] functions
 pub mod conventions; // File-based routing conventions
                      // pub mod domain;          // Business logic layer - MOVED TO ggen-domain crate
+pub mod introspection; // AI agent introspection: verb metadata discovery, capability handlers
 pub mod prelude;
 pub mod runtime; // Async/sync bridge utilities
 pub mod runtime_helper; // Sync CLI wrapper utilities for async operations // Common imports for commands
@@ -67,10 +68,85 @@ pub use clap_noun_verb::{run, CommandRouter, Result as ClapNounVerbResult};
 
 /// Main entry point using clap-noun-verb v4.0.2 auto-discovery
 ///
-/// This function delegates to clap-noun-verb::run() which automatically discovers
+/// This function handles global introspection flags (--capabilities, --introspect, --graph)
+/// before delegating to clap-noun-verb::run() which automatically discovers
 /// all `\[verb\]` functions in the cmds module and its submodules.
 /// The version flag is handled automatically by clap-noun-verb.
 pub async fn cli_match() -> ggen_utils::error::Result<()> {
+    let args: Vec<String> = std::env::args().collect();
+
+    // Check for introspection flags (must come before clap-noun-verb processing)
+    // These flags are for AI agent discovery and capability planning
+
+    // Handle --graph flag (export complete command graph)
+    if args.contains(&"--graph".to_string()) {
+        let graph = introspection::build_command_graph();
+        let json = serde_json::to_string_pretty(&graph)
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to serialize command graph: {}", e)))?;
+        println!("{}", json);
+        return Ok(());
+    }
+
+    // Handle --capabilities noun verb (list verb metadata and arguments)
+    if args.contains(&"--capabilities".to_string()) {
+        if args.len() >= 4 {
+            let noun = &args[args.iter().position(|x| x == "--capabilities").unwrap() + 1];
+            let verb = &args[args.iter().position(|x| x == "--capabilities").unwrap() + 2];
+
+            match introspection::get_verb_metadata(noun, verb) {
+                Some(metadata) => {
+                    let json = serde_json::to_string_pretty(&metadata)
+                        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to serialize metadata: {}", e)))?;
+                    println!("{}", json);
+                    return Ok(());
+                }
+                None => {
+                    eprintln!("Verb not found: {}::{}", noun, verb);
+                    return Err(ggen_utils::error::Error::new(&format!("Verb {}::{} not found", noun, verb)));
+                }
+            }
+        } else {
+            return Err(ggen_utils::error::Error::new("Usage: ggen --capabilities <noun> <verb>"));
+        }
+    }
+
+    // Handle --introspect noun verb (show type information)
+    if args.contains(&"--introspect".to_string()) {
+        if args.len() >= 4 {
+            let noun = &args[args.iter().position(|x| x == "--introspect").unwrap() + 1];
+            let verb = &args[args.iter().position(|x| x == "--introspect").unwrap() + 2];
+
+            match introspection::get_verb_metadata(noun, verb) {
+                Some(metadata) => {
+                    // Show detailed type information
+                    println!("Verb: {}::{}", metadata.noun, metadata.verb);
+                    println!("Description: {}", metadata.description);
+                    println!("Return Type: {}", metadata.return_type);
+                    println!("JSON Output: {}", metadata.supports_json_output);
+                    println!("\nArguments:");
+                    for arg in metadata.arguments {
+                        println!("  - {} ({}): {}", arg.name, arg.argument_type, arg.description);
+                        if let Some(default) = arg.default_value {
+                            println!("    Default: {}", default);
+                        }
+                        if arg.optional {
+                            println!("    Optional: yes");
+                        } else {
+                            println!("    Required: yes");
+                        }
+                    }
+                    return Ok(());
+                }
+                None => {
+                    eprintln!("Verb not found: {}::{}", noun, verb);
+                    return Err(ggen_utils::error::Error::new(&format!("Verb {}::{} not found", noun, verb)));
+                }
+            }
+        } else {
+            return Err(ggen_utils::error::Error::new("Usage: ggen --introspect <noun> <verb>"));
+        }
+    }
+
     // Use clap-noun-verb auto-discovery (handles --version automatically)
     clap_noun_verb::run()
         .map_err(|e| ggen_utils::error::Error::new(&format!("CLI execution failed: {}", e)))?;
