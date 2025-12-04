@@ -87,7 +87,8 @@ pub fn get_verb_registry() -> HashMap<String, VerbMetadata> {
                     name: "output".to_string(),
                     argument_type: "Option<String>".to_string(),
                     optional: true,
-                    description: "Output file path for generated ontology (default: ontology.ttl)".to_string(),
+                    description: "Output file path for generated ontology (default: ontology.ttl)"
+                        .to_string(),
                     default_value: Some("ontology.ttl".to_string()),
                 },
             ],
@@ -274,11 +275,7 @@ pub fn build_command_graph() -> CommandGraph {
             name: metadata.verb.clone(),
             description: metadata.description.clone(),
             argument_count: metadata.arguments.len(),
-            required_arguments: metadata
-                .arguments
-                .iter()
-                .filter(|a| !a.optional)
-                .count(),
+            required_arguments: metadata.arguments.iter().filter(|a| !a.optional).count(),
         });
 
         total_verbs += 1;
@@ -343,7 +340,10 @@ mod tests {
     #[test]
     fn test_command_graph_ai_noun() {
         let graph = build_command_graph();
-        assert!(graph.nouns.contains_key("ai"), "Graph should contain ai noun");
+        assert!(
+            graph.nouns.contains_key("ai"),
+            "Graph should contain ai noun"
+        );
     }
 
     #[test]
@@ -417,7 +417,10 @@ mod tests {
     fn test_required_arguments_count() {
         let metadata = get_verb_metadata("ai", "generate-ontology").unwrap();
         let required = metadata.arguments.iter().filter(|a| !a.optional).count();
-        assert_eq!(required, 1, "generate-ontology should have 1 required argument");
+        assert_eq!(
+            required, 1,
+            "generate-ontology should have 1 required argument"
+        );
     }
 
     #[test]
