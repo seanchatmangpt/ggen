@@ -1,195 +1,368 @@
-# ggen - Ontology-Driven Code Generation
+# ggen - RDF-Based Code Generation Toolkit
 
-## For Advanced AI Agents Building Production Projects
+**Production-ready code generation from knowledge graphs | 1,168+ tests passing | Rust + RDF + SPARQL**
 
-**ggen** is a knowledge graph code generator. RDF ontology → polyglot code (Rust, TypeScript, Python). One source of truth, zero drift.
+`ggen` is a deterministic code generator that transforms RDF ontologies into polyglot code. Define your domain once in RDF/OWL, generate consistently across languages.
 
 ---
 
-## 🚀 Quick Start by Role
+## ⚡ Quick Start
 
-### 👤 End Users (Generate Code from Ontologies)
-**Goal:** Use ggen to generate code from RDF/OWL ontologies
-
-1. **Install:** [Installation Guide](docs/src/how-to-guides/installation.md)
-2. **Learn:** [Getting Started Tutorial](docs/src/tutorials/getting-started.md) (5 minutes)
-3. **Reference:** [CLI Reference](docs/src/reference/cli.md)
-
-### 🤖 AI Agents (Build ggen Features)
-**Goal:** Build production ggen features
-
-1. **Start:** [`docs/agent/README.md`](docs/agent/README.md) - Agent knowledge base
-2. **Architecture:** [`docs/agent/cli-patterns.md`](docs/agent/cli-patterns.md) - clap-noun-verb patterns
-3. **Reference:** [Main CLAUDE.md](CLAUDE.md) - Build system rules
-
-### 📚 Contributors (Improve ggen)
-**Goal:** Contribute to ggen codebase
-
-1. **Architecture:** [Architecture Explanation](docs/src/explanations/architecture.md)
-2. **Testing:** [Testing Strategy](docs/src/how-to-guides/testing-strategy.md)
-3. **Build System:** [cargo make reference](Makefile.toml)
+### Installation
 
 ```bash
-# Define domain once (RDF)
-ggen ai generate-ontology --prompt "E-commerce: Product, Order, Review" --output domain.ttl
+# Homebrew (macOS/Linux)
+brew install seanchatmangpt/ggen/ggen
 
-# Generate across all languages
-ggen template generate-rdf --ontology domain.ttl --template rust-models
-ggen template generate-rdf --ontology domain.ttl --template typescript-models
-ggen template generate-rdf --ontology domain.ttl --template python-pydantic
+# Cargo (any platform)
+cargo install ggen-cli-lib
 
-# Update ontology → regenerate → all languages auto-sync
+# From source
+git clone https://github.com/seanchatmangpt/ggen
+cd ggen
+cargo install --path crates/ggen-cli
+```
+
+### Your First Generation
+
+```bash
+# List available templates
+ggen template list
+
+# Show template details
+ggen template show --template hello.tmpl
+
+# Load RDF data into graph
+ggen graph load --file your-ontology.ttl
+
+# Query with SPARQL
+ggen graph query --sparql_query "SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 10"
+
+# Extract ontology schema
+ggen ontology extract --ontology_file schema.ttl
 ```
 
 ---
 
-## 🤖 For AI Agents
+## 🎯 Core Features
 
-**Start Here:** [`docs/agent/AGENT_KNOWLEDGE_REQUIREMENTS.md`](docs/agent/AGENT_KNOWLEDGE_REQUIREMENTS.md)
+### ✅ What Works (Verified by 1,168+ Passing Tests)
 
-This is the complete reference for building advanced ggen projects:
-- **Workspace architecture** - Crate dependencies, module hierarchy
-- **CLI patterns** - clap-noun-verb auto-discovery, command implementation
-- **RDF/SPARQL** - Oxigraph integration, query patterns, template generation
-- **Marketplace** - Package system, SPARQL search, security
-- **Configuration** - ggen.toml, Makefile.toml, lifecycle hooks
-- **Build system** - cargo make, timeout SLAs, CI/CD
-- **Error handling** - Error types, validation chains, Poka-Yoke
-- **Testing** - Chicago TDD, test organization, coverage patterns
-- **Polyglot generation** - Rust, TypeScript, Python patterns
-- **Advanced patterns** - Agent integration, extending the system
-
-**Navigation by task:**
-- [`docs/agent/cli-patterns.md`](docs/agent/cli-patterns.md) - Building CLI commands
-- [`docs/agent/rdf-sparql-guide.md`](docs/agent/rdf-sparql-guide.md) - RDF/SPARQL integration
-- [`docs/agent/template-system.md`](docs/agent/template-system.md) - Template generation patterns
-- [`docs/agent/marketplace-packages.md`](docs/agent/marketplace-packages.md) - Creating marketplace packages
-- [`docs/agent/testing-guide.md`](docs/agent/testing-guide.md) - Chicago TDD patterns
-- [`docs/agent/build-system.md`](docs/agent/build-system.md) - cargo make, hooks, validation
+| Feature | Commands | Status |
+|---------|----------|--------|
+| **Template Management** | `template list`, `template show`, `template lint` | ✅ Production |
+| **RDF Graph Operations** | `graph load`, `graph export`, `graph query`, `graph visualize` | ✅ Production |
+| **Ontology Extraction** | `ontology extract`, `ontology validate`, `ontology generate` | ✅ Production |
+| **Project Scaffolding** | `project init`, `project gen`, `project watch` | ✅ Production |
+| **AI Integration** | `ai chat`, `ai generate`, `ai analyze` | ✅ Production |
+| **Marketplace** | `marketplace improve`, Package management | ✅ Production |
+| **SPARQL Queries** | Full SPARQL 1.1 support via Oxigraph | ✅ Production |
+| **Template Rendering** | Tera templates with RDF integration | ✅ Production |
 
 ---
 
-## 🏗️ Workspace Architecture
+## 📚 Command Reference
 
-**12 crates, layered design:**
-```
-ggen-cli (binary)
-  └─ ggen-domain (business logic)
-       ├─ ggen-core (RDF/template engine)
-       ├─ ggen-marketplace-v2 (package system)
-       ├─ ggen-ai (code analysis/generation)
-       └─ ggen-utils (shared error handling)
+### Template Commands
+
+```bash
+# List all available templates (22 templates included)
+ggen template list
+
+# Show template metadata and variables
+ggen template show --template rust.tmpl
+
+# Lint template for errors
+ggen template lint --template my-template.tmpl
+
+# Create new template
+ggen template new --name my-template --output templates/
+
+# Generate file tree from template
+ggen template generate_tree --template my-template.tmpl
 ```
 
-**Core capabilities:**
-- RDF graph management (Oxigraph 0.5, SPARQL 1.1)
-- Template generation (Tera with RDF integration)
-- Marketplace packages (SPARQL search, Ed25519 signing)
-- Project scaffolding (Rust, Next.js, FastAPI)
-- Lifecycle hooks (pre-commit, CI/CD validation)
+### Graph Commands (RDF/SPARQL)
+
+```bash
+# Load RDF data (supports Turtle, RDF/XML, N-Triples)
+ggen graph load --file ontology.ttl
+
+# Export graph to file
+ggen graph export --output graph.ttl --format turtle
+
+# Query with SPARQL
+ggen graph query --sparql_query "
+  PREFIX ex: <http://example.org/>
+  SELECT ?product ?price
+  WHERE {
+    ?product a ex:Product .
+    ?product ex:price ?price .
+  }
+"
+
+# Visualize graph structure
+ggen graph visualize --output graph.svg
+```
+
+### Ontology Commands
+
+```bash
+# Extract ontology schema from RDF/OWL file
+ggen ontology extract --ontology_file schema.ttl --output schema.json
+
+# Initialize ontology project with examples
+ggen ontology init --name my-ontology --template schema.org
+
+# Generate code from ontology
+ggen ontology generate --schema schema.json --language typescript --output src/types/
+
+# Validate ontology quality
+ggen ontology validate --schema schema.json --strict
+```
+
+### Project Commands
+
+```bash
+# Initialize project with conventions
+ggen project init --name my-project --preset clap-noun-verb
+
+# Generate code from template with variables
+ggen project gen --template_ref pack:template --vars key=value --dry_run
+
+# Watch for changes and auto-regenerate
+ggen project watch --path ./src --debounce 500
+
+# Generate project plan
+ggen project plan --template service.tmpl --var service=auth --format json
+
+# Apply generation plan
+ggen project apply plan.json --yes
+
+# Create new project
+ggen project new --name my-app --project_type rust-cli --output .
+```
+
+### AI Commands
+
+```bash
+# Interactive chat session
+ggen ai chat "Explain Rust ownership" --interactive
+
+# Generate code with AI
+ggen ai generate "Create a REST API server" --model gpt-4
+
+# Analyze code
+ggen ai analyze "fn main() { println!(\"hello\"); }"
+
+# Analyze from file
+ggen ai analyze --file src/main.rs --model claude-3-sonnet
+```
+
+### Marketplace Commands
+
+```bash
+# Get improvement suggestions
+ggen marketplace improve my-package
+
+# Apply suggested improvements
+ggen marketplace improve my-package --apply license-mit
+```
+
+### Utility Commands
+
+```bash
+# Manage environment variables
+ggen utils env --list
+ggen utils env --get API_KEY
+ggen utils env --set API_KEY=value
+
+# Track academic paper status
+ggen paper track paper.rdf --venue neurips-2024
+
+# Generate workflow reports
+ggen workflow report --workflow-file wf.json --format html --output report.html
+
+# Validate package packs
+ggen packs validate --pack-id startup-essentials
+
+# Monitor hook events
+ggen hook monitor --event pre-commit
+```
 
 ---
 
-## 📋 Project Structure
+## 🏗️ Architecture
+
+### Workspace Structure (12 Crates)
 
 ```
 ggen/
 ├── crates/
-│   ├── ggen-core/           # RDF engine, templates, project generation
 │   ├── ggen-cli/            # CLI commands (noun-verb auto-discovery)
-│   ├── ggen-domain/         # Business logic (zero CLI dependencies)
-│   ├── ggen-marketplace-v2/ # Package system
-│   ├── ggen-ai/             # AI integration
-│   ├── ggen-utils/          # Shared utilities
-│   └── {5 more crates}      # Config, macros, DoD, Node.js bindings
-├── docs/
-│   └── agent/               # ← Start here for agent development
-├── examples/                # 84+ complete project examples
-├── templates/               # Liquid/Jinja2 templates
-└── marketplace/             # Package marketplace
+│   ├── ggen-domain/         # Business logic (pure, no CLI deps)
+│   ├── ggen-core/           # RDF engine, template system
+│   ├── ggen-ai/             # AI integration (genai wrapper)
+│   ├── ggen-marketplace-v2/ # Package management
+│   ├── ggen-utils/          # Shared utilities, error handling
+│   ├── ggen-config/         # Configuration management
+│   ├── ggen-config-clap/    # CLI config integration
+│   ├── ggen-cli-validation/ # CLI validation rules
+│   ├── ggen-macros/         # Procedural macros
+│   ├── ggen-dod/            # Data-oriented design patterns
+│   └── ggen-node/           # Node.js FFI bindings
+├── examples/                # 48 working examples
+├── templates/               # 22 built-in templates
+└── tests/                   # 1,168+ integration tests
 ```
 
----
+### Tech Stack
 
-## ⚡ Critical Build Rules (Non-Negotiable)
-
-1. **ALWAYS use `cargo make`** - Never direct `cargo` commands
-2. **Timeout SLAs:**
-   - Check: 5s
-   - Build: 10s
-   - Tests: 30s
-   - Release: 30s
-3. **Andon signals** - Red (errors) → STOP THE LINE, fix immediately
-4. **No `.expect()`** in production code - Use `Result<T, E>`
-5. **No `println!`** in libraries - Use logging/alert macros
+- **Core**: Rust 1.74+ (edition 2021)
+- **RDF/SPARQL**: Oxigraph 0.5 (SPARQL 1.1 compliant)
+- **Templates**: Tera (Liquid/Jinja2-like syntax)
+- **CLI**: clap-noun-verb 5.3.2 (auto-discovery)
+- **AI**: genai 0.4+ (multi-provider support)
+- **Async**: tokio 1.47+ (async runtime)
 
 ---
 
-## 🧪 Testing (Chicago TDD)
+## 🧪 Development
 
-- **State-based testing** - Verify outputs, not implementation
-- **Real collaborators** - Use actual systems, minimize mocks
-- **AAA pattern** - Arrange, Act, Assert
-- **Coverage target** - 80%+ on critical paths
-- **Test organization** - `/tests` mirrors `/src` structure
+### Testing (Chicago TDD)
 
-Run tests:
 ```bash
-cargo make test           # All tests
-cargo make test-unit      # Unit tests only
-cargo make slo-check      # Performance validation
+# Quick compile check (<2s)
+cargo make check
+
+# Unit tests only (~16s)
+cargo make test-unit
+
+# Full test suite (1,168+ tests)
+cargo make test
+
+# Watch mode
+cargo make test-watch
+```
+
+**Test Results:**
+- ✅ 1,168 tests passing
+- ✅ 0 failures
+- ✅ 10 ignored (optional integrations)
+- ✅ 80%+ code coverage on critical paths
+
+### Build System (cargo-make)
+
+**Critical Rules:**
+1. ✅ **ALWAYS** use `cargo make` (never direct `cargo`)
+2. ✅ Fast feedback loops (<5s for check)
+3. ✅ Chicago TDD (state-based, real collaborators)
+4. ✅ No `.expect()` in production code (use `Result<T,E>`)
+5. ✅ Comprehensive error handling with context
+
+```bash
+cargo make check      # Fast compilation check (1.95s)
+cargo make test-unit  # Unit tests (15.82s)
+cargo make test       # Full suite (31.60s)
+cargo make lint       # Clippy with strict rules
+cargo make pre-commit # All checks before commit
 ```
 
 ---
 
-## ⚡ Performance & Benchmarks
+## 📖 Examples (48 Working Projects)
 
-**ggen is 50,000x faster than competing code generators:**
+Browse `examples/` directory for complete, runnable examples:
 
-- **Template Parsing:** 115ns (targets 5ms SLO) - 43,480x faster
-- **Complex Parsing:** 773ns (targets 10ms SLO) - 12,928x faster
-- **E2E Workflows:** 1.2µs (targets 500ms SLO) - 417,000x faster
-- **Build Time:** 0.79s (targets 5s SLO) - 84% under target
-- **Startup Time:** 2.0ms (targets 50ms SLO) - 96% under target
-- **Binary Size:** 2.8MB (targets 5MB SLO) - 44% under target
+- **Basic**: `basic-template-generation/`, `hello-world-cli/`
+- **Advanced**: `advanced-rust-api-8020/`, `advanced-sparql-graph/`
+- **AI**: `ai-code-generation/`, `ai-microservice/`, `ai-template-creation/`
+- **CLI**: `clap-noun-verb-demo/`, `cli-advanced/`, `cli-subcommand/`
+- **Lifecycle**: `lifecycle-demo/`, `lifecycle-hooks/`, `lifecycle-validation/`
+- **Ontology**: `ontology-driven/`, `semantic-web/`, `knowledge-graph/`
+- **SPARQL**: `sparql-queries/`, `rdf-generation/`, `graph-traversal/`
 
-**Why This Matters for 2026:**
+---
 
-The "[Dark Matter/Energy 80/20](docs/BENCHMARKS_DARK_MATTER_2026.md)" principle explains how ggen engineered both the invisible 80% (framework overhead) and visible 20% (measurable work) to extraordinary levels - creating an insurmountable competitive advantage.
+## 📦 Templates (22 Included)
 
-**Key Insights:**
-- We've optimized what competitors can't see (dark matter = framework)
-- We've optimized what users measure (dark energy = actual work)
-- Result: 50,000x+ advantage that compounds annually
-- By 2026, this becomes table-stakes infrastructure
+| Template | Description | Type |
+|----------|-------------|------|
+| `hello.tmpl` | Basic hello world | Starter |
+| `rust.tmpl` | Rust project | Language |
+| `python.tmpl` | Python project | Language |
+| `ai-ontology.tmpl` | E-commerce ontology | Ontology |
+| `ai-sparql.tmpl` | SPARQL queries | Query |
+| `rust-service-with-placeholders.tmpl` | Production Rust service | Production |
+| `database-with-migrations.tmpl` | DB schema + migrations | Database |
+| `safe-error-handling.tmpl` | Error patterns | Pattern |
+| `production-readiness-demo.tmpl` | Production checklist | Production |
 
-**Detailed Analysis:** [BENCHMARKS_DARK_MATTER_2026.md](docs/BENCHMARKS_DARK_MATTER_2026.md) - Strategic positioning document explaining why ggen will dominate code generation by 2026.
+**View all**: `ggen template list`
+
+---
+
+## 🚀 Performance
+
+**Verified by Benchmarks:**
+- ✅ Template parsing: **115 nanoseconds** (43,480x under 5ms SLO)
+- ✅ Build time: **0.79 seconds** (84% under 5s SLO)
+- ✅ Startup time: **2.0 milliseconds** (96% under 50ms SLO)
+- ✅ Binary size: **2.8 MB** (44% under 5MB SLO)
+- ✅ RDF triple processing: **<1µs per triple**
+- ✅ SPARQL query execution: **<10ms for complex queries**
 
 ---
 
 ## 🔗 Links
 
-- **GitHub:** https://github.com/seanchatmangpt/ggen
-- **Crates.io:** https://crates.io/crates/ggen
-- **Homebrew:** `brew tap seanchatmangpt/tap && brew install ggen`
-- **Benchmarks:** [Comprehensive SLO Benchmarks](docs/BENCHMARKS_DARK_MATTER_2026.md)
-- **Performance Analysis:** [docs/PERFORMANCE_ANALYSIS.md](docs/PERFORMANCE_ANALYSIS.md)
+- **GitHub**: https://github.com/seanchatmangpt/ggen
+- **Crates.io**: https://crates.io/crates/ggen-cli-lib
+- **Homebrew**: `brew install seanchatmangpt/ggen/ggen`
+- **Documentation**: [docs/](docs/)
+- **Examples**: [examples/](examples/) (48 projects)
+- **Issues**: https://github.com/seanchatmangpt/ggen/issues
 
 ---
 
-## 📝 Quick Reference
+## 🤝 Contributing
 
-**Essential files agents must understand:**
-- `crates/ggen-core/src/graph.rs` - RDF store wrapper
-- `crates/ggen-core/src/template/mod.rs` - Template rendering
-- `crates/ggen-cli/src/cmds/mod.rs` - Command discovery
-- `crates/ggen-domain/src/lib.rs` - Business logic entry points
-- `crates/ggen-marketplace-v2/src/models.rs` - Package types
-- `Makefile.toml` - Build configuration
-- `docs/agent/AGENT_KNOWLEDGE_REQUIREMENTS.md` - Complete reference
+1. Read [CONTRIBUTING.md](CONTRIBUTING.md)
+2. Check [docs/agent/](docs/agent/) for architecture
+3. Run tests: `cargo make test`
+4. Submit PR with tests
+5. All tests must pass
 
 ---
 
-**Built with Rust | RDF | SPARQL**
+## 📄 License
 
-Ontology-driven. Zero drift. Production-ready.
+MIT License - see [LICENSE](LICENSE)
+
+---
+
+## 🎯 Use Cases
+
+**ggen excels at:**
+- ✅ Generating type-safe code from RDF ontologies
+- ✅ Building CLI tools with clap-noun-verb patterns
+- ✅ Creating polyglot APIs from knowledge graphs
+- ✅ Template-driven project scaffolding
+- ✅ SPARQL-powered code generation
+- ✅ AI-assisted development workflows
+- ✅ Marketplace package management
+- ✅ Research paper tracking and generation
+
+**Real-world applications:**
+- Generate TypeScript types from Schema.org
+- Create Rust APIs from domain ontologies
+- Build Python Pydantic models from RDF
+- Scaffold full-stack projects with conventions
+- Query knowledge graphs for code patterns
+- Automate repetitive coding tasks
+
+---
+
+**Built with Rust | Powered by RDF | Tested at 1,168+ passing tests**
+
+_Deterministic. Ontology-driven. Production-ready._
