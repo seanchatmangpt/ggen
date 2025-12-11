@@ -1,5 +1,5 @@
 ---
-description: Validate Definition of Done (DfLSS quality gates), prepare feature for merge, and create pull request with automated evidence collection for Rust/cargo make workflows.
+description: Fill gaps using 80/20 approach, validate Definition of Done (DfLSS quality gates), automatically merge to master, and close branch with evidence collection for Rust/cargo make workflows.
 handoffs:
   - label: Implement Missing Items
     agent: speckit.implement
@@ -30,11 +30,148 @@ Run `.specify/scripts/bash/check-prerequisites.sh --json --require-tasks --inclu
 
 For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
 
-### 2. Definition of Done Validation
+### 2. Fill Gaps Using 80/20 Approach
+
+Before validating Definition of Done, identify and fill critical gaps using Design for Lean Six Sigma (DfLSS) 80/20 principle.
+
+#### 2.1 Gap Analysis
+
+Scan for incomplete work:
+
+**Checklist Gaps**:
+```bash
+# Find incomplete checklist items
+grep -r "^\- \[ \]" "$FEATURE_DIR/checklists/" 2>/dev/null
+```
+
+**Task Gaps**:
+```bash
+# Find incomplete tasks
+grep "^\- \[ \] T[0-9]" "$TASKS"
+```
+
+**Missing Evidence**:
+```bash
+# Check evidence directory
+ls -la "$FEATURE_DIR/evidence/" 2>/dev/null || echo "No evidence directory"
+```
+
+#### 2.2 80/20 Gap Prioritization
+
+Apply Pareto Principle to identify the **vital few** gaps:
+
+**Priority 1: RED Andon Signals** (20% of gaps, 80% of value)
+- Compilation errors blocking merge
+- Test failures preventing CI pass
+- Missing critical evidence for success criteria
+- Incomplete user story implementations
+
+**Priority 2: YELLOW Andon Signals** (next 20%)
+- Clippy warnings not addressed
+- Format issues
+- Minor test coverage gaps
+- Documentation incomplete
+
+**Priority 3: Nice-to-have** (remaining 60%, defer)
+- Additional test cases
+- Extra documentation
+- Performance optimizations
+- Code cleanup
+
+#### 2.3 Automated Gap Filling
+
+For each Priority 1 gap, apply automated fixes:
+
+**If compilation errors exist**:
+```bash
+# Try to fix compilation
+cargo make check 2>&1 | tee /tmp/check-errors.txt
+
+# If errors found, analyze and fix
+if [ $? -ne 0 ]; then
+  echo "🔴 RED: Compilation errors detected"
+  # Apply common fixes (missing imports, type mismatches, etc.)
+  # Use cargo fix if available
+  cargo fix --allow-dirty --allow-staged 2>/dev/null || true
+  cargo make check
+fi
+```
+
+**If test failures exist**:
+```bash
+# Run tests and capture failures
+cargo make test 2>&1 | tee /tmp/test-failures.txt
+
+# If failures found
+if [ $? -ne 0 ]; then
+  echo "🔴 RED: Test failures detected"
+  # Analyze failure patterns
+  # Apply fixes based on Chicago TDD principles
+  # Re-run tests to verify
+fi
+```
+
+**If evidence missing**:
+```bash
+# Create evidence directory if missing
+mkdir -p "$FEATURE_DIR/evidence/"
+
+# Capture critical evidence
+cargo make test > "$FEATURE_DIR/evidence/test-results.txt" 2>&1
+cargo make lint > "$FEATURE_DIR/evidence/lint-output.txt" 2>&1
+cargo make check 2>&1 | grep "Finished" > "$FEATURE_DIR/evidence/compile-time.txt"
+
+# Optional: Capture SLO metrics
+cargo make slo-check > "$FEATURE_DIR/evidence/slo-metrics.txt" 2>&1 || true
+```
+
+**If checklists incomplete**:
+- Auto-mark items as `[X]` if corresponding work is complete
+- Example: If tests exist for feature X, mark "Write tests for X" as complete
+- Verify observable state changes (Chicago TDD principle)
+
+**If tasks incomplete**:
+- Auto-mark tasks as `[X]` if deliverables exist
+- Example: If file `src/foo.rs` exists and tests pass, mark "T042 Implement foo.rs" complete
+- Cross-reference with git log to verify work was done
+
+#### 2.4 Gap-Fill Report
+
+Generate report of auto-filled gaps:
+
+```text
+✅ 80/20 Gap-Fill Complete
+
+Priority 1 (RED signals) - FIXED:
+- [AUTO] Fixed 2 compilation errors (cargo fix)
+- [AUTO] Captured evidence: test-results.txt, lint-output.txt, slo-metrics.txt
+- [MANUAL] 3 test failures remain (require investigation)
+
+Priority 2 (YELLOW signals) - DEFERRED:
+- 5 clippy warnings (non-blocking)
+- Format check will be run in validation
+
+Priority 3 (Nice-to-have) - SKIPPED:
+- Additional test coverage (current: 85%, target: 80%)
+- Performance benchmarks (optional for this feature)
+
+🔴 REMAINING RED SIGNALS:
+- 3 test failures in ggen-domain (test_foo, test_bar, test_baz)
+
+Action: Fix remaining RED signals manually or STOP here
+```
+
+**If ANY RED signals remain after gap-fill**: STOP and report.
+
+User must decide:
+- **Option 1**: Fix RED signals manually, then re-run `/speckit.finish`
+- **Option 2**: Accept partial completion, create PR with known issues (NOT RECOMMENDED)
+
+### 3. Definition of Done Validation
 
 Execute validation checks in sequence. **STOP on first failure** and report what needs fixing.
 
-#### 2.1 Checklist Validation
+#### 3.1 Checklist Validation
 
 Scan all checklist files in `FEATURE_DIR/checklists/`:
 - Count total items: `- [ ]` or `- [X]` or `- [x]`
@@ -62,7 +199,7 @@ Incomplete items:
 Action: Run /speckit.implement to complete remaining work
 ```
 
-#### 2.2 Task Completion Validation
+#### 3.2 Task Completion Validation
 
 Parse `TASKS` file:
 - Extract all task lines matching `- [ ] [TID]` or `- [X] [TID]`
@@ -83,7 +220,7 @@ Incomplete tasks:
 Action: Complete tasks or run /speckit.implement
 ```
 
-#### 2.3 Code Quality Validation (Rust/cargo make)
+#### 3.3 Code Quality Validation (Rust/cargo make)
 
 Run quality gates in sequence (follow Andon Signal Protocol):
 
@@ -137,7 +274,7 @@ Action: Fix all RED signals before proceeding. YELLOW signals must be addressed 
 
 Include full error output for failed commands.
 
-#### 2.4 Evidence Validation
+#### 3.4 Evidence Validation
 
 Check `FEATURE_DIR/evidence/` directory:
 - Directory exists
@@ -171,11 +308,11 @@ Continue anyway? (yes/no)
 
 Wait for user response. If "no", STOP.
 
-### 3. Pre-Merge Preparation
+### 4. Pre-Merge Preparation
 
 All validations passed. Prepare for merge:
 
-#### 3.1 Update Spec Status
+#### 4.1 Update Spec Status
 
 Edit `FEATURE_SPEC`:
 - Find line matching `**Status**: Draft` or `**Status**: In Progress`
@@ -187,7 +324,7 @@ Example:
 **Branch**: `003-optimize-aci-anthropic` | **Created**: 2025-12-11 | **Status**: Complete | **Completed**: 2025-12-11
 ```
 
-#### 3.2 Merge Main into Feature Branch
+#### 4.2 Merge Master into Feature Branch
 
 Follow §6 Branch Lifecycle "Finish (before PR)":
 
@@ -216,7 +353,7 @@ Action: Resolve conflicts manually using Chicago TDD approach:
 
 **If merge succeeds**: Continue.
 
-#### 3.3 Verify Quality Post-Merge
+#### 4.3 Verify Quality Post-Merge
 
 Re-run quality gates to ensure merge didn't break anything:
 
@@ -239,11 +376,11 @@ Action: Fix merge-related issues following Andon Signal Protocol:
   5. Re-run /speckit.finish
 ```
 
-### 4. Generate PR Description
+### 5. Generate PR Description
 
 Create comprehensive PR description from artifacts:
 
-#### 4.1 Load PR Context
+#### 5.1 Load PR Context
 
 Read the following files:
 - `FEATURE_SPEC` - For executive summary, user stories, success criteria
@@ -252,7 +389,7 @@ Read the following files:
 - `FEATURE_DIR/evidence/` - List evidence files
 - `VALIDATION_REPORT.md` (if exists) - Final validation results
 
-#### 4.2 Generate PR Template
+#### 5.2 Generate PR Template
 
 Use this structure:
 
@@ -351,9 +488,11 @@ Use this structure:
 
 Save to temporary file: `/tmp/pr-description-$BRANCH.md`
 
-### 5. Create Pull Request
+### 6. Create and Automatically Merge Pull Request
 
-Use GitHub CLI to create PR:
+Use GitHub CLI to create PR and automatically merge:
+
+#### 6.1 Create Pull Request
 
 ```bash
 gh pr create \
@@ -377,40 +516,133 @@ Manual steps:
 3. Use generated description from: /tmp/pr-description-$BRANCH.md
 ```
 
-**If PR creation succeeds**: Report PR URL.
+**If PR creation succeeds**: Capture PR number and continue.
 
-### 6. Post-Merge Cleanup Instructions
-
-Output cleanup instructions (§6 Close) to be executed **after PR is merged**:
-
-```text
-✅ Feature ready for review
-
-PR created: [PR URL]
-
-After PR is merged, run these commands to clean up:
-
-  git checkout master
-  git pull origin master
-  git branch -d $BRANCH
-  git push origin --delete $BRANCH
-
-Cleanup verifies:
-  - Local branch deleted
-  - Remote branch deleted
-  - master updated
+```bash
+# Capture PR number from URL
+PR_NUMBER=$(gh pr list --head "$BRANCH" --json number --jq '.[0].number')
+echo "✅ PR #$PR_NUMBER created"
 ```
 
-### 7. Final Report
+#### 6.2 Wait for CI Pipeline
+
+Monitor CI pipeline status before merging:
+
+```bash
+# Wait for all checks to complete
+echo "⏳ Waiting for CI pipeline to complete..."
+gh pr checks "$PR_NUMBER" --watch --interval 10
+
+# Verify all checks passed
+gh pr checks "$PR_NUMBER" || {
+  echo "❌ CI checks failed. Cannot auto-merge."
+  exit 1
+}
+```
+
+**If CI fails**: STOP and report failures. User must fix and re-run.
+
+#### 6.3 Automatically Merge to Master
+
+All checks passed. Merge PR automatically:
+
+```bash
+# Merge using squash strategy (cleaner history)
+gh pr merge "$PR_NUMBER" \
+  --squash \
+  --delete-branch \
+  --body "Automated merge via /speckit.finish 🤖"
+
+echo "✅ PR #$PR_NUMBER merged to master"
+echo "✅ Remote branch $BRANCH deleted automatically"
+```
+
+**Merge Options**:
+- `--squash`: Single commit (default, cleaner history)
+- `--merge`: Preserve all commits
+- `--rebase`: Linear history
+- `--delete-branch`: Auto-delete remote branch after merge
+
+**If merge fails**:
+```text
+❌ Auto-merge FAILED
+
+Possible reasons:
+- Branch protection requires manual reviews
+- Merge conflicts detected
+- Insufficient permissions
+
+Manual fallback:
+1. Visit PR: https://github.com/seanchatmangpt/ggen/pull/$PR_NUMBER
+2. Get required approvals
+3. Merge manually
+4. Then run cleanup: git checkout master && git pull && git branch -d $BRANCH
+```
+
+STOP here if merge failed.
+
+### 7. Cleanup Branch Locally
+
+PR successfully merged. Clean up local environment:
+
+#### 7.1 Switch to Master and Update
+
+```bash
+# Switch back to master
+git checkout master
+
+# Pull latest changes (includes merged PR)
+git pull origin master
+
+echo "✅ Switched to master and pulled latest changes"
+```
+
+#### 7.2 Delete Local Feature Branch
+
+```bash
+# Delete local branch (safe, already merged to remote)
+git branch -d "$BRANCH" 2>/dev/null || {
+  # If -d fails (sees unmerged commits due to squash), force delete
+  echo "⚠️ Squash merge detected, force-deleting local branch..."
+  git branch -D "$BRANCH"
+}
+
+echo "✅ Local branch $BRANCH deleted"
+```
+
+**Why force delete may be needed**: Squash merges create a new commit, so git sees the original commits as "unmerged". This is safe because the PR was already merged remotely.
+
+#### 7.3 Verify Cleanup Complete
+
+```bash
+# Verify branch is fully removed
+git branch -a | grep "$BRANCH" && {
+  echo "⚠️ Branch still exists in 'git branch -a' output"
+  echo "This is normal if remote tracking refs are cached."
+  echo "Run: git fetch --prune"
+} || echo "✅ Branch fully cleaned up"
+
+# Show current master HEAD
+echo ""
+echo "Current master HEAD:"
+git log -1 --oneline
+```
+
+### 8. Final Report
 
 Output summary:
 
 ```text
-✅ /speckit.finish COMPLETE
+✅ /speckit.finish COMPLETE - FEATURE MERGED TO MASTER
 
-Branch: $BRANCH
-Status: Ready for review
-PR: [URL]
+Branch: $BRANCH → MERGED & CLOSED
+PR: #$PR_NUMBER (https://github.com/seanchatmangpt/ggen/pull/$PR_NUMBER)
+Status: ✅ Merged to master and branch deleted
+
+80/20 Gap-Fill Results:
+- ✅ Priority 1 (RED signals): All fixed
+- ⚠️ Priority 2 (YELLOW signals): Deferred (non-blocking)
+- ⏭️ Priority 3 (Nice-to-have): Skipped (focus on vital few)
 
 Validation Results:
 - ✅ Checklists: [N] items complete
@@ -421,48 +653,66 @@ Validation Results:
 - ✅ Check: PASS (clean compilation)
 - ✅ Evidence: [K] files captured
 
-Spec updated: specs/NNN-feature/spec.md (Status: Complete)
+CI Pipeline: ✅ ALL CHECKS PASSED
 
+Merge Details:
+- Strategy: Squash (single commit)
+- Remote branch: Deleted automatically
+- Local branch: Deleted automatically
+- Master updated: Yes (git pull completed)
+
+Spec updated: specs/NNN-feature/spec.md (Status: Complete)
 Andon Signals: 🟢 ALL GREEN
 
-Next steps:
-1. Review PR: [URL]
-2. Request reviews from team
-3. Monitor CI pipeline (cargo make ci)
-4. After merge approval, run cleanup commands above
+Current Branch: master
+Latest Commit: [commit hash from git log]
+
+🎉 Feature complete! No further action required.
 ```
 
 ## Error Handling
 
+- **Gap-fill failures**: If Priority 1 (RED) gaps remain after auto-fill, STOP and require manual fixes
 - **Validation failures**: STOP immediately, report specific failures, suggest fixes
 - **Merge conflicts**: STOP, provide conflict resolution guidance using Chicago TDD
 - **PR creation failures**: Provide manual fallback instructions
+- **CI pipeline failures**: STOP before merge, report failures, require fixes
+- **Auto-merge failures**: Provide manual merge instructions with PR link
+- **Branch cleanup failures**: Warn but continue (non-critical)
 - **Network errors**: Retry once, then provide manual instructions
 - **Andon signals**: Treat RED as fatal, YELLOW as warnings (must address for release)
 
 ## Operating Rules
 
-1. **STOP on first failure**: Do not proceed past failed validation (Andon Protocol)
-2. **Evidence is CRITICAL**: Warn loudly if missing (but allow override for non-production features)
-3. **Atomic operations**: Each cargo make command must succeed before continuing
-4. **Deterministic output**: Same state = same validation results (Principle VII)
-5. **User confirmation**: Ask before overriding warnings (empty evidence, YELLOW signals, etc.)
-6. **Constitution enforcement**: This command enforces §5 (Definition of Done) and §6 (Branch Lifecycle) non-negotiably
-7. **Rust idioms**: Verify Result<T,E> usage, no unwrap/expect in production code (§VII)
-8. **Chicago TDD**: Validate tests verify observable state, not implementation (§IV)
+1. **80/20 Gap-Fill FIRST**: Identify and fix Priority 1 (RED) gaps before validation (DfLSS)
+2. **STOP on RED signals**: Do not proceed past Priority 1 failures (Andon Protocol)
+3. **Defer YELLOW signals**: Priority 2 gaps are non-blocking but should be documented
+4. **Skip nice-to-have**: Priority 3 gaps deferred to future work (focus on vital few)
+5. **Evidence is CRITICAL**: Warn loudly if missing (but allow override for non-production features)
+6. **Atomic operations**: Each cargo make command must succeed before continuing
+7. **Deterministic output**: Same state = same validation results (Principle VII)
+8. **Automated merge**: Merge PR automatically after CI passes (no manual intervention)
+9. **Automated cleanup**: Delete branches automatically after successful merge
+10. **User confirmation**: Ask before overriding warnings (empty evidence, YELLOW signals, etc.)
+11. **Constitution enforcement**: This command enforces §5 (Definition of Done) and §6 (Branch Lifecycle) non-negotiably
+12. **Rust idioms**: Verify Result<T,E> usage, no unwrap/expect in production code (§VII)
+13. **Chicago TDD**: Validate tests verify observable state, not implementation (§IV)
 
 ## ggen-Specific Adaptations
 
-### Differences from TypeScript/pnpm version:
+### Differences from Astro TypeScript/pnpm version:
 
-1. **Build system**: cargo make (not pnpm) with mandatory timeouts
-2. **Quality gates**: check + lint + fmt-check + test (not lint + test + build)
-3. **Main branch**: master (not main)
-4. **Error handling**: Verify Result<T,E> patterns, flag unwrap/expect in production
-5. **Test philosophy**: Chicago TDD (state-based, real collaborators) not London School
-6. **Andon signals**: RED/YELLOW/GREEN monitoring integrated into quality gates
-7. **SLO compliance**: Optional check for performance-critical features
-8. **Constitution**: Reference ggen constitutional principles in PR description
+1. **80/20 Gap-Fill**: Automatically fills Priority 1 (RED) gaps before validation (NEW)
+2. **Automated Merge**: Merges PR automatically after CI passes (NEW)
+3. **Automated Cleanup**: Deletes branches automatically after merge (NEW)
+4. **Build system**: cargo make (not pnpm) with mandatory timeouts
+5. **Quality gates**: check + lint + fmt-check + test (not lint + test + build)
+6. **Main branch**: master (not main)
+7. **Error handling**: Verify Result<T,E> patterns, flag unwrap/expect in production
+8. **Test philosophy**: Chicago TDD (state-based, real collaborators) not London School
+9. **Andon signals**: RED/YELLOW/GREEN monitoring integrated into quality gates
+10. **SLO compliance**: Optional check for performance-critical features
+11. **Constitution**: Reference ggen constitutional principles in PR description
 
 ### Rust-Specific Quality Checks:
 
@@ -488,7 +738,10 @@ timeout 30s cargo make slo-check
 - This command assumes master branch is `master` (ggen convention)
 - PR template can be customized via `.specify/templates/pr-template.md` (if exists)
 - Evidence files should be committed before running this command
-- Post-merge cleanup is manual (user must execute after PR merge)
+- **Fully automated**: Creates PR, waits for CI, merges, deletes branches automatically
+- **80/20 Pareto Principle**: Focuses on fixing the vital few (Priority 1) gaps only
+- Post-merge cleanup is **automated** (no manual steps required)
 - Andon Signal Protocol (§VI) is enforced throughout validation
 - cargo make targets must have timeout enforcement (§IX)
 - Constitution alignment verification is mandatory for production features
+- **Single command**: From incomplete feature → merged to master + branch closed
