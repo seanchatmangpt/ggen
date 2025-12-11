@@ -177,7 +177,7 @@ pub use delta::{DeltaType, GraphDelta, ImpactAnalyzer, TemplateImpact};
 pub use generator::{GenContext, Generator};
 pub use github::{GitHubClient, PagesConfig, RepoInfo, WorkflowRun, WorkflowRunsResponse};
 pub use gpack::GpackManifest;
-pub use graph::Graph;
+pub use graph::{Graph, GraphStore};
 pub use lockfile::{LockEntry, Lockfile, LockfileManager};
 pub use merge::{
     ConflictType, MergeConflict, MergeResult, MergeStrategy, RegionAwareMerger, RegionUtils,
