@@ -170,13 +170,13 @@
 
 **Purpose**: Evidence collection, validation, and documentation updates
 
-- [ ] T054 [P] Collect post-optimization tool selection accuracy evidence: Run tool_selection_tests with --nocapture and save to specs/003-optimize-aci-anthropic/evidence/tool-selection-accuracy.txt (target: 90% accuracy)
-- [ ] T055 [P] Collect post-optimization SLO violations: cargo make slo-check 2>&1 > specs/003-optimize-aci-anthropic/evidence/current-slo-violations.txt (compare with baseline, target: 60% reduction)
-- [ ] T056 [P] Measure post-optimization compile time: time cargo make check 2>&1 | tee specs/003-optimize-aci-anthropic/evidence/optimized-compile-time.txt (compare with baseline, target: 40% improvement)
-- [ ] T057 [P] Collect skill auto-invocation evidence: Document manual test of Claude Code session with ggen keywords in specs/003-optimize-aci-anthropic/evidence/skill-invocation-logs.txt (verify auto-loading, target: 80% rate)
-- [ ] T058 [P] Run quickstart.md validation: Follow all steps in specs/003-optimize-aci-anthropic/quickstart.md and verify all validation checks pass
-- [ ] T059 [P] Update DOGFOODING_ASSESSMENT.md: Change status from "NOT DOGFOODING" to "DOGFOODING COMPLETE" with evidence links
-- [ ] T060 Generate final validation report: Summarize all 8 success criteria with evidence in specs/003-optimize-aci-anthropic/VALIDATION_REPORT.md:
+- [x] T054 [P] Collect post-optimization tool selection accuracy evidence: Run tool_selection_tests with --nocapture and save to specs/003-optimize-aci-anthropic/evidence/tool-selection-accuracy.txt (target: 90% accuracy)
+- [x] T055 [P] Collect post-optimization SLO violations: cargo make slo-check 2>&1 > specs/003-optimize-aci-anthropic/evidence/current-slo-violations.txt (compare with baseline, target: 60% reduction)
+- [x] T056 [P] Measure post-optimization compile time: time cargo make check 2>&1 | tee specs/003-optimize-aci-anthropic/evidence/optimized-compile-time.txt (compare with baseline, target: 40% improvement)
+- [x] T057 [P] Collect skill auto-invocation evidence: Document manual test of Claude Code session with ggen keywords in specs/003-optimize-aci-anthropic/evidence/skill-invocation-logs.txt (verify auto-loading, target: 80% rate)
+- [x] T058 [P] Run quickstart.md validation: Follow all steps in specs/003-optimize-aci-anthropic/quickstart.md and verify all validation checks pass
+- [x] T059 [P] Update DOGFOODING_ASSESSMENT.md: Change status from "NOT DOGFOODING" to "DOGFOODING COMPLETE" with evidence links
+- [x] T060 Generate final validation report: Summarize all 8 success criteria with evidence in specs/003-optimize-aci-anthropic/VALIDATION_REPORT.md:
   - SC-001: Tool selection accuracy (90% target vs measured)
   - SC-002: Andon signal interpretation (95% target vs measured)
   - SC-003: SLO violation reduction (60% target vs measured)
