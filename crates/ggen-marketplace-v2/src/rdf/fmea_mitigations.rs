@@ -8,7 +8,7 @@
 //! - Logging and alerting
 
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::time::{Duration, Instant};
 use tracing::{error, info, warn};
 
@@ -224,9 +224,10 @@ pub enum MitigationResult {
 }
 
 /// FMEA mitigation manager
+/// **FMEA Fix**: Use BTreeMap instead of HashMap for deterministic iteration order
 pub struct FmeaMitigationManager {
-    metrics: HashMap<&'static str, FailureMetrics>,
-    recovery_attempts: HashMap<&'static str, usize>,
+    metrics: BTreeMap<&'static str, FailureMetrics>,
+    recovery_attempts: BTreeMap<&'static str, usize>,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -241,8 +242,8 @@ pub struct FailureMetrics {
 impl FmeaMitigationManager {
     pub fn new() -> Self {
         Self {
-            metrics: HashMap::new(),
-            recovery_attempts: HashMap::new(),
+            metrics: BTreeMap::new(),
+            recovery_attempts: BTreeMap::new(),
         }
     }
 
@@ -440,7 +441,7 @@ impl FmeaMitigationManager {
     }
 
     /// Get all metrics
-    pub fn get_all_metrics(&self) -> &HashMap<&'static str, FailureMetrics> {
+    pub fn get_all_metrics(&self) -> &BTreeMap<&'static str, FailureMetrics> {
         &self.metrics
     }
 

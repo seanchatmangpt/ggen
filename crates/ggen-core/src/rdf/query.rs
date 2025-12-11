@@ -32,12 +32,13 @@ use ggen_utils::error::{Error, Result};
 use lru::LruCache;
 use oxigraph::sparql::QueryResults;
 use oxigraph::store::Store;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::num::NonZeroUsize;
 use std::sync::{Arc, Mutex};
 
 /// Type alias for predicate index: maps predicate URIs to subject-object pairs
-type PredicateIndex = Arc<Mutex<HashMap<String, Vec<(String, String)>>>>;
+/// **FMEA Fix**: Use BTreeMap instead of HashMap for deterministic iteration order
+type PredicateIndex = Arc<Mutex<BTreeMap<String, Vec<(String, String)>>>>;
 
 /// SPARQL query result cache
 /// OPTIMIZATION 2.1: Cache query results to avoid re-evaluation (50-100% speedup)
@@ -79,7 +80,7 @@ impl QueryCache {
             cache: Arc::new(Mutex::new(LruCache::new(
                 NonZeroUsize::new(capacity).unwrap(),
             ))),
-            predicate_index: Arc::new(Mutex::new(HashMap::new())),
+            predicate_index: Arc::new(Mutex::new(BTreeMap::new())),
             version: Arc::new(Mutex::new(0)),
         }
     }
@@ -141,7 +142,8 @@ impl QueryCache {
                     let solution = solution.map_err(|e| {
                         Error::with_context("Query execution failed", &e.to_string())
                     })?;
-                    let mut row = HashMap::new();
+                    // **FMEA Fix**: Use BTreeMap for deterministic iteration order
+                    let mut row = BTreeMap::new();
                     for (var, term) in solution.iter() {
                         row.insert(var.as_str().to_string(), term.to_string());
                     }
@@ -193,7 +195,8 @@ impl QueryCache {
             let query = format!("SELECT ?s ?o WHERE {{ ?s <{}> ?o }}", predicate);
 
             let results = self.execute_query(store, &query)?;
-            let parsed: Vec<HashMap<String, String>> =
+            // **FMEA Fix**: Use BTreeMap for deterministic iteration order
+            let parsed: Vec<BTreeMap<String, String>> =
                 serde_json::from_str(&results).map_err(|e| {
                     Error::with_context("Failed to parse index results", &e.to_string())
                 })?;
