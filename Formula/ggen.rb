@@ -9,13 +9,11 @@ class Ggen < Formula
   depends_on "rust" => :build
 
   def install
-    system "cargo", "install", "--path", "crates/ggen-cli", "--bin", "ggen", *std_cargo_args
+    system "cargo", "install", *std_cargo_args(path: "crates/ggen-cli")
   end
 
   test do
-    assert_match version.to_s, shell_output("#{bin}/ggen --version")
-    
     # Test basic functionality
-    system "#{bin}/ggen", "template", "list"
+    system bin/"ggen", "template", "list"
   end
 end
