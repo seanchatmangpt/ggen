@@ -75,14 +75,18 @@ fn generate(
 
     // Layer 2: Call execute layer (async coordination)
     let result = tokio::runtime::Runtime::new()
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e)))?
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e))
+        })?
         .block_on(execute::execute_generate(
             &prompt,
             code.as_deref(),
             model.as_deref(),
             suggestions,
         ))
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Generation failed: {}", e)))?;
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Generation failed: {}", e))
+        })?;
 
     // Layer 3: Format output for CLI
     Ok(GenerateOutput {
@@ -118,9 +122,13 @@ fn chat(
 
     // Layer 2: Call execute layer (async coordination)
     let result = tokio::runtime::Runtime::new()
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e)))?
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e))
+        })?
         .block_on(execute::execute_chat(&msg, model.as_deref()))
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Chat failed: {}", e)))?;
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Chat failed: {}", e))
+        })?;
 
     // Layer 3: Format output for CLI
     Ok(ChatOutput {
@@ -151,12 +159,13 @@ fn analyze(
 
     // Layer 2: Call execute layer (async coordination)
     let result = tokio::runtime::Runtime::new()
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e)))?
-        .block_on(execute::execute_analyze(
-            code.as_deref(),
-            file.as_deref(),
-        ))
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Analysis failed: {}", e)))?;
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e))
+        })?
+        .block_on(execute::execute_analyze(code.as_deref(), file.as_deref()))
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Analysis failed: {}", e))
+        })?;
 
     // Layer 3: Format output for CLI
     Ok(AnalyzeOutput {

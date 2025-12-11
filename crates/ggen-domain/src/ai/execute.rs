@@ -103,10 +103,7 @@ pub struct ExecuteChatResult {
 /// # }
 /// ```
 pub async fn execute_generate(
-    prompt: &str,
-    code: Option<&str>,
-    model: Option<&str>,
-    suggestions: bool,
+    prompt: &str, code: Option<&str>, model: Option<&str>, suggestions: bool,
 ) -> Result<ExecuteGenerateResult> {
     // Layer 2: Input validation (additional validation beyond CLI)
     if prompt.trim().is_empty() {
@@ -114,8 +111,8 @@ pub async fn execute_generate(
     }
 
     // Layer 2: Build domain options with builder pattern
-    let mut options = generate::GenerateOptions::new(prompt)
-        .with_format(generate::OutputFormat::Json);
+    let mut options =
+        generate::GenerateOptions::new(prompt).with_format(generate::OutputFormat::Json);
 
     if suggestions {
         options = options.with_suggestions();
@@ -185,8 +182,7 @@ pub async fn execute_generate(
 /// # }
 /// ```
 pub async fn execute_analyze(
-    code: Option<&str>,
-    file: Option<&Path>,
+    code: Option<&str>, file: Option<&Path>,
 ) -> Result<ExecuteAnalyzeResult> {
     // Layer 2: Input validation - Must have either code or file
     if code.is_none() && file.is_none() {
