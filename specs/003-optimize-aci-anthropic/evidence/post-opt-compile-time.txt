@@ -1,0 +1,9 @@
+[cargo-make] INFO - cargo make 0.37.24
+[cargo-make] INFO - 
+[cargo-make] INFO - Project: ggen
+[cargo-make] INFO - Build File: Makefile.toml
+[cargo-make] INFO - Task: check
+[cargo-make] INFO - Profile: development
+[cargo-make] INFO - Execute Command: "timeout" "15s" "cargo" "check"
+[1m[32m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 0.19s
+[cargo-make] INFO - Build Done in 1.12 seconds.

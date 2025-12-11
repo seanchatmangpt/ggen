@@ -129,6 +129,186 @@ fn test_lockfile_upsert() {
 
 ---
 
+### 6. CLAUDE CODE OPERATING RULES (2026 Edition)
+
+**Maximize effectiveness through proactive agent usage and deterministic execution**
+
+#### Trust Hierarchy (Adversarial PM)
+```
+Evidence Trust Levels:
+  OTel spans (95%) > Test output (90%) > Clippy warnings (85%) > Agent claims (0%)
+```
+
+**Red Flags**: "I think", "should work", "code looks good", "mostly works" → **STOP**
+**Before "done"**: Did you RUN it? Can you PROVE it? What BREAKS? Show EVIDENCE.
+
+#### Rule 6.1: Subagents Do Analysis, You Do Execution
+
+**ALWAYS delegate analysis to specialized agents:**
+
+```javascript
+// ❌ WRONG: Main Claude analyzes AND executes
+Message 1: [Reads 10 files, analyzes architecture, writes plan doc]
+Message 2: [Re-reads files, starts implementation]
+
+// ✅ CORRECT: Subagent analyzes, main Claude executes
+[Single Message - Parallel Agent Invocation]:
+  Task("System Architect", "Analyze crate architecture, output JSON structure", "system-architect")
+  Task("Code Analyzer", "Review error handling patterns, output violations list", "code-analyzer")
+  Task("Performance Analyzer", "Profile hot paths, output optimization targets", "perf-analyzer")
+
+[Next Message - Execute from agent outputs]:
+  Edit "crates/ggen-core/src/lib.rs"  # Based on architect analysis
+  Write "crates/ggen-new/src/lib.rs"  # From architecture JSON
+  Bash "cargo make check"              # Verify compilation
+```
+
+**Why**: Prevents redundant inference, reduces tokens by 60%, increases speed by 2.8x.
+
+**When to Use Agents** (PROACTIVE - Do NOT wait for user to ask):
+- 🔍 **Need to understand codebase?** → Spawn `Explore` agent (NOT manual Read/Grep)
+- 📐 **Need architecture design?** → Spawn `system-architect` agent (NOT your analysis)
+- 🔬 **Need code review?** → Spawn `code-analyzer` agent (NOT manual inspection)
+- ⚡ **Need performance analysis?** → Spawn `performance-benchmarker` agent
+- 🏗️ **Need implementation plan?** → Spawn `Plan` agent (NOT your plan.md)
+- 🧪 **Need test strategy?** → Spawn `tester` agent (NOT your test outline)
+
+#### Rule 6.2: Load Skills Aggressively
+
+**Skills auto-load by WHEN/WHEN_NOT patterns. Trust them.**
+
+```rust
+// ❌ WRONG: Re-explaining ggen constitution every time
+"Remember, ggen uses Chicago TDD, cargo make, Result<T,E>..."
+
+// ✅ CORRECT: Constitution skill auto-loads, reference it
+"Following constitutional principle III (Chicago TDD)..."
+// Skill already loaded via WHEN: ["cargo make", "Chicago TDD"]
+```
+
+**If skill doesn't auto-load**: Description is too generic. Fix skill, don't compensate.
+
+#### Rule 6.3: Output Deterministically
+
+**ALL outputs MUST be structured (JSON, YAML, markdown lists). NO PROSE.**
+
+```markdown
+# ❌ WRONG: Prose requiring interpretation
+"We should probably create a new module for RDF parsing and maybe add some error handling..."
+
+# ✅ CORRECT: Structured, deterministic output
+## Tasks
+1. [pending] Create crates/ggen-rdf/src/parser.rs
+2. [pending] Implement Result<RdfTriple, ParseError>
+3. [pending] Add tests/rdf/parser_tests.rs
+4. [in_progress] Run cargo make test
+```
+
+**Why**: Eliminates ambiguity, enables automation, reduces rework cycles.
+
+#### Rule 6.4: Fail Fast on Ambiguity
+
+**Vague specification? STOP. Ask structured questions using AskUserQuestion tool.**
+
+```rust
+// ❌ WRONG: Guessing implementation details
+// User: "Add validation"
+// You: [Implements email regex without asking which fields]
+
+// ✅ CORRECT: Structured clarification
+// User: "Add validation"
+// You: [Uses AskUserQuestion]
+{
+  questions: [
+    {
+      question: "Which fields require validation?",
+      options: ["Email only", "Email + username", "All input fields"]
+    },
+    {
+      question: "What validation library?",
+      options: ["validator crate (recommended)", "regex", "custom"]
+    }
+  ]
+}
+```
+
+**Why**: Guessing creates rework. Clarification takes 30 seconds, rework takes 30 minutes.
+
+#### Rule 6.5: Batch Operations Aggressively
+
+**Group ALL related operations in ONE message.**
+
+```rust
+// ❌ WRONG: Sequential messages
+Message 1: Write "src/lib.rs"
+Message 2: Write "src/error.rs"
+Message 3: Bash "cargo make check"
+
+// ✅ CORRECT: Batched operations
+[Single Message]:
+  Write "crates/ggen-core/src/lib.rs"
+  Write "crates/ggen-core/src/error.rs"
+  Write "crates/ggen-core/src/types.rs"
+  Bash "cargo make check && cargo make test-unit"
+  TodoWrite { todos: [5+ todos in ONE call] }
+```
+
+**Why**: 2.8-4.4x speed improvement, atomic transactions, better coordination.
+
+#### Rule 6.6: Context Reuse Over Re-computation
+
+**If analysis exists (skill, agent output, prior message), REUSE it. Do NOT re-analyze.**
+
+```rust
+// ❌ WRONG: Re-analyzing every time
+Message 50: [Re-reads constitution, re-analyzes architecture, re-plans...]
+
+// ✅ CORRECT: Reference existing analysis
+Message 50: "Based on architect agent's JSON (Message 10), implementing..."
+// OR: "Following constitutional principle IV (cargo make Protocol)..."
+```
+
+**Why**: Re-analysis wastes 500-1000 tokens per cycle. Multiply by 20 messages = 10K-20K wasted.
+
+#### Token Efficiency Targets (Per Major Operation)
+
+| Activity | Target Tokens | Method |
+|----------|---------------|--------|
+| Skill load | ~100 | Auto-invocation via WHEN patterns |
+| Agent analysis | ~500 | Structured JSON/YAML output |
+| Main execution | ~1000 | Deterministic Write/Edit/Bash |
+| **Total** | **~1600** | One analysis + one execution pass |
+
+**If exceeding 2000 tokens**: You're re-analyzing, re-explaining, or guessing. **STOP**.
+
+#### Claude Self-Awareness (Limitations)
+
+**Understanding your failure modes prevents defects:**
+
+| Failure Mode | Probability | Mitigation |
+|--------------|-------------|------------|
+| Weak on exact counts | 70% error rate | Use `wc -l`, `grep -c`, test assertions |
+| Nested logic >3 levels | 60% error rate | Spawn `code-analyzer` agent |
+| "Not sure" statements | 70% uncertainty | STOP, clarify, or delegate |
+| Confident tone | Often 60-80% actual | Verify with tests/evidence |
+| After 15 messages | Coherence degrades | Summarize or restart |
+
+**Why OTEL/Tests Critical**: You CANNOT validate your own execution. "Completion" ≠ correctness.
+
+#### Pre-Action Checklist (MANDATORY)
+
+Before ANY implementation action, verify:
+
+1. ☑️ **Is there a skill for this?** Load explicitly if not auto-loaded.
+2. ☑️ **Need analysis?** Spawn agent. Do NOT analyze yourself.
+3. ☑️ **Executing?** Use Write/Edit/Bash directly. No additional planning.
+4. ☑️ **Output structured?** Must be JSON/YAML/markdown lists. No prose.
+5. ☑️ **Created ambiguity?** If yes, use AskUserQuestion immediately.
+
+**Compliance Check**: If you write >500 tokens of explanation, you violated Rule 6.6 (context reuse).
+
+---
+
 ## 📁 File Organization (Never Save to Root)
 
 ```
@@ -370,3 +550,10 @@ ALWAYS prefer editing an existing file to creating a new one.
 NEVER proactively create documentation files.
 Never save working files, text/mds and tests to the root folder.
 TODO LISTS ARE ALWAYS 10 ITEMS OR MORE. THEY ARE ALWAYS FULLY COMPLETED BEFORE PROGRESSING TO THE NEXT TASK.
+
+## Active Technologies
+- Rust 1.74+ (edition 2021) - existing ggen toolchain (003-optimize-aci-anthropic)
+- Filesystem-based (003-optimize-aci-anthropic)
+
+## Recent Changes
+- 003-optimize-aci-anthropic: Added Rust 1.74+ (edition 2021) - existing ggen toolchain

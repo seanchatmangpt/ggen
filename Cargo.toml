@@ -359,6 +359,25 @@ name = "gemba_walk_verification"
 path = "tests/integration/gemba_walk_verification.rs"
 required-features = []
 
+# ACI (Agent-Computer Interface) Optimization Tests - Feature 003
+# Tests validate tool selection accuracy, timeout enforcement, and skill invocation
+# per Anthropic's ACI guidelines and ggen Constitution v1.0.0
+
+[[test]]
+name = "tool_selection_tests"
+path = "tests/aci/tool_selection_tests.rs"
+required-features = []
+
+[[test]]
+name = "timeout_enforcement_tests"
+path = "tests/aci/timeout_enforcement_tests.rs"
+required-features = []
+
+[[test]]
+name = "skill_invocation_tests"
+path = "tests/aci/skill_invocation_tests.rs"
+required-features = []
+
 # [[test]]
 # name = "fmea_risk_assessment"
 # path = "tests/integration/fmea_risk_assessment.rs"

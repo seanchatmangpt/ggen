@@ -155,6 +155,7 @@ pub fn execute_sparql(options: QueryOptions) -> Result<QueryResult> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serial_test::serial;
 
     /// Chicago TDD: Test with REAL in-memory RDF graph
     #[test]
@@ -247,7 +248,14 @@ mod tests {
 
     /// Chicago TDD: Test empty graph returns no results
     #[test]
+    #[serial]
     fn test_execute_sparql_empty_graph() -> Result<()> {
+        // Clean up persistent store to ensure empty state
+        let store_path = std::path::Path::new(".ggen/rdf-store");
+        if store_path.exists() {
+            std::fs::remove_dir_all(store_path).ok();
+        }
+
         // Execute query on empty graph
         let options = QueryOptions {
             query: "SELECT ?s ?p ?o WHERE { ?s ?p ?o }".to_string(),

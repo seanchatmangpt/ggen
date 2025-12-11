@@ -66,6 +66,7 @@ tempfile = { workspace = true }
 tokio-test = "0.4"
 chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras", "async"] }
 criterion = { version = "0.7", features = ["html_reports"] }
+serial_test = "3.2"
 
 [[bench]]
 name = "swarm_primitives"
