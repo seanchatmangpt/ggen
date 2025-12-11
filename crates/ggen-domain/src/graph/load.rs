@@ -1,8 +1,9 @@
 //! RDF data loading domain logic with real Oxigraph ingestion
 //!
 //! Chicago TDD: Uses REAL RDF file loading and graph state verification
+//! v4.0.0: Uses persistent GraphStore for RDF data across commands
 
-use ggen_core::Graph;
+use ggen_core::GraphStore;
 use ggen_utils::{
     bail,
     error::{Context, Result},
@@ -91,6 +92,7 @@ pub struct LoadInput {
 /// Load RDF data from file into graph
 ///
 /// Chicago TDD: This performs REAL RDF file loading using Oxigraph
+/// v4.0.0: Uses persistent GraphStore - data survives across commands
 pub fn load_rdf(options: LoadOptions) -> Result<LoadStats> {
     // Verify file exists
     let file_path = Path::new(&options.file_path);
@@ -103,16 +105,32 @@ pub fn load_rdf(options: LoadOptions) -> Result<LoadStats> {
         .format
         .unwrap_or_else(|| RdfFormat::from_extension(&options.file_path));
 
-    // Load REAL RDF graph using Oxigraph
-    let graph = Graph::load_from_file(&options.file_path)
-        .context(format!("Failed to load RDF file: {}", options.file_path))?;
+    // Open persistent RDF store (creates .ggen/rdf-store if not exists)
+    let store = GraphStore::open(".ggen/rdf-store")
+        .context("Failed to open persistent RDF store at .ggen/rdf-store")?;
 
-    // Get REAL triple count from Oxigraph
+    // Create graph from persistent store
+    let graph = store.create_graph()
+        .context("Failed to create graph from persistent store")?;
+
+    // Count triples before loading (for merge mode)
+    let triples_before = if options.merge {
+        graph.len()
+    } else {
+        0
+    };
+
+    // Read RDF file content
+    let ttl_content = std::fs::read_to_string(file_path)
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to read RDF file {}: {}", options.file_path, e)))?;
+
+    // Load REAL RDF data into persistent store
+    graph.insert_turtle(&ttl_content)
+        .context(format!("Failed to parse RDF file: {}", options.file_path))?;
+
+    // Get REAL triple count from Oxigraph after loading
     let total_triples = graph.len();
-
-    // For merge mode, we would load into existing graph
-    // For now, we treat each load as new graph
-    let triples_loaded = total_triples;
+    let triples_loaded = total_triples - triples_before;
 
     Ok(LoadStats {
         triples_loaded,
