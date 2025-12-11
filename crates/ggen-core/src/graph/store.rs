@@ -58,7 +58,15 @@ impl GraphStore {
     pub fn open<P: AsRef<Path>>(path: P) -> Result<Self> {
         // **Root Cause Fix**: Use explicit `.map_err()` for oxigraph error conversion
         // Pattern: Always use `.map_err()` for external library errors that don't implement `From`
-        let store = Store::open(path.as_ref())
+
+        // Ensure parent directory exists (Oxigraph doesn't create it automatically)
+        let path_ref = path.as_ref();
+        if let Some(parent) = path_ref.parent() {
+            std::fs::create_dir_all(parent)
+                .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create store parent directory: {}", e)))?;
+        }
+
+        let store = Store::open(path_ref)
             .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to open store: {}", e)))?;
         Ok(Self {
             store: Arc::new(store),

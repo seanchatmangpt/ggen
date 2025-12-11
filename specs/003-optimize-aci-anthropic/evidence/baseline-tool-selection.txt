@@ -1,0 +1,45 @@
+# Baseline Tool Selection Accuracy
+
+**Date**: 2025-12-11
+**Purpose**: Document current state of cargo make target descriptions before ACI optimization
+
+## Current State Analysis
+
+### cargo make Target Descriptions (Before Enhancement)
+
+Analyzed `/Users/sac/ggen/Makefile.toml` for existing tool descriptions:
+
+**Example: cargo make check (line 22)**:
+```
+description = "Check code without building (15s timeout for lock contention & workspace rebuild)"
+```
+
+**Analysis**:
+- Length: ~70 characters (target: >100 characters)
+- Components present: 1/5 (partial purpose, no timing/SLO/examples/recovery)
+- Andon signals mentioned: No (target: yes)
+- Error recovery guidance: No (target: yes)
+
+### Estimated Current Tool Selection Accuracy
+
+Based on sparse descriptions:
+- **Estimated baseline**: 50-60% first-attempt accuracy
+- **Issue**: Agents must infer when to use tools from brief descriptions
+- **Issue**: No examples of successful vs failed outputs (RED/GREEN signals)
+- **Issue**: No guidance on when NOT to use a tool
+
+### Target After Enhancement
+
+- **Target**: 90% first-attempt tool selection accuracy
+- **Method**: 5-component descriptions (purpose, timing, SLO, examples, recovery)
+- **Measurement**: Test scenarios in tests/aci/tool_selection_tests.rs
+
+## Measurement Approach
+
+Post-implementation will measure via:
+1. Test scenarios: "verify code compiles" → should select "cargo make check"
+2. Test scenarios: "run fast tests" → should select "cargo make test-unit"
+3. Test scenarios: "comprehensive validation" → should select "cargo make test"
+4. Test scenarios: "lint code" → should select "cargo make lint"
+
+Target: 9/10 scenarios correctly resolved (90% accuracy)
