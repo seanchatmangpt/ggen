@@ -54,7 +54,7 @@
 
 use ggen_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use super::template_metadata::TemplateMetadata;
 
@@ -236,9 +236,10 @@ impl ValidationReport {
 }
 
 /// SHACL-based validator for template metadata
+/// **FMEA Fix**: Use BTreeMap for deterministic iteration order
 pub struct Validator {
     #[allow(dead_code)]
-    shapes: HashMap<String, Shape>,
+    shapes: BTreeMap<String, Shape>,
 }
 
 /// SHACL shape definition
@@ -272,7 +273,7 @@ enum NodeKind {
 impl Validator {
     /// Create new validator with default shapes
     pub fn new() -> Self {
-        let mut shapes = HashMap::new();
+        let mut shapes = BTreeMap::new();
 
         // Template shape
         shapes.insert(

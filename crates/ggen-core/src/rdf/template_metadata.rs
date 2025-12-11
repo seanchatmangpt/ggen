@@ -9,7 +9,7 @@ use ggen_utils::error::{Error, Result};
 use oxigraph::io::RdfFormat;
 use oxigraph::store::Store;
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 
@@ -335,9 +335,10 @@ pub enum TemplateRelationship {
 }
 
 /// RDF metadata store for templates using Oxigraph
+/// **FMEA Fix**: Use BTreeMap for deterministic iteration order
 pub struct TemplateMetadataStore {
     store: Arc<Mutex<Store>>,
-    metadata_cache: Arc<Mutex<HashMap<String, TemplateMetadata>>>,
+    metadata_cache: Arc<Mutex<BTreeMap<String, TemplateMetadata>>>,
 }
 
 impl TemplateMetadataStore {
@@ -347,7 +348,7 @@ impl TemplateMetadataStore {
             .map_err(|e| Error::with_context("Failed to create Oxigraph store", &e.to_string()))?;
         Ok(Self {
             store: Arc::new(Mutex::new(store)),
-            metadata_cache: Arc::new(Mutex::new(HashMap::new())),
+            metadata_cache: Arc::new(Mutex::new(BTreeMap::new())),
         })
     }
 
@@ -357,7 +358,7 @@ impl TemplateMetadataStore {
             .map_err(|e| Error::with_context("Failed to open Oxigraph store", &e.to_string()))?;
         Ok(Self {
             store: Arc::new(Mutex::new(store)),
-            metadata_cache: Arc::new(Mutex::new(HashMap::new())),
+            metadata_cache: Arc::new(Mutex::new(BTreeMap::new())),
         })
     }
 
