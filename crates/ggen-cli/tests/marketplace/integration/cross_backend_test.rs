@@ -1,38 +1,27 @@
 //! Cross-backend comparison tests
 //!
-//! Validates that v1 and v2 backends produce identical results for the same
-//! inputs, ensuring zero functional regression during migration.
+//! NOTE: These tests are disabled because marketplace v1 has been removed.
+//! The CLI now uses ggen-marketplace-v2 directly.
+//!
+//! This file is kept for reference only.
 
 #[cfg(test)]
-#[cfg(all(feature = "marketplace-v1", feature = "marketplace-v2"))]
+#[cfg(all(feature = "marketplace-v1", feature = "marketplace-v2"))] // v1 feature no longer exists - tests are disabled
+#[allow(dead_code)] // Tests are intentionally disabled
 mod cross_backend_tests {
     use chrono::Utc;
-    use ggen_marketplace::Package as V1Package;
+    // NOTE: ggen_marketplace (v1) no longer exists
     use ggen_marketplace_v2::models::Package as V2Package;
 
-    /// Helper: Create identical test packages for both backends
-    fn create_test_packages(id: &str, name: &str, version: &str) -> (V1Package, V2Package) {
-        use ggen_marketplace::{MaturityLevel, PackageMetadata as V1Meta};
+    /// Helper: Create test packages for v2 (v1 removed)
+    fn create_test_packages(id: &str, name: &str, version: &str) -> V2Package {
+        // NOTE: v1 removed - only v2 package created
         use ggen_marketplace_v2::models::{PackageId, PackageMetadata as V2Meta, PackageVersion};
 
         let created_at = Utc::now();
         let updated_at = Utc::now();
 
-        let v1_pkg = V1Package {
-            metadata: V1Meta {
-                id: id.to_string(),
-                name: name.to_string(),
-                version: version.to_string(),
-                description: format!("Test: {}", name),
-                author: "test-author".to_string(),
-                license: "MIT".to_string(),
-                repository_url: Some(format!("https://github.com/test/{}", id)),
-                created_at,
-                updated_at,
-                maturity: MaturityLevel::Stable,
-                tags: vec!["test".to_string()],
-            },
-        };
+        // NOTE: v1 package creation removed - v1 no longer exists
 
         let v2_pkg = V2Package {
             metadata: V2Meta {
@@ -49,19 +38,14 @@ mod cross_backend_tests {
             },
         };
 
-        (v1_pkg, v2_pkg)
+        v2_pkg
     }
 
     #[tokio::test]
     async fn test_same_package_data_both_backends() {
-        let (v1_pkg, v2_pkg) = create_test_packages("cross-test", "Cross Test", "1.0.0");
-
-        // Core metadata should match
-        assert_eq!(v1_pkg.metadata.id, v2_pkg.metadata.id.to_string());
-        assert_eq!(v1_pkg.metadata.name, v2_pkg.metadata.name);
-        assert_eq!(v1_pkg.metadata.version, v2_pkg.metadata.version.to_string());
-        assert_eq!(v1_pkg.metadata.author, v2_pkg.metadata.author);
-        assert_eq!(v1_pkg.metadata.license, v2_pkg.metadata.license);
+        // NOTE: v1 removed - test disabled
+        let _v2_pkg = create_test_packages("cross-test", "Cross Test", "1.0.0");
+        // Test disabled - v1 no longer exists
     }
 
     #[tokio::test]

@@ -1,10 +1,13 @@
 //! Backward compatibility tests for marketplace v1
 //!
-//! Ensures that with marketplace-v1 feature flag, all commands work
-//! identically to the original implementation with zero regression.
+//! NOTE: These tests are disabled because marketplace v1 has been removed.
+//! The CLI now uses ggen-marketplace-v2 directly.
+//!
+//! This file is kept for reference only.
 
 #[cfg(test)]
-#[cfg(feature = "marketplace-v1")]
+#[cfg(feature = "marketplace-v1")] // This feature no longer exists - tests are disabled
+#[allow(dead_code)] // Tests are intentionally disabled
 mod backward_compat_tests {
     use std::process::Command;
     use tempfile::TempDir;

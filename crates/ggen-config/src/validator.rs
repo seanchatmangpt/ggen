@@ -56,6 +56,7 @@ impl<'a> ConfigValidator<'a> {
         self.validate_security();
         self.validate_performance();
         self.validate_logging();
+        self.validate_diataxis();
 
         if self.errors.is_empty() {
             Ok(())
@@ -196,6 +197,78 @@ impl<'a> ConfigValidator<'a> {
             }
         }
     }
+
+    /// Validate diataxis documentation configuration
+    fn validate_diataxis(&mut self) {
+        let Some(diataxis) = &self.config.diataxis else {
+            return;
+        };
+
+        if diataxis.root.trim().is_empty() {
+            self.errors
+                .push("Diataxis root cannot be empty".to_string());
+        }
+
+        if diataxis.index.trim().is_empty() {
+            self.errors
+                .push("Diataxis index cannot be empty".to_string());
+        }
+
+        let quadrants = match &diataxis.quadrants {
+            Some(q) => q,
+            None => {
+                self.errors.push(
+                    "Diataxis configuration must specify at least one quadrant section".to_string(),
+                );
+                return;
+            }
+        };
+
+        let mut check_section = |name: &str, section: &crate::schema::DiataxisSection| {
+            if let Some(source) = &section.source {
+                if source.trim().is_empty() {
+                    self.errors.push(format!(
+                        "Diataxis {name} source cannot be empty when provided"
+                    ));
+                }
+            }
+
+            if let Some(output) = &section.output {
+                if output.trim().is_empty() {
+                    self.errors.push(format!(
+                        "Diataxis {name} output cannot be empty when provided"
+                    ));
+                }
+            }
+
+            for nav in &section.navigation {
+                if nav.title.trim().is_empty() {
+                    self.errors
+                        .push(format!("Diataxis {name} navigation title cannot be empty"));
+                }
+                if nav.path.trim().is_empty() {
+                    self.errors
+                        .push(format!("Diataxis {name} navigation path cannot be empty"));
+                }
+            }
+        };
+
+        if let Some(section) = &quadrants.tutorials {
+            check_section("tutorials", section);
+        }
+
+        if let Some(section) = &quadrants.how_to {
+            check_section("how-to", section);
+        }
+
+        if let Some(section) = &quadrants.reference {
+            check_section("reference", section);
+        }
+
+        if let Some(section) = &quadrants.explanations {
+            check_section("explanations", section);
+        }
+    }
 }
 
 /// Validate version string (basic semver check)
@@ -331,6 +404,53 @@ mod tests {
             [logging]
             level = "invalid"
             format = "json"
+        "#;
+
+        let config = ConfigLoader::from_str(toml).unwrap();
+        assert!(ConfigValidator::validate(&config).is_err());
+    }
+
+    #[test]
+    fn test_valid_diataxis_section() {
+        let toml = r#"
+            [project]
+            name = "docs"
+            version = "1.0.0"
+
+            [diataxis]
+            root = "docs"
+            index = "docs/diataxis-index.md"
+
+            [diataxis.quadrants.tutorials]
+            source = "docs/diataxis/tutorials"
+            output = "generated/docs/tutorials"
+
+            [[diataxis.quadrants.tutorials.navigation]]
+            title = "Intro"
+            path = "diataxis/tutorials/intro.md"
+        "#;
+
+        let config = ConfigLoader::from_str(toml).unwrap();
+        assert!(ConfigValidator::validate(&config).is_ok());
+    }
+
+    #[test]
+    fn test_invalid_diataxis_nav_path() {
+        let toml = r#"
+            [project]
+            name = "docs"
+            version = "1.0.0"
+
+            [diataxis]
+            root = "docs"
+            index = "docs/diataxis-index.md"
+
+            [diataxis.quadrants.reference]
+            output = "generated/docs/reference"
+
+            [[diataxis.quadrants.reference.navigation]]
+            title = "Ref"
+            path = ""
         "#;
 
         let config = ConfigLoader::from_str(toml).unwrap();

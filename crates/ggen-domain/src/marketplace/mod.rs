@@ -4,15 +4,16 @@
 //!
 //! # Architecture
 //!
-//! The marketplace supports both legacy (v1) and RDF-backed (v2) implementations
-//! through the `MarketplaceRegistry` adapter trait, enabling gradual migration
-//! and parallel execution for validation.
+//! NOTE: The CLI (`crates/ggen-cli/src/cmds/marketplace.rs`) uses `ggen-marketplace-v2`
+//! directly and bypasses this domain layer for marketplace operations.
 //!
-//! - `adapter`: Unified trait for multiple backend implementations
-//! - `registry`: Legacy v1 marketplace registry
-//! - `search`: Legacy v1 search implementation
+//! This module contains:
+//! - `adapter`: Legacy trait (not used by CLI, kept for reference)
+//! - `registry`: Legacy registry implementation
+//! - `search`: Legacy search implementation
 //! - `packs`: GGEN Packs command implementation
 //! - `packs_services`: Core services for package management
+//! - `v2_adapter`: Legacy adapter code (not used, kept for reference)
 
 pub mod adapter;
 pub mod artifact_generator;

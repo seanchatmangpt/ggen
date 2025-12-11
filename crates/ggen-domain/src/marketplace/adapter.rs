@@ -1,12 +1,9 @@
 //! Marketplace adapter trait for supporting multiple backend implementations
 //!
-//! This module provides a unified interface for marketplace operations, enabling
-//! gradual migration from legacy v1 to the new v2 RDF-backed implementation.
+//! NOTE: This trait is legacy code. The CLI uses `ggen-marketplace-v2` directly
+//! and bypasses this adapter layer. This code is kept for reference.
 //!
-//! # Architecture
-//!
-//! The adapter pattern allows both v1 (legacy) and v2 (RDF) implementations to
-//! be used interchangeably:
+//! # Current Architecture
 //!
 //! ```text
 //! ┌─────────────────────┐
@@ -16,23 +13,10 @@
 //!            │
 //!            ▼
 //! ┌──────────────────────────────────┐
-//! │  MarketplaceRegistry Trait       │
-//! │  (unified interface)             │
-//! └──────────┬───────────────────────┘
-//!            │
-//!    ┌───────┴────────┐
-//!    ▼                ▼
-//! ┌─────────────┐  ┌──────────────────┐
-//! │  v1 Impl    │  │  v2 Impl (RDF)   │
-//! │  (Legacy)   │  │  (oxigraph)      │
-//! └─────────────┘  └──────────────────┘
+//! │  ggen-marketplace-v2            │
+//! │  (direct usage, no adapter)     │
+//! └──────────────────────────────────┘
 //! ```
-//!
-//! # Feature Flags
-//!
-//! - `marketplace-v1`: Enable legacy marketplace (default)
-//! - `marketplace-v2`: Enable RDF-backed marketplace
-//! - `marketplace-parallel`: Enable both (for A/B testing)
 
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
@@ -42,21 +26,10 @@ use std::path::PathBuf;
 
 use ggen_utils::error::Result;
 
-/// Unified marketplace registry interface supporting multiple backends
+/// Unified marketplace registry interface
 ///
-/// This trait enables CLI commands to work with either v1 (legacy) or v2 (RDF)
-/// marketplace implementations without code changes.
-///
-/// # Implementations
-///
-/// - `LegacyRegistry`: Wraps the existing v1 marketplace (for backward compatibility)
-/// - `RdfRegistry`: Uses oxigraph triplestore for semantic search and discovery
-///
-/// # Feature Flags
-///
-/// - When `marketplace-v1` is enabled: Use LegacyRegistry as default
-/// - When `marketplace-v2` is enabled: Use RdfRegistry as default
-/// - When both are enabled: Both implementations available, can run in parallel
+/// NOTE: This trait is legacy code. The CLI uses `ggen-marketplace-v2` directly
+//! and does not use this trait. This code is kept for reference.
 #[async_trait]
 pub trait MarketplaceRegistry: Send + Sync {
     // ==================== Core Package Operations ====================

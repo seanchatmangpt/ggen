@@ -74,32 +74,32 @@ struct PackageInstallInfo {
     size_estimate_kb: u64,
 }
 
-#[derive(Serialize)]
-struct SearchOutput {
-    query: String,
-    results: Vec<SearchResultInfo>,
-    total: usize,
-    duration_ms: u64,
-    filters_applied: FiltersApplied,
+#[derive(Debug, Serialize, Clone)]
+pub struct SearchOutput {
+    pub query: String,
+    pub results: Vec<SearchResultInfo>,
+    pub total: usize,
+    pub duration_ms: u64,
+    pub filters_applied: FiltersApplied,
 }
 
-#[derive(Serialize)]
-struct SearchResultInfo {
-    id: String,
-    name: String,
-    description: String,
-    version: String,
-    relevance: f64,
-    downloads: u64,
-    quality_score: Option<u32>,
+#[derive(Debug, Serialize, Clone)]
+pub struct SearchResultInfo {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub version: String,
+    pub relevance: f64,
+    pub downloads: u64,
+    pub quality_score: Option<u32>,
 }
 
-#[derive(Serialize)]
-struct FiltersApplied {
-    category: Option<String>,
-    author: Option<String>,
-    license: Option<String>,
-    min_quality: Option<u32>,
+#[derive(Debug, Serialize, Clone)]
+pub struct FiltersApplied {
+    pub category: Option<String>,
+    pub author: Option<String>,
+    pub license: Option<String>,
+    pub min_quality: Option<u32>,
 }
 
 #[derive(Serialize)]
@@ -180,27 +180,27 @@ struct VersionInfo {
     is_latest: bool,
 }
 
-#[derive(Serialize)]
-struct MetricsOutput {
-    searches: SearchMetricsOutput,
-    installations: InstallationMetricsOutput,
-    validations: u64,
-    signature_verifications: u64,
-    events_count: u64,
+#[derive(Debug, Serialize, Clone)]
+pub struct MetricsOutput {
+    pub searches: SearchMetricsOutput,
+    pub installations: InstallationMetricsOutput,
+    pub validations: u64,
+    pub signature_verifications: u64,
+    pub events_count: u64,
 }
 
-#[derive(Serialize)]
-struct SearchMetricsOutput {
-    total: u64,
-    successful: u64,
-    success_rate: f64,
-    avg_duration_ms: u64,
+#[derive(Debug, Serialize, Clone)]
+pub struct SearchMetricsOutput {
+    pub total: u64,
+    pub successful: u64,
+    pub success_rate: f64,
+    pub avg_duration_ms: u64,
 }
 
-#[derive(Serialize)]
-struct InstallationMetricsOutput {
-    total: u64,
-    avg_duration_ms: u64,
+#[derive(Debug, Serialize, Clone)]
+pub struct InstallationMetricsOutput {
+    pub total: u64,
+    pub avg_duration_ms: u64,
 }
 
 // ============================================================================
@@ -246,7 +246,10 @@ fn format_error_with_recovery(error: &ggen_marketplace_v2::Error) -> String {
                 package_id
             )
         }
-        Error::VersionAlreadyExists { package_id, version } => {
+        Error::VersionAlreadyExists {
+            package_id,
+            version,
+        } => {
             format!(
                 "Version {} already exists for package '{}'.\n\
                  Suggestion: Increment the version number before publishing.",
@@ -356,10 +359,7 @@ fn get_metrics() -> &'static MetricsCollector {
 /// ```
 #[verb]
 fn install(
-    package_id: String,
-    version: Option<String>,
-    install_path: Option<PathBuf>,
-    dry_run: bool,
+    package_id: String, version: Option<String>, install_path: Option<PathBuf>, dry_run: bool,
 ) -> Result<InstallOutput> {
     let start = Instant::now();
 
@@ -400,8 +400,14 @@ fn install(
                 let plan = installer.dry_run(&manifest).await.map_err(to_cli_error)?;
                 format!("DRY RUN: Would install {} packages", plan.packages.len())
             } else {
-                installer.install(manifest.clone()).await.map_err(to_cli_error)?;
-                format!("Successfully installed {} packages", manifest.dependencies.len())
+                installer
+                    .install(manifest.clone())
+                    .await
+                    .map_err(to_cli_error)?;
+                format!(
+                    "Successfully installed {} packages",
+                    manifest.dependencies.len()
+                )
             };
 
             let packages: Vec<PackageInstallInfo> = dependencies
@@ -459,14 +465,8 @@ fn install(
 /// ```
 #[verb]
 fn search(
-    query: String,
-    category: Option<String>,
-    author: Option<String>,
-    license: Option<String>,
-    min_quality: Option<u32>,
-    sort: Option<String>,
-    limit: Option<usize>,
-    offset: Option<usize>,
+    query: String, category: Option<String>, author: Option<String>, license: Option<String>,
+    min_quality: Option<u32>, sort: Option<String>, limit: Option<usize>, offset: Option<usize>,
 ) -> Result<SearchOutput> {
     use ggen_marketplace_v2::search::{SearchQuery, SortBy};
 
@@ -564,6 +564,7 @@ fn search(
 #[verb]
 fn publish(manifest_path: PathBuf, signing_key: Option<PathBuf>) -> Result<PublishOutput> {
     use chrono::Utc;
+    use ggen_marketplace_v2::security::KeyPair;
     use std::fs;
 
     let start = Instant::now();
@@ -585,24 +586,24 @@ fn publish(manifest_path: PathBuf, signing_key: Option<PathBuf>) -> Result<Publi
         .map(|n| n.to_string_lossy().to_string())
         .unwrap_or_else(|| "unknown".to_string());
 
-    // Generate signature
-    let signature = if let Some(key_path) = &signing_key {
-        // Read key and sign (simplified)
-        let _key_content = fs::read(key_path).map_err(|e| {
+    // Generate signature using provided key or an ephemeral key pair
+    let key_pair = if let Some(key_path) = &signing_key {
+        let key_content = fs::read_to_string(key_path).map_err(|e| {
             clap_noun_verb::NounVerbError::execution_error(format!(
                 "Failed to read signing key: {}",
                 e
             ))
         })?;
 
-        // Use SignatureVerifier to create signature
-        let verifier = SignatureVerifier::new();
-        verifier.sign(manifest_content.as_bytes()).map_err(to_cli_error)?
+        KeyPair::from_secret_key(key_content.trim()).map_err(to_cli_error)?
     } else {
-        // Generate default signature
-        let verifier = SignatureVerifier::new();
-        verifier.sign(manifest_content.as_bytes()).map_err(to_cli_error)?
+        KeyPair::generate()
     };
+
+    let verifier = SignatureVerifier::new(key_pair);
+    let signature = verifier
+        .sign(manifest_content.as_bytes())
+        .map_err(to_cli_error)?;
 
     // Record metrics
     get_metrics().record_signature_verification(true);
@@ -791,7 +792,10 @@ fn versions(package_id: String) -> Result<VersionsOutput> {
         tokio::runtime::Handle::current().block_on(async {
             let registry = RdfRegistry::new();
             let package = registry.get_package(&pkg_id).await.map_err(to_cli_error)?;
-            let versions = registry.list_versions(&pkg_id).await.map_err(to_cli_error)?;
+            let versions = registry
+                .list_versions(&pkg_id)
+                .await
+                .map_err(to_cli_error)?;
             Ok::<_, clap_noun_verb::NounVerbError>((versions, package.latest_version))
         })
     })?;

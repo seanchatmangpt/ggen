@@ -21,8 +21,18 @@ TESTS_PASSED=0
 TESTS_FAILED=0
 
 log_info() { echo -e "${BLUE}ℹ${NC} $1"; }
-log_success() { echo -e "${GREEN}✓${NC} $1"; ((TESTS_PASSED++)); ((TESTS_RUN++)); }
-log_error() { echo -e "${RED}✗${NC} $1"; ((TESTS_FAILED++)); ((TESTS_RUN++)); }
+log_success() {
+    echo -e "${GREEN}✓${NC} $1"
+    ((++TESTS_PASSED))
+    ((++TESTS_RUN))
+    return 0
+}
+log_error() {
+    echo -e "${RED}✗${NC} $1"
+    ((++TESTS_FAILED))
+    ((++TESTS_RUN))
+    return 0
+}
 log_section() {
     echo ""
     echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -30,9 +40,31 @@ log_section() {
     echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 }
 
-CASE_STUDY_DIR="/Users/sac/ggen/docs/examples/diataxis-case-study"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+CASE_STUDY_DIR="$REPO_ROOT/docs/examples/diataxis-case-study"
+GGEN_BIN="${GGEN_BIN:-ggen}"
+
+run_with_timeout() {
+    local timeout_secs=$1
+    shift
+    python3 - "$timeout_secs" "$@" <<'PY'
+import subprocess, sys
+timeout = int(sys.argv[1])
+cmd = sys.argv[2:]
+try:
+    cp = subprocess.run(cmd, timeout=timeout, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+except subprocess.TimeoutExpired:
+    print("Command timed out", file=sys.stderr)
+    sys.exit(124)
+print(cp.stdout, end="")
+print(cp.stderr, end="", file=sys.stderr)
+sys.exit(cp.returncode)
+PY
+}
 
 log_info "Validating Diataxis Case Study at: $CASE_STUDY_DIR"
+log_info "Using ggen binary: ${GGEN_BIN}"
 
 # ============================================================================
 # Test 1: All Required Files Exist
@@ -74,6 +106,88 @@ if [ -f "$CASE_STUDY_DIR/reference/electric-api.md" ]; then
 else
     log_error "Missing reference"
 fi
+
+# ============================================================================
+# Test 1b: ggen CLI availability
+# ============================================================================
+log_section "Test 1b: ggen CLI Availability"
+
+if command -v "$GGEN_BIN" >/dev/null 2>&1 || [ -x "$GGEN_BIN" ]; then
+    log_success "ggen binary is discoverable"
+else
+    log_error "ggen binary not found (set GGEN_BIN to override)"
+fi
+
+if run_with_timeout 5 "$GGEN_BIN" --version >/dev/null 2>&1; then
+    log_success "ggen --version executes"
+else
+    log_error "ggen --version failed (binary missing or broken)"
+fi
+
+HELP_OUTPUT="$(mktemp)"
+if run_with_timeout 5 "$GGEN_BIN" --help >"$HELP_OUTPUT" 2>&1; then
+    log_success "ggen --help executes"
+else
+    if grep -q "Usage: ggen" "$HELP_OUTPUT"; then
+        log_success "ggen --help shows usage (non-zero exit tolerated)"
+    else
+        log_error "ggen --help failed"
+    fi
+fi
+rm -f "$HELP_OUTPUT"
+
+# ============================================================================
+# Test 1c: ggen Functional Smoke (template list)
+# ============================================================================
+log_section "Test 1c: ggen Functional Smoke"
+
+TEMPLATE_LIST_OUTPUT="$(mktemp)"
+if run_with_timeout 15 "$GGEN_BIN" template list >"$TEMPLATE_LIST_OUTPUT" 2>&1; then
+    if python3 - "$TEMPLATE_LIST_OUTPUT" <<'PY'
+import json, sys
+path = sys.argv[1]
+with open(path, "r", encoding="utf-8") as fh:
+    data = json.load(fh)
+templates = data.get("templates", [])
+assert isinstance(templates, list)
+assert len(templates) > 0
+sys.exit(0)
+PY
+    then
+        log_success "ggen template list returns templates"
+    else
+        log_error "ggen template list output invalid JSON or empty"
+    fi
+else
+    log_error "ggen template list failed"
+fi
+rm -f "$TEMPLATE_LIST_OUTPUT"
+
+# ============================================================================
+# Test 1d: ggen Template Lint (hello.tmpl)
+# ============================================================================
+log_section "Test 1d: ggen Template Lint"
+
+LINT_OUTPUT="$(mktemp)"
+if run_with_timeout 15 "$GGEN_BIN" template lint --template "$REPO_ROOT/templates/hello.tmpl" >"$LINT_OUTPUT" 2>&1; then
+    if python3 - "$LINT_OUTPUT" <<'PY'
+import json, sys
+path = sys.argv[1]
+with open(path, "r", encoding="utf-8") as fh:
+    data = json.load(fh)
+assert data.get("has_errors") is False
+assert isinstance(data.get("errors", []), list)
+sys.exit(0)
+PY
+    then
+        log_success "ggen template lint (hello.tmpl) passes"
+    else
+        log_error "ggen template lint output invalid or reports errors"
+    fi
+else
+    log_error "ggen template lint failed"
+fi
+rm -f "$LINT_OUTPUT"
 
 # ============================================================================
 # Test 2: Tutorial Structure Validation
@@ -299,7 +413,7 @@ fi
 # ============================================================================
 log_section "Test 9: META-GUIDE Structure"
 
-METAGUIDEGUIDE="$CASE_STUDY_DIR/META-GUIDE.md"
+METAGUIDE="$CASE_STUDY_DIR/META-GUIDE.md"
 
 if grep -q "Phase 1: Experience" "$METAGUIDE"; then
     log_success "META-GUIDE includes experience phase"
