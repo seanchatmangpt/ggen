@@ -1,6 +1,6 @@
 [package]
 name = "ggen-config"
-version = "3.4.0"
+version = "3.4.1"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 license = "MIT"

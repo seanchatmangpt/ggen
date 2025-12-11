@@ -1,6 +1,6 @@
 [package]
 name = "ggen-dod"
-version = "3.4.0"
+version = "3.4.1"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Definition of Done: Type-safe observation system, deterministic kernel, provenance tracking, and MAPE-K autonomic governance"
