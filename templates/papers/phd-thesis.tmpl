@@ -1,56 +1,229 @@
 ---
 name: PhD Thesis
-description: PhD thesis template with multiple chapters and comprehensive structure
+description: PhD thesis template with multiple chapters and comprehensive structure - Evolved v2.0
 input_type: rdf
 output_type: latex
 author: ggen core team
-version: 1.0.0
-tags: [paper, thesis, phd, latex]
+version: 2.0.0
+tags: [paper, thesis, phd, latex, academic]
 ---
+
+% ============================================================================
+% DOCUMENT CLASS
+% ============================================================================
 \documentclass[12pt,twoside,openright]{book}
 
+% ============================================================================
+% ENCODING & LANGUAGE
+% ============================================================================
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[english]{babel}
+
+% ============================================================================
+% MATHEMATICS
+% ============================================================================
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsfonts}
+\usepackage{mathtools}          % Enhanced math tools
+\usepackage{bm}                 % Bold math symbols
+
+% ============================================================================
+% GRAPHICS & FIGURES
+% ============================================================================
 \usepackage{graphicx}
-\usepackage{cite}
-\usepackage{hyperref}
-\usepackage{booktabs}
+\usepackage{subcaption}         % Subfigures
+\usepackage{float}              % Better float control
+\usepackage{wrapfig}           % Wrapped figures
+
+% ============================================================================
+% TYPOGRAPHY & FORMATTING
+% ============================================================================
+\usepackage{microtype}          % Micro-typography improvements
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{tocloft}            % Customize TOC/LOF/LOT
+\usepackage{titlesec}           % Customize chapter/section titles
+\usepackage{titletoc}           % Customize TOC entries
+
+% ============================================================================
+% TABLES
+% ============================================================================
+\usepackage{booktabs}           % Professional tables
+\usepackage{tabularx}           % Auto-width tables
+\usepackage{longtable}         % Multi-page tables
+\usepackage{array}              % Enhanced array support
+
+% ============================================================================
+% ALGORITHMS & CODE
+% ============================================================================
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{listings}
 \usepackage{xcolor}
-\usepackage{geometry}
-\usepackage{setspace}
-\usepackage{fancyhdr}
-\usepackage{tocloft}
-\usepackage{lipsum}
+\usepackage{minted}             % Syntax highlighting (optional, requires pygments)
 
+% ============================================================================
+% CROSS-REFERENCES
+% ============================================================================
+\usepackage{hyperref}
+\usepackage{cleveref}           % Smart cross-references (\cref, \Cref)
+\usepackage{nameref}           % Reference by name
+
+% ============================================================================
+% BIBLIOGRAPHY (Modern biblatex)
+% ============================================================================
+\usepackage[style=authoryear-comp,      % Author-year style with compressed citations
+            backend=biber,              % Use biber (modern BibTeX replacement)
+            maxcitenames=2,              % Max authors in citation
+            maxbibnames=99,              % All authors in bibliography
+            sorting=nyt,                 % Sort by name, year, title
+            natbib=true,                 % Natbib compatibility
+            hyperref=true,               % Hyperlinked citations
+            backref=true,                % Back references to citations
+            url=true,                    % Include URLs
+            doi=true,                    % Include DOIs
+            isbn=false]{biblatex}       % Exclude ISBNs
+
+% ============================================================================
+% ADDITIONAL PACKAGES
+% ============================================================================
+\usepackage{enumitem}           % Enhanced lists
+\usepackage{csquotes}           % Smart quotes
+\usepackage{siunitx}            % SI units
+\usepackage{pgfplots}           % Plots (optional)
+\usepackage{tikz}               % TikZ graphics (optional)
+
+% ============================================================================
+% GEOMETRY SETUP (University-compliant margins)
+% ============================================================================
 \geometry{
-  left=1.5in,
-  right=1in,
-  top=1.25in,
-  bottom=1.25in,
+  left=1.5in,                   % Binding margin (larger for two-sided)
+  right=1in,                    % Outer margin
+  top=1.25in,                   % Top margin
+  bottom=1.25in,                % Bottom margin
+  headheight=14pt,              % Header height
+  headsep=0.5in,                % Header separation
+  footskip=0.5in                % Footer skip
 }
 
-\onehalfspacing
+% ============================================================================
+% SPACING (University requirements: typically double-spaced)
+% ============================================================================
+\onehalfspacing                 % 1.5 line spacing (change to \doublespacing for 2.0)
 
+% ============================================================================
+% PAGE STYLE
+% ============================================================================
 \pagestyle{fancy}
 \fancyhead{}
 \fancyfoot{}
 \fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0pt}
 
+% Front matter: no page numbers (will be set manually)
+\fancypagestyle{plain}{
+  \fancyhead{}
+  \fancyfoot{}
+  \renewcommand{\headrulewidth}{0pt}
+}
+
+% ============================================================================
+% HYPERREF CONFIGURATION
+% ============================================================================
+\hypersetup{
+  colorlinks=true,              % Colored links
+  linkcolor=blue,                % Internal links
+  citecolor=blue,                % Citation links
+  urlcolor=blue,                 % URL links
+  filecolor=blue,                % File links
+  pdftitle={ {{- paper.title | default("PhD Thesis") -}} },
+  pdfauthor={ {% for author in paper.hasAuthor | first %}{{- author.authorName -}}{% endfor %} },
+  pdfsubject={PhD Thesis},
+  pdfkeywords={ {{- paper.keywords | default("") | join(", ") -}} },
+  bookmarks=true,                % PDF bookmarks
+  bookmarksopen=true,            % Open bookmarks
+  bookmarksnumbered=true,       % Numbered bookmarks
+  pdfstartview=FitH              % Fit to width
+}
+
+% ============================================================================
+% CLEVEREF CONFIGURATION
+% ============================================================================
+\crefname{chapter}{Chapter}{Chapters}
+\crefname{section}{Section}{Sections}
+\crefname{figure}{Figure}{Figures}
+\crefname{table}{Table}{Tables}
+\crefname{equation}{Equation}{Equations}
+\crefname{algorithm}{Algorithm}{Algorithms}
+
+% ============================================================================
+% LISTINGS CONFIGURATION
+% ============================================================================
 \lstset{
   basicstyle=\ttfamily\small,
   breaklines=true,
+  breakatwhitespace=true,
   commentstyle=\color{gray},
-  keywordstyle=\color{blue},
+  keywordstyle=\color{blue}\bfseries,
   stringstyle=\color{red},
+  numberstyle=\tiny\color{gray},
+  numbers=left,
+  stepnumber=1,
+  numbersep=5pt,
+  frame=single,
+  frameround=tttt,
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  tabsize=2,
+  captionpos=b,
+  abovecaptionskip=10pt,
+  belowcaptionskip=10pt
 }
+
+% ============================================================================
+% TITLE PAGE CUSTOMIZATION
+% ============================================================================
+\makeatletter
+\renewcommand{\@maketitle}{%
+  \newpage
+  \null
+  \vskip 2em%
+  \begin{center}%
+  \let \footnote \thanks
+    {\LARGE \@title \par}%
+    \vskip 1.5em%
+    {\large
+      \lineskip .5em%
+      \begin{tabular}[t]{c}%
+        \@author
+      \end{tabular}\par}%
+    \vskip 1em%
+    {\large \@date}%
+    \vskip 2em%
+    {\large
+      {% if paper.department %}{{- paper.department -}}\\{% endif %}
+      {% if paper.university %}{{- paper.university -}}\\{% endif %}
+      {% if paper.degree %}{{- paper.degree -}}{% endif %}
+    }%
+    \vskip 1em%
+    {% if paper.year %}{\large {{- paper.year -}}}{% endif %}
+  \end{center}%
+  \par
+  \vskip 1.5em%
+}
+\makeatother
+
+% ============================================================================
+% CHAPTER FORMATTING
+% ============================================================================
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries}
+  {\chaptertitlename\ \thechapter}{20pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{50pt}{40pt}
 
 % ============================================================================
 % TITLE PAGE
@@ -64,94 +237,171 @@ tags: [paper, thesis, phd, latex]
 {% endfor %}
 }
 
-\date{\the\year}
+\date{ {% if paper.year %}{{- paper.year -}}{% else %}\the\year{% endif %} }
 
+% ============================================================================
+% BIBLIOGRAPHY FILE
+% ============================================================================
+{% if paper.bibliography %}
+\addbibresource{ {{- paper.bibliography -}} }
+{% else %}
+\addbibresource{references.bib}
+{% endif %}
+
+% ============================================================================
+% DOCUMENT BEGIN
+% ============================================================================
 \begin{document}
 
 % ============================================================================
 % FRONT MATTER
 % ============================================================================
-
 \frontmatter
 
+% Title page
 \maketitle
+
+% ============================================================================
+% COPYRIGHT PAGE (Optional)
+% ============================================================================
+{% if paper.copyright %}
+\thispagestyle{empty}
+\vspace*{\fill}
+\begin{center}
+\copyright\ {% for author in paper.hasAuthor | first %}{{- author.authorName -}}{% endfor %}, {% if paper.year %}{{- paper.year -}}{% else %}\the\year{% endif %}
+
+All rights reserved.
+\end{center}
+\vspace*{\fill}
+\newpage
+{% endif %}
+
+% ============================================================================
+% ABSTRACT
+% ============================================================================
+{% if paper.abstract %}
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+{{- paper.abstract -}}
+
+{% if paper.keywords %}
+\vspace{1em}
+\noindent\textbf{Keywords:} {{- paper.keywords | join(", ") -}}
+{% endif %}
+\newpage
+{% endif %}
 
 % ============================================================================
 % DEDICATION (Optional)
 % ============================================================================
-
+{% if paper.dedication %}
 \chapter*{Dedication}
-To...
+\addcontentsline{toc}{chapter}{Dedication}
+{{- paper.dedication -}}
+\newpage
+{% endif %}
 
 % ============================================================================
 % ACKNOWLEDGMENTS
 % ============================================================================
-
 {% for section in paper.hasSection | filter(attribute="sectionType", value="acknowledgments") %}
-\chapter*{ {{- section.sectionTitle -}} }
-{{- section.sectionContent }}
+\chapter*{ {{- section.sectionTitle | default("Acknowledgments") -}} }
+\addcontentsline{toc}{chapter}{ {{- section.sectionTitle | default("Acknowledgments") -}} }
+{{- section.sectionContent -}}
+\newpage
 {% endfor %}
 
 % ============================================================================
 % TABLE OF CONTENTS
 % ============================================================================
-
 \tableofcontents
+\newpage
+
+% ============================================================================
+% LIST OF FIGURES (if figures exist)
+% ============================================================================
+{% if paper.hasFigure | length > 0 %}
 \listoffigures
+\newpage
+{% endif %}
+
+% ============================================================================
+% LIST OF TABLES (if tables exist)
+% ============================================================================
+{% if paper.hasTable | length > 0 %}
 \listoftables
+\newpage
+{% endif %}
+
+% ============================================================================
+% LIST OF ALGORITHMS (if algorithms exist)
+% ============================================================================
+{% if paper.hasAlgorithm | length > 0 %}
+\listofalgorithms
+\addcontentsline{toc}{chapter}{List of Algorithms}
+\newpage
+{% endif %}
 
 % ============================================================================
 % MAIN MATTER
 % ============================================================================
-
 \mainmatter
 
 % ============================================================================
 % INTRODUCTION
 % ============================================================================
-
 {% for section in paper.hasSection | filter(attribute="sectionType", value="introduction") %}
-\chapter{ {{- section.sectionTitle -}} }
+\chapter{ {{- section.sectionTitle | default("Introduction") -}} }
 \label{ch:introduction}
-{{- section.sectionContent }}
+{{- section.sectionContent -}}
+
+{% for subsection in section.subsectionOf | sort_by("sectionOrder") %}
+\section{ {{- subsection.sectionTitle -}} }
+\label{sec: {{- subsection.sectionName | default(subsection.sectionTitle | lower | replace(" ", "-")) -}} }
+{{- subsection.sectionContent -}}
+{% endfor %}
 {% endfor %}
 
 % ============================================================================
 % BACKGROUND / LITERATURE REVIEW
 % ============================================================================
-
 {% for section in paper.hasSection | filter(attribute="sectionType", value="related-work") %}
-\chapter{ {{- section.sectionTitle -}} }
+\chapter{ {{- section.sectionTitle | default("Background and Related Work") -}} }
 \label{ch:background}
-{{- section.sectionContent }}
+{{- section.sectionContent -}}
+
+{% for subsection in section.subsectionOf | sort_by("sectionOrder") %}
+\section{ {{- subsection.sectionTitle -}} }
+\label{sec: {{- subsection.sectionName | default(subsection.sectionTitle | lower | replace(" ", "-")) -}} }
+{{- subsection.sectionContent -}}
+{% endfor %}
 {% endfor %}
 
 % ============================================================================
 % METHODOLOGY / APPROACH
 % ============================================================================
-
 {% for section in paper.hasSection | filter(attribute="sectionType", value="methods") %}
-\chapter{ {{- section.sectionTitle -}} }
+\chapter{ {{- section.sectionTitle | default("Methodology") -}} }
 \label{ch:methodology}
-{{- section.sectionContent }}
+{{- section.sectionContent -}}
 
 {% for subsection in section.subsectionOf | sort_by("sectionOrder") %}
 \section{ {{- subsection.sectionTitle -}} }
-{{- subsection.sectionContent }}
+\label{sec: {{- subsection.sectionName | default(subsection.sectionTitle | lower | replace(" ", "-")) -}} }
+{{- subsection.sectionContent -}}
 {% endfor %}
 {% endfor %}
 
 % ============================================================================
 % RESULTS
 % ============================================================================
-
 {% for section in paper.hasSection | filter(attribute="sectionType", value="results") %}
-\chapter{ {{- section.sectionTitle -}} }
+\chapter{ {{- section.sectionTitle | default("Results") -}} }
 \label{ch:results}
-{{- section.sectionContent }}
+{{- section.sectionContent -}}
 
 {% for figure in paper.hasFigure | sort_by("figureOrder") %}
-\begin{figure}[ht]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width={{- figure.figureWidth | default("0.75\\textwidth") -}}]{ {{- figure.figureFile -}} }
   \caption{ {{- figure.figureCaption -}} }
@@ -161,12 +411,23 @@ To...
 {% endfor %}
 
 {% for table in paper.hasTable | sort_by("tableOrder") %}
-\begin{table}[ht]
+\begin{table}[htbp]
   \centering
   \caption{ {{- table.tableCaption -}} }
   \label{tbl: {{- table.tableName -}} }
-  {{- table.tableContent }}
+  {{- table.tableContent -}}
 \end{table}
+
+{% endfor %}
+
+{% for algorithm in paper.hasAlgorithm | sort_by("algorithmOrder") %}
+\begin{algorithm}[htbp]
+  \caption{ {{- algorithm.algorithmCaption -}} }
+  \label{alg: {{- algorithm.algorithmName -}} }
+  \begin{algorithmic}[1]
+    {{- algorithm.algorithmContent -}}
+  \end{algorithmic}
+\end{algorithm}
 
 {% endfor %}
 {% endfor %}
@@ -174,46 +435,69 @@ To...
 % ============================================================================
 % DISCUSSION
 % ============================================================================
-
 {% for section in paper.hasSection | filter(attribute="sectionType", value="discussion") %}
-\chapter{ {{- section.sectionTitle -}} }
+\chapter{ {{- section.sectionTitle | default("Discussion") -}} }
 \label{ch:discussion}
-{{- section.sectionContent }}
+{{- section.sectionContent -}}
+
+{% for subsection in section.subsectionOf | sort_by("sectionOrder") %}
+\section{ {{- subsection.sectionTitle -}} }
+\label{sec: {{- subsection.sectionName | default(subsection.sectionTitle | lower | replace(" ", "-")) -}} }
+{{- subsection.sectionContent -}}
+{% endfor %}
 {% endfor %}
 
 % ============================================================================
 % CONCLUSION
 % ============================================================================
-
 {% for section in paper.hasSection | filter(attribute="sectionType", value="conclusion") %}
-\chapter{ {{- section.sectionTitle -}} }
+\chapter{ {{- section.sectionTitle | default("Conclusion") -}} }
 \label{ch:conclusion}
-{{- section.sectionContent }}
+{{- section.sectionContent -}}
+
+{% for subsection in section.subsectionOf | sort_by("sectionOrder") %}
+\section{ {{- subsection.sectionTitle -}} }
+\label{sec: {{- subsection.sectionName | default(subsection.sectionTitle | lower | replace(" ", "-")) -}} }
+{{- subsection.sectionContent -}}
+{% endfor %}
 {% endfor %}
 
 % ============================================================================
 % BACK MATTER
 % ============================================================================
-
 \backmatter
 
 % ============================================================================
 % APPENDICES
 % ============================================================================
-
 {% if paper.hasSection | filter(attribute="sectionType", value="appendix") | length > 0 %}
 \appendix
-{% for section in paper.hasSection | filter(attribute="sectionType", value="appendix") %}
+{% for section in paper.hasSection | filter(attribute="sectionType", value="appendix") | sort_by("sectionOrder") %}
 \chapter{ {{- section.sectionTitle -}} }
-{{- section.sectionContent }}
+\label{app: {{- section.sectionName | default(section.sectionTitle | lower | replace(" ", "-")) -}} }
+{{- section.sectionContent -}}
+
+{% for subsection in section.subsectionOf | sort_by("sectionOrder") %}
+\section{ {{- subsection.sectionTitle -}} }
+\label{appsec: {{- subsection.sectionName | default(subsection.sectionTitle | lower | replace(" ", "-")) -}} }
+{{- subsection.sectionContent -}}
+{% endfor %}
 {% endfor %}
 {% endif %}
 
 % ============================================================================
-% REFERENCES
+% BIBLIOGRAPHY
 % ============================================================================
+\printbibliography[heading=bibintoc, title={References}]
 
-\bibliographystyle{plain}
-\bibliography{references}
+% ============================================================================
+% INDEX (Optional - requires makeidx package)
+% ============================================================================
+{% if paper.includeIndex %}
+\printindex
+{% endif %}
 
+% ============================================================================
+% DOCUMENT END
+% ============================================================================
 \end{document}
