@@ -40,8 +40,7 @@ fn test_agent_selects_check_for_compilation() {
 
     // Check description should mention "compiles" or "compilation" and NOT "tests"
     assert!(
-        check_desc.to_lowercase().contains("compil")
-            || check_desc.to_lowercase().contains("check"),
+        check_desc.to_lowercase().contains("compil") || check_desc.to_lowercase().contains("check"),
         "check description should mention compilation: {}",
         check_desc
     );
@@ -103,23 +102,11 @@ fn test_all_targets_have_comprehensive_descriptions() {
                         target_name,
                         check.component_count(),
                         check.length,
-                        if !check.has_purpose {
-                            " purpose"
-                        } else {
-                            ""
-                        },
+                        if !check.has_purpose { " purpose" } else { "" },
                         if !check.has_timing { " timing" } else { "" },
                         if !check.has_slo { " slo" } else { "" },
-                        if !check.has_examples {
-                            " examples"
-                        } else {
-                            ""
-                        },
-                        if !check.has_recovery {
-                            " recovery"
-                        } else {
-                            ""
-                        },
+                        if !check.has_examples { " examples" } else { "" },
+                        if !check.has_recovery { " recovery" } else { "" },
                     ));
                 }
             } else {
@@ -208,9 +195,8 @@ fn test_agent_distinguishes_test_vs_test_unit() {
     let test_unit_has_timeout = test_unit_desc.contains("<16s")
         || test_unit_desc.contains("16s")
         || test_unit_desc.contains("16 second");
-    let test_has_timeout = test_desc.contains("30s")
-        || test_desc.contains("120s")
-        || test_desc.contains("escalation");
+    let test_has_timeout =
+        test_desc.contains("30s") || test_desc.contains("120s") || test_desc.contains("escalation");
 
     assert!(
         test_unit_has_timeout,
@@ -245,8 +231,8 @@ fn test_agent_selects_lint_for_quality_checks() {
     );
 
     // check should NOT mention linting (compilation only)
-    let check_is_compilation_only = check_desc.to_lowercase().contains("compil")
-        && !check_desc.to_lowercase().contains("lint");
+    let check_is_compilation_only =
+        check_desc.to_lowercase().contains("compil") && !check_desc.to_lowercase().contains("lint");
 
     assert!(
         check_is_compilation_only,
@@ -295,8 +281,8 @@ fn test_agent_selects_fmt_for_formatting() {
     let fmt_desc = extract_description("fmt").expect("fmt target has no description");
 
     // fmt should mention "format" or "rustfmt"
-    let fmt_mentions_formatting = fmt_desc.to_lowercase().contains("format")
-        || fmt_desc.to_lowercase().contains("rustfmt");
+    let fmt_mentions_formatting =
+        fmt_desc.to_lowercase().contains("format") || fmt_desc.to_lowercase().contains("rustfmt");
 
     assert!(
         fmt_mentions_formatting,
@@ -335,8 +321,8 @@ fn test_agent_selects_clean_for_artifact_removal() {
     );
 
     // clean should mention when to use (after build issues, workspace cleanup)
-    let clean_has_timing = clean_desc.to_lowercase().contains("after")
-        || clean_desc.to_lowercase().contains("when");
+    let clean_has_timing =
+        clean_desc.to_lowercase().contains("after") || clean_desc.to_lowercase().contains("when");
 
     assert!(
         clean_has_timing,
@@ -361,10 +347,7 @@ fn test_overall_tool_selection_accuracy() {
         ("format code with rustfmt before commit", "fmt"),
         ("build optimized release binary", "build-release"),
         ("remove build artifacts after failure", "clean"),
-        (
-            "run full CI pipeline validation before PR",
-            "ci",
-        ),
+        ("run full CI pipeline validation before PR", "ci"),
         ("validate RDF graphs and SPARQL queries", "validate-rdf"),
         ("check API documentation compiles", "docs-check"),
     ];

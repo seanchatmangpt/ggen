@@ -38,8 +38,7 @@ fn test_skill_file_exists() {
 #[test]
 fn test_yaml_frontmatter_valid() {
     let skill_path = Path::new(".claude/skills/ggen-constitution.md");
-    let content = fs::read_to_string(skill_path)
-        .expect("Failed to read skill file");
+    let content = fs::read_to_string(skill_path).expect("Failed to read skill file");
 
     // Check YAML frontmatter delimiters
     assert!(
@@ -73,11 +72,11 @@ fn test_yaml_frontmatter_valid() {
 #[test]
 fn test_trigger_keywords_count() {
     let skill_path = Path::new(".claude/skills/ggen-constitution.md");
-    let content = fs::read_to_string(skill_path)
-        .expect("Failed to read skill file");
+    let content = fs::read_to_string(skill_path).expect("Failed to read skill file");
 
     // Extract YAML frontmatter
-    let yaml_end = content[4..].find("\n---\n")
+    let yaml_end = content[4..]
+        .find("\n---\n")
         .expect("Could not find YAML closing delimiter");
     let yaml_content = &content[4..4 + yaml_end];
 
@@ -88,13 +87,15 @@ fn test_trigger_keywords_count() {
     //     - unwrap
     //     ...
 
-    let when_section = yaml_content.split("WHEN:")
+    let when_section = yaml_content
+        .split("WHEN:")
         .nth(1)
         .or_else(|| yaml_content.split("when:").nth(1))
         .expect("WHEN: section not found in frontmatter");
 
     // Stop at next section (WHEN_NOT or end)
-    let when_content = when_section.split("WHEN_NOT:")
+    let when_content = when_section
+        .split("WHEN_NOT:")
         .next()
         .and_then(|s| s.split("when_not:").next())
         .unwrap_or(when_section);
@@ -119,16 +120,17 @@ fn test_trigger_keywords_count() {
 #[test]
 fn test_exclusion_keywords_count() {
     let skill_path = Path::new(".claude/skills/ggen-constitution.md");
-    let content = fs::read_to_string(skill_path)
-        .expect("Failed to read skill file");
+    let content = fs::read_to_string(skill_path).expect("Failed to read skill file");
 
     // Extract YAML frontmatter
-    let yaml_end = content[4..].find("\n---\n")
+    let yaml_end = content[4..]
+        .find("\n---\n")
         .expect("Could not find YAML closing delimiter");
     let yaml_content = &content[4..4 + yaml_end];
 
     // Find WHEN_NOT section
-    let when_not_section = yaml_content.split("WHEN_NOT:")
+    let when_not_section = yaml_content
+        .split("WHEN_NOT:")
         .nth(1)
         .or_else(|| yaml_content.split("when_not:").nth(1))
         .expect("WHEN_NOT: section not found in frontmatter");
@@ -153,11 +155,11 @@ fn test_exclusion_keywords_count() {
 #[test]
 fn test_version_field_matches() {
     let skill_path = Path::new(".claude/skills/ggen-constitution.md");
-    let content = fs::read_to_string(skill_path)
-        .expect("Failed to read skill file");
+    let content = fs::read_to_string(skill_path).expect("Failed to read skill file");
 
     // Extract YAML frontmatter
-    let yaml_end = content[4..].find("\n---\n")
+    let yaml_end = content[4..]
+        .find("\n---\n")
         .expect("Could not find YAML closing delimiter");
     let yaml_content = &content[4..4 + yaml_end];
 
@@ -185,8 +187,7 @@ fn test_version_field_matches() {
 #[test]
 fn test_skill_content_includes_principles() {
     let skill_path = Path::new(".claude/skills/ggen-constitution.md");
-    let content = fs::read_to_string(skill_path)
-        .expect("Failed to read skill file");
+    let content = fs::read_to_string(skill_path).expect("Failed to read skill file");
 
     // Content should include key principles
     let expected_principles = vec![
@@ -219,8 +220,7 @@ fn test_skill_content_includes_principles() {
 #[test]
 fn test_skill_file_size_reasonable() {
     let skill_path = Path::new(".claude/skills/ggen-constitution.md");
-    let metadata = fs::metadata(skill_path)
-        .expect("Failed to get skill file metadata");
+    let metadata = fs::metadata(skill_path).expect("Failed to get skill file metadata");
 
     let file_size = metadata.len();
 
@@ -244,8 +244,7 @@ fn test_skill_file_size_reasonable() {
 #[test]
 fn test_skill_describes_usage() {
     let skill_path = Path::new(".claude/skills/ggen-constitution.md");
-    let content = fs::read_to_string(skill_path)
-        .expect("Failed to read skill file");
+    let content = fs::read_to_string(skill_path).expect("Failed to read skill file");
 
     // Check for usage description keywords
     let has_usage_description = content.to_lowercase().contains("use this")

@@ -22,8 +22,8 @@ pub struct CargoMakeTarget {
 ///
 /// Returns a HashMap of target_name -> CargoMakeTarget
 pub fn parse_makefile_toml(path: &Path) -> Result<HashMap<String, CargoMakeTarget>, String> {
-    let content = fs::read_to_string(path)
-        .map_err(|e| format!("Failed to read Makefile.toml: {}", e))?;
+    let content =
+        fs::read_to_string(path).map_err(|e| format!("Failed to read Makefile.toml: {}", e))?;
 
     let mut targets = HashMap::new();
     let mut current_target: Option<String> = None;

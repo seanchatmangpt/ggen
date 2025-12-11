@@ -11,10 +11,10 @@
 #[path = "mod.rs"]
 mod aci_utils;
 
+use aci_utils::{extract_description, parse_makefile_toml};
 use std::path::Path;
 use std::process::Command;
 use std::time::{Duration, Instant};
-use aci_utils::{parse_makefile_toml, extract_description};
 
 /// Test: cargo make check enforces 5s timeout
 ///
@@ -29,11 +29,15 @@ fn test_timeout_enforcement_on_check() {
     let check_target = targets.get("check").expect("check target not found");
 
     // Check should use timeout command OR have timeout in script
-    let has_timeout_command = check_target.command.as_ref()
+    let has_timeout_command = check_target
+        .command
+        .as_ref()
         .map(|cmd| cmd == "timeout")
         .unwrap_or(false);
 
-    let has_timeout_script = check_target.script.as_ref()
+    let has_timeout_script = check_target
+        .script
+        .as_ref()
         .map(|script| script.contains("timeout"))
         .unwrap_or(false);
 
@@ -45,7 +49,9 @@ fn test_timeout_enforcement_on_check() {
     );
 
     // Verify timeout value is reasonable (<= 15s as documented)
-    let check_desc = check_target.description.as_ref()
+    let check_desc = check_target
+        .description
+        .as_ref()
         .expect("check has no description");
 
     let has_timeout_spec = check_desc.contains("15s timeout")
@@ -76,7 +82,9 @@ fn test_warnings_as_errors_enforcement() {
     // 2. [env] section with RUSTFLAGS
     // 3. .cargo/config.toml (project-wide)
 
-    let check_desc = check_target.description.as_ref()
+    let check_desc = check_target
+        .description
+        .as_ref()
         .expect("check has no description");
 
     // Description should mention warnings-as-errors policy
@@ -101,9 +109,13 @@ fn test_quality_gate_validation() {
     let targets = parse_makefile_toml(makefile_path).expect("Failed to parse Makefile.toml");
 
     // pre-commit should have dependencies that enforce quality gates
-    let pre_commit = targets.get("pre-commit").expect("pre-commit target not found");
+    let pre_commit = targets
+        .get("pre-commit")
+        .expect("pre-commit target not found");
 
-    let desc = pre_commit.description.as_ref()
+    let desc = pre_commit
+        .description
+        .as_ref()
         .expect("pre-commit has no description");
 
     // Should mention quality gates, validation, or checks
@@ -174,10 +186,7 @@ fn test_slo_violation_detection() {
     }
 
     if !violations.is_empty() {
-        panic!(
-            "SLO violations detected:\n{}",
-            violations.join("\n")
-        );
+        panic!("SLO violations detected:\n{}", violations.join("\n"));
     }
 }
 
@@ -192,19 +201,28 @@ fn test_consistent_timeout_command_format() {
 
     // Targets that MUST have timeout wrappers (command OR script)
     let timeout_required = vec![
-        "check", "test", "test-unit", "test-integration",
-        "lint", "build", "build-release"
+        "check",
+        "test",
+        "test-unit",
+        "test-integration",
+        "lint",
+        "build",
+        "build-release",
     ];
 
     let mut violations = Vec::new();
 
     for target_name in timeout_required {
         if let Some(target) = targets.get(target_name) {
-            let has_timeout_command = target.command.as_ref()
+            let has_timeout_command = target
+                .command
+                .as_ref()
                 .map(|cmd| cmd == "timeout")
                 .unwrap_or(false);
 
-            let has_timeout_script = target.script.as_ref()
+            let has_timeout_script = target
+                .script
+                .as_ref()
                 .map(|script| script.contains("timeout"))
                 .unwrap_or(false);
 
@@ -220,10 +238,7 @@ fn test_consistent_timeout_command_format() {
     }
 
     if !violations.is_empty() {
-        panic!(
-            "Timeout wrapper violations:\n{}",
-            violations.join("\n")
-        );
+        panic!("Timeout wrapper violations:\n{}", violations.join("\n"));
     }
 }
 
@@ -236,8 +251,12 @@ fn test_pre_commit_timeout_validation() {
     let makefile_path = Path::new("Makefile.toml");
     let targets = parse_makefile_toml(makefile_path).expect("Failed to parse Makefile.toml");
 
-    let pre_commit = targets.get("pre-commit").expect("pre-commit target not found");
-    let desc = pre_commit.description.as_ref()
+    let pre_commit = targets
+        .get("pre-commit")
+        .expect("pre-commit target not found");
+    let desc = pre_commit
+        .description
+        .as_ref()
         .expect("pre-commit has no description");
 
     // Should mention timeout enforcement or SLO validation
@@ -258,8 +277,8 @@ fn test_pre_commit_timeout_validation() {
 /// RATIONALE: Documentation is part of poka-yoke - makes mistake prevention explicit
 #[test]
 fn test_poka_yoke_documentation_exists() {
-    let makefile_content = std::fs::read_to_string("Makefile.toml")
-        .expect("Failed to read Makefile.toml");
+    let makefile_content =
+        std::fs::read_to_string("Makefile.toml").expect("Failed to read Makefile.toml");
 
     // Should have comments explaining poka-yoke patterns
     let has_timeout_docs = makefile_content.contains("timeout")

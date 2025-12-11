@@ -62,8 +62,12 @@ impl GraphStore {
         // Ensure parent directory exists (Oxigraph doesn't create it automatically)
         let path_ref = path.as_ref();
         if let Some(parent) = path_ref.parent() {
-            std::fs::create_dir_all(parent)
-                .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create store parent directory: {}", e)))?;
+            std::fs::create_dir_all(parent).map_err(|e| {
+                ggen_utils::error::Error::new(&format!(
+                    "Failed to create store parent directory: {}",
+                    e
+                ))
+            })?;
         }
 
         let store = Store::open(path_ref)
