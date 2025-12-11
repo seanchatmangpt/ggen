@@ -8,7 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-- **Root directory cleanup**: Moved 54 historical reports and analysis documents from root directory to `docs/archive/root-reports/`:
+- **Root directory cleanup (Phase 2)**: Organized remaining root directory files:
+  - Removed 15 unused duplicate files (12 test data files, 3 template files) - duplicates exist in `tests/data/` and `templates/`
+  - Moved 4 status files to `docs/archive/status/` (AUDIT_SUMMARY.txt, BUILD_STATUS.txt, DIATAXIS_IMPLEMENTATION_COMPLETE.txt, GGEN_COMMAND_STATUS.txt)
+  - Moved `verify_quick_wins.sh` to `scripts/utilities/`
+  - Moved `DOMAIN_MIGRATION_PLAN.puml` to `docs/diagrams/`
+  - Deleted `Makefile.toml.backup`
+  - Kept config files in root as requested: `ggen.toml`, `ggen.lock`, `chicago-tdd-tools.toml`, `concept_matcher_config.json`, `claude-flow`
+- **Root directory cleanup (Phase 1)**: Moved 54 historical reports and analysis documents from root directory to `docs/archive/root-reports/`:
   - CLI analysis and upgrade summaries
   - Marketplace documentation and planning documents
   - Packs implementation reports

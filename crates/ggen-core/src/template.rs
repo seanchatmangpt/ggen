@@ -94,7 +94,7 @@ pub struct Frontmatter {
     #[serde(default, rename = "query", alias = "queries")]
     pub queries: Vec<QuerySpec>,
 
-    // ❌ REMOVED: vars: BTreeMap - Variables now come from CLI/API, not frontmatter
+    // Variables declared in frontmatter (list or map) are preserved for validation
 
     // Safety and idempotency
     #[serde(default)]
@@ -625,7 +625,7 @@ where
     de.deserialize_any(StrOrSeq)
 }
 
-// ❌ REMOVED: deserialize_flexible_vars - vars field no longer in frontmatter
+// Legacy flexible vars deserializer removed; VarsSpec now captures declarations
 
 // Accept either "sparql: '<query>'" or "sparql: { name: '<query>' }"
 fn sparql_map<'de, D>(de: D) -> std::result::Result<BTreeMap<String, String>, D::Error>
@@ -762,7 +762,7 @@ body"#;
         assert_eq!(t.front.base.as_deref(), Some("http://example.org/test/"));
         assert_eq!(t.front.rdf_inline.len(), 1);
         assert_eq!(t.front.sparql.len(), 1);
-        // ❌ REMOVED: vars test - no longer in frontmatter
+        // vars supported via VarsSpec; legacy test removed
     }
 
     #[test]
@@ -1078,7 +1078,7 @@ fn main() {
                 }
             }
 
-            // ❌ REMOVED: frontmatter_vars_roundtrip test - vars no longer in frontmatter
+            // Legacy frontmatter_vars_roundtrip test removed when vars were disabled
 
             #[test]
             fn template_paths_are_valid(

@@ -28,14 +28,16 @@ log_info() {
 
 log_success() {
     echo -e "${GREEN}✓${NC} $1"
-    ((TESTS_PASSED++))
-    ((TESTS_RUN++))
+    ((++TESTS_PASSED))
+    ((++TESTS_RUN))
+    return 0
 }
 
 log_error() {
     echo -e "${RED}✗${NC} $1"
-    ((TESTS_FAILED++))
-    ((TESTS_RUN++))
+    ((++TESTS_FAILED))
+    ((++TESTS_RUN))
+    return 0
 }
 
 log_section() {
@@ -45,9 +47,16 @@ log_section() {
     echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 }
 
-# Create temporary workspace
+# Resolve repo root and create temporary workspace
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 WORKSPACE=$(mktemp -d)
 trap "rm -rf $WORKSPACE" EXIT
+
+# Ensure asdf can find tool versions even in temp dir
+if [ -f "$REPO_ROOT/.tool-versions" ]; then
+    cp "$REPO_ROOT/.tool-versions" "$WORKSPACE/.tool-versions"
+fi
 
 cd "$WORKSPACE"
 log_info "Working in: $WORKSPACE"
