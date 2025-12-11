@@ -44,6 +44,10 @@ pub struct GgenConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub logging: Option<LoggingConfig>,
 
+    /// Diataxis documentation configuration (optional)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub diataxis: Option<DiataxisConfig>,
+
     /// Feature flags (optional)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub features: Option<HashMap<String, bool>>,
@@ -167,6 +171,72 @@ pub struct TemplatesConfig {
     /// Idempotent generation (only update if changed)
     #[serde(default)]
     pub idempotent: bool,
+}
+
+/// Diataxis documentation configuration
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct DiataxisConfig {
+    /// Root directory for diataxis docs (defaults to docs)
+    #[serde(default = "default_diataxis_root")]
+    pub root: String,
+
+    /// Index file path
+    #[serde(default = "default_diataxis_index")]
+    pub index: String,
+
+    /// Quadrant-specific configuration
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub quadrants: Option<DiataxisQuadrants>,
+}
+
+/// Quadrant configuration (tutorials, how-to, reference, explanations)
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+pub struct DiataxisQuadrants {
+    /// Tutorials quadrant configuration
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tutorials: Option<DiataxisSection>,
+
+    /// How-to guides quadrant configuration
+    #[serde(rename = "how-to", skip_serializing_if = "Option::is_none")]
+    pub how_to: Option<DiataxisSection>,
+
+    /// Reference quadrant configuration
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reference: Option<DiataxisSection>,
+
+    /// Explanations quadrant configuration
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub explanations: Option<DiataxisSection>,
+}
+
+/// Per-quadrant configuration
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct DiataxisSection {
+    /// Source directory for existing docs
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source: Option<String>,
+
+    /// Output directory for generated docs
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub output: Option<String>,
+
+    /// Navigation entries for this quadrant
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub navigation: Vec<DiataxisNavItem>,
+}
+
+/// Navigation entry within a quadrant
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct DiataxisNavItem {
+    /// Display title for the navigation entry
+    pub title: String,
+
+    /// Relative or absolute path to the target content
+    pub path: String,
+
+    /// Optional description shown alongside the entry
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
 }
 
 /// RDF configuration
@@ -432,6 +502,14 @@ fn default_log_format() -> String {
     "text".to_string()
 }
 
+fn default_diataxis_root() -> String {
+    "docs".to_string()
+}
+
+fn default_diataxis_index() -> String {
+    "docs/diataxis-index.md".to_string()
+}
+
 fn default_true() -> bool {
     true
 }
@@ -461,6 +539,7 @@ impl Default for GgenConfig {
             security: None,
             performance: None,
             logging: None,
+            diataxis: None,
             features: None,
             env: None,
             build: None,

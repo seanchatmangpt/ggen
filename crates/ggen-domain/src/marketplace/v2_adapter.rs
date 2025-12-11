@@ -1,29 +1,19 @@
-//! V2 Adapter - Bridge between v1 and v2 marketplace backends
+//! V2 Adapter - Legacy adapter code (not used by CLI)
 //!
-//! This module provides the adapter pattern for gradual migration from v1 (legacy)
-//! to v2 (RDF-backed) marketplace implementations.
+//! NOTE: This module is legacy code from the v1→v2 migration.
+//! The CLI (`crates/ggen-cli/src/cmds/marketplace.rs`) uses `ggen-marketplace-v2` directly
+//! and bypasses this adapter layer entirely.
 //!
-//! # Architecture
+//! This code is kept for reference but is not actively used.
+//!
+//! # Current Architecture
 //!
 //! ```text
-//! CLI Commands
+//! CLI Commands (marketplace.rs)
 //!      │
-//!      ├─→ execute_search()
-//!      │        │
-//!      │        ▼
-//!      │   get_search_backend()  ← Feature flag selection
-//!      │        │
-//!      │        ├─→ SearchBackend::V1 → ggen_marketplace
-//!      │        └─→ SearchBackend::V2 → ggen_marketplace_v2
-//!      │
-//!      └─→ Type conversions (From impls)
+//!      └─→ ggen-marketplace-v2 directly
+//!           (no adapter layer)
 //! ```
-//!
-//! # Feature Flags
-//!
-//! - `marketplace-v1`: Use legacy search (default)
-//! - `marketplace-v2`: Use RDF/SPARQL search
-//! - `marketplace-parallel`: Enable both for A/B testing
 
 use ggen_utils::error::Result;
 use serde::{Deserialize, Serialize};
@@ -34,28 +24,17 @@ use serde::{Deserialize, Serialize};
 /// selection of the search backend based on feature flags.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SearchBackend {
-    // NOTE: v1 feature removed - v2 only
-    /// Legacy marketplace search (v1)
-    V1,
-
-    // NOTE: v2 is now the only option
     /// RDF-backed marketplace search (v2)
+    /// NOTE: V1 has been removed. CLI uses ggen-marketplace-v2 directly.
     V2,
 }
 
 impl SearchBackend {
-    /// Get the active search backend based on feature flags
+    /// Get the active search backend
     ///
-    /// Priority:
-    /// 1. If only v1 enabled → V1
-    /// 2. If only v2 enabled → V2
-    /// 3. If both enabled (parallel) → V2 (prefer new implementation)
-    ///
-    /// # Panics
-    ///
-    /// Panics if neither feature is enabled (compile-time guarantee via features)
+    /// Always returns V2 since marketplace v1 has been removed.
+    /// The CLI uses ggen-marketplace-v2 directly, bypassing this adapter.
     pub fn active() -> Self {
-        // v2 only (v1 feature has been removed)
         Self::V2
     }
 }
@@ -158,43 +137,8 @@ pub struct UnifiedSearchResult {
 
 // ==================== V1 Conversions ====================
 
-// NOTE: v1 feature removed - v2 only
-mod v1_conversions {
-    use super::*;
-
-    /// Convert UnifiedSearchQuery → v1 SearchInput
-    impl From<UnifiedSearchQuery> for crate::marketplace::SearchInput {
-        fn from(query: UnifiedSearchQuery) -> Self {
-            Self {
-                query: query.query,
-                category: query.category,
-                author: query.author,
-                limit: query.limit,
-                fuzzy: query.fuzzy,
-                keyword: None,
-                only_8020: false,
-                sector: None,
-                detailed: false,
-                json: false,
-            }
-        }
-    }
-
-    /// Convert v1 SearchResult → UnifiedSearchResult
-    impl From<crate::marketplace::SearchResult> for UnifiedSearchResult {
-        fn from(result: crate::marketplace::SearchResult) -> Self {
-            Self {
-                name: result.name,
-                version: result.version,
-                description: result.description,
-                author: result.author,
-                downloads: result.downloads,
-                stars: result.stars,
-                relevance: 0.8, // V1 doesn't provide relevance, use default
-            }
-        }
-    }
-}
+// NOTE: v1 conversions removed - marketplace v1 no longer exists
+// CLI uses ggen-marketplace-v2 directly, bypassing this adapter
 
 // ==================== V2 Conversions ====================
 //
@@ -267,30 +211,18 @@ mod v1_conversions {
 /// This is the main adapter function that routes to the correct backend.
 ///
 /// # Feature Flag Routing
+/// Execute unified search (v2 only)
 ///
-/// - `marketplace-v1` only: Uses legacy search
-/// - `marketplace-v2` only: Uses RDF/SPARQL search
-/// - Both enabled: Uses v2 (prefer new implementation)
-pub async fn execute_unified_search(query: UnifiedSearchQuery) -> Result<Vec<UnifiedSearchResult>> {
-    match SearchBackend::active() {
-        // NOTE: v1 feature removed - v2 only
-        SearchBackend::V1 => {
-            // Use v1 search
-            let v1_input = crate::marketplace::SearchInput::from(query);
-            let v1_results = crate::marketplace::execute_search(v1_input).await?;
-            Ok(v1_results.into_iter().map(Into::into).collect())
-        }
-
-        // NOTE: v2 is now the only option
-        SearchBackend::V2 => {
-            // V2 is not yet fully implemented
-            // The ggen-marketplace-v2 crate needs to be fixed before v2 search can work
-            tracing::warn!("marketplace-v2 feature is enabled but v2 implementation is not ready");
-            Err(ggen_utils::error::Error::new(
-                "Marketplace v2 is under development. Please use marketplace-v1 (default) for now.",
-            ))
-        }
-    }
+/// NOTE: This function is legacy code and not used by the CLI.
+/// The CLI uses ggen-marketplace-v2 directly via `crates/ggen-cli/src/cmds/marketplace.rs`.
+///
+/// This adapter was part of the migration from v1 to v2, but since v1 has been
+/// removed and the CLI bypasses this layer, this function is kept for reference only.
+pub async fn execute_unified_search(_query: UnifiedSearchQuery) -> Result<Vec<UnifiedSearchResult>> {
+    // CLI uses ggen-marketplace-v2 directly, not this adapter
+    Err(ggen_utils::error::Error::new(
+        "This adapter is not used. CLI commands use ggen-marketplace-v2 directly.",
+    ))
 }
 
 #[cfg(test)]

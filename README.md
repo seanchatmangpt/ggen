@@ -20,7 +20,11 @@ cargo install ggen-cli-lib
 # From source
 git clone https://github.com/seanchatmangpt/ggen
 cd ggen
-cargo install --path crates/ggen-cli
+cargo install --path crates/ggen-cli --bin ggen
+
+# Verify installation
+ggen --version
+# Should output: ggen 3.4.1 (or newer)
 
 # Install Speckit for spec-driven development (recommended for contributors)
 uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
@@ -118,7 +122,7 @@ See [.specify/memory/constitution.md](.specify/memory/constitution.md) for full 
 | **Ontology Extraction** | `ontology extract`, `ontology validate`, `ontology generate` | ✅ Production |
 | **Project Scaffolding** | `project init`, `project gen`, `project watch` | ✅ Production |
 | **AI Integration** | `ai chat`, `ai generate`, `ai analyze` | ✅ Production |
-| **Marketplace** | `marketplace improve`, Package management | ✅ Production |
+| **Marketplace** | `marketplace search`, `marketplace install`, `marketplace publish` | ✅ Production |
 | **SPARQL Queries** | Full SPARQL 1.1 support via Oxigraph | ✅ Production |
 | **Template Rendering** | Tera templates with RDF integration | ✅ Production |
 
@@ -139,10 +143,10 @@ ggen template show --template rust.tmpl
 ggen template lint --template my-template.tmpl
 
 # Create new template
-ggen template new --name my-template --output templates/
+ggen template new --name my-template
 
 # Generate file tree from template
-ggen template generate_tree --template my-template.tmpl
+ggen template generate-tree --template my-template.tmpl
 ```
 
 ### Graph Commands (RDF/SPARQL)
@@ -152,7 +156,7 @@ ggen template generate_tree --template my-template.tmpl
 ggen graph load --file ontology.ttl
 
 # Export graph to file
-ggen graph export --output graph.ttl --format turtle
+ggen graph export --input_file graph.ttl --output output.ttl --format turtle
 
 # Query with SPARQL
 ggen graph query --sparql_query "
@@ -165,30 +169,30 @@ ggen graph query --sparql_query "
 "
 
 # Visualize graph structure
-ggen graph visualize --output graph.svg
+ggen graph visualize --input_file graph.ttl
 ```
 
 ### Ontology Commands
 
 ```bash
 # Extract ontology schema from RDF/OWL file
-ggen ontology extract --ontology_file schema.ttl --output schema.json
+ggen ontology extract --ontology_file schema.ttl
 
 # Initialize ontology project with examples
-ggen ontology init --name my-ontology --template schema.org
+ggen ontology init --project_name my-ontology
 
 # Generate code from ontology
-ggen ontology generate --schema schema.json --language typescript --output src/types/
+ggen ontology generate --schema_file schema.json --language typescript
 
 # Validate ontology quality
-ggen ontology validate --schema schema.json --strict
+ggen ontology validate --schema_file schema.ttl
 ```
 
 ### Project Commands
 
 ```bash
 # Initialize project with conventions
-ggen project init --name my-project --preset clap-noun-verb
+ggen project init --path . --name my-project --preset clap-noun-verb
 
 # Generate code from template with variables
 ggen project gen --template_ref pack:template --vars key=value --dry_run
@@ -197,10 +201,10 @@ ggen project gen --template_ref pack:template --vars key=value --dry_run
 ggen project watch --path ./src --debounce 500
 
 # Generate project plan
-ggen project plan --template service.tmpl --var service=auth --format json
+ggen project plan --template_ref service.tmpl --vars service=auth --format json
 
 # Apply generation plan
-ggen project apply plan.json --yes
+ggen project apply --plan_file plan.json --yes
 
 # Create new project
 ggen project new --name my-app --project_type rust-cli --output .
@@ -210,47 +214,58 @@ ggen project new --name my-app --project_type rust-cli --output .
 
 ```bash
 # Interactive chat session
-ggen ai chat "Explain Rust ownership" --interactive
+ggen ai chat --message "Explain Rust ownership"
 
 # Generate code with AI
-ggen ai generate "Create a REST API server" --model gpt-4
+ggen ai generate --prompt "Create a REST API server" --model gpt-4 --_max_tokens 1000 --_temperature 0.7
 
-# Analyze code
-ggen ai analyze "fn main() { println!(\"hello\"); }"
+# Analyze code from string
+ggen ai analyze --code "fn main() { println!(\"hello\"); }"
 
 # Analyze from file
-ggen ai analyze --file src/main.rs --model claude-3-sonnet
+ggen ai analyze --file src/main.rs
 ```
 
 ### Marketplace Commands
 
 ```bash
-# Get improvement suggestions
-ggen marketplace improve my-package
+# Search for packages
+ggen marketplace search --query "rust microservice"
 
-# Apply suggested improvements
-ggen marketplace improve my-package --apply license-mit
+# Install a package
+ggen marketplace install --package_id my-package
+
+# Publish a package
+ggen marketplace publish
+
+# Get package information
+ggen marketplace info --package_id my-package
 ```
 
 ### Utility Commands
 
 ```bash
+# System diagnostics
+ggen utils doctor
+
 # Manage environment variables
 ggen utils env --list
 ggen utils env --get API_KEY
 ggen utils env --set API_KEY=value
 
+# FMEA (Failure Mode and Effects Analysis)
+ggen fmea list
+ggen fmea report
+ggen fmea pareto
+
 # Track academic paper status
-ggen paper track paper.rdf --venue neurips-2024
+ggen paper track --paper_file paper.rdf --venue neurips-2024
 
 # Generate workflow reports
-ggen workflow report --workflow-file wf.json --format html --output report.html
+ggen workflow report --workflow_file wf.json
 
-# Validate package packs
-ggen packs validate --pack-id startup-essentials
-
-# Monitor hook events
-ggen hook monitor --event pre-commit
+# CI/CD workflows
+ggen ci workflow --name build
 ```
 
 ---
@@ -337,13 +352,14 @@ cargo make pre-commit # All checks before commit
 
 Browse `examples/` directory for complete, runnable examples:
 
-- **Basic**: `basic-template-generation/`, `hello-world-cli/`
-- **Advanced**: `advanced-rust-api-8020/`, `advanced-sparql-graph/`
+- **Basic**: `basic-template-generation/`, `simple-project/`
+- **Advanced**: `advanced-rust-api-8020/`, `advanced-sparql-graph/`, `advanced-rust-project/`
 - **AI**: `ai-code-generation/`, `ai-microservice/`, `ai-template-creation/`
 - **CLI**: `clap-noun-verb-demo/`, `cli-advanced/`, `cli-subcommand/`
-- **Lifecycle**: `lifecycle-demo/`, `lifecycle-hooks/`, `lifecycle-validation/`
-- **Ontology**: `ontology-driven/`, `semantic-web/`, `knowledge-graph/`
-- **SPARQL**: `sparql-queries/`, `rdf-generation/`, `graph-traversal/`
+- **Lifecycle**: `lifecycle-complete/`, `advanced-lifecycle-demo/`
+- **Ontology**: `knowledge-graph-builder/`, `fastapi-from-rdf/`
+- **SPARQL**: `sparql-engine/`, `advanced-sparql-graph/`
+- **Full Stack**: `comprehensive-rust-showcase/`, `microservices-architecture/`
 
 ---
 

@@ -1,51 +1,47 @@
 # Marketplace V2 Migration Architecture
 
-**Status:** Phase 1 Complete ✅ (Foundation)
-**Last Updated:** 2025-11-18
+**Status:** ✅ COMPLETE - v1 Removed, v2 Only
+**Last Updated:** 2025-01-XX
 
 ## Overview
 
-This document describes the marketplace v1 → v2 migration architecture using the Adapter Pattern.
+This document describes the completed marketplace v1 → v2 migration. **Marketplace v1 has been removed** and the CLI now uses `ggen-marketplace-v2` directly.
 
 ## Architecture
+
+**Current State (v2 only):**
 
 ```
 ┌─────────────────────────────┐
 │   CLI Commands              │
 │  (search, install, etc.)    │
+│  marketplace.rs             │
 └──────────────┬──────────────┘
                │
                ▼
 ┌──────────────────────────────┐
-│  v2_adapter.rs               │
-│  ┌────────────────────────┐  │
-│  │ UnifiedSearchQuery     │  │ ← Common interface
-│  │ UnifiedSearchResult    │  │
-│  │ SearchBackend enum     │  │
-│  └────────────────────────┘  │
-└──────────────┬───────────────┘
-               │
-       ┌───────┴────────┐
-       │                │
-       ▼                ▼
-┌─────────────┐  ┌──────────────────┐
-│  V1 (Current)│  │  V2 (Future)     │
-│  Legacy      │  │  RDF/SPARQL      │
-│  marketplace │  │  marketplace-v2  │
-└─────────────┘  └──────────────────┘
+│  ggen-marketplace-v2        │
+│  (direct usage, no adapter)  │
+└──────────────────────────────┘
 ```
 
-## Phase 1: Foundation (COMPLETE ✅)
+**Note:** The `v2_adapter.rs` file exists but is not used by the CLI. It's kept for reference only.
+
+## Migration Complete ✅
 
 ### ✅ Completed Tasks
 
-1. **Feature Gates Setup**
-   - `marketplace-v1`: Legacy marketplace (default)
-   - `marketplace-v2`: RDF-backed marketplace
-   - `marketplace-parallel`: Both for A/B testing
-   - Location: `ggen-cli/Cargo.toml`, `ggen-domain/Cargo.toml`
+1. **CLI Direct Integration**
+   - CLI (`crates/ggen-cli/src/cmds/marketplace.rs`) uses `ggen-marketplace-v2` directly
+   - No adapter layer needed - direct usage of v2 types and functions
+   - All marketplace commands (search, install, publish, etc.) use v2
 
-2. **Adapter Pattern Implementation**
+2. **v1 Removal**
+   - Marketplace v1 crate removed
+   - All v1 references removed from active code
+   - Legacy adapter code (`v2_adapter.rs`) kept for reference only
+
+3. **Current Implementation**
    - File: `ggen-domain/src/marketplace/v2_adapter.rs`
    - `SearchBackend` enum with feature-based selection
    - `UnifiedSearchQuery` - common query interface

@@ -15,8 +15,8 @@ pub mod ai;
 pub mod ci;
 pub mod graph;
 // pub mod hook;        // DISABLED: Deferred to v4.1.0 - Depends on marketplace-v2 feature
-// pub mod marketplace;  // DISABLED: Deferred to v4.1.0 - RDF-backed marketplace redesign
-// pub mod packs;        // DISABLED: Deferred to v4.1.0 - Depends on marketplace-v2 feature
+pub mod marketplace; // ENABLED: marketplace-v2 CLI integration
+                     // pub mod packs;        // DISABLED: Deferred to v4.1.0 - Depends on marketplace-v2 feature
 pub mod ontology;
 pub mod paper;
 pub mod project;
