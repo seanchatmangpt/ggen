@@ -5,6 +5,15 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Removed
+- **Documentation cleanup**: Removed stale documentation files in `docs/` that haven't been updated in 14+ days:
+  - `docs/MAKEFILE.md` (last updated Oct 9) - Replaced with reference to `cargo make help` and `Makefile.toml`
+  - `docs/benchmark-results/PATTERN_BENCHMARK_RESULTS.md` (last updated Nov 19) - Historical results archived
+  - `docs/benchmark-results/pattern_performance_20251119_102135.txt` (last updated Nov 19) - Raw benchmark output archived
+- Updated references in `docs/README.md`, `docs/how-to-guides/cicd-workflows.md`, and `docs/PATTERN_BENCHMARKS_SUMMARY.md` to remove broken links
+
 ## [4.0.0] - 2025-12-03
 
 ### Added
