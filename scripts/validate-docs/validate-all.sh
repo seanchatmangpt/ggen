@@ -118,6 +118,13 @@ run_validation() {
     fi
 }
 
+# Wrapper to keep running suites even if one fails
+run_suite() {
+    set +e
+    run_validation "$@"
+    set -e
+}
+
 # Start validation
 START_TIME=$(date +%s)
 
@@ -132,28 +139,28 @@ log_info "Report will be saved to: $REPORT_FILE"
 # ============================================================================
 
 # Quick Start Tutorial
-run_validation "validate-quick-start.sh" "Quick Start Tutorial (10 minutes)"
+run_suite "validate-quick-start.sh" "Quick Start Tutorial (10 minutes)"
 
 # SPARQL Query Guide
-run_validation "validate-sparql-guide.sh" "SPARQL Query How-to Guide"
+run_suite "validate-sparql-guide.sh" "SPARQL Query How-to Guide"
 
 # CLI Reference
-run_validation "validate-cli-reference.sh" "Complete CLI Command Reference"
+run_suite "validate-cli-reference.sh" "Complete CLI Command Reference"
 
 # Watch Mode
-run_validation "validate-watch-mode.sh" "Project Watch Mode Functionality"
+run_suite "validate-watch-mode.sh" "Project Watch Mode Functionality"
 
 # TOML Configuration Reference
-run_validation "validate-toml-reference.sh" "TOML Configuration Reference"
+run_suite "validate-toml-reference.sh" "TOML Configuration Reference"
 
 # Diataxis Case Study
-run_validation "validate-case-study.sh" "Diataxis Case Study Documentation"
+run_suite "validate-case-study.sh" "Diataxis Case Study Documentation"
 
 # TypeScript Detection
-run_validation "check-no-typescript.sh" "TypeScript Usage Detection"
+run_suite "check-no-typescript.sh" "TypeScript Usage Detection"
 
 # Broken Link Checker
-run_validation "check-broken-links.sh" "Internal Link Validation"
+run_suite "check-broken-links.sh" "Internal Link Validation"
 
 # ============================================================================
 # Summary

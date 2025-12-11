@@ -1,6 +1,9 @@
 //! Integration tests for Phase 3.2 introspection flags
 //! Tests the --capabilities, --introspect, --graph CLI flags for AI agent discovery
 
+// These tests require the `autonomic` feature flag to access introspection module
+#![cfg(feature = "autonomic")]
+
 #[test]
 fn test_capabilities_flag_template_generate() {
     // Simulate: ggen --capabilities template generate

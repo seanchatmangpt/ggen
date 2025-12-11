@@ -153,8 +153,10 @@ fi
 # ============================================================================
 log_section "Step 3: Load RDF into Graph"
 
+set +e
 OUTPUT=$($GGEN_BIN graph load --file product-ontology.ttl 2>&1)
 EXIT_CODE=$?
+set -e
 
 if [ $EXIT_CODE -eq 0 ]; then
     log_success "Loaded RDF into graph"
@@ -178,8 +180,10 @@ fi
 # ============================================================================
 log_section "Step 4: Query Graph with SPARQL"
 
+set +e
 QUERY_OUTPUT=$($GGEN_BIN graph query --sparql_query "SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 5" 2>&1)
 QUERY_EXIT=$?
+set -e
 
 if [ $QUERY_EXIT -eq 0 ]; then
     log_success "SPARQL query executed successfully"
@@ -200,8 +204,10 @@ fi
 # ============================================================================
 log_section "Step 5: Extract Ontology Schema"
 
-EXTRACT_OUTPUT=$($GGEN_BIN ontology extract --ontology_file product-ontology.ttl --output product-schema.json 2>&1)
+set +e
+EXTRACT_OUTPUT=$($GGEN_BIN ontology extract product-ontology.ttl --output product-schema.json 2>&1)
 EXTRACT_EXIT=$?
+set -e
 
 if [ $EXTRACT_EXIT -eq 0 ]; then
     log_success "Extracted ontology schema to JSON"

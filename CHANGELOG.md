@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+- **Markdown files cleanup**: Deleted 202+ obsolete markdown files (preserved in git history):
+  - Deleted all files in `docs/archive/` (137 files) - Already archived historical documents
+  - Deleted 53 historical reports from `docs/` root (SUMMARY, COMPLETION, REPORT, ANALYSIS files)
+  - Deleted all files in `docs/wip/` (5 files) - Abandoned/incomplete work items
+  - Deleted 7 markdown files from `.ggen/` - Internal evidence graph summaries
+  - Reduced total markdown files from 1,811 to 1,613 (~11% reduction)
+  - All files preserved in git history for reference
+
 ### Changed
 - **Root directory cleanup (Phase 2)**: Organized remaining root directory files:
   - Removed 15 unused duplicate files (12 test data files, 3 template files) - duplicates exist in `tests/data/` and `templates/`

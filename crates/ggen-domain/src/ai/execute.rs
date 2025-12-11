@@ -24,6 +24,9 @@
 
 use crate::ai::{analyze, generate};
 use ggen_utils::error::Result;
+use serde_json::json;
+use std::fs::OpenOptions;
+use std::io::Write;
 use std::path::Path;
 
 // ============================================================================
@@ -65,6 +68,38 @@ pub struct ExecuteChatResult {
 // Execute Functions (Layer 2 - Async coordination and resource management)
 // ============================================================================
 
+// #region agent log helper
+fn log_debug(
+    session_id: &str,
+    run_id: &str,
+    hypothesis_id: &str,
+    location: &str,
+    message: &str,
+    data: serde_json::Value,
+) {
+    if let Ok(mut file) = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("/Users/sac/ggen/.cursor/debug.log")
+    {
+        let timestamp = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_millis())
+            .unwrap_or(0);
+        let entry = json!({
+            "sessionId": session_id,
+            "runId": run_id,
+            "hypothesisId": hypothesis_id,
+            "location": location,
+            "message": message,
+            "data": data,
+            "timestamp": timestamp,
+        });
+        let _ = writeln!(file, "{}", entry);
+    }
+}
+// #endregion
+
 /// Execute AI code generation with prompt and options
 ///
 /// **Layer 2 responsibilities**:
@@ -105,6 +140,23 @@ pub struct ExecuteChatResult {
 pub async fn execute_generate(
     prompt: &str, code: Option<&str>, model: Option<&str>, suggestions: bool,
 ) -> Result<ExecuteGenerateResult> {
+    // #region agent log
+    log_debug(
+        "debug-session",
+        "run1",
+        "H1",
+        "ai/execute.rs:execute_generate:entry",
+        "entered execute_generate",
+        json!({
+            "prompt_len": prompt.len(),
+            "prompt_trimmed_empty": prompt.trim().is_empty(),
+            "has_code": code.is_some(),
+            "model": model.map(|m| m.to_string()),
+            "suggestions": suggestions,
+        }),
+    );
+    // #endregion
+
     // Layer 2: Input validation (additional validation beyond CLI)
     if prompt.trim().is_empty() {
         return Err(ggen_utils::error::Error::new("Prompt cannot be empty"));
@@ -135,6 +187,20 @@ pub async fn execute_generate(
     let processing_time_ms = start.elapsed().as_millis() as u64;
 
     // Layer 2: Transform domain result to execute result
+    // #region agent log
+    log_debug(
+        "debug-session",
+        "run1",
+        "H1",
+        "ai/execute.rs:execute_generate:ok",
+        "execute_generate succeeded",
+        json!({
+            "model_used": result.metadata.model_used,
+            "processing_time_ms": processing_time_ms,
+            "suggestions_count": result.suggestions.as_ref().map(|s| s.len()).unwrap_or(0),
+        }),
+    );
+    // #endregion
     Ok(ExecuteGenerateResult {
         analysis: result.analysis,
         suggestions: result.suggestions.unwrap_or_default(),
@@ -184,6 +250,22 @@ pub async fn execute_generate(
 pub async fn execute_analyze(
     code: Option<&str>, file: Option<&Path>,
 ) -> Result<ExecuteAnalyzeResult> {
+    // #region agent log
+    log_debug(
+        "debug-session",
+        "run1",
+        "H3",
+        "ai/execute.rs:execute_analyze:entry",
+        "entered execute_analyze",
+        json!({
+            "has_code": code.is_some(),
+            "code_len": code.map(|c| c.len()),
+            "has_file": file.is_some(),
+            "file": file.map(|p| p.display().to_string()),
+        }),
+    );
+    // #endregion
+
     // Layer 2: Input validation - Must have either code or file
     if code.is_none() && file.is_none() {
         return Err(ggen_utils::error::Error::new(
@@ -197,6 +279,19 @@ pub async fn execute_analyze(
         if code_content.trim().is_empty() {
             return Err(ggen_utils::error::Error::new("Code cannot be empty"));
         }
+        // #region agent log
+        log_debug(
+            "debug-session",
+            "run1",
+            "H3",
+            "ai/execute.rs:execute_analyze:branch",
+            "analyzing code snippet",
+            json!({
+                "trimmed_empty": code_content.trim().is_empty(),
+                "code_len": code_content.len(),
+            }),
+        );
+        // #endregion
         analyze::analyze_code(code_content).await?
     } else if let Some(file_path) = file {
         // Layer 2: Validate file exists before calling domain
@@ -206,12 +301,38 @@ pub async fn execute_analyze(
                 file_path.display()
             )));
         }
+        // #region agent log
+        log_debug(
+            "debug-session",
+            "run1",
+            "H3",
+            "ai/execute.rs:execute_analyze:branch",
+            "analyzing file path",
+            json!({
+                "path": file_path.display().to_string(),
+                "exists": file_path.exists(),
+            }),
+        );
+        // #endregion
         analyze::analyze_project(file_path).await?
     } else {
         unreachable!("Already validated input above")
     };
 
     // Layer 2: Transform domain result to execute result
+    // #region agent log
+    log_debug(
+        "debug-session",
+        "run1",
+        "H3",
+        "ai/execute.rs:execute_analyze:ok",
+        "execute_analyze succeeded",
+        json!({
+            "analysis_len": analysis_text.len(),
+            "file_analyzed": file.map(|p| p.display().to_string()),
+        }),
+    );
+    // #endregion
     Ok(ExecuteAnalyzeResult {
         analysis: analysis_text,
         file_analyzed: file.map(|p| p.display().to_string()),
@@ -258,6 +379,21 @@ pub async fn execute_analyze(
 /// # }
 /// ```
 pub async fn execute_chat(message: &str, model: Option<&str>) -> Result<ExecuteChatResult> {
+    // #region agent log
+    log_debug(
+        "debug-session",
+        "run1",
+        "H4",
+        "ai/execute.rs:execute_chat:entry",
+        "entered execute_chat",
+        json!({
+            "message_len": message.len(),
+            "message_trimmed_empty": message.trim().is_empty(),
+            "model": model.map(|m| m.to_string()),
+        }),
+    );
+    // #endregion
+
     // Layer 2: Input validation
     if message.trim().is_empty() {
         return Err(ggen_utils::error::Error::new("Message cannot be empty"));
@@ -265,10 +401,26 @@ pub async fn execute_chat(message: &str, model: Option<&str>) -> Result<ExecuteC
 
     // FUTURE: Call domain chat function when implemented
     // For now, return placeholder response
-    Ok(ExecuteChatResult {
+    let result = ExecuteChatResult {
         response: format!("Chat response to: {}", message),
         model_used: model.unwrap_or("default-chat").to_string(),
-    })
+    };
+
+    // #region agent log
+    log_debug(
+        "debug-session",
+        "run1",
+        "H4",
+        "ai/execute.rs:execute_chat:ok",
+        "execute_chat placeholder response",
+        json!({
+            "model_used": result.model_used,
+            "response_preview": result.response.chars().take(80).collect::<String>(),
+        }),
+    );
+    // #endregion
+
+    Ok(result)
 }
 
 // ============================================================================

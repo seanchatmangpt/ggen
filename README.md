@@ -261,6 +261,9 @@ ggen fmea pareto
 # Track academic paper status
 ggen paper track --paper_file paper.rdf --venue neurips-2024
 
+# Create new academic paper
+ggen paper new --name "My Paper Title"
+
 # Generate workflow reports
 ggen workflow report --workflow_file wf.json
 

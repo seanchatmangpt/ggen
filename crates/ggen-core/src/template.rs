@@ -842,8 +842,13 @@ body"#,
         let mut tera = mk_tera();
         let vars = Context::new();
 
-        tmpl.process_graph(&mut graph, &mut tera, &vars, Path::new("templates/test.tmpl"))
-            .unwrap();
+        tmpl.process_graph(
+            &mut graph,
+            &mut tera,
+            &vars,
+            Path::new("templates/test.tmpl"),
+        )
+        .unwrap();
 
         let inline_q = tmpl.front.sparql.get("inline_query").unwrap();
         assert_contains!(inline_q, "LIMIT 5");

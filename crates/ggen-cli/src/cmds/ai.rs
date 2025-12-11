@@ -12,7 +12,43 @@ use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
 use ggen_domain::ai::execute;
 use serde::Serialize;
+use serde_json::json;
+use std::fs::OpenOptions;
+use std::io::Write;
 use std::path::PathBuf;
+use std::time::SystemTime;
+
+// #region agent log helper
+fn log_debug(
+    session_id: &str,
+    run_id: &str,
+    hypothesis_id: &str,
+    location: &str,
+    message: &str,
+    data: serde_json::Value,
+) {
+    if let Ok(mut file) = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("/Users/sac/ggen/.cursor/debug.log")
+    {
+        let timestamp = SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_millis())
+            .unwrap_or(0);
+        let entry = json!({
+            "sessionId": session_id,
+            "runId": run_id,
+            "hypothesisId": hypothesis_id,
+            "location": location,
+            "message": message,
+            "data": data,
+            "timestamp": timestamp,
+        });
+        let _ = writeln!(file, "{}", entry);
+    }
+}
+// #endregion
 
 // ============================================================================
 // Output Types (Layer 3: CLI - Structured JSON responses)
@@ -75,15 +111,9 @@ fn generate(
 
     // Layer 2: Call execute layer (async coordination)
     let result = crate::runtime::block_on(async move {
-        execute::execute_generate(
-            &prompt,
-            code.as_deref(),
-            model.as_deref(),
-            suggestions,
-        )
-        .await
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Generation failed: {}", e)))
+        execute::execute_generate(&prompt, code.as_deref(), model.as_deref(), suggestions).await
     })
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e)))?
     .map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!("Generation failed: {}", e))
     })?;
@@ -111,6 +141,23 @@ fn chat(
     _max_tokens: Option<i64>,
     _temperature: Option<f64>,
 ) -> Result<ChatOutput> {
+    // #region agent log
+    log_debug(
+        "debug-session",
+        "pre-fix",
+        "H1",
+        "ai.rs:chat:entry",
+        "chat called",
+        json!({
+            "has_message": message.is_some(),
+            "message_len": message.as_ref().map(|m| m.len()),
+            "model": model.as_ref(),
+            "interactive": _interactive,
+            "stream": _stream,
+        }),
+    );
+    // #endregion
+
     // Layer 3: Input validation
     let msg = message.unwrap_or_else(|| "Hello".to_string());
 
@@ -121,14 +168,32 @@ fn chat(
     }
 
     // Layer 2: Call execute layer (async coordination)
-    let result = crate::runtime::block_on(async move {
+    let chat_result = crate::runtime::block_on(async move {
         execute::execute_chat(&msg, model.as_deref())
-        .await
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Chat failed: {}", e)))
+            .await
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Chat failed: {}", e)))
     })
     .map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e))
+    })?;
+
+    let result = chat_result.map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!("Chat failed: {}", e))
     })?;
+
+    // #region agent log
+    log_debug(
+        "debug-session",
+        "pre-fix",
+        "H1",
+        "ai.rs:chat:result",
+        "chat result received",
+        json!({
+            "response_preview": result.response.chars().take(80).collect::<String>(),
+            "model_used": result.model_used.clone(),
+        }),
+    );
+    // #endregion
 
     // Layer 3: Format output for CLI
     Ok(ChatOutput {
@@ -150,6 +215,21 @@ fn analyze(
     code: Option<String>,
     _model: Option<String>, // FUTURE: Use model selection for analysis
 ) -> Result<AnalyzeOutput> {
+    // #region agent log
+    log_debug(
+        "debug-session",
+        "pre-fix",
+        "H2",
+        "ai.rs:analyze:entry",
+        "analyze called",
+        json!({
+            "has_file": file.is_some(),
+            "file": file.as_ref().map(|p| p.display().to_string()),
+            "code_len": code.as_ref().map(|c| c.len()),
+        }),
+    );
+    // #endregion
+
     // Layer 3: Input validation - must have either file or code
     if file.is_none() && code.is_none() {
         return Err(clap_noun_verb::NounVerbError::execution_error(
@@ -158,13 +238,30 @@ fn analyze(
     }
 
     // Layer 2: Call execute layer (async coordination)
-    let result = crate::runtime::block_on(async move {
-        execute::execute_analyze(code.as_deref(), file.as_deref())
-        .await
+    let analysis_result = crate::runtime::block_on(async move {
+        execute::execute_analyze(code.as_deref(), file.as_deref()).await
     })
     .map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e))
+    })?;
+
+    let result = analysis_result.map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!("Analysis failed: {}", e))
     })?;
+
+    // #region agent log
+    log_debug(
+        "debug-session",
+        "pre-fix",
+        "H2",
+        "ai.rs:analyze:result",
+        "analyze result received",
+        json!({
+            "analysis_preview": result.analysis.chars().take(80).collect::<String>(),
+            "file_analyzed": result.file_analyzed.clone(),
+        }),
+    );
+    // #endregion
 
     // Layer 3: Format output for CLI
     Ok(AnalyzeOutput {
