@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Root directory cleanup**: Moved 54 historical reports and analysis documents from root directory to `docs/archive/root-reports/`:
+  - CLI analysis and upgrade summaries
+  - Marketplace documentation and planning documents
+  - Packs implementation reports
+  - Root cause analysis documents
+  - Fixes and improvement summaries
+  - Version and release summaries
+  - Performance and benchmark reports
+  - Testing and validation reports
+  - Integration reports
+- Root directory now contains only essential files: `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `SECURITY.md`, `TESTING.md`, `PERFORMANCE.md`, `CLAUDE.md`, `BUG_REPORTING_GUIDE.md`
+
 ### Removed
 - **Documentation cleanup**: Removed stale documentation files in `docs/` that haven't been updated in 14+ days:
   - `docs/MAKEFILE.md` (last updated Oct 9) - Replaced with reference to `cargo make help` and `Makefile.toml`

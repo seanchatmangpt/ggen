@@ -1,0 +1,89 @@
+# Root Directory Reports Archive
+
+This directory contains historical reports, summaries, and analysis documents that were previously in the repository root directory.
+
+## Archive Date
+2025-12-11
+
+## Contents
+
+### CLI Analysis & Upgrades
+- `GGEN_CLI_ANALYSIS.md`
+- `GGEN_CLI_80_20_ANALYSIS.md`
+- `GGEN_CLI_80_20_UPGRADE_SUMMARY.md`
+- `GGEN_CLI_ARCHITECTURE_UPGRADE.md`
+- `GGEN_CLI_PRODUCTION_READINESS.md`
+- `CLI_AUDIT_REPORT.md`
+- `CLI_FIXES_SUMMARY.md`
+- `GGEN_COMMAND_IMPLEMENTATION_MAP.md`
+
+### Marketplace Documentation
+- `MARKETPLACE_RISK_MANAGEMENT.md`
+- `MARKETPLACE_SWARM_MISSION_COMPLETE.md`
+- `MARKETPLACE_V2_COMPLETION_REPORT.md`
+- `MARKETPLACE_V2_PHASE1_SUMMARY.md`
+- `MARKETPLACE_EXPLORATION_SUMMARY.md`
+- `MARKETPLACE_CLI_MAP.md`
+- `MARKETPLACE_CLI_REFACTOR_PLAN.md`
+- `MARKETPLACE_CLI_TRIZ_FMEA_ANALYSIS.md`
+- `MARKETPLACE_COMMUNICATION_PLAN.md`
+- `MARKETPLACE_MASTER_GOVERNANCE_PROGRAM_PLAN.md`
+- `MARKETPLACE_PROJECT_CHARTER.md`
+- `MARKETPLACE_ROADMAP_2027.md`
+- `MARKETPLACE_ARCHITECTURE_DIAGRAMS.md`
+- `FIXES_APPLIED_MARKETPLACE_CLI.md`
+
+### Packs Implementation
+- `GGEN_PACKS_IMPLEMENTATION_START.md`
+- `GGEN_PACKS_IMPLEMENTATION_ROADMAP.md`
+- `GGEN_PACKS_ARCHITECTURE_DESIGN.md`
+- `GGEN_PACKS_PLANNING_SUMMARY.md`
+- `GGEN_PACKS_PROJECT_CHARTER.md`
+- `GGEN_PACKS_TESTING_STRATEGY.md`
+- `GGEN_PACKS_LSS_DESIGN_PHASE_1_2.md`
+- `SESSION_SUMMARY_GGEN_PACKS.md`
+- `PACKS_DOMAIN_DELIVERY_SUMMARY.md`
+- `PACK_FIXES_COMPLETION_REPORT.md`
+- `PACKS_TESTS_DELIVERED.md`
+
+### Root Cause Analysis
+- `ROOT_CAUSE_ANALYSIS_v3.2.0.md`
+- `ROOT_CAUSE_ANALYSIS_MARKETPLACE_CLI.md`
+- `ROOT_CAUSE_ANALYSIS_HOOK_RECURSION.md`
+
+### Fixes & Improvements
+- `FIXES_SUMMARY.md`
+- `COMPILATION_FIXES.md`
+- `CLAP_NOUN_VERB_V5_UPGRADE.md`
+- `V5_IMPROVEMENTS_SUMMARY.md`
+
+### Version & Release Summaries
+- `PUBLISH_v3.2.0_SUMMARY.md`
+- `VERSION_BUMP_v3.2.0_SUMMARY.md`
+- `PHASE_0_COMPLETION_REPORT.md`
+
+### Performance & Benchmarks
+- `BENCHMARK_DELIVERY.md`
+- `QUICK_WINS_SUMMARY.md`
+- `QUICK_WINS_PERFORMANCE_REPORT.md`
+- `PRODUCTION_VALIDATION_REPORT.md`
+
+### Testing & Validation
+- `FMEA_README_BEHAVIORS.md`
+- `VALIDATION_README_BEHAVIORS.md`
+- `README_TEST_GAP_ANALYSIS.md`
+- `POLE_YOKE_EVALUATION.md`
+
+### Integration Reports
+- `CODE_SWARM_EXECUTION_REPORT.md`
+- `HIVE_QUEEN_INTEGRATION_FINAL_REPORT.md`
+- `HIVE_QUEEN_MISSION_EXECUTIVE_SUMMARY.md`
+
+## Purpose
+
+These documents were moved from the root directory to improve repository organization and reduce clutter. They remain available for historical reference and context.
+
+## Access
+
+To view these documents, navigate to `docs/archive/root-reports/` or search for specific files by name.
+
