@@ -1,0 +1,111 @@
+# ggen Documentation Project Configuration
+
+[project]
+name = "ggen"
+version = "4.0.0"
+description = "RDF-based code generation toolkit with comprehensive documentation"
+authors = ["Sean Chatman <sean@ggen.ai>"]
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+
+# AI configuration for documentation generation
+[ai]
+provider = "anthropic"
+model = "claude-3-opus-20240229"
+temperature = 0.5
+max_tokens = 8000
+timeout = 120
+
+# Template configuration
+[templates]
+directory = "templates"
+output_directory = "generated"
+backup_enabled = true
+idempotent = true
+
+# RDF configuration for ontology-driven development
+[rdf]
+base_uri = "https://ggen.dev/"
+default_format = "turtle"
+cache_queries = true
+store_path = ".ggen/rdf-store"
+
+[rdf.prefixes]
+ggen = "https://ggen.dev/"
+schema = "https://schema.org/"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+owl = "http://www.w3.org/2002/07/owl#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+
+# SPARQL query configuration
+[sparql]
+timeout = 60
+max_results = 5000
+cache_enabled = true
+cache_ttl = 7200
+
+# Lifecycle hooks for documentation validation
+[lifecycle]
+enabled = true
+config_file = ".ggen/lifecycle.toml"
+cache_directory = ".ggen/cache"
+state_file = ".ggen/state.json"
+
+# Pre-generation: validate documentation structure
+[lifecycle.phases.pre_generate]
+scripts = [
+    "scripts/validate-docs/validate-all.sh"
+]
+
+# Post-generation: format and validate
+[lifecycle.phases.post_generate]
+scripts = [
+    "scripts/format-docs.sh"
+]
+
+# Security configuration
+[security]
+allowed_domains = [
+    "schema.org",
+    "w3.org",
+    "ggen.dev",
+    "github.com"
+]
+max_file_size = 104857600  # 100MB
+validate_ssl = true
+
+# Performance optimization
+[performance]
+parallel_generation = true
+max_workers = 8
+cache_templates = true
+incremental_build = true
+
+# Logging configuration
+[logging]
+level = "info"
+format = "pretty"
+output = "stderr"
+
+# Development environment
+[env.development]
+"ai.model" = "claude-3-haiku-20240307"  # Faster, cheaper
+"ai.temperature" = 0.9  # More creative for exploration
+"logging.level" = "debug"
+"performance.max_workers" = 4
+
+# CI environment
+[env.ci]
+"ai.provider" = "ollama"  # Local, no API costs
+"ai.model" = "llama2"
+"ai.base_url" = "http://localhost:11434"
+"logging.level" = "warn"
+"logging.format" = "json"
+
+# Production environment
+[env.production]
+"ai.temperature" = 0.3  # Deterministic
+"logging.level" = "warn"
+"logging.format" = "json"
+"performance.max_workers" = 16
+"sparql.cache_ttl" = 86400  # 24 hours

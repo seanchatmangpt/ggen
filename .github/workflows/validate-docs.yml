@@ -1,0 +1,214 @@
+name: Validate Documentation
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'docs/**'
+      - 'scripts/validate-docs/**'
+      - 'crates/ggen-cli/**'
+      - '.github/workflows/validate-docs.yml'
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'docs/**'
+      - 'scripts/validate-docs/**'
+      - 'crates/ggen-cli/**'
+  schedule:
+    # Run nightly at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    # Allow manual triggering
+
+jobs:
+  validate-documentation:
+    name: Validate Documentation Examples
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        rust: [stable]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+
+      - name: Cache Cargo registry
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-registry-
+
+      - name: Cache Cargo index
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-git-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-git-
+
+      - name: Cache Cargo build
+        uses: actions/cache@v3
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-build-target-
+
+      - name: Build ggen
+        run: |
+          cargo build --release --package ggen-cli-lib
+          echo "GGEN_BIN=$PWD/target/release/ggen" >> $GITHUB_ENV
+
+      - name: Verify ggen installation
+        run: |
+          $GGEN_BIN --version
+          $GGEN_BIN --help
+
+      - name: Make validation scripts executable
+        run: |
+          chmod +x scripts/validate-docs/*.sh
+
+      - name: Run Quick Start validation
+        id: quickstart
+        run: |
+          echo "::group::Quick Start Tutorial Validation"
+          ./scripts/validate-docs/validate-quick-start.sh
+          echo "::endgroup::"
+
+      - name: Run SPARQL Guide validation
+        id: sparql
+        run: |
+          echo "::group::SPARQL Query Guide Validation"
+          ./scripts/validate-docs/validate-sparql-guide.sh
+          echo "::endgroup::"
+
+      - name: Run CLI Reference validation
+        id: cli
+        run: |
+          echo "::group::CLI Command Reference Validation"
+          ./scripts/validate-docs/validate-cli-reference.sh
+          echo "::endgroup::"
+
+      - name: Run all validation tests
+        id: all
+        run: |
+          echo "::group::Full Validation Suite"
+          ./scripts/validate-docs/validate-all.sh
+          echo "::endgroup::"
+
+      - name: Upload validation report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: validation-report-${{ matrix.os }}
+          path: scripts/validate-docs/validation-report.md
+          retention-days: 30
+
+      - name: Comment PR with validation results
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const reportPath = 'scripts/validate-docs/validation-report.md';
+
+            let reportContent = '📋 **Documentation Validation Report**\n\n';
+
+            if (fs.existsSync(reportPath)) {
+              reportContent += fs.readFileSync(reportPath, 'utf8');
+            } else {
+              reportContent += '⚠️ Validation report not found.';
+            }
+
+            // Add status badges
+            const quickstartStatus = '${{ steps.quickstart.outcome }}';
+            const sparqlStatus = '${{ steps.sparql.outcome }}';
+            const cliStatus = '${{ steps.cli.outcome }}';
+            const allStatus = '${{ steps.all.outcome }}';
+
+            const statusBadge = (status) => {
+              return status === 'success' ? '✅' : '❌';
+            };
+
+            reportContent = `## Validation Status (${{ matrix.os }})
+
+| Test Suite | Status |
+|------------|--------|
+| Quick Start Tutorial | ${statusBadge(quickstartStatus)} ${quickstartStatus} |
+| SPARQL Query Guide | ${statusBadge(sparqlStatus)} ${sparqlStatus} |
+| CLI Reference | ${statusBadge(cliStatus)} ${cliStatus} |
+| **Overall** | ${statusBadge(allStatus)} **${allStatus}** |
+
+<details>
+<summary>Full Report</summary>
+
+${reportContent}
+
+</details>
+`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: reportContent
+            });
+
+      - name: Fail if validation failed
+        if: failure()
+        run: |
+          echo "::error::Documentation validation failed. Please review the validation report."
+          exit 1
+
+  # Additional job to check validation scripts themselves
+  lint-validation-scripts:
+    name: Lint Validation Scripts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+
+      - name: Lint validation scripts
+        run: |
+          echo "::group::ShellCheck Validation Scripts"
+          shellcheck scripts/validate-docs/*.sh
+          echo "::endgroup::"
+
+  # Summary job
+  validation-summary:
+    name: Validation Summary
+    runs-on: ubuntu-latest
+    needs: [validate-documentation, lint-validation-scripts]
+    if: always()
+    steps:
+      - name: Check validation results
+        run: |
+          echo "Documentation validation completed"
+          echo "validate-documentation: ${{ needs.validate-documentation.result }}"
+          echo "lint-validation-scripts: ${{ needs.lint-validation-scripts.result }}"
+
+          if [[ "${{ needs.validate-documentation.result }}" != "success" ]]; then
+            echo "::error::Documentation validation failed"
+            exit 1
+          fi
+
+          if [[ "${{ needs.lint-validation-scripts.result }}" != "success" ]]; then
+            echo "::error::Validation script linting failed"
+            exit 1
+          fi
+
+          echo "::notice::All documentation validation checks passed! ✅"

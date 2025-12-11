@@ -89,7 +89,8 @@ pub fn execute_sparql(options: QueryOptions) -> Result<QueryResult> {
         // Query persistent store (data loaded via `ggen graph load`)
         let store = GraphStore::open(".ggen/rdf-store")
             .context("Failed to open persistent RDF store at .ggen/rdf-store")?;
-        store.create_graph()
+        store
+            .create_graph()
             .context("Failed to create graph from persistent store")?
     };
 
