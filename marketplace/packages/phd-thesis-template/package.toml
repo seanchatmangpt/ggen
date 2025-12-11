@@ -4,8 +4,8 @@
 [package]
 name = "phd-thesis-template"
 full_name = "PhD Thesis Template"
-version = "1.0.0"
-description = "PhD thesis template with chapters, appendices, TOC/LOF/LOT, and customizable university requirements"
+version = "2.0.0"
+description = "PhD thesis template v2.0 with modern LaTeX best practices: biblatex, cleveref, microtype, enhanced typography, and university compliance"
 category = "academic-paper"
 author = "ggen-team"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -18,15 +18,21 @@ dependencies = []
 
 features = [
     "Multi-chapter thesis organization",
-    "Front matter: dedication, acknowledgments, TOC",
-    "List of figures and tables auto-generation",
-    "Chapter-level organization with \\ (pagebreak)",
+    "Front matter: dedication, acknowledgments, TOC, abstract, copyright",
+    "List of figures, tables, and algorithms auto-generation",
+    "Chapter-level organization with proper formatting",
     "Appendices support with separate numbering",
-    "Bibliography per-chapter or global",
+    "Modern bibliography (biblatex/biber) with hyperlinked citations",
+    "Smart cross-references (cleveref) - automatic reference types",
+    "Enhanced typography (microtype) for professional appearance",
     "Page numbering (roman, arabic) control",
-    "University-compliant formatting",
-    "Margin and spacing configuration",
-    "PDF bookmarks and navigation"
+    "University-compliant formatting (margins, spacing, fonts)",
+    "Configurable margins and line spacing",
+    "PDF bookmarks and navigation",
+    "Algorithm support with list of algorithms",
+    "Enhanced figure/table support (subfigures, longtable)",
+    "Improved code listings with syntax highlighting",
+    "Better title page with university/department/degree info"
 ]
 
 tags = ["thesis", "phd", "dissertation", "latex", "academic"]
