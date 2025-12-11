@@ -5,18 +5,19 @@
 
 use crate::error::{Error, Result};
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet};
 
 use super::turtle_config::TurtleConfigLoader;
 
 /// State machine executor for package lifecycle
+/// **FMEA Fix**: Use BTreeMap/BTreeSet for deterministic iteration order
 pub struct StateMachineExecutor {
     /// State definitions loaded from RDF
-    states: HashMap<String, StateDefinition>,
+    states: BTreeMap<String, StateDefinition>,
     /// Valid transitions (from_state -> to_states)
-    transitions: HashMap<String, HashSet<String>>,
+    transitions: BTreeMap<String, BTreeSet<String>>,
     /// Transition guards (conditions that must be met)
-    guards: HashMap<(String, String), Vec<TransitionGuard>>,
+    guards: BTreeMap<(String, String), Vec<TransitionGuard>>,
 }
 
 /// State definition
@@ -54,9 +55,9 @@ pub enum TransitionGuard {
 impl StateMachineExecutor {
     /// Create a new state machine executor with default states
     pub fn new() -> Self {
-        let mut states = HashMap::new();
-        let mut transitions = HashMap::new();
-        let mut guards = HashMap::new();
+        let mut states = BTreeMap::new();
+        let mut transitions = BTreeMap::new();
+        let mut guards = BTreeMap::new();
 
         // Define default states
         states.insert(
