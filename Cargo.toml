@@ -52,8 +52,8 @@ tracing-subscriber = { version = "0.3", features = [
   "ansi",
 ] }
 clap = { version = "4.5", features = ["derive"] }
-clap-noun-verb = { version = "5.3.0", path = "../clap-noun-verb", default-features = false }  # Local dev; use "5.3.0" for crates.io
-clap-noun-verb-macros = { version = "5.3.0", path = "../clap-noun-verb/clap-noun-verb-macros" }  # Local dev; use "5.3.0" for crates.io
+clap-noun-verb = { version = "5.3.2", default-features = false }
+clap-noun-verb-macros = { version = "5.3.2" }
 once_cell = "1.19"
 reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
 tempfile = "3.23"
