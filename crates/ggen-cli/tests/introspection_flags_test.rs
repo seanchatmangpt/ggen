@@ -18,7 +18,7 @@ fn test_capabilities_flag_template_generate() {
 
 #[test]
 fn test_capabilities_flag_ai_generate_ontology() {
-    use ggen_cli::introspection;
+    use ggen_cli_lib::introspection;
 
     let metadata = introspection::get_verb_metadata("ai", "generate-ontology");
     assert!(metadata.is_some(), "ai::generate-ontology should exist");
@@ -36,7 +36,7 @@ fn test_capabilities_flag_ai_generate_ontology() {
 
 #[test]
 fn test_capabilities_flag_nonexistent_verb() {
-    use ggen_cli::introspection;
+    use ggen_cli_lib::introspection;
 
     let metadata = introspection::get_verb_metadata("nonexistent", "verb");
     assert!(metadata.is_none(), "nonexistent verb should return None");
@@ -44,7 +44,7 @@ fn test_capabilities_flag_nonexistent_verb() {
 
 #[test]
 fn test_introspect_flag_shows_type_information() {
-    use ggen_cli::introspection;
+    use ggen_cli_lib::introspection;
 
     let metadata = introspection::get_verb_metadata("graph", "load");
     assert!(metadata.is_some());
@@ -59,7 +59,7 @@ fn test_introspect_flag_shows_type_information() {
 
 #[test]
 fn test_introspect_flag_argument_metadata() {
-    use ggen_cli::introspection;
+    use ggen_cli_lib::introspection;
 
     let metadata = introspection::get_verb_metadata("template", "generate");
     assert!(metadata.is_some());
@@ -74,7 +74,7 @@ fn test_introspect_flag_argument_metadata() {
 
 #[test]
 fn test_graph_flag_exports_command_graph() {
-    use ggen_cli::introspection;
+    use ggen_cli_lib::introspection;
 
     let graph = introspection::build_command_graph();
     assert_eq!(graph.version, "5.3.0");
@@ -84,7 +84,7 @@ fn test_graph_flag_exports_command_graph() {
 
 #[test]
 fn test_graph_contains_expected_nouns() {
-    use ggen_cli::introspection;
+    use ggen_cli_lib::introspection;
 
     let graph = introspection::build_command_graph();
     let expected_nouns = vec!["ai", "template", "graph", "ci", "fmea"];
@@ -100,7 +100,7 @@ fn test_graph_contains_expected_nouns() {
 
 #[test]
 fn test_graph_noun_has_verbs() {
-    use ggen_cli::introspection;
+    use ggen_cli_lib::introspection;
 
     let graph = introspection::build_command_graph();
     let template_noun = graph.nouns.get("template");
@@ -115,7 +115,7 @@ fn test_graph_noun_has_verbs() {
 
 #[test]
 fn test_all_verbs_serializable_to_json() {
-    use ggen_cli::introspection;
+    use ggen_cli_lib::introspection;
 
     let registry = introspection::get_verb_registry();
     for metadata in registry.values() {
@@ -126,7 +126,7 @@ fn test_all_verbs_serializable_to_json() {
 
 #[test]
 fn test_command_graph_serializable_to_json() {
-    use ggen_cli::introspection;
+    use ggen_cli_lib::introspection;
 
     let graph = introspection::build_command_graph();
     let json = serde_json::to_string_pretty(&graph);
@@ -140,7 +140,7 @@ fn test_command_graph_serializable_to_json() {
 
 #[test]
 fn test_capabilities_ci_workflow_metadata() {
-    use ggen_cli::introspection;
+    use ggen_cli_lib::introspection;
 
     let metadata = introspection::get_verb_metadata("ci", "workflow");
     assert!(metadata.is_some());
@@ -154,7 +154,7 @@ fn test_capabilities_ci_workflow_metadata() {
 
 #[test]
 fn test_capabilities_fmea_report_metadata() {
-    use ggen_cli::introspection;
+    use ggen_cli_lib::introspection;
 
     let metadata = introspection::get_verb_metadata("fmea", "report");
     assert!(metadata.is_some());

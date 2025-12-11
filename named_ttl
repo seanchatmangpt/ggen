@@ -1,5 +1,0 @@
-@prefix ex: <http://example.org/> .
-
-GRAPH <http://example.org/graph1> {
-    ex:Subject ex:predicate ex:Object .
-}

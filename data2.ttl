@@ -1,2 +1,0 @@
-@prefix ex: <http://example.org/> .
-ex:Resource2 ex:prop "value2" .
