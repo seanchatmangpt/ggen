@@ -225,11 +225,14 @@ Failed: 0
 - Baseline management
 - Target validation workflow
 
-#### Benchmark Results (`PATTERN_BENCHMARK_RESULTS.md`)
+#### Benchmark Results
 
-**Location**: `/Users/sac/ggen/docs/benchmark-results/PATTERN_BENCHMARK_RESULTS.md`
+**Note**: Historical benchmark results have been archived. For current benchmark results, run:
+```bash
+cargo make bench
+```
 
-**Contents**:
+**Contents** (historical):
 - Executive summary with highlights
 - Detailed results for all 19 benchmarks
 - Statistical analysis
@@ -362,9 +365,9 @@ cargo bench -- --baseline my_baseline
 # Open Criterion HTML reports
 open crates/ggen-core/target/criterion/index.html
 
-# View text results
-cat docs/benchmark-results/pattern_performance_*.txt
-cat docs/benchmark-results/PATTERN_BENCHMARK_RESULTS.md
+# View current benchmark results
+cargo make bench
+# Results are generated in target/criterion/
 ```
 
 ## CI/CD Integration
@@ -449,8 +452,7 @@ ls -la crates/ggen-core/target/criterion/*/base
 ### Documentation
 7. `/Users/sac/ggen/docs/PATTERN_BENCHMARK_SPECIFICATION.md`
 8. `/Users/sac/ggen/crates/ggen-core/benches/README.md`
-9. `/Users/sac/ggen/docs/benchmark-results/PATTERN_BENCHMARK_RESULTS.md`
-10. `/Users/sac/ggen/docs/PATTERN_BENCHMARKS_SUMMARY.md` (this file)
+9. `/Users/sac/ggen/docs/PATTERN_BENCHMARKS_SUMMARY.md` (this file)
 
 ### Configuration Updates
 11. `/Users/sac/ggen/crates/ggen-core/Cargo.toml` (updated)

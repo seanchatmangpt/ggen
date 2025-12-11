@@ -430,7 +430,7 @@ docker run ggen:latest ggen --version
 
 - **[Release Process](../explanations/architecture.md)** - How releases work
 - **[CONTRIBUTING.md](../../CONTRIBUTING.md)** - Pull request requirements
-- **[Makefile Guide](MAKEFILE.md)** - Local task automation
+- **Cargo Make Tasks**: Run `cargo make help` or see `Makefile.toml` for available tasks
 - **[Security](../../SECURITY.md)** - Security practices
 
 ## Quick Links
