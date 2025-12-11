@@ -145,9 +145,11 @@ pub fn load_rdf(options: LoadOptions) -> Result<LoadStats> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serial_test::serial;
 
     /// Chicago TDD: Test loading REAL Turtle file
     #[test]
+    #[serial]
     fn test_load_turtle_file() -> Result<()> {
         // Create REAL Turtle file
         let turtle = r#"
@@ -197,6 +199,7 @@ mod tests {
 
     /// Chicago TDD: Test loading file with REAL graph state changes
     #[test]
+    #[serial]
     fn test_load_verifies_graph_state() -> Result<()> {
         let turtle = r#"
             @prefix ex: <http://example.org/> .
@@ -241,6 +244,7 @@ mod tests {
 
     /// Chicago TDD: Test loading complex RDF with multiple predicates
     #[test]
+    #[serial]
     fn test_load_complex_rdf() -> Result<()> {
         let turtle = r#"
             @prefix ex: <http://example.org/> .
