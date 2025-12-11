@@ -8,6 +8,9 @@
 //! - Execution Phase: Execute with proper argument handling
 //! - Adaptation Phase: Learn from results and adjust strategy
 
+// These tests require the `autonomic` feature flag to access introspection module
+#![cfg(feature = "autonomic")]
+
 use std::collections::HashMap;
 
 #[test]

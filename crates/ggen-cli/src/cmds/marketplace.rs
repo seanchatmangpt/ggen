@@ -464,7 +464,7 @@ fn install(
 /// ggen marketplace search --query "web" --sort downloads
 /// ```
 #[verb]
-fn search(
+pub fn search(
     query: String, category: Option<String>, author: Option<String>, license: Option<String>,
     min_quality: Option<u32>, sort: Option<String>, limit: Option<usize>, offset: Option<usize>,
 ) -> Result<SearchOutput> {
@@ -830,7 +830,7 @@ fn versions(package_id: String) -> Result<VersionsOutput> {
 /// ggen marketplace metrics --format json
 /// ```
 #[verb]
-fn metrics(format: Option<String>) -> Result<MetricsOutput> {
+pub fn metrics(format: Option<String>) -> Result<MetricsOutput> {
     let collector = get_metrics();
     let summary = collector.summary();
 

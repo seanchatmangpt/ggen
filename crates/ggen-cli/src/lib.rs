@@ -52,7 +52,9 @@
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 #![allow(non_upper_case_globals)] // Allow macro-generated static variables from clap-noun-verb
 
+use std::fs::OpenOptions;
 use std::io::{Read, Write};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 // Command modules - clap-noun-verb v4.0.2 auto-discovery
 pub mod cmds; // clap-noun-verb v4 entry points with #[verb] functions
@@ -66,6 +68,32 @@ pub mod runtime_helper; // Sync CLI wrapper utilities for async operations // Co
 
 // Re-export clap-noun-verb for auto-discovery
 pub use clap_noun_verb::{run, CommandRouter, Result as ClapNounVerbResult};
+use serde_json::json;
+
+fn debug_log(hypothesis_id: &str, location: &str, message: &str, data: serde_json::Value) {
+    let timestamp = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_millis())
+        .unwrap_or(0);
+
+    let payload = json!({
+        "sessionId": "debug-session",
+        "runId": "pre-fix",
+        "hypothesisId": hypothesis_id,
+        "location": location,
+        "message": message,
+        "data": data,
+        "timestamp": timestamp
+    });
+
+    if let Ok(mut file) = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("/Users/sac/ggen/.cursor/debug.log")
+    {
+        let _ = writeln!(file, "{}", payload);
+    }
+}
 
 /// Main entry point using clap-noun-verb v4.0.2 auto-discovery
 ///
@@ -79,6 +107,14 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
     #[cfg(feature = "autonomic")]
     {
         let args: Vec<String> = std::env::args().collect();
+        // #region agent log
+        debug_log(
+            "H1",
+            "lib.rs:cli_match:entry",
+            "cli_match entry with args",
+            json!({ "args": args })
+        );
+        // #endregion
         // Handle --graph flag (export complete command graph)
         if args.contains(&"--graph".to_string()) {
             let graph = introspection::build_command_graph();
@@ -86,6 +122,14 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
                 ggen_utils::error::Error::new(&format!("Failed to serialize command graph: {}", e))
             })?;
             println!("{}", json);
+            // #region agent log
+            debug_log(
+                "H2",
+                "lib.rs:cli_match:graph",
+                "handled --graph flag",
+                json!({ "total_verbs": graph.total_verbs, "noun_count": graph.nouns.len() })
+            );
+            // #endregion
             return Ok(());
         }
 
@@ -104,10 +148,26 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
                             ))
                         })?;
                         println!("{}", json);
+                        // #region agent log
+                        debug_log(
+                            "H3",
+                            "lib.rs:cli_match:capabilities",
+                            "served --capabilities metadata",
+                            json!({ "noun": metadata.noun, "verb": metadata.verb, "arg_count": metadata.arguments.len() })
+                        );
+                        // #endregion
                         return Ok(());
                     }
                     None => {
                         eprintln!("Verb not found: {}::{}", noun, verb);
+                        // #region agent log
+                        debug_log(
+                            "H3",
+                            "lib.rs:cli_match:capabilities",
+                            "capabilities verb not found",
+                            json!({ "noun": noun, "verb": verb })
+                        );
+                        // #endregion
                         return Err(ggen_utils::error::Error::new(&format!(
                             "Verb {}::{} not found",
                             noun, verb
@@ -115,6 +175,14 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
                     }
                 }
             } else {
+                // #region agent log
+                debug_log(
+                    "H3",
+                    "lib.rs:cli_match:capabilities",
+                    "capabilities usage error",
+                    json!({ "arg_len": args.len() })
+                );
+                // #endregion
                 return Err(ggen_utils::error::Error::new(
                     "Usage: ggen --capabilities <noun> <verb>",
                 ));
@@ -149,10 +217,26 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
                                 println!("    Required: yes");
                             }
                         }
+                        // #region agent log
+                        debug_log(
+                            "H4",
+                            "lib.rs:cli_match:introspect",
+                            "served --introspect metadata",
+                            json!({ "noun": metadata.noun, "verb": metadata.verb, "arg_count": metadata.arguments.len(), "return_type": metadata.return_type })
+                        );
+                        // #endregion
                         return Ok(());
                     }
                     None => {
                         eprintln!("Verb not found: {}::{}", noun, verb);
+                        // #region agent log
+                        debug_log(
+                            "H4",
+                            "lib.rs:cli_match:introspect",
+                            "introspect verb not found",
+                            json!({ "noun": noun, "verb": verb })
+                        );
+                        // #endregion
                         return Err(ggen_utils::error::Error::new(&format!(
                             "Verb {}::{} not found",
                             noun, verb
@@ -160,6 +244,14 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
                     }
                 }
             } else {
+                // #region agent log
+                debug_log(
+                    "H4",
+                    "lib.rs:cli_match:introspect",
+                    "introspect usage error",
+                    json!({ "arg_len": args.len() })
+                );
+                // #endregion
                 return Err(ggen_utils::error::Error::new(
                     "Usage: ggen --introspect <noun> <verb>",
                 ));
@@ -168,8 +260,24 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
     }
 
     // Use clap-noun-verb auto-discovery (handles --version automatically)
+    // #region agent log
+    debug_log(
+        "H5",
+        "lib.rs:cli_match:router",
+        "delegating to clap_noun_verb::run",
+        json!({})
+    );
+    // #endregion
     clap_noun_verb::run()
         .map_err(|e| ggen_utils::error::Error::new(&format!("CLI execution failed: {}", e)))?;
+    // #region agent log
+    debug_log(
+        "H5",
+        "lib.rs:cli_match:router",
+        "clap_noun_verb::run completed",
+        json!({})
+    );
+    // #endregion
     Ok(())
 }
 
