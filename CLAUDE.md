@@ -299,6 +299,54 @@ cargo make slo-check  # Must meet targets
 
 ---
 
+## 📝 Speckit Workflow (Spec-First Development)
+
+**MANDATORY**: NO implementation without spec. Integrated with GitHub Spec Kit.
+
+### Commands Flow
+
+```bash
+/speckit.constitution  # Create/update project principles
+/speckit.specify       # Define requirements and user stories
+/speckit.clarify       # Optional: Structured requirement refinement
+/speckit.plan          # Establish technical architecture
+/speckit.tasks         # Generate actionable task breakdown
+/speckit.implement     # Execute implementation according to plan
+```
+
+### Branch & Evidence
+
+- **Branch naming**: `NNN-feature-name` (e.g., `001-rdf-validation`)
+- **Evidence directory**: `.specify/specs/NNN-feature/evidence/`
+- **Spec artifacts**: `.specify/specs/NNN-feature/{spec,plan,tasks,data-model}.md`
+
+### Critical Paths
+
+```
+.specify/memory/constitution.md → Architectural law (supersedes CLAUDE.md for principles)
+.specify/specs/NNN-feature/     → Feature specs, plans, tasks
+```
+
+### Workflow Integration
+
+1. **Before feature**: Run `/speckit.specify "Feature description"`
+2. **During planning**: Use `/speckit.plan` to establish architecture
+3. **Before coding**: Run `/speckit.tasks` to break down work
+4. **During implementation**: Follow `/speckit.implement` guidance
+5. **Throughout**: Evidence in `.specify/specs/NNN-feature/evidence/`
+
+### Integration with Cargo Make
+
+```bash
+# Validate specs exist before implementation
+cargo make speckit-check  # Verifies spec files present for current branch
+
+# Run full workflow validation
+cargo make speckit-validate  # Checks spec → plan → tasks → evidence chain
+```
+
+---
+
 ## 📝 Remember
 
 **Claude Flow coordinates, Claude Code creates!**
@@ -310,6 +358,8 @@ cargo make slo-check  # Must meet targets
 **TodoWrite always has 10+ todos in ONE call!**
 
 **Tests verify behavior - code doesn't work if tests don't pass!**
+
+**Spec before code - NO implementation without /speckit.specify!**
 
 ---
 

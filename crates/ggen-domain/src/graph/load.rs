@@ -110,22 +110,24 @@ pub fn load_rdf(options: LoadOptions) -> Result<LoadStats> {
         .context("Failed to open persistent RDF store at .ggen/rdf-store")?;
 
     // Create graph from persistent store
-    let graph = store.create_graph()
+    let graph = store
+        .create_graph()
         .context("Failed to create graph from persistent store")?;
 
     // Count triples before loading (for merge mode)
-    let triples_before = if options.merge {
-        graph.len()
-    } else {
-        0
-    };
+    let triples_before = if options.merge { graph.len() } else { 0 };
 
     // Read RDF file content
-    let ttl_content = std::fs::read_to_string(file_path)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to read RDF file {}: {}", options.file_path, e)))?;
+    let ttl_content = std::fs::read_to_string(file_path).map_err(|e| {
+        ggen_utils::error::Error::new(&format!(
+            "Failed to read RDF file {}: {}",
+            options.file_path, e
+        ))
+    })?;
 
     // Load REAL RDF data into persistent store
-    graph.insert_turtle(&ttl_content)
+    graph
+        .insert_turtle(&ttl_content)
         .context(format!("Failed to parse RDF file: {}", options.file_path))?;
 
     // Get REAL triple count from Oxigraph after loading

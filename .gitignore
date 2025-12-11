@@ -926,3 +926,11 @@ coordination/orchestration/*
 claude-flow
 # Removed Windows wrapper files per user request
 hive-mind-prompt-*.txt
+
+# Speckit / Claude Code agent folder (may contain credentials/tokens)
+# See: https://github.com/github/spec-kit security warning
+.claude/
+!.claude/commands/
+.claude/commands/*.local.md
+.specify/specs/*/evidence/credentials.md
+.specify/specs/*/evidence/tokens.md

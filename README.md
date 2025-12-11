@@ -21,6 +21,9 @@ cargo install ggen-cli-lib
 git clone https://github.com/seanchatmangpt/ggen
 cd ggen
 cargo install --path crates/ggen-cli
+
+# Install Speckit for spec-driven development (recommended for contributors)
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
 ```
 
 ### Your First Generation
@@ -41,6 +44,66 @@ ggen graph query --sparql_query "SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 10"
 # Extract ontology schema
 ggen ontology extract --ontology_file schema.ttl
 ```
+
+### Spec-First Development (For Contributors)
+
+ggen uses [GitHub Spec Kit](https://github.com/github/spec-kit) for structured feature development:
+
+```bash
+# 1. Define project principles (one-time setup)
+/speckit.constitution
+
+# 2. For each new feature, create a specification
+/speckit.specify "Add RDF validation with SHACL constraints"
+
+# 3. Create technical plan
+/speckit.plan
+
+# 4. Generate actionable tasks
+/speckit.tasks
+
+# 5. Implement with evidence
+/speckit.implement
+
+# All specs live in .specify/specs/NNN-feature-name/
+# Constitution at .specify/memory/constitution.md
+```
+
+**Branch naming**: `NNN-feature-name` (e.g., `001-rdf-validation`)
+**Evidence required**: Tests, benchmarks, OTEL spans in `.specify/specs/NNN-feature/evidence/`
+
+See [.specify/memory/constitution.md](.specify/memory/constitution.md) for full development principles.
+
+---
+
+## 📖 Documentation
+
+**New to ggen?** Start with our comprehensive getting-started guide:
+
+👉 **[Getting Started Guide](docs/getting-started/README.md)** - Your complete onboarding resource
+
+### Quick Links
+
+- **[10-Minute Quick Start](docs/getting-started/quick-start.md)** - Generate JavaScript + Zod from RDF in 10 minutes
+- **[Complete CLI Reference](docs/reference/commands/complete-cli-reference.md)** - All commands and options
+- **[Configuration Reference](docs/reference/configuration/)** - TOML configuration files
+  - [ggen.toml Project Configuration](docs/reference/configuration/ggen-toml-reference.md) - Complete project settings
+  - [gpack.toml Package Format](docs/reference/configuration/gpack-toml-reference.md) - Template package metadata
+  - [Common TOML Configurations](docs/how-to/configuration/common-toml-configs.md) - Example configurations
+- **[How-to Guides](docs/how-to/)** - Solutions to common tasks
+  - [Generate JavaScript + Zod from Schema.org](docs/how-to/generation/generate-javascript-zod.md)
+  - [Query RDF Data with SPARQL](docs/how-to/generation/query-rdf-sparql.md)
+- **[Explanations](docs/explanations/)** - Understand the concepts
+  - [What is Ontology-Driven Development?](docs/explanations/fundamentals/ontology-driven-development.md)
+  - [RDF for Programmers](docs/explanations/fundamentals/rdf-for-programmers.md)
+
+### 📚 Meta-Level: Learn Diataxis
+
+- **[Diataxis Case Study](docs/examples/diataxis-case-study/README.md)** - Learn documentation by example
+  - Complete Next.js + shadcn + ElectricSQL example
+  - All 4 Diataxis quadrants demonstrated
+  - 4-hour learning path with exercises
+  - Meta-lessons on writing each doc type
 
 ---
 
@@ -319,7 +382,12 @@ Browse `examples/` directory for complete, runnable examples:
 - **GitHub**: https://github.com/seanchatmangpt/ggen
 - **Crates.io**: https://crates.io/crates/ggen-cli-lib
 - **Homebrew**: `brew install seanchatmangpt/ggen/ggen`
-- **Documentation**: [docs/](docs/)
+- **Documentation**:
+  - [Getting Started](docs/getting-started/README.md) - Complete onboarding guide
+  - [Quick Start](docs/getting-started/quick-start.md) - 10-minute tutorial
+  - [CLI Reference](docs/reference/commands/complete-cli-reference.md) - All commands
+  - [How-to Guides](docs/how-to/) - Task-oriented guides
+  - [Explanations](docs/explanations/) - Conceptual understanding
 - **Examples**: [examples/](examples/) (48 projects)
 - **Issues**: https://github.com/seanchatmangpt/ggen/issues
 
