@@ -1,3 +1,10 @@
+#![allow(
+    unused_imports,
+    unused_variables,
+    dead_code,
+    unused_assignments,
+    unused_comparisons
+)]
 //! BDD Tests for Lifecycle System (London School TDD)
 //!
 //! These tests focus on behavior and collaboration between components,
@@ -281,7 +288,17 @@ mod phase_execution {
 
         for cmd in commands {
             match executor.execute(cmd, Path::new("."), &[]) {
-                Ok(_) => {}
+                Ok(output) => {
+                    if !output.success {
+                        let msg = if output.stderr.is_empty() {
+                            format!("Command `{cmd}` failed")
+                        } else {
+                            format!("Command `{cmd}` failed: {}", output.stderr)
+                        };
+                        observer.on_error(phase_name, &msg);
+                        return Err(msg);
+                    }
+                }
                 Err(e) => {
                     observer.on_error(phase_name, &e);
                     return Err(e);

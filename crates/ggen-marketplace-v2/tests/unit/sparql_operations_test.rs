@@ -1,3 +1,11 @@
+#![allow(
+    unused_imports,
+    unused_variables,
+    dead_code,
+    unused_assignments,
+    unused_comparisons,
+    deprecated
+)]
 //! Comprehensive SPARQL operation tests
 //!
 //! Tests search query execution, insert/delete operations, state machine
@@ -5,7 +13,6 @@
 //!
 //! Test Count: 300+ tests
 
-use ggen_marketplace_v2::prelude::*;
 use oxigraph::store::Store;
 
 // ============================================================================

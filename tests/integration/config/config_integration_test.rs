@@ -20,7 +20,7 @@ mod config_integration_tests {
     #[test]
     fn test_simple_config_loading() -> Result<()> {
         // Critical path: Load basic config file
-        let config_path = fixture_path("simple.ggen.toml");
+        let _config_path = fixture_path("simple.ggen.toml");
 
         // TODO: Uncomment once ggen-config is implemented
         // let config = GgenConfig::load(&config_path)?;
@@ -34,7 +34,7 @@ mod config_integration_tests {
     #[test]
     fn test_workspace_config_loading() -> Result<()> {
         // Critical path: Load workspace root config
-        let config_path = fixture_path("workspace.ggen.toml");
+        let _config_path = fixture_path("workspace.ggen.toml");
 
         // TODO: Uncomment once ggen-config is implemented
         // let config = GgenConfig::load(&config_path)?;
@@ -49,7 +49,7 @@ mod config_integration_tests {
     #[test]
     fn test_advanced_config_all_features() -> Result<()> {
         // Test all feature sections are parsed correctly
-        let config_path = fixture_path("advanced.ggen.toml");
+        let _config_path = fixture_path("advanced.ggen.toml");
 
         // TODO: Uncomment once ggen-config is implemented
         // let config = GgenConfig::load(&config_path)?;
@@ -76,7 +76,7 @@ mod config_integration_tests {
     #[test]
     fn test_invalid_config_missing_project() {
         // Error handling: Missing required section
-        let config_path = fixture_path("invalid_missing_project.ggen.toml");
+        let _config_path = fixture_path("invalid_missing_project.ggen.toml");
 
         // TODO: Uncomment once ggen-config is implemented
         // let result = GgenConfig::load(&config_path);
@@ -88,7 +88,7 @@ mod config_integration_tests {
     #[test]
     fn test_invalid_config_bad_version() {
         // Error handling: Invalid version format
-        let config_path = fixture_path("invalid_bad_version.ggen.toml");
+        let _config_path = fixture_path("invalid_bad_version.ggen.toml");
 
         // TODO: Uncomment once ggen-config is implemented
         // let result = GgenConfig::load(&config_path);
@@ -100,8 +100,8 @@ mod config_integration_tests {
     #[test]
     fn test_workspace_member_resolution() -> Result<()> {
         // Critical: Workspace member inherits parent config
-        let workspace_path = fixture_path("workspace.ggen.toml");
-        let member_path = fixture_path("member_package.ggen.toml");
+        let _workspace_path = fixture_path("workspace.ggen.toml");
+        let _member_path = fixture_path("member_package.ggen.toml");
 
         // TODO: Uncomment once ggen-config is implemented
         // let workspace_config = GgenConfig::load(&workspace_path)?;
@@ -120,7 +120,7 @@ mod config_integration_tests {
     #[test]
     fn test_config_serialization_roundtrip() -> Result<()> {
         // Test config can be loaded and saved without data loss
-        let config_path = fixture_path("advanced.ggen.toml");
+        let _config_path = fixture_path("advanced.ggen.toml");
 
         // TODO: Uncomment once ggen-config is implemented
         // let config = GgenConfig::load(&config_path)?;
@@ -158,7 +158,7 @@ mod config_integration_tests {
     #[test]
     fn test_marketplace_dependency_parsing() -> Result<()> {
         // Test dependency version constraint parsing
-        let config_path = fixture_path("advanced.ggen.toml");
+        let _config_path = fixture_path("advanced.ggen.toml");
 
         // TODO: Uncomment once ggen-config is implemented
         // let config = GgenConfig::load(&config_path)?;
@@ -174,7 +174,7 @@ mod config_integration_tests {
     #[test]
     fn test_performance_config_validation() -> Result<()> {
         // Test performance limits are within acceptable ranges
-        let config_path = fixture_path("advanced.ggen.toml");
+        let _config_path = fixture_path("advanced.ggen.toml");
 
         // TODO: Uncomment once ggen-config is implemented
         // let config = GgenConfig::load(&config_path)?;
@@ -195,7 +195,7 @@ mod graph_integration_tests {
     #[test]
     fn test_graph_config_with_base_iri() -> Result<()> {
         // Test graph configuration integration
-        let config_path = fixture_path("advanced.ggen.toml");
+        let _config_path = fixture_path("advanced.ggen.toml");
 
         // TODO: Uncomment once ggen-config is implemented
         // let config = GgenConfig::load(&config_path)?;
@@ -223,7 +223,7 @@ mod template_integration_tests {
     #[test]
     fn test_template_config_paths() -> Result<()> {
         // Test template paths resolve correctly
-        let config_path = fixture_path("simple.ggen.toml");
+        let _config_path = fixture_path("simple.ggen.toml");
 
         // TODO: Uncomment once ggen-config is implemented
         // let config = GgenConfig::load(&config_path)?;
@@ -238,7 +238,7 @@ mod template_integration_tests {
     #[test]
     fn test_template_backup_configuration() -> Result<()> {
         // Test template backup settings
-        let config_path = fixture_path("advanced.ggen.toml");
+        let _config_path = fixture_path("advanced.ggen.toml");
 
         // TODO: Uncomment once ggen-config is implemented
         // let config = GgenConfig::load(&config_path)?;

@@ -19,6 +19,7 @@ use crate::traits::AsyncRepository;
 /// - LRU caching with moka
 /// - Async I/O operations
 /// - Distributed tracing support
+#[derive(Clone)]
 pub struct Registry {
     // Primary storage: concurrent hash map
     packages: Arc<DashMap<PackageId, Package>>,

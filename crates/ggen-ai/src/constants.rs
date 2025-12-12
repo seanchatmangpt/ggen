@@ -86,7 +86,7 @@ pub mod models {
     pub const ANTHROPIC_DEFAULT: &str = "claude-3-sonnet-20240229";
 
     /// Default Ollama model
-    pub const OLLAMA_DEFAULT: &str = "qwen3-coder:30b";
+    pub const OLLAMA_DEFAULT: &str = "ministral-3:3b";
 
     /// Mock model for testing
     pub const MOCK_MODEL: &str = "mock-model";
@@ -236,7 +236,7 @@ mod tests {
     fn test_model_defaults() {
         assert_eq!(models::OPENAI_DEFAULT, "gpt-3.5-turbo");
         assert_eq!(models::ANTHROPIC_DEFAULT, "claude-3-sonnet-20240229");
-        assert_eq!(models::OLLAMA_DEFAULT, "qwen3-coder:30b");
+        assert_eq!(models::OLLAMA_DEFAULT, "ministral-3:3b");
     }
 
     #[test]

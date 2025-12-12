@@ -350,7 +350,7 @@ mod tests {
         let ollama_config = config.get_provider_config(&LlmProvider::Ollama);
         assert!(ollama_config.is_some());
         // Updated to match current default model
-        assert_eq!(ollama_config.unwrap().model, "qwen3-coder:30b");
+        assert_eq!(ollama_config.unwrap().model, "ministral-3:3b");
     }
 
     #[test]

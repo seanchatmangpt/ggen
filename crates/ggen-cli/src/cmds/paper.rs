@@ -12,6 +12,8 @@
 use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
+use std::fs;
+use std::path::{Path, PathBuf};
 
 // ============================================================================
 // Output Types (all must derive Serialize for JSON output)
@@ -134,12 +136,47 @@ fn new(
 ) -> Result<NewPaperOutput> {
     let template = template.unwrap_or_else(|| "arxiv".to_string());
     let output_path = output.unwrap_or_else(|| ".".to_string());
+    let paper_dir = if output_path.starts_with('/') {
+        Path::new(&output_path).join(&name)
+    } else {
+        std::env::current_dir()
+            .unwrap_or_else(|_| PathBuf::from("."))
+            .join(&output_path)
+            .join(&name)
+    };
+    let rdf_file = paper_dir.join(format!("{}.rdf", name));
+
+    // Create paper directory
+    fs::create_dir_all(&paper_dir).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to create directory: {}", e))
+    })?;
+
+    // Create basic RDF ontology file
+    let rdf_content = format!(
+        r#"@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix paper: <http://example.org/paper/> .
+
+paper:{name} a paper:Paper ;
+    dct:title "{name}" ;
+    dct:created "{date}" ;
+    paper:template "{template}" .
+"#,
+        name = name,
+        date = chrono::Utc::now().to_rfc3339(),
+        template = template
+    );
+
+    fs::write(&rdf_file, rdf_content).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to write RDF file: {}", e))
+    })?;
 
     Ok(NewPaperOutput {
         paper_name: name.clone(),
-        paper_path: format!("{}/{}", output_path, name),
+        paper_path: paper_dir.display().to_string(),
         template: template.clone(),
-        ontology_file: format!("{}.rdf", name),
+        ontology_file: rdf_file.display().to_string(),
         next_steps: vec![
             format!("Edit {}.rdf with paper metadata", name),
             "Create sections in sections/ directory".to_string(),

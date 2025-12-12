@@ -1,0 +1,97 @@
+[test]
+name = "ggen_cli_commands"
+timeout = "120s"
+
+[containers.ggen]
+image = "rust:1.90"
+env = { RUST_BACKTRACE = "1", CARGO_TARGET_DIR = "/tmp/target" }
+volumes = [
+  { host = "/Users/sac/ggen", container = "/workspace", readonly = true },
+  { host = "/tmp/clnrm-target", container = "/tmp/target" },
+  { host = "/tmp/clnrm-cargo", container = "/tmp/cargo" },
+]
+workdir = "/workspace"
+
+[[steps]]
+name = "build_ggen"
+container = "ggen"
+exec = [
+  "sh",
+  "-c",
+  "cd /workspace && CARGO_HOME=/tmp/cargo cargo build --release -p ggen-cli-lib --bin ggen 2>&1 | tail -20",
+]
+assert.exit_code = 0
+assert.stdout_contains = "Finished"
+
+[[steps]]
+name = "verify_version"
+container = "ggen"
+exec = ["sh", "-c", "/tmp/target/release/ggen --version"]
+assert.exit_code = 0
+assert.stdout_contains = "ggen"
+
+[[steps]]
+name = "test_ci_workflow"
+container = "ggen"
+exec = [
+  "sh",
+  "-c",
+  "cd /tmp && rm -rf .github && /tmp/target/release/ggen ci workflow --name test-workflow",
+]
+assert.exit_code = 0
+assert.stdout_contains = "Generated"
+
+[[steps]]
+name = "verify_ci_workflow_creates_file"
+container = "ggen"
+exec = [
+  "sh",
+  "-c",
+  "test -f /tmp/.github/workflows/test-workflow.yml && echo 'SUCCESS' || echo 'FAILED'",
+]
+assert.exit_code = 0
+assert.stdout_contains = "SUCCESS"
+
+[[steps]]
+name = "test_workflow_init"
+container = "ggen"
+exec = [
+  "sh",
+  "-c",
+  "cd /tmp && rm -rf .workflows && /tmp/target/release/ggen workflow init --name test-workflow",
+]
+assert.exit_code = 0
+assert.stdout_contains = "initialized"
+
+[[steps]]
+name = "verify_workflow_init_creates_file"
+container = "ggen"
+exec = [
+  "sh",
+  "-c",
+  "test -f /tmp/.workflows/test-workflow.json && echo 'SUCCESS' || echo 'FAILED'",
+]
+assert.exit_code = 0
+assert.stdout_contains = "SUCCESS"
+
+[[steps]]
+name = "test_paper_new"
+container = "ggen"
+exec = [
+  "sh",
+  "-c",
+  "cd /tmp && rm -rf 'Test Paper' && /tmp/target/release/ggen paper new --name 'Test Paper'",
+]
+assert.exit_code = 0
+assert.stdout_contains = "paper_name"
+
+[[steps]]
+name = "verify_paper_new_creates_file"
+container = "ggen"
+exec = [
+  "sh",
+  "-c",
+  "test -f '/tmp/Test Paper/Test Paper.rdf' && echo 'SUCCESS' || echo 'FAILED'",
+]
+assert.exit_code = 0
+assert.stdout_contains = "SUCCESS"

@@ -465,18 +465,18 @@ mod tests {
     fn test_circular_dependency_detection() {
         // Simple graph with no cycles
         // **FMEA Fix**: Use BTreeMap for deterministic iteration order
-    let mut graph: BTreeMap<String, Vec<String>> = BTreeMap::new();
+        let mut graph: BTreeMap<String, Vec<String>> = BTreeMap::new();
         graph.insert("a".into(), vec!["b".into()]);
         graph.insert("b".into(), vec!["c".into()]);
         graph.insert("c".into(), vec![]);
 
-        let mut visited = HashSet::new();
-        let mut rec_stack = HashSet::new();
+        let mut visited = BTreeSet::new();
+        let mut rec_stack = BTreeSet::new();
 
         assert!(detect_cycle(&graph, "a", &mut visited, &mut rec_stack, &mut Vec::new()).is_none());
 
         // Graph with cycle: a -> b -> c -> a
-        let mut graph_cycle: HashMap<String, Vec<String>> = HashMap::new();
+        let mut graph_cycle: BTreeMap<String, Vec<String>> = BTreeMap::new();
         graph_cycle.insert("a".into(), vec!["b".into()]);
         graph_cycle.insert("b".into(), vec!["c".into()]);
         graph_cycle.insert("c".into(), vec!["a".into()]);

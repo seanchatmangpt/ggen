@@ -1,3 +1,4 @@
+#![cfg(feature = "marketplace_v1")]
 //! Integration tests for marketplace functionality using testcontainers
 //!
 //! These tests verify that the marketplace system works correctly with

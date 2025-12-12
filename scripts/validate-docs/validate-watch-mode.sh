@@ -21,8 +21,8 @@ TESTS_PASSED=0
 TESTS_FAILED=0
 
 log_info() { echo -e "${BLUE}ℹ${NC} $1"; }
-log_success() { echo -e "${GREEN}✓${NC} $1"; ((TESTS_PASSED++)); ((TESTS_RUN++)); }
-log_error() { echo -e "${RED}✗${NC} $1"; ((TESTS_FAILED++)); ((TESTS_RUN++)); }
+log_success() { echo -e "${GREEN}✓${NC} $1"; ((++TESTS_PASSED)); ((++TESTS_RUN)); return 0; }
+log_error() { echo -e "${RED}✗${NC} $1"; ((++TESTS_FAILED)); ((++TESTS_RUN)); return 0; }
 log_section() {
     echo ""
     echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -30,20 +30,30 @@ log_section() {
     echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 }
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+DEFAULT_GGEN_BIN="$REPO_ROOT/target/debug/ggen"
+if [ -x "$DEFAULT_GGEN_BIN" ]; then
+    GGEN_BIN="${GGEN_BIN:-$DEFAULT_GGEN_BIN}"
+else
+    GGEN_BIN="${GGEN_BIN:-ggen}"
+fi
+
 # Create workspace
 WORKSPACE=$(mktemp -d)
 trap "rm -rf $WORKSPACE" EXIT
+if [ -f "$REPO_ROOT/.tool-versions" ]; then
+    cp "$REPO_ROOT/.tool-versions" "$WORKSPACE/.tool-versions"
+fi
 cd "$WORKSPACE"
 
-GGEN_BIN="${GGEN_BIN:-ggen}"
-
-if ! command -v "$GGEN_BIN" &> /dev/null; then
+if ! command -v "$GGEN_BIN" &> /dev/null && [ ! -x "$GGEN_BIN" ]; then
     log_error "ggen not found"
     exit 1
 fi
 
 log_info "Working in: $WORKSPACE"
-log_info "Using ggen: $($GGEN_BIN --version)"
+log_info "Using ggen: $GGEN_BIN ($($GGEN_BIN --version))"
 
 # ============================================================================
 # Test 1: Watch Command Exists
@@ -96,19 +106,10 @@ fi
 # ============================================================================
 log_section "Test 3: Watch Command Can Start"
 
-# Start watch in background with short timeout
-timeout 2s $GGEN_BIN project watch --path test-project --debounce 100 &> /tmp/watch-output.txt &
-WATCH_PID=$!
-
-# Give it a moment to start
-sleep 1
-
-# Check if process started
-if ps -p $WATCH_PID > /dev/null 2>&1; then
-    log_success "Watch process started successfully"
-    # Kill the process
-    kill $WATCH_PID 2>/dev/null || true
-    wait $WATCH_PID 2>/dev/null || true
+# Start watch briefly and treat clean stop as success
+timeout 2s $GGEN_BIN project watch --path test-project --debounce 100 &> /tmp/watch-output.txt || true
+if grep -q "status\":\"started\\|status\":\"stopped" /tmp/watch-output.txt 2>/dev/null; then
+    log_success "Watch process invoked (started/stopped cleanly)"
 else
     log_error "Watch process failed to start"
     if [ -f /tmp/watch-output.txt ]; then

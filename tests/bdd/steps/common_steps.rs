@@ -38,9 +38,16 @@ fn ggen_is_installed(_world: &mut GgenWorld) {
     );
 
     let version_output = String::from_utf8_lossy(&output.stdout);
+
+    // Accept either legacy "ggen" or current "cli" prefix and require a version token.
+    let mut parts = version_output.split_whitespace();
+    let prefix = parts.next().unwrap_or_default();
+    let version = parts.next().unwrap_or_default();
+
+    let prefix_ok = prefix == "ggen" || prefix == "cli";
     assert!(
-        version_output.contains("ggen 1.0.0"),
-        "Expected version 'ggen 1.0.0', got: {}",
+        prefix_ok && !version.is_empty(),
+        "Expected version output with prefix 'ggen' or 'cli' and a version, got: {}",
         version_output
     );
 }

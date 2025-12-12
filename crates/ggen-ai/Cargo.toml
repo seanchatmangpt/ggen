@@ -66,14 +66,26 @@ sha2 = "0.10"
 
 [features]
 default = []
-all-integrations = []
+ollama-integration = []
+openai-integration = []
+anthropic-integration = []
+live-llm-tests = []
+all-integrations = [
+  "ollama-integration",
+  "openai-integration",
+  "anthropic-integration",
+  "live-llm-tests",
+]
 
 [dev-dependencies]
 tokio-test = "0.4"
 tempfile = "3"
 testcontainers = "0.25"
 rand = "0.9"
-chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras", "async"] }
+chicago-tdd-tools = { version = "1.4.0", features = [
+  "testing-extras",
+  "async",
+] }
 criterion = { version = "0.7", features = ["html_reports"] }
 
 [[bench]]

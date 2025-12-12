@@ -1,3 +1,10 @@
+#![allow(
+    unused_imports,
+    unused_variables,
+    dead_code,
+    unused_assignments,
+    unused_comparisons
+)]
 //! Consolidated Semantic Tests - 80/20 Principle
 //!
 //! Consolidates critical RDF, ontology, and semantic validation tests.
@@ -10,7 +17,6 @@
 
 #[cfg(test)]
 mod semantic_ontology {
-    use std::collections::HashMap;
 
     // ================================================================
     // ONTOLOGY: Semantic Web & RDF Concepts (Self-Contained)
@@ -147,7 +153,6 @@ mod semantic_ontology {
 
 #[cfg(test)]
 mod semantic_rdf {
-    use std::collections::HashMap;
 
     // ================================================================
     // RDF: Triple Operations & Graph Manipulation (Critical)

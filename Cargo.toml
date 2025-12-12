@@ -24,6 +24,8 @@ members = [
   "crates/ggen-cli-validation",
   "crates/ggen-config-clap",
   "crates/ggen-marketplace-v2",
+  "crates/ggen-test-audit",    # Feature 004: Test quality audit tooling
+  "crates/ggen-test-opt",      # Feature 004: Test optimization tooling
   "examples/frontmatter-cli",
   "examples/natural-market-search",
   "examples/ai-template-project",
@@ -82,6 +84,8 @@ ggen-cli-lib = { path = "crates/ggen-cli", version = "3.4.0" }
 ggen-node = { path = "crates/ggen-node", version = "3.4.0" }
 ggen-macros = { path = "crates/ggen-macros", version = "3.4.0" }
 ggen-dod = { path = "crates/ggen-dod", version = "3.4.0" }
+ggen-test-audit = { path = "crates/ggen-test-audit", version = "0.1.0" }  # Feature 004
+ggen-test-opt = { path = "crates/ggen-test-opt", version = "0.1.0" }      # Feature 004
 
 # OpenTelemetry dependencies
 opentelemetry = "0.21"

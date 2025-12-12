@@ -1,8 +1,8 @@
 # ggen Documentation Validation Report
 
-**Generated**: 2025-12-11 15:13:27
+**Generated**: 2025-12-11 15:27:49
 **ggen Version**: 
-**Duration**: 58s
+**Duration**: 56s
 
 ---
 
@@ -11,13 +11,13 @@
 | Metric | Count |
 |--------|-------|
 | **Test Suites Run** | 8 |
-| **Suites Passed** | ✅ 3 |
-| **Suites Failed** | ❌ 5 |
-| **Individual Tests Run** | 0 |
-| **Tests Passed** | ✅ 0 |
+| **Suites Passed** | ✅ 8 |
+| **Suites Failed** | ❌ 0 |
+| **Individual Tests Run** | 110 |
+| **Tests Passed** | ✅ 110 |
 | **Tests Failed** | ❌ 0 |
 
-**Overall Status**: ❌ **FAIL**
+**Overall Status**: ✅ **PASS**
 
 ---
 
@@ -64,19 +64,15 @@ Tests all documented CLI commands:
 
 ## Recommendations
 
-⚠️  **Some documentation validation tests failed**
+✅ **All documentation is validated and working!**
 
-**Action Required**:
-1. Review failed test output above
-2. Fix failing commands or update documentation
-3. Re-run validation: `scripts/validate-docs/validate-all.sh`
-4. Do not merge documentation changes until all tests pass
+The documentation accurately reflects the current state of ggen. All tutorials,
+guides, and examples have been tested and work as documented.
 
-**Common Issues**:
-- Commands may have changed since documentation was written
-- Examples may reference non-existent templates
-- SPARQL queries may not match current data model
-- CLI flags may have been renamed or removed
+**Next Steps**:
+- Documentation is ready for users
+- Consider adding this validation to CI/CD pipeline
+- Run this validation before each release
 
 ---
 
@@ -100,4 +96,4 @@ scripts/validate-docs/validate-cli-reference.sh
 
 ---
 
-**Last Updated**: 2025-12-11 15:13:28
+**Last Updated**: 2025-12-11 15:27:50

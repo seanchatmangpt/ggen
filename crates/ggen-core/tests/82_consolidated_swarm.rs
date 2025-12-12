@@ -83,8 +83,6 @@ mod swarm_consensus {
 
 #[cfg(test)]
 mod swarm_failure_recovery {
-    use std::collections::HashSet;
-
     // ================================================================
     // FAILURES: Recovery Scenarios (Critical 20%)
     // ================================================================

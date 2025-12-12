@@ -274,7 +274,7 @@ fn generate_tree(
     template: Option<String>, output: Option<String>,
 ) -> NounVerbResult<GenerateTreeOutput> {
     use ggen_domain::template::generate_tree;
-    use std::collections::BTreeMap;
+    use std::collections::HashMap;
 
     let template_path = template.ok_or_else(|| {
         clap_noun_verb::NounVerbError::argument_error("Template path required for generate-tree")
@@ -288,8 +288,7 @@ fn generate_tree(
     let output_pb = PathBuf::from(&output_path);
 
     // For now, use empty variables - full implementation needs var support
-    // **FMEA Fix**: Use BTreeMap for deterministic iteration order
-    let variables: BTreeMap<String, String> = BTreeMap::new();
+    let variables: HashMap<String, String> = HashMap::new();
 
     generate_tree::generate_file_tree(&template_pb, &output_pb, &variables, false).map_err(
         |e| {

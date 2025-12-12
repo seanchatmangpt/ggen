@@ -7,7 +7,6 @@
 //! - Determinism & consistency checking
 //! - Zero code duplication
 
-use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
@@ -113,6 +112,7 @@ pub struct BenchmarkSnapshot {
 pub struct RegressionDetector {
     threshold: f64,
     baseline: Option<BenchmarkSnapshot>,
+    last: Option<BenchmarkSnapshot>,
 }
 
 impl RegressionDetector {
@@ -120,17 +120,43 @@ impl RegressionDetector {
         Self {
             threshold,
             baseline: None,
+            last: None,
         }
     }
 
     pub fn record(&mut self, snapshot: BenchmarkSnapshot) {
         if self.baseline.is_none() {
             self.baseline = Some(snapshot);
+        } else {
+            self.last = Some(snapshot);
         }
     }
 
     pub fn detect_regressions(&self) -> Vec<String> {
-        Vec::new()
+        let mut alerts = Vec::new();
+
+        if let (Some(baseline), Some(current)) = (&self.baseline, &self.last) {
+            let consistency_drop = baseline.consistency_score - current.consistency_score;
+            if consistency_drop > self.threshold {
+                alerts.push(format!(
+                    "consistency dropped by {:.3} (threshold {:.3})",
+                    consistency_drop, self.threshold
+                ));
+            }
+
+            let baseline_secs = baseline.duration.as_secs_f64();
+            let current_secs = current.duration.as_secs_f64();
+            let duration_growth = current_secs - baseline_secs;
+            if duration_growth > baseline_secs * self.threshold {
+                alerts.push(format!(
+                    "duration increased by {:.2}ms (threshold {:.2}ms)",
+                    duration_growth * 1000.0,
+                    baseline_secs * self.threshold * 1000.0
+                ));
+            }
+        }
+
+        alerts
     }
 }
 

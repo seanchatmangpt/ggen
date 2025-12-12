@@ -1,3 +1,10 @@
+#![allow(
+    unused_imports,
+    unused_variables,
+    dead_code,
+    unused_assignments,
+    unused_comparisons
+)]
 //! Consolidated Lifecycle Tests - 80/20 Principle
 //!
 //! Consolidates critical package lifecycle and error handling tests.

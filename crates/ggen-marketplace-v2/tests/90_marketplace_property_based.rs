@@ -1,3 +1,11 @@
+#![allow(
+    unused_imports,
+    unused_variables,
+    dead_code,
+    unused_assignments,
+    unused_comparisons,
+    deprecated
+)]
 //! Phase 3C: Property-Based Tests for ggen-marketplace-v2
 //!
 //! Using proptest with arbitrary for comprehensive property verification.
@@ -13,7 +21,7 @@ use ggen_marketplace_v2::{
     models::{Package, PackageId, PackageMetadata, PackageVersion, QualityScore},
     search::{SearchEngine, SearchQuery, SortBy},
     security::{ChecksumCalculator, KeyPair, SignatureVerifier},
-    traits::{Signable, Validatable},
+    traits::Signable,
     validation::PackageValidator,
 };
 use proptest::prelude::*;
@@ -43,30 +51,10 @@ fn valid_package_id_strategy() -> impl Strategy<Value = String> {
         .prop_filter("must be non-empty", |s| !s.is_empty())
 }
 
-/// Generate invalid package ID strings
-fn invalid_package_id_strategy() -> impl Strategy<Value = String> {
-    prop_oneof![
-        Just(String::new()),                               // Empty
-        "-[a-z0-9]+".prop_map(|_| "-invalid".to_string()), // Starts with hyphen
-        "[a-z0-9]+-".prop_map(|_| "invalid-".to_string()), // Ends with hyphen
-        ".*\\s.*".prop_map(|_| "has space".to_string()),   // Contains space
-        ".{201,}".prop_map(|_| "a".repeat(201)),           // Too long
-    ]
-}
-
 /// Generate valid semantic versions
 fn valid_version_strategy() -> impl Strategy<Value = String> {
     (0u32..100, 0u32..100, 0u32..100)
         .prop_map(|(major, minor, patch)| format!("{}.{}.{}", major, minor, patch))
-}
-
-/// Generate invalid version strings
-fn invalid_version_strategy() -> impl Strategy<Value = String> {
-    prop_oneof![
-        Just(String::new()),                               // Empty
-        "[0-9]+\\.[0-9]+".prop_map(|_| "1.0".to_string()), // Missing patch
-        "[a-z]+".prop_map(|_| "abc".to_string()),          // Non-numeric
-    ]
 }
 
 /// Generate valid quality scores (1-100)

@@ -1,3 +1,11 @@
+#![allow(
+    unused_imports,
+    unused_variables,
+    dead_code,
+    unused_assignments,
+    unused_comparisons,
+    deprecated
+)]
 //! Comprehensive RDF/Turtle parsing and validation tests
 //!
 //! Tests Turtle syntax, RDF triple correctness, namespace resolution,

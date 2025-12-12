@@ -936,3 +936,7 @@ hive-mind-prompt-*.txt
 .claude/commands/*.local.md
 .specify/specs/*/evidence/credentials.md
 .specify/specs/*/evidence/tokens.md
+
+# Feature 004: Test Quality Audit metadata (gitignored)
+.ggen/test-metadata/
+.ggen/mutation-reports/

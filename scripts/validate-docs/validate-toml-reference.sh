@@ -22,8 +22,8 @@ TESTS_PASSED=0
 TESTS_FAILED=0
 
 log_info() { echo -e "${BLUE}ℹ${NC} $1"; }
-log_success() { echo -e "${GREEN}✓${NC} $1"; ((TESTS_PASSED++)); ((TESTS_RUN++)); }
-log_error() { echo -e "${RED}✗${NC} $1"; ((TESTS_FAILED++)); ((TESTS_RUN++)); }
+log_success() { echo -e "${GREEN}✓${NC} $1"; ((++TESTS_PASSED)); ((++TESTS_RUN)); return 0; }
+log_error() { echo -e "${RED}✗${NC} $1"; ((++TESTS_FAILED)); ((++TESTS_RUN)); return 0; }
 log_section() {
     echo ""
     echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -31,20 +31,30 @@ log_section() {
     echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 }
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+DEFAULT_GGEN_BIN="$REPO_ROOT/target/debug/ggen"
+if [ -x "$DEFAULT_GGEN_BIN" ]; then
+    GGEN_BIN="${GGEN_BIN:-$DEFAULT_GGEN_BIN}"
+else
+    GGEN_BIN="${GGEN_BIN:-ggen}"
+fi
+
 # Create workspace
 WORKSPACE=$(mktemp -d)
 trap "rm -rf $WORKSPACE" EXIT
+if [ -f "$REPO_ROOT/.tool-versions" ]; then
+    cp "$REPO_ROOT/.tool-versions" "$WORKSPACE/.tool-versions"
+fi
 cd "$WORKSPACE"
 
-GGEN_BIN="${GGEN_BIN:-ggen}"
-
-if ! command -v "$GGEN_BIN" &> /dev/null; then
+if ! command -v "$GGEN_BIN" &> /dev/null && [ ! -x "$GGEN_BIN" ]; then
     log_error "ggen not found"
     exit 1
 fi
 
 log_info "Working in: $WORKSPACE"
-log_info "Using ggen: $($GGEN_BIN --version 2>&1 || echo 'not available')"
+log_info "Using ggen: $GGEN_BIN ($($GGEN_BIN --version 2>&1 || echo 'not available'))"
 
 # ============================================================================
 # Test 1: Basic ggen.toml Parsing

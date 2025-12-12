@@ -233,7 +233,7 @@ impl RdfControlPlane {
     /// Get FMEA metrics
     pub fn get_fmea_metrics(
         &self,
-    ) -> HashMap<&'static str, super::fmea_mitigations::FailureMetrics> {
+    ) -> BTreeMap<&'static str, super::fmea_mitigations::FailureMetrics> {
         self.fmea_manager
             .read()
             .unwrap()

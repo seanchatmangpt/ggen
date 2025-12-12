@@ -556,7 +556,7 @@ fn report(
         "path": report_path.display().to_string(),
         "format": format
     });
-    
+
     // Convert JSON value to Object - json! macro always produces valid JSON
     Ok(Value::Object(
         json_value
