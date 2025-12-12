@@ -102,7 +102,8 @@ where
     V: Clone,
 {
     fn default() -> Self {
-        Self::new(1000, Duration::from_secs(300)) // 1000 entries, 5 min TTL
+        // Default: 1000 entries, 5 minute TTL
+        Self::new(1000, Duration::from_secs(300))
     }
 }
 

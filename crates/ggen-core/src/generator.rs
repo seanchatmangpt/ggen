@@ -15,6 +15,15 @@
 //! 5. Handle file injection/merging if needed
 //! 6. Write output file
 //!
+//! ## Constants
+//!
+//! **Kaizen improvement**: Extracted magic numbers to named constants for clarity and maintainability.
+/// Maximum length for sanitized environment variable keys
+const MAX_ENV_KEY_LENGTH: usize = 100;
+
+/// Maximum length for sanitized environment variable values
+const MAX_ENV_VALUE_LENGTH: usize = 10000;
+
 //! ## Examples
 //!
 //! ### Basic Generation
@@ -321,12 +330,12 @@ impl Generator {
                 let sanitized_key = k
                     .chars()
                     .filter(|c| !c.is_control())
-                    .take(100)
+                    .take(MAX_ENV_KEY_LENGTH)
                     .collect::<String>();
                 let sanitized_value = v
                     .chars()
                     .filter(|c| !c.is_control())
-                    .take(10000)
+                    .take(MAX_ENV_VALUE_LENGTH)
                     .collect::<String>();
                 (sanitized_key, sanitized_value)
             })

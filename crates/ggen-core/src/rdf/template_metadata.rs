@@ -15,6 +15,16 @@ use std::sync::{Arc, Mutex};
 
 use crate::graph::Graph;
 
+/// RDF namespace prefix declaration
+///
+/// **Kaizen improvement**: Extracted repeated string literal to named constant for maintainability.
+const RDF_PREFIX_DECL: &str = "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n";
+
+/// XSD namespace prefix declaration
+///
+/// **Kaizen improvement**: Extracted repeated string literal to named constant for maintainability.
+const XSD_PREFIX_DECL: &str = "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\n";
+
 /// Template variable metadata
 ///
 /// Represents a variable that can be used in template rendering.
@@ -114,8 +124,8 @@ impl TemplateMetadata {
     pub fn to_turtle(&self) -> Result<String> {
         let mut turtle = String::new();
         turtle.push_str("@prefix ggen: <http://ggen.dev/ontology#> .\n");
-        turtle.push_str("@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n");
-        turtle.push_str("@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\n");
+        turtle.push_str(RDF_PREFIX_DECL);
+        turtle.push_str(XSD_PREFIX_DECL);
 
         // Template declaration
         turtle.push_str(&format!("<{}> a ggen:Template ;\n", self.id));
@@ -552,8 +562,8 @@ impl TemplateMetadataStore {
 
         // Add prefixes
         turtle.push_str("@prefix ggen: <http://ggen.dev/ontology#> .\n");
-        turtle.push_str("@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n");
-        turtle.push_str("@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\n");
+        turtle.push_str(RDF_PREFIX_DECL);
+        turtle.push_str(XSD_PREFIX_DECL);
 
         // Export each template
         for row in templates {
