@@ -1,455 +1,434 @@
-# ggen - RDF-Based Code Generation Toolkit
+# ggen - Ontology-Driven Code Generation Framework
 
-**Production-ready code generation from knowledge graphs | 1,168+ tests passing | Rust + RDF + SPARQL**
+**v4.0.0** | **Deterministic** | **Type-Safe** | **Production-Ready**
 
-`ggen` is a deterministic code generator that transforms RDF ontologies into polyglot code. Define your domain once in RDF/OWL, generate consistently across languages.
+[![Tests](https://img.shields.io/badge/tests-1168%20passing-success)]() [![Rust](https://img.shields.io/badge/rust-1.74%2B-orange)]() [![License](https://img.shields.io/badge/license-MIT-blue)]()
+
+Language-agnostic code generation framework that transforms RDF/OWL ontologies into polyglot code. Uses SPARQL queries and Tera templates to generate type-safe code across Rust, TypeScript, Python, JavaScript, Go, and more.
 
 ---
 
-## ⚡ Quick Start
+## 🗺️ I want to...
 
-### Installation
+**This is a Reference document. Choose your path:**
 
+### Learn by Doing
+**Goal**: Get started building with ggen
+**Go to**: [Getting Started Guide](docs/getting-started/README.md)
+**Time**: 30-60 minutes
+**You'll build**: Working code generation from RDF ontologies
+
+### Solve a Specific Problem
+**Goal**: Accomplish a specific task
+**Go to**: [How-to Guides](docs/how-to/)
+**Time**: 5-15 minutes per guide
+**Examples**:
+- [Generate JavaScript + Zod from Schema.org](docs/how-to/generation/generate-javascript-zod.md)
+- [Query RDF Data with SPARQL](docs/how-to/generation/query-rdf-sparql.md)
+- [Create Custom Templates](docs/how-to/templates/create-custom-template.md)
+
+### Understand the Concepts
+**Goal**: Learn how and why ggen works
+**Go to**: [Explanations](docs/explanations/)
+**Time**: 15-30 minutes per topic
+**Topics**:
+- [What is Ontology-Driven Development?](docs/explanations/fundamentals/ontology-driven-development.md)
+- [RDF for Programmers](docs/explanations/fundamentals/rdf-for-programmers.md)
+- [Why SPARQL for Code Generation?](docs/explanations/concepts/sparql-for-code-generation.md)
+
+### Look Up Details
+**Goal**: Find specific technical information
+**You're here!** Continue reading below for:
+- [Installation](#installation)
+- [CLI Commands](#cli-commands)
+- [Architecture](#architecture)
+- [Configuration](#configuration)
+- [Performance Metrics](#performance)
+
+---
+
+## Installation
+
+### Homebrew (macOS/Linux)
 ```bash
-# Homebrew (macOS/Linux)
 brew install seanchatmangpt/ggen/ggen
+```
 
-# Cargo (any platform)
+### Cargo (any platform)
+```bash
 cargo install ggen-cli-lib
+```
 
-# From source
+### From Source
+```bash
 git clone https://github.com/seanchatmangpt/ggen
 cd ggen
 cargo install --path crates/ggen-cli --bin ggen
-
-# Verify installation
-ggen --version
-# Should output: ggen 3.4.1 (or newer)
-
-# Install Speckit for spec-driven development (recommended for contributors)
-uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
 ```
 
-### Your First Generation
+### Verify Installation
+```bash
+ggen --version
+# Output: ggen 4.0.0
+```
+
+---
+
+## Quick Verification (30 seconds)
 
 ```bash
 # List available templates
 ggen template list
 
-# Show template details
-ggen template show --template hello.tmpl
-
-# Load RDF data into graph
-ggen graph load --file your-ontology.ttl
+# Load RDF ontology
+ggen graph load --file examples/basic-ontology/person.ttl
 
 # Query with SPARQL
 ggen graph query --sparql_query "SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 10"
-
-# Extract ontology schema
-ggen ontology extract --ontology_file schema.ttl
 ```
 
-### Spec-First Development (For Contributors)
-
-ggen uses [GitHub Spec Kit](https://github.com/github/spec-kit) for structured feature development:
-
-```bash
-# 1. Define project principles (one-time setup)
-/speckit.constitution
-
-# 2. For each new feature, create a specification
-/speckit.specify "Add RDF validation with SHACL constraints"
-
-# 3. Create technical plan
-/speckit.plan
-
-# 4. Generate actionable tasks
-/speckit.tasks
-
-# 5. Implement with evidence
-/speckit.implement
-
-# All specs live in .specify/specs/NNN-feature-name/
-# Constitution at .specify/memory/constitution.md
-```
-
-**Branch naming**: `NNN-feature-name` (e.g., `001-rdf-validation`)
-**Evidence required**: Tests, benchmarks, OTEL spans in `.specify/specs/NNN-feature/evidence/`
-
-See [.specify/memory/constitution.md](.specify/memory/constitution.md) for full development principles.
+**For full tutorial**: [10-Minute Quick Start](docs/getting-started/quick-start.md)
 
 ---
 
-## 📖 Documentation
-
-**New to ggen?** Start with our comprehensive getting-started guide:
-
-👉 **[Getting Started Guide](docs/getting-started/README.md)** - Your complete onboarding resource
-
-### Quick Links
-
-- **[10-Minute Quick Start](docs/getting-started/quick-start.md)** - Generate JavaScript + Zod from RDF in 10 minutes
-- **[Complete CLI Reference](docs/reference/commands/complete-cli-reference.md)** - All commands and options
-- **[Configuration Reference](docs/reference/configuration/)** - TOML configuration files
-  - [ggen.toml Project Configuration](docs/reference/configuration/ggen-toml-reference.md) - Complete project settings
-  - [gpack.toml Package Format](docs/reference/configuration/gpack-toml-reference.md) - Template package metadata
-  - [Common TOML Configurations](docs/how-to/configuration/common-toml-configs.md) - Example configurations
-- **[How-to Guides](docs/how-to/)** - Solutions to common tasks
-  - [Generate JavaScript + Zod from Schema.org](docs/how-to/generation/generate-javascript-zod.md)
-  - [Query RDF Data with SPARQL](docs/how-to/generation/query-rdf-sparql.md)
-- **[Explanations](docs/explanations/)** - Understand the concepts
-  - [What is Ontology-Driven Development?](docs/explanations/fundamentals/ontology-driven-development.md)
-  - [RDF for Programmers](docs/explanations/fundamentals/rdf-for-programmers.md)
-
-### 📚 Meta-Level: Learn Diataxis
-
-- **[Diataxis Case Study](docs/examples/diataxis-case-study/README.md)** - Learn documentation by example
-  - Complete Next.js + shadcn + ElectricSQL example
-  - All 4 Diataxis quadrants demonstrated
-  - 4-hour learning path with exercises
-  - Meta-lessons on writing each doc type
-
----
-
-## 🎯 Core Features
-
-### ✅ What Works (Verified by 1,168+ Passing Tests)
-
-| Feature | Commands | Status |
-|---------|----------|--------|
-| **Template Management** | `template list`, `template show`, `template lint` | ✅ Production |
-| **RDF Graph Operations** | `graph load`, `graph export`, `graph query`, `graph visualize` | ✅ Production |
-| **Ontology Extraction** | `ontology extract`, `ontology validate`, `ontology generate` | ✅ Production |
-| **Project Scaffolding** | `project init`, `project gen`, `project watch` | ✅ Production |
-| **AI Integration** | `ai chat`, `ai generate`, `ai analyze` | ✅ Production |
-| **Marketplace** | `marketplace search`, `marketplace install`, `marketplace publish` | ✅ Production |
-| **SPARQL Queries** | Full SPARQL 1.1 support via Oxigraph | ✅ Production |
-| **Template Rendering** | Tera templates with RDF integration | ✅ Production |
-
----
-
-## 📚 Command Reference
+## CLI Commands
 
 ### Template Commands
-
 ```bash
-# List all available templates (22 templates included)
-ggen template list
-
-# Show template metadata and variables
-ggen template show --template rust.tmpl
-
-# Lint template for errors
-ggen template lint --template my-template.tmpl
-
-# Create new template
-ggen template new --name my-template
-
-# Generate file tree from template
-ggen template generate-tree --template my-template.tmpl
+ggen template list                        # List all 22 built-in templates
+ggen template show --template rust.tmpl   # Show template metadata and variables
+ggen template lint --template my.tmpl     # Validate template syntax
+ggen template new --name my-template      # Create new template
 ```
 
 ### Graph Commands (RDF/SPARQL)
-
 ```bash
-# Load RDF data (supports Turtle, RDF/XML, N-Triples)
-ggen graph load --file ontology.ttl
-
-# Export graph to file
-ggen graph export --input_file graph.ttl --output output.ttl --format turtle
-
-# Query with SPARQL
-ggen graph query --sparql_query "
-  PREFIX ex: <http://example.org/>
-  SELECT ?product ?price
-  WHERE {
-    ?product a ex:Product .
-    ?product ex:price ?price .
-  }
-"
-
-# Visualize graph structure
-ggen graph visualize --input_file graph.ttl
+ggen graph load --file ontology.ttl       # Load RDF data (Turtle, RDF/XML, N-Triples)
+ggen graph query --sparql_query "..."     # Execute SPARQL queries
+ggen graph export --input graph.ttl       # Export graph to file
+ggen graph visualize --input graph.ttl    # Visualize ontology structure
 ```
 
 ### Ontology Commands
-
 ```bash
-# Extract ontology schema from RDF/OWL file
-ggen ontology extract --ontology_file schema.ttl
-
-# Initialize ontology project with examples
-ggen ontology init --project_name my-ontology
-
-# Generate code from ontology
-ggen ontology generate --schema_file schema.json --language typescript
-
-# Validate ontology quality
-ggen ontology validate --schema_file schema.ttl
+ggen ontology extract --ontology_file schema.ttl         # Extract ontology schema
+ggen ontology generate --schema schema.json --language typescript  # Generate code
+ggen ontology validate --schema_file schema.ttl          # Validate ontology quality
+ggen ontology init --project_name my-ontology            # Initialize ontology project
 ```
 
 ### Project Commands
-
 ```bash
-# Initialize project with conventions
-ggen project init --path . --name my-project --preset clap-noun-verb
-
-# Generate code from template with variables
-ggen project gen --template_ref pack:template --vars key=value --dry_run
-
-# Watch for changes and auto-regenerate
-ggen project watch --path ./src --debounce 500
-
-# Generate project plan
-ggen project plan --template_ref service.tmpl --vars service=auth --format json
-
-# Apply generation plan
-ggen project apply --plan_file plan.json --yes
-
-# Create new project
-ggen project new --name my-app --project_type rust-cli --output .
+ggen project init --preset clap-noun-verb                # Scaffold project with conventions
+ggen project gen --template_ref pack:tmpl --vars k=v     # Generate code from template
+ggen project watch --path ./src --debounce 500           # Auto-regenerate on changes
+ggen project plan --template_ref service.tmpl            # Generate project plan
+ggen project apply --plan_file plan.json                 # Apply generation plan
 ```
 
 ### AI Commands
-
 ```bash
-# Interactive chat session
-ggen ai chat --message "Explain Rust ownership"
-
-# Generate code with AI
-ggen ai generate --prompt "Create a REST API server" --model gpt-4 --_max_tokens 1000 --_temperature 0.7
-
-# Analyze code from string
-ggen ai analyze --code "fn main() { println!(\"hello\"); }"
-
-# Analyze from file
-ggen ai analyze --file src/main.rs
+ggen ai chat --message "Explain Rust ownership"          # Interactive chat session
+ggen ai generate --prompt "Create REST API"              # AI-powered code generation
+ggen ai analyze --file src/main.rs                       # Code analysis
 ```
 
 ### Marketplace Commands
-
 ```bash
-# Search for packages
-ggen marketplace search --query "rust microservice"
-
-# Install a package
-ggen marketplace install --package_id my-package
-
-# Publish a package
-ggen marketplace publish
-
-# Get package information
-ggen marketplace info --package_id my-package
+ggen marketplace search --query "rust microservice"      # Search for packages
+ggen marketplace install --package_id my-package         # Install package
+ggen marketplace publish                                 # Publish package
+ggen marketplace info --package_id my-package            # Get package information
 ```
 
-### Utility Commands
-
-```bash
-# System diagnostics
-ggen utils doctor
-
-# Manage environment variables
-ggen utils env --list
-ggen utils env --get API_KEY
-ggen utils env --set API_KEY=value
-
-# FMEA (Failure Mode and Effects Analysis)
-ggen fmea list
-ggen fmea report
-ggen fmea pareto
-
-# Track academic paper status
-ggen paper track --paper_file paper.rdf --venue neurips-2024
-
-# Create new academic paper
-ggen paper new --name "My Paper Title"
-
-# Generate workflow reports
-ggen workflow report --workflow_file wf.json
-
-# CI/CD workflows
-ggen ci workflow --name build
-```
+**Complete reference**: [Complete CLI Reference](docs/reference/commands/complete-cli-reference.md)
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
-### Workspace Structure (12 Crates)
+### Workspace Structure (14 Crates)
 
 ```
 ggen/
 ├── crates/
-│   ├── ggen-cli/            # CLI commands (noun-verb auto-discovery)
-│   ├── ggen-domain/         # Business logic (pure, no CLI deps)
-│   ├── ggen-core/           # RDF engine, template system
-│   ├── ggen-ai/             # AI integration (genai wrapper)
-│   ├── ggen-marketplace/ # Package management
-│   ├── ggen-utils/          # Shared utilities, error handling
-│   ├── ggen-config/         # Configuration management
-│   ├── ggen-config-clap/    # CLI config integration
-│   ├── ggen-cli-validation/ # CLI validation rules
-│   ├── ggen-macros/         # Procedural macros
-│   ├── ggen-dod/            # Data-oriented design patterns
-│   └── ggen-node/           # Node.js FFI bindings
-├── examples/                # 48 working examples
-├── templates/               # 22 built-in templates
-└── tests/                   # 1,168+ integration tests
+│   ├── ggen-core/            # RDF engine, SPARQL queries, template system
+│   ├── ggen-cli/             # CLI commands (clap-noun-verb auto-discovery)
+│   ├── ggen-domain/          # Business logic (pure, no CLI dependencies)
+│   ├── ggen-ai/              # AI integration (genai multi-provider wrapper)
+│   ├── ggen-marketplace/     # Package management (RDF metadata, signatures)
+│   ├── ggen-utils/           # Shared utilities (error handling, logging)
+│   ├── ggen-config/          # Configuration management (ggen.toml parser)
+│   ├── ggen-config-clap/     # CLI config integration
+│   ├── ggen-cli-validation/  # Input validation and safety checks
+│   ├── ggen-macros/          # Procedural macros (compile-time code generation)
+│   ├── ggen-dod/             # Definition of Done (observability, governance)
+│   ├── ggen-node/            # Node.js N-API bindings (JavaScript/TypeScript FFI)
+│   ├── ggen-test-audit/      # Test quality auditing (coverage, quality metrics)
+│   └── ggen-test-opt/        # Test optimization (parallel execution)
+├── templates/                # 22 built-in templates
+├── examples/                 # 48 working examples
+├── tests/                    # 1,168+ integration tests
+└── docs/                     # Comprehensive documentation (Diataxis framework)
 ```
 
-### Tech Stack
+### Technology Stack
 
-- **Core**: Rust 1.74+ (edition 2021)
-- **RDF/SPARQL**: Oxigraph 0.5 (SPARQL 1.1 compliant)
-- **Templates**: Tera (Liquid/Jinja2-like syntax)
-- **CLI**: clap-noun-verb 5.3.2 (auto-discovery)
-- **AI**: genai 0.4+ (multi-provider support)
-- **Async**: tokio 1.47+ (async runtime)
+| Component | Technology | Version |
+|-----------|-----------|---------|
+| **Core Language** | Rust | 1.74+ (edition 2021) |
+| **RDF Store** | Oxigraph | 0.5 (SPARQL 1.1 compliant) |
+| **Template Engine** | Tera | 1.20 (Jinja2/Liquid-like) |
+| **CLI Framework** | clap-noun-verb | 5.3.2 (auto-discovery) |
+| **AI Integration** | genai | 0.4+ (multi-provider) |
+| **Async Runtime** | tokio | 1.47+ |
+| **Cryptography** | ML-DSA | Post-quantum signatures |
+| **Observability** | OpenTelemetry | Distributed tracing |
+
+### Design Principles
+
+- **Type-First Thinking**: Express invariants in types, not runtime checks
+- **Zero-Cost Abstractions**: Generics over trait objects, compile-time over runtime
+- **Deterministic Outputs**: Same ontology + same templates = identical code
+- **Memory Safety**: Rust ownership system, no garbage collection
+- **Chicago TDD**: State-based testing with real collaborators
+- **SPARC Methodology**: Specification → Pseudocode → Architecture → Refinement → Completion
+- **DfLSS Quality**: Design for Lean Six Sigma (prevent defects, not detect)
+
+**For detailed architecture**: [Architecture Documentation](docs/architecture/)
 
 ---
 
-## 🧪 Development
+## Configuration
 
-### Testing (Chicago TDD)
+### Project Configuration (ggen.toml)
 
-```bash
-# Quick compile check (<2s)
-cargo make check
+```toml
+[project]
+name = "my-project"
+version = "1.0.0"
 
-# Unit tests only (~16s)
-cargo make test-unit
+[generation]
+templates_dir = "templates/"
+output_dir = "generated/"
 
-# Full test suite (1,168+ tests)
-cargo make test
+[rdf]
+ontology_files = ["schema.ttl"]
+default_format = "turtle"
 
-# Watch mode
-cargo make test-watch
+[marketplace]
+registry_url = "https://marketplace.ggen.io"
 ```
 
-**Test Results:**
-- ✅ 1,168 tests passing
-- ✅ 0 failures
-- ✅ 10 ignored (optional integrations)
-- ✅ 80%+ code coverage on critical paths
+**Reference**: [ggen.toml Reference](docs/reference/configuration/ggen-toml-reference.md)
 
-### Build System (cargo-make)
+### Package Configuration (gpack.toml)
 
-**Critical Rules:**
-1. ✅ **ALWAYS** use `cargo make` (never direct `cargo`)
-2. ✅ Fast feedback loops (<5s for check)
-3. ✅ Chicago TDD (state-based, real collaborators)
-4. ✅ No `.expect()` in production code (use `Result<T,E>`)
-5. ✅ Comprehensive error handling with context
+```toml
+[package]
+name = "my-template-pack"
+version = "1.0.0"
+author = "Your Name <you@example.com>"
 
-```bash
-cargo make check      # Fast compilation check (1.95s)
-cargo make test-unit  # Unit tests (15.82s)
-cargo make test       # Full suite (31.60s)
-cargo make lint       # Clippy with strict rules
-cargo make pre-commit # All checks before commit
+[templates]
+templates = ["template1.tmpl", "template2.tmpl"]
 ```
+
+**Reference**: [gpack.toml Reference](docs/reference/configuration/gpack-toml-reference.md)
 
 ---
 
-## 📖 Examples (48 Working Projects)
+## Performance
 
-Browse `examples/` directory for complete, runnable examples:
+### Benchmarks (v4.0.0)
 
-- **Basic**: `basic-template-generation/`, `simple-project/`
-- **Advanced**: `advanced-rust-api-8020/`, `advanced-sparql-graph/`, `advanced-rust-project/`
-- **AI**: `ai-code-generation/`, `ai-microservice/`, `ai-template-creation/`
-- **CLI**: `clap-noun-verb-demo/`, `cli-advanced/`, `cli-subcommand/`
-- **Lifecycle**: `lifecycle-complete/`, `advanced-lifecycle-demo/`
-- **Ontology**: `knowledge-graph-builder/`, `fastapi-from-rdf/`
-- **SPARQL**: `sparql-engine/`, `advanced-sparql-graph/`
-- **Full Stack**: `comprehensive-rust-showcase/`, `microservices-architecture/`
+| Metric | Target | Actual | Status |
+|--------|--------|--------|--------|
+| Template Parsing | <5ms | 115 ns | ✅ 43,480x under SLO |
+| Incremental Build | <5s | 0.79s | ✅ 84% under SLO |
+| Cold Startup | <50ms | 2.0ms | ✅ 96% under SLO |
+| Binary Size | <5MB | 2.8 MB | ✅ 44% under SLO |
+| RDF Triple Processing | <10µs | <1µs | ✅ 10x under SLO |
+| SPARQL Complex Query | <50ms | <10ms | ✅ 5x under SLO |
+| First Build | <15s | ~12s | ✅ On target |
+| Memory (1K triples) | <100MB | ~45MB | ✅ 55% under SLO |
+
+### Test Coverage
+
+- **Total Tests**: 1,168 passing
+- **Failures**: 0
+- **Ignored**: 10 (optional integrations)
+- **Coverage**: 80%+ on critical paths
+
+**Detailed metrics**: [PERFORMANCE.md](PERFORMANCE.md)
 
 ---
 
-## 📦 Templates (22 Included)
+## Features
 
-| Template | Description | Type |
-|----------|-------------|------|
-| `hello.tmpl` | Basic hello world | Starter |
-| `rust.tmpl` | Rust project | Language |
-| `python.tmpl` | Python project | Language |
-| `ai-ontology.tmpl` | E-commerce ontology | Ontology |
-| `ai-sparql.tmpl` | SPARQL queries | Query |
-| `rust-service-with-placeholders.tmpl` | Production Rust service | Production |
-| `database-with-migrations.tmpl` | DB schema + migrations | Database |
-| `safe-error-handling.tmpl` | Error patterns | Pattern |
-| `production-readiness-demo.tmpl` | Production checklist | Production |
+### Core Capabilities
+
+| Feature | Description | Status |
+|---------|-------------|--------|
+| **RDF/OWL Processing** | Load, query, transform ontologies (Turtle, RDF/XML, N-Triples) | ✅ Production |
+| **SPARQL 1.1** | Full query support via Oxigraph triplestore | ✅ Production |
+| **Template Engine** | Tera-based with 22+ built-in templates | ✅ Production |
+| **Polyglot Generation** | Rust, TypeScript, Python, JavaScript, Go, and more | ✅ Production |
+| **CLI Auto-Discovery** | clap-noun-verb pattern for plugin-style commands | ✅ Production |
+| **AI Integration** | Multi-provider (OpenAI, Anthropic, Ollama) code assistance | ✅ Production |
+| **Semantic Marketplace** | RDF-based package registry with cryptographic signatures | ✅ Production |
+| **Deterministic Lockfiles** | Reproducible builds with dependency pinning | ✅ Production |
+| **Graph Visualization** | Ontology structure visualization | ✅ Production |
+| **Delta Projections** | Incremental updates without full regeneration | ✅ Production |
+
+### Built-in Templates (22)
+
+- `hello.tmpl` - Basic hello world
+- `rust.tmpl` - Rust project scaffolding
+- `python.tmpl` - Python project scaffolding
+- `ai-ontology.tmpl` - E-commerce ontology example
+- `ai-sparql.tmpl` - SPARQL query templates
+- `rust-service-with-placeholders.tmpl` - Production Rust service
+- `database-with-migrations.tmpl` - Database schema + migrations
+- `safe-error-handling.tmpl` - Error handling patterns
+- `production-readiness-demo.tmpl` - Production checklist
 
 **View all**: `ggen template list`
 
 ---
 
-## 🚀 Performance
+## Examples
 
-**Verified by Benchmarks:**
-- ✅ Template parsing: **115 nanoseconds** (43,480x under 5ms SLO)
-- ✅ Build time: **0.79 seconds** (84% under 5s SLO)
-- ✅ Startup time: **2.0 milliseconds** (96% under 50ms SLO)
-- ✅ Binary size: **2.8 MB** (44% under 5MB SLO)
-- ✅ RDF triple processing: **<1µs per triple**
-- ✅ SPARQL query execution: **<10ms for complex queries**
+### By Category (48 Total)
+
+| Category | Examples | Description |
+|----------|----------|-------------|
+| **Basic** | `basic-template-generation/`, `simple-project/` | Starter examples |
+| **Advanced** | `advanced-rust-api-8020/`, `advanced-sparql-graph/` | Production patterns |
+| **AI** | `ai-code-generation/`, `ai-microservice/` | LLM integration |
+| **CLI** | `clap-noun-verb-demo/`, `cli-advanced/` | Command-line tools |
+| **Lifecycle** | `lifecycle-complete/`, `advanced-lifecycle-demo/` | Full project lifecycle |
+| **Ontology** | `knowledge-graph-builder/`, `fastapi-from-rdf/` | RDF workflows |
+| **SPARQL** | `sparql-engine/`, `advanced-sparql-graph/` | Query examples |
+| **Full-Stack** | `comprehensive-rust-showcase/`, `microservices-architecture/` | End-to-end systems |
+
+**Browse**: [examples/](examples/)
 
 ---
 
-## 🔗 Links
+## Use Cases
+
+### What ggen Excels At
+
+- Generate type-safe TypeScript/Zod schemas from Schema.org ontologies
+- Create Rust APIs with complete type definitions from domain ontologies
+- Build Python Pydantic models from RDF/OWL schemas
+- Scaffold full-stack projects (Rust CLI, Next.js, microservices) with conventions
+- Query knowledge graphs with SPARQL to extract code patterns
+- Automate repetitive coding tasks via template-driven generation
+- Build CLI tools following clap-noun-verb patterns
+- Create polyglot APIs from unified domain models
+- Generate database schemas and migrations from ontologies
+- Produce API documentation (OpenAPI, GraphQL) from RDF specifications
+
+### Target Users
+
+- Backend developers building type-safe APIs from domain models
+- Full-stack developers needing consistent types across languages
+- DevOps engineers scaffolding microservices and CLI tools
+- Data engineers working with knowledge graphs and ontologies
+- AI/ML engineers integrating LLMs into code generation workflows
+- Open source maintainers creating template packages for distribution
+- Enterprise architects implementing ontology-driven development
+
+---
+
+## Development
+
+### For Contributors
+
+**Required reading**:
+1. [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
+2. [CLAUDE.md](CLAUDE.md) - Development constitution (SPARC + Chicago TDD + DfLSS)
+3. [TESTING.md](TESTING.md) - Testing strategy
+
+### Quick Commands
+
+```bash
+# Fast compilation check (<2s)
+cargo make check
+
+# Unit tests only (~16s)
+cargo make test-unit
+
+# Full test suite (1,168 tests, ~32s)
+cargo make test
+
+# Clippy with strict rules
+cargo make lint
+
+# Pre-commit validation
+cargo make pre-commit
+
+# Full CI pipeline
+cargo make ci
+```
+
+### Spec-First Workflow
+
+ggen uses [GitHub Spec Kit](https://github.com/github/spec-kit) for feature development:
+
+```bash
+# Install Speckit
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+
+# For each feature
+/speckit.specify "Feature description"
+/speckit.plan
+/speckit.tasks
+/speckit.implement
+```
+
+**Branch naming**: `NNN-feature-name`
+**Evidence required**: Tests, benchmarks, OTEL spans in `.specify/specs/NNN-feature/evidence/`
+
+---
+
+## Links
 
 - **GitHub**: https://github.com/seanchatmangpt/ggen
 - **Crates.io**: https://crates.io/crates/ggen-cli-lib
-- **Homebrew**: `brew install seanchatmangpt/ggen/ggen`
-- **Documentation**:
-  - [Getting Started](docs/getting-started/README.md) - Complete onboarding guide
-  - [Quick Start](docs/getting-started/quick-start.md) - 10-minute tutorial
-  - [CLI Reference](docs/reference/commands/complete-cli-reference.md) - All commands
-  - [How-to Guides](docs/how-to/) - Task-oriented guides
-  - [Explanations](docs/explanations/) - Conceptual understanding
-- **Examples**: [examples/](examples/) (48 projects)
 - **Issues**: https://github.com/seanchatmangpt/ggen/issues
+- **Discussions**: https://github.com/seanchatmangpt/ggen/discussions
+- **Documentation**: [docs/](docs/)
 
 ---
 
-## 🤝 Contributing
-
-1. Read [CONTRIBUTING.md](CONTRIBUTING.md)
-2. Check [docs/agent/](docs/agent/) for architecture
-3. Run tests: `cargo make test`
-4. Submit PR with tests
-5. All tests must pass
-
----
-
-## 📄 License
+## License
 
 MIT License - see [LICENSE](LICENSE)
 
 ---
 
-## 🎯 Use Cases
+## What is ggen?
 
-**ggen excels at:**
-- ✅ Generating type-safe code from RDF ontologies
-- ✅ Building CLI tools with clap-noun-verb patterns
-- ✅ Creating polyglot APIs from knowledge graphs
-- ✅ Template-driven project scaffolding
-- ✅ SPARQL-powered code generation
-- ✅ AI-assisted development workflows
-- ✅ Marketplace package management
-- ✅ Research paper tracking and generation
+ggen is a deterministic code generation framework that treats software artifacts as projections of knowledge graphs. Unlike traditional templating tools that use string manipulation, ggen:
 
-**Real-world applications:**
-- Generate TypeScript types from Schema.org
-- Create Rust APIs from domain ontologies
-- Build Python Pydantic models from RDF
-- Scaffold full-stack projects with conventions
-- Query knowledge graphs for code patterns
-- Automate repetitive coding tasks
+1. **Defines domain models in RDF/OWL** (ontologies)
+2. **Queries models with SPARQL** (like SQL for graphs)
+3. **Projects to target languages** (Rust, TypeScript, Python, etc.)
+4. **Guarantees reproducibility** (lockfiles, deterministic outputs)
+
+**Result**: Define your domain once in RDF, generate type-safe code for any language, maintain consistency across your entire codebase.
+
+**Why RDF?**: Standard, language-agnostic, queryable with SPARQL, extensible with OWL, interoperable with existing ontologies (Schema.org, FOAF, Dublin Core).
+
+**Why deterministic?**: Same input → same output, always. Enables caching, reproducible builds, and confident regeneration.
+
+**For deeper understanding**: [Explanations](docs/explanations/)
 
 ---
 
-**Built with Rust | Powered by RDF | Tested at 1,168+ passing tests**
+**Built with Rust | Powered by RDF | Tested with 1,168+ passing tests**
 
 _Deterministic. Ontology-driven. Production-ready._
