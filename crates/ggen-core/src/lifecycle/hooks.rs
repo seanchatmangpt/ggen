@@ -5,7 +5,7 @@
 
 use super::error::{LifecycleError, Result};
 use super::model::{Hooks, Make};
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet};
 
 /// Hook validation error
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -231,7 +231,8 @@ impl AsRef<Hooks> for ValidatedHooks {
 ///
 /// Convenience function to validate hooks against phases in a Make config.
 pub fn validate_hooks(make: &Make) -> Result<ValidatedHooks> {
-    let phase_names: HashSet<String> = make.phase_names().into_iter().collect();
+    // Use BTreeSet for deterministic iteration order (matches ValidatedHooks type)
+    let phase_names: BTreeSet<String> = make.phase_names().into_iter().collect();
 
     if let Some(hooks) = &make.hooks {
         ValidatedHooks::new(hooks.clone(), phase_names)
