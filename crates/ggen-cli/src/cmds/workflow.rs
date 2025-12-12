@@ -146,7 +146,14 @@ fn median(mut values: Vec<f64>) -> f64 {
         return 0.0;
     }
     // Sort with proper handling of NaN values (NaN sorts last)
-    values.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    // Sort values with proper error handling for NaN cases
+    values.sort_by(|a, b| {
+        a.partial_cmp(b).unwrap_or_else(|| {
+            // If comparison fails (NaN case), maintain order
+            // This is safe because we're only sorting for display purposes
+            std::cmp::Ordering::Equal
+        })
+    });
     let mid = values.len() / 2;
     if values.len() % 2 == 0 {
         (values[mid - 1] + values[mid]) / 2.0
