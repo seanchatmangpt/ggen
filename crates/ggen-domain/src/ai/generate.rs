@@ -185,6 +185,7 @@ mod tests {
         assert!(matches!(options.output_format, OutputFormat::Json));
     }
 
+    #[ignore = "Requires API key and network access - integration test"]
     #[tokio::test]
     async fn test_generate_code_basic() {
         let options = GenerateOptions::new("analyze this code");

@@ -490,6 +490,7 @@ mod tests {
         assert!(result.is_err());
     }
 
+    #[ignore = "Requires API key and network access - integration test"]
     #[tokio::test]
     async fn test_execute_chat_placeholder() {
         // Placeholder implementation should work for valid input
