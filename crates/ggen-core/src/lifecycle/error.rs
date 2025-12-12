@@ -444,7 +444,7 @@ mod tests {
     #[test]
     fn test_dependency_cycle_error() {
         let err = LifecycleError::dependency_cycle("init -> setup -> build -> init");
-        assert!(err.to_string().contains("Dependency cycle detected"));
+        assert!(err.to_string().contains("Circular dependency detected"));
         assert!(err.to_string().contains("init -> setup -> build -> init"));
     }
 
