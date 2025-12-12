@@ -1,6 +1,6 @@
 [package]
 name = "ggen"
-version = "3.4.1"
+version = "4.0.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -72,20 +72,20 @@ rayon = "1.11"
 log = "0.4.28"
 
 # Workspace-local crates (use workspace = true pattern in workspace members)
-ggen-utils = { path = "crates/ggen-utils", version = "3.4.0" }
-ggen-core = { path = "crates/ggen-core", version = "3.4.0" }
-ggen-ai = { path = "crates/ggen-ai", version = "3.4.0" }
-ggen-config = { path = "crates/ggen-config", version = "3.4.0" }
-ggen-cli-validation = { path = "crates/ggen-cli-validation", version = "3.4.0" }
-ggen-config-clap = { path = "crates/ggen-config-clap", version = "3.4.0" }
-ggen-marketplace = { path = "crates/ggen-marketplace", version = "3.4.1" }
-ggen-domain = { path = "crates/ggen-domain", version = "3.4.0" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "3.4.0" }
-ggen-node = { path = "crates/ggen-node", version = "3.4.0" }
-ggen-macros = { path = "crates/ggen-macros", version = "3.4.0" }
-ggen-dod = { path = "crates/ggen-dod", version = "3.4.0" }
-ggen-test-audit = { path = "crates/ggen-test-audit", version = "0.1.0" }  # Feature 004
-ggen-test-opt = { path = "crates/ggen-test-opt", version = "0.1.0" }      # Feature 004
+ggen-utils = { path = "crates/ggen-utils", version = "4.0.0" }
+ggen-core = { path = "crates/ggen-core", version = "4.0.0" }
+ggen-ai = { path = "crates/ggen-ai", version = "4.0.0" }
+ggen-config = { path = "crates/ggen-config", version = "4.0.0" }
+ggen-cli-validation = { path = "crates/ggen-cli-validation", version = "4.0.0" }
+ggen-config-clap = { path = "crates/ggen-config-clap", version = "4.0.0" }
+ggen-marketplace = { path = "crates/ggen-marketplace", version = "4.0.0" }
+ggen-domain = { path = "crates/ggen-domain", version = "4.0.0" }
+ggen-cli-lib = { path = "crates/ggen-cli", version = "4.0.0" }
+ggen-node = { path = "crates/ggen-node", version = "4.0.0" }
+ggen-macros = { path = "crates/ggen-macros", version = "4.0.0" }
+ggen-dod = { path = "crates/ggen-dod", version = "4.0.0" }
+ggen-test-audit = { path = "crates/ggen-test-audit", version = "4.0.0" }  # Feature 004
+ggen-test-opt = { path = "crates/ggen-test-opt", version = "4.0.0" }      # Feature 004
 
 # OpenTelemetry dependencies
 opentelemetry = "0.21"
@@ -152,10 +152,10 @@ london_tdd = []
 marketplace-v2 = []
 
 [dependencies]
-ggen-utils = { path = "crates/ggen-utils", version = "3.4.0" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "3.4.0" }
-ggen-core = { path = "crates/ggen-core", version = "3.4.0" }
-ggen-ai = { path = "crates/ggen-ai", version = "3.4.0" }
+ggen-utils = { path = "crates/ggen-utils", version = "4.0.0" }
+ggen-cli-lib = { path = "crates/ggen-cli", version = "4.0.0" }
+ggen-core = { path = "crates/ggen-core", version = "4.0.0" }
+ggen-ai = { path = "crates/ggen-ai", version = "4.0.0" }
 human-panic = "2.0.3"
 better-panic = "0.3.0"
 log = "0.4.28"
