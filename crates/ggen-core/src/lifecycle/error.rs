@@ -7,7 +7,7 @@ use std::path::PathBuf;
 use thiserror::Error;
 
 /// Main error type for lifecycle operations
-#[derive(Error, Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum LifecycleError {
     /// Error loading or parsing make.toml configuration
     #[error("Failed to load configuration from {path}: {source}")]

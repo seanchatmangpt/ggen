@@ -186,7 +186,7 @@ impl RegistryClient {
     /// ```rust,no_run
     /// use ggen_core::registry::RegistryClient;
     ///
-    /// # async fn example() -> anyhow::Result<()> {
+    /// # async fn example() -> Result<()> {
     /// let client = RegistryClient::new()?;
     /// // Client is ready to use
     /// # Ok(())

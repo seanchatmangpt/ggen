@@ -11,8 +11,6 @@
 //! Every error must be visible, propagated, and actionable.
 //! Errors are first-class citizens with context and suggestions.
 
-use thiserror::Error;
-
 // ============================================================================
 // Top-Level Error Type
 // ============================================================================
@@ -31,7 +29,7 @@ use thiserror::Error;
 ///     // ...
 /// }
 /// ```
-#[derive(Error, Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum GgenError {
     // ========================================================================
     // Template Errors
@@ -152,7 +150,7 @@ pub enum GgenError {
 // ============================================================================
 
 /// Validation-specific errors with detailed diagnostics
-#[derive(Error, Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum ValidationError {
     #[error("Missing required field: '{field}' in {location}")]
     MissingField {
@@ -191,7 +189,7 @@ pub enum ValidationError {
 // ============================================================================
 
 /// Configuration-specific errors
-#[derive(Error, Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum ConfigError {
     #[error("Configuration file not found: {path}\nSearched locations: {searched:?}")]
     FileNotFound { path: String, searched: Vec<String> },

@@ -40,8 +40,6 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::Path;
-use thiserror::Error;
-
 /// Production readiness status for a component
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ReadinessStatus {
@@ -142,7 +140,7 @@ pub struct CategoryReport {
 }
 
 /// Error types for production readiness operations
-#[derive(Error, Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum ProductionError {
     #[error("Failed to load readiness configuration: {0}")]
     ConfigLoad(#[from] std::io::Error),

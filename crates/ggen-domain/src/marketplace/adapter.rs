@@ -29,7 +29,7 @@ use ggen_utils::error::Result;
 /// Unified marketplace registry interface
 ///
 /// NOTE: This trait is legacy code. The CLI uses `ggen-marketplace-v2` directly
-//! and does not use this trait. This code is kept for reference.
+/// and does not use this trait. This code is kept for reference.
 #[async_trait]
 pub trait MarketplaceRegistry: Send + Sync {
     // ==================== Core Package Operations ====================
