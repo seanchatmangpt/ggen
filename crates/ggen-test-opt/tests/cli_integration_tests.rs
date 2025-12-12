@@ -33,11 +33,8 @@ fn setup_test_metadata() -> TempDir {
             "test3": {"failure_count": 10, "total_runs": 10}
         }
     }"#;
-    fs::write(
-        metadata_dir.join("failure_history.json"),
-        failure_history,
-    )
-    .expect("Failed to write failure history");
+    fs::write(metadata_dir.join("failure_history.json"), failure_history)
+        .expect("Failed to write failure history");
 
     temp_dir
 }
@@ -51,7 +48,10 @@ fn test_cli_help_displays_all_commands() {
     let stdout = String::from_utf8_lossy(&output.stdout);
 
     // Verify all commands are listed
-    assert!(stdout.contains("optimize"), "Help should list 'optimize' command");
+    assert!(
+        stdout.contains("optimize"),
+        "Help should list 'optimize' command"
+    );
     assert!(
         stdout.contains("metadata-update"),
         "Help should list 'metadata-update' command"
