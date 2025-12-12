@@ -390,11 +390,11 @@ mod tests {
     fn test_cache_lock_poisoning_handling() {
         // Test that cache operations handle lock poisoning gracefully
         let cache: CoherentCache<String, i32> = CoherentCache::default();
-        
+
         // Normal operations should work
         cache.insert("key1".to_string(), 42);
         assert_eq!(cache.get(&"key1".to_string()), Some(42));
-        
+
         // Lock poisoning is handled gracefully via unwrap_or_default
         // This test verifies the defensive programming works
         let stats = cache.stats();
@@ -404,13 +404,13 @@ mod tests {
     #[test]
     fn test_cache_empty_operations() {
         let cache: CoherentCache<String, i32> = CoherentCache::default();
-        
+
         // Test operations on empty cache
         assert_eq!(cache.get(&"nonexistent".to_string()), None);
         assert_eq!(cache.remove(&"nonexistent".to_string()), None);
         assert_eq!(cache.len(), 0);
         assert!(!cache.contains(&"nonexistent".to_string()));
-        
+
         let stats = cache.stats();
         assert_eq!(stats.misses, 1); // One miss from get
     }
@@ -418,16 +418,16 @@ mod tests {
     #[test]
     fn test_cache_cleanup_removes_expired() {
         let cache: CoherentCache<String, i32> = CoherentCache::new(100, Duration::from_millis(50));
-        
+
         cache.insert("key1".to_string(), 1);
         cache.insert("key2".to_string(), 2);
-        
+
         // Wait for expiration
         std::thread::sleep(Duration::from_millis(100));
-        
+
         // Cleanup should remove expired entries
         cache.cleanup();
-        
+
         assert_eq!(cache.get(&"key1".to_string()), None);
         assert_eq!(cache.get(&"key2".to_string()), None);
         assert_eq!(cache.len(), 0);

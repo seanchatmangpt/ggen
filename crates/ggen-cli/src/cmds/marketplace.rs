@@ -368,6 +368,9 @@ fn get_metrics() -> &'static MetricsCollector {
 ///
 /// # Install to specific directory
 /// ggen marketplace install --package_id my-package --install_path ./my-project
+///
+/// # Use local registry file
+/// ggen marketplace install --package_id my-package --registry_url ./marketplace/registry/index.json
 /// ```
 #[verb]
 fn install(
@@ -510,6 +513,9 @@ fn install(
 ///
 /// # Sort by different criteria
 /// ggen marketplace search --query "web" --sort downloads
+///
+/// # Use local registry file
+/// ggen marketplace search --query "rdf" --registry_url ./marketplace/registry/index.json
 /// ```
 #[verb]
 pub fn search(
@@ -813,6 +819,9 @@ fn info(
 /// ```bash
 /// # Validate a package
 /// ggen marketplace validate --package_id my-package
+///
+/// # Use local registry file
+/// ggen marketplace validate --package_id my-package --registry_url ./marketplace/registry/index.json
 /// ```
 #[verb]
 fn validate(
@@ -886,6 +895,9 @@ fn validate(
 /// ```bash
 /// # List versions
 /// ggen marketplace versions --package_id my-package
+///
+/// # Use local registry file
+/// ggen marketplace versions --package_id my-package --registry_url ./marketplace/registry/index.json
 /// ```
 #[verb]
 fn versions(
@@ -976,6 +988,9 @@ pub fn metrics(format: Option<String>) -> Result<MetricsOutput> {
 /// ```bash
 /// # Execute SPARQL query
 /// ggen marketplace sparql --query "SELECT ?pkg WHERE { ?pkg rdf:type ggen:Package }"
+///
+/// # Use local registry file
+/// ggen marketplace sparql --query "SELECT ?pkg WHERE { ?pkg rdf:type ggen:Package }" --registry_url ./marketplace/registry/index.json
 /// ```
 #[verb]
 fn sparql(
@@ -1008,6 +1023,9 @@ fn sparql(
 /// ```bash
 /// # Get RDF stats
 /// ggen marketplace rdf_stats
+///
+/// # Use local registry file
+/// ggen marketplace rdf_stats --registry_url ./marketplace/registry/index.json
 /// ```
 #[verb]
 fn rdf_stats(
