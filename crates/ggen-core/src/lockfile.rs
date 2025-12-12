@@ -87,7 +87,7 @@ use ggen_utils::error::{Error, Result};
 use lru::LruCache;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::fs;
 use std::num::NonZeroUsize;
 use std::path::{Path, PathBuf};
@@ -379,10 +379,11 @@ impl LockfileManager {
     }
 
     /// Get installed packs as a map for quick lookup
-    pub fn installed_packs(&self) -> Result<HashMap<String, LockEntry>> {
+    /// **FMEA Fix**: Use BTreeMap for deterministic iteration order
+    pub fn installed_packs(&self) -> Result<BTreeMap<String, LockEntry>> {
         let lockfile = match self.load()? {
             Some(lockfile) => lockfile,
-            None => return Ok(HashMap::new()),
+            None => return Ok(BTreeMap::new()),
         };
 
         Ok(lockfile
@@ -459,7 +460,8 @@ impl LockfileManager {
         let new_entries = entries?;
 
         // Remove existing entries for the packs being updated
-        let pack_ids: std::collections::HashSet<_> =
+        // **FMEA Fix**: Use BTreeSet for deterministic iteration order
+        let pack_ids: std::collections::BTreeSet<_> =
             packs.iter().map(|(id, _, _, _)| id.as_str()).collect();
         lockfile
             .packs
