@@ -9,6 +9,9 @@ repository = "https://github.com/ggen-project/ggen"
 readme = "README.md"
 
 [dependencies]
+# CLI framework
+clap = { version = "4.4", features = ["derive"] }
+
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
@@ -40,6 +43,10 @@ criterion = "0.5"
 
 [lib]
 path = "src/lib.rs"
+
+[[bin]]
+name = "ggen-test-opt"
+path = "src/bin/ggen-test-opt.rs"
 
 [[bench]]
 name = "value_scoring_bench"

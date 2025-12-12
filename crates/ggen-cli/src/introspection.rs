@@ -808,98 +808,6 @@ pub fn get_verb_registry() -> HashMap<String, VerbMetadata> {
     );
 
     // ========================================
-    // PAPER MODULE (3 verbs)
-    // ========================================
-
-    registry.insert(
-        "paper::export".to_string(),
-        VerbMetadata {
-            noun: "paper".to_string(),
-            verb: "export".to_string(),
-            description: "Export documentation as academic paper".to_string(),
-            arguments: vec![
-                ArgumentMetadata {
-                    name: "source".to_string(),
-                    argument_type: "String".to_string(),
-                    optional: false,
-                    description: "Source documentation directory".to_string(),
-                    default_value: None,
-                },
-                ArgumentMetadata {
-                    name: "format".to_string(),
-                    argument_type: "Option<String>".to_string(),
-                    optional: true,
-                    description: "Output format (pdf|html|markdown)".to_string(),
-                    default_value: None,
-                },
-                ArgumentMetadata {
-                    name: "output".to_string(),
-                    argument_type: "Option<String>".to_string(),
-                    optional: true,
-                    description: "Output file path".to_string(),
-                    default_value: None,
-                },
-            ],
-            return_type: "ExportOutput".to_string(),
-            supports_json_output: true,
-        },
-    );
-
-    registry.insert(
-        "paper::compile".to_string(),
-        VerbMetadata {
-            noun: "paper".to_string(),
-            verb: "compile".to_string(),
-            description: "Compile paper from LaTeX/Markdown sources".to_string(),
-            arguments: vec![
-                ArgumentMetadata {
-                    name: "source".to_string(),
-                    argument_type: "String".to_string(),
-                    optional: false,
-                    description: "Source paper file".to_string(),
-                    default_value: None,
-                },
-                ArgumentMetadata {
-                    name: "output".to_string(),
-                    argument_type: "Option<String>".to_string(),
-                    optional: true,
-                    description: "Output file path".to_string(),
-                    default_value: None,
-                },
-            ],
-            return_type: "CompileOutput".to_string(),
-            supports_json_output: true,
-        },
-    );
-
-    registry.insert(
-        "paper::init-bibliography".to_string(),
-        VerbMetadata {
-            noun: "paper".to_string(),
-            verb: "init-bibliography".to_string(),
-            description: "Initialize bibliography from ontology".to_string(),
-            arguments: vec![
-                ArgumentMetadata {
-                    name: "ontology".to_string(),
-                    argument_type: "String".to_string(),
-                    optional: false,
-                    description: "Ontology file path".to_string(),
-                    default_value: None,
-                },
-                ArgumentMetadata {
-                    name: "format".to_string(),
-                    argument_type: "Option<String>".to_string(),
-                    optional: true,
-                    description: "Bibliography format (bibtex|csl)".to_string(),
-                    default_value: None,
-                },
-            ],
-            return_type: "BibliographyOutput".to_string(),
-            supports_json_output: true,
-        },
-    );
-
-    // ========================================
     // CI MODULE (4 verbs)
     // ========================================
 
@@ -1296,8 +1204,8 @@ mod tests {
         let registry = get_verb_registry();
         assert_eq!(
             registry.len(),
-            47,
-            "Registry should contain exactly 47 verbs"
+            44,
+            "Registry should contain exactly 44 verbs after removing paper verbs"
         );
     }
 
@@ -1305,8 +1213,8 @@ mod tests {
     fn test_command_graph_total_verbs() {
         let graph = build_command_graph();
         assert_eq!(
-            graph.total_verbs, 47,
-            "Command graph should report 47 total verbs"
+            graph.total_verbs, 44,
+            "Command graph should report 44 total verbs after removing paper verbs"
         );
     }
 
@@ -1314,8 +1222,7 @@ mod tests {
     fn test_all_modules_present() {
         let graph = build_command_graph();
         let expected_nouns = vec![
-            "ai", "template", "graph", "ontology", "project", "paper", "ci", "workflow", "fmea",
-            "utils",
+            "ai", "template", "graph", "ontology", "project", "ci", "workflow", "fmea", "utils",
         ];
         for noun in expected_nouns {
             assert!(
@@ -1361,12 +1268,6 @@ mod tests {
     fn test_project_module_verbs() {
         let verbs = list_verbs_for_noun("project");
         assert_eq!(verbs.len(), 4, "Project module should have 4 verbs");
-    }
-
-    #[test]
-    fn test_paper_module_verbs() {
-        let verbs = list_verbs_for_noun("paper");
-        assert_eq!(verbs.len(), 3, "Paper module should have 3 verbs");
     }
 
     #[test]

@@ -11,7 +11,7 @@
 #[path = "mod.rs"]
 mod aci_utils;
 
-use aci_utils::{extract_description, parse_makefile_toml};
+use aci_utils::parse_makefile_toml;
 use std::path::Path;
 use std::process::Command;
 use std::time::{Duration, Instant};

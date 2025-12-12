@@ -117,6 +117,10 @@ mod prevention_tests {
         };
 
         assert!(
+            failure.name.contains("Null"),
+            "Failure mode should describe the scenario"
+        );
+        assert!(
             failure.is_critical(),
             "FMEA identifies critical failures (RPN > 100)"
         );
@@ -320,6 +324,10 @@ mod prevention_tests {
             ],
         };
 
+        assert!(
+            !analysis.problem.is_empty(),
+            "Root cause analysis requires a stated problem"
+        );
         assert!(analysis.is_complete(), "5 Whys analysis complete");
         assert_eq!(
             analysis.root_cause(),

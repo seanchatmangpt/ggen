@@ -1,0 +1,26 @@
+@prefix rev: <http://example.org/review#> .
+@prefix dc:  <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# Reviewer metadata per manuscript
+[] a rev:Review ;
+   dc:identifier "{{paper_id}}" ;
+   rev:managingEditor "{{managing_editor}}" ;
+   rev:deadline "{{deadline}}" ;
+   rev:reviewerCount "{{num_reviewers}}" ;
+   rev:reviewer [
+     foaf:name "Reviewer 1" ;
+     rev:role "primary" ;
+     rev:conflictOfInterest false ;
+     rev:score 4 ;
+     rev:comment "Detailed strengths and weaknesses with line references." ;
+   ] ;
+   rev:reviewer [
+     foaf:name "Reviewer 2" ;
+     rev:role "secondary" ;
+     rev:conflictOfInterest false ;
+     rev:score 3 ;
+     rev:comment "Requests clarifications on methods and datasets." ;
+   ] ;
+   rev:decisionDraft "major-revision" ;
+   rev:summary "Consensus leans to major revision with focused methodological clarifications." .

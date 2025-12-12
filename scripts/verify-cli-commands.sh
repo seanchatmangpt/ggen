@@ -85,7 +85,7 @@ echo "CLI Command Verification"
 echo "=========================================="
 echo ""
 
-# Find ggen binary
+# Find ggen binary, auto-build if missing
 GGEN_BIN=""
 if [ -f "target/release/ggen" ]; then
     GGEN_BIN="target/release/ggen"
@@ -94,9 +94,22 @@ elif [ -f "target/debug/ggen" ]; then
 elif command -v ggen &> /dev/null; then
     GGEN_BIN="ggen"
 else
-    echo -e "${RED}Error: ggen binary not found${NC}"
-    echo "  Build ggen first: cargo make build-release"
-    exit 1
+    echo -e "${YELLOW}⚠️  ggen binary not found - building release binary...${NC}"
+    if cargo make build-release > /tmp/ggen-build.log 2>&1; then
+        if [ -f "target/release/ggen" ]; then
+            GGEN_BIN="target/release/ggen"
+            echo -e "${GREEN}✅ Binary built successfully${NC}"
+        else
+            echo -e "${RED}Error: Build succeeded but binary not found${NC}"
+            echo "  Build log: /tmp/ggen-build.log"
+            exit 1
+        fi
+    else
+        echo -e "${RED}Error: Failed to build ggen binary${NC}"
+        echo "  Build log: /tmp/ggen-build.log"
+        echo "  Run 'cargo make build-release' manually to see errors"
+        exit 1
+    fi
 fi
 
 echo "Using ggen binary: $GGEN_BIN"

@@ -8,11 +8,15 @@
 //! - **Layer 2 (Integration)**: Async execution via crate::runtime::block_on, error handling
 //! - **Layer 1 (Domain)**: Pure RDF logic from ggen_domain::graph
 
+// Standard library imports
+use std::path::PathBuf;
+
+// External crate imports
 use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
-use std::path::PathBuf;
 
+// Local crate imports
 use crate::cmds::helpers::execute_async_op;
 
 // ============================================================================
@@ -67,9 +71,9 @@ fn load(file: String, format: Option<String>) -> Result<LoadOutput> {
     };
 
     let result = execute_async_op("load", async move {
-        execute_load(input)
-            .await
-            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Load failed: {}", e)))
+        execute_load(input).await.map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Load failed: {}", e))
+        })
     })?;
 
     Ok(LoadOutput {
@@ -94,9 +98,9 @@ fn query(
     };
 
     let result = execute_async_op("query", async move {
-        execute_query(input)
-            .await
-            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Query failed: {}", e)))
+        execute_query(input).await.map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Query failed: {}", e))
+        })
     })?;
 
     Ok(QueryOutput {
@@ -119,9 +123,9 @@ fn export(input_file: String, output: String, format: String) -> Result<ExportOu
     };
 
     let result = execute_async_op("export", async move {
-        execute_export(input_data)
-            .await
-            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Export failed: {}", e)))
+        execute_export(input_data).await.map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Export failed: {}", e))
+        })
     })?;
 
     Ok(ExportOutput {
@@ -147,9 +151,9 @@ fn visualize(input_file: String, format: Option<String>) -> Result<VisualizeOutp
     };
 
     let result = execute_async_op("visualize", async move {
-        execute_visualize(input_data)
-            .await
-            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Visualize failed: {}", e)))
+        execute_visualize(input_data).await.map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Visualize failed: {}", e))
+        })
     })?;
 
     Ok(VisualizeOutput {

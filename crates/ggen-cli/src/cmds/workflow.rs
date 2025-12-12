@@ -416,7 +416,7 @@ fn discover(
 /// ```bash
 /// # Record event
 /// ggen workflow event --workflow-file workflow.json \
-///   --case-id paper-123 \
+///   --case-id workflow-123 \
 ///   --activity "CodeGenerated" \
 ///   --resource "researcher-1"
 /// ```

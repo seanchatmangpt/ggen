@@ -8,14 +8,12 @@
 //! - ontology_extraction_tests.rs (keep all)
 //! - rdf_rendering_e2e.rs (keep basic operations)
 
-
 #[cfg(test)]
 mod semantic_ontology {
     #[allow(unused_imports)]
-        // ================================================================
+    // ================================================================
     // ONTOLOGY: Semantic Web & RDF Concepts (Self-Contained)
     // ================================================================
-
     #[test]
     fn test_ontology_namespace_validation() {
         // Arrange: Ontology namespaces
@@ -147,7 +145,7 @@ mod semantic_ontology {
 
 #[cfg(test)]
 mod semantic_rdf {
-    
+
     // ================================================================
     // RDF: Triple Operations & Graph Manipulation (Critical)
     // ================================================================
@@ -179,7 +177,8 @@ mod semantic_rdf {
     #[test]
     fn test_rdf_graph_construction() {
         // Arrange: RDF graph (collection of triples)
-        let mut graph: std::collections::HashMap<String, Vec<(String, String)>> = std::collections::HashMap::new();
+        let mut graph: std::collections::HashMap<String, Vec<(String, String)>> =
+            std::collections::HashMap::new();
 
         // Act: Add triples to graph
         graph

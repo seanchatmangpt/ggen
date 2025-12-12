@@ -78,7 +78,7 @@ Returns RED Andon signal on compilation errors, GREEN on success.
 
 Usage: cargo make check
 When: Before every commit, after code changes, during development
-SLO: <5s first build (15s timeout for lock contention), <2s incremental
+SLO: <5s first build (15s timeout quick attempt), <2s incremental
 
 Example output:
   GREEN: "Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.95s"
@@ -86,13 +86,37 @@ Example output:
   RED: "error: could not compile `ggen` (lib) due to 3 previous errors"
 
 Recovery: Fix compilation errors shown in output and re-run cargo make check.
-For lock contention timeouts (>15s), check for other cargo processes.
+If the first attempt times out due to a cargo lock, the task automatically retries
+with a longer 30s timeout for lock contention.
 """
 workspace = false
+clear = true
 # Poka-Yoke: Treat warnings as errors to prevent defects from propagating
 env = { RUSTFLAGS = "-D warnings" }
-command = "timeout"
-args = ["15s", "cargo", "check"]
+command = "bash"
+args = ["-c", '''
+set -euo pipefail
+
+quick_timeout="15s"
+retry_timeout="30s"
+
+run_check() {
+  timeout "$1" cargo check
+}
+
+if run_check "$quick_timeout"; then
+  exit 0
+fi
+
+status=$?
+# 124 = timeout, 137 = timeout killed by signal; retry on these to handle locks
+if [[ $status -eq 124 || $status -eq 137 ]]; then
+  echo "⚠️  Retrying cargo check with extended timeout ($retry_timeout) due to lock contention"
+  run_check "$retry_timeout"
+else
+  exit $status
+fi
+''']
 
 # Pre-push check with longer timeout for lock contention scenarios
 [tasks.check-pre-push]
@@ -556,6 +580,28 @@ Recovery: Review report to identify failing layers.
 workspace = false
 command = "bash"
 args = ["scripts/generate-validation-report.sh", "${@}"]
+
+[tasks.monitor-validation]
+description = """
+Monitor validation status and send alerts (Andon Signal Validation Framework).
+
+Checks validation report and alerts on failures:
+  - RED: Layer 1 or Layer 3 failures (critical)
+  - YELLOW: Layer 2 failures (warning)
+  - GREEN: All layers passing
+
+Usage: cargo make monitor-validation [REPORT_FILE] [ALERT_THRESHOLD]
+When: Scheduled (cron), manual monitoring, CI/CD integration
+SLO: <5s execution time
+
+Example output:
+  🚨 ALERT: Layer 1 (Compile-Time) validation failed - STOP THE LINE
+
+Recovery: Fix failing layers and re-run validation.
+"""
+workspace = false
+command = "bash"
+args = ["scripts/monitor-validation.sh", "${@}"]
 
 [tasks.test-clnrm]
 description = """
@@ -1146,9 +1192,18 @@ Tests all three validation layers:
   - Layer 2: Test-Time (test-unit, test-clnrm)
   - Layer 3: Runtime (verify-cli)
 
-Usage: cargo make act-validation [JOB=job_name]
+Usage: 
+  cargo make act-validation              # Run all jobs
+  cargo make act-validation JOB=compile-time  # Run specific job
+  cargo make act-validation DRYRUN=true      # Dry-run mode
+
 When: Before pushing, after validation changes, local CI testing
 SLO: <10 minutes for full validation
+
+Prerequisites:
+  - act installed: brew install act (macOS) or see act-status
+  - Docker running: docker ps
+  - Verify: cargo make act-status
 
 Example output:
   ✅ Layer 1: Compile-Time Validation - PASSED
@@ -1158,13 +1213,56 @@ Example output:
 Recovery: Fix failing layers and re-run act-validation.
 """
 workspace = false
-command = "act"
-args = [
-  "--container-architecture", "${ACT_CONTAINER_ARCH}",
-  "--platform", "${ACT_PLATFORM}",
-  "-W", ".github/workflows/andon-validation.yml",
-  "${@}",
-]
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -e
+
+# Check act is installed
+if ! command -v act &> /dev/null; then
+    echo "❌ Error: act is not installed"
+    echo "  Install: brew install act (macOS)"
+    echo "  Or: curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash"
+    echo "  Verify: cargo make act-status"
+    exit 1
+fi
+
+# Check Docker is running
+if ! docker ps &> /dev/null; then
+    echo "❌ Error: Docker is not running"
+    echo "  Start Docker Desktop (macOS/Windows) or Docker daemon (Linux)"
+    echo "  Verify: docker ps"
+    exit 1
+fi
+
+# Handle dry-run mode
+DRYRUN="${DRYRUN:-false}"
+JOB="${JOB:-}"
+
+if [ "$DRYRUN" == "true" ]; then
+    echo "🔍 Dry-run mode: Validating workflow syntax..."
+    act --dryrun \
+        --container-architecture "${ACT_CONTAINER_ARCH}" \
+        --platform "${ACT_PLATFORM}" \
+        -W ".github/workflows/andon-validation.yml" \
+        "${@}"
+elif [ -n "$JOB" ]; then
+    echo "🚀 Running validation workflow, job: $JOB"
+    act \
+        --container-architecture "${ACT_CONTAINER_ARCH}" \
+        --platform "${ACT_PLATFORM}" \
+        -W ".github/workflows/andon-validation.yml" \
+        -j "${JOB}" \
+        "${@}"
+else
+    echo "🚀 Running validation workflow (all jobs)"
+    act \
+        --container-architecture "${ACT_CONTAINER_ARCH}" \
+        --platform "${ACT_PLATFORM}" \
+        -W ".github/workflows/andon-validation.yml" \
+        "${@}"
+fi
+'''
 
 [tasks.act]
 description = "Run a GitHub Actions workflow locally with act (usage: cargo make act WORKFLOW=ci.yml JOB=fmt). Examples: 'cargo make act WORKFLOW=lint.yml JOB=lint', 'cargo make act WORKFLOW=ci.yml' (runs all jobs)"
@@ -2197,3 +2295,27 @@ If budget check times out (>5s), verify test metadata is up to date.
 workspace = false
 command = "timeout"
 args = ["5s", "cargo", "run", "--package", "ggen-test-opt", "--", "budget-check"]
+
+[tasks.metadata-update]
+description = """
+Update test execution metadata from latest test runs.
+Collects execution times, coverage data, and failure history for intelligent test selection.
+Stores metadata in .ggen/test-metadata/ for use by test-opt and test-budget-check.
+
+Usage: cargo make metadata-update
+When: After running tests with cargo-nextest, after coverage runs, periodic updates
+SLO: <10s for metadata collection and storage
+
+Example output:
+  GREEN: "📊 Collected 1,178 test execution times"
+  GREEN: "📊 Collected coverage for 1,042 tests"
+  GREEN: "📊 Updated failure history for 156 tests"
+  GREEN: "✅ Metadata update complete!"
+
+Recovery: If nextest/tarpaulin JSON not found, ensure tests were run with JSON output.
+For timeout (>10s), run metadata update on specific test subsets.
+If metadata directory missing, it will be created automatically.
+"""
+workspace = false
+command = "timeout"
+args = ["10s", "cargo", "run", "--package", "ggen-test-opt", "--", "metadata-update"]
