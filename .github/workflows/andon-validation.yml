@@ -83,6 +83,15 @@ jobs:
         run: cargo make test-clnrm
         continue-on-error: true
 
+      - name: Log clnrm Status
+        if: always() && env.CLNRM_AVAILABLE == 'true'
+        run: |
+          if [ "${{ job.status }}" != "success" ]; then
+            echo "⚠️  clnrm integration tests failed (non-blocking)"
+            echo "   This is expected if clnrm is not available or Docker is not running"
+            echo "   To enable: Set CLNRM_AVAILABLE=true in repository secrets"
+          fi
+
       - name: Validation Report
         if: always()
         run: |

@@ -94,7 +94,9 @@ clear = true
 # Poka-Yoke: Treat warnings as errors to prevent defects from propagating
 env = { RUSTFLAGS = "-D warnings" }
 command = "bash"
-args = ["-c", '''
+args = [
+  "-c",
+  '''
 set -euo pipefail
 
 quick_timeout="15s"
@@ -116,7 +118,8 @@ if [[ $status -eq 124 || $status -eq 137 ]]; then
 else
   exit $status
 fi
-''']
+''',
+]
 
 # Pre-push check with longer timeout for lock contention scenarios
 [tasks.check-pre-push]
@@ -467,7 +470,7 @@ dependencies = [
   "test-doc",
   "validate-docs",
   "docs-check",
-  "verify-cli",  # Andon Signal Validation Framework - Layer 3: Runtime
+  "verify-cli",    # Andon Signal Validation Framework - Layer 3: Runtime
 ]
 script_runner = "@shell"
 script = '''
@@ -2294,7 +2297,15 @@ If budget check times out (>5s), verify test metadata is up to date.
 """
 workspace = false
 command = "timeout"
-args = ["5s", "cargo", "run", "--package", "ggen-test-opt", "--", "budget-check"]
+args = [
+  "5s",
+  "cargo",
+  "run",
+  "--package",
+  "ggen-test-opt",
+  "--",
+  "budget-check",
+]
 
 [tasks.metadata-update]
 description = """
@@ -2318,4 +2329,12 @@ If metadata directory missing, it will be created automatically.
 """
 workspace = false
 command = "timeout"
-args = ["10s", "cargo", "run", "--package", "ggen-test-opt", "--", "metadata-update"]
+args = [
+  "10s",
+  "cargo",
+  "run",
+  "--package",
+  "ggen-test-opt",
+  "--",
+  "metadata-update",
+]
