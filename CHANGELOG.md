@@ -43,9 +43,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `docs/benchmark-results/pattern_performance_20251119_102135.txt` (last updated Nov 19) - Raw benchmark output archived
 - Updated references in `docs/README.md`, `docs/how-to-guides/cicd-workflows.md`, and `docs/PATTERN_BENCHMARKS_SUMMARY.md` to remove broken links
 
-## [4.0.0] - 2025-12-03
+## [4.0.0] - 2025-12-11
 
 ### Added
+
+#### Test Concurrency Optimization (Feature 004)
+- **Pareto-based test selection** - 80/20 rule for identifying high-value tests (200 tests catch 80% of bugs)
+- **ParetoSelector** - Smart test selection based on composite value scoring (418 lines, 6/6 tests passing)
+- **MetadataCollector** - Historical test metadata tracking with failure frequency analysis (369 lines, 8/8 tests passing)
+- **TestValueScorer** - Multi-factor test prioritization (40% failure_freq + 25% coverage + 15% speed + 15% criticality - 5% budget_penalty) (422 lines, 14/14 tests passing)
+- **CLI Binary** - Three commands for test optimization (337 lines, 10/10 integration tests):
+  - `ggen-test-opt optimize` - Select high-value test subset
+  - `ggen-test-opt metadata-update` - Update test execution metadata
+  - `ggen-test-opt budget-check` - Validate execution time budget
+- **Test infrastructure** - 2,113 lines production + test code (38/38 tests passing)
+- **Constitutional compliance** - Full adherence to Result<T,E>, Chicago TDD, cargo make protocol
 
 #### Core CLI Architecture
 - **clap-noun-verb v5.3.0 upgrade** - Explicit verb registration with `#[verb("verb_name", "noun_name")]` pattern
