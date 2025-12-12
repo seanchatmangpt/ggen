@@ -396,7 +396,7 @@ fn install(
 
     // Optional registry override to avoid remote availability issues (e.g., local index.json)
     if let Some(url) = registry_url.as_ref() {
-        env::set_var("GGEN_REGISTRY_URL", url);
+        std::env::set_var("GGEN_REGISTRY_URL", url);
     }
 
     // Parse and validate package ID
@@ -513,12 +513,25 @@ fn install(
 /// ```
 #[verb]
 pub fn search(
-    query: String, category: Option<String>, author: Option<String>, license: Option<String>,
-    min_quality: Option<u32>, sort: Option<String>, limit: Option<usize>, offset: Option<usize>,
+    query: String,
+    category: Option<String>,
+    author: Option<String>,
+    license: Option<String>,
+    min_quality: Option<u32>,
+    sort: Option<String>,
+    limit: Option<usize>,
+    offset: Option<usize>,
+    // Override registry URL or local file path; sets GGEN_REGISTRY_URL for this invocation.
+    registry_url: Option<String>,
 ) -> Result<SearchOutput> {
     use ggen_marketplace::search::{SearchQuery, SortBy};
 
     let _duration_guard = track_duration("search");
+
+    // Optional registry override to avoid remote availability issues (e.g., local index.json)
+    if let Some(url) = registry_url.as_ref() {
+        std::env::set_var("GGEN_REGISTRY_URL", url);
+    }
 
     // #region agent log
     log_operation(
@@ -533,6 +546,7 @@ pub fn search(
             "sort": sort,
             "limit": limit,
             "offset": offset,
+            "registry_url": registry_url,
             "runtime_handle": tokio::runtime::Handle::try_current().is_ok(),
         }),
     );
@@ -709,7 +723,17 @@ fn publish(manifest_path: PathBuf, signing_key: Option<PathBuf>) -> Result<Publi
 /// ggen marketplace info --package_id my-package --version 1.0.0
 /// ```
 #[verb]
-fn info(package_id: String, version: Option<String>) -> Result<InfoOutput> {
+fn info(
+    package_id: String,
+    version: Option<String>,
+    // Override registry URL or local file path; sets GGEN_REGISTRY_URL for this invocation.
+    registry_url: Option<String>,
+) -> Result<InfoOutput> {
+    // Optional registry override to avoid remote availability issues (e.g., local index.json)
+    if let Some(url) = registry_url.as_ref() {
+        std::env::set_var("GGEN_REGISTRY_URL", url);
+    }
+
     // Parse package ID
     let pkg_id = PackageId::new(&package_id).map_err(to_cli_error)?;
 
@@ -791,8 +815,17 @@ fn info(package_id: String, version: Option<String>) -> Result<InfoOutput> {
 /// ggen marketplace validate --package_id my-package
 /// ```
 #[verb]
-fn validate(package_id: String) -> Result<ValidateOutput> {
+fn validate(
+    package_id: String,
+    // Override registry URL or local file path; sets GGEN_REGISTRY_URL for this invocation.
+    registry_url: Option<String>,
+) -> Result<ValidateOutput> {
     use ggen_marketplace::validation::{CheckSeverity, PackageValidator};
+
+    // Optional registry override to avoid remote availability issues (e.g., local index.json)
+    if let Some(url) = registry_url.as_ref() {
+        std::env::set_var("GGEN_REGISTRY_URL", url);
+    }
 
     // Parse package ID
     let pkg_id = PackageId::new(&package_id).map_err(to_cli_error)?;
@@ -855,7 +888,16 @@ fn validate(package_id: String) -> Result<ValidateOutput> {
 /// ggen marketplace versions --package_id my-package
 /// ```
 #[verb]
-fn versions(package_id: String) -> Result<VersionsOutput> {
+fn versions(
+    package_id: String,
+    // Override registry URL or local file path; sets GGEN_REGISTRY_URL for this invocation.
+    registry_url: Option<String>,
+) -> Result<VersionsOutput> {
+    // Optional registry override to avoid remote availability issues (e.g., local index.json)
+    if let Some(url) = registry_url.as_ref() {
+        std::env::set_var("GGEN_REGISTRY_URL", url);
+    }
+
     // Parse package ID
     let pkg_id = PackageId::new(&package_id).map_err(to_cli_error)?;
 
@@ -936,7 +978,16 @@ pub fn metrics(format: Option<String>) -> Result<MetricsOutput> {
 /// ggen marketplace sparql --query "SELECT ?pkg WHERE { ?pkg rdf:type ggen:Package }"
 /// ```
 #[verb]
-fn sparql(query: String) -> Result<serde_json::Value> {
+fn sparql(
+    query: String,
+    // Override registry URL or local file path; sets GGEN_REGISTRY_URL for this invocation.
+    registry_url: Option<String>,
+) -> Result<serde_json::Value> {
+    // Optional registry override to avoid remote availability issues (e.g., local index.json)
+    if let Some(url) = registry_url.as_ref() {
+        std::env::set_var("GGEN_REGISTRY_URL", url);
+    }
+
     // Execute SPARQL query against RDF registry
     let results = execute_async_op("sparql", async {
         let registry = RdfRegistry::new();
@@ -959,7 +1010,15 @@ fn sparql(query: String) -> Result<serde_json::Value> {
 /// ggen marketplace rdf_stats
 /// ```
 #[verb]
-fn rdf_stats() -> Result<serde_json::Value> {
+fn rdf_stats(
+    // Override registry URL or local file path; sets GGEN_REGISTRY_URL for this invocation.
+    registry_url: Option<String>,
+) -> Result<serde_json::Value> {
+    // Optional registry override to avoid remote availability issues (e.g., local index.json)
+    if let Some(url) = registry_url.as_ref() {
+        std::env::set_var("GGEN_REGISTRY_URL", url);
+    }
+
     let stats = RdfRegistry::new().stats();
 
     Ok(json!({

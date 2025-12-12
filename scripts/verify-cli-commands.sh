@@ -115,17 +115,13 @@ fi
 echo "Using ggen binary: $GGEN_BIN"
 echo ""
 
-# Test directory for file creation tests
-TEST_DIR=$(mktemp -d)
-trap "rm -rf $TEST_DIR" EXIT
-
 # Get absolute path to ggen binary
 if [ "${GGEN_BIN:0:1}" != "/" ]; then
     # Relative path - make absolute
     GGEN_BIN="$(cd "$(dirname "$0")/.." && pwd)/$GGEN_BIN"
 fi
 
-# Test directory for file creation tests
+# Test directory for file creation tests (single creation, no duplication)
 TEST_DIR=$(mktemp -d)
 trap "rm -rf $TEST_DIR" EXIT
 

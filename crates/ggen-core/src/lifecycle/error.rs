@@ -416,7 +416,7 @@ mod tests {
     #[test]
     fn test_config_parse_error() {
         let path = PathBuf::from("/tmp/make.toml");
-        let parse_err = toml::de::Error::from_kind(toml::de::ErrorKind::Eof);
+        let parse_err = toml::de::Error::custom("EOF");
         let err = LifecycleError::config_parse(&path, parse_err);
         assert!(err.to_string().contains("Failed to parse TOML"));
         assert!(err.to_string().contains("/tmp/make.toml"));
