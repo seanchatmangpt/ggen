@@ -4,7 +4,7 @@
 //! and schema validation for lockfiles.
 
 use ggen_utils::error::{Error, Result};
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet};
 
 use super::traits::{LockEntry, Lockfile};
 
@@ -253,7 +253,8 @@ pub fn validate_lockfile<L: Lockfile>(lockfile: &L) -> ValidationResult {
     }
 
     // Validate entries
-    let mut seen_ids = HashSet::new();
+    // **FMEA Fix**: Use BTreeSet for deterministic iteration order
+    let mut seen_ids = BTreeSet::new();
     let mut entries_validated = 0;
 
     for (id, entry) in lockfile.entries() {
@@ -322,15 +323,17 @@ pub fn validate_lockfile<L: Lockfile>(lockfile: &L) -> ValidationResult {
 /// Check for circular dependencies in a lockfile
 pub fn check_circular_dependencies<L: Lockfile>(lockfile: &L) -> Result<()> {
     // Build dependency graph
-    let mut graph: HashMap<String, Vec<String>> = HashMap::new();
+    // **FMEA Fix**: Use BTreeMap for deterministic iteration order
+    let mut graph: BTreeMap<String, Vec<String>> = BTreeMap::new();
 
     for (id, entry) in lockfile.entries() {
         graph.insert(id.to_string(), entry.dependencies().to_vec());
     }
 
     // DFS to detect cycles
-    let mut visited = HashSet::new();
-    let mut rec_stack = HashSet::new();
+    // **FMEA Fix**: Use BTreeSet for deterministic iteration order
+    let mut visited = BTreeSet::new();
+    let mut rec_stack = BTreeSet::new();
 
     for id in graph.keys() {
         if !visited.contains(id) {
@@ -350,8 +353,8 @@ pub fn check_circular_dependencies<L: Lockfile>(lockfile: &L) -> Result<()> {
 
 // DFS helper for cycle detection
 fn detect_cycle(
-    graph: &HashMap<String, Vec<String>>, node: &str, visited: &mut HashSet<String>,
-    rec_stack: &mut HashSet<String>, path: &mut Vec<String>,
+    graph: &BTreeMap<String, Vec<String>>, node: &str, visited: &mut BTreeSet<String>,
+    rec_stack: &mut BTreeSet<String>, path: &mut Vec<String>,
 ) -> Option<Vec<String>> {
     visited.insert(node.to_string());
     rec_stack.insert(node.to_string());
@@ -461,7 +464,8 @@ mod tests {
     #[test]
     fn test_circular_dependency_detection() {
         // Simple graph with no cycles
-        let mut graph: HashMap<String, Vec<String>> = HashMap::new();
+        // **FMEA Fix**: Use BTreeMap for deterministic iteration order
+    let mut graph: BTreeMap<String, Vec<String>> = BTreeMap::new();
         graph.insert("a".into(), vec!["b".into()]);
         graph.insert("b".into(), vec!["c".into()]);
         graph.insert("c".into(), vec![]);
