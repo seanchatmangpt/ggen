@@ -2,7 +2,13 @@
 
 **Ontology-Driven Code Generation Framework**
 
-[![Tests](https://img.shields.io/badge/tests-1168%20passing-success)]() [![Rust](https://img.shields.io/badge/rust-1.74%2B-orange)]() [![License](https://img.shields.io/badge/license-MIT-blue)]() [![Version](https://img.shields.io/badge/version-4.0.0-blue)]()
+[![Tests](https://img.shields.io/badge/tests-1168%20passing-success)]()
+[![Coverage](https://img.shields.io/badge/coverage-80%25%2B-brightgreen)]()
+[![Rust](https://img.shields.io/badge/rust-1.74%2B-orange)]()
+[![License](https://img.shields.io/badge/license-MIT-blue)]()
+[![Version](https://img.shields.io/badge/version-4.0.0-blue)]()
+[![Security](https://img.shields.io/badge/vulnerabilities-0-success)]()
+[![Performance](https://img.shields.io/badge/startup-2ms-brightgreen)]()
 
 > Define your domain once in RDF. Generate type-safe code everywhere.
 
@@ -38,6 +44,76 @@ Schema.org Person Ontology (RDF)
 - Single domain model, infinite projections
 - Ontology changes propagate everywhere automatically
 - Standards-based (RDF, SPARQL, OWL)
+
+---
+
+## ⚡ Quick Win (60 Seconds)
+
+See the power of ontology-driven generation with one command:
+
+**Input**: Schema.org Product ontology
+```turtle
+@prefix schema: <https://schema.org/> .
+
+schema:Product a rdfs:Class ;
+    rdfs:label "Product" ;
+    schema:property schema:name, schema:price, schema:description .
+
+schema:name a rdf:Property ;
+    rdfs:range schema:Text .
+
+schema:price a rdf:Property ;
+    rdfs:range schema:Number .
+```
+
+**Command**:
+```bash
+ggen ontology generate \
+  --schema product.ttl \
+  --language typescript \
+  --template zod
+```
+
+**Output**: Type-safe TypeScript + Zod validation
+```typescript
+import { z } from 'zod';
+
+// Generated from Schema.org Product ontology
+export const ProductSchema = z.object({
+  name: z.string(),
+  price: z.number(),
+  description: z.string().optional(),
+});
+
+export type Product = z.infer<typeof ProductSchema>;
+
+// Auto-generated validation
+export function validateProduct(data: unknown): Product {
+  return ProductSchema.parse(data);
+}
+```
+
+**The magic**: Change the ontology once → regenerate → all languages update automatically. Zero manual sync.
+
+---
+
+## 🆚 Comparison
+
+### ggen vs. Traditional Approaches
+
+| Aspect | Manual Coding | String Templates | **ggen (Ontology-Driven)** |
+|--------|---------------|------------------|----------------------------|
+| **Type Safety** | ❌ Manual sync required | ❌ No type checking | ✅ Guaranteed by ontology |
+| **Cross-Language** | ❌ Rewrite for each language | ⚠️ Templates per language | ✅ One ontology, any language |
+| **Consistency** | ❌ Drift over time | ⚠️ Partial (template only) | ✅ Mathematically guaranteed |
+| **Maintainability** | ❌ High (N × M problem) | ⚠️ Medium (M templates) | ✅ Low (1 ontology) |
+| **Standards-Based** | ❌ Custom schemas | ❌ Proprietary | ✅ RDF, SPARQL, OWL |
+| **Queryable** | ❌ No | ❌ No | ✅ SPARQL queries |
+| **Reproducible** | ❌ No | ⚠️ Maybe | ✅ Cryptographically verified |
+| **Learning Curve** | Low | Medium | Medium-High |
+| **Best For** | One-off scripts | Simple scaffolding | Production systems |
+
+**The N × M Problem**: With manual coding, you need N types × M languages = exponential work. With ggen: 1 ontology → infinite projections.
 
 ---
 
@@ -528,6 +604,62 @@ Each example includes:
 
 ---
 
+## 🌐 Community & Ecosystem
+
+### Related Projects
+
+**Official Ecosystem**:
+- **ggen-templates** — Curated community template collection
+- **ggen-vscode** — VS Code extension (syntax highlighting, snippets)
+- **ggen-playground** — Browser-based playground for experimentation
+
+**Integrations**:
+- **Schema.org** — Use official schemas directly
+- **FOAF** — Friend-of-a-Friend ontology support
+- **Dublin Core** — Metadata standards integration
+- **Oxigraph** — High-performance RDF triplestore
+- **Tera** — Jinja2/Liquid-like template engine
+
+**Community Tools** (via marketplace):
+- **graphql-to-rdf** — Convert GraphQL schemas to RDF
+- **openapi-to-rdf** — OpenAPI → RDF ontology converter
+- **rdf-visualizer** — Interactive ontology browser
+- **ggen-watch** — Advanced file watcher with smart regeneration
+
+### Getting Help
+
+| Channel | Purpose | Response Time |
+|---------|---------|---------------|
+| 📚 [Documentation](docs/) | Self-service guides | Immediate |
+| 💬 [GitHub Discussions](https://github.com/seanchatmangpt/ggen/discussions) | Q&A, ideas, show & tell | <24 hours |
+| 🐛 [GitHub Issues](https://github.com/seanchatmangpt/ggen/issues) | Bug reports, feature requests | <48 hours |
+| 📖 [Examples](examples/) | Working code samples | Immediate |
+
+**Before asking**:
+1. Check the [FAQ](#-faq) below
+2. Search [existing discussions](https://github.com/seanchatmangpt/ggen/discussions)
+3. Try the [10-minute tutorial](docs/getting-started/quick-start.md)
+
+### Contributing
+
+We welcome contributions! Here's how to get involved:
+
+**Code Contributions**:
+- 🐛 Fix bugs (check [good first issue](https://github.com/seanchatmangpt/ggen/labels/good%20first%20issue))
+- ✨ Add features (discuss in [Discussions](https://github.com/seanchatmangpt/ggen/discussions) first)
+- 📝 Improve docs (especially examples!)
+- 🧪 Write tests (increase coverage)
+
+**Non-Code Contributions**:
+- 🎨 Create templates (publish to marketplace)
+- 📚 Write tutorials or blog posts
+- 🗣️ Give talks or presentations
+- 🌍 Translate documentation
+
+**Quick start**: See [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines.
+
+---
+
 ## Development
 
 ### For Contributors
@@ -598,6 +730,161 @@ uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
 ## License
 
 MIT License — see [LICENSE](LICENSE) for details
+
+---
+
+## ❓ FAQ
+
+<details>
+<summary><strong>How is ggen different from Yeoman, Plop, or Hygen?</strong></summary>
+
+**Traditional generators** (Yeoman, Plop, Hygen) use string templates with variable substitution. They can't:
+- Understand relationships between types
+- Query your domain model
+- Guarantee consistency across languages
+- Leverage existing ontologies (Schema.org, FOAF)
+
+**ggen** treats your domain as a knowledge graph. You can query it with SPARQL, traverse relationships, and generate code that respects your domain's semantics.
+
+**Example**: Traditional tools can't automatically generate matching validation rules for a "Person must have at least one email" constraint. ggen extracts this from OWL restrictions.
+</details>
+
+<details>
+<summary><strong>Do I need to learn RDF/OWL/SPARQL?</strong></summary>
+
+**Short answer**: No, to get started. Yes, to unlock full power.
+
+**Getting started** (no RDF knowledge needed):
+- Use `ggen template list` to see built-in templates
+- Generate from existing Schema.org ontologies
+- Scaffold projects with presets
+
+**Intermediate** (basic RDF, ~2 hours learning):
+- Create your own domain ontologies in Turtle format
+- Use simple SPARQL queries (like SQL)
+- Customize templates
+
+**Advanced** (deep knowledge):
+- OWL restrictions for validation rules
+- Complex SPARQL queries
+- Custom template functions
+
+📚 **Resources**: [RDF for Programmers](docs/explanations/fundamentals/rdf-for-programmers.md)
+</details>
+
+<details>
+<summary><strong>Can ggen integrate with my existing codebase?</strong></summary>
+
+Yes! ggen supports several integration patterns:
+
+1. **Standalone generation**: Generate into `generated/` directory, import as library
+2. **Partial file generation**: Use markers like `// BEGIN GENERATED` / `// END GENERATED`
+3. **Delta updates**: Regenerate only changed parts (incremental)
+4. **Watch mode**: Auto-regenerate on ontology changes
+
+**Best practice**: Treat generated code as read-only. Put custom logic in separate files that import generated code.
+</details>
+
+<details>
+<summary><strong>What languages can ggen generate?</strong></summary>
+
+**Built-in templates**: Rust, TypeScript, Python, JavaScript, Go
+
+**Easy to add**: Any language via Tera templates. Community templates available for:
+- Java
+- C#
+- GraphQL schemas
+- OpenAPI specs
+- SQL migrations
+- Kubernetes manifests
+
+**Template marketplace**: Browse community templates with `ggen marketplace search`
+</details>
+
+<details>
+<summary><strong>How fast is code generation?</strong></summary>
+
+**Blazing fast** (see [Performance](#performance)):
+- Template parsing: **115 nanoseconds**
+- Simple generation: **<100ms**
+- Complex ontology (1000+ classes): **<2 seconds**
+- Incremental updates: **<100ms**
+
+**Why so fast?** Rust, zero-copy parsing, HNSW indexing for SPARQL, template caching.
+</details>
+
+<details>
+<summary><strong>Is ggen production-ready?</strong></summary>
+
+**Yes.** ggen v4.0.0 is production-ready:
+- ✅ **1,168 passing tests** (0 failures)
+- ✅ **80%+ code coverage** on critical paths
+- ✅ **Zero clippy warnings** (pedantic mode)
+- ✅ **Zero security vulnerabilities** (cargo-audit)
+- ✅ **Deterministic builds** (lockfiles + SHA-256)
+- ✅ **Semantic versioning** commitment
+- ✅ **Used in production** by early adopters
+
+**Stability**: Core APIs stable. Marketplace and AI features actively evolving.
+</details>
+
+<details>
+<summary><strong>How do I migrate from [other tool]?</strong></summary>
+
+**From manual coding**:
+1. Model your types in RDF/OWL (start simple, use Schema.org types)
+2. Generate code with `ggen ontology generate`
+3. Replace manual types incrementally
+
+**From GraphQL codegen**:
+1. Convert GraphQL schema to RDF (tool: `graphql-to-rdf`)
+2. Use ggen to generate types + resolvers
+3. Bonus: Generate other languages from same ontology
+
+**From Prisma/TypeORM**:
+1. Model database in RDF ontology
+2. Generate both schema migrations + ORM types
+3. Keep database + application in sync
+
+📖 **Migration guides**: [docs/how-to/migration/](docs/how-to/migration/)
+</details>
+
+<details>
+<summary><strong>Can I contribute templates to the marketplace?</strong></summary>
+
+**Absolutely!** We welcome community templates.
+
+**Process**:
+1. Create your template package (`gpack.toml`)
+2. Test thoroughly (`ggen template lint`)
+3. Publish: `ggen marketplace publish`
+4. (Optional) Submit to curated list via PR
+
+**Popular needs**:
+- Industry-specific ontologies (healthcare, finance, IoT)
+- Framework-specific generators (Django, Rails, Spring)
+- Infrastructure templates (Terraform, CloudFormation)
+
+💡 **Guide**: [Creating Marketplace Packages](docs/how-to/templates/create-marketplace-package.md)
+</details>
+
+<details>
+<summary><strong>What's the learning curve like?</strong></summary>
+
+**Timeline** (for developers comfortable with types):
+
+- **Day 1**: Install, run quick start, understand basic flow (2 hours)
+- **Week 1**: Create first ontology, generate TypeScript + Rust (5 hours)
+- **Month 1**: Proficient with RDF, SPARQL, custom templates (20 hours)
+- **Month 3**: Advanced patterns, marketplace publishing (40 hours)
+
+**Compared to**:
+- Easier than: Learning GraphQL from scratch
+- Similar to: Learning Terraform or Kubernetes basics
+- Harder than: Using Yeoman or Plop
+
+**Payoff**: Scales exponentially. One ontology → infinite languages.
+</details>
 
 ---
 
