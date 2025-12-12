@@ -76,6 +76,42 @@ This document defines coding standards for the `ggen` project to ensure consiste
   ❌ const maxRetries: u32 = 3;  // Wrong case
   ```
 
+- **Magic Numbers**: Extract magic numbers to named constants
+  ```rust
+  // ❌ BAD: Magic number
+  if triples.len() > 1000 {
+      return Err(ParseError::BatchTooLarge);
+  }
+
+  // ✅ GOOD: Named constant
+  const MAX_TRIPLES_BATCH_SIZE: usize = 1000;
+  if triples.len() > MAX_TRIPLES_BATCH_SIZE {
+      return Err(ParseError::BatchTooLarge);
+  }
+  ```
+
+- **Repeated Strings**: Extract repeated string literals to constants
+  ```rust
+  // ❌ BAD: Repeated string literal
+  turtle.push_str("@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n");
+  // ... later ...
+  turtle.push_str("@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n");
+
+  // ✅ GOOD: Named constant
+  const RDF_PREFIX_DECL: &str = "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n";
+  turtle.push_str(RDF_PREFIX_DECL);
+  // ... later ...
+  turtle.push_str(RDF_PREFIX_DECL);
+  ```
+
+- **Documentation**: All constants should have doc comments explaining their purpose
+  ```rust
+  /// Default cache capacity (maximum entries)
+  ///
+  /// **Kaizen improvement**: Extracted magic number to named constant for clarity and maintainability.
+  const DEFAULT_CACHE_CAPACITY: usize = 1000;
+  ```
+
 ### 2.6 Variable Names
 - **Format**: `snake_case`, descriptive
   ```rust
