@@ -8,7 +8,7 @@
 
 use ggen_utils::error::Result;
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 use std::path::PathBuf;
 
 /// Ontology configuration section in ggen.toml
@@ -24,7 +24,8 @@ pub struct OntologyConfig {
     pub targets: BTreeMap<String, TargetConfig>,
 
     /// Feature flags for code generation
-    pub features: HashMap<String, bool>,
+    /// **FMEA Fix**: Use BTreeMap for deterministic serialization order
+    pub features: BTreeMap<String, bool>,
 
     /// Lock file configuration
     pub lock: LockConfig,
@@ -68,7 +69,8 @@ pub enum CompositionStrategy {
     /// Custom: Apply custom merge rules
     Custom {
         /// Rules for handling conflicts (pack_name: resolution)
-        rules: HashMap<String, ConflictResolution>,
+        /// **FMEA Fix**: Use BTreeMap for deterministic serialization order
+        rules: BTreeMap<String, ConflictResolution>,
     },
 }
 
@@ -140,7 +142,7 @@ impl Default for OntologyConfig {
             packs: Vec::new(),
             composition: CompositionStrategy::Union,
             targets: BTreeMap::new(),
-            features: HashMap::new(),
+            features: BTreeMap::new(),
             lock: LockConfig::default(),
         }
     }
