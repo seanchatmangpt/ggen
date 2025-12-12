@@ -405,6 +405,48 @@ mod tests {
     }
 
     #[test]
+    fn test_config_load_error() {
+        let path = PathBuf::from("/tmp/make.toml");
+        let io_err = std::io::Error::new(std::io::ErrorKind::NotFound, "file not found");
+        let err = LifecycleError::config_load(&path, Box::new(io_err));
+        assert!(err.to_string().contains("Failed to load configuration"));
+        assert!(err.to_string().contains("/tmp/make.toml"));
+    }
+
+    #[test]
+    fn test_config_parse_error() {
+        let path = PathBuf::from("/tmp/make.toml");
+        let parse_err = toml::de::Error::from_kind(toml::de::ErrorKind::Eof);
+        let err = LifecycleError::config_parse(&path, parse_err);
+        assert!(err.to_string().contains("Failed to parse TOML"));
+        assert!(err.to_string().contains("/tmp/make.toml"));
+    }
+
+    #[test]
+    fn test_command_spawn_error() {
+        let io_err = std::io::Error::new(std::io::ErrorKind::PermissionDenied, "permission denied");
+        let err = LifecycleError::command_spawn("build", "cargo build", io_err);
+        assert!(err.to_string().contains("Failed to spawn command"));
+        assert!(err.to_string().contains("build"));
+        assert!(err.to_string().contains("cargo build"));
+    }
+
+    #[test]
+    fn test_parallel_execution_error() {
+        let inner_err = LifecycleError::phase_not_found("test");
+        let err = LifecycleError::parallel_execution("workspace1", inner_err);
+        assert!(err.to_string().contains("Parallel execution failed"));
+        assert!(err.to_string().contains("workspace1"));
+    }
+
+    #[test]
+    fn test_dependency_cycle_error() {
+        let err = LifecycleError::dependency_cycle("init -> setup -> build -> init");
+        assert!(err.to_string().contains("Dependency cycle detected"));
+        assert!(err.to_string().contains("init -> setup -> build -> init"));
+    }
+
+    #[test]
     fn test_error_downcasting() {
         let err = LifecycleError::phase_not_found("build");
         let err_ref: &dyn std::error::Error = &err;
