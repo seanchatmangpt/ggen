@@ -3,12 +3,15 @@
 //! Provides shared helpers for parsing Makefile.toml, listing cargo make targets,
 //! and validating tool descriptions against ACI quality standards.
 
+#![allow(dead_code)]
+
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 use std::process::Command;
 
 /// Represents a cargo make target parsed from Makefile.toml
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct CargoMakeTarget {
     pub name: String,
@@ -166,6 +169,7 @@ pub fn parse_makefile_toml(path: &Path) -> Result<HashMap<String, CargoMakeTarge
 /// List all cargo make targets available in the project
 ///
 /// Executes `cargo make --list-all-steps` and parses output
+#[allow(dead_code)]
 pub fn list_cargo_make_targets() -> Vec<String> {
     let output = Command::new("cargo")
         .args(["make", "--list-all-steps"])
@@ -193,6 +197,7 @@ pub fn list_cargo_make_targets() -> Vec<String> {
 /// Extract description from a cargo make target
 ///
 /// Returns None if target not found or has no description
+#[allow(dead_code)]
 pub fn extract_description(target_name: &str) -> Option<String> {
     let makefile_path = Path::new("Makefile.toml");
     if !makefile_path.exists() {

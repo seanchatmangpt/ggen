@@ -24,54 +24,55 @@ const MAX_ENV_KEY_LENGTH: usize = 100;
 /// Maximum length for sanitized environment variable values
 const MAX_ENV_VALUE_LENGTH: usize = 10000;
 
-//! ## Examples
-//!
-//! ### Basic Generation
-//!
-//! ```rust,no_run
-//! use ggen_core::generator::{Generator, GenContext};
-//! use ggen_core::pipeline::Pipeline;
-//! use std::collections::BTreeMap;
-//! use std::path::PathBuf;
-//!
-//! # fn main() -> ggen_utils::error::Result<()> {
-//! let pipeline = Pipeline::new()?;
-//! let ctx = GenContext::new(
-//!     PathBuf::from("template.tmpl"),
-//!     PathBuf::from("output")
-//! ).with_vars({
-//!     let mut vars = BTreeMap::new();
-//!     vars.insert("name".to_string(), "MyApp".to_string());
-//!     vars
-//! });
-//!
-//! let mut generator = Generator::new(pipeline, ctx);
-//! let output_path = generator.generate()?;
-//! println!("Generated: {:?}", output_path);
-//! # Ok(())
-//! # }
-//! ```
-//!
-//! ### Dry Run
-//!
-//! ```rust,no_run
-//! use ggen_core::generator::{Generator, GenContext};
-//! use ggen_core::pipeline::Pipeline;
-//! use std::path::PathBuf;
-//!
-//! # fn main() -> ggen_utils::error::Result<()> {
-//! let pipeline = Pipeline::new()?;
-//! let ctx = GenContext::new(
-//!     PathBuf::from("template.tmpl"),
-//!     PathBuf::from("output")
-//! ).dry(true); // Enable dry run mode
-//!
-//! let mut generator = Generator::new(pipeline, ctx);
-//! let output_path = generator.generate()?;
-//! // File is not actually written in dry run mode
-//! # Ok(())
-//! # }
-//! ```
+// ## Examples
+//
+// ### Basic Generation
+//
+// ```rust,no_run
+// use ggen_core::generator::{Generator, GenContext};
+// use ggen_core::pipeline::Pipeline;
+// use std::collections::BTreeMap;
+// use std::path::PathBuf;
+//
+// # fn main() -> ggen_utils::error::Result<()> {
+// let pipeline = Pipeline::new()?;
+// let ctx = GenContext::new(
+//     PathBuf::from("template.tmpl"),
+//     PathBuf::from("output")
+// ).with_vars({
+//     let mut vars = BTreeMap::new();
+//     vars.insert("name".to_string(), "MyApp".to_string());
+//     vars
+// });
+//
+// let mut generator = Generator::new(pipeline, ctx);
+// let output_path = generator.generate()?;
+// println!("Generated: {:?}", output_path);
+// # Ok(())
+// # }
+// ```
+//
+// ### Dry Run
+//
+// ```rust,no_run
+// use ggen_core::generator::{Generator, GenContext};
+// use ggen_core::pipeline::Pipeline;
+// use std::path::PathBuf;
+//
+// fn main() -> ggen_utils::error::Result<()> {
+//     let pipeline = Pipeline::new()?;
+//     let ctx = GenContext::new(
+//         PathBuf::from("template.tmpl"),
+//         PathBuf::from("output")
+//     ).dry(true); // Enable dry run mode
+//
+//     let mut generator = Generator::new(pipeline, ctx);
+//     let output_path = generator.generate()?;
+//     // File is not actually written in dry run mode
+//     println!("Generated (dry run): {}", output_path);
+//     Ok(())
+// }
+// ```
 
 use ggen_utils::error::Result;
 use std::collections::BTreeMap;

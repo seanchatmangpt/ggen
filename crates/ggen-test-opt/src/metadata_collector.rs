@@ -53,8 +53,7 @@ impl MetadataCollector {
     /// # Returns
     /// Map of test_id → (test_type, exec_time_ms)
     pub fn collect_execution_times<P: AsRef<Path>>(
-        &self,
-        nextest_json_path: P,
+        &self, nextest_json_path: P,
     ) -> OptResult<HashMap<TestId, (TestType, u64)>> {
         let json_path = nextest_json_path.as_ref();
 
@@ -92,8 +91,7 @@ impl MetadataCollector {
     /// # Returns
     /// Map of test_id → (lines_covered, total_lines)
     pub fn collect_coverage_data<P: AsRef<Path>>(
-        &self,
-        tarpaulin_json_path: P,
+        &self, tarpaulin_json_path: P,
     ) -> OptResult<HashMap<TestId, (usize, usize)>> {
         let json_path = tarpaulin_json_path.as_ref();
 
@@ -151,10 +149,7 @@ impl MetadataCollector {
     ///
     /// # Arguments
     /// * `test_results` - Map of test_id → (passed: bool)
-    pub fn update_failure_history(
-        &self,
-        test_results: &HashMap<TestId, bool>,
-    ) -> OptResult<()> {
+    pub fn update_failure_history(&self, test_results: &HashMap<TestId, bool>) -> OptResult<()> {
         self.ensure_metadata_dir()?;
 
         let history_path = self.metadata_dir.join("failure_history.json");
@@ -219,9 +214,7 @@ impl MetadataCollector {
     /// # Returns
     /// Combined metadata for all tests
     pub fn collect_all_metadata<P1: AsRef<Path>, P2: AsRef<Path>>(
-        &self,
-        nextest_json: P1,
-        tarpaulin_json: P2,
+        &self, nextest_json: P1, tarpaulin_json: P2,
     ) -> OptResult<TestMetadata> {
         let execution_times = self.collect_execution_times(nextest_json)?;
         let coverage_data = self.collect_coverage_data(tarpaulin_json)?;
@@ -295,8 +288,9 @@ mod tests {
 
     #[test]
     fn test_collector_creation() {
-        let (collector, _temp) = create_temp_collector();
-        assert!(collector.metadata_dir.to_string_lossy().contains("test"));
+        let (collector, temp) = create_temp_collector();
+        // Verify collector uses the temp directory path
+        assert_eq!(collector.metadata_dir, temp.path());
     }
 
     #[test]

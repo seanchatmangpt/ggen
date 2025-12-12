@@ -83,9 +83,7 @@ impl ParetoSelector {
     /// # Returns
     /// `Ok(detection_rate)` if validation passes, `Err` otherwise
     pub fn validate_coverage(
-        &self,
-        selected_tests: &[TestValueScore],
-        all_tests: &[TestValueScore],
+        &self, selected_tests: &[TestValueScore], all_tests: &[TestValueScore],
     ) -> OptResult<f64> {
         if selected_tests.is_empty() {
             return Err(crate::types::OptimizationError::NoTestsSelected(
@@ -94,10 +92,7 @@ impl ParetoSelector {
         }
 
         // Calculate weighted bug detection based on failure frequency
-        let selected_detection: f64 = selected_tests
-            .iter()
-            .map(|t| t.failure_freq_score)
-            .sum();
+        let selected_detection: f64 = selected_tests.iter().map(|t| t.failure_freq_score).sum();
 
         let total_detection: f64 = all_tests.iter().map(|t| t.failure_freq_score).sum();
 
@@ -129,9 +124,7 @@ impl ParetoSelector {
     /// # Returns
     /// Map of test_id to justification string
     pub fn generate_justification(
-        &self,
-        selected_tests: &[TestValueScore],
-        excluded_tests: &[TestValueScore],
+        &self, selected_tests: &[TestValueScore], excluded_tests: &[TestValueScore],
     ) -> HashMap<TestId, String> {
         let mut justifications = HashMap::new();
 
@@ -229,8 +222,7 @@ impl ParetoSelector {
     /// # Returns
     /// Selected tests with validation and justifications
     pub fn execute_selection(
-        &self,
-        all_scores: Vec<TestValueScore>,
+        &self, all_scores: Vec<TestValueScore>,
     ) -> OptResult<ParetoSelectionResult> {
         // Step 1: Rank all tests by value
         let ranked = self.rank_tests(all_scores);
@@ -267,7 +259,7 @@ impl Default for ParetoSelector {
 }
 
 /// Result of Pareto selection process
-#[derive(Debug)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct ParetoSelectionResult {
     /// Tests included in optimized suite
     pub selected_tests: Vec<TestValueScore>,

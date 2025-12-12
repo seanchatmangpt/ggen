@@ -171,7 +171,6 @@ pub async fn update_and_report(package: Option<&str>, all: bool, dry_run: bool) 
 
 /// Execute update command using ggen-marketplace backend with RDF semantic versioning
 pub async fn execute_update(input: UpdateInput) -> Result<UpdateOutput> {
-    use ggen_marketplace::prelude::*;
     use ggen_marketplace::RdfRegistry;
 
     let _registry_path = dirs::home_dir()

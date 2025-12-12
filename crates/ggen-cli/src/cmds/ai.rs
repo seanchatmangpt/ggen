@@ -8,14 +8,20 @@
 //!
 //! All verbs use explicit `#[verb("verb", "ai")]` registration for clap-noun-verb v5.3.0.
 
-use clap_noun_verb::Result;
-use clap_noun_verb_macros::verb;
-use ggen_domain::ai::execute;
-use serde::Serialize;
-use serde_json::json;
+// Standard library imports
 use std::path::PathBuf;
 
-use crate::cmds::helpers::{execute_async_op, log_operation};
+// External crate imports
+use clap_noun_verb::Result;
+use clap_noun_verb_macros::verb;
+use serde::Serialize;
+use serde_json::json;
+
+// Local crate imports
+use crate::cmds::helpers::{
+    execute_async_op, log_operation, DEFAULT_MAX_TOKENS, DEFAULT_TEMPERATURE,
+};
+use ggen_domain::ai::execute;
 
 // Logging uses shared helpers::log_operation
 
@@ -72,8 +78,8 @@ fn generate(
     temperature: Option<f64>,
 ) -> Result<GenerateOutput> {
     // Apply safe defaults so callers are not forced to pass tuning flags
-    let max_tokens = max_tokens.unwrap_or(1024);
-    let temperature = temperature.unwrap_or(0.7);
+    let max_tokens = max_tokens.unwrap_or(DEFAULT_MAX_TOKENS);
+    let temperature = temperature.unwrap_or(DEFAULT_TEMPERATURE);
 
     // #region agent log
     log_operation(
@@ -153,7 +159,10 @@ fn chat(
     }
 
     // Surface optional tuning parameters and avoid unused warnings
-    let _ = (max_tokens.unwrap_or(1024), temperature.unwrap_or(0.7));
+    let _ = (
+        max_tokens.unwrap_or(DEFAULT_MAX_TOKENS),
+        temperature.unwrap_or(DEFAULT_TEMPERATURE),
+    );
 
     // Layer 2: Call execute layer (async coordination)
     let result = execute_async_op("chat", async {

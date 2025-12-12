@@ -37,7 +37,7 @@ mod performance_tests {
     #[test]
     fn test_advanced_config_load_speed() -> Result<()> {
         // Complex config with all features should load quickly (<50ms)
-        let config_path = fixture_path("advanced.ggen.toml");
+        let _config_path = fixture_path("advanced.ggen.toml");
 
         let start = Instant::now();
         // TODO: Uncomment once ggen-config is implemented
@@ -56,7 +56,7 @@ mod performance_tests {
     #[test]
     fn test_workspace_config_load_speed() -> Result<()> {
         // Workspace resolution should be efficient (<100ms)
-        let config_path = fixture_path("workspace.ggen.toml");
+        let _config_path = fixture_path("workspace.ggen.toml");
 
         let start = Instant::now();
         // TODO: Uncomment once ggen-config is implemented
@@ -75,7 +75,7 @@ mod performance_tests {
     #[test]
     fn test_repeated_config_loads() -> Result<()> {
         // Multiple loads should be consistent in performance
-        let config_path = fixture_path("simple.ggen.toml");
+        let _config_path = fixture_path("simple.ggen.toml");
         let mut durations = Vec::new();
 
         for _ in 0..100 {

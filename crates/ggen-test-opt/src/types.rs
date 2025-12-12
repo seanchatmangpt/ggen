@@ -247,6 +247,10 @@ pub enum OptimizationError {
     /// JSON serialization/deserialization error
     #[error("JSON error: {0}")]
     JsonError(#[from] serde_json::Error),
+
+    /// Propagated audit error from ggen-test-audit
+    #[error("Audit error: {0}")]
+    AuditError(#[from] ggen_test_audit::AuditError),
 }
 
 /// Type alias for optimization results (T029)

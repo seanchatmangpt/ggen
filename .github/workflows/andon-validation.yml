@@ -59,10 +59,18 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Setup Rust Cache
-        uses: ./.github/actions/setup-rust-cached
+        uses: actions/cache@v4
         with:
-          toolchain: stable
-          cache-key-suffix: validation-${{ hashFiles('**/Cargo.lock') }}
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-validation-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-validation-
+            ${{ runner.os }}-cargo-
 
       - name: Unit Tests
         run: cargo make test-unit

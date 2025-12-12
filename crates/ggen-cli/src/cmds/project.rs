@@ -8,12 +8,16 @@
 //! - **Layer 2 (Integration)**: Async execution via crate::runtime::block_on, error handling
 //! - **Layer 1 (Domain)**: Pure project logic from ggen_domain::project
 
-use clap_noun_verb::Result;
-use clap_noun_verb_macros::verb;
-use serde::Serialize;
+// Standard library imports
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
+// External crate imports
+use clap_noun_verb::Result;
+use clap_noun_verb_macros::verb;
+use serde::Serialize;
+
+// Local crate imports
 use crate::cmds::helpers::execute_async_op;
 
 // ============================================================================
@@ -149,7 +153,10 @@ fn new(
     }
 
     // Execute the async function and convert errors
-    execute_async_op("new", new_impl(name, project_type, framework, output, skip_install))
+    execute_async_op(
+        "new",
+        new_impl(name, project_type, framework, output, skip_install),
+    )
 }
 
 /// Generate project plan from template with variable substitution

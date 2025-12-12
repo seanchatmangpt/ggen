@@ -64,8 +64,10 @@ impl CommandValidator {
         let mut commands = HashMap::new();
         commands.insert("ci".to_string(), vec!["workflow".to_string()]);
         commands.insert("workflow".to_string(), vec!["init".to_string()]);
-        commands.insert("paper".to_string(), vec!["new".to_string()]);
-        commands.insert("template".to_string(), vec!["show".to_string(), "generate".to_string()]);
+        commands.insert(
+            "template".to_string(),
+            vec!["show".to_string(), "generate".to_string()],
+        );
         commands.insert("graph".to_string(), vec!["query".to_string()]);
         commands.insert("ontology".to_string(), vec!["extract".to_string()]);
         commands.insert("project".to_string(), vec!["init".to_string()]);
@@ -89,7 +91,9 @@ impl TestConfigValidator {
     /// - Assertions are valid
     pub fn validate_clnrm_config(path: &Path) -> Result<(), ValidationError> {
         if !path.exists() {
-            return Err(ValidationError::FileNotFound(path.to_string_lossy().to_string()));
+            return Err(ValidationError::FileNotFound(
+                path.to_string_lossy().to_string(),
+            ));
         }
 
         // Basic validation - file exists and is readable
@@ -176,12 +180,7 @@ mod tests {
 
     #[test]
     fn test_command_validator() {
-        assert!(CommandValidator::validate_command(
-            "ci",
-            "workflow",
-            &[("name", false)]
-        )
-        .is_ok());
+        assert!(CommandValidator::validate_command("ci", "workflow", &[("name", false)]).is_ok());
     }
 
     #[test]
@@ -198,4 +197,3 @@ mod tests {
         let _ = TestConfigValidator::validate_clnrm_config(path);
     }
 }
-

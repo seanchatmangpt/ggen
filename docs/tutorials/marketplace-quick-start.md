@@ -33,7 +33,8 @@ After this tutorial, you can:
 3. [Installing Templates](#installing-templates)
 4. [Using Templates](#using-templates)
 5. [Publishing Your Template](#publishing-your-template)
-6. [Troubleshooting](#troubleshooting)
+6. [Academic Tools Walkthrough](#academic-tools-walkthrough)
+7. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -651,6 +652,63 @@ ggen marketplace publish \
   --version 1.1.0 \
   --github-url https://github.com/yourname/ggen-template-my-rest-api
 ```
+
+---
+
+## Academic Tools Walkthrough
+
+This walkthrough uses the `academic-bibliography-manager` package from the marketplace.
+
+**What ships today**
+- Manifest: `marketplace/packages/academic-bibliography-manager/package.toml`
+- Assets declared: `README.md`, `USAGE.md`, `templates/bibtex-references.tmpl`, `data/bibtex-schema.ttl`, `tools/bibtex-parser.rs`, `examples/`
+- Present in repo now: `templates/papers/bibtex-references.tmpl` (BibTeX generator). Other declared assets are currently absent—treat them as gaps to backfill before production use.
+- Config variables: `bibliography_name` (default `references`), `citation_style` (default `ieee`), `include_dois` (bool), `include_urls` (bool)
+- Validation requires: `references.bib` when running bibliography validation flows
+
+**Install like a user**
+```bash
+# Preview without changing disk
+ggen marketplace install --package_id academic-bibliography-manager --dry_run
+
+# Install to a local folder you control
+ggen marketplace install \
+  --package_id academic-bibliography-manager \
+  --install_path ./academic-bibliography-manager
+```
+
+**Generate BibTeX from an RDF paper graph**
+```bash
+# Optional config overrides
+cat > bibliography-config.toml <<'EOF'
+bibliography_name = "references"
+citation_style = "ieee"
+include_dois = true
+include_urls = true
+EOF
+
+# Use the shipped template to render BibTeX entries
+ggen generate \
+  --template templates/papers/bibtex-references.tmpl \
+  --domain paper.rdf \
+  --output ./out/refs.bib \
+  --config bibliography-config.toml
+```
+
+**Validate and export citations**
+```bash
+# Validate the BibTeX file expected by the package
+ggen bibliography validate references.bib
+
+# Export to other formats the manifest lists as supported
+ggen bibliography export --input references.bib --format csl-json
+ggen bibliography export --input references.bib --format ris
+```
+
+**Post-install checks**
+- Confirm the install path contains `templates/papers/bibtex-references.tmpl`
+- Note the missing declared assets (README/USAGE/schema/tool/examples) and create them if you need production readiness
+- Run the generate/validate/export commands above against your paper RDF to verify the academic toolchain end to end
 
 ---
 

@@ -8,8 +8,6 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::str::FromStr;
 use thiserror::Error;
-use thiserror::Error;
-
 // =============================================================================
 // TestId Newtype (T019) - Prevents primitive obsession
 // =============================================================================

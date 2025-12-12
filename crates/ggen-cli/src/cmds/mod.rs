@@ -21,7 +21,6 @@ pub mod graph;
 pub mod marketplace; // ENABLED: marketplace-v2 CLI integration
                      // pub mod packs;        // DISABLED: Deferred to v4.1.0 - Depends on marketplace-v2 feature
 pub mod ontology;
-pub mod paper;
 pub mod project;
 pub mod template;
 #[cfg(feature = "test-quality")]

@@ -9,10 +9,16 @@
 //! - **Layer 2 (Integration)**: Async coordination, resource management
 //! - **Layer 1 (Domain)**: Pure business logic from ggen_domain::utils
 
+// Standard library imports
+use std::collections::HashMap;
+
+// External crate imports
 use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
-use std::collections::HashMap;
+
+// Local crate imports
+use crate::cmds::helpers::execute_async_op;
 
 pub mod fmea;
 
@@ -58,15 +64,13 @@ fn doctor(all: bool, _fix: bool, format: Option<String>) -> Result<DoctorOutput>
         env: format == "env",
     };
 
-    let result = crate::cmds::helpers::execute_async_op("doctor", async move {
-        execute_doctor(input)
-            .await
-            .map_err(|e| {
-                clap_noun_verb::NounVerbError::execution_error(format!(
-                    "System diagnostics failed: {}",
-                    e
-                ))
-            })
+    let result = execute_async_op("doctor", async move {
+        execute_doctor(input).await.map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "System diagnostics failed: {}",
+                e
+            ))
+        })
     })?;
 
     let results = result
@@ -105,28 +109,24 @@ fn env(list: bool, get: Option<String>, set: Option<String>, _system: bool) -> R
 
     let variables = if list || (get.is_none() && set.is_none()) {
         // List all GGEN_ variables
-        crate::cmds::helpers::execute_async_op("env_list", async move {
-            execute_env_list()
-                .await
-                .map_err(|e| {
-                    clap_noun_verb::NounVerbError::execution_error(format!(
-                        "Failed to list environment: {}",
-                        e
-                    ))
-                })
+        execute_async_op("env_list", async move {
+            execute_env_list().await.map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!(
+                    "Failed to list environment: {}",
+                    e
+                ))
+            })
         })?
     } else if let Some(key) = get {
         // Get specific variable
         let key_clone = key.clone();
-        let value = crate::cmds::helpers::execute_async_op("env_get", async move {
-            execute_env_get(key_clone)
-                .await
-                .map_err(|e| {
-                    clap_noun_verb::NounVerbError::execution_error(format!(
-                        "Failed to get variable: {}",
-                        e
-                    ))
-                })
+        let value = execute_async_op("env_get", async move {
+            execute_env_get(key_clone).await.map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!(
+                    "Failed to get variable: {}",
+                    e
+                ))
+            })
         })?;
 
         let mut vars = HashMap::new();
@@ -137,7 +137,7 @@ fn env(list: bool, get: Option<String>, set: Option<String>, _system: bool) -> R
     } else if let Some(set_str) = set {
         // Set variable (format: KEY=VALUE)
         if let Some((key, value)) = set_str.split_once('=') {
-            crate::cmds::helpers::execute_async_op("env_set", async move {
+            execute_async_op("env_set", async move {
                 execute_env_set(key.to_string(), value.to_string())
                     .await
                     .map_err(|e| {

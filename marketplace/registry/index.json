@@ -1,2339 +1,306 @@
 {
-  "version": "1.0.0",
-  "registry_url": "https://github.com/seanchatmangpt/ggen",
-  "updated_at": "2025-11-16T02:07:56.549355Z",
-  "package_count": 55,
-  "categories": {
-    "academic-tools": 1,
-    "academic-workflow": 1,
-    "showcase": 2,
-    "ai-agents": 5,
-    "ai": 2,
-    "microservices": 1,
-    "templates": 1,
-    "academic-paper": 4,
-    "Enterprise": 5,
-    "finance": 4,
-    "ai-tools": 1,
-    "uncategorized": 10,
-    "healthcare": 7,
-    "enterprise": 3,
-    "database": 1,
-    "api": 1,
-    "starter": 1,
-    "ecommerce": 3,
-    "web": 1,
-    "architecture": 1
-  },
+  "package_count": 60,
   "packages": [
     {
       "name": "academic-bibliography-manager",
-      "version": "1.0.0",
-      "category": "academic-tools",
-      "description": "Bibliography management system with BibTeX support, citation validation, duplicate detection, and multi-format export",
-      "tags": [
-        "bibliography",
-        "bibtex",
-        "citations",
-        "academic"
-      ],
-      "keywords": [
-        "bibliography",
-        "bibtex",
-        "citations",
-        "references",
-        "doi",
-        "orcid"
-      ],
-      "author": "ggen-team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/academic-bibliography-manager",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "3d6ff6ca7b8324829b40cd18dab6a9e5dbe6d843ca8a9a02a15289ec218440cc"
+      "versions": ["1.0.0"]
     },
     {
       "name": "academic-peer-review-workflow",
-      "version": "1.0.0",
-      "category": "academic-workflow",
-      "description": "Integrated peer review workflow with reviewer comments, author responses, revision tracking, and decision management",
-      "tags": [
-        "workflow",
-        "peer-review",
-        "academic",
-        "collaboration"
-      ],
-      "keywords": [
-        "peer-review",
-        "workflow",
-        "academic-publishing",
-        "revision-tracking",
-        "collaboration"
-      ],
-      "author": "ggen-team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [
-        "academic-paper-lifecycle"
-      ],
       "path": "marketplace/packages/academic-peer-review-workflow",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "6fcdb1f128e218be85f64f894f2ad993950fc6c825d4b9ab9a24bf8d0a234cea"
+      "versions": ["1.0.0"]
     },
     {
       "name": "advanced-rust-project",
-      "version": "1.0.0",
-      "category": "showcase",
-      "description": "Advanced Rust project demonstrating all ggen features: lifecycle, AI, SPARQL, templates, and security",
-      "tags": [
-        "rust",
-        "showcase",
-        "lifecycle",
-        "ai",
-        "sparql",
-        "templates",
-        "security"
-      ],
-      "keywords": [
-        "ggen",
-        "rust",
-        "microservice",
-        "ai-generation",
-        "sparql",
-        "lifecycle"
-      ],
-      "author": "ggen-team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/advanced-rust-project",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "b72761373f68dccb5ac210c5caf4456d83facf1b93f1548f61d51e25734805a8"
+      "versions": []
     },
     {
       "name": "agent-cli-copilot",
-      "version": "1.0.0",
-      "category": "ai-agents",
-      "description": "Intelligent CLI command assistant with natural language understanding, command suggestion, and execution validation",
-      "tags": [],
-      "keywords": [],
-      "author": "ggen-team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/agent-cli-copilot",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "3a1c64846c6e157685a851882d292c30d5c17e5d32520a99cc5dd996a8bed364"
+      "versions": []
     },
     {
       "name": "agent-context-crafter",
-      "version": "1.0.0",
-      "category": "ai-agents",
-      "description": "Advanced context and state management for AI agents with semantic understanding, persistence, and cross-session continuity",
-      "tags": [],
-      "keywords": [],
-      "author": "ggen-team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [
-        "agent-memory-forge"
-      ],
       "path": "marketplace/packages/agent-context-crafter",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "c30868b721a831290d43831e1c1a9ac1fe4c917c1755076723c8ebed7fe6cd1b"
+      "versions": []
     },
     {
       "name": "agent-editor",
-      "version": "1.0.0",
-      "category": "ai-agents",
-      "description": "AI-powered code editor automation with multi-language support, semantic understanding, and production-grade refactoring",
-      "tags": [],
-      "keywords": [],
-      "author": "ggen-team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/agent-editor",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "6ffbc65a362862efbc03634dea134913b85c6fb2a69e2ca3b24b95f8ba7d7dc5"
+      "versions": []
     },
     {
       "name": "agent-memory-forge",
-      "version": "1.0.0",
-      "category": "ai-agents",
-      "description": "Comprehensive memory system for AI agents with episodic, semantic, and procedural memory using RDF ontologies",
-      "tags": [],
-      "keywords": [],
-      "author": "ggen-team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/agent-memory-forge",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "8fbe8b192d9cfcac1521583aa78fcac83785b4becf1b7aa5ad924a58fde18936"
+      "versions": []
     },
     {
       "name": "agent-reasoning-mcp",
-      "version": "1.0.0",
-      "category": "ai-agents",
-      "description": "Advanced reasoning engine with MCP integration, semantic inference, and multi-hop logical reasoning using RDF/SPARQL",
-      "tags": [],
-      "keywords": [],
-      "author": "ggen-team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [
-        "agent-memory-forge",
-        "agent-context-crafter"
-      ],
       "path": "marketplace/packages/agent-reasoning-mcp",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "637166a0c393199a73e440daad2390a1a9c0232262f35ddda48f792fd4b9a70c"
+      "versions": []
     },
     {
       "name": "ai-code-generation",
-      "version": "1.0.0",
-      "category": "ai",
-      "description": "AI-powered code generation with multi-provider support and comprehensive validation",
-      "tags": [
-        "ai",
-        "code-generation",
-        "ollama",
-        "openai",
-        "llm"
-      ],
-      "keywords": [
-        "ai",
-        "code-generation",
-        "llm",
-        "ollama",
-        "qwen"
-      ],
-      "author": "ggen-team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/ai-code-generation",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "133a945702054e5dff23a3de38d0e9d7127be650f18e116a196abfdd9e8849d8"
+      "versions": []
     },
     {
       "name": "ai-microservice",
-      "version": "0.1.0",
-      "category": "microservices",
-      "description": "AI-powered microservice with template generation, refactoring, and ontology support",
-      "tags": [
-        "ai",
-        "microservice",
-        "template",
-        "refactoring",
-        "ontology"
-      ],
-      "keywords": [
-        "ai",
-        "microservice",
-        "generation",
-        "refactoring",
-        "llm"
-      ],
-      "author": "ggen-team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/ai-microservice",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "987d6865f0b8565ba6f4e618edc25f0b1f07d6f0051dec900018d6b131a7e34e"
+      "versions": []
     },
     {
       "name": "api-endpoint",
-      "version": "1.0.0",
-      "category": "templates",
-      "description": "Complete REST API endpoint templates with OpenAPI documentation, validation, and security",
-      "tags": [
-        "api",
-        "rest",
-        "axum",
-        "openapi",
-        "templates"
-      ],
-      "keywords": [
-        "api",
-        "rest",
-        "endpoint",
-        "axum",
-        "openapi"
-      ],
-      "author": "ggen-team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/api-endpoint",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "1fbf999ea7f73965eda54300ccdb1f81e48a5e6302c329b236f6a3d99df9063c"
+      "versions": []
     },
     {
       "name": "arxiv-paper-template",
-      "version": "1.0.0",
-      "category": "academic-paper",
-      "description": "arXiv-compatible preprint format with automatic metadata extraction and submission support",
-      "tags": [
-        "paper",
-        "arxiv",
-        "preprint",
-        "latex",
-        "academic"
-      ],
-      "keywords": [
-        "arxiv",
-        "preprint",
-        "latex",
-        "open-access",
-        "academic-writing"
-      ],
-      "author": "ggen-team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/arxiv-paper-template",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "85c6271e2b1d8cd829efc4901738e71a6a57e9a888d12f2a0843cfc39fd9ca3d"
+      "versions": []
     },
     {
       "name": "asset-management",
-      "version": "1.0.0",
-      "category": "Enterprise",
-      "description": "Enterprise Asset Management with tracking, depreciation, maintenance, and lifecycle management",
-      "tags": [
-        "assets",
-        "tracking",
-        "depreciation",
-        "maintenance",
-        "lifecycle",
-        "barcode",
-        "rfid",
-        "enterprise"
-      ],
-      "keywords": [],
-      "author": null,
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/asset-management",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "af44545e65f991713b32b6bb6e905c571fc7c100153adcd94419df766461214b"
+      "versions": []
     },
     {
       "name": "banking-core",
-      "version": "1.0.0",
-      "category": "finance",
-      "description": "Core banking system with account management, transactions, interest calculation, and regulatory reporting",
-      "tags": [
-        "banking",
-        "accounts",
-        "transactions",
-        "ledger",
-        "compliance",
-        "regulatory"
-      ],
-      "keywords": [],
-      "author": "ggen Marketplace",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/banking-core",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "f8883cf6b174a3a93bf29d90701d62ade0f103797f1f41d607adabc5d913392a"
+      "versions": []
     },
     {
       "name": "business-intelligence-reporting",
-      "version": "1.0.0",
-      "category": "Enterprise",
-      "description": "Business Intelligence and Reporting with OLAP, dashboards, KPIs, and dimensional modeling",
-      "tags": [
-        "bi",
-        "reporting",
-        "analytics",
-        "olap",
-        "dashboards",
-        "kpi",
-        "data-warehouse",
-        "enterprise"
-      ],
-      "keywords": [],
-      "author": null,
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/business-intelligence-reporting",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "b78d38454350ebf1454f16b48d0c8ad556b53cb83485e8f6ae9bce5b556a70ba"
+      "versions": []
     },
     {
       "name": "chatman-cli",
-      "version": "0.1.0",
-      "category": "ai-tools",
-      "description": "Knowledge Hook-powered chat automation framework with semantic understanding, AI integration, and production-grade conversation management",
-      "tags": [],
-      "keywords": [],
-      "author": "Sean Chatman <sean@chatmangpt.com>",
-      "license": "MIT OR Apache-2.0",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/chatman-cli",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "d248b0ca7de9d5b715604f729ef8f758290bc7a17dd0a6f0df84c2e1ebeee20b"
+      "versions": []
     },
     {
       "name": "cli-application-template",
-      "version": "1.0.0",
-      "category": "uncategorized",
-      "description": "Generate production-ready CLI applications with commands, args, config, and help",
-      "tags": [],
-      "keywords": [],
-      "author": "ggen-marketplace",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/cli-application-template",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "0ab0616f2dc84597c0a9698cc3868622670766c0682b50192cf0b9285c3dbc1d"
+      "versions": []
     },
     {
       "name": "clinical-trials-management",
-      "version": "1.0.0",
-      "category": "healthcare",
-      "description": "Clinical trials management with protocol management, patient recruitment, and data collection",
-      "tags": [
-        "clinical-trials",
-        "research",
-        "protocol-management",
-        "patient-recruitment",
-        "data-collection"
-      ],
-      "keywords": [],
-      "author": "ggen Healthcare Team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/clinical-trials-management",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "19a16bb5a0f816e763410ff286d9a84bffb4161e136786b307e0121b29b87ebf"
+      "versions": []
     },
     {
       "name": "comprehensive-rust-showcase",
-      "version": "1.0.0",
-      "category": "showcase",
-      "description": "Comprehensive showcase of ALL ggen features: lifecycle, AI, SPARQL, templates, security, performance, monitoring",
-      "tags": [
-        "rust",
-        "showcase",
-        "complete",
-        "enterprise",
-        "production",
-        "ai",
-        "sparql",
-        "lifecycle"
-      ],
-      "keywords": [
-        "ggen",
-        "rust",
-        "microservice",
-        "enterprise",
-        "production-ready",
-        "comprehensive"
-      ],
-      "author": "ggen-team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/comprehensive-rust-showcase",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "73e7bf8da64a1c97a56f93555de0d26fe07eeaaff07c37e05be81ba80cb963dd"
+      "versions": []
     },
     {
       "name": "crm-customer-management",
-      "version": "1.0.0",
-      "category": "enterprise",
-      "description": "CRM system for sales pipeline, customer relationships, and opportunity tracking",
-      "tags": [
-        "crm",
-        "sales",
-        "pipeline",
-        "customers",
-        "opportunities"
-      ],
-      "keywords": [],
-      "author": "GGEN Marketplace",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/crm-customer-management",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "2d4407d0c10cb96c5fe2abe58b65a81cb71b839a3dbee705b8fd7e3b93a04958"
+      "versions": []
     },
     {
       "name": "cryptocurrency-exchange",
-      "version": "1.0.0",
-      "category": "finance",
-      "description": "Cryptocurrency exchange platform with wallet management, order matching, blockchain integration, and DeFi protocols",
-      "tags": [
-        "crypto",
-        "exchange",
-        "blockchain",
-        "defi",
-        "wallet",
-        "trading"
-      ],
-      "keywords": [],
-      "author": "ggen Marketplace",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/cryptocurrency-exchange",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "71b67a46335ce8b777a7bc9d871c934d418d6ea06c92c5e1cbbffe83cbb5bcde"
+      "versions": []
     },
     {
       "name": "data-pipeline-cli",
-      "version": "1.0.0",
-      "category": "uncategorized",
-      "description": "ETL data pipelines, transformation, and integration using clap-noun-verb",
-      "tags": [],
-      "keywords": [
-        "etl",
-        "pipeline",
-        "data-integration",
-        "transformation",
-        "ingestion",
-        "clap-noun-verb"
-      ],
-      "author": null,
-      "license": "MIT OR Apache-2.0",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/data-pipeline-cli",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "c2e356e18e8384abfc0eddfd408b32f93f480b3b09a1e09b4702809374d39fc4"
+      "versions": []
     },
     {
       "name": "database-schema-generator",
-      "version": "1.0.0",
-      "category": "database",
-      "description": "Multi-database schema generator from RDF ontology using SPARQL",
-      "tags": [
-        "database",
-        "schema",
-        "rdf",
-        "sparql",
-        "postgresql",
-        "mysql",
-        "sqlite",
-        "ddl",
-        "migrations"
-      ],
-      "keywords": [],
-      "author": "ggen.io",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/database-schema-generator",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "26a3ecc6fbbced7a9cc4e5676a7dd34085724500db3e37885fe707835824d3fd"
+      "versions": []
     },
     {
       "name": "document-management-system",
-      "version": "1.0.0",
-      "category": "Enterprise",
-      "description": "Enterprise Document Management System with versioning, workflow, OCR, and compliance tracking",
-      "tags": [
-        "documents",
-        "versioning",
-        "workflow",
-        "OCR",
-        "compliance",
-        "metadata",
-        "enterprise"
-      ],
-      "keywords": [],
-      "author": null,
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/document-management-system",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "4b240cdef750d1a4917429c424952d50edae36373a6ce74eba9a5620923d52ff"
+      "versions": []
     },
     {
       "name": "ehr-integration",
-      "version": "1.0.0",
-      "category": "healthcare",
-      "description": "EHR integration with Epic/Cerner connectors and SMART on FHIR support",
-      "tags": [
-        "ehr",
-        "epic",
-        "cerner",
-        "fhir",
-        "smart-on-fhir",
-        "patient-portal"
-      ],
-      "keywords": [],
-      "author": "ggen Healthcare Team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/ehr-integration",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "0732ce314a7855e4037ed95ee77e7411e956736d9ae1c3e45dbe7c5a3565bd49"
+      "versions": []
     },
     {
       "name": "enterprise-erp-core",
-      "version": "1.0.0",
-      "category": "enterprise",
-      "description": "Comprehensive ERP and accounting system with double-entry bookkeeping",
-      "tags": [
-        "erp",
-        "accounting",
-        "finance",
-        "double-entry",
-        "financial-statements"
-      ],
-      "keywords": [],
-      "author": "GGEN Marketplace",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/enterprise-erp-core",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "5932af95483b358e2c25ea2141d5a24a1f4cab3267175304d2e937215c9225e9"
+      "versions": []
     },
     {
       "name": "graphql-api-template",
-      "version": "1.0.0",
-      "category": "api",
-      "description": "Production-ready GraphQL API template with DataLoaders, subscriptions, and multi-language support",
-      "tags": [
-        "graphql",
-        "api",
-        "dataloader",
-        "subscriptions",
-        "apollo",
-        "strawberry"
-      ],
-      "keywords": [],
-      "author": "ggen-marketplace",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/graphql-api-template",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "050e4fc41473d06564786d94f95700f3c0d6f790f6f8468e7fd4350da9a67999"
+      "versions": []
     },
     {
       "name": "healthcare-analytics",
-      "version": "1.0.0",
-      "category": "healthcare",
-      "description": "Healthcare analytics with population health, quality measures, and predictive analytics",
-      "tags": [
-        "analytics",
-        "population-health",
-        "quality-measures",
-        "predictive-analytics",
-        "business-intelligence"
-      ],
-      "keywords": [],
-      "author": "ggen Healthcare Team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/healthcare-analytics",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "46369b83f328299d0716cc5e0930cb23496b14341123cd02a29f53238b96d928"
+      "versions": []
     },
     {
       "name": "hello-world",
-      "version": "1.0.0",
-      "category": "starter",
-      "description": "Simple Hello World starter template for learning ggen basics",
-      "tags": [
-        "starter",
-        "hello-world",
-        "beginner",
-        "tutorial"
-      ],
-      "keywords": [
-        "hello-world",
-        "starter",
-        "beginner",
-        "rust"
-      ],
-      "author": "ggen-team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/hello-world",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "6068cc14c09af5e0503395ba081989d0ffb4567db60e404a482671275abfd71c"
+      "versions": []
     },
     {
       "name": "human-resources-management",
-      "version": "1.0.0",
-      "category": "Enterprise",
-      "description": "Complete HR Management with recruitment, performance reviews, payroll, and benefits administration",
-      "tags": [
-        "hr",
-        "employees",
-        "recruitment",
-        "performance",
-        "payroll",
-        "benefits",
-        "compliance",
-        "enterprise"
-      ],
-      "keywords": [],
-      "author": null,
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/human-resources-management",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "c2ee0d0cab99765a12511803bba79260e3de6f930702e191b2b7fdb59c4beca9"
+      "versions": []
     },
     {
       "name": "ieee-paper-template",
-      "version": "1.0.0",
-      "category": "academic-paper",
-      "description": "IEEE conference paper generation with two-column layout, automatic bibliography, and figure/table support",
-      "tags": [
-        "paper",
-        "ieee",
-        "conference",
-        "latex",
-        "academic"
-      ],
-      "keywords": [
-        "ieee",
-        "conference-paper",
-        "two-column",
-        "latex",
-        "academic-writing"
-      ],
-      "author": "ggen-team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/ieee-paper-template",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "1e4368b2797b3d365209e0caf7fbc3a3b6564ca7524b8c13a8c4dae6f1c6b8db"
+      "versions": []
     },
     {
       "name": "inventory-management",
-      "version": "1.0.0",
-      "category": "ecommerce",
-      "description": "Comprehensive inventory and warehouse management with stock tracking, FIFO/LIFO valuation, lot tracing, reorder automation, and multi-channel allocation",
-      "tags": [],
-      "keywords": [],
-      "author": "ggen-team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/inventory-management",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "53c2e8c3831cffc613aa0e66a0192a33c06ab304e58a397c9e3937abc069da6b"
+      "versions": []
     },
     {
-      "name": "io.ggen.nextjs.ontology-crud",
-      "version": "1.0.0",
-      "category": "web",
-      "description": "Full-stack Next.js application with shadcn/ui where CRUD tables auto-sync with RDF ontology via git hooks",
-      "tags": [
-        "nextjs",
-        "typescript",
-        "shadcn",
-        "ontology",
-        "crud",
-        "rdf",
-        "fullstack"
-      ],
-      "keywords": [],
-      "author": "ggen",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
+      "name": "Next.js Ontology-Driven CRUD",
       "path": "marketplace/packages/io.ggen.nextjs.ontology-crud",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "4cee5f0f1d94fe5466add07aa8142f385f2ffa3ea01430f42e194eb9f27ceed9"
+      "versions": []
     },
     {
       "name": "knowledge-graph-cli",
-      "version": "1.0.0",
-      "category": "uncategorized",
-      "description": "Knowledge graph operations CLI using clap-noun-verb pattern",
-      "tags": [],
-      "keywords": [
-        "knowledge-graph",
-        "rdf",
-        "graph",
-        "cli",
-        "clap-noun-verb"
-      ],
-      "author": null,
-      "license": "MIT OR Apache-2.0",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/knowledge-graph-cli",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "23dbc75153d53ce5099b44d3f617ed70112b75cb1d2bcec1cd4c35392005a231"
+      "versions": []
     },
     {
       "name": "laboratory-information-system",
-      "version": "1.0.0",
-      "category": "healthcare",
-      "description": "Laboratory information system with test ordering, specimen tracking, and results reporting",
-      "tags": [
-        "laboratory",
-        "lab-tests",
-        "specimen-tracking",
-        "results",
-        "pathology"
-      ],
-      "keywords": [],
-      "author": "ggen Healthcare Team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/laboratory-information-system",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "47f6ef8b504a8472b769a9e6e235a1447682acb316d217e25c49c85a57cc6551"
+      "versions": []
     },
     {
       "name": "medical-billing",
-      "version": "1.0.0",
-      "category": "healthcare",
-      "description": "Medical billing with CPT/ICD-10 codes, insurance claims, and revenue cycle management",
-      "tags": [
-        "medical-billing",
-        "cpt",
-        "icd-10",
-        "insurance-claims",
-        "revenue-cycle"
-      ],
-      "keywords": [],
-      "author": "ggen Healthcare Team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/medical-billing",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "2ef64c7e63df58e8755d3d760b47c9d223be1ee7bec304fa045b52f24bd1e825"
+      "versions": []
     },
     {
       "name": "microservices-architecture",
-      "version": "1.0.0",
-      "category": "architecture",
-      "description": "Complete e-commerce microservices architecture with Rust, Docker, PostgreSQL, and Redis",
-      "tags": [
-        "microservices",
-        "architecture",
-        "docker",
-        "kubernetes",
-        "rust"
-      ],
-      "keywords": [
-        "microservices",
-        "architecture",
-        "e-commerce",
-        "docker",
-        "kubernetes"
-      ],
-      "author": "ggen-team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/microservices-architecture",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "e9c95d091317edc21da93616eb21d5da3ff4918b612efd1be2c57bf9e6ce7330"
+      "versions": []
     },
     {
       "name": "microservices-architecture-template",
-      "version": "1.0.0",
-      "category": "uncategorized",
-      "description": "Production-grade microservices architecture with distributed tracing, circuit breakers, and comprehensive observability",
-      "tags": [],
-      "keywords": [
-        "microservices",
-        "architecture",
-        "distributed-systems",
-        "docker",
-        "kubernetes",
-        "observability"
-      ],
-      "author": null,
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/microservices-architecture-template",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "16ec5f345c10b546decda831adfa380e0889f8219a908d5adac18ff84de63f94"
+      "versions": []
     },
     {
       "name": "multi-tenant-saas",
-      "version": "1.0.0",
-      "category": "ecommerce",
-      "description": "Multi-tenant SaaS architecture with tenant isolation, provisioning, subscription tiers, usage metering, and billing engine",
-      "tags": [],
-      "keywords": [],
-      "author": "ggen-team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/multi-tenant-saas",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "03f2f7fd66eeb662c1a9ba2d4aa1df3aaf3ebe68506a379c397e22b9a1a3f2e2"
+      "versions": []
     },
     {
       "name": "neurips-paper-template",
-      "version": "1.0.0",
-      "category": "academic-paper",
-      "description": "NeurIPS conference paper generation with double-blind review, appendices, and neural networks focus",
-      "tags": [
-        "paper",
-        "neurips",
-        "conference",
-        "machine-learning",
-        "latex"
-      ],
-      "keywords": [
-        "neurips",
-        "conference-paper",
-        "machine-learning",
-        "neural-networks",
-        "deep-learning"
-      ],
-      "author": "ggen-team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/neurips-paper-template",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "4d529152d3e5439b932139576b231c433966750c339f6a88590c1e5fb5e6dff4"
+      "versions": []
     },
     {
       "name": "pharmacy-management",
-      "version": "1.0.0",
-      "category": "healthcare",
-      "description": "Pharmacy management with medication dispensing, drug interactions, and insurance claims",
-      "tags": [
-        "pharmacy",
-        "medication",
-        "drug-interactions",
-        "insurance-claims",
-        "dispensing"
-      ],
-      "keywords": [],
-      "author": "ggen Healthcare Team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/pharmacy-management",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "c0718ad90f22165c55b7ad4f29b52365324f3e8c50ef972531d2025c02249693"
+      "versions": []
     },
     {
       "name": "phd-thesis-template",
-      "version": "1.0.0",
-      "category": "academic-paper",
-      "description": "PhD thesis template with chapters, appendices, TOC/LOF/LOT, and customizable university requirements",
-      "tags": [
-        "thesis",
-        "phd",
-        "dissertation",
-        "latex",
-        "academic"
-      ],
-      "keywords": [
-        "phd-thesis",
-        "dissertation",
-        "chapter-based",
-        "academic-writing",
-        "latex"
-      ],
-      "author": "ggen-team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/phd-thesis-template",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "6724a18d4f8ba8290c9438fed087e3c553958628d78e441f5b99ae6481c8dd0a"
+      "versions": []
     },
     {
       "name": "product-recommendations",
-      "version": "1.0.0",
-      "category": "ecommerce",
-      "description": "AI-powered product recommendation engine with collaborative filtering, content-based filtering, A/B testing, real-time personalization, and ML model training",
-      "tags": [],
-      "keywords": [],
-      "author": "ggen-team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/product-recommendations",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "08ba6c6722b0737fd4eb5dc8bc1d57ddaf3aa5e503587a7da8116c9555064c99"
+      "versions": []
     },
     {
       "name": "project-management",
-      "version": "1.0.0",
-      "category": "Enterprise",
-      "description": "Comprehensive Project Management with Gantt charts, sprints, resource allocation, and budget tracking",
-      "tags": [
-        "projects",
-        "tasks",
-        "gantt",
-        "sprints",
-        "agile",
-        "resources",
-        "budget",
-        "enterprise"
-      ],
-      "keywords": [],
-      "author": null,
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/project-management",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "02e39ac61b2de354c2bdedde2cdca09be9332b783e08cb77ccd16b8a2c2c957f"
+      "versions": []
     },
     {
       "name": "reasoner-cli",
-      "version": "1.0.0",
-      "category": "uncategorized",
-      "description": "OWL inference engine and ontology classification using clap-noun-verb",
-      "tags": [],
-      "keywords": [
-        "owl",
-        "inference",
-        "classification",
-        "ontology",
-        "semantic-web",
-        "clap-noun-verb"
-      ],
-      "author": null,
-      "license": "MIT OR Apache-2.0",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/reasoner-cli",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "0fe467c9310288b27d20f4fe71350af784566d1c109a67076b80c59681da6541"
+      "versions": []
     },
     {
       "name": "rig-mcp",
-      "version": "1.0.0",
-      "category": "ai",
-      "description": "Production-ready Rig LLM framework + MCP protocol integration with multi-provider support",
-      "tags": [
-        "ai",
-        "llm",
-        "mcp",
-        "rig",
-        "integration"
-      ],
-      "keywords": [
-        "rig",
-        "mcp",
-        "llm",
-        "ai",
-        "openai",
-        "anthropic"
-      ],
-      "author": "ggen-team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/rig-mcp",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "2f1c5f8327d6bf0cf35f488d631a6f9ca5f45b76c9fab665a0d4420548327363"
+      "versions": []
     },
     {
       "name": "risk-management",
-      "version": "1.0.0",
-      "category": "finance",
-      "description": "Comprehensive risk management system with VaR calculation, stress testing, credit risk, and market risk analysis",
-      "tags": [
-        "risk",
-        "var",
-        "stress-testing",
-        "credit-risk",
-        "market-risk",
-        "compliance"
-      ],
-      "keywords": [],
-      "author": "ggen Marketplace",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/risk-management",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "b9305e4556d065e206fadc6648bb0b491a5b726c7ba9135e233ca7ee9fe3d797"
+      "versions": []
     },
     {
       "name": "robo-advisor",
-      "version": "1.0.0",
-      "category": "finance",
-      "description": "Automated investment advisor with portfolio allocation, rebalancing, tax-loss harvesting, and risk tolerance assessment",
-      "tags": [
-        "robo-advisor",
-        "portfolio",
-        "rebalancing",
-        "tax-optimization",
-        "asset-allocation"
-      ],
-      "keywords": [],
-      "author": "ggen Marketplace",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/robo-advisor",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "0ca2c0db192b04adf0cfbb7d8dbbcf4b732bc4a18c5d8a9f63768a9640a85f2d"
+      "versions": []
     },
     {
       "name": "schema-forge-cli",
-      "version": "1.0.0",
-      "category": "uncategorized",
-      "description": "Data modeling and schema generation CLI using clap-noun-verb pattern",
-      "tags": [],
-      "keywords": [
-        "schema",
-        "modeling",
-        "validation",
-        "cli",
-        "clap-noun-verb"
-      ],
-      "author": null,
-      "license": "MIT OR Apache-2.0",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/schema-forge-cli",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "c7612abd88f2264b44f83f057e5986333e8a5f6b6de4a96b3135e337eba6dc2c"
+      "versions": []
+    },
+    {
+      "name": "sector-api-gateway-8020",
+      "path": "marketplace/packages/sector-api-gateway-8020",
+      "versions": []
+    },
+    {
+      "name": "sector-observability-8020",
+      "path": "marketplace/packages/sector-observability-8020",
+      "versions": []
+    },
+    {
+      "name": "sector-paper-lifecycle-8020",
+      "path": "marketplace/packages/sector-paper-lifecycle-8020",
+      "versions": []
+    },
+    {
+      "name": "sector-rust-microservice-8020",
+      "path": "marketplace/packages/sector-rust-microservice-8020",
+      "versions": []
+    },
+    {
+      "name": "sector-support-hooks-8020",
+      "path": "marketplace/packages/sector-support-hooks-8020",
+      "versions": []
     },
     {
       "name": "semantic-cli",
-      "version": "1.0.0",
-      "category": "uncategorized",
-      "description": "RDF/OWL ontology management CLI using clap-noun-verb pattern",
-      "tags": [],
-      "keywords": [
-        "rdf",
-        "owl",
-        "sparql",
-        "ontology",
-        "cli",
-        "clap-noun-verb"
-      ],
-      "author": null,
-      "license": "MIT OR Apache-2.0",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/semantic-cli",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "40b1e47fbc2cd806011f9bece59345a8b421d9c3657a4520c4452c4538babdc5"
+      "versions": []
     },
     {
       "name": "shacl-cli",
-      "version": "0.1.0",
-      "category": "uncategorized",
-      "description": "SHACL validation, constraint enforcement, and reporting using clap-noun-verb",
-      "tags": [],
-      "keywords": [
-        "shacl",
-        "validation",
-        "constraints",
-        "rdf",
-        "quality",
-        "clap-noun-verb"
-      ],
-      "author": null,
-      "license": "MIT OR Apache-2.0",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/shacl-cli",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "dfa22fc3678381d52fa759e8a0b5989a69ffbe5c66a98ab101fe4612f03ae8a9"
+      "versions": []
     },
     {
       "name": "sparql-cli",
-      "version": "1.0.0",
-      "category": "uncategorized",
-      "description": "SPARQL query execution, optimization, and federation using clap-noun-verb",
-      "tags": [],
-      "keywords": [
-        "sparql",
-        "rdf",
-        "query",
-        "federation",
-        "optimization",
-        "clap-noun-verb"
-      ],
-      "author": null,
-      "license": "MIT OR Apache-2.0",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/sparql-cli",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "b1b30fd1846a6f879d835f06cb7b57c521b0261544de488bbd6110548a43600c"
+      "versions": []
     },
     {
       "name": "supply-chain-management",
-      "version": "1.0.0",
-      "category": "enterprise",
-      "description": "Supply chain optimization with procurement, logistics, and warehouse management",
-      "tags": [
-        "supply-chain",
-        "procurement",
-        "logistics",
-        "warehouse",
-        "demand-planning"
-      ],
-      "keywords": [],
-      "author": "GGEN Marketplace",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/supply-chain-management",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "2975d0b073c9db986b9a56bed3fab23b84f3c6bd0c43db9e3a14c5f2adc483fc"
+      "versions": []
     },
     {
       "name": "telemedicine-platform",
-      "version": "1.0.0",
-      "category": "healthcare",
-      "description": "Comprehensive telemedicine platform with video conferencing, appointments, and prescriptions",
-      "tags": [
-        "telemedicine",
-        "video-conferencing",
-        "appointments",
-        "prescriptions",
-        "patient-care"
-      ],
-      "keywords": [],
-      "author": "ggen Healthcare Team",
-      "license": "MIT",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/telemedicine-platform",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "4cd828d545e166bc43ecbda65b64ef7d165c640a2e37f2c6a8e76e8d1301a50d"
+      "versions": []
     },
     {
       "name": "workflow-engine-cli",
-      "version": "1.0.0",
-      "category": "uncategorized",
-      "description": "BPMN workflow execution and orchestration using clap-noun-verb",
-      "tags": [],
-      "keywords": [
-        "bpmn",
-        "workflow",
-        "orchestration",
-        "process",
-        "automation",
-        "clap-noun-verb"
-      ],
-      "author": null,
-      "license": "MIT OR Apache-2.0",
-      "downloads": 0,
-      "stars": 0,
-      "production_ready": false,
-      "dependencies": [],
       "path": "marketplace/packages/workflow-engine-cli",
-      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
-      "checksum": "73e570bde012f32a63a84820dd42bdc6c42219b9a2cec070806cb4c042369619"
+      "versions": []
     }
   ],
-  "search_index": {
-    "bibliography": [
-      "academic-bibliography-manager"
-    ],
-    "bibtex": [
-      "academic-bibliography-manager"
-    ],
-    "citations": [
-      "academic-bibliography-manager"
-    ],
-    "academic": [
-      "academic-bibliography-manager",
-      "academic-peer-review-workflow",
-      "arxiv-paper-template",
-      "ieee-paper-template",
-      "phd-thesis-template"
-    ],
-    "references": [
-      "academic-bibliography-manager"
-    ],
-    "doi": [
-      "academic-bibliography-manager"
-    ],
-    "orcid": [
-      "academic-bibliography-manager"
-    ],
-    "academic-tools": [
-      "academic-bibliography-manager"
-    ],
-    "manager": [
-      "academic-bibliography-manager"
-    ],
-    "workflow": [
-      "academic-peer-review-workflow",
-      "document-management-system",
-      "workflow-engine-cli"
-    ],
-    "peer-review": [
-      "academic-peer-review-workflow"
-    ],
-    "collaboration": [
-      "academic-peer-review-workflow"
-    ],
-    "academic-publishing": [
-      "academic-peer-review-workflow"
-    ],
-    "revision-tracking": [
-      "academic-peer-review-workflow"
-    ],
-    "academic-workflow": [
-      "academic-peer-review-workflow"
-    ],
-    "peer": [
-      "academic-peer-review-workflow"
-    ],
-    "review": [
-      "academic-peer-review-workflow"
-    ],
-    "rust": [
-      "advanced-rust-project",
-      "comprehensive-rust-showcase",
-      "hello-world",
-      "microservices-architecture"
-    ],
-    "showcase": [
-      "advanced-rust-project",
-      "comprehensive-rust-showcase"
-    ],
-    "lifecycle": [
-      "advanced-rust-project",
-      "asset-management",
-      "comprehensive-rust-showcase"
-    ],
-    "ai": [
-      "advanced-rust-project",
-      "ai-code-generation",
-      "ai-microservice",
-      "comprehensive-rust-showcase",
-      "rig-mcp"
-    ],
-    "sparql": [
-      "advanced-rust-project",
-      "comprehensive-rust-showcase",
-      "database-schema-generator",
-      "semantic-cli",
-      "sparql-cli"
-    ],
-    "templates": [
-      "advanced-rust-project",
-      "api-endpoint"
-    ],
-    "security": [
-      "advanced-rust-project"
-    ],
-    "ggen": [
-      "advanced-rust-project",
-      "comprehensive-rust-showcase"
-    ],
-    "microservice": [
-      "advanced-rust-project",
-      "ai-microservice",
-      "comprehensive-rust-showcase"
-    ],
-    "ai-generation": [
-      "advanced-rust-project"
-    ],
-    "advanced": [
-      "advanced-rust-project"
-    ],
-    "project": [
-      "advanced-rust-project",
-      "project-management"
-    ],
-    "ai-agents": [
-      "agent-cli-copilot",
-      "agent-context-crafter",
-      "agent-editor",
-      "agent-memory-forge",
-      "agent-reasoning-mcp"
-    ],
-    "agent": [
-      "agent-cli-copilot",
-      "agent-context-crafter",
-      "agent-editor",
-      "agent-memory-forge",
-      "agent-reasoning-mcp"
-    ],
-    "cli": [
-      "agent-cli-copilot",
-      "chatman-cli",
-      "cli-application-template",
-      "data-pipeline-cli",
-      "knowledge-graph-cli",
-      "reasoner-cli",
-      "schema-forge-cli",
-      "semantic-cli",
-      "shacl-cli",
-      "sparql-cli",
-      "workflow-engine-cli"
-    ],
-    "copilot": [
-      "agent-cli-copilot"
-    ],
-    "context": [
-      "agent-context-crafter"
-    ],
-    "crafter": [
-      "agent-context-crafter"
-    ],
-    "editor": [
-      "agent-editor"
-    ],
-    "memory": [
-      "agent-memory-forge"
-    ],
-    "forge": [
-      "agent-memory-forge",
-      "schema-forge-cli"
-    ],
-    "reasoning": [
-      "agent-reasoning-mcp"
-    ],
-    "mcp": [
-      "agent-reasoning-mcp",
-      "rig-mcp"
-    ],
-    "code-generation": [
-      "ai-code-generation"
-    ],
-    "ollama": [
-      "ai-code-generation"
-    ],
-    "openai": [
-      "ai-code-generation",
-      "rig-mcp"
-    ],
-    "llm": [
-      "ai-code-generation",
-      "ai-microservice",
-      "rig-mcp"
-    ],
-    "qwen": [
-      "ai-code-generation"
-    ],
-    "code": [
-      "ai-code-generation"
-    ],
-    "generation": [
-      "ai-code-generation",
-      "ai-microservice"
-    ],
-    "template": [
-      "ai-microservice",
-      "arxiv-paper-template",
-      "cli-application-template",
-      "graphql-api-template",
-      "ieee-paper-template",
-      "microservices-architecture-template",
-      "neurips-paper-template",
-      "phd-thesis-template"
-    ],
-    "refactoring": [
-      "ai-microservice"
-    ],
-    "ontology": [
-      "ai-microservice",
-      "io.ggen.nextjs.ontology-crud",
-      "reasoner-cli",
-      "semantic-cli"
-    ],
-    "microservices": [
-      "ai-microservice",
-      "microservices-architecture",
-      "microservices-architecture-template"
-    ],
-    "api": [
-      "api-endpoint",
-      "graphql-api-template"
-    ],
-    "rest": [
-      "api-endpoint"
-    ],
-    "axum": [
-      "api-endpoint"
-    ],
-    "openapi": [
-      "api-endpoint"
-    ],
-    "endpoint": [
-      "api-endpoint"
-    ],
-    "paper": [
-      "arxiv-paper-template",
-      "ieee-paper-template",
-      "neurips-paper-template"
-    ],
-    "arxiv": [
-      "arxiv-paper-template"
-    ],
-    "preprint": [
-      "arxiv-paper-template"
-    ],
-    "latex": [
-      "arxiv-paper-template",
-      "ieee-paper-template",
-      "neurips-paper-template",
-      "phd-thesis-template"
-    ],
-    "open-access": [
-      "arxiv-paper-template"
-    ],
-    "academic-writing": [
-      "arxiv-paper-template",
-      "ieee-paper-template",
-      "phd-thesis-template"
-    ],
-    "academic-paper": [
-      "arxiv-paper-template",
-      "ieee-paper-template",
-      "neurips-paper-template",
-      "phd-thesis-template"
-    ],
-    "assets": [
-      "asset-management"
-    ],
-    "tracking": [
-      "asset-management"
-    ],
-    "depreciation": [
-      "asset-management"
-    ],
-    "maintenance": [
-      "asset-management"
-    ],
-    "barcode": [
-      "asset-management"
-    ],
-    "rfid": [
-      "asset-management"
-    ],
-    "enterprise": [
-      "asset-management",
-      "business-intelligence-reporting",
-      "comprehensive-rust-showcase",
-      "crm-customer-management",
-      "document-management-system",
-      "enterprise-erp-core",
-      "human-resources-management",
-      "project-management",
-      "supply-chain-management"
-    ],
-    "asset": [
-      "asset-management"
-    ],
-    "management": [
-      "asset-management",
-      "clinical-trials-management",
-      "crm-customer-management",
-      "document-management-system",
-      "human-resources-management",
-      "inventory-management",
-      "pharmacy-management",
-      "project-management",
-      "risk-management",
-      "supply-chain-management"
-    ],
-    "banking": [
-      "banking-core"
-    ],
-    "accounts": [
-      "banking-core"
-    ],
-    "transactions": [
-      "banking-core"
-    ],
-    "ledger": [
-      "banking-core"
-    ],
-    "compliance": [
-      "banking-core",
-      "document-management-system",
-      "human-resources-management",
-      "risk-management"
-    ],
-    "regulatory": [
-      "banking-core"
-    ],
-    "finance": [
-      "banking-core",
-      "cryptocurrency-exchange",
-      "enterprise-erp-core",
-      "risk-management",
-      "robo-advisor"
-    ],
-    "core": [
-      "banking-core",
-      "enterprise-erp-core"
-    ],
-    "bi": [
-      "business-intelligence-reporting"
-    ],
-    "reporting": [
-      "business-intelligence-reporting"
-    ],
-    "analytics": [
-      "business-intelligence-reporting",
-      "healthcare-analytics"
-    ],
-    "olap": [
-      "business-intelligence-reporting"
-    ],
-    "dashboards": [
-      "business-intelligence-reporting"
-    ],
-    "kpi": [
-      "business-intelligence-reporting"
-    ],
-    "data-warehouse": [
-      "business-intelligence-reporting"
-    ],
-    "business": [
-      "business-intelligence-reporting"
-    ],
-    "intelligence": [
-      "business-intelligence-reporting"
-    ],
-    "ai-tools": [
-      "chatman-cli"
-    ],
-    "chatman": [
-      "chatman-cli"
-    ],
-    "uncategorized": [
-      "cli-application-template",
-      "data-pipeline-cli",
-      "knowledge-graph-cli",
-      "microservices-architecture-template",
-      "reasoner-cli",
-      "schema-forge-cli",
-      "semantic-cli",
-      "shacl-cli",
-      "sparql-cli",
-      "workflow-engine-cli"
-    ],
-    "application": [
-      "cli-application-template"
-    ],
-    "clinical-trials": [
-      "clinical-trials-management"
-    ],
-    "research": [
-      "clinical-trials-management"
-    ],
-    "protocol-management": [
-      "clinical-trials-management"
-    ],
-    "patient-recruitment": [
-      "clinical-trials-management"
-    ],
-    "data-collection": [
-      "clinical-trials-management"
-    ],
-    "healthcare": [
-      "clinical-trials-management",
-      "ehr-integration",
-      "healthcare-analytics",
-      "laboratory-information-system",
-      "medical-billing",
-      "pharmacy-management",
-      "telemedicine-platform"
-    ],
-    "clinical": [
-      "clinical-trials-management"
-    ],
-    "trials": [
-      "clinical-trials-management"
-    ],
-    "complete": [
-      "comprehensive-rust-showcase"
-    ],
-    "production": [
-      "comprehensive-rust-showcase"
-    ],
-    "production-ready": [
-      "comprehensive-rust-showcase"
-    ],
-    "comprehensive": [
-      "comprehensive-rust-showcase"
-    ],
-    "crm": [
-      "crm-customer-management"
-    ],
-    "sales": [
-      "crm-customer-management"
-    ],
-    "pipeline": [
-      "crm-customer-management",
-      "data-pipeline-cli"
-    ],
-    "customers": [
-      "crm-customer-management"
-    ],
-    "opportunities": [
-      "crm-customer-management"
-    ],
-    "customer": [
-      "crm-customer-management"
-    ],
-    "crypto": [
-      "cryptocurrency-exchange"
-    ],
-    "exchange": [
-      "cryptocurrency-exchange"
-    ],
-    "blockchain": [
-      "cryptocurrency-exchange"
-    ],
-    "defi": [
-      "cryptocurrency-exchange"
-    ],
-    "wallet": [
-      "cryptocurrency-exchange"
-    ],
-    "trading": [
-      "cryptocurrency-exchange"
-    ],
-    "cryptocurrency": [
-      "cryptocurrency-exchange"
-    ],
-    "etl": [
-      "data-pipeline-cli"
-    ],
-    "data-integration": [
-      "data-pipeline-cli"
-    ],
-    "transformation": [
-      "data-pipeline-cli"
-    ],
-    "ingestion": [
-      "data-pipeline-cli"
-    ],
-    "clap-noun-verb": [
-      "data-pipeline-cli",
-      "knowledge-graph-cli",
-      "reasoner-cli",
-      "schema-forge-cli",
-      "semantic-cli",
-      "shacl-cli",
-      "sparql-cli",
-      "workflow-engine-cli"
-    ],
-    "data": [
-      "data-pipeline-cli"
-    ],
-    "database": [
-      "database-schema-generator"
-    ],
-    "schema": [
-      "database-schema-generator",
-      "schema-forge-cli"
-    ],
-    "rdf": [
-      "database-schema-generator",
-      "io.ggen.nextjs.ontology-crud",
-      "knowledge-graph-cli",
-      "semantic-cli",
-      "shacl-cli",
-      "sparql-cli"
-    ],
-    "postgresql": [
-      "database-schema-generator"
-    ],
-    "mysql": [
-      "database-schema-generator"
-    ],
-    "sqlite": [
-      "database-schema-generator"
-    ],
-    "ddl": [
-      "database-schema-generator"
-    ],
-    "migrations": [
-      "database-schema-generator"
-    ],
-    "generator": [
-      "database-schema-generator"
-    ],
-    "documents": [
-      "document-management-system"
-    ],
-    "versioning": [
-      "document-management-system"
-    ],
-    "ocr": [
-      "document-management-system"
-    ],
-    "metadata": [
-      "document-management-system"
-    ],
-    "document": [
-      "document-management-system"
-    ],
-    "system": [
-      "document-management-system",
-      "laboratory-information-system"
-    ],
-    "ehr": [
-      "ehr-integration"
-    ],
-    "epic": [
-      "ehr-integration"
-    ],
-    "cerner": [
-      "ehr-integration"
-    ],
-    "fhir": [
-      "ehr-integration"
-    ],
-    "smart-on-fhir": [
-      "ehr-integration"
-    ],
-    "patient-portal": [
-      "ehr-integration"
-    ],
-    "integration": [
-      "ehr-integration",
-      "rig-mcp"
-    ],
-    "erp": [
-      "enterprise-erp-core"
-    ],
-    "accounting": [
-      "enterprise-erp-core"
-    ],
-    "double-entry": [
-      "enterprise-erp-core"
-    ],
-    "financial-statements": [
-      "enterprise-erp-core"
-    ],
-    "graphql": [
-      "graphql-api-template"
-    ],
-    "dataloader": [
-      "graphql-api-template"
-    ],
-    "subscriptions": [
-      "graphql-api-template"
-    ],
-    "apollo": [
-      "graphql-api-template"
-    ],
-    "strawberry": [
-      "graphql-api-template"
-    ],
-    "population-health": [
-      "healthcare-analytics"
-    ],
-    "quality-measures": [
-      "healthcare-analytics"
-    ],
-    "predictive-analytics": [
-      "healthcare-analytics"
-    ],
-    "business-intelligence": [
-      "healthcare-analytics"
-    ],
-    "starter": [
-      "hello-world"
-    ],
-    "hello-world": [
-      "hello-world"
-    ],
-    "beginner": [
-      "hello-world"
-    ],
-    "tutorial": [
-      "hello-world"
-    ],
-    "hello": [
-      "hello-world"
-    ],
-    "world": [
-      "hello-world"
-    ],
-    "hr": [
-      "human-resources-management"
-    ],
-    "employees": [
-      "human-resources-management"
-    ],
-    "recruitment": [
-      "human-resources-management"
-    ],
-    "performance": [
-      "human-resources-management"
-    ],
-    "payroll": [
-      "human-resources-management"
-    ],
-    "benefits": [
-      "human-resources-management"
-    ],
-    "human": [
-      "human-resources-management"
-    ],
-    "resources": [
-      "human-resources-management",
-      "project-management"
-    ],
-    "ieee": [
-      "ieee-paper-template"
-    ],
-    "conference": [
-      "ieee-paper-template",
-      "neurips-paper-template"
-    ],
-    "conference-paper": [
-      "ieee-paper-template",
-      "neurips-paper-template"
-    ],
-    "two-column": [
-      "ieee-paper-template"
-    ],
-    "ecommerce": [
-      "inventory-management",
-      "multi-tenant-saas",
-      "product-recommendations"
-    ],
-    "inventory": [
-      "inventory-management"
-    ],
-    "nextjs": [
-      "io.ggen.nextjs.ontology-crud"
-    ],
-    "typescript": [
-      "io.ggen.nextjs.ontology-crud"
-    ],
-    "shadcn": [
-      "io.ggen.nextjs.ontology-crud"
-    ],
-    "crud": [
-      "io.ggen.nextjs.ontology-crud"
-    ],
-    "fullstack": [
-      "io.ggen.nextjs.ontology-crud"
-    ],
-    "web": [
-      "io.ggen.nextjs.ontology-crud"
-    ],
-    "io.ggen.nextjs.ontology": [
-      "io.ggen.nextjs.ontology-crud"
-    ],
-    "knowledge-graph": [
-      "knowledge-graph-cli"
-    ],
-    "graph": [
-      "knowledge-graph-cli"
-    ],
-    "knowledge": [
-      "knowledge-graph-cli"
-    ],
-    "laboratory": [
-      "laboratory-information-system"
-    ],
-    "lab-tests": [
-      "laboratory-information-system"
-    ],
-    "specimen-tracking": [
-      "laboratory-information-system"
-    ],
-    "results": [
-      "laboratory-information-system"
-    ],
-    "pathology": [
-      "laboratory-information-system"
-    ],
-    "information": [
-      "laboratory-information-system"
-    ],
-    "medical-billing": [
-      "medical-billing"
-    ],
-    "cpt": [
-      "medical-billing"
-    ],
-    "icd-10": [
-      "medical-billing"
-    ],
-    "insurance-claims": [
-      "medical-billing",
-      "pharmacy-management"
-    ],
-    "revenue-cycle": [
-      "medical-billing"
-    ],
-    "medical": [
-      "medical-billing"
-    ],
-    "billing": [
-      "medical-billing"
-    ],
-    "architecture": [
-      "microservices-architecture",
-      "microservices-architecture-template"
-    ],
-    "docker": [
-      "microservices-architecture",
-      "microservices-architecture-template"
-    ],
-    "kubernetes": [
-      "microservices-architecture",
-      "microservices-architecture-template"
-    ],
-    "e-commerce": [
-      "microservices-architecture"
-    ],
-    "distributed-systems": [
-      "microservices-architecture-template"
-    ],
-    "observability": [
-      "microservices-architecture-template"
-    ],
-    "multi": [
-      "multi-tenant-saas"
-    ],
-    "tenant": [
-      "multi-tenant-saas"
-    ],
-    "saas": [
-      "multi-tenant-saas"
-    ],
-    "neurips": [
-      "neurips-paper-template"
-    ],
-    "machine-learning": [
-      "neurips-paper-template"
-    ],
-    "neural-networks": [
-      "neurips-paper-template"
-    ],
-    "deep-learning": [
-      "neurips-paper-template"
-    ],
-    "pharmacy": [
-      "pharmacy-management"
-    ],
-    "medication": [
-      "pharmacy-management"
-    ],
-    "drug-interactions": [
-      "pharmacy-management"
-    ],
-    "dispensing": [
-      "pharmacy-management"
-    ],
-    "thesis": [
-      "phd-thesis-template"
-    ],
-    "phd": [
-      "phd-thesis-template"
-    ],
-    "dissertation": [
-      "phd-thesis-template"
-    ],
-    "phd-thesis": [
-      "phd-thesis-template"
-    ],
-    "chapter-based": [
-      "phd-thesis-template"
-    ],
-    "product": [
-      "product-recommendations"
-    ],
-    "recommendations": [
-      "product-recommendations"
-    ],
-    "projects": [
-      "project-management"
-    ],
-    "tasks": [
-      "project-management"
-    ],
-    "gantt": [
-      "project-management"
-    ],
-    "sprints": [
-      "project-management"
-    ],
-    "agile": [
-      "project-management"
-    ],
-    "budget": [
-      "project-management"
-    ],
-    "owl": [
-      "reasoner-cli",
-      "semantic-cli"
-    ],
-    "inference": [
-      "reasoner-cli"
-    ],
-    "classification": [
-      "reasoner-cli"
-    ],
-    "semantic-web": [
-      "reasoner-cli"
-    ],
-    "reasoner": [
-      "reasoner-cli"
-    ],
-    "rig": [
-      "rig-mcp"
-    ],
-    "anthropic": [
-      "rig-mcp"
-    ],
-    "risk": [
-      "risk-management"
-    ],
-    "var": [
-      "risk-management"
-    ],
-    "stress-testing": [
-      "risk-management"
-    ],
-    "credit-risk": [
-      "risk-management"
-    ],
-    "market-risk": [
-      "risk-management"
-    ],
-    "robo-advisor": [
-      "robo-advisor"
-    ],
-    "portfolio": [
-      "robo-advisor"
-    ],
-    "rebalancing": [
-      "robo-advisor"
-    ],
-    "tax-optimization": [
-      "robo-advisor"
-    ],
-    "asset-allocation": [
-      "robo-advisor"
-    ],
-    "robo": [
-      "robo-advisor"
-    ],
-    "advisor": [
-      "robo-advisor"
-    ],
-    "modeling": [
-      "schema-forge-cli"
-    ],
-    "validation": [
-      "schema-forge-cli",
-      "shacl-cli"
-    ],
-    "semantic": [
-      "semantic-cli"
-    ],
-    "shacl": [
-      "shacl-cli"
-    ],
-    "constraints": [
-      "shacl-cli"
-    ],
-    "quality": [
-      "shacl-cli"
-    ],
-    "query": [
-      "sparql-cli"
-    ],
-    "federation": [
-      "sparql-cli"
-    ],
-    "optimization": [
-      "sparql-cli"
-    ],
-    "supply-chain": [
-      "supply-chain-management"
-    ],
-    "procurement": [
-      "supply-chain-management"
-    ],
-    "logistics": [
-      "supply-chain-management"
-    ],
-    "warehouse": [
-      "supply-chain-management"
-    ],
-    "demand-planning": [
-      "supply-chain-management"
-    ],
-    "supply": [
-      "supply-chain-management"
-    ],
-    "chain": [
-      "supply-chain-management"
-    ],
-    "telemedicine": [
-      "telemedicine-platform"
-    ],
-    "video-conferencing": [
-      "telemedicine-platform"
-    ],
-    "appointments": [
-      "telemedicine-platform"
-    ],
-    "prescriptions": [
-      "telemedicine-platform"
-    ],
-    "patient-care": [
-      "telemedicine-platform"
-    ],
-    "platform": [
-      "telemedicine-platform"
-    ],
-    "bpmn": [
-      "workflow-engine-cli"
-    ],
-    "orchestration": [
-      "workflow-engine-cli"
-    ],
-    "process": [
-      "workflow-engine-cli"
-    ],
-    "automation": [
-      "workflow-engine-cli"
-    ],
-    "engine": [
-      "workflow-engine-cli"
-    ]
-  }
+  "version_count": 2
 }

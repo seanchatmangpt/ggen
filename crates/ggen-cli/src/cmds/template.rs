@@ -8,10 +8,13 @@
 //! - **Layer 2 (Integration)**: Async coordination, resource management (via ggen_domain)
 //! - **Layer 1 (Domain)**: Pure business logic from ggen_domain::template
 
+// Standard library imports
+use std::path::PathBuf;
+
+// External crate imports
 use clap_noun_verb::Result as NounVerbResult;
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
-use std::path::PathBuf;
 
 // ============================================================================
 // Output Types

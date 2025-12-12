@@ -15,6 +15,21 @@ use std::time::{Duration, Instant};
 /// Default timeout for CLI operations
 const CLI_OP_TIMEOUT: Duration = Duration::from_secs(10);
 
+/// Default maximum tokens for AI operations
+pub const DEFAULT_MAX_TOKENS: i64 = 1024;
+
+/// Default temperature for AI operations
+pub const DEFAULT_TEMPERATURE: f64 = 0.7;
+
+/// Default search limit for marketplace operations
+pub const DEFAULT_SEARCH_LIMIT: usize = 50;
+
+/// Default search offset for marketplace operations
+pub const DEFAULT_SEARCH_OFFSET: usize = 0;
+
+/// Default registry capacity for marketplace operations
+pub const DEFAULT_REGISTRY_CAPACITY: u64 = 1000;
+
 /// Execute async operation with timeout and error handling
 ///
 /// Standardized async execution pattern for CLI commands.

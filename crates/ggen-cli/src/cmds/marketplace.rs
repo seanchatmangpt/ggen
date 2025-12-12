@@ -45,16 +45,21 @@
 //! ggen marketplace metrics
 //! ```
 
+// Standard library imports
+use std::path::PathBuf;
+
+// External crate imports
 use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
 use serde_json::json;
-use std::path::PathBuf;
-use std::time::Instant;
 
-use crate::cmds::helpers::log_operation;
+// Local crate imports
+use crate::cmds::helpers::{
+    execute_async_op, log_operation, track_duration, DEFAULT_REGISTRY_CAPACITY,
+    DEFAULT_SEARCH_LIMIT, DEFAULT_SEARCH_OFFSET,
+};
 use ggen_marketplace::prelude::*;
-
 
 // ============================================================================
 // Output Types
@@ -85,6 +90,8 @@ pub struct SearchOutput {
     pub results: Vec<SearchResultInfo>,
     pub total: usize,
     pub duration_ms: u64,
+    pub limit: u64,
+    pub offset: u64,
     pub filters_applied: FiltersApplied,
 }
 
@@ -211,16 +218,6 @@ pub struct InstallationMetricsOutput {
 // ============================================================================
 // Helper Functions
 // ============================================================================
-
-use crate::cmds::helpers::execute_async_op;
-
-/// Execute async marketplace operation with timeout and error mapping
-fn execute_marketplace_op<T, Fut>(op_name: &str, fut: Fut) -> Result<T>
-where
-    Fut: std::future::Future<Output = Result<T>>,
-{
-    execute_async_op(op_name, fut)
-}
 
 fn to_cli_error(e: ggen_marketplace::Error) -> clap_noun_verb::NounVerbError {
     clap_noun_verb::NounVerbError::execution_error(format_error_with_recovery(&e))
@@ -374,9 +371,14 @@ fn get_metrics() -> &'static MetricsCollector {
 /// ```
 #[verb]
 fn install(
-    package_id: String, version: Option<String>, install_path: Option<PathBuf>, dry_run: bool,
+    package_id: String,
+    version: Option<String>,
+    install_path: Option<PathBuf>,
+    dry_run: bool,
+    // Override registry URL or local file path; sets GGEN_REGISTRY_URL for this invocation.
+    registry_url: Option<String>,
 ) -> Result<InstallOutput> {
-    let start = Instant::now();
+    let _duration_guard = track_duration("install");
 
     // #region agent log
     log_operation(
@@ -392,12 +394,17 @@ fn install(
     );
     // #endregion
 
+    // Optional registry override to avoid remote availability issues (e.g., local index.json)
+    if let Some(url) = registry_url.as_ref() {
+        env::set_var("GGEN_REGISTRY_URL", url);
+    }
+
     // Parse and validate package ID
     let pkg_id = PackageId::new(&package_id).map_err(to_cli_error)?;
 
     // Create registry and installer
-    let result = execute_marketplace_op("install", async {
-        let registry = Registry::new(1000).await;
+    let result = execute_async_op("install", async {
+        let registry = Registry::new(DEFAULT_REGISTRY_CAPACITY).await;
 
         // Resolve version: if not provided, get latest version from package
         let pkg_version = match &version {
@@ -458,7 +465,7 @@ fn install(
     })?;
 
     let (dependencies_resolved, target_path, status, packages) = result;
-    let duration = start.elapsed();
+    let duration_ms = _duration_guard.elapsed_ms();
 
     // #region agent log
     log_operation(
@@ -466,13 +473,13 @@ fn install(
         "install completed",
         json!({
             "package_count": packages.len(),
-            "duration_ms": duration.as_millis(),
+            "duration_ms": duration_ms,
         }),
     );
     // #endregion
 
     // Record metrics
-    get_metrics().record_installation(duration.as_millis() as u64, dependencies_resolved as u64);
+    get_metrics().record_installation(duration_ms, dependencies_resolved as u64);
 
     Ok(InstallOutput {
         package_id,
@@ -480,7 +487,7 @@ fn install(
         dependencies_resolved,
         install_path: target_path,
         dry_run,
-        duration_ms: duration.as_millis() as u64,
+        duration_ms,
         status,
         packages,
     })
@@ -511,7 +518,7 @@ pub fn search(
 ) -> Result<SearchOutput> {
     use ggen_marketplace::search::{SearchQuery, SortBy};
 
-    let start = Instant::now();
+    let _duration_guard = track_duration("search");
 
     // #region agent log
     log_operation(
@@ -532,9 +539,11 @@ pub fn search(
     // #endregion
 
     // Build search query
+    let applied_limit = limit.unwrap_or(DEFAULT_SEARCH_LIMIT);
+    let applied_offset = offset.unwrap_or(DEFAULT_SEARCH_OFFSET);
     let mut search_query = SearchQuery::new(&query)
-        .with_limit(limit.unwrap_or(50))
-        .with_offset(offset.unwrap_or(0));
+        .with_limit(applied_limit)
+        .with_offset(applied_offset);
 
     if let Some(cat) = &category {
         search_query = search_query.with_category(cat);
@@ -565,15 +574,15 @@ pub fn search(
     search_query = search_query.with_sort(sort_by);
 
     // Execute search
-    let results = execute_marketplace_op("search", async {
-        let registry = Registry::new(1000).await;
+    let results = execute_async_op("search", async {
+        let registry = Registry::new(DEFAULT_REGISTRY_CAPACITY).await;
         let packages = registry.all_packages().await.map_err(to_cli_error)?;
 
         let engine = SearchEngine::new();
         engine.search(packages, &search_query).map_err(to_cli_error)
     })?;
 
-    let duration = start.elapsed();
+    let duration_ms = _duration_guard.elapsed_ms();
 
     // #region agent log
     log_operation(
@@ -581,13 +590,13 @@ pub fn search(
         "search completed",
         json!({
             "result_count": results.len(),
-            "duration_ms": duration.as_millis(),
+            "duration_ms": duration_ms,
         }),
     );
     // #endregion
 
     // Record metrics
-    get_metrics().record_search(duration.as_millis() as u64, results.len() as u64);
+    get_metrics().record_search(duration_ms, results.len() as u64);
 
     let result_infos: Vec<SearchResultInfo> = results
         .iter()
@@ -608,7 +617,9 @@ pub fn search(
         query,
         results: result_infos,
         total,
-        duration_ms: duration.as_millis() as u64,
+        duration_ms,
+        limit: applied_limit as u64,
+        offset: applied_offset as u64,
         filters_applied: FiltersApplied {
             category,
             author,
@@ -635,7 +646,7 @@ fn publish(manifest_path: PathBuf, signing_key: Option<PathBuf>) -> Result<Publi
     use ggen_marketplace::security::KeyPair;
     use std::fs;
 
-    let start = Instant::now();
+    let _duration_guard = track_duration("publish");
 
     // Read manifest file
     let manifest_content = fs::read_to_string(&manifest_path).map_err(|e| {
@@ -676,9 +687,6 @@ fn publish(manifest_path: PathBuf, signing_key: Option<PathBuf>) -> Result<Publi
     // Record metrics
     get_metrics().record_signature_verification(true);
 
-    let duration = start.elapsed();
-    let _ = duration; // Suppress unused warning
-
     Ok(PublishOutput {
         package_id: package_id.clone(),
         version: "1.0.0".to_string(),
@@ -706,7 +714,7 @@ fn info(package_id: String, version: Option<String>) -> Result<InfoOutput> {
     let pkg_id = PackageId::new(&package_id).map_err(to_cli_error)?;
 
     // Fetch package from RDF registry
-    let package = execute_marketplace_op("info", async {
+    let package = execute_async_op("info", async {
         let registry = RdfRegistry::new();
 
         if let Some(v) = &version {
@@ -790,8 +798,8 @@ fn validate(package_id: String) -> Result<ValidateOutput> {
     let pkg_id = PackageId::new(&package_id).map_err(to_cli_error)?;
 
     // Fetch and validate package
-    let result = execute_marketplace_op("validate", async {
-        let registry = Registry::new(1000).await;
+    let result = execute_async_op("validate", async {
+        let registry = Registry::new(DEFAULT_REGISTRY_CAPACITY).await;
         let package = registry.get_package(&pkg_id).await.map_err(to_cli_error)?;
 
         let validator = PackageValidator::new();
@@ -852,7 +860,7 @@ fn versions(package_id: String) -> Result<VersionsOutput> {
     let pkg_id = PackageId::new(&package_id).map_err(to_cli_error)?;
 
     // Fetch package versions
-    let (versions_list, latest) = execute_marketplace_op("versions", async {
+    let (versions_list, latest) = execute_async_op("versions", async {
         let registry = RdfRegistry::new();
         let package = registry.get_package(&pkg_id).await.map_err(to_cli_error)?;
         let versions = registry
@@ -930,7 +938,7 @@ pub fn metrics(format: Option<String>) -> Result<MetricsOutput> {
 #[verb]
 fn sparql(query: String) -> Result<serde_json::Value> {
     // Execute SPARQL query against RDF registry
-    let results = execute_marketplace_op("sparql", async {
+    let results = execute_async_op("sparql", async {
         let registry = RdfRegistry::new();
         registry.query_sparql(&query).map_err(to_cli_error)
     })?;
