@@ -3,7 +3,7 @@
 use thiserror::Error;
 
 /// Governance errors
-#[derive(Error, Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum GovernanceError {
     #[error("Policy not found: {0}")]
     PolicyNotFound(String),

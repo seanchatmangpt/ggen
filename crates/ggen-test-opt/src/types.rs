@@ -6,7 +6,6 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
-use thiserror::Error;
 
 // Re-export TestId from ggen-test-audit for consistency
 pub type TestId = ggen_test_audit::TestId;
@@ -223,7 +222,7 @@ pub enum Severity {
 // =============================================================================
 
 /// Errors that can occur during test optimization operations
-#[derive(Debug, Error)]
+#[derive(Debug, thiserror::Error)]
 pub enum OptimizationError {
     /// Budget exceeded
     #[error("Budget exceeded: {0}")]

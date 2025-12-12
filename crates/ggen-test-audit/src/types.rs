@@ -181,7 +181,7 @@ impl AssertionStrength {
 // =============================================================================
 
 /// Errors that can occur during test audit operations
-#[derive(Debug, Error)]
+#[derive(Debug, thiserror::Error)]
 pub enum AuditError {
     /// Mutation testing failed
     #[error("Mutation testing failed: {0}")]

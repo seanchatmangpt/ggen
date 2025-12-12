@@ -6,7 +6,7 @@ use thiserror::Error;
 pub type DoDResult<T> = Result<T, DoDError>;
 
 /// Comprehensive error type for all DoD subsystems
-#[derive(Debug, Error)]
+#[derive(Debug, thiserror::Error)]
 pub enum DoDError {
     #[error("observation error: {0}")]
     Observation(String),
@@ -76,7 +76,7 @@ pub enum DoDError {
 }
 
 /// Errors that can occur during observation schema validation
-#[derive(Debug, Error)]
+#[derive(Debug, thiserror::Error)]
 pub enum ObservationValidationError {
     #[error("schema mismatch: {0}")]
     SchemaMismatch(String),
@@ -95,7 +95,7 @@ pub enum ObservationValidationError {
 }
 
 /// Errors that can occur during contract validation
-#[derive(Debug, Error)]
+#[derive(Debug, thiserror::Error)]
 pub enum ContractValidationError {
     #[error("schema version mismatch: {0}")]
     VersionMismatch(String),
@@ -111,7 +111,7 @@ pub enum ContractValidationError {
 }
 
 /// Errors during timing verification
-#[derive(Debug, Error)]
+#[derive(Debug, thiserror::Error)]
 pub enum TimingError {
     #[error("timing constraint exceeded: {0}")]
     ConstraintExceeded(String),
