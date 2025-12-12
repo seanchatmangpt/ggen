@@ -1,3 +1,10 @@
+#![allow(
+    unused_imports,
+    unused_variables,
+    dead_code,
+    unused_assignments,
+    unused_comparisons
+)]
 //! Phase 1 Prevention Systems Tests
 //!
 //! Comprehensive test suite for Phase 1 (38 hours) items:

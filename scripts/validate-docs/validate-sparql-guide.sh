@@ -21,8 +21,8 @@ TESTS_PASSED=0
 TESTS_FAILED=0
 
 log_info() { echo -e "${BLUE}ℹ${NC} $1"; }
-log_success() { echo -e "${GREEN}✓${NC} $1"; ((TESTS_PASSED++)); ((TESTS_RUN++)); }
-log_error() { echo -e "${RED}✗${NC} $1"; ((TESTS_FAILED++)); ((TESTS_RUN++)); }
+log_success() { echo -e "${GREEN}✓${NC} $1"; ((++TESTS_PASSED)); ((++TESTS_RUN)); return 0; }
+log_error() { echo -e "${RED}✗${NC} $1"; ((++TESTS_FAILED)); ((++TESTS_RUN)); return 0; }
 log_section() {
     echo ""
     echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -30,12 +30,25 @@ log_section() {
     echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 }
 
-# Create workspace
+# Resolve repo root and create workspace
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 WORKSPACE=$(mktemp -d)
 trap "rm -rf $WORKSPACE" EXIT
+
+# ensure tool versions available in temp
+if [ -f "$REPO_ROOT/.tool-versions" ]; then
+    cp "$REPO_ROOT/.tool-versions" "$WORKSPACE/.tool-versions"
+fi
+
 cd "$WORKSPACE"
 
-GGEN_BIN="${GGEN_BIN:-ggen}"
+DEFAULT_GGEN_BIN="$REPO_ROOT/target/debug/ggen"
+if [ -x "$DEFAULT_GGEN_BIN" ]; then
+    GGEN_BIN="${GGEN_BIN:-$DEFAULT_GGEN_BIN}"
+else
+    GGEN_BIN="${GGEN_BIN:-ggen}"
+fi
 
 if ! command -v "$GGEN_BIN" &> /dev/null; then
     log_error "ggen not found"
@@ -43,7 +56,7 @@ if ! command -v "$GGEN_BIN" &> /dev/null; then
 fi
 
 log_info "Working in: $WORKSPACE"
-log_info "Using ggen: $($GGEN_BIN --version)"
+log_info "Using ggen: $GGEN_BIN ($($GGEN_BIN --version))"
 
 # ============================================================================
 # Setup: Load Sample E-commerce Data
@@ -108,7 +121,7 @@ WHERE {
 }
 '
 
-RESULT1=$($GGEN_BIN graph query --sparql_query "$QUERY1" 2>&1)
+RESULT1=$($GGEN_BIN graph query --sparql_query "$QUERY1" --graph_file ecommerce.ttl 2>&1)
 if [ $? -eq 0 ]; then
     log_success "Query 1 executed successfully"
 
@@ -152,12 +165,12 @@ WHERE {
 ORDER BY ?name
 '
 
-RESULT2=$($GGEN_BIN graph query --sparql_query "$QUERY2" 2>&1)
+RESULT2=$($GGEN_BIN graph query --sparql_query "$QUERY2" --graph_file ecommerce.ttl 2>&1)
 if [ $? -eq 0 ]; then
     log_success "Query 2 executed successfully"
 
     # Verify all 3 products returned
-    PRODUCT_COUNT=$(echo "$RESULT2" | grep -c "LAP-\|MOU-\|CHR-" || true)
+    PRODUCT_COUNT=$(echo "$RESULT2" | grep -o "LAP-\\|MOU-\\|CHR-" | wc -l | tr -d '[:space:]')
     if [ "$PRODUCT_COUNT" -ge 3 ]; then
         log_success "All 3 products returned with details"
     else
@@ -184,7 +197,7 @@ WHERE {
 }
 '
 
-RESULT3=$($GGEN_BIN graph query --sparql_query "$QUERY3" 2>&1)
+RESULT3=$($GGEN_BIN graph query --sparql_query "$QUERY3" --graph_file ecommerce.ttl 2>&1)
 if [ $? -eq 0 ]; then
     log_success "Query 3 executed successfully"
 
@@ -207,7 +220,7 @@ fi
 # ============================================================================
 # Query 4: Filter - Products Under $100
 # ============================================================================
-log_section "Query 4: Filter Products Under $100"
+log_section "Query 4: Filter Products Under \$100"
 
 QUERY4='
 PREFIX schema: <https://schema.org/>
@@ -222,13 +235,13 @@ WHERE {
 }
 '
 
-RESULT4=$($GGEN_BIN graph query --sparql_query "$QUERY4" 2>&1)
+RESULT4=$($GGEN_BIN graph query --sparql_query "$QUERY4" --graph_file ecommerce.ttl 2>&1)
 if [ $? -eq 0 ]; then
     log_success "Query 4 executed successfully"
 
     # Should only find Wireless Mouse ($29.99)
     if echo "$RESULT4" | grep -q "Wireless Mouse"; then
-        log_success "Found Wireless Mouse (under $100)"
+        log_success "Found Wireless Mouse (under \$100)"
     else
         log_error "Missing Wireless Mouse in results"
     fi
@@ -237,7 +250,7 @@ if [ $? -eq 0 ]; then
     if echo "$RESULT4" | grep -qE "Laptop|Chair"; then
         log_error "Found expensive products (should be filtered out)"
     else
-        log_success "Correctly filtered out products over $100"
+        log_success "Correctly filtered out products over \$100"
     fi
 else
     log_error "Query 4 failed"
@@ -261,7 +274,7 @@ GROUP BY ?category_name
 ORDER BY DESC(?count)
 '
 
-RESULT5=$($GGEN_BIN graph query --sparql_query "$QUERY5" 2>&1)
+RESULT5=$($GGEN_BIN graph query --sparql_query "$QUERY5" --graph_file ecommerce.ttl 2>&1)
 if [ $? -eq 0 ]; then
     log_success "Query 5 executed successfully"
 
@@ -295,12 +308,12 @@ WHERE {
 }
 '
 
-RESULT6=$($GGEN_BIN graph query --sparql_query "$QUERY6" 2>&1)
+RESULT6=$($GGEN_BIN graph query --sparql_query "$QUERY6" --graph_file ecommerce.ttl 2>&1)
 if [ $? -eq 0 ]; then
     log_success "Query 6 executed successfully"
 
     # Should find 3 product instances
-    INSTANCE_COUNT=$(echo "$RESULT6" | grep -c "product00" || true)
+    INSTANCE_COUNT=$(echo "$RESULT6" | grep -o "product00" | wc -l | tr -d '[:space:]')
     if [ "$INSTANCE_COUNT" -eq 3 ]; then
         log_success "Found all 3 product instances"
     else
@@ -320,17 +333,18 @@ PREFIX schema: <https://schema.org/>
 
 SELECT ?name
 WHERE {
-  ?product schema:name ?name .
+  ?product a schema:Product ;
+           schema:name ?name .
 }
 LIMIT 2
 '
 
-RESULT7=$($GGEN_BIN graph query --sparql_query "$QUERY7" 2>&1)
+RESULT7=$($GGEN_BIN graph query --sparql_query "$QUERY7" --graph_file ecommerce.ttl 2>&1)
 if [ $? -eq 0 ]; then
     log_success "Query 7 executed successfully"
 
     # Count results (should be exactly 2)
-    RESULT_COUNT=$(echo "$RESULT7" | grep -c "Laptop\|Mouse\|Chair" || true)
+    RESULT_COUNT=$(echo "$RESULT7" | grep -o "Laptop\\|Mouse\\|Chair" | wc -l | tr -d '[:space:]')
     if [ "$RESULT_COUNT" -eq 2 ]; then
         log_success "LIMIT 2 correctly returned 2 results"
     else

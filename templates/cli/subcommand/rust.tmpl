@@ -1,37 +1,7 @@
 ---
-to: "src/cmds/{{cmd}}.rs"
-vars:
-  cmd: "example"
-  summary: "Example command"
-rdf:
-  - "graphs/cli.ttl"
-shape:
-  - "graphs/shapes/cli.shacl.ttl"
-sparql:
-  - "SELECT ?cmd ?summary WHERE { ?cmd rdfs:label ?summary }"
-determinism:
-  seed: "cli-subcommand"
-  sort_order: ["cmd", "summary"]
+to: templates/cli/subcommand/rust.rs
+vars: { name: "hello" }
 ---
-use clap::Args;
-use utils::error::Result;
-
-#[derive(Args, Debug)]
-pub struct {{cmd|title}}Args {
-    /// {{summary}}
-    #[arg(value_name = "INPUT")]
-    pub input: Option<String>,
-    
-    /// Output file or directory
-    #[arg(short, long, value_name = "OUTPUT")]
-    pub output: Option<String>,
-    
-    /// Verbose output
-    #[arg(short, long)]
-    pub verbose: bool,
-}
-
-pub async fn run(args: &{{cmd|title}}Args) -> Result<()> {
-    println!("{{summary}}");
-    Ok(())
+fn main() {
+    println!("Hello, {name}!");
 }

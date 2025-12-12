@@ -501,6 +501,163 @@ else
 fi
 '''
 
+[tasks.test-clnrm]
+description = """
+Run clnrm hermetic integration tests to verify CLI commands actually work.
+Uses Docker containers for isolated, reproducible testing.
+Returns RED Andon signal on test failures, GREEN on all pass.
+
+Usage: cargo make test-clnrm
+When: Before commits, in CI, after CLI changes
+SLO: <300s for full CLI command test suite
+
+Example output:
+  GREEN: "✅ All steps passed"
+  RED: "❌ Step 'test_ci_workflow' failed: File not created"
+
+Recovery: Fix failing CLI commands and re-run test-clnrm.
+
+Note: Uses clnrm v2.0.0 from /tmp/clnrm/target/release/clnrm
+"""
+workspace = false
+command = "timeout"
+args = [
+  "300s",
+  "/tmp/clnrm/target/release/clnrm",
+  "run",
+  "tests/clnrm/cli_commands.clnrm.toml",
+]
+
+[tasks.test-clnrm-marketplace-search-lite]
+description = """
+Run lightweight marketplace search clnrm (OTEL resource smoke).
+Uses minimal alpine container; validates basic spans/status.
+"""
+workspace = false
+command = "timeout"
+args = [
+  "180s",
+  "/tmp/clnrm/target/release/clnrm",
+  "run",
+  "tests/clnrm/marketplace/search_test.clnrm.toml",
+]
+
+[tasks.test-clnrm-marketplace-search]
+description = "Run full marketplace search clnrm suite with OTEL validation."
+workspace = false
+command = "timeout"
+args = [
+  "420s",
+  "/tmp/clnrm/target/release/clnrm",
+  "run",
+  "tests/clnrm/marketplace/search.clnrm.toml",
+]
+
+[tasks.test-clnrm-marketplace-install]
+description = "Run marketplace install/registry clnrm suite."
+workspace = false
+command = "timeout"
+args = [
+  "420s",
+  "/tmp/clnrm/target/release/clnrm",
+  "run",
+  "tests/clnrm/marketplace/install.clnrm.toml",
+]
+
+[tasks.test-clnrm-marketplace-error]
+description = "Run marketplace error-handling clnrm suite."
+workspace = false
+command = "timeout"
+args = [
+  "420s",
+  "/tmp/clnrm/target/release/clnrm",
+  "run",
+  "tests/clnrm/marketplace/error_handling.clnrm.toml",
+]
+
+[tasks.test-clnrm-marketplace-otel]
+description = "Run marketplace OTEL validation clnrm suite."
+workspace = false
+command = "timeout"
+args = [
+  "300s",
+  "/tmp/clnrm/target/release/clnrm",
+  "run",
+  "tests/clnrm/marketplace/otel_validation.clnrm.toml",
+]
+
+[tasks.test-clnrm-lifecycle-init]
+description = "Run lifecycle init clnrm suite with OTEL spans/attestations."
+workspace = false
+command = "timeout"
+args = [
+  "420s",
+  "/tmp/clnrm/target/release/clnrm",
+  "run",
+  "tests/clnrm/lifecycle/init.clnrm.toml",
+]
+
+[tasks.test-clnrm-lifecycle-phases]
+description = "Run lifecycle phases clnrm suite."
+workspace = false
+command = "timeout"
+args = [
+  "420s",
+  "/tmp/clnrm/target/release/clnrm",
+  "run",
+  "tests/clnrm/lifecycle/phases.clnrm.toml",
+]
+
+[tasks.test-clnrm-lifecycle-readiness]
+description = "Run lifecycle readiness clnrm suite."
+workspace = false
+command = "timeout"
+args = [
+  "420s",
+  "/tmp/clnrm/target/release/clnrm",
+  "run",
+  "tests/clnrm/lifecycle/readiness.clnrm.toml",
+]
+
+[tasks.test-clnrm-lifecycle-rollback]
+description = "Run lifecycle rollback clnrm suite."
+workspace = false
+command = "timeout"
+args = [
+  "420s",
+  "/tmp/clnrm/target/release/clnrm",
+  "run",
+  "tests/clnrm/lifecycle/rollback.clnrm.toml",
+]
+
+[tasks.test-clnrm-lifecycle-deploy]
+description = "Run lifecycle deploy clnrm suite."
+workspace = false
+command = "timeout"
+args = [
+  "420s",
+  "/tmp/clnrm/target/release/clnrm",
+  "run",
+  "tests/clnrm/lifecycle/deploy.clnrm.toml",
+]
+
+[tasks.test-clnrm-all]
+description = "Run all clnrm suites (cli, marketplace, lifecycle)."
+workspace = false
+dependencies = [
+  "test-clnrm",
+  "test-clnrm-marketplace-search-lite",
+  "test-clnrm-marketplace-search",
+  "test-clnrm-marketplace-install",
+  "test-clnrm-marketplace-error",
+  "test-clnrm-marketplace-otel",
+  "test-clnrm-lifecycle-init",
+  "test-clnrm-lifecycle-phases",
+  "test-clnrm-lifecycle-readiness",
+  "test-clnrm-lifecycle-rollback",
+  "test-clnrm-lifecycle-deploy",
+]
+
 [tasks.test-unit]
 description = """
 Run unit tests only for fast feedback during development.
@@ -616,6 +773,31 @@ args = [
   "--nocapture",
   "--report-time",
 ]
+
+[tasks.cli-smoke]
+description = """
+CLI smoke: help/version, workflow init/event/analyze/discover/report, idempotence, and failure-path check.
+Uses fixed seed/env (TZ=UTC, LANG=C, GGEN_SEED=123). Requires jq. Builds debug binary if missing.
+SLO: <180s; fails on any Andon signal or invariant mismatch.
+"""
+workspace = false
+dependencies = ["timeout-check"]
+env = { TZ = "UTC", LANG = "C", GGEN_SEED = "123" }
+command = "timeout"
+args = ["180s", "bash", "scripts/cli-smoke.sh"]
+
+[tasks.slo-check]
+description = """
+Performance SLO validation (quick path):
+- Lists test timings to surface slow suites without full execution
+- Enforces timeout wrapper to prevent hangs
+
+Usage: cargo make slo-check
+SLO: completes within 60s
+"""
+workspace = false
+command = "timeout"
+args = ["180s", "cargo", "test", "-p", "ggen-core", "--", "--list"]
 
 [tasks.test-single-threaded]
 description = "Run tests in single-threaded mode for deterministic execution"
@@ -814,7 +996,17 @@ args = ["run", "--bin", "ggen", "--", "utils", "fmea", "list"]
 description = "Export FMEA data to JSON"
 workspace = false
 command = "cargo"
-args = ["run", "--bin", "ggen", "--", "utils", "fmea", "export", "--output", "fmea-report.json"]
+args = [
+  "run",
+  "--bin",
+  "ggen",
+  "--",
+  "utils",
+  "fmea",
+  "export",
+  "--output",
+  "fmea-report.json",
+]
 
 [tasks.test-live]
 description = "Run tests with live LLM integrations (requires API keys)"
@@ -1332,13 +1524,32 @@ command = "./marketplace/scripts/generate_validation_report.sh"
 description = "Emit validation receipts for all marketplace packages (Track A)"
 workspace = false
 command = "cargo"
-args = ["run", "--release", "--bin", "ggen", "--", "marketplace", "emit-receipts", "--report"]
+args = [
+  "run",
+  "--release",
+  "--bin",
+  "ggen",
+  "--",
+  "marketplace",
+  "emit-receipts",
+  "--report",
+]
 
 [tasks.marketplace-health]
 description = "Generate marketplace health report from validation receipts"
 workspace = false
 command = "cargo"
-args = ["run", "--release", "--bin", "ggen", "--", "marketplace", "report", "--output", "marketplace/MARKETPLACE_HEALTH.json"]
+args = [
+  "run",
+  "--release",
+  "--bin",
+  "ggen",
+  "--",
+  "marketplace",
+  "report",
+  "--output",
+  "marketplace/MARKETPLACE_HEALTH.json",
+]
 
 [tasks.marketplace-validate-with-receipts]
 description = "Validate all packages and emit receipts (combined Track A)"
@@ -1349,12 +1560,24 @@ dependencies = ["marketplace-validate", "marketplace-emit-receipts"]
 description = "Generate JSON registry and Markdown from receipts (Track B)"
 workspace = false
 command = "cargo"
-args = ["run", "--release", "--bin", "ggen", "--", "marketplace", "generate-artifacts"]
+args = [
+  "run",
+  "--release",
+  "--bin",
+  "ggen",
+  "--",
+  "marketplace",
+  "generate-artifacts",
+]
 
 [tasks.marketplace-full-pipeline]
 description = "Complete marketplace pipeline: validate → emit receipts → generate artifacts (Track A+B)"
 workspace = false
-dependencies = ["marketplace-validate", "marketplace-emit-receipts", "marketplace-generate-artifacts"]
+dependencies = [
+  "marketplace-validate",
+  "marketplace-emit-receipts",
+  "marketplace-generate-artifacts",
+]
 
 # ============================================================================
 # Compilation Validation Tasks (Root Cause Prevention)
@@ -1793,3 +2016,99 @@ Files:
 Learn more: docs/KAIZEN_METRICS.md
 HELP_EOF
 '''
+
+# =============================================================================
+# Feature 004: Test Quality Audit and Performance Optimization
+# =============================================================================
+
+[tasks.test-audit]
+description = """
+Run test quality audit to detect false positives and weak assertions.
+Analyzes mutation kill rate, assertion strength, and behavior validation.
+Returns RED for false positives, YELLOW for weak assertions, GREEN if quality passes.
+
+Usage: cargo make test-audit
+When: Before optimization, after adding tests, weekly quality review
+SLO: <30s for full audit, <10s for incremental
+
+Example output:
+  GREEN: "Mutation kill rate: 85.3% (target: 80%+) - PASS"
+  YELLOW: "Weak assertions detected: 12 tests need strengthening"
+  RED: "FALSE POSITIVE: ggen.toml broken but tests pass"
+
+Recovery: Fix false positive tests before continuing with optimization.
+Strengthen weak assertions using assert_eq! with exact values.
+For timeout (>30s), run audit on subset of tests first.
+"""
+workspace = false
+command = "timeout"
+args = ["30s", "cargo", "run", "--package", "ggen-test-audit", "--", "audit"]
+
+[tasks.test-opt]
+description = """
+Run test optimization to select 200 high-value tests from full 1,178-test suite.
+Applies 80/20 Pareto principle based on test value scoring algorithm.
+Generates optimized suite manifest in .ggen/test-metadata/optimized-suite.json.
+
+Usage: cargo make test-opt
+When: After test audit passes, before enabling parallel execution
+SLO: <15s for full optimization, <5s for incremental updates
+
+Example output:
+  GREEN: "Optimized suite: 200 tests selected (83% reduction)"
+  GREEN: "Projected bug detection: 84.7% (target: 80%+)"
+  GREEN: "Projected execution time: 8.31s (target: ≤11s)"
+
+Recovery: If bug detection <80%, adjust value scoring weights in config.
+If execution time >11s, apply stricter budget enforcement.
+For timeout (>15s), run optimization on subset first.
+"""
+workspace = false
+command = "timeout"
+args = ["15s", "cargo", "run", "--package", "ggen-test-opt", "--", "optimize"]
+
+[tasks.test-mutate]
+description = """
+Run mutation testing with cargo-mutants to verify tests catch bugs.
+Injects mutations into code and verifies tests fail appropriately.
+Returns RED if kill rate <80%, GREEN if ≥80%.
+
+Usage: cargo make test-mutate
+When: After test audit, before deployment, weekly validation
+SLO: <5min for critical paths, <30min for full workspace
+
+Example output:
+  GREEN: "Mutation testing complete: 847/1000 mutants killed (84.7%)"
+  RED: "Mutation testing failed: 654/1000 mutants killed (65.4% < 80% target)"
+  YELLOW: "23 mutants timed out (>1s per test)"
+
+Recovery: If kill rate <80%, add tests for surviving mutants.
+If timeouts occur, optimize slow tests or increase timeout threshold.
+For full workspace timeout (>30min), run on critical paths only.
+"""
+workspace = false
+command = "timeout"
+args = ["5m", "cargo", "mutants", "--", "--workspace"]
+
+[tasks.test-budget-check]
+description = """
+Validate performance budgets for unit and integration tests.
+Enforces strict limits: unit tests ≤1s total, integration tests ≤10s total.
+Returns RED for Critical violations, YELLOW for warnings, GREEN if compliant.
+
+Usage: cargo make test-budget-check
+When: After test execution, before commit, in CI/CD pipeline
+SLO: <5s for budget validation
+
+Example output:
+  GREEN: "Budget compliance: Unit 0.51s/1.00s (49% margin), Integration 7.8s/10.0s (22% margin)"
+  YELLOW: "Warning: test_rdf_parsing took 0.85s (85% of unit budget)"
+  RED: "Critical: test_slow_integration took 12.3s (exceeds 10s budget)"
+
+Recovery: For Critical violations, optimize or exclude slow tests.
+For warnings, monitor test performance trends over time.
+If budget check times out (>5s), verify test metadata is up to date.
+"""
+workspace = false
+command = "timeout"
+args = ["5s", "cargo", "run", "--package", "ggen-test-opt", "--", "budget-check"]

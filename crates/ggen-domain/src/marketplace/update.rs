@@ -3,6 +3,7 @@
 //! Real implementation of package update functionality.
 
 use ggen_utils::error::Result;
+use crate::marketplace_scorer::PackageId;
 
 /// Update command arguments
 #[derive(Debug, Clone, Default)]
@@ -234,14 +235,12 @@ pub async fn execute_update(input: UpdateInput) -> Result<UpdateOutput> {
     let updated_count: usize = 0;
 
     for pkg_name in &packages_to_update {
-        // Create package ID with proper error handling
-        let _package_id = match PackageId::new(&format!("local/{}", pkg_name)) {
-            Ok(id) => id,
-            Err(_) => {
-                ggen_utils::alert_warning!("Invalid package ID for: {}", pkg_name);
-                continue;
-            }
+        // Create package ID with name + version from lockfile entry
+        let Some(pkg_info) = lockfile.packages.get(pkg_name) else {
+            ggen_utils::alert_warning!("Missing lockfile entry for: {}", pkg_name);
+            continue;
         };
+        let _package_id = PackageId::new(pkg_name.to_string(), pkg_info.version.clone());
 
         // NOTE: v2 RDF-backed version querying to be implemented
         // Current implementation uses in-memory registry (no persistent versions yet)

@@ -15,9 +15,9 @@ Before running these tests, ensure you have:
    ollama serve
    ```
 
-2. **qwen3-coder:30b model pulled**:
+2. **ministral-3:3b model pulled**:
    ```bash
-   ollama pull qwen3-coder:30b
+   ollama pull ministral-3:3b
    ```
 
 3. **Verify Ollama is running**:
@@ -95,7 +95,7 @@ cargo test --features ollama-integration --test ollama_integration -- --nocaptur
 ### Common Issues
 
 1. **"Ollama not available"**: Ensure Ollama is running on port 11434
-2. **"Model not found"**: Run `ollama pull qwen3-coder:30b`
+2. **"Model not found"**: Run `ollama pull ministral-3:3b`
 3. **Timeout errors**: Check Ollama performance and system resources
 4. **Connection errors**: Verify Ollama is accessible at `http://localhost:11434`
 
@@ -112,7 +112,7 @@ Test Ollama manually:
 ```bash
 # Test basic completion
 curl http://localhost:11434/api/generate -d '{
-  "model": "qwen3-coder:30b",
+  "model": "ministral-3:3b",
   "prompt": "Hello, world!",
   "stream": false
 }'
@@ -128,6 +128,6 @@ To include in CI (optional):
   run: |
     ollama serve &
     sleep 5
-    ollama pull qwen3-coder:30b
+    ollama pull ministral-3:3b
     cargo make test-ollama
 ```

@@ -112,7 +112,7 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
             "H1",
             "lib.rs:cli_match:entry",
             "cli_match entry with args",
-            json!({ "args": args })
+            json!({ "args": args.clone() }),
         );
         // #endregion
         // Handle --graph flag (export complete command graph)
@@ -127,7 +127,7 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
                 "H2",
                 "lib.rs:cli_match:graph",
                 "handled --graph flag",
-                json!({ "total_verbs": graph.total_verbs, "noun_count": graph.nouns.len() })
+                json!({ "total_verbs": graph.total_verbs, "noun_count": graph.nouns.len() }),
             );
             // #endregion
             return Ok(());
@@ -153,7 +153,7 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
                             "H3",
                             "lib.rs:cli_match:capabilities",
                             "served --capabilities metadata",
-                            json!({ "noun": metadata.noun, "verb": metadata.verb, "arg_count": metadata.arguments.len() })
+                            json!({ "noun": metadata.noun, "verb": metadata.verb, "arg_count": metadata.arguments.len() }),
                         );
                         // #endregion
                         return Ok(());
@@ -165,7 +165,7 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
                             "H3",
                             "lib.rs:cli_match:capabilities",
                             "capabilities verb not found",
-                            json!({ "noun": noun, "verb": verb })
+                            json!({ "noun": noun, "verb": verb }),
                         );
                         // #endregion
                         return Err(ggen_utils::error::Error::new(&format!(
@@ -180,7 +180,7 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
                     "H3",
                     "lib.rs:cli_match:capabilities",
                     "capabilities usage error",
-                    json!({ "arg_len": args.len() })
+                    json!({ "arg_len": args.len() }),
                 );
                 // #endregion
                 return Err(ggen_utils::error::Error::new(
@@ -203,12 +203,12 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
                         println!("Return Type: {}", metadata.return_type);
                         println!("JSON Output: {}", metadata.supports_json_output);
                         println!("\nArguments:");
-                        for arg in metadata.arguments {
+                        for arg in &metadata.arguments {
                             println!(
                                 "  - {} ({}): {}",
                                 arg.name, arg.argument_type, arg.description
                             );
-                            if let Some(default) = arg.default_value {
+                            if let Some(default) = &arg.default_value {
                                 println!("    Default: {}", default);
                             }
                             if arg.optional {
@@ -222,7 +222,7 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
                             "H4",
                             "lib.rs:cli_match:introspect",
                             "served --introspect metadata",
-                            json!({ "noun": metadata.noun, "verb": metadata.verb, "arg_count": metadata.arguments.len(), "return_type": metadata.return_type })
+                            json!({ "noun": metadata.noun, "verb": metadata.verb, "arg_count": metadata.arguments.len(), "return_type": metadata.return_type }),
                         );
                         // #endregion
                         return Ok(());
@@ -234,7 +234,7 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
                             "H4",
                             "lib.rs:cli_match:introspect",
                             "introspect verb not found",
-                            json!({ "noun": noun, "verb": verb })
+                            json!({ "noun": noun, "verb": verb }),
                         );
                         // #endregion
                         return Err(ggen_utils::error::Error::new(&format!(
@@ -249,7 +249,7 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
                     "H4",
                     "lib.rs:cli_match:introspect",
                     "introspect usage error",
-                    json!({ "arg_len": args.len() })
+                    json!({ "arg_len": args.len() }),
                 );
                 // #endregion
                 return Err(ggen_utils::error::Error::new(
@@ -265,7 +265,7 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
         "H5",
         "lib.rs:cli_match:router",
         "delegating to clap_noun_verb::run",
-        json!({})
+        json!({}),
     );
     // #endregion
     clap_noun_verb::run()
@@ -275,7 +275,7 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
         "H5",
         "lib.rs:cli_match:router",
         "clap_noun_verb::run completed",
-        json!({})
+        json!({}),
     );
     // #endregion
     Ok(())

@@ -61,8 +61,13 @@ fi
 cd "$WORKSPACE"
 log_info "Working in: $WORKSPACE"
 
-# Get the path to ggen binary
-GGEN_BIN="${GGEN_BIN:-ggen}"
+# Get the path to ggen binary (prefer repo build)
+DEFAULT_GGEN_BIN="$REPO_ROOT/target/debug/ggen"
+if [ -x "$DEFAULT_GGEN_BIN" ]; then
+    GGEN_BIN="${GGEN_BIN:-$DEFAULT_GGEN_BIN}"
+else
+    GGEN_BIN="${GGEN_BIN:-ggen}"
+fi
 
 # Verify ggen is available
 if ! command -v "$GGEN_BIN" &> /dev/null; then
@@ -181,7 +186,7 @@ fi
 log_section "Step 4: Query Graph with SPARQL"
 
 set +e
-QUERY_OUTPUT=$($GGEN_BIN graph query --sparql_query "SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 5" 2>&1)
+QUERY_OUTPUT=$($GGEN_BIN graph query --sparql_query "SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 5" --graph_file product-ontology.ttl 2>&1)
 QUERY_EXIT=$?
 set -e
 
@@ -205,7 +210,7 @@ fi
 log_section "Step 5: Extract Ontology Schema"
 
 set +e
-EXTRACT_OUTPUT=$($GGEN_BIN ontology extract product-ontology.ttl --output product-schema.json 2>&1)
+EXTRACT_OUTPUT=$($GGEN_BIN ontology extract --ontology_file product-ontology.ttl --output product-schema.json 2>&1)
 EXTRACT_EXIT=$?
 set -e
 

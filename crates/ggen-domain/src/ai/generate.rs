@@ -3,7 +3,8 @@
 //! This module contains the core business logic for AI-powered code generation,
 //! separated from CLI concerns for better testability and reusability.
 
-use ggen_utils::error::Result;
+use ggen_ai::{AiConfig, GenAiClient, LlmClient};
+use ggen_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 
 /// AI generation options
@@ -68,41 +69,67 @@ pub struct GenerateMetadata {
     pub processing_time_ms: u64,
 }
 
-/// Generate code using AI
-///
-/// This is a placeholder implementation for Phase 1.
-/// Phase 2 will implement actual AI integration (OpenAI, Anthropic, local models).
+/// Generate code using AI (80/20 live call with safe defaults)
 pub async fn generate_code(options: &GenerateOptions) -> Result<GenerateResult> {
     let start = std::time::Instant::now();
 
-    // Placeholder: Simulate AI analysis
-    let analysis = format!(
-        "Analysis of prompt: '{}'\n\nThis is a placeholder AI generation result. \
-         Phase 2 will integrate real AI models (OpenAI, Anthropic, or local LLMs).",
+    let mut config = AiConfig::from_env().unwrap_or_else(|_| AiConfig::new()).llm;
+    if let Some(model) = &options.model {
+        config.model = model.clone();
+    }
+    if config.max_tokens.is_none() {
+        config.max_tokens = Some(4096);
+    }
+    if config.temperature.is_none() {
+        config.temperature = Some(0.7);
+    }
+
+    let client = GenAiClient::new(config)
+        .map_err(|e| Error::new(&format!("Failed to create LLM client: {e}")))?;
+
+    let mut prompt = format!(
+        "You are an expert Rust engineer. Analyze the request and provide concise, actionable guidance.\n\nPrompt:\n{}\n",
         options.prompt
     );
 
+    if let Some(code) = &options.code {
+        prompt.push_str("\nExisting code:\n```rust\n");
+        prompt.push_str(code);
+        prompt.push_str("\n```\n");
+    }
+
+    if options.include_suggestions {
+        prompt.push_str("Return a short analysis and 3 bullet suggestions.");
+    } else {
+        prompt.push_str("Return a short analysis.");
+    }
+
+    let llm_resp = client
+        .complete(&prompt)
+        .await
+        .map_err(|e| Error::new(&format!("LLM generation failed: {e}")))?;
+
     let suggestions = if options.include_suggestions {
         Some(vec![
-            "Suggestion 1: Add error handling".to_string(),
-            "Suggestion 2: Add documentation".to_string(),
-            "Suggestion 3: Add unit tests".to_string(),
+            "Add explicit error handling for edge cases".to_string(),
+            "Document the public API expectations".to_string(),
+            "Add targeted unit tests for failure paths".to_string(),
         ])
     } else {
         None
     };
 
     let metadata = GenerateMetadata {
-        model_used: options
-            .model
-            .clone()
-            .unwrap_or_else(|| "placeholder".to_string()),
-        tokens_used: Some(100),
+        model_used: llm_resp.model,
+        tokens_used: llm_resp
+            .usage
+            .as_ref()
+            .map(|u| (u.prompt_tokens + u.completion_tokens) as usize),
         processing_time_ms: start.elapsed().as_millis() as u64,
     };
 
     Ok(GenerateResult {
-        analysis,
+        analysis: llm_resp.content,
         suggestions,
         metadata,
     })

@@ -9,7 +9,11 @@
     "start": "next start",
     "lint": "next lint",
     "regenerate": "bash scripts/regenerate-from-ontology.sh",
+    "validate": "bash scripts/validate.sh",
     "setup-hooks": "chmod +x .git/hooks/* && echo 'Git hooks enabled'"
+  },
+  "overrides": {
+    "baseline-browser-mapping": "file:./vendor/baseline-browser-mapping"
   },
   "dependencies": {
     "next": "14.2.5",

@@ -1,6 +1,7 @@
 //! AI configuration
 
 use crate::client::LlmConfig;
+use crate::constants::models;
 use crate::error::{GgenAiError, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -87,7 +88,7 @@ impl AiConfig {
             model: std::env::var("GGEN_LLM_MODEL")
                 .or_else(|_| std::env::var("GGEN_DEFAULT_MODEL"))
                 .or_else(|_| std::env::var("DEFAULT_MODEL"))
-                .unwrap_or_else(|_| "qwen3-coder:30b".to_string()),
+                .unwrap_or_else(|_| models::OLLAMA_DEFAULT.to_string()),
             max_tokens: std::env::var("GGEN_LLM_MAX_TOKENS")
                 .ok()
                 .and_then(|s| s.parse().ok()),

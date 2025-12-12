@@ -19,12 +19,9 @@ use std::path::PathBuf;
 use std::time::SystemTime;
 
 // #region agent log helper
+#[allow(dead_code)]
 fn log_debug(
-    session_id: &str,
-    run_id: &str,
-    hypothesis_id: &str,
-    location: &str,
-    message: &str,
+    session_id: &str, run_id: &str, hypothesis_id: &str, location: &str, message: &str,
     data: serde_json::Value,
 ) {
     if let Ok(mut file) = OpenOptions::new()
@@ -99,9 +96,31 @@ fn generate(
     _api_key: Option<String>, // FUTURE: Use for LLM provider authentication
     suggestions: bool,
     _language: Option<String>, // FUTURE: Use for language-specific generation
-    _max_tokens: i64,
-    _temperature: f64,
+    max_tokens: Option<i64>,
+    temperature: Option<f64>,
 ) -> Result<GenerateOutput> {
+    // Apply safe defaults so callers are not forced to pass tuning flags
+    let max_tokens = max_tokens.unwrap_or(1024);
+    let temperature = temperature.unwrap_or(0.7);
+
+    // #region agent log
+    log_debug(
+        "debug-session",
+        "pre-fix",
+        "H0-generate",
+        "ai.rs:generate:entry",
+        "generate called",
+        json!({
+            "prompt_len": prompt.len(),
+            "has_code": code.is_some(),
+            "model": model.as_ref(),
+            "suggestions": suggestions,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+        }),
+    );
+    // #endregion
+
     // Layer 3: Input validation
     if prompt.is_empty() {
         return Err(clap_noun_verb::NounVerbError::execution_error(
@@ -136,10 +155,10 @@ fn generate(
 fn chat(
     message: Option<String>,
     model: Option<String>,
-    _interactive: bool, // FUTURE: Support interactive mode
-    _stream: bool,      // FUTURE: Support streaming responses
-    _max_tokens: Option<i64>,
-    _temperature: Option<f64>,
+    interactive: bool, // FUTURE: Support interactive mode
+    stream: bool,      // FUTURE: Support streaming responses
+    max_tokens: Option<i64>,
+    temperature: Option<f64>,
 ) -> Result<ChatOutput> {
     // #region agent log
     log_debug(
@@ -152,8 +171,8 @@ fn chat(
             "has_message": message.is_some(),
             "message_len": message.as_ref().map(|m| m.len()),
             "model": model.as_ref(),
-            "interactive": _interactive,
-            "stream": _stream,
+            "interactive": interactive,
+            "stream": stream,
         }),
     );
     // #endregion
@@ -167,16 +186,18 @@ fn chat(
         ));
     }
 
+    // Surface optional tuning parameters and avoid unused warnings
+    let _ = (max_tokens.unwrap_or(1024), temperature.unwrap_or(0.7));
+
     // Layer 2: Call execute layer (async coordination)
     let chat_result = crate::runtime::block_on(async move {
         execute::execute_chat(&msg, model.as_deref())
             .await
             .map_err(|e| ggen_utils::error::Error::new(&format!("Chat failed: {}", e)))
     })
-    .map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e))
-    })?;
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e)))?;
 
+    // Unwrap outer and inner Results, mapping both error layers to CLI errors
     let result = chat_result.map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!("Chat failed: {}", e))
     })?;
@@ -241,10 +262,9 @@ fn analyze(
     let analysis_result = crate::runtime::block_on(async move {
         execute::execute_analyze(code.as_deref(), file.as_deref()).await
     })
-    .map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e))
-    })?;
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e)))?;
 
+    // Unwrap outer and inner Results, mapping both error layers to CLI errors
     let result = analysis_result.map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!("Analysis failed: {}", e))
     })?;
@@ -288,8 +308,8 @@ mod tests {
             None,
             false,
             None,
-            -1,
-            0.0,
+            Some(-1),
+            Some(0.0),
         );
 
         assert!(result.is_ok());
@@ -307,8 +327,8 @@ mod tests {
             Some("test-key".to_string()),
             true,
             Some("rust".to_string()),
-            256,
-            0.7,
+            Some(256),
+            Some(0.7),
         );
 
         assert!(result.is_ok());
@@ -320,7 +340,16 @@ mod tests {
 
     #[test]
     fn test_generate_empty_prompt_fails() {
-        let result = generate("".to_string(), None, None, None, false, None, -1, 0.0);
+        let result = generate(
+            "".to_string(),
+            None,
+            None,
+            None,
+            false,
+            None,
+            Some(-1),
+            Some(0.0),
+        );
 
         assert!(result.is_err());
     }

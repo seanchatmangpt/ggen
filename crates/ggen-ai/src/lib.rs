@@ -68,8 +68,14 @@ pub mod security;
 pub mod streaming;
 pub mod types;
 
-// Test helpers for mock clients
-#[cfg(test)]
+// Test helpers for integrations
+#[cfg(any(
+    test,
+    feature = "ollama-integration",
+    feature = "openai-integration",
+    feature = "anthropic-integration",
+    feature = "live-llm-tests"
+))]
 pub mod test_helpers;
 
 // Re-export main types for convenience
@@ -81,7 +87,9 @@ pub use generators::{
     NaturalSearchGenerator, OntologyGenerator, QualityMetrics, RefactorAssistant, SparqlGenerator,
     TemplateGenerator, TemplateValidator, ValidationIssue,
 };
-pub use providers::adapter::{ollama_default_config, ollama_qwen3_coder_config, MockClient};
+pub use providers::adapter::{
+    ollama_default_config, ollama_ministral_3b_config, ollama_qwen3_coder_config, MockClient,
+};
 pub use rdf::{
     Argument, ArgumentType, CliGenerator, CliProject, Dependency, Noun, QueryExecutor, RdfParser,
     TemplateRenderer, Validation, Verb,

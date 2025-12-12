@@ -4,7 +4,7 @@ use ggen_core::registry::{
     PackMetadata, RegistryClient, SearchParams, SearchResult, VersionMetadata,
 };
 use predicates::prelude::*;
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::fs;
 use tempfile::TempDir;
 // use url::Url; // Not available in test dependencies
@@ -43,7 +43,7 @@ impl MockRegistryClient {
                 author: Some("ggen-team".to_string()),
                 latest_version: "1.2.0".to_string(),
                 versions: {
-                    let mut versions = HashMap::new();
+                    let mut versions = BTreeMap::new();
                     versions.insert(
                         "1.2.0".to_string(),
                         VersionMetadata {
@@ -90,7 +90,7 @@ impl MockRegistryClient {
                 author: Some("python-dev".to_string()),
                 latest_version: "2.1.0-beta.1".to_string(),
                 versions: {
-                    let mut versions = HashMap::new();
+                    let mut versions = BTreeMap::new();
                     versions.insert(
                         "2.1.0-beta.1".to_string(),
                         VersionMetadata {

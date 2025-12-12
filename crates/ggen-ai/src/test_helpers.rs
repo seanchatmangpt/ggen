@@ -22,12 +22,12 @@
 //!
 //! ## CONSTRAINTS
 //! - External Dependency: Requires Ollama running locally (typically http://localhost:11434)
-//! - Model Requirement: Tests assume `qwen3-coder:30b` model is available
+//! - Model Requirement: Tests default to `ministral-3:3b` (override with `OLLAMA_MODEL`)
 //! - Timeout Limit: Availability checks must complete within 10 seconds
 //!
 //! ## INVARIANTS
 //! 1. Tests MUST skip (not fail) when Ollama is unavailable
-//! 2. All test clients use same model (`qwen3-coder:30b`)
+//! 2. All test clients use same model (`ministral-3:3b` by default)
 //! 3. No availability check exceeds 10 seconds
 //! 4. Helper functions do not modify global or shared state
 //! 5. Mock clients must provide responses appropriate to generator type
@@ -49,14 +49,19 @@ use std::sync::Arc;
 use std::time::Duration;
 use tokio::time::timeout;
 
-/// Check if Ollama is available and running with qwen3-coder:30b model
+fn resolved_ollama_model() -> String {
+    std::env::var("OLLAMA_MODEL")
+        .unwrap_or_else(|_| crate::constants::models::OLLAMA_DEFAULT.to_string())
+}
+
+/// Check if Ollama is available and running with the configured model
 pub async fn check_ollama_availability() -> bool {
     let config = create_test_llm_config();
     match GenAiClient::new(config) {
         Ok(client) => {
             // Try a simple completion to verify Ollama is running
             let _test_config = LlmConfig {
-                model: "qwen3-coder:30b".to_string(),
+                model: resolved_ollama_model(),
                 max_tokens: Some(10),
                 temperature: Some(0.1),
                 top_p: None,
@@ -85,16 +90,16 @@ macro_rules! skip_if_ollama_unavailable {
     };
 }
 
-/// Create a test Ollama client with qwen3-coder:30b configuration
+/// Create a test Ollama client with the configured Ollama model
 pub fn create_test_ollama_client() -> Result<GenAiClient, crate::error::GgenAiError> {
     let config = create_test_llm_config();
     GenAiClient::new(config)
 }
 
-/// Create a test LlmConfig for qwen3-coder:30b
+/// Create a test LlmConfig for the configured Ollama model
 pub fn create_test_llm_config() -> LlmConfig {
     LlmConfig {
-        model: "qwen3-coder:30b".to_string(),
+        model: resolved_ollama_model(),
         max_tokens: Some(100),
         temperature: Some(0.1),
         top_p: None,

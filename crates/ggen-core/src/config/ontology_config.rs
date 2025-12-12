@@ -70,7 +70,7 @@ pub enum CompositionStrategy {
     Custom {
         /// Rules for handling conflicts (pack_name: resolution)
         /// **FMEA Fix**: Use BTreeMap for deterministic serialization order
-        rules: BTreeMap<String, ConflictResolution>,
+        rules: std::collections::BTreeMap<String, ConflictResolution>,
     },
 }
 

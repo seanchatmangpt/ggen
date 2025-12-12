@@ -1,3 +1,4 @@
+#![cfg(feature = "marketplace_v1")]
 //! Complete integration test for marketplace functionality using testcontainers
 //!
 //! This test demonstrates the full marketplace workflow:

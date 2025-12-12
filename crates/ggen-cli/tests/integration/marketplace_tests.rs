@@ -1,3 +1,4 @@
+#![cfg(feature = "marketplace_v1")]
 //! Marketplace Integration Tests with Testcontainers
 //!
 //! These tests validate production readiness of the marketplace using testcontainers

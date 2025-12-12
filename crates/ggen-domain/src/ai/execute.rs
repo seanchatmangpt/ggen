@@ -23,6 +23,7 @@
 //! - FUTURE: `execute_refactor`, `execute_explain`, `execute_suggest`
 
 use crate::ai::{analyze, generate};
+use ggen_ai::{AiConfig, GenAiClient, LlmClient};
 use ggen_utils::error::Result;
 use serde_json::json;
 use std::fs::OpenOptions;
@@ -399,12 +400,30 @@ pub async fn execute_chat(message: &str, model: Option<&str>) -> Result<ExecuteC
         return Err(ggen_utils::error::Error::new("Message cannot be empty"));
     }
 
-    // FUTURE: Call domain chat function when implemented
-    // For now, return placeholder response
-    let result = ExecuteChatResult {
-        response: format!("Chat response to: {}", message),
-        model_used: model.unwrap_or("default-chat").to_string(),
-    };
+    let mut config = AiConfig::from_env().unwrap_or_else(|_| AiConfig::new()).llm;
+    if let Some(m) = model {
+        config.model = m.to_string();
+    }
+    if config.max_tokens.is_none() {
+        config.max_tokens = Some(512);
+    }
+    if config.temperature.is_none() {
+        config.temperature = Some(0.7);
+    }
+
+    let client = GenAiClient::new(config)
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create LLM client: {e}")))?;
+
+    let prompt = format!(
+        "You are a concise Rust assistant. Respond helpfully to the user.
+User: {}",
+        message
+    );
+
+    let resp = client
+        .complete(&prompt)
+        .await
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Chat failed: {e}")))?;
 
     // #region agent log
     log_debug(
@@ -412,15 +431,18 @@ pub async fn execute_chat(message: &str, model: Option<&str>) -> Result<ExecuteC
         "run1",
         "H4",
         "ai/execute.rs:execute_chat:ok",
-        "execute_chat placeholder response",
+        "execute_chat response",
         json!({
-            "model_used": result.model_used,
-            "response_preview": result.response.chars().take(80).collect::<String>(),
+            "model_used": resp.model,
+            "response_preview": resp.content.chars().take(80).collect::<String>(),
         }),
     );
     // #endregion
 
-    Ok(result)
+    Ok(ExecuteChatResult {
+        response: resp.content,
+        model_used: resp.model,
+    })
 }
 
 // ============================================================================

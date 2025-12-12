@@ -47,6 +47,7 @@ ggen-core.workspace = true
 ggen-ai.workspace = true
 ggen-domain.workspace = true
 ggen-marketplace-v2.workspace = true
+ggen-test-audit = { workspace = true, optional = true }
 
 # Crate-specific dependencies
 gag = "0.1"
@@ -97,6 +98,7 @@ async = ["clap-noun-verb/async"]
 full = ["autonomic", "agent2028", "rdf", "kernel", "async"]
 
 # Testing features
+test-quality = ["ggen-test-audit"]
 live-llm-tests = [] # Opt-in for live LLM integration tests
 
 [dev-dependencies]

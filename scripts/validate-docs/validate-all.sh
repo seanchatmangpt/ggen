@@ -34,6 +34,13 @@ FAILED_TESTS=0
 # Report file
 REPORT_FILE="${REPORT_FILE:-$SCRIPT_DIR/validation-report.md}"
 
+# Default ggen binary (prefer repo build)
+DEFAULT_GGEN_BIN="$SCRIPT_DIR/../../target/debug/ggen"
+export GGEN_BIN="${GGEN_BIN:-$DEFAULT_GGEN_BIN}"
+if [ ! -x "$GGEN_BIN" ]; then
+    GGEN_BIN="ggen"
+fi
+
 log_header() {
     echo ""
     echo -e "${BOLD}${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -85,12 +92,13 @@ run_validation() {
         ((PASSED_SUITES++))
 
         # Extract test counts from output
-        if echo "$OUTPUT" | grep -q "Tests Passed:"; then
-            SUITE_PASSED=$(echo "$OUTPUT" | grep "Tests Passed:" | grep -oE "[0-9]+" || echo "0")
-            SUITE_FAILED=$(echo "$OUTPUT" | grep "Tests Failed:" | grep -oE "[0-9]+" || echo "0")
-            ((TOTAL_TESTS += SUITE_PASSED + SUITE_FAILED))
-            ((PASSED_TESTS += SUITE_PASSED))
-            ((FAILED_TESTS += SUITE_FAILED))
+        CLEAN_OUTPUT=$(echo "$OUTPUT" | sed -E 's/\x1B\[[0-9;]*[a-zA-Z]//g')
+        if echo "$CLEAN_OUTPUT" | grep -q "Tests Passed:"; then
+            SUITE_PASSED=$(echo "$CLEAN_OUTPUT" | grep "Tests Passed:" | tail -1 | sed -E 's/[^0-9]*([0-9]+).*/\1/')
+            SUITE_FAILED=$(echo "$CLEAN_OUTPUT" | grep "Tests Failed:" | tail -1 | sed -E 's/[^0-9]*([0-9]+).*/\1/')
+            TOTAL_TESTS=$((TOTAL_TESTS + SUITE_PASSED + SUITE_FAILED))
+            PASSED_TESTS=$((PASSED_TESTS + SUITE_PASSED))
+            FAILED_TESTS=$((FAILED_TESTS + SUITE_FAILED))
 
             log_info "Individual tests: $SUITE_PASSED passed, $SUITE_FAILED failed"
         fi
@@ -100,12 +108,13 @@ run_validation() {
         ((FAILED_SUITES++))
 
         # Extract test counts from output
-        if echo "$OUTPUT" | grep -q "Tests Passed:"; then
-            SUITE_PASSED=$(echo "$OUTPUT" | grep "Tests Passed:" | grep -oE "[0-9]+" || echo "0")
-            SUITE_FAILED=$(echo "$OUTPUT" | grep "Tests Failed:" | grep -oE "[0-9]+" || echo "0")
-            ((TOTAL_TESTS += SUITE_PASSED + SUITE_FAILED))
-            ((PASSED_TESTS += SUITE_PASSED))
-            ((FAILED_TESTS += SUITE_FAILED))
+        CLEAN_OUTPUT=$(echo "$OUTPUT" | sed -E 's/\x1B\[[0-9;]*[a-zA-Z]//g')
+        if echo "$CLEAN_OUTPUT" | grep -q "Tests Passed:"; then
+            SUITE_PASSED=$(echo "$CLEAN_OUTPUT" | grep "Tests Passed:" | tail -1 | sed -E 's/[^0-9]*([0-9]+).*/\1/')
+            SUITE_FAILED=$(echo "$CLEAN_OUTPUT" | grep "Tests Failed:" | tail -1 | sed -E 's/[^0-9]*([0-9]+).*/\1/')
+            TOTAL_TESTS=$((TOTAL_TESTS + SUITE_PASSED + SUITE_FAILED))
+            PASSED_TESTS=$((PASSED_TESTS + SUITE_PASSED))
+            FAILED_TESTS=$((FAILED_TESTS + SUITE_FAILED))
 
             log_info "Individual tests: $SUITE_PASSED passed, $SUITE_FAILED failed"
         fi
@@ -130,7 +139,7 @@ START_TIME=$(date +%s)
 
 log_header "ggen Documentation Validation Suite"
 
-log_info "ggen version: $(ggen --version 2>&1 || echo 'not found')"
+log_info "ggen version: $GGEN_BIN ($($GGEN_BIN --version 2>&1 || echo 'not found'))"
 log_info "Timestamp: $(date '+%Y-%m-%d %H:%M:%S')"
 log_info "Report will be saved to: $REPORT_FILE"
 

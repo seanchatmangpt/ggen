@@ -1,0 +1,39 @@
+[package]
+name = "ggen-test-audit"
+version = "0.1.0"
+edition = "2021"
+authors = ["ggen contributors"]
+description = "Test quality audit tooling for ggen - mutation testing, assertion analysis, false positive detection"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/ggen-project/ggen"
+readme = "README.md"
+
+[dependencies]
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Date/time for failure tracking
+chrono = { version = "0.4", features = ["serde"] }
+
+# AST parsing for assertion analysis
+syn = { version = "2.0", features = ["full", "parsing", "visit"] }
+quote = "1.0"
+
+# File system operations
+walkdir = "2.4"
+
+# Regular expressions for pattern matching
+regex = "1.10"
+
+[dev-dependencies]
+# Testing
+cargo-nextest = "0.9"
+tempfile = "3.8"
+
+[lib]
+path = "src/lib.rs"

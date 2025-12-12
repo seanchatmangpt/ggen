@@ -8,7 +8,7 @@
 //! - Logging and alerting
 
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 use std::time::{Duration, Instant};
 use tracing::{error, info, warn};
 

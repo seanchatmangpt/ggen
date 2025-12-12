@@ -43,7 +43,12 @@ log_section() {
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 CASE_STUDY_DIR="$REPO_ROOT/docs/examples/diataxis-case-study"
-GGEN_BIN="${GGEN_BIN:-ggen}"
+DEFAULT_GGEN_BIN="$REPO_ROOT/target/debug/ggen"
+if [ -x "$DEFAULT_GGEN_BIN" ]; then
+    GGEN_BIN="${GGEN_BIN:-$DEFAULT_GGEN_BIN}"
+else
+    GGEN_BIN="${GGEN_BIN:-ggen}"
+fi
 
 run_with_timeout() {
     local timeout_secs=$1

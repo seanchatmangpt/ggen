@@ -98,7 +98,19 @@ impl LlmClient for MockClient {
 /// Create Ollama client default configuration
 pub fn ollama_default_config() -> LlmConfig {
     LlmConfig {
-        model: "llama3.2".to_string(), // Default Ollama model
+        model: crate::constants::models::OLLAMA_DEFAULT.to_string(),
+        max_tokens: Some(2048),
+        temperature: Some(0.7),
+        top_p: Some(0.9),
+        stop: None,
+        extra: HashMap::new(),
+    }
+}
+
+/// Create Ollama client configuration for ministral-3:3b
+pub fn ollama_ministral_3b_config() -> LlmConfig {
+    LlmConfig {
+        model: "ministral-3:3b".to_string(),
         max_tokens: Some(2048),
         temperature: Some(0.7),
         top_p: Some(0.9),

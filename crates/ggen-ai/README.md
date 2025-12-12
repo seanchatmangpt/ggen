@@ -293,7 +293,7 @@ export ANTHROPIC_DEFAULT_MODEL="claude-3-5-sonnet-20241022"
 
 # Ollama Configuration (local models)
 export OLLAMA_BASE_URL="http://localhost:11434"
-export OLLAMA_DEFAULT_MODEL="qwen3-coder:30b"
+export OLLAMA_DEFAULT_MODEL="ministral-3:3b"
 
 # Global Configuration
 export AI_DEFAULT_PROVIDER="openai"

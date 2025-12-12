@@ -1,0 +1,6 @@
+@prefix ex: <http://example.org/> .
+@prefix rel: <http://example.org/rel/> .
+
+ex:Alice rel:knows ex:Bob .
+ex:Bob rel:knows ex:Charlie .
+ex:Charlie rel:worksFor ex:ACME .

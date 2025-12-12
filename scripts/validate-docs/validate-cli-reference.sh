@@ -21,8 +21,8 @@ TESTS_PASSED=0
 TESTS_FAILED=0
 
 log_info() { echo -e "${BLUE}ℹ${NC} $1"; }
-log_success() { echo -e "${GREEN}✓${NC} $1"; ((TESTS_PASSED++)); ((TESTS_RUN++)); }
-log_error() { echo -e "${RED}✗${NC} $1"; ((TESTS_FAILED++)); ((TESTS_RUN++)); }
+log_success() { echo -e "${GREEN}✓${NC} $1"; ((++TESTS_PASSED)); ((++TESTS_RUN)); return 0; }
+log_error() { echo -e "${RED}✗${NC} $1"; ((++TESTS_FAILED)); ((++TESTS_RUN)); return 0; }
 log_section() {
     echo ""
     echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -30,18 +30,29 @@ log_section() {
     echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 }
 
-GGEN_BIN="${GGEN_BIN:-ggen}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+DEFAULT_GGEN_BIN="$REPO_ROOT/target/debug/ggen"
+if [ -x "$DEFAULT_GGEN_BIN" ]; then
+    GGEN_BIN="${GGEN_BIN:-$DEFAULT_GGEN_BIN}"
+else
+    GGEN_BIN="${GGEN_BIN:-ggen}"
+fi
 
-if ! command -v "$GGEN_BIN" &> /dev/null; then
+if ! command -v "$GGEN_BIN" &> /dev/null && [ ! -x "$GGEN_BIN" ]; then
     log_error "ggen not found"
     exit 1
 fi
 
-log_info "Using ggen: $($GGEN_BIN --version)"
+log_info "Using ggen: $GGEN_BIN ($($GGEN_BIN --version))"
 
 # Create workspace
 WORKSPACE=$(mktemp -d)
 trap "rm -rf $WORKSPACE" EXIT
+if [ -f "$REPO_ROOT/.tool-versions" ]; then
+    cp "$REPO_ROOT/.tool-versions" "$WORKSPACE/.tool-versions"
+fi
+mkdir -p "$WORKSPACE/templates"
 cd "$WORKSPACE"
 
 # ============================================================================
@@ -58,7 +69,7 @@ fi
 
 # template show (requires valid template)
 # Create a minimal template first
-cat > test.tmpl << 'EOF'
+cat > templates/test.tmpl << 'EOF'
 ---
 name: "test"
 description: "Test template"
@@ -67,14 +78,14 @@ version: "1.0.0"
 Hello {{ name }}!
 EOF
 
-if $GGEN_BIN template show --template test.tmpl &> /dev/null; then
+if $GGEN_BIN template show --template templates/test.tmpl &> /dev/null; then
     log_success "ggen template show --template"
 else
     log_error "ggen template show --template failed"
 fi
 
 # template lint
-if $GGEN_BIN template lint --template test.tmpl &> /dev/null; then
+if $GGEN_BIN template lint --template templates/test.tmpl &> /dev/null; then
     log_success "ggen template lint --template"
 else
     log_error "ggen template lint --template failed"
@@ -99,14 +110,14 @@ else
 fi
 
 # graph query
-if $GGEN_BIN graph query --sparql_query "SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 1" &> /dev/null; then
+if $GGEN_BIN graph query --sparql_query "SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 1" --graph_file test.ttl &> /dev/null; then
     log_success "ggen graph query --sparql_query"
 else
     log_error "ggen graph query --sparql_query failed"
 fi
 
 # graph export
-if $GGEN_BIN graph export --output export.ttl --format turtle &> /dev/null; then
+if $GGEN_BIN graph export --input_file test.ttl --output export.ttl --format turtle &> /dev/null; then
     log_success "ggen graph export --output"
     if [ -f export.ttl ]; then
         log_success "Export file created"
@@ -151,7 +162,7 @@ fi
 
 # ontology validate (if schema.json exists)
 if [ -f schema.json ]; then
-    if $GGEN_BIN ontology validate schema.json &> /dev/null; then
+    if $GGEN_BIN ontology validate --schema_file schema.json &> /dev/null; then
         log_success "ggen ontology validate"
     else
         log_error "ggen ontology validate failed"
@@ -165,13 +176,11 @@ log_section "Project Commands"
 
 # project init
 mkdir -p test-project
-cd test-project
-if $GGEN_BIN project init --name test-proj &> /dev/null; then
+if $GGEN_BIN project init --path ./test-project --name test-proj &> /dev/null; then
     log_success "ggen project init --name"
 else
     log_error "ggen project init failed"
 fi
-cd ..
 
 # ============================================================================
 # Global Options
