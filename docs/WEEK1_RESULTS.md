@@ -57,8 +57,8 @@ pub fn record_measurement(mut self, name: impl Into<String>, measurement: Timing
 
 ### Fix #3: RdfFormat API Migration
 **Files**:
-- `crates/ggen-marketplace-v2/tests/unit/rdf_turtle_test.rs`
-- `crates/ggen-marketplace-v2/tests/unit/sparql_operations_test.rs`
+- `crates/ggen-marketplace/tests/unit/rdf_turtle_test.rs`
+- `crates/ggen-marketplace/tests/unit/sparql_operations_test.rs`
 
 **Impact**: 13+ test compilation errors eliminated
 **Solution**: Updated to oxigraph 0.5.1 API
@@ -74,7 +74,7 @@ pub fn record_measurement(mut self, name: impl Into<String>, measurement: Timing
 **Root Cause**: Oxigraph API changed in 0.5.x, `DatasetFormat` renamed to `RdfFormat`.
 
 ### Fix #4: Backward Compatibility Types
-**File**: `crates/ggen-marketplace-v2/src/models.rs`
+**File**: `crates/ggen-marketplace/src/models.rs`
 **Impact**: Enabled test compilation, prevented 28+ type errors
 **Solution**: Added compatibility types for refactored APIs
 
@@ -111,7 +111,7 @@ pub enum SignatureAlgorithm {
 **Note**: These are marked with TODO for proper implementation in Phase 2.
 
 ### Fix #5: Missing Import
-**File**: `crates/ggen-marketplace-v2/tests/integration/marketplace_lifecycle_test.rs`
+**File**: `crates/ggen-marketplace/tests/integration/marketplace_lifecycle_test.rs`
 **Impact**: 2 test compilation errors eliminated
 **Solution**: Added missing `Arc` import
 

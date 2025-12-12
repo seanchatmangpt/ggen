@@ -1,4 +1,4 @@
-# ggen-marketplace-v2 Migration Guide
+# ggen-marketplace Migration Guide
 
 ## Overview
 
@@ -64,14 +64,14 @@ v2 Architecture:
 
 - Rust 1.70+ (stable toolchain)
 - 100MB+ free disk space for RDF store
-- ggen-marketplace-v2 crate installed
+- ggen-marketplace crate installed
 
 ### Dependency Check
 
 ```toml
 # Cargo.toml
 [dependencies]
-ggen-marketplace-v2 = "2.0"
+ggen-marketplace = "2.0"
 oxigraph = "0.3"
 tokio = { version = "1.0", features = ["full"] }
 ```
@@ -91,7 +91,7 @@ tokio = { version = "1.0", features = ["full"] }
 ### Step 1: Backup v1 Packages
 
 ```rust
-use ggen_marketplace_v2::prelude::*;
+use ggen_marketplace::prelude::*;
 
 // Export all v1 packages to JSON backup
 async fn backup_v1_packages(v1_registry: &Registry) -> Vec<Package> {
@@ -113,7 +113,7 @@ async fn backup_v1_packages(v1_registry: &Registry) -> Vec<Package> {
 ### Step 2: Initialize v2 RDF Registry
 
 ```rust
-use ggen_marketplace_v2::{RdfRegistry, migration::MigrationCoordinator};
+use ggen_marketplace::{RdfRegistry, migration::MigrationCoordinator};
 use std::sync::Arc;
 
 // Create the new RDF-backed registry
@@ -127,7 +127,7 @@ fn create_v2_registry() -> Arc<RdfRegistry> {
 ### Step 3: Run Migration
 
 ```rust
-use ggen_marketplace_v2::migration::{MigrationCoordinator, MigrationReport};
+use ggen_marketplace::migration::{MigrationCoordinator, MigrationReport};
 
 async fn run_migration(
     v1_packages: Vec<Package>,
@@ -157,7 +157,7 @@ async fn run_migration(
 ### Step 4: Verify Data Integrity
 
 ```rust
-use ggen_marketplace_v2::migration::VerificationReport;
+use ggen_marketplace::migration::VerificationReport;
 
 async fn verify_migration(
     v1_packages: Vec<Package>,
@@ -184,8 +184,8 @@ async fn verify_migration(
 ### Step 5: Test Critical Workflows
 
 ```rust
-use ggen_marketplace_v2::{SparqlSearchEngine, Installer};
-use ggen_marketplace_v2::traits::AsyncRepository;
+use ggen_marketplace::{SparqlSearchEngine, Installer};
+use ggen_marketplace::traits::AsyncRepository;
 
 async fn test_critical_workflows(registry: Arc<RdfRegistry>) {
     // Test 1: Package retrieval

@@ -4,7 +4,7 @@
 //!
 //! # Architecture
 //!
-//! NOTE: The CLI (`crates/ggen-cli/src/cmds/marketplace.rs`) uses `ggen-marketplace-v2`
+//! NOTE: The CLI (`crates/ggen-cli/src/cmds/marketplace.rs`) uses `ggen-marketplace`
 //! directly and bypasses this domain layer for marketplace operations.
 //!
 //! This module contains:
@@ -13,7 +13,6 @@
 //! - `search`: Legacy search implementation
 //! - `packs`: GGEN Packs command implementation
 //! - `packs_services`: Core services for package management
-//! - `v2_adapter`: Legacy adapter code (not used, kept for reference)
 
 pub mod adapter;
 pub mod artifact_generator;
@@ -36,7 +35,6 @@ pub mod search;
 pub mod search_advanced;
 pub mod types; // Poka-yoke types for error prevention
 pub mod update;
-pub mod v2_adapter;
 pub mod validate;
 
 #[cfg(test)]

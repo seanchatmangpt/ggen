@@ -107,10 +107,10 @@ The CLI integration bridge hasn't been completed because:
 3. Fix 25 import/module issues (update use statements)
 4. Fix 14 dependency issues (feature flags)
 
-**Success Criterion**: `cargo build -p ggen-marketplace-v2` with NO errors
+**Success Criterion**: `cargo build -p ggen-marketplace` with NO errors
 
 ### Phase 4: Validate Tests (1 day)
-1. Run: `cargo make test -p ggen-marketplace-v2`
+1. Run: `cargo make test -p ggen-marketplace`
 2. All 107 tests must PASS
 3. Expected: 100% pass rate
 
@@ -165,7 +165,7 @@ Migration is complete when:
 
 - [ ] Module uncommented in `cmds/mod.rs`
 - [ ] All 128 compilation errors fixed
-- [ ] `cargo build -p ggen-marketplace-v2` succeeds
+- [ ] `cargo build -p ggen-marketplace` succeeds
 - [ ] All 107 unit tests PASS
 - [ ] All 9 marketplace commands implemented
 - [ ] `ggen marketplace --help` shows all commands
@@ -184,7 +184,7 @@ Migration is complete when:
 1. **Start with Phase 1-2** (already documented):
    ```bash
    cd /Users/sac/ggen
-   cargo build -p ggen-marketplace-v2 2>&1 | head -50
+   cargo build -p ggen-marketplace 2>&1 | head -50
    # Review errors
    ```
 

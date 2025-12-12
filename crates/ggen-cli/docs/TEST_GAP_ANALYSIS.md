@@ -11,7 +11,7 @@
 - **Total Test Code**: 63,956 lines (210 test files)
 - **Files with Inline Tests**: 277 files
 - **Current Coverage**: ~47% (estimated)
-- **Compilation Issues**: 4 critical errors in ggen-marketplace-v2
+- **Compilation Issues**: 4 critical errors in ggen-marketplace
 
 ### Gap to Target
 - **Additional Test Code Needed**: ~66,000 lines
@@ -22,9 +22,9 @@
 
 ## Critical Compilation Issues (Block All Testing)
 
-### ggen-marketplace-v2: Send Trait Violations
+### ggen-marketplace: Send Trait Violations
 
-**Location**: `crates/ggen-marketplace-v2/src/registry_rdf.rs`
+**Location**: `crates/ggen-marketplace/src/registry_rdf.rs`
 
 **Errors**:
 1. Line 165: `get_package()` - `QuerySolutionIter<'_>` not Send
@@ -283,10 +283,10 @@
 
 ---
 
-### 4. ggen-marketplace & ggen-marketplace-v2
+### 4. ggen-marketplace & ggen-marketplace
 
 **Critical Issues**:
-- ❌ ggen-marketplace-v2 doesn't compile (Send trait violations)
+- ❌ ggen-marketplace doesn't compile (Send trait violations)
 - ❌ Need to fix oxigraph API compatibility first
 
 **Missing Tests** (after fixes):
@@ -377,7 +377,7 @@ Total:                ~5,850 tests
 **Goal**: Fix compilation + test critical domain logic
 
 **Tasks**:
-1. **FIX ggen-marketplace-v2 compilation** (4 hours)
+1. **FIX ggen-marketplace compilation** (4 hours)
    - Convert to SparqlEvaluator
    - Fix Send trait violations
    - Update deprecated APIs
@@ -486,7 +486,7 @@ Total:                ~5,850 tests
 
 | Priority | Module | Impact | Urgency | Reason |
 |----------|--------|--------|---------|--------|
-| P0 | ggen-marketplace-v2 fixes | CRITICAL | IMMEDIATE | Blocks compilation |
+| P0 | ggen-marketplace fixes | CRITICAL | IMMEDIATE | Blocks compilation |
 | P1 | Lifecycle (optimization) | CRITICAL | HIGH | Production deployment |
 | P1 | Ontology system | CRITICAL | HIGH | Complex domain logic |
 | P2 | Graph operations | HIGH | HIGH | Core functionality |
@@ -598,7 +598,7 @@ cargo audit
 ### Risk 1: Compilation Blockers
 - **Impact**: HIGH
 - **Probability**: Confirmed (already exists)
-- **Mitigation**: Fix ggen-marketplace-v2 immediately in Phase 1
+- **Mitigation**: Fix ggen-marketplace immediately in Phase 1
 
 ### Risk 2: Flaky Tests
 - **Impact**: MEDIUM
@@ -626,7 +626,7 @@ cargo audit
 
 ### Immediate Actions (Today)
 1. ✅ **Review this analysis** with team
-2. 🔲 **Fix ggen-marketplace-v2 compilation** (blocking)
+2. 🔲 **Fix ggen-marketplace compilation** (blocking)
 3. 🔲 **Set up coverage tooling** (tarpaulin, CI integration)
 4. 🔲 **Create test infrastructure** (fixtures, mocks, utilities)
 

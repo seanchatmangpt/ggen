@@ -296,8 +296,8 @@ grep -r "#\[test\]" -A 20 crates/ | grep "assert.*\.\w\+\.read()" \
 
 **Expected Output:**
 ```
-crates/ggen-marketplace-v2/tests/unit/poka_yoke_types_test.rs:594:    assert!(matches!(state, PackageState::Draft));
-crates/ggen-marketplace-v2/tests/integration/marketplace_lifecycle_test.rs:356:    assert_eq!(top_pkg.manifest.dependencies.len(), 1);
+crates/ggen-marketplace/tests/unit/poka_yoke_types_test.rs:594:    assert!(matches!(state, PackageState::Draft));
+crates/ggen-marketplace/tests/integration/marketplace_lifecycle_test.rs:356:    assert_eq!(top_pkg.manifest.dependencies.len(), 1);
 ...
 ```
 
@@ -387,8 +387,8 @@ fn test_package_state() {
 
 **Files to modify:**
 ```
-crates/ggen-marketplace-v2/src/lib.rs
-crates/ggen-marketplace-v2/src/package.rs
+crates/ggen-marketplace/src/lib.rs
+crates/ggen-marketplace/src/package.rs
 crates/ggen-core/src/template/registry.rs
 crates/ggen-domain/src/marketplace/*.rs
 ```
@@ -410,8 +410,8 @@ cargo make test-doc  # Doctests pass
 
 **Files to modify:**
 ```
-crates/ggen-marketplace-v2/tests/unit/*.rs
-crates/ggen-marketplace-v2/tests/integration/*.rs
+crates/ggen-marketplace/tests/unit/*.rs
+crates/ggen-marketplace/tests/integration/*.rs
 crates/ggen-core/tests/*.rs
 ```
 

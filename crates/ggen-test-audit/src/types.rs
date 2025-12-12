@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::str::FromStr;
 use thiserror::Error;
+use thiserror::Error;
 
 // =============================================================================
 // TestId Newtype (T019) - Prevents primitive obsession
@@ -181,7 +182,7 @@ impl AssertionStrength {
 // =============================================================================
 
 /// Errors that can occur during test audit operations
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, Error)]
 pub enum AuditError {
     /// Mutation testing failed
     #[error("Mutation testing failed: {0}")]

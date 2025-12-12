@@ -13,39 +13,11 @@ use clap_noun_verb_macros::verb;
 use ggen_domain::ai::execute;
 use serde::Serialize;
 use serde_json::json;
-use std::fs::OpenOptions;
-use std::io::Write;
 use std::path::PathBuf;
-use std::time::SystemTime;
 
-// #region agent log helper
-#[allow(dead_code)]
-fn log_debug(
-    session_id: &str, run_id: &str, hypothesis_id: &str, location: &str, message: &str,
-    data: serde_json::Value,
-) {
-    if let Ok(mut file) = OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open("/Users/sac/ggen/.cursor/debug.log")
-    {
-        let timestamp = SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_millis())
-            .unwrap_or(0);
-        let entry = json!({
-            "sessionId": session_id,
-            "runId": run_id,
-            "hypothesisId": hypothesis_id,
-            "location": location,
-            "message": message,
-            "data": data,
-            "timestamp": timestamp,
-        });
-        let _ = writeln!(file, "{}", entry);
-    }
-}
-// #endregion
+use crate::cmds::helpers::{execute_async_op, log_operation};
+
+// Logging uses shared helpers::log_operation
 
 // ============================================================================
 // Output Types (Layer 3: CLI - Structured JSON responses)
@@ -104,11 +76,8 @@ fn generate(
     let temperature = temperature.unwrap_or(0.7);
 
     // #region agent log
-    log_debug(
-        "debug-session",
-        "pre-fix",
-        "H0-generate",
-        "ai.rs:generate:entry",
+    log_operation(
+        "ai::generate:entry",
         "generate called",
         json!({
             "prompt_len": prompt.len(),
@@ -129,12 +98,12 @@ fn generate(
     }
 
     // Layer 2: Call execute layer (async coordination)
-    let result = crate::runtime::block_on(async move {
-        execute::execute_generate(&prompt, code.as_deref(), model.as_deref(), suggestions).await
-    })
-    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e)))?
-    .map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Generation failed: {}", e))
+    let result = execute_async_op("generate", async {
+        execute::execute_generate(&prompt, code.as_deref(), model.as_deref(), suggestions)
+            .await
+            .map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!("Generation failed: {}", e))
+            })
     })?;
 
     // Layer 3: Format output for CLI
@@ -161,11 +130,8 @@ fn chat(
     temperature: Option<f64>,
 ) -> Result<ChatOutput> {
     // #region agent log
-    log_debug(
-        "debug-session",
-        "pre-fix",
-        "H1",
-        "ai.rs:chat:entry",
+    log_operation(
+        "ai::chat:entry",
         "chat called",
         json!({
             "has_message": message.is_some(),
@@ -190,24 +156,17 @@ fn chat(
     let _ = (max_tokens.unwrap_or(1024), temperature.unwrap_or(0.7));
 
     // Layer 2: Call execute layer (async coordination)
-    let chat_result = crate::runtime::block_on(async move {
+    let result = execute_async_op("chat", async {
         execute::execute_chat(&msg, model.as_deref())
             .await
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Chat failed: {}", e)))
-    })
-    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e)))?;
-
-    // Unwrap outer and inner Results, mapping both error layers to CLI errors
-    let result = chat_result.map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Chat failed: {}", e))
+            .map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!("Chat failed: {}", e))
+            })
     })?;
 
     // #region agent log
-    log_debug(
-        "debug-session",
-        "pre-fix",
-        "H1",
-        "ai.rs:chat:result",
+    log_operation(
+        "ai::chat:result",
         "chat result received",
         json!({
             "response_preview": result.response.chars().take(80).collect::<String>(),
@@ -237,11 +196,8 @@ fn analyze(
     _model: Option<String>, // FUTURE: Use model selection for analysis
 ) -> Result<AnalyzeOutput> {
     // #region agent log
-    log_debug(
-        "debug-session",
-        "pre-fix",
-        "H2",
-        "ai.rs:analyze:entry",
+    log_operation(
+        "ai::analyze:entry",
         "analyze called",
         json!({
             "has_file": file.is_some(),
@@ -259,22 +215,17 @@ fn analyze(
     }
 
     // Layer 2: Call execute layer (async coordination)
-    let analysis_result = crate::runtime::block_on(async move {
-        execute::execute_analyze(code.as_deref(), file.as_deref()).await
-    })
-    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Runtime error: {}", e)))?;
-
-    // Unwrap outer and inner Results, mapping both error layers to CLI errors
-    let result = analysis_result.map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Analysis failed: {}", e))
+    let result = execute_async_op("analyze", async {
+        execute::execute_analyze(code.as_deref(), file.as_deref())
+            .await
+            .map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!("Analysis failed: {}", e))
+            })
     })?;
 
     // #region agent log
-    log_debug(
-        "debug-session",
-        "pre-fix",
-        "H2",
-        "ai.rs:analyze:result",
+    log_operation(
+        "ai::analyze:result",
         "analyze result received",
         json!({
             "analysis_preview": result.analysis.chars().take(80).collect::<String>(),

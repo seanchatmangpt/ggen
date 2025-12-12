@@ -49,7 +49,7 @@ The performance strategy ensures marketplace-v2 meets or exceeds v1 performance 
 ### 1. SPARQL Query Optimization
 
 ```rust
-// ggen-marketplace-v2/src/search/query_optimizer.rs
+// ggen-marketplace/src/search/query_optimizer.rs
 
 pub struct SparqlQueryOptimizer {
     query_cache: Arc<Mutex<LruCache<String, String>>>,
@@ -118,7 +118,7 @@ impl PreparedQuery {
 ### 2. Caching Strategy
 
 ```rust
-// ggen-marketplace-v2/src/cache.rs
+// ggen-marketplace/src/cache.rs
 
 use moka::future::Cache;
 use std::time::Duration;
@@ -193,7 +193,7 @@ impl MarketplaceCacheV2 {
 ### 3. RDF Store Optimization
 
 ```rust
-// ggen-marketplace-v2/src/registry/store_config.rs
+// ggen-marketplace/src/registry/store_config.rs
 
 use oxigraph::store::Store;
 
@@ -265,7 +265,7 @@ impl RdfStoreConfig {
 ### 4. Parallel Processing
 
 ```rust
-// ggen-marketplace-v2/src/search/parallel_search.rs
+// ggen-marketplace/src/search/parallel_search.rs
 
 use rayon::prelude::*;
 
@@ -319,7 +319,7 @@ impl ParallelSearchEngine {
 ### 5. Signature Verification Optimization
 
 ```rust
-// ggen-marketplace-v2/src/crypto/batch_verify.rs
+// ggen-marketplace/src/crypto/batch_verify.rs
 
 use ed25519_dalek::{Signature, PublicKey, Verifier};
 use rayon::prelude::*;
@@ -371,7 +371,7 @@ impl BatchSignatureVerifier {
 ### OpenTelemetry Instrumentation
 
 ```rust
-// ggen-marketplace-v2/src/metrics.rs
+// ggen-marketplace/src/metrics.rs
 
 use opentelemetry::{
     metrics::{Counter, Histogram, ObservableGauge},

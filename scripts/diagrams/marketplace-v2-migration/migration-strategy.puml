@@ -9,7 +9,7 @@ title **Marketplace-V2 Migration Strategy**\n<size:12>//From Disabled (128 error
 start
 
 partition "Phase 1: Error Analysis & Root Cause" #FFE4E4 {
-    :Run cargo build -p ggen-marketplace-v2;
+    :Run cargo build -p ggen-marketplace;
     note right: Target: Identify all 128 compilation errors
     
     :Categorize errors by type;
@@ -54,7 +54,7 @@ partition "Phase 3: Fix Compilation Errors" #FFFBE4 {
 
 |Testing|
 partition "Phase 4: Unit Test Validation" #E4F4FF {
-    :Run cargo test -p ggen-marketplace-v2;
+    :Run cargo test -p ggen-marketplace;
     note right: 107 tests should PASS
     
     if (All tests pass?) then (yes)

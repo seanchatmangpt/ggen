@@ -202,7 +202,7 @@ cap:minimumVersion a rdf:Property ;
 ### 2.1 Crate Organization
 
 ```
-crates/ggen-marketplace-v2/
+crates/ggen-marketplace/
 ├── src/
 │   ├── lib.rs                      # Public API surface
 │   ├── schema/
@@ -1132,7 +1132,7 @@ This architecture provides:
 ✅ **Extensible design** for future enhancements
 
 **Next Steps:**
-1. Implementation phase (crates/ggen-marketplace-v2/src/)
+1. Implementation phase (crates/ggen-marketplace/src/)
 2. Chicago TDD test suite (unit + integration + property tests)
 3. Performance benchmarking (criterion + flamegraph)
 4. Documentation (rustdoc + examples)

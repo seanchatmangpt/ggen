@@ -78,7 +78,7 @@
 
 ### Code Implementation
 
-- **22 source files** in `crates/ggen-marketplace-v2/`
+- **22 source files** in `crates/ggen-marketplace/`
 - **32 unit tests** (100% passing)
 - **3 feature gates** (v1, v2, parallel)
 - **Ed25519 + SHA-256** security implementation
@@ -169,8 +169,8 @@
 
 - [ ] **Fix Clippy Warnings** (15 min)
   ```bash
-  cargo fix --package ggen-marketplace-v2 --allow-dirty
-  cargo clippy --package ggen-marketplace-v2 -- -D warnings
+  cargo fix --package ggen-marketplace --allow-dirty
+  cargo clippy --package ggen-marketplace -- -D warnings
   ```
 
 - [ ] **Run Security Audit** (1 hour)
@@ -349,8 +349,8 @@ default = ["marketplace-v1"]  # Revert from v2
 
 ### Documentation
 
-- [Architecture Overview](../crates/ggen-marketplace-v2/README.md)
-- [API Documentation](https://docs.rs/ggen-marketplace-v2)
+- [Architecture Overview](../crates/ggen-marketplace/README.md)
+- [API Documentation](https://docs.rs/ggen-marketplace)
 - [Migration Guide](./MARKETPLACE_V2_DEPLOYMENT_GUIDE.md)
 - [Troubleshooting FAQ](./MARKETPLACE_V2_DEPLOYMENT_GUIDE.md#troubleshooting)
 
@@ -382,8 +382,8 @@ default = ["marketplace-v1"]  # Revert from v2
 
 **Materials:**
 - [Production Readiness Report](./MARKETPLACE_V2_PRODUCTION_READINESS_REPORT.md)
-- [API Documentation](https://docs.rs/ggen-marketplace-v2)
-- Code examples in `crates/ggen-marketplace-v2/examples/`
+- [API Documentation](https://docs.rs/ggen-marketplace)
+- Code examples in `crates/ggen-marketplace/examples/`
 
 ### For DevOps/SRE (2 hours)
 

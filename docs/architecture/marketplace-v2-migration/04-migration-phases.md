@@ -27,13 +27,13 @@ The migration from marketplace-v1 to marketplace-v2 follows a 6-phase approach d
 **Day 1: Cargo.toml Setup**
 ```bash
 # Update workspace Cargo.toml
-- Add ggen-marketplace-v2 to workspace members
+- Add ggen-marketplace to workspace members
 - Define workspace dependencies for v2
 
 # Update ggen-core/Cargo.toml
 - Add feature flags: marketplace-v1, marketplace-v2, marketplace-parallel
 - Make ggen-marketplace optional
-- Add ggen-marketplace-v2 as optional dependency
+- Add ggen-marketplace as optional dependency
 
 # Update ggen-cli/Cargo.toml
 - Inherit feature flags from ggen-core
@@ -98,7 +98,7 @@ cargo test
 **Day 5-6: V2 Adapter**
 ```rust
 // ggen-domain/src/marketplace/v2_adapter.rs
-- Implement V2Adapter (wraps ggen-marketplace-v2)
+- Implement V2Adapter (wraps ggen-marketplace)
 - Implement all MarketplaceBackend methods
 - Add RDF conversion helpers (v2 ↔ unified)
 ```
@@ -152,7 +152,7 @@ cargo test --no-default-features --features marketplace-v1
 
 **Day 8-9: V2 Search Implementation**
 ```rust
-// ggen-marketplace-v2/src/search.rs
+// ggen-marketplace/src/search.rs
 - Implement SparqlSearchEngine
 - Build SPARQL query templates
 - Add result ranking algorithm
@@ -218,7 +218,7 @@ cargo test marketplace_stress_suite --features marketplace-parallel
 
 **Day 15-16: V2 Registry Implementation**
 ```rust
-// ggen-marketplace-v2/src/registry.rs
+// ggen-marketplace/src/registry.rs
 - Implement RdfRegistry
 - Support RDF-based package storage
 - Implement installation logic
@@ -291,7 +291,7 @@ cargo test marketplace_install_e2e --features marketplace-parallel
 
 **Day 22-23: Ed25519 Signing Implementation**
 ```rust
-// ggen-marketplace-v2/src/crypto.rs
+// ggen-marketplace/src/crypto.rs
 - Implement Ed25519Signer
 - Add key generation utilities
 - Add signature verification

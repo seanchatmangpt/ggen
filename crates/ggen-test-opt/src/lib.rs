@@ -26,9 +26,13 @@
 #![deny(clippy::panic)]
 
 // Core modules
+pub mod metadata_collector;
+pub mod pareto_selector;
 pub mod test_value_scorer;
 pub mod types;
 
 // Re-export main types and structs
+pub use metadata_collector::{MetadataCollector, TestMetadata};
+pub use pareto_selector::{ParetoSelectionResult, ParetoSelector};
 pub use test_value_scorer::TestValueScorer;
 pub use types::*;

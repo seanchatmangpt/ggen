@@ -8,7 +8,7 @@
 
 ## 🚨 P0: Compilation Blockers (Fix Immediately)
 
-### ggen-marketplace-v2
+### ggen-marketplace
 - [ ] **Fix Send trait violations** in `registry_rdf.rs:165, 196`
 - [ ] **Update deprecated API** - Replace `Store::query()` with `SparqlEvaluator`
 - [ ] **Verify compilation** - `cargo build --lib` succeeds
@@ -435,7 +435,7 @@
 
 ---
 
-### marketplace (ggen-marketplace-v2)
+### marketplace (ggen-marketplace)
 
 **After fixing compilation**, test:
 

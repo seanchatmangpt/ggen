@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-All marketplace commands have been migrated to v2 and are working. The CLI (`crates/ggen-cli/src/cmds/marketplace.rs`) uses `ggen-marketplace-v2` directly with no adapter layer. This plan removes all remaining v1 references, legacy code, and disabled tests.
+All marketplace commands have been migrated to v2 and are working. The CLI (`crates/ggen-cli/src/cmds/marketplace.rs`) uses `ggen-marketplace` directly with no adapter layer. This plan removes all remaining v1 references, legacy code, and disabled tests.
 
 ---
 
@@ -26,7 +26,7 @@ All marketplace commands have been migrated to v2 and are working. The CLI (`cra
 8. **`sparql`** - Query packages using SPARQL ✅
 9. **`rdf_stats`** - Get RDF registry statistics ✅
 
-**Verification:** All commands use `ggen-marketplace-v2::prelude::*` directly, have 10s timeout wrappers, and proper error handling.
+**Verification:** All commands use `ggen-marketplace::prelude::*` directly, have 10s timeout wrappers, and proper error handling.
 
 ---
 
@@ -246,7 +246,7 @@ If issues are discovered:
 ## Notes
 
 - The `ggen-marketplace` v1 crate has already been removed from the workspace
-- CLI uses `ggen-marketplace-v2` directly with no adapter layer
+- CLI uses `ggen-marketplace` directly with no adapter layer
 - All 9 marketplace commands are implemented and working
 - Legacy code is explicitly marked as unused
 - Test files are disabled via non-existent feature flags

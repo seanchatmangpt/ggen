@@ -4,7 +4,6 @@
 //! following Rust best practices with thiserror.
 
 use std::path::PathBuf;
-use thiserror::Error;
 
 /// Main error type for lifecycle operations
 #[derive(Debug, thiserror::Error)]

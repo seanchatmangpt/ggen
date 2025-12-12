@@ -410,8 +410,9 @@ fi
 
 [tasks.pre-commit]
 description = """
-Run comprehensive pre-commit validation (format, lint, tests, docs, hooks).
+Run comprehensive pre-commit validation (format, lint, tests, docs, hooks, CLI verification).
 Executes all quality gates before allowing commit to proceed.
+Includes Andon Signal Validation Framework runtime checks.
 Returns RED Andon signal if ANY check fails, GREEN if all pass.
 
 Usage: cargo make pre-commit (or automatic via git pre-commit hook)
@@ -427,6 +428,11 @@ Recovery: Review failed checks in order shown, fix each issue.
 For hook issues, verify git hooks installed via scripts/install-git-hooks.sh.
 For timeout issues, check individual targets (fmt, lint, test, docs-check).
 Skip hooks with --no-verify ONLY if explicitly required (emergency fixes).
+
+Andon Signal Validation:
+  - Layer 1 (Compile-Time): check, lint (RED)
+  - Layer 2 (Test-Time): test, test-clnrm (YELLOW)
+  - Layer 3 (Runtime): verify-cli (GREEN)
 """
 workspace = false
 dependencies = [
@@ -437,6 +443,7 @@ dependencies = [
   "test-doc",
   "validate-docs",
   "docs-check",
+  "verify-cli",  # Andon Signal Validation Framework - Layer 3: Runtime
 ]
 script_runner = "@shell"
 script = '''
@@ -500,6 +507,55 @@ else
   exit "$status"
 fi
 '''
+
+[tasks.verify-cli]
+description = """
+Verify all CLI commands work end-to-end (Andon Signal Validation Framework).
+
+This prevents "fake greens" by validating actual CLI behavior, not just test execution.
+Part of the three-layer validation: Compile-Time → Test-Time → Runtime.
+
+Usage: cargo make verify-cli
+When: Pre-commit, CI/CD, manual validation
+SLO: <30s execution time
+
+Example output:
+  ✅ ANDON SIGNAL: GREEN
+  All commands verified successfully.
+
+Recovery: Fix failing commands and re-run verify-cli.
+
+Andon Signals:
+  - RED: Any command fails (stop the line)
+  - YELLOW: Commands work but with warnings
+  - GREEN: All commands pass
+"""
+workspace = false
+command = "timeout"
+args = ["30s", "bash", "scripts/verify-cli-commands.sh"]
+
+[tasks.validation-report]
+description = """
+Generate comprehensive validation report (Andon Signal Validation Framework).
+
+Shows status of all three validation layers:
+  - Layer 1 (Compile-Time): check, lint
+  - Layer 2 (Test-Time): test-unit, test-clnrm
+  - Layer 3 (Runtime): verify-cli
+
+Usage: cargo make validation-report [REPORT_FILE]
+When: After validation runs, for reporting and monitoring
+SLO: <5s execution time
+
+Example output:
+  Validation report generated: validation-report.txt
+  Shows status of all validation layers
+
+Recovery: Review report to identify failing layers.
+"""
+workspace = false
+command = "bash"
+args = ["scripts/generate-validation-report.sh", "${@}"]
 
 [tasks.test-clnrm]
 description = """
@@ -1081,6 +1137,35 @@ workspace = false
 command = "./scripts/validate-ollama.sh"
 
 # GitHub Actions local testing with act (80/20: minimal essential tasks)
+[tasks.act-validation]
+description = """
+Run Andon Signal Validation Framework workflow locally with act.
+
+Tests all three validation layers:
+  - Layer 1: Compile-Time (check, lint)
+  - Layer 2: Test-Time (test-unit, test-clnrm)
+  - Layer 3: Runtime (verify-cli)
+
+Usage: cargo make act-validation [JOB=job_name]
+When: Before pushing, after validation changes, local CI testing
+SLO: <10 minutes for full validation
+
+Example output:
+  ✅ Layer 1: Compile-Time Validation - PASSED
+  ✅ Layer 2: Test-Time Validation - PASSED
+  ✅ Layer 3: Runtime Validation - PASSED
+
+Recovery: Fix failing layers and re-run act-validation.
+"""
+workspace = false
+command = "act"
+args = [
+  "--container-architecture", "${ACT_CONTAINER_ARCH}",
+  "--platform", "${ACT_PLATFORM}",
+  "-W", ".github/workflows/andon-validation.yml",
+  "${@}",
+]
+
 [tasks.act]
 description = "Run a GitHub Actions workflow locally with act (usage: cargo make act WORKFLOW=ci.yml JOB=fmt). Examples: 'cargo make act WORKFLOW=lint.yml JOB=lint', 'cargo make act WORKFLOW=ci.yml' (runs all jobs)"
 workspace = false

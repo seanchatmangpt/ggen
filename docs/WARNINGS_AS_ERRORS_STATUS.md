@@ -111,7 +111,7 @@ All crates in the workspace inherit these lints:
 - `ggen-utils` ✅
 - `ggen-config` ✅
 - `ggen-marketplace` ✅
-- `ggen-marketplace-v2` ✅
+- `ggen-marketplace` ✅
 - All other workspace members ✅
 
 ### ✅ Swarm Integration Clean

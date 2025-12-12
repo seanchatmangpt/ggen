@@ -16,7 +16,7 @@ default = ["marketplace-v1"]
 # Feature flags for backend selection
 marketplace-v1 = []           # Current tantivy-based marketplace (default)
 marketplace-v2 = [            # Next-gen RDF-based marketplace
-    "ggen-marketplace-v2",
+    "ggen-marketplace",
     "rdf-backend",
     "crypto-signing"
 ]
@@ -146,13 +146,13 @@ members = [
     "crates/ggen-cli",
     "crates/ggen-domain",
     "crates/ggen-marketplace",      # V1 backend
-    "crates/ggen-marketplace-v2",   # V2 backend
+    "crates/ggen-marketplace",   # V2 backend
     # ... other crates
 ]
 
 [workspace.dependencies]
 ggen-marketplace = { path = "crates/ggen-marketplace", version = "3.2.0" }
-ggen-marketplace-v2 = { path = "crates/ggen-marketplace-v2", version = "3.0.0" }
+ggen-marketplace = { path = "crates/ggen-marketplace", version = "3.0.0" }
 ```
 
 ### ggen-core/Cargo.toml
@@ -163,7 +163,7 @@ ggen-marketplace-v2 = { path = "crates/ggen-marketplace-v2", version = "3.0.0" }
 ggen-marketplace = { workspace = true, optional = true }
 
 # V2 marketplace (opt-in)
-ggen-marketplace-v2 = { workspace = true, optional = true }
+ggen-marketplace = { workspace = true, optional = true }
 
 # ... existing dependencies
 
@@ -172,7 +172,7 @@ default = ["marketplace-v1", "dx"]
 
 # Backend selection features
 marketplace-v1 = ["ggen-marketplace"]
-marketplace-v2 = ["ggen-marketplace-v2", "rdf-backend", "crypto-signing"]
+marketplace-v2 = ["ggen-marketplace", "rdf-backend", "crypto-signing"]
 marketplace-parallel = ["marketplace-v1", "marketplace-v2", "dual-backend"]
 
 # Sub-features
@@ -196,7 +196,7 @@ ggen-core = { path = "../ggen-core", version = "3.2.0" }
 
 # Optional marketplace backends
 ggen-marketplace = { workspace = true, optional = true }
-ggen-marketplace-v2 = { workspace = true, optional = true }
+ggen-marketplace = { workspace = true, optional = true }
 
 # ... existing dependencies
 
@@ -205,8 +205,8 @@ default = ["marketplace-v1"]
 
 # Inherit from ggen-core
 marketplace-v1 = ["ggen-core/marketplace-v1", "ggen-marketplace"]
-marketplace-v2 = ["ggen-core/marketplace-v2", "ggen-marketplace-v2"]
-marketplace-parallel = ["ggen-core/marketplace-parallel", "ggen-marketplace", "ggen-marketplace-v2"]
+marketplace-v2 = ["ggen-core/marketplace-v2", "ggen-marketplace"]
+marketplace-parallel = ["ggen-core/marketplace-parallel", "ggen-marketplace", "ggen-marketplace"]
 ```
 
 ## Feature Flag Testing Matrix

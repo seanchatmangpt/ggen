@@ -18,7 +18,7 @@ mod performance_tests {
     #[test]
     fn test_simple_config_load_speed() -> Result<()> {
         // Config loading should be fast (<10ms for simple configs)
-        let config_path = fixture_path("simple.ggen.toml");
+        let _config_path = fixture_path("simple.ggen.toml");
 
         let start = Instant::now();
         // TODO: Uncomment once ggen-config is implemented
@@ -128,7 +128,7 @@ mod performance_tests {
         let handles: Vec<_> = (0..10)
             .map(|i| {
                 thread::spawn(move || {
-                    let config_path = fixture_path(if i % 2 == 0 {
+                    let _config_path = fixture_path(if i % 2 == 0 {
                         "simple.ggen.toml"
                     } else {
                         "advanced.ggen.toml"
@@ -180,7 +180,7 @@ mod caching_tests {
     #[test]
     fn test_config_caching_improves_performance() -> Result<()> {
         // Second load should be faster if caching is enabled
-        let config_path = fixture_path("advanced.ggen.toml");
+        let _config_path = fixture_path("advanced.ggen.toml");
 
         // First load (cold)
         let start = Instant::now();

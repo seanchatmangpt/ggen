@@ -14,6 +14,8 @@ use serde::Serialize;
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
+use crate::cmds::helpers::execute_async_op;
+
 // ============================================================================
 // Output Types (all must derive Serialize for JSON output)
 // ============================================================================
@@ -147,14 +149,7 @@ fn new(
     }
 
     // Execute the async function and convert errors
-    crate::runtime::block_on(new_impl(
-        name,
-        project_type,
-        framework,
-        output,
-        skip_install,
-    ))
-    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    execute_async_op("new", new_impl(name, project_type, framework, output, skip_install))
 }
 
 /// Generate project plan from template with variable substitution
@@ -230,8 +225,9 @@ fn plan(
     }
 
     // Execute the async function and convert errors
-    crate::runtime::block_on(plan_impl(template_ref, vars, output, format))
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    let output = execute_async_op("plan", plan_impl(template_ref, vars, output, format))
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
+    Ok(output)
 }
 
 /// Generate code from template with RDF/SPARQL integration
@@ -323,8 +319,7 @@ fn gen(template_ref: String, vars: Option<String>, dry_run: bool) -> Result<GenO
     }
 
     // Execute the async function and convert errors
-    crate::runtime::block_on(gen_impl(template_ref, vars, dry_run))
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    execute_async_op("gen", gen_impl(template_ref, vars, dry_run))
 }
 
 /// Apply generation plan to create/modify files
@@ -372,8 +367,9 @@ fn apply(plan_file: String, yes: bool, dry_run: bool) -> Result<ApplyOutput> {
     }
 
     // Execute the async function and convert errors
-    crate::runtime::block_on(apply_impl(plan_file, yes, dry_run))
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    let output = execute_async_op("apply", apply_impl(plan_file, yes, dry_run))
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
+    Ok(output)
 }
 
 /// Initialize project with file-based routing conventions
@@ -592,8 +588,9 @@ fn init(path: PathBuf, name: Option<String>, preset: Option<String>) -> Result<I
     }
 
     // Execute the async function and convert errors
-    crate::runtime::block_on(init_impl(path, name, preset))
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    let output = execute_async_op("init", init_impl(path, name, preset))
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
+    Ok(output)
 }
 
 /// Generate code using zero-config conventions
@@ -731,8 +728,7 @@ fn generate(
     }
 
     // Execute the async function and convert errors
-    crate::runtime::block_on(generate_impl(template, path, output, force))
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    execute_async_op("generate", generate_impl(template, path, output, force))
 }
 
 /// Watch for changes and auto-regenerate

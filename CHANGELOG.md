@@ -160,7 +160,7 @@ Migration from v3.4.0 to v4.0.0 is **transparent** - simply update and run.
 ### Technical Details
 
 - **Version**: 3.3.0
-- **All workspace crates synchronized** to 3.3.0 (except ggen-marketplace-v2 at 3.0.0)
+- **All workspace crates synchronized** to 3.3.0 (except ggen-marketplace at 3.0.0)
 - **78+ unit tests passing**
 - **Zero clippy warnings in core crates**
 

@@ -180,19 +180,19 @@ impl From<ggen_marketplace::Error> for MarketplaceError {
 ```rust
 // ggen-domain/src/marketplace/v2_adapter.rs
 
-impl From<ggen_marketplace_v2::Error> for MarketplaceError {
-    fn from(e: ggen_marketplace_v2::Error) -> Self {
+impl From<ggen_marketplace::Error> for MarketplaceError {
+    fn from(e: ggen_marketplace::Error) -> Self {
         match e {
-            ggen_marketplace_v2::Error::PackageNotFound(id) => {
+            ggen_marketplace::Error::PackageNotFound(id) => {
                 MarketplaceError::PackageNotFound(id)
             }
-            ggen_marketplace_v2::Error::SparqlError(msg) => {
+            ggen_marketplace::Error::SparqlError(msg) => {
                 MarketplaceError::SparqlError(msg)
             }
-            ggen_marketplace_v2::Error::SignatureVerificationFailed => {
+            ggen_marketplace::Error::SignatureVerificationFailed => {
                 MarketplaceError::SignatureVerificationFailed
             }
-            ggen_marketplace_v2::Error::OxigraphError(e) => {
+            ggen_marketplace::Error::OxigraphError(e) => {
                 MarketplaceError::V2Error(V2BackendError::OxigraphError(e))
             }
             // ... other conversions

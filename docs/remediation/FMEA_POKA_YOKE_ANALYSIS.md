@@ -431,7 +431,7 @@ graph TD
 ### Sample 1: Type Mismatch (RPN=729)
 ```rust
 error[E0599]: no function or associated item named `from_manifest` found for struct `Package`
-  --> crates/ggen-marketplace-v2/tests/integration/fmea_recovery_test.rs:22:28
+  --> crates/ggen-marketplace/tests/integration/fmea_recovery_test.rs:22:28
    |
 22 |     let package = Package::from_manifest(manifest).unwrap();
    |                            ^^^^^^^^^^^^^ function or associated item not found in `Package`
@@ -444,7 +444,7 @@ error[E0599]: no function or associated item named `from_manifest` found for str
 ### Sample 2: Import Resolution (RPN=504)
 ```rust
 error[E0433]: failed to resolve: use of undeclared type `QualityScore`
-   --> crates/ggen-marketplace-v2/tests/performance/rdf_performance_test.rs:159:29
+   --> crates/ggen-marketplace/tests/performance/rdf_performance_test.rs:159:29
     |
 159 |         pkg.quality_score = QualityScore::new((i % 100) + 1).unwrap();
     |                             ^^^^^^^^^^^^ use of undeclared type `QualityScore`
@@ -457,7 +457,7 @@ error[E0433]: failed to resolve: use of undeclared type `QualityScore`
 ### Sample 3: Private Access (RPN=360)
 ```rust
 error[E0616]: field `store` of struct `RdfRegistry` is private
-  --> crates/ggen-marketplace-v2/tests/performance/rdf_performance_test.rs:25:60
+  --> crates/ggen-marketplace/tests/performance/rdf_performance_test.rs:25:60
    |
 25 |     let search = SparqlSearchEngine::new(Arc::new(registry.store.clone()));
    |                                                            ^^^^^ private field

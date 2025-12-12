@@ -61,3 +61,4 @@ if [ "$status" -eq 0 ]; then
 fi
 
 echo "[cli-smoke] PASS"
+

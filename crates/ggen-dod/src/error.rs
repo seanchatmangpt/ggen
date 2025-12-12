@@ -1,7 +1,5 @@
 //! Error types for the DoD system
 
-use thiserror::Error;
-
 /// Result type for DoD operations
 pub type DoDResult<T> = Result<T, DoDError>;
 

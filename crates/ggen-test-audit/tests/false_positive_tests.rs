@@ -116,7 +116,10 @@ fn test_analyze_ggen_toml_tests_with_strong_assertions() {
         .expect("Failed to analyze ggen.toml tests");
 
     // Assert: Verify state - should NOT flag strong assertions
-    // (Current implementation may still flag, this is the fix target)
+    assert!(
+        false_positives.is_empty(),
+        "Strongly asserted configs should not be flagged"
+    );
 }
 
 /// Test: Identify critical path coverage gaps

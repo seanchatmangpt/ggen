@@ -32,7 +32,7 @@ This guide provides a systematic 8-phase migration plan to:
 
 ```bash
 cd /Users/sac/ggen
-cargo build -p ggen-marketplace-v2 2>&1 | tee /tmp/errors.log
+cargo build -p ggen-marketplace 2>&1 | tee /tmp/errors.log
 ```
 
 ### Step 1.2: Parse Error Categories
@@ -186,15 +186,15 @@ where
 ```
 
 **Files to Update**:
-- `crates/ggen-marketplace-v2/src/traits.rs` - Add bounds to trait definitions
-- `crates/ggen-marketplace-v2/src/registry.rs` - Update impl bounds
+- `crates/ggen-marketplace/src/traits.rs` - Add bounds to trait definitions
+- `crates/ggen-marketplace/src/registry.rs` - Update impl bounds
 - `crates/ggen-cli/src/cmds/marketplace.rs` - Bridge async → sync
 
 ### Step 3.3: Fix Import/Module Errors (25 errors)
 
 **Check Exports in lib.rs**:
 
-File: `crates/ggen-marketplace-v2/src/lib.rs` (lines 104-114)
+File: `crates/ggen-marketplace/src/lib.rs` (lines 104-114)
 
 Verify all these are exported:
 ```rust
@@ -215,14 +215,14 @@ pub use validation::Validator;
 **Update CLI Imports**:
 ```rust
 // crates/ggen-cli/src/cmds/marketplace.rs
-use ggen_marketplace_v2::prelude::*;
+use ggen_marketplace::prelude::*;
 ```
 
 ### Step 3.4: Fix Dependency Errors (14 errors)
 
 **Check Cargo.toml Features**:
 
-File: `crates/ggen-marketplace-v2/Cargo.toml` (lines 14-75)
+File: `crates/ggen-marketplace/Cargo.toml` (lines 14-75)
 
 Verify all dependencies are in workspace `Cargo.toml`:
 ```bash
@@ -235,13 +235,13 @@ grep -A 3 "\[workspace.dependencies\]" /Users/sac/ggen/Cargo.toml | grep -E "(to
 cd /Users/sac/ggen
 
 # Quick check (should improve error count)
-cargo check -p ggen-marketplace-v2 2>&1 | head -30
+cargo check -p ggen-marketplace 2>&1 | head -30
 
 # After fixes, full build
-cargo build -p ggen-marketplace-v2 2>&1 | tail -5
+cargo build -p ggen-marketplace 2>&1 | tail -5
 
 # Track progress
-cargo build -p ggen-marketplace-v2 2>&1 | grep "^error" | wc -l
+cargo build -p ggen-marketplace 2>&1 | grep "^error" | wc -l
 ```
 
 **Target**: Error count should drop with each phase:
@@ -258,7 +258,7 @@ cargo build -p ggen-marketplace-v2 2>&1 | grep "^error" | wc -l
 
 ```bash
 cd /Users/sac/ggen
-cargo make test -p ggen-marketplace-v2 2>&1 | tail -50
+cargo make test -p ggen-marketplace 2>&1 | tail -50
 ```
 
 **Expected Output**:
@@ -278,32 +278,32 @@ test result: ok. 107 passed
 
 ```bash
 # Core unit tests (15 tests)
-cargo test -p ggen-marketplace-v2 marketplace_core_unit 2>&1 | grep "^test"
+cargo test -p ggen-marketplace marketplace_core_unit 2>&1 | grep "^test"
 
 # Registry unit tests (20 tests)
-cargo test -p ggen-marketplace-v2 marketplace_registry_unit 2>&1 | grep "^test"
+cargo test -p ggen-marketplace marketplace_registry_unit 2>&1 | grep "^test"
 
 # Search unit tests (22 tests)
-cargo test -p ggen-marketplace-v2 marketplace_search_unit 2>&1 | grep "^test"
+cargo test -p ggen-marketplace marketplace_search_unit 2>&1 | grep "^test"
 
 # Install unit tests (18 tests)
-cargo test -p ggen-marketplace-v2 marketplace_install_unit 2>&1 | grep "^test"
+cargo test -p ggen-marketplace marketplace_install_unit 2>&1 | grep "^test"
 
 # Security unit tests (16 tests)
-cargo test -p ggen-marketplace-v2 marketplace_security_unit 2>&1 | grep "^test"
+cargo test -p ggen-marketplace marketplace_security_unit 2>&1 | grep "^test"
 
 # Integration tests (12 tests)
-cargo test -p ggen-marketplace-v2 marketplace_integration 2>&1 | grep "^test"
+cargo test -p ggen-marketplace marketplace_integration 2>&1 | grep "^test"
 
 # Property tests (4 tests)
-cargo test -p ggen-marketplace-v2 marketplace_property_based 2>&1 | grep "^test"
+cargo test -p ggen-marketplace marketplace_property_based 2>&1 | grep "^test"
 ```
 
 **If Tests Fail**:
 1. Identify failing test names
 2. Read test source to understand what it expects
 3. Fix implementation to match test expectations
-4. Rerun: `cargo test -p ggen-marketplace-v2 test_name`
+4. Rerun: `cargo test -p ggen-marketplace test_name`
 
 ---
 
@@ -317,7 +317,7 @@ Implement 9 marketplace commands with `#[verb]` attribute:
 
 ```rust
 use clap_noun_verb::Verbs;
-use ggen_marketplace_v2::prelude::*;
+use ggen_marketplace::prelude::*;
 
 /// Marketplace commands
 #[derive(Verbs, Debug)]
@@ -543,7 +543,7 @@ Update version: `2.0.0` → `3.0.0`
 ```bash
 # Update Cargo.toml files
 sed -i '' 's/version = "2.0.0"/version = "3.0.0"/' \
-  crates/ggen-marketplace-v2/Cargo.toml \
+  crates/ggen-marketplace/Cargo.toml \
   Cargo.toml
 
 # Update documentation
@@ -590,14 +590,14 @@ Migration is complete when ALL of these are true:
 
 ```bash
 # Check for errors (Phase 1)
-cargo build -p ggen-marketplace-v2 2>&1 | grep "^error" | wc -l
+cargo build -p ggen-marketplace 2>&1 | grep "^error" | wc -l
 
 # Enable marketplace module (Phase 2)
 sed -i '' 's|// pub mod marketplace;|pub mod marketplace;|' \
   crates/ggen-cli/src/cmds/mod.rs
 
 # Run tests (Phase 4)
-cargo make test -p ggen-marketplace-v2
+cargo make test -p ggen-marketplace
 
 # Full CI (Phase 8)
 cargo make ci

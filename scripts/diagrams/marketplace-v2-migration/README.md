@@ -187,7 +187,7 @@ This directory contains comprehensive C4 and UML diagrams for planning the migra
 **Critical Files**:
 - `crates/ggen-cli/src/cmds/mod.rs` (Line 15: BLOCKING)
 - `crates/ggen-cli/src/cmds/marketplace.rs` (CLI commands)
-- `crates/ggen-marketplace-v2/src/lib.rs` (Core exports)
+- `crates/ggen-marketplace/src/lib.rs` (Core exports)
 - Root `Cargo.toml` (Dependencies)
 
 **Dependencies**:

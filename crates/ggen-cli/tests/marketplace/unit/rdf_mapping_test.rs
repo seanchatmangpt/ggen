@@ -6,8 +6,8 @@
 #[cfg(test)]
 mod rdf_mapping_tests {
     use chrono::Utc;
-    use ggen_marketplace_v2::models::{Package, PackageId, PackageMetadata, PackageVersion};
-    use ggen_marketplace_v2::ontology::MARKETPLACE_ONTOLOGY;
+    use ggen_marketplace::models::{Package, PackageId, PackageMetadata, PackageVersion};
+    use ggen_marketplace::ontology::MARKETPLACE_ONTOLOGY;
 
     /// Helper: Create test package
     fn create_test_package(id: &str, name: &str, version: &str) -> Package {

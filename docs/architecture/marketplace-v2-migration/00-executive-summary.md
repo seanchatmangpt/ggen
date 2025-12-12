@@ -53,7 +53,7 @@ Cargo Features:
 │  default = ["marketplace-v1"]                        │
 │                                                       │
 │  marketplace-v1 = ["ggen-marketplace"]               │
-│  marketplace-v2 = ["ggen-marketplace-v2",            │
+│  marketplace-v2 = ["ggen-marketplace",            │
 │                    "rdf-backend",                    │
 │                    "crypto-signing"]                 │
 │  marketplace-parallel = ["marketplace-v1",           │
@@ -381,7 +381,7 @@ Success    Failure
    - `V1Adapter`, `V2Adapter`, `DualBackendAdapter`
    - Conversion functions (v1 ↔ unified ↔ v2)
 
-3. **V2 Backend** (ggen-marketplace-v2)
+3. **V2 Backend** (ggen-marketplace)
    - RDF registry (`RdfRegistry`)
    - SPARQL search engine (`SparqlSearchEngine`)
    - Ed25519 signing (`Ed25519Signer`)

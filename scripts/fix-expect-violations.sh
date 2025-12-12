@@ -112,7 +112,7 @@ CRATES=(
     "crates/ggen-domain"
     "crates/ggen-utils"
     "crates/ggen-dod"
-    "crates/ggen-marketplace-v2"
+    "crates/ggen-marketplace"
     "crates/ggen-cli-validation"
 )
 

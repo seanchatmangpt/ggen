@@ -5,7 +5,7 @@
 Comprehensive audit of ggen codebase identified **37 technical debt items** across code quality, architecture, performance, and production readiness. Using 80/20 Pareto principle, the **top 20% of issues (7 items)** account for **80% of impact**.
 
 **Audit Date**: 2025-11-21
-**Scope**: All 8 crates (ggen-core, ggen-cli, ggen-domain, ggen-utils, ggen-ai, ggen-dod, ggen-marketplace-v2, ggen-config)
+**Scope**: All 8 crates (ggen-core, ggen-cli, ggen-domain, ggen-utils, ggen-ai, ggen-dod, ggen-marketplace, ggen-config)
 **Auditors**: code-analyzer, production-validator, performance-benchmarker, system-architect
 
 ---
@@ -41,7 +41,7 @@ Comprehensive audit of ggen codebase identified **37 technical debt items** acro
 
 **Problem**: Multiple incompatible error types:
 - `ggen-utils::error::Error` (custom struct)
-- `ggen-marketplace-v2::error::Error` (thiserror enum)
+- `ggen-marketplace::error::Error` (thiserror enum)
 - `ggen-ai::error::GgenAiError` (thiserror enum)
 - `ggen-dod::error::DoDError` (thiserror enum)
 
@@ -89,7 +89,7 @@ Comprehensive audit of ggen codebase identified **37 technical debt items** acro
 **Severity**: HIGH | **Effort**: 8h | **Impact**: 10s build reduction + smaller binary
 
 - axum v0.6.20 (via tonic@0.9.2 → opentelemetry-otlp)
-- axum v0.7.9 (via ggen-marketplace-v2 direct)
+- axum v0.7.9 (via ggen-marketplace direct)
 - axum v0.8.6 (via tonic@0.14.2 → bollard → testcontainers)
 
 **Solution**: Pin single version, update transitive dependencies

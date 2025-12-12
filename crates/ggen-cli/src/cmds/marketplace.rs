@@ -1,7 +1,7 @@
-//! Marketplace Commands - ggen-marketplace-v2 CLI Integration
+//! Marketplace Commands - ggen-marketplace CLI Integration
 //!
 //! This module implements marketplace commands using the clap-noun-verb #[verb] pattern
-//! with full integration to ggen-marketplace-v2 for package management.
+//! with full integration to ggen-marketplace for package management.
 //! All verbs execute against the RDF-backed v2 registry with a 10s operation
 //! timeout to satisfy CLI SLA requirements.
 //!
@@ -47,41 +47,14 @@
 
 use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
-use log::debug;
 use serde::Serialize;
 use serde_json::json;
-use std::future::Future;
 use std::path::PathBuf;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
-use ggen_marketplace_v2::prelude::*;
+use crate::cmds::helpers::log_operation;
+use ggen_marketplace::prelude::*;
 
-const MARKETPLACE_OP_TIMEOUT: Duration = Duration::from_secs(10);
-
-// #region agent log helper
-fn log_debug(
-    session_id: &str, run_id: &str, hypothesis_id: &str, location: &str, message: &str,
-    data: serde_json::Value,
-) {
-    debug!(
-        target: "ggen::marketplace",
-        "session_id={session_id} run_id={run_id} hypothesis_id={hypothesis_id} location={location} message={message} payload={}",
-        data
-    );
-}
-
-/// Simplified log helper with default session/run IDs
-fn log_operation(location: &str, message: &str, data: serde_json::Value) {
-    log_debug(
-        "debug-session",
-        "run1",
-        "operation",
-        location,
-        message,
-        data,
-    );
-}
-// #endregion
 
 // ============================================================================
 // Output Types
@@ -239,37 +212,23 @@ pub struct InstallationMetricsOutput {
 // Helper Functions
 // ============================================================================
 
-fn timeout_error(op: &str) -> clap_noun_verb::NounVerbError {
-    to_cli_error(ggen_marketplace_v2::Error::Timeout(op.to_string()))
-}
-
-async fn with_timeout<T, Fut>(op: &str, fut: Fut) -> Result<T>
-where
-    Fut: Future<Output = Result<T>>,
-{
-    match tokio::time::timeout(MARKETPLACE_OP_TIMEOUT, fut).await {
-        Ok(result) => result,
-        Err(_) => Err(timeout_error(op)),
-    }
-}
+use crate::cmds::helpers::execute_async_op;
 
 /// Execute async marketplace operation with timeout and error mapping
 fn execute_marketplace_op<T, Fut>(op_name: &str, fut: Fut) -> Result<T>
 where
-    Fut: Future<Output = Result<T>>,
+    Fut: std::future::Future<Output = Result<T>>,
 {
-    tokio::task::block_in_place(|| {
-        tokio::runtime::Handle::current().block_on(with_timeout(op_name, fut))
-    })
+    execute_async_op(op_name, fut)
 }
 
-fn to_cli_error(e: ggen_marketplace_v2::Error) -> clap_noun_verb::NounVerbError {
+fn to_cli_error(e: ggen_marketplace::Error) -> clap_noun_verb::NounVerbError {
     clap_noun_verb::NounVerbError::execution_error(format_error_with_recovery(&e))
 }
 
 /// Format error with recovery suggestions
-fn format_error_with_recovery(error: &ggen_marketplace_v2::Error) -> String {
-    use ggen_marketplace_v2::Error;
+fn format_error_with_recovery(error: &ggen_marketplace::Error) -> String {
+    use ggen_marketplace::Error;
 
     match error {
         Error::PackageNotFound { package_id } => {
@@ -550,7 +509,7 @@ pub fn search(
     query: String, category: Option<String>, author: Option<String>, license: Option<String>,
     min_quality: Option<u32>, sort: Option<String>, limit: Option<usize>, offset: Option<usize>,
 ) -> Result<SearchOutput> {
-    use ggen_marketplace_v2::search::{SearchQuery, SortBy};
+    use ggen_marketplace::search::{SearchQuery, SortBy};
 
     let start = Instant::now();
 
@@ -590,7 +549,7 @@ pub fn search(
     }
 
     if let Some(min_q) = min_quality {
-        if let Ok(score) = ggen_marketplace_v2::models::QualityScore::new(min_q) {
+        if let Ok(score) = ggen_marketplace::models::QualityScore::new(min_q) {
             search_query = search_query.with_min_quality(score);
         }
     }
@@ -673,7 +632,7 @@ pub fn search(
 #[verb]
 fn publish(manifest_path: PathBuf, signing_key: Option<PathBuf>) -> Result<PublishOutput> {
     use chrono::Utc;
-    use ggen_marketplace_v2::security::KeyPair;
+    use ggen_marketplace::security::KeyPair;
     use std::fs;
 
     let start = Instant::now();
@@ -825,7 +784,7 @@ fn info(package_id: String, version: Option<String>) -> Result<InfoOutput> {
 /// ```
 #[verb]
 fn validate(package_id: String) -> Result<ValidateOutput> {
-    use ggen_marketplace_v2::validation::{CheckSeverity, PackageValidator};
+    use ggen_marketplace::validation::{CheckSeverity, PackageValidator};
 
     // Parse package ID
     let pkg_id = PackageId::new(&package_id).map_err(to_cli_error)?;

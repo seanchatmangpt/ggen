@@ -108,7 +108,7 @@ if (Import/Module errors?) then (25 errors)
                 
                 **Fix Strategy:**
                 1. Use crate:: prefix
-                2. Use ggen_marketplace_v2::
+                2. Use ggen_marketplace::
                 3. Check feature flags
 else (no)
 endif

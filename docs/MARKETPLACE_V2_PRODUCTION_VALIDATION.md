@@ -1,8 +1,8 @@
-# Production Readiness Validation Report: ggen-marketplace-v2 (v3.0.0)
+# Production Readiness Validation Report: ggen-marketplace (v3.0.0)
 
 **Date**: 2025-11-18
 **Validator**: Production Validation Specialist
-**Package**: ggen-marketplace-v2 v3.0.0
+**Package**: ggen-marketplace v3.0.0
 **Status**: ❌ **FAIL - NOT PRODUCTION READY**
 
 ---
@@ -36,8 +36,8 @@ The marketplace-v2 (v3.0.0) package **fails production readiness validation** du
    - Incorrectly using .await on cache builder (lines 75, 81 in v3.rs)
 
 **Affected Files**:
-- crates/ggen-marketplace-v2/src/registry_rdf.rs (lines 71, 73, 97, 99, 109, 111, 121, 123, 139, 141)
-- crates/ggen-marketplace-v2/src/v3.rs (lines 75, 81)
+- crates/ggen-marketplace/src/registry_rdf.rs (lines 71, 73, 97, 99, 109, 111, 121, 123, 139, 141)
+- crates/ggen-marketplace/src/v3.rs (lines 75, 81)
 
 **Warnings** (6 deprecation warnings):
 - Store::query() method deprecated - should use SparqlEvaluator interface
@@ -246,7 +246,7 @@ The V3OptimizedRegistry implementation returns placeholder errors for all 5 core
 
 **VERDICT**: ❌ **FAIL - NOT PRODUCTION READY**
 
-The ggen-marketplace-v2 package demonstrates **excellent architectural design** with advanced Rust patterns, comprehensive error handling, and production-grade security. However, it **cannot be deployed** due to:
+The ggen-marketplace package demonstrates **excellent architectural design** with advanced Rust patterns, comprehensive error handling, and production-grade security. However, it **cannot be deployed** due to:
 
 1. **12 critical compilation errors** preventing build
 2. **Stub implementations** of all 5 core API methods

@@ -173,7 +173,7 @@ TEST CODE:           No quality gates → 304 errors 🔴 RED
 
 **Top 5 Error Categories = 186 errors (61% of 304)**
 
-1. **ggen-marketplace-v2 Package.manifest field** (56 errors, 18%)
+1. **ggen-marketplace Package.manifest field** (56 errors, 18%)
    - Issue: Tests reference old field name
    - Fix: Update field references in test assertions
 

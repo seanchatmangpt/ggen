@@ -58,7 +58,7 @@ Production readiness validation:
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 # Navigate to marketplace-v2
-cd crates/ggen-marketplace-v2
+cd crates/ggen-marketplace
 ```
 
 ### Run All Benchmarks

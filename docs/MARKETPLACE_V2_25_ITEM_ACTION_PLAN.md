@@ -93,7 +93,7 @@ timeout 10s cargo make lint || {
 **Details**:
 ```bash
 # Add to pre-commit hook after linting
-timeout 60s cargo make test-unit --lib -p ggen-marketplace-v2 || {
+timeout 60s cargo make test-unit --lib -p ggen-marketplace || {
   echo "❌ Tests failed - commit blocked"
   exit 1
 }
@@ -101,7 +101,7 @@ timeout 60s cargo make test-unit --lib -p ggen-marketplace-v2 || {
 
 **Acceptance Criteria**:
 - [ ] Marketplace-v2 unit tests run before commit
-- [ ] Only tests ggen-marketplace-v2 for speed
+- [ ] Only tests ggen-marketplace for speed
 - [ ] 60-second timeout (sub-minute execution)
 - [ ] All 89 tests must pass
 - [ ] Provides clear pass/fail feedback

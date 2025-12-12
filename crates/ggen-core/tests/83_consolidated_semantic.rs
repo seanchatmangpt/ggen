@@ -1,10 +1,3 @@
-#![allow(
-    unused_imports,
-    unused_variables,
-    dead_code,
-    unused_assignments,
-    unused_comparisons
-)]
 //! Consolidated Semantic Tests - 80/20 Principle
 //!
 //! Consolidates critical RDF, ontology, and semantic validation tests.
@@ -15,10 +8,11 @@
 //! - ontology_extraction_tests.rs (keep all)
 //! - rdf_rendering_e2e.rs (keep basic operations)
 
+
 #[cfg(test)]
 mod semantic_ontology {
-
-    // ================================================================
+    #[allow(unused_imports)]
+        // ================================================================
     // ONTOLOGY: Semantic Web & RDF Concepts (Self-Contained)
     // ================================================================
 
@@ -153,7 +147,7 @@ mod semantic_ontology {
 
 #[cfg(test)]
 mod semantic_rdf {
-
+    
     // ================================================================
     // RDF: Triple Operations & Graph Manipulation (Critical)
     // ================================================================
@@ -185,7 +179,7 @@ mod semantic_rdf {
     #[test]
     fn test_rdf_graph_construction() {
         // Arrange: RDF graph (collection of triples)
-        let mut graph: HashMap<String, Vec<(String, String)>> = HashMap::new();
+        let mut graph: std::collections::HashMap<String, Vec<(String, String)>> = std::collections::HashMap::new();
 
         // Act: Add triples to graph
         graph
@@ -232,7 +226,7 @@ mod semantic_rdf {
     #[test]
     fn test_rdf_namespace_resolution() {
         // Arrange: Namespace prefixes
-        let mut namespaces = HashMap::new();
+        let mut namespaces = std::collections::HashMap::new();
         namespaces.insert("foaf", "http://xmlns.com/foaf/0.1/");
         namespaces.insert("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         namespaces.insert("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
@@ -258,12 +252,12 @@ mod semantic_rdf {
         // Arrange: Blank nodes (anonymous resources)
         struct BlankNode {
             id: String,
-            properties: HashMap<String, String>,
+            properties: std::collections::HashMap<String, String>,
         }
 
         let mut blank_node = BlankNode {
             id: "_:b1".to_string(),
-            properties: HashMap::new(),
+            properties: std::collections::HashMap::new(),
         };
 
         blank_node

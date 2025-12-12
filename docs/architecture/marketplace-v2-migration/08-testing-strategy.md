@@ -271,7 +271,7 @@ fn test_error_conversion() {
 #### V2 Search Component (50 tests)
 
 ```rust
-// ggen-marketplace-v2/tests/search_component_tests.rs
+// ggen-marketplace/tests/search_component_tests.rs
 
 #[tokio::test]
 async fn test_sparql_query_builder() {
@@ -305,7 +305,7 @@ async fn test_result_ranking() {
 #### V2 Crypto Component (40 tests)
 
 ```rust
-// ggen-marketplace-v2/tests/crypto_component_tests.rs
+// ggen-marketplace/tests/crypto_component_tests.rs
 
 #[test]
 fn test_keygen() {
@@ -341,7 +341,7 @@ fn test_batch_verification() {
 #### V2 RDF Component (60 tests)
 
 ```rust
-// ggen-marketplace-v2/tests/rdf_component_tests.rs
+// ggen-marketplace/tests/rdf_component_tests.rs
 
 #[test]
 fn test_rdf_triple_generation() {
@@ -660,7 +660,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run component tests
-        run: cargo test --package ggen-marketplace-v2
+        run: cargo test --package ggen-marketplace
 
   integration-tests:
     runs-on: ubuntu-latest

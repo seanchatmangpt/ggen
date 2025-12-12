@@ -270,7 +270,7 @@ cargo test --features marketplace-v2 --test marketplace
 
 #### 2. Compilation Error
 ```
-error[E0432]: unresolved import `ggen_marketplace_v2`
+error[E0432]: unresolved import `ggen_marketplace`
 ```
 **Fix:** Ensure dependencies are correct in `Cargo.toml`
 
