@@ -9,8 +9,6 @@
 //! type-safe and version-aware.
 
 use std::path::Path;
-use thiserror::Error;
-
 // ============================================================================
 // Core Contracts
 // ============================================================================
@@ -237,7 +235,7 @@ pub struct RenderFeatures {
 // Error Types
 // ============================================================================
 
-#[derive(Error, Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum ProviderError {
     #[error("Template not found: {path}")]
     TemplateNotFound { path: String },
@@ -258,7 +256,7 @@ pub enum ProviderError {
     Io(#[from] std::io::Error),
 }
 
-#[derive(Error, Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum BridgeError {
     #[error("Invalid command: {command}")]
     InvalidCommand { command: String },
@@ -273,7 +271,7 @@ pub enum BridgeError {
     Provider(#[from] ProviderError),
 }
 
-#[derive(Error, Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum RenderError {
     #[error("Syntax error at line {line}, column {column}: {message}")]
     SyntaxError {

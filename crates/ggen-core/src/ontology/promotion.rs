@@ -1,12 +1,10 @@
 use serde::{Deserialize, Serialize};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, RwLock};
-use thiserror::Error;
-
 use crate::ontology::SigmaSnapshot;
 
 /// Errors that can occur during snapshot promotion
-#[derive(Error, Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum PromotionError {
     /// RwLock was poisoned
     #[error("Lock poisoned: {0}")]

@@ -196,7 +196,7 @@ impl Template {
     /// ```rust
     /// use ggen_core::Template;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> Result<()> {
     /// let template = Template::parse(r#"
     /// ---
     /// to: "output.rs"
@@ -228,7 +228,7 @@ impl Template {
     /// ```rust
     /// use ggen_core::Template;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> Result<()> {
     /// let template = Template::from_str(r#"
     /// ---
     /// to: "output.rs"
@@ -259,7 +259,7 @@ impl Template {
     /// use ggen_core::Template;
     /// use std::path::Path;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> Result<()> {
     /// let template = Template::from_file(Path::new("template.tmpl"))?;
     /// # Ok(())
     /// # }

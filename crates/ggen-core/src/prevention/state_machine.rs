@@ -253,9 +253,7 @@ pub struct Context {
 // Error Types
 // ============================================================================
 
-use thiserror::Error;
-
-#[derive(Error, Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum RegistryError {
     #[error("No templates found at path: {path}")]
     NoTemplatesFound { path: String },
