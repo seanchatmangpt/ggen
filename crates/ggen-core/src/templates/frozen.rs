@@ -255,7 +255,8 @@ impl FrozenParser {
     ///
     /// # Returns
     ///
-    /// A `HashMap` mapping section identifiers to their content.
+    /// A `BTreeMap` mapping section identifiers to their content.
+    /// **FMEA Fix**: Use BTreeMap for deterministic iteration order
     ///
     /// # Errors
     ///
@@ -278,9 +279,10 @@ impl FrozenParser {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn extract_frozen_map(content: &str) -> Result<std::collections::HashMap<String, String>> {
+    pub fn extract_frozen_map(content: &str) -> Result<std::collections::BTreeMap<String, String>> {
         let sections = Self::parse_frozen_tags(content)?;
-        let mut map = std::collections::HashMap::new();
+        // **FMEA Fix**: Use BTreeMap for deterministic iteration order
+        let mut map = std::collections::BTreeMap::new();
 
         for (index, section) in sections.iter().enumerate() {
             let key = section
