@@ -22,7 +22,7 @@
 
 ### Issue #1: Compilation Failure (CRITICAL)
 
-**Location**: `crates/ggen-marketplace-v2/src/registry_rdf.rs`
+**Location**: `crates/ggen-marketplace/src/registry_rdf.rs`
 
 **Error**: 4 Send trait violations blocking workspace compilation
 
@@ -262,7 +262,7 @@ let dependencies = self.query_dependencies(&uri).await?;
 ### Today
 ```bash
 # 1. Fix compilation
-cd crates/ggen-marketplace-v2
+cd crates/ggen-marketplace
 # Edit registry_rdf.rs and rdf_mapper.rs
 # Replace Store::query() with SparqlEvaluator
 

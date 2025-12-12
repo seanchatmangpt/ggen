@@ -48,7 +48,7 @@ ggen/
 │   ├── ggen-core/
 │   ├── ggen-ai/
 │   ├── ggen-config/
-│   ├── ggen-marketplace-v2/
+│   ├── ggen-marketplace/
 │   ├── ggen-utils/
 │   └── ...
 ├── examples/                       # Example projects

@@ -9,8 +9,8 @@
 ## Build Status
 
 ### Before Fix
-- **Errors:** 319 compilation errors in `ggen-marketplace-v2`
-- **Status:** `could not compile ggen-marketplace-v2 (lib) due to 319 previous errors`
+- **Errors:** 319 compilation errors in `ggen-marketplace`
+- **Status:** `could not compile ggen-marketplace (lib) due to 319 previous errors`
 - **Build:** ❌ FAILED
 
 ### After Fix
@@ -22,7 +22,7 @@
 
 ### Error Category: Missing Documentation (319 errors)
 
-**Location:** `crates/ggen-marketplace-v2/src/lib.rs`
+**Location:** `crates/ggen-marketplace/src/lib.rs`
 
 **Root Cause:**
 ```rust
@@ -54,7 +54,7 @@ All 319 errors were of type: `error: missing documentation for <item>`
 
 ### Change Details
 
-**File:** `/Users/sac/ggen/crates/ggen-marketplace-v2/src/lib.rs`
+**File:** `/Users/sac/ggen/crates/ggen-marketplace/src/lib.rs`
 
 **Line:** 2
 
@@ -142,7 +142,7 @@ cargo check --all --bins
 
 2. **Code cleanup:**
    ```bash
-   cargo fix --lib -p ggen-marketplace-v2  # Fix auto-fixable warnings
+   cargo fix --lib -p ggen-marketplace  # Fix auto-fixable warnings
    cargo clippy --fix --allow-dirty        # Fix clippy suggestions
    ```
 
@@ -163,7 +163,7 @@ cargo check --all --bins
 
 ```
 Checking ggen-ai v3.2.0
-Checking ggen-marketplace-v2 v3.0.0
+Checking ggen-marketplace v3.0.0
 Checking ggen-domain v3.2.0
 Compiling ggen-cli-lib v3.2.0
 Compiling ggen-dod v3.2.0
@@ -176,7 +176,7 @@ Finished `dev` profile [unoptimized + debuginfo] target(s) in 22.41s
 ## Technical Details
 
 ### Files Modified
-- `/Users/sac/ggen/crates/ggen-marketplace-v2/src/lib.rs` - 1 line changed
+- `/Users/sac/ggen/crates/ggen-marketplace/src/lib.rs` - 1 line changed
 
 ### Diff
 ```diff
@@ -185,7 +185,7 @@ Finished `dev` profile [unoptimized + debuginfo] target(s) in 22.41s
 ```
 
 ### Affected Packages
-- `ggen-marketplace-v2` v3.0.0 - Direct fix
+- `ggen-marketplace` v3.0.0 - Direct fix
 - `ggen-ai` v3.2.0 - Depends on marketplace-v2
 - `ggen-domain` v3.2.0 - Depends on marketplace-v2
 - `ggen-cli-lib` v3.2.0 - Depends on domain

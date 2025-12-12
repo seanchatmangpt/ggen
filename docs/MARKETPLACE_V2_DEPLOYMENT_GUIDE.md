@@ -24,8 +24,8 @@
 - [ ] **Fix Clippy Warnings**
   ```bash
   cd /Users/sac/ggen
-  cargo fix --package ggen-marketplace-v2 --allow-dirty
-  cargo clippy --package ggen-marketplace-v2 -- -D warnings
+  cargo fix --package ggen-marketplace --allow-dirty
+  cargo clippy --package ggen-marketplace -- -D warnings
   ```
 
 - [ ] **Run Security Audit**
@@ -38,7 +38,7 @@
 - [ ] **Validate All Tests**
   ```bash
   # V2 tests (must be 100%)
-  cargo test --package ggen-marketplace-v2 --lib
+  cargo test --package ggen-marketplace --lib
 
   # V1 tests (fix 2 failures)
   cargo test --package ggen-marketplace --lib
@@ -137,7 +137,7 @@
 4. **Check Metrics**
    ```bash
    # Enable debug logging
-   export RUST_LOG=ggen_marketplace_v2=debug
+   export RUST_LOG=ggen_marketplace=debug
 
    # Run operations and check logs
    ggen marketplace search --query "test" 2>&1 | grep -i cache
@@ -579,7 +579,7 @@ ggen marketplace search --query "test" --verbose
 # Look for "cache: HIT" vs "cache: MISS"
 
 # Check RDF store performance
-export RUST_LOG=ggen_marketplace_v2::search=debug
+export RUST_LOG=ggen_marketplace::search=debug
 ggen marketplace search --query "test"
 ```
 

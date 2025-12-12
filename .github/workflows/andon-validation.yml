@@ -1,0 +1,171 @@
+name: Andon Signal Validation Framework
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  # Layer 1: Compile-Time Validation (RED)
+  compile-time:
+    name: Layer 1 - Compile-Time Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Compilation Check
+        run: cargo make check
+        continue-on-error: false
+
+      - name: Linting
+        run: cargo make lint
+        continue-on-error: false
+
+      - name: Validation Report
+        if: always()
+        run: |
+          echo "## Layer 1: Compile-Time Validation" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ **Status**: PASSED" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Compilation: PASSED" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Linting: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Status**: FAILED" >> $GITHUB_STEP_SUMMARY
+            echo "🔴 **ANDON SIGNAL**: RED - Stop the line" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # Layer 2: Test-Time Validation (YELLOW)
+  test-time:
+    name: Layer 2 - Test-Time Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup Rust Cache
+        uses: ./.github/actions/setup-rust-cached
+        with:
+          toolchain: stable
+          cache-key-suffix: validation-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Unit Tests
+        run: cargo make test-unit
+        continue-on-error: false
+
+      - name: Integration Tests (clnrm)
+        if: env.CLNRM_AVAILABLE == 'true'
+        env:
+          CLNRM_AVAILABLE: ${{ secrets.CLNRM_AVAILABLE || 'false' }}
+        run: cargo make test-clnrm
+        continue-on-error: true
+
+      - name: Validation Report
+        if: always()
+        run: |
+          echo "## Layer 2: Test-Time Validation" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ **Status**: PASSED" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Unit Tests: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️  **Status**: FAILED" >> $GITHUB_STEP_SUMMARY
+            echo "🟡 **ANDON SIGNAL**: YELLOW - Investigate" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # Layer 3: Runtime Validation (GREEN)
+  runtime:
+    name: Layer 3 - Runtime Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [compile-time, test-time]
+    if: always() && (needs.compile-time.result == 'success' || needs.test-time.result == 'success')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build Release Binary
+        run: cargo make build-release
+
+      - name: CLI Verification
+        run: cargo make verify-cli
+        continue-on-error: false
+
+      - name: Validation Report
+        if: always()
+        run: |
+          echo "## Layer 3: Runtime Validation" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ **Status**: PASSED" >> $GITHUB_STEP_SUMMARY
+            echo "✅ CLI Verification: PASSED" >> $GITHUB_STEP_SUMMARY
+            echo "🟢 **ANDON SIGNAL**: GREEN - All validation layers passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Status**: FAILED" >> $GITHUB_STEP_SUMMARY
+            echo "🔴 **ANDON SIGNAL**: RED - CLI commands failing" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # Generate Comprehensive Validation Report
+  validation-report:
+    name: Generate Validation Report
+    runs-on: ubuntu-latest
+    needs: [compile-time, test-time, runtime]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Generate Report
+        run: cargo make validation-report
+
+      - name: Upload Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-report
+          path: validation-report.txt
+          retention-days: 30
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "# Andon Signal Validation Framework Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Layer | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Layer 1: Compile-Time | ${{ needs.compile-time.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Layer 2: Test-Time | ${{ needs.test-time.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Layer 3: Runtime | ${{ needs.runtime.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.compile-time.result }}" == "success" ] && \
+             [ "${{ needs.test-time.result }}" == "success" ] && \
+             [ "${{ needs.runtime.result }}" == "success" ]; then
+            echo "🟢 **Overall Status**: All validation layers passed" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.compile-time.result }}" == "failure" ]; then
+            echo "🔴 **Overall Status**: Compile-time validation failed - STOP THE LINE" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.runtime.result }}" == "failure" ]; then
+            echo "🔴 **Overall Status**: Runtime validation failed - CLI commands not working" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "🟡 **Overall Status**: Some validation layers failed - Investigate" >> $GITHUB_STEP_SUMMARY
+          fi
+

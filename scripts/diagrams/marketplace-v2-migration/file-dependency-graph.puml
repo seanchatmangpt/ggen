@@ -8,7 +8,7 @@ title **Marketplace-V2: File Dependency Graph**\n<size:12>//Critical Files for M
 
 package "Root Workspace" {
     file "Cargo.toml" as root_cargo {
-        note right: **Critical Changes:**\n- Line 26: marketplace-v2 workspace member\n- Line 79: ggen-marketplace-v2 dependency\n- Update version: v2→v3
+        note right: **Critical Changes:**\n- Line 26: marketplace-v2 workspace member\n- Line 79: ggen-marketplace dependency\n- Update version: v2→v3
     }
 }
 
@@ -30,7 +30,7 @@ package "ggen-cli Crate" {
     }
 }
 
-package "ggen-marketplace-v2 Crate" {
+package "ggen-marketplace Crate" {
     file "src/lib.rs" as mkt_lib {
         note right: **Key Exports (lines 104-114):**\n- pub use error::{Error, Result}\n- pub use install::Installer\n- pub use models::*\n- pub use registry::Registry\n- pub use search::SearchEngine\n- pub use traits::*\n\n**Must have:** All types CLI needs
     }

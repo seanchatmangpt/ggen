@@ -111,7 +111,7 @@ This documentation is structured for agent navigation—direct, technical, no fl
 - `src/marketplace/` - Marketplace operations
 - `src/project/` - Project operations
 
-**ggen-marketplace-v2** - Package system
+**ggen-marketplace** - Package system
 - `src/models.rs` - Package types
 - `src/registry.rs` - Package registry
 - `src/traits.rs` - AsyncRepository trait

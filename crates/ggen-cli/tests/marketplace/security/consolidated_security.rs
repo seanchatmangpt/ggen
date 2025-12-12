@@ -15,7 +15,7 @@ use ggen_marketplace::prelude::*;
 
 #[cfg(feature = "marketplace-v2")]
 mod ed25519_security_tests {
-    use ggen_marketplace_v2::security::SignatureManager;
+    use ggen_marketplace::security::SignatureManager;
 
     #[test]
     fn test_keypair_generation() {

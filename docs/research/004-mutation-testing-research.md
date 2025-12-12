@@ -77,7 +77,7 @@ exclude_globs = [
   "benches/**/*.rs",           # Benchmarks exempt from mutation
   "examples/**/*.rs",          # Examples exempt
   "playground/**/*.rs",        # Experimental code
-  "crates/ggen-marketplace-v2/**/*.rs",  # Deferred to v4.0.0
+  "crates/ggen-marketplace/**/*.rs",  # Deferred to v4.0.0
 ]
 
 # Exclude Debug/Display/Serialize implementations
@@ -409,7 +409,7 @@ exclude_globs = [
   "target/**/*.rs",
 
   # Experimental/deferred features
-  "crates/ggen-marketplace-v2/**/*.rs",  # Deferred to v4.0.0
+  "crates/ggen-marketplace/**/*.rs",  # Deferred to v4.0.0
   "playground/**/*.rs",
 ]
 

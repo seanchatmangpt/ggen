@@ -113,7 +113,7 @@ High-impact issues that affect code quality and maintainability.
   - Document which expect() calls are acceptable and why
   - Pre-push hook Gate 2.5 validates all violations
   - `cargo make test` passes
-- **Crates**: ggen-core, ggen-cli, ggen-marketplace-v2, ggen-ai
+- **Crates**: ggen-core, ggen-cli, ggen-marketplace, ggen-ai
 - **Owner**: Each crate owner
 - **Verification**: `git grep -n "\.expect(" | wc -l` shows remediated count
 

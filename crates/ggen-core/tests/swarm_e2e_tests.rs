@@ -341,9 +341,9 @@ async fn test_stress_workflow() {
 #[tokio::test]
 async fn test_custom_composition_workflow() {
     use ggen_core::config::ontology_config::ConflictResolution;
-    use std::collections::HashMap;
+    use std::collections::BTreeMap;
 
-    let mut custom_rules = HashMap::new();
+    let mut custom_rules = BTreeMap::new();
     custom_rules.insert("custom-pack-1".to_string(), ConflictResolution::Merge);
 
     let config = OntologyConfig::new()

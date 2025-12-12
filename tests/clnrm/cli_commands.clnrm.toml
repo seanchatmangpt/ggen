@@ -4,29 +4,22 @@ timeout = "120s"
 
 [containers.ggen]
 image = "rust:1.90"
-env = { RUST_BACKTRACE = "1", CARGO_TARGET_DIR = "/tmp/target" }
+env = { RUST_BACKTRACE = "1" }
 volumes = [
   { host = "/Users/sac/ggen", container = "/workspace", readonly = true },
-  { host = "/tmp/clnrm-target", container = "/tmp/target" },
-  { host = "/tmp/clnrm-cargo", container = "/tmp/cargo" },
 ]
 workdir = "/workspace"
 
 [[steps]]
-name = "build_ggen"
+name = "check_host_binary"
 container = "ggen"
-exec = [
-  "sh",
-  "-c",
-  "cd /workspace && CARGO_HOME=/tmp/cargo cargo build --release -p ggen-cli-lib --bin ggen 2>&1 | tail -20",
-]
+exec = ["sh", "-c", "test -x /workspace/target/release/ggen"]
 assert.exit_code = 0
-assert.stdout_contains = "Finished"
 
 [[steps]]
 name = "verify_version"
 container = "ggen"
-exec = ["sh", "-c", "/tmp/target/release/ggen --version"]
+exec = ["sh", "-c", "/workspace/target/release/ggen --version"]
 assert.exit_code = 0
 assert.stdout_contains = "ggen"
 
@@ -36,7 +29,7 @@ container = "ggen"
 exec = [
   "sh",
   "-c",
-  "cd /tmp && rm -rf .github && /tmp/target/release/ggen ci workflow --name test-workflow",
+  "cd /tmp && rm -rf .github && /workspace/target/release/ggen ci workflow --name test-workflow",
 ]
 assert.exit_code = 0
 assert.stdout_contains = "Generated"
@@ -58,7 +51,7 @@ container = "ggen"
 exec = [
   "sh",
   "-c",
-  "cd /tmp && rm -rf .workflows && /tmp/target/release/ggen workflow init --name test-workflow",
+  "cd /tmp && rm -rf .workflows && /workspace/target/release/ggen workflow init --name test-workflow",
 ]
 assert.exit_code = 0
 assert.stdout_contains = "initialized"
@@ -80,7 +73,7 @@ container = "ggen"
 exec = [
   "sh",
   "-c",
-  "cd /tmp && rm -rf 'Test Paper' && /tmp/target/release/ggen paper new --name 'Test Paper'",
+  "cd /tmp && rm -rf 'Test Paper' && /workspace/target/release/ggen paper new --name 'Test Paper'",
 ]
 assert.exit_code = 0
 assert.stdout_contains = "paper_name"

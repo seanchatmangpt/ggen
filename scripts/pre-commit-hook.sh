@@ -67,7 +67,15 @@ if ! run_check "Unit tests (cargo make test-unit)" "cargo make test-unit" "160s"
     FAILED=1
 fi
 
-# 5. Security audit
+# 5. CLI Command Verification (Andon Signal Validation Framework - Layer 3: Runtime)
+# Verifies all CLI commands work end-to-end (prevents "fake greens")
+if ! run_check "CLI verification (cargo make verify-cli)" "cargo make verify-cli" "30s"; then
+    echo -e "${YELLOW}  CLI verification failed - this may indicate 'fake greens'${NC}"
+    echo -e "${YELLOW}  Run 'cargo make verify-cli' manually to see details${NC}"
+    FAILED=1
+fi
+
+# 6. Security audit
 if ! run_check "Security audit (cargo audit)" "cargo audit" "10s"; then
     echo -e "${YELLOW}  Security vulnerabilities found. Update dependencies.${NC}"
     FAILED=1

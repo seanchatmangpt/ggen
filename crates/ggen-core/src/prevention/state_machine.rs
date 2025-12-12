@@ -10,6 +10,8 @@
 
 use std::marker::PhantomData;
 use std::path::Path;
+#[allow(unused_imports)]
+use thiserror::Error;
 
 // ============================================================================
 // Type-Level States

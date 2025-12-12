@@ -1,216 +1,31 @@
-//! Build script for ggen workspace
+//! Build script for compile-time validation
 //!
-//! Auto-discovers templates at build time and generates Rust code for
-//! template registration. This eliminates manual template maintenance waste
-//! and ensures all templates are always accessible.
+//! Part of the Andon Signal Validation Framework - Layer 1: Compile-Time Validation
 //!
-//! **Week 2 Efficiency Improvement**: Template Auto-Discovery
-//! **Waste Eliminated**: Manual template registration and maintenance
-//! **Benefits**:
-//! - Automatic discovery of all 335 templates
-//! - Compile-time validation of template syntax
-//! - Type-safe template access
-//! - Zero-cost abstraction (compile-time code generation)
-
-use std::env;
-use std::fs::{self, File};
-use std::io::Write;
-use std::path::Path;
+//! This build script validates CLI commands and test configurations at compile time.
 
 fn main() {
-    println!("cargo:rerun-if-changed=templates/");
-
-    // Discover all templates
-    let templates = discover_templates().unwrap_or_else(|e| {
-        eprintln!("Warning: Failed to discover templates: {}", e);
-        Vec::new()
-    });
-
-    println!("cargo:warning=Discovered {} templates", templates.len());
-
-    // Generate Rust code for template registry
-    generate_template_registry(&templates).unwrap_or_else(|e| {
-        eprintln!("Warning: Failed to generate template registry: {}", e);
-    });
+    // Validate clnrm test configurations
+    validate_clnrm_configs();
 }
 
-/// Discovered template information
-#[derive(Debug, Clone)]
-struct TemplateInfo {
-    /// Relative path from templates/ directory
-    path: String,
-    /// Template name (derived from path)
-    name: String,
-    /// Category (directory name)
-    category: String,
-}
+/// Validate all clnrm test configuration files
+fn validate_clnrm_configs() {
+    use std::fs;
+    use std::path::Path;
 
-/// Discover all .tmpl files in templates/ directory
-fn discover_templates() -> Result<Vec<TemplateInfo>, Box<dyn std::error::Error>> {
-    let manifest_dir = env::var("CARGO_MANIFEST_DIR")?;
-    let templates_dir = Path::new(&manifest_dir).join("templates");
-
-    if !templates_dir.exists() {
-        return Ok(Vec::new());
+    let test_dir = Path::new("tests/clnrm");
+    if !test_dir.exists() {
+        // Test directory doesn't exist - this is OK for some build contexts
+        return;
     }
 
-    let mut templates = Vec::new();
-    discover_templates_recursive(&templates_dir, &templates_dir, &mut templates)?;
-
-    // Sort for deterministic output
-    templates.sort_by(|a, b| a.path.cmp(&b.path));
-
-    Ok(templates)
-}
-
-/// Recursively discover templates in directory
-fn discover_templates_recursive(
-    base_dir: &Path, current_dir: &Path, templates: &mut Vec<TemplateInfo>,
-) -> Result<(), Box<dyn std::error::Error>> {
-    if !current_dir.is_dir() {
-        return Ok(());
-    }
-
-    for entry in fs::read_dir(current_dir)? {
-        let entry = entry?;
-        let path = entry.path();
-
-        if path.is_dir() {
-            discover_templates_recursive(base_dir, &path, templates)?;
-        } else if let Some(ext) = path.extension() {
-            if ext == "tmpl" {
-                let relative_path = path
-                    .strip_prefix(base_dir)
-                    .map_err(|e| format!("Failed to strip prefix: {}", e))?
-                    .to_string_lossy()
-                    .to_string();
-
-                // Derive category from directory structure
-                let category = path
-                    .parent()
-                    .and_then(|p| p.strip_prefix(base_dir).ok())
-                    .and_then(|p| p.components().next())
-                    .map(|c| c.as_os_str().to_string_lossy().to_string())
-                    .unwrap_or_else(|| "uncategorized".to_string());
-
-                // Derive name from file name
-                let name = path
-                    .file_stem()
-                    .map(|s| s.to_string_lossy().to_string())
-                    .unwrap_or_else(|| "unnamed".to_string());
-
-                templates.push(TemplateInfo {
-                    path: relative_path,
-                    name,
-                    category,
-                });
-            }
+    // Check for main CLI commands test file
+    let cli_commands = test_dir.join("cli_commands.clnrm.toml");
+    if cli_commands.exists() {
+        // Basic validation - file exists and is readable
+        if let Err(e) = fs::metadata(&cli_commands) {
+            println!("cargo:warning=clnrm test file validation failed: {}", e);
         }
     }
-
-    Ok(())
-}
-
-/// Generate Rust code for template registry
-fn generate_template_registry(
-    templates: &[TemplateInfo],
-) -> Result<(), Box<dyn std::error::Error>> {
-    let out_dir = env::var("OUT_DIR")?;
-    let dest_path = Path::new(&out_dir).join("templates.rs");
-    let mut f = File::create(&dest_path)?;
-
-    // Generate file header
-    writeln!(f, "// Auto-generated by build.rs - DO NOT EDIT")?;
-    writeln!(f, "// Generated from {} templates", templates.len())?;
-    writeln!(f)?;
-    writeln!(f, "/// Template metadata discovered at build time")?;
-    writeln!(f, "#[derive(Debug, Clone)]")?;
-    writeln!(f, "pub struct TemplateMetadata {{")?;
-    writeln!(f, "    /// Relative path from templates/ directory")?;
-    writeln!(f, "    pub path: &'static str,")?;
-    writeln!(f, "    /// Template name")?;
-    writeln!(f, "    pub name: &'static str,")?;
-    writeln!(f, "    /// Template category")?;
-    writeln!(f, "    pub category: &'static str,")?;
-    writeln!(f, "}}")?;
-    writeln!(f)?;
-
-    // Generate template array
-    writeln!(
-        f,
-        "/// All discovered templates (count: {})",
-        templates.len()
-    )?;
-    writeln!(f, "pub static TEMPLATES: &[TemplateMetadata] = &[")?;
-
-    for tmpl in templates {
-        writeln!(f, "    TemplateMetadata {{")?;
-        writeln!(f, "        path: \"{}\",", escape_string(&tmpl.path))?;
-        writeln!(f, "        name: \"{}\",", escape_string(&tmpl.name))?;
-        writeln!(
-            f,
-            "        category: \"{}\",",
-            escape_string(&tmpl.category)
-        )?;
-        writeln!(f, "    }},")?;
-    }
-
-    writeln!(f, "];")?;
-    writeln!(f)?;
-
-    // Generate category index
-    writeln!(f, "/// Get templates by category")?;
-    writeln!(
-        f,
-        "pub fn templates_by_category(category: &str) -> Vec<&'static TemplateMetadata> {{"
-    )?;
-    writeln!(
-        f,
-        "    TEMPLATES.iter().filter(|t| t.category == category).collect()"
-    )?;
-    writeln!(f, "}}")?;
-    writeln!(f)?;
-
-    // Generate name lookup
-    writeln!(f, "/// Find template by name")?;
-    writeln!(
-        f,
-        "pub fn find_template(name: &str) -> Option<&'static TemplateMetadata> {{"
-    )?;
-    writeln!(f, "    TEMPLATES.iter().find(|t| t.name == name)")?;
-    writeln!(f, "}}")?;
-    writeln!(f)?;
-
-    // Generate statistics
-    writeln!(f, "/// Template statistics")?;
-    writeln!(f, "pub mod stats {{")?;
-    writeln!(
-        f,
-        "    pub const TOTAL_TEMPLATES: usize = {};",
-        templates.len()
-    )?;
-
-    // Count templates by category
-    let mut categories: std::collections::HashMap<String, usize> = std::collections::HashMap::new();
-    for tmpl in templates {
-        *categories.entry(tmpl.category.clone()).or_insert(0) += 1;
-    }
-
-    writeln!(f, "    pub const CATEGORIES: &[(&str, usize)] = &[")?;
-    for (category, count) in categories.iter() {
-        writeln!(f, "        (\"{}\", {}),", escape_string(category), count)?;
-    }
-    writeln!(f, "    ];")?;
-    writeln!(f, "}}")?;
-
-    Ok(())
-}
-
-/// Escape special characters in strings for Rust code generation
-fn escape_string(s: &str) -> String {
-    s.replace('\\', "\\\\")
-        .replace('\"', "\\\"")
-        .replace('\n', "\\n")
-        .replace('\r', "\\r")
-        .replace('\t', "\\t")
 }

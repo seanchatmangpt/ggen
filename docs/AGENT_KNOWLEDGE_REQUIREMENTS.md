@@ -14,7 +14,7 @@ This document outlines the complete knowledge set an advanced agent needs to aut
 - `ggen-core` - RDF graph management, template engine, project generation, lifecycle orchestration
 - `ggen-cli` - Command-line interface using clap-noun-verb auto-discovery
 - `ggen-domain` - Pure business logic layer (zero CLI dependencies)
-- `ggen-marketplace-v2` - RDF-backed package marketplace with SPARQL search
+- `ggen-marketplace` - RDF-backed package marketplace with SPARQL search
 - `ggen-utils` - Shared error handling, configuration, logging, alerts
 
 **Supporting Crates:**
@@ -32,7 +32,7 @@ ggen (binary)
   └─ ggen-cli (CLI layer)
        └─ ggen-domain (business logic)
             ├─ ggen-core (template/RDF engine)
-            ├─ ggen-marketplace-v2 (package system)
+            ├─ ggen-marketplace (package system)
             ├─ ggen-ai (AI operations)
             └─ ggen-utils (shared utilities)
 ```
@@ -324,7 +324,7 @@ coverage_threshold = 80
 
 **RDF-backed registry:**
 ```rust
-use ggen_marketplace_v2::{RdfRegistry, SearchEngine};
+use ggen_marketplace::{RdfRegistry, SearchEngine};
 
 let registry = RdfRegistry::new()?;
 let search = SearchEngine::new(registry);
@@ -335,7 +335,7 @@ let results = search.search("REST API backend")?;
 
 **Package installation:**
 ```rust
-use ggen_marketplace_v2::Installer;
+use ggen_marketplace::Installer;
 
 let installer = Installer::new(cache_dir);
 installer.install("rest-api-template", "1.0.0")?;

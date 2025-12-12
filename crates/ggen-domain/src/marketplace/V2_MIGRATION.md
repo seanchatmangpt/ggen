@@ -5,7 +5,7 @@
 
 ## Overview
 
-This document describes the completed marketplace v1 → v2 migration. **Marketplace v1 has been removed** and the CLI now uses `ggen-marketplace-v2` directly.
+This document describes the completed marketplace v1 → v2 migration. **Marketplace v1 has been removed** and the CLI now uses `ggen-marketplace` directly.
 
 ## Architecture
 
@@ -20,33 +20,32 @@ This document describes the completed marketplace v1 → v2 migration. **Marketp
                │
                ▼
 ┌──────────────────────────────┐
-│  ggen-marketplace-v2        │
+│  ggen-marketplace        │
 │  (direct usage, no adapter)  │
 └──────────────────────────────┘
 ```
 
-**Note:** The `v2_adapter.rs` file exists but is not used by the CLI. It's kept for reference only.
+**Note:** The `v2_adapter.rs` file has been removed (2025-12-11). CLI uses `ggen-marketplace` directly with no adapter layer.
 
 ## Migration Complete ✅
 
 ### ✅ Completed Tasks
 
 1. **CLI Direct Integration**
-   - CLI (`crates/ggen-cli/src/cmds/marketplace.rs`) uses `ggen-marketplace-v2` directly
+   - CLI (`crates/ggen-cli/src/cmds/marketplace.rs`) uses `ggen-marketplace` directly
    - No adapter layer needed - direct usage of v2 types and functions
    - All marketplace commands (search, install, publish, etc.) use v2
 
 2. **v1 Removal**
    - Marketplace v1 crate removed
    - All v1 references removed from active code
-   - Legacy adapter code (`v2_adapter.rs`) kept for reference only
+   - Legacy adapter code (`v2_adapter.rs`) removed (2025-12-11)
+   - All v1 test files removed
 
 3. **Current Implementation**
-   - File: `ggen-domain/src/marketplace/v2_adapter.rs`
-   - `SearchBackend` enum with feature-based selection
-   - `UnifiedSearchQuery` - common query interface
-   - `UnifiedSearchResult` - common result type
-   - `execute_unified_search()` - routing function
+   - CLI uses `ggen-marketplace` directly
+   - No adapter layer needed
+   - All 9 marketplace commands verified working with v2
 
 3. **Type Conversions**
    - V1 conversions: **COMPLETE** ✅
@@ -66,12 +65,12 @@ This document describes the completed marketplace v1 → v2 migration. **Marketp
 | Feature Combination      | Status | Notes                          |
 |-------------------------|--------|--------------------------------|
 | `marketplace-v1`         | ✅ PASS | Default, all tests pass        |
-| `marketplace-v2`         | ⚠️ BLOCKED | ggen-marketplace-v2 won't compile |
+| `marketplace-v2`         | ⚠️ BLOCKED | ggen-marketplace won't compile |
 | `marketplace-parallel`   | ⚠️ BLOCKED | Needs v2 to compile           |
 
 ### 📋 V2 Compilation Issues
 
-The `ggen-marketplace-v2` crate currently has these issues:
+The `ggen-marketplace` crate currently has these issues:
 
 1. Missing module export: `rdf_mapper` (FIXED ✅)
 2. Future Send trait errors (13 errors remaining)
@@ -84,7 +83,7 @@ The `ggen-marketplace-v2` crate currently has these issues:
 
 ## Phase 2: Search Command (TODO)
 
-**Prerequisites:** Fix ggen-marketplace-v2 compilation errors
+**Prerequisites:** Fix ggen-marketplace compilation errors
 
 ### Tasks
 
@@ -149,7 +148,7 @@ ggen-domain/src/marketplace/
 ├── types.rs               # Poka-yoke validated types
 └── V2_MIGRATION.md        # This file
 
-ggen-marketplace-v2/       # ⚠️ Needs fixes
+ggen-marketplace/       # ⚠️ Needs fixes
 ├── src/
 │   ├── search.rs          # V2 search engine
 │   ├── models.rs          # V2 data models
@@ -193,7 +192,7 @@ ggen-marketplace-v2/       # ⚠️ Needs fixes
 - V2 implementation blocked by compilation errors
 
 ### Step 2: Fix V2 Compilation (Next Task)
-1. Fix async trait bounds in `ggen-marketplace-v2`
+1. Fix async trait bounds in `ggen-marketplace`
 2. Address Send/Sync requirements
 3. Update deprecated oxigraph API usage
 
@@ -249,7 +248,7 @@ cargo test --package ggen-domain --features marketplace-parallel
 
 ## Known Issues
 
-1. **ggen-marketplace-v2 compilation errors**
+1. **ggen-marketplace compilation errors**
    - 13 async/Send errors
    - Impact: Blocks v2 feature enablement
    - Workaround: V2 returns helpful error message
@@ -260,7 +259,7 @@ cargo test --package ggen-domain --features marketplace-parallel
 
 ## Next Steps
 
-1. **Immediate**: Fix ggen-marketplace-v2 compilation
+1. **Immediate**: Fix ggen-marketplace compilation
 2. **Short-term**: Uncomment v2 conversions, add tests
 3. **Medium-term**: Migrate search command to use adapter
 4. **Long-term**: Complete registry and install migrations

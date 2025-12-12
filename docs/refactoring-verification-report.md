@@ -140,7 +140,7 @@ cargo test --all
 
 ### 3.2 Test Compilation Errors
 
-**File:** `crates/ggen-marketplace-v2/tests/integration/marketplace_lifecycle_test.rs`
+**File:** `crates/ggen-marketplace/tests/integration/marketplace_lifecycle_test.rs`
 
 **Error Categories:**
 1. **Field not found (E0560):** `license` field missing from `Manifest` struct
@@ -183,7 +183,7 @@ cargo doc --all --no-deps
 
 ### 4.2 Documentation Warnings
 
-**ggen-marketplace-v2:**
+**ggen-marketplace:**
 - ⚠️ Warning: 2 unclosed HTML tags `<Store>`
 - Impact: Low (cosmetic)
 
@@ -632,7 +632,7 @@ The TESTER agent will resume verification once the CODER agent signals completio
 <details>
 <summary>Click to expand test error details</summary>
 
-**File:** `crates/ggen-marketplace-v2/tests/integration/marketplace_lifecycle_test.rs`
+**File:** `crates/ggen-marketplace/tests/integration/marketplace_lifecycle_test.rs`
 
 ```
 Error E0560 (Line 273): struct `Manifest` has no field named `license`
@@ -657,7 +657,7 @@ Error E0609 (Line 362): `Package` has no field `manifest`
 <details>
 <summary>Click to expand documentation issues</summary>
 
-**ggen-marketplace-v2:**
+**ggen-marketplace:**
 - Warning: Unclosed HTML tag `<Store>` (2 occurrences)
 
 **ggen-core:**

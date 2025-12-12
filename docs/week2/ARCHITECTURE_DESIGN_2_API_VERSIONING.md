@@ -27,8 +27,8 @@
 
 **Compiler Errors from API Changes:**
 ```rust
-error[E0609]: no field `manifest` on type `ggen_marketplace_v2::Package`
-   --> crates/ggen-marketplace-v2/tests/integration/marketplace_lifecycle_test.rs:356:24
+error[E0609]: no field `manifest` on type `ggen_marketplace::Package`
+   --> crates/ggen-marketplace/tests/integration/marketplace_lifecycle_test.rs:356:24
     |
 356 |     assert_eq!(top_pkg.manifest.dependencies.len(), 1);
     |                        ^^^^^^^^ unknown field
@@ -350,8 +350,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Files to modify:**
 ```
-crates/ggen-marketplace-v2/src/lib.rs
-crates/ggen-marketplace-v2/src/package.rs
+crates/ggen-marketplace/src/lib.rs
+crates/ggen-marketplace/src/package.rs
 crates/ggen-domain/src/marketplace/*.rs
 ```
 
@@ -390,8 +390,8 @@ gh workflow run quality-gates.yml  # Should pass with warnings
 
 **Files to modify:**
 ```
-crates/ggen-marketplace-v2/tests/integration/*.rs
-crates/ggen-marketplace-v2/tests/unit/*.rs
+crates/ggen-marketplace/tests/integration/*.rs
+crates/ggen-marketplace/tests/unit/*.rs
 ```
 
 **Actions:**

@@ -1,7 +1,7 @@
+use crate::ontology::SigmaSnapshot;
 use serde::{Deserialize, Serialize};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, RwLock};
-use crate::ontology::SigmaSnapshot;
 
 /// Errors that can occur during snapshot promotion
 #[derive(Debug, thiserror::Error)]

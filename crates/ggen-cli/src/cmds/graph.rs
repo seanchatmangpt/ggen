@@ -13,6 +13,8 @@ use clap_noun_verb_macros::verb;
 use serde::Serialize;
 use std::path::PathBuf;
 
+use crate::cmds::helpers::execute_async_op;
+
 // ============================================================================
 // Output Types (all must derive Serialize for JSON output)
 // ============================================================================
@@ -64,14 +66,10 @@ fn load(file: String, format: Option<String>) -> Result<LoadOutput> {
         merge: false,
     };
 
-    let result = crate::runtime::block_on(async move {
-        Ok(execute_load(input)
+    let result = execute_async_op("load", async move {
+        execute_load(input)
             .await
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Load failed: {}", e)))?)
-    })
-    .map_err(|e: ggen_utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
-    .map_err(|e: ggen_utils::Error| {
-        clap_noun_verb::NounVerbError::execution_error(e.to_string())
+            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Load failed: {}", e)))
     })?;
 
     Ok(LoadOutput {
@@ -95,14 +93,10 @@ fn query(
         format: format.unwrap_or_else(|| "json".to_string()),
     };
 
-    let result = crate::runtime::block_on(async move {
-        Ok(execute_query(input)
+    let result = execute_async_op("query", async move {
+        execute_query(input)
             .await
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Query failed: {}", e)))?)
-    })
-    .map_err(|e: ggen_utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
-    .map_err(|e: ggen_utils::Error| {
-        clap_noun_verb::NounVerbError::execution_error(e.to_string())
+            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Query failed: {}", e)))
     })?;
 
     Ok(QueryOutput {
@@ -124,14 +118,10 @@ fn export(input_file: String, output: String, format: String) -> Result<ExportOu
         pretty: false,
     };
 
-    let result = crate::runtime::block_on(async move {
-        Ok(execute_export(input_data)
+    let result = execute_async_op("export", async move {
+        execute_export(input_data)
             .await
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Export failed: {}", e)))?)
-    })
-    .map_err(|e: ggen_utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
-    .map_err(|e: ggen_utils::Error| {
-        clap_noun_verb::NounVerbError::execution_error(e.to_string())
+            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Export failed: {}", e)))
     })?;
 
     Ok(ExportOutput {
@@ -156,14 +146,10 @@ fn visualize(input_file: String, format: Option<String>) -> Result<VisualizeOutp
         subject: None,
     };
 
-    let result = crate::runtime::block_on(async move {
-        Ok(execute_visualize(input_data)
+    let result = execute_async_op("visualize", async move {
+        execute_visualize(input_data)
             .await
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Visualize failed: {}", e)))?)
-    })
-    .map_err(|e: ggen_utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
-    .map_err(|e: ggen_utils::Error| {
-        clap_noun_verb::NounVerbError::execution_error(e.to_string())
+            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Visualize failed: {}", e)))
     })?;
 
     Ok(VisualizeOutput {

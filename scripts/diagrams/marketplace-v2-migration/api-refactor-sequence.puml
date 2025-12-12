@@ -16,7 +16,7 @@ participant "Test Suite" as TESTS
 
 == Phase 1: Identify Compilation Errors ==
 
-DEV -> BUILD: cargo build -p ggen-marketplace-v2
+DEV -> BUILD: cargo build -p ggen-marketplace
 BUILD -> BUILD: Compile fails with 128 errors
 BUILD --> DEV: Error output
 

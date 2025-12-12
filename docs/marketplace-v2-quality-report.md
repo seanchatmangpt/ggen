@@ -1,4 +1,4 @@
-# Code Quality Analysis Report: ggen-marketplace-v2
+# Code Quality Analysis Report: ggen-marketplace
 
 **Analysis Date**: 2025-11-18
 **Crate Version**: 3.0.0
@@ -134,8 +134,8 @@ impl RdfRegistry {
    **Impact**: All SPARQL queries use deprecated API.
 
 #### Files Affected:
-- `/Users/sac/ggen/crates/ggen-marketplace-v2/src/registry_rdf.rs`: Lines 71, 99, 111, 123, 141, 154, 317
-- `/Users/sac/ggen/crates/ggen-marketplace-v2/src/ontology.rs`: Lines 229-283 (SPARQL queries)
+- `/Users/sac/ggen/crates/ggen-marketplace/src/registry_rdf.rs`: Lines 71, 99, 111, 123, 141, 154, 317
+- `/Users/sac/ggen/crates/ggen-marketplace/src/ontology.rs`: Lines 229-283 (SPARQL queries)
 
 **Production Blocker**: ⛔ **This crate cannot be built or tested until these are fixed.**
 
@@ -733,7 +733,7 @@ cargo test --test integration_tests
 
 ### 12.1 Final Assessment
 
-**ggen-marketplace-v2** demonstrates **strong architectural vision** with cutting-edge Rust patterns (RDF, SPARQL, GATs, type-state), but is **not production-ready** due to:
+**ggen-marketplace** demonstrates **strong architectural vision** with cutting-edge Rust patterns (RDF, SPARQL, GATs, type-state), but is **not production-ready** due to:
 
 1. **Critical compilation failures** preventing any usage
 2. **Incomplete core functionality** (RDF reconstruction, v3 registry)

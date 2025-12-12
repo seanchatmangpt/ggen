@@ -284,7 +284,7 @@ ggen/
 │   ├── ggen-domain/         # Business logic (pure, no CLI deps)
 │   ├── ggen-core/           # RDF engine, template system
 │   ├── ggen-ai/             # AI integration (genai wrapper)
-│   ├── ggen-marketplace-v2/ # Package management
+│   ├── ggen-marketplace/ # Package management
 │   ├── ggen-utils/          # Shared utilities, error handling
 │   ├── ggen-config/         # Configuration management
 │   ├── ggen-config-clap/    # CLI config integration

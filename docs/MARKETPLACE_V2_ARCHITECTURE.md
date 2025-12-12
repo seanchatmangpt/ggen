@@ -1,4 +1,4 @@
-# ggen-marketplace-v2 Architecture Document
+# ggen-marketplace Architecture Document
 
 **Version**: 3.0.0
 **Author**: System Architect Agent
@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-ggen-marketplace-v2 is a hyper-advanced marketplace system built on RDF (Resource Description Framework) semantic data store using oxigraph. The system provides:
+ggen-marketplace is a hyper-advanced marketplace system built on RDF (Resource Description Framework) semantic data store using oxigraph. The system provides:
 
 - **Semantic Package Management**: Packages stored as RDF triples enabling SPARQL queries
 - **Type-Safe Operations**: Poka-yoke patterns prevent invalid states at compile time
@@ -527,7 +527,7 @@ The `migration.rs` module provides:
 ## Appendix: File Organization
 
 ```
-ggen/crates/ggen-marketplace-v2/
+ggen/crates/ggen-marketplace/
 ├── Cargo.toml                    # Dependencies (v3.0.0)
 ├── src/
 │   ├── lib.rs                    # Module exports, prelude

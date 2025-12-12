@@ -68,7 +68,7 @@
 //! - Score overflow protection
 //! - Vulnerability impact assessment
 
-// NOTE: Marketplace tests have been disabled pending migration to ggen-marketplace-v2 only.
+// NOTE: Marketplace tests have been disabled pending migration to ggen-marketplace only.
 // The v1 marketplace crate has been removed from the workspace.
 // These tests should be reimplemented to use v2 RDF-backed marketplace.
 

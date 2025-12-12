@@ -8,7 +8,7 @@ CLI interface library for ggen, providing command-line argument parsing and subc
 - Subcommand support for various ggen operations
 - Shell completion generation
 - Integration with the ggen core functionality
-- Marketplace v2 commands (install/search/publish/info/validate/versions/metrics/sparql/rdf_stats) powered by `ggen-marketplace-v2`
+- Marketplace v2 commands (install/search/publish/info/validate/versions/metrics/sparql/rdf_stats) powered by `ggen-marketplace`
 
 ## Usage
 

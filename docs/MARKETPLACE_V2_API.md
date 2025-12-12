@@ -1,8 +1,8 @@
-# ggen-marketplace-v2 API Reference
+# ggen-marketplace API Reference
 
 ## Overview
 
-This document provides comprehensive API documentation for the ggen-marketplace-v2 crate, including all public types, traits, and usage examples.
+This document provides comprehensive API documentation for the ggen-marketplace crate, including all public types, traits, and usage examples.
 
 ---
 
@@ -36,7 +36,7 @@ The primary trait for package storage and retrieval operations.
 
 ```rust
 use async_trait::async_trait;
-use ggen_marketplace_v2::prelude::*;
+use ggen_marketplace::prelude::*;
 
 #[async_trait]
 pub trait AsyncRepository: Send + Sync {
@@ -54,7 +54,7 @@ pub trait AsyncRepository: Send + Sync {
     ///
     /// # Example
     /// ```rust
-    /// use ggen_marketplace_v2::prelude::*;
+    /// use ggen_marketplace::prelude::*;
     ///
     /// async fn get_package_example(registry: &impl AsyncRepository) {
     ///     let id = PackageId::new("my-package").unwrap();
@@ -326,7 +326,7 @@ pub trait Observable: Send + Sync {
 In-memory package registry for testing and lightweight use cases.
 
 ```rust
-use ggen_marketplace_v2::Registry;
+use ggen_marketplace::Registry;
 
 // Create a new registry with capacity
 let registry = Registry::new(1000).await;
@@ -347,7 +347,7 @@ let pkg = registry.get_package(&PackageId::new("my-pkg")?).await?;
 RDF-backed semantic registry using oxigraph.
 
 ```rust
-use ggen_marketplace_v2::RdfRegistry;
+use ggen_marketplace::RdfRegistry;
 use std::sync::Arc;
 
 // Create RDF registry (initializes ontology automatically)
@@ -393,7 +393,7 @@ println!("Total queries: {}", stats.total_queries);
 Basic text-based search engine.
 
 ```rust
-use ggen_marketplace_v2::SearchEngine;
+use ggen_marketplace::SearchEngine;
 
 let engine = SearchEngine::new(registry);
 
@@ -415,7 +415,7 @@ let results = engine.search_with_filters(
 Semantic search using SPARQL queries.
 
 ```rust
-use ggen_marketplace_v2::SparqlSearchEngine;
+use ggen_marketplace::SparqlSearchEngine;
 use oxigraph::store::Store;
 use std::sync::Arc;
 
@@ -452,7 +452,7 @@ let all = engine.all_packages()?;
 Builder pattern for search filters.
 
 ```rust
-use ggen_marketplace_v2::search_sparql::SearchFilters;
+use ggen_marketplace::search_sparql::SearchFilters;
 
 let filters = SearchFilters::new()
     .with_quality(80)        // Minimum quality score
@@ -475,7 +475,7 @@ assert_eq!(filters.limit, 50);
 Package installer with dependency resolution.
 
 ```rust
-use ggen_marketplace_v2::Installer;
+use ggen_marketplace::Installer;
 
 // Create installer with repository
 let installer = Installer::new(registry);
@@ -537,7 +537,7 @@ pub struct InstallationPlan {
 Validated package identifier.
 
 ```rust
-use ggen_marketplace_v2::models::PackageId;
+use ggen_marketplace::models::PackageId;
 
 // Create validated ID
 let id = PackageId::new("my-package")?;
@@ -565,7 +565,7 @@ PackageId::new("has spaces")?;      // Error: invalid characters
 Semantic version with validation.
 
 ```rust
-use ggen_marketplace_v2::models::PackageVersion;
+use ggen_marketplace::models::PackageVersion;
 
 // Create validated version
 let version = PackageVersion::new("1.0.0")?;
@@ -587,7 +587,7 @@ assert!(v2 > v1);
 Quality score (1-100) with production readiness checks.
 
 ```rust
-use ggen_marketplace_v2::models::QualityScore;
+use ggen_marketplace::models::QualityScore;
 
 let score = QualityScore::new(95)?;
 
@@ -605,7 +605,7 @@ println!("{}", score);  // "95%"
 Complete package with metadata and versions.
 
 ```rust
-use ggen_marketplace_v2::models::{Package, PackageMetadata, ReleaseInfo};
+use ggen_marketplace::models::{Package, PackageMetadata, ReleaseInfo};
 
 let package = Package {
     metadata: PackageMetadata::new(
@@ -628,7 +628,7 @@ let package = Package {
 Installation plan with resolved dependencies.
 
 ```rust
-use ggen_marketplace_v2::models::InstallationManifest;
+use ggen_marketplace::models::InstallationManifest;
 
 let manifest = InstallationManifest {
     id: Uuid::new_v4(),
@@ -657,7 +657,7 @@ let manifest = InstallationManifest {
 ### Error Types
 
 ```rust
-use ggen_marketplace_v2::error::Error;
+use ggen_marketplace::error::Error;
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -716,7 +716,7 @@ let err = Error::search_error("SPARQL syntax error");
 ### Result Type
 
 ```rust
-use ggen_marketplace_v2::error::Result;
+use ggen_marketplace::error::Result;
 
 // Alias for std::result::Result<T, Error>
 async fn example() -> Result<Package> {
@@ -807,7 +807,7 @@ pub trait Builder<T>: Sized {
 Coordinate v1 to v2 data migration.
 
 ```rust
-use ggen_marketplace_v2::migration::MigrationCoordinator;
+use ggen_marketplace::migration::MigrationCoordinator;
 
 let coordinator = MigrationCoordinator::new(Arc::clone(&v2_registry));
 
@@ -830,7 +830,7 @@ if verification.is_valid() {
 Check data consistency between v1 and v2.
 
 ```rust
-use ggen_marketplace_v2::migration::ConsistencyChecker;
+use ggen_marketplace::migration::ConsistencyChecker;
 
 let checker = ConsistencyChecker::new(Arc::clone(&v2_registry));
 
@@ -852,7 +852,7 @@ println!("Consistency: {:.1}%", report.consistency_rate() * 100.0);
 Import common types with the prelude:
 
 ```rust
-use ggen_marketplace_v2::prelude::*;
+use ggen_marketplace::prelude::*;
 
 // Includes:
 // - Error, Result
@@ -874,7 +874,7 @@ use ggen_marketplace_v2::prelude::*;
 ### 1. Use the Prelude
 
 ```rust
-use ggen_marketplace_v2::prelude::*;
+use ggen_marketplace::prelude::*;
 ```
 
 ### 2. Prefer RdfRegistry for Production

@@ -10,6 +10,9 @@
 //! Layer 1 (Domain): pure business logic
 //! ```
 
+// Shared helpers for command modules
+pub mod helpers;
+
 // Command modules - clap-noun-verb v5.3.0 explicit verb registration
 pub mod ai;
 pub mod ci;

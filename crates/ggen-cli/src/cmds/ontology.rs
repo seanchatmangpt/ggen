@@ -13,6 +13,8 @@ use clap_noun_verb_macros::verb;
 use serde::Serialize;
 use std::path::PathBuf;
 
+use crate::cmds::helpers::execute_async_op;
+
 // ============================================================================
 // Output Types (all must derive Serialize for JSON output)
 // ============================================================================
@@ -80,39 +82,35 @@ fn extract(
         )));
     }
 
-    let result = crate::runtime::block_on(async move {
+    let result = execute_async_op("extract", async move {
         // Load the ontology file
         let graph = Graph::new().map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to create graph: {}", e))
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to create graph: {}", e))
         })?;
 
         let file_content = std::fs::read_to_string(&ontology_path)
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to read file: {}", e)))?;
+            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to read file: {}", e)))?;
 
         graph.insert_turtle(&file_content).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to load ontology: {}", e))
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to load ontology: {}", e))
         })?;
 
         // Extract ontology schema
         let schema_namespace = namespace.unwrap_or_else(|| "http://example.org#".to_string());
         let schema = ggen_core::OntologyExtractor::extract(&graph, &schema_namespace)
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Extraction failed: {}", e)))?;
+            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Extraction failed: {}", e)))?;
 
         // Save schema to output file
         let output_path = output.unwrap_or_else(|| "schema.json".to_string());
         let schema_json = serde_json::to_string_pretty(&schema).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("JSON serialization failed: {}", e))
+            clap_noun_verb::NounVerbError::execution_error(format!("JSON serialization failed: {}", e))
         })?;
 
         std::fs::write(&output_path, schema_json).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to write output: {}", e))
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to write output: {}", e))
         })?;
 
         Ok((schema, output_path))
-    })
-    .map_err(|e: ggen_utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
-    .map_err(|e: ggen_utils::Error| {
-        clap_noun_verb::NounVerbError::execution_error(e.to_string())
     })?;
 
     let (schema, output_path) = result;
@@ -152,18 +150,18 @@ fn generate(
     }
 
     let lang_clone = language.clone();
-    let result = crate::runtime::block_on(async move {
+    let result = execute_async_op("generate", async move {
         // Read schema
         let schema_content = std::fs::read_to_string(&schema_path)
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to read schema: {}", e)))?;
+            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to read schema: {}", e)))?;
 
         let schema: ggen_core::ontology::OntologySchema = serde_json::from_str(&schema_content)
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Invalid schema JSON: {}", e)))?;
+            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Invalid schema JSON: {}", e)))?;
 
         // Create output directory
         let output_dir = output.unwrap_or_else(|| "generated".to_string());
         std::fs::create_dir_all(&output_dir).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to create output directory: {}", e))
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to create output directory: {}", e))
         })?;
 
         let mut files_generated = 0;
@@ -173,12 +171,12 @@ fn generate(
         if lang_clone == "typescript" {
             // Generate interfaces
             let interfaces = TypeScriptGenerator::generate_interfaces(&schema).map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Interface generation failed: {}", e))
+                clap_noun_verb::NounVerbError::execution_error(format!("Interface generation failed: {}", e))
             })?;
 
             let interfaces_path = format!("{}/types.ts", output_dir);
             std::fs::write(&interfaces_path, interfaces).map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Failed to write types: {}", e))
+                clap_noun_verb::NounVerbError::execution_error(format!("Failed to write types: {}", e))
             })?;
             files_generated += 1;
             if primary_file.is_empty() {
@@ -189,12 +187,12 @@ fn generate(
             if zod {
                 let zod_schemas =
                     TypeScriptGenerator::generate_zod_schemas(&schema).map_err(|e| {
-                        ggen_utils::error::Error::new(&format!("Zod generation failed: {}", e))
+                        clap_noun_verb::NounVerbError::execution_error(format!("Zod generation failed: {}", e))
                     })?;
 
                 let zod_path = format!("{}/schemas.ts", output_dir);
                 std::fs::write(&zod_path, zod_schemas).map_err(|e| {
-                    ggen_utils::error::Error::new(&format!("Failed to write schemas: {}", e))
+                    clap_noun_verb::NounVerbError::execution_error(format!("Failed to write schemas: {}", e))
                 })?;
                 files_generated += 1;
             }
@@ -202,22 +200,18 @@ fn generate(
             // Generate utility types if requested
             if utilities {
                 let utils = TypeScriptGenerator::generate_utility_types(&schema).map_err(|e| {
-                    ggen_utils::error::Error::new(&format!("Utilities generation failed: {}", e))
+                    clap_noun_verb::NounVerbError::execution_error(format!("Utilities generation failed: {}", e))
                 })?;
 
                 let utils_path = format!("{}/utilities.ts", output_dir);
                 std::fs::write(&utils_path, utils).map_err(|e| {
-                    ggen_utils::error::Error::new(&format!("Failed to write utilities: {}", e))
+                    clap_noun_verb::NounVerbError::execution_error(format!("Failed to write utilities: {}", e))
                 })?;
                 files_generated += 1;
             }
         }
 
         Ok((files_generated, primary_file, output_dir))
-    })
-    .map_err(|e: ggen_utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
-    .map_err(|e: ggen_utils::Error| {
-        clap_noun_verb::NounVerbError::execution_error(e.to_string())
     })?;
 
     let (files_generated, primary_file, output_dir) = result;
@@ -250,13 +244,13 @@ fn validate(schema_file: String, strict: bool) -> VerbResult<ValidateOutput> {
         )));
     }
 
-    let result = crate::runtime::block_on(async move {
+    let result = execute_async_op("validate", async move {
         // Read schema
         let schema_content = std::fs::read_to_string(&schema_path)
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to read schema: {}", e)))?;
+            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to read schema: {}", e)))?;
 
         let schema: ggen_core::ontology::OntologySchema = serde_json::from_str(&schema_content)
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Invalid schema JSON: {}", e)))?;
+            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Invalid schema JSON: {}", e)))?;
 
         let mut warnings = Vec::new();
         let mut errors = Vec::new();
@@ -297,10 +291,6 @@ fn validate(schema_file: String, strict: bool) -> VerbResult<ValidateOutput> {
             warnings,
             errors,
         ))
-    })
-    .map_err(|e: ggen_utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
-    .map_err(|e: ggen_utils::Error| {
-        clap_noun_verb::NounVerbError::execution_error(e.to_string())
     })?;
 
     let (is_valid, classes_count, properties_count, warnings, errors) = result;
@@ -326,22 +316,22 @@ fn validate(schema_file: String, strict: bool) -> VerbResult<ValidateOutput> {
 #[verb("init", "ontology")]
 fn init(project_name: String, template: Option<String>) -> VerbResult<InitOutput> {
     let proj_name = project_name.clone();
-    let result = crate::runtime::block_on(async move {
+    let result = execute_async_op("init", async move {
         // Create project directory
         let proj_dir = PathBuf::from(&proj_name);
         std::fs::create_dir_all(&proj_dir).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to create project: {}", e))
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to create project: {}", e))
         })?;
 
         // Create subdirectories
         std::fs::create_dir_all(proj_dir.join("ontologies")).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to create ontologies dir: {}", e))
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to create ontologies dir: {}", e))
         })?;
         std::fs::create_dir_all(proj_dir.join("src")).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to create src dir: {}", e))
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to create src dir: {}", e))
         })?;
         std::fs::create_dir_all(proj_dir.join("generated")).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to create generated dir: {}", e))
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to create generated dir: {}", e))
         })?;
 
         let mut generated_files = Vec::new();
@@ -370,7 +360,7 @@ fn init(project_name: String, template: Option<String>) -> VerbResult<InitOutput
         );
         let pkg_path = proj_dir.join("package.json");
         std::fs::write(&pkg_path, package_json).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to write package.json: {}", e))
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to write package.json: {}", e))
         })?;
         generated_files.push("package.json".to_string());
 
@@ -391,7 +381,7 @@ fn init(project_name: String, template: Option<String>) -> VerbResult<InitOutput
 "#;
         let config_path = proj_dir.join("ggen.config.json");
         std::fs::write(&config_path, config).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to write config: {}", e))
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to write config: {}", e))
         })?;
         generated_files.push("ggen.config.json".to_string());
 
@@ -406,7 +396,7 @@ fn init(project_name: String, template: Option<String>) -> VerbResult<InitOutput
         let example_ttl = get_example_ontology(template.as_deref());
         let ontology_path = proj_dir.join("ontologies").join(ontology_file);
         std::fs::write(&ontology_path, example_ttl).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to write example ontology: {}", e))
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to write example ontology: {}", e))
         })?;
         generated_files.push(format!("ontologies/{}", ontology_file));
 
@@ -481,7 +471,7 @@ This project includes example ontologies:
         );
         let readme_path = proj_dir.join("README.md");
         std::fs::write(&readme_path, readme).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to write README: {}", e))
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to write README: {}", e))
         })?;
         generated_files.push("README.md".to_string());
 
@@ -493,10 +483,6 @@ This project includes example ontologies:
             config_file_path.to_string_lossy().to_string(),
             generated_files,
         ))
-    })
-    .map_err(|e: ggen_utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
-    .map_err(|e: ggen_utils::Error| {
-        clap_noun_verb::NounVerbError::execution_error(e.to_string())
     })?;
 
     let (ontology_file, config_file, generated_files) = result;

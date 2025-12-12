@@ -71,11 +71,7 @@ pub struct ExecuteChatResult {
 
 // #region agent log helper
 fn log_debug(
-    session_id: &str,
-    run_id: &str,
-    hypothesis_id: &str,
-    location: &str,
-    message: &str,
+    session_id: &str, run_id: &str, hypothesis_id: &str, location: &str, message: &str,
     data: serde_json::Value,
 ) {
     if let Ok(mut file) = OpenOptions::new()

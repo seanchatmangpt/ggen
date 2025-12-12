@@ -266,7 +266,7 @@ cargo build --release --features marketplace-v1
 
 **Code Example:**
 ```rust
-let meter = global::meter("ggen-marketplace-v2");
+let meter = global::meter("ggen-marketplace");
 let metrics = MarketplaceMetrics::new(&meter);
 
 // Record search latency

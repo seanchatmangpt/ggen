@@ -347,8 +347,8 @@ mod tests {
             0.0,   // No penalty
         );
 
-        // Expected: (80*0.40) + (60*0.25) + (90*0.15) + (100*0.15) - 0 = 74.5
-        assert!((score.composite_value - 74.5).abs() < 0.1);
+        // Expected: (80*0.40) + (60*0.25) + (90*0.15) + (100*0.15) - 0 = 32 + 15 + 13.5 + 15 = 75.5
+        assert!((score.composite_value - 75.5).abs() < 0.1);
     }
 
     #[test]

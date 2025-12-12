@@ -11,7 +11,7 @@ This document summarizes the comprehensive performance benchmarking infrastructu
 ### 1. Benchmark Test Suites
 
 #### 📊 Comprehensive Performance Benchmark
-**File:** `crates/ggen-marketplace-v2/benches/comprehensive_performance.rs`
+**File:** `crates/ggen-marketplace/benches/comprehensive_performance.rs`
 
 **Coverage:** 350+ lines of comprehensive benchmarks
 
@@ -53,7 +53,7 @@ This document summarizes the comprehensive performance benchmarking infrastructu
 ---
 
 #### 🆚 V1 vs V2 Comparison Benchmark
-**File:** `crates/ggen-marketplace-v2/benches/v1_vs_v2_comparison.rs`
+**File:** `crates/ggen-marketplace/benches/v1_vs_v2_comparison.rs`
 
 **Coverage:** 250+ lines of comparative analysis
 
@@ -78,7 +78,7 @@ This document summarizes the comprehensive performance benchmarking infrastructu
 ---
 
 #### ✅ SLO Validation Benchmark
-**File:** `crates/ggen-marketplace-v2/benches/slo_validation.rs`
+**File:** `crates/ggen-marketplace/benches/slo_validation.rs`
 
 **Coverage:** 200+ lines of production SLO validation
 
@@ -104,7 +104,7 @@ This document summarizes the comprehensive performance benchmarking infrastructu
 ### 2. Infrastructure & Tooling
 
 #### 🛠️ Performance Report Generator
-**File:** `crates/ggen-marketplace-v2/benches/performance_report.rs`
+**File:** `crates/ggen-marketplace/benches/performance_report.rs`
 
 **Features:**
 - Markdown report generation
@@ -196,7 +196,7 @@ This document summarizes the comprehensive performance benchmarking infrastructu
 ### 4. Configuration
 
 #### 📦 Cargo Configuration
-**File:** `crates/ggen-marketplace-v2/Cargo.toml` (updated)
+**File:** `crates/ggen-marketplace/Cargo.toml` (updated)
 
 **Additions:**
 ```toml

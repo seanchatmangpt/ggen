@@ -59,7 +59,7 @@ pub struct V1PackageMetadata {
 ### V2 Data Model (RDF-based)
 
 ```rust
-// ggen-marketplace-v2/src/models.rs
+// ggen-marketplace/src/models.rs
 
 /// V2 Package model (RDF triple format)
 #[derive(Debug, Clone)]
@@ -265,7 +265,7 @@ impl From<ggen_marketplace::V1Dependency> for UnifiedDependency {
 ```rust
 // ggen-domain/src/marketplace/conversion/v2_to_unified.rs
 
-use ggen_marketplace_v2::{V2Package, PackageMetadata};
+use ggen_marketplace::{V2Package, PackageMetadata};
 
 impl From<V2Package> for UnifiedPackage {
     fn from(v2: V2Package) -> Self {
@@ -298,8 +298,8 @@ impl From<V2Package> for UnifiedPackage {
     }
 }
 
-impl From<ggen_marketplace_v2::Dependency> for UnifiedDependency {
-    fn from(v2: ggen_marketplace_v2::Dependency) -> Self {
+impl From<ggen_marketplace::Dependency> for UnifiedDependency {
+    fn from(v2: ggen_marketplace::Dependency) -> Self {
         Self {
             name: v2.name,
             version: v2.version,
@@ -355,7 +355,7 @@ impl TryFrom<UnifiedPackage> for V1Package {
 ```rust
 // ggen-domain/src/marketplace/conversion/unified_to_v2.rs
 
-use ggen_marketplace_v2::{V2Package, PackageMetadata, Triple, TripleObject};
+use ggen_marketplace::{V2Package, PackageMetadata, Triple, TripleObject};
 
 impl TryFrom<UnifiedPackage> for V2Package {
     type Error = ConversionError;
@@ -492,7 +492,7 @@ fn build_package_triples(uri: &PackageUri, pkg: &UnifiedPackage) -> Result<Vec<T
 ### Package Ontology
 
 ```turtle
-# ggen-marketplace-v2/schemas/package.ttl
+# ggen-marketplace/schemas/package.ttl
 
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .

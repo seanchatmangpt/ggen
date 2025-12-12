@@ -57,6 +57,7 @@ mod swarm_consensus {
         // Assert: Consensus achieved
         assert!(consensus, "Majority nodes must agree");
         assert_eq!(change.agreed_nodes.len(), total_nodes);
+        assert_eq!(change.version, 2, "Version should advance with consensus");
     }
 
     #[test]
@@ -199,6 +200,10 @@ mod swarm_security {
         // Assert: Majority prevails despite Byzantine node
         assert!(consensus, "Majority should prevail");
         assert_eq!(commit_votes, 4);
+        assert_ne!(
+            byzantine_vote, "commit",
+            "Byzantine vote must not sway quorum"
+        );
     }
 
     #[test]
@@ -215,6 +220,7 @@ mod swarm_security {
         // Assert: Cryptographic verification works
         assert!(valid_msg_ok, "Valid signature should verify");
         assert!(tampered_msg_rejected, "Tampered signature should fail");
+        assert_eq!(message, b"state change");
     }
 
     #[test]
@@ -226,6 +232,10 @@ mod swarm_security {
 
         // Verify correct MAC
         assert_eq!(correct_mac, "mac-ed25519-hash");
+        assert!(
+            message.contains("state"),
+            "MAC must cover the intended message"
+        );
 
         // Verify wrong MAC fails
         assert_ne!(wrong_mac, correct_mac);
@@ -280,6 +290,7 @@ mod swarm_e2e {
 
         // Assert: Transaction completes
         assert_eq!(tx.status, "committed");
+        assert!(tx.id.starts_with("tx-"), "Transaction id should be present");
     }
 
     #[test]
@@ -295,5 +306,10 @@ mod swarm_e2e {
         // Assert: Node catches up
         assert_eq!(synced_node_c_version, 5);
         assert_eq!(synced_node_c_version, node_a_version);
+        assert_eq!(node_a_version, node_b_version, "Leaders must agree");
+        assert_ne!(
+            node_c_version, node_a_version,
+            "Lagging node should differ before sync"
+        );
     }
 }

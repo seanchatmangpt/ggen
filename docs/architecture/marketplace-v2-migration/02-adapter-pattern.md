@@ -222,7 +222,7 @@ impl V1Adapter {
 ```rust
 // ggen-domain/src/marketplace/v2_adapter.rs
 
-use ggen_marketplace_v2::{RdfRegistry, SparqlSearchEngine, Ed25519Signer};
+use ggen_marketplace::{RdfRegistry, SparqlSearchEngine, Ed25519Signer};
 
 /// V2 marketplace backend (RDF/SPARQL-based)
 pub struct V2Adapter {

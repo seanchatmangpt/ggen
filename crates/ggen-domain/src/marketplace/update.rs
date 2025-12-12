@@ -3,7 +3,6 @@
 //! Real implementation of package update functionality.
 
 use ggen_utils::error::Result;
-use crate::marketplace_scorer::PackageId;
 
 /// Update command arguments
 #[derive(Debug, Clone, Default)]
@@ -170,10 +169,10 @@ pub async fn update_and_report(package: Option<&str>, all: bool, dry_run: bool) 
     Ok(())
 }
 
-/// Execute update command using ggen-marketplace-v2 backend with RDF semantic versioning
+/// Execute update command using ggen-marketplace backend with RDF semantic versioning
 pub async fn execute_update(input: UpdateInput) -> Result<UpdateOutput> {
-    use ggen_marketplace_v2::prelude::*;
-    use ggen_marketplace_v2::RdfRegistry;
+    use ggen_marketplace::prelude::*;
+    use ggen_marketplace::RdfRegistry;
 
     let _registry_path = dirs::home_dir()
         .ok_or_else(|| ggen_utils::error::Error::new("home directory not found"))?
@@ -235,12 +234,10 @@ pub async fn execute_update(input: UpdateInput) -> Result<UpdateOutput> {
     let updated_count: usize = 0;
 
     for pkg_name in &packages_to_update {
-        // Create package ID with name + version from lockfile entry
-        let Some(pkg_info) = lockfile.packages.get(pkg_name) else {
+        let Some(_pkg_info) = lockfile.packages.get(pkg_name) else {
             ggen_utils::alert_warning!("Missing lockfile entry for: {}", pkg_name);
             continue;
         };
-        let _package_id = PackageId::new(pkg_name.to_string(), pkg_info.version.clone());
 
         // NOTE: v2 RDF-backed version querying to be implemented
         // Current implementation uses in-memory registry (no persistent versions yet)

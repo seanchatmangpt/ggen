@@ -65,6 +65,8 @@ pub mod introspection; // AI agent introspection: verb metadata discovery, capab
 pub mod prelude;
 pub mod runtime; // Async/sync bridge utilities
 pub mod runtime_helper; // Sync CLI wrapper utilities for async operations // Common imports for commands
+#[cfg(any(feature = "full", feature = "test-quality"))]
+pub mod validation; // Compile-time validation (Andon Signal Validation Framework)
 
 // Re-export clap-noun-verb for auto-discovery
 pub use clap_noun_verb::{run, CommandRouter, Result as ClapNounVerbResult};

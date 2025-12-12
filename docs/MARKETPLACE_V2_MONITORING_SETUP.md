@@ -52,7 +52,7 @@ fn init_telemetry() -> anyhow::Result<()> {
         .with_trace_config(
             opentelemetry_sdk::trace::config()
                 .with_resource(opentelemetry_sdk::Resource::new(vec![
-                    opentelemetry::KeyValue::new("service.name", "ggen-marketplace-v2"),
+                    opentelemetry::KeyValue::new("service.name", "ggen-marketplace"),
                     opentelemetry::KeyValue::new("service.version", env!("CARGO_PKG_VERSION")),
                 ]))
         )
@@ -229,7 +229,7 @@ impl MarketplaceMetrics {
 **In application code:**
 ```rust
 // Initialize metrics
-let meter = global::meter("ggen-marketplace-v2");
+let meter = global::meter("ggen-marketplace");
 let metrics = Arc::new(MarketplaceMetrics::new(&meter));
 
 // Record search operation
@@ -667,7 +667,7 @@ groups:
 **Configure log levels:**
 ```bash
 # Environment variables
-export RUST_LOG=ggen_marketplace_v2=info,ggen_marketplace_v2::search=debug
+export RUST_LOG=ggen_marketplace=info,ggen_marketplace::search=debug
 export RUST_LOG_FORMAT=json  # JSON for machine parsing
 ```
 

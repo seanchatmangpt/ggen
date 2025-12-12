@@ -187,6 +187,12 @@ impl Deterministic for SwarmOperationTest {
     }
 }
 
+impl SwarmOperationTest {
+    fn label(&self) -> &str {
+        self.name
+    }
+}
+
 /// Async swarm operation wrapper with tokio support
 struct AsyncSwarmOperationTest {
     name: &'static str,
@@ -210,6 +216,12 @@ impl std::fmt::Debug for AsyncSwarmOperationTest {
 impl AsyncDeterministic for AsyncSwarmOperationTest {
     async fn generate_output_async(&self) -> Vec<u8> {
         (self.operation)().await
+    }
+}
+
+impl AsyncSwarmOperationTest {
+    fn label(&self) -> &str {
+        self.name
     }
 }
 
@@ -270,7 +282,8 @@ fn test_swarm_determinism_core() {
     let result = test.validate_determinism(5);
     assert!(
         result.all_identical,
-        "Swarm consensus must be deterministic. Score: {:.2}%",
+        "{} must be deterministic. Score: {:.2}%",
+        test.label(),
         result.consistency_score * 100.0
     );
 }
@@ -286,8 +299,12 @@ fn test_coordinator_consistency() {
     };
 
     let result = test.validate_determinism(3);
-    assert!(result.all_identical);
-    assert!(result.consistency_score >= 0.99);
+    assert!(result.all_identical, "{} outputs must align", test.label());
+    assert!(
+        result.consistency_score >= 0.99,
+        "{} consistency score below expected",
+        test.label()
+    );
 }
 
 #[test]
@@ -306,7 +323,11 @@ fn test_health_monitor_reproducibility() {
     };
 
     let result = test.validate_determinism(4);
-    assert!(result.all_identical);
+    assert!(
+        result.all_identical,
+        "{} should produce reproducible telemetry",
+        test.label()
+    );
 }
 
 #[tokio::test]
@@ -324,7 +345,8 @@ async fn test_async_swarm_safety() {
     let result = test.validate_async_determinism(5).await;
     assert!(
         result.all_identical,
-        "Async swarm operations must be race-condition-free"
+        "{} must be race-condition-free",
+        test.label()
     );
 }
 
@@ -341,7 +363,11 @@ async fn test_concurrent_health_checks() {
     };
 
     let result = test.validate_async_determinism(5).await;
-    assert!(result.consistency_score >= 0.98);
+    assert!(
+        result.consistency_score >= 0.98,
+        "{} concurrent checks must remain consistent",
+        test.label()
+    );
 }
 
 #[test]

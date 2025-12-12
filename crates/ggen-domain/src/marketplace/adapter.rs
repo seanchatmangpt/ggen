@@ -1,6 +1,6 @@
 //! Marketplace adapter trait for supporting multiple backend implementations
 //!
-//! NOTE: This trait is legacy code. The CLI uses `ggen-marketplace-v2` directly
+//! NOTE: This trait is legacy code. The CLI uses `ggen-marketplace` directly
 //! and bypasses this adapter layer. This code is kept for reference.
 //!
 //! # Current Architecture
@@ -13,7 +13,7 @@
 //!            │
 //!            ▼
 //! ┌──────────────────────────────────┐
-//! │  ggen-marketplace-v2            │
+//! │  ggen-marketplace                │
 //! │  (direct usage, no adapter)     │
 //! └──────────────────────────────────┘
 //! ```
@@ -28,7 +28,7 @@ use ggen_utils::error::Result;
 
 /// Unified marketplace registry interface
 ///
-/// NOTE: This trait is legacy code. The CLI uses `ggen-marketplace-v2` directly
+/// NOTE: This trait is legacy code. The CLI uses `ggen-marketplace` directly
 /// and does not use this trait. This code is kept for reference.
 #[async_trait]
 pub trait MarketplaceRegistry: Send + Sync {
