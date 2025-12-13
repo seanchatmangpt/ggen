@@ -43,3 +43,6 @@ rev:summary a rdf:Property ;
   rdfs:label "Review summary" ;
   rdfs:domain rev:Review ;
   rdfs:range rdfs:Literal .
+
+
+

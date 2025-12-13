@@ -62,3 +62,6 @@ fi
 
 echo "[cli-smoke] PASS"
 
+
+
+

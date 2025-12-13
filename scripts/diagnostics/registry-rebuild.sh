@@ -87,3 +87,6 @@ PYCODE
 if [[ -x "scripts/diagnostics/registry-summary.sh" ]]; then
   bash scripts/diagnostics/registry-summary.sh "${index_path}"
 fi
+
+
+

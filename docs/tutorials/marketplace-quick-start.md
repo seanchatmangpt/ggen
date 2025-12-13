@@ -536,7 +536,7 @@ repository = "https://github.com/yourname/my-rest-api-template"
 [metadata]
 category = "api"
 tags = ["rest", "api", "rust"]
-min_ggen_version = "3.0.0"
+min_ggen_version = "4.0.0"
 production_ready = false  # Set to true once tested
 
 [dependencies]

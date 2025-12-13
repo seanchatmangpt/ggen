@@ -266,7 +266,7 @@ In your `Cargo.toml`:
 
 ```toml
 [dependencies]
-ggen = { version = "3.0", features = ["security-strict"] }
+ggen = { version = "4.0", features = ["security-strict"] }
 ```
 
 Security-strict mode:

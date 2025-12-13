@@ -19,3 +19,6 @@
   1) Add sample `paper.rdf` and `reviewers.json` fixtures for quickstart validation.
   2) Run `ggen marketplace validate --package_id academic-peer-review-workflow` and update registry `production_ready` and `checksum` once validated.
   3) (Optional) Add workflow example event log and golden outputs for determinism checks.
+
+
+

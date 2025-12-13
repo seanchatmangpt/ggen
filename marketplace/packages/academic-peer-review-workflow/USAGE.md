@@ -44,3 +44,6 @@ initial-submission → editorial-screening → reviewer-assignment → review-pe
 
 ### 8) Validation contract
 `paper.rdf` and `reviewers.json` must exist. Stages `reviewer-assignment`, `review-period`, and `decision-compilation` must be present in event logs for the workflow to be considered complete.
+
+
+
