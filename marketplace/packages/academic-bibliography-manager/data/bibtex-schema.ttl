@@ -15,3 +15,6 @@ bib:pages a rdf:Property ; rdfs:domain bib:Entry ; rdfs:range xsd:string .
 bib:doi a rdf:Property ; rdfs:domain bib:Entry ; rdfs:range xsd:string .
 bib:url a rdf:Property ; rdfs:domain bib:Entry ; rdfs:range xsd:anyURI .
 bib:publisher a rdf:Property ; rdfs:domain bib:Entry ; rdfs:range xsd:string .
+
+
+

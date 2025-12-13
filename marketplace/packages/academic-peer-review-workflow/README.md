@@ -53,3 +53,6 @@ Checks for `paper.rdf` and `reviewers.json` per the manifest validation block (s
 ### Notes
 - Registry lists dependency on `academic-paper-lifecycle`; install that first if not present.
 - Keep reviewer data in RDF to preserve provenance and deterministic merges.
+
+
+

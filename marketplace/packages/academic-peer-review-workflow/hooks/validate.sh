@@ -30,3 +30,6 @@ require_stage "review-period" "$workflow_json"
 require_stage "decision-compilation" "$workflow_json"
 
 echo "validation ok: required files and stages present"
+
+
+

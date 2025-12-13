@@ -6,7 +6,6 @@ description = "Procedural macros for ggen"
 license = "MIT"
 repository = "https://github.com/seanchatmangpt/ggen"
 homepage = "https://github.com/seanchatmangpt/ggen"
-readme = "README.md"
 keywords = ["macros", "proc-macro", "code-generation"]
 categories = ["development-tools::procedural-macro-helpers"]
 authors = ["Sean Chatman <sean@chatmangpt.com>"]

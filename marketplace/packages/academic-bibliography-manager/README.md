@@ -51,3 +51,6 @@ ggen bibliography export --input examples/references.bib --format ris
 - Keep `references.bib` present when running validation.
 - Template is deterministic: fixed ordering by year, stable key rendering.
 - Parser tool avoids `unwrap` and returns actionable errors.
+
+
+
