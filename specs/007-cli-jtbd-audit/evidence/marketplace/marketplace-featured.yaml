@@ -1,0 +1,46 @@
+command: "ggen marketplace featured"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 70
+agent_breakdown:
+  parseable_output: 25
+  error_messages: 14
+  idempotency: 15
+  progress_feedback: 6
+  dry_run: 10
+  documentation: 4
+  exit_codes: 2
+
+avatar_notes:
+  claude_code: "Featured packages with JSON; excellent for curation"
+  cursor_ai: "Featured display in IDE"
+  copilot: "Clear featured patterns"
+  aider: "Read-only featured list"
+  devin: "Can discover featured autonomously"
+  openhands: "Customizable featured criteria"
+  windsurf: "Native featured visualization"
+
+maturity_level: "L4"
+maturity_blockers: []
+
+evidence_files: []
+
+recommendations:
+  - priority: P3
+    description: "Add --category flag for featured by category"
+    effort: low
+    impact: low
+
+jtbd: |
+  When I want to find curated featured packages,
+  I need to run 'ggen marketplace featured',
+  so that I can discover recommended community templates.

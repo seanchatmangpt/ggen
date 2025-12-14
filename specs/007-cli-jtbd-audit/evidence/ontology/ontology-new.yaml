@@ -1,0 +1,52 @@
+command: "ggen ontology new"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 58
+agent_breakdown:
+  parseable_output: 15
+  error_messages: 14
+  idempotency: 9
+  progress_feedback: 8
+  dry_run: 7
+  documentation: 4
+  exit_codes: 1
+
+avatar_notes:
+  claude_code: "Creates new ontologies; --dry-run preview helpful"
+  cursor_ai: "Ontology creation visible in IDE"
+  copilot: "Clear from help and examples"
+  aider: "Safe for git tracking"
+  devin: "Can create ontologies autonomously"
+  openhands: "Customizable ontology templates"
+  windsurf: "Structure preview useful"
+
+maturity_level: "L2"
+maturity_blockers:
+  - "Exit codes not differentiated"
+  - "Incomplete --dry-run"
+
+evidence_files: []
+
+recommendations:
+  - priority: P1
+    description: "Implement comprehensive --dry-run"
+    effort: medium
+    impact: high
+  - priority: P1
+    description: "Add semantic exit codes"
+    effort: low
+    impact: medium
+
+jtbd: |
+  When I want to create a new RDF ontology,
+  I need to run 'ggen ontology new' with ontology specification,
+  so that I can define domain models in RDF.

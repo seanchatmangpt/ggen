@@ -1,0 +1,56 @@
+command: "ggen ci setup"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 54
+agent_breakdown:
+  parseable_output: 10
+  error_messages: 12
+  idempotency: 12
+  progress_feedback: 8
+  dry_run: 7
+  documentation: 4
+  exit_codes: 1
+
+avatar_notes:
+  claude_code: "Sets up CI/CD; --dry-run preview important"
+  cursor_ai: "CI setup visible in IDE"
+  copilot: "Setup patterns learnable"
+  aider: "Can automate CI setup"
+  devin: "Can set up CI autonomously"
+  openhands: "Customizable CI configuration"
+  windsurf: "Setup progress shown"
+
+maturity_level: "L2"
+maturity_blockers:
+  - "Incomplete --dry-run"
+  - "Exit codes not semantic"
+
+evidence_files: []
+
+recommendations:
+  - priority: P1
+    description: "Implement full --dry-run with configuration preview"
+    effort: medium
+    impact: high
+  - priority: P1
+    description: "Add semantic exit codes"
+    effort: low
+    impact: medium
+  - priority: P2
+    description: "Add --provider flag for CI platform selection"
+    effort: low
+    impact: medium
+
+jtbd: |
+  When I want to set up CI/CD for a ggen project,
+  I need to run 'ggen ci setup',
+  so that I can configure automated testing and deployment.

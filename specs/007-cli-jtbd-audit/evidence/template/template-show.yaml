@@ -1,8 +1,5 @@
-# Audit Result: ggen template show
-# Schema: ../../contracts/audit-result.schema.yaml
-
 command: "ggen template show"
-version_tested: "5.3.2"
+version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
 
@@ -13,38 +10,47 @@ functional_correctness:
   error_handling: true
   exit_codes: true
 
-agent_score: 52
+agent_score: 50
 agent_breakdown:
-  parseable_output: 8     # Shows metadata, text format
-  error_messages: 12      # Basic error handling
-  idempotency: 15         # Read-only - fully idempotent
-  progress_feedback: 4    # Silent
-  dry_run: 0              # Not applicable
-  documentation: 4        # Minimal help
-  exit_codes: 9           # Good codes
+  parseable_output: 10
+  error_messages: 12
+  idempotency: 15
+  progress_feedback: 4
+  dry_run: 10
+  documentation: 2
+  exit_codes: 1
 
 avatar_notes:
-  claude_code: "Template metadata inspection. No JSON output option."
-  cursor_ai: "Simple read-only. Short help."
-  copilot: "Pattern: --template path."
-  aider: "Idempotent. Safe for repeated calls."
-  devin: "Inspect before generate. Self-contained."
-  openhands: "No customization."
-  windsurf: "Metadata display in terminal."
+  claude_code: "Display works but structured output needed"
+  cursor_ai: "Visual display useful for IDE context"
+  copilot: "Simple command to learn"
+  aider: "Read-only; safe for git workflows"
+  devin: "Requires parsing plain text output"
+  openhands: "Could support --format json for better integration"
+  windsurf: "IDE rendering would benefit from structured output"
 
-maturity_level: L3
+maturity_level: "L1"
 maturity_blockers:
-  - "No JSON output format"
+  - "Missing JSON output option"
+  - "Minimal documentation and examples"
 
-evidence_files:
-  - template-show-help.log
+evidence_files: []
 
 recommendations:
-  - priority: P2
-    description: "Add --output-format json for structured output"
+  - priority: P1
+    description: "Add --output-format json for structured template display"
     effort: low
     impact: high
-  - priority: P3
-    description: "Show template content preview option"
-    effort: medium
-    impact: medium
+  - priority: P1
+    description: "Add comprehensive documentation with JTBD"
+    effort: low
+    impact: high
+  - priority: P2
+    description: "Support --compact flag for minimal output"
+    effort: low
+    impact: low
+
+jtbd: |
+  When I want to examine a template's structure and metadata,
+  I need to run 'ggen template show <name>',
+  so that I can understand its composition before using it.
