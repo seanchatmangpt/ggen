@@ -1,3 +1,56 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Assertion Strength Analysis Research Findings](#assertion-strength-analysis-research-findings)
+  - [Executive Summary](#executive-summary)
+  - [1. Assertion Pattern Classification](#1-assertion-pattern-classification)
+    - [1.1 Strength Taxonomy](#11-strength-taxonomy)
+    - [1.2 Actual Pattern Distribution (ggen codebase)](#12-actual-pattern-distribution-ggen-codebase)
+    - [1.3 False Positive Examples from Codebase](#13-false-positive-examples-from-codebase)
+  - [2. Static Analysis with `syn` Crate](#2-static-analysis-with-syn-crate)
+    - [2.1 Technical Approach](#21-technical-approach)
+    - [2.2 Detection Patterns](#22-detection-patterns)
+    - [2.3 Implementation Complexity](#23-implementation-complexity)
+  - [3. Behavior vs Execution Validation](#3-behavior-vs-execution-validation)
+    - [3.1 Chicago TDD Principles](#31-chicago-tdd-principles)
+    - [3.2 Behavior Test Patterns](#32-behavior-test-patterns)
+    - [3.3 Detection Heuristics](#33-detection-heuristics)
+  - [4. False Positive Detection Techniques](#4-false-positive-detection-techniques)
+    - [4.1 Static Analysis Limitations](#41-static-analysis-limitations)
+    - [4.2 Mutation Testing Integration](#42-mutation-testing-integration)
+    - [4.3 Hybrid Detection Strategy](#43-hybrid-detection-strategy)
+  - [5. Reporting Mechanism](#5-reporting-mechanism)
+    - [5.1 Report Format](#51-report-format)
+    - [5.2 CI Integration](#52-ci-integration)
+    - [5.3 Actionable Recommendations](#53-actionable-recommendations)
+  - [6. Chicago TDD Best Practices for Assertion Strength](#6-chicago-tdd-best-practices-for-assertion-strength)
+    - [6.1 Guidelines](#61-guidelines)
+    - [6.2 Assertion Strength Checklist](#62-assertion-strength-checklist)
+  - [7. Alternative Approaches Comparison](#7-alternative-approaches-comparison)
+    - [7.1 Options Considered](#71-options-considered)
+    - [7.2 Decision Matrix](#72-decision-matrix)
+    - [7.3 Hybrid Strategy Justification](#73-hybrid-strategy-justification)
+  - [8. Implementation Roadmap](#8-implementation-roadmap)
+    - [8.1 MVP (Week 1)](#81-mvp-week-1)
+    - [8.2 V2 (Week 2)](#82-v2-week-2)
+    - [8.3 V3 (Week 3+)](#83-v3-week-3)
+  - [9. Metrics & Success Criteria](#9-metrics--success-criteria)
+    - [9.1 Target Metrics](#91-target-metrics)
+    - [9.2 Success Criteria](#92-success-criteria)
+  - [10. Dependencies & Prerequisites](#10-dependencies--prerequisites)
+    - [10.1 Required Crates](#101-required-crates)
+    - [10.2 Tooling](#102-tooling)
+  - [11. Risks & Mitigations](#11-risks--mitigations)
+    - [11.1 Risks](#111-risks)
+    - [11.2 Rollout Strategy](#112-rollout-strategy)
+  - [12. Conclusion](#12-conclusion)
+  - [Appendix A: Pattern Examples from Codebase](#appendix-a-pattern-examples-from-codebase)
+    - [A.1 Weak Patterns Found](#a1-weak-patterns-found)
+    - [A.2 Strong Patterns (Examples to Follow)](#a2-strong-patterns-examples-to-follow)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Assertion Strength Analysis Research Findings
 
 **Feature**: Detect weak/false-positive tests through static assertion analysis

@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [12-Agent Swarm Status Report - Week 2 Progress](#12-agent-swarm-status-report---week-2-progress)
+  - [Executive Summary](#executive-summary)
+  - [Completed Deliverables (90 Minutes)](#completed-deliverables-90-minutes)
+    - [1. Strategic Documentation (100% Complete)](#1-strategic-documentation-100-complete)
+    - [2. Test Implementation (30/500 Complete - 6%)](#2-test-implementation-30500-complete---6)
+    - [3. Security Fixes (1/717 In Progress - 0.14%)](#3-security-fixes-1717-in-progress---014)
+  - [In-Progress Work](#in-progress-work)
+    - [1. Promotion.rs Refactor (Agent 2 + Agent 3)](#1-promotionrs-refactor-agent-2--agent-3)
+    - [2. Test Suite Execution (Agent 5 + Agent 9)](#2-test-suite-execution-agent-5--agent-9)
+  - [Blockers & Risks](#blockers--risks)
+    - [Critical Blockers](#critical-blockers)
+    - [Risks](#risks)
+  - [Week 2 Critical Path Progress](#week-2-critical-path-progress)
+  - [Agent Utilization](#agent-utilization)
+  - [Next 24 Hours - Execution Plan](#next-24-hours---execution-plan)
+    - [Priority 1: Complete Week 2 Blockers](#priority-1-complete-week-2-blockers)
+    - [Priority 2: Continue Week 2 Critical Path](#priority-2-continue-week-2-critical-path)
+    - [Priority 3: Week 3 Preparation](#priority-3-week-3-preparation)
+  - [Metrics](#metrics)
+    - [Code Generated](#code-generated)
+    - [Test Coverage Impact (Projected)](#test-coverage-impact-projected)
+    - [Security Posture Improvement](#security-posture-improvement)
+  - [Recommendations](#recommendations)
+    - [Immediate Actions](#immediate-actions)
+    - [Strategic Adjustments](#strategic-adjustments)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 12-Agent Swarm Status Report - Week 2 Progress
 
 **Report Date**: 2025-11-18

@@ -1,3 +1,57 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [SYSTEMATIC COMPILATION FIX EXECUTION PLAN](#systematic-compilation-fix-execution-plan)
+  - [EXECUTIVE SUMMARY](#executive-summary)
+  - [PARALLEL EXECUTION ARCHITECTURE](#parallel-execution-architecture)
+  - [CRITICAL PATH ANALYSIS](#critical-path-analysis)
+  - [WAVE 1: UNBLOCK CRITICAL PATH (90 minutes)](#wave-1-unblock-critical-path-90-minutes)
+    - [Task 1a: Default Trait Implementation (30 minutes)](#task-1a-default-trait-implementation-30-minutes)
+    - [Task 1b: Kernel Module Stubs (45 minutes)](#task-1b-kernel-module-stubs-45-minutes)
+    - [Task 1c: Export from lib.rs (15 minutes)](#task-1c-export-from-librs-15-minutes)
+  - [WAVE 2: RESOLVE SECONDARY ISSUES (120 minutes - PARALLEL)](#wave-2-resolve-secondary-issues-120-minutes---parallel)
+    - [Task 2a: Middleware/IO Type Stubs (45 minutes)](#task-2a-middlewareio-type-stubs-45-minutes)
+    - [Task 2b: Telemetry API Alignment (45 minutes)](#task-2b-telemetry-api-alignment-45-minutes)
+    - [Task 2c: Contract Types (30 minutes)](#task-2c-contract-types-30-minutes)
+  - [WAVE 3: VALIDATION & CLEANUP (60 minutes - SEQUENTIAL)](#wave-3-validation--cleanup-60-minutes---sequential)
+    - [Task 3a: Compile Check (15 minutes)](#task-3a-compile-check-15-minutes)
+    - [Task 3b: Test Execution (30 minutes)](#task-3b-test-execution-30-minutes)
+    - [Task 3c: Feature Gate Documentation (15 minutes)](#task-3c-feature-gate-documentation-15-minutes)
+  - [EXECUTION CHECKLIST](#execution-checklist)
+    - [Pre-Execution (5 minutes)](#pre-execution-5-minutes)
+    - [Wave 1 Execution (90 minutes)](#wave-1-execution-90-minutes)
+    - [Wave 2 Execution (120 minutes - PARALLEL)](#wave-2-execution-120-minutes---parallel)
+    - [Wave 3 Execution (60 minutes - SEQUENTIAL)](#wave-3-execution-60-minutes---sequential)
+    - [Final Validation](#final-validation)
+  - [SUCCESS CRITERIA](#success-criteria)
+    - [Must Have (CRITICAL)](#must-have-critical)
+    - [Should Have (HIGH PRIORITY)](#should-have-high-priority)
+    - [Nice to Have (OPTIONAL)](#nice-to-have-optional)
+  - [RISK MITIGATION](#risk-mitigation)
+    - [Risk 1: Dependencies Between Waves](#risk-1-dependencies-between-waves)
+    - [Risk 2: Stub Types Have Wrong Signatures](#risk-2-stub-types-have-wrong-signatures)
+    - [Risk 3: New Errors Discovered During Fixes](#risk-3-new-errors-discovered-during-fixes)
+    - [Risk 4: Parallel Tasks Introduce Merge Conflicts](#risk-4-parallel-tasks-introduce-merge-conflicts)
+    - [Risk 5: Time Estimates Are Optimistic](#risk-5-time-estimates-are-optimistic)
+  - [DEPENDENCY GRAPH (Visual)](#dependency-graph-visual)
+  - [AGENT ASSIGNMENTS](#agent-assignments)
+  - [MEMORY COORDINATION KEYS](#memory-coordination-keys)
+  - [POST-EXECUTION ANALYSIS](#post-execution-analysis)
+    - [Performance Metrics](#performance-metrics)
+    - [Quality Metrics](#quality-metrics)
+    - [Process Insights](#process-insights)
+  - [NEXT STEPS (After Compilation Fixed)](#next-steps-after-compilation-fixed)
+  - [APPENDIX A: COMMAND REFERENCE](#appendix-a-command-reference)
+    - [Build Commands (ALWAYS USE `cargo make`)](#build-commands-always-use-cargo-make)
+    - [Diagnostic Commands](#diagnostic-commands)
+  - [APPENDIX B: ANDON SIGNAL REFERENCE](#appendix-b-andon-signal-reference)
+    - [Signal Interpretation](#signal-interpretation)
+    - [Signal Workflow](#signal-workflow)
+  - [APPENDIX C: TYPE SIGNATURE EXTRACTION GUIDE](#appendix-c-type-signature-extraction-guide)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # SYSTEMATIC COMPILATION FIX EXECUTION PLAN
 
 **Generated**: 2025-11-20

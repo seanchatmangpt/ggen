@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How to Set Up Maturity Gates in CI/CD](#how-to-set-up-maturity-gates-in-cicd)
+  - [Why Maturity Gates Matter](#why-maturity-gates-matter)
+  - [GitHub Actions Integration](#github-actions-integration)
+    - [Basic gate: Only Production packages allowed](#basic-gate-only-production-packages-allowed)
+    - [Advanced gate: Custom requirements per project](#advanced-gate-custom-requirements-per-project)
+    - [Gate with improvement plan requirement](#gate-with-improvement-plan-requirement)
+  - [Pre-commit Hook Integration](#pre-commit-hook-integration)
+    - [Local gate before pushing](#local-gate-before-pushing)
+  - [Release Gate: Enforce before Deployment](#release-gate-enforce-before-deployment)
+    - [Only deploy Production packages](#only-deploy-production-packages)
+  - [Reporting & Monitoring](#reporting--monitoring)
+    - [Weekly maturity report](#weekly-maturity-report)
+  - [Handling Exceptions](#handling-exceptions)
+    - [Approved list for specific packages](#approved-list-for-specific-packages)
+  - [Troubleshooting](#troubleshooting)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How to Set Up Maturity Gates in CI/CD
 
 This guide shows how to automatically enforce package maturity standards in your development pipeline.

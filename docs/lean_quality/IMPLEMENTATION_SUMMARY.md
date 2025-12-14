@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Andon + Gemba Walk Implementation Summary](#andon--gemba-walk-implementation-summary)
+  - [✅ Implementation Complete](#-implementation-complete)
+  - [📦 Deliverables](#-deliverables)
+    - [1. Andon System (`tests/lean_quality/andon_system.rs`)](#1-andon-system-testslean_qualityandon_systemrs)
+    - [2. Gemba Walk System (`tests/lean_quality/gemba_walk.rs`)](#2-gemba-walk-system-testslean_qualitygemba_walkrs)
+    - [3. Automated Monitoring (`scripts/andon_monitor.sh`)](#3-automated-monitoring-scriptsandon_monitorsh)
+    - [4. Gemba Walk Automation (`scripts/gemba_walk.sh`)](#4-gemba-walk-automation-scriptsgemba_walksh)
+    - [5. CI/CD Integration (`.github/workflows/andon_ci.yml`)](#5-cicd-integration-githubworkflowsandon_ciyml)
+    - [6. Integration Tests (`tests/integration/lean_quality_tests.rs`)](#6-integration-tests-testsintegrationlean_quality_testsrs)
+    - [7. Demo Application (`examples/andon_gemba_demo.rs`)](#7-demo-application-examplesandon_gemba_demors)
+    - [8. Playbook (`docs/lean_quality/ANDON_GEMBA_PLAYBOOK.md`)](#8-playbook-docslean_qualityandon_gemba_playbookmd)
+  - [🎯 Key Achievements](#-key-achievements)
+    - [Real-Time Failure Detection (Andon)](#real-time-failure-detection-andon)
+    - [On-Floor Inspection (Gemba Walk)](#on-floor-inspection-gemba-walk)
+    - [Production Readiness](#production-readiness)
+  - [📊 Metrics](#-metrics)
+  - [🚀 Usage Examples](#-usage-examples)
+    - [Local Development](#local-development)
+    - [CI/CD](#cicd)
+    - [Programmatic Usage](#programmatic-usage)
+  - [🎓 Lean Principles Applied](#-lean-principles-applied)
+    - [Andon (Stop the Line)](#andon-stop-the-line)
+    - [Gemba Walk (Go See)](#gemba-walk-go-see)
+    - [Continuous Improvement (Kaizen)](#continuous-improvement-kaizen)
+  - [🔍 Integration with Existing Systems](#-integration-with-existing-systems)
+    - [Works With](#works-with)
+    - [Does NOT Require](#does-not-require)
+  - [📁 File Structure](#-file-structure)
+  - [🎯 Success Criteria - ALL MET ✅](#-success-criteria---all-met-)
+  - [🚦 Next Steps (Optional Enhancements)](#-next-steps-optional-enhancements)
+    - [Phase 2 (Future)](#phase-2-future)
+    - [Phase 3 (Advanced)](#phase-3-advanced)
+  - [📚 References](#-references)
+  - [💾 Memory Storage](#-memory-storage)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Andon + Gemba Walk Implementation Summary
 
 ## ✅ Implementation Complete

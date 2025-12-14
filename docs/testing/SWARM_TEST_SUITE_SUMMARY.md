@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Swarm Integration Test Suite Summary](#swarm-integration-test-suite-summary)
+  - [Overview](#overview)
+  - [Test Suite Structure](#test-suite-structure)
+    - [1. Consensus Mechanism Tests (`swarm_consensus_tests.rs`)](#1-consensus-mechanism-tests-swarm_consensus_testsrs)
+    - [2. Security Validation Tests (`swarm_security_tests.rs`)](#2-security-validation-tests-swarm_security_testsrs)
+    - [3. Integration Tests (`swarm_integration_tests.rs`)](#3-integration-tests-swarm_integration_testsrs)
+    - [4. Performance Benchmarks (`swarm_performance_tests.rs`)](#4-performance-benchmarks-swarm_performance_testsrs)
+    - [5. Failure Recovery Tests (`swarm_failure_recovery_tests.rs`)](#5-failure-recovery-tests-swarm_failure_recovery_testsrs)
+    - [6. End-to-End Tests (`swarm_e2e_tests.rs`)](#6-end-to-end-tests-swarm_e2e_testsrs)
+  - [Test Suite Statistics](#test-suite-statistics)
+  - [Test Execution Status](#test-execution-status)
+  - [Test Organization](#test-organization)
+  - [Key Design Principles](#key-design-principles)
+    - [1. 80/20 Approach](#1-8020-approach)
+    - [2. Test Independence](#2-test-independence)
+    - [3. Performance Focus](#3-performance-focus)
+    - [4. Security First](#4-security-first)
+    - [5. Real-World Scenarios](#5-real-world-scenarios)
+  - [Test Execution Plan (When Codebase Fixed)](#test-execution-plan-when-codebase-fixed)
+  - [Memory Coordination](#memory-coordination)
+  - [Success Criteria](#success-criteria)
+  - [Recommendations](#recommendations)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Swarm Integration Test Suite Summary
 
 **Agent**: Test Engineer (Hive Mind Tester)

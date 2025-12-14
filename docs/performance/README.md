@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Performance Documentation Hub](#ggen-performance-documentation-hub)
+  - [📊 Quick Performance Status](#-quick-performance-status)
+  - [📚 Documentation Index](#-documentation-index)
+    - [For Developers](#for-developers)
+    - [Performance Tools](#performance-tools)
+  - [🚀 Quick Commands](#-quick-commands)
+    - [Run All Performance Tests](#run-all-performance-tests)
+    - [Check Current Performance](#check-current-performance)
+    - [Profile Hotspots](#profile-hotspots)
+  - [🎯 Performance Targets](#-performance-targets)
+    - [Critical Operations](#critical-operations)
+    - [Resource Limits](#resource-limits)
+  - [🔥 Top 3 Optimization Opportunities](#-top-3-optimization-opportunities)
+    - [1. Lazy RDF Loading (Quick Win)](#1-lazy-rdf-loading-quick-win)
+    - [2. Parallel Template Generation (Quick Win)](#2-parallel-template-generation-quick-win)
+    - [3. Optimize Lockfile Dependency Resolution (Medium Effort)](#3-optimize-lockfile-dependency-resolution-medium-effort)
+  - [📈 Performance Monitoring](#-performance-monitoring)
+    - [Key Metrics to Track](#key-metrics-to-track)
+    - [Instrumentation Points](#instrumentation-points)
+  - [🛠️ Development Workflow](#-development-workflow)
+    - [Before Committing Performance Changes](#before-committing-performance-changes)
+    - [CI/CD Integration](#cicd-integration)
+  - [🐛 Common Performance Issues](#-common-performance-issues)
+    - [Issue 1: Slow Template Generation (>500ms)](#issue-1-slow-template-generation-500ms)
+    - [Issue 2: High Memory Usage (>100MB)](#issue-2-high-memory-usage-100mb)
+    - [Issue 3: Slow Lockfile Operations (>1s)](#issue-3-slow-lockfile-operations-1s)
+  - [📊 Benchmark Results Archive](#-benchmark-results-archive)
+    - [Latest Results (2025-11-18)](#latest-results-2025-11-18)
+  - [🤝 Contributing Performance Improvements](#-contributing-performance-improvements)
+    - [Adding New Benchmarks](#adding-new-benchmarks)
+    - [Optimization Guidelines](#optimization-guidelines)
+  - [📖 External Resources](#-external-resources)
+  - [📞 Support](#-support)
+  - [📅 Performance Review Schedule](#-performance-review-schedule)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Performance Documentation Hub
 
 **Last Updated**: 2025-11-18

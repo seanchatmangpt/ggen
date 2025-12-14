@@ -1,3 +1,51 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Performance Benchmarking & Validation System](#performance-benchmarking--validation-system)
+  - [🚀 Quick Start](#-quick-start)
+    - [Run All Benchmarks](#run-all-benchmarks)
+    - [View Reports](#view-reports)
+  - [📋 Available Benchmarks](#-available-benchmarks)
+    - [1. Quick Wins Benchmark (`quick_wins_benchmark.rs`)](#1-quick-wins-benchmark-quick_wins_benchmarkrs)
+    - [2. Medium Optimizations Benchmark (`medium_optimizations_benchmark.rs`)](#2-medium-optimizations-benchmark-medium_optimizations_benchmarkrs)
+    - [3. Core Performance Benchmark (`performance_benchmark.rs`)](#3-core-performance-benchmark-performance_benchmarkrs)
+  - [📊 Performance SLA](#-performance-sla)
+  - [🛠️ Tools & Scripts](#-tools--scripts)
+    - [Quick Validation Script](#quick-validation-script)
+    - [Performance Dashboard](#performance-dashboard)
+    - [Performance Validation Tool](#performance-validation-tool)
+  - [🤖 CI/CD Automation](#-cicd-automation)
+    - [GitHub Actions Workflow](#github-actions-workflow)
+    - [Regression Detection](#regression-detection)
+  - [📈 Performance Trends](#-performance-trends)
+    - [Week 1 → Week 3](#week-1-%E2%86%92-week-3)
+    - [Grade Progression](#grade-progression)
+  - [📚 Documentation](#-documentation)
+    - [Main Reports](#main-reports)
+    - [Benchmark Files](#benchmark-files)
+  - [🎯 Implementation Details](#-implementation-details)
+    - [Quick Win 1: Lazy RDF Loading](#quick-win-1-lazy-rdf-loading)
+    - [Quick Win 2: Parallel Template Generation](#quick-win-2-parallel-template-generation)
+    - [Quick Win 3: Cache Improvements](#quick-win-3-cache-improvements)
+  - [🔄 Daily Workflow](#-daily-workflow)
+    - [Morning (Automated)](#morning-automated)
+    - [Development (Manual)](#development-manual)
+    - [PR Review (Automated)](#pr-review-automated)
+  - [🎓 Best Practices](#-best-practices)
+    - [When to Benchmark](#when-to-benchmark)
+    - [How to Interpret Results](#how-to-interpret-results)
+    - [Performance Optimization Workflow](#performance-optimization-workflow)
+  - [🚧 Known Issues & Future Work](#-known-issues--future-work)
+    - [In Progress](#in-progress)
+    - [Future Optimizations](#future-optimizations)
+  - [📞 Support](#-support)
+    - [Questions?](#questions)
+    - [Issues?](#issues)
+    - [Contributing?](#contributing)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Performance Benchmarking & Validation System
 
 Complete infrastructure for validating performance optimizations and maintaining performance SLAs.

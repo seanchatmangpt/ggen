@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How to Compare Packages](#how-to-compare-packages)
+  - [Basic Comparison](#basic-comparison)
+    - [Compare two packages](#compare-two-packages)
+  - [Understanding the Comparison](#understanding-the-comparison)
+    - [Score comparison](#score-comparison)
+    - [Dimension-by-dimension analysis](#dimension-by-dimension-analysis)
+  - [Detailed Comparison](#detailed-comparison)
+    - [See more information](#see-more-information)
+  - [Export Comparison](#export-comparison)
+    - [Save for analysis or sharing](#save-for-analysis-or-sharing)
+  - [Comparison Workflows](#comparison-workflows)
+    - [Scenario 1: Choosing Between Finalists](#scenario-1-choosing-between-finalists)
+    - [Scenario 2: Evaluating Upgrade](#scenario-2-evaluating-upgrade)
+    - [Scenario 3: Production vs Experimental](#scenario-3-production-vs-experimental)
+  - [Multi-Package Analysis](#multi-package-analysis)
+    - [Compare multiple packages](#compare-multiple-packages)
+    - [Create decision matrix](#create-decision-matrix)
+  - [Comparison Tips](#comparison-tips)
+    - [1. Know what you're comparing](#1-know-what-youre-comparing)
+    - [2. Weight dimensions by importance](#2-weight-dimensions-by-importance)
+    - [3. Look for ties](#3-look-for-ties)
+    - [4. Check the score gap](#4-check-the-score-gap)
+    - [5. Document your decision](#5-document-your-decision)
+  - [Troubleshooting](#troubleshooting)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How to Compare Packages
 
 This guide shows how to compare two packages side-by-side to make informed decisions.

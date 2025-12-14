@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Template Variables Reference](#template-variables-reference)
+  - [Global Variables](#global-variables)
+    - [Ontology Information](#ontology-information)
+    - [Configuration Variables](#configuration-variables)
+  - [Class Variables](#class-variables)
+    - [Available in Class Loops](#available-in-class-loops)
+    - [Type Information](#type-information)
+    - [Examples](#examples)
+  - [Property Variables](#property-variables)
+    - [Available in Property Loops](#available-in-property-loops)
+    - [Type Mapping Variables](#type-mapping-variables)
+    - [Examples](#examples-1)
+  - [Relationship Variables](#relationship-variables)
+    - [Available in Relationship Loops](#available-in-relationship-loops)
+  - [Type Mapping Reference](#type-mapping-reference)
+    - [TypeScript Type Mapping](#typescript-type-mapping)
+    - [Python Type Mapping](#python-type-mapping)
+    - [Rust Type Mapping](#rust-type-mapping)
+  - [Built-in Filters](#built-in-filters)
+    - [String Filters](#string-filters)
+    - [Collection Filters](#collection-filters)
+    - [Logic Filters](#logic-filters)
+  - [Looping Variables](#looping-variables)
+    - [forloop Object](#forloop-object)
+  - [Conditional Variables](#conditional-variables)
+    - [Existence Checks](#existence-checks)
+    - [Type Checks](#type-checks)
+  - [Enumeration Variables](#enumeration-variables)
+    - [For Enumeration Classes](#for-enumeration-classes)
+  - [Examples](#examples-2)
+    - [Complete Class Template](#complete-class-template)
+    - [Interface Template](#interface-template)
+    - [Enum Template](#enum-template)
+  - [Advanced: Custom Variables](#advanced-custom-variables)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Template Variables Reference
 
 Complete list of variables available in ggen code generation templates.

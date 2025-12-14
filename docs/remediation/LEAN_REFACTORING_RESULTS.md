@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Lean Manufacturing Test Refactoring Results](#lean-manufacturing-test-refactoring-results)
+  - [Executive Summary](#executive-summary)
+  - [Quick Results](#quick-results)
+  - [Mura (Variance) Elimination](#mura-variance-elimination)
+    - [Before: 7 Different Setup Patterns](#before-7-different-setup-patterns)
+    - [After: 1 Standardized Builder Pattern](#after-1-standardized-builder-pattern)
+  - [Muda (Waste) Elimination](#muda-waste-elimination)
+    - [1. Duplication Waste: -95%](#1-duplication-waste--95)
+    - [2. Setup Bloat: -95%](#2-setup-bloat--95)
+    - [3. Assertion Duplication: -100%](#3-assertion-duplication--100)
+    - [4. Unclear Test Names: -100%](#4-unclear-test-names--100)
+  - [Code Comparison: Before vs After](#code-comparison-before-vs-after)
+    - [Before: lockfile_tests.rs (Original)](#before-lockfile_testsrs-original)
+    - [After: Lean Refactored](#after-lean-refactored)
+  - [Performance Impact](#performance-impact)
+    - [Compilation Time Reduction](#compilation-time-reduction)
+    - [Test Execution Time](#test-execution-time)
+  - [Files Generated](#files-generated)
+  - [Recommendations](#recommendations)
+    - [Immediate Actions (Week 1)](#immediate-actions-week-1)
+    - [Medium-Term (Week 2-3)](#medium-term-week-2-3)
+    - [Long-Term (Month 1)](#long-term-month-1)
+  - [Lean Manufacturing Principles Applied](#lean-manufacturing-principles-applied)
+    - [1. Mura (Variance) Elimination](#1-mura-variance-elimination)
+    - [2. Muda (Waste) Elimination](#2-muda-waste-elimination)
+    - [3. Poka-Yoke (Error-Proofing)](#3-poka-yoke-error-proofing)
+    - [4. Kaizen (Continuous Improvement)](#4-kaizen-continuous-improvement)
+  - [Impact Summary](#impact-summary)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Lean Manufacturing Test Refactoring Results
 
 ## Executive Summary

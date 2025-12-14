@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Performance & Benchmarks](#performance--benchmarks)
+  - [Service Level Objectives (SLOs)](#service-level-objectives-slos)
+    - [Build Performance](#build-performance)
+    - [Runtime Performance](#runtime-performance)
+    - [Memory Usage](#memory-usage)
+  - [Detailed Benchmarks](#detailed-benchmarks)
+    - [RDF/SPARQL Engine Performance](#rdfsparql-engine-performance)
+      - [Graph Loading Performance](#graph-loading-performance)
+      - [SPARQL Query Performance](#sparql-query-performance)
+      - [RDF Store Scaling](#rdf-store-scaling)
+    - [Template Rendering Performance](#template-rendering-performance)
+      - [Template Compilation](#template-compilation)
+      - [Template Rendering](#template-rendering)
+    - [CLI Performance](#cli-performance)
+      - [Command Execution Time](#command-execution-time)
+    - [AI Integration Performance](#ai-integration-performance)
+  - [Performance Optimization Techniques](#performance-optimization-techniques)
+    - [1. Parallel Execution (v4.0.0)](#1-parallel-execution-v400)
+    - [2. Template Caching (v4.0.0)](#2-template-caching-v400)
+    - [3. SPARQL Query Caching (v4.0.0)](#3-sparql-query-caching-v400)
+    - [4. Incremental Builds (v4.0.0)](#4-incremental-builds-v400)
+  - [Performance Monitoring](#performance-monitoring)
+    - [Continuous Benchmarking](#continuous-benchmarking)
+    - [SLO Verification in CI](#slo-verification-in-ci)
+  - [Performance Regression Detection](#performance-regression-detection)
+    - [Benchmark Baseline](#benchmark-baseline)
+  - [Profiling and Debugging](#profiling-and-debugging)
+    - [CPU Profiling (flamegraph)](#cpu-profiling-flamegraph)
+    - [Memory Profiling (valgrind)](#memory-profiling-valgrind)
+    - [Benchmarking Tools](#benchmarking-tools)
+  - [Optimization Roadmap](#optimization-roadmap)
+    - [v4.1.0 (Q1 2025) - Parallel SPARQL](#v410-q1-2025---parallel-sparql)
+    - [v4.2.0 (Q2 2025) - Persistent RDF Store](#v420-q2-2025---persistent-rdf-store)
+    - [v5.0.0 (Q3 2025) - Streaming Generation](#v500-q3-2025---streaming-generation)
+  - [Key Takeaways](#key-takeaways)
+  - [Detailed Performance Documentation](#detailed-performance-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Performance & Benchmarks
 
 **SLOs**: Service Level Objectives for production readiness

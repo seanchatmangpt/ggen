@@ -1,3 +1,52 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace V2 Migration - Comprehensive Test Strategy](#marketplace-v2-migration---comprehensive-test-strategy)
+  - [Executive Summary](#executive-summary)
+  - [1. Test Organization Structure](#1-test-organization-structure)
+  - [2. Test Coverage Map](#2-test-coverage-map)
+    - [2.1 Unit Tests (Critical 20%)](#21-unit-tests-critical-20)
+    - [2.2 Integration Tests (Critical 20%)](#22-integration-tests-critical-20)
+    - [2.3 Performance Tests (20% for benchmarking)](#23-performance-tests-20-for-benchmarking)
+    - [2.4 Security Tests (Critical for supply chain)](#24-security-tests-critical-for-supply-chain)
+  - [3. Test Data & Fixtures](#3-test-data--fixtures)
+    - [3.1 Package Fixtures](#31-package-fixtures)
+    - [3.2 Test Data Characteristics](#32-test-data-characteristics)
+  - [4. Feature Flag Test Strategy](#4-feature-flag-test-strategy)
+    - [4.1 V1 Only (`marketplace-v1`)](#41-v1-only-marketplace-v1)
+    - [4.2 V2 Only (`marketplace-v2`)](#42-v2-only-marketplace-v2)
+    - [4.3 Parallel Comparison (`marketplace-parallel`)](#43-parallel-comparison-marketplace-parallel)
+  - [5. Performance SLOs & Validation](#5-performance-slos--validation)
+    - [5.1 Latency SLOs](#51-latency-slos)
+    - [5.2 Cache SLOs](#52-cache-slos)
+    - [5.3 Resource SLOs](#53-resource-slos)
+  - [6. Test Execution Plan](#6-test-execution-plan)
+    - [6.1 Development (Fast Feedback)](#61-development-fast-feedback)
+    - [6.2 Pre-Commit (Comprehensive)](#62-pre-commit-comprehensive)
+    - [6.3 CI/CD (Full Suite + Benchmarks)](#63-cicd-full-suite--benchmarks)
+  - [7. Success Criteria & Metrics](#7-success-criteria--metrics)
+    - [7.1 Test Pass Rate](#71-test-pass-rate)
+    - [7.2 Code Coverage](#72-code-coverage)
+    - [7.3 Performance Validation](#73-performance-validation)
+    - [7.4 Security Validation](#74-security-validation)
+  - [8. Test Infrastructure](#8-test-infrastructure)
+    - [8.1 Test Helpers](#81-test-helpers)
+    - [8.2 Benchmarking Infrastructure](#82-benchmarking-infrastructure)
+    - [8.3 Property-Based Testing](#83-property-based-testing)
+  - [9. Continuous Testing Pipeline](#9-continuous-testing-pipeline)
+    - [9.1 GitHub Actions Workflow](#91-github-actions-workflow)
+  - [10. Test Documentation Standards](#10-test-documentation-standards)
+    - [10.1 Test Naming Convention](#101-test-naming-convention)
+    - [10.2 Test Documentation](#102-test-documentation)
+  - [11. Risk Mitigation](#11-risk-mitigation)
+    - [11.1 High-Risk Areas](#111-high-risk-areas)
+    - [11.2 Rollback Plan](#112-rollback-plan)
+  - [12. Timeline & Milestones](#12-timeline--milestones)
+  - [13. References](#13-references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace V2 Migration - Comprehensive Test Strategy
 
 ## Executive Summary

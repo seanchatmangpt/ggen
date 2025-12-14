@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Packs System Architecture Documentation](#packs-system-architecture-documentation)
+  - [Overview](#overview)
+  - [Problem Statement](#problem-statement)
+  - [Solution](#solution)
+  - [Document Index](#document-index)
+    - [00_ARCHITECTURE_DIAGRAM.md](#00_architecture_diagrammd)
+    - [01_ARCHITECTURE_OVERVIEW.md](#01_architecture_overviewmd)
+    - [02_COMMAND_SPECIFICATION.md](#02_command_specificationmd)
+    - [03_DATA_MODEL.md](#03_data_modelmd)
+    - [04_INTEGRATION_LAYER.md](#04_integration_layermd)
+    - [05_USER_WORKFLOWS.md](#05_user_workflowsmd)
+    - [06_IMPLEMENTATION_GUIDE.md](#06_implementation_guidemd)
+  - [Key Features](#key-features)
+  - [Quick Start](#quick-start)
+  - [Implementation Phases](#implementation-phases)
+  - [Success Metrics](#success-metrics)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Packs System Architecture Documentation
 
 **Version:** 3.2.0

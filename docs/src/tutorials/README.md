@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Tutorials - Learning Paths](#tutorials---learning-paths)
+  - [Getting Started (First 5 Minutes)](#getting-started-first-5-minutes)
+  - [Core Workflows (First Hour)](#core-workflows-first-hour)
+  - [Advanced Integration (First Day)](#advanced-integration-first-day)
+  - [Expert Level (First Week)](#expert-level-first-week)
+  - [How to Use These Tutorials](#how-to-use-these-tutorials)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Tutorials - Learning Paths
 
 Progressive learning journeys from beginner to advanced. Tutorials are **learning-oriented, hands-on guides** that teach you how to accomplish specific goals.

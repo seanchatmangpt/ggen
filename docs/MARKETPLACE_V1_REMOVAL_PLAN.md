@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace V1 Removal Plan](#marketplace-v1-removal-plan)
+  - [Executive Summary](#executive-summary)
+  - [Marketplace JTBDs Verification](#marketplace-jtbds-verification)
+    - [✅ All 9 Commands Verified Working with V2](#-all-9-commands-verified-working-with-v2)
+  - [Code Inventory](#code-inventory)
+    - [Files to Remove](#files-to-remove)
+      - [1. Legacy Adapter Code (Unused)](#1-legacy-adapter-code-unused)
+      - [2. Disabled Test Files (V1 References)](#2-disabled-test-files-v1-references)
+      - [3. Legacy Domain Modules (Review for Removal)](#3-legacy-domain-modules-review-for-removal)
+      - [4. Documentation Updates](#4-documentation-updates)
+  - [Removal Steps](#removal-steps)
+    - [Phase 1: Remove Disabled Test Files (Low Risk)](#phase-1-remove-disabled-test-files-low-risk)
+    - [Phase 2: Remove Legacy Adapter Code (Low Risk)](#phase-2-remove-legacy-adapter-code-low-risk)
+    - [Phase 3: Review Legacy Domain Modules (Medium Risk)](#phase-3-review-legacy-domain-modules-medium-risk)
+    - [Phase 4: Update Documentation (Low Risk)](#phase-4-update-documentation-low-risk)
+    - [Phase 5: Final Verification (Critical)](#phase-5-final-verification-critical)
+  - [Risk Assessment](#risk-assessment)
+  - [Rollback Plan](#rollback-plan)
+  - [Success Criteria](#success-criteria)
+  - [Timeline](#timeline)
+  - [Notes](#notes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace V1 Removal Plan
 
 **Status:** Ready for Execution  

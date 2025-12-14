@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace Performance Benchmarking Guide](#marketplace-performance-benchmarking-guide)
+  - [Overview](#overview)
+  - [Quick Start](#quick-start)
+    - [Run Quick Benchmarks (5-10 minutes)](#run-quick-benchmarks-5-10-minutes)
+    - [Run Full Benchmark Suite (20-30 minutes)](#run-full-benchmark-suite-20-30-minutes)
+    - [View Results](#view-results)
+  - [Performance Goals](#performance-goals)
+  - [Benchmark Categories](#benchmark-categories)
+    - [1. Search Performance](#1-search-performance)
+    - [2. Maturity Assessment](#2-maturity-assessment)
+    - [3. Export Performance](#3-export-performance)
+    - [4. Comparison Performance](#4-comparison-performance)
+    - [5. Recommendation Engine](#5-recommendation-engine)
+    - [6. Memory Usage Analysis](#6-memory-usage-analysis)
+    - [7. End-to-End Workflows](#7-end-to-end-workflows)
+  - [Understanding Benchmark Results](#understanding-benchmark-results)
+    - [Criterion Statistics](#criterion-statistics)
+    - [Performance Analysis](#performance-analysis)
+    - [Optimization Recommendations](#optimization-recommendations)
+  - [Running Specific Benchmarks](#running-specific-benchmarks)
+  - [Baseline Tracking](#baseline-tracking)
+  - [Performance Optimization Workflow](#performance-optimization-workflow)
+  - [Common Optimization Patterns](#common-optimization-patterns)
+    - [Search Operations](#search-operations)
+    - [Maturity Assessment](#maturity-assessment)
+    - [Export Operations](#export-operations)
+    - [Memory Optimization](#memory-optimization)
+  - [CI/CD Integration](#cicd-integration)
+  - [Interpreting HTML Reports](#interpreting-html-reports)
+    - [Overview Page](#overview-page)
+    - [Individual Benchmark Pages](#individual-benchmark-pages)
+    - [Key Metrics to Watch](#key-metrics-to-watch)
+  - [Performance Monitoring Dashboard](#performance-monitoring-dashboard)
+  - [Troubleshooting](#troubleshooting)
+    - [Benchmarks Take Too Long](#benchmarks-take-too-long)
+    - [Inconsistent Results](#inconsistent-results)
+    - [Out of Memory Errors](#out-of-memory-errors)
+    - [Compilation Errors](#compilation-errors)
+  - [Advanced Configuration](#advanced-configuration)
+  - [Performance Goals by Dataset Size](#performance-goals-by-dataset-size)
+  - [Reporting Performance Issues](#reporting-performance-issues)
+  - [Resources](#resources)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace Performance Benchmarking Guide
 
 ## Overview

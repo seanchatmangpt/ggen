@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [SPARQL Design Philosophy: Graph Queries for Ontologies](#sparql-design-philosophy-graph-queries-for-ontologies)
+  - [Traditional Query Thinking vs Graph Thinking](#traditional-query-thinking-vs-graph-thinking)
+    - [Traditional (SQL) Thinking](#traditional-sql-thinking)
+    - [Graph Thinking (SPARQL)](#graph-thinking-sparql)
+  - [The Graph Mental Model](#the-graph-mental-model)
+    - [Visualizing SPARQL Queries](#visualizing-sparql-queries)
+  - [Query Patterns](#query-patterns)
+    - [Pattern 1: Simple Path Following](#pattern-1-simple-path-following)
+    - [Pattern 2: Multi-Hop Paths](#pattern-2-multi-hop-paths)
+    - [Pattern 3: Finding Relationships](#pattern-3-finding-relationships)
+    - [Pattern 4: Optional Relationships](#pattern-4-optional-relationships)
+    - [Pattern 5: Counting and Aggregates](#pattern-5-counting-and-aggregates)
+  - [Performance Thinking](#performance-thinking)
+    - [✅ Queries are Well-Constrained](#-queries-are-well-constrained)
+    - [✅ Queries Follow Natural Paths](#-queries-follow-natural-paths)
+    - [✅ Queries Use Indices Effectively](#-queries-use-indices-effectively)
+  - [Design Philosophy Principles](#design-philosophy-principles)
+    - [Principle 1: Declarative, Not Imperative](#principle-1-declarative-not-imperative)
+    - [Principle 2: Graph Patterns Are Your Vocabulary](#principle-2-graph-patterns-are-your-vocabulary)
+    - [Principle 3: Filters Refine, Don't Define](#principle-3-filters-refine-dont-define)
+    - [Principle 4: Common Relationships Are Powerful](#principle-4-common-relationships-are-powerful)
+  - [Common Query Challenges](#common-query-challenges)
+    - [Challenge 1: Backwards Relationships](#challenge-1-backwards-relationships)
+    - [Challenge 2: Multiple Paths](#challenge-2-multiple-paths)
+    - [Challenge 3: Recursive Relationships](#challenge-3-recursive-relationships)
+  - [Design Best Practices](#design-best-practices)
+    - [1. Use Semantic Naming](#1-use-semantic-naming)
+    - [2. Model Entities Explicitly](#2-model-entities-explicitly)
+    - [3. Index for Query Performance](#3-index-for-query-performance)
+    - [4. Normalize Your Graph](#4-normalize-your-graph)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # SPARQL Design Philosophy: Graph Queries for Ontologies
 
 Understanding how to think about queries using SPARQL.

@@ -1,3 +1,50 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Astro Next.js Monorepo → ggen Rust Workspace Mapping](#astro-nextjs-monorepo-%E2%86%92-ggen-rust-workspace-mapping)
+  - [1. Workspace Structure Comparison](#1-workspace-structure-comparison)
+    - [Astro (Next.js Monorepo)](#astro-nextjs-monorepo)
+    - [ggen (Rust Workspace) - Current](#ggen-rust-workspace---current)
+    - [ggen (Proposed) - With Astro Patterns](#ggen-proposed---with-astro-patterns)
+  - [2. Package.json Scripts Mapping](#2-packagejson-scripts-mapping)
+    - [Astro Root package.json Scripts](#astro-root-packagejson-scripts)
+    - [ggen package.json (Proposed) - Rust Equivalents](#ggen-packagejson-proposed---rust-equivalents)
+  - [3. Workspace Package Pattern Translation](#3-workspace-package-pattern-translation)
+    - [Astro Package Pattern (packages/services/)](#astro-package-pattern-packagesservices)
+    - [ggen Crate Pattern (crates/ggen-domain/Cargo.toml)](#ggen-crate-pattern-cratesggen-domaincargotoml)
+  - [4. Unified Commands Pattern](#4-unified-commands-pattern)
+    - [Astro Pattern](#astro-pattern)
+    - [ggen Pattern (Proposed)](#ggen-pattern-proposed)
+  - [5. Infrastructure Scripts Pattern](#5-infrastructure-scripts-pattern)
+    - [Astro Scripts](#astro-scripts)
+    - [ggen Scripts (Proposed)](#ggen-scripts-proposed)
+  - [6. Documentation Structure (80/20 from Astro)](#6-documentation-structure-8020-from-astro)
+    - [Astro Has](#astro-has)
+    - [ggen Should Add](#ggen-should-add)
+  - [7. Specs Directory Pattern (From Astro)](#7-specs-directory-pattern-from-astro)
+    - [Astro Spec Structure](#astro-spec-structure)
+    - [ggen Spec Structure (Simplified)](#ggen-spec-structure-simplified)
+  - [8. Key Patterns to Adopt from Astro](#8-key-patterns-to-adopt-from-astro)
+    - [1. Root-Level Summary Docs](#1-root-level-summary-docs)
+    - [2. Unified Script Interface](#2-unified-script-interface)
+    - [3. Infrastructure Directory](#3-infrastructure-directory)
+    - [4. Specs Directory](#4-specs-directory)
+    - [5. Thesis Directory](#5-thesis-directory)
+    - [6. Workspace Scripts Pattern](#6-workspace-scripts-pattern)
+    - [7. Database Scripts](#7-database-scripts)
+  - [9. Translation Table (Next.js ↔ Rust)](#9-translation-table-nextjs--rust)
+  - [10. Implementation Priority (80/20)](#10-implementation-priority-8020)
+    - [Phase 1: Core Infrastructure (Week 1)](#phase-1-core-infrastructure-week-1)
+    - [Phase 2: Documentation Enrichment (Week 2)](#phase-2-documentation-enrichment-week-2)
+    - [Phase 3: Polish & Integration (Week 3)](#phase-3-polish--integration-week-3)
+  - [11. Example: Complete Spec Template](#11-example-complete-spec-template)
+  - [Implementation Plan](#implementation-plan)
+  - [Testing Strategy](#testing-strategy)
+  - [Success Metrics](#success-metrics)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Astro Next.js Monorepo → ggen Rust Workspace Mapping
 
 **Purpose**: Translate proven Next.js monorepo patterns to Rust workspace

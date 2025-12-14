@@ -1,3 +1,58 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [CLI Performance Benchmark Report](#cli-performance-benchmark-report)
+  - [Executive Summary](#executive-summary)
+    - [Performance Status: ⚠️ **MIXED** - Some SLO Violations Detected](#performance-status--mixed---some-slo-violations-detected)
+    - [SLO Compliance Summary](#slo-compliance-summary)
+  - [1. CLI Command Performance (Real-World Testing)](#1-cli-command-performance-real-world-testing)
+    - [1.1 Command Startup Times (10-run averages)](#11-command-startup-times-10-run-averages)
+    - [1.2 Root Cause Analysis: `--help` Performance Issue](#12-root-cause-analysis---help-performance-issue)
+  - [2. Template Parsing Performance (Criterion Benchmarks)](#2-template-parsing-performance-criterion-benchmarks)
+    - [2.1 Simple Template Parsing (SLO: P50 < 5ms)](#21-simple-template-parsing-slo-p50--5ms)
+    - [2.2 Complex Template Parsing (SLO: P50 < 10ms)](#22-complex-template-parsing-slo-p50--10ms)
+  - [3. JSON Serialization Performance](#3-json-serialization-performance)
+    - [3.1 Serialization Benchmarks (Criterion)](#31-serialization-benchmarks-criterion)
+  - [4. String Allocation Patterns (Performance Impact)](#4-string-allocation-patterns-performance-impact)
+    - [4.1 Allocation Pattern Comparison](#41-allocation-pattern-comparison)
+    - [4.2 80/20 Quick Wins](#42-8020-quick-wins)
+  - [5. Memory Usage Analysis](#5-memory-usage-analysis)
+    - [5.1 CLI Command Memory Footprint](#51-cli-command-memory-footprint)
+    - [5.2 Template Memory Benchmarks](#52-template-memory-benchmarks)
+  - [6. End-to-End Workflow Performance](#6-end-to-end-workflow-performance)
+    - [6.1 Workflow Benchmarks](#61-workflow-benchmarks)
+  - [7. Performance Bottleneck Identification](#7-performance-bottleneck-identification)
+    - [7.1 Critical Bottlenecks (80/20 Analysis)](#71-critical-bottlenecks-8020-analysis)
+      - [🔴 **CRITICAL: CLI Help Generation (330ms)**](#-critical-cli-help-generation-330ms)
+    - [7.2 Medium-Priority Optimizations](#72-medium-priority-optimizations)
+      - [⚠️ **String Cloning in Hot Paths**](#-string-cloning-in-hot-paths)
+  - [8. Zero-Cost Abstraction Opportunities](#8-zero-cost-abstraction-opportunities)
+    - [8.1 Identified Opportunities](#81-identified-opportunities)
+    - [8.2 Recommendations](#82-recommendations)
+  - [9. 80/20 Quick Wins (Prioritized)](#9-8020-quick-wins-prioritized)
+    - [Priority 1: Fix CLI Help Performance (CRITICAL)](#priority-1-fix-cli-help-performance-critical)
+    - [Priority 2: Optimize String Allocations](#priority-2-optimize-string-allocations)
+    - [Priority 3: Cache SPARQL Query Results](#priority-3-cache-sparql-query-results)
+  - [10. Performance SLO Compliance Summary](#10-performance-slo-compliance-summary)
+    - [✅ **PASSING** (10/11 categories - 91% compliance)](#-passing-1011-categories---91-compliance)
+    - [❌ **FAILING** (1/11 categories - 9% non-compliance)](#-failing-111-categories---9-non-compliance)
+  - [11. Recommendations for Continuous Monitoring](#11-recommendations-for-continuous-monitoring)
+    - [11.1 Add to CI/CD Pipeline](#111-add-to-cicd-pipeline)
+    - [11.2 Add SLO Validation Task](#112-add-slo-validation-task)
+    - [11.3 Performance Dashboard](#113-performance-dashboard)
+  - [12. Conclusion](#12-conclusion)
+    - [Overall Assessment: ⚠️ **GOOD with Critical Issue**](#overall-assessment--good-with-critical-issue)
+  - [Appendix A: Full Benchmark Results](#appendix-a-full-benchmark-results)
+    - [A.1 Template Parsing (Criterion)](#a1-template-parsing-criterion)
+    - [A.2 JSON Serialization (Criterion)](#a2-json-serialization-criterion)
+    - [A.3 String Allocation Patterns (Criterion)](#a3-string-allocation-patterns-criterion)
+    - [A.4 Memory Usage (Criterion)](#a4-memory-usage-criterion)
+    - [A.5 End-to-End Workflows (Criterion)](#a5-end-to-end-workflows-criterion)
+  - [Appendix B: Test Environment](#appendix-b-test-environment)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # CLI Performance Benchmark Report
 **Date**: 2025-12-02
 **ggen Version**: 3.3.0

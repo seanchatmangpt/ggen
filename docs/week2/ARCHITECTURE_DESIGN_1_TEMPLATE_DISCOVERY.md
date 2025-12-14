@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 2 Architecture Design 1: Auto-Discovery Build Script](#week-2-architecture-design-1-auto-discovery-build-script)
+  - [Executive Summary](#executive-summary)
+  - [Current State Analysis](#current-state-analysis)
+    - [Existing Implementation](#existing-implementation)
+    - [Template Structure](#template-structure)
+  - [Proposed Architecture](#proposed-architecture)
+    - [1. Build Script Design (`crates/ggen-core/build.rs`)](#1-build-script-design-cratesggen-corebuildrs)
+    - [2. Integration with CLI (`crates/ggen-cli/src/cmds/template.rs`)](#2-integration-with-cli-cratesggen-clisrccmdstemplaters)
+    - [3. Validation Integration](#3-validation-integration)
+  - [Benefits Analysis](#benefits-analysis)
+    - [Performance Improvements](#performance-improvements)
+    - [Quality Improvements](#quality-improvements)
+    - [Risk Mitigation](#risk-mitigation)
+  - [Implementation Roadmap](#implementation-roadmap)
+    - [Phase 1: Build Script (2 hours)](#phase-1-build-script-2-hours)
+    - [Phase 2: CLI Integration (1 hour)](#phase-2-cli-integration-1-hour)
+    - [Phase 3: CI Integration (1 hour)](#phase-3-ci-integration-1-hour)
+  - [Rollout Strategy](#rollout-strategy)
+    - [Stage 1: Parallel Implementation (Week 2, Days 1-2)](#stage-1-parallel-implementation-week-2-days-1-2)
+    - [Stage 2: Validation & Testing (Week 2, Days 3-4)](#stage-2-validation--testing-week-2-days-3-4)
+    - [Stage 3: Rollout (Week 2, Day 5)](#stage-3-rollout-week-2-day-5)
+    - [Stage 4: Cleanup (Week 3, Day 1)](#stage-4-cleanup-week-3-day-1)
+  - [Success Criteria](#success-criteria)
+    - [Functional Requirements](#functional-requirements)
+    - [Non-Functional Requirements](#non-functional-requirements)
+    - [Quality Gates](#quality-gates)
+  - [ADR: Template Discovery Strategy](#adr-template-discovery-strategy)
+  - [Effort Estimates](#effort-estimates)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 2 Architecture Design 1: Auto-Discovery Build Script
 
 **Design Phase:** Reduce Waste - Template Auto-Discovery System

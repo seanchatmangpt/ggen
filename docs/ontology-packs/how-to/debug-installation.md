@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How to: Debug Pack Installation](#how-to-debug-pack-installation)
+  - [Enable Verbose Logging](#enable-verbose-logging)
+  - [Check Pack Integrity](#check-pack-integrity)
+  - [Validate Before Installation](#validate-before-installation)
+  - [Common Issues](#common-issues)
+    - [Issue 1: Signature Verification Failed](#issue-1-signature-verification-failed)
+    - [Issue 2: Template Not Found](#issue-2-template-not-found)
+    - [Issue 3: SPARQL Query Fails](#issue-3-sparql-query-fails)
+    - [Issue 4: Type Generation Incorrect](#issue-4-type-generation-incorrect)
+    - [Issue 5: Generation Crashes](#issue-5-generation-crashes)
+  - [Debugging Tools](#debugging-tools)
+    - [Inspect Pack Contents](#inspect-pack-contents)
+    - [Dry Run Generation](#dry-run-generation)
+    - [Compare Pack Versions](#compare-pack-versions)
+    - [Test in Isolated Environment](#test-in-isolated-environment)
+  - [Check Logs](#check-logs)
+  - [Clean Cache and Retry](#clean-cache-and-retry)
+  - [Report Issue](#report-issue)
+  - [Related Guides](#related-guides)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How to: Debug Pack Installation
 
 **Problem:** Pack installation fails or generates incorrect code.

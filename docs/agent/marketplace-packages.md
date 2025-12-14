@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace Packages Guide](#marketplace-packages-guide)
+  - [Package Structure (package.toml)](#package-structure-packagetoml)
+  - [RDF-Backed Package Registry](#rdf-backed-package-registry)
+    - [Package RDF Model](#package-rdf-model)
+  - [SPARQL Package Search](#sparql-package-search)
+    - [Full-Text Search](#full-text-search)
+    - [Filter by Framework](#filter-by-framework)
+    - [Dependency Resolution](#dependency-resolution)
+  - [Version Resolution](#version-resolution)
+  - [Ed25519 Signing & Verification](#ed25519-signing--verification)
+    - [Key Management](#key-management)
+  - [Package Installation](#package-installation)
+  - [Critical Rules](#critical-rules)
+  - [Examples](#examples)
+    - [Install Package from Marketplace](#install-package-from-marketplace)
+    - [Search and Install with Dependency Resolution](#search-and-install-with-dependency-resolution)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace Packages Guide
 
 ## Package Structure (package.toml)

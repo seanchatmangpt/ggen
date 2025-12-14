@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Migrate Legacy Projects to Ontology-Driven Development](#migrate-legacy-projects-to-ontology-driven-development)
+  - [Migration Strategy](#migration-strategy)
+    - [Phase 1: Extract (Weeks 1-2)](#phase-1-extract-weeks-1-2)
+    - [Phase 2: Validate (Weeks 2-3)](#phase-2-validate-weeks-2-3)
+    - [Phase 3: Parallel Implementation (Weeks 3-4)](#phase-3-parallel-implementation-weeks-3-4)
+    - [Phase 4: Gradual Cutover (Weeks 4+)](#phase-4-gradual-cutover-weeks-4)
+  - [Real-World Example: E-Commerce Migration](#real-world-example-e-commerce-migration)
+    - [Before: Multiple Type Definitions](#before-multiple-type-definitions)
+    - [After: Single Ontology](#after-single-ontology)
+  - [Handling Legacy Quirks](#handling-legacy-quirks)
+    - [Problem: Custom Validation Logic](#problem-custom-validation-logic)
+    - [Problem: Custom Constructors](#problem-custom-constructors)
+  - [Migration Checklist](#migration-checklist)
+  - [Timeline Expectations](#timeline-expectations)
+  - [When to Migrate](#when-to-migrate)
+  - [Common Pitfalls](#common-pitfalls)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Migrate Legacy Projects to Ontology-Driven Development
 
 Convert existing projects to use ggen's ontology-driven approach incrementally.

@@ -1,3 +1,49 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Thesis: Deterministic Code Generation](#thesis-deterministic-code-generation)
+  - [The Problem: Non-Deterministic Generation](#the-problem-non-deterministic-generation)
+    - [What is Non-Determinism?](#what-is-non-determinism)
+    - [Why Non-Determinism is Harmful](#why-non-determinism-is-harmful)
+      - [1. CI/CD Failures](#1-cicd-failures)
+      - [2. Difficult Debugging](#2-difficult-debugging)
+      - [3. Version Control Pollution](#3-version-control-pollution)
+  - [The Solution: Deterministic Transforms](#the-solution-deterministic-transforms)
+    - [Principles of Deterministic Generation](#principles-of-deterministic-generation)
+      - [1. Pure Functions (No Side Effects)](#1-pure-functions-no-side-effects)
+      - [2. Explicit Dependencies (No Hidden State)](#2-explicit-dependencies-no-hidden-state)
+      - [3. Idempotent Operations (Re-Running Safe)](#3-idempotent-operations-re-running-safe)
+      - [4. Stable Ordering (Consistent Iteration)](#4-stable-ordering-consistent-iteration)
+  - [Implementation in ggen](#implementation-in-ggen)
+    - [1. RDF Graphs are Immutable](#1-rdf-graphs-are-immutable)
+    - [2. SPARQL Queries are Deterministic](#2-sparql-queries-are-deterministic)
+    - [3. Tera Templates Have No Side Effects](#3-tera-templates-have-no-side-effects)
+    - [4. No Timestamps in Generated Code](#4-no-timestamps-in-generated-code)
+  - [Verification and Testing](#verification-and-testing)
+    - [1. Hash-Based Verification](#1-hash-based-verification)
+    - [2. Version-Controlled Snapshots](#2-version-controlled-snapshots)
+    - [3. Property-Based Testing (All Inputs)](#3-property-based-testing-all-inputs)
+  - [Benefits of Deterministic Generation](#benefits-of-deterministic-generation)
+    - [1. CI/CD Integration](#1-cicd-integration)
+    - [2. Git Diffs are Meaningful](#2-git-diffs-are-meaningful)
+    - [3. Reproducible Bugs](#3-reproducible-bugs)
+    - [4. Caching Opportunities](#4-caching-opportunities)
+  - [Challenges and Solutions](#challenges-and-solutions)
+    - [Challenge 1: AI-Generated Code](#challenge-1-ai-generated-code)
+    - [Challenge 2: External Data Sources](#challenge-2-external-data-sources)
+    - [Challenge 3: Floating-Point Arithmetic](#challenge-3-floating-point-arithmetic)
+  - [Comparison to Other Tools](#comparison-to-other-tools)
+    - [ggen vs. OpenAPI Generator](#ggen-vs-openapi-generator)
+    - [ggen vs. Protobuf Compiler](#ggen-vs-protobuf-compiler)
+  - [Conclusion](#conclusion)
+    - [Key Principles](#key-principles)
+    - [Production Guarantees](#production-guarantees)
+    - [Call to Action](#call-to-action)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Thesis: Deterministic Code Generation
 
 **Abstract**: Code generation must be reproducible - same inputs must always produce same outputs. This thesis argues that deterministic generation is essential for CI/CD pipelines, debugging, and version control, and demonstrates how to achieve it in practice.
