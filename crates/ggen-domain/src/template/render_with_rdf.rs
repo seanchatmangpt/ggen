@@ -164,20 +164,20 @@ pub fn render_with_rdf(options: &RenderWithRdfOptions) -> Result<RenderWithRdfRe
         context.insert(key, value);
     }
 
-    // Count SPARQL queries from frontmatter
-    let sparql_count = template.front.sparql.len();
-
     // Create RDF graph
     let mut graph = Graph::new().map_err(|e| {
         ggen_utils::error::Error::new(&format!("Failed to create RDF graph: {}", e))
     })?;
 
-    // Render frontmatter first
+    // Render frontmatter first - this populates template.front from raw_frontmatter
     template
         .render_frontmatter(&mut tera, &context)
         .map_err(|e| {
             ggen_utils::error::Error::new(&format!("Failed to render frontmatter: {}", e))
         })?;
+
+    // Count SPARQL queries from frontmatter AFTER render_frontmatter populates it
+    let sparql_count = template.front.sparql.len();
 
     // Determine base output directory for resolving frontmatter `to` paths
     let base_output_dir = if options.output_path.is_dir() {
