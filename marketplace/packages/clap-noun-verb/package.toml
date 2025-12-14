@@ -124,12 +124,13 @@ gitignore_patterns = [
 
 [fmea]
 # Controls for high-RPN failure modes (Risk Priority Number = Severity × Occurrence × Detection)
+# RPN = S × O × D, where each is 1-10 scale
 controls = [
-    { id = "F1", mode = "Edit generated file", rpn = 216, control = "File header warning + gitignore" },
-    { id = "F2", mode = "Overwrite domain logic", rpn = 140, control = "Trait boundary - domain in separate files" },
-    { id = "F5", mode = "Missing error handling", rpn = 240, control = "Trait requires Result<T> return type" },
-    { id = "F8", mode = "Test pass, prod fail", rpn = 252, control = "Feature flags + canary hooks" },
-    { id = "F9", mode = "Merge conflict in ontology", rpn = 80, control = "One file per verb pattern" },
+    { id = "F1", mode = "Edit generated file", severity = 8, occurrence = 6, detection = 5, control = "File header warning + gitignore" },
+    { id = "F2", mode = "Overwrite domain logic", severity = 10, occurrence = 4, detection = 4, control = "Trait boundary - domain in separate files" },
+    { id = "F5", mode = "Missing error handling", severity = 8, occurrence = 6, detection = 5, control = "Trait requires Result<T> return type" },
+    { id = "F8", mode = "Test pass, prod fail", severity = 9, occurrence = 7, detection = 4, control = "Feature flags + canary hooks" },
+    { id = "F9", mode = "Merge conflict in ontology", severity = 5, occurrence = 4, detection = 4, control = "One file per verb pattern" },
 ]
 
 [examples]
