@@ -1,0 +1,56 @@
+command: "ggen ai generate"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 62
+agent_breakdown:
+  parseable_output: 20
+  error_messages: 14
+  idempotency: 9
+  progress_feedback: 8
+  dry_run: 5
+  documentation: 6
+  exit_codes: 4
+
+avatar_notes:
+  claude_code: "AI-assisted generation; useful for scaffolding"
+  cursor_ai: "Code suggestions via AI"
+  copilot: "Pattern learning from generated code"
+  aider: "Can track AI-generated changes"
+  devin: "Can generate code autonomously"
+  openhands: "Customizable generation parameters"
+  windsurf: "Generated suggestions in IDE"
+
+maturity_level: "L2"
+maturity_blockers:
+  - "Incomplete --dry-run support"
+  - "Exit codes not semantic"
+
+evidence_files: []
+
+recommendations:
+  - priority: P1
+    description: "Implement comprehensive --dry-run preview"
+    effort: medium
+    impact: high
+  - priority: P1
+    description: "Add semantic exit codes"
+    effort: low
+    impact: medium
+  - priority: P2
+    description: "Add --explain flag for generation rationale"
+    effort: medium
+    impact: low
+
+jtbd: |
+  When I want AI to generate code,
+  I need to run 'ggen ai generate' with prompt/specification,
+  so that I can get AI-assisted code generation.

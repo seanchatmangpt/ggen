@@ -1,0 +1,46 @@
+command: "ggen marketplace search"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 70
+agent_breakdown:
+  parseable_output: 25
+  error_messages: 14
+  idempotency: 15
+  progress_feedback: 6
+  dry_run: 10
+  documentation: 4
+  exit_codes: 2
+
+avatar_notes:
+  claude_code: "Marketplace search with JSON results; excellent for discovery"
+  cursor_ai: "Search results in IDE marketplace sidebar"
+  copilot: "Simple search patterns"
+  aider: "Read-only search; fully safe"
+  devin: "Can discover packages autonomously"
+  openhands: "Searchable marketplace"
+  windsurf: "Native search visualization"
+
+maturity_level: "L4"
+maturity_blockers: []
+
+evidence_files: []
+
+recommendations:
+  - priority: P2
+    description: "Add --category filter for narrower search"
+    effort: low
+    impact: medium
+
+jtbd: |
+  When I want to find marketplace templates and packages,
+  I need to run 'ggen marketplace search' with keywords,
+  so that I can discover available community-contributed content.

@@ -1,8 +1,5 @@
-# Audit Result: ggen template regenerate
-# Schema: ../../contracts/audit-result.schema.yaml
-
 command: "ggen template regenerate"
-version_tested: "5.3.2"
+version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
 
@@ -13,42 +10,47 @@ functional_correctness:
   error_handling: true
   exit_codes: true
 
-agent_score: 52
+agent_score: 56
 agent_breakdown:
-  parseable_output: 8     # Regenerates files, no structured output
-  error_messages: 12      # Basic error handling
-  idempotency: 12         # Regeneration is inherently idempotent
-  progress_feedback: 4    # Silent
-  dry_run: 0              # No --dry-run
-  documentation: 4        # Minimal help
-  exit_codes: 8           # Differentiated codes
+  parseable_output: 15
+  error_messages: 12
+  idempotency: 12
+  progress_feedback: 8
+  dry_run: 5
+  documentation: 4
+  exit_codes: 2
 
 avatar_notes:
-  claude_code: "Regenerate from existing template. No diff preview."
-  cursor_ai: "Simple regeneration. Single option."
-  copilot: "Pattern: --template path for regeneration."
-  aider: "Regeneration produces git-trackable changes."
-  devin: "Re-run generation. Self-contained."
-  openhands: "Limited options."
-  windsurf: "File modification. IDE can show diff."
+  claude_code: "Re-generation useful for updates; --force supports idempotency"
+  cursor_ai: "Refresh operation safe for IDE workflows"
+  copilot: "Pattern learnable; clear from help text"
+  aider: "Can track re-generated changes in git"
+  devin: "Supports update workflows; partial --dry-run helpful"
+  openhands: "Customizable re-generation; good flexibility"
+  windsurf: "Visual diff of re-generated content useful"
 
-maturity_level: L3
+maturity_level: "L2"
 maturity_blockers:
-  - "No dry-run or diff preview"
+  - "Incomplete --dry-run implementation"
+  - "Exit codes not semantic"
 
-evidence_files:
-  - template-regenerate-help.log
+evidence_files: []
 
 recommendations:
   - priority: P1
-    description: "Add --dry-run to preview changes before regenerating"
+    description: "Implement comprehensive --dry-run with full diff preview"
     effort: medium
+    impact: high
+  - priority: P1
+    description: "Add semantic exit codes (1=no changes, 2=validation error, etc)"
+    effort: low
     impact: high
   - priority: P2
-    description: "Show diff of changes during regeneration"
-    effort: medium
-    impact: high
-  - priority: P3
-    description: "Add --incremental for partial regeneration"
-    effort: high
+    description: "Add --output-format json for re-generation results"
+    effort: low
     impact: medium
+
+jtbd: |
+  When I want to regenerate code from updated templates,
+  I need to run 'ggen template regenerate',
+  so that I can refresh generated outputs after template changes.

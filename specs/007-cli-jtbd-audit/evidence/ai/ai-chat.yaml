@@ -1,0 +1,56 @@
+command: "ggen ai chat"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 44
+agent_breakdown:
+  parseable_output: 10
+  error_messages: 10
+  idempotency: 6
+  progress_feedback: 8
+  dry_run: 0
+  documentation: 6
+  exit_codes: 4
+
+avatar_notes:
+  claude_code: "Interactive chat; limited autonomous orchestration"
+  cursor_ai: "Chat integration not practical"
+  copilot: "Learning patterns difficult"
+  aider: "Interactive mode not suitable"
+  devin: "Chat requires continuous interaction"
+  openhands: "Interactive workflow unclear"
+  windsurf: "IDE chat integration possible"
+
+maturity_level: "L1"
+maturity_blockers:
+  - "Interactive mode blocks agent autonomy"
+  - "No structured output format"
+
+evidence_files: []
+
+recommendations:
+  - priority: P1
+    description: "Add --batch mode for non-interactive chat"
+    effort: medium
+    impact: high
+  - priority: P1
+    description: "Add --output-format json for responses"
+    effort: low
+    impact: high
+  - priority: P2
+    description: "Support --system-prompt for customization"
+    effort: low
+    impact: medium
+
+jtbd: |
+  When I want to chat with AI for code insights,
+  I need to run 'ggen ai chat',
+  so that I can get AI assistance interactively.

@@ -1,0 +1,46 @@
+command: "ggen fmea analyze"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 62
+agent_breakdown:
+  parseable_output: 20
+  error_messages: 14
+  idempotency: 15
+  progress_feedback: 6
+  dry_run: 10
+  documentation: 4
+  exit_codes: 2
+
+avatar_notes:
+  claude_code: "Analyzes FMEA with JSON results"
+  cursor_ai: "Analysis results in IDE"
+  copilot: "Clear analysis patterns"
+  aider: "Read-only analysis; safe"
+  devin: "Can analyze autonomously"
+  openhands: "Customizable analysis"
+  windsurf: "Analysis visualization"
+
+maturity_level: "L3"
+maturity_blockers: []
+
+evidence_files: []
+
+recommendations:
+  - priority: P2
+    description: "Add --severity-threshold filtering"
+    effort: low
+    impact: medium
+
+jtbd: |
+  When I want to analyze failure modes,
+  I need to run 'ggen fmea analyze' with FMEA file,
+  so that I can identify and score potential failures.

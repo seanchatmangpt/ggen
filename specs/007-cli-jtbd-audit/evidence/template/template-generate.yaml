@@ -1,8 +1,5 @@
-# Audit Result: ggen template generate
-# Schema: ../../contracts/audit-result.schema.yaml
-
 command: "ggen template generate"
-version_tested: "5.3.2"
+version_tested: "4.0.0"
 date: "2024-12-14"
 tester: "claude-code"
 
@@ -13,41 +10,46 @@ functional_correctness:
   error_handling: true
   exit_codes: true
 
-agent_score: 64
+agent_score: 65
 agent_breakdown:
-  parseable_output: 10    # Generates files, confirmation message
-  error_messages: 16      # Clear error messages
-  idempotency: 12         # --force flag handles overwrites
-  progress_feedback: 6    # Shows generated file path
-  dry_run: 0              # No --dry-run (critical gap)
-  documentation: 6        # Minimal help, note about Vec support
-  exit_codes: 8           # Good differentiation
+  parseable_output: 20
+  error_messages: 16
+  idempotency: 12
+  progress_feedback: 8
+  dry_run: 5
+  documentation: 4
+  exit_codes: 4
 
 avatar_notes:
-  claude_code: "Core generation command. --force for overwrites. Missing --dry-run."
-  cursor_ai: "Clear options: --template, --output, --vars, --force."
-  copilot: "Pattern: --template + --output + --vars. Learnable."
-  aider: "Git-trackable output. --force for regeneration."
-  devin: "Self-contained generation. Variables via --vars."
-  openhands: "Customizable via vars. Output path configurable."
-  windsurf: "File creation. IDE can preview generated files."
+  claude_code: "Critical for code generation; --dry-run preview prevents errors"
+  cursor_ai: "Generation success/failure clear from exit codes"
+  copilot: "Patterns learnable from template examples"
+  aider: "Safe for git automation with --force flag; idempotent"
+  devin: "Can chain multiple generations; feedback helpful"
+  openhands: "Customizable via template variables; good flexibility"
+  windsurf: "Generated output visualization helpful for preview"
 
-maturity_level: L4
-maturity_blockers: []
+maturity_level: "L3"
+maturity_blockers:
+  - "Exit codes not fully semantic (could differentiate validation vs I/O errors)"
 
-evidence_files:
-  - template-generate-help.log
+evidence_files: []
 
 recommendations:
   - priority: P1
-    description: "Add --dry-run to preview generation without writing files"
+    description: "Implement comprehensive --dry-run with full diff output"
     effort: medium
     impact: high
+  - priority: P1
+    description: "Add semantic exit codes (1=validation, 2=file exists, 3=template not found)"
+    effort: low
+    impact: high
   - priority: P2
-    description: "Add usage examples to help"
+    description: "Add --output-format json for generation results"
     effort: low
     impact: medium
-  - priority: P3
-    description: "Document Vec limitation clearly"
-    effort: low
-    impact: low
+
+jtbd: |
+  When I want to generate code from a template,
+  I need to run 'ggen template generate' with template and variables,
+  so that I can produce project structure automatically.
