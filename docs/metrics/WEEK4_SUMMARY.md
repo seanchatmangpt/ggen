@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 4: Metrics Tracking & Health Score Validation - Summary](#week-4-metrics-tracking--health-score-validation---summary)
+  - [What Was Delivered](#what-was-delivered)
+    - [1. Automated Daily Tracking System](#1-automated-daily-tracking-system)
+    - [2. Interactive Visual Dashboard](#2-interactive-visual-dashboard)
+    - [3. Comprehensive Documentation](#3-comprehensive-documentation)
+  - [Health Score Tracking](#health-score-tracking)
+    - [Formula](#formula)
+    - [Week 4 Targets](#week-4-targets)
+    - [Daily Trajectory](#daily-trajectory)
+  - [File Structure](#file-structure)
+  - [How to Use (Quick Start)](#how-to-use-quick-start)
+    - [Daily Workflow (Days 1-5)](#daily-workflow-days-1-5)
+    - [First-Time Setup](#first-time-setup)
+  - [Expected Outputs](#expected-outputs)
+    - [Daily Tracker Console Output](#daily-tracker-console-output)
+    - [Dashboard Output](#dashboard-output)
+  - [Daily Report Structure](#daily-report-structure)
+  - [Validation & Testing](#validation--testing)
+  - [Success Criteria](#success-criteria)
+    - [Week 4 Completion](#week-4-completion)
+    - [Tracking System Success](#tracking-system-success)
+  - [Next Steps](#next-steps)
+    - [Immediate (Week 4 Days 1-5)](#immediate-week-4-days-1-5)
+    - [After Week 4 (Week 5+)](#after-week-4-week-5)
+  - [References](#references)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 4: Metrics Tracking & Health Score Validation - Summary
 
 **Created:** 2025-11-18

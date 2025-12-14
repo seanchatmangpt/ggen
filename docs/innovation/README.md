@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Andon Signal Validation Framework](#andon-signal-validation-framework)
+  - [Overview](#overview)
+    - [Problem Solved](#problem-solved)
+  - [Quick Start](#quick-start)
+  - [Architecture](#architecture)
+    - [Three-Layer Validation](#three-layer-validation)
+    - [Andon Signals](#andon-signals)
+  - [Documentation](#documentation)
+    - [Getting Started](#getting-started)
+    - [Framework Design](#framework-design)
+    - [Implementation Details](#implementation-details)
+    - [User Experience](#user-experience)
+  - [Key Features](#key-features)
+  - [Usage](#usage)
+    - [Basic Commands](#basic-commands)
+    - [Integration Points](#integration-points)
+  - [Framework Files](#framework-files)
+    - [Core Implementation](#core-implementation)
+    - [Integration](#integration)
+  - [Benefits](#benefits)
+  - [Success Metrics](#success-metrics)
+  - [Next Steps](#next-steps)
+  - [Support](#support)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Andon Signal Validation Framework
 
 **Version**: v1.0.0  

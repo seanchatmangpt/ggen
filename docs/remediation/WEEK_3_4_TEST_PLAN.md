@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [WEEK 3-4: Comprehensive Test Addition Plan](#week-3-4-comprehensive-test-addition-plan)
+  - [Overview](#overview)
+  - [Test Categories](#test-categories)
+    - [1. Graph Module Tests (100 tests) - Priority 1](#1-graph-module-tests-100-tests---priority-1)
+      - [Core Operations (20 tests)](#core-operations-20-tests)
+      - [Export Operations (20 tests)](#export-operations-20-tests)
+      - [Query Operations (20 tests)](#query-operations-20-tests)
+      - [Store Operations (20 tests)](#store-operations-20-tests)
+      - [Update Operations (20 tests)](#update-operations-20-tests)
+    - [2. Ontology Module Tests (300 tests) - Priority 2](#2-ontology-module-tests-300-tests---priority-2)
+      - [Constitution Tests (100 tests)](#constitution-tests-100-tests)
+      - [Control Loop Tests (100 tests)](#control-loop-tests-100-tests)
+      - [Extractor Tests (100 tests)](#extractor-tests-100-tests)
+    - [3. Lifecycle Tests (100 tests) - Priority 3](#3-lifecycle-tests-100-tests---priority-3)
+      - [State Machine Tests (50 tests)](#state-machine-tests-50-tests)
+      - [Template Phase Tests (25 tests)](#template-phase-tests-25-tests)
+      - [Poka-Yoke Tests (25 tests)](#poka-yoke-tests-25-tests)
+    - [4. Integration Tests (100 tests) - Priority 4](#4-integration-tests-100-tests---priority-4)
+      - [End-to-End Workflows (40 tests)](#end-to-end-workflows-40-tests)
+      - [Cross-Module Integration (30 tests)](#cross-module-integration-30-tests)
+      - [Performance Tests (30 tests)](#performance-tests-30-tests)
+  - [Test Structure Template](#test-structure-template)
+  - [Coverage Goals](#coverage-goals)
+  - [Timeline](#timeline)
+    - [Week 3](#week-3)
+    - [Week 4](#week-4)
+  - [Agent Assignment](#agent-assignment)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # WEEK 3-4: Comprehensive Test Addition Plan
 
 ## Overview

@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Error Recovery and Rollback Strategies](#error-recovery-and-rollback-strategies)
+  - [Prevention: Validation Before Generation](#prevention-validation-before-generation)
+    - [Pre-generation Validation](#pre-generation-validation)
+    - [Backup Before Generation](#backup-before-generation)
+  - [Graceful Error Handling](#graceful-error-handling)
+    - [Timeout Protection](#timeout-protection)
+    - [Retry with Exponential Backoff](#retry-with-exponential-backoff)
+  - [Recovery Strategies](#recovery-strategies)
+    - [Strategy 1: Atomic Writes](#strategy-1-atomic-writes)
+    - [Strategy 2: Version Control Checkpoints](#strategy-2-version-control-checkpoints)
+    - [Strategy 3: Blue-Green Deployment](#strategy-3-blue-green-deployment)
+    - [Strategy 4: Circuit Breaker Pattern](#strategy-4-circuit-breaker-pattern)
+  - [Debugging Failed Generation](#debugging-failed-generation)
+    - [Capture Full Error Information](#capture-full-error-information)
+    - [Analyze Error Logs](#analyze-error-logs)
+    - [Minimal Reproduction](#minimal-reproduction)
+  - [Recovery Checklist](#recovery-checklist)
+  - [Common Failures and Solutions](#common-failures-and-solutions)
+    - [Failure: Out of Memory](#failure-out-of-memory)
+    - [Failure: File Permission Denied](#failure-file-permission-denied)
+    - [Failure: Schema Validation Failed](#failure-schema-validation-failed)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Error Recovery and Rollback Strategies
 
 Handle generation failures gracefully and recover when things go wrong.

@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Why RDF Matters for Code Generation](#why-rdf-matters-for-code-generation)
+  - [The Problem: Manual Synchronization](#the-problem-manual-synchronization)
+    - [Traditional Approach](#traditional-approach)
+  - [The RDF Solution](#the-rdf-solution)
+  - [Why RDF Specifically?](#why-rdf-specifically)
+    - [What is RDF?](#what-is-rdf)
+    - [RDF vs YAML/JSON/TOML](#rdf-vs-yamljsontoml)
+    - [RDF enables Knowledge Graphs](#rdf-enables-knowledge-graphs)
+  - [Use Cases Where RDF Excels](#use-cases-where-rdf-excels)
+    - [✅ Good for RDF](#-good-for-rdf)
+    - [❌ Not Good for RDF](#-not-good-for-rdf)
+  - [Key Benefits of RDF for Code Generation](#key-benefits-of-rdf-for-code-generation)
+    - [1. Single Source of Truth](#1-single-source-of-truth)
+    - [2. Automatic Synchronization](#2-automatic-synchronization)
+    - [3. Machine-Readable Contracts](#3-machine-readable-contracts)
+    - [4. Knowledge Reuse](#4-knowledge-reuse)
+    - [5. Extensibility Without Breakage](#5-extensibility-without-breakage)
+  - [RDF Ontologies vs Traditional Schemas](#rdf-ontologies-vs-traditional-schemas)
+  - [When to Adopt RDF](#when-to-adopt-rdf)
+    - [Readiness Questions](#readiness-questions)
+  - [Limitations to Accept](#limitations-to-accept)
+    - [RDF Learning Curve](#rdf-learning-curve)
+    - [Triple Storage Overhead](#triple-storage-overhead)
+    - [Query Performance](#query-performance)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Why RDF Matters for Code Generation
 
 Understanding the power and limitations of RDF-based code generation.

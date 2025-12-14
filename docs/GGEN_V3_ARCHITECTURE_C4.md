@@ -1,3 +1,19 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v3 Architecture - C4 Model Diagrams](#ggen-v3-architecture---c4-model-diagrams)
+  - [Context Diagram (C1)](#context-diagram-c1)
+  - [System Context Diagram (C2)](#system-context-diagram-c2)
+  - [Container Diagram (C2 - System Internals)](#container-diagram-c2---system-internals)
+  - [Component Diagram (C3 - Core Engine Internals)](#component-diagram-c3---core-engine-internals)
+  - [Data Flow Diagram (Generation Pipeline)](#data-flow-diagram-generation-pipeline)
+  - [Projection Families (μ_* Architecture)](#projection-families-%CE%BC_-architecture)
+  - [Evolution & Feedback Loop (Autonomous System)](#evolution--feedback-loop-autonomous-system)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v3 Architecture - C4 Model Diagrams
 
 **Status**: PLANNING

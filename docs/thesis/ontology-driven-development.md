@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Thesis: Ontology-Driven Development](#thesis-ontology-driven-development)
+  - [The Problem: Schema Silos and Duplication](#the-problem-schema-silos-and-duplication)
+    - [Current State of Schema Management](#current-state-of-schema-management)
+    - [Example: User Schema Across Languages](#example-user-schema-across-languages)
+  - [The Solution: RDF as Universal Schema Language](#the-solution-rdf-as-universal-schema-language)
+    - [What is RDF?](#what-is-rdf)
+    - [Why RDF is Superior for Code Generation](#why-rdf-is-superior-for-code-generation)
+      - [1. Semantic Validation (NOT just type checking)](#1-semantic-validation-not-just-type-checking)
+      - [2. Linked Data (Global References)](#2-linked-data-global-references)
+      - [3. Extensibility (No Breaking Changes)](#3-extensibility-no-breaking-changes)
+      - [4. Reasoning (Infer New Facts)](#4-reasoning-infer-new-facts)
+  - [Evidence: ggen Implementation](#evidence-ggen-implementation)
+    - [Success Metrics](#success-metrics)
+    - [Real-World Example: REST API Generation](#real-world-example-rest-api-generation)
+  - [Theoretical Foundation](#theoretical-foundation)
+    - [Model-Driven Development (MDD)](#model-driven-development-mdd)
+    - [Semantic Web Vision (Tim Berners-Lee)](#semantic-web-vision-tim-berners-lee)
+    - [Domain-Specific Languages (DSLs)](#domain-specific-languages-dsls)
+  - [Related Work](#related-work)
+    - [Comparison to Other Approaches](#comparison-to-other-approaches)
+      - [OpenAPI Generator](#openapi-generator)
+      - [GraphQL Code Generator](#graphql-code-generator)
+      - [Protobuf Compiler](#protobuf-compiler)
+  - [Limitations and Future Work](#limitations-and-future-work)
+    - [Current Limitations](#current-limitations)
+    - [Future Research Directions](#future-research-directions)
+      - [1. Automated Ontology Inference](#1-automated-ontology-inference)
+      - [2. Real-Time Schema Evolution](#2-real-time-schema-evolution)
+      - [3. Distributed Ontologies](#3-distributed-ontologies)
+  - [Conclusion](#conclusion)
+    - [Key Contributions](#key-contributions)
+    - [Production Readiness](#production-readiness)
+    - [Call to Action](#call-to-action)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Thesis: Ontology-Driven Development
 
 **Abstract**: Software development can be modeled as projecting knowledge graphs into executable code across languages. This thesis argues that RDF ontologies provide a superior foundation for deterministic code generation compared to traditional schema languages.

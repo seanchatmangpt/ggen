@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen System Architecture](#ggen-system-architecture)
+  - [System Diagram](#system-diagram)
+  - [Core Components](#core-components)
+    - [1. RDF/SPARQL Engine (Oxigraph)](#1-rdfsparql-engine-oxigraph)
+    - [2. Template System (Tera)](#2-template-system-tera)
+    - [3. AI Integration (genai)](#3-ai-integration-genai)
+    - [4. CLI Framework (clap-noun-verb)](#4-cli-framework-clap-noun-verb)
+    - [5. Marketplace (Package Management)](#5-marketplace-package-management)
+    - [6. Lifecycle Hooks](#6-lifecycle-hooks)
+  - [Complete Data Flow](#complete-data-flow)
+  - [Key Design Decisions](#key-design-decisions)
+    - [Why RDF over JSON/YAML?](#why-rdf-over-jsonyaml)
+    - [Why Tera over Other Template Engines?](#why-tera-over-other-template-engines)
+    - [Why clap-noun-verb over Standard clap?](#why-clap-noun-verb-over-standard-clap)
+    - [Why Multi-Provider AI (genai)?](#why-multi-provider-ai-genai)
+  - [System Characteristics](#system-characteristics)
+    - [Deterministic Generation](#deterministic-generation)
+    - [Multi-Language Support](#multi-language-support)
+    - [Environment-Specific Behavior](#environment-specific-behavior)
+  - [Performance Characteristics](#performance-characteristics)
+    - [Build Performance](#build-performance)
+    - [Runtime Performance](#runtime-performance)
+    - [Scalability](#scalability)
+  - [Detailed Architecture Documentation](#detailed-architecture-documentation)
+  - [Version History](#version-history)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen System Architecture
 
 **Quick Reference**: 2-minute architecture overview

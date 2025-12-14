@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Lessons Learned Database](#lessons-learned-database)
+  - [Database Structure](#database-structure)
+    - [Entry Format](#entry-format)
+  - [Example Entries](#example-entries)
+    - [Lesson 1: Invalid State Transitions (Critical)](#lesson-1-invalid-state-transitions-critical)
+    - [Lesson 2: Integration Failure from Version Skew (High)](#lesson-2-integration-failure-from-version-skew-high)
+    - [Lesson 3: Silent Error Hiding Root Cause (Medium)](#lesson-3-silent-error-hiding-root-cause-medium)
+  - [Search Index](#search-index)
+    - [By Category](#by-category)
+    - [By Severity](#by-severity)
+    - [By Keywords](#by-keywords)
+  - [Statistics Dashboard](#statistics-dashboard)
+    - [Lessons by Month](#lessons-by-month)
+    - [Lessons by Category](#lessons-by-category)
+    - [Prevention System Updates](#prevention-system-updates)
+    - [Time Saved (Validated Improvements)](#time-saved-validated-improvements)
+  - [Usage](#usage)
+    - [Adding a New Lesson](#adding-a-new-lesson)
+    - [Searching Lessons](#searching-lessons)
+    - [Quarterly Review](#quarterly-review)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Lessons Learned Database
 
 **Version**: 1.0.0

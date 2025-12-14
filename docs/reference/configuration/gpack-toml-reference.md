@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [gpack.toml Package Format Reference](#gpacktoml-package-format-reference)
+  - [Prerequisites](#prerequisites)
+  - [Overview](#overview)
+  - [Quick Example](#quick-example)
+  - [Package Sections](#package-sections)
+    - [`[package]` - Package Metadata](#package---package-metadata)
+    - [`[dependencies]` - Package Dependencies](#dependencies---package-dependencies)
+    - [`[templates]` - Template Definitions](#templates---template-definitions)
+    - [`[scripts]` - Automation Scripts](#scripts---automation-scripts)
+    - [`[validation]` - Validation Rules](#validation---validation-rules)
+    - [`[features]` - Package Features](#features---package-features)
+    - [`[tags]` - Package Tags](#tags---package-tags)
+    - [`[metadata]` - Additional Metadata](#metadata---additional-metadata)
+  - [Complete Example - JavaScript + Zod Generator](#complete-example---javascript--zod-generator)
+  - [Complete Example - Rust CLI Generator](#complete-example---rust-cli-generator)
+  - [Package Lifecycle](#package-lifecycle)
+    - [1. Package Creation](#1-package-creation)
+    - [2. Package Validation](#2-package-validation)
+    - [3. Package Installation](#3-package-installation)
+    - [4. Package Usage](#4-package-usage)
+  - [Best Practices](#best-practices)
+    - [1. Version Semantically](#1-version-semantically)
+    - [2. Document Templates](#2-document-templates)
+    - [3. Declare All Dependencies](#3-declare-all-dependencies)
+    - [4. Provide Validation](#4-provide-validation)
+    - [5. Use Feature Flags](#5-use-feature-flags)
+    - [6. Tag Appropriately](#6-tag-appropriately)
+  - [Validation](#validation)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # gpack.toml Package Format Reference
 
 Complete reference for ggen package metadata format.

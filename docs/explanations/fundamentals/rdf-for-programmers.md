@@ -1,3 +1,56 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [RDF for Programmers](#rdf-for-programmers)
+  - [RDF in 60 Seconds](#rdf-in-60-seconds)
+  - [From JSON to RDF](#from-json-to-rdf)
+    - [JSON Object (Familiar)](#json-object-familiar)
+    - [Same Data in RDF Triples](#same-data-in-rdf-triples)
+    - [Key Difference](#key-difference)
+  - [Turtle Syntax (RDF for Humans)](#turtle-syntax-rdf-for-humans)
+    - [Basic Turtle](#basic-turtle)
+    - [Shorthand: Same Subject](#shorthand-same-subject)
+    - [Shorthand: Multiple Values](#shorthand-multiple-values)
+  - [Data Types](#data-types)
+    - [Strings](#strings)
+    - [Numbers](#numbers)
+    - [Booleans](#booleans)
+    - [Typed Literals (Explicit Types)](#typed-literals-explicit-types)
+    - [Common XSD Types](#common-xsd-types)
+  - [Classes and Properties (Schema Definition)](#classes-and-properties-schema-definition)
+    - [Defining a Class (Type)](#defining-a-class-type)
+    - [Defining Properties (Fields)](#defining-properties-fields)
+    - [Creating Instances](#creating-instances)
+  - [Relationships Between Entities](#relationships-between-entities)
+    - [Simple Relationship](#simple-relationship)
+    - [Nested Relationships](#nested-relationships)
+  - [Namespaces and Prefixes](#namespaces-and-prefixes)
+    - [Why Namespaces?](#why-namespaces)
+    - [Prefixes](#prefixes)
+    - [Standard Prefixes](#standard-prefixes)
+  - [Complete Example: E-commerce Product](#complete-example-e-commerce-product)
+  - [RDF vs. Programming Constructs](#rdf-vs-programming-constructs)
+    - [RDF Class ≈ JavaScript Class / Python Class / Rust Struct](#rdf-class-%E2%89%88-javascript-class--python-class--rust-struct)
+    - [RDF Property ≈ Class Field / Attribute](#rdf-property-%E2%89%88-class-field--attribute)
+    - [RDF Instance ≈ Object Instance](#rdf-instance-%E2%89%88-object-instance)
+  - [Common Patterns](#common-patterns)
+    - [Pattern 1: Enumeration](#pattern-1-enumeration)
+    - [Pattern 2: Optional Properties](#pattern-2-optional-properties)
+    - [Pattern 3: Lists/Arrays](#pattern-3-listsarrays)
+  - [Tools for Working with RDF](#tools-for-working-with-rdf)
+    - [View RDF in ggen](#view-rdf-in-ggen)
+    - [Validate RDF](#validate-rdf)
+    - [Visualize RDF](#visualize-rdf)
+  - [Common Mistakes](#common-mistakes)
+    - [Mistake 1: Forgetting Prefixes](#mistake-1-forgetting-prefixes)
+    - [Mistake 2: Forgetting Trailing Dot](#mistake-2-forgetting-trailing-dot)
+    - [Mistake 3: Mixing `;` and `.`](#mistake-3-mixing--and-)
+  - [Next Steps](#next-steps)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # RDF for Programmers
 
 **Concept**: RDF is a graph database format for representing structured data. Think of it as JSON for linked data.

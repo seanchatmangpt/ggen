@@ -1,3 +1,55 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Warning Elimination - Remediation Documentation](#warning-elimination---remediation-documentation)
+  - [Overview](#overview)
+  - [Quick Start](#quick-start)
+  - [Document Index](#document-index)
+    - [Primary Documents (Created 2025-11-19)](#primary-documents-created-2025-11-19)
+    - [Supporting Documents](#supporting-documents)
+    - [Historical Documents](#historical-documents)
+  - [Key Findings](#key-findings)
+    - [Statistics](#statistics)
+    - [Top 5 Problematic Files](#top-5-problematic-files)
+    - [Warning Categories](#warning-categories)
+  - [Remediation Phases](#remediation-phases)
+    - [Phase 1: Quick Wins (30 min)](#phase-1-quick-wins-30-min)
+    - [Phase 2: API Improvements (25 min)](#phase-2-api-improvements-25-min)
+    - [Phase 3: Refactoring (20 min)](#phase-3-refactoring-20-min)
+    - [Phase 4: Verification (15 min)](#phase-4-verification-15-min)
+  - [How to Use These Documents](#how-to-use-these-documents)
+    - [For Developers](#for-developers)
+    - [For Tech Leads](#for-tech-leads)
+    - [For Project Managers](#for-project-managers)
+  - [Recommended Reading Order](#recommended-reading-order)
+    - [Fast Track (15 minutes)](#fast-track-15-minutes)
+    - [Comprehensive Track (45 minutes)](#comprehensive-track-45-minutes)
+  - [Success Criteria](#success-criteria)
+  - [Coordination Artifacts](#coordination-artifacts)
+    - [Swarm Memory](#swarm-memory)
+    - [Session Data](#session-data)
+    - [Raw Data](#raw-data)
+  - [Related Documentation](#related-documentation)
+    - [Testing & Quality](#testing--quality)
+    - [Refactoring](#refactoring)
+    - [Coordination](#coordination)
+  - [Next Actions](#next-actions)
+    - [Immediate (This Session)](#immediate-this-session)
+    - [Short-Term (This Week)](#short-term-this-week)
+    - [Long-Term (Next Sprint)](#long-term-next-sprint)
+  - [Support](#support)
+    - [Questions?](#questions)
+    - [Troubleshooting](#troubleshooting)
+  - [Document History](#document-history)
+  - [Appendix: Document Purposes](#appendix-document-purposes)
+    - [VISUAL_AUDIT_REPORT.txt](#visual_audit_reporttxt)
+    - [QUICK_FIX_GUIDE.md](#quick_fix_guidemd)
+    - [warning-elimination-plan.md](#warning-elimination-planmd)
+    - [WARNING_AUDIT_SUMMARY.md](#warning_audit_summarymd)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Warning Elimination - Remediation Documentation
 
 **Last Updated:** 2025-11-19 10:10 PST

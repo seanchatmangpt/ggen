@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Technical Debt Register - ggen Project](#technical-debt-register---ggen-project)
+  - [Executive Summary](#executive-summary)
+  - [Critical Issues (STOP - Must Fix Immediately)](#critical-issues-stop---must-fix-immediately)
+    - [1. **Vendored OpenSSL Build Failure** (BUILD BLOCKER)](#1-vendored-openssl-build-failure-build-blocker)
+    - [2. **10 Modules Over 500 Lines** (MAINTAINABILITY)](#2-10-modules-over-500-lines-maintainability)
+    - [3. **Inconsistent Error Type Proliferation** (ARCHITECTURE)](#3-inconsistent-error-type-proliferation-architecture)
+    - [4. **First Build SLO Failure** (PERFORMANCE)](#4-first-build-slo-failure-performance)
+    - [5. **59+ Dead Code Suppressions** (CODE QUALITY)](#5-59-dead-code-suppressions-code-quality)
+    - [6. **30+ Panic Calls in Production Code** (SAFETY)](#6-30-panic-calls-in-production-code-safety)
+    - [7. **Three Duplicate Axum Versions** (DEPENDENCY)](#7-three-duplicate-axum-versions-dependency)
+  - [High Priority Issues (Next 2 Weeks)](#high-priority-issues-next-2-weeks)
+    - [Additional Critical Items:](#additional-critical-items)
+  - [80/20 Pareto Analysis - Top 7 Items](#8020-pareto-analysis---top-7-items)
+    - [Summary Table](#summary-table)
+  - [Remediation Roadmap](#remediation-roadmap)
+    - [Phase 1: IMMEDIATE (Today - This Week) - 12 hours](#phase-1-immediate-today---this-week---12-hours)
+    - [Phase 2: Week 1 - 36 hours](#phase-2-week-1---36-hours)
+    - [Phase 3: Week 2 - 20 hours](#phase-3-week-2---20-hours)
+    - [Phase 4: Week 3-4 - Ongoing](#phase-4-week-3-4---ongoing)
+  - [Success Criteria](#success-criteria)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Technical Debt Register - ggen Project
 
 ## Executive Summary

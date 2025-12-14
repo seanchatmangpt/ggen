@@ -1,3 +1,51 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Chicago TDD Implementation Report](#chicago-tdd-implementation-report)
+  - [ggen CLI - Critical Command Test Suite](#ggen-cli---critical-command-test-suite)
+  - [Executive Summary](#executive-summary)
+  - [Test Coverage Summary](#test-coverage-summary)
+    - [Unit Tests (27 tests implemented)](#unit-tests-27-tests-implemented)
+      - [Marketplace Tests (11 tests)](#marketplace-tests-11-tests)
+      - [Project Tests (6 tests)](#project-tests-6-tests)
+      - [Template Tests (10 tests)](#template-tests-10-tests)
+    - [Integration Tests (6 tests)](#integration-tests-6-tests)
+      - [Marketplace Workflows](#marketplace-workflows)
+      - [Project Workflows](#project-workflows)
+  - [Test File Locations](#test-file-locations)
+  - [Test Strategy: 80/20 Focus](#test-strategy-8020-focus)
+    - [Critical 20% (Identified in FMEA Analysis)](#critical-20-identified-in-fmea-analysis)
+    - [Why 80/20 Works](#why-8020-works)
+  - [Chicago TDD Principles Applied](#chicago-tdd-principles-applied)
+    - [1. State-Based Testing](#1-state-based-testing)
+    - [2. Real Collaborators](#2-real-collaborators)
+    - [3. Minimal Mocking](#3-minimal-mocking)
+    - [4. AAA Pattern](#4-aaa-pattern)
+  - [Test Organization](#test-organization)
+    - [By Feature Area](#by-feature-area)
+    - [By Test Type](#by-test-type)
+  - [Andon Signals Integration](#andon-signals-integration)
+    - [Compiler Check (✅ Passing)](#compiler-check--passing)
+    - [Lint Check (✅ Passing)](#lint-check--passing)
+    - [Test Execution (Ready)](#test-execution-ready)
+    - [Coverage Verification (Ready)](#coverage-verification-ready)
+  - [Test Metrics](#test-metrics)
+  - [Critical Test Scenarios](#critical-test-scenarios)
+    - [Marketplace Install (RPN: 294)](#marketplace-install-rpn-294)
+    - [Project Generate (RPN: 100)](#project-generate-rpn-100)
+  - [Implementation Roadmap](#implementation-roadmap)
+    - [Phase 1: Current (Completed)](#phase-1-current-completed)
+    - [Phase 2: Enhancement (Next 2 weeks)](#phase-2-enhancement-next-2-weeks)
+    - [Phase 3: Production Hardening (4 weeks)](#phase-3-production-hardening-4-weeks)
+  - [Key Insights](#key-insights)
+    - [Chicago TDD Advantages Realized](#chicago-tdd-advantages-realized)
+    - [FMEA Risk Mitigation](#fmea-risk-mitigation)
+  - [Next Steps](#next-steps)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Chicago TDD Implementation Report
 ## ggen CLI - Critical Command Test Suite
 

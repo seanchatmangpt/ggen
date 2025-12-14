@@ -1,3 +1,51 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Explanation: Local-First Architecture](#explanation-local-first-architecture)
+  - [What is Local-First?](#what-is-local-first)
+  - [The Seven Ideals of Local-First Software](#the-seven-ideals-of-local-first-software)
+    - [1. No Spinners: Your Work at Your Fingertips](#1-no-spinners-your-work-at-your-fingertips)
+    - [2. Your Work is Not Trapped on One Device](#2-your-work-is-not-trapped-on-one-device)
+    - [3. The Network is Optional](#3-the-network-is-optional)
+    - [4. Seamless Collaboration](#4-seamless-collaboration)
+    - [5. The Long Now](#5-the-long-now)
+    - [6. Security and Privacy by Default](#6-security-and-privacy-by-default)
+    - [7. You Retain Ultimate Ownership and Control](#7-you-retain-ultimate-ownership-and-control)
+  - [How Local-First Works: The Architecture](#how-local-first-works-the-architecture)
+    - [Layer 1: Local Database (SQLite)](#layer-1-local-database-sqlite)
+    - [Layer 2: Sync Engine (ElectricSQL)](#layer-2-sync-engine-electricsql)
+    - [Layer 3: Conflict Resolution](#layer-3-conflict-resolution)
+  - [Trade-offs of Local-First](#trade-offs-of-local-first)
+    - [Advantages ✅](#advantages-)
+    - [Challenges ⚠️](#challenges-)
+  - [When to Use Local-First](#when-to-use-local-first)
+    - [✅ Great for:](#-great-for)
+    - [❌ Not ideal for:](#-not-ideal-for)
+  - [Local-First vs Alternatives](#local-first-vs-alternatives)
+    - [vs Traditional Cloud (Client-Server)](#vs-traditional-cloud-client-server)
+    - [vs Offline-First (without sync)](#vs-offline-first-without-sync)
+    - [vs Firebase/Realtime Databases](#vs-firebaserealtime-databases)
+  - [Real-World Examples](#real-world-examples)
+    - [Figma (Design Tool)](#figma-design-tool)
+    - [Linear (Project Management)](#linear-project-management)
+    - [Obsidian (Note-Taking)](#obsidian-note-taking)
+  - [Key Concepts](#key-concepts)
+    - [Optimistic UI](#optimistic-ui)
+    - [Eventual Consistency](#eventual-consistency)
+    - [CRDTs (Conflict-Free Replicated Data Types)](#crdts-conflict-free-replicated-data-types)
+  - [The Future of Local-First](#the-future-of-local-first)
+  - [Summary](#summary)
+  - [Related Documentation](#related-documentation)
+    - [Tutorials](#tutorials)
+    - [How-tos](#how-tos)
+    - [Explanations](#explanations)
+    - [Reference](#reference)
+  - [Further Reading](#further-reading)
+  - [Meta-Lesson: Explanation Structure](#meta-lesson-explanation-structure)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Explanation: Local-First Architecture
 
 **Understanding the philosophy behind local-first software**

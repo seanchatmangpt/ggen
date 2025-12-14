@@ -1,3 +1,52 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace Quick Start](#marketplace-quick-start)
+  - [What You'll Learn](#what-youll-learn)
+  - [Prerequisites](#prerequisites)
+  - [Success Looks Like](#success-looks-like)
+  - [Table of Contents](#table-of-contents)
+  - [Quick Start](#quick-start)
+    - [Step 1: Search for a Template](#step-1-search-for-a-template)
+    - [Step 2: Install a Template](#step-2-install-a-template)
+    - [Step 3: See What's Installed](#step-3-see-whats-installed)
+    - [Step 4: Use the Template](#step-4-use-the-template)
+    - [Step 5: Use Generated Code](#step-5-use-generated-code)
+  - [Finding Templates](#finding-templates)
+    - [Browse All Templates](#browse-all-templates)
+    - [Search by Category](#search-by-category)
+    - [Search by Technology](#search-by-technology)
+    - [Featured Templates](#featured-templates)
+    - [Check Template Details](#check-template-details)
+    - [Filter by Maturity](#filter-by-maturity)
+  - [Installing Templates](#installing-templates)
+    - [Basic Installation](#basic-installation)
+    - [View Installation Details](#view-installation-details)
+    - [Install with Dependencies](#install-with-dependencies)
+    - [Install a Bundle](#install-a-bundle)
+  - [Using Templates](#using-templates)
+    - [Generate Code from Template](#generate-code-from-template)
+    - [Customize Generation](#customize-generation)
+    - [Template Parameters](#template-parameters)
+    - [Common Configurations](#common-configurations)
+  - [Publishing Your Template](#publishing-your-template)
+    - [Create a Template](#create-a-template)
+  - [Configuration](#configuration)
+  - [Entities](#entities)
+    - [Register Your Template](#register-your-template)
+    - [Update Your Template](#update-your-template)
+  - [Academic Tools Walkthrough](#academic-tools-walkthrough)
+  - [Troubleshooting](#troubleshooting)
+    - [Problem: "Template not found"](#problem-template-not-found)
+    - [Problem: "Generate command fails"](#problem-generate-command-fails)
+    - [Problem: "Dependency resolution failed"](#problem-dependency-resolution-failed)
+    - [Problem: "Installation permission denied"](#problem-installation-permission-denied)
+  - [Next Steps](#next-steps)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace Quick Start
 
 Get started with ggen templates in 15 minutes.

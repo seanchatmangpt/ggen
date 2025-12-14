@@ -1,3 +1,49 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Testing GitHub Actions with Act](#testing-github-actions-with-act)
+  - [Overview](#overview)
+  - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+    - [Docker](#docker)
+    - [Verification](#verification)
+  - [Quick Start](#quick-start)
+    - [List Available Workflows](#list-available-workflows)
+    - [Run a Specific Workflow](#run-a-specific-workflow)
+  - [Available Act Tasks](#available-act-tasks)
+  - [Configuration](#configuration)
+  - [Common Use Cases](#common-use-cases)
+    - [Testing Workflow Changes](#testing-workflow-changes)
+    - [Debugging Workflow Failures](#debugging-workflow-failures)
+    - [Testing New Workflows](#testing-new-workflows)
+    - [Quick Feedback Loop](#quick-feedback-loop)
+  - [Limitations](#limitations)
+    - [Not Fully Supported](#not-fully-supported)
+    - [Workarounds](#workarounds)
+  - [Best Practices](#best-practices)
+    - [1. Validate Before Testing](#1-validate-before-testing)
+    - [2. Test Individual Jobs](#2-test-individual-jobs)
+    - [3. Clean Up Regularly](#3-clean-up-regularly)
+    - [4. Test Before Pushing](#4-test-before-pushing)
+  - [Troubleshooting](#troubleshooting)
+    - [Docker Not Running](#docker-not-running)
+    - [Act Not Installed](#act-not-installed)
+    - [Workflow Fails Locally But Works on GitHub](#workflow-fails-locally-but-works-on-github)
+    - [Out of Memory](#out-of-memory)
+    - [Slow Execution](#slow-execution)
+  - [Examples](#examples)
+    - [Example 1: Testing a Lint Workflow Change](#example-1-testing-a-lint-workflow-change)
+    - [Example 2: Testing CI Workflow Jobs](#example-2-testing-ci-workflow-jobs)
+    - [Example 3: Quick Validation](#example-3-quick-validation)
+  - [Integration with Development Workflow](#integration-with-development-workflow)
+    - [Pre-commit Validation](#pre-commit-validation)
+    - [CI/CD Integration](#cicd-integration)
+  - [Additional Resources](#additional-resources)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Testing GitHub Actions with Act
 
 This guide explains how to use [act](https://github.com/nektos/act) to test GitHub Actions workflows locally before pushing to GitHub.

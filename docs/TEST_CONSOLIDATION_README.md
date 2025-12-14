@@ -1,3 +1,52 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [🎯 80/20 Test Consolidation - Complete Documentation](#-8020-test-consolidation---complete-documentation)
+  - [Overview](#overview)
+  - [📚 Documentation Structure](#-documentation-structure)
+    - [1. **TEST_CONSOLIDATION_QUICK_REFERENCE.md** ⚡ (5 min read)](#1-test_consolidation_quick_referencemd--5-min-read)
+    - [2. **TEST_CONSOLIDATION_80_20.md** 🎯 (10 min read)](#2-test_consolidation_80_20md--10-min-read)
+    - [3. **TEST_CONSOLIDATION_PSEUDOCODE.md** 📝 (15 min read)](#3-test_consolidation_pseudocodemd--15-min-read)
+    - [4. **TEST_CONSOLIDATION_ARCHITECTURE.md** 🏗️ (15 min read)](#4-test_consolidation_architecturemd--15-min-read)
+    - [5. **TEST_CONSOLIDATION_IMPLEMENTATION.md** 🚀 (20 min read)](#5-test_consolidation_implementationmd--20-min-read)
+  - [🎯 Key Metrics at a Glance](#-key-metrics-at-a-glance)
+  - [🏃 Quick Start (15 minutes)](#-quick-start-15-minutes)
+    - [1. Understand the 80/20 Decision](#1-understand-the-8020-decision)
+    - [2. Review the Architecture](#2-review-the-architecture)
+    - [3. Plan Implementation](#3-plan-implementation)
+  - [🔍 How to Use This Documentation](#-how-to-use-this-documentation)
+    - [If you want to...](#if-you-want-to)
+  - [📊 Test Consolidation Summary](#-test-consolidation-summary)
+    - [Current Test Files (19 total)](#current-test-files-19-total)
+    - [Target: 4 Consolidated Modules](#target-4-consolidated-modules)
+  - [🚀 Implementation Phases](#-implementation-phases)
+    - [Phase 1: Project Setup (30 min)](#phase-1-project-setup-30-min)
+    - [Phase 2: Core Tests (1 hour)](#phase-2-core-tests-1-hour)
+    - [Phase 3: Lifecycle Tests (1.5 hours)](#phase-3-lifecycle-tests-15-hours)
+    - [Phase 4: Swarm Tests (2 hours)](#phase-4-swarm-tests-2-hours)
+    - [Phase 5: Semantic Tests (1.5 hours)](#phase-5-semantic-tests-15-hours)
+    - [Phase 6: Validation (1 hour)](#phase-6-validation-1-hour)
+    - [Phase 7: Documentation (30 min)](#phase-7-documentation-30-min)
+  - [✅ Success Criteria](#-success-criteria)
+  - [🎯 Critical Tests (Never Remove)](#-critical-tests-never-remove)
+  - [📈 Expected Improvements](#-expected-improvements)
+    - [Development Velocity](#development-velocity)
+    - [Code Quality](#code-quality)
+    - [Operations](#operations)
+  - [🔄 Rollback Plan](#-rollback-plan)
+  - [📞 Questions?](#-questions)
+  - [📖 Reading Order](#-reading-order)
+  - [✨ Key Takeaways](#-key-takeaways)
+    - [The 80/20 Principle](#the-8020-principle)
+    - [What We're Keeping](#what-were-keeping)
+    - [What We're Removing](#what-were-removing)
+  - [🎓 Best Practices Applied](#-best-practices-applied)
+    - [From this consolidation:](#from-this-consolidation)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 🎯 80/20 Test Consolidation - Complete Documentation
 
 ## Overview

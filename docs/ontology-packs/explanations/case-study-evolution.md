@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [From Direct Generation to Template-Driven Design: A Case Study](#from-direct-generation-to-template-driven-design-a-case-study)
+  - [The Problem: "Just Generate Types from URLs"](#the-problem-just-generate-types-from-urls)
+  - [First Attempt: Direct URL Generation (Failed)](#first-attempt-direct-url-generation-failed)
+    - [The Implementation](#the-implementation)
+    - [What Seemed Good](#what-seemed-good)
+    - [What Broke in Production](#what-broke-in-production)
+      - [Problem 1: Every User Reimplemented the Same Thing](#problem-1-every-user-reimplemented-the-same-thing)
+      - [Problem 2: No Versioning](#problem-2-no-versioning)
+      - [Problem 3: The Template Hell](#problem-3-the-template-hell)
+      - [Problem 4: The Customization Nightmare](#problem-4-the-customization-nightmare)
+      - [Problem 5: The Composition Problem](#problem-5-the-composition-problem)
+  - [The Insight: Separate Data from Templates (2029 Thinking)](#the-insight-separate-data-from-templates-2029-thinking)
+  - [The Solution: Ontology Packs + Templates](#the-solution-ontology-packs--templates)
+    - [Architecture](#architecture)
+    - [How It Solved Each Problem](#how-it-solved-each-problem)
+      - [Solution 1: Share Work via Packs](#solution-1-share-work-via-packs)
+      - [Solution 2: Versioning and Stability](#solution-2-versioning-and-stability)
+      - [Solution 3: Multi-Language Support Without Forks](#solution-3-multi-language-support-without-forks)
+      - [Solution 4: Easy Customization](#solution-4-easy-customization)
+      - [Solution 5: Composition and Namespacing](#solution-5-composition-and-namespacing)
+  - [The Impact: Metrics from Production](#the-impact-metrics-from-production)
+    - [Before (Direct Generation, 2024)](#before-direct-generation-2024)
+    - [After (Packs + Templates, 2029)](#after-packs--templates-2029)
+  - [Key Lessons](#key-lessons)
+    - [1. Separate Data from Presentation](#1-separate-data-from-presentation)
+    - [2. Make Work Shareable](#2-make-work-shareable)
+    - [3. Composition is Essential](#3-composition-is-essential)
+    - [4. Versioning is Not Optional](#4-versioning-is-not-optional)
+    - [5. Templates are Data, Not Code](#5-templates-are-data-not-code)
+  - [The Philosophy](#the-philosophy)
+  - [What's Next](#whats-next)
+  - [Related Explanations](#related-explanations)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # From Direct Generation to Template-Driven Design: A Case Study
 
 **The story of how the old thinking (direct CLI generation) failed and how 2029 thinking (packs + templates) solved it.**

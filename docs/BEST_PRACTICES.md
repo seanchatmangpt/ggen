@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Development Best Practices](#ggen-development-best-practices)
+  - [Code Quality Standards](#code-quality-standards)
+    - [Testing Philosophy: Chicago School TDD](#testing-philosophy-chicago-school-tdd)
+    - [Error Handling: No unwrap/expect in Production](#error-handling-no-unwrapexpect-in-production)
+    - [Code Coverage: 80%+ on Critical Paths](#code-coverage-80-on-critical-paths)
+  - [Documentation Standards](#documentation-standards)
+    - [Framework: Diataxis (4 Quadrants)](#framework-diataxis-4-quadrants)
+    - [Code Examples: JavaScript + JSDoc + Zod (NOT TypeScript)](#code-examples-javascript--jsdoc--zod-not-typescript)
+    - [Documentation Validation: All Examples Must Pass](#documentation-validation-all-examples-must-pass)
+  - [Performance Standards](#performance-standards)
+    - [Build System: cargo make (NOT direct cargo)](#build-system-cargo-make-not-direct-cargo)
+    - [Andon Signals: Stop the Line on Errors](#andon-signals-stop-the-line-on-errors)
+    - [Service Level Objectives (SLOs)](#service-level-objectives-slos)
+  - [Rust-Specific Best Practices](#rust-specific-best-practices)
+    - [Type-First Thinking](#type-first-thinking)
+    - [Zero-Cost Abstractions](#zero-cost-abstractions)
+    - [Explicit Ownership Semantics](#explicit-ownership-semantics)
+  - [Git Workflow Best Practices](#git-workflow-best-practices)
+    - [Commit Messages: Conventional Commits](#commit-messages-conventional-commits)
+    - [Git Hooks: Pre-Commit Validation](#git-hooks-pre-commit-validation)
+  - [Security Best Practices](#security-best-practices)
+    - [Never Hardcode Secrets](#never-hardcode-secrets)
+    - [Allowed Domains: Whitelist External Resources](#allowed-domains-whitelist-external-resources)
+  - [Key Takeaways (80/20 Rule)](#key-takeaways-8020-rule)
+  - [Detailed Best Practices](#detailed-best-practices)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Development Best Practices
 
 **Quick Reference**: Coding standards and conventions

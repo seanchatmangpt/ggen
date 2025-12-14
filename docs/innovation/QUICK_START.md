@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Andon Signal Validation Framework - Quick Start](#andon-signal-validation-framework---quick-start)
+  - [🚀 Get Started in 5 Minutes](#-get-started-in-5-minutes)
+    - [Prerequisites](#prerequisites)
+    - [1. Run Validation Locally](#1-run-validation-locally)
+    - [2. Test with Act (Local GitHub Actions)](#2-test-with-act-local-github-actions)
+    - [3. Pre-Commit Integration](#3-pre-commit-integration)
+    - [4. CI/CD Integration](#4-cicd-integration)
+  - [Understanding Andon Signals](#understanding-andon-signals)
+  - [Three-Layer Validation](#three-layer-validation)
+    - [Layer 1: Compile-Time (RED)](#layer-1-compile-time-red)
+    - [Layer 2: Test-Time (YELLOW)](#layer-2-test-time-yellow)
+    - [Layer 3: Runtime (GREEN)](#layer-3-runtime-green)
+  - [Common Commands](#common-commands)
+  - [Troubleshooting](#troubleshooting)
+    - [Validation Fails](#validation-fails)
+    - [Act Not Working](#act-not-working)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Andon Signal Validation Framework - Quick Start
 
 ## 🚀 Get Started in 5 Minutes

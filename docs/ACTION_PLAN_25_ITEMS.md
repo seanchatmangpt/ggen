@@ -1,3 +1,54 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen 25-Item Action Plan - Manufacturing-Grade Quality Framework](#ggen-25-item-action-plan---manufacturing-grade-quality-framework)
+  - [Executive Summary](#executive-summary)
+  - [PHASE 1: CRITICAL (RPN > 150) - IMMEDIATE ACTION REQUIRED](#phase-1-critical-rpn--150---immediate-action-required)
+    - [Item 1: &#91;CRITICAL&#93; Replace 30+ Panic Calls with Result<T,E>](#item-1-critical-replace-30-panic-calls-with-resultte)
+    - [Item 2: &#91;CRITICAL&#93; Fix Vendored OpenSSL Build Bottleneck](#item-2-critical-fix-vendored-openssl-build-bottleneck)
+    - [Item 3: &#91;CRITICAL&#93; Create Unified ggen-error Crate](#item-3-critical-create-unified-ggen-error-crate)
+    - [Item 4: &#91;CRITICAL&#93; Consolidate Fragmented MAPE-K Implementations](#item-4-critical-consolidate-fragmented-mape-k-implementations)
+    - [Item 5: &#91;CRITICAL&#93; Standardize Async/Sync API Boundary](#item-5-critical-standardize-asyncsync-api-boundary)
+  - [PHASE 2: HIGH PRIORITY (RPN 50-150) - WEEK 2](#phase-2-high-priority-rpn-50-150---week-2)
+    - [Item 6: &#91;HIGH&#93; Remediate 150+ Expect() Violations Systematically](#item-6-high-remediate-150-expect-violations-systematically)
+    - [Item 7: &#91;HIGH&#93; Optimize Build Performance SLO (109.6s → 15s Target)](#item-7-high-optimize-build-performance-slo-1096s-%E2%86%92-15s-target)
+    - [Item 8: &#91;HIGH&#93; Unify Axum Version Conflicts](#item-8-high-unify-axum-version-conflicts)
+    - [Item 9: &#91;HIGH&#93; Clean Up Dead Code and Suppressions](#item-9-high-clean-up-dead-code-and-suppressions)
+    - [Item 10: &#91;HIGH&#93; Begin God Crate Modularization (ggen-core)](#item-10-high-begin-god-crate-modularization-ggen-core)
+  - [PHASE 3: INNOVATION (TRIZ PRINCIPLES) - WEEK 3](#phase-3-innovation-triz-principles---week-3)
+    - [Item 11: &#91;TRIZ&#93; Implement System OpenSSL (Principle &#035;35: Parameter Changes)](#item-11-triz-implement-system-openssl-principle-35-parameter-changes)
+    - [Item 12: &#91;TRIZ&#93; Design Unified Error Type with Variants (Principle &#035;4: Asymmetry)](#item-12-triz-design-unified-error-type-with-variants-principle-4-asymmetry)
+    - [Item 13: &#91;TRIZ&#93; Enable Compiler-Enforced Safety (Principle &#035;25: Self-Service)](#item-13-triz-enable-compiler-enforced-safety-principle-25-self-service)
+    - [Item 14: &#91;TRIZ&#93; Begin Code Segmentation (Principle &#035;1: Segmentation)](#item-14-triz-begin-code-segmentation-principle-1-segmentation)
+    - [Item 15: &#91;TRIZ&#93; Feature-Gate Heavy Dependencies (Principle &#035;36: Phase Transition)](#item-15-triz-feature-gate-heavy-dependencies-principle-36-phase-transition)
+  - [PHASE 4: QUALITY GATES (ANDON ENHANCEMENTS) - WEEK 3](#phase-4-quality-gates-andon-enhancements---week-3)
+    - [Item 16: &#91;ANDON&#93; Add Panic Detection Gate (Gate 2.7)](#item-16-andon-add-panic-detection-gate-gate-27)
+    - [Item 17: &#91;ANDON&#93; Add Documentation Coverage Check (Gate 3.5)](#item-17-andon-add-documentation-coverage-check-gate-35)
+    - [Item 18: &#91;ANDON&#93; Add Performance SLO Monitoring Gate (Gate 4.5)](#item-18-andon-add-performance-slo-monitoring-gate-gate-45)
+    - [Item 19: &#91;ANDON&#93; Implement Security Scanning (Gate 5.5)](#item-19-andon-implement-security-scanning-gate-55)
+    - [Item 20: &#91;ANDON&#93; Create Real-Time Quality Dashboard](#item-20-andon-create-real-time-quality-dashboard)
+  - [PHASE 5: GEMBA REMEDIATION - WEEK 4](#phase-5-gemba-remediation---week-4)
+    - [Item 21: &#91;GEMBA&#93; Modularize marketplace-v2/lifecycle/install.rs (1,649 lines)](#item-21-gemba-modularize-marketplace-v2lifecycleinstallrs-1649-lines)
+    - [Item 22: &#91;GEMBA&#93; Modularize marketplace-v2/lifecycle/production.rs (1,385 lines)](#item-22-gemba-modularize-marketplace-v2lifecycleproductionrs-1385-lines)
+    - [Item 23: &#91;GEMBA&#93; Modularize marketplace-v2/lifecycle/search.rs (1,370 lines)](#item-23-gemba-modularize-marketplace-v2lifecyclesearchrs-1370-lines)
+    - [Item 24: &#91;GEMBA&#93; Consolidate MAPE-K Implementations](#item-24-gemba-consolidate-mape-k-implementations)
+    - [Item 25: &#91;CONTINUOUS&#93; Establish Kaizen 2-Week Review Cycle](#item-25-continuous-establish-kaizen-2-week-review-cycle)
+  - [Summary Table: All 25 Items](#summary-table-all-25-items)
+  - [Execution Timeline](#execution-timeline)
+    - [Week 1: CRITICAL (38 hours)](#week-1-critical-38-hours)
+    - [Week 2: HIGH Priority & Begins TRIZ (50 hours)](#week-2-high-priority--begins-triz-50-hours)
+    - [Week 3: Innovation & Continuation (30 hours + 40 hours from Item 10)](#week-3-innovation--continuation-30-hours--40-hours-from-item-10)
+    - [Week 4: Quality & Completion (19 hours + 32 hours from Items 21-24)](#week-4-quality--completion-19-hours--32-hours-from-items-21-24)
+  - [Success Metrics (Definition of Done)](#success-metrics-definition-of-done)
+    - [Critical Success Factors:](#critical-success-factors)
+    - [Quality Metrics:](#quality-metrics)
+    - [Performance Metrics:](#performance-metrics)
+    - [Organizational Metrics:](#organizational-metrics)
+  - [Document References](#document-references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen 25-Item Action Plan - Manufacturing-Grade Quality Framework
 
 ## Executive Summary

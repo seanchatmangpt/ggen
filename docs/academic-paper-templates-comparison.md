@@ -1,3 +1,16 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Academic Paper Templates Comparison](#academic-paper-templates-comparison)
+  - [Quick comparison](#quick-comparison)
+  - [Choosing the right template](#choosing-the-right-template)
+  - [Notable differentiators (once wired)](#notable-differentiators-once-wired)
+  - [Typical CLI flows (from package examples) — these currently stub out rendering/validation](#typical-cli-flows-from-package-examples--these-currently-stub-out-renderingvalidation)
+  - [Quick recommendations](#quick-recommendations)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Academic Paper Templates Comparison
 
 This note compares the four `academic-paper` marketplace packages so you can pick the right template quickly. Current state: only the metadata `package.toml` files exist under `marketplace/packages/*`; the actual template payloads (README/USAGE/templates/TTL/examples) are not present there. The previous `ggen paper` subcommands have been removed because they were stubs; wiring to real templates under `templates/papers/` is still needed before these packages can be used end-to-end.

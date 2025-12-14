@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Lean Manufacturing Test Analysis - Executive Summary](#lean-manufacturing-test-analysis---executive-summary)
+  - [📦 Deliverables](#-deliverables)
+    - [Generated Files](#generated-files)
+  - [🎯 Key Results](#-key-results)
+    - [Quantified Improvements](#quantified-improvements)
+    - [Waste Eliminated](#waste-eliminated)
+      - [Mura (Variance) - Reduced from 7 patterns to 1](#mura-variance---reduced-from-7-patterns-to-1)
+      - [Muda (Waste) - Eliminated 6 major waste categories](#muda-waste---eliminated-6-major-waste-categories)
+  - [📊 Impact Analysis](#-impact-analysis)
+    - [Developer Experience](#developer-experience)
+    - [Code Quality](#code-quality)
+    - [Performance](#performance)
+  - [🔍 Mura Analysis Details](#-mura-analysis-details)
+    - [7 Variance Patterns Identified](#7-variance-patterns-identified)
+    - [Standardized Solution: TestFixtureBuilder](#standardized-solution-testfixturebuilder)
+  - [🗑️ Muda Analysis Details](#-muda-analysis-details)
+    - [7 Types of Waste Quantified](#7-types-of-waste-quantified)
+    - [Waste Elimination Strategy](#waste-elimination-strategy)
+  - [📈 Recommendations](#-recommendations)
+    - [Immediate Actions (Week 1)](#immediate-actions-week-1)
+    - [Medium-Term (Week 2-3)](#medium-term-week-2-3)
+    - [Long-Term (Month 1)](#long-term-month-1)
+  - [🎓 Learning Outcomes](#-learning-outcomes)
+    - [Lean Manufacturing Principles Applied](#lean-manufacturing-principles-applied)
+    - [Code Quality Principles Demonstrated](#code-quality-principles-demonstrated)
+  - [🔗 Files Reference](#-files-reference)
+  - [🎯 Next Steps](#-next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Lean Manufacturing Test Analysis - Executive Summary
 
 ## 📦 Deliverables

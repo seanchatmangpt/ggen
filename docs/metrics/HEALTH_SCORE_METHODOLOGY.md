@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Health Score Calculation Methodology](#health-score-calculation-methodology)
+  - [Overview](#overview)
+  - [Calculation Formula](#calculation-formula)
+    - [Weighted Components](#weighted-components)
+  - [Dimension Calculations](#dimension-calculations)
+    - [1. Compilation Score (30% Weight)](#1-compilation-score-30-weight)
+    - [2. Testing Score (25% Weight)](#2-testing-score-25-weight)
+    - [3. Code Quality Score (15% Weight)](#3-code-quality-score-15-weight)
+    - [4. Security Score (15% Weight)](#4-security-score-15-weight)
+    - [5. Performance Score (10% Weight)](#5-performance-score-10-weight)
+    - [6. Architecture Score (5% Weight)](#6-architecture-score-5-weight)
+  - [Example Calculation (Current State)](#example-calculation-current-state)
+  - [Interpretation Guidelines](#interpretation-guidelines)
+    - [Health Score Ranges](#health-score-ranges)
+    - [Current Status](#current-status)
+  - [Tracking & Monitoring](#tracking--monitoring)
+    - [Automated Tracking](#automated-tracking)
+    - [Dashboard Viewing](#dashboard-viewing)
+    - [Regression Alerts](#regression-alerts)
+  - [Historical Trends](#historical-trends)
+    - [Week 3 Baseline (2025-11-18)](#week-3-baseline-2025-11-18)
+  - [Improvement Strategies](#improvement-strategies)
+    - [To Improve Testing Score (Current: 50%)](#to-improve-testing-score-current-50)
+    - [To Improve Security Score (Baseline: 82%)](#to-improve-security-score-baseline-82)
+    - [To Improve Architecture Score (Baseline: 60%)](#to-improve-architecture-score-baseline-60)
+  - [Validation](#validation)
+    - [Manual Verification](#manual-verification)
+  - [Changelog](#changelog)
+    - [Version 1.0 (2025-11-18)](#version-10-2025-11-18)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Health Score Calculation Methodology
 
 **Version:** 1.0

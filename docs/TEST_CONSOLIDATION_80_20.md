@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [🎯 Test Consolidation: 80/20 Strategy](#-test-consolidation-8020-strategy)
+  - [Executive Summary](#executive-summary)
+  - [Phase 1: Analysis & Categorization](#phase-1-analysis--categorization)
+    - [Test Files by Category](#test-files-by-category)
+      - [Critical Path Tests (Keep - Highest ROI)](#critical-path-tests-keep---highest-roi)
+      - [Performance & Compliance Tests (Consolidate)](#performance--compliance-tests-consolidate)
+      - [Lifecycle & Edge Cases (Simplify)](#lifecycle--edge-cases-simplify)
+      - [Comprehensive/Template Tests (Consolidate or Remove)](#comprehensivetemplate-tests-consolidate-or-remove)
+      - [Minimal/Stub Tests (Remove)](#minimalstub-tests-remove)
+  - [Phase 2: Consolidated Test Structure](#phase-2-consolidated-test-structure)
+    - [Module 1: Core Quality Tests (350-400 lines)](#module-1-core-quality-tests-350-400-lines)
+    - [Module 2: Lifecycle & Behavior Tests (300-400 lines)](#module-2-lifecycle--behavior-tests-300-400-lines)
+    - [Module 3: Swarm & Consensus Tests (250-350 lines)](#module-3-swarm--consensus-tests-250-350-lines)
+    - [Module 4: RDF & Semantic Tests (250-300 lines)](#module-4-rdf--semantic-tests-250-300-lines)
+  - [Phase 3: Test Elimination Checklist](#phase-3-test-elimination-checklist)
+    - [Remove Entirely (No ROI)](#remove-entirely-no-roi)
+    - [Merge & Simplify](#merge--simplify)
+  - [Phase 4: Implementation Timeline](#phase-4-implementation-timeline)
+    - [Step 1: Create Consolidated Core Tests (1 hour)](#step-1-create-consolidated-core-tests-1-hour)
+    - [Step 2: Consolidate Lifecycle Tests (1.5 hours)](#step-2-consolidate-lifecycle-tests-15-hours)
+    - [Step 3: Consolidate Swarm Tests (2 hours)](#step-3-consolidate-swarm-tests-2-hours)
+    - [Step 4: Consolidate Semantic Tests (1.5 hours)](#step-4-consolidate-semantic-tests-15-hours)
+    - [Step 5: Verify & Archive (1 hour)](#step-5-verify--archive-1-hour)
+  - [Phase 5: Quality Metrics](#phase-5-quality-metrics)
+    - [Before Consolidation](#before-consolidation)
+    - [After Consolidation (Target)](#after-consolidation-target)
+    - [80/20 Breakdown](#8020-breakdown)
+  - [Phase 6: Critical Path Validation](#phase-6-critical-path-validation)
+    - [Essential Test Scenarios (Never Remove)](#essential-test-scenarios-never-remove)
+      - [Package Management (5 tests)](#package-management-5-tests)
+      - [Lifecycle (4 tests)](#lifecycle-4-tests)
+      - [Swarm/Consensus (4 tests)](#swarmconsensus-4-tests)
+      - [RDF/Semantic (3 tests)](#rdfsemantic-3-tests)
+  - [Implementation Pseudocode](#implementation-pseudocode)
+  - [Success Criteria](#success-criteria)
+  - [Rollback Plan](#rollback-plan)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 🎯 Test Consolidation: 80/20 Strategy
 
 ## Executive Summary

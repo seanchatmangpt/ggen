@@ -1,3 +1,54 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Domain Module Architecture - Marketplace, Template, Project](#domain-module-architecture---marketplace-template-project)
+  - [Executive Summary](#executive-summary)
+    - [Key Principles](#key-principles)
+  - [Current Architecture Analysis](#current-architecture-analysis)
+    - [Existing Module Organization (ggen-domain)](#existing-module-organization-ggen-domain)
+    - [Best Practice Example: `ai/mod.rs`](#best-practice-example-aimodrs)
+  - [Proposed Architecture](#proposed-architecture)
+    - [1. Marketplace Domain Module](#1-marketplace-domain-module)
+      - [Public API Functions](#public-api-functions)
+      - [Type Definitions](#type-definitions)
+      - [Module Organization](#module-organization)
+    - [2. Template Domain Module](#2-template-domain-module)
+      - [Public API Functions](#public-api-functions-1)
+      - [Type Definitions](#type-definitions-1)
+      - [Module Organization](#module-organization-1)
+    - [3. Project Domain Module](#3-project-domain-module)
+      - [Public API Functions](#public-api-functions-2)
+      - [Type Definitions](#type-definitions-2)
+      - [Module Organization](#module-organization-2)
+  - [Cross-Module Design](#cross-module-design)
+    - [Dependency Graph](#dependency-graph)
+    - [Shared Types](#shared-types)
+    - [Error Handling Strategy](#error-handling-strategy)
+  - [API Design Principles](#api-design-principles)
+    - [1. All Functions Are Async](#1-all-functions-are-async)
+    - [2. All Output Types Derive Serialize](#2-all-output-types-derive-serialize)
+    - [3. All Functions Return Result<T>](#3-all-functions-return-resultt)
+    - [4. No CLI Dependencies](#4-no-cli-dependencies)
+  - [Implementation Checklist](#implementation-checklist)
+    - [Marketplace Module](#marketplace-module)
+    - [Template Module](#template-module)
+    - [Project Module](#project-module)
+  - [Testing Strategy (Chicago TDD)](#testing-strategy-chicago-tdd)
+    - [Unit Tests (State-Based)](#unit-tests-state-based)
+    - [Integration Tests](#integration-tests)
+  - [CLI Integration Pattern](#cli-integration-pattern)
+    - [Before (CLI has domain logic)](#before-cli-has-domain-logic)
+    - [After (CLI calls domain)](#after-cli-calls-domain)
+  - [Web API Integration Example](#web-api-integration-example)
+  - [Agent Integration Example](#agent-integration-example)
+  - [Diagram: Architecture Layers](#diagram-architecture-layers)
+  - [Performance SLOs](#performance-slos)
+  - [Memory Storage Strategy](#memory-storage-strategy)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Domain Module Architecture - Marketplace, Template, Project
 
 **Date**: 2025-11-20

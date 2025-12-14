@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Enterprise clap-noun-verb Architecture](#enterprise-clap-noun-verb-architecture)
+  - [Fortune 5 Reality: 5 Years at Scale](#fortune-5-reality-5-years-at-scale)
+    - [Scale Factors](#scale-factors)
+  - [Core Problem: The Regeneration Dilemma](#core-problem-the-regeneration-dilemma)
+    - [The Solution: Separation of Concerns via File Boundaries](#the-solution-separation-of-concerns-via-file-boundaries)
+  - [Pattern 1: Trait-Based Domain Protection](#pattern-1-trait-based-domain-protection)
+    - [Generated Code (Regenerated Freely)](#generated-code-regenerated-freely)
+    - [Domain Code (Never Touched by Generator)](#domain-code-never-touched-by-generator)
+  - [Pattern 2: Per-Noun RDF Ownership](#pattern-2-per-noun-rdf-ownership)
+    - [File Structure for 35 Teams](#file-structure-for-35-teams)
+    - [OWNERS File (Poka-Yoke: Wrong Team Can't Merge)](#owners-file-poka-yoke-wrong-team-cant-merge)
+  - [Pattern 3: Adding Commands Without Merge Conflicts](#pattern-3-adding-commands-without-merge-conflicts)
+    - [The Problem](#the-problem)
+    - [The Solution: One File Per Verb](#the-solution-one-file-per-verb)
+    - [Adding a New Command (Zero Conflict Workflow)](#adding-a-new-command-zero-conflict-workflow)
+  - [FMEA: Failure Mode and Effects Analysis](#fmea-failure-mode-and-effects-analysis)
+    - [RPN Priority (Risk Priority Number = S × O × D)](#rpn-priority-risk-priority-number--s-%C3%97-o-%C3%97-d)
+  - [Poka-Yoke Control Matrix](#poka-yoke-control-matrix)
+    - [Physical Controls (File System)](#physical-controls-file-system)
+    - [Sequence Controls (Must Do X Before Y)](#sequence-controls-must-do-x-before-y)
+    - [Grouping Controls (Related Items Together)](#grouping-controls-related-items-together)
+    - [Information Controls (Warnings, Errors)](#information-controls-warnings-errors)
+  - [Enterprise File Organization (200+ Commands)](#enterprise-file-organization-200-commands)
+  - [Key Takeaways](#key-takeaways)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Enterprise clap-noun-verb Architecture
 
 ## Fortune 5 Reality: 5 Years at Scale

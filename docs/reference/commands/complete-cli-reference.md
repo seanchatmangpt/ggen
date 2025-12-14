@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Complete CLI Command Reference](#complete-cli-command-reference)
+  - [Table of Contents](#table-of-contents)
+  - [Template Commands](#template-commands)
+    - [`ggen template list`](#ggen-template-list)
+    - [`ggen template show`](#ggen-template-show)
+    - [`ggen template new`](#ggen-template-new)
+    - [`ggen template lint`](#ggen-template-lint)
+    - [`ggen template generate`](#ggen-template-generate)
+    - [`ggen template generate-tree`](#ggen-template-generate-tree)
+  - [Graph Commands](#graph-commands)
+    - [`ggen graph load`](#ggen-graph-load)
+    - [`ggen graph query`](#ggen-graph-query)
+    - [`ggen graph export`](#ggen-graph-export)
+    - [`ggen graph visualize`](#ggen-graph-visualize)
+  - [Ontology Commands](#ontology-commands)
+    - [`ggen ontology extract`](#ggen-ontology-extract)
+    - [`ggen ontology init`](#ggen-ontology-init)
+    - [`ggen ontology generate`](#ggen-ontology-generate)
+    - [`ggen ontology validate`](#ggen-ontology-validate)
+  - [Project Commands](#project-commands)
+    - [`ggen project init`](#ggen-project-init)
+    - [`ggen project new`](#ggen-project-new)
+    - [`ggen project gen`](#ggen-project-gen)
+    - [`ggen project watch`](#ggen-project-watch)
+    - [`ggen project plan`](#ggen-project-plan)
+    - [`ggen project apply`](#ggen-project-apply)
+    - [`ggen project generate`](#ggen-project-generate)
+  - [AI Commands](#ai-commands)
+    - [`ggen ai chat`](#ggen-ai-chat)
+    - [`ggen ai generate`](#ggen-ai-generate)
+    - [`ggen ai analyze`](#ggen-ai-analyze)
+  - [Utility Commands](#utility-commands)
+    - [`ggen utils env`](#ggen-utils-env)
+    - [`ggen workflow report`](#ggen-workflow-report)
+  - [Global Options](#global-options)
+  - [Environment Variables](#environment-variables)
+  - [Exit Codes](#exit-codes)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Complete CLI Command Reference
 
 **ggen** - RDF-based code generation toolkit

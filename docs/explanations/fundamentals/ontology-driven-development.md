@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [What is Ontology-Driven Development?](#what-is-ontology-driven-development)
+  - [The Problem with Traditional Development](#the-problem-with-traditional-development)
+    - [Traditional Approach: Repetitive Definitions](#traditional-approach-repetitive-definitions)
+    - [Problems with This Approach](#problems-with-this-approach)
+  - [The Ontology-Driven Solution](#the-ontology-driven-solution)
+    - [Define Once in RDF](#define-once-in-rdf)
+    - [Generate Everywhere](#generate-everywhere)
+  - [Benefits](#benefits)
+    - [1. Single Source of Truth](#1-single-source-of-truth)
+    - [2. Guaranteed Consistency](#2-guaranteed-consistency)
+    - [3. Change Once, Update Everywhere](#3-change-once-update-everywhere)
+    - [4. Language-Agnostic Domain Modeling](#4-language-agnostic-domain-modeling)
+    - [5. Semantic Richness](#5-semantic-richness)
+    - [6. Interoperability](#6-interoperability)
+  - [Real-World Examples](#real-world-examples)
+    - [Example 1: E-commerce Platform](#example-1-e-commerce-platform)
+    - [Example 2: Healthcare System](#example-2-healthcare-system)
+    - [Example 3: Financial Services](#example-3-financial-services)
+  - [How It Works with ggen](#how-it-works-with-ggen)
+    - [Step 1: Define Ontology](#step-1-define-ontology)
+    - [Step 2: Load into Graph](#step-2-load-into-graph)
+    - [Step 3: Extract Schema](#step-3-extract-schema)
+    - [Step 4: Generate Code](#step-4-generate-code)
+    - [Step 5: Iterate](#step-5-iterate)
+  - [When to Use Ontology-Driven Development](#when-to-use-ontology-driven-development)
+  - [Comparison to Other Approaches](#comparison-to-other-approaches)
+    - [vs. Protocol Buffers (Protobuf)](#vs-protocol-buffers-protobuf)
+    - [vs. OpenAPI Spec](#vs-openapi-spec)
+    - [vs. GraphQL Schema](#vs-graphql-schema)
+  - [Getting Started](#getting-started)
+  - [Further Reading](#further-reading)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # What is Ontology-Driven Development?
 
 **Concept**: Define your domain model once in RDF/OWL, then generate code for any language or framework.
