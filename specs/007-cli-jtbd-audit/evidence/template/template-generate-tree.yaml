@@ -1,0 +1,51 @@
+# Audit Result: ggen template generate-tree
+# Schema: ../../contracts/audit-result.schema.yaml
+
+command: "ggen template generate-tree"
+version_tested: "5.3.2"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 56
+agent_breakdown:
+  parseable_output: 8     # Generates directory tree, no JSON manifest
+  error_messages: 12      # Basic error handling
+  idempotency: 9          # Creates directories, may overwrite
+  progress_feedback: 6    # Shows created files
+  dry_run: 0              # No --dry-run (critical gap)
+  documentation: 4        # Minimal help
+  exit_codes: 8           # Differentiated codes
+
+avatar_notes:
+  claude_code: "Multi-file generation. Missing --dry-run for preview."
+  cursor_ai: "Simple options. Creates directory tree."
+  copilot: "Pattern: --template + --output for tree generation."
+  aider: "Git-trackable output structure."
+  devin: "Batch file creation. Self-contained."
+  openhands: "Output path configurable."
+  windsurf: "Directory creation. IDE can browse result."
+
+maturity_level: L3
+maturity_blockers:
+  - "No dry-run support"
+  - "No JSON manifest output"
+
+evidence_files:
+  - template-generate-tree-help.log
+
+recommendations:
+  - priority: P1
+    description: "Add --dry-run to preview directory structure"
+    effort: medium
+    impact: high
+  - priority: P2
+    description: "Output JSON manifest of created files"
+    effort: medium
+    impact: high

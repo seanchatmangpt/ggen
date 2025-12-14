@@ -1,0 +1,139 @@
+# JSON Schema for Case Study Validation
+# Version: 1.0.0
+# Used by: evidence/case-studies/<company>.yaml
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: CaseStudyValidation
+description: Fortune 500 case study validation result
+
+type: object
+required:
+  - case_study
+  - industry
+  - jtbd
+  - required_commands
+  - validation_status
+
+properties:
+  case_study:
+    type: string
+    enum:
+      - jpmorgan
+      - amazon
+      - pfizer
+      - boeing
+      - netflix
+      - toyota
+      - goldman
+    description: Case study identifier
+
+  industry:
+    type: string
+    description: Industry classification
+
+  jtbd:
+    type: string
+    description: Jobs-to-be-Done statement
+
+  required_commands:
+    type: array
+    items:
+      type: object
+      required:
+        - command
+        - purpose
+        - current_support
+      properties:
+        command:
+          type: string
+          pattern: "^ggen [a-z_]+( [a-z_]+)?$"
+        purpose:
+          type: string
+        criticality:
+          type: string
+          enum: [P1, P2, P3]
+          default: P2
+        current_support:
+          type: string
+          enum: [full, partial, none]
+        gaps:
+          type: array
+          items:
+            type: string
+
+  scale_requirements:
+    type: object
+    properties:
+      entities:
+        type: integer
+      files:
+        type: integer
+      latency_slo:
+        type: string
+
+  validation_status:
+    type: string
+    enum:
+      - pending
+      - passed
+      - partial
+      - failed
+      - blocked
+    description: Overall validation outcome
+
+  gaps:
+    type: array
+    items:
+      type: object
+      required:
+        - command
+        - issue
+        - severity
+      properties:
+        command:
+          type: string
+        issue:
+          type: string
+        severity:
+          type: string
+          enum: [P1, P2, P3]
+        workaround:
+          type: string
+        enhancement_request:
+          type: string
+
+  notes:
+    type: string
+    description: Additional validation notes
+
+examples:
+  - case_study: jpmorgan
+    industry: Banking/Finance
+    jtbd: "When regulatory requirements change, I need to regenerate compliant code across all services"
+    required_commands:
+      - command: "ggen ontology validate"
+        purpose: "Validate regulatory ontology"
+        criticality: P1
+        current_support: full
+        gaps: []
+      - command: "ggen template generate"
+        purpose: "Generate compliant entities"
+        criticality: P1
+        current_support: full
+        gaps: []
+      - command: "ggen graph query"
+        purpose: "Query affected entities"
+        criticality: P2
+        current_support: partial
+        gaps:
+          - "Missing --output-format json"
+    scale_requirements:
+      entities: 50000
+      latency_slo: "<60s for 1000 entities"
+    validation_status: partial
+    gaps:
+      - command: "ggen graph query"
+        issue: "No JSON output option"
+        severity: P2
+        workaround: "Parse text output manually"
+        enhancement_request: "Add --output-format json flag"

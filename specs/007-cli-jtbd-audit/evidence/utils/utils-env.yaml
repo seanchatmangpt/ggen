@@ -1,0 +1,57 @@
+command: "ggen utils env"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true           # Command runs successfully
+  help_works: true         # --help displays all options (--list, --get, --set, --_system)
+  happy_path: true         # Help accessible, operations executable
+  error_handling: true     # Proper error messages for invalid operations
+  exit_codes: true         # Returns appropriate exit codes
+
+agent_score: 58
+agent_breakdown:
+  parseable_output: 10     # Text-based output, no JSON format option
+  error_messages: 14       # Good error messages for missing arguments
+  idempotency: 12          # Mostly idempotent (--list is read-only, --set has side effects)
+  progress_feedback: 4     # Silent operations except for errors
+  dry_run: 5               # Partial support via --get (read-only)
+  documentation: 10        # Good help with clear options
+  exit_codes: 6            # Basic exit codes (0/1)
+
+avatar_notes:
+  claude_code: "Text output limits usefulness; JSON format would be needed for orchestration"
+  cursor_ai: "Help text clear; suitable for IDE help integration"
+  copilot: "Pattern learnable from --list/--get/--set options"
+  aider: "Text output requires parsing; no JSON makes automation difficult"
+  devin: "--get provides read-only capability; --set requires careful state management"
+  openhands: "Text output requires custom parsing; limited integration capability"
+  windsurf: "Help available in IDE; text output not ideal for IDE display"
+
+maturity_level: "L2"
+maturity_blockers:
+  - "No JSON output format (blocks L3+)"
+  - "No --dry-run for --set operations (blocks L3+)"
+
+evidence_files:
+  - utils-env-help.log
+
+recommendations:
+  - priority: "P1"
+    description: "Add --output-format json for structured environment variable output"
+    effort: "medium"
+    impact: "high"
+  - priority: "P2"
+    description: "Add --dry-run flag to preview --set changes without applying them"
+    effort: "low"
+    impact: "high"
+  - priority: "P2"
+    description: "Support GGEN_ENV_JSON environment variable for JSON output mode"
+    effort: "low"
+    impact: "medium"
+
+jtbd: |
+  When I need to manage environment configuration for ggen operations, I need to
+  get, set, and list environment variables, so that I can configure ggen behavior
+  without manual file editing.

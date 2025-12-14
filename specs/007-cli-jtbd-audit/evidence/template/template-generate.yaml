@@ -1,0 +1,53 @@
+# Audit Result: ggen template generate
+# Schema: ../../contracts/audit-result.schema.yaml
+
+command: "ggen template generate"
+version_tested: "5.3.2"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 64
+agent_breakdown:
+  parseable_output: 10    # Generates files, confirmation message
+  error_messages: 16      # Clear error messages
+  idempotency: 12         # --force flag handles overwrites
+  progress_feedback: 6    # Shows generated file path
+  dry_run: 0              # No --dry-run (critical gap)
+  documentation: 6        # Minimal help, note about Vec support
+  exit_codes: 8           # Good differentiation
+
+avatar_notes:
+  claude_code: "Core generation command. --force for overwrites. Missing --dry-run."
+  cursor_ai: "Clear options: --template, --output, --vars, --force."
+  copilot: "Pattern: --template + --output + --vars. Learnable."
+  aider: "Git-trackable output. --force for regeneration."
+  devin: "Self-contained generation. Variables via --vars."
+  openhands: "Customizable via vars. Output path configurable."
+  windsurf: "File creation. IDE can preview generated files."
+
+maturity_level: L4
+maturity_blockers: []
+
+evidence_files:
+  - template-generate-help.log
+
+recommendations:
+  - priority: P1
+    description: "Add --dry-run to preview generation without writing files"
+    effort: medium
+    impact: high
+  - priority: P2
+    description: "Add usage examples to help"
+    effort: low
+    impact: medium
+  - priority: P3
+    description: "Document Vec limitation clearly"
+    effort: low
+    impact: low

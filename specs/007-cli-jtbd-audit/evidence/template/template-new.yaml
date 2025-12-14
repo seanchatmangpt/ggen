@@ -1,0 +1,51 @@
+# Audit Result: ggen template new
+# Schema: ../../contracts/audit-result.schema.yaml
+
+command: "ggen template new"
+version_tested: "5.3.2"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 48
+agent_breakdown:
+  parseable_output: 5     # Creates file, no structured output
+  error_messages: 12      # Basic clap errors, no examples in help
+  idempotency: 9          # Creates files, would overwrite
+  progress_feedback: 4    # Silent
+  dry_run: 0              # No --dry-run
+  documentation: 6        # Minimal help, no examples
+  exit_codes: 6           # Basic differentiated codes
+
+avatar_notes:
+  claude_code: "Minimal help output. Missing usage examples in --help."
+  cursor_ai: "Short help fits context. Pattern unclear without examples."
+  copilot: "Limited examples to learn from. --name required."
+  aider: "Creates template file. Deterministic output."
+  devin: "Simple creation command. Template type optional."
+  openhands: "Limited customization options."
+  windsurf: "File creation - IDE can preview."
+
+maturity_level: L3
+maturity_blockers:
+  - "Minimal documentation in help"
+  - "No dry-run support"
+
+evidence_files:
+  - template-new-help.log
+
+recommendations:
+  - priority: P1
+    description: "Add usage examples to --help output"
+    effort: low
+    impact: high
+  - priority: P2
+    description: "Add --dry-run to preview template structure"
+    effort: low
+    impact: medium

@@ -1,0 +1,79 @@
+# Fortune 500 Case Study Validation: Boeing
+# Schema: ../../contracts/case-study-validation.schema.yaml
+
+case_study: boeing
+industry: Manufacturing/Defense
+fortune_rank: 35
+
+jtbd: "When I modify a system model, I need to trace code changes back to requirements for certification, so that I can maintain FAA airworthiness approval."
+
+scale_requirements:
+  aircraft_parts: 10000000
+  requirements: 100000
+  safety_critical_systems: 500
+  latency_slo: "<5min per subsystem for FMEA"
+
+required_commands:
+  - command: "ggen fmea report"
+    purpose: "Generate FMEA analysis for safety certification"
+    criticality: P1
+    current_support: pending
+    gaps: []
+
+  - command: "ggen workflow analyze"
+    purpose: "Analyze requirement-to-code traceability"
+    criticality: P1
+    current_support: pending
+    gaps: []
+
+  - command: "ggen graph visualize"
+    purpose: "Visualize system architecture and dependencies"
+    criticality: P2
+    current_support: pending
+    gaps: []
+
+  - command: "ggen fmea show"
+    purpose: "Display failure mode analysis"
+    criticality: P2
+    current_support: pending
+    gaps: []
+
+  - command: "ggen marketplace validate_fmea"
+    purpose: "Enterprise FMEA validation with RPN scoring"
+    criticality: P1
+    current_support: pending
+    gaps: []
+
+validation_status: pending
+validated_date: null
+validator: claude-code
+
+test_scenarios:
+  - scenario: "DO-178C compliant FMEA generation"
+    steps:
+      - "ggen fmea report --input subsystem.fmea --format do178c"
+      - "ggen fmea show --mode-id FM-001"
+    expected: "FMEA report meeting DO-178C certification format"
+    actual: pending
+
+  - scenario: "Requirement traceability analysis"
+    steps:
+      - "ggen workflow analyze --workflow-file req-trace.json"
+      - "ggen graph visualize --format mermaid"
+    expected: "Bidirectional traceability from requirements to code"
+    actual: pending
+
+  - scenario: "Enterprise FMEA validation"
+    steps:
+      - "ggen marketplace validate_fmea --package_path ./flight-control --strict"
+    expected: "RPN scoring, path protection, CODEOWNERS validation"
+    actual: pending
+
+gaps: []
+
+recommendations: []
+
+notes: |
+  Boeing case study focuses on safety-critical certification (FAA DO-178C).
+  Key concerns: traceability, FMEA completeness, certification format.
+  Industry pattern: compliance-driven with aerospace-specific requirements.

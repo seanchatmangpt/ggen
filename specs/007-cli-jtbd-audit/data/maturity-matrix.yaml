@@ -1,0 +1,258 @@
+# ggen CLI Maturity Matrix
+# L0-L5 Assessment Framework
+# Generated: 2024-12-14
+
+maturity_levels:
+  L0:
+    name: Absent
+    description: Command doesn't exist or fails completely
+    characteristics:
+      - Command not found
+      - Immediate crash/panic
+      - No error handling
+    agent_friendliness: 0%
+    criteria: []
+
+  L1:
+    name: Initial
+    description: Command executes but output is unpredictable
+    characteristics:
+      - Basic execution works
+      - --help provides some info
+      - Output format varies
+      - Errors are stack traces
+    agent_friendliness: 20%
+    criteria:
+      - command_executes: true
+      - help_available: true
+
+  L2:
+    name: Managed
+    description: Command works with known inputs, errors are cryptic
+    characteristics:
+      - Happy path works reliably
+      - Some error handling
+      - Exit codes somewhat meaningful
+      - Output reasonably consistent
+    agent_friendliness: 40%
+    criteria:
+      - command_executes: true
+      - help_available: true
+      - happy_path_works: true
+      - exit_code_nonzero_on_error: true
+
+  L3:
+    name: Defined
+    description: Command has clear inputs/outputs, errors are actionable
+    characteristics:
+      - Error messages include guidance
+      - Consistent output format
+      - Input validation with helpful messages
+      - Most common paths documented
+    agent_friendliness: 60%
+    criteria:
+      - command_executes: true
+      - help_available: true
+      - happy_path_works: true
+      - exit_code_nonzero_on_error: true
+      - error_messages_actionable: true
+      - input_validation: true
+
+  L4:
+    name: Quantified
+    description: Command has metrics, JSON output, semantic exit codes
+    characteristics:
+      - --output-format json available
+      - Exit codes follow conventions
+      - Timing/metrics via --verbose
+      - Comprehensive error codes
+    agent_friendliness: 80%
+    criteria:
+      - command_executes: true
+      - help_available: true
+      - happy_path_works: true
+      - exit_code_nonzero_on_error: true
+      - error_messages_actionable: true
+      - input_validation: true
+      - json_output: true
+      - semantic_exit_codes: true
+      - verbose_metrics: true
+
+  L5:
+    name: Optimized
+    description: Command is self-documenting, agent-optimized, composable
+    characteristics:
+      - JSON schema documented
+      - Idempotent operations
+      - --dry-run mode
+      - Progress streaming
+      - Deterministic output
+      - Full JTBD documentation
+    agent_friendliness: 100%
+    criteria:
+      - command_executes: true
+      - help_available: true
+      - happy_path_works: true
+      - exit_code_nonzero_on_error: true
+      - error_messages_actionable: true
+      - input_validation: true
+      - json_output: true
+      - semantic_exit_codes: true
+      - verbose_metrics: true
+      - json_schema: true
+      - idempotent: true
+      - dry_run: true
+      - progress_streaming: true
+      - deterministic: true
+      - jtbd_documentation: true
+
+# Maturity Transition Checklist
+transitions:
+  L1_to_L2:
+    name: Basic Functionality
+    checklist:
+      - id: happy_path
+        description: Command completes successfully with valid inputs
+        verification: Run with example inputs, verify success
+
+      - id: exit_codes
+        description: Exit code 0 on success, non-zero on failure
+        verification: Check exit codes after success/failure runs
+
+      - id: consistent_output
+        description: Output format is consistent across runs
+        verification: Run 3x, diff outputs
+
+  L2_to_L3:
+    name: Error Handling
+    checklist:
+      - id: actionable_errors
+        description: Error messages include guidance on how to fix
+        verification: Trigger common errors, review messages
+
+      - id: input_validation
+        description: Invalid inputs produce helpful error messages
+        verification: Test with malformed inputs
+
+      - id: file_errors
+        description: File not found errors specify the missing file
+        verification: Run with non-existent file path
+
+  L3_to_L4:
+    name: Observability
+    checklist:
+      - id: json_output
+        description: --output-format json or --json flag available
+        verification: Check for JSON output option in --help
+
+      - id: semantic_codes
+        description: Exit codes differentiate error types (1=error, 2=usage)
+        verification: Test various failure modes, check exit codes
+
+      - id: verbose_mode
+        description: Timing/metrics available via --verbose
+        verification: Run with --verbose, verify additional output
+
+  L4_to_L5:
+    name: Agent Optimization
+    checklist:
+      - id: json_schema
+        description: JSON output has documented schema
+        verification: Locate schema documentation or type definitions
+
+      - id: idempotency
+        description: Safe to retry (same inputs = same outputs)
+        verification: Run same command 3x, verify identical results
+
+      - id: dry_run
+        description: --dry-run mode for preview without changes
+        verification: Check for --dry-run in --help
+
+      - id: progress
+        description: Progress indicators for long operations
+        verification: Run long operation, verify streaming output
+
+      - id: determinism
+        description: Output is deterministic (reproducible)
+        verification: Run with fixed inputs, verify byte-for-byte match
+
+      - id: jtbd_docs
+        description: JTBD documentation exists
+        verification: Check for JTBD documentation in docs/
+
+# Current Assessment (TBD during audit)
+current_assessment:
+  # Template populated during audit
+  by_command: {}
+
+  summary:
+    L0: 0
+    L1: 0
+    L2: 0
+    L3: 0
+    L4: 0
+    L5: 0
+    total: 47
+
+  target:
+    L0: 0  # Zero broken commands
+    L1: 0  # All should be at least L2
+    L2: 10  # ~20% acceptable at L2
+    L3: 20  # ~40% at L3 (agent-usable)
+    L4: 10  # ~20% at L4 (agent-optimized)
+    L5: 7   # ~15% at L5 (exemplary)
+
+# Agent-Specific Maturity Requirements
+avatar_requirements:
+  claude_code:
+    minimum_level: L3
+    critical_features: [json_output, actionable_errors, determinism]
+    rationale: Needs parseable output for verification workflows
+
+  cursor_ai:
+    minimum_level: L2
+    critical_features: [concise_help, quick_execution]
+    rationale: Limited context requires efficient commands
+
+  github_copilot:
+    minimum_level: L2
+    critical_features: [consistent_patterns, good_documentation]
+    rationale: Pattern-based completion requires consistency
+
+  aider:
+    minimum_level: L3
+    critical_features: [git_integration, diff_output]
+    rationale: Git-aware editing requires trackable changes
+
+  devin:
+    minimum_level: L3
+    critical_features: [autonomous_execution, error_recovery]
+    rationale: Autonomous operation requires self-correction
+
+  openhands:
+    minimum_level: L3
+    critical_features: [customization, power_features]
+    rationale: Power users need advanced capabilities
+
+  windsurf:
+    minimum_level: L3
+    critical_features: [ide_integration, preview]
+    rationale: IDE workflows require visual feedback
+
+# Maturity Improvement Roadmap Template
+roadmap_template:
+  immediate:  # Next release
+    focus: Move all L0 commands to L2
+    commands: []  # TBD
+
+  short_term:  # Q1
+    focus: Move high-demand commands to L4
+    commands: []  # TBD
+
+  medium_term:  # Q2
+    focus: Agent optimization for L5
+    commands: []  # TBD
+
+  long_term:  # Q3+
+    focus: Full L5 compliance for Fortune 500 scenarios
+    commands: []  # TBD

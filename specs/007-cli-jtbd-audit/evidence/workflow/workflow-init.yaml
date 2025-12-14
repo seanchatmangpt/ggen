@@ -1,0 +1,57 @@
+# Audit Result: ggen workflow init
+# Schema: ../../contracts/audit-result.schema.yaml
+
+command: "ggen workflow init"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: false         # Fails with "unexpected argument '--type' found" error
+  help_works: true        # --help displays command documentation
+  happy_path: false       # Help text shows --type but command rejects it
+  error_handling: true    # Good error messages identifying unexpected arguments
+  exit_codes: true        # Proper exit codes (0/1)
+
+agent_score: 31
+agent_breakdown:
+  parseable_output: 2     # Text output only, no JSON option
+  error_messages: 12      # Clear error identifying unexpected --type argument
+  idempotency: 8          # Would be idempotent if executed successfully
+  progress_feedback: 2    # Silent operation
+  dry_run: 0              # No --dry-run option
+  documentation: 5        # Help text mentions --type but command doesn't support it
+  exit_codes: 2           # Basic exit codes (0/1)
+
+avatar_notes:
+  claude_code: "Documentation-implementation mismatch (--type in help but not accepted); blocks orchestration"
+  cursor_ai: "Help text suggests --type parameter but command rejects it; confusing for learning"
+  copilot: "Inconsistent help/implementation; tab completion would fail; difficult to learn pattern"
+  aider: "Help documentation contradicts actual behavior; risk of failed automated execution"
+  devin: "--type parameter advertised in help but not implemented; blocks autonomous execution"
+  openhands: "Documentation mismatch creates confusion; would need trial-and-error to find correct syntax"
+  windsurf: "IDE help shows --type but command rejects it; poor developer experience"
+
+maturity_level: "L0"
+maturity_blockers:
+  - "CRITICAL: Help documentation contradicts implementation (shows --type but command rejects it)"
+  - "No JSON output format"
+  - "Command crashes on documented parameter --type"
+
+evidence_files:
+  - workflow-init-help.log
+  - workflow-init-noargs.log
+
+recommendations:
+  - priority: "P1"
+    description: "URGENT: Fix help documentation or implement missing --type parameter"
+    effort: "high"
+    impact: "high"
+  - priority: "P1"
+    description: "Add --output-format json for structured initialization output"
+    effort: "medium"
+    impact: "high"
+  - priority: "P2"
+    description: "Add --dry-run flag to preview workflow structure without file creation"
+    effort: "low"
+    impact: "medium"
