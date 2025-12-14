@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Andon Signal Validation Framework - Gap Analysis](#andon-signal-validation-framework---gap-analysis)
+  - [Executive Summary](#executive-summary)
+    - [Key Findings](#key-findings)
+  - [Gap Analysis Results](#gap-analysis-results)
+    - [Step 1: 80/20 Scan Results](#step-1-8020-scan-results)
+    - [Step 2: Incomplete Capabilities Identified](#step-2-incomplete-capabilities-identified)
+      - [Category 1: Error Handling (High Impact, High Value)](#category-1-error-handling-high-impact-high-value)
+      - [Category 2: Test Coverage (Medium Impact, High Value)](#category-2-test-coverage-medium-impact-high-value)
+      - [Category 3: Type Safety (Low Impact, High Value)](#category-3-type-safety-low-impact-high-value)
+      - [Category 4: Documentation (Low Impact, Medium Value)](#category-4-documentation-low-impact-medium-value)
+      - [Category 5: Metrics (Low Impact, Low Value)](#category-5-metrics-low-impact-low-value)
+  - [80/20 Prioritization Matrix](#8020-prioritization-matrix)
+    - [High Impact, High Value (Quality Work - Do First) ✅](#high-impact-high-value-quality-work---do-first-)
+    - [High Impact, Medium Value (Good Work - Plan)](#high-impact-medium-value-good-work---plan)
+    - [Foundation Work (High Value, Lower Impact)](#foundation-work-high-value-lower-impact)
+    - [Low Impact, Low Value (Avoid)](#low-impact-low-value-avoid)
+  - [Completed Fixes](#completed-fixes)
+    - [Fix 1: Duplicate TEST_DIR Creation](#fix-1-duplicate-test_dir-creation)
+    - [Fix 2: Improved Error Messages](#fix-2-improved-error-messages)
+    - [Fix 3: Error Logging for continue-on-error](#fix-3-error-logging-for-continue-on-error)
+    - [Fix 4: Improved partial_cmp Handling](#fix-4-improved-partial_cmp-handling)
+  - [Validation Results](#validation-results)
+    - [Functional Validation](#functional-validation)
+    - [Capability Validation](#capability-validation)
+  - [Next Steps](#next-steps)
+    - [Immediate (Completed) ✅](#immediate-completed-)
+    - [Short-Term (Planned)](#short-term-planned)
+    - [Long-Term (Future)](#long-term-future)
+  - [Success Metrics](#success-metrics)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Andon Signal Validation Framework - Gap Analysis
 
 **Date**: 2025-12-12  

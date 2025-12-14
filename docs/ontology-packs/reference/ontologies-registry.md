@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Reference: Available Ontologies in Marketplace](#reference-available-ontologies-in-marketplace)
+  - [General Purpose](#general-purpose)
+    - [Schema.org](#schemaorg)
+    - [DBpedia](#dbpedia)
+  - [Metadata & Documentation](#metadata--documentation)
+    - [Dublin Core](#dublin-core)
+    - [MIAOU (Metadata Infrastructure for Audiovisual Objects)](#miaou-metadata-infrastructure-for-audiovisual-objects)
+  - [Social & People](#social--people)
+    - [FOAF (Friend of a Friend)](#foaf-friend-of-a-friend)
+  - [Domain-Specific](#domain-specific)
+    - [SKOS (Simple Knowledge Organization System)](#skos-simple-knowledge-organization-system)
+    - [BioOntology](#bioontology)
+    - [GEO](#geo)
+    - [VCARD](#vcard)
+  - [E-Commerce (Curated)](#e-commerce-curated)
+    - [ecommerce-ontology](#ecommerce-ontology)
+    - [inventory-ontology](#inventory-ontology)
+  - [Healthcare](#healthcare)
+    - [HL7 FHIR](#hl7-fhir)
+  - [Publishing & Content](#publishing--content)
+    - [DCAT](#dcat)
+    - [CIDOC-CRM](#cidoc-crm)
+  - [Installation Tips](#installation-tips)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Reference: Available Ontologies in Marketplace
 
 Popular ontology packs available for code generation.

@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pack System: Marketplace Integration Design](#pack-system-marketplace-integration-design)
+  - [Overview](#overview)
+  - [Integration Architecture](#integration-architecture)
+  - [Core Integration Points](#core-integration-points)
+    - [1. Template Resolution](#1-template-resolution)
+    - [2. Template Execution](#2-template-execution)
+    - [3. SPARQL Query Execution](#3-sparql-query-execution)
+    - [4. Pack Quality Scoring](#4-pack-quality-scoring)
+    - [5. Package Validation](#5-package-validation)
+  - [Integration Summary](#integration-summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pack System: Marketplace Integration Design
 
 ## Overview

@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 1 Production Validation Audit - Error Categorization & Prioritization](#week-1-production-validation-audit---error-categorization--prioritization)
+  - [Executive Summary](#executive-summary)
+    - [Error Distribution by Type](#error-distribution-by-type)
+    - [Critical Insight: The 20/80 Rule](#critical-insight-the-2080-rule)
+  - [Error Categorization by Root Cause](#error-categorization-by-root-cause)
+    - [CRITICAL Priority (186 errors - fix first)](#critical-priority-186-errors---fix-first)
+      - [1. Observation Struct API Mismatch (18 errors)](#1-observation-struct-api-mismatch-18-errors)
+      - [2. DeltaSigmaProposal Struct API Mismatch (30 errors)](#2-deltasigmaproposal-struct-api-mismatch-30-errors)
+      - [3. ObservationSource Enum Missing Variants (16 errors)](#3-observationsource-enum-missing-variants-16-errors)
+      - [4. PatternType Enum Missing Drift Variant (8 errors)](#4-patterntype-enum-missing-drift-variant-8-errors)
+    - [HIGH Priority (65 errors - fix second)](#high-priority-65-errors---fix-second)
+      - [5. ValidationContext Struct (10 errors)](#5-validationcontext-struct-10-errors)
+      - [6. ValidationEvidence Struct (9 errors)](#6-validationevidence-struct-9-errors)
+      - [7. ProposerConfig Struct (6 errors)](#7-proposerconfig-struct-6-errors)
+      - [8. ProposedChange Struct (6 errors)](#8-proposedchange-struct-6-errors)
+      - [9. Missing validate() Methods (9 errors)](#9-missing-validate-methods-9-errors)
+    - [MEDIUM Priority (29 errors - fix third)](#medium-priority-29-errors---fix-third)
+      - [10. Pipeline Struct Private Field (12 errors)](#10-pipeline-struct-private-field-12-errors)
+      - [11. MinerConfig Struct (4 errors)](#11-minerconfig-struct-4-errors)
+      - [12. ConstitutionValidation Struct (4 errors)](#12-constitutionvalidation-struct-4-errors)
+      - [13. PromotionResult Struct (4 errors)](#13-promotionresult-struct-4-errors)
+      - [14. Type Mismatches (18 errors)](#14-type-mismatches-18-errors)
+    - [LOW Priority (9 errors - fix last)](#low-priority-9-errors---fix-last)
+      - [15. SigmaOverlay Struct (2 errors)](#15-sigmaoverlay-struct-2-errors)
+      - [16. Swarm Module Resolution (4 errors)](#16-swarm-module-resolution-4-errors)
+      - [17. Result Type Generic Argument (1 error)](#17-result-type-generic-argument-1-error)
+  - [Dependency Graph & Fix Order](#dependency-graph--fix-order)
+    - [Phase 1: Core Struct Definitions (45 minutes)](#phase-1-core-struct-definitions-45-minutes)
+    - [Phase 2: Config Structs (30 minutes)](#phase-2-config-structs-30-minutes)
+    - [Phase 3: Implementation Methods (30 minutes)](#phase-3-implementation-methods-30-minutes)
+    - [Phase 4: Type Fixes & Cleanup (20 minutes)](#phase-4-type-fixes--cleanup-20-minutes)
+  - [Files with Most Errors](#files-with-most-errors)
+  - [Affected Crates](#affected-crates)
+  - [Systematic Fix Strategy](#systematic-fix-strategy)
+    - [Week 1 Timeline (4-6 hours total)](#week-1-timeline-4-6-hours-total)
+  - [Verification Protocol (Andon Signal Monitoring)](#verification-protocol-andon-signal-monitoring)
+  - [Risk Assessment](#risk-assessment)
+    - [Low Risk Fixes (90% of errors)](#low-risk-fixes-90-of-errors)
+    - [Medium Risk Fixes (8% of errors)](#medium-risk-fixes-8-of-errors)
+    - [High Risk Fixes (2% of errors)](#high-risk-fixes-2-of-errors)
+  - [Success Criteria](#success-criteria)
+  - [Estimated Completion](#estimated-completion)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 1 Production Validation Audit - Error Categorization & Prioritization
 
 **Date**: 2025-11-20

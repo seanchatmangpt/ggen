@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Testing Strategy](#testing-strategy)
+  - [Testing Philosophy](#testing-philosophy)
+    - [Chicago School vs. London School](#chicago-school-vs-london-school)
+  - [Test Categories](#test-categories)
+    - [1. Unit Tests (80% Coverage Minimum)](#1-unit-tests-80-coverage-minimum)
+    - [2. Integration Tests (60% Coverage Minimum)](#2-integration-tests-60-coverage-minimum)
+    - [3. End-to-End Tests (Smoke Tests)](#3-end-to-end-tests-smoke-tests)
+    - [4. Property-Based Tests (Advanced)](#4-property-based-tests-advanced)
+  - [Test Organization](#test-organization)
+    - [Directory Structure](#directory-structure)
+    - [Test Naming Conventions](#test-naming-conventions)
+  - [AAA Pattern (Arrange-Act-Assert)](#aaa-pattern-arrange-act-assert)
+  - [Test Data Management](#test-data-management)
+    - [Fixtures Directory](#fixtures-directory)
+    - [Test Utilities (Common Module)](#test-utilities-common-module)
+  - [Coverage Requirements](#coverage-requirements)
+    - [Target Coverage by Component](#target-coverage-by-component)
+    - [How to Check Coverage](#how-to-check-coverage)
+  - [Test-Driven Development Workflow](#test-driven-development-workflow)
+    - [1. Red: Write Failing Test](#1-red-write-failing-test)
+    - [2. Green: Make Test Pass (Minimum Code)](#2-green-make-test-pass-minimum-code)
+    - [3. Refactor: Improve Code (Tests Still Pass)](#3-refactor-improve-code-tests-still-pass)
+    - [4. Repeat: Add More Tests](#4-repeat-add-more-tests)
+  - [Continuous Integration](#continuous-integration)
+    - [GitHub Actions Test Pipeline](#github-actions-test-pipeline)
+  - [Performance Testing](#performance-testing)
+    - [Benchmarks (criterion)](#benchmarks-criterion)
+    - [SLO Verification](#slo-verification)
+  - [Key Takeaways](#key-takeaways)
+  - [Detailed Testing Documentation](#detailed-testing-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Testing Strategy
 
 **Philosophy**: Chicago School TDD - State-based testing with real collaborators

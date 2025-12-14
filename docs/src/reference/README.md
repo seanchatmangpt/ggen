@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Reference Documentation - Authoritative Specs](#reference-documentation---authoritative-specs)
+  - [Command Reference](#command-reference)
+  - [Code Generation](#code-generation)
+  - [API & Data Structures](#api--data-structures)
+  - [Configuration & Formats](#configuration--formats)
+  - [Package & Ecosystem](#package--ecosystem)
+  - [How to Use These Docs](#how-to-use-these-docs)
+  - [Understanding the Formats](#understanding-the-formats)
+    - [Quick Navigation](#quick-navigation)
+  - [Need More Context?](#need-more-context)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Reference Documentation - Authoritative Specs
 
 Complete, accurate reference information for all ggen features. Reference docs are **information-oriented** - they provide comprehensive specifications without tutorials or explanations.

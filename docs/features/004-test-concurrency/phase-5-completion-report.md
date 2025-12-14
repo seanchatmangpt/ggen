@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Phase 5 Completion Report - Test Optimization CLI](#phase-5-completion-report---test-optimization-cli)
+  - [Executive Summary](#executive-summary)
+  - [Deliverables Completed](#deliverables-completed)
+    - [✅ T095: Makefile.toml Integration](#-t095-makefiletoml-integration)
+    - [✅ T098-T100: CLI Binary Implementation](#-t098-t100-cli-binary-implementation)
+      - [1. `optimize` - 80/20 Pareto Selection](#1-optimize---8020-pareto-selection)
+      - [2. `metadata-update` - Test Metadata Collection](#2-metadata-update---test-metadata-collection)
+      - [3. `budget-check` - Performance Budget Validation](#3-budget-check---performance-budget-validation)
+    - [✅ T101-T103: CLI Flags Implementation](#-t101-t103-cli-flags-implementation)
+    - [✅ T104: CLI Integration Tests](#-t104-cli-integration-tests)
+  - [Code Quality Metrics](#code-quality-metrics)
+    - [Lines of Code](#lines-of-code)
+    - [Test Coverage](#test-coverage)
+    - [Constitutional Compliance](#constitutional-compliance)
+  - [Integration Points](#integration-points)
+    - [Existing Makefile.toml Tasks](#existing-makefiletoml-tasks)
+    - [Dependencies](#dependencies)
+    - [Future Integration (Phase 6)](#future-integration-phase-6)
+  - [Known Limitations & Future Work](#known-limitations--future-work)
+    - [Current Limitations](#current-limitations)
+    - [Future Enhancements (Phase 6)](#future-enhancements-phase-6)
+  - [Risk Assessment](#risk-assessment)
+    - [Risks Mitigated](#risks-mitigated)
+    - [Outstanding Risks](#outstanding-risks)
+  - [Lessons Learned](#lessons-learned)
+    - [What Worked Well](#what-worked-well)
+    - [Challenges Overcome](#challenges-overcome)
+    - [Process Improvements](#process-improvements)
+  - [Phase 5 Checklist Validation](#phase-5-checklist-validation)
+    - [Core Implementation ✅](#core-implementation-)
+    - [Quality Gates ✅](#quality-gates-)
+    - [Documentation ✅](#documentation-)
+  - [Next Steps (Phase 6)](#next-steps-phase-6)
+  - [Approval](#approval)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Phase 5 Completion Report - Test Optimization CLI
 
 **Feature**: 004-optimize-test-concurrency

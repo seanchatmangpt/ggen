@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [CI/CD Integration: Automate Code Generation in Pipelines](#cicd-integration-automate-code-generation-in-pipelines)
+  - [Goal](#goal)
+  - [Prerequisites](#prerequisites)
+  - [Step 1: Create GitHub Actions Workflow](#step-1-create-github-actions-workflow)
+  - [Step 2: Add Validation Workflow](#step-2-add-validation-workflow)
+  - [Step 3: Add Pre-Commit Hook Locally](#step-3-add-pre-commit-hook-locally)
+  - [Step 4: Create Release Workflow](#step-4-create-release-workflow)
+  - [Step 5: Configure Gitflow](#step-5-configure-gitflow)
+  - [Step 6: Monitor Code Generation](#step-6-monitor-code-generation)
+  - [Step 7: Real-World Example](#step-7-real-world-example)
+  - [Best Practices](#best-practices)
+  - [Troubleshooting](#troubleshooting)
+  - [Next Steps](#next-steps)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # CI/CD Integration: Automate Code Generation in Pipelines
 
 Integrate ggen into your GitHub Actions workflow to automatically regenerate code when your ontology changes.

@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Your First CLI Command](#your-first-cli-command)
+  - [Goal](#goal)
+  - [Prerequisites](#prerequisites)
+  - [Step 1: Define Your Domain Ontology](#step-1-define-your-domain-ontology)
+  - [Step 2: Validate Your Ontology](#step-2-validate-your-ontology)
+  - [Step 3: Extract to Schema](#step-3-extract-to-schema)
+  - [Step 4: Generate Code](#step-4-generate-code)
+  - [Step 5: Use Your Generated Models](#step-5-use-your-generated-models)
+  - [Step 6: Verify Your Work](#step-6-verify-your-work)
+  - [Next Steps](#next-steps)
+  - [Key Concepts](#key-concepts)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Your First CLI Command
 
 Learn how to build your own ggen CLI command from scratch - from RDF definition through code generation to running your new command.

@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How-to: Set Up ElectricSQL Sync with Postgres](#how-to-set-up-electricsql-sync-with-postgres)
+  - [Prerequisites](#prerequisites)
+  - [Overview](#overview)
+  - [Step 1: Set Up Postgres with Docker](#step-1-set-up-postgres-with-docker)
+  - [Step 2: Create Database Schema in Postgres](#step-2-create-database-schema-in-postgres)
+  - [Step 3: Configure Client-Side Sync](#step-3-configure-client-side-sync)
+  - [Step 4: Update Component for Real-Time Sync](#step-4-update-component-for-real-time-sync)
+  - [Step 5: Test Real-Time Sync](#step-5-test-real-time-sync)
+  - [Verification](#verification)
+  - [Troubleshooting](#troubleshooting)
+    - [Sync not working](#sync-not-working)
+    - [Todos duplicate across devices](#todos-duplicate-across-devices)
+    - [Changes don't sync immediately](#changes-dont-sync-immediately)
+  - [Production Considerations](#production-considerations)
+    - [1. Authentication](#1-authentication)
+    - [2. Hosting](#2-hosting)
+    - [3. Migrations](#3-migrations)
+  - [What You Achieved](#what-you-achieved)
+  - [Next Steps](#next-steps)
+    - [Related How-tos](#related-how-tos)
+    - [Explanations](#explanations)
+    - [Reference](#reference)
+  - [Meta-Lesson: How-to Guide Structure](#meta-lesson-how-to-guide-structure)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How-to: Set Up ElectricSQL Sync with Postgres
 
 **Problem**: You have a local-first app but need to sync data across devices and persist it on a server.

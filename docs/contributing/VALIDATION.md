@@ -1,3 +1,52 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Documentation Validation Guide](#documentation-validation-guide)
+  - [Quick Start](#quick-start)
+    - [Run All Validations](#run-all-validations)
+  - [Configuration with ggen.toml](#configuration-with-ggentoml)
+    - [View Current Configuration](#view-current-configuration)
+    - [Environment-Specific Validation](#environment-specific-validation)
+  - [Validation Suites](#validation-suites)
+    - [1. Quick Start Tutorial Validation](#1-quick-start-tutorial-validation)
+    - [2. SPARQL Query Guide Validation](#2-sparql-query-guide-validation)
+    - [3. CLI Reference Validation](#3-cli-reference-validation)
+    - [4. Watch Mode Validation](#4-watch-mode-validation)
+    - [5. TOML Configuration Validation](#5-toml-configuration-validation)
+    - [6. Diataxis Case Study Validation](#6-diataxis-case-study-validation)
+    - [7. TypeScript Detection](#7-typescript-detection)
+    - [8. Internal Link Validation](#8-internal-link-validation)
+  - [Running Specific Tests](#running-specific-tests)
+    - [Test Individual Documents](#test-individual-documents)
+    - [Test Specific Validation Aspects](#test-specific-validation-aspects)
+  - [Validation Reports](#validation-reports)
+    - [Main Report](#main-report)
+    - [Example Report](#example-report)
+  - [Continuous Integration](#continuous-integration)
+    - [GitHub Actions Integration](#github-actions-integration)
+    - [Pre-Commit Hook](#pre-commit-hook)
+  - [Lifecycle Hooks](#lifecycle-hooks)
+  - [Troubleshooting](#troubleshooting)
+    - [Validation Fails](#validation-fails)
+    - [ggen Not Found](#ggen-not-found)
+    - [Timeout Issues](#timeout-issues)
+  - [Best Practices](#best-practices)
+    - [1. Validate Before Committing](#1-validate-before-committing)
+    - [2. Watch Mode for Live Feedback](#2-watch-mode-for-live-feedback)
+    - [3. Test Your Changes](#3-test-your-changes)
+    - [4. Use Environment Variables](#4-use-environment-variables)
+  - [Adding New Validations](#adding-new-validations)
+    - [Step 1: Create Validation Script](#step-1-create-validation-script)
+    - [Step 2: Add to Master Script](#step-2-add-to-master-script)
+    - [Step 3: Test](#step-3-test)
+  - [Performance Metrics](#performance-metrics)
+  - [Configuration Reference](#configuration-reference)
+    - [ggen.toml Validation Settings](#ggentoml-validation-settings)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Documentation Validation Guide
 
 Complete guide for validating ggen documentation using the validation suite and ggen.toml configuration.

@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace Commands - Complete Implementation](#marketplace-commands---complete-implementation)
+  - [Overview](#overview)
+  - [Test Data](#test-data)
+  - [Maturity Scoring Algorithm](#maturity-scoring-algorithm)
+  - [All Working Commands](#all-working-commands)
+    - [1. Maturity Assessment](#1-maturity-assessment)
+    - [2. Recommendation Engine](#2-recommendation-engine)
+    - [3. Package Comparison](#3-package-comparison)
+    - [4. Maturity Search/Filter](#4-maturity-searchfilter)
+    - [5. Batch Assessment](#5-batch-assessment)
+    - [6. Dashboard Generation](#6-dashboard-generation)
+    - [7. Export Formats](#7-export-formats)
+    - [8. Bundle Management](#8-bundle-management)
+    - [9. Validation & Health](#9-validation--health)
+    - [10. Improvement Suggestions](#10-improvement-suggestions)
+    - [11. Receipt & Artifact Generation](#11-receipt--artifact-generation)
+    - [12. Search](#12-search)
+  - [Key Features](#key-features)
+    - [Real Algorithms](#real-algorithms)
+    - [Test Data Quality](#test-data-quality)
+  - [Architecture](#architecture)
+    - [Domain Layer (`ggen-domain/marketplace/`)](#domain-layer-ggen-domainmarketplace)
+    - [Marketplace Library (`ggen-marketplace/`)](#marketplace-library-ggen-marketplace)
+    - [CLI Layer (`ggen-cli/cmds/marketplace.rs`)](#cli-layer-ggen-clicmdsmarketplacers)
+  - [Testing](#testing)
+  - [No Placeholder Code](#no-placeholder-code)
+  - [Performance](#performance)
+  - [Integration Points](#integration-points)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace Commands - Complete Implementation
 
 ## Overview

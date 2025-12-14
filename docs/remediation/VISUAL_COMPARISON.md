@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Visual Before/After Comparison: Lean Test Refactoring](#visual-beforeafter-comparison-lean-test-refactoring)
+  - [📊 Metrics Dashboard](#-metrics-dashboard)
+  - [🔍 Side-by-Side: Individual Test Comparison](#-side-by-side-individual-test-comparison)
+    - [Example 1: Basic Upsert Test](#example-1-basic-upsert-test)
+      - [❌ BEFORE (21 lines)](#-before-21-lines)
+      - [✅ AFTER (9 lines, -57%)](#-after-9-lines--57)
+    - [Example 2: Update Existing Pack](#example-2-update-existing-pack)
+      - [❌ BEFORE (26 lines)](#-before-26-lines)
+      - [✅ AFTER (11 lines, -58%)](#-after-11-lines--58)
+    - [Example 3: Complex Dependency Tree](#example-3-complex-dependency-tree)
+      - [❌ BEFORE (30 lines)](#-before-30-lines)
+      - [✅ AFTER (11 lines, -63%)](#-after-11-lines--63)
+  - [📉 Duplication Visualization](#-duplication-visualization)
+    - [Before: TempDir Duplication (102 instances)](#before-tempdir-duplication-102-instances)
+    - [After: Single Builder Pattern](#after-single-builder-pattern)
+  - [📊 Assertion Pattern Comparison](#-assertion-pattern-comparison)
+    - [Before: Copy-Paste Assertions](#before-copy-paste-assertions)
+    - [After: Assertion Helpers](#after-assertion-helpers)
+  - [🎯 Clarity Comparison: Test Names](#-clarity-comparison-test-names)
+    - [Before (Unclear Intent)](#before-unclear-intent)
+    - [After (Intention-Revealing)](#after-intention-revealing)
+  - [🏗️ Pattern Standardization](#-pattern-standardization)
+    - [Before: 7 Different Patterns](#before-7-different-patterns)
+    - [After: 1 Unified Pattern](#after-1-unified-pattern)
+  - [📈 Compilation Performance](#-compilation-performance)
+    - [Before](#before)
+    - [After (Estimated)](#after-estimated)
+  - [📦 File Size Comparison](#-file-size-comparison)
+  - [🎓 Learning Curve](#-learning-curve)
+    - [Before: Multiple Patterns to Learn](#before-multiple-patterns-to-learn)
+    - [After: Single Pattern](#after-single-pattern)
+  - [🔬 Test Quality Score](#-test-quality-score)
+  - [💡 Key Takeaways](#-key-takeaways)
+    - [What We Eliminated](#what-we-eliminated)
+    - [What We Gained](#what-we-gained)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Visual Before/After Comparison: Lean Test Refactoring
 
 ## 📊 Metrics Dashboard

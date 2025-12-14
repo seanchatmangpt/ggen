@@ -1,3 +1,55 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace V2 Production Validation - Complete Documentation](#marketplace-v2-production-validation---complete-documentation)
+  - [Quick Links](#quick-links)
+  - [At-a-Glance Summary](#at-a-glance-summary)
+    - [✅ APPROVED FOR PRODUCTION](#-approved-for-production)
+    - [Key Metrics](#key-metrics)
+  - [Document Overview](#document-overview)
+    - [1. Executive Summary (483 lines)](#1-executive-summary-483-lines)
+    - [2. Production Readiness Report (697 lines)](#2-production-readiness-report-697-lines)
+      - [Part 1: Deployment Readiness (8 Categories)](#part-1-deployment-readiness-8-categories)
+      - [Part 2: Migration Readiness](#part-2-migration-readiness)
+      - [Part 3: Operational Readiness](#part-3-operational-readiness)
+      - [Part 4: Risk Assessment](#part-4-risk-assessment)
+    - [3. Deployment Guide (672 lines)](#3-deployment-guide-672-lines)
+      - [Pre-Deployment Checklist](#pre-deployment-checklist)
+      - [5-Phase Deployment Plan](#5-phase-deployment-plan)
+      - [Rollback Procedures](#rollback-procedures)
+      - [Troubleshooting Guide](#troubleshooting-guide)
+    - [4. Monitoring Setup (514 lines)](#4-monitoring-setup-514-lines)
+      - [OpenTelemetry Configuration](#opentelemetry-configuration)
+      - [Prometheus Metrics](#prometheus-metrics)
+      - [Grafana Dashboards](#grafana-dashboards)
+      - [Alert Rules](#alert-rules)
+      - [SLO Definitions](#slo-definitions)
+  - [Success Metrics](#success-metrics)
+    - [Deployment Success Criteria](#deployment-success-criteria)
+    - [Post-Deployment KPIs](#post-deployment-kpis)
+  - [Quick Start](#quick-start)
+    - [For Executives](#for-executives)
+    - [For Engineering Teams](#for-engineering-teams)
+    - [For DevOps/SRE](#for-devopssre)
+    - [For QA](#for-qa)
+  - [Timeline Summary](#timeline-summary)
+  - [Risk Mitigation](#risk-mitigation)
+    - [Primary Risk Controls](#primary-risk-controls)
+    - [Contingency Plans](#contingency-plans)
+  - [Deliverables Checklist](#deliverables-checklist)
+    - [Documentation ✅ COMPLETE](#documentation--complete)
+    - [Code ✅ COMPLETE](#code--complete)
+    - [Infrastructure ⚠️ IN PROGRESS](#infrastructure--in-progress)
+    - [Processes ✅ COMPLETE](#processes--complete)
+  - [Contact Information](#contact-information)
+    - [Project Team](#project-team)
+    - [Support Channels](#support-channels)
+    - [Documentation Issues](#documentation-issues)
+  - [Appendix: File Structure](#appendix-file-structure)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace V2 Production Validation - Complete Documentation
 
 **Date:** 2025-11-18

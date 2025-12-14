@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v3 Security & Threat Model Analysis](#ggen-v3-security--threat-model-analysis)
+  - [Table of Contents](#table-of-contents)
+  - [Security Architecture](#security-architecture)
+    - [Defense in Depth Strategy](#defense-in-depth-strategy)
+    - [Trust Boundaries](#trust-boundaries)
+  - [Threat Model](#threat-model)
+    - [Threat Actors](#threat-actors)
+    - [Attack Vectors](#attack-vectors)
+      - [1. Malicious Ontology Injection](#1-malicious-ontology-injection)
+      - [2. Marketplace Package Tampering](#2-marketplace-package-tampering)
+      - [3. Template Injection Attacks](#3-template-injection-attacks)
+  - [Cryptography & Signing](#cryptography--signing)
+    - [Cryptographic Scheme](#cryptographic-scheme)
+    - [Signature Verification Chain](#signature-verification-chain)
+    - [Validation Receipt Signing](#validation-receipt-signing)
+  - [Code Generation Security](#code-generation-security)
+    - [Template Security Model](#template-security-model)
+    - [Generated Code Security](#generated-code-security)
+  - [Data Protection](#data-protection)
+    - [Encryption at Rest](#encryption-at-rest)
+    - [Encryption in Transit](#encryption-in-transit)
+  - [Supply Chain Security](#supply-chain-security)
+    - [Dependency Management](#dependency-management)
+    - [Build Integrity](#build-integrity)
+  - [Compliance Frameworks](#compliance-frameworks)
+    - [Framework Coverage](#framework-coverage)
+    - [Compliance Guards](#compliance-guards)
+  - [Security Testing](#security-testing)
+    - [Test Coverage](#test-coverage)
+    - [Fuzzing Strategy](#fuzzing-strategy)
+    - [Security Regression Testing](#security-regression-testing)
+  - [Security Incident Response](#security-incident-response)
+    - [Incident Reporting](#incident-reporting)
+    - [Disclosure Policy](#disclosure-policy)
+  - [Security Checklist](#security-checklist)
+    - [Pre-Release Security Validation](#pre-release-security-validation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v3 Security & Threat Model Analysis
 
 **Status**: COMPREHENSIVE SECURITY SPECIFICATION

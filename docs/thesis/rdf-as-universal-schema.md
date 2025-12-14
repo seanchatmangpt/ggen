@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Thesis: RDF as Universal Schema Language](#thesis-rdf-as-universal-schema-language)
+  - [The Problem: Fragmented Schema Languages](#the-problem-fragmented-schema-languages)
+    - [Current Landscape](#current-landscape)
+    - [Example: Person Schema in Different Languages](#example-person-schema-in-different-languages)
+  - [RDF Advantages Over Traditional Schema Languages](#rdf-advantages-over-traditional-schema-languages)
+    - [1. Semantic Validation (Beyond Type Checking)](#1-semantic-validation-beyond-type-checking)
+      - [JSON Schema (Type Checking Only)](#json-schema-type-checking-only)
+      - [RDF (Semantic Constraints)](#rdf-semantic-constraints)
+    - [2. Linked Data (Global References)](#2-linked-data-global-references)
+      - [JSON Schema (Local References)](#json-schema-local-references)
+      - [RDF (Global URIs)](#rdf-global-uris)
+    - [3. Extensibility (Non-Breaking Schema Evolution)](#3-extensibility-non-breaking-schema-evolution)
+      - [JSON Schema (Breaking Changes)](#json-schema-breaking-changes)
+      - [RDF (Non-Breaking Evolution)](#rdf-non-breaking-evolution)
+    - [4. Reasoning (Infer New Facts)](#4-reasoning-infer-new-facts)
+      - [JSON Schema (No Reasoning)](#json-schema-no-reasoning)
+      - [RDF (Automatic Inference)](#rdf-automatic-inference)
+  - [Detailed Comparison Tables](#detailed-comparison-tables)
+    - [Feature Matrix](#feature-matrix)
+    - [Validation Capabilities](#validation-capabilities)
+  - [Real-World Use Cases](#real-world-use-cases)
+    - [Use Case 1: Multi-Language API Generation](#use-case-1-multi-language-api-generation)
+    - [Use Case 2: Database Schema + Application Code](#use-case-2-database-schema--application-code)
+    - [Use Case 3: Data Integration (Linked Data)](#use-case-3-data-integration-linked-data)
+  - [Limitations and Workarounds](#limitations-and-workarounds)
+    - [Limitation 1: Steeper Learning Curve](#limitation-1-steeper-learning-curve)
+    - [Limitation 2: Tooling Maturity](#limitation-2-tooling-maturity)
+    - [Limitation 3: Performance](#limitation-3-performance)
+  - [Academic Foundation](#academic-foundation)
+    - [W3C Standards](#w3c-standards)
+    - [Research Impact](#research-impact)
+  - [Conclusion](#conclusion)
+    - [RDF Advantages Summary](#rdf-advantages-summary)
+    - [When to Use RDF](#when-to-use-rdf)
+    - [Production Evidence](#production-evidence)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Thesis: RDF as Universal Schema Language
 
 **Abstract**: RDF provides a superior foundation for schema definition compared to JSON Schema, XML Schema, and Protocol Buffers. This thesis demonstrates RDF's advantages through semantic validation, linked data, extensibility, and reasoning capabilities.

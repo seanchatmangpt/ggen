@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Explanation: Why Ontologies Matter](#explanation-why-ontologies-matter)
+  - [The Problem They Solve](#the-problem-they-solve)
+    - [Without Ontologies](#without-ontologies)
+    - [With Ontologies](#with-ontologies)
+  - [Real-World Benefits](#real-world-benefits)
+    - [1. Type Safety Across Services](#1-type-safety-across-services)
+    - [2. Reducing Integration Costs](#2-reducing-integration-costs)
+    - [3. Multi-Language Consistency](#3-multi-language-consistency)
+    - [4. Composability](#4-composability)
+    - [5. Community Reuse](#5-community-reuse)
+  - [Comparison: Ad-Hoc vs Ontology-Based](#comparison-ad-hoc-vs-ontology-based)
+  - [Historical Context: 2024 vs 2029](#historical-context-2024-vs-2029)
+  - [The Semantic Web Foundation](#the-semantic-web-foundation)
+  - [Getting Started](#getting-started)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Explanation: Why Ontologies Matter
 
 Ontologies are formal, machine-readable descriptions of concepts and relationships. They enable type-safe, composable, and maintainable systems.

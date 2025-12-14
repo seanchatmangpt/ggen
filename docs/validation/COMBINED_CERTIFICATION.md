@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Combined Production Certification Report](#combined-production-certification-report)
+  - [ggen Marketplace v3.2.0 - Final Production Readiness Assessment](#ggen-marketplace-v320---final-production-readiness-assessment)
+  - [EXECUTIVE SUMMARY](#executive-summary)
+    - [Overall System Health Score: **91.25/100** (Excellent)](#overall-system-health-score-9125100-excellent)
+  - [CERTIFICATION SCORECARD](#certification-scorecard)
+    - [Individual Component Scores](#individual-component-scores)
+  - [DETAILED ASSESSMENT BY DIMENSION](#detailed-assessment-by-dimension)
+    - [1. POKA YOKE (Mistake-Proofing) - 94/100 ✅](#1-poka-yoke-mistake-proofing---94100-)
+    - [2. FMEA (Failure Mode & Effects Analysis) - 91/100 ✅](#2-fmea-failure-mode--effects-analysis---91100-)
+    - [3. RDF/Turtle (Semantic Infrastructure) - 88/100 ✅](#3-rdfturtle-semantic-infrastructure---88100-)
+    - [4. Marketplace V2 (Feature Parity & Migration) - 92/100 ✅](#4-marketplace-v2-feature-parity--migration---92100-)
+  - [CRITICAL PATH ANALYSIS](#critical-path-analysis)
+    - [Primary User Workflows - All ✅ PASS](#primary-user-workflows---all--pass)
+  - [RISK ASSESSMENT](#risk-assessment)
+    - [Residual Risks (All Acceptable)](#residual-risks-all-acceptable)
+  - [TESTING VERIFICATION](#testing-verification)
+    - [Test Suite Coverage](#test-suite-coverage)
+  - [OPERATIONAL READINESS](#operational-readiness)
+    - [Monitoring & Observability](#monitoring--observability)
+    - [Runbooks & Documentation](#runbooks--documentation)
+    - [Deployment Readiness](#deployment-readiness)
+  - [CERTIFICATION CRITERIA CHECKLIST](#certification-criteria-checklist)
+    - [Pass/Fail Criteria (All Required ✅)](#passfail-criteria-all-required-)
+  - [FINAL RECOMMENDATIONS](#final-recommendations)
+    - [For Immediate Production (v3.2.0) ✅](#for-immediate-production-v320-)
+    - [For Next Release (v3.3.0) 🔧](#for-next-release-v330-)
+    - [For Long-Term (v4.0.0) 🚀](#for-long-term-v400-)
+  - [CONCLUSION](#conclusion)
+  - [CERTIFICATION STATEMENT](#certification-statement)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Combined Production Certification Report
 ## ggen Marketplace v3.2.0 - Final Production Readiness Assessment
 

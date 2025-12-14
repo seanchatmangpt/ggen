@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Debug CLI Commands](#debug-cli-commands)
+  - [Common Issues and Solutions](#common-issues-and-solutions)
+    - [Issue: Command Not Found](#issue-command-not-found)
+    - [Issue: Verb Not Recognized](#issue-verb-not-recognized)
+    - [Issue: File Not Found](#issue-file-not-found)
+    - [Issue: Invalid RDF Syntax](#issue-invalid-rdf-syntax)
+    - [Issue: Namespace Conflicts](#issue-namespace-conflicts)
+  - [Debugging with Verbose Output](#debugging-with-verbose-output)
+  - [Using the Doctor Tool](#using-the-doctor-tool)
+  - [Testing Commands Locally](#testing-commands-locally)
+  - [Tracing Execution](#tracing-execution)
+  - [Checking Generated Code](#checking-generated-code)
+  - [Getting Help](#getting-help)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Debug CLI Commands
 
 Troubleshoot and resolve common CLI command issues using ggen's debugging tools.

@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Packs Phase 2-3 Architecture Summary](#ggen-packs-phase-2-3-architecture-summary)
+  - [Executive Summary](#executive-summary)
+    - [Current State (v3.2.0)](#current-state-v320)
+    - [Target State (v3.3.1+)](#target-state-v331)
+  - [Key Innovations](#key-innovations)
+    - [1. Built-in FMEA (Failure Mode & Effects Analysis)](#1-built-in-fmea-failure-mode--effects-analysis)
+    - [2. Poka Yoke Error-Proofing](#2-poka-yoke-error-proofing)
+    - [3. TRIZ Inventive Principles](#3-triz-inventive-principles)
+  - [Phase 2 (v3.3.0) - Complete Installation & Generation](#phase-2-v330---complete-installation--generation)
+    - [2.1 Package Installation System](#21-package-installation-system)
+    - [2.2 SPARQL Query Execution](#22-sparql-query-execution)
+    - [2.3 Template Code Generation](#23-template-code-generation)
+  - [Phase 3 (v3.3.1+) - Advanced Resolution & Distribution](#phase-3-v331---advanced-resolution--distribution)
+    - [3.1 Advanced Dependency Resolution](#31-advanced-dependency-resolution)
+    - [3.2 Pack Registry & Publishing](#32-pack-registry--publishing)
+    - [3.3 Cloud Distribution (CDN)](#33-cloud-distribution-cdn)
+  - [FMEA Top 10 High-Risk Items](#fmea-top-10-high-risk-items)
+  - [Testing Strategy](#testing-strategy)
+    - [Test Coverage Targets](#test-coverage-targets)
+    - [Test Categories](#test-categories)
+  - [Performance Targets](#performance-targets)
+  - [Implementation Roadmap](#implementation-roadmap)
+    - [Phase 2 (v3.3.0) - 4 Weeks](#phase-2-v330---4-weeks)
+    - [Phase 3 (v3.3.1+) - 6 Weeks](#phase-3-v331---6-weeks)
+  - [New Commands (Phase 2-3)](#new-commands-phase-2-3)
+  - [Key Architectural Decisions](#key-architectural-decisions)
+    - [1. Why Transaction Log for Rollback?](#1-why-transaction-log-for-rollback)
+    - [2. Why PubGrub for Dependency Resolution?](#2-why-pubgrub-for-dependency-resolution)
+    - [3. Why Multi-Layer CDN Cache?](#3-why-multi-layer-cdn-cache)
+    - [4. Why Streaming Verification?](#4-why-streaming-verification)
+    - [5. Why Ed25519 for Signatures?](#5-why-ed25519-for-signatures)
+  - [Success Metrics](#success-metrics)
+    - [User Experience](#user-experience)
+    - [Performance](#performance)
+    - [Reliability](#reliability)
+    - [Security](#security)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Packs Phase 2-3 Architecture Summary
 
 **Document**: Complete end-to-end architecture for package lifecycle management

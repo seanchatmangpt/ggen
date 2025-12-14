@@ -1,3 +1,50 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Git Hooks Audit Report - ggen Project](#git-hooks-audit-report---ggen-project)
+  - [Executive Summary](#executive-summary)
+    - [Current Status](#current-status)
+  - [1. ACTIVE HOOKS](#1-active-hooks)
+    - [1.1 Pre-Push Hook (`.git/hooks/pre-push`)](#11-pre-push-hook-githookspre-push)
+      - [Location](#location)
+      - [Implementation Details](#implementation-details)
+      - [Design Philosophy](#design-philosophy)
+      - [Issues & Observations](#issues--observations)
+    - [1.2 Pre-Commit Hook (BACKUP - NOT ACTIVE)](#12-pre-commit-hook-backup---not-active)
+      - [Purpose](#purpose)
+      - [Implementation Details](#implementation-details-1)
+      - [Key Differences from Pre-Push Hook](#key-differences-from-pre-push-hook)
+      - [Why Deactivated?](#why-deactivated)
+      - [Recommendation](#recommendation)
+  - [2. INSTALLATION SCRIPTS](#2-installation-scripts)
+    - [2.1 `scripts/install-git-hooks.sh` (115 lines)](#21-scriptsinstall-git-hookssh-115-lines)
+    - [2.2 `scripts/install-hooks.sh` (26 lines)](#22-scriptsinstall-hookssh-26-lines)
+  - [3. CURRENT HOOK STATUS](#3-current-hook-status)
+    - [What's Actually Active?](#whats-actually-active)
+    - [How to Check Current Hooks](#how-to-check-current-hooks)
+  - [4. ANDON SIGNALS & QUALITY STANDARDS](#4-andon-signals--quality-standards)
+    - [CLAUDE.md Policy](#claudemd-policy)
+  - [5. SECURITY & RELIABILITY ANALYSIS](#5-security--reliability-analysis)
+    - [Strengths ✅](#strengths-)
+    - [Weaknesses ⚠️](#weaknesses-)
+  - [6. HOOK EXECUTION FLOW](#6-hook-execution-flow)
+    - [Current Pre-Push Execution](#current-pre-push-execution)
+    - [Why Pre-Commit Not Active](#why-pre-commit-not-active)
+  - [7. RECOMMENDATIONS](#7-recommendations)
+    - [CRITICAL (Must implement)](#critical-must-implement)
+    - [HIGH (Should implement)](#high-should-implement)
+    - [MEDIUM (Nice to have)](#medium-nice-to-have)
+  - [8. FILES INVENTORY](#8-files-inventory)
+    - [Hook Scripts](#hook-scripts)
+    - [Installation Scripts](#installation-scripts)
+    - [Configuration](#configuration)
+    - [Other Hook Scripts](#other-hook-scripts)
+  - [9. ACTION ITEMS](#9-action-items)
+  - [10. CONCLUSION](#10-conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Git Hooks Audit Report - ggen Project
 **Date**: November 21, 2025  
 **Project**: ggen (Rust language-agnostic code generation CLI)

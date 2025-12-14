@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Documentation Restructure Proposal V2 (80/20 Enrichment)](#ggen-documentation-restructure-proposal-v2-8020-enrichment)
+  - [Philosophy Change: ADD Don't Delete](#philosophy-change-add-dont-delete)
+  - [Proposed Additions to Current Structure](#proposed-additions-to-current-structure)
+    - [1. Add Specs Directory (NEW - Highest Priority)](#1-add-specs-directory-new---highest-priority)
+    - [2. Add Root-Level Summary Docs (NEW)](#2-add-root-level-summary-docs-new)
+    - [3. Add Thesis Directory (NEW - 80/20 Research)](#3-add-thesis-directory-new---8020-research)
+    - [4. Add Infrastructure Directory (NEW)](#4-add-infrastructure-directory-new)
+    - [5. Enhance Existing Docs Structure (KEEP + ADD)](#5-enhance-existing-docs-structure-keep--add)
+  - [Package.json Enhancements (Inspired by Astro)](#packagejson-enhancements-inspired-by-astro)
+  - [Root-Level Documentation (80/20 Critical Docs)](#root-level-documentation-8020-critical-docs)
+    - [ARCHITECTURE.md](#architecturemd)
+    - [AUTOMATION.md](#automationmd)
+    - [BEST_PRACTICES.md](#best_practicesmd)
+    - [PRD.md](#prdmd)
+  - [Specs Pattern (Complete from Astro)](#specs-pattern-complete-from-astro)
+    - [Standard Spec Structure](#standard-spec-structure)
+  - [Immediate Actions (80/20)](#immediate-actions-8020)
+    - [Phase 1: Add Specs (Highest ROI)](#phase-1-add-specs-highest-roi)
+    - [Phase 2: Add Root Docs](#phase-2-add-root-docs)
+    - [Phase 3: Add Thesis](#phase-3-add-thesis)
+    - [Phase 4: Add Infrastructure](#phase-4-add-infrastructure)
+    - [Phase 5: Add package.json](#phase-5-add-packagejson)
+  - [Benefits of Enrichment Approach](#benefits-of-enrichment-approach)
+    - [For New Contributors](#for-new-contributors)
+    - [For Maintainers](#for-maintainers)
+    - [For Users](#for-users)
+  - [What We Keep (Everything)](#what-we-keep-everything)
+  - [What We Add (80/20 High Value)](#what-we-add-8020-high-value)
+  - [Implementation Priority (80/20)](#implementation-priority-8020)
+    - [Must Have (Week 1)](#must-have-week-1)
+    - [Should Have (Week 2)](#should-have-week-2)
+    - [Nice to Have (Week 3)](#nice-to-have-week-3)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Documentation Restructure Proposal V2 (80/20 Enrichment)
 
 **Aligned with**: ~/dis/astro reference structure (80/20 comprehensive)

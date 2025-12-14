@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Advanced Patterns Guide](#advanced-patterns-guide)
+  - [Type-Level State Machines](#type-level-state-machines)
+  - [Generic Associated Types (GATs)](#generic-associated-types-gats)
+  - [Const Generics (Zero-Cost Limits)](#const-generics-zero-cost-limits)
+  - [Higher-Ranked Trait Bounds (HRTB)](#higher-ranked-trait-bounds-hrtb)
+  - [Procedural Macros (Code Generation at Compile Time)](#procedural-macros-code-generation-at-compile-time)
+  - [Zero-Copy Abstractions](#zero-copy-abstractions)
+  - [Trait Object Composition](#trait-object-composition)
+  - [Performance Optimization Techniques](#performance-optimization-techniques)
+    - [Inline Hints](#inline-hints)
+    - [SIMD Operations](#simd-operations)
+    - [Memory Layout Optimization](#memory-layout-optimization)
+  - [Testing Advanced Patterns](#testing-advanced-patterns)
+  - [Critical Rules](#critical-rules)
+  - [Quick Reference](#quick-reference)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Advanced Patterns Guide
 
 ## Type-Level State Machines

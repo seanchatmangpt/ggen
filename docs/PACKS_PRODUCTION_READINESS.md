@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Packs Commands - Production Readiness Validation Report](#packs-commands---production-readiness-validation-report)
+  - [Executive Summary](#executive-summary)
+  - [Production Readiness Scorecard](#production-readiness-scorecard)
+    - [✅ 1. Build Passes](#-1-build-passes)
+    - [✅ 2. All 4 Commands Work](#-2-all-4-commands-work)
+    - [✅ 3. JSON Output Valid](#-3-json-output-valid)
+    - [✅ 4. Error Handling: Helpful](#-4-error-handling-helpful)
+    - [✅ 5. Security: Safe](#-5-security-safe)
+  - [Critical 20% Features Validated](#critical-20-features-validated)
+    - [✅ Command Execution](#-command-execution)
+    - [✅ Data Integrity](#-data-integrity)
+    - [✅ Output Consistency](#-output-consistency)
+    - [✅ Error Resilience](#-error-resilience)
+  - [80% NOT Validated (Intentionally Skipped)](#80-not-validated-intentionally-skipped)
+  - [Production Deployment Checklist](#production-deployment-checklist)
+  - [Final Verdict](#final-verdict)
+  - [Test Evidence Summary](#test-evidence-summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Packs Commands - Production Readiness Validation Report
 
 **Validation Date**: 2025-11-17

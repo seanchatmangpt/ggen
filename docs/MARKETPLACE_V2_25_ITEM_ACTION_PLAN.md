@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [25-Item Action Plan: Marketplace-v2 Improvement Sprint](#25-item-action-plan-marketplace-v2-improvement-sprint)
+  - [Executive Summary](#executive-summary)
+  - [Priority Matrix](#priority-matrix)
+  - [Tier 1: Critical Process Improvements (Immediate - This Week)](#tier-1-critical-process-improvements-immediate---this-week)
+    - [Item 1: Add Pre-Commit Compilation Check](#item-1-add-pre-commit-compilation-check)
+    - [Item 2: Add Pre-Commit Linting Check](#item-2-add-pre-commit-linting-check)
+    - [Item 3: Add Pre-Commit Unit Test Hook](#item-3-add-pre-commit-unit-test-hook)
+    - [Item 4: Create Code Review Checklist for Type Safety](#item-4-create-code-review-checklist-for-type-safety)
+  - [Tier 2: Critical Risk Mitigations (1-2 Weeks)](#tier-2-critical-risk-mitigations-1-2-weeks)
+    - [Item 5: Implement RDF Store Health Check at Startup](#item-5-implement-rdf-store-health-check-at-startup)
+    - [Item 6: Design Cache Coherency Protocol](#item-6-design-cache-coherency-protocol)
+    - [Item 7: Implement SPARQL Query Validation & Escaping](#item-7-implement-sparql-query-validation--escaping)
+    - [Item 8: Optimize Metric Collection - Batch Atomic Operations](#item-8-optimize-metric-collection---batch-atomic-operations)
+  - [Tier 3: TRIZ Innovative Solutions (2-4 Weeks)](#tier-3-triz-innovative-solutions-2-4-weeks)
+    - [Item 9: Implement Adaptive Metric Sampling](#item-9-implement-adaptive-metric-sampling)
+    - [Item 10: Add Schema Versioning Layer to RDF Registry](#item-10-add-schema-versioning-layer-to-rdf-registry)
+    - [Item 11: Build Multi-Index Query Optimizer](#item-11-build-multi-index-query-optimizer)
+    - [Item 12: Add Self-Healing Registry with Auto-Repair](#item-12-add-self-healing-registry-with-auto-repair)
+    - [Item 13: Implement Predictive Performance Degradation Detection](#item-13-implement-predictive-performance-degradation-detection)
+  - [Tier 4: Comprehensive Testing Improvements (2-4 Weeks)](#tier-4-comprehensive-testing-improvements-2-4-weeks)
+    - [Item 14: Create Integration Tests for Cross-Module Interactions](#item-14-create-integration-tests-for-cross-module-interactions)
+    - [Item 15: Establish Performance Baseline Metrics](#item-15-establish-performance-baseline-metrics)
+    - [Item 16: Implement Mutation Testing for Quality Verification](#item-16-implement-mutation-testing-for-quality-verification)
+    - [Item 17: Add Concurrency Tests for Marketplace Operations](#item-17-add-concurrency-tests-for-marketplace-operations)
+    - [Item 18: Create Real-Time Performance Monitoring Dashboard](#item-18-create-real-time-performance-monitoring-dashboard)
+  - [Tier 5: Documentation and Planning (1-2 Weeks)](#tier-5-documentation-and-planning-1-2-weeks)
+    - [Item 19: Create Marketplace-v2 Architecture Documentation](#item-19-create-marketplace-v2-architecture-documentation)
+    - [Item 20: Document Data Flows and Type Relationships](#item-20-document-data-flows-and-type-relationships)
+    - [Item 21: Set Up CI/CD Gates for All Andon Signals](#item-21-set-up-cicd-gates-for-all-andon-signals)
+    - [Item 22: Create Daily Andon Signal Dashboard](#item-22-create-daily-andon-signal-dashboard)
+  - [Tier 6: Quarterly Planning (Administrative)](#tier-6-quarterly-planning-administrative)
+    - [Item 23: Plan Q1 2026 FMEA Review](#item-23-plan-q1-2026-fmea-review)
+    - [Item 24: Plan Q1 2026 TRIZ Innovation Sprint](#item-24-plan-q1-2026-triz-innovation-sprint)
+    - [Item 25: Schedule Gemba Walk Follow-up for Q1 2026](#item-25-schedule-gemba-walk-follow-up-for-q1-2026)
+  - [Summary Table](#summary-table)
+  - [Resource Estimates](#resource-estimates)
+  - [Success Criteria](#success-criteria)
+  - [Notes](#notes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 25-Item Action Plan: Marketplace-v2 Improvement Sprint
 
 **Date Created**: 2025-11-21

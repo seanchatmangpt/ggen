@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Backend Fix Log - Marketplace CLI v3.2.0](#backend-fix-log---marketplace-cli-v320)
+  - [Executive Summary](#executive-summary)
+  - [Verification Results](#verification-results)
+    - [1. Build Status ✅](#1-build-status-)
+    - [2. Compilation Check ✅](#2-compilation-check-)
+    - [3. Marketplace Commands ✅](#3-marketplace-commands-)
+    - [4. Security Scan ✅](#4-security-scan-)
+    - [5. Panic/Unwrap Analysis ✅](#5-panicunwrap-analysis-)
+    - [6. Binary Status ✅](#6-binary-status-)
+  - [Non-Blocking Issues (80% - Not Fixed)](#non-blocking-issues-80---not-fixed)
+    - [Help Text Formatting](#help-text-formatting)
+    - [Version Command](#version-command)
+  - [Files Verified](#files-verified)
+    - [Marketplace Core Files](#marketplace-core-files)
+    - [CLI Integration](#cli-integration)
+    - [Workspace Configuration](#workspace-configuration)
+  - [Root Cause Resolution Summary](#root-cause-resolution-summary)
+  - [Publishing Status](#publishing-status)
+  - [Deployment Readiness Assessment](#deployment-readiness-assessment)
+    - [Critical 20% (Must Work) ✅](#critical-20-must-work-)
+    - [Important 80% (Nice to Have) 🟡](#important-80-nice-to-have-)
+  - [Conclusion](#conclusion)
+  - [Verification Commands](#verification-commands)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Backend Fix Log - Marketplace CLI v3.2.0
 
 **Date**: 2025-11-17

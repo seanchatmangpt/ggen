@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [📝 Test Consolidation: Detailed Pseudocode](#-test-consolidation-detailed-pseudocode)
+  - [Module 1: Consolidated Core Tests](#module-1-consolidated-core-tests)
+    - [File: `crates/ggen-core/tests/consolidated_core_tests.rs`](#file-cratesggen-coretestsconsolidated_core_testsrs)
+  - [Module 2: Consolidated Lifecycle Tests](#module-2-consolidated-lifecycle-tests)
+    - [File: `crates/ggen-core/tests/consolidated_lifecycle_tests.rs`](#file-cratesggen-coretestsconsolidated_lifecycle_testsrs)
+  - [Module 3: Consolidated Swarm Tests](#module-3-consolidated-swarm-tests)
+    - [File: `crates/ggen-core/tests/consolidated_swarm_tests.rs`](#file-cratesggen-coretestsconsolidated_swarm_testsrs)
+  - [Module 4: Consolidated Semantic Tests](#module-4-consolidated-semantic-tests)
+    - [File: `crates/ggen-core/tests/consolidated_semantic_tests.rs`](#file-cratesggen-coretestsconsolidated_semantic_testsrs)
+  - [Summary: 80/20 Test Coverage](#summary-8020-test-coverage)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 📝 Test Consolidation: Detailed Pseudocode
 
 ## Module 1: Consolidated Core Tests

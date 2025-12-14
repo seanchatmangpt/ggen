@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Testing Generated Code: Chicago TDD for Deterministic Outputs](#testing-generated-code-chicago-tdd-for-deterministic-outputs)
+  - [Goal](#goal)
+  - [Prerequisites](#prerequisites)
+  - [Understanding Chicago TDD](#understanding-chicago-tdd)
+  - [Part 1: Rust Tests](#part-1-rust-tests)
+  - [Part 2: TypeScript Tests](#part-2-typescript-tests)
+  - [Part 3: Python Tests](#part-3-python-tests)
+  - [Part 4: Integration Tests](#part-4-integration-tests)
+  - [Best Practices](#best-practices)
+  - [Test Coverage Goals](#test-coverage-goals)
+  - [Next Steps](#next-steps)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Testing Generated Code: Chicago TDD for Deterministic Outputs
 
 Learn how to test generated code using state-based testing to verify that your code generation pipeline produces correct, consistent results.

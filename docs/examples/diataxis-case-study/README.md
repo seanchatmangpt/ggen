@@ -1,3 +1,52 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Diataxis Case Study: Next.js + shadcn/ui + ElectricSQL](#diataxis-case-study-nextjs--shadcnui--electricsql)
+  - [🎯 What You'll Learn](#-what-youll-learn)
+    - [About Diataxis (Meta-Level)](#about-diataxis-meta-level)
+    - [About the Stack (Practical)](#about-the-stack-practical)
+  - [📚 The Diataxis Framework](#-the-diataxis-framework)
+    - [The 4 Quadrants](#the-4-quadrants)
+  - [🗂️ Case Study Structure](#-case-study-structure)
+    - [📖 Tutorials - Learning by Doing](#-tutorials---learning-by-doing)
+    - [🛠️ How-to Guides - Solve Specific Problems](#-how-to-guides---solve-specific-problems)
+    - [💡 Explanations - Understand the Concepts](#-explanations---understand-the-concepts)
+    - [📋 Reference - Look Up Details](#-reference---look-up-details)
+  - [🎓 Meta-Guide: Learning Diataxis from This Case Study](#-meta-guide-learning-diataxis-from-this-case-study)
+    - [How to Use This Case Study](#how-to-use-this-case-study)
+      - [Phase 1: Experience All 4 Quadrants (2 hours)](#phase-1-experience-all-4-quadrants-2-hours)
+      - [Phase 2: Analyze the Structure (1 hour)](#phase-2-analyze-the-structure-1-hour)
+      - [Phase 3: Apply to Your Own Documentation (2+ hours)](#phase-3-apply-to-your-own-documentation-2-hours)
+  - [🏗️ The Stack: Why This Example?](#-the-stack-why-this-example)
+    - [Complex Concepts Requiring Explanation](#complex-concepts-requiring-explanation)
+    - [Practical Tasks for How-tos](#practical-tasks-for-how-tos)
+    - [Clear Learning Path for Tutorials](#clear-learning-path-for-tutorials)
+    - [Rich Reference Material](#rich-reference-material)
+  - [🚀 Quick Start](#-quick-start)
+    - [Option 1: Learn Diataxis (Recommended for Doc Writers)](#option-1-learn-diataxis-recommended-for-doc-writers)
+    - [Option 2: Build the App (For Developers)](#option-2-build-the-app-for-developers)
+    - [Option 3: Validate the Documentation](#option-3-validate-the-documentation)
+  - [📊 Documentation Metrics](#-documentation-metrics)
+  - [🎯 Learning Outcomes](#-learning-outcomes)
+    - [For Documentation Writers](#for-documentation-writers)
+    - [For Developers](#for-developers)
+  - [🗺️ Navigation Guide](#-navigation-guide)
+    - [I want to...](#i-want-to)
+  - [🧪 Validation](#-validation)
+  - [🔗 Resources](#-resources)
+    - [About Diataxis](#about-diataxis)
+    - [About the Stack](#about-the-stack)
+    - [Related Examples](#related-examples)
+  - [🤝 Contributing](#-contributing)
+  - [📄 License](#-license)
+  - [🎓 Next Steps](#-next-steps)
+    - [If you're learning Diataxis:](#if-youre-learning-diataxis)
+    - [If you're building with this stack:](#if-youre-building-with-this-stack)
+    - [If you're both:](#if-youre-both)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Diataxis Case Study: Next.js + shadcn/ui + ElectricSQL
 
 **Meta-Level Training: Learn Diataxis by Example**

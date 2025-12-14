@@ -1,0 +1,144 @@
+@prefix cnv: <https://ggen.dev/clap-noun-verb/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix report: <https://example.com/enterprise-ops/report/> .
+
+# ============================================================================
+# REPORT NOUN - Owned by Analytics Team
+# ============================================================================
+#
+# CODEOWNERS: @company/analytics-team
+#
+# Business intelligence and reporting commands.
+# Long-running operations with progress tracking.
+# ============================================================================
+
+report:noun a cnv:Noun ;
+    cnv:nounName "report" ;
+    rdfs:comment "Generate and manage reports" ;
+    cnv:hasVerbs report:generate ,
+                 report:list ,
+                 report:download ,
+                 report:schedule ,
+                 report:status .
+
+report:generate a cnv:Verb ;
+    cnv:verbName "generate" ;
+    rdfs:comment "Generate a new report" ;
+    cnv:hasArguments report:gen_type ,
+                     report:gen_start ,
+                     report:gen_end ,
+                     report:gen_format .
+
+report:list a cnv:Verb ;
+    cnv:verbName "list" ;
+    rdfs:comment "List generated reports" ;
+    cnv:hasArguments report:list_type ,
+                     report:list_status ,
+                     report:list_limit .
+
+report:download a cnv:Verb ;
+    cnv:verbName "download" ;
+    rdfs:comment "Download a report" ;
+    cnv:hasArguments report:download_id ,
+                     report:download_path .
+
+report:schedule a cnv:Verb ;
+    cnv:verbName "schedule" ;
+    rdfs:comment "Schedule recurring report" ;
+    cnv:hasArguments report:sched_type ,
+                     report:sched_cron ,
+                     report:sched_recipients .
+
+report:status a cnv:Verb ;
+    cnv:verbName "status" ;
+    rdfs:comment "Check report generation status" ;
+    cnv:hasArguments report:status_id .
+
+# Arguments
+report:gen_type a cnv:Argument ;
+    cnv:argumentName "type" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Report type (sales, inventory, users)" .
+
+report:gen_start a cnv:Argument ;
+    cnv:argumentName "start_date" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Start date (YYYY-MM-DD)" .
+
+report:gen_end a cnv:Argument ;
+    cnv:argumentName "end_date" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "End date (YYYY-MM-DD)" .
+
+report:gen_format a cnv:Argument ;
+    cnv:argumentName "format" ;
+    cnv:argumentType cnv:OptionStringType ;
+    cnv:required false ;
+    rdfs:comment "Output format (csv, xlsx, pdf)" .
+
+report:list_type a cnv:Argument ;
+    cnv:argumentName "type" ;
+    cnv:argumentType cnv:OptionStringType ;
+    cnv:required false ;
+    rdfs:comment "Filter by type" .
+
+report:list_status a cnv:Argument ;
+    cnv:argumentName "status" ;
+    cnv:argumentType cnv:OptionStringType ;
+    cnv:required false ;
+    rdfs:comment "Filter by status (pending, complete, failed)" .
+
+report:list_limit a cnv:Argument ;
+    cnv:argumentName "limit" ;
+    cnv:argumentType cnv:OptionU32Type ;
+    cnv:required false ;
+    rdfs:comment "Max results" .
+
+report:download_id a cnv:Argument ;
+    cnv:argumentName "id" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Report ID" .
+
+report:download_path a cnv:Argument ;
+    cnv:argumentName "output" ;
+    cnv:argumentType cnv:OptionStringType ;
+    cnv:required false ;
+    rdfs:comment "Output path (default: stdout)" .
+
+report:sched_type a cnv:Argument ;
+    cnv:argumentName "type" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Report type" .
+
+report:sched_cron a cnv:Argument ;
+    cnv:argumentName "cron" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Cron expression" .
+
+report:sched_recipients a cnv:Argument ;
+    cnv:argumentName "recipients" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Email recipients (comma-separated)" .
+
+report:status_id a cnv:Argument ;
+    cnv:argumentName "id" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Report job ID" .
+
+# Types
+cnv:StringType a cnv:PrimitiveType ;
+    cnv:rust-type "String" .
+
+cnv:OptionStringType a cnv:PrimitiveType ;
+    cnv:rust-type "Option<String>" .
+
+cnv:OptionU32Type a cnv:PrimitiveType ;
+    cnv:rust-type "Option<u32>" .

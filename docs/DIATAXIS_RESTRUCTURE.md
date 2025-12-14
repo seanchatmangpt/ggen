@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Diataxis Documentation Restructure (Documentation Only)](#diataxis-documentation-restructure-documentation-only)
+  - [Current State Analysis](#current-state-analysis)
+    - [What ggen docs/ Has Now](#what-ggen-docs-has-now)
+    - [What astro docs/ Has](#what-astro-docs-has)
+  - [Proposed Additions (80/20 - Documentation Only)](#proposed-additions-8020---documentation-only)
+    - [1. Add Root-Level Summary Docs (HIGH VALUE)](#1-add-root-level-summary-docs-high-value)
+    - [2. Add thesis/ Directory (HIGH VALUE)](#2-add-thesis-directory-high-value)
+    - [3. Keep ALL Existing Structure](#3-keep-all-existing-structure)
+  - [Root-Level Documentation Templates](#root-level-documentation-templates)
+    - [docs/ARCHITECTURE.md](#docsarchitecturemd)
+    - [docs/BEST_PRACTICES.md](#docsbest_practicesmd)
+    - [docs/PRD.md](#docsprdmd)
+    - [docs/AUTOMATION.md](#docsautomationmd)
+  - [CI/CD Pipeline](#cicd-pipeline)
+    - [docs/PERFORMANCE.md](#docsperformancemd)
+  - [Thesis Directory Content](#thesis-directory-content)
+    - [docs/thesis/ontology-driven-development.md](#docsthesisontology-driven-developmentmd)
+    - [docs/thesis/deterministic-generation.md](#docsthesisdeterministic-generationmd)
+    - [docs/thesis/rdf-as-universal-schema.md](#docsthesisrdf-as-universal-schemamd)
+    - [docs/thesis/ai-assisted-codegen.md](#docsthesisai-assisted-codegenmd)
+  - [Implementation Plan (Documentation Only)](#implementation-plan-documentation-only)
+    - [Phase 1: Root-Level Docs (Week 1)](#phase-1-root-level-docs-week-1)
+    - [Phase 2: Thesis Directory (Week 1)](#phase-2-thesis-directory-week-1)
+    - [Phase 3: Content Population (Week 2)](#phase-3-content-population-week-2)
+    - [Phase 4: Validation (Week 2)](#phase-4-validation-week-2)
+  - [Summary of Changes (Documentation Only)](#summary-of-changes-documentation-only)
+    - [ADDITIONS](#additions)
+    - [NO CHANGES](#no-changes)
+  - [Benefits](#benefits)
+    - [For New Users](#for-new-users)
+    - [For Contributors](#for-contributors)
+    - [For Maintainers](#for-maintainers)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Diataxis Documentation Restructure (Documentation Only)
 
 **Scope**: docs/ directory restructure ONLY

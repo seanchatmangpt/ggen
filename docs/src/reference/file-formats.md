@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [File Formats Reference](#file-formats-reference)
+  - [RDF Ontology Format (.ttl)](#rdf-ontology-format-ttl)
+    - [Basic Structure](#basic-structure)
+    - [Triple Format](#triple-format)
+    - [Common Predicates](#common-predicates)
+    - [Data Types (xsd)](#data-types-xsd)
+    - [Example Complete Ontology](#example-complete-ontology)
+  - [ggen.toml Configuration](#ggentoml-configuration)
+    - [Minimal Configuration](#minimal-configuration)
+    - [Full Configuration](#full-configuration)
+  - [Lockfile Format (ggen.lock)](#lockfile-format-ggenlock)
+  - [Template Format (.liquid)](#template-format-liquid)
+    - [Basic Template](#basic-template)
+    - [Template Functions](#template-functions)
+  - [Generated Output Formats](#generated-output-formats)
+    - [TypeScript Output](#typescript-output)
+    - [Python Output](#python-output)
+    - [Rust Output](#rust-output)
+  - [JSON Schema Export](#json-schema-export)
+  - [Serialization Formats](#serialization-formats)
+    - [JSON Serialization](#json-serialization)
+    - [YAML Serialization](#yaml-serialization)
+    - [XML Serialization](#xml-serialization)
+  - [Environment Variables](#environment-variables)
+  - [File Size Guidelines](#file-size-guidelines)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # File Formats Reference
 
 Complete specification of ggen configuration and ontology file formats.

@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Meta-Guide: Learning Diataxis from This Case Study](#meta-guide-learning-diataxis-from-this-case-study)
+  - [Purpose of This Guide](#purpose-of-this-guide)
+  - [Learning Path (4 Hours Total)](#learning-path-4-hours-total)
+    - [Phase 1: Experience (2 hours)](#phase-1-experience-2-hours)
+      - [1.1 Complete the Tutorial (30 min)](#11-complete-the-tutorial-30-min)
+      - [1.2 Solve a Problem with How-to (30 min)](#12-solve-a-problem-with-how-to-30-min)
+      - [1.3 Understand with Explanation (30 min)](#13-understand-with-explanation-30-min)
+      - [1.4 Look Up in Reference (30 min)](#14-look-up-in-reference-30-min)
+    - [Phase 2: Analyze (1 hour)](#phase-2-analyze-1-hour)
+      - [2.1 Map Documents to Quadrants (15 min)](#21-map-documents-to-quadrants-15-min)
+      - [2.2 Analyze Tutorial Structure (15 min)](#22-analyze-tutorial-structure-15-min)
+      - [2.3 Analyze How-to Structure (15 min)](#23-analyze-how-to-structure-15-min)
+      - [2.4 Identify Cross-Links (15 min)](#24-identify-cross-links-15-min)
+    - [Phase 3: Apply (1 hour)](#phase-3-apply-1-hour)
+      - [3.1 Choose Your Stack (5 min)](#31-choose-your-stack-5-min)
+      - [3.2 Write One Document Per Quadrant (55 min)](#32-write-one-document-per-quadrant-55-min)
+  - [Step 2: &#91;Next Action&#93;](#step-2-next-action)
+  - [🎉 Congratulations!](#-congratulations)
+    - [What You Learned](#what-you-learned)
+    - [Next Steps](#next-steps)
+  - [API](#api)
+    - [`functionName(params)`](#functionnameparams)
+  - [Configuration](#configuration)
+    - [Phase 4: Validate (30 min)](#phase-4-validate-30-min)
+      - [4.1 Self-Review Checklist](#41-self-review-checklist)
+      - [4.2 User Testing](#42-user-testing)
+      - [4.3 Revision](#43-revision)
+  - [Diataxis Patterns Demonstrated](#diataxis-patterns-demonstrated)
+    - [Pattern 1: Tutorial Flow](#pattern-1-tutorial-flow)
+    - [Pattern 2: How-to Flow](#pattern-2-how-to-flow)
+    - [Pattern 3: Explanation Flow](#pattern-3-explanation-flow)
+    - [Pattern 4: Reference Flow](#pattern-4-reference-flow)
+  - [Common Mistakes (Anti-Patterns)](#common-mistakes-anti-patterns)
+    - [❌ Mixing Quadrants](#-mixing-quadrants)
+    - [❌ Explanation With Step-by-Step](#-explanation-with-step-by-step)
+    - [❌ Reference That Explains](#-reference-that-explains)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Meta-Guide: Learning Diataxis from This Case Study
 
 **How to use this case study to master the Diataxis documentation framework**

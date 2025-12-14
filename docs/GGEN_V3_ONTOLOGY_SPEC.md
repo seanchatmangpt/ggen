@@ -1,3 +1,52 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v3 Core Ontology Specification](#ggen-v3-core-ontology-specification)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+    - [Design Principles](#design-principles)
+    - [Key Dimensions](#key-dimensions)
+  - [Namespace & Prefixes](#namespace--prefixes)
+    - [Namespace Breakdown](#namespace-breakdown)
+  - [Entity Classes](#entity-classes)
+    - [1. System Structure Classes](#1-system-structure-classes)
+      - [**ggen:Crate**](#ggencrate)
+      - [**ggen:Module**](#ggenmodule)
+      - [**ggen:Type** (Abstract Base Class)](#ggentype-abstract-base-class)
+      - [**ggen:Struct** (Subclass of Type)](#ggenstruct-subclass-of-type)
+      - [**ggen:Field**](#ggenfield)
+      - [**ggen:Enum** (Subclass of Type)](#ggenenum-subclass-of-type)
+      - [**ggen:Trait** (Subclass of Type)](#ggentrait-subclass-of-type)
+    - [2. CLI Command Classes](#2-cli-command-classes)
+      - [**ggencli:CliCommand**](#ggencliclicommand)
+      - [**ggencli:Argument**](#ggencliargument)
+      - [**ggencli:Flag**](#ggencliflag)
+    - [3. Marketplace Classes](#3-marketplace-classes)
+      - [**ggenmp:Package**](#ggenmppackage)
+      - [**ggen:Guard** (detailed)](#ggenguard-detailed)
+      - [**ggen:Check**](#ggencheck)
+    - [4. AI Integration Classes](#4-ai-integration-classes)
+      - [**ggenai:LlmProvider**](#ggenaillmprovider)
+      - [**ggenai:LlmModel**](#ggenaillmmodel)
+    - [5. Constraint Classes](#5-constraint-classes)
+      - [**ggen:Constraint** (Abstract)](#ggenconstraint-abstract)
+  - [Properties & Relationships](#properties--relationships)
+    - [Core Properties](#core-properties)
+  - [SPARQL Query Examples](#sparql-query-examples)
+    - [System Structure Queries](#system-structure-queries)
+    - [CLI Command Queries](#cli-command-queries)
+    - [Marketplace Queries](#marketplace-queries)
+  - [Data Representation Guidelines](#data-representation-guidelines)
+    - [1. Date/Time Handling](#1-datetime-handling)
+    - [2. URI vs String](#2-uri-vs-string)
+    - [3. Boolean Values](#3-boolean-values)
+    - [4. Cardinality & Optionality](#4-cardinality--optionality)
+    - [5. Comments & Documentation](#5-comments--documentation)
+  - [Summary of Key Entities](#summary-of-key-entities)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v3 Core Ontology Specification
 
 **Status**: SPECIFICATION DRAFT

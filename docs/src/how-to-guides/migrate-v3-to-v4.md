@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Migrate from ggen v3.4.0 to v4.0.0](#migrate-from-ggen-v340-to-v400)
+  - [Overview](#overview)
+    - [What's Changing](#whats-changing)
+  - [Installation](#installation)
+  - [Verification](#verification)
+  - [What's New (Optional Features)](#whats-new-optional-features)
+    - [AI Agent Introspection (New)](#ai-agent-introspection-new)
+  - [Breaking Changes (For Developers)](#breaking-changes-for-developers)
+    - [If you're a developer building ggen features:](#if-youre-a-developer-building-ggen-features)
+  - [Feature Flags (Advanced)](#feature-flags-advanced)
+  - [FAQ](#faq)
+    - [Q: Do I need to change my scripts?](#q-do-i-need-to-change-my-scripts)
+    - [Q: What about my configuration files?](#q-what-about-my-configuration-files)
+    - [Q: Are there performance improvements?](#q-are-there-performance-improvements)
+    - [Q: Should I update immediately?](#q-should-i-update-immediately)
+    - [Q: What about the 4 disabled modules (hook, marketplace, packs, utils)?](#q-what-about-the-4-disabled-modules-hook-marketplace-packs-utils)
+    - [Q: How do I use the new introspection flags?](#q-how-do-i-use-the-new-introspection-flags)
+  - [Troubleshooting](#troubleshooting)
+    - [Command not found after updating](#command-not-found-after-updating)
+    - [Old binaries still in use](#old-binaries-still-in-use)
+    - [Still having issues?](#still-having-issues)
+  - [Next Steps](#next-steps)
+  - [Support](#support)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Migrate from ggen v3.4.0 to v4.0.0
 
 ## Overview

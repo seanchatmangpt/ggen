@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Quick Start Tutorial](#quick-start-tutorial)
+  - [Step 1: Install ggen (1 minute)](#step-1-install-ggen-1-minute)
+  - [Step 2: Create Your First Ontology (2 minutes)](#step-2-create-your-first-ontology-2-minutes)
+  - [Step 3: Load RDF into Graph (1 minute)](#step-3-load-rdf-into-graph-1-minute)
+  - [Step 4: Extract Schema (2 minutes)](#step-4-extract-schema-2-minutes)
+  - [Step 5: Create JavaScript + Zod Template (3 minutes)](#step-5-create-javascript--zod-template-3-minutes)
+  - [Step 6: Generate JavaScript Code (1 minute)](#step-6-generate-javascript-code-1-minute)
+  - [Step 7: Use Your Generated Code](#step-7-use-your-generated-code)
+  - [🎉 Congratulations!](#-congratulations)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Quick Start Tutorial
 
 **Goal**: Generate JavaScript code with Zod schemas from an RDF ontology in 10 minutes.

@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Multi-Language Projects: Synchronized Types Across Rust, TypeScript, and Python](#multi-language-projects-synchronized-types-across-rust-typescript-and-python)
+  - [Goal](#goal)
+  - [Prerequisites](#prerequisites)
+  - [Step 1: Define Your Multi-Language Ontology](#step-1-define-your-multi-language-ontology)
+  - [Step 2: Create Project Structure](#step-2-create-project-structure)
+  - [Step 3: Generate Rust Types](#step-3-generate-rust-types)
+  - [Step 4: Generate TypeScript Types](#step-4-generate-typescript-types)
+  - [Step 5: Generate Python Types](#step-5-generate-python-types)
+  - [Step 6: Create Synchronized Services](#step-6-create-synchronized-services)
+  - [Step 7: Share Types Across Services](#step-7-share-types-across-services)
+  - [Step 8: Keep Types Synchronized](#step-8-keep-types-synchronized)
+  - [Benefits of This Approach](#benefits-of-this-approach)
+  - [Best Practices](#best-practices)
+  - [Next Steps](#next-steps)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Multi-Language Projects: Synchronized Types Across Rust, TypeScript, and Python
 
 Generate type-safe code across multiple programming languages from a single ontology, eliminating manual synchronization and type drift.

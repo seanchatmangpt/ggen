@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Task Orchestrator - Investigation Findings](#task-orchestrator---investigation-findings)
+  - [Executive Summary](#executive-summary)
+  - [Phase 1: Analysis Complete](#phase-1-analysis-complete)
+    - [What Was Expected](#what-was-expected)
+    - [What Was Actually Found](#what-was-actually-found)
+    - [Test Failure Evidence](#test-failure-evidence)
+    - [Files Analyzed](#files-analyzed)
+  - [Critical Questions for User](#critical-questions-for-user)
+    - [Option A: Add OTEL Integration to clap-noun-verb](#option-a-add-otel-integration-to-clap-noun-verb)
+    - [Option B: Fix Template Command Registration](#option-b-fix-template-command-registration)
+    - [Option C: Both A and B](#option-c-both-a-and-b)
+  - [Recommended Next Steps (Pending Clarification)](#recommended-next-steps-pending-clarification)
+    - [If Option B (Fix Template Command):](#if-option-b-fix-template-command)
+    - [If Option A (Add OTEL):](#if-option-a-add-otel)
+  - [Orchestrator Status](#orchestrator-status)
+  - [Agent Deployment Readiness](#agent-deployment-readiness)
+  - [Technical Context](#technical-context)
+    - [Current clap-noun-verb Implementation](#current-clap-noun-verb-implementation)
+    - [What EXISTS](#what-exists)
+    - [What's MISSING](#whats-missing)
+  - [Lessons Learned (Preliminary)](#lessons-learned-preliminary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Task Orchestrator - Investigation Findings
 
 **Date**: 2025-11-20

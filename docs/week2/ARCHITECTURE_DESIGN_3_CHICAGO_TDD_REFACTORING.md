@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 2 Architecture Design 3: Chicago TDD Test Architecture](#week-2-architecture-design-3-chicago-tdd-test-architecture)
+  - [Executive Summary](#executive-summary)
+  - [Current State Analysis](#current-state-analysis)
+    - [Chicago TDD Principles (Review)](#chicago-tdd-principles-review)
+    - [Existing Issues](#existing-issues)
+  - [Proposed Architecture](#proposed-architecture)
+    - [1. Public API Design for Observability](#1-public-api-design-for-observability)
+    - [2. State Verification Pattern](#2-state-verification-pattern)
+    - [3. Side Effect Verification Pattern](#3-side-effect-verification-pattern)
+  - [Systematic Refactoring Plan](#systematic-refactoring-plan)
+    - [Step 1: Audit Tests for Private Field Access](#step-1-audit-tests-for-private-field-access)
+    - [Step 2: Categorize Test Violations](#step-2-categorize-test-violations)
+    - [Step 3: Design Public Getters/Methods](#step-3-design-public-gettersmethods)
+    - [Step 4: Refactor Tests (Parallel Implementation)](#step-4-refactor-tests-parallel-implementation)
+  - [Implementation Roadmap](#implementation-roadmap)
+    - [Phase 1: Public API Design (Week 2, Days 1-2)](#phase-1-public-api-design-week-2-days-1-2)
+    - [Phase 2: Test Migration (Week 2, Days 3-4)](#phase-2-test-migration-week-2-days-3-4)
+    - [Phase 3: Documentation (Week 2, Day 5)](#phase-3-documentation-week-2-day-5)
+  - [Success Criteria](#success-criteria)
+    - [Functional Requirements](#functional-requirements)
+    - [Non-Functional Requirements](#non-functional-requirements)
+    - [Quality Gates](#quality-gates)
+  - [Benefits Analysis](#benefits-analysis)
+    - [Test Maintainability](#test-maintainability)
+    - [Code Quality](#code-quality)
+  - [Risk Analysis](#risk-analysis)
+  - [ADR: Chicago TDD Test Architecture](#adr-chicago-tdd-test-architecture)
+  - [Effort Estimates](#effort-estimates)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 2 Architecture Design 3: Chicago TDD Test Architecture
 
 **Design Phase:** Reduce Waste - Test Quality Improvement

@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Execute.rs Implementation Plan - Layer 2 Integration](#executers-implementation-plan---layer-2-integration)
+  - [Executive Summary](#executive-summary)
+  - [Three-Layer Architecture Pattern](#three-layer-architecture-pattern)
+  - [Current State Analysis](#current-state-analysis)
+    - [✅ Modules with Complete Integration](#-modules-with-complete-integration)
+    - [❌ Modules Missing Execute.rs (8 modules, 35+ verbs)](#-modules-missing-executers-8-modules-35-verbs)
+  - [Implementation Plan](#implementation-plan)
+    - [Phase 1: Create Execute.rs Integration Layers (Module-by-Module)](#phase-1-create-executers-integration-layers-module-by-module)
+      - [1. ai/execute.rs (6 functions)](#1-aiexecuters-6-functions)
+      - [2. template/execute.rs (7 functions)](#2-templateexecuters-7-functions)
+      - [3. ontology/execute.rs (4 functions)](#3-ontologyexecuters-4-functions)
+      - [4. project/execute.rs (7 functions)](#4-projectexecuters-7-functions)
+      - [5. paper/execute.rs (10 functions - STUB ONLY)](#5-paperexecuters-10-functions---stub-only)
+      - [6. ci/execute.rs (1 function - STUB ONLY)](#6-ciexecuters-1-function---stub-only)
+      - [7. workflow/execute.rs (5 functions - STUB ONLY)](#7-workflowexecuters-5-functions---stub-only)
+      - [8. fmea/execute.rs (5 functions)](#8-fmeaexecuters-5-functions)
+    - [Phase 2: Wire CLI to Execute Functions](#phase-2-wire-cli-to-execute-functions)
+    - [Phase 3: Verification](#phase-3-verification)
+      - [Andon Signal Checks](#andon-signal-checks)
+      - [Integration Tests](#integration-tests)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Execute.rs Implementation Plan - Layer 2 Integration
 
 ## Executive Summary

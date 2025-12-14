@@ -67,6 +67,18 @@ pub struct GgenConfig {
     /// Package metadata (for marketplace packages)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub package: Option<PackageMetadata>,
+
+    /// Marketplace configuration (FMEA validation settings for package operations)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub marketplace: Option<MarketplaceConfig>,
+
+    /// Generation configuration (structural Poka-Yoke - directory separation, headers)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub generation: Option<GenerationSafetyConfig>,
+
+    /// CODEOWNERS generation configuration
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub codeowners: Option<CodeownersConfig>,
 }
 
 /// Project metadata configuration
@@ -461,6 +473,237 @@ pub struct PackageMetadata {
     pub metadata: Option<HashMap<String, serde_json::Value>>,
 }
 
+// ============================================================================
+// Marketplace Configuration
+// Settings for marketplace package operations (install, publish)
+// ============================================================================
+
+/// Marketplace configuration
+///
+/// Controls behavior when interacting with the ggen marketplace:
+/// - FMEA validation during package installation
+/// - Quality gates for package publishing
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct MarketplaceConfig {
+    /// Validate package FMEA during installation
+    #[serde(default)]
+    pub fmea_validation: bool,
+
+    /// Require packages to have [fmea] section in package.toml
+    #[serde(default)]
+    pub require_fmea: bool,
+
+    /// RPN threshold for critical failures (reject packages with unmitigated modes above this)
+    #[serde(default = "default_critical_threshold")]
+    pub critical_threshold: u16,
+}
+
+impl Default for MarketplaceConfig {
+    fn default() -> Self {
+        Self {
+            fmea_validation: false,
+            require_fmea: false,
+            critical_threshold: 200,
+        }
+    }
+}
+
+// ============================================================================
+// FMEA Types (for package.toml, NOT ggen.toml)
+// These types are used when parsing marketplace package metadata
+// ============================================================================
+
+/// FMEA control entry (used in package.toml [fmea] section)
+///
+/// This struct is used for parsing marketplace packages, NOT for ggen.toml.
+/// FMEA documentation belongs in package metadata, not project configuration.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct FmeaControl {
+    /// Control identifier (e.g., "F1", "F2")
+    pub id: String,
+
+    /// Failure mode description
+    pub mode: String,
+
+    /// Severity score (1-10, where 10 = catastrophic)
+    #[serde(default = "default_fmea_score")]
+    pub severity: u8,
+
+    /// Occurrence likelihood (1-10, where 10 = very frequent)
+    #[serde(default = "default_fmea_score")]
+    pub occurrence: u8,
+
+    /// Detection capability (1-10, where 10 = undetectable)
+    #[serde(default = "default_fmea_score")]
+    pub detection: u8,
+
+    /// Control measure implemented (required for modes with RPN > threshold)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub control: Option<String>,
+
+    /// Evidence of control effectiveness
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub evidence: Option<String>,
+}
+
+impl FmeaControl {
+    /// Calculate Risk Priority Number (Severity × Occurrence × Detection)
+    #[must_use]
+    pub fn rpn(&self) -> u16 {
+        u16::from(self.severity) * u16::from(self.occurrence) * u16::from(self.detection)
+    }
+
+    /// Check if this failure mode is mitigated (has control defined)
+    #[must_use]
+    pub fn is_mitigated(&self) -> bool {
+        self.control.is_some()
+    }
+
+    /// Check if this failure mode is critical and unmitigated
+    #[must_use]
+    pub fn is_critical_unmitigated(&self, threshold: u16) -> bool {
+        self.rpn() > threshold && !self.is_mitigated()
+    }
+}
+
+/// Package FMEA section (used in package.toml)
+///
+/// This is parsed from marketplace package.toml files, NOT ggen.toml.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+pub struct PackageFmeaSection {
+    /// Failure mode controls documented for this package
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub controls: Vec<FmeaControl>,
+}
+
+// ============================================================================
+// Generation Configuration (Path Protection & Poka-Yoke)
+// Prevents accidental overwrites of domain logic
+// ============================================================================
+
+/// Generation configuration with path protection
+///
+/// Implements Poka-Yoke (error-proofing) patterns to prevent
+/// accidental overwrites of domain logic during code generation.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct GenerationSafetyConfig {
+    /// Enable generation safety checks
+    #[serde(default = "default_true")]
+    pub enabled: bool,
+
+    /// Protected paths (glob patterns) - NEVER overwrite
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub protected_paths: Vec<String>,
+
+    /// Regeneratable paths (glob patterns) - safe to overwrite
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub regenerate_paths: Vec<String>,
+
+    /// Header to inject into generated files
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub generated_header: Option<String>,
+
+    /// Require confirmation before overwriting any file
+    #[serde(default)]
+    pub require_confirmation: bool,
+
+    /// Create backup before overwriting
+    #[serde(default = "default_true")]
+    pub backup_before_write: bool,
+
+    /// Poka-yoke controls
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub poka_yoke: Option<PokaYokeSettings>,
+}
+
+/// Poka-yoke (error-proofing) settings
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct PokaYokeSettings {
+    /// Add warning headers to generated files
+    #[serde(default = "default_true")]
+    pub warning_headers: bool,
+
+    /// Add generated files to .gitignore
+    #[serde(default)]
+    pub gitignore_generated: bool,
+
+    /// Add generated files to .gitattributes (linguist-generated)
+    #[serde(default)]
+    pub gitattributes_generated: bool,
+
+    /// Validate imports don't cross boundaries
+    #[serde(default)]
+    pub validate_imports: bool,
+}
+
+impl Default for GenerationSafetyConfig {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            protected_paths: vec!["src/domain/**".to_string()],
+            regenerate_paths: vec!["src/generated/**".to_string()],
+            generated_header: Some(
+                "// DO NOT EDIT - Generated by ggen. Changes will be overwritten.".to_string(),
+            ),
+            require_confirmation: false,
+            backup_before_write: true,
+            poka_yoke: Some(PokaYokeSettings::default()),
+        }
+    }
+}
+
+impl Default for PokaYokeSettings {
+    fn default() -> Self {
+        Self {
+            warning_headers: true,
+            gitignore_generated: false,
+            gitattributes_generated: false,
+            validate_imports: false,
+        }
+    }
+}
+
+// ============================================================================
+// CODEOWNERS Configuration
+// Aggregates team ownership from distributed OWNERS files
+// ============================================================================
+
+/// CODEOWNERS generation configuration
+///
+/// Aggregates team ownership from noun-level OWNERS files
+/// into a single .github/CODEOWNERS file for GitHub PR approval enforcement.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct CodeownersConfig {
+    /// Enable CODEOWNERS generation
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// Source directories to scan for OWNERS files
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub source_dirs: Vec<String>,
+
+    /// Base directories to generate entries for
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub base_dirs: Vec<String>,
+
+    /// Output path (defaults to .github/CODEOWNERS)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub output_path: Option<String>,
+
+    /// Auto-regenerate on noun changes
+    #[serde(default)]
+    pub auto_regenerate: bool,
+}
+
+// Default value functions for serde - Marketplace/FMEA
+fn default_critical_threshold() -> u16 {
+    200
+}
+
+fn default_fmea_score() -> u8 {
+    5
+}
+
 // Default value functions for serde
 fn default_temperature() -> f32 {
     0.7
@@ -545,6 +788,25 @@ impl Default for GgenConfig {
             build: None,
             test: None,
             package: None,
+            marketplace: None,
+            generation: None,
+            codeowners: None,
+        }
+    }
+}
+
+impl Default for CodeownersConfig {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            source_dirs: vec!["ontology".to_string()],
+            base_dirs: vec![
+                "ontology".to_string(),
+                "src/generated".to_string(),
+                "src/domain".to_string(),
+            ],
+            output_path: None,
+            auto_regenerate: false,
         }
     }
 }

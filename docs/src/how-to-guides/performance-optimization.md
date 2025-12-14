@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Performance Optimization for Code Generation](#performance-optimization-for-code-generation)
+  - [Profiling Generation Performance](#profiling-generation-performance)
+    - [Measure Baseline](#measure-baseline)
+    - [Enable Verbose Timing](#enable-verbose-timing)
+  - [Optimization Strategies](#optimization-strategies)
+    - [1. Reduce RDF Graph Size](#1-reduce-rdf-graph-size)
+    - [2. Use Template Caching](#2-use-template-caching)
+    - [3. Parallelize Generation](#3-parallelize-generation)
+    - [4. Optimize SPARQL Queries](#4-optimize-sparql-queries)
+    - [5. Pre-Validate Ontologies](#5-pre-validate-ontologies)
+  - [Benchmark Optimization Results](#benchmark-optimization-results)
+    - [Example: E-commerce Platform](#example-e-commerce-platform)
+    - [Timeline Improvements](#timeline-improvements)
+  - [Memory Optimization](#memory-optimization)
+    - [For Large Ontologies](#for-large-ontologies)
+    - [Stream Processing](#stream-processing)
+  - [CI/CD Performance](#cicd-performance)
+    - [Parallel Pipeline](#parallel-pipeline)
+  - [Caching Strategies](#caching-strategies)
+    - [Local Development](#local-development)
+    - [CI/CD Caching](#cicd-caching)
+  - [Performance SLOs](#performance-slos)
+  - [Troubleshooting Performance](#troubleshooting-performance)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Performance Optimization for Code Generation
 
 Optimize your ggen workflows for speed and efficiency.

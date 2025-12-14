@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace V2 Monitoring & Observability Setup](#marketplace-v2-monitoring--observability-setup)
+  - [Table of Contents](#table-of-contents)
+  - [OpenTelemetry Configuration](#opentelemetry-configuration)
+    - [Rust Application Setup](#rust-application-setup)
+    - [Instrumentation in Code](#instrumentation-in-code)
+  - [Prometheus Metrics](#prometheus-metrics)
+    - [Metrics Definitions](#metrics-definitions)
+    - [Metric Collection](#metric-collection)
+  - [Grafana Dashboards](#grafana-dashboards)
+    - [Main SLO Dashboard](#main-slo-dashboard)
+    - [Performance Comparison Dashboard (V1 vs V2)](#performance-comparison-dashboard-v1-vs-v2)
+  - [Alert Rules](#alert-rules)
+    - [Prometheus Alert Rules](#prometheus-alert-rules)
+    - [Alert Routing (AlertManager)](#alert-routing-alertmanager)
+  - [SLO Definitions](#slo-definitions)
+    - [Service Level Objectives](#service-level-objectives)
+    - [SLO Tracking](#slo-tracking)
+  - [Logging Setup](#logging-setup)
+    - [Structured Logging with Tracing](#structured-logging-with-tracing)
+    - [Log Aggregation (Loki)](#log-aggregation-loki)
+    - [Log Queries (Loki)](#log-queries-loki)
+  - [Deployment Checklist](#deployment-checklist)
+    - [Before Deployment](#before-deployment)
+    - [After Deployment](#after-deployment)
+  - [Maintenance](#maintenance)
+    - [Weekly Tasks](#weekly-tasks)
+    - [Monthly Tasks](#monthly-tasks)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace V2 Monitoring & Observability Setup
 
 **Version:** 1.0.0

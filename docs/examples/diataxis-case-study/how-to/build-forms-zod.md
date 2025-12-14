@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How-to: Build Forms with shadcn/ui + Zod Validation](#how-to-build-forms-with-shadcnui--zod-validation)
+  - [Prerequisites](#prerequisites)
+  - [Overview](#overview)
+  - [Step 1: Install Required Packages](#step-1-install-required-packages)
+  - [Step 2: Define Zod Schema](#step-2-define-zod-schema)
+  - [Step 3: Create Form Component](#step-3-create-form-component)
+  - [Step 4: Use Form in Component](#step-4-use-form-in-component)
+  - [Verification](#verification)
+  - [Advanced: Custom Validation](#advanced-custom-validation)
+    - [Add Custom Validator](#add-custom-validator)
+    - [Conditional Fields](#conditional-fields)
+  - [Troubleshooting](#troubleshooting)
+    - [Error: "resolver is not a function"](#error-resolver-is-not-a-function)
+    - [Validation Not Triggering](#validation-not-triggering)
+    - [Date Picker Not Working](#date-picker-not-working)
+  - [Best Practices](#best-practices)
+    - [1. Colocate Schemas with Forms](#1-colocate-schemas-with-forms)
+    - [2. Reuse Validation Logic](#2-reuse-validation-logic)
+    - [3. Type Safety](#3-type-safety)
+  - [Related Guides](#related-guides)
+  - [Reference](#reference)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How-to: Build Forms with shadcn/ui + Zod Validation
 
 **Problem**: You need type-safe form validation with beautiful UI components.

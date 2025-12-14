@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Common TOML Configuration Patterns](#common-toml-configuration-patterns)
+  - [Quick Navigation](#quick-navigation)
+  - [AI Provider Setup](#ai-provider-setup)
+    - [OpenAI Configuration](#openai-configuration)
+    - [Anthropic (Claude) Configuration](#anthropic-claude-configuration)
+    - [Ollama (Local) Configuration](#ollama-local-configuration)
+  - [Template Configuration](#template-configuration)
+    - [JavaScript + Zod Project](#javascript--zod-project)
+    - [Multi-Output Configuration](#multi-output-configuration)
+  - [RDF & SPARQL Configuration](#rdf--sparql-configuration)
+    - [Basic RDF Setup](#basic-rdf-setup)
+    - [Schema.org Integration](#schemaorg-integration)
+    - [SPARQL Performance Tuning](#sparql-performance-tuning)
+  - [Environment-Specific Configuration](#environment-specific-configuration)
+    - [Development vs Production](#development-vs-production)
+    - [Testing Configuration](#testing-configuration)
+  - [Multi-Language Projects](#multi-language-projects)
+    - [JavaScript + Rust Project](#javascript--rust-project)
+    - [Full-Stack Configuration](#full-stack-configuration)
+  - [Performance Optimization](#performance-optimization)
+    - [High-Performance Configuration](#high-performance-configuration)
+    - [Low-Resource Configuration](#low-resource-configuration)
+  - [Security Configuration](#security-configuration)
+    - [Strict Security](#strict-security)
+    - [Development Security](#development-security)
+  - [Lifecycle Hooks](#lifecycle-hooks)
+    - [Automated Workflow](#automated-workflow)
+  - [Complete Examples](#complete-examples)
+    - [Small JavaScript Project](#small-javascript-project)
+    - [Large Enterprise Project](#large-enterprise-project)
+  - [Troubleshooting](#troubleshooting)
+    - [Configuration Not Loading](#configuration-not-loading)
+    - [Environment Override Not Working](#environment-override-not-working)
+    - [API Keys Not Found](#api-keys-not-found)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Common TOML Configuration Patterns
 
 Practical examples of ggen.toml configurations for common use cases.

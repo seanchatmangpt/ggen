@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Performance Characteristics: Understanding Code Generation Speed](#performance-characteristics-understanding-code-generation-speed)
+  - [Generation Performance Profile](#generation-performance-profile)
+    - [Typical Performance Metrics](#typical-performance-metrics)
+    - [Scaling Characteristics](#scaling-characteristics)
+  - [Memory Usage Patterns](#memory-usage-patterns)
+    - [Memory Profile During Generation](#memory-profile-during-generation)
+    - [Memory by Language](#memory-by-language)
+  - [Where Time Is Spent](#where-time-is-spent)
+    - [Breakdown for Typical Project](#breakdown-for-typical-project)
+    - [The 80/20 Rule](#the-8020-rule)
+  - [Optimization Techniques](#optimization-techniques)
+    - [1. Caching: Avoid Reparsing](#1-caching-avoid-reparsing)
+    - [2. Parallelization: Generate Multiple Languages](#2-parallelization-generate-multiple-languages)
+    - [3. Incremental Generation: Only Changed Classes](#3-incremental-generation-only-changed-classes)
+    - [4. Template Optimization: Minimize Complexity](#4-template-optimization-minimize-complexity)
+    - [5. Graph Pruning: Remove Unused Classes](#5-graph-pruning-remove-unused-classes)
+  - [Bottleneck Analysis](#bottleneck-analysis)
+    - [Bottleneck 1: RDF Parsing is Slow?](#bottleneck-1-rdf-parsing-is-slow)
+    - [Bottleneck 2: Template Rendering is Slow?](#bottleneck-2-template-rendering-is-slow)
+    - [Bottleneck 3: Generated Code Compilation is Slow?](#bottleneck-3-generated-code-compilation-is-slow)
+  - [Real-World Performance Cases](#real-world-performance-cases)
+    - [Case 1: Microservices Platform](#case-1-microservices-platform)
+    - [Case 2: Large Monolith](#case-2-large-monolith)
+  - [Performance Tuning Checklist](#performance-tuning-checklist)
+  - [Performance Under Constraints](#performance-under-constraints)
+    - [When System Resources are Limited](#when-system-resources-are-limited)
+    - [When Network is Slow](#when-network-is-slow)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Performance Characteristics: Understanding Code Generation Speed
 
 How ggen performs and where to optimize.
