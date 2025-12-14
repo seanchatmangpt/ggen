@@ -1,0 +1,394 @@
+@prefix code: <http://ggen.dev/code#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# ============================================================================
+# ggen Code Ontology v5
+#
+# This ontology defines RDF vocabulary for representing code structures.
+# CONSTRUCT queries transform domain models into instances of these classes.
+# Tera templates serialize these instances into actual code.
+#
+# Design Philosophy:
+# - Code is data, data is code
+# - CONSTRUCT builds the code graph
+# - Templates merely serialize
+# - N3 rules infer code patterns
+# ============================================================================
+
+<http://ggen.dev/code> a owl:Ontology ;
+    rdfs:label "ggen Code Ontology" ;
+    rdfs:comment "RDF vocabulary for representing Rust code structures for semantic code generation" ;
+    owl:versionInfo "5.0.0" .
+
+# ============================================================================
+# CORE CODE STRUCTURES
+# ============================================================================
+
+# -----------------------------------------------------------------------------
+# code:Module - A Rust module
+# -----------------------------------------------------------------------------
+code:Module a rdfs:Class ;
+    rdfs:label "Module" ;
+    rdfs:comment "A Rust module (file or directory)" .
+
+code:moduleName a rdf:Property ;
+    rdfs:domain code:Module ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Module name (e.g., 'models', 'services')" .
+
+code:moduleVisibility a rdf:Property ;
+    rdfs:domain code:Module ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Module visibility ('pub', 'pub(crate)', 'pub(super)', or empty)" .
+
+code:moduleItems a rdf:Property ;
+    rdfs:domain code:Module ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Items in the module (structs, traits, impls, etc.)" .
+
+code:moduleImports a rdf:Property ;
+    rdfs:domain code:Module ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Use statements for the module" .
+
+code:moduleAttributes a rdf:Property ;
+    rdfs:domain code:Module ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Module-level attributes (e.g., #![allow(dead_code)])" .
+
+# -----------------------------------------------------------------------------
+# code:Struct - A Rust struct
+# -----------------------------------------------------------------------------
+code:Struct a rdfs:Class ;
+    rdfs:label "Struct" ;
+    rdfs:comment "A Rust struct definition" .
+
+code:structName a rdf:Property ;
+    rdfs:domain code:Struct ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Struct name in PascalCase" .
+
+code:structVisibility a rdf:Property ;
+    rdfs:domain code:Struct ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Struct visibility ('pub', 'pub(crate)', etc.)" .
+
+code:structDerives a rdf:Property ;
+    rdfs:domain code:Struct ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Derive macros (e.g., Debug, Clone, Serialize)" .
+
+code:structFields a rdf:Property ;
+    rdfs:domain code:Struct ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Ordered list of struct fields" .
+
+code:structGenerics a rdf:Property ;
+    rdfs:domain code:Struct ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Generic parameters (e.g., '<T: Clone>')" .
+
+code:structDocstring a rdf:Property ;
+    rdfs:domain code:Struct ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Documentation comment for the struct" .
+
+code:structAttributes a rdf:Property ;
+    rdfs:domain code:Struct ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Additional attributes (e.g., #[serde(rename_all = \"camelCase\")])" .
+
+# Field within a struct
+code:Field a rdfs:Class ;
+    rdfs:label "Field" ;
+    rdfs:comment "A field within a struct" .
+
+code:fieldName a rdf:Property ;
+    rdfs:domain code:Field ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Field name in snake_case" .
+
+code:fieldType a rdf:Property ;
+    rdfs:domain code:Field ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Field type (e.g., 'String', 'Option<Uuid>')" .
+
+code:fieldVisibility a rdf:Property ;
+    rdfs:domain code:Field ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Field visibility ('pub', etc.)" .
+
+code:fieldDocstring a rdf:Property ;
+    rdfs:domain code:Field ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Documentation comment for the field" .
+
+code:fieldAttributes a rdf:Property ;
+    rdfs:domain code:Field ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Field attributes (e.g., #[serde(skip)])" .
+
+code:fieldDefault a rdf:Property ;
+    rdfs:domain code:Field ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Default value expression" .
+
+# -----------------------------------------------------------------------------
+# code:Trait - A Rust trait
+# -----------------------------------------------------------------------------
+code:Trait a rdfs:Class ;
+    rdfs:label "Trait" ;
+    rdfs:comment "A Rust trait definition" .
+
+code:traitName a rdf:Property ;
+    rdfs:domain code:Trait ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Trait name in PascalCase" .
+
+code:traitVisibility a rdf:Property ;
+    rdfs:domain code:Trait ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Trait visibility" .
+
+code:traitMethods a rdf:Property ;
+    rdfs:domain code:Trait ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Methods defined by the trait" .
+
+code:traitBounds a rdf:Property ;
+    rdfs:domain code:Trait ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Supertraits and bounds (e.g., ': Clone + Send')" .
+
+code:traitAsync a rdf:Property ;
+    rdfs:domain code:Trait ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether trait requires async_trait" .
+
+code:traitDocstring a rdf:Property ;
+    rdfs:domain code:Trait ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Documentation comment for the trait" .
+
+# -----------------------------------------------------------------------------
+# code:Method - A method (in trait or impl)
+# -----------------------------------------------------------------------------
+code:Method a rdfs:Class ;
+    rdfs:label "Method" ;
+    rdfs:comment "A method definition" .
+
+code:methodName a rdf:Property ;
+    rdfs:domain code:Method ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Method name in snake_case" .
+
+code:methodAsync a rdf:Property ;
+    rdfs:domain code:Method ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether method is async" .
+
+code:methodParams a rdf:Property ;
+    rdfs:domain code:Method ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Method parameters (excluding self)" .
+
+code:methodSelf a rdf:Property ;
+    rdfs:domain code:Method ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Self parameter ('&self', '&mut self', 'self', or empty for static)" .
+
+code:methodReturn a rdf:Property ;
+    rdfs:domain code:Method ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Return type (e.g., 'Result<User, Error>')" .
+
+code:methodBody a rdf:Property ;
+    rdfs:domain code:Method ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Method body (code)" .
+
+code:methodDocstring a rdf:Property ;
+    rdfs:domain code:Method ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Documentation comment for the method" .
+
+code:methodVisibility a rdf:Property ;
+    rdfs:domain code:Method ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Method visibility" .
+
+# Method parameter
+code:Param a rdfs:Class ;
+    rdfs:label "Param" ;
+    rdfs:comment "A method parameter" .
+
+code:paramName a rdf:Property ;
+    rdfs:domain code:Param ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Parameter name" .
+
+code:paramType a rdf:Property ;
+    rdfs:domain code:Param ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Parameter type" .
+
+# -----------------------------------------------------------------------------
+# code:Impl - An impl block
+# -----------------------------------------------------------------------------
+code:Impl a rdfs:Class ;
+    rdfs:label "Impl" ;
+    rdfs:comment "A Rust impl block" .
+
+code:implFor a rdf:Property ;
+    rdfs:domain code:Impl ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type being implemented for" .
+
+code:implTrait a rdf:Property ;
+    rdfs:domain code:Impl ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Trait being implemented (empty for inherent impl)" .
+
+code:implMethods a rdf:Property ;
+    rdfs:domain code:Impl ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Methods in the impl block" .
+
+code:implGenerics a rdf:Property ;
+    rdfs:domain code:Impl ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Generic parameters" .
+
+# -----------------------------------------------------------------------------
+# code:Enum - A Rust enum
+# -----------------------------------------------------------------------------
+code:Enum a rdfs:Class ;
+    rdfs:label "Enum" ;
+    rdfs:comment "A Rust enum definition" .
+
+code:enumName a rdf:Property ;
+    rdfs:domain code:Enum ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Enum name in PascalCase" .
+
+code:enumVisibility a rdf:Property ;
+    rdfs:domain code:Enum ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Enum visibility" .
+
+code:enumVariants a rdf:Property ;
+    rdfs:domain code:Enum ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Enum variants" .
+
+code:enumDerives a rdf:Property ;
+    rdfs:domain code:Enum ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Derive macros" .
+
+code:enumDocstring a rdf:Property ;
+    rdfs:domain code:Enum ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Documentation comment" .
+
+# Enum variant
+code:Variant a rdfs:Class ;
+    rdfs:label "Variant" ;
+    rdfs:comment "An enum variant" .
+
+code:variantName a rdf:Property ;
+    rdfs:domain code:Variant ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Variant name in PascalCase" .
+
+code:variantFields a rdf:Property ;
+    rdfs:domain code:Variant ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Variant fields (for tuple/struct variants)" .
+
+code:variantDocstring a rdf:Property ;
+    rdfs:domain code:Variant ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Documentation comment" .
+
+# -----------------------------------------------------------------------------
+# code:Import - A use statement
+# -----------------------------------------------------------------------------
+code:Import a rdfs:Class ;
+    rdfs:label "Import" ;
+    rdfs:comment "A Rust use statement" .
+
+code:importPath a rdf:Property ;
+    rdfs:domain code:Import ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Import path (e.g., 'std::collections::HashMap')" .
+
+code:importAlias a rdf:Property ;
+    rdfs:domain code:Import ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Import alias (e.g., 'use x as y')" .
+
+# -----------------------------------------------------------------------------
+# code:Attribute - A Rust attribute
+# -----------------------------------------------------------------------------
+code:Attribute a rdfs:Class ;
+    rdfs:label "Attribute" ;
+    rdfs:comment "A Rust attribute (e.g., #[derive(...)])" .
+
+code:attributeValue a rdf:Property ;
+    rdfs:domain code:Attribute ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Attribute string (e.g., 'derive(Debug, Clone)')" .
+
+# ============================================================================
+# COMMON DERIVES (for easy reference in N3 rules)
+# ============================================================================
+
+code:Debug a code:Derive ; rdfs:label "Debug" .
+code:Clone a code:Derive ; rdfs:label "Clone" .
+code:Copy a code:Derive ; rdfs:label "Copy" .
+code:Default a code:Derive ; rdfs:label "Default" .
+code:PartialEq a code:Derive ; rdfs:label "PartialEq" .
+code:Eq a code:Derive ; rdfs:label "Eq" .
+code:Hash a code:Derive ; rdfs:label "Hash" .
+code:Serialize a code:Derive ; rdfs:label "Serialize" .
+code:Deserialize a code:Derive ; rdfs:label "Deserialize" .
+
+# ============================================================================
+# SOURCE TRACEABILITY (for poka-yoke audit trail)
+# ============================================================================
+
+code:sourceIri a rdf:Property ;
+    rdfs:comment "IRI of the domain element this code was generated from" ;
+    rdfs:range xsd:anyURI .
+
+code:sourceQuery a rdf:Property ;
+    rdfs:comment "SPARQL query that produced this code element" ;
+    rdfs:range xsd:string .
+
+code:generatedAt a rdf:Property ;
+    rdfs:comment "Timestamp of code generation" ;
+    rdfs:range xsd:dateTime .
+
+code:templateUsed a rdf:Property ;
+    rdfs:comment "Name of Tera template used for final serialization" ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# VALIDATION FLAGS (for poka-yoke safety)
+# ============================================================================
+
+code:validated a rdf:Property ;
+    rdfs:comment "Whether this code element passed validation" ;
+    rdfs:range xsd:boolean .
+
+code:validationErrors a rdf:Property ;
+    rdfs:comment "List of validation errors (if any)" ;
+    rdfs:range rdf:List .
+
+code:isSafe a rdf:Property ;
+    rdfs:comment "Whether this code element is safe (no unsafe blocks)" ;
+    rdfs:range xsd:boolean .
