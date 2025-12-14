@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Operational Workflows Guide](#ggen-operational-workflows-guide)
+  - [How RevOps, DevOps, GTM, and University Partnerships Work Using Actual ggen Commands](#how-revops-devops-gtm-and-university-partnerships-work-using-actual-ggen-commands)
+  - [Table of Contents](#table-of-contents)
+  - [RevOps Workflows](#revops-workflows)
+    - [Workflow 1.1: Department Onboarding Pipeline](#workflow-11-department-onboarding-pipeline)
+    - [Workflow 1.2: Revenue Recognition & Package Licensing](#workflow-12-revenue-recognition--package-licensing)
+    - [Workflow 1.3: Department Performance Metrics](#workflow-13-department-performance-metrics)
+  - [DevOps Workflows](#devops-workflows)
+    - [Workflow 2.1: Continuous Package Validation](#workflow-21-continuous-package-validation)
+    - [Workflow 2.2: Automated Code Generation Testing](#workflow-22-automated-code-generation-testing)
+    - [Workflow 2.3: Hook Integration & Auto-Regeneration](#workflow-23-hook-integration--auto-regeneration)
+    - [Workflow 2.4: Production Readiness Check](#workflow-24-production-readiness-check)
+  - [GTM Operations](#gtm-operations)
+    - [Workflow 3.1: Marketplace Content Discovery & Promotion](#workflow-31-marketplace-content-discovery--promotion)
+    - [Workflow 3.2: University Research Showcase](#workflow-32-university-research-showcase)
+  - [Marketplace Operations](#marketplace-operations)
+    - [Workflow 4.1: Automated Marketplace Publishing Pipeline](#workflow-41-automated-marketplace-publishing-pipeline)
+    - [Workflow 4.2: Marketplace Quality Dashboard](#workflow-42-marketplace-quality-dashboard)
+  - [University Partnership Workflows](#university-partnership-workflows)
+    - [Workflow 5.1: University Subscription Onboarding](#workflow-51-university-subscription-onboarding)
+  - [Research Implementation Workflows](#research-implementation-workflows)
+    - [Workflow 6.1: Research Paper to Marketplace Package](#workflow-61-research-paper-to-marketplace-package)
+  - [End-to-End Operational Pipelines](#end-to-end-operational-pipelines)
+    - [Complete Enterprise Pipeline](#complete-enterprise-pipeline)
+  - [Summary: Command Quick Reference](#summary-command-quick-reference)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Operational Workflows Guide
 
 ## How RevOps, DevOps, GTM, and University Partnerships Work Using Actual ggen Commands

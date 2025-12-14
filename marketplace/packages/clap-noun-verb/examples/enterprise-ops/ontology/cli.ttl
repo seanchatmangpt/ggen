@@ -1,0 +1,29 @@
+@prefix cnv: <https://ggen.dev/clap-noun-verb/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# Enterprise Operations CLI
+# ============================================================================
+#
+# Multi-team CLI with 5 nouns owned by different teams:
+#   - user    (Identity Team)
+#   - order   (Commerce Team)
+#   - inventory (Supply Chain Team)
+#   - config  (Platform Team)
+#   - report  (Analytics Team)
+#
+# Scale: 25+ verbs across 5 nouns
+# Pattern: One file per verb for zero merge conflicts
+# ============================================================================
+
+<http://example.com/enterprise-ops> a cnv:CliProject ;
+    cnv:projectName "enterprise-ops" ;
+    cnv:projectVersion "2.5.0" ;
+    rdfs:comment "Enterprise Operations CLI - Fortune 500 scale example" ;
+    owl:imports <./user/noun.ttl> ,
+                <./order/noun.ttl> ,
+                <./inventory/noun.ttl> ,
+                <./config/noun.ttl> ,
+                <./report/noun.ttl> .

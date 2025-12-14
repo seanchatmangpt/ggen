@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Unified Error Handling Strategy](#unified-error-handling-strategy)
+  - [Overview](#overview)
+  - [Error Type Hierarchy](#error-type-hierarchy)
+  - [Error Conversion Strategy](#error-conversion-strategy)
+    - [V1 → Unified Error Conversion](#v1-%E2%86%92-unified-error-conversion)
+    - [V2 → Unified Error Conversion](#v2-%E2%86%92-unified-error-conversion)
+  - [Fallback Strategy](#fallback-strategy)
+    - [Automatic Fallback in Dual Backend](#automatic-fallback-in-dual-backend)
+    - [Fallback Configuration](#fallback-configuration)
+  - [Error Recovery Strategies](#error-recovery-strategies)
+    - [Strategy 1: Retry with Exponential Backoff](#strategy-1-retry-with-exponential-backoff)
+    - [Strategy 2: Circuit Breaker](#strategy-2-circuit-breaker)
+  - [User-Facing Error Messages](#user-facing-error-messages)
+    - [Error Context for Users](#error-context-for-users)
+    - [CLI Error Display](#cli-error-display)
+  - [Error Metrics and Monitoring](#error-metrics-and-monitoring)
+    - [OpenTelemetry Error Tracking](#opentelemetry-error-tracking)
+  - [Error Handling Test Cases](#error-handling-test-cases)
+  - [Success Criteria](#success-criteria)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Unified Error Handling Strategy
 
 ## Overview

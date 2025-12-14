@@ -1,3 +1,49 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Documentation Restructure Proposal](#ggen-documentation-restructure-proposal)
+  - [Proposed Structure](#proposed-structure)
+  - [Key Changes from Current Structure](#key-changes-from-current-structure)
+    - [1. Consolidate Documentation Roots](#1-consolidate-documentation-roots)
+    - [2. Add Specs Directory (New)](#2-add-specs-directory-new)
+    - [3. Archive Legacy Content](#3-archive-legacy-content)
+    - [4. Clean Up Root Level](#4-clean-up-root-level)
+  - [Migration Plan](#migration-plan)
+    - [Phase 1: Create New Structure (No Breaking Changes)](#phase-1-create-new-structure-no-breaking-changes)
+    - [Phase 2: Content Migration](#phase-2-content-migration)
+    - [Phase 3: Archive Legacy](#phase-3-archive-legacy)
+    - [Phase 4: Validation](#phase-4-validation)
+  - [Comparison: Astro vs Proposed ggen Structure](#comparison-astro-vs-proposed-ggen-structure)
+    - [Similarities (Adopted from Astro)](#similarities-adopted-from-astro)
+    - [Differences (Simplified for ggen)](#differences-simplified-for-ggen)
+  - [Benefits](#benefits)
+    - [For Users](#for-users)
+    - [For Contributors](#for-contributors)
+    - [For Maintainers](#for-maintainers)
+  - [File Mapping (Key Moves)](#file-mapping-key-moves)
+  - [Validation After Restructure](#validation-after-restructure)
+    - [Scripts to Update](#scripts-to-update)
+    - [Documentation to Update](#documentation-to-update)
+  - [Proposed Specs (Initial Set)](#proposed-specs-initial-set)
+    - [001-rdf-engine](#001-rdf-engine)
+    - [002-template-system](#002-template-system)
+    - [003-ai-integration](#003-ai-integration)
+    - [004-marketplace](#004-marketplace)
+    - [005-cli-framework](#005-cli-framework)
+  - [Example Spec Structure (Simplified)](#example-spec-structure-simplified)
+    - [Minimal Spec (Small Feature)](#minimal-spec-small-feature)
+    - [Standard Spec (Most Features)](#standard-spec-most-features)
+    - [Complex Spec (Major Features)](#complex-spec-major-features)
+  - [Decision Points](#decision-points)
+    - [✅ Adopt from Astro](#-adopt-from-astro)
+    - [❌ Skip from Astro (Too Complex)](#-skip-from-astro-too-complex)
+    - [🔄 Adapt for ggen](#-adapt-for-ggen)
+  - [Approval Checklist](#approval-checklist)
+  - [Implementation Command](#implementation-command)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Documentation Restructure Proposal
 
 **Aligned with**: ~/dis/astro reference structure (simplified)

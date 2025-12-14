@@ -1,3 +1,11 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Academic Peer Review Workflow Package — Updated Findings](#academic-peer-review-workflow-package--updated-findings)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## Academic Peer Review Workflow Package — Updated Findings
 
 - Registry entry: `marketplace/registry/index.json` lists `academic-peer-review-workflow` v1.0.0, category `academic-workflow`, dependency `academic-paper-lifecycle`, production_ready currently `false`, download URL points to repo zip, checksum present, downloads/stars set to 0.

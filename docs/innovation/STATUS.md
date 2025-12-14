@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Andon Signal Validation Framework - Status](#andon-signal-validation-framework---status)
+  - [✅ Phase 1: Foundation (Complete)](#-phase-1-foundation-complete)
+  - [✅ Phase 2: Compile-Time Validation (Complete)](#-phase-2-compile-time-validation-complete)
+  - [✅ Phase 3: Runtime Validation (Complete)](#-phase-3-runtime-validation-complete)
+  - [✅ Phase 4: Integration with Act (Complete)](#-phase-4-integration-with-act-complete)
+  - [Progress Summary](#progress-summary)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Andon Signal Validation Framework - Status
 
 ## ✅ Phase 1: Foundation (Complete)

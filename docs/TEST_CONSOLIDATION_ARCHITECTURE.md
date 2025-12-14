@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [🏗️ Test Consolidation Architecture](#-test-consolidation-architecture)
+  - [System Overview](#system-overview)
+  - [Test Categories & Coverage](#test-categories--coverage)
+    - [1. Package Validation Layer (120 lines)](#1-package-validation-layer-120-lines)
+    - [2. Marketplace Operations Layer (150 lines)](#2-marketplace-operations-layer-150-lines)
+    - [3. Lifecycle Management Layer (150 lines)](#3-lifecycle-management-layer-150-lines)
+    - [4. Consensus & Swarm Layer (180 lines)](#4-consensus--swarm-layer-180-lines)
+    - [5. RDF & Semantic Layer (180 lines)](#5-rdf--semantic-layer-180-lines)
+  - [Test Execution Flow](#test-execution-flow)
+  - [Dependency Graph](#dependency-graph)
+  - [Success Metrics](#success-metrics)
+    - [Code Reduction](#code-reduction)
+    - [Execution Performance](#execution-performance)
+    - [Coverage Metrics](#coverage-metrics)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 🏗️ Test Consolidation Architecture
 
 ## System Overview

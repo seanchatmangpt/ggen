@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [🛑 ANDON STOPPING RULES - When to STOP and Fix](#-andon-stopping-rules---when-to-stop-and-fix)
+  - [🔴 CATEGORY 1: IMMEDIATE STOP (Red Alert)](#-category-1-immediate-stop-red-alert)
+    - [1.1 Test Failures](#11-test-failures)
+    - [1.2 Critical/High Security Vulnerabilities](#12-criticalhigh-security-vulnerabilities)
+    - [1.3 Production Deployment Failures](#13-production-deployment-failures)
+    - [1.4 Performance Regression >10%](#14-performance-regression-10)
+    - [1.5 Build Time >5 Seconds (Critical Threshold)](#15-build-time-5-seconds-critical-threshold)
+  - [🟡 CATEGORY 2: PAUSE AND INVESTIGATE (Yellow Alert)](#-category-2-pause-and-investigate-yellow-alert)
+    - [2.1 Compiler Warnings >3](#21-compiler-warnings-3)
+    - [2.2 Binary Size >5MB](#22-binary-size-5mb)
+    - [2.3 Test Coverage <90% (Critical Paths)](#23-test-coverage-90-critical-paths)
+    - [2.4 Low Severity Security Issues (CVSS 3.0-6.9)](#24-low-severity-security-issues-cvss-30-69)
+    - [2.5 Unmaintained Dependencies](#25-unmaintained-dependencies)
+  - [🟢 CATEGORY 3: MONITOR AND IMPROVE (Green Alert)](#-category-3-monitor-and-improve-green-alert)
+    - [3.1 Build Time 3-5 Seconds](#31-build-time-3-5-seconds)
+    - [3.2 Test Count Growth](#32-test-count-growth)
+    - [3.3 Dependency Count Growth](#33-dependency-count-growth)
+  - [📊 DECISION MATRIX](#-decision-matrix)
+  - [🚨 ANDON CORD PULLING PROTOCOL](#-andon-cord-pulling-protocol)
+    - [How to Pull the Andon Cord](#how-to-pull-the-andon-cord)
+    - [Cultural Expectations](#cultural-expectations)
+  - [📈 METRICS TO TRACK](#-metrics-to-track)
+    - [Stop Frequency](#stop-frequency)
+    - [Time to Resolution](#time-to-resolution)
+    - [Root Cause Categories](#root-cause-categories)
+    - [Recurrence Rate](#recurrence-rate)
+  - [🎯 PHASE-SPECIFIC STOPPING RULES](#-phase-specific-stopping-rules)
+    - [Phase 2 (Current): Lean Optimization](#phase-2-current-lean-optimization)
+    - [Phase 3 (Planned): Technical Debt](#phase-3-planned-technical-debt)
+    - [Phase 4 (Future): Production Hardening](#phase-4-future-production-hardening)
+  - [🔧 AUTOMATION HOOKS](#-automation-hooks)
+    - [Pre-Commit Hooks](#pre-commit-hooks)
+    - [CI Pipeline Gates](#ci-pipeline-gates)
+    - [Deployment Gates](#deployment-gates)
+  - [📚 LEARNING FROM STOPS](#-learning-from-stops)
+    - [Post-Stop Review Template](#post-stop-review-template)
+  - [🏆 SUCCESS CRITERIA](#-success-criteria)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 🛑 ANDON STOPPING RULES - When to STOP and Fix
 
 **Purpose**: Define clear criteria for when development must STOP to address quality issues.

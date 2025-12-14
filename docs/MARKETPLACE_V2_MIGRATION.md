@@ -1,3 +1,52 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-marketplace Migration Guide](#ggen-marketplace-migration-guide)
+  - [Overview](#overview)
+    - [Why Migrate to v2?](#why-migrate-to-v2)
+    - [Key Differences](#key-differences)
+    - [Timeline and Effort Estimates](#timeline-and-effort-estimates)
+  - [Prerequisites](#prerequisites)
+    - [System Requirements](#system-requirements)
+    - [Dependency Check](#dependency-check)
+    - [Pre-Migration Checklist](#pre-migration-checklist)
+  - [Step-by-Step Migration](#step-by-step-migration)
+    - [Step 1: Backup v1 Packages](#step-1-backup-v1-packages)
+    - [Step 2: Initialize v2 RDF Registry](#step-2-initialize-v2-rdf-registry)
+    - [Step 3: Run Migration](#step-3-run-migration)
+    - [Step 4: Verify Data Integrity](#step-4-verify-data-integrity)
+    - [Step 5: Test Critical Workflows](#step-5-test-critical-workflows)
+    - [Step 6: Go Live](#step-6-go-live)
+  - [Incremental Migration](#incremental-migration)
+  - [Rollback Procedures](#rollback-procedures)
+    - [When to Rollback](#when-to-rollback)
+    - [Rollback Execution](#rollback-execution)
+    - [Data Recovery Procedures](#data-recovery-procedures)
+    - [Verification Checklist](#verification-checklist)
+  - [Troubleshooting](#troubleshooting)
+    - [Common Migration Issues](#common-migration-issues)
+      - [Issue: "Package not found" after migration](#issue-package-not-found-after-migration)
+      - [Issue: "SPARQL query failed"](#issue-sparql-query-failed)
+      - [Issue: Version mismatch in verification](#issue-version-mismatch-in-verification)
+      - [Issue: Missing dependencies](#issue-missing-dependencies)
+    - [Performance Issues](#performance-issues)
+      - [Slow SPARQL Queries](#slow-sparql-queries)
+      - [High Memory Usage](#high-memory-usage)
+  - [FAQ](#faq)
+    - [Q: Can I run v1 and v2 simultaneously?](#q-can-i-run-v1-and-v2-simultaneously)
+    - [Q: Will my existing integrations break?](#q-will-my-existing-integrations-break)
+    - [Q: How do I migrate custom search logic?](#q-how-do-i-migrate-custom-search-logic)
+    - [Q: What happens to package download history?](#q-what-happens-to-package-download-history)
+    - [Q: Can I export v2 data back to v1 format?](#q-can-i-export-v2-data-back-to-v1-format)
+  - [Support](#support)
+    - [Documentation](#documentation)
+    - [Contact](#contact)
+  - [Appendix: Migration Report Format](#appendix-migration-report-format)
+  - [Version Compatibility](#version-compatibility)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-marketplace Migration Guide
 
 ## Overview

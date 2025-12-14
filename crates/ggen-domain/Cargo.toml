@@ -26,6 +26,8 @@ ggen-core.workspace = true
 ggen-ai.workspace = true
 ggen-utils.workspace = true
 ggen-marketplace.workspace = true
+# NOTE: ggen-config NOT included to avoid cyclic dependency
+# Config types are defined locally in src/generation/ modules
 
 # NOTE: ggen-marketplace deferred to v4.0.0 via optional feature
 # Crate-specific dependencies

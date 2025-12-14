@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [DfLSS Design Review Checklist](#dflss-design-review-checklist)
+  - [Instructions](#instructions)
+  - [Feature Information](#feature-information)
+  - [Section 1: Failure Mode Analysis (FMEA)](#section-1-failure-mode-analysis-fmea)
+    - [Checklist](#checklist)
+    - [Failure Mode Table](#failure-mode-table)
+  - [Section 2: Contradiction Resolution (TRIZ)](#section-2-contradiction-resolution-triz)
+    - [Checklist](#checklist-1)
+    - [Contradiction Matrix](#contradiction-matrix)
+  - [Section 3: Compile-Time Guarantees](#section-3-compile-time-guarantees)
+    - [Checklist](#checklist-2)
+    - [Type-Level Enforcement Design](#type-level-enforcement-design)
+  - [Section 4: Integration Contracts](#section-4-integration-contracts)
+    - [Checklist](#checklist-3)
+    - [Contract Definition](#contract-definition)
+  - [Section 5: Error Visibility and Propagation](#section-5-error-visibility-and-propagation)
+    - [Checklist](#checklist-4)
+    - [Error Taxonomy Design](#error-taxonomy-design)
+  - [Section 6: Prevention Verification](#section-6-prevention-verification)
+    - [Checklist](#checklist-5)
+  - [Section 7: Test Coverage Plan](#section-7-test-coverage-plan)
+    - [Checklist](#checklist-6)
+    - [Test Plan](#test-plan)
+  - [Section 8: DfLSS Principles Adherence](#section-8-dflss-principles-adherence)
+    - [Checklist](#checklist-7)
+  - [Weighted Score Calculation](#weighted-score-calculation)
+  - [Approval Decision](#approval-decision)
+    - [Pre-Approval Checklist](#pre-approval-checklist)
+    - [Decision](#decision)
+  - [Signatures](#signatures)
+  - [Lessons Learned](#lessons-learned)
+  - [Attachment Checklist](#attachment-checklist)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # DfLSS Design Review Checklist
 
 **Version**: 1.0.0

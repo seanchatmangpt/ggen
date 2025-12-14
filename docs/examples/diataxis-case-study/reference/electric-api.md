@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Reference: ElectricSQL API Documentation](#reference-electricsql-api-documentation)
+  - [Installation](#installation)
+  - [Core API](#core-api)
+    - [`electrify(config)`](#electrifyconfig)
+    - [`ElectricClient`](#electricclient)
+  - [Database API](#database-api)
+    - [`db.exec(sql, params?)`](#dbexecsql-params)
+    - [`db.liveQuery(sql, params, callback)`](#dblivequerysql-params-callback)
+    - [`db.transaction(callback)`](#dbtransactioncallback)
+  - [Sync API](#sync-api)
+    - [`sync.syncTables(tables)`](#syncsynctablestables)
+    - [`SyncShape`](#syncshape)
+    - [`sync.subscribe(callback)`](#syncsubscribecallback)
+  - [Schema API](#schema-api)
+    - [`db.getSchema()`](#dbgetschema)
+  - [Migration API](#migration-api)
+    - [`db.migrate(migrations)`](#dbmigratemigrations)
+  - [Utility API](#utility-api)
+    - [`generateUUID()`](#generateuuid)
+    - [`isElectricConnected()`](#iselectricconnected)
+  - [Configuration](#configuration)
+    - [ElectricSQL Config](#electricsql-config)
+  - [Type Definitions (JSDoc)](#type-definitions-jsdoc)
+    - [Import Library](#import-library)
+    - [Core Type Definitions](#core-type-definitions)
+  - [Error Handling](#error-handling)
+    - [Error Types](#error-types)
+    - [Error Example](#error-example)
+  - [Best Practices](#best-practices)
+    - [1. Always Use Transactions for Multiple Writes](#1-always-use-transactions-for-multiple-writes)
+    - [2. Cleanup Subscriptions](#2-cleanup-subscriptions)
+    - [3. Handle Offline Gracefully](#3-handle-offline-gracefully)
+  - [Versioning](#versioning)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Reference: ElectricSQL API Documentation
 
 Complete API reference for ElectricSQL local-first sync.

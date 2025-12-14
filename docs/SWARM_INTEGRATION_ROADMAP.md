@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Swarm Intelligence Integration Roadmap](#swarm-intelligence-integration-roadmap)
+  - [Current State vs. Enhancement Opportunities](#current-state-vs-enhancement-opportunities)
+    - [✅ What Exists Today](#-what-exists-today)
+    - [🎯 Enhancement Opportunities](#-enhancement-opportunities)
+      - [**1. Adaptive Agent Pool Management**](#1-adaptive-agent-pool-management)
+      - [**2. Consensus-Based Decision Making**](#2-consensus-based-decision-making)
+      - [**3. Learning from Generated Code Quality**](#3-learning-from-generated-code-quality)
+      - [**4. Semantic Template Discovery**](#4-semantic-template-discovery)
+      - [**5. Autonomous Schema Evolution**](#5-autonomous-schema-evolution)
+      - [**6. Real-Time Coordination via Messaging**](#6-real-time-coordination-via-messaging)
+      - [**7. Performance Prediction & Optimization**](#7-performance-prediction--optimization)
+      - [**8. Multi-Stage Generation Pipeline**](#8-multi-stage-generation-pipeline)
+      - [**9. Marketplace Intelligence**](#9-marketplace-intelligence)
+      - [**10. Self-Healing Workflows**](#10-self-healing-workflows)
+  - [Implementation Priority](#implementation-priority)
+    - [Phase 1: Foundation (High Impact, Low Complexity)](#phase-1-foundation-high-impact-low-complexity)
+    - [Phase 2: Intelligence (Medium Impact, Medium Complexity)](#phase-2-intelligence-medium-impact-medium-complexity)
+    - [Phase 3: Advanced (High Impact, High Complexity)](#phase-3-advanced-high-impact-high-complexity)
+  - [Integration Points with Core](#integration-points-with-core)
+    - [With ggen-core/Pipeline](#with-ggen-corepipeline)
+    - [With ggen-core/Graph](#with-ggen-coregraph)
+    - [With ggen-ai/LLMClient](#with-ggen-aillmclient)
+  - [Key Design Principles for Enhancement](#key-design-principles-for-enhancement)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Swarm Intelligence Integration Roadmap
 
 ## Current State vs. Enhancement Opportunities

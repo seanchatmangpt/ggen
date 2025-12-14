@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Writing Custom SPARQL Queries for Your Ontology](#writing-custom-sparql-queries-for-your-ontology)
+  - [Introduction to SPARQL for ggen](#introduction-to-sparql-for-ggen)
+  - [Basic SPARQL Patterns](#basic-sparql-patterns)
+    - [Pattern 1: Find All Classes](#pattern-1-find-all-classes)
+    - [Pattern 2: Find Properties of a Specific Class](#pattern-2-find-properties-of-a-specific-class)
+    - [Pattern 3: Find All Relationships](#pattern-3-find-all-relationships)
+  - [Common SPARQL Queries](#common-sparql-queries)
+    - [Query 1: Find Required vs Optional Properties](#query-1-find-required-vs-optional-properties)
+    - [Query 2: Find All Enumerations](#query-2-find-all-enumerations)
+    - [Query 3: Find Inheritance Hierarchies](#query-3-find-inheritance-hierarchies)
+    - [Query 4: Find Classes Without Documentation](#query-4-find-classes-without-documentation)
+    - [Query 5: Find All Properties and Their Types](#query-5-find-all-properties-and-their-types)
+  - [Advanced SPARQL Patterns](#advanced-sparql-patterns)
+    - [Pattern: Multiple Conditions (AND)](#pattern-multiple-conditions-and)
+    - [Pattern: Alternatives (OR)](#pattern-alternatives-or)
+    - [Pattern: Counting Aggregates](#pattern-counting-aggregates)
+    - [Pattern: String Operations](#pattern-string-operations)
+    - [Pattern: Ordering and Limits](#pattern-ordering-and-limits)
+  - [Using SPARQL in Ggen](#using-sparql-in-ggen)
+    - [Execute Query](#execute-query)
+    - [Generate Report from Query Results](#generate-report-from-query-results)
+  - [Real-World Examples](#real-world-examples)
+    - [Example 1: Generate API from All Entities](#example-1-generate-api-from-all-entities)
+    - [Example 2: Find Breaking Changes](#example-2-find-breaking-changes)
+    - [Example 3: Generate Documentation Index](#example-3-generate-documentation-index)
+  - [Debugging SPARQL Queries](#debugging-sparql-queries)
+    - [Check Query Syntax](#check-query-syntax)
+    - [Common Errors](#common-errors)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Writing Custom SPARQL Queries for Your Ontology
 
 Learn how to write domain-specific SPARQL queries to extract and analyze your RDF ontologies.

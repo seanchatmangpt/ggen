@@ -1,0 +1,30 @@
+[1m[32m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+[1m[32m     Running[0m unittests src/lib.rs (target/debug/deps/ggen_config-0796abd509b457e6)
+
+running 12 tests
+test validator::tests::test_size_format_validation ... ok
+test validator::tests::test_valid_minimal_config ... ok
+test validator::tests::test_invalid_empty_name ... ok
+test validator::tests::test_invalid_version ... ok
+test parser::tests::test_parse_minimal_config ... ok
+test parser::tests::test_default_values ... ok
+test validator::tests::test_version_validation ... ok
+test validator::tests::test_validate_ai_temperature ... ok
+test parser::tests::test_parse_full_config ... ok
+test validator::tests::test_valid_diataxis_section ... ok
+test validator::tests::test_invalid_diataxis_nav_path ... ok
+test validator::tests::test_validate_log_level ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+[1m[32m   Doc-tests[0m ggen_config
+
+running 5 tests
+test crates/ggen-config/src/parser.rs - parser::ConfigLoader::find_and_load (line 108) - compile ... ok
+test crates/ggen-config/src/lib.rs - (line 19) - compile ... ok
+test crates/ggen-config/src/parser.rs - parser::ConfigLoader::from_file (line 44) - compile ... ok
+test crates/ggen-config/src/validator.rs - validator::ConfigValidator<'a>::validate (line 32) ... ok
+test crates/ggen-config/src/parser.rs - parser::ConfigLoader::from_str (line 70) ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.33s
+

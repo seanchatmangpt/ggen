@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How to Generate JavaScript + Zod from Schema.org](#how-to-generate-javascript--zod-from-schemaorg)
+  - [Prerequisites](#prerequisites)
+  - [Step 1: Download Schema.org Ontology](#step-1-download-schemaorg-ontology)
+  - [Step 2: Load Schema.org into ggen Graph](#step-2-load-schemaorg-into-ggen-graph)
+  - [Step 3: Query for Specific Types](#step-3-query-for-specific-types)
+  - [Step 4: Extract Schema for Target Types](#step-4-extract-schema-for-target-types)
+  - [Step 5: Create JavaScript + Zod Template](#step-5-create-javascript--zod-template)
+  - [Step 6: Generate JavaScript Module](#step-6-generate-javascript-module)
+  - [Step 7: Use Generated Schemas in Your Application](#step-7-use-generated-schemas-in-your-application)
+  - [Step 8: Add JSDoc Type Checking (Optional)](#step-8-add-jsdoc-type-checking-optional)
+  - [Advanced: Generate Multiple Schema.org Types](#advanced-generate-multiple-schemaorg-types)
+  - [Troubleshooting](#troubleshooting)
+  - [Related](#related)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How to Generate JavaScript + Zod from Schema.org
 
 **Problem**: "I want to generate JavaScript modules with Zod validation schemas from Schema.org vocabulary"

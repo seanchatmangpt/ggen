@@ -1,0 +1,163 @@
+@prefix cnv: <https://ggen.dev/clap-noun-verb/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix config: <https://example.com/enterprise-ops/config/> .
+
+# ============================================================================
+# CONFIG NOUN - Owned by Platform Team
+# ============================================================================
+#
+# CODEOWNERS: @company/platform-team
+#
+# System configuration management.
+# Includes feature flags, environment settings, secrets management.
+# ============================================================================
+
+config:noun a cnv:Noun ;
+    cnv:nounName "config" ;
+    rdfs:comment "Manage system configuration" ;
+    cnv:hasVerbs config:get ,
+                 config:set ,
+                 config:list ,
+                 config:delete ,
+                 config:export ,
+                 config:import .
+
+config:get a cnv:Verb ;
+    cnv:verbName "get" ;
+    rdfs:comment "Get configuration value" ;
+    cnv:hasArguments config:get_key ,
+                     config:get_env .
+
+config:set a cnv:Verb ;
+    cnv:verbName "set" ;
+    rdfs:comment "Set configuration value" ;
+    cnv:hasArguments config:set_key ,
+                     config:set_value ,
+                     config:set_env .
+
+config:list a cnv:Verb ;
+    cnv:verbName "list" ;
+    rdfs:comment "List all configuration keys" ;
+    cnv:hasArguments config:list_prefix ,
+                     config:list_env .
+
+config:delete a cnv:Verb ;
+    cnv:verbName "delete" ;
+    rdfs:comment "Delete configuration key" ;
+    cnv:hasArguments config:delete_key ,
+                     config:delete_env .
+
+config:export a cnv:Verb ;
+    cnv:verbName "export" ;
+    rdfs:comment "Export configuration to file" ;
+    cnv:hasArguments config:export_path ,
+                     config:export_format ,
+                     config:export_env .
+
+config:import a cnv:Verb ;
+    cnv:verbName "import" ;
+    rdfs:comment "Import configuration from file" ;
+    cnv:hasArguments config:import_path ,
+                     config:import_env ,
+                     config:import_merge .
+
+# Arguments
+config:get_key a cnv:Argument ;
+    cnv:argumentName "key" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Configuration key" .
+
+config:get_env a cnv:Argument ;
+    cnv:argumentName "env" ;
+    cnv:argumentType cnv:OptionStringType ;
+    cnv:required false ;
+    rdfs:comment "Environment (default: current)" .
+
+config:set_key a cnv:Argument ;
+    cnv:argumentName "key" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Configuration key" .
+
+config:set_value a cnv:Argument ;
+    cnv:argumentName "value" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Configuration value" .
+
+config:set_env a cnv:Argument ;
+    cnv:argumentName "env" ;
+    cnv:argumentType cnv:OptionStringType ;
+    cnv:required false ;
+    rdfs:comment "Environment (default: current)" .
+
+config:list_prefix a cnv:Argument ;
+    cnv:argumentName "prefix" ;
+    cnv:argumentType cnv:OptionStringType ;
+    cnv:required false ;
+    rdfs:comment "Key prefix filter" .
+
+config:list_env a cnv:Argument ;
+    cnv:argumentName "env" ;
+    cnv:argumentType cnv:OptionStringType ;
+    cnv:required false ;
+    rdfs:comment "Environment" .
+
+config:delete_key a cnv:Argument ;
+    cnv:argumentName "key" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Key to delete" .
+
+config:delete_env a cnv:Argument ;
+    cnv:argumentName "env" ;
+    cnv:argumentType cnv:OptionStringType ;
+    cnv:required false ;
+    rdfs:comment "Environment" .
+
+config:export_path a cnv:Argument ;
+    cnv:argumentName "path" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Export file path" .
+
+config:export_format a cnv:Argument ;
+    cnv:argumentName "format" ;
+    cnv:argumentType cnv:OptionStringType ;
+    cnv:required false ;
+    rdfs:comment "Format (json, yaml, toml)" .
+
+config:export_env a cnv:Argument ;
+    cnv:argumentName "env" ;
+    cnv:argumentType cnv:OptionStringType ;
+    cnv:required false ;
+    rdfs:comment "Environment" .
+
+config:import_path a cnv:Argument ;
+    cnv:argumentName "path" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Import file path" .
+
+config:import_env a cnv:Argument ;
+    cnv:argumentName "env" ;
+    cnv:argumentType cnv:OptionStringType ;
+    cnv:required false ;
+    rdfs:comment "Target environment" .
+
+config:import_merge a cnv:Argument ;
+    cnv:argumentName "merge" ;
+    cnv:argumentType cnv:BoolType ;
+    cnv:required false ;
+    rdfs:comment "Merge with existing (default: replace)" .
+
+# Types
+cnv:StringType a cnv:PrimitiveType ;
+    cnv:rust-type "String" .
+
+cnv:BoolType a cnv:PrimitiveType ;
+    cnv:rust-type "bool" .
+
+cnv:OptionStringType a cnv:PrimitiveType ;
+    cnv:rust-type "Option<String>" .

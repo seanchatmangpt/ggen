@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [API Reference](#api-reference)
+  - [TypeScript/JavaScript API](#typescriptjavascript-api)
+    - [Install from npm](#install-from-npm)
+    - [Load Ontology Pack](#load-ontology-pack)
+    - [Generate Code](#generate-code)
+    - [Compose Packs](#compose-packs)
+  - [Rust API](#rust-api)
+    - [Add to Cargo.toml](#add-to-cargotoml)
+    - [Load Pack](#load-pack)
+    - [Generate Code](#generate-code-1)
+  - [Related References](#related-references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # API Reference
 
 Programmatic API for ontology pack operations.

@@ -1,3 +1,55 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Ontology-to-Project Generation Workflow](#ontology-to-project-generation-workflow)
+  - [Executive Summary](#executive-summary)
+  - [Architecture Overview](#architecture-overview)
+  - [Core Components](#core-components)
+    - [1. RDF Parser (`ggen-ai::rdf::parser`)](#1-rdf-parser-ggen-airdfparser)
+    - [2. Template Metadata Store (`ggen-core::rdf::template_metadata`)](#2-template-metadata-store-ggen-corerdftemplate_metadata)
+    - [3. SPARQL Executor (`ggen-domain::packs::sparql_executor`)](#3-sparql-executor-ggen-domainpackssparql_executor)
+    - [4. Template Generator (`ggen-domain::packs::template_generator`)](#4-template-generator-ggen-domainpackstemplate_generator)
+  - [End-to-End Workflow](#end-to-end-workflow)
+    - [Phase 1: Ontology Definition](#phase-1-ontology-definition)
+    - [Phase 2: RDF Loading & Parsing](#phase-2-rdf-loading--parsing)
+    - [Phase 3: SPARQL Query Execution](#phase-3-sparql-query-execution)
+    - [Phase 4: Code Generation](#phase-4-code-generation)
+    - [Phase 5: Validation](#phase-5-validation)
+  - [Testing Strategy](#testing-strategy)
+    - [Unit Tests](#unit-tests)
+    - [Integration Tests](#integration-tests)
+    - [Performance Tests](#performance-tests)
+  - [Type Mapping](#type-mapping)
+    - [RDF/XSD to Rust](#rdfxsd-to-rust)
+  - [Error Handling](#error-handling)
+    - [Error Categories](#error-categories)
+    - [Error Recovery Strategy](#error-recovery-strategy)
+  - [Integration Points](#integration-points)
+    - [1. Claude Code Integration](#1-claude-code-integration)
+    - [2. CI/CD Integration](#2-cicd-integration)
+    - [3. MCP Server Integration](#3-mcp-server-integration)
+  - [Examples](#examples)
+    - [Example 1: Simple CLI Generation](#example-1-simple-cli-generation)
+    - [Example 2: Multi-Package Generation](#example-2-multi-package-generation)
+  - [Best Practices](#best-practices)
+    - [Ontology Design](#ontology-design)
+    - [Code Generation](#code-generation)
+    - [Performance](#performance)
+  - [Future Enhancements](#future-enhancements)
+    - [Planned Features](#planned-features)
+    - [Research Areas](#research-areas)
+  - [Troubleshooting](#troubleshooting)
+    - [Common Issues](#common-issues)
+    - [Debug Mode](#debug-mode)
+  - [Validation Checklist](#validation-checklist)
+  - [References](#references)
+    - [Documentation](#documentation)
+    - [Example Projects](#example-projects)
+    - [Test Suites](#test-suites)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Ontology-to-Project Generation Workflow
 
 **Status**: ✅ Production-Ready | **Version**: 3.3.0 | **Last Updated**: 2025-12-01

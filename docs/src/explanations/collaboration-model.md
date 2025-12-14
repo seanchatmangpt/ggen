@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Collaboration Model: Ontologies as Team Contracts](#collaboration-model-ontologies-as-team-contracts)
+  - [Shared Ontology as Contract](#shared-ontology-as-contract)
+    - [Traditional Model: Code Contracts](#traditional-model-code-contracts)
+    - [Ontology-Driven Model: Semantic Contract](#ontology-driven-model-semantic-contract)
+  - [Workflow: Making Changes to the Domain Model](#workflow-making-changes-to-the-domain-model)
+    - [Step 1: Team Proposes Change](#step-1-team-proposes-change)
+    - [Step 2: Review and Validate](#step-2-review-and-validate)
+    - [Step 3: Regenerate All Implementations](#step-3-regenerate-all-implementations)
+    - [Step 4: Each Team Implements Support](#step-4-each-team-implements-support)
+    - [Step 5: Integration Testing](#step-5-integration-testing)
+    - [Step 6: Deploy](#step-6-deploy)
+  - [Roles and Responsibilities](#roles-and-responsibilities)
+    - [Domain Architect](#domain-architect)
+    - [Front-end Team](#front-end-team)
+    - [Back-end Team](#back-end-team)
+    - [Database Team](#database-team)
+    - [QA/Testing Team](#qatesting-team)
+  - [Communication Flow](#communication-flow)
+    - [Team Standup](#team-standup)
+    - [Conflict Resolution](#conflict-resolution)
+  - [Version Control Strategy](#version-control-strategy)
+    - [Branch Policy](#branch-policy)
+    - [Release Coordination](#release-coordination)
+    - [Backwards Compatibility](#backwards-compatibility)
+  - [Scaling: Multiple Teams](#scaling-multiple-teams)
+    - [Small Team (3 people)](#small-team-3-people)
+    - [Medium Team (10 people)](#medium-team-10-people)
+    - [Large Team (50+ people)](#large-team-50-people)
+  - [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
+    - [❌ Creating Local Copies](#-creating-local-copies)
+    - [❌ Manual Type Definitions](#-manual-type-definitions)
+    - [❌ Skipping Reviews](#-skipping-reviews)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Collaboration Model: Ontologies as Team Contracts
 
 How teams collaborate using shared ontologies.

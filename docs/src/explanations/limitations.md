@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Limitations and Anti-Patterns](#limitations-and-anti-patterns)
+  - [When NOT to Use ggen](#when-not-to-use-ggen)
+    - [Scenario 1: Simple Single-Service App](#scenario-1-simple-single-service-app)
+    - [Scenario 2: Highly Dynamic Schema](#scenario-2-highly-dynamic-schema)
+    - [Scenario 3: Zero Code Generation Tolerance](#scenario-3-zero-code-generation-tolerance)
+    - [Scenario 4: Performance-Sensitive Path](#scenario-4-performance-sensitive-path)
+  - [Technical Limitations](#technical-limitations)
+    - [Limitation 1: RDF Learning Curve](#limitation-1-rdf-learning-curve)
+    - [Limitation 2: Namespace Management](#limitation-2-namespace-management)
+    - [Limitation 3: Large Ontologies Get Unwieldy](#limitation-3-large-ontologies-get-unwieldy)
+    - [Limitation 4: Circular Dependencies](#limitation-4-circular-dependencies)
+    - [Limitation 5: Polyglot Type Mismatches](#limitation-5-polyglot-type-mismatches)
+  - [Practical Limitations](#practical-limitations)
+    - [Limitation 1: Generated Code Bloat](#limitation-1-generated-code-bloat)
+    - [Limitation 2: Version Lock-in](#limitation-2-version-lock-in)
+    - [Limitation 3: Language Feature Coverage](#limitation-3-language-feature-coverage)
+    - [Limitation 4: Build Integration Complexity](#limitation-4-build-integration-complexity)
+  - [When Limitations Are Acceptable](#when-limitations-are-acceptable)
+    - [Use ggen when:](#use-ggen-when)
+    - [Don't use ggen when:](#dont-use-ggen-when)
+  - [Troubleshooting Common Issues](#troubleshooting-common-issues)
+    - [Issue: "Generated code doesn't compile"](#issue-generated-code-doesnt-compile)
+    - [Issue: "Ontology is too large"](#issue-ontology-is-too-large)
+    - [Issue: "Teams have different type expectations"](#issue-teams-have-different-type-expectations)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Limitations and Anti-Patterns
 
 Understanding what ggen does well and what it doesn't.

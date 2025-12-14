@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Andon + Gemba Walk Quick Start Guide](#andon--gemba-walk-quick-start-guide)
+  - [🚀 5-Minute Setup](#-5-minute-setup)
+    - [Run the Demo](#run-the-demo)
+    - [Run Verification](#run-verification)
+  - [📊 Local Development](#-local-development)
+    - [Monitor Tests (Andon)](#monitor-tests-andon)
+    - [Inspect Test Quality (Gemba Walk)](#inspect-test-quality-gemba-walk)
+  - [🔧 Programmatic Usage](#-programmatic-usage)
+    - [Rust Code](#rust-code)
+    - [CI/CD Integration](#cicd-integration)
+  - [📋 Common Scenarios](#-common-scenarios)
+    - [Scenario 1: Before Committing](#scenario-1-before-committing)
+    - [Scenario 2: Test Suite Refactoring](#scenario-2-test-suite-refactoring)
+    - [Scenario 3: Investigating Flaky Tests](#scenario-3-investigating-flaky-tests)
+    - [Scenario 4: CI Failure](#scenario-4-ci-failure)
+  - [🎯 Key Metrics](#-key-metrics)
+    - [Andon Thresholds](#andon-thresholds)
+    - [Gemba Weights](#gemba-weights)
+  - [🔍 Troubleshooting](#-troubleshooting)
+    - ["No tests found"](#no-tests-found)
+    - [Scripts not executable](#scripts-not-executable)
+    - [Valgrind not available](#valgrind-not-available)
+  - [📚 Learn More](#-learn-more)
+  - [✅ Success Checklist](#-success-checklist)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Andon + Gemba Walk Quick Start Guide
 
 ## 🚀 5-Minute Setup

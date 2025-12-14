@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Git Hooks System Implementation Blueprint](#git-hooks-system-implementation-blueprint)
+  - [Overview](#overview)
+  - [Architecture](#architecture)
+  - [1. Unified Library: `scripts/lib/hooks-common.sh`](#1-unified-library-scriptslibhooks-commonsh)
+    - [Purpose](#purpose)
+    - [Function Signatures](#function-signatures)
+  - [2. Pre-Commit Hook: `scripts/hooks/pre-commit.sh`](#2-pre-commit-hook-scriptshookspre-commitsh)
+    - [Purpose](#purpose-1)
+    - [Gate Execution Order](#gate-execution-order)
+    - [Andon Signal Rules](#andon-signal-rules)
+    - [Error Handling Strategy](#error-handling-strategy)
+    - [Script Structure](#script-structure)
+  - [3. Pre-Push Hook: `scripts/hooks/pre-push.sh`](#3-pre-push-hook-scriptshookspre-pushsh)
+    - [Purpose](#purpose-2)
+    - [Gate Execution Order](#gate-execution-order-1)
+    - [Timeout Values](#timeout-values)
+    - [Andon Signal Rules](#andon-signal-rules-1)
+    - [Parallel Execution Strategy](#parallel-execution-strategy)
+    - [Error Handling Strategy](#error-handling-strategy-1)
+    - [Script Structure](#script-structure-1)
+  - [4. Installation Script: `scripts/install-hooks.sh`](#4-installation-script-scriptsinstall-hookssh)
+    - [Purpose](#purpose-3)
+    - [Script Structure](#script-structure-2)
+    - [Installation Flow](#installation-flow)
+    - [Configuration File: `.hooks.conf`](#configuration-file-hooksconf)
+  - [Summary: Gate Execution Matrix](#summary-gate-execution-matrix)
+  - [Implementation Priority](#implementation-priority)
+  - [File Paths (Absolute)](#file-paths-absolute)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Git Hooks System Implementation Blueprint
 
 ## Overview

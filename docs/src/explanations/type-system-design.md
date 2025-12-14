@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Type System Design: Zero-Cost Abstractions and Compile-Time Guarantees](#type-system-design-zero-cost-abstractions-and-compile-time-guarantees)
+  - [Type Safety Through Code Generation](#type-safety-through-code-generation)
+    - [The Problem: Runtime Errors](#the-problem-runtime-errors)
+    - [The Solution: Generated Types](#the-solution-generated-types)
+  - [Type-Level Encoding](#type-level-encoding)
+    - [Principle: Make Invalid States Unrepresentable](#principle-make-invalid-states-unrepresentable)
+    - [Using Phantom Types (Advanced)](#using-phantom-types-advanced)
+  - [Type Mapping Strategies](#type-mapping-strategies)
+    - [Strategy 1: Direct Mapping](#strategy-1-direct-mapping)
+    - [Strategy 2: Safe Wrappers](#strategy-2-safe-wrappers)
+    - [Strategy 3: Phantom Types for Units](#strategy-3-phantom-types-for-units)
+  - [Generics for Code Reuse](#generics-for-code-reuse)
+    - [Without Generics (Code Duplication)](#without-generics-code-duplication)
+    - [With Generics (Zero-Cost Abstraction)](#with-generics-zero-cost-abstraction)
+  - [Trait-Based Design](#trait-based-design)
+    - [Without Traits (Inflexible)](#without-traits-inflexible)
+    - [With Traits (Flexible)](#with-traits-flexible)
+  - [Type Variance and Contravariance](#type-variance-and-contravariance)
+    - [Invariant (Most Common)](#invariant-most-common)
+    - [Covariant (Immutable References)](#covariant-immutable-references)
+  - [Type-Class Patterns](#type-class-patterns)
+    - [Serialization Type Class](#serialization-type-class)
+  - [Compile-Time Guarantees](#compile-time-guarantees)
+    - [Linear Types (Rust)](#linear-types-rust)
+    - [Newtype Pattern](#newtype-pattern)
+  - [Zero-Cost Abstractions](#zero-cost-abstractions)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Type System Design: Zero-Cost Abstractions and Compile-Time Guarantees
 
 Understanding how ggen leverages type systems across languages.

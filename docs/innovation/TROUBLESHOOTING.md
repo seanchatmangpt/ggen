@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Andon Signal Validation Framework - Troubleshooting Guide](#andon-signal-validation-framework---troubleshooting-guide)
+  - [Common Issues and Solutions](#common-issues-and-solutions)
+    - [Issue 1: "ggen binary not found" when running verify-cli](#issue-1-ggen-binary-not-found-when-running-verify-cli)
+    - [Issue 2: Act not installed](#issue-2-act-not-installed)
+    - [Issue 3: Docker not running](#issue-3-docker-not-running)
+    - [Issue 4: Validation report shows failures](#issue-4-validation-report-shows-failures)
+    - [Issue 5: GitHub Actions workflow fails](#issue-5-github-actions-workflow-fails)
+    - [Issue 6: Pre-commit hook fails](#issue-6-pre-commit-hook-fails)
+    - [Issue 7: Validation takes too long](#issue-7-validation-takes-too-long)
+    - [Issue 8: Act workflow fails locally but works on GitHub](#issue-8-act-workflow-fails-locally-but-works-on-github)
+    - [Issue 9: Monitoring script shows false alerts](#issue-9-monitoring-script-shows-false-alerts)
+    - [Issue 10: Validation passes but CLI commands still fail](#issue-10-validation-passes-but-cli-commands-still-fail)
+  - [Debug Mode](#debug-mode)
+    - [Enable Verbose Output](#enable-verbose-output)
+    - [Check Logs](#check-logs)
+  - [Getting Help](#getting-help)
+    - [Check Status](#check-status)
+    - [Review Documentation](#review-documentation)
+    - [Common Commands](#common-commands)
+  - [Still Having Issues?](#still-having-issues)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Andon Signal Validation Framework - Troubleshooting Guide
 
 ## Common Issues and Solutions

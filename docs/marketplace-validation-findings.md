@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace Validation Findings (current workspace)](#marketplace-validation-findings-current-workspace)
+  - [Context](#context)
+  - [What happened](#what-happened)
+  - [Blocking issues (Andon signals)](#blocking-issues-andon-signals)
+  - [Evidence](#evidence)
+  - [Proposed minimal fix for `ggen-test-audit`](#proposed-minimal-fix-for-ggen-test-audit)
+  - [Proposed fix for `ggen-marketplace` warning](#proposed-fix-for-ggen-marketplace-warning)
+  - [Next steps (ordered)](#next-steps-ordered)
+- [Marketplace Validation Findings (Next.js Ontology CRUD)](#marketplace-validation-findings-nextjs-ontology-crud)
+  - [Context](#context-1)
+  - [What we attempted](#what-we-attempted)
+  - [Observed issues](#observed-issues)
+  - [Minimal fixes applied](#minimal-fixes-applied)
+  - [Recommended 80/20 validation](#recommended-8020-validation)
+  - [Next steps to harden](#next-steps-to-harden)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace Validation Findings (current workspace)
 
 ## Context

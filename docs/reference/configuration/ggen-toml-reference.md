@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen.toml Configuration Reference](#ggentoml-configuration-reference)
+  - [Prerequisites](#prerequisites)
+  - [Overview](#overview)
+  - [Quick Example](#quick-example)
+  - [Configuration Sections](#configuration-sections)
+    - [`[project]` - Project Metadata](#project---project-metadata)
+    - [`[ai]` - AI Provider Configuration](#ai---ai-provider-configuration)
+    - [`[templates]` - Template Configuration](#templates---template-configuration)
+    - [`[rdf]` - RDF Configuration](#rdf---rdf-configuration)
+    - [`[sparql]` - SPARQL Configuration](#sparql---sparql-configuration)
+    - [`[lifecycle]` - Lifecycle Hooks](#lifecycle---lifecycle-hooks)
+    - [`[security]` - Security Configuration](#security---security-configuration)
+    - [`[performance]` - Performance Tuning](#performance---performance-tuning)
+    - [`[logging]` - Logging Configuration](#logging---logging-configuration)
+  - [Environment-Specific Configuration](#environment-specific-configuration)
+  - [Complete Example](#complete-example)
+  - [Validation](#validation)
+  - [Best Practices](#best-practices)
+    - [1. Use Environment Variables for Secrets](#1-use-environment-variables-for-secrets)
+    - [2. Use Environment-Specific Configs](#2-use-environment-specific-configs)
+    - [3. Set Reasonable Limits](#3-set-reasonable-limits)
+    - [4. Use Prefixes for Readability](#4-use-prefixes-for-readability)
+  - [Troubleshooting](#troubleshooting)
+    - [Configuration Not Found](#configuration-not-found)
+    - [Invalid TOML Syntax](#invalid-toml-syntax)
+    - [Environment Override Not Working](#environment-override-not-working)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen.toml Configuration Reference
 
 Complete reference for ggen project configuration files.

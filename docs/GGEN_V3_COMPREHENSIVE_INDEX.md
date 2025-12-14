@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v3 Complete Planning Documentation Index](#ggen-v3-complete-planning-documentation-index)
+  - [Quick Navigation](#quick-navigation)
+    - [📋 Starting Points](#-starting-points)
+    - [🏗️ Architecture & Design](#-architecture--design)
+    - [📊 Type System & Projections](#-type-system--projections)
+    - [🎯 Business & Features](#-business--features)
+    - [🔒 Security & Operations](#-security--operations)
+    - [📚 Reference & Strategy](#-reference--strategy)
+  - [Document Statistics](#document-statistics)
+  - [Reading Paths](#reading-paths)
+    - [Path A: For Strategy/Decision Makers](#path-a-for-strategydecision-makers)
+    - [Path B: For Architects & Lead Engineers](#path-b-for-architects--lead-engineers)
+    - [Path C: For Implementation Team](#path-c-for-implementation-team)
+    - [Path D: For Security/Compliance Review](#path-d-for-securitycompliance-review)
+  - [Key Concepts Reference](#key-concepts-reference)
+    - [Terminology](#terminology)
+    - [Major Deliverables](#major-deliverables)
+  - [Critical Sections by Role](#critical-sections-by-role)
+    - [For Product Managers](#for-product-managers)
+    - [For Lead Architects](#for-lead-architects)
+    - [For Implementation Leads](#for-implementation-leads)
+    - [For Security Officers](#for-security-officers)
+    - [For QA/Testing](#for-qatesting)
+  - [Quick Fact Sheet](#quick-fact-sheet)
+  - [Next Steps from Here](#next-steps-from-here)
+    - [Immediate (This Week)](#immediate-this-week)
+    - [Short-term (Next 2 Weeks)](#short-term-next-2-weeks)
+    - [Medium-term (Weeks 2-4)](#medium-term-weeks-2-4)
+    - [Long-term (Weeks 4-12)](#long-term-weeks-4-12)
+  - [File References](#file-references)
+  - [Key Contact & Support](#key-contact--support)
+    - [Questions About Planning?](#questions-about-planning)
+    - [Questions About Execution?](#questions-about-execution)
+  - [Revision History](#revision-history)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v3 Complete Planning Documentation Index
 
 **Status**: COMPREHENSIVE PLANNING COMPLETE ✅

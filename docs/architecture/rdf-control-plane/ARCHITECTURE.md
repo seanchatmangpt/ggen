@@ -1,3 +1,56 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [RDF/Turtle-Only Control Plane Architecture](#rdfturtle-only-control-plane-architecture)
+  - [Table of Contents](#table-of-contents)
+  - [Executive Summary](#executive-summary)
+    - [Key Innovations](#key-innovations)
+    - [Design Goals](#design-goals)
+  - [Architecture Principles](#architecture-principles)
+    - [1. **Semantic-First Design**](#1-semantic-first-design)
+    - [2. **POKA YOKE (Mistake-Proofing)**](#2-poka-yoke-mistake-proofing)
+    - [3. **No Alternative Paths**](#3-no-alternative-paths)
+  - [System Overview](#system-overview)
+    - [Architecture Diagram](#architecture-diagram)
+    - [Data Flow](#data-flow)
+  - [POKA YOKE Mistake-Proofing](#poka-yoke-mistake-proofing)
+    - [Level 1: NewType Wrappers](#level-1-newtype-wrappers)
+    - [Level 2: Phantom Types](#level-2-phantom-types)
+    - [Level 3: Builder Pattern](#level-3-builder-pattern)
+    - [Level 4: SHACL Constraints](#level-4-shacl-constraints)
+    - [Level 5: State Machine FSM](#level-5-state-machine-fsm)
+  - [RDF Control Plane Design](#rdf-control-plane-design)
+    - [Configuration (Turtle)](#configuration-turtle)
+    - [Operations (SPARQL UPDATE)](#operations-sparql-update)
+    - [Queries (SPARQL SELECT)](#queries-sparql-select)
+  - [State Machine Architecture](#state-machine-architecture)
+    - [Package Lifecycle FSM](#package-lifecycle-fsm)
+    - [State Definitions](#state-definitions)
+    - [Transition Guards](#transition-guards)
+  - [FMEA Integration](#fmea-integration)
+    - [Failure Mode Detection](#failure-mode-detection)
+    - [Automated Mitigation](#automated-mitigation)
+    - [Failure Types](#failure-types)
+  - [Implementation Strategy](#implementation-strategy)
+    - [Phase 1: Core RDF Infrastructure (Weeks 1-2)](#phase-1-core-rdf-infrastructure-weeks-1-2)
+    - [Phase 2: POKA YOKE Types (Weeks 3-4)](#phase-2-poka-yoke-types-weeks-3-4)
+    - [Phase 3: SHACL Validation (Week 5)](#phase-3-shacl-validation-week-5)
+    - [Phase 4: SPARQL Operations (Weeks 6-7)](#phase-4-sparql-operations-weeks-6-7)
+    - [Phase 5: FMEA Integration (Week 8)](#phase-5-fmea-integration-week-8)
+    - [Phase 6: CLI Integration (Weeks 9-10)](#phase-6-cli-integration-weeks-9-10)
+    - [Phase 7: Testing & Validation (Weeks 11-12)](#phase-7-testing--validation-weeks-11-12)
+  - [Performance Considerations](#performance-considerations)
+    - [Caching Strategy](#caching-strategy)
+    - [Query Optimization](#query-optimization)
+  - [Security Model](#security-model)
+    - [Cryptographic Verification](#cryptographic-verification)
+    - [Access Control](#access-control)
+    - [Audit Trail](#audit-trail)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # RDF/Turtle-Only Control Plane Architecture
 
 **Version:** 3.0.0

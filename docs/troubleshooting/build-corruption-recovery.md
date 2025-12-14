@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Build Corruption Recovery - Investigation Report](#build-corruption-recovery---investigation-report)
+  - [Symptoms](#symptoms)
+    - [Error Messages](#error-messages)
+    - [Build Behavior](#build-behavior)
+  - [Root Cause Analysis](#root-cause-analysis)
+    - [Investigation Steps](#investigation-steps)
+    - [Root Cause](#root-cause)
+  - [Resolution](#resolution)
+    - [Steps to Fix](#steps-to-fix)
+  - [Prevention Strategies](#prevention-strategies)
+    - [For Users](#for-users)
+    - [For CI/CD](#for-cicd)
+    - [For Development](#for-development)
+  - [Technical Details](#technical-details)
+    - [Why File Locks Cause This](#why-file-locks-cause-this)
+    - [Corruption vs. System Issue](#corruption-vs-system-issue)
+  - [Lessons Learned](#lessons-learned)
+    - [What Worked](#what-worked)
+    - [What Didn't Work](#what-didnt-work)
+    - [Best Practice](#best-practice)
+  - [Resolution Timeline](#resolution-timeline)
+  - [Verification](#verification)
+    - [Post-Fix Health Check](#post-fix-health-check)
+    - [Test Fix Applied](#test-fix-applied)
+  - [Related Issues](#related-issues)
+    - [Similar Symptoms May Indicate:](#similar-symptoms-may-indicate)
+    - [This Specific Issue:](#this-specific-issue)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Build Corruption Recovery - Investigation Report
 
 **Date**: 2025-12-11

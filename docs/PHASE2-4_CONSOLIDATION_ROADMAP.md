@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [80/20 Test Consolidation: Phase 2-4 Roadmap](#8020-test-consolidation-phase-2-4-roadmap)
+  - [Overview](#overview)
+  - [Phase 2: Marketplace Tests Consolidation](#phase-2-marketplace-tests-consolidation)
+    - [Phase 2a: Unit Tests Module (5 files)](#phase-2a-unit-tests-module-5-files)
+    - [Phase 2b: Performance Tests (2 files → 1)](#phase-2b-performance-tests-2-files-%E2%86%92-1)
+    - [Phase 2c: Security Tests (2 files → 1)](#phase-2c-security-tests-2-files-%E2%86%92-1)
+    - [Phase 2d: Integration Tests (5 files) - EVALUATE](#phase-2d-integration-tests-5-files---evaluate)
+    - [Phase 2e: Keep As-Is (E2E Tests)](#phase-2e-keep-as-is-e2e-tests)
+  - [Phase 3: Template & Graph Tests Consolidation](#phase-3-template--graph-tests-consolidation)
+    - [Template Tests Structure](#template-tests-structure)
+    - [Graph Tests Structure](#graph-tests-structure)
+  - [Phase 4: CLI & Pack Tests Consolidation](#phase-4-cli--pack-tests-consolidation)
+    - [CLI Command Tests](#cli-command-tests)
+    - [Pack Tests](#pack-tests)
+  - [Execution Strategy](#execution-strategy)
+    - [Sequential Approach (Lower Risk)](#sequential-approach-lower-risk)
+    - [Parallel Approach (Faster)](#parallel-approach-faster)
+    - [Per-Phase Checklist](#per-phase-checklist)
+  - [Expected Consolidation Results](#expected-consolidation-results)
+    - [Test Coverage Impact](#test-coverage-impact)
+  - [Success Criteria](#success-criteria)
+  - [Notes](#notes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 80/20 Test Consolidation: Phase 2-4 Roadmap
 
 ## Overview

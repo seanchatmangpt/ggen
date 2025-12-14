@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Packs Data Model - Rust Trait Definitions](#packs-data-model---rust-trait-definitions)
+  - [Core Types Hierarchy](#core-types-hierarchy)
+  - [1. Pack - Root Entity](#1-pack---root-entity)
+  - [2. PackMetadata - Quality Metrics](#2-packmetadata---quality-metrics)
+  - [3. PackageRef - Marketplace Package Reference](#3-packageref---marketplace-package-reference)
+  - [4. PackTemplate - Code Generation Template](#4-packtemplate---code-generation-template)
+  - [5. PackDependency - Inter-Pack Dependencies](#5-packdependency---inter-pack-dependencies)
+  - [6. Supporting Types](#6-supporting-types)
+  - [7. Composition Types](#7-composition-types)
+  - [Error Types](#error-types)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Packs Data Model - Rust Trait Definitions
 
 **Version:** 3.2.0

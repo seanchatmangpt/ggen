@@ -1,3 +1,50 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Feature 004: Mutation Testing Research - cargo-mutants](#feature-004-mutation-testing-research---cargo-mutants)
+  - [Executive Summary](#executive-summary)
+  - [1. cargo-mutants Integration](#1-cargo-mutants-integration)
+    - [1.1 Installation](#11-installation)
+    - [1.2 Workspace Configuration](#12-workspace-configuration)
+    - [1.3 Configuration File (.cargo/mutants.toml)](#13-configuration-file-cargomutantstoml)
+  - [2. Mutation Operators and Strategies](#2-mutation-operators-and-strategies)
+    - [2.1 Mutation Operators](#21-mutation-operators)
+    - [2.2 Critical Paths for ggen Codebase](#22-critical-paths-for-ggen-codebase)
+    - [2.3 Mutation Strategy](#23-mutation-strategy)
+  - [3. Kill Rate Targets and Benchmarks](#3-kill-rate-targets-and-benchmarks)
+    - [3.1 Industry Standards](#31-industry-standards)
+    - [3.2 ggen Current State](#32-ggen-current-state)
+    - [3.3 Kill Rate Targets for ggen](#33-kill-rate-targets-for-ggen)
+  - [4. Best Practices for Mutation Testing](#4-best-practices-for-mutation-testing)
+    - [4.1 CI/CD Integration](#41-cicd-integration)
+    - [4.2 Parallelization Strategy](#42-parallelization-strategy)
+    - [4.3 Timeout Management](#43-timeout-management)
+    - [4.4 Exclusion Patterns](#44-exclusion-patterns)
+    - [4.5 Incremental Mutation Testing](#45-incremental-mutation-testing)
+  - [5. Alternatives Considered](#5-alternatives-considered)
+    - [5.1 Comparison Matrix](#51-comparison-matrix)
+    - [5.2 Decision Rationale](#52-decision-rationale)
+  - [6. Integration Plan for ggen](#6-integration-plan-for-ggen)
+    - [6.1 cargo make Integration](#61-cargo-make-integration)
+    - [6.2 Pre-Commit Hook Integration](#62-pre-commit-hook-integration)
+    - [6.3 SLO Integration](#63-slo-integration)
+    - [6.4 Rollout Timeline](#64-rollout-timeline)
+  - [7. Evidence and Metrics](#7-evidence-and-metrics)
+    - [7.1 Expected Metrics (Feature 004)](#71-expected-metrics-feature-004)
+    - [7.2 Success Criteria](#72-success-criteria)
+    - [7.3 Known Limitations](#73-known-limitations)
+  - [8. References](#8-references)
+    - [Primary Sources](#primary-sources)
+    - [Comparison and Best Practices](#comparison-and-best-practices)
+    - [Alternatives](#alternatives)
+  - [9. Next Actions](#9-next-actions)
+    - [Immediate (Week 1)](#immediate-week-1)
+    - [Short-term (Weeks 2-3)](#short-term-weeks-2-3)
+    - [Long-term (Week 4+)](#long-term-week-4)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Feature 004: Mutation Testing Research - cargo-mutants
 
 **Research Date**: 2025-12-11

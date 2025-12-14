@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How-to Guides - Task-Oriented Solutions](#how-to-guides---task-oriented-solutions)
+  - [Setup & Configuration](#setup--configuration)
+  - [Ontology & Code Generation](#ontology--code-generation)
+  - [Development & Troubleshooting](#development--troubleshooting)
+  - [CI/CD & Deployment](#cicd--deployment)
+  - [Marketplace](#marketplace)
+  - [How to Use These Guides](#how-to-use-these-guides)
+  - [Problem Not Listed?](#problem-not-listed)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How-to Guides - Task-Oriented Solutions
 
 Practical guides for solving specific problems and completing common tasks. How-to guides are **problem-oriented, task-based** solutions that help you accomplish your goals.

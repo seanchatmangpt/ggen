@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Automation & CI/CD](#automation--cicd)
+  - [Quick Validation Commands](#quick-validation-commands)
+  - [Documentation Validation Pipeline](#documentation-validation-pipeline)
+    - [validate-all.sh Master Script](#validate-allsh-master-script)
+    - [Individual Validation Scripts](#individual-validation-scripts)
+      - [TypeScript Detection (check-no-typescript.sh)](#typescript-detection-check-no-typescriptsh)
+      - [Broken Link Checker (check-broken-links.sh)](#broken-link-checker-check-broken-linkssh)
+      - [Tutorial Validation (validate-tutorial-*.sh)](#tutorial-validation-validate-tutorial-sh)
+  - [Pre-Commit Validation (Git Hooks)](#pre-commit-validation-git-hooks)
+    - [What Runs on Every Commit](#what-runs-on-every-commit)
+    - [What Runs on Every Push](#what-runs-on-every-push)
+  - [CI/CD Pipeline (GitHub Actions)](#cicd-pipeline-github-actions)
+    - [Pull Request Validation](#pull-request-validation)
+    - [Documentation Deployment](#documentation-deployment)
+    - [Release Automation](#release-automation)
+  - [Lifecycle Hooks (ggen.toml)](#lifecycle-hooks-ggentoml)
+    - [Pre-Generation Validation](#pre-generation-validation)
+    - [Post-Generation Formatting](#post-generation-formatting)
+  - [Performance Monitoring](#performance-monitoring)
+    - [SLO Verification (Service Level Objectives)](#slo-verification-service-level-objectives)
+    - [Continuous Benchmarking](#continuous-benchmarking)
+  - [Environment-Specific Automation](#environment-specific-automation)
+    - [Development Environment](#development-environment)
+    - [CI Environment](#ci-environment)
+    - [Production Environment](#production-environment)
+  - [Infrastructure Scripts](#infrastructure-scripts)
+    - [Development Setup](#development-setup)
+    - [Clean Script](#clean-script)
+    - [Validation Suite Runner](#validation-suite-runner)
+  - [Key Takeaways](#key-takeaways)
+  - [Detailed Automation Documentation](#detailed-automation-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Automation & CI/CD
 
 **Quick Reference**: Validation and automation workflows

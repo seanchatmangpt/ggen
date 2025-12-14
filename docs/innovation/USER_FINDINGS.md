@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Andon Signal Validation Framework - User Findings](#andon-signal-validation-framework---user-findings)
+  - [Executive Summary](#executive-summary)
+    - [Key Findings](#key-findings)
+  - [Detailed Findings](#detailed-findings)
+    - [1. CLI Verification Requires Pre-Built Binary](#1-cli-verification-requires-pre-built-binary)
+    - [2. GitHub Actions Workflow Missing Action](#2-github-actions-workflow-missing-action)
+    - [3. Validation Report Generation Works](#3-validation-report-generation-works)
+    - [4. Act Integration Works But Needs Documentation](#4-act-integration-works-but-needs-documentation)
+    - [5. Monitoring Script Provides Good Feedback](#5-monitoring-script-provides-good-feedback)
+    - [6. Pre-Commit Integration Works](#6-pre-commit-integration-works)
+  - [Usability Improvements](#usability-improvements)
+    - [High Priority](#high-priority)
+    - [Medium Priority](#medium-priority)
+    - [Low Priority](#low-priority)
+  - [Documentation Gaps](#documentation-gaps)
+    - [Missing Documentation](#missing-documentation)
+    - [Documentation Improvements Needed](#documentation-improvements-needed)
+  - [Testing Results](#testing-results)
+    - [Successful Tests](#successful-tests)
+    - [Failed Tests](#failed-tests)
+  - [Recommendations](#recommendations)
+    - [Immediate Actions](#immediate-actions)
+    - [Short-Term Improvements](#short-term-improvements)
+    - [Long-Term Enhancements](#long-term-enhancements)
+  - [User Experience Score](#user-experience-score)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Andon Signal Validation Framework - User Findings
 
 **Date**: 2025-12-12  

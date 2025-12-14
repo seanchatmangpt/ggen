@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [80/20 Innovation: Andon Signal Validation Framework](#8020-innovation-andon-signal-validation-framework)
+  - [Implementation Summary](#implementation-summary)
+    - [✅ Phase 1: Foundation (Complete)](#-phase-1-foundation-complete)
+    - [🎯 Innovation Value](#-innovation-value)
+    - [📊 Expected Impact](#-expected-impact)
+    - [🚀 Next Steps](#-next-steps)
+    - [💡 Key Innovation](#-key-innovation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 80/20 Innovation: Andon Signal Validation Framework
 
 ## Implementation Summary

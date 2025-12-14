@@ -238,7 +238,9 @@ fn has_rdf_frontmatter(template_content: &str) -> bool {
         template_content
     };
 
-    check_region.contains("rdf:") || check_region.contains("rdf_inline:") || check_region.contains("sparql:")
+    check_region.contains("rdf:")
+        || check_region.contains("rdf_inline:")
+        || check_region.contains("sparql:")
 }
 
 /// Generate from template (basic version without Vec support)
@@ -283,8 +285,8 @@ fn generate(
     // Route to appropriate rendering path based on frontmatter
     if has_rdf_frontmatter(&template_content) {
         // Use RDF-aware rendering path
-        let options = template::RenderWithRdfOptions::new(template_path, output_path)
-            .with_vars(variables);
+        let options =
+            template::RenderWithRdfOptions::new(template_path, output_path).with_vars(variables);
         let options = if force { options.force() } else { options };
 
         let result = template::render_with_rdf(&options).map_err(|e| {

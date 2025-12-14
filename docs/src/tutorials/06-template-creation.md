@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Creating Custom Code Generation Templates](#creating-custom-code-generation-templates)
+  - [Goal](#goal)
+  - [Prerequisites](#prerequisites)
+  - [Understanding Templates](#understanding-templates)
+  - [Step 1: Create a Template Project](#step-1-create-a-template-project)
+  - [Step 2: Define Template Metadata](#step-2-define-template-metadata)
+  - [Step 3: Create Your Template](#step-3-create-your-template)
+  - [Step 5: Register Template](#step-5-register-template)
+  - [Step 6: Test Your Template](#step-6-test-your-template)
+  - [Step 8: Publish Your Template](#step-8-publish-your-template)
+  - [Template Best Practices](#template-best-practices)
+  - [Common Template Patterns](#common-template-patterns)
+  - [Next Steps](#next-steps)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Creating Custom Code Generation Templates
 
 Learn how to build custom Liquid/Jinja2 templates that generate code tailored to your specific needs.

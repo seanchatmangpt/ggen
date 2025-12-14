@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Getting Started with ggen](#getting-started-with-ggen)
+  - [🚀 New to ggen?](#-new-to-ggen)
+  - [📚 Next Steps](#-next-steps)
+    - [Learn Core Workflows](#learn-core-workflows)
+    - [Solve Specific Problems](#solve-specific-problems)
+    - [Understand Concepts](#understand-concepts)
+    - [Look Up Commands](#look-up-commands)
+  - [💡 Common Use Cases](#-common-use-cases)
+  - [🆘 Need Help?](#-need-help)
+  - [Installation](#installation)
+    - [Homebrew (macOS/Linux)](#homebrew-macoslinux)
+    - [Cargo (Any Platform)](#cargo-any-platform)
+    - [From Source](#from-source)
+    - [Verify Installation](#verify-installation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Getting Started with ggen
 
 Welcome to **ggen** - the RDF-based code generation toolkit that transforms knowledge graphs into production-ready code.

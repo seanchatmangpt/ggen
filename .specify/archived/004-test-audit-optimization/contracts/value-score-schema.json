@@ -1,0 +1,405 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/ruvnet/ggen/schemas/value-score.json",
+  "title": "Value Score Schema",
+  "description": "Structured output for 'ggen test optimize' command. Contains optimized test execution plan with value-based selection and parallelization.",
+  "type": "object",
+  "required": ["plan", "excluded_tests", "statistics", "metadata"],
+  "properties": {
+    "plan": {
+      "type": "object",
+      "description": "Optimized test execution plan",
+      "required": [
+        "total_tests",
+        "estimated_time_ms",
+        "threads",
+        "strategy",
+        "batches"
+      ],
+      "properties": {
+        "total_tests": {
+          "type": "integer",
+          "description": "Total number of tests included in plan",
+          "minimum": 0
+        },
+        "estimated_time_ms": {
+          "type": "integer",
+          "description": "Estimated total execution time (milliseconds)",
+          "minimum": 0
+        },
+        "threads": {
+          "type": "integer",
+          "description": "Number of parallel threads used",
+          "minimum": 1
+        },
+        "strategy": {
+          "type": "string",
+          "enum": ["greedy-knapsack", "all", "fast-only", "high-value-only"],
+          "description": "Test selection strategy"
+        },
+        "budget_constraints": {
+          "type": "object",
+          "description": "Budget constraints applied",
+          "properties": {
+            "time_budget_ms": {
+              "type": "integer",
+              "description": "Maximum time budget (milliseconds)",
+              "minimum": 0
+            },
+            "value_threshold": {
+              "type": "number",
+              "description": "Minimum value score for inclusion (0.0-1.0)",
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "budget_met": {
+              "type": "boolean",
+              "description": "True if plan satisfies budget constraints"
+            },
+            "budget_utilization": {
+              "type": "number",
+              "description": "Percentage of budget utilized (0.0-1.0)",
+              "minimum": 0.0,
+              "maximum": 1.0
+            }
+          }
+        },
+        "batches": {
+          "type": "array",
+          "description": "Parallel test execution batches",
+          "items": {
+            "type": "object",
+            "required": [
+              "batch_id",
+              "thread_id",
+              "tests",
+              "estimated_time_ms"
+            ],
+            "properties": {
+              "batch_id": {
+                "type": "integer",
+                "description": "Sequential batch identifier",
+                "minimum": 0
+              },
+              "thread_id": {
+                "type": "integer",
+                "description": "Thread this batch runs on",
+                "minimum": 0
+              },
+              "tests": {
+                "type": "array",
+                "description": "Test identifiers in this batch",
+                "items": {
+                  "type": "string",
+                  "description": "Test identifier (e.g., 'tests/aci/tool_selection_tests.rs::test_best_match')"
+                }
+              },
+              "estimated_time_ms": {
+                "type": "integer",
+                "description": "Estimated batch execution time (milliseconds)",
+                "minimum": 0
+              },
+              "value_score_avg": {
+                "type": "number",
+                "description": "Average value score of tests in batch (0.0-1.0)",
+                "minimum": 0.0,
+                "maximum": 1.0
+              }
+            }
+          }
+        },
+        "optimization_metrics": {
+          "type": "object",
+          "description": "Optimization quality metrics",
+          "properties": {
+            "speedup": {
+              "type": "number",
+              "description": "Speedup vs. sequential execution (e.g., 4.2 = 4.2x faster)",
+              "minimum": 1.0
+            },
+            "load_balance": {
+              "type": "number",
+              "description": "Load balance score (0.0-1.0, 1.0 = perfect balance)",
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "value_coverage": {
+              "type": "number",
+              "description": "Percentage of total value captured (0.0-1.0)",
+              "minimum": 0.0,
+              "maximum": 1.0
+            }
+          }
+        }
+      }
+    },
+    "excluded_tests": {
+      "type": "array",
+      "description": "Tests excluded from plan (due to budget/value constraints)",
+      "items": {
+        "type": "object",
+        "required": ["path", "reason", "value_score"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Test file or function path"
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "value_score_below_threshold",
+              "exceeds_time_budget",
+              "low_mutation_kill_rate",
+              "duplicate_coverage"
+            ],
+            "description": "Reason for exclusion"
+          },
+          "value_score": {
+            "type": "number",
+            "description": "Test value score (0.0-1.0)",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "execution_time_ms": {
+            "type": "integer",
+            "description": "Test execution time (milliseconds)",
+            "minimum": 0
+          },
+          "mutation_kill_rate": {
+            "type": "number",
+            "description": "Mutation kill rate (0.0-1.0)",
+            "minimum": 0.0,
+            "maximum": 1.0
+          }
+        }
+      }
+    },
+    "statistics": {
+      "type": "object",
+      "description": "Test suite statistics",
+      "required": [
+        "total_available_tests",
+        "tests_included",
+        "tests_excluded",
+        "total_value",
+        "captured_value"
+      ],
+      "properties": {
+        "total_available_tests": {
+          "type": "integer",
+          "description": "Total tests available before optimization",
+          "minimum": 0
+        },
+        "tests_included": {
+          "type": "integer",
+          "description": "Number of tests included in plan",
+          "minimum": 0
+        },
+        "tests_excluded": {
+          "type": "integer",
+          "description": "Number of tests excluded from plan",
+          "minimum": 0
+        },
+        "total_value": {
+          "type": "number",
+          "description": "Sum of all test value scores",
+          "minimum": 0.0
+        },
+        "captured_value": {
+          "type": "number",
+          "description": "Sum of included test value scores",
+          "minimum": 0.0
+        },
+        "value_efficiency": {
+          "type": "number",
+          "description": "Value captured per second of execution time",
+          "minimum": 0.0
+        }
+      }
+    },
+    "value_distribution": {
+      "type": "object",
+      "description": "Distribution of value scores across included tests",
+      "properties": {
+        "min": {
+          "type": "number",
+          "description": "Minimum value score in plan",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "max": {
+          "type": "number",
+          "description": "Maximum value score in plan",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "mean": {
+          "type": "number",
+          "description": "Mean value score",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "median": {
+          "type": "number",
+          "description": "Median value score",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "percentiles": {
+          "type": "object",
+          "properties": {
+            "p25": {"type": "number"},
+            "p50": {"type": "number"},
+            "p75": {"type": "number"},
+            "p90": {"type": "number"},
+            "p95": {"type": "number"}
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Command execution metadata",
+      "required": [
+        "command",
+        "version",
+        "timestamp",
+        "arguments"
+      ],
+      "properties": {
+        "command": {
+          "type": "string",
+          "description": "Full command executed",
+          "const": "ggen test optimize"
+        },
+        "version": {
+          "type": "string",
+          "description": "ggen version (semver)",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "ISO 8601 timestamp of execution",
+          "format": "date-time"
+        },
+        "arguments": {
+          "type": "object",
+          "description": "Command-line arguments used",
+          "properties": {
+            "paths": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "threads": {"type": "integer"},
+            "time_budget_ms": {"type": "integer"},
+            "value_threshold": {"type": "number"},
+            "strategy": {"type": "string"},
+            "dry_run": {"type": "boolean"},
+            "execute": {"type": "boolean"}
+          }
+        },
+        "execution_environment": {
+          "type": "object",
+          "properties": {
+            "rust_version": {"type": "string"},
+            "cargo_version": {"type": "string"},
+            "os": {"type": "string"},
+            "cpu_count": {"type": "integer"}
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "plan": {
+        "total_tests": 180,
+        "estimated_time_ms": 28500,
+        "threads": 8,
+        "strategy": "greedy-knapsack",
+        "budget_constraints": {
+          "time_budget_ms": 30000,
+          "value_threshold": 0.70,
+          "budget_met": true,
+          "budget_utilization": 0.95
+        },
+        "batches": [
+          {
+            "batch_id": 0,
+            "thread_id": 0,
+            "tests": [
+              "tests/aci/tool_selection_tests.rs::test_best_match",
+              "tests/aci/tool_selection_tests.rs::test_fallback"
+            ],
+            "estimated_time_ms": 3500,
+            "value_score_avg": 0.92
+          },
+          {
+            "batch_id": 1,
+            "thread_id": 1,
+            "tests": [
+              "tests/aci/skill_invocation_tests.rs::test_invoke_success"
+            ],
+            "estimated_time_ms": 3200,
+            "value_score_avg": 0.88
+          }
+        ],
+        "optimization_metrics": {
+          "speedup": 4.2,
+          "load_balance": 0.87,
+          "value_coverage": 0.95
+        }
+      },
+      "excluded_tests": [
+        {
+          "path": "tests/slow_integration.rs::test_full_pipeline",
+          "reason": "value_score_below_threshold",
+          "value_score": 0.65,
+          "execution_time_ms": 8500,
+          "mutation_kill_rate": 0.72
+        }
+      ],
+      "statistics": {
+        "total_available_tests": 245,
+        "tests_included": 180,
+        "tests_excluded": 65,
+        "total_value": 200.5,
+        "captured_value": 190.2,
+        "value_efficiency": 6.67
+      },
+      "value_distribution": {
+        "min": 0.70,
+        "max": 0.98,
+        "mean": 0.85,
+        "median": 0.87,
+        "percentiles": {
+          "p25": 0.78,
+          "p50": 0.87,
+          "p75": 0.92,
+          "p90": 0.95,
+          "p95": 0.97
+        }
+      },
+      "metadata": {
+        "command": "ggen test optimize",
+        "version": "0.4.0",
+        "timestamp": "2025-12-11T11:00:00Z",
+        "arguments": {
+          "paths": ["tests/"],
+          "threads": 8,
+          "time_budget_ms": 30000,
+          "value_threshold": 0.70,
+          "strategy": "greedy-knapsack",
+          "dry_run": false,
+          "execute": false
+        },
+        "execution_environment": {
+          "rust_version": "1.74.0",
+          "cargo_version": "1.74.0",
+          "os": "linux",
+          "cpu_count": 8
+        }
+      }
+    }
+  ]
+}

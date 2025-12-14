@@ -4,6 +4,11 @@
 
 - [ggen Documentation](#ggen-documentation)
   - [Quick Start](#quick-start)
+  - [🗺️ Choose Your Learning Path](#-choose-your-learning-path)
+    - [Question 1: Are you familiar with RDF/Semantic Web?](#question-1-are-you-familiar-with-rdfsemantic-web)
+    - [Question 2: Do you want to use AI to generate ontologies?](#question-2-do-you-want-to-use-ai-to-generate-ontologies)
+    - [Question 3: What's your primary use case?](#question-3-whats-your-primary-use-case)
+    - [Recommended Learning Paths](#recommended-learning-paths)
   - [Documentation Structure](#documentation-structure)
     - [📚 Tutorials (Learning-Oriented)](#-tutorials-learning-oriented)
     - [🔧 How-to Guides (Problem-Oriented)](#-how-to-guides-problem-oriented)

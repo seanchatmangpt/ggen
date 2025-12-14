@@ -1,3 +1,52 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Documentation Production Readiness Validation Report](#documentation-production-readiness-validation-report)
+  - [Executive Summary](#executive-summary)
+    - [Overall Status: ✅ **PRODUCTION READY** (with minor recommendations)](#overall-status--production-ready-with-minor-recommendations)
+  - [1. Code Examples Validation](#1-code-examples-validation)
+    - [1.1 JavaScript Code Examples ✅](#11-javascript-code-examples-)
+    - [1.2 Zod Schema Validation ✅](#12-zod-schema-validation-)
+    - [1.3 TypeScript Detection ⚠️](#13-typescript-detection-)
+  - [2. Configuration Files Validation](#2-configuration-files-validation)
+    - [2.1 ggen.toml Files ✅](#21-ggentoml-files-)
+    - [2.2 Environment Variable Overrides ✅](#22-environment-variable-overrides-)
+  - [3. Validation Scripts](#3-validation-scripts)
+    - [3.1 Script Permissions ✅](#31-script-permissions-)
+    - [3.2 Error Handling ✅](#32-error-handling-)
+    - [3.3 Exit Codes ✅](#33-exit-codes-)
+  - [4. Lifecycle Hooks Configuration](#4-lifecycle-hooks-configuration)
+    - [4.1 Hook Documentation ✅](#41-hook-documentation-)
+    - [4.2 Makefile.toml Integration ✅](#42-makefiletoml-integration-)
+  - [5. Documentation Structure](#5-documentation-structure)
+    - [5.1 File Organization ✅](#51-file-organization-)
+    - [5.2 Orphaned Files ✅](#52-orphaned-files-)
+    - [5.3 Documentation Coverage ✅](#53-documentation-coverage-)
+  - [6. Production Readiness Issues](#6-production-readiness-issues)
+    - [6.1 Critical Issues ✅](#61-critical-issues-)
+    - [6.2 High Priority Recommendations ⚠️](#62-high-priority-recommendations-)
+    - [6.3 Medium Priority Enhancements 💡](#63-medium-priority-enhancements-)
+  - [7. Test Execution Summary](#7-test-execution-summary)
+    - [7.1 Tests Run](#71-tests-run)
+    - [7.2 Results Summary](#72-results-summary)
+  - [8. Compliance Checklist](#8-compliance-checklist)
+    - [8.1 Code Quality ✅](#81-code-quality-)
+    - [8.2 Configuration Quality ✅](#82-configuration-quality-)
+    - [8.3 Script Quality ✅](#83-script-quality-)
+    - [8.4 Documentation Quality ✅](#84-documentation-quality-)
+  - [9. Recommendations](#9-recommendations)
+    - [9.1 Immediate Actions](#91-immediate-actions)
+    - [9.2 Future Enhancements](#92-future-enhancements)
+  - [10. Conclusion](#10-conclusion)
+    - [Final Verdict: ✅ **PRODUCTION READY**](#final-verdict--production-ready)
+    - [Quality Score: 98/100](#quality-score-98100)
+    - [Sign-off](#sign-off)
+  - [Appendix A: Validation Commands](#appendix-a-validation-commands)
+  - [Appendix B: Sample Validated Files](#appendix-b-sample-validated-files)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Documentation Production Readiness Validation Report
 
 **Date**: 2025-12-10

@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Poka-Yoke Guide - ggen CLI](#poka-yoke-guide---ggen-cli)
+  - [Executive Summary](#executive-summary)
+  - [What is Poka-Yoke?](#what-is-poka-yoke)
+    - [Origin](#origin)
+    - [Three Levels of Error-Proofing](#three-levels-of-error-proofing)
+    - [Application to Software](#application-to-software)
+  - [The 7 Poka-Yoke Mechanisms](#the-7-poka-yoke-mechanisms)
+    - [1. AtomicFileWriter - Eliminate File Corruption](#1-atomicfilewriter---eliminate-file-corruption)
+    - [2. ValidatedPath - Eliminate Path Traversal](#2-validatedpath---eliminate-path-traversal)
+    - [3. TimeoutIO - Eliminate Network Hangs](#3-timeoutio---eliminate-network-hangs)
+    - [4. SanitizedInput - Eliminate Injection Attacks](#4-sanitizedinput---eliminate-injection-attacks)
+    - [5. LockfileGuard - Eliminate Race Conditions](#5-lockfileguard---eliminate-race-conditions)
+    - [6. NetworkRetry - Eliminate Transient Failures](#6-networkretry---eliminate-transient-failures)
+    - [7. DryRunMode - Eliminate User Errors](#7-dryrunmode---eliminate-user-errors)
+  - [Migration Guide](#migration-guide)
+    - [Migrating from std::fs::write to AtomicFileWriter](#migrating-from-stdfswrite-to-atomicfilewriter)
+    - [Migrating from Path to ValidatedPath](#migrating-from-path-to-validatedpath)
+    - [Migrating from reqwest::Client to TimeoutIO](#migrating-from-reqwestclient-to-timeoutio)
+  - [Testing Poka-Yoke Mechanisms](#testing-poka-yoke-mechanisms)
+    - [Unit Tests (Chicago TDD)](#unit-tests-chicago-tdd)
+    - [Integration Tests](#integration-tests)
+  - [Best Practices](#best-practices)
+    - [1. Composition Over Configuration](#1-composition-over-configuration)
+    - [2. Fail Fast, Fail Loudly](#2-fail-fast-fail-loudly)
+    - [3. Type-Level Constraints](#3-type-level-constraints)
+    - [4. RAII for Resources](#4-raii-for-resources)
+    - [5. Zero-Cost Abstractions](#5-zero-cost-abstractions)
+  - [Troubleshooting](#troubleshooting)
+    - [Q: "ValidatedPath canonicalize() fails"](#q-validatedpath-canonicalize-fails)
+    - [Q: "AtomicFileWriter consumes self on commit()"](#q-atomicfilewriter-consumes-self-on-commit)
+    - [Q: "NetworkRetry still failing after retries"](#q-networkretry-still-failing-after-retries)
+  - [Performance Impact](#performance-impact)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Poka-Yoke Guide - ggen CLI
 
 ## Executive Summary

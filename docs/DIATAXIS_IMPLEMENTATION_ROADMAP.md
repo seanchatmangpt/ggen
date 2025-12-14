@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Diataxis Implementation Roadmap](#diataxis-implementation-roadmap)
+  - [Phase 1: Critical Path Unblocking (Weeks 1-2)](#phase-1-critical-path-unblocking-weeks-1-2)
+    - [1.1 Create `how-to-guides/configure-llm.md`](#11-create-how-to-guidesconfigure-llmmd)
+    - [1.2 Create `tutorials/marketplace-quick-start.md`](#12-create-tutorialsmarketplace-quick-startmd)
+    - [1.3 Create `explanations/rdf-for-beginners.md`](#13-create-explanationsrdf-for-beginnersmd)
+    - [1.4 Reorganize Root-Level Documentation](#14-reorganize-root-level-documentation)
+    - [1.5 Update `docs/README.md` with Decision Tree](#15-update-docsreadmemd-with-decision-tree)
+  - [Phase 2: High-Priority Enhancements (Weeks 2-4)](#phase-2-high-priority-enhancements-weeks-2-4)
+    - [2.1 Create `tutorials/path-selector.md`](#21-create-tutorialspath-selectormd)
+    - [2.2 Update All Tutorials with First Success Checkpoints](#22-update-all-tutorials-with-first-success-checkpoints)
+    - [2.3 Create `tutorials/rest-api-quickstart.md`](#23-create-tutorialsrest-api-quickstartmd)
+    - [2.4 Create `reference/marketplace-metadata.md`](#24-create-referencemarketplace-metadatamd)
+    - [2.5 Resolve `/docs/src/` Documentation Duplication](#25-resolve-docssrc-documentation-duplication)
+  - [Phase 3: Medium-Priority Improvements (Weeks 4-8)](#phase-3-medium-priority-improvements-weeks-4-8)
+    - [3.1 Create `explanations/ggen-vs-alternatives.md`](#31-create-explanationsggen-vs-alternativesmd)
+    - [3.2 Rewrite Explanations with Multi-Level Depth](#32-rewrite-explanations-with-multi-level-depth)
+    - [3.3 Update `how-to-guides/troubleshoot.md` with Decision Trees](#33-update-how-to-guidestroubleshootmd-with-decision-trees)
+    - [3.4 Add Real-World Examples Throughout Documentation](#34-add-real-world-examples-throughout-documentation)
+    - [3.5 Create `explanations/architecture-decisions.md`](#35-create-explanationsarchitecture-decisionsmd)
+  - [Phase 4: Nice-to-Have Enhancements (Weeks 8-12)](#phase-4-nice-to-have-enhancements-weeks-8-12)
+    - [4.1 Create Video Content](#41-create-video-content)
+    - [4.2 Create Interactive Tutorial Mode](#42-create-interactive-tutorial-mode)
+    - [4.3 Create Official Template Repository Examples](#43-create-official-template-repository-examples)
+    - [4.4 Documentation Search Optimization](#44-documentation-search-optimization)
+  - [Success Metrics](#success-metrics)
+    - [Phase 1 (Weeks 1-2)](#phase-1-weeks-1-2)
+    - [Phase 2 (Weeks 2-4)](#phase-2-weeks-2-4)
+    - [Phase 3 (Weeks 4-8)](#phase-3-weeks-4-8)
+    - [Phase 4 (Weeks 8-12)](#phase-4-weeks-8-12)
+  - [Risk Mitigation](#risk-mitigation)
+    - [Risk: Documentation becomes stale](#risk-documentation-becomes-stale)
+    - [Risk: New docs conflict with existing ones](#risk-new-docs-conflict-with-existing-ones)
+    - [Risk: Implementation team gets sidetracked](#risk-implementation-team-gets-sidetracked)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Diataxis Implementation Roadmap
 
 **Objective:** Execute recommendations from DIATAXIS_EVALUATION_EXTERNAL_PERSPECTIVE.md to improve new user onboarding success rate from 31% → 75%+

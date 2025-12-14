@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How to Query RDF Data with SPARQL](#how-to-query-rdf-data-with-sparql)
+  - [Prerequisites](#prerequisites)
+  - [Understanding SPARQL in 60 Seconds](#understanding-sparql-in-60-seconds)
+  - [Step 1: Load Sample Data](#step-1-load-sample-data)
+  - [Step 2: Basic Queries](#step-2-basic-queries)
+    - [Query 1: Get All Products](#query-1-get-all-products)
+    - [Query 2: Get Products with Details](#query-2-get-products-with-details)
+  - [Step 3: Filtering Results](#step-3-filtering-results)
+    - [Filter 1: Products in Stock](#filter-1-products-in-stock)
+    - [Filter 2: Products Under $100](#filter-2-products-under-100)
+    - [Filter 3: Products by Category](#filter-3-products-by-category)
+  - [Step 4: Advanced Queries](#step-4-advanced-queries)
+    - [Aggregation: Count Products](#aggregation-count-products)
+    - [Optional Properties](#optional-properties)
+    - [Property Paths](#property-paths)
+  - [Step 5: Queries for Code Generation](#step-5-queries-for-code-generation)
+    - [Extract Class Definitions](#extract-class-definitions)
+    - [Extract Enumeration Values](#extract-enumeration-values)
+  - [Step 6: Save Query Results for Templates](#step-6-save-query-results-for-templates)
+  - [Common Patterns Cheat Sheet](#common-patterns-cheat-sheet)
+    - [Pattern 1: Find All Instances of a Type](#pattern-1-find-all-instances-of-a-type)
+    - [Pattern 2: Get Property Values](#pattern-2-get-property-values)
+    - [Pattern 3: Filter with REGEX](#pattern-3-filter-with-regex)
+    - [Pattern 4: Count Results](#pattern-4-count-results)
+    - [Pattern 5: Limit Results](#pattern-5-limit-results)
+    - [Pattern 6: Get Distinct Values](#pattern-6-get-distinct-values)
+  - [Troubleshooting](#troubleshooting)
+  - [Next Steps](#next-steps)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How to Query RDF Data with SPARQL
 
 **Problem**: "I need to extract specific data from my RDF ontology for code generation"

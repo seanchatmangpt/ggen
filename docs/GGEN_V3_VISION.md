@@ -1,3 +1,57 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v3: Self-Hosting Code Generation Through Complete Ontology-Driven Rewrite](#ggen-v3-self-hosting-code-generation-through-complete-ontology-driven-rewrite)
+  - [Executive Summary](#executive-summary)
+  - [Part 1: Philosophical Foundations](#part-1-philosophical-foundations)
+    - [1.1 The Self-Hosting Principle](#11-the-self-hosting-principle)
+    - [1.2 The Projection Architecture Framework (PAF)](#12-the-projection-architecture-framework-paf)
+    - [1.3 Composition Over Inheritance](#13-composition-over-inheritance)
+  - [Part 2: What Changes in v3](#part-2-what-changes-in-v3)
+    - [2.1 Architectural Improvements](#21-architectural-improvements)
+      - [**Before (v2)**:](#before-v2)
+      - [**After (v3)**:](#after-v3)
+    - [2.2 Core Ontology Design (ggen_v3_core.ttl)](#22-core-ontology-design-ggen_v3_corettl)
+    - [2.3 New Capabilities in v3](#23-new-capabilities-in-v3)
+      - [**Self-Documenting Code**](#self-documenting-code)
+      - [**Deterministic Versioning**](#deterministic-versioning)
+      - [**Safe Evolution**](#safe-evolution)
+      - [**Intelligent Regeneration**](#intelligent-regeneration)
+  - [Part 3: Implementation Architecture](#part-3-implementation-architecture)
+    - [3.1 Three-Phase Rewrite](#31-three-phase-rewrite)
+      - [**Phase 1: Foundation (Weeks 1-4)**](#phase-1-foundation-weeks-1-4)
+      - [**Phase 2: Projection System (Weeks 5-8)**](#phase-2-projection-system-weeks-5-8)
+      - [**Phase 3: Cutover & Validation (Weeks 9-12)**](#phase-3-cutover--validation-weeks-9-12)
+    - [3.2 Development Workflow in v3](#32-development-workflow-in-v3)
+  - [Part 4: Strategic Advantages](#part-4-strategic-advantages)
+    - [4.1 Eliminates Dark Matter in ggen's Own Development](#41-eliminates-dark-matter-in-ggens-own-development)
+    - [4.2 Enables Real-Time Feature Parity](#42-enables-real-time-feature-parity)
+    - [4.3 Provably Correct Code Generation](#43-provably-correct-code-generation)
+  - [Part 5: Phases & Timeline](#part-5-phases--timeline)
+    - [Phase 1: Ontology Design (Weeks 1-4)](#phase-1-ontology-design-weeks-1-4)
+      - [Week 1: Domain Model](#week-1-domain-model)
+      - [Week 2: CLI & Marketplace](#week-2-cli--marketplace)
+      - [Week 3-4: Composition & Validation](#week-3-4-composition--validation)
+    - [Phase 2: Template & Projection System (Weeks 5-8)](#phase-2-template--projection-system-weeks-5-8)
+      - [Week 5-6: Core Templates](#week-5-6-core-templates)
+      - [Week 7: CLI & Marketplace Templates](#week-7-cli--marketplace-templates)
+      - [Week 8: Documentation & Deployment](#week-8-documentation--deployment)
+    - [Phase 3: Cutover & Validation (Weeks 9-12)](#phase-3-cutover--validation-weeks-9-12-1)
+      - [Week 9-10: Generation & Comparison](#week-9-10-generation--comparison)
+      - [Week 11: Testing & Verification](#week-11-testing--verification)
+      - [Week 12: Release & Documentation](#week-12-release--documentation)
+  - [Part 6: Success Metrics](#part-6-success-metrics)
+    - [6.1 Quantitative Metrics](#61-quantitative-metrics)
+    - [6.2 Qualitative Metrics](#62-qualitative-metrics)
+  - [Part 7: Risk Mitigation](#part-7-risk-mitigation)
+    - [7.1 Major Risks](#71-major-risks)
+    - [7.2 Contingency Plans](#72-contingency-plans)
+  - [Part 8: Architectural Diagrams](#part-8-architectural-diagrams)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v3: Self-Hosting Code Generation Through Complete Ontology-Driven Rewrite
 
 **Status**: PLANNING

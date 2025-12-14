@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Marketplace Architecture Diagrams](#ggen-marketplace-architecture-diagrams)
+  - [System Context Diagram (C4 Level 1)](#system-context-diagram-c4-level-1)
+  - [Component Diagram (C4 Level 2)](#component-diagram-c4-level-2)
+    - [CLI Layer](#cli-layer)
+    - [Domain Layer](#domain-layer)
+    - [Infrastructure Layer](#infrastructure-layer)
+  - [Data Flow Diagrams](#data-flow-diagrams)
+    - [Search Command Flow](#search-command-flow)
+    - [Install Command Flow](#install-command-flow)
+    - [Maturity Assessment Flow](#maturity-assessment-flow)
+  - [State Diagrams](#state-diagrams)
+    - [Package Lifecycle States](#package-lifecycle-states)
+    - [Registry Sync State](#registry-sync-state)
+  - [Sequence Diagrams](#sequence-diagrams)
+    - [Recommendation Flow](#recommendation-flow)
+    - [Package Validation with Guards](#package-validation-with-guards)
+  - [Database Schema (Future)](#database-schema-future)
+    - [Package Registry Schema](#package-registry-schema)
+  - [Deployment Architecture (Future)](#deployment-architecture-future)
+    - [Multi-Tier Deployment](#multi-tier-deployment)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Marketplace Architecture Diagrams
 
 **Version**: 1.0

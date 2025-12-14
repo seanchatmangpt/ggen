@@ -1,3 +1,19 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Explanations - Conceptual Understanding](#explanations---conceptual-understanding)
+  - [Core Architecture](#core-architecture)
+  - [Domain Knowledge](#domain-knowledge)
+  - [Team & Collaboration](#team--collaboration)
+  - [Important Limitations](#important-limitations)
+  - [How to Use These Docs](#how-to-use-these-docs)
+  - [Learning Progression](#learning-progression)
+  - [Design Decision Context](#design-decision-context)
+  - [Stuck or Curious?](#stuck-or-curious)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Explanations - Conceptual Understanding
 
 Background information and conceptual understanding. Explanations are **understanding-oriented** - they help you learn WHY things work the way they do, not HOW to do them.

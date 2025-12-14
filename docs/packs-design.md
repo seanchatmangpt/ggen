@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Packs Command Structure Design](#packs-command-structure-design)
+  - [Overview](#overview)
+  - [Architecture](#architecture)
+  - [Data Structures](#data-structures)
+    - [PackInfo](#packinfo)
+    - [Output Types](#output-types)
+  - [Commands (Critical 20%)](#commands-critical-20)
+    - [1. `packs list`](#1-packs-list)
+    - [2. `packs show <pack_id>`](#2-packs-show-pack_id)
+    - [3. `packs install <pack_id>`](#3-packs-install-pack_id)
+    - [4. `packs validate <pack_id>`](#4-packs-validate-pack_id)
+  - [Pre-defined Packs](#pre-defined-packs)
+    - [1. startup-essentials (5 packages)](#1-startup-essentials-5-packages)
+    - [2. enterprise-backend (5 packages)](#2-enterprise-backend-5-packages)
+    - [3. data-science (5 packages)](#3-data-science-5-packages)
+    - [4. devops-automation (5 packages)](#4-devops-automation-5-packages)
+    - [5. frontend-modern (5 packages)](#5-frontend-modern-5-packages)
+  - [Error Handling](#error-handling)
+  - [Design Decisions](#design-decisions)
+    - [1. Static Data (80/20 Approach)](#1-static-data-8020-approach)
+    - [2. JSON-Only Output](#2-json-only-output)
+    - [3. Delegation to Marketplace](#3-delegation-to-marketplace)
+    - [4. No Advanced Features (Ignored 80%)](#4-no-advanced-features-ignored-80)
+  - [Testing Strategy](#testing-strategy)
+    - [Unit Tests](#unit-tests)
+    - [Integration Tests](#integration-tests)
+  - [Performance Characteristics](#performance-characteristics)
+  - [Future Extensions (Optional)](#future-extensions-optional)
+  - [Integration Points](#integration-points)
+    - [With Marketplace](#with-marketplace)
+    - [With Template System](#with-template-system)
+  - [Success Metrics](#success-metrics)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Packs Command Structure Design
 
 ## Overview

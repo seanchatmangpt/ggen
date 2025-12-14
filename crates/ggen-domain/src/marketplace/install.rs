@@ -11,6 +11,36 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use zip::ZipArchive;
 
+use super::fmea_validator::FmeaValidator;
+
+/// Marketplace configuration (local definition)
+///
+/// Local definition to avoid cyclic dependency with ggen-config.
+/// Mirrors [marketplace] from ggen.toml.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct MarketplaceConfig {
+    /// Validate package FMEA during installation
+    #[serde(default)]
+    pub fmea_validation: bool,
+    /// Require packages to have [fmea] section in package.toml
+    #[serde(default)]
+    pub require_fmea: bool,
+    /// RPN threshold for critical failures (default: 200)
+    #[serde(default = "default_critical_threshold")]
+    pub critical_threshold: u16,
+}
+
+fn default_critical_threshold() -> u16 {
+    200
+}
+
+/// Simplified ggen.toml config for marketplace section extraction
+#[derive(Debug, Clone, Default, Deserialize)]
+struct GgenConfigSubset {
+    /// Marketplace configuration section
+    marketplace: Option<MarketplaceConfig>,
+}
+
 /// Validate package name to prevent injection attacks
 fn validate_package_name(name: &str) -> Result<()> {
     // Package names should be alphanumeric with hyphens and underscores
@@ -1341,6 +1371,146 @@ async fn save_lockfile(lockfile: &Lockfile, packages_dir: &Path) -> Result<()> {
     Ok(())
 }
 
+/// Validate package FMEA controls during installation
+///
+/// This implements `[marketplace].fmea_validation` from ggen.toml.
+/// When enabled, packages MUST have FMEA controls documented in their
+/// package.toml [fmea] section, and critical failure modes MUST be mitigated.
+///
+/// Poka-Yoke: Prevents installation of packages with unmitigated critical risks.
+async fn validate_package_fmea(install_path: &Path, package_name: &str) -> Result<()> {
+    // Load marketplace config from ggen.toml (if exists in project root)
+    let config = load_marketplace_config().await;
+
+    // Skip validation if not enabled
+    if !config.fmea_validation {
+        tracing::debug!(
+            "FMEA validation skipped for {} (not enabled in ggen.toml)",
+            package_name
+        );
+        return Ok(());
+    }
+
+    tracing::info!("Running FMEA validation for package: {}", package_name);
+
+    // Use Fortune 500 validator for strict enterprise requirements
+    let validator = if config.require_fmea {
+        FmeaValidator::fortune_500()
+    } else {
+        FmeaValidator::new()
+    };
+
+    // Validate the installed package
+    let report = validator.validate_package(install_path).map_err(|e| {
+        ggen_utils::error::Error::new(&format!(
+            "FMEA validation error for package {}: {}",
+            package_name, e
+        ))
+    })?;
+
+    // Check validation results
+    if !report.passed {
+        // Build detailed error message
+        let mut error_msg = format!(
+            "Package {} failed FMEA validation (coverage: {:.1}%):\n",
+            package_name, report.coverage_percentage
+        );
+
+        // List critical unmitigated failure modes
+        for mode in &report.critical_modes {
+            if !mode.has_control {
+                error_msg.push_str(&format!(
+                    "  - CRITICAL [{}] {} (RPN: {}) - NO CONTROL DEFINED\n",
+                    mode.id, mode.mode, mode.rpn
+                ));
+            }
+        }
+
+        // List failed checks
+        for check in &report.checks {
+            if check.result.is_fail() {
+                error_msg.push_str(&format!("  - Check '{}' FAILED\n", check.name));
+            }
+        }
+
+        error_msg.push_str("\nPackages with critical unmitigated risks cannot be installed.\n");
+        error_msg.push_str("Please contact the package maintainer to add FMEA controls.\n");
+        error_msg.push_str(
+            "Or disable fmea_validation in [marketplace] section of ggen.toml (NOT RECOMMENDED).",
+        );
+
+        return Err(ggen_utils::error::Error::new(&error_msg));
+    }
+
+    // Check for high-risk warnings
+    if !report.high_risk_modes.is_empty() {
+        let unmitigated_high: Vec<_> = report
+            .high_risk_modes
+            .iter()
+            .filter(|m| !m.has_control)
+            .collect();
+
+        if !unmitigated_high.is_empty() {
+            tracing::warn!(
+                "Package {} has {} high-risk failure modes without controls:",
+                package_name,
+                unmitigated_high.len()
+            );
+            for mode in &unmitigated_high {
+                tracing::warn!("  - [{}] {} (RPN: {})", mode.id, mode.mode, mode.rpn);
+            }
+        }
+    }
+
+    ggen_utils::alert_success!(
+        "Package {} passed FMEA validation (coverage: {:.1}%, max RPN: {})",
+        package_name,
+        report.coverage_percentage,
+        report.max_rpn
+    );
+
+    Ok(())
+}
+
+/// Load marketplace configuration from ggen.toml
+///
+/// Returns default config if ggen.toml doesn't exist or doesn't have
+/// [marketplace] section.
+async fn load_marketplace_config() -> MarketplaceConfig {
+    // Try to find ggen.toml in current directory or parent directories
+    let config_path = find_ggen_toml().await;
+
+    if let Some(path) = config_path {
+        if let Ok(content) = tokio::fs::read_to_string(&path).await {
+            // Parse the marketplace section using local config subset
+            if let Ok(config) = toml::from_str::<GgenConfigSubset>(&content) {
+                return config.marketplace.unwrap_or_default();
+            }
+        }
+    }
+
+    // Return default (validation disabled by default)
+    MarketplaceConfig::default()
+}
+
+/// Find ggen.toml by traversing up from current directory
+async fn find_ggen_toml() -> Option<PathBuf> {
+    let mut current = std::env::current_dir().ok()?;
+
+    loop {
+        let config_path = current.join("ggen.toml");
+        if config_path.exists() {
+            return Some(config_path);
+        }
+
+        if !current.pop() {
+            break;
+        }
+    }
+
+    None
+}
+
 /// Install a package from the marketplace
 ///
 /// This implements the complete installation logic with:
@@ -1478,6 +1648,22 @@ pub async fn install_package(options: &InstallOptions) -> Result<InstallResult> 
             return Err(e);
         }
     };
+
+    // FMEA validation: Check package FMEA controls if validation is enabled
+    // This implements [marketplace].fmea_validation from ggen.toml
+    if let Err(e) = validate_package_fmea(&install_path, &options.package_name).await {
+        // Rollback: Remove installation on FMEA failure
+        if install_path.exists() && !install_path_exists_before {
+            if let Err(cleanup_err) = tokio::fs::remove_dir_all(&install_path).await {
+                tracing::warn!(
+                    "Failed to cleanup installation after FMEA failure at {}: {}",
+                    install_path.display(),
+                    cleanup_err
+                );
+            }
+        }
+        return Err(e);
+    }
 
     // Update lockfile - if this fails, rollback lockfile too
     let mut lockfile = load_lockfile(&packages_dir).await?;

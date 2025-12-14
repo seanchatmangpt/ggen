@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Andon Signal Validation Framework](#andon-signal-validation-framework)
+  - [80/20 Innovation: Prevent Fake Greens Across Development Workflow](#8020-innovation-prevent-fake-greens-across-development-workflow)
+  - [Innovation Overview](#innovation-overview)
+    - [The 80/20 Sweet Spot](#the-8020-sweet-spot)
+  - [Architecture](#architecture)
+    - [Three-Layer Validation](#three-layer-validation)
+  - [Implementation](#implementation)
+    - [1. Compile-Time Validation Layer](#1-compile-time-validation-layer)
+      - [A. CLI Command Type Safety](#a-cli-command-type-safety)
+      - [B. Test Configuration Validation](#b-test-configuration-validation)
+    - [2. Test-Time Validation Layer](#2-test-time-validation-layer)
+      - [A. Enhanced clnrm Integration](#a-enhanced-clnrm-integration)
+      - [B. Behavior Verification Macros](#b-behavior-verification-macros)
+    - [3. Runtime Validation Layer](#3-runtime-validation-layer)
+      - [A. Pre-Commit Validation](#a-pre-commit-validation)
+      - [B. CLI Command Verification](#b-cli-command-verification)
+  - [Andon Signal Integration](#andon-signal-integration)
+    - [Signal Types](#signal-types)
+    - [Signal Propagation](#signal-propagation)
+  - [Benefits](#benefits)
+    - [1. Prevents Fake Greens](#1-prevents-fake-greens)
+    - [2. Zero-Cost Integration](#2-zero-cost-integration)
+    - [3. Developer Experience](#3-developer-experience)
+    - [4. Production Confidence](#4-production-confidence)
+  - [Implementation Plan](#implementation-plan)
+    - [Phase 1: Foundation (2-3 hours)](#phase-1-foundation-2-3-hours)
+    - [Phase 2: Compile-Time Validation (3-4 hours)](#phase-2-compile-time-validation-3-4-hours)
+    - [Phase 3: Runtime Validation (2-3 hours)](#phase-3-runtime-validation-2-3-hours)
+    - [Phase 4: Integration (1-2 hours)](#phase-4-integration-1-2-hours)
+  - [Success Metrics](#success-metrics)
+  - [Next Steps](#next-steps)
+  - [Related Documents](#related-documents)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Andon Signal Validation Framework
 
 ## 80/20 Innovation: Prevent Fake Greens Across Development Workflow

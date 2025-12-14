@@ -1,3 +1,50 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Codebase Analysis Report](#ggen-codebase-analysis-report)
+  - [Executive Summary](#executive-summary)
+  - [1. Architecture Overview](#1-architecture-overview)
+    - [1.1 Workspace Structure](#11-workspace-structure)
+    - [1.2 Core Design Patterns](#12-core-design-patterns)
+  - [2. Hive Coordinator Deep Dive](#2-hive-coordinator-deep-dive)
+    - [2.1 Current State](#21-current-state)
+    - [2.2 Integration Points (20% with 80% Impact)](#22-integration-points-20-with-80-impact)
+  - [3. Security Validation System](#3-security-validation-system)
+    - [3.1 Command Injection Prevention](#31-command-injection-prevention)
+    - [3.2 Permission Model](#32-permission-model)
+  - [4. Quality Assurance Framework](#4-quality-assurance-framework)
+    - [4.1 Lean Manufacturing Integration](#41-lean-manufacturing-integration)
+      - [FMEA (Failure Mode and Effects Analysis)](#fmea-failure-mode-and-effects-analysis)
+      - [POKA-YOKE (Mistake Proofing)](#poka-yoke-mistake-proofing)
+      - [MURA (Eliminate Unevenness)](#mura-eliminate-unevenness)
+      - [MUDA (Eliminate Waste)](#muda-eliminate-waste)
+  - [5. Code Quality Metrics](#5-code-quality-metrics)
+    - [5.1 Complexity Analysis](#51-complexity-analysis)
+    - [5.2 Code Smells Detected](#52-code-smells-detected)
+    - [5.3 Best Practices Observed](#53-best-practices-observed)
+  - [6. Technical Debt Assessment](#6-technical-debt-assessment)
+    - [6.1 Quick Wins (Easy, High Impact)](#61-quick-wins-easy-high-impact)
+    - [6.2 Medium Effort, High Impact](#62-medium-effort-high-impact)
+    - [6.3 Long-Term Refactoring](#63-long-term-refactoring)
+  - [7. Integration Opportunities (80/20 Analysis)](#7-integration-opportunities-8020-analysis)
+    - [7.1 Critical 20% for 80% Impact](#71-critical-20-for-80-impact)
+    - [7.2 Integration Architecture Proposal](#72-integration-architecture-proposal)
+  - [8. Production Readiness Assessment](#8-production-readiness-assessment)
+    - [8.1 Production Strengths](#81-production-strengths)
+    - [8.2 Production Gaps](#82-production-gaps)
+    - [8.3 Production Recommendations](#83-production-recommendations)
+  - [9. 80/20 Priority Matrix](#9-8020-priority-matrix)
+    - [Critical 20% (Implement First)](#critical-20-implement-first)
+    - [Important 80% (Backlog)](#important-80-backlog)
+  - [10. Recommendations](#10-recommendations)
+    - [10.1 Immediate Actions (Sprint 1)](#101-immediate-actions-sprint-1)
+    - [10.2 Medium-Term Improvements (Sprints 2-4)](#102-medium-term-improvements-sprints-2-4)
+    - [10.3 Long-Term Vision (Sprints 5+)](#103-long-term-vision-sprints-5)
+  - [11. Conclusion](#11-conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Codebase Analysis Report
 
 **Analyst:** Code Analyzer Agent (Hive Mind Swarm)

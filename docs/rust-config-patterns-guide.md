@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Rust Configuration Patterns Guide](#rust-configuration-patterns-guide)
+  - [Executive Summary](#executive-summary)
+  - [1. Configuration Patterns Survey](#1-configuration-patterns-survey)
+    - [1.1 The Rust Configuration Ecosystem](#11-the-rust-configuration-ecosystem)
+    - [1.2 Why clap + TOML is Superior](#12-why-clap--toml-is-superior)
+  - [2. When to Use clap vs Alternatives](#2-when-to-use-clap-vs-alternatives)
+    - [2.1 Decision Matrix](#21-decision-matrix)
+    - [2.2 ggen's Choice: clap-noun-verb + ggen.toml](#22-ggens-choice-clap-noun-verb--ggentoml)
+  - [3. Config Merging Patterns](#3-config-merging-patterns)
+    - [3.1 The Validation Hierarchy](#31-the-validation-hierarchy)
+    - [3.2 Type-Safe Merging](#32-type-safe-merging)
+    - [3.3 Real-World Case Studies](#33-real-world-case-studies)
+  - [4. Best Practices from Rust Community](#4-best-practices-from-rust-community)
+    - [4.1 Configuration Validation](#41-configuration-validation)
+    - [4.2 Security Patterns](#42-security-patterns)
+    - [4.3 Performance Optimization](#43-performance-optimization)
+  - [5. Testing Configuration Systems](#5-testing-configuration-systems)
+    - [5.1 Test Categories](#51-test-categories)
+    - [5.2 Test Coverage Goals](#52-test-coverage-goals)
+  - [6. Migration and Maintenance](#6-migration-and-maintenance)
+    - [6.1 Upgrading clap Versions](#61-upgrading-clap-versions)
+    - [6.2 Maintaining Config Compatibility](#62-maintaining-config-compatibility)
+  - [7. Advanced Patterns](#7-advanced-patterns)
+    - [7.1 Multi-Environment Configs](#71-multi-environment-configs)
+    - [7.2 Workspace-Level Configs](#72-workspace-level-configs)
+    - [7.3 Dynamic Configuration](#73-dynamic-configuration)
+  - [8. Conclusion](#8-conclusion)
+    - [8.1 Key Takeaways](#81-key-takeaways)
+    - [8.2 ggen's Success Metrics](#82-ggens-success-metrics)
+    - [8.3 Future Directions](#83-future-directions)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Rust Configuration Patterns Guide
 
 **Date:** 2025-11-18

@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Tutorial: Build Your First Local-First Todo App](#tutorial-build-your-first-local-first-todo-app)
+  - [What You'll Build](#what-youll-build)
+  - [Prerequisites](#prerequisites)
+  - [Step 1: Create Next.js Project (2 minutes)](#step-1-create-nextjs-project-2-minutes)
+  - [Step 2: Install shadcn/ui (3 minutes)](#step-2-install-shadcnui-3-minutes)
+  - [Step 3: Install ElectricSQL (3 minutes)](#step-3-install-electricsql-3-minutes)
+  - [Step 4: Create Database Schema (5 minutes)](#step-4-create-database-schema-5-minutes)
+  - [Step 5: Initialize ElectricSQL (5 minutes)](#step-5-initialize-electricsql-5-minutes)
+  - [Step 6: Create Todo Component (7 minutes)](#step-6-create-todo-component-7-minutes)
+  - [Step 7: Add to Home Page (2 minutes)](#step-7-add-to-home-page-2-minutes)
+  - [Step 8: Run the Application (3 minutes)](#step-8-run-the-application-3-minutes)
+  - [🎉 Congratulations!](#-congratulations)
+    - [What You Learned](#what-you-learned)
+    - [What You Built](#what-you-built)
+  - [🚀 Next Steps](#-next-steps)
+    - [How-to Guides (Add Features)](#how-to-guides-add-features)
+    - [Explanations (Understand Concepts)](#explanations-understand-concepts)
+    - [Reference (Look Up Details)](#reference-look-up-details)
+  - [🔍 Troubleshooting](#-troubleshooting)
+    - [Error: "Module not found: Can't resolve '@/components/ui/button'"](#error-module-not-found-cant-resolve-componentsuibutton)
+    - [Error: "Cannot find module 'electric-sql'"](#error-cannot-find-module-electric-sql)
+    - [Todos don't persist after refresh](#todos-dont-persist-after-refresh)
+    - [Database initialization fails](#database-initialization-fails)
+  - [📝 Meta-Lesson: Tutorial Structure](#-meta-lesson-tutorial-structure)
+  - [🎯 Complete Code](#-complete-code)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Tutorial: Build Your First Local-First Todo App
 
 **Time**: 30 minutes | **Level**: Beginner | **Stack**: Next.js + shadcn/ui + ElectricSQL

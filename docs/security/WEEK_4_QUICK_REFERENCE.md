@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 4 Security Hardening - Quick Reference](#week-4-security-hardening---quick-reference)
+  - [🚀 Quick Start](#-quick-start)
+    - [Import Security Modules](#import-security-modules)
+  - [🔒 Common Patterns](#-common-patterns)
+    - [1. Safe Command Execution](#1-safe-command-execution)
+    - [2. Path Validation](#2-path-validation)
+    - [3. Environment Variable Validation](#3-environment-variable-validation)
+    - [4. Error Sanitization](#4-error-sanitization)
+  - [📋 Cheat Sheet](#-cheat-sheet)
+    - [SafeCommand Whitelist](#safecommand-whitelist)
+    - [Blocked Metacharacters](#blocked-metacharacters)
+    - [Validation Limits](#validation-limits)
+  - [🧪 Testing Your Code](#-testing-your-code)
+    - [Test Command Injection Prevention](#test-command-injection-prevention)
+    - [Test Path Traversal Prevention](#test-path-traversal-prevention)
+  - [⚠️ Common Mistakes](#-common-mistakes)
+    - [Mistake 1: Using `.unwrap()` in library code](#mistake-1-using-unwrap-in-library-code)
+    - [Mistake 2: Forgetting to validate user input](#mistake-2-forgetting-to-validate-user-input)
+    - [Mistake 3: Exposing full error messages](#mistake-3-exposing-full-error-messages)
+  - [🎯 Security Checklist](#-security-checklist)
+  - [📚 Documentation](#-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 4 Security Hardening - Quick Reference
 
 ## 🚀 Quick Start

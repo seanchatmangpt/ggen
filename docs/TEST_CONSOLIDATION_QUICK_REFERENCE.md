@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [⚡ Test Consolidation: Quick Reference](#-test-consolidation-quick-reference)
+  - [TL;DR - 80/20 Strategy](#tldr---8020-strategy)
+    - [Before & After](#before--after)
+  - [Quick Start (5 minutes)](#quick-start-5-minutes)
+    - [1. Review Decision](#1-review-decision)
+    - [2. Understand Structure](#2-understand-structure)
+    - [3. Start Implementation](#3-start-implementation)
+  - [Test Categories at a Glance](#test-categories-at-a-glance)
+  - [Files to Keep vs Remove](#files-to-keep-vs-remove)
+    - [Keep & Consolidate ✅](#keep--consolidate-)
+    - [Remove ❌ (Low ROI)](#remove--low-roi)
+  - [Implementation Checklist](#implementation-checklist)
+    - [Phase 1: Setup (30 min)](#phase-1-setup-30-min)
+    - [Phase 2: Core Tests (1 hour)](#phase-2-core-tests-1-hour)
+    - [Phase 3: Lifecycle Tests (1.5 hours)](#phase-3-lifecycle-tests-15-hours)
+    - [Phase 4: Swarm Tests (2 hours)](#phase-4-swarm-tests-2-hours)
+    - [Phase 5: Semantic Tests (1.5 hours)](#phase-5-semantic-tests-15-hours)
+    - [Phase 6: Validation (1 hour)](#phase-6-validation-1-hour)
+    - [Phase 7: Documentation (30 min)](#phase-7-documentation-30-min)
+  - [Key Numbers](#key-numbers)
+  - [Critical Tests (Never Remove)](#critical-tests-never-remove)
+    - [Package Management (5)](#package-management-5)
+    - [Lifecycle (4)](#lifecycle-4)
+    - [Consensus (4)](#consensus-4)
+    - [Semantic (3)](#semantic-3)
+  - [Testing Guidelines](#testing-guidelines)
+    - [What to Include (80% value)](#what-to-include-80-value)
+    - [What to Exclude (20% value)](#what-to-exclude-20-value)
+    - [Test Execution Rules](#test-execution-rules)
+  - [Command Reference](#command-reference)
+  - [Success Criteria](#success-criteria)
+  - [Troubleshooting](#troubleshooting)
+    - [Issue: Test Fails After Consolidation](#issue-test-fails-after-consolidation)
+    - [Issue: Execution Time > 60s](#issue-execution-time--60s)
+    - [Issue: Coverage Dropped Below 80%](#issue-coverage-dropped-below-80)
+  - [Documentation Files](#documentation-files)
+  - [Next Steps](#next-steps)
+  - [Questions?](#questions)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ⚡ Test Consolidation: Quick Reference
 
 ## TL;DR - 80/20 Strategy

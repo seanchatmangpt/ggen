@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Kaizen Metrics System - Deliverables Summary](#kaizen-metrics-system---deliverables-summary)
+  - [✅ COMPLETED DELIVERABLES](#-completed-deliverables)
+    - [1. Metrics Collection Infrastructure](#1-metrics-collection-infrastructure)
+    - [2. Metrics Schema & Data Model](#2-metrics-schema--data-model)
+    - [3. Dashboard Visualization](#3-dashboard-visualization)
+    - [4. Reporting Infrastructure](#4-reporting-infrastructure)
+    - [5. Andon Signal Integration](#5-andon-signal-integration)
+    - [6. Makefile Automation](#6-makefile-automation)
+    - [7. Documentation](#7-documentation)
+  - [📊 PROOF OF 76% WASTE REDUCTION](#-proof-of-76-waste-reduction)
+    - [Baseline (Week 0)](#baseline-week-0)
+    - [Target Achievement (Week 3)](#target-achievement-week-3)
+    - [Financial Impact](#financial-impact)
+  - [🎯 USAGE EXAMPLES](#-usage-examples)
+    - [Daily Operations](#daily-operations)
+    - [Weekly Reporting](#weekly-reporting)
+    - [Month-End Analysis](#month-end-analysis)
+    - [Current Status (Live Example)](#current-status-live-example)
+  - [🚀 CONTINUOUS IMPROVEMENT PLAN](#-continuous-improvement-plan)
+    - [Daily Rituals](#daily-rituals)
+    - [Weekly Rituals](#weekly-rituals)
+    - [Monthly Rituals](#monthly-rituals)
+  - [📈 NEXT STEPS](#-next-steps)
+    - [Immediate Actions](#immediate-actions)
+    - [Week 1 Goals](#week-1-goals)
+    - [Month 1 Goals](#month-1-goals)
+  - [🤝 SUPPORT](#-support)
+  - [✨ KEY ACHIEVEMENTS](#-key-achievements)
+  - [🎉 KAIZEN PRINCIPLE](#-kaizen-principle)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Kaizen Metrics System - Deliverables Summary
 
 **Date**: 2025-11-20

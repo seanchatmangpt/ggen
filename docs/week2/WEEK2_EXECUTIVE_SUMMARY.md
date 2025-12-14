@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 2 Executive Summary: Reduce Waste Phase Architecture](#week-2-executive-summary-reduce-waste-phase-architecture)
+  - [Mission: After Stopping the Line, Eliminate Systemic Inefficiencies](#mission-after-stopping-the-line-eliminate-systemic-inefficiencies)
+  - [Five Architecture Designs](#five-architecture-designs)
+    - [Design 1: Template Auto-Discovery Build Script](#design-1-template-auto-discovery-build-script)
+    - [Design 2: API Versioning System](#design-2-api-versioning-system)
+    - [Design 3: Chicago TDD Test Architecture](#design-3-chicago-tdd-test-architecture)
+    - [Design 4: CI/CD Integration Gates](#design-4-cicd-integration-gates)
+    - [Design 5: Lean Metrics Dashboard](#design-5-lean-metrics-dashboard)
+  - [Cumulative Impact Analysis](#cumulative-impact-analysis)
+    - [Defect Reduction](#defect-reduction)
+    - [Time Savings](#time-savings)
+    - [Performance Improvements](#performance-improvements)
+  - [Risk Mitigation Matrix](#risk-mitigation-matrix)
+  - [Implementation Roadmap](#implementation-roadmap)
+    - [Week 2 Schedule](#week-2-schedule)
+  - [Success Criteria (Week 2 Definition of Done)](#success-criteria-week-2-definition-of-done)
+    - [Functional Requirements](#functional-requirements)
+    - [Non-Functional Requirements](#non-functional-requirements)
+    - [Quality Gates](#quality-gates)
+  - [Architecture Decision Records (ADRs)](#architecture-decision-records-adrs)
+  - [Team Review Checklist](#team-review-checklist)
+    - [Design Review (For Each Architecture Design)](#design-review-for-each-architecture-design)
+    - [Cross-Design Integration](#cross-design-integration)
+    - [Deliverables Validation](#deliverables-validation)
+  - [Next Steps](#next-steps)
+  - [Deliverables Summary](#deliverables-summary)
+  - [Appendix: Waste Elimination Principles](#appendix-waste-elimination-principles)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 2 Executive Summary: Reduce Waste Phase Architecture
 
 **Design Phase:** Week 2 - Systematic Waste Elimination

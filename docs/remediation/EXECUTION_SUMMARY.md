@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [12-Agent Swarm Deployment - Execution Summary](#12-agent-swarm-deployment---execution-summary)
+  - [Mission Briefing](#mission-briefing)
+  - [Immediate Accomplishments (Initial Deployment)](#immediate-accomplishments-initial-deployment)
+    - [1. Strategic Foundation - COMPLETE ✅](#1-strategic-foundation---complete-)
+    - [2. Test Infrastructure - IN PROGRESS 🟡](#2-test-infrastructure---in-progress-)
+    - [3. Security Hardening - IN PROGRESS 🟡](#3-security-hardening---in-progress-)
+  - [Agent Deployment Status](#agent-deployment-status)
+    - [Tier 1: Strategic Planning (Active)](#tier-1-strategic-planning-active)
+    - [Tier 2: Implementation (Partial Activation)](#tier-2-implementation-partial-activation)
+    - [Tier 3: Support & Analysis (Partial Activation)](#tier-3-support--analysis-partial-activation)
+  - [Week 2 Critical Path Progress](#week-2-critical-path-progress)
+    - [Critical Milestone Tracking](#critical-milestone-tracking)
+    - [Execution Velocity](#execution-velocity)
+  - [Deliverables by File](#deliverables-by-file)
+    - [Tests Created (Production-Ready)](#tests-created-production-ready)
+    - [Documentation Created](#documentation-created)
+    - [Source Code Modified](#source-code-modified)
+  - [Immediate Next Steps (Next 24 Hours)](#immediate-next-steps-next-24-hours)
+    - [Priority 1: Unblock Week 2 Critical Path](#priority-1-unblock-week-2-critical-path)
+    - [Priority 2: Accelerate Core Deliverables](#priority-2-accelerate-core-deliverables)
+    - [Priority 3: Parallel Track Advancement](#priority-3-parallel-track-advancement)
+  - [Risk Assessment](#risk-assessment)
+    - [Green Risks (Mitigated) ✅](#green-risks-mitigated-)
+    - [Yellow Risks (Monitored) ⚠️](#yellow-risks-monitored-)
+    - [Red Risks (Critical) 🔴](#red-risks-critical-)
+  - [Success Metrics](#success-metrics)
+    - [Code Quality](#code-quality)
+    - [Velocity](#velocity)
+    - [Coordination](#coordination)
+  - [Recommendations for User](#recommendations-for-user)
+    - [Immediate Actions (User Decision Points)](#immediate-actions-user-decision-points)
+    - [Strategic Considerations](#strategic-considerations)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 12-Agent Swarm Deployment - Execution Summary
 
 ## Mission Briefing

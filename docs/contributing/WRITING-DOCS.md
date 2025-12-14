@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Writing Documentation for ggen](#writing-documentation-for-ggen)
+  - [Quick Start for Documentation Authors](#quick-start-for-documentation-authors)
+    - [1. Set Up Live Validation](#1-set-up-live-validation)
+    - [2. Write Documentation](#2-write-documentation)
+    - [3. Save and Watch](#3-save-and-watch)
+  - [Documentation Structure (Diataxis)](#documentation-structure-diataxis)
+    - [1. **Tutorials** (`docs/tutorials/`)](#1-tutorials-docstutorials)
+    - [2. **How-to Guides** (`docs/how-to/`)](#2-how-to-guides-docshow-to)
+    - [3. **Explanations** (`docs/explanations/`)](#3-explanations-docsexplanations)
+    - [4. **Reference** (`docs/reference/`)](#4-reference-docsreference)
+  - [Writing Guidelines](#writing-guidelines)
+    - [Commands Must Work](#commands-must-work)
+    - [Use Real Examples](#use-real-examples)
+    - [Show Expected Output](#show-expected-output)
+    - [JavaScript, Zod, JSDoc (NOT TypeScript)](#javascript-zod-jsdoc-not-typescript)
+  - [Adding Validation for Your Documentation](#adding-validation-for-your-documentation)
+    - [If You Write a Tutorial](#if-you-write-a-tutorial)
+    - [If You Write a How-to Guide](#if-you-write-a-how-to-guide)
+    - [If You Write an Explanation](#if-you-write-an-explanation)
+  - [Testing Your Documentation Locally](#testing-your-documentation-locally)
+    - [Before Committing](#before-committing)
+    - [While Writing](#while-writing)
+    - [Individual Test](#individual-test)
+  - [CI/CD Integration](#cicd-integration)
+  - [Common Mistakes](#common-mistakes)
+    - [1. Outdated Commands](#1-outdated-commands)
+    - [2. Broken Links](#2-broken-links)
+    - [3. Missing Prerequisites](#3-missing-prerequisites)
+  - [Documentation Checklist](#documentation-checklist)
+  - [Questions?](#questions)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Writing Documentation for ggen
 
 **TL;DR**: Write docs with live validation feedback. Every example must work.

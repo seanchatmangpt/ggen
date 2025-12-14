@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 3: Coverage & Health Metrics - Baseline Report](#week-3-coverage--health-metrics---baseline-report)
+  - [Executive Summary](#executive-summary)
+  - [📊 Week 3 Coverage Breakdown (Baseline: 53%)](#-week-3-coverage-breakdown-baseline-53)
+    - [Critical Modules (Top Priority)](#critical-modules-top-priority)
+    - [Module Statistics](#module-statistics)
+  - [🏥 Health Score Components (Baseline: 73%)](#-health-score-components-baseline-73)
+    - [Dimension Breakdown](#dimension-breakdown)
+    - [Health Score Calculation](#health-score-calculation)
+  - [📈 Test Metrics (Baseline)](#-test-metrics-baseline)
+    - [Test Suite Health](#test-suite-health)
+    - [Test Quality Indicators](#test-quality-indicators)
+  - [🎯 Week 3 Goals & Progress Tracking](#-week-3-goals--progress-tracking)
+    - [Daily Targets](#daily-targets)
+    - [Coverage Improvement Plan](#coverage-improvement-plan)
+  - [🔍 Quality Metrics](#-quality-metrics)
+    - [Code Complexity](#code-complexity)
+    - [Technical Debt](#technical-debt)
+  - [📉 Regression Alerts](#-regression-alerts)
+    - [Monitored Metrics (Auto-Alert if Regression)](#monitored-metrics-auto-alert-if-regression)
+  - [🛠️ Compilation Issues Fixed (Day 1)](#-compilation-issues-fixed-day-1)
+    - [Issues Resolved](#issues-resolved)
+    - [Build Status](#build-status)
+  - [📅 Next Steps (Day 2)](#-next-steps-day-2)
+    - [Immediate Priorities](#immediate-priorities)
+  - [📊 Weekly Dashboard](#-weekly-dashboard)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 3: Coverage & Health Metrics - Baseline Report
 
 **Generated:** 2025-11-18

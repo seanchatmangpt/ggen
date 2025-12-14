@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Thesis: AI-Assisted Code Generation](#thesis-ai-assisted-code-generation)
+  - [The Problem: Two Extremes](#the-problem-two-extremes)
+    - [Approach 1: Pure Template-Based Generation](#approach-1-pure-template-based-generation)
+    - [Approach 2: Pure AI-Based Generation](#approach-2-pure-ai-based-generation)
+  - [The Solution: Hybrid Approach (RDF + AI)](#the-solution-hybrid-approach-rdf--ai)
+    - [Core Principle](#core-principle)
+    - [How It Works](#how-it-works)
+      - [Step 1: Define Structure in RDF (Deterministic)](#step-1-define-structure-in-rdf-deterministic)
+      - [Step 2: Query for Structured Data (Deterministic)](#step-2-query-for-structured-data-deterministic)
+      - [Step 3: Generate Base Code via Template (Deterministic)](#step-3-generate-base-code-via-template-deterministic)
+      - [Step 4: Enhance with AI (Creative)](#step-4-enhance-with-ai-creative)
+      - [Step 5: Validate Against Schema (Deterministic)](#step-5-validate-against-schema-deterministic)
+  - [Benefits of Hybrid Approach](#benefits-of-hybrid-approach)
+    - [1. Best of Both Worlds](#1-best-of-both-worlds)
+    - [2. Graceful Degradation](#2-graceful-degradation)
+    - [3. Cost Control via Environment Configuration](#3-cost-control-via-environment-configuration)
+  - [Use Cases](#use-cases)
+    - [Use Case 1: API Endpoint Generation](#use-case-1-api-endpoint-generation)
+    - [Use Case 2: Database Migration Scripts](#use-case-2-database-migration-scripts)
+    - [Use Case 3: Test Generation](#use-case-3-test-generation)
+  - [Limitations and Mitigations](#limitations-and-mitigations)
+    - [Limitation 1: Non-Determinism in AI Mode](#limitation-1-non-determinism-in-ai-mode)
+    - [Limitation 2: Cost (API Calls)](#limitation-2-cost-api-calls)
+    - [Limitation 3: Latency (2-5s per generation)](#limitation-3-latency-2-5s-per-generation)
+  - [Future Directions](#future-directions)
+    - [1. Fine-Tuned Models (v5.0.0)](#1-fine-tuned-models-v500)
+    - [2. Agentic Generation (v5.1.0)](#2-agentic-generation-v510)
+    - [3. Continuous Learning (v5.2.0)](#3-continuous-learning-v520)
+  - [Conclusion](#conclusion)
+    - [Key Principles](#key-principles)
+    - [Production Evidence](#production-evidence)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Thesis: AI-Assisted Code Generation
 
 **Abstract**: LLMs enhance code generation when combined with formal schemas. This thesis argues that the hybrid approach (RDF for structure + AI for creativity) produces superior results compared to pure template-based or pure AI-based generation.

@@ -1,3 +1,50 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 4: Getting Started Guide](#week-4-getting-started-guide)
+  - [Prerequisites](#prerequisites)
+  - [Initial Setup (One-Time)](#initial-setup-one-time)
+    - [1. Verify Week 3 Baseline](#1-verify-week-3-baseline)
+    - [2. Create Week 4 Structure](#2-create-week-4-structure)
+    - [3. Make Scripts Executable](#3-make-scripts-executable)
+  - [Daily Workflow](#daily-workflow)
+    - [Every Morning (Days 1-5)](#every-morning-days-1-5)
+    - [Every Evening (Optional)](#every-evening-optional)
+  - [What to Expect Each Day](#what-to-expect-each-day)
+    - [Day 1: Baseline Establishment](#day-1-baseline-establishment)
+    - [Day 2: CLI Test Coverage](#day-2-cli-test-coverage)
+    - [Day 3: Utils & Ontology Tests](#day-3-utils--ontology-tests)
+    - [Day 4: Marketplace & Integration](#day-4-marketplace--integration)
+    - [Day 5: Final Validation](#day-5-final-validation)
+  - [Understanding the Metrics](#understanding-the-metrics)
+    - [Health Score (81% → 85%)](#health-score-81-%E2%86%92-85)
+    - [Coverage (50% → 65%)](#coverage-50-%E2%86%92-65)
+    - [Tests (464 → 560+)](#tests-464-%E2%86%92-560)
+  - [Interpreting Dashboard Output](#interpreting-dashboard-output)
+    - [Progress Bars](#progress-bars)
+    - [Status Icons](#status-icons)
+    - [Trend Arrows](#trend-arrows)
+  - [Troubleshooting](#troubleshooting)
+    - [Daily Tracker Fails](#daily-tracker-fails)
+    - [Dashboard Shows Wrong Data](#dashboard-shows-wrong-data)
+    - [Coverage Not Increasing](#coverage-not-increasing)
+  - [Common Questions](#common-questions)
+    - [Q: How often should I run the tracker?](#q-how-often-should-i-run-the-tracker)
+    - [Q: What if I'm behind schedule?](#q-what-if-im-behind-schedule)
+    - [Q: Can I run tracker multiple times per day?](#q-can-i-run-tracker-multiple-times-per-day)
+    - [Q: What if health score regresses?](#q-what-if-health-score-regresses)
+    - [Q: How do I know if I'm on track?](#q-how-do-i-know-if-im-on-track)
+  - [Success Indicators](#success-indicators)
+    - [Daily Success](#daily-success)
+    - [Week 4 Success (Final)](#week-4-success-final)
+  - [Next Steps After Week 4](#next-steps-after-week-4)
+  - [Quick Reference](#quick-reference)
+    - [Essential Commands](#essential-commands)
+    - [File Locations](#file-locations)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 4: Getting Started Guide
 
 **Quick start guide for Week 4 metrics tracking and health score validation.**

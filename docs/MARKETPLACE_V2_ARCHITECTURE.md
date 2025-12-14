@@ -1,3 +1,58 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-marketplace Architecture Document](#ggen-marketplace-architecture-document)
+  - [Executive Summary](#executive-summary)
+  - [Module Dependency Graph](#module-dependency-graph)
+  - [Module Catalog (28 Modules)](#module-catalog-28-modules)
+    - [Layer 1: Core Data Models](#layer-1-core-data-models)
+    - [Layer 2: Registry Implementations](#layer-2-registry-implementations)
+    - [Layer 3: RDF/Semantic Layer](#layer-3-rdfsemantic-layer)
+    - [Layer 4: Search & Discovery](#layer-4-search--discovery)
+    - [Layer 5: Installation & Security](#layer-5-installation--security)
+    - [Layer 6: Operations & Migration](#layer-6-operations--migration)
+    - [Layer 7: Additional Modules](#layer-7-additional-modules)
+  - [Data Flow Architecture](#data-flow-architecture)
+  - [Core Trait Definitions](#core-trait-definitions)
+    - [AsyncRepository (Primary Storage Trait)](#asyncrepository-primary-storage-trait)
+    - [Queryable (Search Interface)](#queryable-search-interface)
+    - [Installable (Dependency Resolution)](#installable-dependency-resolution)
+  - [API Contract Definitions](#api-contract-definitions)
+    - [Registry API Surface](#registry-api-surface)
+    - [RdfRegistry API Surface](#rdfregistry-api-surface)
+    - [Installer API Surface](#installer-api-surface)
+    - [SearchEngine API Surface](#searchengine-api-surface)
+    - [SparqlSearchEngine API Surface](#sparqlsearchengine-api-surface)
+  - [Error Handling Surface](#error-handling-surface)
+  - [Integration Points](#integration-points)
+    - [1. ggen-cli -> marketplace-v2](#1-ggen-cli---marketplace-v2)
+    - [2. ggen-core -> marketplace-v2](#2-ggen-core---marketplace-v2)
+    - [3. ggen-domain -> marketplace-v2](#3-ggen-domain---marketplace-v2)
+  - [RdfRegistry Implementation Analysis (Phase 2A)](#rdfregistry-implementation-analysis-phase-2a)
+    - [Current State](#current-state)
+    - [RdfMapper Analysis](#rdfmapper-analysis)
+  - [Critical Path Analysis](#critical-path-analysis)
+    - [Path 1: Package Registration](#path-1-package-registration)
+    - [Path 2: Package Search](#path-2-package-search)
+    - [Path 3: Package Installation](#path-3-package-installation)
+  - [Performance Characteristics](#performance-characteristics)
+    - [Caching Strategy](#caching-strategy)
+    - [Concurrency Model](#concurrency-model)
+    - [SLO Targets (from v3.rs)](#slo-targets-from-v3rs)
+  - [Security Model](#security-model)
+    - [Cryptographic Operations](#cryptographic-operations)
+    - [Signature Flow](#signature-flow)
+  - [Poka-Yoke (Error Prevention) Patterns](#poka-yoke-error-prevention-patterns)
+    - [Type-Level State Machines](#type-level-state-machines)
+  - [Migration Strategy](#migration-strategy)
+  - [Recommendations for Phase 2B-2C](#recommendations-for-phase-2b-2c)
+    - [Phase 2B: Complete RdfRegistry CRUD](#phase-2b-complete-rdfregistry-crud)
+    - [Phase 2C: Integration Testing](#phase-2c-integration-testing)
+  - [Appendix: File Organization](#appendix-file-organization)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-marketplace Architecture Document
 
 **Version**: 3.0.0

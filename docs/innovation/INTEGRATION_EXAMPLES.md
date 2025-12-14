@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Andon Signal Validation Framework - Integration Examples](#andon-signal-validation-framework---integration-examples)
+  - [Real-World Integration Patterns](#real-world-integration-patterns)
+    - [Example 1: CI/CD Pipeline Integration](#example-1-cicd-pipeline-integration)
+    - [Example 2: Scheduled Monitoring](#example-2-scheduled-monitoring)
+    - [Example 3: Pre-Deployment Validation](#example-3-pre-deployment-validation)
+    - [Example 4: Development Workflow](#example-4-development-workflow)
+    - [Example 5: Team Dashboard](#example-5-team-dashboard)
+    - [Example 6: Automated Remediation](#example-6-automated-remediation)
+    - [Example 7: Validation Metrics Collection](#example-7-validation-metrics-collection)
+    - [Example 8: Git Hook Integration](#example-8-git-hook-integration)
+    - [Example 9: Multi-Project Validation](#example-9-multi-project-validation)
+    - [Example 10: Validation as a Service](#example-10-validation-as-a-service)
+  - [Best Practices](#best-practices)
+    - [1. Incremental Validation](#1-incremental-validation)
+    - [2. Fail Fast](#2-fail-fast)
+    - [3. Clear Error Messages](#3-clear-error-messages)
+    - [4. Validation Caching](#4-validation-caching)
+    - [5. Parallel Execution](#5-parallel-execution)
+  - [Integration Checklist](#integration-checklist)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Andon Signal Validation Framework - Integration Examples
 
 ## Real-World Integration Patterns

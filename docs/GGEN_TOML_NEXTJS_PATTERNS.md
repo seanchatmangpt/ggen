@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen.toml Configuration Patterns from Next.js](#ggentoml-configuration-patterns-from-nextjs)
+  - [Overview](#overview)
+  - [Side-by-Side Pattern Comparison](#side-by-side-pattern-comparison)
+    - [1. Environment-Specific Configuration](#1-environment-specific-configuration)
+    - [2. Build/Generation Phase Hooks](#2-buildgeneration-phase-hooks)
+    - [3. Workspace Dependencies (Monorepo Pattern)](#3-workspace-dependencies-monorepo-pattern)
+    - [4. Performance Optimization Configuration](#4-performance-optimization-configuration)
+    - [5. Module Configuration Sections](#5-module-configuration-sections)
+  - [Configuration Philosophy Comparison](#configuration-philosophy-comparison)
+    - [Next.js Configuration Philosophy](#nextjs-configuration-philosophy)
+    - [ggen.toml Configuration Philosophy](#ggentoml-configuration-philosophy)
+  - [Translation Table: Next.js ↔ ggen.toml](#translation-table-nextjs--ggentoml)
+  - [Unified Command Pattern (Package.json Scripts)](#unified-command-pattern-packagejson-scripts)
+  - [Key Takeaways](#key-takeaways)
+    - [What ggen.toml Adopted from Next.js](#what-ggentoml-adopted-from-nextjs)
+    - [What ggen.toml Adapted for Rust](#what-ggentoml-adapted-for-rust)
+    - [What ggen.toml Skipped (Not Applicable)](#what-ggentoml-skipped-not-applicable)
+  - [Benefits of This Approach](#benefits-of-this-approach)
+    - [For JavaScript Developers Coming to Rust](#for-javascript-developers-coming-to-rust)
+    - [For Rust Developers](#for-rust-developers)
+    - [For ggen Users](#for-ggen-users)
+  - [Future Enhancements (Optional)](#future-enhancements-optional)
+    - [Could Add (80/20 high value):](#could-add-8020-high-value)
+    - [Could Skip (Low value, high complexity):](#could-skip-low-value-high-complexity)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen.toml Configuration Patterns from Next.js
 
 **Status**: Documentation of configuration architecture

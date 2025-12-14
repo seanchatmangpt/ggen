@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [RDF Persistence Fix - Evidence Report](#rdf-persistence-fix---evidence-report)
+  - [🎉 Summary](#-summary)
+  - [📊 Evidence of Working System](#-evidence-of-working-system)
+    - [Test 1: Load Electric Schema into Persistent Store](#test-1-load-electric-schema-into-persistent-store)
+    - [Test 2: Verify Persistent Storage](#test-2-verify-persistent-storage)
+    - [Test 3: Query Without Reloading File](#test-3-query-without-reloading-file)
+    - [Test 4: Query Triple Data](#test-4-query-triple-data)
+    - [Test 5: Full Test Suite Verification](#test-5-full-test-suite-verification)
+  - [🔧 Code Changes](#-code-changes)
+    - [File 1: `/Users/sac/ggen/crates/ggen-domain/src/graph/load.rs`](#file-1-userssacggencratesggen-domainsrcgraphloadrs)
+    - [File 2: `/Users/sac/ggen/crates/ggen-domain/src/graph/query.rs`](#file-2-userssacggencratesggen-domainsrcgraphqueryrs)
+    - [File 3: `/Users/sac/ggen/crates/ggen-core/src/lib.rs`](#file-3-userssacggencratesggen-coresrclibrs)
+  - [🎯 What This Enables](#-what-this-enables)
+    - [Incremental Development](#incremental-development)
+    - [Query-Driven Development](#query-driven-development)
+    - [Multi-Template Generation](#multi-template-generation)
+    - [Ontology Evolution](#ontology-evolution)
+  - [✅ Validation Status Update](#-validation-status-update)
+    - [Before Fix](#before-fix)
+    - [After Fix](#after-fix)
+  - [🎉 Conclusion](#-conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # RDF Persistence Fix - Evidence Report
 
 **Date**: 2025-12-11

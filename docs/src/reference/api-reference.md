@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [API Reference](#api-reference)
+  - [Rust API](#rust-api)
+    - [Core Crate: `ggen-core`](#core-crate-ggen-core)
+    - [CLI Crate: `ggen-cli`](#cli-crate-ggen-cli)
+    - [Domain Crate: `ggen-domain`](#domain-crate-ggen-domain)
+  - [Node.js Bindings](#nodejs-bindings)
+    - [Installation](#installation)
+    - [Usage](#usage)
+    - [API Methods](#api-methods)
+  - [Python API](#python-api)
+    - [Installation](#installation-1)
+    - [Usage](#usage-1)
+    - [API Functions](#api-functions)
+  - [REST API (If Using ggen Server)](#rest-api-if-using-ggen-server)
+    - [Endpoints](#endpoints)
+  - [Data Types](#data-types)
+    - [RdfGraph](#rdfgraph)
+    - [Class](#class)
+    - [Property](#property)
+    - [ValidationResult](#validationresult)
+  - [Error Handling](#error-handling)
+    - [Rust Error Types](#rust-error-types)
+    - [Python Error Types](#python-error-types)
+  - [Version Information](#version-information)
+    - [Crate Versions](#crate-versions)
+    - [Compatibility](#compatibility)
+  - [Examples](#examples)
+  - [Getting Help](#getting-help)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # API Reference
 
 Complete reference for ggen's public API and language bindings.

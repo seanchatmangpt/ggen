@@ -1,3 +1,51 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Product Requirements Document](#ggen-product-requirements-document)
+  - [Executive Summary](#executive-summary)
+  - [Target Users](#target-users)
+    - [1. Backend Developers (Primary)](#1-backend-developers-primary)
+    - [2. Data Engineers (Secondary)](#2-data-engineers-secondary)
+    - [3. AI Engineers (Emerging)](#3-ai-engineers-emerging)
+  - [Core Features (80/20 - Highest Value)](#core-features-8020---highest-value)
+    - [Feature 1: RDF/SPARQL Processing (MUST HAVE)](#feature-1-rdfsparql-processing-must-have)
+    - [Feature 2: Template-Based Code Generation (MUST HAVE)](#feature-2-template-based-code-generation-must-have)
+    - [Feature 3: Multi-Language Support (MUST HAVE)](#feature-3-multi-language-support-must-have)
+    - [Feature 4: AI-Assisted Generation (SHOULD HAVE)](#feature-4-ai-assisted-generation-should-have)
+    - [Feature 5: Package Marketplace (SHOULD HAVE)](#feature-5-package-marketplace-should-have)
+    - [Feature 6: Lifecycle Hooks (NICE TO HAVE)](#feature-6-lifecycle-hooks-nice-to-have)
+  - [Non-Goals (Explicitly Out of Scope)](#non-goals-explicitly-out-of-scope)
+    - [❌ NOT a Build System](#-not-a-build-system)
+    - [❌ NOT an IDE Plugin](#-not-an-ide-plugin)
+    - [❌ NOT a Schema Registry](#-not-a-schema-registry)
+    - [❌ NOT a Validator (Primary Use Case)](#-not-a-validator-primary-use-case)
+  - [Success Metrics](#success-metrics)
+    - [Technical Metrics](#technical-metrics)
+    - [User Adoption Metrics](#user-adoption-metrics)
+    - [Production Readiness (v4.0.0)](#production-readiness-v400)
+  - [Roadmap (Future Versions)](#roadmap-future-versions)
+    - [v4.1.0 (Q1 2025) - Performance & Polish](#v410-q1-2025---performance--polish)
+    - [v4.2.0 (Q2 2025) - Community Growth](#v420-q2-2025---community-growth)
+    - [v5.0.0 (Q3 2025) - Advanced AI Integration](#v500-q3-2025---advanced-ai-integration)
+  - [Target Personas (Detailed)](#target-personas-detailed)
+    - [Persona 1: "Backend Bob" - Rust API Developer](#persona-1-backend-bob---rust-api-developer)
+    - [Persona 2: "Data Engineer Dana" - Knowledge Graph Expert](#persona-2-data-engineer-dana---knowledge-graph-expert)
+    - [Persona 3: "AI Engineer Alex" - LLM Integration Specialist](#persona-3-ai-engineer-alex---llm-integration-specialist)
+  - [Competitive Analysis](#competitive-analysis)
+    - [ggen vs. OpenAPI Generator](#ggen-vs-openapi-generator)
+    - [ggen vs. GraphQL Code Generator](#ggen-vs-graphql-code-generator)
+    - [ggen vs. Protobuf Compiler (protoc)](#ggen-vs-protobuf-compiler-protoc)
+  - [Pricing & Distribution](#pricing--distribution)
+    - [Open Source (MIT License)](#open-source-mit-license)
+  - [Risk Assessment](#risk-assessment)
+    - [Risk 1: Steep Learning Curve (RDF/SPARQL)](#risk-1-steep-learning-curve-rdfsparql)
+    - [Risk 2: Marketplace Quality Control](#risk-2-marketplace-quality-control)
+    - [Risk 3: Performance at Scale](#risk-3-performance-at-scale)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Product Requirements Document
 
 **Vision**: Deterministic, ontology-driven code generation across languages

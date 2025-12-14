@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [🚀 Test Consolidation: Implementation Guide](#-test-consolidation-implementation-guide)
+  - [Overview](#overview)
+  - [Phase 1: Project Setup (30 minutes)](#phase-1-project-setup-30-minutes)
+    - [Step 1.1: Create Backup](#step-11-create-backup)
+    - [Step 1.2: Create Directory Structure](#step-12-create-directory-structure)
+    - [Step 1.3: Identify Test Files to Keep vs Archive](#step-13-identify-test-files-to-keep-vs-archive)
+  - [Phase 2: Create Consolidated Core Tests (1 hour)](#phase-2-create-consolidated-core-tests-1-hour)
+    - [Step 2.1: Create Template](#step-21-create-template)
+    - [Step 2.2: Refine Core Tests](#step-22-refine-core-tests)
+    - [Step 2.3: Verify Core Tests Compile](#step-23-verify-core-tests-compile)
+  - [Phase 3: Create Consolidated Lifecycle Tests (1.5 hours)](#phase-3-create-consolidated-lifecycle-tests-15-hours)
+    - [Step 3.1: Create Template](#step-31-create-template)
+    - [Step 3.2: Extract Critical Tests](#step-32-extract-critical-tests)
+    - [Step 3.3: Verify Lifecycle Tests](#step-33-verify-lifecycle-tests)
+  - [Phase 4: Create Consolidated Swarm Tests (2 hours)](#phase-4-create-consolidated-swarm-tests-2-hours)
+    - [Step 4.1: Create Template](#step-41-create-template)
+    - [Step 4.2: Merge Critical Swarm Tests](#step-42-merge-critical-swarm-tests)
+    - [Step 4.3: Verify Swarm Tests](#step-43-verify-swarm-tests)
+  - [Phase 5: Create Consolidated Semantic Tests (1.5 hours)](#phase-5-create-consolidated-semantic-tests-15-hours)
+    - [Step 5.1: Create Template](#step-51-create-template)
+    - [Step 5.2: Extract Critical Semantic Tests](#step-52-extract-critical-semantic-tests)
+    - [Step 5.3: Verify Semantic Tests](#step-53-verify-semantic-tests)
+  - [Phase 6: Validation & Cleanup (1 hour)](#phase-6-validation--cleanup-1-hour)
+    - [Step 6.1: Run Full Test Suite](#step-61-run-full-test-suite)
+    - [Step 6.2: Verify Coverage](#step-62-verify-coverage)
+    - [Step 6.3: Archive Old Tests](#step-63-archive-old-tests)
+    - [Step 6.4: Update Cargo.toml](#step-64-update-cargotoml)
+    - [Step 6.5: Commit Changes](#step-65-commit-changes)
+  - [Phase 7: Documentation & Communication](#phase-7-documentation--communication)
+    - [Step 7.1: Update README](#step-71-update-readme)
+    - [Test Modules](#test-modules)
+  - [Verification Checklist](#verification-checklist)
+  - [Rollback Plan](#rollback-plan)
+  - [Success Metrics](#success-metrics)
+    - [Code Quality](#code-quality)
+    - [Execution Performance](#execution-performance)
+    - [Maintainability](#maintainability)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 🚀 Test Consolidation: Implementation Guide
 
 ## Overview

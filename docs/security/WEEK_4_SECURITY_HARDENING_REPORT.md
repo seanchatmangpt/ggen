@@ -1,3 +1,49 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 4 Security Hardening Report](#week-4-security-hardening-report)
+  - [Executive Summary](#executive-summary)
+  - [Security Improvements Delivered](#security-improvements-delivered)
+    - [1. Panic Prevention in Library Code ✅](#1-panic-prevention-in-library-code-)
+    - [2. Unwrap() Elimination ✅](#2-unwrap-elimination-)
+    - [3. Command Injection Prevention ✅](#3-command-injection-prevention-)
+      - [New Security Module: `crates/ggen-core/src/security/command.rs`](#new-security-module-cratesggen-coresrcsecuritycommandrs)
+    - [4. Input Validation ✅](#4-input-validation-)
+      - [New Security Module: `crates/ggen-core/src/security/validation.rs`](#new-security-module-cratesggen-coresrcsecurityvalidationrs)
+        - [PathValidator](#pathvalidator)
+        - [EnvVarValidator](#envvarvalidator)
+        - [InputValidator](#inputvalidator)
+    - [5. Error Message Sanitization ✅](#5-error-message-sanitization-)
+      - [New Security Module: `crates/ggen-core/src/security/error.rs`](#new-security-module-cratesggen-coresrcsecurityerrorrs)
+        - [SanitizedError Type](#sanitizederror-type)
+        - [ErrorSanitizer](#errorsanitizer)
+  - [Security Test Suite](#security-test-suite)
+    - [New Test File: `tests/security/week4_security_hardening_tests.rs`](#new-test-file-testssecurityweek4_security_hardening_testsrs)
+  - [Code Quality Metrics](#code-quality-metrics)
+    - [Security Improvements](#security-improvements)
+    - [New Security Infrastructure](#new-security-infrastructure)
+  - [Implementation Timeline](#implementation-timeline)
+    - [Day 1: Foundation & Panic Fixes ✅](#day-1-foundation--panic-fixes-)
+    - [Day 2: Command Injection & Unwrap Fixes ✅](#day-2-command-injection--unwrap-fixes-)
+    - [Day 3: Validation & Error Sanitization ✅](#day-3-validation--error-sanitization-)
+  - [Attack Vector Protection](#attack-vector-protection)
+    - [Protected Against](#protected-against)
+  - [Testing Results](#testing-results)
+    - [Unit Tests](#unit-tests)
+    - [Integration Tests](#integration-tests)
+    - [Regression Tests](#regression-tests)
+  - [Security Best Practices Applied](#security-best-practices-applied)
+  - [Recommendations for Week 5+](#recommendations-for-week-5)
+    - [Immediate Next Steps](#immediate-next-steps)
+    - [Medium-Term (Weeks 5-7)](#medium-term-weeks-5-7)
+  - [Conclusion](#conclusion)
+    - [Key Achievements](#key-achievements)
+    - [Security Posture](#security-posture)
+    - [Next Milestone](#next-milestone)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 4 Security Hardening Report
 
 **Date**: 2025-11-18

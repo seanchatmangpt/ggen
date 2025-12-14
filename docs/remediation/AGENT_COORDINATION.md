@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [12-Agent Swarm Coordination Plan](#12-agent-swarm-coordination-plan)
+  - [Swarm Topology: Hierarchical (3 tiers)](#swarm-topology-hierarchical-3-tiers)
+    - [Tier 1: Strategic Planning (3 agents)](#tier-1-strategic-planning-3-agents)
+    - [Tier 2: Implementation (6 agents)](#tier-2-implementation-6-agents)
+    - [Tier 3: Support & Analysis (3 agents)](#tier-3-support--analysis-3-agents)
+  - [Parallel Execution Tracks](#parallel-execution-tracks)
+    - [Track 1: Foundation (Week 2-4)](#track-1-foundation-week-2-4)
+    - [Track 2: Architecture & Design (Week 3-5)](#track-2-architecture--design-week-3-5)
+    - [Track 3: Marketplace Integration (Week 5-6)](#track-3-marketplace-integration-week-5-6)
+    - [Track 4: Lifecycle Enforcement (Week 7-8)](#track-4-lifecycle-enforcement-week-7-8)
+    - [Track 5: Phase 2-3 Implementation (Week 9-16)](#track-5-phase-2-3-implementation-week-9-16)
+  - [Communication Protocol](#communication-protocol)
+    - [Daily Standups (Week 2-3)](#daily-standups-week-2-3)
+    - [Weekly Sync (Week 4+)](#weekly-sync-week-4)
+    - [Code Review Gates](#code-review-gates)
+  - [Shared Memory Structure](#shared-memory-structure)
+  - [Conflict Resolution](#conflict-resolution)
+    - [Priority Hierarchy](#priority-hierarchy)
+    - [Escalation Path](#escalation-path)
+  - [Success Metrics](#success-metrics)
+    - [Week 2](#week-2)
+    - [Week 4](#week-4)
+    - [Week 6](#week-6)
+    - [Week 8](#week-8)
+    - [Week 16](#week-16)
+  - [Agent Status Dashboard](#agent-status-dashboard)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 12-Agent Swarm Coordination Plan
 
 ## Swarm Topology: Hierarchical (3 tiers)
