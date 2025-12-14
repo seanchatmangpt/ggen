@@ -1,0 +1,272 @@
+---
+# clap-noun-verb CLI Project Template
+# Generates a complete Rust CLI project from RDF description
+#
+# Usage:
+#   ggen project gen \
+#     --template_ref marketplace/packages/clap-noun-verb/templates/cli-project.tmpl \
+#     --vars domain_rdf=my-cli.ttl
+#
+# Or with project generate (file-based routing):
+#   Copy this template and your .ttl file to your project, then:
+#   ggen project generate
+
+to: "."
+rdf: "{{ domain_rdf }}"
+prefixes:
+  cnv: "https://ggen.dev/clap-noun-verb/"
+  rdfs: "http://www.w3.org/2000/01/rdf-schema#"
+  rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+
+sparql:
+  project: |
+    SELECT ?name ?version ?description WHERE {
+      ?proj a cnv:CliProject ;
+            cnv:projectName ?name .
+      OPTIONAL { ?proj cnv:projectVersion ?version }
+      OPTIONAL { ?proj rdfs:comment ?description }
+    }
+    LIMIT 1
+
+  nouns: |
+    SELECT ?noun ?name ?description WHERE {
+      ?noun a cnv:Noun ;
+            cnv:nounName ?name .
+      OPTIONAL { ?noun rdfs:comment ?description }
+    }
+    ORDER BY ?name
+
+  verbs: |
+    SELECT ?verb ?name ?noun_name ?description WHERE {
+      ?noun a cnv:Noun ;
+            cnv:nounName ?noun_name ;
+            cnv:hasVerbs ?verb .
+      ?verb a cnv:Verb ;
+            cnv:verbName ?name .
+      OPTIONAL { ?verb rdfs:comment ?description }
+    }
+    ORDER BY ?noun_name ?name
+
+  arguments: |
+    SELECT ?arg ?name ?rust_type ?verb_name WHERE {
+      ?verb a cnv:Verb ;
+            cnv:verbName ?verb_name ;
+            cnv:hasArguments ?arg .
+      ?arg a cnv:Argument ;
+           cnv:argumentName ?name ;
+           cnv:argumentType ?type_node .
+      ?type_node cnv:rust-type ?rust_type .
+    }
+    ORDER BY ?verb_name ?name
+---
+{# FILE: Cargo.toml #}
+[package]
+name = "{{ sparql_first(results=sparql_results.project, column="name") | default(value="my-cli") | trim_matches(pat='"') }}"
+version = "{{ sparql_first(results=sparql_results.project, column="version") | default(value="0.1.0") | trim_matches(pat='"') }}"
+edition = "2021"
+description = "{{ sparql_first(results=sparql_results.project, column="description") | default(value="Generated CLI application") | trim_matches(pat='"') }}"
+
+[dependencies]
+clap-noun-verb = "5.3"
+clap-noun-verb-macros = "5.3"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+
+[[bin]]
+name = "{{ sparql_first(results=sparql_results.project, column="name") | default(value="my-cli") | trim_matches(pat='"') }}"
+path = "src/main.rs"
+
+{# FILE: src/main.rs #}
+//! Generated CLI - from RDF ontology
+//!
+//! This CLI was generated using clap-noun-verb from an RDF description.
+//! Architecture:
+//! - CLI Layer (this file): Argument parsing, validation, error formatting
+//! - Domain Layer (domain.rs): Pure business logic - implement your logic here
+//! - Error Types (error.rs): Type-safe error handling
+
+use clap_noun_verb::Result;
+use clap_noun_verb_macros::noun;
+use serde::Serialize;
+
+mod domain;
+mod error;
+
+use error::CliError;
+
+{% for noun in sparql_results.nouns %}
+// ============================================================================
+// {{ noun.name | trim_matches(pat='"') | upper }} - {{ noun.description | default(value=noun.name) | trim_matches(pat='"') }}
+// ============================================================================
+
+#[noun("{{ noun.name | trim_matches(pat='"') }}", "{{ noun.description | default(value=noun.name) | trim_matches(pat='"') }}")]
+mod {{ noun.name | trim_matches(pat='"') }} {
+    use super::*;
+    use clap_noun_verb_macros::verb;
+
+{% for verb in sparql_results.verbs %}{% if verb.noun_name | trim_matches(pat='"') == noun.name | trim_matches(pat='"') %}
+    /// {{ verb.description | default(value=verb.name) | trim_matches(pat='"') }}
+    #[verb("{{ verb.name | trim_matches(pat='"') }}")]
+    pub fn {{ verb.name | trim_matches(pat='"') }}(
+{% for arg in sparql_results.arguments %}{% if arg.verb_name | trim_matches(pat='"') == verb.name | trim_matches(pat='"') %}
+        {{ arg.name | trim_matches(pat='"') }}: {{ arg.rust_type | trim_matches(pat='"') }},
+{% endif %}{% endfor %}
+    ) -> Result<serde_json::Value> {
+        // Delegate to domain layer
+        let result = crate::domain::{{ noun.name | trim_matches(pat='"') }}::{{ verb.name | trim_matches(pat='"') }}(
+{% for arg in sparql_results.arguments %}{% if arg.verb_name | trim_matches(pat='"') == verb.name | trim_matches(pat='"') %}
+            {{ arg.name | trim_matches(pat='"') }},
+{% endif %}{% endfor %}
+        ).map_err(|e| CliError::from(e))?;
+
+        // Return as JSON for structured output
+        Ok(serde_json::to_value(&result).map_err(|e| CliError::Serialization(e.to_string()))?)
+    }
+
+{% endif %}{% endfor %}
+}
+
+{% endfor %}
+fn main() -> Result<()> {
+    clap_noun_verb::run()
+}
+
+{# FILE: src/domain.rs #}
+//! Domain Layer - Pure Business Logic
+//!
+//! This module contains all business logic. It has:
+//! - No CLI awareness
+//! - No clap dependencies
+//! - Pure Rust functions that are fully testable
+//!
+//! IMPLEMENT YOUR LOGIC HERE by replacing the unimplemented!() calls.
+
+use crate::error::DomainError;
+use serde::Serialize;
+
+{% for noun in sparql_results.nouns %}
+// ============================================================================
+// {{ noun.name | trim_matches(pat='"') | upper }} Domain Logic
+// ============================================================================
+
+pub mod {{ noun.name | trim_matches(pat='"') }} {
+    use super::*;
+
+{% for verb in sparql_results.verbs %}{% if verb.noun_name | trim_matches(pat='"') == noun.name | trim_matches(pat='"') %}
+    /// Domain logic for {{ noun.name | trim_matches(pat='"') }}::{{ verb.name | trim_matches(pat='"') }}
+    ///
+    /// TODO: Implement your business logic here.
+    /// This function should be pure (no side effects) and fully testable.
+    pub fn {{ verb.name | trim_matches(pat='"') }}(
+{% for arg in sparql_results.arguments %}{% if arg.verb_name | trim_matches(pat='"') == verb.name | trim_matches(pat='"') %}
+        _{{ arg.name | trim_matches(pat='"') }}: {{ arg.rust_type | trim_matches(pat='"') }},
+{% endif %}{% endfor %}
+    ) -> Result<impl Serialize, DomainError> {
+        // TODO: Replace with your implementation
+        unimplemented!("{{ noun.name | trim_matches(pat='"') }}::{{ verb.name | trim_matches(pat='"') }} - implement your logic here")
+    }
+
+{% endif %}{% endfor %}
+}
+
+{% endfor %}
+
+{# FILE: src/error.rs #}
+//! Error Types - Type-safe error handling
+//!
+//! Two-level error hierarchy:
+//! - DomainError: Business logic errors (returned by domain layer)
+//! - CliError: CLI/presentation errors (returned by CLI layer)
+
+use thiserror::Error;
+use serde::Serialize;
+
+// ============================================================================
+// Domain Errors (from business logic)
+// ============================================================================
+
+/// Errors from the domain layer (pure business logic)
+#[derive(Error, Debug, Clone, Serialize)]
+pub enum DomainError {
+    #[error("Validation error: {0}")]
+    Validation(String),
+
+    #[error("Not found: {0}")]
+    NotFound(String),
+
+    #[error("Operation failed: {0}")]
+    OperationFailed(String),
+
+    #[error("{0}")]
+    General(String),
+}
+
+impl DomainError {
+    pub fn validation(msg: impl Into<String>) -> Self {
+        Self::Validation(msg.into())
+    }
+
+    pub fn not_found(msg: impl Into<String>) -> Self {
+        Self::NotFound(msg.into())
+    }
+
+    pub fn failed(msg: impl Into<String>) -> Self {
+        Self::OperationFailed(msg.into())
+    }
+}
+
+// ============================================================================
+// CLI Errors (presentation layer)
+// ============================================================================
+
+/// Errors from the CLI layer (presentation/validation)
+#[derive(Error, Debug)]
+pub enum CliError {
+    #[error("Domain error: {0}")]
+    Domain(#[from] DomainError),
+
+    #[error("Invalid argument: {0}")]
+    InvalidArgument(String),
+
+    #[error("Serialization error: {0}")]
+    Serialization(String),
+
+    #[error("IO error: {0}")]
+    Io(String),
+}
+
+impl CliError {
+    pub fn exit_code(&self) -> i32 {
+        match self {
+            Self::Domain(_) => 1,
+            Self::InvalidArgument(_) => 2,
+            Self::Serialization(_) => 3,
+            Self::Io(_) => 4,
+        }
+    }
+}
+
+impl From<std::io::Error> for CliError {
+    fn from(err: std::io::Error) -> Self {
+        CliError::Io(err.to_string())
+    }
+}
+
+// ============================================================================
+// Result Type Aliases
+// ============================================================================
+
+pub type DomainResult<T> = Result<T, DomainError>;
+pub type CliResult<T> = Result<T, CliError>;
+
+{# FILE: src/lib.rs #}
+//! Generated CLI Library
+//!
+//! Re-exports domain logic for use as a library.
+
+pub mod domain;
+pub mod error;
+
+pub use domain::*;
+pub use error::{DomainError, DomainResult};

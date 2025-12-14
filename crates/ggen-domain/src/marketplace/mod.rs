@@ -17,6 +17,7 @@
 pub mod adapter;
 pub mod artifact_generator;
 pub mod bundles;
+pub mod fmea_validator; // Enterprise FMEA validation for Fortune 500 packages
 pub mod guards;
 pub mod hook;
 pub mod install;
@@ -74,6 +75,12 @@ pub use types::{Checksum, NonEmptyQuery, SemanticVersion, ValidatedPackageName};
 // ============================================================================
 // INTERNAL SUPPORTING TYPES (Still exported for cross-module use, but not primary API)
 // ============================================================================
+
+// FMEA validation (enterprise-grade package validation)
+pub use fmea_validator::{
+    FmeaCategory, FmeaCheck, FmeaCheckResult, FmeaValidationReport, FmeaValidator,
+    FmeaValidatorError,
+};
 
 // Validation infrastructure (internal, but needed by multiple modules)
 pub use guards::{Guard, GuardCheckResult, ValidationReceipt};

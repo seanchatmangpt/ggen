@@ -554,6 +554,8 @@ TODO LISTS ARE ALWAYS 10 ITEMS OR MORE. THEY ARE ALWAYS FULLY COMPLETED BEFORE P
 ## Active Technologies
 - Rust 1.74+ (edition 2021) - existing ggen toolchain (003-optimize-aci-anthropic)
 - Filesystem-based (003-optimize-aci-anthropic)
+- Rust 1.75+ (edition 2021) (006-marketplace-fmea-poka-yoke)
+- File system (package.toml, OWNERS files, generated files) (006-marketplace-fmea-poka-yoke)
 
 ## Recent Changes
 - 003-optimize-aci-anthropic: Added Rust 1.74+ (edition 2021) - existing ggen toolchain

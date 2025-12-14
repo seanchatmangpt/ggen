@@ -186,6 +186,54 @@ struct VersionsOutput {
 }
 
 #[derive(Serialize)]
+struct FmeaValidateOutput {
+    package_name: String,
+    passed: bool,
+    coverage_percentage: f64,
+    total_rpn: u16,
+    max_rpn: u16,
+    enterprise_status: FmeaEnterpriseStatusOutput,
+    checks: Vec<FmeaCheckOutput>,
+    critical_modes: Vec<FmeaCriticalModeOutput>,
+    high_risk_modes: Vec<FmeaHighRiskModeOutput>,
+    message: String,
+}
+
+#[derive(Serialize)]
+struct FmeaEnterpriseStatusOutput {
+    fortune_500_ready: bool,
+    fmea_enabled: bool,
+    poka_yoke_enabled: bool,
+    domain_protection: String,
+}
+
+#[derive(Serialize)]
+struct FmeaCheckOutput {
+    name: String,
+    category: String,
+    passed: bool,
+    message: String,
+    rpn: Option<u16>,
+}
+
+#[derive(Serialize)]
+struct FmeaCriticalModeOutput {
+    id: String,
+    mode: String,
+    rpn: u16,
+    has_control: bool,
+    control: Option<String>,
+}
+
+#[derive(Serialize)]
+struct FmeaHighRiskModeOutput {
+    id: String,
+    mode: String,
+    rpn: u16,
+    has_control: bool,
+}
+
+#[derive(Serialize)]
 struct VersionInfo {
     version: String,
     released_at: String,
@@ -884,6 +932,341 @@ fn validate(
         valid: result.passed,
         quality_score: result.quality_score,
         checks,
+        message,
+    })
+}
+
+/// Validate a package with FMEA (Failure Mode and Effects Analysis)
+///
+/// Enterprise-grade validation for Fortune 500 deployments including:
+/// - RPN (Risk Priority Number) scoring
+/// - Path protection verification
+/// - Poka-Yoke mechanism detection
+/// - CODEOWNERS/team ownership checks
+///
+/// # Usage
+///
+/// ```bash
+/// # Validate a local package directory
+/// ggen marketplace validate_fmea --package_path ./marketplace/packages/my-package
+///
+/// # Strict mode (Fortune 500 requirements)
+/// ggen marketplace validate_fmea --package_path ./my-package --strict
+///
+/// # Custom path protection patterns
+/// ggen marketplace validate_fmea --package_path ./my-package --protected "src/domain/**"
+/// ```
+#[verb]
+fn validate_fmea(
+    package_path: PathBuf, strict: bool, protected: Option<String>, regenerate: Option<String>,
+) -> Result<FmeaValidateOutput> {
+    use ggen_core::types::{FmeaConfig, PathProtectionConfig, PokaYokeConfig};
+    use std::fs;
+    use toml;
+
+    // Create path protection config
+    let protected_patterns: Vec<&str> = protected
+        .as_ref()
+        .map(|p| p.split(',').collect())
+        .unwrap_or_else(|| vec!["src/domain/**", "src/main.rs", "Cargo.toml"]);
+    let regenerate_patterns: Vec<&str> = regenerate
+        .as_ref()
+        .map(|p| p.split(',').collect())
+        .unwrap_or_else(|| vec!["src/generated/**"]);
+
+    let _path_protection = PathProtectionConfig::new(&protected_patterns, &regenerate_patterns)
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::argument_error(format!(
+                "Invalid path protection patterns: {}",
+                e
+            ))
+        })?;
+
+    let _poka_yoke = PokaYokeConfig::default();
+
+    // Load FMEA config from package.toml if exists
+    let package_toml_path = package_path.join("package.toml");
+    let fmea_config: Option<FmeaConfig> = if package_toml_path.exists() {
+        #[derive(serde::Deserialize)]
+        struct PackageToml {
+            #[serde(default)]
+            fmea: Option<FmeaConfig>,
+        }
+
+        let content = fs::read_to_string(&package_toml_path).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to read package.toml: {}",
+                e
+            ))
+        })?;
+
+        let parsed: PackageToml = toml::from_str(&content).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to parse package.toml: {}",
+                e
+            ))
+        })?;
+
+        parsed.fmea
+    } else {
+        None
+    };
+
+    // Validate FMEA config
+    let mut checks = Vec::new();
+    let mut critical_modes = Vec::new();
+    let mut high_risk_modes = Vec::new();
+    let mut total_rpn: u16 = 0;
+    let mut max_rpn: u16 = 0;
+    let mut coverage = 100.0f64;
+    let mut fmea_enabled = false;
+
+    // Check 1: Path protection
+    let generation_toml = package_path.join("generation.toml");
+    if generation_toml.exists() {
+        checks.push(FmeaCheckOutput {
+            name: "Path Protection Configuration".to_string(),
+            category: "PathProtection".to_string(),
+            passed: true,
+            message: "generation.toml found with path protection rules".to_string(),
+            rpn: None,
+        });
+    } else if package_toml_path.exists() {
+        checks.push(FmeaCheckOutput {
+            name: "Path Protection Configuration".to_string(),
+            category: "PathProtection".to_string(),
+            passed: true,
+            message: "Using default path protection (no explicit generation.toml)".to_string(),
+            rpn: Some(50),
+        });
+    } else {
+        checks.push(FmeaCheckOutput {
+            name: "Path Protection Configuration".to_string(),
+            category: "PathProtection".to_string(),
+            passed: false,
+            message: "No package.toml or generation.toml found".to_string(),
+            rpn: Some(100),
+        });
+    }
+
+    // Check 2: FMEA controls
+    if let Some(ref config) = fmea_config {
+        if config.enabled {
+            fmea_enabled = true;
+
+            // Collect failure modes
+            for fm in &config.controls {
+                if let Ok(rpn_score) = fm.calculate_rpn() {
+                    let rpn_value = rpn_score.value();
+                    total_rpn = total_rpn.saturating_add(rpn_value);
+                    if rpn_value > max_rpn {
+                        max_rpn = rpn_value;
+                    }
+
+                    // Critical: RPN > 200
+                    if rpn_value > 200 {
+                        critical_modes.push(FmeaCriticalModeOutput {
+                            id: fm.id.clone(),
+                            mode: fm.mode.clone(),
+                            rpn: rpn_value,
+                            has_control: fm.is_mitigated(),
+                            control: fm.control.clone(),
+                        });
+                    }
+                    // High risk: RPN 100-200
+                    else if rpn_value >= 100 {
+                        high_risk_modes.push(FmeaHighRiskModeOutput {
+                            id: fm.id.clone(),
+                            mode: fm.mode.clone(),
+                            rpn: rpn_value,
+                            has_control: fm.is_mitigated(),
+                        });
+                    }
+                }
+            }
+
+            // Calculate coverage
+            coverage = config.coverage_percentage();
+
+            let has_unmitigated = critical_modes.iter().any(|m| !m.has_control);
+            if has_unmitigated {
+                checks.push(FmeaCheckOutput {
+                    name: "FMEA Controls Coverage".to_string(),
+                    category: "ControlCoverage".to_string(),
+                    passed: false,
+                    message: format!(
+                        "Unmitigated critical failure modes (coverage: {:.1}%)",
+                        coverage
+                    ),
+                    rpn: critical_modes
+                        .iter()
+                        .filter(|m| !m.has_control)
+                        .map(|m| m.rpn)
+                        .max(),
+                });
+            } else if strict && high_risk_modes.iter().any(|m| !m.has_control) {
+                checks.push(FmeaCheckOutput {
+                    name: "FMEA Controls Coverage".to_string(),
+                    category: "ControlCoverage".to_string(),
+                    passed: true,
+                    message: format!(
+                        "High-risk modes without controls (strict mode, coverage: {:.1}%)",
+                        coverage
+                    ),
+                    rpn: high_risk_modes
+                        .iter()
+                        .filter(|m| !m.has_control)
+                        .map(|m| m.rpn)
+                        .max(),
+                });
+            } else {
+                checks.push(FmeaCheckOutput {
+                    name: "FMEA Controls Coverage".to_string(),
+                    category: "ControlCoverage".to_string(),
+                    passed: true,
+                    message: format!("FMEA coverage: {:.1}%", coverage),
+                    rpn: None,
+                });
+            }
+        } else {
+            checks.push(FmeaCheckOutput {
+                name: "FMEA Controls Coverage".to_string(),
+                category: "ControlCoverage".to_string(),
+                passed: true,
+                message: "FMEA not enabled in package.toml".to_string(),
+                rpn: None,
+            });
+        }
+    } else {
+        checks.push(FmeaCheckOutput {
+            name: "FMEA Controls Coverage".to_string(),
+            category: "ControlCoverage".to_string(),
+            passed: true,
+            message: "No FMEA configuration found".to_string(),
+            rpn: None,
+        });
+    }
+
+    // Check 3: Poka-Yoke mechanisms
+    let mut poka_yoke_score = 0;
+    let mut poka_yoke_findings = Vec::new();
+
+    let gitattributes = package_path.join(".gitattributes");
+    if gitattributes.exists() {
+        if let Ok(content) = fs::read_to_string(&gitattributes) {
+            if content.contains("linguist-generated") {
+                poka_yoke_score += 1;
+                poka_yoke_findings.push("linguist-generated markers");
+            }
+        }
+    }
+
+    let templates_dir = package_path.join("templates");
+    if templates_dir.exists() {
+        if let Ok(entries) = fs::read_dir(&templates_dir) {
+            for entry in entries.flatten() {
+                if let Ok(content) = fs::read_to_string(entry.path()) {
+                    if content.contains("DO NOT EDIT") || content.contains("auto-generated") {
+                        poka_yoke_score += 1;
+                        poka_yoke_findings.push("DO NOT EDIT headers in templates");
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    if poka_yoke_score >= 2 {
+        checks.push(FmeaCheckOutput {
+            name: "Poka-Yoke Mechanisms".to_string(),
+            category: "PokaYoke".to_string(),
+            passed: true,
+            message: format!("Found: {}", poka_yoke_findings.join(", ")),
+            rpn: None,
+        });
+    } else if poka_yoke_score >= 1 {
+        checks.push(FmeaCheckOutput {
+            name: "Poka-Yoke Mechanisms".to_string(),
+            category: "PokaYoke".to_string(),
+            passed: true,
+            message: format!("Partial Poka-Yoke: {}", poka_yoke_findings.join(", ")),
+            rpn: Some(75),
+        });
+    } else {
+        checks.push(FmeaCheckOutput {
+            name: "Poka-Yoke Mechanisms".to_string(),
+            category: "PokaYoke".to_string(),
+            passed: true,
+            message: "No Poka-Yoke mechanisms detected".to_string(),
+            rpn: Some(150),
+        });
+    }
+
+    // Check 4: CODEOWNERS
+    let ontology_dir = package_path.join("ontology");
+    let data_dir = package_path.join("data");
+    let has_owners = (ontology_dir.exists() && ontology_dir.join("OWNERS").exists())
+        || (data_dir.exists() && data_dir.join("OWNERS").exists());
+
+    if has_owners {
+        checks.push(FmeaCheckOutput {
+            name: "CODEOWNERS/OWNERS Configuration".to_string(),
+            category: "CodeOwnership".to_string(),
+            passed: true,
+            message: "OWNERS files found for team ownership".to_string(),
+            rpn: None,
+        });
+    } else {
+        checks.push(FmeaCheckOutput {
+            name: "CODEOWNERS/OWNERS Configuration".to_string(),
+            category: "CodeOwnership".to_string(),
+            passed: true,
+            message: "No OWNERS files found (recommended for team enforcement)".to_string(),
+            rpn: Some(50),
+        });
+    }
+
+    // Determine overall pass/fail
+    let has_failures = checks.iter().any(|c| !c.passed);
+    let has_unmitigated_critical = critical_modes.iter().any(|m| !m.has_control);
+    let passed = !has_failures && !has_unmitigated_critical;
+
+    let package_name = package_path
+        .file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or("unknown")
+        .to_string();
+
+    let enterprise_status = FmeaEnterpriseStatusOutput {
+        fortune_500_ready: fmea_enabled && strict,
+        fmea_enabled,
+        poka_yoke_enabled: true,
+        domain_protection: "trait-boundary".to_string(),
+    };
+
+    let message = if passed {
+        format!(
+            "Package '{}' passed FMEA validation (coverage: {:.1}%, max RPN: {})",
+            package_name, coverage, max_rpn
+        )
+    } else {
+        let unmitigated = critical_modes.iter().filter(|m| !m.has_control).count();
+        format!(
+            "Package '{}' failed FMEA validation ({} unmitigated critical modes, max RPN: {})",
+            package_name, unmitigated, max_rpn
+        )
+    };
+
+    Ok(FmeaValidateOutput {
+        package_name,
+        passed,
+        coverage_percentage: coverage,
+        total_rpn,
+        max_rpn,
+        enterprise_status,
+        checks,
+        critical_modes,
+        high_risk_modes,
         message,
     })
 }

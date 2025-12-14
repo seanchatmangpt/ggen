@@ -28,6 +28,7 @@
 pub mod ai;
 pub mod audit;
 pub mod ci;
+pub mod generation;
 pub mod graph;
 pub mod mape_k;
 #[cfg(feature = "marketplace-v2")]

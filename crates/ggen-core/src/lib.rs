@@ -156,7 +156,8 @@ pub mod template;
 pub mod template_cache;
 pub mod templates;
 pub mod tera_env;
-// pub mod tracing; // Temporarily disabled due to missing tracing_subscriber dependency
+pub mod types; // Enterprise FMEA & Poka-Yoke types for marketplace
+               // pub mod tracing; // Temporarily disabled due to missing tracing_subscriber dependency
 pub mod simple_tracing;
 
 // Re-export production readiness types from lifecycle module
@@ -280,3 +281,30 @@ pub use ontology::{
 
 // Note: Cardinality, OntologySchema, PropertyRange are exported from ontology_pack module above
 // to avoid conflicts with ontology module exports
+
+// Re-export enterprise FMEA & Poka-Yoke types for marketplace
+pub use types::{
+    // CODEOWNERS generation
+    CodeownersGenerator,
+    // FMEA types
+    Detection,
+    // Enterprise configuration
+    DomainProtectionStrategy,
+    EnterpriseConfig,
+    FailureModeEntry,
+    FmeaConfig,
+    FmeaValidationError,
+    GenerationConfig,
+    Occurrence,
+    OwnerEntry,
+    OwnersFile,
+    // Path protection
+    PathProtectionConfig,
+    PathProtectionError,
+    PokaYokeConfig,
+    ProtectedPath,
+    RegeneratePath,
+    RpnLevel,
+    RpnScore,
+    Severity,
+};

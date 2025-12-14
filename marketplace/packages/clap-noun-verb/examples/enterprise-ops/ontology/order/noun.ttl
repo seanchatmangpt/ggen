@@ -1,0 +1,163 @@
+@prefix cnv: <https://ggen.dev/clap-noun-verb/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix order: <https://example.com/enterprise-ops/order/> .
+
+# ============================================================================
+# ORDER NOUN - Owned by Commerce Team
+# ============================================================================
+#
+# CODEOWNERS: @company/commerce-team
+#
+# E-commerce order management commands.
+# High-volume operations with circuit breaker patterns.
+# ============================================================================
+
+order:noun a cnv:Noun ;
+    cnv:nounName "order" ;
+    rdfs:comment "Manage customer orders" ;
+    cnv:hasVerbs order:create ,
+                 order:cancel ,
+                 order:get ,
+                 order:list ,
+                 order:ship ,
+                 order:refund .
+
+order:create a cnv:Verb ;
+    cnv:verbName "create" ;
+    rdfs:comment "Create a new order" ;
+    cnv:hasArguments order:create_customer ,
+                     order:create_items ,
+                     order:create_shipping .
+
+order:cancel a cnv:Verb ;
+    cnv:verbName "cancel" ;
+    rdfs:comment "Cancel an order" ;
+    cnv:hasArguments order:cancel_id ,
+                     order:cancel_reason .
+
+order:get a cnv:Verb ;
+    cnv:verbName "get" ;
+    rdfs:comment "Get order details" ;
+    cnv:hasArguments order:get_id .
+
+order:list a cnv:Verb ;
+    cnv:verbName "list" ;
+    rdfs:comment "List orders with filtering" ;
+    cnv:hasArguments order:list_customer ,
+                     order:list_status ,
+                     order:list_limit .
+
+order:ship a cnv:Verb ;
+    cnv:verbName "ship" ;
+    rdfs:comment "Mark order as shipped" ;
+    cnv:hasArguments order:ship_id ,
+                     order:ship_carrier ,
+                     order:ship_tracking .
+
+order:refund a cnv:Verb ;
+    cnv:verbName "refund" ;
+    rdfs:comment "Process order refund" ;
+    cnv:hasArguments order:refund_id ,
+                     order:refund_amount ,
+                     order:refund_reason .
+
+# Arguments
+order:create_customer a cnv:Argument ;
+    cnv:argumentName "customer_id" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Customer ID" .
+
+order:create_items a cnv:Argument ;
+    cnv:argumentName "items" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "JSON array of order items" .
+
+order:create_shipping a cnv:Argument ;
+    cnv:argumentName "shipping_address" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Shipping address JSON" .
+
+order:cancel_id a cnv:Argument ;
+    cnv:argumentName "id" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Order ID to cancel" .
+
+order:cancel_reason a cnv:Argument ;
+    cnv:argumentName "reason" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Cancellation reason" .
+
+order:get_id a cnv:Argument ;
+    cnv:argumentName "id" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Order ID" .
+
+order:list_customer a cnv:Argument ;
+    cnv:argumentName "customer_id" ;
+    cnv:argumentType cnv:OptionStringType ;
+    cnv:required false ;
+    rdfs:comment "Filter by customer" .
+
+order:list_status a cnv:Argument ;
+    cnv:argumentName "status" ;
+    cnv:argumentType cnv:OptionStringType ;
+    cnv:required false ;
+    rdfs:comment "Filter by status" .
+
+order:list_limit a cnv:Argument ;
+    cnv:argumentName "limit" ;
+    cnv:argumentType cnv:OptionU32Type ;
+    cnv:required false ;
+    rdfs:comment "Max results" .
+
+order:ship_id a cnv:Argument ;
+    cnv:argumentName "id" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Order ID" .
+
+order:ship_carrier a cnv:Argument ;
+    cnv:argumentName "carrier" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Shipping carrier" .
+
+order:ship_tracking a cnv:Argument ;
+    cnv:argumentName "tracking_number" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Tracking number" .
+
+order:refund_id a cnv:Argument ;
+    cnv:argumentName "id" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Order ID" .
+
+order:refund_amount a cnv:Argument ;
+    cnv:argumentName "amount" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Refund amount (decimal string)" .
+
+order:refund_reason a cnv:Argument ;
+    cnv:argumentName "reason" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Refund reason" .
+
+# Types
+cnv:StringType a cnv:PrimitiveType ;
+    cnv:rust-type "String" .
+
+cnv:OptionStringType a cnv:PrimitiveType ;
+    cnv:rust-type "Option<String>" .
+
+cnv:OptionU32Type a cnv:PrimitiveType ;
+    cnv:rust-type "Option<u32>" .
