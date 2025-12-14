@@ -1,0 +1,50 @@
+# Audit Result: ggen template show
+# Schema: ../../contracts/audit-result.schema.yaml
+
+command: "ggen template show"
+version_tested: "5.3.2"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 52
+agent_breakdown:
+  parseable_output: 8     # Shows metadata, text format
+  error_messages: 12      # Basic error handling
+  idempotency: 15         # Read-only - fully idempotent
+  progress_feedback: 4    # Silent
+  dry_run: 0              # Not applicable
+  documentation: 4        # Minimal help
+  exit_codes: 9           # Good codes
+
+avatar_notes:
+  claude_code: "Template metadata inspection. No JSON output option."
+  cursor_ai: "Simple read-only. Short help."
+  copilot: "Pattern: --template path."
+  aider: "Idempotent. Safe for repeated calls."
+  devin: "Inspect before generate. Self-contained."
+  openhands: "No customization."
+  windsurf: "Metadata display in terminal."
+
+maturity_level: L3
+maturity_blockers:
+  - "No JSON output format"
+
+evidence_files:
+  - template-show-help.log
+
+recommendations:
+  - priority: P2
+    description: "Add --output-format json for structured output"
+    effort: low
+    impact: high
+  - priority: P3
+    description: "Show template content preview option"
+    effort: medium
+    impact: medium

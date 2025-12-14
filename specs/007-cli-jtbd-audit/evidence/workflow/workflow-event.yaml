@@ -1,0 +1,61 @@
+# Audit Result: ggen workflow event
+# Schema: ../../contracts/audit-result.schema.yaml
+
+command: "ggen workflow event"
+version_tested: "5.3.2"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: false         # Crashes without required arguments (--workflow_file, --case_id, --activity)
+  help_works: true        # --help displays documentation
+  happy_path: false       # Requires external workflow file and multiple arguments
+  error_handling: true    # Clear error messages identifying missing required arguments
+  exit_codes: true        # Proper exit codes (0/1)
+
+agent_score: 24
+agent_breakdown:
+  parseable_output: 2     # Text-only output, no JSON option
+  error_messages: 10      # Good error messages naming required arguments
+  idempotency: 3          # Would append events (not idempotent)
+  progress_feedback: 2    # Silent operation
+  dry_run: 0              # No --dry-run to preview event
+  documentation: 5        # Help text present but limited inline examples
+  exit_codes: 2           # Basic exit codes (0/1)
+
+avatar_notes:
+  claude_code: "Multiple required arguments + file dependency block orchestration; no JSON output"
+  cursor_ai: "Clear required parameters but requires file setup; not practical for inline IDE usage"
+  copilot: "Many required parameters; difficult for completion-based learning"
+  aider: "Appends to file (risky for automation); text output requires parsing"
+  devin: "Multiple argument requirements + file dependency; blocks autonomous execution"
+  openhands: "Text output requires manual parsing; complex parameter set; file dependency"
+  windsurf: "Many required arguments; file dependency; text output not IDE-friendly"
+
+maturity_level: "L0"
+maturity_blockers:
+  - "Multiple required arguments + file dependency blocks autonomous usage (L0 blocker)"
+  - "Non-idempotent operation (appends events)"
+  - "No JSON output format (blocks L1+)"
+  - "Cannot execute standalone without external file"
+
+evidence_files:
+  - workflow-event-help.log
+
+recommendations:
+  - priority: "P1"
+    description: "Add --output-format json for structured event output"
+    effort: "medium"
+    impact: "high"
+  - priority: "P1"
+    description: "Support --workflow-json flag to accept JSON via stdin"
+    effort: "low"
+    impact: "high"
+  - priority: "P2"
+    description: "Add --dry-run to preview event before appending"
+    effort: "low"
+    impact: "high"
+  - priority: "P2"
+    description: "Add --idempotent flag to skip if event exists"
+    effort: "medium"
+    impact: "medium"

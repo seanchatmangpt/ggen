@@ -1,0 +1,58 @@
+command: "ggen template lint"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: false    # Error messages could be more helpful
+  exit_codes: true
+
+agent_score: 38
+agent_breakdown:
+  parseable_output: 10      # Text only, no JSON option
+  error_messages: 8         # Generic error messages, missing context
+  idempotency: 10           # Fully idempotent
+  progress_feedback: 5      # Silent operation
+  dry_run: 0                # No dry-run support
+  documentation: 5          # Help text is minimal
+  exit_codes: 0             # Only 0/1, no differentiation
+
+avatar_notes:
+  claude_code: "Basic text output; would need custom parsing for multi-line errors"
+  cursor_ai: "Useful for quick linting within IDE; helps with inline diagnostics"
+  copilot: "Simple patterns; help text sufficient for tab completion"
+  aider: "Works but limited context for error resolution"
+  devin: "Suitable for batch linting of templates"
+  openhands: "Manual configuration needed for useful output parsing"
+  windsurf: "Shows lint warnings but IDE integration is basic"
+
+maturity_level: "L2"
+maturity_blockers:
+  - "No JSON output format option (blocks L3+)"
+  - "Error messages lack actionable guidance on fixes (blocks L3+)"
+
+evidence_files:
+  - template-lint-help.log
+  - template-lint-happy-path.log
+  - template-lint-error.log
+
+recommendations:
+  - priority: "P1"
+    description: "Add --output-format json for structured lint results"
+    effort: "medium"
+    impact: "high"
+  - priority: "P1"
+    description: "Enhance error messages with specific line numbers and fix suggestions"
+    effort: "medium"
+    impact: "high"
+  - priority: "P2"
+    description: "Add --fix flag to automatically correct common issues"
+    effort: "high"
+    impact: "high"
+
+jtbd: |
+  When I create a new template, I need to validate it against ggen conventions,
+  so that I can catch errors early and ensure compatibility with the generator.

@@ -1,0 +1,69 @@
+# Audit Result: ggen workflow analyze
+# Command: ggen workflow analyze
+# Category: workflow
+# Date: 2024-12-14
+
+command: "ggen workflow analyze"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: false             # Crashes without required --workflow_file argument
+  help_works: true            # --help displays documentation
+  happy_path: false           # Requires external workflow.json file (cannot test standalone)
+  error_handling: true        # Clear error messages for missing arguments
+  exit_codes: true            # Proper exit codes (0/1)
+
+agent_score: 28
+agent_breakdown:
+  parseable_output: 3         # Text-only output, no JSON format option
+  error_messages: 10          # Good error messages identifying missing --workflow_file
+  idempotency: 8              # Read-only operation, idempotent
+  progress_feedback: 2        # Silent operation (no progress indication)
+  dry_run: 0                  # No dry-run support
+  documentation: 3            # Help text present but minimal inline examples
+  exit_codes: 2               # Basic exit codes (0/1 only)
+
+avatar_notes:
+  claude_code: "Cannot orchestrate without input file setup; no JSON output limits usefulness; requires external file handling"
+  cursor_ai: "Help text clear but limited; requires file context to test; not practical for inline IDE usage"
+  copilot: "Requires file setup; limited pattern examples in help text; difficult for completion-based learning"
+  aider: "Requires pre-existing workflow file; cannot automate safely without file management; text output requires parsing"
+  devin: "File dependency blocks autonomous execution; would need file creation/management logic first"
+  openhands: "Text output requires manual parsing; needs file setup in workspace; difficult for standalone usage"
+  windsurf: "IDE integration challenging due to file dependency; text output not IDE-friendly; requires external file"
+
+maturity_level: "L1"
+maturity_blockers:
+  - "File-dependent execution blocks autonomous usage (L1 blocker)"
+  - "No JSON output format available (blocks L2+)"
+  - "Cannot execute standalone without external file (blocks agent orchestration)"
+
+evidence_files:
+  - workflow-analyze-help.log
+  - workflow-analyze-happy-path.log
+  - workflow-analyze-error.log
+
+recommendations:
+  - priority: "P1"
+    description: "Add --output-format json for structured output compatible with agent orchestration"
+    effort: "medium"
+    impact: "high"
+  - priority: "P1"
+    description: "Support --workflow-json flag to accept JSON via stdin, reducing file dependency"
+    effort: "low"
+    impact: "high"
+  - priority: "P2"
+    description: "Add progress indicators (--progress flag) for large workflow analyses"
+    effort: "medium"
+    impact: "medium"
+  - priority: "P2"
+    description: "Implement --dry-run to preview analysis without side effects"
+    effort: "low"
+    impact: "medium"
+
+jtbd: |
+  When a developer needs to understand workflow execution patterns, I need to analyze
+  the workflow structure and identify bottlenecks, so that I can optimize the workflow
+  for better performance and maintainability.

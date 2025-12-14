@@ -1,0 +1,219 @@
+# JSON Schema for Audit Result (YAML Format)
+# Version: 1.0.0
+# Used by: evidence/<category>/<command>.yaml
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: AuditResult
+description: CLI command audit result capturing functional correctness and agent accessibility
+
+type: object
+required:
+  - command
+  - version_tested
+  - date
+  - tester
+  - functional_correctness
+  - agent_score
+  - agent_breakdown
+  - maturity_level
+
+properties:
+  command:
+    type: string
+    description: Full command path (e.g., "ggen template generate")
+    pattern: "^ggen [a-z_]+( [a-z_]+)?$"
+
+  version_tested:
+    type: string
+    description: ggen version tested
+    pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    example: "4.0.0"
+
+  date:
+    type: string
+    format: date
+    description: Audit execution date (YYYY-MM-DD)
+
+  tester:
+    type: string
+    description: Who performed the audit
+    examples:
+      - "claude-code"
+      - "human:john.doe"
+
+  functional_correctness:
+    type: object
+    required:
+      - executes
+      - help_works
+      - happy_path
+      - error_handling
+      - exit_codes
+    properties:
+      executes:
+        type: boolean
+        description: Command runs without crash
+      help_works:
+        type: boolean
+        description: --help provides usage information
+      happy_path:
+        type: boolean
+        description: Valid inputs produce expected output
+      error_handling:
+        type: boolean
+        description: Invalid inputs produce helpful errors
+      exit_codes:
+        type: boolean
+        description: Exit code 0 on success, non-zero on failure
+
+  agent_score:
+    type: integer
+    minimum: 0
+    maximum: 100
+    description: Weighted sum of agent accessibility criteria
+
+  agent_breakdown:
+    type: object
+    required:
+      - parseable_output
+      - error_messages
+      - idempotency
+      - progress_feedback
+      - dry_run
+      - documentation
+      - exit_codes
+    properties:
+      parseable_output:
+        type: integer
+        minimum: 0
+        maximum: 25
+        description: "JSON/structured output availability (weight: 25%)"
+      error_messages:
+        type: integer
+        minimum: 0
+        maximum: 20
+        description: "Actionable error messages (weight: 20%)"
+      idempotency:
+        type: integer
+        minimum: 0
+        maximum: 15
+        description: "Safe to retry (weight: 15%)"
+      progress_feedback:
+        type: integer
+        minimum: 0
+        maximum: 10
+        description: "Progress indicators (weight: 10%)"
+      dry_run:
+        type: integer
+        minimum: 0
+        maximum: 10
+        description: "--dry-run support (weight: 10%)"
+      documentation:
+        type: integer
+        minimum: 0
+        maximum: 10
+        description: "Documentation quality (weight: 10%)"
+      exit_codes:
+        type: integer
+        minimum: 0
+        maximum: 10
+        description: "Semantic exit codes (weight: 10%)"
+
+  avatar_notes:
+    type: object
+    additionalProperties:
+      type: string
+    propertyNames:
+      enum:
+        - claude_code
+        - cursor_ai
+        - copilot
+        - aider
+        - devin
+        - openhands
+        - windsurf
+    description: Avatar-specific observations
+
+  maturity_level:
+    type: string
+    enum:
+      - L0
+      - L0-DEP
+      - L1
+      - L2
+      - L3
+      - L4
+      - L5
+    description: Maturity classification
+
+  maturity_blockers:
+    type: array
+    items:
+      type: string
+    description: Reasons preventing higher maturity level
+
+  evidence_files:
+    type: array
+    items:
+      type: string
+    description: Relative paths to evidence log files
+
+  recommendations:
+    type: array
+    items:
+      type: object
+      required:
+        - priority
+        - description
+      properties:
+        priority:
+          type: string
+          enum: [P1, P2, P3]
+        description:
+          type: string
+        effort:
+          type: string
+          enum: [low, medium, high]
+        impact:
+          type: string
+          enum: [low, medium, high]
+
+# Validation Rules (enforced by audit tooling)
+# 1. agent_score MUST equal sum of agent_breakdown values
+# 2. If functional_correctness.executes = false → maturity_level = L0
+# 3. If maturity_level = L0-DEP → command is deprecated
+# 4. maturity_level = min(floor(agent_score/20), blocker_cap)
+
+examples:
+  - command: "ggen template generate"
+    version_tested: "4.0.0"
+    date: "2024-12-14"
+    tester: "claude-code"
+    functional_correctness:
+      executes: true
+      help_works: true
+      happy_path: true
+      error_handling: true
+      exit_codes: true
+    agent_score: 82
+    agent_breakdown:
+      parseable_output: 20
+      error_messages: 18
+      idempotency: 12
+      progress_feedback: 8
+      dry_run: 7
+      documentation: 9
+      exit_codes: 8
+    avatar_notes:
+      claude_code: "Full JSON output via --output-format json"
+      cursor_ai: "Help output is concise enough for 8K context"
+    maturity_level: L4
+    maturity_blockers: []
+    evidence_files:
+      - template-generate.log
+      - template-generate-happy-path.log
+    recommendations:
+      - priority: P3
+        description: "Add --dry-run flag for preview"
+        effort: medium
+        impact: medium
