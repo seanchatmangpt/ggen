@@ -224,6 +224,23 @@ fn lint(template: String) -> NounVerbResult<LintOutput> {
     })
 }
 
+/// Check if template content has RDF/SPARQL frontmatter
+///
+/// Returns true if the template contains `rdf:`, `rdf_inline:`, or `sparql:` in frontmatter.
+/// This is a quick check to determine if we need the full RDF rendering path.
+fn has_rdf_frontmatter(template_content: &str) -> bool {
+    // Quick check for RDF-related fields in frontmatter
+    // We look for lines that start with these field names followed by colon
+    let frontmatter_end = template_content.find("\n---");
+    let check_region = if let Some(end) = frontmatter_end {
+        &template_content[..end]
+    } else {
+        template_content
+    };
+
+    check_region.contains("rdf:") || check_region.contains("rdf_inline:") || check_region.contains("sparql:")
+}
+
 /// Generate from template (basic version without Vec support)
 #[verb("generate", "template")]
 fn generate(
@@ -232,6 +249,13 @@ fn generate(
     use ggen_domain::template;
     use ggen_domain::template::generate::parse_variables;
     use std::collections::BTreeMap;
+
+    let template_path = template
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from("template.tmpl"));
+    let output_path = output
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from("output"));
 
     // Parse variables from comma-separated key=value pairs
     let variables = if let Some(vars_str) = vars {
@@ -247,28 +271,54 @@ fn generate(
         BTreeMap::new()
     };
 
-    let options = template::GenerateFileOptions {
-        template_path: template
-            .map(PathBuf::from)
-            .unwrap_or_else(|| PathBuf::from("template.tmpl")),
-        output_path: output
-            .map(PathBuf::from)
-            .unwrap_or_else(|| PathBuf::from("output")),
-        variables,
-        force_overwrite: force,
-    };
-
-    let result = template::generate_file(&options).map_err(|e| {
-        clap_noun_verb::NounVerbError::execution_error(format!("Failed to generate: {}", e))
+    // Read template content to detect RDF/SPARQL frontmatter
+    let template_content = std::fs::read_to_string(&template_path).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to read template '{}': {}",
+            template_path.display(),
+            e
+        ))
     })?;
 
-    Ok(GenerateOutput {
-        output_path: result.output_path.display().to_string(),
-        files_created: 1,
-        bytes_written: result.bytes_written,
-        rdf_files_loaded: 0,
-        sparql_queries_executed: 0,
-    })
+    // Route to appropriate rendering path based on frontmatter
+    if has_rdf_frontmatter(&template_content) {
+        // Use RDF-aware rendering path
+        let options = template::RenderWithRdfOptions::new(template_path, output_path)
+            .with_vars(variables);
+        let options = if force { options.force() } else { options };
+
+        let result = template::render_with_rdf(&options).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to generate: {}", e))
+        })?;
+
+        Ok(GenerateOutput {
+            output_path: result.output_path.display().to_string(),
+            files_created: result.files_created,
+            bytes_written: result.bytes_written,
+            rdf_files_loaded: result.rdf_files_loaded,
+            sparql_queries_executed: result.sparql_queries_executed,
+        })
+    } else {
+        // Use fast path without RDF processing
+        let options = template::GenerateFileOptions {
+            template_path,
+            output_path,
+            variables,
+            force_overwrite: force,
+        };
+
+        let result = template::generate_file(&options).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to generate: {}", e))
+        })?;
+
+        Ok(GenerateOutput {
+            output_path: result.output_path.display().to_string(),
+            files_created: 1,
+            bytes_written: result.bytes_written,
+            rdf_files_loaded: 0,
+            sparql_queries_executed: 0,
+        })
+    }
 }
 
 /// Generate file tree from template
