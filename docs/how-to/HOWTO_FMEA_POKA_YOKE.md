@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [HOWTO: Path Protection & Poka-Yoke in ggen](#howto-path-protection--poka-yoke-in-ggen)
+  - [Overview](#overview)
+  - [What is FMEA?](#what-is-fmea)
+  - [Configuration Location](#configuration-location)
+  - [1. Generation Configuration (`[generation]`)](#1-generation-configuration-generation)
+    - [In ggen.toml](#in-ggentoml)
+    - [Path Protection Rules](#path-protection-rules)
+    - [Example: Safe Regeneration](#example-safe-regeneration)
+  - [2. Poka-Yoke Configuration (`[generation.poka_yoke]`)](#2-poka-yoke-configuration-generationpoka_yoke)
+    - [In ggen.toml](#in-ggentoml-1)
+    - [Poka-Yoke Effects](#poka-yoke-effects)
+  - [3. CODEOWNERS Configuration (`[codeowners]`)](#3-codeowners-configuration-codeowners)
+    - [In ggen.toml](#in-ggentoml-2)
+    - [Creating OWNERS Files](#creating-owners-files)
+    - [Generate Aggregated CODEOWNERS](#generate-aggregated-codeowners)
+  - [4. Package-Level FMEA (Design Documentation)](#4-package-level-fmea-design-documentation)
+    - [Example: marketplace/packages/my-cli/package.toml](#example-marketplacepackagesmy-clipackagetoml)
+    - [RPN Calculation (Design-Time Analysis)](#rpn-calculation-design-time-analysis)
+  - [5. Complete Example: ggen.toml](#5-complete-example-ggentoml)
+  - [6. Troubleshooting](#6-troubleshooting)
+    - ["Path overlap detected"](#path-overlap-detected)
+    - ["Cannot write to protected path"](#cannot-write-to-protected-path)
+  - [7. Key Concepts Summary](#7-key-concepts-summary)
+  - [8. The Core Principle](#8-the-core-principle)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # HOWTO: Path Protection & Poka-Yoke in ggen
 
 **Document**: Generation Safety Configuration Guide
