@@ -1,0 +1,13 @@
+{# Default Tera template for Rust trait generation #}
+{# Context variables: name, visibility, bounds, methods, is_async, docstring #}
+{% if docstring %}
+/// {{ docstring }}
+{% endif %}
+{{ visibility }} {% if is_async %}async {% endif %}trait {{ name }}{% if bounds %}: {{ bounds }}{% endif %} {
+{% for method in methods %}
+{% if method.docstring %}
+    /// {{ method.docstring }}
+{% endif %}
+    {% if method.is_async %}async {% endif %}fn {{ method.name }}({% if method.self_param %}{{ method.self_param }}{% if method.params | length > 0 %}, {% endif %}{% endif %}{% for param in method.params %}{{ param.name }}: {{ param.param_type }}{% if not loop.last %}, {% endif %}{% endfor %}){% if method.return_type %} -> {{ method.return_type }}{% endif %};
+{% endfor %}
+}

@@ -16,6 +16,7 @@ pub mod helpers;
 // Command modules - clap-noun-verb v5.3.0 explicit verb registration
 pub mod ai;
 pub mod ci;
+pub mod generate; // N3/CONSTRUCT Semantic Code Generator
 pub mod graph;
 // pub mod hook;        // DISABLED: Deferred to v4.1.0 - Depends on marketplace-v2 feature
 pub mod marketplace; // ENABLED: marketplace-v2 CLI integration

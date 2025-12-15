@@ -1,0 +1,22 @@
+{# Default Tera template for Rust struct generation #}
+{# Context variables: name, visibility, derives, fields, docstring, attributes, generics #}
+{% if docstring %}
+/// {{ docstring }}
+{% endif %}
+{% for attr in attributes %}
+#[{{ attr }}]
+{% endfor %}
+{% if derives | length > 0 %}
+#[derive({{ derives | join(sep=", ") }})]
+{% endif %}
+{{ visibility }} struct {{ name }}{% if generics %}<{{ generics }}>{% endif %} {
+{% for field in fields %}
+{% if field.docstring %}
+    /// {{ field.docstring }}
+{% endif %}
+{% for attr in field.attributes %}
+    #[{{ attr }}]
+{% endfor %}
+    {{ field.visibility }} {{ field.name }}: {{ field.field_type }},
+{% endfor %}
+}

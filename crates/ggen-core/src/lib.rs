@@ -120,6 +120,8 @@ pub mod cache;
 pub mod cli_generator;
 pub mod codegen;
 pub mod config;
+// N3/CONSTRUCT semantic code generation manifest (v5)
+pub mod manifest;
 pub mod delta;
 #[cfg(test)]
 pub mod e2e_tests;
