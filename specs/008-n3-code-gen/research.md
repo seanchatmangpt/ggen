@@ -311,10 +311,12 @@ construct_chain:           # Pre-execute CONSTRUCT chain
 
 ## Next Steps
 
-1. **Phase 1**: Create data-model.md defining GgenManifest, CodeGraph, InferenceRule types
-2. **Phase 1**: Create CLI contract for `ggen generate` and `ggen validate` commands
-3. **Phase 1**: Create quickstart.md with minimal working example
-4. **Phase 2**: Generate tasks.md via `/speckit.tasks`
+1. **Phase 1**: Create data-model.md defining GgenManifest, CodeGraph, InferenceRule, SyncOptions types ✓
+2. **Phase 1**: Create CLI contract for `ggen sync` (THE ONLY command in v5) ✓
+3. **Phase 1**: Create quickstart.md with minimal working example using `ggen sync` ✓
+4. **Phase 2**: Generate tasks.md via `/speckit.tasks` ✓
+
+**Note**: ggen v5 uses `ggen sync` as the ONLY command. All legacy commands removed for fresh start.
 
 ---
 

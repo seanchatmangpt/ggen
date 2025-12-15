@@ -38,22 +38,23 @@ impl CodeGraphBuilder {
     /// # Returns
     /// * `Ok(Vec<CodeStruct>)` - Parsed structs
     /// * `Err(Error)` - Parse error
-    pub fn from_sparql_results(
-        results: &[BTreeMap<String, String>],
-    ) -> Result<Vec<CodeStruct>> {
+    pub fn from_sparql_results(results: &[BTreeMap<String, String>]) -> Result<Vec<CodeStruct>> {
         let mut structs = Vec::new();
 
         for row in results {
-            let name = row.get("name").ok_or_else(|| {
-                Error::new("SPARQL result missing 'name' binding")
-            })?;
+            let name = row
+                .get("name")
+                .ok_or_else(|| Error::new("SPARQL result missing 'name' binding"))?;
 
             let iri = row.get("iri").cloned().unwrap_or_default();
 
             let struct_def = CodeStruct {
                 iri,
                 name: name.clone(),
-                visibility: row.get("visibility").cloned().unwrap_or_else(|| "pub".to_string()),
+                visibility: row
+                    .get("visibility")
+                    .cloned()
+                    .unwrap_or_else(|| "pub".to_string()),
                 derives: Self::parse_derives(row.get("derives")),
                 generics: row.get("generics").cloned(),
                 fields: Vec::new(), // Populated by separate query
@@ -106,11 +107,7 @@ impl CodeGraphBuilder {
     /// * `source` - Source entity name (e.g., "User")
     /// * `rel_type` - Relationship type (e.g., "has_many")
     /// * `target` - Target entity name (e.g., "Order")
-    pub fn build_impl_from_relationship(
-        source: &str,
-        rel_type: &str,
-        target: &str,
-    ) -> CodeImpl {
+    pub fn build_impl_from_relationship(source: &str, rel_type: &str, target: &str) -> CodeImpl {
         let method_name = match rel_type {
             "has_many" => format!("get_{}s", target.to_lowercase()),
             "has_one" | "belongs_to" => format!("get_{}", target.to_lowercase()),
@@ -136,7 +133,11 @@ impl CodeGraphBuilder {
                 params: Vec::new(),
                 return_type: Some(return_type),
                 body: Some("todo!()".to_string()),
-                docstring: Some(format!("Get {} {}(s)", rel_type.replace('_', " "), target.to_lowercase())),
+                docstring: Some(format!(
+                    "Get {} {}(s)",
+                    rel_type.replace('_', " "),
+                    target.to_lowercase()
+                )),
             }],
         }
     }
@@ -378,16 +379,21 @@ mod tests {
 
     #[test]
     fn test_build_impl_has_many() {
-        let impl_block = CodeGraphBuilder::build_impl_from_relationship("User", "has_many", "Order");
+        let impl_block =
+            CodeGraphBuilder::build_impl_from_relationship("User", "has_many", "Order");
         assert_eq!(impl_block.for_type, "User");
         assert_eq!(impl_block.methods.len(), 1);
         assert_eq!(impl_block.methods[0].name, "get_orders");
-        assert_eq!(impl_block.methods[0].return_type, Some("Vec<Order>".to_string()));
+        assert_eq!(
+            impl_block.methods[0].return_type,
+            Some("Vec<Order>".to_string())
+        );
     }
 
     #[test]
     fn test_build_impl_belongs_to() {
-        let impl_block = CodeGraphBuilder::build_impl_from_relationship("Order", "belongs_to", "User");
+        let impl_block =
+            CodeGraphBuilder::build_impl_from_relationship("Order", "belongs_to", "User");
         assert_eq!(impl_block.methods[0].name, "get_user");
         assert_eq!(impl_block.methods[0].return_type, Some("User".to_string()));
     }

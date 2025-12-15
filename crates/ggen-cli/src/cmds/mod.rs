@@ -1,82 +1,84 @@
-//! Command Router Module - clap-noun-verb v5.3.0 Migration
+//! Command Router Module - ggen v5.0.0 (Fresh Start)
 //!
-//! This module provides the entry point for clap-noun-verb v5.3.0 with explicit verb registration.
-//! All noun modules with `#[verb("verb_name", "noun")]` functions are automatically discovered and registered.
+//! ggen v5 has ONE command: `ggen sync`. All other commands have been removed
+//! for a fresh start. Utility commands may be added back incrementally in future versions.
 //!
-//! ## Architecture: Three-Layer Pattern
-//! ```text
-//! Layer 3 (CLI): cmds (router) -> explicit verb registration
-//! Layer 2 (Integration): auto-discovery -> #[verb] functions -> domain async logic
-//! Layer 1 (Domain): pure business logic
+//! ## The Only Command
+//!
+//! ```bash
+//! ggen sync [OPTIONS]
 //! ```
+//!
+//! ## Removed Commands
+//!
+//! The following commands were removed in v5.0:
+//! - `ggen generate` → Use `ggen sync`
+//! - `ggen validate` → Use `ggen sync --validate-only`
+//! - `ggen template *` → Use `ggen sync`
+//! - `ggen project *` → Add back in v5.1+
+//! - `ggen graph *` → Add back in v5.1+
+//! - `ggen ontology *` → Add back in v5.1+
+//! - `ggen marketplace *` → Add back in v5.1+
+//! - `ggen ai *` → Add back in v5.1+
+//! - `ggen test *` → Add back in v5.1+
+//! - `ggen utils *` → Add back in v5.1+
+//! - `ggen ci *` → Add back in v5.1+
+//! - `ggen workflow *` → Add back in v5.1+
 
 // Shared helpers for command modules
 pub mod helpers;
 
-// Command modules - clap-noun-verb v5.3.0 explicit verb registration
-pub mod ai;
-pub mod ci;
-pub mod generate; // N3/CONSTRUCT Semantic Code Generator
-pub mod graph;
-// pub mod hook;        // DISABLED: Deferred to v4.1.0 - Depends on marketplace-v2 feature
-pub mod marketplace; // ENABLED: marketplace-v2 CLI integration
-                     // pub mod packs;        // DISABLED: Deferred to v4.1.0 - Depends on marketplace-v2 feature
-pub mod ontology;
-pub mod project;
-pub mod template;
-#[cfg(feature = "test-quality")]
-pub mod test; // ENABLED: Feature 004 - Test quality audit and optimization
-pub mod utils; // ENABLED: FMEA (Failure Mode and Effects Analysis) utility commands
-pub mod workflow;
+// THE ONLY COMMAND: ggen sync
+pub mod sync;
 
 use ggen_utils::error::Result;
 use serde_json::json;
 
 use crate::debug_log;
 
-/// Setup and run the command router using clap-noun-verb v3.4.0 auto-discovery
+/// Setup and run the command router using clap-noun-verb auto-discovery
+///
+/// ggen v5 has ONE command: `ggen sync`. All verb functions are discovered
+/// automatically via the `#[verb]` macro.
 pub fn run_cli() -> Result<()> {
     // Handle --version flag before delegating to clap-noun-verb
     let args: Vec<String> = std::env::args().collect();
-    // #region agent log
+
     debug_log(
         "H6",
         "cmds/mod.rs:run_cli:entry",
         "run_cli entry with args",
         json!({ "args": args.clone() }),
     );
-    // #endregion
+
     if args.iter().any(|arg| arg == "--version" || arg == "-V") {
         log::info!("ggen {}", env!("CARGO_PKG_VERSION"));
-        // #region agent log
         debug_log(
             "H6",
             "cmds/mod.rs:run_cli:version",
             "handled version flag",
             json!({}),
         );
-        // #endregion
         return Ok(());
     }
 
     // Use clap-noun-verb's auto-discovery to find all [verb] functions
-    // #region agent log
     debug_log(
         "H7",
         "cmds/mod.rs:run_cli:router",
         "delegating to clap_noun_verb::run",
         json!({}),
     );
-    // #endregion
+
     clap_noun_verb::run()
         .map_err(|e| ggen_utils::error::Error::new(&format!("CLI execution failed: {}", e)))?;
-    // #region agent log
+
     debug_log(
         "H7",
         "cmds/mod.rs:run_cli:router",
         "clap_noun_verb::run completed",
         json!({}),
     );
-    // #endregion
+
     Ok(())
 }

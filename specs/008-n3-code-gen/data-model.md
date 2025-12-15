@@ -1,4 +1,4 @@
-# Data Model: N3/CONSTRUCT Semantic Code Generator
+# Data Model: ggen v5 - Unified Sync Command
 
 **Branch**: `008-n3-code-gen` | **Date**: 2024-12-14 | **Spec**: [spec.md](./spec.md)
 
@@ -6,7 +6,9 @@
 
 ## Overview
 
-This document defines the core data structures for semantic code generation. The pipeline transforms domain ontologies through inference rules into code graphs, which are then serialized to Rust source files.
+This document defines the core data structures for the `ggen sync` command. The pipeline transforms domain ontologies through inference rules into code graphs, which are then serialized to Rust source files.
+
+**Key Concept**: All types support the unified `ggen sync` pipeline: `ggen.toml → ontology → CONSTRUCT → SELECT → Template → Code`
 
 ---
 
@@ -14,10 +16,11 @@ This document defines the core data structures for semantic code generation. The
 
 ### 1. GgenManifest
 
-The root configuration structure parsed from `ggen.toml`.
+The root configuration structure parsed from `ggen.toml`. This is the single source of truth for `ggen sync`.
 
 ```rust
 /// Root manifest structure from ggen.toml
+/// Used by: ggen sync
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GgenManifest {
     /// Project metadata
@@ -217,7 +220,59 @@ fn default_output_dir() -> PathBuf { PathBuf::from("src/generated") }
 
 ---
 
-### 2. Code Graph Entities
+### 2. SyncOptions
+
+CLI options for the `ggen sync` command.
+
+```rust
+/// Options for ggen sync command
+#[derive(Debug, Clone)]
+pub struct SyncOptions {
+    /// Manifest path
+    pub manifest: PathBuf,
+
+    /// Override output directory
+    pub output_dir: Option<PathBuf>,
+
+    /// Preview changes without writing
+    pub dry_run: bool,
+
+    /// Show detailed progress
+    pub verbose: bool,
+
+    /// Watch for changes and regenerate
+    pub watch: bool,
+
+    /// Execute specific rule(s) only
+    pub rules: Option<Vec<String>>,
+
+    /// Overwrite protected files
+    pub force: bool,
+
+    /// Generate audit.json
+    pub audit: bool,
+
+    /// Validate manifest only
+    pub validate_only: bool,
+
+    /// Output format: text, json
+    pub format: OutputFormat,
+
+    /// Overall timeout (ms)
+    pub timeout_ms: u64,
+}
+
+#[derive(Debug, Clone, Default)]
+pub enum OutputFormat {
+    #[default]
+    Text,
+    Json,
+}
+```
+
+---
+
+### 3. Code Graph Entities
 
 RDF types representing Rust code structures (from `code_ontology.ttl`).
 
@@ -411,12 +466,12 @@ pub struct CodeImport {
 
 ---
 
-### 3. Pipeline State
+### 4. Pipeline State
 
-Tracks execution state through the generation pipeline.
+Tracks execution state through the `ggen sync` pipeline.
 
 ```rust
-/// Pipeline execution state
+/// Pipeline execution state for ggen sync
 #[derive(Debug)]
 pub struct PipelineState {
     /// Loaded manifest
@@ -450,7 +505,7 @@ pub struct ExecutedRule {
     pub query_hash: String,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 pub enum RuleType {
     Inference,
     Generation,
@@ -475,16 +530,61 @@ pub struct ValidationResult {
 
 ---
 
-### 4. Audit Trail
+### 5. Sync Output
 
-Complete record of generation for determinism verification.
+Output structure for `ggen sync` command (JSON format).
 
 ```rust
-/// Audit trail for generation verification
+/// Output for ggen sync command
+#[derive(Debug, Clone, Serialize)]
+pub struct SyncOutput {
+    /// Overall status
+    pub status: String,  // "success", "error"
+
+    /// Number of files synced
+    pub files_synced: usize,
+
+    /// Total duration in milliseconds
+    pub duration_ms: u64,
+
+    /// Generated files
+    pub files: Vec<SyncedFile>,
+
+    /// Number of inference rules executed
+    pub inference_rules_executed: usize,
+
+    /// Number of generation rules executed
+    pub generation_rules_executed: usize,
+
+    /// Audit trail path (if enabled)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub audit_trail: Option<String>,
+
+    /// Error message (if failed)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct SyncedFile {
+    pub path: String,
+    pub size_bytes: usize,
+    pub action: String,  // "created", "updated", "unchanged"
+}
+```
+
+---
+
+### 6. Audit Trail
+
+Complete record of sync for determinism verification.
+
+```rust
+/// Audit trail for ggen sync verification
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuditTrail {
-    /// Generation timestamp (ISO 8601)
-    pub generated_at: String,
+    /// Sync timestamp (ISO 8601)
+    pub synced_at: String,
 
     /// ggen version
     pub ggen_version: String,
@@ -523,7 +623,7 @@ pub struct AuditInputs {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuditStep {
     /// Step type
-    pub step_type: String,  // "load_ontology", "inference", "construct", "render"
+    pub step_type: String,  // "load_ontology", "inference", "generation", "render"
 
     /// Rule/file name
     pub name: String,
@@ -598,84 +698,41 @@ pub struct AuditOutput {
 
 ---
 
-## SPARQL → Code Graph Mapping
+## ggen sync Data Flow
 
-### Domain to Code Transformation
-
-| Domain Pattern | CONSTRUCT Template | Code Graph Result |
-|---------------|-------------------|-------------------|
-| `?e a rdfs:Class` | `?e a code:Struct` | `CodeStruct` |
-| `:property rdfs:domain ?e` | `code:structFields ?field` | `CodeField` |
-| `:interface a :Protocol` | `?i a code:Trait` | `CodeTrait` |
-| `:has_many :Target` | `code:implMethods ?getter` | `CodeMethod` |
-| `:auditable true` | (via inference rule) | `created_at`, `updated_at` fields |
-
-### Example CONSTRUCT Query
-
-```sparql
-PREFIX code: <http://ggen.dev/code#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX : <http://example.org/>
-
-CONSTRUCT {
-  ?struct a code:Struct ;
-          code:structName ?name ;
-          code:structVisibility "pub" ;
-          code:structDerives ("Debug" "Clone") ;
-          code:sourceIri ?class .
-}
-WHERE {
-  ?class a rdfs:Class ;
-         rdfs:label ?name .
-  BIND(IRI(CONCAT("http://ggen.dev/code#", ?name, "_struct")) AS ?struct)
-}
-ORDER BY ?name
+```
+ggen sync
+    │
+    ├─→ Load ggen.toml → GgenManifest
+    │
+    ├─→ Load ontology → Graph (domain)
+    │
+    ├─→ Execute [[inference.rules]] (in order)
+    │   └─→ CONSTRUCT → materialize → Graph (enriched)
+    │
+    ├─→ Execute [[generation.rules]]
+    │   ├─→ SPARQL SELECT → query results
+    │   ├─→ Template render (with sparql_results context)
+    │   └─→ Write file
+    │
+    ├─→ Validate output (if configured)
+    │
+    └─→ Write audit.json (if --audit)
 ```
 
 ---
 
-## Validation Rules
+## Exit Codes
 
-### Built-in Validations
-
-| Validation | SPARQL ASK | Error Code |
-|------------|-----------|------------|
-| All fields have types | `ASK { ?f a code:Field . FILTER NOT EXISTS { ?f code:fieldType ?t } }` → false | 1 |
-| No duplicate struct names | `ASK { ?s1 code:structName ?n . ?s2 code:structName ?n . FILTER(?s1 != ?s2) }` → false | 1 |
-| All methods have return types | `ASK { ?m a code:Method . FILTER NOT EXISTS { ?m code:methodReturn ?r } }` → false | 1 |
-
-### SHACL Shape Example
-
-```turtle
-@prefix sh: <http://www.w3.org/ns/shacl#> .
-@prefix code: <http://ggen.dev/code#> .
-
-code:StructShape a sh:NodeShape ;
-    sh:targetClass code:Struct ;
-    sh:property [
-        sh:path code:structName ;
-        sh:minCount 1 ;
-        sh:maxCount 1 ;
-        sh:datatype xsd:string ;
-        sh:pattern "^[A-Z][a-zA-Z0-9]*$" ;
-    ] ;
-    sh:property [
-        sh:path code:structFields ;
-        sh:node code:FieldShape ;
-    ] .
-
-code:FieldShape a sh:NodeShape ;
-    sh:targetClass code:Field ;
-    sh:property [
-        sh:path code:fieldName ;
-        sh:minCount 1 ;
-        sh:pattern "^[a-z][a-z0-9_]*$" ;
-    ] ;
-    sh:property [
-        sh:path code:fieldType ;
-        sh:minCount 1 ;
-    ] .
-```
+| Code | Name | Type |
+|------|------|------|
+| 0 | Success | - |
+| 1 | ManifestError | GgenManifest validation |
+| 2 | OntologyError | Graph load/parse |
+| 3 | SparqlError | Query execution |
+| 4 | TemplateError | Tera rendering |
+| 5 | IoError | File system |
+| 6 | Timeout | Time limit exceeded |
 
 ---
 

@@ -133,10 +133,7 @@ impl AuditTrailBuilder {
     /// * `ontologies` - Paths to ontology files
     /// * `templates` - Paths to template files
     pub fn record_inputs(
-        &mut self,
-        manifest: &Path,
-        ontologies: &[&Path],
-        templates: &[&Path],
+        &mut self, manifest: &Path, ontologies: &[&Path], templates: &[&Path],
     ) -> Result<&mut Self> {
         // Hash manifest
         self.inputs.manifest_hash = Self::hash_file(manifest)?;
@@ -169,11 +166,7 @@ impl AuditTrailBuilder {
     /// * `triples` - Optional triple count for graph operations
     /// * `status` - Execution status
     pub fn record_step(
-        &mut self,
-        step_type: &str,
-        name: &str,
-        duration: Duration,
-        triples: Option<usize>,
+        &mut self, step_type: &str, name: &str, duration: Duration, triples: Option<usize>,
         status: &str,
     ) -> &mut Self {
         self.pipeline.push(AuditStep {
@@ -189,11 +182,7 @@ impl AuditTrailBuilder {
 
     /// Record a pipeline step that failed
     pub fn record_step_error(
-        &mut self,
-        step_type: &str,
-        name: &str,
-        duration: Duration,
-        error: &str,
+        &mut self, step_type: &str, name: &str, duration: Duration, error: &str,
     ) -> &mut Self {
         self.pipeline.push(AuditStep {
             step_type: step_type.to_string(),
@@ -284,8 +273,20 @@ mod tests {
     fn test_audit_builder() {
         let mut builder = AuditTrailBuilder::new();
 
-        builder.record_step("inference", "auditable_fields", Duration::from_millis(5), Some(10), "success");
-        builder.record_step("render", "structs", Duration::from_millis(15), None, "success");
+        builder.record_step(
+            "inference",
+            "auditable_fields",
+            Duration::from_millis(5),
+            Some(10),
+            "success",
+        );
+        builder.record_step(
+            "render",
+            "structs",
+            Duration::from_millis(15),
+            None,
+            "success",
+        );
 
         let trail = builder.build(true);
 

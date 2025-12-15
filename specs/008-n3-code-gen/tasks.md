@@ -1,10 +1,10 @@
-# Tasks: N3/CONSTRUCT Semantic Code Generator
+# Tasks: ggen v5 - Unified Sync Command
 
 **Branch**: `008-n3-code-gen` | **Date**: 2024-12-14
 **Input**: Design documents from `/specs/008-n3-code-gen/`
 **Prerequisites**: plan.md ✓, spec.md ✓, research.md ✓, data-model.md ✓, contracts/ ✓
 
-**Strategic Decision**: Named CONSTRUCT queries as canonical rule language (NOT full N3 rule execution).
+**Strategic Decision**: ggen v5 has ONE command: `ggen sync`. All other commands are removed.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -17,264 +17,255 @@
 ```
 crates/ggen-core/src/          # Core library (manifest, codegen, graph extensions)
 crates/ggen-core/tests/        # Integration tests
-crates/ggen-cli/src/commands/  # CLI commands (generate, validate)
+crates/ggen-cli/src/cmds/      # CLI commands (sync ONLY)
 ```
 
 ---
 
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 1: Core Sync Command (THE ONLY COMMAND)
 
-**Purpose**: Module scaffolding and dependency setup
+**Purpose**: Create `ggen sync` as the single command for ggen v5
 
-- [X] T001 [P] Create `crates/ggen-core/src/manifest/mod.rs` - Module declaration with `parser`, `types`, `validation` submodules
-- [X] T002 [P] Create `crates/ggen-core/src/codegen/pipeline.rs` - Empty module with `GenerationPipeline` struct stub
-- [X] T003 [P] Create `crates/ggen-core/src/codegen/code_graph.rs` - Empty module with `CodeGraphBuilder` struct stub
-- [X] T004 [P] Create `crates/ggen-core/src/codegen/audit.rs` - Empty module with `AuditTrailBuilder` struct stub
-- [X] T005 [P] Create `crates/ggen-core/src/graph/construct.rs` - Empty module with `ConstructExecutor` struct stub
-- [X] T006 Update `crates/ggen-core/src/lib.rs` - Add `pub mod manifest;` and update `codegen` module exports
-- [X] T007 Update `crates/ggen-core/Cargo.toml` - Verify `toml = "0.9"` dependency exists (should be present)
-- [X] T008 Run `cargo make check` - Verify compilation with new module stubs
+### Create Sync CLI Module (T001-T004)
 
-**Checkpoint**: Module structure compiles, ready for type definitions
+- [ ] T001 [P] Create `crates/ggen-cli/src/cmds/sync.rs` - `#[verb("sync", "ggen")]` with all CLI options per cli-contract.md
+- [ ] T002 [P] Implement `SyncOutput` struct in `sync.rs` - Serializable output for JSON format
+- [ ] T003 Register sync in `crates/ggen-cli/src/cmds/mod.rs` - Add `pub mod sync;`
+- [ ] T004 Implement CLI argument parsing in `sync.rs` - `--manifest`, `--output-dir`, `--dry-run`, `--verbose`, `--watch`, `--rule`, `--force`, `--audit`, `--validate-only`, `--format`, `--timeout`
 
----
+### Implement SyncOptions (T005-T006)
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T005 [P] Add `SyncOptions` type to `crates/ggen-core/src/codegen/mod.rs` - Configuration struct for pipeline per data-model.md
+- [ ] T006 [P] Add `OutputFormat` enum to `crates/ggen-core/src/codegen/mod.rs` - Text, Json variants
 
-**Purpose**: Core types and parsers that ALL user stories depend on
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-### Manifest Types (T009-T014)
-
-- [X] T009 [P] Implement `GgenManifest` in `crates/ggen-core/src/manifest/types.rs` - Root config struct with `project`, `ontology`, `inference`, `generation`, `validation` fields per data-model.md
-- [X] T010 [P] Implement `ProjectConfig` in `crates/ggen-core/src/manifest/types.rs` - `name`, `version`, `description` fields
-- [X] T011 [P] Implement `OntologyConfig` in `crates/ggen-core/src/manifest/types.rs` - `source`, `imports`, `base_iri`, `prefixes` (BTreeMap)
-- [X] T012 [P] Implement `InferenceConfig` and `InferenceRule` in `crates/ggen-core/src/manifest/types.rs` - `rules` Vec, `name`, `construct`, `order`, `when` fields
-- [X] T013 [P] Implement `GenerationConfig` and `GenerationRule` in `crates/ggen-core/src/manifest/types.rs` - Including `QuerySource`, `TemplateSource` enums
-- [X] T014 [P] Implement `ValidationConfig` and `ValidationRule` in `crates/ggen-core/src/manifest/types.rs` - `shacl`, `validate_syntax`, `no_unsafe`, custom rules
-
-### Manifest Parser (T015-T018)
-
-- [X] T015 Implement `ManifestParser::parse(path: &Path) -> Result<GgenManifest, GgenError>` in `crates/ggen-core/src/manifest/parser.rs` - TOML parsing with serde
-- [X] T016 Implement `ManifestParser::validate(&self) -> Result<(), GgenError>` in `crates/ggen-core/src/manifest/validation.rs` - Schema validation (required fields, path existence)
-- [X] T017 Add unit tests in `crates/ggen-core/tests/manifest/parser_tests.rs` - Valid manifest parsing, missing fields error, invalid paths error (inline in parser.rs)
-- [X] T018 Add unit tests in `crates/ggen-core/tests/manifest/validation_tests.rs` - Schema validation edge cases (inline in validation.rs)
-
-### CONSTRUCT Executor (T019-T023)
-
-- [X] T019 Implement `ConstructExecutor::new(graph: &Graph) -> Self` in `crates/ggen-core/src/graph/construct.rs` - Initialize with graph reference
-- [X] T020 Implement `ConstructExecutor::execute(query: &str) -> Result<Vec<String>, GgenError>` in `crates/ggen-core/src/graph/construct.rs` - Execute CONSTRUCT, return triples as strings (leverage existing `QueryResults::Graph` handling from core.rs:200-206)
-- [X] T021 Implement `ConstructExecutor::execute_and_materialize(query: &str) -> Result<usize, GgenError>` in `crates/ggen-core/src/graph/construct.rs` - Execute CONSTRUCT and insert results back into graph, return triple count
-- [X] T022 Update `crates/ggen-core/src/graph/mod.rs` - Export `construct` module and `ConstructExecutor`
-- [X] T023 Add unit tests in `crates/ggen-core/tests/construct/query_tests.rs` - CONSTRUCT execution, triple parsing, materialization (inline in construct.rs)
-
-**Checkpoint**: Foundation ready - user story implementation can now begin
+**Checkpoint**: `ggen sync --help` works, shows all options
 
 ---
 
-## Phase 3: US1 - Domain Model to Rust Code (Priority: P1) 🎯 MVP
+## Phase 2: Pipeline Implementation
 
-**Goal**: Developer creates ontology.ttl → runs `ggen generate` → receives Rust structs with derives
+**Purpose**: Complete the sync pipeline: ontology → CONSTRUCT → SELECT → Template → Code
 
-**Independent Test**: Create `domain.ttl` with 3 entities, generate, verify `pub struct User { ... }` with correct derive macros
+### CONSTRUCT Execution (T007-T010)
 
-### Code Graph Types (T024-T029)
+- [ ] T007 [US1] Implement `GenerationPipeline::execute_inference_rule()` in `crates/ggen-core/src/codegen/pipeline.rs` - Execute single CONSTRUCT rule, materialize triples
+- [ ] T008 [US1] Implement `GenerationPipeline::execute_inference_rules()` in `crates/ggen-core/src/codegen/pipeline.rs` - Execute all rules in order
+- [ ] T009 [US1] Add timeout handling for inference rules - Use `max_reasoning_timeout_ms` from config
+- [ ] T010 [US1] Add test: CONSTRUCT query adds triples to graph - in `crates/ggen-core/tests/codegen/pipeline_tests.rs`
 
-- [X] T024 [P] [US1] Implement `CodeStruct` in `crates/ggen-core/src/codegen/code_graph.rs` - `iri`, `name`, `visibility`, `derives`, `fields`, `docstring`, `attributes`, `source_iri` per data-model.md
-- [X] T025 [P] [US1] Implement `CodeField` in `crates/ggen-core/src/codegen/code_graph.rs` - `iri`, `name`, `field_type`, `visibility`, `docstring`, `attributes`, `default`
-- [X] T026 [P] [US1] Implement `CodeModule` in `crates/ggen-core/src/codegen/code_graph.rs` - `iri`, `name`, `visibility`, `imports`, `items`, `attributes`
-- [X] T027 [P] [US1] Implement `CodeItem` enum in `crates/ggen-core/src/codegen/code_graph.rs` - `Struct(CodeStruct)`, `Trait(CodeTrait)`, `Impl(CodeImpl)`, `Enum(CodeEnum)` variants
-- [X] T028 [P] [US1] Implement `CodeImport` in `crates/ggen-core/src/codegen/code_graph.rs` - `path`, `alias` fields
-- [X] T029 [US1] Implement `CodeGraphBuilder::from_sparql_results(results: &[BTreeMap<String, String>]) -> Result<Vec<CodeStruct>, GgenError>` - Parse SPARQL SELECT results into CodeStruct objects
+### SELECT + Template Generation (T011-T015)
 
-### Code Graph to Template Integration (T030-T034)
+- [ ] T011 [US1] Implement `GenerationPipeline::execute_generation_rule()` in `crates/ggen-core/src/codegen/pipeline.rs` - Execute SELECT, render template, return content
+- [ ] T012 [US1] Integrate `Template::process_graph()` - Pass SPARQL row bindings as template context
+- [ ] T013 [US1] Implement output file path expansion - Replace `{{name}}` etc. with SPARQL result values
+- [ ] T014 [US1] Add test: SELECT query results populate template context - in `crates/ggen-core/tests/codegen/pipeline_tests.rs`
+- [ ] T015 [US1] Add test: Output path expansion with variables - in `crates/ggen-core/tests/codegen/pipeline_tests.rs`
 
-- [X] T030 [US1] Implement `CodeGraphBuilder::to_tera_context(&self) -> tera::Context` in `crates/ggen-core/src/codegen/code_graph.rs` - Convert code graph entities to Tera-compatible context
-- [X] T031 [US1] Create `crates/ggen-core/src/rdf/templates/struct.tera` - Default Tera template for Rust struct generation with derives, fields, docstrings (+ impl.tera, enum.tera, trait.tera, module.tera)
-- [X] T032 [US1] Implement `GenerationPipeline::render_template(template: &TemplateSource, context: &Context) -> Result<String, GgenError>` in `crates/ggen-core/src/codegen/pipeline.rs` - Tera rendering with existing template.rs infrastructure (stub)
-- [X] T033 [US1] Implement output file path expansion: `GenerationPipeline::expand_output_path(pattern: &str, context: &BTreeMap<String, String>) -> PathBuf` - Replace `{{name}}` etc.
-- [ ] T034 [US1] Add integration test in `crates/ggen-core/tests/codegen/pipeline_tests.rs` - End-to-end: load ontology → SPARQL SELECT → render template → verify Rust output
+### File Writing (T016-T019)
 
-### US1 Acceptance Scenario Tests (T035-T037)
+- [ ] T016 [US3] Implement file writing with `GenerationMode` - Handle Create/Overwrite/Merge modes
+- [ ] T017 [US3] Respect `--force` flag - Overwrite protected files when enabled
+- [ ] T018 [US3] Create parent directories automatically - `std::fs::create_dir_all()`
+- [ ] T019 [US3] Add test: File writing creates correct directory structure - in `crates/ggen-core/tests/codegen/pipeline_tests.rs`
 
-- [ ] T035 [US1] Add test: Given `:User a rdfs:Class ; :codegen-as "struct"` → output contains `pub struct User { ... }` - in `crates/ggen-core/tests/codegen/us1_acceptance.rs`
-- [ ] T036 [US1] Add test: Given struct with `Uuid` field → `Serialize, Deserialize` derives added (via inference rule) - in `crates/ggen-core/tests/codegen/us1_acceptance.rs`
-- [ ] T037 [US1] Add test: Given `:auditable true` → `created_at`, `updated_at` fields added (via inference rule) - in `crates/ggen-core/tests/codegen/us1_acceptance.rs`
+### Full Pipeline Run (T020-T023)
 
-**Checkpoint**: US1 complete - ontology → Rust struct generation works end-to-end
+- [ ] T020 [US3] Implement `GenerationPipeline::run()` - Full pipeline: load → inference → generation → validation
+- [ ] T021 [US3] Return `PipelineState` with all execution details
+- [ ] T022 [US3] Add test: End-to-end sync with sample ggen.toml - in `crates/ggen-core/tests/codegen/sync_integration.rs`
+- [ ] T023 Run `cargo make check` - Verify Phase 2 compiles
 
----
-
-## Phase 4: US2 - Relationship-Driven Impl Generation (Priority: P1)
-
-**Goal**: Developer defines `:User :has_many :Order` → impl blocks with accessor methods generated
-
-**Independent Test**: Define relationship → verify `get_orders(&self) -> Vec<Order>` method in impl block
-
-### Impl and Method Types (T038-T042)
-
-- [ ] T038 [P] [US2] Implement `CodeTrait` in `crates/ggen-core/src/codegen/code_graph.rs` - `iri`, `name`, `visibility`, `bounds`, `methods`, `is_async`, `docstring`
-- [ ] T039 [P] [US2] Implement `CodeMethod` in `crates/ggen-core/src/codegen/code_graph.rs` - `iri`, `name`, `visibility`, `is_async`, `self_param`, `params`, `return_type`, `body`, `docstring`
-- [ ] T040 [P] [US2] Implement `CodeParam` in `crates/ggen-core/src/codegen/code_graph.rs` - `name`, `param_type`
-- [ ] T041 [P] [US2] Implement `CodeImpl` in `crates/ggen-core/src/codegen/code_graph.rs` - `iri`, `for_type`, `trait_name`, `generics`, `methods`
-- [ ] T042 [US2] Create CONSTRUCT query template for relationship → impl in `crates/ggen-core/src/rdf/queries/relationship_impl.sparql`
-
-### Relationship Processing (T043-T046)
-
-- [ ] T043 [US2] Implement `CodeGraphBuilder::build_impl_from_relationship(source: &str, rel_type: &str, target: &str) -> CodeImpl` - Build impl block with getter method
-- [ ] T044 [US2] Create `crates/ggen-core/src/rdf/templates/impl.tera` - Default Tera template for impl block generation
-- [ ] T045 [US2] Add test: Given `:Entity1 :has_many :Entity2` → `impl Entity1 { pub fn get_entity2s(&self) -> Vec<Entity2> }` - in `crates/ggen-core/tests/codegen/us2_acceptance.rs`
-- [ ] T046 [US2] Add test: Given `:Entity :soft_delete true` → `deleted_at: Option<DateTime<Utc>>` field inferred - in `crates/ggen-core/tests/codegen/us2_acceptance.rs`
-
-**Checkpoint**: US2 complete - relationships generate accessor methods
+**Checkpoint**: `ggen sync` generates code from ggen.toml
 
 ---
 
-## Phase 5: US3 - ggen.toml Manifest-Driven Generation (Priority: P1)
+## Phase 3: Sync Features
 
-**Goal**: Developer creates `ggen.toml` → `ggen generate` executes entire pipeline from manifest
+**Purpose**: Implement all sync command flags and features
 
-**Independent Test**: Create minimal ggen.toml → run generate → verify output files exist
+### Dry Run Mode (T024-T026)
 
-### Generation Pipeline (T047-T053)
+- [ ] T024 [US3] Implement `--dry-run` in pipeline - Preview files without writing
+- [ ] T025 [US3] Show "would create", "would overwrite" status per file
+- [ ] T026 [US3] Add test: Dry run doesn't write files - in `crates/ggen-cli/tests/sync_tests.rs`
 
-- [ ] T047 [US3] Implement `GenerationPipeline::new(manifest: GgenManifest) -> Self` in `crates/ggen-core/src/codegen/pipeline.rs` - Initialize with parsed manifest
-- [ ] T048 [US3] Implement `GenerationPipeline::load_ontology(&mut self) -> Result<(), GgenError>` - Load source.ttl and imports into graph
-- [ ] T049 [US3] Implement `GenerationPipeline::execute_inference_rules(&mut self) -> Result<Vec<ExecutedRule>, GgenError>` - Execute CONSTRUCT rules in order, materialize results
-- [ ] T050 [US3] Implement `GenerationPipeline::execute_generation_rules(&mut self) -> Result<Vec<GeneratedFile>, GgenError>` - Execute SELECT queries, render templates, write files
-- [ ] T051 [US3] Implement `GenerationPipeline::run(&mut self) -> Result<PipelineState, GgenError>` - Full pipeline: load → inference → generation → validation
-- [ ] T052 [US3] Implement `PipelineState` struct in `crates/ggen-core/src/codegen/pipeline.rs` - Track manifest, graphs, executed rules, generated files, validation results per data-model.md
-- [ ] T053 [US3] Add integration test: Given ggen.toml with `[ontology]` and `[[generation.rules]]` → files generated - in `crates/ggen-core/tests/codegen/us3_acceptance.rs`
+### Validate Only Mode (T027-T029)
 
-### CLI Commands (T054-T058)
+- [ ] T027 [US6] Implement `--validate-only` - Validate manifest and ontology without generating
+- [ ] T028 [US6] Check manifest schema, ontology syntax, SPARQL queries, templates
+- [ ] T029 [US6] Add test: Validate-only exits without generating - in `crates/ggen-cli/tests/sync_tests.rs`
 
-- [ ] T054 [US3] Create `crates/ggen-cli/src/commands/generate.rs` - `ggen generate` command using clap
-- [ ] T055 [US3] Implement CLI arguments per cli-contract.md: `[MANIFEST]`, `--output-dir`, `--dry-run`, `--force`, `--audit`, `--verbose`, `--quiet`, `--timeout`
-- [ ] T056 [US3] Implement `run_generate(args: GenerateArgs) -> Result<(), GgenError>` - Load manifest, create pipeline, execute, report results
-- [ ] T057 [US3] Update `crates/ggen-cli/src/cmds/mod.rs` - Register `generate` subcommand
-- [ ] T058 [US3] Add CLI test: `ggen generate --dry-run ./ggen.toml` shows preview without writing - in `crates/ggen-cli/tests/generate_tests.rs`
+### Verbose Output (T030-T032)
 
-**Checkpoint**: US3 complete - full pipeline from manifest works via CLI
+- [ ] T030 [US3] Implement `--verbose` output - Show detailed progress
+- [ ] T031 [US3] Log: manifest load, ontology triples, inference rules, generation rules, file writes
+- [ ] T032 [US3] Add test: Verbose output includes expected sections - in `crates/ggen-cli/tests/sync_tests.rs`
 
----
+### JSON Output Format (T033-T035)
 
-## Phase 6: US4 - Inference Rules (Priority: P2)
+- [ ] T033 [US3] Implement `--format json` - Output SyncOutput as JSON
+- [ ] T034 [US3] Include: status, files_synced, duration_ms, files array, rules counts
+- [ ] T035 [US3] Add test: JSON output is valid and parseable - in `crates/ggen-cli/tests/sync_tests.rs`
 
-**Goal**: Developer writes inference rules in ggen.toml that apply before CONSTRUCT execution
+### Watch Mode (T036-T038)
 
-**Independent Test**: Define rule for auto-deriving `PartialEq` on structs with >5 fields → verify derive added
+- [ ] T036 [US3] Implement `--watch` - Watch for file changes and regenerate
+- [ ] T037 [US3] Watch: ggen.toml, ontology files, template files
+- [ ] T038 [US3] Add test: Watch triggers on file change - in `crates/ggen-cli/tests/sync_tests.rs`
 
-### Inference Rule Execution (T059-T063)
+### Rule Selection (T039-T041)
 
-- [ ] T059 [US4] Implement `InferenceExecutor::new(graph: &mut Graph) -> Self` in `crates/ggen-core/src/codegen/pipeline.rs` - Initialize with mutable graph reference
-- [ ] T060 [US4] Implement `InferenceExecutor::execute_rule(rule: &InferenceRule) -> Result<ExecutedRule, GgenError>` - Execute CONSTRUCT, materialize, track metrics
-- [ ] T061 [US4] Implement `InferenceExecutor::check_when_condition(when: &str) -> Result<bool, GgenError>` - Execute SPARQL ASK for conditional rules
-- [ ] T062 [US4] Add inference rule timeout handling with `max_reasoning_timeout_ms` config
-- [ ] T063 [US4] Add test: Given custom inference rule in `[[inference.rules]]` → rule applied before generation - in `crates/ggen-core/tests/codegen/us4_acceptance.rs`
+- [ ] T039 [US3] Implement `--rule <NAME>` - Run specific rule(s) only
+- [ ] T040 [US3] Support multiple `--rule` flags for multiple rules
+- [ ] T041 [US3] Add test: Rule selection runs only specified rules - in `crates/ggen-cli/tests/sync_tests.rs`
 
-### Built-in Inference Rules (T064-T067)
+### Audit Trail (T042-T046)
 
-- [ ] T064 [P] [US4] Create `crates/ggen-core/src/rdf/rules/auditable_fields.sparql` - CONSTRUCT rule: `:auditable true` → add `created_at`, `updated_at` fields
-- [ ] T065 [P] [US4] Create `crates/ggen-core/src/rdf/rules/uuid_derives.sparql` - CONSTRUCT rule: `Uuid` field → add `Serialize`, `Deserialize` derives
-- [ ] T066 [P] [US4] Create `crates/ggen-core/src/rdf/rules/soft_delete.sparql` - CONSTRUCT rule: `:soft_delete true` → add `deleted_at` field
-- [ ] T067 [US4] Implement `GenerationPipeline::load_builtin_rules() -> Vec<InferenceRule>` - Load embedded rules as defaults
+- [ ] T042 [US7] Implement `--audit` - Generate audit.json
+- [ ] T043 [US7] Record input hashes: manifest, ontology, templates, queries
+- [ ] T044 [US7] Record pipeline steps: step_type, name, duration_ms, triples_added, status
+- [ ] T045 [US7] Record output hashes: path, content_hash, size_bytes, source_rule
+- [ ] T046 [US7] Add test: Audit trail is deterministic (same inputs = same hashes) - in `crates/ggen-core/tests/codegen/audit_tests.rs`
 
-**Checkpoint**: US4 complete - inference rules execute and enrich graph
-
----
-
-## Phase 7: US5 - CONSTRUCT Query Composition (Priority: P2)
-
-**Goal**: Developer chains multiple CONSTRUCT queries for progressive code graph building
-
-**Independent Test**: Define 3 CONSTRUCT queries (structs, impls, tests) → verify all execute in order
-
-### Sequential Materialization (T068-T072)
-
-- [ ] T068 [US5] Implement `ConstructExecutor::execute_chain(queries: &[InferenceRule]) -> Result<Vec<ExecutedRule>, GgenError>` - Execute queries in order, materialize after each
-- [ ] T069 [US5] Add deterministic IRI generation: `ConstructExecutor::generate_iri(base: &str, salt: Option<&str>) -> String` - Hash-based for reproducibility
-- [ ] T070 [US5] Add ORDER BY validation in `ManifestParser::validate()` - Warn if CONSTRUCT queries lack ORDER BY
-- [ ] T071 [US5] Add test: Given CONSTRUCT with `BIND(IRI(CONCAT(...)))` → new IRIs generated without collision - in `crates/ggen-core/tests/construct/materialization_tests.rs`
-- [ ] T072 [US5] Add test: Given 3 chained CONSTRUCT queries → each can query results of previous - in `crates/ggen-core/tests/construct/materialization_tests.rs`
-
-**Checkpoint**: US5 complete - CONSTRUCT chaining works with materialization
+**Checkpoint**: All sync features work
 
 ---
 
-## Phase 8: US6 - Poka-Yoke Safety Validation (Priority: P2)
+## Phase 4: Remove ALL Old Commands (Fresh Start)
 
-**Goal**: Validation CONSTRUCT queries check code graph before writing files
+**Purpose**: Delete all legacy commands, leaving only `ggen sync`
 
-**Independent Test**: Create ontology with missing `:fieldType` → verify exit code 1 with clear error
+### Delete Command Modules (T047-T057)
 
-### Validation Pipeline (T073-T079)
+- [ ] T047 [P] Delete `crates/ggen-cli/src/cmds/generate.rs` - Replaced by sync
+- [ ] T048 [P] Delete `crates/ggen-cli/src/cmds/template.rs` - Replaced by sync
+- [ ] T049 [P] Delete `crates/ggen-cli/src/cmds/project.rs` - Add back in v5.1+
+- [ ] T050 [P] Delete `crates/ggen-cli/src/cmds/graph.rs` - Add back in v5.1+
+- [ ] T051 [P] Delete `crates/ggen-cli/src/cmds/ontology.rs` - Add back in v5.1+
+- [ ] T052 [P] Delete `crates/ggen-cli/src/cmds/marketplace.rs` - Add back in v5.1+
+- [ ] T053 [P] Delete `crates/ggen-cli/src/cmds/ai.rs` - Add back in v5.1+
+- [ ] T054 [P] Delete `crates/ggen-cli/src/cmds/test.rs` - Add back in v5.1+ (if feature enabled)
+- [ ] T055 [P] Delete `crates/ggen-cli/src/cmds/utils.rs` - Add back in v5.1+
+- [ ] T056 [P] Delete `crates/ggen-cli/src/cmds/ci.rs` - Add back in v5.1+
+- [ ] T057 [P] Delete `crates/ggen-cli/src/cmds/workflow.rs` - Add back in v5.1+
 
-- [ ] T073 [US6] Implement `ValidationExecutor::new(graph: &Graph) -> Self` in `crates/ggen-core/src/codegen/pipeline.rs`
-- [ ] T074 [US6] Implement `ValidationExecutor::validate_code_graph() -> Result<Vec<ValidationResult>, GgenError>` - Run built-in SPARQL ASK validations
-- [ ] T075 [US6] Implement `ValidationExecutor::validate_custom_rules(rules: &[ValidationRule]) -> Result<Vec<ValidationResult>, GgenError>` - Run user-defined ASK queries
-- [ ] T076 [US6] Implement `ValidationExecutor::validate_syntax(code: &str) -> Result<(), GgenError>` - Parse generated Rust with syn crate
-- [ ] T077 [US6] Implement `ValidationExecutor::check_no_unsafe(code: &str) -> Result<(), GgenError>` - Scan for `unsafe` blocks if `no_unsafe = true`
-- [ ] T078 [US6] Create `crates/ggen-cli/src/commands/validate.rs` - `ggen validate` command per cli-contract.md
-- [ ] T079 [US6] Add tests per acceptance scenarios: missing fieldType → exit 1, SHACL violation → fail, `unsafe` detected → exit 4 - in `crates/ggen-core/tests/codegen/us6_acceptance.rs`
+### Rewrite Command Router (T058-T060)
 
-### Error Messages (T080-T082)
+- [ ] T058 Rewrite `crates/ggen-cli/src/cmds/mod.rs` - Only register `sync` and `helpers` modules
+- [ ] T059 Remove all dead module declarations from `mod.rs`
+- [ ] T060 Update binary entry point `crates/ggen-cli/src/main.rs` if needed
 
-- [ ] T080 [P] [US6] Implement structured error format per cli-contract.md: `error[ECODE]: Brief description\n  --> file:line:column`
-- [ ] T081 [P] [US6] Add error code mapping: E0001=Validation, E0002=SPARQL, E0003=Template, E0004=Output, E0005=Timeout
-- [ ] T082 [US6] Add test: Error messages identify exact IRI/property for validation failures (SC-010) - in `crates/ggen-core/tests/codegen/us6_acceptance.rs`
+### Verify Clean CLI (T061-T063)
 
-**Checkpoint**: US6 complete - validation prevents invalid code generation
+- [ ] T061 Run `cargo make check` - Ensure clean compilation
+- [ ] T062 Run `ggen --help` - Verify only `sync` command shown
+- [ ] T063 Run `ggen generate` - Verify returns "unknown command" error
 
----
-
-## Phase 9: US7 - Audit Trail for Agent Verification (Priority: P3)
-
-**Goal**: `audit.json` created with input hashes, pipeline steps, output verification
-
-**Independent Test**: Run generation twice → both `audit.json` files identical except timestamps
-
-### Audit Trail Generation (T083-T089)
-
-- [ ] T083 [US7] Implement `AuditTrailBuilder::new() -> Self` in `crates/ggen-core/src/codegen/audit.rs`
-- [ ] T084 [US7] Implement `AuditTrailBuilder::record_inputs(manifest: &Path, ontologies: &[Path], templates: &[Path]) -> AuditInputs` - SHA256 hash each input file
-- [ ] T085 [US7] Implement `AuditTrailBuilder::record_step(step_type: &str, name: &str, duration: Duration, triples: Option<usize>, status: &str) -> AuditStep`
-- [ ] T086 [US7] Implement `AuditTrailBuilder::record_output(path: &Path, content: &str, source_rule: &str) -> AuditOutput` - SHA256 hash content
-- [ ] T087 [US7] Implement `AuditTrailBuilder::build() -> AuditTrail` - Assemble complete audit record
-- [ ] T088 [US7] Implement `AuditTrail::write_to(path: &Path) -> Result<(), GgenError>` - Write JSON with sorted keys (BTreeMap) for determinism
-- [ ] T089 [US7] Add tests: Same inputs → identical audit.json (except timestamp), content hashes match files - in `crates/ggen-core/tests/codegen/audit_tests.rs`
-
-### Determinism Verification (T090-T092)
-
-- [ ] T090 [P] [US7] Verify all internal maps use BTreeMap (audit crate/ggen-core grep check)
-- [ ] T091 [P] [US7] Add `--verify-determinism` flag to `ggen generate` - Run twice, compare output hashes
-- [ ] T092 [US7] Add test: Generation on different runs produces byte-identical output (SC-002) - in `crates/ggen-core/tests/codegen/audit_tests.rs`
-
-**Checkpoint**: US7 complete - audit trail enables reproducibility verification
+**Checkpoint**: `ggen sync` is THE ONLY COMMAND
 
 ---
 
-## Phase 10: Polish & Cross-Cutting Concerns
+## Phase 5: Validation & Poka-Yoke (US6)
 
-**Purpose**: Documentation, performance, integration
+**Purpose**: Semantic validation before code generation
 
-### Documentation (T093-T095)
+### Validation Pipeline (T064-T069)
 
-- [ ] T093 [P] Update `crates/ggen-core/src/rdf/code_ontology.ttl` - Add any missing code: vocabulary terms discovered during implementation
-- [ ] T094 [P] Create example project in `examples/008-semantic-gen/` - Working ggen.toml + ontology + templates demonstrating US1-US7
-- [ ] T095 Run quickstart.md validation - Verify all steps work end-to-end
+- [ ] T064 [US6] Implement `ValidationExecutor::validate_code_graph()` - Run built-in SPARQL ASK validations
+- [ ] T065 [US6] Implement `ValidationExecutor::validate_custom_rules()` - Run user-defined ASK queries from ggen.toml
+- [ ] T066 [US6] Implement `ValidationExecutor::validate_syntax()` - Parse generated Rust with syn crate
+- [ ] T067 [US6] Implement `ValidationExecutor::check_no_unsafe()` - Scan for `unsafe` blocks if `no_unsafe = true`
+- [ ] T068 [US6] Add test: Missing fieldType fails validation - in `crates/ggen-core/tests/codegen/validation_tests.rs`
+- [ ] T069 [US6] Add test: Unsafe code detected when no_unsafe=true - in `crates/ggen-core/tests/codegen/validation_tests.rs`
 
-### Performance Validation (T096-T098)
+### Error Messages (T070-T072)
 
-- [ ] T096 Add benchmark: 50 entities generates in <5s (SC-001) - in `crates/ggen-core/benches/generation_bench.rs`
-- [ ] T097 Add benchmark: 500 entities generates in <30s (SC-009) - in `crates/ggen-core/benches/generation_bench.rs`
-- [ ] T098 Profile and optimize hot paths if benchmarks fail
+- [ ] T070 [P] [US6] Implement structured error format per cli-contract.md - `error[ECODE]: description`
+- [ ] T071 [P] [US6] Add error code mapping: E0001=Manifest, E0002=Ontology, E0003=SPARQL, E0004=Template, E0005=IO, E0006=Timeout
+- [ ] T072 [US6] Add test: Error messages identify exact IRI/property for validation failures - in `crates/ggen-core/tests/codegen/validation_tests.rs`
 
-### Final Integration (T099-T101)
+**Checkpoint**: Validation prevents invalid code generation
 
-- [ ] T099 Run `cargo make test` - All tests pass
-- [ ] T100 Run `cargo make lint` - No clippy warnings
-- [ ] T101 Run `cargo make check` - Compilation clean
+---
+
+## Phase 6: User Story Acceptance Tests
+
+**Purpose**: Verify all user stories work end-to-end
+
+### US1: Domain Model to Rust Code (T073-T075)
+
+- [ ] T073 [US1] Add test: Given `:User a rdfs:Class` → output contains `pub struct User { ... }` - in `crates/ggen-core/tests/codegen/us1_acceptance.rs`
+- [ ] T074 [US1] Add test: Given struct with `Uuid` field → `Serialize, Deserialize` derives added - in `crates/ggen-core/tests/codegen/us1_acceptance.rs`
+- [ ] T075 [US1] Add test: Given `:auditable true` → `created_at`, `updated_at` fields added - in `crates/ggen-core/tests/codegen/us1_acceptance.rs`
+
+### US2: Relationship-Driven Impl Generation (T076-T078)
+
+- [ ] T076 [US2] Add test: Given `:Entity1 :has_many :Entity2` → `get_entity2s(&self)` method generated - in `crates/ggen-core/tests/codegen/us2_acceptance.rs`
+- [ ] T077 [US2] Add test: Given `:Entity :soft_delete true` → `deleted_at` field inferred - in `crates/ggen-core/tests/codegen/us2_acceptance.rs`
+- [ ] T078 [US2] Add test: Relationship impl has correct return type - in `crates/ggen-core/tests/codegen/us2_acceptance.rs`
+
+### US3: Manifest-Driven Sync (T079-T081)
+
+- [ ] T079 [US3] Add test: Given ggen.toml with `[ontology]` and `[[generation.rules]]` → files generated - in `crates/ggen-core/tests/codegen/us3_acceptance.rs`
+- [ ] T080 [US3] Add test: `ggen sync --dry-run` shows preview without writing - in `crates/ggen-cli/tests/us3_acceptance.rs`
+- [ ] T081 [US3] Add test: Output directory override works - in `crates/ggen-cli/tests/us3_acceptance.rs`
+
+### US4: Inference Rules (T082-T084)
+
+- [ ] T082 [US4] Add test: Custom inference rule in `[[inference.rules]]` executes - in `crates/ggen-core/tests/codegen/us4_acceptance.rs`
+- [ ] T083 [US4] Add test: Inference rules execute in order - in `crates/ggen-core/tests/codegen/us4_acceptance.rs`
+- [ ] T084 [US4] Add test: `when` condition skips rule when false - in `crates/ggen-core/tests/codegen/us4_acceptance.rs`
+
+### US5: CONSTRUCT Composition (T085-T087)
+
+- [ ] T085 [US5] Add test: Multiple CONSTRUCT queries enrich graph progressively - in `crates/ggen-core/tests/codegen/us5_acceptance.rs`
+- [ ] T086 [US5] Add test: Later CONSTRUCT can query earlier CONSTRUCT results - in `crates/ggen-core/tests/codegen/us5_acceptance.rs`
+- [ ] T087 [US5] Add test: BIND(IRI(CONCAT(...))) generates unique IRIs - in `crates/ggen-core/tests/codegen/us5_acceptance.rs`
+
+### US6: Poka-Yoke Validation (T088-T090)
+
+- [ ] T088 [US6] Add test: Field without type fails validation with exit code 1 - in `crates/ggen-cli/tests/us6_acceptance.rs`
+- [ ] T089 [US6] Add test: Generated code with `unsafe` fails when `no_unsafe = true` - in `crates/ggen-cli/tests/us6_acceptance.rs`
+- [ ] T090 [US6] Add test: SHACL validation failure produces clear error - in `crates/ggen-cli/tests/us6_acceptance.rs`
+
+### US7: Audit Trail (T091-T093)
+
+- [ ] T091 [US7] Add test: `ggen sync --audit` creates audit.json - in `crates/ggen-cli/tests/us7_acceptance.rs`
+- [ ] T092 [US7] Add test: Same inputs produce identical audit.json (except timestamp) - in `crates/ggen-cli/tests/us7_acceptance.rs`
+- [ ] T093 [US7] Add test: Audit trail content_hash matches generated file hash - in `crates/ggen-cli/tests/us7_acceptance.rs`
+
+**Checkpoint**: All user stories have passing acceptance tests
+
+---
+
+## Phase 7: Polish & Performance
+
+**Purpose**: Documentation, performance validation, final cleanup
+
+### Documentation (T094-T096)
+
+- [ ] T094 [P] Update `crates/ggen-core/src/rdf/code_ontology.ttl` - Add any missing code: vocabulary terms
+- [ ] T095 [P] Create example project in `examples/008-sync-demo/` - Working ggen.toml + ontology + templates
+- [ ] T096 Run quickstart.md validation - Verify all steps work end-to-end
+
+### Performance Validation (T097-T099)
+
+- [ ] T097 Add benchmark: 50 entities sync in <5s (SC-001) - in `crates/ggen-core/benches/sync_bench.rs`
+- [ ] T098 Add benchmark: 500 entities sync in <30s (SC-008) - in `crates/ggen-core/benches/sync_bench.rs`
+- [ ] T099 Profile and optimize if benchmarks fail
+
+### Determinism Verification (T100-T101)
+
+- [ ] T100 Add test: Sync on different runs produces byte-identical output (SC-002) - in `crates/ggen-core/tests/codegen/determinism_tests.rs`
+- [ ] T101 Verify all maps use BTreeMap (grep check for HashMap in sync-related code)
+
+### Final Integration (T102-T104)
+
+- [ ] T102 Run `cargo make test` - All tests pass
+- [ ] T103 Run `cargo make lint` - No clippy warnings
+- [ ] T104 Run `cargo make check` - Compilation clean
+
+**Checkpoint**: ggen v5 release ready
 
 ---
 
@@ -283,65 +274,67 @@ crates/ggen-cli/src/commands/  # CLI commands (generate, validate)
 ### Phase Dependencies
 
 ```
-Phase 1 (Setup) ──────────────────┐
-                                  ▼
-Phase 2 (Foundational) ──────────► BLOCKS ALL USER STORIES
-                                  │
-          ┌───────────────────────┼───────────────────────┐
-          ▼                       ▼                       ▼
-Phase 3 (US1-P1)           Phase 4 (US2-P1)        Phase 5 (US3-P1)
-Domain→Struct              Relationships            Manifest Pipeline
-          │                       │                       │
-          └───────────────────────┼───────────────────────┘
-                                  ▼
-          ┌───────────────────────┼───────────────────────┐
-          ▼                       ▼                       ▼
-Phase 6 (US4-P2)           Phase 7 (US5-P2)        Phase 8 (US6-P2)
-Inference Rules            CONSTRUCT Compose        Validation
-          │                       │                       │
-          └───────────────────────┼───────────────────────┘
-                                  ▼
-                          Phase 9 (US7-P3)
-                          Audit Trail
-                                  │
-                                  ▼
-                          Phase 10 (Polish)
+Phase 1 (Core Sync) ────────┐
+                            ▼
+Phase 2 (Pipeline) ─────────► BLOCKS ALL FEATURES
+                            │
+          ┌─────────────────┼─────────────────┐
+          ▼                 ▼                 ▼
+Phase 3 (Features)   Phase 4 (Remove)  Phase 5 (Validation)
+          │                 │                 │
+          └─────────────────┼─────────────────┘
+                            ▼
+                    Phase 6 (Acceptance)
+                            │
+                            ▼
+                    Phase 7 (Polish)
 ```
 
 ### Critical Path
 
-1. **T009-T014** (Manifest Types) → **T015-T016** (Parser) → **T019-T021** (CONSTRUCT Executor)
-2. **T024-T029** (Code Graph Types) → **T030-T034** (Template Integration)
-3. **T047-T052** (Pipeline) → **T054-T057** (CLI)
+1. **T001-T004** (Sync CLI) → **T005-T006** (SyncOptions)
+2. **T007-T023** (Pipeline) - Core sync functionality
+3. **T047-T063** (Remove Commands) - Fresh start
+4. **T073-T093** (Acceptance Tests) - User story validation
 
 ### Parallel Opportunities
 
-- **Phase 1**: All T001-T005 can run in parallel (different files)
-- **Phase 2**: T009-T014 can run in parallel (type definitions in same file but independent)
-- **Phase 3-5**: Can start in parallel once Phase 2 complete (US1, US2, US3 are independent at P1)
-- **Phase 6-8**: Can start in parallel once Phase 5 complete (US4, US5, US6 are independent at P2)
+- **Phase 1**: T001, T002 can run in parallel (different struct definitions)
+- **Phase 4**: T047-T057 can ALL run in parallel (independent file deletions)
+- **Phase 6**: All US* acceptance tests can run in parallel (independent test files)
 
 ---
 
 ## Implementation Strategy
 
-### MVP First (US1 + US3 Only)
+### MVP First (Phases 1-2)
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational
-3. Complete Phase 3: US1 (Domain → Struct)
-4. Complete Phase 5: US3 (Manifest → CLI)
-5. **STOP and VALIDATE**: `ggen generate` produces Rust structs from ontology
-6. Deploy MVP
+1. Complete Phase 1: Core Sync Command
+2. Complete Phase 2: Pipeline Implementation
+3. **STOP and VALIDATE**: `ggen sync` generates code from ggen.toml
+4. Deploy MVP
 
 ### Full Feature Set
 
-1. MVP + Phase 4: US2 (Relationships)
-2. Add Phase 6: US4 (Inference Rules)
-3. Add Phase 7: US5 (CONSTRUCT Composition)
-4. Add Phase 8: US6 (Validation)
-5. Add Phase 9: US7 (Audit Trail)
-6. Complete Phase 10: Polish
+1. MVP + Phase 3: Sync Features
+2. Add Phase 4: Remove ALL Old Commands (BREAKING CHANGE)
+3. Add Phase 5: Validation & Poka-Yoke
+4. Add Phase 6: Acceptance Tests
+5. Complete Phase 7: Polish & Performance
+
+---
+
+## Success Criteria
+
+| Criterion | Measure | Target |
+|-----------|---------|--------|
+| SC-001 | Sync time for 10-50 entities | <5s |
+| SC-002 | Output determinism | 100% byte-identical |
+| SC-003 | Annotation reduction via inference | 60% |
+| SC-004 | Generated code syntax errors | 0 |
+| SC-005 | Audit trail enables verification | Pass |
+| SC-008 | Sync time for 500+ entities | <30s |
+| SC-010 | `ggen sync` is the ONLY command | TRUE |
 
 ---
 
@@ -351,5 +344,5 @@ Inference Rules            CONSTRUCT Compose        Validation
 - [P] tasks can run in parallel
 - [US#] maps task to user story for traceability
 - BTreeMap used everywhere for determinism (not HashMap)
-- Named CONSTRUCT queries are the canonical rule language (NOT N3 rules)
-- Leverage existing infrastructure: Graph, template.rs, code_ontology.ttl, GgenError
+- `ggen sync` is THE ONLY COMMAND for ggen v5
+- All other commands removed; can be added back incrementally in v5.1+

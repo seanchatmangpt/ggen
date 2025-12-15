@@ -51,25 +51,25 @@ impl<'a> ConstructExecutor<'a> {
     /// ```
     pub fn execute(&self, query: &str) -> Result<Vec<String>> {
         // Execute query using the graph's query method
-        let results = self.graph.query(query).map_err(|e| {
-            Error::new(&format!("CONSTRUCT query failed: {}", e))
-        })?;
+        let results = self
+            .graph
+            .query(query)
+            .map_err(|e| Error::new(&format!("CONSTRUCT query failed: {}", e)))?;
 
         // Handle CONSTRUCT results (Graph variant)
         match results {
             QueryResults::Graph(quads) => {
                 let mut triples = Vec::new();
                 for quad_result in quads {
-                    let quad = quad_result.map_err(|e| {
-                        Error::new(&format!("Error reading quad: {}", e))
-                    })?;
+                    let quad = quad_result
+                        .map_err(|e| Error::new(&format!("Error reading quad: {}", e)))?;
                     triples.push(quad.to_string());
                 }
                 Ok(triples)
             }
-            QueryResults::Solutions(_) => {
-                Err(Error::new("Expected CONSTRUCT query but got SELECT results"))
-            }
+            QueryResults::Solutions(_) => Err(Error::new(
+                "Expected CONSTRUCT query but got SELECT results",
+            )),
             QueryResults::Boolean(_) => {
                 Err(Error::new("Expected CONSTRUCT query but got ASK results"))
             }
