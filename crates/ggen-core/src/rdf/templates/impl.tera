@@ -1,0 +1,20 @@
+{# Default Tera template for Rust impl block generation #}
+{# Context variables: for_type, trait_name, generics, methods #}
+{% if trait_name %}
+impl{% if generics %}<{{ generics }}>{% endif %} {{ trait_name }} for {{ for_type }}{% if generics %}<{{ generics }}>{% endif %} {
+{% else %}
+impl{% if generics %}<{{ generics }}>{% endif %} {{ for_type }}{% if generics %}<{{ generics }}>{% endif %} {
+{% endif %}
+{% for method in methods %}
+{% if method.docstring %}
+    /// {{ method.docstring }}
+{% endif %}
+    {{ method.visibility }} {% if method.is_async %}async {% endif %}fn {{ method.name }}({% if method.self_param %}{{ method.self_param }}{% if method.params | length > 0 %}, {% endif %}{% endif %}{% for param in method.params %}{{ param.name }}: {{ param.param_type }}{% if not loop.last %}, {% endif %}{% endfor %}){% if method.return_type %} -> {{ method.return_type }}{% endif %} {
+{% if method.body %}
+        {{ method.body }}
+{% else %}
+        todo!()
+{% endif %}
+    }
+{% endfor %}
+}
