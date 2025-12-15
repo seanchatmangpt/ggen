@@ -1,0 +1,24 @@
+{# Default Tera template for Rust enum generation #}
+{# Context variables: name, visibility, derives, variants, docstring #}
+{% if docstring %}
+/// {{ docstring }}
+{% endif %}
+{% if derives | length > 0 %}
+#[derive({{ derives | join(sep=", ") }})]
+{% endif %}
+{{ visibility }} enum {{ name }} {
+{% for variant in variants %}
+{% if variant.docstring %}
+    /// {{ variant.docstring }}
+{% endif %}
+{% if variant.fields | length > 0 %}
+    {{ variant.name }} {
+{% for field in variant.fields %}
+        {{ field.name }}: {{ field.field_type }},
+{% endfor %}
+    },
+{% else %}
+    {{ variant.name }},
+{% endif %}
+{% endfor %}
+}

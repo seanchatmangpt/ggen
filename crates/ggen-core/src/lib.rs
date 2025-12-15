@@ -120,6 +120,7 @@ pub mod cache;
 pub mod cli_generator;
 pub mod codegen;
 pub mod config;
+// N3/CONSTRUCT semantic code generation manifest (v5)
 pub mod delta;
 #[cfg(test)]
 pub mod e2e_tests;
@@ -131,6 +132,7 @@ pub mod inject;
 pub mod lifecycle;
 pub mod lockfile;
 pub mod lockfile_unified; // Unified lockfile trait system (v4.0)
+pub mod manifest;
 pub mod merge;
 pub mod parallel_generator;
 // Ontology system - re-enabled after oxigraph API compatibility fixes

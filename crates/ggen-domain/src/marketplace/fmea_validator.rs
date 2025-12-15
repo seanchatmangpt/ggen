@@ -11,8 +11,8 @@
 //! - **CODEOWNERS Generation**: Team ownership enforcement
 
 use ggen_core::types::{
-    CodeownersGenerator, EnterpriseConfig, FmeaConfig, FmeaValidationError, PathProtectionConfig,
-    PathProtectionError, PokaYokeConfig, RpnLevel,
+    CodeownersGenerator, FmeaConfig, FmeaValidationError, PathProtectionConfig,
+    PathProtectionError, PokaYokeConfig,
 };
 use serde::{Deserialize, Serialize};
 use std::fs;

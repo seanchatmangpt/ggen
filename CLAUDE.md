@@ -556,6 +556,10 @@ TODO LISTS ARE ALWAYS 10 ITEMS OR MORE. THEY ARE ALWAYS FULLY COMPLETED BEFORE P
 - Filesystem-based (003-optimize-aci-anthropic)
 - Rust 1.75+ (edition 2021) (006-marketplace-fmea-poka-yoke)
 - File system (package.toml, OWNERS files, generated files) (006-marketplace-fmea-poka-yoke)
+- Rust 1.74+ (edition 2021) - existing ggen toolchain + ggen CLI (v4.0.0), cargo-make, existing workspace crates (007-cli-jtbd-audit)
+- Filesystem-based (YAML audit results, markdown reports) in feature evidence directory (007-cli-jtbd-audit)
+- Rust 1.75+ (edition 2021), existing ggen v4.0.0 workspace (008-n3-code-gen)
+- File system (ggen.toml, .ttl ontologies, generated .rs files, audit.json) (008-n3-code-gen)
 
 ## Recent Changes
 - 003-optimize-aci-anthropic: Added Rust 1.74+ (edition 2021) - existing ggen toolchain
