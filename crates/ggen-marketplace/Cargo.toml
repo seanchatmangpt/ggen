@@ -112,46 +112,4 @@ harness = false
 name = "marketplace_load_test"
 harness = false
 
-# Unit tests
-[[test]]
-name = "poka_yoke_types_test"
-path = "tests/unit/poka_yoke_types_test.rs"
-
-[[test]]
-name = "rdf_turtle_test"
-path = "tests/unit/rdf_turtle_test.rs"
-
-[[test]]
-name = "sparql_operations_test"
-path = "tests/unit/sparql_operations_test.rs"
-
-# Phase 3A: Comprehensive Unit Tests (Chicago TDD)
-[[test]]
-name = "84_marketplace_core_unit"
-path = "tests/unit/84_marketplace_core_unit.rs"
-
-[[test]]
-name = "85_marketplace_registry_unit"
-path = "tests/unit/85_marketplace_registry_unit.rs"
-
-[[test]]
-name = "86_marketplace_search_unit"
-path = "tests/unit/86_marketplace_search_unit.rs"
-
-[[test]]
-name = "87_marketplace_install_unit"
-path = "tests/unit/87_marketplace_install_unit.rs"
-
-[[test]]
-name = "88_marketplace_security_unit"
-path = "tests/unit/88_marketplace_security_unit.rs"
-
-# Phase 3B: Integration tests
-[[test]]
-name = "marketplace_integration"
-path = "tests/89_marketplace_integration.rs"
-
-# Phase 3C: Property-based tests
-[[test]]
-name = "marketplace_property_based"
-path = "tests/90_marketplace_property_based.rs"
+# NOTE: Test declarations archived - tests live in src/ as inline #[test] modules

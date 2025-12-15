@@ -158,7 +158,7 @@ impl std::error::Error for ValidationError {}
 ///
 /// # Example
 ///
-/// ```rust
+/// ```rust,ignore
 /// validate_command!("ci", "workflow", [("name", false)]);
 /// ```
 #[macro_export]

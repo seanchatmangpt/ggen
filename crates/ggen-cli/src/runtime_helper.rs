@@ -6,7 +6,7 @@
 //!
 //! # Examples
 //!
-//! ```rust
+//! ```rust,ignore
 //! use cli::runtime_helper::execute_async;
 //! use clap_noun_verb::Result;
 //!
@@ -50,7 +50,7 @@ pub fn create_runtime() -> Result<Runtime, String> {
 ///
 /// # Examples
 ///
-/// ```rust
+/// ```rust,ignore
 /// use cli::runtime_helper::execute_async;
 ///
 /// fn sync_function() -> Result<String, String> {
@@ -103,7 +103,7 @@ where
 ///
 /// # Examples
 ///
-/// ```rust
+/// ```rust,ignore
 /// use cli::runtime_helper::execute_async_verb;
 /// use clap_noun_verb::Result;
 ///

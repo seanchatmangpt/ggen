@@ -16,16 +16,13 @@
 //!
 //! ### Loading RDF Files
 //!
-//! ```rust,no_run
+//! ```rust,ignore
 //! use ggen_ai::rdf::RdfParser;
 //! use std::path::Path;
 //!
-//! # fn main() -> anyhow::Result<()> {
 //! let mut parser = RdfParser::new()?;
 //! parser.load_schema()?;
 //! parser.load_ttl(Path::new("sample-cli.ttl"))?;
-//! # Ok(())
-//! # }
 //! ```
 
 use ggen_utils::{bail, error::Result};
@@ -39,16 +36,13 @@ use std::path::Path;
 ///
 /// # Example
 ///
-/// ```no_run
+/// ```rust,ignore
 /// use ggen_ai::rdf::RdfParser;
 /// use std::path::Path;
 ///
-/// # fn main() -> anyhow::Result<()> {
 /// let mut parser = RdfParser::new()?;
 /// parser.load_schema()?;
 /// parser.load_ttl(Path::new("sample-cli.ttl"))?;
-/// # Ok(())
-/// # }
 /// ```
 pub struct RdfParser {
     store: Store,

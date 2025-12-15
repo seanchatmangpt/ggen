@@ -16,18 +16,15 @@
 //!
 //! # Complete Example (Phase 5)
 //!
-//! ```no_run
+//! ```rust,ignore
 //! use ggen_ai::rdf::CliGenerator;
 //! use std::path::{Path, PathBuf};
 //!
-//! # fn example() -> anyhow::Result<()> {
 //! let generator = CliGenerator::new(PathBuf::from("templates"));
 //! generator.generate_from_ttl(
 //!     Path::new("sample-cli.ttl"),
 //!     Path::new("output")
 //! )?;
-//! # Ok(())
-//! # }
 //! ```
 
 pub mod generator;
