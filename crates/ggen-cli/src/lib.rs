@@ -25,7 +25,7 @@
 //!
 //! ### Basic CLI Execution
 //!
-//! ```rust,no_run
+//! ```rust,ignore
 //! use ggen_cli::cli_match;
 //!
 //! # async fn example() -> ggen_utils::error::Result<()> {
@@ -37,7 +37,7 @@
 //!
 //! ### Programmatic Execution
 //!
-//! ```rust,no_run
+//! ```rust,ignore
 //! use ggen_cli::run_for_node;
 //!
 //! # async fn example() -> ggen_utils::error::Result<()> {

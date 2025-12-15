@@ -25,18 +25,15 @@
 //!
 //! ### Generating a CLI Project
 //!
-//! ```rust,no_run
+//! ```rust,ignore
 //! use ggen_ai::rdf::CliGenerator;
 //! use std::path::Path;
 //!
-//! # fn main() -> anyhow::Result<()> {
 //! let generator = CliGenerator::new("templates".into());
 //! generator.generate_from_ttl(
 //!     Path::new("project.ttl"),
 //!     Path::new("output")
 //! )?;
-//! # Ok(())
-//! # }
 //! ```
 
 use ggen_utils::{

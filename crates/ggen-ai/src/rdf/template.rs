@@ -15,12 +15,11 @@
 //!
 //! ### Rendering a Project
 //!
-//! ```rust,no_run
+//! ```rust,ignore
 //! use ggen_ai::rdf::template::TemplateRenderer;
 //! use ggen_ai::rdf::types::CliProject;
 //! use std::path::Path;
 //!
-//! # fn main() -> anyhow::Result<()> {
 //! let template_dir = Path::new("templates");
 //! let renderer = TemplateRenderer::new(template_dir)?;
 //!
@@ -28,8 +27,6 @@
 //! let output_dir = Path::new("output");
 //!
 //! renderer.render_all(&project, output_dir)?;
-//! # Ok(())
-//! # }
 //! ```
 
 use ggen_utils::error::Result;

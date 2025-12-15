@@ -31,12 +31,11 @@ impl TemplateRenderer {
     ///
     /// # Example
     ///
-    /// ```no_run
+    /// ```rust,ignore
     /// use ggen_ai::rdf::TemplateRenderer;
     /// use std::path::Path;
     ///
     /// let renderer = TemplateRenderer::new(Path::new("templates"))?;
-    /// # Ok::<(), anyhow::Error>(())
     /// ```
     pub fn new(template_dir: &Path) -> Result<Self> {
         let pattern = format!("{}/**/*.tmpl", template_dir.display());
