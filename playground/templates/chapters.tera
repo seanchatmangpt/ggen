@@ -1,0 +1,10 @@
+% ============================================================================
+% CHAPTERS - Generated from RDF Ontology
+% ============================================================================
+
+{% for row in sparql_results %}
+% Chapter {{ row["?chapterNum"] }}: {{ row["?chapterTitle"] }}
+\chapter{ {{ row["?chapterTitle"] }} }
+\label{ch:{{ row["?chapterNum"] }}}
+
+{% endfor %}

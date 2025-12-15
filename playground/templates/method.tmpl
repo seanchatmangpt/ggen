@@ -1,0 +1,24 @@
+\chapter{{{ chapter.chapterTitle }}}
+
+{% for section in chapter.sections %}
+\section{{{ section.sectionTitle }}}
+
+{{ section.content }}
+
+{% if section.equations %}
+\subsection{Mathematical Formulation}
+{% for eq in section.equations %}
+\[
+{{ eq.latexExpression }}
+\]
+{% endfor %}
+{% endif %}
+
+{% endfor %}
+
+\subsection{Synchronization Modes}
+\begin{description}
+\item[Full Mode] Regenerates all artifacts from source ontology
+\item[Incremental Mode] Preserves manual edits and updates only changed sections
+\item[Verify Mode] Checks consistency without modifications
+\end{description}

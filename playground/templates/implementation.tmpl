@@ -1,0 +1,22 @@
+\chapter{{{ chapter.chapterTitle }}}
+
+{% for section in chapter.sections %}
+\section{{{ section.sectionTitle }}}
+
+{{ section.content }}
+
+{% endfor %}
+
+\subsection{Configuration Space Optimization}
+Finding optimal ggen.toml is a constrained optimization problem:
+\[
+\max_{s \in \Omega} I(O; C) - \lambda \|\sigma\|_1
+\]
+
+where:
+\begin{itemize}
+\item $\Omega$ = configuration space
+\item $I(O; C)$ = mutual information between ontology and code
+\item $\lambda$ = regularization parameter
+\item $\|\sigma\|_1$ = sparsity-inducing norm
+\end{itemize}

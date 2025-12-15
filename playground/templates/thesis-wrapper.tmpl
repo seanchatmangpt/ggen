@@ -1,0 +1,67 @@
+\documentclass{{{ thesis_meta.document_class }}}
+\usepackage[utf-8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{tikz}
+
+\theoremstyle{definition}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+
+\title{{{ thesis_meta.title }}}
+\author{{{ thesis_meta.author }}}
+\date{{{ thesis_meta.date }}}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+{{ thesis_meta.abstract }}
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+{% for chapter in chapters %}
+\chapter{{{ chapter.chapterTitle }}}
+{% for section in chapter.sections %}
+\section{{{ section.sectionTitle }}}
+
+{{ section.content }}
+
+{% if section.equations %}
+\subsection{Mathematical Formulations}
+{% for eq in section.equations %}
+\[
+{{ eq.latexExpression }}
+\]
+{% endfor %}
+{% endif %}
+
+{% if section.theorems %}
+\subsection{Theorems}
+{% for thm in section.theorems %}
+\begin{theorem}
+{{ thm.theoremStatement }}
+\end{theorem}
+{% if thm.proof %}
+\begin{proof}
+{{ thm.proof.proofSteps }}
+\end{proof}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% endfor %}
+{% endfor %}
+
+\end{document}
