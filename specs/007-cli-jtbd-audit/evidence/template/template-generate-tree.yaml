@@ -1,0 +1,56 @@
+command: "ggen template generate-tree"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 60
+agent_breakdown:
+  parseable_output: 15
+  error_messages: 14
+  idempotency: 9
+  progress_feedback: 8
+  dry_run: 7
+  documentation: 6
+  exit_codes: 1
+
+avatar_notes:
+  claude_code: "Generates directory trees; --dry-run preview essential"
+  cursor_ai: "IDE integration for showing generated structure"
+  copilot: "Pattern clear from examples; good for scaffolding"
+  aider: "Safe for git tracking; tree structure deterministic"
+  devin: "Can generate directory structures; preview helpful"
+  openhands: "Good for project generation workflows"
+  windsurf: "Visual tree preview valuable for IDE display"
+
+maturity_level: "L2"
+maturity_blockers:
+  - "Exit codes not semantically differentiated"
+  - "JSON output format inconsistent"
+
+evidence_files: []
+
+recommendations:
+  - priority: P1
+    description: "Add --output-format json with tree schema"
+    effort: low
+    impact: high
+  - priority: P2
+    description: "Implement semantic exit codes"
+    effort: low
+    impact: medium
+  - priority: P2
+    description: "Add --depth flag to control tree depth"
+    effort: low
+    impact: low
+
+jtbd: |
+  When I want to generate a directory tree from templates,
+  I need to run 'ggen template generate-tree',
+  so that I can create complex project structures automatically.

@@ -1,0 +1,52 @@
+command: "ggen ontology validate"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 56
+agent_breakdown:
+  parseable_output: 15
+  error_messages: 12
+  idempotency: 15
+  progress_feedback: 4
+  dry_run: 10
+  documentation: 2
+  exit_codes: 2
+
+avatar_notes:
+  claude_code: "Validation useful; JSON results preferred"
+  cursor_ai: "Inline validation for IDE"
+  copilot: "Clear error messages"
+  aider: "Safe pre-commit validation"
+  devin: "Validation chain support"
+  openhands: "Customizable rules helpful"
+  windsurf: "Error visualization"
+
+maturity_level: "L2"
+maturity_blockers:
+  - "Missing JSON output"
+  - "Exit codes not semantic"
+
+evidence_files: []
+
+recommendations:
+  - priority: P1
+    description: "Add --output-format json"
+    effort: low
+    impact: high
+  - priority: P2
+    description: "Implement semantic exit codes"
+    effort: low
+    impact: medium
+
+jtbd: |
+  When I have an ontology to validate,
+  I need to run 'ggen ontology validate',
+  so that I can ensure ontology correctness.

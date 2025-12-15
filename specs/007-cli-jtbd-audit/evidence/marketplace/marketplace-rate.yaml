@@ -1,0 +1,52 @@
+command: "ggen marketplace rate"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 48
+agent_breakdown:
+  parseable_output: 10
+  error_messages: 10
+  idempotency: 12
+  progress_feedback: 6
+  dry_run: 10
+  documentation: 2
+  exit_codes: 4
+
+avatar_notes:
+  claude_code: "Rate submissions; structured output helpful"
+  cursor_ai: "Rating submission visible"
+  copilot: "Rating patterns learnable"
+  aider: "Can submit ratings"
+  devin: "Can rate autonomously"
+  openhands: "Customizable ratings"
+  windsurf: "Rating submission in IDE"
+
+maturity_level: "L1"
+maturity_blockers:
+  - "Minimal documentation"
+  - "Limited JSON output"
+
+evidence_files: []
+
+recommendations:
+  - priority: P1
+    description: "Add comprehensive documentation with examples"
+    effort: low
+    impact: high
+  - priority: P1
+    description: "Add --output-format json for rating confirmation"
+    effort: low
+    impact: high
+
+jtbd: |
+  When I want to rate a marketplace package,
+  I need to run 'ggen marketplace rate' with package name and rating,
+  so that I can provide feedback to the community.

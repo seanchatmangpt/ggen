@@ -1,0 +1,69 @@
+# Fortune 500 Case Study Validation: Pfizer
+# Schema: ../../contracts/case-study-validation.schema.yaml
+
+case_study: pfizer
+industry: Healthcare/Biotech
+fortune_rank: 42
+
+jtbd: "When I design a new trial, I need data models that automatically comply with FDA CDISC requirements, so that I can accelerate submissions and reduce compliance risk."
+
+scale_requirements:
+  clinical_studies: 500
+  data_domains: 50
+  submissions_per_year: 20
+  latency_slo: "<10min for complete trial structure"
+
+required_commands:
+  - command: "ggen ontology extract"
+    purpose: "Extract entities from CDISC ontologies"
+    criticality: P1
+    current_support: pending
+    gaps: []
+
+  - command: "ggen graph load"
+    purpose: "Load CDISC standards into graph"
+    criticality: P1
+    current_support: pending
+    gaps: []
+
+  - command: "ggen template generate-tree"
+    purpose: "Generate complete trial data structure"
+    criticality: P1
+    current_support: pending
+    gaps: []
+
+  - command: "ggen ontology validate"
+    purpose: "Validate CDISC compliance"
+    criticality: P1
+    current_support: pending
+    gaps: []
+
+validation_status: pending
+validated_date: null
+validator: claude-code
+
+test_scenarios:
+  - scenario: "CDISC-compliant trial structure"
+    steps:
+      - "ggen graph load cdisc-sdtm.ttl"
+      - "ggen ontology extract --namespace http://cdisc.org/sdtm#"
+      - "ggen template generate-tree --template trial-structure.tmpl"
+      - "ggen ontology validate schema.json --strict"
+    expected: "Complete trial structure passing FDA validation"
+    actual: pending
+
+  - scenario: "Study-specific extension handling"
+    steps:
+      - "ggen ontology extract cdisc-base.ttl"
+      - "ggen template generate --template extension.tmpl --var study=PHASE3-001"
+    expected: "Extensions cleanly separated from base CDISC"
+    actual: pending
+
+gaps: []
+
+recommendations: []
+
+notes: |
+  Pfizer case study focuses on FDA CDISC compliance automation.
+  Key concerns: regulatory compliance, traceability, data integrity.
+  Industry pattern: compliance-driven with healthcare-specific requirements.

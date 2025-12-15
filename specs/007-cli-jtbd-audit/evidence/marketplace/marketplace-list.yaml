@@ -1,0 +1,46 @@
+command: "ggen marketplace list"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 72
+agent_breakdown:
+  parseable_output: 25
+  error_messages: 16
+  idempotency: 15
+  progress_feedback: 6
+  dry_run: 10
+  documentation: 4
+  exit_codes: 2
+
+avatar_notes:
+  claude_code: "Lists marketplace items; JSON structure perfect"
+  cursor_ai: "Enumeration for discovery"
+  copilot: "Simple list pattern"
+  aider: "Read-only; fully safe"
+  devin: "Can enumerate packages autonomously"
+  openhands: "Customizable list filtering"
+  windsurf: "Native list rendering"
+
+maturity_level: "L4"
+maturity_blockers: []
+
+evidence_files: []
+
+recommendations:
+  - priority: P3
+    description: "Add pagination support for large result sets"
+    effort: medium
+    impact: low
+
+jtbd: |
+  When I want to see all marketplace items,
+  I need to run 'ggen marketplace list',
+  so that I can browse available templates and packages.

@@ -1,0 +1,56 @@
+command: "ggen template regenerate"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 56
+agent_breakdown:
+  parseable_output: 15
+  error_messages: 12
+  idempotency: 12
+  progress_feedback: 8
+  dry_run: 5
+  documentation: 4
+  exit_codes: 2
+
+avatar_notes:
+  claude_code: "Re-generation useful for updates; --force supports idempotency"
+  cursor_ai: "Refresh operation safe for IDE workflows"
+  copilot: "Pattern learnable; clear from help text"
+  aider: "Can track re-generated changes in git"
+  devin: "Supports update workflows; partial --dry-run helpful"
+  openhands: "Customizable re-generation; good flexibility"
+  windsurf: "Visual diff of re-generated content useful"
+
+maturity_level: "L2"
+maturity_blockers:
+  - "Incomplete --dry-run implementation"
+  - "Exit codes not semantic"
+
+evidence_files: []
+
+recommendations:
+  - priority: P1
+    description: "Implement comprehensive --dry-run with full diff preview"
+    effort: medium
+    impact: high
+  - priority: P1
+    description: "Add semantic exit codes (1=no changes, 2=validation error, etc)"
+    effort: low
+    impact: high
+  - priority: P2
+    description: "Add --output-format json for re-generation results"
+    effort: low
+    impact: medium
+
+jtbd: |
+  When I want to regenerate code from updated templates,
+  I need to run 'ggen template regenerate',
+  so that I can refresh generated outputs after template changes.

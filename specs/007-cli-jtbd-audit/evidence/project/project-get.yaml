@@ -1,0 +1,48 @@
+command: "ggen project get"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 50
+agent_breakdown:
+  parseable_output: 10
+  error_messages: 12
+  idempotency: 15
+  progress_feedback: 4
+  dry_run: 10
+  documentation: 2
+  exit_codes: 1
+
+avatar_notes:
+  claude_code: "Retrieves project; JSON output needed"
+  cursor_ai: "Basic retrieval for IDE context"
+  copilot: "Simple pattern"
+  aider: "Read-only; safe"
+  devin: "Text parsing required"
+  openhands: "Could support JSON output"
+  windsurf: "Structured output would help"
+
+maturity_level: "L1"
+maturity_blockers:
+  - "Missing JSON output"
+  - "Minimal documentation"
+
+evidence_files: []
+
+recommendations:
+  - priority: P1
+    description: "Add --output-format json"
+    effort: low
+    impact: high
+
+jtbd: |
+  When I need to retrieve a project's configuration,
+  I need to run 'ggen project get <name>',
+  so that I can inspect project details.

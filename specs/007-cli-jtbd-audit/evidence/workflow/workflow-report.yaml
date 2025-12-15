@@ -1,0 +1,56 @@
+# Audit Result: ggen workflow report
+# Schema: ../../contracts/audit-result.schema.yaml
+
+command: "ggen workflow report"
+version_tested: "5.3.2"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: false         # Crashes without required --workflow_file argument
+  help_works: true        # --help displays documentation
+  happy_path: false       # Requires external workflow.json file
+  error_handling: true    # Clear error messages for missing arguments
+  exit_codes: true        # Proper exit codes (0/1)
+
+agent_score: 25
+agent_breakdown:
+  parseable_output: 2     # Text-only output, no JSON option
+  error_messages: 10      # Good error messages naming --workflow_file requirement
+  idempotency: 8          # Would be idempotent if executed
+  progress_feedback: 2    # Silent operation
+  dry_run: 0              # No --dry-run option
+  documentation: 2        # Help present but minimal inline examples
+  exit_codes: 1           # Basic exit codes (0/1)
+
+avatar_notes:
+  claude_code: "File dependency blocks orchestration; no JSON output; cannot execute standalone"
+  cursor_ai: "Help text clear but requires file setup; not practical for inline IDE usage"
+  copilot: "Requires file context; limited pattern examples; difficult for completion-based learning"
+  aider: "Requires pre-existing workflow file; cannot automate safely without file dependency"
+  devin: "File dependency blocks autonomous execution; would need file creation logic first"
+  openhands: "Text output requires manual parsing; needs file setup; difficult for standalone usage"
+  windsurf: "IDE integration challenging due to file dependency; text output not IDE-friendly"
+
+maturity_level: "L1"
+maturity_blockers:
+  - "File-dependent execution blocks autonomous usage (L1 blocker)"
+  - "No JSON output format (blocks L2+)"
+  - "Cannot execute standalone without external file"
+
+evidence_files:
+  - workflow-report-help.log
+
+recommendations:
+  - priority: "P1"
+    description: "Add --output-format json for structured report output"
+    effort: "medium"
+    impact: "high"
+  - priority: "P1"
+    description: "Support --workflow-json flag to accept JSON via stdin"
+    effort: "low"
+    impact: "high"
+  - priority: "P2"
+    description: "Add --dry-run flag to preview report structure without file creation"
+    effort: "low"
+    impact: "medium"

@@ -1,0 +1,51 @@
+command: "ggen fmea validate"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 58
+agent_breakdown:
+  parseable_output: 15
+  error_messages: 12
+  idempotency: 15
+  progress_feedback: 4
+  dry_run: 10
+  documentation: 4
+  exit_codes: 2
+
+avatar_notes:
+  claude_code: "Validates FMEA completeness"
+  cursor_ai: "Validation in IDE"
+  copilot: "Validation patterns clear"
+  aider: "Pre-commit validation"
+  devin: "Can validate autonomously"
+  openhands: "Customizable validation rules"
+  windsurf: "Validation error visualization"
+
+maturity_level: "L2"
+maturity_blockers:
+  - "Exit codes not semantic"
+
+evidence_files: []
+
+recommendations:
+  - priority: P1
+    description: "Add semantic exit codes"
+    effort: low
+    impact: medium
+  - priority: P2
+    description: "Add --strict mode for enhanced validation"
+    effort: low
+    impact: low
+
+jtbd: |
+  When I have an FMEA to validate,
+  I need to run 'ggen fmea validate',
+  so that I can ensure FMEA completeness and correctness.

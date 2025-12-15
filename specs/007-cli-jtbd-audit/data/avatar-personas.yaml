@@ -1,0 +1,328 @@
+# Coding Agent Avatar Personas
+# 7 AI Coding Agent Archetypes for JTBD Audit
+# Generated: 2024-12-14
+
+avatars:
+  - id: claude_code
+    name: Claude Code (Anthropic)
+    type: cli_agent
+    context_window: 200000
+
+    capabilities:
+      - Long-form reasoning and planning
+      - Multi-file understanding and coordination
+      - Tool use (bash, file operations, web)
+      - Code generation across languages
+      - Git integration
+
+    limitations:
+      - Execution confirmation bias (says "done" prematurely)
+      - File path hallucination risk
+      - Context degradation after ~15 messages
+      - Cannot see command output without explicit capture
+
+    jtbd_focus:
+      primary: Complex multi-step generation workflows
+      secondary: Project scaffolding and ontology management
+
+    evaluation_criteria:
+      - Does command provide streaming output for long operations?
+      - Are error messages detailed enough for self-correction?
+      - Can multi-step workflows be orchestrated with clear checkpoints?
+      - Does JSON output enable programmatic verification?
+
+    optimal_commands:
+      - ggen project generate
+      - ggen template generate-tree
+      - ggen workflow analyze
+      - ggen ontology validate
+
+  - id: cursor_ai
+    name: Cursor AI (Tab Completion)
+    type: ide_integrated
+    context_window: 8000  # autocomplete mode
+    context_window_chat: 32000
+
+    capabilities:
+      - Fast inline code suggestions
+      - Deep IDE integration (VSCode)
+      - Codebase indexing
+      - Multi-cursor editing
+
+    limitations:
+      - No shell access in autocomplete mode
+      - Limited context in fast mode
+      - Cannot execute CLI commands directly
+      - Requires user confirmation for file changes
+
+    jtbd_focus:
+      primary: Quick template scaffolding
+      secondary: Single-command operations with predictable output
+
+    evaluation_criteria:
+      - Is command output concise enough for 8K context?
+      - Can command be suggested without shell access?
+      - Does --help fit within context for suggestions?
+      - Are common operations completable in one command?
+
+    optimal_commands:
+      - ggen template new
+      - ggen template list
+      - ggen ontology init
+      - ggen marketplace search
+
+  - id: github_copilot
+    name: GitHub Copilot
+    type: code_completion
+    context_window: 8000
+
+    capabilities:
+      - Code completion (industry standard)
+      - Multi-language support
+      - Pattern recognition from training
+      - Inline suggestions
+
+    limitations:
+      - No shell execution
+      - Limited planning/reasoning
+      - Cannot read external files dynamically
+      - No memory between sessions
+
+    jtbd_focus:
+      primary: Template generation suggestions
+      secondary: Cargo.toml and config file edits
+
+    evaluation_criteria:
+      - Can command patterns be learned from examples?
+      - Is config file format predictable for completion?
+      - Are common invocations documentable in code comments?
+      - Does completion of ggen commands add value?
+
+    optimal_commands:
+      - ggen template lint
+      - ggen ontology validate
+      - ggen marketplace info
+
+  - id: aider
+    name: Aider (CLI Agent)
+    type: cli_agent
+    context_window: variable  # model-dependent 4K-200K
+
+    capabilities:
+      - Git-aware operations
+      - Shell execution with confirmation
+      - Diff-based file editing
+      - Model switching (GPT-4, Claude, etc.)
+      - Architect + editor mode
+
+    limitations:
+      - Requires human confirmation by default
+      - Context juggling for large changes
+      - Model-dependent capabilities
+      - Can get stuck in edit loops
+
+    jtbd_focus:
+      primary: Full CLI orchestration
+      secondary: Project-wide workflows with git integration
+
+    evaluation_criteria:
+      - Can command be executed with --yes for automation?
+      - Does output support diff-based verification?
+      - Are file changes trackable through git?
+      - Can command chain with && for workflows?
+
+    optimal_commands:
+      - ggen project generate
+      - ggen template regenerate
+      - ggen graph export
+      - ggen fmea report
+
+  - id: devin
+    name: Devin (Autonomous Agent)
+    type: autonomous_agent
+    context_window: unlimited  # long-term memory + retrieval
+
+    capabilities:
+      - Autonomous multi-hour execution
+      - Web browsing and research
+      - Environment setup
+      - CI/CD integration
+      - Long-term memory
+
+    limitations:
+      - Expensive ($500+/month)
+      - Slow iteration cycles
+      - Tendency to over-engineer
+      - Limited user interaction during execution
+
+    jtbd_focus:
+      primary: Complete project setup from scratch
+      secondary: CI/CD pipeline integration
+
+    evaluation_criteria:
+      - Can command be part of autonomous setup flow?
+      - Does documentation support self-discovery?
+      - Are dependencies clearly specified?
+      - Can command verify its own success?
+
+    optimal_commands:
+      - ggen project new
+      - ggen workflow init
+      - ggen ci
+      - ggen marketplace install
+
+  - id: openhands
+    name: OpenHands (Open Source)
+    type: cli_agent
+    context_window: variable  # model-dependent
+
+    capabilities:
+      - Self-hosted deployment
+      - Full customization
+      - Shell access
+      - Docker integration
+      - Open source (MIT license)
+
+    limitations:
+      - Setup complexity
+      - Variable model quality
+      - Community support only
+      - Resource-intensive
+
+    jtbd_focus:
+      primary: Custom template development
+      secondary: Ontology management and extension
+
+    evaluation_criteria:
+      - Can command be containerized easily?
+      - Does output support custom parsing?
+      - Are advanced features documented for power users?
+      - Can command integrate with custom tooling?
+
+    optimal_commands:
+      - ggen ontology extract
+      - ggen ontology generate
+      - ggen graph query
+      - ggen template new
+
+  - id: windsurf
+    name: Windsurf (IDE-Integrated)
+    type: ide_integrated
+    context_window: 32000
+
+    capabilities:
+      - Deep IDE integration
+      - Codebase understanding
+      - Multi-file editing
+      - Cascade (autonomous mode)
+
+    limitations:
+      - Vendor lock-in (proprietary IDE)
+      - Limited CLI orchestration
+      - Newer platform (less mature)
+      - IDE-dependent workflows
+
+    jtbd_focus:
+      primary: In-editor code generation
+      secondary: Template preview and validation
+
+    evaluation_criteria:
+      - Can command output be previewed in editor?
+      - Does generation integrate with IDE file system?
+      - Are errors displayable in IDE error panel?
+      - Can cascade mode orchestrate command sequences?
+
+    optimal_commands:
+      - ggen template show
+      - ggen template lint
+      - ggen graph visualize
+      - ggen marketplace info
+
+# Evaluation Matrix Template
+evaluation_matrix:
+  criteria:
+    - id: parseable_output
+      weight: 25
+      description: Command output can be parsed programmatically
+      l1: Text only
+      l3: JSON option available
+      l5: JSON schema documented
+
+    - id: error_messages
+      weight: 20
+      description: Error messages enable self-correction
+      l1: Stack trace or cryptic error
+      l3: Human-readable with guidance
+      l5: Machine-parseable with error codes
+
+    - id: idempotency
+      weight: 15
+      description: Command is safe to retry
+      l1: Destructive or stateful
+      l3: Mostly safe with warnings
+      l5: Fully idempotent
+
+    - id: progress_feedback
+      weight: 10
+      description: Progress visible during execution
+      l1: Silent until completion
+      l3: Final status reported
+      l5: Streaming progress updates
+
+    - id: dry_run
+      weight: 10
+      description: Preview available before execution
+      l1: No preview
+      l3: Partial preview
+      l5: Full dry-run mode
+
+    - id: documentation
+      weight: 10
+      description: Documentation quality
+      l1: --help only
+      l3: Examples available
+      l5: JTBD + examples + tutorials
+
+    - id: exit_codes
+      weight: 10
+      description: Exit codes are meaningful
+      l1: 0/1 only
+      l3: Differentiated codes
+      l5: Semantic codes with documentation
+
+# Avatar-specific evaluation notes
+avatar_notes:
+  claude_code:
+    - Needs explicit verification commands after generation
+    - Benefits from JSON output for programmatic checking
+    - Can handle complex multi-step workflows if checkpoints are clear
+
+  cursor_ai:
+    - Keep command output under 2K tokens for context efficiency
+    - --help must be concise
+    - Single commands preferred over workflows
+
+  github_copilot:
+    - Document common patterns in code comments
+    - Config file generation most valuable
+    - Cannot execute, only suggest
+
+  aider:
+    - Git integration is key differentiator
+    - Diff output enables verification
+    - Can chain commands with &&
+
+  devin:
+    - Self-contained workflows preferred
+    - Documentation must support autonomous discovery
+    - Long-running operations acceptable
+
+  openhands:
+    - Customization is key advantage
+    - Power user features valuable
+    - Container-friendly execution
+
+  windsurf:
+    - IDE integration paramount
+    - Preview/visualization features valuable
+    - Error panel integration important

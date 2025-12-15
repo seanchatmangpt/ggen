@@ -1,0 +1,50 @@
+command: "ggen template list"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 72
+agent_breakdown:
+  parseable_output: 25
+  error_messages: 16
+  idempotency: 15
+  progress_feedback: 6
+  dry_run: 10
+  documentation: 6
+  exit_codes: 2
+
+avatar_notes:
+  claude_code: "Excellent JSON output; deterministic results; perfect for agent orchestration"
+  cursor_ai: "Clean, parseable list format; ideal for IDE sidebar display"
+  copilot: "Simple pattern to learn; great reference for template enumeration"
+  aider: "Read-only operation; fully safe for git automation"
+  devin: "Self-contained; no dependencies; can chain with other commands"
+  openhands: "Customizable filtering needed; could support --filter by tags"
+  windsurf: "Native JSON makes IDE rendering straightforward"
+
+maturity_level: "L4"
+maturity_blockers: []
+
+evidence_files: []
+
+recommendations:
+  - priority: P2
+    description: "Add --filter flag for searching templates by name/tags"
+    effort: low
+    impact: medium
+  - priority: P3
+    description: "Add --count flag for quick template inventory check"
+    effort: low
+    impact: low
+
+jtbd: |
+  When I want to discover available templates,
+  I need to run 'ggen template list',
+  so that I can see what templates are available for generation.
