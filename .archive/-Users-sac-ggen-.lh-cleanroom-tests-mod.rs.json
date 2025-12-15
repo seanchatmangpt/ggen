@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/mod.rs",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760268144240,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760268144240,
+            "name": "Commit-0",
+            "content": "//! Test modules for cleanroom testing framework\n\npub mod integration_tests;\npub mod unit_tests;\npub mod property_tests;\npub mod bdd_tests;\npub mod lib as test_lib;\n"
+        }
+    ]
+}

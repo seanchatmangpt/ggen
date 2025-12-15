@@ -1,0 +1,18 @@
+{
+    "sourceFile": "tests/data/enterprise_maxcount.ttl",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1762310767401,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1762310767401,
+            "name": "Commit-0",
+            "content": "@prefix ex: <http://example.org/> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n\n# Enterprise MaxCount Validation Use Case\n# Upper bound cardinality constraints (SHACL maxCount)\n# Test Case 6: MaxCount Validation (COUNT <= k)\n# Limited to 8 triples for hot path (single predicate run)\n# Validates that users have at most N email addresses\n\nex:alice ex:email \"alice@example.com\" .\nex:alice ex:email \"alice.backup@example.com\" .\nex:bob ex:email \"bob@example.com\" .\nex:charlie ex:email \"charlie@example.com\" .\nex:charlie ex:email \"charlie.alternate@example.com\" .\nex:charlie ex:email \"charlie.third@example.com\" .\nex:dave ex:email \"dave@example.com\" .\nex:eve ex:email \"eve@example.com\" .\n\n"
+        }
+    ]
+}

@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/16_freeze_outputs.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261841877,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261841877,
+            "name": "Commit-0",
+            "content": "# features/16_freeze_outputs.feature\n@snapshots @idempotent\nFeature: Idempotent results across repeated runs\n  Background:\n    Given a fixture project \"cli_smoke\"\n\n  Scenario: Re-running produces identical artifacts\n    When I run [\"--help\"] using \"auto\"\n    And I rerun [\"--help\"] using \"auto\"\n    Then artifact digests are identical\n    And stdout equals previous stdout\n"
+        }
+    ]
+}

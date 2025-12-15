@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/15_api_stability.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261841877,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261841877,
+            "name": "Commit-0",
+            "content": "# features/15_api_stability.feature\n@api @doc\nFeature: Public API stability and docs build\n  Scenario: Docs build without private panics\n    When I build documentation with --document-private-items\n    Then build succeeds\n    And crate root has forbid(unsafe_code)\n    And clippy passes with -D warnings\n"
+        }
+    ]
+}

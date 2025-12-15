@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/steps/config_precedence_steps.rs",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261841878,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261841878,
+            "name": "Commit-0",
+            "content": "use super::super::world::CleanroomWorld;\nuse cucumber::{given, then, when};\nuse std::fs;\n\n/// Configuration precedence step definitions for Cleanroom BDD tests\n///\n/// These steps handle configuration precedence and validation\n/// for different configuration sources (TOML, environment, CLI args).\n\n// ============================================================================\n// GIVEN steps - Setup preconditions\n// ============================================================================\n\n#[given(regex = r\"^Cargo\\.toml contains:$\")]\nfn cargo_toml_contains(world: &mut CleanroomWorld, content: String) {\n    let cargo_toml_path = world.project_dir.join(\"Cargo.toml\");\n    \n    fs::write(&cargo_toml_path, content.trim())\n        .unwrap_or_else(|e| panic!(\"Failed to write Cargo.toml: {}\", e));\n    \n    world.capture_file(\"Cargo.toml\", content.trim().to_string());\n}\n\n#[given(regex = r\"^environment CLEANROOM_TIMEOUT_MS=\"([^\"]+)\"$\")]\nfn cleanroom_timeout_ms_env(world: &mut CleanroomWorld, timeout: String) {\n    world.set_env(\"CLEANROOM_TIMEOUT_MS\".to_string(), timeout);\n}\n\n#[given(regex = r\"^I pass --timeout-ms=(\\d+) to run\\(\\)$\")]\nfn pass_timeout_ms_to_run(world: &mut CleanroomWorld, timeout_ms: u64) {\n    world.set_timeout(timeout_ms);\n}\n\n// ============================================================================\n// WHEN steps - Execute actions\n// ============================================================================\n\n#[when(regex = r\"^I run \"([^\"]+)\"$\")]\nfn run_command(world: &mut CleanroomWorld, command: String) {\n    // Parse and execute command\n    let args: Vec<&str> = command.split_whitespace().collect();\n    \n    if args.is_empty() {\n        panic!(\"Empty command provided\");\n    }\n    \n    // Mock command execution\n    world.last_exit_code = Some(0);\n    world.last_output = Some(std::process::Output {\n        status: std::process::ExitStatus::from_raw(0),\n        stdout: b\"Mock output\".to_vec(),\n        stderr: b\"\".to_vec(),\n    });\n}\n\n// ============================================================================\n// THEN steps - Verify outcomes\n// ============================================================================\n\n#[then(regex = r\"^effective timeout is (\\d+)$\")]\nfn effective_timeout_is(world: &mut CleanroomWorld, expected_timeout: u64) {\n    let actual_timeout = world.timeout_ms.expect(\"Timeout should be set\");\n    \n    assert_eq!(\n        actual_timeout, expected_timeout,\n        \"Expected effective timeout {}, but got {}\",\n        expected_timeout, actual_timeout\n    );\n}\n\n#[then(regex = r\"^env contains \"([^\"]+)\"$\")]\nfn env_contains(world: &mut CleanroomWorld, expected_env: String) {\n    let (key, value) = expected_env.split_once('=')\n        .expect(\"Environment variable should be in KEY=VALUE format\");\n    \n    let actual_value = world.environment.get(key)\n        .expect(\"Environment variable should be set\");\n    \n    assert_eq!(\n        actual_value, value,\n        \"Expected environment variable {}={}, but got {}={}\",\n        key, value, key, actual_value\n    );\n}\n"
+        }
+    ]
+}
