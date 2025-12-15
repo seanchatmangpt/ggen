@@ -1,0 +1,47 @@
+command: "ggen ontology export"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 60
+agent_breakdown:
+  parseable_output: 20
+  error_messages: 14
+  idempotency: 12
+  progress_feedback: 6
+  dry_run: 10
+  documentation: 4
+  exit_codes: 2
+
+avatar_notes:
+  claude_code: "Export with multiple formats; useful for integration"
+  cursor_ai: "Export format options clear"
+  copilot: "Format patterns learnable"
+  aider: "Exported files tracked in git"
+  devin: "Can export autonomously"
+  openhands: "Format customization good"
+  windsurf: "Export destination clear"
+
+maturity_level: "L3"
+maturity_blockers:
+  - "Exit codes not semantic"
+
+evidence_files: []
+
+recommendations:
+  - priority: P2
+    description: "Implement semantic exit codes"
+    effort: low
+    impact: medium
+
+jtbd: |
+  When I want to export an ontology,
+  I need to run 'ggen ontology export' with format and destination,
+  so that I can save ontology in external RDF formats.

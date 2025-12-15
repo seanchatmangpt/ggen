@@ -1,0 +1,67 @@
+# Fortune 500 Case Study Validation: Amazon
+# Schema: ../../contracts/case-study-validation.schema.yaml
+
+case_study: amazon
+industry: Technology/Retail
+fortune_rank: 2
+
+jtbd: "When I update an API spec, I need consistent SDK updates across 8 languages within the same commit, so that customers always have synchronized SDK versions."
+
+scale_requirements:
+  api_endpoints: 1000000
+  sdk_languages: 8
+  api_versions: 1000
+  latency_slo: "<5min for all 8 SDKs"
+
+required_commands:
+  - command: "ggen project generate"
+    purpose: "Generate multi-language SDK projects"
+    criticality: P1
+    current_support: pending
+    gaps: []
+
+  - command: "ggen ai generate"
+    purpose: "AI-assisted SDK code generation"
+    criticality: P2
+    current_support: pending
+    gaps: []
+
+  - command: "ggen marketplace install"
+    purpose: "Install language-specific templates"
+    criticality: P2
+    current_support: pending
+    gaps: []
+
+  - command: "ggen template new"
+    purpose: "Create new language SDK templates"
+    criticality: P3
+    current_support: pending
+    gaps: []
+
+validation_status: pending
+validated_date: null
+validator: claude-code
+
+test_scenarios:
+  - scenario: "Multi-language SDK generation"
+    steps:
+      - "ggen marketplace install --package_id sdk-generator"
+      - "ggen project generate --template sdk --var languages=java,python,go,rust,js,ts,ruby,php"
+    expected: "All 8 SDKs generated consistently within 5 minutes"
+    actual: pending
+
+  - scenario: "API spec change propagation"
+    steps:
+      - "ggen template generate --template sdk.tmpl --domain api-v2.ttl"
+      - "Verify all SDK files updated atomically"
+    expected: "Byte-for-byte reproducible outputs across all languages"
+    actual: pending
+
+gaps: []
+
+recommendations: []
+
+notes: |
+  Amazon case study focuses on multi-language consistency and scale.
+  Key concerns: parallelism, reproducibility, atomic operations.
+  Industry pattern: scale-driven with consistency requirements.

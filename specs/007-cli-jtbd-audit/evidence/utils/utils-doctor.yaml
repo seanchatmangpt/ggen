@@ -1,0 +1,52 @@
+command: "ggen utils doctor"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true           # Command runs successfully without arguments
+  help_works: true         # --help displays documentation
+  happy_path: true         # Default execution returns JSON health check
+  error_handling: true     # Proper error messages on failures
+  exit_codes: true         # Returns 0 on success
+
+agent_score: 72
+agent_breakdown:
+  parseable_output: 25     # Full JSON output with structured health check results
+  error_messages: 16       # Clear error messages for failed checks
+  idempotency: 15          # Read-only diagnostic operation, fully idempotent
+  progress_feedback: 6     # Shows check names during execution
+  dry_run: 10              # Naturally dry-run (no side effects)
+  documentation: 8         # Help available with options --all, --_fix
+  exit_codes: 10           # Semantic exit codes (0=healthy, 1=problems)
+
+avatar_notes:
+  claude_code: "Excellent! Native JSON output; deterministic; standalone executable; no dependencies"
+  cursor_ai: "Perfect for IDE integration; JSON output easy to parse; quick execution"
+  copilot: "Clear pattern recognition from help text; learnable from examples"
+  aider: "Output is git-trackable JSON; safe for automated workflows"
+  devin: "Self-contained diagnostic command; no file dependencies; high autonomy"
+  openhands: "JSON output integrates well with external tools; minimal configuration needed"
+  windsurf: "IDE-friendly JSON; can display health status in editor UI"
+
+maturity_level: "L4"
+maturity_blockers: []
+
+evidence_files:
+  - utils-doctor-help.log
+  - utils-doctor-happy-path.log
+
+recommendations:
+  - priority: "P2"
+    description: "Add --format yaml option for YAML output preference"
+    effort: "low"
+    impact: "low"
+  - priority: "P3"
+    description: "Add --threshold option to customize health check thresholds"
+    effort: "medium"
+    impact: "low"
+
+jtbd: |
+  When I need to diagnose system configuration issues, I need to verify
+  all required tools (Rust, Cargo, Git) are installed correctly,
+  so that I can confidently run ggen without environment problems.

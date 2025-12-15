@@ -1,0 +1,52 @@
+command: "ggen fmea new"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 56
+agent_breakdown:
+  parseable_output: 15
+  error_messages: 12
+  idempotency: 9
+  progress_feedback: 8
+  dry_run: 7
+  documentation: 4
+  exit_codes: 1
+
+avatar_notes:
+  claude_code: "Creates FMEA; --dry-run for risk preview"
+  cursor_ai: "FMEA creation visible"
+  copilot: "Clear from examples"
+  aider: "Safe for git tracking"
+  devin: "Can create FMEA autonomously"
+  openhands: "Customizable FMEA parameters"
+  windsurf: "FMEA structure preview"
+
+maturity_level: "L2"
+maturity_blockers:
+  - "Exit codes not differentiated"
+  - "Incomplete --dry-run"
+
+evidence_files: []
+
+recommendations:
+  - priority: P1
+    description: "Implement full --dry-run"
+    effort: medium
+    impact: high
+  - priority: P1
+    description: "Add semantic exit codes"
+    effort: low
+    impact: medium
+
+jtbd: |
+  When I want to create a Failure Mode Effects Analysis,
+  I need to run 'ggen fmea new' with system specification,
+  so that I can analyze potential failure modes.

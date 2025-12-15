@@ -1,0 +1,46 @@
+command: "ggen marketplace show"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 62
+agent_breakdown:
+  parseable_output: 20
+  error_messages: 14
+  idempotency: 15
+  progress_feedback: 6
+  dry_run: 10
+  documentation: 4
+  exit_codes: 2
+
+avatar_notes:
+  claude_code: "Show package details with JSON; excellent for inspection"
+  cursor_ai: "Package details in IDE"
+  copilot: "Clear display patterns"
+  aider: "Read-only inspection"
+  devin: "Can inspect packages autonomously"
+  openhands: "Detailed package information"
+  windsurf: "Native display rendering"
+
+maturity_level: "L3"
+maturity_blockers: []
+
+evidence_files: []
+
+recommendations:
+  - priority: P2
+    description: "Add --include-reviews flag for ratings"
+    effort: low
+    impact: medium
+
+jtbd: |
+  When I want to see details about a marketplace package,
+  I need to run 'ggen marketplace show' with package name,
+  so that I can inspect package metadata and reviews.

@@ -1,0 +1,56 @@
+command: "ggen graph visualize"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 44
+agent_breakdown:
+  parseable_output: 5
+  error_messages: 10
+  idempotency: 15
+  progress_feedback: 6
+  dry_run: 10
+  documentation: 2
+  exit_codes: 2
+
+avatar_notes:
+  claude_code: "Visualization requires external tools; text representation"
+  cursor_ai: "Not practical for IDE rendering"
+  copilot: "Command exists but limited learnable patterns"
+  aider: "Can save visualization artifacts"
+  devin: "Visualization not autonomous-friendly"
+  openhands: "Output format customization needed"
+  windsurf: "Visual display integration difficult"
+
+maturity_level: "L1"
+maturity_blockers:
+  - "Output format not machine-parseable"
+  - "No JSON/structured format"
+
+evidence_files: []
+
+recommendations:
+  - priority: P1
+    description: "Add --output-format json for graph structure"
+    effort: low
+    impact: high
+  - priority: P1
+    description: "Support SVG/PNG output formats"
+    effort: medium
+    impact: high
+  - priority: P2
+    description: "Add documentation with visualization examples"
+    effort: low
+    impact: medium
+
+jtbd: |
+  When I want to visualize an RDF graph structure,
+  I need to run 'ggen graph visualize',
+  so that I can understand the relationships visually.

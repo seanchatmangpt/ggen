@@ -1,0 +1,73 @@
+# Fortune 500 Case Study Validation: Goldman Sachs
+# Schema: ../../contracts/case-study-validation.schema.yaml
+
+case_study: goldman
+industry: Finance/Trading
+fortune_rank: 62
+
+jtbd: "When market structure changes, I need type-safe trading code that passes compliance review automatically, so that we can trade new instruments without regulatory delays."
+
+scale_requirements:
+  daily_trading_volume: 500000000000  # $500B
+  instruments: 100000
+  trades_per_second: 10000
+  latency_slo: "<1s for incremental changes"
+
+required_commands:
+  - command: "ggen ai analyze"
+    purpose: "AI analysis of regulatory impact"
+    criticality: P2
+    current_support: pending
+    gaps: []
+
+  - command: "ggen template regenerate"
+    purpose: "Regenerate trading entities on spec changes"
+    criticality: P1
+    current_support: pending
+    gaps: []
+
+  - command: "ggen project watch"
+    purpose: "Auto-regenerate on market data changes"
+    criticality: P2
+    current_support: pending
+    gaps: []
+
+  - command: "ggen ci workflow"
+    purpose: "CI/CD integration for automated deployment"
+    criticality: P1
+    current_support: pending
+    gaps: []
+
+validation_status: pending
+validated_date: null
+validator: claude-code
+
+test_scenarios:
+  - scenario: "Incremental trading entity update"
+    steps:
+      - "ggen template regenerate --template trading-entity.tmpl --incremental"
+      - "Measure regeneration latency"
+    expected: "<1s regeneration for incremental changes"
+    actual: pending
+
+  - scenario: "Automated CI/CD pipeline"
+    steps:
+      - "ggen ci workflow --name trading-pipeline"
+      - "Verify generated GitHub Actions workflow"
+    expected: "Complete CI/CD workflow with compliance gates"
+    actual: pending
+
+  - scenario: "AI regulatory impact analysis"
+    steps:
+      - "ggen ai analyze --path ./trading-system --focus regulatory"
+    expected: "AI-generated analysis of regulatory implications"
+    actual: pending
+
+gaps: []
+
+recommendations: []
+
+notes: |
+  Goldman Sachs case study focuses on trading system compliance and speed.
+  Key concerns: sub-second latency, type safety, audit trail for regulators.
+  Industry pattern: time-sensitive with strict compliance requirements.
