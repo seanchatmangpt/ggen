@@ -1,0 +1,22 @@
+{
+    "sourceFile": "cleanroom/tests/features/basic.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1760263515558,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1760263666268,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -2,4 +2,5 @@\n   Scenario: Increment value\n     Given I have a value\n     When I increment it\n     Then it should be 43\n+\n"
+                }
+            ],
+            "date": 1760263515557,
+            "name": "Commit-0",
+            "content": "Feature: Basic test\n  Scenario: Increment value\n    Given I have a value\n    When I increment it\n    Then it should be 43\n"
+        }
+    ]
+}

@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/21_engine_matrix.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261841877,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261841877,
+            "name": "Commit-0",
+            "content": "# features/21_engine_matrix.feature\n@matrix\nFeature: Matrix behavior across docker and podman\n  Background:\n    Given docker is \"maybe\" available\n    And podman is \"maybe\" available\n\n  Scenario: Same scenario passes on both engines\n    When I execute scenario \"help\" on engines [\"docker\",\"podman\"]\n    Then results are equivalent modulo engine metadata\n"
+        }
+    ]
+}

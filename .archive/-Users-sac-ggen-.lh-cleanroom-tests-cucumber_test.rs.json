@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/cucumber_test.rs",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760263515558,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760263515558,
+            "name": "Commit-0",
+            "content": "use cucumber::{given, then, when, World};\n\n#[derive(Debug, Default, World)]\npub struct TestWorld {\n    pub value: i32,\n}\n\n#[given(\"I have a value\")]\nfn given_value(world: &mut TestWorld) {\n    world.value = 42;\n}\n\n#[when(\"I increment it\")]\nfn when_increment(world: &mut TestWorld) {\n    world.value += 1;\n}\n\n#[then(\"it should be {int}\")]\nfn then_value(world: &mut TestWorld, expected: i32) {\n    assert_eq!(world.value, expected);\n}\n\n#[tokio::test]\nasync fn test_cucumber_api() {\n    TestWorld::cucumber()\n        .run(\"tests/features\")\n        .await;\n}\n"
+        }
+    ]
+}

@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/17_policy_typestate.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261841877,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261841877,
+            "name": "Commit-0",
+            "content": "# features/17_policy_typestate.feature\n@policy @compile\nFeature: Typestate-enforced policy elevation\n  Scenario: Elevation requires explicit permissive type\n    Given a test that calls \"enable_network()\" under Restricted policy\n    When I compile the test\n    Then compilation fails with a type error mentioning \"Permissive\"\n    And when I change policy to Permissive\n    Then compilation succeeds\n"
+        }
+    ]
+}
