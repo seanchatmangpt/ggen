@@ -135,6 +135,29 @@ pub struct GenerationPipeline {
     started_at: Instant,
 }
 
+/// Clean a SPARQL term string representation.
+///
+/// Converts oxigraph's term representation to plain values:
+/// - IRIs: `<http://example.org/>` -> `http://example.org/`
+/// - Literals: `"value"` or `"value"^^<xsd:string>` -> `value`
+/// - Language-tagged: `"value"@en` -> `value`
+fn clean_sparql_term(value: &str) -> String {
+    if value.starts_with('<') && value.ends_with('>') {
+        // IRI: strip angle brackets
+        value[1..value.len() - 1].to_string()
+    } else if value.starts_with('"') {
+        // Literal: strip quotes and optional datatype/language tag
+        let without_prefix = &value[1..];
+        if let Some(quote_end) = without_prefix.find('"') {
+            without_prefix[..quote_end].to_string()
+        } else {
+            value.to_string()
+        }
+    } else {
+        value.to_string()
+    }
+}
+
 impl GenerationPipeline {
     /// Create a new generation pipeline from a manifest
     ///
@@ -275,6 +298,7 @@ impl GenerationPipeline {
             })?;
 
             // Convert query results to rows for template rendering
+            // Values are cleaned to remove RDF serialization syntax (quotes, XSD types, etc.)
             let rows = match results {
                 QueryResults::Solutions(solutions) => {
                     let mut rows = Vec::new();
@@ -283,7 +307,8 @@ impl GenerationPipeline {
                             .map_err(|e| Error::new(&format!("SPARQL solution error: {}", e)))?;
                         let mut row = BTreeMap::new();
                         for (var, term) in solution.iter() {
-                            row.insert(var.to_string(), term.to_string());
+                            // Clean the term value at collection time
+                            row.insert(var.to_string(), clean_sparql_term(&term.to_string()));
                         }
                         rows.push(row);
                     }

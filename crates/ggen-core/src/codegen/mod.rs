@@ -22,6 +22,7 @@
 
 pub mod audit;
 pub mod code_graph;
+pub mod executor;
 pub mod pipeline;
 pub mod typescript;
 
@@ -31,6 +32,7 @@ pub use code_graph::{
     CodeEnum, CodeField, CodeGraphBuilder, CodeImpl, CodeImport, CodeItem, CodeMethod, CodeModule,
     CodeParam, CodeStruct, CodeTrait, CodeVariant,
 };
+pub use executor::{SyncExecutor, SyncResult, SyncedFileInfo, ValidationCheck};
 pub use pipeline::{
     ExecutedRule, GeneratedFile, GenerationPipeline, PipelineState, RuleType, ValidationResult,
     ValidationSeverity,

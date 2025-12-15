@@ -1,0 +1,12 @@
+% ============================================================================
+% EQUATIONS - Generated from RDF Ontology
+% ============================================================================
+
+{% for row in sparql_results %}
+% Equation from section: {{ row["?sectionTitle"] }}
+\begin{equation}
+  {{ row["?latex"] }}
+  \label{eq:eq{{ loop.index }}}
+\end{equation}
+
+{% endfor %}
