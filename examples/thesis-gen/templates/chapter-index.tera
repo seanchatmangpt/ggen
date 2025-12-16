@@ -1,0 +1,10 @@
+{# =============================================================================
+   CHAPTER INDEX TEMPLATE - Simple chapter reference list
+   ZERO HARDCODED STRINGS - All content from SPARQL variables
+   Uses sparql_results array with ?-prefixed keys
+   ============================================================================= #}
+{% for row in sparql_results %}
+{%- set orderIndex = row["?orderIndex"] | default(value="0") -%}
+{%- set labelId = row["?labelId"] | default(value="") -%}
+% Chapter {{ orderIndex }}: \ref{ {{- labelId -}} }
+{% endfor %}
