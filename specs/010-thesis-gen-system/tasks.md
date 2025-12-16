@@ -19,10 +19,10 @@
 
 **Purpose**: Create example project structure and copy schema
 
-- [ ] T001 Create directory structure: `examples/thesis-gen/{ontology,templates,output,figures}/`
-- [ ] T002 [P] Copy schema from `specs/010-thesis-gen-system/contracts/thesis-schema.ttl` to `examples/thesis-gen/ontology/thesis-schema.ttl`
-- [ ] T003 [P] Create `.gitignore` in `examples/thesis-gen/` (ignore output/*.aux, *.log, *.bbl, *.blg)
-- [ ] T004 [P] Create `examples/thesis-gen/Makefile` with pdflatex/bibtex compilation targets
+- [X] T001 Create directory structure: `examples/thesis-gen/{ontology,templates,output,figures}/`
+- [X] T002 [P] Copy schema from `specs/010-thesis-gen-system/contracts/thesis-schema.ttl` to `examples/thesis-gen/ontology/thesis-schema.ttl`
+- [X] T003 [P] Create `.gitignore` in `examples/thesis-gen/` (ignore output/*.aux, *.log, *.bbl, *.blg)
+- [X] T004 [P] Create `examples/thesis-gen/Makefile` with pdflatex/bibtex compilation targets
 
 ---
 
@@ -34,18 +34,18 @@
 
 ### Core Manifest (ggen.toml)
 
-- [ ] T005 Create `examples/thesis-gen/ggen.toml` with project metadata and ontology prefixes
-- [ ] T006 Add ontology source configuration to `ggen.toml` pointing to `ontology/thesis-schema.ttl` and `ontology/thesis-content.ttl`
+- [X] T005 Create `examples/thesis-gen/ggen.toml` with project metadata and ontology prefixes
+- [X] T006 Add ontology source configuration to `ggen.toml` pointing to `ontology/thesis-schema.ttl` and `ontology/thesis-content.ttl`
 
 ### LaTeX Package Configuration (ontology-driven)
 
-- [ ] T007 [P] Define LaTeX package requirements in ontology: `ontology/thesis-schema.ttl` (add `thesis:RequiredPackage` instances)
-- [ ] T008 [P] Define document class and geometry settings in ontology (12pt, a4paper, 1in margins)
+- [X] T007 [P] Define LaTeX package requirements in ontology: `ontology/thesis-schema.ttl` (add `thesis:RequiredPackage` instances)
+- [X] T008 [P] Define document class and geometry settings in ontology (12pt, a4paper, 1in margins)
 
 ### Core Ontology Content Structure
 
-- [ ] T009 Create `examples/thesis-gen/ontology/thesis-content.ttl` with thesis metadata (title, author, institution, date)
-- [ ] T010 Add abstract, dedication, acknowledgments to thesis-content.ttl (200-500 words each)
+- [X] T009 Create `examples/thesis-gen/ontology/thesis-content.ttl` with thesis metadata (title, author, institution, date)
+- [X] T010 Add abstract, dedication, acknowledgments to thesis-content.ttl (200-500 words each)
 
 **Checkpoint**: Foundation ready - ontology structure established, ggen.toml configured
 
@@ -59,39 +59,39 @@
 
 ### Templates for Basic Document Structure
 
-- [ ] T011 [P] [US1] Create `templates/thesis-main.tera` - main document with `\documentclass`, packages, `\begin{document}`, includes (NO hardcoded strings except LaTeX commands sourced from ontology)
-- [ ] T012 [P] [US1] Create `templates/front-matter.tera` - title page, abstract, dedication, acknowledgments (all from SPARQL variables)
-- [ ] T013 [P] [US1] Create `templates/toc.tera` - table of contents, list of figures, list of tables
+- [X] T011 [P] [US1] Create `templates/thesis-main.tera` - main document with `\documentclass`, packages, `\begin{document}`, includes (NO hardcoded strings except LaTeX commands sourced from ontology)
+- [X] T012 [P] [US1] Create `templates/front-matter.tera` - title page, abstract, dedication, acknowledgments (all from SPARQL variables)
+- [X] T013 [P] [US1] Create `templates/toc.tera` - table of contents, list of figures, list of tables
 
 ### Chapter and Section Templates
 
-- [ ] T014 [P] [US1] Create `templates/chapter.tera` - chapter structure with `\chapter{}` from ontology variables
-- [ ] T015 [P] [US1] Create `templates/section.tera` - section structure with `\section{}` from ontology variables
-- [ ] T016 [P] [US1] Create `templates/subsection.tera` - subsection structure from ontology variables
+- [X] T014 [P] [US1] Create `templates/chapter.tera` - chapter structure with `\chapter{}` from ontology variables
+- [X] T015 [P] [US1] Create `templates/section.tera` - section structure with `\section{}` from ontology variables
+- [X] T016 [P] [US1] Create `templates/subsection.tera` - subsection structure from ontology variables
 
 ### Thesis Content (7 Chapters, 30+ Sections)
 
-- [ ] T017 [US1] Add Chapter 1 (Introduction) to `ontology/thesis-content.ttl` with 4 sections (~2000 words)
-- [ ] T018 [P] [US1] Add Chapter 2 (Theoretical Foundations) with 5 sections (~2500 words)
-- [ ] T019 [P] [US1] Add Chapter 3 (ggen Architecture) with 5 sections (~2500 words)
-- [ ] T020 [P] [US1] Add Chapter 4 (ASTRO Case Study) with 5 sections (~2500 words)
-- [ ] T021 [P] [US1] Add Chapter 5 (Figex Case Study) with 5 sections (~2500 words)
-- [ ] T022 [P] [US1] Add Chapter 6 (Methodology Synthesis) with 4 sections (~2000 words)
-- [ ] T023 [P] [US1] Add Chapter 7 (Conclusion) with 3 sections (~1500 words)
+- [X] T017 [US1] Add Chapter 1 (Introduction) to `ontology/thesis-content.ttl` with 4 sections (~2000 words)
+- [X] T018 [P] [US1] Add Chapter 2 (Theoretical Foundations) with 5 sections (~2500 words)
+- [X] T019 [P] [US1] Add Chapter 3 (ggen Architecture) with 5 sections (~2500 words)
+- [X] T020 [P] [US1] Add Chapter 4 (ASTRO Case Study) with 5 sections (~2500 words)
+- [X] T021 [P] [US1] Add Chapter 5 (Figex Case Study) with 5 sections (~2500 words)
+- [X] T022 [P] [US1] Add Chapter 6 (Methodology Synthesis) with 4 sections (~2000 words)
+- [X] T023 [P] [US1] Add Chapter 7 (Conclusion) with 3 sections (~1500 words)
 
 ### Generation Rules
 
-- [ ] T024 [US1] Add generation rule for `thesis-main` in `ggen.toml` (SELECT thesis metadata)
-- [ ] T025 [P] [US1] Add generation rule for `front-matter` in `ggen.toml`
-- [ ] T026 [P] [US1] Add generation rule for `toc` in `ggen.toml`
-- [ ] T027 [P] [US1] Add generation rule for `chapters` in `ggen.toml` (SELECT all chapters ORDER BY orderIndex)
-- [ ] T028 [P] [US1] Add generation rule for `sections` in `ggen.toml` (SELECT all sections with chapter relation)
+- [X] T024 [US1] Add generation rule for `thesis-main` in `ggen.toml` (SELECT thesis metadata)
+- [X] T025 [P] [US1] Add generation rule for `front-matter` in `ggen.toml`
+- [X] T026 [P] [US1] Add generation rule for `toc` in `ggen.toml`
+- [X] T027 [P] [US1] Add generation rule for `chapters` in `ggen.toml` (SELECT all chapters ORDER BY orderIndex)
+- [X] T028 [P] [US1] Add generation rule for `sections` in `ggen.toml` (SELECT all sections with chapter relation)
 
 ### Validation
 
-- [ ] T029 [US1] Run `ggen sync` in `examples/thesis-gen/` - verify no template errors
-- [ ] T030 [US1] Run `pdflatex` and `bibtex` in `output/` - verify compilation succeeds
-- [ ] T031 [US1] Verify generated PDF is minimum 50 pages
+- [X] T029 [US1] Run `ggen sync` in `examples/thesis-gen/` - verify no template errors
+- [X] T030 [US1] Run `pdflatex` and `bibtex` in `output/` - verify compilation succeeds
+- [X] T031 [US1] Verify generated PDF is minimum 50 pages
 
 **Checkpoint**: User Story 1 complete - basic thesis generates with all content from ontology
 
@@ -105,17 +105,17 @@
 
 ### Reusability Verification
 
-- [ ] T032 [US2] Create `examples/thesis-gen/ontology/thesis-content-alt.ttl` with different topic (AI Ethics in Healthcare)
-- [ ] T033 [P] [US2] Add 7 chapters with different titles/content to `thesis-content-alt.ttl`
-- [ ] T034 [P] [US2] Add thesis metadata (different author, title, institution) to `thesis-content-alt.ttl`
-- [ ] T035 [US2] Update `ggen.toml` to use `thesis-content-alt.ttl` (or create `ggen-alt.toml`)
-- [ ] T036 [US2] Run `ggen sync` with alternate ontology - verify same templates render successfully
-- [ ] T037 [US2] Compile alternate thesis PDF - verify different content appears
+- [X] T032 [US2] Create `examples/thesis-gen/ontology/thesis-content-alt.ttl` with different topic (AI Ethics in Healthcare)
+- [X] T033 [P] [US2] Add 7 chapters with different titles/content to `thesis-content-alt.ttl`
+- [X] T034 [P] [US2] Add thesis metadata (different author, title, institution) to `thesis-content-alt.ttl`
+- [X] T035 [US2] Update `ggen.toml` to use `thesis-content-alt.ttl` (or create `ggen-alt.toml`)
+- [X] T036 [US2] Run `ggen sync` with alternate ontology - verify same templates render successfully
+- [X] T037 [US2] Compile alternate thesis PDF - verify different content appears
 
 ### Zero Hardcoding Verification
 
-- [ ] T038 [US2] Audit all templates: grep for hardcoded English strings (should find NONE except LaTeX commands)
-- [ ] T039 [US2] Document template reusability in `examples/thesis-gen/README.md`
+- [X] T038 [US2] Audit all templates: grep for hardcoded English strings (should find NONE except LaTeX commands)
+- [X] T039 [US2] Document template reusability in `examples/thesis-gen/README.md`
 
 **Checkpoint**: User Stories 1 AND 2 complete - templates proven reusable across topics
 
@@ -129,40 +129,40 @@
 
 ### Theorem/Lemma/Proof Templates
 
-- [ ] T040 [P] [US3] Create `templates/theorem.tera` - theorem/lemma/corollary/definition environments from ontology `thesis:LatexEnvironment`
-- [ ] T041 [P] [US3] Create `templates/proof.tera` - proof environment from ontology
-- [ ] T042 [US3] Add 10 theorems with proofs to `ontology/thesis-content.ttl` (3 lemmas, 5 theorems, 2 corollaries)
-- [ ] T043 [US3] Add generation rule for `theorems` in `ggen.toml`
+- [X] T040 [P] [US3] Create `templates/theorem.tera` - theorem/lemma/corollary/definition environments from ontology `thesis:LatexEnvironment`
+- [X] T041 [P] [US3] Create `templates/proof.tera` - proof environment from ontology
+- [X] T042 [US3] Add 10 theorems with proofs to `ontology/thesis-content.ttl` (3 lemmas, 5 theorems, 2 corollaries)
+- [X] T043 [US3] Add generation rule for `theorems` in `ggen.toml`
 
 ### Equation Templates
 
-- [ ] T044 [P] [US3] Create `templates/equation.tera` - equation environment with `\label{}` from ontology
-- [ ] T045 [US3] Add 20 equations to `ontology/thesis-content.ttl` (entropy, drift metric, generation function, etc.)
-- [ ] T046 [US3] Add generation rule for `equations` in `ggen.toml`
+- [X] T044 [P] [US3] Create `templates/equation.tera` - equation environment with `\label{}` from ontology
+- [X] T045 [US3] Add 20 equations to `ontology/thesis-content.ttl` (entropy, drift metric, generation function, etc.)
+- [X] T046 [US3] Add generation rule for `equations` in `ggen.toml`
 
 ### Algorithm Templates
 
-- [ ] T047 [P] [US3] Create `templates/algorithm.tera` - algorithm environment with input/output/steps from ontology
-- [ ] T048 [US3] Add 5 algorithms to `ontology/thesis-content.ttl` (ggen sync pipeline, SPARQL execution, template rendering, etc.)
-- [ ] T049 [US3] Add generation rule for `algorithms` in `ggen.toml`
+- [X] T047 [P] [US3] Create `templates/algorithm.tera` - algorithm environment with input/output/steps from ontology
+- [X] T048 [US3] Add 5 algorithms to `ontology/thesis-content.ttl` (ggen sync pipeline, SPARQL execution, template rendering, etc.)
+- [X] T049 [US3] Add generation rule for `algorithms` in `ggen.toml`
 
 ### Figure Templates
 
-- [ ] T050 [P] [US3] Create `templates/figure.tera` - figure environment with `\includegraphics`, caption, label from ontology
-- [ ] T051 [P] [US3] Add 10 figure placeholder images to `examples/thesis-gen/figures/` (architecture diagrams, flowcharts)
-- [ ] T052 [US3] Add 10 figure definitions to `ontology/thesis-content.ttl` with paths, captions, labels
-- [ ] T053 [US3] Add generation rule for `figures` in `ggen.toml`
+- [X] T050 [P] [US3] Create `templates/figure.tera` - figure environment with `\includegraphics`, caption, label from ontology
+- [X] T051 [P] [US3] Add 10 figure placeholder images to `examples/thesis-gen/figures/` (architecture diagrams, flowcharts)
+- [X] T052 [US3] Add 10 figure definitions to `ontology/thesis-content.ttl` with paths, captions, labels
+- [X] T053 [US3] Add generation rule for `figures` in `ggen.toml`
 
 ### Table Templates
 
-- [ ] T054 [P] [US3] Create `templates/table.tera` - booktabs table with headers and rows from ontology
-- [ ] T055 [US3] Add 5 tables to `ontology/thesis-content.ttl` (results, comparisons, metrics)
-- [ ] T056 [US3] Add generation rule for `tables` in `ggen.toml`
+- [X] T054 [P] [US3] Create `templates/table.tera` - booktabs table with headers and rows from ontology
+- [X] T055 [US3] Add 5 tables to `ontology/thesis-content.ttl` (results, comparisons, metrics)
+- [X] T056 [US3] Add generation rule for `tables` in `ggen.toml`
 
 ### Validation
 
-- [ ] T057 [US3] Run `ggen sync` - verify theorem/equation/algorithm/figure/table files generate
-- [ ] T058 [US3] Compile PDF - verify all environments render correctly with proper numbering
+- [X] T057 [US3] Run `ggen sync` - verify theorem/equation/algorithm/figure/table files generate
+- [X] T058 [US3] Compile PDF - verify all environments render correctly with proper numbering
 
 **Checkpoint**: User Story 3 complete - all academic elements render with proper LaTeX environments
 
@@ -176,24 +176,24 @@
 
 ### Bibliography Template
 
-- [ ] T059 [P] [US4] Create `templates/bibliography.tera` - BibTeX entry generation from ontology Reference entities
-- [ ] T060 [P] [US4] Create `templates/back-matter.tera` - `\bibliographystyle{plainnat}` and `\bibliography{references}` from ontology
+- [X] T059 [P] [US4] Create `templates/bibliography.tera` - BibTeX entry generation from ontology Reference entities
+- [X] T060 [P] [US4] Create `templates/back-matter.tera` - `\bibliographystyle{plainnat}` and `\bibliography{references}` from ontology
 
 ### Reference Content
 
-- [ ] T061 [US4] Add 30 references to `ontology/thesis-content.ttl` (mix of @article, @inproceedings, @book, @phdthesis, @misc)
-- [ ] T062 [P] [US4] Add citations (`\cite{}`) to chapter content in `ontology/thesis-content.ttl`
+- [X] T061 [US4] Add 30 references to `ontology/thesis-content.ttl` (mix of @article, @inproceedings, @book, @phdthesis, @misc)
+- [X] T062 [P] [US4] Add citations (`\cite{}`) to chapter content in `ontology/thesis-content.ttl`
 
 ### Generation Rules
 
-- [ ] T063 [US4] Add generation rule for `bibliography` in `ggen.toml` outputting `references.bib`
-- [ ] T064 [US4] Add generation rule for `back-matter` in `ggen.toml`
+- [X] T063 [US4] Add generation rule for `bibliography` in `ggen.toml` outputting `references.bib`
+- [X] T064 [US4] Add generation rule for `back-matter` in `ggen.toml`
 
 ### Validation
 
-- [ ] T065 [US4] Run `ggen sync` - verify `output/references.bib` generates
-- [ ] T066 [US4] Run `bibtex thesis` - verify no undefined citations
-- [ ] T067 [US4] Verify all 30 references appear in bibliography section of PDF
+- [X] T065 [US4] Run `ggen sync` - verify `output/references.bib` generates
+- [X] T066 [US4] Run `bibtex thesis` - verify no undefined citations
+- [X] T067 [US4] Verify all 30 references appear in bibliography section of PDF
 
 **Checkpoint**: User Story 4 complete - bibliography generates from ontology, all citations resolve
 
@@ -207,24 +207,24 @@
 
 ### Appendix Templates
 
-- [ ] T068 [P] [US5] Create `templates/appendix.tera` - appendix environment with letter and content from ontology
-- [ ] T069 [P] [US5] Create `templates/code-listing.tera` - lstlisting environment with language, caption from ontology
+- [X] T068 [P] [US5] Create `templates/appendix.tera` - appendix environment with letter and content from ontology
+- [X] T069 [P] [US5] Create `templates/code-listing.tera` - lstlisting environment with language, caption from ontology
 
 ### Appendix Content
 
-- [ ] T070 [US5] Add Appendix A (Full Ontology Schema) to `ontology/thesis-content.ttl`
-- [ ] T071 [P] [US5] Add Appendix B (Sample Templates) with code listings
-- [ ] T072 [P] [US5] Add Appendix C (SPARQL Query Examples) with code listings
+- [X] T070 [US5] Add Appendix A (Full Ontology Schema) to `ontology/thesis-content.ttl`
+- [X] T071 [P] [US5] Add Appendix B (Sample Templates) with code listings
+- [X] T072 [P] [US5] Add Appendix C (SPARQL Query Examples) with code listings
 
 ### Generation Rules
 
-- [ ] T073 [US5] Add generation rule for `appendices` in `ggen.toml`
-- [ ] T074 [US5] Add generation rule for `code-listings` in `ggen.toml`
+- [X] T073 [US5] Add generation rule for `appendices` in `ggen.toml`
+- [X] T074 [US5] Add generation rule for `code-listings` in `ggen.toml`
 
 ### Validation
 
-- [ ] T075 [US5] Run `ggen sync` - verify appendix files generate
-- [ ] T076 [US5] Compile PDF - verify Appendix A, B, C appear with proper lettering after main content
+- [X] T075 [US5] Run `ggen sync` - verify appendix files generate
+- [X] T076 [US5] Compile PDF - verify Appendix A, B, C appear with proper lettering after main content
 
 **Checkpoint**: User Story 5 complete - appendices with code listings render correctly
 
@@ -236,28 +236,28 @@
 
 ### Cross-Reference Verification
 
-- [ ] T077 [P] Verify all `\ref{}` cross-references resolve (figures, tables, theorems, equations)
-- [ ] T078 [P] Verify all `\cite{}` citations resolve (bibtex runs clean)
-- [ ] T079 Verify table of contents shows all chapters with correct page numbers
+- [X] T077 [P] Verify all `\ref{}` cross-references resolve (figures, tables, theorems, equations)
+- [X] T078 [P] Verify all `\cite{}` citations resolve (bibtex runs clean)
+- [X] T079 Verify table of contents shows all chapters with correct page numbers
 
 ### Documentation
 
-- [ ] T080 [P] Create `examples/thesis-gen/README.md` with usage instructions
-- [ ] T081 [P] Update `specs/010-thesis-gen-system/quickstart.md` with final paths and examples
-- [ ] T082 [P] Add example output screenshots to `examples/thesis-gen/docs/`
+- [X] T080 [P] Create `examples/thesis-gen/README.md` with usage instructions
+- [X] T081 [P] Update `specs/010-thesis-gen-system/quickstart.md` with final paths and examples
+- [X] T082 [P] Add example output screenshots to `examples/thesis-gen/docs/`
 
 ### Quality Assurance
 
-- [ ] T083 Final `ggen sync` - verify <5s generation time
-- [ ] T084 Final PDF compilation - verify zero errors, <5 warnings
-- [ ] T085 Verify final PDF page count is 50+ pages
-- [ ] T086 Template audit: confirm 100% of visible text from ontology (zero hardcoded strings)
+- [X] T083 Final `ggen sync` - verify <5s generation time
+- [X] T084 Final PDF compilation - verify zero errors, <5 warnings
+- [X] T085 Verify final PDF page count is 50+ pages
+- [X] T086 Template audit: confirm 100% of visible text from ontology (zero hardcoded strings)
 
 ### Cleanup
 
-- [ ] T087 [P] Remove any test/debug content from ontology files
-- [ ] T088 [P] Organize output directory structure (thesis.tex, chapters/, references.bib)
-- [ ] T089 Final commit with all generated examples
+- [X] T087 [P] Remove any test/debug content from ontology files
+- [X] T088 [P] Organize output directory structure (thesis.tex, chapters/, references.bib)
+- [X] T089 Final commit with all generated examples
 
 ---
 

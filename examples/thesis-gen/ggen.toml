@@ -274,8 +274,7 @@ PREFIX thesis: <https://ggen.io/ontology/thesis#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
 SELECT ?chapterOrder ?sectionOrder ?tableOrder ?caption ?labelId
-       ?header ?headerIndex ?rowIndex ?cell ?cellIndex
-       ?envBegin ?envEnd ?tableUri
+       ?header ?headerIndex ?rowIndex ?cell ?cellIndex ?tableUri
 WHERE {
   ?chapter a thesis:Chapter ;
            thesis:orderIndex ?chapterOrder ;
@@ -298,9 +297,6 @@ WHERE {
          thesis:cell ?cell ;
          thesis:cellIndex ?cellIndex .
   }
-
-  thesis:TableEnv thesis:envBegin ?envBegin ;
-                  thesis:envEnd ?envEnd .
 }
 ORDER BY ?chapterOrder ?sectionOrder ?tableOrder ?headerIndex ?rowIndex ?cellIndex
 """ }
@@ -428,16 +424,12 @@ query = { inline = """
 PREFIX thesis: <https://ggen.io/ontology/thesis#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-SELECT ?envName ?envBegin ?envEnd ?envLabel ?requiresProof
+SELECT ?title
 WHERE {
-  ?env a thesis:LatexEnvironment ;
-       thesis:envName ?envName ;
-       thesis:envBegin ?envBegin ;
-       thesis:envEnd ?envEnd ;
-       thesis:envLabel ?envLabel .
-  OPTIONAL { ?env thesis:requiresProof ?requiresProof }
+  ?t a thesis:Thesis ;
+     thesis:title ?title .
 }
-ORDER BY ?envName
+LIMIT 1
 """ }
 template = { file = "templates/preamble.tera" }
 output_file = "preamble.tex"
