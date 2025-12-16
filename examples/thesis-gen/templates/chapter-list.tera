@@ -1,0 +1,9 @@
+{# =============================================================================
+   CHAPTER LIST TEMPLATE - Generates \input statements for each chapter
+   ZERO HARDCODED STRINGS - All content from SPARQL variables
+   Uses sparql_results array with ?-prefixed keys
+   ============================================================================= #}
+{% for row in sparql_results %}
+{%- set orderIndex = row["?orderIndex"] | default(value="0") -%}
+\input{chapters/chapter-{{ orderIndex }}.tex}
+{% endfor %}
