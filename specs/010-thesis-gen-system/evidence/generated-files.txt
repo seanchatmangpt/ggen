@@ -1,0 +1,15 @@
+-rw-r--r--@ 1 sac  staff   3018 Dec 16 08:58 examples/thesis-gen/output/algorithms.tex
+-rw-r--r--@ 1 sac  staff  18292 Dec 16 09:07 examples/thesis-gen/output/appendices.tex
+-rw-r--r--@ 1 sac  staff    215 Dec 16 08:41 examples/thesis-gen/output/chapter-index.tex
+-rw-r--r--@ 1 sac  staff    219 Dec 16 08:41 examples/thesis-gen/output/chapters-include.tex
+-rw-r--r--@ 1 sac  staff  36556 Dec 16 09:01 examples/thesis-gen/output/chapters/all-chapters.tex
+-rw-r--r--@ 1 sac  staff      0 Dec 16 08:42 examples/thesis-gen/output/code-listings.tex
+-rw-r--r--@ 1 sac  staff   1076 Dec 16 09:00 examples/thesis-gen/output/equations.tex
+-rw-r--r--@ 1 sac  staff   1625 Dec 16 08:59 examples/thesis-gen/output/figures.tex
+-rw-r--r--@ 1 sac  staff   3303 Dec 16 08:41 examples/thesis-gen/output/front-matter.tex
+-rw-r--r--@ 1 sac  staff    864 Dec 16 08:41 examples/thesis-gen/output/preamble.tex
+-rw-r--r--@ 1 sac  staff      0 Dec 16 08:42 examples/thesis-gen/output/subsections.tex
+-rw-r--r--@ 1 sac  staff   1961 Dec 16 08:58 examples/thesis-gen/output/tables.tex
+-rw-r--r--@ 1 sac  staff   3525 Dec 16 09:00 examples/thesis-gen/output/theorems.tex
+-rw-r--r--@ 1 sac  staff    736 Dec 16 08:41 examples/thesis-gen/output/thesis.tex
+     457 examples/thesis-gen/ggen.toml

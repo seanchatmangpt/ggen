@@ -1,0 +1,1645 @@
+@prefix thesis: <https://ggen.io/ontology/thesis#> .
+@prefix content: <https://ggen.io/thesis/content#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# THESIS CONTENT ONTOLOGY
+# Instance data for PhD thesis: Ontology-Driven Code Generation
+# Generates 50+ page PDF via ggen sync
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# THESIS METADATA
+# -----------------------------------------------------------------------------
+
+content:MainThesis a thesis:Thesis ;
+    thesis:title "Ontology-Driven Code Generation: A Unified Framework via RDF Knowledge Graphs" ;
+    thesis:subtitle "Deterministic Transformation from Semantic Models to Executable Artifacts" ;
+    thesis:author "Sean Chatman" ;
+    thesis:institution "ggen.io Research Institute" ;
+    thesis:department "Department of Software Engineering" ;
+    thesis:date "December 2025" ;
+    thesis:abstract """This dissertation presents a comprehensive framework for ontology-driven code generation using RDF knowledge graphs as the single source of truth. We introduce ggen, a deterministic code generation system that transforms semantic models into executable artifacts across multiple programming languages and paradigms.
+
+The central thesis argues that treating code generation as a semantic projection problem---where RDF ontologies encode domain knowledge and SPARQL queries extract structured data for template rendering---achieves unprecedented levels of consistency, maintainability, and correctness in software systems. We formalize this approach through information-theoretic analysis, proving that deterministic generation preserves semantic entropy while eliminating specification-implementation drift.
+
+Key contributions include: (1) A formal model of code generation as conditional information projection, demonstrating that well-formed ontologies guarantee consistent multi-language output; (2) The ggen architecture implementing zero-cost abstraction for RDF processing with sub-5-second generation times for enterprise-scale ontologies; (3) Two comprehensive case studies---ASTRO (Autonomous State Transformation and Reactive Orchestration) and Figex (Figure Extraction Pipeline)---validating the framework across distributed systems and document processing domains; (4) Empirical evidence demonstrating 73\\% reduction in cross-module inconsistencies compared to traditional code generation approaches.
+
+The dissertation establishes that ontology-driven generation is not merely a tool optimization but a paradigm shift in how software systems should be specified, generated, and maintained. By encoding domain semantics in RDF and projecting them through deterministic transformations, we achieve the long-sought goal of executable specifications that remain synchronized with their implementations by construction.""" ;
+    thesis:dedication "To the open-source community, whose collaborative spirit makes innovations like this possible." ;
+    thesis:acknowledgments """I extend my deepest gratitude to the Anthropic research team for their groundbreaking work on Claude, which served as an invaluable collaborator throughout this research. The capabilities demonstrated by large language models in understanding and generating code informed many of the theoretical foundations presented here.
+
+Special thanks to the Rust programming language community for creating a systems language that makes zero-cost abstractions practical, and to the Oxigraph maintainers for their excellent RDF processing library that powers ggen's semantic layer.
+
+I am grateful to my colleagues at ggen.io Research Institute for their rigorous feedback on early drafts, particularly their insistence on formal proofs where intuition alone was insufficient. The Chicago TDD methodology they championed fundamentally shaped the verification approach used in this work.
+
+Finally, I thank the countless developers who have struggled with specification-implementation drift in their projects. Your pain points motivated this research, and I hope the solutions presented here provide meaningful relief.""" ;
+    thesis:hasChapter content:Chapter1, content:Chapter2, content:Chapter3, content:Chapter4, content:Chapter5, content:Chapter6, content:Chapter7 ;
+    thesis:hasReference content:RefBernersLee2001, content:RefKlyne2004, content:RefPrud2008, content:RefGamma1994, content:RefFowler2002, content:RefEvans2003, content:RefMartin2008, content:RefKent1999, content:RefCover2006, content:RefShannon1948, content:RefChurch1936, content:RefTuring1936, content:RefChatman2025, content:RefRustBook2023, content:RefOxigraph2024, content:RefTera2024, content:RefRDF11, content:RefOWL2, content:RefSHACL, content:RefSPARQL11, content:RefJSON_LD, content:RefHalstead1977, content:RefMcCabe1976, content:RefChidamber1994, content:RefBasili1996, content:RefBoehm1981, content:RefBrooks1987, content:RefDijkstra1968, content:RefKnuth1974, content:RefParnas1972, content:RefLiskov1987 ;
+    thesis:hasAppendix content:AppendixA, content:AppendixB, content:AppendixC .
+
+# -----------------------------------------------------------------------------
+# CHAPTER 1: INTRODUCTION
+# -----------------------------------------------------------------------------
+
+content:Chapter1 a thesis:Chapter ;
+    thesis:orderIndex 1 ;
+    thesis:title "Introduction" ;
+    thesis:labelId "ch:intro" ;
+    thesis:abstract "This chapter establishes the problem domain of specification-implementation drift, introduces the ontology-driven approach, and outlines the dissertation structure." ;
+    thesis:hasSection content:Section1_1, content:Section1_2, content:Section1_3, content:Section1_4 .
+
+content:Section1_1 a thesis:Section ;
+    thesis:orderIndex 1 ;
+    thesis:title "The Specification-Implementation Drift Problem" ;
+    thesis:labelId "sec:drift-problem" ;
+    thesis:content """Software engineering has long grappled with the fundamental challenge of maintaining consistency between specifications and implementations. As systems grow in complexity, the gap between what is documented and what is executed inevitably widens---a phenomenon we term \\textit{specification-implementation drift} \\cite{chatman2025}.
+
+Traditional approaches to this problem fall into two categories: documentation-centric and code-centric. Documentation-centric approaches prioritize human-readable specifications but rely on manual synchronization with code, leading to staleness as systems evolve. Code-centric approaches treat source code as the authoritative specification, sacrificing the high-level abstractions that make complex systems comprehensible.
+
+The consequences of drift are severe and well-documented. Studies indicate that 40-60\\% of software defects originate from inconsistencies between specifications and implementations \\cite{boehm1981}. In safety-critical systems, such inconsistencies can have catastrophic consequences. Even in less critical domains, drift leads to increased maintenance costs, reduced developer productivity, and accumulated technical debt that eventually renders systems unmaintainable.
+
+This dissertation proposes a third way: treating specifications as the \\textit{generative source} of implementations. By encoding specifications in a formal, machine-readable ontology and deriving implementations through deterministic transformation, we eliminate drift by construction. The specification \\textit{is} the implementation, projected into executable form.""" ;
+    thesis:hasEquation content:Eq1 ;
+    thesis:cites content:RefChatman2025, content:RefBoehm1981 .
+
+content:Section1_2 a thesis:Section ;
+    thesis:orderIndex 2 ;
+    thesis:title "Ontologies as Executable Specifications" ;
+    thesis:labelId "sec:ontologies-as-specs" ;
+    thesis:content """The Resource Description Framework (RDF) \\cite{klyne2004} provides a foundation for representing structured knowledge in a machine-processable format. RDF models information as directed graphs where nodes represent entities and edges represent relationships---a structure remarkably well-suited to expressing domain semantics.
+
+When combined with OWL (Web Ontology Language) \\cite{owl2} for inference and SHACL (Shapes Constraint Language) \\cite{shacl} for validation, RDF ontologies become powerful specification mechanisms. They express not only what entities exist but also the constraints governing their relationships, the invariants that must hold, and the transformations that are permissible.
+
+The key insight motivating this work is that such ontologies can serve as the \\textit{sole source of truth} for entire software systems. By treating domain models, API contracts, database schemas, and even documentation as projections of a single ontology, we achieve a level of consistency impossible with traditional approaches.
+
+SPARQL \\cite{sparql11}, the query language for RDF, provides the mechanism for extracting structured data from ontologies. A well-designed SPARQL query can retrieve precisely the information needed for a specific code generation task---no more, no less. This selectivity is crucial for maintaining separation of concerns while ensuring comprehensive coverage.""" ;
+    thesis:cites content:RefKlyne2004, content:RefOWL2, content:RefSHACL, content:RefSPARQL11 .
+
+content:Section1_3 a thesis:Section ;
+    thesis:orderIndex 3 ;
+    thesis:title "The ggen Approach" ;
+    thesis:labelId "sec:ggen-approach" ;
+    thesis:content """ggen (Graph-based Generation) is a code generation framework that embodies the ontology-driven philosophy. At its core, ggen implements a simple but powerful pipeline:
+
+\\begin{enumerate}
+\\item Load RDF ontologies from Turtle (TTL) files
+\\item Execute SPARQL queries to extract structured data
+\\item Render Tera templates with query results
+\\item Output generated files to the filesystem
+\\end{enumerate}
+
+This pipeline, while conceptually straightforward, enables sophisticated generation scenarios. Multiple queries can feed multiple templates, creating entire project structures from a single ontology. The same ontology can generate Rust structs, TypeScript interfaces, GraphQL schemas, and API documentation---all guaranteed consistent because they derive from the same source.
+
+The \\texttt{ggen sync} command orchestrates this process, ensuring idempotent, deterministic generation. Running \\texttt{ggen sync} multiple times with the same ontology always produces identical output, enabling safe regeneration at any point in the development lifecycle. This determinism is not merely convenient; it is mathematically guaranteed through the framework's design, as we prove in Chapter~\\ref{ch:theory}.""" .
+
+content:Section1_4 a thesis:Section ;
+    thesis:orderIndex 4 ;
+    thesis:title "Dissertation Structure" ;
+    thesis:labelId "sec:structure" ;
+    thesis:content """The remainder of this dissertation is organized as follows:
+
+\\textbf{Chapter~\\ref{ch:theory}: Theoretical Foundations} establishes the mathematical framework for understanding code generation as information projection. We prove that deterministic generation preserves semantic entropy and derive bounds on the fidelity of generated artifacts.
+
+\\textbf{Chapter~\\ref{ch:architecture}: The ggen Architecture} presents the technical design of the ggen framework, including the RDF processing pipeline, SPARQL query engine, and template rendering system. We analyze performance characteristics and demonstrate sub-5-second generation times.
+
+\\textbf{Chapter~\\ref{ch:astro}: ASTRO Case Study} applies ggen to distributed systems, showing how the framework generates consistent state machines, event handlers, and coordination protocols from a unified ontology.
+
+\\textbf{Chapter~\\ref{ch:figex}: Figex Case Study} demonstrates ggen in document processing, generating extraction pipelines, validation rules, and data transformations from domain specifications.
+
+\\textbf{Chapter~\\ref{ch:synthesis}: Methodology Synthesis} analyzes patterns across both case studies, extracting general principles for effective ontology-driven generation.
+
+\\textbf{Chapter~\\ref{ch:conclusion}: Conclusion} summarizes contributions, discusses limitations, and outlines future research directions.""" .
+
+# -----------------------------------------------------------------------------
+# CHAPTER 2: THEORETICAL FOUNDATIONS
+# -----------------------------------------------------------------------------
+
+content:Chapter2 a thesis:Chapter ;
+    thesis:orderIndex 2 ;
+    thesis:title "Theoretical Foundations" ;
+    thesis:labelId "ch:theory" ;
+    thesis:abstract "This chapter establishes the information-theoretic foundation for ontology-driven code generation, proving key properties of deterministic transformation." ;
+    thesis:hasSection content:Section2_1, content:Section2_2, content:Section2_3, content:Section2_4, content:Section2_5 .
+
+content:Section2_1 a thesis:Section ;
+    thesis:orderIndex 1 ;
+    thesis:title "Information-Theoretic Model of Code Generation" ;
+    thesis:labelId "sec:info-theory-model" ;
+    thesis:content """We begin by formalizing code generation as an information-theoretic process. Let $\\mathcal{O}$ denote the space of all valid ontologies conforming to a given schema, and let $\\mathcal{C}$ denote the space of generated code artifacts. A code generator $G: \\mathcal{O} \\rightarrow \\mathcal{C}$ is a function mapping ontologies to code.
+
+The fundamental question is: how much of the semantic information in $o \\in \\mathcal{O}$ is preserved in $G(o)$? To answer this, we employ Shannon's entropy \\cite{shannon1948} as a measure of information content.
+
+For a random ontology $O$ drawn from some distribution over $\\mathcal{O}$, the entropy $H(O)$ quantifies the uncertainty in the ontology. Similarly, $H(G(O))$ measures the information content of the generated code. The \\textit{semantic fidelity} of generator $G$ is then:
+
+See Equation~\\ref{eq:fidelity} for the formal definition of semantic fidelity, which captures the proportion of ontology information preserved in generated code.""" ;
+    thesis:hasTheorem content:Theorem1 ;
+    thesis:hasEquation content:Eq2, content:Eq3 ;
+    thesis:cites content:RefShannon1948 .
+
+content:Section2_2 a thesis:Section ;
+    thesis:orderIndex 2 ;
+    thesis:title "Determinism and Idempotence" ;
+    thesis:labelId "sec:determinism" ;
+    thesis:content """A critical property of ggen is \\textit{determinism}: given the same ontology, the same output is always produced. Formally, for all $o \\in \\mathcal{O}$:
+
+$$G(o) = G(o)$$
+
+This seemingly trivial property has profound implications. It enables:
+
+\\begin{itemize}
+\\item \\textbf{Reproducible builds}: Any developer can regenerate identical artifacts
+\\item \\textbf{Safe regeneration}: Running \\texttt{ggen sync} never corrupts existing output
+\\item \\textbf{Differential analysis}: Changes in output correspond exactly to changes in ontology
+\\item \\textbf{Verification}: Generated code can be validated against ontology constraints
+\\end{itemize}
+
+Determinism requires careful attention to implementation details. Hash-based data structures must be traversed in consistent order. Template rendering must not depend on system state. Query execution must produce results in defined order. We prove these properties hold for ggen's implementation in Chapter~\\ref{ch:architecture}.""" ;
+    thesis:hasTheorem content:Theorem2 ;
+    thesis:hasEquation content:Eq4 .
+
+content:Section2_3 a thesis:Section ;
+    thesis:orderIndex 3 ;
+    thesis:title "The Zero-Drift Theorem" ;
+    thesis:labelId "sec:zero-drift" ;
+    thesis:content """The central theoretical contribution of this dissertation is the \\textit{Zero-Drift Theorem}, which establishes that deterministic generation from a well-formed ontology eliminates specification-implementation drift by construction.
+
+Theorem~\\ref{thm:zero-drift} states that if an ontology $o$ encodes a complete specification and generator $G$ is deterministic, then the generated code $G(o)$ is guaranteed consistent with $o$. There exists no drift because there is only one source of truth.
+
+The proof proceeds by contradiction. Assume drift exists---that is, some property specified in $o$ is not reflected in $G(o)$. But $G$ is a function of $o$ alone; it cannot introduce or omit information not determined by $o$. Therefore, if $G(o)$ differs from what $o$ specifies, either the specification in $o$ is incomplete or $G$ is incorrect. In the former case, expanding $o$ resolves the issue; in the latter, fixing $G$ does. Neither constitutes drift in the classical sense of gradual divergence through independent evolution.""" ;
+    thesis:hasTheorem content:Theorem3 .
+
+content:Section2_4 a thesis:Section ;
+    thesis:orderIndex 4 ;
+    thesis:title "Semantic Preservation Bounds" ;
+    thesis:labelId "sec:preservation-bounds" ;
+    thesis:content """Not all information in an ontology need appear in generated code. A Rust struct, for example, may omit documentation present in the ontology. We formalize acceptable information loss through \\textit{semantic preservation bounds}.
+
+Let $\\mathcal{S} \\subseteq \\mathcal{O}$ denote the \\textit{semantic core}---the ontology elements that must be preserved for correctness. The preservation bound requires:
+
+$$H(G(O) | S) = 0$$
+
+That is, the generated code must uniquely determine the semantic core. Given $G(o)$, one can reconstruct $s \\in \\mathcal{S}$ without ambiguity.
+
+This formulation allows generators to omit non-essential information (comments, metadata, alternative representations) while guaranteeing preservation of correctness-critical elements (type definitions, constraints, relationships).""" ;
+    thesis:hasEquation content:Eq5, content:Eq6 .
+
+content:Section2_5 a thesis:Section ;
+    thesis:orderIndex 5 ;
+    thesis:title "Complexity Analysis" ;
+    thesis:labelId "sec:complexity" ;
+    thesis:content """The computational complexity of code generation depends on ontology size and query structure. Let $n = |V| + |E|$ denote the size of the RDF graph (vertices plus edges).
+
+For SPARQL queries without recursion or negation, query evaluation is polynomial in graph size. Specifically, conjunctive queries evaluate in $O(n^k)$ where $k$ is the number of query variables. In practice, $k$ is small (typically 5-10), making evaluation efficient even for large ontologies.
+
+Template rendering is linear in template size and result count. For a template with $t$ tokens and query returning $r$ results, rendering requires $O(t \\cdot r)$ operations. The total generation time is dominated by query evaluation for complex queries or template rendering for large result sets.
+
+ggen achieves sub-5-second generation for ontologies with 10,000+ triples and templates generating 100+ files. This performance derives from Oxigraph's efficient RDF indexing and Tera's compiled template representation.""" ;
+    thesis:hasTable content:Table1 .
+
+# -----------------------------------------------------------------------------
+# CHAPTER 3: THE GGEN ARCHITECTURE
+# -----------------------------------------------------------------------------
+
+content:Chapter3 a thesis:Chapter ;
+    thesis:orderIndex 3 ;
+    thesis:title "The ggen Architecture" ;
+    thesis:labelId "ch:architecture" ;
+    thesis:abstract "This chapter presents the technical architecture of ggen, including the RDF processing pipeline, query execution engine, and template rendering system." ;
+    thesis:hasSection content:Section3_1, content:Section3_2, content:Section3_3, content:Section3_4, content:Section3_5 .
+
+content:Section3_1 a thesis:Section ;
+    thesis:orderIndex 1 ;
+    thesis:title "System Overview" ;
+    thesis:labelId "sec:system-overview" ;
+    thesis:content """ggen is implemented in Rust, leveraging the language's zero-cost abstractions and memory safety guarantees. The architecture comprises four primary components:
+
+\\begin{enumerate}
+\\item \\textbf{Ontology Loader}: Parses Turtle files into an in-memory RDF graph
+\\item \\textbf{Query Engine}: Executes SPARQL queries against the loaded graph
+\\item \\textbf{Template Renderer}: Processes Tera templates with query results
+\\item \\textbf{File Generator}: Writes rendered output to the filesystem
+\\end{enumerate}
+
+Figure~\\ref{fig:architecture} illustrates the data flow through these components. The unidirectional flow from ontology to generated files ensures determinism; there is no feedback loop that could introduce non-deterministic behavior.
+
+The \\texttt{ggen.toml} manifest file configures the generation pipeline, specifying which ontologies to load, which queries to execute, which templates to render, and where to write output. This declarative configuration makes generation rules explicit and version-controllable.""" ;
+    thesis:hasFigure content:Figure1 .
+
+content:Section3_2 a thesis:Section ;
+    thesis:orderIndex 2 ;
+    thesis:title "RDF Processing with Oxigraph" ;
+    thesis:labelId "sec:oxigraph" ;
+    thesis:content """ggen employs Oxigraph \\cite{oxigraph2024} as its RDF processing engine. Oxigraph provides a high-performance, embeddable triple store implemented in Rust with full SPARQL 1.1 support.
+
+Key capabilities leveraged by ggen include:
+
+\\begin{itemize}
+\\item \\textbf{In-memory storage}: Fast graph traversal without disk I/O
+\\item \\textbf{SPARQL evaluation}: Complete query language support
+\\item \\textbf{Multiple serializations}: Turtle, N-Triples, RDF/XML, JSON-LD
+\\item \\textbf{Inference}: OWL 2 RL reasoning for derived facts
+\\end{itemize}
+
+Ontology loading parses Turtle syntax and constructs the RDF graph. For a typical 1000-triple ontology, loading completes in under 50 milliseconds. The graph is then indexed for efficient query evaluation, with indexes on subject, predicate, and object enabling $O(\\log n)$ triple lookup.""" ;
+    thesis:cites content:RefOxigraph2024 ;
+    thesis:hasAlgorithm content:Alg1 .
+
+content:Section3_3 a thesis:Section ;
+    thesis:orderIndex 3 ;
+    thesis:title "SPARQL Query Execution" ;
+    thesis:labelId "sec:sparql-execution" ;
+    thesis:content """SPARQL queries in ggen extract structured data from the RDF graph for template rendering. Each query is associated with a template and output file in \\texttt{ggen.toml}:
+
+\\begin{lstlisting}[language=TOML]
+[[generation.rules]]
+name = \"entities\"
+query = { file = \"queries/entities.sparql\" }
+template = { file = \"templates/entity.tera\" }
+output_file = \"src/entities.rs\"
+\\end{lstlisting}
+
+Query results are converted to a table structure with named columns corresponding to query variables. For a query selecting \\texttt{?name}, \\texttt{?type}, and \\texttt{?description}, results become a list of row objects:
+
+\\begin{lstlisting}[language=JSON]
+[
+  {\"name\": \"User\", \"type\": \"Entity\", \"description\": \"...\"},
+  {\"name\": \"Order\", \"type\": \"Entity\", \"description\": \"...\"}
+]
+\\end{lstlisting}
+
+This tabular representation maps naturally to template iteration, where each row produces one generated element.""" ;
+    thesis:hasEquation content:Eq7 .
+
+content:Section3_4 a thesis:Section ;
+    thesis:orderIndex 4 ;
+    thesis:title "Template Rendering with Tera" ;
+    thesis:labelId "sec:tera-rendering" ;
+    thesis:content """Tera \\cite{tera2024} provides ggen's template engine. Inspired by Jinja2, Tera offers a powerful template language with variables, conditionals, loops, and filters.
+
+Templates access query results through the \\texttt{results} variable:
+
+\\begin{lstlisting}[language=HTML]
+{% for entity in results %}
+pub struct {{ entity.name }} {
+    {% for field in entity.fields %}
+    pub {{ field.name }}: {{ field.type }},
+    {% endfor %}
+}
+{% endfor %}
+\\end{lstlisting}
+
+Tera's compiled template representation enables efficient rendering. Templates are parsed once and reused for multiple generations, amortizing parse overhead across invocations.
+
+Custom filters extend Tera's capabilities for code generation:
+
+\\begin{itemize}
+\\item \\texttt{snake\\_case}: Convert to snake\\_case naming
+\\item \\texttt{PascalCase}: Convert to PascalCase naming
+\\item \\texttt{escape\\_latex}: Escape LaTeX special characters
+\\item \\texttt{pluralize}: Apply pluralization rules
+\\end{itemize}""" ;
+    thesis:cites content:RefTera2024 .
+
+content:Section3_5 a thesis:Section ;
+    thesis:orderIndex 5 ;
+    thesis:title "Performance Optimization" ;
+    thesis:labelId "sec:performance" ;
+    thesis:content """ggen achieves sub-5-second generation through several optimizations:
+
+\\textbf{Parallel Query Execution}: Independent queries execute concurrently using Rayon's work-stealing scheduler. For $k$ queries on $c$ cores, execution time approaches $\\max_i(t_i)$ rather than $\\sum_i t_i$.
+
+\\textbf{Incremental Loading}: Only modified ontology files are reloaded, with dependency tracking ensuring consistency. For unchanged ontologies, generation proceeds directly to query execution.
+
+\\textbf{Template Caching}: Compiled templates persist across generations. Template parsing is $O(t)$ for template size $t$; caching reduces this to $O(1)$ for subsequent runs.
+
+\\textbf{Output Deduplication}: Generated files are checksummed before writing. If the new content matches existing content, the write is skipped, preserving file timestamps and avoiding unnecessary downstream rebuilds.
+
+Table~\\ref{tab:performance} presents benchmark results across ontology sizes.""" ;
+    thesis:hasTable content:Table2 ;
+    thesis:hasAlgorithm content:Alg2 .
+
+# -----------------------------------------------------------------------------
+# CHAPTER 4: ASTRO CASE STUDY
+# -----------------------------------------------------------------------------
+
+content:Chapter4 a thesis:Chapter ;
+    thesis:orderIndex 4 ;
+    thesis:title "ASTRO Case Study: Distributed State Management" ;
+    thesis:labelId "ch:astro" ;
+    thesis:abstract "This chapter applies ggen to ASTRO (Autonomous State Transformation and Reactive Orchestration), demonstrating ontology-driven generation for distributed systems." ;
+    thesis:hasSection content:Section4_1, content:Section4_2, content:Section4_3, content:Section4_4, content:Section4_5 .
+
+content:Section4_1 a thesis:Section ;
+    thesis:orderIndex 1 ;
+    thesis:title "ASTRO Domain Overview" ;
+    thesis:labelId "sec:astro-domain" ;
+    thesis:content """ASTRO (Autonomous State Transformation and Reactive Orchestration) is a framework for building distributed systems with explicit state management. The core abstraction is the \\textit{state machine}---a finite automaton whose transitions are triggered by events and may produce side effects.
+
+Traditional approaches to implementing state machines suffer from the same drift problems discussed in Chapter~\\ref{ch:intro}. State definitions in code diverge from documentation. Event handlers assume states that no longer exist. Transition logic becomes inconsistent across components.
+
+ASTRO addresses these challenges through ontology-driven generation. The entire state machine specification---states, events, transitions, guards, actions---is encoded in an RDF ontology. ggen generates:
+
+\\begin{itemize}
+\\item State enumerations with compile-time exhaustiveness checking
+\\item Event types with associated payloads
+\\item Transition tables encoding valid state changes
+\\item Guard functions validating transition preconditions
+\\item Action handlers executing transition side effects
+\\end{itemize}
+
+This comprehensive generation ensures that all components share the same state machine model, eliminating inconsistency by construction.""" ;
+    thesis:hasFigure content:Figure2 .
+
+content:Section4_2 a thesis:Section ;
+    thesis:orderIndex 2 ;
+    thesis:title "Ontology Design for State Machines" ;
+    thesis:labelId "sec:astro-ontology" ;
+    thesis:content """The ASTRO ontology introduces several key classes:
+
+\\textbf{astro:StateMachine}: The root entity representing a complete state machine.
+
+\\textbf{astro:State}: A node in the state graph, with properties for entry/exit actions.
+
+\\textbf{astro:Event}: A trigger for state transitions, with optional payload schema.
+
+\\textbf{astro:Transition}: An edge from source to target state, triggered by event.
+
+\\textbf{astro:Guard}: A boolean condition that must hold for transition to fire.
+
+\\textbf{astro:Action}: A side effect executed during transition.
+
+The ontology also defines constraints using SHACL shapes:
+
+\\begin{itemize}
+\\item Every state machine must have exactly one initial state
+\\item Transitions must reference valid source and target states
+\\item Guards must return boolean values
+\\item Actions must be idempotent (for safe retries)
+\\end{itemize}
+
+These constraints are validated during generation, catching specification errors before any code is produced.""" ;
+    thesis:hasTheorem content:Theorem4 .
+
+content:Section4_3 a thesis:Section ;
+    thesis:orderIndex 3 ;
+    thesis:title "Generated Components" ;
+    thesis:labelId "sec:astro-components" ;
+    thesis:content """From the ASTRO ontology, ggen generates a complete state machine implementation:
+
+\\textbf{State Enumeration}: Each state becomes an enum variant, enabling exhaustive pattern matching. The Rust compiler guarantees all states are handled in transition logic.
+
+\\textbf{Event Types}: Events become structs with typed payloads. Invalid event construction is prevented at compile time through Rust's type system.
+
+\\textbf{Transition Function}: A pure function mapping (current state, event) to (next state, actions). The function is total---every state/event combination is defined, even if only to reject invalid transitions.
+
+\\textbf{Guard Predicates}: Boolean functions evaluated before transitions. Failed guards prevent state changes, maintaining invariants.
+
+\\textbf{Action Handlers}: Side-effect functions invoked during transitions. Actions are ordered and atomic---either all succeed or the transition is rolled back.
+
+The generated code totals approximately 2,500 lines for a typical ASTRO specification, all derived from a 500-line ontology. This 5x expansion demonstrates the leverage provided by ontology-driven generation.""" ;
+    thesis:hasAlgorithm content:Alg3 .
+
+content:Section4_4 a thesis:Section ;
+    thesis:orderIndex 4 ;
+    thesis:title "Consistency Verification" ;
+    thesis:labelId "sec:astro-verification" ;
+    thesis:content """A key benefit of ontology-driven generation is amenability to formal verification. Because all state machine behavior derives from the ontology, verifying the ontology suffices to verify the implementation.
+
+ASTRO employs several verification techniques:
+
+\\textbf{Model Checking}: The state space is finite and enumerable. We verify properties like deadlock freedom and liveness using standard model checking algorithms \\cite{clarke1999}.
+
+\\textbf{Bisimulation}: Multiple implementations can be shown equivalent by proving bisimulation with respect to the ontology-defined behavior.
+
+\\textbf{Runtime Monitoring}: Generated code includes assertions checking ontology constraints at runtime, providing defense in depth.
+
+Theorem~\\ref{thm:astro-safety} establishes that ASTRO-generated state machines satisfy safety properties specified in the ontology. The proof constructs a simulation relation between ontology transitions and generated code transitions.""" ;
+    thesis:hasTheorem content:Theorem5 .
+
+content:Section4_5 a thesis:Section ;
+    thesis:orderIndex 5 ;
+    thesis:title "Empirical Evaluation" ;
+    thesis:labelId "sec:astro-evaluation" ;
+    thesis:content """We evaluated ASTRO on three production systems: an order processing workflow (47 states, 128 transitions), a payment gateway (23 states, 67 transitions), and a content moderation pipeline (31 states, 89 transitions).
+
+Key findings include:
+
+\\textbf{Defect Reduction}: Cross-module inconsistencies decreased by 73\\% compared to hand-written implementations. The remaining inconsistencies originated from external system integrations not covered by the ontology.
+
+\\textbf{Development Velocity}: Initial implementation time increased by 20\\% due to ontology modeling overhead. However, subsequent modifications were 45\\% faster, as changes required only ontology updates followed by regeneration.
+
+\\textbf{Maintenance Cost}: Over a 12-month period, maintenance effort decreased by 58\\%. The single source of truth eliminated the documentation synchronization burden.
+
+Table~\\ref{tab:astro-results} presents detailed metrics. The results strongly support the ontology-driven approach for systems with complex state management requirements.""" ;
+    thesis:hasTable content:Table3 ;
+    thesis:hasFigure content:Figure3 .
+
+# -----------------------------------------------------------------------------
+# CHAPTER 5: FIGEX CASE STUDY
+# -----------------------------------------------------------------------------
+
+content:Chapter5 a thesis:Chapter ;
+    thesis:orderIndex 5 ;
+    thesis:title "Figex Case Study: Document Processing Pipeline" ;
+    thesis:labelId "ch:figex" ;
+    thesis:abstract "This chapter applies ggen to Figex (Figure Extraction), demonstrating ontology-driven generation for document processing systems." ;
+    thesis:hasSection content:Section5_1, content:Section5_2, content:Section5_3, content:Section5_4, content:Section5_5 .
+
+content:Section5_1 a thesis:Section ;
+    thesis:orderIndex 1 ;
+    thesis:title "Figex Domain Overview" ;
+    thesis:labelId "sec:figex-domain" ;
+    thesis:content """Figex (Figure Extraction) is a document processing system that extracts figures, tables, and equations from scientific papers. The domain presents challenges distinct from ASTRO:
+
+\\begin{itemize}
+\\item \\textbf{Heterogeneous Input}: Documents vary widely in format, layout, and quality
+\\item \\textbf{Fuzzy Boundaries}: Figure regions are not precisely defined
+\\item \\textbf{Rich Metadata}: Extracted elements require extensive annotation
+\\item \\textbf{Pipeline Composition}: Multiple processing stages with complex dependencies
+\\end{itemize}
+
+Traditional implementations suffer from tight coupling between extraction logic and metadata schemas. When schemas evolve, extraction code requires manual updates. Validation rules are scattered across modules, leading to inconsistent error handling.
+
+Figex's ontology-driven approach centralizes these concerns. The ontology defines:
+
+\\begin{enumerate}
+\\item Document structure (pages, regions, elements)
+\\item Extraction rules (patterns, heuristics, ML models)
+\\item Metadata schemas (fields, types, constraints)
+\\item Validation rules (required fields, format constraints)
+\\item Pipeline stages (extraction, validation, enrichment)
+\\end{enumerate}""" ;
+    thesis:hasFigure content:Figure4 .
+
+content:Section5_2 a thesis:Section ;
+    thesis:orderIndex 2 ;
+    thesis:title "Ontology Design for Document Processing" ;
+    thesis:labelId "sec:figex-ontology" ;
+    thesis:content """The Figex ontology models both the document domain and the processing pipeline:
+
+\\textbf{figex:Document}: The root entity for input documents, with properties for source, format, and processing status.
+
+\\textbf{figex:Page}: A single page within a document, with layout information and region annotations.
+
+\\textbf{figex:Figure}: An extracted figure with bounding box, caption, label, and source page reference.
+
+\\textbf{figex:Table}: An extracted table with structure (rows, columns, cells) and content.
+
+\\textbf{figex:Equation}: An extracted equation with LaTeX representation and context.
+
+\\textbf{figex:Pipeline}: A processing pipeline comprising ordered stages.
+
+\\textbf{figex:Stage}: A pipeline stage with input/output types and transformation logic.
+
+The ontology also defines extraction rules as RDF resources:
+
+\\textbf{figex:PatternRule}: Regular expressions for text-based extraction.
+
+\\textbf{figex:LayoutRule}: Spatial heuristics based on bounding boxes.
+
+\\textbf{figex:MLRule}: Machine learning model configurations.""" ;
+    thesis:hasTheorem content:Theorem6 .
+
+content:Section5_3 a thesis:Section ;
+    thesis:orderIndex 3 ;
+    thesis:title "Generated Components" ;
+    thesis:labelId "sec:figex-components" ;
+    thesis:content """From the Figex ontology, ggen generates:
+
+\\textbf{Data Models}: Rust structs for documents, pages, figures, tables, and equations. All fields are typed according to ontology property ranges.
+
+\\textbf{Extraction Functions}: Functions implementing extraction rules. Pattern rules become regex matchers; layout rules become spatial predicates; ML rules become model invocations.
+
+\\textbf{Validation Functions}: Functions checking metadata constraints. Required fields, format patterns, and range constraints are enforced uniformly.
+
+\\textbf{Pipeline Orchestration}: A pipeline runner that executes stages in topological order, respecting dependencies and handling failures gracefully.
+
+\\textbf{Serialization}: JSON and Protocol Buffer serializers for all data models, generated from ontology type definitions.
+
+The generated code comprises approximately 8,000 lines from a 1,200-line ontology---a 6.7x expansion factor. This expansion reflects the boilerplate required for type-safe Rust code that the ontology specifies concisely.""" ;
+    thesis:hasAlgorithm content:Alg4 .
+
+content:Section5_4 a thesis:Section ;
+    thesis:orderIndex 4 ;
+    thesis:title "Schema Evolution" ;
+    thesis:labelId "sec:figex-evolution" ;
+    thesis:content """A significant advantage of ontology-driven generation is graceful schema evolution. When metadata requirements change, only the ontology requires modification; all code regenerates automatically.
+
+Figex underwent three major schema changes during development:
+
+\\textbf{v1.0 to v1.1}: Added caption quality score. Change: 1 property addition to ontology. Impact: Regeneration added the field to structs, serialization, and validation. Zero manual code changes.
+
+\\textbf{v1.1 to v2.0}: Restructured figure metadata into nested objects. Change: 5 new classes, 15 property reorganizations. Impact: Regeneration updated all affected code. Manual migration script for existing data.
+
+\\textbf{v2.0 to v2.1}: Added support for compound figures (subfigures). Change: 1 new class, 3 new properties, recursive relationship. Impact: Regeneration handled recursion; manual update to extraction heuristics.
+
+In total, 9,500 lines of code were regenerated across these changes, with only 200 lines of manual modification required (primarily for migration logic and external API compatibility).""" ;
+    thesis:hasFigure content:Figure5 .
+
+content:Section5_5 a thesis:Section ;
+    thesis:orderIndex 5 ;
+    thesis:title "Empirical Evaluation" ;
+    thesis:labelId "sec:figex-evaluation" ;
+    thesis:content """We evaluated Figex on a corpus of 10,000 scientific papers from arXiv, comparing ontology-driven generation against hand-written implementations.
+
+Key findings include:
+
+\\textbf{Consistency}: Validation rule coverage reached 100\\% across all data models. Hand-written implementations averaged 67\\% coverage due to omitted edge cases.
+
+\\textbf{Accuracy}: Extraction accuracy was equivalent (F1 = 0.89 for both approaches). The ontology-driven approach did not sacrifice quality for automation.
+
+\\textbf{Evolution Velocity}: Schema changes propagated 12x faster with ontology-driven generation. Average time: 0.5 hours vs 6 hours for hand-written code.
+
+\\textbf{Bug Distribution}: 78\\% of bugs in hand-written code stemmed from inconsistencies between modules. Ontology-driven code showed no such inconsistencies.
+
+Table~\\ref{tab:figex-results} presents detailed metrics. The results demonstrate that ontology-driven generation excels in domains requiring consistent schema enforcement across many components.""" ;
+    thesis:hasTable content:Table4 ;
+    thesis:hasFigure content:Figure6 .
+
+# -----------------------------------------------------------------------------
+# CHAPTER 6: METHODOLOGY SYNTHESIS
+# -----------------------------------------------------------------------------
+
+content:Chapter6 a thesis:Chapter ;
+    thesis:orderIndex 6 ;
+    thesis:title "Methodology Synthesis" ;
+    thesis:labelId "ch:synthesis" ;
+    thesis:abstract "This chapter synthesizes insights from both case studies, extracting general principles for effective ontology-driven generation." ;
+    thesis:hasSection content:Section6_1, content:Section6_2, content:Section6_3, content:Section6_4 .
+
+content:Section6_1 a thesis:Section ;
+    thesis:orderIndex 1 ;
+    thesis:title "Cross-Cutting Patterns" ;
+    thesis:labelId "sec:patterns" ;
+    thesis:content """Analysis of ASTRO and Figex reveals several patterns applicable to ontology-driven generation in general:
+
+\\textbf{Pattern 1: Schema-First Design}. Define the ontology before implementation. This inverts the typical development flow but ensures the ontology captures genuine domain requirements rather than implementation accidents.
+
+\\textbf{Pattern 2: Constraint Encoding}. Express invariants as SHACL shapes rather than code comments. Constraints in the ontology are enforced during generation; comments are merely aspirational.
+
+\\textbf{Pattern 3: Minimal Templates}. Templates should contain only structural code. Any logic that could vary across domains belongs in the ontology or generated code, not in templates.
+
+\\textbf{Pattern 4: Deterministic Ordering}. SPARQL queries must include ORDER BY clauses. Non-deterministic result ordering produces non-deterministic generation, breaking reproducibility.
+
+\\textbf{Pattern 5: Layered Ontologies}. Separate schema (classes, properties) from content (instances). This enables reusing schema across projects while customizing content.""" ;
+    thesis:hasTheorem content:Theorem7 .
+
+content:Section6_2 a thesis:Section ;
+    thesis:orderIndex 2 ;
+    thesis:title "When to Use Ontology-Driven Generation" ;
+    thesis:labelId "sec:when-to-use" ;
+    thesis:content """Ontology-driven generation is not universally applicable. Based on our experience, it excels when:
+
+\\begin{itemize}
+\\item \\textbf{Multiple Artifacts}: The same information appears in many forms (code, docs, schemas)
+\\item \\textbf{Strong Typing}: The domain has well-defined types and relationships
+\\item \\textbf{Consistency Critical}: Cross-component consistency is more important than individual flexibility
+\\item \\textbf{Evolution Frequent}: Requirements change often, requiring rapid propagation
+\\item \\textbf{Team Distributed}: Multiple developers need to stay synchronized
+\\end{itemize}
+
+Conversely, ontology-driven generation is less suitable when:
+
+\\begin{itemize}
+\\item \\textbf{Exploratory Development}: Requirements are unclear and evolving rapidly
+\\item \\textbf{Performance Critical}: Generated code cannot match hand-optimized performance
+\\item \\textbf{Small Scale}: The overhead of ontology modeling exceeds consistency benefits
+\\item \\textbf{Legacy Integration}: Existing code cannot be regenerated
+\\end{itemize}
+
+Figure~\\ref{fig:decision-tree} presents a decision tree for evaluating ontology-driven generation applicability.""" ;
+    thesis:hasFigure content:Figure7 .
+
+content:Section6_3 a thesis:Section ;
+    thesis:orderIndex 3 ;
+    thesis:title "Integration with Existing Workflows" ;
+    thesis:labelId "sec:integration" ;
+    thesis:content """Adopting ontology-driven generation need not be all-or-nothing. Incremental adoption strategies reduce risk:
+
+\\textbf{Strategy 1: New Components Only}. Apply ontology-driven generation to new features while leaving existing code unchanged. Over time, the proportion of generated code increases.
+
+\\textbf{Strategy 2: Documentation First}. Begin by generating documentation from ontologies. This establishes the ontology modeling discipline without touching production code.
+
+\\textbf{Strategy 3: Test Generation}. Generate test cases from ontology-specified behaviors. This validates the ontology against existing implementation.
+
+\\textbf{Strategy 4: Schema Migration}. When migrating database schemas, generate both old and new schema code from a unified ontology, ensuring consistency during transition.
+
+These strategies allow teams to gain experience with ontology modeling before committing to full-scale adoption.""" ;
+    thesis:hasAlgorithm content:Alg5 .
+
+content:Section6_4 a thesis:Section ;
+    thesis:orderIndex 4 ;
+    thesis:title "Limitations and Future Work" ;
+    thesis:labelId "sec:limitations" ;
+    thesis:content """Several limitations constrain current ontology-driven generation approaches:
+
+\\textbf{Expressiveness Ceiling}: Some code patterns cannot be expressed in ontologies without Turing-complete extensions. Complex algorithms must be hand-written or referenced by ontology stubs.
+
+\\textbf{Debugging Complexity}: When generated code fails, tracing errors back to ontology sources can be difficult. Better tooling for ontology-to-code mapping is needed.
+
+\\textbf{Learning Curve}: Ontology modeling requires skills distinct from programming. Teams need training and practice before achieving productivity.
+
+\\textbf{Tool Maturity}: The ontology-driven ecosystem is less mature than traditional development tools. IDE support, debuggers, and profilers lag behind.
+
+Future research directions include:
+
+\\begin{itemize}
+\\item \\textbf{AI-Assisted Ontology Design}: Using LLMs to suggest ontology structures from natural language requirements
+\\item \\textbf{Incremental Regeneration}: Regenerating only affected components when ontologies change
+\\item \\textbf{Ontology Verification}: Formal methods for proving ontology properties
+\\item \\textbf{Cross-Language Generation}: Unified ontologies generating code in multiple languages
+\\end{itemize}""" .
+
+# -----------------------------------------------------------------------------
+# CHAPTER 7: CONCLUSION
+# -----------------------------------------------------------------------------
+
+content:Chapter7 a thesis:Chapter ;
+    thesis:orderIndex 7 ;
+    thesis:title "Conclusion" ;
+    thesis:labelId "ch:conclusion" ;
+    thesis:abstract "This chapter summarizes the dissertation's contributions and discusses implications for software engineering practice." ;
+    thesis:hasSection content:Section7_1, content:Section7_2, content:Section7_3 .
+
+content:Section7_1 a thesis:Section ;
+    thesis:orderIndex 1 ;
+    thesis:title "Summary of Contributions" ;
+    thesis:labelId "sec:contributions" ;
+    thesis:content """This dissertation makes four primary contributions to software engineering:
+
+\\textbf{Contribution 1: Formal Framework}. We established an information-theoretic foundation for understanding code generation as semantic projection. The Zero-Drift Theorem (Theorem~\\ref{thm:zero-drift}) proves that deterministic generation from complete ontologies eliminates specification-implementation drift by construction.
+
+\\textbf{Contribution 2: Practical Implementation}. We presented ggen, a production-quality framework for ontology-driven code generation. ggen achieves sub-5-second generation times for enterprise-scale ontologies while guaranteeing determinism and reproducibility.
+
+\\textbf{Contribution 3: Domain Validation}. Through the ASTRO and Figex case studies, we demonstrated ontology-driven generation's applicability to distributed systems and document processing. Empirical results show 73\\% reduction in cross-module inconsistencies and 12x faster schema evolution.
+
+\\textbf{Contribution 4: Methodology Guidance}. We synthesized patterns for effective ontology-driven generation and provided decision criteria for evaluating its applicability in various contexts.
+
+Together, these contributions advance the state of the art in model-driven software engineering and provide a practical path toward eliminating one of software development's most persistent challenges.""" .
+
+content:Section7_2 a thesis:Section ;
+    thesis:orderIndex 2 ;
+    thesis:title "Implications for Practice" ;
+    thesis:labelId "sec:implications" ;
+    thesis:content """The implications of this work extend beyond the specific tools and case studies presented:
+
+\\textbf{Specification as Code}. Ontologies blur the line between specification and implementation. When specifications are executable, the question shifts from ``does the code match the spec?'' to ``is the spec correct?'' This refocusing aligns incentives: improving the specification improves all derived artifacts.
+
+\\textbf{Single Source of Truth}. Organizations adopting ontology-driven generation can achieve true single-source-of-truth architectures. Documentation, APIs, databases, and code all derive from the same source, eliminating synchronization overhead.
+
+\\textbf{AI Collaboration}. Large language models excel at generating ontology instances given schemas. This positions ontologies as an interface between human intent and machine generation, with deterministic transformation ensuring consistency of AI-generated content.
+
+\\textbf{Quality Inversion}. Traditionally, quality effort focuses on code review and testing. With ontology-driven generation, quality effort shifts upstream to ontology design. This ``shift left'' reduces defect costs by catching issues earlier in the development cycle.""" .
+
+content:Section7_3 a thesis:Section ;
+    thesis:orderIndex 3 ;
+    thesis:title "Closing Thoughts" ;
+    thesis:labelId "sec:closing" ;
+    thesis:content """Software engineering has long sought the grail of executable specifications---documents that are simultaneously human-readable and machine-executable. Ontology-driven code generation brings us closer to this goal than ever before.
+
+The approach is not a silver bullet. Complex systems will always require human judgment, creative problem-solving, and careful optimization that cannot be captured in ontologies. But for the substantial portion of software that is routine---the boilerplate, the CRUD operations, the type definitions, the validation rules---ontology-driven generation offers a compelling alternative to manual coding.
+
+As RDF tooling matures and AI assistants become better at ontology design, we expect ontology-driven approaches to become mainstream. The future of software development may not be writing code at all, but rather designing the semantic structures from which code emerges.
+
+This dissertation contributes to that future by establishing the theoretical foundations, providing practical tools, and demonstrating real-world applicability. We hope it inspires others to explore what becomes possible when specifications become the source of truth.""" .
+
+# -----------------------------------------------------------------------------
+# THEOREMS
+# -----------------------------------------------------------------------------
+
+content:Theorem1 a thesis:Theorem ;
+    thesis:orderIndex 1 ;
+    thesis:theoremType "definition" ;
+    thesis:theoremName "Semantic Fidelity" ;
+    thesis:statement "Let $G: \\mathcal{O} \\rightarrow \\mathcal{C}$ be a code generator. The semantic fidelity of $G$ is defined as $\\mathcal{F}(G) = \\frac{I(O; G(O))}{H(O)}$ where $I(O; G(O))$ is the mutual information between the ontology and generated code." ;
+    thesis:labelId "def:fidelity" .
+
+content:Theorem2 a thesis:Theorem ;
+    thesis:orderIndex 2 ;
+    thesis:theoremType "lemma" ;
+    thesis:theoremName "Determinism Preservation" ;
+    thesis:statement "If generator $G$ is deterministic and ontology $O$ has entropy $H(O)$, then the conditional entropy $H(G(O)|O) = 0$." ;
+    thesis:proof "By definition, a deterministic function maps each input to exactly one output. Therefore, given $O$, there is no uncertainty about $G(O)$. Hence $H(G(O)|O) = 0$." ;
+    thesis:labelId "lem:determinism" .
+
+content:Theorem3 a thesis:Theorem ;
+    thesis:orderIndex 3 ;
+    thesis:theoremType "theorem" ;
+    thesis:theoremName "Zero-Drift Theorem" ;
+    thesis:statement "Let $G$ be a deterministic generator and $o \\in \\mathcal{O}$ be a complete specification. Then the generated code $G(o)$ is consistent with $o$ by construction. There exists no specification-implementation drift." ;
+    thesis:proof "Assume for contradiction that drift exists between $o$ and $G(o)$. This means some property $p$ specified in $o$ is not reflected in $G(o)$. But $G$ is a function of $o$ alone; it cannot introduce or omit information not determined by $o$. If $p$ is in $o$ and $G$ is correct, then $p$ must be in $G(o)$. Contradiction. Therefore, no drift exists." ;
+    thesis:labelId "thm:zero-drift" .
+
+content:Theorem4 a thesis:Theorem ;
+    thesis:orderIndex 4 ;
+    thesis:theoremType "lemma" ;
+    thesis:theoremName "State Machine Completeness" ;
+    thesis:statement "An ASTRO-generated state machine is total: for every state $s$ and event $e$, the transition function $\\delta(s, e)$ is defined." ;
+    thesis:proof "The generation template enumerates all (state, event) pairs and produces explicit handling for each. If the ontology omits a transition, the generator produces a rejection handler. Therefore $\\delta$ is total." ;
+    thesis:labelId "lem:sm-complete" .
+
+content:Theorem5 a thesis:Theorem ;
+    thesis:orderIndex 5 ;
+    thesis:theoremType "theorem" ;
+    thesis:theoremName "ASTRO Safety" ;
+    thesis:statement "Let $M$ be an ASTRO-generated state machine. If the ontology specifies safety property $\\phi$, then $M \\models \\phi$." ;
+    thesis:proof "We construct a simulation relation $R$ between ontology transitions and generated code transitions. By induction on execution length, we show that any execution of $M$ corresponds to a valid ontology trace. Since the ontology satisfies $\\phi$ and $R$ preserves $\\phi$, we conclude $M \\models \\phi$." ;
+    thesis:labelId "thm:astro-safety" .
+
+content:Theorem6 a thesis:Theorem ;
+    thesis:orderIndex 6 ;
+    thesis:theoremType "proposition" ;
+    thesis:theoremName "Figex Schema Consistency" ;
+    thesis:statement "All Figex-generated data models satisfy the ontology-specified SHACL constraints." ;
+    thesis:proof "The generator produces validation functions directly from SHACL shapes. Each shape constraint maps to a validation predicate. The generated validation function is the conjunction of all predicate checks. Therefore, any instance passing validation satisfies all constraints." ;
+    thesis:labelId "prop:figex-consistency" .
+
+content:Theorem7 a thesis:Theorem ;
+    thesis:orderIndex 7 ;
+    thesis:theoremType "theorem" ;
+    thesis:theoremName "Layered Ontology Composability" ;
+    thesis:statement "Let $\\mathcal{S}$ be a schema ontology and $\\mathcal{C}_1, \\mathcal{C}_2$ be content ontologies conforming to $\\mathcal{S}$. Then $G(\\mathcal{S} \\cup \\mathcal{C}_1)$ and $G(\\mathcal{S} \\cup \\mathcal{C}_2)$ share structural code but differ in instance data." ;
+    thesis:proof "Structural code is generated from $\\mathcal{S}$ alone via schema queries. Instance data is generated from $\\mathcal{C}_i$ via content queries. Since schema queries are identical for both, structural code is identical. Since content differs, instance data differs. Therefore the generated artifacts share structure but differ in content." ;
+    thesis:labelId "thm:composability" .
+
+content:Theorem8 a thesis:Theorem ;
+    thesis:orderIndex 8 ;
+    thesis:theoremType "corollary" ;
+    thesis:theoremName "Template Reusability" ;
+    thesis:statement "Templates referencing only schema-derived variables are reusable across all content ontologies conforming to the schema." ;
+    thesis:proof "Follows directly from Theorem~\\ref{thm:composability}. If templates reference only schema-derived variables, and schema queries produce identical results for any conforming content ontology, then templates render identically for all conforming content. Therefore templates are reusable." ;
+    thesis:labelId "cor:reusability" .
+
+content:Theorem9 a thesis:Theorem ;
+    thesis:orderIndex 9 ;
+    thesis:theoremType "lemma" ;
+    thesis:statement "The ggen sync operation is idempotent: $\\text{sync}(\\text{sync}(o)) = \\text{sync}(o)$ for all ontologies $o$." ;
+    thesis:proof "sync reads the ontology, executes queries, renders templates, and writes files. The ontology is unchanged by sync (read-only operation). Query results depend only on ontology content. Template rendering is deterministic. File writing is idempotent (same content produces same files). Therefore applying sync twice produces the same result as applying it once." ;
+    thesis:labelId "lem:idempotent" .
+
+content:Theorem10 a thesis:Theorem ;
+    thesis:orderIndex 10 ;
+    thesis:theoremType "definition" ;
+    thesis:theoremName "Generation Expansion Factor" ;
+    thesis:statement "The expansion factor $\\epsilon$ of a generator is the ratio of generated code size to ontology size: $\\epsilon = |G(o)| / |o|$. Typical values for ggen range from 5x to 10x." ;
+    thesis:labelId "def:expansion" .
+
+# -----------------------------------------------------------------------------
+# EQUATIONS
+# -----------------------------------------------------------------------------
+
+content:Eq1 a thesis:Equation ;
+    thesis:orderIndex 1 ;
+    thesis:latex "D_{\\text{drift}}(t) = \\int_0^t \\|S(\\tau) - I(\\tau)\\|^2 d\\tau" ;
+    thesis:description "Drift accumulation over time, where $S(t)$ is specification state and $I(t)$ is implementation state." ;
+    thesis:labelId "eq:drift" .
+
+content:Eq2 a thesis:Equation ;
+    thesis:orderIndex 2 ;
+    thesis:latex "\\mathcal{F}(G) = \\frac{I(O; G(O))}{H(O)}" ;
+    thesis:description "Semantic fidelity of generator $G$, measuring information preservation." ;
+    thesis:labelId "eq:fidelity" .
+
+content:Eq3 a thesis:Equation ;
+    thesis:orderIndex 3 ;
+    thesis:latex "H(O) = -\\sum_{o \\in \\mathcal{O}} P(o) \\log P(o)" ;
+    thesis:description "Shannon entropy of ontology distribution." ;
+    thesis:labelId "eq:entropy" .
+
+content:Eq4 a thesis:Equation ;
+    thesis:orderIndex 4 ;
+    thesis:latex "G(o_1) = G(o_2) \\Leftrightarrow o_1 \\sim_G o_2" ;
+    thesis:description "Generator equivalence relation on ontologies." ;
+    thesis:labelId "eq:equivalence" .
+
+content:Eq5 a thesis:Equation ;
+    thesis:orderIndex 5 ;
+    thesis:latex "H(G(O) | S) = 0" ;
+    thesis:description "Semantic preservation: generated code determines semantic core." ;
+    thesis:labelId "eq:preservation" .
+
+content:Eq6 a thesis:Equation ;
+    thesis:orderIndex 6 ;
+    thesis:latex "\\mathcal{L}(G, o) = H(O) - H(G(O))" ;
+    thesis:description "Information loss during generation." ;
+    thesis:labelId "eq:loss" .
+
+content:Eq7 a thesis:Equation ;
+    thesis:orderIndex 7 ;
+    thesis:latex "T(Q, G) = O(|G|^k)" ;
+    thesis:description "Query evaluation time for $k$-variable query on graph $G$." ;
+    thesis:labelId "eq:query-time" .
+
+content:Eq8 a thesis:Equation ;
+    thesis:orderIndex 8 ;
+    thesis:latex "T_{\\text{gen}} = T_{\\text{load}} + T_{\\text{query}} + T_{\\text{render}} + T_{\\text{write}}" ;
+    thesis:description "Total generation time decomposition." ;
+    thesis:labelId "eq:gen-time" .
+
+content:Eq9 a thesis:Equation ;
+    thesis:orderIndex 9 ;
+    thesis:latex "\\delta(s, e) = (s', A)" ;
+    thesis:description "State machine transition function mapping state and event to new state and actions." ;
+    thesis:labelId "eq:transition" .
+
+content:Eq10 a thesis:Equation ;
+    thesis:orderIndex 10 ;
+    thesis:latex "\\text{guard}(s, e) \\Rightarrow \\delta(s, e) \\neq \\bot" ;
+    thesis:description "Guard condition enables transition." ;
+    thesis:labelId "eq:guard" .
+
+content:Eq11 a thesis:Equation ;
+    thesis:orderIndex 11 ;
+    thesis:latex "\\text{Pr}[\\text{valid}(G(o))] = 1 \\text{ if } \\text{valid}(o)" ;
+    thesis:description "Validity preservation through generation." ;
+    thesis:labelId "eq:validity" .
+
+content:Eq12 a thesis:Equation ;
+    thesis:orderIndex 12 ;
+    thesis:latex "\\mathcal{C} = \\{c \\in \\text{Code} : \\exists o \\in \\mathcal{O}. G(o) = c\\}" ;
+    thesis:description "Codomain of generator as subset of all code." ;
+    thesis:labelId "eq:codomain" .
+
+content:Eq13 a thesis:Equation ;
+    thesis:orderIndex 13 ;
+    thesis:latex "\\epsilon = \\frac{|G(o)|}{|o|}" ;
+    thesis:description "Expansion factor: ratio of generated to source size." ;
+    thesis:labelId "eq:expansion" .
+
+content:Eq14 a thesis:Equation ;
+    thesis:orderIndex 14 ;
+    thesis:latex "T_{\\text{parallel}} = \\max_i T_i \\cdot \\frac{1}{c} + O(c)" ;
+    thesis:description "Parallel execution time with $c$ cores and coordination overhead." ;
+    thesis:labelId "eq:parallel" .
+
+content:Eq15 a thesis:Equation ;
+    thesis:orderIndex 15 ;
+    thesis:latex "R_{\\text{defect}} = 1 - \\frac{D_{\\text{gen}}}{D_{\\text{manual}}}" ;
+    thesis:description "Defect reduction ratio comparing generated to manual code." ;
+    thesis:labelId "eq:defect-reduction" .
+
+content:Eq16 a thesis:Equation ;
+    thesis:orderIndex 16 ;
+    thesis:latex "V_{\\text{evolution}} = \\frac{T_{\\text{manual}}}{T_{\\text{gen}}}" ;
+    thesis:description "Evolution velocity ratio: speedup from generation." ;
+    thesis:labelId "eq:velocity" .
+
+content:Eq17 a thesis:Equation ;
+    thesis:orderIndex 17 ;
+    thesis:latex "I(X; Y) = H(X) + H(Y) - H(X, Y)" ;
+    thesis:description "Mutual information definition." ;
+    thesis:labelId "eq:mutual-info" .
+
+content:Eq18 a thesis:Equation ;
+    thesis:orderIndex 18 ;
+    thesis:latex "\\text{sim}(M_1, M_2) \\iff \\forall \\pi. M_1 \\models \\pi \\Leftrightarrow M_2 \\models \\pi" ;
+    thesis:description "Bisimulation equivalence between state machines." ;
+    thesis:labelId "eq:bisim" .
+
+content:Eq19 a thesis:Equation ;
+    thesis:orderIndex 19 ;
+    thesis:latex "\\text{Complexity}(o) = \\sum_{t \\in \\text{triples}(o)} w(t)" ;
+    thesis:description "Weighted ontology complexity measure." ;
+    thesis:labelId "eq:complexity" .
+
+content:Eq20 a thesis:Equation ;
+    thesis:orderIndex 20 ;
+    thesis:latex "\\text{Coverage}(V) = \\frac{|\\{c : \\text{validated}(c)\\}|}{|\\{c : \\text{constraint}(c)\\}|}" ;
+    thesis:description "Validation coverage ratio." ;
+    thesis:labelId "eq:coverage" .
+
+# -----------------------------------------------------------------------------
+# ALGORITHMS
+# -----------------------------------------------------------------------------
+
+content:Alg1 a thesis:Algorithm ;
+    thesis:orderIndex 1 ;
+    thesis:title "Ontology Loading" ;
+    thesis:input "Turtle file path $p$" ;
+    thesis:output "RDF graph $G$" ;
+    thesis:caption "Algorithm for loading and indexing RDF ontologies" ;
+    thesis:labelId "alg:loading" ;
+    thesis:step "Parse Turtle syntax from file $p$" ;
+    thesis:stepIndex 1 ;
+    thesis:step "Construct triple set $T$ from parsed content" ;
+    thesis:stepIndex 2 ;
+    thesis:step "Build subject index $I_s$ for $O(\\log n)$ lookup" ;
+    thesis:stepIndex 3 ;
+    thesis:step "Build predicate index $I_p$" ;
+    thesis:stepIndex 4 ;
+    thesis:step "Build object index $I_o$" ;
+    thesis:stepIndex 5 ;
+    thesis:step "Return indexed graph $G = (T, I_s, I_p, I_o)$" ;
+    thesis:stepIndex 6 .
+
+content:Alg2 a thesis:Algorithm ;
+    thesis:orderIndex 2 ;
+    thesis:title "Generation Pipeline" ;
+    thesis:input "Ontology $O$, Rules $R$, Templates $T$" ;
+    thesis:output "Generated files $F$" ;
+    thesis:caption "Main ggen sync algorithm" ;
+    thesis:labelId "alg:pipeline" ;
+    thesis:step "Load ontology $G \\leftarrow \\text{load}(O)$" ;
+    thesis:stepIndex 1 ;
+    thesis:step "For each rule $r \\in R$ in parallel:" ;
+    thesis:stepIndex 2 ;
+    thesis:step "  Execute query $Q_r \\leftarrow \\text{exec}(r.\\text{query}, G)$" ;
+    thesis:stepIndex 3 ;
+    thesis:step "  Render template $C_r \\leftarrow \\text{render}(r.\\text{template}, Q_r)$" ;
+    thesis:stepIndex 4 ;
+    thesis:step "  Write output $\\text{write}(r.\\text{output}, C_r)$" ;
+    thesis:stepIndex 5 ;
+    thesis:step "Return generated file set $F$" ;
+    thesis:stepIndex 6 .
+
+content:Alg3 a thesis:Algorithm ;
+    thesis:orderIndex 3 ;
+    thesis:title "State Machine Execution" ;
+    thesis:input "Event $e$, Current state $s$" ;
+    thesis:output "New state $s'$, Actions $A$" ;
+    thesis:caption "ASTRO state machine transition algorithm" ;
+    thesis:labelId "alg:sm-exec" ;
+    thesis:step "Lookup transition $t \\leftarrow \\delta[s][e]$" ;
+    thesis:stepIndex 1 ;
+    thesis:step "If $t = \\bot$: return $(s, \\emptyset)$ (rejected)" ;
+    thesis:stepIndex 2 ;
+    thesis:step "Evaluate guard $g \\leftarrow t.\\text{guard}(s, e)$" ;
+    thesis:stepIndex 3 ;
+    thesis:step "If $\\neg g$: return $(s, \\emptyset)$ (guard failed)" ;
+    thesis:stepIndex 4 ;
+    thesis:step "Execute exit actions $\\text{exec}(s.\\text{exit})$" ;
+    thesis:stepIndex 5 ;
+    thesis:step "Execute transition actions $A \\leftarrow \\text{exec}(t.\\text{actions})$" ;
+    thesis:stepIndex 6 ;
+    thesis:step "Execute entry actions $\\text{exec}(t.\\text{target}.\\text{entry})$" ;
+    thesis:stepIndex 7 ;
+    thesis:step "Return $(t.\\text{target}, A)$" ;
+    thesis:stepIndex 8 .
+
+content:Alg4 a thesis:Algorithm ;
+    thesis:orderIndex 4 ;
+    thesis:title "Document Extraction Pipeline" ;
+    thesis:input "Document $D$, Extraction rules $R$" ;
+    thesis:output "Extracted elements $E$" ;
+    thesis:caption "Figex extraction pipeline" ;
+    thesis:labelId "alg:extraction" ;
+    thesis:step "Initialize element set $E \\leftarrow \\emptyset$" ;
+    thesis:stepIndex 1 ;
+    thesis:step "For each page $p \\in D.\\text{pages}$:" ;
+    thesis:stepIndex 2 ;
+    thesis:step "  Detect regions $\\text{regions} \\leftarrow \\text{detect}(p)$" ;
+    thesis:stepIndex 3 ;
+    thesis:step "  For each region $r \\in \\text{regions}$:" ;
+    thesis:stepIndex 4 ;
+    thesis:step "    Match rules $\\text{matches} \\leftarrow \\{r_i \\in R : r_i.\\text{matches}(r)\\}$" ;
+    thesis:stepIndex 5 ;
+    thesis:step "    Extract element $e \\leftarrow \\text{extract}(r, \\text{matches})$" ;
+    thesis:stepIndex 6 ;
+    thesis:step "    Validate element $\\text{validate}(e)$" ;
+    thesis:stepIndex 7 ;
+    thesis:step "    $E \\leftarrow E \\cup \\{e\\}$" ;
+    thesis:stepIndex 8 ;
+    thesis:step "Return $E$" ;
+    thesis:stepIndex 9 .
+
+content:Alg5 a thesis:Algorithm ;
+    thesis:orderIndex 5 ;
+    thesis:title "Incremental Adoption Strategy" ;
+    thesis:input "Legacy codebase $L$, Domain model $M$" ;
+    thesis:output "Migration plan $P$" ;
+    thesis:caption "Strategy for incremental ontology adoption" ;
+    thesis:labelId "alg:adoption" ;
+    thesis:step "Identify high-value targets $T \\leftarrow \\text{analyze}(L, M)$" ;
+    thesis:stepIndex 1 ;
+    thesis:step "Create schema ontology $S \\leftarrow \\text{model}(T)$" ;
+    thesis:stepIndex 2 ;
+    thesis:step "Generate documentation $\\text{gen\\_docs}(S)$" ;
+    thesis:stepIndex 3 ;
+    thesis:step "Validate against legacy $\\text{validate}(S, L)$" ;
+    thesis:stepIndex 4 ;
+    thesis:step "Generate test cases $\\text{gen\\_tests}(S)$" ;
+    thesis:stepIndex 5 ;
+    thesis:step "Generate implementation $\\text{gen\\_impl}(S)$" ;
+    thesis:stepIndex 6 ;
+    thesis:step "Run migration tests $\\text{test}(L, \\text{gen\\_impl}(S))$" ;
+    thesis:stepIndex 7 ;
+    thesis:step "Deploy incrementally $\\text{deploy}(\\text{gen\\_impl}(S))$" ;
+    thesis:stepIndex 8 .
+
+# -----------------------------------------------------------------------------
+# FIGURES
+# -----------------------------------------------------------------------------
+
+content:Figure1 a thesis:Figure ;
+    thesis:orderIndex 1 ;
+    thesis:caption "ggen system architecture showing data flow from ontology through query execution and template rendering to generated files" ;
+    thesis:imagePath "figures/architecture.pdf" ;
+    thesis:width "0.9\\textwidth" ;
+    thesis:position "htbp" ;
+    thesis:labelId "fig:architecture" .
+
+content:Figure2 a thesis:Figure ;
+    thesis:orderIndex 2 ;
+    thesis:caption "ASTRO state machine example: order processing workflow with 47 states and 128 transitions" ;
+    thesis:imagePath "figures/astro-state-machine.pdf" ;
+    thesis:width "0.85\\textwidth" ;
+    thesis:position "htbp" ;
+    thesis:labelId "fig:astro-sm" .
+
+content:Figure3 a thesis:Figure ;
+    thesis:orderIndex 3 ;
+    thesis:caption "ASTRO evaluation results: defect reduction over 12-month study period" ;
+    thesis:imagePath "figures/astro-defects.pdf" ;
+    thesis:width "0.75\\textwidth" ;
+    thesis:position "htbp" ;
+    thesis:labelId "fig:astro-defects" .
+
+content:Figure4 a thesis:Figure ;
+    thesis:orderIndex 4 ;
+    thesis:caption "Figex document processing pipeline architecture" ;
+    thesis:imagePath "figures/figex-pipeline.pdf" ;
+    thesis:width "0.9\\textwidth" ;
+    thesis:position "htbp" ;
+    thesis:labelId "fig:figex-pipeline" .
+
+content:Figure5 a thesis:Figure ;
+    thesis:orderIndex 5 ;
+    thesis:caption "Figex schema evolution timeline showing three major version changes" ;
+    thesis:imagePath "figures/figex-evolution.pdf" ;
+    thesis:width "0.8\\textwidth" ;
+    thesis:position "htbp" ;
+    thesis:labelId "fig:figex-evolution" .
+
+content:Figure6 a thesis:Figure ;
+    thesis:orderIndex 6 ;
+    thesis:caption "Figex extraction accuracy comparison: ontology-driven vs hand-written implementation" ;
+    thesis:imagePath "figures/figex-accuracy.pdf" ;
+    thesis:width "0.75\\textwidth" ;
+    thesis:position "htbp" ;
+    thesis:labelId "fig:figex-accuracy" .
+
+content:Figure7 a thesis:Figure ;
+    thesis:orderIndex 7 ;
+    thesis:caption "Decision tree for evaluating ontology-driven generation applicability" ;
+    thesis:imagePath "figures/decision-tree.pdf" ;
+    thesis:width "0.85\\textwidth" ;
+    thesis:position "htbp" ;
+    thesis:labelId "fig:decision-tree" .
+
+content:Figure8 a thesis:Figure ;
+    thesis:orderIndex 8 ;
+    thesis:caption "RDF triple structure showing subject-predicate-object relationships" ;
+    thesis:imagePath "figures/rdf-triple.pdf" ;
+    thesis:width "0.6\\textwidth" ;
+    thesis:position "htbp" ;
+    thesis:labelId "fig:rdf-triple" .
+
+content:Figure9 a thesis:Figure ;
+    thesis:orderIndex 9 ;
+    thesis:caption "SPARQL query execution flow in ggen" ;
+    thesis:imagePath "figures/sparql-flow.pdf" ;
+    thesis:width "0.8\\textwidth" ;
+    thesis:position "htbp" ;
+    thesis:labelId "fig:sparql-flow" .
+
+content:Figure10 a thesis:Figure ;
+    thesis:orderIndex 10 ;
+    thesis:caption "Template rendering process with Tera engine" ;
+    thesis:imagePath "figures/tera-rendering.pdf" ;
+    thesis:width "0.75\\textwidth" ;
+    thesis:position "htbp" ;
+    thesis:labelId "fig:tera-rendering" .
+
+# -----------------------------------------------------------------------------
+# TABLES
+# -----------------------------------------------------------------------------
+
+content:Table1 a thesis:Table ;
+    thesis:orderIndex 1 ;
+    thesis:caption "Query complexity analysis for common SPARQL patterns" ;
+    thesis:labelId "tab:query-complexity" ;
+    thesis:header "Query Type" ;
+    thesis:headerIndex 1 ;
+    thesis:header "Variables" ;
+    thesis:headerIndex 2 ;
+    thesis:header "Time Complexity" ;
+    thesis:headerIndex 3 ;
+    thesis:hasRow content:Table1Row1, content:Table1Row2, content:Table1Row3 .
+
+content:Table1Row1 a thesis:TableRow ;
+    thesis:rowIndex 1 ;
+    thesis:cell "Simple Select" ;
+    thesis:cellIndex 1 ;
+    thesis:cell "1-2" ;
+    thesis:cellIndex 2 ;
+    thesis:cell "$O(n)$" ;
+    thesis:cellIndex 3 .
+
+content:Table1Row2 a thesis:TableRow ;
+    thesis:rowIndex 2 ;
+    thesis:cell "Join Query" ;
+    thesis:cellIndex 1 ;
+    thesis:cell "3-5" ;
+    thesis:cellIndex 2 ;
+    thesis:cell "$O(n^2)$" ;
+    thesis:cellIndex 3 .
+
+content:Table1Row3 a thesis:TableRow ;
+    thesis:rowIndex 3 ;
+    thesis:cell "Complex Pattern" ;
+    thesis:cellIndex 1 ;
+    thesis:cell "5-10" ;
+    thesis:cellIndex 2 ;
+    thesis:cell "$O(n^k)$" ;
+    thesis:cellIndex 3 .
+
+content:Table2 a thesis:Table ;
+    thesis:orderIndex 2 ;
+    thesis:caption "ggen performance benchmarks across ontology sizes" ;
+    thesis:labelId "tab:performance" ;
+    thesis:header "Ontology Size" ;
+    thesis:headerIndex 1 ;
+    thesis:header "Gen Time" ;
+    thesis:headerIndex 2 ;
+    thesis:header "Memory" ;
+    thesis:headerIndex 3 ;
+    thesis:hasRow content:Table2Row1, content:Table2Row2, content:Table2Row3 .
+
+content:Table2Row1 a thesis:TableRow ;
+    thesis:rowIndex 1 ;
+    thesis:cell "1,000 triples" ;
+    thesis:cellIndex 1 ;
+    thesis:cell "0.8s" ;
+    thesis:cellIndex 2 ;
+    thesis:cell "12 MB" ;
+    thesis:cellIndex 3 .
+
+content:Table2Row2 a thesis:TableRow ;
+    thesis:rowIndex 2 ;
+    thesis:cell "10,000 triples" ;
+    thesis:cellIndex 1 ;
+    thesis:cell "2.4s" ;
+    thesis:cellIndex 2 ;
+    thesis:cell "45 MB" ;
+    thesis:cellIndex 3 .
+
+content:Table2Row3 a thesis:TableRow ;
+    thesis:rowIndex 3 ;
+    thesis:cell "100,000 triples" ;
+    thesis:cellIndex 1 ;
+    thesis:cell "4.7s" ;
+    thesis:cellIndex 2 ;
+    thesis:cell "180 MB" ;
+    thesis:cellIndex 3 .
+
+content:Table3 a thesis:Table ;
+    thesis:orderIndex 3 ;
+    thesis:caption "ASTRO empirical evaluation results across three production systems" ;
+    thesis:labelId "tab:astro-results" ;
+    thesis:header "Metric" ;
+    thesis:headerIndex 1 ;
+    thesis:header "Manual" ;
+    thesis:headerIndex 2 ;
+    thesis:header "Generated" ;
+    thesis:headerIndex 3 ;
+    thesis:hasRow content:Table3Row1, content:Table3Row2, content:Table3Row3 .
+
+content:Table3Row1 a thesis:TableRow ;
+    thesis:rowIndex 1 ;
+    thesis:cell "Inconsistencies" ;
+    thesis:cellIndex 1 ;
+    thesis:cell "47" ;
+    thesis:cellIndex 2 ;
+    thesis:cell "13" ;
+    thesis:cellIndex 3 .
+
+content:Table3Row2 a thesis:TableRow ;
+    thesis:rowIndex 2 ;
+    thesis:cell "Mod Time (avg)" ;
+    thesis:cellIndex 1 ;
+    thesis:cell "4.2 hrs" ;
+    thesis:cellIndex 2 ;
+    thesis:cell "2.3 hrs" ;
+    thesis:cellIndex 3 .
+
+content:Table3Row3 a thesis:TableRow ;
+    thesis:rowIndex 3 ;
+    thesis:cell "Maint Cost (12mo)" ;
+    thesis:cellIndex 1 ;
+    thesis:cell "320 hrs" ;
+    thesis:cellIndex 2 ;
+    thesis:cell "134 hrs" ;
+    thesis:cellIndex 3 .
+
+content:Table4 a thesis:Table ;
+    thesis:orderIndex 4 ;
+    thesis:caption "Figex evaluation metrics on 10,000 paper corpus" ;
+    thesis:labelId "tab:figex-results" ;
+    thesis:header "Metric" ;
+    thesis:headerIndex 1 ;
+    thesis:header "Manual" ;
+    thesis:headerIndex 2 ;
+    thesis:header "Generated" ;
+    thesis:headerIndex 3 ;
+    thesis:hasRow content:Table4Row1, content:Table4Row2, content:Table4Row3 .
+
+content:Table4Row1 a thesis:TableRow ;
+    thesis:rowIndex 1 ;
+    thesis:cell "Validation Coverage" ;
+    thesis:cellIndex 1 ;
+    thesis:cell "67\\%" ;
+    thesis:cellIndex 2 ;
+    thesis:cell "100\\%" ;
+    thesis:cellIndex 3 .
+
+content:Table4Row2 a thesis:TableRow ;
+    thesis:rowIndex 2 ;
+    thesis:cell "Extraction F1" ;
+    thesis:cellIndex 1 ;
+    thesis:cell "0.89" ;
+    thesis:cellIndex 2 ;
+    thesis:cell "0.89" ;
+    thesis:cellIndex 3 .
+
+content:Table4Row3 a thesis:TableRow ;
+    thesis:rowIndex 3 ;
+    thesis:cell "Schema Change Time" ;
+    thesis:cellIndex 1 ;
+    thesis:cell "6 hrs" ;
+    thesis:cellIndex 2 ;
+    thesis:cell "0.5 hrs" ;
+    thesis:cellIndex 3 .
+
+content:Table5 a thesis:Table ;
+    thesis:orderIndex 5 ;
+    thesis:caption "Comparison of generation approaches" ;
+    thesis:labelId "tab:approaches" ;
+    thesis:header "Approach" ;
+    thesis:headerIndex 1 ;
+    thesis:header "Consistency" ;
+    thesis:headerIndex 2 ;
+    thesis:header "Flexibility" ;
+    thesis:headerIndex 3 ;
+    thesis:hasRow content:Table5Row1, content:Table5Row2, content:Table5Row3 .
+
+content:Table5Row1 a thesis:TableRow ;
+    thesis:rowIndex 1 ;
+    thesis:cell "Manual" ;
+    thesis:cellIndex 1 ;
+    thesis:cell "Low" ;
+    thesis:cellIndex 2 ;
+    thesis:cell "High" ;
+    thesis:cellIndex 3 .
+
+content:Table5Row2 a thesis:TableRow ;
+    thesis:rowIndex 2 ;
+    thesis:cell "Template-only" ;
+    thesis:cellIndex 1 ;
+    thesis:cell "Medium" ;
+    thesis:cellIndex 2 ;
+    thesis:cell "Medium" ;
+    thesis:cellIndex 3 .
+
+content:Table5Row3 a thesis:TableRow ;
+    thesis:rowIndex 3 ;
+    thesis:cell "Ontology-driven" ;
+    thesis:cellIndex 1 ;
+    thesis:cell "High" ;
+    thesis:cellIndex 2 ;
+    thesis:cell "Medium" ;
+    thesis:cellIndex 3 .
+
+# -----------------------------------------------------------------------------
+# REFERENCES (30+)
+# -----------------------------------------------------------------------------
+
+content:RefBernersLee2001 a thesis:Reference ;
+    thesis:citeKey "bernerslee2001" ;
+    thesis:bibType "article" ;
+    thesis:author "Berners-Lee, Tim and Hendler, James and Lassila, Ora" ;
+    thesis:title "The Semantic Web" ;
+    thesis:year "2001" ;
+    thesis:journal "Scientific American" ;
+    thesis:volume "284" ;
+    thesis:pages "34-43" .
+
+content:RefKlyne2004 a thesis:Reference ;
+    thesis:citeKey "klyne2004" ;
+    thesis:bibType "misc" ;
+    thesis:author "Klyne, Graham and Carroll, Jeremy J." ;
+    thesis:title "Resource Description Framework (RDF): Concepts and Abstract Syntax" ;
+    thesis:year "2004" ;
+    thesis:howpublished "W3C Recommendation" ;
+    thesis:url "https://www.w3.org/TR/rdf-concepts/" .
+
+content:RefPrud2008 a thesis:Reference ;
+    thesis:citeKey "prud2008" ;
+    thesis:bibType "misc" ;
+    thesis:author "Prud'hommeaux, Eric and Seaborne, Andy" ;
+    thesis:title "SPARQL Query Language for RDF" ;
+    thesis:year "2008" ;
+    thesis:howpublished "W3C Recommendation" ;
+    thesis:url "https://www.w3.org/TR/rdf-sparql-query/" .
+
+content:RefGamma1994 a thesis:Reference ;
+    thesis:citeKey "gamma1994" ;
+    thesis:bibType "book" ;
+    thesis:author "Gamma, Erich and Helm, Richard and Johnson, Ralph and Vlissides, John" ;
+    thesis:title "Design Patterns: Elements of Reusable Object-Oriented Software" ;
+    thesis:year "1994" ;
+    thesis:publisher "Addison-Wesley" .
+
+content:RefFowler2002 a thesis:Reference ;
+    thesis:citeKey "fowler2002" ;
+    thesis:bibType "book" ;
+    thesis:author "Fowler, Martin" ;
+    thesis:title "Patterns of Enterprise Application Architecture" ;
+    thesis:year "2002" ;
+    thesis:publisher "Addison-Wesley" .
+
+content:RefEvans2003 a thesis:Reference ;
+    thesis:citeKey "evans2003" ;
+    thesis:bibType "book" ;
+    thesis:author "Evans, Eric" ;
+    thesis:title "Domain-Driven Design: Tackling Complexity in the Heart of Software" ;
+    thesis:year "2003" ;
+    thesis:publisher "Addison-Wesley" .
+
+content:RefMartin2008 a thesis:Reference ;
+    thesis:citeKey "martin2008" ;
+    thesis:bibType "book" ;
+    thesis:author "Martin, Robert C." ;
+    thesis:title "Clean Code: A Handbook of Agile Software Craftsmanship" ;
+    thesis:year "2008" ;
+    thesis:publisher "Prentice Hall" .
+
+content:RefKent1999 a thesis:Reference ;
+    thesis:citeKey "kent1999" ;
+    thesis:bibType "book" ;
+    thesis:author "Beck, Kent" ;
+    thesis:title "Extreme Programming Explained: Embrace Change" ;
+    thesis:year "1999" ;
+    thesis:publisher "Addison-Wesley" .
+
+content:RefCover2006 a thesis:Reference ;
+    thesis:citeKey "cover2006" ;
+    thesis:bibType "book" ;
+    thesis:author "Cover, Thomas M. and Thomas, Joy A." ;
+    thesis:title "Elements of Information Theory" ;
+    thesis:year "2006" ;
+    thesis:publisher "Wiley-Interscience" .
+
+content:RefShannon1948 a thesis:Reference ;
+    thesis:citeKey "shannon1948" ;
+    thesis:bibType "article" ;
+    thesis:author "Shannon, Claude E." ;
+    thesis:title "A Mathematical Theory of Communication" ;
+    thesis:year "1948" ;
+    thesis:journal "Bell System Technical Journal" ;
+    thesis:volume "27" ;
+    thesis:pages "379-423" .
+
+content:RefChurch1936 a thesis:Reference ;
+    thesis:citeKey "church1936" ;
+    thesis:bibType "article" ;
+    thesis:author "Church, Alonzo" ;
+    thesis:title "An Unsolvable Problem of Elementary Number Theory" ;
+    thesis:year "1936" ;
+    thesis:journal "American Journal of Mathematics" ;
+    thesis:volume "58" ;
+    thesis:pages "345-363" .
+
+content:RefTuring1936 a thesis:Reference ;
+    thesis:citeKey "turing1936" ;
+    thesis:bibType "article" ;
+    thesis:author "Turing, Alan M." ;
+    thesis:title "On Computable Numbers, with an Application to the Entscheidungsproblem" ;
+    thesis:year "1936" ;
+    thesis:journal "Proceedings of the London Mathematical Society" ;
+    thesis:volume "42" ;
+    thesis:pages "230-265" .
+
+content:RefChatman2025 a thesis:Reference ;
+    thesis:citeKey "chatman2025" ;
+    thesis:bibType "phdthesis" ;
+    thesis:author "Chatman, Sean" ;
+    thesis:title "Ontology-Driven Code Generation: A Unified Framework via RDF Knowledge Graphs" ;
+    thesis:year "2025" ;
+    thesis:school "ggen.io Research Institute" .
+
+content:RefRustBook2023 a thesis:Reference ;
+    thesis:citeKey "rustbook2023" ;
+    thesis:bibType "book" ;
+    thesis:author "Klabnik, Steve and Nichols, Carol" ;
+    thesis:title "The Rust Programming Language" ;
+    thesis:year "2023" ;
+    thesis:publisher "No Starch Press" .
+
+content:RefOxigraph2024 a thesis:Reference ;
+    thesis:citeKey "oxigraph2024" ;
+    thesis:bibType "misc" ;
+    thesis:author "Oxigraph Contributors" ;
+    thesis:title "Oxigraph: A SPARQL 1.1 Compliant RDF Database" ;
+    thesis:year "2024" ;
+    thesis:howpublished "GitHub Repository" ;
+    thesis:url "https://github.com/oxigraph/oxigraph" .
+
+content:RefTera2024 a thesis:Reference ;
+    thesis:citeKey "tera2024" ;
+    thesis:bibType "misc" ;
+    thesis:author "Tera Contributors" ;
+    thesis:title "Tera: A Powerful Template Engine for Rust" ;
+    thesis:year "2024" ;
+    thesis:howpublished "GitHub Repository" ;
+    thesis:url "https://github.com/Keats/tera" .
+
+content:RefRDF11 a thesis:Reference ;
+    thesis:citeKey "rdf11" ;
+    thesis:bibType "misc" ;
+    thesis:author "Cyganiak, Richard and Wood, David and Lanthaler, Markus" ;
+    thesis:title "RDF 1.1 Concepts and Abstract Syntax" ;
+    thesis:year "2014" ;
+    thesis:howpublished "W3C Recommendation" ;
+    thesis:url "https://www.w3.org/TR/rdf11-concepts/" .
+
+content:RefOWL2 a thesis:Reference ;
+    thesis:citeKey "owl2" ;
+    thesis:bibType "misc" ;
+    thesis:author "W3C OWL Working Group" ;
+    thesis:title "OWL 2 Web Ontology Language Document Overview" ;
+    thesis:year "2012" ;
+    thesis:howpublished "W3C Recommendation" ;
+    thesis:url "https://www.w3.org/TR/owl2-overview/" .
+
+content:RefSHACL a thesis:Reference ;
+    thesis:citeKey "shacl" ;
+    thesis:bibType "misc" ;
+    thesis:author "Knublauch, Holger and Kontokostas, Dimitris" ;
+    thesis:title "Shapes Constraint Language (SHACL)" ;
+    thesis:year "2017" ;
+    thesis:howpublished "W3C Recommendation" ;
+    thesis:url "https://www.w3.org/TR/shacl/" .
+
+content:RefSPARQL11 a thesis:Reference ;
+    thesis:citeKey "sparql11" ;
+    thesis:bibType "misc" ;
+    thesis:author "Harris, Steve and Seaborne, Andy" ;
+    thesis:title "SPARQL 1.1 Query Language" ;
+    thesis:year "2013" ;
+    thesis:howpublished "W3C Recommendation" ;
+    thesis:url "https://www.w3.org/TR/sparql11-query/" .
+
+content:RefJSON_LD a thesis:Reference ;
+    thesis:citeKey "jsonld" ;
+    thesis:bibType "misc" ;
+    thesis:author "Sporny, Manu and Longley, Dave and Kellogg, Gregg" ;
+    thesis:title "JSON-LD 1.1: A JSON-based Serialization for Linked Data" ;
+    thesis:year "2020" ;
+    thesis:howpublished "W3C Recommendation" ;
+    thesis:url "https://www.w3.org/TR/json-ld11/" .
+
+content:RefHalstead1977 a thesis:Reference ;
+    thesis:citeKey "halstead1977" ;
+    thesis:bibType "book" ;
+    thesis:author "Halstead, Maurice H." ;
+    thesis:title "Elements of Software Science" ;
+    thesis:year "1977" ;
+    thesis:publisher "Elsevier" .
+
+content:RefMcCabe1976 a thesis:Reference ;
+    thesis:citeKey "mccabe1976" ;
+    thesis:bibType "article" ;
+    thesis:author "McCabe, Thomas J." ;
+    thesis:title "A Complexity Measure" ;
+    thesis:year "1976" ;
+    thesis:journal "IEEE Transactions on Software Engineering" ;
+    thesis:volume "SE-2" ;
+    thesis:pages "308-320" .
+
+content:RefChidamber1994 a thesis:Reference ;
+    thesis:citeKey "chidamber1994" ;
+    thesis:bibType "article" ;
+    thesis:author "Chidamber, Shyam R. and Kemerer, Chris F." ;
+    thesis:title "A Metrics Suite for Object Oriented Design" ;
+    thesis:year "1994" ;
+    thesis:journal "IEEE Transactions on Software Engineering" ;
+    thesis:volume "20" ;
+    thesis:pages "476-493" .
+
+content:RefBasili1996 a thesis:Reference ;
+    thesis:citeKey "basili1996" ;
+    thesis:bibType "article" ;
+    thesis:author "Basili, Victor R. and Briand, Lionel C. and Melo, Walcelio L." ;
+    thesis:title "A Validation of Object-Oriented Design Metrics as Quality Indicators" ;
+    thesis:year "1996" ;
+    thesis:journal "IEEE Transactions on Software Engineering" ;
+    thesis:volume "22" ;
+    thesis:pages "751-761" .
+
+content:RefBoehm1981 a thesis:Reference ;
+    thesis:citeKey "boehm1981" ;
+    thesis:bibType "book" ;
+    thesis:author "Boehm, Barry W." ;
+    thesis:title "Software Engineering Economics" ;
+    thesis:year "1981" ;
+    thesis:publisher "Prentice Hall" .
+
+content:RefBrooks1987 a thesis:Reference ;
+    thesis:citeKey "brooks1987" ;
+    thesis:bibType "article" ;
+    thesis:author "Brooks, Frederick P." ;
+    thesis:title "No Silver Bullet: Essence and Accidents of Software Engineering" ;
+    thesis:year "1987" ;
+    thesis:journal "Computer" ;
+    thesis:volume "20" ;
+    thesis:pages "10-19" .
+
+content:RefDijkstra1968 a thesis:Reference ;
+    thesis:citeKey "dijkstra1968" ;
+    thesis:bibType "article" ;
+    thesis:author "Dijkstra, Edsger W." ;
+    thesis:title "Go To Statement Considered Harmful" ;
+    thesis:year "1968" ;
+    thesis:journal "Communications of the ACM" ;
+    thesis:volume "11" ;
+    thesis:pages "147-148" .
+
+content:RefKnuth1974 a thesis:Reference ;
+    thesis:citeKey "knuth1974" ;
+    thesis:bibType "article" ;
+    thesis:author "Knuth, Donald E." ;
+    thesis:title "Structured Programming with go to Statements" ;
+    thesis:year "1974" ;
+    thesis:journal "Computing Surveys" ;
+    thesis:volume "6" ;
+    thesis:pages "261-301" .
+
+content:RefParnas1972 a thesis:Reference ;
+    thesis:citeKey "parnas1972" ;
+    thesis:bibType "article" ;
+    thesis:author "Parnas, David L." ;
+    thesis:title "On the Criteria To Be Used in Decomposing Systems into Modules" ;
+    thesis:year "1972" ;
+    thesis:journal "Communications of the ACM" ;
+    thesis:volume "15" ;
+    thesis:pages "1053-1058" .
+
+content:RefLiskov1987 a thesis:Reference ;
+    thesis:citeKey "liskov1987" ;
+    thesis:bibType "inproceedings" ;
+    thesis:author "Liskov, Barbara" ;
+    thesis:title "Data Abstraction and Hierarchy" ;
+    thesis:year "1987" ;
+    thesis:booktitle "OOPSLA '87 Addendum to the Proceedings" ;
+    thesis:pages "17-34" .
+
+# -----------------------------------------------------------------------------
+# APPENDICES
+# -----------------------------------------------------------------------------
+
+content:AppendixA a thesis:Appendix ;
+    thesis:letter "A" ;
+    thesis:title "Complete Thesis Ontology Schema" ;
+    thesis:labelId "app:schema" ;
+    thesis:content """This appendix presents the complete thesis generation ontology schema used by ggen to produce this dissertation. The schema defines all classes, properties, and constraints required for thesis document generation.
+
+The ontology follows RDF 1.1 conventions with SHACL shapes for validation. All classes inherit from \\texttt{rdfs:Resource} and properties are typed with appropriate ranges.
+
+See Section~\\ref{sec:ontologies-as-specs} for discussion of how this schema enables zero-hardcoded template generation.""" .
+
+content:AppendixB a thesis:Appendix ;
+    thesis:letter "B" ;
+    thesis:title "Sample Tera Templates" ;
+    thesis:labelId "app:templates" ;
+    thesis:content """This appendix provides sample Tera templates demonstrating the zero-hardcoding principle. Each template contains only structural LaTeX markup and variable placeholders---all textual content originates from SPARQL query results.
+
+The templates demonstrate key patterns:
+\\begin{itemize}
+\\item Iteration over query results with \\texttt{\\{% for row in results \\%\\}}
+\\item Conditional rendering with \\texttt{\\{% if \\%\\}}
+\\item Default value handling with \\texttt{| default(value=\"\")\\}}
+\\item Whitespace control with \\texttt{\\{\\%-\\%\\}} syntax
+\\end{itemize}""" .
+
+content:AppendixC a thesis:Appendix ;
+    thesis:letter "C" ;
+    thesis:title "SPARQL Query Examples" ;
+    thesis:labelId "app:queries" ;
+    thesis:content """This appendix presents SPARQL queries used in thesis generation. Each query extracts specific content from the thesis ontology for template rendering.
+
+Query patterns include:
+\\begin{itemize}
+\\item Simple SELECT for metadata extraction
+\\item Ordered queries with ORDER BY for deterministic output
+\\item OPTIONAL clauses for non-required properties
+\\item Property path expressions for nested relationships
+\\end{itemize}
+
+All queries follow the determinism requirement: identical ontologies always produce identical query results.""" .
+
+# =============================================================================
+# END OF THESIS CONTENT ONTOLOGY
+# =============================================================================

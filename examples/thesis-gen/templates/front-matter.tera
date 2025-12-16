@@ -1,0 +1,23 @@
+{# =============================================================================
+   FRONT MATTER TEMPLATE (Abstract, Dedication, Acknowledgments)
+   ZERO HARDCODED STRINGS - All content from SPARQL variables
+   ============================================================================= #}
+\begin{abstract}
+{{ abstract | default(value="") }}
+\end{abstract}
+
+{% if dedication %}
+\chapter*{}
+\vspace*{\fill}
+\begin{center}
+\textit{ {{- dedication -}} }
+\end{center}
+\vspace*{\fill}
+\newpage
+{% endif %}
+
+{% if acknowledgments %}
+\chapter*{Acknowledgments}
+{{ acknowledgments }}
+\newpage
+{% endif %}
