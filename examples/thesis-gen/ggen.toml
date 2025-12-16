@@ -1,0 +1,465 @@
+# =============================================================================
+# ggen v5 Thesis Generation Manifest
+# Generates 50+ page PhD thesis LaTeX from RDF ontology
+# ZERO hardcoded strings - ALL content from SPARQL queries
+# =============================================================================
+
+[project]
+name = "thesis-gen-example"
+version = "1.0.0"
+description = "Ontology-driven PhD thesis generation with ggen sync"
+
+[ontology]
+source = "ontology/thesis-content.ttl"
+base_iri = "https://ggen.io/thesis/content/"
+schema = "ontology/thesis-schema.ttl"
+
+[ontology.prefixes]
+thesis = "https://ggen.io/ontology/thesis#"
+content = "https://ggen.io/thesis/content#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+
+[inference]
+rules = []
+
+[generation]
+output_dir = "output"
+require_audit_trail = true
+
+# =============================================================================
+# RULE 1: Main thesis document (thesis.tex)
+# Generates document structure with front matter
+# =============================================================================
+[[generation.rules]]
+name = "thesis-main"
+query = { inline = """
+PREFIX thesis: <https://ggen.io/ontology/thesis#>
+PREFIX content: <https://ggen.io/thesis/content#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?title ?subtitle ?author ?institution ?department ?date ?abstract ?dedication ?acknowledgments
+WHERE {
+  ?t a thesis:Thesis ;
+     thesis:title ?title ;
+     thesis:author ?author ;
+     thesis:institution ?institution ;
+     thesis:date ?date ;
+     thesis:abstract ?abstract .
+  OPTIONAL { ?t thesis:subtitle ?subtitle }
+  OPTIONAL { ?t thesis:department ?department }
+  OPTIONAL { ?t thesis:dedication ?dedication }
+  OPTIONAL { ?t thesis:acknowledgments ?acknowledgments }
+}
+LIMIT 1
+""" }
+template = { file = "templates/thesis-main.tera" }
+output_file = "thesis.tex"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 2: Front matter (title page, abstract, dedication, acknowledgments)
+# =============================================================================
+[[generation.rules]]
+name = "front-matter"
+query = { inline = """
+PREFIX thesis: <https://ggen.io/ontology/thesis#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?title ?subtitle ?author ?institution ?department ?date ?abstract ?dedication ?acknowledgments
+WHERE {
+  ?t a thesis:Thesis ;
+     thesis:title ?title ;
+     thesis:author ?author ;
+     thesis:institution ?institution ;
+     thesis:date ?date ;
+     thesis:abstract ?abstract .
+  OPTIONAL { ?t thesis:subtitle ?subtitle }
+  OPTIONAL { ?t thesis:department ?department }
+  OPTIONAL { ?t thesis:dedication ?dedication }
+  OPTIONAL { ?t thesis:acknowledgments ?acknowledgments }
+}
+LIMIT 1
+""" }
+template = { file = "templates/front-matter.tera" }
+output_file = "front-matter.tex"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 3: Chapter files (one per chapter)
+# =============================================================================
+[[generation.rules]]
+name = "chapters"
+query = { inline = """
+PREFIX thesis: <https://ggen.io/ontology/thesis#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?orderIndex ?title ?abstract ?labelId ?chapterUri
+WHERE {
+  ?chapter a thesis:Chapter ;
+           thesis:orderIndex ?orderIndex ;
+           thesis:title ?title ;
+           thesis:labelId ?labelId .
+  OPTIONAL { ?chapter thesis:abstract ?abstract }
+  BIND(STR(?chapter) AS ?chapterUri)
+}
+ORDER BY ?orderIndex
+""" }
+template = { file = "templates/chapter-list.tera" }
+output_file = "chapters-include.tex"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 4: Individual chapter content with sections
+# =============================================================================
+[[generation.rules]]
+name = "chapter-content"
+query = { inline = """
+PREFIX thesis: <https://ggen.io/ontology/thesis#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?chapterOrder ?chapterTitle ?chapterAbstract ?chapterLabel
+       ?sectionOrder ?sectionTitle ?sectionContent ?sectionLabel
+WHERE {
+  ?chapter a thesis:Chapter ;
+           thesis:orderIndex ?chapterOrder ;
+           thesis:title ?chapterTitle ;
+           thesis:labelId ?chapterLabel ;
+           thesis:hasSection ?section .
+  OPTIONAL { ?chapter thesis:abstract ?chapterAbstract }
+  ?section thesis:orderIndex ?sectionOrder ;
+           thesis:title ?sectionTitle ;
+           thesis:content ?sectionContent ;
+           thesis:labelId ?sectionLabel .
+}
+ORDER BY ?chapterOrder ?sectionOrder
+""" }
+template = { file = "templates/chapter.tera" }
+output_file = "chapters/all-chapters.tex"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 5: Theorems, lemmas, definitions with proofs
+# =============================================================================
+[[generation.rules]]
+name = "theorems"
+query = { inline = """
+PREFIX thesis: <https://ggen.io/ontology/thesis#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?chapterOrder ?sectionOrder ?theoremOrder ?theoremType ?theoremName
+       ?statement ?proof ?labelId
+WHERE {
+  ?chapter a thesis:Chapter ;
+           thesis:orderIndex ?chapterOrder ;
+           thesis:hasSection ?section .
+  ?section thesis:orderIndex ?sectionOrder ;
+           thesis:hasTheorem ?theorem .
+  ?theorem a thesis:Theorem ;
+           thesis:orderIndex ?theoremOrder ;
+           thesis:theoremType ?theoremType ;
+           thesis:statement ?statement ;
+           thesis:labelId ?labelId .
+  OPTIONAL { ?theorem thesis:theoremName ?theoremName }
+  OPTIONAL { ?theorem thesis:proof ?proof }
+}
+ORDER BY ?chapterOrder ?sectionOrder ?theoremOrder
+""" }
+template = { file = "templates/theorem.tera" }
+output_file = "theorems.tex"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 6: Equations with descriptions
+# =============================================================================
+[[generation.rules]]
+name = "equations"
+query = { inline = """
+PREFIX thesis: <https://ggen.io/ontology/thesis#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?chapterOrder ?sectionOrder ?equationOrder ?latex ?description ?labelId
+WHERE {
+  ?chapter a thesis:Chapter ;
+           thesis:orderIndex ?chapterOrder ;
+           thesis:hasSection ?section .
+  ?section thesis:orderIndex ?sectionOrder ;
+           thesis:hasEquation ?equation .
+  ?equation a thesis:Equation ;
+            thesis:orderIndex ?equationOrder ;
+            thesis:latex ?latex ;
+            thesis:labelId ?labelId .
+  OPTIONAL { ?equation thesis:description ?description }
+}
+ORDER BY ?chapterOrder ?sectionOrder ?equationOrder
+""" }
+template = { file = "templates/equation.tera" }
+output_file = "equations.tex"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 7: Algorithms with pseudocode
+# =============================================================================
+[[generation.rules]]
+name = "algorithms"
+query = { inline = """
+PREFIX thesis: <https://ggen.io/ontology/thesis#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?chapterOrder ?sectionOrder ?algorithmOrder ?title ?input ?output
+       ?step ?stepIndex ?labelId ?caption
+WHERE {
+  ?chapter a thesis:Chapter ;
+           thesis:orderIndex ?chapterOrder ;
+           thesis:hasSection ?section .
+  ?section thesis:orderIndex ?sectionOrder ;
+           thesis:hasAlgorithm ?algorithm .
+  ?algorithm a thesis:Algorithm ;
+             thesis:orderIndex ?algorithmOrder ;
+             thesis:title ?title ;
+             thesis:input ?input ;
+             thesis:output ?output ;
+             thesis:labelId ?labelId .
+  OPTIONAL { ?algorithm thesis:caption ?caption }
+  OPTIONAL {
+    ?algorithm thesis:step ?step ;
+               thesis:stepIndex ?stepIndex .
+  }
+}
+ORDER BY ?chapterOrder ?sectionOrder ?algorithmOrder ?stepIndex
+""" }
+template = { file = "templates/algorithm.tera" }
+output_file = "algorithms.tex"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 8: Figures with captions
+# =============================================================================
+[[generation.rules]]
+name = "figures"
+query = { inline = """
+PREFIX thesis: <https://ggen.io/ontology/thesis#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?chapterOrder ?sectionOrder ?figureOrder ?caption ?imagePath
+       ?width ?position ?labelId
+WHERE {
+  ?chapter a thesis:Chapter ;
+           thesis:orderIndex ?chapterOrder ;
+           thesis:hasSection ?section .
+  ?section thesis:orderIndex ?sectionOrder ;
+           thesis:hasFigure ?figure .
+  ?figure a thesis:Figure ;
+          thesis:orderIndex ?figureOrder ;
+          thesis:caption ?caption ;
+          thesis:imagePath ?imagePath ;
+          thesis:labelId ?labelId .
+  OPTIONAL { ?figure thesis:width ?width }
+  OPTIONAL { ?figure thesis:position ?position }
+}
+ORDER BY ?chapterOrder ?sectionOrder ?figureOrder
+""" }
+template = { file = "templates/figure.tera" }
+output_file = "figures.tex"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 9: Tables with headers and rows
+# =============================================================================
+[[generation.rules]]
+name = "tables"
+query = { inline = """
+PREFIX thesis: <https://ggen.io/ontology/thesis#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?chapterOrder ?sectionOrder ?tableOrder ?caption ?labelId
+       ?header ?headerIndex ?rowIndex ?cell ?cellIndex
+       ?envBegin ?envEnd ?tableUri
+WHERE {
+  ?chapter a thesis:Chapter ;
+           thesis:orderIndex ?chapterOrder ;
+           thesis:hasSection ?section .
+  ?section thesis:orderIndex ?sectionOrder ;
+           thesis:hasTable ?table .
+  ?table a thesis:Table ;
+         thesis:orderIndex ?tableOrder ;
+         thesis:caption ?caption ;
+         thesis:labelId ?labelId .
+  BIND(STR(?table) AS ?tableUri)
+
+  OPTIONAL {
+    ?table thesis:header ?header ;
+           thesis:headerIndex ?headerIndex .
+  }
+  OPTIONAL {
+    ?table thesis:hasRow ?row .
+    ?row thesis:rowIndex ?rowIndex ;
+         thesis:cell ?cell ;
+         thesis:cellIndex ?cellIndex .
+  }
+
+  thesis:TableEnv thesis:envBegin ?envBegin ;
+                  thesis:envEnd ?envEnd .
+}
+ORDER BY ?chapterOrder ?sectionOrder ?tableOrder ?headerIndex ?rowIndex ?cellIndex
+""" }
+template = { file = "templates/table.tera" }
+output_file = "tables.tex"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 10: Bibliography (BibTeX entries)
+# =============================================================================
+[[generation.rules]]
+name = "bibliography"
+query = { inline = """
+PREFIX thesis: <https://ggen.io/ontology/thesis#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?citeKey ?bibType ?author ?title ?year ?journal ?booktitle
+       ?publisher ?school ?volume ?pages ?doi ?url ?howpublished
+WHERE {
+  ?ref a thesis:Reference ;
+       thesis:citeKey ?citeKey ;
+       thesis:bibType ?bibType ;
+       thesis:author ?author ;
+       thesis:title ?title ;
+       thesis:year ?year .
+  OPTIONAL { ?ref thesis:journal ?journal }
+  OPTIONAL { ?ref thesis:booktitle ?booktitle }
+  OPTIONAL { ?ref thesis:publisher ?publisher }
+  OPTIONAL { ?ref thesis:school ?school }
+  OPTIONAL { ?ref thesis:volume ?volume }
+  OPTIONAL { ?ref thesis:pages ?pages }
+  OPTIONAL { ?ref thesis:doi ?doi }
+  OPTIONAL { ?ref thesis:url ?url }
+  OPTIONAL { ?ref thesis:howpublished ?howpublished }
+}
+ORDER BY ?citeKey
+""" }
+template = { file = "templates/bibliography.tera" }
+output_file = "references.bib"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 11: Appendices
+# =============================================================================
+[[generation.rules]]
+name = "appendices"
+query = { inline = """
+PREFIX thesis: <https://ggen.io/ontology/thesis#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?letter ?title ?content ?labelId
+WHERE {
+  ?appendix a thesis:Appendix ;
+            thesis:letter ?letter ;
+            thesis:title ?title ;
+            thesis:content ?content ;
+            thesis:labelId ?labelId .
+}
+ORDER BY ?letter
+""" }
+template = { file = "templates/appendix.tera" }
+output_file = "appendices.tex"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 12: Code listings (for appendices)
+# =============================================================================
+[[generation.rules]]
+name = "code-listings"
+query = { inline = """
+PREFIX thesis: <https://ggen.io/ontology/thesis#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?appendixLetter ?language ?caption ?code ?labelId
+WHERE {
+  ?appendix a thesis:Appendix ;
+            thesis:letter ?appendixLetter ;
+            thesis:hasCodeListing ?listing .
+  ?listing a thesis:CodeListing ;
+           thesis:language ?language ;
+           thesis:caption ?caption ;
+           thesis:code ?code ;
+           thesis:labelId ?labelId .
+}
+ORDER BY ?appendixLetter ?labelId
+""" }
+template = { file = "templates/code-listing.tera" }
+output_file = "code-listings.tex"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 13: Subsections (nested under sections)
+# =============================================================================
+[[generation.rules]]
+name = "subsections"
+query = { inline = """
+PREFIX thesis: <https://ggen.io/ontology/thesis#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?chapterOrder ?sectionOrder ?subsectionOrder ?title ?content ?labelId
+WHERE {
+  ?chapter a thesis:Chapter ;
+           thesis:orderIndex ?chapterOrder ;
+           thesis:hasSection ?section .
+  ?section thesis:orderIndex ?sectionOrder ;
+           thesis:hasSubsection ?subsection .
+  ?subsection a thesis:Subsection ;
+              thesis:orderIndex ?subsectionOrder ;
+              thesis:title ?title ;
+              thesis:content ?content ;
+              thesis:labelId ?labelId .
+}
+ORDER BY ?chapterOrder ?sectionOrder ?subsectionOrder
+""" }
+template = { file = "templates/subsection.tera" }
+output_file = "subsections.tex"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 14: LaTeX preamble configuration from ontology
+# =============================================================================
+[[generation.rules]]
+name = "preamble"
+query = { inline = """
+PREFIX thesis: <https://ggen.io/ontology/thesis#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?envName ?envBegin ?envEnd ?envLabel ?requiresProof
+WHERE {
+  ?env a thesis:LatexEnvironment ;
+       thesis:envName ?envName ;
+       thesis:envBegin ?envBegin ;
+       thesis:envEnd ?envEnd ;
+       thesis:envLabel ?envLabel .
+  OPTIONAL { ?env thesis:requiresProof ?requiresProof }
+}
+ORDER BY ?envName
+""" }
+template = { file = "templates/preamble.tera" }
+output_file = "preamble.tex"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 15: Chapter index generator
+# =============================================================================
+[[generation.rules]]
+name = "chapter-index"
+query = { inline = """
+PREFIX thesis: <https://ggen.io/ontology/thesis#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?orderIndex ?labelId
+WHERE {
+  ?chapter a thesis:Chapter ;
+           thesis:orderIndex ?orderIndex ;
+           thesis:labelId ?labelId .
+}
+ORDER BY ?orderIndex
+""" }
+template = { file = "templates/chapter-index.tera" }
+output_file = "chapter-index.tex"
+mode = "Overwrite"

@@ -560,6 +560,8 @@ TODO LISTS ARE ALWAYS 10 ITEMS OR MORE. THEY ARE ALWAYS FULLY COMPLETED BEFORE P
 - Filesystem-based (YAML audit results, markdown reports) in feature evidence directory (007-cli-jtbd-audit)
 - Rust 1.75+ (edition 2021), existing ggen v4.0.0 workspace (008-n3-code-gen)
 - File system (ggen.toml, .ttl ontologies, generated .rs files, audit.json) (008-n3-code-gen)
+- Rust 1.75+ (ggen existing codebase) + LaTeX (pdflatex for output) + Oxigraph (RDF), Tera (templates), existing ggen-core/ggen-domain crates (010-thesis-gen-system)
+- File system (TTL ontology files, Tera templates, generated LaTeX output) (010-thesis-gen-system)
 
 ## Recent Changes
 - 003-optimize-aci-anthropic: Added Rust 1.74+ (edition 2021) - existing ggen toolchain

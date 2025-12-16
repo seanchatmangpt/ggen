@@ -1,0 +1,25 @@
+# Generated LaTeX output
+output/*.tex
+output/*.aux
+output/*.log
+output/*.toc
+output/*.lof
+output/*.lot
+output/*.bbl
+output/*.blg
+output/*.out
+output/*.pdf
+output/chapters/*.tex
+
+# BibTeX
+output/*.bib
+
+# Temporary files
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Keep output directory structure
+!output/.gitkeep
+!output/chapters/.gitkeep
