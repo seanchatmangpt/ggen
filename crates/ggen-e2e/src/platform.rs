@@ -3,8 +3,8 @@
 //! Provides type-safe platform identification with support for Linux, macOS,
 //! and architecture detection (x86_64, aarch64).
 
-use std::process::Command;
 use crate::error::{PlatformError, Result};
+use std::process::Command;
 
 /// Operating system enumeration
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]

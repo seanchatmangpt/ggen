@@ -3,10 +3,10 @@
 //! Handles loading, comparing, and updating golden (expected) output files.
 //! Supports LF line ending normalization for cross-platform determinism.
 
-use std::path::{Path, PathBuf};
-use std::fs;
-use sha2::{Sha256, Digest};
 use crate::error::{GoldenError, Result};
+use sha2::{Digest, Sha256};
+use std::fs;
+use std::path::{Path, PathBuf};
 
 /// A golden (expected) output file
 #[derive(Debug, Clone)]
@@ -41,8 +41,7 @@ impl GoldenFile {
             return Err(GoldenError::NotFound(full_path).into());
         }
 
-        let content = fs::read_to_string(&full_path)
-            .map_err(|e| GoldenError::ReadFailed(e))?;
+        let content = fs::read_to_string(&full_path).map_err(|e| GoldenError::ReadFailed(e))?;
 
         let normalized = normalize_line_endings(&content);
         let checksum = compute_checksum(&normalized);
@@ -91,8 +90,7 @@ impl GoldenFile {
 
         // Create parent directories if needed
         if let Some(parent) = full_path.parent() {
-            fs::create_dir_all(parent)
-                .map_err(|e| GoldenError::WriteFailed(e.to_string()))?;
+            fs::create_dir_all(parent).map_err(|e| GoldenError::WriteFailed(e.to_string()))?;
         }
 
         // Write with LF line endings
@@ -120,7 +118,7 @@ impl GoldenMismatch {
 fn normalize_line_endings(content: &str) -> String {
     content
         .replace("\r\n", "\n") // Windows CRLF -> LF
-        .replace('\r', "\n")   // Old Mac CR -> LF
+        .replace('\r', "\n") // Old Mac CR -> LF
 }
 
 /// Compute SHA256 checksum of content

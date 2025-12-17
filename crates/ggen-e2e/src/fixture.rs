@@ -3,11 +3,11 @@
 //! Handles loading ggen project fixtures (ontologies, templates, manifests)
 //! and discovering fixtures in the test suite.
 
-use std::path::{Path, PathBuf};
-use std::fs;
-use tempfile::TempDir;
 use crate::error::{FixtureError, Result};
 use crate::golden::GoldenFile;
+use std::fs;
+use std::path::{Path, PathBuf};
+use tempfile::TempDir;
 
 /// A test fixture representing a complete ggen project
 #[derive(Debug, Clone)]
@@ -70,8 +70,7 @@ impl TestFixture {
 
     /// Copy fixture to a temporary directory
     pub fn copy_to_temp(&self) -> Result<TempDir> {
-        let temp_dir = TempDir::new()
-            .map_err(|e| FixtureError::CopyFailed(e.to_string()))?;
+        let temp_dir = TempDir::new().map_err(|e| FixtureError::CopyFailed(e.to_string()))?;
 
         copy_dir_recursive(&self.path, temp_dir.path())
             .map_err(|e| FixtureError::CopyFailed(e.to_string()))?;
@@ -98,15 +97,19 @@ impl TestFixture {
         }
 
         if self.ontology_files.is_empty() {
-            return Err(FixtureError::Configuration(
-                format!("Fixture '{}' has no ontology files", self.name),
-            ).into());
+            return Err(FixtureError::Configuration(format!(
+                "Fixture '{}' has no ontology files",
+                self.name
+            ))
+            .into());
         }
 
         if self.template_files.is_empty() {
-            return Err(FixtureError::Configuration(
-                format!("Fixture '{}' has no template files", self.name),
-            ).into());
+            return Err(FixtureError::Configuration(format!(
+                "Fixture '{}' has no template files",
+                self.name
+            ))
+            .into());
         }
 
         Ok(())
@@ -114,8 +117,7 @@ impl TestFixture {
 
     /// Get the fixture's ggen.toml content
     pub fn manifest_content(&self) -> Result<String> {
-        fs::read_to_string(&self.ggen_toml)
-            .map_err(|e| FixtureError::Io(e).into())
+        fs::read_to_string(&self.ggen_toml).map_err(|e| FixtureError::Io(e).into())
     }
 }
 
@@ -127,9 +129,7 @@ pub fn discover_fixtures(fixtures_dir: &Path) -> Result<Vec<TestFixture>> {
         return Ok(fixtures);
     }
 
-    for entry in fs::read_dir(fixtures_dir)
-        .map_err(|e| FixtureError::Io(e))?
-    {
+    for entry in fs::read_dir(fixtures_dir).map_err(|e| FixtureError::Io(e))? {
         let entry = entry.map_err(|e| FixtureError::Io(e))?;
         let path = entry.path();
 
@@ -149,9 +149,7 @@ pub fn discover_fixtures(fixtures_dir: &Path) -> Result<Vec<TestFixture>> {
 fn discover_files(dir: &Path, extensions: &[&str]) -> Result<Vec<PathBuf>> {
     let mut files = Vec::new();
 
-    for entry in fs::read_dir(dir)
-        .map_err(|e| FixtureError::Io(e))?
-    {
+    for entry in fs::read_dir(dir).map_err(|e| FixtureError::Io(e))? {
         let entry = entry.map_err(|e| FixtureError::Io(e))?;
         let path = entry.path();
 
@@ -168,14 +166,8 @@ fn discover_files(dir: &Path, extensions: &[&str]) -> Result<Vec<PathBuf>> {
 }
 
 /// Recursively discover golden files
-fn discover_golden_files(
-    dir: &Path,
-    base_dir: &Path,
-    files: &mut Vec<GoldenFile>,
-) -> Result<()> {
-    for entry in fs::read_dir(dir)
-        .map_err(|e| FixtureError::Io(e))?
-    {
+fn discover_golden_files(dir: &Path, base_dir: &Path, files: &mut Vec<GoldenFile>) -> Result<()> {
+    for entry in fs::read_dir(dir).map_err(|e| FixtureError::Io(e))? {
         let entry = entry.map_err(|e| FixtureError::Io(e))?;
         let path = entry.path();
 

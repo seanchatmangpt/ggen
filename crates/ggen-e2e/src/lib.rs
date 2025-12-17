@@ -15,21 +15,21 @@
 //! - [`result`] - Test result and status tracking
 //! - [`comparison`] - Cross-platform comparison analysis
 
+pub mod comparison;
+pub mod container;
 pub mod error;
-pub mod platform;
 pub mod fixture;
 pub mod golden;
-pub mod container;
-pub mod runner;
+pub mod platform;
 pub mod result;
-pub mod comparison;
+pub mod runner;
 
 // Re-export commonly used types
-pub use error::{E2EError, PlatformError, FixtureError, GoldenError, ContainerError, RunnerError};
-pub use platform::{Platform, Os, Arch};
+pub use comparison::CrossPlatformComparison;
+pub use container::ContainerConfig;
+pub use error::{ContainerError, E2EError, FixtureError, GoldenError, PlatformError, RunnerError};
 pub use fixture::TestFixture;
 pub use golden::{GoldenFile, GoldenMismatch};
-pub use container::ContainerConfig;
+pub use platform::{Arch, Os, Platform};
+pub use result::{TestExecution, TestResult, TestStatus};
 pub use runner::TestRunner;
-pub use result::{TestResult, TestStatus, TestExecution};
-pub use comparison::CrossPlatformComparison;
