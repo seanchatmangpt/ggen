@@ -1,0 +1,240 @@
+# Test Fixtures Schema
+# Feature: 011-e2e-testcontainers
+# Version: 1.0.0
+
+# This schema defines the structure for E2E test fixtures.
+# Each fixture represents a ggen project with expected outputs.
+
+---
+# Root schema for a test fixture
+fixture:
+  # Required fields
+  name: string           # Unique fixture identifier (e.g., "thesis-gen", "minimal")
+  version: string        # Fixture version for golden file tracking
+  description: string    # Human-readable description
+
+  # Project structure
+  project:
+    ggen_toml: path      # Path to ggen.toml manifest
+    ontology:
+      - path             # List of TTL/RDF ontology files
+    templates:
+      - path             # List of Tera template files
+    resources:           # Optional static resources
+      - path
+
+  # Expected outputs (golden files)
+  golden:
+    directory: path      # Base directory for golden files
+    files:
+      - relative_path: string
+        checksum: string # SHA256 hash
+        line_count: int  # Expected line count (for validation)
+
+  # Test configuration
+  config:
+    timeout_seconds: int      # Max execution time (default: 300)
+    platforms:                # Platforms this fixture should run on
+      - linux-x86_64
+      - darwin-x86_64
+      - darwin-arm64
+    skip_on_ci: bool          # Skip in CI (for local-only tests)
+    require_docker: bool      # Requires Docker to run
+
+  # Validation rules
+  validation:
+    deterministic: bool       # Must produce identical output across runs
+    cross_platform: bool      # Must match across all platforms
+    strict_checksum: bool     # Fail on any checksum mismatch
+
+---
+# Example: Minimal project fixture
+fixtures:
+  - name: minimal
+    version: "1.0.0"
+    description: "Minimal ggen project for quick smoke tests"
+    project:
+      ggen_toml: "fixtures/minimal/ggen.toml"
+      ontology:
+        - "fixtures/minimal/ontology/schema.ttl"
+      templates:
+        - "fixtures/minimal/templates/main.tera"
+      resources: []
+    golden:
+      directory: "golden/minimal"
+      files:
+        - relative_path: "output/generated.rs"
+          checksum: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          line_count: 50
+    config:
+      timeout_seconds: 60
+      platforms:
+        - linux-x86_64
+        - darwin-x86_64
+        - darwin-arm64
+      skip_on_ci: false
+      require_docker: false
+    validation:
+      deterministic: true
+      cross_platform: true
+      strict_checksum: true
+
+  - name: thesis-gen
+    version: "1.0.0"
+    description: "PhD thesis generation example - comprehensive E2E test"
+    project:
+      ggen_toml: "examples/thesis-gen/ggen.toml"
+      ontology:
+        - "examples/thesis-gen/ontology/thesis-schema.ttl"
+        - "examples/thesis-gen/ontology/thesis-content.ttl"
+      templates:
+        - "examples/thesis-gen/templates/thesis-main.tera"
+        - "examples/thesis-gen/templates/front-matter.tera"
+        - "examples/thesis-gen/templates/chapter.tera"
+        - "examples/thesis-gen/templates/section.tera"
+        - "examples/thesis-gen/templates/theorem.tera"
+        - "examples/thesis-gen/templates/equation.tera"
+        - "examples/thesis-gen/templates/figure.tera"
+        - "examples/thesis-gen/templates/table.tera"
+        - "examples/thesis-gen/templates/bibliography.tera"
+        - "examples/thesis-gen/templates/appendix.tera"
+      resources:
+        - "examples/thesis-gen/figures/"
+    golden:
+      directory: "golden/thesis-gen"
+      files:
+        - relative_path: "output/thesis.tex"
+          checksum: "TBD"
+          line_count: 2000
+        - relative_path: "output/references.bib"
+          checksum: "TBD"
+          line_count: 200
+        - relative_path: "output/chapters/chapter-1.tex"
+          checksum: "TBD"
+          line_count: 300
+    config:
+      timeout_seconds: 300
+      platforms:
+        - linux-x86_64
+        - darwin-x86_64
+        - darwin-arm64
+      skip_on_ci: false
+      require_docker: false
+    validation:
+      deterministic: true
+      cross_platform: true
+      strict_checksum: true
+
+---
+# Container configuration schema
+container:
+  image: string          # Docker image (e.g., "ubuntu")
+  tag: string            # Image tag (e.g., "22.04")
+  env:
+    KEY: value           # Environment variables
+  volumes:
+    - host: path
+      container: path
+      readonly: bool
+  startup:
+    timeout_seconds: int # Container startup timeout
+    ready_log: string    # Log message indicating ready state
+  cleanup:
+    on_success: bool     # Remove container on success (default: true)
+    on_failure: bool     # Remove container on failure (default: true)
+    keep_logs: bool      # Preserve logs before cleanup (default: true)
+
+---
+# Example: Linux test container
+containers:
+  linux-e2e:
+    image: "ubuntu"
+    tag: "22.04"
+    env:
+      RUST_BACKTRACE: "1"
+      GGEN_LOG: "debug"
+    volumes:
+      - host: "${FIXTURE_PATH}"
+        container: "/project"
+        readonly: false
+      - host: "${GGEN_BINARY}"
+        container: "/usr/local/bin/ggen"
+        readonly: true
+    startup:
+      timeout_seconds: 120
+      ready_log: "container ready"
+    cleanup:
+      on_success: true
+      on_failure: true
+      keep_logs: true
+
+---
+# Platform definitions
+platforms:
+  linux-x86_64:
+    os: linux
+    arch: x86_64
+    runner: ubuntu-latest
+    docker: true
+    test_method: container
+
+  darwin-x86_64:
+    os: darwin
+    arch: x86_64
+    runner: macos-13
+    docker: false
+    test_method: native
+
+  darwin-arm64:
+    os: darwin
+    arch: arm64
+    runner: macos-latest
+    docker: false
+    test_method: native
+
+---
+# CI workflow configuration
+ci:
+  e2e_linux:
+    trigger:
+      - pull_request
+      - push_to_master
+    runner: ubuntu-latest
+    timeout_minutes: 15
+    fixtures:
+      - minimal
+      - thesis-gen
+    fail_fast: false
+
+  e2e_macos:
+    trigger:
+      - pull_request
+      - push_to_master
+    runner: macos-latest
+    timeout_minutes: 15
+    fixtures:
+      - minimal
+      - thesis-gen
+    fail_fast: false
+
+  cross_platform:
+    trigger:
+      - release
+    runners:
+      - ubuntu-latest
+      - macos-13
+      - macos-latest
+    timeout_minutes: 30
+    fixtures:
+      - thesis-gen
+    compare_outputs: true
+    fail_on_difference: true
+
+  homebrew:
+    trigger:
+      - release
+    runner: macos-latest
+    timeout_minutes: 10
+    tap: "seanchatmangpt/homebrew-tap"
+    formula: "ggen"
+    smoke_test: true
