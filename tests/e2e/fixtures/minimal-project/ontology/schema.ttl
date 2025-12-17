@@ -1,0 +1,15 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix : <http://example.com/minimal#> .
+
+:Greeting a rdfs:Class ;
+    rdfs:label "A simple greeting" ;
+    rdfs:comment "Minimal test entity for E2E testing" .
+
+:message a rdf:Property ;
+    rdfs:domain :Greeting ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "Message text" .
+
+:greeting1 a :Greeting ;
+    :message "Hello from E2E test!" .
