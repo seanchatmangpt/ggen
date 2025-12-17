@@ -1,0 +1,350 @@
+@prefix : <https://ggen.io/thesis/kgc-unified/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Thesis Schema Ontology
+# Grand Unified Knowledge Graph Construction Thesis
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Core Entity Classes
+# -----------------------------------------------------------------------------
+
+:Thesis a rdfs:Class ;
+    rdfs:label "Thesis" ;
+    rdfs:comment "Top-level thesis document entity" .
+
+:Chapter a rdfs:Class ;
+    rdfs:label "Chapter" ;
+    rdfs:comment "A chapter within the thesis" .
+
+:Section a rdfs:Class ;
+    rdfs:label "Section" ;
+    rdfs:comment "A section within a chapter" .
+
+:Subsection a rdfs:Class ;
+    rdfs:label "Subsection" ;
+    rdfs:comment "A subsection within a section" .
+
+:Theorem a rdfs:Class ;
+    rdfs:label "Theorem" ;
+    rdfs:comment "A mathematical theorem with proof" .
+
+:Equation a rdfs:Class ;
+    rdfs:label "Equation" ;
+    rdfs:comment "A mathematical equation in LaTeX format" .
+
+:Algorithm a rdfs:Class ;
+    rdfs:label "Algorithm" ;
+    rdfs:comment "A computational algorithm with steps" .
+
+:AlgorithmStep a rdfs:Class ;
+    rdfs:label "Algorithm Step" ;
+    rdfs:comment "A single step within an algorithm" .
+
+:Figure a rdfs:Class ;
+    rdfs:label "Figure" ;
+    rdfs:comment "A figure or diagram with caption" .
+
+:Table a rdfs:Class ;
+    rdfs:label "Table" ;
+    rdfs:comment "A data table with rows and columns" .
+
+:TableRow a rdfs:Class ;
+    rdfs:label "Table Row" ;
+    rdfs:comment "A single row within a table" .
+
+:Reference a rdfs:Class ;
+    rdfs:label "Reference" ;
+    rdfs:comment "A bibliographic reference" .
+
+:Appendix a rdfs:Class ;
+    rdfs:label "Appendix" ;
+    rdfs:comment "An appendix section" .
+
+:CodeListing a rdfs:Class ;
+    rdfs:label "Code Listing" ;
+    rdfs:comment "A source code listing with syntax highlighting" .
+
+# -----------------------------------------------------------------------------
+# Thesis Properties
+# -----------------------------------------------------------------------------
+
+:title a rdf:Property ;
+    rdfs:label "title" ;
+    rdfs:comment "Title of the entity" ;
+    rdfs:domain :Thesis ;
+    rdfs:range xsd:string .
+
+:author a rdf:Property ;
+    rdfs:label "author" ;
+    rdfs:comment "Author name" ;
+    rdfs:domain :Thesis ;
+    rdfs:range xsd:string .
+
+:date a rdf:Property ;
+    rdfs:label "date" ;
+    rdfs:comment "Publication or submission date" ;
+    rdfs:domain :Thesis ;
+    rdfs:range xsd:date .
+
+:abstract a rdf:Property ;
+    rdfs:label "abstract" ;
+    rdfs:comment "Thesis abstract text" ;
+    rdfs:domain :Thesis ;
+    rdfs:range xsd:string .
+
+:dedication a rdf:Property ;
+    rdfs:label "dedication" ;
+    rdfs:comment "Dedication text" ;
+    rdfs:domain :Thesis ;
+    rdfs:range xsd:string .
+
+:acknowledgments a rdf:Property ;
+    rdfs:label "acknowledgments" ;
+    rdfs:comment "Acknowledgments text" ;
+    rdfs:domain :Thesis ;
+    rdfs:range xsd:string .
+
+:documentClass a rdf:Property ;
+    rdfs:label "document class" ;
+    rdfs:comment "LaTeX document class" ;
+    rdfs:domain :Thesis ;
+    rdfs:range xsd:string .
+
+:packages a rdf:Property ;
+    rdfs:label "packages" ;
+    rdfs:comment "LaTeX packages to include" ;
+    rdfs:domain :Thesis ;
+    rdfs:range xsd:string .
+
+:customCommands a rdf:Property ;
+    rdfs:label "custom commands" ;
+    rdfs:comment "Custom LaTeX commands" ;
+    rdfs:domain :Thesis ;
+    rdfs:range xsd:string .
+
+# -----------------------------------------------------------------------------
+# Chapter Properties
+# -----------------------------------------------------------------------------
+
+:chapterNumber a rdf:Property ;
+    rdfs:label "chapter number" ;
+    rdfs:comment "Numeric chapter identifier" ;
+    rdfs:domain :Chapter ;
+    rdfs:range xsd:integer .
+
+:content a rdf:Property ;
+    rdfs:label "content" ;
+    rdfs:comment "Main textual content" ;
+    rdfs:domain :Chapter, :Section, :Subsection, :Appendix ;
+    rdfs:range xsd:string .
+
+:belongsToChapter a rdf:Property ;
+    rdfs:label "belongs to chapter" ;
+    rdfs:comment "Associates entity with parent chapter" ;
+    rdfs:range :Chapter .
+
+# -----------------------------------------------------------------------------
+# Section Properties
+# -----------------------------------------------------------------------------
+
+:sectionNumber a rdf:Property ;
+    rdfs:label "section number" ;
+    rdfs:comment "Numeric section identifier within chapter" ;
+    rdfs:domain :Section ;
+    rdfs:range xsd:integer .
+
+# -----------------------------------------------------------------------------
+# Subsection Properties
+# -----------------------------------------------------------------------------
+
+:subsectionNumber a rdf:Property ;
+    rdfs:label "subsection number" ;
+    rdfs:comment "Numeric subsection identifier" ;
+    rdfs:domain :Subsection ;
+    rdfs:range xsd:integer .
+
+# -----------------------------------------------------------------------------
+# Theorem Properties
+# -----------------------------------------------------------------------------
+
+:theoremNumber a rdf:Property ;
+    rdfs:label "theorem number" ;
+    rdfs:comment "Numeric theorem identifier" ;
+    rdfs:domain :Theorem ;
+    rdfs:range xsd:integer .
+
+:statement a rdf:Property ;
+    rdfs:label "statement" ;
+    rdfs:comment "Theorem statement text" ;
+    rdfs:domain :Theorem ;
+    rdfs:range xsd:string .
+
+:proof a rdf:Property ;
+    rdfs:label "proof" ;
+    rdfs:comment "Theorem proof text" ;
+    rdfs:domain :Theorem ;
+    rdfs:range xsd:string .
+
+# -----------------------------------------------------------------------------
+# Equation Properties
+# -----------------------------------------------------------------------------
+
+:equationNumber a rdf:Property ;
+    rdfs:label "equation number" ;
+    rdfs:comment "Numeric equation identifier" ;
+    rdfs:domain :Equation ;
+    rdfs:range xsd:integer .
+
+:latex a rdf:Property ;
+    rdfs:label "latex" ;
+    rdfs:comment "LaTeX equation markup" ;
+    rdfs:domain :Equation ;
+    rdfs:range xsd:string .
+
+:description a rdf:Property ;
+    rdfs:label "description" ;
+    rdfs:comment "Textual description" ;
+    rdfs:domain :Equation, :Algorithm, :AlgorithmStep ;
+    rdfs:range xsd:string .
+
+# -----------------------------------------------------------------------------
+# Algorithm Properties
+# -----------------------------------------------------------------------------
+
+:algorithmNumber a rdf:Property ;
+    rdfs:label "algorithm number" ;
+    rdfs:comment "Numeric algorithm identifier" ;
+    rdfs:domain :Algorithm ;
+    rdfs:range xsd:integer .
+
+:belongsToAlgorithm a rdf:Property ;
+    rdfs:label "belongs to algorithm" ;
+    rdfs:comment "Associates step with parent algorithm" ;
+    rdfs:domain :AlgorithmStep ;
+    rdfs:range :Algorithm .
+
+:stepNumber a rdf:Property ;
+    rdfs:label "step number" ;
+    rdfs:comment "Numeric step identifier within algorithm" ;
+    rdfs:domain :AlgorithmStep ;
+    rdfs:range xsd:integer .
+
+# -----------------------------------------------------------------------------
+# Figure Properties
+# -----------------------------------------------------------------------------
+
+:figureNumber a rdf:Property ;
+    rdfs:label "figure number" ;
+    rdfs:comment "Numeric figure identifier" ;
+    rdfs:domain :Figure ;
+    rdfs:range xsd:integer .
+
+:caption a rdf:Property ;
+    rdfs:label "caption" ;
+    rdfs:comment "Figure or table caption text" ;
+    rdfs:domain :Figure, :Table, :CodeListing ;
+    rdfs:range xsd:string .
+
+:path a rdf:Property ;
+    rdfs:label "path" ;
+    rdfs:comment "File path to figure image" ;
+    rdfs:domain :Figure ;
+    rdfs:range xsd:string .
+
+# -----------------------------------------------------------------------------
+# Table Properties
+# -----------------------------------------------------------------------------
+
+:tableNumber a rdf:Property ;
+    rdfs:label "table number" ;
+    rdfs:comment "Numeric table identifier" ;
+    rdfs:domain :Table ;
+    rdfs:range xsd:integer .
+
+:headers a rdf:Property ;
+    rdfs:label "headers" ;
+    rdfs:comment "Table column headers" ;
+    rdfs:domain :Table ;
+    rdfs:range xsd:string .
+
+:belongsToTable a rdf:Property ;
+    rdfs:label "belongs to table" ;
+    rdfs:comment "Associates row with parent table" ;
+    rdfs:domain :TableRow ;
+    rdfs:range :Table .
+
+:cells a rdf:Property ;
+    rdfs:label "cells" ;
+    rdfs:comment "Table row cell values" ;
+    rdfs:domain :TableRow ;
+    rdfs:range xsd:string .
+
+# -----------------------------------------------------------------------------
+# Reference Properties
+# -----------------------------------------------------------------------------
+
+:citeKey a rdf:Property ;
+    rdfs:label "cite key" ;
+    rdfs:comment "BibTeX citation key" ;
+    rdfs:domain :Reference ;
+    rdfs:range xsd:string .
+
+:year a rdf:Property ;
+    rdfs:label "year" ;
+    rdfs:comment "Publication year" ;
+    rdfs:domain :Reference ;
+    rdfs:range xsd:integer .
+
+:journal a rdf:Property ;
+    rdfs:label "journal" ;
+    rdfs:comment "Journal name" ;
+    rdfs:domain :Reference ;
+    rdfs:range xsd:string .
+
+:volume a rdf:Property ;
+    rdfs:label "volume" ;
+    rdfs:comment "Journal volume number" ;
+    rdfs:domain :Reference ;
+    rdfs:range xsd:string .
+
+:pages a rdf:Property ;
+    rdfs:label "pages" ;
+    rdfs:comment "Page range" ;
+    rdfs:domain :Reference ;
+    rdfs:range xsd:string .
+
+# -----------------------------------------------------------------------------
+# Appendix Properties
+# -----------------------------------------------------------------------------
+
+:letter a rdf:Property ;
+    rdfs:label "letter" ;
+    rdfs:comment "Appendix letter identifier (A, B, C, ...)" ;
+    rdfs:domain :Appendix ;
+    rdfs:range xsd:string .
+
+# -----------------------------------------------------------------------------
+# Code Listing Properties
+# -----------------------------------------------------------------------------
+
+:listingNumber a rdf:Property ;
+    rdfs:label "listing number" ;
+    rdfs:comment "Numeric code listing identifier" ;
+    rdfs:domain :CodeListing ;
+    rdfs:range xsd:integer .
+
+:language a rdf:Property ;
+    rdfs:label "language" ;
+    rdfs:comment "Programming language for syntax highlighting" ;
+    rdfs:domain :CodeListing ;
+    rdfs:range xsd:string .
+
+:source a rdf:Property ;
+    rdfs:label "source" ;
+    rdfs:comment "Source code text" ;
+    rdfs:domain :CodeListing ;
+    rdfs:range xsd:string .
