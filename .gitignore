@@ -940,3 +940,4 @@ hive-mind-prompt-*.txt
 # Feature 004: Test Quality Audit metadata (gitignored)
 .ggen/test-metadata/
 .ggen/mutation-reports/
+specs/*/output/

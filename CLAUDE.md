@@ -564,6 +564,8 @@ TODO LISTS ARE ALWAYS 10 ITEMS OR MORE. THEY ARE ALWAYS FULLY COMPLETED BEFORE P
 - File system (TTL ontology files, Tera templates, generated LaTeX output) (010-thesis-gen-system)
 - Rust 1.75+ (edition 2021), testcontainers 0.25, testcontainers-modules 0.13, assert_cmd, clnrm (011-e2e-testcontainers)
 - File system (golden files, test fixtures), Docker containers, GitHub Actions workflows (011-e2e-testcontainers)
+- Rust 1.75+ (ggen v5), LaTeX (pdflatex + biber) + ggen-core, Oxigraph (RDF), Tera (templates), memoir (LaTeX), amsthm, biblatex, algorithm2e (012-grand-unified-kgc-thesis)
+- File system (RDF ontology .ttl files, generated .tex files) (012-grand-unified-kgc-thesis)
 
 ## Recent Changes
 - 003-optimize-aci-anthropic: Added Rust 1.74+ (edition 2021) - existing ggen toolchain

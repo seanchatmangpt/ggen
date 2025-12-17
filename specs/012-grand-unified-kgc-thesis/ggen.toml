@@ -1,0 +1,42 @@
+# ggen Configuration for Grand Unified KGC Thesis Generation
+# Base IRI: https://ggen.io/thesis/kgc-unified/
+# Schema: thesis-schema.ttl, Content: kgc-unified-content.ttl
+
+[project]
+name = "kgc-unified-thesis"
+version = "1.0.0"
+description = "Grand Unified Knowledge Graph Construction Thesis Generator"
+author = "ggen-thesis"
+license = "MIT"
+
+[templates]
+source_dir = "templates"
+output_dir = "output"
+backup_enabled = true
+
+[rdf]
+prefixes = { thesis = "https://ggen.io/thesis/kgc-unified/", rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#", rdfs = "http://www.w3.org/2000/01/rdf-schema#" }
+base_uri = "https://ggen.io/thesis/kgc-unified/"
+ontology_file = "ontology/kgc-unified-content.ttl"
+schema_file = "ontology/thesis-schema.ttl"
+
+[sparql]
+timeout = 30
+max_results = 10000
+cache_enabled = true
+
+[logging]
+level = "info"
+format = "text"
+output = "stdout"
+
+[security]
+validate_paths = true
+path_traversal_protection = true
+
+# NOTE: ggen v5 uses template-based generation with data passed from CLI or scripts.
+# The 15 generation rules are defined in the templates themselves.
+# To generate the thesis:
+# 1. Templates in templates/ directory process the ontology data
+# 2. Output files are written to output/ directory
+# 3. Templates use Tera syntax with RDF data passed as context
