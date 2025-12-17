@@ -2,15 +2,15 @@
 //!
 //! Manages test execution on different platforms (native macOS, container Linux).
 
+use crate::error::{Result, RunnerError};
+use crate::fixture::TestFixture;
+use crate::golden::GoldenFile;
+use crate::platform::Platform;
+use crate::result::{TestExecution, TestResult, TestStatus};
+use async_trait::async_trait;
 use std::path::Path;
 use std::process::Command;
 use std::time::Duration;
-use async_trait::async_trait;
-use crate::error::{RunnerError, Result};
-use crate::platform::Platform;
-use crate::fixture::TestFixture;
-use crate::result::{TestResult, TestExecution, TestStatus};
-use crate::golden::GoldenFile;
 
 /// Output from a ggen sync execution
 #[derive(Debug, Clone)]
@@ -66,7 +66,10 @@ pub struct NativeExecutor {
 impl NativeExecutor {
     /// Create a new native executor
     pub fn new(platform: Platform, ggen_path: std::path::PathBuf) -> Self {
-        NativeExecutor { platform, ggen_path }
+        NativeExecutor {
+            platform,
+            ggen_path,
+        }
     }
 }
 
@@ -178,7 +181,10 @@ impl TestRunner {
             // No golden files yet - return skipped status
             return Ok(TestResult::skipped(
                 execution,
-                format!("No golden files for fixture '{}' - run with UPDATE_GOLDEN=1 first", fixture.name),
+                format!(
+                    "No golden files for fixture '{}' - run with UPDATE_GOLDEN=1 first",
+                    fixture.name
+                ),
             ));
         }
 
@@ -187,7 +193,9 @@ impl TestRunner {
     }
 
     /// Run with native executor (macOS)
-    pub async fn run_with_native(&self, fixture: &TestFixture, ggen_path: std::path::PathBuf) -> Result<TestResult> {
+    pub async fn run_with_native(
+        &self, fixture: &TestFixture, ggen_path: std::path::PathBuf,
+    ) -> Result<TestResult> {
         let executor = NativeExecutor::new(self.platform.clone(), ggen_path);
         let temp_dir = fixture.copy_to_temp()?;
 

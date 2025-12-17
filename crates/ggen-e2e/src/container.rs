@@ -2,10 +2,10 @@
 //!
 //! Manages testcontainer configuration, volume mounts, and lifecycle operations.
 
+use crate::error::{ContainerError, Result};
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::time::Duration;
-use crate::error::{ContainerError, Result};
 
 /// Volume mount configuration
 #[derive(Debug, Clone)]
@@ -125,28 +125,37 @@ impl ContainerConfig {
     /// Validate container configuration
     pub fn validate(&self) -> Result<()> {
         if self.image.is_empty() {
-            return Err(ContainerError::Configuration(
-                "Image name cannot be empty".to_string(),
-            ).into());
+            return Err(
+                ContainerError::Configuration("Image name cannot be empty".to_string()).into(),
+            );
         }
 
         if self.tag.is_empty() {
-            return Err(ContainerError::Configuration(
-                "Image tag cannot be empty".to_string(),
-            ).into());
+            return Err(
+                ContainerError::Configuration("Image tag cannot be empty".to_string()).into(),
+            );
         }
 
         for volume in &self.volumes {
             if !volume.host_path.to_string_lossy().chars().any(|_| true) {
-                return Err(ContainerError::Configuration(
-                    format!("Invalid host path: {:?}", volume.host_path),
-                ).into());
+                return Err(ContainerError::Configuration(format!(
+                    "Invalid host path: {:?}",
+                    volume.host_path
+                ))
+                .into());
             }
 
-            if !volume.container_path.to_string_lossy().chars().any(|_| true) {
-                return Err(ContainerError::Configuration(
-                    format!("Invalid container path: {:?}", volume.container_path),
-                ).into());
+            if !volume
+                .container_path
+                .to_string_lossy()
+                .chars()
+                .any(|_| true)
+            {
+                return Err(ContainerError::Configuration(format!(
+                    "Invalid container path: {:?}",
+                    volume.container_path
+                ))
+                .into());
             }
         }
 
@@ -252,8 +261,7 @@ mod tests {
         let config1 = ContainerConfig::new();
         assert!(!config1.has_volumes());
 
-        let config2 = ContainerConfig::new()
-            .with_volume(VolumeMount::new("/host", "/container"));
+        let config2 = ContainerConfig::new().with_volume(VolumeMount::new("/host", "/container"));
         assert!(config2.has_volumes());
     }
 

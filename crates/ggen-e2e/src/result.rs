@@ -2,12 +2,12 @@
 //!
 //! Defines test outcomes, status tracking, and result reporting.
 
-use std::path::PathBuf;
-use std::time::Duration;
-use chrono::{DateTime, Utc};
-use uuid::Uuid;
 use crate::golden::GoldenMismatch;
 use crate::platform::Platform;
+use chrono::{DateTime, Utc};
+use std::path::PathBuf;
+use std::time::Duration;
+use uuid::Uuid;
 
 /// Test execution status
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
@@ -196,11 +196,17 @@ impl TestResult {
         );
 
         if let Some(error_msg) = &self.error {
-            xml.push_str(&format!(r#"<failure message="{}">{}</failure>"#, error_msg, error_msg));
+            xml.push_str(&format!(
+                r#"<failure message="{}">{}</failure>"#,
+                error_msg, error_msg
+            ));
         }
 
         if !self.logs.is_empty() {
-            xml.push_str(&format!(r#"<system-out>{}</system-out>"#, escape_xml(&self.logs)));
+            xml.push_str(&format!(
+                r#"<system-out>{}</system-out>"#,
+                escape_xml(&self.logs)
+            ));
         }
 
         for mismatch in &self.mismatches {

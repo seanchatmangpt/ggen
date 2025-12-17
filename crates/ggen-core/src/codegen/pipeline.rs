@@ -269,7 +269,8 @@ impl GenerationPipeline {
 
         // Clone rules to avoid borrow conflict
         let rules = self.manifest.generation.rules.clone();
-        let output_dir = self.manifest.generation.output_dir.clone();
+        // Join output_dir with base_path to make it relative to manifest location
+        let output_dir = self.base_path.join(&self.manifest.generation.output_dir);
 
         for rule in &rules {
             let start = Instant::now();

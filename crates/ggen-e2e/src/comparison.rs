@@ -2,11 +2,11 @@
 //!
 //! Compares test results across multiple platforms to verify determinism.
 
-use std::collections::HashMap;
-use std::path::PathBuf;
 use crate::error::Result;
 use crate::platform::Platform;
 use crate::result::TestResult;
+use std::collections::HashMap;
+use std::path::PathBuf;
 
 /// A difference found between platform outputs
 #[derive(Debug, Clone)]
@@ -23,12 +23,7 @@ pub struct PlatformDifference {
 
 impl PlatformDifference {
     /// Create a new platform difference
-    pub fn new(
-        file: PathBuf,
-        platform_a: Platform,
-        platform_b: Platform,
-        diff: String,
-    ) -> Self {
+    pub fn new(file: PathBuf, platform_a: Platform, platform_b: Platform, diff: String) -> Self {
         PlatformDifference {
             file,
             platform_a,
