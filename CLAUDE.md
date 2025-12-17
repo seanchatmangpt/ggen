@@ -562,6 +562,8 @@ TODO LISTS ARE ALWAYS 10 ITEMS OR MORE. THEY ARE ALWAYS FULLY COMPLETED BEFORE P
 - File system (ggen.toml, .ttl ontologies, generated .rs files, audit.json) (008-n3-code-gen)
 - Rust 1.75+ (ggen existing codebase) + LaTeX (pdflatex for output) + Oxigraph (RDF), Tera (templates), existing ggen-core/ggen-domain crates (010-thesis-gen-system)
 - File system (TTL ontology files, Tera templates, generated LaTeX output) (010-thesis-gen-system)
+- Rust 1.75+ (edition 2021), testcontainers 0.25, testcontainers-modules 0.13, assert_cmd, clnrm (011-e2e-testcontainers)
+- File system (golden files, test fixtures), Docker containers, GitHub Actions workflows (011-e2e-testcontainers)
 
 ## Recent Changes
 - 003-optimize-aci-anthropic: Added Rust 1.74+ (edition 2021) - existing ggen toolchain
