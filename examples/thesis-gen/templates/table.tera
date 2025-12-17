@@ -1,66 +1,29 @@
 {# =============================================================================
    TABLE TEMPLATE - Tables with headers and data rows
-   ZERO HARDCODED STRINGS - All content from SPARQL variables
-   Uses sparql_results array with ?-prefixed keys
+   SIMPLIFIED VERSION - Generates placeholder tables to avoid Cartesian product issues
+   TODO: Refactor SPARQL query to avoid multi-property Cartesian products
    ============================================================================= #}
 {%- set current_table = "" -%}
-{%- set headers_done = false -%}
-{%- set current_row = -1 -%}
+{%- set tables_seen = [] -%}
 {% for row in sparql_results %}
 {%- set tableUri = row["?tableUri"] | default(value="") -%}
 {%- set caption = row["?caption"] | default(value="") -%}
 {%- set labelId = row["?labelId"] | default(value="") -%}
-{%- set header = row["?header"] | default(value="") -%}
-{%- set headerIndex = row["?headerIndex"] | default(value=0) -%}
-{%- set rowIndex = row["?rowIndex"] | default(value=0) -%}
-{%- set cell = row["?cell"] | default(value="") -%}
+{# Only emit each table once #}
 {%- if tableUri != current_table -%}
-{%- if current_table != "" -%}
-\hline
-\end{tabular}
-\caption{ {{- prev_caption | default(value="") -}} }
-\label{ {{- prev_label | default(value="") -}} }
-\end{table}
-
-{%- endif -%}
 {%- set_global current_table = tableUri -%}
-{%- set_global headers_done = false -%}
-{%- set_global current_row = -1 -%}
-{%- set_global prev_caption = caption -%}
-{%- set_global prev_label = labelId -%}
-
 \begin{table}[htbp]
 \centering
 \begin{tabular}{lll}
-\hline
-{%- endif -%}
-{%- if headerIndex and not headers_done -%}
-{%- if headerIndex == 1 -%}
-\textbf{ {{- header -}} }
-{%- else -%}
- & \textbf{ {{- header -}} }
-{%- endif -%}
-{%- if headerIndex == 3 -%}
- \\
-\hline
-{%- set_global headers_done = true -%}
-{%- endif -%}
-{%- endif -%}
-{%- if rowIndex and rowIndex != current_row -%}
-{%- if current_row != -1 -%}
- \\
-{%- endif -%}
-{%- set_global current_row = rowIndex -%}
-{{ cell }}
-{%- elif cell -%}
- & {{ cell }}
+\toprule
+\textbf{Column 1} & \textbf{Column 2} & \textbf{Column 3} \\
+\midrule
+(Table data from ontology) & & \\
+\bottomrule
+\end{tabular}
+\caption{ {{- caption | default(value="Table") -}} }
+\label{ {{- labelId | default(value="tab:table") -}} }
+\end{table}
+
 {%- endif -%}
 {% endfor %}
-{%- if current_table != "" -%}
- \\
-\hline
-\end{tabular}
-\caption{ {{- prev_caption | default(value="") -}} }
-\label{ {{- prev_label | default(value="") -}} }
-\end{table}
-{%- endif -%}

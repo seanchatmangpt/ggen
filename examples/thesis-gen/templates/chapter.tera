@@ -22,7 +22,10 @@
 \label{ {{- chapterLabel -}} }
 
 {% if chapterAbstract %}
-{{ chapterAbstract }}
+{{ chapterAbstract | replace(from="\\n\\n", to="
+
+") | replace(from="\\n", to="
+") }}
 
 {% endif %}
 {%- endif -%}
@@ -30,6 +33,9 @@
 \section{ {{- sectionTitle -}} }
 \label{ {{- sectionLabel -}} }
 
-{{ sectionContent }}
+{{ sectionContent | replace(from="\\n\\n", to="
+
+") | replace(from="\\n", to="
+") }}
 
 {% endfor %}

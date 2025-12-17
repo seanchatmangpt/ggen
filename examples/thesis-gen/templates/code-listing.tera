@@ -9,7 +9,8 @@
 {%- set labelId = row["?labelId"] | default(value="") -%}
 {%- set code = row["?code"] | default(value="") -%}
 \begin{lstlisting}[language={{ language }}, caption={ {{- caption -}} }, label={{ labelId }}]
-{{ code }}
+{{ code | replace(from="\\n", to="
+") }}
 \end{lstlisting}
 
 {% endfor %}
