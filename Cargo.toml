@@ -26,6 +26,7 @@ members = [
   "crates/ggen-marketplace",
   "crates/ggen-test-audit",    # Feature 004: Test quality audit tooling
   "crates/ggen-test-opt",      # Feature 004: Test optimization tooling
+  "crates/ggen-e2e",           # Feature 011: End-to-end testing with testcontainers
   "crates/ggen-node", "crates/ggen-macros", "crates/ggen-dod",
   "playground",
 ]
@@ -67,6 +68,14 @@ serde_yaml = "0.9"
 regex = "1.12"
 rayon = "1.11"
 log = "0.4.28"
+sha2 = "0.10"
+hex = "0.4"
+
+# E2E testing with testcontainers
+testcontainers = "0.25"
+testcontainers-modules = "0.13"
+assert_cmd = "2.0"
+predicates = "3.1"
 
 # Workspace-local crates (use workspace = true pattern in workspace members)
 ggen-utils = { path = "crates/ggen-utils", version = "4.0.0" }
