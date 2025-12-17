@@ -3,7 +3,10 @@
    ZERO HARDCODED STRINGS - All content from SPARQL variables
    ============================================================================= #}
 \begin{abstract}
-{{ abstract | default(value="") }}
+{{ abstract | default(value="") | replace(from="\\n\\n", to="
+
+") | replace(from="\\n", to="
+") }}
 \end{abstract}
 
 {% if dedication %}
@@ -18,6 +21,9 @@
 
 {% if acknowledgments %}
 \chapter*{Acknowledgments}
-{{ acknowledgments }}
+{{ acknowledgments | replace(from="\\n\\n", to="
+
+") | replace(from="\\n", to="
+") }}
 \newpage
 {% endif %}

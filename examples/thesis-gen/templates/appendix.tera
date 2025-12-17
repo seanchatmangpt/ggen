@@ -10,6 +10,9 @@
 \chapter{ {{- title -}} }
 \label{ {{- labelId -}} }
 
-{{ content }}
+{{ content | replace(from="\\n\\n", to="
+
+") | replace(from="\\n", to="
+") }}
 
 {% endfor %}

@@ -10,7 +10,7 @@
 \title{
   \textbf{ {{- title | default(value="") -}} }
   {% if subtitle %}\\[1em]
-  \large {{- subtitle -}}
+  \large {{ subtitle }}
   {% endif %}
 }
 

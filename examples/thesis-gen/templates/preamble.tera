@@ -15,7 +15,7 @@
 \usepackage{algpseudocode}
 \usepackage{listings}
 \usepackage{xcolor}
-\usepackage{natbib}
+\usepackage[numbers]{natbib}
 
 % Page geometry
 \geometry{margin=1in}

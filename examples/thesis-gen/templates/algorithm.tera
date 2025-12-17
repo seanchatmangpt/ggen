@@ -23,11 +23,11 @@
 \caption{ {{- caption -}} }
 \label{ {{- labelId -}} }
 \begin{algorithmic}[1]
-\Require {{ input }}
-\Ensure {{ output }}
+\Require {{ input | replace(from="\\n", to=" ") }}
+\Ensure {{ output | replace(from="\\n", to=" ") }}
 {%- endif -%}
 {% if step %}
-\State {{ step }}
+\State {{ step | replace(from="\\n", to=" ") }}
 {% endif %}
 {% endfor %}
 {%- if current_algorithm != "" -%}
