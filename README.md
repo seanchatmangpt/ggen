@@ -1,467 +1,365 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
+# ggen - Ontology-Driven Code Generation
 
-- [ggen: Sync & Configuration Reference](#ggen-sync--configuration-reference)
-  - [ggen sync](#ggen-sync)
-    - [Command Signature](#command-signature)
-    - [Behavior](#behavior)
-    - [Options](#options)
-    - [Sync Modes](#sync-modes)
-      - [Full Sync](#full-sync)
-      - [Incremental Sync](#incremental-sync)
-      - [Verify Mode](#verify-mode)
-    - [Exit Codes](#exit-codes)
-    - [Examples](#examples)
-      - [Sync single workspace member](#sync-single-workspace-member)
-      - [Sync entire workspace](#sync-entire-workspace)
-      - [Dry-run to preview changes](#dry-run-to-preview-changes)
-      - [Verify consistency in CI](#verify-consistency-in-ci)
-    - [Sync Operations (Ordered)](#sync-operations-ordered)
-    - [Sync Metadata](#sync-metadata)
-  - [ggen.toml](#ggentoml)
-    - [File Location](#file-location)
-    - [Schema](#schema)
-    - [Minimal Example](#minimal-example)
-    - [Complete Example](#complete-example)
-    - [Configuration Sections](#configuration-sections)
-      - [&#91;project&#93;](#project)
-      - [&#91;generation&#93;](#generation)
-      - [&#91;sync&#93;](#sync)
-      - [&#91;rdf&#93;](#rdf)
-      - [&#91;templates&#93;](#templates)
-      - [&#91;marketplace&#93;](#marketplace)
-      - [&#91;output&#93;](#output)
-    - [Validation](#validation)
-      - [File Validation](#file-validation)
-      - [Required Fields](#required-fields)
-      - [Common Errors](#common-errors)
-    - [Environment Variables](#environment-variables)
-    - [Override from CLI](#override-from-cli)
-    - [Include External Config](#include-external-config)
-  - [ggen.toml vs gpack.toml](#ggentoml-vs-gpacktoml)
-    - [gpack.toml Schema](#gpacktoml-schema)
-  - [Integration: ggen sync + ggen.toml](#integration-ggen-sync--ggentoml)
-    - [Workflow](#workflow)
-    - [Example Project Structure](#example-project-structure)
-    - [CI/CD Integration](#cicd-integration)
-  - [Machine-Parseable Schemas](#machine-parseable-schemas)
-    - [ggen sync JSON Schema](#ggen-sync-json-schema)
-    - [ggen.toml TOML Schema](#ggentoml-toml-schema)
-  - [See Also](#see-also)
+[![Crates.io](https://img.shields.io/crates/v/ggen.svg)](https://crates.io/crates/ggen)
+[![Documentation](https://docs.rs/ggen/badge.svg)](https://docs.rs/ggen)
+[![License](https://img.shields.io/crates/l/ggen.svg)](LICENSE)
+[![Build Status](https://github.com/seanchatmangpt/ggen/workflows/CI/badge.svg)](https://github.com/seanchatmangpt/ggen/actions)
 
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-# ggen: Sync & Configuration Reference
-
-**Machine-parseable reference for agents. Human documentation: [docs/](docs/)**
+**Transform RDF ontologies into typed code through SPARQL queries and Tera templates.**
 
 ---
 
-## ggen sync
+## 📖 What is ggen? (Explanation)
 
-### Command Signature
+ggen is a **deterministic code generator** that bridges semantic web technologies (RDF, SPARQL, OWL) with modern programming languages. Instead of manually maintaining data models in multiple languages, you define your domain once as an **RDF ontology** and generate type-safe code across Rust, TypeScript, Python, and more.
 
-```
-ggen sync [OPTIONS] [--from <SOURCE>] [--to <TARGET>]
-```
+### Why ontologies?
 
-### Behavior
+- **Single Source of Truth**: Define your domain model once, generate everywhere
+- **Semantic Validation**: Use OWL constraints to catch domain violations at generation time
+- **Inference**: SPARQL CONSTRUCT queries materialize implicit relationships before code generation
+- **Deterministic**: Same ontology + templates = identical output (reproducible builds)
 
-Synchronizes RDF ontologies, generated code, and configuration across workspace members. Ensures consistency between:
-- Source ontology definitions
-- Generated code artifacts
-- Project configurations (`ggen.toml`)
-- Package configurations (`gpack.toml`)
+### Use Cases
 
-### Options
+- **API Development**: Generate client libraries from OpenAPI specs converted to RDF
+- **Data Modeling**: Ensure consistency across microservices
+- **Academic Research**: Generate code from domain ontologies (biology, chemistry, finance)
+- **Multi-Language Projects**: Keep Rust backend and TypeScript frontend in sync
 
-| Flag | Type | Description | Required |
-|------|------|-------------|----------|
-| `--from` | STRING | Source path or workspace member | Optional |
-| `--to` | STRING | Target path or workspace member | Optional |
-| `--mode` | STRING | Sync mode: `full`, `incremental`, `verify` | Default: `full` |
-| `--verbose` | BOOL | Output detailed sync operations | Default: false |
-| `--dry-run` | BOOL | Preview changes without applying | Default: false |
-| `--force` | BOOL | Override conflicts (use with caution) | Default: false |
+---
 
-### Sync Modes
+## 🚀 Quick Start (Tutorial)
 
-#### Full Sync
-```
-ggen sync --mode full --from schema.ttl --to generated/
-```
-- Regenerates all artifacts from source
-- Overwrites existing generated code
-- Validates all configurations
-- Recommended: Initial setup, major version updates
+### Installation
 
-#### Incremental Sync
-```
-ggen sync --mode incremental --from schema.ttl
-```
-- Updates only changed ontology elements
-- Preserves manual modifications (marked with `// MANUAL`)
-- Faster for large codebases
-- Recommended: Development iteration
-
-#### Verify Mode
-```
-ggen sync --mode verify --from schema.ttl --to generated/
-```
-- Checks consistency without modifying files
-- Reports conflicts and mismatches
-- No file writes
-- Recommended: CI/CD validation
-
-### Exit Codes
-
-| Code | Meaning | Action |
-|------|---------|--------|
-| 0 | Success | Sync complete |
-| 1 | Sync conflicts | Resolve conflicts, retry with `--force` |
-| 2 | Configuration error | Fix `ggen.toml` or `gpack.toml` |
-| 3 | Invalid ontology | Validate source RDF file |
-| 4 | Permission denied | Check file permissions |
-
-### Examples
-
-#### Sync single workspace member
 ```bash
-ggen sync --from crates/ggen-domain/ontology.ttl --to crates/ggen-domain/src/generated.rs
+# Install via cargo
+cargo install ggen
+
+# Verify installation
+ggen --version  # Should show: ggen 5.0.0
 ```
 
-#### Sync entire workspace
-```bash
-ggen sync --from . --mode full --verbose
+### Your First Sync (5 minutes)
+
+**Step 1: Create a minimal ontology** (`schema/domain.ttl`)
+
+```turtle
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ex: <https://example.com/> .
+
+ex:Person a rdfs:Class ;
+    rdfs:label "Person" ;
+    rdfs:comment "Represents a person in the system" .
+
+ex:name a rdf:Property ;
+    rdfs:domain ex:Person ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "name" .
+
+ex:email a rdf:Property ;
+    rdfs:domain ex:Person ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "email" .
 ```
 
-#### Dry-run to preview changes
-```bash
-ggen sync --mode incremental --dry-run
+**Step 2: Create a configuration** (`ggen.toml`)
+
+```toml
+[project]
+name = "my-first-ggen"
+version = "0.1.0"
+description = "Learning ggen with a simple Person model"
+
+[generation]
+ontology_dir = "schema/"
+templates_dir = "templates/"
+output_dir = "src/generated/"
 ```
 
-#### Verify consistency in CI
-```bash
-ggen sync --mode verify || exit 1
-```
-
-### Sync Operations (Ordered)
-
-1. **Load Configuration** → Read `ggen.toml` and `gpack.toml` files
-2. **Load Ontologies** → Parse RDF files (Turtle, RDF/XML, N-Triples)
-3. **Execute SPARQL Queries** → Extract code patterns from ontology
-4. **Render Templates** → Generate code using Tera engine
-5. **Check Conflicts** → Compare generated code with existing files
-6. **Apply Changes** → Write files or report conflicts
-7. **Update Manifest** → Record sync metadata (timestamps, hashes)
-8. **Validate Output** → Compile/lint generated code
-
-### Sync Metadata
-
-Generated files include metadata header:
+**Step 3: Create a Rust template** (`templates/rust-struct.tera`)
 
 ```rust
-// ⚡ GENERATED BY ggen sync
-// Source: schema.ttl
-// Generated: 2025-12-15T10:30:00Z
-// Hash: sha256:abc123...
-// Mode: READONLY (delete and regenerate, don't edit)
+// Generated by ggen from {{ ontology }}
+{% for class in classes %}
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct {{ class.name }} {
+    {% for property in class.properties %}
+    pub {{ property.name }}: {{ property.rust_type }},
+    {% endfor %}
+}
+{% endfor %}
 ```
 
-Manual modifications:
+**Step 4: Run sync**
+
+```bash
+ggen sync
+
+# Output:
+# ✅ Loaded ontology: schema/domain.ttl (3 triples)
+# ✅ Rendered template: rust-struct.tera
+# ✅ Generated: src/generated/domain.rs (42 lines)
+# ✅ Sync complete in 0.2s
+```
+
+**What you'll get** (`src/generated/domain.rs`):
 
 ```rust
-// MANUAL: Custom implementation - preserved during sync
-fn custom_validation(data: &Data) -> Result<(), Error> {
-    // This section survives incremental sync
+// Generated by ggen from domain.ttl
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Person {
+    pub name: String,
+    pub email: String,
 }
 ```
 
 ---
 
-## ggen.toml
+## 📘 How-To Guides (Problem-Oriented)
 
-### File Location
+### How to sync a workspace with multiple crates
 
+```bash
+# Sync all workspace members
+ggen sync --from . --mode full --verbose
+
+# Sync specific member
+ggen sync --from crates/domain --to crates/domain/src/generated.rs
 ```
-<workspace-root>/ggen.toml
+
+### How to preview changes before applying
+
+```bash
+# Dry-run mode (no file writes)
+ggen sync --dry-run
+
+# Verify mode (CI/CD validation)
+ggen sync --mode verify || exit 1
 ```
 
-Located at repository root (same level as `Cargo.toml` for Rust projects).
+### How to preserve manual edits in generated files
 
-### Schema
+Mark custom code with `// MANUAL` comments:
+
+```rust
+// GENERATED CODE (readonly)
+#[derive(Debug, Clone)]
+pub struct User {
+    pub id: i64,
+    pub username: String,
+}
+
+// MANUAL: Custom validation logic (preserved during sync)
+impl User {
+    pub fn validate_username(&self) -> Result<(), Error> {
+        // This survives incremental sync
+        if self.username.len() < 3 {
+            return Err(Error::InvalidUsername);
+        }
+        Ok(())
+    }
+}
+```
+
+Then use incremental mode:
+
+```bash
+ggen sync --mode incremental
+```
+
+### How to use SPARQL CONSTRUCT for inference
+
+Add inference rules to your ontology:
+
+```turtle
+@prefix ggen: <https://ggen.io/ns#> .
+
+ex:InferredRule a ggen:ConstructQuery ;
+    ggen:query """
+        CONSTRUCT {
+            ?person ex:hasContactInfo ?email .
+        }
+        WHERE {
+            ?person ex:email ?email .
+        }
+    """ .
+```
+
+The CONSTRUCT query materializes new triples before code generation.
+
+### How to integrate with CI/CD
+
+**GitHub Actions** (`.github/workflows/codegen.yml`):
+
+```yaml
+name: Code Generation
+on: [push, pull_request]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo install ggen
+      - run: ggen sync --mode verify
+      - name: Fail if generated code is out of sync
+        run: git diff --exit-code src/generated/
+```
+
+### How to publish a package to the ggen marketplace
+
+Create `gpack.toml`:
+
+```toml
+[package]
+name = "awesome-templates"
+version = "1.0.0"
+author = "Your Name"
+email = "you@example.com"
+description = "Reusable Tera templates for API generation"
+license = "MIT"
+repository = "https://github.com/yourname/awesome-templates"
+
+[templates]
+templates = ["api-client.tera", "server-stubs.tera"]
+
+[dependencies]
+requires = ["ggen >= 5.0.0"]
+```
+
+Then publish:
+
+```bash
+ggen marketplace publish gpack.toml
+```
+
+---
+
+## 📚 Reference (Information-Oriented)
+
+### Command: `ggen sync`
+
+**Signature**:
+```
+ggen sync [OPTIONS] [--from <SOURCE>] [--to <TARGET>]
+```
+
+**Options**:
+
+| Flag | Type | Default | Description |
+|------|------|---------|-------------|
+| `--from` | STRING | `.` | Source path (ontology or workspace) |
+| `--to` | STRING | Auto | Target output directory |
+| `--mode` | STRING | `full` | Sync mode: `full`, `incremental`, `verify` |
+| `--dry-run` | BOOL | `false` | Preview changes without writing files |
+| `--force` | BOOL | `false` | Override conflicts (use with caution) |
+| `--verbose` | BOOL | `false` | Show detailed operation logs |
+
+**Sync Modes**:
+
+- **`full`**: Regenerate all artifacts from scratch (initial setup, major updates)
+- **`incremental`**: Update only changed elements, preserve `// MANUAL` sections (development iteration)
+- **`verify`**: Check consistency without modifying files (CI/CD validation)
+
+**Exit Codes**:
+
+| Code | Meaning |
+|------|---------|
+| 0 | Success |
+| 1 | Manifest validation error |
+| 2 | Ontology load error |
+| 3 | SPARQL query error |
+| 4 | Template rendering error |
+| 5 | File I/O error |
+| 6 | Timeout exceeded |
+
+### Configuration: `ggen.toml`
+
+Located at repository root (same level as `Cargo.toml`).
+
+**Minimal configuration**:
 
 ```toml
 [project]
-name = STRING              # Project identifier
-version = STRING           # Semantic version (required for publishing)
-description = STRING       # Project purpose
+name = "my-project"
+version = "1.0.0"
+
+[generation]
+ontology_dir = "schema/"
+output_dir = "src/generated/"
+```
+
+**Complete schema**:
+
+```toml
+[project]
+name = STRING              # Project identifier (required)
+version = STRING           # Semantic version (required)
+description = STRING       # Project description
 authors = [STRING, ...]    # Author list
 license = STRING           # SPDX license (MIT, Apache-2.0, etc.)
 
 [generation]
-ontology_dir = STRING      # Ontology file directory (default: schema/)
-templates_dir = STRING     # Template file directory (default: templates/)
-output_dir = STRING        # Generated code output directory (default: generated/)
-incremental = BOOL         # Enable incremental generation (default: true)
-overwrite = BOOL           # Overwrite existing generated files (default: false)
+ontology_dir = STRING      # Ontology directory (default: "schema/")
+templates_dir = STRING     # Templates directory (default: "templates/")
+output_dir = STRING        # Output directory (default: "generated/")
+incremental = BOOL         # Enable incremental sync (default: true)
+overwrite = BOOL           # Overwrite existing files (default: false)
 
 [sync]
-enabled = BOOL             # Enable sync on save (default: true)
+enabled = BOOL             # Enable sync (default: true)
 on_change = STRING         # Trigger: "save" | "commit" | "manual" (default: "save")
 validate_after = BOOL      # Run validation after sync (default: true)
 conflict_mode = STRING     # Handle conflicts: "fail" | "warn" | "ignore" (default: "fail")
 
 [rdf]
-formats = [STRING, ...]    # Supported formats: "turtle" | "rdf-xml" | "n-triples" (default: ["turtle"])
-default_format = STRING    # Default RDF format (default: "turtle")
+formats = [STRING, ...]    # Supported formats: ["turtle", "rdf-xml", "n-triples"]
+default_format = STRING    # Default format (default: "turtle")
 base_uri = STRING          # Base URI for ontology (optional)
 strict_validation = BOOL   # Strict RDF validation (default: false)
 
 [templates]
 enable_caching = BOOL      # Cache compiled templates (default: true)
 auto_reload = BOOL         # Reload on file change (default: true)
-functions = [STRING, ...]  # Custom template functions to load
 
 [marketplace]
 registry_url = STRING      # Package registry URL
-cache_dir = STRING         # Downloaded packages cache (default: .ggen/cache/)
-verify_signatures = BOOL   # Verify package signatures (default: true)
+cache_dir = STRING         # Cache directory (default: ".ggen/cache/")
+verify_signatures = BOOL   # Verify signatures (default: true)
 
 [output]
-formatting = STRING        # Code formatter: "default" | "rustfmt" | "prettier" (default: "default")
+formatting = STRING        # Formatter: "default" | "rustfmt" | "prettier" | "black"
 line_length = INTEGER      # Max line length (default: 100)
-indent = INTEGER           # Indentation spaces (default: 2)
+indent = INTEGER           # Indentation width (default: 2)
 ```
 
-### Minimal Example
-
-```toml
-[project]
-name = "my-project"
-version = "1.0.0"
-description = "Code generation from RDF ontologies"
-
-[generation]
-ontology_dir = "schema/"
-output_dir = "generated/"
-```
-
-### Complete Example
-
-```toml
-[project]
-name = "commerce-api"
-version = "2.1.0"
-description = "E-commerce domain model and code generation"
-authors = ["Alice Dev <alice@example.com>", "Bob Smith <bob@example.com>"]
-license = "MIT"
-
-[generation]
-ontology_dir = "ontologies/"
-templates_dir = "templates/"
-output_dir = "src/generated/"
-incremental = true
-overwrite = false
-
-[sync]
-enabled = true
-on_change = "save"
-validate_after = true
-conflict_mode = "warn"
-
-[rdf]
-formats = ["turtle", "rdf-xml"]
-default_format = "turtle"
-base_uri = "https://example.com/ontology/"
-strict_validation = true
-
-[templates]
-enable_caching = true
-auto_reload = true
-functions = ["custom_validators", "domain_extensions"]
-
-[marketplace]
-registry_url = "https://marketplace.ggen.io"
-cache_dir = ".ggen/cache"
-verify_signatures = true
-
-[output]
-formatting = "rustfmt"
-line_length = 100
-indent = 4
-```
-
-### Configuration Sections
-
-#### [project]
-
-**Purpose**: Define project metadata and identity
-
-| Key | Type | Description |
-|-----|------|-------------|
-| `name` | String | Unique project identifier (alphanumeric, hyphens) |
-| `version` | String | Semantic version (X.Y.Z format) |
-| `description` | String | One-line project description |
-| `authors` | Array | Author list with email |
-| `license` | String | SPDX license identifier |
-
-#### [generation]
-
-**Purpose**: Control code generation behavior
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| `ontology_dir` | String | `schema/` | Where RDF ontologies live |
-| `templates_dir` | String | `templates/` | Where Tera templates live |
-| `output_dir` | String | `generated/` | Generated code output location |
-| `incremental` | Boolean | `true` | Only regenerate changed parts |
-| `overwrite` | Boolean | `false` | Overwrite existing files (destructive) |
-
-#### [sync]
-
-**Purpose**: Configure `ggen sync` behavior
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| `enabled` | Boolean | `true` | Enable sync operations |
-| `on_change` | String | `"save"` | Trigger event for sync |
-| `validate_after` | Boolean | `true` | Run validation after sync |
-| `conflict_mode` | String | `"fail"` | Behavior on sync conflicts |
-
-**on_change Values**:
-- `"save"`: Trigger on file save (editor integration)
-- `"commit"`: Trigger on git commit (pre-commit hook)
-- `"manual"`: Require explicit `ggen sync` invocation
-
-**conflict_mode Values**:
-- `"fail"`: Stop sync, report conflicts (safe)
-- `"warn"`: Report conflicts, continue (log-only)
-- `"ignore"`: Silently skip conflicting files
-
-#### [rdf]
-
-**Purpose**: Configure RDF processing
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| `formats` | Array | `["turtle"]` | Supported RDF formats |
-| `default_format` | String | `"turtle"` | Default format for new files |
-| `base_uri` | String | None | Base URI for ontology (optional) |
-| `strict_validation` | Boolean | `false` | Enforce strict RDF validation |
-
-**Supported Formats**:
-- `"turtle"` - Turtle format (.ttl)
-- `"rdf-xml"` - RDF/XML format (.rdf, .xml)
-- `"n-triples"` - N-Triples format (.nt)
-
-#### [templates]
-
-**Purpose**: Configure template engine (Tera)
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| `enable_caching` | Boolean | `true` | Cache compiled templates |
-| `auto_reload` | Boolean | `true` | Reload on file change (dev) |
-| `functions` | Array | `[]` | Custom template functions |
-
-#### [marketplace]
-
-**Purpose**: Configure package registry integration
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| `registry_url` | String | Official registry | Package registry endpoint |
-| `cache_dir` | String | `.ggen/cache/` | Downloaded packages cache |
-| `verify_signatures` | Boolean | `true` | Verify package signatures |
-
-#### [output]
-
-**Purpose**: Configure generated code formatting
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| `formatting` | String | `"default"` | Code formatter to use |
-| `line_length` | Integer | `100` | Maximum line length |
-| `indent` | Integer | `2` | Indentation width (spaces) |
-
-**Formatting Options**:
-- `"default"` - No formatting
-- `"rustfmt"` - Rust code formatter
-- `"prettier"` - JavaScript/TypeScript formatter
-- `"black"` - Python formatter
-
-### Validation
-
-#### File Validation
-
-```bash
-ggen config validate ggen.toml
-```
-
-Returns exit code 0 if valid, non-zero if invalid.
-
-#### Required Fields
-
-| Field | When Required |
-|-------|---------------|
-| `[project].name` | Always |
-| `[project].version` | If publishing to marketplace |
-| `[generation].ontology_dir` | If using sync |
-| `[generation].output_dir` | If using generation |
-
-#### Common Errors
-
-| Error | Cause | Fix |
-|-------|-------|-----|
-| `Invalid version "1.0"` | Not semantic version | Use `X.Y.Z` format |
-| `Unknown RDF format "rdfx"` | Typo in format name | Use `"rdf-xml"` |
-| `Directory not found: schema/` | `ontology_dir` doesn't exist | Create directory or fix path |
-| `Invalid line_length: -1` | Negative integer | Use positive integer |
-
-### Environment Variables
-
-Expand values using `${VAR_NAME}`:
+**Environment variable expansion**:
 
 ```toml
 [generation]
-ontology_dir = "${SCHEMA_DIR:/schema}"  # Use SCHEMA_DIR or default to /schema
-output_dir = "${OUT_DIR:generated/}"    # Use OUT_DIR or default to generated/
+ontology_dir = "${SCHEMA_DIR:schema/}"  # Use SCHEMA_DIR env var or default
+output_dir = "${OUT_DIR:generated/}"
 ```
 
-### Override from CLI
+**CLI overrides**:
 
 ```bash
 ggen sync --config-override generation.output_dir=custom_output/
 ```
 
-### Include External Config
+### Package Distribution: `gpack.toml`
 
-```toml
-[include]
-files = ["ggen.shared.toml", "ggen.${ENVIRONMENT}.toml"]
-```
-
----
-
-## ggen.toml vs gpack.toml
-
-| Aspect | ggen.toml | gpack.toml |
-|--------|-----------|-----------|
-| **Purpose** | Project-wide configuration | Package distribution metadata |
-| **Location** | Repository root | Package root |
-| **Scope** | One workspace | Distributable package |
-| **Audience** | Developers (local) | Package users (published) |
-| **Publishing** | Not published | Published to marketplace |
-
-### gpack.toml Schema
+For publishing reusable templates to the marketplace.
 
 ```toml
 [package]
 name = STRING              # Package identifier
 version = STRING           # Semantic version
-author = STRING            # Package author
+author = STRING            # Author name
 email = STRING             # Contact email
 description = STRING       # Package description
 license = STRING           # SPDX license
@@ -473,108 +371,64 @@ keywords = [STRING, ...]   # Search keywords
 templates = [STRING, ...]  # Template files to include
 
 [dependencies]
-requires = [STRING, ...]   # Version requirements (e.g., "ggen >= 4.0.0")
+requires = [STRING, ...]   # Version requirements (e.g., "ggen >= 5.0.0")
 ```
 
 ---
 
-## Integration: ggen sync + ggen.toml
-
-### Workflow
-
-1. **Configure** → Define `ggen.toml`
-2. **Sync** → Run `ggen sync` to synchronize artifacts
-3. **Validate** → Check output consistency
-4. **Commit** → Git commit generated code (if desired)
-5. **Update** → Modify ontology → Re-sync
-
-### Example Project Structure
+## 🗺️ Project Structure Example
 
 ```
 my-project/
 ├── ggen.toml                    # Project configuration
 ├── schema/
-│   ├── domain.ttl               # RDF ontology
-│   └── validations.ttl          # OWL constraints
+│   ├── domain.ttl               # RDF ontology (Turtle format)
+│   └── constraints.ttl          # OWL constraints
 ├── templates/
-│   ├── rust-struct.tmpl         # Tera template
-│   └── ts-interface.tmpl        # Tera template
+│   ├── rust-struct.tera         # Tera template for Rust
+│   ├── ts-interface.tera        # Tera template for TypeScript
+│   └── python-dataclass.tera    # Tera template for Python
 ├── src/
 │   ├── generated/               # Output of ggen sync
 │   │   ├── domain.rs
 │   │   ├── types.ts
+│   │   ├── models.py
 │   │   └── .manifest            # Sync metadata
 │   └── main.rs
 └── Cargo.toml                   # Rust workspace
 ```
 
-### CI/CD Integration
-
-```bash
-# Verify consistency
-ggen sync --mode verify || exit 1
-
-# Generate artifacts
-ggen sync --mode full
-
-# Commit if changed
-git add -A && git commit -m "chore: sync generated code" || true
-```
-
 ---
 
-## Machine-Parseable Schemas
+## 🔗 Links
 
-### ggen sync JSON Schema
-
-```json
-{
-  "command": "sync",
-  "options": {
-    "from": "string|null",
-    "to": "string|null",
-    "mode": "full|incremental|verify",
-    "verbose": "boolean",
-    "dry-run": "boolean",
-    "force": "boolean"
-  },
-  "exit_codes": {
-    "0": "success",
-    "1": "sync_conflicts",
-    "2": "config_error",
-    "3": "invalid_ontology",
-    "4": "permission_denied"
-  }
-}
-```
-
-### ggen.toml TOML Schema
-
-```toml
-[schema]
-version = "1.0"
-
-[schema.sections]
-project = "required"
-generation = "required"
-sync = "optional"
-rdf = "optional"
-templates = "optional"
-marketplace = "optional"
-output = "optional"
-
-[schema.types]
-STRING = "text"
-BOOL = "boolean"
-INTEGER = "integer"
-ARRAY = "array of strings"
-```
-
----
-
-## See Also
-
-- **Full Documentation**: [docs/](docs/)
-- **Contributing**: [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Documentation**: [https://docs.ggen.io](https://docs.ggen.io)
+- **GitHub**: [https://github.com/seanchatmangpt/ggen](https://github.com/seanchatmangpt/ggen)
+- **Crates.io**: [https://crates.io/crates/ggen](https://crates.io/crates/ggen)
 - **Examples**: [examples/](examples/)
-- **API Reference**: [docs/reference/](docs/reference/)
+- **Contributing**: [CONTRIBUTING.md](CONTRIBUTING.md)
+
+---
+
+## 📜 License
+
+Licensed under either of:
+
+- Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
+- MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+
+at your option.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+**Built with**:
+- 🦀 Rust 1.75+ (edition 2021)
+- 🔗 Oxigraph (RDF store)
+- 🔍 SPARQL 1.1
+- 🎨 Tera (template engine)
+- ⚙️ cargo-make (build automation)
+- 🧪 Chicago School TDD (state-based testing)
