@@ -33,11 +33,21 @@ ggen is a **deterministic code generator** that bridges semantic web technologie
 
 ### Installation
 
-```bash
-# Install via cargo
-cargo install ggen
+**Via Homebrew** (macOS/Linux):
 
-# Verify installation
+```bash
+brew install seanchatmangpt/ggen/ggen
+```
+
+**Via Cargo**:
+
+```bash
+cargo install ggen
+```
+
+**Verify installation**:
+
+```bash
 ggen --version  # Should show: ggen 5.0.0
 ```
 
