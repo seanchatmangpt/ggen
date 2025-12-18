@@ -1,3 +1,57 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen: Sync & Configuration Reference](#ggen-sync--configuration-reference)
+  - [ggen sync](#ggen-sync)
+    - [Command Signature](#command-signature)
+    - [Behavior](#behavior)
+    - [Options](#options)
+    - [Sync Modes](#sync-modes)
+      - [Full Sync](#full-sync)
+      - [Incremental Sync](#incremental-sync)
+      - [Verify Mode](#verify-mode)
+    - [Exit Codes](#exit-codes)
+    - [Examples](#examples)
+      - [Sync single workspace member](#sync-single-workspace-member)
+      - [Sync entire workspace](#sync-entire-workspace)
+      - [Dry-run to preview changes](#dry-run-to-preview-changes)
+      - [Verify consistency in CI](#verify-consistency-in-ci)
+    - [Sync Operations (Ordered)](#sync-operations-ordered)
+    - [Sync Metadata](#sync-metadata)
+  - [ggen.toml](#ggentoml)
+    - [File Location](#file-location)
+    - [Schema](#schema)
+    - [Minimal Example](#minimal-example)
+    - [Complete Example](#complete-example)
+    - [Configuration Sections](#configuration-sections)
+      - [&#91;project&#93;](#project)
+      - [&#91;generation&#93;](#generation)
+      - [&#91;sync&#93;](#sync)
+      - [&#91;rdf&#93;](#rdf)
+      - [&#91;templates&#93;](#templates)
+      - [&#91;marketplace&#93;](#marketplace)
+      - [&#91;output&#93;](#output)
+    - [Validation](#validation)
+      - [File Validation](#file-validation)
+      - [Required Fields](#required-fields)
+      - [Common Errors](#common-errors)
+    - [Environment Variables](#environment-variables)
+    - [Override from CLI](#override-from-cli)
+    - [Include External Config](#include-external-config)
+  - [ggen.toml vs gpack.toml](#ggentoml-vs-gpacktoml)
+    - [gpack.toml Schema](#gpacktoml-schema)
+  - [Integration: ggen sync + ggen.toml](#integration-ggen-sync--ggentoml)
+    - [Workflow](#workflow)
+    - [Example Project Structure](#example-project-structure)
+    - [CI/CD Integration](#cicd-integration)
+  - [Machine-Parseable Schemas](#machine-parseable-schemas)
+    - [ggen sync JSON Schema](#ggen-sync-json-schema)
+    - [ggen.toml TOML Schema](#ggentoml-toml-schema)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen: Sync & Configuration Reference
 
 **Machine-parseable reference for agents. Human documentation: [docs/](docs/)**

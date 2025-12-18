@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v4 to v5 Sync Migration - Code Analysis Report](#ggen-v4-to-v5-sync-migration---code-analysis-report)
+  - [Executive Summary](#executive-summary)
+  - [I. Current Architecture (v4.0.0)](#i-current-architecture-v400)
+    - [A. Crate Structure](#a-crate-structure)
+    - [B. Command Structure (v4)](#b-command-structure-v4)
+    - [C. Removed Commands (v5 Fresh Start)](#c-removed-commands-v5-fresh-start)
+  - [II. v5 Sync Implementation Analysis](#ii-v5-sync-implementation-analysis)
+    - [A. Three-Layer Architecture](#a-three-layer-architecture)
+    - [B. Pipeline Flow (Implemented)](#b-pipeline-flow-implemented)
+    - [C. Manifest Structure (ggen.toml)](#c-manifest-structure-ggentoml)
+  - [III. Reusable Components (v4 → v5)](#iii-reusable-components-v4-%E2%86%92-v5)
+    - [A. RDF/SPARQL Integration ✅](#a-rdfsparql-integration-)
+    - [B. Template Rendering (Tera) ✅](#b-template-rendering-tera-)
+    - [C. Manifest Parsing/Validation ✅](#c-manifest-parsingvalidation-)
+    - [D. Configuration Parsing (ggen.toml) ✅](#d-configuration-parsing-ggentoml-)
+  - [IV. v4 → v5 Command Mapping](#iv-v4-%E2%86%92-v5-command-mapping)
+    - [A. Core Generation Commands](#a-core-generation-commands)
+    - [B. Utility Commands](#b-utility-commands)
+    - [C. Deprecated Commands (No v5 Equivalent)](#c-deprecated-commands-no-v5-equivalent)
+  - [V. Technical Debt Analysis](#v-technical-debt-analysis)
+    - [A. Async/Await Patterns](#a-asyncawait-patterns)
+    - [B. Unwrap/Expect Violations (Production Code)](#b-unwrapexpect-violations-production-code)
+    - [C. Test/Benchmark Exemptions ✅](#c-testbenchmark-exemptions-)
+  - [VI. Recommendations](#vi-recommendations)
+    - [A. High Priority (v5.0 Release)](#a-high-priority-v50-release)
+    - [B. Medium Priority (v5.1 Cleanup)](#b-medium-priority-v51-cleanup)
+    - [C. Low Priority (v5.2+)](#c-low-priority-v52)
+  - [VII. Example Workflows (v4 vs v5)](#vii-example-workflows-v4-vs-v5)
+    - [A. Basic Code Generation](#a-basic-code-generation)
+    - [B. Watch Mode Development](#b-watch-mode-development)
+    - [C. CI/CD Integration](#c-cicd-integration)
+  - [VIII. Migration Checklist](#viii-migration-checklist)
+    - [For v4 Users Migrating to v5](#for-v4-users-migrating-to-v5)
+    - [For ggen Core Developers](#for-ggen-core-developers)
+  - [IX. Conclusion](#ix-conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v4 to v5 Sync Migration - Code Analysis Report
 
 **Branch**: `001-refactor-examples`
