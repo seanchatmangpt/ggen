@@ -1,0 +1,492 @@
+# Data Model: ggen v5.0.0 Release
+
+**Feature**: Unified sync command
+**Date**: 2025-12-17
+**Status**: Complete
+
+## Overview
+
+This document defines the core domain entities for ggen v5 sync, extracted from functional requirements and user scenarios. All entities are technology-agnostic representations of business concepts.
+
+---
+
+## 1. Core Entities
+
+### 1.1 RDF Ontology
+
+**Description**: Source of truth defining domain concepts, relationships, and code generation rules
+
+**Attributes**:
+- **format**: Serialization format (Turtle, RDF/XML, N-Triples)
+- **source_path**: File path or URL to ontology file
+- **triple_count**: Number of triples in the ontology
+- **namespace_prefixes**: Mapping of prefix → URI (e.g., `ex: → http://example.org/`)
+- **imports**: List of external ontologies to include
+- **construct_queries**: SPARQL CONSTRUCT queries for inference (embedded via `ggen:construct` predicate)
+- **select_queries**: SPARQL SELECT queries for data extraction (embedded via `ggen:select` predicate)
+
+**Relationships**:
+- Contains many **SPARQL Queries**
+- Referenced by many **Generated Artifacts**
+- Imported by other **RDF Ontologies**
+
+**State Transitions**:
+```
+[Unloaded] --parse--> [Loaded] --validate--> [Valid]
+[Valid] --materialize--> [Enriched] (after CONSTRUCT queries)
+```
+
+**Validation Rules**:
+- Format must be one of: Turtle, RDF/XML, N-Triples
+- Source path must exist and be readable
+- All namespace prefixes must resolve to valid URIs
+- Imported ontologies must be accessible
+
+---
+
+### 1.2 SPARQL Query
+
+**Description**: Declarative query executed against RDF graph to materialize triples or extract data
+
+**Attributes**:
+- **query_type**: Type of query (CONSTRUCT, SELECT)
+- **query_text**: SPARQL query string
+- **timeout_ms**: Maximum execution time in milliseconds
+- **order**: Execution order (for CONSTRUCT queries with dependencies)
+- **result_format**: Output format (JSON for SELECT, triples for CONSTRUCT)
+- **variables**: List of variables bound by SELECT query (e.g., `?className`, `?propertyName`)
+
+**Relationships**:
+- Belongs to one **RDF Ontology**
+- Produces many **Query Results**
+- Referenced by one **Tera Template** (for SELECT queries)
+- May depend on other **SPARQL Queries** (CONSTRUCT dependency chain)
+
+**State Transitions**:
+```
+[Pending] --validate--> [Valid]
+[Valid] --execute--> [Completed] | [Failed] | [Timeout]
+```
+
+**Validation Rules**:
+- Query text must be valid SPARQL 1.1 syntax
+- All prefixes used in query must be defined in ontology
+- Timeout must be positive integer
+- CONSTRUCT queries must have defined execution order
+
+**Business Rules**:
+- CONSTRUCT queries execute before SELECT queries
+- CONSTRUCT queries execute in ascending order
+- SELECT queries can execute in parallel (no inter-dependencies)
+- Query results are cached by (query_hash, ontology_hash) tuple
+
+---
+
+### 1.3 Tera Template
+
+**Description**: Code generation template with variable placeholders filled by SPARQL query results
+
+**Attributes**:
+- **template_path**: File path to template (or inline content)
+- **template_content**: Template source code (Tera syntax)
+- **output_path_pattern**: Path pattern for generated file (supports variable substitution, e.g., `src/generated/{{ class_name }}.rs`)
+- **required_variables**: List of variables that must be provided by SPARQL queries
+- **optional_variables**: List of variables with default values
+- **syntax**: Target language syntax (Rust, TOML, Markdown, LaTeX, etc.)
+
+**Relationships**:
+- Uses results from many **SPARQL Queries** (SELECT)
+- Produces many **Generated Artifacts**
+- May reference other **Tera Templates** (includes/imports)
+
+**State Transitions**:
+```
+[Unloaded] --parse--> [Loaded] --validate--> [Valid]
+[Valid] --render--> [Rendered] | [RenderError]
+```
+
+**Validation Rules**:
+- Template path must exist (if not inline)
+- Template syntax must be valid Tera
+- All required variables must be provided by SPARQL queries
+- Output path pattern must be valid file system path
+
+**Business Rules**:
+- Variables from multiple SELECT queries are merged into single context
+- Duplicate variable names: last query wins (with warning)
+- Missing optional variables use defaults
+- Missing required variables: render fails with error
+
+---
+
+### 1.4 Generated Artifact
+
+**Description**: Output file produced by template rendering
+
+**Attributes**:
+- **file_path**: Absolute path to generated file
+- **generation_timestamp**: When file was last generated
+- **source_template**: Template that produced this artifact
+- **source_ontology_hash**: SHA-256 hash of source ontology state
+- **template_hash**: SHA-256 hash of template content
+- **content_hash**: SHA-256 hash of normalized generated content
+- **manual_regions**: List of (start_line, end_line) ranges marked with `// GGEN_MANUAL` comments
+- **generation_mode**: How to handle existing file (Create, Overwrite, Merge)
+
+**Relationships**:
+- Generated by one **Tera Template**
+- Depends on many **RDF Ontology** entities (classes, properties, instances)
+- Part of one **Workspace Member**
+
+**State Transitions**:
+```
+[NonExistent] --generate--> [Fresh]
+[Fresh] --modify--> [Modified]
+[Modified] --regenerate--> [Fresh] | [Stale] (if ontology changed but not regenerated)
+[Stale] --sync--> [Fresh]
+```
+
+**Validation Rules**:
+- File path must be within project directory (no path traversal)
+- Generation mode must be one of: Create, Overwrite, Merge
+- Manual regions must not overlap with each other
+- Content hash must match file content (for integrity checking)
+
+**Business Rules**:
+- **Create mode**: Fails if file already exists
+- **Overwrite mode**: Replaces entire file
+- **Merge mode**: Preserves manual regions, updates generated sections
+- Manual regions are preserved across regenerations
+- If manual region position deleted: append to end + emit warning
+
+---
+
+### 1.5 Sync Configuration (ggen.toml)
+
+**Description**: Workspace or package-level configuration defining sync behavior
+
+**Attributes**:
+- **manifest_version**: Schema version (e.g., "1.0")
+- **sync_mode**: Default sync mode (full, incremental, verify)
+- **output_directory**: Base directory for generated files
+- **source_ontology**: Path to primary ontology file
+- **imports**: List of imported ontology files
+- **construct_rules**: List of SPARQL CONSTRUCT queries with execution order
+- **generation_rules**: List of template + SPARQL SELECT + output path mappings
+- **excluded_paths**: Glob patterns for files to ignore during sync
+- **query_timeout_ms**: Default SPARQL query timeout
+- **require_audit_trail**: Whether to generate audit.json
+
+**Relationships**:
+- Belongs to one **Workspace Member** or workspace root
+- References one primary **RDF Ontology**
+- Defines many **SPARQL Queries**
+- Defines many **Tera Templates** (via generation rules)
+
+**Validation Rules**:
+- Manifest version must be supported ("1.0" currently)
+- Sync mode must be one of: full, incremental, verify
+- Source ontology path must exist
+- All imported ontology paths must exist
+- Generation rules must have unique output paths (no collisions)
+- Query timeout must be positive integer
+
+**Business Rules**:
+- Workspace-level ggen.toml applies to all members unless overridden
+- Crate-level ggen.toml inherits from workspace but can override
+- If no ggen.toml found: error (no implicit defaults)
+
+---
+
+### 1.6 Workspace Member
+
+**Description**: Individual crate in a Rust workspace that participates in sync operations
+
+**Attributes**:
+- **crate_name**: Name of the crate (from Cargo.toml `[package].name`)
+- **crate_path**: Absolute path to crate directory
+- **manifest_path**: Path to crate's ggen.toml (if exists)
+- **dependencies**: List of other workspace members this crate depends on
+- **ontology_path**: Path to crate-specific ontology (if any)
+- **generated_artifact_paths**: List of files generated for this crate
+
+**Relationships**:
+- Part of one **Workspace**
+- Has one **Sync Configuration** (ggen.toml)
+- Depends on zero or many other **Workspace Members**
+- Contains many **Generated Artifacts**
+
+**State Transitions**:
+```
+[Discovered] --validate--> [Valid]
+[Valid] --sync--> [InProgress] --complete--> [Synced]
+[Synced] --drift--> [OutOfSync]
+```
+
+**Validation Rules**:
+- Crate path must contain Cargo.toml
+- If ggen.toml exists, it must be valid manifest
+- Dependencies must form a DAG (no circular dependencies)
+
+**Business Rules**:
+- Sync processes crates in dependency order (topological sort)
+- If crate A depends on crate B, B syncs before A
+- Crates with no inter-dependencies can sync in parallel
+- If crate has no ggen.toml: skip silently (opt-in behavior)
+
+---
+
+### 1.7 Sync Operation
+
+**Description**: An execution of the sync command with specific parameters
+
+**Attributes**:
+- **operation_id**: Unique identifier (UUID)
+- **mode**: Execution mode (full, incremental, verify)
+- **start_time**: Operation start timestamp
+- **end_time**: Operation completion timestamp (or null if in progress)
+- **status**: Operation status (Pending, InProgress, Success, Failed)
+- **modified_files**: List of file paths that were generated/modified
+- **error_messages**: List of errors encountered (if status=Failed)
+- **execution_log**: Detailed log of pipeline stages executed
+
+**Relationships**:
+- Operates on one **Sync Configuration**
+- Modifies many **Generated Artifacts**
+- Produces one **Audit Trail** (audit.json)
+
+**State Transitions**:
+```
+[Pending] --start--> [InProgress]
+[InProgress] --complete--> [Success] | [Failed]
+[InProgress] --interrupt--> [Aborted]
+```
+
+**Validation Rules**:
+- Mode must be one of: full, incremental, verify
+- Start time must be before end time
+- If status=Success: error_messages must be empty
+- If status=Failed: error_messages must not be empty
+
+**Business Rules**:
+- **Full mode**: Regenerate all artifacts regardless of staleness
+- **Incremental mode**: Regenerate only artifacts with stale dependencies
+- **Verify mode**: Check consistency, report drift, do not modify files
+- All operations are atomic: either all files generated successfully or none
+- Interrupted operations can be resumed via incremental sync
+
+---
+
+## 2. Entity Relationship Diagram
+
+```
+┌─────────────────┐
+│  RDF Ontology   │
+│  - format       │
+│  - source_path  │
+│  - triple_count │
+└────────┬────────┘
+         │
+         │ contains
+         ├──────────────────────────────────┐
+         ▼                                  ▼
+┌─────────────────┐              ┌────────────────────┐
+│ SPARQL Query    │              │  Tera Template     │
+│ - query_type    │              │  - template_path   │
+│ - query_text    │              │  - output_pattern  │
+│ - timeout_ms    │              │  - required_vars   │
+└────────┬────────┘              └────────┬───────────┘
+         │                                │
+         │ produces                       │ renders
+         ▼                                ▼
+┌─────────────────┐              ┌────────────────────┐
+│ Query Results   │─────uses────>│ Generated Artifact │
+│ (JSON)          │              │ - file_path        │
+└─────────────────┘              │ - content_hash     │
+                                 │ - manual_regions   │
+                                 └────────┬───────────┘
+                                          │
+                                          │ belongs to
+                                          ▼
+                                 ┌────────────────────┐
+                                 │ Workspace Member   │
+                                 │ - crate_name       │
+                                 │ - crate_path       │
+                                 └────────┬───────────┘
+                                          │
+                                          │ part of
+                                          ▼
+                                 ┌────────────────────┐
+                                 │  Workspace         │
+                                 │  - root_path       │
+                                 │  - members[]       │
+                                 └────────────────────┘
+
+┌─────────────────┐
+│ Sync Config     │
+│ (ggen.toml)     │
+│ - sync_mode     │
+│ - output_dir    │
+└────────┬────────┘
+         │
+         │ defines
+         ▼
+┌─────────────────┐
+│ Sync Operation  │
+│ - operation_id  │
+│ - mode          │
+│ - status        │
+│ - modified[]    │
+└─────────────────┘
+```
+
+---
+
+## 3. Data Validation Summary
+
+### Required Validations (Implement in pipeline stages)
+
+1. **Ontology Loading**:
+   - File exists and is readable
+   - Format is valid (Turtle/RDF-XML/N-Triples)
+   - All triples parse successfully
+   - Namespace prefixes resolve
+
+2. **SPARQL Query Validation**:
+   - Syntax is valid SPARQL 1.1
+   - All prefixes are defined
+   - Variables are bound correctly (SELECT)
+   - Graph patterns are satisfiable
+
+3. **Template Validation**:
+   - Tera syntax is valid
+   - Required variables are provided by queries
+   - Output paths are valid and non-overlapping
+
+4. **Artifact Validation**:
+   - File path is within project boundaries
+   - Content hash matches file content
+   - Manual regions are non-overlapping
+
+5. **Manifest Validation**:
+   - Schema version is supported
+   - All file paths exist
+   - Generation rules are complete (template + query + output)
+
+---
+
+## 4. Example Data Instances
+
+### 4.1 Example RDF Ontology
+
+```turtle
+@prefix ex: <http://example.org/ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ex:Person rdf:type rdfs:Class ;
+    rdfs:label "Person" .
+
+ex:name rdf:type rdf:Property ;
+    rdfs:domain ex:Person ;
+    rdfs:range xsd:string .
+```
+
+**Attributes**:
+- format: Turtle
+- triple_count: 5
+- namespace_prefixes: {ex: http://example.org/ontology#, rdf: ..., rdfs: ...}
+
+### 4.2 Example SPARQL Query
+
+```sparql
+PREFIX ex: <http://example.org/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?className ?classLabel
+WHERE {
+  ?class rdf:type rdfs:Class .
+  ?class rdfs:label ?classLabel .
+  BIND(STRAFTER(STR(?class), "#") AS ?className)
+}
+```
+
+**Attributes**:
+- query_type: SELECT
+- timeout_ms: 5000
+- variables: [className, classLabel]
+
+### 4.3 Example Tera Template
+
+```rust
+// Generated by ggen v5.0.0
+{% for class in classes %}
+pub struct {{ class.className }} {
+    // Fields will be added here
+}
+
+impl {{ class.className }} {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+{% endfor %}
+```
+
+**Attributes**:
+- output_path_pattern: `src/generated/classes.rs`
+- required_variables: [classes]
+
+### 4.4 Example Sync Configuration
+
+```toml
+[ontology]
+source = "ontology/domain.ttl"
+imports = ["ontology/common.ttl"]
+
+[[inference.rules]]
+order = 1
+query = """
+PREFIX ex: <http://example.org/>
+CONSTRUCT { ?subclass ex:inheritsFrom ?superclass }
+WHERE { ?subclass rdfs:subClassOf ?superclass }
+"""
+
+[[generation.rules]]
+name = "generate_classes"
+query = "queries/extract_classes.sparql"
+template = "templates/rust_classes.tera"
+output_file = "src/generated/classes.rs"
+
+[generation]
+output_dir = "src/generated"
+mode = "Overwrite"
+```
+
+---
+
+## 5. Implementation Notes
+
+### Storage Strategy
+- **In-Memory**: RDF triples (Oxigraph Store), Query results cache
+- **File System**: Ontologies (.ttl), Templates (.tera), Generated code (.rs), Manifest (ggen.toml)
+- **Persistent Metadata**: Sync state (.ggen/sync-state.json), Query cache (.ggen/cache/sparql/)
+
+### Serialization Formats
+- **RDF**: Turtle (preferred), RDF/XML, N-Triples
+- **Configuration**: TOML (ggen.toml)
+- **Metadata**: JSON (.ggen/sync-state.json, audit.json)
+- **Query Results**: JSON (SPARQL SELECT bindings)
+
+### Indexing Strategy
+- **Predicate indexing**: Common patterns (rdf:type, rdfs:subClassOf, rdfs:label)
+- **Content hashing**: SHA-256 for ontologies, templates, generated artifacts
+- **Dependency tracking**: Subject URIs referenced by SPARQL queries
+
+---
+
+## Conclusion
+
+This data model provides a complete, technology-agnostic representation of ggen v5's domain entities. All entities map directly to functional requirements (FR-001 through FR-020) and support the user scenarios (P1-P3) defined in the specification.
+
+**Next Steps**: Create API contracts defining how these entities interact through the sync pipeline stages.
