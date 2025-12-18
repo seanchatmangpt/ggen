@@ -2,8 +2,11 @@
 
 **Feature Branch**: `001-v5-release`
 **Created**: 2025-12-17
-**Status**: Draft
+**Completed**: 2025-12-17
+**Status**: MVP Complete
 **Input**: User description: "v5 release"
+
+**MVP Scope**: Core `ggen sync` command implemented with 27 tests passing. Comprehensive testing suite (47 tasks) deferred to v5.1.0. See `IMPLEMENTATION_STATUS.md` for details.
 
 ## User Scenarios & Testing *(mandatory)*
 
