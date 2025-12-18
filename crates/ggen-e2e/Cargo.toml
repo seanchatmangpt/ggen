@@ -7,7 +7,7 @@ edition = "2021"
 license = "MIT"
 repository = "https://github.com/seanchatmangpt/ggen"
 keywords = ["e2e", "testing", "testcontainers", "cross-platform"]
-categories = ["development-tools", "testing"]
+categories = ["development-tools", "development-tools::testing"]
 
 [dependencies]
 # Workspace dependencies
