@@ -150,6 +150,7 @@ pub struct MAPEKCycle {
 
 impl MAPEKCycle {
     /// Create a fresh cycle
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(cycle_id: impl Into<String>) -> MonitorState {
         MonitorState {
             cycle: MAPEKCycle {
@@ -384,6 +385,12 @@ impl TickBudget for ColdPathBudget {
 pub struct TickBudgetedExecution<B: TickBudget> {
     ticks_used: usize,
     _budget: PhantomData<B>,
+}
+
+impl<B: TickBudget> Default for TickBudgetedExecution<B> {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl<B: TickBudget> TickBudgetedExecution<B> {
