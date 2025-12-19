@@ -6,7 +6,6 @@
 use crate::v6::pass::{Pass, PassContext, PassResult, PassType};
 use ggen_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
 use std::time::Instant;
 
 /// Canonicalization policy for different file types
@@ -83,7 +82,7 @@ impl CanonicalizationPass {
     }
 
     /// Get policy for a file
-    fn get_policy(&self, path: &PathBuf) -> CanonicalizationPolicy {
+    fn get_policy(&self, path: &std::path::Path) -> CanonicalizationPolicy {
         if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
             self.extension_policies
                 .get(ext)
@@ -95,7 +94,7 @@ impl CanonicalizationPass {
     }
 
     /// Canonicalize a file's content
-    fn canonicalize(&self, path: &PathBuf, content: &str) -> Result<String> {
+    fn canonicalize(&self, path: &std::path::Path, content: &str) -> Result<String> {
         let policy = self.get_policy(path);
 
         match policy {
@@ -170,7 +169,7 @@ impl CanonicalizationPass {
     }
 
     /// Process a single file
-    fn process_file(&self, ctx: &PassContext<'_>, rel_path: &PathBuf) -> Result<bool> {
+    fn process_file(&self, ctx: &PassContext<'_>, rel_path: &std::path::Path) -> Result<bool> {
         let full_path = ctx.output_dir.join(rel_path);
 
         if !full_path.exists() {
@@ -238,6 +237,7 @@ impl Pass for CanonicalizationPass {
 mod tests {
     use super::*;
     use crate::graph::Graph;
+    use std::path::PathBuf;
     use tempfile::TempDir;
 
     #[test]
