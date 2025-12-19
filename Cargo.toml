@@ -84,7 +84,7 @@ ggen-cli-validation = { path = "crates/ggen-cli-validation", version = "5.0.0" }
 ggen-config-clap = { path = "crates/ggen-config-clap", version = "5.0.0" }
 ggen-marketplace = { path = "crates/ggen-marketplace", version = "5.0.0" }
 ggen-domain = { path = "crates/ggen-domain", version = "5.0.0" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "5.0.0" }
+ggen-cli = { path = "crates/ggen-cli", version = "5.0.0" }
 ggen-node = { path = "crates/ggen-node", version = "5.0.0" }
 ggen-macros = { path = "crates/ggen-macros", version = "5.0.0" }
 ggen-dod = { path = "crates/ggen-dod", version = "5.0.0" }
@@ -157,7 +157,7 @@ marketplace-v2 = []
 
 [dependencies]
 ggen-utils = { path = "crates/ggen-utils", version = "5.0.0" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "5.0.0" }
+ggen-cli = { path = "crates/ggen-cli", version = "5.0.0" }
 ggen-core = { path = "crates/ggen-core", version = "5.0.0" }
 ggen-ai = { path = "crates/ggen-ai", version = "5.0.0" }
 human-panic = "2.0.3"
