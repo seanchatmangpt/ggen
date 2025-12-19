@@ -54,9 +54,8 @@ impl ExtractionPass {
         if term.starts_with('<') && term.ends_with('>') {
             // IRI: strip angle brackets
             term[1..term.len() - 1].to_string()
-        } else if term.starts_with('"') {
+        } else if let Some(without_prefix) = term.strip_prefix('"') {
             // Literal: strip quotes and optional datatype/language
-            let without_prefix = &term[1..];
             if let Some(quote_end) = without_prefix.find('"') {
                 without_prefix[..quote_end].to_string()
             } else {
