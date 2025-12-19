@@ -1,6 +1,6 @@
 [package]
 name = "ggen-core"
-version = "5.0.0"
+version = "5.0.1"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Core graph-aware code generation engine"
 edition = "2021"
