@@ -1,0 +1,25 @@
+{# μ₃ Template: Renders Pass instances from ontology #}
+@prefix gv6: <http://ggen.dev/v6#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Generated Pass: {{ pass.name }}
+# Produced by: μ₃:emission
+# Epoch: {{ epoch.id }}
+
+gv6:{{ pass.id }}
+  a gv6:{{ pass.type }} ;
+  gv6:passName "{{ pass.name }}" ;
+  gv6:orderIndex {{ pass.order }} ;
+  gv6:isIdempotent {{ pass.idempotent | default(value="true") }} ;
+  gv6:isDeterministic {{ pass.deterministic | default(value="true") }} ;
+{% if pass.depends_on %}
+  gv6:dependsOnPass gv6:{{ pass.depends_on }} ;
+{% endif %}
+{% if pass.query %}
+  gv6:passQuery """{{ pass.query }}""" ;
+{% endif %}
+{% if pass.template %}
+  gv6:passTemplate "{{ pass.template }}" ;
+{% endif %}
+  rdfs:comment "{{ pass.description }}"@en .
