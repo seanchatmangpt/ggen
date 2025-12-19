@@ -272,7 +272,7 @@ mod tests {
     fn test_receipt_creation() {
         let epoch = create_test_epoch();
         let outputs = vec![OutputFile {
-            path: PathBuf::from("src/generated/model.rs"),
+            path: PathBuf::from("ontology/generated/domain.ttl"),
             hash: "fedcba9876543210".repeat(4), // 64 chars
             size_bytes: 1024,
             produced_by: "μ₃:emission".to_string(),
@@ -289,10 +289,10 @@ mod tests {
     #[test]
     fn test_receipt_verify_outputs() {
         let temp_dir = TempDir::new().unwrap();
-        let output_path = temp_dir.path().join("test.rs");
+        let output_path = temp_dir.path().join("domain.ttl");
 
         // Write initial content
-        let content = b"fn main() {}";
+        let content = b"@prefix ex: <http://example.org/> .";
         std::fs::write(&output_path, content).unwrap();
 
         let epoch = create_test_epoch();

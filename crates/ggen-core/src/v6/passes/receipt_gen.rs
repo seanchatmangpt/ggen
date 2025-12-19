@@ -260,7 +260,7 @@ mod tests {
         let receipt = ReceiptBuilder::new("6.0.0")
             .with_epoch(epoch)
             .with_outputs(vec![OutputFile {
-                path: PathBuf::from("model.rs"),
+                path: PathBuf::from("domain.ttl"),
                 hash: "fedcba9876543210".repeat(4), // 64 chars
                 size_bytes: 100,
                 produced_by: "μ₃:emission".to_string(),

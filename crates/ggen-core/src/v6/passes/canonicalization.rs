@@ -50,16 +50,11 @@ impl CanonicalizationPass {
     pub fn new() -> Self {
         let mut extension_policies = std::collections::BTreeMap::new();
 
-        // Default policies for common file types
-        extension_policies.insert("rs".to_string(), CanonicalizationPolicy::Format);
-        extension_policies.insert("ts".to_string(), CanonicalizationPolicy::Format);
-        extension_policies.insert("tsx".to_string(), CanonicalizationPolicy::Format);
-        extension_policies.insert("js".to_string(), CanonicalizationPolicy::Format);
-        extension_policies.insert("json".to_string(), CanonicalizationPolicy::Format);
-        extension_policies.insert("yaml".to_string(), CanonicalizationPolicy::NormalizeLineEndings);
-        extension_policies.insert("yml".to_string(), CanonicalizationPolicy::NormalizeLineEndings);
+        // v6 only outputs .ttl and .tera files - no source code
+        extension_policies.insert("ttl".to_string(), CanonicalizationPolicy::Format);
+        extension_policies.insert("tera".to_string(), CanonicalizationPolicy::NormalizeLineEndings);
         extension_policies.insert("toml".to_string(), CanonicalizationPolicy::NormalizeLineEndings);
-        extension_policies.insert("md".to_string(), CanonicalizationPolicy::TrimTrailingWhitespace);
+        extension_policies.insert("json".to_string(), CanonicalizationPolicy::Format);
 
         Self {
             default_policy: CanonicalizationPolicy::NormalizeLineEndings,
