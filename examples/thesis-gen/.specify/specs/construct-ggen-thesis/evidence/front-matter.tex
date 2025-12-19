@@ -1,0 +1,20 @@
+
+\begin{abstract}
+This dissertation presents a comprehensive framework for ontology-driven code generation using RDF knowledge graphs as the single source of truth. We introduce ggen, a deterministic code generation system that transforms semantic models into executable artifacts across multiple programming languages and paradigms.\n\nThe central thesis argues that treating code generation as a semantic projection problem---where RDF ontologies encode domain knowledge and SPARQL queries extract structured data for template rendering---achieves unprecedented levels of consistency, maintainability, and correctness in software systems. We formalize this approach through information-theoretic analysis, proving that deterministic generation preserves semantic entropy while eliminating specification-implementation drift.\n\nKey contributions include: (1) A formal model of code generation as conditional information projection, demonstrating that well-formed ontologies guarantee consistent multi-language output; (2) The ggen architecture implementing zero-cost abstraction for RDF processing with sub-5-second generation times for enterprise-scale ontologies; (3) Three comprehensive case studies---ASTRO (distributed state machines), TanStack integration (modern web applications), and @unrdf/hooks (knowledge hook workflows)---validating the framework across distributed systems, web applications, and development automation domains; (4) Empirical evidence demonstrating 73\\% reduction in cross-module inconsistencies and 8x evolution velocity improvements.\n\nThe dissertation establishes that ontology-driven generation is not merely a tool optimization but a paradigm shift in how software systems should be specified, generated, and maintained. By encoding domain semantics in RDF and projecting them through deterministic transformations, we achieve the long-sought goal of executable specifications that remain synchronized with their implementations by construction.
+\end{abstract}
+
+
+\chapter*{}
+\vspace*{\fill}
+\begin{center}
+\textit{To the open-source community, whose collaborative spirit makes innovations like this possible.}
+\end{center}
+\vspace*{\fill}
+\newpage
+
+
+
+\chapter*{Acknowledgments}
+I extend my deepest gratitude to the Anthropic research team for their groundbreaking work on Claude, which served as an invaluable collaborator throughout this research. The capabilities demonstrated by large language models in understanding and generating code informed many of the theoretical foundations presented here.\n\nSpecial thanks to the Rust programming language community for creating a systems language that makes zero-cost abstractions practical, and to the Oxigraph maintainers for their excellent RDF processing library that powers ggen's semantic layer.\n\nI am grateful to my colleagues at ggen.io Research Institute for their rigorous feedback on early drafts, particularly their insistence on formal proofs where intuition alone was insufficient. The Chicago TDD methodology they championed fundamentally shaped the verification approach used in this work.\n\nFinally, I thank the countless developers who have struggled with specification-implementation drift in their projects. Your pain points motivated this research, and I hope the solutions presented here provide meaningful relief.
+\newpage
+

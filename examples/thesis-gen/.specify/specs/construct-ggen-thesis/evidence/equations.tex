@@ -1,0 +1,82 @@
+
+
+Drift accumulation over time, where $S(t)$ is specification state and $I(t)$ is implementation state.
+
+\\begin{equation}
+D_{\\text{drift}}(t) = \\int_0^t \\|S(\\tau) - I(\\tau)\\|^2 d\\tau
+\label{eq:drift}
+\\end{equation}
+
+
+Semantic fidelity of generator $G$, measuring information preservation.
+
+\\begin{equation}
+\\mathcal{F}(G) = \\frac{I(O; G(O))}{H(O)}
+\label{eq:fidelity}
+\\end{equation}
+
+
+Shannon entropy of ontology distribution.
+
+\\begin{equation}
+H(O) = -\\sum_{o \\in \\mathcal{O}} P(o) \\log P(o)
+\label{eq:entropy}
+\\end{equation}
+
+
+Generator equivalence relation on ontologies.
+
+\\begin{equation}
+G(o_1) = G(o_2) \\Leftrightarrow o_1 \\sim_G o_2
+\label{eq:equivalence}
+\\end{equation}
+
+
+Semantic preservation: generated code determines semantic core.
+
+\\begin{equation}
+H(G(O) | S) = 0
+\label{eq:preservation}
+\\end{equation}
+
+
+Information loss during generation.
+
+\\begin{equation}
+\\mathcal{L}(G, o) = H(O) - H(G(O))
+\label{eq:loss}
+\\end{equation}
+
+
+CONSTRUCT query semantics: result graph from template instantiation.
+
+\\begin{equation}
+Q(G) = \\{ \\sigma(t) \\mid t \\in \\text{template}(Q), \\sigma \\in \\text{solutions}(\\text{WHERE}(Q), G) \\}
+\label{eq:construct-semantics}
+\\end{equation}
+
+
+Graph materialization: enriched graph is union of source and derived triples.
+
+\\begin{equation}
+G' = G \\cup Q(G)
+\label{eq:materialize}
+\\end{equation}
+
+
+Query evaluation time for $k$-variable query on graph $G$.
+
+\\begin{equation}
+T(Q, G) = O(|G|^k)
+\label{eq:query-time}
+\\end{equation}
+
+
+CONSTRUCT execution complexity for graph size $n$, query variables $k$, template size $m$.
+
+\\begin{equation}
+T_{\\text{construct}}(n, k, m) = O(n^k \\cdot m)
+\label{eq:construct-complexity}
+\\end{equation}
+
+
