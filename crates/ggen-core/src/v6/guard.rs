@@ -196,7 +196,8 @@ impl SecretGuard {
     /// Create a new secret guard with default patterns
     pub fn new(name: impl Into<String>) -> Self {
         // Pattern to detect potential secrets (password=, secret=, api_key=, etc.)
-        let pattern = r#"(?i)(password|secret|api[_-]?key|token|private[_-]?key)\s*[:=]\s*["'][^"']+["']"#;
+        let pattern =
+            r#"(?i)(password|secret|api[_-]?key|token|private[_-]?key)\s*[:=]\s*["'][^"']+["']"#;
         Self {
             name: name.into(),
             pattern: pattern.to_string(),
@@ -365,7 +366,9 @@ mod tests {
     #[test]
     fn test_path_guard_allowed() {
         let guard = PathGuard::new("test", "ontology/generated/**");
-        assert!(guard.check_path(Path::new("ontology/generated/domain.ttl")).is_none());
+        assert!(guard
+            .check_path(Path::new("ontology/generated/domain.ttl"))
+            .is_none());
     }
 
     #[test]
@@ -405,11 +408,17 @@ mod tests {
         set.add_guard(SecretGuard::new("secret"));
 
         // Should pass both guards
-        let violations = set.check(Path::new("ontology/generated/domain.ttl"), "@prefix ex: <http://example.org/> .");
+        let violations = set.check(
+            Path::new("ontology/generated/domain.ttl"),
+            "@prefix ex: <http://example.org/> .",
+        );
         assert!(violations.is_empty());
 
         // Should fail path guard
-        let violations = set.check(Path::new("ontology/core.ttl"), "@prefix ex: <http://example.org/> .");
+        let violations = set.check(
+            Path::new("ontology/core.ttl"),
+            "@prefix ex: <http://example.org/> .",
+        );
         assert_eq!(violations.len(), 1);
     }
 }

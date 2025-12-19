@@ -106,12 +106,9 @@ impl EmissionPass {
         }
 
         // Render template
-        let content = tera.render("template", &context).map_err(|e| {
-            Error::new(&format!(
-                "Template render error in '{}': {}",
-                rule.name, e
-            ))
-        })?;
+        let content = tera
+            .render("template", &context)
+            .map_err(|e| Error::new(&format!("Template render error in '{}': {}", rule.name, e)))?;
 
         // Render output path
         let output_path_str = tera
@@ -129,9 +126,7 @@ impl EmissionPass {
     }
 
     /// Execute a single emission rule
-    fn execute_rule(
-        &self, ctx: &mut PassContext<'_>, rule: &EmissionRule,
-    ) -> Result<Vec<PathBuf>> {
+    fn execute_rule(&self, ctx: &mut PassContext<'_>, rule: &EmissionRule) -> Result<Vec<PathBuf>> {
         let mut generated_files = Vec::new();
 
         // Load template content
@@ -230,13 +225,8 @@ impl EmissionPass {
             })?;
         }
 
-        std::fs::write(path, content).map_err(|e| {
-            Error::new(&format!(
-                "Failed to write file '{}': {}",
-                path.display(),
-                e
-            ))
-        })
+        std::fs::write(path, content)
+            .map_err(|e| Error::new(&format!("Failed to write file '{}': {}", path.display(), e)))
     }
 }
 
