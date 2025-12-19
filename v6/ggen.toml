@@ -1,0 +1,57 @@
+# ggen v6: Fully-Rendered Libraries via Ontology-First Compilation
+# A = μ(O) - All artifacts are projections of ontology substrate
+
+[project]
+name = "ggen-v6"
+version = "6.0.0"
+description = "Self-rendering ontology-first compilation system"
+
+# v6 only outputs .ttl and .tera files - no source code
+[v6]
+enabled = true
+ontology = "ontology/ggen-v6.ttl"
+output_dir = "generated"
+
+# Staged compilation pipeline (μ₁...μ₅)
+[v6.passes]
+normalization = { order = 1, type = "construct" }
+extraction = { order = 2, type = "select" }
+emission = { order = 3, type = "tera" }
+canonicalization = { order = 4, type = "format" }
+receipt = { order = 5, type = "hash" }
+
+# Constitutional invariants
+[v6.invariants]
+idempotence = true      # μ∘μ = μ
+determinism = true      # same O → same A
+provenance = true       # hash(A) = hash(μ(O))
+no_edit = true          # A is never modified
+substrate_only = true   # only O is authored
+
+# Vocabulary governance
+[v6.vocabulary]
+allowed = [
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "http://www.w3.org/2000/01/rdf-schema#",
+    "http://www.w3.org/2002/07/owl#",
+    "http://www.w3.org/2001/XMLSchema#",
+    "http://www.w3.org/ns/shacl#",
+    "http://ggen.dev/v6#",
+    "http://ggen.ai/ontology/meta#",
+]
+
+# Guards (H) - forbidden output classes
+[v6.guards]
+path = { pattern = "generated/**", action = "allow" }
+secret = { pattern = "(?i)(password|secret|api.?key)", action = "reject" }
+
+# Template configuration
+[templates]
+directory = "templates"
+output_directory = "generated"
+
+# RDF configuration
+[rdf]
+base_uri = "http://ggen.dev/v6#"
+default_format = "turtle"
+ontologies = ["ontology/ggen-v6.ttl"]
