@@ -104,12 +104,12 @@ impl AtomicFileWriter<Uncommitted> {
     pub fn write_all(&mut self, data: &[u8]) -> Result<()> {
         self.file
             .write_all(data)
-            .map_err(|e| Error::io_error(&format!("Failed to write data: {}", e)))?;
+            .map_err(|e| Error::io_error(format!("Failed to write data: {}", e)))?;
 
         // Force to disk (prevents data loss on crash)
         self.file
             .sync_all()
-            .map_err(|e| Error::io_error(&format!("Failed to sync data: {}", e)))?;
+            .map_err(|e| Error::io_error(format!("Failed to sync data: {}", e)))?;
 
         Ok(())
     }
@@ -126,7 +126,7 @@ impl AtomicFileWriter<Uncommitted> {
     pub fn commit(mut self) -> Result<AtomicFileWriter<Committed>> {
         // Atomic rename (POSIX guarantees atomicity)
         fs::rename(&self.temp_path, &self.target_path).map_err(|e| {
-            Error::io_error(&format!("Failed to commit file (rename failed): {}", e))
+            Error::io_error(format!("Failed to commit file (rename failed): {}", e))
         })?;
 
         // Mark as committed to prevent cleanup in Drop
@@ -138,7 +138,7 @@ impl AtomicFileWriter<Uncommitted> {
             file: self
                 .file
                 .try_clone()
-                .map_err(|e| Error::io_error(&format!("Failed to clone file handle: {}", e)))?,
+                .map_err(|e| Error::io_error(format!("Failed to clone file handle: {}", e)))?,
             committed: true,
             _state: PhantomData,
         })
@@ -165,7 +165,7 @@ impl AtomicFileWriter<Uncommitted> {
                         let available = block_size * blocks_avail;
 
                         if available < MIN_FREE_SPACE {
-                            return Err(Error::io_error(&format!(
+                            return Err(Error::io_error(format!(
                                 "Insufficient disk space: {} bytes available, {} required",
                                 available, MIN_FREE_SPACE
                             )));
