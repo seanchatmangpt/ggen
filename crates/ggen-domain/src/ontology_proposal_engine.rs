@@ -135,7 +135,7 @@ impl ProposalMiningStrategy for PatternMiningStrategy {
         for obs in observations {
             patterns
                 .entry((obs.component.clone(), obs.metric.clone()))
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(obs);
         }
 
