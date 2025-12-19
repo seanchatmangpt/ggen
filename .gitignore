@@ -941,3 +941,9 @@ hive-mind-prompt-*.txt
 .ggen/test-metadata/
 .ggen/mutation-reports/
 specs/*/output/
+
+# Compiled binaries (should not be committed)
+ggen-binary
+
+# RDF/RocksDB runtime store artifacts (generated at runtime)
+**/.ggen/rdf-store/
