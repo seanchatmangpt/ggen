@@ -1,0 +1,34 @@
+
+\begin{lstlisting}[language=bash, caption={Automated ggen sync workflow with validation}, label=lst:bash-ggen]
+#!/usr/bin/env bash\nset -euo pipefail\n\n# Load ontology and run generation\nggen sync --manifest ggen.toml\n\n# Validate generated LaTeX\nfor texfile in output/*.tex; do\n  chktex -q \
+\end{lstlisting}
+
+\begin{lstlisting}[language=sql, caption={Electric SQL schema with reactive sync annotations}, label=lst:electric-schema]
+CREATE TABLE users (\n  id UUID PRIMARY KEY,\n  username TEXT NOT NULL UNIQUE,\n  email TEXT NOT NULL,\n  created_at TIMESTAMPTZ DEFAULT NOW()\n);\n\n-- Enable Electric SQL reactive sync\nALTER TABLE users ENABLE ELECTRIC;\n\nCREATE INDEX idx_users_email ON users(email);\nCREATE INDEX idx_users_created ON users(created_at);
+\end{lstlisting}
+
+\begin{lstlisting}[language=typescript, caption={Hook execution engine with dependency resolution}, label=lst:hook-executor]
+export async function executeHookChain<T>(\n  manager: KnowledgeHookManager,\n  event: HookEvent<T>,\n): Promise<HookResult<T>> {\n  const hooks = manager.getHooksForEvent(event.type)\n  const sorted = topologicalSort(hooks, (h) => h.dependencies)\n\n  let context = event.context\n\n  for (const hook of sorted) {\n    if (await hook.guard(context)) {\n      const result = await hook.execute(context)\n      context = { ...context, ...result }\n    }\n  }\n\n  return { success: true, context }\n}
+\end{lstlisting}
+
+\begin{lstlisting}[language=rust, caption={Generated Rust enum and transition function from ASTRO ontology}, label=lst:rust-state-machine]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]\npub enum OrderState {\n    Created,\n    PaymentPending,\n    Confirmed,\n    Shipped,\n    Delivered,\n    Cancelled,\n}\n\npub fn transition(state: OrderState, event: OrderEvent) -> Result<OrderState, TransitionError> {\n    match (state, event) {\n        (OrderState::Created, OrderEvent::PaymentReceived) => Ok(OrderState::Confirmed),\n        (OrderState::Confirmed, OrderEvent::Ship) => Ok(OrderState::Shipped),\n        (OrderState::Shipped, OrderEvent::Deliver) => Ok(OrderState::Delivered),\n        _ => Err(TransitionError::InvalidTransition { state, event }),\n    }\n}
+\end{lstlisting}
+
+\begin{lstlisting}[language=sparql, caption={Deterministic chapter extraction query with ORDER BY}, label=lst:sparql-chapters]
+PREFIX thesis: <https://ggen.io/ontology/thesis#>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n\nSELECT ?orderIndex ?title ?abstract ?labelId ?chapterUri\nWHERE {\n  ?chapter a thesis:Chapter ;\n           thesis:orderIndex ?orderIndex ;\n           thesis:title ?title ;\n           thesis:labelId ?labelId .\n  OPTIONAL { ?chapter thesis:abstract ?abstract }\n  BIND(?chapter AS ?chapterUri)\n}\nORDER BY ?orderIndex
+\end{lstlisting}
+
+\begin{lstlisting}[language=typescript, caption={Type-safe data fetching hook generated from API ontology}, label=lst:tanstack-query]
+import { useQuery } from '@tanstack/react-query'\n\nexport function useAnalytics(dateRange: string) {\n  return useQuery({\n    queryKey: ['analytics', dateRange],\n    queryFn: async () => {\n      const res = await fetch(`/api/analytics?range=${dateRange}`)\n      if (!res.ok) throw new Error('Failed to fetch analytics')\n      return res.json()\n    },\n    staleTime: 5 * 60 * 1000, // 5 minutes\n    retry: 3,\n  })\n}
+\end{lstlisting}
+
+\begin{lstlisting}[language=typescript, caption={Generated TanStack Router configuration with type-safe routes}, label=lst:tanstack-router]
+import { createFileRoute } from '@tanstack/react-router'\n\nexport const Route = createFileRoute('/dashboard/analytics')({\n  component: AnalyticsDashboard,\n  validateSearch: (search) => ({\n    dateRange: search.dateRange ?? 'week',\n    metric: search.metric ?? 'users',\n  }),\n  loader: async ({ context }) => {\n    const data = await context.api.fetchAnalytics()\n    return { analytics: data }\n  },\n})\n\nfunction AnalyticsDashboard() {\n  const { analytics } = Route.useLoaderData()\n  const navigate = Route.useNavigate()\n\n  return <div>Analytics: {analytics.summary}</div>\n}
+\end{lstlisting}
+
+\begin{lstlisting}[language=turtle, caption={Figex ontology defining document structure}, label=lst:turtle-figex]
+@prefix figex: <https://ggen.io/ontology/figex#> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n\nfigex:Document a rdfs:Class ;\n    rdfs:label \
+\end{lstlisting}
+
+
