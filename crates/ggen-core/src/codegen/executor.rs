@@ -263,7 +263,7 @@ impl SyncExecutor {
                 self.options
                     .selected_rules
                     .as_ref()
-                    .map_or(true, |sel| sel.contains(&r.name))
+                    .is_none_or(|sel| sel.contains(&r.name))
             })
             .map(|r| format!("{} -> {}", r.name, r.output_file))
             .collect();
@@ -276,7 +276,7 @@ impl SyncExecutor {
                 self.options
                     .selected_rules
                     .as_ref()
-                    .map_or(true, |sel| sel.contains(&r.name))
+                    .is_none_or(|sel| sel.contains(&r.name))
             })
             .map(|r| SyncedFileInfo {
                 path: r.output_file.clone(),
