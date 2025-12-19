@@ -120,6 +120,12 @@ impl Registry<Uninitialized> {
     }
 }
 
+impl Default for Registry<Uninitialized> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 // ============================================================================
 // Initialized State Methods
 // ============================================================================

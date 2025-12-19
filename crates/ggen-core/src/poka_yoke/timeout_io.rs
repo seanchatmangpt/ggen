@@ -48,6 +48,6 @@ impl TimeoutIO {
             .connect_timeout(Duration::from_secs(10))
             .pool_max_idle_per_host(10)
             .build()
-            .map_err(|e| Error::network_error(&format!("Failed to create HTTP client: {}", e)))
+            .map_err(|e| Error::network_error(format!("Failed to create HTTP client: {}", e)))
     }
 }

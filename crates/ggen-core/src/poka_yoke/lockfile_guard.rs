@@ -57,6 +57,7 @@ impl LockfileGuard {
         let lock_file = OpenOptions::new()
             .create(true)
             .write(true)
+            .truncate(true)
             .open(&lock_file_path)
             .map_err(|e| Error::io_error(format!("Failed to create lock file: {}", e)))?;
 
