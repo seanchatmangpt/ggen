@@ -209,13 +209,13 @@ pub enum ValidationStage {
     Security,
 }
 
-impl ToString for ValidationStage {
-    fn to_string(&self) -> String {
+impl std::fmt::Display for ValidationStage {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ValidationStage::SHACL => "SHACL".to_string(),
-            ValidationStage::TDD => "TDD".to_string(),
-            ValidationStage::Performance => "Performance".to_string(),
-            ValidationStage::Security => "Security".to_string(),
+            ValidationStage::SHACL => write!(f, "SHACL"),
+            ValidationStage::TDD => write!(f, "TDD"),
+            ValidationStage::Performance => write!(f, "Performance"),
+            ValidationStage::Security => write!(f, "Security"),
         }
     }
 }
