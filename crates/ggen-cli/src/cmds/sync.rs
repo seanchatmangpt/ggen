@@ -141,6 +141,7 @@ impl From<SyncResult> for SyncOutput {
 /// # JSON output for CI/CD
 /// ggen sync --format json
 /// ```
+#[allow(clippy::unused_unit, clippy::too_many_arguments)]
 #[verb("sync", "root")]
 fn sync(
     manifest: Option<String>, output_dir: Option<String>, dry_run: Option<bool>,
@@ -173,6 +174,7 @@ fn sync(
 /// Build SyncOptions from CLI arguments
 ///
 /// This helper keeps the verb function thin by extracting option building.
+#[allow(clippy::too_many_arguments)]
 fn build_sync_options(
     manifest: Option<String>, output_dir: Option<String>, dry_run: Option<bool>,
     force: Option<bool>, audit: Option<bool>, rule: Option<String>, verbose: Option<bool>,
