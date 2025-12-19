@@ -54,7 +54,7 @@ pub fn version() -> String {
 /// ```
 #[napi]
 pub async fn run(args: Vec<String>) -> Result<RunResult> {
-    let result = ggen_cli_lib::run_for_node(args)
+    let result = ggen_cli::run_for_node(args)
         .await
         .map_err(|e| Error::from_reason(format!("CLI execution failed: {}", e)))?;
     Ok(RunResult {

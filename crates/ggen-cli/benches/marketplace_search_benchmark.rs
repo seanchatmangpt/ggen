@@ -3,7 +3,7 @@
 //! Verifies that search performance meets <100ms target for 1000 packages
 
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
-use ggen_cli_lib::domain::marketplace::search::{search_packages, SearchFilters};
+use ggen_domain::marketplace::search::{search_packages, SearchFilters};
 use std::fs;
 use tempfile::TempDir;
 

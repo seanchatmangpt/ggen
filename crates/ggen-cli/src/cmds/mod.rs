@@ -52,7 +52,7 @@ pub fn run_cli() -> Result<()> {
     );
 
     if args.iter().any(|arg| arg == "--version" || arg == "-V") {
-        log::info!("ggen {}", env!("CARGO_PKG_VERSION"));
+        println!("ggen {}", env!("CARGO_PKG_VERSION"));
         debug_log(
             "H6",
             "cmds/mod.rs:run_cli:version",
