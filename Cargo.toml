@@ -159,6 +159,7 @@ marketplace-v2 = []
 ggen-utils = { path = "crates/ggen-utils", version = "5.0.0" }
 ggen-cli-lib = { path = "crates/ggen-cli", version = "5.0.0" }
 ggen-core = { path = "crates/ggen-core", version = "5.0.0" }
+ggen-domain = { path = "crates/ggen-domain", version = "5.0.0" }
 ggen-ai = { path = "crates/ggen-ai", version = "5.0.0" }
 human-panic = "2.0.3"
 better-panic = "0.3.0"

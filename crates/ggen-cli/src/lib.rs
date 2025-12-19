@@ -69,7 +69,7 @@ pub mod runtime_helper; // Sync CLI wrapper utilities for async operations // Co
 pub mod validation; // Compile-time validation (Andon Signal Validation Framework)
 
 // Re-export clap-noun-verb for auto-discovery
-pub use clap_noun_verb::{run, CommandRouter, Result as ClapNounVerbResult};
+pub use clap_noun_verb::{run, CliBuilder, CommandRouter, Result as ClapNounVerbResult};
 use serde_json::json;
 
 fn debug_log(hypothesis_id: &str, location: &str, message: &str, data: serde_json::Value) {
@@ -261,22 +261,32 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
         }
     }
 
-    // Use clap-noun-verb auto-discovery (handles --version automatically)
+    // Use clap-noun-verb CliBuilder for explicit version configuration
+    // This ensures the correct version (from ggen's Cargo.toml) is displayed
     // #region agent log
     debug_log(
         "H5",
         "lib.rs:cli_match:router",
-        "delegating to clap_noun_verb::run",
-        json!({}),
+        "delegating to CliBuilder with explicit version",
+        json!({ "version": env!("CARGO_PKG_VERSION") }),
     );
     // #endregion
-    clap_noun_verb::run()
-        .map_err(|e| ggen_utils::error::Error::new(&format!("CLI execution failed: {}", e)))?;
+
+    // IMPORTANT: Don't wrap clap-noun-verb errors. Help/version are returned as errors
+    // with exit code 0, and wrapping them causes "ERROR: CLI execution failed" to appear.
+    // See: docs/howto/setup-help-and-version.md
+    CliBuilder::new()
+        .name("ggen")
+        .about("Language-agnostic, deterministic code generation CLI. Ontologies + RDF → reproducible code projections.")
+        .version(env!("CARGO_PKG_VERSION"))  // Use ggen's version (5.0.0), not clap-noun-verb's
+        .run()
+        .map_err(|e| ggen_utils::error::Error::new(&e.to_string()))?;
+
     // #region agent log
     debug_log(
         "H5",
         "lib.rs:cli_match:router",
-        "clap_noun_verb::run completed",
+        "CliBuilder run completed",
         json!({}),
     );
     // #endregion
@@ -293,6 +303,10 @@ pub struct RunResult {
 
 /// Programmatic entrypoint to execute the CLI with provided arguments and capture output.
 /// This avoids spawning a new process and preserves deterministic behavior.
+///
+/// Note: Uses deprecated run_cli() because cli_match() is async and cannot be called
+/// inside spawn_blocking. This is a legitimate architectural constraint.
+#[allow(deprecated)]
 pub async fn run_for_node(args: Vec<String>) -> ggen_utils::error::Result<RunResult> {
     use std::sync::Arc;
     use std::sync::Mutex;

@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy prebuilt binary
-COPY target/release/ggen /usr/local/bin/ggen
+COPY ggen-binary /usr/local/bin/ggen
 
 # Set working directory for user projects
 WORKDIR /workspace
