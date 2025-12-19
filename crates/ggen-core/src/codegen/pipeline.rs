@@ -145,9 +145,8 @@ fn clean_sparql_term(value: &str) -> String {
     if value.starts_with('<') && value.ends_with('>') {
         // IRI: strip angle brackets
         value[1..value.len() - 1].to_string()
-    } else if value.starts_with('"') {
+    } else if let Some(without_prefix) = value.strip_prefix('"') {
         // Literal: strip quotes and optional datatype/language tag
-        let without_prefix = &value[1..];
         if let Some(quote_end) = without_prefix.find('"') {
             without_prefix[..quote_end].to_string()
         } else {
@@ -367,9 +366,8 @@ impl GenerationPipeline {
                     let clean_value = if value.starts_with('<') && value.ends_with('>') {
                         // IRI: strip angle brackets
                         &value[1..value.len() - 1]
-                    } else if value.starts_with('"') {
+                    } else if let Some(without_prefix) = value.strip_prefix('"') {
                         // Literal: strip quotes and optional datatype
-                        let without_prefix = &value[1..];
                         if let Some(quote_end) = without_prefix.find('"') {
                             &without_prefix[..quote_end]
                         } else {
