@@ -298,7 +298,7 @@ pub fn validate_lockfile<L: Lockfile>(lockfile: &L) -> ValidationResult {
 
         // Validate dependencies exist
         for dep_id in entry.dependencies() {
-            if !lockfile.get(dep_id).is_some() && !seen_ids.contains(dep_id) {
+            if lockfile.get(dep_id).is_none() && !seen_ids.contains(dep_id) {
                 result = result.with_warning(ValidationWarning {
                     code: WarningCode::MissingOptionalField,
                     message: format!(

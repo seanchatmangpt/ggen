@@ -71,7 +71,7 @@ impl AtomicFileWriter<Uncommitted> {
         // Pre-flight check: parent directory exists
         if let Some(parent) = target_path.parent() {
             if !parent.exists() {
-                return Err(Error::invalid_input(&format!(
+                return Err(Error::invalid_input(format!(
                     "Parent directory does not exist: {}",
                     parent.display()
                 )));
@@ -85,7 +85,7 @@ impl AtomicFileWriter<Uncommitted> {
             .write(true)
             .truncate(true)
             .open(&temp_path)
-            .map_err(|e| Error::io_error(&format!("Failed to create temp file: {}", e)))?;
+            .map_err(|e| Error::io_error(format!("Failed to create temp file: {}", e)))?;
 
         Ok(Self {
             target_path,
