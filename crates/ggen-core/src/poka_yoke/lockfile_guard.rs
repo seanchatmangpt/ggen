@@ -58,7 +58,7 @@ impl LockfileGuard {
             .create(true)
             .write(true)
             .open(&lock_file_path)
-            .map_err(|e| Error::io_error(&format!("Failed to create lock file: {}", e)))?;
+            .map_err(|e| Error::io_error(format!("Failed to create lock file: {}", e)))?;
 
         // Acquire exclusive lock (blocks until available)
         #[cfg(unix)]
@@ -111,7 +111,7 @@ impl LockfileGuard {
         if self.lock_path.exists() {
             let backup_path = self.lock_path.with_extension("lock.backup");
             std::fs::copy(&self.lock_path, &backup_path)
-                .map_err(|e| Error::io_error(&format!("Failed to create backup: {}", e)))?;
+                .map_err(|e| Error::io_error(format!("Failed to create backup: {}", e)))?;
         }
 
         // Use AtomicFileWriter for atomicity

@@ -95,7 +95,6 @@ impl FormatType {
     }
 }
 
-
 /// Detect format type from file extension
 ///
 /// Returns `FormatType::Toml` as default for unknown extensions.
