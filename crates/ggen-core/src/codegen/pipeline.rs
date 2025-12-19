@@ -532,8 +532,7 @@ impl GenerationPipeline {
             // Clean value: strip IRI angle brackets or literal quotes
             let clean_value = if value.starts_with('<') && value.ends_with('>') {
                 &value[1..value.len() - 1]
-            } else if value.starts_with('"') {
-                let without_prefix = &value[1..];
+            } else if let Some(without_prefix) = value.strip_prefix('"') {
                 if let Some(quote_end) = without_prefix.find('"') {
                     &without_prefix[..quote_end]
                 } else {

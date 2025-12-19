@@ -48,9 +48,10 @@ impl LockfileFormat for JsonFormat {
 }
 
 /// Format type enumeration for runtime selection
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum FormatType {
     /// TOML format (.lock, .toml)
+    #[default]
     Toml,
     /// JSON format (.json)
     Json,
@@ -94,11 +95,6 @@ impl FormatType {
     }
 }
 
-impl Default for FormatType {
-    fn default() -> Self {
-        FormatType::Toml
-    }
-}
 
 /// Detect format type from file extension
 ///
