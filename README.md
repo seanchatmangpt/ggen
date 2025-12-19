@@ -33,22 +33,32 @@ ggen is a **deterministic code generator** that bridges semantic web technologie
 
 ### Installation
 
-**Via Homebrew** (macOS/Linux):
+**Via Homebrew** (macOS/Linux) - Fastest for Apple Silicon:
 
 ```bash
-brew install seanchatmangpt/ggen/ggen
+brew install seanchatmangpt/ggen/ggen  # Installs in 1 second on arm64!
+```
+
+**Via Docker** - No installation required:
+
+```bash
+docker pull seanchatman/ggen:5.0.0
+docker run --rm -v $(pwd):/workspace seanchatman/ggen:5.0.0 sync
 ```
 
 **Via Cargo**:
 
 ```bash
-cargo install ggen
+cargo install ggen-cli-lib
 ```
 
 **Verify installation**:
 
 ```bash
 ggen --version  # Should show: ggen 5.0.0
+
+# Or with Docker
+docker run --rm seanchatman/ggen:5.0.0 --version
 ```
 
 ### Your First Sync (5 minutes)
@@ -139,6 +149,39 @@ ggen sync --from . --mode full --verbose
 # Sync specific member
 ggen sync --from crates/domain --to crates/domain/src/generated.rs
 ```
+
+### How to use ggen with Docker
+
+**Basic usage** (mount current directory):
+
+```bash
+docker run --rm -v $(pwd):/workspace seanchatman/ggen:5.0.0 sync
+```
+
+**With docker compose** (`docker-compose.yml`):
+
+```yaml
+version: '3.8'
+services:
+  ggen:
+    image: seanchatman/ggen:5.0.0
+    volumes:
+      - .:/workspace
+    command: sync
+```
+
+```bash
+docker compose run --rm ggen sync
+```
+
+**Interactive shell**:
+
+```bash
+docker run --rm -it -v $(pwd):/workspace seanchatman/ggen:5.0.0 bash
+ggen sync  # Inside container
+```
+
+See [DOCKER.md](DOCKER.md) for full Docker documentation.
 
 ### How to preview changes before applying
 

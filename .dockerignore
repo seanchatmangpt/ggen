@@ -1,0 +1,49 @@
+# Git
+.git
+.gitignore
+.github
+
+# Build artifacts
+target/
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+.cursor/
+.claude/
+.claude-flow/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Test files
+tests/
+benches/
+examples/
+
+# Temporary files
+tmp/
+temp/
+.DS_Store
+
+# Archives and packages
+*.tar.gz
+*.zip
+
+# CI/CD
+.gitlab-ci.yml
+azure-pipelines.yml
+
+# Misc
+.archive/
+.ggen/
+.metrics/
+.specify/
+marketplace/
+playground/
+scripts/
