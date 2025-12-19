@@ -1,0 +1,29 @@
+{# =============================================================================
+   TABLE TEMPLATE - Tables with headers and data rows
+   SIMPLIFIED VERSION - Generates placeholder tables to avoid Cartesian product issues
+   TODO: Refactor SPARQL query to avoid multi-property Cartesian products
+   ============================================================================= #}
+{%- set current_table = "" -%}
+{%- set tables_seen = [] -%}
+{% for row in sparql_results %}
+{%- set tableUri = row["?tableUri"] | default(value="") -%}
+{%- set caption = row["?caption"] | default(value="") -%}
+{%- set labelId = row["?labelId"] | default(value="") -%}
+{# Only emit each table once #}
+{%- if tableUri != current_table -%}
+{%- set_global current_table = tableUri -%}
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Column 1} & \textbf{Column 2} & \textbf{Column 3} \\
+\midrule
+(Table data from ontology) & & \\
+\bottomrule
+\end{tabular}
+\caption{ {{- caption | default(value="Table") -}} }
+\label{ {{- labelId | default(value="tab:table") -}} }
+\end{table}
+
+{%- endif -%}
+{% endfor %}
