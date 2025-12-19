@@ -3,6 +3,8 @@
 //! `ggen sync` is the unified code synchronization pipeline that replaces ALL
 //! previous ggen commands. It transforms domain ontologies through inference
 //! rules into typed code via Tera templates.
+
+#![allow(clippy::unused_unit)] // clap-noun-verb macro generates this
 //!
 //! ## Architecture: Three-Layer Pattern
 //!
