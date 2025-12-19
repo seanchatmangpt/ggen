@@ -1,0 +1,751 @@
+# ggen v6: Fully-Rendered Libraries via Ontology-First Compilation
+# Core Ontology Schema for Staged Projection Pipeline
+#
+# This ontology defines the complete type system for v6's constitutional law:
+#   A = μ(O) - All artifacts are projections of ontology
+#
+# Key concepts:
+# - Pass: Ordered projection stages (μ₁...μ₅)
+# - Receipt: Provenance binding outputs to input hashes
+# - Epoch: Frozen input state for reproducibility
+# - Guard: Forbidden output class constraints
+
+@prefix gv6: <http://ggen.dev/v6#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix meta: <http://ggen.ai/ontology/meta#> .
+
+# =============================================================================
+# 1. CORE CONSTITUTIONAL EQUATION: A = μ(O)
+# =============================================================================
+
+gv6:ProjectionFunction
+  a owl:Class ;
+  rdfs:label "μ - Projection Function"@en ;
+  rdfs:comment "The deterministic projection function A = μ(O)"@en ;
+  rdfs:subClassOf meta:OntologyElement .
+
+gv6:OntologySubstrate
+  a owl:Class ;
+  rdfs:label "O - Ontology Substrate"@en ;
+  rdfs:comment "The only authored substrate: ontologies, constraints, manifests"@en ;
+  rdfs:subClassOf meta:OntologyElement .
+
+gv6:Artifact
+  a owl:Class ;
+  rdfs:label "A - Artifact"@en ;
+  rdfs:comment "Output artifact produced by projection (never edited directly)"@en ;
+  rdfs:subClassOf meta:OntologyElement .
+
+gv6:FullyRenderedLibrary
+  a owl:Class ;
+  rdfs:label "Fully-Rendered Library"@en ;
+  rdfs:comment "A library where A* = μ(O*) with no hand-authored code in A"@en ;
+  rdfs:subClassOf gv6:Artifact .
+
+# =============================================================================
+# 2. STAGED COMPILATION PASSES (Λ)
+# =============================================================================
+
+gv6:Pass
+  a owl:Class ;
+  rdfs:label "Projection Pass"@en ;
+  rdfs:comment "A single stage in the projection pipeline μ₁...μₙ"@en ;
+  rdfs:subClassOf meta:OntologyElement .
+
+gv6:NormalizationPass
+  a owl:Class ;
+  rdfs:subClassOf gv6:Pass ;
+  rdfs:label "μ₁ - Normalization Pass"@en ;
+  rdfs:comment "Ontology → Ontology transformation (CONSTRUCT rewrites)"@en .
+
+gv6:ExtractionPass
+  a owl:Class ;
+  rdfs:subClassOf gv6:Pass ;
+  rdfs:label "μ₂ - Extraction Pass"@en ;
+  rdfs:comment "Ontology → Bindings transformation (SELECT queries)"@en .
+
+gv6:EmissionPass
+  a owl:Class ;
+  rdfs:subClassOf gv6:Pass ;
+  rdfs:label "μ₃ - Emission Pass"@en ;
+  rdfs:comment "Bindings → Files transformation (Tera templates)"@en .
+
+gv6:CanonicalizationPass
+  a owl:Class ;
+  rdfs:subClassOf gv6:Pass ;
+  rdfs:label "μ₄ - Canonicalization Pass"@en ;
+  rdfs:comment "Files → Canonical Files (formatting, ordering)"@en .
+
+gv6:ReceiptPass
+  a owl:Class ;
+  rdfs:subClassOf gv6:Pass ;
+  rdfs:label "μ₅ - Receipt Pass"@en ;
+  rdfs:comment "Files → Receipt (provenance binding)"@en .
+
+# Pass ordering properties
+
+gv6:orderIndex
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:Pass ;
+  rdfs:range xsd:integer ;
+  rdfs:label "order index"@en ;
+  rdfs:comment "Execution order in Λ (lower = earlier)"@en .
+
+gv6:precedesPass
+  a owl:ObjectProperty ;
+  rdfs:domain gv6:Pass ;
+  rdfs:range gv6:Pass ;
+  rdfs:label "precedes"@en ;
+  rdfs:comment "This pass must execute before the target pass"@en .
+
+gv6:dependsOnPass
+  a owl:ObjectProperty ;
+  rdfs:domain gv6:Pass ;
+  rdfs:range gv6:Pass ;
+  rdfs:label "depends on"@en ;
+  rdfs:comment "This pass requires the target pass to have completed"@en .
+
+# Pass execution properties
+
+gv6:passName
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:Pass ;
+  rdfs:range xsd:string ;
+  rdfs:label "pass name"@en ;
+  rdfs:comment "Unique identifier for this pass"@en .
+
+gv6:passQuery
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:Pass ;
+  rdfs:range xsd:string ;
+  rdfs:label "pass query"@en ;
+  rdfs:comment "SPARQL CONSTRUCT or SELECT query for this pass"@en .
+
+gv6:passTemplate
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:Pass ;
+  rdfs:range xsd:string ;
+  rdfs:label "pass template"@en ;
+  rdfs:comment "Tera template path for emission passes"@en .
+
+gv6:isIdempotent
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:Pass ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "is idempotent"@en ;
+  rdfs:comment "Whether μ∘μ = μ holds for this pass"@en .
+
+gv6:isDeterministic
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:Pass ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "is deterministic"@en ;
+  rdfs:comment "Whether same inputs always produce same outputs"@en .
+
+# =============================================================================
+# 3. EPOCH (τ) - Frozen Input State
+# =============================================================================
+
+gv6:Epoch
+  a owl:Class ;
+  rdfs:label "Epoch τ"@en ;
+  rdfs:comment "A frozen point-in-time of all input ontologies"@en ;
+  rdfs:subClassOf meta:OntologyElement .
+
+gv6:epochId
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:Epoch ;
+  rdfs:range xsd:string ;
+  rdfs:label "epoch ID"@en ;
+  rdfs:comment "SHA-256 hash of all input ontology hashes"@en .
+
+gv6:epochTimestamp
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:Epoch ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "epoch timestamp"@en ;
+  rdfs:comment "When this epoch was created"@en .
+
+gv6:containsOntology
+  a owl:ObjectProperty ;
+  rdfs:domain gv6:Epoch ;
+  rdfs:range gv6:OntologyInput ;
+  rdfs:label "contains ontology"@en ;
+  rdfs:comment "An ontology file included in this epoch"@en .
+
+gv6:OntologyInput
+  a owl:Class ;
+  rdfs:label "Ontology Input"@en ;
+  rdfs:comment "A single ontology file with its hash"@en ;
+  rdfs:subClassOf meta:OntologyElement .
+
+gv6:inputPath
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:OntologyInput ;
+  rdfs:range xsd:string ;
+  rdfs:label "input path"@en ;
+  rdfs:comment "Relative path to ontology file"@en .
+
+gv6:inputHash
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:OntologyInput ;
+  rdfs:range xsd:string ;
+  rdfs:label "input hash"@en ;
+  rdfs:comment "SHA-256 hash of file contents"@en .
+
+gv6:inputTripleCount
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:OntologyInput ;
+  rdfs:range xsd:integer ;
+  rdfs:label "input triple count"@en ;
+  rdfs:comment "Number of RDF triples in this file"@en .
+
+# =============================================================================
+# 4. RECEIPT (Provenance Binding)
+# =============================================================================
+
+gv6:Receipt
+  a owl:Class ;
+  rdfs:label "Build Receipt"@en ;
+  rdfs:comment "Cryptographic binding of outputs to inputs"@en ;
+  rdfs:subClassOf meta:Receipt .
+
+gv6:receiptId
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:Receipt ;
+  rdfs:range xsd:string ;
+  rdfs:label "receipt ID"@en ;
+  rdfs:comment "Unique identifier for this receipt"@en .
+
+gv6:forEpoch
+  a owl:ObjectProperty ;
+  rdfs:domain gv6:Receipt ;
+  rdfs:range gv6:Epoch ;
+  rdfs:label "for epoch"@en ;
+  rdfs:comment "The input epoch this receipt certifies"@en .
+
+gv6:passesExecuted
+  a owl:ObjectProperty ;
+  rdfs:domain gv6:Receipt ;
+  rdfs:range gv6:PassExecution ;
+  rdfs:label "passes executed"@en ;
+  rdfs:comment "Record of passes that were executed"@en .
+
+gv6:outputFiles
+  a owl:ObjectProperty ;
+  rdfs:domain gv6:Receipt ;
+  rdfs:range gv6:OutputFile ;
+  rdfs:label "output files"@en ;
+  rdfs:comment "Files produced by this projection"@en .
+
+gv6:receiptHash
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:Receipt ;
+  rdfs:range xsd:string ;
+  rdfs:label "receipt hash"@en ;
+  rdfs:comment "SHA-256 of all output hashes concatenated"@en .
+
+gv6:isValid
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:Receipt ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "is valid"@en ;
+  rdfs:comment "Whether hash(A) = hash(μ(O)) was verified"@en .
+
+gv6:toolchainVersion
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:Receipt ;
+  rdfs:range xsd:string ;
+  rdfs:label "toolchain version"@en ;
+  rdfs:comment "ggen version used for projection"@en .
+
+# Pass execution record
+
+gv6:PassExecution
+  a owl:Class ;
+  rdfs:label "Pass Execution"@en ;
+  rdfs:comment "Record of a single pass execution"@en ;
+  rdfs:subClassOf meta:OntologyElement .
+
+gv6:executedPass
+  a owl:ObjectProperty ;
+  rdfs:domain gv6:PassExecution ;
+  rdfs:range gv6:Pass ;
+  rdfs:label "executed pass"@en ;
+  rdfs:comment "The pass that was executed"@en .
+
+gv6:executionDurationMs
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:PassExecution ;
+  rdfs:range xsd:integer ;
+  rdfs:label "duration (ms)"@en ;
+  rdfs:comment "Execution time in milliseconds"@en .
+
+gv6:queryHash
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:PassExecution ;
+  rdfs:range xsd:string ;
+  rdfs:label "query hash"@en ;
+  rdfs:comment "SHA-256 of the SPARQL query executed"@en .
+
+gv6:triplesProduced
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:PassExecution ;
+  rdfs:range xsd:integer ;
+  rdfs:label "triples produced"@en ;
+  rdfs:comment "Number of RDF triples produced by CONSTRUCT"@en .
+
+# Output file record
+
+gv6:OutputFile
+  a owl:Class ;
+  rdfs:label "Output File"@en ;
+  rdfs:comment "A file produced by projection"@en ;
+  rdfs:subClassOf gv6:Artifact .
+
+gv6:outputPath
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:OutputFile ;
+  rdfs:range xsd:string ;
+  rdfs:label "output path"@en ;
+  rdfs:comment "Relative path from project root"@en .
+
+gv6:outputHash
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:OutputFile ;
+  rdfs:range xsd:string ;
+  rdfs:label "output hash"@en ;
+  rdfs:comment "SHA-256 of file contents"@en .
+
+gv6:outputSize
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:OutputFile ;
+  rdfs:range xsd:integer ;
+  rdfs:label "output size"@en ;
+  rdfs:comment "File size in bytes"@en .
+
+gv6:producedByPass
+  a owl:ObjectProperty ;
+  rdfs:domain gv6:OutputFile ;
+  rdfs:range gv6:Pass ;
+  rdfs:label "produced by"@en ;
+  rdfs:comment "The pass that produced this file"@en .
+
+# =============================================================================
+# 5. GUARD SYSTEM (H)
+# =============================================================================
+
+gv6:Guard
+  a owl:Class ;
+  rdfs:label "Guard H"@en ;
+  rdfs:comment "Forbidden output class constraint"@en ;
+  rdfs:subClassOf meta:Guard .
+
+gv6:PathGuard
+  a owl:Class ;
+  rdfs:subClassOf gv6:Guard ;
+  rdfs:label "Path Guard"@en ;
+  rdfs:comment "Forbids emission outside declared output roots"@en .
+
+gv6:NamespaceGuard
+  a owl:Class ;
+  rdfs:subClassOf gv6:Guard ;
+  rdfs:label "Namespace Guard"@en ;
+  rdfs:comment "Forbids unknown vocabulary namespaces"@en .
+
+gv6:SecretGuard
+  a owl:Class ;
+  rdfs:subClassOf gv6:Guard ;
+  rdfs:label "Secret Guard"@en ;
+  rdfs:comment "Forbids embedding secrets in outputs"@en .
+
+gv6:NetworkGuard
+  a owl:Class ;
+  rdfs:subClassOf gv6:Guard ;
+  rdfs:label "Network Guard"@en ;
+  rdfs:comment "Forbids network access during release builds"@en .
+
+gv6:guardName
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:Guard ;
+  rdfs:range xsd:string ;
+  rdfs:label "guard name"@en ;
+  rdfs:comment "Unique identifier for this guard"@en .
+
+gv6:guardPattern
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:Guard ;
+  rdfs:range xsd:string ;
+  rdfs:label "guard pattern"@en ;
+  rdfs:comment "Glob or regex pattern to match"@en .
+
+gv6:guardAction
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:Guard ;
+  rdfs:range xsd:string ;
+  rdfs:label "guard action"@en ;
+  rdfs:comment "Action: 'reject', 'warn', 'require_approval'"@en .
+
+gv6:guardEnabled
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:Guard ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "guard enabled"@en ;
+  rdfs:comment "Whether this guard is active"@en .
+
+# =============================================================================
+# 6. VOCABULARY GOVERNANCE
+# =============================================================================
+
+gv6:VocabularyRegistry
+  a owl:Class ;
+  rdfs:label "Vocabulary Registry"@en ;
+  rdfs:comment "Registry of allowed and forbidden vocabularies"@en ;
+  rdfs:subClassOf meta:OntologyElement .
+
+gv6:AllowedVocabulary
+  a owl:Class ;
+  rdfs:label "Allowed Vocabulary"@en ;
+  rdfs:comment "A vocabulary that may be used without proof"@en ;
+  rdfs:subClassOf meta:OntologyElement .
+
+gv6:ForbiddenVocabulary
+  a owl:Class ;
+  rdfs:label "Forbidden Vocabulary"@en ;
+  rdfs:comment "A vocabulary that is never allowed"@en ;
+  rdfs:subClassOf meta:OntologyElement .
+
+gv6:vocabularyNamespace
+  a owl:DatatypeProperty ;
+  rdfs:domain [ owl:unionOf ( gv6:AllowedVocabulary gv6:ForbiddenVocabulary ) ] ;
+  rdfs:range xsd:anyURI ;
+  rdfs:label "vocabulary namespace"@en ;
+  rdfs:comment "The IRI namespace of this vocabulary"@en .
+
+gv6:vocabularyPrefix
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:AllowedVocabulary ;
+  rdfs:range xsd:string ;
+  rdfs:label "vocabulary prefix"@en ;
+  rdfs:comment "Standard prefix for this vocabulary"@en .
+
+gv6:requiresProof
+  a owl:DatatypeProperty ;
+  rdfs:domain gv6:AllowedVocabulary ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "requires proof"@en ;
+  rdfs:comment "Whether using this vocabulary requires a proof receipt"@en .
+
+# =============================================================================
+# 7. BLANK NODE POLICY
+# =============================================================================
+
+gv6:BlankNodePolicy
+  a owl:Class ;
+  rdfs:label "Blank Node Policy"@en ;
+  rdfs:comment "Policy for handling blank nodes in projections"@en ;
+  rdfs:subClassOf meta:OntologyElement .
+
+gv6:RejectBlankNodes
+  a gv6:BlankNodePolicy ;
+  rdfs:label "Reject Blank Nodes"@en ;
+  rdfs:comment "Fail projection if blank nodes are encountered"@en .
+
+gv6:CanonicalizeBlankNodes
+  a gv6:BlankNodePolicy ;
+  rdfs:label "Canonicalize Blank Nodes"@en ;
+  rdfs:comment "Assign deterministic IRIs to blank nodes"@en .
+
+gv6:PreserveBlankNodes
+  a gv6:BlankNodePolicy ;
+  rdfs:label "Preserve Blank Nodes"@en ;
+  rdfs:comment "Keep blank nodes as-is (non-deterministic)"@en .
+
+# =============================================================================
+# 8. INVARIANTS (Constitutional Laws)
+# =============================================================================
+
+gv6:IdempotenceInvariant
+  a meta:Invariant ;
+  rdfs:label "Idempotence: μ∘μ = μ"@en ;
+  rdfs:comment "Applying projection twice equals applying once"@en .
+
+gv6:DeterminismInvariant
+  a meta:Invariant ;
+  rdfs:label "Determinism: same O → same A"@en ;
+  rdfs:comment "Same inputs always produce identical outputs"@en .
+
+gv6:ProvenanceInvariant
+  a meta:Invariant ;
+  rdfs:label "Provenance: hash(A) = hash(μ(O))"@en ;
+  rdfs:comment "Receipt hash matches computed projection hash"@en .
+
+gv6:OrderingInvariant
+  a meta:Invariant ;
+  rdfs:label "Ordering: Λ is ≺-total"@en ;
+  rdfs:comment "Pass ordering is total (no ambiguity)"@en .
+
+gv6:NoEditInvariant
+  a meta:Invariant ;
+  rdfs:label "No Edit: A is never modified"@en ;
+  rdfs:comment "Artifacts are only created, never edited"@en .
+
+gv6:SubstrateOnlyInvariant
+  a meta:Invariant ;
+  rdfs:label "Substrate Only: only O is authored"@en ;
+  rdfs:comment "The only writable substrate is O"@en .
+
+# =============================================================================
+# 9. SHACL SHAPES
+# =============================================================================
+
+gv6:PassShape
+  a shacl:NodeShape ;
+  shacl:targetClass gv6:Pass ;
+  shacl:property [
+    shacl:path gv6:passName ;
+    shacl:datatype xsd:string ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:description "Pass must have exactly one name"@en
+  ] ;
+  shacl:property [
+    shacl:path gv6:orderIndex ;
+    shacl:datatype xsd:integer ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:description "Pass must have exactly one order index"@en
+  ] ;
+  shacl:property [
+    shacl:path gv6:isIdempotent ;
+    shacl:datatype xsd:boolean ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:description "Pass must declare idempotence"@en
+  ] ;
+  shacl:property [
+    shacl:path gv6:isDeterministic ;
+    shacl:datatype xsd:boolean ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:description "Pass must declare determinism"@en
+  ] .
+
+gv6:ReceiptShape
+  a shacl:NodeShape ;
+  shacl:targetClass gv6:Receipt ;
+  shacl:property [
+    shacl:path gv6:receiptId ;
+    shacl:datatype xsd:string ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:description "Receipt must have exactly one ID"@en
+  ] ;
+  shacl:property [
+    shacl:path gv6:forEpoch ;
+    shacl:class gv6:Epoch ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:description "Receipt must reference exactly one epoch"@en
+  ] ;
+  shacl:property [
+    shacl:path gv6:receiptHash ;
+    shacl:datatype xsd:string ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:description "Receipt must have exactly one hash"@en
+  ] ;
+  shacl:property [
+    shacl:path gv6:toolchainVersion ;
+    shacl:datatype xsd:string ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:description "Receipt must declare toolchain version"@en
+  ] .
+
+gv6:EpochShape
+  a shacl:NodeShape ;
+  shacl:targetClass gv6:Epoch ;
+  shacl:property [
+    shacl:path gv6:epochId ;
+    shacl:datatype xsd:string ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:pattern "^[a-f0-9]{64}$" ;
+    shacl:description "Epoch ID must be a SHA-256 hash"@en
+  ] ;
+  shacl:property [
+    shacl:path gv6:epochTimestamp ;
+    shacl:datatype xsd:dateTime ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:description "Epoch must have exactly one timestamp"@en
+  ] ;
+  shacl:property [
+    shacl:path gv6:containsOntology ;
+    shacl:class gv6:OntologyInput ;
+    shacl:minCount 1 ;
+    shacl:description "Epoch must contain at least one ontology"@en
+  ] .
+
+gv6:OutputFileShape
+  a shacl:NodeShape ;
+  shacl:targetClass gv6:OutputFile ;
+  shacl:property [
+    shacl:path gv6:outputPath ;
+    shacl:datatype xsd:string ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:description "Output file must have exactly one path"@en
+  ] ;
+  shacl:property [
+    shacl:path gv6:outputHash ;
+    shacl:datatype xsd:string ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:pattern "^[a-f0-9]{64}$" ;
+    shacl:description "Output hash must be a SHA-256 hash"@en
+  ] ;
+  shacl:property [
+    shacl:path gv6:producedByPass ;
+    shacl:class gv6:Pass ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:description "Output must reference producing pass"@en
+  ] .
+
+# =============================================================================
+# 10. DEFAULT PASS INSTANCES (Standard μ₁...μ₅)
+# =============================================================================
+
+gv6:Mu1_Normalization
+  a gv6:NormalizationPass ;
+  gv6:passName "μ₁:normalization" ;
+  gv6:orderIndex 1 ;
+  gv6:isIdempotent true ;
+  gv6:isDeterministic true ;
+  rdfs:comment "Ontology → Ontology: CONSTRUCT-based graph rewrites"@en .
+
+gv6:Mu2_Extraction
+  a gv6:ExtractionPass ;
+  gv6:passName "μ₂:extraction" ;
+  gv6:orderIndex 2 ;
+  gv6:isIdempotent true ;
+  gv6:isDeterministic true ;
+  gv6:dependsOnPass gv6:Mu1_Normalization ;
+  rdfs:comment "Ontology → Bindings: SELECT queries to template context"@en .
+
+gv6:Mu3_Emission
+  a gv6:EmissionPass ;
+  gv6:passName "μ₃:emission" ;
+  gv6:orderIndex 3 ;
+  gv6:isIdempotent true ;
+  gv6:isDeterministic true ;
+  gv6:dependsOnPass gv6:Mu2_Extraction ;
+  rdfs:comment "Bindings → Files: Tera template rendering"@en .
+
+gv6:Mu4_Canonicalization
+  a gv6:CanonicalizationPass ;
+  gv6:passName "μ₄:canonicalization" ;
+  gv6:orderIndex 4 ;
+  gv6:isIdempotent true ;
+  gv6:isDeterministic true ;
+  gv6:dependsOnPass gv6:Mu3_Emission ;
+  rdfs:comment "Files → Canonical Files: formatting, ordering"@en .
+
+gv6:Mu5_Receipt
+  a gv6:ReceiptPass ;
+  gv6:passName "μ₅:receipt" ;
+  gv6:orderIndex 5 ;
+  gv6:isIdempotent true ;
+  gv6:isDeterministic true ;
+  gv6:dependsOnPass gv6:Mu4_Canonicalization ;
+  rdfs:comment "Files → Receipt: provenance binding with hashes"@en .
+
+# =============================================================================
+# 11. DEFAULT ALLOWED VOCABULARIES
+# =============================================================================
+
+gv6:DefaultRegistry
+  a gv6:VocabularyRegistry ;
+  rdfs:label "Default Vocabulary Registry"@en .
+
+gv6:Vocab_RDF
+  a gv6:AllowedVocabulary ;
+  gv6:vocabularyNamespace <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ;
+  gv6:vocabularyPrefix "rdf" ;
+  gv6:requiresProof false .
+
+gv6:Vocab_RDFS
+  a gv6:AllowedVocabulary ;
+  gv6:vocabularyNamespace <http://www.w3.org/2000/01/rdf-schema#> ;
+  gv6:vocabularyPrefix "rdfs" ;
+  gv6:requiresProof false .
+
+gv6:Vocab_OWL
+  a gv6:AllowedVocabulary ;
+  gv6:vocabularyNamespace <http://www.w3.org/2002/07/owl#> ;
+  gv6:vocabularyPrefix "owl" ;
+  gv6:requiresProof false .
+
+gv6:Vocab_XSD
+  a gv6:AllowedVocabulary ;
+  gv6:vocabularyNamespace <http://www.w3.org/2001/XMLSchema#> ;
+  gv6:vocabularyPrefix "xsd" ;
+  gv6:requiresProof false .
+
+gv6:Vocab_SHACL
+  a gv6:AllowedVocabulary ;
+  gv6:vocabularyNamespace <http://www.w3.org/ns/shacl#> ;
+  gv6:vocabularyPrefix "shacl" ;
+  gv6:requiresProof false .
+
+gv6:Vocab_SchemaOrg
+  a gv6:AllowedVocabulary ;
+  gv6:vocabularyNamespace <https://schema.org/> ;
+  gv6:vocabularyPrefix "schema" ;
+  gv6:requiresProof false .
+
+gv6:Vocab_GgenV6
+  a gv6:AllowedVocabulary ;
+  gv6:vocabularyNamespace <http://ggen.dev/v6#> ;
+  gv6:vocabularyPrefix "gv6" ;
+  gv6:requiresProof false .
+
+gv6:Vocab_GgenMeta
+  a gv6:AllowedVocabulary ;
+  gv6:vocabularyNamespace <http://ggen.ai/ontology/meta#> ;
+  gv6:vocabularyPrefix "meta" ;
+  gv6:requiresProof false .
+
+# =============================================================================
+# 12. DEFAULT GUARDS
+# =============================================================================
+
+gv6:DefaultPathGuard
+  a gv6:PathGuard ;
+  gv6:guardName "path-guard" ;
+  gv6:guardPattern "src/generated/**" ;
+  gv6:guardAction "reject" ;
+  gv6:guardEnabled true ;
+  rdfs:comment "Only allow output to src/generated directory"@en .
+
+gv6:DefaultSecretGuard
+  a gv6:SecretGuard ;
+  gv6:guardName "secret-guard" ;
+  gv6:guardPattern "(?i)(password|secret|api.?key|token)" ;
+  gv6:guardAction "reject" ;
+  gv6:guardEnabled true ;
+  rdfs:comment "Reject outputs containing potential secrets"@en .
+
+gv6:DefaultEnvGuard
+  a gv6:SecretGuard ;
+  gv6:guardName "env-guard" ;
+  gv6:guardPattern "\\.env|\\.credentials" ;
+  gv6:guardAction "reject" ;
+  gv6:guardEnabled true ;
+  rdfs:comment "Never emit .env or .credentials files"@en .

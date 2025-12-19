@@ -161,6 +161,7 @@ pub mod tera_env;
 pub mod types; // Enterprise FMEA & Poka-Yoke types for marketplace
                // pub mod tracing; // Temporarily disabled due to missing tracing_subscriber dependency
 pub mod simple_tracing;
+pub mod v6; // ggen v6: Fully-Rendered Libraries via Ontology-First Compilation
 
 // Re-export production readiness types from lifecycle module
 pub use lifecycle::{
@@ -309,4 +310,18 @@ pub use types::{
     RpnLevel,
     RpnScore,
     Severity,
+};
+
+// Re-export v6 ontology compilation types
+pub use v6::{
+    // Core types
+    BuildReceipt, Epoch, EpochId, OutputFile, PipelineConfig, StagedPipeline, VerifyMode,
+    // Pass system
+    Pass, PassContext, PassExecution, PassResult, PassType,
+    // Guard system
+    Guard, GuardAction, GuardViolation, PathGuard, SecretGuard,
+    // Vocabulary governance
+    AllowedVocabulary, ForbiddenVocabulary, VocabularyRegistry,
+    // Pass implementations
+    CanonicalizationPass, EmissionPass, ExtractionPass, NormalizationPass, ReceiptGenerationPass,
 };
