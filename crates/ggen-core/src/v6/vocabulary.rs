@@ -104,57 +104,57 @@ impl VocabularyRegistry {
         let mut registry = Self::new();
 
         // RDF core vocabularies
-        registry.add_allowed(AllowedVocabulary::new(
-            "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-            "rdf",
-        ).with_description("RDF syntax vocabulary"));
+        registry.add_allowed(
+            AllowedVocabulary::new("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf")
+                .with_description("RDF syntax vocabulary"),
+        );
 
-        registry.add_allowed(AllowedVocabulary::new(
-            "http://www.w3.org/2000/01/rdf-schema#",
-            "rdfs",
-        ).with_description("RDF Schema vocabulary"));
+        registry.add_allowed(
+            AllowedVocabulary::new("http://www.w3.org/2000/01/rdf-schema#", "rdfs")
+                .with_description("RDF Schema vocabulary"),
+        );
 
-        registry.add_allowed(AllowedVocabulary::new(
-            "http://www.w3.org/2002/07/owl#",
-            "owl",
-        ).with_description("Web Ontology Language"));
+        registry.add_allowed(
+            AllowedVocabulary::new("http://www.w3.org/2002/07/owl#", "owl")
+                .with_description("Web Ontology Language"),
+        );
 
-        registry.add_allowed(AllowedVocabulary::new(
-            "http://www.w3.org/2001/XMLSchema#",
-            "xsd",
-        ).with_description("XML Schema datatypes"));
+        registry.add_allowed(
+            AllowedVocabulary::new("http://www.w3.org/2001/XMLSchema#", "xsd")
+                .with_description("XML Schema datatypes"),
+        );
 
-        registry.add_allowed(AllowedVocabulary::new(
-            "http://www.w3.org/ns/shacl#",
-            "shacl",
-        ).with_description("Shapes Constraint Language"));
+        registry.add_allowed(
+            AllowedVocabulary::new("http://www.w3.org/ns/shacl#", "shacl")
+                .with_description("Shapes Constraint Language"),
+        );
 
         // Common external vocabularies
-        registry.add_allowed(AllowedVocabulary::new(
-            "https://schema.org/",
-            "schema",
-        ).with_description("Schema.org vocabulary"));
+        registry.add_allowed(
+            AllowedVocabulary::new("https://schema.org/", "schema")
+                .with_description("Schema.org vocabulary"),
+        );
 
-        registry.add_allowed(AllowedVocabulary::new(
-            "http://purl.org/dc/terms/",
-            "dcterms",
-        ).with_description("Dublin Core terms"));
+        registry.add_allowed(
+            AllowedVocabulary::new("http://purl.org/dc/terms/", "dcterms")
+                .with_description("Dublin Core terms"),
+        );
 
-        registry.add_allowed(AllowedVocabulary::new(
-            "http://xmlns.com/foaf/0.1/",
-            "foaf",
-        ).with_description("Friend of a Friend vocabulary"));
+        registry.add_allowed(
+            AllowedVocabulary::new("http://xmlns.com/foaf/0.1/", "foaf")
+                .with_description("Friend of a Friend vocabulary"),
+        );
 
         // ggen vocabularies
-        registry.add_allowed(AllowedVocabulary::new(
-            "http://ggen.dev/v6#",
-            "gv6",
-        ).with_description("ggen v6 ontology"));
+        registry.add_allowed(
+            AllowedVocabulary::new("http://ggen.dev/v6#", "gv6")
+                .with_description("ggen v6 ontology"),
+        );
 
-        registry.add_allowed(AllowedVocabulary::new(
-            "http://ggen.ai/ontology/meta#",
-            "meta",
-        ).with_description("ggen meta-ontology"));
+        registry.add_allowed(
+            AllowedVocabulary::new("http://ggen.ai/ontology/meta#", "meta")
+                .with_description("ggen meta-ontology"),
+        );
 
         registry
     }
@@ -170,8 +170,11 @@ impl VocabularyRegistry {
     }
 
     /// Register a proof receipt for a custom vocabulary
-    pub fn add_proof_receipt(&mut self, namespace: impl Into<String>, receipt_id: impl Into<String>) {
-        self.proof_receipts.insert(namespace.into(), receipt_id.into());
+    pub fn add_proof_receipt(
+        &mut self, namespace: impl Into<String>, receipt_id: impl Into<String>,
+    ) {
+        self.proof_receipts
+            .insert(namespace.into(), receipt_id.into());
     }
 
     /// Check if a namespace is allowed
@@ -220,7 +223,10 @@ impl VocabularyRegistry {
                     violations.push(VocabularyViolation {
                         namespace: namespace.clone(),
                         is_forbidden: true,
-                        message: format!("Forbidden namespace: {} - {}", namespace, forbidden.reason),
+                        message: format!(
+                            "Forbidden namespace: {} - {}",
+                            namespace, forbidden.reason
+                        ),
                     });
                 }
             } else if !self.is_allowed(namespace) {
@@ -239,7 +245,10 @@ impl VocabularyRegistry {
             Ok(())
         } else {
             let messages: Vec<_> = violations.iter().map(|v| v.message.clone()).collect();
-            Err(Error::new(&format!("Vocabulary violations:\n{}", messages.join("\n"))))
+            Err(Error::new(&format!(
+                "Vocabulary violations:\n{}",
+                messages.join("\n")
+            )))
         }
     }
 

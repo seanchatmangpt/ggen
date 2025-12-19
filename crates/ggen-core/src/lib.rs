@@ -314,14 +314,34 @@ pub use types::{
 
 // Re-export v6 ontology compilation types
 pub use v6::{
-    // Core types
-    BuildReceipt, Epoch, EpochId, OutputFile, PipelineConfig, StagedPipeline, VerifyMode,
-    // Pass system
-    Pass, PassContext, PassExecution, PassResult, PassType,
-    // Guard system
-    Guard, GuardAction, GuardViolation, PathGuard, SecretGuard,
     // Vocabulary governance
-    AllowedVocabulary, ForbiddenVocabulary, VocabularyRegistry,
+    AllowedVocabulary,
+    // Core types
+    BuildReceipt,
     // Pass implementations
-    CanonicalizationPass, EmissionPass, ExtractionPass, NormalizationPass, ReceiptGenerationPass,
+    CanonicalizationPass,
+    EmissionPass,
+    Epoch,
+    EpochId,
+    ExtractionPass,
+    ForbiddenVocabulary,
+    // Guard system
+    Guard,
+    GuardAction,
+    GuardViolation,
+    NormalizationPass,
+    OutputFile,
+    // Pass system
+    Pass,
+    PassContext,
+    PassExecution,
+    PassResult,
+    PassType,
+    PathGuard,
+    PipelineConfig,
+    ReceiptGenerationPass,
+    SecretGuard,
+    StagedPipeline,
+    VerifyMode,
+    VocabularyRegistry,
 };

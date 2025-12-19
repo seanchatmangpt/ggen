@@ -195,8 +195,13 @@ impl BuildReceipt {
         let json = serde_json::to_string_pretty(self)
             .map_err(|e| Error::new(&format!("Failed to serialize receipt: {}", e)))?;
 
-        std::fs::write(path, json)
-            .map_err(|e| Error::new(&format!("Failed to write receipt to '{}': {}", path.display(), e)))
+        std::fs::write(path, json).map_err(|e| {
+            Error::new(&format!(
+                "Failed to write receipt to '{}': {}",
+                path.display(),
+                e
+            ))
+        })
     }
 
     /// Read receipt from a file
@@ -297,7 +302,7 @@ mod tests {
 
         let epoch = create_test_epoch();
         let outputs = vec![OutputFile {
-            path: PathBuf::from("test.rs"),
+            path: PathBuf::from("domain.ttl"),
             hash: format!("{:x}", Sha256::digest(content)),
             size_bytes: content.len(),
             produced_by: "μ₃:emission".to_string(),

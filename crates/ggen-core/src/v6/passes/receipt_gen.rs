@@ -120,10 +120,7 @@ impl Pass for ReceiptGenerationPass {
 
             if let Some(parent) = full_receipt_path.parent() {
                 std::fs::create_dir_all(parent).map_err(|e| {
-                    Error::new(&format!(
-                        "Failed to create receipt directory: {}",
-                        e
-                    ))
+                    Error::new(&format!("Failed to create receipt directory: {}", e))
                 })?;
             }
 
@@ -194,13 +191,10 @@ impl ReceiptBuilder {
     pub fn build(self) -> Result<BuildReceipt> {
         let epoch = self.epoch.ok_or_else(|| Error::new("Epoch is required"))?;
 
-        Ok(BuildReceipt::new(
-            &epoch,
-            self.passes,
-            self.outputs,
-            &self.toolchain_version,
+        Ok(
+            BuildReceipt::new(&epoch, self.passes, self.outputs, &self.toolchain_version)
+                .with_policies(self.policies),
         )
-        .with_policies(self.policies))
     }
 }
 
@@ -236,8 +230,8 @@ mod tests {
         // Create a generated file
         std::fs::write(output_dir.join("model.rs"), "pub struct Model {}").unwrap();
 
-        let pass = ReceiptGenerationPass::new("6.0.0")
-            .with_receipt_path(PathBuf::from("receipt.json"));
+        let pass =
+            ReceiptGenerationPass::new("6.0.0").with_receipt_path(PathBuf::from("receipt.json"));
 
         let mut ctx = PassContext::new(&graph, temp_dir.path().to_path_buf(), output_dir.clone())
             .with_project("test".to_string(), "1.0.0".to_string());

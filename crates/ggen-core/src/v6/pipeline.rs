@@ -439,7 +439,11 @@ impl StagedPipeline {
                 continue;
             }
 
-            outputs.push(OutputFile::from_path(&full_path, rel_path.clone(), "μ₃:emission")?);
+            outputs.push(OutputFile::from_path(
+                &full_path,
+                rel_path.clone(),
+                "μ₃:emission",
+            )?);
         }
 
         Ok(outputs)
@@ -515,8 +519,10 @@ mod tests {
 
         // Add example.org to allowed vocabularies for testing
         let mut registry = VocabularyRegistry::with_standard_vocabularies();
-        registry.add_allowed(AllowedVocabulary::new("http://example.org/", "ex")
-            .with_description("Example namespace for testing"));
+        registry.add_allowed(
+            AllowedVocabulary::new("http://example.org/", "ex")
+                .with_description("Example namespace for testing"),
+        );
         pipeline = pipeline.with_vocabulary_registry(registry);
 
         let receipt = pipeline.run().unwrap();

@@ -70,12 +70,10 @@ impl ExtractionPass {
     fn execute_rule(
         &self, ctx: &PassContext<'_>, rule: &ExtractionRule,
     ) -> Result<serde_json::Value> {
-        let results = ctx.graph.query(&rule.query).map_err(|e| {
-            Error::new(&format!(
-                "Extraction query '{}' failed: {}",
-                rule.name, e
-            ))
-        })?;
+        let results = ctx
+            .graph
+            .query(&rule.query)
+            .map_err(|e| Error::new(&format!("Extraction query '{}' failed: {}", rule.name, e)))?;
 
         match results {
             QueryResults::Solutions(solutions) => {
@@ -157,7 +155,8 @@ impl ExtractionPass {
                     OPTIONAL { ?class rdfs:subClassOf ?superClass . }
                 }
                 ORDER BY ?class
-            "#.to_string(),
+            "#
+            .to_string(),
             binding_key: "classes".to_string(),
             description: Some("Extract all class definitions".to_string()),
         });
@@ -183,7 +182,8 @@ impl ExtractionPass {
                     OPTIONAL { ?property rdfs:comment ?comment . }
                 }
                 ORDER BY ?property
-            "#.to_string(),
+            "#
+            .to_string(),
             binding_key: "properties".to_string(),
             description: Some("Extract all property definitions".to_string()),
         });
@@ -207,7 +207,8 @@ impl ExtractionPass {
                     OPTIONAL { ?instance rdfs:label ?label . }
                 }
                 ORDER BY ?type ?instance
-            "#.to_string(),
+            "#
+            .to_string(),
             binding_key: "instances".to_string(),
             description: Some("Extract all named instances".to_string()),
         });
@@ -236,13 +237,17 @@ mod tests {
     #[test]
     fn test_extraction_with_rule() {
         let graph = Graph::new().unwrap();
-        graph.insert_turtle(r#"
+        graph
+            .insert_turtle(
+                r#"
             @prefix ex: <http://example.org/> .
             @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
             ex:Person a rdfs:Class ;
                 rdfs:label "Person" .
-        "#).unwrap();
+        "#,
+            )
+            .unwrap();
 
         let mut pass = ExtractionPass::new();
         pass.add_rule(ExtractionRule {
@@ -253,7 +258,8 @@ mod tests {
                     ?class a rdfs:Class .
                     OPTIONAL { ?class rdfs:label ?label . }
                 }
-            "#.to_string(),
+            "#
+            .to_string(),
             binding_key: "classes".to_string(),
             description: None,
         });
@@ -275,10 +281,7 @@ mod tests {
             ExtractionPass::clean_term("<http://example.org/Person>"),
             "http://example.org/Person"
         );
-        assert_eq!(
-            ExtractionPass::clean_term("\"Hello World\""),
-            "Hello World"
-        );
+        assert_eq!(ExtractionPass::clean_term("\"Hello World\""), "Hello World");
         assert_eq!(
             ExtractionPass::clean_term("\"42\"^^<http://www.w3.org/2001/XMLSchema#integer>"),
             "42"

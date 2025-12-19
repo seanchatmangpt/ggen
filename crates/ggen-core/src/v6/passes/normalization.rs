@@ -126,7 +126,8 @@ impl NormalizationPass {
                     ?prop owl:inverseOf ?invProp .
                     ?x ?prop ?y .
                 }
-            "#.to_string(),
+            "#
+            .to_string(),
             order: 1,
             description: Some("Materialize inverse property relationships".to_string()),
             when: None,
@@ -145,7 +146,8 @@ impl NormalizationPass {
                     ?instance rdf:type ?class .
                     ?class rdfs:subClassOf ?superClass .
                 }
-            "#.to_string(),
+            "#
+            .to_string(),
             order: 2,
             description: Some("Materialize subclass type relationships".to_string()),
             when: None,
@@ -167,7 +169,8 @@ impl NormalizationPass {
                     OPTIONAL { ?prop rdfs:range ?rangeClass . }
                     FILTER (isIRI(?object))
                 }
-            "#.to_string(),
+            "#
+            .to_string(),
             order: 3,
             description: Some("Infer types from domain and range declarations".to_string()),
             when: None,
@@ -198,7 +201,9 @@ mod tests {
     #[test]
     fn test_normalization_with_rule() {
         let graph = Graph::new().unwrap();
-        graph.insert_turtle(r#"
+        graph
+            .insert_turtle(
+                r#"
             @prefix ex: <http://example.org/> .
             @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
             @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -206,7 +211,9 @@ mod tests {
             ex:Person a rdfs:Class .
             ex:Student rdfs:subClassOf ex:Person .
             ex:alice rdf:type ex:Student .
-        "#).unwrap();
+        "#,
+            )
+            .unwrap();
 
         // Create a pass with a simple rule that doesn't produce output
         // (the standard rules may produce N-Triples that need special handling)
@@ -216,7 +223,8 @@ mod tests {
             construct: r#"
                 CONSTRUCT {}
                 WHERE { ?s ?p ?o }
-            "#.to_string(),
+            "#
+            .to_string(),
             order: 1,
             description: Some("No-op rule".to_string()),
             when: None,

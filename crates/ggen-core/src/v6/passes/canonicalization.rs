@@ -51,8 +51,14 @@ impl CanonicalizationPass {
 
         // v6 only outputs .ttl and .tera files - no source code
         extension_policies.insert("ttl".to_string(), CanonicalizationPolicy::Format);
-        extension_policies.insert("tera".to_string(), CanonicalizationPolicy::NormalizeLineEndings);
-        extension_policies.insert("toml".to_string(), CanonicalizationPolicy::NormalizeLineEndings);
+        extension_policies.insert(
+            "tera".to_string(),
+            CanonicalizationPolicy::NormalizeLineEndings,
+        );
+        extension_policies.insert(
+            "toml".to_string(),
+            CanonicalizationPolicy::NormalizeLineEndings,
+        );
         extension_policies.insert("json".to_string(), CanonicalizationPolicy::Format);
 
         Self {
@@ -100,14 +106,12 @@ impl CanonicalizationPass {
         match policy {
             CanonicalizationPolicy::None => Ok(content.to_string()),
 
-            CanonicalizationPolicy::TrimTrailingWhitespace => {
-                Ok(content
-                    .lines()
-                    .map(|line| line.trim_end())
-                    .collect::<Vec<_>>()
-                    .join("\n")
-                    + if content.ends_with('\n') { "\n" } else { "" })
-            }
+            CanonicalizationPolicy::TrimTrailingWhitespace => Ok(content
+                .lines()
+                .map(|line| line.trim_end())
+                .collect::<Vec<_>>()
+                .join("\n")
+                + if content.ends_with('\n') { "\n" } else { "" }),
 
             CanonicalizationPolicy::NormalizeLineEndings => {
                 // Convert CRLF to LF, ensure final newline
@@ -148,7 +152,10 @@ impl CanonicalizationPass {
         // - Ensure final newline
 
         let lines: Vec<&str> = content.lines().collect();
-        let formatted: Vec<String> = lines.iter().map(|line| line.trim_end().to_string()).collect();
+        let formatted: Vec<String> = lines
+            .iter()
+            .map(|line| line.trim_end().to_string())
+            .collect();
 
         let mut result = formatted.join("\n");
         if !result.ends_with('\n') {
@@ -255,8 +262,10 @@ mod tests {
     #[test]
     fn test_trim_trailing_whitespace() {
         let mut pass = CanonicalizationPass::new();
-        pass.extension_policies
-            .insert("txt".to_string(), CanonicalizationPolicy::TrimTrailingWhitespace);
+        pass.extension_policies.insert(
+            "txt".to_string(),
+            CanonicalizationPolicy::TrimTrailingWhitespace,
+        );
 
         let path = PathBuf::from("test.txt");
         let result = pass.canonicalize(&path, "hello   \nworld  \n").unwrap();
@@ -277,14 +286,24 @@ mod tests {
     fn test_policy_selection() {
         let pass = CanonicalizationPass::new();
 
+        // v6 only outputs .ttl, .tera, .toml, .json files
         assert_eq!(
-            pass.get_policy(&PathBuf::from("test.rs")),
+            pass.get_policy(&PathBuf::from("test.ttl")),
             CanonicalizationPolicy::Format
         );
         assert_eq!(
-            pass.get_policy(&PathBuf::from("test.md")),
-            CanonicalizationPolicy::TrimTrailingWhitespace
+            pass.get_policy(&PathBuf::from("test.tera")),
+            CanonicalizationPolicy::NormalizeLineEndings
         );
+        assert_eq!(
+            pass.get_policy(&PathBuf::from("test.toml")),
+            CanonicalizationPolicy::NormalizeLineEndings
+        );
+        assert_eq!(
+            pass.get_policy(&PathBuf::from("test.json")),
+            CanonicalizationPolicy::Format
+        );
+        // Unknown extensions use default policy
         assert_eq!(
             pass.get_policy(&PathBuf::from("test.unknown")),
             CanonicalizationPolicy::NormalizeLineEndings
