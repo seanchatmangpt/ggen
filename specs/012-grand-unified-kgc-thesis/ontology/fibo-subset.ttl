@@ -1,0 +1,124 @@
+@prefix : <https://ggen.io/thesis/kgc-unified/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fibo-fnd: <https://spec.edmcouncil.org/fibo/ontology/FND/> .
+@prefix fibo-fbc: <https://spec.edmcouncil.org/fibo/ontology/FBC/> .
+@prefix fibo-fbc-fi: <https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/FinancialInstruments/> .
+@prefix fibo-fnd-rel: <https://spec.edmcouncil.org/fibo/ontology/FND/Relations/Relations/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# =============================================================================
+# FIBO Subset Import for Thesis Chapter 8
+# Financial Industry Business Ontology - Core Classes
+# =============================================================================
+
+<https://ggen.io/thesis/kgc-unified/fibo-subset>
+    a owl:Ontology ;
+    dcterms:title "FIBO Subset for KGC Thesis" ;
+    dcterms:description "Selective import of FIBO classes for financial workflow integration demonstration" ;
+    dcterms:created "2025-12-19"^^xsd:date ;
+    owl:versionInfo "1.0.0" ;
+    rdfs:comment "Subset of FIBO ontology demonstrating knowledge graph construction with financial domain" .
+
+# -----------------------------------------------------------------------------
+# Core FIBO Classes (Simplified for Thesis)
+# -----------------------------------------------------------------------------
+
+fibo-fbc-fi:FinancialInstrument
+    a owl:Class ;
+    rdfs:label "Financial Instrument" ;
+    rdfs:comment "A tradable asset of any kind with monetary value" ;
+    rdfs:isDefinedBy <https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstruments/> .
+
+fibo-fbc-fi:Equity
+    a owl:Class ;
+    rdfs:label "Equity" ;
+    rdfs:comment "Ownership interest in a company, typically in the form of stock" ;
+    rdfs:subClassOf fibo-fbc-fi:FinancialInstrument .
+
+fibo-fbc-fi:Derivative
+    a owl:Class ;
+    rdfs:label "Derivative" ;
+    rdfs:comment "Financial instrument whose value is derived from an underlying asset" ;
+    rdfs:subClassOf fibo-fbc-fi:FinancialInstrument .
+
+fibo-fbc-fi:FixedIncome
+    a owl:Class ;
+    rdfs:label "Fixed Income Security" ;
+    rdfs:comment "Financial instrument providing fixed periodic payments" ;
+    rdfs:subClassOf fibo-fbc-fi:FinancialInstrument .
+
+# -----------------------------------------------------------------------------
+# FIBO Properties
+# -----------------------------------------------------------------------------
+
+fibo-fnd-rel:hasIdentity
+    a owl:DatatypeProperty ;
+    rdfs:label "has identity" ;
+    rdfs:comment "Unique identifier for the financial instrument" ;
+    rdfs:domain fibo-fbc-fi:FinancialInstrument ;
+    rdfs:range xsd:string .
+
+fibo-fbc-fi:hasMaturityDate
+    a owl:DatatypeProperty ;
+    rdfs:label "has maturity date" ;
+    rdfs:comment "Date when the instrument matures" ;
+    rdfs:domain fibo-fbc-fi:FinancialInstrument ;
+    rdfs:range xsd:date .
+
+fibo-fbc-fi:hasUnderlyingAsset
+    a owl:ObjectProperty ;
+    rdfs:label "has underlying asset" ;
+    rdfs:comment "References the underlying asset of a derivative" ;
+    rdfs:domain fibo-fbc-fi:Derivative ;
+    rdfs:range fibo-fbc-fi:FinancialInstrument .
+
+fibo-fbc-fi:isSubjectTo
+    a owl:ObjectProperty ;
+    rdfs:label "is subject to" ;
+    rdfs:comment "Regulatory framework governing this instrument" ;
+    rdfs:domain fibo-fbc-fi:FinancialInstrument ;
+    rdfs:range :RegulatoryFramework .
+
+fibo-fbc-fi:hasNominalValue
+    a owl:DatatypeProperty ;
+    rdfs:label "has nominal value" ;
+    rdfs:comment "Face value or principal amount" ;
+    rdfs:domain fibo-fbc-fi:FinancialInstrument ;
+    rdfs:range xsd:decimal .
+
+fibo-fbc-fi:hasRiskClassification
+    a owl:DatatypeProperty ;
+    rdfs:label "has risk classification" ;
+    rdfs:comment "Risk level classification (low, medium, high)" ;
+    rdfs:domain fibo-fbc-fi:FinancialInstrument ;
+    rdfs:range xsd:string .
+
+# -----------------------------------------------------------------------------
+# Regulatory Framework Classes
+# -----------------------------------------------------------------------------
+
+:RegulatoryFramework
+    a owl:Class ;
+    rdfs:label "Regulatory Framework" ;
+    rdfs:comment "Legal and regulatory requirements governing financial instruments" .
+
+:MiFIDII
+    a owl:Class ;
+    rdfs:label "MiFID II" ;
+    rdfs:comment "Markets in Financial Instruments Directive (EU regulation)" ;
+    rdfs:subClassOf :RegulatoryFramework .
+
+:DoddFrank
+    a owl:Class ;
+    rdfs:label "Dodd-Frank Act" ;
+    rdfs:comment "Dodd-Frank Wall Street Reform and Consumer Protection Act (US regulation)" ;
+    rdfs:subClassOf :RegulatoryFramework .
+
+:BaselIII
+    a owl:Class ;
+    rdfs:label "Basel III" ;
+    rdfs:comment "International regulatory framework for banks" ;
+    rdfs:subClassOf :RegulatoryFramework .
