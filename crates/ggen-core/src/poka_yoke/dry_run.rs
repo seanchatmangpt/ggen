@@ -211,18 +211,12 @@ impl DryRunMode {
             }
             Operation::DirCreate { path } => {
                 std::fs::create_dir_all(path.as_path()).map_err(|e| {
-                    ggen_utils::error::Error::io_error(format!(
-                        "Failed to create directory: {}",
-                        e
-                    ))
+                    ggen_utils::error::Error::io_error(format!("Failed to create directory: {}", e))
                 })?;
             }
             Operation::DirDelete { path } => {
                 std::fs::remove_dir_all(path.as_path()).map_err(|e| {
-                    ggen_utils::error::Error::io_error(format!(
-                        "Failed to delete directory: {}",
-                        e
-                    ))
+                    ggen_utils::error::Error::io_error(format!("Failed to delete directory: {}", e))
                 })?;
             }
         }
