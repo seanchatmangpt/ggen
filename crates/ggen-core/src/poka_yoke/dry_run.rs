@@ -106,12 +106,12 @@ impl DryRunMode {
         print!("\nProceed with these operations? [y/N]: ");
         use std::io::Write;
         std::io::stdout().flush().map_err(|e| {
-            ggen_utils::error::Error::io_error(&format!("Failed to flush stdout: {}", e))
+            ggen_utils::error::Error::io_error(format!("Failed to flush stdout: {}", e))
         })?;
 
         let mut input = String::new();
         std::io::stdin().read_line(&mut input).map_err(|e| {
-            ggen_utils::error::Error::io_error(&format!("Failed to read stdin: {}", e))
+            ggen_utils::error::Error::io_error(format!("Failed to read stdin: {}", e))
         })?;
 
         Ok(input.trim().to_lowercase().starts_with('y'))
@@ -158,7 +158,7 @@ impl DryRunMode {
                 // Check parent directory exists
                 if let Some(parent) = path.as_path().parent() {
                     if !parent.exists() {
-                        return Err(ggen_utils::error::Error::invalid_input(&format!(
+                        return Err(ggen_utils::error::Error::invalid_input(format!(
                             "Parent directory does not exist: {}",
                             parent.display()
                         )));
@@ -168,7 +168,7 @@ impl DryRunMode {
             Operation::FileDelete { path } | Operation::DirDelete { path } => {
                 // Check path exists
                 if !path.as_path().exists() {
-                    return Err(ggen_utils::error::Error::invalid_input(&format!(
+                    return Err(ggen_utils::error::Error::invalid_input(format!(
                         "Path does not exist: {}",
                         path
                     )));
@@ -186,12 +186,12 @@ impl DryRunMode {
         match op {
             Operation::FileCreate { path, .. } | Operation::FileWrite { path, .. } => {
                 std::fs::write(path.as_path(), b"").map_err(|e| {
-                    ggen_utils::error::Error::io_error(&format!("Failed to write file: {}", e))
+                    ggen_utils::error::Error::io_error(format!("Failed to write file: {}", e))
                 })?;
             }
             Operation::FileDelete { path } => {
                 std::fs::remove_file(path.as_path()).map_err(|e| {
-                    ggen_utils::error::Error::io_error(&format!("Failed to delete file: {}", e))
+                    ggen_utils::error::Error::io_error(format!("Failed to delete file: {}", e))
                 })?;
             }
             Operation::CommandExec { command, args } => {
@@ -211,7 +211,7 @@ impl DryRunMode {
             }
             Operation::DirCreate { path } => {
                 std::fs::create_dir_all(path.as_path()).map_err(|e| {
-                    ggen_utils::error::Error::io_error(&format!(
+                    ggen_utils::error::Error::io_error(format!(
                         "Failed to create directory: {}",
                         e
                     ))
@@ -219,7 +219,7 @@ impl DryRunMode {
             }
             Operation::DirDelete { path } => {
                 std::fs::remove_dir_all(path.as_path()).map_err(|e| {
-                    ggen_utils::error::Error::io_error(&format!(
+                    ggen_utils::error::Error::io_error(format!(
                         "Failed to delete directory: {}",
                         e
                     ))

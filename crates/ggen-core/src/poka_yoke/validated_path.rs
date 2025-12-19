@@ -55,7 +55,7 @@ impl ValidatedPath {
         // Canonicalize to prevent TOCTOU (if path exists)
         let canonical = if path.exists() {
             path.canonicalize()
-                .map_err(|e| Error::invalid_input(&format!("Failed to canonicalize path: {}", e)))?
+                .map_err(|e| Error::invalid_input(format!("Failed to canonicalize path: {}", e)))?
         } else {
             path.to_path_buf()
         };
@@ -76,12 +76,12 @@ impl ValidatedPath {
 
         // Canonicalize both paths for reliable comparison
         let base_canonical = base.as_ref().canonicalize().map_err(|e| {
-            Error::invalid_input(&format!("Failed to canonicalize base directory: {}", e))
+            Error::invalid_input(format!("Failed to canonicalize base directory: {}", e))
         })?;
 
         let full_canonical = if full_path.exists() {
             full_path.canonicalize().map_err(|e| {
-                Error::invalid_input(&format!("Failed to canonicalize full path: {}", e))
+                Error::invalid_input(format!("Failed to canonicalize full path: {}", e))
             })?
         } else {
             full_path
@@ -143,7 +143,7 @@ impl ValidatedPath {
 
         for ch in DANGEROUS {
             if path_str.contains(*ch) {
-                return Err(Error::invalid_input(&format!(
+                return Err(Error::invalid_input(format!(
                     "Path contains dangerous shell metacharacter: '{}'",
                     ch
                 )));

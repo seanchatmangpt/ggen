@@ -60,7 +60,7 @@ impl SanitizedInput {
         // Length check (prevent DoS)
         let max_length = Self::max_length_for_type(input_type);
         if input.len() > max_length {
-            return Err(Error::invalid_input(&format!(
+            return Err(Error::invalid_input(format!(
                 "Input too long: {} bytes (max {})",
                 input.len(),
                 max_length
@@ -114,7 +114,7 @@ impl SanitizedInput {
 
         for ch in input.chars() {
             if !ch.is_alphanumeric() && ch != '_' && ch != '-' {
-                return Err(Error::invalid_input(&format!(
+                return Err(Error::invalid_input(format!(
                     "Invalid character in identifier: '{}'",
                     ch
                 )));
@@ -132,7 +132,7 @@ impl SanitizedInput {
 
         for ch in input.chars() {
             if !ch.is_alphanumeric() && ch != '_' && ch != '-' && ch != '.' && ch != '/' {
-                return Err(Error::invalid_input(&format!(
+                return Err(Error::invalid_input(format!(
                     "Invalid character in template name: '{}'",
                     ch
                 )));
@@ -159,7 +159,7 @@ impl SanitizedInput {
         let lower = input.to_lowercase();
         for pattern in INJECTION_PATTERNS {
             if lower.contains(pattern) {
-                return Err(Error::invalid_input(&format!(
+                return Err(Error::invalid_input(format!(
                     "Template injection detected: '{}'",
                     pattern
                 )));
