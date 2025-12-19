@@ -1,0 +1,36 @@
+{# =============================================================================
+   ALGORITHM TEMPLATE - Pseudocode algorithms
+   ZERO HARDCODED STRINGS - All content from SPARQL variables
+   Uses sparql_results array with ?-prefixed keys
+   ============================================================================= #}
+{%- set current_algorithm = "" -%}
+{% for row in sparql_results %}
+{%- set labelId = row["?labelId"] | default(value="") -%}
+{%- set title = row["?title"] | default(value="") -%}
+{%- set caption = row["?caption"] | default(value=title) -%}
+{%- set input = row["?input"] | default(value="") -%}
+{%- set output = row["?output"] | default(value="") -%}
+{%- set step = row["?step"] | default(value="") -%}
+{%- if labelId != current_algorithm -%}
+{%- if current_algorithm != "" -%}
+\end{algorithmic}
+\end{algorithm}
+
+{%- endif -%}
+{%- set_global current_algorithm = labelId -%}
+
+\begin{algorithm}[htbp]
+\caption{ {{- caption -}} }
+\label{ {{- labelId -}} }
+\begin{algorithmic}[1]
+\Require {{ input | replace(from="\\n", to=" ") }}
+\Ensure {{ output | replace(from="\\n", to=" ") }}
+{%- endif -%}
+{% if step %}
+\State {{ step | replace(from="\\n", to=" ") }}
+{% endif %}
+{% endfor %}
+{%- if current_algorithm != "" -%}
+\end{algorithmic}
+\end{algorithm}
+{%- endif -%}

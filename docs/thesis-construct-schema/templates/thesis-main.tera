@@ -1,0 +1,49 @@
+{# =============================================================================
+   THESIS MAIN DOCUMENT TEMPLATE
+   ZERO HARDCODED STRINGS - All content from SPARQL variables
+   Note: Uses sparql_results for array access or direct variables for single row
+   ============================================================================= #}
+\documentclass[12pt,a4paper]{report}
+
+\input{preamble.tex}
+
+\title{
+  \textbf{ {{- title | default(value="") -}} }
+  {% if subtitle %}\\[1em]
+  \large {{ subtitle }}
+  {% endif %}
+}
+
+\author{
+  {{- author | default(value="") -}} \\
+  {{- institution | default(value="") -}}
+  {% if department %} \\ {{- department -}}{% endif %}
+}
+
+\date{ {{- date | default(value="") -}} }
+
+\begin{document}
+
+\maketitle
+
+\input{front-matter.tex}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\input{chapters/all-chapters.tex}
+\input{theorems.tex}
+\input{equations.tex}
+\input{algorithms.tex}
+\input{figures.tex}
+\input{tables.tex}
+
+\appendix
+\input{appendices.tex}
+\input{code-listings.tex}
+
+\bibliographystyle{ieeetr}
+\bibliography{references}
+
+\end{document}
