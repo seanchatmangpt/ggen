@@ -23,7 +23,6 @@ docs/
 
 # Test files
 tests/
-benches/
 examples/
 
 # Temporary files
@@ -45,5 +44,4 @@ azure-pipelines.yml
 .metrics/
 .specify/
 marketplace/
-playground/
 scripts/

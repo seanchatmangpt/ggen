@@ -1,11 +1,13 @@
 # Multi-stage build for minimal production image
-FROM rust:slim AS builder
+FROM rust:bookworm AS builder
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     pkg-config \
     libssl-dev \
+    libclang-dev \
+    clang \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -13,10 +15,13 @@ WORKDIR /build
 
 # Copy workspace files
 COPY Cargo.toml Cargo.lock ./
+COPY src ./src
 COPY crates ./crates
+COPY playground ./playground
+COPY benches ./benches
 
-# Build release binary
-RUN cargo build --release --bin ggen --manifest-path crates/ggen-cli/Cargo.toml
+# Build release binary from workspace (ggen-cli package)
+RUN cargo build --release --package ggen-cli-lib --bin ggen
 
 # Production image - minimal
 FROM debian:bookworm-slim
