@@ -32,20 +32,15 @@ pub struct DiscoverInput {
 }
 
 /// Sort order for results
-#[derive(Debug, Clone, serde::Serialize)]
+#[derive(Debug, Clone, Default, serde::Serialize)]
 pub enum SortOrder {
     /// Most downloaded
+    #[default]
     Downloads,
     /// Highest rating
     Rating,
     /// Most recently updated
     Updated,
-}
-
-impl Default for SortOrder {
-    fn default() -> Self {
-        SortOrder::Downloads
-    }
 }
 
 /// Output from discovery

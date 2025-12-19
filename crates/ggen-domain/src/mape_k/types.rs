@@ -385,7 +385,7 @@ pub struct SnapshotMetadata {
 }
 
 /// MAPE-K execution metrics
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct MAPEMetrics {
     /// Total observations ingested
     pub observations_ingested: usize,
@@ -404,17 +404,4 @@ pub struct MAPEMetrics {
 
     /// Last execution timestamp
     pub last_execution_timestamp: u64,
-}
-
-impl Default for MAPEMetrics {
-    fn default() -> Self {
-        Self {
-            observations_ingested: 0,
-            findings_generated: 0,
-            overlays_proposed: 0,
-            overlays_promoted: 0,
-            total_execution_time_ms: 0,
-            last_execution_timestamp: 0,
-        }
-    }
 }
