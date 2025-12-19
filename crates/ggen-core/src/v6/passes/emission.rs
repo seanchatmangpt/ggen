@@ -305,13 +305,13 @@ mod tests {
         let template_dir = temp_dir.path().join("templates");
         std::fs::create_dir_all(&template_dir).unwrap();
         std::fs::write(
-            template_dir.join("model.rs.tera"),
-            "// Generated for {{ project_name }}\npub struct Model {}",
+            template_dir.join("domain.ttl.tera"),
+            "@prefix ex: <http://example.org/> .\n# Generated for {{ project_name }}\n",
         )
         .unwrap();
 
         // Create output dir (use generated subdirectory to pass guards)
-        let output_dir = temp_dir.path().join("src").join("generated");
+        let output_dir = temp_dir.path().join("ontology").join("generated");
         std::fs::create_dir_all(&output_dir).unwrap();
 
         let mut pass = EmissionPass::new();
@@ -319,9 +319,9 @@ mod tests {
         pass.guards = GuardSet::new();
 
         pass.add_rule(EmissionRule {
-            name: "generate-model".to_string(),
-            template_path: PathBuf::from("templates/model.rs.tera"),
-            output_pattern: "model.rs".to_string(),
+            name: "generate-ontology".to_string(),
+            template_path: PathBuf::from("templates/domain.ttl.tera"),
+            output_pattern: "domain.ttl".to_string(),
             binding_key: "data".to_string(),
             iterate: false,
             skip_empty: false,
@@ -335,7 +335,7 @@ mod tests {
 
         assert!(result.success);
         assert_eq!(result.files_generated.len(), 1);
-        assert!(output_dir.join("model.rs").exists());
+        assert!(output_dir.join("domain.ttl").exists());
     }
 
     #[test]
