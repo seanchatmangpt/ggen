@@ -1,0 +1,20 @@
+# Minimal Docker image using prebuilt binary
+FROM debian:bookworm-slim
+
+# Install runtime dependencies only
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    libssl3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy prebuilt binary
+COPY target/release/ggen /usr/local/bin/ggen
+
+# Set working directory for user projects
+WORKDIR /workspace
+
+# Verify installation
+RUN ggen --version
+
+# Default command shows help
+CMD ["ggen", "--help"]
