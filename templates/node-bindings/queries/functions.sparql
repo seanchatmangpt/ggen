@@ -1,0 +1,33 @@
+# =============================================================================
+# Extract Functions with Nested Parameters
+# Returns hierarchical data: functions with their parameters
+# =============================================================================
+
+PREFIX ffi: <https://ggen.dev/ontology/node-ffi#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?funcName ?rustName ?description ?returnType ?async ?throws ?deprecated
+       ?paramName ?paramType ?paramRequired ?paramDescription
+WHERE {
+  ?func a ffi:Function ;
+        ffi:functionName ?funcName ;
+        ffi:returnType ?returnType .
+
+  # Optional function properties
+  OPTIONAL { ?func ffi:rustName ?rustName }
+  OPTIONAL { ?func rdfs:comment ?description }
+  OPTIONAL { ?func ffi:async ?async }
+  OPTIONAL { ?func ffi:throws ?throws }
+  OPTIONAL { ?func ffi:deprecated ?deprecated }
+
+  # Parameters (optional - function may have no params)
+  OPTIONAL {
+    ?func ffi:hasParameter ?param .
+    ?param ffi:paramName ?paramName ;
+           ffi:type ?paramType .
+
+    OPTIONAL { ?param ffi:required ?paramRequired }
+    OPTIONAL { ?param rdfs:comment ?paramDescription }
+  }
+}
+ORDER BY ?funcName ?paramName

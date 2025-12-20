@@ -1,0 +1,27 @@
+# =============================================================================
+# Extract Struct Definitions with Fields
+# Returns hierarchical data: structs with their fields
+# =============================================================================
+
+PREFIX ffi: <https://ggen.dev/ontology/node-ffi#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?structName ?structDescription
+       ?fieldName ?fieldType ?fieldRequired ?fieldDescription
+WHERE {
+  ?struct a ffi:Struct ;
+          ffi:structName ?structName .
+
+  OPTIONAL { ?struct rdfs:comment ?structDescription }
+
+  # Fields (optional - struct may have no fields)
+  OPTIONAL {
+    ?struct ffi:hasField ?field .
+    ?field ffi:fieldName ?fieldName ;
+           ffi:fieldType ?fieldType .
+
+    OPTIONAL { ?field ffi:required ?fieldRequired }
+    OPTIONAL { ?field rdfs:comment ?fieldDescription }
+  }
+}
+ORDER BY ?structName ?fieldName

@@ -1,0 +1,140 @@
+{
+  "functions": [
+    {
+      "funcName": "parseRdf",
+      "rustName": "parse_rdf_file",
+      "description": "Parse RDF file and return triples",
+      "returnType": "Triple[]",
+      "async": true,
+      "throws": true,
+      "deprecated": false,
+      "parameters": [
+        {
+          "name": "filePath",
+          "type": "string",
+          "required": true,
+          "description": "Path to RDF file"
+        },
+        {
+          "name": "options",
+          "type": "ParseOptions",
+          "required": false,
+          "description": "Parse options"
+        }
+      ]
+    },
+    {
+      "funcName": "generateCode",
+      "rustName": "generate_code_from_template",
+      "description": "Generate code from RDF ontology using Tera template",
+      "returnType": "string",
+      "async": true,
+      "throws": true,
+      "deprecated": false,
+      "parameters": [
+        {
+          "name": "templatePath",
+          "type": "string",
+          "required": true,
+          "description": "Path to Tera template"
+        },
+        {
+          "name": "ontologyPath",
+          "type": "string",
+          "required": true,
+          "description": "Path to RDF ontology"
+        },
+        {
+          "name": "format",
+          "type": "OutputFormat",
+          "required": false,
+          "description": "Output format"
+        }
+      ]
+    },
+    {
+      "funcName": "validateOntology",
+      "rustName": "validate_rdf_with_shacl",
+      "description": "Validate RDF ontology against SHACL shapes",
+      "returnType": "boolean",
+      "async": true,
+      "throws": true,
+      "deprecated": false,
+      "parameters": [
+        {
+          "name": "ontologyPath",
+          "type": "string",
+          "required": true,
+          "description": "Path to RDF ontology"
+        },
+        {
+          "name": "shapesPath",
+          "type": "string",
+          "required": false,
+          "description": "Path to SHACL shapes"
+        }
+      ]
+    }
+  ],
+  "types": [
+    {
+      "typeName": "RdfFormat",
+      "tsType": "string",
+      "rustType": "String",
+      "description": "RDF serialization format",
+      "isPrimitive": true
+    },
+    {
+      "typeName": "OutputFormat",
+      "tsType": "'rust'|'typescript'|'python'|'javascript'",
+      "rustType": "OutputFormat",
+      "description": "Output format for code generation",
+      "isPrimitive": false
+    }
+  ],
+  "structs": [
+    {
+      "structName": "ParseOptions",
+      "description": "Options for parsing RDF",
+      "fields": [
+        {
+          "fieldName": "format",
+          "fieldType": "RdfFormat",
+          "required": false,
+          "description": "RDF format (default: \"turtle\")"
+        },
+        {
+          "fieldName": "strict",
+          "fieldType": "boolean",
+          "required": false,
+          "description": "Strict parsing mode"
+        }
+      ]
+    },
+    {
+      "structName": "Triple",
+      "description": "An RDF triple",
+      "fields": [
+        {
+          "fieldName": "subject",
+          "fieldType": "string",
+          "required": true,
+          "description": "Subject URI"
+        },
+        {
+          "fieldName": "predicate",
+          "fieldType": "string",
+          "required": true,
+          "description": "Predicate URI"
+        },
+        {
+          "fieldName": "object",
+          "fieldType": "string",
+          "required": true,
+          "description": "Object value or URI"
+        }
+      ]
+    }
+  ],
+  "enums": []
+}

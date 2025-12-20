@@ -1,0 +1,24 @@
+# =============================================================================
+# Extract Enum Definitions with Variants
+# Returns hierarchical data: enums with their variants
+# =============================================================================
+
+PREFIX ffi: <https://ggen.dev/ontology/node-ffi#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?enumName ?enumDescription
+       ?variantName ?variantValue
+WHERE {
+  ?enum a ffi:Enum ;
+        ffi:enumName ?enumName .
+
+  OPTIONAL { ?enum rdfs:comment ?enumDescription }
+
+  # Variants (optional - enum may have no variants defined)
+  OPTIONAL {
+    ?enum ffi:hasVariant ?variant .
+    ?variant ffi:variantName ?variantName ;
+             ffi:variantValue ?variantValue .
+  }
+}
+ORDER BY ?enumName ?variantName
