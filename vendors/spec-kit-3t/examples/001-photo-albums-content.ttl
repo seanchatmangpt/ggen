@@ -1,0 +1,208 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix : <http://github.com/github/spec-kit/examples/photo-albums#> .
+
+# ============================================================================
+# Example Feature: Photo Albums (Spec-Kit Methodology)
+# ============================================================================
+# Demonstrates: Markdown templates → RDF transformation
+# Based on: Spec-Kit README.md example
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Feature Metadata
+# ----------------------------------------------------------------------------
+
+:photo-albums a sk:Feature ;
+    sk:featureBranch "001-photo-albums" ;
+    sk:featureName "Photo Album Organization Application" ;
+    sk:created "2025-12-19"^^xsd:date ;
+    sk:status "Draft" ;
+    sk:userInput "Build an application that can help me organize my photos in separate photo albums. Albums are grouped by date and can be re-organized by dragging and dropping on the main page. Albums are never in other nested albums. Within each album, photos are previewed in a tile-like interface." ;
+    sk:hasUserStory :us-001, :us-002, :us-003 ;
+    sk:hasFunctionalRequirement :fr-001, :fr-002, :fr-003, :fr-004, :fr-005 ;
+    sk:hasSuccessCriterion :sc-001, :sc-002, :sc-003 ;
+    sk:hasEntity :album, :photo ;
+    sk:hasEdgeCase :ec-001, :ec-002 ;
+    sk:hasAssumption :a-001, :a-002 .
+
+# ----------------------------------------------------------------------------
+# User Stories with Acceptance Scenarios
+# ----------------------------------------------------------------------------
+
+:us-001 a sk:UserStory ;
+    sk:storyIndex 1 ;
+    sk:title "Create and Manage Albums" ;
+    sk:priority "P1" ;
+    sk:priorityRationale "This is the foundational capability - users cannot organize photos without the ability to create albums first" ;
+    sk:independentTest "Can be fully tested by creating an album, verifying it appears in the main view, and confirming photos can be added to it" ;
+    sk:description "A user wants to create photo albums to organize their photos by date or event. Albums should have a name and creation date, and appear in the main album list view" ;
+    sk:hasAcceptanceScenario :us-001-as-001, :us-001-as-002, :us-001-as-003, :us-001-as-004 .
+
+:us-001-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "the application is open on the main album view" ;
+    sk:when "the user clicks 'Create Album' and enters a name" ;
+    sk:then "a new empty album appears in the album list with the entered name and current date" .
+
+:us-001-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "an album exists in the album list" ;
+    sk:when "the user clicks on the album" ;
+    sk:then "the album opens showing an empty tile grid view ready for photos" .
+
+:us-001-as-003 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 3 ;
+    sk:given "an album is open in the tile view" ;
+    sk:when "the user drags and drops image files onto the view" ;
+    sk:then "the photos appear as tiles in the album grid" .
+
+:us-001-as-004 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 4 ;
+    sk:given "an album exists with no photos" ;
+    sk:when "the user right-clicks the album and selects Delete" ;
+    sk:then "the album is removed from the album list" .
+
+:us-002 a sk:UserStory ;
+    sk:storyIndex 2 ;
+    sk:title "Reorder Albums by Drag and Drop" ;
+    sk:priority "P2" ;
+    sk:priorityRationale "Reordering improves user experience but is not blocking for basic photo organization functionality" ;
+    sk:independentTest "Can be tested by creating 3 albums, dragging one to a different position, and verifying the order persists after closing and reopening the app" ;
+    sk:description "Users want to customize the order of their albums on the main page by dragging and dropping them into their preferred sequence. The order should persist across sessions" ;
+    sk:hasAcceptanceScenario :us-002-as-001, :us-002-as-002 .
+
+:us-002-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "the main album view shows multiple albums in default date order" ;
+    sk:when "the user drags an album and drops it between two other albums" ;
+    sk:then "the album moves to the dropped position and other albums shift accordingly" .
+
+:us-002-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "albums have been manually reordered via drag and drop" ;
+    sk:when "the user closes and reopens the application" ;
+    sk:then "albums appear in the custom order, not the default date order" .
+
+:us-003 a sk:UserStory ;
+    sk:storyIndex 3 ;
+    sk:title "Browse Photos in Tile Grid" ;
+    sk:priority "P1" ;
+    sk:priorityRationale "Viewing photos is a core requirement - without it, users cannot verify their organization or enjoy their photos" ;
+    sk:independentTest "Can be tested by adding 10 photos to an album and verifying they appear as clickable tiles in a responsive grid layout" ;
+    sk:description "Within each album, users want to see their photos displayed in a tile-like grid interface with thumbnails. Clicking a photo should show it in full size" ;
+    sk:hasAcceptanceScenario :us-003-as-001, :us-003-as-002, :us-003-as-003 .
+
+:us-003-as-001 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 1 ;
+    sk:given "an album contains 5 photos" ;
+    sk:when "the user opens the album" ;
+    sk:then "5 photo tiles appear in a grid layout showing thumbnail previews" .
+
+:us-003-as-002 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 2 ;
+    sk:given "photo tiles are displayed in the album grid" ;
+    sk:when "the user clicks a photo tile" ;
+    sk:then "the photo opens in full-size view with navigation arrows to move between photos" .
+
+:us-003-as-003 a sk:AcceptanceScenario ;
+    sk:scenarioIndex 3 ;
+    sk:given "a photo is open in full-size view" ;
+    sk:when "the user clicks the close button or presses Escape" ;
+    sk:then "the view returns to the album tile grid" .
+
+# ----------------------------------------------------------------------------
+# Functional Requirements
+# ----------------------------------------------------------------------------
+
+:fr-001 a sk:FunctionalRequirement ;
+    sk:requirementId "FR-001" ;
+    sk:category "Album Management" ;
+    sk:description "System MUST allow users to create albums with a user-provided name and auto-generated creation date" .
+
+:fr-002 a sk:FunctionalRequirement ;
+    sk:requirementId "FR-002" ;
+    sk:category "Album Management" ;
+    sk:description "System MUST display albums in a main list view with album name and creation date visible" .
+
+:fr-003 a sk:FunctionalRequirement ;
+    sk:requirementId "FR-003" ;
+    sk:category "Photo Storage" ;
+    sk:description "System MUST support drag-and-drop upload of image files (JPEG, PNG, GIF) to albums" .
+
+:fr-004 a sk:FunctionalRequirement ;
+    sk:requirementId "FR-004" ;
+    sk:category "Photo Display" ;
+    sk:description "System MUST display photos within an album as thumbnail tiles in a responsive grid layout" .
+
+:fr-005 a sk:FunctionalRequirement ;
+    sk:requirementId "FR-005" ;
+    sk:category "Album Organization" ;
+    sk:description "System MUST support drag-and-drop reordering of albums on the main page and persist the custom order" .
+
+# ----------------------------------------------------------------------------
+# Success Criteria
+# ----------------------------------------------------------------------------
+
+:sc-001 a sk:SuccessCriterion ;
+    sk:criterionId "SC-001" ;
+    sk:measurable true ;
+    sk:metric "Time to create album and add photos" ;
+    sk:target "< 30 seconds for 10 photos" ;
+    sk:description "Users can create an album and add 10 photos in under 30 seconds" .
+
+:sc-002 a sk:SuccessCriterion ;
+    sk:criterionId "SC-002" ;
+    sk:measurable true ;
+    sk:metric "Photo thumbnail load time" ;
+    sk:target "< 1 second for 50 photos" ;
+    sk:description "Album view loads and displays thumbnails for 50 photos in under 1 second" .
+
+:sc-003 a sk:SuccessCriterion ;
+    sk:criterionId "SC-003" ;
+    sk:measurable true ;
+    sk:metric "Task completion rate" ;
+    sk:target ">= 90%" ;
+    sk:description "90% of users successfully organize photos into albums without assistance on first attempt" .
+
+# ----------------------------------------------------------------------------
+# Key Entities
+# ----------------------------------------------------------------------------
+
+:album a sk:Entity ;
+    sk:entityName "Album" ;
+    sk:definition "A container for organizing photos by date, event, or theme" ;
+    sk:keyAttributes "name (user-provided), creation date (auto-generated), display order (user-customizable), photo count" .
+
+:photo a sk:Entity ;
+    sk:entityName "Photo" ;
+    sk:definition "An image file stored locally with metadata for display and organization" ;
+    sk:keyAttributes "file path, thumbnail image, full-size image, upload date, parent album reference" .
+
+# ----------------------------------------------------------------------------
+# Edge Cases
+# ----------------------------------------------------------------------------
+
+:ec-001 a sk:EdgeCase ;
+    sk:scenario "User attempts to create an album with an empty name" ;
+    sk:expectedBehavior "System shows an error message 'Album name is required' and prevents creation until a valid name is provided" .
+
+:ec-002 a sk:EdgeCase ;
+    sk:scenario "User drags a very large image file (>50MB) into an album" ;
+    sk:expectedBehavior "System shows a progress indicator during upload and generates thumbnail efficiently, or shows warning if file exceeds reasonable size limit" .
+
+# ----------------------------------------------------------------------------
+# Assumptions
+# ----------------------------------------------------------------------------
+
+:a-001 a sk:Assumption ;
+    sk:description "Photos are stored locally on the user's device, not uploaded to a server" .
+
+:a-002 a sk:Assumption ;
+    sk:description "Application runs as a desktop or web application with drag-and-drop support (not mobile-first)" .
+
+# ============================================================================
+# End of Photo Albums Feature Specification
+# ============================================================================
