@@ -1,0 +1,6 @@
+# Feature Specification: {{ featureName }}
+
+**Feature Branch**: `{{ featureBranch }}`
+**Created**: {{ created }}
+**Status**: {{ status }}
+**Input**: User description: "{{ userInput }}"

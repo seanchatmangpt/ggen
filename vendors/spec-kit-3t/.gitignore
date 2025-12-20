@@ -1,0 +1,5 @@
+# Generated artifacts (regenerated from ontology via ggen sync)
+# These files are deterministic projections: A = μ(O)
+# Version control the ontology (.ttl), not the generated markdown
+
+generated/

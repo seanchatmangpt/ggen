@@ -1,0 +1,303 @@
+# ============================================================================
+# ggen v6 Configuration: Spec-Kit 3T Transformation
+# ============================================================================
+# Purpose: Transform GitHub Spec-Kit from markdown to RDF-based specifications
+# Methodology: Pure 3T (TOML, Tera, Turtle)
+# ============================================================================
+
+[project]
+name = "spec-kit-3t"
+version = "1.0.0"
+description = "Spec-Kit transformation to ontology-driven specifications"
+
+# ----------------------------------------------------------------------------
+# v6 Pipeline Configuration
+# ----------------------------------------------------------------------------
+
+[v6]
+enabled = true
+ontology = "ontology/spec-kit-schema.ttl,examples/001-photo-albums-content.ttl"
+output_dir = "generated"
+
+# Five-stage pipeline (μ₁ → μ₂ → μ₃ → μ₄ → μ₅)
+[v6.passes]
+normalization = { order = 1, type = "construct", enabled = true }
+extraction = { order = 2, type = "select", enabled = true }
+emission = { order = 3, type = "tera", enabled = true }
+canonicalization = { order = 4, type = "format", enabled = true }
+receipt = { order = 5, type = "hash", enabled = true }
+
+# Constitutional invariants enforcement
+[v6.invariants]
+idempotence = true       # μ∘μ = μ (running twice produces zero changes)
+determinism = true       # Same ontology → same output (cross-platform)
+provenance = true        # Cryptographic receipt proves spec.md = μ(ontology)
+no_edit = true          # Generated files never manually edited
+substrate_only = true   # Only .ttl files version-controlled as truth
+
+# Vocabulary governance (allowed RDF namespaces)
+[v6.vocabulary]
+allowed = [
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "http://www.w3.org/2000/01/rdf-schema#",
+    "http://www.w3.org/2001/XMLSchema#",
+    "http://www.w3.org/ns/shacl#",
+    "http://github.com/github/spec-kit#",
+    "http://github.com/github/spec-kit/examples/photo-albums#",
+]
+
+# ----------------------------------------------------------------------------
+# Generation Rules (SPARQL → Tera → Markdown)
+# ----------------------------------------------------------------------------
+
+# Rule 1: Specification Header
+[[generation]]
+name = "spec-header"
+description = "Extract feature metadata (branch, name, created, status, user input)"
+query = """
+PREFIX sk: <http://github.com/github/spec-kit#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?featureBranch ?featureName ?created ?status ?userInput
+WHERE {
+    ?feature a sk:Feature ;
+             sk:featureBranch ?featureBranch ;
+             sk:featureName ?featureName ;
+             sk:created ?created ;
+             sk:status ?status .
+    OPTIONAL { ?feature sk:userInput ?userInput }
+}
+"""
+template = "templates/spec-header.tera"
+output = "generated/spec-header.md"
+
+# Rule 2: User Stories with Nested Acceptance Scenarios
+[[generation]]
+name = "user-stories"
+description = "Extract user stories with nested acceptance scenarios (Given-When-Then)"
+query = """
+PREFIX sk: <http://github.com/github/spec-kit#>
+
+SELECT ?storyIndex ?title ?priority ?description ?priorityRationale ?independentTest
+       ?scenarioIndex ?given ?when ?then
+WHERE {
+    ?feature a sk:Feature ;
+             sk:hasUserStory ?story .
+
+    ?story sk:storyIndex ?storyIndex ;
+           sk:title ?title ;
+           sk:priority ?priority ;
+           sk:description ?description ;
+           sk:priorityRationale ?priorityRationale ;
+           sk:independentTest ?independentTest ;
+           sk:hasAcceptanceScenario ?scenario .
+
+    ?scenario sk:scenarioIndex ?scenarioIndex ;
+              sk:given ?given ;
+              sk:when ?when ;
+              sk:then ?then .
+}
+ORDER BY ?storyIndex ?scenarioIndex
+"""
+# Additional query for edge cases (separate SPARQL to simplify template logic)
+edge_cases_query = """
+PREFIX sk: <http://github.com/github/spec-kit#>
+
+SELECT ?scenario ?expectedBehavior
+WHERE {
+    ?feature a sk:Feature ;
+             sk:hasEdgeCase ?edgeCase .
+
+    ?edgeCase sk:scenario ?scenario ;
+              sk:expectedBehavior ?expectedBehavior .
+}
+"""
+template = "templates/user-stories.tera"
+output = "generated/user-stories.md"
+
+# Rule 3: Functional Requirements
+[[generation]]
+name = "requirements"
+description = "Extract functional requirements with optional categories"
+query = """
+PREFIX sk: <http://github.com/github/spec-kit#>
+
+SELECT ?requirementId ?description ?category
+WHERE {
+    ?feature a sk:Feature ;
+             sk:hasFunctionalRequirement ?req .
+
+    ?req sk:requirementId ?requirementId ;
+         sk:description ?description .
+
+    OPTIONAL { ?req sk:category ?category }
+}
+ORDER BY ?requirementId
+"""
+# Additional query for entities
+entities_query = """
+PREFIX sk: <http://github.com/github/spec-kit#>
+
+SELECT ?entityName ?definition ?keyAttributes
+WHERE {
+    ?feature a sk:Feature ;
+             sk:hasEntity ?entity .
+
+    ?entity sk:entityName ?entityName ;
+            sk:definition ?definition .
+
+    OPTIONAL { ?entity sk:keyAttributes ?keyAttributes }
+}
+ORDER BY ?entityName
+"""
+template = "templates/requirements.tera"
+output = "generated/requirements.md"
+
+# Rule 4: Success Criteria
+[[generation]]
+name = "success-criteria"
+description = "Extract measurable success criteria with metrics and targets"
+query = """
+PREFIX sk: <http://github.com/github/spec-kit#>
+
+SELECT ?criterionId ?description ?measurable ?metric ?target
+WHERE {
+    ?feature a sk:Feature ;
+             sk:hasSuccessCriterion ?criterion .
+
+    ?criterion sk:criterionId ?criterionId ;
+               sk:description ?description ;
+               sk:measurable ?measurable .
+
+    OPTIONAL { ?criterion sk:metric ?metric }
+    OPTIONAL { ?criterion sk:target ?target }
+}
+ORDER BY ?criterionId
+"""
+template = "templates/success-criteria.tera"
+output = "generated/success-criteria.md"
+
+# Rule 5: Assumptions
+[[generation]]
+name = "assumptions"
+description = "Extract documented assumptions"
+query = """
+PREFIX sk: <http://github.com/github/spec-kit#>
+
+SELECT ?description
+WHERE {
+    ?feature a sk:Feature ;
+             sk:hasAssumption ?assumption .
+
+    ?assumption sk:description ?description .
+}
+"""
+template = "templates/assumptions.tera"
+output = "generated/assumptions.md"
+
+# ----------------------------------------------------------------------------
+# SHACL Validation Configuration (μ₁ Pass)
+# ----------------------------------------------------------------------------
+
+[v6.validation]
+enabled = true
+shapes_file = "ontology/spec-kit-schema.ttl"  # Contains SHACL shapes
+fail_on_violation = true  # Stop pipeline if validation fails
+
+# Validation examples that should pass:
+# ✓ Feature branch matches ^[0-9]{3}-[a-z0-9-]+$
+# ✓ Priority is P1, P2, or P3
+# ✓ Requirement IDs match ^FR-[0-9]{3}$
+# ✓ User stories have at least one acceptance scenario
+# ✓ Each story has priority rationale and independent test description
+
+# Validation examples that should fail:
+# ✗ Feature branch "v6-feature" (wrong pattern)
+# ✗ Priority "HIGH" (must be P1/P2/P3)
+# ✗ Requirement ID "REQ-1" (must be FR-XXX)
+# ✗ User story without acceptance scenarios (cardinality violation)
+
+# ----------------------------------------------------------------------------
+# Guards (Forbidden Output Patterns)
+# ----------------------------------------------------------------------------
+
+[v6.guards]
+enabled = true
+
+# Block secrets
+[[v6.guards.patterns]]
+pattern = 'ghp_[a-zA-Z0-9]{36}'
+description = "GitHub personal access token"
+
+[[v6.guards.patterns]]
+pattern = 'sk-[a-zA-Z0-9]{48}'
+description = "OpenAI API key"
+
+# Block absolute paths (generated markdown should be portable)
+[[v6.guards.patterns]]
+pattern = '/Users/[a-zA-Z0-9_-]+/'
+description = "macOS absolute path"
+
+[[v6.guards.patterns]]
+pattern = 'C:\\Users\\'
+description = "Windows absolute path"
+
+# ----------------------------------------------------------------------------
+# Canonicalization Rules (μ₄ Pass)
+# ----------------------------------------------------------------------------
+
+[v6.canonicalization]
+line_endings = "lf"           # Always use LF, never CRLF
+trim_trailing_whitespace = true
+ensure_final_newline = true
+max_line_length = 0           # No line length limit (preserve readability)
+
+# ----------------------------------------------------------------------------
+# Receipt Configuration (μ₅ Pass)
+# ----------------------------------------------------------------------------
+
+[v6.receipt]
+enabled = true
+algorithm = "SHA-256"
+output_file = "generated/.receipt.json"
+
+# Receipt format:
+# {
+#   "timestamp": "2025-12-19T14:53:00Z",
+#   "pipeline_version": "v6.0.0",
+#   "input_hashes": {
+#     "ontology/spec-kit-schema.ttl": "sha256:abc123...",
+#     "examples/001-photo-albums-content.ttl": "sha256:def456..."
+#   },
+#   "output_hashes": {
+#     "generated/spec-header.md": "sha256:789ghi...",
+#     "generated/user-stories.md": "sha256:012jkl..."
+#   },
+#   "constitutional_proof": "hash(output) = hash(μ(input))"
+# }
+
+# ----------------------------------------------------------------------------
+# Notes
+# ----------------------------------------------------------------------------
+
+# This configuration demonstrates the complete 3T transformation:
+#
+# 1. **TOML** (this file): Pipeline orchestration with SPARQL queries
+# 2. **Tera**: Templates transform RDF bindings into markdown
+# 3. **Turtle**: Ontology files are the ONLY source of truth
+#
+# Workflow:
+#   $ ggen sync                    # Generate specifications
+#   $ ggen sync                    # Verify idempotence (no changes)
+#   $ ggen verify                  # Validate cryptographic receipt
+#
+# Meta-Circular Property:
+#   The Spec-Kit specification ABOUT ontology-driven development
+#   IS ITSELF generated from ontology, proving the paradigm works.
+#
+# Next Steps:
+#   1. Run SHACL validation against ontology files
+#   2. Execute first generation and compare to markdown templates
+#   3. Test idempotence (μ∘μ = μ)
+#   4. Verify determinism (cross-platform bit-for-bit identical)
+#   5. Use as template for converting other spec-kit features to 3T
