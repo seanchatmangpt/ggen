@@ -1,0 +1,51 @@
+# =============================================================================
+# Extract Reference Documentation (Diataxis Quadrant 3: Information)
+# Information-oriented, theoretical documentation
+# Combines with code ontology (ffi:Function)
+# =============================================================================
+
+PREFIX doc: <https://ggen.dev/ontology/documentation#>
+PREFIX ffi: <https://ggen.dev/ontology/node-ffi#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?title ?description ?signature ?returnValue
+       ?funcName ?funcDescription ?returnType ?async ?throws
+       ?paramName ?paramType ?paramRequired ?paramDescription
+       ?exampleTitle ?exampleCode ?exampleLanguage
+WHERE {
+  ?ref a doc:Reference ;
+       doc:title ?title ;
+       doc:documentsFunction ?func .
+
+  OPTIONAL { ?ref doc:description ?description }
+  OPTIONAL { ?ref doc:hasSignature ?signature }
+  OPTIONAL { ?ref doc:hasReturnValue ?returnValue }
+
+  # Function details from code ontology
+  ?func a ffi:Function ;
+        ffi:functionName ?funcName ;
+        ffi:returnType ?returnType .
+
+  OPTIONAL { ?func rdfs:comment ?funcDescription }
+  OPTIONAL { ?func ffi:async ?async }
+  OPTIONAL { ?func ffi:throws ?throws }
+
+  # Parameters
+  OPTIONAL {
+    ?func ffi:hasParameter ?param .
+    ?param ffi:paramName ?paramName ;
+           ffi:type ?paramType .
+
+    OPTIONAL { ?param ffi:required ?paramRequired }
+    OPTIONAL { ?param rdfs:comment ?paramDescription }
+  }
+
+  # Code examples
+  OPTIONAL {
+    ?ref doc:hasExample ?example .
+    ?example doc:title ?exampleTitle ;
+             doc:codeExample ?exampleCode ;
+             doc:codeLanguage ?exampleLanguage .
+  }
+}
+ORDER BY ?title ?paramName ?exampleTitle

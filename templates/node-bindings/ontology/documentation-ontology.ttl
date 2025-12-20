@@ -1,0 +1,254 @@
+# =============================================================================
+# Documentation Ontology (Diataxis 2030)
+# Defines vocabulary for describing technical documentation
+# Enables generation of all four Diataxis quadrants from semantic data
+# =============================================================================
+
+@prefix doc: <https://ggen.dev/ontology/documentation#> .
+@prefix ffi: <https://ggen.dev/ontology/node-ffi#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Core Documentation Classes (Diataxis Quadrants)
+# =============================================================================
+
+doc:Tutorial a rdfs:Class ;
+    rdfs:label "Tutorial" ;
+    rdfs:comment "Learning-oriented documentation that teaches through practical steps" ;
+    doc:diataxisQuadrant "learning" ;
+    doc:orientation "practical" .
+
+doc:HowToGuide a rdfs:Class ;
+    rdfs:label "How-To Guide" ;
+    rdfs:comment "Problem-oriented documentation that provides solutions" ;
+    doc:diataxisQuadrant "problem" ;
+    doc:orientation "practical" .
+
+doc:Reference a rdfs:Class ;
+    rdfs:label "Reference Documentation" ;
+    rdfs:comment "Information-oriented documentation that describes technical details" ;
+    doc:diataxisQuadrant "information" ;
+    doc:orientation "theoretical" .
+
+doc:Explanation a rdfs:Class ;
+    rdfs:label "Explanation" ;
+    rdfs:comment "Understanding-oriented documentation that clarifies concepts" ;
+    doc:diataxisQuadrant "understanding" ;
+    doc:orientation "theoretical" .
+
+# =============================================================================
+# Supporting Classes
+# =============================================================================
+
+doc:Step a rdfs:Class ;
+    rdfs:label "Documentation Step" ;
+    rdfs:comment "A single step in a tutorial or how-to guide" .
+
+doc:Example a rdfs:Class ;
+    rdfs:label "Code Example" ;
+    rdfs:comment "A working code example" .
+
+doc:Concept a rdfs:Class ;
+    rdfs:label "Concept" ;
+    rdfs:comment "An abstract concept to be explained" .
+
+doc:DesignDecision a rdfs:Class ;
+    rdfs:label "Design Decision" ;
+    rdfs:comment "A design decision with rationale" .
+
+# =============================================================================
+# Tutorial Properties
+# =============================================================================
+
+doc:hasPrerequisite a rdf:Property ;
+    rdfs:domain doc:Tutorial ;
+    rdfs:range xsd:string ;
+    rdfs:label "hasPrerequisite" ;
+    rdfs:comment "A prerequisite for completing the tutorial" .
+
+doc:hasLearningObjective a rdf:Property ;
+    rdfs:domain doc:Tutorial ;
+    rdfs:range xsd:string ;
+    rdfs:label "hasLearningObjective" ;
+    rdfs:comment "What the user will learn from this tutorial" .
+
+doc:estimatedTime a rdf:Property ;
+    rdfs:domain doc:Tutorial ;
+    rdfs:range xsd:string ;
+    rdfs:label "estimatedTime" ;
+    rdfs:comment "Estimated time to complete (e.g., '10 minutes')" .
+
+doc:difficultyLevel a rdf:Property ;
+    rdfs:domain doc:Tutorial ;
+    rdfs:range xsd:string ;
+    rdfs:label "difficultyLevel" ;
+    rdfs:comment "Difficulty: beginner, intermediate, advanced" .
+
+# =============================================================================
+# How-To Guide Properties
+# =============================================================================
+
+doc:solvesProblem a rdf:Property ;
+    rdfs:domain doc:HowToGuide ;
+    rdfs:range xsd:string ;
+    rdfs:label "solvesProblem" ;
+    rdfs:comment "The problem this guide solves" .
+
+doc:hasStep a rdf:Property ;
+    rdfs:domain doc:HowToGuide ;
+    rdfs:range doc:Step ;
+    rdfs:label "hasStep" ;
+    rdfs:comment "A step in the how-to guide" .
+
+doc:requiresContext a rdf:Property ;
+    rdfs:domain doc:HowToGuide ;
+    rdfs:range xsd:string ;
+    rdfs:label "requiresContext" ;
+    rdfs:comment "Context required to apply this solution" .
+
+# =============================================================================
+# Reference Properties
+# =============================================================================
+
+doc:documentsFunction a rdf:Property ;
+    rdfs:domain doc:Reference ;
+    rdfs:range ffi:Function ;
+    rdfs:label "documentsFunction" ;
+    rdfs:comment "The function this reference documents" .
+
+doc:hasSignature a rdf:Property ;
+    rdfs:domain doc:Reference ;
+    rdfs:range xsd:string ;
+    rdfs:label "hasSignature" ;
+    rdfs:comment "Function signature" .
+
+doc:hasReturnValue a rdf:Property ;
+    rdfs:domain doc:Reference ;
+    rdfs:range xsd:string ;
+    rdfs:label "hasReturnValue" ;
+    rdfs:comment "Description of return value" .
+
+# =============================================================================
+# Explanation Properties
+# =============================================================================
+
+doc:explainsConcept a rdf:Property ;
+    rdfs:domain doc:Explanation ;
+    rdfs:range doc:Concept ;
+    rdfs:label "explainsConcept" ;
+    rdfs:comment "The concept being explained" .
+
+doc:hasKeyIdea a rdf:Property ;
+    rdfs:domain doc:Explanation ;
+    rdfs:range xsd:string ;
+    rdfs:label "hasKeyIdea" ;
+    rdfs:comment "A key idea in the explanation" .
+
+doc:hasAnalogy a rdf:Property ;
+    rdfs:domain doc:Explanation ;
+    rdfs:range xsd:string ;
+    rdfs:label "hasAnalogy" ;
+    rdfs:comment "An analogy to help understanding" .
+
+doc:hasDesignDecision a rdf:Property ;
+    rdfs:domain doc:Explanation ;
+    rdfs:range doc:DesignDecision ;
+    rdfs:label "hasDesignDecision" ;
+    rdfs:comment "A design decision explained" .
+
+# =============================================================================
+# Common Properties
+# =============================================================================
+
+doc:title a rdf:Property ;
+    rdfs:label "title" ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Title of the documentation" .
+
+doc:description a rdf:Property ;
+    rdfs:label "description" ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Description of the documentation" .
+
+doc:order a rdf:Property ;
+    rdfs:label "order" ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Order/sequence number" .
+
+doc:relatedTo a rdf:Property ;
+    rdfs:label "relatedTo" ;
+    rdfs:comment "Related code or documentation" .
+
+doc:hasExample a rdf:Property ;
+    rdfs:label "hasExample" ;
+    rdfs:range doc:Example ;
+    rdfs:comment "A code example" .
+
+doc:codeExample a rdf:Property ;
+    rdfs:label "codeExample" ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Code snippet" .
+
+doc:codeLanguage a rdf:Property ;
+    rdfs:label "codeLanguage" ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Programming language of code example" .
+
+# =============================================================================
+# Step Properties
+# =============================================================================
+
+doc:action a rdf:Property ;
+    rdfs:domain doc:Step ;
+    rdfs:range xsd:string ;
+    rdfs:label "action" ;
+    rdfs:comment "The action to perform in this step" .
+
+doc:explanation a rdf:Property ;
+    rdfs:domain doc:Step ;
+    rdfs:range xsd:string ;
+    rdfs:label "explanation" ;
+    rdfs:comment "Explanation of why this step is needed" .
+
+# =============================================================================
+# Design Decision Properties
+# =============================================================================
+
+doc:decision a rdf:Property ;
+    rdfs:domain doc:DesignDecision ;
+    rdfs:range xsd:string ;
+    rdfs:label "decision" ;
+    rdfs:comment "The design decision made" .
+
+doc:rationale a rdf:Property ;
+    rdfs:domain doc:DesignDecision ;
+    rdfs:range xsd:string ;
+    rdfs:label "rationale" ;
+    rdfs:comment "Rationale for the decision" .
+
+doc:tradeoff a rdf:Property ;
+    rdfs:domain doc:DesignDecision ;
+    rdfs:range xsd:string ;
+    rdfs:label "tradeoff" ;
+    rdfs:comment "Tradeoffs considered" .
+
+# =============================================================================
+# AI Enhancement Metadata (2030)
+# =============================================================================
+
+doc:aiGenerated a rdf:Property ;
+    rdfs:label "aiGenerated" ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether content is AI-generated" .
+
+doc:personalizationTags a rdf:Property ;
+    rdfs:label "personalizationTags" ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Tags for AI personalization" .
+
+doc:targetAudience a rdf:Property ;
+    rdfs:label "targetAudience" ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Target audience: beginner, intermediate, advanced" .

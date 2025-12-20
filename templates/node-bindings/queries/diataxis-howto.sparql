@@ -1,0 +1,28 @@
+# =============================================================================
+# Extract How-To Guide Documentation (Diataxis Quadrant 2: Problem-Solving)
+# Problem-oriented, practical documentation
+# =============================================================================
+
+PREFIX doc: <https://ggen.dev/ontology/documentation#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?title ?description ?problem ?context
+       ?stepOrder ?stepAction ?stepCode ?stepLanguage
+WHERE {
+  ?guide a doc:HowToGuide ;
+         doc:title ?title .
+
+  OPTIONAL { ?guide doc:description ?description }
+  OPTIONAL { ?guide doc:solvesProblem ?problem }
+  OPTIONAL { ?guide doc:requiresContext ?context }
+
+  OPTIONAL {
+    ?guide doc:hasStep ?step .
+    ?step doc:order ?stepOrder ;
+          doc:action ?stepAction .
+
+    OPTIONAL { ?step doc:codeExample ?stepCode }
+    OPTIONAL { ?step doc:codeLanguage ?stepLanguage }
+  }
+}
+ORDER BY ?title ?stepOrder
