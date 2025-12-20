@@ -31,6 +31,11 @@ pub mod helpers;
 // THE ONLY COMMAND: ggen sync
 pub mod sync;
 
+// CRITICAL: Force the sync module to be linked so its #[verb] registration works
+// Without this import, the linker optimizes away the linkme static items from #[verb] macro
+#[allow(unused_imports)]
+use sync as _;
+
 use ggen_utils::error::Result;
 use serde_json::json;
 

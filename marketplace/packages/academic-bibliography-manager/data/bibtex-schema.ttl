@@ -18,3 +18,4 @@ bib:publisher a rdf:Property ; rdfs:domain bib:Entry ; rdfs:range xsd:string .
 
 
 
+

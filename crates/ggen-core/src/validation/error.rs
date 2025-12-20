@@ -147,10 +147,7 @@ pub enum ValidationError {
 impl ValidationError {
     /// Create a parse error from file path and message
     pub fn parse_error(
-        file: impl Into<PathBuf>,
-        message: impl Into<String>,
-        line: usize,
-        column: usize,
+        file: impl Into<PathBuf>, message: impl Into<String>, line: usize, column: usize,
     ) -> Self {
         ValidationError::ParseError {
             file: file.into(),
@@ -215,12 +212,8 @@ mod tests {
 
     #[test]
     fn test_parse_error_construction() {
-        let err = ValidationError::parse_error(
-            PathBuf::from("test.ttl"),
-            "Unexpected token",
-            42,
-            15,
-        );
+        let err =
+            ValidationError::parse_error(PathBuf::from("test.ttl"), "Unexpected token", 42, 15);
 
         match err {
             ValidationError::ParseError {
@@ -240,8 +233,7 @@ mod tests {
 
     #[test]
     fn test_shape_load_error_display() {
-        let err =
-            ValidationError::shape_load_error(PathBuf::from("shapes.ttl"), "File not found");
+        let err = ValidationError::shape_load_error(PathBuf::from("shapes.ttl"), "File not found");
 
         let display = format!("{}", err);
         assert!(display.contains("shapes.ttl"));
@@ -266,14 +258,10 @@ mod tests {
 
     #[test]
     fn test_invalid_constraint_error() {
-        let err =
-            ValidationError::invalid_constraint("Unsupported constraint", ":UserStoryShape");
+        let err = ValidationError::invalid_constraint("Unsupported constraint", ":UserStoryShape");
 
         match err {
-            ValidationError::InvalidConstraint {
-                message,
-                shape_iri,
-            } => {
+            ValidationError::InvalidConstraint { message, shape_iri } => {
                 assert_eq!(message, "Unsupported constraint");
                 assert_eq!(shape_iri, ":UserStoryShape");
             }

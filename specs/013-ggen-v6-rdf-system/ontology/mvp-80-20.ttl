@@ -1,0 +1,282 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix : <http://github.com/github/spec-kit/examples/013-ggen-v6-rdf-system#> .
+
+# ============================================================================
+# ggen v6 MVP - 80/20 Analysis
+# ============================================================================
+# Purpose: Define the 20% of features that deliver 80% of value
+# Focus: Prove RDF-first methodology works with minimal viable implementation
+# ============================================================================
+
+:mvp-80-20 a sk:ImplementationStrategy ;
+    sk:strategyName "ggen v6 MVP - 80/20 Principle" ;
+    sk:goal "Prove constitutional equation code = μ(spec.ttl) with minimal implementation" ;
+    sk:targetDeliveryTime "1 week for solo developer" ;
+    sk:valueDelivered "80%" ;
+    sk:effortRequired "20%" ;
+    sk:hasPhase :phase-1-core, :phase-2-deferred .
+
+# ============================================================================
+# Phase 1: Core 20% (Must Have - Proves Concept)
+# ============================================================================
+
+:phase-1-core a sk:ImplementationPhase ;
+    sk:phaseName "Phase 1: Core MVP (The Vital Few)" ;
+    sk:estimatedEffort "20% of total work" ;
+    sk:expectedValue "80% of user value" ;
+    sk:deliverable "Working TTL → Code transformation that proves RDF-first methodology" ;
+    sk:hasCapability :cap-001, :cap-002, :cap-003, :cap-004, :cap-005 .
+
+# Capability 1: Parse Single TTL File (Foundation)
+:cap-001 a sk:CoreCapability ;
+    sk:capabilityId "CAP-001" ;
+    sk:name "Parse Single TTL File into RDF Graph" ;
+    sk:priority "P1" ;
+    sk:effortEstimate "2 days" ;
+    sk:valueRationale "Without this, nothing works. Foundation of entire system." ;
+    sk:acceptance "Load feature-content.ttl, count triples, verify > 0" ;
+    sk:implementation """
+    Use oxigraph crate (already in ggen dependencies):
+    - Create in-memory RDF store
+    - Parse Turtle file
+    - Return graph for querying
+
+    No features needed:
+    - No multi-file loading
+    - No remote loading
+    - No format auto-detection (Turtle only)
+    - No streaming (load entire file)
+    """ .
+
+# Capability 2: Execute Basic SPARQL SELECT (Data Extraction)
+:cap-002 a sk:CoreCapability ;
+    sk:capabilityId "CAP-002" ;
+    sk:name "Execute SPARQL SELECT Query" ;
+    sk:priority "P1" ;
+    sk:effortEstimate "2 days" ;
+    sk:valueRationale "Extract structured data from RDF. Core of μ₂ stage." ;
+    sk:acceptance "Run query extracting user stories, get Vec<HashMap<String, String>>" ;
+    sk:implementation """
+    Use oxigraph SPARQL engine:
+    - Parse SPARQL SELECT query string
+    - Execute against RDF graph
+    - Return results as Vec of bindings
+    - Serialize bindings to JSON for Tera
+
+    No features needed:
+    - No CONSTRUCT queries (only SELECT)
+    - No query optimization
+    - No query validation beyond syntax
+    - No streaming results
+    """ .
+
+# Capability 3: Render Basic Tera Template (Code Generation)
+:cap-003 a sk:CoreCapability ;
+    sk:capabilityId "CAP-003" ;
+    sk:name "Render Tera Template with SPARQL Results" ;
+    sk:priority "P1" ;
+    sk:effortEstimate "1 day" ;
+    sk:valueRationale "Transform data into code. Core of μ₃ stage." ;
+    sk:acceptance "Render spec.tera with query results, produce markdown" ;
+    sk:implementation """
+    Use tera crate:
+    - Load template from file
+    - Pass SPARQL results as context
+    - Render to string
+    - Write to output file
+
+    No features needed:
+    - No custom filters
+    - No template inheritance (flat templates only)
+    - No template caching
+    - No error recovery (fail fast)
+    """ .
+
+# Capability 4: Deterministic Output (Trust & Reproducibility)
+:cap-004 a sk:CoreCapability ;
+    sk:capabilityId "CAP-004" ;
+    sk:name "Deterministic Transformation (Same Input → Same Output)" ;
+    sk:priority "P1" ;
+    sk:effortEstimate "1 day" ;
+    sk:valueRationale "Essential for git/version control. Proves constitutional equation." ;
+    sk:acceptance "Run twice, SHA256 hashes match" ;
+    sk:implementation """
+    Ensure determinism:
+    - Stable triple ordering (sort by subject, predicate, object)
+    - Stable SPARQL result ordering (ORDER BY in queries)
+    - No timestamps in output
+    - No random elements
+
+    Test:
+    - Generate output twice
+    - Compare SHA256 hashes
+    - Assert equality
+    """ .
+
+# Capability 5: ggen sync Command (User Interface)
+:cap-005 a sk:CoreCapability ;
+    sk:capabilityId "CAP-005" ;
+    sk:name "CLI Command 'ggen sync' Reading ggen.toml" ;
+    sk:priority "P1" ;
+    sk:effortEstimate "2 days" ;
+    sk:valueRationale "User-facing entry point. Makes it usable." ;
+    sk:acceptance "Run 'ggen sync', spec.md generated from feature-content.ttl" ;
+    sk:implementation """
+    Use clap crate for CLI:
+    - Add 'sync' subcommand to ggen
+    - Read ggen.toml from current directory
+    - Parse [[generation]] entries
+    - For each entry:
+      1. Load source TTL
+      2. Execute SPARQL query
+      3. Render Tera template
+      4. Write output file
+
+    Minimal ggen.toml support:
+    - [[generation]] array only
+    - Fields: query, template, output
+    - No validation beyond required fields
+    - No dependency ordering (process in file order)
+    """ .
+
+# ============================================================================
+# Phase 2: Deferred 80% (Nice to Have - Optimize Later)
+# ============================================================================
+
+:phase-2-deferred a sk:ImplementationPhase ;
+    sk:phaseName "Phase 2: Optimization & Polish (Deferred)" ;
+    sk:estimatedEffort "80% of total work" ;
+    sk:expectedValue "20% of additional user value" ;
+    sk:rationale "These features improve quality/UX but aren't needed to prove concept" ;
+    sk:hasFeature :def-001, :def-002, :def-003, :def-004, :def-005, :def-006, :def-007, :def-008 .
+
+# Deferred 1: SHACL Validation
+:def-001 a sk:DeferredFeature ;
+    sk:featureId "DEF-001" ;
+    sk:name "SHACL Shape Validation (μ₁ Normalization)" ;
+    sk:deferRationale "Can validate TTL manually initially. Not blocking for code generation." ;
+    sk:workaround "Manual review of TTL files, use external SHACL validator" ;
+    sk:implementWhen "After MVP proves value, when handling untrusted specs" .
+
+# Deferred 2: Cryptographic Receipts
+:def-002 a sk:DeferredFeature ;
+    sk:featureId "DEF-002" ;
+    sk:name "Cryptographic Receipts (μ₅ Receipt Stage)" ;
+    sk:deferRationale "Provenance is valuable but not required to generate code" ;
+    sk:workaround "Use git commit hashes for provenance tracking" ;
+    sk:implementWhen "When compliance/audit requirements demand cryptographic proof" .
+
+# Deferred 3: Idempotence Optimization
+:def-003 a sk:DeferredFeature ;
+    sk:featureId "DEF-003" ;
+    sk:name "Idempotence Checks (μ∘μ = μ optimization)" ;
+    sk:deferRationale "Determinism ensures same output; idempotence is git noise reduction" ;
+    sk:workaround "Always regenerate all files, ignore git noise initially" ;
+    sk:implementWhen "When developers complain about unnecessary git diffs" .
+
+# Deferred 4: Multi-File Loading
+:def-004 a sk:DeferredFeature ;
+    sk:featureId "DEF-004" ;
+    sk:name "Multiple Source Files / Imports" ;
+    sk:deferRationale "Single file is sufficient for MVP specs" ;
+    sk:workaround "Concatenate TTL files manually or use single large file" ;
+    sk:implementWhen "When specs grow beyond comfortable single-file size" .
+
+# Deferred 5: Advanced SPARQL
+:def-005 a sk:DeferredFeature ;
+    sk:featureId "DEF-005" ;
+    sk:name "CONSTRUCT Queries, SPARQL 1.1 Features" ;
+    sk:deferRationale "SELECT queries cover 95% of use cases" ;
+    sk:workaround "Use SELECT with creative SPARQL patterns" ;
+    sk:implementWhen "When template logic becomes too complex" .
+
+# Deferred 6: Template Features
+:def-006 a sk:DeferredFeature ;
+    sk:featureId "DEF-006" ;
+    sk:name "Template Inheritance, Custom Filters" ;
+    sk:deferRationale "Basic Tera features sufficient for code generation" ;
+    sk:workaround "Duplicate template code, use built-in Tera filters only" ;
+    sk:implementWhen "When template duplication becomes painful" .
+
+# Deferred 7: Error Recovery
+:def-007 a sk:DeferredFeature ;
+    sk:featureId "DEF-007" ;
+    sk:name "Graceful Error Handling, Partial Success" ;
+    sk:deferRationale "Fail-fast is acceptable for MVP" ;
+    sk:workaround "Fix errors and re-run (acceptable during development)" ;
+    sk:implementWhen "When used in CI/CD and partial results are valuable" .
+
+# Deferred 8: Performance Optimization
+:def-008 a sk:DeferredFeature ;
+    sk:featureId "DEF-008" ;
+    sk:name "Streaming, Caching, Parallel Processing" ;
+    sk:deferRationale "Specs are small (<10K triples), performance is acceptable" ;
+    sk:workaround "Wait a few seconds for generation" ;
+    sk:implementWhen "When specs exceed 100K triples or generation time > 30s" .
+
+# ============================================================================
+# Success Metrics for MVP (80/20)
+# ============================================================================
+
+:mvp-success a sk:SuccessMetrics ;
+    sk:metric "Time to first working demo" ;
+    sk:target "8 developer-days (20% of 40-day full implementation)" ;
+    sk:measure "Can generate spec.md from feature-content.ttl deterministically" .
+
+:mvp-value a sk:ValueMetrics ;
+    sk:metric "Proof of RDF-first concept" ;
+    sk:target "Demonstrates code = μ(spec.ttl) works in practice" ;
+    sk:measure "External developers understand and trust the approach" .
+
+# ============================================================================
+# MVP Workflow (End-to-End)
+# ============================================================================
+
+:mvp-workflow a sk:Workflow ;
+    sk:workflowName "ggen v6 MVP End-to-End Workflow" ;
+    sk:step1 "Developer writes feature-content.ttl (RDF specification)" ;
+    sk:step2 "Developer creates spec.tera (Tera template)" ;
+    sk:step3 "Developer writes SPARQL query in ggen.toml" ;
+    sk:step4 "Developer runs 'ggen sync'" ;
+    sk:step5 "System generates spec.md from TTL + template" ;
+    sk:step6 "Developer verifies output matches expected" ;
+    sk:step7 "Developer commits TTL (source of truth) + generated MD to git" ;
+    sk:result "Spec and code are linked; changing TTL regenerates code automatically" .
+
+# ============================================================================
+# Implementation Order (Critical Path)
+# ============================================================================
+
+:impl-order a sk:ImplementationOrder ;
+    sk:week1-day1-2 "CAP-001: TTL parsing (oxigraph integration)" ;
+    sk:week1-day3-4 "CAP-002: SPARQL SELECT execution" ;
+    sk:week1-day5 "CAP-003: Tera template rendering" ;
+    sk:week2-day1 "CAP-004: Determinism tests (hash comparison)" ;
+    sk:week2-day2-3 "CAP-005: 'ggen sync' command + ggen.toml parsing" ;
+    sk:week2-day4 "Integration test: Full pipeline end-to-end" ;
+    sk:week2-day5 "Documentation: README with usage example" .
+
+# ============================================================================
+# Risk Mitigation
+# ============================================================================
+
+:risk-001 a sk:Risk ;
+    sk:riskName "oxigraph API changes or bugs" ;
+    sk:impact "High (blocks all RDF operations)" ;
+    sk:mitigation "Pin oxigraph version, test early with sample TTL" ;
+    sk:fallback "Use alternative RDF library (sophia, rdf-rs)" .
+
+:risk-002 a sk:Risk ;
+    sk:riskName "SPARQL query complexity exceeds basic SELECT" ;
+    sk:impact "Medium (may need query workarounds)" ;
+    sk:mitigation "Test with real feature-content.ttl early, validate query patterns" ;
+    sk:fallback "Simplify queries, denormalize TTL structure if needed" .
+
+:risk-003 a sk:Risk ;
+    sk:riskName "Tera template limitations for code generation" ;
+    sk:impact "Low (can work around with SPARQL preprocessing)" ;
+    sk:mitigation "Test template rendering with complex nesting early" ;
+    sk:fallback "Pre-process SPARQL results into simpler structure" .

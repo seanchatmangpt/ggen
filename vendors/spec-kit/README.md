@@ -28,6 +28,7 @@
 - [🌟 Development Phases](#-development-phases)
 - [🎯 Experimental Goals](#-experimental-goals)
 - [🔧 Prerequisites](#-prerequisites)
+- [🧪 Testing & Validation](#-testing--validation)
 - [📖 Learn More](#-learn-more)
 - [📋 Detailed Process](#-detailed-process)
 - [🔍 Troubleshooting](#-troubleshooting)
@@ -320,10 +321,66 @@ Our research and experimentation focus on:
 ## 🔧 Prerequisites
 
 - **Linux/macOS/Windows**
-- [Supported](#-supported-ai-agents) AI coding agent.
+- [Supported](#-supported-ai-agents) AI coding agent
 - [uv](https://docs.astral.sh/uv/) for package management
 - [Python 3.11+](https://www.python.org/downloads/)
 - [Git](https://git-scm.com/downloads)
+- **[ggen v6](https://github.com/seanchatmangpt/ggen)** - RDF-first code generation engine
+
+### Installing ggen
+
+ggen is required for RDF-first specification workflows. Install via cargo:
+
+```bash
+# Install from crates.io (when published)
+cargo install ggen
+
+# Or install from source
+git clone https://github.com/seanchatmangpt/ggen.git
+cd ggen
+cargo install --path crates/ggen-cli
+
+# Verify installation
+ggen --version  # Should show v6.x.x or higher
+```
+
+**What is ggen?** ggen v6 is an ontology-driven code generation engine that transforms RDF/Turtle specifications into markdown artifacts via deterministic transformations (`spec.md = μ(feature.ttl)`). It uses SHACL validation, SPARQL queries, and Tera templates configured in `ggen.toml` files.
+
+## 🧪 Testing & Validation
+
+Spec-Kit includes testcontainer-based integration tests that validate the ggen RDF-first workflow. These tests verify the constitutional equation `spec.md = μ(feature.ttl)` and ensure deterministic transformations.
+
+### Running Validation Tests
+
+```bash
+# Install test dependencies
+uv pip install -e ".[test]"
+
+# Run all tests (requires Docker)
+pytest tests/ -v
+
+# Run integration tests only
+pytest tests/integration/ -v -s
+
+# View test documentation
+cat tests/README.md
+```
+
+### What Gets Validated
+
+- ✅ **ggen sync** generates markdown from TTL sources
+- ✅ **Idempotence**: μ∘μ = μ (running twice produces identical output)
+- ✅ **TTL syntax validation** rejects invalid RDF
+- ✅ **Constitutional equation**: Deterministic transformation with hash verification
+- ✅ **Five-stage pipeline**: μ₁→μ₂→μ₃→μ₄→μ₅
+
+**Requirements**: Docker must be running. Tests use testcontainers to spin up a Rust environment, install ggen, and validate the complete workflow.
+
+See [tests/README.md](./tests/README.md) for detailed documentation on the validation suite, including:
+- Test architecture and fixtures
+- CI/CD integration examples
+- Troubleshooting guide
+- Adding new tests
 
 If you encounter issues with an agent, please open an issue so we can refine the integration.
 

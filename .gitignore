@@ -494,6 +494,7 @@ book/
 
 # Dependency directories (if using vendored deps)
 vendor/
+!vendors/
 
 # OS specific
 # macOS
@@ -912,6 +913,12 @@ coordination/
 /memory/claude-flow-data.json
 # Allow .specify/memory/ for constitution and Speckit state
 !.specify/memory/
+
+# RDF-First Specification System (.specify/)
+# Source of truth: .ttl (Turtle/RDF) files - ALWAYS commit
+# Generated artifacts: .md files - Commit for GitHub viewing, but NEVER manually edit
+# Constitutional equation: spec.md = μ(feature.ttl)
+# To regenerate: ggen render spec.tera feature.ttl > spec.md
 memory/sessions/*
 !memory/sessions/README.md
 memory/agents/*

@@ -1,0 +1,14 @@
+{% for row in sparql_results %}
+@{{ row.entryType }}{ {{- row.citeKey -}},
+  title = { {{- row.title -}} },
+  author = { {{- row.author -}} },
+  year = { {{- row.year -}} },
+{% if row.venue %}
+  booktitle = { {{- row.venue -}} },
+{% endif %}
+{% if row.url %}
+  url = { {{- row.url -}} },
+{% endif %}
+}
+
+{% endfor %}
