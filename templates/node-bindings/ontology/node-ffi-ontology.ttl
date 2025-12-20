@@ -1,0 +1,264 @@
+# =============================================================================
+# Node.js FFI Ontology
+# Defines the vocabulary for describing Node.js bindings to Rust code
+# Used by ggen to generate TypeScript, JavaScript, and native bindings
+# =============================================================================
+
+@prefix ffi: <https://ggen.dev/ontology/node-ffi#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Core Classes
+# =============================================================================
+
+ffi:Module a rdfs:Class ;
+    rdfs:label "Node Module" ;
+    rdfs:comment "A Node.js module that exports Rust functions" .
+
+ffi:Function a rdfs:Class ;
+    rdfs:label "FFI Function" ;
+    rdfs:comment "A Rust function exposed to Node.js" .
+
+ffi:Parameter a rdfs:Class ;
+    rdfs:label "Function Parameter" ;
+    rdfs:comment "A parameter of an FFI function" .
+
+ffi:Type a rdfs:Class ;
+    rdfs:label "FFI Type" ;
+    rdfs:comment "A type mapping between Rust and TypeScript/JavaScript" .
+
+ffi:Struct a rdfs:Class ;
+    rdfs:label "FFI Struct" ;
+    rdfs:comment "A Rust struct exposed as a JavaScript object" .
+
+ffi:Field a rdfs:Class ;
+    rdfs:label "Struct Field" ;
+    rdfs:comment "A field of a struct" .
+
+ffi:Enum a rdfs:Class ;
+    rdfs:label "FFI Enum" ;
+    rdfs:comment "A Rust enum exposed as TypeScript union type" .
+
+ffi:EnumVariant a rdfs:Class ;
+    rdfs:label "Enum Variant" ;
+    rdfs:comment "A variant of an enum" .
+
+# =============================================================================
+# Module Properties
+# =============================================================================
+
+ffi:name a rdf:Property ;
+    rdfs:domain ffi:Module ;
+    rdfs:range xsd:string ;
+    rdfs:label "name" ;
+    rdfs:comment "Module name" .
+
+ffi:version a rdf:Property ;
+    rdfs:domain ffi:Module ;
+    rdfs:range xsd:string ;
+    rdfs:label "version" ;
+    rdfs:comment "Module version (semver)" .
+
+ffi:description a rdf:Property ;
+    rdfs:domain ffi:Module ;
+    rdfs:range xsd:string ;
+    rdfs:label "description" ;
+    rdfs:comment "Module description" .
+
+ffi:hasFunction a rdf:Property ;
+    rdfs:domain ffi:Module ;
+    rdfs:range ffi:Function ;
+    rdfs:label "hasFunction" ;
+    rdfs:comment "Module exports this function" .
+
+ffi:hasType a rdf:Property ;
+    rdfs:domain ffi:Module ;
+    rdfs:range ffi:Type ;
+    rdfs:label "hasType" ;
+    rdfs:comment "Module defines this type" .
+
+ffi:hasStruct a rdf:Property ;
+    rdfs:domain ffi:Module ;
+    rdfs:range ffi:Struct ;
+    rdfs:label "hasStruct" ;
+    rdfs:comment "Module exports this struct" .
+
+ffi:hasEnum a rdf:Property ;
+    rdfs:domain ffi:Module ;
+    rdfs:range ffi:Enum ;
+    rdfs:label "hasEnum" ;
+    rdfs:comment "Module exports this enum" .
+
+# =============================================================================
+# Function Properties
+# =============================================================================
+
+ffi:functionName a rdf:Property ;
+    rdfs:domain ffi:Function ;
+    rdfs:range xsd:string ;
+    rdfs:label "functionName" ;
+    rdfs:comment "Name of the function in JavaScript" .
+
+ffi:rustName a rdf:Property ;
+    rdfs:domain ffi:Function ;
+    rdfs:range xsd:string ;
+    rdfs:label "rustName" ;
+    rdfs:comment "Name of the function in Rust" .
+
+ffi:returnType a rdf:Property ;
+    rdfs:domain ffi:Function ;
+    rdfs:range xsd:string ;
+    rdfs:label "returnType" ;
+    rdfs:comment "TypeScript return type" .
+
+ffi:async a rdf:Property ;
+    rdfs:domain ffi:Function ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "async" ;
+    rdfs:comment "Whether function is async (returns Promise)" .
+
+ffi:hasParameter a rdf:Property ;
+    rdfs:domain ffi:Function ;
+    rdfs:range ffi:Parameter ;
+    rdfs:label "hasParameter" ;
+    rdfs:comment "Function has this parameter" .
+
+ffi:throws a rdf:Property ;
+    rdfs:domain ffi:Function ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "throws" ;
+    rdfs:comment "Whether function can throw exceptions" .
+
+ffi:deprecated a rdf:Property ;
+    rdfs:domain ffi:Function ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "deprecated" ;
+    rdfs:comment "Whether function is deprecated" .
+
+# =============================================================================
+# Parameter Properties
+# =============================================================================
+
+ffi:paramName a rdf:Property ;
+    rdfs:domain ffi:Parameter ;
+    rdfs:range xsd:string ;
+    rdfs:label "paramName" ;
+    rdfs:comment "Parameter name" .
+
+ffi:type a rdf:Property ;
+    rdfs:domain ffi:Parameter ;
+    rdfs:range xsd:string ;
+    rdfs:label "type" ;
+    rdfs:comment "TypeScript type" .
+
+ffi:required a rdf:Property ;
+    rdfs:domain ffi:Parameter ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "required" ;
+    rdfs:comment "Whether parameter is required" .
+
+ffi:defaultValue a rdf:Property ;
+    rdfs:domain ffi:Parameter ;
+    rdfs:range xsd:string ;
+    rdfs:label "defaultValue" ;
+    rdfs:comment "Default value (if optional)" .
+
+# =============================================================================
+# Type Properties
+# =============================================================================
+
+ffi:typeName a rdf:Property ;
+    rdfs:domain ffi:Type ;
+    rdfs:range xsd:string ;
+    rdfs:label "typeName" ;
+    rdfs:comment "TypeScript type name" .
+
+ffi:tsType a rdf:Property ;
+    rdfs:domain ffi:Type ;
+    rdfs:range xsd:string ;
+    rdfs:label "tsType" ;
+    rdfs:comment "TypeScript type definition" .
+
+ffi:rustType a rdf:Property ;
+    rdfs:domain ffi:Type ;
+    rdfs:range xsd:string ;
+    rdfs:label "rustType" ;
+    rdfs:comment "Rust type" .
+
+ffi:isPrimitive a rdf:Property ;
+    rdfs:domain ffi:Type ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "isPrimitive" ;
+    rdfs:comment "Whether type is primitive (number, string, boolean)" .
+
+# =============================================================================
+# Struct Properties
+# =============================================================================
+
+ffi:structName a rdf:Property ;
+    rdfs:domain ffi:Struct ;
+    rdfs:range xsd:string ;
+    rdfs:label "structName" ;
+    rdfs:comment "Struct name" .
+
+ffi:hasField a rdf:Property ;
+    rdfs:domain ffi:Struct ;
+    rdfs:range ffi:Field ;
+    rdfs:label "hasField" ;
+    rdfs:comment "Struct has this field" .
+
+# =============================================================================
+# Field Properties
+# =============================================================================
+
+ffi:fieldName a rdf:Property ;
+    rdfs:domain ffi:Field ;
+    rdfs:range xsd:string ;
+    rdfs:label "fieldName" ;
+    rdfs:comment "Field name" .
+
+ffi:fieldType a rdf:Property ;
+    rdfs:domain ffi:Field ;
+    rdfs:range xsd:string ;
+    rdfs:label "fieldType" ;
+    rdfs:comment "TypeScript field type" .
+
+ffi:readonly a rdf:Property ;
+    rdfs:domain ffi:Field ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "readonly" ;
+    rdfs:comment "Whether field is readonly" .
+
+# =============================================================================
+# Enum Properties
+# =============================================================================
+
+ffi:enumName a rdf:Property ;
+    rdfs:domain ffi:Enum ;
+    rdfs:range xsd:string ;
+    rdfs:label "enumName" ;
+    rdfs:comment "Enum name" .
+
+ffi:hasVariant a rdf:Property ;
+    rdfs:domain ffi:Enum ;
+    rdfs:range ffi:EnumVariant ;
+    rdfs:label "hasVariant" ;
+    rdfs:comment "Enum has this variant" .
+
+# =============================================================================
+# Enum Variant Properties
+# =============================================================================
+
+ffi:variantName a rdf:Property ;
+    rdfs:domain ffi:EnumVariant ;
+    rdfs:range xsd:string ;
+    rdfs:label "variantName" ;
+    rdfs:comment "Variant name" .
+
+ffi:variantValue a rdf:Property ;
+    rdfs:domain ffi:EnumVariant ;
+    rdfs:range xsd:string ;
+    rdfs:label "variantValue" ;
+    rdfs:comment "Variant string value" .

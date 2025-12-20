@@ -1,0 +1,19 @@
+# =============================================================================
+# Extract Type Definitions
+# Returns type mappings between TypeScript and Rust
+# =============================================================================
+
+PREFIX ffi: <https://ggen.dev/ontology/node-ffi#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?typeName ?tsType ?rustType ?isPrimitive ?description
+WHERE {
+  ?type a ffi:Type ;
+        ffi:typeName ?typeName ;
+        ffi:tsType ?tsType ;
+        ffi:rustType ?rustType .
+
+  OPTIONAL { ?type ffi:isPrimitive ?isPrimitive }
+  OPTIONAL { ?type rdfs:comment ?description }
+}
+ORDER BY ?typeName

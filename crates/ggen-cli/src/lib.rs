@@ -261,13 +261,13 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
         }
     }
 
-    // Use clap-noun-verb CliBuilder for explicit version configuration
-    // This ensures the correct version (from ggen's Cargo.toml) is displayed
+    // Use cmds::run_cli() which calls clap_noun_verb::run() directly
+    // This properly discovers verbs registered via #[verb] macro using linkme
     // #region agent log
     debug_log(
         "H5",
         "lib.rs:cli_match:router",
-        "delegating to CliBuilder with explicit version",
+        "delegating to cmds::run_cli for verb discovery",
         json!({ "version": env!("CARGO_PKG_VERSION") }),
     );
     // #endregion
@@ -275,18 +275,13 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
     // IMPORTANT: Don't wrap clap-noun-verb errors. Help/version are returned as errors
     // with exit code 0, and wrapping them causes "ERROR: CLI execution failed" to appear.
     // See: docs/howto/setup-help-and-version.md
-    CliBuilder::new()
-        .name("ggen")
-        .about("Language-agnostic, deterministic code generation CLI. Ontologies + RDF → reproducible code projections.")
-        .version(env!("CARGO_PKG_VERSION"))  // Use ggen's version (5.0.0), not clap-noun-verb's
-        .run()
-        .map_err(|e| ggen_utils::error::Error::new(&e.to_string()))?;
+    cmds::run_cli()?;
 
     // #region agent log
     debug_log(
         "H5",
         "lib.rs:cli_match:router",
-        "CliBuilder run completed",
+        "cmds::run_cli completed",
         json!({}),
     );
     // #endregion

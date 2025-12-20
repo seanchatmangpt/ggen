@@ -1,0 +1,174 @@
+# =============================================================================
+# Example Node.js FFI Binding Definition
+# This demonstrates how to describe a Rust API for Node.js bindings
+# =============================================================================
+
+@prefix ffi: <https://ggen.dev/ontology/node-ffi#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Module Definition
+# =============================================================================
+
+:GgenModule a ffi:Module ;
+    ffi:name "ggen-node" ;
+    ffi:version "1.0.0" ;
+    ffi:description "Node.js bindings for ggen code generator" ;
+    ffi:hasFunction :GenerateFunction, :ValidateFunction, :ParseRdfFunction ;
+    ffi:hasStruct :GenerationConfig, :ValidationResult ;
+    ffi:hasEnum :OutputFormat ;
+    ffi:hasType :FilePath, :RdfTriple .
+
+# =============================================================================
+# Type Definitions
+# =============================================================================
+
+:FilePath a ffi:Type ;
+    ffi:name "FilePath" ;
+    ffi:tsType "string" ;
+    ffi:rustType "PathBuf" ;
+    ffi:isPrimitive false ;
+    rdfs:comment "File system path" .
+
+:RdfTriple a ffi:Type ;
+    ffi:name "RdfTriple" ;
+    ffi:tsType "{ subject: string; predicate: string; object: string }" ;
+    ffi:rustType "Triple" ;
+    ffi:isPrimitive false ;
+    rdfs:comment "RDF triple representation" .
+
+# =============================================================================
+# Struct Definitions
+# =============================================================================
+
+:GenerationConfig a ffi:Struct ;
+    ffi:structName "GenerationConfig" ;
+    rdfs:comment "Configuration for code generation" ;
+    ffi:hasField :ConfigTemplateField, :ConfigOutputField, :ConfigVerboseField .
+
+:ConfigTemplateField a ffi:Field ;
+    ffi:fieldName "template" ;
+    ffi:fieldType "string" ;
+    ffi:required true ;
+    rdfs:comment "Path to Tera template" .
+
+:ConfigOutputField a ffi:Field ;
+    ffi:fieldName "output" ;
+    ffi:fieldType "string" ;
+    ffi:required true ;
+    rdfs:comment "Output file path" .
+
+:ConfigVerboseField a ffi:Field ;
+    ffi:fieldName "verbose" ;
+    ffi:fieldType "boolean" ;
+    ffi:required false ;
+    rdfs:comment "Enable verbose logging" .
+
+:ValidationResult a ffi:Struct ;
+    ffi:structName "ValidationResult" ;
+    rdfs:comment "Result of RDF validation" ;
+    ffi:hasField :ValidationValidField, :ValidationErrorsField .
+
+:ValidationValidField a ffi:Field ;
+    ffi:fieldName "valid" ;
+    ffi:fieldType "boolean" ;
+    ffi:required true ;
+    ffi:readonly true ;
+    rdfs:comment "Whether validation passed" .
+
+:ValidationErrorsField a ffi:Field ;
+    ffi:fieldName "errors" ;
+    ffi:fieldType "string[]" ;
+    ffi:required true ;
+    ffi:readonly true ;
+    rdfs:comment "List of validation errors" .
+
+# =============================================================================
+# Enum Definitions
+# =============================================================================
+
+:OutputFormat a ffi:Enum ;
+    ffi:enumName "OutputFormat" ;
+    rdfs:comment "Supported output formats" ;
+    ffi:hasVariant :FormatRust, :FormatTypeScript, :FormatPython .
+
+:FormatRust a ffi:EnumVariant ;
+    ffi:variantName "Rust" ;
+    ffi:variantValue "rust" .
+
+:FormatTypeScript a ffi:EnumVariant ;
+    ffi:variantName "TypeScript" ;
+    ffi:variantValue "typescript" .
+
+:FormatPython a ffi:EnumVariant ;
+    ffi:variantName "Python" ;
+    ffi:variantValue "python" .
+
+# =============================================================================
+# Function Definitions
+# =============================================================================
+
+:GenerateFunction a ffi:Function ;
+    ffi:functionName "generate" ;
+    ffi:rustName "generate_code" ;
+    ffi:returnType "string" ;
+    ffi:async true ;
+    ffi:throws true ;
+    rdfs:comment "Generate code from RDF ontology using Tera template" ;
+    ffi:hasParameter :GenerateConfigParam, :GenerateOntologyParam .
+
+:GenerateConfigParam a ffi:Parameter ;
+    ffi:paramName "config" ;
+    ffi:type "GenerationConfig" ;
+    ffi:required true ;
+    rdfs:comment "Generation configuration" .
+
+:GenerateOntologyParam a ffi:Parameter ;
+    ffi:paramName "ontologyPath" ;
+    ffi:type "string" ;
+    ffi:required true ;
+    rdfs:comment "Path to RDF ontology file (Turtle format)" .
+
+:ValidateFunction a ffi:Function ;
+    ffi:functionName "validate" ;
+    ffi:rustName "validate_rdf" ;
+    ffi:returnType "ValidationResult" ;
+    ffi:async false ;
+    ffi:throws true ;
+    rdfs:comment "Validate RDF ontology against SHACL shapes" ;
+    ffi:hasParameter :ValidateOntologyParam, :ValidateShapesParam .
+
+:ValidateOntologyParam a ffi:Parameter ;
+    ffi:paramName "ontologyPath" ;
+    ffi:type "string" ;
+    ffi:required true ;
+    rdfs:comment "Path to RDF ontology file" .
+
+:ValidateShapesParam a ffi:Parameter ;
+    ffi:paramName "shapesPath" ;
+    ffi:type "string" ;
+    ffi:required false ;
+    rdfs:comment "Path to SHACL shapes file (optional)" .
+
+:ParseRdfFunction a ffi:Function ;
+    ffi:functionName "parseRdf" ;
+    ffi:rustName "parse_rdf_file" ;
+    ffi:returnType "RdfTriple[]" ;
+    ffi:async true ;
+    ffi:throws true ;
+    rdfs:comment "Parse RDF file and return triples" ;
+    ffi:hasParameter :ParseFileParam, :ParseFormatParam .
+
+:ParseFileParam a ffi:Parameter ;
+    ffi:paramName "filePath" ;
+    ffi:type "string" ;
+    ffi:required true ;
+    rdfs:comment "Path to RDF file" .
+
+:ParseFormatParam a ffi:Parameter ;
+    ffi:paramName "format" ;
+    ffi:type "string" ;
+    ffi:required false ;
+    ffi:defaultValue "\"turtle\"" ;
+    rdfs:comment "RDF format (turtle, ntriples, rdfxml)" .

@@ -1,0 +1,46 @@
+{# =============================================================================
+   NPM IGNORE TEMPLATE - Specifies files to exclude from npm package
+   ============================================================================= #}
+# Source files
+src/
+*.rs
+Cargo.toml
+Cargo.lock
+
+# Build artifacts
+target/
+build/
+*.node.map
+
+# Development files
+.git/
+.github/
+.vscode/
+.idea/
+
+# Test files
+tests/
+__tests__/
+*.test.js
+*.spec.js
+
+# Configuration
+.editorconfig
+.eslintrc*
+.prettierrc*
+tsconfig.json
+
+# Documentation sources
+docs/
+*.md.tera
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Dependencies (will be installed by user)
+node_modules/

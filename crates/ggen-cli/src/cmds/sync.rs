@@ -145,7 +145,7 @@ impl From<SyncResult> for SyncOutput {
 /// ```
 #[allow(clippy::unused_unit, clippy::too_many_arguments)]
 #[verb("sync", "root")]
-fn sync(
+pub fn sync(
     manifest: Option<String>, output_dir: Option<String>, dry_run: Option<bool>,
     force: Option<bool>, audit: Option<bool>, rule: Option<String>, verbose: Option<bool>,
     watch: Option<bool>, validate_only: Option<bool>, format: Option<String>, timeout: Option<u64>,
