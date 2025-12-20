@@ -1,0 +1,266 @@
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <http://github.com/github/spec-kit/examples/005-ttl-shacl-validation#> .
+
+# ============================================================================
+# Task Breakdown: TTL SHACL Validation for ggen sync Poka-Yoke
+# ============================================================================
+
+:tasks a sk:TaskList ;
+    sk:featureBranch "005-ttl-shacl-validation" ;
+    sk:featureName "SHACL validation poka-yoke for ggen sync" ;
+    sk:tasksCreated "2025-12-20"^^xsd:date ;
+    sk:totalTasks 18 ;
+    sk:mvpTasks 12 ;
+    sk:hasPhase :phase-setup, :phase-foundation, :phase-sparql-validator, :phase-sync-integration .
+
+# ============================================================================
+# Phase 1: Setup (Project Initialization)
+# ============================================================================
+
+:phase-setup a sk:TaskPhase ;
+    sk:phaseId "phase-setup" ;
+    sk:phaseName "Setup" ;
+    sk:phaseOrder 1 ;
+    sk:phaseDescription "Initialize project structure and module organization for validation" ;
+    sk:hasTask :task-001, :task-002, :task-003 .
+
+:task-001 a sk:Task ;
+    sk:taskId "T001" ;
+    sk:description "Create validation module directory structure in crates/ggen-core/src/validation/" ;
+    sk:filePath "crates/ggen-core/src/validation/mod.rs" ;
+    sk:parallelizable false ;
+    sk:phase "phase-setup" ;
+    sk:order 1 .
+
+:task-002 a sk:Task ;
+    sk:taskId "T002" ;
+    sk:description "Update crates/ggen-core/src/lib.rs to export validation module" ;
+    sk:filePath "crates/ggen-core/src/lib.rs" ;
+    sk:parallelizable false ;
+    sk:phase "phase-setup" ;
+    sk:order 2 ;
+    sk:dependsOn :task-001 .
+
+:task-003 a sk:Task ;
+    sk:taskId "T003" ;
+    sk:description "Remove unused shacl_validation = 0.1 dependency from Cargo.toml" ;
+    sk:filePath "Cargo.toml" ;
+    sk:parallelizable true ;
+    sk:phase "phase-setup" ;
+    sk:order 3 .
+
+# ============================================================================
+# Phase 2: Foundation (Core Types & Error Handling)
+# ============================================================================
+
+:phase-foundation a sk:TaskPhase ;
+    sk:phaseId "phase-foundation" ;
+    sk:phaseName "Foundation" ;
+    sk:phaseOrder 2 ;
+    sk:phaseDescription "Define core validation types following Constitution Principles V (Type-First) and VII (Error Handling)" ;
+    sk:hasTask :task-004, :task-005, :task-006, :task-007 .
+
+:task-004 a sk:Task ;
+    sk:taskId "T004" ;
+    sk:description "Define ConstraintType enum with 5 SHACL constraint variants (Cardinality, Datatype, Enumeration, Pattern, StringLength) in crates/ggen-core/src/validation/violation.rs" ;
+    sk:filePath "crates/ggen-core/src/validation/violation.rs" ;
+    sk:parallelizable false ;
+    sk:phase "phase-foundation" ;
+    sk:order 4 ;
+    sk:dependsOn :task-001 .
+
+:task-005 a sk:Task ;
+    sk:taskId "T005" ;
+    sk:description "Define Violation struct with focus_node, result_path, constraint_type, message, severity in crates/ggen-core/src/validation/violation.rs" ;
+    sk:filePath "crates/ggen-core/src/validation/violation.rs" ;
+    sk:parallelizable false ;
+    sk:phase "phase-foundation" ;
+    sk:order 5 ;
+    sk:dependsOn :task-004 .
+
+:task-006 a sk:Task ;
+    sk:taskId "T006" ;
+    sk:description "Define ValidationResult struct with passed, violations, duration_ms in crates/ggen-core/src/validation/violation.rs" ;
+    sk:filePath "crates/ggen-core/src/validation/violation.rs" ;
+    sk:parallelizable false ;
+    sk:phase "phase-foundation" ;
+    sk:order 6 ;
+    sk:dependsOn :task-005 .
+
+:task-007 a sk:Task ;
+    sk:taskId "T007" ;
+    sk:description "Define ValidationError enum with thiserror (ParseError, ShapeLoadError, SparqlError) in crates/ggen-core/src/validation/error.rs" ;
+    sk:filePath "crates/ggen-core/src/validation/error.rs" ;
+    sk:parallelizable true ;
+    sk:phase "phase-foundation" ;
+    sk:order 7 .
+
+# ============================================================================
+# Phase 3: SPARQL Validator (SHACL→SPARQL Translation Engine)
+# ============================================================================
+
+:phase-sparql-validator a sk:TaskPhase ;
+    sk:phaseId "phase-sparql-validator" ;
+    sk:phaseName "SPARQL Validator" ;
+    sk:phaseOrder 3 ;
+    sk:phaseDescription "Implement SHACL→SPARQL translation for 5 constraint types with Chicago TDD" ;
+    sk:hasTask :task-008, :task-009, :task-010, :task-011, :task-012, :task-013, :task-014 .
+
+:task-008 a sk:Task ;
+    sk:taskId "T008" ;
+    sk:description "Implement SparqlValidator struct with validate() method stub in crates/ggen-core/src/validation/validator.rs" ;
+    sk:filePath "crates/ggen-core/src/validation/validator.rs" ;
+    sk:parallelizable false ;
+    sk:phase "phase-sparql-validator" ;
+    sk:order 8 ;
+    sk:dependsOn :task-006 .
+
+:task-009 a sk:Task ;
+    sk:taskId "T009" ;
+    sk:description "Implement SHACL→SPARQL translation for sh:minCount constraint (required properties) in validator.rs" ;
+    sk:filePath "crates/ggen-core/src/validation/validator.rs" ;
+    sk:parallelizable false ;
+    sk:phase "phase-sparql-validator" ;
+    sk:order 9 ;
+    sk:dependsOn :task-008 ;
+    sk:notes "Pattern: FILTER NOT EXISTS for missing properties" .
+
+:task-010 a sk:Task ;
+    sk:taskId "T010" ;
+    sk:description "Implement SHACL→SPARQL translation for sh:in constraint (enum validation like P1/P2/P3) in validator.rs" ;
+    sk:filePath "crates/ggen-core/src/validation/validator.rs" ;
+    sk:parallelizable true ;
+    sk:phase "phase-sparql-validator" ;
+    sk:order 10 ;
+    sk:dependsOn :task-008 ;
+    sk:notes "Pattern: FILTER (?value NOT IN (values))" .
+
+:task-011 a sk:Task ;
+    sk:taskId "T011" ;
+    sk:description "Implement SHACL→SPARQL translation for sh:datatype constraint (xsd:string, xsd:integer validation) in validator.rs" ;
+    sk:filePath "crates/ggen-core/src/validation/validator.rs" ;
+    sk:parallelizable true ;
+    sk:phase "phase-sparql-validator" ;
+    sk:order 11 ;
+    sk:dependsOn :task-008 ;
+    sk:notes "Pattern: FILTER (datatype(?value) != xsd:type)" .
+
+:task-012 a sk:Task ;
+    sk:taskId "T012" ;
+    sk:description "Implement SHACL→SPARQL translation for sh:pattern constraint (branch name format validation) in validator.rs" ;
+    sk:filePath "crates/ggen-core/src/validation/validator.rs" ;
+    sk:parallelizable true ;
+    sk:phase "phase-sparql-validator" ;
+    sk:order 12 ;
+    sk:dependsOn :task-008 ;
+    sk:notes "Pattern: FILTER (!REGEX(STR(?value), pattern))" .
+
+:task-013 a sk:Task ;
+    sk:taskId "T013" ;
+    sk:description "Implement ShapeLoader that uses SPARQL to parse SHACL TTL shapes in crates/ggen-core/src/validation/shacl.rs" ;
+    sk:filePath "crates/ggen-core/src/validation/shacl.rs" ;
+    sk:parallelizable true ;
+    sk:phase "phase-sparql-validator" ;
+    sk:order 13 ;
+    sk:dependsOn :task-008 .
+
+:task-014 a sk:Task ;
+    sk:taskId "T014" ;
+    sk:description "Write Chicago TDD tests for all 5 constraint types using real Oxigraph in crates/ggen-core/src/validation/tests.rs" ;
+    sk:filePath "crates/ggen-core/src/validation/tests.rs" ;
+    sk:parallelizable false ;
+    sk:phase "phase-sparql-validator" ;
+    sk:order 14 ;
+    sk:dependsOn :task-009, :task-010, :task-011, :task-012 ;
+    sk:notes "AAA pattern, state-based testing, 80%+ coverage target" .
+
+# ============================================================================
+# Phase 4: Sync Pipeline Integration (Poka-Yoke Gates)
+# ============================================================================
+
+:phase-sync-integration a sk:TaskPhase ;
+    sk:phaseId "phase-sync-integration" ;
+    sk:phaseName "Sync Pipeline Integration" ;
+    sk:phaseOrder 4 ;
+    sk:phaseDescription "Integrate SHACL validation into ggen sync at Pipeline::load_ontology() and SyncExecutor::execute_validate_only()" ;
+    sk:hasTask :task-015, :task-016, :task-017, :task-018 .
+
+:task-015 a sk:Task ;
+    sk:taskId "T015" ;
+    sk:description "Add validate_shacl: bool field to SyncOptions struct in crates/ggen-core/src/codegen/executor.rs" ;
+    sk:filePath "crates/ggen-core/src/codegen/executor.rs" ;
+    sk:parallelizable false ;
+    sk:phase "phase-sync-integration" ;
+    sk:order 15 ;
+    sk:dependsOn :task-008 ;
+    sk:notes "Default: false for backwards compatibility" .
+
+:task-016 a sk:Task ;
+    sk:taskId "T016" ;
+    sk:description "Modify Pipeline::load_ontology() to add optional SHACL validation gate AFTER graph loading, BEFORE inference in crates/ggen-core/src/codegen/pipeline.rs" ;
+    sk:filePath "crates/ggen-core/src/codegen/pipeline.rs" ;
+    sk:parallelizable false ;
+    sk:phase "phase-sync-integration" ;
+    sk:order 16 ;
+    sk:dependsOn :task-015 ;
+    sk:notes "Exit code 2 on violations, controlled by SyncOptions::validate_shacl" .
+
+:task-017 a sk:Task ;
+    sk:taskId "T017" ;
+    sk:description "Enhance SyncExecutor::execute_validate_only() to run SHACL validation as ValidationCheck in crates/ggen-core/src/codegen/executor.rs" ;
+    sk:filePath "crates/ggen-core/src/codegen/executor.rs" ;
+    sk:parallelizable true ;
+    sk:phase "phase-sync-integration" ;
+    sk:order 17 ;
+    sk:dependsOn :task-015 ;
+    sk:notes "Informational mode - reports violations without failing" .
+
+:task-018 a sk:Task ;
+    sk:taskId "T018" ;
+    sk:description "Create integration tests with golden files for sync validation in tests/e2e/validation/" ;
+    sk:filePath "tests/e2e/validation/sync_validation_test.rs" ;
+    sk:parallelizable false ;
+    sk:phase "phase-sync-integration" ;
+    sk:order 18 ;
+    sk:dependsOn :task-016, :task-017 ;
+    sk:notes "Test both pipeline gate and validate-only mode" .
+
+# ============================================================================
+# MVP Scope Definition
+# ============================================================================
+
+:mvp-scope a sk:MvpDefinition ;
+    sk:mvpDescription "Phase 1-3: Core validation types + SPARQL validator with 5 constraint types. Validates sh:minCount, sh:in, sh:datatype, sh:pattern, sh:minLength against spec-kit ontologies." ;
+    sk:mvpTasks :task-001, :task-002, :task-003, :task-004, :task-005, :task-006, :task-007, :task-008, :task-009, :task-010, :task-011, :task-012 ;
+    sk:mvpExcludes "Phase 4 sync integration - can be added after validator proven working" ;
+    sk:mvpRationale "Validator core can be tested independently before integrating into sync pipeline. Reduces risk and enables parallel work on sync modifications." .
+
+# ============================================================================
+# Dependency Graph
+# ============================================================================
+
+# Setup phase must complete first
+# Foundation phase depends on Setup
+# SPARQL Validator phase depends on Foundation
+# Sync Integration depends on SPARQL Validator
+
+# Parallelizable tasks within phases:
+# - T003 (remove dependency) can run anytime
+# - T007 (error types) parallel with T004-T006
+# - T010, T011, T012 (SHACL translations) parallel after T008
+# - T013 (ShapeLoader) parallel with T010-T012
+# - T017 (validate-only enhancement) parallel with T016 (pipeline gate)
+
+# ============================================================================
+# Constitution Compliance Markers
+# ============================================================================
+
+:compliance a sk:ConstitutionCompliance ;
+    sk:principleI "Tasks create modular validation/ directory in ggen-core (not new crate)" ;
+    sk:principleII "Validation is deterministic - same TTL+shapes = same violations (BTreeMap ordering)" ;
+    sk:principleIII "T014 enforces Chicago TDD - state-based tests with real Oxigraph, 80%+ coverage" ;
+    sk:principleIV "All tasks tested via cargo make test-unit and cargo make test" ;
+    sk:principleV "T004-T006 implement type-first thinking with strong enums and structs" ;
+    sk:principleVII "T007 enforces Result<T,E> error handling with thiserror, NO unwrap in production" ;
+    sk:principleIX "Poka-yoke design - T016 prevents defects at pipeline entry point" .

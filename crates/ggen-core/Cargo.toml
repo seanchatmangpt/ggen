@@ -26,8 +26,8 @@ num_cpus = "1.17"
 thiserror = "2.0"
 log = "0.4.28"
 rand = "0.9"
-shacl_validation = "0.1"
-srdf = "0.1"
+# shacl_validation = "0.1" # Removed - replaced with SPARQL-based validation (005-ttl-shacl-validation)
+# srdf = "0.1" # Removed - unused abstraction layer
 tempfile = "3"
 gray_matter = { version = "0.3.2", features = ["yaml"] }
 Inflector = "0.11"
