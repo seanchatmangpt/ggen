@@ -1,0 +1,65 @@
+{# =============================================================================
+   REFERENCE TEMPLATE (Diataxis Quadrant 3: Information)
+   Generates information-oriented API documentation
+   ============================================================================= #}
+# {{ title }}
+
+{{ description }}
+
+## Signature
+
+```typescript
+{{ signature }}
+```
+
+{% if funcDescription -%}
+{{ funcDescription }}
+{%- endif %}
+
+## Parameters
+
+{%- for param in parameters %}
+
+### `{{ param.name }}`{% if not param.required %} (optional){% endif %}
+
+- **Type**: `{{ param.type }}`
+{% if param.description -%}
+- **Description**: {{ param.description }}
+{%- endif %}
+
+{% endfor %}
+
+## Returns
+
+{{ returnValue }}
+
+{% if async -%}
+**Note**: This function is asynchronous and returns a Promise.
+{%- endif %}
+
+{% if throws -%}
+## Throws
+
+This function may throw an `Error` if:
+- The file cannot be read
+- The RDF syntax is invalid
+- The file path is incorrect
+{%- endif %}
+
+## Examples
+
+{%- for example in examples %}
+
+### {{ example.title }}
+
+```{{ example.language | default(value="javascript") }}
+{{ example.code }}
+```
+
+{% endfor %}
+
+## See Also
+
+- [Tutorials](../tutorials/) - Learn how to use this
+- [How-To Guides](../how-to/) - Solve common problems
+- [Explanation](../explanation/) - Understand why it works this way
