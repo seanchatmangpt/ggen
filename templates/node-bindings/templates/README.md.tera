@@ -1,0 +1,137 @@
+{# =============================================================================
+   README TEMPLATE - Generates package documentation
+   ============================================================================= #}
+# {{ module_name | default(value='ggen-node') }}
+
+{{ module_description | default(value='Node.js bindings for ggen - Language-agnostic code generation from RDF ontologies') }}
+
+## Installation
+
+```bash
+npm install {{ module_name | default(value='ggen-node') }}
+```
+
+**Note:** This package includes native code. You'll need a Rust toolchain installed to build from source.
+
+## Requirements
+
+- Node.js >= 16.0.0
+- Rust >= 1.75.0 (if building from source)
+
+## Usage
+
+### CommonJS
+
+```javascript
+const {{ module_name | default(value='ggen') | replace(from="-", to="_") }} = require('{{ module_name | default(value='ggen-node') }}');
+
+{%- for func in functions | default(value=[]) | slice(end=1) %}
+// {{ func.description | default(value=func.functionName) }}
+{% if func.async | default(value=false) -%}
+const result = await {{ module_name | default(value='ggen') | replace(from="-", to="_") }}.{{ func.functionName }}({% for param in func.parameters | default(value=[]) %}'example'{% if not loop.last %}, {% endif %}{% endfor %});
+{%- else -%}
+const result = {{ module_name | default(value='ggen') | replace(from="-", to="_") }}.{{ func.functionName }}({% for param in func.parameters | default(value=[]) %}'example'{% if not loop.last %}, {% endif %}{% endfor %});
+{%- endif %}
+console.log(result);
+{%- endfor %}
+```
+
+### ES Modules
+
+```javascript
+import {{ module_name | default(value='ggen') | replace(from="-", to="_") }} from '{{ module_name | default(value='ggen-node') }}';
+
+{%- for func in functions | default(value=[]) | slice(end=1) %}
+// {{ func.description | default(value=func.functionName) }}
+{% if func.async | default(value=false) -%}
+const result = await {{ module_name | default(value='ggen') | replace(from="-", to="_") }}.{{ func.functionName }}({% for param in func.parameters | default(value=[]) %}'example'{% if not loop.last %}, {% endif %}{% endfor %});
+{%- else -%}
+const result = {{ module_name | default(value='ggen') | replace(from="-", to="_") }}.{{ func.functionName }}({% for param in func.parameters | default(value=[]) %}'example'{% if not loop.last %}, {% endif %}{% endfor %});
+{%- endif %}
+console.log(result);
+{%- endfor %}
+```
+
+### TypeScript
+
+```typescript
+import {{ module_name | default(value='ggen') | replace(from="-", to="_") }} from '{{ module_name | default(value='ggen-node') }}';
+
+{%- for func in functions | default(value=[]) | slice(end=1) %}
+// Fully typed!
+{% if func.async | default(value=false) -%}
+const result: {{ func.returnType }} = await {{ module_name | default(value='ggen') | replace(from="-", to="_") }}.{{ func.functionName }}({% for param in func.parameters | default(value=[]) %}'example'{% if not loop.last %}, {% endif %}{% endfor %});
+{%- else -%}
+const result: {{ func.returnType }} = {{ module_name | default(value='ggen') | replace(from="-", to="_") }}.{{ func.functionName }}({% for param in func.parameters | default(value=[]) %}'example'{% if not loop.last %}, {% endif %}{% endfor %});
+{%- endif %}
+{%- endfor %}
+```
+
+## API Reference
+
+{%- for func in functions | default(value=[]) %}
+
+### `{{ func.functionName }}({% for param in func.parameters | default(value=[]) %}{{ param.paramName }}{% if not param.required | default(value=false) %}?{% endif %}{% if not loop.last %}, {% endif %}{% endfor %})`
+
+{{ func.description | default(value='No description available') }}
+
+**Parameters:**
+{%- for param in func.parameters | default(value=[]) %}
+- `{{ param.paramName }}`: `{{ param.type }}`{% if not param.required | default(value=false) %} (optional){% endif %}{% if param.description %} - {{ param.description }}{% endif %}
+{%- endfor %}
+
+**Returns:** {% if func.async | default(value=false) %}`Promise<{{ func.returnType }}>`{% else %}`{{ func.returnType }}`{% endif %}
+
+{%- if func.throws | default(value=false) %}
+**Throws:** `Error` if operation fails
+{%- endif %}
+
+{%- if func.deprecated | default(value=false) %}
+**⚠️ Deprecated:** This function is deprecated and will be removed in a future version.
+{%- endif %}
+
+{%- endfor %}
+
+## Building from Source
+
+```bash
+# Clone the repository
+git clone {{ repository_url | default(value='https://github.com/seanchatmangpt/ggen') }}
+cd {{ module_name | default(value='ggen-node') }}
+
+# Install dependencies
+npm install
+
+# Build the native addon and TypeScript
+npm run build
+
+# Run tests
+npm test
+```
+
+## Development
+
+This package is generated from RDF ontology using ggen's 3T approach:
+- **TOML**: Configuration (node-bindings.toml)
+- **Tera**: Templates (*.tera files)
+- **Turtle**: Ontology (node-ffi-ontology.ttl)
+
+To regenerate the bindings:
+
+```bash
+ggen generate --template node-bindings --ontology path/to/ontology.ttl
+```
+
+## License
+
+{{ module_license | default(value='MIT') }}
+
+## Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
+## Support
+
+- Documentation: [https://ggen.dev](https://ggen.dev)
+- Issues: [GitHub Issues]({{ repository_url | default(value='https://github.com/seanchatmangpt/ggen') }}/issues)
+- Discussions: [GitHub Discussions]({{ repository_url | default(value='https://github.com/seanchatmangpt/ggen') }}/discussions)

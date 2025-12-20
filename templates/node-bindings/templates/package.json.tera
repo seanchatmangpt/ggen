@@ -1,0 +1,61 @@
+{# =============================================================================
+   PACKAGE.JSON TEMPLATE - Generates Node.js package.json
+   Uses module metadata from RDF ontology
+   ============================================================================= #}
+{
+  "name": "{{ module_name | default(value='ggen-node') }}",
+  "version": "{{ module_version | default(value='1.0.0') }}",
+  "description": "{{ module_description | default(value='Node.js bindings for ggen') }}",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./index.mjs",
+      "require": "./index.js",
+      "types": "./index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "npm run build:neon && npm run build:ts",
+    "build:neon": "neon build --release",
+    "build:ts": "tsc",
+    "test": "node --test",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "ggen",
+    "rust",
+    "neon",
+    "ffi",
+    "native",
+    "bindings"
+  ],
+  "author": "ggen contributors",
+  "license": "{{ module_license | default(value='MIT') }}",
+  "devDependencies": {
+    "@neon-rs/cli": "^0.1.73",
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.5"
+  },
+  "peerDependencies": {
+    "neon-bindings": "^0.10.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "{{ repository_url | default(value='https://github.com/seanchatmangpt/ggen') }}"
+  },
+  "files": [
+    "index.js",
+    "index.mjs",
+    "index.d.ts",
+    "native/index.node",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">= 16.0.0"
+  },
+  "neon": {
+    "module": "./native",
+    "type": "lib"
+  }
+}

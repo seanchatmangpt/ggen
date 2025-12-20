@@ -1,0 +1,90 @@
+{# =============================================================================
+   TYPESCRIPT DECLARATIONS TEMPLATE - Generates index.d.ts
+   Uses SPARQL results to generate type-safe TypeScript declarations
+   ============================================================================= #}
+/**
+ * TypeScript declarations for {{ module_name | default(value='ggen-node') }}
+ * Generated from RDF ontology - DO NOT EDIT MANUALLY
+ *
+ * @module {{ module_name | default(value='ggen-node') }}
+ * @version {{ module_version | default(value='1.0.0') }}
+ */
+
+// =============================================================================
+// Type Definitions
+// =============================================================================
+
+{%- for type in types | default(value=[]) %}
+/**
+ * {{ type.description | default(value='Type mapping for ' ~ type.typeName) }}
+ * Rust: {{ type.rustType }}
+ */
+export type {{ type.typeName }} = {{ type.tsType }};
+{% endfor %}
+
+// =============================================================================
+// Struct Interfaces
+// =============================================================================
+
+{%- for struct in structs | default(value=[]) %}
+/**
+ * {{ struct.description | default(value=struct.structName) }}
+ */
+export interface {{ struct.structName }} {
+{%- for field in struct.fields | default(value=[]) %}
+  {{ field.fieldName }}{% if not field.required | default(value=false) %}?{% endif %}: {{ field.fieldType }};
+{%- endfor %}
+}
+{% endfor %}
+
+// =============================================================================
+// Enum Types
+// =============================================================================
+
+{%- for enum in enums | default(value=[]) %}
+/**
+ * {{ enum.description | default(value=enum.enumName) }}
+ */
+export enum {{ enum.enumName }} {
+{%- for variant in enum.variants | default(value=[]) %}
+  {{ variant.variantName }} = "{{ variant.variantValue }}",
+{%- endfor %}
+}
+{% endfor %}
+
+// =============================================================================
+// Function Declarations
+// =============================================================================
+
+{%- for func in functions | default(value=[]) %}
+/**
+ * {{ func.description | default(value=func.functionName) }}
+{%- for param in func.parameters | default(value=[]) %}
+ * @param {{ param.paramName }} - {{ param.description | default(value='') }}
+{%- endfor %}
+ * @returns {{ func.returnType }}
+{%- if func.throws | default(value=false) %}
+ * @throws Error if operation fails
+{%- endif %}
+{%- if func.deprecated | default(value=false) %}
+ * @deprecated
+{%- endif %}
+ */
+export function {{ func.functionName }}(
+{%- for param in func.parameters | default(value=[]) %}
+  {{ param.paramName }}{% if not param.required | default(value=false) %}?{% endif %}: {{ param.type }}{% if not loop.last %},{% endif %}
+{%- endfor %}
+): {% if func.async | default(value=false) %}Promise<{{ func.returnType }}>{% else %}{{ func.returnType }}{% endif %};
+{% endfor %}
+
+// =============================================================================
+// Default Export
+// =============================================================================
+
+declare const bindings: {
+{%- for func in functions | default(value=[]) %}
+  {{ func.functionName }}: typeof {{ func.functionName }};
+{%- endfor %}
+};
+
+export default bindings;

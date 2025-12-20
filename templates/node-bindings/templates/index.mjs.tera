@@ -1,0 +1,38 @@
+{# =============================================================================
+   ES MODULE WRAPPER TEMPLATE - Generates ESM wrapper
+   Provides modern ES module interface
+   ============================================================================= #}
+/**
+ * {{ module_name | default(value='ggen-node') }} - Node.js bindings (ESM)
+ * Generated from RDF ontology - DO NOT EDIT MANUALLY
+ *
+ * @module {{ module_name | default(value='ggen-node') }}
+ * @version {{ module_version | default(value='1.0.0') }}
+ */
+
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+
+// Load the native addon
+const native = require('./native');
+
+// =============================================================================
+// Re-export all functions
+// =============================================================================
+
+{%- for func in functions | default(value=[]) %}
+/**
+ * {{ func.description | default(value=func.functionName) }}
+ */
+export const {{ func.functionName }} = native.{{ func.functionName }};
+{% endfor %}
+
+// =============================================================================
+// Default Export
+// =============================================================================
+
+export default {
+{%- for func in functions | default(value=[]) %}
+  {{ func.functionName }},
+{%- endfor %}
+};

@@ -1,0 +1,43 @@
+{# =============================================================================
+   NATIVE LOADER TEMPLATE - Handles loading the native addon
+   Provides error handling and platform detection
+   ============================================================================= #}
+/**
+ * Native module loader with error handling
+ * @module native-loader
+ */
+
+const { existsSync } = require('fs');
+const { join } = require('path');
+
+/**
+ * Load the native addon with proper error handling
+ * @returns {object} Native module
+ * @throws {Error} If module cannot be loaded
+ */
+function loadNative() {
+  const possiblePaths = [
+    join(__dirname, 'native', 'index.node'),
+    join(__dirname, 'build', 'Release', '{{ module_name | default(value="ggen") }}.node'),
+    join(__dirname, 'build', 'Debug', '{{ module_name | default(value="ggen") }}.node'),
+  ];
+
+  for (const modulePath of possiblePaths) {
+    if (existsSync(modulePath)) {
+      try {
+        return require(modulePath);
+      } catch (error) {
+        throw new Error(
+          `Found native module at ${modulePath} but failed to load it: ${error.message}`
+        );
+      }
+    }
+  }
+
+  throw new Error(
+    'Native module not found. Run "npm run build" to compile the native addon.\n' +
+    `Searched paths:\n${possiblePaths.map(p => `  - ${p}`).join('\n')}`
+  );
+}
+
+module.exports = { loadNative };

@@ -1,0 +1,65 @@
+{# =============================================================================
+   JAVASCRIPT WRAPPER TEMPLATE - Generates CommonJS wrapper
+   Loads native module and provides error handling
+   ============================================================================= #}
+/**
+ * {{ module_name | default(value='ggen-node') }} - Node.js bindings
+ * Generated from RDF ontology - DO NOT EDIT MANUALLY
+ *
+ * @module {{ module_name | default(value='ggen-node') }}
+ * @version {{ module_version | default(value='1.0.0') }}
+ */
+
+const { loadNative } = require('./native-loader');
+
+// Load the native addon
+let native;
+try {
+  native = loadNative();
+} catch (error) {
+  throw new Error(
+    `Failed to load native addon: ${error.message}\n` +
+    `Make sure you have run 'npm run build' to compile the native module.`
+  );
+}
+
+// =============================================================================
+// Exported Functions
+// =============================================================================
+
+{%- for func in functions | default(value=[]) %}
+/**
+ * {{ func.description | default(value=func.functionName) }}
+{%- for param in func.parameters | default(value=[]) %}
+ * @param {{'{'}}{{ param.type }}} {{ param.paramName }}{% if not param.required | default(value=false) %} - Optional{% endif %}
+{%- endfor %}
+ * @returns {{'{'}}{% if func.async | default(value=false) %}Promise<{{ func.returnType }}>{% else %}{{ func.returnType }}{% endif %}}
+{%- if func.throws | default(value=false) %}
+ * @throws {Error} If operation fails
+{%- endif %}
+{%- if func.deprecated | default(value=false) %}
+ * @deprecated
+{%- endif %}
+ */
+function {{ func.functionName }}({% for param in func.parameters | default(value=[]) %}{{ param.paramName }}{% if not loop.last %}, {% endif %}{% endfor %}) {
+  try {
+    {% if func.async | default(value=false) -%}
+    return Promise.resolve(native.{{ func.rustName | default(value=func.functionName) }}({% for param in func.parameters | default(value=[]) %}{{ param.paramName }}{% if not loop.last %}, {% endif %}{% endfor %}));
+    {%- else -%}
+    return native.{{ func.rustName | default(value=func.functionName) }}({% for param in func.parameters | default(value=[]) %}{{ param.paramName }}{% if not loop.last %}, {% endif %}{% endfor %});
+    {%- endif %}
+  } catch (error) {
+    throw new Error(`{{ func.functionName }} failed: ${error.message}`);
+  }
+}
+{% endfor %}
+
+// =============================================================================
+// Module Exports
+// =============================================================================
+
+module.exports = {
+{%- for func in functions | default(value=[]) %}
+  {{ func.functionName }},
+{%- endfor %}
+};

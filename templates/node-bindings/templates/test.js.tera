@@ -1,0 +1,57 @@
+{# =============================================================================
+   TEST TEMPLATE - Generates Node.js tests
+   Creates basic smoke tests for the generated bindings
+   ============================================================================= #}
+/**
+ * Tests for {{ module_name | default(value='ggen-node') }}
+ * Generated from RDF ontology - DO NOT EDIT MANUALLY
+ */
+
+const { test } = require('node:test');
+const assert = require('node:assert');
+const bindings = require('./index.js');
+
+{%- for func in functions | default(value=[]) %}
+
+test('{{ func.functionName }} - basic smoke test', {% if func.async | default(value=false) %}async {% endif %}() => {
+  // This is a basic smoke test - expand with real test cases
+  {%- if func.async | default(value=false) %}
+  const result = await bindings.{{ func.functionName }}(
+    {%- for param in func.parameters | default(value=[]) %}
+    {% if param.type == "string" %}'test'{% elif param.type == "number" %}42{% elif param.type == "boolean" %}true{% else %}{}{% endif %}{% if not loop.last %},{% endif %}
+    {%- endfor %}
+  );
+  {%- else %}
+  const result = bindings.{{ func.functionName }}(
+    {%- for param in func.parameters | default(value=[]) %}
+    {% if param.type == "string" %}'test'{% elif param.type == "number" %}42{% elif param.type == "boolean" %}true{% else %}{}{% endif %}{% if not loop.last %},{% endif %}
+    {%- endfor %}
+  );
+  {%- endif %}
+
+  // Verify result type
+  assert.ok(result !== undefined, '{{ func.functionName }} should return a value');
+  {%- if func.returnType == "string" %}
+  assert.strictEqual(typeof result, 'string');
+  {%- elif func.returnType == "number" %}
+  assert.strictEqual(typeof result, 'number');
+  {%- elif func.returnType == "boolean" %}
+  assert.strictEqual(typeof result, 'boolean');
+  {%- endif %}
+});
+{%- endfor %}
+
+test('module exports all expected functions', () => {
+  const expectedFunctions = [
+    {%- for func in functions | default(value=[]) %}
+    '{{ func.functionName }}',
+    {%- endfor %}
+  ];
+
+  for (const funcName of expectedFunctions) {
+    assert.ok(
+      typeof bindings[funcName] === 'function',
+      `${funcName} should be exported as a function`
+    );
+  }
+});
