@@ -32,12 +32,13 @@ name = "node-bindings"
 query = { inline = """
 PREFIX ffi: <https://ggen.dev/ontology/node-ffi#>
 PREFIX node: <https://ggen.dev/ontology/node#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 SELECT ?funcName ?description ?returnType ?async ?throws
 WHERE {
   ?func a ffi:Function ;
         ffi:functionName ?funcName ;
-        ffi:description ?description ;
+        rdfs:comment ?description ;
         ffi:returnType ?returnType ;
         ffi:async ?async ;
         ffi:throws ?throws .
