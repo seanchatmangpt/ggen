@@ -1,0 +1,456 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix thesis: <http://github.com/seanchatmangpt/spec-kit-3t/thesis#> .
+@prefix diataxis: <http://diataxis.fr/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ============================================================================
+# Thesis Schema for Diataxis-Structured PhD Thesis
+# ============================================================================
+# This schema defines the structure of a PhD thesis following the Diataxis
+# documentation framework (Tutorials, How-to, Reference, Explanation)
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Core Thesis Classes
+# ----------------------------------------------------------------------------
+
+thesis:Thesis
+    a rdfs:Class ;
+    rdfs:label "PhD Thesis" ;
+    rdfs:comment "A complete doctoral thesis document" .
+
+thesis:Chapter
+    a rdfs:Class ;
+    rdfs:label "Chapter" ;
+    rdfs:comment "A major division of the thesis" .
+
+thesis:Section
+    a rdfs:Class ;
+    rdfs:label "Section" ;
+    rdfs:comment "A subdivision of a chapter" .
+
+thesis:Subsection
+    a rdfs:Class ;
+    rdfs:label "Subsection" ;
+    rdfs:comment "A subdivision of a section" .
+
+# ----------------------------------------------------------------------------
+# Diataxis Framework Classes
+# ----------------------------------------------------------------------------
+
+diataxis:Tutorial
+    a rdfs:Class ;
+    rdfs:label "Tutorial" ;
+    rdfs:comment "Learning-oriented content for taking first steps" ;
+    rdfs:subClassOf thesis:Chapter .
+
+diataxis:HowTo
+    a rdfs:Class ;
+    rdfs:label "How-to Guide" ;
+    rdfs:comment "Task-oriented content for solving specific problems" ;
+    rdfs:subClassOf thesis:Chapter .
+
+diataxis:Reference
+    a rdfs:Class ;
+    rdfs:label "Reference" ;
+    rdfs:comment "Information-oriented technical description" ;
+    rdfs:subClassOf thesis:Chapter .
+
+diataxis:Explanation
+    a rdfs:Class ;
+    rdfs:label "Explanation" ;
+    rdfs:comment "Understanding-oriented content for clarification" ;
+    rdfs:subClassOf thesis:Chapter .
+
+# ----------------------------------------------------------------------------
+# Academic Content Classes
+# ----------------------------------------------------------------------------
+
+thesis:Abstract
+    a rdfs:Class ;
+    rdfs:label "Abstract" ;
+    rdfs:comment "Thesis abstract summarizing research" .
+
+thesis:Introduction
+    a rdfs:Class ;
+    rdfs:label "Introduction" ;
+    rdfs:comment "Introductory chapter establishing context" ;
+    rdfs:subClassOf thesis:Chapter .
+
+thesis:LiteratureReview
+    a rdfs:Class ;
+    rdfs:label "Literature Review" ;
+    rdfs:comment "Review of existing research and prior art" ;
+    rdfs:subClassOf thesis:Chapter .
+
+thesis:Methodology
+    a rdfs:Class ;
+    rdfs:label "Methodology" ;
+    rdfs:comment "Research methods and approach" ;
+    rdfs:subClassOf thesis:Chapter .
+
+thesis:Results
+    a rdfs:Class ;
+    rdfs:label "Results" ;
+    rdfs:comment "Research findings and outcomes" ;
+    rdfs:subClassOf thesis:Chapter .
+
+thesis:Discussion
+    a rdfs:Class ;
+    rdfs:label "Discussion" ;
+    rdfs:comment "Interpretation and implications of results" ;
+    rdfs:subClassOf thesis:Chapter .
+
+thesis:Conclusion
+    a rdfs:Class ;
+    rdfs:label "Conclusion" ;
+    rdfs:comment "Summary and future work" ;
+    rdfs:subClassOf thesis:Chapter .
+
+thesis:Contribution
+    a rdfs:Class ;
+    rdfs:label "Research Contribution" ;
+    rdfs:comment "A novel contribution to the field" .
+
+# ----------------------------------------------------------------------------
+# Supporting Content Classes
+# ----------------------------------------------------------------------------
+
+thesis:Figure
+    a rdfs:Class ;
+    rdfs:label "Figure" ;
+    rdfs:comment "Graphical illustration or diagram" .
+
+thesis:Table
+    a rdfs:Class ;
+    rdfs:label "Table" ;
+    rdfs:comment "Tabular data presentation" .
+
+thesis:Equation
+    a rdfs:Class ;
+    rdfs:label "Equation" ;
+    rdfs:comment "Mathematical equation or formula" .
+
+thesis:Algorithm
+    a rdfs:Class ;
+    rdfs:label "Algorithm" ;
+    rdfs:comment "Algorithmic procedure or pseudocode" .
+
+thesis:CodeListing
+    a rdfs:Class ;
+    rdfs:label "Code Listing" ;
+    rdfs:comment "Source code example" .
+
+thesis:Theorem
+    a rdfs:Class ;
+    rdfs:label "Theorem" ;
+    rdfs:comment "Formal mathematical theorem" .
+
+thesis:Lemma
+    a rdfs:Class ;
+    rdfs:label "Lemma" ;
+    rdfs:comment "Supporting proposition for a theorem" .
+
+thesis:Proof
+    a rdfs:Class ;
+    rdfs:label "Proof" ;
+    rdfs:comment "Mathematical or logical proof" .
+
+thesis:Definition
+    a rdfs:Class ;
+    rdfs:label "Definition" ;
+    rdfs:comment "Formal definition of a term or concept" .
+
+thesis:Example
+    a rdfs:Class ;
+    rdfs:label "Example" ;
+    rdfs:comment "Illustrative example" .
+
+thesis:CaseStudy
+    a rdfs:Class ;
+    rdfs:label "Case Study" ;
+    rdfs:comment "Real-world application or scenario" .
+
+# ----------------------------------------------------------------------------
+# Bibliographic Classes
+# ----------------------------------------------------------------------------
+
+thesis:Bibliography
+    a rdfs:Class ;
+    rdfs:label "Bibliography" ;
+    rdfs:comment "List of referenced works" .
+
+thesis:Citation
+    a rdfs:Class ;
+    rdfs:label "Citation" ;
+    rdfs:comment "Reference to external work" .
+
+thesis:Author
+    a rdfs:Class ;
+    rdfs:label "Author" ;
+    rdfs:comment "Thesis author or contributor" ;
+    rdfs:subClassOf foaf:Person .
+
+# ----------------------------------------------------------------------------
+# Thesis Properties
+# ----------------------------------------------------------------------------
+
+thesis:hasTitle
+    a rdf:Property ;
+    rdfs:label "has title" ;
+    rdfs:domain thesis:Thesis ;
+    rdfs:range xsd:string .
+
+thesis:hasSubtitle
+    a rdf:Property ;
+    rdfs:label "has subtitle" ;
+    rdfs:domain thesis:Thesis ;
+    rdfs:range xsd:string .
+
+thesis:hasAuthor
+    a rdf:Property ;
+    rdfs:label "has author" ;
+    rdfs:domain thesis:Thesis ;
+    rdfs:range thesis:Author .
+
+thesis:hasAdvisor
+    a rdf:Property ;
+    rdfs:label "has advisor" ;
+    rdfs:domain thesis:Thesis ;
+    rdfs:range thesis:Author .
+
+thesis:hasInstitution
+    a rdf:Property ;
+    rdfs:label "has institution" ;
+    rdfs:domain thesis:Thesis ;
+    rdfs:range xsd:string .
+
+thesis:hasDepartment
+    a rdf:Property ;
+    rdfs:label "has department" ;
+    rdfs:domain thesis:Thesis ;
+    rdfs:range xsd:string .
+
+thesis:hasYear
+    a rdf:Property ;
+    rdfs:label "has year" ;
+    rdfs:domain thesis:Thesis ;
+    rdfs:range xsd:gYear .
+
+thesis:hasDegree
+    a rdf:Property ;
+    rdfs:label "has degree" ;
+    rdfs:domain thesis:Thesis ;
+    rdfs:range xsd:string .
+
+thesis:hasAbstract
+    a rdf:Property ;
+    rdfs:label "has abstract" ;
+    rdfs:domain thesis:Thesis ;
+    rdfs:range thesis:Abstract .
+
+# ----------------------------------------------------------------------------
+# Chapter Properties
+# ----------------------------------------------------------------------------
+
+thesis:hasChapter
+    a rdf:Property ;
+    rdfs:label "has chapter" ;
+    rdfs:domain thesis:Thesis ;
+    rdfs:range thesis:Chapter .
+
+thesis:chapterNumber
+    a rdf:Property ;
+    rdfs:label "chapter number" ;
+    rdfs:domain thesis:Chapter ;
+    rdfs:range xsd:integer .
+
+thesis:chapterTitle
+    a rdf:Property ;
+    rdfs:label "chapter title" ;
+    rdfs:domain thesis:Chapter ;
+    rdfs:range xsd:string .
+
+thesis:hasSection
+    a rdf:Property ;
+    rdfs:label "has section" ;
+    rdfs:domain thesis:Chapter ;
+    rdfs:range thesis:Section .
+
+thesis:hasSubsection
+    a rdf:Property ;
+    rdfs:label "has subsection" ;
+    rdfs:domain thesis:Section ;
+    rdfs:range thesis:Subsection .
+
+# ----------------------------------------------------------------------------
+# Content Properties
+# ----------------------------------------------------------------------------
+
+thesis:hasContent
+    a rdf:Property ;
+    rdfs:label "has content" ;
+    rdfs:comment "Textual content of a section or subsection" ;
+    rdfs:range xsd:string .
+
+thesis:hasFigure
+    a rdf:Property ;
+    rdfs:label "has figure" ;
+    rdfs:range thesis:Figure .
+
+thesis:hasTable
+    a rdf:Property ;
+    rdfs:label "has table" ;
+    rdfs:range thesis:Table .
+
+thesis:hasEquation
+    a rdf:Property ;
+    rdfs:label "has equation" ;
+    rdfs:range thesis:Equation .
+
+thesis:hasAlgorithm
+    a rdf:Property ;
+    rdfs:label "has algorithm" ;
+    rdfs:range thesis:Algorithm .
+
+thesis:hasCodeListing
+    a rdf:Property ;
+    rdfs:label "has code listing" ;
+    rdfs:range thesis:CodeListing .
+
+thesis:hasTheorem
+    a rdf:Property ;
+    rdfs:label "has theorem" ;
+    rdfs:range thesis:Theorem .
+
+thesis:hasProof
+    a rdf:Property ;
+    rdfs:label "has proof" ;
+    rdfs:range thesis:Proof .
+
+thesis:hasDefinition
+    a rdf:Property ;
+    rdfs:label "has definition" ;
+    rdfs:range thesis:Definition .
+
+thesis:hasExample
+    a rdf:Property ;
+    rdfs:label "has example" ;
+    rdfs:range thesis:Example .
+
+thesis:hasCaseStudy
+    a rdf:Property ;
+    rdfs:label "has case study" ;
+    rdfs:range thesis:CaseStudy .
+
+# ----------------------------------------------------------------------------
+# Diataxis Framework Properties
+# ----------------------------------------------------------------------------
+
+diataxis:learningObjective
+    a rdf:Property ;
+    rdfs:label "learning objective" ;
+    rdfs:comment "What the reader will learn" ;
+    rdfs:domain diataxis:Tutorial ;
+    rdfs:range xsd:string .
+
+diataxis:prerequisite
+    a rdf:Property ;
+    rdfs:label "prerequisite" ;
+    rdfs:comment "Required knowledge before starting" ;
+    rdfs:domain diataxis:Tutorial ;
+    rdfs:range xsd:string .
+
+diataxis:task
+    a rdf:Property ;
+    rdfs:label "task" ;
+    rdfs:comment "Specific problem being solved" ;
+    rdfs:domain diataxis:HowTo ;
+    rdfs:range xsd:string .
+
+diataxis:technicalDetail
+    a rdf:Property ;
+    rdfs:label "technical detail" ;
+    rdfs:comment "Precise technical information" ;
+    rdfs:domain diataxis:Reference ;
+    rdfs:range xsd:string .
+
+diataxis:concept
+    a rdf:Property ;
+    rdfs:label "concept" ;
+    rdfs:comment "Concept being explained" ;
+    rdfs:domain diataxis:Explanation ;
+    rdfs:range xsd:string .
+
+# ----------------------------------------------------------------------------
+# Research Contribution Properties
+# ----------------------------------------------------------------------------
+
+thesis:hasContribution
+    a rdf:Property ;
+    rdfs:label "has contribution" ;
+    rdfs:domain thesis:Thesis ;
+    rdfs:range thesis:Contribution .
+
+thesis:contributionType
+    a rdf:Property ;
+    rdfs:label "contribution type" ;
+    rdfs:domain thesis:Contribution ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type: theoretical, methodological, empirical, practical" .
+
+thesis:novelty
+    a rdf:Property ;
+    rdfs:label "novelty" ;
+    rdfs:domain thesis:Contribution ;
+    rdfs:range xsd:string ;
+    rdfs:comment "What makes this contribution novel" .
+
+thesis:impact
+    a rdf:Property ;
+    rdfs:label "impact" ;
+    rdfs:domain thesis:Contribution ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Expected impact on the field" .
+
+# ----------------------------------------------------------------------------
+# Bibliographic Properties
+# ----------------------------------------------------------------------------
+
+thesis:cites
+    a rdf:Property ;
+    rdfs:label "cites" ;
+    rdfs:comment "References another work" ;
+    rdfs:range thesis:Citation .
+
+thesis:citationKey
+    a rdf:Property ;
+    rdfs:label "citation key" ;
+    rdfs:domain thesis:Citation ;
+    rdfs:range xsd:string ;
+    rdfs:comment "BibTeX citation key" .
+
+# ----------------------------------------------------------------------------
+# Metadata Properties
+# ----------------------------------------------------------------------------
+
+thesis:keywords
+    a rdf:Property ;
+    rdfs:label "keywords" ;
+    rdfs:domain thesis:Thesis ;
+    rdfs:range xsd:string .
+
+thesis:acknowledgments
+    a rdf:Property ;
+    rdfs:label "acknowledgments" ;
+    rdfs:domain thesis:Thesis ;
+    rdfs:range xsd:string .
+
+thesis:dedication
+    a rdf:Property ;
+    rdfs:label "dedication" ;
+    rdfs:domain thesis:Thesis ;
+    rdfs:range xsd:string .
