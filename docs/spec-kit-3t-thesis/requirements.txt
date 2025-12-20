@@ -1,0 +1,19 @@
+# Spec-Kit-3T Thesis Generator Dependencies
+
+# RDF and SHACL
+rdflib>=7.0.0
+pyshacl>=0.25.0
+
+# Template rendering
+Jinja2>=3.1.0
+
+# CLI framework
+typer[all]>=0.9.0
+rich>=13.0.0
+
+# PDF text extraction (requires system pdftotext)
+# pypdf>=3.17.0  # Alternative if pdftotext not available
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
