@@ -5,27 +5,45 @@
 name = "ggen-bindings"
 version = "5.0.1"
 description = "Multi-language bindings for ggen (Node.js, Python, Erlang)"
-authors = ["ggen contributors"]
-license = "MIT"
+
+[ontology]
+source = "../schema/ggen-ffi-api.ttl"
+base_iri = "https://ggen.dev/api#"
+
+[ontology.prefixes]
+ffi = "https://ggen.dev/ontology/node-ffi#"
+node = "https://ggen.dev/ontology/node#"
+py = "https://ggen.dev/ontology/python#"
+erl = "https://ggen.dev/ontology/erlang#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+
+[inference]
+rules = []
 
 [generation]
-ontology_dir = "../schema/"
-templates_dir = "../templates/"
-output_dir = "generated/"
-incremental = false
-overwrite = true
+output_dir = "generated"
 
-[rdf]
-formats = ["turtle"]
-default_format = "turtle"
-base_uri = "https://ggen.dev/api#"
-strict_validation = false
+# =============================================================================
+# Node.js Bindings Generation
+# =============================================================================
+[[generation.rules]]
+name = "node-bindings"
+query = { inline = """
+PREFIX ffi: <https://ggen.dev/ontology/node-ffi#>
+PREFIX node: <https://ggen.dev/ontology/node#>
 
-[templates]
-enable_caching = true
-auto_reload = true
-
-[output]
-formatting = "default"
-line_length = 100
-indent = 2
+SELECT ?funcName ?description ?returnType ?async ?throws
+WHERE {
+  ?func a ffi:Function ;
+        ffi:functionName ?funcName ;
+        ffi:description ?description ;
+        ffi:returnType ?returnType ;
+        ffi:async ?async ;
+        ffi:throws ?throws .
+}
+ORDER BY ?funcName
+""" }
+template = { file = "../templates/node-bindings/templates/index.mjs.tera" }
+output_file = "node/index-auto.mjs"
+mode = "Overwrite"
