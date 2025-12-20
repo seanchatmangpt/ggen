@@ -1,0 +1,167 @@
+# =============================================================================
+# Concrete Example: ggen-core Node.js Bindings Ontology
+# This is a REAL instance that describes actual functions to export
+# =============================================================================
+
+@prefix : <https://ggen.dev/bindings/ggen-core#> .
+@prefix ffi: <https://ggen.dev/ontology/node-ffi#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Module Definition
+# =============================================================================
+
+:GgenCoreModule a ffi:Module ;
+    ffi:name "ggen-core" ;
+    ffi:version "1.0.0" ;
+    ffi:description "Node.js bindings for ggen-core" ;
+    ffi:hasFunction :ParseRdfFunction, :GenerateCodeFunction, :ValidateOntologyFunction ;
+    ffi:hasType :RdfFormatType, :OutputFormatType ;
+    ffi:hasStruct :ParseOptionsStruct, :TripleStruct .
+
+# =============================================================================
+# Type Definitions
+# =============================================================================
+
+:RdfFormatType a ffi:Type ;
+    ffi:typeName "RdfFormat" ;
+    ffi:tsType "string" ;
+    ffi:rustType "String" ;
+    ffi:isPrimitive true ;
+    rdfs:comment "RDF serialization format" .
+
+:OutputFormatType a ffi:Type ;
+    ffi:typeName "OutputFormat" ;
+    ffi:tsType "'rust'|'typescript'|'python'|'javascript'" ;
+    ffi:rustType "OutputFormat" ;
+    ffi:isPrimitive false ;
+    rdfs:comment "Output format for code generation" .
+
+# =============================================================================
+# Struct Definitions
+# =============================================================================
+
+:ParseOptionsStruct a ffi:Struct ;
+    ffi:structName "ParseOptions" ;
+    rdfs:comment "Options for parsing RDF" ;
+    ffi:hasField :ParseOptionsFormatField, :ParseOptionsStrictField .
+
+:ParseOptionsFormatField a ffi:Field ;
+    ffi:fieldName "format" ;
+    ffi:fieldType "RdfFormat" ;
+    ffi:required false ;
+    rdfs:comment "RDF format (default: \"turtle\")" .
+
+:ParseOptionsStrictField a ffi:Field ;
+    ffi:fieldName "strict" ;
+    ffi:fieldType "boolean" ;
+    ffi:required false ;
+    rdfs:comment "Strict parsing mode" .
+
+:TripleStruct a ffi:Struct ;
+    ffi:structName "Triple" ;
+    rdfs:comment "An RDF triple" ;
+    ffi:hasField :TripleSubjectField, :TriplePredicateField, :TripleObjectField .
+
+:TripleSubjectField a ffi:Field ;
+    ffi:fieldName "subject" ;
+    ffi:fieldType "string" ;
+    ffi:required true ;
+    rdfs:comment "Subject URI" .
+
+:TriplePredicateField a ffi:Field ;
+    ffi:fieldName "predicate" ;
+    ffi:fieldType "string" ;
+    ffi:required true ;
+    rdfs:comment "Predicate URI" .
+
+:TripleObjectField a ffi:Field ;
+    ffi:fieldName "object" ;
+    ffi:fieldType "string" ;
+    ffi:required true ;
+    rdfs:comment "Object value or URI" .
+
+# =============================================================================
+# Function: parseRdf
+# =============================================================================
+
+:ParseRdfFunction a ffi:Function ;
+    ffi:functionName "parseRdf" ;
+    ffi:rustName "parse_rdf_file" ;
+    ffi:returnType "Triple[]" ;
+    ffi:async true ;
+    ffi:throws true ;
+    ffi:deprecated false ;
+    rdfs:comment "Parse RDF file and return triples" ;
+    ffi:hasParameter :ParseRdfFilePathParam, :ParseRdfOptionsParam .
+
+:ParseRdfFilePathParam a ffi:Parameter ;
+    ffi:paramName "filePath" ;
+    ffi:type "string" ;
+    ffi:required true ;
+    rdfs:comment "Path to RDF file" .
+
+:ParseRdfOptionsParam a ffi:Parameter ;
+    ffi:paramName "options" ;
+    ffi:type "ParseOptions" ;
+    ffi:required false ;
+    rdfs:comment "Parse options" .
+
+# =============================================================================
+# Function: generateCode
+# =============================================================================
+
+:GenerateCodeFunction a ffi:Function ;
+    ffi:functionName "generateCode" ;
+    ffi:rustName "generate_code_from_template" ;
+    ffi:returnType "string" ;
+    ffi:async true ;
+    ffi:throws true ;
+    ffi:deprecated false ;
+    rdfs:comment "Generate code from RDF ontology using Tera template" ;
+    ffi:hasParameter :GenerateTemplatePathParam, :GenerateOntologyPathParam, :GenerateFormatParam .
+
+:GenerateTemplatePathParam a ffi:Parameter ;
+    ffi:paramName "templatePath" ;
+    ffi:type "string" ;
+    ffi:required true ;
+    rdfs:comment "Path to Tera template" .
+
+:GenerateOntologyPathParam a ffi:Parameter ;
+    ffi:paramName "ontologyPath" ;
+    ffi:type "string" ;
+    ffi:required true ;
+    rdfs:comment "Path to RDF ontology" .
+
+:GenerateFormatParam a ffi:Parameter ;
+    ffi:paramName "format" ;
+    ffi:type "OutputFormat" ;
+    ffi:required false ;
+    rdfs:comment "Output format" .
+
+# =============================================================================
+# Function: validateOntology
+# =============================================================================
+
+:ValidateOntologyFunction a ffi:Function ;
+    ffi:functionName "validateOntology" ;
+    ffi:rustName "validate_rdf_with_shacl" ;
+    ffi:returnType "boolean" ;
+    ffi:async true ;
+    ffi:throws true ;
+    ffi:deprecated false ;
+    rdfs:comment "Validate RDF ontology against SHACL shapes" ;
+    ffi:hasParameter :ValidateOntologyPathParam, :ValidateShapesPathParam .
+
+:ValidateOntologyPathParam a ffi:Parameter ;
+    ffi:paramName "ontologyPath" ;
+    ffi:type "string" ;
+    ffi:required true ;
+    rdfs:comment "Path to RDF ontology" .
+
+:ValidateShapesPathParam a ffi:Parameter ;
+    ffi:paramName "shapesPath" ;
+    ffi:type "string" ;
+    ffi:required false ;
+    rdfs:comment "Path to SHACL shapes" .

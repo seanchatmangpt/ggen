@@ -1,0 +1,40 @@
+# =============================================================================
+# Extract Explanation Documentation (Diataxis Quadrant 4: Understanding)
+# Understanding-oriented, theoretical documentation
+# =============================================================================
+
+PREFIX doc: <https://ggen.dev/ontology/documentation#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?title ?description ?conceptLabel ?conceptComment
+       ?keyIdea ?analogy
+       ?decisionText ?rationale ?tradeoff
+WHERE {
+  ?explanation a doc:Explanation ;
+               doc:title ?title .
+
+  OPTIONAL { ?explanation doc:description ?description }
+
+  # Concept being explained
+  OPTIONAL {
+    ?explanation doc:explainsConcept ?concept .
+    ?concept rdfs:label ?conceptLabel .
+    OPTIONAL { ?concept rdfs:comment ?conceptComment }
+  }
+
+  # Key ideas
+  OPTIONAL { ?explanation doc:hasKeyIdea ?keyIdea }
+
+  # Analogies
+  OPTIONAL { ?explanation doc:hasAnalogy ?analogy }
+
+  # Design decisions
+  OPTIONAL {
+    ?explanation doc:hasDesignDecision ?decision .
+    ?decision doc:decision ?decisionText .
+
+    OPTIONAL { ?decision doc:rationale ?rationale }
+    OPTIONAL { ?decision doc:tradeoff ?tradeoff }
+  }
+}
+ORDER BY ?title ?keyIdea ?decisionText

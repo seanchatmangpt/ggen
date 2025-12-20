@@ -1,0 +1,45 @@
+{# =============================================================================
+   HOW-TO GUIDE TEMPLATE (Diataxis Quadrant 2: Problem-Solving)
+   Generates problem-oriented, solution-focused guides
+   ============================================================================= #}
+# {{ title }}
+
+{{ description }}
+
+## Problem
+
+{{ problem }}
+
+{% if context -%}
+## Context
+
+{{ context }}
+{%- endif %}
+
+## Solution
+
+{%- for step in steps %}
+
+### {{ step.order }}. {{ step.action }}
+
+{% if step.code -%}
+```{{ step.language | default(value="javascript") }}
+{{ step.code }}
+```
+{%- endif %}
+
+{% endfor %}
+
+## Common Issues
+
+- **Issue**: File not found error
+  - **Solution**: Check that the file path is correct and file exists
+
+- **Issue**: Parsing fails
+  - **Solution**: Validate your RDF file syntax using an online validator
+
+## Related
+
+- [Tutorials](../tutorials/) - Learn the basics
+- [Reference](../reference/) - API documentation
+- [Explanation](../explanation/) - Understand the concepts
