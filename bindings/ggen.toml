@@ -1,0 +1,31 @@
+# ggen Bindings Generation Configuration
+# Uses ggen to generate its own multi-language bindings (dogfooding!)
+
+[project]
+name = "ggen-bindings"
+version = "5.0.1"
+description = "Multi-language bindings for ggen (Node.js, Python, Erlang)"
+authors = ["ggen contributors"]
+license = "MIT"
+
+[generation]
+ontology_dir = "../schema/"
+templates_dir = "../templates/"
+output_dir = "generated/"
+incremental = false
+overwrite = true
+
+[rdf]
+formats = ["turtle"]
+default_format = "turtle"
+base_uri = "https://ggen.dev/api#"
+strict_validation = false
+
+[templates]
+enable_caching = true
+auto_reload = true
+
+[output]
+formatting = "default"
+line_length = 100
+indent = 2
