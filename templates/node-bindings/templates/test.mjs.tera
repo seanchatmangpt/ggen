@@ -1,5 +1,5 @@
 {# =============================================================================
-   TEST TEMPLATE - Generates Node.js tests
+   TEST TEMPLATE - Generates Node.js tests (ESM with JSDoc)
    Creates basic smoke tests for the generated bindings
    ============================================================================= #}
 /**
@@ -7,9 +7,9 @@
  * Generated from RDF ontology - DO NOT EDIT MANUALLY
  */
 
-const { test } = require('node:test');
-const assert = require('node:assert');
-const bindings = require('./index.js');
+import { test } from 'node:test';
+import assert from 'node:assert';
+import bindings from './index.mjs';
 
 {%- for func in functions | default(value=[]) %}
 
@@ -41,6 +41,9 @@ test('{{ func.functionName }} - basic smoke test', {% if func.async | default(va
 });
 {%- endfor %}
 
+/**
+ * Test module exports
+ */
 test('module exports all expected functions', () => {
   const expectedFunctions = [
     {%- for func in functions | default(value=[]) %}

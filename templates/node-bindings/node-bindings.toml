@@ -36,21 +36,20 @@ framework = "neon"  # Options: neon, node-api, ffi-napi
 name = "ggen-node"
 version = "1.0.0"
 description = "Node.js bindings for ggen"
-main = "index.js"
-types = "index.d.ts"
+main = "index.mjs"
 license = "MIT"
 
 # Build configuration
 [bindings.build]
 native_module = true
-typescript = true
+jsdoc = true
 esm = true
 cjs = true
 
 # Generation targets
 [bindings.targets]
 package_json = true
-typescript_dts = true
+jsdoc_types = true
 javascript_wrapper = true
 neon_config = true
 binding_gyp = true

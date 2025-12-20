@@ -1,21 +1,27 @@
 {# =============================================================================
-   NATIVE LOADER TEMPLATE - Handles loading the native addon
+   NATIVE LOADER TEMPLATE - Handles loading the native addon (ESM)
    Provides error handling and platform detection
    ============================================================================= #}
 /**
- * Native module loader with error handling
+ * Native module loader with error handling (ESM)
  * @module native-loader
  */
 
-const { existsSync } = require('fs');
-const { join } = require('path');
+import { existsSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const require = createRequire(import.meta.url);
 
 /**
  * Load the native addon with proper error handling
- * @returns {object} Native module
+ * @returns {Object} Native module
  * @throws {Error} If module cannot be loaded
  */
-function loadNative() {
+export function loadNative() {
   const possiblePaths = [
     join(__dirname, 'native', 'index.node'),
     join(__dirname, 'build', 'Release', '{{ module_name | default(value="ggen") }}.node'),
@@ -39,5 +45,3 @@ function loadNative() {
     `Searched paths:\n${possiblePaths.map(p => `  - ${p}`).join('\n')}`
   );
 }
-
-module.exports = { loadNative };

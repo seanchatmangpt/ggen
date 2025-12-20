@@ -24,14 +24,44 @@ try {
 }
 
 // =============================================================================
-// Exported Functions
+// Type Definitions (JSDoc)
+// =============================================================================
+
+{%- for type in types | default(value=[]) %}
+/**
+ * @typedef {{'{'}}{{ type.tsType }}} {{ type.typeName }}
+ * {{ type.description | default(value='Type mapping for ' ~ type.typeName) }}
+ * Rust: {{ type.rustType }}
+ */
+{% endfor %}
+
+{%- for struct in structs | default(value=[]) %}
+/**
+ * @typedef {{'{'}}Object} {{ struct.structName }}
+ * {{ struct.description | default(value=struct.structName) }}
+{%- for field in struct.fields | default(value=[]) %}
+ * @property {{'{'}}{{ field.fieldType }}{% if not field.required | default(value=false) %}={% endif %}} {{ field.fieldName }}{% if field.description %} - {{ field.description }}{% endif %}
+{%- endfor %}
+ */
+{% endfor %}
+
+{%- for enum in enums | default(value=[]) %}
+/**
+ * {{ enum.description | default(value=enum.enumName) }}
+ * @typedef {{'{'}}{% for variant in enum.variants | default(value=[]) %}'{{ variant.variantValue }}'{% if not loop.last %}|{% endif %}{% endfor %}} {{ enum.enumName }}
+ */
+{% endfor %}
+
+// =============================================================================
+// Exported Functions with JSDoc
 // =============================================================================
 
 {%- for func in functions | default(value=[]) %}
+
 /**
  * {{ func.description | default(value=func.functionName) }}
 {%- for param in func.parameters | default(value=[]) %}
- * @param {{'{'}}{{ param.type }}} {{ param.paramName }}{% if not param.required | default(value=false) %} - Optional{% endif %}
+ * @param {{'{'}}{{ param.type }}{% if not param.required | default(value=false) %}={% endif %}} {{ param.paramName }}{% if param.description %} - {{ param.description }}{% endif %}
 {%- endfor %}
  * @returns {{'{'}}{% if func.async | default(value=false) %}Promise<{{ func.returnType }}>{% else %}{{ func.returnType }}{% endif %}}
 {%- if func.throws | default(value=false) %}

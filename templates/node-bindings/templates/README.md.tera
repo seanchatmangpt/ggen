@@ -52,17 +52,19 @@ console.log(result);
 {%- endfor %}
 ```
 
-### TypeScript
+### JSDoc Type Safety
 
-```typescript
+All functions include full JSDoc type annotations for IDE autocomplete and type checking:
+
+```javascript
 import {{ module_name | default(value='ggen') | replace(from="-", to="_") }} from '{{ module_name | default(value='ggen-node') }}';
 
 {%- for func in functions | default(value=[]) | slice(end=1) %}
-// Fully typed!
+// Fully typed with JSDoc - your IDE will show types!
 {% if func.async | default(value=false) -%}
-const result: {{ func.returnType }} = await {{ module_name | default(value='ggen') | replace(from="-", to="_") }}.{{ func.functionName }}({% for param in func.parameters | default(value=[]) %}'example'{% if not loop.last %}, {% endif %}{% endfor %});
+const result = await {{ module_name | default(value='ggen') | replace(from="-", to="_") }}.{{ func.functionName }}({% for param in func.parameters | default(value=[]) %}'example'{% if not loop.last %}, {% endif %}{% endfor %});
 {%- else -%}
-const result: {{ func.returnType }} = {{ module_name | default(value='ggen') | replace(from="-", to="_") }}.{{ func.functionName }}({% for param in func.parameters | default(value=[]) %}'example'{% if not loop.last %}, {% endif %}{% endfor %});
+const result = {{ module_name | default(value='ggen') | replace(from="-", to="_") }}.{{ func.functionName }}({% for param in func.parameters | default(value=[]) %}'example'{% if not loop.last %}, {% endif %}{% endfor %});
 {%- endif %}
 {%- endfor %}
 ```
@@ -102,7 +104,7 @@ cd {{ module_name | default(value='ggen-node') }}
 # Install dependencies
 npm install
 
-# Build the native addon and TypeScript
+# Build the native addon
 npm run build
 
 # Run tests
@@ -113,8 +115,16 @@ npm test
 
 This package is generated from RDF ontology using ggen's 3T approach:
 - **TOML**: Configuration (node-bindings.toml)
-- **Tera**: Templates (*.tera files)
+- **Tera**: Templates (*.tera files for MJS/JSDoc)
 - **Turtle**: Ontology (node-ffi-ontology.ttl)
+
+### Type Safety with JSDoc
+
+This package uses **JSDoc annotations** instead of TypeScript:
+- ✅ **No compilation step** - pure JavaScript
+- ✅ **Full IDE support** - VSCode/WebStorm show types
+- ✅ **Type checking** - Enable with `checkJs` in jsconfig.json
+- ✅ **Zero dependencies** - No TypeScript compiler needed
 
 To regenerate the bindings:
 

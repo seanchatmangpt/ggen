@@ -1,6 +1,6 @@
 {# =============================================================================
-   ES MODULE WRAPPER TEMPLATE - Generates ESM wrapper
-   Provides modern ES module interface
+   ES MODULE WRAPPER TEMPLATE - Generates ESM wrapper with JSDoc
+   Provides modern ES module interface with full type annotations via JSDoc
    ============================================================================= #}
 /**
  * {{ module_name | default(value='ggen-node') }} - Node.js bindings (ESM)
@@ -10,19 +10,58 @@
  * @version {{ module_version | default(value='1.0.0') }}
  */
 
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
+import { loadNative } from './native-loader.mjs';
 
 // Load the native addon
-const native = require('./native');
+const native = loadNative();
 
 // =============================================================================
-// Re-export all functions
+// Type Definitions (JSDoc)
+// =============================================================================
+
+{%- for type in types | default(value=[]) %}
+/**
+ * @typedef {{'{'}}{{ type.tsType }}} {{ type.typeName }}
+ * {{ type.description | default(value='Type mapping for ' ~ type.typeName) }}
+ * Rust: {{ type.rustType }}
+ */
+{% endfor %}
+
+{%- for struct in structs | default(value=[]) %}
+/**
+ * @typedef {{'{'}}Object} {{ struct.structName }}
+ * {{ struct.description | default(value=struct.structName) }}
+{%- for field in struct.fields | default(value=[]) %}
+ * @property {{'{'}}{{ field.fieldType }}{% if not field.required | default(value=false) %}={% endif %}} {{ field.fieldName }}{% if field.description %} - {{ field.description }}{% endif %}
+{%- endfor %}
+ */
+{% endfor %}
+
+{%- for enum in enums | default(value=[]) %}
+/**
+ * {{ enum.description | default(value=enum.enumName) }}
+ * @typedef {{'{'}}{% for variant in enum.variants | default(value=[]) %}'{{ variant.variantValue }}'{% if not loop.last %}|{% endif %}{% endfor %}} {{ enum.enumName }}
+ */
+{% endfor %}
+
+// =============================================================================
+// Exported Functions with JSDoc
 // =============================================================================
 
 {%- for func in functions | default(value=[]) %}
+
 /**
  * {{ func.description | default(value=func.functionName) }}
+{%- for param in func.parameters | default(value=[]) %}
+ * @param {{'{'}}{{ param.type }}{% if not param.required | default(value=false) %}={% endif %}} {{ param.paramName }}{% if param.description %} - {{ param.description }}{% endif %}
+{%- endfor %}
+ * @returns {{'{'}}{% if func.async | default(value=false) %}Promise<{{ func.returnType }}>{% else %}{{ func.returnType }}{% endif %}}
+{%- if func.throws | default(value=false) %}
+ * @throws {Error} If operation fails
+{%- endif %}
+{%- if func.deprecated | default(value=false) %}
+ * @deprecated
+{%- endif %}
  */
 export const {{ func.functionName }} = native.{{ func.functionName }};
 {% endfor %}
@@ -31,6 +70,10 @@ export const {{ func.functionName }} = native.{{ func.functionName }};
 // Default Export
 // =============================================================================
 
+/**
+ * All exported functions
+ * @type {{'{'}}Object}
+ */
 export default {
 {%- for func in functions | default(value=[]) %}
   {{ func.functionName }},
