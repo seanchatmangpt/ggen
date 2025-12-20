@@ -313,16 +313,30 @@ Before ANY implementation action, verify:
 
 ```
 ggen/
-├── crates/*/src/   # Source code (per crate)
-├── crates/*/tests/ # Integration tests
-├── tests/          # Workspace tests
-├── docs/           # Documentation
-├── scripts/        # Build scripts
-├── benches/        # Benchmarks
-└── templates/      # Code generation templates
+├── .specify/                      # RDF-first specification system (source of truth)
+│   ├── ontology/                  # Ontology schemas
+│   │   └── spec-kit-schema.ttl    # Vocabulary definitions
+│   ├── memory/                    # Project memory
+│   │   ├── constitution.ttl       # Architectural law (source)
+│   │   └── constitution.md        # Generated from .ttl
+│   ├── specs/NNN-feature/         # Feature specifications
+│   │   ├── *.ttl                  # TTL source files (edit these)
+│   │   ├── *.md                   # Generated markdown (never edit)
+│   │   └── evidence/              # Test evidence, artifacts
+│   └── templates/                 # Templates for generation
+│       ├── rdf-helpers/           # TTL templates (.ttl.template)
+│       └── spec.tera              # Markdown generation template
+├── crates/*/src/                  # Source code (per crate)
+├── crates/*/tests/                # Integration tests
+├── tests/                         # Workspace tests
+├── docs/                          # Documentation (generated or manual)
+├── scripts/                       # Build scripts
+├── benches/                       # Benchmarks
+└── templates/                     # Code generation templates
 ```
 
 **Never**: Save working files, text/mds, tests to root folder
+**Never**: Manually edit generated .md files - edit .ttl source, regenerate markdown
 
 ---
 
@@ -479,51 +493,95 @@ cargo make slo-check  # Must meet targets
 
 ---
 
-## 📝 Speckit Workflow (Spec-First Development)
+## 📝 Speckit Workflow (RDF-First Specification Development)
 
-**MANDATORY**: NO implementation without spec. Integrated with GitHub Spec Kit.
+**MANDATORY**: NO implementation without spec. RDF ontology is source of truth, markdown is generated.
+
+### Architecture: Ontology → Code (Constitutional Equation)
+
+```
+spec.ttl (source) → ggen render → spec.md (derived artifact)
+```
+
+**Core Principle**: All specifications are Turtle/RDF ontologies. Markdown files are **generated** from TTL using Tera templates.
 
 ### Commands Flow
 
 ```bash
-/speckit.constitution  # Create/update project principles
-/speckit.specify       # Define requirements and user stories
-/speckit.clarify       # Optional: Structured requirement refinement
-/speckit.plan          # Establish technical architecture
-/speckit.tasks         # Generate actionable task breakdown
-/speckit.implement     # Execute implementation according to plan
+/speckit.constitution  # Create/update project principles (generates constitution.ttl → constitution.md)
+/speckit.specify       # Define requirements as RDF (creates feature.ttl with user stories, requirements)
+/speckit.clarify       # Optional: Structured requirement refinement (updates TTL ontology)
+/speckit.plan          # Establish technical architecture (generates plan.ttl → plan.md)
+/speckit.tasks         # Generate actionable task breakdown (tasks.ttl → tasks.md)
+/speckit.implement     # Execute implementation according to RDF specification
 ```
 
 ### Branch & Evidence
 
 - **Branch naming**: `NNN-feature-name` (e.g., `001-rdf-validation`)
 - **Evidence directory**: `.specify/specs/NNN-feature/evidence/`
-- **Spec artifacts**: `.specify/specs/NNN-feature/{spec,plan,tasks,data-model}.md`
+- **TTL source files** (source of truth): `.specify/specs/NNN-feature/*.ttl`
+  - `feature.ttl` - User stories, requirements, success criteria
+  - `entities.ttl` - Domain entities and relationships
+  - `plan.ttl` - Architecture decisions and technical plan
+  - `tasks.ttl` - Task breakdown and dependencies
+- **Generated markdown**: `.specify/specs/NNN-feature/{spec,plan,tasks,data-model}.md`
 
-### Critical Paths
+### Critical Paths (RDF-First)
 
 ```
-.specify/memory/constitution.md → Architectural law (supersedes CLAUDE.md for principles)
-.specify/specs/NNN-feature/     → Feature specs, plans, tasks
+.specify/ontology/spec-kit-schema.ttl → Ontology schema (vocabulary definitions)
+.specify/memory/constitution.ttl      → Architectural law (source of truth, generates constitution.md)
+.specify/specs/NNN-feature/*.ttl      → Feature specifications (TTL source)
+.specify/specs/NNN-feature/*.md       → Generated artifacts (derived from TTL via Tera templates)
+.specify/templates/rdf-helpers/       → TTL templates (user-story, entity, requirement, success-criterion)
+.specify/templates/spec.tera          → Markdown generation template (SPARQL → Markdown)
 ```
 
-### Workflow Integration
+### Workflow Integration (RDF-First)
 
-1. **Before feature**: Run `/speckit.specify "Feature description"`
-2. **During planning**: Use `/speckit.plan` to establish architecture
-3. **Before coding**: Run `/speckit.tasks` to break down work
-4. **During implementation**: Follow `/speckit.implement` guidance
-5. **Throughout**: Evidence in `.specify/specs/NNN-feature/evidence/`
+1. **Before feature**: Run `/speckit.specify "Feature description"` → Creates `NNN-feature/feature.ttl`
+2. **During planning**: Use `/speckit.plan` → Updates `plan.ttl`, generates `plan.md`
+3. **Before coding**: Run `/speckit.tasks` → Creates `tasks.ttl`, generates `tasks.md`
+4. **During implementation**:
+   - Read TTL source files for truth
+   - Regenerate markdown via `ggen render spec.tera feature.ttl > spec.md`
+   - Follow `/speckit.implement` guidance
+5. **Throughout**:
+   - Evidence in `.specify/specs/NNN-feature/evidence/`
+   - **NEVER manually edit .md files** - Edit .ttl source, regenerate markdown
+   - Use TTL templates from `.specify/templates/rdf-helpers/`
 
 ### Integration with Cargo Make
 
 ```bash
-# Validate specs exist before implementation
-cargo make speckit-check  # Verifies spec files present for current branch
+# Validate TTL specs exist before implementation
+cargo make speckit-check  # Verifies .ttl source files present for current branch
 
-# Run full workflow validation
-cargo make speckit-validate  # Checks spec → plan → tasks → evidence chain
+# Run full workflow validation (RDF → Markdown chain)
+cargo make speckit-validate  # Checks feature.ttl → spec.md generation chain
+
+# Regenerate all markdown from TTL sources
+cargo make speckit-render  # Applies Tera templates to all .ttl files
 ```
+
+### TTL Editing Workflow
+
+**When adding user stories:**
+```bash
+# 1. Copy template
+cp .specify/templates/rdf-helpers/user-story.ttl.template .specify/specs/NNN-feature/us-001.ttl
+
+# 2. Edit TTL file with user story data
+# 3. Regenerate spec.md
+ggen render .specify/templates/spec.tera .specify/specs/NNN-feature/feature.ttl > .specify/specs/NNN-feature/spec.md
+```
+
+**SHACL validation ensures**:
+- Priority must be "P1", "P2", or "P3" (not "HIGH", "LOW")
+- All required fields present (title, description, acceptance scenarios)
+- Minimum 1 acceptance scenario per user story
+- Valid RDF syntax and structure
 
 ---
 
@@ -539,7 +597,11 @@ cargo make speckit-validate  # Checks spec → plan → tasks → evidence chain
 
 **Tests verify behavior - code doesn't work if tests don't pass!**
 
-**Spec before code - NO implementation without /speckit.specify!**
+**TTL before code - NO implementation without .ttl specifications!**
+
+**Markdown is generated - NEVER edit .md, edit .ttl source!**
+
+**Constitutional equation: spec.md = μ(feature.ttl)**
 
 ---
 

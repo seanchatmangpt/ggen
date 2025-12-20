@@ -150,9 +150,7 @@ pub struct Violation {
 impl Violation {
     /// Create a new violation with minimum required fields
     pub fn new(
-        focus_node: impl Into<String>,
-        constraint_type: ConstraintType,
-        message: impl Into<String>,
+        focus_node: impl Into<String>, constraint_type: ConstraintType, message: impl Into<String>,
     ) -> Self {
         Self {
             focus_node: focus_node.into(),
@@ -186,11 +184,7 @@ impl Violation {
     }
 
     /// Set expected and actual values for better error messages
-    pub fn with_values(
-        mut self,
-        expected: impl Into<String>,
-        actual: impl Into<String>,
-    ) -> Self {
+    pub fn with_values(mut self, expected: impl Into<String>, actual: impl Into<String>) -> Self {
         self.expected_value = Some(expected.into());
         self.actual_value = Some(actual.into());
         self

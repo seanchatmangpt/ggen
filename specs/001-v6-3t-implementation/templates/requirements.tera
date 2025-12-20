@@ -1,0 +1,7 @@
+## Requirements *(mandatory)*
+
+### Functional Requirements
+
+{% for row in sparql_results -%}
+- **{{ row.requirementId }}**: {{ row.description }}
+{% endfor %}

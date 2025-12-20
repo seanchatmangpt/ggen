@@ -1,6 +1,0 @@
-## Assumptions
-
-{% for row in sparql_results %}
-{%- set description = row.description | default(value="") -%}
-- {{ description }}
-{%- endfor %}

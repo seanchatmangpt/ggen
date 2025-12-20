@@ -68,134 +68,10 @@ Given that feature description, do this:
    - If no existing branches/directories found with this short-name, start with number 1
    - You must only ever run this script once per feature
    - The JSON is provided in the terminal as output - always refer to it to get the actual content you're looking for
-   - The JSON output will contain BRANCH_NAME, SPEC_FILE, and FORMAT (markdown or rdf)
+   - The JSON output will contain BRANCH_NAME and SPEC_FILE paths
    - For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot")
 
-3. **Check FORMAT from script JSON output**:
-
-   The script returns a JSON object with a FORMAT field indicating specification mode:
-   - `"FORMAT": "markdown"` - Traditional markdown-based specifications (default)
-   - `"FORMAT": "rdf"` - RDF ontology-driven specifications (3T methodology)
-
-   **If FORMAT is "rdf"**, follow the RDF Generation Workflow (Section 3a) below.
-   **If FORMAT is "markdown"**, follow the Markdown Specification Workflow (Section 3b) below.
-
-   ## 3a. RDF Generation Workflow (when FORMAT="rdf")
-
-   When RDF mode is detected, you will generate specification content as RDF triples instead of markdown prose. The ggen v6 pipeline will then transform these triples into human-readable markdown through templates.
-
-   **Key Principle**: You write semantic substrate (RDF), not presentation (markdown). Think in terms of:
-   - **Classes**: Feature, UserStory, FunctionalRequirement, SuccessCriterion, Entity
-   - **Properties**: sk:title, sk:priority, sk:description, sk:hasUserStory, sk:hasAcceptanceScenario
-   - **Relationships**: Features have user stories, stories have acceptance scenarios
-
-   ### RDF Generation Steps:
-
-   1. **Load RDF Helper Templates**:
-      Reference the copy-paste patterns in `vendors/spec-kit/templates/rdf-helpers/`:
-      - `user-story.ttl.template` - User stories with Given-When-Then scenarios
-      - `functional-requirement.ttl.template` - FR-XXX requirements
-      - `success-criterion.ttl.template` - SC-XXX measurable outcomes
-      - `entity.ttl.template` - Domain entities
-
-   2. **Edit the RDF Ontology File** (SPEC_FILE from JSON output):
-      Open `FEATURE_DIR/ontology/feature-content.ttl` and add RDF triples for:
-
-      a. **User Stories** (use user-story.ttl.template pattern):
-         ```turtle
-         :us-001 a sk:UserStory ;
-             sk:storyIndex 1 ;
-             sk:title "Story Title (2-8 words)" ;
-             sk:priority "P1" ;  # MUST be P1, P2, or P3 (SHACL validated)
-             sk:description "User story description..." ;
-             sk:priorityRationale "Why this priority..." ;
-             sk:independentTest "How to verify independently..." ;
-             sk:hasAcceptanceScenario :us-001-as-001 .
-
-         :us-001-as-001 a sk:AcceptanceScenario ;
-             sk:scenarioIndex 1 ;
-             sk:given "Initial state" ;
-             sk:when "Action" ;
-             sk:then "Expected outcome" .
-
-         :feature-name sk:hasUserStory :us-001 .
-         ```
-
-      b. **Functional Requirements** (use functional-requirement.ttl.template):
-         ```turtle
-         :fr-001 a sk:FunctionalRequirement ;
-             sk:requirementId "FR-001" ;  # MUST match ^FR-[0-9]{3}$ (SHACL validated)
-             sk:description "System MUST [capability]" ;
-             sk:category "Optional Category" .
-
-         :feature-name sk:hasFunctionalRequirement :fr-001 .
-         ```
-
-      c. **Success Criteria** (use success-criterion.ttl.template):
-         ```turtle
-         :sc-001 a sk:SuccessCriterion ;
-             sk:criterionId "SC-001" ;  # MUST match ^SC-[0-9]{3}$ (SHACL validated)
-             sk:measurable true ;
-             sk:metric "Metric name" ;
-             sk:target "Target value (e.g., < 30 seconds, >= 90%)" ;
-             sk:description "Outcome description" .
-
-         :feature-name sk:hasSuccessCriterion :sc-001 .
-         ```
-
-      d. **Entities** (if data involved, use entity.ttl.template):
-         ```turtle
-         :entity-name a sk:Entity ;
-             sk:entityName "Entity Name" ;
-             sk:definition "What this entity represents" ;
-             sk:keyAttributes "attribute1, attribute2, attribute3" .
-
-         :feature-name sk:hasEntity :entity-name .
-         ```
-
-   3. **SHACL Validation Rules** (enforced automatically):
-      - Priority MUST be exactly "P1", "P2", or "P3" (not "HIGH", "MEDIUM", "LOW")
-      - Requirement IDs MUST match pattern: FR-001, FR-002, etc. (not REQ-1, R-001)
-      - Success criterion IDs MUST match pattern: SC-001, SC-002, etc.
-      - User stories MUST have at least one acceptance scenario
-      - Feature branch MUST match pattern: ###-feature-name
-
-   4. **Generate Markdown from RDF**:
-      After completing the RDF ontology, run the ggen sync command to generate markdown:
-      ```bash
-      cd FEATURE_DIR
-      ggen sync
-      ```
-      This will:
-      - Validate RDF against SHACL shapes (μ₁ - Normalization)
-      - Extract bindings via SPARQL queries (μ₂ - Extraction)
-      - Render markdown via Tera templates (μ₃ - Emission)
-      - Canonicalize output format (μ₄ - Canonicalization)
-      - Generate cryptographic receipt (μ₅ - Receipt)
-
-   5. **View Generated Specification**:
-      The human-readable spec is at: `FEATURE_DIR/generated/spec.md`
-
-   6. **Verify Idempotence** (optional but recommended):
-      ```bash
-      ggen sync  # Second run should produce no file changes
-      git status FEATURE_DIR/generated/  # Should show clean
-      ```
-
-   **RDF Mode Benefits**:
-   - ✅ SHACL validation catches errors before generation (invalid priorities, wrong ID patterns)
-   - ✅ Idempotent outputs (μ∘μ = μ) - running twice produces zero changes
-   - ✅ Cryptographic provenance (receipt proves spec.md = μ(ontology))
-   - ✅ Machine-readable specifications (SPARQL queryable)
-   - ✅ Multi-view generation (same ontology → markdown, JSON, HTML, PDF)
-
-   **Important**: In RDF mode, NEVER manually edit `generated/spec.md`. Always edit the `.ttl` ontology files and regenerate.
-
-   After generating the spec, proceed to step 6 for validation.
-
-   ## 3b. Markdown Specification Workflow (when FORMAT="markdown")
-
-   Load `templates/spec-template.md` to understand required sections.
+3. Load `templates/spec-template.md` to understand required sections.
 
 4. Follow this execution flow:
 
@@ -317,9 +193,23 @@ Given that feature description, do this:
 
    d. **Update Checklist**: After each validation iteration, update the checklist file with current pass/fail status
 
-7. Report completion with branch name, spec file path, checklist results, and readiness for the next phase (`/speckit.clarify` or `/speckit.plan`).
+7. **Generate markdown artifacts from TTL sources**:
+   - After successfully creating the TTL specification, run `ggen sync` to generate markdown:
+     ```bash
+     cd FEATURE_DIR
+     ggen sync
+     ```
+   - This will read `ggen.toml` configuration and generate `generated/spec.md` from `ontology/feature-content.ttl`
+   - Verify the generated markdown file exists and is properly formatted
 
-**NOTE:** The script creates and checks out the new branch and initializes the spec file before writing.
+8. Report completion with:
+   - Branch name
+   - TTL source path (`ontology/feature-content.ttl` - source of truth)
+   - Generated markdown path (`generated/spec.md` - derived artifact)
+   - Checklist results
+   - Readiness for the next phase (`/speckit.clarify` or `/speckit.plan`)
+
+**NOTE:** The script creates and checks out the new branch and initializes the spec file before writing. The TTL file is the source of truth; markdown is generated via `ggen sync`.
 
 ## General Guidelines
 

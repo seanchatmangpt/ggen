@@ -306,7 +306,7 @@ if [ "$FORMAT" = "rdf" ]; then
     mkdir -p "$FEATURE_DIR/generated"
     mkdir -p "$FEATURE_DIR/templates"
 
-    # Symlink schema from .specify/ontology (which links to vendors/spec-kit-3t)
+    # Symlink schema from .specify/ontology (which links to vendors/spec-kit)
     SCHEMA_SOURCE="$REPO_ROOT/.specify/ontology/spec-kit-schema.ttl"
     if [ -f "$SCHEMA_SOURCE" ]; then
         ln -sf "$SCHEMA_SOURCE" "$FEATURE_DIR/ontology/spec-kit-schema.ttl"
