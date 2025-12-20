@@ -1,0 +1,97 @@
+{# =============================================================================
+   NEON LIB.RS TEMPLATE - Generates Neon Rust bindings
+   Creates the Rust side of the FFI bridge
+   ============================================================================= #}
+//! {{ module_name | default(value='ggen-node') }} - Neon bindings
+//! Generated from RDF ontology - DO NOT EDIT MANUALLY
+
+use neon::prelude::*;
+
+{%- for func in functions | default(value=[]) %}
+
+/// {{ func.description | default(value=func.functionName) }}
+fn {{ func.functionName }}(mut cx: FunctionContext) -> JsResult<{% if func.async | default(value=false) %}JsPromise{% else %}JsValue{% endif %}> {
+    {%- for param in func.parameters | default(value=[]) %}
+    let {{ param.paramName }} = cx.argument::<{% if param.type == "string" %}JsString{% elif param.type == "number" %}JsNumber{% elif param.type == "boolean" %}JsBoolean{% else %}JsValue{% endif %}>({{ loop.index0 }})?{% if param.type == "string" %}.value(&mut cx){% elif param.type == "number" %}.value(&mut cx){% elif param.type == "boolean" %}.value(&mut cx){% endif %};
+    {%- endfor %}
+
+    {% if func.async | default(value=false) -%}
+    // Async function - spawn task
+    let (deferred, promise) = cx.promise();
+    let channel = cx.channel();
+
+    std::thread::spawn(move || {
+        // Call the Rust implementation
+        let result = {{ func.rustName | default(value=func.functionName) }}({% for param in func.parameters | default(value=[]) %}{{ param.paramName }}{% if not loop.last %}, {% endif %}{% endfor %});
+
+        deferred.settle_with(&channel, move |mut cx| {
+            match result {
+                Ok(value) => {
+                    // Convert Rust type to JavaScript
+                    {% if func.returnType == "string" -%}
+                    Ok(cx.string(value))
+                    {%- elif func.returnType == "number" -%}
+                    Ok(cx.number(value))
+                    {%- elif func.returnType == "boolean" -%}
+                    Ok(cx.boolean(value))
+                    {%- else -%}
+                    Ok(neon_serde::to_value(&mut cx, &value)?)
+                    {%- endif %}
+                },
+                Err(e) => cx.throw_error(e.to_string()),
+            }
+        });
+    });
+
+    Ok(promise)
+    {%- else -%}
+    // Sync function - call directly
+    let result = {{ func.rustName | default(value=func.functionName) }}({% for param in func.parameters | default(value=[]) %}{{ param.paramName }}{% if not loop.last %}, {% endif %}{% endfor %})
+        .or_else(|e| cx.throw_error(e.to_string()))?;
+
+    {% if func.returnType == "string" -%}
+    Ok(cx.string(result).upcast())
+    {%- elif func.returnType == "number" -%}
+    Ok(cx.number(result).upcast())
+    {%- elif func.returnType == "boolean" -%}
+    Ok(cx.boolean(result).upcast())
+    {%- else -%}
+    Ok(neon_serde::to_value(&mut cx, &result)?)
+    {%- endif %}
+    {%- endif %}
+}
+{%- endfor %}
+
+#[neon::main]
+fn main(mut cx: ModuleContext) -> NeonResult<()> {
+    {%- for func in functions | default(value=[]) %}
+    cx.export_function("{{ func.functionName }}", {{ func.functionName }})?;
+    {%- endfor %}
+    Ok(())
+}
+
+// =============================================================================
+// Rust Implementation Stubs (implement these in your crate)
+// =============================================================================
+
+{%- for func in functions | default(value=[]) %}
+
+/// Rust implementation of {{ func.functionName }}
+/// TODO: Implement this function in your Rust crate
+fn {{ func.rustName | default(value=func.functionName) }}(
+    {%- for param in func.parameters | default(value=[]) %}
+    {{ param.paramName }}: {% if param.type == "string" %}String{% elif param.type == "number" %}f64{% elif param.type == "boolean" %}bool{% else %}serde_json::Value{% endif %}{% if not loop.last %},{% endif %}
+    {%- endfor %}
+) -> Result<{% if func.returnType == "string" %}String{% elif func.returnType == "number" %}f64{% elif func.returnType == "boolean" %}bool{% else %}serde_json::Value{% endif %}, Box<dyn std::error::Error>> {
+    // TODO: Implement actual logic
+    {% if func.returnType == "string" -%}
+    Ok(format!("Not implemented: {{ func.functionName }}"))
+    {%- elif func.returnType == "number" -%}
+    Ok(0.0)
+    {%- elif func.returnType == "boolean" -%}
+    Ok(false)
+    {%- else -%}
+    Ok(serde_json::json!({}))
+    {%- endif %}
+}
+{%- endfor %}

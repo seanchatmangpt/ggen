@@ -1,0 +1,126 @@
+# =============================================================================
+# Node.js Bindings Configuration (3T: TOML, Tera, Turtle)
+# Generates Node.js FFI bindings from Rust crates using RDF ontology
+# =============================================================================
+
+[project]
+name = "node-bindings-generator"
+version = "1.0.0"
+description = "Generate Node.js bindings from Rust using RDF ontology and Tera templates"
+authors = ["ggen contributors"]
+license = "MIT"
+
+# RDF configuration for FFI ontology
+[rdf]
+base_uri = "https://ggen.dev/ontology/node-ffi#"
+default_format = "turtle"
+
+[rdf.prefixes]
+ffi = "https://ggen.dev/ontology/node-ffi#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+
+# Template configuration
+[templates]
+directory = "templates/node-bindings"
+output_directory = "generated/node-bindings"
+
+# Node.js binding configuration
+[bindings]
+# Target binding framework
+framework = "neon"  # Options: neon, node-api, ffi-napi
+
+# Package configuration
+[bindings.package]
+name = "ggen-node"
+version = "1.0.0"
+description = "Node.js bindings for ggen"
+main = "index.mjs"
+license = "MIT"
+
+# Build configuration
+[bindings.build]
+native_module = true
+jsdoc = true
+esm = true
+cjs = true
+
+# Generation targets
+[bindings.targets]
+package_json = true
+jsdoc_types = true
+javascript_wrapper = true
+neon_config = true
+binding_gyp = true
+readme = true
+tests = true
+
+# SPARQL queries for code generation
+[sparql]
+# Query to extract exported functions
+functions_query = """
+PREFIX ffi: <https://ggen.dev/ontology/node-ffi#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?functionName ?returnType ?description ?isAsync
+WHERE {
+  ?function a ffi:Function ;
+            ffi:name ?functionName ;
+            ffi:returnType ?returnType .
+
+  OPTIONAL { ?function rdfs:comment ?description }
+  OPTIONAL { ?function ffi:async ?isAsync }
+}
+ORDER BY ?functionName
+"""
+
+# Query to extract function parameters
+parameters_query = """
+PREFIX ffi: <https://ggen.dev/ontology/node-ffi#>
+
+SELECT ?functionName ?paramName ?paramType ?required
+WHERE {
+  ?function a ffi:Function ;
+            ffi:name ?functionName ;
+            ffi:hasParameter ?param .
+
+  ?param ffi:name ?paramName ;
+         ffi:type ?paramType .
+
+  OPTIONAL { ?param ffi:required ?required }
+}
+ORDER BY ?functionName ?paramName
+"""
+
+# Query to extract type definitions
+types_query = """
+PREFIX ffi: <https://ggen.dev/ontology/node-ffi#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?typeName ?tsType ?rustType ?description
+WHERE {
+  ?type a ffi:Type ;
+        ffi:name ?typeName ;
+        ffi:tsType ?tsType ;
+        ffi:rustType ?rustType .
+
+  OPTIONAL { ?type rdfs:comment ?description }
+}
+ORDER BY ?typeName
+"""
+
+# Lifecycle hooks
+[lifecycle]
+enabled = true
+
+[lifecycle.phases.pre_generate]
+scripts = [
+    "cargo make check"
+]
+
+[lifecycle.phases.post_generate]
+scripts = [
+    "cd generated/node-bindings && npm install",
+    "cd generated/node-bindings && npm run build"
+]

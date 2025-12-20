@@ -1,0 +1,59 @@
+{# =============================================================================
+   TUTORIAL TEMPLATE (Diataxis Quadrant 1: Learning)
+   Generates learning-oriented, step-by-step guides
+   ============================================================================= #}
+# {{ title }}
+
+{{ description }}
+
+**Difficulty**: {{ difficulty | default(value="Beginner") }}
+**Estimated Time**: {{ time | default(value="15 minutes") }}
+
+## Prerequisites
+
+Before you begin, make sure you have:
+
+{%- for prerequisite in prerequisites %}
+- {{ prerequisite }}
+{%- endfor %}
+
+## What You'll Learn
+
+By completing this tutorial, you will:
+
+{%- for objective in objectives %}
+- {{ objective }}
+{%- endfor %}
+
+## Tutorial Steps
+
+{%- for step in steps %}
+
+### Step {{ step.order }}: {{ step.action }}
+
+{% if step.explanation -%}
+{{ step.explanation }}
+{%- endif %}
+
+{% if step.code -%}
+```{{ step.language | default(value="javascript") }}
+{{ step.code }}
+```
+{%- endif %}
+
+{% endfor %}
+
+## Next Steps
+
+Congratulations! You've completed this tutorial.
+
+**What's next?**
+- Try the examples in the [How-To Guides](../how-to/)
+- Read the [API Reference](../reference/) for more details
+- Understand the concepts in [Explanations](../explanation/)
+
+## Need Help?
+
+- [Documentation](https://ggen.dev/docs)
+- [GitHub Issues](https://github.com/seanchatmangpt/ggen/issues)
+- [Community Discord](https://discord.gg/ggen)

@@ -1,0 +1,18 @@
+{# =============================================================================
+   COMMONJS WRAPPER - Generates backward-compatible CommonJS entry point
+   Re-exports ESM module for CommonJS consumers
+   ============================================================================= #}
+/**
+ * {{ module_name | default(value='ggen-node') }} - CommonJS wrapper
+ * Generated from RDF ontology - DO NOT EDIT MANUALLY
+ *
+ * @module {{ module_name | default(value='ggen-node') }}
+ * @version {{ module_version | default(value='1.0.0') }}
+ */
+
+// This is a CommonJS wrapper around the ESM module
+// It provides backward compatibility for require() users
+
+const module = require('./index.js');
+
+module.exports = module;
