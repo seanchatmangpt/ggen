@@ -1,0 +1,39 @@
+## User Scenarios & Testing *(mandatory)*
+
+{% set current_story = "" %}
+{% for row in sparql_results %}
+{%- set storyIndex = row.storyIndex | default(value="") -%}
+{%- set title = row.title | default(value="") -%}
+{%- set priority = row.priority | default(value="") -%}
+{%- set description = row.description | default(value="") -%}
+{%- set priorityRationale = row.priorityRationale | default(value="") -%}
+{%- set independentTest = row.independentTest | default(value="") -%}
+{%- set scenarioIndex = row.scenarioIndex | default(value="") -%}
+{%- set given = row.given | default(value="") -%}
+{%- set when = row.when | default(value="") -%}
+{%- set then = row.then | default(value="") -%}
+
+{%- if storyIndex != current_story -%}
+{%- set_global current_story = storyIndex -%}
+
+### User Story {{ storyIndex }} - {{ title }} (Priority: {{ priority }})
+
+{{ description }}
+
+**Why this priority**: {{ priorityRationale }}
+
+**Independent Test**: {{ independentTest }}
+
+**Acceptance Scenarios**:
+{%- endif %}
+
+{{ scenarioIndex }}. **Given** {{ given }}, **When** {{ when }}, **Then** {{ then }}
+{%- endfor %}
+
+### Edge Cases
+
+{% for row in edge_cases %}
+{%- set scenario = row.scenario | default(value="") -%}
+{%- set expectedBehavior = row.expectedBehavior | default(value="") -%}
+- **{{ scenario }}**: {{ expectedBehavior }}
+{%- endfor %}
