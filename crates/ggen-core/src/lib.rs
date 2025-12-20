@@ -161,6 +161,7 @@ pub mod tera_env;
 pub mod types; // Enterprise FMEA & Poka-Yoke types for marketplace
                // pub mod tracing; // Temporarily disabled due to missing tracing_subscriber dependency
 pub mod simple_tracing;
+pub mod validation; // SHACL validation for ggen sync poka-yoke (005-ttl-shacl-validation)
 pub mod v6; // ggen v6: Fully-Rendered Libraries via Ontology-First Compilation
 
 // Re-export production readiness types from lifecycle module

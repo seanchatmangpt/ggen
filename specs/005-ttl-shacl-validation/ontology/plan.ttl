@@ -1,0 +1,204 @@
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <http://github.com/github/spec-kit/examples/005-ttl-shacl-validation#> .
+
+# ============================================================================
+# Implementation Plan: TTL SHACL Validation for ggen sync Poka-Yoke
+# ============================================================================
+
+:plan a sk:Plan ;
+    sk:featureBranch "005-ttl-shacl-validation" ;
+    sk:featureName "SHACL validation poka-yoke for ggen sync to prevent defective TTL ontologies from entering the code generation pipeline" ;
+    sk:planCreated "2025-12-20"^^xsd:date ;
+    sk:planStatus "Draft" ;
+    sk:architecturePattern "SPARQL-based validation gates integrated into ggen sync pipeline at ontology loading stage. Zero new dependencies - uses existing Oxigraph SPARQL engine to validate TTL against SHACL shapes before inference/generation." ;
+    sk:hasTechnology :tech-001, :tech-002, :tech-003 ;
+    sk:hasProjectStructure :struct-001, :struct-002, :struct-003 ;
+    sk:hasPhase :phase-foundation, :phase-sparql-validator, :phase-sync-integration ;
+    sk:hasDecision :decision-001, :decision-002, :decision-003, :decision-004 ;
+    sk:hasRisk :risk-001, :risk-002, :risk-003 ;
+    sk:hasDependency :dep-001, :dep-002 .
+
+# ============================================================================
+# Technology Stack (Zero New Dependencies)
+# ============================================================================
+
+:tech-001 a sk:Technology ;
+    sk:techName "Oxigraph 0.5.1" ;
+    sk:techVersion "0.5.1" ;
+    sk:techPurpose "ALREADY EXISTS in ggen. RDF store with SPARQL 1.1 support. Used for SHACL→SPARQL query execution and violation detection. No new dependency needed." .
+
+:tech-002 a sk:Technology ;
+    sk:techName "Rust 1.75+ (ggen existing toolchain)" ;
+    sk:techVersion "1.75+ (edition 2021)" ;
+    sk:techPurpose "ALREADY EXISTS. Primary language for validation logic in ggen-core. Type-safe error handling with Result<T, E>, thiserror for domain errors." .
+
+:tech-003 a sk:Technology ;
+    sk:techName "SPARQL 1.1 Query Language" ;
+    sk:techVersion "W3C Recommendation 2013 (Oxigraph implements 2025 updates)" ;
+    sk:techPurpose "Convert SHACL shapes to SPARQL SELECT queries for violation detection. Pattern: sh:minCount → SPARQL FILTER NOT EXISTS, sh:in → SPARQL FILTER NOT IN." .
+
+# ============================================================================
+# Project Structure (Extends ggen-core, NOT New Crate)
+# ============================================================================
+
+:struct-001 a sk:ProjectStructure ;
+    sk:structurePath "crates/ggen-core/src/validation/" ;
+    sk:structurePurpose "NEW MODULE: SHACL validation logic integrated into ggen-core (not separate crate). Contains validator.rs, shacl.rs, violation.rs, error.rs per Constitution Principle I (Crate-First but modular within crate)." ;
+    sk:structureNotes "Validation is RDF domain logic, belongs in ggen-core alongside Graph and SPARQL execution. Separate crate only if non-RDF validation added later." .
+
+:struct-002 a sk:ProjectStructure ;
+    sk:structurePath "crates/ggen-core/src/codegen/pipeline.rs" ;
+    sk:structurePurpose "MODIFY: Add validation gate in Pipeline::load_ontology() AFTER graph loading, BEFORE inference. Exit code 2 (ontology error) on SHACL violations." ;
+    sk:structureNotes "Integration point 1: Full sync pipeline. Validation is OPTIONAL via SyncOptions::validate_shacl flag (default: disabled for backwards compatibility)." .
+
+:struct-003 a sk:ProjectStructure ;
+    sk:structurePath "crates/ggen-core/src/codegen/executor.rs" ;
+    sk:structurePurpose "MODIFY: Enhance SyncExecutor::execute_validate_only() to run SHACL validation as ValidationCheck. Reports violations without failing (informational mode)." ;
+    sk:structureNotes "Integration point 2: Validate-only mode (ggen sync --validate-only). Always runs SHACL validation in this mode." .
+
+# ============================================================================
+# Implementation Phases (RDF-First, Poka-Yoke Focus)
+# ============================================================================
+
+:phase-foundation a sk:Phase ;
+    sk:phaseId "phase-foundation" ;
+    sk:phaseName "Foundation" ;
+    sk:phaseOrder 1 ;
+    sk:phaseDescription "Define core validation types following Constitution Principle V (Type-First Thinking) and Principle VII (Error Handling Standards). Create test fixtures with valid/invalid spec-kit TTL files." ;
+    sk:phaseDeliverables "Type definitions (Violation, ValidationResult, ConstraintType enums), ValidationError with thiserror, test infrastructure with Chicago TDD fixtures (AAA pattern tests)." .
+
+:phase-sparql-validator a sk:Phase ;
+    sk:phaseId "phase-sparql-validator" ;
+    sk:phaseName "SPARQL Validator" ;
+    sk:phaseOrder 2 ;
+    sk:phaseDescription "Implement SparqlValidator that converts SHACL shapes to SPARQL SELECT queries for violation detection. Start with 5 constraint types critical for spec-kit: sh:minCount, sh:in (priority enum), sh:datatype, sh:pattern (branch name), sh:minLength. Reuse existing Graph::query() and QueryCache from crates/ggen-core/src/rdf/query.rs." ;
+    sk:phaseDeliverables "SparqlValidator implementation with SHACL→SPARQL translation for 5 constraint types, ShapeLoader using SPARQL to parse SHACL TTL, 80%+ test coverage (Chicago TDD with real Oxigraph)." .
+
+:phase-sync-integration a sk:Phase ;
+    sk:phaseId "phase-sync-integration" ;
+    sk:phaseName "Sync Pipeline Integration" ;
+    sk:phaseOrder 3 ;
+    sk:phaseDescription "Integrate SHACL validation into ggen sync at TWO integration points: (1) Pipeline::load_ontology() for production poka-yoke, (2) SyncExecutor::execute_validate_only() for CI/CD validation checks. Add SyncOptions::validate_shacl flag (default: false for backwards compatibility, enable via ggen.toml or --validate flag)." ;
+    sk:phaseDeliverables "Modified pipeline.rs with post-load validation gate, enhanced executor.rs validate-only mode, SyncOptions with validation flag, exit code 2 on SHACL violations, integration tests with golden files in tests/e2e/." .
+
+# ============================================================================
+# Technical Decisions (SPARQL-Only, Sync Integration)
+# ============================================================================
+
+:decision-001 a sk:PlanDecision ;
+    sk:decisionId "DEC-001" ;
+    sk:decisionTitle "SPARQL-Only Validation (No SHACL Library Dependency)" ;
+    sk:decisionChoice "Convert SHACL shapes to equivalent SPARQL SELECT queries for violation detection. Use existing Oxigraph in ggen-core. Remove unused shacl_validation = 0.1 dependency from Cargo.toml." ;
+    sk:decisionRationale "Aligns with Constitution Principle II (DfLSS quality - zero new dependencies). shacl_validation crate is 0.1.0 (unstable), currently unused in codebase (cargo-make check confirms). SPARQL approach gives full control over error messages (FR-003 requirement), reuses 50-100% faster QueryCache, and achieves <5s validation target (SC-001)." ;
+    sk:alternativesConsidered "Alternatives: (1) Use shacl_validation 0.1 crate - rejected due to instability and unknown error format. (2) Call Python pySHACL via subprocess - rejected for performance and dependency complexity. (3) Implement full SHACL engine - overkill for 5 constraint types." ;
+    sk:tradeoffs "Tradeoffs: Gain - zero dependencies, full control, faster (cached). Lose - must manually maintain SHACL→SPARQL mappings (mitigated by comprehensive tests), cannot handle recursive shapes (not used in spec-kit)." ;
+    sk:revisitCriteria "Revisit if: (1) spec-kit requires advanced SHACL-AF features (sh:sparql, sh:js), (2) mature Rust SHACL library emerges (>= 1.0), (3) validation performance degrades below 5s for 10K triples." .
+
+:decision-002 a sk:PlanDecision ;
+    sk:decisionId "DEC-002" ;
+    sk:decisionTitle "Extend ggen-core vs New ggen-validation Crate" ;
+    sk:decisionChoice "Add validation module to existing ggen-core crate (crates/ggen-core/src/validation/). Do NOT create separate ggen-validation crate." ;
+    sk:decisionRationale "Validation is RDF domain logic tightly coupled to Graph infrastructure. Creating separate crate violates YAGNI (no non-RDF validation planned). Keeps workspace simple (Constitution Principle I: Crate-First with clear scoping)." ;
+    sk:alternativesConsidered "Alternative: New ggen-validation crate for separation of concerns. Rejected because: (1) Shares all dependencies with ggen-core (Oxigraph, Graph), (2) Only 500 LOC estimated, (3) Would require re-exporting Graph types." ;
+    sk:tradeoffs "Tradeoffs: Gain - simpler workspace, faster compilation (no extra crate dependency), direct access to Graph internals. Lose - validation and core generation coupled (acceptable because both are RDF operations)." ;
+    sk:revisitCriteria "Revisit if: (1) Adding JSON Schema or other non-RDF validation, (2) Validation module grows >2000 LOC, (3) External crates need validation without ggen-core dependency." .
+
+:decision-003 a sk:PlanDecision ;
+    sk:decisionId "DEC-003" ;
+    sk:decisionTitle "Validation Integration Point in Sync Pipeline" ;
+    sk:decisionChoice "Insert SHACL validation gate in Pipeline::load_ontology() AFTER graph insertion, BEFORE inference rules. Controlled by SyncOptions::validate_shacl flag (default: false). Exit code 2 (ontology error) on violations." ;
+    sk:decisionRationale "Poka-yoke principle: prevent defects from entering downstream processing. Current pipeline only checks file existence (executor.rs:184-193), not content validity. Validating after load but before inference catches: malformed triples, missing required properties, invalid enum values, wrong datatypes. Exit code 2 aligns with existing 'ontology load error' semantic." ;
+    sk:alternativesConsidered "Alternatives: (1) Validate before load (pre-parse TTL) - rejected because Oxigraph must parse anyway, duplicate work. (2) Validate during inference - too late, inference may fail cryptically. (3) Always validate (no flag) - breaks backwards compatibility." ;
+    sk:tradeoffs "Tradeoffs: Gain - catches defects early, clear error messages, no confusing SPARQL failures. Lose - adds 100-500ms latency (mitigated by flag defaulting to false, opt-in for CI/CD)." ;
+    sk:revisitCriteria "Revisit if: (1) Validation overhead exceeds 1s for typical ontologies, (2) Users report confusing errors without validation (then default to true), (3) Incremental validation needed for watch mode." .
+
+:decision-004 a sk:PlanDecision ;
+    sk:decisionId "DEC-004" ;
+    sk:decisionTitle "Line Number Tracking Strategy" ;
+    sk:decisionChoice "Phase 1 (MVP): Skip line number tracking. Report violations with node IRI only. Phase 2 (optional): Implement heuristic LocationTracker that maps triple patterns to line numbers via regex parsing." ;
+    sk:decisionRationale "SC-003 requires 100% line numbers, BUT MVP focuses on poka-yoke (preventing defects) not UX polish. Oxigraph doesn't preserve source locations. Heuristic tracker adds 10-20% overhead and ~200 LOC complexity. Prioritize correctness (SC-002: 100% violation detection) over location precision for MVP." ;
+    sk:alternativesConsidered "Alternatives: (1) Always track line numbers - adds complexity to MVP, delays delivery. (2) Use custom TTL parser with location tracking - massive scope creep, reimplementing Oxigraph. (3) SPARQL annotation with source maps - requires modifying ontology files." ;
+    sk:tradeoffs "Tradeoffs: MVP gains - simpler implementation, faster validation, smaller scope. Loses - error messages less precise (node IRI instead of line:column). Phase 2 adds location tracking if user feedback demands it." ;
+    sk:revisitCriteria "Revisit after MVP if: (1) Users report difficulty finding violations in large TTL files, (2) spec-kit ontologies grow >500 lines, (3) Similar tools (rapper, pySHACL) show line numbers as critical UX differentiator." .
+
+# ============================================================================
+# Risks & Mitigation (Sync Integration Specific)
+# ============================================================================
+
+:risk-001 a sk:Risk ;
+    sk:riskId "RISK-001" ;
+    sk:riskDescription "SHACL validation breaks existing ggen sync workflows that rely on lenient TTL parsing (e.g., tolerate missing properties during development)." ;
+    sk:riskImpact "high" ;
+    sk:riskLikelihood "medium" ;
+    sk:mitigationStrategy "MITIGATION: (1) Make validation OPT-IN via SyncOptions::validate_shacl flag (default: false). Users explicitly enable in ggen.toml or via --validate CLI flag. (2) Provide clear migration guide: 'Run ggen sync --validate-only first, fix violations, then enable validation'. (3) Support sh:severity levels (Violation, Warning, Info) - warnings don't block sync." .
+
+:risk-002 a sk:Risk ;
+    sk:riskId "RISK-002" ;
+    sk:riskDescription "SPARQL translation of complex SHACL constraints (sh:and, sh:or, sh:not, property paths) becomes unmaintainable or produces incorrect queries." ;
+    sk:riskImpact "medium" ;
+    sk:riskLikelihood "low" ;
+    sk:mitigationStrategy "MITIGATION: (1) Scope MVP to 5 constraint types used in spec-kit (minCount, in, datatype, pattern, minLength). (2) Comprehensive test suite with W3C SHACL test cases mapped to SPARQL. (3) Document SPARQL equivalence in code comments with examples. (4) If complex shapes needed, revisit DEC-001 for dedicated library." .
+
+:risk-003 a sk:Risk ;
+    sk:riskId "RISK-003" ;
+    sk:riskDescription "Validation adds unacceptable latency to ggen sync, violating SC-001 (<5s for 10K triples) and degrading developer experience in watch mode." ;
+    sk:riskImpact "medium" ;
+    sk:riskLikelihood "medium" ;
+    sk:mitigationStrategy "MITIGATION: (1) Reuse existing Graph QueryCache (50-100% speedup per crates/ggen-core/src/rdf/query.rs). (2) Validation queries are cacheable (shapes don't change). (3) Benchmark with real spec-kit ontologies (currently ~2K triples). (4) If slow, add SyncOptions::skip_validation_in_watch flag. (5) Profile with cargo flamegraph, optimize hot paths." .
+
+# ============================================================================
+# Dependencies (External Requirements)
+# ============================================================================
+
+:dep-001 a sk:Dependency ;
+    sk:dependencyName "Spec-Kit SHACL Shapes (spec-kit-schema.ttl)" ;
+    sk:dependencyType "external" ;
+    sk:dependencyStatus "available" ;
+    sk:dependencyNotes "Location: .specify/ontology/spec-kit-schema.ttl and vendors/spec-kit/ontology/. Contains SHACL shapes for sk:UserStory, sk:Feature, sk:SuccessCriterion. Must support constraints: sh:minCount (required props), sh:in (priority enum P1/P2/P3), sh:datatype (xsd:string, xsd:integer), sh:pattern (branch name format). Shapes are READ-ONLY for this feature (validation consumes, doesn't modify)." .
+
+:dep-002 a sk:Dependency ;
+    sk:dependencyName "Existing ggen sync Pipeline and SyncExecutor" ;
+    sk:dependencyType "internal" ;
+    sk:dependencyStatus "available" ;
+    sk:dependencyNotes "Location: crates/ggen-core/src/codegen/{pipeline.rs, executor.rs}. Pipeline::load_ontology() (line 180-209) is modification point for validation gate. SyncExecutor::execute_validate_only() (line 166-247) is second integration point. Must preserve existing exit codes (0=success, 1=manifest error, 2=ontology error). Validation fits into exit code 2 semantic." .
+
+# ============================================================================
+# Constitution Compliance Checklist
+# ============================================================================
+
+# Principle I (Crate-First Architecture):
+#   ✓ Validation added to existing ggen-core crate (not new crate)
+#   ✓ Modular structure: validation/ subdirectory with clear boundaries
+#   ✓ 80%+ test coverage target (Phase 2 deliverable)
+
+# Principle II (Deterministic RDF Projections):
+#   ✓ Validation is deterministic (same TTL + shapes = same violations)
+#   ✓ Uses BTreeMap for violation ordering (DfLSS requirement)
+
+# Principle III (Chicago TDD):
+#   ✓ State-based tests with real Oxigraph (not mocks)
+#   ✓ Red-Green-Refactor in Phase 1 and 2
+#   ✓ 80%+ coverage requirement in phase deliverables
+
+# Principle IV (cargo make Protocol):
+#   ✓ Tests run via `cargo make test-unit` and `cargo make test`
+#   ✓ Validation respects timeout framework (SLO: <5s)
+
+# Principle V (Type-First Thinking):
+#   ✓ Violation, ValidationResult, ConstraintType as strong types
+#   ✓ Enums for constraint types, severity levels
+
+# Principle VII (Error Handling Standards):
+#   ✓ ValidationError with thiserror (rich context)
+#   ✓ Result<T, ValidationError> throughout (NO unwrap in production)
+#   ✓ Test code MAY use unwrap (per exemption)
+
+# Principle VIII (Concurrent Execution):
+#   ✓ N/A for this feature (single-file validation in sync pipeline)
+#   ✓ Future: batch validation could use rayon (not in MVP scope)
+
+# Principle IX (Lean Six Sigma Quality):
+#   ✓ Poka-yoke design (prevent defects from entering pipeline)
+#   ✓ Zero new dependencies (uses existing Oxigraph)
+#   ✓ Exit code 2 on violations (fail-fast)
