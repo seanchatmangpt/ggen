@@ -5,13 +5,14 @@ set -e
 JSON_MODE=false
 SHORT_NAME=""
 BRANCH_NUMBER=""
+FORMAT="rdf"  # Default to RDF for ggen (3T methodology)
 ARGS=()
 i=1
 while [ $i -le $# ]; do
     arg="${!i}"
     case "$arg" in
-        --json) 
-            JSON_MODE=true 
+        --json)
+            JSON_MODE=true
             ;;
         --short-name)
             if [ $((i + 1)) -gt $# ]; then
@@ -40,22 +41,41 @@ while [ $i -le $# ]; do
             fi
             BRANCH_NUMBER="$next_arg"
             ;;
-        --help|-h) 
-            echo "Usage: $0 [--json] [--short-name <name>] [--number N] <feature_description>"
+        --format)
+            if [ $((i + 1)) -gt $# ]; then
+                echo 'Error: --format requires a value (markdown or rdf)' >&2
+                exit 1
+            fi
+            i=$((i + 1))
+            next_arg="${!i}"
+            if [[ "$next_arg" == --* ]]; then
+                echo 'Error: --format requires a value (markdown or rdf)' >&2
+                exit 1
+            fi
+            if [[ "$next_arg" != "markdown" && "$next_arg" != "rdf" ]]; then
+                echo 'Error: --format must be "markdown" or "rdf"' >&2
+                exit 1
+            fi
+            FORMAT="$next_arg"
+            ;;
+        --help|-h)
+            echo "Usage: $0 [--json] [--short-name <name>] [--number N] [--format <format>] <feature_description>"
             echo ""
             echo "Options:"
             echo "  --json              Output in JSON format"
             echo "  --short-name <name> Provide a custom short name (2-4 words) for the branch"
             echo "  --number N          Specify branch number manually (overrides auto-detection)"
+            echo "  --format <format>   Specification format: markdown (default) or rdf"
             echo "  --help, -h          Show this help message"
             echo ""
             echo "Examples:"
             echo "  $0 'Add user authentication system' --short-name 'user-auth'"
             echo "  $0 'Implement OAuth2 integration for API' --number 5"
+            echo "  $0 'Photo album organization' --format rdf"
             exit 0
             ;;
-        *) 
-            ARGS+=("$arg") 
+        *)
+            ARGS+=("$arg")
             ;;
     esac
     i=$((i + 1))
@@ -280,18 +300,102 @@ fi
 FEATURE_DIR="$SPECS_DIR/$BRANCH_NAME"
 mkdir -p "$FEATURE_DIR"
 
-TEMPLATE="$REPO_ROOT/.specify/templates/spec-template.md"
-SPEC_FILE="$FEATURE_DIR/spec.md"
-if [ -f "$TEMPLATE" ]; then cp "$TEMPLATE" "$SPEC_FILE"; else touch "$SPEC_FILE"; fi
+if [ "$FORMAT" = "rdf" ]; then
+    # RDF Mode: Create ontology-driven directory structure
+    mkdir -p "$FEATURE_DIR/ontology"
+    mkdir -p "$FEATURE_DIR/generated"
+    mkdir -p "$FEATURE_DIR/templates"
+
+    # Symlink schema from .specify/ontology (which links to vendors/spec-kit-3t)
+    SCHEMA_SOURCE="$REPO_ROOT/.specify/ontology/spec-kit-schema.ttl"
+    if [ -f "$SCHEMA_SOURCE" ]; then
+        ln -sf "$SCHEMA_SOURCE" "$FEATURE_DIR/ontology/spec-kit-schema.ttl"
+    else
+        >&2 echo "[specify] Warning: Schema not found at $SCHEMA_SOURCE"
+    fi
+
+    # Copy Tera templates from .specify
+    TEMPLATE_SOURCE="$REPO_ROOT/.specify/templates/spec.tera"
+    if [ -f "$TEMPLATE_SOURCE" ]; then
+        cp "$TEMPLATE_SOURCE" "$FEATURE_DIR/templates/"
+    fi
+
+    # Create placeholder feature-content.ttl
+    cat > "$FEATURE_DIR/ontology/feature-content.ttl" <<EOF
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix : <http://github.com/github/spec-kit/examples/$BRANCH_NAME#> .
+
+# Feature metadata
+:$BRANCH_SUFFIX a sk:Feature ;
+    sk:featureBranch "$BRANCH_NAME" ;
+    sk:featureName "$FEATURE_DESCRIPTION" ;
+    sk:created "$(date +%Y-%m-%d)"^^xsd:date ;
+    sk:status "Draft" ;
+    sk:userInput "$FEATURE_DESCRIPTION" .
+
+# TODO: Add user stories, requirements, success criteria, entities using RDF helper templates
+# See: vendors/spec-kit/templates/rdf-helpers/ for copy-paste patterns
+EOF
+
+    # Generate ggen.toml
+    GGEN_CONFIG_SCRIPT="$REPO_ROOT/.specify/scripts/bash/generate-ggen-config.sh"
+    if [ -x "$GGEN_CONFIG_SCRIPT" ]; then
+        "$GGEN_CONFIG_SCRIPT" "$BRANCH_NAME" "$FEATURE_DESCRIPTION" "$FEATURE_DIR"
+    else
+        >&2 echo "[specify] Warning: Could not execute $GGEN_CONFIG_SCRIPT"
+    fi
+
+    # Create .gitignore for generated files
+    cat > "$FEATURE_DIR/.gitignore" <<'EOF'
+# Generated artifacts (regenerated from ontology via ggen sync)
+# Version control the ontology (.ttl), not the generated markdown
+generated/
+EOF
+
+    SPEC_FILE="$FEATURE_DIR/ontology/feature-content.ttl"
+
+    if $JSON_MODE; then
+        printf '{"BRANCH_NAME":"%s","SPEC_FILE":"%s","FEATURE_NUM":"%s","FORMAT":"rdf"}\n' "$BRANCH_NAME" "$SPEC_FILE" "$FEATURE_NUM"
+    else
+        echo "BRANCH_NAME: $BRANCH_NAME"
+        echo "SPEC_FILE: $SPEC_FILE"
+        echo "FEATURE_NUM: $FEATURE_NUM"
+        echo "FORMAT: rdf"
+        echo ""
+        echo "RDF Mode Directory Structure:"
+        echo "  $FEATURE_DIR/ontology/           - RDF ontology files (source of truth)"
+        echo "  $FEATURE_DIR/templates/          - Tera templates"
+        echo "  $FEATURE_DIR/generated/          - Generated markdown (gitignored)"
+        echo "  $FEATURE_DIR/ggen.toml           - Pipeline configuration"
+        echo ""
+        echo "Next Steps:"
+        echo "  1. Edit $FEATURE_DIR/ontology/feature-content.ttl"
+        echo "  2. Use RDF helper templates in .specify/templates/rdf-helpers/"
+        echo "  3. Run: ggen sync --cwd $FEATURE_DIR"
+        echo "  4. View generated spec: $FEATURE_DIR/generated/spec.md"
+    fi
+else
+    # Markdown Mode: Original behavior (backward compatible)
+    TEMPLATE="$REPO_ROOT/.specify/templates/spec-template.md"
+    SPEC_FILE="$FEATURE_DIR/spec.md"
+    if [ -f "$TEMPLATE" ]; then cp "$TEMPLATE" "$SPEC_FILE"; else touch "$SPEC_FILE"; fi
+
+    if $JSON_MODE; then
+        printf '{"BRANCH_NAME":"%s","SPEC_FILE":"%s","FEATURE_NUM":"%s","FORMAT":"markdown"}\n' "$BRANCH_NAME" "$SPEC_FILE" "$FEATURE_NUM"
+    else
+        echo "BRANCH_NAME: $BRANCH_NAME"
+        echo "SPEC_FILE: $SPEC_FILE"
+        echo "FEATURE_NUM: $FEATURE_NUM"
+        echo "FORMAT: markdown"
+    fi
+fi
 
 # Set the SPECIFY_FEATURE environment variable for the current session
 export SPECIFY_FEATURE="$BRANCH_NAME"
 
-if $JSON_MODE; then
-    printf '{"BRANCH_NAME":"%s","SPEC_FILE":"%s","FEATURE_NUM":"%s"}\n' "$BRANCH_NAME" "$SPEC_FILE" "$FEATURE_NUM"
-else
-    echo "BRANCH_NAME: $BRANCH_NAME"
-    echo "SPEC_FILE: $SPEC_FILE"
-    echo "FEATURE_NUM: $FEATURE_NUM"
+if ! $JSON_MODE; then
     echo "SPECIFY_FEATURE environment variable set to: $BRANCH_NAME"
 fi
