@@ -1,0 +1,72 @@
+[dspy]
+# Model configuration
+model_provider = "ollama"
+model_name = "olmo-3:7b-instruct"
+api_base = "http://localhost:11434"
+api_key = ""  # Ollama doesn't require API key
+
+# Generation parameters
+temperature = 0.7
+max_tokens = 2048
+top_p = 0.9
+
+# Cache configuration
+enable_cache = true
+cache_dir = ".dspy_cache"
+cache_ttl_hours = 168  # 7 days
+
+# Performance tuning
+max_concurrent_requests = 3
+request_timeout_seconds = 60
+retry_attempts = 3
+retry_delay_seconds = 2
+
+[dspy.prompts]
+# System prompts for different tasks
+abstract_enhancement_system = """You are an expert academic writing assistant specializing in PhD thesis abstracts.
+Your task is to enhance thesis abstracts with:
+- Clear research motivation
+- Precise problem statements
+- Novel contributions
+- Academic tone and rigor
+Maintain objectivity and avoid over-claiming."""
+
+section_suggestion_system = """You are a thesis writing advisor.
+Suggest concrete, actionable content points that:
+- Align with academic standards
+- Follow logical progression
+- Connect to broader research context
+- Are specific and implementable"""
+
+diataxis_validation_system = """You are a Diataxis framework expert.
+Evaluate chapter structure against Diataxis principles:
+- Tutorial: Learning-oriented + Practical
+- How-to: Task-oriented + Practical
+- Reference: Information-oriented + Theoretical
+- Explanation: Understanding-oriented + Theoretical"""
+
+citation_suggestion_system = """You are an academic research librarian.
+Suggest citations that:
+- Are highly relevant to the content
+- Come from reputable venues
+- Cover foundational and recent work
+- Provide search terms for literature databases"""
+
+[dspy.features]
+# Feature flags
+enable_abstract_enhancement = true
+enable_section_suggestions = true
+enable_diataxis_validation = true
+enable_citation_suggestions = true
+enable_coherence_analysis = true
+
+# Quality thresholds
+min_coherence_score = 6.0
+min_diataxis_score = 7.0
+max_suggestions_per_section = 5
+
+[dspy.output]
+# Output configuration
+suggestions_format = "markdown"
+include_rationale = true
+export_to_rdf = true  # Export LLM suggestions back to RDF

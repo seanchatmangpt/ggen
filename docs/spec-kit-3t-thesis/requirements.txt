@@ -14,6 +14,13 @@ rich>=13.0.0
 # PDF text extraction (requires system pdftotext)
 # pypdf>=3.17.0  # Alternative if pdftotext not available
 
+# DSPy integration
+dspy-ai>=2.5.0
+
+# Configuration
+toml>=0.10.2
+
 # Testing
 pytest>=7.4.0
 pytest-cov>=4.1.0
+pytest-benchmark>=4.0.0

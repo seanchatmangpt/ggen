@@ -5,19 +5,21 @@
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-> **Constitutional Equation**: `thesis.tex = μ(ontology.ttl)`
+> **Constitutional Equation**: `thesis.tex = μ(ontology.ttl) + λ(context, suggestions)`
 
-A production-grade thesis generator that transforms RDF ontologies into complete PhD theses using the Diataxis documentation framework. Guarantees deterministic, reproducible output through a mathematically rigorous 5-stage pipeline.
+A production-grade thesis generator that transforms RDF ontologies into complete PhD theses using the Diataxis documentation framework. Guarantees deterministic, reproducible output through a mathematically rigorous 5-stage pipeline, now enhanced with optional DSPy LLM capabilities.
 
 ## 🎯 Features
 
-- **6 CLI Commands**: Generate, validate, extract, clean, compile, version
+- **10 CLI Commands**: Generate, validate, extract, clean, compile, version + DSPy enhance/suggest/cache
 - **225+ SHACL Constraints**: Comprehensive RDF validation
-- **48 Automated Tests**: 71% coverage with unit, integration, performance, and security tests
+- **48+ Automated Tests**: 71% coverage with unit, integration, performance, and security tests
 - **0.13s Generation**: 115x faster than target SLO
 - **Diataxis-Structured**: Tutorial, How-to, Reference, Explanation chapters
 - **Idempotent Pipeline**: μ∘μ = μ (regeneration produces identical output)
 - **Cryptographic Receipts**: Provable transformations
+- **🆕 DSPy LLM Enhancement**: Optional AI-powered content suggestions with olmo-3:7b-instruct
+- **🆕 Smart Caching**: Content-based caching for LLM outputs (168-hour TTL)
 
 ## 🚀 Quick Start
 
@@ -58,6 +60,8 @@ spec-kit-3t clean extracted.txt --output cleaned.txt
 
 ## 📦 CLI Commands
 
+### Core Commands
+
 | Command | Description | Performance |
 |---------|-------------|-------------|
 | `generate` | Generate LaTeX from RDF ontology | 0.13s for 688 triples |
@@ -67,17 +71,30 @@ spec-kit-3t clean extracted.txt --output cleaned.txt
 | `pdf` | Compile LaTeX → PDF (pdflatex + biber) | ~8s total |
 | `version` | Show version and constitutional equation | Instant |
 
-See [CLI Usage Guide](docs/CLI_USAGE.md) for detailed documentation.
+### 🆕 DSPy LLM Enhancement Commands
+
+| Command | Description | Use Case |
+|---------|-------------|----------|
+| `dspy enhance` | Enhance thesis with LLM suggestions | Abstract expansion, section suggestions, Diataxis validation |
+| `dspy suggest` | Get content suggestions for specific section | Chapter/section improvement ideas |
+| `dspy cache-stats` | Show cache statistics | Monitor cache size and hit rate |
+| `dspy cache-clear` | Clear LLM output cache | Force fresh suggestions |
+
+See [CLI Usage Guide](docs/CLI_USAGE.md) and [DSPy Usage Guide](docs/DSPY_USAGE.md) for detailed documentation.
 
 ## 🏗️ Architecture
 
 ### Constitutional Equation
 
 ```
-thesis.tex = μ(ontology.ttl)
+thesis.tex = μ(ontology.ttl) + λ(context, suggestions)
 ```
 
-Where **μ** represents the deterministic 5-stage pipeline:
+Where:
+- **μ** = Deterministic 5-stage pipeline (ALWAYS runs)
+- **λ** = LLM enhancement layer (OPTIONAL, adds value without breaking determinism)
+
+#### Deterministic Pipeline (μ)
 
 1. **μ₁**: Load RDF + SHACL validation (225+ constraints)
 2. **μ₂**: SPARQL data extraction (structured queries)
@@ -85,11 +102,18 @@ Where **μ** represents the deterministic 5-stage pipeline:
 4. **μ₄**: LaTeX file generation (13 files)
 5. **μ₅**: Cryptographic receipt (`.build-manifest.json`)
 
+#### 🆕 LLM Enhancement Layer (λ)
+
+1. **λ₁**: Context augmentation (DSPy Predict)
+2. **λ₂**: Content expansion (DSPy ChainOfThought)
+3. **λ₃**: Structural suggestions (DSPy ReAct)
+
 **Properties**:
 - ✅ **Idempotence**: μ∘μ = μ (running twice produces zero changes)
 - ✅ **Determinism**: Same ontology → same thesis across all platforms
 - ✅ **Provenance**: Cryptographic receipts prove docs = μ(ontology)
 - ✅ **Substrate Primacy**: Only RDF is version-controlled; docs are generated
+- ✅ **Fail-Fast**: System errors immediately on failures for quick debugging
 
 ### Diataxis Framework
 
