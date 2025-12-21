@@ -45,7 +45,10 @@ fn test_file_changes_trigger_sync() {
 
     // Verify configuration
     let watcher2 = FileWatcher::new(vec![watch_file]);
-    assert_eq!(watcher2.debounce_ms, 300, "Default debounce should be 300ms");
+    assert_eq!(
+        watcher2.debounce_ms, 300,
+        "Default debounce should be 300ms"
+    );
 }
 
 // ============================================================================
@@ -128,8 +131,14 @@ fn test_rapid_changes_debounced() {
         .with_queue_capacity(5); // Small queue to test bounds
 
     // Assert: Configuration is set for testing
-    assert_eq!(watcher.debounce_ms, 100, "Debounce should be 100ms for test");
-    assert_eq!(watcher.queue_capacity, 5, "Queue capacity should be 5 for test");
+    assert_eq!(
+        watcher.debounce_ms, 100,
+        "Debounce should be 100ms for test"
+    );
+    assert_eq!(
+        watcher.queue_capacity, 5,
+        "Queue capacity should be 5 for test"
+    );
 
     // Note: Full integration test would simulate rapid file changes
     // and verify only debounced events are emitted
@@ -213,6 +222,7 @@ fn test_collect_watch_paths() {
                     output_file: "output1.rs".to_string(),
                     mode: GenerationMode::Create,
                     skip_empty: false,
+                    when: None,
                 },
                 GenerationRule {
                     name: "rule2".to_string(),
@@ -225,6 +235,7 @@ fn test_collect_watch_paths() {
                     output_file: "output2.rs".to_string(),
                     mode: GenerationMode::Overwrite,
                     skip_empty: false,
+                    when: None,
                 },
             ],
             max_sparql_timeout_ms: 5000,
@@ -248,23 +259,33 @@ fn test_collect_watch_paths() {
     );
     // Ontology path might be joined with base_path, check if any path ends with ontology.ttl
     assert!(
-        paths.iter().any(|p| p.to_string_lossy().ends_with("ontology.ttl")),
+        paths
+            .iter()
+            .any(|p| p.to_string_lossy().ends_with("ontology.ttl")),
         "Should watch ontology source (possibly joined with base_path)"
     );
     assert!(
-        paths.iter().any(|p| p.to_string_lossy().ends_with("import1.ttl")),
+        paths
+            .iter()
+            .any(|p| p.to_string_lossy().ends_with("import1.ttl")),
         "Should watch import1 (possibly joined with base_path)"
     );
     assert!(
-        paths.iter().any(|p| p.to_string_lossy().ends_with("import2.ttl")),
+        paths
+            .iter()
+            .any(|p| p.to_string_lossy().ends_with("import2.ttl")),
         "Should watch import2 (possibly joined with base_path)"
     );
     assert!(
-        paths.iter().any(|p| p.to_string_lossy().ends_with("query1.sparql")),
+        paths
+            .iter()
+            .any(|p| p.to_string_lossy().ends_with("query1.sparql")),
         "Should watch query file (not inline)"
     );
     assert!(
-        paths.iter().any(|p| p.to_string_lossy().ends_with("template1.tera")),
+        paths
+            .iter()
+            .any(|p| p.to_string_lossy().ends_with("template1.tera")),
         "Should watch template file (not inline)"
     );
 
@@ -294,7 +315,10 @@ fn test_watcher_validates_paths_exist() {
     let result = watcher.start();
 
     // Assert: Should error on non-existent path
-    assert!(result.is_err(), "Should error when watch path does not exist");
+    assert!(
+        result.is_err(),
+        "Should error when watch path does not exist"
+    );
     let err_msg = result.unwrap_err().to_string();
     assert!(
         err_msg.contains("does not exist"),
@@ -354,6 +378,8 @@ fn test_multiple_path_watching() {
     let rx = watcher.start().expect("Should start with multiple paths");
 
     // Assert: Watcher accepts multiple paths
-    assert!(rx.recv_timeout(Duration::from_millis(50)).is_err(),
-            "Should timeout (no changes yet)");
+    assert!(
+        rx.recv_timeout(Duration::from_millis(50)).is_err(),
+        "Should timeout (no changes yet)"
+    );
 }

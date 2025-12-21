@@ -320,6 +320,14 @@ impl GenerationPipeline {
         for rule in &rules {
             let start = Instant::now();
 
+            // T019: Check WHEN condition if present (SPARQL ASK)
+            if let Some(when_query) = &rule.when {
+                if !self.evaluate_condition(when_query)? {
+                    // Condition failed - skip this rule silently
+                    continue;
+                }
+            }
+
             // 1. Load query from QuerySource
             let query = match &rule.query {
                 QuerySource::File { file } => {
@@ -374,18 +382,21 @@ impl GenerationPipeline {
             }
 
             // 4. Load template from TemplateSource
-            let template_content = match &rule.template {
+            let (template_content, _template_source_info) = match &rule.template {
                 TemplateSource::File { file } => {
                     let template_path = self.base_path.join(file);
-                    std::fs::read_to_string(&template_path).map_err(|e| {
+                    let content = std::fs::read_to_string(&template_path).map_err(|e| {
                         Error::new(&format!(
                             "Failed to read template file '{}': {}",
                             template_path.display(),
                             e
                         ))
-                    })?
+                    })?;
+                    (content, format!("file '{}'", template_path.display()))
                 }
-                TemplateSource::Inline { inline } => inline.clone(),
+                TemplateSource::Inline { inline } => {
+                    (inline.clone(), "inline template".to_string())
+                }
             };
 
             // 5. For each row, render template and generate file
@@ -406,24 +417,8 @@ impl GenerationPipeline {
                     // Strip leading '?' from SPARQL variable names
                     let clean_key = key.strip_prefix('?').unwrap_or(key);
 
-                    // Clean up SPARQL term string representations:
-                    // - IRIs: <http://example.org/> -> http://example.org/
-                    // - Literals: "value" or "value"^^xsd:string -> value
-                    let clean_value = if value.starts_with('<') && value.ends_with('>') {
-                        // IRI: strip angle brackets
-                        &value[1..value.len() - 1]
-                    } else if let Some(without_prefix) = value.strip_prefix('"') {
-                        // Literal: strip quotes and optional datatype
-                        if let Some(quote_end) = without_prefix.find('"') {
-                            &without_prefix[..quote_end]
-                        } else {
-                            value.as_str()
-                        }
-                    } else {
-                        value.as_str()
-                    };
-
-                    context.insert(clean_key, clean_value);
+                    // Values already cleaned during SPARQL result collection (line 357)
+                    context.insert(clean_key, value.as_str());
                 }
 
                 // Also insert sparql_results for advanced templates
@@ -432,11 +427,36 @@ impl GenerationPipeline {
 
                 // Render template
                 let rendered = tera.render("generation_rule", &context).map_err(|e| {
-                    // Build a debug view of context variables
-                    let var_names: Vec<_> = row.keys().collect();
+                    // Build comprehensive error context for debugging
+                    let var_names: Vec<String> = row
+                        .keys()
+                        .map(|k| k.strip_prefix('?').unwrap_or(k).to_string())
+                        .collect();
+
+                    // Format row values for display (limit value length to prevent spam)
+                    let row_values: Vec<String> = row
+                        .iter()
+                        .map(|(k, v)| {
+                            let clean_key = k.strip_prefix('?').unwrap_or(k);
+                            let display_value = if v.len() > 100 {
+                                format!("{}...", &v[..100])
+                            } else {
+                                v.clone()
+                            };
+                            format!("{} = \"{}\"", clean_key, display_value)
+                        })
+                        .collect();
+
                     Error::new(&format!(
-                        "Template render error in rule '{}': {}\n  Available variables: {:?}",
-                        rule.name, e, var_names
+                        "Failed to render template for rule '{}': {}\n\
+                         Template source: {}\n\
+                         Available variables: {}\n\
+                         Row values:\n  {}",
+                        rule.name,
+                        e,
+                        _template_source_info,
+                        var_names.join(", "),
+                        row_values.join("\n  ")
                     ))
                 })?;
 
@@ -463,13 +483,14 @@ impl GenerationPipeline {
                     GenerationMode::Merge => {
                         // Merge mode: preserve manual sections
                         if full_output_path.exists() {
-                            let existing = std::fs::read_to_string(&full_output_path).map_err(|e| {
-                                Error::new(&format!(
-                                    "Failed to read existing file for merge '{}': {}",
-                                    full_output_path.display(),
-                                    e
-                                ))
-                            })?;
+                            let existing =
+                                std::fs::read_to_string(&full_output_path).map_err(|e| {
+                                    Error::new(&format!(
+                                        "Failed to read existing file for merge '{}': {}",
+                                        full_output_path.display(),
+                                        e
+                                    ))
+                                })?;
                             crate::codegen::merge::merge_sections(&rendered, &existing)?
                         } else {
                             // First time - wrap in markers
@@ -477,6 +498,9 @@ impl GenerationPipeline {
                         }
                     }
                 };
+
+                // Validate generated output before writing
+                Self::validate_generated_output(&final_content, &full_output_path, &rule.name)?;
 
                 // Ensure parent directory exists
                 if let Some(parent) = full_output_path.parent() {
@@ -609,6 +633,55 @@ impl GenerationPipeline {
         }
         PathBuf::from(result)
     }
+
+    /// Validate generated output before writing to filesystem
+    ///
+    /// Enforces HDOC validation requirements:
+    /// - Content must not be empty
+    /// - File size must be under 10MB
+    /// - Path must not contain traversal patterns (../)
+    ///
+    /// # Arguments
+    /// * `content` - The generated content to validate
+    /// * `path` - The output path to validate
+    /// * `rule_id` - The rule name for error reporting
+    ///
+    /// # Errors
+    /// Returns descriptive errors with rule_id and path for HDOC framework
+    fn validate_generated_output(content: &str, path: &PathBuf, rule_id: &str) -> Result<()> {
+        // Check 1: Content must not be empty
+        if content.is_empty() {
+            return Err(Error::new(&format!(
+                "Validation failed for rule '{}': Generated content is empty for path '{}'",
+                rule_id,
+                path.display()
+            )));
+        }
+
+        // Check 2: File size must be under 10MB (10 * 1024 * 1024 bytes)
+        const MAX_SIZE_BYTES: usize = 10 * 1024 * 1024;
+        let size_bytes = content.len();
+        if size_bytes > MAX_SIZE_BYTES {
+            return Err(Error::new(&format!(
+                "Validation failed for rule '{}': Generated file size ({} bytes) exceeds 10MB limit for path '{}'",
+                rule_id,
+                size_bytes,
+                path.display()
+            )));
+        }
+
+        // Check 3: Path must not contain traversal patterns
+        let path_str = path.to_string_lossy();
+        if path_str.contains("../") || path_str.contains("..\\") {
+            return Err(Error::new(&format!(
+                "Validation failed for rule '{}': Path contains directory traversal pattern (..) in '{}'",
+                rule_id,
+                path.display()
+            )));
+        }
+
+        Ok(())
+    }
 }
 
 // Import sha2 for query hashing
@@ -633,5 +706,211 @@ mod tests {
         let ctx = BTreeMap::new();
         let result = GenerationPipeline::expand_output_path("src/fixed.rs", &ctx);
         assert_eq!(result, PathBuf::from("src/fixed.rs"));
+    }
+
+    #[test]
+    fn test_validation_rejects_empty_output() {
+        // Arrange
+        let empty_content = "";
+        let path = PathBuf::from("src/output.rs");
+        let rule_id = "test_rule";
+
+        // Act
+        let result = GenerationPipeline::validate_generated_output(empty_content, &path, rule_id);
+
+        // Assert
+        assert!(
+            result.is_err(),
+            "Expected validation to fail for empty content"
+        );
+        let err_msg = result.unwrap_err().to_string();
+        assert!(
+            err_msg.contains("empty"),
+            "Error message should mention empty content: {}",
+            err_msg
+        );
+        assert!(
+            err_msg.contains("test_rule"),
+            "Error message should include rule_id: {}",
+            err_msg
+        );
+        assert!(
+            err_msg.contains("src/output.rs"),
+            "Error message should include path: {}",
+            err_msg
+        );
+    }
+
+    #[test]
+    fn test_validation_rejects_path_traversal() {
+        // Arrange
+        let valid_content = "fn main() {}";
+        let traversal_path = PathBuf::from("../../../etc/passwd");
+        let rule_id = "malicious_rule";
+
+        // Act
+        let result =
+            GenerationPipeline::validate_generated_output(valid_content, &traversal_path, rule_id);
+
+        // Assert
+        assert!(
+            result.is_err(),
+            "Expected validation to fail for path traversal"
+        );
+        let err_msg = result.unwrap_err().to_string();
+        assert!(
+            err_msg.contains("traversal"),
+            "Error message should mention path traversal: {}",
+            err_msg
+        );
+        assert!(
+            err_msg.contains("malicious_rule"),
+            "Error message should include rule_id: {}",
+            err_msg
+        );
+        assert!(
+            err_msg.contains(".."),
+            "Error message should mention the traversal pattern: {}",
+            err_msg
+        );
+    }
+
+    #[test]
+    fn test_validation_accepts_valid_output() {
+        // Arrange
+        let valid_content = "pub struct User { id: u64 }";
+        let path = PathBuf::from("src/models/user.rs");
+        let rule_id = "generate_struct";
+
+        // Act
+        let result = GenerationPipeline::validate_generated_output(valid_content, &path, rule_id);
+
+        // Assert
+        assert!(
+            result.is_ok(),
+            "Expected validation to pass for valid content: {:?}",
+            result
+        );
+    }
+
+    #[test]
+    fn test_validation_rejects_oversized_output() {
+        // Arrange
+        // Create content larger than 10MB
+        let oversized_content = "x".repeat(11 * 1024 * 1024); // 11MB
+        let path = PathBuf::from("src/huge.rs");
+        let rule_id = "huge_generator";
+
+        // Act
+        let result =
+            GenerationPipeline::validate_generated_output(&oversized_content, &path, rule_id);
+
+        // Assert
+        assert!(
+            result.is_err(),
+            "Expected validation to fail for oversized content"
+        );
+        let err_msg = result.unwrap_err().to_string();
+        assert!(
+            err_msg.contains("10MB"),
+            "Error message should mention 10MB limit: {}",
+            err_msg
+        );
+        assert!(
+            err_msg.contains("huge_generator"),
+            "Error message should include rule_id: {}",
+            err_msg
+        );
+    }
+
+    #[test]
+    fn test_error_shows_available_variables() {
+        // Arrange: Create a minimal test environment
+        use std::collections::BTreeMap;
+        use tera::Tera;
+
+        let mut tera = Tera::default();
+        // Template with undefined variable to trigger error
+        let template = "Hello {{ undefined_var }}!";
+        tera.add_raw_template("test_template", template).unwrap();
+
+        // Create context with some variables (but not the one template needs)
+        let mut context = tera::Context::new();
+        context.insert("name", "Alice");
+        context.insert("email", "alice@example.com");
+
+        // Simulate row data for error message
+        let mut row: BTreeMap<String, String> = BTreeMap::new();
+        row.insert("?name".to_string(), "Alice".to_string());
+        row.insert("?email".to_string(), "alice@example.com".to_string());
+
+        // Act: Try to render and capture error
+        let render_result = tera.render("test_template", &context).map_err(|e| {
+            // Simulate the enhanced error message format from execute_generation_rules
+            let var_names: Vec<String> = row
+                .keys()
+                .map(|k| k.strip_prefix('?').unwrap_or(k).to_string())
+                .collect();
+
+            let row_values: Vec<String> = row
+                .iter()
+                .map(|(k, v)| {
+                    let clean_key = k.strip_prefix('?').unwrap_or(k);
+                    let display_value = if v.len() > 100 {
+                        format!("{}...", &v[..100])
+                    } else {
+                        v.clone()
+                    };
+                    format!("{} = \"{}\"", clean_key, display_value)
+                })
+                .collect();
+
+            Error::new(&format!(
+                "Failed to render template for rule 'test_rule': {}\n\
+                 Template source: inline template\n\
+                 Available variables: {}\n\
+                 Row values:\n  {}",
+                e,
+                var_names.join(", "),
+                row_values.join("\n  ")
+            ))
+        });
+
+        // Assert: Verify error contains all expected context
+        assert!(render_result.is_err(), "Expected template render to fail");
+        let err_msg = render_result.unwrap_err().to_string();
+
+        // Check error message includes available variable names (BTreeMap keeps sorted order)
+        assert!(
+            err_msg.contains("Available variables: email, name"),
+            "Error should list available variables, got: {}",
+            err_msg
+        );
+
+        // Check error message includes row values
+        assert!(
+            err_msg.contains("name = \"Alice\""),
+            "Error should show row values, got: {}",
+            err_msg
+        );
+        assert!(
+            err_msg.contains("email = \"alice@example.com\""),
+            "Error should show row values, got: {}",
+            err_msg
+        );
+
+        // Check error message includes template source info
+        assert!(
+            err_msg.contains("Template source: inline template"),
+            "Error should show template source, got: {}",
+            err_msg
+        );
+
+        // Check error message includes rule name
+        assert!(
+            err_msg.contains("test_rule"),
+            "Error should include rule name, got: {}",
+            err_msg
+        );
     }
 }

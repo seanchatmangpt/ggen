@@ -394,10 +394,8 @@ impl SyncExecutor {
 
             // Record files changed with hashes
             for file in &state.generated_files {
-                audit_trail.record_file_change(
-                    file.path.display().to_string(),
-                    file.content_hash.clone(),
-                );
+                audit_trail
+                    .record_file_change(file.path.display().to_string(), file.content_hash.clone());
             }
 
             // Set execution metadata
