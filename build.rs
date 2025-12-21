@@ -109,9 +109,7 @@ fn validate_verb_module_registration() {
             missing_registrations.len(),
             missing_registrations
         );
-        println!(
-            "cargo:warning=POKA-YOKE: This will cause commands to silently fail at runtime!"
-        );
+        println!("cargo:warning=POKA-YOKE: This will cause commands to silently fail at runtime!");
     }
 
     // Emit positive confirmation if all modules are properly registered
