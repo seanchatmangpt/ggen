@@ -1,0 +1,254 @@
+@prefix : <https://ggen.dev/spec/> .
+@prefix spec: <https://ggen.dev/spec/vocab/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# ============================================================================
+# Feature: v5.1.0 GA Production Release
+# Branch: 013-ga-production-release
+# Status: Specification
+# Created: 2025-12-21
+# ============================================================================
+
+:v510-ga-production-release a spec:Feature ;
+  rdfs:label "v5.1.0 GA Production Release" ;
+  rdfs:comment "Stabilize and production-harden ggen v5.0.2 by fixing critical gaps, implementing missing features, and comprehensive testing to reach production-grade quality" ;
+  spec:version "5.1.0" ;
+  spec:branch "013-ga-production-release" ;
+  spec:featureNumber 13 ;
+  spec:status "specification" ;
+  spec:createdAt "2025-12-21T00:00:00Z"^^xsd:dateTime ;
+  spec:hasUserStory :us-001-fix-critical-gaps ;
+  spec:hasUserStory :us-002-implement-missing-features ;
+  spec:hasUserStory :us-003-production-hardening ;
+  spec:hasFunctionalRequirement :fr-001-audit-trail ;
+  spec:hasFunctionalRequirement :fr-002-force-flag ;
+  spec:hasFunctionalRequirement :fr-003-merge-mode ;
+  spec:hasFunctionalRequirement :fr-004-watch-mode ;
+  spec:hasFunctionalRequirement :fr-005-conditional-execution ;
+  spec:hasFunctionalRequirement :fr-006-validation-rules ;
+  spec:hasFunctionalRequirement :fr-007-shacl-validation ;
+  spec:hasFunctionalRequirement :fr-008-unit-tests ;
+  spec:hasSuccessCriterion :sc-001-zero-critical-bugs ;
+  spec:hasSuccessCriterion :sc-002-100-percent-test-coverage ;
+  spec:hasSuccessCriterion :sc-003-all-features-working ;
+  spec:hasSuccessCriterion :sc-004-production-performance ;
+  spec:hasSuccessCriterion :sc-005-complete-documentation .
+
+# ============================================================================
+# USER STORIES
+# ============================================================================
+
+:us-001-fix-critical-gaps a spec:UserStory ;
+  rdfs:label "Fix Critical Implementation Gaps" ;
+  rdfs:comment "As a developer, I need ggen sync to actually implement its advertised features so that my code generation workflows are reliable and predictable" ;
+  spec:priority "P1" ;
+  spec:acceptanceScenario :as-001-audit-trail-created ;
+  spec:acceptanceScenario :as-002-force-flag-works ;
+  spec:acceptanceScenario :as-003-merge-mode-intelligent .
+
+:as-001-audit-trail-created a spec:AcceptanceScenario ;
+  rdfs:label "Audit trail is actually written to disk" ;
+  spec:given "User runs 'ggen sync --audit'" ;
+  spec:when "Sync completes successfully" ;
+  spec:then "File 'output/audit.json' exists with valid JSON containing execution metadata (rules executed, files changed, timestamps, checksums)" .
+
+:as-002-force-flag-works a spec:AcceptanceScenario ;
+  rdfs:label "Force flag overrides protected files" ;
+  spec:given "User runs 'ggen sync --force' on protected paths" ;
+  spec:when "Generation rule targets a file in protected_paths" ;
+  spec:then "File is overwritten with generated content (protected_paths constraint is bypassed)" .
+
+:as-003-merge-mode-intelligent a spec:AcceptanceScenario ;
+  rdfs:label "Merge mode intelligently combines manual and generated code" ;
+  spec:given "File contains merge markers (<<<<<<< GENERATED ... >>>>>>> MANUAL)" ;
+  spec:when "Generation rule runs with mode='Merge'" ;
+  spec:then "Generated section is updated while manual code is preserved" .
+
+:us-002-implement-missing-features a spec:UserStory ;
+  rdfs:label "Implement Missing Advertised Features" ;
+  rdfs:comment "As a user, I need all features advertised in ggen help text to actually work so that I can use documented workflows without surprises" ;
+  spec:priority "P1" ;
+  spec:acceptanceScenario :as-004-watch-mode-monitors ;
+  spec:acceptanceScenario :as-005-conditional-rules ;
+  spec:acceptanceScenario :as-006-validation-executes .
+
+:as-004-watch-mode-monitors a spec:AcceptanceScenario ;
+  rdfs:label "Watch mode monitors files and regenerates on change" ;
+  spec:given "User runs 'ggen sync --watch'" ;
+  spec:when "Ontology or template files change on disk" ;
+  spec:then "ggen automatically runs sync pipeline and reports changes within 1 second" .
+
+:as-005-conditional-rules a spec:AcceptanceScenario ;
+  rdfs:label "Conditional rules only execute when condition is true" ;
+  spec:given "Rule defines 'when = \"ASK { ?x a owl:Class }\"'" ;
+  spec:when "SPARQL ASK query returns false" ;
+  spec:then "Rule is skipped (not executed)" .
+
+:as-006-validation-executes a spec:AcceptanceScenario ;
+  rdfs:label "Validation rules execute and fail sync if violated" ;
+  spec:given "Manifest defines validation rules with severity='error'" ;
+  spec:when "Validation rule returns false during sync" ;
+  spec:then "Sync fails with error message (no files written)" .
+
+:us-003-production-hardening a spec:UserStory ;
+  rdfs:label "Production Hardening and Testing" ;
+  rdfs:comment "As a maintainer, I need comprehensive test coverage and production-grade error handling so that ggen is reliable in production environments" ;
+  spec:priority "P1" ;
+  spec:acceptanceScenario :as-007-feature-tests ;
+  spec:acceptanceScenario :as-008-error-handling ;
+  spec:acceptanceScenario :as-009-performance-targets .
+
+:as-007-feature-tests a spec:AcceptanceScenario ;
+  rdfs:label "All CLI features have unit and integration tests" ;
+  spec:given "Feature flag like --audit, --force, --dry-run, --validate-only" ;
+  spec:when "Test suite runs" ;
+  spec:then "Feature behaves as documented with 100% of test cases passing" .
+
+:as-008-error-handling a spec:AcceptanceScenario ;
+  rdfs:label "Errors provide actionable guidance" ;
+  spec:given "Invalid ggen.toml or missing ontology file" ;
+  spec:when "ggen sync runs" ;
+  spec:then "Error message includes file path, line number, and specific guidance for fixing the issue" .
+
+:as-009-performance-targets a spec:AcceptanceScenario ;
+  rdfs:label "Performance meets production SLOs" ;
+  spec:given "Sync pipeline with 100 generation rules and 10,000 ontology triples" ;
+  spec:when "ggen sync executes" ;
+  spec:then "Completes in under 5 seconds with deterministic output" .
+
+# ============================================================================
+# FUNCTIONAL REQUIREMENTS
+# ============================================================================
+
+:fr-001-audit-trail a spec:FunctionalRequirement ;
+  rdfs:label "Audit Trail Persistence" ;
+  rdfs:comment "The --audit flag must write audit.json with complete execution metadata" ;
+  spec:acceptanceTest "Test that audit.json file is created with valid JSON structure containing: rules_executed (list), files_changed (map of path→hash), timestamp, determinism_salt used" .
+
+:fr-002-force-flag a spec:FunctionalRequirement ;
+  rdfs:label "Force Flag Implementation" ;
+  rdfs:comment "The --force flag must override protected_paths constraints during generation" ;
+  spec:acceptanceTest "Test that protected files are overwritten when --force is used; test that without --force protected files are skipped" .
+
+:fr-003-merge-mode a spec:FunctionalRequirement ;
+  rdfs:label "Merge Mode with Marker Detection" ;
+  rdfs:comment "Generation with mode='Merge' must detect merge markers and preserve manual code sections" ;
+  spec:acceptanceTest "Test file with '<<<<<<< GENERATED ... ====== ... >>>>>>> MANUAL' markers is merged correctly" .
+
+:fr-004-watch-mode a spec:FunctionalRequirement ;
+  rdfs:label "Watch Mode File Monitoring" ;
+  rdfs:comment "The --watch flag must monitor ontology and template files for changes and auto-regenerate" ;
+  spec:acceptanceTest "Test that changes to .ttl or template files trigger sync within 1 second; test that output files are regenerated" .
+
+:fr-005-conditional-execution a spec:FunctionalRequirement ;
+  rdfs:label "Conditional Rule Execution (when: clause)" ;
+  rdfs:comment "Rules with 'when' field must evaluate SPARQL ASK query and only execute if true" ;
+  spec:acceptanceTest "Test rule with when='ASK { ?x a owl:Class }' is skipped when no classes exist; executed when classes exist" .
+
+:fr-006-validation-rules a spec:FunctionalRequirement ;
+  rdfs:label "SPARQL Validation Rule Execution" ;
+  rdfs:comment "manifest.validation.rules must execute post-generation and fail sync if severity=error rules return false" ;
+  spec:acceptanceTest "Test validation rule returning false causes sync failure; validation rule returning true allows sync to succeed" .
+
+:fr-007-shacl-validation a spec:FunctionalRequirement ;
+  rdfs:label "SHACL Shape Validation" ;
+  rdfs:comment "SHACL shapes from manifest.validation.shacl must be executed against ontology graph pre-generation" ;
+  spec:acceptanceTest "Test SHACL shape constraint violations are reported; compliant ontologies pass validation" .
+
+:fr-008-unit-tests a spec:FunctionalRequirement ;
+  rdfs:label "Comprehensive Unit Test Suite" ;
+  rdfs:comment "SyncExecutor module must have unit tests covering all CLI flags and code paths" ;
+  spec:acceptanceTest "Test coverage of: --audit, --force, --dry-run, --validate-only, --rule, --manifest, --output-dir with various combinations" .
+
+# ============================================================================
+# SUCCESS CRITERIA
+# ============================================================================
+
+:sc-001-zero-critical-bugs a spec:SuccessCriterion ;
+  rdfs:label "Zero Critical/High Severity Bugs" ;
+  rdfs:comment "No P0 or P1 bugs remain in ggen sync implementation" ;
+  spec:metric "0 critical bugs reported or detected in v5.1.0 release" ;
+  spec:measurable true ;
+  spec:verifiable true .
+
+:sc-002-100-percent-test-coverage a spec:SuccessCriterion ;
+  rdfs:label "100% Test Coverage for sync Command" ;
+  rdfs:comment "All code paths in SyncExecutor and pipeline modules have unit/integration tests" ;
+  spec:metric "Code coverage >= 95% for crates/ggen-core/src/codegen/" ;
+  spec:measurable true ;
+  spec:verifiable true .
+
+:sc-003-all-features-working a spec:SuccessCriterion ;
+  rdfs:label "All Documented Features Functional" ;
+  rdfs:comment "Every feature in ggen sync help text actually works as documented" ;
+  spec:metric "100% of help text examples execute successfully" ;
+  spec:measurable true ;
+  spec:verifiable true .
+
+:sc-004-production-performance a spec:SuccessCriterion ;
+  rdfs:label "Production Performance Targets" ;
+  rdfs:comment "ggen sync meets performance SLOs for typical production workflows" ;
+  spec:metric "90th percentile sync time <= 5 seconds for 100-rule manifests; 95th percentile <= 10 seconds" ;
+  spec:measurable true ;
+  spec:verifiable true .
+
+:sc-005-complete-documentation a spec:SuccessCriterion ;
+  rdfs:label "Complete User and Developer Documentation" ;
+  rdfs:comment "All ggen sync features are documented with examples and use cases" ;
+  spec:metric "Every CLI flag has documentation; every feature has at least one end-to-end example" ;
+  spec:measurable true ;
+  spec:verifiable true .
+
+# ============================================================================
+# ASSUMPTIONS & CONSTRAINTS
+# ============================================================================
+
+:feature-assumptions a spec:AssumptionSet ;
+  spec:assumedFeature "File system is stable (no race conditions between read/write)" ;
+  spec:assumedFeature "Ontology files remain consistent during sync (not modified by other processes)" ;
+  spec:assumedFeature "SPARQL queries are well-formed and not intentionally malicious" ;
+  spec:assumedConstraint "Merge mode uses standard git-style markers: <<<<<<< GENERATED, ======, >>>>>>> MANUAL" ;
+  spec:assumedConstraint "Watch mode has 300ms debounce on file system events to avoid thrashing" ;
+  spec:assumedConstraint "Validation rules execute after code generation (post-validation, not pre)" .
+
+# ============================================================================
+# EDGE CASES & ERROR CONDITIONS
+# ============================================================================
+
+:edge-case-1 a spec:EdgeCase ;
+  rdfs:label "Circular dependency in generation rules" ;
+  spec:scenario "Rule A depends on output of Rule B which depends on output of Rule A" ;
+  spec:expectedBehavior "Sync fails with clear error message indicating cycle and suggesting which rules are involved" .
+
+:edge-case-2 a spec:EdgeCase ;
+  rdfs:label "Corrupt audit trail on disk" ;
+  spec:scenario "Previous run's audit.json is malformed JSON" ;
+  spec:expectedBehavior "New audit.json is written cleanly (old file is overwritten, not merged)" .
+
+:edge-case-3 a spec:EdgeCase ;
+  rdfs:label "Watch mode interrupted mid-sync" ;
+  spec:scenario "File changes detected while previous sync is still running" ;
+  spec:expectedBehavior "Changes are queued and next sync runs immediately after current sync completes" .
+
+:edge-case-4 a spec:EdgeCase ;
+  rdfs:label "Protected file with force flag and validation rule conflict" ;
+  spec:scenario "User runs 'ggen sync --force' but validation rules forbid overwriting the file" ;
+  spec:expectedBehavior "Force flag takes precedence; file is overwritten; validation happens post-generation" .
+
+# ============================================================================
+# IMPLEMENTATION NOTES
+# ============================================================================
+
+:impl-notes a spec:ImplementationNotes ;
+  spec:note "Audit trail must include: timestamp (ISO 8601), rule_name, input_files, output_file, content_hash, determinism_salt, success (bool)" ;
+  spec:note "Force flag logic: Check --force before evaluating protected_paths constraint" ;
+  spec:note "Merge mode: Use regex to detect markers, preserve content between <<<<<<< GENERATED and =======, and between ======= and >>>>>>> MANUAL" ;
+  spec:note "Watch mode: Use watchexec or similar file watcher, debounce changes by 300ms, queue up to 10 pending changes" ;
+  spec:note "Conditional execution: Execute SPARQL ASK query from 'when' field against current graph before running rule" ;
+  spec:note "Validation rules: Execute after all generation rules complete; fail fast if severity='error'" ;
+  spec:note "SHACL: Validate graph pre-generation; report violations as validation errors" ;
+  spec:note "Unit tests should use temp directories and fixtures; no external dependencies" .
