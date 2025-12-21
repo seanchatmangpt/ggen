@@ -1,0 +1,7 @@
+// Generated from test ontology
+{% for class in results %}
+pub struct {{ class.class | replace(namespace=":", with="") }} {
+    // Generated field
+    pub id: String,
+}
+{% endfor %}
