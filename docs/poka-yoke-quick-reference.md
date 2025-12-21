@@ -117,18 +117,25 @@ base_dirs = ["src/generated", "src/domain"]
 output_path = ".github/CODEOWNERS"
 ```
 
-## Commands
+## The Only Command: ggen sync
+
+**ggen v5 has ONE command** that reads all configuration from `ggen.toml`:
 
 ```bash
-# Generate code with protections
-ggen generate
+# Synchronize code generation with poka-yoke protections enabled
+ggen sync
 
-# Validate package FMEA
-ggen marketplace validate my-package/
-
-# Publish validated package
-ggen marketplace publish my-package/
+# That's it - everything is configured via ggen.toml
 ```
+
+The `ggen sync` command:
+1. Reads `ggen.toml` configuration
+2. Loads ontologies from configured paths
+3. Applies SPARQL transformations
+4. Renders templates with protections
+5. Writes to protected/regenerate directories
+6. Validates FMEA if enabled
+7. Generates CODEOWNERS if enabled
 
 ## Real-World Example
 
@@ -155,10 +162,13 @@ my-project/
 ### Workflow
 
 ```bash
-# 1. First generation creates everything
-$ ggen generate
+# 1. First synchronization creates everything
+$ ggen sync
+  ✓ Read ggen.toml configuration
   ✓ Created src/generated/user/suspend.rs (trait)
   ✓ Created src/domain/user/suspend.rs (stub with unimplemented!())
+  ✓ Generated CODEOWNERS from OWNERS files
+  ✓ Validated FMEA thresholds
 
 # 2. Implement in domain code
 $ vim src/domain/user/suspend.rs
@@ -168,13 +178,17 @@ $ vim src/domain/user/suspend.rs
       }
   }
 
-# 3. Regenerate - domain code is safe
-$ ggen generate
+# 3. Synchronize again - domain code is safe
+$ ggen sync
+  ✓ Read ggen.toml configuration
   ✓ Updated src/generated/user/suspend.rs (new features added)
   ✓ src/domain/user/suspend.rs unchanged (protected!)
+  ✓ Updated CODEOWNERS
+  ✓ Re-validated FMEA thresholds
 
-# 4. Implement new trait
-$ vim src/domain/user/activate.rs
+# 4. Implement new trait as ontology changes
+$ vim ontology/user.ttl
+$ ggen sync  # Domain code always safe
 ```
 
 ## When Regeneration is Safe
@@ -203,16 +217,37 @@ $ vim src/domain/user/activate.rs
 ## Testing Your Setup
 
 ```bash
-# Run integration tests
+# 1. Configure ggen.toml with poka-yoke settings
+cat > ggen.toml <<'EOF'
+[generation]
+enabled = true
+protected_paths = ["src/domain/**/*"]
+regenerate_paths = ["src/generated/**/*"]
+
+[generation.poka_yoke]
+warning_headers = true
+gitignore_generated = true
+gitattributes_generated = true
+
+[codeowners]
+enabled = true
+source_dirs = ["ontology"]
+base_dirs = ["src/generated", "src/domain"]
+EOF
+
+# 2. Run the ONE command - everything flows from ggen.toml
+ggen sync
+
+# 3. Verify results
+[ -f "src/generated/user/suspend.rs" ] && echo "✓ Generated code created"
+[ -f "src/domain/user/suspend.rs" ] && echo "✓ Domain stub created"
+[ -f ".github/CODEOWNERS" ] && echo "✓ CODEOWNERS generated"
+grep -q "DO NOT EDIT" src/generated/user/suspend.rs && echo "✓ Headers injected"
+
+# 4. Run developer tests (verify ggen's poka-yoke implementation)
 cargo test -p ggen-domain --test path_protection_tests
 cargo test -p ggen-domain --test header_injection_tests
 cargo test -p ggen-domain --test codeowners_tests
-
-# Verify configuration
-ggen marketplace validate my-package/
-
-# Check CODEOWNERS generation
-cat .github/CODEOWNERS
 ```
 
 ## Troubleshooting
