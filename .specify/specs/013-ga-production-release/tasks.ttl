@@ -1,0 +1,637 @@
+@prefix : <https://ggen.dev/spec/> .
+@prefix spec: <https://ggen.dev/spec/vocab/> .
+@prefix plan: <https://ggen.dev/spec/plan/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# Task Breakdown: v5.1.0 GA Production Release
+# Branch: 013-ga-production-release
+# Source: Derived from feature.ttl and plan.ttl
+# Status: Generated
+# Created: 2025-12-21
+# ============================================================================
+
+:tasks-v510-ga-production a spec:TaskBreakdown ;
+  rdfs:label "v5.1.0 GA Production Release - Task Breakdown" ;
+  rdfs:comment "Executable task list derived from implementation plan phases and architecture decisions" ;
+  spec:featureBranch "013-ga-production-release" ;
+  spec:totalTasks 19 ;
+  spec:hasPhaseTaskGroup :phase-001-setup ;
+  spec:hasPhaseTaskGroup :phase-002-foundation ;
+  spec:hasPhaseTaskGroup :phase-003-phase1-tasks ;
+  spec:hasPhaseTaskGroup :phase-004-phase2-tasks ;
+  spec:hasPhaseTaskGroup :phase-005-phase3-tasks ;
+  spec:hasPhaseTaskGroup :phase-006-phase4-tasks ;
+  spec:hasPhaseTaskGroup :phase-007-phase5-tasks .
+
+# ============================================================================
+# PHASE 1: SETUP (P0 - Project Preparation)
+# ============================================================================
+
+:phase-001-setup a spec:TaskPhase ;
+  rdfs:label "Phase 1: Setup and Project Preparation" ;
+  spec:phaseOrder 1 ;
+  spec:phaseStatus "pending" ;
+  spec:estimatedDuration "PT1H" ;
+  spec:description "Create project structure, verify toolchain, set up prerequisites" ;
+  spec:blockingPhase true ;
+  spec:hasTasks :setup-001, :setup-002, :setup-003 .
+
+:setup-001 a spec:ExecutableTask ;
+  spec:taskId "T001" ;
+  spec:taskOrder 1 ;
+  spec:title "Verify ggen v5.0.2 workspace and Rust toolchain" ;
+  spec:description "Check that ggen workspace compiles, all dependencies resolve, cargo make works" ;
+  spec:filePath "crates/ggen-core/" ;
+  spec:action "Run 'cargo make check' from workspace root to verify clean compilation state" ;
+  spec:acceptance "cargo make check completes without errors in < 5s" ;
+  spec:depends_on "none" ;
+  spec:parallelizable false .
+
+:setup-002 a spec:ExecutableTask ;
+  spec:taskId "T002" ;
+  spec:taskOrder 2 ;
+  spec:title "Create test infrastructure directories" ;
+  spec:description "Set up directory structure for test fixtures, helpers, and test data" ;
+  spec:filePath "crates/ggen-core/tests/" ;
+  spec:action "Create directories: tests/common/, tests/fixtures/, tests/evidence/" ;
+  spec:acceptance "All directories exist and are empty, ready for test files" ;
+  spec:depends_on "T001" ;
+  spec:parallelizable false .
+
+:setup-003 a spec:ExecutableTask ;
+  spec:taskId "T003" ;
+  spec:taskOrder 3 ;
+  spec:title "Create ggen.toml and ontology test fixtures" ;
+  spec:description "Create minimal but valid test fixtures for ggen.toml configuration and RDF ontologies" ;
+  spec:filePath "crates/ggen-core/tests/fixtures/" ;
+  spec:action "Create: minimal.ttl (valid RDF), minimal.toml (valid ggen config), template.tera (test template)" ;
+  spec:acceptance "All fixtures are valid and can be loaded by test code" ;
+  spec:depends_on "T002" ;
+  spec:parallelizable false .
+
+# ============================================================================
+# PHASE 2: FOUNDATION (P0 - Blocking Prerequisites)
+# ============================================================================
+
+:phase-002-foundation a spec:TaskPhase ;
+  rdfs:label "Phase 2: Foundation Tasks (Blocking Prerequisites)" ;
+  spec:phaseOrder 2 ;
+  spec:phaseStatus "pending" ;
+  spec:estimatedDuration "PT2H" ;
+  spec:description "Implement blocking infrastructure needed for all features (test helpers, error types, audit module)" ;
+  spec:blockingPhase true ;
+  spec:hasTasks :found-001, :found-002, :found-003, :found-004 .
+
+:found-001 a spec:ExecutableTask ;
+  spec:taskId "T004" ;
+  spec:taskOrder 4 ;
+  spec:title "Create test helper and fixture loader module" ;
+  spec:description "Implement common test utilities: fixture loading, temp directory management, assertion helpers" ;
+  spec:filePath "crates/ggen-core/tests/common/mod.rs" ;
+  spec:action "Create module with: load_fixture(name), TestEnv struct, TempDir wrapper, assert_file_exists helpers" ;
+  spec:acceptance "Test module compiles, provides reusable utilities for test code" ;
+  spec:depends_on "T003" ;
+  spec:parallelizable false .
+
+:found-002 a spec:ExecutableTask ;
+  spec:taskId "T005" ;
+  spec:taskOrder 5 ;
+  spec:title "Create AuditTrail struct and serialization foundation" ;
+  spec:description "Define AuditTrail data structure with all metadata fields, serialization to JSON" ;
+  spec:filePath "crates/ggen-core/src/audit/mod.rs" ;
+  spec:action "Create: AuditTrail struct (timestamp, rules_executed, files_changed, checksums), serialize_json() method" ;
+  spec:acceptance "Struct defined, can be instantiated and serialized to valid JSON" ;
+  spec:depends_on "T001" ;
+  spec:parallelizable false .
+
+:found-003 a spec:ExecutableTask ;
+  spec:taskId "T006" ;
+  spec:taskOrder 6 ;
+  spec:title "Add audit module to ggen-core lib.rs" ;
+  spec:description "Wire audit module into workspace, export public API" ;
+  spec:filePath "crates/ggen-core/src/lib.rs" ;
+  spec:action "Add: mod audit; pub use audit::*;" ;
+  spec:acceptance "Module accessible from ggen-core, no compilation errors" ;
+  spec:depends_on "T005" ;
+  spec:parallelizable false .
+
+:found-004 a spec:ExecutableTask ;
+  spec:taskId "T007" ;
+  spec:taskOrder 7 ;
+  spec:title "Review and document SyncExecutor interface" ;
+  spec:description "Understand current SyncExecutor struct, document expected integration points for audit/flags/merge" ;
+  spec:filePath "crates/ggen-core/src/codegen/executor.rs" ;
+  spec:action "Read executor.rs, document: execute() signature, where flags are checked, where files are written" ;
+  spec:acceptance "Documentation added as comments, architecture integration points identified" ;
+  spec:depends_on "T001" ;
+  spec:parallelizable false .
+
+# ============================================================================
+# PHASE 3: USER STORY 1 - Fix Critical Gaps (P0)
+# ============================================================================
+
+:phase-003-phase1-tasks a spec:TaskPhase ;
+  rdfs:label "Phase 3: User Story 1 - Fix Critical Implementation Gaps (P0)" ;
+  spec:phaseOrder 3 ;
+  spec:phaseStatus "pending" ;
+  spec:linkedStory "us-001-fix-critical-gaps" ;
+  spec:estimatedDuration "PT8H" ;
+  spec:description "Implement audit trail writing, force flag logic, establish test scaffold; achieve ~4 day estimate" ;
+  spec:blockingPhase false ;
+  spec:hasTasks :us1-001, :us1-002, :us1-003, :us1-004, :us1-005, :us1-006, :us1-007 .
+
+:us1-001 a spec:ExecutableTask ;
+  spec:taskId "T008" ;
+  spec:taskOrder 8 ;
+  spec:title "[US1] Implement AuditTrailWriter for JSON serialization" ;
+  spec:description "Create AuditTrailWriter struct with write() method to output JSON to file" ;
+  spec:filePath "crates/ggen-core/src/audit/writer.rs" ;
+  spec:action "Implement: AuditTrailWriter::new(path), write(audit_trail) -> Result<(), Error>" ;
+  spec:acceptance "Compiles, writes valid JSON files, handles file I/O errors gracefully" ;
+  spec:testId "audit-001" ;
+  spec:depends_on "T005" ;
+  spec:parallelizable true ;
+  spec:linkedFeature :fr-001-audit-trail ;
+  spec:linkedScenario :as-001-audit-trail-created .
+
+:us1-002 a spec:ExecutableTask ;
+  spec:taskId "T009" ;
+  spec:taskOrder 9 ;
+  spec:title "[US1] Wire audit trail writing into SyncExecutor" ;
+  spec:description "Integrate AuditTrailWriter into execute() flow, track metadata during generation" ;
+  spec:filePath "crates/ggen-core/src/codegen/executor.rs" ;
+  spec:action "Add to SyncExecutor: audit_enabled flag, track_metadata() calls during generation, write_audit() on completion" ;
+  spec:acceptance "Audit metadata collected during sync, write_audit() called when --audit flag is set" ;
+  spec:testId "audit-002" ;
+  spec:depends_on "T007" ;
+  spec:parallelizable false ;
+  spec:linkedFeature :fr-001-audit-trail .
+
+:us1-003 a spec:ExecutableTask ;
+  spec:taskId "T010" ;
+  spec:taskOrder 10 ;
+  spec:title "[US1] Add --audit flag to CLI and wire to executor" ;
+  spec:description "Parse --audit flag in ggen-cli/src/sync.rs, pass to SyncExecutor" ;
+  spec:filePath "crates/ggen-cli/src/sync.rs" ;
+  spec:action "Add flag parsing: if args.contains('--audit') then executor.enable_audit()" ;
+  spec:acceptance "--audit flag recognized, passed to executor, audit.json written" ;
+  spec:testId "audit-003" ;
+  spec:depends_on "T009" ;
+  spec:parallelizable false ;
+  spec:linkedFeature :fr-001-audit-trail .
+
+:us1-004 a spec:ExecutableTask ;
+  spec:taskId "T011" ;
+  spec:taskOrder 11 ;
+  spec:title "[US1] Implement force flag override logic in executor" ;
+  spec:description "Check --force flag before protected_paths evaluation, bypass protection if set" ;
+  spec:filePath "crates/ggen-core/src/codegen/executor.rs" ;
+  spec:action "Add: if force_flag { skip_protected_paths_check() } else { check_protected_paths() }" ;
+  spec:acceptance "Protected files bypassed with --force, protected without --force" ;
+  spec:testId "force-001" ;
+  spec:depends_on "T007" ;
+  spec:parallelizable false ;
+  spec:linkedFeature :fr-002-force-flag ;
+  spec:linkedScenario :as-002-force-flag-works .
+
+:us1-005 a spec:ExecutableTask ;
+  spec:taskId "T012" ;
+  spec:taskOrder 12 ;
+  spec:title "[US1] Add --force flag to CLI and wire to executor" ;
+  spec:description "Parse --force flag in ggen-cli/src/sync.rs, pass to SyncExecutor" ;
+  spec:filePath "crates/ggen-cli/src/sync.rs" ;
+  spec:action "Add flag parsing: if args.contains('--force') then executor.enable_force()" ;
+  spec:acceptance "--force flag recognized, passed to executor, protected files overwritten" ;
+  spec:testId "force-002" ;
+  spec:depends_on "T011" ;
+  spec:parallelizable false ;
+  spec:linkedFeature :fr-002-force-flag .
+
+:us1-006 a spec:ExecutableTask ;
+  spec:taskId "T013" ;
+  spec:taskOrder 13 ;
+  spec:title "[US1] Create audit trail integration tests" ;
+  spec:description "Test audit.json creation, structure validation, metadata accuracy (Chicago TDD)" ;
+  spec:filePath "crates/ggen-core/tests/audit_trail_tests.rs" ;
+  spec:action "Create: test_audit_json_created, test_audit_contains_metadata, test_audit_valid_json" ;
+  spec:acceptance "All tests pass, audit.json validated as correct JSON with expected fields" ;
+  spec:testId "audit-tests-001" ;
+  spec:depends_on "T004, T010" ;
+  spec:parallelizable true ;
+  spec:linkedFeature :fr-001-audit-trail .
+
+:us1-007 a spec:ExecutableTask ;
+  spec:taskId "T014" ;
+  spec:taskOrder 14 ;
+  spec:title "[US1] Create force flag integration tests" ;
+  spec:description "Test --force flag behavior with protected and non-protected files (Chicago TDD)" ;
+  spec:filePath "crates/ggen-core/tests/force_flag_tests.rs" ;
+  spec:action "Create: test_protected_without_force, test_protected_with_force, test_non_protected" ;
+  spec:acceptance "All tests pass, force flag correctly overrides protection" ;
+  spec:testId "force-tests-001" ;
+  spec:depends_on "T004, T012" ;
+  spec:parallelizable true ;
+  spec:linkedFeature :fr-002-force-flag .
+
+# ============================================================================
+# PHASE 4: USER STORY 2 - Implement Missing Features (P1)
+# ============================================================================
+
+:phase-004-phase2-tasks a spec:TaskPhase ;
+  rdfs:label "Phase 4: User Story 2 - Implement Missing Advertised Features (P1)" ;
+  spec:phaseOrder 4 ;
+  spec:phaseStatus "pending" ;
+  spec:linkedStory "us-002-implement-missing-features" ;
+  spec:estimatedDuration "PT12H" ;
+  spec:description "Implement merge mode, watch mode, conditional execution; achieve ~2 day estimate" ;
+  spec:blockingPhase false ;
+  spec:hasTasks :us2-001, :us2-002, :us2-003, :us2-004, :us2-005, :us2-006 .
+
+:us2-001 a spec:ExecutableTask ;
+  spec:taskId "T015" ;
+  spec:taskOrder 15 ;
+  spec:title "[US2] Create merge.rs with marker detection regex" ;
+  spec:description "Implement regex patterns for git-style merge markers and merge region parsing" ;
+  spec:filePath "crates/ggen-core/src/codegen/merge.rs" ;
+  spec:action "Create: parse_merge_markers(content) -> Option<MergeRegions>, merge_sections(generated, manual) -> String" ;
+  spec:acceptance "Compiles, correctly identifies merge markers and regions" ;
+  spec:testId "merge-001" ;
+  spec:depends_on "T007" ;
+  spec:parallelizable false ;
+  spec:linkedFeature :fr-003-merge-mode ;
+  spec:linkedScenario :as-003-merge-mode-intelligent .
+
+:us2-002 a spec:ExecutableTask ;
+  spec:taskId "T016" ;
+  spec:taskOrder 16 ;
+  spec:title "[US2] Wire merge mode logic into file write path" ;
+  spec:description "Integrate merge module into executor, apply merge when mode='Merge'" ;
+  spec:filePath "crates/ggen-core/src/codegen/executor.rs" ;
+  spec:action "Add: if file_exists && mode == Merge { merge_sections() } else { write_file() }" ;
+  spec:acceptance "Merge logic executes, manual sections preserved, generated sections injected" ;
+  spec:testId "merge-002" ;
+  spec:depends_on "T015" ;
+  spec:parallelizable false ;
+  spec:linkedFeature :fr-003-merge-mode .
+
+:us2-003 a spec:ExecutableTask ;
+  spec:taskId "T017" ;
+  spec:taskOrder 17 ;
+  spec:title "[US2] Create watch.rs with file monitoring and debounce" ;
+  spec:description "Implement FileWatcher with notify crate, 300ms debounce, bounded event queue" ;
+  spec:filePath "crates/ggen-core/src/codegen/watch.rs" ;
+  spec:action "Create: FileWatcher::new(paths), start_monitoring(), debounce(300ms), bounded_queue(10)" ;
+  spec:acceptance "Compiles, watches files, debounces rapid changes, queues events" ;
+  spec:testId "watch-001" ;
+  spec:depends_on "T001" ;
+  spec:parallelizable true ;
+  spec:linkedFeature :fr-004-watch-mode ;
+  spec:linkedScenario :as-004-watch-mode-monitors .
+
+:us2-004 a spec:ExecutableTask ;
+  spec:taskId "T018" ;
+  spec:taskOrder 18 ;
+  spec:title "[US2] Wire watch mode into CLI and event loop" ;
+  spec:description "Integrate FileWatcher into ggen-cli/src/sync.rs, run sync on change events" ;
+  spec:filePath "crates/ggen-cli/src/sync.rs" ;
+  spec:action "Add: if args.contains('--watch') { watcher.start() } then loop { on_event: executor.sync() }" ;
+  spec:acceptance "--watch flag starts monitoring, sync triggered on file changes" ;
+  spec:testId "watch-002" ;
+  spec:depends_on "T017" ;
+  spec:parallelizable false ;
+  spec:linkedFeature :fr-004-watch-mode .
+
+:us2-005 a spec:ExecutableTask ;
+  spec:taskId "T019" ;
+  spec:taskOrder 19 ;
+  spec:title "[US2] Implement conditional rule execution with SPARQL ASK" ;
+  spec:description "Evaluate SPARQL ASK queries from rule 'when' field, skip rule if false" ;
+  spec:filePath "crates/ggen-core/src/codegen/executor.rs" ;
+  spec:action "Add: for each rule { if rule.when { when_result = sparql_ask(rule.when); if !when_result { skip_rule() } } }" ;
+  spec:acceptance "Rules with 'when' clause evaluate SPARQL, rules skipped on false result" ;
+  spec:testId "conditional-001" ;
+  spec:depends_on "T007" ;
+  spec:parallelizable false ;
+  spec:linkedFeature :fr-005-conditional-execution ;
+  spec:linkedScenario :as-005-conditional-rules .
+
+:us2-006 a spec:ExecutableTask ;
+  spec:taskId "T020" ;
+  spec:taskOrder 20 ;
+  spec:title "[US2] Create integration tests for merge, watch, conditional" ;
+  spec:description "Test merge mode marker preservation, watch mode debounce, conditional rule skipping" ;
+  spec:filePath "crates/ggen-core/tests/integration_us2_tests.rs" ;
+  spec:action "Create: test_merge_preserves_manual, test_watch_debounces, test_conditional_skip_rule" ;
+  spec:acceptance "All tests pass, features work as specified" ;
+  spec:testId "us2-tests-001" ;
+  spec:depends_on "T004, T016, T018, T019" ;
+  spec:parallelizable true ;
+  spec:linkedFeature :fr-003-merge-mode, :fr-004-watch-mode, :fr-005-conditional-execution .
+
+# ============================================================================
+# PHASE 5: USER STORY 3 - Production Hardening and Testing (P1)
+# ============================================================================
+
+:phase-005-phase3-tasks a spec:TaskPhase ;
+  rdfs:label "Phase 5: User Story 3 - Production Hardening and Testing (P1)" ;
+  spec:phaseOrder 5 ;
+  spec:phaseStatus "pending" ;
+  spec:linkedStory "us-003-production-hardening" ;
+  spec:estimatedDuration "PT8H" ;
+  spec:description "Comprehensive test suite with 95%+ coverage for all features" ;
+  spec:blockingPhase false ;
+  spec:hasTasks :us3-001, :us3-002, :us3-003, :us3-004, :us3-005, :us3-006, :us3-007, :us3-008 .
+
+:us3-001 a spec:ExecutableTask ;
+  spec:taskId "T021" ;
+  spec:taskOrder 21 ;
+  spec:title "[US3] Create comprehensive audit trail tests" ;
+  spec:description "Unit and integration tests for audit.json creation, structure, metadata accuracy" ;
+  spec:filePath "crates/ggen-core/tests/audit_trail_comprehensive.rs" ;
+  spec:action "Create AAA-pattern tests: test_audit_json_structure, test_metadata_complete, test_checksums_valid, test_error_handling" ;
+  spec:acceptance "All tests pass, 95%+ coverage for audit module" ;
+  spec:testId "audit-coverage-001" ;
+  spec:depends_on "T006, T013" ;
+  spec:parallelizable true ;
+  spec:linkedFeature :fr-001-audit-trail .
+
+:us3-002 a spec:ExecutableTask ;
+  spec:taskId "T022" ;
+  spec:taskOrder 22 ;
+  spec:title "[US3] Create force flag edge case tests" ;
+  spec:description "Test all flag combinations, edge cases (read-only files, circular dependencies, etc.)" ;
+  spec:filePath "crates/ggen-core/tests/force_flag_comprehensive.rs" ;
+  spec:action "Create AAA-pattern tests: test_force_with_read_only, test_force_interactive, test_force_with_merge, test_error_cases" ;
+  spec:acceptance "All tests pass, 95%+ coverage for force flag logic" ;
+  spec:testId "force-coverage-001" ;
+  spec:depends_on "T004, T014" ;
+  spec:parallelizable true ;
+  spec:linkedFeature :fr-002-force-flag .
+
+:us3-003 a spec:ExecutableTask ;
+  spec:taskId "T023" ;
+  spec:taskOrder 23 ;
+  spec:title "[US3] Create merge mode comprehensive tests" ;
+  spec:description "Test marker edge cases, nested markers, malformed markers, partial markers" ;
+  spec:filePath "crates/ggen-core/tests/merge_mode_comprehensive.rs" ;
+  spec:action "Create AAA-pattern tests: test_marker_variations, test_nested_markers, test_malformed_handling, test_performance" ;
+  spec:acceptance "All tests pass, 95%+ coverage for merge module" ;
+  spec:testId "merge-coverage-001" ;
+  spec:depends_on "T004, T015" ;
+  spec:parallelizable true ;
+  spec:linkedFeature :fr-003-merge-mode .
+
+:us3-004 a spec:ExecutableTask ;
+  spec:taskId "T024" ;
+  spec:taskOrder 24 ;
+  spec:title "[US3] Create watch mode debounce and performance tests" ;
+  spec:description "Test debounce timing, queue behavior, event ordering, resource cleanup" ;
+  spec:filePath "crates/ggen-core/tests/watch_mode_comprehensive.rs" ;
+  spec:action "Create AAA-pattern tests: test_debounce_timing, test_queue_overflow, test_event_order, test_cleanup" ;
+  spec:acceptance "All tests pass, debounce ≤ 300ms verified, queue bounded correctly" ;
+  spec:testId "watch-coverage-001" ;
+  spec:depends_on "T004, T017" ;
+  spec:parallelizable true ;
+  spec:linkedFeature :fr-004-watch-mode .
+
+:us3-005 a spec:ExecutableTask ;
+  spec:taskId "T025" ;
+  spec:taskOrder 25 ;
+  spec:title "[US3] Create conditional execution SPARQL tests" ;
+  spec:description "Test SPARQL evaluation, malformed queries, missing when field, rule skipping" ;
+  spec:filePath "crates/ggen-core/tests/conditional_execution_comprehensive.rs" ;
+  spec:action "Create AAA-pattern tests: test_sparql_true_execute, test_sparql_false_skip, test_malformed_query, test_missing_when" ;
+  spec:acceptance "All tests pass, 95%+ coverage for conditional module" ;
+  spec:testId "conditional-coverage-001" ;
+  spec:depends_on "T004, T019" ;
+  spec:parallelizable true ;
+  spec:linkedFeature :fr-005-conditional-execution .
+
+:us3-006 a spec:ExecutableTask ;
+  spec:taskId "T026" ;
+  spec:taskOrder 26 ;
+  spec:title "[US3] Create validation rule tests" ;
+  spec:description "Test validation rules execution, SPARQL validation, severity handling" ;
+  spec:filePath "crates/ggen-core/tests/validation_comprehensive.rs" ;
+  spec:action "Create AAA-pattern tests: test_validation_pass, test_validation_fail, test_severity_error_blocks, test_severity_warning_continues" ;
+  spec:acceptance "All tests pass, validation rules execute correctly" ;
+  spec:testId "validation-coverage-001" ;
+  spec:depends_on "T004" ;
+  spec:parallelizable true ;
+  spec:linkedFeature :fr-006-validation-rules .
+
+:us3-007 a spec:ExecutableTask ;
+  spec:taskId "T027" ;
+  spec:taskOrder 27 ;
+  spec:title "[US3] Run full test suite and measure coverage" ;
+  spec:description "Execute all tests, measure code coverage for codegen module, identify gaps" ;
+  spec:filePath "crates/ggen-core/" ;
+  spec:action "Run 'cargo make test' to verify all tests pass, then 'cargo make coverage' to measure crates/ggen-core/src/codegen/" ;
+  spec:acceptance "All tests pass 100%, coverage >= 95% for codegen module, gaps identified and documented" ;
+  spec:testId "coverage-001" ;
+  spec:depends_on "T021, T022, T023, T024, T025, T026" ;
+  spec:parallelizable false .
+
+:us3-008 a spec:ExecutableTask ;
+  spec:taskId "T028" ;
+  spec:taskOrder 28 ;
+  spec:title "[US3] Fix coverage gaps identified in testing phase" ;
+  spec:description "Add tests for any code paths not covered; re-run to verify 95%+ coverage" ;
+  spec:filePath "crates/ggen-core/tests/" ;
+  spec:action "Based on T027 coverage report, add tests for missing paths, re-run coverage until >= 95%" ;
+  spec:acceptance "Coverage >= 95% verified, all critical paths have tests" ;
+  spec:testId "coverage-fix-001" ;
+  spec:depends_on "T027" ;
+  spec:parallelizable false .
+
+# ============================================================================
+# PHASE 6: HARDENING (P2)
+# ============================================================================
+
+:phase-006-phase4-tasks a spec:TaskPhase ;
+  rdfs:label "Phase 6: Production Hardening (P2)" ;
+  spec:phaseOrder 6 ;
+  spec:phaseStatus "pending" ;
+  spec:estimatedDuration "PT10H" ;
+  spec:description "SHACL validation, SPARQL validation rules, error handling, performance optimization" ;
+  spec:blockingPhase false ;
+  spec:hasTasks :hard-001, :hard-002, :hard-003, :hard-004 .
+
+:hard-001 a spec:ExecutableTask ;
+  spec:taskId "T029" ;
+  spec:taskOrder 29 ;
+  spec:title "Implement SHACL validation in validation pipeline" ;
+  spec:description "Execute SHACL shape validation before code generation" ;
+  spec:filePath "crates/ggen-core/src/validation/shacl.rs" ;
+  spec:action "Create: validate_with_shacl(ontology, shapes) -> Result<(), ValidationError>" ;
+  spec:acceptance "SHACL validation executes, rejects invalid specs, provides clear error messages" ;
+  spec:testId "shacl-001" ;
+  spec:depends_on "T001" ;
+  spec:parallelizable true ;
+  spec:linkedFeature :fr-007-shacl-validation .
+
+:hard-002 a spec:ExecutableTask ;
+  spec:taskId "T030" ;
+  spec:taskOrder 30 ;
+  spec:title "Implement SPARQL validation rules execution" ;
+  spec:description "Execute SPARQL validation rules post-generation, fail-fast on severity=error" ;
+  spec:filePath "crates/ggen-core/src/validation/sparql_rules.rs" ;
+  spec:action "Create: execute_validation_rules(output, rules) -> Result<(), ValidationError>" ;
+  spec:acceptance "Validation rules execute post-generation, severity=error blocks, severity=warning continues" ;
+  spec:testId "sparql-validation-001" ;
+  spec:depends_on "T001" ;
+  spec:parallelizable true ;
+  spec:linkedFeature :fr-006-validation-rules .
+
+:hard-003 a spec:ExecutableTask ;
+  spec:taskId "T031" ;
+  spec:taskOrder 31 ;
+  spec:title "Improve error messages with context and guidance" ;
+  spec:description "Add file paths, line numbers, suggested fixes to error messages" ;
+  spec:filePath "crates/ggen-core/src/error/mod.rs" ;
+  spec:action "Enhance error types: add file_path, line_number, suggestion fields; format error output to include context" ;
+  spec:acceptance "Error messages include file paths, guidance, are helpful to users" ;
+  spec:testId "error-messages-001" ;
+  spec:depends_on "T001" ;
+  spec:parallelizable true .
+
+:hard-004 a spec:ExecutableTask ;
+  spec:taskId "T032" ;
+  spec:taskOrder 32 ;
+  spec:title "Create performance benchmarks and verify SLOs" ;
+  spec:description "Benchmark sync pipeline for 100-rule manifests, 10k-triple ontologies; verify SLOs met" ;
+  spec:filePath "benches/ggen_benchmarks.rs" ;
+  spec:action "Create benchmarks: bench_100_rules, bench_10k_triples, bench_e2e_sync; verify < 5s for 100 rules" ;
+  spec:acceptance "Benchmarks run, all SLOs met (100 rules < 5s, 10k triples < 10s)" ;
+  spec:testId "perf-001" ;
+  spec:depends_on "T001" ;
+  spec:parallelizable true .
+
+# ============================================================================
+# PHASE 7: RELEASE (P3)
+# ============================================================================
+
+:phase-007-phase5-tasks a spec:TaskPhase ;
+  rdfs:label "Phase 7: Release Preparation (P3)" ;
+  spec:phaseOrder 7 ;
+  spec:phaseStatus "pending" ;
+  spec:estimatedDuration "PT4H" ;
+  spec:description "Documentation, CLI help text, release testing, publication" ;
+  spec:blockingPhase false ;
+  spec:hasTasks :rel-001, :rel-002, :rel-003, :rel-004 .
+
+:rel-001 a spec:ExecutableTask ;
+  spec:taskId "T033" ;
+  spec:taskOrder 33 ;
+  spec:title "Create user documentation for new features" ;
+  spec:description "Document audit trail, force flag, merge mode, watch mode, conditional execution for end users" ;
+  spec:filePath "docs/features/audit-trail.md, docs/features/merge-mode.md, docs/features/watch-mode.md, docs/features/conditional-execution.md" ;
+  spec:action "Write: usage examples, CLI flag reference, workflow guides for each feature" ;
+  spec:acceptance "Documentation is clear, examples are accurate and runnable" ;
+  spec:testId "docs-001" ;
+  spec:depends_on "T028" ;
+  spec:parallelizable true ;
+  spec:linkedFeature :fr-001-audit-trail, :fr-002-force-flag, :fr-003-merge-mode, :fr-004-watch-mode, :fr-005-conditional-execution .
+
+:rel-002 a spec:ExecutableTask ;
+  spec:taskId "T034" ;
+  spec:taskOrder 34 ;
+  spec:title "Update CLI help text for all new flags" ;
+  spec:description "Add comprehensive help text for --audit, --force, --watch, --merge, --validate-only flags" ;
+  spec:filePath "crates/ggen-cli/src/sync.rs" ;
+  spec:action "Update help strings: flag description, usage examples, related flags, constraints" ;
+  spec:acceptance "'ggen sync --help' shows all flags with clear descriptions and examples" ;
+  spec:testId "cli-help-001" ;
+  spec:depends_on "T010, T012, T018, T016" ;
+  spec:parallelizable true .
+
+:rel-003 a spec:ExecutableTask ;
+  spec:taskId "T035" ;
+  spec:taskOrder 35 ;
+  spec:title "Final end-to-end testing and QA" ;
+  spec:description "Test complete workflows with combinations of all flags, real-world scenarios" ;
+  spec:filePath "tests/integration/e2e_v510.rs" ;
+  spec:action "Create: e2e_audit_plus_merge, e2e_watch_with_conditional, e2e_all_flags_combined" ;
+  spec:acceptance "All workflows complete successfully, no regressions, handles error cases gracefully" ;
+  spec:testId "e2e-001" ;
+  spec:depends_on "T028" ;
+  spec:parallelizable true .
+
+:rel-004 a spec:ExecutableTask ;
+  spec:taskId "T036" ;
+  spec:taskOrder 36 ;
+  spec:title "Prepare v5.1.0 release: bump version, tag, publish to crates.io" ;
+  spec:description "Update version numbers, create git tag, publish crate to crates.io" ;
+  spec:filePath "Cargo.toml, CHANGELOG.md" ;
+  spec:action "Update: Cargo.toml version to 5.1.0, create CHANGELOG.md, git tag v5.1.0, cargo publish" ;
+  spec:acceptance "v5.1.0 published to crates.io, git tag created, CHANGELOG documents all changes" ;
+  spec:testId "release-001" ;
+  spec:depends_on "T033, T034, T035" ;
+  spec:parallelizable false .
+
+# ============================================================================
+# Task Dependencies and Parallelization Opportunities
+# ============================================================================
+
+:parallel-group-01 a spec:ParallelizationGroup ;
+  rdfs:label "Audit Trail Foundation" ;
+  spec:tasks :us1-001, :us1-002 ;
+  spec:rationale "AuditTrailWriter (T008) and SyncExecutor integration (T009) can proceed independently" .
+
+:parallel-group-02 a spec:ParallelizationGroup ;
+  rdfs:label "Feature Tests (After Core Implementation)" ;
+  spec:tasks :us1-006, :us1-007, :us2-006 ;
+  spec:rationale "Test modules (T013, T014, T020) can be written in parallel after core features done" .
+
+:parallel-group-03 a spec:ParallelizationGroup ;
+  rdfs:label "Feature Watch/Conditional Parallel" ;
+  spec:tasks :us2-003, :us2-005 ;
+  spec:rationale "Watch mode (T017) and conditional execution (T019) are independent, can proceed in parallel" .
+
+:parallel-group-04 a spec:ParallelizationGroup ;
+  rdfs:label "Comprehensive Testing Phase" ;
+  spec:tasks :us3-001, :us3-002, :us3-003, :us3-004, :us3-005, :us3-006 ;
+  spec:rationale "All coverage tests (T021-T026) can run in parallel, aggregate at coverage measurement (T027)" .
+
+:parallel-group-05 a spec:ParallelizationGroup ;
+  rdfs:label "Hardening Tasks" ;
+  spec:tasks :hard-001, :hard-002, :hard-003, :hard-004 ;
+  spec:rationale "All hardening tasks (T029-T032) can proceed in parallel, independent modules" .
+
+:parallel-group-06 a spec:ParallelizationGroup ;
+  rdfs:label "Release Documentation" ;
+  spec:tasks :rel-001, :rel-002, :rel-003 ;
+  spec:rationale "User docs (T033), CLI help (T034), and e2e testing (T035) can proceed in parallel" .
+
+# ============================================================================
+# Task Statistics and Metadata
+# ============================================================================
+
+:task-statistics a spec:TaskStatistics ;
+  spec:totalTasks 36 ;
+  spec:setupTasks 3 ;
+  spec:foundationTasks 4 ;
+  spec:story1Tasks 7 ;
+  spec:story2Tasks 6 ;
+  spec:story3Tasks 8 ;
+  spec:hardeningTasks 4 ;
+  spec:releaseTasks 4 ;
+  spec:parallelizableTasks 22 ;
+  spec:criticalPathTasks 14 ;
+  spec:estimatedTotalDuration "PT45H" ;
+  spec:criticalPathDuration "PT28H" ;
+  spec:accelerationFactor "1.6x via parallelization" .
+
+:implementation-strategy a spec:ImplementationStrategy ;
+  rdfs:label "Implementation Strategy: MVP-First Incremental Delivery" ;
+  rdfs:comment "Start with Phase 3 (audit + force), add features incrementally, test comprehensively, harden, release" ;
+  spec:phase1_focus "Critical gaps: audit trail, force flag, test scaffold" ;
+  spec:phase2_focus "Missing features: merge, watch, conditional (Phase 1-2 users)" ;
+  spec:phase3_focus "Comprehensive testing: achieve 95%+ coverage" ;
+  spec:phase4_focus "Production hardening: validation, error handling, performance" ;
+  spec:phase5_focus "Release: documentation, help text, publication" ;
+  spec:testingApproach "Chicago School TDD: Arrange-Act-Assert pattern, observable state verification" ;
+  spec:deliveryModel "Feature-complete by Phase 5: all advertised features working" .
