@@ -42,8 +42,8 @@ brew install seanchatmangpt/ggen/ggen  # Installs in 1 second on arm64!
 **Via Docker** - No installation required:
 
 ```bash
-docker pull seanchatman/ggen:5.0.0
-docker run --rm -v $(pwd):/workspace seanchatman/ggen:5.0.0 sync
+docker pull seanchatman/ggen:5.0.1
+docker run --rm -v $(pwd):/workspace seanchatman/ggen:5.0.1 sync
 ```
 
 **Via Cargo**:
@@ -55,10 +55,10 @@ cargo install ggen-cli-lib
 **Verify installation**:
 
 ```bash
-ggen --version  # Should show: ggen 5.0.0
+ggen --version  # Should show: ggen 5.0.1
 
 # Or with Docker
-docker run --rm seanchatman/ggen:5.0.0 --version
+docker run --rm seanchatman/ggen:5.0.1 --version
 ```
 
 ### Your First Sync (5 minutes)
@@ -155,7 +155,7 @@ ggen sync --from crates/domain --to crates/domain/src/generated.rs
 **Basic usage** (mount current directory):
 
 ```bash
-docker run --rm -v $(pwd):/workspace seanchatman/ggen:5.0.0 sync
+docker run --rm -v $(pwd):/workspace seanchatman/ggen:5.0.1 sync
 ```
 
 **With docker compose** (`docker-compose.yml`):
@@ -164,7 +164,7 @@ docker run --rm -v $(pwd):/workspace seanchatman/ggen:5.0.0 sync
 version: '3.8'
 services:
   ggen:
-    image: seanchatman/ggen:5.0.0
+    image: seanchatman/ggen:5.0.1
     volumes:
       - .:/workspace
     command: sync
@@ -177,7 +177,7 @@ docker compose run --rm ggen sync
 **Interactive shell**:
 
 ```bash
-docker run --rm -it -v $(pwd):/workspace seanchatman/ggen:5.0.0 bash
+docker run --rm -it -v $(pwd):/workspace seanchatman/ggen:5.0.1 bash
 ggen sync  # Inside container
 ```
 
@@ -281,7 +281,7 @@ repository = "https://github.com/yourname/awesome-templates"
 templates = ["api-client.tera", "server-stubs.tera"]
 
 [dependencies]
-requires = ["ggen >= 5.0.0"]
+requires = ["ggen >= 5.0.1"]
 ```
 
 Then publish:

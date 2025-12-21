@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.1] - 2025-12-21
+
+### Added
+
+#### Node.js Bindings (PR #101)
+- **Node.js bindings via TOML/Tera/Turtle**: Complete JavaScript/TypeScript integration
+  - Load and parse `ggen.toml` configuration from Node.js
+  - Execute Tera template rendering with full feature parity
+  - Process Turtle (.ttl) ontology files with RDF support
+  - Native performance through NAPI-RS bindings
+  - TypeScript type definitions included
+
+### Changed
+
+- **V6 ontology-first output**: Updated test infrastructure for ttl/tera output format
+  - Tests now validate ontology-first code generation pipeline
+  - Improved test determinism for generated artifacts
+
+### Fixed
+
+- **gitignore**: Removed binary and runtime artifacts from tracking
+  - Cleaned up repository to exclude compiled binaries
+  - Prevented accidental commits of build artifacts
+
+### Technical Details
+
+- **Version**: 5.0.1
+- **Node.js bindings**: Full TOML, Tera, and Turtle support via ggen-node crate
+- **Breaking Changes**: None
+- **Backward Compatibility**: 100% compatible with 5.0.0
+
+---
+
 ### Removed
 - **Markdown files cleanup**: Deleted 202+ obsolete markdown files (preserved in git history):
   - Deleted all files in `docs/archive/` (137 files) - Already archived historical documents

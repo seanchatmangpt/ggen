@@ -1,4 +1,4 @@
-# ggen v5.0.0 Deployment Status
+# ggen v5.0.1 Deployment Status
 
 ## ✅ Completed Deployments
 
@@ -6,18 +6,18 @@
 **Status**: LIVE
 
 All 15 workspace crates + root crate published to crates.io:
-- ggen v5.0.0
-- ggen-cli-lib v5.0.0
-- ggen-core v5.0.0
-- ggen-domain v5.0.0
-- ggen-config v5.0.0
-- ggen-ai v5.0.0
-- ggen-marketplace v5.0.0
-- ggen-dod v5.0.0
-- ggen-test-audit v5.0.0
-- ggen-test-opt v5.0.0
+- ggen v5.0.1
+- ggen-cli-lib v5.0.1
+- ggen-core v5.0.1
+- ggen-domain v5.0.1
+- ggen-config v5.0.1
+- ggen-ai v5.0.1
+- ggen-marketplace v5.0.1
+- ggen-dod v5.0.1
+- ggen-test-audit v5.0.1
+- ggen-test-opt v5.0.1
 - ggen-e2e v0.1.0
-- ggen-node v5.0.0
+- ggen-node v5.0.1
 - (and 4 others)
 
 **Installation**:
@@ -29,7 +29,7 @@ cargo install ggen-cli-lib
 ```bash
 ❯ cargo install ggen-cli-lib
     Updating crates.io index
-     Ignored package `ggen-cli-lib v5.0.0` is already installed
+     Ignored package `ggen-cli-lib v5.0.1` is already installed
 ```
 
 ### 2. Homebrew Tap ✅
@@ -37,10 +37,10 @@ cargo install ggen-cli-lib
 
 **Repository**: https://github.com/seanchatmangpt/homebrew-ggen
 
-**Formula**: `Formula/ggen.rb` v5.0.0
+**Formula**: `Formula/ggen.rb` v5.0.1
 - ✅ Binary installation for macOS arm64 (1 second install!)
 - ✅ Source compilation fallback for other platforms
-- ✅ GitHub release binary at `https://github.com/seanchatmangpt/ggen/releases/download/v5.0.0/ggen-5.0.0-aarch64-apple-darwin.tar.gz`
+- ✅ GitHub release binary at `https://github.com/seanchatmangpt/ggen/releases/download/v5.0.1/ggen-5.0.1-aarch64-apple-darwin.tar.gz`
 
 **Installation**:
 ```bash
@@ -51,20 +51,19 @@ brew install seanchatmangpt/ggen/ggen
 ```bash
 ❯ brew upgrade seanchatmangpt/ggen/ggen
 ==> Upgrading 1 outdated package:
-seanchatmangpt/ggen/ggen 4.0.0 -> 5.0.0
-==> Downloading https://github.com/seanchatmangpt/ggen/releases/download/v5.0.0/ggen-5.0.0-aarch64-apple-darwin.tar.gz
+seanchatmangpt/ggen/ggen 5.0.0 -> 5.0.1
+==> Downloading https://github.com/seanchatmangpt/ggen/releases/download/v5.0.1/ggen-5.0.1-aarch64-apple-darwin.tar.gz
 Already downloaded: /Users/sac/Library/Caches/Homebrew/downloads/...(SHA256)
-🍺  /opt/homebrew/Cellar/ggen/5.0.0: 4 files, 12.5MB, built in 1 second
+🍺  /opt/homebrew/Cellar/ggen/5.0.1: 4 files, 12.5MB, built in 1 second
 ```
 
 ### 3. GitHub Release ✅
 **Status**: LIVE
 
-**Release**: https://github.com/seanchatmangpt/ggen/releases/tag/v5.0.0
+**Release**: https://github.com/seanchatmangpt/ggen/releases/tag/v5.0.1
 
 **Assets**:
-- ✅ `ggen-5.0.0-aarch64-apple-darwin.tar.gz` (4.4MB)
-  - SHA256: `ce20eb8bf8bd9a95a37f8a5458a44e2fde30b9a9398e114d173cbf5d22768e19`
+- ✅ `ggen-5.0.1-aarch64-apple-darwin.tar.gz` (4.4MB)
   - Binary: 12MB uncompressed
 
 ## ⏳ Pending Deployment
@@ -75,8 +74,8 @@ Already downloaded: /Users/sac/Library/Caches/Homebrew/downloads/...(SHA256)
 **Target**: https://hub.docker.com/r/seanchatman/ggen
 
 **Build Complete**:
-- ✅ Docker image built successfully (Image ID: `2c0e3fb3cca2`, Size: 169MB)
-- ✅ Tagged as `seanchatman/ggen:5.0.0` and `seanchatman/ggen:latest`
+- ✅ Docker image built successfully (Size: 169MB)
+- ✅ Tagged as `seanchatman/ggen:5.0.1` and `seanchatman/ggen:latest`
 - ✅ Verified working: `cli 5.3.4`
 - ✅ Build time: 2m 27s (compiled 584 crates from source)
 
@@ -116,20 +115,20 @@ docker login
 # 2. Build image with prebuilt binary (fast - ~30 seconds)
 docker build \
   -f Dockerfile.binary \
-  -t seanchatman/ggen:5.0.0 \
+  -t seanchatman/ggen:5.0.1 \
   -t seanchatman/ggen:latest \
   .
 
 # 3. Verify the build
-docker run --rm seanchatman/ggen:5.0.0 --version
+docker run --rm seanchatman/ggen:5.0.1 --version
 
 # 4. Push to Docker Hub
-docker push seanchatman/ggen:5.0.0
+docker push seanchatman/ggen:5.0.1
 docker push seanchatman/ggen:latest
 
 # 5. Verify deployment
-docker pull seanchatman/ggen:5.0.0
-docker run --rm -v $(pwd):/workspace seanchatman/ggen:5.0.0 sync
+docker pull seanchatman/ggen:5.0.1
+docker run --rm -v $(pwd):/workspace seanchatman/ggen:5.0.1 sync
 ```
 
 #### Option 3: Multi-Platform Build (amd64 + arm64)
@@ -140,7 +139,7 @@ docker buildx create --use
 # Build and push both platforms
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
-  -t seanchatman/ggen:5.0.0 \
+  -t seanchatman/ggen:5.0.1 \
   -t seanchatman/ggen:latest \
   --push \
   .
@@ -152,8 +151,8 @@ docker buildx build \
 |---------|--------|-----|-----------------|
 | **crates.io** | ✅ LIVE | https://crates.io/crates/ggen | `cargo install ggen-cli-lib` |
 | **Homebrew** | ✅ LIVE | https://github.com/seanchatmangpt/homebrew-ggen | `brew install seanchatmangpt/ggen/ggen` |
-| **GitHub Release** | ✅ LIVE | https://github.com/seanchatmangpt/ggen/releases/tag/v5.0.0 | Download tarball |
-| **Docker Hub** | ⏳ READY | https://hub.docker.com/u/seanchatmangpt | `docker pull seanchatman/ggen:5.0.0` (after deployment) |
+| **GitHub Release** | ✅ LIVE | https://github.com/seanchatmangpt/ggen/releases/tag/v5.0.1 | Download tarball |
+| **Docker Hub** | ⏳ READY | https://hub.docker.com/u/seanchatmangpt | `docker pull seanchatman/ggen:5.0.1` (after deployment) |
 
 ## 📁 Files Committed
 
@@ -201,8 +200,8 @@ brew install seanchatmangpt/ggen/ggen  # Installs in 1 second on arm64!
 
 **Via Docker** - No installation required:
 ```bash
-docker pull seanchatman/ggen:5.0.0
-docker run --rm -v $(pwd):/workspace seanchatman/ggen:5.0.0 sync
+docker pull seanchatman/ggen:5.0.1
+docker run --rm -v $(pwd):/workspace seanchatman/ggen:5.0.1 sync
 ```
 
 **Via Cargo**:
@@ -215,7 +214,7 @@ Full Docker documentation available in [DOCKER.md](DOCKER.md).
 
 ## 🎯 Success Criteria
 
-Once Docker Hub deployment completes, ggen v5.0.0 will be available through:
+Once Docker Hub deployment completes, ggen v5.0.1 will be available through:
 - ✅ **Package managers**: Cargo, Homebrew (1 second install on arm64!)
 - ⏳ **Container registry**: Docker Hub (ready to deploy)
 - ✅ **Direct download**: GitHub releases
