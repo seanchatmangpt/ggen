@@ -23,8 +23,10 @@
 pub mod audit;
 pub mod code_graph;
 pub mod executor;
+pub mod merge;
 pub mod pipeline;
 pub mod typescript;
+pub mod watch;
 
 // Re-export key types
 pub use audit::{AuditOutput, AuditStep, AuditTrail, AuditTrailBuilder};
@@ -33,11 +35,13 @@ pub use code_graph::{
     CodeParam, CodeStruct, CodeTrait, CodeVariant,
 };
 pub use executor::{SyncExecutor, SyncResult, SyncedFileInfo, ValidationCheck};
+pub use merge::{merge_sections, parse_merge_markers, MergeMarkers, MergedSections};
 pub use pipeline::{
     ExecutedRule, GeneratedFile, GenerationPipeline, PipelineState, RuleType, ValidationResult,
     ValidationSeverity,
 };
 pub use typescript::TypeScriptGenerator;
+pub use watch::{collect_watch_paths, FileWatcher, WatchEvent};
 
 // ============================================================================
 // Sync Options (CLI Configuration for ggen sync)

@@ -1,6 +1,6 @@
 [package]
 name = "ggen"
-version = "5.0.2"
+version = "5.1.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -314,6 +314,10 @@ harness = false
 
 [[bench]]
 name = "comprehensive_slo_benchmarks"
+harness = false
+
+[[bench]]
+name = "ggen_benchmarks"
 harness = false
 
 # NOTE: Integration tests archived to .archive/ - only essential sync/codegen tests remain in crate src/
