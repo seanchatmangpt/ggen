@@ -188,6 +188,31 @@ impl ValidationError {
             limit_ms,
         }
     }
+
+    /// Create a timeout error with context (for validation rules)
+    pub fn timeout(context: impl Into<String>, limit_ms: u64) -> Self {
+        ValidationError::OxigraphError(format!(
+            "{} exceeded timeout of {}ms",
+            context.into(),
+            limit_ms
+        ))
+    }
+
+    /// Create an invalid query error (for SPARQL validation rules)
+    pub fn invalid_query(rule_id: &str, reason: &str) -> Self {
+        ValidationError::SparqlError {
+            message: format!("Invalid query for rule {}: {}", rule_id, reason),
+            query: String::new(),
+        }
+    }
+
+    /// Create a query execution error (for SPARQL validation rules)
+    pub fn query_execution(rule_id: &str, error: &str) -> Self {
+        ValidationError::SparqlError {
+            message: format!("Query execution failed for rule {}: {}", rule_id, error),
+            query: String::new(),
+        }
+    }
 }
 
 // Implement From<oxigraph::Error> for ValidationError

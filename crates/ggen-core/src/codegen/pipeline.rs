@@ -133,6 +133,9 @@ pub struct GenerationPipeline {
 
     /// Pipeline start time
     started_at: Instant,
+
+    /// Force overwrite of protected files (bypasses poka-yoke protection)
+    force_overwrite: bool,
 }
 
 /// Clean a SPARQL term string representation.
@@ -173,7 +176,13 @@ impl GenerationPipeline {
             generated_files: Vec::new(),
             validation_results: Vec::new(),
             started_at: Instant::now(),
+            force_overwrite: false,
         }
+    }
+
+    /// Set force overwrite flag (bypasses protected_paths check)
+    pub fn set_force_overwrite(&mut self, force: bool) {
+        self.force_overwrite = force;
     }
 
     /// Load ontology from manifest configuration
@@ -235,6 +244,20 @@ impl GenerationPipeline {
             .as_ref()
             .ok_or_else(|| Error::new("Ontology graph not loaded. Call load_ontology() first."))?;
 
+        // T019: Conditional execution - Check 'when' condition if present
+        if let Some(ref when_query) = rule.when {
+            if !self.evaluate_condition(when_query)? {
+                // Condition failed - skip this rule
+                return Ok(ExecutedRule {
+                    name: rule.name.clone(),
+                    rule_type: RuleType::Inference,
+                    triples_added: 0, // Skipped
+                    duration_ms: start.elapsed().as_millis() as u64,
+                    query_hash: "skipped".to_string(),
+                });
+            }
+        }
+
         // Create executor and run CONSTRUCT with materialization
         let executor = ConstructExecutor::new(graph);
         let triples_added = executor
@@ -251,6 +274,29 @@ impl GenerationPipeline {
             duration_ms: duration.as_millis() as u64,
             query_hash,
         })
+    }
+
+    /// Evaluate a SPARQL ASK condition query
+    ///
+    /// Returns `true` if condition passes (ASK returns true), `false` otherwise.
+    fn evaluate_condition(&self, ask_query: &str) -> Result<bool> {
+        use oxigraph::sparql::QueryResults;
+
+        let graph = self
+            .ontology_graph
+            .as_ref()
+            .ok_or_else(|| Error::new("Ontology graph not loaded"))?;
+
+        let results = graph
+            .query(ask_query)
+            .map_err(|e| Error::new(&format!("Condition query failed: {}", e)))?;
+
+        match results {
+            QueryResults::Boolean(result) => Ok(result),
+            _ => Err(Error::new(
+                "Condition query must be ASK query (got SELECT/CONSTRUCT)",
+            )),
+        }
     }
 
     /// Execute all generation rules (SELECT → Template → Code)
@@ -404,46 +450,62 @@ impl GenerationPipeline {
                     })?;
                 let full_output_path = output_dir.join(&output_path_rendered);
 
-                // Check generation mode
-                let should_write = match rule.mode {
-                    GenerationMode::Create => !full_output_path.exists(),
-                    GenerationMode::Overwrite => true,
+                // T015-T016: Check generation mode and apply merge logic
+                let final_content = match rule.mode {
+                    GenerationMode::Create => {
+                        if full_output_path.exists() {
+                            // Skip - file already exists
+                            continue;
+                        }
+                        rendered.clone()
+                    }
+                    GenerationMode::Overwrite => rendered.clone(),
                     GenerationMode::Merge => {
-                        // TODO: Implement marker-based merge
-                        true
+                        // Merge mode: preserve manual sections
+                        if full_output_path.exists() {
+                            let existing = std::fs::read_to_string(&full_output_path).map_err(|e| {
+                                Error::new(&format!(
+                                    "Failed to read existing file for merge '{}': {}",
+                                    full_output_path.display(),
+                                    e
+                                ))
+                            })?;
+                            crate::codegen::merge::merge_sections(&rendered, &existing)?
+                        } else {
+                            // First time - wrap in markers
+                            crate::codegen::merge::merge_sections(&rendered, "")?
+                        }
                     }
                 };
 
-                if should_write {
-                    // Ensure parent directory exists
-                    if let Some(parent) = full_output_path.parent() {
-                        std::fs::create_dir_all(parent).map_err(|e| {
-                            Error::new(&format!(
-                                "Failed to create directory '{}': {}",
-                                parent.display(),
-                                e
-                            ))
-                        })?;
-                    }
-
-                    // Write file
-                    std::fs::write(&full_output_path, &rendered).map_err(|e| {
+                // Ensure parent directory exists
+                if let Some(parent) = full_output_path.parent() {
+                    std::fs::create_dir_all(parent).map_err(|e| {
                         Error::new(&format!(
-                            "Failed to write file '{}': {}",
-                            full_output_path.display(),
+                            "Failed to create directory '{}': {}",
+                            parent.display(),
                             e
                         ))
                     })?;
-
-                    // Record generated file
-                    let content_hash = format!("{:x}", sha2::Sha256::digest(rendered.as_bytes()));
-                    generated.push(GeneratedFile {
-                        path: full_output_path,
-                        content_hash,
-                        size_bytes: rendered.len(),
-                        source_rule: rule.name.clone(),
-                    });
                 }
+
+                // Write file
+                std::fs::write(&full_output_path, &final_content).map_err(|e| {
+                    Error::new(&format!(
+                        "Failed to write file '{}': {}",
+                        full_output_path.display(),
+                        e
+                    ))
+                })?;
+
+                // Record generated file
+                let content_hash = format!("{:x}", sha2::Sha256::digest(final_content.as_bytes()));
+                generated.push(GeneratedFile {
+                    path: full_output_path,
+                    content_hash,
+                    size_bytes: final_content.len(),
+                    source_rule: rule.name.clone(),
+                });
             }
 
             // Record rule execution

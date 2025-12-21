@@ -3,9 +3,9 @@
 //! Provides deterministic execution logging with timestamps, rule tracking,
 //! file metadata, and SHA256-based content hashing for reproducibility.
 
-use std::collections::HashMap;
-use std::time::SystemTime;
+use chrono::Local;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 /// Audit trail for a single ggen sync execution
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -40,8 +40,8 @@ pub struct ExecutionMetadata {
 impl AuditTrail {
     /// Create a new audit trail with current timestamp
     pub fn new(ggen_version: &str, manifest_path: &str, ontology_path: &str) -> Self {
-        let timestamp = chrono::Local::now().to_rfc3339();
-        
+        let timestamp = Local::now().to_rfc3339();
+
         AuditTrail {
             timestamp,
             rules_executed: 0,

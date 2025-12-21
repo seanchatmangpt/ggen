@@ -49,6 +49,7 @@
 
 pub mod error;
 pub mod shacl;
+pub mod sparql_rules;
 pub mod validator;
 pub mod violation;
 
@@ -58,5 +59,6 @@ mod tests;
 // Re-export public API
 pub use error::{Result, ValidationError};
 pub use shacl::{PropertyConstraint, ShaclShape, ShaclShapeSet, ShapeLoader};
+pub use sparql_rules::{RuleExecutor, RuleSeverity, ValidationRule};
 pub use validator::SparqlValidator;
 pub use violation::{ConstraintType, Severity, ValidationResult, Violation};
