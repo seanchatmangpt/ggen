@@ -1,0 +1,11 @@
+[metadata]
+version = "1.0"
+name = "test-ontology"
+description = "Minimal test ontology for ggen testing"
+
+[[generation]]
+source = "tests/fixtures/minimal.ttl"
+query = "SELECT ?class WHERE { ?class a owl:Class }"
+template = "tests/fixtures/template.tera"
+output = "output/generated.rs"
+format = "rust"
