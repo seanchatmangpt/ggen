@@ -10,6 +10,21 @@ keywords = ["code-generation", "rdf", "sparql", "ontology", "templates"]
 homepage = "https://github.com/seanchatmangpt/ggen"
 categories = ["development-tools", "command-line-utilities"]
 description = "Ontology-driven code generation: Transform RDF ontologies into typed code through SPARQL queries and Tera templates"
+exclude = [
+  "docs/**/*",
+  "examples/**/*",
+  ".specify/**/*",
+  "tests/**/*",
+  "benches/**/*",
+  ".github/**/*",
+  ".git/**/*",
+  "scripts/**/*",
+  "target/**/*",
+  "*.md",
+  "*.toml.backup",
+  ".cursorrules",
+  ".gitignore",
+]
 
 [workspace]
 members = [
