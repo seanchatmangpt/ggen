@@ -155,6 +155,10 @@ pub struct GenerationRule {
     /// File generation mode
     #[serde(default)]
     pub mode: GenerationMode,
+
+    /// Skip if condition fails (SPARQL ASK query)
+    #[serde(default)]
+    pub when: Option<String>,
 }
 
 /// Source for a SPARQL query - file or inline

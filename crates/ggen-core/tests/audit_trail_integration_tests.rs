@@ -3,7 +3,7 @@
 //! Tests verify observable state (files, JSON content) using real TempDir and files.
 //! No mocks - tests verify actual system behavior.
 
-use ggen_core::audit::{AuditTrail, writer::AuditTrailWriter};
+use ggen_core::audit::{writer::AuditTrailWriter, AuditTrail};
 use serde_json::Value;
 use std::fs;
 use tempfile::TempDir;
@@ -29,13 +29,9 @@ fn test_audit_trail_created_and_written() {
 
     // Verify file is valid JSON
     let content = fs::read_to_string(&audit_path).expect("Failed to read audit.json");
-    let json: Value =
-        serde_json::from_str(&content).expect("audit.json should be valid JSON");
+    let json: Value = serde_json::from_str(&content).expect("audit.json should be valid JSON");
 
-    assert!(
-        json.is_object(),
-        "audit.json should contain a JSON object"
-    );
+    assert!(json.is_object(), "audit.json should contain a JSON object");
 }
 
 /// Test that audit.json contains all required metadata fields
@@ -53,10 +49,7 @@ fn test_audit_json_contains_metadata() {
     AuditTrailWriter::write(&audit, &audit_path).expect("Failed to write audit trail");
 
     // Assert: Verify file exists and contains metadata
-    assert!(
-        audit_path.exists(),
-        "audit.json should exist after write"
-    );
+    assert!(audit_path.exists(), "audit.json should exist after write");
 
     let content = fs::read_to_string(&audit_path).expect("Failed to read audit.json");
     let json: Value = serde_json::from_str(&content).expect("audit.json should be valid JSON");
@@ -93,7 +86,8 @@ fn test_audit_json_contains_metadata() {
         .as_str()
         .expect("timestamp should be string");
     assert!(
-        timestamp.contains('T') && (timestamp.contains('Z') || timestamp.contains('+') || timestamp.contains('-')),
+        timestamp.contains('T')
+            && (timestamp.contains('Z') || timestamp.contains('+') || timestamp.contains('-')),
         "timestamp should be RFC3339 format, got: {}",
         timestamp
     );
@@ -161,12 +155,16 @@ fn test_audit_contains_file_hashes() {
         .expect("file_hashes should be object");
 
     assert_eq!(
-        file_hashes.get("src/generated/user.rs").and_then(|v| v.as_str()),
+        file_hashes
+            .get("src/generated/user.rs")
+            .and_then(|v| v.as_str()),
         Some("abc123def456789"),
         "user.rs hash should match"
     );
     assert_eq!(
-        file_hashes.get("src/generated/product.rs").and_then(|v| v.as_str()),
+        file_hashes
+            .get("src/generated/product.rs")
+            .and_then(|v| v.as_str()),
         Some("fedcba987654321"),
         "product.rs hash should match"
     );
@@ -185,18 +183,13 @@ fn test_audit_trail_creates_directory() {
     // Arrange: Create audit trail with nested output path
     let audit = AuditTrail::new("5.0.2", "test.toml", "test.ttl");
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
-    let nested_path = temp_dir
-        .path()
-        .join("nested/dir/structure/audit.json");
+    let nested_path = temp_dir.path().join("nested/dir/structure/audit.json");
 
     // Act: Write audit trail (should create parent directories)
     let result = AuditTrailWriter::write(&audit, &nested_path);
 
     // Assert: Verify directory was created and file exists
-    assert!(
-        result.is_ok(),
-        "Writer should create parent directories"
-    );
+    assert!(result.is_ok(), "Writer should create parent directories");
     assert!(
         nested_path.exists(),
         "audit.json should exist at nested path"
@@ -242,10 +235,7 @@ fn test_audit_trail_tracks_multiple_files() {
 
     // Act: Record multiple file changes
     for i in 0..10 {
-        audit.record_file_change(
-            format!("file_{}.rs", i),
-            format!("hash_{}", i),
-        );
+        audit.record_file_change(format!("file_{}.rs", i), format!("hash_{}", i));
     }
 
     // Assert: Verify count and hashes

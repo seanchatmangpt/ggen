@@ -47,7 +47,10 @@ impl FileWatcher {
     /// - Queue capacity: 10 items
     pub fn new<P: AsRef<Path>>(watch_paths: Vec<P>) -> Self {
         Self {
-            watch_paths: watch_paths.iter().map(|p| p.as_ref().to_path_buf()).collect(),
+            watch_paths: watch_paths
+                .iter()
+                .map(|p| p.as_ref().to_path_buf())
+                .collect(),
             debounce_ms: 300,
             queue_capacity: 10,
         }
@@ -126,9 +129,7 @@ impl FileWatcher {
         match rx.recv_timeout(timeout) {
             Ok(event) => Ok(Some(event)),
             Err(RecvTimeoutError::Timeout) => Ok(None),
-            Err(RecvTimeoutError::Disconnected) => {
-                Err(Error::new("Watch channel disconnected"))
-            }
+            Err(RecvTimeoutError::Disconnected) => Err(Error::new("Watch channel disconnected")),
         }
     }
 }
@@ -201,7 +202,10 @@ mod tests {
 
     #[test]
     fn test_collect_watch_paths_empty() {
-        use crate::manifest::{GgenManifest, GenerationConfig, InferenceConfig, OntologyConfig, ProjectConfig, ValidationConfig};
+        use crate::manifest::{
+            GenerationConfig, GgenManifest, InferenceConfig, OntologyConfig, ProjectConfig,
+            ValidationConfig,
+        };
         use std::collections::BTreeMap;
         use std::path::PathBuf;
 
@@ -240,7 +244,9 @@ mod tests {
         assert!(paths.contains(&PathBuf::from("ggen.toml")));
         // Ontology path might be joined with base_path, check if any path ends with ontology.ttl
         assert!(
-            paths.iter().any(|p| p.to_string_lossy().ends_with("ontology.ttl")),
+            paths
+                .iter()
+                .any(|p| p.to_string_lossy().ends_with("ontology.ttl")),
             "Should contain ontology.ttl path (possibly joined with base_path)"
         );
     }

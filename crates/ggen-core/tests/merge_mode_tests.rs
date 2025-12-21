@@ -38,7 +38,10 @@ fn my_manual_code() { println!("manual"); }
         result.contains("<<<<<<< GENERATED"),
         "Generated marker should be preserved"
     );
-    assert!(result.contains("======="), "Separator marker should be preserved");
+    assert!(
+        result.contains("======="),
+        "Separator marker should be preserved"
+    );
     assert!(
         result.contains(">>>>>>> MANUAL"),
         "Manual marker should be preserved"
@@ -87,7 +90,9 @@ fn manual() { }
     );
 
     // Assert: Generated section is in correct position
-    let gen_start = result.find("<<<<<<< GENERATED").expect("Should have start marker");
+    let gen_start = result
+        .find("<<<<<<< GENERATED")
+        .expect("Should have start marker");
     let sep = result.find("=======").expect("Should have separator");
     let gen_section = &result[gen_start..sep];
     assert!(
@@ -132,7 +137,9 @@ fn generated_old() {{ }}
 
     // Assert: Manual code is in correct section (between ======= and >>>>>>>)
     let sep = result.find("=======").expect("Should have separator");
-    let end = result.find(">>>>>>> MANUAL").expect("Should have end marker");
+    let end = result
+        .find(">>>>>>> MANUAL")
+        .expect("Should have end marker");
     let manual_section = &result[sep..end];
     assert!(
         manual_section.contains("fn manual_impl()"),
@@ -281,7 +288,10 @@ fn manual() { }
     let markers = parse_merge_markers(content).expect("Should parse markers with whitespace");
 
     // Assert: Correct line positions
-    assert_eq!(markers.generated_start, 1, "Should find generated marker at line 1");
+    assert_eq!(
+        markers.generated_start, 1,
+        "Should find generated marker at line 1"
+    );
     assert_eq!(markers.manual_start, 3, "Should find separator at line 3");
     assert_eq!(markers.manual_end, 5, "Should find manual marker at line 5");
 }

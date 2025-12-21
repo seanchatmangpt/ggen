@@ -13,11 +13,8 @@ use tempfile::TempDir;
 #[test]
 fn test_protected_paths_blocked_by_validation() {
     // Arrange: Create protection config with protected paths
-    let protection = PathProtectionConfig::new(
-        &["src/domain/**"],
-        &["src/generated/**"],
-    )
-    .expect("Failed to create protection config");
+    let protection = PathProtectionConfig::new(&["src/domain/**"], &["src/generated/**"])
+        .expect("Failed to create protection config");
 
     // Act: Try to validate write to protected path
     let result_protected = protection.validate_write("src/domain/user.rs", true);
@@ -40,17 +37,13 @@ fn test_protected_paths_blocked_by_validation() {
 #[test]
 fn test_regeneratable_paths_allow_writes() {
     // Arrange: Create protection config with regenerate paths
-    let protection = PathProtectionConfig::new(
-        &["src/domain/**"],
-        &["src/generated/**"],
-    )
-    .expect("Failed to create protection config");
+    let protection = PathProtectionConfig::new(&["src/domain/**"], &["src/generated/**"])
+        .expect("Failed to create protection config");
 
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
     let regenerate_file = temp_dir.path().join("src/generated/user_generated.rs");
 
-    fs::create_dir_all(regenerate_file.parent().unwrap())
-        .expect("Failed to create generated dir");
+    fs::create_dir_all(regenerate_file.parent().unwrap()).expect("Failed to create generated dir");
 
     // Write existing regeneratable file
     fs::write(&regenerate_file, "// OLD: Original generated content\n")
@@ -178,20 +171,15 @@ fn test_path_protection_glob_patterns() {
 #[test]
 fn test_implicit_protection_of_existing_files() {
     // Arrange: Create protection config
-    let protection = PathProtectionConfig::new(
-        &["src/domain/**"],
-        &["src/generated/**"],
-    )
-    .expect("Failed to create protection config");
+    let protection = PathProtectionConfig::new(&["src/domain/**"], &["src/generated/**"])
+        .expect("Failed to create protection config");
 
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
     let existing_file = temp_dir.path().join("src/utils.rs");
 
-    fs::create_dir_all(existing_file.parent().unwrap())
-        .expect("Failed to create src dir");
+    fs::create_dir_all(existing_file.parent().unwrap()).expect("Failed to create src dir");
 
-    fs::write(&existing_file, "// Existing utility file\n")
-        .expect("Failed to write existing file");
+    fs::write(&existing_file, "// Existing utility file\n").expect("Failed to write existing file");
 
     // Act: Validate write to existing file not in any pattern list
     let result = protection.validate_write("src/utils.rs", true);
@@ -215,11 +203,8 @@ fn test_implicit_protection_of_existing_files() {
 #[test]
 fn test_protection_error_messages() {
     // Arrange: Create protection config
-    let protection = PathProtectionConfig::new(
-        &["src/domain/**"],
-        &["src/generated/**"],
-    )
-    .expect("Failed to create protection config");
+    let protection = PathProtectionConfig::new(&["src/domain/**"], &["src/generated/**"])
+        .expect("Failed to create protection config");
 
     // Act: Try to write to protected path
     let result = protection.validate_write("src/domain/user.rs", true);
@@ -247,11 +232,8 @@ fn test_protection_error_messages() {
 #[test]
 fn test_pattern_matching_edge_cases() {
     // Arrange: Create protection config with specific patterns
-    let protection = PathProtectionConfig::new(
-        &["src/domain/**"],
-        &["src/generated/**"],
-    )
-    .expect("Failed to create protection config");
+    let protection = PathProtectionConfig::new(&["src/domain/**"], &["src/generated/**"])
+        .expect("Failed to create protection config");
 
     // Act & Assert: Test various path formats
     assert!(

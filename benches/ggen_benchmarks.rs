@@ -286,9 +286,7 @@ fn bench_sparql_queries(c: &mut Criterion) {
     group.bench_function(BenchmarkId::new("ask_query", "entity_exists"), |b| {
         b.iter(|| {
             let results = graph
-                .query(black_box(
-                    "ASK { ?s a ex:Entity ; ex:name \"Entity 42\" }",
-                ))
+                .query(black_box("ASK { ?s a ex:Entity ; ex:name \"Entity 42\" }"))
                 .expect("Failed to execute query");
             black_box(results);
         });

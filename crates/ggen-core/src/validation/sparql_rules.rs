@@ -32,19 +32,33 @@ pub struct ValidationRule {
 }
 
 impl ValidationRule {
-    pub fn new(id: impl Into<String>, query: impl Into<String>, severity: RuleSeverity, message: impl Into<String>) -> Self {
-        Self { id: id.into(), query: query.into(), severity, message: message.into() }
+    pub fn new(
+        id: impl Into<String>, query: impl Into<String>, severity: RuleSeverity,
+        message: impl Into<String>,
+    ) -> Self {
+        Self {
+            id: id.into(),
+            query: query.into(),
+            severity,
+            message: message.into(),
+        }
     }
 
-    pub fn error(id: impl Into<String>, query: impl Into<String>, message: impl Into<String>) -> Self {
+    pub fn error(
+        id: impl Into<String>, query: impl Into<String>, message: impl Into<String>,
+    ) -> Self {
         Self::new(id, query, RuleSeverity::Error, message)
     }
 
-    pub fn warning(id: impl Into<String>, query: impl Into<String>, message: impl Into<String>) -> Self {
+    pub fn warning(
+        id: impl Into<String>, query: impl Into<String>, message: impl Into<String>,
+    ) -> Self {
         Self::new(id, query, RuleSeverity::Warning, message)
     }
 
-    pub fn info(id: impl Into<String>, query: impl Into<String>, message: impl Into<String>) -> Self {
+    pub fn info(
+        id: impl Into<String>, query: impl Into<String>, message: impl Into<String>,
+    ) -> Self {
         Self::new(id, query, RuleSeverity::Info, message)
     }
 }
@@ -70,7 +84,10 @@ impl RuleExecutor {
 
         for rule in rules {
             if start.elapsed().as_millis() > self.timeout_ms as u128 {
-                return Err(ValidationError::timeout("Validation rules execution", self.timeout_ms));
+                return Err(ValidationError::timeout(
+                    "Validation rules execution",
+                    self.timeout_ms,
+                ));
             }
 
             match self.execute_rule(output, rule) {
@@ -88,7 +105,8 @@ impl RuleExecutor {
                         "query-execution-error",
                         ConstraintType::Cardinality,
                         format!("Failed to execute rule {}: {}", rule.id, e),
-                    ).with_severity(rule.severity.into());
+                    )
+                    .with_severity(rule.severity.into());
                     violations.push(violation);
 
                     if rule.severity == RuleSeverity::Error {
@@ -117,39 +135,64 @@ impl RuleExecutor {
         } else if query_str.starts_with("SELECT") {
             self.execute_select_rule(output, rule)
         } else {
-            Err(ValidationError::invalid_query(&rule.id, "Query must start with ASK or SELECT"))
+            Err(ValidationError::invalid_query(
+                &rule.id,
+                "Query must start with ASK or SELECT",
+            ))
         }
     }
 
     fn execute_ask_rule(&self, output: &Graph, rule: &ValidationRule) -> Result<Vec<Violation>> {
-        let results = output.query(&rule.query).map_err(|e| ValidationError::query_execution(&rule.id, &e.to_string()))?;
+        let results = output
+            .query(&rule.query)
+            .map_err(|e| ValidationError::query_execution(&rule.id, &e.to_string()))?;
 
         let ask_result = match results {
             QueryResults::Boolean(b) => b,
-            _ => return Err(ValidationError::invalid_query(&rule.id, "Expected ASK query to return boolean")),
+            _ => {
+                return Err(ValidationError::invalid_query(
+                    &rule.id,
+                    "Expected ASK query to return boolean",
+                ))
+            }
         };
 
         if ask_result {
             Ok(Vec::new())
         } else {
-            let violation = Violation::new(rule.id.clone(), ConstraintType::Cardinality, rule.message.clone()).with_severity(rule.severity.into());
+            let violation = Violation::new(
+                rule.id.clone(),
+                ConstraintType::Cardinality,
+                rule.message.clone(),
+            )
+            .with_severity(rule.severity.into());
             Ok(vec![violation])
         }
     }
 
     fn execute_select_rule(&self, output: &Graph, rule: &ValidationRule) -> Result<Vec<Violation>> {
-        let results = output.query(&rule.query).map_err(|e| ValidationError::query_execution(&rule.id, &e.to_string()))?;
+        let results = output
+            .query(&rule.query)
+            .map_err(|e| ValidationError::query_execution(&rule.id, &e.to_string()))?;
 
         let mut violations = Vec::new();
 
         match results {
             QueryResults::Solutions(solutions) => {
                 for solution_result in solutions {
-                    let solution = solution_result.map_err(|e| ValidationError::query_execution(&rule.id, &e.to_string()))?;
+                    let solution = solution_result
+                        .map_err(|e| ValidationError::query_execution(&rule.id, &e.to_string()))?;
 
-                    let focus_node = solution.get("node").or_else(|| solution.get("s")).map(|term| term.to_string()).unwrap_or_else(|| "unknown".to_string());
+                    let focus_node = solution
+                        .get("node")
+                        .or_else(|| solution.get("s"))
+                        .map(|term| term.to_string())
+                        .unwrap_or_else(|| "unknown".to_string());
 
-                    let value = solution.get("value").or_else(|| solution.get("o")).map(|term| term.to_string());
+                    let value = solution
+                        .get("value")
+                        .or_else(|| solution.get("o"))
+                        .map(|term| term.to_string());
 
                     let message = if let Some(val) = value {
                         format!("{} (value: {})", rule.message, val)
@@ -157,12 +200,19 @@ impl RuleExecutor {
                         rule.message.clone()
                     };
 
-                    let violation = Violation::new(focus_node, ConstraintType::Cardinality, message).with_severity(rule.severity.into());
+                    let violation =
+                        Violation::new(focus_node, ConstraintType::Cardinality, message)
+                            .with_severity(rule.severity.into());
 
                     violations.push(violation);
                 }
             }
-            _ => return Err(ValidationError::invalid_query(&rule.id, "Expected SELECT query to return solutions")),
+            _ => {
+                return Err(ValidationError::invalid_query(
+                    &rule.id,
+                    "Expected SELECT query to return solutions",
+                ))
+            }
         }
 
         Ok(violations)
