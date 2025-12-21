@@ -116,6 +116,7 @@
 
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 
+pub mod audit;
 pub mod cache;
 pub mod cli_generator;
 pub mod codegen;

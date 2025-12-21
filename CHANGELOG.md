@@ -7,6 +7,145 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.1.0] - 2025-12-20
+
+### Added - v5.1.0 Feature Release
+
+#### Comprehensive Feature Documentation
+- **Complete feature documentation** for all v5.1.0 capabilities:
+  - `docs/features/audit-trail.md` (350+ lines) - Detailed audit trail format, usage patterns, and integration examples
+  - `docs/features/force-flag.md` (420+ lines) - Safe destructive workflows, rollback strategies, and best practices
+  - `docs/features/merge-mode.md` (450+ lines) - Hybrid manual/generated code with git-style conflict markers
+  - `docs/features/watch-mode.md` (500+ lines) - Continuous file monitoring, debounce behavior, and performance optimization
+  - `docs/features/conditional-execution.md` (340+ lines) - SPARQL ASK conditions for selective generation
+  - `docs/features/validation.md` (480+ lines) - SHACL/SPARQL constraint checking and pre-flight validation
+
+#### Enhanced CLI Help System
+- **Comprehensive flag documentation** in `ggen sync --help`:
+  - All 11 flags documented with descriptions
+  - Flag combinations for common workflows (safe, CI/CD, development)
+  - Flag precedence rules and safety notes
+  - Complex usage examples combining multiple flags
+  - References to full feature documentation
+- **Safety warnings** for destructive operations (--force)
+- **Workflow categorization** for different use cases
+
+#### End-to-End Integration Tests
+- **Comprehensive test suite** in `tests/e2e/e2e_v510.rs` (600+ lines):
+  - `test_basic_sync` - Baseline code generation workflow
+  - `test_audit_trail` - Audit trail creation and JSON validation
+  - `test_force_flag` - Overwrite protection and force behavior
+  - `test_dry_run` - Preview mode without file writes
+  - `test_validate_only` - SHACL validation-only mode
+  - `test_watch_mode_exit` - Watch mode initialization
+  - `test_rule_filtering` - Selective rule execution
+  - `test_json_output_format` - Machine-readable output
+  - `test_audit_plus_force` - Combined audit + force workflow
+  - `test_all_flags_combined` - Complex flag combinations
+  - `test_error_handling` - Invalid input handling
+- **Chicago TDD methodology** - Real filesystem, no mocks
+- **Helper functions** for test setup and fixture creation
+
+### Changed
+
+#### Version Bump
+- Updated from `5.0.2` to `5.1.0` in root `Cargo.toml`
+- Minor version bump for new features (audit, force, watch, conditional, validation)
+
+#### Documentation Structure
+- Added `docs/features/` directory for feature-specific documentation
+- Cross-referencing between CLI help and feature docs
+- Structured documentation following best practices (overview, usage, examples, troubleshooting)
+
+### Features Summary
+
+#### Audit Trail (--audit)
+- **Purpose**: Track all code generation operations for compliance and debugging
+- **Output**: JSON audit trail in `.ggen/audit/` with execution metadata
+- **Key Fields**: execution_id, pipeline_stages, files (with hashes), validation results
+- **Use Cases**: Regulatory compliance, rollback, analytics, debugging
+
+#### Force Flag (--force)
+- **Purpose**: Override default safety (create-only) to enable file overwrites
+- **Behavior**: Unconditionally overwrites existing files (DESTRUCTIVE)
+- **Safety**: Must combine with --audit for rollback capability
+- **Use Cases**: Pure code-gen projects, ontology-driven refactoring, CI/CD
+
+#### Merge Mode (ggen.toml configuration)
+- **Purpose**: Hybrid development with manual and generated code coexisting
+- **Mechanism**: Git-style conflict markers (<<<<<<< GENERATED, ======= MANUAL, >>>>>>> END)
+- **Behavior**: Regenerates GENERATED sections, preserves MANUAL sections
+- **Use Cases**: Iterative development, business logic customization, team collaboration
+
+#### Watch Mode (--watch)
+- **Purpose**: Continuous file monitoring and automatic regeneration
+- **Watched Files**: ontology/**/*.ttl, templates/**/*.tera, ggen.toml, query/**/*.rq
+- **Debounce**: 300ms default (configurable) to prevent excessive regeneration
+- **Use Cases**: Rapid iteration, TDD-style ontology development, template development
+
+#### Conditional Execution (SPARQL ASK)
+- **Purpose**: Skip generation rules dynamically based on ontology state
+- **Mechanism**: SPARQL ASK queries evaluated against RDF graph
+- **Behavior**: Rule executes only if condition returns `true`
+- **Use Cases**: Feature flags, environment-based generation, incremental migration
+
+#### Validation (SHACL/SPARQL)
+- **Purpose**: Enforce structural and semantic constraints before generation
+- **Types**: SHACL (structural: required fields, types, ranges) + SPARQL ASK (semantic: business rules)
+- **Behavior**: Validation runs pre-generation, fails fast on violations
+- **Use Cases**: Data quality, schema enforcement, migration safety
+
+### Technical Details
+
+- **Version**: 5.1.0
+- **Release Type**: Minor (new features, backward compatible)
+- **Breaking Changes**: None
+- **Documentation**: 2,500+ lines of new feature documentation
+- **Tests**: 11 E2E integration tests (Chicago TDD methodology)
+- **Quality Gates**: All tests pass, comprehensive documentation, CLI help enhanced
+
+### Migration Notes
+
+#### For CLI Users
+- No breaking changes - all v5.0.x commands work without modification
+- New flags available: `--audit`, `--force`, `--watch`, `--validate-only`
+- Enhanced `--help` output with comprehensive examples
+- Feature documentation in `docs/features/` for deep dives
+
+#### For Library Users
+- No API changes - v5.1.0 is backward compatible with v5.0.x
+- New fields in SyncOutput: `audit_trail` (Option<String>)
+- New SyncOptions flags: `audit`, `force`, `watch`, `validate_only`
+
+### Documentation
+
+#### Feature Guides
+- [Audit Trail](docs/features/audit-trail.md) - Change tracking and compliance
+- [Force Flag](docs/features/force-flag.md) - Safe destructive workflows
+- [Merge Mode](docs/features/merge-mode.md) - Hybrid manual/generated code
+- [Watch Mode](docs/features/watch-mode.md) - Continuous regeneration
+- [Conditional Execution](docs/features/conditional-execution.md) - SPARQL ASK conditions
+- [Validation](docs/features/validation.md) - SHACL/SPARQL constraints
+
+#### Testing
+- [E2E Test Suite](tests/e2e/e2e_v510.rs) - Comprehensive integration tests
+
+### Compatibility
+
+**Backward Compatible:**
+- All v5.0.x workflows continue to work
+- Configuration format unchanged
+- CLI syntax unchanged (new flags are optional)
+- API surface unchanged
+
+**No Deprecations:**
+- All v5.0.x features remain supported
+- No planned removals in v5.2.0
+
+---
+
+## [5.0.2] - 2025-12-20 (Previous Release)
+
 ### Removed
 - **Markdown files cleanup**: Deleted 202+ obsolete markdown files (preserved in git history):
   - Deleted all files in `docs/archive/` (137 files) - Already archived historical documents

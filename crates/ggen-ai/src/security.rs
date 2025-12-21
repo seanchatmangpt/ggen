@@ -191,7 +191,9 @@ fn mask_sensitive_patterns(input: &str) -> String {
     }
 
     // Pattern: api_key=... or api-key=... or apikey=...
-    if let Ok(api_key_pattern) = regex::Regex::new(r"(?i)(api[_-]?key\s*[=:]\s*)([a-zA-Z0-9_\-\.]+)") {
+    if let Ok(api_key_pattern) =
+        regex::Regex::new(r"(?i)(api[_-]?key\s*[=:]\s*)([a-zA-Z0-9_\-\.]+)")
+    {
         result = api_key_pattern
             .replace_all(&result, "$1[masked]")
             .to_string();

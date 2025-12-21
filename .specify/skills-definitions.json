@@ -1,0 +1,281 @@
+{
+  "project": "ggen v5.1.0 GA Production Release",
+  "branch": "013-ga-production-release",
+  "skills": [
+    {
+      "id": "sync-executor",
+      "name": "Sync Executor",
+      "priority": 1,
+      "domain": "core",
+      "when": ["ggen sync", "--audit", "--force", "--watch", "--dry-run", "SyncExecutor", "generation rules"],
+      "when_not": ["spec-writer", "documentation"],
+      "purpose": "Execute sync pipeline with all CLI features (audit, force, merge, watch, conditional)",
+      "features": [
+        "Feature #013 Phase 1-2 implementation",
+        "CLI flag handling",
+        "File write operations",
+        "Generation rule execution"
+      ],
+      "test_focus": "Chicago TDD - observable state changes (files written, audit created)",
+      "related_tasks": ["1.1", "1.2", "2.1", "2.2", "2.3"]
+    },
+    {
+      "id": "audit-trail-writer",
+      "name": "Audit Trail Writer",
+      "priority": 1,
+      "domain": "core",
+      "when": ["--audit", "audit.json", "AuditTrail", "JSON serialization", "execution metadata"],
+      "when_not": ["merge", "watch", "test"],
+      "purpose": "Record deterministic execution history with timestamp, files, hashes",
+      "features": [
+        "Task 1.1: Implement audit trail writing",
+        "JSON file creation",
+        "Metadata tracking",
+        "Hash computation"
+      ],
+      "test_focus": "audit.json creation, structure validation, content hashing",
+      "related_tasks": ["1.1"]
+    },
+    {
+      "id": "merge-mode-handler",
+      "name": "Merge Mode Handler",
+      "priority": 1,
+      "domain": "core",
+      "when": ["<<<<<<< GENERATED", "====", ">>>>>>> MANUAL", "merge markers", "three-way merge"],
+      "when_not": ["watch", "conditional", "validation"],
+      "purpose": "Implement three-way merge with git-style markers",
+      "features": [
+        "Task 2.1: Implement merge mode",
+        "Regex marker detection",
+        "Manual section extraction",
+        "Generated content injection"
+      ],
+      "test_focus": "Marker preservation, generated updates, malformed handling",
+      "related_tasks": ["2.1"]
+    },
+    {
+      "id": "watch-mode-monitor",
+      "name": "Watch Mode Monitor",
+      "priority": 1,
+      "domain": "core",
+      "when": ["--watch", "file changes", "debounce", "notify crate", "event queue"],
+      "when_not": ["audit", "merge", "validation"],
+      "purpose": "Monitor files and auto-regenerate with 300ms debounce",
+      "features": [
+        "Task 2.2: Implement watch mode",
+        "notify crate integration",
+        "300ms debounce",
+        "Bounded queue (10 items)"
+      ],
+      "test_focus": "Change detection, debounce timing, queue management",
+      "related_tasks": ["2.2"]
+    },
+    {
+      "id": "conditional-executor",
+      "name": "Conditional Executor",
+      "priority": 1,
+      "domain": "core",
+      "when": ["when =", "SPARQL ASK", "?x a", "conditional execution", "rule filtering"],
+      "when_not": ["merge", "watch", "audit"],
+      "purpose": "Data-driven rule filtering based on SPARQL ASK queries",
+      "features": [
+        "Task 2.3: Implement conditional execution",
+        "SPARQL ASK evaluation",
+        "Rule skipping logic",
+        "Condition logging"
+      ],
+      "test_focus": "Query evaluation, rule skipping, missing when field",
+      "related_tasks": ["2.3"]
+    },
+    {
+      "id": "validation-pipeline",
+      "name": "Validation Pipeline",
+      "priority": 2,
+      "domain": "core",
+      "when": ["SHACL", "validation.rules", "severity=", "pre-generation", "post-generation"],
+      "when_not": ["merge", "watch"],
+      "purpose": "Two-stage validation (pre-gen SHACL, post-gen SPARQL rules)",
+      "features": [
+        "Task 4.1: SHACL validation (pre-gen)",
+        "Task 4.2: SPARQL validation (post-gen)",
+        "Severity level handling",
+        "Fail-fast on error"
+      ],
+      "test_focus": "Shape violations, rule execution, severity handling",
+      "related_tasks": ["4.1", "4.2"]
+    },
+    {
+      "id": "performance-benchmarker",
+      "name": "Performance Benchmarker",
+      "priority": 2,
+      "domain": "qa",
+      "when": ["bench", "SLO", "percentile", "performance", "10000 triples", "100-rule"],
+      "when_not": ["spec-writer"],
+      "purpose": "Benchmark sync pipeline against 90th/95th percentile targets",
+      "features": [
+        "Task 4.4: Performance benchmarking",
+        "90th percentile ≤5s (100 rules)",
+        "95th percentile ≤10s (10k triples)",
+        "Regression detection"
+      ],
+      "test_focus": "Benchmark scenarios, optimization validation",
+      "related_tasks": ["4.4"]
+    },
+    {
+      "id": "rdf-sync-validator",
+      "name": "RDF Sync Validator",
+      "priority": 2,
+      "domain": "rdf",
+      "when": ["Turtle", "SHACL", ".ttl", "RDF validation", "SPARQL query"],
+      "when_not": ["audit", "merge", "watch"],
+      "purpose": "Validate RDF/TTL syntax before generation",
+      "features": [
+        "Turtle syntax validation",
+        "SHACL shape validation",
+        "SPARQL query verification",
+        "Ontology validation"
+      ],
+      "test_focus": "Syntax errors, SHACL violations, query validity",
+      "related_tasks": ["4.1", "4.2"]
+    },
+    {
+      "id": "rust-executor",
+      "priority": 2,
+      "domain": "implementation",
+      "when": ["cargo make", "check", "test", "lint", "compilation", "error[E"],
+      "when_not": ["spec-writer", "documentation"],
+      "purpose": "Execute Rust build, test, lint commands with proper timeouts",
+      "features": [
+        "cargo make check (<5s)",
+        "cargo make test (100% pass)",
+        "cargo make lint (clean)",
+        "Andon signal monitoring"
+      ],
+      "test_focus": "CI/CD integration, SLO compliance",
+      "related_tasks": ["all"]
+    },
+    {
+      "id": "chicago-tdd-implementer",
+      "priority": 2,
+      "domain": "testing",
+      "when": ["#[test]", "AAA pattern", "Arrange", "Assert", "observable state", "behavior"],
+      "when_not": ["mock", "internal implementation"],
+      "purpose": "Implement tests using Arrange-Act-Assert pattern",
+      "features": [
+        "Phase 3: Comprehensive test suite",
+        "AAA pattern tests",
+        "State verification",
+        "95%+ coverage target"
+      ],
+      "test_focus": "Observable state changes, behavior verification",
+      "related_tasks": ["1.3", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6"]
+    },
+    {
+      "id": "architecture-validator",
+      "priority": 2,
+      "domain": "qa",
+      "when": ["three-tier", "commands/", "ops/", "runtime/", "layer boundaries", "module structure"],
+      "when_not": ["implementation"],
+      "purpose": "Validate ggen three-tier architecture compliance",
+      "features": [
+        "Commands layer validation (no subprocess)",
+        "Operations layer validation (pure logic)",
+        "Runtime layer validation (all I/O)",
+        "Module structure compliance"
+      ],
+      "test_focus": "Layer boundary enforcement, crate organization",
+      "related_tasks": ["all"]
+    },
+    {
+      "id": "specification-writer",
+      "priority": 2,
+      "domain": "rdf",
+      "when": ["feature.ttl", "plan.ttl", "spec.md", "@prefix", "RDF ontology"],
+      "when_not": ["implementation"],
+      "purpose": "Create/modify RDF-based specifications",
+      "features": [
+        "Feature specification (feature.ttl)",
+        "Implementation plan (plan.ttl)",
+        "Task breakdown (tasks.ttl)",
+        "RDF ontology authoring"
+      ],
+      "test_focus": "RDF syntax, SHACL compliance, semantic correctness",
+      "related_tasks": ["all"]
+    },
+    {
+      "id": "documentation-generator",
+      "priority": 3,
+      "domain": "content",
+      "when": ["docs/", "help text", "examples", ".md", "ggen sync --help"],
+      "when_not": ["implementation", "testing"],
+      "purpose": "Generate user and developer documentation",
+      "features": [
+        "Task 5.1: User/developer docs",
+        "Task 5.2: CLI help text",
+        "Example code",
+        "Usage guides"
+      ],
+      "test_focus": "Example executability, clarity, completeness",
+      "related_tasks": ["5.1", "5.2"]
+    }
+  ],
+  "andon_signals": {
+    "RED": [
+      { "trigger": "error[E", "action": "STOP - Fix immediately", "skill": "rust-executor" },
+      { "trigger": "test ... FAILED", "action": "STOP - Fix immediately", "skill": "chicago-tdd-implementer" },
+      { "trigger": "coverage < 95%", "action": "STOP - Increase coverage", "skill": "chicago-tdd-implementer" },
+      { "trigger": "performance > SLO", "action": "STOP - Optimize", "skill": "performance-benchmarker" }
+    ],
+    "YELLOW": [
+      { "trigger": "warning:", "action": "Investigate before release", "skill": "rust-executor" },
+      { "trigger": "clippy lint", "action": "Review before release", "skill": "architecture-validator" },
+      { "trigger": "flaky test", "action": "Investigate root cause", "skill": "chicago-tdd-implementer" }
+    ],
+    "GREEN": [
+      { "trigger": "clean compilation", "action": "Continue", "skill": "rust-executor" },
+      { "trigger": "all tests passing", "action": "Continue", "skill": "chicago-tdd-implementer" },
+      { "trigger": "coverage >= 95%", "action": "Continue", "skill": "chicago-tdd-implementer" },
+      { "trigger": "performance within SLO", "action": "Continue", "skill": "performance-benchmarker" }
+    ]
+  },
+  "skill_groups": {
+    "Phase_1_Critical": ["sync-executor", "audit-trail-writer", "chicago-tdd-implementer", "rust-executor"],
+    "Phase_2_Features": ["merge-mode-handler", "watch-mode-monitor", "conditional-executor", "chicago-tdd-implementer"],
+    "Phase_3_Testing": ["chicago-tdd-implementer", "rust-executor", "performance-benchmarker"],
+    "Phase_4_Hardening": ["validation-pipeline", "rdf-sync-validator", "architecture-validator", "performance-benchmarker"],
+    "Phase_5_Release": ["documentation-generator", "specification-writer", "rust-executor"],
+    "All_Phases": ["rust-executor", "chicago-tdd-implementer", "architecture-validator"]
+  },
+  "slos": [
+    {
+      "name": "First build",
+      "skill": "rust-executor",
+      "target": "≤15s"
+    },
+    {
+      "name": "Incremental build",
+      "skill": "rust-executor",
+      "target": "≤2s"
+    },
+    {
+      "name": "RDF processing",
+      "skill": "rdf-sync-validator",
+      "target": "≤5s (1k+ triples)"
+    },
+    {
+      "name": "Sync execution",
+      "skill": "sync-executor",
+      "target": "≤5s (100 rules, 90th percentile)"
+    },
+    {
+      "name": "Test coverage",
+      "skill": "chicago-tdd-implementer",
+      "target": "≥95% (crates/ggen-core/src/codegen/)"
+    },
+    {
+      "name": "Help examples",
+      "skill": "documentation-generator",
+      "target": "100% executable"
+    }
+  ]
+}

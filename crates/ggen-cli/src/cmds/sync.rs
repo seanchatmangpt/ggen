@@ -116,6 +116,47 @@ impl From<SyncResult> for SyncOutput {
 /// ggen.toml → ontology → CONSTRUCT inference → SELECT → Template → Code
 /// ```
 ///
+/// ## Flags
+///
+/// --manifest PATH         Path to ggen.toml (default: ./ggen.toml)
+/// --output-dir PATH       Override output directory from manifest
+/// --dry-run               Preview changes without writing files
+/// --force                 Overwrite existing files (DESTRUCTIVE - use with --audit)
+/// --audit                 Create detailed audit trail in .ggen/audit/
+/// --rule NAME             Execute only specific generation rule
+/// --verbose               Show detailed execution logs
+/// --watch                 Continuous file monitoring and auto-regeneration
+/// --validate-only         Run SHACL/SPARQL validation without generation
+/// --format FORMAT         Output format: text, json, yaml (default: text)
+/// --timeout MS            Maximum execution time in milliseconds (default: 30000)
+///
+/// ## Flag Combinations
+///
+/// Safe workflows:
+///   ggen sync --dry-run --audit         Preview with audit
+///   ggen sync --force --audit           Destructive overwrite with tracking
+///   ggen sync --watch --validate-only   Continuous validation
+///
+/// CI/CD workflows:
+///   ggen sync --format json             Machine-readable output
+///   ggen sync --validate-only           Pre-flight checks
+///
+/// Development workflows:
+///   ggen sync --watch --verbose         Live feedback
+///   ggen sync --rule structs            Focused iteration
+///
+/// ## Flag Precedence
+///
+/// --validate-only overrides --force
+/// --dry-run prevents file writes (--force has no effect)
+/// --watch triggers continuous execution
+///
+/// ## Safety Notes
+///
+/// ⚠️  ALWAYS use --audit with --force to enable rollback
+/// ⚠️  ALWAYS use --dry-run before --force to preview changes
+/// ⚠️  Review docs/features/force-flag.md before using --force
+///
 /// ## Examples
 ///
 /// ```bash
@@ -131,7 +172,7 @@ impl From<SyncResult> for SyncOutput {
 /// # Sync specific rule only
 /// ggen sync --rule structs
 ///
-/// # Force overwrite with audit trail
+/// # Force overwrite with audit trail (RECOMMENDED)
 /// ggen sync --force --audit
 ///
 /// # Watch mode for development
@@ -142,7 +183,20 @@ impl From<SyncResult> for SyncOutput {
 ///
 /// # JSON output for CI/CD
 /// ggen sync --format json
+///
+/// # Complex: Watch, audit, verbose
+/// ggen sync --watch --audit --verbose --rule api_endpoints
 /// ```
+///
+/// ## Documentation
+///
+/// Full feature documentation:
+///   - docs/features/audit-trail.md          Audit trail format and usage
+///   - docs/features/force-flag.md           Safe destructive workflows
+///   - docs/features/merge-mode.md           Hybrid manual/generated code
+///   - docs/features/watch-mode.md           Continuous regeneration
+///   - docs/features/conditional-execution.md SPARQL ASK conditions
+///   - docs/features/validation.md           SHACL/SPARQL constraints
 #[allow(clippy::unused_unit, clippy::too_many_arguments)]
 #[verb("sync", "root")]
 pub fn sync(
