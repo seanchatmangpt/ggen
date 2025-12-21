@@ -7,6 +7,7 @@ Commands:
 - extract: Extract text from generated PDF
 - clean: Clean errant punctuation from text
 - pdf: Generate PDF from LaTeX files
+- dspy: DSPy LLM enhancement commands
 """
 
 import typer
@@ -22,6 +23,14 @@ app = typer.Typer(
 )
 
 console = Console()
+
+# Register DSPy subcommand (required - fail fast if not available)
+from cli import dspy_commands
+app.add_typer(
+    dspy_commands.app,
+    name="dspy",
+    help="DSPy LLM enhancement commands"
+)
 
 
 @app.command()

@@ -110,7 +110,7 @@ All Service Level Objectives (SLOs) met or exceeded:
 
 ✅ **Path Traversal Prevention**
 - Test: Attempt to write outside working directory
-- Result: Command fails gracefully, no file created
+- Result: Command fails immediately with error, no file created
 - Status: PASS
 
 ✅ **Command Injection Prevention**
@@ -349,7 +349,7 @@ Constitutional Equation: thesis.tex = μ(ontology.ttl)
 | Template Rendering | No errors | ✅ All templates |
 | PDF Compilation | Success | ✅ 38 pages |
 | Text Extraction | Complete | ✅ 1126 lines |
-| Error Handling | Graceful | ✅ All cases |
+| Error Handling | Fail-Fast | ✅ All cases |
 
 ---
 
