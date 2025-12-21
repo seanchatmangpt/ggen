@@ -280,11 +280,27 @@ impl TemplateParameterOptimizer {
             for param in &self.parameters {
                 let param_name = &param.name;
 
-                // Get current values
-                let position = *particle.position.get(param_name).unwrap_or(&0.0);
-                let velocity = *particle.velocity.get(param_name).unwrap_or(&0.0);
-                let personal_best = *particle.personal_best_position.get(param_name).unwrap_or(&0.0);
-                let global_best_val = *global_best.get(param_name).unwrap_or(&0.0);
+                // Get current values (these values MUST exist after initialization)
+                let position = particle.position.get(param_name).copied()
+                    .unwrap_or_else(|| {
+                        debug!("Missing position for parameter {}, using 0.0", param_name);
+                        0.0
+                    });
+                let velocity = particle.velocity.get(param_name).copied()
+                    .unwrap_or_else(|| {
+                        debug!("Missing velocity for parameter {}, using 0.0", param_name);
+                        0.0
+                    });
+                let personal_best = particle.personal_best_position.get(param_name).copied()
+                    .unwrap_or_else(|| {
+                        debug!("Missing personal best for parameter {}, using 0.0", param_name);
+                        0.0
+                    });
+                let global_best_val = global_best.get(param_name).copied()
+                    .unwrap_or_else(|| {
+                        debug!("Missing global best for parameter {}, using 0.0", param_name);
+                        0.0
+                    });
 
                 // Update velocity: v = w*v + c1*r1*(pbest - x) + c2*r2*(gbest - x)
                 let r1 = fastrand::f64();

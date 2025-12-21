@@ -150,35 +150,52 @@ fn mask_sensitive_patterns(input: &str) -> String {
     let mut result = input.to_string();
 
     // Pattern: sk-ant-... (Anthropic) - MUST come before general sk- pattern!
-    let ant_pattern = regex::Regex::new(r"sk-ant-[a-zA-Z0-9_-]{20,}").unwrap();
-    result = ant_pattern
-        .replace_all(&result, |caps: &regex::Captures| {
-            let matched = caps.get(0).unwrap().as_str();
-            format!("{}...", &matched[..7])
-        })
-        .to_string();
+    if let Ok(ant_pattern) = regex::Regex::new(r"sk-ant-[a-zA-Z0-9_-]{20,}") {
+        result = ant_pattern
+            .replace_all(&result, |caps: &regex::Captures| {
+                if let Some(matched_str) = caps.get(0).map(|m| m.as_str()) {
+                    if matched_str.len() >= 7 {
+                        format!("{}...", &matched_str[..7])
+                    } else {
+                        "[masked]".to_string()
+                    }
+                } else {
+                    "[masked]".to_string()
+                }
+            })
+            .to_string();
+    }
 
     // Pattern: sk-... (OpenAI and similar)
-    let sk_pattern = regex::Regex::new(r"sk-[a-zA-Z0-9_-]{20,}").unwrap();
-    result = sk_pattern
-        .replace_all(&result, |caps: &regex::Captures| {
-            let matched = caps.get(0).unwrap().as_str();
-            format!("{}...", &matched[..4])
-        })
-        .to_string();
+    if let Ok(sk_pattern) = regex::Regex::new(r"sk-[a-zA-Z0-9_-]{20,}") {
+        result = sk_pattern
+            .replace_all(&result, |caps: &regex::Captures| {
+                if let Some(matched_str) = caps.get(0).map(|m| m.as_str()) {
+                    if matched_str.len() >= 4 {
+                        format!("{}...", &matched_str[..4])
+                    } else {
+                        "[masked]".to_string()
+                    }
+                } else {
+                    "[masked]".to_string()
+                }
+            })
+            .to_string();
+    }
 
     // Pattern: Bearer tokens
-    let bearer_pattern = regex::Regex::new(r"Bearer\s+([a-zA-Z0-9_\-\.]+)").unwrap();
-    result = bearer_pattern
-        .replace_all(&result, "Bearer [masked]")
-        .to_string();
+    if let Ok(bearer_pattern) = regex::Regex::new(r"Bearer\s+([a-zA-Z0-9_\-\.]+)") {
+        result = bearer_pattern
+            .replace_all(&result, "Bearer [masked]")
+            .to_string();
+    }
 
     // Pattern: api_key=... or api-key=... or apikey=...
-    let api_key_pattern =
-        regex::Regex::new(r"(?i)(api[_-]?key\s*[=:]\s*)([a-zA-Z0-9_\-\.]+)").unwrap();
-    result = api_key_pattern
-        .replace_all(&result, "$1[masked]")
-        .to_string();
+    if let Ok(api_key_pattern) = regex::Regex::new(r"(?i)(api[_-]?key\s*[=:]\s*)([a-zA-Z0-9_\-\.]+)") {
+        result = api_key_pattern
+            .replace_all(&result, "$1[masked]")
+            .to_string();
+    }
 
     result
 }

@@ -276,7 +276,7 @@ impl TemplateEvolutionEngine {
             }
 
             // Update best genome
-            if best_genome.is_none() || genome.fitness > best_genome.as_ref().unwrap().fitness {
+            if best_genome.as_ref().map_or(true, |current| genome.fitness > current.fitness) {
                 *best_genome = Some(genome.clone());
             }
         }
@@ -300,8 +300,8 @@ impl TemplateEvolutionEngine {
             // Select best from tournament
             let winner = tournament
                 .iter()
-                .max_by(|a, b| a.fitness.partial_cmp(&b.fitness).unwrap())
-                .unwrap()
+                .max_by(|a, b| a.fitness.partial_cmp(&b.fitness).unwrap_or(std::cmp::Ordering::Equal))
+                .ok_or_else(|| GgenAiError::internal("Tournament selection failed: empty tournament"))?
                 .clone();
 
             parents.push(winner);
@@ -407,7 +407,7 @@ impl TemplateEvolutionEngine {
         let mut population = self.population.write().await;
 
         // Sort current population by fitness
-        population.sort_by(|a, b| b.fitness.partial_cmp(&a.fitness).unwrap());
+        population.sort_by(|a, b| b.fitness.partial_cmp(&a.fitness).unwrap_or(std::cmp::Ordering::Equal));
 
         // Preserve elite genomes
         let elites: Vec<TemplateGenome> = population.iter().take(self.config.elite_count).cloned().collect();

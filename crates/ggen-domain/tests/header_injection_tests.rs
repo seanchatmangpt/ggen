@@ -3,10 +3,12 @@
 //! Tests the `[generation].poka_yoke.warning_headers` configuration
 //! to inject "DO NOT EDIT" headers in generated files.
 
-use ggen_domain::generation::headers::{inject_warning_header, format_header_for_extension, HeaderInjectionConfig};
-use tempfile::TempDir;
+use ggen_domain::generation::headers::{
+    format_header_for_extension, inject_warning_header, HeaderInjectionConfig,
+};
 use std::fs;
 use std::path::Path;
+use tempfile::TempDir;
 
 /// Test: Header injection for Rust files
 #[test]
@@ -17,12 +19,21 @@ fn test_header_injection_rust_file() {
     let result = inject_warning_header(content, output_path, &config);
 
     // Check that header is present
-    assert!(result.contains("DO NOT EDIT"), "Header should contain 'DO NOT EDIT'");
+    assert!(
+        result.contains("DO NOT EDIT"),
+        "Header should contain 'DO NOT EDIT'"
+    );
     assert!(result.contains("// "), "Rust comments should use //");
 
     // Check that original content is preserved
-    assert!(result.contains("fn main()"), "Original content should be preserved");
-    assert!(result.contains("println!"), "Original content should be preserved");
+    assert!(
+        result.contains("fn main()"),
+        "Original content should be preserved"
+    );
+    assert!(
+        result.contains("println!"),
+        "Original content should be preserved"
+    );
 
     // Check that header comes first
     assert!(
@@ -41,10 +52,16 @@ fn test_header_injection_python_file() {
 
     // Check that header uses Python comments
     assert!(result.contains("# "), "Python comments should use #");
-    assert!(result.contains("DO NOT EDIT"), "Header should contain 'DO NOT EDIT'");
+    assert!(
+        result.contains("DO NOT EDIT"),
+        "Header should contain 'DO NOT EDIT'"
+    );
 
     // Check that original content is preserved
-    assert!(result.contains("def hello()"), "Original content should be preserved");
+    assert!(
+        result.contains("def hello()"),
+        "Original content should be preserved"
+    );
 }
 
 /// Test: Header injection for TypeScript files
@@ -56,8 +73,14 @@ fn test_header_injection_typescript_file() {
     let result = inject_warning_header(content, output_path, &config);
 
     assert!(result.contains("// "), "TypeScript comments should use //");
-    assert!(result.contains("DO NOT EDIT"), "Header should contain 'DO NOT EDIT'");
-    assert!(result.contains("export interface User"), "Original content should be preserved");
+    assert!(
+        result.contains("DO NOT EDIT"),
+        "Header should contain 'DO NOT EDIT'"
+    );
+    assert!(
+        result.contains("export interface User"),
+        "Original content should be preserved"
+    );
 }
 
 /// Test: Header injection for Go files
@@ -69,8 +92,14 @@ fn test_header_injection_go_file() {
     let result = inject_warning_header(content, output_path, &config);
 
     assert!(result.contains("// "), "Go comments should use //");
-    assert!(result.contains("DO NOT EDIT"), "Header should contain 'DO NOT EDIT'");
-    assert!(result.contains("package main"), "Original content should be preserved");
+    assert!(
+        result.contains("DO NOT EDIT"),
+        "Header should contain 'DO NOT EDIT'"
+    );
+    assert!(
+        result.contains("package main"),
+        "Original content should be preserved"
+    );
 }
 
 /// Test: Shebang preservation in shell scripts
@@ -88,7 +117,10 @@ fn test_header_injection_preserves_shebang() {
     );
 
     // Header should come after shebang
-    assert!(result.contains("# DO NOT EDIT"), "Header should use shell comments");
+    assert!(
+        result.contains("# DO NOT EDIT"),
+        "Header should use shell comments"
+    );
 }
 
 /// Test: Regeneration command in header
@@ -148,7 +180,10 @@ fn test_header_injection_real_filesystem() -> std::io::Result<()> {
     // Verify file contains header
     let result = fs::read_to_string(&file_path)?;
     assert!(result.contains("DO NOT EDIT"), "File should contain header");
-    assert!(result.contains("pub fn greet()"), "File should contain original content");
+    assert!(
+        result.contains("pub fn greet()"),
+        "File should contain original content"
+    );
 
     Ok(())
 }
@@ -171,7 +206,10 @@ fn test_header_format_unknown_extension() {
     let header_text = "DO NOT EDIT";
     // Unknown extension should default safely
     let header = format_header_for_extension(header_text, "unknown");
-    assert!(header.contains("// "), "Unknown extension should default to // comments");
+    assert!(
+        header.contains("// "),
+        "Unknown extension should default to // comments"
+    );
 }
 
 /// Test: Large files with header injection
@@ -193,12 +231,22 @@ fn test_header_injection_large_file() {
     );
 
     // Check all original content is preserved
-    assert!(result.contains("fn func_0()"), "All content should be preserved");
-    assert!(result.contains("fn func_999()"), "All content should be preserved");
+    assert!(
+        result.contains("fn func_0()"),
+        "All content should be preserved"
+    );
+    assert!(
+        result.contains("fn func_999()"),
+        "All content should be preserved"
+    );
 
     // Header should not be too large
     let header_lines = result.lines().take_while(|l| l.starts_with("//")).count();
-    assert!(header_lines < 20, "Header should be concise, got {} lines", header_lines);
+    assert!(
+        header_lines < 20,
+        "Header should be concise, got {} lines",
+        header_lines
+    );
 }
 
 /// Test: Header with special characters in content
@@ -210,6 +258,12 @@ fn test_header_injection_special_characters() {
     let result = inject_warning_header(content, output_path, &config);
 
     assert!(result.contains("DO NOT EDIT"), "Header should be injected");
-    assert!(result.contains("\"quotes\""), "Special characters should be preserved");
-    assert!(result.contains("'apostrophes'"), "Special characters should be preserved");
+    assert!(
+        result.contains("\"quotes\""),
+        "Special characters should be preserved"
+    );
+    assert!(
+        result.contains("'apostrophes'"),
+        "Special characters should be preserved"
+    );
 }

@@ -2,11 +2,20 @@
 
 [project]
 name = "ggen"
-version = "4.0.0"
-description = "RDF-based code generation toolkit with comprehensive documentation"
+version = "5.0.2"
+description = "Deterministic, language-agnostic code generation framework"
 authors = ["Sean Chatman <sean@ggen.ai>"]
 license = "MIT"
 repository = "https://github.com/seanchatmangpt/ggen"
+
+# Ontology configuration (required for ggen sync)
+[ontology]
+# Path to main ontology file
+source = "ontology.ttl"
+# Base URI for the ontology
+base_uri = "https://ggen.dev/"
+# Ontology format (turtle, rdf/xml, jsonld)
+format = "turtle"
 
 # AI configuration for documentation generation
 [ai]
@@ -131,6 +140,9 @@ verify_signatures = true
 [generation]
 # Enable generation safety checks
 enabled = true
+
+# Generation rules - define what to generate
+rules = []
 
 # Protected paths (glob patterns) - NEVER overwrite
 # These contain domain logic implemented by developers
