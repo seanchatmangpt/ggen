@@ -1,6 +1,6 @@
 [package]
 name = "ggen-marketplace"
-version = "5.0.1"
+version = "5.0.2"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Next-generation marketplace system for ggen using hyper-advanced Rust patterns"
