@@ -1,0 +1,604 @@
+@prefix : <https://ggen.dev/spec/> .
+@prefix spec: <https://ggen.dev/spec/vocab/> .
+@prefix plan: <https://ggen.dev/spec/plan/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# Implementation Plan: v5.1.0 GA Production Release
+# Branch: 013-ga-production-release
+# Status: Planning
+# Created: 2025-12-21
+# ============================================================================
+
+:v510-impl-plan a spec:ImplementationPlan ;
+  rdfs:label "v5.1.0 GA Production Release Implementation Plan" ;
+  rdfs:comment "Technical architecture, design patterns, and implementation strategy for production-hardening ggen v5.0.2" ;
+  spec:version "5.1.0" ;
+  spec:branch "013-ga-production-release" ;
+  spec:createdAt "2025-12-21T00:00:00Z"^^xsd:dateTime ;
+  spec:linksToFeature :v510-ga-production-release ;
+  spec:hasArchitectureDecision :arch-001-modular-audit ;
+  spec:hasArchitectureDecision :arch-002-feature-flag-pattern ;
+  spec:hasArchitectureDecision :arch-003-merge-algorithm ;
+  spec:hasArchitectureDecision :arch-004-watch-debounce ;
+  spec:hasArchitectureDecision :arch-005-conditional-sparql ;
+  spec:hasArchitectureDecision :arch-006-validation-pipeline ;
+  spec:hasArchitectureDecision :arch-007-test-organization ;
+  spec:hasImplementationPhase :phase-001-critical-fixes ;
+  spec:hasImplementationPhase :phase-002-missing-features ;
+  spec:hasImplementationPhase :phase-003-testing ;
+  spec:hasImplementationPhase :phase-004-hardening ;
+  spec:hasImplementationPhase :phase-005-release .
+
+# ============================================================================
+# Architecture Decisions
+# ============================================================================
+
+:arch-001-modular-audit a spec:ArchitectureDecision ;
+  rdfs:label "Modular Audit Trail System" ;
+  rdfs:comment "Separate audit trail generation from sync execution to enable independent testing and lifecycle control" ;
+  spec:pattern "Factory pattern for AuditTrail creation" ;
+  spec:rationale "Isolation enables: (1) Testability - mock audit writing, (2) Reliability - fallback if audit write fails, (3) Performance - audit writing is optional, not required for sync success" ;
+  spec:affectedFiles "crates/ggen-core/src/codegen/executor.rs, crates/ggen-core/src/audit/mod.rs" ;
+  spec:tradeoffs "Slight overhead from factory pattern; clean separation of concerns" .
+
+:arch-002-feature-flag-pattern a spec:ArchitectureDecision ;
+  rdfs:label "Feature Flag Pattern for CLI Options" ;
+  rdfs:comment "Implement feature flags (--force, --audit, --dry-run, --validate-only, --watch) as composable execution modifiers" ;
+  spec:pattern "Chain of Responsibility for flag processing" ;
+  spec:rationale "Enables: (1) Independent testing of each flag, (2) Composition of multiple flags, (3) Clear flag semantics, (4) Observable behavior" ;
+  spec:affectedFiles "crates/ggen-core/src/codegen/executor.rs, crates/ggen-cli/src/sync.rs" ;
+  spec:tradeoffs "Order of flag processing matters; must document precedence rules" .
+
+:arch-003-merge-algorithm a spec:ArchitectureDecision ;
+  rdfs:label "Three-Way Merge with Git-Style Markers" ;
+  rdfs:comment "Implement merge mode using standard git conflict markers: <<<<<<< GENERATED, =======, >>>>>>> MANUAL" ;
+  spec:pattern "Line-based text merge with marker detection regex" ;
+  spec:rationale "Enables: (1) Manual code preservation, (2) Familar git-style syntax, (3) Upstream merge tool compatibility, (4) Clear intent markers" ;
+  spec:affectedFiles "crates/ggen-core/src/codegen/merge.rs" ;
+  spec:algorithm "1. Parse file for markers; 2. Extract MANUAL section; 3. Inject new GENERATED section; 4. Write merged output" ;
+  spec:tradeoffs "Only supports specific marker format; nested markers not supported" .
+
+:arch-004-watch-debounce a spec:ArchitectureDecision ;
+  rdfs:label "File Watch with Debounce Queue" ;
+  rdfs:comment "Use notify crate with 300ms debounce to monitor ontology and template files; queue changes and run sync after debounce period" ;
+  spec:pattern "Debouncer with bounded queue" ;
+  spec:rationale "Prevents: (1) Thrashing on rapid file changes, (2) Duplicate syncs from cascade writes, (3) Resource exhaustion; Enables: (1) Real-time feedback, (2) Batched processing" ;
+  spec:affectedFiles "crates/ggen-core/src/codegen/watch.rs" ;
+  spec:dependencies "notify (file watcher crate)" ;
+  spec:tradeoffs "300ms delay before sync; queue size bounded at 10 to prevent memory exhaustion" .
+
+:arch-005-conditional-sparql a spec:ArchitectureDecision ;
+  rdfs:label "SPARQL ASK Query Evaluation for Conditional Execution" ;
+  rdfs:comment "Evaluate SPARQL ASK queries from rule 'when' field before rule execution; skip rule if query returns false" ;
+  spec:pattern "Pre-execution guard using SPARQL evaluation" ;
+  spec:rationale "Enables: (1) Data-driven rule execution, (2) Ontology-aware workflows, (3) Conditional code generation based on schema" ;
+  spec:affectedFiles "crates/ggen-core/src/codegen/executor.rs, crates/ggen-core/src/sparql/evaluator.rs" ;
+  spec:tradeoffs "Adds overhead per rule; queries must be well-formed and non-malicious (assumption)" .
+
+:arch-006-validation-pipeline a spec:ArchitectureDecision ;
+  rdfs:label "Two-Stage Validation: SHACL Pre-Generation, SPARQL Post-Generation" ;
+  rdfs:comment "Validate ontology with SHACL pre-generation; execute SPARQL validation rules post-generation with fail-fast on severity=error" ;
+  spec:pattern "Pipeline with pluggable validators" ;
+  spec:rationale "Enables: (1) Early schema validation, (2) Generated output validation, (3) Clear error reporting, (4) Composable validation rules" ;
+  spec:affectedFiles "crates/ggen-core/src/validation/mod.rs, crates/ggen-core/src/codegen/pipeline.rs" ;
+  spec:tradeoffs "Two validation passes; performance overhead acceptable for v5.1.0" .
+
+:arch-007-test-organization a spec:ArchitectureDecision ;
+  rdfs:label "Chicago School TDD with AAA Pattern" ;
+  rdfs:comment "Organize tests using Arrange-Act-Assert pattern; focus on observable behavior and state changes" ;
+  spec:pattern "AAA (Arrange-Act-Assert) test structure" ;
+  spec:rationale "Enables: (1) Clear test intent, (2) Behavior verification, (3) High coverage of edge cases, (4) Maintainability" ;
+  spec:affectedFiles "crates/ggen-core/tests/*.rs, crates/ggen-core/src/**/*_tests.rs" ;
+  spec:coveredScenarios "All CLI flags, merge marker edge cases, watch mode debounce, validation rule precedence" ;
+  spec:tradeoffs "More comprehensive tests; slightly larger test suite" .
+
+# ============================================================================
+# Implementation Phases
+# ============================================================================
+
+:phase-001-critical-fixes a spec:ImplementationPhase ;
+  rdfs:label "Phase 1: Critical Gaps (P0)" ;
+  rdfs:comment "Fix advertised features that are non-functional (audit trail, force flag); establish test infrastructure" ;
+  spec:priority "P0" ;
+  spec:estimatedDuration "PT6H" ;
+  spec:deliverables "Audit trail writing, force flag logic, unit test framework" ;
+  spec:successCriteria "audit.json written to disk, --force bypasses protected_paths, test suite passes" ;
+  spec:tasks [
+    :task-001-audit-trail-writer ;
+    :task-002-force-flag-implementation ;
+    :task-003-unit-test-scaffold
+  ] .
+
+:phase-002-missing-features a spec:ImplementationPhase ;
+  rdfs:label "Phase 2: Missing Features (P1)" ;
+  rdfs:comment "Implement advertised but unimplemented features (merge mode, watch mode, conditional execution)" ;
+  spec:priority "P1" ;
+  spec:estimatedDuration "PT12H" ;
+  spec:deliverables "Merge mode, watch mode, conditional execution" ;
+  spec:successCriteria "Merge preserves manual code, watch detects file changes, rules skip on false conditions" ;
+  spec:tasks [
+    :task-004-merge-mode ;
+    :task-005-watch-mode ;
+    :task-006-conditional-execution
+  ] .
+
+:phase-003-testing a spec:ImplementationPhase ;
+  rdfs:label "Phase 3: Comprehensive Testing (P1)" ;
+  rdfs:comment "Add unit and integration tests for all features; achieve 95%+ code coverage" ;
+  spec:priority "P1" ;
+  spec:estimatedDuration "PT8H" ;
+  spec:deliverables "Test suite with 95%+ coverage, passing tests for all CLI flags and edge cases" ;
+  spec:successCriteria "Code coverage >= 95%, all tests passing, 100% of acceptance scenarios covered" ;
+  spec:tasks [
+    :task-007-audit-tests ;
+    :task-008-force-flag-tests ;
+    :task-009-merge-tests ;
+    :task-010-watch-tests ;
+    :task-011-conditional-tests ;
+    :task-012-validation-tests
+  ] .
+
+:phase-004-hardening a spec:ImplementationPhase ;
+  rdfs:label "Phase 4: Production Hardening (P2)" ;
+  rdfs:comment "Implement validation rules, SHACL validation, error handling improvements, performance optimization" ;
+  spec:priority "P2" ;
+  spec:estimatedDuration "PT10H" ;
+  spec:deliverables "Validation pipeline, SHACL execution, improved error messages, performance benchmarks" ;
+  spec:successCriteria "SHACL validates pre-generation, validation rules execute post-generation, error messages include file paths and guidance" ;
+  spec:tasks [
+    :task-013-shacl-validation ;
+    :task-014-validation-rules ;
+    :task-015-error-handling ;
+    :task-016-performance-benchmarks
+  ] .
+
+:phase-005-release a spec:ImplementationPhase ;
+  rdfs:label "Phase 5: Release (P3)" ;
+  rdfs:comment "Documentation, configuration usage, final testing, release preparation" ;
+  spec:priority "P3" ;
+  spec:estimatedDuration "PT4H" ;
+  spec:deliverables "User documentation, CLI help text, configuration examples, release notes" ;
+  spec:successCriteria "All CLI flags documented, example workflows provided, v5.1.0 releasable" ;
+  spec:tasks [
+    :task-017-documentation ;
+    :task-018-cli-help ;
+    :task-019-release-testing
+  ] .
+
+# ============================================================================
+# Implementation Tasks (Phase 1: Critical Fixes)
+# ============================================================================
+
+:task-001-audit-trail-writer a spec:ImplementationTask ;
+  rdfs:label "Implement Audit Trail Writing" ;
+  rdfs:comment "Create audit.json file with execution metadata when --audit flag is used" ;
+  spec:phase :phase-001-critical-fixes ;
+  spec:priority "P0" ;
+  spec:linkedRequirement :fr-001-audit-trail ;
+  spec:linkedScenario :as-001-audit-trail-created ;
+  spec:filesToCreate "crates/ggen-core/src/audit/mod.rs, crates/ggen-core/src/audit/writer.rs" ;
+  spec:filesToModify "crates/ggen-core/src/codegen/executor.rs, crates/ggen-core/src/lib.rs" ;
+  spec:subtasks (
+    [ rdfs:label "Create AuditTrail struct with metadata fields (timestamp, rules, files, hashes)" ]
+    [ rdfs:label "Implement AuditTrailWriter::write(path) to serialize JSON" ]
+    [ rdfs:label "Wire audit trail writing into SyncExecutor::execute()" ]
+    [ rdfs:label "Add --audit flag handling in CLI" ]
+  ) ;
+  spec:testCases (
+    [ rdfs:label "audit.json created when --audit used" ]
+    [ rdfs:label "audit.json contains all required metadata fields" ]
+    [ rdfs:label "Valid JSON written to output directory" ]
+    [ rdfs:label "Existing corrupt audit.json is overwritten cleanly" ]
+  ) .
+
+:task-002-force-flag-implementation a spec:ImplementationTask ;
+  rdfs:label "Implement Force Flag Override" ;
+  rdfs:comment "Check --force flag before evaluating protected_paths constraint; bypass protection if flag set" ;
+  spec:phase :phase-001-critical-fixes ;
+  spec:priority "P0" ;
+  spec:linkedRequirement :fr-002-force-flag ;
+  spec:linkedScenario :as-002-force-flag-works ;
+  spec:filesToModify "crates/ggen-core/src/codegen/executor.rs, crates/ggen-core/src/codegen/pipeline.rs" ;
+  spec:subtasks (
+    [ rdfs:label "Extract force flag from CLI args in SyncExecutor" ]
+    [ rdfs:label "Check force flag before protected_paths evaluation in file write logic" ]
+    [ rdfs:label "Log when force flag overrides protection" ]
+  ) ;
+  spec:testCases (
+    [ rdfs:label "Protected files NOT overwritten without --force" ]
+    [ rdfs:label "Protected files overwritten WITH --force" ]
+    [ rdfs:label "Non-protected files overwritten regardless of flag" ]
+  ) .
+
+:task-003-unit-test-scaffold a spec:ImplementationTask ;
+  rdfs:label "Create Unit Test Scaffold and Fixtures" ;
+  rdfs:comment "Set up test infrastructure with temp directories, ontology fixtures, test helpers" ;
+  spec:phase :phase-001-critical-fixes ;
+  spec:priority "P0" ;
+  spec:linkedRequirement :fr-008-unit-tests ;
+  spec:filesToCreate "crates/ggen-core/tests/common/mod.rs, crates/ggen-core/tests/fixtures/, crates/ggen-core/tests/helpers.rs" ;
+  spec:subtasks (
+    [ rdfs:label "Create test fixture directory with minimal .ttl, ggen.toml, templates" ]
+    [ rdfs:label "Implement TempDir helper for test isolation" ]
+    [ rdfs:label "Create fixture loader for ontology and manifest files" ]
+    [ rdfs:label "Add test runner macro for consistent test structure" ]
+  ) ;
+  spec:dependencies "tempfile (temp directory management), assert_cmd (CLI testing)" .
+
+# ============================================================================
+# Implementation Tasks (Phase 2: Missing Features)
+# ============================================================================
+
+:task-004-merge-mode a spec:ImplementationTask ;
+  rdfs:label "Implement Merge Mode with Marker Detection" ;
+  rdfs:comment "Detect git-style merge markers and preserve manual code sections during generation" ;
+  spec:phase :phase-002-missing-features ;
+  spec:priority "P1" ;
+  spec:linkedRequirement :fr-003-merge-mode ;
+  spec:linkedScenario :as-003-merge-mode-intelligent ;
+  spec:filesToCreate "crates/ggen-core/src/codegen/merge.rs" ;
+  spec:filesToModify "crates/ggen-core/src/codegen/executor.rs, crates/ggen-core/src/codegen/generator.rs" ;
+  spec:algorithm "Regex-based marker detection; extract MANUAL section; inject new GENERATED section; write merged output" ;
+  spec:subtasks (
+    [ rdfs:label "Create merge.rs with merge marker regex patterns" ]
+    [ rdfs:label "Implement parse_merge_markers(content) -> Option<MergeRegions>" ]
+    [ rdfs:label "Implement merge_sections(generated, manual) -> merged_content" ]
+    [ rdfs:label "Wire merge logic into file write path when mode='Merge'" ]
+  ) ;
+  spec:testCases (
+    [ rdfs:label "MANUAL section preserved when markers present" ]
+    [ rdfs:label "New GENERATED content injected between markers" ]
+    [ rdfs:label "File overwritten when markers absent (no merge)" ]
+    [ rdfs:label "Malformed markers handled gracefully" ]
+  ) .
+
+:task-005-watch-mode a spec:ImplementationTask ;
+  rdfs:label "Implement Watch Mode with File Monitoring" ;
+  rdfs:comment "Monitor ontology and template files; run sync automatically on changes with 300ms debounce" ;
+  spec:phase :phase-002-missing-features ;
+  spec:priority "P1" ;
+  spec:linkedRequirement :fr-004-watch-mode ;
+  spec:linkedScenario :as-004-watch-mode-monitors ;
+  spec:filesToCreate "crates/ggen-core/src/codegen/watch.rs" ;
+  spec:filesToModify "crates/ggen-cli/src/sync.rs, crates/ggen-core/src/lib.rs" ;
+  spec:dependencies "notify (file watcher crate), crossbeam (channel for event handling)" ;
+  spec:subtasks (
+    [ rdfs:label "Implement FileWatcher using notify crate with 300ms debounce" ]
+    [ rdfs:label "Create event queue with max 10 pending changes" ]
+    [ rdfs:label "Run sync pipeline when debounce completes" ]
+    [ rdfs:label "Add --watch flag handling in CLI" ]
+  ) ;
+  spec:testCases (
+    [ rdfs:label "File changes trigger sync within 1 second" ]
+    [ rdfs:label "Multiple rapid changes debounced to single sync" ]
+    [ rdfs:label "Queue bounded at 10 items" ]
+    [ rdfs:label "User can interrupt watch mode (Ctrl+C)" ]
+  ) .
+
+:task-006-conditional-execution a spec:ImplementationTask ;
+  rdfs:label "Implement Conditional Rule Execution" ;
+  rdfs:comment "Evaluate SPARQL ASK queries from rule 'when' field; skip rule if query returns false" ;
+  spec:phase :phase-002-missing-features ;
+  spec:priority "P1" ;
+  spec:linkedRequirement :fr-005-conditional-execution ;
+  spec:linkedScenario :as-005-conditional-rules ;
+  spec:filesToModify "crates/ggen-core/src/codegen/executor.rs, crates/ggen-core/src/sparql/evaluator.rs" ;
+  spec:subtasks (
+    [ rdfs:label "Extract 'when' field from generation rule" ]
+    [ rdfs:label "Execute SPARQL ASK query against current graph" ]
+    [ rdfs:label "Skip rule if query returns false; log decision" ]
+  ) ;
+  spec:testCases (
+    [ rdfs:label "Rule skipped when 'when' query returns false" ]
+    [ rdfs:label "Rule executed when 'when' query returns true" ]
+    [ rdfs:label "Rule executed if 'when' field absent (no condition)" ]
+    [ rdfs:label "Malformed SPARQL ASK handled with error message" ]
+  ) .
+
+# ============================================================================
+# Implementation Tasks (Phase 3: Testing)
+# ============================================================================
+
+:task-007-audit-tests a spec:ImplementationTask ;
+  rdfs:label "Unit Tests for Audit Trail" ;
+  rdfs:comment "Test audit.json creation, metadata accuracy, edge cases" ;
+  spec:phase :phase-003-testing ;
+  spec:priority "P1" ;
+  spec:linkedRequirement :fr-008-unit-tests ;
+  spec:filesToCreate "crates/ggen-core/tests/audit_trail_tests.rs" ;
+  spec:testCases (
+    [ rdfs:label "audit.json created with --audit flag" ]
+    [ rdfs:label "JSON structure is valid and contains required fields" ]
+    [ rdfs:label "Timestamps in ISO 8601 format" ]
+    [ rdfs:label "File hashes match actual content" ]
+    [ rdfs:label "Existing corrupt audit.json overwritten" ]
+  ) .
+
+:task-008-force-flag-tests a spec:ImplementationTask ;
+  rdfs:label "Unit Tests for Force Flag" ;
+  rdfs:comment "Test force flag behavior with protected_paths constraint" ;
+  spec:phase :phase-003-testing ;
+  spec:priority "P1" ;
+  spec:linkedRequirement :fr-008-unit-tests ;
+  spec:filesToCreate "crates/ggen-core/tests/force_flag_tests.rs" ;
+  spec:testCases (
+    [ rdfs:label "Protected file NOT written without --force" ]
+    [ rdfs:label "Protected file written WITH --force" ]
+    [ rdfs:label "Non-protected file written regardless" ]
+    [ rdfs:label "Multiple protected paths handled correctly" ]
+  ) .
+
+:task-009-merge-tests a spec:ImplementationTask ;
+  rdfs:label "Unit Tests for Merge Mode" ;
+  rdfs:comment "Test merge marker detection, manual code preservation, edge cases" ;
+  spec:phase :phase-003-testing ;
+  spec:priority "P1" ;
+  spec:linkedRequirement :fr-008-unit-tests ;
+  spec:filesToCreate "crates/ggen-core/tests/merge_mode_tests.rs" ;
+  spec:testCases (
+    [ rdfs:label "MANUAL section preserved" ]
+    [ rdfs:label "GENERATED section updated" ]
+    [ rdfs:label "Markers detected correctly" ]
+    [ rdfs:label "Malformed markers handled (fallback to overwrite)" ]
+    [ rdfs:label "No markers = full overwrite (backward compatible)" ]
+  ) .
+
+:task-010-watch-tests a spec:ImplementationTask ;
+  rdfs:label "Unit Tests for Watch Mode" ;
+  rdfs:comment "Test file watching, debouncing, queue management" ;
+  spec:phase :phase-003-testing ;
+  spec:priority "P1" ;
+  spec:linkedRequirement :fr-008-unit-tests ;
+  spec:filesToCreate "crates/ggen-core/tests/watch_mode_tests.rs" ;
+  spec:testCases (
+    [ rdfs:label "File change triggers sync" ]
+    [ rdfs:label "Rapid changes debounced" ]
+    [ rdfs:label "Queue bounded at 10 items" ]
+    [ rdfs:label "User can exit watch mode cleanly" ]
+  ) .
+
+:task-011-conditional-tests a spec:ImplementationTask ;
+  rdfs:label "Unit Tests for Conditional Execution" ;
+  rdfs:comment "Test SPARQL ASK evaluation, rule skipping, logging" ;
+  spec:phase :phase-003-testing ;
+  spec:priority "P1" ;
+  spec:linkedRequirement :fr-008-unit-tests ;
+  spec:filesToCreate "crates/ggen-core/tests/conditional_execution_tests.rs" ;
+  spec:testCases (
+    [ rdfs:label "Rule skipped on false condition" ]
+    [ rdfs:label "Rule executed on true condition" ]
+    [ rdfs:label "Rule executed if no condition" ]
+    [ rdfs:label "Invalid SPARQL handled with error" ]
+  ) .
+
+:task-012-validation-tests a spec:ImplementationTask ;
+  rdfs:label "Unit Tests for Validation" ;
+  rdfs:comment "Test validation rule execution, SHACL validation, error handling" ;
+  spec:phase :phase-003-testing ;
+  spec:priority "P1" ;
+  spec:linkedRequirement :fr-008-unit-tests ;
+  spec:filesToCreate "crates/ggen-core/tests/validation_tests.rs" ;
+  spec:testCases (
+    [ rdfs:label "SHACL validation pre-generation" ]
+    [ rdfs:label "Validation rules post-generation" ]
+    [ rdfs:label "Sync fails on severity=error violation" ]
+    [ rdfs:label "Sync succeeds when rules pass" ]
+  ) .
+
+# ============================================================================
+# Implementation Tasks (Phase 4: Hardening)
+# ============================================================================
+
+:task-013-shacl-validation a spec:ImplementationTask ;
+  rdfs:label "Implement SHACL Validation (Pre-Generation)" ;
+  rdfs:comment "Execute SHACL shapes against ontology before code generation" ;
+  spec:phase :phase-004-hardening ;
+  spec:priority "P2" ;
+  spec:linkedRequirement :fr-007-shacl-validation ;
+  spec:linkedScenario :as-006-validation-executes ;
+  spec:filesToCreate "crates/ggen-core/src/validation/shacl.rs" ;
+  spec:filesToModify "crates/ggen-core/src/validation/mod.rs, crates/ggen-core/src/codegen/pipeline.rs" ;
+  spec:subtasks (
+    [ rdfs:label "Load SHACL shapes from manifest.validation.shacl" ]
+    [ rdfs:label "Execute validation against ontology graph" ]
+    [ rdfs:label "Report constraint violations" ]
+    [ rdfs:label "Wire into pipeline pre-generation phase" ]
+  ) .
+
+:task-014-validation-rules a spec:ImplementationTask ;
+  rdfs:label "Implement SPARQL Validation Rules (Post-Generation)" ;
+  rdfs:comment "Execute SPARQL validation rules after code generation; fail sync on severity=error" ;
+  spec:phase :phase-004-hardening ;
+  spec:priority "P2" ;
+  spec:linkedRequirement :fr-006-validation-rules ;
+  spec:linkedScenario :as-006-validation-executes ;
+  spec:filesToCreate "crates/ggen-core/src/validation/sparql_rules.rs" ;
+  spec:filesToModify "crates/ggen-core/src/validation/mod.rs, crates/ggen-core/src/codegen/pipeline.rs" ;
+  spec:subtasks (
+    [ rdfs:label "Load SPARQL rules from manifest.validation.rules" ]
+    [ rdfs:label "Execute each rule with severity level" ]
+    [ rdfs:label "Fail fast on severity=error" ]
+    [ rdfs:label "Collect warnings for severity=warning" ]
+  ) .
+
+:task-015-error-handling a spec:ImplementationTask ;
+  rdfs:label "Improve Error Messages with Context" ;
+  rdfs:comment "Include file paths, line numbers, and guidance in error messages" ;
+  spec:phase :phase-004-hardening ;
+  spec:priority "P2" ;
+  spec:linkedRequirement :fr-008-unit-tests ;
+  spec:linkedScenario :as-008-error-handling ;
+  spec:filesToModify "crates/ggen-core/src/error/mod.rs, crates/ggen-core/src/codegen/executor.rs" ;
+  spec:subtasks (
+    [ rdfs:label "Add file path and line number to error context" ]
+    [ rdfs:label "Provide specific guidance for common errors" ]
+    [ rdfs:label "Example: 'missing ontology file: ontology.ttl (line 14 of ggen.toml)'" ]
+  ) .
+
+:task-016-performance-benchmarks a spec:ImplementationTask ;
+  rdfs:label "Performance Benchmarking and Optimization" ;
+  rdfs:comment "Benchmark sync pipeline; optimize hot paths to meet SLOs" ;
+  spec:phase :phase-004-hardening ;
+  spec:priority "P2" ;
+  spec:linkedScenario :as-009-performance-targets ;
+  spec:filesToCreate "benches/sync_performance.rs" ;
+  spec:benchmarks (
+    [ rdfs:label "100-rule manifest: target 90th percentile <= 5 seconds" ]
+    [ rdfs:label "10,000-triple ontology: target 95th percentile <= 10 seconds" ]
+    [ rdfs:label "SPARQL query evaluation: optimize caching" ]
+  ) .
+
+# ============================================================================
+# Implementation Tasks (Phase 5: Release)
+# ============================================================================
+
+:task-017-documentation a spec:ImplementationTask ;
+  rdfs:label "User and Developer Documentation" ;
+  rdfs:comment "Document all features, provide usage examples, write architecture guide" ;
+  spec:phase :phase-005-release ;
+  spec:priority "P3" ;
+  spec:linkedScenario :as-009-performance-targets ;
+  spec:deliverables "docs/ggen-sync-guide.md, docs/merge-mode.md, docs/validation.md" ;
+  spec:subtasks (
+    [ rdfs:label "Write ggen sync user guide with examples" ]
+    [ rdfs:label "Document merge mode workflow" ]
+    [ rdfs:label "Document conditional execution patterns" ]
+    [ rdfs:label "Document validation rule writing" ]
+  ) .
+
+:task-018-cli-help a spec:ImplementationTask ;
+  rdfs:label "CLI Help Text and Examples" ;
+  rdfs:comment "Add help documentation for all CLI flags; include usage examples" ;
+  spec:phase :phase-005-release ;
+  spec:priority "P3" ;
+  spec:deliverables "ggen sync --help with all flags documented" ;
+  spec:subtasks (
+    [ rdfs:label "Add doc comments for --audit flag" ]
+    [ rdfs:label "Add doc comments for --force flag" ]
+    [ rdfs:label "Add doc comments for --watch flag" ]
+    [ rdfs:label "Add usage examples in help output" ]
+  ) .
+
+:task-019-release-testing a spec:ImplementationTask ;
+  rdfs:label "Final Release Testing and QA" ;
+  rdfs:comment "End-to-end testing; verify all acceptance scenarios; prepare release notes" ;
+  spec:phase :phase-005-release ;
+  spec:priority "P3" ;
+  spec:subtasks (
+    [ rdfs:label "Run full test suite (cargo make test)" ]
+    [ rdfs:label "Test all CLI flag combinations" ]
+    [ rdfs:label "Verify performance targets met" ]
+    [ rdfs:label "Check documentation completeness" ]
+  ) ;
+  spec:deliverables "RELEASE_NOTES.md, v5.1.0 tag, crates.io publication" .
+
+# ============================================================================
+# Data Model Entities
+# ============================================================================
+
+:entity-audit-trail a spec:DataEntity ;
+  rdfs:label "AuditTrail" ;
+  rdfs:comment "Complete execution metadata for a sync operation" ;
+  spec:field [
+    rdf:label "timestamp" ;
+    rdfs:comment "ISO 8601 timestamp of sync execution" ;
+    spec:type "String"
+  ] ;
+  spec:field [
+    rdf:label "rules_executed" ;
+    rdfs:comment "List of generation rules that ran" ;
+    spec:type "List<String>"
+  ] ;
+  spec:field [
+    rdf:label "files_changed" ;
+    rdfs:comment "Map of file path to content hash" ;
+    spec:type "Map<String, String>"
+  ] ;
+  spec:field [
+    rdf:label "determinism_salt" ;
+    rdfs:comment "Salt used for deterministic output" ;
+    spec:type "String"
+  ] ;
+  spec:field [
+    rdf:label "success" ;
+    rdfs:comment "Whether sync completed successfully" ;
+    spec:type "Boolean"
+  ] .
+
+:entity-merge-region a spec:DataEntity ;
+  rdfs:label "MergeRegion" ;
+  rdfs:comment "Parsed merge marker regions from file" ;
+  spec:field [
+    rdf:label "manual_start" ;
+    rdfs:comment "Line number of <<<<<<< MANUAL marker" ;
+    spec:type "usize"
+  ] ;
+  spec:field [
+    rdf:label "separator" ;
+    rdfs:comment "Line number of ======= separator" ;
+    spec:type "usize"
+  ] ;
+  spec:field [
+    rdf:label "manual_end" ;
+    rdfs:comment "Line number of >>>>>>> MANUAL marker" ;
+    spec:type "usize"
+  ] ;
+  spec:field [
+    rdf:label "manual_content" ;
+    rdfs:comment "Extracted manual code section" ;
+    spec:type "String"
+  ] .
+
+# ============================================================================
+# Quality Gates and Checkpoints
+# ============================================================================
+
+:quality-gate-phase1 a spec:QualityGate ;
+  rdfs:label "Phase 1 Gate: Critical Fixes" ;
+  rdfs:comment "Verify all P0 issues fixed before proceeding to P1 features" ;
+  spec:checks (
+    [ rdfs:label "audit.json written to disk" ]
+    [ rdfs:label "--force flag bypasses protected_paths" ]
+    [ rdfs:label "Unit test scaffold operational" ]
+    [ rdfs:label "CI pipeline passing" ]
+  ) ;
+  spec:blockingCriteria "Any check fails = STOP" .
+
+:quality-gate-phase3 a spec:QualityGate ;
+  rdfs:label "Phase 3 Gate: Test Coverage" ;
+  rdfs:comment "Verify 95%+ code coverage before hardening" ;
+  spec:checks (
+    [ rdfs:label "Code coverage >= 95%" ]
+    [ rdfs:label "All tests passing (100%)" ]
+    [ rdfs:label "No flaky tests detected" ]
+  ) ;
+  spec:blockingCriteria "Coverage < 95% = STOP" .
+
+:quality-gate-release a spec:QualityGate ;
+  rdfs:label "Release Gate: Production Readiness" ;
+  rdfs:comment "Verify v5.1.0 meets all success criteria" ;
+  spec:checks (
+    [ rdfs:label "Zero critical bugs (P0/P1)" ]
+    [ rdfs:label "Performance targets met (90th <= 5s)" ]
+    [ rdfs:label "All documented features functional" ]
+    [ rdfs:label "Complete user documentation" ]
+  ) ;
+  spec:blockingCriteria "Any check fails = STOP release" .
+
+# ============================================================================
+# Constitution Compliance
+# ============================================================================
+
+:constitution-alignment a spec:ConstitutionComplianceCheck ;
+  rdfs:label "v5.1.0 Alignment with ggen Constitution" ;
+  spec:principle "Deterministic Outputs" ;
+  spec:assessment "Audit trail ensures deterministic execution is recorded and verifiable" ;
+  spec:principle "Type Safety" ;
+  spec:assessment "Result<T,E> error handling (no unwrap in production code)" ;
+  spec:principle "Zero-Cost Abstractions" ;
+  spec:assessment "Feature flags use composition pattern; no runtime overhead" ;
+  spec:principle "Chicago School TDD" ;
+  spec:assessment "Tests verify observable behavior (file writes, state changes)" .
