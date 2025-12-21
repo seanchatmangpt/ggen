@@ -121,11 +121,9 @@ impl SyncExecutor {
             )));
         }
 
-        // Watch mode - not yet implemented
+        // T017-T018: Watch mode implementation
         if self.options.watch {
-            return Err(Error::new(
-                "Watch mode (--watch) is not yet implemented. Use manual sync for now.",
-            ));
+            return self.execute_watch_mode(&self.options.manifest_path);
         }
 
         // Parse manifest
@@ -319,6 +317,11 @@ impl SyncExecutor {
         // Create pipeline and run
         let mut pipeline = GenerationPipeline::new(manifest_data.clone(), base_path.to_path_buf());
 
+        // Apply force flag to pipeline if set
+        if self.options.force {
+            pipeline.set_force_overwrite(true);
+        }
+
         if self.options.verbose {
             eprintln!("Loading manifest: {}", self.options.manifest_path.display());
         }
@@ -373,9 +376,39 @@ impl SyncExecutor {
 
         let files_synced = synced_files.len();
 
-        // Determine audit trail path
+        // Determine audit trail path and write if enabled
         let audit_path = if self.options.audit || manifest_data.generation.require_audit_trail {
-            Some(output_directory.join("audit.json").display().to_string())
+            let audit_file_path = base_path.join(&output_directory).join("audit.json");
+
+            // Create audit trail from pipeline state
+            let mut audit_trail = crate::audit::AuditTrail::new(
+                "5.1.0",
+                &self.options.manifest_path.display().to_string(),
+                &manifest_data.ontology.source.display().to_string(),
+            );
+
+            // Record rules executed
+            for _ in &state.executed_rules {
+                audit_trail.record_rule_executed();
+            }
+
+            // Record files changed with hashes
+            for file in &state.generated_files {
+                audit_trail.record_file_change(
+                    file.path.display().to_string(),
+                    file.content_hash.clone(),
+                );
+            }
+
+            // Set execution metadata
+            audit_trail.metadata.duration_ms = self.start_time.elapsed().as_millis() as u64;
+            audit_trail.metadata.spec_hash = format!("manifest-{}", manifest_data.project.version);
+
+            // Write audit trail to disk
+            crate::audit::writer::AuditTrailWriter::write(&audit_trail, &audit_file_path)
+                .map_err(|e| Error::new(&format!("Failed to write audit trail: {}", e)))?;
+
+            Some(audit_file_path.display().to_string())
         } else {
             None
         };
@@ -406,5 +439,93 @@ impl SyncExecutor {
             audit_trail: audit_path,
             error: None,
         })
+    }
+
+    /// T017-T018: Execute watch mode - monitor files and auto-regenerate
+    fn execute_watch_mode(&self, manifest_path: &Path) -> Result<SyncResult> {
+        use crate::codegen::watch::{collect_watch_paths, FileWatcher};
+        use std::time::Duration;
+
+        // Parse manifest to get watch paths
+        let manifest_data = ManifestParser::parse(manifest_path).map_err(|e| {
+            Error::new(&format!(
+                "error[E0001]: Manifest parse error\n  --> {}\n  |\n  = error: {}\n  = help: Check ggen.toml syntax",
+                manifest_path.display(),
+                e
+            ))
+        })?;
+
+        let base_path = manifest_path.parent().unwrap_or(Path::new("."));
+        let watch_paths = collect_watch_paths(manifest_path, &manifest_data, base_path);
+
+        if self.options.verbose {
+            eprintln!("Starting watch mode...");
+            eprintln!("Monitoring {} paths for changes:", watch_paths.len());
+            for path in &watch_paths {
+                eprintln!("  {}", path.display());
+            }
+            eprintln!("\nPress Ctrl+C to stop.\n");
+        }
+
+        // Initial sync
+        if self.options.verbose {
+            eprintln!("[Initial] Running sync...");
+        }
+        let executor = SyncExecutor::new(SyncOptions {
+            watch: false, // Disable watch for recursive call
+            ..self.options.clone()
+        });
+        let initial_result = executor.execute()?;
+
+        if self.options.verbose {
+            eprintln!(
+                "[Initial] Synced {} files in {:.3}s\n",
+                initial_result.files_synced,
+                initial_result.duration_ms as f64 / 1000.0
+            );
+        }
+
+        // Start file watcher
+        let watcher = FileWatcher::new(watch_paths.clone());
+        let rx = watcher.start()?;
+
+        // Watch loop
+        loop {
+            match FileWatcher::wait_for_change(&rx, Duration::from_secs(1)) {
+                Ok(Some(event)) => {
+                    if self.options.verbose {
+                        eprintln!("[Change detected] {}", event.path.display());
+                        eprintln!("[Regenerating] Running sync...");
+                    }
+
+                    // Re-run sync
+                    let executor = SyncExecutor::new(SyncOptions {
+                        watch: false,
+                        ..self.options.clone()
+                    });
+
+                    match executor.execute() {
+                        Ok(result) => {
+                            if self.options.verbose {
+                                eprintln!(
+                                    "[Regenerating] Synced {} files in {:.3}s\n",
+                                    result.files_synced,
+                                    result.duration_ms as f64 / 1000.0
+                                );
+                            }
+                        }
+                        Err(e) => {
+                            eprintln!("[Error] Regeneration failed: {}\n", e);
+                        }
+                    }
+                }
+                Ok(None) => {
+                    // Timeout - continue watching
+                }
+                Err(e) => {
+                    return Err(Error::new(&format!("Watch error: {}", e)));
+                }
+            }
+        }
     }
 }
