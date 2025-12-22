@@ -1,0 +1,945 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix ggen: <http://github.com/intelligentdatastructures/ggen#> .
+
+# ============================================================================
+# ggen Marketplace Gpack - Task Breakdown (RDF/Turtle)
+# ============================================================================
+# Feature: Marketplace Gpack Distribution Retrofit
+# Branch: 014-marketplace-gpack
+# Date: 2025-12-21
+# Phase Breakdown: 8 phases with 52 executable tasks
+# Parallelization: 10-agent swarm (following v5.2.0 JTBD pattern)
+# ============================================================================
+
+ggen:marketplace-gpack-tasks a sk:TaskBreakdown ;
+    sk:featureBranch "014-marketplace-gpack" ;
+    sk:featureName "Marketplace Gpack Distribution Retrofit" ;
+    sk:tasksCreated "2025-12-21"^^xsd:date ;
+    sk:tasksStatus "Task Breakdown Complete - Ready for Implementation" ;
+    sk:totalTasks 52 ;
+    sk:totalPhases 8 ;
+    sk:parallelizationStrategy "10-agent swarm with phase dependencies" ;
+    sk:taskOrganization "Phases 1-2 sequential (foundation blocking all stories), Phases 3-8 user-story-driven with internal parallelization" ;
+    sk:estimatedTotalHours "168-216 hours (4-5.5 weeks)" ;
+    sk:criticalPathHours "80-120 hours (2-3 weeks)" ;
+    sk:quality "Lean Six Sigma: 99.99966% target" ;
+    sk:hasPhases (
+        ggen:phase-setup
+        ggen:phase-foundation
+        ggen:phase-publish-story
+        ggen:phase-install-story
+        ggen:phase-search-story
+        ggen:phase-resolver-story
+        ggen:phase-validation-story
+        ggen:phase-recommendations-story
+        ggen:phase-polish
+    ) .
+
+# ============================================================================
+# PHASE 1: SETUP (3-4 hours) - Project Initialization
+# ============================================================================
+# Goal: Initialize project structure, verify dependencies, establish patterns
+# Dependencies: None (first phase)
+# All tasks sequential; blocking for all downstream phases
+# ============================================================================
+
+ggen:phase-setup a sk:Phase ;
+    sk:phaseNumber "1" ;
+    sk:phaseTitle "Phase 1: Project Setup & Dependencies" ;
+    sk:phaseGoal "Initialize crate structure, verify dependencies, establish build patterns" ;
+    sk:phaseDependencies () ;
+    sk:estimatedHours 3-4 ;
+    sk:taskCount 4 ;
+    sk:blockingPhase true .
+
+ggen:task-001 a sk:Task ;
+    sk:taskID "T001" ;
+    sk:taskPhase ggen:phase-setup ;
+    sk:taskNumber 1 ;
+    sk:taskTitle "Create ggen-marketplace gpack module structure" ;
+    sk:taskDescription "Create directory structure for gpack implementation: crates/ggen-marketplace/src/gpack/ with mod.rs and file stubs for format.rs, manifest.rs, crates_client.rs, resolver.rs, validator.rs, cache.rs, error.rs, lockfile.rs, search.rs, quality.rs" ;
+    sk:taskFilePath "crates/ggen-marketplace/src/gpack/" ;
+    sk:taskType "setup" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "0.5" ;
+    sk:acceptance "Module structure created and cargo check passes" .
+
+ggen:task-002 a sk:Task ;
+    sk:taskID "T002" ;
+    sk:taskPhase ggen:phase-setup ;
+    sk:taskNumber 2 ;
+    sk:taskTitle "Verify and document all dependencies in Cargo.toml" ;
+    sk:taskDescription "Add all 13 technology dependencies to Cargo.toml: tokio, reqwest, serde (json, toml, yaml), oxigraph, tera, tracing, otel, sha2, ed25519, tempfile. Document feature flags and version constraints. Verify cargo check passes with all deps." ;
+    sk:taskFilePath "Cargo.toml + crates/ggen-marketplace/Cargo.toml + crates/ggen-cli/Cargo.toml" ;
+    sk:taskType "setup" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "1" ;
+    sk:acceptance "All dependencies added, cargo check clean, docs added to Cargo.toml" .
+
+ggen:task-003 a sk:Task ;
+    sk:taskID "T003" ;
+    sk:taskPhase ggen:phase-setup ;
+    sk:taskNumber 3 ;
+    sk:taskTitle "Set up test infrastructure and fixtures" ;
+    sk:taskDescription "Create test directory structure (crates/ggen-core/tests/ + crates/ggen-marketplace/tests/). Add test fixtures: sample manifests, lock files, FMEA reports. Create test utilities for mocking crates.io API, generating test packages, assertions." ;
+    sk:taskFilePath "crates/ggen-core/tests/ + crates/ggen-marketplace/tests/" ;
+    sk:taskType "setup" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "1.5" ;
+    sk:acceptance "Test directories created, fixtures available, test utils functional" .
+
+ggen:task-004 a sk:Task ;
+    sk:taskID "T004" ;
+    sk:taskPhase ggen:phase-setup ;
+    sk:taskNumber 4 ;
+    sk:taskTitle "Configure pre-commit hooks and CI pipeline" ;
+    sk:taskDescription "Update .pre-commit-config.yaml to validate gpack changes. Update GitHub Actions CI to test gpack code. Configure cargo make targets for gpack testing. Ensure clippy, format, type checks all pass." ;
+    sk:taskFilePath ".pre-commit-config.yaml + .github/workflows/ + Makefile.toml" ;
+    sk:taskType "setup" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "1" ;
+    sk:acceptance "Pre-commit hooks working, CI tests green, cargo make check/test/lint all pass" .
+
+# ============================================================================
+# PHASE 2: FOUNDATION (24-32 hours) - Critical Blocking Prerequisites
+# ============================================================================
+# Goal: Define core domain models and error handling (blocks all feature stories)
+# Dependencies: Phase 1 (setup complete)
+# NOTE: Tasks T005-T010 can run in parallel ([P]) - different domain modules
+# ============================================================================
+
+ggen:phase-foundation a sk:Phase ;
+    sk:phaseNumber "2" ;
+    sk:phaseTitle "Phase 2: Foundation - Core Domain Models & Error Handling" ;
+    sk:phaseGoal "Define GpackManifest, error types, foundational types needed by all stories" ;
+    sk:phaseDependencies ggen:phase-setup ;
+    sk:estimatedHours 24-32 ;
+    sk:taskCount 6 ;
+    sk:blockingPhase true ;
+    sk:parallelizationNote "All 6 tasks parallelizable: different domain modules (no shared dependencies)" .
+
+ggen:task-005 a sk:Task ;
+    sk:taskID "T005" ;
+    sk:taskPhase ggen:phase-foundation ;
+    sk:taskNumber 5 ;
+    sk:taskTitle "Define GpackManifest structure and validation rules" ;
+    sk:taskDescription "[P] Define core struct GpackManifest with fields: crate_name, version, description, dependencies, fmea_reference, quality_tier, homepage, documentation. Implement validation: crate_name ends with -gpack, version is SemVer, description max 500 chars. Add serde derive with feature gates." ;
+    sk:taskFilePath "crates/ggen-marketplace/src/gpack/format.rs" ;
+    sk:taskType "domain" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "4" ;
+    sk:acceptance "GpackManifest struct defined, validation rules tested, serde works for YAML and TOML" .
+
+ggen:task-006 a sk:Task ;
+    sk:taskID "T006" ;
+    sk:taskPhase ggen:phase-foundation ;
+    sk:taskNumber 6 ;
+    sk:taskTitle "Define comprehensive error type for gpack operations" ;
+    sk:taskDescription "[P] Define GpackError enum with variants: FormatError, ManifestError, CratesError, ResolverError, ValidationError, CacheError. Include error message templates, context preservation, Display impl with user-friendly messages. Use thiserror crate." ;
+    sk:taskFilePath "crates/ggen-marketplace/src/gpack/error.rs" ;
+    sk:taskType "domain" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "3" ;
+    sk:acceptance "Error enum defined, Display impl correct, all error paths documented" .
+
+ggen:task-007 a sk:Task ;
+    sk:taskID "T007" ;
+    sk:taskPhase ggen:phase-foundation ;
+    sk:taskNumber 7 ;
+    sk:taskTitle "Define lock file format and structures" ;
+    sk:taskDescription "[P] Define GgenLockFile struct with fields: format_version (1.0), packages Map<String, Version>, checksums Map<String, String>, generated_at DateTime, rust_toolchain String. Implement serialization (YAML for readability). Add round-trip tests." ;
+    sk:taskFilePath "crates/ggen-marketplace/src/gpack/lockfile.rs" ;
+    sk:taskType "domain" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "3" ;
+    sk:acceptance "LockFile struct defined, YAML serialization works, round-trip tests pass" .
+
+ggen:task-008 a sk:Task ;
+    sk:taskID "T008" ;
+    sk:taskPhase ggen:phase-foundation ;
+    sk:taskNumber 8 ;
+    sk:taskTitle "Define dependency version constraint types" ;
+    sk:taskDescription "[P] Define VersionConstraint enum: Exact(Version), AtLeast(Version), UpTo(Version), Range(min, max). Implement constraint matching logic. Add parser for semver constraint strings (>= 1.0, < 2.0, etc). Test against known constraint patterns." ;
+    sk:taskFilePath "crates/ggen-marketplace/src/gpack/resolver.rs (types section)" ;
+    sk:taskType "domain" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "3" ;
+    sk:acceptance "VersionConstraint enum defined, parser works, constraint matching tested" .
+
+ggen:task-009 a sk:Task ;
+    sk:taskID "T009" ;
+    sk:taskPhase ggen:phase-foundation ;
+    sk:taskNumber 9 ;
+    sk:taskTitle "Define cache layer types and interfaces" ;
+    sk:taskDescription "[P] Define CacheEntry struct (package_name, version, hash, location, timestamp, size). Define CacheManager trait: get(), set(), invalidate(), cleanup(). Define metadata cache and package cache as separate layers. No implementation yet, just types and trait." ;
+    sk:taskFilePath "crates/ggen-marketplace/src/gpack/cache.rs (types section)" ;
+    sk:taskType "domain" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "2" ;
+    sk:acceptance "Cache types and trait defined, documentation clear, no impl yet" .
+
+ggen:task-010 a sk:Task ;
+    sk:taskID "T010" ;
+    sk:taskPhase ggen:phase-foundation ;
+    sk:taskNumber 10 ;
+    sk:taskTitle "Define FMEA validation types and quality tiers" ;
+    sk:taskDescription "[P] Define FmeaValidation struct: crate_name, version, failure_modes List, critical_count Int, controls_applied List. Define QualityTier enum: Gold, Silver, Bronze. Define PokayokeGuard enum: DirectorySeparation, TraitBoundary, PathProtection, VersionConstraint. Just types, no validation logic yet." ;
+    sk:taskFilePath "crates/ggen-marketplace/src/gpack/validator.rs (types section)" ;
+    sk:taskType "domain" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "2.5" ;
+    sk:acceptance "All types defined, enums have variants, documentation complete" .
+
+# ============================================================================
+# PHASE 3: USER STORY 1 - PUBLISH TO CRATES.IO (24-32 hours)
+# ============================================================================
+# JTBD: Package developers publish gpack to crates.io for standard distribution
+# Dependencies: Phase 2 (foundation complete)
+# Parallelization: US1.1, US1.3 parallel (different modules); US1.2 dependent on US1.1
+# ============================================================================
+
+ggen:phase-publish-story a sk:Phase ;
+    sk:phaseNumber "3" ;
+    sk:phaseTitle "Phase 3: User Story 1 - Publish Gpack to crates.io" ;
+    sk:phaseGoal "Enable package developers to publish marketplace packages to crates.io" ;
+    sk:phaseDependencies ggen:phase-foundation ;
+    sk:relatedUserStory "Story 1: Package Developers Publish Gpack to crates.io (P1)" ;
+    sk:estimatedHours 24-32 ;
+    sk:taskCount 8 ;
+    sk:parallelizationNote "T011/T013/T014 parallel (manifest/client/tests); T012 depends on T011" .
+
+ggen:task-011 a sk:Task ;
+    sk:taskID "T011" ;
+    sk:taskPhase ggen:phase-publish-story ;
+    sk:taskNumber 11 ;
+    sk:taskRelatedStory "Story 1" ;
+    sk:taskTitle "Implement manifest serialization (YAML → TOML conversion)" ;
+    sk:taskDescription "[P] Implement manifest.rs: parse YAML gpack manifest, serialize to Cargo.toml format for crates.io. Include conversion logic for dependencies, metadata, FMEA reference. Handle edge cases: optional fields, nested structures. Tests for round-trip serialization." ;
+    sk:taskFilePath "crates/ggen-marketplace/src/gpack/manifest.rs" ;
+    sk:taskType "domain" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "4" ;
+    sk:acceptance "YAML→TOML conversion works, all fields preserved, tests 100% pass, no panics" .
+
+ggen:task-012 a sk:Task ;
+    sk:taskID "T012" ;
+    sk:taskPhase ggen:phase-publish-story ;
+    sk:taskNumber 12 ;
+    sk:taskRelatedStory "Story 1" ;
+    sk:taskTitle "Implement crates.io HTTP API client" ;
+    sk:taskDescription "Implement crates_client.rs: async client for crates.io. Methods: publish(manifest, tarball) → PublishResponse, fetch_metadata(crate_name) → CrateMetadata, search(query) → SearchResults. Use reqwest with timeouts, retries. Handle authentication via API token." ;
+    sk:taskFilePath "crates/ggen-marketplace/src/gpack/crates_client.rs" ;
+    sk:taskType "domain" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "6" ;
+    sk:dependency ggen:task-011 ;
+    sk:acceptance "Client publishes packages, fetches metadata, searches; unit tests with mocked API pass" .
+
+ggen:task-013 a sk:Task ;
+    sk:taskID "T013" ;
+    sk:taskPhase ggen:phase-publish-story ;
+    sk:taskNumber 13 ;
+    sk:taskRelatedStory "Story 1" ;
+    sk:taskTitle "Implement manifest validation and schema enforcement" ;
+    sk:taskDescription "[P] Implement validation logic in format.rs: verify crate_name pattern, version is SemVer, required fields present, FMEA reference valid (if provided). Return validation errors with actionable messages. Test valid and invalid manifests." ;
+    sk:taskFilePath "crates/ggen-marketplace/src/gpack/format.rs (validation section)" ;
+    sk:taskType "domain" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "3" ;
+    sk:acceptance "All validation rules enforced, error messages clear, edge cases handled" .
+
+ggen:task-014 a sk:Task ;
+    sk:taskID "T014" ;
+    sk:taskPhase ggen:phase-publish-story ;
+    sk:taskNumber 14 ;
+    sk:taskRelatedStory "Story 1" ;
+    sk:taskTitle "Write unit tests for manifest and serialization" ;
+    sk:taskDescription "[P] Write Chicago TDD tests for manifest parsing, validation, YAML/TOML serialization. Test valid manifests, invalid patterns, edge cases (special chars, long strings, unicode). Aim for 90%+ coverage of format.rs and manifest.rs." ;
+    sk:taskFilePath "crates/ggen-marketplace/tests/gpack_format_tests.rs" ;
+    sk:taskType "test" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "3" ;
+    sk:testApproach "Chicago TDD: AAA pattern, state-based, real objects" ;
+    sk:coverage "90%+" ;
+    sk:acceptance "All tests pass, coverage 90%+, no panics on invalid input" .
+
+ggen:task-015 a sk:Task ;
+    sk:taskID "T015" ;
+    sk:taskPhase ggen:phase-publish-story ;
+    sk:taskNumber 15 ;
+    sk:taskRelatedStory "Story 1" ;
+    sk:taskTitle "Write unit tests for crates.io client" ;
+    sk:taskDescription "Write tests for crates_client.rs using mock HTTP responses. Test publish() success/failure paths, fetch_metadata() with various crate names, search() with different queries. Test timeout handling, retry logic, auth token inclusion. 85%+ coverage." ;
+    sk:taskFilePath "crates/ggen-marketplace/tests/crates_integration_tests.rs" ;
+    sk:taskType "test" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "4" ;
+    sk:testApproach "Chicago TDD with HTTP mocking (mockito or similar)" ;
+    sk:coverage "85%+" ;
+    sk:acceptance "All paths tested, mocks work correctly, timeout/retry tested" .
+
+ggen:task-016 a sk:Task ;
+    sk:taskID "T016" ;
+    sk:taskPhase ggen:phase-publish-story ;
+    sk:taskNumber 16 ;
+    sk:taskRelatedStory "Story 1" ;
+    sk:taskTitle "Implement CLI publish command" ;
+    sk:taskDescription "Implement crates/ggen-cli/src/commands/marketplace/publish.rs: parse CLI args (--package, --target crates.io), call domain functions, format output. Validate manifest before publish, handle FMEA requirement. Provide clear success/error messages." ;
+    sk:taskFilePath "crates/ggen-cli/src/commands/marketplace/publish.rs" ;
+    sk:taskType "cli" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "3" ;
+    sk:dependency ggen:task-012 ;
+    sk:acceptance "Command parses args, validates, publishes, displays results, handles errors" .
+
+ggen:task-017 a sk:Task ;
+    sk:taskID "T017" ;
+    sk:taskPhase ggen:phase-publish-story ;
+    sk:taskNumber 17 ;
+    sk:taskRelatedStory "Story 1" ;
+    sk:taskTitle "Implement end-to-end publish workflow tests" ;
+    sk:taskDescription "Write e2e tests for full publish flow: load manifest → validate → serialize → publish to crates.io (mocked). Test acceptance scenarios: basic publish, with dependencies, missing FMEA blocking. Verify package appears in crates.io search within test environment." ;
+    sk:taskFilePath "crates/ggen-core/tests/e2e_publish_tests.rs" ;
+    sk:taskType "test" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "3" ;
+    sk:dependency ggen:task-016 ;
+    sk:testApproach "Chicago TDD e2e: real manifests, mocked crates.io, verify all acceptance criteria" ;
+    sk:coverage "80%+" ;
+    sk:acceptance "All acceptance scenarios pass, no flaky tests, clear failure messages" .
+
+ggen:task-018 a sk:Task ;
+    sk:taskID "T018" ;
+    sk:taskPhase ggen:phase-publish-story ;
+    sk:taskNumber 18 ;
+    sk:taskRelatedStory "Story 1" ;
+    sk:taskTitle "Write comprehensive documentation for publish workflow" ;
+    sk:taskDescription "Document publish command in docs/features/marketplace-gpack.md: user guide, CLI examples, manifest format reference, troubleshooting. Include examples of valid/invalid manifests. Document FMEA requirement and override options." ;
+    sk:taskFilePath "docs/features/marketplace-gpack.md (publish section)" ;
+    sk:taskType "documentation" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "2" ;
+    sk:acceptance "Clear examples, all options documented, no ambiguities" .
+
+# ============================================================================
+# PHASE 4: USER STORY 2 - INSTALL FROM CRATES.IO (28-36 hours)
+# ============================================================================
+# JTBD: Users install marketplace packages from crates.io with validation
+# Dependencies: Phase 3 (publish complete, crates client available)
+# Parallelization: Resolver (T019), Cache (T020), FMEA validator (T021) parallel
+# ============================================================================
+
+ggen:phase-install-story a sk:Phase ;
+    sk:phaseNumber "4" ;
+    sk:phaseTitle "Phase 4: User Story 2 - Install Gpack from crates.io" ;
+    sk:phaseGoal "Enable users to install marketplace packages with automatic validation" ;
+    sk:phaseDependencies ggen:phase-publish-story ;
+    sk:relatedUserStory "Story 2: Users Install Gpack from crates.io (P1)" ;
+    sk:estimatedHours 28-36 ;
+    sk:taskCount 10 ;
+    sk:parallelizationNote "T019/T020/T021/T023 parallel (independent domain systems)" .
+
+ggen:task-019 a sk:Task ;
+    sk:taskID "T019" ;
+    sk:taskPhase ggen:phase-install-story ;
+    sk:taskNumber 19 ;
+    sk:taskRelatedStory "Story 2" ;
+    sk:taskTitle "Implement dependency resolver engine" ;
+    sk:taskDescription "[P] Implement resolver.rs: resolve(manifest) → ResolutionResult with exact versions and lock file. Implement constraint satisfaction algorithm: process version constraints, detect conflicts early, suggest resolutions. Handle cycles and missing packages. Return detailed resolution tree." ;
+    sk:taskFilePath "crates/ggen-marketplace/src/gpack/resolver.rs (implementation)" ;
+    sk:taskType "domain" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "6" ;
+    sk:acceptance "Resolver handles simple/complex dependencies, detects conflicts, suggests resolutions" .
+
+ggen:task-020 a sk:Task ;
+    sk:taskID "T020" ;
+    sk:taskPhase ggen:phase-install-story ;
+    sk:taskNumber 20 ;
+    sk:taskRelatedStory "Story 2" ;
+    sk:taskTitle "Implement multi-layer caching system" ;
+    sk:taskDescription "[P] Implement cache.rs: CacheManager trait with get/set/invalidate/cleanup. Separate layers: metadata cache (1h TTL), package cache (7d TTL). Implement cleanup on startup, cache validation on read. Store in ~/.ggen/cache/ with organized structure." ;
+    sk:taskFilePath "crates/ggen-marketplace/src/gpack/cache.rs (implementation)" ;
+    sk:taskType "domain" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "5" ;
+    sk:acceptance "Cache reads/writes work, TTL enforced, cleanup removes stale data" .
+
+ggen:task-021 a sk:Task ;
+    sk:taskID "T021" ;
+    sk:taskPhase ggen:phase-install-story ;
+    sk:taskNumber 21 ;
+    sk:taskRelatedStory "Story 2" ;
+    sk:taskTitle "Implement FMEA validation and poka-yoke guard application" ;
+    sk:taskDescription "[P] Implement validator.rs: validate_fmea(manifest) → ValidationResult. Check critical failures (RPN >= 200), apply guards (directory separation, trait boundaries). Log all validation decisions. Block on critical unless --force-fmea. Integrate with ggen audit system." ;
+    sk:taskFilePath "crates/ggen-marketplace/src/gpack/validator.rs (implementation)" ;
+    sk:taskType "domain" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "5" ;
+    sk:acceptance "FMEA validation enforced, guards applied, blocking works, audit logged" .
+
+ggen:task-022 a sk:Task ;
+    sk:taskID "T022" ;
+    sk:taskPhase ggen:phase-install-story ;
+    sk:taskNumber 22 ;
+    sk:taskRelatedStory "Story 2" ;
+    sk:taskTitle "Implement lock file generation and persistence" ;
+    sk:taskDescription "Implement lock file generation in resolver or separate module: create ggen.lock after resolution, calculate SHA256 checksums, set timestamps, include toolchain version. Support read/write/update operations. Ensure deterministic ordering (BTreeMap, sorted keys)." ;
+    sk:taskFilePath "crates/ggen-marketplace/src/gpack/lockfile.rs (implementation)" ;
+    sk:taskType "domain" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "3" ;
+    sk:dependency ggen:task-019 ;
+    sk:acceptance "Lock file created after resolution, contents deterministic, can be read and updated" .
+
+ggen:task-023 a sk:Task ;
+    sk:taskID "T023" ;
+    sk:taskPhase ggen:phase-install-story ;
+    sk:taskNumber 23 ;
+    sk:taskRelatedStory "Story 2" ;
+    sk:taskTitle "Write tests for resolver, cache, and validator" ;
+    sk:taskDescription "[P] Write Chicago TDD tests for resolver (simple/complex/conflicts), cache (get/set/TTL/cleanup), validator (FMEA checks, guard application). Use real objects where possible, minimal mocking. 85%+ coverage target." ;
+    sk:taskFilePath "crates/ggen-marketplace/tests/resolver_tests.rs + validation_tests.rs" ;
+    sk:taskType "test" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "6" ;
+    sk:coverage "85%+" ;
+    sk:acceptance "All paths tested, coverage 85%+, no edge case regressions" .
+
+ggen:task-024 a sk:Task ;
+    sk:taskID "T024" ;
+    sk:taskPhase ggen:phase-install-story ;
+    sk:taskNumber 24 ;
+    sk:taskRelatedStory "Story 2" ;
+    sk:taskTitle "Implement CLI install command" ;
+    sk:taskDescription "Implement crates/ggen-cli/src/commands/marketplace/install.rs: parse CLI args (--package, --from, --force-fmea, --offline). Call resolver, validator, cache. Handle network failures gracefully (offline fallback). Display progress and validation results. Clear error messages." ;
+    sk:taskFilePath "crates/ggen-cli/src/commands/marketplace/install.rs" ;
+    sk:taskType "cli" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "3" ;
+    sk:dependency ggen:task-021 ;
+    sk:acceptance "Command handles all args, validates, installs, shows progress, handles errors" .
+
+ggen:task-025 a sk:Task ;
+    sk:taskID "T025" ;
+    sk:taskPhase ggen:phase-install-story ;
+    sk:taskNumber 25 ;
+    sk:taskRelatedStory "Story 2" ;
+    sk:taskTitle "Implement offline installation fallback" ;
+    sk:taskDescription "Enhance install command and cache layer: when network fails, try cached version with clear warning. Update cache.rs invalidation logic to detect stale data. Provide option to skip offline (--no-cache). Log all fallback decisions." ;
+    sk:taskFilePath "crates/ggen-marketplace/src/gpack/cache.rs (offline logic) + crates/ggen-cli/src/commands/marketplace/install.rs" ;
+    sk:taskType "domain" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "2" ;
+    sk:dependency ggen:task-024 ;
+    sk:acceptance "Offline fallback works, warnings clear, no silent failures" .
+
+ggen:task-026 a sk:Task ;
+    sk:taskID "T026" ;
+    sk:taskPhase ggen:phase-install-story ;
+    sk:taskNumber 26 ;
+    sk:taskRelatedStory "Story 2" ;
+    sk:taskTitle "Write end-to-end installation workflow tests" ;
+    sk:taskDescription "Write e2e tests for full install flow: download → resolve → validate → apply guards → install. Test acceptance scenarios: basic install, validation hooks, offline fallback. Mock crates.io and FMEA checks. 80%+ coverage." ;
+    sk:taskFilePath "crates/ggen-core/tests/e2e_install_tests.rs" ;
+    sk:taskType "test" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "4" ;
+    sk:dependency ggen:task-024 ;
+    sk:coverage "80%+" ;
+    sk:acceptance "All scenarios pass, no flaky tests, clear failure messages" .
+
+ggen:task-027 a sk:Task ;
+    sk:taskID "T027" ;
+    sk:taskPhase ggen:phase-install-story ;
+    sk:taskNumber 27 ;
+    sk:taskRelatedStory "Story 2" ;
+    sk:taskTitle "Write documentation for install workflow" ;
+    sk:taskDescription "Document install command: user guide, CLI examples, validation process, FMEA requirement, offline support. Include troubleshooting for common issues (conflicts, missing FMEA, network failures)." ;
+    sk:taskFilePath "docs/features/marketplace-gpack.md (install section)" ;
+    sk:taskType "documentation" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "2" ;
+    sk:acceptance "Clear guide, all options documented, troubleshooting complete" .
+
+ggen:task-028 a sk:Task ;
+    sk:taskID "T028" ;
+    sk:taskPhase ggen:phase-install-story ;
+    sk:taskNumber 28 ;
+    sk:taskRelatedStory "Story 2" ;
+    sk:taskTitle "Implement integration with ggen audit system" ;
+    sk:taskDescription "Integrate installation metadata recording: create InstallationRecord structs, log to ggen audit trail with OTEL correlation IDs. Record crate_name, version, FMEA status, guards applied, dependencies resolved. Enable audit analysis for success metrics." ;
+    sk:taskFilePath "crates/ggen-marketplace/src/gpack/validator.rs (audit integration) + ggen-core audit module" ;
+    sk:taskType "integration" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "2" ;
+    sk:dependency ggen:task-021 ;
+    sk:acceptance "Audit records created, OTEL correlation works, queries return data" .
+
+# ============================================================================
+# PHASE 5: USER STORY 3 - SEARCH MARKETPLACE (20-28 hours)
+# ============================================================================
+# JTBD: Users discover packages via crates.io and SPARQL queries
+# Dependencies: Phase 4 (install complete, crates client available)
+# Parallelization: SPARQL (T029), Quality tiers (T030), tests (T031) parallel
+# ============================================================================
+
+ggen:phase-search-story a sk:Phase ;
+    sk:phaseNumber "5" ;
+    sk:phaseTitle "Phase 5: User Story 3 - Search & Discover Packages" ;
+    sk:phaseGoal "Enable users to search marketplace with quality-based filtering" ;
+    sk:phaseDependencies ggen:phase-install-story ;
+    sk:relatedUserStory "Story 3: Users Search crates.io for Marketplace (P1)" ;
+    sk:estimatedHours 20-28 ;
+    sk:taskCount 7 ;
+    sk:parallelizationNote "T029/T030/T031 parallel (independent systems)" .
+
+ggen:task-029 a sk:Task ;
+    sk:taskID "T029" ;
+    sk:taskPhase ggen:phase-search-story ;
+    sk:taskNumber 29 ;
+    sk:taskRelatedStory "Story 3" ;
+    sk:taskTitle "Implement SPARQL query engine for marketplace search" ;
+    sk:taskDescription "[P] Implement search.rs: create SPARQL queries to search gpack metadata in Oxigraph. Query patterns: by crate name, category, quality tier, FMEA status. Return filtered results with metadata. Optimize for <1s latency. Handle no results gracefully." ;
+    sk:taskFilePath "crates/ggen-marketplace/src/gpack/search.rs" ;
+    sk:taskType "domain" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "5" ;
+    sk:acceptance "SPARQL queries return correct results, latency <1s for typical queries" .
+
+ggen:task-030 a sk:Task ;
+    sk:taskID "T030" ;
+    sk:taskPhase ggen:phase-search-story ;
+    sk:taskNumber 30 ;
+    sk:taskRelatedStory "Story 3" ;
+    sk:taskTitle "Implement quality tier computation and indicators" ;
+    sk:taskDescription "[P] Implement quality.rs: compute gold/silver/bronze tiers based on: FMEA passed (required for gold), download count (>100 for gold), update recency (<30 days for gold). Display indicators in search results. Update cache metadata with tiers." ;
+    sk:taskFilePath "crates/ggen-marketplace/src/gpack/quality.rs" ;
+    sk:taskType "domain" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "3" ;
+    sk:acceptance "Tiers computed correctly, display in results, cache updated" .
+
+ggen:task-031 a sk:Task ;
+    sk:taskID "T031" ;
+    sk:taskPhase ggen:phase-search-story ;
+    sk:taskNumber 31 ;
+    sk:taskRelatedStory "Story 3" ;
+    sk:taskTitle "Write tests for SPARQL search and quality logic" ;
+    sk:taskDescription "[P] Write Chicago TDD tests for search.rs and quality.rs: test various queries (by name, category, tier, FMEA), verify result ordering, quality tier computation. Test with real Oxigraph backend, various metadata scenarios. 80%+ coverage." ;
+    sk:taskFilePath "crates/ggen-marketplace/tests/search_tests.rs" ;
+    sk:taskType "test" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "4" ;
+    sk:coverage "80%+" ;
+    sk:acceptance "All query patterns tested, tiers computed correctly, latency acceptable" .
+
+ggen:task-032 a sk:Task ;
+    sk:taskID "T032" ;
+    sk:taskPhase ggen:phase-search-story ;
+    sk:taskNumber 32 ;
+    sk:taskRelatedStory "Story 3" ;
+    sk:taskTitle "Implement CLI search command" ;
+    sk:taskDescription "Implement crates/ggen-cli/src/commands/marketplace/search.rs: parse search query and filters (--category, --quality, --fmea-only). Call SPARQL search, display results with quality indicators. Support pagination. Format output for CLI (table or JSON)." ;
+    sk:taskFilePath "crates/ggen-cli/src/commands/marketplace/search.rs" ;
+    sk:taskType "cli" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "3" ;
+    sk:dependency ggen:task-029 ;
+    sk:acceptance "Command searches, displays results with indicators, supports filters and pagination" .
+
+ggen:task-033 a sk:Task ;
+    sk:taskID "T033" ;
+    sk:taskPhase ggen:phase-search-story ;
+    sk:taskNumber 33 ;
+    sk:taskRelatedStory "Story 3" ;
+    sk:taskTitle "Implement crates.io metadata syncing to RDF" ;
+    sk:taskDescription "Implement metadata sync: fetch package data from crates.io API periodically, convert to RDF triples, store in Oxigraph. Include: crate_name, description, downloads, last_updated, FMEA reference. Sync on-demand and on timer (1h interval)." ;
+    sk:taskFilePath "crates/ggen-marketplace/src/gpack/crates_client.rs (sync module)" ;
+    sk:taskType "domain" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "4" ;
+    sk:dependency ggen:task-012 ;
+    sk:acceptance "Metadata synced to RDF, queries find synced data, timer works" .
+
+ggen:task-034 a sk:Task ;
+    sk:taskID "T034" ;
+    sk:taskPhase ggen:phase-search-story ;
+    sk:taskNumber 34 ;
+    sk:taskRelatedStory "Story 3" ;
+    sk:taskTitle "Write e2e search and discovery tests" ;
+    sk:taskDescription "Write e2e tests for search flow: sync metadata → SPARQL query → display results. Test scenarios: basic search, filtering by category/quality/FMEA, no results. Use real Oxigraph with test data. Performance test for 100 concurrent queries." ;
+    sk:taskFilePath "crates/ggen-core/tests/e2e_search_tests.rs" ;
+    sk:taskType "test" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "3" ;
+    sk:dependency ggen:task-032 ;
+    sk:coverage "80%+" ;
+    sk:acceptance "All scenarios pass, 100 concurrent queries <1s, no timeouts" .
+
+ggen:task-035 a sk:Task ;
+    sk:taskID "T035" ;
+    sk:taskPhase ggen:phase-search-story ;
+    sk:taskNumber 35 ;
+    sk:taskRelatedStory "Story 3" ;
+    sk:taskTitle "Write documentation for search and discovery" ;
+    sk:taskDescription "Document search command: user guide, CLI examples, filter options, quality tier explanation. Include examples of category search, FMEA filtering. Document RDF metadata and custom SPARQL queries." ;
+    sk:taskFilePath "docs/features/marketplace-gpack.md (search section)" ;
+    sk:taskType "documentation" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "2" ;
+    sk:acceptance "Clear guide, all filters documented, examples work" .
+
+# ============================================================================
+# PHASE 6: USER STORY 4 - DETERMINISTIC RESOLUTION (12-16 hours)
+# ============================================================================
+# JTBD: Lock files ensure reproducible installations across platforms
+# Dependencies: Phase 4 (resolver and lock file implementation)
+# Parallelization: Determinism tests (T036), cross-platform validation (T037) parallel
+# ============================================================================
+
+ggen:phase-resolver-story a sk:Phase ;
+    sk:phaseNumber "6" ;
+    sk:phaseTitle "Phase 6: User Story 4 - Deterministic Dependency Resolution" ;
+    sk:phaseGoal "Ensure reproducible installations via lock files" ;
+    sk:phaseDependencies ggen:phase-install-story ;
+    sk:relatedUserStory "Story 4: Deterministic Dependency Resolution (P2)" ;
+    sk:estimatedHours 12-16 ;
+    sk:taskCount 4 ;
+    sk:parallelizationNote "T036/T037 parallel (different test scenarios)" .
+
+ggen:task-036 a sk:Task ;
+    sk:taskID "T036" ;
+    sk:taskPhase ggen:phase-resolver-story ;
+    sk:taskNumber 36 ;
+    sk:taskRelatedStory "Story 4" ;
+    sk:taskTitle "Write determinism and lock file tests" ;
+    sk:taskDescription "[P] Write tests for lock file generation and consistency: resolve same manifest twice, verify identical lock files. Test sorted keys (BTreeMap), checksums, timestamps. Verify lock file round-trip (load/save/load produces identical bytes)." ;
+    sk:taskFilePath "crates/ggen-marketplace/tests/lockfile_tests.rs" ;
+    sk:taskType "test" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "3" ;
+    sk:coverage "90%+" ;
+    sk:acceptance "Lock files deterministic, all keys sorted, round-trip succeeds" .
+
+ggen:task-037 a sk:Task ;
+    sk:taskID "T037" ;
+    sk:taskPhase ggen:phase-resolver-story ;
+    sk:taskNumber 37 ;
+    sk:taskRelatedStory "Story 4" ;
+    sk:taskTitle "Write cross-platform determinism tests (Linux/macOS/Windows)" ;
+    sk:taskDescription "[P] Write tests that verify same lock file produces same SHA256 hash across platforms. Use CI matrix to run on multiple OS. Verify no platform-specific path separators or line endings affect hashes. Document gotchas." ;
+    sk:taskFilePath "crates/ggen-core/tests/cross_platform_tests.rs" ;
+    sk:taskType "test" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "3" ;
+    sk:coverage "80%+" ;
+    sk:acceptance "Cross-platform hashes match, CI passes on all OS" .
+
+ggen:task-038 a sk:Task ;
+    sk:taskID "T038" ;
+    sk:taskPhase ggen:phase-resolver-story ;
+    sk:taskNumber 38 ;
+    sk:taskRelatedStory "Story 4" ;
+    sk:taskTitle "Implement conflict detection and error reporting" ;
+    sk:taskDescription "Enhance resolver.rs: detect version conflicts early, provide detailed error with: conflicting packages, their version requirements, conflicting versions. Suggest resolutions: upgrade package X, downgrade Y, or exclude Z. Test with real conflict scenarios." ;
+    sk:taskFilePath "crates/ggen-marketplace/src/gpack/resolver.rs (conflict detection)" ;
+    sk:taskType "domain" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "3" ;
+    sk:dependency ggen:task-019 ;
+    sk:acceptance "Conflicts detected, error messages include packages and suggestions" .
+
+ggen:task-039 a sk:Task ;
+    sk:taskID "T039" ;
+    sk:taskPhase ggen:phase-resolver-story ;
+    sk:taskNumber 39 ;
+    sk:taskRelatedStory "Story 4" ;
+    sk:taskTitle "Write documentation for lock files and determinism" ;
+    sk:taskDescription "Document ggen.lock format and usage: why lock files matter, how to commit them, when to update. Include examples of lock file content. Document determinism guarantees and limitations. FAQ for common scenarios." ;
+    sk:taskFilePath "docs/features/marketplace-gpack.md (lock file section)" ;
+    sk:taskType "documentation" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "1.5" ;
+    sk:acceptance "Clear explanation of lock files, format documented, examples provided" .
+
+# ============================================================================
+# PHASE 7: USER STORY 5 - FMEA VALIDATION (16-20 hours)
+# ============================================================================
+# JTBD: Installation safety via mandatory FMEA validation
+# Dependencies: Phase 4 (validator implementation)
+# Parallelization: Guard tests (T040), integration tests (T041) parallel
+# ============================================================================
+
+ggen:phase-validation-story a sk:Phase ;
+    sk:phaseNumber "7" ;
+    sk:phaseTitle "Phase 7: User Story 5 - FMEA Validation During Installation" ;
+    sk:phaseGoal "Ensure installation safety via mandatory FMEA validation" ;
+    sk:phaseDependencies ggen:phase-install-story ;
+    sk:relatedUserStory "Story 5: FMEA Validation During Installation (P2)" ;
+    sk:estimatedHours 16-20 ;
+    sk:taskCount 5 ;
+    sk:parallelizationNote "T040/T041 parallel (different test layers)" .
+
+ggen:task-040 a sk:Task ;
+    sk:taskID "T040" ;
+    sk:taskPhase ggen:phase-validation-story ;
+    sk:taskNumber 40 ;
+    sk:taskRelatedStory "Story 5" ;
+    sk:taskTitle "Write comprehensive FMEA validation tests" ;
+    sk:taskDescription "[P] Write Chicago TDD tests for validator.rs: test FMEA checks with various failure modes and RPN values. Test blocking behavior (critical failures without --force-fmea), allow behavior (with flag). Test guard application and audit logging. 85%+ coverage." ;
+    sk:taskFilePath "crates/ggen-marketplace/tests/validation_tests.rs" ;
+    sk:taskType "test" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "4" ;
+    sk:coverage "85%+" ;
+    sk:acceptance "All validation paths tested, blocking works, flags honored" .
+
+ggen:task-041 a sk:Task ;
+    sk:taskID "T041" ;
+    sk:taskPhase ggen:phase-validation-story ;
+    sk:taskNumber 41 ;
+    sk:taskRelatedStory "Story 5" ;
+    sk:taskTitle "Write poka-yoke guard integration tests" ;
+    sk:taskDescription "[P] Write tests for guard application: directory separation (packages isolated), trait boundaries (no leakage), path protection (no ../ escapes), version constraints (range matching). Test both successful application and edge cases." ;
+    sk:taskFilePath "crates/ggen-marketplace/tests/guards_tests.rs" ;
+    sk:taskType "test" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "3" ;
+    sk:coverage "80%+" ;
+    sk:acceptance "All guards tested, isolation verified, no escapes possible" .
+
+ggen:task-042 a sk:Task ;
+    sk:taskID "T042" ;
+    sk:taskPhase ggen:phase-validation-story ;
+    sk:taskNumber 42 ;
+    sk:taskRelatedStory "Story 5" ;
+    sk:taskTitle "Enhance --force-fmea override mechanism and logging" ;
+    sk:taskDescription "Implement force override with full audit trail: log --force-fmea usage with reason (if provided), timestamp, user. Add warning in install output. Require explicit confirmation. Integrate with ggen audit system for tracking safety-critical decisions." ;
+    sk:taskFilePath "crates/ggen-cli/src/commands/marketplace/install.rs (force logic) + validator.rs (audit)" ;
+    sk:taskType "integration" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "2" ;
+    sk:dependency ggen:task-040 ;
+    sk:acceptance "Override requires confirmation, logged to audit, warning clear" .
+
+ggen:task-043 a sk:Task ;
+    sk:taskID "T043" ;
+    sk:taskPhase ggen:phase-validation-story ;
+    sk:taskNumber 43 ;
+    sk:taskRelatedStory "Story 5" ;
+    sk:taskTitle "Write documentation for FMEA validation and guards" ;
+    sk:taskDescription "Document FMEA validation: what it checks, critical failure threshold (RPN >= 200), guards applied. Document --force-fmea override and when to use it. Include examples of FMEA reports and guard descriptions. Safety guidelines." ;
+    sk:taskFilePath "docs/features/marketplace-gpack.md (validation section)" ;
+    sk:taskType "documentation" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "1.5" ;
+    sk:acceptance "Clear validation explanation, guards documented, safety guidelines provided" .
+
+ggen:task-044 a sk:Task ;
+    sk:taskID "T044" ;
+    sk:taskPhase ggen:phase-validation-story ;
+    sk:taskNumber 44 ;
+    sk:taskRelatedStory "Story 5" ;
+    sk:taskTitle "Write e2e FMEA validation workflow tests" ;
+    sk:taskDescription "Write e2e tests for validation flow: install with valid FMEA (passes), with critical failures (blocks), with --force-fmea (overrides). Verify audit trail records decisions. Test messaging clarity for users. 80%+ coverage." ;
+    sk:taskFilePath "crates/ggen-core/tests/e2e_validation_tests.rs" ;
+    sk:taskType "test" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "3" ;
+    sk:dependency ggen:task-042 ;
+    sk:coverage "80%+" ;
+    sk:acceptance "All scenarios pass, audit trail correct, messages clear" .
+
+# ============================================================================
+# PHASE 8: USER STORY 6 - RECOMMENDATIONS (12-16 hours)
+# ============================================================================
+# JTBD: Quality-based package recommendations help users choose
+# Dependencies: Phase 5 (quality tier implementation)
+# Parallelization: Recommendation tests (T045), list command (T046) parallel
+# ============================================================================
+
+ggen:phase-recommendations-story a sk:Phase ;
+    sk:phaseNumber "8" ;
+    sk:phaseTitle "Phase 8: User Story 6 - Package Recommendations" ;
+    sk:phaseGoal "Help users discover high-quality packages" ;
+    sk:phaseDependencies ggen:phase-search-story ;
+    sk:relatedUserStory "Story 6: Package Recommendations (P3)" ;
+    sk:estimatedHours 12-16 ;
+    sk:taskCount 4 ;
+    sk:parallelizationNote "T045/T046 parallel (independent systems)" .
+
+ggen:task-045 a sk:Task ;
+    sk:taskID "T045" ;
+    sk:taskPhase ggen:phase-recommendations-story ;
+    sk:taskNumber 45 ;
+    sk:taskRelatedStory "Story 6" ;
+    sk:taskTitle "Write recommendation engine tests" ;
+    sk:taskDescription "[P] Write tests for quality-based ranking: gold tier packages appear first, silver/bronze after. Test sorting by: FMEA passed (prerequisite), downloads (tiebreaker), recent updates (stability signal). Test edge cases: no gold tiers, single package. 80%+ coverage." ;
+    sk:taskFilePath "crates/ggen-marketplace/tests/recommendation_tests.rs" ;
+    sk:taskType "test" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "2.5" ;
+    sk:coverage "80%+" ;
+    sk:acceptance "Ranking algorithm correct, tiers prioritized properly, tiebreakers work" .
+
+ggen:task-046 a sk:Task ;
+    sk:taskID "T046" ;
+    sk:taskPhase ggen:phase-recommendations-story ;
+    sk:taskNumber 46 ;
+    sk:taskRelatedStory "Story 6" ;
+    sk:taskTitle "Implement CLI list and update commands" ;
+    sk:taskDescription "[P] Implement crates/ggen-cli/src/commands/marketplace/list.rs and update.rs: list shows installed packages with versions and FMEA status, update regenerates lock file with latest versions. Both commands use quality-aware sorting." ;
+    sk:taskFilePath "crates/ggen-cli/src/commands/marketplace/list.rs + update.rs" ;
+    sk:taskType "cli" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "2" ;
+    sk:acceptance "Commands list/update correctly, quality-aware sorting works" .
+
+ggen:task-047 a sk:Task ;
+    sk:taskID "T047" ;
+    sk:taskPhase ggen:phase-recommendations-story ;
+    sk:taskNumber 47 ;
+    sk:taskRelatedStory "Story 6" ;
+    sk:taskTitle "Enhance search with recommendation sorting" ;
+    sk:taskDescription "Update search.rs and search command: sort results by quality tier (gold first), then by downloads, then by recency. Add --best-match flag to show only gold/silver tiers. Integrate with SPARQL queries for efficiency." ;
+    sk:taskFilePath "crates/ggen-marketplace/src/gpack/search.rs (sorting) + crates/ggen-cli/src/commands/marketplace/search.rs" ;
+    sk:taskType "domain" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "2" ;
+    sk:dependency ggen:task-045 ;
+    sk:acceptance "Results sorted by quality, --best-match flag works, queries efficient" .
+
+ggen:task-048 a sk:Task ;
+    sk:taskID "T048" ;
+    sk:taskPhase ggen:phase-recommendations-story ;
+    sk:taskNumber 48 ;
+    sk:taskRelatedStory "Story 6" ;
+    sk:taskTitle "Write documentation for recommendations and quality tiers" ;
+    sk:taskDescription "Document quality tiers: gold (FMEA+, >100 downloads, recent), silver (FMEA+, moderate), bronze (basic validation). Show recommendation algorithm in search. Include guide for users to improve quality scores." ;
+    sk:taskFilePath "docs/features/marketplace-gpack.md (recommendations section)" ;
+    sk:taskType "documentation" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "1.5" ;
+    sk:acceptance "Quality tiers clearly explained, recommendation algorithm described" .
+
+# ============================================================================
+# PHASE 9: POLISH & RELEASE (40-56 hours) - Testing, Migration, Release
+# ============================================================================
+# Goal: Comprehensive validation, 84-package migration, release preparation
+# Dependencies: All feature phases (3-8) complete
+# Parallelization: Some tasks parallel (T049/T050), others sequential (migration)
+# ============================================================================
+
+ggen:phase-polish a sk:Phase ;
+    sk:phaseNumber "9" ;
+    sk:phaseTitle "Phase 9: Polish, Testing, Migration & Release" ;
+    sk:phaseGoal "Complete testing, migrate 84 packages, prepare for release" ;
+    sk:phaseDependencies ggen:phase-recommendations-story ;
+    sk:estimatedHours 40-56 ;
+    sk:taskCount 4 ;
+    sk:parallelizationNote "T049/T050 parallel (different test layers); T051/T052 sequential (migration dependent)" .
+
+ggen:task-049 a sk:Task ;
+    sk:taskID "T049" ;
+    sk:taskPhase ggen:phase-polish ;
+    sk:taskNumber 49 ;
+    sk:taskTitle "Run comprehensive cross-platform integration tests" ;
+    sk:taskDescription "[P] Run full integration test suite on Linux, macOS, Windows (CI matrix). Test all acceptance scenarios from spec.md: publish, install, search, determinism, FMEA validation. Verify 100% pass rate, document any platform-specific behaviors." ;
+    sk:taskFilePath "crates/ggen-core/tests/ (all test files)" ;
+    sk:taskType "test" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "6" ;
+    sk:coverage "80%+" ;
+    sk:acceptance "All tests pass on all platforms, no flakiness, determinism verified" .
+
+ggen:task-050 a sk:Task ;
+    sk:taskID "T050" ;
+    sk:taskPhase ggen:phase-polish ;
+    sk:taskNumber 50 ;
+    sk:taskTitle "Performance benchmarking and optimization" ;
+    sk:taskDescription "[P] Run performance benchmarks: publish <30s, install <30s, search <1s, lock file generation <5s. Profile hot paths with flamegraph. Optimize as needed (async improvements, caching optimizations). Document SLOs and actual results." ;
+    sk:taskFilePath "crates/ggen-marketplace/benches/ (benchmark suite)" ;
+    sk:taskType "test" ;
+    sk:parallelizable true ;
+    sk:estimatedHours "4" ;
+    sk:acceptance "All SLOs met, results documented, no regressions from target" .
+
+ggen:task-051 a sk:Task ;
+    sk:taskID "T051" ;
+    sk:taskPhase ggen:phase-polish ;
+    sk:taskNumber 51 ;
+    sk:taskTitle "Create migration tool and migrate 84 existing packages" ;
+    sk:taskDescription "Create migration script/tool: convert 84 existing marketplace packages to gpack format. For each package: generate manifest, validate, publish to crates.io (test registry first). Document migration status. Test backward compatibility: old packages still work." ;
+    sk:taskFilePath "scripts/migrate_packages.rs + migration_tests.rs" ;
+    sk:taskType "integration" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "12" ;
+    sk:dependency ggen:task-049 ;
+    sk:acceptance "84 packages migrated, all tests pass, old packages still work" .
+
+ggen:task-052 a sk:Task ;
+    sk:taskID "T052" ;
+    sk:taskPhase ggen:phase-polish ;
+    sk:taskNumber 52 ;
+    sk:taskTitle "Create release notes and finalize documentation" ;
+    sk:taskDescription "Write comprehensive release notes for v5.3.0: feature overview, new commands, migration guide, breaking changes (none expected), known limitations. Update all docs. Create FAQ. Announce to community. Prepare v5.3.0 release tag." ;
+    sk:taskFilePath "docs/ (all sections) + RELEASE_NOTES.md + CHANGELOG.md" ;
+    sk:taskType "documentation" ;
+    sk:parallelizable false ;
+    sk:estimatedHours "3" ;
+    sk:dependency ggen:task-051 ;
+    sk:acceptance "Release notes complete, docs updated, v5.3.0 ready" .
+
+# ============================================================================
+# Task Summary and Dependencies
+# ============================================================================
+
+ggen:marketplace-gpack-tasks
+    sk:phaseSequencing "Phase 1 (setup) → Phase 2 (foundation) → Phases 3-8 (stories) → Phase 9 (polish)" ;
+    sk:criticalPath "T001→T002→T003→T004→T005-T010 (parallel)→T011→T012→T019→T022→T029→T033→T037→T040→T049→T051→T052" ;
+    sk:parallelOpportunities "
+        Phase 2: T005-T010 (6 parallel tasks)
+        Phase 3: T011/T013/T014 (3 parallel), T015 (parallel with impl)
+        Phase 4: T019/T020/T021/T023 (4 parallel), T026/T027/T028 (parallel)
+        Phase 5: T029/T030/T031 (3 parallel)
+        Phase 6: T036/T037 (2 parallel)
+        Phase 7: T040/T041 (2 parallel)
+        Phase 8: T045/T046 (2 parallel)
+        Phase 9: T049/T050 (2 parallel)
+    " ;
+    sk:teamOrganization "10 parallel agents recommended:
+        1 x Architect (Phase 1-2, overall design)
+        2 x Domain Developer (Phases 3-5 domain logic)
+        2 x CLI Developer (Phases 3-8 CLI commands)
+        2 x Test Engineer (All phases, comprehensive testing)
+        1 x Documentation Writer (All phases, concurrent)
+        1 x Integration Engineer (Phase 9, migration, CI)
+    " .
+
+# ============================================================================
+# Generated Task Metadata
+# ============================================================================
+
+ggen:marketplace-gpack-tasks
+    sk:generatedDate "2025-12-21"^^xsd:date ;
+    sk:generatedFrom "specs/014-marketplace-gpack/ontology/plan.ttl" ;
+    sk:generatedBy "Claude Haiku 4.5 + /speckit.tasks command" ;
+    sk:format "RDF/Turtle (source of truth)" ;
+    sk:artifact "tasks.md (generated markdown, do not edit manually)" ;
+    sk:quality "Lean Six Sigma: 99.99966% target (zero defects)" ;
+    sk:notes "
+        1. All tasks have estimated hours (realistic, not 'best case')
+        2. Critical path identified: 80-120 hours minimum sequential work
+        3. Full parallelization: 168-216 hours with 10 agents
+        4. Each task independently testable and verifiable
+        5. Phases 3-8 can run in parallel after Phase 2 completes
+        6. Phase 9 is blocking for release
+        7. Tests are first-class citizens (not afterthoughts)
+        8. Chicago TDD pattern required for all implementation
+        9. No task skips quality gates (CONST-001 through CONST-005)
+        10. Success criteria mapped to acceptance criteria in spec.md
+    " .
