@@ -1,0 +1,16 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix : <http://github.com/github/spec-kit/examples/014-marketplace-gpack#> .
+
+# Feature metadata
+:marketplace-gpack a sk:Feature ;
+    sk:featureBranch "014-marketplace-gpack" ;
+    sk:featureName "we now need to work on command 2 'ggen marketplace' there is already a lot of code for this that needs to be completely retrofitted. The core issue was that I was reinventing the wheel by creating my own distribution method. Instead we will have '*-gpack' which can be publish to crates.io. Consider all JTBDs after searching the entire project for the word 'marketplace'" ;
+    sk:created "2025-12-21"^^xsd:date ;
+    sk:status "Draft" ;
+    sk:userInput "we now need to work on command 2 'ggen marketplace' there is already a lot of code for this that needs to be completely retrofitted. The core issue was that I was reinventing the wheel by creating my own distribution method. Instead we will have '*-gpack' which can be publish to crates.io. Consider all JTBDs after searching the entire project for the word 'marketplace'" .
+
+# TODO: Add user stories, requirements, success criteria, entities using RDF helper templates
+# See: vendors/spec-kit/templates/rdf-helpers/ for copy-paste patterns
