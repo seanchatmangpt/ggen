@@ -1,0 +1,670 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix ggen: <http://github.com/intelligentdatastructures/ggen#> .
+
+# ============================================================================
+# ggen Marketplace Gpack - RDF-First Feature Specification
+# ============================================================================
+# Feature: Retrofit marketplace to use "*-gpack" distribution format
+#          publishable to standard crates.io instead of custom distribution
+# Branch: 014-marketplace-gpack
+# Created: 2025-12-21
+# ============================================================================
+
+ggen:marketplace-gpack-feature a sk:Feature ;
+    sk:featureBranch "014-marketplace-gpack" ;
+    sk:featureName "Marketplace Gpack Distribution" ;
+    rdfs:label "Retrofit marketplace to use gpack distribution format for crates.io"@en ;
+    rdfs:comment "Transition 84 existing marketplace packages from custom distribution method to standard '*-gpack' format publishable to crates.io registry"@en ;
+    sk:created "2025-12-21T00:00:00Z"^^xsd:dateTime ;
+    sk:userStories (
+        ggen:us-publish-gpack
+        ggen:us-install-gpack
+        ggen:us-search-crates
+        ggen:us-dependency-resolution
+        ggen:us-fmea-validation
+        ggen:us-package-recommendations
+    ) .
+
+# ============================================================================
+# User Story 1 (P1): Package Developers Publish Gpack to crates.io
+# ============================================================================
+# JTBD: "When I have a marketplace package, I want to publish it to crates.io
+#        as a gpack so it reaches all Rust developers without custom tooling"
+
+ggen:us-publish-gpack a sk:UserStory ;
+    sk:usNumber "1" ;
+    sk:usTitle "Package Developers Publish Gpack to crates.io" ;
+    sk:priority "P1" ;
+    sk:jtbd "Publish marketplace packages as gpack-compatible crates to crates.io" ;
+    rdfs:comment "Package maintainers can publish their marketplace packages using standard Cargo publish workflow"@en ;
+    sk:acceptanceScenarios (
+        ggen:scenario-publish-basic
+        ggen:scenario-publish-dependencies
+        ggen:scenario-publish-manifest-validation
+    ) ;
+    sk:dependencies (
+        ggen:ent-gpack-manifest
+        ggen:ent-crates-index
+    ) ;
+    sk:relatedRequirements (
+        ggen:fr-gpack-format
+        ggen:fr-manifest-schema
+        ggen:fr-crates-api-integration
+    ) .
+
+ggen:scenario-publish-basic a sk:AcceptanceScenario ;
+    sk:scenarioNumber "1.1" ;
+    sk:given "A package maintainer with a marketplace package (pkg version, README, validation report)" ;
+    sk:when "They run 'ggen marketplace publish --package pkg --target crates.io'" ;
+    sk:then "The package is published as 'pkg-gpack' to crates.io with correct Cargo.toml metadata" ;
+    sk:testCriteria "Package appears in crates.io within 30 seconds, searchable by name" .
+
+ggen:scenario-publish-dependencies a sk:AcceptanceScenario ;
+    sk:scenarioNumber "1.2" ;
+    sk:given "A marketplace package with declared dependencies on other marketplace packages" ;
+    sk:when "The package is published to crates.io" ;
+    sk:then "Dependencies are resolved to their corresponding gpack crates.io packages" ;
+    sk:testCriteria "Cargo can resolve all transitive dependencies without conflicts" .
+
+ggen:scenario-publish-manifest-validation a sk:AcceptanceScenario ;
+    sk:scenarioNumber "1.3" ;
+    sk:given "A marketplace package with missing FMEA validation report" ;
+    sk:when "Publish is attempted" ;
+    sk:then "Publication is blocked with clear error message requiring FMEA validation" ;
+    sk:testCriteria "User receives actionable error, can fix and retry" .
+
+# ============================================================================
+# User Story 2 (P1): Users Install Gpack from crates.io
+# ============================================================================
+# JTBD: "When I need a marketplace package, I want to install it from crates.io
+#        using 'ggen marketplace install' so it integrates seamlessly with my workflow"
+
+ggen:us-install-gpack a sk:UserStory ;
+    sk:usNumber "2" ;
+    sk:usTitle "Users Install Gpack Packages from crates.io" ;
+    sk:priority "P1" ;
+    sk:jtbd "Install marketplace packages from crates.io as gpack format with validation" ;
+    rdfs:comment "End users can install marketplace packages using standard ggen CLI with crates.io as default registry"@en ;
+    sk:acceptanceScenarios (
+        ggen:scenario-install-basic
+        ggen:scenario-install-validation
+        ggen:scenario-install-offline
+    ) ;
+    sk:dependencies (
+        ggen:ent-gpack-manifest
+        ggen:ent-installation-metadata
+    ) ;
+    sk:relatedRequirements (
+        ggen:fr-install-resolver
+        ggen:fr-validation-hooks
+        ggen:fr-offline-support
+    ) .
+
+ggen:scenario-install-basic a sk:AcceptanceScenario ;
+    sk:scenarioNumber "2.1" ;
+    sk:given "A user with ggen CLI v5.3+ and crates.io internet access" ;
+    sk:when "They run 'ggen marketplace install pkg-gpack --from crates.io'" ;
+    sk:then "Package is downloaded, installed with all dependencies, and available for use" ;
+    sk:testCriteria "Package files are in standard location, can be imported/used immediately" .
+
+ggen:scenario-install-validation a sk:AcceptanceScenario ;
+    sk:scenarioNumber "2.2" ;
+    sk:given "A gpack with FMEA validation report in crates.io" ;
+    sk:when "Installation occurs" ;
+    sk:then "FMEA controls are checked, poka-yoke guards are applied during installation" ;
+    sk:testCriteria "Installation logs show validation passed, poka-yoke guards active" .
+
+ggen:scenario-install-offline a sk:AcceptanceScenario ;
+    sk:scenarioNumber "2.3" ;
+    sk:given "A user who previously installed gpack packages" ;
+    sk:when "Network is unavailable but cached packages are available" ;
+    sk:then "Installation proceeds with cached versions without network access" ;
+    sk:testCriteria "Installation completes successfully, warnings indicate cached versions" .
+
+# ============================================================================
+# User Story 3 (P1): Users Search crates.io for Marketplace Packages
+# ============================================================================
+# JTBD: "When I'm looking for a specific marketplace capability, I want to search
+#        crates.io for gpack packages so I can discover community solutions"
+
+ggen:us-search-crates a sk:UserStory ;
+    sk:usNumber "3" ;
+    sk:usTitle "Users Search crates.io for Marketplace Packages" ;
+    sk:priority "P1" ;
+    sk:jtbd "Search crates.io for gpack marketplace packages with quality metrics" ;
+    rdfs:comment "Users can discover gpack packages through crates.io search with quality indicators"@en ;
+    sk:acceptanceScenarios (
+        ggen:scenario-search-basic
+        ggen:scenario-search-filters
+        ggen:scenario-search-quality-metrics
+    ) ;
+    sk:dependencies (
+        ggen:ent-crates-index
+        ggen:ent-search-metadata
+    ) ;
+    sk:relatedRequirements (
+        ggen:fr-search-sparql
+        ggen:fr-quality-indicators
+    ) .
+
+ggen:scenario-search-basic a sk:AcceptanceScenario ;
+    sk:scenarioNumber "3.1" ;
+    sk:given "A user searching crates.io for 'gpack' packages" ;
+    sk:when "They use crates.io search or 'ggen marketplace search gpack' command" ;
+    sk:then "Results show all published gpack packages with download counts and descriptions" ;
+    sk:testCriteria "Top 10 gpack packages returned within 2 seconds" .
+
+ggen:scenario-search-filters a sk:AcceptanceScenario ;
+    sk:scenarioNumber "3.2" ;
+    sk:given "Search results for gpack packages" ;
+    sk:when "User filters by category (RDF, validation, ontology, etc.) or quality tier" ;
+    sk:then "Results are filtered to matching packages with quality indicators shown" ;
+    sk:testCriteria "Filters reduce results correctly, quality tier displayed (bronze/silver/gold)" .
+
+ggen:scenario-search-quality-metrics a sk:AcceptanceScenario ;
+    sk:scenarioNumber "3.3" ;
+    sk:given "A gpack package with FMEA validation report and download history" ;
+    sk:when "It appears in search results" ;
+    sk:then "Quality metrics are displayed: FMEA pass/fail, download trend, last update date" ;
+    sk:testCriteria "Users can make informed decisions based on quality indicators" .
+
+# ============================================================================
+# User Story 4 (P2): Dependency Resolution and Version Management
+# ============================================================================
+# JTBD: "When I install a gpack with dependencies, I want version conflicts resolved
+#        automatically so installation is deterministic and reproducible"
+
+ggen:us-dependency-resolution a sk:UserStory ;
+    sk:usNumber "4" ;
+    sk:usTitle "Deterministic Dependency Resolution for Gpack" ;
+    sk:priority "P2" ;
+    sk:jtbd "Resolve gpack dependencies deterministically with version constraints" ;
+    rdfs:comment "Gpack installation uses deterministic dependency resolution with lockfile support"@en ;
+    sk:acceptanceScenarios (
+        ggen:scenario-lockfile-generation
+        ggen:scenario-conflict-detection
+    ) ;
+    sk:dependencies (
+        ggen:ent-gpack-manifest
+        ggen:ent-lockfile
+    ) ;
+    sk:relatedRequirements (
+        ggen:fr-lockfile-format
+        ggen:fr-conflict-resolution
+    ) .
+
+ggen:scenario-lockfile-generation a sk:AcceptanceScenario ;
+    sk:scenarioNumber "4.1" ;
+    sk:given "A gpack manifest with version range constraints (e.g., >=1.0,<2.0)" ;
+    sk:when "Installation completes" ;
+    sk:then "A ggen.lock file is generated with exact pinned versions" ;
+    sk:testCriteria "Lock file reproducibly installs same versions on different systems" .
+
+ggen:scenario-conflict-detection a sk:AcceptanceScenario ;
+    sk:scenarioNumber "4.2" ;
+    sk:given "Two dependencies requiring incompatible versions of the same package" ;
+    sk:when "Installation is attempted" ;
+    sk:then "Clear error message identifies the conflict with suggested resolutions" ;
+    sk:testCriteria "User can see which packages conflict and understands resolution paths" .
+
+# ============================================================================
+# User Story 5 (P2): FMEA Validation During Installation
+# ============================================================================
+# JTBD: "When I install a gpack, I want FMEA controls validated automatically
+#        so I have confidence the package is safe and well-tested"
+
+ggen:us-fmea-validation a sk:UserStory ;
+    sk:usNumber "5" ;
+    sk:usTitle "FMEA Validation Controls During Installation" ;
+    sk:priority "P2" ;
+    sk:jtbd "Validate FMEA controls automatically during gpack installation" ;
+    rdfs:comment "Installation validates FMEA constraints and applies poka-yoke guards"@en ;
+    sk:acceptanceScenarios (
+        ggen:scenario-fmea-check
+        ggen:scenario-critical-failures
+    ) ;
+    sk:dependencies (
+        ggen:ent-fmea-validation
+        ggen:ent-poka-yoke-guards
+    ) ;
+    sk:relatedRequirements (
+        ggen:fr-fmea-integration
+        ggen:fr-guard-application
+    ) .
+
+ggen:scenario-fmea-check a sk:AcceptanceScenario ;
+    sk:scenarioNumber "5.1" ;
+    sk:given "A gpack with FMEA validation report (critical RPN > 200)" ;
+    sk:when "Installation occurs" ;
+    sk:then "FMEA validation is checked, controls are applied (directory separation, trait boundaries)" ;
+    sk:testCriteria "Installation logs show FMEA status, poka-yoke guards confirmed active" .
+
+ggen:scenario-critical-failures a sk:AcceptanceScenario ;
+    sk:scenarioNumber "5.2" ;
+    sk:given "A gpack with unresolved critical FMEA failure modes (RPN >= 200)" ;
+    sk:when "User attempts installation with default settings" ;
+    sk:then "Installation is blocked with clear error, suggesting manual review or '--force-fmea' flag" ;
+    sk:testCriteria "User cannot accidentally install unsafe packages without explicit override" .
+
+# ============================================================================
+# User Story 6 (P3): Package Recommendations and Quality Autopilot
+# ============================================================================
+# JTBD: "When I search for a package, I want recommendations for high-quality
+#        alternatives so I can choose packages that fit my needs best"
+
+ggen:us-package-recommendations a sk:UserStory ;
+    sk:usNumber "6" ;
+    sk:usTitle "Package Recommendations and Quality Autopilot" ;
+    sk:priority "P3" ;
+    sk:jtbd "Recommend high-quality marketplace packages based on FMEA and download metrics" ;
+    rdfs:comment "Search results include personalized recommendations for high-quality packages"@en ;
+    sk:acceptanceScenarios (
+        ggen:scenario-quality-tiers
+    ) ;
+    sk:dependencies (
+        ggen:ent-search-metadata
+    ) ;
+    sk:relatedRequirements (
+        ggen:fr-recommendation-engine
+    ) .
+
+ggen:scenario-quality-tiers a sk:AcceptanceScenario ;
+    sk:scenarioNumber "6.1" ;
+    sk:given "Multiple gpack packages providing similar functionality with different quality levels" ;
+    sk:when "User searches, 'ggen marketplace search --quality gold' or similar" ;
+    sk:then "Results are sorted by quality tier (gold/silver/bronze) with clear indicators" ;
+    sk:testCriteria "Gold tier packages (FMEA passed, >100 downloads, recent updates) appear first" .
+
+# ============================================================================
+# Functional Requirements (FR-XXX)
+# ============================================================================
+
+ggen:fr-gpack-format a sk:FunctionalRequirement ;
+    sk:requirementID "FR-001" ;
+    rdfs:label "Gpack Format Specification"@en ;
+    rdfs:comment "Define '*-gpack' package format compatible with crates.io Cargo.toml and compatible with existing marketplace packages"@en ;
+    sk:requirement "Gpack packages MUST be publishable as standard Rust crates.io packages with '-gpack' suffix in crate name" ;
+    sk:acceptanceCriteria "crates.io accepts gpack crate publishes, Cargo can resolve dependencies" .
+
+ggen:fr-manifest-schema a sk:FunctionalRequirement ;
+    sk:requirementID "FR-002" ;
+    rdfs:label "Gpack Manifest Schema"@en ;
+    rdfs:comment "Define YAML/TOML schema for gpack manifest with metadata, dependencies, FMEA references"@en ;
+    sk:requirement "Gpack manifests MUST include: package name, version, dependencies, FMEA validation reference, quality tier" ;
+    sk:acceptanceCriteria "Existing 84 marketplace packages can be converted to gpack format without data loss" .
+
+ggen:fr-crates-api-integration a sk:FunctionalRequirement ;
+    sk:requirementID "FR-003" ;
+    rdfs:label "Crates.io API Integration"@en ;
+    rdfs:comment "Integrate with crates.io publish API for programmatic package publishing"@en ;
+    sk:requirement "MUST support publishing via Cargo publish and programmatic crates.io API" ;
+    sk:acceptanceCriteria "Both 'cargo publish' and 'ggen marketplace publish' workflows succeed" .
+
+ggen:fr-install-resolver a sk:FunctionalRequirement ;
+    sk:requirementID "FR-004" ;
+    rdfs:label "Installation Resolver"@en ;
+    rdfs:comment "Resolve and install gpack packages from crates.io with all dependencies"@en ;
+    sk:requirement "MUST download gpack crates from crates.io, resolve transitive dependencies, install to standard location" ;
+    sk:acceptanceCriteria "Installation completes in <30 seconds for packages <10MB with fast internet" .
+
+ggen:fr-validation-hooks a sk:FunctionalRequirement ;
+    sk:requirementID "FR-005" ;
+    rdfs:label "Installation Validation Hooks"@en ;
+    rdfs:comment "Execute validation during installation: FMEA checks, poka-yoke guard application"@en ;
+    sk:requirement "MUST validate FMEA status and apply poka-yoke controls before installation completion" ;
+    sk:acceptanceCriteria "Installation logs document all validation checks performed" .
+
+ggen:fr-offline-support a sk:FunctionalRequirement ;
+    sk:requirementID "FR-006" ;
+    rdfs:label "Offline Installation Support"@en ;
+    rdfs:comment "Support installing cached gpack packages when network unavailable"@en ;
+    sk:requirement "MUST cache downloaded packages locally, allow offline installation from cache" ;
+    sk:acceptanceCriteria "Offline installation succeeds with clear indicator that cached versions are used" .
+
+ggen:fr-search-sparql a sk:FunctionalRequirement ;
+    sk:requirementID "FR-007" ;
+    rdfs:label "Search via SPARQL Queries"@en ;
+    rdfs:comment "Query marketplace metadata using SPARQL for flexible search and filtering"@en ;
+    sk:requirement "MUST support SPARQL queries on gpack metadata including categories, quality metrics, dependencies" ;
+    sk:acceptanceCriteria "Custom SPARQL queries return accurate filtered results <1 second" .
+
+ggen:fr-quality-indicators a sk:FunctionalRequirement ;
+    sk:requirementID "FR-008" ;
+    rdfs:label "Quality Indicators"@en ;
+    rdfs:comment "Display quality metrics for packages: FMEA status, download count, update recency"@en ;
+    sk:requirement "MUST show quality indicators: FMEA passed/failed, download trend (30d/90d), last update date" ;
+    sk:acceptanceCriteria "Quality indicators inform users to choose high-quality packages" .
+
+ggen:fr-lockfile-format a sk:FunctionalRequirement ;
+    sk:requirementID "FR-009" ;
+    rdfs:label "Lockfile Format"@en ;
+    rdfs:comment "Generate and parse ggen.lock files for deterministic installation"@en ;
+    sk:requirement "MUST generate ggen.lock with exact pinned versions, enable exact reproduction on different systems" ;
+    sk:acceptanceCriteria "Lock files enable deterministic CI/CD pipelines and reproducible installations" .
+
+ggen:fr-conflict-resolution a sk:FunctionalRequirement ;
+    sk:requirementID "FR-010" ;
+    rdfs:label "Version Conflict Resolution"@en ;
+    rdfs:comment "Detect and report version conflicts with actionable resolution suggestions"@en ;
+    sk:requirement "MUST detect incompatible version constraints and provide resolution suggestions" ;
+    sk:acceptanceCriteria "Conflict errors include package names, required versions, and resolution suggestions" .
+
+ggen:fr-fmea-integration a sk:FunctionalRequirement ;
+    sk:requirementID "FR-011" ;
+    rdfs:label "FMEA Integration"@en ;
+    rdfs:comment "Integrate FMEA validation reports with installation workflow"@en ;
+    sk:requirement "MUST fetch FMEA reports from crates.io metadata and validate during installation" ;
+    sk:acceptanceCriteria "Installation blocks on unresolved critical failures (RPN >= 200) unless '--force-fmea' specified" .
+
+ggen:fr-guard-application a sk:FunctionalRequirement ;
+    sk:requirementID "FR-012" ;
+    rdfs:label "Poka-Yoke Guard Application"@en ;
+    rdfs:comment "Apply poka-yoke error-prevention controls during installation"@en ;
+    sk:requirement "MUST apply directory separation (generated vs domain), trait boundaries, path protections" ;
+    sk:acceptanceCriteria "Guard violations are detected before installation completes" .
+
+ggen:fr-recommendation-engine a sk:FunctionalRequirement ;
+    sk:requirementID "FR-013" ;
+    rdfs:label "Recommendation Engine"@en ;
+    rdfs:comment "Recommend high-quality packages in search results"@en ;
+    sk:requirement "MUST rank packages by quality tier (gold/silver/bronze) based on FMEA and download metrics" ;
+    sk:acceptanceCriteria "Gold tier packages appear first in search results by default" .
+
+# ============================================================================
+# Success Criteria (SC-XXX) - Measurable, Technology-Agnostic
+# ============================================================================
+
+ggen:sc-backward-compatibility a sk:SuccessCriterion ;
+    sk:criterionID "SC-001" ;
+    rdfs:label "Backward Compatibility"@en ;
+    rdfs:comment "All 84 existing marketplace packages successfully converted to gpack format without data loss"@en ;
+    sk:criterion "100% of existing marketplace packages (84 total) can be converted to gpack format and published to crates.io" ;
+    sk:measurable "84 packages published and installable" ;
+    sk:verificationMethod "Automated conversion test + manual smoke test on 5 representative packages" .
+
+ggen:sc-publish-latency a sk:SuccessCriterion ;
+    sk:criterionID "SC-002" ;
+    rdfs:label "Publish Latency"@en ;
+    rdfs:comment "Package published to crates.io appears in search within acceptable timeframe"@en ;
+    sk:criterion "Published gpack packages appear searchable on crates.io within 30 seconds" ;
+    sk:measurable "P95 latency <= 30 seconds" ;
+    sk:verificationMethod "Publish 3 test packages, measure time to searchability" .
+
+ggen:sc-install-performance a sk:SuccessCriterion ;
+    sk:criterionID "SC-003" ;
+    rdfs:label "Installation Performance"@en ;
+    rdfs:comment "Installation of typical gpack completes in reasonable time"@en ;
+    sk:criterion "Installation of typical gpack (5-10MB with dependencies) completes in <30 seconds over 25Mbps connection" ;
+    sk:measurable "P95 installation time <= 30 seconds" ;
+    sk:verificationMethod "Performance benchmark with 10 representative packages" .
+
+ggen:sc-search-latency a sk:SuccessCriterion ;
+    sk:criterionID "SC-004" ;
+    rdfs:label "Search Latency"@en ;
+    rdfs:comment "Search queries return results quickly"@en ;
+    sk:criterion "Search queries return top 20 results in <1 second" ;
+    sk:measurable "P95 search latency <= 1 second" ;
+    sk:verificationMethod "Load test with 100 concurrent searches" .
+
+ggen:sc-fmea-validation-coverage a sk:SuccessCriterion ;
+    sk:criterionID "SC-005" ;
+    rdfs:label "FMEA Validation Coverage"@en ;
+    rdfs:comment "FMEA validation is performed on all installations"@en ;
+    sk:criterion "FMEA validation checks executed on 100% of installations with audit trail" ;
+    sk:measurable "100% of installations have FMEA validation audit entry" ;
+    sk:verificationMethod "Audit trail analysis across 100+ test installations" .
+
+ggen:sc-zero-breaking-changes a sk:SuccessCriterion ;
+    sk:criterionID "SC-006" ;
+    rdfs:label "Zero Breaking Changes"@en ;
+    rdfs:comment "Retrofit maintains complete backward compatibility"@en ;
+    sk:criterion "Existing CLI workflows (ggen marketplace install/search/list) work identically before and after gpack migration" ;
+    sk:measurable "No CLI interface changes required for existing workflows" ;
+    sk:verificationMethod "Integration test suite passing for all existing marketplace CLI commands" .
+
+ggen:sc-deterministic-distribution a sk:SuccessCriterion ;
+    sk:criterionID "SC-007" ;
+    rdfs:label "Deterministic Distribution"@en ;
+    rdfs:comment "Installation produces identical results across systems"@en ;
+    sk:criterion "Installing same gpack version on different systems produces byte-identical outputs" ;
+    sk:measurable "SHA256 hashes match across different OS (Linux, macOS, Windows)" ;
+    sk:verificationMethod "Cross-platform installation test with SHA256 hash verification" .
+
+# ============================================================================
+# Key Domain Entities
+# ============================================================================
+
+ggen:ent-gpack-manifest a sk:Entity ;
+    sk:entityName "GpackManifest" ;
+    rdfs:comment "Manifest describing a gpack package compatible with crates.io"@en ;
+    sk:fields (
+        [ sk:fieldName "crate_name" ; sk:fieldType "String" ; sk:fieldConstraint "Must end with '-gpack'" ]
+        [ sk:fieldName "version" ; sk:fieldType "Version" ; sk:fieldConstraint "Semantic version format (major.minor.patch)" ]
+        [ sk:fieldName "description" ; sk:fieldType "String" ; sk:fieldConstraint "1-500 characters" ]
+        [ sk:fieldName "dependencies" ; sk:fieldType "Map<String, VersionRange>" ; sk:fieldConstraint "Maps to other gpack crates" ]
+        [ sk:fieldName "fmea_reference" ; sk:fieldType "Url" ; sk:fieldConstraint "Points to FMEA validation report" ]
+        [ sk:fieldName "quality_tier" ; sk:fieldType "Enum" ; sk:fieldConstraint "bronze|silver|gold based on metrics" ]
+        [ sk:fieldName "homepage" ; sk:fieldType "Url" ; sk:fieldConstraint "Links to marketplace package repository" ]
+        [ sk:fieldName "documentation" ; sk:fieldType "Url" ; sk:fieldConstraint "Links to package documentation" ]
+    ) ;
+    sk:relationships (
+        [ sk:relationshipName "publishedTo" ; sk:relationshipTarget "CratesIndex" ]
+        [ sk:relationshipName "validatedBy" ; sk:relationshipTarget "FmeaValidation" ]
+    ) .
+
+ggen:ent-crates-index a sk:Entity ;
+    sk:entityName "CratesIndex" ;
+    rdfs:comment "Crates.io registry index for gpack packages"@en ;
+    sk:fields (
+        [ sk:fieldName "crate_name" ; sk:fieldType "String" ; sk:fieldConstraint "Unique identifier" ]
+        [ sk:fieldName "latest_version" ; sk:fieldType "Version" ; sk:fieldConstraint "Latest published version" ]
+        [ sk:fieldName "download_count" ; sk:fieldType "Integer" ; sk:fieldConstraint "Total downloads across all versions" ]
+        [ sk:fieldName "last_updated" ; sk:fieldType "DateTime" ; sk:fieldConstraint "RFC3339 timestamp" ]
+        [ sk:fieldName "metadata" ; sk:fieldType "Json" ; sk:fieldConstraint "Quality indicators, FMEA status" ]
+    ) ;
+    sk:relationships (
+        [ sk:relationshipName "contains" ; sk:relationshipTarget "GpackManifest" ]
+        [ sk:relationshipName "indexed_by" ; sk:relationshipTarget "SearchEngine" ]
+    ) .
+
+ggen:ent-installation-metadata a sk:Entity ;
+    sk:entityName "InstallationMetadata" ;
+    rdfs:comment "Record of gpack installation with validation results"@en ;
+    sk:fields (
+        [ sk:fieldName "crate_name" ; sk:fieldType "String" ; sk:fieldConstraint "Installed gpack name" ]
+        [ sk:fieldName "version" ; sk:fieldType "Version" ; sk:fieldConstraint "Exact version installed" ]
+        [ sk:fieldName "installed_at" ; sk:fieldType "DateTime" ; sk:fieldConstraint "RFC3339 timestamp" ]
+        [ sk:fieldName "fmea_validation_passed" ; sk:fieldType "Boolean" ; sk:fieldConstraint "True if FMEA checks passed" ]
+        [ sk:fieldName "guards_applied" ; sk:fieldType "List<String>" ; sk:fieldConstraint "Poka-yoke guards applied" ]
+        [ sk:fieldName "dependencies_resolved" ; sk:fieldType "Map<String, Version>" ; sk:fieldConstraint "Resolved dependency versions" ]
+    ) ;
+    sk:relationships (
+        [ sk:relationshipName "validates" ; sk:relationshipTarget "FmeaValidation" ]
+        [ sk:relationshipName "references" ; sk:relationshipTarget "LockFile" ]
+    ) .
+
+ggen:ent-fmea-validation a sk:Entity ;
+    sk:entityName "FmeaValidation" ;
+    rdfs:comment "FMEA validation report for gpack package"@en ;
+    sk:fields (
+        [ sk:fieldName "crate_name" ; sk:fieldType "String" ; sk:fieldConstraint "Gpack name" ]
+        [ sk:fieldName "version" ; sk:fieldType "Version" ; sk:fieldConstraint "Package version" ]
+        [ sk:fieldName "failure_modes" ; sk:fieldType "List<FailureMode>" ; sk:fieldConstraint "Identified failure modes" ]
+        [ sk:fieldName "critical_failures" ; sk:fieldType "Integer" ; sk:fieldConstraint "Count of RPN >= 200" ]
+        [ sk:fieldName "controls_implemented" ; sk:fieldType "List<String>" ; sk:fieldConstraint "Risk mitigation controls" ]
+        [ sk:fieldName "validation_date" ; sk:fieldType "DateTime" ; sk:fieldConstraint "RFC3339 timestamp" ]
+    ) ;
+    sk:relationships (
+        [ sk:relationshipName "controls" ; sk:relationshipTarget "PokayokeGuards" ]
+    ) .
+
+ggen:ent-poka-yoke-guards a sk:Entity ;
+    sk:entityName "PokayokeGuards" ;
+    rdfs:comment "Error-prevention controls applied during gpack installation"@en ;
+    sk:fields (
+        [ sk:fieldName "guard_type" ; sk:fieldType "Enum" ; sk:fieldConstraint "directory_separation|trait_boundary|path_protection|version_constraint" ]
+        [ sk:fieldName "enabled" ; sk:fieldType "Boolean" ; sk:fieldConstraint "Guard is active" ]
+        [ sk:fieldName "violation_count" ; sk:fieldType "Integer" ; sk:fieldConstraint "Violations detected" ]
+    ) .
+
+ggen:ent-lockfile a sk:Entity ;
+    sk:entityName "LockFile" ;
+    rdfs:comment "Deterministic lock file (ggen.lock) pinning exact versions"@en ;
+    sk:fields (
+        [ sk:fieldName "version" ; sk:fieldType "String" ; sk:fieldConstraint "Lock file format version" ]
+        [ sk:fieldName "packages" ; sk:fieldType "Map<String, Version>" ; sk:fieldConstraint "Exact pinned versions" ]
+        [ sk:fieldName "checksums" ; sk:fieldType "Map<String, String>" ; sk:fieldConstraint "SHA256 hashes for verification" ]
+        [ sk:fieldName "generated_at" ; sk:fieldType "DateTime" ; sk:fieldConstraint "RFC3339 timestamp" ]
+    ) .
+
+ggen:ent-search-metadata a sk:Entity ;
+    sk:entityName "SearchMetadata" ;
+    rdfs:comment "Searchable metadata for gpack packages"@en ;
+    sk:fields (
+        [ sk:fieldName "crate_name" ; sk:fieldType "String" ; sk:fieldConstraint "Searchable name" ]
+        [ sk:fieldName "category" ; sk:fieldType "String" ; sk:fieldConstraint "RDF|validation|ontology|etc" ]
+        [ sk:fieldName "quality_tier" ; sk:fieldType "Enum" ; sk:fieldConstraint "gold|silver|bronze" ]
+        [ sk:fieldName "downloads_30d" ; sk:fieldType "Integer" ; sk:fieldConstraint "30-day download count" ]
+        [ sk:fieldName "fmea_status" ; sk:fieldType "Enum" ; sk:fieldConstraint "passed|failed|warning" ]
+    ) ;
+    sk:relationships (
+        [ sk:relationshipName "searchable_by" ; sk:relationshipTarget "SearchEngine" ]
+    ) .
+
+# ============================================================================
+# Edge Cases and Error Scenarios
+# ============================================================================
+
+ggen:edge-version-conflict a sk:EdgeCase ;
+    sk:edgeID "E-001" ;
+    rdfs:label "Version Conflict Resolution"@en ;
+    rdfs:comment "Two dependencies require incompatible versions of same gpack"@en ;
+    sk:scenario "Package A requires pkg-x v1.0, Package B requires pkg-x v2.0" ;
+    sk:expectedBehavior "Installation fails with clear error identifying packages and versions" ;
+    sk:acceptanceCriteria "Error message shows: package names, required versions, possible resolutions" .
+
+ggen:edge-network-failure a sk:EdgeCase ;
+    sk:edgeID "E-002" ;
+    rdfs:label "Network Failure During Installation"@en ;
+    rdfs:comment "Network connection lost during gpack download from crates.io"@en ;
+    sk:scenario "Installation interrupted 50% through downloading 50MB gpack" ;
+    sk:expectedBehavior "Installation resumes from last checkpoint, no re-download needed" ;
+    sk:acceptanceCriteria "Partial downloads cached, retry completes installation" .
+
+ggen:edge-fmea-missing a sk:EdgeCase ;
+    sk:edgeID "E-003" ;
+    rdfs:label "Missing FMEA Validation"@en ;
+    rdfs:comment "Gpack published to crates.io without FMEA validation report"@en ;
+    sk:scenario "User attempts to install gpack that lacks FMEA reference" ;
+    sk:expectedBehavior "Installation proceeds with warning, no blocking error" ;
+    sk:acceptanceCriteria "Installation succeeds with warning in logs about missing FMEA" .
+
+ggen:edge-legacy-packages a sk:EdgeCase ;
+    sk:edgeID "E-004" ;
+    rdfs:label "Legacy Package Compatibility"@en ;
+    rdfs:comment "Marketplace packages from v5.0.2 installed alongside new gpack packages"@en ;
+    sk:scenario "User has marketplace packages installed, upgrades to ggen v5.3 with gpack" ;
+    sk:expectedBehavior "Legacy packages coexist peacefully, new gpack packages install normally" ;
+    sk:acceptanceCriteria "Both legacy and gpack packages can be used in same project" .
+
+ggen:edge-offline-cache-invalidation a sk:EdgeCase ;
+    sk:edgeID "E-005" ;
+    rdfs:label "Offline Cache Invalidation"@en ;
+    rdfs:comment "Cached gpack version becomes stale when network reconnects"@en ;
+    sk:scenario "User installs gpack offline from cache (v1.5), later updates with network available (v2.0)" ;
+    sk:expectedBehavior "System detects newer version available, prompts user to update" ;
+    sk:acceptanceCriteria "Cache invalidation check runs, newer versions discoverable" .
+
+# ============================================================================
+# Documented Assumptions
+# ============================================================================
+
+ggen:assumption-crates-api a sk:Assumption ;
+    sk:assumptionID "A-001" ;
+    rdfs:label "Crates.io API Stability"@en ;
+    rdfs:comment "Crates.io API maintains backward compatibility for 2+ years"@en ;
+    sk:assumption "Crates.io provides stable publish and download APIs" ;
+    sk:rationale "Reduces brittleness and adaptation effort if API changes" .
+
+ggen:assumption-semver a sk:Assumption ;
+    sk:assumptionID "A-002" ;
+    rdfs:label "Semantic Versioning"@en ;
+    rdfs:comment "All gpack packages follow SemVer (major.minor.patch)"@en ;
+    sk:assumption "Version strings conform to semantic versioning format" ;
+    sk:rationale "Enables deterministic version constraint resolution" .
+
+ggen:assumption-determinism a sk:Assumption ;
+    sk:assumptionID "A-003" ;
+    rdfs:label "Deterministic Output"@en ;
+    rdfs:comment "Generated code for same inputs always produces identical byte sequences"@en ;
+    sk:assumption "Ggen generation produces deterministic, reproducible outputs" ;
+    sk:rationale "Enables verification of package authenticity, prevents supply chain attacks" .
+
+ggen:assumption-rust-ecosystem a sk:Assumption ;
+    sk:assumptionID "A-004" ;
+    rdfs:label "Rust Ecosystem Best Practices"@en ;
+    rdfs:comment "Crates.io is standard distribution mechanism for Rust packages"@en ;
+    sk:assumption "Gpack adopts crates.io as primary distribution channel" ;
+    sk:rationale "Aligns with Rust ecosystem conventions, maximizes discoverability" .
+
+ggen:assumption-fmea-adoption a sk:Assumption ;
+    sk:assumptionID "A-005" ;
+    rdfs:label "FMEA Adoption"@en ;
+    rdfs:comment "Marketplace package maintainers maintain FMEA validation reports"@en ;
+    sk:assumption "FMEA validations are kept current as packages evolve" ;
+    sk:rationale "Ensures quality indicators remain accurate" .
+
+# ============================================================================
+# Implementation Context: 80/20 Analysis
+# ============================================================================
+
+ggen:context-20-percent-effort a sk:ImplementationContext ;
+    rdfs:comment "20% of implementation effort (critical path items)"@en ;
+    sk:items (
+        "Gpack format specification (YAML/Cargo.toml compatible)"
+        "Crates.io API integration for publish/download"
+        "CLI command: 'ggen marketplace publish' → crates.io"
+        "Installation resolver: download + dependency resolution"
+        "FMEA validation hook integration"
+    ) ;
+    sk:estimatedHours "80-120 hours" ;
+    sk:impactPercentage "80%" .
+
+ggen:context-80-percent-effort a sk:ImplementationContext ;
+    rdfs:comment "80% of implementation effort (supporting items)"@en ;
+    sk:items (
+        "Search SPARQL query optimization"
+        "Recommendation algorithm refinement"
+        "Quality tier computation heuristics"
+        "Cross-platform offline cache management"
+        "Version conflict resolution algorithm variations"
+        "Extensive testing across dependency scenarios"
+        "Documentation and migration guides for 84 packages"
+        "Performance optimization for large package sets"
+    ) ;
+    sk:estimatedHours "320-480 hours" ;
+    sk:impactPercentage "20%" .
+
+# ============================================================================
+# Specification Metadata
+# ============================================================================
+
+ggen:marketplace-gpack-feature
+    sk:totalUserStories 6 ;
+    sk:p1Stories 3 ;
+    sk:p2Stories 2 ;
+    sk:p3Stories 1 ;
+    sk:functionalRequirements 13 ;
+    sk:successCriteria 7 ;
+    sk:entities 8 ;
+    sk:edgeCases 5 ;
+    sk:assumptions 5 ;
+    sk:existingPackages 84 ;
+    sk:backwardCompatibilityRequired true ;
+    sk:determinismRequired true ;
+    sk:fmeaIntegrationRequired true .
