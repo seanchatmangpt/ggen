@@ -1,0 +1,774 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2001/XMLSchema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix ggen: <http://github.com/intelligentdatastructures/ggen#> .
+
+# ============================================================================
+# ggen Marketplace Gpack - Implementation Plan (RDF/Turtle)
+# ============================================================================
+# Feature: Retrofit marketplace to use "*-gpack" distribution format
+# Branch: 014-marketplace-gpack
+# Date: 2025-12-21
+# Status: Architecture & Implementation Strategy Definition
+# ============================================================================
+
+ggen:marketplace-gpack-plan a sk:ImplementationPlan ;
+    sk:featureBranch "014-marketplace-gpack" ;
+    sk:featureName "Marketplace Gpack Distribution Retrofit" ;
+    sk:planCreated "2025-12-21"^^xsd:date ;
+    sk:planStatus "Architecture Definition" ;
+    sk:architecturePattern "Layered Architecture with Command Pattern" ;
+    rdfs:comment "Multi-layer implementation of gpack distribution system with crates.io integration, deterministic dependency resolution, and FMEA-validated installation" ;
+    sk:linkedFeature ggen:marketplace-gpack-feature ;
+    sk:hasTechnologyStack (
+        ggen:tech-rust
+        ggen:tech-crates-io
+        ggen:tech-oxigraph
+        ggen:tech-tera
+        ggen:tech-tokio
+        ggen:tech-reqwest
+        ggen:tech-serde
+        ggen:tech-tracing
+    ) ;
+    sk:hasProjectStructure (
+        ggen:struct-gpack-core
+        ggen:struct-gpack-cli
+        ggen:struct-gpack-tests
+        ggen:struct-gpack-docs
+    ) ;
+    sk:hasPhases (
+        ggen:phase-foundation
+        ggen:phase-critical-1
+        ggen:phase-critical-2
+        ggen:phase-high-1
+        ggen:phase-high-2
+        ggen:phase-medium-1
+        ggen:phase-medium-2
+        ggen:phase-polish
+    ) ;
+    sk:hasArchitecturalDecisions (
+        ggen:decision-format
+        ggen:decision-registry
+        ggen:decision-resolver
+        ggen:decision-validation
+        ggen:decision-search
+        ggen:decision-cache
+    ) ;
+    sk:hasCriticalDependencies (
+        ggen:dep-existing-marketplace
+        ggen:dep-fmea-validation
+        ggen:dep-poka-yoke-guards
+        ggen:dep-crates-io-api
+    ) ;
+    sk:hasDataModel (
+        ggen:dm-gpack-manifest
+        ggen:dm-crates-index
+        ggen:dm-installation-metadata
+        ggen:dm-fmea-validation
+        ggen:dm-lockfile
+    ) ;
+    sk:hasConstitutionalRequirements (
+        ggen:const-type-safety
+        ggen:const-error-handling
+        ggen:const-determinism
+        ggen:const-testing
+        ggen:const-documentation
+    ) .
+
+# ============================================================================
+# Technology Stack (13 Technologies)
+# ============================================================================
+
+ggen:tech-rust a sk:Technology ;
+    sk:techName "Rust 1.75+" ;
+    sk:techVersion "1.75+ (edition 2021)" ;
+    sk:techPurpose "Core implementation language with type safety, zero-cost abstractions, memory safety" ;
+    sk:techDecision "Use existing ggen ecosystem (proven pattern from v5.0.2)" ;
+    sk:techRationale "Type system prevents entire classes of bugs, memory safety prevents runtime errors" ;
+    sk:techAlternatives "Python (slower, less safe), Go (no type safety), C++ (memory unsafe)" ;
+    sk:isExisting true ;
+    sk:constraints "Edition 2021, compatible with existing ggen workspace" .
+
+ggen:tech-crates-io a sk:Technology ;
+    sk:techName "Crates.io HTTP API" ;
+    sk:techVersion "Current (stable)" ;
+    sk:techPurpose "Standard Rust package registry for publishing and discovering gpack packages" ;
+    sk:techDecision "Use public crates.io API for package distribution" ;
+    sk:techRationale "Standard Rust ecosystem distribution channel, largest audience, zero maintenance" ;
+    sk:techAlternatives "Private registry (more control, more maintenance), GitHub releases (limited metadata)" ;
+    sk:isExternal true ;
+    sk:constraints "Requires crates.io account, API rate limits, token authentication" .
+
+ggen:tech-oxigraph a sk:Technology ;
+    sk:techName "Oxigraph" ;
+    sk:techVersion "0.3+ (with SPARQL support)" ;
+    sk:techPurpose "RDF triplestore for marketplace metadata querying and semantic search" ;
+    sk:techDecision "Extend existing Oxigraph integration from ggen-marketplace" ;
+    sk:techRationale "SPARQL enables flexible queries, already integrated, supports semantic operations" ;
+    sk:techAlternatives "Elasticsearch (full-text only, no SPARQL), PostgreSQL (not semantic)" ;
+    sk:isExisting true ;
+    sk:constraints "Must maintain compatibility with existing ggen-marketplace SPARQL queries" .
+
+ggen:tech-tera a sk:Technology ;
+    sk:techName "Tera Templates" ;
+    sk:techVersion "1.19+" ;
+    sk:techPurpose "Generate Cargo.toml and manifest files from gpack metadata" ;
+    sk:techDecision "Leverage existing template infrastructure in ggen" ;
+    sk:techRationale "Already in use, deterministic output, safe rendering" ;
+    sk:techAlternatives "Handlebars (less safe), manual string concatenation (error-prone)" ;
+    sk:isExisting true ;
+    sk:constraints "Template safety constraints (no code generation from untrusted input)" .
+
+ggen:tech-tokio a sk:Technology ;
+    sk:techName "Tokio" ;
+    sk:techVersion "1.35+" ;
+    sk:techPurpose "Async runtime for parallel crates.io API calls and package downloads" ;
+    sk:techDecision "Use for concurrent HTTP requests (publish, install, search)" ;
+    sk:techRationale "Industry standard for Rust async, proven performance, integrate with reqwest" ;
+    sk:techAlternatives "sync-only (slower, blocks threads), async-std (less ecosystem)" ;
+    sk:isExternal true ;
+    sk:constraints "Requires careful task management to prevent resource exhaustion" .
+
+ggen:tech-reqwest a sk:Technology ;
+    sk:techName "Reqwest" ;
+    sk:techVersion "0.11+" ;
+    sk:techPurpose "HTTP client for crates.io API communication" ;
+    sk:techDecision "Use async client for publish, download, and metadata operations" ;
+    sk:techRationale "Best-in-class Rust HTTP client, async support, certificate handling" ;
+    sk:techAlternatives "curl (FFI complexity), hyper (lower level)" ;
+    sk:isExternal true ;
+    sk:constraints "TLS certificate validation required for crates.io" .
+
+ggen:tech-serde a sk:Technology ;
+    sk:techName "Serde" ;
+    sk:techVersion "1.0+" ;
+    sk:techPurpose "Serialization/deserialization of manifests, Cargo.toml, crates.io API responses" ;
+    sk:techDecision "Use derive macros for safe serialization" ;
+    sk:techRationale "Industry standard, type-safe, supports JSON/TOML/YAML" ;
+    sk:techAlternatives "manual parsing (error-prone), bincode (not human-readable)" ;
+    sk:isExternal true ;
+    sk:constraints "Feature gates for toml, json, yaml as needed" .
+
+ggen:tech-tracing a sk:Technology ;
+    sk:techName "Tracing + OpenTelemetry" ;
+    sk:techVersion "0.1+ (spans), OTEL 0.21+" ;
+    sk:techPurpose "Structured logging and distributed tracing for marketplace operations" ;
+    sk:techDecision "Use for audit trails and operational observability" ;
+    sk:techRationale "Structured logging with OTEL correlation, integrates with ggen audit system" ;
+    sk:techAlternatives "println! (unstructured), slog (less ecosystem)" ;
+    sk:isExisting true ;
+    sk:constraints "Must integrate with existing ggen audit trail system" .
+
+ggen:tech-sha2 a sk:Technology ;
+    sk:techName "SHA2" ;
+    sk:techVersion "0.10+" ;
+    sk:techPurpose "Hash verification for package integrity and determinism checks" ;
+    sk:techDecision "Use for SHA256 hashing of downloaded packages" ;
+    sk:techRationale "Cryptographic strength, fast, deterministic" ;
+    sk:techAlternatives "blake3 (newer, not as tested), md5 (insecure)" ;
+    sk:isExternal true ;
+    sk:constraints "Must match across platforms for determinism checks" .
+
+ggen:tech-ed25519 a sk:Technology ;
+    sk:techName "Ed25519 Signatures" ;
+    sk:techVersion "existing from ggen-marketplace" ;
+    sk:techPurpose "Package signature verification for authenticity" ;
+    sk:techDecision "Extend existing signature infrastructure" ;
+    sk:techRationale "Already integrated, fast, secure" ;
+    sk:techAlternatives "RSA (slower), no signature (less secure)" ;
+    sk:isExisting true ;
+    sk:constraints "Signatures must be validated before installation" .
+
+ggen:tech-tempfile a sk:Technology ;
+    sk:techName "Tempfile" ;
+    sk:techVersion "3.8+" ;
+    sk:techPurpose "Temporary directory management during package installation and caching" ;
+    sk:techDecision "Use for atomic installation operations" ;
+    sk:techRationale "Safe cleanup, prevents leftover files, atomic operations" ;
+    sk:techAlternatives "manual /tmp (race conditions), std::fs (leak cleanup)" ;
+    sk:isExternal true ;
+    sk:constraints "Cleanup on error, atomic move to final location" .
+
+ggen:tech-yaml a sk:Technology ;
+    sk:techName "YAML" ;
+    sk:techVersion "via serde-yaml" ;
+    sk:techPurpose "Gpack manifest format (alternative to TOML)" ;
+    sk:techDecision "Support both YAML and TOML for compatibility" ;
+    sk:techRationale "YAML more human-readable for complex configs, TOML for crates.io compat" ;
+    sk:techAlternatives "JSON (less readable), TOML-only (less flexible)" ;
+    sk:isExternal true ;
+    sk:constraints "YAML security: restrict to safe tags (no arbitrary code execution)" .
+
+# ============================================================================
+# Project Structure (4 Major Components)
+# ============================================================================
+
+ggen:struct-gpack-core a sk:ProjectStructure ;
+    sk:structurePath "crates/ggen-marketplace/src/gpack/" ;
+    sk:structurePurpose "Core gpack domain logic: manifest handling, crates.io integration, resolver" ;
+    sk:structureModules (
+        ggen:mod-gpack-format
+        ggen:mod-crates-client
+        ggen:mod-resolver
+        ggen:mod-validator
+        ggen:mod-cache
+    ) ;
+    sk:structureNotes "Extension of existing ggen-marketplace, leverages oxigraph backend" ;
+    sk:fileCount "~15 new files" ;
+    sk:estimatedLOC "2000-2500 LOC" .
+
+ggen:struct-gpack-cli a sk:ProjectStructure ;
+    sk:structurePath "crates/ggen-cli/src/commands/marketplace/" ;
+    sk:structurePurpose "CLI commands: publish, install, search, list, update" ;
+    sk:structureModules (
+        ggen:mod-publish-cmd
+        ggen:mod-install-cmd
+        ggen:mod-search-cmd
+        ggen:mod-list-cmd
+        ggen:mod-update-cmd
+    ) ;
+    sk:structureNotes "Updates existing ggen-cli marketplace commands, adds crates.io integration" ;
+    sk:fileCount "~5 new/updated files" ;
+    sk:estimatedLOC "800-1000 LOC" .
+
+ggen:struct-gpack-tests a sk:ProjectStructure ;
+    sk:structurePath "crates/ggen-core/tests/ + crates/ggen-marketplace/tests/" ;
+    sk:structurePurpose "Comprehensive test suite: unit, integration, e2e for all gpack operations" ;
+    sk:structureModules (
+        ggen:test-gpack-format
+        ggen:test-crates-integration
+        ggen:test-resolver
+        ggen:test-validation
+        ggen:test-e2e-publish
+        ggen:test-e2e-install
+        ggen:test-e2e-search
+    ) ;
+    sk:structureNotes "Chicago TDD pattern with AAA (Arrange-Act-Assert), 80%+ coverage target" ;
+    sk:fileCount "~8 new test files" ;
+    sk:estimatedLOC "3000-3500 LOC (tests are verbose)" .
+
+ggen:struct-gpack-docs a sk:ProjectStructure ;
+    sk:structurePath "docs/features/marketplace-gpack.md + guides/" ;
+    sk:structurePurpose "User documentation, API references, migration guide for 84 packages" ;
+    sk:structureModules (
+        ggen:doc-gpack-guide
+        ggen:doc-manifest-reference
+        ggen:doc-migration-guide
+        ggen:doc-api-reference
+    ) ;
+    sk:structureNotes "Comprehensive examples, troubleshooting, FAQ" ;
+    sk:fileCount "~4 new doc files" ;
+    sk:estimatedLOC "1500-2000 LOC" .
+
+# ============================================================================
+# Architectural Decisions (6 Critical Choices)
+# ============================================================================
+
+ggen:decision-format a sk:ArchitecturalDecision ;
+    sk:decisionID "AD-001" ;
+    sk:decisionTitle "Gpack Format: YAML/TOML Hybrid" ;
+    sk:decisionContext "Need package metadata format that works with both crates.io and ggen ecosystem" ;
+    sk:decisionOption1 "JSON only (less readable, not standard in Rust)" ;
+    sk:decisionOption2 "TOML only (crates.io native, less flexible)" ;
+    sk:decisionOption3 "YAML primary, TOML for crates.io (selected) ✅" ;
+    sk:decisionRationale "YAML for flexibility and readability, auto-generate TOML for crates.io compatibility" ;
+    sk:decisionConstraints "Both formats must represent identical information, no data loss" ;
+    sk:decisionVerification "Conversion tests bidirectional, round-trip validation" .
+
+ggen:decision-registry a sk:ArchitecturalDecision ;
+    sk:decisionID "AD-002" ;
+    sk:decisionTitle "Registry Integration: Crates.io Native" ;
+    sk:decisionContext "Need to publish and discover gpack packages via standard mechanism" ;
+    sk:decisionOption1 "Private registry (control, maintenance burden)" ;
+    sk:decisionOption2 "GitHub releases (limited metadata)" ;
+    sk:decisionOption3 "Crates.io standard API (selected) ✅" ;
+    sk:decisionRationale "Crates.io is Rust standard, 100% audience reach, zero maintenance cost" ;
+    sk:decisionConstraints "Requires crates.io account, API key management, token rotation" ;
+    sk:decisionVerification "Publish 10 test packages, verify searchable and installable" .
+
+ggen:decision-resolver a sk:ArchitecturalDecision ;
+    sk:decisionID "AD-003" ;
+    sk:decisionTitle "Dependency Resolution: Lock-File Based" ;
+    sk:decisionContext "Need deterministic installation reproducible across systems" ;
+    sk:decisionOption1 "Always fetch latest (non-deterministic)" ;
+    sk:decisionOption2 "Semver ranges (non-deterministic)" ;
+    sk:decisionOption3 "Lock file pins exact versions (selected) ✅" ;
+    sk:decisionRationale "Lock files enable byte-identical installs, proven pattern from Cargo/npm/pip" ;
+    sk:decisionConstraints "Lock file must be committed, updated only by maintainers" ;
+    sk:decisionVerification "Cross-platform install test: SHA256 hashes match across Linux/macOS/Windows" .
+
+ggen:decision-validation a sk:ArchitecturalDecision ;
+    sk:decisionID "AD-004" ;
+    sk:decisionTitle "FMEA Validation: Mandatory on Installation" ;
+    sk:decisionContext "Need to ensure packages meet safety standards" ;
+    sk:decisionOption1 "Optional validation (less safe)" ;
+    sk:decisionOption2 "Warning-only (users can ignore)" ;
+    sk:decisionOption3 "Mandatory with override flag (selected) ✅" ;
+    sk:decisionRationale "Prevents unsafe packages being installed by default, override only via --force-fmea" ;
+    sk:decisionConstraints "Critical FMEA failures (RPN >= 200) must block unless explicitly overridden" ;
+    sk:decisionVerification "Test installation of package with critical FMEA failures, verify blocking behavior" .
+
+ggen:decision-search a sk:ArchitecturalDecision ;
+    sk:decisionID "AD-005" ;
+    sk:decisionTitle "Search: SPARQL + Metadata Index" ;
+    sk:decisionContext "Need flexible search with quality metrics and category filtering" ;
+    sk:decisionOption1 "Full-text search only (Elasticsearch)" ;
+    sk:decisionOption2 "crates.io search alone (limited filtering)" ;
+    sk:decisionOption3 "SPARQL queries on marketplace RDF (selected) ✅" ;
+    sk:decisionRationale "SPARQL enables semantic queries, metadata indexing for quality tiers, category-based discovery" ;
+    sk:decisionConstraints "Must maintain Oxigraph indices, query optimization needed for <1 second latency" ;
+    sk:decisionVerification "100 concurrent SPARQL queries return results in <1 second" .
+
+ggen:decision-cache a sk:ArchitecturalDecision ;
+    sk:decisionID "AD-006" ;
+    sk:decisionTitle "Caching: Multi-Layer (Metadata + Packages)" ;
+    sk:decisionContext "Need fast installation and search, handle network failures gracefully" ;
+    sk:decisionOption1 "No caching (slow, fails offline)" ;
+    sk:decisionOption2 "Package cache only (not enough)" ;
+    sk:decisionOption3 "Metadata + package cache (selected) ✅" ;
+    sk:decisionRationale "Metadata cache enables offline search, package cache enables offline install, both layers needed" ;
+    sk:decisionConstraints "Cache invalidation strategy needed, stale data warnings required" ;
+    sk:decisionVerification "Offline installation succeeds with cached packages, appropriate warnings logged" .
+
+# ============================================================================
+# Data Model Entities (5 Core Types)
+# ============================================================================
+
+ggen:dm-gpack-manifest a sk:DataModel ;
+    sk:entityName "GpackManifest" ;
+    rdfs:comment "Marketplace package metadata in gpack format" ;
+    sk:fields (
+        [ sk:fieldName "crate_name" ; sk:fieldType "String" ; sk:pattern "^[a-z0-9_-]+-gpack$" ]
+        [ sk:fieldName "version" ; sk:fieldType "Version" ; sk:pattern "^\\d+\\.\\d+\\.\\d+$" ]
+        [ sk:fieldName "description" ; sk:fieldType "String" ; sk:maxLength 500 ]
+        [ sk:fieldName "dependencies" ; sk:fieldType "Map<String, VersionSpec>" ; sk:optional true ]
+        [ sk:fieldName "fmea_reference" ; sk:fieldType "Url" ; sk:optional true ]
+        [ sk:fieldName "quality_tier" ; sk:fieldType "Enum" ; sk:values ("gold", "silver", "bronze") ]
+        [ sk:fieldName "homepage" ; sk:fieldType "Url" ; sk:optional true ]
+        [ sk:fieldName "documentation" ; sk:fieldType "Url" ; sk:optional true ]
+    ) ;
+    sk:storageFormat "YAML (internal) + TOML (crates.io)" ;
+    sk:generation "Convert marketplace package → gpack manifest → Cargo.toml" ;
+    sk:validation "Schema validation + FMEA reference verification" .
+
+ggen:dm-crates-index a sk:DataModel ;
+    sk:entityName "CratesIndexEntry" ;
+    rdfs:comment "Cached entry from crates.io for search and discovery" ;
+    sk:fields (
+        [ sk:fieldName "crate_name" ; sk:fieldType "String" ]
+        [ sk:fieldName "latest_version" ; sk:fieldType "Version" ]
+        [ sk:fieldName "download_count" ; sk:fieldType "Integer" ]
+        [ sk:fieldName "last_updated" ; sk:fieldType "DateTime" ]
+        [ sk:fieldName "description" ; sk:fieldType "String" ]
+        [ sk:fieldName "fmea_status" ; sk:fieldType "Enum" ; sk:values ("passed", "failed", "warning") ]
+        [ sk:fieldName "quality_tier" ; sk:fieldType "Enum" ]
+        [ sk:fieldName "category" ; sk:fieldType "String" ]
+    ) ;
+    sk:storageFormat "RDF (Oxigraph index)" ;
+    sk:updateFrequency "Lazy: on-demand from crates.io API, cached for 1 hour" ;
+    sk:queryPattern "SPARQL queries for search, filtering, recommendations" .
+
+ggen:dm-installation-metadata a sk:DataModel ;
+    sk:entityName "InstallationRecord" ;
+    rdfs:comment "Record of gpack installation with validation and guard application" ;
+    sk:fields (
+        [ sk:fieldName "crate_name" ; sk:fieldType "String" ]
+        [ sk:fieldName "version" ; sk:fieldType "Version" ]
+        [ sk:fieldName "installed_at" ; sk:fieldType "DateTime" ]
+        [ sk:fieldName "installed_by_user" ; sk:fieldType "String" ]
+        [ sk:fieldName "fmea_validation_passed" ; sk:fieldType "Boolean" ]
+        [ sk:fieldName "guards_applied" ; sk:fieldType "List<String>" ]
+        [ sk:fieldName "dependencies_resolved" ; sk:fieldType "Map<String, Version>" ]
+        [ sk:fieldName "install_location" ; sk:fieldType "Path" ]
+        [ sk:fieldName "package_hash" ; sk:fieldType "String" ]
+    ) ;
+    sk:storageFormat "JSON (in ggen audit trail)" ;
+    sk:purpose "Installation audit, reproducibility, verification" ;
+    sk:integration "Part of ggen audit system with OTEL correlation" .
+
+ggen:dm-fmea-validation a sk:DataModel ;
+    sk:entityName "FmeaValidationReport" ;
+    rdfs:comment "FMEA validation data from spec v006" ;
+    sk:fields (
+        [ sk:fieldName "crate_name" ; sk:fieldType "String" ]
+        [ sk:fieldName "version" ; sk:fieldType "Version" ]
+        [ sk:fieldName "failure_modes" ; sk:fieldType "List<FailureMode>" ]
+        [ sk:fieldName "critical_failures" ; sk:fieldType "Integer" ]
+        [ sk:fieldName "controls_implemented" ; sk:fieldType "List<String>" ]
+        [ sk:fieldName "validation_date" ; sk:fieldType "DateTime" ]
+        [ sk:fieldName "validator" ; sk:fieldType "String" ]
+    ) ;
+    sk:source "Spec v006 (marketplace-fmea-poka-yoke)" ;
+    sk:integration "Fetched from crates.io metadata, checked during installation" ;
+    sk:blockingCondition "If critical_failures > 0 AND user did not pass --force-fmea" .
+
+ggen:dm-lockfile a sk:DataModel ;
+    sk:entityName "GgenLockFile" ;
+    rdfs:comment "Deterministic lock file (ggen.lock) pinning exact package versions" ;
+    sk:fields (
+        [ sk:fieldName "format_version" ; sk:fieldType "String" ; sk:value "1.0" ]
+        [ sk:fieldName "packages" ; sk:fieldType "Map<String, Version>" ]
+        [ sk:fieldName "checksums" ; sk:fieldType "Map<String, String>" ]
+        [ sk:fieldName "generated_at" ; sk:fieldType "DateTime" ]
+        [ sk:fieldName "rust_toolchain" ; sk:fieldType "String" ]
+    ) ;
+    sk:storageFormat "YAML (human-readable, git-committed)" ;
+    sk:purpose "Exact reproducibility across systems and time" ;
+    sk:regeneration "Updated by 'ggen marketplace update --lock', committed to git" .
+
+# ============================================================================
+# Constitutional Requirements (5 Principles)
+# ============================================================================
+
+ggen:const-type-safety a sk:ConstitutionalRequirement ;
+    sk:requirementID "CONST-001" ;
+    sk:requirementTitle "100% Type Safety" ;
+    sk:requirementPrinciple "All types must be explicit, no untyped or Any types" ;
+    sk:verification "Rust compiler enforces, no 'as _' type elisions, clippy must pass" ;
+    sk:consequence "Prevents entire classes of runtime errors" .
+
+ggen:const-error-handling a sk:ConstitutionalRequirement ;
+    sk:requirementID "CONST-002" ;
+    sk:requirementTitle "Result<T, E> Error Handling" ;
+    sk:requirementPrinciple "All fallible operations return Result, no unwrap/expect in production code" ;
+    sk:verification "No bare unwrap() outside tests, error types defined, propagated via ?" ;
+    sk:consequence "Graceful error recovery, clear error messages to users" .
+
+ggen:const-determinism a sk:ConstitutionalRequirement ;
+    sk:requirementID "CONST-003" ;
+    sk:requirementTitle "Deterministic Output" ;
+    sk:requirementPrinciple "Same inputs → byte-identical outputs across systems" ;
+    sk:verification "SHA256 hashes match: Linux == macOS == Windows, sorted keys, stable iteration" ;
+    sk:consequence "Prevents supply chain attacks, enables verification" .
+
+ggen:const-testing a sk:ConstitutionalRequirement ;
+    sk:requirementID "CONST-004" ;
+    sk:requirementTitle "Chicago School TDD" ;
+    sk:requirementPrinciple "Tests verify behavior (not implementation), state-based, use real objects" ;
+    sk:verification "80%+ code coverage, all tests use AAA pattern (Arrange-Act-Assert)" ;
+    sk:consequence "80% bug detection, robust refactoring safety" .
+
+ggen:const-documentation a sk:ConstitutionalRequirement ;
+    sk:requirementID "CONST-005" ;
+    sk:requirementTitle "Documentation-First Design" ;
+    sk:requirementPrinciple "Public APIs have docstrings, examples, and clear error messages" ;
+    sk:verification "100% of public functions documented, examples compile, error messages are actionable" ;
+    sk:consequence "Better UX, easier onboarding, fewer support issues" .
+
+# ============================================================================
+# Implementation Phases (8 Phases with Dependencies)
+# ============================================================================
+
+ggen:phase-foundation a sk:Phase ;
+    sk:phaseNumber "0" ;
+    sk:phaseTitle "Foundation: Workspace Setup & Dependencies" ;
+    sk:phaseEstimate "3-4 days" ;
+    sk:phasePriority "CRITICAL" ;
+    sk:phaseGoal "Set up modular crate structure, integrate dependencies, establish patterns" ;
+    sk:phaseDependencies () ;
+    sk:phaseDeliverables (
+        ggen:del-crate-structure
+        ggen:del-dependency-verification
+        ggen:del-test-infrastructure
+    ) ;
+    sk:estimatedHours 24-32 .
+
+ggen:phase-critical-1 a sk:Phase ;
+    sk:phaseNumber "1a" ;
+    sk:phaseTitle "Phase 1a: Gpack Format & Manifest System" ;
+    sk:phaseEstimate "3-4 days" ;
+    sk:phasePriority "CRITICAL" ;
+    sk:phaseGoal "Define gpack manifest format, implement serialization, validate schema" ;
+    sk:phaseDependencies ggen:phase-foundation ;
+    sk:phaseDeliverables (
+        ggen:del-manifest-schema
+        ggen:del-serialization
+        ggen:del-validation-rules
+    ) ;
+    sk:estimatedHours 24-32 .
+
+ggen:phase-critical-2 a sk:Phase ;
+    sk:phaseNumber "1b" ;
+    sk:phaseTitle "Phase 1b: Crates.io API Integration (Publish)" ;
+    sk:phaseEstimate "3-4 days" ;
+    sk:phasePriority "CRITICAL" ;
+    sk:phaseGoal "Implement publish to crates.io, handle authentication, verify uploads" ;
+    sk:phaseDependencies ggen:phase-critical-1 ;
+    sk:phaseDeliverables (
+        ggen:del-crates-client
+        ggen:del-publish-command
+        ggen:del-publish-tests
+    ) ;
+    sk:estimatedHours 24-32 .
+
+ggen:phase-high-1 a sk:Phase ;
+    sk:phaseNumber "2a" ;
+    sk:phaseTitle "Phase 2a: Installation Resolver & Download" ;
+    sk:phaseEstimate "3-4 days" ;
+    sk:phasePriority "HIGH" ;
+    sk:phaseGoal "Implement package resolver, dependency resolution, caching" ;
+    sk:phaseDependencies ggen:phase-critical-2 ;
+    sk:phaseDeliverables (
+        ggen:del-resolver-engine
+        ggen:del-lockfile-format
+        ggen:del-cache-system
+    ) ;
+    sk:estimatedHours 24-32 .
+
+ggen:phase-high-2 a sk:Phase ;
+    sk:phaseNumber "2b" ;
+    sk:phaseTitle "Phase 2b: FMEA Validation & Installation Guards" ;
+    sk:phaseEstimate "2-3 days" ;
+    sk:phasePriority "HIGH" ;
+    sk:phaseGoal "Integrate FMEA validation, apply poka-yoke guards, verify installation safety" ;
+    sk:phaseDependencies ggen:phase-high-1 ;
+    sk:phaseDeliverables (
+        ggen:del-fmea-integration
+        ggen:del-guard-application
+        ggen:del-install-command
+    ) ;
+    sk:estimatedHours 16-24 .
+
+ggen:phase-medium-1 a sk:Phase ;
+    sk:phaseNumber "3a" ;
+    sk:phaseTitle "Phase 3a: Search & Discovery (SPARQL)" ;
+    sk:phaseEstimate "3-4 days" ;
+    sk:phasePriority "MEDIUM" ;
+    sk:phaseGoal "Implement SPARQL search, quality indicators, crates.io metadata integration" ;
+    sk:phaseDependencies ggen:phase-high-2 ;
+    sk:phaseDeliverables (
+        ggen:del-sparql-queries
+        ggen:del-search-command
+        ggen:del-quality-indicators
+    ) ;
+    sk:estimatedHours 24-32 .
+
+ggen:phase-medium-2 a sk:Phase ;
+    sk:phaseNumber "3b" ;
+    sk:phaseTitle "Phase 3b: Recommendations & Offline Support" ;
+    sk:phaseEstimate "2-3 days" ;
+    sk:phasePriority "MEDIUM" ;
+    sk:phaseGoal "Implement recommendation engine, enhance offline functionality" ;
+    sk:phaseDependencies ggen:phase-medium-1 ;
+    sk:phaseDeliverables (
+        ggen:del-recommendation-engine
+        ggen:del-offline-enhancements
+        ggen:del-quality-tiers
+    ) ;
+    sk:estimatedHours 16-24 .
+
+ggen:phase-polish a sk:Phase ;
+    sk:phaseNumber "4" ;
+    sk:phaseTitle "Phase 4: Testing, Migration, Release" ;
+    sk:phaseEstimate "5-7 days" ;
+    sk:phasePriority "CRITICAL" ;
+    sk:phaseGoal "Convert 84 packages, comprehensive e2e testing, documentation, release preparation" ;
+    sk:phaseDependencies ggen:phase-medium-2 ;
+    sk:phaseDeliverables (
+        ggen:del-package-migration
+        ggen:del-e2e-testing
+        ggen:del-documentation
+        ggen:del-release-notes
+    ) ;
+    sk:estimatedHours 40-56 .
+
+# ============================================================================
+# Critical Dependencies (4 Blocking Items)
+# ============================================================================
+
+ggen:dep-existing-marketplace a sk:Dependency ;
+    sk:depName "Existing Marketplace v5.0.2" ;
+    sk:depType "Internal" ;
+    sk:depImportance "CRITICAL" ;
+    sk:depRationale "Must integrate with existing ggen-marketplace, reuse oxigraph backend" ;
+    sk:depStatus "Available and tested" ;
+    sk:depVersion "5.0.2+ (current)" ;
+    sk:depBlocker "No - integrated already" .
+
+ggen:dep-fmea-validation a sk:Dependency ;
+    sk:depName "FMEA Validation System" ;
+    sk:depType "Internal" ;
+    sk:depImportance "CRITICAL" ;
+    sk:depRationale "Must validate FMEA during installation, block unsafe packages" ;
+    sk:depStatus "Defined in spec v006" ;
+    sk:depVersion "From marketplace-fmea-poka-yoke" ;
+    sk:depBlocker "No - already specified and available" .
+
+ggen:dep-poka-yoke-guards a sk:Dependency ;
+    sk:depName "Poka-Yoke Error Prevention Guards" ;
+    sk:depType "Internal" ;
+    sk:depImportance "CRITICAL" ;
+    sk:depRationale "Apply guards during installation to prevent errors" ;
+    sk:depStatus "Defined in spec v006" ;
+    sk:depVersion "From marketplace-fmea-poka-yoke" ;
+    sk:depBlocker "No - guards already exist" .
+
+ggen:dep-crates-io-api a sk:Dependency ;
+    sk:depName "Crates.io HTTP API" ;
+    sk:depType "External" ;
+    sk:depImportance "CRITICAL" ;
+    sk:depRationale "Required for publish, download, metadata operations" ;
+    sk:depStatus "Public and stable" ;
+    sk:depVersion "Current (no version lock)" ;
+    sk:depBlocker "No - public API, documented, stable" .
+
+# ============================================================================
+# Risk Assessment (5 Key Risks)
+# ============================================================================
+
+ggen:risk-determinism a sk:Risk ;
+    sk:riskID "R-001" ;
+    sk:riskTitle "Determinism Breaks Across Platforms" ;
+    sk:riskProbability "Medium" ;
+    sk:riskSeverity "Critical" ;
+    sk:riskImpact "Users on different OS get different hashes, defeats reproducibility" ;
+    sk:riskMitigation (
+        "Use sorted keys for all collections (no HashMap)"
+        "Test across Linux/macOS/Windows in CI"
+        "Lock Rust toolchain version"
+        "Document platform-specific gotchas"
+    ) ;
+    sk:verificationTest "Cross-platform SHA256 hash matching test" .
+
+ggen:risk-fmea-integration a sk:Risk ;
+    sk:riskID "R-002" ;
+    sk:riskTitle "FMEA Reports Missing or Invalid" ;
+    sk:riskProbability "Medium" ;
+    sk:riskSeverity "High" ;
+    sk:riskImpact "Installation proceeds without validation, safety guarantees broken" ;
+    sk:riskMitigation (
+        "Make FMEA reference required in manifest"
+        "Default to blocking if FMEA invalid"
+        "Provide clear --force-fmea override message"
+        "Log all FMEA decisions to audit trail"
+    ) ;
+    sk:verificationTest "Test installation with missing/invalid FMEA, verify blocking behavior" .
+
+ggen:risk-crates-io-downtime a sk:Risk ;
+    sk:riskID "R-003" ;
+    sk:riskTitle "Crates.io Becomes Unavailable" ;
+    sk:riskProbability "Low" ;
+    sk:riskSeverity "High" ;
+    sk:riskImpact "Users cannot install packages, complete dependency on external service" ;
+    sk:riskMitigation (
+        "Cache packages and metadata locally"
+        "Implement offline mode with cached versions"
+        "Provide fallback registry option"
+        "Clear messaging about using cached versions"
+    ) ;
+    sk:verificationTest "Simulate network failure, verify offline functionality" .
+
+ggen:risk-version-conflicts a sk:Risk ;
+    sk:riskID "R-004" ;
+    sk:riskTitle "Unresolvable Version Conflicts" ;
+    sk:riskProbability "Medium" ;
+    sk:riskSeverity "Medium" ;
+    sk:riskImpact "Installation fails without clear path forward, user frustration" ;
+    sk:riskMitigation (
+        "Implement sophisticated version constraint resolution"
+        "Provide detailed conflict error messages"
+        "Suggest package upgrades or alternatives"
+        "Document common conflict patterns"
+    ) ;
+    sk:verificationTest "Test complex dependency scenarios with conflicts" .
+
+ggen:risk-backward-compatibility a sk:Risk ;
+    sk:riskID "R-005" ;
+    sk:riskTitle "Breaks Existing Marketplace Functionality" ;
+    sk:riskProbability "Low" ;
+    sk:riskSeverity "Critical" ;
+    sk:riskImpact "100% backward compatibility guarantee broken" ;
+    sk:riskMitigation (
+        "Parallel operation during transition (old + new)"
+        "Comprehensive integration test suite"
+        "Feature flags for gradual rollout"
+        "Easy rollback to v5.0.2 if needed"
+    ) ;
+    sk:verificationTest "All existing marketplace commands work unchanged" .
+
+# ============================================================================
+# Success Metrics & Quality Gates (Validation Checkpoints)
+# ============================================================================
+
+ggen:quality-gate-phase0 a sk:QualityGate ;
+    sk:gateName "Foundation Setup" ;
+    sk:gatePhase ggen:phase-foundation ;
+    sk:criteria (
+        "Crate structure created and builds cleanly"
+        "All dependencies added to Cargo.toml"
+        "Test infrastructure functional (cargo test works)"
+        "Pre-commit hooks working"
+    ) ;
+    sk:verificationCommand "cargo make check && cargo make test-unit" ;
+    sk:blockingFailure true .
+
+ggen:quality-gate-phase1 a sk:QualityGate ;
+    sk:gateName "Gpack Format & Publish" ;
+    sk:gatePhase ggen:phase-critical-2 ;
+    sk:criteria (
+        "Manifest schema defined and documented"
+        "Serialization works (YAML ↔ TOML)"
+        "Can publish test package to crates.io"
+        "Package appears searchable within 30s"
+    ) ;
+    sk:verificationCommand "cargo make test && manual publish test" ;
+    sk:blockingFailure true .
+
+ggen:quality-gate-phase2 a sk:QualityGate ;
+    sk:gateName "Installation & Validation" ;
+    sk:gatePhase ggen:phase-high-2 ;
+    sk:criteria (
+        "Can install published package from crates.io"
+        "Dependency resolution works"
+        "Lock file generated and reproducible"
+        "FMEA validation blocks critical failures"
+        "Installation logs show all validation steps"
+    ) ;
+    sk:verificationCommand "cargo make test && integration tests" ;
+    sk:blockingFailure true .
+
+ggen:quality-gate-phase3 a sk:QualityGate ;
+    sk:gateName "Search & Discovery" ;
+    sk:gatePhase ggen:phase-medium-1 ;
+    sk:criteria (
+        "SPARQL queries return results in <1s"
+        "Quality indicators displayed accurately"
+        "100 concurrent searches handled"
+        "Caches metadata efficiently"
+    ) ;
+    sk:verificationCommand "Load test script, performance benchmarks" ;
+    sk:blockingFailure false .
+
+ggen:quality-gate-final a sk:QualityGate ;
+    sk:gateName "Release Readiness" ;
+    sk:gatePhase ggen:phase-polish ;
+    sk:criteria (
+        "All 84 packages migrated to gpack"
+        "All acceptance scenarios pass"
+        "All 7 success criteria met (SC-001 through SC-007)"
+        "80%+ test coverage achieved"
+        "Zero breaking changes verified"
+        "Documentation complete"
+    ) ;
+    sk:verificationCommand "Final validation: cargo make ci && integration test suite" ;
+    sk:blockingFailure true .
+
+# ============================================================================
+# Summary Metadata
+# ============================================================================
+
+ggen:marketplace-gpack-plan
+    sk:totalTechnologies 13 ;
+    sk:totalPhases 8 ;
+    sk:totalArchitecturalDecisions 6 ;
+    sk:totalDataModels 5 ;
+    sk:totalRisks 5 ;
+    sk:estimatedTotalHours "168-216 hours (4-5.5 weeks)" ;
+    sk:estimatedLOC "5500-7500 LOC + 3000-3500 LOC tests + 1500-2000 LOC docs" ;
+    sk:teamSize "Optimal: 10 parallel agents (following v5.2.0 pattern)" ;
+    sk:targetReleaseVersion "5.3.0" ;
+    sk:criticalPathDuration "2-3 weeks minimum sequential" ;
+    sk:qualityTarget "99.99966% (Lean Six Sigma)" .
