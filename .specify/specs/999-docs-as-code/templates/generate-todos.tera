@@ -1,0 +1,56 @@
+# Documentation Gaps - Actionable Todos
+
+Generated from RDF: `documentation.ttl`
+Ordered by Priority + Effort
+
+## CRITICAL (P0) - Do First
+
+{% set p0_gaps = results | filter(attribute='priority', value='P0') %}
+{% for gap in p0_gaps | sort(attribute='effort') %}
+- [ ] **{{ gap.title }}** ({{ gap.effort }})
+  - Description: {{ gap.description }}
+  - Category: {{ gap.category }}
+{% endfor %}
+
+## HIGH (P1) - Do Next
+
+{% set p1_gaps = results | filter(attribute='priority', value='P1') %}
+{% for gap in p1_gaps | sort(attribute='effort') %}
+- [ ] **{{ gap.title }}** ({{ gap.effort }})
+  - Description: {{ gap.description }}
+  - Category: {{ gap.category }}
+{% endfor %}
+
+## MEDIUM (P2) - Nice to Have
+
+{% set p2_gaps = results | filter(attribute='priority', value='P2') %}
+{% for gap in p2_gaps | sort(attribute='effort') %}
+- [ ] **{{ gap.title }}** ({{ gap.effort }})
+  - Description: {{ gap.description }}
+  - Category: {{ gap.category }}
+{% endfor %}
+
+## LOW (P3) - Backlog
+
+{% set p3_gaps = results | filter(attribute='priority', value='P3') %}
+{% for gap in p3_gaps | sort(attribute='effort') %}
+- [ ] **{{ gap.title }}** ({{ gap.effort }})
+  - Description: {{ gap.description }}
+  - Category: {{ gap.category }}
+{% endfor %}
+
+## Summary
+
+Total Gaps: {{ results | length }}
+
+**By Priority:**
+- P0 (Critical): {{ results | filter(attribute='priority', value='P0') | length }}
+- P1 (High): {{ results | filter(attribute='priority', value='P1') | length }}
+- P2 (Medium): {{ results | filter(attribute='priority', value='P2') | length }}
+- P3 (Low): {{ results | filter(attribute='priority', value='P3') | length }}
+
+**By Effort:**
+- S (Small): {{ results | filter(attribute='effort', value='S') | length }}
+- M (Medium): {{ results | filter(attribute='effort', value='M') | length }}
+- L (Large): {{ results | filter(attribute='effort', value='L') | length }}
+- XL (XLarge): {{ results | filter(attribute='effort', value='XL') | length }}
