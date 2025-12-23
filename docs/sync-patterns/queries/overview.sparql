@@ -1,0 +1,23 @@
+# =============================================================================
+# SPARQL Query: Extract overview statistics for README
+# =============================================================================
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pl: <https://ggen.dev/pattern-language#>
+PREFIX sync: <https://ggen.dev/sync-patterns#>
+
+SELECT
+    (COUNT(DISTINCT ?pattern) AS ?totalPatterns)
+    (COUNT(DISTINCT ?category) AS ?totalCategories)
+    (COUNT(DISTINCT ?term) AS ?totalTerms)
+    (COUNT(DISTINCT ?connection) AS ?totalConnections)
+WHERE {
+    { ?pattern a pl:Pattern }
+    UNION
+    { ?category a pl:PatternCategory }
+    UNION
+    { ?term a pl:Term }
+    UNION
+    { ?x pl:hasConnection ?connection }
+}

@@ -1,0 +1,795 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix pl: <https://ggen.dev/pattern-language#> .
+@prefix sync: <https://ggen.dev/sync-patterns#> .
+
+# =============================================================================
+# PATTERN LANGUAGE ONTOLOGY SCHEMA
+# =============================================================================
+
+# Core Classes
+pl:Pattern a rdfs:Class ;
+    rdfs:label "Pattern" ;
+    rdfs:comment "A recurring solution to a recurring problem in code synchronization" .
+
+pl:PatternCategory a rdfs:Class ;
+    rdfs:label "Pattern Category" ;
+    rdfs:comment "A grouping of related patterns" .
+
+pl:Force a rdfs:Class ;
+    rdfs:label "Force" ;
+    rdfs:comment "A tension or pressure that creates a problem" .
+
+pl:Connection a rdfs:Class ;
+    rdfs:label "Connection" ;
+    rdfs:comment "A relationship between two patterns" .
+
+pl:Example a rdfs:Class ;
+    rdfs:label "Example" ;
+    rdfs:comment "A concrete example of pattern application" .
+
+pl:AntiPattern a rdfs:Class ;
+    rdfs:label "Anti-Pattern" ;
+    rdfs:comment "A common mistake to avoid" .
+
+pl:Term a rdfs:Class ;
+    rdfs:label "Term" ;
+    rdfs:comment "A glossary term" .
+
+# Properties
+pl:hasNumber a rdf:Property ;
+    rdfs:domain pl:Pattern ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Pattern number for ordering" .
+
+pl:hasConfidence a rdf:Property ;
+    rdfs:domain pl:Pattern ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Confidence level: 1=emerging, 2=established, 3=fundamental" .
+
+pl:hasCategory a rdf:Property ;
+    rdfs:domain pl:Pattern ;
+    rdfs:range pl:PatternCategory .
+
+pl:hasContext a rdf:Property ;
+    rdfs:domain pl:Pattern ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The situation where this pattern applies" .
+
+pl:hasProblem a rdf:Property ;
+    rdfs:domain pl:Pattern ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The core problem statement" .
+
+pl:hasSolution a rdf:Property ;
+    rdfs:domain pl:Pattern ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The Therefore statement" .
+
+pl:hasForce a rdf:Property ;
+    rdfs:domain pl:Pattern ;
+    rdfs:range pl:Force .
+
+pl:hasConnection a rdf:Property ;
+    rdfs:domain pl:Pattern ;
+    rdfs:range pl:Connection .
+
+pl:hasExample a rdf:Property ;
+    rdfs:domain pl:Pattern ;
+    rdfs:range pl:Example .
+
+pl:hasImplementation a rdf:Property ;
+    rdfs:domain pl:Pattern ;
+    rdfs:range xsd:string ;
+    rdfs:comment "How ggen sync implements this pattern" .
+
+pl:hasFlag a rdf:Property ;
+    rdfs:domain pl:Pattern ;
+    rdfs:range xsd:string ;
+    rdfs:comment "CLI flag that invokes this pattern" .
+
+pl:hasManifestSection a rdf:Property ;
+    rdfs:domain pl:Pattern ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Manifest section that configures this pattern" .
+
+pl:connectsTo a rdf:Property ;
+    rdfs:domain pl:Connection ;
+    rdfs:range pl:Pattern .
+
+pl:connectionType a rdf:Property ;
+    rdfs:domain pl:Connection ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type: supports, enables, modifies, requires" .
+
+pl:connectionReason a rdf:Property ;
+    rdfs:domain pl:Connection ;
+    rdfs:range xsd:string .
+
+# =============================================================================
+# PATTERN CATEGORIES
+# =============================================================================
+
+sync:FoundationCategory a pl:PatternCategory ;
+    rdfs:label "Foundation Patterns" ;
+    pl:categoryOrder 1 ;
+    pl:categoryDescription "These patterns establish the fundamental structure and philosophy of code synchronization. They are the largest-scale patterns, setting the context for everything that follows." ;
+    pl:categorySlug "foundation" .
+
+sync:KnowledgeCategory a pl:PatternCategory ;
+    rdfs:label "Knowledge Patterns" ;
+    pl:categoryOrder 2 ;
+    pl:categoryDescription "These patterns govern how domain knowledge flows through the system and becomes code. They form the heart of the generation pipeline." ;
+    pl:categorySlug "knowledge" .
+
+sync:SafetyCategory a pl:PatternCategory ;
+    rdfs:label "Safety Patterns" ;
+    pl:categoryOrder 3 ;
+    pl:categoryDescription "These patterns protect the system, developers, and outputs from harm. They provide safeguards, previews, and escape hatches." ;
+    pl:categorySlug "safety" .
+
+sync:IntegrityCategory a pl:PatternCategory ;
+    rdfs:label "Integrity Patterns" ;
+    pl:categoryOrder 4 ;
+    pl:categoryDescription "These patterns ensure trust, reproducibility, and auditability in generated outputs." ;
+    pl:categorySlug "integrity" .
+
+sync:SelectiveCategory a pl:PatternCategory ;
+    rdfs:label "Selective Patterns" ;
+    pl:categoryOrder 5 ;
+    pl:categoryDescription "These patterns allow focused, intentional synchronization for specific needs." ;
+    pl:categorySlug "selective" .
+
+# =============================================================================
+# FOUNDATION PATTERNS (1-3)
+# =============================================================================
+
+sync:SingleCommand a pl:Pattern ;
+    rdfs:label "THE SINGLE COMMAND" ;
+    pl:hasNumber 1 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory sync:FoundationCategory ;
+    pl:hasSlug "single-command" ;
+    pl:hasEvocativeImage "A narrow gate that opens into a wide garden." ;
+    pl:hasContext """You are building a code generation system. Over time, the system has accumulated many commands: generate, validate, template, init, update, check, build. Each command has its own flags, its own behavior, its own mental model. Users must learn which command to use when, how commands interact, and what order to run them in. The cognitive load grows. The documentation grows. The confusion grows.""" ;
+    pl:hasProblem "A code generation system with many commands forces users to become experts in the tool rather than experts in their domain." ;
+    pl:hasSolution """Provide exactly one command that does everything. Let the system figure out what \"everything\" means based on the manifest and the flags provided.
+
+The command should:
+- Be simple to type and remember
+- Accept optional flags that modify behavior
+- Derive all other decisions from the manifest
+- Execute the complete pipeline atomically""" ;
+    pl:hasImplementation """In ggen v5, the single command is:
+
+```bash
+ggen sync
+```
+
+That's it. There are no other commands. Everything happens through `sync`.
+
+The command accepts flags that modify its behavior without changing its nature:
+- `--manifest PATH` — Point to a different manifest file
+- `--dry-run` — Preview without writing
+- `--validate-only` — Check without generating
+- `--force` — Overwrite protected files
+- `--audit` — Record what happened
+- `--rule NAME` — Run only one rule
+- `--verbose` — Show detailed output
+- `--format json` — Output as JSON
+- `--timeout MS` — Set execution limit""" ;
+    pl:hasFlag "--manifest" ;
+    pl:hasFlag "--dry-run" ;
+    pl:hasFlag "--force" ;
+    pl:hasFlag "--audit" ;
+    pl:hasFlag "--rule" ;
+    pl:hasDeepPattern """THE SINGLE COMMAND is not just about reducing commands. It is about shifting cognitive load.
+
+In a multi-command system, the user must hold the system's structure in their head: \"First I validate, then I generate, unless I need to update, in which case...\"
+
+In a single-command system, the user holds only their intent: \"I want my code synchronized with my knowledge.\"
+
+The system handles the structure. The user handles the domain.
+
+This is the liberation that THE SINGLE COMMAND provides: freedom from the tool to focus on the work.""" .
+
+sync:ManifestAsTruth a pl:Pattern ;
+    rdfs:label "MANIFEST AS TRUTH" ;
+    pl:hasNumber 2 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory sync:FoundationCategory ;
+    pl:hasSlug "manifest-as-truth" ;
+    pl:hasEvocativeImage "A map is only useful if it reflects the territory." ;
+    pl:hasContext """You have embraced THE SINGLE COMMAND. Now the question arises: how does the command know what to do? Commands with many flags can express configuration, but they become unwieldy. Environment variables scatter configuration across the system. Code-based configuration requires modifying and recompiling.""" ;
+    pl:hasProblem "When configuration is scattered or implicit, the system becomes unpredictable. When configuration is centralized and explicit, the system becomes trustworthy." ;
+    pl:hasSolution """Place all synchronization configuration in a single manifest file, located at the root of the project. Make this file the exclusive source of truth for what gets generated.
+
+The manifest should:
+- Declare the ontology sources
+- Define inference rules
+- Specify generation rules
+- Set validation requirements
+- Configure output paths
+
+The command-line may override some behaviors (like --dry-run), but it never specifies what gets generated—only how the generation proceeds.""" ;
+    pl:hasManifestSection "[project]" ;
+    pl:hasManifestSection "[ontology]" ;
+    pl:hasManifestSection "[inference]" ;
+    pl:hasManifestSection "[generation]" ;
+    pl:hasManifestSection "[validation]" ;
+    pl:hasImplementation """In ggen, the manifest is `ggen.toml`:
+
+```toml
+[project]
+name = \"my-service\"
+version = \"1.0.0\"
+
+[ontology]
+source = \"ontology/domain.ttl\"
+imports = [\"ontology/common.ttl\"]
+
+[ontology.prefixes]
+domain = \"https://example.org/domain#\"
+
+[[inference.rules]]
+name = \"infer-required-fields\"
+order = 1
+construct = \"\"\"
+PREFIX domain: <https://example.org/domain#>
+CONSTRUCT { ?field domain:isRequired true }
+WHERE { ?field domain:minCardinality ?min . FILTER(?min > 0) }
+\"\"\"
+
+[[generation.rules]]
+name = \"structs\"
+query = { file = \"queries/structs.sparql\" }
+template = { file = \"templates/struct.tera\" }
+output_file = \"{{ name | snake_case }}.rs\"
+mode = \"Overwrite\"
+
+[generation]
+output_dir = \"src/generated\"
+```""" ;
+    pl:hasDeepPattern """MANIFEST AS TRUTH is about declarative configuration.
+
+Imperative configuration says: \"Do this, then this, then this.\"
+Declarative configuration says: \"This is what I want. Make it so.\"
+
+The manifest declares intent. The system figures out execution. This separation is what makes the system trustworthy.""" .
+
+sync:ThreeLayerArchitecture a pl:Pattern ;
+    rdfs:label "THREE-LAYER ARCHITECTURE" ;
+    pl:hasNumber 3 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory sync:FoundationCategory ;
+    pl:hasSlug "three-layer-architecture" ;
+    pl:hasEvocativeImage "A building has structure, and the structure has layers." ;
+    pl:hasContext """You are implementing THE SINGLE COMMAND. The command must parse arguments and validate input, execute complex domain logic, handle errors gracefully, and format output appropriately. Putting all this in one place creates a monolith—hard to test, hard to change, hard to understand.""" ;
+    pl:hasProblem "When concerns are mixed, changes ripple unpredictably. When concerns are layered, changes stay contained." ;
+    pl:hasSolution """Structure the implementation in three layers: CLI (input/output), Integration (orchestration), and Domain (pure logic). Each layer depends only on the layer below it.
+
+```
+┌─────────────────────────────────┐
+│  Layer 3: CLI                   │  ← Input parsing, output formatting
+│  (thin, stateless)              │
+├─────────────────────────────────┤
+│  Layer 2: Integration           │  ← Orchestration, async execution
+│  (SyncExecutor)                 │
+├─────────────────────────────────┤
+│  Layer 1: Domain                │  ← Pure generation logic
+│  (GenerationPipeline)           │
+└─────────────────────────────────┘
+```""" ;
+    pl:hasImplementation """Layer 3 (CLI) lives in `crates/ggen-cli/src/cmds/sync.rs`
+Layer 2 (Integration) lives in `crates/ggen-core/src/codegen/executor.rs`
+Layer 1 (Domain) lives in `crates/ggen-core/src/codegen/pipeline.rs`""" ;
+    pl:hasDeepPattern """THREE-LAYER ARCHITECTURE is about separation of concerns at the architectural level. Each layer has its own language, its own testing strategy, its own rate of change. When you change the output format, only Layer 3 changes. When you add a new pipeline stage, only Layer 1 changes.""" .
+
+# =============================================================================
+# KNOWLEDGE PATTERNS (4-7)
+# =============================================================================
+
+sync:OntologyLoading a pl:Pattern ;
+    rdfs:label "ONTOLOGY LOADING" ;
+    pl:hasNumber 4 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory sync:KnowledgeCategory ;
+    pl:hasSlug "ontology-loading" ;
+    pl:hasEvocativeImage "Before you can speak, you must have words. Before you can generate, you must have knowledge." ;
+    pl:hasContext """You have a MANIFEST AS TRUTH that declares what should be generated. But the manifest only points to knowledge—it does not contain it. The actual domain knowledge lives in ontologies: RDF graphs that describe entities, relationships, and constraints.""" ;
+    pl:hasProblem "Without loaded knowledge, the pipeline is empty. With improperly loaded knowledge, the pipeline produces garbage." ;
+    pl:hasSolution """Load all ontology sources into a unified graph before any other pipeline operation. Validate the graph is complete and well-formed. Make loading explicit, observable, and fail-fast.
+
+The loading should:
+- Start from the primary source declared in the manifest
+- Follow all import declarations
+- Parse each file with strict validation
+- Merge all sources into a single queryable graph
+- Fail immediately if any source cannot be loaded""" ;
+    pl:hasManifestSection "[ontology]" ;
+    pl:hasImplementation """The `[ontology]` section declares what to load:
+
+```toml
+[ontology]
+source = \"ontology/domain.ttl\"
+imports = [\"ontology/common.ttl\", \"ontology/validation.ttl\"]
+base_iri = \"https://example.org/my-service#\"
+
+[ontology.prefixes]
+schema = \"https://schema.org/\"
+domain = \"https://example.org/domain#\"
+```""" ;
+    pl:hasDeepPattern """ONTOLOGY LOADING is about establishing the ground of possibility. Before loading, the system has no knowledge. After loading, the system has all knowledge. This is a phase transition—from empty to full, from potential to actual.""" .
+
+sync:InferenceEnrichment a pl:Pattern ;
+    rdfs:label "INFERENCE ENRICHMENT" ;
+    pl:hasNumber 5 ;
+    pl:hasConfidence 1 ;
+    pl:hasCategory sync:KnowledgeCategory ;
+    pl:hasSlug "inference-enrichment" ;
+    pl:hasEvocativeImage "What is implicit must be made explicit before it can be used." ;
+    pl:hasContext """You have loaded your ontology. The graph contains facts that were explicitly stated. But often, there are facts that should exist—facts that can be derived from what is stated.""" ;
+    pl:hasProblem "When derived knowledge is implicit, generation logic must re-derive it everywhere. When derived knowledge is explicit, generation logic simply uses it." ;
+    pl:hasSolution """Execute CONSTRUCT queries that derive new facts and materialize them into the graph before any generation rules run. Order the inference rules explicitly. Make the enrichment observable in the audit trail.""" ;
+    pl:hasManifestSection "[inference]" ;
+    pl:hasImplementation """```toml
+[[inference.rules]]
+name = \"infer-required-fields\"
+order = 1
+construct = \"\"\"
+PREFIX domain: <https://example.org/domain#>
+CONSTRUCT { ?field domain:isRequired true }
+WHERE { ?field domain:minCardinality ?min . FILTER(?min > 0) }
+\"\"\"
+```""" ;
+    pl:hasDeepPattern """INFERENCE ENRICHMENT is about making implicit knowledge explicit. Domain experts think in terms of rules. These rules are implicit in the domain model. INFERENCE ENRICHMENT makes them explicit in the graph.""" .
+
+sync:GenerationRules a pl:Pattern ;
+    rdfs:label "GENERATION RULES" ;
+    pl:hasNumber 6 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory sync:KnowledgeCategory ;
+    pl:hasSlug "generation-rules" ;
+    pl:hasEvocativeImage "From knowledge, code. From queries, templates. From rules, files." ;
+    pl:hasContext """You have a graph loaded and enriched. The graph contains facts about your domain: entities, fields, relationships, constraints. Now you must transform this knowledge into code.""" ;
+    pl:hasProblem "When transformation logic is scattered in code, it is hard to understand, test, and maintain. When transformation is declared as rules, it becomes visible, verifiable, and changeable." ;
+    pl:hasSolution """Express each code generation as a rule with three parts: a SPARQL SELECT query to extract data, a Tera template to shape the output, and an output pattern to name the file. Each rule is independent; together they produce the complete codebase.""" ;
+    pl:hasManifestSection "[generation]" ;
+    pl:hasManifestSection "[[generation.rules]]" ;
+    pl:hasImplementation """```toml
+[[generation.rules]]
+name = \"structs\"
+query = { file = \"queries/structs.sparql\" }
+template = { file = \"templates/struct.tera\" }
+output_file = \"{{ name | snake_case }}.rs\"
+mode = \"Overwrite\"
+skip_empty = true
+```""" ;
+    pl:hasDeepPattern """GENERATION RULES embody the separation of concerns:
+- What to extract → SPARQL query
+- How to shape it → Tera template
+- Where to put it → Output pattern
+
+Each concern is expressed in its own language, optimized for that concern.""" .
+
+sync:TemplateRendering a pl:Pattern ;
+    rdfs:label "TEMPLATE RENDERING" ;
+    pl:hasNumber 7 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory sync:KnowledgeCategory ;
+    pl:hasSlug "template-rendering" ;
+    pl:hasEvocativeImage "A template is a shape waiting to be filled." ;
+    pl:hasContext """GENERATION RULES extract data from the graph. But data is not code. You need a way to transform variable bindings into actual source files—with proper syntax, formatting, and structure.""" ;
+    pl:hasProblem "When code generation is embedded in the tool, the tool controls the output. When code generation is in templates, the user controls the output." ;
+    pl:hasSolution """Use a template language (Tera) that supports control flow, filters, and composition. Store templates as separate files. Make templates the authority on output format.""" ;
+    pl:hasImplementation """ggen uses Tera with Jinja2-style syntax:
+
+```jinja2
+/// {{ description }}
+#[derive(Debug, Clone)]
+pub struct {{ name | pascal_case }} {
+{% for field in fields %}
+    {% if field.required %}
+    pub {{ field.name | snake_case }}: {{ field.type }},
+    {% else %}
+    pub {{ field.name | snake_case }}: Option<{{ field.type }}>,
+    {% endif %}
+{% endfor %}
+}
+```""" ;
+    pl:hasDeepPattern """TEMPLATE RENDERING is about separating content from presentation. The SPARQL query defines what data exists. The template defines how that data appears as code.""" .
+
+# =============================================================================
+# SAFETY PATTERNS (8-12)
+# =============================================================================
+
+sync:DryRun a pl:Pattern ;
+    rdfs:label "DRY RUN" ;
+    pl:hasNumber 8 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory sync:SafetyCategory ;
+    pl:hasSlug "dry-run" ;
+    pl:hasEvocativeImage "Look before you leap. Ask before you change." ;
+    pl:hasContext """You are about to run THE SINGLE COMMAND. The pipeline will load ontologies, execute inference, generate code, and write files. Once written, files are changed.""" ;
+    pl:hasProblem "Irreversible actions should be previewable. The cost of looking should be zero." ;
+    pl:hasSolution """Provide a dry-run mode that executes the complete pipeline without writing files. Show what would be generated, what would change, and what would remain unchanged.""" ;
+    pl:hasFlag "--dry-run" ;
+    pl:hasImplementation """```bash
+ggen sync --dry-run
+```
+
+Output:
+```
+ggen sync v5.0.0 (dry-run mode)
+
+Would sync 5 files:
+  [CREATE]  src/generated/user.rs (1,247 bytes)
+  [UPDATE]  src/generated/product.rs (1,456 bytes)
+  [SKIP]    src/generated/mod.rs (unchanged)
+
+No files were modified (dry-run).
+```""" ;
+    pl:hasDeepPattern """DRY RUN is about separating decision from action. The decision—what files to generate, with what content—is computed by the pipeline. The action—writing to disk—is a separate concern. By separating them, we enable safe exploration.""" .
+
+sync:ValidationGate a pl:Pattern ;
+    rdfs:label "VALIDATION GATE" ;
+    pl:hasNumber 9 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory sync:SafetyCategory ;
+    pl:hasSlug "validation-gate" ;
+    pl:hasEvocativeImage "Check the map before starting the journey." ;
+    pl:hasContext """You have written a ggen.toml manifest. The manifest references ontology files, query files, and template files. Any of these could have errors.""" ;
+    pl:hasProblem "Errors discovered late are expensive. Errors discovered early are cheap." ;
+    pl:hasSolution """Provide a validation-only mode that checks all configuration without executing generation. Validate file existence, syntax, and semantic correctness. Fail fast with clear error messages.""" ;
+    pl:hasFlag "--validate-only" ;
+    pl:hasImplementation """```bash
+ggen sync --validate-only
+```""" ;
+    pl:hasDeepPattern """VALIDATION GATE is about fail-fast. The later an error is discovered, the more work has been wasted. Validation inverts this: check everything that can be checked statically, before any dynamic work begins.""" .
+
+sync:ForceOverwrite a pl:Pattern ;
+    rdfs:label "FORCE OVERWRITE" ;
+    pl:hasNumber 10 ;
+    pl:hasConfidence 1 ;
+    pl:hasCategory sync:SafetyCategory ;
+    pl:hasSlug "force-overwrite" ;
+    pl:hasEvocativeImage "Sometimes you must break the rules you set for yourself." ;
+    pl:hasContext """GENERATION RULES support a mode field that controls file behavior: Create (only if absent), Overwrite (always), Merge (preserve sections). But sometimes, you know better and need to override protections.""" ;
+    pl:hasProblem "Safety mechanisms must be overridable, or they become prisons." ;
+    pl:hasSolution """Provide a force flag that overrides all file protections. When force is active, treat all rules as Overwrite mode. Make force explicit and observable.""" ;
+    pl:hasFlag "--force" ;
+    pl:hasImplementation """```bash
+ggen sync --force
+```""" ;
+    pl:hasDeepPattern """FORCE OVERWRITE is about explicit override. Good systems have protections. Great systems let you bypass those protections when you know what you're doing. The key is explicitness.""" .
+
+sync:TimeoutProtection a pl:Pattern ;
+    rdfs:label "TIMEOUT PROTECTION" ;
+    pl:hasNumber 11 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory sync:SafetyCategory ;
+    pl:hasSlug "timeout-protection" ;
+    pl:hasEvocativeImage "No task should run forever. Every process deserves an ending." ;
+    pl:hasContext """The generation pipeline executes SPARQL queries against RDF graphs. Some queries are complex. And some are accidentally infinite—they never complete.""" ;
+    pl:hasProblem "Unbounded operations are a reliability risk. Time limits transform risks into failures—and failures can be handled." ;
+    pl:hasSolution """Impose time limits on all pipeline operations. Provide configurable timeouts at both the manifest level and the command line. When a timeout is exceeded, fail with a clear error.""" ;
+    pl:hasFlag "--timeout" ;
+    pl:hasManifestSection "inference.max_reasoning_timeout_ms" ;
+    pl:hasManifestSection "generation.max_sparql_timeout_ms" ;
+    pl:hasImplementation """```toml
+[inference]
+max_reasoning_timeout_ms = 5000
+
+[generation]
+max_sparql_timeout_ms = 5000
+```
+
+Or via CLI:
+```bash
+ggen sync --timeout 30000
+```""" ;
+    pl:hasDeepPattern """TIMEOUT PROTECTION is about bounded execution. Every operation should have a known upper bound on its execution time. The timeout transforms unknown-duration operations into bounded operations.""" .
+
+sync:ErrorSignals a pl:Pattern ;
+    rdfs:label "ERROR SIGNALS" ;
+    pl:hasNumber 12 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory sync:SafetyCategory ;
+    pl:hasSlug "error-signals" ;
+    pl:hasEvocativeImage "A tool that fails silently is worse than one that fails loudly." ;
+    pl:hasContext """The generation pipeline has many stages. Each stage can fail in different ways. When something goes wrong, the user needs to know what, where, why, and how to fix it.""" ;
+    pl:hasProblem "Error messages are the user interface for failures. Good error messages are actionable; bad ones are bewildering." ;
+    pl:hasSolution """Define a clear error taxonomy with distinct exit codes for each failure category. Format errors with context, explanation, and suggestions. Make errors parseable in both text and JSON formats.""" ;
+    pl:hasImplementation """Exit codes:
+- 0: Success
+- 1: Manifest validation error
+- 2: Ontology load error
+- 3: SPARQL query error
+- 4: Template rendering error
+- 5: File I/O error
+- 6: Timeout exceeded""" ;
+    pl:hasDeepPattern """ERROR SIGNALS is about actionable failure. An error is only useful if it leads to resolution. Every error message should answer: What happened? Where? Why? How can it be fixed?""" .
+
+# =============================================================================
+# INTEGRITY PATTERNS (13-15)
+# =============================================================================
+
+sync:DeterministicOutput a pl:Pattern ;
+    rdfs:label "DETERMINISTIC OUTPUT" ;
+    pl:hasNumber 13 ;
+    pl:hasConfidence 3 ;
+    pl:hasCategory sync:IntegrityCategory ;
+    pl:hasSlug "deterministic-output" ;
+    pl:hasEvocativeImage "Given the same inputs, produce the same outputs. Always. Without exception." ;
+    pl:hasContext """You run ggen sync today. It generates code. You run it tomorrow, with the same manifest, ontology, and templates. Does it produce the same code?""" ;
+    pl:hasProblem "Non-determinism in code generation is a defect. Every source of randomness must be eliminated or controlled." ;
+    pl:hasSolution """Eliminate all sources of non-determinism from the generation pipeline. Use ordered data structures. Require explicit ordering in queries. Avoid timestamps and random values. Make reproducibility a hard requirement, not an aspiration.
+
+Determinism requires:
+- BTreeMap instead of HashMap
+- ORDER BY in all SPARQL queries
+- Fixed iteration order in templates
+- No timestamps or random values in output
+- Consistent file write ordering""" ;
+    pl:hasImplementation """ggen uses BTreeMap throughout. The manifest validator warns about queries lacking ORDER BY. Templates use ordered source data.""" ;
+    pl:hasDeepPattern """DETERMINISTIC OUTPUT is about reproducibility as a first-class requirement.
+
+The Determinism Equation:
+```
+Output = f(Manifest, Ontology, Templates)
+```
+
+The function f must be pure. Same inputs → same outputs. This is not optional; it is fundamental.""" .
+
+sync:AuditTrail a pl:Pattern ;
+    rdfs:label "AUDIT TRAIL" ;
+    pl:hasNumber 14 ;
+    pl:hasConfidence 2 ;
+    pl:hasCategory sync:IntegrityCategory ;
+    pl:hasSlug "audit-trail" ;
+    pl:hasEvocativeImage "What happened, when, and why—recorded for posterity." ;
+    pl:hasContext """You run ggen sync. Files are generated. But which rules produced which files? How long did each stage take? Can you prove the output matches the input?""" ;
+    pl:hasProblem "Trust requires evidence. Evidence requires records. Records require an audit trail." ;
+    pl:hasSolution """Record all significant events during pipeline execution into an audit trail. Include rule names, durations, input hashes, output hashes, and any decisions made. Store the trail alongside generated output.""" ;
+    pl:hasFlag "--audit" ;
+    pl:hasManifestSection "generation.require_audit_trail" ;
+    pl:hasImplementation """```bash
+ggen sync --audit
+```
+
+Generates `audit.json`:
+```json
+{
+  \"pipeline\": { \"duration_ms\": 55 },
+  \"inference_rules\": [...],
+  \"generation_rules\": [...],
+  \"generated_files\": [
+    { \"path\": \"user.rs\", \"content_hash\": \"sha256:...\" }
+  ]
+}
+```""" ;
+    pl:hasDeepPattern """AUDIT TRAIL is about provenance. Where did this come from? How was it made? Can it be reproduced? The audit trail captures all three, making the generation process transparent and verifiable.""" .
+
+sync:PipelineState a pl:Pattern ;
+    rdfs:label "PIPELINE STATE" ;
+    pl:hasNumber 15 ;
+    pl:hasConfidence 1 ;
+    pl:hasCategory sync:IntegrityCategory ;
+    pl:hasSlug "pipeline-state" ;
+    pl:hasEvocativeImage "The pipeline is not just a sequence—it is a growing state." ;
+    pl:hasContext """The generation pipeline executes in stages. Each stage produces results. Later stages need earlier results. This is not a stateless transformation—it is a stateful process.""" ;
+    pl:hasProblem "Stateful processes require explicit state management. Implicit state leads to confusion and bugs." ;
+    pl:hasSolution """Model the pipeline as a progression through explicit states. Each stage receives the previous state and produces the next state. The final state contains all accumulated results. Make state observable and queryable.""" ;
+    pl:hasImplementation """PipelineState tracks:
+- manifest: GgenManifest
+- ontology_graph: Graph
+- executed_rules: Vec<ExecutedRule>
+- generated_files: Vec<GeneratedFile>
+- validation_results: Vec<ValidationResult>
+- started_at: Instant""" ;
+    pl:hasDeepPattern """PIPELINE STATE is about making the process observable. A pipeline is not just a function: it is a journey through states. Each step transforms the state. The final state contains the history of that journey.""" .
+
+# =============================================================================
+# SELECTIVE PATTERNS (16)
+# =============================================================================
+
+sync:RuleSelection a pl:Pattern ;
+    rdfs:label "RULE SELECTION" ;
+    pl:hasNumber 16 ;
+    pl:hasConfidence 1 ;
+    pl:hasCategory sync:SelectiveCategory ;
+    pl:hasSlug "rule-selection" ;
+    pl:hasEvocativeImage "Sometimes you need a scalpel, not a sledgehammer." ;
+    pl:hasContext """THE SINGLE COMMAND runs the entire pipeline. This is usually what you want. But sometimes you're iterating on a single template, or debugging why one rule fails, or measuring one rule's performance.""" ;
+    pl:hasProblem "Precision beats thoroughness when you know what you need." ;
+    pl:hasSolution """Allow selecting specific rules by name. When a rule is selected, run only that rule (still executing necessary prerequisites like ontology loading). Make selection work with all other flags.""" ;
+    pl:hasFlag "--rule" ;
+    pl:hasImplementation """```bash
+ggen sync --rule structs
+ggen sync --rule enums --dry-run
+ggen sync --rule structs --force --verbose
+```""" ;
+    pl:hasDeepPattern """RULE SELECTION is about precision. THE SINGLE COMMAND provides unity—one command for everything. RULE SELECTION provides focus—one rule when that's what you need. These are not contradictions.""" .
+
+# =============================================================================
+# PATTERN CONNECTIONS
+# =============================================================================
+
+sync:SingleCommand pl:hasConnection [
+    pl:connectsTo sync:ManifestAsTruth ;
+    pl:connectionType "requires" ;
+    pl:connectionReason "THE SINGLE COMMAND reads configuration from MANIFEST AS TRUTH"
+] .
+
+sync:SingleCommand pl:hasConnection [
+    pl:connectsTo sync:ThreeLayerArchitecture ;
+    pl:connectionType "implemented-by" ;
+    pl:connectionReason "THREE-LAYER ARCHITECTURE structures how THE SINGLE COMMAND is built"
+] .
+
+sync:SingleCommand pl:hasConnection [
+    pl:connectsTo sync:DryRun ;
+    pl:connectionType "modified-by" ;
+    pl:connectionReason "DRY RUN modifies THE SINGLE COMMAND via --dry-run flag"
+] .
+
+sync:SingleCommand pl:hasConnection [
+    pl:connectsTo sync:ValidationGate ;
+    pl:connectionType "modified-by" ;
+    pl:connectionReason "VALIDATION GATE modifies THE SINGLE COMMAND via --validate-only flag"
+] .
+
+sync:SingleCommand pl:hasConnection [
+    pl:connectsTo sync:ForceOverwrite ;
+    pl:connectionType "modified-by" ;
+    pl:connectionReason "FORCE OVERWRITE modifies THE SINGLE COMMAND via --force flag"
+] .
+
+sync:SingleCommand pl:hasConnection [
+    pl:connectsTo sync:RuleSelection ;
+    pl:connectionType "modified-by" ;
+    pl:connectionReason "RULE SELECTION modifies THE SINGLE COMMAND via --rule flag"
+] .
+
+sync:ManifestAsTruth pl:hasConnection [
+    pl:connectsTo sync:OntologyLoading ;
+    pl:connectionType "configures" ;
+    pl:connectionReason "The [ontology] section configures ONTOLOGY LOADING"
+] .
+
+sync:ManifestAsTruth pl:hasConnection [
+    pl:connectsTo sync:InferenceEnrichment ;
+    pl:connectionType "configures" ;
+    pl:connectionReason "The [inference] section configures INFERENCE ENRICHMENT"
+] .
+
+sync:ManifestAsTruth pl:hasConnection [
+    pl:connectsTo sync:GenerationRules ;
+    pl:connectionType "configures" ;
+    pl:connectionReason "The [generation] section configures GENERATION RULES"
+] .
+
+sync:OntologyLoading pl:hasConnection [
+    pl:connectsTo sync:InferenceEnrichment ;
+    pl:connectionType "enables" ;
+    pl:connectionReason "INFERENCE ENRICHMENT operates on the graph created by ONTOLOGY LOADING"
+] .
+
+sync:InferenceEnrichment pl:hasConnection [
+    pl:connectsTo sync:GenerationRules ;
+    pl:connectionType "enables" ;
+    pl:connectionReason "GENERATION RULES query the enriched graph"
+] .
+
+sync:GenerationRules pl:hasConnection [
+    pl:connectsTo sync:TemplateRendering ;
+    pl:connectionType "invokes" ;
+    pl:connectionReason "GENERATION RULES invoke TEMPLATE RENDERING for each result row"
+] .
+
+sync:DeterministicOutput pl:hasConnection [
+    pl:connectsTo sync:ManifestAsTruth ;
+    pl:connectionType "constrains" ;
+    pl:connectionReason "MANIFEST AS TRUTH uses BTreeMap for determinism"
+] .
+
+sync:DeterministicOutput pl:hasConnection [
+    pl:connectsTo sync:InferenceEnrichment ;
+    pl:connectionType "constrains" ;
+    pl:connectionReason "INFERENCE ENRICHMENT requires ordered rule execution"
+] .
+
+sync:DeterministicOutput pl:hasConnection [
+    pl:connectsTo sync:GenerationRules ;
+    pl:connectionType "constrains" ;
+    pl:connectionReason "GENERATION RULES requires ORDER BY in queries"
+] .
+
+sync:AuditTrail pl:hasConnection [
+    pl:connectsTo sync:DeterministicOutput ;
+    pl:connectionType "verifies" ;
+    pl:connectionReason "AUDIT TRAIL verifies DETERMINISTIC OUTPUT via hashes"
+] .
+
+sync:AuditTrail pl:hasConnection [
+    pl:connectsTo sync:PipelineState ;
+    pl:connectionType "serializes" ;
+    pl:connectionReason "AUDIT TRAIL serializes PIPELINE STATE for records"
+] .
+
+sync:ErrorSignals pl:hasConnection [
+    pl:connectsTo sync:ValidationGate ;
+    pl:connectionType "reports" ;
+    pl:connectionReason "ERROR SIGNALS reports VALIDATION GATE failures"
+] .
+
+sync:ErrorSignals pl:hasConnection [
+    pl:connectsTo sync:TimeoutProtection ;
+    pl:connectionType "reports" ;
+    pl:connectionReason "ERROR SIGNALS reports TIMEOUT PROTECTION violations"
+] .
+
+# =============================================================================
+# GLOSSARY TERMS
+# =============================================================================
+
+sync:TermGgenSync a pl:Term ;
+    rdfs:label "ggen sync" ;
+    pl:termDefinition "The single command in ggen v5 that performs knowledge-driven code generation. It synchronizes domain knowledge (ontologies) with code (generated files)." ;
+    pl:termCategory "core" .
+
+sync:TermManifest a pl:Term ;
+    rdfs:label "Manifest" ;
+    pl:termDefinition "The ggen.toml file that declares all configuration for a generation run. It is the MANIFEST AS TRUTH." ;
+    pl:termCategory "core" .
+
+sync:TermOntology a pl:Term ;
+    rdfs:label "Ontology" ;
+    pl:termDefinition "An RDF graph expressed in Turtle (.ttl) format that describes domain knowledge: entities, properties, relationships, and constraints." ;
+    pl:termCategory "knowledge" .
+
+sync:TermPipeline a pl:Term ;
+    rdfs:label "Pipeline" ;
+    pl:termDefinition "The sequence of stages that transforms ontology → inference → generation → files." ;
+    pl:termCategory "core" .
+
+sync:TermTriple a pl:Term ;
+    rdfs:label "Triple" ;
+    pl:termDefinition "The fundamental unit of RDF: subject-predicate-object." ;
+    pl:termCategory "knowledge" .
+
+sync:TermGraph a pl:Term ;
+    rdfs:label "Graph" ;
+    pl:termDefinition "A collection of triples that can be queried." ;
+    pl:termCategory "knowledge" .
+
+sync:TermSPARQL a pl:Term ;
+    rdfs:label "SPARQL" ;
+    pl:termDefinition "The query language for RDF graphs. ggen uses CONSTRUCT for inference and SELECT for generation." ;
+    pl:termCategory "knowledge" .
+
+sync:TermTera a pl:Term ;
+    rdfs:label "Tera" ;
+    pl:termDefinition "The template engine used by ggen. It uses Jinja2-style syntax." ;
+    pl:termCategory "knowledge" .
+
+sync:TermDryRun a pl:Term ;
+    rdfs:label "Dry Run" ;
+    pl:termDefinition "Executing the pipeline without writing files. Invoked via --dry-run." ;
+    pl:termCategory "safety" .
+
+sync:TermDeterminism a pl:Term ;
+    rdfs:label "Determinism" ;
+    pl:termDefinition "The property of producing identical outputs from identical inputs." ;
+    pl:termCategory "integrity" .
+
+sync:TermAuditTrail a pl:Term ;
+    rdfs:label "Audit Trail" ;
+    pl:termDefinition "A JSON file (audit.json) recording all execution details." ;
+    pl:termCategory "integrity" .
+
+sync:TermExitCode a pl:Term ;
+    rdfs:label "Exit Code" ;
+    pl:termDefinition "The numeric status returned by ggen sync. 0 = success, 1-6 = specific failure categories." ;
+    pl:termCategory "safety" .
