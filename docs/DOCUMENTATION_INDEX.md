@@ -10,6 +10,17 @@ Complete knowledge base for ggen - the ontology-driven code generator.
 | [Poka-Yoke Quick Reference](./poka-yoke-quick-reference.md) | Mistake-proofing and safe code generation | 15 min |
 | [Bug Reporting Guide](../BUG_REPORTING_GUIDE.md) | How to report issues effectively | 5 min |
 
+## 📋 Quick Reference Cards (Maximum Density)
+
+**Speed reading for experts - all key info compressed to 2-4 pages:**
+
+| Reference | Content | Use When |
+|-----------|---------|----------|
+| [SPARQL Reference Card](./SPARQL_REFERENCE_CARD.md) | All SPARQL patterns, copy-paste examples, performance tips | Need quick SPARQL pattern |
+| [ggen.toml Complete Schema](./GGEN_TOML_REFERENCE.md) | Full config reference, all keys with types/defaults | Configuring ggen |
+| [CLI Reference](./CLI_REFERENCE.md) | All commands/flags, exit codes, integration examples | Using ggen command |
+| [Decision Trees & Architecture](./DECISION_TREES_ARCHITECTURE.md) | Navigate complexity with decision trees, when to use what | Don't know where to start |
+
 ## 📖 Core Documentation
 
 ### Advanced Capabilities (80/20 - Most Valuable)
