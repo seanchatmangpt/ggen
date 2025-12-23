@@ -12,6 +12,11 @@ Complete knowledge base for ggen - the ontology-driven code generator.
 
 ## 📖 Core Documentation
 
+### Advanced Capabilities (80/20 - Most Valuable)
+- [SPARQL Inference Guide](./SPARQL_INFERENCE_GUIDE.md) - **CRITICAL**: Master CONSTRUCT queries for intelligent code generation (5 patterns + real examples)
+- [Graph Querying API](./GRAPH_QUERYING_API.md) - Programmatic RDF access, SPARQL SELECT/CONSTRUCT/ASK, integration patterns
+- [AI/AGI Integration Guide](./AI_AGI_INTEGRATION_GUIDE.md) - Build agentic systems that learn from generated code, 4-layer architecture
+
 ### Design & Architecture
 - [GGEN-V5-DESIGN.md](../GGEN-V5-DESIGN.md) - v5.0 architecture and philosophy
 - [GGEN-V5-STRATEGY.md](../GGEN-V5-STRATEGY.md) - v5.0 strategy and implementation roadmap
