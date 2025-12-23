@@ -10,13 +10,16 @@ Complete knowledge base for ggen - the ontology-driven code generator.
 | [Poka-Yoke Quick Reference](./poka-yoke-quick-reference.md) | Mistake-proofing and safe code generation | 15 min |
 | [Bug Reporting Guide](../BUG_REPORTING_GUIDE.md) | How to report issues effectively | 5 min |
 
-## 📋 Quick Reference Cards (Maximum Density)
+## 📋 Quick Reference Cards (ULTRA-COMPRESSED)
 
-**Speed reading for experts - all key info compressed to 2-4 pages:**
+**100% information density - all key info on 2-3 pages:**
 
-| Reference | Content | Use When |
-|-----------|---------|----------|
-| [SPARQL Reference Card](./SPARQL_REFERENCE_CARD.md) | All SPARQL patterns, copy-paste examples, performance tips | Need quick SPARQL pattern |
+| Reference | Lines | Use When |
+|-----------|-------|----------|
+| [ULTRA Compressed Reference](./ULTRA_COMPRESSED_REFERENCE.md) | Setup, SPARQL, ggen.toml, CLI, templates, patterns, Python agent, git | **First lookup - instant answers** |
+| [ULTRA Patterns Matrix](./ULTRA_PATTERNS_MATRIX.md) | Generate REST/GraphQL/gRPC/DB/tests, all inference rules, integrations | **Building a code generator** |
+| [Error Catalog Compressed](./ERROR_CATALOG_COMPRESSED.md) | All error codes, causes, fixes, debug workflow, one-liners | **Debugging problems** |
+| [SPARQL Reference Card](./SPARQL_REFERENCE_CARD.md) | SPARQL patterns, copy-paste examples, performance tips | Need quick SPARQL pattern |
 | [ggen.toml Complete Schema](./GGEN_TOML_REFERENCE.md) | Full config reference, all keys with types/defaults | Configuring ggen |
 | [CLI Reference](./CLI_REFERENCE.md) | All commands/flags, exit codes, integration examples | Using ggen command |
 | [Decision Trees & Architecture](./DECISION_TREES_ARCHITECTURE.md) | Navigate complexity with decision trees, when to use what | Don't know where to start |
