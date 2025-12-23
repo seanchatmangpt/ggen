@@ -148,7 +148,7 @@ ggen-v5/
 - [ ] RDF parser (Turtle format first)
 - [ ] In-memory RDF graph
 - [ ] SPARQL query executor
-- [ ] Basic CLI (`ggen generate --ontology model.ttl --template rust-service`)
+- [x] Single unified CLI (`ggen sync` with ggen.toml configuration)
 
 ### Phase 1: Code Generation (Week 2)
 - [ ] Template engine integration
@@ -224,17 +224,21 @@ WHERE {
 
 ### Simple Invocation
 ```bash
-# Basic generation
-ggen generate --ontology domain.ttl --output ./src
+# Configure once in ggen.toml
+cat > ggen.toml <<'EOF'
+[project]
+name = "my-project"
 
-# With template selection
-ggen generate --ontology domain.ttl --template rust-async --output ./src
+[generation]
+ontology_dir = "ontology/"
+templates_dir = "templates/"
+output_dir = "src/generated/"
+EOF
 
-# Validate ontology before generation
-ggen validate domain.ttl
+# Then simply run
+ggen sync
 
-# Query the ontology directly
-ggen query "SELECT ?class WHERE { ?class a rdfs:Class }"
+# That's it - everything is configured via ggen.toml
 ```
 
 ### Exit Codes (Semantic)
@@ -280,7 +284,7 @@ ggen query "SELECT ?class WHERE { ?class a rdfs:Class }"
 | Marketplace | Publish ontologies to GitHub/registry |
 | FMEA validation | Use pre-commit hooks + linters |
 | JTBD docs | Generate from rdfs:comment + rdfs:seeAlso |
-| Multi-command CLI | Single `ggen generate` command |
+| Multi-command CLI | Single `ggen sync` command (manifest-driven) |
 | RDF store | Use separate triplestore (Blazegraph, Virtuoso) |
 
 ---
@@ -402,7 +406,7 @@ Each dependency must:
 ### 5. **Fast Feedback Loop**
 ```bash
 # <100ms total time
-ggen validate domain.ttl && ggen generate --ontology domain.ttl
+ggen sync
 ```
 
 ---
@@ -417,7 +421,7 @@ ggen validate domain.ttl && ggen generate --ontology domain.ttl
 ### Option 2: Migrate to v5 + Companion Tools
 ```
 Old v4 Workflow          →  New v5 Workflow
-ggen project new         →  ggen generate + Nx/Cargo
+ggen sync                →  All configuration from ggen.toml
 ggen workflow deploy     →  GitHub Actions / Temporal
 ggen marketplace search  →  npm / crates.io search
 ```
@@ -614,7 +618,7 @@ pub enum ExitCode {
 **Layer 4: Agent Integration (Orchestration)**
 ```bash
 # Agents receive deterministic feedback
-ggen generate --ontology model.ttl --template rust-service --audit-trail audit.json
+ggen sync  # With [audit] section in ggen.toml
 
 # Audit trail enables verification
 {
