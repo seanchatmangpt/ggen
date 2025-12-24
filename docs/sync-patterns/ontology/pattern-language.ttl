@@ -1,8 +1,10 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix pl: <https://ggen.dev/pattern-language#> .
 @prefix sync: <https://ggen.dev/sync-patterns#> .
+@prefix agi: <https://ggen.dev/agi#> .
 
 # =============================================================================
 # PATTERN LANGUAGE ONTOLOGY SCHEMA
@@ -1134,3 +1136,416 @@ sync:TermExitCode a pl:Term ;
     rdfs:label "Exit Code" ;
     pl:termDefinition "The numeric status returned by ggen sync. 0 = success, 1-6 = specific failure categories." ;
     pl:termCategory "safety" .
+
+# =============================================================================
+# AGI CAPABILITY ONTOLOGY - SCHEMA DEFINITIONS
+# =============================================================================
+# This ontology extends the pattern language to describe Artificial General
+# Intelligence capabilities. It models how sync patterns enable AGI through
+# knowledge representation, reasoning, learning, and meta-cognition.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# AGI CORE CLASSES
+# -----------------------------------------------------------------------------
+
+agi:Capability a rdfs:Class ;
+    rdfs:label "AGI Capability" ;
+    rdfs:comment "An abstract base class for any capability that contributes to AGI functionality." .
+
+agi:ReasoningMode a rdfs:Class ;
+    rdfs:label "Reasoning Mode" ;
+    rdfs:subClassOf agi:Capability ;
+    rdfs:comment "A distinct mode or strategy for reasoning (deductive, inductive, abductive, analogical)." .
+
+agi:LearningStrategy a rdfs:Class ;
+    rdfs:label "Learning Strategy" ;
+    rdfs:subClassOf agi:Capability ;
+    rdfs:comment "An approach for acquiring knowledge (supervised, unsupervised, reinforcement, meta)." .
+
+agi:KnowledgeType a rdfs:Class ;
+    rdfs:label "Knowledge Type" ;
+    rdfs:comment "A category of knowledge (declarative, procedural, episodic, semantic)." .
+
+agi:GoalStructure a rdfs:Class ;
+    rdfs:label "Goal Structure" ;
+    rdfs:subClassOf agi:Capability ;
+    rdfs:comment "A way of organizing goals to enable hierarchical goal-directed behavior." .
+
+agi:MetaCognition a rdfs:Class ;
+    rdfs:label "Meta-Cognition" ;
+    rdfs:subClassOf agi:Capability ;
+    rdfs:comment "The ability to reflect on and reason about cognitive processes." .
+
+# -----------------------------------------------------------------------------
+# AGI PROPERTIES: Capability-Pattern Relationships
+# -----------------------------------------------------------------------------
+
+agi:enablesCapability a rdf:Property ;
+    rdfs:domain pl:Pattern ;
+    rdfs:range agi:Capability ;
+    rdfs:label "enables capability" ;
+    rdfs:comment "A pattern enables (provides infrastructure for) an AGI capability." .
+
+agi:requiresPattern a rdf:Property ;
+    rdfs:domain agi:Capability ;
+    rdfs:range pl:Pattern ;
+    rdfs:label "requires pattern" ;
+    rdfs:comment "An AGI capability requires (depends on) a sync pattern." ;
+    owl:inverseOf agi:enablesCapability .
+
+agi:enhances a rdf:Property ;
+    rdfs:domain agi:Capability ;
+    rdfs:range agi:Capability ;
+    rdfs:label "enhances" ;
+    rdfs:comment "One capability enhances or amplifies another capability." .
+
+agi:implementsReasoning a rdf:Property ;
+    rdfs:domain pl:Pattern ;
+    rdfs:range agi:ReasoningMode ;
+    rdfs:label "implements reasoning" ;
+    rdfs:comment "A pattern implements a specific reasoning mode." .
+
+agi:supportsLearning a rdf:Property ;
+    rdfs:domain pl:Pattern ;
+    rdfs:range agi:LearningStrategy ;
+    rdfs:label "supports learning" ;
+    rdfs:comment "A pattern supports a particular learning strategy." .
+
+agi:representsKnowledge a rdf:Property ;
+    rdfs:domain pl:Pattern ;
+    rdfs:range agi:KnowledgeType ;
+    rdfs:label "represents knowledge" ;
+    rdfs:comment "A pattern provides mechanisms for representing a particular type of knowledge." .
+
+agi:enablesMetaCognition a rdf:Property ;
+    rdfs:domain pl:Pattern ;
+    rdfs:range agi:MetaCognition ;
+    rdfs:label "enables meta-cognition" ;
+    rdfs:comment "A pattern enables reflection on cognitive processes." .
+
+# -----------------------------------------------------------------------------
+# AGI CAPABILITY PROPERTIES
+# -----------------------------------------------------------------------------
+
+agi:capabilityId a rdf:Property ;
+    rdfs:domain agi:Capability ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Unique identifier for the capability." .
+
+agi:cognitiveLevel a rdf:Property ;
+    rdfs:domain agi:Capability ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Cognitive level: perception, reasoning, learning, planning, autonomy." .
+
+agi:maturityLevel a rdf:Property ;
+    rdfs:domain agi:Capability ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Maturity: 1=emerging, 2=established, 3=fundamental." .
+
+agi:prerequisiteCapability a rdf:Property ;
+    rdfs:domain agi:Capability ;
+    rdfs:range agi:Capability ;
+    rdfs:comment "A capability that must be established first." .
+
+# -----------------------------------------------------------------------------
+# KNOWLEDGE TYPE INSTANCES
+# -----------------------------------------------------------------------------
+
+agi:DeclarativeKnowledge a agi:KnowledgeType ;
+    rdfs:label "Declarative Knowledge" ;
+    rdfs:comment "Knowledge about facts and their relationships (RDF triples, ontologies)." .
+
+agi:ProceduralKnowledge a agi:KnowledgeType ;
+    rdfs:label "Procedural Knowledge" ;
+    rdfs:comment "Knowledge about how to do things (templates, rules, pipelines)." .
+
+agi:EpisodicKnowledge a agi:KnowledgeType ;
+    rdfs:label "Episodic Knowledge" ;
+    rdfs:comment "Knowledge about specific events and experiences (audit trails, logs)." .
+
+agi:SemanticKnowledge a agi:KnowledgeType ;
+    rdfs:label "Semantic Knowledge" ;
+    rdfs:comment "Knowledge about meaning and concepts (ontology schemas)." .
+
+# -----------------------------------------------------------------------------
+# REASONING MODE INSTANCES
+# -----------------------------------------------------------------------------
+
+agi:DeductiveReasoning a agi:ReasoningMode ;
+    rdfs:label "Deductive Reasoning" ;
+    agi:capabilityId "deductive" ;
+    agi:cognitiveLevel "reasoning" ;
+    agi:maturityLevel 3 ;
+    rdfs:comment "Deriving specific conclusions from general premises (CONSTRUCT queries, type inference)." .
+
+agi:InductiveReasoning a agi:ReasoningMode ;
+    rdfs:label "Inductive Reasoning" ;
+    agi:capabilityId "inductive" ;
+    agi:cognitiveLevel "reasoning" ;
+    agi:maturityLevel 2 ;
+    rdfs:comment "Identifying patterns from specific examples (pattern detection, generalization)." .
+
+agi:AbductiveReasoning a agi:ReasoningMode ;
+    rdfs:label "Abductive Reasoning" ;
+    agi:capabilityId "abductive" ;
+    agi:cognitiveLevel "reasoning" ;
+    agi:maturityLevel 1 ;
+    rdfs:comment "Forming hypotheses to explain observations (error diagnosis, root cause analysis)." .
+
+agi:AnalogicalReasoning a agi:ReasoningMode ;
+    rdfs:label "Analogical Reasoning" ;
+    agi:capabilityId "analogical" ;
+    agi:cognitiveLevel "reasoning" ;
+    agi:maturityLevel 1 ;
+    rdfs:comment "Mapping solutions across domains by structural similarity (template reuse)." .
+
+# -----------------------------------------------------------------------------
+# LEARNING STRATEGY INSTANCES
+# -----------------------------------------------------------------------------
+
+agi:SupervisedLearning a agi:LearningStrategy ;
+    rdfs:label "Supervised Learning" ;
+    agi:capabilityId "supervised" ;
+    agi:cognitiveLevel "learning" ;
+    agi:maturityLevel 2 ;
+    rdfs:comment "Learning guided by explicit rules and manifests." .
+
+agi:UnsupervisedLearning a agi:LearningStrategy ;
+    rdfs:label "Unsupervised Learning" ;
+    agi:capabilityId "unsupervised" ;
+    agi:cognitiveLevel "learning" ;
+    agi:maturityLevel 1 ;
+    rdfs:comment "Discovering structure in raw knowledge without guidance." .
+
+agi:ReinforcementLearning a agi:LearningStrategy ;
+    rdfs:label "Reinforcement Learning" ;
+    agi:capabilityId "reinforcement" ;
+    agi:cognitiveLevel "learning" ;
+    agi:maturityLevel 1 ;
+    rdfs:comment "Learning from outcomes and feedback (error signals, dry runs)." .
+
+agi:MetaLearning a agi:LearningStrategy ;
+    rdfs:label "Meta-Learning" ;
+    agi:capabilityId "meta-learning" ;
+    agi:cognitiveLevel "learning" ;
+    agi:maturityLevel 1 ;
+    rdfs:comment "Learning how to learn (system structure, layered architecture)." .
+
+# -----------------------------------------------------------------------------
+# SPECIFIC AGI CAPABILITIES
+# -----------------------------------------------------------------------------
+
+agi:KnowledgeRepresentation a agi:Capability ;
+    rdfs:label "Knowledge Representation" ;
+    agi:capabilityId "knowledge-representation" ;
+    agi:cognitiveLevel "perception" ;
+    agi:maturityLevel 3 ;
+    agi:requiresPattern sync:OntologyLoading ;
+    rdfs:comment "The capability to represent and structure knowledge in queryable form." .
+
+agi:KnowledgeEnrichment a agi:Capability ;
+    rdfs:label "Knowledge Enrichment" ;
+    agi:capabilityId "knowledge-enrichment" ;
+    agi:cognitiveLevel "reasoning" ;
+    agi:maturityLevel 2 ;
+    agi:requiresPattern sync:InferenceEnrichment ;
+    agi:prerequisiteCapability agi:KnowledgeRepresentation ;
+    rdfs:comment "Deriving new facts from existing knowledge through inference." .
+
+agi:GoalDirectedGeneration a agi:Capability ;
+    rdfs:label "Goal-Directed Generation" ;
+    agi:capabilityId "goal-directed-generation" ;
+    agi:cognitiveLevel "planning" ;
+    agi:maturityLevel 2 ;
+    agi:requiresPattern sync:GenerationRules ;
+    agi:prerequisiteCapability agi:KnowledgeEnrichment ;
+    rdfs:comment "Generating outputs directed by explicit goals and rules." .
+
+agi:ExecutionReflection a agi:Capability ;
+    rdfs:label "Execution Reflection" ;
+    agi:capabilityId "execution-reflection" ;
+    agi:cognitiveLevel "autonomy" ;
+    agi:maturityLevel 2 ;
+    agi:requiresPattern sync:AuditTrail ;
+    rdfs:comment "The ability to reflect on and analyze what has been executed." .
+
+agi:HypotheticalReasoning a agi:Capability ;
+    rdfs:label "Hypothetical Reasoning" ;
+    agi:capabilityId "hypothetical-reasoning" ;
+    agi:cognitiveLevel "planning" ;
+    agi:maturityLevel 2 ;
+    agi:requiresPattern sync:DryRun ;
+    rdfs:comment "Reasoning about outcomes without commitment to action." .
+
+agi:BoundedRationality a agi:Capability ;
+    rdfs:label "Bounded Rationality" ;
+    agi:capabilityId "bounded-rationality" ;
+    agi:cognitiveLevel "planning" ;
+    agi:maturityLevel 2 ;
+    agi:requiresPattern sync:TimeoutProtection ;
+    rdfs:comment "Resource-limited reasoning with explicit bounds." .
+
+agi:RobustReasoning a agi:Capability ;
+    rdfs:label "Robust Reasoning Under Uncertainty" ;
+    agi:capabilityId "robust-reasoning" ;
+    agi:cognitiveLevel "reasoning" ;
+    agi:maturityLevel 2 ;
+    agi:requiresPattern sync:ErrorSignals ;
+    rdfs:comment "Maintaining correctness even when errors occur." .
+
+agi:DeterministicBehavior a agi:Capability ;
+    rdfs:label "Deterministic Behavior" ;
+    agi:capabilityId "deterministic-behavior" ;
+    agi:cognitiveLevel "autonomy" ;
+    agi:maturityLevel 3 ;
+    agi:requiresPattern sync:DeterministicOutput ;
+    rdfs:comment "Reproducible, predictable reasoning behavior." .
+
+agi:CognitiveAbstraction a agi:Capability ;
+    rdfs:label "Cognitive Abstraction" ;
+    agi:capabilityId "cognitive-abstraction" ;
+    agi:cognitiveLevel "perception" ;
+    agi:maturityLevel 2 ;
+    agi:requiresPattern sync:SingleCommand ;
+    rdfs:comment "Reducing cognitive load through unified interfaces." .
+
+agi:HierarchicalReasoning a agi:Capability ;
+    rdfs:label "Hierarchical Reasoning" ;
+    agi:capabilityId "hierarchical-reasoning" ;
+    agi:cognitiveLevel "reasoning" ;
+    agi:maturityLevel 2 ;
+    agi:requiresPattern sync:ThreeLayerArchitecture ;
+    rdfs:comment "Reasoning organized in modular, layered structures." .
+
+# -----------------------------------------------------------------------------
+# PATTERN-TO-CAPABILITY MAPPINGS
+# -----------------------------------------------------------------------------
+
+sync:SingleCommand agi:enablesCapability agi:CognitiveAbstraction ;
+    agi:implementsReasoning agi:DeductiveReasoning ;
+    agi:supportsLearning agi:MetaLearning ;
+    agi:representsKnowledge agi:ProceduralKnowledge .
+
+sync:ManifestAsTruth agi:enablesCapability agi:KnowledgeRepresentation ;
+    agi:implementsReasoning agi:DeductiveReasoning ;
+    agi:supportsLearning agi:SupervisedLearning ;
+    agi:representsKnowledge agi:DeclarativeKnowledge .
+
+sync:ThreeLayerArchitecture agi:enablesCapability agi:HierarchicalReasoning ;
+    agi:implementsReasoning agi:DeductiveReasoning ;
+    agi:supportsLearning agi:MetaLearning ;
+    agi:representsKnowledge agi:ProceduralKnowledge .
+
+sync:OntologyLoading agi:enablesCapability agi:KnowledgeRepresentation ;
+    agi:implementsReasoning agi:InductiveReasoning ;
+    agi:supportsLearning agi:UnsupervisedLearning ;
+    agi:representsKnowledge agi:DeclarativeKnowledge ;
+    agi:representsKnowledge agi:SemanticKnowledge .
+
+sync:InferenceEnrichment agi:enablesCapability agi:KnowledgeEnrichment ;
+    agi:implementsReasoning agi:DeductiveReasoning ;
+    agi:supportsLearning agi:UnsupervisedLearning ;
+    agi:representsKnowledge agi:SemanticKnowledge .
+
+sync:GenerationRules agi:enablesCapability agi:GoalDirectedGeneration ;
+    agi:implementsReasoning agi:AbductiveReasoning ;
+    agi:supportsLearning agi:SupervisedLearning ;
+    agi:representsKnowledge agi:ProceduralKnowledge .
+
+sync:TemplateRendering agi:enablesCapability agi:GoalDirectedGeneration ;
+    agi:implementsReasoning agi:DeductiveReasoning ;
+    agi:supportsLearning agi:SupervisedLearning ;
+    agi:representsKnowledge agi:ProceduralKnowledge .
+
+sync:DryRun agi:enablesCapability agi:HypotheticalReasoning ;
+    agi:implementsReasoning agi:AbductiveReasoning ;
+    agi:supportsLearning agi:ReinforcementLearning ;
+    agi:representsKnowledge agi:EpisodicKnowledge .
+
+sync:ValidationGate agi:enablesCapability agi:RobustReasoning ;
+    agi:implementsReasoning agi:DeductiveReasoning ;
+    agi:supportsLearning agi:SupervisedLearning ;
+    agi:representsKnowledge agi:DeclarativeKnowledge .
+
+sync:ForceOverwrite agi:enablesCapability agi:BoundedRationality ;
+    agi:implementsReasoning agi:AnalogicalReasoning ;
+    agi:supportsLearning agi:MetaLearning ;
+    agi:representsKnowledge agi:ProceduralKnowledge .
+
+sync:TimeoutProtection agi:enablesCapability agi:BoundedRationality ;
+    agi:implementsReasoning agi:DeductiveReasoning ;
+    agi:supportsLearning agi:MetaLearning ;
+    agi:representsKnowledge agi:ProceduralKnowledge .
+
+sync:ErrorSignals agi:enablesCapability agi:RobustReasoning ;
+    agi:implementsReasoning agi:AbductiveReasoning ;
+    agi:supportsLearning agi:ReinforcementLearning ;
+    agi:representsKnowledge agi:EpisodicKnowledge .
+
+sync:DeterministicOutput agi:enablesCapability agi:DeterministicBehavior ;
+    agi:implementsReasoning agi:DeductiveReasoning ;
+    agi:supportsLearning agi:SupervisedLearning ;
+    agi:representsKnowledge agi:ProceduralKnowledge .
+
+sync:AuditTrail agi:enablesCapability agi:ExecutionReflection ;
+    agi:enablesMetaCognition agi:ExecutionReflection ;
+    agi:implementsReasoning agi:AnalogicalReasoning ;
+    agi:supportsLearning agi:SupervisedLearning ;
+    agi:representsKnowledge agi:EpisodicKnowledge .
+
+sync:PipelineState agi:enablesCapability agi:ExecutionReflection ;
+    agi:implementsReasoning agi:DeductiveReasoning ;
+    agi:supportsLearning agi:SupervisedLearning ;
+    agi:representsKnowledge agi:EpisodicKnowledge .
+
+sync:RuleSelection agi:enablesCapability agi:GoalDirectedGeneration ;
+    agi:implementsReasoning agi:AnalogicalReasoning ;
+    agi:supportsLearning agi:ReinforcementLearning ;
+    agi:representsKnowledge agi:ProceduralKnowledge .
+
+# -----------------------------------------------------------------------------
+# CAPABILITY ENHANCEMENT RELATIONSHIPS
+# -----------------------------------------------------------------------------
+
+agi:KnowledgeRepresentation agi:enhances agi:KnowledgeEnrichment .
+agi:KnowledgeEnrichment agi:enhances agi:GoalDirectedGeneration .
+agi:DeterministicBehavior agi:enhances agi:GoalDirectedGeneration .
+agi:ExecutionReflection agi:enhances agi:RobustReasoning .
+agi:HypotheticalReasoning agi:enhances agi:RobustReasoning .
+agi:BoundedRationality agi:enhances agi:DeterministicBehavior .
+agi:HierarchicalReasoning agi:enhances agi:CognitiveAbstraction .
+
+# -----------------------------------------------------------------------------
+# AGI GLOSSARY TERMS
+# -----------------------------------------------------------------------------
+
+agi:TermAGI a pl:Term ;
+    rdfs:label "AGI (Artificial General Intelligence)" ;
+    pl:termDefinition "A system that can perform any intellectual task that a human can. ggen patterns provide foundational capabilities toward AGI through knowledge representation, reasoning, and meta-cognition." ;
+    pl:termCategory "agi" .
+
+agi:TermCapability a pl:Term ;
+    rdfs:label "Capability" ;
+    pl:termDefinition "A concrete, measurable AGI ability that emerges from one or more sync patterns." ;
+    pl:termCategory "agi" .
+
+agi:TermReasoningMode a pl:Term ;
+    rdfs:label "Reasoning Mode" ;
+    pl:termDefinition "A specific way of deriving conclusions: deductive (general→specific), inductive (examples→general), abductive (best explanation), analogical (cross-domain)." ;
+    pl:termCategory "agi" .
+
+agi:TermMetaCognition a pl:Term ;
+    rdfs:label "Meta-Cognition" ;
+    pl:termDefinition "The capability to reason about reasoning itself: reflecting on what was done, why, and how to improve." ;
+    pl:termCategory "agi" .
+
+agi:TermKnowledgeGraph a pl:Term ;
+    rdfs:label "Knowledge Graph" ;
+    pl:termDefinition "A graph-structured knowledge representation using RDF triples. The foundation for AGI knowledge representation in ggen." ;
+    pl:termCategory "agi" .
+
+agi:TermGoalDirected a pl:Term ;
+    rdfs:label "Goal-Directed Behavior" ;
+    pl:termDefinition "Behavior organized around explicit goals, where actions are selected based on their contribution to goal achievement." ;
+    pl:termCategory "agi" .

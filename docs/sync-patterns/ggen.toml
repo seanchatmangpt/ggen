@@ -30,8 +30,10 @@ base_iri = "https://ggen.dev/sync-patterns#"
 rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 rdfs = "http://www.w3.org/2000/01/rdf-schema#"
 xsd = "http://www.w3.org/2001/XMLSchema#"
+owl = "http://www.w3.org/2002/07/owl#"
 pl = "https://ggen.dev/pattern-language#"
 sync = "https://ggen.dev/sync-patterns#"
+agi = "https://ggen.dev/agi#"
 
 # =============================================================================
 # INFERENCE RULES
@@ -174,6 +176,34 @@ name = "how-to-use"
 query = { file = "queries/categories.sparql" }
 template = { file = "templates/how-to-use.tera" }
 output_file = "how-to-use.md"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# AGI CAPABILITY DOCUMENTATION
+# -----------------------------------------------------------------------------
+
+[[generation.rules]]
+name = "agi-overview"
+description = "Generate AGI capabilities framework overview"
+query = { file = "queries/pattern-agi-mapping.sparql" }
+template = { file = "templates/agi-overview.tera" }
+output_file = "agi/overview.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "agi-capabilities"
+description = "Generate individual AGI capability pages"
+query = { file = "queries/agi-capabilities.sparql" }
+template = { file = "templates/agi-capability.tera" }
+output_file = "agi/capabilities/{{ capabilityId }}.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "agi-reasoning-chains"
+description = "Generate reasoning chain documentation"
+query = { file = "queries/agi-reasoning-chains.sparql" }
+template = { file = "templates/agi-reasoning-chain.tera" }
+output_file = "agi/reasoning-chains.md"
 mode = "Overwrite"
 
 # =============================================================================
