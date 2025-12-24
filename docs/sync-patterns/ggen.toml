@@ -1,0 +1,215 @@
+# =============================================================================
+# ggen sync Pattern Language mdBook Generator
+# =============================================================================
+# This manifest generates a complete mdBook from the pattern-language.ttl ontology.
+#
+# Usage: ggen sync
+#
+# The 3T Approach:
+#   Turtle  → ontology/pattern-language.ttl (domain knowledge)
+#   TOML    → this file (generation rules)
+#   Tera    → templates/*.tera (output shaping)
+#   Target  → src/ (generated mdBook)
+# =============================================================================
+
+[project]
+name = "sync-patterns-mdbook"
+version = "1.0.0"
+description = "A Pattern Language for ggen sync - Generated from RDF ontology"
+
+# =============================================================================
+# ONTOLOGY CONFIGURATION
+# =============================================================================
+
+[ontology]
+source = "ontology/pattern-language.ttl"
+imports = []
+base_iri = "https://ggen.dev/sync-patterns#"
+
+[ontology.prefixes]
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+owl = "http://www.w3.org/2002/07/owl#"
+pl = "https://ggen.dev/pattern-language#"
+sync = "https://ggen.dev/sync-patterns#"
+agi = "https://ggen.dev/agi#"
+
+# =============================================================================
+# INFERENCE RULES
+# =============================================================================
+# These CONSTRUCT queries derive additional facts before generation.
+
+[inference]
+max_reasoning_timeout_ms = 10000
+
+[[inference.rules]]
+name = "infer-confidence-stars"
+description = "Convert confidence level to star symbols"
+order = 1
+construct = """
+PREFIX pl: <https://ggen.dev/pattern-language#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+    ?pattern pl:confidenceStars ?stars .
+}
+WHERE {
+    ?pattern pl:hasConfidence ?level .
+    BIND(
+        IF(?level = 1, "*",
+        IF(?level = 2, "**",
+        IF(?level = 3, "***", ""))) AS ?stars
+    )
+}
+"""
+
+[[inference.rules]]
+name = "infer-pattern-filename"
+description = "Generate pattern filename from number and slug"
+order = 2
+construct = """
+PREFIX pl: <https://ggen.dev/pattern-language#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+    ?pattern pl:filename ?filename .
+}
+WHERE {
+    ?pattern pl:hasNumber ?num ;
+             pl:hasSlug ?slug .
+    BIND(CONCAT(
+        IF(?num < 10, "0", ""),
+        STR(?num),
+        "-",
+        ?slug,
+        ".md"
+    ) AS ?filename)
+}
+"""
+
+[[inference.rules]]
+name = "infer-category-patterns"
+description = "Link categories to their patterns for grouping"
+order = 3
+construct = """
+PREFIX pl: <https://ggen.dev/pattern-language#>
+
+CONSTRUCT {
+    ?category pl:containsPattern ?pattern .
+}
+WHERE {
+    ?pattern pl:hasCategory ?category .
+}
+"""
+
+# =============================================================================
+# GENERATION RULES
+# =============================================================================
+
+[generation]
+output_dir = "src"
+require_audit_trail = true
+max_sparql_timeout_ms = 10000
+
+# -----------------------------------------------------------------------------
+# Pattern Chapter Generation
+# -----------------------------------------------------------------------------
+
+[[generation.rules]]
+name = "pattern-chapters"
+query = { file = "queries/patterns.sparql" }
+template = { file = "templates/pattern.tera" }
+output_file = "patterns/{{ filename }}"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# SUMMARY.md Generation
+# -----------------------------------------------------------------------------
+
+[[generation.rules]]
+name = "summary"
+query = { file = "queries/summary.sparql" }
+template = { file = "templates/summary.tera" }
+output_file = "SUMMARY.md"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# Introduction/README Generation
+# -----------------------------------------------------------------------------
+
+[[generation.rules]]
+name = "readme"
+query = { file = "queries/overview.sparql" }
+template = { file = "templates/readme.tera" }
+output_file = "README.md"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# Pattern Map Generation
+# -----------------------------------------------------------------------------
+
+[[generation.rules]]
+name = "pattern-map"
+query = { file = "queries/connections.sparql" }
+template = { file = "templates/pattern-map.tera" }
+output_file = "pattern-map.md"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# Glossary Generation
+# -----------------------------------------------------------------------------
+
+[[generation.rules]]
+name = "glossary"
+query = { file = "queries/terms.sparql" }
+template = { file = "templates/glossary.tera" }
+output_file = "glossary.md"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# How-to-Use Generation
+# -----------------------------------------------------------------------------
+
+[[generation.rules]]
+name = "how-to-use"
+query = { file = "queries/categories.sparql" }
+template = { file = "templates/how-to-use.tera" }
+output_file = "how-to-use.md"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# AGI CAPABILITY DOCUMENTATION
+# -----------------------------------------------------------------------------
+
+[[generation.rules]]
+name = "agi-overview"
+description = "Generate AGI capabilities framework overview"
+query = { file = "queries/pattern-agi-mapping.sparql" }
+template = { file = "templates/agi-overview.tera" }
+output_file = "agi/overview.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "agi-capabilities"
+description = "Generate individual AGI capability pages"
+query = { file = "queries/agi-capabilities.sparql" }
+template = { file = "templates/agi-capability.tera" }
+output_file = "agi/capabilities/{{ capabilityId }}.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "agi-reasoning-chains"
+description = "Generate reasoning chain documentation"
+query = { file = "queries/agi-reasoning-chains.sparql" }
+template = { file = "templates/agi-reasoning-chain.tera" }
+output_file = "agi/reasoning-chains.md"
+mode = "Overwrite"
+
+# =============================================================================
+# VALIDATION
+# =============================================================================
+
+[validation]
+validate_syntax = false
+no_unsafe = false
