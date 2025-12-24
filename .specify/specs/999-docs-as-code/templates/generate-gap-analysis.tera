@@ -2,58 +2,14 @@
 
 Documentation gaps identified and prioritized by SPARQL query.
 
-## By Priority
+## All Gaps
 
-{%- set gaps_by_priority = {} %}
-{%- for row in results %}
-  {%- if gaps_by_priority[row.priority] is undefined %}
-    {%- set _ = gaps_by_priority.insert(row.priority, []) %}
-  {%- endif %}
-  {%- set _ = gaps_by_priority[row.priority].push(row) %}
-{%- endfor %}
-
-{%- for priority in ["P0", "P1", "P2", "P3"] %}
-{%- if gaps_by_priority[priority] is defined %}
-
-### {{ priority }} - {% if priority == "P0" %}CRITICAL{% elif priority == "P1" %}HIGH{% elif priority == "P2" %}MEDIUM{% else %}LOW{% endif %}
-
-| Gap | Description | Effort | Category |
-|-----|-------------|--------|----------|
-{%- for gap in gaps_by_priority[priority] %}
-| **{{ gap.title }}** | {{ gap.description }} | {{ gap.effort }} | {{ gap.category }} |
-{%- endfor %}
-
-{%- endif %}
-{%- endfor %}
-
-## By Category
-
-{%- set gaps_by_category = {} %}
-{%- for row in results %}
-  {%- if gaps_by_category[row.category] is undefined %}
-    {%- set _ = gaps_by_category.insert(row.category, []) %}
-  {%- endif %}
-  {%- set _ = gaps_by_category[row.category].push(row) %}
-{%- endfor %}
-
-{%- for category in gaps_by_category | keys | sort %}
-
-### {{ category }}
-
-Count: {{ gaps_by_category[category] | length }}
-
-| Gap | Priority | Effort |
-|-----|----------|--------|
-{%- for gap in gaps_by_category[category] %}
-| {{ gap.title }} | {{ gap.priority }} | {{ gap.effort }} |
-{%- endfor %}
-
-{%- endfor %}
+| Title | Description | Priority | Effort | Category |
+|-------|-------------|----------|--------|----------|
+{% for gap in results -%}
+| {{ gap["?title"] }} | {{ gap["?description"] }} | {{ gap["?priority"] }} | {{ gap["?effort"] }} | {{ gap["?category"] }} |
+{% endfor %}
 
 ## Statistics
 
 Total Gaps: {{ results | length }}
-P0 (Critical): {{ gaps_by_priority["P0"] | default(value=[]) | length }}
-P1 (High): {{ gaps_by_priority["P1"] | default(value=[]) | length }}
-P2 (Medium): {{ gaps_by_priority["P2"] | default(value=[]) | length }}
-P3 (Low): {{ gaps_by_priority["P3"] | default(value=[]) | length }}

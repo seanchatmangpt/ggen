@@ -1,6 +1,7 @@
 @prefix doc: <https://ggen.example.com/docs/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 # DOCUMENTATION STRUCTURE (RDF Ontology)
 
@@ -72,7 +73,14 @@ doc:guide-sparql a doc:Guide ;
   doc:effort "M" ;
   doc:category "Learning" ;
   doc:outputFile "SPARQL_INFERENCE_GUIDE.md" ;
-  doc:template "guide-sparql.tera" .
+  doc:template "guide-sparql.tera" ;
+  doc:codeRefs (
+    "crates/ggen-core/src/graph/query.rs:37-106 - GraphQuery struct and SPARQL execution"
+    "crates/ggen-core/src/graph/core.rs:465-584 - Core query methods (cached, prepared)"
+    "crates/ggen-core/src/graph/construct.rs:12-157 - CONSTRUCT query executor"
+    "crates/ggen-core/src/codegen/pipeline.rs:212-254 - Inference rule execution pipeline"
+    "crates/ggen-ai/src/generators/sparql.rs:12-102 - AI-powered SPARQL generation"
+  ) .
 
 doc:guide-agi a doc:Guide ;
   doc:title "AI/AGI Integration Guide" ;
@@ -81,7 +89,12 @@ doc:guide-agi a doc:Guide ;
   doc:effort "M" ;
   doc:category "Learning" ;
   doc:outputFile "AI_AGI_INTEGRATION_GUIDE.md" ;
-  doc:template "guide-agi.tera" .
+  doc:template "guide-agi.tera" ;
+  doc:codeRefs (
+    "crates/ggen-core/src/codegen/audit.rs:13-155 - Audit trail tracking for agent feedback"
+    "crates/ggen-ai/src/error.rs:6-137 - AI error handling for agent integration"
+    "crates/ggen-core/src/lifecycle/exec.rs:67-324 - Lifecycle execution for orchestration"
+  ) .
 
 doc:guide-graph-api a doc:Guide ;
   doc:title "Graph Querying API" ;
@@ -90,7 +103,13 @@ doc:guide-graph-api a doc:Guide ;
   doc:effort "M" ;
   doc:category "Learning" ;
   doc:outputFile "GRAPH_QUERYING_API.md" ;
-  doc:template "guide-graph-api.tera" .
+  doc:template "guide-graph-api.tera" ;
+  doc:codeRefs (
+    "crates/ggen-core/src/graph/core.rs:92-434 - Graph struct and operations"
+    "crates/ggen-core/src/graph/export.rs:71-189 - RDF export/serialization"
+    "crates/ggen-core/src/graph/update.rs:63-233 - SPARQL INSERT/DELETE/UPDATE"
+    "crates/ggen-ai/src/rdf/query.rs:12-367 - Query result binding helpers"
+  ) .
 
 # REFERENCES (Quick lookup)
 
@@ -128,7 +147,12 @@ doc:ref-ultra a doc:Reference ;
   doc:effort "S" ;
   doc:category "Reference" ;
   doc:outputFile "ULTRA_COMPRESSED_REFERENCE.md" ;
-  doc:template "ref-ultra.tera" .
+  doc:template "ref-ultra.tera" ;
+  doc:codeRefs (
+    "crates/ggen-config/src/schema.rs:11-813 - Complete ggen.toml schema"
+    "crates/ggen-cli/src/cmds/sync.rs:147-219 - CLI sync command and flags"
+    "crates/ggen-core/src/tera_env.rs:62-85 - Tera template loading"
+  ) .
 
 doc:ref-patterns a doc:Reference ;
   doc:title "ULTRA Patterns Matrix" ;
@@ -137,7 +161,12 @@ doc:ref-patterns a doc:Reference ;
   doc:effort "S" ;
   doc:category "Reference" ;
   doc:outputFile "ULTRA_PATTERNS_MATRIX.md" ;
-  doc:template "ref-patterns.tera" .
+  doc:template "ref-patterns.tera" ;
+  doc:codeRefs (
+    "crates/ggen-core/src/template.rs:325-573 - Template rendering with context"
+    "crates/ggen-core/src/register.rs:101-366 - Tera filters and custom functions"
+    "crates/ggen-core/src/pipeline.rs:115-170 - Template pipeline execution"
+  ) .
 
 doc:ref-errors a doc:Reference ;
   doc:title "Error Catalog Compressed" ;
@@ -146,7 +175,13 @@ doc:ref-errors a doc:Reference ;
   doc:effort "S" ;
   doc:category "Reference" ;
   doc:outputFile "ERROR_CATALOG_COMPRESSED.md" ;
-  doc:template "ref-errors.tera" .
+  doc:template "ref-errors.tera" ;
+  doc:codeRefs (
+    "crates/ggen-core/src/validation/error.rs:32-145 - Validation error types"
+    "crates/ggen-core/src/ontology/error.rs:7-35 - Ontology error types"
+    "crates/ggen-config/src/error.rs:10-51 - Configuration error types"
+    "crates/ggen-cli/src/error.rs:18-155 - CLI error handling and exit codes"
+  ) .
 
 # GAPS (What's missing)
 
@@ -155,7 +190,9 @@ doc:gap-shacl a doc:Gap ;
   doc:description "Fix T014 TODO in validator.rs" ;
   doc:priority "P0" ;
   doc:effort "M" ;
-  doc:category "Feature" .
+  doc:category "Feature" ;
+  doc:codeRef "crates/ggen-core/src/validation/validator.rs:73-129 - SparqlValidator (STUBBED T014)" ;
+  doc:codeRef "crates/ggen-core/src/validation/shacl.rs:122-162 - ShapeLoader (STUBBED T014)" .
 
 doc:gap-troubleshooting a doc:Gap ;
   doc:title "Troubleshooting Guide" ;
@@ -183,7 +220,8 @@ doc:gap-postgres a doc:Gap ;
   doc:description "Schema generation + ORM patterns" ;
   doc:priority "P1" ;
   doc:effort "M" ;
-  doc:category "Example" .
+  doc:category "Example" ;
+  doc:codeRef "crates/ggen-core/src/graph/core.rs:434 - load_path() auto-detects schema formats" .
 
 doc:gap-graphql a doc:Gap ;
   doc:title "GraphQL Deep Dive" ;

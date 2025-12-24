@@ -3,77 +3,24 @@ name = "ggen-documentation-generation"
 version = "5.0.2"
 description = "Generate ggen documentation from RDF ontology"
 
+[ontology]
+source = "documentation.ttl"
+base_iri = "https://ggen.example.com/docs/"
+
+[ontology.prefixes]
+doc = "https://ggen.example.com/docs/"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+
 [generation]
-ontology_dir = ".specify/specs/999-docs-as-code/"
-templates_dir = ".specify/specs/999-docs-as-code/templates/"
 output_dir = "docs/"
-
-[generation.poka_yoke]
-warning_headers = false
-gitignore_generated = false
-
-# INFERENCE RULES: Materialize documentation structure
-
-[[inference.rules]]
-name = "guide_hierarchy"
-description = "Find all guides with their properties"
-query = """
-PREFIX doc: <https://ggen.example.com/docs/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-
-CONSTRUCT {
-  ?guide doc:outputFile ?file ;
-         doc:template ?template ;
-         doc:type "Guide" .
-}
-WHERE {
-  ?guide a doc:Guide ;
-    doc:outputFile ?file ;
-    doc:template ?template .
-}
-"""
-
-[[inference.rules]]
-name = "reference_hierarchy"
-description = "Find all references with their properties"
-query = """
-PREFIX doc: <https://ggen.example.com/docs/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-
-CONSTRUCT {
-  ?ref doc:outputFile ?file ;
-       doc:template ?template ;
-       doc:type "Reference" .
-}
-WHERE {
-  ?ref a doc:Reference ;
-    doc:outputFile ?file ;
-    doc:template ?template .
-}
-"""
-
-[[inference.rules]]
-name = "gap_priority"
-description = "Group gaps by priority"
-query = """
-PREFIX doc: <https://ggen.example.com/docs/>
-
-CONSTRUCT {
-  ?gap doc:priorityGroup ?priority .
-}
-WHERE {
-  ?gap doc:priority ?priority .
-}
-"""
-
-rule_order = ["guide_hierarchy", "reference_hierarchy", "gap_priority"]
 
 # GENERATION RULES: Render documentation
 
 [[generation.rules]]
 name = "guides"
 description = "Generate all guides"
-query = """
+query = { inline = """
 PREFIX doc: <https://ggen.example.com/docs/>
 SELECT ?title ?description ?pages ?effort ?outputFile ?template
 WHERE {
@@ -85,78 +32,48 @@ WHERE {
     doc:outputFile ?outputFile ;
     doc:template ?template .
 }
-"""
-template = "generate-guides.tera"
-output_file = "GENERATED_GUIDES_MANIFEST.txt"
-
-[[generation.rules]]
-name = "references"
-description = "Generate all references"
-query = """
-PREFIX doc: <https://ggen.example.com/docs/>
-SELECT ?title ?description ?pages ?effort ?outputFile ?template
-WHERE {
-  ?ref a doc:Reference ;
-    doc:title ?title ;
-    doc:description ?description ;
-    doc:pages ?pages ;
-    doc:effort ?effort ;
-    doc:outputFile ?outputFile ;
-    doc:template ?template .
-}
-"""
-template = "generate-references.tera"
-output_file = "GENERATED_REFERENCES_MANIFEST.txt"
+ORDER BY ?title
+""" }
+template = { file = "templates/generate-guides.tera" }
+output_file = "GENERATED_GUIDES_MANIFEST.md"
+mode = "Overwrite"
 
 [[generation.rules]]
 name = "gaps"
 description = "Generate gap analysis"
-query = """
+query = { inline = """
 PREFIX doc: <https://ggen.example.com/docs/>
-SELECT ?title ?description ?priority ?effort ?category
+SELECT ?title ?description ?priority ?effort ?category ?codeRef
 WHERE {
-  ?gap doc:title ?title ;
+  ?gap a doc:Gap ;
+    doc:title ?title ;
     doc:description ?description ;
     doc:priority ?priority ;
     doc:effort ?effort ;
     doc:category ?category .
+  OPTIONAL { ?gap doc:codeRef ?codeRef . }
 }
-ORDER BY ?priority
-"""
-template = "generate-gap-analysis.tera"
+ORDER BY ?priority ?category ?title
+""" }
+template = { file = "templates/generate-gap-analysis.tera" }
 output_file = "GENERATED_GAP_ANALYSIS.md"
-
-[[generation.rules]]
-name = "index"
-description = "Generate documentation index"
-query = """
-PREFIX doc: <https://ggen.example.com/docs/>
-SELECT ?title ?description ?pages ?category ?outputFile
-WHERE {
-  ?doc doc:title ?title ;
-    doc:description ?description ;
-    doc:pages ?pages ;
-    doc:category ?category ;
-    doc:outputFile ?outputFile .
-}
-ORDER BY ?category ?title
-"""
-template = "generate-index.tera"
-output_file = "GENERATED_INDEX.md"
+mode = "Overwrite"
 
 [[generation.rules]]
 name = "todos"
 description = "Generate todo list from gaps"
-query = """
+query = { inline = """
 PREFIX doc: <https://ggen.example.com/docs/>
 SELECT ?title ?description ?priority ?effort
 WHERE {
-  ?gap doc:title ?title ;
+  ?gap a doc:Gap ;
+    doc:title ?title ;
     doc:description ?description ;
     doc:priority ?priority ;
     doc:effort ?effort .
 }
-ORDER BY ?priority ?effort
-"""
-template = "generate-todos.tera"
+ORDER BY ?priority ?effort ?title
+""" }
+template = { file = "templates/generate-todos.tera" }
 output_file = "GENERATED_TODOS.md"
+mode = "Overwrite"

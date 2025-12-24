@@ -1,31 +1,3 @@
 # Learning Guides
 
-Generated from RDF ontology: documentation.ttl
-
-| Title | Description | Pages | Effort | Output File |
-|-------|-------------|-------|--------|-------------|
-{%- for row in results %}
-| **{{ row.title }}** | {{ row.description }} | {{ row.pages }} | {{ row.effort }} | {{ row.outputFile }} |
-{%- endfor %}
-
-## Details
-
-{% for row in results -%}
-
-### {{ row.title }}
-
-**Description**: {{ row.description }}
-**Pages**: {{ row.pages }}
-**Effort**: {{ row.effort }}
-**Template**: {{ row.template }}
-**Output**: `{{ row.outputFile }}`
-
----
-
-{% endfor %}
-
-## Statistics
-
-Total Guides: {{ results | length }}
-Total Pages: {{ results | map(attribute='pages') | sum }}
-Total Effort: {{ results | map(attribute='effort') | join(', ') }}
+Total items: {{ results | length }}
