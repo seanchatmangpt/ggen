@@ -190,6 +190,21 @@ When the pattern doesn't fit, step back and examine the forces. The pattern may 
 
 ---
 
+{% if codeRefs %}
+## Source Code References
+
+The implementation of **{{ label }}** can be found in the following locations:
+
+| Layer | File | Line | Description |
+|-------|------|------|-------------|
+{% for ref in codeRefs | split(pat="|||") %}
+{% set parts = ref | split(pat="::") %}
+| {{ parts | nth(n=3) | default(value="domain") }} | `{{ parts | nth(n=0) }}` | [{{ parts | nth(n=1) }}](https://github.com/seanchatmangpt/ggen/blob/main/{{ parts | nth(n=0) }}#L{{ parts | nth(n=1) }}) | {{ parts | nth(n=2) | default(value="Implementation") }} |
+{% endfor %}
+
+---
+{% endif %}
+
 ## Summary
 
 **{{ label }}** resolves the tension between {{ problem | truncate(length=100, end="...") | default(value="competing forces in code generation") }}.

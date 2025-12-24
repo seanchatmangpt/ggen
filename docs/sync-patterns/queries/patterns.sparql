@@ -27,6 +27,7 @@ SELECT
     ?deepPattern
     (GROUP_CONCAT(DISTINCT ?flag; SEPARATOR="|") AS ?flags)
     (GROUP_CONCAT(DISTINCT ?manifestSection; SEPARATOR="|") AS ?manifestSections)
+    (GROUP_CONCAT(DISTINCT ?codeRefStr; SEPARATOR="|||") AS ?codeRefs)
 WHERE {
     ?pattern a pl:Pattern ;
              rdfs:label ?label ;
@@ -53,6 +54,16 @@ WHERE {
     # Flags and manifest sections
     OPTIONAL { ?pattern pl:hasFlag ?flag }
     OPTIONAL { ?pattern pl:hasManifestSection ?manifestSection }
+
+    # Code references - concatenate as file::line::description::layer
+    OPTIONAL {
+        ?pattern pl:hasCodeRef ?codeRef .
+        ?codeRef pl:refFile ?refFile ;
+                 pl:refLine ?refLine ;
+                 pl:refDescription ?refDesc ;
+                 pl:refLayer ?refLayer .
+        BIND(CONCAT(?refFile, "::", STR(?refLine), "::", ?refDesc, "::", ?refLayer) AS ?codeRefStr)
+    }
 }
 GROUP BY ?pattern ?label ?number ?confidence ?confidenceStars ?categoryLabel ?categorySlug ?slug ?filename ?evocativeImage ?context ?problem ?solution ?implementation ?deepPattern
 ORDER BY ?number
