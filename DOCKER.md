@@ -4,13 +4,13 @@
 
 ```bash
 # Pull the image from Docker Hub
-docker pull seanchatman/ggen:5.0.0
+docker pull seanchatman/ggen:5.0.2
 
 # Run ggen in a container
-docker run --rm -v $(pwd):/workspace seanchatman/ggen:5.0.0 sync
+docker run --rm -v $(pwd):/workspace seanchatman/ggen:5.0.2 sync
 
 # Interactive shell with ggen
-docker run --rm -it -v $(pwd):/workspace seanchatman/ggen:5.0.0 bash
+docker run --rm -it -v $(pwd):/workspace seanchatman/ggen:5.0.2 bash
 ```
 
 ## Example: Following the README Tutorial

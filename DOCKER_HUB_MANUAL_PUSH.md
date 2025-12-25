@@ -5,7 +5,7 @@
 ✅ **Docker image built successfully**:
 - Image ID: `2c0e3fb3cca2`
 - Size: 169MB
-- Tags: `seanchatman/ggen:5.0.0`, `seanchatman/ggen:latest`
+- Tags: `seanchatman/ggen:5.0.2`, `seanchatman/ggen:latest`
 - Verified working: `cli 5.3.4`
 
 ⚠️ **Authentication Required**: Manual Docker Hub login needed to push
@@ -17,7 +17,7 @@
 docker login --username seanchatman
 
 # 2. Push version tag
-docker push seanchatman/ggen:5.0.0
+docker push seanchatman/ggen:5.0.2
 
 # 3. Push latest tag
 docker push seanchatman/ggen:latest
@@ -41,7 +41,7 @@ seanchatman/ggen   latest    2c0e3fb3cca2   X minutes ago   169MB
 ### Step 2: Verify Image Works
 
 ```bash
-docker run --rm seanchatman/ggen:5.0.0 ggen --version
+docker run --rm seanchatman/ggen:5.0.2 ggen --version
 ```
 
 **Expected output**:
@@ -67,7 +67,7 @@ Login Succeeded
 Push both tags (5.0.0 and latest):
 
 ```bash
-docker push seanchatman/ggen:5.0.0
+docker push seanchatman/ggen:5.0.2
 docker push seanchatman/ggen:latest
 ```
 
@@ -89,8 +89,8 @@ latest: digest: sha256:xxxxx size: 1234
 Pull from Docker Hub to verify:
 
 ```bash
-docker pull seanchatman/ggen:5.0.0
-docker run --rm seanchatman/ggen:5.0.0 ggen --version
+docker pull seanchatman/ggen:5.0.2
+docker run --rm seanchatman/ggen:5.0.2 ggen --version
 ```
 
 Check Docker Hub web UI:
@@ -146,9 +146,9 @@ https://hub.docker.com/r/seanchatman/ggen
 Test that anyone can pull the image:
 
 ```bash
-# From a different machine or after `docker rmi seanchatman/ggen:5.0.0`
-docker pull seanchatman/ggen:5.0.0
-docker run --rm -v $(pwd):/workspace seanchatman/ggen:5.0.0 sync
+# From a different machine or after `docker rmi seanchatman/ggen:5.0.2`
+docker pull seanchatman/ggen:5.0.2
+docker run --rm -v $(pwd):/workspace seanchatman/ggen:5.0.2 sync
 ```
 
 ## Build Information
@@ -167,9 +167,9 @@ For multi-platform builds (amd64 + arm64), see `DOCKER.md`.
 ```bash
 # Full deployment in 4 commands
 docker login --username seanchatman
-docker push seanchatman/ggen:5.0.0
+docker push seanchatman/ggen:5.0.2
 docker push seanchatman/ggen:latest
-docker pull seanchatman/ggen:5.0.0  # Verify
+docker pull seanchatman/ggen:5.0.2  # Verify
 ```
 
 ---

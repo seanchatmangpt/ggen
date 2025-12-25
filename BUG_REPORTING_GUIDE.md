@@ -34,7 +34,7 @@ Bad: `Watch mode broken`
 ### 2. Provide Your Environment
 
 ```
-- ggen version: 3.0.0
+- ggen version: 5.0.2
 - Operating System: Ubuntu 22.04 LTS
 - Rust version: 1.75.0
 - Installed features: all
@@ -71,7 +71,7 @@ src/core/ontology.rs:42:5
 Enable debug logging:
 
 ```bash
-RUST_LOG=debug ggen generate --template templates/
+RUST_LOG=debug ggen sync
 ```
 
 ### 6. Screenshots (if applicable)
