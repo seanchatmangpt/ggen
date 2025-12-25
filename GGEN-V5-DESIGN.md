@@ -432,7 +432,7 @@ template = "rust-service.tera"
 EOF
 
 # 2. Run code generation (single semantic command)
-ggen generate
+ggen sync
 ```
 
 Key difference: **Manifest-first, not CLI-first**.
@@ -446,7 +446,7 @@ Key difference: **Manifest-first, not CLI-first**.
 3. ⏳ **Parsing**: ggen.toml parser with strong typing
 4. ⏳ **Pipeline**: RDF → SPARQL → Templates → Output
 5. ⏳ **Validation**: SHACL + poka-yoke guards
-6. ⏳ **CLI**: Thin wrapper (ggen generate, ggen validate, etc.)
+6. ⏳ **CLI**: Single unified command (ggen sync, configured via ggen.toml)
 7. ⏳ **Examples**: 3 complete example projects
 8. ⏳ **Tests**: Chicago TDD suite (80%+ coverage)
 

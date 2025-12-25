@@ -73,10 +73,16 @@ Typical results (Intel i7-9700K, Ubuntu 22.04):
 ### Full Generation Pipeline
 
 ```bash
+# Configure in ggen.toml (v5.0.2+)
+cat > ggen.toml <<'EOF'
+[generation]
+ontology_dir = "ontologies/"
+templates_dir = "templates/"
+output_dir = "generated/"
+EOF
+
 # Time a complete code generation
-time ggen generate --ontology large-ontology.ttl \
-                   --template complex-template.jinja2 \
-                   --output generated/
+time ggen sync
 ```
 
 Expected timeline for medium project:
@@ -229,18 +235,16 @@ Performance degrades gracefully; scaling beyond tested limits may require optimi
 
 ### Mitigation Strategies
 
-```bash
-# Split large ontology
-ggen generate --ontology base.ttl --include-ontology domain-specific.ttl
+```toml
+# Configure in ggen.toml (v5.0.2+)
+[generation]
+ontology_dir = "ontologies/"  # Split: base.ttl, domain-specific.ttl
+templates_dir = "templates/"
+output_dir = "generated/"
+cache_dir = "/tmp/ggen-cache"
 
-# Limit watch scope
-ggen watch --include-pattern "src/**/*.rs" --exclude-pattern "**/test/**"
-
-# Pre-filter invariants
-ggen generate --ontology ontology.ttl --skip-invariants
-
-# Use caching
-ggen generate --cache-dir /tmp/ggen-cache
+# Then run
+# ggen sync
 ```
 
 ## Performance Goals for v3.1
@@ -261,10 +265,8 @@ If you observe performance problems:
 4. **Provide reproduction**: Include ontology and template files
 
 ```bash
-# Example reproduction report
-ggen generate --ontology large.ttl \
-              --template complex.jinja2 \
-              --explain-timing
+# Example reproduction report (configure in ggen.toml)
+RUST_LOG=debug ggen sync
 ```
 
 ## Performance Tips for Users
@@ -272,35 +274,24 @@ ggen generate --ontology large.ttl \
 ### Code Generation
 
 ```bash
-# ✗ Slow: Individual files
-for file in *.ttl; do
-    ggen generate --ontology "$file"
-done
+# v5.0.2: All configuration in ggen.toml
+ggen sync
 
-# ✓ Fast: Batch processing
-ggen generate --ontology *.ttl
-```
-
-### Watch Mode
-
-```bash
-# ✗ Slow: Watch everything
-ggen watch
-
-# ✓ Fast: Watch specific patterns
-ggen watch --include-pattern "src/**/*.rs" \
-           --include-pattern "ontologies/**/*.ttl"
+# Place all .ttl files in configured ontology_dir
+# Place all .tera templates in configured templates_dir
 ```
 
 ### Template Development
 
 ```bash
-# ✗ Slow: Full regeneration each time
-ggen generate --template new.jinja2
+# ✓ Fast: Use test fixtures in ggen.toml
+[generation]
+ontology_dir = "ontologies/test-fixtures/"  # minimal ontology
+templates_dir = "templates/"
+output_dir = "generated/"
 
-# ✓ Fast: Use test fixtures
-ggen generate --template new.jinja2 \
-              --ontology test-fixtures/minimal.ttl
+# Then iterate
+ggen sync
 ```
 
 ## Questions?

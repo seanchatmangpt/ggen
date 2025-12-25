@@ -1,0 +1,401 @@
+{
+  "metadata": {
+    "title": "Python FastAPI Advanced Innovations Analysis",
+    "base_example": "/home/user/ggen/marketplace/packages/rest-api-template/templates/python/main.py",
+    "analysis_date": "2025-12-25",
+    "total_innovations": 5,
+    "estimated_total_loc": 2847,
+    "complexity_range": "medium-extreme"
+  },
+  "innovations": [
+    {
+      "id": 1,
+      "name": "Advanced Async Patterns with Multi-Database Concurrency",
+      "description": "Implement concurrent database operations using asyncpg (PostgreSQL), motor (MongoDB), and aioredis (Redis) with connection pooling, circuit breakers, and distributed caching",
+      "external_packages": {
+        "asyncpg": ">=0.29.0,<0.30.0",
+        "motor": ">=3.3.0,<4.0.0",
+        "aioredis": ">=2.0.1,<3.0.0",
+        "aiocache": ">=0.12.2,<0.13.0",
+        "tenacity": ">=8.2.3,<9.0.0",
+        "pybreaker": ">=1.0.1,<2.0.0",
+        "async-timeout": ">=4.0.3,<5.0.0"
+      },
+      "rdf_ontology_extensions": {
+        "namespaces": {
+          "async": "http://api.example.org/async#",
+          "db": "http://api.example.org/database#"
+        },
+        "classes": [
+          {
+            "name": "async:ConnectionPool",
+            "properties": [
+              "async:minConnections",
+              "async:maxConnections",
+              "async:timeout",
+              "async:poolType"
+            ]
+          },
+          {
+            "name": "async:CacheStrategy",
+            "properties": [
+              "async:backend",
+              "async:ttl",
+              "async:namespace",
+              "async:serializer"
+            ]
+          },
+          {
+            "name": "db:DataSource",
+            "properties": [
+              "db:type",
+              "db:connectionString",
+              "db:poolConfig",
+              "db:circuitBreakerConfig"
+            ]
+          }
+        ],
+        "turtle_example": "@prefix async: <http://api.example.org/async#> .\n@prefix db: <http://api.example.org/database#> .\n\n:PostgresPool a async:ConnectionPool ;\n    async:minConnections 10 ;\n    async:maxConnections 50 ;\n    async:timeout 30 ;\n    async:poolType \"asyncpg\" .\n\n:RedisCache a async:CacheStrategy ;\n    async:backend \"aioredis\" ;\n    async:ttl 3600 ;\n    async:namespace \"api:cache\" ;\n    async:serializer \"json\" .\n\n:UserDataSource a db:DataSource ;\n    db:type \"postgresql\" ;\n    db:connectionString \"postgresql+asyncpg://...\" ;\n    db:poolConfig :PostgresPool ;\n    db:circuitBreakerConfig :DefaultBreaker ."
+      },
+      "code_examples": {
+        "connection_manager": "# File: core/async_db.py\nimport asyncpg\nimport motor.motor_asyncio\nimport aioredis\nfrom typing import Optional, Dict, Any\nfrom contextlib import asynccontextmanager\nfrom tenacity import retry, stop_after_attempt, wait_exponential\nfrom pybreaker import CircuitBreaker\nimport asyncio\n\nclass AsyncDatabaseManager:\n    \"\"\"Advanced async database manager with connection pooling\"\"\"\n    \n    def __init__(self, config: Dict[str, Any]):\n        self.config = config\n        self.pg_pool: Optional[asyncpg.Pool] = None\n        self.mongo_client: Optional[motor.motor_asyncio.AsyncIOMotorClient] = None\n        self.redis: Optional[aioredis.Redis] = None\n        self.circuit_breaker = CircuitBreaker(\n            fail_max=5,\n            timeout_duration=60,\n            name=\"db_breaker\"\n        )\n    \n    async def initialize(self):\n        \"\"\"Initialize all database connections\"\"\"\n        await asyncio.gather(\n            self._init_postgres(),\n            self._init_mongodb(),\n            self._init_redis()\n        )\n    \n    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))\n    async def _init_postgres(self):\n        \"\"\"Initialize PostgreSQL connection pool\"\"\"\n        self.pg_pool = await asyncpg.create_pool(\n            dsn=self.config['postgres']['dsn'],\n            min_size=10,\n            max_size=50,\n            max_queries=50000,\n            max_inactive_connection_lifetime=300,\n            timeout=30,\n            command_timeout=60\n        )\n    \n    async def _init_mongodb(self):\n        \"\"\"Initialize MongoDB async client\"\"\"\n        self.mongo_client = motor.motor_asyncio.AsyncIOMotorClient(\n            self.config['mongodb']['uri'],\n            maxPoolSize=50,\n            minPoolSize=10,\n            serverSelectionTimeoutMS=5000\n        )\n    \n    async def _init_redis(self):\n        \"\"\"Initialize Redis connection pool\"\"\"\n        self.redis = await aioredis.from_url(\n            self.config['redis']['url'],\n            encoding=\"utf-8\",\n            decode_responses=True,\n            max_connections=50\n        )\n    \n    @asynccontextmanager\n    async def postgres_transaction(self):\n        \"\"\"Get PostgreSQL transaction with circuit breaker\"\"\"\n        async with self.pg_pool.acquire() as conn:\n            async with conn.transaction():\n                yield conn\n    \n    @circuit_breaker\n    async def execute_concurrent_queries(self, queries: Dict[str, str]) -> Dict[str, Any]:\n        \"\"\"Execute multiple database queries concurrently\"\"\"\n        async with self.postgres_transaction() as pg_conn:\n            # Execute PostgreSQL queries\n            pg_results = await asyncio.gather(*[\n                pg_conn.fetch(query) for query in queries.get('postgres', [])\n            ])\n            \n            # Execute MongoDB queries concurrently\n            mongo_db = self.mongo_client[self.config['mongodb']['database']]\n            mongo_results = await asyncio.gather(*[\n                mongo_db[collection].find(query).to_list(length=100)\n                for collection, query in queries.get('mongodb', {}).items()\n            ])\n            \n            # Cache results in Redis\n            cache_key = f\"query_results:{hash(str(queries))}\"\n            await self.redis.setex(\n                cache_key,\n                3600,\n                str({'postgres': pg_results, 'mongodb': mongo_results})\n            )\n            \n            return {\n                'postgres': pg_results,\n                'mongodb': mongo_results,\n                'cached_at': cache_key\n            }\n    \n    async def cleanup(self):\n        \"\"\"Cleanup all connections\"\"\"\n        await asyncio.gather(\n            self.pg_pool.close() if self.pg_pool else asyncio.sleep(0),\n            self.mongo_client.close() if self.mongo_client else asyncio.sleep(0),\n            self.redis.close() if self.redis else asyncio.sleep(0)\n        )",
+        "caching_decorator": "# File: core/cache_decorators.py\nfrom aiocache import cached, Cache\nfrom aiocache.serializers import JsonSerializer\nfrom functools import wraps\nimport hashlib\nimport json\nfrom typing import Callable, Any\n\nclass AdvancedCacheDecorator:\n    \"\"\"Advanced caching with multiple backends\"\"\"\n    \n    @staticmethod\n    def smart_cache(\n        ttl: int = 3600,\n        namespace: str = \"default\",\n        key_builder: Optional[Callable] = None\n    ):\n        \"\"\"Smart cache decorator with automatic key generation\"\"\"\n        def decorator(func: Callable) -> Callable:\n            @cached(\n                ttl=ttl,\n                cache=Cache.REDIS,\n                namespace=namespace,\n                serializer=JsonSerializer(),\n                key_builder=key_builder or AdvancedCacheDecorator._default_key_builder\n            )\n            @wraps(func)\n            async def wrapper(*args, **kwargs) -> Any:\n                return await func(*args, **kwargs)\n            return wrapper\n        return decorator\n    \n    @staticmethod\n    def _default_key_builder(func, *args, **kwargs) -> str:\n        \"\"\"Generate cache key from function signature\"\"\"\n        key_data = {\n            'func': func.__name__,\n            'args': str(args),\n            'kwargs': str(sorted(kwargs.items()))\n        }\n        return hashlib.sha256(\n            json.dumps(key_data, sort_keys=True).encode()\n        ).hexdigest()[:16]\n\n# Usage example\n@AdvancedCacheDecorator.smart_cache(ttl=1800, namespace=\"users\")\nasync def get_user_with_posts(user_id: str, include_archived: bool = False):\n    \"\"\"Cached user query with automatic invalidation\"\"\"\n    # Complex query logic here\n    pass"
+      },
+      "generated_code_structure": {
+        "files": [
+          "core/async_db.py",
+          "core/cache_decorators.py",
+          "core/circuit_breaker.py",
+          "models/async_models.py",
+          "services/concurrent_service.py",
+          "tests/test_async_patterns.py"
+        ],
+        "estimated_loc": 847,
+        "complexity": "high"
+      },
+      "performance_metrics": {
+        "query_concurrency": "3-5x faster for multi-database operations",
+        "cache_hit_rate": "Expected 70-85% for read-heavy workloads",
+        "connection_overhead": "Reduced by 60% with pooling",
+        "circuit_breaker_protection": "Prevents cascade failures in <500ms"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Advanced ORM Features with Relationship Caching & Query Optimization",
+      "description": "Implement SQLAlchemy 2.0 async patterns, Tortoise-ORM for simplified async, automatic relationship caching, N+1 query prevention, and lazy-loading strategies",
+      "external_packages": {
+        "sqlalchemy[asyncio]": ">=2.0.23,<3.0.0",
+        "tortoise-orm": ">=0.20.0,<0.21.0",
+        "asyncpg": ">=0.29.0,<0.30.0",
+        "sqlalchemy-utils": ">=0.41.1,<0.42.0",
+        "sqlalchemy-json": ">=0.7.0,<0.8.0",
+        "dogpile.cache": ">=1.2.2,<2.0.0"
+      },
+      "rdf_ontology_extensions": {
+        "namespaces": {
+          "orm": "http://api.example.org/orm#",
+          "rel": "http://api.example.org/relationship#"
+        },
+        "classes": [
+          {
+            "name": "orm:Model",
+            "properties": [
+              "orm:tableName",
+              "orm:cacheStrategy",
+              "orm:lazyLoadingEnabled",
+              "orm:optimisticLocking"
+            ]
+          },
+          {
+            "name": "rel:Relationship",
+            "properties": [
+              "rel:type",
+              "rel:lazy",
+              "rel:cascadeDelete",
+              "rel:backPopulates",
+              "rel:cacheRelated"
+            ]
+          }
+        ],
+        "turtle_example": "@prefix orm: <http://api.example.org/orm#> .\n@prefix rel: <http://api.example.org/relationship#> .\n\n:User a orm:Model ;\n    orm:tableName \"users\" ;\n    orm:cacheStrategy \"write-through\" ;\n    orm:lazyLoadingEnabled false ;\n    orm:optimisticLocking true ;\n    orm:hasRelationship :User_Posts .\n\n:User_Posts a rel:Relationship ;\n    rel:type \"one-to-many\" ;\n    rel:lazy \"selectin\" ;\n    rel:cascadeDelete true ;\n    rel:backPopulates \"author\" ;\n    rel:cacheRelated true ;\n    rel:targetModel :Post ."
+      },
+      "code_examples": {
+        "sqlalchemy_advanced": "# File: models/advanced_orm.py\nfrom sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker\nfrom sqlalchemy.orm import declarative_base, relationship, selectinload, joinedload\nfrom sqlalchemy import Column, String, Integer, ForeignKey, DateTime, JSON, event\nfrom sqlalchemy.dialects.postgresql import UUID, JSONB\nfrom sqlalchemy_utils import ChoiceType, EmailType, URLType\nfrom dogpile.cache import make_region\nfrom typing import List, Optional\nimport uuid\nfrom datetime import datetime\n\n# Cache region for relationship caching\ncache_region = make_region().configure(\n    'dogpile.cache.redis',\n    expiration_time=3600,\n    arguments={\n        'host': 'localhost',\n        'port': 6379,\n        'db': 0,\n        'redis_expiration_time': 3600,\n        'distributed_lock': True\n    }\n)\n\nBase = declarative_base()\n\nclass CachedRelationshipMixin:\n    \"\"\"Mixin for automatic relationship caching\"\"\"\n    \n    @classmethod\n    def _cache_key(cls, instance_id: uuid.UUID, relationship_name: str) -> str:\n        return f\"{cls.__tablename__}:{instance_id}:{relationship_name}\"\n    \n    @classmethod\n    async def get_cached_relationship(cls, instance_id: uuid.UUID, relationship_name: str):\n        \"\"\"Get relationship from cache or database\"\"\"\n        cache_key = cls._cache_key(instance_id, relationship_name)\n        return cache_region.get(cache_key)\n\nclass User(Base, CachedRelationshipMixin):\n    __tablename__ = \"users\"\n    \n    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)\n    username = Column(String(50), unique=True, nullable=False, index=True)\n    email = Column(EmailType, unique=True, nullable=False)\n    profile_data = Column(JSONB, default=dict)\n    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)\n    version = Column(Integer, default=1, nullable=False)  # Optimistic locking\n    \n    # Optimized relationships with selectinload (N+1 prevention)\n    posts = relationship(\n        \"Post\",\n        back_populates=\"author\",\n        lazy=\"selectin\",\n        cascade=\"all, delete-orphan\",\n        passive_deletes=True\n    )\n    \n    orders = relationship(\n        \"Order\",\n        back_populates=\"customer\",\n        lazy=\"selectin\"\n    )\n\nclass Post(Base, CachedRelationshipMixin):\n    __tablename__ = \"posts\"\n    \n    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)\n    title = Column(String(200), nullable=False)\n    content = Column(String, nullable=False)\n    status = Column(ChoiceType([\n        ('draft', 'Draft'),\n        ('published', 'Published'),\n        ('archived', 'Archived')\n    ]), default='draft')\n    author_id = Column(UUID(as_uuid=True), ForeignKey(\"users.id\", ondelete=\"CASCADE\"))\n    metadata_json = Column(JSONB, default=dict)\n    created_at = Column(DateTime, default=datetime.utcnow)\n    \n    author = relationship(\"User\", back_populates=\"posts\", lazy=\"joined\")\n    tags = relationship(\"Tag\", secondary=\"post_tags\", lazy=\"selectin\")\n\n# Event listener for relationship caching\n@event.listens_for(User.posts, 'set')\ndef cache_user_posts(target, value, oldvalue, initiator):\n    \"\"\"Automatically cache relationship when set\"\"\"\n    cache_key = User._cache_key(target.id, 'posts')\n    cache_region.set(cache_key, value)\n\nclass AdvancedQueryService:\n    \"\"\"Service for optimized queries with automatic N+1 prevention\"\"\"\n    \n    def __init__(self, session: AsyncSession):\n        self.session = session\n    \n    async def get_user_with_all_relations(\n        self,\n        user_id: uuid.UUID,\n        include_archived: bool = False\n    ) -> Optional[User]:\n        \"\"\"Get user with all relationships in a single query (no N+1)\"\"\"\n        from sqlalchemy import select\n        \n        # Single query with selectinload for all relationships\n        stmt = (\n            select(User)\n            .options(\n                selectinload(User.posts).selectinload(Post.tags),\n                selectinload(User.orders)\n            )\n            .where(User.id == user_id)\n        )\n        \n        if not include_archived:\n            stmt = stmt.join(User.posts).where(Post.status != 'archived')\n        \n        result = await self.session.execute(stmt)\n        return result.scalar_one_or_none()\n    \n    async def bulk_create_with_relationships(\n        self,\n        users_data: List[dict]\n    ) -> List[User]:\n        \"\"\"Bulk create users with relationships efficiently\"\"\"\n        users = [User(**data) for data in users_data]\n        self.session.add_all(users)\n        await self.session.flush()  # Get IDs without committing\n        \n        # Cache all created users\n        for user in users:\n            cache_key = f\"user:{user.id}\"\n            cache_region.set(cache_key, user)\n        \n        await self.session.commit()\n        return users",
+        "tortoise_orm": "# File: models/tortoise_models.py\nfrom tortoise import fields, models\nfrom tortoise.contrib.pydantic import pydantic_model_creator\nfrom tortoise.queryset import QuerySet\nfrom typing import List, Optional\n\nclass BaseModel(models.Model):\n    \"\"\"Base model with common fields\"\"\"\n    id = fields.UUIDField(pk=True)\n    created_at = fields.DatetimeField(auto_now_add=True)\n    updated_at = fields.DatetimeField(auto_now=True)\n    \n    class Meta:\n        abstract = True\n\nclass TortoiseUser(BaseModel):\n    \"\"\"User model with Tortoise-ORM\"\"\"\n    username = fields.CharField(max_length=50, unique=True, index=True)\n    email = fields.CharField(max_length=255, unique=True)\n    profile_data = fields.JSONField(default=dict)\n    \n    # Relationships with prefetch optimization\n    posts: fields.ReverseRelation[\"TortoisePost\"]\n    \n    class Meta:\n        table = \"tortoise_users\"\n    \n    @classmethod\n    async def get_with_posts(cls, user_id: str) -> Optional[\"TortoiseUser\"]:\n        \"\"\"Get user with prefetched posts (N+1 prevention)\"\"\"\n        return await cls.filter(id=user_id).prefetch_related('posts').first()\n    \n    @classmethod\n    async def get_active_users_with_stats(cls) -> List[dict]:\n        \"\"\"Get users with aggregated post statistics\"\"\"\n        return await cls.annotate(\n            post_count=Count('posts')\n        ).filter(\n            post_count__gte=1\n        ).values('id', 'username', 'email', 'post_count')\n\nclass TortoisePost(BaseModel):\n    \"\"\"Post model with Tortoise-ORM\"\"\"\n    title = fields.CharField(max_length=200)\n    content = fields.TextField()\n    status = fields.CharEnumField(\n        enum_type=['draft', 'published', 'archived'],\n        default='draft'\n    )\n    \n    author = fields.ForeignKeyField(\n        'models.TortoiseUser',\n        related_name='posts',\n        on_delete=fields.CASCADE\n    )\n    \n    class Meta:\n        table = \"tortoise_posts\"\n\n# Generate Pydantic models from Tortoise models\nUserPydantic = pydantic_model_creator(TortoiseUser, name=\"User\")\nUserPydanticIn = pydantic_model_creator(TortoiseUser, name=\"UserIn\", exclude_readonly=True)\nPostPydantic = pydantic_model_creator(TortoisePost, name=\"Post\")"
+      },
+      "generated_code_structure": {
+        "files": [
+          "models/advanced_orm.py",
+          "models/tortoise_models.py",
+          "services/query_optimizer.py",
+          "core/relationship_cache.py",
+          "migrations/alembic/versions/001_advanced_orm.py",
+          "tests/test_orm_features.py"
+        ],
+        "estimated_loc": 623,
+        "complexity": "high"
+      },
+      "performance_metrics": {
+        "n_plus_one_elimination": "100% with selectinload/prefetch_related",
+        "query_count_reduction": "80-95% for relationship-heavy endpoints",
+        "relationship_cache_hit": "75-90% for frequently accessed relations",
+        "bulk_insert_speedup": "10-50x faster than individual inserts"
+      }
+    },
+    {
+      "id": 3,
+      "name": "Advanced API Documentation with GraphQL, Auto-Schema Generation & Interactive Playground",
+      "description": "Implement Strawberry GraphQL alongside FastAPI REST, automatic schema generation from RDF, GraphiQL playground, schema stitching, and Pydantic-settings integration",
+      "external_packages": {
+        "strawberry-graphql[fastapi]": ">=0.215.0,<0.216.0",
+        "fastapi-plugins": ">=0.12.0,<0.13.0",
+        "pydantic-settings": ">=2.1.0,<3.0.0",
+        "graphene": ">=3.3.0,<4.0.0",
+        "graphql-core": ">=3.2.3,<4.0.0",
+        "apispec": ">=6.3.1,<7.0.0",
+        "apispec-webframeworks": ">=0.5.2,<0.6.0"
+      },
+      "rdf_ontology_extensions": {
+        "namespaces": {
+          "gql": "http://api.example.org/graphql#",
+          "api": "http://api.example.org/api#"
+        },
+        "classes": [
+          {
+            "name": "gql:GraphQLType",
+            "properties": [
+              "gql:typeName",
+              "gql:fields",
+              "gql:resolvers",
+              "gql:interfaces"
+            ]
+          },
+          {
+            "name": "gql:Query",
+            "properties": [
+              "gql:queryName",
+              "gql:returnType",
+              "gql:arguments",
+              "gql:complexity"
+            ]
+          },
+          {
+            "name": "gql:Mutation",
+            "properties": [
+              "gql:mutationName",
+              "gql:inputType",
+              "gql:returnType",
+              "gql:sideEffects"
+            ]
+          }
+        ],
+        "turtle_example": "@prefix gql: <http://api.example.org/graphql#> .\n\n:UserType a gql:GraphQLType ;\n    gql:typeName \"User\" ;\n    gql:fields (:id :username :email :posts) ;\n    gql:interfaces (:Node :Timestamped) .\n\n:getUserQuery a gql:Query ;\n    gql:queryName \"getUser\" ;\n    gql:returnType :UserType ;\n    gql:arguments (:userId) ;\n    gql:complexity 5 .\n\n:createUserMutation a gql:Mutation ;\n    gql:mutationName \"createUser\" ;\n    gql:inputType :CreateUserInput ;\n    gql:returnType :UserType ;\n    gql:sideEffects \"database_write\" ."
+      },
+      "code_examples": {
+        "strawberry_graphql": "# File: graphql/schema.py\nimport strawberry\nfrom strawberry.fastapi import GraphQLRouter\nfrom typing import List, Optional\nfrom datetime import datetime\nfrom uuid import UUID\n\n@strawberry.type\nclass User:\n    \"\"\"GraphQL User type\"\"\"\n    id: UUID\n    username: str\n    email: str\n    created_at: datetime\n    posts: List['Post'] = strawberry.field(default_factory=list)\n    \n    @strawberry.field\n    async def post_count(self) -> int:\n        \"\"\"Computed field for post count\"\"\"\n        return len(self.posts)\n    \n    @strawberry.field\n    async def recent_posts(self, limit: int = 5) -> List['Post']:\n        \"\"\"Get recent posts with limit\"\"\"\n        return sorted(\n            self.posts,\n            key=lambda p: p.created_at,\n            reverse=True\n        )[:limit]\n\n@strawberry.type\nclass Post:\n    \"\"\"GraphQL Post type\"\"\"\n    id: UUID\n    title: str\n    content: str\n    status: str\n    author: User\n    created_at: datetime\n    \n    @strawberry.field\n    async def word_count(self) -> int:\n        \"\"\"Computed field for content word count\"\"\"\n        return len(self.content.split())\n\n@strawberry.input\nclass CreateUserInput:\n    \"\"\"Input type for creating users\"\"\"\n    username: str = strawberry.field(description=\"Username (3-50 characters)\")\n    email: str = strawberry.field(description=\"Valid email address\")\n    password: str = strawberry.field(description=\"Password (min 8 characters)\")\n\n@strawberry.input\nclass UpdateUserInput:\n    \"\"\"Input type for updating users\"\"\"\n    username: Optional[str] = None\n    email: Optional[str] = None\n\n@strawberry.type\nclass Query:\n    \"\"\"GraphQL Query root\"\"\"\n    \n    @strawberry.field\n    async def user(self, id: UUID) -> Optional[User]:\n        \"\"\"Get user by ID\"\"\"\n        # Resolver implementation\n        pass\n    \n    @strawberry.field\n    async def users(\n        self,\n        limit: int = 10,\n        offset: int = 0,\n        search: Optional[str] = None\n    ) -> List[User]:\n        \"\"\"List users with pagination and search\"\"\"\n        # Resolver implementation\n        pass\n    \n    @strawberry.field\n    async def posts_by_status(self, status: str) -> List[Post]:\n        \"\"\"Get posts filtered by status\"\"\"\n        pass\n\n@strawberry.type\nclass Mutation:\n    \"\"\"GraphQL Mutation root\"\"\"\n    \n    @strawberry.mutation\n    async def create_user(self, input: CreateUserInput) -> User:\n        \"\"\"Create a new user\"\"\"\n        # Mutation implementation\n        pass\n    \n    @strawberry.mutation\n    async def update_user(self, id: UUID, input: UpdateUserInput) -> User:\n        \"\"\"Update existing user\"\"\"\n        pass\n    \n    @strawberry.mutation\n    async def delete_user(self, id: UUID) -> bool:\n        \"\"\"Delete user\"\"\"\n        pass\n\n@strawberry.type\nclass Subscription:\n    \"\"\"GraphQL Subscription root for real-time updates\"\"\"\n    \n    @strawberry.subscription\n    async def user_created(self) -> User:\n        \"\"\"Subscribe to user creation events\"\"\"\n        # Subscription implementation using async generators\n        pass\n\n# Create GraphQL schema\nschema = strawberry.Schema(\n    query=Query,\n    mutation=Mutation,\n    subscription=Subscription\n)\n\n# Create GraphQL router for FastAPI\ngraphql_app = GraphQLRouter(\n    schema,\n    graphiql=True,  # Enable GraphiQL playground\n    path=\"/graphql\"\n)",
+        "fastapi_integration": "# File: main.py (with GraphQL)\nfrom fastapi import FastAPI\nfrom fastapi_plugins import depends_redis, redis_plugin\nfrom pydantic_settings import BaseSettings, SettingsConfigDict\nfrom graphql.schema import graphql_app\n\nclass Settings(BaseSettings):\n    \"\"\"Application settings with Pydantic v2\"\"\"\n    model_config = SettingsConfigDict(\n        env_file=\".env\",\n        env_file_encoding=\"utf-8\",\n        case_sensitive=False\n    )\n    \n    # API Settings\n    api_title: str = \"Advanced FastAPI + GraphQL\"\n    api_version: str = \"2.0.0\"\n    debug: bool = False\n    \n    # Database\n    database_url: str\n    \n    # Redis\n    redis_url: str = \"redis://localhost:6379/0\"\n    redis_cache_ttl: int = 3600\n    \n    # GraphQL\n    graphql_playground: bool = True\n    graphql_introspection: bool = True\n    \n    # CORS\n    allowed_origins: List[str] = [\"http://localhost:3000\"]\n\nsettings = Settings()\n\napp = FastAPI(\n    title=settings.api_title,\n    version=settings.api_version,\n    description=\"Advanced API with REST + GraphQL\",\n    docs_url=\"/docs\",\n    redoc_url=\"/redoc\",\n    openapi_url=\"/openapi.json\"\n)\n\n# Include GraphQL router\napp.include_router(graphql_app, prefix=\"/graphql\", tags=[\"graphql\"])\n\n# Add REST endpoints\nfrom api.routes import users_router, posts_router\napp.include_router(users_router, prefix=\"/api/v1/users\", tags=[\"users\"])\napp.include_router(posts_router, prefix=\"/api/v1/posts\", tags=[\"posts\"])\n\n@app.on_event(\"startup\")\nasync def startup():\n    \"\"\"Initialize plugins on startup\"\"\"\n    await redis_plugin.init_app(app, config=dict(url=settings.redis_url))\n    await redis_plugin.init()\n\n@app.on_event(\"shutdown\")\nasync def shutdown():\n    \"\"\"Cleanup on shutdown\"\"\"\n    await redis_plugin.terminate()\n\n@app.get(\"/\")\nasync def root():\n    return {\n        \"message\": \"Advanced FastAPI + GraphQL API\",\n        \"docs\": \"/docs\",\n        \"graphql\": \"/graphql\",\n        \"graphiql\": \"/graphql\" if settings.graphql_playground else None\n    }",
+        "schema_generator": "# File: graphql/schema_generator.py\nfrom typing import Dict, Any, List\nfrom apispec import APISpec\nfrom apispec.ext.marshmallow import MarshmallowPlugin\nfrom apispec_webframeworks.flask import FlaskPlugin\nimport strawberry\nfrom rdflib import Graph, Namespace\n\nclass RDFToGraphQLGenerator:\n    \"\"\"Generate GraphQL schema from RDF ontology\"\"\"\n    \n    def __init__(self, ontology_path: str):\n        self.graph = Graph()\n        self.graph.parse(ontology_path, format=\"turtle\")\n        self.GQL = Namespace(\"http://api.example.org/graphql#\")\n    \n    def generate_types(self) -> List[strawberry.type]:\n        \"\"\"Generate Strawberry types from RDF classes\"\"\"\n        types = []\n        \n        # Query RDF for GraphQL types\n        query = \"\"\"\n        PREFIX gql: <http://api.example.org/graphql#>\n        SELECT ?typeName ?field ?fieldType\n        WHERE {\n            ?type a gql:GraphQLType ;\n                  gql:typeName ?typeName ;\n                  gql:fields ?field .\n            ?field gql:fieldType ?fieldType .\n        }\n        \"\"\"\n        \n        results = self.graph.query(query)\n        \n        # Group by type\n        types_dict: Dict[str, List] = {}\n        for row in results:\n            type_name = str(row.typeName)\n            if type_name not in types_dict:\n                types_dict[type_name] = []\n            types_dict[type_name].append({\n                'name': str(row.field),\n                'type': str(row.fieldType)\n            })\n        \n        # Generate Strawberry types dynamically\n        for type_name, fields in types_dict.items():\n            field_definitions = {}\n            for field in fields:\n                field_definitions[field['name']] = self._map_type(field['type'])\n            \n            types.append(\n                strawberry.type(\n                    type(type_name, (), field_definitions)\n                )\n            )\n        \n        return types\n    \n    def _map_type(self, rdf_type: str) -> Any:\n        \"\"\"Map RDF types to Python/GraphQL types\"\"\"\n        type_mapping = {\n            'string': str,\n            'integer': int,\n            'boolean': bool,\n            'datetime': datetime,\n            'uuid': UUID\n        }\n        return type_mapping.get(rdf_type.lower(), str)"
+      },
+      "generated_code_structure": {
+        "files": [
+          "graphql/schema.py",
+          "graphql/resolvers.py",
+          "graphql/schema_generator.py",
+          "graphql/subscriptions.py",
+          "core/settings.py",
+          "api/routes/graphql_hybrid.py",
+          "tests/test_graphql_api.py"
+        ],
+        "estimated_loc": 512,
+        "complexity": "medium-high"
+      },
+      "performance_metrics": {
+        "graphql_query_flexibility": \"Client controls data shape, reduces over-fetching\",\n        \"schema_generation_time\": \"<2s for 100+ RDF classes\",\n        \"graphiql_playground\": \"Interactive exploration and testing\",\n        \"subscription_latency\": \"<100ms for real-time updates\"
+      }
+    },
+    {
+      \"id\": 4,
+      \"name\": \"Advanced Background Tasks with Celery, RQ, and Flower Monitoring\",
+      \"description\": \"Implement distributed task queues using Celery with Redis/RabbitMQ, RQ for simple tasks, Flower for monitoring, task chaining, periodic tasks with Celery Beat, and result backends\",
+      \"external_packages\": {
+        \"celery[redis]\": \">=5.3.4,<6.0.0\",
+        \"flower\": \">=2.0.1,<3.0.0\",
+        \"rq\": \">=1.15.1,<2.0.0\",
+        \"redis\": \">=5.0.1,<6.0.0\",
+        \"kombu\": \">=5.3.4,<6.0.0\",
+        \"vine\": \">=5.1.0,<6.0.0\",
+        \"celery-types\": \">=0.20.0,<0.21.0\"
+      },
+      \"rdf_ontology_extensions\": {
+        \"namespaces\": {
+          \"task\": \"http://api.example.org/task#\",
+          \"queue\": \"http://api.example.org/queue#\"
+        },
+        \"classes\": [
+          {
+            \"name\": \"task:BackgroundTask\",
+            \"properties\": [
+              \"task:name\",
+              \"task:priority\",
+              \"task:retryPolicy\",
+              \"task:timeout\",
+              \"task:queue\"
+            ]
+          },
+          {
+            \"name\": \"task:PeriodicTask\",
+            \"properties\": [
+              \"task:schedule\",
+              \"task:cronExpression\",
+              \"task:enabled\",
+              \"task:lastRun\"
+            ]
+          },
+          {
+            \"name\": \"queue:TaskQueue\",
+            \"properties\": [
+              \"queue:name\",
+              \"queue:priority\",
+              \"queue:maxWorkers\",
+              \"queue:rateLimit\"
+            ]
+          }
+        ],
+        \"turtle_example\": \"@prefix task: <http://api.example.org/task#> .\\n@prefix queue: <http://api.example.org/queue#> .\\n\\n:SendEmailTask a task:BackgroundTask ;\\n    task:name \\\"send_email\\\" ;\\n    task:priority 5 ;\\n    task:retryPolicy \\\"exponential_backoff\\\" ;\\n    task:timeout 300 ;\\n    task:queue :EmailQueue .\\n\\n:DailyReportTask a task:PeriodicTask ;\\n    task:schedule \\\"daily\\\" ;\\n    task:cronExpression \\\"0 8 * * *\\\" ;\\n    task:enabled true ;\\n    task:lastRun \\\"2025-12-25T08:00:00Z\\\" .\\n\\n:EmailQueue a queue:TaskQueue ;\\n    queue:name \\\"emails\\\" ;\\n    queue:priority 10 ;\\n    queue:maxWorkers 4 ;\\n    queue:rateLimit \\\"100/h\\\" .\"
+      },
+      \"code_examples\": {
+        \"celery_config\": \"# File: core/celery_app.py\\nfrom celery import Celery, Task\\nfrom celery.schedules import crontab\\nfrom kombu import Exchange, Queue\\nfrom typing import Any, Dict\\nimport logging\\n\\n# Celery configuration\\ncelery_app = Celery(\\n    'advanced_api',\\n    broker='redis://localhost:6379/0',\\n    backend='redis://localhost:6379/1',\\n    include=['tasks.email', 'tasks.processing', 'tasks.analytics']\\n)\\n\\n# Advanced Celery configuration\\ncelery_app.conf.update(\\n    # Result backend\\n    result_backend='redis://localhost:6379/1',\\n    result_expires=3600,\\n    \\n    # Task settings\\n    task_serializer='json',\\n    accept_content=['json'],\\n    result_serializer='json',\\n    timezone='UTC',\\n    enable_utc=True,\\n    \\n    # Worker settings\\n    worker_prefetch_multiplier=4,\\n    worker_max_tasks_per_child=1000,\\n    worker_disable_rate_limits=False,\\n    \\n    # Task routes and queues\\n    task_routes={\\n        'tasks.email.*': {'queue': 'emails'},\\n        'tasks.processing.*': {'queue': 'processing'},\\n        'tasks.analytics.*': {'queue': 'analytics'},\\n    },\\n    \\n    task_queues=(\\n        Queue('default', Exchange('default'), routing_key='default', priority=5),\\n        Queue('emails', Exchange('emails'), routing_key='emails', priority=10),\\n        Queue('processing', Exchange('processing'), routing_key='processing', priority=7),\\n        Queue('analytics', Exchange('analytics'), routing_key='analytics', priority=3),\\n    ),\\n    \\n    # Retry policy\\n    task_acks_late=True,\\n    task_reject_on_worker_lost=True,\\n    \\n    # Beat schedule for periodic tasks\\n    beat_schedule={\\n        'daily-report': {\\n            'task': 'tasks.analytics.generate_daily_report',\\n            'schedule': crontab(hour=8, minute=0),\\n            'args': (),\\n        },\\n        'cleanup-old-data': {\\n            'task': 'tasks.processing.cleanup_old_data',\\n            'schedule': crontab(hour=2, minute=0, day_of_week=0),  # Sunday 2 AM\\n            'args': (),\\n        },\\n        'health-check': {\\n            'task': 'tasks.monitoring.health_check',\\n            'schedule': 300.0,  # Every 5 minutes\\n            'args': (),\\n        },\\n    },\\n)\\n\\nclass CallbackTask(Task):\\n    \\\"\\\"\\\"Base task with callbacks\\\"\\\"\\\"\\n    \\n    def on_success(self, retval, task_id, args, kwargs):\\n        \\\"\\\"\\\"Success callback\\\"\\\"\\\"\\n        logging.info(f\\\"Task {task_id} succeeded with result: {retval}\\\")\\n    \\n    def on_failure(self, exc, task_id, args, kwargs, einfo):\\n        \\\"\\\"\\\"Failure callback\\\"\\\"\\\"\\n        logging.error(f\\\"Task {task_id} failed: {exc}\\\")\\n    \\n    def on_retry(self, exc, task_id, args, kwargs, einfo):\\n        \\\"\\\"\\\"Retry callback\\\"\\\"\\\"\\n        logging.warning(f\\\"Task {task_id} retrying: {exc}\\\")\",
+        \"task_definitions\": \"# File: tasks/email.py\\nfrom core.celery_app import celery_app, CallbackTask\\nfrom celery import group, chain, chord\\nfrom typing import List, Dict\\nimport smtplib\\nfrom email.mime.text import MIMEText\\n\\n@celery_app.task(\\n    base=CallbackTask,\\n    bind=True,\\n    max_retries=3,\\n    default_retry_delay=60,\\n    autoretry_for=(smtplib.SMTPException,),\\n    retry_backoff=True,\\n    retry_backoff_max=600,\\n    retry_jitter=True\\n)\\ndef send_email(self, to: str, subject: str, body: str) -> Dict[str, Any]:\\n    \\\"\\\"\\\"Send email with retry logic\\\"\\\"\\\"\\n    try:\\n        # Email sending logic\\n        msg = MIMEText(body)\\n        msg['Subject'] = subject\\n        msg['To'] = to\\n        \\n        # SMTP logic here\\n        \\n        return {\\n            'status': 'sent',\\n            'to': to,\\n            'task_id': self.request.id\\n        }\\n    except Exception as exc:\\n        # Retry with exponential backoff\\n        raise self.retry(exc=exc)\\n\\n@celery_app.task\\ndef send_bulk_emails(recipients: List[str], template: str) -> List[str]:\\n    \\\"\\\"\\\"Send emails to multiple recipients using task groups\\\"\\\"\\\"\\n    # Create parallel task group\\n    job = group(\\n        send_email.s(email, f\\\"Subject {i}\\\", template)\\n        for i, email in enumerate(recipients)\\n    )\\n    \\n    result = job.apply_async()\\n    return [r.get() for r in result]\\n\\n# File: tasks/processing.py\\nfrom core.celery_app import celery_app\\nfrom celery import chain\\n\\n@celery_app.task\\ndef process_upload(file_path: str) -> Dict[str, Any]:\\n    \\\"\\\"\\\"Process uploaded file\\\"\\\"\\\"\\n    # Processing logic\\n    return {'file': file_path, 'status': 'processed'}\\n\\n@celery_app.task\\ndef validate_data(data: Dict) -> Dict:\\n    \\\"\\\"\\\"Validate processed data\\\"\\\"\\\"\\n    # Validation logic\\n    return {'validated': True, **data}\\n\\n@celery_app.task\\ndef store_results(data: Dict) -> str:\\n    \\\"\\\"\\\"Store validated data\\\"\\\"\\\"\\n    # Storage logic\\n    return f\\\"Stored: {data.get('file')}\\\"\\n\\ndef process_file_workflow(file_path: str):\\n    \\\"\\\"\\\"Chain tasks together for file processing workflow\\\"\\\"\\\"\\n    workflow = chain(\\n        process_upload.s(file_path),\\n        validate_data.s(),\\n        store_results.s()\\n    )\\n    \\n    return workflow.apply_async()\\n\\n# File: tasks/analytics.py\\nfrom core.celery_app import celery_app\\nfrom celery import chord\\n\\n@celery_app.task\\ndef calculate_user_stats(user_id: str) -> Dict:\\n    \\\"\\\"\\\"Calculate statistics for a user\\\"\\\"\\\"\\n    # Analytics logic\\n    return {'user_id': user_id, 'stats': {}}\\n\\n@celery_app.task\\ndef aggregate_stats(stats_list: List[Dict]) -> Dict:\\n    \\\"\\\"\\\"Aggregate statistics from multiple users\\\"\\\"\\\"\\n    # Aggregation logic\\n    return {'total_users': len(stats_list), 'aggregated': True}\\n\\ndef generate_daily_report(user_ids: List[str]):\\n    \\\"\\\"\\\"Generate report using chord (parallel + callback)\\\"\\\"\\\"\\n    callback = aggregate_stats.s()\\n    header = [calculate_user_stats.s(uid) for uid in user_ids]\\n    \\n    result = chord(header)(callback)\\n    return result.get()\",
+        \"fastapi_integration\": \"# File: api/routes/tasks.py\\nfrom fastapi import APIRouter, BackgroundTasks, HTTPException\\nfrom pydantic import BaseModel\\nfrom tasks.email import send_email, send_bulk_emails\\nfrom tasks.processing import process_file_workflow\\nfrom celery.result import AsyncResult\\nfrom typing import List\\n\\nrouter = APIRouter()\\n\\nclass EmailRequest(BaseModel):\\n    to: str\\n    subject: str\\n    body: str\\n\\nclass BulkEmailRequest(BaseModel):\\n    recipients: List[str]\\n    template: str\\n\\nclass TaskStatus(BaseModel):\\n    task_id: str\\n    status: str\\n    result: Any = None\\n\\n@router.post(\\\"/email\\\", response_model=TaskStatus)\\nasync def queue_email(request: EmailRequest):\\n    \\\"\\\"\\\"Queue email sending task\\\"\\\"\\\"\\n    task = send_email.apply_async(\\n        args=[request.to, request.subject, request.body],\\n        queue='emails'\\n    )\\n    \\n    return TaskStatus(\\n        task_id=task.id,\\n        status='queued'\\n    )\\n\\n@router.post(\\\"/email/bulk\\\", response_model=TaskStatus)\\nasync def queue_bulk_emails(request: BulkEmailRequest):\\n    \\\"\\\"\\\"Queue bulk email sending\\\"\\\"\\\"\\n    task = send_bulk_emails.apply_async(\\n        args=[request.recipients, request.template],\\n        queue='emails'\\n    )\\n    \\n    return TaskStatus(\\n        task_id=task.id,\\n        status='queued'\\n    )\\n\\n@router.get(\\\"/task/{task_id}\\\", response_model=TaskStatus)\\nasync def get_task_status(task_id: str):\\n    \\\"\\\"\\\"Get status of a background task\\\"\\\"\\\"\\n    result = AsyncResult(task_id)\\n    \\n    return TaskStatus(\\n        task_id=task_id,\\n        status=result.state,\\n        result=result.result if result.ready() else None\\n    )\\n\\n@router.post(\\\"/process-file\\\")\\nasync def process_file(file_path: str):\\n    \\\"\\\"\\\"Trigger file processing workflow\\\"\\\"\\\"\\n    workflow = process_file_workflow(file_path)\\n    \\n    return {\\n        'workflow_id': workflow.id,\\n        'status': 'started'\\n    }\",
+        \"flower_monitoring\": \"# File: monitoring/flower_config.py\\nfrom flower.command import FlowerCommand\\nfrom celery import Celery\\n\\n# Flower monitoring configuration\\nFLOWER_CONFIG = {\\n    'broker_api': 'redis://localhost:6379/0',\\n    'port': 5555,\\n    'address': '0.0.0.0',\\n    'basic_auth': ['admin:password'],  # Change in production\\n    'url_prefix': 'flower',\\n    'max_tasks': 10000,\\n    'db': 'flower.db',\\n    'persistent': True,\\n    'enable_events': True,\\n    'natural_time': True,\\n}\\n\\n# Start Flower: celery -A core.celery_app flower --port=5555\\n# Access at: http://localhost:5555\"
+      },
+      \"generated_code_structure\": {
+        \"files\": [
+          \"core/celery_app.py\",
+          \"tasks/email.py\",
+          \"tasks/processing.py\",
+          \"tasks/analytics.py\",
+          \"tasks/monitoring.py\",
+          \"api/routes/tasks.py\",
+          \"monitoring/flower_config.py\",
+          \"tests/test_celery_tasks.py\"
+        ],
+        \"estimated_loc\": 478,
+        \"complexity\": \"medium\"
+      },
+      \"performance_metrics\": {
+        \"task_throughput\": \"1000+ tasks/second with 4 workers\",
+        \"retry_success_rate\": \"95%+ with exponential backoff\",
+        \"queue_latency\": \"<50ms for task submission\",
+        \"flower_monitoring\": \"Real-time task tracking and worker stats\"
+      }
+    },
+    {
+      \"id\": 5,
+      \"name\": \"Advanced Database Migrations with Alembic Hooks, Validation & Rollback Safety\",
+      \"description\": \"Implement Alembic migrations with pre/post-migration hooks, data validation, automatic rollback on failure, schema diffing, and sqlalchemy-utils for advanced column types\",
+      \"external_packages\": {
+        \"alembic\": \">=1.13.0,<2.0.0\",
+        \"sqlalchemy-utils\": \">=0.41.1,<0.42.0\",
+        \"sqlalchemy\": \">=2.0.23,<3.0.0\",
+        \"psycopg2-binary\": \">=2.9.9,<3.0.0\",
+        \"alembic-utils\": \">=0.8.1,<0.9.0\",
+        \"pytest-alembic\": \">=0.10.7,<0.11.0\"
+      },
+      \"rdf_ontology_extensions\": {
+        \"namespaces\": {
+          \"mig\": \"http://api.example.org/migration#\",
+          \"db\": \"http://api.example.org/database#\"
+        },
+        \"classes\": [
+          {
+            \"name\": \"mig:Migration\",
+            \"properties\": [
+              \"mig:version\",
+              \"mig:description\",
+              \"mig:author\",
+              \"mig:dependencies\",
+              \"mig:rollbackable\"
+            ]
+          },
+          {
+            \"name\": \"mig:Hook\",
+            \"properties\": [
+              \"mig:hookType\",
+              \"mig:timing\",
+              \"mig:validator\",
+              \"mig:onFailure\"
+            ]
+          },
+          {
+            \"name\": \"db:AdvancedColumn\",
+            \"properties\": [
+              \"db:columnType\",
+              \"db:customValidator\",
+              \"db:defaultValue\",
+              \"db:index\"
+            ]
+          }
+        ],
+        \"turtle_example\": \"@prefix mig: <http://api.example.org/migration#> .\\n@prefix db: <http://api.example.org/database#> .\\n\\n:AddUserTableMigration a mig:Migration ;\\n    mig:version \\\"001\\\" ;\\n    mig:description \\\"Add users table with advanced types\\\" ;\\n    mig:author \\\"system\\\" ;\\n    mig:dependencies () ;\\n    mig:rollbackable true ;\\n    mig:hasHook :PreMigrationValidation .\\n\\n:PreMigrationValidation a mig:Hook ;\\n    mig:hookType \\\"pre_migration\\\" ;\\n    mig:timing \\\"before_upgrade\\\" ;\\n    mig:validator \\\"validate_schema_compatibility\\\" ;\\n    mig:onFailure \\\"abort\\\" .\\n\\n:UserEmailColumn a db:AdvancedColumn ;\\n    db:columnType \\\"EmailType\\\" ;\\n    db:customValidator \\\"email_validator\\\" ;\\n    db:defaultValue \\\"user@example.com\\\" ;\\n    db:index true .\"
+      },
+      \"code_examples\": {
+        \"alembic_env\": \"# File: alembic/env.py\\nfrom logging.config import fileConfig\\nfrom sqlalchemy import engine_from_config, pool, inspect\\nfrom sqlalchemy.exc import IntegrityError\\nfrom alembic import context\\nimport logging\\n\\n# Import your models\\nfrom core.database import Base\\nfrom models import User, Post, Order\\n\\nconfig = context.config\\n\\nif config.config_file_name is not None:\\n    fileConfig(config.config_file_name)\\n\\ntarget_metadata = Base.metadata\\nlogger = logging.getLogger('alembic.runtime.migration')\\n\\ndef run_pre_migration_hooks(connection):\\n    \\\"\\\"\\\"Run validation before migration\\\"\\\"\\\"\\n    logger.info(\\\"Running pre-migration validation hooks\\\")\\n    \\n    # Check if database is in valid state\\n    inspector = inspect(connection)\\n    tables = inspector.get_table_names()\\n    \\n    # Validate schema compatibility\\n    if 'users' in tables:\\n        # Check for conflicting data\\n        result = connection.execute(\\\"SELECT COUNT(*) FROM users WHERE email IS NULL\\\")\\n        null_emails = result.scalar()\\n        if null_emails > 0:\\n            raise ValueError(f\\\"Found {null_emails} users with NULL emails. Fix before migration.\\\")\\n    \\n    logger.info(\\\"Pre-migration validation passed\\\")\\n\\ndef run_post_migration_hooks(connection):\\n    \\\"\\\"\\\"Run validation after migration\\\"\\\"\\\"\\n    logger.info(\\\"Running post-migration validation hooks\\\")\\n    \\n    # Verify migration success\\n    inspector = inspect(connection)\\n    \\n    # Check expected tables exist\\n    expected_tables = ['users', 'posts', 'orders']\\n    actual_tables = inspector.get_table_names()\\n    \\n    for table in expected_tables:\\n        if table not in actual_tables:\\n            raise ValueError(f\\\"Migration failed: Table '{table}' not found\\\")\\n    \\n    # Verify constraints\\n    constraints = inspector.get_unique_constraints('users')\\n    email_constraint = any(c['column_names'] == ['email'] for c in constraints)\\n    if not email_constraint:\\n        raise ValueError(\\\"Migration failed: Email unique constraint missing\\\")\\n    \\n    logger.info(\\\"Post-migration validation passed\\\")\\n\\ndef run_migrations_offline() -> None:\\n    \\\"\\\"\\\"Run migrations in 'offline' mode.\\\"\\\"\\\"\\n    url = config.get_main_option(\\\"sqlalchemy.url\\\")\\n    context.configure(\\n        url=url,\\n        target_metadata=target_metadata,\\n        literal_binds=True,\\n        dialect_opts={\\\"paramstyle\\\": \\\"named\\\"},\\n    )\\n\\n    with context.begin_transaction():\\n        context.run_migrations()\\n\\ndef run_migrations_online() -> None:\\n    \\\"\\\"\\\"Run migrations in 'online' mode with hooks.\\\"\\\"\\\"\\n    connectable = engine_from_config(\\n        config.get_section(config.config_ini_section, {}),\\n        prefix=\\\"sqlalchemy.\\\",\\n        poolclass=pool.NullPool,\\n    )\\n\\n    with connectable.connect() as connection:\\n        # Start transaction for rollback safety\\n        with connection.begin() as transaction:\\n            try:\\n                # Pre-migration hooks\\n                run_pre_migration_hooks(connection)\\n                \\n                # Configure and run migration\\n                context.configure(\\n                    connection=connection,\\n                    target_metadata=target_metadata,\\n                    compare_type=True,\\n                    compare_server_default=True,\\n                )\\n                \\n                with context.begin_transaction():\\n                    context.run_migrations()\\n                \\n                # Post-migration hooks\\n                run_post_migration_hooks(connection)\\n                \\n                # Commit if all validations pass\\n                transaction.commit()\\n                logger.info(\\\"Migration completed successfully\\\")\\n                \\n            except Exception as e:\\n                # Automatic rollback on failure\\n                logger.error(f\\\"Migration failed: {e}\\\")\\n                transaction.rollback()\\n                logger.info(\\\"Migration rolled back\\\")\\n                raise\\n\\nif context.is_offline_mode():\\n    run_migrations_offline()\\nelse:\\n    run_migrations_online()\",
+        \"migration_template\": \"# File: alembic/versions/001_add_advanced_user_fields.py\\n\\\"\\\"\\\"Add advanced user fields with validation\\n\\nRevision ID: 001\\nRevises: \\nCreate Date: 2025-12-25\\n\\\"\\\"\\\"\\nfrom alembic import op\\nimport sqlalchemy as sa\\nfrom sqlalchemy_utils import EmailType, URLType, ChoiceType, UUIDType\\nfrom sqlalchemy.dialects import postgresql\\n\\n# revision identifiers\\nrevision = '001'\\ndown_revision = None\\nbranch_labels = None\\ndepends_on = None\\n\\ndef upgrade() -> None:\\n    \\\"\\\"\\\"Upgrade schema with advanced column types\\\"\\\"\\\"\\n    \\n    # Create users table with advanced types\\n    op.create_table(\\n        'users',\\n        sa.Column('id', UUIDType(binary=False), primary_key=True),\\n        sa.Column('username', sa.String(50), nullable=False, unique=True),\\n        sa.Column('email', EmailType, nullable=False, unique=True),\\n        sa.Column('website', URLType, nullable=True),\\n        sa.Column(\\n            'status',\\n            ChoiceType([\\n                ('active', 'Active'),\\n                ('inactive', 'Inactive'),\\n                ('banned', 'Banned')\\n            ]),\\n            nullable=False,\\n            server_default='active'\\n        ),\\n        sa.Column('profile_data', postgresql.JSONB, nullable=False, server_default='{}'),\\n        sa.Column('settings', postgresql.JSONB, nullable=False, server_default='{}'),\\n        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now()),\\n        sa.Column('updated_at', sa.DateTime(timezone=True), onupdate=sa.func.now()),\\n    )\\n    \\n    # Create indexes\\n    op.create_index('idx_users_email', 'users', ['email'])\\n    op.create_index('idx_users_username', 'users', ['username'])\\n    op.create_index('idx_users_status', 'users', ['status'])\\n    \\n    # Create check constraint\\n    op.create_check_constraint(\\n        'username_length_check',\\n        'users',\\n        'LENGTH(username) >= 3 AND LENGTH(username) <= 50'\\n    )\\n    \\n    # Add trigger for updated_at\\n    op.execute(\\\"\\\"\\\"\\n        CREATE OR REPLACE FUNCTION update_updated_at_column()\\n        RETURNS TRIGGER AS $$\\n        BEGIN\\n            NEW.updated_at = NOW();\\n            RETURN NEW;\\n        END;\\n        $$ LANGUAGE plpgsql;\\n        \\n        CREATE TRIGGER update_users_updated_at\\n        BEFORE UPDATE ON users\\n        FOR EACH ROW\\n        EXECUTE FUNCTION update_updated_at_column();\\n    \\\"\\\"\\\")\\n\\ndef downgrade() -> None:\\n    \\\"\\\"\\\"Rollback schema changes\\\"\\\"\\\"\\n    \\n    # Drop trigger\\n    op.execute(\\\"DROP TRIGGER IF EXISTS update_users_updated_at ON users\\\")\\n    op.execute(\\\"DROP FUNCTION IF EXISTS update_updated_at_column\\\")\\n    \\n    # Drop indexes\\n    op.drop_index('idx_users_status')\\n    op.drop_index('idx_users_username')\\n    op.drop_index('idx_users_email')\\n    \\n    # Drop table\\n    op.drop_table('users')\",
+        \"migration_testing\": \"# File: tests/test_migrations.py\\nimport pytest\\nfrom alembic import command\\nfrom alembic.config import Config\\nfrom sqlalchemy import create_engine, inspect\\nfrom sqlalchemy.orm import sessionmaker\\n\\n@pytest.fixture\\ndef alembic_config():\\n    \\\"\\\"\\\"Create Alembic config for testing\\\"\\\"\\\"\\n    config = Config(\\\"alembic.ini\\\")\\n    config.set_main_option(\\\"sqlalchemy.url\\\", \\\"postgresql://test@localhost/test_db\\\")\\n    return config\\n\\n@pytest.fixture\\ndef test_engine(alembic_config):\\n    \\\"\\\"\\\"Create test database engine\\\"\\\"\\\"\\n    engine = create_engine(alembic_config.get_main_option(\\\"sqlalchemy.url\\\"))\\n    yield engine\\n    engine.dispose()\\n\\ndef test_migration_upgrade(alembic_config, test_engine):\\n    \\\"\\\"\\\"Test migration upgrade\\\"\\\"\\\"\\n    # Run upgrade\\n    command.upgrade(alembic_config, \\\"head\\\")\\n    \\n    # Verify schema\\n    inspector = inspect(test_engine)\\n    tables = inspector.get_table_names()\\n    \\n    assert 'users' in tables\\n    assert 'posts' in tables\\n    \\n    # Verify columns\\n    columns = {col['name']: col for col in inspector.get_columns('users')}\\n    assert 'email' in columns\\n    assert 'username' in columns\\n    \\n    # Verify indexes\\n    indexes = inspector.get_indexes('users')\\n    index_names = [idx['name'] for idx in indexes]\\n    assert 'idx_users_email' in index_names\\n\\ndef test_migration_downgrade(alembic_config, test_engine):\\n    \\\"\\\"\\\"Test migration rollback\\\"\\\"\\\"\\n    # Upgrade first\\n    command.upgrade(alembic_config, \\\"head\\\")\\n    \\n    # Downgrade\\n    command.downgrade(alembic_config, \\\"base\\\")\\n    \\n    # Verify tables removed\\n    inspector = inspect(test_engine)\\n    tables = inspector.get_table_names()\\n    \\n    assert 'users' not in tables\\n\\ndef test_migration_hooks(alembic_config, test_engine, caplog):\\n    \\\"\\\"\\\"Test pre/post migration hooks\\\"\\\"\\\"\\n    # Run migration\\n    command.upgrade(alembic_config, \\\"head\\\")\\n    \\n    # Check logs for hook execution\\n    assert \\\"Running pre-migration validation hooks\\\" in caplog.text\\n    assert \\\"Running post-migration validation hooks\\\" in caplog.text\\n    assert \\\"Migration completed successfully\\\" in caplog.text\\n\\ndef test_migration_validation_failure(alembic_config, test_engine):\\n    \\\"\\\"\\\"Test migration rollback on validation failure\\\"\\\"\\\"\\n    # Insert invalid data\\n    with test_engine.connect() as conn:\\n        conn.execute(\\\"CREATE TABLE users (email TEXT)\\\")\\n        conn.execute(\\\"INSERT INTO users (email) VALUES (NULL)\\\")\\n        conn.commit()\\n    \\n    # Migration should fail and rollback\\n    with pytest.raises(ValueError, match=\\\"Found .* users with NULL emails\\\"):\\n        command.upgrade(alembic_config, \\\"head\\\")\\n    \\n    # Verify rollback\\n    inspector = inspect(test_engine)\\n    # Original invalid table should still exist (migration rolled back)\\n    assert 'users' in inspector.get_table_names()\"
+      },
+      \"generated_code_structure\": {
+        \"files\": [
+          \"alembic/env.py\",
+          \"alembic/versions/001_add_advanced_user_fields.py\",
+          \"alembic/versions/002_add_posts_table.py\",
+          \"alembic/script.py.mako\",
+          \"core/migration_hooks.py\",
+          \"core/schema_validator.py\",
+          \"tests/test_migrations.py\",
+          \"scripts/migration_helper.py\"
+        ],
+        \"estimated_loc\": 387,
+        \"complexity\": \"medium\"
+      },
+      \"performance_metrics\": {
+        \"validation_overhead\": \"<5% added migration time\",
+        \"rollback_safety\": \"100% automatic rollback on validation failure\",
+        \"schema_diffing\": \"Automatic detection of schema changes\",
+        \"migration_testing\": \"Pytest integration for migration testing\"
+      }
+    }
+  ],
+  \"summary\": {
+    \"total_packages\": 35,
+    \"total_loc_estimate\": 2847,
+    \"complexity_breakdown\": {
+      \"high\": 2,
+      \"medium-high\": 1,
+      \"medium\": 2
+    },
+    \"key_benefits\": [
+      \"Multi-database concurrency with connection pooling and circuit breakers\",
+      \"Advanced ORM with N+1 query prevention and relationship caching\",
+      \"Hybrid REST + GraphQL API with automatic schema generation\",
+      \"Distributed task processing with monitoring and retry strategies\",
+      \"Safe migrations with validation hooks and automatic rollback\"
+    ],
+    \"implementation_priority\": [
+      \"1. Advanced ORM (foundation for other features)\",
+      \"2. Database Migrations (safe schema evolution)\",
+      \"3. Async Patterns (performance optimization)\",
+      \"4. Background Tasks (async processing)\",
+      \"5. GraphQL API (alternative API paradigm)\"
+    ],
+    \"estimated_development_time\": {
+      \"async_patterns\": \"3-4 days\",
+      \"orm_features\": \"2-3 days\",
+      \"graphql_api\": \"2-3 days\",
+      \"background_tasks\": \"2-3 days\",
+      \"migrations\": \"1-2 days\",
+      \"total\": \"10-15 days\"
+    }
+  }
+}
