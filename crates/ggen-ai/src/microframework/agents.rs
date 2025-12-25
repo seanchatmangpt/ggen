@@ -10,7 +10,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 /// Agent role classification
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum AgentRole {
     /// Code generation agent
     CodeGenerator,
@@ -50,7 +50,7 @@ pub trait MicroAgent: Send + Sync + std::fmt::Debug {
 }
 
 /// Code generation agent
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CodeGenAgent {
     /// Agent name
     pub name: String,
@@ -100,6 +100,12 @@ impl CodeGenAgent {
     }
 }
 
+impl Default for CodeGenAgent {
+    fn default() -> Self {
+        Self::new("code-gen")
+    }
+}
+
 #[async_trait]
 impl MicroAgent for CodeGenAgent {
     fn name(&self) -> &str {
@@ -135,7 +141,7 @@ impl MicroAgent for CodeGenAgent {
 }
 
 /// Testing agent
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TesterAgent {
     /// Agent name
     pub name: String,
@@ -183,6 +189,12 @@ impl TesterAgent {
     }
 }
 
+impl Default for TesterAgent {
+    fn default() -> Self {
+        Self::new("tester")
+    }
+}
+
 #[async_trait]
 impl MicroAgent for TesterAgent {
     fn name(&self) -> &str {
@@ -217,7 +229,7 @@ impl MicroAgent for TesterAgent {
 }
 
 /// Code review agent
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReviewerAgent {
     /// Agent name
     pub name: String,
@@ -257,6 +269,12 @@ impl ReviewerAgent {
     }
 }
 
+impl Default for ReviewerAgent {
+    fn default() -> Self {
+        Self::new("reviewer")
+    }
+}
+
 #[async_trait]
 impl MicroAgent for ReviewerAgent {
     fn name(&self) -> &str {
@@ -291,7 +309,7 @@ impl MicroAgent for ReviewerAgent {
 }
 
 /// Validation agent
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ValidatorAgent {
     /// Agent name
     pub name: String,
@@ -306,6 +324,12 @@ impl ValidatorAgent {
             name: name.to_string(),
             rules: vec!["syntax".to_string(), "types".to_string(), "lint".to_string()],
         }
+    }
+}
+
+impl Default for ValidatorAgent {
+    fn default() -> Self {
+        Self::new("validator")
     }
 }
 
@@ -342,7 +366,7 @@ impl MicroAgent for ValidatorAgent {
 }
 
 /// RDF processing agent
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RdfProcessorAgent {
     /// Agent name
     pub name: String,
@@ -360,6 +384,12 @@ impl RdfProcessorAgent {
                 "http://www.w3.org/2002/07/owl#".to_string(),
             ],
         }
+    }
+}
+
+impl Default for RdfProcessorAgent {
+    fn default() -> Self {
+        Self::new("rdf-processor")
     }
 }
 
@@ -396,7 +426,7 @@ impl MicroAgent for RdfProcessorAgent {
 }
 
 /// Template generation agent
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TemplateGenAgent {
     /// Agent name
     pub name: String,
@@ -411,6 +441,12 @@ impl TemplateGenAgent {
             name: name.to_string(),
             engine: "tera".to_string(),
         }
+    }
+}
+
+impl Default for TemplateGenAgent {
+    fn default() -> Self {
+        Self::new("template-gen")
     }
 }
 

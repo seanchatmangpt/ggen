@@ -174,7 +174,13 @@ impl TaskGraph {
     }
 
     /// Get the critical path (longest dependency chain)
-    pub fn critical_path(&self) -> Vec<String> {
+    ///
+    /// Returns `Err` if the graph contains cycles, preventing critical path computation.
+    /// For valid acyclic graphs, returns the longest path through the dependency chain.
+    pub fn critical_path(&self) -> Result<Vec<String>> {
+        // Get topological order - propagates cycle error
+        let waves = self.topological_sort()?;
+
         let mut distances: HashMap<String, usize> = HashMap::new();
         let mut predecessors: HashMap<String, Option<String>> = HashMap::new();
 
@@ -184,17 +190,15 @@ impl TaskGraph {
             predecessors.insert(task_id.clone(), None);
         }
 
-        // Get topological order
-        if let Ok(waves) = self.topological_sort() {
-            for wave in waves {
-                for task_id in wave {
-                    if let Some(deps) = self.dependencies.get(&task_id) {
-                        for dep in deps {
-                            let new_dist = distances.get(dep).copied().unwrap_or(0) + 1;
-                            if new_dist > *distances.get(&task_id).unwrap_or(&0) {
-                                distances.insert(task_id.clone(), new_dist);
-                                predecessors.insert(task_id.clone(), Some(dep.clone()));
-                            }
+        // Compute longest path distances using topological order
+        for wave in waves {
+            for task_id in wave {
+                if let Some(deps) = self.dependencies.get(&task_id) {
+                    for dep in deps {
+                        let new_dist = distances.get(dep).copied().unwrap_or(0) + 1;
+                        if new_dist > *distances.get(&task_id).unwrap_or(&0) {
+                            distances.insert(task_id.clone(), new_dist);
+                            predecessors.insert(task_id.clone(), Some(dep.clone()));
                         }
                     }
                 }
@@ -218,7 +222,7 @@ impl TaskGraph {
         }
 
         path.reverse();
-        path
+        Ok(path)
     }
 
     /// Get maximum parallelism (width of the widest wave)
@@ -299,21 +303,25 @@ pub struct GraphStats {
 
 impl TaskGraph {
     /// Get graph statistics
-    pub fn stats(&self) -> GraphStats {
+    ///
+    /// Returns `Err` if the graph contains cycles.
+    pub fn stats(&self) -> Result<GraphStats> {
         let edge_count: usize = self.dependencies
             .values()
             .map(|deps| deps.len())
             .sum();
 
-        let waves = self.topological_sort().unwrap_or_default();
+        // Propagate cycle errors instead of silently masking them
+        let waves = self.topological_sort()?;
+        let critical_path = self.critical_path()?;
 
-        GraphStats {
+        Ok(GraphStats {
             task_count: self.tasks.len(),
             edge_count,
             max_parallelism: waves.iter().map(|w| w.len()).max().unwrap_or(0),
-            critical_path_length: self.critical_path().len(),
+            critical_path_length: critical_path.len(),
             wave_count: waves.len(),
-        }
+        })
     }
 }
 
@@ -414,8 +422,32 @@ mod tests {
         graph.add_dependency("c", "b");
         graph.add_dependency("d", "a");
 
-        let path = graph.critical_path();
+        let path = graph.critical_path().unwrap();
         assert_eq!(path.len(), 3);
+    }
+
+    #[test]
+    fn test_critical_path_cycle_error() {
+        let mut graph = TaskGraph::new();
+        graph.add_task(create_task("a"));
+        graph.add_task(create_task("b"));
+        graph.add_dependency("a", "b");
+        graph.add_dependency("b", "a");
+
+        // critical_path should return error for cyclic graphs
+        assert!(graph.critical_path().is_err());
+    }
+
+    #[test]
+    fn test_stats_cycle_error() {
+        let mut graph = TaskGraph::new();
+        graph.add_task(create_task("a"));
+        graph.add_task(create_task("b"));
+        graph.add_dependency("a", "b");
+        graph.add_dependency("b", "a");
+
+        // stats should return error for cyclic graphs
+        assert!(graph.stats().is_err());
     }
 
     #[test]

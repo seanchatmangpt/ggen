@@ -93,22 +93,25 @@ impl CircuitBreaker {
     }
 
     /// Check if circuit is open (blocking requests)
+    ///
+    /// Uses single write lock to prevent TOCTOU race conditions during state transitions.
     pub fn is_open(&self, agent_id: &str) -> bool {
         let circuit = self
             .circuits
             .entry(agent_id.to_string())
             .or_insert_with(AgentCircuit::new);
 
-        let state = *circuit.state.read();
+        // Use single write lock for atomic check-and-transition (prevents TOCTOU)
+        let mut state = circuit.state.write();
+        let mut last_change = circuit.last_state_change.write();
 
-        match state {
+        match *state {
             CircuitState::Open => {
                 // Check if we should transition to half-open
-                let last_change = *circuit.last_state_change.read();
                 if last_change.elapsed() >= Duration::from_secs(self.reset_timeout_secs) {
-                    // Transition to half-open
-                    *circuit.state.write() = CircuitState::HalfOpen;
-                    *circuit.last_state_change.write() = Instant::now();
+                    // Atomic transition to half-open
+                    *state = CircuitState::HalfOpen;
+                    *last_change = Instant::now();
                     circuit.half_open_successes.store(0, Ordering::Relaxed);
                     info!("Circuit for {} transitioning to half-open", agent_id);
                     false
@@ -121,6 +124,8 @@ impl CircuitBreaker {
     }
 
     /// Record a successful execution
+    ///
+    /// Uses single write lock for atomic state transitions (prevents TOCTOU).
     pub fn record_success(&self, agent_id: &str) {
         let circuit = self
             .circuits
@@ -129,8 +134,9 @@ impl CircuitBreaker {
 
         circuit.total_successes.fetch_add(1, Ordering::Relaxed);
 
-        let state = *circuit.state.read();
-        match state {
+        // Use single write lock for atomic check-and-transition
+        let mut state = circuit.state.write();
+        match *state {
             CircuitState::Closed => {
                 // Reset failure count on success
                 circuit.failure_count.store(0, Ordering::Relaxed);
@@ -138,8 +144,8 @@ impl CircuitBreaker {
             CircuitState::HalfOpen => {
                 let successes = circuit.half_open_successes.fetch_add(1, Ordering::Relaxed) + 1;
                 if successes >= self.half_open_success_threshold {
-                    // Transition to closed
-                    *circuit.state.write() = CircuitState::Closed;
+                    // Atomic transition to closed
+                    *state = CircuitState::Closed;
                     *circuit.last_state_change.write() = Instant::now();
                     circuit.failure_count.store(0, Ordering::Relaxed);
                     info!("Circuit for {} closed after recovery", agent_id);
@@ -153,6 +159,8 @@ impl CircuitBreaker {
     }
 
     /// Record a failed execution
+    ///
+    /// Uses single write lock for atomic state transitions (prevents TOCTOU).
     pub fn record_failure(&self, agent_id: &str) {
         let circuit = self
             .circuits
@@ -162,13 +170,14 @@ impl CircuitBreaker {
         circuit.total_failures.fetch_add(1, Ordering::Relaxed);
         *circuit.last_failure.write() = Some(Instant::now());
 
-        let state = *circuit.state.read();
-        match state {
+        // Use single write lock for atomic check-and-transition
+        let mut state = circuit.state.write();
+        match *state {
             CircuitState::Closed => {
                 let failures = circuit.failure_count.fetch_add(1, Ordering::Relaxed) + 1;
                 if failures >= self.failure_threshold {
-                    // Open the circuit
-                    *circuit.state.write() = CircuitState::Open;
+                    // Atomic transition to open
+                    *state = CircuitState::Open;
                     *circuit.last_state_change.write() = Instant::now();
                     warn!(
                         "Circuit for {} opened after {} failures",
@@ -177,8 +186,8 @@ impl CircuitBreaker {
                 }
             }
             CircuitState::HalfOpen => {
-                // Any failure in half-open returns to open
-                *circuit.state.write() = CircuitState::Open;
+                // Any failure in half-open returns to open (atomic)
+                *state = CircuitState::Open;
                 *circuit.last_state_change.write() = Instant::now();
                 circuit.half_open_successes.store(0, Ordering::Relaxed);
                 warn!("Circuit for {} re-opened after half-open failure", agent_id);
