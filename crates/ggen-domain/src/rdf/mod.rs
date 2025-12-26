@@ -8,13 +8,18 @@
 //! - Pure domain logic (no CLI coupling)
 //! - Async support preserved for domain layer operations
 //! - All SPARQL queries and RDF parsing logic maintained
+//! - Six Sigma quality integration for ontology quality management
 
 pub mod metadata;
 pub mod schema;
+pub mod six_sigma_integration;
 pub mod validation;
 
 pub use metadata::{
     TemplateMetadata, TemplateMetadataStore, TemplateRelationship, TemplateVariable,
 };
 pub use schema::{GgenOntology, GGEN_NAMESPACE};
+pub use six_sigma_integration::{
+    QualityRecommendation, QualityStatus, SixSigmaValidationReport, SixSigmaValidator,
+};
 pub use validation::{ValidationReport, ValidationResult, Validator};
