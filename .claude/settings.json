@@ -1,0 +1,127 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Edit",
+      "Write",
+      "Glob",
+      "Grep",
+      "Bash(cargo make:*)",
+      "Bash(git:*)",
+      "Bash(cargo add:*)",
+      "Task"
+    ],
+    "deny": [
+      ".env",
+      "secrets.json",
+      "*.pem",
+      "private_keys/",
+      ".anthropic/",
+      ".github/workflows/secrets.yml"
+    ],
+    "ask": [
+      "Bash(rm:*)",
+      "Bash(mv:*)",
+      "Bash(force-push:*)"
+    ],
+    "additional_directories": [
+      "docs/",
+      "benches/",
+      ".specify/"
+    ],
+    "default_mode": "allow"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.claude/hooks/session-start.sh",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.claude/hooks/pre-tool-safety-check.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.claude/hooks/post-bash-validation.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Before stopping, verify: Did all tests pass (cargo make test)? Did cargo make lint succeed? Are there uncommitted changes? If issues exist, respond with reasoning on what should be fixed.",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.claude/hooks/user-prompt-validation.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
+  "environment": {
+    "env": {
+      "RUST_BACKTRACE": "1",
+      "RUST_LOG": "info",
+      "CARGO_TERM_COLOR": "always",
+      "NODE_ENV": "development"
+    },
+    "api_key_helper": "./.claude/helpers/api-key-helper.sh"
+  },
+  "tools_and_model": {
+    "model": "claude-opus-4-5",
+    "output_style": "structured"
+  },
+  "status_line": {
+    "enabled": true,
+    "format": "ggen:${branch} | ${crate_count} crates | SLO ✓"
+  },
+  "plugins": {
+    "enabled_plugins": [
+      "rust-analyzer",
+      "cargo-clippy",
+      "test-runner"
+    ]
+  },
+  "project_metadata": {
+    "name": "ggen",
+    "version": "5.0.2",
+    "description": "Language-agnostic, deterministic code generation CLI. Ontologies + RDF → reproducible code projections.",
+    "philosophy": "Type-first thinking, zero-cost abstractions, memory safety, deterministic outputs",
+    "required_reading": "Read CLAUDE.md before starting work"
+  }
+}

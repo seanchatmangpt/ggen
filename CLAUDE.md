@@ -585,6 +585,288 @@ ggen render .specify/templates/spec.tera .specify/specs/NNN-feature/feature.ttl 
 
 ---
 
+---
+
+## 🏗️ CODEBASE ARCHITECTURE (2025 Edition)
+
+### Project Status
+- **Version**: 5.0.2 (Enterprise-grade path protection & FMEA validation)
+- **Rust**: 1.91.1 (installed), MSRV: 1.74+ (effectively 1.75+), Edition 2021
+- **Repository**: https://github.com/seanchatmangpt/ggen
+- **License**: MIT
+
+### Workspace Structure (16 Crates)
+
+#### Core Infrastructure
+- **ggen-core** (primary logic): Graph-aware code generation engine, RDF processing, caching, template management
+- **ggen-utils** (shared): Error handling, logging, configuration, utilities
+- **ggen-domain** (business logic): CLI-agnostic domain layer, concurrent agent architecture
+- **ggen-config** (types): Configuration management types, validation
+- **ggen-config-clap** (integration): TOML→clap bridge
+- **ggen-cli-validation** (security): IO validation, path traversal prevention, input sanitization
+
+#### User-Facing
+- **ggen-cli**: Main CLI interface (entry points: main.rs, lib.rs)
+- **ggen-ai**: LLM integration layer (OpenAI, Anthropic, Ollama, multi-provider via genai)
+
+#### Advanced Features
+- **ggen-marketplace** (20K lines): Package registry, discovery, FMEA-based dependency management, v3→v4 migration
+- **ggen-test-audit**: Mutation testing, assertion analysis, test quality metrics
+- **ggen-test-opt**: Test optimization tooling, concurrency analysis
+- **ggen-e2e**: End-to-end testing with testcontainers (Feature 011)
+- **ggen-node**: Node.js/WASM bindings
+
+#### Utilities & Metaprogramming
+- **ggen-macros**: Procedural macros (guards, bundles, command discovery)
+- **ggen-dod**: Data-Oriented Design utilities
+
+### Technology Stack (Current Versions)
+
+**Async & Concurrency**:
+- `tokio 1.47` (full features: macros, net, sync, time, rt-multi-thread)
+- `rayon 1.11` (data-parallel iterators)
+- `futures 0.3`, `futures-util 0.3`, `async-trait 0.1`
+- `lru 0.16` (LRU caching with async support)
+
+**RDF & Ontologies**:
+- `oxigraph 0.5.1` (RDF store, SPARQL queries, triple processing)
+- `tera 1.20` (template engine for code generation)
+
+**Serialization**:
+- `serde 1.0` + `serde_derive`, `serde_json 1.0`, `serde_yaml 0.9`, `toml 0.9`
+
+**Error Handling**:
+- `thiserror 2.0` (custom error types with derive)
+- `anyhow 1.0` (context-aware error propagation)
+
+**CLI Framework**:
+- `clap 4.5` (derive-based argument parsing)
+- `clap-noun-verb 5.3.4` + `clap-noun-verb-macros 5.3.4` (auto-command discovery)
+- `linkme 0.3` (linker plugin for command registry)
+
+**Validation & Security**:
+- `glob 0.3` (path pattern matching for protection)
+- `regex 1.12`, `typed-path` (path safety)
+- `pqcrypto-mldsa 0.1` (Post-Quantum Cryptography, NIST ML-DSA)
+- `sha2 0.10`, `hex 0.4`, `base64 0.22` (cryptographic operations)
+
+**Testing** (Chicago TDD + London TDD):
+- `chicago-tdd-tools 1.4.0` (state-based testing, AAA pattern)
+- `proptest 1.8` (property-based testing)
+- `criterion 0.7` (benchmarking with HTML reports)
+- `testcontainers 0.25`, `testcontainers-modules 0.13` (E2E with containers)
+- `assert_cmd 2.0`, `assert_fs 1.1` (CLI testing)
+- `mockall 0.13`, `mockito 1.7` (London TDD mocking, test-only)
+- `insta 1.43` (snapshot testing)
+
+**LLM Integration**:
+- `genai 0.4` (multi-provider abstraction: OpenAI, Anthropic, Ollama)
+- `reqwest 0.12` (async HTTP)
+
+**Observability**:
+- `opentelemetry 0.21` + `opentelemetry-otlp 0.14`, `opentelemetry_sdk 0.21`
+- `tracing 0.1`, `tracing-opentelemetry 0.22`, `tracing-subscriber 0.3` (json, env-filter, ansi)
+- `log 0.4.28`, `env_logger 0.11`
+
+**UI & Output**:
+- `indicatif 0.18` (progress bars)
+- `console 0.16`, `colored 3.0` (terminal colors/styling)
+
+**Utilities**:
+- `chrono 0.4` (time utilities)
+- `uuid 1.18` (v4, serde)
+- `tempfile 3.23`, `walkdir 2.5`, `dirs 6.0`
+- `semver 1.0`, `num_cpus 1.17`
+- `git2 0.20` (vendored libgit2, https)
+
+### Build System (Poka-Yoke via Makefile.toml, 68K+ lines)
+
+**Core Philosophy**: Error-proofing mechanisms from Toyota Production System
+
+**Key Targets**:
+```
+FAST FEEDBACK LOOP          FULL VALIDATION
+├─ cargo make check (5s)    ├─ cargo make test (30s timeout)
+├─ cargo make test-unit     ├─ cargo make pre-commit (<60s)
+├─ cargo make lint (60s)    └─ cargo make ci (full pipeline)
+
+QUALITY ASSURANCE          PERFORMANCE
+├─ cargo make speckit-*     ├─ cargo make slo-check
+└─ cargo make timeout-check └─ cargo make bench (14 suites)
+```
+
+**Poka-Yoke Mechanisms**:
+1. **Timeout Enforcement**: All targets have timeouts; SLOs: check <5s, test <30s, lint <60s
+2. **Warnings as Errors**: RUSTFLAGS="-D warnings" enforces zero-warning builds
+3. **Quality Gates**: pre-commit depends on [check, lint, test-unit]
+4. **Andon Signal Escalation**: Quick timeout → escalation timeout on lock contention
+5. **SLO Violation Detection**: Every target documents purpose, when, SLO, examples, recovery
+
+**Lint Configuration**:
+```
+[workspace.lints.rust]
+- warnings = "deny"
+- unsafe_code = "deny"
+- missing_docs = "warn"
+
+[workspace.lints.clippy]
+- all = { level = "deny" }
+- pedantic = { level = "deny" }
+- nursery = { level = "deny" }
+- cargo = { level = "deny" }
+- unwrap_used = "deny" (CRITICAL)
+- expect_used = "deny" (CRITICAL)
+- panic = "deny", todo = "deny", unimplemented = "deny"
+- multiple_crate_versions = "allow" (complex dependency tree)
+```
+
+### Testing Approach (Chicago TDD + Property-Based)
+
+**Philosophy**: State-based testing with real objects (NOT mocks except in London TDD)
+
+**Organization**:
+- **Unit Tests**: Inline #[test] blocks in src/ (chicago-tdd-tools 1.4.0)
+- **Integration Tests**: crates/*/tests/ and tests/ (proptest, assert_cmd/assert_fs)
+- **E2E Tests**: ggen-e2e/tests/ with testcontainers (Linux + macOS native)
+- **Snapshots**: insta 1.43 for golden file comparison
+- **Benchmarks**: 14 criterion suites in benches/ with HTML reports
+
+**Benchmark Suites**:
+- runtime_overhead, async_runtime_benchmarks, memory_profiling
+- quick_runtime_validation, conventions_performance, marketplace_performance
+- pipeline_performance, cli_startup_performance, comprehensive_slo_benchmarks
+- v2_performance, marketplace_v2_benchmarks, fortune500_performance
+
+**Test Quality Features**:
+- Mutation testing via cargo-mutants (ggen-test-audit)
+- Assertion analysis & false-positive detection (ggen-test-audit)
+- London TDD mocking ONLY in #[cfg(test)] blocks
+
+### Code Organization Patterns
+
+**Error Handling Pattern** (Type-First):
+```rust
+#[derive(thiserror::Error, Debug)]
+pub enum Error {
+    #[error("Validation failed: {0}")]
+    ValidationError(String),
+    #[error("RDF error: {0}")]
+    RdfError(String),
+}
+pub type Result<T> = std::result::Result<T, Error>;
+```
+Production code: NO unwrap/expect. Test code: unwrap/expect ALLOWED.
+
+**Module Organization** (ggen-core example):
+```
+src/
+├── lib.rs (root, public API)
+├── cache.rs, template.rs, tera_env.rs (generation)
+├── types/ (path_protection, fmea, codeowners, enterprise)
+├── poka_yoke/ (path protection, input validation)
+├── prevention/ (error prevention, Andon signals)
+├── validation/ (SPARQL-based SHACL validation)
+├── lifecycle/ (build, test, deploy phases)
+├── rdf/ (SPARQL queries, Oxigraph integration)
+├── codegen/ (code generation logic)
+├── v6/ (V6 architecture: multi-pass generation)
+└── ...
+```
+
+**Path Protection Pattern**:
+- Mechanism: Glob-based path matching (glob crate)
+- protected_paths: src/domain/** (NEVER overwritten)
+- regenerate_paths: src/generated/** (always regenerated)
+- Errors: ProtectedPathViolation, ImplicitProtectionViolation, PathOverlapError
+
+### Active Features (2025)
+
+**Feature 004**: Test Quality Audit & Performance Optimization
+- Crates: ggen-test-audit, ggen-test-opt
+- Focus: Mutation testing, assertion analysis, concurrent test execution
+
+**Feature 011**: End-to-End Testing with testcontainers
+- Crate: ggen-e2e
+- Platforms: Linux (containers) + macOS (native)
+- Validation: Byte-for-byte output identical
+
+**Feature 999**: Documentation as RDF Ontology
+- Location: .specify/specs/999-docs-as-code/
+- Type: Specification-driven documentation system
+
+**Marketplace**: Package registry & FMEA-based dependency management
+- Crate: ggen-marketplace (20K lines)
+- Features: Registry search/install, FMEA analysis, v3→v4 migration
+
+### Documentation & Specification System
+
+**Key Files**:
+```
+README.md (12K)              ← Quick start, use cases
+CLAUDE.md (22K)              ← This file: constitutional law
+TESTING.md                   ← Comprehensive testing guide
+CONTRIBUTING.md              ← Contribution guidelines
+SECURITY.md                  ← Security policies
+PERFORMANCE.md               ← Performance targets
+docs/ARCHITECTURE.md (11K)   ← System overview
+docs/CODING_STANDARDS.md     ← Conventions
+docs/CHICAGO_TDD_IMPLEMENTATION.md ← Testing patterns
+```
+
+**RDF-First Specification System** (.specify/):
+```
+.specify/
+├── ontology/spec-kit-schema.ttl (vocabulary definitions)
+├── memory/constitution.ttl (architectural law, generates .md)
+├── specs/004-test-audit/feature.ttl (source of truth)
+├── specs/004-test-audit/*.md (generated from .ttl)
+├── templates/rdf-helpers/ (TTL templates)
+└── templates/spec.tera (markdown generation)
+```
+
+**Core Rule**: TTL is source of truth, markdown is generated (NEVER edit .md files)
+
+### Key Statistics
+
+- **Crates**: 16 workspace members
+- **Benchmarks**: 14 criterion suites
+- **Documentation**: 45+ markdown files
+- **Dependencies**: 100+ (see Cargo.toml workspace.dependencies)
+- **Recent Commits** (latest 5):
+  1. Update documentation (#104)
+  2. Implement advanced concurrent agent architecture (#103)
+  3. Create mdbook on ggen sync with Alexander patterns (#102)
+  4. docs: Fix poka-yoke guide (emphasis ggen.toml-only workflow)
+  5. docs: Add poka-yoke quick reference guide for v5.0.2
+
+### SLOs (Service Level Objectives - Verified)
+
+- First build ≤ 15s
+- Incremental ≤ 2s
+- RDF processing ≤ 5s (1000+ triples)
+- Generation memory ≤ 100MB
+- CLI scaffolding ≤ 3s end-to-end
+- 100% reproducible outputs
+- Test execution ≤ 30s (timeout escalates to 120s on contention)
+
+### Entry Points & Critical Files
+
+**Crate Entry Points**:
+- CLI: `crates/ggen-cli/src/main.rs` (command entry point)
+- Library: `crates/ggen-cli/src/lib.rs` (public API)
+- Core: `crates/ggen-core/src/lib.rs` (generation engine)
+- Domain: `crates/ggen-domain/src/lib.rs` (business logic)
+
+**Infrastructure Files**:
+- `/CLAUDE.md` - Constitutional law (THIS FILE)
+- `/Makefile.toml` - Build orchestration (68K+ poka-yoke rules)
+- `/Cargo.toml` - Workspace configuration
+- `/.specify/` - RDF specification system (source of truth)
+- `/.cursorrules` - IDE rules
+- `/.pre-commit-config.yaml` - Git hooks protocol
+
+---
+
 ## 📝 Remember
 
 **Claude Flow coordinates, Claude Code creates!**
@@ -613,21 +895,61 @@ NEVER proactively create documentation files.
 Never save working files, text/mds and tests to the root folder.
 TODO LISTS ARE ALWAYS 10 ITEMS OR MORE. THEY ARE ALWAYS FULLY COMPLETED BEFORE PROGRESSING TO THE NEXT TASK.
 
-## Active Technologies
-- Rust 1.74+ (edition 2021) - existing ggen toolchain (003-optimize-aci-anthropic)
-- Filesystem-based (003-optimize-aci-anthropic)
-- Rust 1.75+ (edition 2021) (006-marketplace-fmea-poka-yoke)
-- File system (package.toml, OWNERS files, generated files) (006-marketplace-fmea-poka-yoke)
-- Rust 1.74+ (edition 2021) - existing ggen toolchain + ggen CLI (v4.0.0), cargo-make, existing workspace crates (007-cli-jtbd-audit)
-- Filesystem-based (YAML audit results, markdown reports) in feature evidence directory (007-cli-jtbd-audit)
-- Rust 1.75+ (edition 2021), existing ggen v4.0.0 workspace (008-n3-code-gen)
-- File system (ggen.toml, .ttl ontologies, generated .rs files, audit.json) (008-n3-code-gen)
-- Rust 1.75+ (ggen existing codebase) + LaTeX (pdflatex for output) + Oxigraph (RDF), Tera (templates), existing ggen-core/ggen-domain crates (010-thesis-gen-system)
-- File system (TTL ontology files, Tera templates, generated LaTeX output) (010-thesis-gen-system)
-- Rust 1.75+ (edition 2021), testcontainers 0.25, testcontainers-modules 0.13, assert_cmd, clnrm (011-e2e-testcontainers)
-- File system (golden files, test fixtures), Docker containers, GitHub Actions workflows (011-e2e-testcontainers)
-- Rust 1.75+ (ggen v5), LaTeX (pdflatex + biber) + ggen-core, Oxigraph (RDF), Tera (templates), memoir (LaTeX), amsthm, biblatex, algorithm2e (012-grand-unified-kgc-thesis)
-- File system (RDF ontology .ttl files, generated .tex files) (012-grand-unified-kgc-thesis)
+## Active Technologies (Current State - 2025)
 
-## Recent Changes
-- 003-optimize-aci-anthropic: Added Rust 1.74+ (edition 2021) - existing ggen toolchain
+**Core Stack**:
+- Rust 1.91.1 (installed), 1.86.0 (via asdf), MSRV: 1.74+ (effectively 1.75+), edition 2021
+- Tokio 1.47 async runtime (multi-threaded, full features)
+- Oxigraph 0.5.1 (RDF store + SPARQL)
+- Tera 1.20 (template engine)
+- Chicago TDD 1.4.0 (state-based testing)
+
+**Testing & Quality**:
+- chicago-tdd-tools 1.4.0 (state-based, real objects)
+- proptest 1.8 (property-based testing)
+- criterion 0.7 (14 benchmark suites with HTML)
+- testcontainers 0.25 (E2E with containers)
+- mockall 0.13, mockito 1.7 (London TDD, test-only)
+- insta 1.43 (snapshot testing)
+
+**Security & Crypto**:
+- pqcrypto-mldsa 0.1 (Post-Quantum, NIST ML-DSA)
+- sha2 0.10, hex 0.4, base64 0.22
+
+**Observability**:
+- OpenTelemetry 0.21 (OTLP export)
+- tracing 0.1 + json subscriber
+- SLO monitoring via cargo make targets
+
+**LLM Integration**:
+- genai 0.4 (multi-provider: OpenAI, Anthropic, Ollama)
+- reqwest 0.12 (async HTTP)
+
+**Spec System**:
+- RDF ontologies (Turtle .ttl files)
+- Tera templates for code generation
+- SPARQL queries via Oxigraph
+
+## Recent Development Patterns (2025)
+
+**Commit Themes**:
+- Documentation updates (RDF-first specification adoption)
+- Architecture improvements (concurrent agent architecture #103)
+- Specification system refinement (.specify/ infrastructure)
+- Poka-Yoke hardening (path protection, FMEA)
+- Clippy lint fixes (automated quality enforcement)
+- Multi-language support (Node.js bindings)
+
+**Code Quality Trends**:
+1. Type-first design: NewType patterns, SPARQL-based validation
+2. Concurrent execution: Tokio async, rayon parallelism
+3. Enterprise hardening: Path protection, FMEA, PQC
+4. Testing investment: Mutation testing, E2E with containers
+5. Specification-driven: RDF before code, generated documentation
+
+**Architectural Trends**:
+1. Ontology-driven: RDF specifications as source of truth
+2. Concurrent execution: Tokio + rayon + testcontainers parallel
+3. Enterprise hardening: Glob-based path protection, FMEA analysis, CODEOWNERS, PQC
+4. Observability: OpenTelemetry, structured logging (tracing + json), SLO monitoring
+5. Multi-pass generation: V6 architecture with composition/passes pattern
