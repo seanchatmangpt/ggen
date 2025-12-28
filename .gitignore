@@ -940,7 +940,14 @@ hive-mind-prompt-*.txt
 # See: https://github.com/github/spec-kit security warning
 .claude/
 !.claude/commands/
+!.claude/agents/
+!.claude/skills/
+!.claude/hooks/
+!.claude/README.md
+!.claude/settings.json
+!.mcp.json
 .claude/commands/*.local.md
+.claude/settings.local.json
 .specify/specs/*/evidence/credentials.md
 .specify/specs/*/evidence/tokens.md
 

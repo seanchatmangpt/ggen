@@ -1,0 +1,14 @@
+{
+  "comment": "Personal local configuration - ignored by git. Overrides project settings.json",
+  "environment": {
+    "env": {
+      "ANTHROPIC_API_KEY": "YOUR_API_KEY_HERE",
+      "CUSTOM_WORKSPACE": "/your/custom/workspace"
+    }
+  },
+  "model": "claude-opus-4-5",
+  "permissions": {
+    "disable_bypass_permissions_mode": false,
+    "default_mode": "ask"
+  }
+}
