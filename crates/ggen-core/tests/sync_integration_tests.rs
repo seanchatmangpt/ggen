@@ -611,3 +611,117 @@ test:Entity a test:Thing .
     let result = executor.execute();
     assert!(result.is_ok(), "Manifest without inference rules should work");
 }
+
+/// Scenario 16: End-to-end sync with real-world example
+#[test]
+fn test_sync_end_to_end_real_world() {
+    let temp_dir = TempDir::new().expect("Failed to create temp dir");
+    let temp_path = temp_dir.path();
+
+    // Create realistic project structure
+    let manifest_content = r#"
+[project]
+name = "real-world-project"
+version = "1.0.0"
+description = "Real-world code generation example"
+
+[ontology]
+source = "ontology.ttl"
+
+[inference]
+rules = []
+
+[generation]
+output_dir = "generated"
+require_audit_trail = true
+
+[[generation.rules]]
+name = "models"
+query = { inline = """
+PREFIX ex: <http://example.org/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?entity ?name WHERE {
+  ?entity a ex:Entity ;
+           ex:name ?name .
+}
+ORDER BY ?entity
+""" }
+template = { inline = "// Generated model\npub struct Model {\n  entity: String,\n  name: String,\n}" }
+output_file = "models.rs"
+mode = "Overwrite"
+"#;
+
+    let manifest_path = temp_path.join("ggen.toml");
+    std::fs::write(&manifest_path, manifest_content).expect("Failed to write manifest");
+
+    // Create comprehensive ontology
+    let ontology_content = r#"
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ex:User a ex:Entity ;
+  rdfs:label "User" ;
+  ex:name "User" .
+
+ex:Product a ex:Entity ;
+  rdfs:label "Product" ;
+  ex:name "Product" .
+
+ex:Order a ex:Entity ;
+  rdfs:label "Order" ;
+  ex:name "Order" .
+"#;
+
+    let ontology_path = temp_path.join("ontology.ttl");
+    std::fs::write(&ontology_path, ontology_content).expect("Failed to write ontology");
+
+    let output_dir = temp_path.join("generated");
+
+    // Test basic sync
+    let options = SyncOptions {
+        manifest_path: manifest_path.clone(),
+        output_dir: Some(output_dir.clone()),
+        verbose: true,
+        ..SyncOptions::default()
+    };
+
+    let executor = SyncExecutor::new(options);
+    let result = executor.execute();
+
+    assert!(
+        result.is_ok(),
+        "Real-world sync should succeed. Error: {:?}",
+        result.err()
+    );
+
+    let sync_result = result.unwrap();
+    assert_eq!(sync_result.status, "success");
+    assert!(sync_result.duration_ms > 0);
+
+    // Test dry-run to verify what would be generated
+    let dry_run_options = SyncOptions {
+        manifest_path: manifest_path.clone(),
+        output_dir: Some(output_dir.clone()),
+        dry_run: true,
+        verbose: true,
+        ..SyncOptions::default()
+    };
+
+    let executor = SyncExecutor::new(dry_run_options);
+    let result = executor.execute();
+    assert!(result.is_ok(), "Dry-run should succeed");
+
+    // Test validate-only mode
+    let validate_options = SyncOptions {
+        manifest_path,
+        output_dir: Some(output_dir),
+        validate_only: true,
+        verbose: true,
+        ..SyncOptions::default()
+    };
+
+    let executor = SyncExecutor::new(validate_options);
+    let result = executor.execute();
+    assert!(result.is_ok(), "Validate-only should succeed");
+}
