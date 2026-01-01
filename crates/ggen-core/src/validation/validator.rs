@@ -112,7 +112,7 @@ impl SparqlValidator {
     /// - `Ok(ValidationResult)`: Validation completed (passed = true if no violations)
     pub fn validate(&self, ontology: &Graph, _shapes: &Graph) -> Result<ValidationResult> {
         let start = Instant::now();
-        let mut violations = Vec::new();
+        let violations = Vec::new();
 
         // For MVP: Basic integration using Oxigraph's QueryResults API
         // Shapes would be loaded from the _shapes graph in full implementation
