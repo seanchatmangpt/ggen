@@ -127,25 +127,25 @@ impl ConcurrentRuleExecutor {
 
     fn extract_variables(template: &str) -> Vec<String> {
         let mut vars = vec![];
-        let mut in_bracket = false;
-        let mut current_var = String::new();
+        let mut chars_iter = template.chars().peekable();
 
-        for ch in template.chars() {
-            match ch {
-                '{' if !in_bracket => {
-                    in_bracket = true;
-                }
-                '}' if in_bracket => {
-                    in_bracket = false;
-                    if !current_var.is_empty() {
-                        vars.push(current_var.trim().to_string());
-                        current_var.clear();
+        while let Some(ch) = chars_iter.next() {
+            // Look for {{ pattern
+            if ch == '{' && chars_iter.peek() == Some(&'{') {
+                chars_iter.next(); // consume second {
+
+                // Read variable name until }}
+                let mut var_name = String::new();
+                while let Some(c) = chars_iter.next() {
+                    if c == '}' && chars_iter.peek() == Some(&'}') {
+                        chars_iter.next(); // consume second }
+                        if !var_name.is_empty() {
+                            vars.push(var_name.trim().to_string());
+                        }
+                        break;
                     }
+                    var_name.push(c);
                 }
-                _ if in_bracket => {
-                    current_var.push(ch);
-                }
-                _ => {}
             }
         }
 

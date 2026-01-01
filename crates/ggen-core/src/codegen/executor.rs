@@ -20,7 +20,8 @@
 
 use crate::codegen::pipeline::{GenerationPipeline, RuleType};
 use crate::codegen::{
-    DependencyValidator, IncrementalCache, OutputFormat, SyncOptions,
+    DependencyValidator, IncrementalCache, MarketplaceValidator, OutputFormat, ProofCarrier,
+    SyncOptions,
 };
 use crate::manifest::{ManifestParser, ManifestValidator};
 use ggen_utils::error::{Error, Result};
@@ -175,6 +176,24 @@ impl SyncExecutor {
                 "error[E0002]: {} dependency checks failed\n  |\n  = help: Fix missing files or imports before syncing",
                 dep_validator.failed_checks
             )));
+        }
+
+        // Run marketplace pre-flight validation (FMEA analysis)
+        let marketplace_validator = MarketplaceValidator::new(160);
+        let pre_flight = marketplace_validator.pre_flight_check(&manifest_data).map_err(|e| {
+            Error::new(&format!(
+                "error[E0003]: Marketplace pre-flight validation failed\n  |\n  = error: {}\n  = help: Review package dependencies and resolve high-risk items",
+                e
+            ))
+        })?;
+
+        if self.options.verbose {
+            eprintln!("Pre-flight checks: {} validations, {} high-risk items detected",
+                pre_flight.validations.len(), pre_flight.high_risks.len());
+            if !pre_flight.all_passed {
+                eprintln!("⚠ Warning: {} critical failures, {} warnings in packages",
+                    pre_flight.critical_failures_count, pre_flight.warnings_count);
+            }
         }
 
         // Validate selected rules exist in manifest
@@ -464,6 +483,28 @@ impl SyncExecutor {
                 if self.options.verbose {
                     eprintln!("Warning: Failed to save cache: {}", e);
                 }
+            }
+        }
+
+        // Generate execution proof for determinism verification
+        let mut proof_carrier = ProofCarrier::new();
+        let manifest_content = std::fs::read_to_string(&self.options.manifest_path)
+            .unwrap_or_default();
+        let ontology_content = std::fs::read_to_string(base_path.join(&manifest_data.ontology.source))
+            .unwrap_or_default();
+
+        if let Ok(proof) = proof_carrier.generate_proof(&manifest_content, &ontology_content, &SyncResult {
+            status: "executing".to_string(),
+            files_synced: 0,
+            duration_ms: 0,
+            files: synced_files.clone(),
+            inference_rules_executed: inference_count,
+            generation_rules_executed: generation_count,
+            audit_trail: None,
+            error: None,
+        }) {
+            if self.options.verbose {
+                eprintln!("Execution proof: {}", proof.execution_id);
             }
         }
 
