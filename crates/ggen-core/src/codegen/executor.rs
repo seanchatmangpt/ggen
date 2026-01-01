@@ -19,7 +19,9 @@
 //! All business logic lives here in the executor.
 
 use crate::codegen::pipeline::{GenerationPipeline, RuleType};
-use crate::codegen::{OutputFormat, SyncOptions};
+use crate::codegen::{
+    DependencyValidator, IncrementalCache, OutputFormat, SyncOptions,
+};
 use crate::manifest::{ManifestParser, ManifestValidator};
 use ggen_utils::error::{Error, Result};
 use serde::Serialize;
@@ -152,6 +154,29 @@ impl SyncExecutor {
             ))
         })?;
 
+        // Validate dependencies (ontology imports, circular references, file existence)
+        let dep_validator = DependencyValidator::validate_manifest(&manifest_data, base_path)
+            .map_err(|e| {
+                Error::new(&format!(
+                    "error[E0002]: Dependency validation failed\n  |\n  = error: {}\n  = help: Fix missing ontology imports or circular dependencies",
+                    e
+                ))
+            })?;
+
+        if dep_validator.has_cycles {
+            return Err(Error::new(&format!(
+                "error[E0002]: Circular dependency detected\n  |\n  = error: Inference rules have circular dependencies\n  = cycles: {:?}\n  = help: Review rule dependencies in manifest",
+                dep_validator.cycle_nodes
+            )));
+        }
+
+        if dep_validator.failed_checks > 0 {
+            return Err(Error::new(&format!(
+                "error[E0002]: {} dependency checks failed\n  |\n  = help: Fix missing files or imports before syncing",
+                dep_validator.failed_checks
+            )));
+        }
+
         // Validate selected rules exist in manifest
         if let Some(ref selected) = self.options.selected_rules {
             let available_rules: Vec<&String> = manifest_data
@@ -200,6 +225,19 @@ impl SyncExecutor {
             check: "Manifest schema".to_string(),
             passed: true,
             details: None,
+        });
+
+        // Check dependencies (ontology imports, circular references, file existence)
+        let dep_report = DependencyValidator::validate_manifest(manifest_data, base_path).ok();
+        let dep_passed = dep_report.as_ref().map_or(false, |r| !r.has_cycles && r.failed_checks == 0);
+        validations.push(ValidationCheck {
+            check: "Dependencies".to_string(),
+            passed: dep_passed,
+            details: if let Some(report) = dep_report {
+                Some(format!("{}/{} checks passed", report.passed_checks, report.total_checks))
+            } else {
+                Some("Dependency check failed".to_string())
+            },
         });
 
         // Check ontology syntax
@@ -339,11 +377,28 @@ impl SyncExecutor {
             .clone()
             .unwrap_or_else(|| manifest_data.generation.output_dir.clone());
 
+        // Load incremental cache if enabled
+        let cache = if self.options.use_cache {
+            let cache_dir = self
+                .options
+                .cache_dir
+                .clone()
+                .unwrap_or_else(|| output_directory.join(".ggen/cache"));
+            let mut c = IncrementalCache::new(cache_dir);
+            let _ = c.load_cache_state(); // Ignore if first run
+            Some(c)
+        } else {
+            None
+        };
+
         // Create pipeline and run
         let mut pipeline = GenerationPipeline::new(manifest_data.clone(), base_path.to_path_buf());
 
         if self.options.verbose {
             eprintln!("Loading manifest: {}", self.options.manifest_path.display());
+            if let Some(ref _cache) = cache {
+                eprintln!("Using incremental cache...");
+            }
         }
 
         let state = pipeline.run().map_err(|e| {
@@ -402,6 +457,15 @@ impl SyncExecutor {
         } else {
             None
         };
+
+        // Save cache if enabled
+        if let Some(cache) = cache {
+            if let Err(e) = cache.save_cache_state(manifest_data, "", &state.ontology_graph) {
+                if self.options.verbose {
+                    eprintln!("Warning: Failed to save cache: {}", e);
+                }
+            }
+        }
 
         let duration = self.start_time.elapsed().as_millis() as u64;
 

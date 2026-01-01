@@ -50,15 +50,8 @@ test:MyEntity a test:Entity .
     let options = SyncOptions {
         manifest_path: manifest_path.clone(),
         output_dir: Some(temp_path.join("output")),
-        dry_run: false,
-        force: false,
-        audit: false,
-        selected_rules: None,
-        verbose: false,
-        watch: false,
-        validate_only: false,
-        output_format: OutputFormat::Text,
-        timeout_ms: 30000,
+        use_cache: false,  // Disable cache for tests
+        ..SyncOptions::default()
     };
 
     // Execute sync - should succeed even with no generation rules
