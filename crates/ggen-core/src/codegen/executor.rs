@@ -152,6 +152,29 @@ impl SyncExecutor {
             ))
         })?;
 
+        // Validate selected rules exist in manifest
+        if let Some(ref selected) = self.options.selected_rules {
+            let available_rules: Vec<&String> = manifest_data
+                .generation
+                .rules
+                .iter()
+                .map(|r| &r.name)
+                .collect();
+            for rule_name in selected {
+                if !available_rules.contains(&rule_name) {
+                    return Err(Error::new(&format!(
+                        "error[E0001]: Rule '{}' not found in manifest\n  |\n  = help: Available rules: {}",
+                        rule_name,
+                        available_rules
+                            .iter()
+                            .map(|r| r.as_str())
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    )));
+                }
+            }
+        }
+
         // Dispatch to appropriate mode
         if self.options.validate_only {
             self.execute_validate_only(&manifest_data, base_path)
