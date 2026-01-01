@@ -25,11 +25,15 @@ pub mod code_graph;
 pub mod concurrent;
 pub mod dependency_validation;
 pub mod executor;
+pub mod execution_proof;
 pub mod incremental_cache;
 #[allow(dead_code)]
 pub mod lifecycle_hooks;
+pub mod marketplace_integration;
 pub mod pipeline;
+pub mod swarm_execution;
 pub mod typescript;
+pub mod watch_mode;
 
 // Re-export key types
 pub use audit::{AuditOutput, AuditStep, AuditTrail, AuditTrailBuilder};
@@ -40,12 +44,16 @@ pub use code_graph::{
 pub use concurrent::ConcurrentRuleExecutor;
 pub use dependency_validation::{DependencyCheck, DependencyValidationReport, DependencyValidator};
 pub use executor::{SyncExecutor, SyncResult, SyncedFileInfo, ValidationCheck};
+pub use execution_proof::{ExecutionProof, ProofCarrier, RuleExecution};
 pub use incremental_cache::{CacheInvalidation, IncrementalCache};
+pub use marketplace_integration::{MarketplaceValidator, PackageValidation, PreFlightReport};
 pub use pipeline::{
     ExecutedRule, GeneratedFile, GenerationPipeline, PipelineState, RuleType, ValidationResult,
     ValidationSeverity,
 };
+pub use swarm_execution::{Agent, SwarmCoordinator, SwarmSummary};
 pub use typescript::TypeScriptGenerator;
+pub use watch_mode::{WatchConfig, WatchMode};
 
 // ============================================================================
 // Sync Options (CLI Configuration for ggen sync)
