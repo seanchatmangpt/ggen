@@ -1,4 +1,4 @@
-use crate::manifest::{GenerationRule, QuerySource, TemplateSource};
+use crate::manifest::GenerationRule;
 use ggen_utils::error::{Error, Result};
 use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;
@@ -199,6 +199,7 @@ pub struct SwarmSummary {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::manifest::{QuerySource, TemplateSource};
 
     #[tokio::test]
     async fn test_swarm_coordinator_creation() {
