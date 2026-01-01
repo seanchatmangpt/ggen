@@ -22,7 +22,12 @@
 
 pub mod audit;
 pub mod code_graph;
+pub mod concurrent;
+pub mod dependency_validation;
 pub mod executor;
+pub mod incremental_cache;
+#[allow(dead_code)]
+pub mod lifecycle_hooks;
 pub mod pipeline;
 pub mod typescript;
 
@@ -32,7 +37,10 @@ pub use code_graph::{
     CodeEnum, CodeField, CodeGraphBuilder, CodeImpl, CodeImport, CodeItem, CodeMethod, CodeModule,
     CodeParam, CodeStruct, CodeTrait, CodeVariant,
 };
+pub use concurrent::ConcurrentRuleExecutor;
+pub use dependency_validation::{DependencyCheck, DependencyValidationReport, DependencyValidator};
 pub use executor::{SyncExecutor, SyncResult, SyncedFileInfo, ValidationCheck};
+pub use incremental_cache::{CacheInvalidation, IncrementalCache};
 pub use pipeline::{
     ExecutedRule, GeneratedFile, GenerationPipeline, PipelineState, RuleType, ValidationResult,
     ValidationSeverity,
@@ -115,6 +123,15 @@ pub struct SyncOptions {
 
     /// Maximum execution timeout in milliseconds
     pub timeout_ms: u64,
+
+    /// Enable incremental caching for faster re-runs
+    pub use_cache: bool,
+
+    /// Cache directory (relative to output directory)
+    pub cache_dir: Option<std::path::PathBuf>,
+
+    /// Maximum parallel tasks for rule execution
+    pub max_parallelism: Option<usize>,
 }
 
 impl Default for SyncOptions {
@@ -131,6 +148,9 @@ impl Default for SyncOptions {
             validate_only: false,
             output_format: OutputFormat::default(),
             timeout_ms: 30000, // 30 second default
+            use_cache: true, // Caching enabled by default
+            cache_dir: None,
+            max_parallelism: None, // Use system default
         }
     }
 }
@@ -200,6 +220,24 @@ impl SyncOptions {
     /// Set output directory override
     pub fn with_output_dir<P: AsRef<std::path::Path>>(mut self, dir: P) -> Self {
         self.output_dir = Some(dir.as_ref().to_path_buf());
+        self
+    }
+
+    /// Enable or disable incremental caching
+    pub fn with_cache(mut self, use_cache: bool) -> Self {
+        self.use_cache = use_cache;
+        self
+    }
+
+    /// Set cache directory
+    pub fn with_cache_dir<P: AsRef<std::path::Path>>(mut self, dir: P) -> Self {
+        self.cache_dir = Some(dir.as_ref().to_path_buf());
+        self
+    }
+
+    /// Set maximum parallelism for rule execution
+    pub fn with_max_parallelism(mut self, max_parallelism: usize) -> Self {
+        self.max_parallelism = Some(max_parallelism);
         self
     }
 }
