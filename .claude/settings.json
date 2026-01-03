@@ -88,6 +88,33 @@
             "type": "command",
             "command": "./.claude/hooks/user-prompt-validation.sh",
             "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "./.claude/hooks/pre-specification-check.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostTask": [
+      {
+        "matcher": "collision",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.claude/hooks/post-collision-detection.sh",
+            "timeout": 30
+          }
+        ]
+      },
+      {
+        "matcher": "convergence",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.claude/hooks/convergence-validation.sh",
+            "timeout": 30
           }
         ]
       }
@@ -103,7 +130,7 @@
     "api_key_helper": "./.claude/helpers/api-key-helper.sh"
   },
   "tools_and_model": {
-    "model": "claude-opus-4-5",
+    "model": "claude-haiku-4-5-20251001",
     "output_style": "structured"
   },
   "status_line": {
@@ -123,5 +150,50 @@
     "description": "Language-agnostic, deterministic code generation CLI. Ontologies + RDF → reproducible code projections.",
     "philosophy": "Type-first thinking, zero-cost abstractions, memory safety, deterministic outputs",
     "required_reading": "Read CLAUDE.md before starting work"
+  },
+  "execution_model": {
+    "paradigm": "parallel-first",
+    "specification_required": true,
+    "default_task_type": "non-trivial",
+    "trivial_task_whitelist": [
+      "single_file_read",
+      "run_existing_script",
+      "display_help",
+      "factual_question"
+    ]
+  },
+  "epic9": {
+    "enabled": true,
+    "description": "Atomic Cognitive Cycle: Fan-Out → Independent Construction → Collision Detection → Convergence → Refactoring → Closure",
+    "default_agents": 10,
+    "collision_detection": "required",
+    "convergence_method": "selection_pressure",
+    "mandatory_phases": [
+      "fan_out",
+      "independent_construction",
+      "collision_detection",
+      "convergence",
+      "refactoring",
+      "closure"
+    ],
+    "failure_on_incomplete": true
+  },
+  "big_bang_80_20": {
+    "enabled": true,
+    "description": "Single-pass construction in low-entropy domains",
+    "specification_closure_required": true,
+    "iteration_signal_defect": true,
+    "monoidal_composition": true
+  },
+  "deterministic_validation": {
+    "enabled": true,
+    "description": "Evidence-first validation: receipts replace review, benchmarks replace narratives",
+    "required_receipts": [
+      "compilation_success",
+      "all_tests_pass",
+      "lint_clean",
+      "slo_compliance",
+      "no_warnings"
+    ]
   }
 }

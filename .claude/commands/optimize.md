@@ -2,7 +2,7 @@
 description: "Optimize Rust code for performance. Analyzes hot paths, suggests improvements, and verifies SLOs. Use when improving performance, reducing allocations, or optimizing algorithms."
 allowed_tools: "Read, Grep, Glob, Bash(cargo make bench:*), Bash(cargo make slo-check:*)"
 argument_hint: "[crate-name] [focus-area]"
-model: "claude-opus-4-5"
+model: "claude-haiku-4-5-20251001"
 ---
 
 # Code Optimization Command
