@@ -130,7 +130,7 @@
     "api_key_helper": "./.claude/helpers/api-key-helper.sh"
   },
   "tools_and_model": {
-    "model": "claude-opus-4-5",
+    "model": "claude-3-5-haiku-20241022",
     "output_style": "structured"
   },
   "status_line": {
