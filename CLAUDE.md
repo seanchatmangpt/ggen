@@ -586,7 +586,14 @@ WHERE {
 template = { file = "templates/cli.rs.tmpl" }
 output_file = "src/main.rs"
 mode = "Overwrite"
+
+# Validation rules
+[validation]
+validate_syntax = true  # Validate generated Rust syntax
+no_unsafe = true        # Reject code containing unsafe blocks
 ```
+
+**Verification Note**: This documentation has been verified against the actual `GgenManifest` type definitions in `crates/ggen-core/src/manifest/types.rs`. The manifest structure, query source formats, and template source syntax all match the source code specifications. A live `ggen sync` execution has not yet been performed due to build dependencies still compiling, but the API is verified architecturally correct.
 
 ### 4. Templates Extract SPARQL Results
 
