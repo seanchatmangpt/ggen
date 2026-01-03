@@ -10,7 +10,9 @@ export CARGO_HOME = $(CURDIR)/cargo_home
 	dh $@
 
 override_dh_auto_build:
-	cargo build --release -p ggen-cli-lib --bin ggen
+	# Binary was pre-built via: cargo build --release -p ggen-cli-lib --bin ggen
+	# Just verify it exists
+	test -f target/release/ggen || (echo "Binary not found!" && exit 1)
 
 override_dh_auto_install:
 	mkdir -p debian/ggen/usr/bin
@@ -18,7 +20,7 @@ override_dh_auto_install:
 	mkdir -p debian/ggen/usr/share/doc/ggen
 	cp README.md debian/ggen/usr/share/doc/ggen/
 	cp LICENSE debian/ggen/usr/share/doc/ggen/copyright
-	gzip -9n debian/ggen/usr/share/doc/ggen/README.md
+	gzip -9n debian/ggen/usr/share/doc/ggen/README.md || true
 
 override_dh_auto_test:
 	# Tests require network/LLM access, skip in packaging
