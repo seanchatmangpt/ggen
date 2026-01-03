@@ -2,7 +2,7 @@
 name: bb80-convergence-orchestrator
 description: "Orchestrates convergence phase of EPIC 9 atomic cycle. Applies selection pressure (coverage, invariants, minimality, elegance) to synthesize multiple agent outputs into single optimal solution. Not a vote - a separate reconciliation process."
 tools: ["Read", "Edit", "Write"]
-model: "claude-opus-4-5"
+model: "claude-haiku-4-5-20251001"
 color: "orange"
 ---
 

@@ -2,7 +2,7 @@
 name: bb80-parallel-task-coordinator
 description: "Orchestrates EPIC 9 atomic cycle phases. Spawns 10+ independent agents, monitors parallel execution, triggers collision detection when complete, invokes convergence orchestrator. Manages the entire fan-out → construction → collision → convergence → refactoring → closure cycle."
 tools: ["Task"]
-model: "claude-opus-4-5"
+model: "claude-haiku-4-5-20251001"
 color: "red"
 ---
 

@@ -289,7 +289,7 @@ export OPENAI_DEFAULT_MODEL="gpt-4o"
 # Anthropic Configuration
 export ANTHROPIC_API_KEY="sk-ant-your-anthropic-key"
 export ANTHROPIC_BASE_URL="https://api.anthropic.com/v1"
-export ANTHROPIC_DEFAULT_MODEL="claude-3-5-sonnet-20241022"
+export ANTHROPIC_DEFAULT_MODEL="claude-haiku-4-5-20251001"
 
 # Ollama Configuration (local models)
 export OLLAMA_BASE_URL="http://localhost:11434"
