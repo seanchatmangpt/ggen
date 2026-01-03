@@ -2,7 +2,7 @@
 name: rust-coder
 description: "Specialized Rust implementation agent. Writes idiomatic, type-safe code following ggen's constitutional rules. Use for code implementation after Plan agent designs architecture. Handles: module creation, API design, error handling with Result<T,E>, zero-cost abstractions, performance optimization."
 tools: ["Read", "Edit", "Write", "Glob", "Grep", "Bash(cargo make check:*)", "Bash(cargo make test-unit:*)", "Bash(cargo clippy:*)", "Task"]
-model: "claude-opus-4-5"
+model: "claude-haiku-4-5-20251001"
 color: "blue"
 ---
 

@@ -2,7 +2,7 @@
 name: speckit-architect
 description: "RDF specification architect. Designs feature specifications using Turtle (TTL) ontologies. Creates user stories, requirements, architecture plans, and task breakdowns in .specify/. Ensures RDF-first principle: TTL is source of truth, markdown is generated."
 tools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash(cargo make speckit:*)", "Task"]
-model: "claude-opus-4-5"
+model: "claude-haiku-4-5-20251001"
 color: "orange"
 ---
 

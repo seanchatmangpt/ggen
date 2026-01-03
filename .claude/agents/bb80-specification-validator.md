@@ -2,7 +2,7 @@
 name: bb80-specification-validator
 description: "Validates specification closure before implementation. Checks completeness of RDF specifications (.ttl files) to ensure no iteration is needed. Returns pass/fail with list of incomplete areas. Enables Big Bang 80/20 single-pass construction."
 tools: ["Read", "Glob", "Grep"]
-model: "claude-opus-4-5"
+model: "claude-haiku-4-5-20251001"
 color: "purple"
 ---
 

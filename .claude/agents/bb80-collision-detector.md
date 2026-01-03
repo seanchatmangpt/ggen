@@ -2,7 +2,7 @@
 name: bb80-collision-detector
 description: "Detects overlaps in parallel agent outputs. Identifies structural overlap (identical solutions), semantic overlap (different approaches converging), and divergences (disagreements). Collision detection gates convergence phase - overlap signals high confidence."
 tools: ["Read", "Glob", "Grep"]
-model: "claude-opus-4-5"
+model: "claude-haiku-4-5-20251001"
 color: "green"
 ---
 
