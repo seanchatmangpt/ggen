@@ -1,0 +1,3 @@
+[submodule "vendors/qlever_poc"]
+	path = vendors/qlever_poc
+	url = https://github.com/seanchatmangpt/qlever_poc

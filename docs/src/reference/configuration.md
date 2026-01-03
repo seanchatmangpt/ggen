@@ -43,7 +43,7 @@ timeout = 30
 
 [ai]
 provider = "anthropic"
-model = "claude-3-5-sonnet-20241022"
+model = "claude-haiku-4-5-20251001"
 api_key_env = "ANTHROPIC_API_KEY"
 ```
 
