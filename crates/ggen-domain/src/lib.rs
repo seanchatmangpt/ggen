@@ -25,6 +25,7 @@
 
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 
+#[cfg(feature = "ai")]
 pub mod ai;
 pub mod audit;
 pub mod ci;
