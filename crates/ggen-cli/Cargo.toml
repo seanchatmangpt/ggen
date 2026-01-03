@@ -45,7 +45,7 @@ futures.workspace = true
 # Local dependencies (use workspace = true pattern for consistency)
 ggen-utils.workspace = true
 ggen-core.workspace = true
-ggen-ai.workspace = true
+# ggen-ai.workspace = true  # Temporarily disabled - compilation errors
 ggen-domain.workspace = true
 ggen-marketplace.workspace = true
 ggen-test-audit = { workspace = true, optional = true }

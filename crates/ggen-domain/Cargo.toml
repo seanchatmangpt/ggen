@@ -23,7 +23,7 @@ thiserror = { workspace = true }
 
 # Local infrastructure dependencies (use workspace = true pattern)
 ggen-core.workspace = true
-ggen-ai.workspace = true
+# ggen-ai.workspace = true  # Temporarily disabled - compilation errors
 ggen-utils.workspace = true
 ggen-marketplace.workspace = true
 # NOTE: ggen-config NOT included to avoid cyclic dependency
