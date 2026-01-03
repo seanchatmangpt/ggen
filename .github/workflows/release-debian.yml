@@ -1,0 +1,162 @@
+name: Build and Release Debian Package
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Triggers on version tags like v5.0.2, v5.0.3, etc.
+
+permissions:
+  contents: write  # Required for creating releases
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-gnu
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y devscripts debhelper
+
+      - name: Cache cargo registry
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache cargo index
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-git-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache cargo build
+        uses: actions/cache@v3
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build Debian package
+        run: |
+          bash scripts/build-debian-package.sh
+        shell: bash
+
+      - name: Verify build artifacts
+        run: |
+          ls -lh ../ggen_*.deb* || (echo "Error: .deb not found" && exit 1)
+          ls -lh ggen.sha256 || (echo "Error: checksum not found" && exit 1)
+          echo "✓ All artifacts present"
+
+      - name: Test installation script
+        run: |
+          # Verify the install script exists and is executable
+          test -f scripts/install-ggen.sh || (echo "Error: install script not found" && exit 1)
+          chmod +x scripts/install-ggen.sh
+          echo "✓ Install script verified"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ../ggen_*.deb
+            ../ggen_*.deb.sha256
+            ggen.sha256
+            scripts/install-ggen.sh
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+          body: |
+            ## ggen v${{ github.ref_name }}
+
+            ### Installation
+
+            #### Method 1: Direct apt install (Simplest)
+
+            ```bash
+            wget https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/ggen_*.deb
+            wget https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/ggen_*.deb.sha256
+            sha256sum -c ggen_*.deb.sha256
+            sudo apt install ./ggen_*.deb
+            ggen --help
+            ```
+
+            #### Method 2: Using install script (Recommended for CI/CD)
+
+            ```bash
+            bash install-ggen.sh "" ./ggen_*.deb
+            # Or from URL:
+            bash install-ggen.sh https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/ggen_*.deb
+            ```
+
+            #### Method 3: From source
+
+            ```bash
+            git clone https://github.com/${{ github.repository }}.git
+            cd ggen
+            git checkout ${{ github.ref_name }}
+            cargo build --release -p ggen-cli-lib --bin ggen
+            sudo install target/release/ggen /usr/local/bin/
+            ```
+
+            ### Verification
+
+            ```bash
+            # Verify installation
+            which ggen
+            ggen --help
+            ggen sync --help
+
+            # Verify checksum (important!)
+            sha256sum -c ggen_*.deb.sha256
+            ```
+
+            ### Troubleshooting
+
+            If installation fails, check:
+            - Are you on Debian/Ubuntu? (`uname -s` should print "Linux")
+            - Is `dpkg` installed? (`which dpkg`)
+            - Do you have sudo access?
+            - Check the [release workflow documentation](https://github.com/${{ github.repository }}/blob/main/GITHUB_RELEASE_WORKFLOW.md) for detailed troubleshooting
+
+            ### Build Information
+
+            - **Build timestamp**: ${{ github.event.head_commit.timestamp }}
+            - **Commit**: ${{ github.event.head_commit.id }}
+            - **Artifacts**: ggen_*.deb (Debian package), ggen_*.deb.sha256 (package checksum), ggen.sha256 (binary checksum)
+            - **Build system**: Ubuntu Latest (GitHub Actions)
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload to artifact storage (for debugging)
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: debian-artifacts
+          path: |
+            ../ggen_*.deb*
+            ggen.sha256
+            /tmp/debuild.log
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Post-release notification
+        if: success()
+        run: |
+          echo "✅ Release ${{ github.ref_name }} published successfully!"
+          echo "🔗 Download: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
+
+      - name: Error notification
+        if: failure()
+        run: |
+          echo "❌ Release build failed for ${{ github.ref_name }}"
+          echo "⚠️  Check the workflow log for details"
+          exit 1
