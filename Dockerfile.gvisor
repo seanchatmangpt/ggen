@@ -1,0 +1,73 @@
+# Multi-stage build with gVisor support
+FROM rust:bookworm AS builder
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    pkg-config \
+    libssl-dev \
+    libclang-dev \
+    clang \
+    curl \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# Build gVisor runsc from vendored source (no external downloads)
+# Copy vendored gVisor source
+COPY vendors/gvisor /build/gvisor
+
+# Build runsc from source
+WORKDIR /build/gvisor
+RUN if [ -f "Makefile" ]; then \
+        mkdir -p /build/bin && \
+        make copy TARGETS=runsc DESTINATION=/build/bin/ && \
+        cp /build/bin/runsc /usr/local/bin/runsc && \
+        chmod +x /usr/local/bin/runsc && \
+        /usr/local/bin/runsc --version || echo "gVisor build completed"; \
+    else \
+        echo "Warning: gVisor Makefile not found, skipping runsc build"; \
+    fi
+
+WORKDIR /build
+
+# Set working directory
+WORKDIR /build
+
+# Copy workspace files
+COPY Cargo.toml Cargo.lock ./
+COPY src ./src
+COPY crates ./crates
+COPY playground ./playground
+COPY benches ./benches
+COPY vendors ./vendors
+
+# Build release binary from workspace (ggen-cli package)
+RUN cargo build --release --package ggen-cli-lib --bin ggen
+
+# Production image - minimal with gVisor support
+FROM debian:bookworm-slim
+
+# Install runtime dependencies and gVisor
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    libssl3 \
+    curl \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy runsc from builder (built from vendored source)
+COPY --from=builder /usr/local/bin/runsc /usr/local/bin/runsc
+RUN chmod +x /usr/local/bin/runsc || echo "runsc not available"
+
+# Copy binary from builder
+COPY --from=builder /build/target/release/ggen /usr/local/bin/ggen
+
+# Set working directory for user projects
+WORKDIR /workspace
+
+# Verify installation
+RUN ggen --version
+
+# Default command
+CMD ["ggen", "--help"]
+

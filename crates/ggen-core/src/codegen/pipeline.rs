@@ -500,7 +500,11 @@ impl GenerationPipeline {
                 };
 
                 // Validate generated output before writing
-                Self::validate_generated_output(&final_content, full_output_path.as_path(), &rule.name)?;
+                Self::validate_generated_output(
+                    &final_content,
+                    full_output_path.as_path(),
+                    &rule.name,
+                )?;
 
                 // Ensure parent directory exists
                 if let Some(parent) = full_output_path.parent() {
