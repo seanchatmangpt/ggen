@@ -39,7 +39,7 @@ members = [
   "crates/ggen-test-audit",    # Feature 004: Test quality audit tooling
   "crates/ggen-test-opt",      # Feature 004: Test optimization tooling
   "crates/ggen-e2e",           # Feature 011: End-to-end testing with testcontainers
-  "crates/ggen-node", "crates/ggen-macros", "crates/ggen-dod",
+  "crates/ggen-node", "crates/ggen-macros",
   "playground",
 ]
 exclude = [
@@ -101,7 +101,6 @@ ggen-domain = { path = "crates/ggen-domain", version = "5.0.0" }
 ggen-cli-lib = { path = "crates/ggen-cli", version = "5.0.0" }
 ggen-node = { path = "crates/ggen-node", version = "5.0.0" }
 ggen-macros = { path = "crates/ggen-macros", version = "5.0.0" }
-ggen-dod = { path = "crates/ggen-dod", version = "5.0.0" }
 ggen-test-audit = { path = "crates/ggen-test-audit", version = "5.0.0" }  # Feature 004
 ggen-test-opt = { path = "crates/ggen-test-opt", version = "5.0.0" }      # Feature 004
 

@@ -100,6 +100,9 @@ mode = "Overwrite"
         validate_only: false,
         output_format: OutputFormat::Text,
         timeout_ms: 30000,
+        use_cache: true,
+        cache_dir: None,
+        max_parallelism: None,
     });
 
     let result = executor.execute().expect("Initial sync should succeed");
@@ -145,6 +148,9 @@ ex:TestEntity a ex:Entity ;
         validate_only: false,
         output_format: OutputFormat::Text,
         timeout_ms: 30000,
+        use_cache: true,
+        cache_dir: None,
+        max_parallelism: None,
     });
 
     let result2 = executor2.execute().expect("Regeneration should succeed");
@@ -272,6 +278,9 @@ fn test_watch_mode_error_handling() {
         validate_only: false,
         output_format: OutputFormat::Text,
         timeout_ms: 30000,
+        use_cache: true,
+        cache_dir: None,
+        max_parallelism: None,
     });
 
     // Act: Execute should fail gracefully with parse error
@@ -388,6 +397,9 @@ mode = "Overwrite"
         validate_only: false,
         output_format: OutputFormat::Text,
         timeout_ms: 30000,
+        use_cache: true,
+        cache_dir: None,
+        max_parallelism: None,
     });
 
     let result = executor.execute();
@@ -409,6 +421,9 @@ mode = "Overwrite"
         validate_only: false,
         output_format: OutputFormat::Text,
         timeout_ms: 30000,
+        use_cache: true,
+        cache_dir: None,
+        max_parallelism: None,
     });
 
     let result2 = executor2.execute();
@@ -440,6 +455,9 @@ ex:TestFixed a ex:Entity .
         validate_only: false,
         output_format: OutputFormat::Text,
         timeout_ms: 30000,
+        use_cache: true,
+        cache_dir: None,
+        max_parallelism: None,
     });
 
     let result3 = executor3.execute();
