@@ -1,0 +1,64 @@
+{# =============================================================================
+   OPENAPI SCHEMAS TEMPLATE - Generates component schemas
+   Uses sparql_results array with ?-prefixed keys
+   ============================================================================= #}
+{%- set current_entity = "" -%}
+{%- for row in sparql_results -%}
+{%- set entityName = row["?entityName"] | default(value="") -%}
+{%- set entityDescription = row["?entityDescription"] | default(value="") -%}
+{%- set propertyName = row["?propertyName"] | default(value="") -%}
+{%- set propertyType = row["?propertyType"] | default(value="string") -%}
+{%- set required = row["?required"] | default(value="false") -%}
+{%- set format = row["?format"] | default(value="") -%}
+{%- set minLength = row["?minLength"] | default(value="") -%}
+{%- set maxLength = row["?maxLength"] | default(value="") -%}
+{%- set example = row["?example"] | default(value="") -%}
+{%- set refEntity = row["?refEntity"] | default(value="") -%}
+
+{%- if entityName != current_entity -%}
+{%- if current_entity != "" %}
+
+{% endif -%}
+{%- set_global current_entity = entityName %}
+    {{ entityName }}:
+      type: object
+{%- if entityDescription != "" %}
+      description: {{ entityDescription }}
+{%- endif %}
+      properties:
+{%- endif %}
+        {{ propertyName }}:
+{%- if propertyType == "string" %}
+          type: string
+{%- elif propertyType == "integer" %}
+          type: integer
+{%- elif propertyType == "number" %}
+          type: number
+{%- elif propertyType == "boolean" %}
+          type: boolean
+{%- elif propertyType == "datetime" %}
+          type: string
+          format: date-time
+{%- elif propertyType == "date" %}
+          type: string
+          format: date
+{%- elif propertyType == "reference" %}
+          type: array
+          items:
+            $ref: '#/components/schemas/{{ refEntity }}'
+{%- else %}
+          type: string
+{%- endif %}
+{%- if format != "" and propertyType != "datetime" and propertyType != "date" %}
+          format: {{ format }}
+{%- endif %}
+{%- if minLength != "" %}
+          minLength: {{ minLength }}
+{%- endif %}
+{%- if maxLength != "" %}
+          maxLength: {{ maxLength }}
+{%- endif %}
+{%- if example != "" %}
+          example: "{{ example }}"
+{%- endif %}
+{%- endfor %}

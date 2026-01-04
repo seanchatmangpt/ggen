@@ -1,0 +1,79 @@
+
+    Comment:
+      type: object
+      description: Comment on a post
+      properties:
+        authorId:
+          type: string
+          minLength: 1
+        content:
+          type: string
+          minLength: 1
+        id:
+          type: string
+          minLength: 1
+
+
+    Post:
+      type: object
+      description: Published blog post
+      properties:
+        authorId:
+          type: string
+          minLength: 1
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+        content:
+          type: string
+          minLength: 1
+        id:
+          type: string
+          minLength: 1
+        published_at:
+          type: string
+          format: date-time
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        title:
+          type: string
+          minLength: 1
+
+
+    Tag:
+      type: object
+      description: Post tag/category
+      properties:
+        id:
+          type: string
+          minLength: 1
+        name:
+          type: string
+          minLength: 1
+
+
+    User:
+      type: object
+      description: Blog user account
+      properties:
+        bio:
+          type: string
+          maxLength: 500
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        id:
+          type: string
+          minLength: 1
+        posts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Post'
+        username:
+          type: string
+          minLength: 1
+          maxLength: 255

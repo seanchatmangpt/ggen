@@ -23,7 +23,6 @@ thiserror = { workspace = true }
 
 # Local infrastructure dependencies (use workspace = true pattern)
 ggen-core.workspace = true
-# ggen-ai.workspace = true  # Temporarily disabled - compilation errors
 ggen-utils.workspace = true
 ggen-marketplace.workspace = true
 # NOTE: ggen-config NOT included to avoid cyclic dependency
@@ -58,6 +57,9 @@ async-trait = "0.1"
 
 [features]
 default = []
+# AI integration (LLM providers: OpenAI, Anthropic, Ollama, etc.)
+# Planned for v5.1+ - ggen-ai is excluded from v5.0.2 build
+ai = []
 # EXPERIMENTAL: Marketplace v2 (planned for v4.0.0)
 marketplace-v2 = []
 
