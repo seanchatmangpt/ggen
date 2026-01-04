@@ -129,7 +129,10 @@ impl SwarmCoordinator {
         let total_completed = agents.values().map(|a| a.completed_rules.len()).sum();
         let total_failed = agents.values().map(|a| a.failed_rules.len()).sum();
 
-        let idle_agents = agents.values().filter(|a| a.assigned_rules.is_empty()).count();
+        let idle_agents = agents
+            .values()
+            .filter(|a| a.assigned_rules.is_empty())
+            .count();
 
         Ok(SwarmSummary {
             total_agents: agents.len(),
@@ -228,19 +231,29 @@ mod tests {
         let rules = vec![
             GenerationRule {
                 name: "rule-1".to_string(),
-                query: QuerySource::Inline { inline: "SELECT * WHERE {}".to_string() },
-                template: TemplateSource::Inline { inline: "t.tera".to_string() },
+                query: QuerySource::Inline {
+                    inline: "SELECT * WHERE {}".to_string(),
+                },
+                template: TemplateSource::Inline {
+                    inline: "t.tera".to_string(),
+                },
                 output_file: "out.rs".to_string(),
                 skip_empty: false,
                 mode: Default::default(),
+                when: None,
             },
             GenerationRule {
                 name: "rule-2".to_string(),
-                query: QuerySource::Inline { inline: "SELECT * WHERE {}".to_string() },
-                template: TemplateSource::Inline { inline: "t.tera".to_string() },
+                query: QuerySource::Inline {
+                    inline: "SELECT * WHERE {}".to_string(),
+                },
+                template: TemplateSource::Inline {
+                    inline: "t.tera".to_string(),
+                },
                 output_file: "out.rs".to_string(),
                 skip_empty: false,
                 mode: Default::default(),
+                when: None,
             },
         ];
 
@@ -257,11 +270,16 @@ mod tests {
 
         let rules = vec![GenerationRule {
             name: "rule-1".to_string(),
-            query: QuerySource::Inline { inline: "SELECT * WHERE {}".to_string() },
-            template: TemplateSource::Inline { inline: "t.tera".to_string() },
+            query: QuerySource::Inline {
+                inline: "SELECT * WHERE {}".to_string(),
+            },
+            template: TemplateSource::Inline {
+                inline: "t.tera".to_string(),
+            },
             output_file: "out.rs".to_string(),
             skip_empty: false,
             mode: Default::default(),
+            when: None,
         }];
 
         swarm.enqueue_rules(rules).await.unwrap();

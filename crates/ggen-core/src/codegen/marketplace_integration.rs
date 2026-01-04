@@ -48,15 +48,20 @@ impl MarketplaceValidator {
                 let package_name = parts[0].to_string();
 
                 // Detect self-referential patterns
-                if manifest.generation.rules
+                if manifest
+                    .generation
+                    .rules
                     .iter()
                     .filter(|r| r.name.starts_with(&format!("{}/", package_name)))
-                    .count() > 10
+                    .count()
+                    > 10
                 {
                     warnings.push(format!(
                         "Package '{}' has many rules ({}), may indicate circular dependency risk",
                         package_name,
-                        manifest.generation.rules
+                        manifest
+                            .generation
+                            .rules
                             .iter()
                             .filter(|r| r.name.starts_with(&format!("{}/", package_name)))
                             .count()
@@ -66,7 +71,10 @@ impl MarketplaceValidator {
 
             // Infer package info from rule name
             let (package_name, version) = if parts.len() >= 2 {
-                (parts[0].to_string(), parts.get(1).unwrap_or(&"1.0.0").to_string())
+                (
+                    parts[0].to_string(),
+                    parts.get(1).unwrap_or(&"1.0.0").to_string(),
+                )
             } else {
                 (rule.name.clone(), "1.0.0".to_string())
             };

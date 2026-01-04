@@ -24,9 +24,9 @@ pub mod audit;
 pub mod code_graph;
 pub mod concurrent;
 pub mod dependency_validation;
-pub mod executor;
 pub mod execution_lifecycle;
 pub mod execution_proof;
+pub mod executor;
 pub mod incremental_cache;
 #[allow(dead_code)]
 pub mod lifecycle_hooks;
@@ -37,9 +37,9 @@ pub mod proof_archive;
 pub mod swarm_execution;
 pub mod swarm_executor_bridge;
 pub mod typescript;
+pub mod watch;
 pub mod watch_cache_integration;
 pub mod watch_mode;
-pub mod watch;
 
 // Re-export key types
 pub use audit::{AuditOutput, AuditStep, AuditTrail, AuditTrailBuilder};
@@ -49,9 +49,9 @@ pub use code_graph::{
 };
 pub use concurrent::ConcurrentRuleExecutor;
 pub use dependency_validation::{DependencyCheck, DependencyValidationReport, DependencyValidator};
-pub use executor::{SyncExecutor, SyncResult, SyncedFileInfo, ValidationCheck};
-pub use execution_lifecycle::{ExecutionLifecycle, PreSyncContext, PostSyncContext};
+pub use execution_lifecycle::{ExecutionLifecycle, PostSyncContext, PreSyncContext};
 pub use execution_proof::{ExecutionProof, ProofCarrier, RuleExecution};
+pub use executor::{SyncExecutor, SyncResult, SyncedFileInfo, ValidationCheck};
 pub use incremental_cache::{CacheInvalidation, IncrementalCache};
 pub use marketplace_integration::{MarketplaceValidator, PackageValidation, PreFlightReport};
 pub use merge::{merge_sections, parse_merge_markers, MergeMarkers, MergedSections};
@@ -59,13 +59,13 @@ pub use pipeline::{
     ExecutedRule, GeneratedFile, GenerationPipeline, PipelineState, RuleType, ValidationResult,
     ValidationSeverity,
 };
-pub use proof_archive::{ProofArchive, ChainVerification};
+pub use proof_archive::{ChainVerification, ProofArchive};
 pub use swarm_execution::{Agent, SwarmCoordinator, SwarmSummary};
-pub use swarm_executor_bridge::{SwarmExecutorBridge, ExecutionStrategy};
+pub use swarm_executor_bridge::{ExecutionStrategy, SwarmExecutorBridge};
 pub use typescript::TypeScriptGenerator;
-pub use watch_cache_integration::{WatchCacheIntegration, AffectedRulesAnalysis};
-pub use watch_mode::{WatchConfig, WatchMode};
 pub use watch::{collect_watch_paths, FileWatcher, WatchEvent};
+pub use watch_cache_integration::{AffectedRulesAnalysis, WatchCacheIntegration};
+pub use watch_mode::{WatchConfig, WatchMode};
 
 // ============================================================================
 // Sync Options (CLI Configuration for ggen sync)
@@ -168,7 +168,7 @@ impl Default for SyncOptions {
             validate_only: false,
             output_format: OutputFormat::default(),
             timeout_ms: 30000, // 30 second default
-            use_cache: true, // Caching enabled by default
+            use_cache: true,   // Caching enabled by default
             cache_dir: None,
             max_parallelism: None, // Use system default
         }

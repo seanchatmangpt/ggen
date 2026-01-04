@@ -30,8 +30,7 @@ impl ConcurrentRuleExecutor {
     }
 
     pub fn find_independent_rules(
-        rules: &[GenerationRule],
-        dependencies: &HashMap<String, HashSet<String>>,
+        rules: &[GenerationRule], dependencies: &HashMap<String, HashSet<String>>,
     ) -> Vec<Vec<String>> {
         let mut batches: Vec<Vec<String>> = vec![];
         let mut processed = HashSet::new();
@@ -66,12 +65,13 @@ impl ConcurrentRuleExecutor {
     }
 
     pub async fn execute_rules_concurrent<F>(
-        rules: &[GenerationRule],
-        max_parallelism: Option<usize>,
-        executor: F,
+        rules: &[GenerationRule], max_parallelism: Option<usize>, executor: F,
     ) -> Result<Vec<(String, Result<()>)>>
     where
-        F: Fn(GenerationRule) -> futures::future::BoxFuture<'static, Result<()>> + Send + Sync + 'static,
+        F: Fn(GenerationRule) -> futures::future::BoxFuture<'static, Result<()>>
+            + Send
+            + Sync
+            + 'static,
     {
         let dependencies = Self::detect_rule_dependencies(rules);
         let batches = Self::find_independent_rules(rules, &dependencies);

@@ -53,9 +53,7 @@ impl ExecutionLifecycle {
     }
 
     pub async fn run_post_sync_hooks(
-        &self,
-        result: &SyncResult,
-        options: &SyncOptions,
+        &self, result: &SyncResult, options: &SyncOptions,
     ) -> Result<PostSyncContext> {
         let start = Instant::now();
         let mut context = PostSyncContext {
@@ -78,9 +76,7 @@ impl ExecutionLifecycle {
     }
 
     pub async fn handle_execution_error(
-        &self,
-        _error: &ggen_utils::error::Error,
-        options: &SyncOptions,
+        &self, _error: &ggen_utils::error::Error, options: &SyncOptions,
     ) -> Result<()> {
         for handler in &self.error_handlers {
             if options.verbose {
@@ -161,7 +157,10 @@ mod tests {
         };
         let options = SyncOptions::default();
 
-        let context = lifecycle.run_post_sync_hooks(&result, &options).await.unwrap();
+        let context = lifecycle
+            .run_post_sync_hooks(&result, &options)
+            .await
+            .unwrap();
         assert_eq!(context.status, "success");
         assert_eq!(context.files_synced, 5);
     }

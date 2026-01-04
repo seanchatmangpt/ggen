@@ -186,11 +186,16 @@ impl SyncExecutor {
         })?;
 
         if self.options.verbose {
-            eprintln!("Pre-flight checks: {} validations, {} high-risk items detected",
-                pre_flight.validations.len(), pre_flight.high_risks.len());
+            eprintln!(
+                "Pre-flight checks: {} validations, {} high-risk items detected",
+                pre_flight.validations.len(),
+                pre_flight.high_risks.len()
+            );
             if !pre_flight.all_passed {
-                eprintln!("⚠ Warning: {} critical failures, {} warnings in packages",
-                    pre_flight.critical_failures_count, pre_flight.warnings_count);
+                eprintln!(
+                    "⚠ Warning: {} critical failures, {} warnings in packages",
+                    pre_flight.critical_failures_count, pre_flight.warnings_count
+                );
             }
         }
 
@@ -246,12 +251,17 @@ impl SyncExecutor {
 
         // Check dependencies (ontology imports, circular references, file existence)
         let dep_report = DependencyValidator::validate_manifest(manifest_data, base_path).ok();
-        let dep_passed = dep_report.as_ref().is_some_and(|r| !r.has_cycles && r.failed_checks == 0);
+        let dep_passed = dep_report
+            .as_ref()
+            .is_some_and(|r| !r.has_cycles && r.failed_checks == 0);
         validations.push(ValidationCheck {
             check: "Dependencies".to_string(),
             passed: dep_passed,
             details: if let Some(report) = dep_report {
-                Some(format!("{}/{} checks passed", report.passed_checks, report.total_checks))
+                Some(format!(
+                    "{}/{} checks passed",
+                    report.passed_checks, report.total_checks
+                ))
             } else {
                 Some("Dependency check failed".to_string())
             },
@@ -519,21 +529,26 @@ impl SyncExecutor {
 
         // Generate execution proof for determinism verification
         let mut proof_carrier = ProofCarrier::new();
-        let manifest_content = std::fs::read_to_string(&self.options.manifest_path)
-            .unwrap_or_default();
-        let ontology_content = std::fs::read_to_string(base_path.join(&manifest_data.ontology.source))
-            .unwrap_or_default();
+        let manifest_content =
+            std::fs::read_to_string(&self.options.manifest_path).unwrap_or_default();
+        let ontology_content =
+            std::fs::read_to_string(base_path.join(&manifest_data.ontology.source))
+                .unwrap_or_default();
 
-        if let Ok(proof) = proof_carrier.generate_proof(&manifest_content, &ontology_content, &SyncResult {
-            status: "executing".to_string(),
-            files_synced: 0,
-            duration_ms: 0,
-            files: synced_files.clone(),
-            inference_rules_executed: inference_count,
-            generation_rules_executed: generation_count,
-            audit_trail: None,
-            error: None,
-        }) {
+        if let Ok(proof) = proof_carrier.generate_proof(
+            &manifest_content,
+            &ontology_content,
+            &SyncResult {
+                status: "executing".to_string(),
+                files_synced: 0,
+                duration_ms: 0,
+                files: synced_files.clone(),
+                inference_rules_executed: inference_count,
+                generation_rules_executed: generation_count,
+                audit_trail: None,
+                error: None,
+            },
+        ) {
             if self.options.verbose {
                 eprintln!("Execution proof: {}", proof.execution_id);
             }
