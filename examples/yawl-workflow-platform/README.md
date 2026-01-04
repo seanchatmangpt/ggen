@@ -10,9 +10,9 @@ This example demonstrates ggen's power to generate a complete workflow automatio
 
 - **YAWL XML Generation**: Generate YAWL 4.0 XML specifications from RDF
 - **Van der Aalst Patterns**: Full support for WP1-WP7 workflow patterns
-- **Servlet Handlers**: TypeScript HTTP handlers for workflow operations
+- **Servlet Handlers**: ESM HTTP handlers for workflow operations
 - **Worklet Exception Handlers**: RDF-driven rule-based exception handling
-- **Cryptographic Receipts**: BLAKE3-hashed audit trail for all operations
+- **Cryptographic Receipts**: SHA-256 hashed audit trail for all operations (via hash-wasm)
 - **Time-Travel Replay**: Event-sourced case replay via KGC-4D integration
 
 ## Architecture
@@ -36,7 +36,7 @@ This example demonstrates ggen's power to generate a complete workflow automatio
 │  ┌──────────────────────────────────────────────────────────────────┐    │
 │  │                   Generated Code                                  │    │
 │  │  • YAWL XML Specs          • REST API Routes                      │    │
-│  │  • Servlet Handlers        • TypeScript Types                     │    │
+│  │  • Servlet Handlers        • ESM Types with Zod                   │    │
 │  │  • Worklet Handlers        • Vitest Integration Tests             │    │
 │  │  • Task Definitions        • Flow Definitions                     │    │
 │  │  • Workflow Engine         • Receipt Types                        │    │
@@ -150,7 +150,7 @@ Generated from RDF servlet definitions:
 ## Van der Aalst Pattern Implementations
 
 ### WP1: Sequence
-```typescript
+```javascript
 function evaluateSequence(completedTaskId, flows) {
   return flows.filter(f => f.sourceTaskId === completedTaskId)
               .map(f => f.targetTaskId);
@@ -158,7 +158,7 @@ function evaluateSequence(completedTaskId, flows) {
 ```
 
 ### WP2: Parallel Split (AND-Split)
-```typescript
+```javascript
 function evaluateAndSplit(completedTaskId, flows) {
   return flows.filter(f => f.sourceTaskId === completedTaskId)
               .map(f => f.targetTaskId); // Enable ALL targets
@@ -166,7 +166,7 @@ function evaluateAndSplit(completedTaskId, flows) {
 ```
 
 ### WP3: Synchronization (AND-Join)
-```typescript
+```javascript
 async function evaluateAndJoin(taskId, store, caseId) {
   // SPARQL ASK: All incoming branches completed?
   return executeSparqlAsk(store, `
@@ -185,7 +185,7 @@ async function evaluateAndJoin(taskId, store, caseId) {
 ```
 
 ### WP4: Exclusive Choice (XOR-Split)
-```typescript
+```javascript
 function evaluateXorSplit(completedTaskId, flows, caseData) {
   for (const flow of flows.sort((a, b) => a.priority - b.priority)) {
     if (evaluateCondition(flow.condition, caseData)) {
@@ -207,9 +207,9 @@ Worklets use RDF-defined rules with SPARQL ASK conditions:
     yawl-worklet:rulePriority 1 .
 ```
 
-Generated TypeScript evaluates rules:
+Generated JavaScript evaluates rules:
 
-```typescript
+```javascript
 async evaluateCondition(sparqlAsk, context) {
   const boundQuery = sparqlAsk
     .replace(/\?workItem/g, `<${context.workItem.workItemId}>`);
@@ -219,9 +219,9 @@ async evaluateCondition(sparqlAsk, context) {
 
 ## Cryptographic Receipts
 
-Every operation generates a cryptographic receipt for audit:
+Every operation generates a cryptographic receipt for audit using SHA-256 (via hash-wasm):
 
-```typescript
+```javascript
 const receipt = await generateReceipt({
   eventType: YAWL_EVENT_TYPES.TASK_COMPLETED,
   entityId: workItem.workItemId,
@@ -232,7 +232,7 @@ const receipt = await generateReceipt({
 
 Receipt chain integrity is verifiable:
 
-```typescript
+```javascript
 const isValid = await engine.verifyReceiptChain();
 ```
 
@@ -240,7 +240,7 @@ const isValid = await engine.verifyReceiptChain();
 
 This example leverages the [unrdf YAWL package](https://github.com/seanchatmangpt/unrdf):
 
-```typescript
+```javascript
 import {
   createWorkflow,
   createCase,
@@ -250,9 +250,10 @@ import {
   verifyReceipt,
   YAWL_NS,
   YAWL_EVENT_TYPES,
+  createYawlStore,
+  executeSparqlSelect,
+  executeSparqlAsk,
 } from '@unrdf/yawl';
-
-import { createStore, executeSparqlSelect, executeSparqlAsk } from '@unrdf/oxigraph';
 ```
 
 ## Generation Rules
@@ -260,7 +261,7 @@ import { createStore, executeSparqlSelect, executeSparqlAsk } from '@unrdf/oxigr
 The `ggen.toml` defines 14 generation rules:
 
 1. **yawl-xml-specs** - YAWL XML from workflow definitions
-2. **task-definitions** - TypeScript task types
+2. **task-definitions** - ESM task types with Zod
 3. **flow-definitions** - Flow definitions with conditions
 4. **servlet-handlers** - HTTP handlers per servlet
 5. **worklet-handlers** - Exception handlers with rules
@@ -272,7 +273,7 @@ The `ggen.toml` defines 14 generation rules:
 11. **case-types** - Case management types
 12. **workitem-types** - Work item types
 13. **package-json** - Node.js package configuration
-14. **tsconfig** - TypeScript configuration
+14. **worklet-index** - Worklet registry module
 
 ## Extending
 
@@ -300,7 +301,7 @@ The `ggen.toml` defines 14 generation rules:
        yawl-servlet:servletId "my-servlet" ;
        yawl-servlet:urlPattern "/api/my-endpoint" ;
        yawl-servlet:httpMethod "POST" ;
-       yawl-servlet:outputPath "lib/servlets/MyServlet.ts" .
+       yawl-servlet:outputPath "lib/servlets/MyServlet.mjs" .
    ```
 
 2. Regenerate:
@@ -325,7 +326,7 @@ The `ggen.toml` defines 14 generation rules:
 1. **RDF-First**: All specifications in Turtle, code is derived
 2. **SPARQL-Driven**: File paths, routes, handlers from queries
 3. **No Hardcoding**: Everything comes from ontology
-4. **Type Safety**: Zod schemas generated from RDF
+4. **Type Safety**: Zod schemas generated from RDF (pure ESM, no TypeScript)
 5. **Audit Trail**: Cryptographic receipts for all operations
 6. **Test Coverage**: Integration tests with MSW mocking
 7. **Pattern Implementation**: Van der Aalst workflow patterns
