@@ -49,6 +49,9 @@ fn test_force_plus_audit_safe_destructive() {
         selected_rules: None,
         output_format: ggen_core::codegen::OutputFormat::Text,
         timeout_ms: 30000,
+        use_cache: true,
+        cache_dir: None,
+        max_parallelism: None,
     };
 
     // Assert: Both flags are enabled
@@ -129,6 +132,9 @@ fn test_merge_plus_watch_live_hybrid() {
         selected_rules: None,
         output_format: ggen_core::codegen::OutputFormat::Text,
         timeout_ms: 30000,
+        use_cache: true,
+        cache_dir: None,
+        max_parallelism: None,
     };
 
     // Assert: Watch flag is enabled
@@ -208,6 +214,9 @@ fn test_condition_plus_validate_only() {
         selected_rules: None,
         output_format: ggen_core::codegen::OutputFormat::Json,
         timeout_ms: 30000,
+        use_cache: true,
+        cache_dir: None,
+        max_parallelism: None,
     };
 
     // Assert: Validate-only flag is enabled
@@ -304,6 +313,9 @@ fn test_force_merge_audit_all_three() {
         selected_rules: None,
         output_format: ggen_core::codegen::OutputFormat::Text,
         timeout_ms: 30000,
+        use_cache: true,
+        cache_dir: None,
+        max_parallelism: None,
     };
 
     // Assert: All three flags are enabled
@@ -428,6 +440,9 @@ fn test_watch_condition_audit_live_conditional() {
         selected_rules: None,
         output_format: ggen_core::codegen::OutputFormat::Json,
         timeout_ms: 30000,
+        use_cache: true,
+        cache_dir: None,
+        max_parallelism: None,
     };
 
     // Assert: Watch + audit are enabled
@@ -553,6 +568,9 @@ fn test_flag_precedence_validate_only_blocks_generation() {
         selected_rules: None,
         output_format: ggen_core::codegen::OutputFormat::Json,
         timeout_ms: 30000,
+        use_cache: true,
+        cache_dir: None,
+        max_parallelism: None,
     };
 
     // Assert: validate_only takes precedence over force
@@ -575,6 +593,9 @@ fn test_flag_precedence_validate_only_blocks_generation() {
         selected_rules: None,
         output_format: ggen_core::codegen::OutputFormat::Text,
         timeout_ms: 30000,
+        use_cache: true,
+        cache_dir: None,
+        max_parallelism: None,
     };
 
     // Assert: dry_run prevents actual file writes
@@ -626,6 +647,9 @@ fn test_dry_run_preview_with_all_flags() {
         selected_rules: Some(vec!["rule1".to_string(), "rule2".to_string()]),
         output_format: ggen_core::codegen::OutputFormat::Json,
         timeout_ms: 30000,
+        use_cache: true,
+        cache_dir: None,
+        max_parallelism: None,
     };
 
     // Assert: dry_run is enabled with all other flags
@@ -714,6 +738,9 @@ fn test_invalid_flag_combinations() {
         selected_rules: None,
         output_format: ggen_core::codegen::OutputFormat::Text,
         timeout_ms: 30000,
+        use_cache: true,
+        cache_dir: None,
+        max_parallelism: None,
     };
 
     // Assert: Conflicting flags can be set but should be validated at runtime
@@ -738,6 +765,9 @@ fn test_invalid_flag_combinations() {
         selected_rules: None,
         output_format: ggen_core::codegen::OutputFormat::Text,
         timeout_ms: 30000,
+        use_cache: true,
+        cache_dir: None,
+        max_parallelism: None,
     };
 
     // Assert: Force without audit is allowed but should generate warning
@@ -762,6 +792,9 @@ fn test_invalid_flag_combinations() {
         selected_rules: None,
         output_format: ggen_core::codegen::OutputFormat::Text,
         timeout_ms: 30000,
+        use_cache: true,
+        cache_dir: None,
+        max_parallelism: None,
     };
 
     // Assert: dry_run + watch is allowed (preview watch changes)
@@ -782,6 +815,9 @@ fn test_invalid_flag_combinations() {
         selected_rules: Some(vec!["rule1".to_string()]), // Selected rules (ignored?)
         output_format: ggen_core::codegen::OutputFormat::Json,
         timeout_ms: 30000,
+        use_cache: true,
+        cache_dir: None,
+        max_parallelism: None,
     };
 
     // Assert: selected_rules with validate_only is allowed (validate specific rules)

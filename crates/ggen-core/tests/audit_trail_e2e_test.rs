@@ -78,6 +78,9 @@ inline = "Name: {{{{ name }}}}"
         output_format: OutputFormat::Text,
         watch: false,
         timeout_ms: 30000,
+        use_cache: true,
+        cache_dir: None,
+        max_parallelism: None,
     };
 
     let executor = SyncExecutor::new(options);
@@ -199,6 +202,9 @@ inline = "Entity {}: {{{{ name }}}}"
         output_format: OutputFormat::Text,
         watch: false,
         timeout_ms: 30000,
+        use_cache: true,
+        cache_dir: None,
+        max_parallelism: None,
     };
 
     let executor = SyncExecutor::new(options);
@@ -285,6 +291,9 @@ rules = []
         output_format: OutputFormat::Text,
         watch: false,
         timeout_ms: 30000,
+        use_cache: true,
+        cache_dir: None,
+        max_parallelism: None,
     };
 
     let executor = SyncExecutor::new(options);
