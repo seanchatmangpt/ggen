@@ -1,0 +1,12 @@
+# Invalid manifest for marketplace - missing -gpack suffix
+# Used for: Marketplace validation tests
+# Feature: 014-marketplace-gpack T003
+# Expected error: "Marketplace packages must end with '-gpack' suffix"
+
+[package]
+name = "my-package"  # Missing -gpack suffix
+version = "1.0.0"
+description = "Package without gpack suffix"
+authors = ["Author <author@example.com>"]
+license = "MIT"
+quality_tier = "silver"

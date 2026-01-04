@@ -1,0 +1,10 @@
+# Invalid manifest - missing package name
+# Used for: Validation error tests
+# Feature: 014-marketplace-gpack T003
+# Expected error: "Package name cannot be empty"
+
+[package]
+# name = ""  # Intentionally missing
+version = "1.0.0"
+description = "Package without a name"
+license = "MIT"

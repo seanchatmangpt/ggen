@@ -1,0 +1,60 @@
+# Valid complex gpack manifest with all fields
+# Used for: Comprehensive manifest parsing tests
+# Feature: 014-marketplace-gpack T003
+
+[package]
+name = "advanced-codegen-gpack"
+version = "2.3.1"
+description = "Advanced code generation package with full feature set"
+authors = [
+    "Lead Developer <lead@example.com>",
+    "Contributor <contrib@example.com>"
+]
+license = "Apache-2.0"
+repository = "https://github.com/example/advanced-codegen-gpack"
+homepage = "https://example.com/advanced-codegen"
+documentation = "https://docs.example.com/advanced-codegen"
+keywords = ["codegen", "rdf", "sparql", "ontology", "templates"]
+categories = ["development-tools", "template-engine"]
+ggen_version = "5.0"
+fmea_reference = "docs/fmea-analysis.md"
+quality_tier = "gold"
+
+[dependencies]
+# Core dependencies
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.0", features = ["full", "rt-multi-thread"] }
+
+# RDF processing
+oxigraph = "0.5"
+
+# Template engine
+tera = "1.20"
+
+# Git dependency
+my-custom-lib = { git = "https://github.com/example/my-lib", tag = "v1.0.0" }
+
+# Path dependency (for workspace)
+local-utils = { path = "../utils", version = "1.0" }
+
+# Optional dependency
+fancy-logging = { version = "0.5", optional = true }
+
+[dev-dependencies]
+proptest = "1.0"
+tempfile = "3.0"
+mockall = "0.11"
+
+[features]
+default = ["async", "rdf"]
+async = []
+rdf = ["oxigraph"]
+full = ["async", "rdf", "fancy-logging"]
+
+[build]
+script = "build.rs"
+
+[build.env]
+CODEGEN_TARGET = "release"
+ENABLE_OTEL = "true"

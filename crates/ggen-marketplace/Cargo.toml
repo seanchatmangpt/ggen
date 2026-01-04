@@ -12,10 +12,23 @@ keywords = ["marketplace", "rdf", "semantic", "packages"]
 categories = ["development-tools"]
 
 [dependencies]
-# Async runtime
+# =============================================================================
+# GPACK DEPENDENCIES (Feature 014-marketplace-gpack)
+# =============================================================================
+# These dependencies support the gpack distribution format:
+# - tokio: Async runtime for network operations
+# - reqwest: HTTP client for crates.io API
+# - serde/toml/yaml: Manifest parsing and serialization
+# - oxigraph: RDF-based package metadata
+# - sha2/ed25519-dalek: Cryptographic verification (FMEA: FM001, FM002)
+# - semver: Version constraint resolution
+# - tempfile: Cache management
+# =============================================================================
+
+# Async runtime (gpack: async package fetching, parallel resolution)
 tokio = { workspace = true }
 
-# Serialization
+# Serialization (gpack: manifest parsing, lockfile generation)
 serde = { workspace = true }
 serde_json = { workspace = true }
 
@@ -47,11 +60,14 @@ ahash = "0.8"                        # Fast hashing
 dashmap = "5.5"                      # Concurrent hash maps for metrics/events
 lru = "0.16"                         # LRU cache
 
-# Cryptography & security
-ed25519-dalek = "2.1"                # Ed25519 signatures
-sha2 = "0.10"                        # SHA-256
-hex = "0.4"                          # Hex encoding
+# Cryptography & security (gpack: FM002 signature verification, FM001 checksum)
+ed25519-dalek = "2.1"                # Ed25519 signatures for package signing
+sha2 = "0.10"                        # SHA-256 checksums for integrity verification
+hex = "0.4"                          # Hex encoding for checksum display
 rand = "0.8"                         # Random number generation
+
+# Version management (gpack: dependency resolution, manifest parsing)
+semver = "1.0"                       # Semantic versioning for version constraints
 
 # High-performance search & indexing
 fst = "0.4"                          # Finite state transducers
@@ -62,15 +78,17 @@ typed-builder = "0.18"               # Type-safe builders
 # Validation
 serde_derive = "1.0"
 
-# HTTP/REST (for future API implementation)
+# HTTP/REST (gpack: crates.io client, package download)
 hyper = { version = "1.0", features = ["full"] }
 axum = "0.7"
 http = "1.0"
 tower = "0.4"
 tower-http = { version = "0.5", features = ["cors", "trace"] }
+reqwest = { workspace = true }       # HTTP client for crates.io API
 
 # Configuration
 toml = { workspace = true }
+serde_yaml = { workspace = true }
 config = "0.14"
 
 # Testing utilities
@@ -87,6 +105,13 @@ bytes = "1.5"
 # Rate limiting & caching
 moka = { version = "0.12", features = ["future"] }
 instant = "0.1"
+
+# System utilities (gpack: cache directories, user info for audit)
+dirs = "5.0"                          # Platform-specific directories (~/.ggen/cache)
+whoami = "1.5"                        # Username for audit records
+
+# Temporary files (gpack: cache testing, installation temp dirs)
+tempfile = "3.23"
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["full"] }

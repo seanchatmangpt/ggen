@@ -1,6 +1,6 @@
 [package]
 name = "ggen-core"
-version = "5.0.2"
+version = "5.2.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Core graph-aware code generation engine"
 edition = "2021"
@@ -88,6 +88,7 @@ testcontainers = "0.25"
 uuid = { version = "1.18", features = ["v4"] }
 chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras", "testcontainers", "async"] }
 anyhow = "1.0"
+hex = "0.4"
 
 [[bench]]
 name = "lifecycle_benchmarks"

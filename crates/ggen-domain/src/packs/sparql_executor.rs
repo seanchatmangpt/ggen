@@ -338,7 +338,6 @@ impl SparqlExecutor {
                     Value::String(value.to_string())
                 }
             }
-            _ => Value::String(term.to_string()),
         }
     }
 

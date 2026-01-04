@@ -83,17 +83,26 @@
 //! - SPARQL-based queries
 //! - Version history as RDF facts
 
+pub mod audit;
 pub mod builders;
+pub mod cache;
 pub mod error;
+pub mod fmea_mitigations;
+pub mod gpack;
 pub mod install;
+pub mod install_validator;
+pub mod lockfile;
+pub mod marketplace_installer;
 pub mod metrics;
 pub mod migration;
 pub mod models;
 pub mod ontology;
+pub mod publish;
 pub mod rdf;
 pub mod rdf_mapper;
 pub mod registry;
 pub mod registry_rdf;
+pub mod resolver;
 pub mod search;
 pub mod search_sparql;
 pub mod security;
@@ -101,14 +110,22 @@ pub mod traits;
 pub mod v3;
 pub mod validation;
 
+pub use audit::{AuditManager, InstallationRecord, InstallationStatus};
+pub use cache::{CacheStats, MultiLayerCache};
 pub use error::{Error, Result};
 pub use install::Installer;
+pub use install_validator::{InstallValidator, InstallValidationResult, PokaYokeGuard, ValidationOptions};
+pub use lockfile::{Lockfile, LockfileManager, LockedPackage};
+pub use marketplace_installer::{MarketplaceInstaller, InstallOptions, InstallProgress, InstallResult};
 pub use metrics::MetricsCollector;
 pub use models::*;
 pub use registry::Registry;
 pub use registry_rdf::RdfRegistry;
+pub use resolver::{DependencyResolver, ResolvedDependency, ResolutionResult, VersionConstraint};
 pub use search::SearchEngine;
-pub use search_sparql::SparqlSearchEngine;
+pub use search_sparql::{
+    EnhancedSearchResult, QualityTier, SearchFilters, SearchMetrics, SparqlSearchEngine,
+};
 pub use security::SignatureVerifier;
 pub use traits::*;
 pub use v3::V3OptimizedRegistry;
@@ -117,12 +134,18 @@ pub use validation::Validator;
 /// Prelude for convenient imports
 pub mod prelude {
     pub use crate::{
+        audit::{AuditManager, InstallationRecord, InstallationStatus},
+        cache::{CacheStats, MultiLayerCache},
         error::{Error, Result},
         install::Installer,
+        install_validator::{InstallValidator, InstallValidationResult, PokaYokeGuard, ValidationOptions},
+        lockfile::{Lockfile, LockfileManager, LockedPackage},
+        marketplace_installer::{MarketplaceInstaller, InstallOptions, InstallProgress, InstallResult},
         metrics::MetricsCollector,
         models::{Manifest, Package, PackageId, PackageMetadata, PackageVersion},
         registry::Registry,
         registry_rdf::RdfRegistry,
+        resolver::{DependencyResolver, ResolvedDependency, ResolutionResult, VersionConstraint},
         search::SearchEngine,
         search_sparql::SparqlSearchEngine,
         security::SignatureVerifier,
