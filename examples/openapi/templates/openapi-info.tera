@@ -1,3 +1,10 @@
+---
+to: lib/openapi/api-info.yaml
+description: Generates OpenAPI specification info section and server configuration
+metadata:
+  category: openapi
+  output_type: api_info
+---
 {# =============================================================================
    OPENAPI INFO TEMPLATE - Generates API info and servers
    Uses sparql_results array with ?-prefixed keys

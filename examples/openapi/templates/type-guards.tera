@@ -1,3 +1,13 @@
+---
+to: lib/guards/entities.mjs
+description: Generates TypeScript type guards for runtime type checking
+vars:
+  entityName: string
+  propertyName: string
+metadata:
+  category: guards
+  output_type: type_guards
+---
 {# =============================================================================
    TYPE GUARDS TEMPLATE - Generates runtime type checkers
    Uses sparql_results array with ?-prefixed keys
@@ -30,12 +40,13 @@
     true
   );
 }
+
 {% endif -%}
 {%- set_global current_entity = entityName %}
 /**
  * Type guard for {{ entityName }}
  * @param {unknown} value - Value to check
- * @returns {value is {{ entityName }}}
+ * @returns {boolean} True if value matches {{ entityName }} structure
  */
 export function is{{ entityName }}(value) {
   return (

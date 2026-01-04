@@ -1,0 +1,3 @@
+[submodule "vendors/gvisor"]
+	path = vendors/gvisor
+	url = https://github.com/seanchatmangpt/gvisor.git

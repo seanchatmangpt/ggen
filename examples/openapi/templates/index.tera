@@ -1,3 +1,12 @@
+---
+to: lib/index.mjs
+description: Generates barrel export file with all generated exports
+vars:
+  entityName: string
+metadata:
+  category: exports
+  output_type: barrel_export
+---
 {# =============================================================================
    INDEX TEMPLATE - Generates barrel export file
    Uses sparql_results array with ?-prefixed keys
@@ -9,13 +18,17 @@
  */
 
 // Entity schemas
-export * from './schemas.js';
+export * from './schemas/entities.mjs';
 
 // Request validation schemas
-export * from './request-schemas.js';
+export * from './schemas/requests.mjs';
+
+// Type definitions
+export * from './types/entities.mjs';
+export * from './types/requests.mjs';
 
 // Type guards
-export * from './guards.js';
+export * from './guards/entities.mjs';
 
 // Entity names from ontology:
 {%- set entities = [] -%}
