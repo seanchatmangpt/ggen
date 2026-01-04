@@ -1,0 +1,25 @@
+# Generated output (DO NOT COMMIT)
+lib/
+
+# Dependencies
+node_modules/
+
+# Build
+.next/
+dist/
+out/
+
+# Database
+*.db
+*.db-journal
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
