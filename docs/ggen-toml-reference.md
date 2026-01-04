@@ -274,13 +274,13 @@ model = "gpt-4"
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `api_key_env` | String | "ANTHROPIC_API_KEY" | Environment variable for API key |
-| `model` | String | "claude-3-5-sonnet-20241022" | Default model |
+| `model` | String | "claude-haiku-4-5-20251001" | Default model |
 | `base_url` | String | "https://api.anthropic.com" | API base URL |
 
 ```toml
 [ai.providers.anthropic]
 api_key_env = "ANTHROPIC_API_KEY"
-model = "claude-3-5-sonnet-20241022"
+model = "claude-haiku-4-5-20251001"
 ```
 
 #### Ollama: `[ai.providers.ollama]`

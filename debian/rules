@@ -1,0 +1,27 @@
+#!/usr/bin/make -f
+
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+
+export DH_VERBOSE = 1
+export CARGO_HOME = $(CURDIR)/cargo_home
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	# Binary was pre-built via: cargo build --release -p ggen-cli-lib --bin ggen
+	# Just verify it exists
+	test -f target/release/ggen || (echo "Binary not found!" && exit 1)
+
+override_dh_auto_install:
+	mkdir -p debian/ggen/usr/bin
+	cp target/release/ggen debian/ggen/usr/bin/
+	mkdir -p debian/ggen/usr/share/doc/ggen
+	cp README.md debian/ggen/usr/share/doc/ggen/
+	cp LICENSE debian/ggen/usr/share/doc/ggen/copyright
+	gzip -9n debian/ggen/usr/share/doc/ggen/README.md || true
+
+override_dh_auto_test:
+	# Tests require network/LLM access, skip in packaging
+	echo "Skipping tests in package build"
