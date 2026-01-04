@@ -1,0 +1,781 @@
+{
+  "agent": 5,
+  "task": "DESIGN REWRITE METHODOLOGY",
+  "rewrite_methodology": {
+    "definition_from_scratch": {
+      "principle": "Complete content recreation, preserving only directory structure and intent",
+      "scope": [
+        "Delete all template files (*.tmpl, *.tera)",
+        "Delete all generated output directories (generated/, output/)",
+        "Delete all example code files (*.rs, *.py, *.js, *.ts)",
+        "Delete all data files (*.ttl, *.yaml, *.json data, *.csv)",
+        "Preserve: README.md (structure only), ggen.toml (structure only), directory tree",
+        "Preserve: .gitignore, scripts/shell structure, makefile structure"
+      ],
+      "what_stays": [
+        "Directory names and hierarchy",
+        "Conceptual intent from original README",
+        "Learning objectives (reworded, not copied)",
+        "Original example classification (Beginner/Intermediate/Advanced/Expert)",
+        "File paths and naming conventions"
+      ],
+      "what_goes": [
+        "All template implementations",
+        "All generated code artifacts",
+        "All example data and ontologies",
+        "All explanatory prose (will be rewritten)",
+        "All code samples (will be fresh)"
+      ],
+      "implementation_strategy": "Start with empty .gitkeep files in subdirectories, build content from requirements docs, NOT from reading old content"
+    },
+    "definition_no_refactor": {
+      "principle": "Preserve original design intent, philosophy, and scope without improvements",
+      "constraints": [
+        "No feature additions beyond original scope",
+        "No modernization of frameworks/patterns",
+        "No architectural improvements",
+        "No optimization unless originally intended",
+        "No expanded learning objectives",
+        "No additional complexity layers",
+        "No refactoring of configuration structure"
+      ],
+      "preservation_requirements": [
+        "Same technology stack (if not outdated)",
+        "Same learning path difficulty",
+        "Same number of templates/modules",
+        "Same dependency count (±1 acceptable for critical fixes)",
+        "Same expected generation time",
+        "Same user interaction model",
+        "Original code patterns (if not anti-patterns)"
+      ],
+      "acceptable_changes": [
+        "Bug fixes in original code",
+        "Updated versions for security",
+        "Corrected documentation errors",
+        "Clarified existing explanations",
+        "Fixed broken shell scripts",
+        "Updated deprecated API calls (minimal)",
+        "Normalized formatting/style"
+      ],
+      "explicitly_forbidden": [
+        "Adding new framework/library not in original",
+        "Changing testing approach/framework",
+        "Adding new example use cases",
+        "Splitting into multiple examples",
+        "Merging with other examples",
+        "Changing target audience difficulty",
+        "Adding async/await where not used originally"
+      ]
+    },
+    "example_types": {
+      "Tutorial": {
+        "description": "Step-by-step learning with guided exercises",
+        "duration": "15-30 minutes",
+        "components": [
+          "README.md with clear learning objectives",
+          "1-3 simple templates or code samples",
+          "run-example.sh script with interactive steps",
+          "Expected output documentation",
+          "Basic troubleshooting section"
+        ],
+        "structure": {
+          "README.md": "Prerequisites, Objectives, Step 1-5, Expected Output, Troubleshooting",
+          "templates/": "1-3 focused .tmpl files",
+          "output/": "Expected generated files",
+          "scripts/": "run-example.sh with menu system",
+          "docs/": "Optional step-by-step guides"
+        },
+        "rewrite_checklist": [
+          "[ ] Clear learning objectives defined (max 5)",
+          "[ ] Prerequisites listed (ggen, optional tools)",
+          "[ ] 3-5 clear steps with expected outputs",
+          "[ ] Each template <100 LOC",
+          "[ ] All variable names self-documenting",
+          "[ ] Output files have comments explaining generated code",
+          "[ ] run-example.sh works without manual intervention",
+          "[ ] Error handling in scripts includes helpful messages",
+          "[ ] All filters/features used in templates are documented",
+          "[ ] Expected output section matches actual output"
+        ]
+      },
+      "Project Generation": {
+        "description": "Complete multi-file project generation from specification",
+        "duration": "45-60 minutes",
+        "components": [
+          "ggen.toml with manifest configuration",
+          "project-spec.yaml or equivalent",
+          "6-12 templates covering project structure",
+          "generate-project.sh orchestration script",
+          "Complete README with architecture overview",
+          "Integration test template",
+          "Cargo.toml template"
+        ],
+        "structure": {
+          "README.md": "Overview, Generation Steps, API Docs, Troubleshooting",
+          "ggen.toml": "Project manifest with all generation rules",
+          "project-spec.yaml": "Project variables and configuration",
+          "templates/": "6-12 .tmpl files for modules/config/tests",
+          "output/": "Expected generated project structure",
+          "generate-project.sh": "Validation and generation orchestration",
+          "TEMPLATE_REFERENCE.md": "Each template explained"
+        },
+        "rewrite_checklist": [
+          "[ ] ggen.toml has all required sections (project, templates, generation)",
+          "[ ] 6-12 templates provided (not fewer)",
+          "[ ] generate-project.sh validates before generating",
+          "[ ] Generated project builds with 'cargo build'",
+          "[ ] Generated project passes 'cargo test'",
+          "[ ] Each template <200 LOC",
+          "[ ] Variables are consistent across templates",
+          "[ ] Output directory matches expected structure",
+          "[ ] Cargo.toml template includes necessary dependencies",
+          "[ ] Integration test validates at least 50% of modules",
+          "[ ] Error messages guide users to fixes",
+          "[ ] Customization via project-spec.yaml documented"
+        ]
+      },
+      "Ontology-Driven": {
+        "description": "RDF/SPARQL specification-to-code generation",
+        "duration": "60-90 minutes",
+        "components": [
+          "ggen.toml with ontology configuration",
+          "2-3 *.ttl RDF ontology files",
+          "8-10 generation rules (SPARQL + templates)",
+          "8-10 *.tera template files",
+          "Golden output examples",
+          "SPARQL query documentation",
+          "Schema validation"
+        ],
+        "structure": {
+          "README.md": "Ontology design, Generation pipeline, Architecture",
+          "ggen.toml": "Ontology sources, prefixes, generation rules",
+          "ontology/": "*.ttl files with domain models",
+          "templates/": "8-10 .tera template files",
+          "golden/": "Example generated outputs",
+          "queries/": "SPARQL query explanations (optional)",
+          "schema/": "SHACL validation schemas (optional)"
+        },
+        "rewrite_checklist": [
+          "[ ] At least 2 ontology files (domain + schema)",
+          "[ ] All RDF prefixes defined in ggen.toml",
+          "[ ] 8-10 generation rules provided",
+          "[ ] Each SPARQL query has SELECT/WHERE documented",
+          "[ ] Each template accepts SPARQL result variables",
+          "[ ] Golden output files show all generation variations",
+          "[ ] Ontology classes/properties well-named",
+          "[ ] README explains ontology structure (class hierarchy)",
+          "[ ] SPARQL queries ordered by generation dependency",
+          "[ ] Template variables match SPARQL SELECT columns",
+          "[ ] Example .ttl data provided for testing",
+          "[ ] Query results tested with sample ontology"
+        ]
+      },
+      "AI-Powered": {
+        "description": "LLM-assisted template/code generation workflows",
+        "duration": "45-60 minutes",
+        "components": [
+          "README with AI setup instructions",
+          "Prompts library (prompts.txt or prompts.yaml)",
+          "Mock mode for testing without API keys",
+          "Validation examples (valid/invalid templates)",
+          "run-ai-workflow.sh orchestration",
+          "Cost/token tracking documentation"
+        ],
+        "structure": {
+          "README.md": "AI setup, API keys, Mock mode, Prompts",
+          "prompts.txt": "5-10 example prompts with expected outputs",
+          "run-ai-workflow.sh": "Multi-step AI workflow orchestration",
+          "validation-examples/": "valid/invalid template examples",
+          "generated/": "Example AI-generated outputs",
+          "docs/": "Prompt engineering guide, Cost tracking"
+        },
+        "rewrite_checklist": [
+          "[ ] Mock mode works without API keys",
+          "[ ] 5-10 example prompts provided",
+          "[ ] Each prompt has expected output description",
+          "[ ] Validation examples show good/bad templates",
+          "[ ] run-ai-workflow.sh runs completely",
+          "[ ] Token usage tracked and reported",
+          "[ ] API key setup documented for 2+ providers",
+          "[ ] Error handling for API failures included",
+          "[ ] Cost estimation provided ($/1k tokens)",
+          "[ ] Prompt engineering tips documented",
+          "[ ] Generated outputs include quality metrics",
+          "[ ] Fallback to mock mode on API errors"
+        ]
+      },
+      "Utility/Tool": {
+        "description": "Standalone tool or script demonstration",
+        "duration": "15-30 minutes",
+        "components": [
+          "Rust binary or script",
+          "Simple README",
+          "usage() function with examples",
+          "Input/output examples",
+          "Error handling"
+        ],
+        "structure": {
+          "README.md": "Purpose, Usage, Examples, Troubleshooting",
+          "src/": "Main binary code",
+          "examples/": "Input samples",
+          "output/": "Expected output samples"
+        },
+        "rewrite_checklist": [
+          "[ ] Tool runs without external dependencies (or documented)",
+          "[ ] cargo run --example works out-of-box",
+          "[ ] Help text includes examples",
+          "[ ] Input files provided",
+          "[ ] Output clearly documented",
+          "[ ] Error cases handled gracefully",
+          "[ ] Code <200 LOC",
+          "[ ] At least 3 test cases documented",
+          "[ ] Performance noted (if >1s)",
+          "[ ] Clear success/failure indicators"
+        ]
+      }
+    },
+    "rewrite_checklist_universal": [
+      "[ ] README.md exists with complete information",
+      "[ ] Learning objectives are clear and achievable",
+      "[ ] Prerequisites explicitly listed",
+      "[ ] All external tools/APIs documented with setup steps",
+      "[ ] No hardcoded file paths (use relative or ~/)",
+      "[ ] All scripts are executable and tested",
+      "[ ] All templates/code files have clear comments",
+      "[ ] Expected output documented with examples",
+      "[ ] At least 3 error scenarios covered in troubleshooting",
+      "[ ] Time estimate matches actual (±10%)",
+      "[ ] All dependencies listed with versions",
+      "[ ] Code follows project style guide (no linting errors)",
+      "[ ] No absolute paths in any files",
+      "[ ] All variables/parameters documented",
+      "[ ] Example can be run multiple times (idempotent)",
+      "[ ] Generated code compiles/runs without modification",
+      "[ ] No console output assumes user knowledge",
+      "[ ] Example is self-contained (doesn't depend on other examples)",
+      "[ ] All file permissions are correct (scripts executable)",
+      "[ ] Example validates its own output"
+    ],
+    "validation_criteria": {
+      "pre_rewrite_validation": {
+        "specification_clarity": [
+          "Original intent documented without ambiguity",
+          "Learning objectives clear",
+          "Expected outputs defined",
+          "Edge cases documented"
+        ],
+        "scope_boundaries": [
+          "Example is self-contained",
+          "Dependencies listed",
+          "Duration accurate",
+          "Complexity level correct"
+        ],
+        "content_inventory": [
+          "All source files catalogued",
+          "All templates identified",
+          "All data files listed",
+          "All scripts documented"
+        ]
+      },
+      "post_rewrite_validation": {
+        "completeness": [
+          "README.md complete with all sections",
+          "All templates present and functional",
+          "All scripts executable",
+          "All expected outputs match actual",
+          "No TODO/FIXME comments in production code"
+        ],
+        "functionality": [
+          "Example runs end-to-end without errors",
+          "All generated artifacts are valid",
+          "Output matches specification exactly",
+          "Error cases handled correctly",
+          "Troubleshooting section tested"
+        ],
+        "documentation": [
+          "Learning objectives achievable",
+          "Prerequisites sufficient",
+          "Steps are clear and ordered",
+          "Examples provided for all features",
+          "Troubleshooting covers common failures"
+        ],
+        "code_quality": [
+          "No linting errors (clippy, shellcheck)",
+          "Comments explain WHY not WHAT",
+          "Variable names are self-documenting",
+          "No hardcoded values",
+          "Proper error handling throughout"
+        ],
+        "reproducibility": [
+          "Runs identically on clean environment",
+          "No implicit assumptions",
+          "All environment setup explicit",
+          "No timing-dependent behavior",
+          "Output is deterministic"
+        ]
+      },
+      "final_approval_criteria": [
+        "✓ Passes all pre-rewrite validation checks",
+        "✓ Passes all post-rewrite validation checks",
+        "✓ Runs successfully 3x on clean environment",
+        "✓ Troubleshooting section tested for all listed errors",
+        "✓ Time estimate accurate (measured)",
+        "✓ Learning objectives achieved after following steps",
+        "✓ All external dependencies documented with versions",
+        "✓ Code style matches project conventions",
+        "✓ No security warnings (no unsafe, no unwrap in production)",
+        "✓ Example is truly 'from scratch' (can verify via git diff)",
+        "✓ No regressions vs. original (same functionality/complexity)",
+        "✓ README reviewed for clarity and completeness",
+        "✓ All tests pass (if applicable)",
+        "✓ Example is discoverable from main examples/README.md",
+        "✓ Metadata (duration, difficulty, prerequisites) accurate"
+      ]
+    },
+    "standard_example_template": {
+      "directory_structure": {
+        "root": {
+          "README.md": "Complete guide (250-500 words)",
+          "QUICK_REFERENCE.md": "Cheat sheet (optional, <100 words)",
+          ".gitignore": "Standard Rust/build ignores"
+        },
+        "templates": {
+          "description": "All template files here (*.tmpl or *.tera)",
+          "pattern": "1-10 focused files, well-commented"
+        },
+        "data": {
+          "description": "Ontologies, configs, specifications (*.ttl, *.yaml, *.json)",
+          "pattern": "Sample data for generation"
+        },
+        "generated": {
+          "description": "Expected output samples",
+          "pattern": "Golden files showing correct generation"
+        },
+        "scripts": {
+          "description": "Automation (*.sh files)",
+          "pattern": "run-example.sh, generate-project.sh"
+        },
+        "docs": {
+          "description": "Additional documentation (optional)",
+          "pattern": "Step guides, API docs, advanced topics"
+        }
+      },
+      "readme_structure": {
+        "header": "# Example Title\n\nOne-line description.\n\n## Learning Objectives\n- Bullet list of 3-5 objectives\n\n## Prerequisites\n- ggen [version]\n- Optional: [tool] [version]\n\n## Overview\n2-3 sentence summary of what this demonstrates\n\n## Step-by-Step\n### Step 1: [Action]\nExplanation and commands\n### Step 2: [Action]\nExplanation and commands\n\n## Expected Output\nShow actual output examples\n\n## Customization\nHow to modify variables/templates\n\n## Troubleshooting\n- Error X: Cause and fix\n- Error Y: Cause and fix\n- Error Z: Cause and fix\n\n## Next Steps\nPointers to related examples\n\n## Resources\nLinks to documentation"
+      },
+      "template_structure": {
+        "frontmatter": "YAML with: to, vars, optional inject/skip_if",
+        "body": "Tera template syntax with {{variables}} and filters",
+        "comments": "Explain complex logic, show variable substitutions",
+        "example_variables": "Document expected value types",
+        "max_lines": 150,
+        "style": "Match ggen style guide"
+      },
+      "script_structure": {
+        "shebang": "#!/bin/bash",
+        "error_handling": "set -e for early exit on errors",
+        "help_function": "Usage with examples",
+        "main_flow": "Clear step-by-step execution",
+        "error_messages": "User-friendly, actionable",
+        "cleanup": "Trap EXIT to clean up temp files",
+        "return_codes": "0 on success, non-zero on error"
+      },
+      "metadata": {
+        "ggen_version": "1.0+ (or specific version)",
+        "difficulty": "Beginner | Intermediate | Advanced | Expert",
+        "duration_minutes": "[15, 30] or [30, 45] etc",
+        "prerequisite_examples": "List any required prior knowledge",
+        "tags": "List technology areas covered",
+        "last_verified": "YYYY-MM-DD"
+      }
+    },
+    "type_variations": {
+      "Tutorial_Variations": {
+        "basic": {
+          "templates": 1,
+          "steps": 3,
+          "time_minutes": 15,
+          "expected_output_lines": "<50",
+          "script_lines": "<100"
+        },
+        "intermediate": {
+          "templates": 2,
+          "steps": 5,
+          "time_minutes": 30,
+          "expected_output_lines": "50-150",
+          "script_lines": "100-200"
+        }
+      },
+      "ProjectGeneration_Variations": {
+        "small": {
+          "templates": "4-6",
+          "generation_rules": "3-4",
+          "modules": "3-4",
+          "time_minutes": 45,
+          "output_files": "10-15"
+        },
+        "medium": {
+          "templates": "7-10",
+          "generation_rules": "5-7",
+          "modules": "5-6",
+          "time_minutes": 60,
+          "output_files": "20-30"
+        },
+        "large": {
+          "templates": "11-15",
+          "generation_rules": "8-12",
+          "modules": "7-10",
+          "time_minutes": 90,
+          "output_files": "30-50"
+        }
+      },
+      "OntologyDriven_Variations": {
+        "simple": {
+          "ontology_files": 1,
+          "generation_rules": "4-5",
+          "templates": "4-5",
+          "sparql_queries": "4-5",
+          "time_minutes": 45
+        },
+        "complex": {
+          "ontology_files": "2-3",
+          "generation_rules": "8-12",
+          "templates": "8-12",
+          "sparql_queries": "8-12",
+          "time_minutes": 90
+        }
+      },
+      "AI_Variations": {
+        "mock_only": {
+          "prompts": "3-5",
+          "requires_api_key": false,
+          "time_minutes": 15,
+          "providers": 1
+        },
+        "mock_with_real": {
+          "prompts": "5-8",
+          "requires_api_key": true,
+          "time_minutes": 30,
+          "providers": "2-3"
+        }
+      }
+    },
+    "acceptable_variations": {
+      "naming_conventions": {
+        "rule": "Follow project conventions (snake_case, PascalCase)",
+        "acceptable": [
+          "user_service vs UserService (follow module type)",
+          "v1 vs v2 (version suffix is flexible)",
+          "api_handler vs handler_api (consistency within example)"
+        ],
+        "not_acceptable": [
+          "foo/bar (unhelpful names)",
+          "mixing snake_case/camelCase in same example",
+          "abbreviations (usr, svc) instead of full names"
+        ]
+      },
+      "technology_choices": {
+        "rule": "Match original example's tech stack",
+        "acceptable": [
+          "axum 0.7 vs 0.8 (patch version)",
+          "tokio 1.40 vs 1.41 (minor version)",
+          "Same framework (actix, axum, rocket, etc)"
+        ],
+        "not_acceptable": [
+          "Replace actix with axum (different framework)",
+          "Add async where not used (changes design)",
+          "Drop major dependency (changes scope)"
+        ]
+      },
+      "complexity_levels": {
+        "rule": "Match original difficulty",
+        "acceptable": [
+          "Adding more fields to struct (same pattern)",
+          "Adding 1-2 more endpoints (same architecture)",
+          "More test cases (same testing approach)"
+        ],
+        "not_acceptable": [
+          "Adding database persistence (level jump)",
+          "Adding authentication (scope change)",
+          "Changing from simple to complex patterns"
+        ]
+      },
+      "documentation_style": {
+        "rule": "Clear, actionable, beginner-friendly",
+        "acceptable": [
+          "Different wording (same information)",
+          "Adding visual examples (same concepts)",
+          "More detailed error explanations"
+        ],
+        "not_acceptable": [
+          "Removing troubleshooting section",
+          "Assuming advanced knowledge",
+          "Omitting expected outputs"
+        ]
+      }
+    }
+  },
+  "quality_gates": {
+    "pre_rewrite_checks": [
+      {
+        "check": "SPECIFICATION_DOCUMENTED",
+        "validation": "Original intent documented in .specify/specs/NNN-rewrite/spec.ttl",
+        "failure_action": "STOP - Create specification first"
+      },
+      {
+        "check": "SCOPE_BOUNDARIES_CLEAR",
+        "validation": "From-scratch scope explicitly defined (what deletes, what preserves)",
+        "failure_action": "STOP - Clarify boundaries with user"
+      },
+      {
+        "check": "NO_REFACTOR_CONSTRAINTS_LISTED",
+        "validation": "List of acceptable changes documented",
+        "failure_action": "STOP - Define constraints"
+      },
+      {
+        "check": "EXAMPLE_TYPE_CLASSIFIED",
+        "validation": "Example is one of: Tutorial, ProjectGeneration, OntologyDriven, AI-Powered, Utility",
+        "failure_action": "STOP - Classify example"
+      },
+      {
+        "check": "TEMPLATE_INVENTORY_COMPLETE",
+        "validation": "All template files listed with line counts",
+        "failure_action": "WARNING - Document any found during rewrite"
+      },
+      {
+        "check": "DEPENDENCIES_CATALOGUED",
+        "validation": "All external dependencies listed with versions",
+        "failure_action": "STOP - List dependencies"
+      }
+    ],
+    "post_rewrite_validation": [
+      {
+        "check": "README_COMPLETENESS",
+        "validation": "All sections present: Objectives, Prerequisites, Steps, Output, Troubleshooting",
+        "failure_action": "BLOCK_MERGE - Complete README"
+      },
+      {
+        "check": "SCRIPTS_EXECUTABLE",
+        "validation": "All .sh files executable, run without errors",
+        "failure_action": "BLOCK_MERGE - Fix scripts"
+      },
+      {
+        "check": "TEMPLATES_VALID",
+        "validation": "All templates pass ggen template validation, render without errors",
+        "failure_action": "BLOCK_MERGE - Fix templates"
+      },
+      {
+        "check": "OUTPUT_MATCHES_GOLDEN",
+        "validation": "Generated output identical to golden/expected files",
+        "failure_action": "BLOCK_MERGE - Regenerate or update golden"
+      },
+      {
+        "check": "NO_HARDCODED_PATHS",
+        "validation": "Grep -r '/home\\|/Users\\|C:\\\\' in templates, scripts, data",
+        "failure_action": "BLOCK_MERGE - Fix paths"
+      },
+      {
+        "check": "CODE_QUALITY_CHECKS",
+        "validation": "shellcheck *.sh, clippy on Rust examples, no linting errors",
+        "failure_action": "BLOCK_MERGE - Fix linting"
+      },
+      {
+        "check": "REPRODUCIBILITY_TEST",
+        "validation": "Example runs identically on clean environment 3x",
+        "failure_action": "BLOCK_MERGE - Fix non-determinism"
+      },
+      {
+        "check": "SCOPE_NOT_EXCEEDED",
+        "validation": "No new frameworks, patterns, or architectural changes vs original",
+        "failure_action": "REQUIRE_JUSTIFICATION - Document any scope changes"
+      }
+    ],
+    "final_approval_criteria": [
+      "✓ All pre-rewrite checks passed",
+      "✓ All post-rewrite validation checks passed",
+      "✓ Example type checklist items all marked [✓]",
+      "✓ Time estimate verified by actual execution (±10% acceptable)",
+      "✓ Learning objectives validated: each can be achieved by following steps",
+      "✓ Troubleshooting section tested: each error scenario reproduced and fix verified",
+      "✓ Code review: no anti-patterns, follows ggen style guide",
+      "✓ Security review: no unwrap()/expect() in production code",
+      "✓ Documentation review: no jargon, clear examples throughout",
+      "✓ Git history clean: single logical commit per example",
+      "✓ Example discoverable: listed in main examples/README.md",
+      "✓ Metadata accurate: difficulty, duration, prerequisites",
+      "✓ No regressions: functionality preserved from original",
+      "✓ All TODOs, FIXMEs removed",
+      "✓ Ready for production use"
+    ]
+  },
+  "execution_plan": {
+    "file_organization": {
+      "deletion_pattern": [
+        "Find all *.tmpl, *.tera in example directory",
+        "Find all *.rs, *.py, *.js, *.ts code files",
+        "Find all generated/ output/ directories",
+        "Find all ontology data (*.ttl, *.yaml data, *.json data)",
+        "Delete matching files, preserve directory structure"
+      ],
+      "preservation_pattern": [
+        "Keep .gitkeep files in directories",
+        "Keep ggen.toml structure (delete values, keep keys)",
+        "Keep README.md structure (delete prose, keep headings)",
+        "Keep .gitignore",
+        "Keep script files (*.sh) but rewrite content"
+      ],
+      "directory_template": {
+        "example-name/": {
+          ".gitignore": "Standard ignores",
+          "README.md": "Section headers only (to be filled)",
+          "ggen.toml": "Keys only (to be filled)",
+          "templates/": ".gitkeep",
+          "data/": ".gitkeep (optional)",
+          "scripts/": ".gitkeep",
+          "docs/": ".gitkeep (optional)",
+          "generated/": ".gitkeep (optional)"
+        }
+      }
+    },
+    "content_strategy": {
+      "phase_1_analysis": [
+        "Read original README, document intent in 1-2 sentences",
+        "List original templates/code files and their purposes",
+        "Identify example type (Tutorial/ProjectGen/Ontology/AI/Utility)",
+        "Document key variables/parameters from originals",
+        "Note any special patterns or edge cases"
+      ],
+      "phase_2_blank_slate": [
+        "Delete all content files",
+        "Create .gitkeep placeholders",
+        "Verify directory structure remains intact",
+        "Commit: 'blank slate for rewrite: example-name'"
+      ],
+      "phase_3_specification": [
+        "Create .specify/specs/NNN-rewrite-example-name/spec.ttl",
+        "Document intent, scope, constraints",
+        "Run /speckit-verify to ensure closure",
+        "Commit: 'add specification for rewrite: example-name'"
+      ],
+      "phase_4_rebuild": [
+        "Recreate ggen.toml from specification (not copy)",
+        "Recreate templates from scratch (not copy)",
+        "Recreate scripts from scratch (not copy)",
+        "Recreate README from scratch (not copy)",
+        "Commit: 'rewrite: example-name [fresh implementation]'"
+      ],
+      "phase_5_validation": [
+        "Run post-rewrite validation checks",
+        "Test on clean environment",
+        "Verify all quality gates pass",
+        "Commit: 'validate: example-name [all checks pass]'"
+      ]
+    },
+    "rollback_procedure": {
+      "pre_rewrite_snapshot": [
+        "git tag example-name-original-$(date +%Y%m%d)",
+        "Preserve original commit hash in .specify/specs/NNN-rewrite/rollback.md"
+      ],
+      "rollback_command": "git checkout example-name-original-20240101 -- examples/example-name/",
+      "recovery_steps": [
+        "If rewrite fails: git reset --hard HEAD~1",
+        "If merge conflict: git checkout --theirs examples/example-name/",
+        "Verify: git diff example-name-original-20240101 -- examples/example-name/",
+        "Escalate to user if differences > 20%"
+      ]
+    },
+    "agent_workflow": {
+      "input": "Example name, original files, specification",
+      "process": [
+        "1. Run pre-rewrite-checks (fail fast)",
+        "2. Create specification closure (if needed)",
+        "3. Delete content files (preserve structure)",
+        "4. Recreate from scratch (not copy-paste)",
+        "5. Run post-rewrite validation (all gates)",
+        "6. Measure time (update metadata)",
+        "7. Create PR with evidence (receipts)"
+      ],
+      "output": [
+        "Rewritten example with same intent, fresh implementation",
+        "All quality gates passing",
+        "Specification document in .specify/",
+        "Time estimate verified",
+        "Troubleshooting section tested"
+      ]
+    }
+  },
+  "quality_metrics": {
+    "completeness_score": {
+      "formula": "(sections_present / total_sections) * 100",
+      "minimum": 95,
+      "sections": [
+        "README.md",
+        "Templates/Code",
+        "Scripts",
+        "Documentation",
+        "Troubleshooting",
+        "Expected Output",
+        "Metadata"
+      ]
+    },
+    "functionality_score": {
+      "formula": "(tests_passing / total_tests) * 100",
+      "minimum": 100,
+      "tests": [
+        "Scripts run without errors",
+        "Templates render valid output",
+        "Generated code compiles/runs",
+        "Output matches golden files",
+        "Troubleshooting scenarios work",
+        "Clean environment execution",
+        "Reproducibility (3x run identical)"
+      ]
+    },
+    "time_accuracy_score": {
+      "formula": "100 - |estimated_time - actual_time| / estimated_time * 100",
+      "minimum": 90,
+      "measurement": "Actual time to complete example end-to-end"
+    },
+    "scope_preservation_score": {
+      "formula": "(preserved_intent / original_intent) * 100",
+      "minimum": 95,
+      "checks": [
+        "Same technology stack",
+        "Same learning difficulty",
+        "Same module count",
+        "Same user interaction model",
+        "Same code patterns"
+      ]
+    },
+    "documentation_clarity_score": {
+      "formula": "(clarity_votes / total_votes) * 100",
+      "minimum": 85,
+      "criteria": [
+        "No unexplained jargon",
+        "Examples for each feature",
+        "Clear cause/fix for errors",
+        "Logical step progression",
+        "Appropriate detail level"
+      ]
+    }
+  },
+  "evidence_requirements": {
+    "receipts_for_completion": [
+      "[Receipt] Pre-rewrite checks: ✓ all passed",
+      "[Receipt] Post-rewrite validation: ✓ all gates passed",
+      "[Receipt] Code quality: ✓ no linting errors",
+      "[Receipt] Functionality: ✓ 7/7 tests passing",
+      "[Receipt] Reproducibility: ✓ 3x clean environment runs identical",
+      "[Receipt] Time estimate: measured at XX minutes (vs YY estimated)",
+      "[Receipt] Scope preservation: ✓ no architectural changes",
+      "[Receipt] Documentation: ✓ learning objectives verified achievable"
+    ],
+    "verification_commands": [
+      "shellcheck examples/example-name/scripts/*.sh",
+      "cargo test --example example-name 2>&1 | grep 'test result'",
+      "cd examples/example-name && ./run-example.sh 2>&1 | tail -5",
+      "git diff --stat HEAD^ -- examples/example-name/ | head -3",
+      "time ./examples/example-name/run-example.sh >/dev/null"
+    ]
+  }
+}
