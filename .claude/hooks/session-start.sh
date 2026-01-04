@@ -42,7 +42,18 @@ fi
 # 4. Verify cargo-make installed
 if ! command -v cargo-make &> /dev/null; then
     echo -e "${YELLOW}[ggen] Installing cargo-make...${NC}"
-    cargo install cargo-make --quiet || true
+    cargo install cargo-make --quiet || {
+        echo -e "${YELLOW}[ggen] ⚠ cargo-make installation failed - may affect build commands${NC}"
+    }
+    # Verify installation succeeded
+    if ! command -v cargo-make &> /dev/null; then
+        echo -e "${YELLOW}[ggen] ⚠ WARNING: cargo-make not available, builds will fail${NC}"
+        echo -e "${YELLOW}[ggen] Install manually: cargo install cargo-make${NC}"
+    else
+        echo -e "${GREEN}[ggen] ✓ cargo-make installed${NC}"
+    fi
+else
+    echo -e "${GREEN}[ggen] ✓ cargo-make available${NC}"
 fi
 
 # 5. Check git status
