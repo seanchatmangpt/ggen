@@ -1,0 +1,489 @@
+# =============================================================================
+# YAWL WORKFLOW PLATFORM - ggen Manifest
+# Code generation from RDF specifications using SPARQL queries
+# =============================================================================
+
+[project]
+name = "yawl-workflow-platform"
+version = "1.0.0"
+description = "YAWL-based workflow automation platform with servlets and worklets"
+
+# =============================================================================
+# ONTOLOGY CONFIGURATION
+# =============================================================================
+
+[ontology]
+source = "ontology/platform-workflows.ttl"
+imports = ["ontology/yawl-vocab.ttl"]
+
+[ontology.prefixes]
+yawl = "http://unrdf.org/yawl#"
+yawl-case = "http://unrdf.org/yawl/case#"
+yawl-task = "http://unrdf.org/yawl/task#"
+yawl-work = "http://unrdf.org/yawl/workitem#"
+yawl-servlet = "http://unrdf.org/yawl/servlet#"
+yawl-worklet = "http://unrdf.org/yawl/worklet#"
+yawl-gen = "http://unrdf.org/yawl/generation#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+
+# =============================================================================
+# PHASE 1: INFERENCE RULES (CONSTRUCT queries for graph enrichment)
+# =============================================================================
+
+[[inference.rules]]
+name = "derive-task-handlers"
+description = "Enrich graph with task handler metadata from task definitions"
+construct = """
+PREFIX yawl: <http://unrdf.org/yawl#>
+PREFIX yawl-gen: <http://unrdf.org/yawl/generation#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?task yawl-gen:handlerName ?handlerName ;
+        yawl-gen:handlerPath ?handlerPath .
+}
+WHERE {
+  ?task a ?taskType ;
+        yawl:taskId ?taskId ;
+        yawl:taskName ?taskName .
+  ?taskType rdfs:subClassOf* yawl:Task .
+  BIND(CONCAT(UCASE(SUBSTR(?taskId, 1, 1)), SUBSTR(?taskId, 2)) AS ?handlerName)
+  BIND(CONCAT("lib/handlers/", ?taskId, "Handler.mjs") AS ?handlerPath)
+}
+"""
+
+[[inference.rules]]
+name = "derive-flow-metadata"
+description = "Enrich flows with evaluation metadata"
+construct = """
+PREFIX yawl: <http://unrdf.org/yawl#>
+PREFIX yawl-gen: <http://unrdf.org/yawl/generation#>
+
+CONSTRUCT {
+  ?flow yawl-gen:evaluationOrder ?priority ;
+        yawl-gen:hasCondition ?hasCondition .
+}
+WHERE {
+  ?flow a yawl:Flow ;
+        yawl:flowPriority ?priority .
+  OPTIONAL { ?flow yawl:flowCondition ?condition }
+  BIND(BOUND(?condition) AS ?hasCondition)
+}
+"""
+
+[[inference.rules]]
+name = "derive-servlet-routes"
+description = "Generate route metadata from servlet definitions"
+construct = """
+PREFIX yawl-servlet: <http://unrdf.org/yawl/servlet#>
+PREFIX yawl-gen: <http://unrdf.org/yawl/generation#>
+
+CONSTRUCT {
+  ?servlet yawl-gen:routeHandler ?routeHandler ;
+           yawl-gen:routeMethod ?method .
+}
+WHERE {
+  ?servlet a ?servletType ;
+           yawl-servlet:servletName ?name ;
+           yawl-servlet:httpMethod ?method .
+  ?servletType rdfs:subClassOf* yawl-servlet:Servlet .
+  BIND(CONCAT(LCASE(SUBSTR(?name, 1, 1)), SUBSTR(?name, 2)) AS ?routeHandler)
+}
+"""
+
+# =============================================================================
+# PHASE 2: GENERATION RULES (SELECT queries + Templates)
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Rule 1: YAWL XML Specification Generation
+# -----------------------------------------------------------------------------
+[[generation.rules]]
+name = "yawl-xml-specs"
+description = "Generate YAWL XML specification files for each workflow"
+query = { inline = """
+PREFIX yawl: <http://unrdf.org/yawl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?specId ?specName ?specVersion ?specComment ?inputCondition ?outputCondition
+       (GROUP_CONCAT(DISTINCT ?taskId; separator=",") AS ?taskIds)
+WHERE {
+  ?spec a yawl:WorkflowSpec ;
+        yawl:specId ?specId ;
+        yawl:specName ?specName ;
+        yawl:specVersion ?specVersion ;
+        yawl:inputCondition ?inputCond ;
+        yawl:outputCondition ?outputCond ;
+        yawl:hasTasks ?task .
+  ?task yawl:taskId ?taskId .
+  OPTIONAL { ?spec rdfs:comment ?specComment }
+  ?inputCond rdfs:label ?inputCondition .
+  ?outputCond rdfs:label ?outputCondition .
+}
+GROUP BY ?specId ?specName ?specVersion ?specComment ?inputCondition ?outputCondition
+ORDER BY ?specId
+""" }
+template = { file = "templates/yawl-spec.tera" }
+output_file = "generated/workflows/{{ specId }}.yawl"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# Rule 2: Workflow Task Definitions
+# -----------------------------------------------------------------------------
+[[generation.rules]]
+name = "task-definitions"
+description = "Generate ESM task definitions from ontology"
+query = { inline = """
+PREFIX yawl: <http://unrdf.org/yawl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?specId ?taskId ?taskName ?taskKind ?splitBehavior ?joinBehavior ?taskComment
+       ?miMinimum ?miMaximum ?miThreshold ?miCreationMode
+WHERE {
+  ?spec a yawl:WorkflowSpec ;
+        yawl:specId ?specId ;
+        yawl:hasTasks ?task .
+  ?task yawl:taskId ?taskId ;
+        yawl:taskName ?taskName ;
+        yawl:taskKind ?taskKind .
+  OPTIONAL { ?task yawl:splitBehavior ?splitBehaviorNode . ?splitBehaviorNode rdfs:label ?splitBehavior }
+  OPTIONAL { ?task yawl:joinBehavior ?joinBehaviorNode . ?joinBehaviorNode rdfs:label ?joinBehavior }
+  OPTIONAL { ?task rdfs:comment ?taskComment }
+  OPTIONAL { ?task yawl:miMinimum ?miMinimum }
+  OPTIONAL { ?task yawl:miMaximum ?miMaximum }
+  OPTIONAL { ?task yawl:miThreshold ?miThreshold }
+  OPTIONAL { ?task yawl:miCreationMode ?miCreationMode }
+}
+ORDER BY ?specId ?taskId
+""" }
+template = { file = "templates/task-definitions.tera" }
+output_file = "lib/definitions/tasks.mjs"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# Rule 3: Flow Definitions
+# -----------------------------------------------------------------------------
+[[generation.rules]]
+name = "flow-definitions"
+description = "Generate flow definitions with conditions"
+query = { inline = """
+PREFIX yawl: <http://unrdf.org/yawl#>
+
+SELECT ?specId ?sourceTaskId ?targetTaskId ?flowCondition ?flowPriority ?isDefaultFlow
+WHERE {
+  ?spec a yawl:WorkflowSpec ;
+        yawl:specId ?specId ;
+        yawl:hasFlows ?flow .
+  ?flow yawl:sourceTask ?sourceTask ;
+        yawl:targetTask ?targetTask ;
+        yawl:flowPriority ?flowPriority ;
+        yawl:isDefaultFlow ?isDefaultFlow .
+  ?sourceTask yawl:taskId ?sourceTaskId .
+  ?targetTask yawl:taskId ?targetTaskId .
+  OPTIONAL { ?flow yawl:flowCondition ?flowCondition }
+}
+ORDER BY ?specId ?flowPriority
+""" }
+template = { file = "templates/flow-definitions.tera" }
+output_file = "lib/definitions/flows.mjs"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# Rule 4: Servlet Handler Generation
+# -----------------------------------------------------------------------------
+[[generation.rules]]
+name = "servlet-handlers"
+description = "Generate ESM servlet handlers from RDF definitions"
+query = { inline = """
+PREFIX yawl-servlet: <http://unrdf.org/yawl/servlet#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?servletId ?servletName ?urlPattern ?httpMethod ?requiresAuth
+       ?requestSchema ?responseSchema ?outputPath ?servletType
+WHERE {
+  ?servlet a ?servletType ;
+           yawl-servlet:servletId ?servletId ;
+           yawl-servlet:servletName ?servletName ;
+           yawl-servlet:urlPattern ?urlPattern ;
+           yawl-servlet:httpMethod ?httpMethod ;
+           yawl-servlet:outputPath ?outputPath .
+  ?servletType rdfs:subClassOf* yawl-servlet:Servlet .
+  OPTIONAL { ?servlet yawl-servlet:requiresAuth ?requiresAuth }
+  OPTIONAL { ?servlet yawl-servlet:requestSchema ?requestSchema }
+  OPTIONAL { ?servlet yawl-servlet:responseSchema ?responseSchema }
+  FILTER(?servletType != yawl-servlet:Servlet)
+}
+ORDER BY ?servletType ?servletId
+""" }
+template = { file = "templates/servlet-handler.tera" }
+output_file = "{{ outputPath }}"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# Rule 5: Worklet Handler Generation
+# -----------------------------------------------------------------------------
+[[generation.rules]]
+name = "worklet-handlers"
+description = "Generate ESM worklet exception handlers"
+query = { inline = """
+PREFIX yawl-worklet: <http://unrdf.org/yawl/worklet#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?workletId ?workletName ?exceptionType ?compensationAction ?outputPath
+       (GROUP_CONCAT(DISTINCT CONCAT(?ruleCondition, "||", ?ruleAction, "||", STR(?rulePriority)); separator=";;") AS ?rules)
+WHERE {
+  ?worklet a ?workletType ;
+           yawl-worklet:workletId ?workletId ;
+           yawl-worklet:workletName ?workletName ;
+           yawl-worklet:outputPath ?outputPath ;
+           yawl-worklet:hasRuleSet ?ruleSet .
+  ?ruleSet yawl-worklet:hasRules ?rule .
+  ?rule yawl-worklet:ruleCondition ?ruleCondition ;
+        yawl-worklet:ruleAction ?ruleAction ;
+        yawl-worklet:rulePriority ?rulePriority .
+  OPTIONAL { ?worklet yawl-worklet:handlesException ?exceptionNode . ?exceptionNode rdfs:label ?exceptionType }
+  OPTIONAL { ?worklet yawl-worklet:compensationAction ?compensationNode . ?compensationNode rdfs:label ?compensationAction }
+}
+GROUP BY ?workletId ?workletName ?exceptionType ?compensationAction ?outputPath
+ORDER BY ?workletId
+""" }
+template = { file = "templates/worklet-handler.tera" }
+output_file = "{{ outputPath }}"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# Rule 6: Workflow Engine Core
+# -----------------------------------------------------------------------------
+[[generation.rules]]
+name = "workflow-engine"
+description = "Generate the main workflow engine with Van der Aalst patterns"
+query = { inline = """
+PREFIX yawl: <http://unrdf.org/yawl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT ?splitType ?joinType
+WHERE {
+  {
+    ?task yawl:splitBehavior ?splitNode .
+    ?splitNode rdfs:label ?splitType .
+  }
+  UNION
+  {
+    ?task yawl:joinBehavior ?joinNode .
+    ?joinNode rdfs:label ?joinType .
+  }
+}
+ORDER BY ?splitType ?joinType
+""" }
+template = { file = "templates/workflow-engine.tera" }
+output_file = "lib/engine/WorkflowEngine.mjs"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# Rule 7: REST API Routes
+# -----------------------------------------------------------------------------
+[[generation.rules]]
+name = "rest-api-routes"
+description = "Generate Express-style REST API routes"
+query = { inline = """
+PREFIX yawl-servlet: <http://unrdf.org/yawl/servlet#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?servletId ?servletName ?urlPattern ?httpMethod ?requiresAuth ?servletType
+WHERE {
+  ?servlet a ?servletType ;
+           yawl-servlet:servletId ?servletId ;
+           yawl-servlet:servletName ?servletName ;
+           yawl-servlet:urlPattern ?urlPattern ;
+           yawl-servlet:httpMethod ?httpMethod .
+  ?servletType rdfs:subClassOf* yawl-servlet:Servlet .
+  OPTIONAL { ?servlet yawl-servlet:requiresAuth ?requiresAuth }
+  FILTER(?servletType != yawl-servlet:Servlet)
+}
+ORDER BY ?httpMethod ?urlPattern
+""" }
+template = { file = "templates/rest-api.tera" }
+output_file = "lib/api/routes.mjs"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# Rule 8: Vitest Integration Tests
+# -----------------------------------------------------------------------------
+[[generation.rules]]
+name = "vitest-tests"
+description = "Generate Vitest integration tests with MSW mocking"
+query = { inline = """
+PREFIX yawl: <http://unrdf.org/yawl#>
+PREFIX yawl-servlet: <http://unrdf.org/yawl/servlet#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?specId ?specName ?servletId ?urlPattern ?httpMethod
+WHERE {
+  {
+    ?spec a yawl:WorkflowSpec ;
+          yawl:specId ?specId ;
+          yawl:specName ?specName .
+  }
+  UNION
+  {
+    ?servlet yawl-servlet:servletId ?servletId ;
+             yawl-servlet:urlPattern ?urlPattern ;
+             yawl-servlet:httpMethod ?httpMethod .
+  }
+}
+ORDER BY ?specId ?servletId
+""" }
+template = { file = "templates/vitest-tests.tera" }
+output_file = "lib/tests/workflow.test.mjs"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# Rule 9: Workflow Specification Index
+# -----------------------------------------------------------------------------
+[[generation.rules]]
+name = "workflow-index"
+description = "Generate index of all workflow specifications"
+query = { inline = """
+PREFIX yawl: <http://unrdf.org/yawl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?specId ?specName ?specVersion ?specComment
+       (COUNT(DISTINCT ?task) AS ?taskCount)
+       (COUNT(DISTINCT ?flow) AS ?flowCount)
+WHERE {
+  ?spec a yawl:WorkflowSpec ;
+        yawl:specId ?specId ;
+        yawl:specName ?specName ;
+        yawl:specVersion ?specVersion .
+  OPTIONAL { ?spec rdfs:comment ?specComment }
+  OPTIONAL { ?spec yawl:hasTasks ?task }
+  OPTIONAL { ?spec yawl:hasFlows ?flow }
+}
+GROUP BY ?specId ?specName ?specVersion ?specComment
+ORDER BY ?specId
+""" }
+template = { file = "templates/workflow-index.tera" }
+output_file = "lib/definitions/index.mjs"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# Rule 10: Receipt Chain Types
+# -----------------------------------------------------------------------------
+[[generation.rules]]
+name = "receipt-types"
+description = "Generate receipt and audit trail types"
+query = { inline = """
+PREFIX yawl: <http://unrdf.org/yawl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT ?statusLabel
+WHERE {
+  {
+    ?status a yawl:CaseStatus .
+    ?status rdfs:label ?statusLabel .
+  }
+  UNION
+  {
+    ?status a yawl:WorkItemStatus .
+    ?status rdfs:label ?statusLabel .
+  }
+}
+ORDER BY ?statusLabel
+""" }
+template = { file = "templates/receipt-types.tera" }
+output_file = "lib/types/receipts.mjs"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# Rule 11: Case Management Types
+# -----------------------------------------------------------------------------
+[[generation.rules]]
+name = "case-types"
+description = "Generate case management ESM types"
+query = { inline = """
+PREFIX yawl: <http://unrdf.org/yawl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?statusClass ?statusLabel
+WHERE {
+  ?status a yawl:CaseStatus ;
+          rdfs:label ?statusLabel .
+  BIND(REPLACE(STR(?status), "^.*#", "") AS ?statusClass)
+}
+ORDER BY ?statusLabel
+""" }
+template = { file = "templates/case-types.tera" }
+output_file = "lib/types/cases.mjs"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# Rule 12: Work Item Types
+# -----------------------------------------------------------------------------
+[[generation.rules]]
+name = "workitem-types"
+description = "Generate work item ESM types"
+query = { inline = """
+PREFIX yawl: <http://unrdf.org/yawl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?statusClass ?statusLabel
+WHERE {
+  ?status a yawl:WorkItemStatus ;
+          rdfs:label ?statusLabel .
+  BIND(REPLACE(STR(?status), "^.*#", "") AS ?statusClass)
+}
+ORDER BY ?statusLabel
+""" }
+template = { file = "templates/workitem-types.tera" }
+output_file = "lib/types/workitems.mjs"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# Rule 13: Package.json Generation
+# -----------------------------------------------------------------------------
+[[generation.rules]]
+name = "package-json"
+description = "Generate package.json with unrdf dependencies"
+query = { inline = """
+PREFIX yawl: <http://unrdf.org/yawl#>
+
+SELECT (COUNT(DISTINCT ?spec) AS ?workflowCount)
+WHERE {
+  ?spec a yawl:WorkflowSpec .
+}
+""" }
+template = { file = "templates/package-json.tera" }
+output_file = "package.json"
+mode = "Overwrite"
+
+# -----------------------------------------------------------------------------
+# Rule 14: Worklet Index
+# -----------------------------------------------------------------------------
+[[generation.rules]]
+name = "worklet-index"
+description = "Generate worklet index module"
+query = { inline = """
+PREFIX yawl-worklet: <http://unrdf.org/yawl/worklet#>
+
+SELECT ?workletId ?workletName ?exceptionType
+WHERE {
+  ?worklet a ?workletType ;
+           yawl-worklet:workletId ?workletId ;
+           yawl-worklet:workletName ?workletName .
+  OPTIONAL { ?worklet yawl-worklet:handlesException ?exceptionNode . ?exceptionNode rdfs:label ?exceptionType }
+}
+ORDER BY ?workletId
+""" }
+template = { file = "templates/worklet-index.tera" }
+output_file = "lib/worklets/index.mjs"
+mode = "Overwrite"
+
+# =============================================================================
+# VALIDATION CONFIGURATION
+# =============================================================================
+
+[validation]
+validate_syntax = true
+no_unsafe = false

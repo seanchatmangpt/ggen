@@ -1,0 +1,624 @@
+@prefix yawl: <http://unrdf.org/yawl#> .
+@prefix yawl-case: <http://unrdf.org/yawl/case#> .
+@prefix yawl-task: <http://unrdf.org/yawl/task#> .
+@prefix yawl-work: <http://unrdf.org/yawl/workitem#> .
+@prefix yawl-servlet: <http://unrdf.org/yawl/servlet#> .
+@prefix yawl-worklet: <http://unrdf.org/yawl/worklet#> .
+@prefix yawl-gen: <http://unrdf.org/yawl/generation#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# =============================================================================
+# YAWL WORKFLOW PLATFORM VOCABULARY SCHEMA
+# Comprehensive RDF vocabulary for YAWL workflow automation
+# Compatible with unrdf YAWL package and Van der Aalst patterns
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Ontology Metadata
+# -----------------------------------------------------------------------------
+<http://unrdf.org/yawl> a owl:Ontology ;
+    rdfs:label "YAWL Workflow Platform Ontology" ;
+    rdfs:comment "RDF vocabulary for YAWL workflow automation with servlets and worklets" ;
+    owl:versionInfo "1.0.0" .
+
+# =============================================================================
+# CORE WORKFLOW CLASSES
+# =============================================================================
+
+yawl:WorkflowSpec a rdfs:Class ;
+    rdfs:label "Workflow Specification" ;
+    rdfs:comment "A workflow specification/template defining process structure" .
+
+yawl:WorkflowCase a rdfs:Class ;
+    rdfs:label "Workflow Case" ;
+    rdfs:comment "A running instance of a workflow specification" .
+
+yawl:Task a rdfs:Class ;
+    rdfs:label "Task" ;
+    rdfs:comment "Base class for all task types in a workflow" .
+
+yawl:AtomicTask a rdfs:Class ;
+    rdfs:subClassOf yawl:Task ;
+    rdfs:label "Atomic Task" ;
+    rdfs:comment "Indivisible unit of work" .
+
+yawl:CompositeTask a rdfs:Class ;
+    rdfs:subClassOf yawl:Task ;
+    rdfs:label "Composite Task" ;
+    rdfs:comment "Task that expands to a sub-net" .
+
+yawl:MultipleInstanceTask a rdfs:Class ;
+    rdfs:subClassOf yawl:Task ;
+    rdfs:label "Multiple Instance Task" ;
+    rdfs:comment "Task with multiple concurrent instances" .
+
+yawl:AutomatedTask a rdfs:Class ;
+    rdfs:subClassOf yawl:Task ;
+    rdfs:label "Automated Task" ;
+    rdfs:comment "Task executed without human intervention" .
+
+yawl:ManualTask a rdfs:Class ;
+    rdfs:subClassOf yawl:Task ;
+    rdfs:label "Manual Task" ;
+    rdfs:comment "Task requiring human action" .
+
+yawl:WorkItem a rdfs:Class ;
+    rdfs:label "Work Item" ;
+    rdfs:comment "Instance of a task within a case" .
+
+yawl:Condition a rdfs:Class ;
+    rdfs:label "Condition" ;
+    rdfs:comment "A place/condition in the workflow net" .
+
+yawl:Flow a rdfs:Class ;
+    rdfs:label "Flow" ;
+    rdfs:comment "A flow arc between tasks/conditions" .
+
+# =============================================================================
+# SPLIT/JOIN BEHAVIOR CLASSES
+# =============================================================================
+
+yawl:SplitBehavior a rdfs:Class ;
+    rdfs:label "Split Behavior" ;
+    rdfs:comment "Defines how control flow splits at a task" .
+
+yawl:XOR_Split a yawl:SplitBehavior ;
+    rdfs:label "XOR Split" ;
+    rdfs:comment "Exclusive choice - exactly one outgoing branch" .
+
+yawl:AND_Split a yawl:SplitBehavior ;
+    rdfs:label "AND Split" ;
+    rdfs:comment "Parallel split - all outgoing branches activated" .
+
+yawl:OR_Split a yawl:SplitBehavior ;
+    rdfs:label "OR Split" ;
+    rdfs:comment "Multi-choice - one or more branches based on conditions" .
+
+yawl:JoinBehavior a rdfs:Class ;
+    rdfs:label "Join Behavior" ;
+    rdfs:comment "Defines how control flow joins at a task" .
+
+yawl:XOR_Join a yawl:JoinBehavior ;
+    rdfs:label "XOR Join" ;
+    rdfs:comment "Simple merge - first arriving token proceeds" .
+
+yawl:AND_Join a yawl:JoinBehavior ;
+    rdfs:label "AND Join" ;
+    rdfs:comment "Synchronization - waits for all incoming branches" .
+
+yawl:OR_Join a yawl:JoinBehavior ;
+    rdfs:label "OR Join" ;
+    rdfs:comment "Structured synchronizing merge - waits for expected tokens" .
+
+# =============================================================================
+# STATUS CLASSES
+# =============================================================================
+
+yawl:CaseStatus a rdfs:Class ;
+    rdfs:label "Case Status" ;
+    rdfs:comment "Status of a workflow case" .
+
+yawl:Case_Active a yawl:CaseStatus ;
+    rdfs:label "Active" .
+
+yawl:Case_Completed a yawl:CaseStatus ;
+    rdfs:label "Completed" .
+
+yawl:Case_Suspended a yawl:CaseStatus ;
+    rdfs:label "Suspended" .
+
+yawl:Case_Cancelled a yawl:CaseStatus ;
+    rdfs:label "Cancelled" .
+
+yawl:Case_Failed a yawl:CaseStatus ;
+    rdfs:label "Failed" .
+
+yawl:WorkItemStatus a rdfs:Class ;
+    rdfs:label "Work Item Status" ;
+    rdfs:comment "Status of a work item" .
+
+yawl:WorkItem_Enabled a yawl:WorkItemStatus ;
+    rdfs:label "Enabled" .
+
+yawl:WorkItem_Fired a yawl:WorkItemStatus ;
+    rdfs:label "Fired" .
+
+yawl:WorkItem_Allocated a yawl:WorkItemStatus ;
+    rdfs:label "Allocated" .
+
+yawl:WorkItem_Started a yawl:WorkItemStatus ;
+    rdfs:label "Started" .
+
+yawl:WorkItem_Completed a yawl:WorkItemStatus ;
+    rdfs:label "Completed" .
+
+yawl:WorkItem_Suspended a yawl:WorkItemStatus ;
+    rdfs:label "Suspended" .
+
+yawl:WorkItem_Cancelled a yawl:WorkItemStatus ;
+    rdfs:label "Cancelled" .
+
+yawl:WorkItem_Failed a yawl:WorkItemStatus ;
+    rdfs:label "Failed" .
+
+# =============================================================================
+# SERVLET CLASSES
+# =============================================================================
+
+yawl-servlet:Servlet a rdfs:Class ;
+    rdfs:label "Servlet" ;
+    rdfs:comment "Base class for all servlet handlers" .
+
+yawl-servlet:WorkflowServlet a rdfs:Class ;
+    rdfs:subClassOf yawl-servlet:Servlet ;
+    rdfs:label "Workflow Servlet" ;
+    rdfs:comment "Servlet for workflow lifecycle operations" .
+
+yawl-servlet:TaskServlet a rdfs:Class ;
+    rdfs:subClassOf yawl-servlet:Servlet ;
+    rdfs:label "Task Servlet" ;
+    rdfs:comment "Servlet for task execution" .
+
+yawl-servlet:CaseServlet a rdfs:Class ;
+    rdfs:subClassOf yawl-servlet:Servlet ;
+    rdfs:label "Case Servlet" ;
+    rdfs:comment "Servlet for case management" .
+
+yawl-servlet:AdminServlet a rdfs:Class ;
+    rdfs:subClassOf yawl-servlet:Servlet ;
+    rdfs:label "Admin Servlet" ;
+    rdfs:comment "Servlet for administrative operations" .
+
+# =============================================================================
+# WORKLET CLASSES
+# =============================================================================
+
+yawl-worklet:Worklet a rdfs:Class ;
+    rdfs:label "Worklet" ;
+    rdfs:comment "Dynamic workflow selection component" .
+
+yawl-worklet:ExceptionHandler a rdfs:Class ;
+    rdfs:subClassOf yawl-worklet:Worklet ;
+    rdfs:label "Exception Handler" ;
+    rdfs:comment "Handles workflow exceptions via rules" .
+
+yawl-worklet:SelectionWorklet a rdfs:Class ;
+    rdfs:subClassOf yawl-worklet:Worklet ;
+    rdfs:label "Selection Worklet" ;
+    rdfs:comment "Dynamically selects sub-workflow based on case data" .
+
+yawl-worklet:RuleSet a rdfs:Class ;
+    rdfs:label "Rule Set" ;
+    rdfs:comment "Collection of rules for worklet decision-making" .
+
+yawl-worklet:Rule a rdfs:Class ;
+    rdfs:label "Rule" ;
+    rdfs:comment "Individual decision rule with condition and action" .
+
+yawl-worklet:ExceptionType a rdfs:Class ;
+    rdfs:label "Exception Type" ;
+    rdfs:comment "Type of exception handled by worklet" .
+
+yawl-worklet:Timeout a yawl-worklet:ExceptionType ;
+    rdfs:label "Timeout" .
+
+yawl-worklet:ResourceUnavailable a yawl-worklet:ExceptionType ;
+    rdfs:label "Resource Unavailable" .
+
+yawl-worklet:ValidationError a yawl-worklet:ExceptionType ;
+    rdfs:label "Validation Error" .
+
+yawl-worklet:ExternalFailure a yawl-worklet:ExceptionType ;
+    rdfs:label "External Failure" .
+
+yawl-worklet:CompensationAction a rdfs:Class ;
+    rdfs:label "Compensation Action" ;
+    rdfs:comment "Action to take for exception compensation" .
+
+yawl-worklet:Rollback a yawl-worklet:CompensationAction ;
+    rdfs:label "Rollback" .
+
+yawl-worklet:Retry a yawl-worklet:CompensationAction ;
+    rdfs:label "Retry" .
+
+yawl-worklet:Escalate a yawl-worklet:CompensationAction ;
+    rdfs:label "Escalate" .
+
+yawl-worklet:Skip a yawl-worklet:CompensationAction ;
+    rdfs:label "Skip" .
+
+# =============================================================================
+# GENERATION CLASSES (for ggen integration)
+# =============================================================================
+
+yawl-gen:GeneratedFile a rdfs:Class ;
+    rdfs:label "Generated File" ;
+    rdfs:comment "A file generated by ggen from RDF specification" .
+
+yawl-gen:Template a rdfs:Class ;
+    rdfs:label "Template" ;
+    rdfs:comment "A Tera template for code generation" .
+
+yawl-gen:OutputPath a rdfs:Class ;
+    rdfs:label "Output Path" ;
+    rdfs:comment "Output path derived from SPARQL query results" .
+
+# =============================================================================
+# CORE PROPERTIES
+# =============================================================================
+
+# Workflow Specification Properties
+yawl:specId a rdf:Property ;
+    rdfs:domain yawl:WorkflowSpec ;
+    rdfs:range xsd:string ;
+    rdfs:label "Specification ID" .
+
+yawl:specName a rdf:Property ;
+    rdfs:domain yawl:WorkflowSpec ;
+    rdfs:range xsd:string ;
+    rdfs:label "Specification Name" .
+
+yawl:specVersion a rdf:Property ;
+    rdfs:domain yawl:WorkflowSpec ;
+    rdfs:range xsd:string ;
+    rdfs:label "Specification Version" .
+
+yawl:inputCondition a rdf:Property ;
+    rdfs:domain yawl:WorkflowSpec ;
+    rdfs:range yawl:Condition ;
+    rdfs:label "Input Condition" .
+
+yawl:outputCondition a rdf:Property ;
+    rdfs:domain yawl:WorkflowSpec ;
+    rdfs:range yawl:Condition ;
+    rdfs:label "Output Condition" .
+
+yawl:hasTasks a rdf:Property ;
+    rdfs:domain yawl:WorkflowSpec ;
+    rdfs:range yawl:Task ;
+    rdfs:label "Has Tasks" .
+
+yawl:hasFlows a rdf:Property ;
+    rdfs:domain yawl:WorkflowSpec ;
+    rdfs:range yawl:Flow ;
+    rdfs:label "Has Flows" .
+
+# Task Properties
+yawl:taskId a rdf:Property ;
+    rdfs:domain yawl:Task ;
+    rdfs:range xsd:string ;
+    rdfs:label "Task ID" .
+
+yawl:taskName a rdf:Property ;
+    rdfs:domain yawl:Task ;
+    rdfs:range xsd:string ;
+    rdfs:label "Task Name" .
+
+yawl:taskKind a rdf:Property ;
+    rdfs:domain yawl:Task ;
+    rdfs:range xsd:string ;
+    rdfs:label "Task Kind" .
+
+yawl:splitBehavior a rdf:Property ;
+    rdfs:domain yawl:Task ;
+    rdfs:range yawl:SplitBehavior ;
+    rdfs:label "Split Behavior" .
+
+yawl:joinBehavior a rdf:Property ;
+    rdfs:domain yawl:Task ;
+    rdfs:range yawl:JoinBehavior ;
+    rdfs:label "Join Behavior" .
+
+yawl:decomposes a rdf:Property ;
+    rdfs:domain yawl:CompositeTask ;
+    rdfs:range yawl:WorkflowSpec ;
+    rdfs:label "Decomposes To" .
+
+yawl:cancellationSet a rdf:Property ;
+    rdfs:domain yawl:Task ;
+    rdfs:range yawl:Task ;
+    rdfs:label "Cancellation Set" .
+
+# Multiple Instance Properties
+yawl:miMinimum a rdf:Property ;
+    rdfs:domain yawl:MultipleInstanceTask ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Minimum Instances" .
+
+yawl:miMaximum a rdf:Property ;
+    rdfs:domain yawl:MultipleInstanceTask ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Maximum Instances" .
+
+yawl:miThreshold a rdf:Property ;
+    rdfs:domain yawl:MultipleInstanceTask ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Completion Threshold" .
+
+yawl:miCreationMode a rdf:Property ;
+    rdfs:domain yawl:MultipleInstanceTask ;
+    rdfs:range xsd:string ;
+    rdfs:label "Creation Mode (static/dynamic)" .
+
+# Flow Properties
+yawl:sourceTask a rdf:Property ;
+    rdfs:domain yawl:Flow ;
+    rdfs:range yawl:Task ;
+    rdfs:label "Source Task" .
+
+yawl:targetTask a rdf:Property ;
+    rdfs:domain yawl:Flow ;
+    rdfs:range yawl:Task ;
+    rdfs:label "Target Task" .
+
+yawl:flowCondition a rdf:Property ;
+    rdfs:domain yawl:Flow ;
+    rdfs:range xsd:string ;
+    rdfs:label "Flow Condition Expression" .
+
+yawl:flowPriority a rdf:Property ;
+    rdfs:domain yawl:Flow ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Flow Priority" .
+
+yawl:isDefaultFlow a rdf:Property ;
+    rdfs:domain yawl:Flow ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Is Default Flow" .
+
+# Case Properties
+yawl:caseId a rdf:Property ;
+    rdfs:domain yawl:WorkflowCase ;
+    rdfs:range xsd:string ;
+    rdfs:label "Case ID" .
+
+yawl:status a rdf:Property ;
+    rdfs:range yawl:CaseStatus ;
+    rdfs:label "Status" .
+
+yawl:createdAt a rdf:Property ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Created At" .
+
+yawl:updatedAt a rdf:Property ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Updated At" .
+
+yawl:completedAt a rdf:Property ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Completed At" .
+
+yawl:parentCase a rdf:Property ;
+    rdfs:domain yawl:WorkflowCase ;
+    rdfs:range yawl:WorkflowCase ;
+    rdfs:label "Parent Case" .
+
+yawl:caseData a rdf:Property ;
+    rdfs:domain yawl:WorkflowCase ;
+    rdfs:range xsd:string ;
+    rdfs:label "Case Data (JSON)" .
+
+# Work Item Properties
+yawl:workItemId a rdf:Property ;
+    rdfs:domain yawl:WorkItem ;
+    rdfs:range xsd:string ;
+    rdfs:label "Work Item ID" .
+
+yawl:taskRef a rdf:Property ;
+    rdfs:domain yawl:WorkItem ;
+    rdfs:range yawl:Task ;
+    rdfs:label "Task Reference" .
+
+yawl:caseRef a rdf:Property ;
+    rdfs:domain yawl:WorkItem ;
+    rdfs:range yawl:WorkflowCase ;
+    rdfs:label "Case Reference" .
+
+yawl:owner a rdf:Property ;
+    rdfs:domain yawl:WorkItem ;
+    rdfs:range foaf:Person ;
+    rdfs:label "Owner" .
+
+yawl:startedBy a rdf:Property ;
+    rdfs:domain yawl:WorkItem ;
+    rdfs:range foaf:Person ;
+    rdfs:label "Started By" .
+
+yawl:completedBy a rdf:Property ;
+    rdfs:domain yawl:WorkItem ;
+    rdfs:range foaf:Person ;
+    rdfs:label "Completed By" .
+
+yawl:workItemData a rdf:Property ;
+    rdfs:domain yawl:WorkItem ;
+    rdfs:range xsd:string ;
+    rdfs:label "Work Item Data (JSON)" .
+
+yawl:timerExpiry a rdf:Property ;
+    rdfs:domain yawl:WorkItem ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Timer Expiry" .
+
+# =============================================================================
+# SERVLET PROPERTIES
+# =============================================================================
+
+yawl-servlet:servletId a rdf:Property ;
+    rdfs:domain yawl-servlet:Servlet ;
+    rdfs:range xsd:string ;
+    rdfs:label "Servlet ID" .
+
+yawl-servlet:servletName a rdf:Property ;
+    rdfs:domain yawl-servlet:Servlet ;
+    rdfs:range xsd:string ;
+    rdfs:label "Servlet Name" .
+
+yawl-servlet:urlPattern a rdf:Property ;
+    rdfs:domain yawl-servlet:Servlet ;
+    rdfs:range xsd:string ;
+    rdfs:label "URL Pattern" .
+
+yawl-servlet:httpMethod a rdf:Property ;
+    rdfs:domain yawl-servlet:Servlet ;
+    rdfs:range xsd:string ;
+    rdfs:label "HTTP Method" .
+
+yawl-servlet:handlesTask a rdf:Property ;
+    rdfs:domain yawl-servlet:TaskServlet ;
+    rdfs:range yawl:Task ;
+    rdfs:label "Handles Task" .
+
+yawl-servlet:requestSchema a rdf:Property ;
+    rdfs:domain yawl-servlet:Servlet ;
+    rdfs:range xsd:string ;
+    rdfs:label "Request JSON Schema" .
+
+yawl-servlet:responseSchema a rdf:Property ;
+    rdfs:domain yawl-servlet:Servlet ;
+    rdfs:range xsd:string ;
+    rdfs:label "Response JSON Schema" .
+
+yawl-servlet:requiresAuth a rdf:Property ;
+    rdfs:domain yawl-servlet:Servlet ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Requires Authentication" .
+
+yawl-servlet:outputPath a rdf:Property ;
+    rdfs:domain yawl-servlet:Servlet ;
+    rdfs:range xsd:string ;
+    rdfs:label "Generated File Output Path" .
+
+# =============================================================================
+# WORKLET PROPERTIES
+# =============================================================================
+
+yawl-worklet:workletId a rdf:Property ;
+    rdfs:domain yawl-worklet:Worklet ;
+    rdfs:range xsd:string ;
+    rdfs:label "Worklet ID" .
+
+yawl-worklet:workletName a rdf:Property ;
+    rdfs:domain yawl-worklet:Worklet ;
+    rdfs:range xsd:string ;
+    rdfs:label "Worklet Name" .
+
+yawl-worklet:forTask a rdf:Property ;
+    rdfs:domain yawl-worklet:Worklet ;
+    rdfs:range yawl:Task ;
+    rdfs:label "For Task" .
+
+yawl-worklet:hasRuleSet a rdf:Property ;
+    rdfs:domain yawl-worklet:Worklet ;
+    rdfs:range yawl-worklet:RuleSet ;
+    rdfs:label "Has Rule Set" .
+
+yawl-worklet:handlesException a rdf:Property ;
+    rdfs:domain yawl-worklet:ExceptionHandler ;
+    rdfs:range yawl-worklet:ExceptionType ;
+    rdfs:label "Handles Exception" .
+
+yawl-worklet:compensationAction a rdf:Property ;
+    rdfs:domain yawl-worklet:ExceptionHandler ;
+    rdfs:range yawl-worklet:CompensationAction ;
+    rdfs:label "Compensation Action" .
+
+yawl-worklet:hasRules a rdf:Property ;
+    rdfs:domain yawl-worklet:RuleSet ;
+    rdfs:range yawl-worklet:Rule ;
+    rdfs:label "Has Rules" .
+
+yawl-worklet:ruleCondition a rdf:Property ;
+    rdfs:domain yawl-worklet:Rule ;
+    rdfs:range xsd:string ;
+    rdfs:label "Rule Condition (SPARQL ASK)" .
+
+yawl-worklet:ruleAction a rdf:Property ;
+    rdfs:domain yawl-worklet:Rule ;
+    rdfs:range xsd:string ;
+    rdfs:label "Rule Action" .
+
+yawl-worklet:rulePriority a rdf:Property ;
+    rdfs:domain yawl-worklet:Rule ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Rule Priority" .
+
+yawl-worklet:outputPath a rdf:Property ;
+    rdfs:domain yawl-worklet:Worklet ;
+    rdfs:range xsd:string ;
+    rdfs:label "Generated File Output Path" .
+
+# =============================================================================
+# GENERATION PROPERTIES
+# =============================================================================
+
+yawl-gen:template a rdf:Property ;
+    rdfs:domain yawl-gen:GeneratedFile ;
+    rdfs:range yawl-gen:Template ;
+    rdfs:label "Template Used" .
+
+yawl-gen:outputPath a rdf:Property ;
+    rdfs:domain yawl-gen:GeneratedFile ;
+    rdfs:range xsd:string ;
+    rdfs:label "Output Path" .
+
+yawl-gen:sparqlQuery a rdf:Property ;
+    rdfs:domain yawl-gen:Template ;
+    rdfs:range xsd:string ;
+    rdfs:label "SPARQL Query" .
+
+yawl-gen:templateFile a rdf:Property ;
+    rdfs:domain yawl-gen:Template ;
+    rdfs:range xsd:string ;
+    rdfs:label "Template File Path" .
+
+# =============================================================================
+# RECEIPT/AUDIT PROPERTIES
+# =============================================================================
+
+yawl:receiptId a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "Receipt ID" .
+
+yawl:receiptHash a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "Receipt Hash (BLAKE3)" .
+
+yawl:previousHash a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "Previous Receipt Hash" .
+
+yawl:eventType a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "Event Type" .
+
+yawl:eventData a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "Event Data (JSON)" .
+
+yawl:timestamp a rdf:Property ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Timestamp" .
