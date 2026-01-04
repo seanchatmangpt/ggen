@@ -22,7 +22,9 @@ impl ProofArchive {
     }
 
     pub fn store_proof(&self, proof: &ExecutionProof) -> Result<()> {
-        let proof_file = self.archive_dir.join(format!("{}.json", proof.execution_id));
+        let proof_file = self
+            .archive_dir
+            .join(format!("{}.json", proof.execution_id));
         let json = serde_json::to_string_pretty(proof)?;
         fs::write(proof_file, json)?;
         Ok(())
@@ -46,7 +48,7 @@ impl ProofArchive {
             let entry = entry?;
             let path = entry.path();
 
-            if path.extension().map_or(false, |ext| ext == "json") {
+            if path.extension().is_some_and(|ext| ext == "json") {
                 if let Ok(json) = fs::read_to_string(&path) {
                     if let Ok(proof) = serde_json::from_str::<ExecutionProof>(&json) {
                         entries.push(ProofEntry {
