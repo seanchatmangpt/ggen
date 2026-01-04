@@ -41,6 +41,12 @@ impl SyncLifecycleHooks {
     }
 }
 
+impl Default for SyncLifecycleHooks {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 pub struct SyncPhaseConfig {
     pub before_sync: Vec<String>,
     pub after_sync: Vec<String>,
