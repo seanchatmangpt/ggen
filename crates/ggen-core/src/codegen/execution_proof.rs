@@ -38,10 +38,7 @@ impl ProofCarrier {
     }
 
     pub fn generate_proof(
-        &mut self,
-        manifest_content: &str,
-        ontology_content: &str,
-        sync_result: &SyncResult,
+        &mut self, manifest_content: &str, ontology_content: &str, sync_result: &SyncResult,
     ) -> Result<ExecutionProof> {
         let execution_id = Self::generate_id();
         let timestamp_ms = SystemTime::now()
@@ -73,11 +70,8 @@ impl ProofCarrier {
         }
 
         // Create determinism signature
-        let determinism_signature = Self::compute_determinism_signature(
-            &manifest_hash,
-            &ontology_hash,
-            &rules_executed,
-        );
+        let determinism_signature =
+            Self::compute_determinism_signature(&manifest_hash, &ontology_hash, &rules_executed);
 
         let proof = ExecutionProof {
             execution_id: execution_id.clone(),
@@ -150,9 +144,7 @@ impl ProofCarrier {
     }
 
     fn compute_determinism_signature(
-        manifest_hash: &str,
-        ontology_hash: &str,
-        rules: &[RuleExecution],
+        manifest_hash: &str, ontology_hash: &str, rules: &[RuleExecution],
     ) -> String {
         let mut content = format!("{}|{}", manifest_hash, ontology_hash);
 

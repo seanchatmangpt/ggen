@@ -129,9 +129,8 @@ impl Receipt {
     /// Sign the receipt
     fn sign(&mut self, key: &[u8]) -> DoDResult<()> {
         use hmac::Mac;
-        let mut mac =
-            hmac::Hmac::<sha2::Sha256>::new_from_slice(key)
-                .map_err(|e| DoDError::Receipt(format!("HMAC key error: {}", e)))?;
+        let mut mac = hmac::Hmac::<sha2::Sha256>::new_from_slice(key)
+            .map_err(|e| DoDError::Receipt(format!("HMAC key error: {}", e)))?;
 
         let payload = format!(
             "{}{}{}{}",
@@ -145,9 +144,8 @@ impl Receipt {
     /// Verify the receipt's signature
     pub fn verify(&self, key: &[u8]) -> DoDResult<bool> {
         use hmac::Mac;
-        let mut mac =
-            hmac::Hmac::<sha2::Sha256>::new_from_slice(key)
-                .map_err(|e| DoDError::Receipt(format!("HMAC key error: {}", e)))?;
+        let mut mac = hmac::Hmac::<sha2::Sha256>::new_from_slice(key)
+            .map_err(|e| DoDError::Receipt(format!("HMAC key error: {}", e)))?;
 
         let payload = format!(
             "{}{}{}{}",

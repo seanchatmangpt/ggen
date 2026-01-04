@@ -50,7 +50,7 @@ test:MyEntity a test:Entity .
     let options = SyncOptions {
         manifest_path: manifest_path.clone(),
         output_dir: Some(temp_path.join("output")),
-        use_cache: false,  // Disable cache for tests
+        use_cache: false, // Disable cache for tests
         ..SyncOptions::default()
     };
 
@@ -92,10 +92,14 @@ rules = []
     std::fs::write(&manifest_path, manifest_content).expect("Failed to write manifest");
 
     let ontology_path = custom_dir.join("ontology.ttl");
-    std::fs::write(&ontology_path, r#"
+    std::fs::write(
+        &ontology_path,
+        r#"
 @prefix test: <http://example.org/> .
 test:Entity a test:Thing .
-"#).expect("Failed to write ontology");
+"#,
+    )
+    .expect("Failed to write ontology");
 
     let options = SyncOptions {
         manifest_path: manifest_path.clone(),
@@ -130,10 +134,14 @@ rules = []
     std::fs::write(&manifest_path, manifest_content).expect("Failed to write manifest");
 
     let ontology_path = temp_path.join("ontology.ttl");
-    std::fs::write(&ontology_path, r#"
+    std::fs::write(
+        &ontology_path,
+        r#"
 @prefix test: <http://example.org/> .
 test:Entity a test:Thing .
-"#).expect("Failed to write ontology");
+"#,
+    )
+    .expect("Failed to write ontology");
 
     let override_dir = temp_path.join("override-output");
     let options = SyncOptions {
@@ -175,10 +183,14 @@ mode = "Overwrite"
     std::fs::write(&manifest_path, manifest_content).expect("Failed to write manifest");
 
     let ontology_path = temp_path.join("ontology.ttl");
-    std::fs::write(&ontology_path, r#"
+    std::fs::write(
+        &ontology_path,
+        r#"
 @prefix test: <http://example.org/> .
 test:Entity a test:Thing .
-"#).expect("Failed to write ontology");
+"#,
+    )
+    .expect("Failed to write ontology");
 
     let options = SyncOptions {
         manifest_path,
@@ -219,10 +231,14 @@ rules = []
     std::fs::write(&manifest_path, manifest_content).expect("Failed to write manifest");
 
     let ontology_path = temp_path.join("ontology.ttl");
-    std::fs::write(&ontology_path, r#"
+    std::fs::write(
+        &ontology_path,
+        r#"
 @prefix test: <http://example.org/> .
 test:Entity a test:Thing .
-"#).expect("Failed to write ontology");
+"#,
+    )
+    .expect("Failed to write ontology");
 
     let options = SyncOptions {
         manifest_path,
@@ -237,7 +253,10 @@ test:Entity a test:Thing .
 
     let sync_result = result.unwrap();
     assert_eq!(sync_result.status, "success");
-    assert_eq!(sync_result.files_synced, 0, "Validate-only should not create files");
+    assert_eq!(
+        sync_result.files_synced, 0,
+        "Validate-only should not create files"
+    );
 }
 
 /// Scenario 6: Error case - missing manifest
@@ -253,10 +272,7 @@ fn test_sync_missing_manifest() {
 
     let executor = SyncExecutor::new(options);
     let result = executor.execute();
-    assert!(
-        result.is_err(),
-        "Missing manifest should result in error"
-    );
+    assert!(result.is_err(), "Missing manifest should result in error");
     let err_msg = result.unwrap_err().to_string();
     assert!(
         err_msg.contains("Manifest not found") || err_msg.contains("E0001"),
@@ -317,12 +333,16 @@ rules = []
     std::fs::write(&manifest_path, manifest_content).expect("Failed to write manifest");
 
     let ontology_path = temp_path.join("ontology.ttl");
-    std::fs::write(&ontology_path, r#"
+    std::fs::write(
+        &ontology_path,
+        r#"
 @prefix test: <http://example.org/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 
 test:Entity a test:Thing .
-"#).expect("Failed to write ontology");
+"#,
+    )
+    .expect("Failed to write ontology");
 
     let options = SyncOptions {
         manifest_path,
@@ -333,7 +353,11 @@ test:Entity a test:Thing .
 
     let executor = SyncExecutor::new(options);
     let result = executor.execute();
-    assert!(result.is_ok(), "JSON format should work. Error: {:?}", result.err());
+    assert!(
+        result.is_ok(),
+        "JSON format should work. Error: {:?}",
+        result.err()
+    );
 }
 
 /// Scenario 9: Error case - watch mode not implemented
@@ -356,10 +380,14 @@ output_dir = "output"
     std::fs::write(&manifest_path, manifest_content).expect("Failed to write manifest");
 
     let ontology_path = temp_path.join("ontology.ttl");
-    std::fs::write(&ontology_path, r#"
+    std::fs::write(
+        &ontology_path,
+        r#"
 @prefix test: <http://example.org/> .
 test:Entity a test:Thing .
-"#).expect("Failed to write ontology");
+"#,
+    )
+    .expect("Failed to write ontology");
 
     let options = SyncOptions {
         manifest_path,
@@ -372,7 +400,10 @@ test:Entity a test:Thing .
     let result = executor.execute();
     assert!(result.is_err(), "Watch mode should error");
     assert!(
-        result.unwrap_err().to_string().contains("not yet implemented"),
+        result
+            .unwrap_err()
+            .to_string()
+            .contains("not yet implemented"),
         "Should indicate watch mode not implemented"
     );
 }
@@ -399,12 +430,16 @@ rules = []
     std::fs::write(&manifest_path, manifest_content).expect("Failed to write manifest");
 
     let ontology_path = temp_path.join("ontology.ttl");
-    std::fs::write(&ontology_path, r#"
+    std::fs::write(
+        &ontology_path,
+        r#"
 @prefix test: <http://example.org/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 
 test:Entity a test:Thing .
-"#).expect("Failed to write ontology");
+"#,
+    )
+    .expect("Failed to write ontology");
 
     let options = SyncOptions {
         manifest_path,
@@ -415,7 +450,11 @@ test:Entity a test:Thing .
 
     let executor = SyncExecutor::new(options);
     let result = executor.execute();
-    assert!(result.is_ok(), "Verbose mode should work. Error: {:?}", result.err());
+    assert!(
+        result.is_ok(),
+        "Verbose mode should work. Error: {:?}",
+        result.err()
+    );
 }
 
 /// Scenario 11: Test SyncOptions builder methods
@@ -483,10 +522,14 @@ mode = "Overwrite"
     std::fs::write(&manifest_path, manifest_content).expect("Failed to write manifest");
 
     let ontology_path = temp_path.join("ontology.ttl");
-    std::fs::write(&ontology_path, r#"
+    std::fs::write(
+        &ontology_path,
+        r#"
 @prefix test: <http://example.org/> .
 test:Entity a test:Thing .
-"#).expect("Failed to write ontology");
+"#,
+    )
+    .expect("Failed to write ontology");
 
     let options = SyncOptions {
         manifest_path,
@@ -499,8 +542,15 @@ test:Entity a test:Thing .
     let result = executor.execute();
     assert!(result.is_err(), "Non-existent rule should error");
     let err_msg = result.unwrap_err().to_string();
-    assert!(err_msg.contains("not found"), "Error should mention rule not found. Got: {}", err_msg);
-    assert!(err_msg.contains("actual-rule"), "Error should list available rules");
+    assert!(
+        err_msg.contains("not found"),
+        "Error should mention rule not found. Got: {}",
+        err_msg
+    );
+    assert!(
+        err_msg.contains("actual-rule"),
+        "Error should list available rules"
+    );
 }
 
 /// Scenario 14: Multiple rules selection
@@ -545,10 +595,14 @@ mode = "Overwrite"
     std::fs::write(&manifest_path, manifest_content).expect("Failed to write manifest");
 
     let ontology_path = temp_path.join("ontology.ttl");
-    std::fs::write(&ontology_path, r#"
+    std::fs::write(
+        &ontology_path,
+        r#"
 @prefix test: <http://example.org/> .
 test:Entity a test:Thing .
-"#).expect("Failed to write ontology");
+"#,
+    )
+    .expect("Failed to write ontology");
 
     // Test selecting rule2
     let options = SyncOptions {
@@ -589,10 +643,14 @@ rules = []
     std::fs::write(&manifest_path, manifest_content).expect("Failed to write manifest");
 
     let ontology_path = temp_path.join("ontology.ttl");
-    std::fs::write(&ontology_path, r#"
+    std::fs::write(
+        &ontology_path,
+        r#"
 @prefix test: <http://example.org/> .
 test:Entity a test:Thing .
-"#).expect("Failed to write ontology");
+"#,
+    )
+    .expect("Failed to write ontology");
 
     let options = SyncOptions {
         manifest_path,
@@ -602,7 +660,10 @@ test:Entity a test:Thing .
 
     let executor = SyncExecutor::new(options);
     let result = executor.execute();
-    assert!(result.is_ok(), "Manifest without inference rules should work");
+    assert!(
+        result.is_ok(),
+        "Manifest without inference rules should work"
+    );
 }
 
 /// Scenario 16: End-to-end sync with real-world example

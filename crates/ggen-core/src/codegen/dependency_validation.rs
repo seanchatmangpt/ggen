@@ -23,7 +23,9 @@ pub struct DependencyValidationReport {
 }
 
 impl DependencyValidator {
-    pub fn validate_manifest(manifest: &GgenManifest, base_path: &Path) -> Result<DependencyValidationReport> {
+    pub fn validate_manifest(
+        manifest: &GgenManifest, base_path: &Path,
+    ) -> Result<DependencyValidationReport> {
         let mut checks = vec![];
         let mut failed_count = 0;
 
@@ -151,9 +153,7 @@ impl DependencyValidator {
         })
     }
 
-    fn detect_inference_cycles(
-        rules: &[crate::manifest::InferenceRule],
-    ) -> (bool, Vec<String>) {
+    fn detect_inference_cycles(rules: &[crate::manifest::InferenceRule]) -> (bool, Vec<String>) {
         let mut graph: HashMap<String, HashSet<String>> = HashMap::new();
         let mut visited: HashSet<String> = HashSet::new();
         let mut rec_stack: HashSet<String> = HashSet::new();
@@ -178,7 +178,8 @@ impl DependencyValidator {
 
         for node in graph.keys() {
             if !visited.contains(node) {
-                let has_cycle = Self::dfs_cycle(&graph, node, &mut visited, &mut rec_stack, &mut cycles);
+                let has_cycle =
+                    Self::dfs_cycle(&graph, node, &mut visited, &mut rec_stack, &mut cycles);
                 if has_cycle {
                     return (true, cycles);
                 }
@@ -189,11 +190,8 @@ impl DependencyValidator {
     }
 
     fn dfs_cycle(
-        graph: &HashMap<String, HashSet<String>>,
-        node: &str,
-        visited: &mut HashSet<String>,
-        rec_stack: &mut HashSet<String>,
-        cycles: &mut Vec<String>,
+        graph: &HashMap<String, HashSet<String>>, node: &str, visited: &mut HashSet<String>,
+        rec_stack: &mut HashSet<String>, cycles: &mut Vec<String>,
     ) -> bool {
         visited.insert(node.to_string());
         rec_stack.insert(node.to_string());
@@ -220,8 +218,12 @@ impl Default for crate::manifest::GenerationRule {
     fn default() -> Self {
         Self {
             name: String::new(),
-            query: crate::manifest::QuerySource::Inline { inline: String::new() },
-            template: crate::manifest::TemplateSource::Inline { inline: String::new() },
+            query: crate::manifest::QuerySource::Inline {
+                inline: String::new(),
+            },
+            template: crate::manifest::TemplateSource::Inline {
+                inline: String::new(),
+            },
             output_file: String::new(),
             skip_empty: false,
             mode: crate::manifest::GenerationMode::Overwrite,

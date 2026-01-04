@@ -1,5 +1,5 @@
 use crate::graph::Graph;
-use crate::manifest::{GgenManifest, GenerationRule};
+use crate::manifest::{GenerationRule, GgenManifest};
 use ggen_utils::error::Result;
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
@@ -64,10 +64,7 @@ impl IncrementalCache {
     }
 
     pub fn save_cache_state(
-        &self,
-        manifest: &GgenManifest,
-        ontology_content: &str,
-        inference_graph: &Graph,
+        &self, manifest: &GgenManifest, ontology_content: &str, inference_graph: &Graph,
     ) -> Result<()> {
         fs::create_dir_all(&self.cache_dir)?;
 
@@ -89,16 +86,16 @@ impl IncrementalCache {
 
         // Save inference state hash
         let inference_hash = Self::hash_graph_state(inference_graph);
-        fs::write(self.cache_dir.join("inference_state.sha256"), &inference_hash)?;
+        fs::write(
+            self.cache_dir.join("inference_state.sha256"),
+            &inference_hash,
+        )?;
 
         Ok(())
     }
 
     pub fn check_invalidation(
-        &self,
-        manifest: &GgenManifest,
-        ontology_content: &str,
-        inference_graph: &Graph,
+        &self, manifest: &GgenManifest, ontology_content: &str, inference_graph: &Graph,
     ) -> CacheInvalidation {
         let manifest_changed = self.manifest_hash != Self::hash_manifest(manifest);
         let ontology_changed = self.ontology_hash != Self::hash_string(ontology_content);
@@ -116,8 +113,7 @@ impl IncrementalCache {
             }
         }
 
-        let should_rerun_all =
-            manifest_changed || ontology_changed || inference_state_changed;
+        let should_rerun_all = manifest_changed || ontology_changed || inference_state_changed;
 
         CacheInvalidation {
             manifest_changed,
@@ -129,9 +125,7 @@ impl IncrementalCache {
     }
 
     pub fn get_rules_to_rerun(
-        &self,
-        manifest: &GgenManifest,
-        invalidation: &CacheInvalidation,
+        &self, manifest: &GgenManifest, invalidation: &CacheInvalidation,
         rule_dependencies: &HashMap<String, Vec<String>>,
     ) -> Vec<String> {
         if invalidation.should_rerun_all {
@@ -148,21 +142,14 @@ impl IncrementalCache {
 
         // Propagate changes to dependent rules
         for rule_name in invalidation.changed_rules.iter() {
-            Self::propagate_changes(
-                rule_name,
-                rule_dependencies,
-                &mut to_rerun,
-                &mut visited,
-            );
+            Self::propagate_changes(rule_name, rule_dependencies, &mut to_rerun, &mut visited);
         }
 
         to_rerun
     }
 
     fn propagate_changes(
-        rule_name: &str,
-        dependencies: &HashMap<String, Vec<String>>,
-        to_rerun: &mut Vec<String>,
+        rule_name: &str, dependencies: &HashMap<String, Vec<String>>, to_rerun: &mut Vec<String>,
         visited: &mut std::collections::HashSet<String>,
     ) {
         if visited.contains(rule_name) {
@@ -183,10 +170,7 @@ impl IncrementalCache {
     fn hash_manifest(manifest: &GgenManifest) -> String {
         let content = format!(
             "{:?}{:?}{:?}{:?}",
-            manifest.project,
-            manifest.ontology,
-            manifest.inference,
-            manifest.generation,
+            manifest.project, manifest.ontology, manifest.inference, manifest.generation,
         );
         Self::hash_string(&content)
     }

@@ -175,6 +175,7 @@ mod tests {
                 output_file: "out1.rs".to_string(),
                 skip_empty: false,
                 mode: Default::default(),
+                when: None,
             },
             crate::manifest::GenerationRule {
                 name: "rule-2".to_string(),
@@ -187,6 +188,7 @@ mod tests {
                 output_file: "out2.rs".to_string(),
                 skip_empty: false,
                 mode: Default::default(),
+                when: None,
             },
         ];
 

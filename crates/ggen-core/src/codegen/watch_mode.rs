@@ -31,9 +31,7 @@ pub struct WatchMode {
 
 impl WatchMode {
     pub fn new(options: SyncOptions, config: WatchConfig) -> Self {
-        let watched_paths = Arc::new(RwLock::new(vec![
-            options.manifest_path.clone(),
-        ]));
+        let watched_paths = Arc::new(RwLock::new(vec![options.manifest_path.clone()]));
 
         Self {
             options,
@@ -58,7 +56,10 @@ impl WatchMode {
         self.watched_paths.write().await.push(ontology_path);
 
         eprintln!("Watch mode started. Press Ctrl+C to exit.");
-        eprintln!("Watching {} files for changes...", self.watched_paths.read().await.len());
+        eprintln!(
+            "Watching {} files for changes...",
+            self.watched_paths.read().await.len()
+        );
 
         // Store initial file hashes
         let mut file_hashes = self.compute_file_hashes().await?;
@@ -98,7 +99,10 @@ impl WatchMode {
 
                     // Update watched paths
                     self.watched_paths.write().await.clear();
-                    self.watched_paths.write().await.push(self.options.manifest_path.clone());
+                    self.watched_paths
+                        .write()
+                        .await
+                        .push(self.options.manifest_path.clone());
 
                     let ontology_path = base_path.join(&manifest_data.ontology.source);
                     self.watched_paths.write().await.push(ontology_path);
@@ -120,7 +124,10 @@ impl WatchMode {
                         Err(e) => {
                             retry_count += 1;
                             if retry_count >= self.config.max_retries {
-                                eprintln!("✗ Sync failed after {} retries: {}", self.config.max_retries, e);
+                                eprintln!(
+                                    "✗ Sync failed after {} retries: {}",
+                                    self.config.max_retries, e
+                                );
                                 break;
                             }
                             eprintln!(
@@ -194,7 +201,13 @@ mod tests {
         let content2 = "test content";
         let content3 = "different content";
 
-        assert_eq!(WatchMode::hash_file(content1), WatchMode::hash_file(content2));
-        assert_ne!(WatchMode::hash_file(content1), WatchMode::hash_file(content3));
+        assert_eq!(
+            WatchMode::hash_file(content1),
+            WatchMode::hash_file(content2)
+        );
+        assert_ne!(
+            WatchMode::hash_file(content1),
+            WatchMode::hash_file(content3)
+        );
     }
 }

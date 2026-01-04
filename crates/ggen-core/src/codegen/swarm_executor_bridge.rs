@@ -61,9 +61,7 @@ pub struct ExecutionStrategy {
 }
 
 pub fn determine_execution_strategy(
-    rule_count: usize,
-    high_risk_count: usize,
-    manifest_changed: bool,
+    rule_count: usize, high_risk_count: usize, manifest_changed: bool,
 ) -> ExecutionStrategy {
     let use_swarm = rule_count > 10 && !manifest_changed;
     let agent_count = if use_swarm { 4 } else { 1 };
