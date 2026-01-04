@@ -7,7 +7,7 @@
 //! - Monitoring (tracking failure rates)
 
 use crate::error::{Error, Result};
-use crate::rdf::poka_yoke::PackageId;
+use crate::models::PackageId;
 use chrono::{DateTime, Utc};
 use parking_lot::RwLock;
 use std::collections::HashMap;

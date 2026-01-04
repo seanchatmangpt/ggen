@@ -58,3 +58,13 @@ jobs:
 
       - name: Test registry index parsing
         run: cargo test -p ggen-core --lib registry::tests::test_registry_index_structure
+
+      # gpack distribution format tests (Feature 014)
+      - name: gpack module check
+        run: cargo make gpack-check
+
+      - name: gpack unit tests
+        run: cargo make gpack-test
+
+      - name: gpack validation
+        run: cargo make gpack-validate

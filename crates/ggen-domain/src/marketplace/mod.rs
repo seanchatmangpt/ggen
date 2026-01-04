@@ -19,6 +19,7 @@ pub mod artifact_generator;
 pub mod bundles;
 pub mod fmea_validator; // Enterprise FMEA validation for Fortune 500 packages
 pub mod guards;
+pub mod quality_tiers; // Gold/Silver/Bronze quality tier classification
 pub mod hook;
 pub mod install;
 pub mod list;
@@ -80,6 +81,11 @@ pub use types::{Checksum, NonEmptyQuery, SemanticVersion, ValidatedPackageName};
 pub use fmea_validator::{
     FmeaCategory, FmeaCheck, FmeaCheckResult, FmeaValidationReport, FmeaValidator,
     FmeaValidatorError,
+};
+
+// Quality tiers (Gold/Silver/Bronze package classification)
+pub use quality_tiers::{
+    PackageQualityInfo, QualityThresholds, QualityTier, QualityTierCalculator,
 };
 
 // Validation infrastructure (internal, but needed by multiple modules)

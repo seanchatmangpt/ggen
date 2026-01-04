@@ -1,0 +1,10 @@
+# Invalid manifest - invalid version format
+# Used for: Version validation tests
+# Feature: 014-marketplace-gpack T003
+# Expected error: "Invalid version: not-a-version"
+
+[package]
+name = "bad-version-gpack"
+version = "not-a-version"
+description = "Package with invalid version"
+license = "MIT"

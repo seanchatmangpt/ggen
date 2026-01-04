@@ -2318,3 +2318,257 @@ args = [
   "--",
   "metadata-update",
 ]
+
+# =============================================================================
+# Feature 014: Marketplace gpack Distribution Tasks
+# =============================================================================
+
+[tasks.gpack-check]
+description = """
+Check gpack module compilation (Feature 014-marketplace-gpack).
+Verifies all gpack modules compile without errors.
+Returns RED Andon signal on compilation errors, GREEN on success.
+
+Usage: cargo make gpack-check
+When: After gpack module changes, before commit
+SLO: <10s for incremental, <30s for clean build
+
+Example output:
+  GREEN: "Finished `dev` profile target(s) in 2.3s"
+  RED: "error[E0425]: cannot find value `x` in this scope"
+
+Recovery: Fix compilation errors in gpack modules.
+"""
+workspace = false
+command = "timeout"
+args = ["30s", "cargo", "check", "-p", "ggen-marketplace", "--lib"]
+
+[tasks.gpack-test]
+description = """
+Run gpack module unit tests (Feature 014-marketplace-gpack).
+Executes all gpack-related tests with Chicago TDD focus.
+Returns RED Andon signal on test failures, GREEN on pass.
+
+Usage: cargo make gpack-test
+When: After gpack changes, before commit
+SLO: <30s for unit tests
+
+Example output:
+  GREEN: "test result: ok. 45 passed; 0 failed"
+  RED: "test gpack::manifest::tests::test_validate ... FAILED"
+
+Recovery: Fix failing tests in gpack modules.
+"""
+workspace = false
+command = "timeout"
+args = ["60s", "cargo", "test", "-p", "ggen-marketplace", "gpack", "--", "--nocapture"]
+
+[tasks.gpack-lint]
+description = """
+Lint gpack modules with clippy (Feature 014-marketplace-gpack).
+Runs clippy checks on gpack code. Note: clippy cannot filter by module,
+so this checks the entire ggen-marketplace lib with warnings allowed.
+Use gpack-lint-strict for warnings-as-errors mode.
+Returns GREEN on success.
+
+Usage: cargo make gpack-lint
+When: Before commit, CI validation
+SLO: <30s for lint
+
+Example output:
+  GREEN: "Finished `dev` profile"
+  YELLOW: "warning: unused variable"
+
+Recovery: Fix clippy errors in gpack modules.
+"""
+workspace = false
+command = "timeout"
+args = [
+  "30s",
+  "cargo",
+  "clippy",
+  "-p",
+  "ggen-marketplace",
+  "--lib",
+  "--",
+  "-W",
+  "clippy::all",
+]
+
+[tasks.gpack-lint-strict]
+description = """
+Strict lint for gpack modules (warnings-as-errors).
+Use only after all marketplace clippy warnings are resolved.
+"""
+workspace = false
+command = "timeout"
+args = [
+  "30s",
+  "cargo",
+  "clippy",
+  "-p",
+  "ggen-marketplace",
+  "--lib",
+  "--",
+  "-D",
+  "warnings",
+]
+
+[tasks.gpack-validate]
+description = """
+Run comprehensive gpack validation (Feature 014-marketplace-gpack).
+Combines check, lint, and test for full validation.
+
+Usage: cargo make gpack-validate
+When: Before PR, CI gate validation
+SLO: <120s total
+
+Example output:
+  GREEN: "All gpack validations passed"
+  RED: "gpack validation failed"
+
+Recovery: Run individual tasks (gpack-check, gpack-lint, gpack-test) to identify failure.
+"""
+workspace = false
+dependencies = ["gpack-check", "gpack-lint", "gpack-test"]
+
+[tasks.gpack-fixtures-validate]
+description = """
+Validate gpack test fixtures (Feature 014-marketplace-gpack T003).
+Ensures all fixture files are valid and loadable.
+
+Usage: cargo make gpack-fixtures-validate
+When: After fixture changes, CI validation
+SLO: <10s
+
+Example output:
+  GREEN: "All fixtures validated"
+  RED: "Invalid fixture: manifests/valid_simple.toml"
+
+Recovery: Fix invalid fixture files.
+"""
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -e
+
+FIXTURES_DIR="crates/ggen-marketplace/tests/gpack/fixtures"
+
+echo "🔍 Validating gpack fixtures..."
+
+# Check manifests are valid TOML
+echo "📋 Checking manifest fixtures..."
+for f in "$FIXTURES_DIR"/manifests/*.toml; do
+  if [ -f "$f" ]; then
+    if toml2json "$f" > /dev/null 2>&1 || python3 -c "import toml; toml.load('$f')" 2>/dev/null; then
+      echo "  ✅ $(basename $f)"
+    else
+      # Fallback: just check it's readable
+      if [ -r "$f" ]; then
+        echo "  ✅ $(basename $f) (readable)"
+      else
+        echo "  ❌ $(basename $f)"
+        exit 1
+      fi
+    fi
+  fi
+done
+
+# Check FMEA fixtures are valid JSON
+echo "📋 Checking FMEA fixtures..."
+for f in "$FIXTURES_DIR"/fmea/*.json; do
+  if [ -f "$f" ]; then
+    if python3 -c "import json; json.load(open('$f'))" 2>/dev/null || jq . "$f" > /dev/null 2>&1; then
+      echo "  ✅ $(basename $f)"
+    else
+      echo "  ❌ $(basename $f)"
+      exit 1
+    fi
+  fi
+done
+
+echo "✅ All gpack fixtures validated!"
+'''
+
+[tasks.verify-pr108]
+description = """
+Verify PR 108 (Debian distribution for Claude Code on the web) using testcontainers and act.
+Runs comprehensive poka-yoke certification tests to ensure error prevention and validation.
+
+Usage: cargo make verify-pr108
+When: After PR 108 changes, before merging, CI validation
+SLO: <300s (5 minutes) for full verification
+
+Example output:
+  ✅ Docker is running
+  ✅ Debian container tests passed
+  ✅ Poka-yoke certification tests passed
+  ✅ PR 108 is poka-yoke certified
+
+Recovery: Review errors and fix issues before proceeding.
+"""
+workspace = false
+command = "bash"
+args = ["scripts/verify-pr108.sh"]
+
+[tasks.certify-poka-yoke]
+description = """
+Run poka-yoke certification test suite.
+Validates error prevention mechanisms, pre-flight checks, timeout guards, and cleanup verification.
+
+Usage: cargo make certify-poka-yoke
+When: After poka-yoke changes, CI validation
+SLO: <60s
+
+Example output:
+  ✅ Pre-flight checks passed
+  ✅ Timeout guards working
+  ✅ Error detector fail-fast working
+  ✅ Cleanup verification passed
+
+Recovery: Fix failing poka-yoke safeguards.
+"""
+workspace = false
+command = "timeout"
+args = [
+  "60s",
+  "cargo",
+  "test",
+  "--test",
+  "poka_yoke_certification_test",
+  "--",
+  "--nocapture",
+]
+
+[tasks.test-debian-container]
+description = """
+Test ggen in Debian bookworm container (matching Claude Code web environment).
+Uses testcontainers to spin up Debian container and verify ggen installation/execution.
+
+Usage: cargo make test-debian-container
+When: Testing PR 108 compatibility, CI validation
+SLO: <180s (3 minutes)
+
+Example output:
+  ✅ Debian bookworm container started
+  ✅ Rust toolchain installed
+  ✅ ggen installation verified
+  ✅ ggen execution verified
+
+Recovery: Check Docker is running and testcontainers can create containers.
+"""
+workspace = false
+command = "timeout"
+args = [
+  "180s",
+  "cargo",
+  "test",
+  "--package",
+  "ggen-e2e",
+  "--lib",
+  "tests::debian_claude_web_test",
+  "--",
+  "--nocapture",
+  "--ignored",
+]

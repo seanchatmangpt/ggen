@@ -1,0 +1,26 @@
+# Valid simple gpack manifest
+# Used for: Basic manifest parsing tests
+# Feature: 014-marketplace-gpack T003
+
+[package]
+name = "hello-world-gpack"
+version = "1.0.0"
+description = "A simple hello world package for testing"
+authors = ["Test Author <test@example.com>"]
+license = "MIT"
+repository = "https://github.com/example/hello-world-gpack"
+keywords = ["hello", "world", "example"]
+categories = ["development-tools"]
+ggen_version = "5.0"
+quality_tier = "gold"
+
+[dependencies]
+serde = "1.0"
+tokio = { version = "1.0", features = ["full"] }
+
+[features]
+default = ["async"]
+async = []
+
+[build]
+script = "build.rs"

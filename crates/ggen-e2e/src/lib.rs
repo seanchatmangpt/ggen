@@ -21,8 +21,12 @@ pub mod error;
 pub mod fixture;
 pub mod golden;
 pub mod platform;
+pub mod poka_yoke;
 pub mod result;
 pub mod runner;
+
+#[cfg(test)]
+pub mod tests;
 
 // Re-export commonly used types
 pub use comparison::CrossPlatformComparison;
@@ -33,3 +37,4 @@ pub use golden::{GoldenFile, GoldenMismatch};
 pub use platform::{Arch, Os, Platform};
 pub use result::{TestExecution, TestResult, TestStatus};
 pub use runner::TestRunner;
+pub use poka_yoke::{CleanupVerifier, ErrorDetector, PreFlightChecks, TimeoutGuard};

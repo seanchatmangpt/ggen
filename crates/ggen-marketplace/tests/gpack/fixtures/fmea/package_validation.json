@@ -1,0 +1,142 @@
+{
+  "fmea_report": {
+    "title": "Package Validation FMEA Report",
+    "version": "1.0.0",
+    "generated_at": "2024-12-20T10:00:00Z",
+    "feature": "014-marketplace-gpack"
+  },
+  "failure_modes": [
+    {
+      "id": "FM001",
+      "name": "Checksum Verification Failure",
+      "description": "Package content does not match declared SHA-256 checksum",
+      "severity": 9,
+      "occurrence": 2,
+      "detection": 1,
+      "rpn": 18,
+      "effects": [
+        "Corrupted package installation",
+        "Potential security vulnerability",
+        "Build reproducibility failure"
+      ],
+      "causes": [
+        "Download corruption",
+        "Man-in-the-middle attack",
+        "Storage corruption"
+      ],
+      "controls": [
+        "SHA-256 checksum verification before installation",
+        "HTTPS-only downloads",
+        "Retry with fresh download on mismatch"
+      ],
+      "mitigation": "Verify SHA-256 checksum against lockfile before installation"
+    },
+    {
+      "id": "FM002",
+      "name": "Invalid Package Signature",
+      "description": "Ed25519 signature verification fails",
+      "severity": 10,
+      "occurrence": 3,
+      "detection": 1,
+      "rpn": 30,
+      "effects": [
+        "Untrusted code execution",
+        "Supply chain compromise"
+      ],
+      "causes": [
+        "Tampered package",
+        "Expired signing key",
+        "Key compromise"
+      ],
+      "controls": [
+        "Ed25519 signature verification",
+        "Key rotation policy",
+        "Trusted key registry"
+      ],
+      "mitigation": "Verify Ed25519 signature against trusted publisher keys"
+    },
+    {
+      "id": "FM003",
+      "name": "Missing Dependencies",
+      "description": "Required dependencies not available in registry",
+      "severity": 8,
+      "occurrence": 5,
+      "detection": 2,
+      "rpn": 80,
+      "effects": [
+        "Installation failure",
+        "Build failure",
+        "Runtime errors"
+      ],
+      "causes": [
+        "Yanked dependency",
+        "Network failure",
+        "Registry unavailable"
+      ],
+      "controls": [
+        "Pre-flight dependency resolution",
+        "Lockfile verification",
+        "Fallback registries"
+      ],
+      "mitigation": "Resolve all dependencies before installation, cache resolved versions"
+    },
+    {
+      "id": "FM004",
+      "name": "Version Conflict",
+      "description": "Incompatible version requirements between dependencies",
+      "severity": 7,
+      "occurrence": 6,
+      "detection": 3,
+      "rpn": 126,
+      "effects": [
+        "Resolution failure",
+        "Runtime incompatibility"
+      ],
+      "causes": [
+        "Incompatible version constraints",
+        "Yanked compatible version"
+      ],
+      "controls": [
+        "SAT-based dependency resolver",
+        "Version range validation",
+        "Conflict detection before install"
+      ],
+      "mitigation": "Use SAT solver for dependency resolution with conflict detection"
+    },
+    {
+      "id": "FM005",
+      "name": "Malformed Manifest",
+      "description": "Package manifest fails schema validation",
+      "severity": 8,
+      "occurrence": 4,
+      "detection": 1,
+      "rpn": 32,
+      "effects": [
+        "Package cannot be parsed",
+        "Metadata extraction failure"
+      ],
+      "causes": [
+        "Invalid TOML syntax",
+        "Missing required fields",
+        "Invalid field values"
+      ],
+      "controls": [
+        "Schema validation on publish",
+        "TOML/YAML/JSON parser validation",
+        "Required field checks"
+      ],
+      "mitigation": "Validate manifest against schema before processing"
+    }
+  ],
+  "summary": {
+    "total_failure_modes": 5,
+    "max_rpn": 126,
+    "critical_rpn_threshold": 100,
+    "failure_modes_above_threshold": 1,
+    "recommended_actions": [
+      "Prioritize FM004 (Version Conflict) mitigation - RPN 126",
+      "Implement SAT-based resolver for complex dependency graphs",
+      "Add comprehensive pre-flight validation"
+    ]
+  }
+}

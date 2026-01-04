@@ -42,6 +42,16 @@ repos:
         types: [rust]
         pass_filenames: false
 
+      # gpack format validation (Feature 014)
+      - id: gpack-validate
+        name: gpack validate
+        description: Validate gpack module compilation and tests
+        entry: cargo make gpack-validate
+        language: system
+        types: [rust]
+        pass_filenames: false
+        files: 'crates/ggen-marketplace/src/gpack/'
+
   # General file checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0

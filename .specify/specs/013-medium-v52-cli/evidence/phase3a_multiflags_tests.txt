@@ -1,0 +1,20 @@
+[1m[36m    Blocking[0m waiting for file lock on package cache
+[1m[36m    Blocking[0m waiting for file lock on package cache
+[1m[36m    Blocking[0m waiting for file lock on build directory
+[1m[32m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 10.08s
+[1m[32m     Running[0m tests/integration_v52_multiflags.rs (target/debug/deps/integration_v52_multiflags-e577580d5beaab3e)
+
+running 10 tests
+test test_flag_precedence_validate_only_blocks_generation ... ok
+test test_condition_plus_validate_only ... ok
+test test_audit_trail_records_all_operations ... ok
+test test_invalid_flag_combinations ... ok
+test test_dry_run_preview_with_all_flags ... ok
+test test_watch_condition_audit_live_conditional ... ok
+test test_force_plus_audit_safe_destructive ... ok
+test test_force_merge_audit_all_three ... ok
+test test_merge_plus_watch_live_hybrid ... ok
+test test_file_system_side_effects ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
