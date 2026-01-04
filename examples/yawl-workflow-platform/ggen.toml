@@ -50,7 +50,7 @@ WHERE {
         yawl:taskName ?taskName .
   ?taskType rdfs:subClassOf* yawl:Task .
   BIND(CONCAT(UCASE(SUBSTR(?taskId, 1, 1)), SUBSTR(?taskId, 2)) AS ?handlerName)
-  BIND(CONCAT("lib/handlers/", ?taskId, "Handler.ts") AS ?handlerPath)
+  BIND(CONCAT("lib/handlers/", ?taskId, "Handler.mjs") AS ?handlerPath)
 }
 """
 
@@ -134,7 +134,7 @@ mode = "Overwrite"
 # -----------------------------------------------------------------------------
 [[generation.rules]]
 name = "task-definitions"
-description = "Generate TypeScript task definitions from ontology"
+description = "Generate ESM task definitions from ontology"
 query = { inline = """
 PREFIX yawl: <http://unrdf.org/yawl#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -159,7 +159,7 @@ WHERE {
 ORDER BY ?specId ?taskId
 """ }
 template = { file = "templates/task-definitions.tera" }
-output_file = "lib/definitions/tasks.ts"
+output_file = "lib/definitions/tasks.mjs"
 mode = "Overwrite"
 
 # -----------------------------------------------------------------------------
@@ -187,7 +187,7 @@ WHERE {
 ORDER BY ?specId ?flowPriority
 """ }
 template = { file = "templates/flow-definitions.tera" }
-output_file = "lib/definitions/flows.ts"
+output_file = "lib/definitions/flows.mjs"
 mode = "Overwrite"
 
 # -----------------------------------------------------------------------------
@@ -195,7 +195,7 @@ mode = "Overwrite"
 # -----------------------------------------------------------------------------
 [[generation.rules]]
 name = "servlet-handlers"
-description = "Generate TypeScript servlet handlers from RDF definitions"
+description = "Generate ESM servlet handlers from RDF definitions"
 query = { inline = """
 PREFIX yawl-servlet: <http://unrdf.org/yawl/servlet#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -226,7 +226,7 @@ mode = "Overwrite"
 # -----------------------------------------------------------------------------
 [[generation.rules]]
 name = "worklet-handlers"
-description = "Generate TypeScript worklet exception handlers"
+description = "Generate ESM worklet exception handlers"
 query = { inline = """
 PREFIX yawl-worklet: <http://unrdf.org/yawl/worklet#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -278,7 +278,7 @@ WHERE {
 ORDER BY ?splitType ?joinType
 """ }
 template = { file = "templates/workflow-engine.tera" }
-output_file = "lib/engine/WorkflowEngine.ts"
+output_file = "lib/engine/WorkflowEngine.mjs"
 mode = "Overwrite"
 
 # -----------------------------------------------------------------------------
@@ -305,7 +305,7 @@ WHERE {
 ORDER BY ?httpMethod ?urlPattern
 """ }
 template = { file = "templates/rest-api.tera" }
-output_file = "lib/api/routes.ts"
+output_file = "lib/api/routes.mjs"
 mode = "Overwrite"
 
 # -----------------------------------------------------------------------------
@@ -336,7 +336,7 @@ WHERE {
 ORDER BY ?specId ?servletId
 """ }
 template = { file = "templates/vitest-tests.tera" }
-output_file = "lib/tests/workflow.test.ts"
+output_file = "lib/tests/workflow.test.mjs"
 mode = "Overwrite"
 
 # -----------------------------------------------------------------------------
@@ -365,7 +365,7 @@ GROUP BY ?specId ?specName ?specVersion ?specComment
 ORDER BY ?specId
 """ }
 template = { file = "templates/workflow-index.tera" }
-output_file = "lib/definitions/index.ts"
+output_file = "lib/definitions/index.mjs"
 mode = "Overwrite"
 
 # -----------------------------------------------------------------------------
@@ -393,7 +393,7 @@ WHERE {
 ORDER BY ?statusLabel
 """ }
 template = { file = "templates/receipt-types.tera" }
-output_file = "lib/types/receipts.ts"
+output_file = "lib/types/receipts.mjs"
 mode = "Overwrite"
 
 # -----------------------------------------------------------------------------
@@ -401,7 +401,7 @@ mode = "Overwrite"
 # -----------------------------------------------------------------------------
 [[generation.rules]]
 name = "case-types"
-description = "Generate case management TypeScript types"
+description = "Generate case management ESM types"
 query = { inline = """
 PREFIX yawl: <http://unrdf.org/yawl#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -415,7 +415,7 @@ WHERE {
 ORDER BY ?statusLabel
 """ }
 template = { file = "templates/case-types.tera" }
-output_file = "lib/types/cases.ts"
+output_file = "lib/types/cases.mjs"
 mode = "Overwrite"
 
 # -----------------------------------------------------------------------------
@@ -423,7 +423,7 @@ mode = "Overwrite"
 # -----------------------------------------------------------------------------
 [[generation.rules]]
 name = "workitem-types"
-description = "Generate work item TypeScript types"
+description = "Generate work item ESM types"
 query = { inline = """
 PREFIX yawl: <http://unrdf.org/yawl#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -437,7 +437,7 @@ WHERE {
 ORDER BY ?statusLabel
 """ }
 template = { file = "templates/workitem-types.tera" }
-output_file = "lib/types/workitems.ts"
+output_file = "lib/types/workitems.mjs"
 mode = "Overwrite"
 
 # -----------------------------------------------------------------------------
@@ -459,19 +459,25 @@ output_file = "package.json"
 mode = "Overwrite"
 
 # -----------------------------------------------------------------------------
-# Rule 14: TypeScript Config
+# Rule 14: Worklet Index
 # -----------------------------------------------------------------------------
 [[generation.rules]]
-name = "tsconfig"
-description = "Generate TypeScript configuration"
+name = "worklet-index"
+description = "Generate worklet index module"
 query = { inline = """
-PREFIX yawl: <http://unrdf.org/yawl#>
-SELECT (1 AS ?placeholder)
-WHERE { }
-LIMIT 1
+PREFIX yawl-worklet: <http://unrdf.org/yawl/worklet#>
+
+SELECT ?workletId ?workletName ?exceptionType
+WHERE {
+  ?worklet a ?workletType ;
+           yawl-worklet:workletId ?workletId ;
+           yawl-worklet:workletName ?workletName .
+  OPTIONAL { ?worklet yawl-worklet:handlesException ?exceptionNode . ?exceptionNode rdfs:label ?exceptionType }
+}
+ORDER BY ?workletId
 """ }
-template = { file = "templates/tsconfig.tera" }
-output_file = "tsconfig.json"
+template = { file = "templates/worklet-index.tera" }
+output_file = "lib/worklets/index.mjs"
 mode = "Overwrite"
 
 # =============================================================================
