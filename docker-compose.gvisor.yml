@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  ggen:
+    build:
+      context: .
+      dockerfile: Dockerfile.gvisor
+    image: ggen:gvisor
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    # Use gVisor runtime if available
+    runtime: runsc
+    command: sync
+    # Fallback to default runtime if gVisor not available
+    # Remove the runtime line above if gVisor is not installed
+
+  ggen-build:
+    build:
+      context: .
+      dockerfile: Dockerfile.gvisor
+    image: ggen:gvisor
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    runtime: runsc
+    command: bash -c "cargo make check && cargo make test"
+
+  ggen-interactive:
+    build:
+      context: .
+      dockerfile: Dockerfile.gvisor
+    image: ggen:gvisor
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    runtime: runsc
+    stdin_open: true
+    tty: true
+    command: bash
+
