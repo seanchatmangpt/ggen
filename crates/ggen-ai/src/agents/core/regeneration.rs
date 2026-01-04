@@ -586,35 +586,7 @@ impl Agent for RegenerationAgent {
     /// Run the regeneration loop in a spawned task
     ///
     /// This is separated from the main run_regeneration_loop to allow spawning
-    /// without requiring ownership of the entire agent. All necessary state is
-    /// passed as Arc-wrapped parameters, which are safe to share across threads.
-    async fn run_regeneration_loop_spawned(
-        artifact_registry: Arc<RwLock<HashMap<PathBuf, ArtifactDependency>>>,
-        regeneration_queue: Arc<RwLock<Vec<RegenerationTrigger>>>,
-        regeneration_history: Arc<RwLock<Vec<RegenerationResult>>>,
-        shutdown_notify: Arc<Notify>,
-        watch_interval: Duration,
-    ) {
-        loop {
-            tokio::select! {
-                _ = shutdown_notify.notified() => {
-                    tracing::info!("RegenerationAgent loop shutting down");
-                    break;
-                }
-                _ = tokio::time::sleep(watch_interval) => {
-                    // Process any pending regenerations
-                    let queue_len = {
-                        let queue = regeneration_queue.read().await;
-                        queue.len()
-                    };
-
-                    if queue_len > 0 {
-                        tracing::debug!("RegenerationAgent processing {} pending triggers", queue_len);
-                    }
-                }
-            }
-        }
-    }
+    // Moved to impl RegenerationAgent block below to avoid trait method conflict
 
     async fn stop(&mut self) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Stopping RegenerationAgent");

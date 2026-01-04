@@ -1,0 +1,1041 @@
+{
+  "testing_innovations": [
+    {
+      "id": 1,
+      "name": "Ontology-Driven Property-Based Testing",
+      "description": "Generate property-based tests from RDF ontologies using fast-check, hypothesis, and QuickCheck. Domain constraints become generators, invariants become properties, and relationships become test oracles.",
+      "external_packages": {
+        "javascript": [
+          {
+            "name": "fast-check",
+            "version": "^3.15.0",
+            "purpose": "Property-based testing framework for JS/TS",
+            "advanced_features": [
+              "Shrinking strategies for complex objects",
+              "Async property testing with race conditions",
+              "Model-based testing for stateful systems",
+              "Constraint-based generator composition",
+              "Replay capabilities with seed management"
+            ]
+          },
+          {
+            "name": "@fast-check/ava",
+            "version": "^2.0.0",
+            "purpose": "AVA integration for concurrent property testing"
+          },
+          {
+            "name": "jest-fast-check",
+            "version": "^1.0.0",
+            "purpose": "Jest integration for property-based testing"
+          }
+        ],
+        "python": [
+          {
+            "name": "hypothesis",
+            "version": "^6.92.0",
+            "purpose": "Advanced property-based testing for Python",
+            "advanced_features": [
+              "Stateful testing with rule-based machines",
+              "Ghostwriter for auto-generating tests from types",
+              "Database integration with hypothesis[django]",
+              "Numpy/Pandas data generation strategies",
+              "Crosshair symbolic execution integration"
+            ]
+          },
+          {
+            "name": "hypothesis-jsonschema",
+            "version": "^0.23.0",
+            "purpose": "Generate test data from JSON Schema (derived from RDF)"
+          },
+          {
+            "name": "schemathesis",
+            "version": "^3.19.0",
+            "purpose": "Automatic API testing from OpenAPI specs generated from RDF"
+          }
+        ],
+        "rust": [
+          {
+            "name": "proptest",
+            "version": "^1.4.0",
+            "purpose": "Property-based testing for Rust",
+            "advanced_features": [
+              "Custom shrinking strategies",
+              "Persistent failure tracking",
+              "Arbitrary trait derivation macros",
+              "Regression testing with captured seeds"
+            ]
+          },
+          {
+            "name": "quickcheck",
+            "version": "^1.0.3",
+            "purpose": "Classic property-based testing"
+          }
+        ]
+      },
+      "ontology_extensions": {
+        "namespace": "http://ggen.dev/testing/pbt#",
+        "classes": [
+          {
+            "name": "pbt:PropertyTest",
+            "extends": "ggen:Template",
+            "description": "A property-based test specification",
+            "required_properties": [
+              "pbt:property",
+              "pbt:generator",
+              "pbt:numTests"
+            ]
+          },
+          {
+            "name": "pbt:Generator",
+            "description": "Test data generator specification",
+            "subtypes": [
+              "pbt:IntGenerator",
+              "pbt:StringGenerator",
+              "pbt:CompositeGenerator",
+              "pbt:ConstrainedGenerator"
+            ]
+          },
+          {
+            "name": "pbt:Invariant",
+            "description": "System invariant that must hold for all inputs",
+            "properties": [
+              "pbt:precondition",
+              "pbt:postcondition",
+              "pbt:assertion"
+            ]
+          },
+          {
+            "name": "pbt:ShrinkStrategy",
+            "description": "Defines how to minimize failing test cases"
+          },
+          {
+            "name": "pbt:StateMachine",
+            "description": "Stateful property test with transitions",
+            "properties": [
+              "pbt:states",
+              "pbt:transitions",
+              "pbt:invariants"
+            ]
+          }
+        ],
+        "properties": [
+          {
+            "name": "pbt:generatesFrom",
+            "domain": "pbt:PropertyTest",
+            "range": "ggen:Entity",
+            "description": "Links property test to domain entity in RDF ontology"
+          },
+          {
+            "name": "pbt:validates",
+            "domain": "pbt:PropertyTest",
+            "range": "pbt:Invariant",
+            "description": "Invariants this test validates"
+          },
+          {
+            "name": "pbt:minValue",
+            "domain": "pbt:Generator",
+            "range": "xsd:integer"
+          },
+          {
+            "name": "pbt:maxValue",
+            "domain": "pbt:Generator",
+            "range": "xsd:integer"
+          },
+          {
+            "name": "pbt:pattern",
+            "domain": "pbt:StringGenerator",
+            "range": "xsd:string",
+            "description": "Regex pattern for string generation"
+          },
+          {
+            "name": "pbt:numTests",
+            "domain": "pbt:PropertyTest",
+            "range": "xsd:integer",
+            "description": "Number of test cases to generate (default: 1000)"
+          },
+          {
+            "name": "pbt:seed",
+            "domain": "pbt:PropertyTest",
+            "range": "xsd:integer",
+            "description": "Seed for reproducible test generation"
+          }
+        ]
+      },
+      "rdf_example": "@prefix pbt: <http://ggen.dev/testing/pbt#> .\n@prefix ex: <http://example.com/domain#> .\n\nex:UserEmailPropertyTest a pbt:PropertyTest ;\n  pbt:property \"Email validation should never accept invalid formats\" ;\n  pbt:generatesFrom ex:User ;\n  pbt:generator ex:EmailGenerator ;\n  pbt:validates ex:EmailInvariant ;\n  pbt:numTests 10000 ;\n  pbt:seed 42 .\n\nex:EmailGenerator a pbt:StringGenerator ;\n  pbt:pattern \"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,}$\" ;\n  pbt:minLength 5 ;\n  pbt:maxLength 254 .\n\nex:EmailInvariant a pbt:Invariant ;\n  pbt:assertion \"validate_email(email) == is_valid_format(email)\" ;\n  pbt:precondition \"email is not null\" ;\n  pbt:postcondition \"result is boolean\" .",
+      "generated_templates": {
+        "jest_typescript": {
+          "template_path": "templates/testing/pbt/jest-property-test.ts.tera",
+          "example": "import fc from 'fast-check';\nimport { {{ testClass }} } from '../{{ modulePath }}';\n\n{%- for test in propertyTests %}\ndescribe('Property: {{ test.property }}', () => {\n  it('holds for {{ test.numTests }} random cases', () => {\n    fc.assert(\n      fc.property(\n        {%- for gen in test.generators %}\n        fc.{{ gen.type }}({{ gen.constraints }}),\n        {%- endfor %}\n        ({% for gen in test.generators %}{{ gen.name }}{{ \", \" if not loop.last }}{% endfor %}) => {\n          // Precondition\n          fc.pre({{ test.precondition }});\n          \n          // System under test\n          const result = {{ test.targetMethod }}({% for gen in test.generators %}{{ gen.name }}{{ \", \" if not loop.last }}{% endfor %});\n          \n          // Postcondition (invariant)\n          expect({{ test.assertion }}).toBe(true);\n        }\n      ),\n      { numRuns: {{ test.numTests }}, seed: {{ test.seed }} }\n    );\n  });\n});\n{%- endfor %}"
+        },
+        "pytest_hypothesis": {
+          "template_path": "templates/testing/pbt/pytest-hypothesis.py.tera",
+          "example": "from hypothesis import given, strategies as st, settings, seed\nimport pytest\n\n{%- for test in propertyTests %}\n@seed({{ test.seed }})\n@settings(max_examples={{ test.numTests }})\n@given(\n{%- for gen in test.generators %}\n    {{ gen.name }}=st.{{ gen.strategy }}({{ gen.args }}),\n{%- endfor %}\n)\ndef test_{{ test.name }}({% for gen in test.generators %}{{ gen.name }}{{ \", \" if not loop.last }}{% endfor %}):\n    \"\"\"{{ test.property }}\"\"\"\n    # Precondition\n    {% if test.precondition -%}\n    assume({{ test.precondition }})\n    {%- endif %}\n    \n    # Act\n    result = {{ test.targetFunction }}({% for gen in test.generators %}{{ gen.name }}{{ \"=\" }}{{ gen.name }}{{ \", \" if not loop.last }}{% endfor %})\n    \n    # Assert invariant\n    assert {{ test.assertion }}, f\"Invariant violated for input: {locals()}\"\n{%- endfor %}"
+        },
+        "rust_proptest": {
+          "template_path": "templates/testing/pbt/proptest.rs.tera",
+          "example": "use proptest::prelude::*;\n\n{%- for test in propertyTests %}\nproptest! {\n    #![proptest_config(ProptestConfig::with_cases({{ test.numTests }}))]\n    \n    #[test]\n    fn {{ test.name }}(\n        {%- for gen in test.generators %}\n        {{ gen.name }} in {{ gen.strategy }},\n        {%- endfor %}\n    ) {\n        // Precondition\n        {% if test.precondition -%}\n        prop_assume!({{ test.precondition }});\n        {%- endif %}\n        \n        // Act\n        let result = {{ test.targetFunction }}({% for gen in test.generators %}{{ gen.name }}{{ \", \" if not loop.last }}{% endfor %});\n        \n        // Assert invariant: {{ test.property }}\n        prop_assert!({{ test.assertion }});\n    }\n}\n{%- endfor %}"
+        }
+      },
+      "ci_cd_integration": {
+        "github_actions": {
+          "workflow_file": ".github/workflows/property-based-tests.yml",
+          "content": "name: Property-Based Tests\n\non:\n  pull_request:\n  push:\n    branches: [main, master]\n\njobs:\n  pbt-tests:\n    runs-on: ubuntu-latest\n    strategy:\n      matrix:\n        language: [javascript, python, rust]\n    steps:\n      - uses: actions/checkout@v4\n      \n      - name: Generate property tests from RDF\n        run: |\n          ggen render \\\n            --ontology property-tests.ttl \\\n            --template templates/testing/pbt/${{ matrix.language }}-property-test.tera \\\n            --output tests/generated/pbt/\n      \n      - name: Run property tests (10,000 cases)\n        run: |\n          case ${{ matrix.language }} in\n            javascript) npm run test:property ;;\n            python) pytest tests/generated/pbt/ --hypothesis-profile=ci ;;\n            rust) cargo test --test property_tests -- --test-threads=1 ;;\n          esac\n      \n      - name: Upload shrunk failure cases\n        if: failure()\n        uses: actions/upload-artifact@v4\n        with:\n          name: pbt-failures-${{ matrix.language }}\n          path: |\n            .hypothesis/\n            proptest-regressions/\n            fast-check/failures/"
+        },
+        "performance_optimization": {
+          "parallel_execution": "Use matrix strategy to run different property test suites in parallel",
+          "caching": "Cache property test corpus and discovered regressions",
+          "failure_replay": "Automatically create regression tests from discovered failures"
+        }
+      },
+      "advanced_use_cases": [
+        {
+          "name": "API Contract Validation",
+          "description": "Generate property tests that validate API contracts derived from RDF schemas never violate type constraints",
+          "rdf_pattern": "API endpoints with input/output schemas become property tests with generated request payloads"
+        },
+        {
+          "name": "Database Invariants",
+          "description": "Test that database operations preserve referential integrity and domain constraints",
+          "rdf_pattern": "Entity relationships in RDF become database invariants tested with generated entity graphs"
+        },
+        {
+          "name": "Stateful System Testing",
+          "description": "Model state machines from RDF workflow ontologies and test all transition sequences",
+          "rdf_pattern": "Workflow states and transitions become hypothesis stateful rules or fast-check commands"
+        },
+        {
+          "name": "Metamorphic Testing",
+          "description": "Define metamorphic relations in RDF (e.g., f(x) + f(y) = f(x+y)) and test across implementations",
+          "rdf_pattern": "Mathematical properties in domain ontology become metamorphic test oracles"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Ontology-Driven E2E Browser Testing",
+      "description": "Generate Playwright and Cypress tests from RDF user journey specifications. UI components, user flows, and assertions are defined in RDF ontologies and compiled to browser automation scripts.",
+      "external_packages": {
+        "javascript": [
+          {
+            "name": "@playwright/test",
+            "version": "^1.40.0",
+            "purpose": "Modern browser automation with auto-waiting",
+            "advanced_features": [
+              "Cross-browser testing (Chromium, Firefox, WebKit)",
+              "Network interception and mocking",
+              "Visual regression with screenshot comparison",
+              "Trace viewer for debugging failures",
+              "API testing alongside UI tests",
+              "Codegen for recording user flows"
+            ]
+          },
+          {
+            "name": "playwright-lighthouse",
+            "version": "^4.0.0",
+            "purpose": "Performance audits integrated with E2E tests"
+          },
+          {
+            "name": "@axe-core/playwright",
+            "version": "^4.8.0",
+            "purpose": "Automated accessibility testing"
+          },
+          {
+            "name": "cypress",
+            "version": "^13.6.0",
+            "purpose": "Developer-friendly E2E testing framework",
+            "advanced_features": [
+              "Time-travel debugging",
+              "Network stubbing and spying",
+              "Visual testing with percy/applitools",
+              "Component testing in isolation",
+              "Real-time reloading and debugging"
+            ]
+          },
+          {
+            "name": "@cypress/grep",
+            "version": "^4.0.0",
+            "purpose": "Tag-based test filtering from RDF tags"
+          },
+          {
+            "name": "cypress-axe",
+            "version": "^1.5.0",
+            "purpose": "Accessibility testing in Cypress"
+          }
+        ],
+        "python": [
+          {
+            "name": "playwright-python",
+            "version": "^1.40.0",
+            "purpose": "Python bindings for Playwright"
+          },
+          {
+            "name": "selenium",
+            "version": "^4.16.0",
+            "purpose": "Legacy browser automation"
+          },
+          {
+            "name": "pytest-playwright",
+            "version": "^0.4.0",
+            "purpose": "Pytest fixtures for Playwright"
+          }
+        ]
+      },
+      "ontology_extensions": {
+        "namespace": "http://ggen.dev/testing/e2e#",
+        "classes": [
+          {
+            "name": "e2e:UserJourney",
+            "description": "End-to-end user flow specification",
+            "properties": [
+              "e2e:persona",
+              "e2e:goal",
+              "e2e:steps",
+              "e2e:successCriteria"
+            ]
+          },
+          {
+            "name": "e2e:Step",
+            "description": "Single interaction step in user journey",
+            "subtypes": [
+              "e2e:NavigateStep",
+              "e2e:ClickStep",
+              "e2e:TypeStep",
+              "e2e:AssertStep",
+              "e2e:WaitStep"
+            ]
+          },
+          {
+            "name": "e2e:PageObject",
+            "description": "Page object model specification",
+            "properties": [
+              "e2e:url",
+              "e2e:selectors",
+              "e2e:actions"
+            ]
+          },
+          {
+            "name": "e2e:Selector",
+            "description": "UI element selector",
+            "subtypes": [
+              "e2e:CSSSelector",
+              "e2e:XPathSelector",
+              "e2e:TestIDSelector",
+              "e2e:ARIASelector"
+            ]
+          },
+          {
+            "name": "e2e:Assertion",
+            "description": "UI state assertion",
+            "subtypes": [
+              "e2e:VisibilityAssertion",
+              "e2e:TextAssertion",
+              "e2e:AttributeAssertion",
+              "e2e:CountAssertion"
+            ]
+          },
+          {
+            "name": "e2e:VisualRegression",
+            "description": "Screenshot comparison specification",
+            "properties": [
+              "e2e:baseline",
+              "e2e:threshold",
+              "e2e:ignoreRegions"
+            ]
+          },
+          {
+            "name": "e2e:AccessibilityRule",
+            "description": "WCAG compliance check",
+            "properties": [
+              "e2e:wcagLevel",
+              "e2e:rules",
+              "e2e:impact"
+            ]
+          }
+        ],
+        "properties": [
+          {
+            "name": "e2e:hasStep",
+            "domain": "e2e:UserJourney",
+            "range": "e2e:Step"
+          },
+          {
+            "name": "e2e:hasPageObject",
+            "domain": "e2e:Step",
+            "range": "e2e:PageObject"
+          },
+          {
+            "name": "e2e:selector",
+            "domain": "e2e:Step",
+            "range": "xsd:string"
+          },
+          {
+            "name": "e2e:expectedText",
+            "domain": "e2e:AssertStep",
+            "range": "xsd:string"
+          },
+          {
+            "name": "e2e:timeout",
+            "domain": "e2e:Step",
+            "range": "xsd:integer"
+          },
+          {
+            "name": "e2e:viewport",
+            "domain": "e2e:UserJourney",
+            "range": "xsd:string",
+            "description": "Viewport size (e.g., '1920x1080', 'iPhone 13')"
+          },
+          {
+            "name": "e2e:browser",
+            "domain": "e2e:UserJourney",
+            "range": "xsd:string",
+            "description": "Target browser: chromium, firefox, webkit"
+          }
+        ]
+      },
+      "rdf_example": "@prefix e2e: <http://ggen.dev/testing/e2e#> .\n@prefix ex: <http://example.com/app#> .\n\nex:CheckoutJourney a e2e:UserJourney ;\n  e2e:persona \"Returning customer\" ;\n  e2e:goal \"Complete purchase of items in cart\" ;\n  e2e:browser \"chromium\" ;\n  e2e:viewport \"1920x1080\" ;\n  e2e:hasStep ex:NavigateToCart, ex:ProceedToCheckout, ex:FillShipping, ex:ConfirmPayment .\n\nex:NavigateToCart a e2e:NavigateStep ;\n  e2e:url \"/cart\" ;\n  e2e:hasPageObject ex:CartPage ;\n  e2e:expectedResult ex:CartPageVisible .\n\nex:CartPage a e2e:PageObject ;\n  e2e:url \"/cart\" ;\n  e2e:selector \"[data-testid='cart-container']\" .\n\nex:ProceedToCheckout a e2e:ClickStep ;\n  e2e:selector \"[data-testid='checkout-button']\" ;\n  e2e:timeout 5000 .\n\nex:FillShipping a e2e:TypeStep ;\n  e2e:selector \"input[name='shipping-address']\" ;\n  e2e:value \"{{ faker.address.streetAddress }}\" .\n\nex:ConfirmPayment a e2e:AssertStep ;\n  e2e:assertion ex:OrderConfirmationVisible ;\n  e2e:expectedText \"Order confirmed\" .\n\nex:OrderConfirmationVisible a e2e:VisibilityAssertion ;\n  e2e:selector \"[data-testid='order-confirmation']\" ;\n  e2e:timeout 10000 .",
+      "generated_templates": {
+        "playwright_typescript": {
+          "template_path": "templates/testing/e2e/playwright-journey.spec.ts.tera",
+          "example": "import { test, expect } from '@playwright/test';\nimport { {{ pageObjects | join(', ') }} } from './pages';\n\n{%- for journey in userJourneys %}\ntest.describe('{{ journey.persona }}: {{ journey.goal }}', () => {\n  test('completes {{ journey.goal }}', async ({ page, context }) => {\n    {%- if journey.viewport %}\n    await page.setViewportSize({{ journey.viewport }});\n    {%- endif %}\n    \n    {%- for step in journey.steps %}\n    // Step {{ loop.index }}: {{ step.description }}\n    {%- if step.type == 'NavigateStep' %}\n    await page.goto('{{ step.url }}');\n    {%- elif step.type == 'ClickStep' %}\n    await page.click('{{ step.selector }}', { timeout: {{ step.timeout | default(30000) }} });\n    {%- elif step.type == 'TypeStep' %}\n    await page.fill('{{ step.selector }}', '{{ step.value }}');\n    {%- elif step.type == 'AssertStep' %}\n    await expect(page.locator('{{ step.assertion.selector }}')).toHaveText('{{ step.assertion.expectedText }}', {\n      timeout: {{ step.assertion.timeout | default(5000) }}\n    });\n    {%- elif step.type == 'WaitStep' %}\n    await page.waitForSelector('{{ step.selector }}', { state: '{{ step.state }}', timeout: {{ step.timeout }} });\n    {%- endif %}\n    {%- endfor %}\n  });\n  \n  {%- if journey.visualRegression %}\n  test('visual regression for {{ journey.goal }}', async ({ page }) => {\n    await page.goto('{{ journey.visualRegression.url }}');\n    await expect(page).toHaveScreenshot('{{ journey.id }}-baseline.png', {\n      maxDiffPixels: {{ journey.visualRegression.threshold }},\n      {%- if journey.visualRegression.ignoreRegions %}\n      mask: [{{ journey.visualRegression.ignoreRegions | map(attribute='selector') | join(', ') }}],\n      {%- endif %}\n    });\n  });\n  {%- endif %}\n  \n  {%- if journey.accessibility %}\n  test('accessibility compliance for {{ journey.goal }}', async ({ page }) => {\n    await page.goto('{{ journey.accessibility.url }}');\n    const accessibilityScanResults = await new AxeBuilder({ page })\n      .withTags(['{{ journey.accessibility.wcagLevel }}'])\n      .analyze();\n    expect(accessibilityScanResults.violations).toEqual([]);\n  });\n  {%- endif %}\n});\n{%- endfor %}"
+        },
+        "cypress_javascript": {
+          "template_path": "templates/testing/e2e/cypress-journey.cy.js.tera",
+          "example": "{%- for journey in userJourneys %}\ndescribe('{{ journey.persona }}: {{ journey.goal }}', () => {\n  {%- if journey.viewport %}\n  beforeEach(() => {\n    cy.viewport({{ journey.viewport.width }}, {{ journey.viewport.height }});\n  });\n  {%- endif %}\n  \n  it('completes {{ journey.goal }}', () => {\n    {%- for step in journey.steps %}\n    // {{ step.description }}\n    {%- if step.type == 'NavigateStep' %}\n    cy.visit('{{ step.url }}');\n    {%- elif step.type == 'ClickStep' %}\n    cy.get('{{ step.selector }}').click();\n    {%- elif step.type == 'TypeStep' %}\n    cy.get('{{ step.selector }}').type('{{ step.value }}');\n    {%- elif step.type == 'AssertStep' %}\n    cy.get('{{ step.assertion.selector }}').should('contain.text', '{{ step.assertion.expectedText }}');\n    {%- endif %}\n    {%- endfor %}\n  });\n  \n  {%- if journey.networkMock %}\n  it('handles {{ journey.goal }} with mocked API', () => {\n    {%- for mock in journey.networkMock.intercepts %}\n    cy.intercept('{{ mock.method }}', '{{ mock.url }}', {{ mock.fixture }}).as('{{ mock.alias }}');\n    {%- endfor %}\n    // Test steps with mocked network...\n  });\n  {%- endif %}\n});\n{%- endfor %}"
+        }
+      },
+      "ci_cd_integration": {
+        "github_actions": {
+          "workflow_file": ".github/workflows/e2e-tests.yml",
+          "content": "name: E2E Browser Tests\n\non:\n  pull_request:\n  schedule:\n    - cron: '0 */6 * * *'  # Every 6 hours\n\njobs:\n  e2e-tests:\n    runs-on: ubuntu-latest\n    strategy:\n      matrix:\n        browser: [chromium, firefox, webkit]\n        shard: [1, 2, 3, 4]  # Parallel execution\n    steps:\n      - uses: actions/checkout@v4\n      \n      - name: Generate E2E tests from RDF user journeys\n        run: |\n          ggen render \\\n            --ontology e2e-journeys.ttl \\\n            --template templates/testing/e2e/playwright-journey.spec.ts.tera \\\n            --output tests/e2e/generated/\n      \n      - name: Install Playwright browsers\n        run: npx playwright install --with-deps ${{ matrix.browser }}\n      \n      - name: Run E2E tests (shard ${{ matrix.shard }}/4)\n        run: |\n          npx playwright test \\\n            --project=${{ matrix.browser }} \\\n            --shard=${{ matrix.shard }}/4 \\\n            --reporter=html,junit\n      \n      - name: Upload test results\n        if: always()\n        uses: actions/upload-artifact@v4\n        with:\n          name: e2e-results-${{ matrix.browser }}-${{ matrix.shard }}\n          path: |\n            playwright-report/\n            test-results/\n      \n      - name: Upload visual regression diffs\n        if: failure()\n        uses: actions/upload-artifact@v4\n        with:\n          name: visual-diffs-${{ matrix.browser }}\n          path: test-results/**/diff.png\n      \n      - name: Publish Lighthouse scores\n        run: |\n          npx playwright test --grep @performance\n          # Upload Lighthouse JSON to performance monitoring"
+        },
+        "visual_regression_integration": {
+          "percy": "Percy.io integration for visual diff tracking across branches",
+          "applitools": "AI-powered visual testing with cross-browser baseline management",
+          "chromatic": "Storybook visual testing for component-level regression"
+        }
+      },
+      "advanced_use_cases": [
+        {
+          "name": "Multi-Persona Journey Testing",
+          "description": "Test different user personas (admin, customer, guest) with role-specific flows defined in RDF",
+          "rdf_pattern": "Persona ontology with capabilities → generated auth fixtures and journey variants"
+        },
+        {
+          "name": "Mobile-First Responsive Testing",
+          "description": "Test same journeys across viewport sizes defined in RDF device taxonomy",
+          "rdf_pattern": "Device ontology (iPhone 13, iPad, Desktop) → parametrized viewport tests"
+        },
+        {
+          "name": "Accessibility Compliance Automation",
+          "description": "Generate WCAG 2.1 AA/AAA compliance tests from UI component ontology",
+          "rdf_pattern": "Component types → axe-core rule sets mapped to WCAG success criteria"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Ontology-Driven Contract Testing",
+      "description": "Generate Pact consumer/provider tests and Prism API mocks from RDF API schemas. Service contracts, message formats, and integration points are defined in RDF and validated across microservices.",
+      "external_packages": {
+        "javascript": [
+          {
+            "name": "@pact-foundation/pact",
+            "version": "^12.1.0",
+            "purpose": "Consumer-driven contract testing",
+            "advanced_features": [
+              "Bidirectional contract testing",
+              "Message pact for async messaging",
+              "Matching rules and type matchers",
+              "Provider state management",
+              "Pact Broker integration"
+            ]
+          },
+          {
+            "name": "@stoplight/prism-cli",
+            "version": "^5.5.0",
+            "purpose": "Mock API server from OpenAPI specs",
+            "advanced_features": [
+              "Dynamic response generation",
+              "Example-based and schema-based mocking",
+              "Request validation",
+              "Proxy mode for hybrid testing"
+            ]
+          },
+          {
+            "name": "openapi-typescript",
+            "version": "^6.7.0",
+            "purpose": "Generate TypeScript types from OpenAPI schemas derived from RDF"
+          }
+        ],
+        "python": [
+          {
+            "name": "pact-python",
+            "version": "^2.2.0",
+            "purpose": "Python Pact implementation"
+          },
+          {
+            "name": "connexion",
+            "version": "^3.0.0",
+            "purpose": "API-first Python framework with OpenAPI validation"
+          },
+          {
+            "name": "fastapi",
+            "version": "^0.109.0",
+            "purpose": "Modern API framework with automatic OpenAPI generation"
+          }
+        ],
+        "rust": [
+          {
+            "name": "pact_mock_server",
+            "version": "^1.2.0",
+            "purpose": "Rust Pact mock server"
+          },
+          {
+            "name": "wiremock",
+            "version": "^0.6.0",
+            "purpose": "HTTP mocking for integration tests"
+          }
+        ]
+      },
+      "ontology_extensions": {
+        "namespace": "http://ggen.dev/testing/contract#",
+        "classes": [
+          {
+            "name": "contract:ServiceContract",
+            "description": "API contract between consumer and provider",
+            "properties": [
+              "contract:consumer",
+              "contract:provider",
+              "contract:interactions",
+              "contract:version"
+            ]
+          },
+          {
+            "name": "contract:Interaction",
+            "description": "Single request/response pair",
+            "properties": [
+              "contract:request",
+              "contract:response",
+              "contract:providerState"
+            ]
+          },
+          {
+            "name": "contract:Request",
+            "properties": [
+              "contract:method",
+              "contract:path",
+              "contract:headers",
+              "contract:body"
+            ]
+          },
+          {
+            "name": "contract:Response",
+            "properties": [
+              "contract:status",
+              "contract:headers",
+              "contract:body"
+            ]
+          },
+          {
+            "name": "contract:Matcher",
+            "description": "Type matcher for flexible contract validation",
+            "subtypes": [
+              "contract:TypeMatcher",
+              "contract:RegexMatcher",
+              "contract:EachLikeMatcher",
+              "contract:DateTimeMatcher"
+            ]
+          },
+          {
+            "name": "contract:ProviderState",
+            "description": "Required provider state for interaction",
+            "properties": [
+              "contract:stateName",
+              "contract:parameters"
+            ]
+          },
+          {
+            "name": "contract:MessageContract",
+            "description": "Async message contract (Kafka, RabbitMQ, etc.)",
+            "properties": [
+              "contract:topic",
+              "contract:messageType",
+              "contract:schema"
+            ]
+          }
+        ],
+        "properties": [
+          {
+            "name": "contract:consumes",
+            "domain": "contract:ServiceContract",
+            "range": "contract:Service"
+          },
+          {
+            "name": "contract:provides",
+            "domain": "contract:ServiceContract",
+            "range": "contract:Service"
+          },
+          {
+            "name": "contract:matchingRule",
+            "domain": "contract:Request | contract:Response",
+            "range": "contract:Matcher"
+          },
+          {
+            "name": "contract:jsonPath",
+            "domain": "contract:Matcher",
+            "range": "xsd:string",
+            "description": "JSONPath to apply matcher"
+          }
+        ]
+      },
+      "rdf_example": "@prefix contract: <http://ggen.dev/testing/contract#> .\n@prefix ex: <http://example.com/services#> .\n\nex:UserServiceContract a contract:ServiceContract ;\n  contract:consumer ex:FrontendApp ;\n  contract:provider ex:UserService ;\n  contract:version \"1.2.0\" ;\n  contract:interactions ex:GetUserInteraction, ex:CreateUserInteraction .\n\nex:GetUserInteraction a contract:Interaction ;\n  contract:description \"Fetch user by ID\" ;\n  contract:providerState ex:UserExistsState ;\n  contract:request ex:GetUserRequest ;\n  contract:response ex:GetUserResponse .\n\nex:GetUserRequest a contract:Request ;\n  contract:method \"GET\" ;\n  contract:path \"/api/users/123\" ;\n  contract:headers [\n    contract:header \"Authorization\" ;\n    contract:matchingRule contract:RegexMatcher ;\n    contract:pattern \"^Bearer .+$\"\n  ] .\n\nex:GetUserResponse a contract:Response ;\n  contract:status 200 ;\n  contract:headers [\n    contract:header \"Content-Type\" ;\n    contract:value \"application/json\"\n  ] ;\n  contract:body [\n    contract:jsonPath \"$.id\" ;\n    contract:matchingRule contract:TypeMatcher ;\n    contract:type \"integer\" ;\n    contract:example 123\n  ] ;\n  contract:body [\n    contract:jsonPath \"$.email\" ;\n    contract:matchingRule contract:RegexMatcher ;\n    contract:pattern \"^[\\\\w.+-]+@[\\\\w.-]+\\\\.[a-zA-Z]{2,}$\" ;\n    contract:example \"user@example.com\"\n  ] .\n\nex:UserExistsState a contract:ProviderState ;\n  contract:stateName \"User with ID 123 exists\" ;\n  contract:parameters [\n    contract:param \"userId\" ;\n    contract:value 123\n  ] .",
+      "generated_templates": {
+        "pact_consumer_jest": {
+          "template_path": "templates/testing/contract/pact-consumer.spec.ts.tera",
+          "example": "import { Pact } from '@pact-foundation/pact';\nimport { {{ serviceName }}Client } from '../clients/{{ serviceName }}';\nimport path from 'path';\n\nconst provider = new Pact({\n  consumer: '{{ consumerName }}',\n  provider: '{{ providerName }}',\n  port: {{ mockPort }},\n  log: path.resolve(process.cwd(), 'logs', 'pact.log'),\n  dir: path.resolve(process.cwd(), 'pacts'),\n});\n\ndescribe('{{ consumerName }} ↔ {{ providerName }} Contract', () => {\n  beforeAll(() => provider.setup());\n  afterEach(() => provider.verify());\n  afterAll(() => provider.finalize());\n  \n  {%- for interaction in interactions %}\n  describe('{{ interaction.description }}', () => {\n    beforeEach(async () => {\n      await provider.addInteraction({\n        {%- if interaction.providerState %}\n        state: '{{ interaction.providerState.stateName }}',\n        {%- endif %}\n        uponReceiving: '{{ interaction.description }}',\n        withRequest: {\n          method: '{{ interaction.request.method }}',\n          path: '{{ interaction.request.path }}',\n          {%- if interaction.request.headers %}\n          headers: {\n            {%- for header in interaction.request.headers %}\n            '{{ header.name }}': {{ header.matcher | pact_matcher }},\n            {%- endfor %}\n          },\n          {%- endif %}\n          {%- if interaction.request.body %}\n          body: {{ interaction.request.body | json_encode }},\n          {%- endif %}\n        },\n        willRespondWith: {\n          status: {{ interaction.response.status }},\n          headers: {\n            {%- for header in interaction.response.headers %}\n            '{{ header.name }}': '{{ header.value }}',\n            {%- endfor %}\n          },\n          body: {{ interaction.response.body | pact_matchers }},\n        },\n      });\n    });\n    \n    it('validates contract', async () => {\n      const client = new {{ serviceName }}Client(`http://localhost:{{ mockPort }}`);\n      const result = await client.{{ interaction.method }}({{ interaction.request.params }});\n      \n      expect(result).toMatchObject({{ interaction.response.expectedShape }});\n    });\n  });\n  {%- endfor %}\n});\n"
+        },
+        "pact_provider_verification": {
+          "template_path": "templates/testing/contract/pact-provider.spec.ts.tera",
+          "example": "import { Verifier } from '@pact-foundation/pact';\nimport { server } from '../server';\n\ndescribe('{{ providerName }} Pact Verification', () => {\n  let serverInstance: any;\n  \n  beforeAll(async () => {\n    serverInstance = await server.listen({{ providerPort }});\n  });\n  \n  afterAll(async () => {\n    await serverInstance.close();\n  });\n  \n  it('validates contracts from Pact Broker', async () => {\n    const opts = {\n      provider: '{{ providerName }}',\n      providerBaseUrl: 'http://localhost:{{ providerPort }}',\n      \n      // Fetch pacts from broker\n      pactBrokerUrl: process.env.PACT_BROKER_URL,\n      pactBrokerToken: process.env.PACT_BROKER_TOKEN,\n      publishVerificationResult: true,\n      providerVersion: process.env.GIT_COMMIT,\n      \n      // Provider states\n      stateHandlers: {\n        {%- for state in providerStates %}\n        '{{ state.stateName }}': async () => {\n          // Setup: {{ state.description }}\n          {{ state.setupCode }}\n        },\n        {%- endfor %}\n      },\n    };\n    \n    await new Verifier(opts).verifyProvider();\n  });\n});"
+        },
+        "prism_mock_config": {
+          "template_path": "templates/testing/contract/prism-config.yml.tera",
+          "example": "# Generated Prism mock server configuration\nmock:\n  port: {{ mockPort }}\n  host: 0.0.0.0\n  \n  # OpenAPI spec generated from RDF ontology\n  spec: {{ openapiSpecPath }}\n  \n  # Dynamic response generation\n  dynamic: true\n  \n  # Validation\n  validateRequest: true\n  validateResponse: true\n  \n  # Error simulation\n  errors:\n    {%- for error in errorScenarios %}\n    - path: \"{{ error.path }}\"\n      method: {{ error.method }}\n      status: {{ error.status }}\n      probability: {{ error.probability }}\n    {%- endfor %}"
+        }
+      },
+      "ci_cd_integration": {
+        "github_actions": {
+          "workflow_file": ".github/workflows/contract-tests.yml",
+          "content": "name: Contract Tests\n\non:\n  pull_request:\n  push:\n    branches: [main]\n\njobs:\n  consumer-tests:\n    runs-on: ubuntu-latest\n    strategy:\n      matrix:\n        consumer: [frontend-app, mobile-app, partner-integration]\n    steps:\n      - uses: actions/checkout@v4\n      \n      - name: Generate consumer contract tests from RDF\n        run: |\n          ggen render \\\n            --ontology contracts/${{ matrix.consumer }}.ttl \\\n            --template templates/testing/contract/pact-consumer.spec.ts.tera \\\n            --output tests/contract/consumer/\n      \n      - name: Run consumer contract tests\n        run: npm run test:contract:consumer\n      \n      - name: Publish contracts to Pact Broker\n        run: |\n          npx pact-broker publish pacts \\\n            --consumer-app-version=${{ github.sha }} \\\n            --broker-base-url=${{ secrets.PACT_BROKER_URL }} \\\n            --broker-token=${{ secrets.PACT_BROKER_TOKEN }}\n  \n  provider-verification:\n    runs-on: ubuntu-latest\n    needs: consumer-tests\n    strategy:\n      matrix:\n        provider: [user-service, order-service, payment-service]\n    steps:\n      - uses: actions/checkout@v4\n      \n      - name: Start provider service\n        run: docker-compose up -d ${{ matrix.provider }}\n      \n      - name: Verify provider against published contracts\n        run: |\n          npm run test:contract:provider -- --provider=${{ matrix.provider }}\n      \n      - name: Can-I-Deploy check\n        run: |\n          npx pact-broker can-i-deploy \\\n            --pacticipant=${{ matrix.provider }} \\\n            --version=${{ github.sha }} \\\n            --to-environment=production"
+        },
+        "advanced_workflows": {
+          "bidirectional_contracts": "Generate both consumer and provider tests from same RDF contract ontology",
+          "contract_evolution": "Versioned contract ontologies with backward compatibility validation",
+          "cross_language_contracts": "Same RDF contract generates tests for JS, Python, Rust services"
+        }
+      },
+      "advanced_use_cases": [
+        {
+          "name": "Microservices Mesh Validation",
+          "description": "Validate all service-to-service contracts in microservices architecture",
+          "rdf_pattern": "Service dependency graph in RDF → matrix of consumer-provider contract tests"
+        },
+        {
+          "name": "Event-Driven Architecture Testing",
+          "description": "Message contract testing for Kafka, RabbitMQ, EventBridge",
+          "rdf_pattern": "Event schemas and topics in RDF → Pact message contracts"
+        },
+        {
+          "name": "API Versioning Validation",
+          "description": "Test backward compatibility across API versions",
+          "rdf_pattern": "Versioned API ontologies → contract compatibility matrix"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Ontology-Driven Performance & Load Testing",
+      "description": "Generate k6 and Artillery load tests from RDF performance specifications. Traffic patterns, SLOs, and scalability scenarios are defined in RDF ontologies and executed as performance regression suites.",
+      "external_packages": {
+        "javascript": [
+          {
+            "name": "k6",
+            "version": "^0.48.0",
+            "purpose": "Modern load testing with Go-based runtime",
+            "advanced_features": [
+              "Virtual users (VUs) with ramping patterns",
+              "Custom metrics and thresholds",
+              "Cloud execution and distributed testing",
+              "Browser testing with k6/browser",
+              "OpenTelemetry integration",
+              "Trend analysis and percentiles"
+            ]
+          },
+          {
+            "name": "artillery",
+            "version": "^2.0.0",
+            "purpose": "Modern performance testing toolkit",
+            "advanced_features": [
+              "Scenario-based testing",
+              "Socket.io and WebSocket support",
+              "AWS Lambda load generation",
+              "Plugin ecosystem (metrics, reporters)",
+              "CI/CD integration"
+            ]
+          },
+          {
+            "name": "autocannon",
+            "version": "^7.14.0",
+            "purpose": "Fast HTTP benchmarking tool"
+          }
+        ],
+        "python": [
+          {
+            "name": "locust",
+            "version": "^2.20.0",
+            "purpose": "Python load testing framework",
+            "advanced_features": [
+              "Distributed load generation",
+              "Web UI for monitoring",
+              "Custom user behaviors",
+              "Event hooks"
+            ]
+          }
+        ]
+      },
+      "ontology_extensions": {
+        "namespace": "http://ggen.dev/testing/performance#",
+        "classes": [
+          {
+            "name": "perf:LoadTest",
+            "description": "Performance test specification",
+            "properties": [
+              "perf:scenario",
+              "perf:duration",
+              "perf:virtualUsers",
+              "perf:thresholds"
+            ]
+          },
+          {
+            "name": "perf:Scenario",
+            "description": "Load test scenario",
+            "subtypes": [
+              "perf:ConstantLoadScenario",
+              "perf:RampingScenario",
+              "perf:SpikeScenario",
+              "perf:StressScenario"
+            ]
+          },
+          {
+            "name": "perf:VirtualUser",
+            "description": "Simulated user behavior",
+            "properties": [
+              "perf:actions",
+              "perf:thinkTime",
+              "perf:weight"
+            ]
+          },
+          {
+            "name": "perf:Threshold",
+            "description": "Performance SLO threshold",
+            "properties": [
+              "perf:metric",
+              "perf:condition",
+              "perf:value"
+            ]
+          },
+          {
+            "name": "perf:Metric",
+            "description": "Performance metric to track",
+            "subtypes": [
+              "perf:ResponseTime",
+              "perf:Throughput",
+              "perf:ErrorRate",
+              "perf:Percentile"
+            ]
+          },
+          {
+            "name": "perf:RampingStage",
+            "description": "Load ramping configuration",
+            "properties": [
+              "perf:target",
+              "perf:duration"
+            ]
+          }
+        ],
+        "properties": [
+          {
+            "name": "perf:hasScenario",
+            "domain": "perf:LoadTest",
+            "range": "perf:Scenario"
+          },
+          {
+            "name": "perf:hasThreshold",
+            "domain": "perf:LoadTest",
+            "range": "perf:Threshold"
+          },
+          {
+            "name": "perf:p95",
+            "domain": "perf:Threshold",
+            "range": "xsd:integer",
+            "description": "95th percentile threshold in milliseconds"
+          },
+          {
+            "name": "perf:p99",
+            "domain": "perf:Threshold",
+            "range": "xsd:integer"
+          },
+          {
+            "name": "perf:maxErrorRate",
+            "domain": "perf:Threshold",
+            "range": "xsd:decimal",
+            "description": "Maximum acceptable error rate (0.0-1.0)"
+          },
+          {
+            "name": "perf:minThroughput",
+            "domain": "perf:Threshold",
+            "range": "xsd:integer",
+            "description": "Minimum requests per second"
+          }
+        ]
+      },
+      "rdf_example": "@prefix perf: <http://ggen.dev/testing/performance#> .\n@prefix ex: <http://example.com/api#> .\n\nex:CheckoutLoadTest a perf:LoadTest ;\n  perf:name \"Checkout API Load Test\" ;\n  perf:scenario ex:RampingCheckoutScenario ;\n  perf:duration \"PT10M\" ;  # ISO 8601 duration\n  perf:thresholds ex:ResponseTimeThreshold, ex:ErrorRateThreshold, ex:ThroughputThreshold .\n\nex:RampingCheckoutScenario a perf:RampingScenario ;\n  perf:stages (\n    [ perf:target 10 ; perf:duration \"PT1M\" ]   # Ramp to 10 VUs over 1min\n    [ perf:target 50 ; perf:duration \"PT2M\" ]   # Ramp to 50 VUs over 2min\n    [ perf:target 100 ; perf:duration \"PT3M\" ]  # Ramp to 100 VUs over 3min\n    [ perf:target 50 ; perf:duration \"PT2M\" ]   # Ramp down to 50 VUs\n    [ perf:target 0 ; perf:duration \"PT1M\" ]    # Ramp down to 0\n  ) ;\n  perf:virtualUser ex:CheckoutUser .\n\nex:CheckoutUser a perf:VirtualUser ;\n  perf:actions (\n    [ perf:request \"GET /api/products\" ; perf:weight 0.3 ]\n    [ perf:request \"POST /api/cart\" ; perf:weight 0.2 ]\n    [ perf:request \"GET /api/cart\" ; perf:weight 0.2 ]\n    [ perf:request \"POST /api/checkout\" ; perf:weight 0.3 ]\n  ) ;\n  perf:thinkTime \"PT2S\" .  # 2 second think time between actions\n\nex:ResponseTimeThreshold a perf:Threshold ;\n  perf:metric perf:ResponseTime ;\n  perf:p95 500 ;   # 95th percentile < 500ms\n  perf:p99 1000 .  # 99th percentile < 1000ms\n\nex:ErrorRateThreshold a perf:Threshold ;\n  perf:metric perf:ErrorRate ;\n  perf:maxErrorRate 0.01 .  # < 1% error rate\n\nex:ThroughputThreshold a perf:Threshold ;\n  perf:metric perf:Throughput ;\n  perf:minThroughput 100 .  # > 100 req/s",
+      "generated_templates": {
+        "k6_javascript": {
+          "template_path": "templates/testing/performance/k6-load-test.js.tera",
+          "example": "import http from 'k6/http';\nimport { check, sleep } from 'k6';\nimport { Rate, Trend } from 'k6/metrics';\n\n// Custom metrics\nconst errorRate = new Rate('errors');\nconst checkoutDuration = new Trend('checkout_duration');\n\n// Load test configuration from RDF\nexport const options = {\n  stages: [\n    {%- for stage in scenario.stages %}\n    { duration: '{{ stage.duration }}', target: {{ stage.target }} },\n    {%- endfor %}\n  ],\n  thresholds: {\n    {%- for threshold in thresholds %}\n    {%- if threshold.metric == 'ResponseTime' %}\n    'http_req_duration': ['p(95)<{{ threshold.p95 }}', 'p(99)<{{ threshold.p99 }}'],\n    {%- elif threshold.metric == 'ErrorRate' %}\n    'errors': ['rate<{{ threshold.maxErrorRate }}'],\n    {%- elif threshold.metric == 'Throughput' %}\n    'http_reqs': ['rate>{{ threshold.minThroughput }}'],\n    {%- endif %}\n    {%- endfor %}\n  },\n};\n\nexport default function () {\n  {%- for action in virtualUser.actions %}\n  \n  // {{ action.description }} (weight: {{ action.weight }})\n  {%- if action.method == 'GET' %}\n  const res{{ loop.index }} = http.get('{{ baseUrl }}{{ action.path }}');\n  {%- elif action.method == 'POST' %}\n  const res{{ loop.index }} = http.post('{{ baseUrl }}{{ action.path }}', JSON.stringify({{ action.body }}), {\n    headers: { 'Content-Type': 'application/json' },\n  });\n  {%- endif %}\n  \n  check(res{{ loop.index }}, {\n    '{{ action.description }}: status is {{ action.expectedStatus }}': (r) => r.status === {{ action.expectedStatus }},\n    {%- if action.responseValidation %}\n    '{{ action.description }}: response valid': (r) => {{ action.responseValidation }},\n    {%- endif %}\n  });\n  \n  errorRate.add(res{{ loop.index }}.status !== {{ action.expectedStatus }});\n  \n  {%- if action.isCheckout %}\n  checkoutDuration.add(res{{ loop.index }}.timings.duration);\n  {%- endif %}\n  \n  {%- endfor %}\n  \n  sleep({{ virtualUser.thinkTime }});  // Think time between iterations\n}"
+        },
+        "artillery_yaml": {
+          "template_path": "templates/testing/performance/artillery-test.yml.tera",
+          "example": "config:\n  target: \"{{ baseUrl }}\"\n  phases:\n    {%- for stage in scenario.stages %}\n    - duration: {{ stage.duration }}\n      arrivalRate: {{ stage.target }}\n      name: \"{{ stage.name }}\"\n    {%- endfor %}\n  \n  # Performance thresholds from RDF\n  ensure:\n    {%- for threshold in thresholds %}\n    {%- if threshold.metric == 'ResponseTime' %}\n    - p95: {{ threshold.p95 }}\n    - p99: {{ threshold.p99 }}\n    {%- elif threshold.metric == 'ErrorRate' %}\n    - maxErrorRate: {{ threshold.maxErrorRate }}\n    {%- endif %}\n    {%- endfor %}\n  \n  plugins:\n    expect: {}\n    metrics-by-endpoint: {}\n\nscenarios:\n  - name: \"{{ scenario.name }}\"\n    weight: 100\n    flow:\n      {%- for action in virtualUser.actions %}\n      - {{ action.method | lower }}:\n          url: \"{{ action.path }}\"\n          {%- if action.body %}\n          json:\n            {{ action.body | to_yaml | indent(12) }}\n          {%- endif %}\n          expect:\n            - statusCode: {{ action.expectedStatus }}\n            {%- if action.responseTime %}\n            - maxResponseTime: {{ action.responseTime }}\n            {%- endif %}\n      - think: {{ virtualUser.thinkTime }}\n      {%- endfor %}"
+        }
+      },
+      "ci_cd_integration": {
+        "github_actions": {
+          "workflow_file": ".github/workflows/performance-tests.yml",
+          "content": "name: Performance Regression Tests\n\non:\n  pull_request:\n  schedule:\n    - cron: '0 2 * * *'  # Daily at 2 AM\n\njobs:\n  load-tests:\n    runs-on: ubuntu-latest\n    strategy:\n      matrix:\n        scenario: [baseline, spike, stress, soak]\n    steps:\n      - uses: actions/checkout@v4\n      \n      - name: Generate k6 load tests from RDF\n        run: |\n          ggen render \\\n            --ontology performance/scenarios/${{ matrix.scenario }}.ttl \\\n            --template templates/testing/performance/k6-load-test.js.tera \\\n            --output tests/performance/generated/\n      \n      - name: Deploy test environment\n        run: docker-compose -f docker-compose.perf.yml up -d\n      \n      - name: Run k6 load test\n        run: |\n          k6 run \\\n            --out json=results.json \\\n            --out influxdb=http://localhost:8086/k6 \\\n            tests/performance/generated/${{ matrix.scenario }}.js\n      \n      - name: Performance regression check\n        run: |\n          # Compare against baseline\n          node scripts/compare-performance.js \\\n            --current results.json \\\n            --baseline performance/baselines/${{ matrix.scenario }}.json \\\n            --threshold 10  # Fail if >10% regression\n      \n      - name: Upload Grafana dashboard\n        run: |\n          # Push metrics to Grafana Cloud\n          curl -X POST https://grafana.com/api/dashboards \\\n            -H \"Authorization: Bearer ${{ secrets.GRAFANA_TOKEN }}\" \\\n            -d @performance-dashboard.json\n      \n      - name: Comment PR with results\n        if: github.event_name == 'pull_request'\n        uses: actions/github-script@v7\n        with:\n          script: |\n            const results = require('./results-summary.json');\n            github.rest.issues.createComment({\n              issue_number: context.issue.number,\n              owner: context.repo.owner,\n              repo: context.repo.repo,\n              body: `## Performance Test Results\\n\\n` +\n                    `- p95: ${results.p95}ms\\n` +\n                    `- p99: ${results.p99}ms\\n` +\n                    `- Error rate: ${results.errorRate}%\\n` +\n                    `- Throughput: ${results.rps} req/s`\n            });"
+        },
+        "monitoring_integration": {
+          "influxdb": "Time-series metrics storage for trend analysis",
+          "grafana": "Real-time performance dashboards",
+          "datadog": "APM integration for distributed tracing",
+          "prometheus": "Metrics scraping and alerting"
+        }
+      },
+      "advanced_use_cases": [
+        {
+          "name": "Chaos Engineering Integration",
+          "description": "Combine load tests with fault injection (latency, failures) defined in RDF",
+          "rdf_pattern": "Chaos scenarios (network partition, pod failure) → k6 + chaos-mesh"
+        },
+        {
+          "name": "Scalability Testing",
+          "description": "Test horizontal scaling behavior with increasing load",
+          "rdf_pattern": "Scaling policy ontology → automated load ramps with Kubernetes HPA validation"
+        },
+        {
+          "name": "Performance Budget Enforcement",
+          "description": "Fail CI if performance regresses beyond defined budgets",
+          "rdf_pattern": "SLO ontology → automated threshold validation in CI"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Ontology-Driven Test Data Generation",
+      "description": "Generate realistic test fixtures from RDF domain ontologies using Faker, Factory Boy, and constraint solvers. Entity relationships, business rules, and data constraints are encoded in RDF and compiled to fixture generators.",
+      "external_packages": {
+        "javascript": [
+          {
+            "name": "@faker-js/faker",
+            "version": "^8.3.0",
+            "purpose": "Realistic fake data generation",
+            "advanced_features": [
+              "Locale-specific data (50+ locales)",
+              "Deterministic generation with seeds",
+              "Custom data providers",
+              "Relationship-aware data",
+              "Date/time generation with constraints"
+            ]
+          },
+          {
+            "name": "fishery",
+            "version": "^2.2.0",
+            "purpose": "Type-safe factory library for TypeScript"
+          },
+          {
+            "name": "casual",
+            "version": "^1.6.2",
+            "purpose": "Additional fake data providers"
+          }
+        ],
+        "python": [
+          {
+            "name": "factory-boy",
+            "version": "^3.3.0",
+            "purpose": "Fixture generation with relationships",
+            "advanced_features": [
+              "SubFactory for nested objects",
+              "Post-generation hooks",
+              "Trait-based variations",
+              "Sequence and LazyAttribute",
+              "Django/SQLAlchemy integration"
+            ]
+          },
+          {
+            "name": "faker",
+            "version": "^22.0.0",
+            "purpose": "Python fake data generation"
+          },
+          {
+            "name": "hypothesis",
+            "version": "^6.92.0",
+            "purpose": "Strategy-based data generation (reused from PBT)"
+          },
+          {
+            "name": "mimesis",
+            "version": "^12.0.0",
+            "purpose": "High-performance fake data"
+          }
+        ],
+        "rust": [
+          {
+            "name": "fake",
+            "version": "^2.9.0",
+            "purpose": "Fake data generation for Rust"
+          },
+          {
+            "name": "rstest",
+            "version": "^0.18.0",
+            "purpose": "Fixture-based testing"
+          }
+        ]
+      },
+      "ontology_extensions": {
+        "namespace": "http://ggen.dev/testing/fixtures#",
+        "classes": [
+          {
+            "name": "fix:FixtureFactory",
+            "description": "Factory for generating test fixtures",
+            "properties": [
+              "fix:generates",
+              "fix:seed",
+              "fix:locale",
+              "fix:count"
+            ]
+          },
+          {
+            "name": "fix:FieldGenerator",
+            "description": "Generator for a single field",
+            "subtypes": [
+              "fix:FakerGenerator",
+              "fix:SequenceGenerator",
+              "fix:EnumGenerator",
+              "fix:RelationshipGenerator",
+              "fix:CustomGenerator"
+            ]
+          },
+          {
+            "name": "fix:Constraint",
+            "description": "Data constraint specification",
+            "subtypes": [
+              "fix:RangeConstraint",
+              "fix:LengthConstraint",
+              "fix:PatternConstraint",
+              "fix:UniqueConstraint"
+            ]
+          },
+          {
+            "name": "fix:Relationship",
+            "description": "Inter-entity relationship for fixture generation",
+            "properties": [
+              "fix:cardinality",
+              "fix:cascade"
+            ]
+          },
+          {
+            "name": "fix:Trait",
+            "description": "Factory trait/variant",
+            "properties": [
+              "fix:overrides"
+            ]
+          }
+        ],
+        "properties": [
+          {
+            "name": "fix:generatesEntity",
+            "domain": "fix:FixtureFactory",
+            "range": "ggen:Entity",
+            "description": "Links factory to domain entity"
+          },
+          {
+            "name": "fix:hasField",
+            "domain": "fix:FixtureFactory",
+            "range": "fix:FieldGenerator"
+          },
+          {
+            "name": "fix:fakerMethod",
+            "domain": "fix:FakerGenerator",
+            "range": "xsd:string",
+            "description": "Faker.js method (e.g., 'person.email')"
+          },
+          {
+            "name": "fix:sequenceStart",
+            "domain": "fix:SequenceGenerator",
+            "range": "xsd:integer"
+          },
+          {
+            "name": "fix:sequencePattern",
+            "domain": "fix:SequenceGenerator",
+            "range": "xsd:string",
+            "description": "Pattern with {n} placeholder"
+          },
+          {
+            "name": "fix:enumValues",
+            "domain": "fix:EnumGenerator",
+            "range": "rdf:List"
+          },
+          {
+            "name": "fix:relatedFactory",
+            "domain": "fix:RelationshipGenerator",
+            "range": "fix:FixtureFactory"
+          },
+          {
+            "name": "fix:locale",
+            "domain": "fix:FixtureFactory",
+            "range": "xsd:string",
+            "description": "Locale code (en_US, fr_FR, etc.)"
+          }
+        ]
+      },
+      "rdf_example": "@prefix fix: <http://ggen.dev/testing/fixtures#> .\n@prefix ex: <http://example.com/domain#> .\n\nex:UserFactory a fix:FixtureFactory ;\n  fix:generatesEntity ex:User ;\n  fix:seed 42 ;\n  fix:locale \"en_US\" ;\n  fix:hasField ex:UserIdField, ex:EmailField, ex:NameField, ex:CreatedAtField, ex:OrdersField .\n\nex:UserIdField a fix:SequenceGenerator ;\n  fix:fieldName \"id\" ;\n  fix:sequenceStart 1000 ;\n  fix:sequencePattern \"USER-{n}\" .\n\nex:EmailField a fix:FakerGenerator ;\n  fix:fieldName \"email\" ;\n  fix:fakerMethod \"internet.email\" ;\n  fix:constraint ex:UniqueEmailConstraint .\n\nex:UniqueEmailConstraint a fix:UniqueConstraint ;\n  fix:scope \"global\" .\n\nex:NameField a fix:FakerGenerator ;\n  fix:fieldName \"name\" ;\n  fix:fakerMethod \"person.fullName\" .\n\nex:CreatedAtField a fix:FakerGenerator ;\n  fix:fieldName \"createdAt\" ;\n  fix:fakerMethod \"date.past\" ;\n  fix:args [ fix:value 1 ; fix:unit \"years\" ] .\n\nex:OrdersField a fix:RelationshipGenerator ;\n  fix:fieldName \"orders\" ;\n  fix:relatedFactory ex:OrderFactory ;\n  fix:cardinality \"0..5\" ;  # Each user has 0-5 orders\n  fix:cascade true .\n\nex:OrderFactory a fix:FixtureFactory ;\n  fix:generatesEntity ex:Order ;\n  fix:hasField ex:OrderIdField, ex:TotalField, ex:StatusField .\n\nex:OrderIdField a fix:SequenceGenerator ;\n  fix:sequencePattern \"ORD-{n}\" .\n\nex:TotalField a fix:FakerGenerator ;\n  fix:fakerMethod \"commerce.price\" ;\n  fix:constraint ex:PriceRangeConstraint .\n\nex:PriceRangeConstraint a fix:RangeConstraint ;\n  fix:min 10.00 ;\n  fix:max 1000.00 .\n\nex:StatusField a fix:EnumGenerator ;\n  fix:enumValues ( \"pending\" \"processing\" \"shipped\" \"delivered\" \"cancelled\" ) .\n\n# Trait for premium users\nex:PremiumUserTrait a fix:Trait ;\n  fix:appliesTo ex:UserFactory ;\n  fix:overrides [\n    fix:field \"isPremium\" ;\n    fix:value true\n  ] ;\n  fix:overrides [\n    fix:field \"orders\" ;\n    fix:cardinality \"5..20\"  # Premium users have more orders\n  ] .",
+      "generated_templates": {
+        "typescript_fishery": {
+          "template_path": "templates/testing/fixtures/fishery-factory.ts.tera",
+          "example": "import { Factory } from 'fishery';\nimport { faker } from '@faker-js/faker';\nimport type { {{ entityName }} } from '../types';\n\n{%- for factory in factories %}\n\n// {{ factory.description }}\nexport const {{ factory.name }} = Factory.define<{{ factory.entityType }}>(({ sequence, params, transientParams }) => {\n  {%- if factory.seed %}\n  faker.seed({{ factory.seed }} + sequence);\n  {%- endif %}\n  {%- if factory.locale %}\n  faker.setLocale('{{ factory.locale }}');\n  {%- endif %}\n  \n  return {\n    {%- for field in factory.fields %}\n    {{ field.name }}: \n    {%- if field.type == 'FakerGenerator' %}\n      faker.{{ field.fakerMethod }}({{ field.args }}),\n    {%- elif field.type == 'SequenceGenerator' %}\n      `{{ field.pattern }}`.replace('{n}', String({{ field.start }} + sequence)),\n    {%- elif field.type == 'EnumGenerator' %}\n      faker.helpers.arrayElement([{{ field.enumValues | map(attribute='value') | join(', ') }}]),\n    {%- elif field.type == 'RelationshipGenerator' %}\n      {{ field.relatedFactory }}.buildList(faker.number.int({ min: {{ field.cardinalityMin }}, max: {{ field.cardinalityMax }} })),\n    {%- elif field.type == 'CustomGenerator' %}\n      {{ field.customCode }},\n    {%- endif %}\n    {%- endfor %}\n    ...params,\n  };\n});\n\n{%- for trait in factory.traits %}\n// Trait: {{ trait.name }}\nexport const {{ factory.name }}{{ trait.name }} = {{ factory.name }}.params({\n  {%- for override in trait.overrides %}\n  {{ override.field }}: {{ override.value }},\n  {%- endfor %}\n});\n{%- endfor %}\n\n{%- endfor %}\n\n// Helper to generate fixture set\nexport function generateFixtureSet(count: number = 10) {\n  return {\n    {%- for factory in factories %}\n    {{ factory.entityName | pluralize }}: {{ factory.name }}.buildList(count),\n    {%- endfor %}\n  };\n}"
+        },
+        "python_factory_boy": {
+          "template_path": "templates/testing/fixtures/factory-boy.py.tera",
+          "example": "import factory\nfrom faker import Faker\nfrom typing import List\n\nfake = Faker()\n{%- if seed %}\nFaker.seed({{ seed }})\n{%- endif %}\n\n{%- for factory_spec in factories %}\n\nclass {{ factory_spec.name }}(factory.Factory):\n    \"\"\"{{ factory_spec.description }}\"\"\"\n    \n    class Meta:\n        model = {{ factory_spec.entityType }}\n    \n    {%- for field in factory_spec.fields %}\n    {%- if field.type == 'SequenceGenerator' %}\n    {{ field.name }} = factory.Sequence(lambda n: f\"{{ field.pattern }}\".format(n=n + {{ field.start }}))\n    {%- elif field.type == 'FakerGenerator' %}\n    {{ field.name }} = factory.Faker('{{ field.fakerMethod }}'{{ \", \" + field.args if field.args }})\n    {%- elif field.type == 'EnumGenerator' %}\n    {{ field.name }} = factory.Iterator([{{ field.enumValues | map(attribute='value') | join(', ') }}])\n    {%- elif field.type == 'RelationshipGenerator' %}\n    {{ field.name }} = factory.RelatedFactoryList(\n        {{ field.relatedFactory }},\n        factory_related_name='{{ field.backref }}',\n        size=lambda: fake.random_int(min={{ field.cardinalityMin }}, max={{ field.cardinalityMax }})\n    )\n    {%- elif field.type == 'CustomGenerator' %}\n    {{ field.name }} = factory.LazyAttribute(lambda obj: {{ field.customCode }})\n    {%- endif %}\n    {%- endfor %}\n    \n    {%- for trait in factory_spec.traits %}\n    class Params:\n        {{ trait.name | lower }} = factory.Trait(\n            {%- for override in trait.overrides %}\n            {{ override.field }}={{ override.value }},\n            {%- endfor %}\n        )\n    {%- endfor %}\n\n{%- endfor %}\n\n# Fixture set generator\ndef generate_fixture_set(count: int = 10) -> dict:\n    return {\n        {%- for factory_spec in factories %}\n        '{{ factory_spec.entityName | pluralize }}': {{ factory_spec.name }}.create_batch(count),\n        {%- endfor %}\n    }"
+        },
+        "json_fixtures": {
+          "template_path": "templates/testing/fixtures/json-fixtures.json.tera",
+          "example": "{\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n  \"fixtures\": {\n    {%- for factory in factories %}\n    \"{{ factory.entityName | pluralize }}\": [\n      {%- for i in range(end=factory.count) %}\n      {\n        {%- for field in factory.fields %}\n        \"{{ field.name }}\": {{ field.exampleValue | json_encode }}{{ \",\" if not loop.last }}\n        {%- endfor %}\n      }{{ \",\" if not loop.last }}\n      {%- endfor %}\n    ]{{ \",\" if not loop.last }}\n    {%- endfor %}\n  }\n}"
+        }
+      },
+      "ci_cd_integration": {
+        "github_actions": {
+          "workflow_file": ".github/workflows/fixture-generation.yml",
+          "content": "name: Test Fixture Generation\n\non:\n  push:\n    paths:\n      - 'ontologies/domain/**'\n      - 'ontologies/fixtures/**'\n\njobs:\n  generate-fixtures:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      \n      - name: Generate fixture factories from RDF domain model\n        run: |\n          ggen render \\\n            --ontology ontologies/domain/entities.ttl \\\n            --ontology ontologies/fixtures/factories.ttl \\\n            --template templates/testing/fixtures/fishery-factory.ts.tera \\\n            --output tests/fixtures/generated/\n      \n      - name: Generate JSON fixtures for E2E tests\n        run: |\n          ggen render \\\n            --ontology ontologies/fixtures/factories.ttl \\\n            --template templates/testing/fixtures/json-fixtures.json.tera \\\n            --output tests/fixtures/data/\n      \n      - name: Validate generated fixtures against JSON Schema\n        run: |\n          npm run validate:fixtures\n      \n      - name: Commit generated fixtures\n        run: |\n          git config user.name 'Fixture Bot'\n          git config user.email 'bot@example.com'\n          git add tests/fixtures/\n          git diff-index --quiet HEAD || git commit -m 'chore: regenerate test fixtures from ontology'\n          git push"
+        },
+        "database_seeding": {
+          "description": "Use generated factories to seed test databases",
+          "example": "Run factories in CI to populate PostgreSQL/MySQL test instances"
+        }
+      },
+      "advanced_use_cases": [
+        {
+          "name": "GDPR-Compliant Test Data",
+          "description": "Generate realistic but synthetic data that complies with privacy regulations",
+          "rdf_pattern": "PII ontology + anonymization rules → factories with data masking"
+        },
+        {
+          "name": "Multi-Locale Testing",
+          "description": "Generate fixtures in different locales/languages from same ontology",
+          "rdf_pattern": "Locale ontology → parametrized factories with locale variants"
+        },
+        {
+          "name": "Graph Database Fixtures",
+          "description": "Generate complex entity relationship graphs for Neo4j/graph DB testing",
+          "rdf_pattern": "Entity relationship ontology → cascading factory generation with relationship constraints"
+        },
+        {
+          "name": "Time-Series Test Data",
+          "description": "Generate realistic time-series data for analytics/reporting tests",
+          "rdf_pattern": "Temporal ontology + trends → factories with time-based patterns"
+        }
+      ]
+    }
+  ],
+  "cross_cutting_concerns": {
+    "ontology_integration": {\n      \"description\": \"All 5 innovations share core RDF ontology infrastructure\",\n      \"shared_ontology_classes\": [\n        \"ggen:Template - Base class for all generated test templates\",\n        \"ggen:Entity - Domain entities that drive test generation\",\n        \"ggen:Validation - Validation rules become test assertions\"\n      ],\n      \"inference_rules\": {\n        \"description\": \"SPARQL CONSTRUCT queries infer test scenarios from domain ontologies\",\n        \"examples\": [\n          \"Entity with unique constraint → property test for uniqueness\",\n          \"API endpoint with auth → contract test with auth headers\",\n          \"User flow in RDF → E2E test scenario\",\n          \"SLO in ontology → performance threshold\"\n        ]\n      }\n    },\n    \"ci_cd_orchestration\": {\n      \"description\": \"Unified CI/CD pipeline for all testing innovations\",\n      \"workflow\": [\n        \"1. Ontology change detected (domain.ttl, api.ttl, etc.)\",\n        \"2. ggen render generates all test types in parallel\",\n        \"3. Execute tests: PBT → Unit → E2E → Contract → Performance\",\n        \"4. Aggregate results and publish to dashboards\",\n        \"5. Fail PR if any innovation detects regression\"\n      ],\n      \"github_actions_matrix\": {\n        \"test_type\": [\"property\", \"e2e\", \"contract\", \"performance\", \"fixtures\"],\n        \"language\": [\"typescript\", \"python\", \"rust\"],\n        \"parallel_execution\": \"All 15 combinations run in parallel\"\n      }\n    },\n    \"quality_metrics\": {\n      \"test_coverage_from_ontology\": \"RDF entities without tests → coverage gaps\",\n      \"mutation_testing\": \"Generate mutants from ontology and verify test detection\",\n      \"traceability\": \"Every test links back to RDF source (entity, requirement, user story)\"\n    },\n    \"developer_experience\": {\n      \"single_source_of_truth\": \"Update domain.ttl → all tests regenerate automatically\",\n      \"type_safety\": \"Generated tests are type-safe (TypeScript, Rust, Python typed)\",\n      \"debugging\": \"Test failures include RDF source references for troubleshooting\"\n    }\n  },\n  \"implementation_roadmap\": [\n    {\n      \"phase\": 1,\n      \"name\": \"Foundation\",\n      \"tasks\": [\n        \"Extend ggen core ontology with testing namespaces (pbt, e2e, contract, perf, fix)\",\n        \"Create base Tera templates for each innovation\",\n        \"Set up GitHub Actions workflows with matrix strategy\"\n      ]\n    },\n    {\n      \"phase\": 2,\n      \"name\": \"Property-Based Testing\",\n      \"tasks\": [\n        \"Implement pbt:Generator → fast-check/hypothesis strategy mapping\",\n        \"Add SPARQL inference rules for invariants\",\n        \"Integrate with existing Chicago TDD tests\"\n      ]\n    },\n    {\n      \"phase\": 3,\n      \"name\": \"E2E & Contract Testing\",\n      \"tasks\": [\n        \"Build e2e:UserJourney → Playwright test pipeline\",\n        \"Implement contract:ServiceContract → Pact generation\",\n        \"Add visual regression baseline management\"\n      ]\n    },\n    {\n      \"phase\": 4,\n      \"name\": \"Performance & Fixtures\",\n      \"tasks\": [\n        \"Create perf:LoadTest → k6 scenario mapping\",\n        \"Implement fix:FixtureFactory → Faker/FactoryBoy generation\",\n        \"Set up performance regression detection\"\n      ]\n    },\n    {\n      \"phase\": 5,\n      \"name\": \"Integration & Optimization\",\n      \"tasks\": [\n        \"Unified test reporting dashboard (Allure, ReportPortal)\",\n        \"Cross-language test compatibility validation\",\n        \"Performance optimization for large ontologies (100k+ triples)\"\n      ]\n    }\n  ],\n  \"success_metrics\": {\n    \"test_generation_speed\": \"< 5 seconds to regenerate all tests from ontology\",\n    \"test_coverage\": \"> 90% of RDF entities have generated tests\",\n    \"defect_detection_rate\": \"> 95% of bugs caught before production\",\n    \"developer_productivity\": \"50% reduction in manual test writing time\",\n    \"ci_cd_runtime\": \"All tests complete in < 15 minutes (parallelized)\"\n  }\n}\n

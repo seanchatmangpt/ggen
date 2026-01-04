@@ -42,8 +42,8 @@ brew install seanchatmangpt/ggen/ggen  # Installs in 1 second on arm64!
 **Via Docker** - No installation required:
 
 ```bash
-docker pull seanchatman/ggen:5.0.0
-docker run --rm -v $(pwd):/workspace seanchatman/ggen:5.0.0 sync
+docker pull seanchatman/ggen:5.0.2
+docker run --rm -v $(pwd):/workspace seanchatman/ggen:5.0.2 sync
 ```
 
 **Via Cargo**:
@@ -55,10 +55,10 @@ cargo install ggen-cli-lib
 **Verify installation**:
 
 ```bash
-ggen --version  # Should show: ggen 5.0.0
+ggen --version  # Should show: ggen 5.0.2
 
 # Or with Docker
-docker run --rm seanchatman/ggen:5.0.0 --version
+docker run --rm seanchatman/ggen:5.0.2 --version
 ```
 
 ### Your First Sync (5 minutes)

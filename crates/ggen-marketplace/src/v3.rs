@@ -829,7 +829,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_v3_registry_creation() {
-        let store = Arc::new(Store::new().unwrap());
+        let store = Arc::new(Store::new().expect("Store creation failed in test"));
         let _registry =
             V3OptimizedRegistry::new(store).expect("registry initialization should succeed");
         // Verify creation succeeds

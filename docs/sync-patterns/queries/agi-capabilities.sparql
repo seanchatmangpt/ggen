@@ -1,0 +1,55 @@
+# =============================================================================
+# SPARQL Query: Extract all AGI capabilities with their properties
+# =============================================================================
+# Retrieves all AGI capabilities from the ontology including their definitions,
+# maturity levels, cognitive levels, and associated patterns.
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX pl: <https://ggen.dev/pattern-language#>
+PREFIX sync: <https://ggen.dev/sync-patterns#>
+PREFIX agi: <https://ggen.dev/agi#>
+
+SELECT DISTINCT
+    ?capability
+    ?capabilityLabel
+    ?capabilityId
+    ?cognitiveLevel
+    ?maturityLevel
+    ?description
+    ?requiresPatternLabel
+    ?requiresPatternNumber
+    (GROUP_CONCAT(DISTINCT ?prerequisiteLabel; SEPARATOR="|") AS ?prerequisites)
+    (GROUP_CONCAT(DISTINCT ?enhancedByLabel; SEPARATOR="|") AS ?enhancedBy)
+WHERE {
+    ?capability a agi:Capability ;
+                rdfs:label ?capabilityLabel .
+
+    OPTIONAL { ?capability agi:capabilityId ?capabilityId }
+    OPTIONAL { ?capability agi:cognitiveLevel ?cognitiveLevel }
+    OPTIONAL { ?capability agi:maturityLevel ?maturityLevel }
+    OPTIONAL { ?capability rdfs:comment ?description }
+
+    # Required pattern
+    OPTIONAL {
+        ?capability agi:requiresPattern ?requiresPattern .
+        ?requiresPattern rdfs:label ?requiresPatternLabel ;
+                         pl:hasNumber ?requiresPatternNumber .
+    }
+
+    # Prerequisites
+    OPTIONAL {
+        ?capability agi:prerequisiteCapability ?prerequisite .
+        ?prerequisite rdfs:label ?prerequisiteLabel .
+    }
+
+    # Enhanced by relationships (inverse of enhances)
+    OPTIONAL {
+        ?enhancer agi:enhances ?capability .
+        ?enhancer rdfs:label ?enhancedByLabel .
+    }
+}
+GROUP BY ?capability ?capabilityLabel ?capabilityId ?cognitiveLevel
+         ?maturityLevel ?description ?requiresPatternLabel ?requiresPatternNumber
+ORDER BY ?cognitiveLevel ?maturityLevel DESC ?capabilityLabel

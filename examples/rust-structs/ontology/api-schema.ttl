@@ -1,0 +1,207 @@
+# =============================================================================
+# API Schema Ontology
+# Defines the vocabulary for describing REST APIs
+# Used by ggen sync to generate OpenAPI, TypeScript, and Zod
+# =============================================================================
+
+@prefix api: <https://ggen.io/ontology/api#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Core Classes
+# =============================================================================
+
+api:Specification a rdfs:Class ;
+    rdfs:label "API Specification" ;
+    rdfs:comment "Root class representing an API specification" .
+
+api:Entity a rdfs:Class ;
+    rdfs:label "Entity" ;
+    rdfs:comment "A data entity/model in the API (maps to OpenAPI schema)" .
+
+api:Property a rdfs:Class ;
+    rdfs:label "Property" ;
+    rdfs:comment "A property of an entity" .
+
+api:Endpoint a rdfs:Class ;
+    rdfs:label "Endpoint" ;
+    rdfs:comment "An API endpoint (maps to OpenAPI path)" .
+
+api:Server a rdfs:Class ;
+    rdfs:label "Server" ;
+    rdfs:comment "API server configuration" .
+
+api:RequestType a rdfs:Class ;
+    rdfs:label "Request Type" ;
+    rdfs:comment "Request body type for create/update operations" .
+
+# =============================================================================
+# Specification Properties
+# =============================================================================
+
+api:title a rdf:Property ;
+    rdfs:domain api:Specification ;
+    rdfs:range xsd:string ;
+    rdfs:label "title" .
+
+api:description a rdf:Property ;
+    rdfs:domain api:Specification ;
+    rdfs:range xsd:string ;
+    rdfs:label "description" .
+
+api:version a rdf:Property ;
+    rdfs:domain api:Specification ;
+    rdfs:range xsd:string ;
+    rdfs:label "version" .
+
+api:server a rdf:Property ;
+    rdfs:domain api:Specification ;
+    rdfs:range api:Server ;
+    rdfs:label "server" .
+
+# =============================================================================
+# Server Properties
+# =============================================================================
+
+api:url a rdf:Property ;
+    rdfs:domain api:Server ;
+    rdfs:range xsd:anyURI ;
+    rdfs:label "url" .
+
+# =============================================================================
+# Entity Properties
+# =============================================================================
+
+api:name a rdf:Property ;
+    rdfs:domain api:Entity ;
+    rdfs:range xsd:string ;
+    rdfs:label "name" .
+
+api:hasProperty a rdf:Property ;
+    rdfs:domain api:Entity ;
+    rdfs:range api:Property ;
+    rdfs:label "hasProperty" .
+
+api:hasEndpoint a rdf:Property ;
+    rdfs:domain api:Entity ;
+    rdfs:range api:Endpoint ;
+    rdfs:label "hasEndpoint" .
+
+api:hasRequestType a rdf:Property ;
+    rdfs:domain api:Entity ;
+    rdfs:range api:RequestType ;
+    rdfs:label "hasRequestType" .
+
+# =============================================================================
+# Property Properties
+# =============================================================================
+
+api:type a rdf:Property ;
+    rdfs:domain api:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "type" ;
+    rdfs:comment "Data type: string, integer, number, boolean, date, datetime, array, reference" .
+
+api:required a rdf:Property ;
+    rdfs:domain api:Property ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "required" .
+
+api:format a rdf:Property ;
+    rdfs:domain api:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "format" ;
+    rdfs:comment "Format hint: email, uri, uuid, date, date-time" .
+
+api:minLength a rdf:Property ;
+    rdfs:domain api:Property ;
+    rdfs:range xsd:integer ;
+    rdfs:label "minLength" .
+
+api:maxLength a rdf:Property ;
+    rdfs:domain api:Property ;
+    rdfs:range xsd:integer ;
+    rdfs:label "maxLength" .
+
+api:pattern a rdf:Property ;
+    rdfs:domain api:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "pattern" .
+
+api:min a rdf:Property ;
+    rdfs:domain api:Property ;
+    rdfs:range xsd:integer ;
+    rdfs:label "min" .
+
+api:max a rdf:Property ;
+    rdfs:domain api:Property ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max" .
+
+api:example a rdf:Property ;
+    rdfs:domain api:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "example" .
+
+api:isArray a rdf:Property ;
+    rdfs:domain api:Property ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "isArray" .
+
+api:refEntity a rdf:Property ;
+    rdfs:domain api:Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "refEntity" ;
+    rdfs:comment "Name of referenced entity for relationships" .
+
+# =============================================================================
+# Endpoint Properties
+# =============================================================================
+
+api:path a rdf:Property ;
+    rdfs:domain api:Endpoint ;
+    rdfs:range xsd:string ;
+    rdfs:label "path" .
+
+api:method a rdf:Property ;
+    rdfs:domain api:Endpoint ;
+    rdfs:range xsd:string ;
+    rdfs:label "method" ;
+    rdfs:comment "HTTP method: GET, POST, PUT, PATCH, DELETE" .
+
+api:operationId a rdf:Property ;
+    rdfs:domain api:Endpoint ;
+    rdfs:range xsd:string ;
+    rdfs:label "operationId" .
+
+api:summary a rdf:Property ;
+    rdfs:domain api:Endpoint ;
+    rdfs:range xsd:string ;
+    rdfs:label "summary" .
+
+api:requestSchema a rdf:Property ;
+    rdfs:domain api:Endpoint ;
+    rdfs:range xsd:string ;
+    rdfs:label "requestSchema" .
+
+api:responseSchema a rdf:Property ;
+    rdfs:domain api:Endpoint ;
+    rdfs:range xsd:string ;
+    rdfs:label "responseSchema" .
+
+api:statusCode a rdf:Property ;
+    rdfs:domain api:Endpoint ;
+    rdfs:range xsd:integer ;
+    rdfs:label "statusCode" .
+
+# =============================================================================
+# Request Type Properties
+# =============================================================================
+
+api:operationType a rdf:Property ;
+    rdfs:domain api:RequestType ;
+    rdfs:range xsd:string ;
+    rdfs:label "operationType" ;
+    rdfs:comment "create, update" .

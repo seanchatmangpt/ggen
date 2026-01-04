@@ -1,0 +1,79 @@
+[project]
+name = "ggen-documentation-generation"
+version = "5.0.2"
+description = "Generate ggen documentation from RDF ontology"
+
+[ontology]
+source = "documentation.ttl"
+base_iri = "https://ggen.example.com/docs/"
+
+[ontology.prefixes]
+doc = "https://ggen.example.com/docs/"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+
+[generation]
+output_dir = "docs/"
+
+# GENERATION RULES: Render documentation
+
+[[generation.rules]]
+name = "guides"
+description = "Generate all guides"
+query = { inline = """
+PREFIX doc: <https://ggen.example.com/docs/>
+SELECT ?title ?description ?pages ?effort ?outputFile ?template
+WHERE {
+  ?guide a doc:Guide ;
+    doc:title ?title ;
+    doc:description ?description ;
+    doc:pages ?pages ;
+    doc:effort ?effort ;
+    doc:outputFile ?outputFile ;
+    doc:template ?template .
+}
+ORDER BY ?title
+""" }
+template = { file = "templates/generate-guides.tera" }
+output_file = "GENERATED_GUIDES_MANIFEST.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "gaps"
+description = "Generate gap analysis"
+query = { inline = """
+PREFIX doc: <https://ggen.example.com/docs/>
+SELECT ?title ?description ?priority ?effort ?category ?codeRef
+WHERE {
+  ?gap a doc:Gap ;
+    doc:title ?title ;
+    doc:description ?description ;
+    doc:priority ?priority ;
+    doc:effort ?effort ;
+    doc:category ?category .
+  OPTIONAL { ?gap doc:codeRef ?codeRef . }
+}
+ORDER BY ?priority ?category ?title
+""" }
+template = { file = "templates/generate-gap-analysis.tera" }
+output_file = "GENERATED_GAP_ANALYSIS.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "todos"
+description = "Generate todo list from gaps"
+query = { inline = """
+PREFIX doc: <https://ggen.example.com/docs/>
+SELECT ?title ?description ?priority ?effort
+WHERE {
+  ?gap a doc:Gap ;
+    doc:title ?title ;
+    doc:description ?description ;
+    doc:priority ?priority ;
+    doc:effort ?effort .
+}
+ORDER BY ?priority ?effort ?title
+""" }
+template = { file = "templates/generate-todos.tera" }
+output_file = "GENERATED_TODOS.md"
+mode = "Overwrite"

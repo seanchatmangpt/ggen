@@ -22,7 +22,7 @@ impl Default for AnthropicConfig {
         Self {
             api_key: SecretString::new(String::new()),
             base_url: "https://api.anthropic.com".to_string(),
-            model: "claude-3-sonnet-20240229".to_string(),
+            model: "claude-haiku-4-5-20251001".to_string(),
         }
     }
 }

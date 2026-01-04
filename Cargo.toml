@@ -32,7 +32,6 @@ members = [
   "crates/ggen-cli",
   "crates/ggen-domain",
   "crates/ggen-core",
-  "crates/ggen-ai",
   "crates/ggen-config",
   "crates/ggen-cli-validation",
   "crates/ggen-config-clap",
@@ -44,6 +43,7 @@ members = [
   "playground",
 ]
 exclude = [
+  "crates/ggen-ai",            # Excluded from v5.0.2 build (experimental, planned for v5.1+)
   "examples/",
   "examples/marketplace-demo/generated",
   "marketplace/packages/workflow-engine-cli",
@@ -93,7 +93,6 @@ predicates = "3.1"
 # Workspace-local crates (use workspace = true pattern in workspace members)
 ggen-utils = { path = "crates/ggen-utils", version = "5.0.0" }
 ggen-core = { path = "crates/ggen-core", version = "5.0.0" }
-ggen-ai = { path = "crates/ggen-ai", version = "5.0.0" }
 ggen-config = { path = "crates/ggen-config", version = "5.0.0" }
 ggen-cli-validation = { path = "crates/ggen-cli-validation", version = "5.0.0" }
 ggen-config-clap = { path = "crates/ggen-config-clap", version = "5.0.0" }
@@ -175,7 +174,6 @@ ggen-utils = { path = "crates/ggen-utils", version = "5.0.0" }
 ggen-cli-lib = { path = "crates/ggen-cli", version = "5.0.0" }
 ggen-core = { path = "crates/ggen-core", version = "5.0.0" }
 ggen-domain = { path = "crates/ggen-domain", version = "5.0.0" }
-ggen-ai = { path = "crates/ggen-ai", version = "5.0.0" }
 human-panic = "2.0.3"
 better-panic = "0.3.0"
 log = "0.4.28"

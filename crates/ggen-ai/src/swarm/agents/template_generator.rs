@@ -10,7 +10,6 @@ use crate::swarm::{
 };
 use crate::generators::TemplateGenerator;
 use crate::client::{LlmClient, LlmConfig};
-use crate::providers::adapter::OllamaClient;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};

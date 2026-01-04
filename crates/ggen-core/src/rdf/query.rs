@@ -99,11 +99,13 @@ impl QueryCache {
     /// Cached or fresh query results
     pub fn execute_cached(&self, store: &Store, query_str: &str) -> Result<String> {
         // Get current cache version
-        let current_version = *self.version.lock().unwrap();
+        let current_version = *self.version.lock()
+            .map_err(|_| Error::new("Lock poisoned: version lock"))?;
 
         // Check cache first
         {
-            let mut cache = self.cache.lock().unwrap();
+            let mut cache = self.cache.lock()
+                .map_err(|_| Error::new("Lock poisoned: cache lock"))?;
             if let Some(cached) = cache.get(query_str) {
                 // Validate cache entry is still valid
                 if cached.version == current_version {
@@ -117,7 +119,8 @@ impl QueryCache {
 
         // Store in cache
         {
-            let mut cache = self.cache.lock().unwrap();
+            let mut cache = self.cache.lock()
+                .map_err(|_| Error::new("Lock poisoned: cache lock"))?;
             cache.put(
                 query_str.to_string(),
                 CachedResult {
