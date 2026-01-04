@@ -1,0 +1,266 @@
+@prefix doc: <https://ggen.example.com/docs/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# DOCUMENTATION STRUCTURE (RDF Ontology)
+
+# Document Types
+doc:Document a rdfs:Class ;
+  rdfs:label "Document" ;
+  rdfs:comment "Base documentation entity" .
+
+doc:Guide a rdfs:Class ;
+  rdfs:subClassOf doc:Document ;
+  rdfs:label "Guide" ;
+  rdfs:comment "Learning-oriented documentation" .
+
+doc:Reference a rdfs:Class ;
+  rdfs:subClassOf doc:Document ;
+  rdfs:label "Reference" ;
+  rdfs:comment "Quick lookup documentation" .
+
+doc:Example a rdfs:Class ;
+  rdfs:subClassOf doc:Document ;
+  rdfs:label "Example" ;
+  rdfs:comment "Code example with usage" .
+
+doc:Gap a rdfs:Class ;
+  rdfs:label "Documentation Gap" ;
+  rdfs:comment "Missing documentation" .
+
+# Properties
+doc:title a rdf:Property ;
+  rdfs:domain doc:Document ;
+  rdfs:range xsd:string .
+
+doc:description a rdf:Property ;
+  rdfs:domain doc:Document ;
+  rdfs:range xsd:string .
+
+doc:pages a rdf:Property ;
+  rdfs:domain doc:Document ;
+  rdfs:range xsd:integer .
+
+doc:effort a rdf:Property ;
+  rdfs:domain doc:Document ;
+  rdfs:range xsd:string ;
+  rdfs:comment "S, M, L, XL" .
+
+doc:priority a rdf:Property ;
+  rdfs:domain doc:Gap ;
+  rdfs:range xsd:string ;
+  rdfs:comment "P0, P1, P2, P3" .
+
+doc:category a rdf:Property ;
+  rdfs:domain doc:Document ;
+  rdfs:range xsd:string .
+
+doc:outputFile a rdf:Property ;
+  rdfs:domain doc:Document ;
+  rdfs:range xsd:string .
+
+doc:template a rdf:Property ;
+  rdfs:domain doc:Document ;
+  rdfs:range xsd:string .
+
+# GUIDES (Learning-oriented)
+
+doc:guide-sparql a doc:Guide ;
+  doc:title "SPARQL Inference Guide" ;
+  doc:description "Master CONSTRUCT queries for intelligent code generation" ;
+  doc:pages 20 ;
+  doc:effort "M" ;
+  doc:category "Learning" ;
+  doc:outputFile "SPARQL_INFERENCE_GUIDE.md" ;
+  doc:template "guide-sparql.tera" ;
+  doc:codeRefs (
+    "crates/ggen-core/src/graph/query.rs:37-106 - GraphQuery struct and SPARQL execution"
+    "crates/ggen-core/src/graph/core.rs:465-584 - Core query methods (cached, prepared)"
+    "crates/ggen-core/src/graph/construct.rs:12-157 - CONSTRUCT query executor"
+    "crates/ggen-core/src/codegen/pipeline.rs:212-254 - Inference rule execution pipeline"
+    "crates/ggen-ai/src/generators/sparql.rs:12-102 - AI-powered SPARQL generation"
+  ) .
+
+doc:guide-agi a doc:Guide ;
+  doc:title "AI/AGI Integration Guide" ;
+  doc:description "Build agentic systems that learn from generated code" ;
+  doc:pages 18 ;
+  doc:effort "M" ;
+  doc:category "Learning" ;
+  doc:outputFile "AI_AGI_INTEGRATION_GUIDE.md" ;
+  doc:template "guide-agi.tera" ;
+  doc:codeRefs (
+    "crates/ggen-core/src/codegen/audit.rs:13-155 - Audit trail tracking for agent feedback"
+    "crates/ggen-ai/src/error.rs:6-137 - AI error handling for agent integration"
+    "crates/ggen-core/src/lifecycle/exec.rs:67-324 - Lifecycle execution for orchestration"
+  ) .
+
+doc:guide-graph-api a doc:Guide ;
+  doc:title "Graph Querying API" ;
+  doc:description "Programmatic RDF access and manipulation" ;
+  doc:pages 15 ;
+  doc:effort "M" ;
+  doc:category "Learning" ;
+  doc:outputFile "GRAPH_QUERYING_API.md" ;
+  doc:template "guide-graph-api.tera" ;
+  doc:codeRefs (
+    "crates/ggen-core/src/graph/core.rs:92-434 - Graph struct and operations"
+    "crates/ggen-core/src/graph/export.rs:71-189 - RDF export/serialization"
+    "crates/ggen-core/src/graph/update.rs:63-233 - SPARQL INSERT/DELETE/UPDATE"
+    "crates/ggen-ai/src/rdf/query.rs:12-367 - Query result binding helpers"
+  ) .
+
+# REFERENCES (Quick lookup)
+
+doc:ref-sparql-card a doc:Reference ;
+  doc:title "SPARQL Reference Card" ;
+  doc:description "All SPARQL patterns on 2 pages" ;
+  doc:pages 2 ;
+  doc:effort "S" ;
+  doc:category "Reference" ;
+  doc:outputFile "SPARQL_REFERENCE_CARD.md" ;
+  doc:template "ref-sparql-card.tera" .
+
+doc:ref-toml a doc:Reference ;
+  doc:title "ggen.toml Complete Schema" ;
+  doc:description "Full configuration reference" ;
+  doc:pages 4 ;
+  doc:effort "S" ;
+  doc:category "Reference" ;
+  doc:outputFile "GGEN_TOML_REFERENCE.md" ;
+  doc:template "ref-toml.tera" .
+
+doc:ref-cli a doc:Reference ;
+  doc:title "CLI Reference" ;
+  doc:description "All commands and flags" ;
+  doc:pages 3 ;
+  doc:effort "S" ;
+  doc:category "Reference" ;
+  doc:outputFile "CLI_REFERENCE.md" ;
+  doc:template "ref-cli.tera" .
+
+doc:ref-ultra a doc:Reference ;
+  doc:title "ULTRA Compressed Reference" ;
+  doc:description "100% information density - all key info on 2-3 pages" ;
+  doc:pages 3 ;
+  doc:effort "S" ;
+  doc:category "Reference" ;
+  doc:outputFile "ULTRA_COMPRESSED_REFERENCE.md" ;
+  doc:template "ref-ultra.tera" ;
+  doc:codeRefs (
+    "crates/ggen-config/src/schema.rs:11-813 - Complete ggen.toml schema"
+    "crates/ggen-cli/src/cmds/sync.rs:147-219 - CLI sync command and flags"
+    "crates/ggen-core/src/tera_env.rs:62-85 - Tera template loading"
+  ) .
+
+doc:ref-patterns a doc:Reference ;
+  doc:title "ULTRA Patterns Matrix" ;
+  doc:description "Generate anything - REST/GraphQL/gRPC/DB/tests" ;
+  doc:pages 3 ;
+  doc:effort "S" ;
+  doc:category "Reference" ;
+  doc:outputFile "ULTRA_PATTERNS_MATRIX.md" ;
+  doc:template "ref-patterns.tera" ;
+  doc:codeRefs (
+    "crates/ggen-core/src/template.rs:325-573 - Template rendering with context"
+    "crates/ggen-core/src/register.rs:101-366 - Tera filters and custom functions"
+    "crates/ggen-core/src/pipeline.rs:115-170 - Template pipeline execution"
+  ) .
+
+doc:ref-errors a doc:Reference ;
+  doc:title "Error Catalog Compressed" ;
+  doc:description "All error codes, causes, fixes" ;
+  doc:pages 2 ;
+  doc:effort "S" ;
+  doc:category "Reference" ;
+  doc:outputFile "ERROR_CATALOG_COMPRESSED.md" ;
+  doc:template "ref-errors.tera" ;
+  doc:codeRefs (
+    "crates/ggen-core/src/validation/error.rs:32-145 - Validation error types"
+    "crates/ggen-core/src/ontology/error.rs:7-35 - Ontology error types"
+    "crates/ggen-config/src/error.rs:10-51 - Configuration error types"
+    "crates/ggen-cli/src/error.rs:18-155 - CLI error handling and exit codes"
+  ) .
+
+# GAPS (What's missing)
+
+doc:gap-shacl a doc:Gap ;
+  doc:title "Complete SHACL Validation" ;
+  doc:description "Fix T014 TODO in validator.rs" ;
+  doc:priority "P0" ;
+  doc:effort "M" ;
+  doc:category "Feature" ;
+  doc:codeRef "crates/ggen-core/src/validation/validator.rs:73-129 - SparqlValidator (STUBBED T014)" ;
+  doc:codeRef "crates/ggen-core/src/validation/shacl.rs:122-162 - ShapeLoader (STUBBED T014)" .
+
+doc:gap-troubleshooting a doc:Gap ;
+  doc:title "Troubleshooting Guide" ;
+  doc:description "Error recovery and common mistakes" ;
+  doc:priority "P0" ;
+  doc:effort "M" ;
+  doc:category "Documentation" .
+
+doc:gap-python a doc:Gap ;
+  doc:title "Python FastAPI Example" ;
+  doc:description "Language-agnostic claim needs multi-language examples" ;
+  doc:priority "P1" ;
+  doc:effort "M" ;
+  doc:category "Example" .
+
+doc:gap-javascript a doc:Gap ;
+  doc:title "JavaScript Express Example" ;
+  doc:description "Backend developers need JS examples" ;
+  doc:priority "P1" ;
+  doc:effort "M" ;
+  doc:category "Example" .
+
+doc:gap-postgres a doc:Gap ;
+  doc:title "PostgreSQL Integration" ;
+  doc:description "Schema generation + ORM patterns" ;
+  doc:priority "P1" ;
+  doc:effort "M" ;
+  doc:category "Example" ;
+  doc:codeRef "crates/ggen-core/src/graph/core.rs:434 - load_path() auto-detects schema formats" .
+
+doc:gap-graphql a doc:Gap ;
+  doc:title "GraphQL Deep Dive" ;
+  doc:description "Complete GraphQL generation workflow" ;
+  doc:priority "P1" ;
+  doc:effort "M" ;
+  doc:category "Documentation" .
+
+doc:gap-grpc a doc:Gap ;
+  doc:title "gRPC Service Generation" ;
+  doc:description ".proto files and service stubs" ;
+  doc:priority "P2" ;
+  doc:effort "M" ;
+  doc:category "Example" .
+
+doc:gap-github-actions a doc:Gap ;
+  doc:title "GitHub Actions CI/CD" ;
+  doc:description "Integration patterns and templates" ;
+  doc:priority "P2" ;
+  doc:effort "M" ;
+  doc:category "Example" .
+
+doc:gap-kafka a doc:Gap ;
+  doc:title "Kafka Event-Driven" ;
+  doc:description "Message schema generation" ;
+  doc:priority "P2" ;
+  doc:effort "M" ;
+  doc:category "Example" .
+
+doc:gap-performance a doc:Gap ;
+  doc:title "Performance Tuning" ;
+  doc:description "Optimize for 100k+ triples" ;
+  doc:priority "P2" ;
+  doc:effort "M" ;
+  doc:category "Documentation" .
+
+doc:gap-security a doc:Gap ;
+  doc:title "Security Hardening" ;
+  doc:description "Best practices for generated code" ;
+  doc:priority "P2" ;
+  doc:effort "M" ;
+  doc:category "Documentation" .

@@ -1,0 +1,37 @@
+{
+  "mcpServers": {
+    "claude-code-guide": {
+      "command": "npx",
+      "args": ["@anthropic-ai/claude-code-guide"],
+      "env": {}
+    },
+    "git": {
+      "command": "git",
+      "args": ["mcp-server"],
+      "env": {
+        "GIT_REPO": "/home/user/ggen"
+      }
+    },
+    "bash": {
+      "command": "bash",
+      "args": ["--init-file", ".claude/helpers/bash-init.sh"],
+      "env": {
+        "CARGO_TERM_COLOR": "always"
+      }
+    },
+    "rdf-tools": {
+      "command": "oxigraph",
+      "args": ["server"],
+      "env": {
+        "OXIGRAPH_PORT": "7878"
+      }
+    }
+  },
+  "description": "MCP (Model Context Protocol) servers for enhanced Claude Code capabilities",
+  "version": "1.0.0",
+  "metadata": {
+    "project": "ggen",
+    "version": "5.0.2",
+    "purpose": "Enable Claude Code with specialized capabilities for RDF/Turtle work, Git integration, and enhanced bash scripting"
+  }
+}

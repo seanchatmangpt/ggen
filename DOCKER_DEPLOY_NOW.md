@@ -25,7 +25,7 @@ Login Succeeded
 ## Step 2: Build the Docker Image
 
 ```bash
-docker build -f Dockerfile.binary -t seanchatman/ggen:5.0.0 -t seanchatman/ggen:latest .
+docker build -f Dockerfile.binary -t seanchatman/ggen:5.0.2 -t seanchatman/ggen:latest .
 ```
 
 **What this does:**
@@ -36,14 +36,14 @@ docker build -f Dockerfile.binary -t seanchatman/ggen:5.0.0 -t seanchatman/ggen:
 **Expected output:**
 ```
 [+] Building 30.2s (8/8) FINISHED
-Successfully tagged seanchatman/ggen:5.0.0
+Successfully tagged seanchatman/ggen:5.0.2
 Successfully tagged seanchatman/ggen:latest
 ```
 
 ## Step 3: Verify the Build Works
 
 ```bash
-docker run --rm seanchatman/ggen:5.0.0 --version
+docker run --rm seanchatman/ggen:5.0.2 --version
 ```
 
 **Expected output:**
@@ -54,7 +54,7 @@ ggen 5.0.0
 ## Step 4: Push Version 5.0.0 Tag
 
 ```bash
-docker push seanchatman/ggen:5.0.0
+docker push seanchatman/ggen:5.0.2
 ```
 
 **Expected output:**
@@ -91,8 +91,8 @@ You should see:
 ## Step 7: Test from Docker Hub
 
 ```bash
-docker pull seanchatman/ggen:5.0.0
-docker run --rm seanchatman/ggen:5.0.0 --help
+docker pull seanchatman/ggen:5.0.2
+docker run --rm seanchatman/ggen:5.0.2 --help
 ```
 
 ## 🎉 Success!
@@ -102,7 +102,7 @@ ggen v5.0.0 is now live on all 4 distribution channels:
 1. ✅ **crates.io**: `cargo install ggen-cli-lib`
 2. ✅ **Homebrew**: `brew install seanchatmangpt/ggen/ggen`
 3. ✅ **GitHub**: https://github.com/seanchatmangpt/ggen/releases/tag/v5.0.0
-4. ✅ **Docker Hub**: `docker pull seanchatman/ggen:5.0.0`
+4. ✅ **Docker Hub**: `docker pull seanchatman/ggen:5.0.2`
 
 ---
 
@@ -139,17 +139,17 @@ docker login
 docker login
 
 # Build
-docker build -f Dockerfile.binary -t seanchatman/ggen:5.0.0 -t seanchatman/ggen:latest .
+docker build -f Dockerfile.binary -t seanchatman/ggen:5.0.2 -t seanchatman/ggen:latest .
 
 # Verify
-docker run --rm seanchatman/ggen:5.0.0 --version
+docker run --rm seanchatman/ggen:5.0.2 --version
 
 # Push both tags
-docker push seanchatman/ggen:5.0.0
+docker push seanchatman/ggen:5.0.2
 docker push seanchatman/ggen:latest
 
 # Test pull
-docker pull seanchatman/ggen:5.0.0
+docker pull seanchatman/ggen:5.0.2
 ```
 
 **Total time:** ~3 minutes

@@ -1,0 +1,16 @@
+# Documentation Gaps - Actionable Todos
+
+Generated from RDF: `documentation.ttl`
+Ordered by Priority + Effort
+
+## Todos
+
+{% for gap in results -%}
+- [ ] **{{ gap["?title"] }}** ({{ gap["?priority"] }}, {{ gap["?effort"] }})
+  - Description: {{ gap["?description"] }}
+
+{% endfor %}
+
+## Summary
+
+Total Gaps: {{ results | length }}

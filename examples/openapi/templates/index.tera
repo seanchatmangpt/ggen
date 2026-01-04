@@ -17,6 +17,9 @@ metadata:
  * @module generated
  */
 
+// TypeScript interfaces
+export * from './types.js';
+
 // Entity schemas
 export * from './schemas/entities.mjs';
 

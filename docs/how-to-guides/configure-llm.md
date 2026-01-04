@@ -176,14 +176,14 @@ ollama list
 - gpt-3.5-turbo: $0.50 per 1M input tokens, $1.50 per 1M output tokens
 
 #### Anthropic (Claude)
-- `claude-3-5-sonnet-20241022` - Recommended, fastest
+- `claude-haiku-4-5-20251001` - Recommended, fastest (90% Sonnet performance, 4-5x faster)
+- `claude-3-5-sonnet-20241022` - Capable, balanced
 - `claude-3-opus-20240229` - Most powerful, slower
-- `claude-3-haiku-20240307` - Budget option
 
 **Pricing (approx):**
+- Claude Haiku 4.5: $1 per 1M input, $5 per 1M output
 - Claude 3.5 Sonnet: $3 per 1M input, $15 per 1M output
 - Claude 3 Opus: $15 per 1M input, $75 per 1M output
-- Claude 3 Haiku: $0.80 per 1M input, $4 per 1M output
 
 #### Other Providers (via genai crate)
 - **Google Gemini** - https://makersuite.google.com/app/apikey

@@ -53,6 +53,19 @@
 
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 
+// Hyper-concurrent agent execution framework (10-agent max parallelism)
+pub mod hyper_concurrent;
+
+// Microframework for simplified 10-agent orchestration
+pub mod microframework;
+
+// Existing agent infrastructure
+pub mod agents;
+pub mod governance;
+pub mod swarm;
+pub mod ultrathink;
+
+// Core modules
 pub mod cache;
 pub mod client;
 pub mod config;
@@ -97,6 +110,30 @@ pub use rdf::{
 pub use security::{MaskApiKey, SecretString};
 pub use streaming::StreamConfig;
 pub use types::{DecisionId, PolicyId, RequestId, RuleId};
+
+// Hyper-concurrent execution exports
+pub use hyper_concurrent::{
+    AdaptiveConcurrencyController, AgentBarrier, AgentExecutionResult, AgentExecutionState,
+    AgentMessage, AsyncStreamingCoordinator, BackpressureHandler, ChannelOrchestrator,
+    CircuitBreaker, ConcurrencyMetrics, ExecutionPriority, ExecutorMetrics,
+    HyperConcurrentConfig, HyperConcurrentExecutor, WorkStealingAgentPool, MAX_CONCURRENT_AGENTS,
+};
+
+// Swarm exports
+pub use swarm::{
+    SwarmAgent, SwarmConfig, SwarmContext, SwarmCoordinator, SwarmInput, SwarmResult,
+    SwarmStatus, UltrathinkSwarm,
+};
+
+// Microframework exports
+pub use microframework::{
+    AgentOrchestrator, AgentRole, BatchBuilder, BatchConfig, BatchProcessor, BatchResult,
+    CodeGenAgent, CustomAgent, GraphStats, MicroAgent, MicroframeworkConfig, OrchestratorBuilder,
+    OrchestratorStats, Pipeline, PipelineBuilder, PipelineConfig, PipelineResult, PipelineStage,
+    ProgressBar, ProgressEvent, ProgressListener, ProgressSummary, ProgressTracker, ReviewerAgent,
+    RdfProcessorAgent, StageResult, Task, TaskConfig, TaskGraph, TaskProgress, TaskResult,
+    TaskStatus, TaskType, TemplateGenAgent, TesterAgent, ValidatorAgent,
+};
 
 /// Version information
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

@@ -1,0 +1,3 @@
+# Learning Guides
+
+Total items: {{ results | length }}

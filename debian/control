@@ -1,0 +1,26 @@
+Source: ggen
+Section: development
+Priority: optional
+Maintainer: Sean Chatman <sean@chatmangpt.com>
+Build-Depends: cargo, rustc (>= 1.75)
+Standards-Version: 4.6.2
+Homepage: https://github.com/seanchatmangpt/ggen
+Vcs-Git: https://github.com/seanchatmangpt/ggen.git
+Vcs-Browser: https://github.com/seanchatmangpt/ggen
+
+Package: ggen
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Ontology-driven code generation CLI
+ ggen is a language-agnostic, deterministic code generation tool that transforms
+ RDF ontologies into reproducible code through SPARQL queries and Tera templates.
+ .
+ Features:
+  - Specification-first approach using RDF/Turtle ontologies
+  - Deterministic code generation from specifications
+  - SPARQL-based inference and data extraction
+  - Tera template rendering with SPARQL result injection
+  - Single unified 'ggen sync' command for all workflows
+  - Watch mode for development iteration
+  - SHACL validation gates for specification closure
+  - Incremental generation with smart caching

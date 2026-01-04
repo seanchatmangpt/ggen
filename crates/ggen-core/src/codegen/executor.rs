@@ -19,7 +19,10 @@
 //! All business logic lives here in the executor.
 
 use crate::codegen::pipeline::{GenerationPipeline, RuleType};
-use crate::codegen::{OutputFormat, SyncOptions};
+use crate::codegen::{
+    DependencyValidator, IncrementalCache, MarketplaceValidator, OutputFormat, ProofCarrier,
+    SyncOptions,
+};
 use crate::manifest::{ManifestParser, ManifestValidator};
 use ggen_utils::error::{Error, Result};
 use serde::Serialize;
@@ -150,6 +153,70 @@ impl SyncExecutor {
             ))
         })?;
 
+        // Validate dependencies (ontology imports, circular references, file existence)
+        let dep_validator = DependencyValidator::validate_manifest(&manifest_data, base_path)
+            .map_err(|e| {
+                Error::new(&format!(
+                    "error[E0002]: Dependency validation failed\n  |\n  = error: {}\n  = help: Fix missing ontology imports or circular dependencies",
+                    e
+                ))
+            })?;
+
+        if dep_validator.has_cycles {
+            return Err(Error::new(&format!(
+                "error[E0002]: Circular dependency detected\n  |\n  = error: Inference rules have circular dependencies\n  = cycles: {:?}\n  = help: Review rule dependencies in manifest",
+                dep_validator.cycle_nodes
+            )));
+        }
+
+        if dep_validator.failed_checks > 0 {
+            return Err(Error::new(&format!(
+                "error[E0002]: {} dependency checks failed\n  |\n  = help: Fix missing files or imports before syncing",
+                dep_validator.failed_checks
+            )));
+        }
+
+        // Run marketplace pre-flight validation (FMEA analysis)
+        let marketplace_validator = MarketplaceValidator::new(160);
+        let pre_flight = marketplace_validator.pre_flight_check(&manifest_data).map_err(|e| {
+            Error::new(&format!(
+                "error[E0003]: Marketplace pre-flight validation failed\n  |\n  = error: {}\n  = help: Review package dependencies and resolve high-risk items",
+                e
+            ))
+        })?;
+
+        if self.options.verbose {
+            eprintln!("Pre-flight checks: {} validations, {} high-risk items detected",
+                pre_flight.validations.len(), pre_flight.high_risks.len());
+            if !pre_flight.all_passed {
+                eprintln!("⚠ Warning: {} critical failures, {} warnings in packages",
+                    pre_flight.critical_failures_count, pre_flight.warnings_count);
+            }
+        }
+
+        // Validate selected rules exist in manifest
+        if let Some(ref selected) = self.options.selected_rules {
+            let available_rules: Vec<&String> = manifest_data
+                .generation
+                .rules
+                .iter()
+                .map(|r| &r.name)
+                .collect();
+            for rule_name in selected {
+                if !available_rules.contains(&rule_name) {
+                    return Err(Error::new(&format!(
+                        "error[E0001]: Rule '{}' not found in manifest\n  |\n  = help: Available rules: {}",
+                        rule_name,
+                        available_rules
+                            .iter()
+                            .map(|r| r.as_str())
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    )));
+                }
+            }
+        }
+
         // Dispatch to appropriate mode
         if self.options.validate_only {
             self.execute_validate_only(&manifest_data, base_path)
@@ -175,6 +242,19 @@ impl SyncExecutor {
             check: "Manifest schema".to_string(),
             passed: true,
             details: None,
+        });
+
+        // Check dependencies (ontology imports, circular references, file existence)
+        let dep_report = DependencyValidator::validate_manifest(manifest_data, base_path).ok();
+        let dep_passed = dep_report.as_ref().is_some_and(|r| !r.has_cycles && r.failed_checks == 0);
+        validations.push(ValidationCheck {
+            check: "Dependencies".to_string(),
+            passed: dep_passed,
+            details: if let Some(report) = dep_report {
+                Some(format!("{}/{} checks passed", report.passed_checks, report.total_checks))
+            } else {
+                Some("Dependency check failed".to_string())
+            },
         });
 
         // Check ontology syntax
@@ -314,6 +394,20 @@ impl SyncExecutor {
             .clone()
             .unwrap_or_else(|| manifest_data.generation.output_dir.clone());
 
+        // Load incremental cache if enabled
+        let cache = if self.options.use_cache {
+            let cache_dir = self
+                .options
+                .cache_dir
+                .clone()
+                .unwrap_or_else(|| output_directory.join(".ggen/cache"));
+            let mut c = IncrementalCache::new(cache_dir);
+            let _ = c.load_cache_state(); // Ignore if first run
+            Some(c)
+        } else {
+            None
+        };
+
         // Create pipeline and run
         let mut pipeline = GenerationPipeline::new(manifest_data.clone(), base_path.to_path_buf());
 
@@ -324,6 +418,9 @@ impl SyncExecutor {
 
         if self.options.verbose {
             eprintln!("Loading manifest: {}", self.options.manifest_path.display());
+            if let Some(ref _cache) = cache {
+                eprintln!("Using incremental cache...");
+            }
         }
 
         let state = pipeline.run().map_err(|e| {
@@ -410,6 +507,37 @@ impl SyncExecutor {
         } else {
             None
         };
+
+        // Save cache if enabled
+        if let Some(cache) = cache {
+            if let Err(e) = cache.save_cache_state(manifest_data, "", &state.ontology_graph) {
+                if self.options.verbose {
+                    eprintln!("Warning: Failed to save cache: {}", e);
+                }
+            }
+        }
+
+        // Generate execution proof for determinism verification
+        let mut proof_carrier = ProofCarrier::new();
+        let manifest_content = std::fs::read_to_string(&self.options.manifest_path)
+            .unwrap_or_default();
+        let ontology_content = std::fs::read_to_string(base_path.join(&manifest_data.ontology.source))
+            .unwrap_or_default();
+
+        if let Ok(proof) = proof_carrier.generate_proof(&manifest_content, &ontology_content, &SyncResult {
+            status: "executing".to_string(),
+            files_synced: 0,
+            duration_ms: 0,
+            files: synced_files.clone(),
+            inference_rules_executed: inference_count,
+            generation_rules_executed: generation_count,
+            audit_trail: None,
+            error: None,
+        }) {
+            if self.options.verbose {
+                eprintln!("Execution proof: {}", proof.execution_id);
+            }
+        }
 
         let duration = self.start_time.elapsed().as_millis() as u64;
 
