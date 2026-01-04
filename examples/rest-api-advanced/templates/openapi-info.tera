@@ -1,0 +1,30 @@
+{# =============================================================================
+   OPENAPI INFO TEMPLATE - Generates API info and servers
+   Uses sparql_results array with ?-prefixed keys
+   ============================================================================= #}
+openapi: "3.0.0"
+info:
+{%- for row in sparql_results %}
+{%- if loop.first %}
+  title: {{ row["?title"] | default(value="API") }}
+  description: {{ row["?description"] | default(value="Generated from RDF ontology") }}
+  version: {{ row["?version"] | default(value="1.0.0") }}
+{%- endif %}
+{%- endfor %}
+{%- if sparql_results | length == 0 %}
+  title: API
+  description: Generated from RDF ontology
+  version: 1.0.0
+{%- endif %}
+
+servers:
+{%- for row in sparql_results %}
+{%- if loop.first %}
+  - url: {{ row["?serverUrl"] | default(value="http://localhost:3000") }}
+    description: {{ row["?serverDescription"] | default(value="Local development server") }}
+{%- endif %}
+{%- endfor %}
+{%- if sparql_results | length == 0 %}
+  - url: http://localhost:3000
+    description: Local development server
+{%- endif %}

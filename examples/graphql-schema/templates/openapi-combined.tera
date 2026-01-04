@@ -1,0 +1,20 @@
+{# =============================================================================
+   OPENAPI COMBINED TEMPLATE - Stub for combined spec
+   Main content comes from includes, this provides headers
+   ============================================================================= #}
+openapi: "3.0.0"
+info:
+{%- for row in sparql_results %}
+{%- if loop.first %}
+  title: {{ row["?title"] | default(value="API") }}
+  version: {{ row["?version"] | default(value="1.0.0") }}
+{%- endif %}
+{%- endfor %}
+{%- if sparql_results | length == 0 %}
+  title: API
+  version: 1.0.0
+{%- endif %}
+  description: Generated from RDF ontology
+
+servers:
+  - url: http://localhost:3000
