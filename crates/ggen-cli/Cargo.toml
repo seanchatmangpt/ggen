@@ -45,7 +45,6 @@ futures.workspace = true
 # Local dependencies (use workspace = true pattern for consistency)
 ggen-utils.workspace = true
 ggen-core.workspace = true
-# ggen-ai.workspace = true  # Temporarily disabled - compilation errors
 ggen-domain.workspace = true
 ggen-marketplace.workspace = true
 ggen-test-audit = { workspace = true, optional = true }
@@ -100,7 +99,7 @@ full = ["autonomic", "agent2028", "rdf", "kernel", "async"]
 
 # Testing features
 test-quality = ["ggen-test-audit"]
-live-llm-tests = []                # Opt-in for live LLM integration tests
+live-llm-tests = []                # Opt-in for live LLM integration tests (planned v5.1+)
 
 [dev-dependencies]
 assert_cmd = "2"

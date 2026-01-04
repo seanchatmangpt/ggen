@@ -1,0 +1,68 @@
+{# =============================================================================
+   OPENAPI PATHS TEMPLATE - Generates REST endpoints
+   Uses sparql_results array with ?-prefixed keys
+   ============================================================================= #}
+{%- set current_path = "" -%}
+{%- for row in sparql_results -%}
+{%- set path = row["?path"] | default(value="") -%}
+{%- set method = row["?method"] | default(value="GET") | lower -%}
+{%- set operationId = row["?operationId"] | default(value="") -%}
+{%- set summary = row["?summary"] | default(value="") -%}
+{%- set description = row["?description"] | default(value="") -%}
+{%- set requestSchema = row["?requestSchema"] | default(value="") -%}
+{%- set responseSchema = row["?responseSchema"] | default(value="") -%}
+{%- set statusCode = row["?statusCode"] | default(value="200") -%}
+
+{%- if path != current_path -%}
+{%- set_global current_path = path %}
+
+  {{ path }}:
+{%- endif %}
+    {{ method }}:
+      operationId: {{ operationId }}
+      summary: {{ summary }}
+{%- if description != "" %}
+      description: {{ description }}
+{%- endif %}
+{%- if path is containing("{id}") %}
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+{%- endif %}
+{%- if requestSchema != "" %}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/{{ requestSchema }}'
+{%- endif %}
+      responses:
+        '{{ statusCode }}':
+{%- if statusCode == "201" %}
+          description: Created
+{%- elif statusCode == "204" %}
+          description: Deleted
+{%- else %}
+          description: Success
+{%- endif %}
+{%- if responseSchema != "" %}
+          content:
+            application/json:
+              schema:
+{%- if responseSchema is containing("[]") %}
+                type: array
+                items:
+                  $ref: '#/components/schemas/{{ responseSchema | replace(from="[]", to="") }}'
+{%- else %}
+                $ref: '#/components/schemas/{{ responseSchema }}'
+{%- endif %}
+{%- endif %}
+{%- if statusCode != "204" %}
+        '404':
+          description: Not found
+{%- endif %}
+{%- endfor %}

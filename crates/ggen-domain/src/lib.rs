@@ -25,7 +25,8 @@
 
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 
-// pub mod ai;  // Temporarily disabled - requires ggen-ai which has compilation errors
+#[cfg(feature = "ai")]
+pub mod ai;
 pub mod audit;
 pub mod ci;
 pub mod generation;
