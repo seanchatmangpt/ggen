@@ -2,7 +2,7 @@
 name: reviewer
 description: "Code review specialist. Audits for type safety, error handling, security, performance, and standards adherence. Verifies Andon signals, clippy compliance, and architectural patterns. Read-only analysis for quality assurance."
 tools: ["Read", "Grep", "Glob", "Bash(cargo make lint:*)", "Bash(cargo make pre-commit:*)"]
-model: "claude-opus-4-5"
+model: "claude-haiku-4-5-20251001"
 color: "purple"
 ---
 

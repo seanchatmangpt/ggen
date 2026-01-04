@@ -2,7 +2,7 @@
 name: test-engineer
 description: "Test engineering specialist. Writes Chicago TDD tests with state-based assertions. Creates unit tests, integration tests, and benchmarks. Handles: AAA pattern, mutation testing, false-positive detection, test optimization. Use after rust-coder implements features."
 tools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash(cargo make test:*)", "Bash(cargo make bench:*)", "Bash(cargo make test-unit:*)", "Task"]
-model: "claude-opus-4-5"
+model: "claude-haiku-4-5-20251001"
 color: "green"
 ---
 

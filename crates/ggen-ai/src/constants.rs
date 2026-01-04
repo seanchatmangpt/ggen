@@ -83,7 +83,7 @@ pub mod models {
     pub const OPENAI_DEFAULT: &str = "gpt-3.5-turbo";
 
     /// Default Anthropic model
-    pub const ANTHROPIC_DEFAULT: &str = "claude-3-sonnet-20240229";
+    pub const ANTHROPIC_DEFAULT: &str = "claude-haiku-4-5-20251001";
 
     /// Default Ollama model
     pub const OLLAMA_DEFAULT: &str = "ministral-3:3b";
@@ -235,7 +235,7 @@ mod tests {
     #[test]
     fn test_model_defaults() {
         assert_eq!(models::OPENAI_DEFAULT, "gpt-3.5-turbo");
-        assert_eq!(models::ANTHROPIC_DEFAULT, "claude-3-sonnet-20240229");
+        assert_eq!(models::ANTHROPIC_DEFAULT, "claude-haiku-4-5-20251001");
         assert_eq!(models::OLLAMA_DEFAULT, "ministral-3:3b");
     }
 
