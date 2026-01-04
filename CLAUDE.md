@@ -438,8 +438,8 @@ spec.ttl (source) → ggen render → spec.md (derived artifact)
 ### Workflow Integration (RDF-First)
 
 1. **Before feature**: Run `/speckit-verify` → Check closure
-2. **During planning**: Use `/speckit-plan` → Architecture decisions
-3. **Before EPIC 9**: Verify specification is 100% closed
+2. **During planning**: Invoke `speckit-architect` agent → Architecture decisions in RDF/Turtle
+3. **Before EPIC 9**: Verify specification is 100% closed (run `/speckit-verify`)
 4. **During implementation**: Read TTL source for truth
 5. **Throughout**: Evidence in `.specify/specs/NNN-feature/evidence/`
 
