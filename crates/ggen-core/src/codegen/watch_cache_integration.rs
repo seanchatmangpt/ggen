@@ -9,16 +9,15 @@ pub struct WatchCacheIntegration;
 
 impl WatchCacheIntegration {
     pub fn detect_affected_rules(
-        manifest: &GgenManifest,
-        base_path: &Path,
-        cache: &IncrementalCache,
+        manifest: &GgenManifest, base_path: &Path, cache: &IncrementalCache,
     ) -> Result<AffectedRulesAnalysis> {
         // Read current ontology content
         let ontology_path = base_path.join(&manifest.ontology.source);
         let ontology_content = fs::read_to_string(&ontology_path).unwrap_or_default();
 
         // Check what changed (use empty graph for inference state)
-        let empty_graph = Graph::new().map_err(|e| ggen_utils::error::Error::new(&e.to_string()))?;
+        let empty_graph =
+            Graph::new().map_err(|e| ggen_utils::error::Error::new(&e.to_string()))?;
         let invalidation = cache.check_invalidation(manifest, &ontology_content, &empty_graph);
 
         let mut affected_rules = vec![];
@@ -26,15 +25,12 @@ impl WatchCacheIntegration {
         let mut unaffected_rules = vec![];
 
         for rule in &manifest.generation.rules {
-            let should_rerun = invalidation
-                .changed_rules
-                .iter()
-                .any(|r| r == &rule.name);
+            let should_rerun = invalidation.changed_rules.iter().any(|r| r == &rule.name);
 
             if should_rerun {
                 affected_rules.push(rule.name.clone());
 
-                if manifest.ontology.imports.len() > 0 {
+                if !manifest.ontology.imports.is_empty() {
                     high_impact_rules.push(rule.name.clone());
                 }
             } else {
@@ -56,11 +52,15 @@ impl WatchCacheIntegration {
     }
 
     pub fn get_rule_execution_order(
-        analysis: &AffectedRulesAnalysis,
-        manifest: &GgenManifest,
+        analysis: &AffectedRulesAnalysis, manifest: &GgenManifest,
     ) -> Vec<String> {
         if analysis.rerun_all {
-            return manifest.generation.rules.iter().map(|r| r.name.clone()).collect();
+            return manifest
+                .generation
+                .rules
+                .iter()
+                .map(|r| r.name.clone())
+                .collect();
         }
 
         let mut ordered = vec![];
@@ -166,16 +166,24 @@ mod tests {
         manifest.generation.rules = vec![
             crate::manifest::GenerationRule {
                 name: "rule-1".to_string(),
-                query: crate::manifest::QuerySource::Inline { inline: "q1".to_string() },
-                template: crate::manifest::TemplateSource::Inline { inline: "t1".to_string() },
+                query: crate::manifest::QuerySource::Inline {
+                    inline: "q1".to_string(),
+                },
+                template: crate::manifest::TemplateSource::Inline {
+                    inline: "t1".to_string(),
+                },
                 output_file: "out1.rs".to_string(),
                 skip_empty: false,
                 mode: Default::default(),
             },
             crate::manifest::GenerationRule {
                 name: "rule-2".to_string(),
-                query: crate::manifest::QuerySource::Inline { inline: "q2".to_string() },
-                template: crate::manifest::TemplateSource::Inline { inline: "t2".to_string() },
+                query: crate::manifest::QuerySource::Inline {
+                    inline: "q2".to_string(),
+                },
+                template: crate::manifest::TemplateSource::Inline {
+                    inline: "t2".to_string(),
+                },
                 output_file: "out2.rs".to_string(),
                 skip_empty: false,
                 mode: Default::default(),

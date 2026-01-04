@@ -88,14 +88,13 @@ impl ProofArchive {
 
             if previous.proof.manifest_hash == current.proof.manifest_hash
                 && previous.proof.ontology_hash == current.proof.ontology_hash
+                && previous.proof.output_hash != current.proof.output_hash
             {
-                if previous.proof.output_hash != current.proof.output_hash {
-                    determinism_violations.push(DeterminismViolation {
-                        execution_id_previous: previous.execution_id.clone(),
-                        execution_id_current: current.execution_id.clone(),
-                        reason: "Same manifest/ontology produced different output".to_string(),
-                    });
-                }
+                determinism_violations.push(DeterminismViolation {
+                    execution_id_previous: previous.execution_id.clone(),
+                    execution_id_current: current.execution_id.clone(),
+                    reason: "Same manifest/ontology produced different output".to_string(),
+                });
             }
 
             last_manifest = current.proof.manifest_hash.clone();
