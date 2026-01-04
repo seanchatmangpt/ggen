@@ -38,7 +38,7 @@ import { z } from "zod";
  */
 export const {{ entityName | lower }}Schema = z.object({
 {%- endif %}
-  {{ propertyName }}: {% if propertyType == "string" %}z.string(){% if minLength != "" %}.min({{ minLength }}){% endif %}{% if maxLength != "" %}.max({{ maxLength }}){% endif %}{% if format == "email" %}.email("Must be a valid email address"){% endif %}{% elif propertyType == "integer" %}z.number().int(){% elif propertyType == "number" %}z.number(){% elif propertyType == "boolean" %}z.boolean(){% elif propertyType == "datetime" %}z.string().datetime("Must be ISO 8601 datetime"){% elif propertyType == "date" %}z.string(){% elif propertyType == "reference" %}z.lazy(() => z.array({{ refEntity | lower }}Schema)).default([]){% else %}z.string(){% endif %}{% if required != "true" %}.optional().nullable(){% endif %},
+  {{ propertyName }}: {% if propertyType == "string" %}z.string(){% if minLength != "" %}.min({{ minLength }}){% endif %}{% if maxLength != "" %}.max({{ maxLength }}){% endif %}{% if format == "email" %}.email("Must be a valid email address"){% endif %}{% elif propertyType == "integer" %}z.number().int(){% elif propertyType == "number" %}z.number(){% elif propertyType == "boolean" %}z.boolean(){% elif propertyType == "datetime" %}z.string().datetime(){% elif propertyType == "date" %}z.string(){% elif propertyType == "reference" %}z.lazy(() => z.array({{ refEntity | lower }}Schema)).default([]){% else %}z.string(){% endif %}{% if required != "true" %}.optional().nullable(){% endif %},
 {%- endfor %}
 });
 

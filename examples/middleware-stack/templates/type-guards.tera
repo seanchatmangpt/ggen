@@ -8,28 +8,16 @@
  * @module generated/guards
  */
 
-{# Build unique entity list using set_global #}
-{%- set_global seen_entities = "" -%}
-{%- set_global entity_list = "" -%}
-{%- for row in sparql_results -%}
-{%- set entityName = row["?entityName"] | default(value="") -%}
-{%- if entityName != "" -%}
-{%- if seen_entities is not containing(entityName) -%}
-{%- set_global seen_entities = seen_entities ~ "," ~ entityName -%}
-{%- set_global entity_list = entity_list ~ entityName ~ "|" -%}
-{%- endif -%}
-{%- endif -%}
-{%- endfor -%}
+{%- set current_entity = "" -%}
 
 {# Generate guards for each unique entity #}
-{%- set current_entity = "" -%}
-{%- for row in sparql_results %}
+{%- for row in sparql_results -%}
 {%- set entityName = row["?entityName"] | default(value="") -%}
-{%- if entityName != "" and entityName != current_entity %}
+{%- if entityName != "" and entityName != current_entity -%}
 {%- if current_entity != "" %}
-    true
   );
 }
+
 {% endif -%}
 {%- set_global current_entity = entityName %}
 /**
@@ -40,14 +28,13 @@
 export function is{{ entityName }}(value) {
   return (
     typeof value === 'object' &&
-    value !== null &&
+    value !== null
 {%- endif -%}
 {%- set propertyName = row["?propertyName"] | default(value="") -%}
 {%- set required = row["?required"] | default(value="false") -%}
-{%- if required == "true" %}
-    '{{ propertyName }}' in value &&
+{%- if required == "true" %} &&
+    '{{ propertyName }}' in value
 {%- endif -%}
 {%- endfor %}
-    true
   );
 }
