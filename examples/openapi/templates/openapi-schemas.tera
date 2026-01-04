@@ -1,3 +1,13 @@
+---
+to: lib/openapi/schemas.yaml
+description: Generates OpenAPI component schemas for all entities
+vars:
+  entityName: string
+  propertyName: string
+metadata:
+  category: openapi
+  output_type: component_schemas
+---
 {# =============================================================================
    OPENAPI SCHEMAS TEMPLATE - Generates component schemas
    Uses sparql_results array with ?-prefixed keys

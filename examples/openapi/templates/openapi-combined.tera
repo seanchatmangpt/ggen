@@ -1,3 +1,10 @@
+---
+to: lib/openapi/openapi.yaml
+description: Generates combined OpenAPI specification merging info, schemas, and paths
+metadata:
+  category: openapi
+  output_type: combined_spec
+---
 {# =============================================================================
    OPENAPI COMBINED TEMPLATE - Stub for combined spec
    Main content comes from includes, this provides headers

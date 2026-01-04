@@ -1,3 +1,14 @@
+---
+to: lib/openapi/paths.yaml
+description: Generates OpenAPI paths (REST endpoints) for each entity
+vars:
+  entityName: string
+  path: string
+  method: string
+metadata:
+  category: openapi
+  output_type: api_paths
+---
 {# =============================================================================
    OPENAPI PATHS TEMPLATE - Generates REST endpoints
    Uses sparql_results array with ?-prefixed keys

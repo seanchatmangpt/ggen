@@ -12,7 +12,7 @@ use crate::manifest::{GenerationRule, GgenManifest, InferenceRule};
 use ggen_utils::error::{Error, Result};
 use serde::Serialize;
 use std::collections::BTreeMap;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::time::Instant;
 
 /// Tracks execution state through the generation pipeline
@@ -500,7 +500,7 @@ impl GenerationPipeline {
                 };
 
                 // Validate generated output before writing
-                Self::validate_generated_output(&final_content, &full_output_path, &rule.name)?;
+                Self::validate_generated_output(&final_content, full_output_path.as_path(), &rule.name)?;
 
                 // Ensure parent directory exists
                 if let Some(parent) = full_output_path.parent() {
@@ -648,7 +648,7 @@ impl GenerationPipeline {
     ///
     /// # Errors
     /// Returns descriptive errors with rule_id and path for HDOC framework
-    fn validate_generated_output(content: &str, path: &PathBuf, rule_id: &str) -> Result<()> {
+    fn validate_generated_output(content: &str, path: &Path, rule_id: &str) -> Result<()> {
         // Check 1: Content must not be empty
         if content.is_empty() {
             return Err(Error::new(&format!(

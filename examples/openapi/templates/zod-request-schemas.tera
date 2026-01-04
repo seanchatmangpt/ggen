@@ -1,3 +1,14 @@
+---
+to: lib/schemas/requests.mjs
+description: Generates Zod validation schemas for API request bodies
+vars:
+  entityName: string
+  operationType: string
+  propertyName: string
+metadata:
+  category: schemas
+  output_type: request_validation
+---
 {# =============================================================================
    ZOD REQUEST SCHEMAS TEMPLATE - Generates request validation
    Uses sparql_results array with ?-prefixed keys
@@ -32,7 +43,7 @@ import { z } from "zod";
 });
 
 /**
- * @typedef {z.infer<typeof {{ current_type }}Schema>} {{ current_type | capitalize }}Type
+ * @typedef {z.infer<typeof {{ current_type }}Schema>} {{ current_type | capitalize }}
  */
 
 {% endif -%}
@@ -49,5 +60,5 @@ export const {{ type_name }}Schema = z.object({
 });
 
 /**
- * @typedef {z.infer<typeof {{ current_type }}Schema>} {{ current_type | capitalize }}Type
+ * @typedef {z.infer<typeof {{ current_type }}Schema>} {{ current_type | capitalize }}
  */

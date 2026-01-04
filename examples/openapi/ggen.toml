@@ -1,7 +1,7 @@
 # =============================================================================
-# ggen v5 OpenAPI/TypeScript/Zod Code Generation Manifest
+# ggen v5 OpenAPI/JavaScript/Zod Code Generation Manifest
 # Generates synchronized API contracts from RDF ontology
-# Single source of truth → OpenAPI + TypeScript + Zod
+# Single source of truth → OpenAPI + JavaScript (ES modules) + Zod
 # =============================================================================
 
 [project]
@@ -25,12 +25,15 @@ xsd = "http://www.w3.org/2001/XMLSchema#"
 rules = []
 
 [generation]
-output_dir = "output"
+# Output directory: lib/ follows Node.js best practices for generated code
+output_dir = "lib"
 require_audit_trail = true
 
 # =============================================================================
 # RULE 1: OpenAPI Specification Header
-# Generates info section and server configuration
+# Purpose: Generates the OpenAPI info section (title, version, description) and server configuration
+# Output: lib/openapi/api-info.yaml
+# Query: Extracts specification metadata from the ontology
 # =============================================================================
 [[generation.rules]]
 name = "openapi-info"
@@ -53,12 +56,14 @@ WHERE {
 LIMIT 1
 """ }
 template = { file = "templates/openapi-info.tera" }
-output_file = "api-info.yaml"
+output_file = "openapi/api-info.yaml"
 mode = "Overwrite"
 
 # =============================================================================
 # RULE 2: OpenAPI Schemas (Components)
-# Generates all entity schemas from ontology classes
+# Purpose: Generates all entity schemas as OpenAPI component definitions
+# Output: lib/openapi/schemas.yaml
+# Query: Extracts all entities and their properties with validation constraints
 # =============================================================================
 [[generation.rules]]
 name = "openapi-schemas"
@@ -88,12 +93,14 @@ WHERE {
 ORDER BY ?entityName ?propertyName
 """ }
 template = { file = "templates/openapi-schemas.tera" }
-output_file = "schemas.yaml"
+output_file = "openapi/schemas.yaml"
 mode = "Overwrite"
 
 # =============================================================================
 # RULE 3: OpenAPI Paths (Endpoints)
-# Generates REST endpoints for each entity
+# Purpose: Generates REST API endpoints (paths) for each entity
+# Output: lib/openapi/paths.yaml
+# Query: Extracts endpoint definitions (path, method, operationId, request/response schemas)
 # =============================================================================
 [[generation.rules]]
 name = "openapi-paths"
@@ -119,12 +126,14 @@ WHERE {
 ORDER BY ?entityName ?path ?method
 """ }
 template = { file = "templates/openapi-paths.tera" }
-output_file = "paths.yaml"
+output_file = "openapi/paths.yaml"
 mode = "Overwrite"
 
 # =============================================================================
 # RULE 4: Combined OpenAPI Specification
-# Merges info, schemas, and paths into complete spec
+# Purpose: Merges info, schemas, and paths into a complete OpenAPI 3.0 specification
+# Output: lib/openapi/openapi.yaml
+# Query: Extracts basic spec metadata for the combined file header
 # =============================================================================
 [[generation.rules]]
 name = "openapi-combined"
@@ -140,12 +149,15 @@ WHERE {
 LIMIT 1
 """ }
 template = { file = "templates/openapi-combined.tera" }
-output_file = "openapi.yaml"
+output_file = "openapi/openapi.yaml"
 mode = "Overwrite"
 
 # =============================================================================
-# RULE 5: TypeScript Interfaces
-# Generates type-safe interfaces from entity definitions
+# RULE 5: JavaScript Type Definitions (JSDoc)
+# Purpose: Generates JSDoc type definitions for entities (replaces TypeScript interfaces)
+# Output: lib/types/entities.mjs
+# Query: Extracts entity properties to generate @typedef JSDoc comments
+# Note: Uses .mjs extension for ES modules, JSDoc instead of TypeScript
 # =============================================================================
 [[generation.rules]]
 name = "typescript-interfaces"
@@ -170,12 +182,15 @@ WHERE {
 ORDER BY ?entityName ?propertyName
 """ }
 template = { file = "templates/typescript-interfaces.tera" }
-output_file = "types.ts"
+output_file = "types/entities.mjs"
 mode = "Overwrite"
 
 # =============================================================================
-# RULE 6: TypeScript Request/Response Types
-# Generates API request and response types
+# RULE 6: JavaScript API Request/Response Types (JSDoc)
+# Purpose: Generates JSDoc type definitions for API request/response types
+# Output: lib/types/requests.mjs
+# Query: Extracts request type properties for create/update operations
+# Note: Uses .mjs extension and JSDoc instead of TypeScript interfaces
 # =============================================================================
 [[generation.rules]]
 name = "typescript-api-types"
@@ -196,12 +211,15 @@ WHERE {
 ORDER BY ?entityName ?operationType ?propertyName
 """ }
 template = { file = "templates/typescript-api-types.tera" }
-output_file = "api-types.ts"
+output_file = "types/requests.mjs"
 mode = "Overwrite"
 
 # =============================================================================
-# RULE 7: Zod Validation Schemas
-# Generates runtime validation schemas
+# RULE 7: Zod Validation Schemas (Entities)
+# Purpose: Generates Zod runtime validation schemas for all entities
+# Output: lib/schemas/entities.mjs
+# Query: Extracts entity properties with validation constraints (minLength, maxLength, format, etc.)
+# Note: Uses .mjs extension for ES modules, includes JSDoc @typedef for type inference
 # =============================================================================
 [[generation.rules]]
 name = "zod-schemas"
@@ -231,12 +249,15 @@ WHERE {
 ORDER BY ?entityName ?propertyName
 """ }
 template = { file = "templates/zod-schemas.tera" }
-output_file = "schemas.ts"
+output_file = "schemas/entities.mjs"
 mode = "Overwrite"
 
 # =============================================================================
 # RULE 8: Zod Request Validation Schemas
-# Generates validation for API request bodies
+# Purpose: Generates Zod validation schemas specifically for API request bodies
+# Output: lib/schemas/requests.mjs
+# Query: Extracts request type properties for create/update operations with validation
+# Note: Separate from entity schemas to handle request-specific validation rules
 # =============================================================================
 [[generation.rules]]
 name = "zod-request-schemas"
@@ -261,12 +282,15 @@ WHERE {
 ORDER BY ?entityName ?operationType ?propertyName
 """ }
 template = { file = "templates/zod-request-schemas.tera" }
-output_file = "request-schemas.ts"
+output_file = "schemas/requests.mjs"
 mode = "Overwrite"
 
 # =============================================================================
 # RULE 9: Type Guards
-# Generates TypeScript type guards for runtime checking
+# Purpose: Generates JavaScript type guard functions for runtime type checking
+# Output: lib/guards/entities.mjs
+# Query: Extracts entity properties to generate runtime validation functions
+# Note: Uses .mjs extension, returns boolean (not TypeScript type predicate syntax)
 # =============================================================================
 [[generation.rules]]
 name = "type-guards"
@@ -286,12 +310,15 @@ WHERE {
 ORDER BY ?entityName ?propertyName
 """ }
 template = { file = "templates/type-guards.tera" }
-output_file = "guards.ts"
+output_file = "guards/entities.mjs"
 mode = "Overwrite"
 
 # =============================================================================
-# RULE 10: Index file (barrel export)
-# Generates index.ts with all exports
+# RULE 10: Index file (Barrel Export)
+# Purpose: Generates main index.mjs with barrel exports for all generated modules
+# Output: lib/index.mjs
+# Query: Extracts entity names to document what's exported
+# Note: Provides clean import interface: import { userSchema } from './lib/index.mjs'
 # =============================================================================
 [[generation.rules]]
 name = "index-file"
@@ -306,5 +333,50 @@ WHERE {
 ORDER BY ?entityName
 """ }
 template = { file = "templates/index.tera" }
-output_file = "index.ts"
+output_file = "index.mjs"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 11: Schemas Index (Barrel Export)
+# Purpose: Generates index.mjs for schemas subdirectory
+# Output: lib/schemas/index.mjs
+# =============================================================================
+[[generation.rules]]
+name = "schemas-index"
+query = { inline = """
+PREFIX api: <https://ggen.io/ontology/api#>
+SELECT ?entityName WHERE { ?entity a api:Entity ; api:name ?entityName . } LIMIT 1
+""" }
+template = { file = "templates/schemas-index.tera" }
+output_file = "schemas/index.mjs"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 12: Types Index (Barrel Export)
+# Purpose: Generates index.mjs for types subdirectory
+# Output: lib/types/index.mjs
+# =============================================================================
+[[generation.rules]]
+name = "types-index"
+query = { inline = """
+PREFIX api: <https://ggen.io/ontology/api#>
+SELECT ?entityName WHERE { ?entity a api:Entity ; api:name ?entityName . } LIMIT 1
+""" }
+template = { file = "templates/types-index.tera" }
+output_file = "types/index.mjs"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 13: Guards Index (Barrel Export)
+# Purpose: Generates index.mjs for guards subdirectory
+# Output: lib/guards/index.mjs
+# =============================================================================
+[[generation.rules]]
+name = "guards-index"
+query = { inline = """
+PREFIX api: <https://ggen.io/ontology/api#>
+SELECT ?entityName WHERE { ?entity a api:Entity ; api:name ?entityName . } LIMIT 1
+""" }
+template = { file = "templates/guards-index.tera" }
+output_file = "guards/index.mjs"
 mode = "Overwrite"
