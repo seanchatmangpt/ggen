@@ -170,7 +170,7 @@ WHERE {
 ORDER BY ?entityName ?propertyName
 """ }
 template = { file = "templates/typescript-interfaces.tera" }
-output_file = "types.ts"
+output_file = "types.js"
 mode = "Overwrite"
 
 # =============================================================================
@@ -196,7 +196,7 @@ WHERE {
 ORDER BY ?entityName ?operationType ?propertyName
 """ }
 template = { file = "templates/typescript-api-types.tera" }
-output_file = "api-types.ts"
+output_file = "api-types.js"
 mode = "Overwrite"
 
 # =============================================================================
@@ -231,7 +231,7 @@ WHERE {
 ORDER BY ?entityName ?propertyName
 """ }
 template = { file = "templates/zod-schemas.tera" }
-output_file = "schemas.ts"
+output_file = "schemas.js"
 mode = "Overwrite"
 
 # =============================================================================
@@ -261,7 +261,7 @@ WHERE {
 ORDER BY ?entityName ?operationType ?propertyName
 """ }
 template = { file = "templates/zod-request-schemas.tera" }
-output_file = "request-schemas.ts"
+output_file = "request-schemas.js"
 mode = "Overwrite"
 
 # =============================================================================
@@ -286,7 +286,7 @@ WHERE {
 ORDER BY ?entityName ?propertyName
 """ }
 template = { file = "templates/type-guards.tera" }
-output_file = "guards.ts"
+output_file = "guards.js"
 mode = "Overwrite"
 
 # =============================================================================
@@ -306,5 +306,5 @@ WHERE {
 ORDER BY ?entityName
 """ }
 template = { file = "templates/index.tera" }
-output_file = "index.ts"
+output_file = "index.js"
 mode = "Overwrite"
