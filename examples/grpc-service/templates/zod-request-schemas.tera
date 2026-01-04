@@ -21,10 +21,13 @@ import { z } from "zod";
 {%- set maxLength = row["?maxLength"] | default(value="") -%}
 
 {%- set type_name = "" -%}
+{%- set type_name_pascal = "" -%}
 {%- if operationType == "create" -%}
 {%- set type_name = "create" ~ entityName ~ "Request" -%}
+{%- set type_name_pascal = "Create" ~ entityName ~ "Request" -%}
 {%- elif operationType == "update" -%}
 {%- set type_name = "update" ~ entityName ~ "Request" -%}
+{%- set type_name_pascal = "Update" ~ entityName ~ "Request" -%}
 {%- endif -%}
 
 {%- if type_name != "" and type_name != current_type -%}
@@ -32,11 +35,12 @@ import { z } from "zod";
 });
 
 /**
- * @typedef {z.infer<typeof {{ current_type }}Schema>} {{ current_type | capitalize }}Type
+ * @typedef {z.infer<typeof {{ current_type }}Schema>} {{ current_type_pascal }}Type
  */
 
 {% endif -%}
 {%- set_global current_type = type_name %}
+{%- set_global current_type_pascal = type_name_pascal %}
 /**
  * {{ type_name }} validation schema
  */
@@ -49,5 +53,5 @@ export const {{ type_name }}Schema = z.object({
 });
 
 /**
- * @typedef {z.infer<typeof {{ current_type }}Schema>} {{ current_type | capitalize }}Type
+ * @typedef {z.infer<typeof {{ current_type }}Schema>} {{ current_type_pascal }}Type
  */
