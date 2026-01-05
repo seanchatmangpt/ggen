@@ -1,0 +1,92 @@
+@startuml C4_Data_Flow
+title ggen Examples Generation Pipeline - Data Flow
+
+rectangle "INPUT" {
+    rectangle "RW-001 Template\n(Gold Standard)" as rw001
+    rectangle "Example Metadata\n{name, complexity, focus}" as metadata
+}
+
+rectangle "EXTRACTION PHASE" {
+    rectangle "Extract Patterns\nfrom RW-001" as extract
+    rectangle "Analyze Ontology\nStructure" as analyze_onto
+    rectangle "Extract Template\nPatterns" as extract_tpl
+}
+
+rectangle "ADAPTATION PHASE" {
+    rectangle "Specialize Ontology\nfor Example" as specialize_onto
+    rectangle "Customize Templates\nfor Example" as customize_tpl
+    rectangle "Generate ggen.toml\nConfiguration" as gen_toml
+}
+
+rectangle "GENERATION PHASE" {
+    rectangle "Create ontology/*.ttl\nwith SHACL" as create_onto
+    rectangle "Create templates/*.tera\nwith Tera" as create_tera
+    rectangle "Create golden/\nExpected outputs" as create_golden
+}
+
+rectangle "VALIDATION PHASE" {
+    rectangle "Run Specification\nClosure (SHACL)" as val_shacl
+    rectangle "Run Template\nSyntax Check" as val_syntax
+    rectangle "Run Golden File\nComparison" as val_golden
+    rectangle "Run Quality\nGates 1-9" as val_gates
+}
+
+rectangle "DOCUMENTATION PHASE" {
+    rectangle "Generate 9-section\nREADME" as gen_readme
+    rectangle "Create Learning\nProgression" as gen_learning
+    rectangle "Add Troubleshooting\nGuide" as gen_troubleshooting
+}
+
+rectangle "DEPLOYMENT PHASE" {
+    rectangle "Create validate.mjs\nValidation Script" as gen_validate
+    rectangle "Commit All\nArtifacts" as commit
+    rectangle "Push to\nFeature Branch" as push
+}
+
+rectangle "OUTPUT" {
+    rectangle "Complete Example\nin examples/NAME/" as output
+}
+
+rw001 --> extract
+metadata --> specialize_onto
+extract --> analyze_onto
+analyze_onto --> specialize_onto
+extract --> extract_tpl
+extract_tpl --> customize_tpl
+specialize_onto --> gen_toml
+customize_tpl --> gen_toml
+
+gen_toml --> create_onto
+customize_tpl --> create_tera
+gen_toml --> create_golden
+create_tera --> create_golden
+
+create_onto --> val_shacl
+create_tera --> val_syntax
+create_golden --> val_golden
+val_shacl --> val_gates
+val_syntax --> val_gates
+val_golden --> val_gates
+
+gen_toml --> gen_readme
+create_onto --> gen_readme
+create_tera --> gen_learning
+val_gates --> gen_troubleshooting
+
+create_onto --> gen_validate
+create_tera --> gen_validate
+create_golden --> gen_validate
+
+gen_readme --> commit
+gen_learning --> commit
+gen_troubleshooting --> commit
+gen_validate --> commit
+create_onto --> commit
+create_tera --> commit
+create_golden --> commit
+gen_toml --> commit
+
+commit --> push
+push --> output
+
+@enduml
