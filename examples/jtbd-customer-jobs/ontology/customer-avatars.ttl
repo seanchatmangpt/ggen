@@ -1,0 +1,638 @@
+@prefix jtbd: <https://ggen.io/ontology/jtbd#> .
+@prefix : <https://ggen.io/examples/jtbd#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# 7 JTBD Customer Avatars × 8 Job Steps = 56 Total Job Steps
+# Domain: Developer Tools / Code Generation Platform
+# =============================================================================
+
+# =============================================================================
+# AVATAR 1: The Enterprise Architect
+# =============================================================================
+
+:EnterpriseArchitect a jtbd:Avatar ;
+    jtbd:avatarName "Enterprise Architect" ;
+    jtbd:avatarDescription "Senior technical leader responsible for system design across multiple teams" ;
+    jtbd:avatarSegment "Enterprise" ;
+    jtbd:avatarPainLevel 8 ;
+    jtbd:hasJob :EA_MainJob .
+
+:EA_MainJob a jtbd:Job ;
+    jtbd:jobName "Ensure consistent code patterns across organization" ;
+    jtbd:jobDescription "Maintain architectural consistency while enabling team autonomy" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep :EA_Define, :EA_Locate, :EA_Prepare, :EA_Confirm,
+                    :EA_Execute, :EA_Monitor, :EA_Modify, :EA_Conclude .
+
+:EA_Define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define architectural standards and patterns for the organization" ;
+    jtbd:currentSolution "Manual documentation in Confluence" ;
+    jtbd:painPoint "Standards become outdated, teams interpret them differently" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+:EA_Locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Find existing patterns and anti-patterns across codebases" ;
+    jtbd:currentSolution "Manual code reviews and grep searches" ;
+    jtbd:painPoint "Takes days to audit large codebases" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+:EA_Prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Create templates and scaffolding for approved patterns" ;
+    jtbd:currentSolution "Copy-paste from reference implementations" ;
+    jtbd:painPoint "Templates drift from standards over time" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+:EA_Confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Validate new code follows architectural guidelines" ;
+    jtbd:currentSolution "Manual PR reviews by senior engineers" ;
+    jtbd:painPoint "Bottleneck on architects, inconsistent enforcement" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 17 .
+
+:EA_Execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Roll out pattern changes across multiple repositories" ;
+    jtbd:currentSolution "Manual PRs to each affected repo" ;
+    jtbd:painPoint "Weeks of work for organization-wide changes" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 14 .
+
+:EA_Monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track adoption of patterns across teams" ;
+    jtbd:currentSolution "Quarterly manual audits" ;
+    jtbd:painPoint "No real-time visibility into compliance" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 11 .
+
+:EA_Modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Update patterns based on learnings and new requirements" ;
+    jtbd:currentSolution "Deprecation notices and migration guides" ;
+    jtbd:painPoint "Old patterns persist for years" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+:EA_Conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Retire deprecated patterns and clean up technical debt" ;
+    jtbd:currentSolution "Periodic refactoring sprints" ;
+    jtbd:painPoint "Never enough time to finish cleanup" ;
+    jtbd:importance 6 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 9 .
+
+# =============================================================================
+# AVATAR 2: The Startup Founder
+# =============================================================================
+
+:StartupFounder a jtbd:Avatar ;
+    jtbd:avatarName "Startup Founder" ;
+    jtbd:avatarDescription "Technical co-founder building MVP with limited resources" ;
+    jtbd:avatarSegment "Startup" ;
+    jtbd:avatarPainLevel 9 ;
+    jtbd:hasJob :SF_MainJob .
+
+:SF_MainJob a jtbd:Job ;
+    jtbd:jobName "Ship product features faster than competitors" ;
+    jtbd:jobDescription "Maximize velocity while maintaining code quality" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep :SF_Define, :SF_Locate, :SF_Prepare, :SF_Confirm,
+                    :SF_Execute, :SF_Monitor, :SF_Modify, :SF_Conclude .
+
+:SF_Define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Prioritize features that will win customers" ;
+    jtbd:currentSolution "Gut feeling and customer interviews" ;
+    jtbd:painPoint "Always uncertain if building the right thing" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 15 .
+
+:SF_Locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Find best-practice implementations to build on" ;
+    jtbd:currentSolution "Searching GitHub and Stack Overflow" ;
+    jtbd:painPoint "Quality varies wildly, hard to evaluate" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+:SF_Prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Set up project scaffolding and infrastructure" ;
+    jtbd:currentSolution "create-react-app, starter templates" ;
+    jtbd:painPoint "Days lost to boilerplate and configuration" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+:SF_Confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Verify technical choices won't cause problems at scale" ;
+    jtbd:currentSolution "Asking advisors and Twitter" ;
+    jtbd:painPoint "No way to validate until it's too late" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+:SF_Execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Implement features as fast as possible" ;
+    jtbd:currentSolution "Coding everything from scratch" ;
+    jtbd:painPoint "70% time on plumbing, 30% on differentiation" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 16 .
+
+:SF_Monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track which features users actually use" ;
+    jtbd:currentSolution "Basic analytics and user feedback" ;
+    jtbd:painPoint "Hard to connect usage to code decisions" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 9 .
+
+:SF_Modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Pivot features based on market feedback" ;
+    jtbd:currentSolution "Rewriting code when direction changes" ;
+    jtbd:painPoint "Pivots require massive rework" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+:SF_Conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Reach product-market fit milestone" ;
+    jtbd:currentSolution "Iterating until something works" ;
+    jtbd:painPoint "Run out of runway before finding fit" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 16 .
+
+# =============================================================================
+# AVATAR 3: The Platform Engineer
+# =============================================================================
+
+:PlatformEngineer a jtbd:Avatar ;
+    jtbd:avatarName "Platform Engineer" ;
+    jtbd:avatarDescription "Builds internal developer platforms and tooling" ;
+    jtbd:avatarSegment "Mid-Market" ;
+    jtbd:avatarPainLevel 7 ;
+    jtbd:hasJob :PE_MainJob .
+
+:PE_MainJob a jtbd:Job ;
+    jtbd:jobName "Increase developer productivity across the org" ;
+    jtbd:jobDescription "Create golden paths that make the right thing easy" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep :PE_Define, :PE_Locate, :PE_Prepare, :PE_Confirm,
+                    :PE_Execute, :PE_Monitor, :PE_Modify, :PE_Conclude .
+
+:PE_Define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Identify developer pain points to address" ;
+    jtbd:currentSolution "Developer surveys and ticket analysis" ;
+    jtbd:painPoint "Hard to quantify developer experience" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+:PE_Locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Find tools and patterns that solve problems" ;
+    jtbd:currentSolution "Evaluating OSS projects and vendors" ;
+    jtbd:painPoint "Too many options, hard to compare" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+:PE_Prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Configure tools for organization's needs" ;
+    jtbd:currentSolution "Custom scripts and configurations" ;
+    jtbd:painPoint "Every org is different, no reusable config" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+:PE_Confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Test that platform changes work correctly" ;
+    jtbd:currentSolution "Manual testing with pilot teams" ;
+    jtbd:painPoint "Can't test at scale before rollout" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+:PE_Execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Roll out platform changes to all developers" ;
+    jtbd:currentSolution "Phased rollout with documentation" ;
+    jtbd:painPoint "Developers resist change, low adoption" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+:PE_Monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track platform usage and developer satisfaction" ;
+    jtbd:currentSolution "DORA metrics and surveys" ;
+    jtbd:painPoint "Metrics don't capture full picture" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 9 .
+
+:PE_Modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Iterate on platform based on feedback" ;
+    jtbd:currentSolution "Quarterly planning cycles" ;
+    jtbd:painPoint "Slow to respond to urgent needs" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+:PE_Conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Deprecate old tools and complete migrations" ;
+    jtbd:currentSolution "Migration projects with deadlines" ;
+    jtbd:painPoint "Migrations drag on for years" ;
+    jtbd:importance 6 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 9 .
+
+# =============================================================================
+# AVATAR 4: The Solo Developer
+# =============================================================================
+
+:SoloDeveloper a jtbd:Avatar ;
+    jtbd:avatarName "Solo Developer" ;
+    jtbd:avatarDescription "Independent developer building side projects or freelancing" ;
+    jtbd:avatarSegment "Individual" ;
+    jtbd:avatarPainLevel 6 ;
+    jtbd:hasJob :SD_MainJob .
+
+:SD_MainJob a jtbd:Job ;
+    jtbd:jobName "Build complete applications without a team" ;
+    jtbd:jobDescription "Ship production-ready apps covering all concerns" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep :SD_Define, :SD_Locate, :SD_Prepare, :SD_Confirm,
+                    :SD_Execute, :SD_Monitor, :SD_Modify, :SD_Conclude .
+
+:SD_Define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Scope project to fit available time" ;
+    jtbd:currentSolution "Personal planning and estimation" ;
+    jtbd:painPoint "Projects always take longer than expected" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 9 .
+
+:SD_Locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Find libraries and tools for each concern" ;
+    jtbd:currentSolution "Research on each project" ;
+    jtbd:painPoint "Repeating research for common patterns" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+:SD_Prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Set up complete dev environment" ;
+    jtbd:currentSolution "Manual setup each time" ;
+    jtbd:painPoint "Hours lost to environment issues" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+:SD_Confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Ensure code quality without code review" ;
+    jtbd:currentSolution "Linters and self-review" ;
+    jtbd:painPoint "Miss issues a second pair of eyes would catch" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+:SD_Execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Implement features across full stack" ;
+    jtbd:currentSolution "Switching contexts constantly" ;
+    jtbd:painPoint "Can't specialize, must know everything" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+:SD_Monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track app performance and errors" ;
+    jtbd:currentSolution "Basic logging and error tracking" ;
+    jtbd:painPoint "Find out about issues from users" ;
+    jtbd:importance 6 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 7 .
+
+:SD_Modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Maintain and update dependencies" ;
+    jtbd:currentSolution "Manual dependency updates" ;
+    jtbd:painPoint "Security vulnerabilities pile up" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+:SD_Conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Hand off or sunset projects" ;
+    jtbd:currentSolution "Minimal documentation" ;
+    jtbd:painPoint "Hard to return to old projects" ;
+    jtbd:importance 5 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 6 .
+
+# =============================================================================
+# AVATAR 5: The Tech Lead
+# =============================================================================
+
+:TechLead a jtbd:Avatar ;
+    jtbd:avatarName "Tech Lead" ;
+    jtbd:avatarDescription "Team lead balancing coding with leadership" ;
+    jtbd:avatarSegment "Mid-Market" ;
+    jtbd:avatarPainLevel 8 ;
+    jtbd:hasJob :TL_MainJob .
+
+:TL_MainJob a jtbd:Job ;
+    jtbd:jobName "Keep team productive and code quality high" ;
+    jtbd:jobDescription "Enable team success while shipping features" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep :TL_Define, :TL_Locate, :TL_Prepare, :TL_Confirm,
+                    :TL_Execute, :TL_Monitor, :TL_Modify, :TL_Conclude .
+
+:TL_Define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Break down requirements into implementable tasks" ;
+    jtbd:currentSolution "Sprint planning and ticket writing" ;
+    jtbd:painPoint "Ambiguous requirements cause rework" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+:TL_Locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Find right person for each task" ;
+    jtbd:currentSolution "Mental model of team skills" ;
+    jtbd:painPoint "Skill gaps cause bottlenecks" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 9 .
+
+:TL_Prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Set up team conventions and standards" ;
+    jtbd:currentSolution "Team wiki and style guides" ;
+    jtbd:painPoint "New hires take weeks to onboard" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+:TL_Confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Review code before it merges" ;
+    jtbd:currentSolution "Manual PR reviews" ;
+    jtbd:painPoint "Reviews become bottleneck" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+:TL_Execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Coordinate team to hit deadlines" ;
+    jtbd:currentSolution "Daily standups and tracking" ;
+    jtbd:painPoint "Unexpected blockers derail sprints" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+:TL_Monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track team velocity and quality metrics" ;
+    jtbd:currentSolution "Jira reports and bug counts" ;
+    jtbd:painPoint "Metrics gamed or misleading" ;
+    jtbd:importance 6 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 8 .
+
+:TL_Modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Adjust processes based on retrospectives" ;
+    jtbd:currentSolution "Bi-weekly retros" ;
+    jtbd:painPoint "Same issues keep recurring" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+:TL_Conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Close out sprints and projects" ;
+    jtbd:currentSolution "Sprint reviews and demos" ;
+    jtbd:painPoint "Tech debt accumulates between projects" ;
+    jtbd:importance 6 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 7 .
+
+# =============================================================================
+# AVATAR 6: The DevOps Engineer
+# =============================================================================
+
+:DevOpsEngineer a jtbd:Avatar ;
+    jtbd:avatarName "DevOps Engineer" ;
+    jtbd:avatarDescription "Manages CI/CD pipelines and infrastructure" ;
+    jtbd:avatarSegment "Enterprise" ;
+    jtbd:avatarPainLevel 7 ;
+    jtbd:hasJob :DO_MainJob .
+
+:DO_MainJob a jtbd:Job ;
+    jtbd:jobName "Ship code to production safely and quickly" ;
+    jtbd:jobDescription "Automate deployments while preventing incidents" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep :DO_Define, :DO_Locate, :DO_Prepare, :DO_Confirm,
+                    :DO_Execute, :DO_Monitor, :DO_Modify, :DO_Conclude .
+
+:DO_Define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define deployment requirements and SLOs" ;
+    jtbd:currentSolution "Documentation and runbooks" ;
+    jtbd:painPoint "Requirements scattered across teams" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+:DO_Locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Identify what changed and what's affected" ;
+    jtbd:currentSolution "Git diffs and dependency graphs" ;
+    jtbd:painPoint "Hidden dependencies cause surprises" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+:DO_Prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Set up pipeline configuration for new services" ;
+    jtbd:currentSolution "Copy-paste from existing pipelines" ;
+    jtbd:painPoint "Config drift between services" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+:DO_Confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Validate deployment is safe to proceed" ;
+    jtbd:currentSolution "Automated tests and approval gates" ;
+    jtbd:painPoint "Flaky tests delay deployments" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 16 .
+
+:DO_Execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Deploy changes to production" ;
+    jtbd:currentSolution "Automated deployment pipelines" ;
+    jtbd:painPoint "Rollbacks are complex and scary" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 6 ;
+    jtbd:opportunityScore 14 .
+
+:DO_Monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Watch for problems after deployment" ;
+    jtbd:currentSolution "Dashboards and alerts" ;
+    jtbd:painPoint "Alert fatigue, miss real issues" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+:DO_Modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Roll back or hotfix issues" ;
+    jtbd:currentSolution "Manual intervention and fixes" ;
+    jtbd:painPoint "Pressure during incidents causes mistakes" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+:DO_Conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Complete incident post-mortems" ;
+    jtbd:currentSolution "Post-incident reviews" ;
+    jtbd:painPoint "Action items rarely completed" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+# =============================================================================
+# AVATAR 7: The Open Source Maintainer
+# =============================================================================
+
+:OpenSourceMaintainer a jtbd:Avatar ;
+    jtbd:avatarName "Open Source Maintainer" ;
+    jtbd:avatarDescription "Maintains popular OSS projects in spare time" ;
+    jtbd:avatarSegment "Community" ;
+    jtbd:avatarPainLevel 8 ;
+    jtbd:hasJob :OSM_MainJob .
+
+:OSM_MainJob a jtbd:Job ;
+    jtbd:jobName "Keep project healthy while preventing burnout" ;
+    jtbd:jobDescription "Balance community needs with personal limits" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep :OSM_Define, :OSM_Locate, :OSM_Prepare, :OSM_Confirm,
+                    :OSM_Execute, :OSM_Monitor, :OSM_Modify, :OSM_Conclude .
+
+:OSM_Define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Set project vision and roadmap" ;
+    jtbd:currentSolution "README and ROADMAP files" ;
+    jtbd:painPoint "Conflicting feature requests from users" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+:OSM_Locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Find and recruit contributors" ;
+    jtbd:currentSolution "Good first issue labels" ;
+    jtbd:painPoint "Contributors disappear after first PR" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+:OSM_Prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Create contributor-friendly setup" ;
+    jtbd:currentSolution "CONTRIBUTING.md and dev setup docs" ;
+    jtbd:painPoint "Setup takes too long, discourages contributors" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+:OSM_Confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Review and validate contributions" ;
+    jtbd:currentSolution "Manual PR review" ;
+    jtbd:painPoint "Review backlog grows faster than capacity" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+:OSM_Execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Merge PRs and release new versions" ;
+    jtbd:currentSolution "Manual merge and release process" ;
+    jtbd:painPoint "Releases delayed by manual steps" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+:OSM_Monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track issues and community health" ;
+    jtbd:currentSolution "GitHub issues and discussions" ;
+    jtbd:painPoint "Toxic interactions drain energy" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+:OSM_Modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Respond to security issues and bugs" ;
+    jtbd:currentSolution "Dependabot and user reports" ;
+    jtbd:painPoint "Critical issues come at worst times" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+:OSM_Conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Archive or transfer unmaintainable projects" ;
+    jtbd:currentSolution "Abandonment or finding new maintainer" ;
+    jtbd:painPoint "Guilt about abandoning users" ;
+    jtbd:importance 6 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 9 .

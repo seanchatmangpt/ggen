@@ -1,0 +1,175 @@
+@prefix jtbd: <https://ggen.io/ontology/jtbd#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# =============================================================================
+# JTBD (Jobs To Be Done) Ontology Schema
+# Based on Tony Ulwick's Outcome-Driven Innovation methodology
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Core Classes
+# -----------------------------------------------------------------------------
+
+jtbd:Avatar a rdfs:Class ;
+    rdfs:label "Customer Avatar" ;
+    rdfs:comment "A customer persona with specific jobs to be done" .
+
+jtbd:Job a rdfs:Class ;
+    rdfs:label "Job" ;
+    rdfs:comment "A functional, emotional, or social job the customer wants done" .
+
+jtbd:JobStep a rdfs:Class ;
+    rdfs:label "Job Step" ;
+    rdfs:comment "A step in the universal job map (8 steps)" .
+
+jtbd:OutcomeStatement a rdfs:Class ;
+    rdfs:label "Outcome Statement" ;
+    rdfs:comment "A desired outcome in the form: Minimize/Maximize [metric] when [context]" .
+
+jtbd:JobStepType a rdfs:Class ;
+    rdfs:label "Job Step Type" ;
+    rdfs:comment "One of the 8 universal job step types" .
+
+# -----------------------------------------------------------------------------
+# Job Step Type Instances (Universal Job Map)
+# -----------------------------------------------------------------------------
+
+jtbd:Define a jtbd:JobStepType ;
+    rdfs:label "1. Define" ;
+    jtbd:stepOrder 1 ;
+    rdfs:comment "Determine goals and plan approach" .
+
+jtbd:Locate a jtbd:JobStepType ;
+    rdfs:label "2. Locate" ;
+    jtbd:stepOrder 2 ;
+    rdfs:comment "Gather items and information needed" .
+
+jtbd:Prepare a jtbd:JobStepType ;
+    rdfs:label "3. Prepare" ;
+    jtbd:stepOrder 3 ;
+    rdfs:comment "Set up the environment and inputs" .
+
+jtbd:Confirm a jtbd:JobStepType ;
+    rdfs:label "4. Confirm" ;
+    jtbd:stepOrder 4 ;
+    rdfs:comment "Verify readiness before execution" .
+
+jtbd:Execute a jtbd:JobStepType ;
+    rdfs:label "5. Execute" ;
+    jtbd:stepOrder 5 ;
+    rdfs:comment "Perform the core job" .
+
+jtbd:Monitor a jtbd:JobStepType ;
+    rdfs:label "6. Monitor" ;
+    jtbd:stepOrder 6 ;
+    rdfs:comment "Track progress and results" .
+
+jtbd:Modify a jtbd:JobStepType ;
+    rdfs:label "7. Modify" ;
+    jtbd:stepOrder 7 ;
+    rdfs:comment "Make adjustments as needed" .
+
+jtbd:Conclude a jtbd:JobStepType ;
+    rdfs:label "8. Conclude" ;
+    jtbd:stepOrder 8 ;
+    rdfs:comment "Finish and clean up" .
+
+# -----------------------------------------------------------------------------
+# Properties
+# -----------------------------------------------------------------------------
+
+# Avatar properties
+jtbd:avatarName a rdf:Property ;
+    rdfs:domain jtbd:Avatar ;
+    rdfs:range xsd:string .
+
+jtbd:avatarDescription a rdf:Property ;
+    rdfs:domain jtbd:Avatar ;
+    rdfs:range xsd:string .
+
+jtbd:avatarSegment a rdf:Property ;
+    rdfs:domain jtbd:Avatar ;
+    rdfs:range xsd:string .
+
+jtbd:avatarPainLevel a rdf:Property ;
+    rdfs:domain jtbd:Avatar ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Pain level 1-10 (10 = extreme frustration)" .
+
+jtbd:hasJob a rdf:Property ;
+    rdfs:domain jtbd:Avatar ;
+    rdfs:range jtbd:Job .
+
+# Job properties
+jtbd:jobName a rdf:Property ;
+    rdfs:domain jtbd:Job ;
+    rdfs:range xsd:string .
+
+jtbd:jobDescription a rdf:Property ;
+    rdfs:domain jtbd:Job ;
+    rdfs:range xsd:string .
+
+jtbd:jobType a rdf:Property ;
+    rdfs:domain jtbd:Job ;
+    rdfs:range xsd:string ;
+    rdfs:comment "functional, emotional, or social" .
+
+jtbd:hasJobStep a rdf:Property ;
+    rdfs:domain jtbd:Job ;
+    rdfs:range jtbd:JobStep .
+
+# Job Step properties
+jtbd:stepType a rdf:Property ;
+    rdfs:domain jtbd:JobStep ;
+    rdfs:range jtbd:JobStepType .
+
+jtbd:stepOrder a rdf:Property ;
+    rdfs:range xsd:integer .
+
+jtbd:stepDescription a rdf:Property ;
+    rdfs:domain jtbd:JobStep ;
+    rdfs:range xsd:string .
+
+jtbd:currentSolution a rdf:Property ;
+    rdfs:domain jtbd:JobStep ;
+    rdfs:range xsd:string .
+
+jtbd:painPoint a rdf:Property ;
+    rdfs:domain jtbd:JobStep ;
+    rdfs:range xsd:string .
+
+jtbd:opportunityScore a rdf:Property ;
+    rdfs:domain jtbd:JobStep ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Opportunity = Importance + (Importance - Satisfaction)" .
+
+jtbd:importance a rdf:Property ;
+    rdfs:domain jtbd:JobStep ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "1-10 scale" .
+
+jtbd:satisfaction a rdf:Property ;
+    rdfs:domain jtbd:JobStep ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "1-10 scale" .
+
+jtbd:hasOutcome a rdf:Property ;
+    rdfs:domain jtbd:JobStep ;
+    rdfs:range jtbd:OutcomeStatement .
+
+# Outcome properties
+jtbd:outcomeDirection a rdf:Property ;
+    rdfs:domain jtbd:OutcomeStatement ;
+    rdfs:range xsd:string ;
+    rdfs:comment "minimize or maximize" .
+
+jtbd:outcomeMetric a rdf:Property ;
+    rdfs:domain jtbd:OutcomeStatement ;
+    rdfs:range xsd:string .
+
+jtbd:outcomeContext a rdf:Property ;
+    rdfs:domain jtbd:OutcomeStatement ;
+    rdfs:range xsd:string .

@@ -1,0 +1,238 @@
+# =============================================================================
+# ggen v5 JTBD (Jobs To Be Done) Code Generation Manifest
+# Generates product artifacts from customer job specifications
+# 7 Avatars × 8 Job Steps = 56 Opportunity Areas
+# =============================================================================
+
+[project]
+name = "jtbd-customer-jobs"
+version = "1.0.0"
+description = "JTBD-driven product development using RDF ontologies"
+
+[ontology]
+source = "ontology/customer-avatars.ttl"
+base_iri = "https://ggen.io/examples/jtbd#"
+schema = "ontology/jtbd-schema.ttl"
+
+[ontology.prefixes]
+jtbd = "https://ggen.io/ontology/jtbd#"
+ex = "https://ggen.io/examples/jtbd#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+
+[inference]
+rules = []
+
+[generation]
+output_dir = "output"
+require_audit_trail = true
+
+# =============================================================================
+# RULE 1: Avatar Summary Report
+# Generates overview of all customer avatars
+# =============================================================================
+[[generation.rules]]
+name = "avatar-summary"
+query = { inline = """
+PREFIX jtbd: <https://ggen.io/ontology/jtbd#>
+PREFIX ex: <https://ggen.io/examples/jtbd#>
+
+SELECT ?avatarName ?avatarDescription ?avatarSegment ?avatarPainLevel ?jobName
+WHERE {
+  ?avatar a jtbd:Avatar ;
+          jtbd:avatarName ?avatarName ;
+          jtbd:avatarDescription ?avatarDescription ;
+          jtbd:avatarSegment ?avatarSegment ;
+          jtbd:avatarPainLevel ?avatarPainLevel ;
+          jtbd:hasJob ?job .
+  ?job jtbd:jobName ?jobName .
+}
+ORDER BY DESC(?avatarPainLevel)
+""" }
+template = { file = "templates/avatar-summary.tera" }
+output_file = "avatars.mjs"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 2: Opportunity Matrix
+# Generates prioritized list of opportunities by score
+# =============================================================================
+[[generation.rules]]
+name = "opportunity-matrix"
+query = { inline = """
+PREFIX jtbd: <https://ggen.io/ontology/jtbd#>
+PREFIX ex: <https://ggen.io/examples/jtbd#>
+
+SELECT ?avatarName ?jobName ?stepType ?stepDescription ?painPoint
+       ?importance ?satisfaction ?opportunityScore
+WHERE {
+  ?avatar a jtbd:Avatar ;
+          jtbd:avatarName ?avatarName ;
+          jtbd:hasJob ?job .
+  ?job jtbd:jobName ?jobName ;
+       jtbd:hasJobStep ?step .
+  ?step jtbd:stepType ?typeRef ;
+        jtbd:stepDescription ?stepDescription ;
+        jtbd:painPoint ?painPoint ;
+        jtbd:importance ?importance ;
+        jtbd:satisfaction ?satisfaction ;
+        jtbd:opportunityScore ?opportunityScore .
+  ?typeRef rdfs:label ?stepType .
+}
+ORDER BY DESC(?opportunityScore)
+""" }
+template = { file = "templates/opportunity-matrix.tera" }
+output_file = "opportunities.mjs"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 3: User Stories Generator
+# Generates user stories from job steps
+# =============================================================================
+[[generation.rules]]
+name = "user-stories"
+query = { inline = """
+PREFIX jtbd: <https://ggen.io/ontology/jtbd#>
+PREFIX ex: <https://ggen.io/examples/jtbd#>
+
+SELECT ?avatarName ?stepDescription ?painPoint ?currentSolution ?opportunityScore
+WHERE {
+  ?avatar a jtbd:Avatar ;
+          jtbd:avatarName ?avatarName ;
+          jtbd:hasJob ?job .
+  ?job jtbd:hasJobStep ?step .
+  ?step jtbd:stepDescription ?stepDescription ;
+        jtbd:currentSolution ?currentSolution ;
+        jtbd:painPoint ?painPoint ;
+        jtbd:opportunityScore ?opportunityScore .
+  FILTER(?opportunityScore >= 12)
+}
+ORDER BY DESC(?opportunityScore)
+""" }
+template = { file = "templates/user-stories.tera" }
+output_file = "user-stories.mjs"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 4: Feature Specifications (High-Opportunity)
+# Generates detailed specs for top opportunities
+# =============================================================================
+[[generation.rules]]
+name = "feature-specs"
+query = { inline = """
+PREFIX jtbd: <https://ggen.io/ontology/jtbd#>
+PREFIX ex: <https://ggen.io/examples/jtbd#>
+
+SELECT ?avatarName ?avatarDescription ?jobName ?stepType ?stepDescription
+       ?currentSolution ?painPoint ?importance ?satisfaction ?opportunityScore
+WHERE {
+  ?avatar a jtbd:Avatar ;
+          jtbd:avatarName ?avatarName ;
+          jtbd:avatarDescription ?avatarDescription ;
+          jtbd:hasJob ?job .
+  ?job jtbd:jobName ?jobName ;
+       jtbd:hasJobStep ?step .
+  ?step jtbd:stepType ?typeRef ;
+        jtbd:stepDescription ?stepDescription ;
+        jtbd:currentSolution ?currentSolution ;
+        jtbd:painPoint ?painPoint ;
+        jtbd:importance ?importance ;
+        jtbd:satisfaction ?satisfaction ;
+        jtbd:opportunityScore ?opportunityScore .
+  ?typeRef rdfs:label ?stepType .
+  FILTER(?opportunityScore >= 14)
+}
+ORDER BY DESC(?opportunityScore) ?avatarName
+""" }
+template = { file = "templates/feature-specs.tera" }
+output_file = "feature-specs.mjs"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 5: Job Map Visualization Data
+# Generates data for job map charts
+# =============================================================================
+[[generation.rules]]
+name = "job-map-data"
+query = { inline = """
+PREFIX jtbd: <https://ggen.io/ontology/jtbd#>
+PREFIX ex: <https://ggen.io/examples/jtbd#>
+
+SELECT ?avatarName ?stepOrder ?stepType ?importance ?satisfaction ?opportunityScore
+WHERE {
+  ?avatar a jtbd:Avatar ;
+          jtbd:avatarName ?avatarName ;
+          jtbd:hasJob ?job .
+  ?job jtbd:hasJobStep ?step .
+  ?step jtbd:stepType ?typeRef ;
+        jtbd:importance ?importance ;
+        jtbd:satisfaction ?satisfaction ;
+        jtbd:opportunityScore ?opportunityScore .
+  ?typeRef rdfs:label ?stepType ;
+           jtbd:stepOrder ?stepOrder .
+}
+ORDER BY ?avatarName ?stepOrder
+""" }
+template = { file = "templates/job-map-data.tera" }
+output_file = "job-map-data.mjs"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 6: Zod Schemas for Runtime Validation
+# Generates Zod schemas for JTBD data structures
+# =============================================================================
+[[generation.rules]]
+name = "jtbd-schemas"
+query = { inline = """
+PREFIX jtbd: <https://ggen.io/ontology/jtbd#>
+
+SELECT DISTINCT ?className ?propertyName ?propertyRange
+WHERE {
+  {
+    BIND(jtbd:Avatar AS ?class)
+    BIND("Avatar" AS ?className)
+    VALUES (?prop ?propertyName ?propertyRange) {
+      (jtbd:avatarName "name" "string")
+      (jtbd:avatarDescription "description" "string")
+      (jtbd:avatarSegment "segment" "string")
+      (jtbd:avatarPainLevel "painLevel" "number")
+    }
+  }
+  UNION
+  {
+    BIND(jtbd:JobStep AS ?class)
+    BIND("JobStep" AS ?className)
+    VALUES (?prop ?propertyName ?propertyRange) {
+      (jtbd:stepDescription "description" "string")
+      (jtbd:currentSolution "currentSolution" "string")
+      (jtbd:painPoint "painPoint" "string")
+      (jtbd:importance "importance" "number")
+      (jtbd:satisfaction "satisfaction" "number")
+      (jtbd:opportunityScore "opportunityScore" "number")
+    }
+  }
+}
+ORDER BY ?className ?propertyName
+""" }
+template = { file = "templates/jtbd-schemas.tera" }
+output_file = "schemas.mjs"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 7: Index File
+# Generates barrel export for all modules
+# =============================================================================
+[[generation.rules]]
+name = "index-file"
+query = { inline = """
+PREFIX jtbd: <https://ggen.io/ontology/jtbd#>
+
+SELECT (COUNT(DISTINCT ?avatar) AS ?avatarCount)
+WHERE {
+  ?avatar a jtbd:Avatar .
+}
+""" }
+template = { file = "templates/index.tera" }
+output_file = "index.mjs"
+mode = "Overwrite"
