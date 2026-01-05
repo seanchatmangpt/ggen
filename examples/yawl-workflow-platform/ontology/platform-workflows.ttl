@@ -1,3 +1,4 @@
+@base <http://example.org/yawl/> .
 @prefix yawl: <http://unrdf.org/yawl#> .
 @prefix yawl-case: <http://unrdf.org/yawl/case#> .
 @prefix yawl-task: <http://unrdf.org/yawl/task#> .
