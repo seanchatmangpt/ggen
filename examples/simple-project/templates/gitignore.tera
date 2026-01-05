@@ -1,0 +1,9 @@
+---
+to: "generated/.gitignore"
+---
+/target
+Cargo.lock
+**/*.rs.bk
+*.swp
+*.swo
+.DS_Store

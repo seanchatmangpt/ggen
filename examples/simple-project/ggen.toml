@@ -1,26 +1,164 @@
-# Simple Project Example
-# A minimal ggen.toml configuration demonstrating basic code generation
-
 [project]
 name = "simple-project"
 version = "0.1.0"
-description = "A simple project demonstrating ggen.toml basics"
-author = "ggen-examples"
-license = "MIT"
+description = "Learn project scaffolding: generating Rust project structure from specifications"
 
-# Template configuration
-[templates]
-source_dir = "templates"
-output_dir = "generated"
-backup_enabled = true
+[ontology]
+source = "ontology/projects.ttl"
 
-# Logging
-[logging]
-level = "info"
-format = "text"
-output = "stdout"
+[ontology.prefixes]
+proj = "https://ggen.io/ontology/projects#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
 
-# Security
-[security]
-validate_paths = true
-path_traversal_protection = true
+[[generation.rules]]
+name = "generate-cargo-toml"
+sparql = """
+PREFIX proj: <https://ggen.io/ontology/projects#>
+SELECT ?projectName ?version ?description
+WHERE {
+  ?project a proj:RustProject ;
+    proj:name ?projectName ;
+    proj:version ?version ;
+    proj:description ?description .
+}
+"""
+template = { file = "templates/cargo-toml.tera" }
+output_file = "generated/Cargo.toml"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-lib-rs"
+sparql = """
+PREFIX proj: <https://ggen.io/ontology/projects#>
+SELECT ?projectName ?documentation
+WHERE {
+  ?project a proj:RustProject ;
+    proj:name ?projectName ;
+    proj:documentation ?documentation .
+}
+"""
+template = { file = "templates/lib-rs.tera" }
+output_file = "generated/src/lib.rs"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-main-rs"
+sparql = """
+PREFIX proj: <https://ggen.io/ontology/projects#>
+SELECT ?projectName
+WHERE {
+  ?project a proj:RustProject ;
+    proj:name ?projectName .
+}
+"""
+template = { file = "templates/main-rs.tera" }
+output_file = "generated/src/main.rs"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-project-guide"
+sparql = """
+PREFIX proj: <https://ggen.io/ontology/projects#>
+SELECT ?projectName ?description
+WHERE {
+  ?project a proj:RustProject ;
+    proj:name ?projectName ;
+    proj:description ?description .
+}
+"""
+template = { file = "templates/project-guide.tera" }
+output_file = "generated/PROJECT_GUIDE.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-dependencies-guide"
+sparql = """
+PREFIX proj: <https://ggen.io/ontology/projects#>
+SELECT ?depName ?version
+WHERE {
+  ?dep a proj:Dependency ;
+    proj:name ?depName ;
+    proj:version ?version .
+}
+ORDER BY ?depName
+"""
+template = { file = "templates/dependencies.tera" }
+output_file = "generated/DEPENDENCIES.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-structure-guide"
+sparql = """
+PREFIX proj: <https://ggen.io/ontology/projects#>
+SELECT ?directoryName ?purpose
+WHERE {
+  ?dir a proj:Directory ;
+    proj:name ?directoryName ;
+    proj:purpose ?purpose .
+}
+"""
+template = { file = "templates/structure.tera" }
+output_file = "generated/STRUCTURE.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-testing-guide"
+sparql = """
+PREFIX proj: <https://ggen.io/ontology/projects#>
+SELECT ?testName ?description
+WHERE {
+  ?test a proj:TestPattern ;
+    proj:name ?testName ;
+    proj:description ?description .
+}
+"""
+template = { file = "templates/testing.tera" }
+output_file = "generated/TESTING.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-getting-started"
+sparql = """
+PREFIX proj: <https://ggen.io/ontology/projects#>
+SELECT ?projectName ?description
+WHERE {
+  ?project a proj:RustProject ;
+    proj:name ?projectName ;
+    proj:description ?description .
+}
+"""
+template = { file = "templates/getting-started.tera" }
+output_file = "generated/GETTING_STARTED.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-ci-yaml"
+sparql = """
+PREFIX proj: <https://ggen.io/ontology/projects#>
+SELECT ?projectName
+WHERE {
+  ?project a proj:RustProject ;
+    proj:name ?projectName .
+}
+"""
+template = { file = "templates/ci-yaml.tera" }
+output_file = "generated/.github/workflows/ci.yml"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-gitignore"
+sparql = """
+PREFIX proj: <https://ggen.io/ontology/projects#>
+SELECT ?pattern
+WHERE {
+  ?entry a proj:GitignoreEntry ;
+    proj:pattern ?pattern .
+}
+"""
+template = { file = "templates/gitignore.tera" }
+output_file = "generated/.gitignore"
+mode = "Overwrite"
+
+[validation]
+validate_syntax = true

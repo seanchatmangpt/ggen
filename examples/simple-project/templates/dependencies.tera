@@ -1,0 +1,7 @@
+---
+to: "generated/DEPENDENCIES.md"
+---
+# Dependencies
+
+- serde: JSON serialization
+- tokio: Async runtime
