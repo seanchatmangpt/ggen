@@ -1,0 +1,11 @@
+---
+to: "generated/Cargo.toml"
+vars:
+  workspace_name: string
+  members: array
+---
+[workspace]
+members = [{{ members | join(", ") }}]
+
+[workspace.metadata]
+name = "{{ workspace_name }}"
