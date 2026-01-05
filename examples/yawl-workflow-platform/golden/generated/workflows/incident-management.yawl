@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.yawlfoundation.org/yawlschema"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  version="4.0"
+                  xsi:schemaLocation="http://www.yawlfoundation.org/yawlschema YAWL_Schema4.0.xsd">
+
+  <!-- Workflow: Incident Management Workflow -->
+  <specification uri="incident-management">
+    <documentation>IT incident management with worklet exception handlers</documentation>
+    <metaData>
+      <title>Incident Management Workflow</title>
+      <version>1.0.0</version>
+      <persistent>false</persistent>
+      <identifier>incident-management</identifier>
+    </metaData>
+
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:complexType name="CaseDataType">
+        <xs:sequence>
+          <xs:element name="caseId" type="xs:string"/>
+          <xs:element name="startTime" type="xs:dateTime"/>
+          <xs:element name="status" type="xs:string"/>
+          <xs:element name="customData" type="xs:anyType" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:schema>
+
+    <decomposition id="incident-management_Net" isRootNet="true" xsi:type="NetFactsType">
+      <name>Incident Management Workflow</name>
+
+      <localVariable>
+        <index>0</index>
+        <name>caseData</name>
+        <type>CaseDataType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>{"caseId": "", "startTime": "", "status": "active"}</initialValue>
+      </localVariable>
+
+      <processControlElements>
+
+        <inputCondition id="InputCondition_incident-management">
+          <name>Incident Reported</name>
+          <documentation>Start of Incident Management Workflow</documentation>
+        </inputCondition>
+
+        <!-- Task: log-incident -->
+        <task id="log-incident">
+          <name>Log Incident</name>
+          <flowsInto>
+            <nextElementRef id="classify-incident"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="xor"/>
+          <decomposesTo id="log-incident_Decomposition"/>
+        </task>
+
+        <!-- Task: classify-incident -->
+        <task id="classify-incident">
+          <name>Classify Incident</name>
+          <flowsInto>
+            <nextElementRef id="assign-technician"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="xor"/>
+          <decomposesTo id="classify-incident_Decomposition"/>
+        </task>
+
+        <!-- Task: assign-technician -->
+        <task id="assign-technician">
+          <name>Assign Technician</name>
+          <flowsInto>
+            <nextElementRef id="resolve-incident"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="xor"/>
+          <decomposesTo id="assign-technician_Decomposition"/>
+        </task>
+
+        <!-- Task: resolve-incident -->
+        <task id="resolve-incident">
+          <name>Resolve Incident</name>
+          <flowsInto>
+            <nextElementRef id="verify-resolution"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="xor"/>
+          <decomposesTo id="resolve-incident_Decomposition"/>
+        </task>
+
+        <!-- Task: verify-resolution -->
+        <task id="verify-resolution">
+          <name>Verify Resolution</name>
+          <flowsInto>
+            <nextElementRef id="close-incident"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="xor"/>
+          <decomposesTo id="verify-resolution_Decomposition"/>
+        </task>
+
+        <!-- Task: close-incident -->
+        <task id="close-incident">
+          <name>Close Incident</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_incident-management"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="xor"/>
+          <decomposesTo id="close-incident_Decomposition"/>
+        </task>
+
+        <outputCondition id="OutputCondition_incident-management">
+          <name>Incident Closed</name>
+          <documentation>End of Incident Management Workflow</documentation>
+        </outputCondition>
+
+      </processControlElements>
+    </decomposition>
+
+    <decomposition id="log-incident_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Log Incident Service</name>
+      <externalInteraction>automated</externalInteraction>
+    </decomposition>
+
+    <decomposition id="classify-incident_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Classify Incident Service</name>
+      <externalInteraction>automated</externalInteraction>
+    </decomposition>
+
+    <decomposition id="assign-technician_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Assign Technician Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+
+    <decomposition id="resolve-incident_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Resolve Incident Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+
+    <decomposition id="verify-resolution_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Verify Resolution Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+
+    <decomposition id="close-incident_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Close Incident Service</name>
+      <externalInteraction>automated</externalInteraction>
+    </decomposition>
+
+  </specification>
+
+</specificationSet>

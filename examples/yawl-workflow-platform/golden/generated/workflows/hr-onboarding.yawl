@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.yawlfoundation.org/yawlschema"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  version="4.0"
+                  xsi:schemaLocation="http://www.yawlfoundation.org/yawlschema YAWL_Schema4.0.xsd">
+
+  <!-- Workflow: HR Onboarding Workflow -->
+  <specification uri="hr-onboarding">
+    <documentation>Employee onboarding with multiple training modules</documentation>
+    <metaData>
+      <title>HR Onboarding Workflow</title>
+      <version>1.0.0</version>
+      <persistent>false</persistent>
+      <identifier>hr-onboarding</identifier>
+    </metaData>
+
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:complexType name="CaseDataType">
+        <xs:sequence>
+          <xs:element name="caseId" type="xs:string"/>
+          <xs:element name="startTime" type="xs:dateTime"/>
+          <xs:element name="status" type="xs:string"/>
+          <xs:element name="customData" type="xs:anyType" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:schema>
+
+    <decomposition id="hr-onboarding_Net" isRootNet="true" xsi:type="NetFactsType">
+      <name>HR Onboarding Workflow</name>
+
+      <localVariable>
+        <index>0</index>
+        <name>caseData</name>
+        <type>CaseDataType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>{"caseId": "", "startTime": "", "status": "active"}</initialValue>
+      </localVariable>
+
+      <processControlElements>
+
+        <inputCondition id="InputCondition_hr-onboarding">
+          <name>New Hire Start</name>
+          <documentation>Start of HR Onboarding Workflow</documentation>
+        </inputCondition>
+
+        <!-- Task: create-employee-record -->
+        <task id="create-employee-record">
+          <name>Create Employee Record</name>
+          <flowsInto>
+            <nextElementRef id="assign-training"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="xor"/>
+          <decomposesTo id="create-employee-record_Decomposition"/>
+        </task>
+
+        <!-- Task: assign-training (AND-split) -->
+        <task id="assign-training">
+          <name>Assign Training Modules</name>
+          <flowsInto>
+            <nextElementRef id="complete-training-module"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="and"/>
+          <decomposesTo id="assign-training_Decomposition"/>
+        </task>
+
+        <!-- Task: complete-training-module (Multiple Instance) -->
+        <task id="complete-training-module">
+          <name>Complete Training Module</name>
+          <flowsInto>
+            <nextElementRef id="setup-workstation"/>
+          </flowsInto>
+          <join code="and"/>
+          <split code="xor"/>
+          <decomposesTo id="complete-training-module_Decomposition"/>
+          <multipleInstanceAttributes>
+            <minimum>1</minimum>
+            <maximum>10</maximum>
+            <threshold>3</threshold>
+            <creationMode>dynamic</creationMode>
+          </multipleInstanceAttributes>
+        </task>
+
+        <!-- Task: setup-workstation -->
+        <task id="setup-workstation">
+          <name>Setup Workstation</name>
+          <flowsInto>
+            <nextElementRef id="finalize-onboarding"/>
+          </flowsInto>
+          <join code="and"/>
+          <split code="xor"/>
+          <decomposesTo id="setup-workstation_Decomposition"/>
+        </task>
+
+        <!-- Task: finalize-onboarding -->
+        <task id="finalize-onboarding">
+          <name>Finalize Onboarding</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_hr-onboarding"/>
+          </flowsInto>
+          <join code="and"/>
+          <split code="xor"/>
+          <decomposesTo id="finalize-onboarding_Decomposition"/>
+        </task>
+
+        <outputCondition id="OutputCondition_hr-onboarding">
+          <name>Onboarding Complete</name>
+          <documentation>End of HR Onboarding Workflow</documentation>
+        </outputCondition>
+
+      </processControlElements>
+    </decomposition>
+
+    <decomposition id="create-employee-record_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Create Employee Record Service</name>
+      <externalInteraction>automated</externalInteraction>
+    </decomposition>
+
+    <decomposition id="assign-training_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Assign Training Modules Service</name>
+      <externalInteraction>automated</externalInteraction>
+    </decomposition>
+
+    <decomposition id="complete-training-module_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Complete Training Module Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+
+    <decomposition id="setup-workstation_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Setup Workstation Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+
+    <decomposition id="finalize-onboarding_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Finalize Onboarding Service</name>
+      <externalInteraction>automated</externalInteraction>
+    </decomposition>
+
+  </specification>
+
+</specificationSet>

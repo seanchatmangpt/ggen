@@ -120,11 +120,36 @@ npm install
 npm test
 ```
 
+### Configure Environment
+
+```bash
+# Copy example configuration
+cp .env.example .env
+
+# Edit as needed
+vim .env
+```
+
 ### Start Development Server
 
 ```bash
+# Run the generated platform
+node lib/main.mjs
+
+# Or with npm script
 npm run dev
+
 # Server runs at http://localhost:3000
+```
+
+### Verify Golden Files
+
+```bash
+# Compare generated output against expected results
+node scripts/compare-golden.mjs
+
+# Update golden files if changes are intentional
+node scripts/compare-golden.mjs --update
 ```
 
 ## API Endpoints
@@ -277,6 +302,31 @@ The `ggen.toml` defines 14 generation rules:
 
 ## Extending
 
+### Complete Extension Workflow
+
+Follow this workflow when modifying the platform:
+
+```bash
+# 1. Edit the RDF ontology
+vim ontology/platform-workflows.ttl
+
+# 2. Regenerate code from specifications
+ggen sync
+
+# 3. Review differences against golden files
+node scripts/compare-golden.mjs
+
+# 4. Run tests to verify changes
+npm test
+
+# 5. If changes are intentional, update golden files
+node scripts/compare-golden.mjs --update
+
+# 6. Commit BOTH ontology changes AND golden updates
+git add ontology/ golden/
+git commit -m "feat: Add new workflow to platform"
+```
+
 ### Add a New Workflow
 
 1. Define the workflow in `ontology/platform-workflows.ttl`:
@@ -284,13 +334,28 @@ The `ggen.toml` defines 14 generation rules:
    <http://example.org/workflows/my-workflow> a yawl:WorkflowSpec ;
        yawl:specId "my-workflow" ;
        yawl:specName "My Workflow" ;
+       yawl:specVersion "1.0.0" ;
+       yawl:inputCondition <#my-input> ;
+       yawl:outputCondition <#my-output> ;
        yawl:hasTasks <#task-1>, <#task-2> ;
        yawl:hasFlows <#flow-1-2> .
+
+   <#my-input> a yawl:Condition ; rdfs:label "Start" .
+   <#my-output> a yawl:Condition ; rdfs:label "End" .
+
+   <#task-1> a yawl:AtomicTask ;
+       yawl:taskId "task-1" ;
+       yawl:taskName "First Task" ;
+       yawl:taskKind "automated" ;
+       yawl:splitBehavior yawl:XOR_Split ;
+       yawl:joinBehavior yawl:XOR_Join .
    ```
 
-2. Regenerate:
+2. Regenerate and verify:
    ```bash
    ggen sync
+   node scripts/compare-golden.mjs
+   npm test
    ```
 
 ### Add a New Servlet

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.yawlfoundation.org/yawlschema"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  version="4.0"
+                  xsi:schemaLocation="http://www.yawlfoundation.org/yawlschema YAWL_Schema4.0.xsd">
+
+  <!-- Workflow: Document Approval Workflow -->
+  <specification uri="document-approval">
+    <documentation>Standard document approval with review and decision branching</documentation>
+    <metaData>
+      <title>Document Approval Workflow</title>
+      <version>1.0.0</version>
+      <persistent>false</persistent>
+      <identifier>document-approval</identifier>
+    </metaData>
+
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <!-- Case-level data variables -->
+      <xs:complexType name="CaseDataType">
+        <xs:sequence>
+          <xs:element name="caseId" type="xs:string"/>
+          <xs:element name="startTime" type="xs:dateTime"/>
+          <xs:element name="status" type="xs:string"/>
+          <xs:element name="customData" type="xs:anyType" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:schema>
+
+    <decomposition id="document-approval_Net" isRootNet="true" xsi:type="NetFactsType">
+      <name>Document Approval Workflow</name>
+
+      <!-- Local Variables -->
+      <localVariable>
+        <index>0</index>
+        <name>caseData</name>
+        <type>CaseDataType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>{"caseId": "", "startTime": "", "status": "active"}</initialValue>
+      </localVariable>
+
+      <!-- Process Control Flow -->
+      <processControlElements>
+
+        <!-- Input Condition -->
+        <inputCondition id="InputCondition_document-approval">
+          <name>Start</name>
+          <documentation>Start of Document Approval Workflow</documentation>
+        </inputCondition>
+
+        <!-- Task: submit-document -->
+        <task id="submit-document">
+          <name>Submit Document</name>
+          <flowsInto>
+            <nextElementRef id="review-document"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="xor"/>
+          <decomposesTo id="submit-document_Decomposition"/>
+        </task>
+
+        <!-- Task: review-document -->
+        <task id="review-document">
+          <name>Review Document</name>
+          <flowsInto>
+            <nextElementRef id="approve-document"/>
+            <predicate ordering="0">decision == 'approved'</predicate>
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="reject-document"/>
+            <isDefaultFlow/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="xor"/>
+          <decomposesTo id="review-document_Decomposition"/>
+        </task>
+
+        <!-- Task: approve-document -->
+        <task id="approve-document">
+          <name>Approve Document</name>
+          <flowsInto>
+            <nextElementRef id="notify-submitter"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="xor"/>
+          <decomposesTo id="approve-document_Decomposition"/>
+        </task>
+
+        <!-- Task: reject-document -->
+        <task id="reject-document">
+          <name>Reject Document</name>
+          <flowsInto>
+            <nextElementRef id="notify-submitter"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="xor"/>
+          <decomposesTo id="reject-document_Decomposition"/>
+        </task>
+
+        <!-- Task: notify-submitter -->
+        <task id="notify-submitter">
+          <name>Notify Submitter</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_document-approval"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="xor"/>
+          <decomposesTo id="notify-submitter_Decomposition"/>
+        </task>
+
+        <!-- Output Condition -->
+        <outputCondition id="OutputCondition_document-approval">
+          <name>End</name>
+          <documentation>End of Document Approval Workflow</documentation>
+        </outputCondition>
+
+      </processControlElements>
+    </decomposition>
+
+    <decomposition id="submit-document_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Submit Document Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+
+    <decomposition id="review-document_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Review Document Service</name>
+      <externalInteraction>manual</externalInteraction>
+    </decomposition>
+
+    <decomposition id="approve-document_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Approve Document Service</name>
+      <externalInteraction>automated</externalInteraction>
+    </decomposition>
+
+    <decomposition id="reject-document_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Reject Document Service</name>
+      <externalInteraction>automated</externalInteraction>
+    </decomposition>
+
+    <decomposition id="notify-submitter_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Notify Submitter Service</name>
+      <externalInteraction>automated</externalInteraction>
+    </decomposition>
+
+  </specification>
+
+</specificationSet>

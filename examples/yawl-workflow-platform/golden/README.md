@@ -10,6 +10,13 @@ Golden files serve as regression tests for the ggen code generator. When you run
 
 ```
 golden/
+├── generated/
+│   └── workflows/
+│       ├── cicd-pipeline.yawl        # YAWL 4.0 XML (OR-split pattern)
+│       ├── document-approval.yawl     # YAWL 4.0 XML (XOR-split pattern)
+│       ├── hr-onboarding.yawl         # YAWL 4.0 XML (Multiple Instance)
+│       ├── incident-management.yawl   # YAWL 4.0 XML (Sequential)
+│       └── order-processing.yawl      # YAWL 4.0 XML (AND-split pattern)
 ├── lib/
 │   ├── definitions/
 │   │   ├── tasks.mjs      # Task definitions from RDF ontology
@@ -25,8 +32,9 @@ golden/
 │   │   └── WorkflowEngine.mjs  # Van der Aalst pattern engine
 │   ├── worklets/
 │   │   └── index.mjs      # Worklet registry and handlers
-│   └── tests/
-│       └── workflow.test.mjs   # Vitest integration tests
+│   ├── tests/
+│   │   └── workflow.test.mjs   # Vitest integration tests
+│   └── main.mjs           # Application entry point
 ├── package.json           # Generated package.json
 └── README.md              # This file
 ```

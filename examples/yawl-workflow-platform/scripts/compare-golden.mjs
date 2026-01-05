@@ -27,16 +27,30 @@ const GOLDEN_DIR = 'golden';
 const GENERATED_DIR = '.';  // Generated files go to root of example
 
 const COMPARISON_FILES = [
+  // YAWL XML Specifications
+  'generated/workflows/cicd-pipeline.yawl',
+  'generated/workflows/document-approval.yawl',
+  'generated/workflows/hr-onboarding.yawl',
+  'generated/workflows/incident-management.yawl',
+  'generated/workflows/order-processing.yawl',
+  // ESM Definitions
   'lib/definitions/tasks.mjs',
   'lib/definitions/flows.mjs',
   'lib/definitions/index.mjs',
+  // Types
   'lib/types/cases.mjs',
   'lib/types/workitems.mjs',
   'lib/types/receipts.mjs',
+  // API & Engine
   'lib/api/routes.mjs',
   'lib/engine/WorkflowEngine.mjs',
+  // Worklets
   'lib/worklets/index.mjs',
+  // Tests
   'lib/tests/workflow.test.mjs',
+  // Entry Point
+  'lib/main.mjs',
+  // Package
   'package.json',
 ];
 

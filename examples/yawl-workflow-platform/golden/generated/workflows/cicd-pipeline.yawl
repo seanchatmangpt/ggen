@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specificationSet xmlns="http://www.yawlfoundation.org/yawlschema"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  version="4.0"
+                  xsi:schemaLocation="http://www.yawlfoundation.org/yawlschema YAWL_Schema4.0.xsd">
+
+  <!-- Workflow: CI/CD Pipeline Workflow -->
+  <specification uri="cicd-pipeline">
+    <documentation>Continuous integration pipeline with conditional testing</documentation>
+    <metaData>
+      <title>CI/CD Pipeline Workflow</title>
+      <version>1.0.0</version>
+      <persistent>false</persistent>
+      <identifier>cicd-pipeline</identifier>
+    </metaData>
+
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:complexType name="CaseDataType">
+        <xs:sequence>
+          <xs:element name="caseId" type="xs:string"/>
+          <xs:element name="startTime" type="xs:dateTime"/>
+          <xs:element name="status" type="xs:string"/>
+          <xs:element name="customData" type="xs:anyType" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:schema>
+
+    <decomposition id="cicd-pipeline_Net" isRootNet="true" xsi:type="NetFactsType">
+      <name>CI/CD Pipeline Workflow</name>
+
+      <localVariable>
+        <index>0</index>
+        <name>caseData</name>
+        <type>CaseDataType</type>
+        <namespace>http://www.w3.org/2001/XMLSchema</namespace>
+        <initialValue>{"caseId": "", "startTime": "", "status": "active"}</initialValue>
+      </localVariable>
+
+      <processControlElements>
+
+        <inputCondition id="InputCondition_cicd-pipeline">
+          <name>Code Pushed</name>
+          <documentation>Start of CI/CD Pipeline Workflow</documentation>
+        </inputCondition>
+
+        <!-- Task: checkout-code -->
+        <task id="checkout-code">
+          <name>Checkout Code</name>
+          <flowsInto>
+            <nextElementRef id="build-project"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="xor"/>
+          <decomposesTo id="checkout-code_Decomposition"/>
+        </task>
+
+        <!-- Task: build-project (OR-split) -->
+        <task id="build-project">
+          <name>Build Project</name>
+          <flowsInto>
+            <nextElementRef id="run-unit-tests"/>
+            <predicate ordering="0">testConfig.unit == true</predicate>
+            <isDefaultFlow/>
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="run-integration-tests"/>
+            <predicate ordering="1">testConfig.integration == true</predicate>
+          </flowsInto>
+          <flowsInto>
+            <nextElementRef id="run-e2e-tests"/>
+            <predicate ordering="2">testConfig.e2e == true</predicate>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="or"/>
+          <decomposesTo id="build-project_Decomposition"/>
+        </task>
+
+        <!-- Task: run-unit-tests -->
+        <task id="run-unit-tests">
+          <name>Run Unit Tests</name>
+          <flowsInto>
+            <nextElementRef id="merge-results"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="xor"/>
+          <decomposesTo id="run-unit-tests_Decomposition"/>
+        </task>
+
+        <!-- Task: run-integration-tests -->
+        <task id="run-integration-tests">
+          <name>Run Integration Tests</name>
+          <flowsInto>
+            <nextElementRef id="merge-results"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="xor"/>
+          <decomposesTo id="run-integration-tests_Decomposition"/>
+        </task>
+
+        <!-- Task: run-e2e-tests -->
+        <task id="run-e2e-tests">
+          <name>Run E2E Tests</name>
+          <flowsInto>
+            <nextElementRef id="merge-results"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="xor"/>
+          <decomposesTo id="run-e2e-tests_Decomposition"/>
+        </task>
+
+        <!-- Task: merge-results (OR-join) -->
+        <task id="merge-results">
+          <name>Merge Test Results</name>
+          <flowsInto>
+            <nextElementRef id="deploy"/>
+            <predicate ordering="0">allTestsPassed == true</predicate>
+            <isDefaultFlow/>
+          </flowsInto>
+          <join code="or"/>
+          <split code="xor"/>
+          <decomposesTo id="merge-results_Decomposition"/>
+        </task>
+
+        <!-- Task: deploy -->
+        <task id="deploy">
+          <name>Deploy to Environment</name>
+          <flowsInto>
+            <nextElementRef id="OutputCondition_cicd-pipeline"/>
+          </flowsInto>
+          <join code="xor"/>
+          <split code="xor"/>
+          <decomposesTo id="deploy_Decomposition"/>
+        </task>
+
+        <outputCondition id="OutputCondition_cicd-pipeline">
+          <name>Deployed</name>
+          <documentation>End of CI/CD Pipeline Workflow</documentation>
+        </outputCondition>
+
+      </processControlElements>
+    </decomposition>
+
+    <decomposition id="checkout-code_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Checkout Code Service</name>
+      <externalInteraction>automated</externalInteraction>
+    </decomposition>
+
+    <decomposition id="build-project_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Build Project Service</name>
+      <externalInteraction>automated</externalInteraction>
+    </decomposition>
+
+    <decomposition id="run-unit-tests_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Run Unit Tests Service</name>
+      <externalInteraction>automated</externalInteraction>
+    </decomposition>
+
+    <decomposition id="run-integration-tests_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Run Integration Tests Service</name>
+      <externalInteraction>automated</externalInteraction>
+    </decomposition>
+
+    <decomposition id="run-e2e-tests_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Run E2E Tests Service</name>
+      <externalInteraction>automated</externalInteraction>
+    </decomposition>
+
+    <decomposition id="merge-results_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Merge Test Results Service</name>
+      <externalInteraction>automated</externalInteraction>
+    </decomposition>
+
+    <decomposition id="deploy_Decomposition" xsi:type="WebServiceGatewayFactsType">
+      <name>Deploy to Environment Service</name>
+      <externalInteraction>automated</externalInteraction>
+    </decomposition>
+
+  </specification>
+
+</specificationSet>
