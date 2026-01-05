@@ -1,199 +1,76 @@
 {
+  "$schema": "https://claude.ai/schemas/settings-v1.json",
+  "$version": "1.0.0-2026",
   "permissions": {
-    "allow": [
-      "Read",
-      "Edit",
-      "Write",
-      "Glob",
-      "Grep",
-      "Bash(cargo make:*)",
-      "Bash(git:*)",
-      "Bash(cargo add:*)",
-      "Task"
-    ],
-    "deny": [
-      ".env",
-      "secrets.json",
-      "*.pem",
-      "private_keys/",
-      ".anthropic/",
-      ".github/workflows/secrets.yml"
-    ],
-    "ask": [
-      "Bash(rm:*)",
-      "Bash(mv:*)",
-      "Bash(force-push:*)"
-    ],
-    "additional_directories": [
-      "docs/",
-      "benches/",
-      ".specify/"
-    ],
-    "default_mode": "allow"
+    "allow": ["Read", "Edit", "Write", "Glob", "Grep", "Task", "TodoWrite", "NotebookEdit", "Skill", "SlashCommand",
+      "Bash(cargo make:*)", "Bash(git:*)", "Bash(gh:*)", "Bash(ggen:*)", "Bash(ls:*)", "Bash(pwd)", "Bash(tree:*)"],
+    "deny": [".env*", "secrets.json", "*.pem", "*.key", ".ssh/", "Bash(rm:-rf:/*)", "Bash(sudo:*)", "Bash(chmod:777:*)"],
+    "ask": ["Bash(rm:*)", "Bash(git:push:--force*)", "Write(Cargo.toml)", "Edit(Cargo.toml)"],
+    "protected_paths": ["Cargo.toml", "Cargo.lock", "CLAUDE.md", ".claude/settings.json", ".specify/ontology/*"]
   },
   "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "./.claude/hooks/session-start.sh",
-            "timeout": 30
-          }
-        ]
-      }
-    ],
+    "SessionStart": [{"matcher": "", "hooks": [
+      {"type": "command", "command": "./.claude/hooks/session-start.sh", "timeout": 30},
+      {"type": "prompt", "prompt": "Session initialized. ggen v5.2.0. Read CLAUDE.md. Rules: cargo make ONLY, EPIC 9 for non-trivial, /speckit-verify before impl, receipts not narratives."}
+    ]}],
     "PreToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "./.claude/hooks/pre-tool-safety-check.sh",
-            "timeout": 10
-          }
-        ]
-      }
+      {"matcher": "Write|Edit", "hooks": [{"type": "command", "command": "./.claude/hooks/pre-tool-use.sh", "timeout": 10}]},
+      {"matcher": "Bash(cargo:(?!make).*)", "hooks": [{"type": "prompt", "prompt": "🚨 ANDON RED: Direct cargo forbidden. Use cargo make."}]}
     ],
     "PostToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "./.claude/hooks/post-bash-validation.sh",
-            "timeout": 5
-          }
-        ]
-      }
+      {"matcher": "Bash", "hooks": [{"type": "command", "command": "./.claude/hooks/post-tool-use.sh", "timeout": 5}]},
+      {"matcher": "Bash(cargo make:test.*)", "hooks": [{"type": "prompt", "prompt": "Generate receipt: [Receipt] cargo make test: ✓/✗ (X/Y pass)"}]},
+      {"matcher": "Write|Edit", "hooks": [{"type": "command", "command": "./.claude/hooks/post-tool-use.sh", "timeout": 5}]}
     ],
-    "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "prompt",
-            "prompt": "Before stopping, verify: Did all tests pass (cargo make test)? Did cargo make lint succeed? Are there uncommitted changes? If issues exist, respond with reasoning on what should be fixed.",
-            "timeout": 30
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "./.claude/hooks/user-prompt-validation.sh",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": "./.claude/hooks/pre-specification-check.sh",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
-    "PostTask": [
-      {
-        "matcher": "collision",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "./.claude/hooks/post-collision-detection.sh",
-            "timeout": 30
-          }
-        ]
-      },
-      {
-        "matcher": "convergence",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "./.claude/hooks/convergence-validation.sh",
-            "timeout": 30
-          }
-        ]
-      }
-    ]
+    "Stop": [{"matcher": "", "hooks": [{"type": "prompt", "prompt": "Before stop: tests pass? lint clean? uncommitted? receipts?"}]}]
+  },
+  "mcp_servers": {
+    "enabled": false,
+    "servers": {
+      "github": {"command": "mcp-server-github", "env": {"GITHUB_TOKEN": "${GITHUB_TOKEN}"}, "disabled": true},
+      "filesystem": {"command": "mcp-server-filesystem", "args": ["/home/user/ggen"], "disabled": true},
+      "sparql": {"command": "mcp-server-sparql", "args": ["http://localhost:7878/query"], "disabled": true}
+    }
   },
   "environment": {
-    "env": {
-      "RUST_BACKTRACE": "1",
-      "RUST_LOG": "info",
-      "CARGO_TERM_COLOR": "always",
-      "NODE_ENV": "development"
-    },
-    "api_key_helper": "./.claude/helpers/api-key-helper.sh"
+    "env": {"RUST_BACKTRACE": "1", "RUST_LOG": "info", "CARGO_TERM_COLOR": "always", "RUSTFLAGS": "-D warnings", "GGEN_VERSION": "5.2.0"}
   },
   "tools_and_model": {
-    "model": "claude-haiku-4-5-20251001",
-    "output_style": "structured"
-  },
-  "status_line": {
-    "enabled": true,
-    "format": "ggen:${branch} | ${crate_count} crates | SLO ✓"
-  },
-  "plugins": {
-    "enabled_plugins": [
-      "rust-analyzer",
-      "cargo-clippy",
-      "test-runner"
-    ]
-  },
-  "project_metadata": {
-    "name": "ggen",
-    "version": "5.0.2",
-    "description": "Language-agnostic, deterministic code generation CLI. Ontologies + RDF → reproducible code projections.",
-    "philosophy": "Type-first thinking, zero-cost abstractions, memory safety, deterministic outputs",
-    "required_reading": "Read CLAUDE.md before starting work"
-  },
-  "execution_model": {
-    "paradigm": "parallel-first",
-    "specification_required": true,
-    "default_task_type": "non-trivial",
-    "trivial_task_whitelist": [
-      "single_file_read",
-      "run_existing_script",
-      "display_help",
-      "factual_question"
-    ]
+    "model": "claude-sonnet-4-5-20250929",
+    "output_style": "structured",
+    "temperature": 0.0,
+    "tool_preferences": {"prefer_parallel_calls": true, "max_parallel_tools": 10}
   },
   "epic9": {
     "enabled": true,
-    "description": "Atomic Cognitive Cycle: Fan-Out → Independent Construction → Collision Detection → Convergence → Refactoring → Closure",
     "default_agents": 10,
-    "collision_detection": "required",
-    "convergence_method": "selection_pressure",
-    "mandatory_phases": [
-      "fan_out",
-      "independent_construction",
-      "collision_detection",
-      "convergence",
-      "refactoring",
-      "closure"
-    ],
-    "failure_on_incomplete": true
+    "mandatory_phases": ["fan_out", "independent_construction", "collision_detection", "convergence", "refactoring", "closure"],
+    "speedup_target": "2.8x-4.4x"
   },
-  "big_bang_80_20": {
-    "enabled": true,
-    "description": "Single-pass construction in low-entropy domains",
-    "specification_closure_required": true,
-    "iteration_signal_defect": true,
-    "monoidal_composition": true
+  "slo_targets": {
+    "cargo_make_check": "≤5s",
+    "cargo_make_test": "≤30s",
+    "cargo_make_lint": "≤60s",
+    "first_build": "≤15s",
+    "incremental_build": "≤2s"
   },
-  "deterministic_validation": {
-    "enabled": true,
-    "description": "Evidence-first validation: receipts replace review, benchmarks replace narratives",
-    "required_receipts": [
-      "compilation_success",
-      "all_tests_pass",
-      "lint_clean",
-      "slo_compliance",
-      "no_warnings"
-    ]
+  "cargo_make_protocol": {
+    "rule": "cargo make [target] ONLY",
+    "prohibited": ["cargo check", "cargo test", "cargo build", "cargo clippy"],
+    "allowed": ["cargo make check", "cargo make test", "cargo make lint", "cargo make pre-commit"]
+  },
+  "andon_signals": {
+    "RED": {"triggers": ["error[E", "FAILED", "panicked"], "action": "STOP immediately"},
+    "YELLOW": {"triggers": ["warning:", "clippy::", "TODO"], "action": "Investigate"},
+    "GREEN": {"triggers": ["test result: ok", "0 violations"], "action": "Continue"}
+  },
+  "project_metadata": {
+    "name": "ggen",
+    "version": "5.2.0",
+    "description": "Ontology-driven code generation: RDF → reproducible code",
+    "rust_version": "1.91.1",
+    "msrv": "1.75+",
+    "workspace_crates": 17,
+    "tech_stack": ["Rust", "Tokio 1.47", "Oxigraph 0.5.1", "Tera 1.20", "chicago-tdd-tools 1.4.0"]
   }
 }
