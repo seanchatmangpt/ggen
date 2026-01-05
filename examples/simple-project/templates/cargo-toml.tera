@@ -1,0 +1,18 @@
+---
+to: "generated/Cargo.toml"
+vars:
+  project_name: string
+  version: string
+  description: string
+---
+[package]
+name = "{{ project_name }}"
+version = "{{ version }}"
+edition = "2021"
+description = "{{ description }}"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "1", features = ["full"] }
+
+[dev-dependencies]

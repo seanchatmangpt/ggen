@@ -1,0 +1,22 @@
+---
+to: "generated/GETTING_STARTED.md"
+---
+# Getting Started
+
+## Setup
+
+```bash
+cargo build
+```
+
+## Run
+
+```bash
+cargo run
+```
+
+## Test
+
+```bash
+cargo test
+```

@@ -1,0 +1,25 @@
+---
+to: "generated/src/lib.rs"
+vars:
+  project_name: string
+  documentation: string
+---
+//! {{ documentation }}
+//!
+//! This module was auto-generated from specification
+
+pub mod core {
+    pub fn version() -> &'static str {
+        env!("CARGO_PKG_VERSION")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_version() {
+        assert!(!core::version().is_empty());
+    }
+}
