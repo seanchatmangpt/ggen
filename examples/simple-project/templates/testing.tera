@@ -1,0 +1,26 @@
+---
+to: "generated/TESTING.md"
+---
+# Testing Guide
+
+## Unit Tests
+
+```rust
+#[test]
+fn test_function() {
+    assert_eq!(2 + 2, 4);
+}
+```
+
+## Integration Tests
+
+Create files in `tests/` directory:
+
+```rust
+#[test]
+fn test_integration() {
+    // Test module interactions
+}
+```
+
+Run: `cargo test`

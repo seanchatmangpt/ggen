@@ -1,0 +1,151 @@
+[project]
+name = "complete-project-generation"
+version = "0.1.0"
+description = "Learn complete project generation: multi-crate workspaces, build automation, CI/CD, docs"
+
+[ontology]
+source = "ontology/workspace.ttl"
+
+[ontology.prefixes]
+ws = "https://ggen.io/ontology/workspace#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+
+[[generation.rules]]
+name = "generate-workspace-toml"
+sparql = """
+PREFIX ws: <https://ggen.io/ontology/workspace#>
+SELECT ?workspaceName ?members
+WHERE {
+  ?ws a ws:Workspace ;
+    ws:name ?workspaceName ;
+    ws:members ?members .
+}
+"""
+template = { file = "templates/workspace-toml.tera" }
+output_file = "generated/Cargo.toml"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-crate-toml"
+sparql = """
+PREFIX ws: <https://ggen.io/ontology/workspace#>
+SELECT ?crateName ?version ?description
+WHERE {
+  ?crate a ws:Crate ;
+    ws:name ?crateName ;
+    ws:version ?version ;
+    ws:description ?description .
+}
+"""
+template = { file = "templates/crate-toml.tera" }
+output_file = "generated/{{ crate_name | snake_case }}/Cargo.toml"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-makefile"
+sparql = """
+PREFIX ws: <https://ggen.io/ontology/workspace#>
+SELECT ?workspaceName ?crates
+WHERE {
+  ?ws a ws:Workspace ;
+    ws:name ?workspaceName ;
+    ws:crates ?crates .
+}
+"""
+template = { file = "templates/makefile.tera" }
+output_file = "generated/Makefile"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-ci-workflow"
+sparql = """
+PREFIX ws: <https://ggen.io/ontology/workspace#>
+SELECT ?workspaceName
+WHERE {
+  ?ws a ws:Workspace ;
+    ws:name ?workspaceName .
+}
+"""
+template = { file = "templates/ci-workflow.tera" }
+output_file = "generated/.github/workflows/ci.yml"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-architecture-guide"
+sparql = """
+PREFIX ws: <https://ggen.io/ontology/workspace#>
+SELECT ?workspaceName ?description ?architecture
+WHERE {
+  ?ws a ws:Workspace ;
+    ws:name ?workspaceName ;
+    ws:description ?description ;
+    ws:architecture ?architecture .
+}
+"""
+template = { file = "templates/architecture.tera" }
+output_file = "generated/ARCHITECTURE.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-build-guide"
+sparql = """
+PREFIX ws: <https://ggen.io/ontology/workspace#>
+SELECT ?workspaceName ?buildProcess
+WHERE {
+  ?ws a ws:Workspace ;
+    ws:name ?workspaceName ;
+    ws:buildProcess ?buildProcess .
+}
+"""
+template = { file = "templates/build-guide.tera" }
+output_file = "generated/BUILD.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-deployment-guide"
+sparql = """
+PREFIX ws: <https://ggen.io/ontology/workspace#>
+SELECT ?workspaceName ?deploymentStrategy
+WHERE {
+  ?ws a ws:Workspace ;
+    ws:name ?workspaceName ;
+    ws:deploymentStrategy ?deploymentStrategy .
+}
+"""
+template = { file = "templates/deployment.tera" }
+output_file = "generated/DEPLOYMENT.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-docker-compose"
+sparql = """
+PREFIX ws: <https://ggen.io/ontology/workspace#>
+SELECT ?workspaceName ?services
+WHERE {
+  ?ws a ws:Workspace ;
+    ws:name ?workspaceName ;
+    ws:services ?services .
+}
+"""
+template = { file = "templates/docker-compose.tera" }
+output_file = "generated/docker-compose.yml"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-documentation-site"
+sparql = """
+PREFIX ws: <https://ggen.io/ontology/workspace#>
+SELECT ?workspaceName ?documentation
+WHERE {
+  ?ws a ws:Workspace ;
+    ws:name ?workspaceName ;
+    ws:documentation ?documentation .
+}
+"""
+template = { file = "templates/docs-index.tera" }
+output_file = "generated/docs/index.md"
+mode = "Overwrite"
+
+[validation]
+validate_syntax = true

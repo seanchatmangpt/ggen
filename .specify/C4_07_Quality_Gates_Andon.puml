@@ -1,0 +1,97 @@
+@startuml C4_Quality_Gates
+title Quality Gates & Andon Signals - Stop-the-Line Quality System
+
+rectangle "PRE-IMPLEMENTATION GATES" {
+    rectangle "GATE 1\nSpec Closure\n(SHACL)" #Gold {
+        rectangle "Check: All required\nproperties present" as g1_1
+        rectangle "Check: Values match\ndatatypes" as g1_2
+        rectangle "Check: No circular\ndependencies" as g1_3
+    }
+
+    rectangle "GATE 2\nREADME\nStructure" #Gold {
+        rectangle "9-section\nstandard" as g2_1
+        rectangle "All sections\npresent" as g2_2
+        rectangle "Content\ncompleteness" as g2_3
+    }
+
+    rectangle "GATE 3\nggen.toml\nValidity" #Gold {
+        rectangle "TOML syntax" as g3_1
+        rectangle "10+ generation\nrules" as g3_2
+        rectangle "Valid SPARQL\nqueries" as g3_3
+    }
+}
+
+rectangle "POST-IMPLEMENTATION GATES" {
+    rectangle "GATE 4\nSPARQL\nResults" #LightBlue {
+        rectangle "Query returns\ndata" as g4_1
+        rectangle "Results match\nschema" as g4_2
+    }
+
+    rectangle "GATE 5\nTemplate\nRendering" #LightBlue {
+        rectangle "Templates\nprocess" as g5_1
+        rectangle "Tera syntax\nvalid" as g5_2
+    }
+
+    rectangle "GATE 6\nGolden File\nMatch" #LightBlue {
+        rectangle "Output matches\ngolden files" as g6_1
+        rectangle "Byte-for-byte\nidentical" as g6_2
+    }
+
+    rectangle "GATE 7\nCode\nQuality" #LightBlue {
+        rectangle "Clippy: 0\nwarnings" as g7_1
+        rectangle "Format:\nstandard" as g7_2
+    }
+
+    rectangle "GATE 8\nReproducibility" #LightBlue {
+        rectangle "Run 3x:\nidentical\noutputs" as g8_1
+    }
+
+    rectangle "GATE 9\nTest\nCoverage" #LightBlue {
+        rectangle "Coverage\n>80%" as g9_1
+        rectangle "All tests\npass" as g9_2
+    }
+}
+
+rectangle "ANDON SIGNALS" {
+    rectangle "GREEN ✓\nProceed" #LightGreen {
+        rectangle "All gates\npassed" as andon_green
+    }
+
+    rectangle "YELLOW ⚠\nWarnings" #LightYellow {
+        rectangle "Some gates\nfailed" as andon_yellow
+        rectangle "Can continue\nwith fixes" as andon_yellow_2
+    }
+
+    rectangle "RED ⛔\nStop" #LightCoral {
+        rectangle "Critical\nfailure" as andon_red
+        rectangle "Halt\nexecution" as andon_red_2
+    }
+}
+
+g1_1 --|> andon_green
+g1_2 --|> andon_green
+g1_3 --|> andon_green
+g2_1 --|> andon_green
+g2_2 --|> andon_green
+g2_3 --|> andon_green
+g3_1 --|> andon_green
+g3_2 --|> andon_green
+g3_3 --|> andon_green
+
+g4_1 --|> andon_yellow
+g4_2 --|> andon_yellow
+g5_1 --|> andon_yellow
+g5_2 --|> andon_yellow
+g6_1 --|> andon_yellow
+g6_2 --|> andon_yellow
+g7_1 --|> andon_yellow
+g7_2 --|> andon_yellow
+g8_1 --|> andon_yellow
+g9_1 --|> andon_yellow
+g9_2 --|> andon_yellow
+
+andon_green --|> andon_yellow: "Fix issues"
+andon_yellow --|> andon_red: "Critical blocker"
+andon_red --|> andon_red_2: "No progress"
+
+@enduml

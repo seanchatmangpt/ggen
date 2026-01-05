@@ -1,0 +1,14 @@
+---
+to: "generated/{{ crate_name | snake_case }}/Cargo.toml"
+vars:
+  crate_name: string
+  version: string
+  description: string
+---
+[package]
+name = "{{ crate_name }}"
+version = "{{ version }}"
+edition = "2021"
+description = "{{ description }}"
+
+[dependencies]

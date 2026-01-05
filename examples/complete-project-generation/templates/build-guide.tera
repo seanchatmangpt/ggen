@@ -1,0 +1,22 @@
+---
+to: "generated/BUILD.md"
+---
+# Build Guide
+
+## Quick Build
+
+```bash
+cargo build --release
+```
+
+## Development Build
+
+```bash
+cargo build
+```
+
+## Testing
+
+```bash
+cargo test --all
+```
