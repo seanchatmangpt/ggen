@@ -30,6 +30,10 @@ pub struct InitOutput {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub files_overwritten: Option<Vec<String>>,
 
+    /// Files preserved (user files not touched)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub files_preserved: Option<Vec<String>>,
+
     /// Directories created
     pub directories_created: Vec<String>,
 
@@ -248,6 +252,7 @@ fn perform_init(
             project_dir: project_dir.to_string(),
             files_created: vec![],
             files_overwritten: None,
+            files_preserved: None,
             directories_created: vec![],
             error: Some(
                 "ggen project already initialized here. Use --force to reinitialize.".to_string(),
@@ -264,6 +269,7 @@ fn perform_init(
             project_dir: project_dir.to_string(),
             files_created: vec![],
             files_overwritten: None,
+            files_preserved: None,
             directories_created: vec![],
             error: Some(format!("Failed to create project directory: {}", e)),
             warning: None,
@@ -271,18 +277,51 @@ fn perform_init(
         });
     }
 
+    // Validate write permissions early - try creating a temp file
+    let temp_test = base_path.join(".ggen_write_test");
+    match fs::write(&temp_test, "") {
+        Ok(_) => {
+            let _ = fs::remove_file(&temp_test); // Clean up test file
+        }
+        Err(e) => {
+            return Ok(InitOutput {
+                status: "error".to_string(),
+                project_dir: project_dir.to_string(),
+                files_created: vec![],
+                files_overwritten: None,
+                files_preserved: None,
+                directories_created: vec![],
+                error: Some(format!(
+                    "No write permission in project directory: {}",
+                    e
+                )),
+                warning: None,
+                next_steps: vec!["Check directory permissions or try a different location"
+                    .to_string()],
+            });
+        }
+    }
+
     let mut files_created = vec![];
     let mut files_overwritten = vec![];
+    let mut files_preserved = vec![];
     let mut directories_created = vec![];
     let mut errors = vec![];
 
-    // Create directories
+    // Create directories - only track as "created" if they didn't exist
     let dirs = vec!["schema", "templates", "src/generated", "scripts"];
     for dir in &dirs {
         let dir_path = base_path.join(dir);
+        let existed = dir_path.exists();
         match fs::create_dir_all(&dir_path) {
-            Ok(_) => directories_created.push(dir.to_string()),
-            Err(e) => errors.push(format!("Failed to create {}: {}", dir, e)),
+            Ok(_) => {
+                if !existed {
+                    directories_created.push(dir.to_string());
+                }
+            }
+            Err(e) => {
+                errors.push(format!("Failed to create directory {}: {}", dir, e));
+            }
         }
     }
 
@@ -315,22 +354,15 @@ fn perform_init(
 
     // Create scripts/startup.sh
     let startup_sh_path = base_path.join("scripts").join("startup.sh");
-    let exists_before_startup = startup_sh_path.exists();
     write_file(&startup_sh_path, STARTUP_SH, "scripts/startup.sh");
-    // Make the script executable on Unix systems (only if we just created it)
-    if !exists_before_startup {
-        #[cfg(unix)]
-        {
-            use std::os::unix::fs::PermissionsExt;
-            let _ = fs::set_permissions(&startup_sh_path, std::fs::Permissions::from_mode(0o755));
-        }
-    }
 
     // Create .gitignore (only if it doesn't exist - preserve user's gitignore)
     let gitignore_path = base_path.join(".gitignore");
     if !gitignore_path.exists() {
         let gitignore_content = "# ggen outputs\nsrc/generated/\n.ggen/\n";
         write_file(&gitignore_path, gitignore_content, ".gitignore");
+    } else {
+        files_preserved.push(".gitignore".to_string());
     }
 
     // Create README.md (only if it doesn't exist - preserve user's README)
@@ -412,6 +444,27 @@ See `ggen.toml` to configure which templates to run and where they output.
     // Create README.md (only if it doesn't exist - preserve user's README)
     if !readme_path.exists() {
         write_file(&readme_path, readme_content, "README.md");
+    } else {
+        files_preserved.push("README.md".to_string());
+    }
+
+    // Drop the closure so we can borrow errors again
+    drop(write_file);
+
+    // Always ensure startup.sh is executable on Unix systems
+    // (important for both new files AND overwrites)
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        if let Err(e) = fs::set_permissions(
+            &startup_sh_path,
+            std::fs::Permissions::from_mode(0o755),
+        ) {
+            errors.push(format!(
+                "Warning: Could not set execute permissions on startup.sh: {}",
+                e
+            ));
+        }
     }
 
     // Determine final status and warnings
@@ -427,11 +480,16 @@ See `ggen.toml` to configure which templates to run and where they output.
         Some(errors.join("; "))
     };
 
-    let warning = if !files_overwritten.is_empty() {
-        Some(format!(
-            "Overwrote {} file(s). Run --force to reinitialize.",
-            files_overwritten.len()
-        ))
+    // Build warning message with details about what happened
+    let warning = if !files_overwritten.is_empty() || !files_preserved.is_empty() {
+        let mut msgs = vec![];
+        if !files_overwritten.is_empty() {
+            msgs.push(format!("Overwrote {} file(s)", files_overwritten.len()));
+        }
+        if !files_preserved.is_empty() {
+            msgs.push(format!("Preserved {} user file(s)", files_preserved.len()));
+        }
+        Some(msgs.join("; ") + ".")
     } else {
         None
     };
@@ -442,11 +500,18 @@ See `ggen.toml` to configure which templates to run and where they output.
         Some(files_overwritten)
     };
 
+    let files_preserved_opt = if files_preserved.is_empty() {
+        None
+    } else {
+        Some(files_preserved)
+    };
+
     Ok(InitOutput {
         status,
         project_dir: project_dir.to_string(),
         files_created,
         files_overwritten: files_overwritten_opt,
+        files_preserved: files_preserved_opt,
         directories_created,
         error,
         warning,
