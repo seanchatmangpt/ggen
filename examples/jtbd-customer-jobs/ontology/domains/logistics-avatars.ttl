@@ -1,0 +1,642 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix jtbd: <https://ggen.io/ontology/jtbd#> .
+@prefix log: <https://ggen.io/examples/jtbd/logistics#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# AVATAR 1: Supply Chain Director
+# Job: Optimize Global Supply Chain
+# ============================================================================
+
+log:avatar-supply-chain-director a jtbd:Avatar ;
+    jtbd:avatarName "Supply Chain Director" ;
+    jtbd:avatarDescription "Executive responsible for optimizing global supply chain operations and procurement strategy" ;
+    jtbd:avatarSegment "Executive" ;
+    jtbd:avatarPainLevel "8"^^xsd:integer ;
+    jtbd:hasJob log:job-supply-chain-optimization .
+
+log:job-supply-chain-optimization a jtbd:Job ;
+    jtbd:jobName "Optimize Global Supply Chain" ;
+    jtbd:jobDescription "Ensure efficient sourcing, procurement, and supplier management across international markets" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep log:avatar1-step1, log:avatar1-step2, log:avatar1-step3, log:avatar1-step4,
+                     log:avatar1-step5, log:avatar1-step6, log:avatar1-step7, log:avatar1-step8 .
+
+log:avatar1-step1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define supplier requirements and sourcing strategy" ;
+    jtbd:currentSolution "Manual spreadsheets and email discussions" ;
+    jtbd:painPoint "Fragmented decision-making across regions and departments" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+log:avatar1-step2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate and identify qualified suppliers globally" ;
+    jtbd:currentSolution "Trade shows, industry databases, personal networks" ;
+    jtbd:painPoint "Limited visibility into emerging suppliers and geopolitical risks" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "11"^^xsd:integer .
+
+log:avatar1-step3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare sourcing proposals and contract terms" ;
+    jtbd:currentSolution "Internal templates and legal review" ;
+    jtbd:painPoint "Long cycle times and inconsistent negotiation outcomes" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "11"^^xsd:integer .
+
+log:avatar1-step4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm supplier agreements and terms" ;
+    jtbd:currentSolution "Manual contract execution and filing" ;
+    jtbd:painPoint "Difficulty tracking supplier compliance and amendments" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+log:avatar1-step5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute purchase orders and coordinate shipments" ;
+    jtbd:currentSolution "ERP system with manual order entry" ;
+    jtbd:painPoint "Delays in order processing and shipment tracking gaps" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "13"^^xsd:integer .
+
+log:avatar1-step6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor supplier performance and KPIs" ;
+    jtbd:currentSolution "Monthly scorecard reports" ;
+    jtbd:painPoint "Reactive issue discovery and slow response to problems" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "13"^^xsd:integer .
+
+log:avatar1-step7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify supplier mix in response to market changes" ;
+    jtbd:currentSolution "Ad-hoc negotiations and ramp-down processes" ;
+    jtbd:painPoint "Inflexibility and supplier lock-in effects" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "11"^^xsd:integer .
+
+log:avatar1-step8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude supplier reviews and strategic planning" ;
+    jtbd:currentSolution "Annual business reviews and planning sessions" ;
+    jtbd:painPoint "Lack of predictive insights for future demand" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+# ============================================================================
+# AVATAR 2: Last Mile Delivery Manager
+# Job: Get Packages to Customer Doors
+# ============================================================================
+
+log:avatar-last-mile-manager a jtbd:Avatar ;
+    jtbd:avatarName "Last Mile Delivery Manager" ;
+    jtbd:avatarDescription "Operations manager overseeing final-mile delivery execution and customer satisfaction" ;
+    jtbd:avatarSegment "Operations" ;
+    jtbd:avatarPainLevel "9"^^xsd:integer ;
+    jtbd:hasJob log:job-last-mile-delivery .
+
+log:job-last-mile-delivery a jtbd:Job ;
+    jtbd:jobName "Get Packages to Customer Doors" ;
+    jtbd:jobDescription "Ensure reliable, timely, and cost-effective delivery of packages to end customers" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep log:avatar2-step1, log:avatar2-step2, log:avatar2-step3, log:avatar2-step4,
+                     log:avatar2-step5, log:avatar2-step6, log:avatar2-step7, log:avatar2-step8 .
+
+log:avatar2-step1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define delivery service levels and commitments" ;
+    jtbd:currentSolution "Manual SLA agreements per customer segment" ;
+    jtbd:painPoint "Inconsistent delivery promises across channels" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "15"^^xsd:integer .
+
+log:avatar2-step2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate delivery partners and carrier networks" ;
+    jtbd:currentSolution "Primary carrier plus backup providers" ;
+    jtbd:painPoint "Capacity constraints during peak seasons" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+log:avatar2-step3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare shipments for delivery dispatch" ;
+    jtbd:currentSolution "Manual sorting and labeling at local hubs" ;
+    jtbd:painPoint "High error rates and bottlenecks during peak volumes" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "13"^^xsd:integer .
+
+log:avatar2-step4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm delivery window and customer availability" ;
+    jtbd:currentSolution "Automated SMS/email notifications, driver calls" ;
+    jtbd:painPoint "High failed delivery attempts due to unavailable customers" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+log:avatar2-step5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute delivery at customer location" ;
+    jtbd:currentSolution "Driver with GPS and mobile device" ;
+    jtbd:painPoint "Missed deliveries and damaged goods during handoff" ;
+    jtbd:importance "10"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "15"^^xsd:integer .
+
+log:avatar2-step6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor delivery status and real-time tracking" ;
+    jtbd:currentSolution "GPS tracking and exception alerts" ;
+    jtbd:painPoint "Customers demand minute-by-minute tracking; data delays" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "13"^^xsd:integer .
+
+log:avatar2-step7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify delivery routes based on traffic and exceptions" ;
+    jtbd:currentSolution "Driver discretion with dispatch override capability" ;
+    jtbd:painPoint "Inefficient rerouting leading to late deliveries" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+log:avatar2-step8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude delivery with proof-of-delivery and feedback" ;
+    jtbd:currentSolution "Signature capture and photo documentation" ;
+    jtbd:painPoint "Dispute resolution delays and customer satisfaction gaps" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "11"^^xsd:integer .
+
+# ============================================================================
+# AVATAR 3: Warehouse Automation Lead
+# Job: Automate Warehouse Operations
+# ============================================================================
+
+log:avatar-warehouse-automation a jtbd:Avatar ;
+    jtbd:avatarName "Warehouse Automation Lead" ;
+    jtbd:avatarDescription "Technical leader implementing robotics and automation solutions in fulfillment centers" ;
+    jtbd:avatarSegment "Technical" ;
+    jtbd:avatarPainLevel "7"^^xsd:integer ;
+    jtbd:hasJob log:job-warehouse-automation .
+
+log:job-warehouse-automation a jtbd:Job ;
+    jtbd:jobName "Automate Warehouse Operations" ;
+    jtbd:jobDescription "Implement robotics and automation systems to increase picking accuracy and throughput" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep log:avatar3-step1, log:avatar3-step2, log:avatar3-step3, log:avatar3-step4,
+                     log:avatar3-step5, log:avatar3-step6, log:avatar3-step7, log:avatar3-step8 .
+
+log:avatar3-step1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define automation requirements and ROI targets" ;
+    jtbd:currentSolution "Internal assessments and consultancy proposals" ;
+    jtbd:painPoint "Difficulty estimating payback period and implementation risk" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "11"^^xsd:integer .
+
+log:avatar3-step2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate suitable automation technology providers" ;
+    jtbd:currentSolution "Industry conferences and vendor evaluations" ;
+    jtbd:painPoint "Limited knowledge of emerging robotics startups" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "9"^^xsd:integer .
+
+log:avatar3-step3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare technical specifications and integration plans" ;
+    jtbd:currentSolution "Internal engineering team and vendor RFP responses" ;
+    jtbd:painPoint "Complex system integration with legacy warehouse management systems" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+log:avatar3-step4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm equipment selection and vendor partnership" ;
+    jtbd:currentSolution "Pilot projects and POC testing" ;
+    jtbd:painPoint "Vendor lock-in concerns and long implementation timelines" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+log:avatar3-step5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute installation and system deployment" ;
+    jtbd:currentSolution "Phased rollout with temporary warehouse shutdown windows" ;
+    jtbd:painPoint "Disruption to operations and staff retraining requirements" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+log:avatar3-step6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor automation system performance and reliability" ;
+    jtbd:currentSolution "Vendor dashboards and maintenance contracts" ;
+    jtbd:painPoint "Unexpected downtime and lack of predictive maintenance" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "11"^^xsd:integer .
+
+log:avatar3-step7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify workflows to optimize automation benefit" ;
+    jtbd:currentSolution "Continuous improvement and process re-engineering" ;
+    jtbd:painPoint "Staff resistance and organizational change management" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "10"^^xsd:integer .
+
+log:avatar3-step8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude automation project and measure results" ;
+    jtbd:currentSolution "Post-implementation reviews and ROI calculations" ;
+    jtbd:painPoint "Difficulty attributing cost savings to automation investment" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "9"^^xsd:integer .
+
+# ============================================================================
+# AVATAR 4: Route Optimization Engineer
+# Job: Plan Efficient Delivery Routes
+# ============================================================================
+
+log:avatar-route-optimization a jtbd:Avatar ;
+    jtbd:avatarName "Route Optimization Engineer" ;
+    jtbd:avatarDescription "Technical engineer designing algorithms and systems for optimal delivery route planning" ;
+    jtbd:avatarSegment "Technical" ;
+    jtbd:avatarPainLevel "8"^^xsd:integer ;
+    jtbd:hasJob log:job-route-optimization .
+
+log:job-route-optimization a jtbd:Job ;
+    jtbd:jobName "Plan Efficient Delivery Routes" ;
+    jtbd:jobDescription "Optimize delivery routes to minimize fuel, time, and vehicle utilization" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep log:avatar4-step1, log:avatar4-step2, log:avatar4-step3, log:avatar4-step4,
+                     log:avatar4-step5, log:avatar4-step6, log:avatar4-step7, log:avatar4-step8 .
+
+log:avatar4-step1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define routing constraints and optimization parameters" ;
+    jtbd:currentSolution "Manual rule definition and constraint configuration" ;
+    jtbd:painPoint "Complex multi-objective optimization with conflicting goals" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+log:avatar4-step2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate delivery addresses and mapping data sources" ;
+    jtbd:currentSolution "Google Maps API and proprietary geocoding services" ;
+    jtbd:painPoint "Data quality issues in developing markets" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "6"^^xsd:integer ;
+    jtbd:opportunityScore "10"^^xsd:integer .
+
+log:avatar4-step3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare traffic data and travel time matrices" ;
+    jtbd:currentSolution "Real-time traffic APIs with historical averaging" ;
+    jtbd:painPoint "Insufficient real-time predictive accuracy during peak hours" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "13"^^xsd:integer .
+
+log:avatar4-step4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm feasible route plans with operational constraints" ;
+    jtbd:currentSolution "Heuristic algorithms with manual validation" ;
+    jtbd:painPoint "Routes violate driver shift limits or vehicle capacity" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+log:avatar4-step5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute dynamic route optimization in production" ;
+    jtbd:currentSolution "Batch optimization with periodic re-optimizations" ;
+    jtbd:painPoint "Latency in responding to new orders and traffic incidents" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "11"^^xsd:integer .
+
+log:avatar4-step6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor route efficiency and optimization performance" ;
+    jtbd:currentSolution "Daily reports on fuel consumption and delivery time" ;
+    jtbd:painPoint "Limited visibility into why optimization is or isn't working" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+log:avatar4-step7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify algorithms based on performance feedback" ;
+    jtbd:currentSolution "A/B testing and continuous algorithm improvements" ;
+    jtbd:painPoint "Long feedback loops and risk of algorithm regressions" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "10"^^xsd:integer .
+
+log:avatar4-step8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude route planning cycle and analyze results" ;
+    jtbd:currentSolution "Monthly optimization performance reviews" ;
+    jtbd:painPoint "Difficulty explaining optimization benefits to business stakeholders" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "9"^^xsd:integer .
+
+# ============================================================================
+# AVATAR 5: Customs Compliance Officer
+# Job: Clear International Shipments
+# ============================================================================
+
+log:avatar-customs-officer a jtbd:Avatar ;
+    jtbd:avatarName "Customs Compliance Officer" ;
+    jtbd:avatarDescription "Regulatory specialist managing international customs clearance and compliance" ;
+    jtbd:avatarSegment "Compliance" ;
+    jtbd:avatarPainLevel "9"^^xsd:integer ;
+    jtbd:hasJob log:job-customs-clearance .
+
+log:job-customs-clearance a jtbd:Job ;
+    jtbd:jobName "Clear International Shipments" ;
+    jtbd:jobDescription "Navigate customs regulations and secure timely release of goods across borders" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep log:avatar5-step1, log:avatar5-step2, log:avatar5-step3, log:avatar5-step4,
+                     log:avatar5-step5, log:avatar5-step6, log:avatar5-step7, log:avatar5-step8 .
+
+log:avatar5-step1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define shipment classification and duty calculations" ;
+    jtbd:currentSolution "HS code classification via internal database" ;
+    jtbd:painPoint "HS code misclassification leading to duty disputes" ;
+    jtbd:importance "10"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "17"^^xsd:integer .
+
+log:avatar5-step2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate required customs documentation and permits" ;
+    jtbd:currentSolution "Manual document collection from suppliers" ;
+    jtbd:painPoint "Missing or incorrect documentation causing shipment delays" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "15"^^xsd:integer .
+
+log:avatar5-step3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare customs declarations and regulatory paperwork" ;
+    jtbd:currentSolution "Manual form completion with legal review" ;
+    jtbd:painPoint "Time-consuming preparation and high error rates" ;
+    jtbd:importance "10"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "18"^^xsd:integer .
+
+log:avatar5-step4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm shipment meets all regulatory requirements" ;
+    jtbd:currentSolution "Manual checklist verification" ;
+    jtbd:painPoint "Regulatory complexity varies by destination country" ;
+    jtbd:importance "10"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "17"^^xsd:integer .
+
+log:avatar5-step5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute customs filing and submission" ;
+    jtbd:currentSolution "EDI or manual submission to customs authorities" ;
+    jtbd:painPoint "System incompatibilities between ports of entry" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "15"^^xsd:integer .
+
+log:avatar5-step6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor customs clearance status and inspections" ;
+    jtbd:currentSolution "Manual tracking and broker communication" ;
+    jtbd:painPoint "Delayed inspection notifications and cargo delays" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "16"^^xsd:integer .
+
+log:avatar5-step7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify declarations in response to customs queries" ;
+    jtbd:currentSolution "Emergency communication with brokers and legal" ;
+    jtbd:painPoint "Slow response time leading to extended detention" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+log:avatar5-step8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude customs release and import documentation" ;
+    jtbd:currentSolution "Final paperwork and release notification" ;
+    jtbd:painPoint "Difficulty tracking and reporting on customs costs" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+# ============================================================================
+# AVATAR 6: Returns Processing Manager
+# Job: Handle Reverse Logistics
+# ============================================================================
+
+log:avatar-returns-manager a jtbd:Avatar ;
+    jtbd:avatarName "Returns Processing Manager" ;
+    jtbd:avatarDescription "Operations manager overseeing customer returns, refunds, and reverse logistics" ;
+    jtbd:avatarSegment "Operations" ;
+    jtbd:avatarPainLevel "8"^^xsd:integer ;
+    jtbd:hasJob log:job-returns-processing .
+
+log:job-returns-processing a jtbd:Job ;
+    jtbd:jobName "Handle Reverse Logistics" ;
+    jtbd:jobDescription "Manage customer returns, quality inspections, refunds, and inventory recovery" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep log:avatar6-step1, log:avatar6-step2, log:avatar6-step3, log:avatar6-step4,
+                     log:avatar6-step5, log:avatar6-step6, log:avatar6-step7, log:avatar6-step8 .
+
+log:avatar6-step1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define return policies and acceptance criteria" ;
+    jtbd:currentSolution "Corporate return policy with carrier-specific rules" ;
+    jtbd:painPoint "Inconsistent policies across sales channels" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+log:avatar6-step2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate and authorize return requests from customers" ;
+    jtbd:currentSolution "RMA number generation via web portal" ;
+    jtbd:painPoint "Unauthorized returns and tracking issues" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "11"^^xsd:integer .
+
+log:avatar6-step3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare return shipment logistics and labels" ;
+    jtbd:currentSolution "Automated label generation with prepaid shipping" ;
+    jtbd:painPoint "Customer confusion and labeling errors" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "11"^^xsd:integer .
+
+log:avatar6-step4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm returned item receipt and condition" ;
+    jtbd:currentSolution "Manual receiving and condition assessment" ;
+    jtbd:painPoint "Disputes over item condition and acceptance delays" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+log:avatar6-step5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute quality inspection and categorization" ;
+    jtbd:currentSolution "Manual QA inspection by warehouse staff" ;
+    jtbd:painPoint "Inconsistent grading and high labor costs" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+log:avatar6-step6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor inventory disposition and refund processing" ;
+    jtbd:currentSolution "Spreadsheet tracking with manual refund initiation" ;
+    jtbd:painPoint "Slow refund processing and inventory write-off delays" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "13"^^xsd:integer .
+
+log:avatar6-step7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify disposition based on resaleability assessment" ;
+    jtbd:currentSolution "Manual rework or donation decisions" ;
+    jtbd:painPoint "Lost opportunity for resale in secondary market" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "11"^^xsd:integer .
+
+log:avatar6-step8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude returns cycle with analytics and insights" ;
+    jtbd:currentSolution "Monthly return rate reporting" ;
+    jtbd:painPoint "Limited visibility into return drivers and product defects" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "10"^^xsd:integer .
+
+# ============================================================================
+# AVATAR 7: Cold Chain Specialist
+# Job: Maintain Temperature Control
+# ============================================================================
+
+log:avatar-cold-chain-specialist a jtbd:Avatar ;
+    jtbd:avatarName "Cold Chain Specialist" ;
+    jtbd:avatarDescription "Specialized logistics manager ensuring temperature-controlled transport for perishables" ;
+    jtbd:avatarSegment "Operations" ;
+    jtbd:avatarPainLevel "10"^^xsd:integer ;
+    jtbd:hasJob log:job-cold-chain-management .
+
+log:job-cold-chain-management a jtbd:Job ;
+    jtbd:jobName "Maintain Temperature Control" ;
+    jtbd:jobDescription "Preserve product integrity through controlled temperature transportation and storage" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep log:avatar7-step1, log:avatar7-step2, log:avatar7-step3, log:avatar7-step4,
+                     log:avatar7-step5, log:avatar7-step6, log:avatar7-step7, log:avatar7-step8 .
+
+log:avatar7-step1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define product-specific temperature requirements and monitoring" ;
+    jtbd:currentSolution "Manufacturer specs with manual tracking" ;
+    jtbd:painPoint "Complex multi-temperature SKUs in single shipment" ;
+    jtbd:importance "10"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "17"^^xsd:integer .
+
+log:avatar7-step2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate cold storage facilities and thermal carriers" ;
+    jtbd:currentSolution "Contract with regional cold chain providers" ;
+    jtbd:painPoint "Limited capacity during seasonal peaks" ;
+    jtbd:importance "10"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "16"^^xsd:integer .
+
+log:avatar7-step3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare packaging and insulation materials" ;
+    jtbd:currentSolution "Pre-assembled cold boxes with dry ice or gel packs" ;
+    jtbd:painPoint "Packaging material cost and environmental impact" ;
+    jtbd:importance "10"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "16"^^xsd:integer .
+
+log:avatar7-step4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm temperature integrity before dispatch" ;
+    jtbd:currentSolution "Temperature data logger and pre-shipment validation" ;
+    jtbd:painPoint "Temperature spikes during handoff between carriers" ;
+    jtbd:importance "10"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "15"^^xsd:integer .
+
+log:avatar7-step5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute temperature-controlled transport" ;
+    jtbd:currentSolution "Dedicated refrigerated vehicles with driver training" ;
+    jtbd:painPoint "Equipment failure risk and driver behavior compliance" ;
+    jtbd:importance "10"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "16"^^xsd:integer .
+
+log:avatar7-step6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor real-time temperature during transit" ;
+    jtbd:currentSolution "IoT temperature sensors with alerts" ;
+    jtbd:painPoint "Sensor failures and blind spots in network coverage" ;
+    jtbd:importance "10"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "15"^^xsd:integer .
+
+log:avatar7-step7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify transport if temperature deviations occur" ;
+    jtbd:currentSolution "Emergency rerouting and alternative carrier dispatch" ;
+    jtbd:painPoint "Expensive emergency actions and product loss" ;
+    jtbd:importance "10"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "17"^^xsd:integer .
+
+log:avatar7-step8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude delivery with product viability verification" ;
+    jtbd:currentSolution "Final temperature check and delivery confirmation" ;
+    jtbd:painPoint "Post-delivery disputes over product quality claims" ;
+    jtbd:importance "10"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "16"^^xsd:integer .

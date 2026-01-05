@@ -1,0 +1,677 @@
+@prefix jtbd: <https://ggen.io/ontology/jtbd#> .
+@prefix saas: <https://ggen.io/examples/jtbd/saas#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ==============================================================================
+# AVATAR 1: Growth Product Manager
+# ==============================================================================
+
+saas:avatar-growth-pm a jtbd:Avatar ;
+    jtbd:avatarName "Growth Product Manager" ;
+    jtbd:avatarDescription "Responsible for driving user acquisition and growing the product's market footprint through data-driven strategies and feature prioritization." ;
+    jtbd:avatarSegment "Product & Growth" ;
+    jtbd:avatarPainLevel 8 ;
+    jtbd:hasJob saas:job-growth-acquisition .
+
+saas:job-growth-acquisition a jtbd:Job ;
+    jtbd:jobName "Driving User Acquisition" ;
+    jtbd:jobDescription "Identify, target, and acquire new users through effective product positioning and go-to-market execution." ;
+    jtbd:jobType jtbd:Functional ;
+    jtbd:hasJobStep saas:step-growth-1,
+                    saas:step-growth-2,
+                    saas:step-growth-3,
+                    saas:step-growth-4,
+                    saas:step-growth-5,
+                    saas:step-growth-6,
+                    saas:step-growth-7,
+                    saas:step-growth-8 .
+
+saas:step-growth-1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define ideal customer profile and target market segments" ;
+    jtbd:currentSolution "Manual research using industry reports and existing customer interviews" ;
+    jtbd:painPoint "Time-consuming to synthesize data from multiple sources into actionable ICP" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+saas:step-growth-2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Find and identify target accounts in the market" ;
+    jtbd:currentSolution "Using third-party ABM platforms (6sense, ZoomInfo) combined with LinkedIn searches" ;
+    jtbd:painPoint "High cost per account identified; difficulty validating lead quality before outreach" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+saas:step-growth-3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare marketing messaging and value propositions for segments" ;
+    jtbd:currentSolution "Collaborative Google Docs and Slack discussions with marketing team" ;
+    jtbd:painPoint "Messaging constantly changes; hard to maintain consistency across channels" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+saas:step-growth-4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm product-market fit with target audience" ;
+    jtbd:currentSolution "Running ad tests on Google and LinkedIn; surveying prospects" ;
+    jtbd:painPoint "Unclear conversion signals; takes weeks to validate before scaling spend" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+saas:step-growth-5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Launch multi-channel acquisition campaigns at scale" ;
+    jtbd:currentSolution "Running campaigns via HubSpot, Google Ads, and LinkedIn Campaign Manager" ;
+    jtbd:painPoint "Manual coordination across tools; difficult to optimize budget allocation" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+saas:step-growth-6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor conversion rates and acquisition metrics in real-time" ;
+    jtbd:currentSolution "Daily dashboards in Tableau; manual Slack reports" ;
+    jtbd:painPoint "Lag in data visibility; hard to spot underperforming channels quickly" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+saas:step-growth-7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Adjust targeting strategy based on performance data" ;
+    jtbd:currentSolution "Weekly team meetings to discuss results and adjust targeting manually" ;
+    jtbd:painPoint "Slow iteration cycles; insights often come too late to act on" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+saas:step-growth-8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Evaluate campaign ROI and document learnings" ;
+    jtbd:currentSolution "Manual spreadsheets comparing spend vs. acquired customers" ;
+    jtbd:painPoint "Difficult to attribute revenue accurately; insights not shared systematically" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+# ==============================================================================
+# AVATAR 2: Customer Success Manager
+# ==============================================================================
+
+saas:avatar-csm a jtbd:Avatar ;
+    jtbd:avatarName "Customer Success Manager" ;
+    jtbd:avatarDescription "Focuses on helping customers achieve their desired outcomes and preventing churn through proactive engagement and support." ;
+    jtbd:avatarSegment "Customer Success" ;
+    jtbd:avatarPainLevel 9 ;
+    jtbd:hasJob saas:job-csm-churn-reduction .
+
+saas:job-csm-churn-reduction a jtbd:Job ;
+    jtbd:jobName "Reducing Customer Churn" ;
+    jtbd:jobDescription "Identify at-risk customers early, understand churn drivers, and execute retention strategies to keep them engaged." ;
+    jtbd:jobType jtbd:Functional ;
+    jtbd:hasJobStep saas:step-csm-1,
+                    saas:step-csm-2,
+                    saas:step-csm-3,
+                    saas:step-csm-4,
+                    saas:step-csm-5,
+                    saas:step-csm-6,
+                    saas:step-csm-7,
+                    saas:step-csm-8 .
+
+saas:step-csm-1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define churn indicators and risk factors by customer segment" ;
+    jtbd:currentSolution "Reviewing historical churn patterns manually; ad-hoc customer interviews" ;
+    jtbd:painPoint "Takes weeks to identify patterns; late to recognize emerging risk factors" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+saas:step-csm-2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Identify customers showing early churn signals" ;
+    jtbd:currentSolution "Combination of Gainsight health scores and manual monitoring of CSM notes" ;
+    jtbd:painPoint "Signals are delayed; easy to miss customers until they submit cancellation" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+saas:step-csm-3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare intervention playbooks and retention messaging" ;
+    jtbd:currentSolution "Stored in Confluence; playbooks updated quarterly by CSM team lead" ;
+    jtbd:painPoint "Playbooks become stale; hard to customize for specific customer situations" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+saas:step-csm-4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm customer satisfaction and understand specific pain points" ;
+    jtbd:currentSolution "QBR calls quarterly; NPS surveys sent every 6 months" ;
+    jtbd:painPoint "Infrequent check-ins miss current issues; surveys have low response rates" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+saas:step-csm-5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute retention outreach and engagement programs" ;
+    jtbd:currentSolution "Phone calls, email campaigns, and in-app messaging orchestrated manually" ;
+    jtbd:painPoint "Manual coordination is time-consuming; inconsistent execution across CSM team" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+saas:step-csm-6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor customer health metrics and engagement trends" ;
+    jtbd:currentSolution "Weekly dashboards in Gainsight; monthly CSV exports for analysis" ;
+    jtbd:painPoint "Dashboards lack predictive insights; reactive rather than proactive" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+saas:step-csm-7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify engagement tactics based on customer response and behavior" ;
+    jtbd:currentSolution "Manual adjustments discussed in weekly CSM sync meetings" ;
+    jtbd:painPoint "Slow to iterate; good ideas from CSMs don't propagate to team quickly" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+saas:step-csm-8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Measure retention impact and ROI of retention programs" ;
+    jtbd:currentSolution "Monthly cohort analysis in Excel comparing churn rates" ;
+    jtbd:painPoint "Unclear attribution; hard to quantify impact of specific interventions" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+# ==============================================================================
+# AVATAR 3: Revenue Operations Lead
+# ==============================================================================
+
+saas:avatar-revenue-ops a jtbd:Avatar ;
+    jtbd:avatarName "Revenue Operations Lead" ;
+    jtbd:avatarDescription "Optimizes the entire revenue process by improving sales efficiency, data accuracy, and pipeline visibility." ;
+    jtbd:avatarSegment "Sales & Operations" ;
+    jtbd:avatarPainLevel 8 ;
+    jtbd:hasJob saas:job-revops-pipeline-optimization .
+
+saas:job-revops-pipeline-optimization a jtbd:Job ;
+    jtbd:jobName "Optimizing Sales Pipeline" ;
+    jtbd:jobDescription "Improve sales team productivity and forecast accuracy by streamlining processes, eliminating bottlenecks, and ensuring data quality." ;
+    jtbd:jobType jtbd:Functional ;
+    jtbd:hasJobStep saas:step-revops-1,
+                    saas:step-revops-2,
+                    saas:step-revops-3,
+                    saas:step-revops-4,
+                    saas:step-revops-5,
+                    saas:step-revops-6,
+                    saas:step-revops-7,
+                    saas:step-revops-8 .
+
+saas:step-revops-1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define key sales metrics and KPIs for each stage" ;
+    jtbd:currentSolution "Annual planning session; metrics documented in shared Google Sheet" ;
+    jtbd:painPoint "Metrics rarely updated; misalignment across teams on what to measure" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+saas:step-revops-2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate pipeline bottlenecks and underperforming stages" ;
+    jtbd:currentSolution "Monthly Salesforce reports and pipeline reviews" ;
+    jtbd:painPoint "Data often stale; requires manual analysis to identify root causes" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+saas:step-revops-3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare forecast models and scenario planning" ;
+    jtbd:currentSolution "Excel models updated with historical data each quarter" ;
+    jtbd:painPoint "Models are static; difficult to adjust for market changes quickly" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+saas:step-revops-4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm deal stage accuracy and forecast reliability" ;
+    jtbd:currentSolution "Weekly forecast calls; spot-checking 20% of deals in Salesforce" ;
+    jtbd:painPoint "Sales team marks stages optimistically; forecasts frequently wrong" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+saas:step-revops-5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute deal acceleration strategies and process improvements" ;
+    jtbd:currentSolution "Rolling out CRM process changes; training sessions for sales team" ;
+    jtbd:painPoint "Adoption is slow; sales team resists changes to established workflows" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+saas:step-revops-6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor win rate trends and deal velocity metrics" ;
+    jtbd:currentSolution "Daily Salesforce dashboards; weekly email to leadership" ;
+    jtbd:painPoint "Dashboards are manual; hard to correlate metrics with actions taken" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+saas:step-revops-7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify sales process based on performance metrics" ;
+    jtbd:currentSolution "Quarterly process reviews with sales leadership; change management via email" ;
+    jtbd:painPoint "Process changes often ineffective; unclear how to measure adoption" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+saas:step-revops-8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude quarterly reviews and document process improvements" ;
+    jtbd:currentSolution "PowerPoint presentations to executive team; stored in shared folder" ;
+    jtbd:painPoint "Insights not actionable; hard to track which improvements actually stick" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+# ==============================================================================
+# AVATAR 4: Integration Engineer
+# ==============================================================================
+
+saas:avatar-integration-eng a jtbd:Avatar ;
+    jtbd:avatarName "Integration Engineer" ;
+    jtbd:avatarDescription "Builds and maintains integrations with third-party services to extend platform capabilities and improve data flow." ;
+    jtbd:avatarSegment "Engineering & Architecture" ;
+    jtbd:avatarPainLevel 7 ;
+    jtbd:hasJob saas:job-integration-api-connections .
+
+saas:job-integration-api-connections a jtbd:Job ;
+    jtbd:jobName "Building API Connections" ;
+    jtbd:jobDescription "Design, implement, and maintain robust integrations with external APIs while ensuring security, reliability, and maintainability." ;
+    jtbd:jobType jtbd:Functional ;
+    jtbd:hasJobStep saas:step-integration-1,
+                    saas:step-integration-2,
+                    saas:step-integration-3,
+                    saas:step-integration-4,
+                    saas:step-integration-5,
+                    saas:step-integration-6,
+                    saas:step-integration-7,
+                    saas:step-integration-8 .
+
+saas:step-integration-1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define API integration requirements and acceptance criteria" ;
+    jtbd:currentSolution "Meetings with product and support teams; requirements in Jira" ;
+    jtbd:painPoint "Requirements often unclear or incomplete; leads to rework" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+saas:step-integration-2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate and review third-party API documentation" ;
+    jtbd:currentSolution "Reviewing OpenAPI specs, vendor documentation, and example code" ;
+    jtbd:painPoint "Documentation is often incomplete or outdated; version mismatches" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+saas:step-integration-3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare development environment and test infrastructure" ;
+    jtbd:currentSolution "Manual setup of test accounts; local Docker containers for APIs" ;
+    jtbd:painPoint "Setup is time-consuming; fragile; hard to maintain parity with production" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 11 .
+
+saas:step-integration-4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm authentication flows and security requirements" ;
+    jtbd:currentSolution "Testing OAuth, API keys, mTLS manually; security review meetings" ;
+    jtbd:painPoint "Difficult to test edge cases; unclear what's production-ready" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+saas:step-integration-5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute API implementation with proper error handling" ;
+    jtbd:currentSolution "Writing integration code in Python/Go; using shared libraries where available" ;
+    jtbd:painPoint "Limited shared patterns; duplicates error handling logic across integrations" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+saas:step-integration-6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor integration performance and error rates" ;
+    jtbd:currentSolution "Datadog dashboards; Slack alerts for critical failures" ;
+    jtbd:painPoint "Hard to debug failures in third-party systems; rate limiting issues" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+saas:step-integration-7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify error handling and retry logic based on failures" ;
+    jtbd:currentSolution "Post-incident analysis; code changes deployed next week" ;
+    jtbd:painPoint "Slow iteration; breaking changes from third-party APIs often surprise" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+saas:step-integration-8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude testing and hand off to operational support" ;
+    jtbd:currentSolution "Writing runbooks in Confluence; knowledge transfer meetings" ;
+    jtbd:painPoint "Runbooks quickly become outdated; support team lacks context on edge cases" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 11 .
+
+# ==============================================================================
+# AVATAR 5: Usage Analytics Lead
+# ==============================================================================
+
+saas:avatar-analytics-lead a jtbd:Avatar ;
+    jtbd:avatarName "Usage Analytics Lead" ;
+    jtbd:avatarDescription "Builds and maintains analytics infrastructure to understand product usage patterns and drive data-informed product decisions." ;
+    jtbd:avatarSegment "Analytics & Data" ;
+    jtbd:avatarPainLevel 8 ;
+    jtbd:hasJob saas:job-analytics-usage-understanding .
+
+saas:job-analytics-usage-understanding a jtbd:Job ;
+    jtbd:jobName "Understanding Product Usage" ;
+    jtbd:jobDescription "Collect, process, and analyze product usage data to identify trends, user behaviors, and opportunities for improvement." ;
+    jtbd:jobType jtbd:Functional ;
+    jtbd:hasJobStep saas:step-analytics-1,
+                    saas:step-analytics-2,
+                    saas:step-analytics-3,
+                    saas:step-analytics-4,
+                    saas:step-analytics-5,
+                    saas:step-analytics-6,
+                    saas:step-analytics-7,
+                    saas:step-analytics-8 .
+
+saas:step-analytics-1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define analytics requirements and key metrics to track" ;
+    jtbd:currentSolution "Quarterly planning with product team; metrics documented in wiki" ;
+    jtbd:painPoint "Requirements change frequently; hard to maintain instrumentation" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+saas:step-analytics-2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate and integrate data from multiple product sources" ;
+    jtbd:currentSolution "Collecting events from frontend (Segment), backend (custom logging), and third parties" ;
+    jtbd:painPoint "Data sources are fragmented; hard to correlate user behavior across services" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+saas:step-analytics-3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare data pipelines and ETL processes" ;
+    jtbd:currentSolution "dbt models for transformation; Airflow DAGs for orchestration" ;
+    jtbd:painPoint "Pipelines brittle; data quality issues discovered late in pipeline" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+saas:step-analytics-4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm data accuracy and completeness of analytics" ;
+    jtbd:currentSolution "Manual spot checks; comparison with raw logs" ;
+    jtbd:painPoint "Data quality issues go unnoticed; dashboard metrics sometimes don't reconcile" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+saas:step-analytics-5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute analytics queries and build dashboards" ;
+    jtbd:currentSolution "Writing SQL queries; building Tableau/Looker dashboards" ;
+    jtbd:painPoint "Dashboard maintenance is time-consuming; ad-hoc requests overwhelming" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+saas:step-analytics-6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor dashboard performance and data staleness" ;
+    jtbd:currentSolution "Dashboard load time monitoring; manual checks for pipeline failures" ;
+    jtbd:painPoint "Slow dashboards frustrate users; pipeline failures discovered by support tickets" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+saas:step-analytics-7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify dashboard filters and add new visualizations" ;
+    jtbd:currentSolution "Updating Tableau models; merging pull requests for Looker changes" ;
+    jtbd:painPoint "Slow iteration; changes often conflict with others working on same dashboard" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 11 .
+
+saas:step-analytics-8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude monthly insights reporting and identify opportunities" ;
+    jtbd:currentSolution "Hand-crafted monthly reports; presenting to leadership" ;
+    jtbd:painPoint "Insights go unacted upon; hard to track which recommendations were implemented" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+# ==============================================================================
+# AVATAR 6: Self-Service Architect
+# ==============================================================================
+
+saas:avatar-selfservice-arch a jtbd:Avatar ;
+    jtbd:avatarName "Self-Service Architect" ;
+    jtbd:avatarDescription "Designs and builds self-service solutions to empower customers to solve problems independently and reduce support burden." ;
+    jtbd:avatarSegment "Support & Customer Enablement" ;
+    jtbd:avatarPainLevel 7 ;
+    jtbd:hasJob saas:job-selfservice-support-reduction .
+
+saas:job-selfservice-support-reduction a jtbd:Job ;
+    jtbd:jobName "Reducing Support Load" ;
+    jtbd:jobDescription "Create comprehensive self-service resources that enable customers to resolve issues without contacting support, reducing support volume and costs." ;
+    jtbd:jobType jtbd:Functional ;
+    jtbd:hasJobStep saas:step-selfservice-1,
+                    saas:step-selfservice-2,
+                    saas:step-selfservice-3,
+                    saas:step-selfservice-4,
+                    saas:step-selfservice-5,
+                    saas:step-selfservice-6,
+                    saas:step-selfservice-7,
+                    saas:step-selfservice-8 .
+
+saas:step-selfservice-1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define self-service knowledge gaps by analyzing support tickets" ;
+    jtbd:currentSolution "Quarterly analysis of support ticket topics in Zendesk" ;
+    jtbd:painPoint "Manual analysis is slow; hard to identify emerging knowledge gaps" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+saas:step-selfservice-2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate the most common support questions and pain points" ;
+    jtbd:currentSolution "Mining Zendesk data; interviewing support team" ;
+    jtbd:painPoint "Takes time to get consensus; easy to miss edge cases" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+saas:step-selfservice-3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare knowledge base articles and video tutorials" ;
+    jtbd:currentSolution "Writing in Confluence; recording videos in Loom" ;
+    jtbd:painPoint "Content creation is time-consuming; hard to maintain across updates" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+saas:step-selfservice-4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm article clarity by testing with customers" ;
+    jtbd:currentSolution "Sharing drafts with beta customers; getting feedback in Slack" ;
+    jtbd:painPoint "Limited feedback; unclear if articles really solve customer problems" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+saas:step-selfservice-5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Deploy help center and in-app help with searchable documentation" ;
+    jtbd:currentSolution "Using Intercom Help Center; in-app help via Appcues" ;
+    jtbd:painPoint "Content often not discoverable; customers still call support" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+saas:step-selfservice-6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor article effectiveness and help center usage patterns" ;
+    jtbd:currentSolution "Tracking views and searches in help center analytics" ;
+    jtbd:painPoint "Unclear if articles actually prevent support tickets; attribution difficult" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+saas:step-selfservice-7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify content based on customer feedback and usage data" ;
+    jtbd:currentSolution "Reviewing search queries; adjusting articles monthly" ;
+    jtbd:painPoint "Changes are ad-hoc; no systematic approach to content improvement" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 11 .
+
+saas:step-selfservice-8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude support reduction metrics and document ROI" ;
+    jtbd:currentSolution "Monthly report comparing support ticket volume before/after content launch" ;
+    jtbd:painPoint "Hard to attribute ticket reduction to specific articles; ROI unclear" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+# ==============================================================================
+# AVATAR 7: Multi-Tenant Platform Engineer
+# ==============================================================================
+
+saas:avatar-platform-eng a jtbd:Avatar ;
+    jtbd:avatarName "Multi-Tenant Platform Engineer" ;
+    jtbd:avatarDescription "Designs and maintains the core platform infrastructure to support multi-tenancy, scalability, and reliability for growing customer base." ;
+    jtbd:avatarSegment "Platform & Infrastructure" ;
+    jtbd:avatarPainLevel 9 ;
+    jtbd:hasJob saas:job-platform-scaling .
+
+saas:job-platform-scaling a jtbd:Job ;
+    jtbd:jobName "Scaling Infrastructure" ;
+    jtbd:jobDescription "Ensure platform can scale reliably to support growth while maintaining performance, cost efficiency, and isolation between tenants." ;
+    jtbd:jobType jtbd:Functional ;
+    jtbd:hasJobStep saas:step-platform-1,
+                    saas:step-platform-2,
+                    saas:step-platform-3,
+                    saas:step-platform-4,
+                    saas:step-platform-5,
+                    saas:step-platform-6,
+                    saas:step-platform-7,
+                    saas:step-platform-8 .
+
+saas:step-platform-1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define scalability requirements and performance SLOs" ;
+    jtbd:currentSolution "Quarterly planning sessions; documented in design docs" ;
+    jtbd:painPoint "Requirements based on past patterns; hard to predict future needs" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+saas:step-platform-2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate infrastructure bottlenecks and scaling limitations" ;
+    jtbd:currentSolution "Load testing; production monitoring with Prometheus/Grafana" ;
+    jtbd:painPoint "Bottlenecks only discovered under peak load; hard to correlate metrics" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+saas:step-platform-3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare scaling architecture and capacity planning models" ;
+    jtbd:currentSolution "Architecture review documents; Excel capacity models" ;
+    jtbd:painPoint "Models get stale; difficult to simulate impact of changes" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+saas:step-platform-4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm capacity planning and resource requirements" ;
+    jtbd:currentSolution "Running load tests on staging; peer review of calculations" ;
+    jtbd:painPoint "Staging doesn't fully match production; surprises in production" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+saas:step-platform-5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute infrastructure upgrades and scale-out operations" ;
+    jtbd:currentSolution "Terraform changes; gradual blue-green deployments" ;
+    jtbd:painPoint "Deployments are manual; high risk of misconfiguration" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+saas:step-platform-6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor system performance and resource utilization" ;
+    jtbd:currentSolution "24/7 monitoring dashboards; on-call escalations" ;
+    jtbd:painPoint "Alert fatigue; hard to distinguish signal from noise" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+saas:step-platform-7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify auto-scaling policies based on traffic patterns" ;
+    jtbd:currentSolution "Adjusting Kubernetes HPA settings; manual metrics fine-tuning" ;
+    jtbd:painPoint "Policies lag behind actual usage patterns; frequent false scaling" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+saas:step-platform-8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude performance benchmarks and document architectural decisions" ;
+    jtbd:currentSolution "Post-incident reviews; architecture decision records in git" ;
+    jtbd:painPoint "Benchmarks not systematically tracked; past decisions sometimes re-debated" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .

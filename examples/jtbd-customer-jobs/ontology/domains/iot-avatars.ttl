@@ -1,0 +1,684 @@
+@prefix jtbd: <https://ggen.io/ontology/jtbd#> .
+@prefix iot: <https://ggen.io/examples/jtbd/iot#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# Avatar 1: Fleet Manager - Tracking connected vehicles
+# ============================================================================
+
+iot:avatar-fleet-manager a jtbd:Avatar ;
+    jtbd:avatarName "Fleet Manager" ;
+    jtbd:avatarDescription "Responsible for managing vehicle telemetry, tracking fleet health, optimizing routes, and ensuring compliance across connected vehicles" ;
+    jtbd:avatarSegment "Operations" ;
+    jtbd:avatarPainLevel 8 ;
+    jtbd:hasJob iot:job-fleet-tracking .
+
+iot:job-fleet-tracking a jtbd:Job ;
+    jtbd:jobName "Track vehicle health and optimize fleet operations" ;
+    jtbd:jobDescription "Monitor real-time location, diagnostic data, fuel consumption, and maintenance alerts across vehicle fleet using IoT sensors" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        iot:step-fleet-1,
+        iot:step-fleet-2,
+        iot:step-fleet-3,
+        iot:step-fleet-4,
+        iot:step-fleet-5,
+        iot:step-fleet-6,
+        iot:step-fleet-7,
+        iot:step-fleet-8 .
+
+iot:step-fleet-1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define fleet monitoring objectives and KPIs for tracking" ;
+    jtbd:currentSolution "Manual spreadsheets and email updates from drivers" ;
+    jtbd:painPoint "Lack of real-time visibility into fleet status and location" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+iot:step-fleet-2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate and integrate GPS, telemetry, and diagnostic data sources from vehicles" ;
+    jtbd:currentSolution "Multiple disconnected systems and manual API integrations" ;
+    jtbd:painPoint "Fragmented data sources requiring custom integrations" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 14 .
+
+iot:step-fleet-3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare IoT sensor connections and validate data quality" ;
+    jtbd:currentSolution "Manual sensor configuration and periodic testing" ;
+    jtbd:painPoint "Sensors disconnecting unexpectedly with no alerts" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+iot:step-fleet-4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm data stream connectivity and latency requirements" ;
+    jtbd:currentSolution "Sporadic connectivity checks without automated monitoring" ;
+    jtbd:painPoint "High latency causing stale data and missed alerts" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+iot:step-fleet-5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute real-time fleet tracking and location updates" ;
+    jtbd:currentSolution "Batch processing every 15-30 minutes" ;
+    jtbd:painPoint "Unable to respond quickly to accidents or emergencies" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 16 .
+
+iot:step-fleet-6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor vehicle health metrics including engine diagnostics and fuel levels" ;
+    jtbd:currentSolution "Driver self-reports and quarterly inspections" ;
+    jtbd:painPoint "Preventable breakdowns caught too late, high maintenance costs" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 14 .
+
+iot:step-fleet-7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify alert thresholds and maintenance schedules dynamically" ;
+    jtbd:currentSolution "Fixed rules requiring code changes to adjust" ;
+    jtbd:painPoint "Cannot quickly adapt to seasonal needs or new vehicles" ;
+    jtbd:importance 6 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 9 .
+
+iot:step-fleet-8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude with automated shift reports and performance analytics" ;
+    jtbd:currentSolution "Manual report compilation taking 2+ hours per shift" ;
+    jtbd:painPoint "Delayed decision-making due to late reporting" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 12 .
+
+# ============================================================================
+# Avatar 2: Smart Factory Operator - Managing industrial IoT
+# ============================================================================
+
+iot:avatar-factory-operator a jtbd:Avatar ;
+    jtbd:avatarName "Smart Factory Operator" ;
+    jtbd:avatarDescription "Monitors production equipment, manages IoT sensor networks, responds to equipment failures, and optimizes factory floor operations in real-time" ;
+    jtbd:avatarSegment "Manufacturing" ;
+    jtbd:avatarPainLevel 9 ;
+    jtbd:hasJob iot:job-factory-management .
+
+iot:job-factory-management a jtbd:Job ;
+    jtbd:jobName "Manage industrial IoT systems and production lines" ;
+    jtbd:jobDescription "Oversee interconnected machinery, monitor production metrics, detect anomalies, coordinate maintenance teams, and optimize line throughput" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        iot:step-factory-1,
+        iot:step-factory-2,
+        iot:step-factory-3,
+        iot:step-factory-4,
+        iot:step-factory-5,
+        iot:step-factory-6,
+        iot:step-factory-7,
+        iot:step-factory-8 .
+
+iot:step-factory-1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define production targets and quality standards for the shift" ;
+    jtbd:currentSolution "Paper logs and shift supervisor instructions" ;
+    jtbd:painPoint "Targets unclear or inconsistent across shifts" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+iot:step-factory-2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate all active equipment sensors and verify communication status" ;
+    jtbd:currentSolution "Manual rounds checking 50+ sensor endpoints" ;
+    jtbd:painPoint "Offline sensors go unnoticed, data gaps in production records" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 16 .
+
+iot:step-factory-3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare equipment for production run with sensor calibration" ;
+    jtbd:currentSolution "Manual sensor recalibration each shift with analog gauges" ;
+    jtbd:painPoint "Calibration errors cause 2-3% defect rate in products" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+iot:step-factory-4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm equipment operating parameters are within specifications" ;
+    jtbd:currentSolution "Sampling checks every 15 minutes" ;
+    jtbd:painPoint "Parameter drift between checks goes undetected" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+iot:step-factory-5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute production run while monitoring real-time sensor feeds" ;
+    jtbd:currentSolution "Monitor 3-4 screens while managing 8+ machines" ;
+    jtbd:painPoint "Operator cognitive overload leads to missed anomalies" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 16 .
+
+iot:step-factory-6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor for anomalies, vibration spikes, temperature excursions" ;
+    jtbd:currentSolution "Operator watches gauges and listens for unusual sounds" ;
+    jtbd:painPoint "Acoustic monitoring unreliable in loud factory environment" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 16 .
+
+iot:step-factory-7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify production parameters or alert thresholds on the fly" ;
+    jtbd:currentSolution "Manual adjustments with spreadsheet tracking" ;
+    jtbd:painPoint "Changes not documented, audit trail missing" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 11 .
+
+iot:step-factory-8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude shift with quality metrics and incident reports" ;
+    jtbd:currentSolution "Handwritten logbook and verbal handoff" ;
+    jtbd:painPoint "Context lost, unclear which issues were resolved" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 14 .
+
+# ============================================================================
+# Avatar 3: Connected Home Developer - Building smart devices
+# ============================================================================
+
+iot:avatar-home-developer a jtbd:Avatar ;
+    jtbd:avatarName "Connected Home Developer" ;
+    jtbd:avatarDescription "Builds, deploys, and manages smart home devices and automation scenarios for residential customers" ;
+    jtbd:avatarSegment "Product Development" ;
+    jtbd:avatarPainLevel 7 ;
+    jtbd:hasJob iot:job-home-development .
+
+iot:job-home-development a jtbd:Job ;
+    jtbd:jobName "Build and deploy smart home solutions" ;
+    jtbd:jobDescription "Develop smart home automation scenarios, integrate devices from multiple vendors, test automations, and support customer deployments" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        iot:step-home-1,
+        iot:step-home-2,
+        iot:step-home-3,
+        iot:step-home-4,
+        iot:step-home-5,
+        iot:step-home-6,
+        iot:step-home-7,
+        iot:step-home-8 .
+
+iot:step-home-1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define automation requirements and customer workflows" ;
+    jtbd:currentSolution "Email conversations and handwritten notes" ;
+    jtbd:painPoint "Requirements unclear until testing begins" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+iot:step-home-2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate compatible smart home devices and hubs from vendor ecosystem" ;
+    jtbd:currentSolution "Manual research across 20+ vendor websites and compatibility matrices" ;
+    jtbd:painPoint "Incompatible device combinations require costly rework" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 14 .
+
+iot:step-home-3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare device network and WiFi/Zigbee infrastructure setup" ;
+    jtbd:currentSolution "On-site visits to configure WiFi and reset devices" ;
+    jtbd:painPoint "Remote customers require travel time and expense" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 11 .
+
+iot:step-home-4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm device connectivity and responsiveness testing" ;
+    jtbd:currentSolution "Manual testing of each device and connection" ;
+    jtbd:painPoint "Intermittent WiFi issues cause failed automation triggers" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+iot:step-home-5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute automation rules and trigger logic configuration" ;
+    jtbd:currentSolution "Rule builders vary across different manufacturer apps" ;
+    jtbd:painPoint "Complex automations require learning multiple interfaces" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 14 .
+
+iot:step-home-6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor automation execution and user-reported issues" ;
+    jtbd:currentSolution "Customer calls and manual device status checks" ;
+    jtbd:painPoint "Issues discovered weeks after deployment" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 12 .
+
+iot:step-home-7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify automation rules based on customer feedback" ;
+    jtbd:currentSolution "Remote support sessions troubleshooting over phone" ;
+    jtbd:painPoint "Changes require customer participation or on-site visit" ;
+    jtbd:importance 6 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 10 .
+
+iot:step-home-8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude with customer handoff and documentation" ;
+    jtbd:currentSolution "Emailed screenshots and manual instruction sheets" ;
+    jtbd:painPoint "Customers don't retain documentation, repeat support calls" ;
+    jtbd:importance 6 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 10 .
+
+# ============================================================================
+# Avatar 4: Firmware Engineer - Updating device software OTA
+# ============================================================================
+
+iot:avatar-firmware-engineer a jtbd:Avatar ;
+    jtbd:avatarName "Firmware Engineer" ;
+    jtbd:avatarDescription "Develops and deploys firmware updates for IoT devices, manages version control, validates OTA deployments, and responds to field issues" ;
+    jtbd:avatarSegment "Engineering" ;
+    jtbd:avatarPainLevel 8 ;
+    jtbd:hasJob iot:job-firmware-ota .
+
+iot:job-firmware-ota a jtbd:Job ;
+    jtbd:jobName "Update device software over-the-air" ;
+    jtbd:jobDescription "Develop firmware changes, validate compatibility across device variants, orchestrate OTA rollouts, monitor deployment success, and handle rollback scenarios" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        iot:step-firmware-1,
+        iot:step-firmware-2,
+        iot:step-firmware-3,
+        iot:step-firmware-4,
+        iot:step-firmware-5,
+        iot:step-firmware-6,
+        iot:step-firmware-7,
+        iot:step-firmware-8 .
+
+iot:step-firmware-1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define firmware change scope and device variant compatibility matrix" ;
+    jtbd:currentSolution "Spreadsheet tracking of firmware versions and device types" ;
+    jtbd:painPoint "Difficult to track which updates apply to which device variants" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+iot:step-firmware-2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate and inventory all devices in field requiring updates" ;
+    jtbd:currentSolution "Query device registry with incomplete data" ;
+    jtbd:painPoint "Devices go offline, lost track of firmware version" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 14 .
+
+iot:step-firmware-3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare firmware binary with digital signatures and version metadata" ;
+    jtbd:currentSolution "Manual signing process and changelog updates" ;
+    jtbd:painPoint "Version metadata mismatches cause update rejection" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+iot:step-firmware-4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm staging environment deployment and validation" ;
+    jtbd:currentSolution "Small test fleet in controlled lab environment" ;
+    jtbd:painPoint "Real-world conditions differ from lab, unexpected failures in production" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 16 .
+
+iot:step-firmware-5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute phased OTA rollout across device fleet" ;
+    jtbd:currentSolution "Manual scheduling of update windows with customer communication" ;
+    jtbd:painPoint "Devices offline during update window, update failures not detected" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 16 .
+
+iot:step-firmware-6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor OTA deployment progress and success metrics" ;
+    jtbd:currentSolution "Manual spot-checks and customer-reported failures" ;
+    jtbd:painPoint "Updates fail silently, customer discovers issues days later" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 1 ;
+    jtbd:opportunityScore 17 .
+
+iot:step-firmware-7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify rollout strategy or pause updates if issues detected" ;
+    jtbd:currentSolution "Manual halt and restart of deployment process" ;
+    jtbd:painPoint "Inconsistent device states across fleet after pause" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 14 .
+
+iot:step-firmware-8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude with deployment report and version audit trail" ;
+    jtbd:currentSolution "Manual verification and log file collection" ;
+    jtbd:painPoint "Audit trail incomplete, difficult to trace deployment issues" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 14 .
+
+# ============================================================================
+# Avatar 5: Sensor Network Architect - Designing data pipelines
+# ============================================================================
+
+iot:avatar-sensor-architect a jtbd:Avatar ;
+    jtbd:avatarName "Sensor Network Architect" ;
+    jtbd:avatarDescription "Designs scalable IoT data architectures, specifies sensor requirements, plans data pipelines, and ensures system reliability" ;
+    jtbd:avatarSegment "Architecture" ;
+    jtbd:avatarPainLevel 7 ;
+    jtbd:hasJob iot:job-sensor-design .
+
+iot:job-sensor-design a jtbd:Job ;
+    jtbd:jobName "Design and optimize data pipelines" ;
+    jtbd:jobDescription "Plan sensor networks, design data collection schemas, optimize transmission rates, ensure data quality, and scale infrastructure for growing device count" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        iot:step-sensor-1,
+        iot:step-sensor-2,
+        iot:step-sensor-3,
+        iot:step-sensor-4,
+        iot:step-sensor-5,
+        iot:step-sensor-6,
+        iot:step-sensor-7,
+        iot:step-sensor-8 .
+
+iot:step-sensor-1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define data requirements, schema, and refresh rates for sensors" ;
+    jtbd:currentSolution "Whiteboard sketches and design documents" ;
+    jtbd:painPoint "Schema changes during implementation require rework" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+iot:step-sensor-2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate optimal sensor placement and communication endpoints" ;
+    jtbd:currentSolution "Site surveys with manual measurements and notes" ;
+    jtbd:painPoint "RF interference discovered after installation" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 14 .
+
+iot:step-sensor-3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare data pipeline infrastructure and storage systems" ;
+    jtbd:currentSolution "Manual infrastructure provisioning and database setup" ;
+    jtbd:painPoint "Over-provisioned storage or insufficient bandwidth" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 11 .
+
+iot:step-sensor-4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm data quality metrics and latency SLOs" ;
+    jtbd:currentSolution "Sampling and spot-checks during testing" ;
+    jtbd:painPoint "Production data quality issues detected too late" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 14 .
+
+iot:step-sensor-5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute data collection and ingestion at scale" ;
+    jtbd:currentSolution "Unoptimized batch processes consuming 80% CPU" ;
+    jtbd:painPoint "Data lag grows as device count increases" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 14 .
+
+iot:step-sensor-6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor pipeline performance and data flow metrics" ;
+    jtbd:currentSolution "Manual dashboards with weekly performance reports" ;
+    jtbd:painPoint "Bottlenecks go unnoticed until customer complaints" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 14 .
+
+iot:step-sensor-7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify collection rates or schema based on changing requirements" ;
+    jtbd:currentSolution "Code changes and redeployment cycle" ;
+    jtbd:painPoint "Schema migrations cause data loss or inconsistency" ;
+    jtbd:importance 6 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 10 .
+
+iot:step-sensor-8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude with capacity planning and architecture review" ;
+    jtbd:currentSolution "Annual capacity reviews with guesswork on growth" ;
+    jtbd:painPoint "Unexpected growth requires emergency scaling" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 12 .
+
+# ============================================================================
+# Avatar 6: Predictive Maintenance Lead - Preventing equipment failures
+# ============================================================================
+
+iot:avatar-maintenance-lead a jtbd:Avatar ;
+    jtbd:avatarName "Predictive Maintenance Lead" ;
+    jtbd:avatarDescription "Leads predictive maintenance programs, analyzes equipment data, coordinates maintenance teams, and prevents unplanned downtime" ;
+    jtbd:avatarSegment "Operations" ;
+    jtbd:avatarPainLevel 9 ;
+    jtbd:hasJob iot:job-predictive-maintenance .
+
+iot:job-predictive-maintenance a jtbd:Job ;
+    jtbd:jobName "Prevent equipment failures using predictive analytics" ;
+    jtbd:jobDescription "Establish baseline equipment signatures, detect degradation patterns, predict failure windows, schedule preventive maintenance, and minimize unplanned downtime" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        iot:step-maintenance-1,
+        iot:step-maintenance-2,
+        iot:step-maintenance-3,
+        iot:step-maintenance-4,
+        iot:step-maintenance-5,
+        iot:step-maintenance-6,
+        iot:step-maintenance-7,
+        iot:step-maintenance-8 .
+
+iot:step-maintenance-1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define failure modes and degradation indicators for equipment" ;
+    jtbd:currentSolution "Tribal knowledge from experienced technicians" ;
+    jtbd:painPoint "New equipment types require guessing at failure patterns" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+iot:step-maintenance-2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate and activate sensors on critical equipment" ;
+    jtbd:currentSolution "Retrofit sensors on existing equipment manually" ;
+    jtbd:painPoint "Some equipment too costly to sensor, gaps in coverage" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 14 .
+
+iot:step-maintenance-3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare historical baseline data for equipment signatures" ;
+    jtbd:currentSolution "Manual data collection from logs, export to spreadsheets" ;
+    jtbd:painPoint "Historical data incomplete or stored in incompatible formats" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 14 .
+
+iot:step-maintenance-4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm anomaly detection thresholds with domain experts" ;
+    jtbd:currentSolution "Manual threshold setting with false positive testing" ;
+    jtbd:painPoint "False alarms overwhelm maintenance team, alerts ignored" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 14 .
+
+iot:step-maintenance-5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute real-time anomaly detection and pattern analysis" ;
+    jtbd:currentSolution "Manual monitoring with spreadsheet calculations" ;
+    jtbd:painPoint "Manual analysis misses subtle degradation patterns" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 16 .
+
+iot:step-maintenance-6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor equipment RUL (remaining useful life) predictions" ;
+    jtbd:currentSolution "Monthly RUL reviews in spreadsheets" ;
+    jtbd:painPoint "RUL estimates too conservative, unnecessary maintenance costs" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 14 .
+
+iot:step-maintenance-7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify maintenance schedule based on predicted failure window" ;
+    jtbd:currentSolution "Annual or fixed-interval maintenance regardless of condition" ;
+    jtbd:painPoint "Premature replacements waste budget, missed failures between intervals" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 16 .
+
+iot:step-maintenance-8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude with maintenance effectiveness analytics and ROI" ;
+    jtbd:currentSolution "Quarterly reports showing only reactive maintenance hours" ;
+    jtbd:painPoint "Lack of metrics showing cost avoidance from preventive actions" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 12 .
+
+# ============================================================================
+# Avatar 7: Edge Computing Engineer - Processing data locally
+# ============================================================================
+
+iot:avatar-edge-engineer a jtbd:Avatar ;
+    jtbd:avatarName "Edge Computing Engineer" ;
+    jtbd:avatarDescription "Deploys and manages edge computing infrastructure, processes data locally on gateways, reduces cloud latency, and ensures network resilience" ;
+    jtbd:avatarSegment "Infrastructure" ;
+    jtbd:avatarPainLevel 8 ;
+    jtbd:hasJob iot:job-edge-computing .
+
+iot:job-edge-computing a jtbd:Job ;
+    jtbd:jobName "Process data at the edge" ;
+    jtbd:jobDescription "Deploy edge AI models, filter and compress sensor data locally, reduce cloud bandwidth costs, enable offline operation, and improve real-time response" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        iot:step-edge-1,
+        iot:step-edge-2,
+        iot:step-edge-3,
+        iot:step-edge-4,
+        iot:step-edge-5,
+        iot:step-edge-6,
+        iot:step-edge-7,
+        iot:step-edge-8 .
+
+iot:step-edge-1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define which computations run locally vs. in cloud" ;
+    jtbd:currentSolution "All processing in cloud, local devices are thin clients" ;
+    jtbd:painPoint "Cannot make decisions when cloud connectivity lost" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 14 .
+
+iot:step-edge-2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate edge gateway hardware with sufficient compute and storage" ;
+    jtbd:currentSolution "Custom hardware selection and sourcing" ;
+    jtbd:painPoint "Inconsistent hardware across deployments complicates management" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 12 .
+
+iot:step-edge-3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare edge inference models and containerize for deployment" ;
+    jtbd:currentSolution "Manual model optimization and Dockerfile creation" ;
+    jtbd:painPoint "Model incompatible with edge hardware constraints" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 14 .
+
+iot:step-edge-4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm inference latency meets real-time requirements" ;
+    jtbd:currentSolution "Manual testing on limited edge hardware variants" ;
+    jtbd:painPoint "Production latency 3-5x higher than lab results" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 16 .
+
+iot:step-edge-5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute edge model inference on incoming sensor data" ;
+    jtbd:currentSolution "Basic inference without caching or batching" ;
+    jtbd:painPoint "Processing bottlenecks, high CPU and memory usage" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 14 .
+
+iot:step-edge-6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor edge resource usage and model accuracy drift" ;
+    jtbd:currentSolution "Manual SSH to each edge gateway to check logs" ;
+    jtbd:painPoint "Model performance degrades undetected, false positives increase" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 1 ;
+    jtbd:opportunityScore 16 .
+
+iot:step-edge-7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify edge model or filtering rules based on performance" ;
+    jtbd:currentSolution "Manual redeployment requiring edge gateway restart" ;
+    jtbd:painPoint "Service interruption during model updates" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 12 .
+
+iot:step-edge-8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude with bandwidth savings and latency analysis reports" ;
+    jtbd:currentSolution "Manual calculation of network traffic reduction" ;
+    jtbd:painPoint "Difficult to correlate edge processing savings to business impact" ;
+    jtbd:importance 6 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 10 .

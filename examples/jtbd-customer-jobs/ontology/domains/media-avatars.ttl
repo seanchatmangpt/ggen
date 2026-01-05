@@ -1,0 +1,644 @@
+@prefix jtbd: <https://ggen.io/ontology/jtbd#> .
+@prefix media: <https://ggen.io/examples/jtbd/media#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Media/Content Domain - Customer Avatars (JTBD)
+# 7 avatars × 8 job steps each = 56 total job steps
+
+# ============================================================================
+# AVATAR 1: Streaming Platform Engineer
+# ============================================================================
+
+media:avatar-streaming-engineer a jtbd:Avatar ;
+    jtbd:avatarName "Streaming Platform Engineer" ;
+    jtbd:avatarDescription "Responsible for delivering video content reliably and efficiently at scale across global infrastructure" ;
+    jtbd:avatarSegment "Infrastructure & Delivery" ;
+    jtbd:avatarPainLevel 8 ;
+    jtbd:hasJob media:job-streaming-deliver .
+
+media:job-streaming-deliver a jtbd:Job ;
+    jtbd:jobName "Delivering Video at Scale" ;
+    jtbd:jobDescription "Enable high-quality video streaming to millions of concurrent users with minimal latency and buffering" ;
+    jtbd:jobType jtbd:functional ;
+    jtbd:hasJobStep media:step-streaming-01, media:step-streaming-02, media:step-streaming-03,
+                    media:step-streaming-04, media:step-streaming-05, media:step-streaming-06,
+                    media:step-streaming-07, media:step-streaming-08 .
+
+media:step-streaming-01 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Determine required video quality specifications (resolution, bitrate, codec) based on target audience device capabilities" ;
+    jtbd:currentSolution "Manual analysis of audience device data; spreadsheet-based requirements" ;
+    jtbd:painPoint "Difficult to update specs as device capabilities change; requires manual cross-team coordination" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 6 ;
+    jtbd:opportunityScore 12 .
+
+media:step-streaming-02 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Identify and evaluate CDN infrastructure partners with global reach and proven performance" ;
+    jtbd:currentSolution "Industry reputation research; requests for proposals from known CDN providers" ;
+    jtbd:painPoint "Limited visibility into real-time performance metrics before commitment; vendor lock-in concerns" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+media:step-streaming-03 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Configure encoding pipelines to transcode source content into multiple quality tiers and formats" ;
+    jtbd:currentSolution "Custom-built encoding infrastructure; manual transcoding job configuration per video" ;
+    jtbd:painPoint "Complex setup; time-consuming pipeline tuning; high infrastructure costs; difficult to scale" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+media:step-streaming-04 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Test video delivery and playback quality across multiple geographic regions and device types" ;
+    jtbd:currentSolution "Manual testing from different locations; crowd-sourced testing groups; limited edge cases" ;
+    jtbd:painPoint "Cannot test all device/region combinations; delayed issue detection; reactive rather than proactive" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+media:step-streaming-05 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Deploy streaming infrastructure and make video content available globally in real-time" ;
+    jtbd:currentSolution "Multi-region deployment via infrastructure-as-code; manual orchestration across CDN partners" ;
+    jtbd:painPoint "Complex deployment process; risk of regional issues; difficult rollback procedures" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 6 ;
+    jtbd:opportunityScore 14 .
+
+media:step-streaming-06 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track bandwidth consumption, latency, buffering rates, and user quality of experience metrics in real-time" ;
+    jtbd:currentSolution "Dashboards aggregating CDN metrics; logs from player SDKs; alerts on basic threshold violations" ;
+    jtbd:painPoint "Multiple disconnected data sources; slow anomaly detection; difficulty correlating metrics across regions" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 6 ;
+    jtbd:opportunityScore 12 .
+
+media:step-streaming-07 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Optimize bitrate and quality dynamically based on real-time network conditions for each user" ;
+    jtbd:currentSolution "Basic ABR (Adaptive Bitrate) algorithms in player; manual bitrate ladder adjustments per region" ;
+    jtbd:painPoint "One-size-fits-all approach; cannot adapt to individual network conditions; requires engineering changes" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+media:step-streaming-08 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Achieve reliable 24/7 video delivery with <99.99% uptime SLA across all regions and device types" ;
+    jtbd:currentSolution "SLA monitoring; incident response team; disaster recovery procedures" ;
+    jtbd:painPoint "Difficult to maintain SLA; incident resolution takes hours; customer complaints during outages" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 7 ;
+    jtbd:opportunityScore 13 .
+
+# ============================================================================
+# AVATAR 2: Content Recommendation Lead
+# ============================================================================
+
+media:avatar-recommendation-lead a jtbd:Avatar ;
+    jtbd:avatarName "Content Recommendation Lead" ;
+    jtbd:avatarDescription "Owns the personalization engine that matches viewers with content they want to watch, maximizing engagement and satisfaction" ;
+    jtbd:avatarSegment "Discovery & Engagement" ;
+    jtbd:avatarPainLevel 7 ;
+    jtbd:hasJob media:job-recommendation-personalize .
+
+media:job-recommendation-personalize a jtbd:Job ;
+    jtbd:jobName "Personalizing Content Feeds" ;
+    jtbd:jobDescription "Deliver highly relevant, personalized content recommendations that increase watch time and user satisfaction while discovering new content" ;
+    jtbd:jobType jtbd:functional ;
+    jtbd:hasJobStep media:step-recommend-01, media:step-recommend-02, media:step-recommend-03,
+                    media:step-recommend-04, media:step-recommend-05, media:step-recommend-06,
+                    media:step-recommend-07, media:step-recommend-08 .
+
+media:step-recommend-01 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Identify user preference signals (watch history, search queries, ratings, dwell time, shares) that predict content interest" ;
+    jtbd:currentSolution "Analysis of historical user behavior; feature engineering; manual signal identification" ;
+    jtbd:painPoint "Difficult to identify new relevant signals; requires data science expertise; changes take weeks to implement" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+media:step-recommend-02 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Find relevant content from the entire catalog that matches each user's preferences and viewing patterns" ;
+    jtbd:currentSolution "Database queries; genre-based filtering; collaborative filtering algorithms" ;
+    jtbd:painPoint "Cold start problem with new users; slow query performance at scale; limited content matching depth" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+media:step-recommend-03 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Build machine learning model that predicts user-content affinity scores using historical interaction data" ;
+    jtbd:currentSolution "Collaborative filtering; matrix factorization; neural networks; periodic retraining on batched data" ;
+    jtbd:painPoint "Long training times; requires data science team; difficult to capture real-time user behavior changes" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+media:step-recommend-04 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Validate recommendation quality through A/B tests measuring engagement, diversity, and user satisfaction metrics" ;
+    jtbd:currentSolution "Experimental framework; A/B testing infrastructure; 2-4 week test cycles for statistical significance" ;
+    jtbd:painPoint "Slow feedback loops; difficult to test multiple variants simultaneously; seasonal variations confound results" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+media:step-recommend-05 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Deploy recommendation model to production serving personalized feed rankings to millions of concurrent users" ;
+    jtbd:currentSolution "Model serving infrastructure; feature stores; real-time inference with cached results" ;
+    jtbd:painPoint "Complex deployment process; inference latency requirements; model staleness issues; rollback challenges" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 6 ;
+    jtbd:opportunityScore 12 .
+
+media:step-recommend-06 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track recommendation performance metrics: watch-through rate, click-through rate, dwell time, diversity scores, and user satisfaction" ;
+    jtbd:currentSolution "Analytics dashboards; real-time metrics pipeline; user feedback surveys" ;
+    jtbd:painPoint "Delayed metric availability; difficult to detect model drift; multiple disconnected monitoring tools" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+media:step-recommend-07 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Adjust recommendation algorithm weights and parameters based on performance metrics and emerging user trends" ;
+    jtbd:currentSolution "Manual feature weight adjustments; retraining on new data; quarterly algorithm reviews" ;
+    jtbd:painPoint "Cannot respond quickly to trends; manual tuning error-prone; no automated optimization framework" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+media:step-recommend-08 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Achieve target metrics: >40% content discovery rate, >70% watch-through rate, high diversity, and user satisfaction scores >4.2/5" ;
+    jtbd:currentSolution "Regular performance reviews; stakeholder reporting; quarterly goal setting" ;
+    jtbd:painPoint "Goals frequently missed; difficulty balancing engagement vs. diversity; competing stakeholder priorities" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 15 .
+
+# ============================================================================
+# AVATAR 3: Digital Rights Manager
+# ============================================================================
+
+media:avatar-rights-manager a jtbd:Avatar ;
+    jtbd:avatarName "Digital Rights Manager" ;
+    jtbd:avatarDescription "Ensures all content is legally licensed, protected from unauthorized use, and complies with regional distribution restrictions" ;
+    jtbd:avatarSegment "Legal & Compliance" ;
+    jtbd:avatarPainLevel 8 ;
+    jtbd:hasJob media:job-rights-protect .
+
+media:job-rights-protect a jtbd:Job ;
+    jtbd:jobName "Protecting Intellectual Property" ;
+    jtbd:jobDescription "Manage content rights, enforce licensing agreements, prevent unauthorized access, and ensure compliance with regional content regulations" ;
+    jtbd:jobType jtbd:functional ;
+    jtbd:hasJobStep media:step-rights-01, media:step-rights-02, media:step-rights-03,
+                    media:step-rights-04, media:step-rights-05, media:step-rights-06,
+                    media:step-rights-07, media:step-rights-08 .
+
+media:step-rights-01 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Catalog all content rights including ownership, licensing agreements, territorial restrictions, and expiration dates" ;
+    jtbd:currentSolution "Spreadsheets; legal document archives; manual tracking; periodic audits" ;
+    jtbd:painPoint "Error-prone manual tracking; difficult to maintain accuracy at scale; slow to identify expired licenses" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+media:step-rights-02 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Identify and organize all relevant licensing agreements for each content asset (studios, distributors, creators)" ;
+    jtbd:currentSolution "Document management systems; legal team review; contracts database" ;
+    jtbd:painPoint "Difficult to quickly locate specific agreement terms; scattered across multiple storage systems; version control issues" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+media:step-rights-03 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Set up digital rights management (DRM) systems, watermarking, and access control mechanisms for protected content" ;
+    jtbd:currentSolution "DCMA-compliant DRM implementations; encryption; certificate management; regional access control lists" ;
+    jtbd:painPoint "Complex DRM setup; compatibility issues across devices; high operational overhead; user experience friction" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+media:step-rights-04 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Test DRM effectiveness and licensing compliance against unauthorized access attempts and piracy vectors" ;
+    jtbd:currentSolution "Security testing; penetration testing; manual validation; reporting from piracy detection services" ;
+    jtbd:painPoint "Cannot test all piracy vectors; delayed detection of new attack methods; resource-intensive testing" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+media:step-rights-05 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Deploy content protection measures and implement regional access restrictions based on licensing agreements" ;
+    jtbd:currentSolution "Infrastructure deployment; access control policy application; CDN regional configuration" ;
+    jtbd:painPoint "Complex deployment coordination; risk of accidentally blocking legitimate users; difficult rollback" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 6 ;
+    jtbd:opportunityScore 12 .
+
+media:step-rights-06 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track unauthorized access attempts, piracy incidents, license expiration dates, and compliance violations" ;
+    jtbd:currentSolution "Piracy detection services; access log monitoring; automated alerts; quarterly compliance audits" ;
+    jtbd:painPoint "Limited real-time piracy detection; slow incident response; manual compliance verification" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+media:step-rights-07 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Update DRM policies, access restrictions, and compliance rules based on new legal requirements and piracy threats" ;
+    jtbd:currentSolution "Manual policy updates; infrastructure reconfiguration; change request process" ;
+    jtbd:painPoint "Slow update cycles; difficult to test complex policy changes; risk of compliance gaps" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+media:step-rights-08 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Achieve 100% licensing compliance, zero unauthorized distribution of protected content, and pass all regional audits" ;
+    jtbd:currentSolution "Regular compliance reviews; legal team sign-off; regulatory audits" ;
+    jtbd:painPoint "Audit failures require immediate remediation; piracy continues despite measures; license disputes" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 6 ;
+    jtbd:opportunityScore 14 .
+
+# ============================================================================
+# AVATAR 4: Social Media Manager
+# ============================================================================
+
+media:avatar-social-manager a jtbd:Avatar ;
+    jtbd:avatarName "Social Media Manager" ;
+    jtbd:avatarDescription "Grows and engages the social media audience by creating and distributing compelling content that resonates with followers" ;
+    jtbd:avatarSegment "Marketing & Engagement" ;
+    jtbd:avatarPainLevel 7 ;
+    jtbd:hasJob media:job-social-grow .
+
+media:job-social-grow a jtbd:Job ;
+    jtbd:jobName "Growing Audience Engagement" ;
+    jtbd:jobDescription "Build community, increase follower growth, drive engagement metrics (likes, shares, comments), and amplify content reach across social platforms" ;
+    jtbd:jobType jtbd:functional ;
+    jtbd:hasJobStep media:step-social-01, media:step-social-02, media:step-social-03,
+                    media:step-social-04, media:step-social-05, media:step-social-06,
+                    media:step-social-07, media:step-social-08 .
+
+media:step-social-01 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Establish audience engagement goals: target follower growth rate, engagement rate, reach, and impression metrics" ;
+    jtbd:currentSolution "Quarterly planning meetings; setting KPIs based on historical trends; stakeholder input on targets" ;
+    jtbd:painPoint "Goals often unrealistic; difficult to align with platform algorithm changes; conflicting stakeholder expectations" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+media:step-social-02 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Identify trending topics, hashtags, and cultural moments relevant to audience interests and brand positioning" ;
+    jtbd:currentSolution "Manual trend monitoring; social listening tools; team brainstorming; competitor analysis" ;
+    jtbd:painPoint "Trends move fast; difficult to identify early; manual monitoring is time-consuming; tools have high cost" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+media:step-social-03 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Create diverse content types (videos, images, text, Stories, Reels) aligned with platform best practices and brand guidelines" ;
+    jtbd:currentSolution "Content calendar planning; creative team collaboration; template-based content creation; design tools" ;
+    jtbd:painPoint "Time-consuming creative process; maintaining brand consistency; platform algorithm preferences constantly change" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 6 ;
+    jtbd:opportunityScore 12 .
+
+media:step-social-04 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Preview content performance potential using platform preview tools, test audience feedback, and optimize before publishing" ;
+    jtbd:currentSolution "Draft reviews with team; limited test posting to small audience groups; A/B test copy variations" ;
+    jtbd:painPoint "Limited visibility into actual performance before publishing; cannot test comprehensive audience segments" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 9 .
+
+media:step-social-05 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Publish content across multiple platforms (Instagram, TikTok, Twitter, LinkedIn, YouTube) at optimal posting times" ;
+    jtbd:currentSolution "Social media scheduling tools; multi-platform posting; optimal time analysis; manual platform-specific formatting" ;
+    jtbd:painPoint "Platform-specific formatting requirements; manual monitoring for technical issues; scheduling tools miss optimal times" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 6 ;
+    jtbd:opportunityScore 10 .
+
+media:step-social-06 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track real-time engagement metrics: likes, comments, shares, reach, impressions, follower growth, and audience growth rate" ;
+    jtbd:currentSolution "Platform analytics dashboards; third-party analytics tools; daily metric reviews; reporting dashboards" ;
+    jtbd:painPoint "Analytics delayed by 24-48 hours; multiple tool logins required; difficult to correlate metrics across platforms" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+media:step-social-07 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Adjust content strategy based on engagement patterns: change posting times, content formats, posting frequency, and messaging approach" ;
+    jtbd:currentSolution "Weekly strategy reviews; agile pivoting to trending topics; A/B testing different content formats" ;
+    jtbd:painPoint "Difficult to quickly identify what works; changes take time to show impact; conflicting signals from different platforms" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+media:step-social-08 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Achieve sustained engagement goals: meet monthly KPIs for followers, engagement rate, reach, and audience growth targets" ;
+    jtbd:currentSolution "Monthly performance reviews; stakeholder reporting; quarterly goal adjustment" ;
+    jtbd:painPoint "Goals frequently missed; pressure from leadership for quick wins; difficulty sustaining growth over time" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+# ============================================================================
+# AVATAR 5: Podcast Production Lead
+# ============================================================================
+
+media:avatar-podcast-lead a jtbd:Avatar ;
+    jtbd:avatarName "Podcast Production Lead" ;
+    jtbd:avatarDescription "Manages all aspects of podcast production from episode planning to distribution, ensuring consistent quality and audience growth" ;
+    jtbd:avatarSegment "Audio Content" ;
+    jtbd:avatarPainLevel 7 ;
+    jtbd:hasJob media:job-podcast-create .
+
+media:job-podcast-create a jtbd:Job ;
+    jtbd:jobName "Creating Audio Content" ;
+    jtbd:jobDescription "Produce high-quality podcast episodes with compelling storytelling, professional audio quality, and consistent distribution schedule" ;
+    jtbd:jobType jtbd:functional ;
+    jtbd:hasJobStep media:step-podcast-01, media:step-podcast-02, media:step-podcast-03,
+                    media:step-podcast-04, media:step-podcast-05, media:step-podcast-06,
+                    media:step-podcast-07, media:step-podcast-08 .
+
+media:step-podcast-01 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Plan episode topics, themes, and narrative arcs that align with podcast format and audience interests" ;
+    jtbd:currentSolution "Topic brainstorming meetings; editorial planning spreadsheets; listener feedback review" ;
+    jtbd:painPoint "Difficult to consistently generate fresh ideas; slow planning process; topics may not resonate with audience" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 6 ;
+    jtbd:opportunityScore 10 .
+
+media:step-podcast-02 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Find and book guest speakers, experts, and contributors that add value and variety to episode content" ;
+    jtbd:currentSolution "Direct outreach to potential guests; talent database; industry contacts; referral network" ;
+    jtbd:painPoint "Difficulty booking high-profile guests; limited lead time for planning; some guests cancel or reschedule" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+media:step-podcast-03 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Set up recording studio with professional audio equipment, microphones, soundproofing, and technical infrastructure" ;
+    jtbd:currentSolution "Professional studio rental or in-house setup; audio equipment investment; remote recording tools for guests" ;
+    jtbd:painPoint "High studio costs; technical setup complexity; recording remote guests with audio quality issues" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 6 ;
+    jtbd:opportunityScore 10 .
+
+media:step-podcast-04 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Test audio quality, recording equipment, and remote guest connections before episode recording" ;
+    jtbd:currentSolution "Sound checks; equipment testing; pre-call with guests; technical rehearsal" ;
+    jtbd:painPoint "Last-minute technical issues; guest connection problems on recording day; audio quality inconsistencies" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+media:step-podcast-05 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Record, edit, and post-process episode audio to achieve professional quality (EQ, compression, noise reduction)" ;
+    jtbd:currentSolution "Multi-track recording; audio editing software (Audition, Ableton); mixing and mastering; add intro/outro music" ;
+    jtbd:painPoint "Time-intensive editing; requires audio engineering expertise; difficult to maintain consistent quality across episodes" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 6 ;
+    jtbd:opportunityScore 12 .
+
+media:step-podcast-06 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track download numbers, listener engagement, audience growth, listener location data, and episode performance metrics" ;
+    jtbd:currentSolution "Podcast hosting platform analytics; download statistics; listener feedback; review ratings" ;
+    jtbd:painPoint "Analytics delayed by 24-48 hours; limited demographic insight; difficult to identify which content performs best" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 9 .
+
+media:step-podcast-07 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Improve audio production quality, episode format, pacing, and content mix based on listener feedback and performance data" ;
+    jtbd:currentSolution "Listener surveys; review analysis; experimentation with format changes; gradual quality improvements" ;
+    jtbd:painPoint "Difficult to identify improvement priorities; changes take time to show impact; listener expectations vary" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+media:step-podcast-08 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Achieve consistent publishing schedule, maintain listener base, grow downloads month-over-month, and reach industry recognition" ;
+    jtbd:currentSolution "Scheduled episode publishing; promotional efforts; quality consistency maintenance" ;
+    jtbd:painPoint "Maintaining schedule is resource-intensive; difficult to sustain listener growth; breakthrough recognition is unpredictable" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+# ============================================================================
+# AVATAR 6: News Editor
+# ============================================================================
+
+media:avatar-news-editor a jtbd:Avatar ;
+    jtbd:avatarName "News Editor" ;
+    jtbd:avatarDescription "Identifies, verifies, and publishes timely, accurate news stories while managing editorial standards and audience reach" ;
+    jtbd:avatarSegment "Editorial & News" ;
+    jtbd:avatarPainLevel 8 ;
+    jtbd:hasJob media:job-news-publish .
+
+media:job-news-publish a jtbd:Job ;
+    jtbd:jobName "Publishing Breaking Stories" ;
+    jtbd:jobDescription "Identify newsworthy events, verify information accuracy, write/edit compelling stories, and publish rapidly across platforms with SEO optimization" ;
+    jtbd:jobType jtbd:functional ;
+    jtbd:hasJobStep media:step-news-01, media:step-news-02, media:step-news-03,
+                    media:step-news-04, media:step-news-05, media:step-news-06,
+                    media:step-news-07, media:step-news-08 .
+
+media:step-news-01 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Identify newsworthy stories, develop story angles, and assess news value relative to editorial priorities" ;
+    jtbd:currentSolution "News wire monitoring; reporter pitches; audience trend analysis; editorial meeting discussions" ;
+    jtbd:painPoint "Difficult to identify breaking news early; editorial priorities shift quickly; reader interest is unpredictable" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+media:step-news-02 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Gather source information from wire services, direct sources, interviews, and official statements for story verification" ;
+    jtbd:currentSolution "Direct source interviews; press releases; news wire services; eyewitness accounts; social media monitoring" ;
+    jtbd:painPoint "Sources may be unavailable; conflicting information from different sources; fake news and misinformation spread" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+media:step-news-03 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Write and edit articles with compelling headlines, SEO optimization, multimedia elements (images, videos, infographics)" ;
+    jtbd:currentSolution "Editorial software; style guide compliance; copy editing; multimedia asset integration" ;
+    jtbd:painPoint "Headlines must balance clickbait vs. accuracy; SEO optimization competes with editorial quality; multimedia sourcing delays" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 6 ;
+    jtbd:opportunityScore 12 .
+
+media:step-news-04 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Fact-check all claims, verify sources, confirm accuracy of statistics, and identify potential legal/ethical issues" ;
+    jtbd:currentSolution "Manual fact-checking; source verification; legal review; editor review; corrections process" ;
+    jtbd:painPoint "Fact-checking is time-consuming; difficult to verify emerging stories quickly; corrections damage credibility" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+media:step-news-05 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Publish story to website, apps, email newsletters, and social media platforms simultaneously with optimal timing" ;
+    jtbd:currentSolution "CMS publishing; social media scheduling; email newsletter distribution; traffic management" ;
+    jtbd:painPoint "Timing story publication for maximum reach is difficult; platform-specific formatting slows publication; coordination overhead" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 6 ;
+    jtbd:opportunityScore 12 .
+
+media:step-news-06 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track real-time article performance: page views, time on page, social shares, comments, bounce rate, and reader engagement" ;
+    jtbd:currentSolution "Analytics dashboard; real-time traffic monitoring; social media engagement tracking; reader comments moderation" ;
+    jtbd:painPoint "Delayed analytics; difficult to identify which stories perform best; comments moderation is labor-intensive" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+media:step-news-07 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Update article with breaking news, correct errors, add new information, and optimize content based on engagement metrics" ;
+    jtbd:currentSolution "Live story updates; correction notices; content optimization based on performance; story revisions" ;
+    jtbd:painPoint "Balancing live updates vs. accuracy; update notifications fatigue readers; difficult to know when story is 'done'" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+media:step-news-08 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Achieve accurate, timely reporting that builds reader trust, maintains publication credibility, and drives sustainable traffic" ;
+    jtbd:currentSolution "Quality review; editorial standards enforcement; long-term audience relationship building" ;
+    jtbd:painPoint "Balancing speed vs. accuracy; misinformation spreads faster than corrections; reader trust is fragile" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 6 ;
+    jtbd:opportunityScore 14 .
+
+# ============================================================================
+# AVATAR 7: Influencer Marketing Manager
+# ============================================================================
+
+media:avatar-influencer-manager a jtbd:Avatar ;
+    jtbd:avatarName "Influencer Marketing Manager" ;
+    jtbd:avatarDescription "Manages relationships with content creators and influencers, orchestrating campaigns that amplify brand reach and drive authentic engagement" ;
+    jtbd:avatarSegment "Influencer & Performance Marketing" ;
+    jtbd:avatarPainLevel 7 ;
+    jtbd:hasJob media:job-influencer-campaign .
+
+media:job-influencer-campaign a jtbd:Job ;
+    jtbd:jobName "Running Creator Campaigns" ;
+    jtbd:jobDescription "Identify, negotiate, and manage influencer partnerships that drive authentic audience growth, engagement, and brand awareness with measurable ROI" ;
+    jtbd:jobType jtbd:functional ;
+    jtbd:hasJobStep media:step-influencer-01, media:step-influencer-02, media:step-influencer-03,
+                    media:step-influencer-04, media:step-influencer-05, media:step-influencer-06,
+                    media:step-influencer-07, media:step-influencer-08 .
+
+media:step-influencer-01 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Set campaign objectives: awareness goals, engagement targets, conversion rates, audience demographics, and campaign duration" ;
+    jtbd:currentSolution "Stakeholder meetings; campaign briefing documents; historical campaign analysis; competitive benchmarking" ;
+    jtbd:painPoint "Objectives often vague or changing; difficult to align all stakeholders; unrealistic ROI expectations" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+media:step-influencer-02 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Find influencers and creators whose audience demographics and engagement rates match campaign objectives and brand values" ;
+    jtbd:currentSolution "Influencer discovery platforms; manual research; agent relationships; past successful partnerships review" ;
+    jtbd:painPoint "Difficult to assess authentic engagement; follower count doesn't correlate with engagement; time-intensive vetting" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+media:step-influencer-03 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Negotiate contracts, rates, deliverables, posting schedule, content approval process, and exclusivity terms" ;
+    jtbd:currentSolution "Contract templates; rate negotiation; legal review; detailed brief creation; performance expectations documentation" ;
+    jtbd:painPoint "Negotiation takes time; rates may exceed budget; difficult to ensure content aligns with brand; contract disputes arise" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+media:step-influencer-04 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Approve influencer creative content before posting to ensure brand alignment, message clarity, and compliance with regulations" ;
+    jtbd:currentSolution "Content review process; stakeholder approval; preview sharing; revision request process" ;
+    jtbd:painPoint "Creative approval slows content schedule; influencer vs. brand preferences conflict; regulatory compliance issues" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+media:step-influencer-05 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Launch influencer campaigns across their channels with coordinated posting schedules and amplification strategies" ;
+    jtbd:currentSolution "Campaign kickoff coordination; influencer posting; internal team promotion; cross-promotion across brand channels" ;
+    jtbd:painPoint "Coordinating multiple influencers is complex; timing misalignment across channels; technical publishing issues" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 6 ;
+    jtbd:opportunityScore 10 .
+
+media:step-influencer-06 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track campaign performance: reach, impressions, engagement, click-through rate, conversions, and ROI metrics" ;
+    jtbd:currentSolution "Social media analytics; UTM tracking; conversion tracking; influencer reporting; third-party tracking tools" ;
+    jtbd:painPoint "Multiple data sources; delayed attribution data; difficult to isolate influencer impact from other channels" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+media:step-influencer-07 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Adjust campaign strategy based on performance data: extend successful partnerships, pause underperformers, optimize messaging" ;
+    jtbd:currentSolution "Performance review meetings; mid-campaign adjustments; influencer feedback incorporation; strategy pivots" ;
+    jtbd:painPoint "Difficult to identify successful patterns; influencers resistant to changes; budget reallocations require approvals" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+media:step-influencer-08 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Achieve campaign ROI targets, maintain influencer relationships for future campaigns, and document learnings for next cycles" ;
+    jtbd:currentSolution "Campaign reporting; ROI analysis; relationship nurturing; lessons learned documentation" ;
+    jtbd:painPoint "ROI often falls short of targets; influencer relationships can be transactional; learnings not applied consistently" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .

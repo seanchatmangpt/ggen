@@ -1,0 +1,696 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix jtbd: <https://ggen.io/ontology/jtbd#> .
+@prefix game: <https://ggen.io/examples/jtbd/gaming#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# GAMING DOMAIN - JTBD CUSTOMER AVATARS (7 avatars × 8 job steps = 56 steps)
+# ============================================================================
+
+# ============================================================================
+# Avatar 1: Live Service Producer
+# ============================================================================
+
+game:avatar-live-service-producer a jtbd:Avatar ;
+    jtbd:avatarName "Live Service Producer" ;
+    jtbd:avatarDescription "Manages ongoing operations of multiplayer games, handling updates, events, and player retention strategies" ;
+    jtbd:avatarSegment "Enterprise" ;
+    jtbd:avatarPainLevel "7"^^xsd:integer ;
+    jtbd:hasJob game:job-live-operations .
+
+game:job-live-operations a jtbd:Job ;
+    jtbd:jobName "Managing Live Game Operations" ;
+    jtbd:jobDescription "Coordinate and execute daily operations, content updates, seasonal events, and player engagement initiatives for live multiplayer games" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        game:step-lsp-define,
+        game:step-lsp-locate,
+        game:step-lsp-prepare,
+        game:step-lsp-confirm,
+        game:step-lsp-execute,
+        game:step-lsp-monitor,
+        game:step-lsp-modify,
+        game:step-lsp-conclude .
+
+game:step-lsp-define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define quarterly content roadmap and seasonal event calendar based on player metrics and business goals" ;
+    jtbd:currentSolution "Spreadsheets and Confluence pages reviewed in weekly meetings with marketing and design leads" ;
+    jtbd:painPoint "Multiple sources of truth cause misalignment; difficult to track dependencies across teams" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "13"^^xsd:integer .
+
+game:step-lsp-locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate and secure resources: developers, artists, QA staff, and infrastructure capacity for planned content" ;
+    jtbd:currentSolution "Manual resource allocation through JIRA tickets and team lead conversations" ;
+    jtbd:painPoint "Resource conflicts and overallocation discovered late in planning cycle" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+game:step-lsp-prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare content production environment, set up staging servers, and establish testing protocols" ;
+    jtbd:currentSolution "Manual server provisioning using internal infrastructure tools; testing checklist in Google Docs" ;
+    jtbd:painPoint "Environment setup errors cause delays; testing criteria inconsistently applied" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "6"^^xsd:integer ;
+    jtbd:opportunityScore "8"^^xsd:integer .
+
+game:step-lsp-confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm launch readiness through stakeholder sign-offs and cross-team validation" ;
+    jtbd:currentSolution "Email and Slack approval chains with shared status spreadsheet" ;
+    jtbd:painPoint "Approval bottlenecks; unclear decision authority; hard to trace sign-off status" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "13"^^xsd:integer .
+
+game:step-lsp-execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute deployment across production servers with zero-downtime patching" ;
+    jtbd:currentSolution "Scripts run by DevOps team; deployment manager calls scheduled during off-peak hours" ;
+    jtbd:painPoint "Rollback procedures complex; communication during deployment is chaotic via Slack" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "13"^^xsd:integer .
+
+game:step-lsp-monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor game health metrics, server performance, player satisfaction, and critical bugs post-launch" ;
+    jtbd:currentSolution "Grafana dashboards, Discord bot alerts, and manual player report triage" ;
+    jtbd:painPoint "Alert fatigue; difficult to distinguish critical vs. informational issues; players report bugs before internal detection" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+game:step-lsp-modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Adjust live game parameters, hotfix critical bugs, or rollback problematic content based on monitoring data" ;
+    jtbd:currentSolution "Ad-hoc decision-making by game directors with git hotfix branches and emergency patches" ;
+    jtbd:painPoint "Decisions made under pressure; lack of structured incident response; unclear authority to make changes" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+game:step-lsp-conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude update cycle with post-mortem analysis and metrics reporting to executive stakeholders" ;
+    jtbd:currentSolution "PowerPoint slides and spreadsheet analysis created manually over several days" ;
+    jtbd:painPoint "Delayed insights; inconsistent metrics across reports; low exec engagement with retrospectives" ;
+    jtbd:importance "6"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "9"^^xsd:integer .
+
+# ============================================================================
+# Avatar 2: Matchmaking Engineer
+# ============================================================================
+
+game:avatar-matchmaking-engineer a jtbd:Avatar ;
+    jtbd:avatarName "Matchmaking Engineer" ;
+    jtbd:avatarDescription "Designs and maintains algorithms to pair players fairly based on skill, region, and game mode preferences" ;
+    jtbd:avatarSegment "Enterprise/Tech" ;
+    jtbd:avatarPainLevel "8"^^xsd:integer ;
+    jtbd:hasJob game:job-matchmaking .
+
+game:job-matchmaking a jtbd:Job ;
+    jtbd:jobName "Implementing Fair Matchmaking Algorithms" ;
+    jtbd:jobDescription "Design, build, test, and optimize algorithms that match players fairly while minimizing queue times and geographic latency" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        game:step-mm-define,
+        game:step-mm-locate,
+        game:step-mm-prepare,
+        game:step-mm-confirm,
+        game:step-mm-execute,
+        game:step-mm-monitor,
+        game:step-mm-modify,
+        game:step-mm-conclude .
+
+game:step-mm-define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define fairness metrics and balance requirements: skill range tolerance, queue time targets, geographic latency constraints" ;
+    jtbd:currentSolution "Whiteboarding sessions with game designers and data scientists; metrics documented in design doc" ;
+    jtbd:painPoint "Stakeholders disagree on priorities; changing requirements mid-development; no formal acceptance criteria" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+game:step-mm-locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate historical player data, skill ratings, region information, and queue patterns from analytics systems" ;
+    jtbd:currentSolution "Custom SQL queries against data warehouse; data scientist exports CSVs weekly" ;
+    jtbd:painPoint "Data freshness lag; incompatible data formats; missing context on data quality" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "9"^^xsd:integer .
+
+game:step-mm-prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare development environment with test infrastructure, matchmaking simulator, and synthetic player data" ;
+    jtbd:currentSolution "Local Docker containers; Python simulation scripts; hardcoded test cases" ;
+    jtbd:painPoint "Simulator diverges from production behavior; environment setup takes 2 days; difficult to reproduce player scenarios" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "13"^^xsd:integer .
+
+game:step-mm-confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Validate algorithm correctness through A/B testing framework and mathematical proof of fairness properties" ;
+    jtbd:currentSolution "Manual code review by senior engineer; small A/B test with 5% of players before rollout" ;
+    jtbd:painPoint "Code review takes weeks; A/B test results ambiguous; no formal verification of fairness invariants" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "15"^^xsd:integer .
+
+game:step-mm-execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Deploy algorithm to matchmaking service with canary rollout strategy and circuit breaker fallback" ;
+    jtbd:currentSolution "Git merge to main, Jenkins pipeline triggers rolling deployment with manual approval gates" ;
+    jtbd:painPoint "Deployment coordination complex; fallback not tested; queue times spike during rollout" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+game:step-mm-monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor queue times, skill spread in matches, match duration, and player satisfaction metrics in real-time" ;
+    jtbd:currentSolution "Kibana dashboards; player feedback monitored via Reddit and Discord forums; weekly reports" ;
+    jtbd:painPoint "Dashboards lag production by 5 minutes; missing critical metrics for some game modes; player feedback unstructured" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+game:step-mm-modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Iterate algorithm parameters to improve queue time vs. fairness tradeoff based on live data" ;
+    jtbd:currentSolution "Jupyter notebooks with algorithm variants; data scientist recommends changes via email; engineer implements and tests" ;
+    jtbd:painPoint "Iteration cycles take days; parameter changes not version controlled; difficult to A/B test multiple variants simultaneously" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+game:step-mm-conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Document algorithm changes, update runbooks, and publish fairness impact report to stakeholders" ;
+    jtbd:currentSolution "Markdown doc in GitHub repo; metrics pasted from spreadsheet into presentation slides" ;
+    jtbd:painPoint "Documentation becomes outdated quickly; metrics inconsistent with actual deployment; stakeholders don't read reports" ;
+    jtbd:importance "5"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "8"^^xsd:integer .
+
+# ============================================================================
+# Avatar 3: Economy Designer
+# ============================================================================
+
+game:avatar-economy-designer a jtbd:Avatar ;
+    jtbd:avatarName "Economy Designer" ;
+    jtbd:avatarDescription "Designs and balances in-game economic systems including currency, loot tables, progression costs, and pay-to-win thresholds" ;
+    jtbd:avatarSegment "Specialist" ;
+    jtbd:avatarPainLevel "9"^^xsd:integer ;
+    jtbd:hasJob game:job-economy-balancing .
+
+game:job-economy-balancing a jtbd:Job ;
+    jtbd:jobName "Balancing In-Game Economic Systems" ;
+    jtbd:jobDescription "Design and maintain balanced economies including currencies, loot systems, progression costs, and monetization that maintains player fairness" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        game:step-ed-define,
+        game:step-ed-locate,
+        game:step-ed-prepare,
+        game:step-ed-confirm,
+        game:step-ed-execute,
+        game:step-ed-monitor,
+        game:step-ed-modify,
+        game:step-ed-conclude .
+
+game:step-ed-define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define economy goals: player progression timelines, monetization targets, item rarity distributions, and pay-to-win boundaries" ;
+    jtbd:currentSolution "Design docs with Excel spreadsheets defining drop rates, prices, and progression curves; stakeholder review meetings" ;
+    jtbd:painPoint "Stakeholders (business vs. design) have conflicting goals; economy goals changed mid-season without data analysis" ;
+    jtbd:importance "10"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "17"^^xsd:integer .
+
+game:step-ed-locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate player behavior data: spending patterns, progression speed, item demand, crafting patterns, and wealth distribution" ;
+    jtbd:currentSolution "Monthly analytics reports from data team; custom Python scripts to extract loot table data from game logs" ;
+    jtbd:painPoint "Data arrives too late for decision-making; inconsistent definitions of 'progression'; missing cross-player correlation data" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+game:step-ed-prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare economy modeling tools: spreadsheet models, Python simulations, and testing framework for balance changes" ;
+    jtbd:currentSolution "Excel spreadsheets with complex formulas; Python scripts in personal repos; manual balance testing on staging server" ;
+    jtbd:painPoint "Models fragile and hard to maintain; version control messy; simulations don't match live behavior; takes days to test changes" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+game:step-ed-confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm balance changes with playtesting sessions and economic impact modeling before deployment" ;
+    jtbd:currentSolution "Gather 20 testers for 4-hour playtesting; get gut feel from their feedback; run spreadsheet impact calculations" ;
+    jtbd:painPoint "Playtest feedback subjective and biased; impact models often wrong; stakeholders demand last-minute changes" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "16"^^xsd:integer .
+
+game:step-ed-execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute economy update: deploy loot table changes, adjust NPC prices, update progression costs across all regions" ;
+    jtbd:currentSolution "Push config changes through game server backend; data migration scripts for existing player economies" ;
+    jtbd:painPoint "Config changes can break economy (duplicate items, negative currency); rolling back requires extensive player compensation" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+game:step-ed-monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor economy health: inflation rates, item velocity, spending trends, wealth gap, and player engagement changes" ;
+    jtbd:currentSolution "Custom SQL queries run daily; economy dashboard updated manually; player feedback aggregated from forums" ;
+    jtbd:painPoint "Monitoring lag makes identifying problems slow; missing correlation between economy changes and player churn; data not actionable" ;
+    jtbd:importance "10"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "17"^^xsd:integer .
+
+game:step-ed-modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Adapt economy parameters based on live feedback: adjust drop rates, NPC prices, or item sinks to counter inflation/deflation" ;
+    jtbd:currentSolution "Chat with product lead about issues; design quick hotfixes; hope they work; iterate based on next week's data" ;
+    jtbd:painPoint "Blind iteration cycle (1 week latency); previous fixes sometimes made problems worse; no structured decision framework" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "16"^^xsd:integer .
+
+game:step-ed-conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude season with economy analysis: player satisfaction trends, monetization performance, and lessons learned documentation" ;
+    jtbd:currentSolution "Write 20-page retrospective document; present findings to executive team; archive spreadsheets" ;
+    jtbd:painPoint "Retrospectives rarely reviewed; insights don't influence next season; documentation becomes outdated; no mechanism for institutional learning" ;
+    jtbd:importance "6"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "10"^^xsd:integer .
+
+# ============================================================================
+# Avatar 4: Anti-Cheat Developer
+# ============================================================================
+
+game:avatar-anticheat-developer a jtbd:Avatar ;
+    jtbd:avatarName "Anti-Cheat Developer" ;
+    jtbd:avatarDescription "Develops and maintains detection systems to identify and prevent cheating, hacking, and unfair play exploits" ;
+    jtbd:avatarSegment "Specialist" ;
+    jtbd:avatarPainLevel "9"^^xsd:integer ;
+    jtbd:hasJob game:job-anticheat-development .
+
+game:job-anticheat-development a jtbd:Job ;
+    jtbd:jobName "Preventing Cheating and Unfair Play" ;
+    jtbd:jobDescription "Design, build, and operate detection systems to identify cheaters, implement account bans, and maintain competitive integrity" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        game:step-ac-define,
+        game:step-ac-locate,
+        game:step-ac-prepare,
+        game:step-ac-confirm,
+        game:step-ac-execute,
+        game:step-ac-monitor,
+        game:step-ac-modify,
+        game:step-ac-conclude .
+
+game:step-ac-define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define cheating categories: aimbots, wallhacks, speed hacks, economy exploits, and automation bots" ;
+    jtbd:currentSolution "Document in wiki; research academic papers on cheat detection; brainstorm with gameplay team" ;
+    jtbd:painPoint "New cheat types emerge faster than documentation is updated; disagreement on what qualifies as cheating" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+game:step-ac-locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate cheaters: analyze player telemetry, identify statistical anomalies, find accounts with suspicious modification tools" ;
+    jtbd:currentSolution "Download player behavior logs; run custom anomaly detection scripts; manual review of flagged players" ;
+    jtbd:painPoint "High false-positive rate frustrates innocent players; lag between detection and banning (weeks); cheaters iterate faster than detection" ;
+    jtbd:importance "10"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "17"^^xsd:integer .
+
+game:step-ac-prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare detection infrastructure: client-side integrity checks, server-side behavioral analysis, and forensic toolkit" ;
+    jtbd:currentSolution "Custom C++ integrity verification; telemetry pipeline; forensic scripts in Python" ;
+    jtbd:painPoint "Integrity checks can be reverse-engineered; forensic analysis manual and error-prone; high false-positive rates" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "16"^^xsd:integer .
+
+game:step-ac-confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm cheat detection before banning: manual review of evidence, comparison with known patterns, secondary verification" ;
+    jtbd:currentSolution "Human review team watches replays; checks if similar behavior seen in ban appeals; creates ban report" ;
+    jtbd:painPoint "Manual review bottleneck (takes weeks for complex cases); appeals process subjective; risk of false bans causing bad press" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "16"^^xsd:integer .
+
+game:step-ac-execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute account bans: issue permanent or temporary bans, confiscate ill-gotten gains, notify player of violation" ;
+    jtbd:currentSolution "Batch ban script runs nightly; automated email to banned account; update leaderboard" ;
+    jtbd:painPoint "Banned players flood support; appeal process unclear; no communication of evidence to players; repeat offenders not prevented" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+game:step-ac-monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor cheat trends: track ban rates by cheat type, identify new cheat tools, measure community satisfaction with fairness" ;
+    jtbd:currentSolution "Weekly ban reports; crawl cheat forums and Discord; survey player base quarterly" ;
+    jtbd:painPoint "Reports lag reality by 1 week; cheat forums move fast; player surveys low response rate; causality unclear" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "15"^^xsd:integer .
+
+game:step-ac-modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Adapt anti-cheat strategy: update detection algorithms, patch game vulnerabilities, adjust ban severity for new cheat types" ;
+    jtbd:currentSolution "Incident-driven response; security team patches exploits; detection algorithms updated based on new ban requests" ;
+    jtbd:painPoint "Always reactive (cheaters move first); security patches delayed by release cycles; detection lags exploitation" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "16"^^xsd:integer .
+
+game:step-ac-conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude quarter with anti-cheat effectiveness report: ban rate trends, recidivism rates, undetected cheat estimate, community sentiment" ;
+    jtbd:currentSolution "Compile statistics from ban database; write summary for executive review; update threat model document" ;
+    jtbd:painPoint "Reports show reactive metrics only; no proactive indicators; insights don't drive prevention strategy; low organizational memory" ;
+    jtbd:importance "6"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "10"^^xsd:integer .
+
+# ============================================================================
+# Avatar 5: Community Manager
+# ============================================================================
+
+game:avatar-community-manager a jtbd:Avatar ;
+    jtbd:avatarName "Community Manager" ;
+    jtbd:avatarDescription "Builds and moderates player communities across forums, Discord, and social media; manages player events and engagement" ;
+    jtbd:avatarSegment "Operations" ;
+    jtbd:avatarPainLevel "6"^^xsd:integer ;
+    jtbd:hasJob game:job-community-engagement .
+
+game:job-community-engagement a jtbd:Job ;
+    jtbd:jobName "Building and Engaging Player Community" ;
+    jtbd:jobDescription "Moderate conversations, organize community events, gather player feedback, and foster positive gaming culture" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        game:step-cm-define,
+        game:step-cm-locate,
+        game:step-cm-prepare,
+        game:step-cm-confirm,
+        game:step-cm-execute,
+        game:step-cm-monitor,
+        game:step-cm-modify,
+        game:step-cm-conclude .
+
+game:step-cm-define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define community engagement strategy: tone guidelines, event calendar, feedback priorities, and moderation policies" ;
+    jtbd:currentSolution "Team alignment meeting; community manager creates strategy doc; shared in team channel" ;
+    jtbd:painPoint "Strategy unclear to new mods; no written conflict resolution procedures; policies inconsistently applied across platforms" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "9"^^xsd:integer .
+
+game:step-cm-locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate active community spaces: official Discord channels, subreddits, fan forums, streaming communities, and content creator groups" ;
+    jtbd:currentSolution "Monitor 15+ Discord servers, Reddit weekly, Twitter daily, Twitch streams occasionally" ;
+    jtbd:painPoint "Spread too thin; toxic communities missed; content creators feel ignored; high burnout from constant monitoring" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+game:step-cm-prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare community infrastructure: moderation tools, feedback survey templates, event planning documents" ;
+    jtbd:currentSolution "Discord templates and AutoMod rules; Typeform surveys; Google Sheets for event planning" ;
+    jtbd:painPoint "Tools fragmented; AutoMod rules catch legit messages; survey fatigue; event planning spreadsheets chaotic" ;
+    jtbd:importance "6"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "8"^^xsd:integer .
+
+game:step-cm-confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm feedback themes and player sentiment before escalating to game design team" ;
+    jtbd:currentSolution "Read through support tickets and Discord DMs; write summary for design team" ;
+    jtbd:painPoint "Summarization subjective and cherry-picked; design team skeptical of anecdotal feedback; no statistical validation" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "11"^^xsd:integer .
+
+game:step-cm-execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute daily moderation: remove toxic content, warn/ban disruptive players, answer common questions, post updates" ;
+    jtbd:currentSolution "Manual moderation by 5-person team; sticky posts with FAQs; automated welcome messages" ;
+    jtbd:painPoint "Toxic players return on alt accounts; moderation decisions appealed constantly; FAQ outdated; response time hours to days" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+game:step-cm-monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor community health: engagement rates, sentiment trends, churn indicators, and content creator statistics" ;
+    jtbd:currentSolution "Discord stats dashboard; Reddit analytics; Creator Fund data shared by marketing; quarterly surveys" ;
+    jtbd:painPoint "Metrics siloed across platforms; sentiment analysis missing; churn indicators lagged by 2 weeks; low visibility into creator economy" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "11"^^xsd:integer .
+
+game:step-cm-modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Adjust engagement tactics based on feedback: change event schedule, introduce new feedback channels, pivot communication style" ;
+    jtbd:currentSolution "Team discusses in weekly retro; community manager tries new approach; measure impact anecdotally" ;
+    jtbd:painPoint "Experiments not rigorous; no A/B testing; changes based on loudest voices not data; iterate slowly" ;
+    jtbd:importance "6"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "9"^^xsd:integer .
+
+game:step-cm-conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude month with community impact report: engagement metrics, event participation, common feedback themes, and key insights" ;
+    jtbd:currentSolution "Community manager writes report combining Discord stats, support tickets, and social media mentions" ;
+    jtbd:painPoint "Report takes 8 hours to compile; insights vague; rarely drives decision-making; stakeholders skim for headlines" ;
+    jtbd:importance "5"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "8"^^xsd:integer .
+
+# ============================================================================
+# Avatar 6: Esports Tournament Organizer
+# ============================================================================
+
+game:avatar-esports-organizer a jtbd:Avatar ;
+    jtbd:avatarName "Esports Tournament Organizer" ;
+    jtbd:avatarDescription "Plans, coordinates, and executes competitive esports tournaments including brackets, prize distribution, and live streaming" ;
+    jtbd:avatarSegment "Operations" ;
+    jtbd:avatarPainLevel "8"^^xsd:integer ;
+    jtbd:hasJob game:job-tournament-ops .
+
+game:job-tournament-ops a jtbd:Job ;
+    jtbd:jobName "Organizing Competitive Esports Tournaments" ;
+    jtbd:jobDescription "Design tournament formats, manage registrations, coordinate broadcasts, distribute prizes, and execute live competition events" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        game:step-et-define,
+        game:step-et-locate,
+        game:step-et-prepare,
+        game:step-et-confirm,
+        game:step-et-execute,
+        game:step-et-monitor,
+        game:step-et-modify,
+        game:step-et-conclude .
+
+game:step-et-define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define tournament structure: format (single/double elimination), prize pool distribution, qualification criteria, broadcast tier" ;
+    jtbd:currentSolution "Design doc with tournament rules spreadsheet; legal review of prize structure; community voting on format" ;
+    jtbd:painPoint "Rules ambiguous on edge cases; legal review slow (2 weeks); community voting polarizing; changes requested last-minute" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+game:step-et-locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate and secure resources: professional casters, broadcast setup (cameras/lighting), venue (if offline), prize pool sponsors" ;
+    jtbd:currentSolution "Email outreach to known talent; negotiate sponsorship deals; book venues 3 months in advance" ;
+    jtbd:painPoint "Top talent unavailable; sponsor budgets unpredictable; venue costs overrun; last-minute cancellations" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "13"^^xsd:integer .
+
+game:step-et-prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare tournament infrastructure: bracket generation, registration system, broadcast equipment testing, contingency plans" ;
+    jtbd:currentSolution "Smash.gg registration platform; OBS for streaming; equipment checklist; PDF backup plans" ;
+    jtbd:painPoint "Registration system bugs; last-minute format changes require manual bracket rebuild; equipment fails during rehearsal" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "11"^^xsd:integer .
+
+game:step-et-confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm tournament readiness: broadcast pre-rehearsal, equipment functionality, bracket validation, team registration completion" ;
+    jtbd:currentSolution "Run dress rehearsal 1 week before; test all equipment; manually verify bracket consistency; email confirmation to all teams" ;
+    jtbd:painPoint "Rehearsal reveals last-minute issues; bracket errors caught too late; team confirmations incomplete" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+game:step-et-execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute tournament: run matches on schedule, manage broadcast, track results, handle disputes, distribute prizes" ;
+    jtbd:currentSolution "Tournament admin updates bracket manually; casters broadcast via Twitch; disputes resolved by organizer ruling" ;
+    jtbd:painPoint "Manual bracket updates error-prone; broadcast crashes mid-match; disputes contentious; prize distribution delayed weeks" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "15"^^xsd:integer .
+
+game:step-et-monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor tournament health: match completion rates, broadcast quality, spectator engagement, technical issues, viewer counts" ;
+    jtbd:currentSolution "Tournament admins watch matches live; stream managers monitor Twitch chat; manual notes on issues" ;
+    jtbd:painPoint "Issues discovered late (mid-stream); no metrics on viewer engagement; spectator experience reactive not planned" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "13"^^xsd:integer .
+
+game:step-et-modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Adapt tournament in real-time: handle no-shows, resolve rule disputes, adjust broadcast narrative, recover from technical failures" ;
+    jtbd:currentSolution "Tournament director makes ad-hoc calls; casters improvise; tech support troubleshoots live" ;
+    jtbd:painPoint "Decisions inconsistent; disputed rulings; caster narration loses viewer interest during downtime; tech workarounds risky" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+game:step-et-conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude tournament: finalize results, distribute prizes, publish highlights, gather feedback, document lessons learned" ;
+    jtbd:currentSolution "Manual result verification; prize distribution via bank transfer/PayPal; YouTube highlights uploaded 1 week later" ;
+    jtbd:painPoint "Result verification takes days; prize distribution bureaucratic (tax forms, KYC); highlights low production quality; feedback ignored" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+# ============================================================================
+# Avatar 7: Mobile Game Monetization Manager
+# ============================================================================
+
+game:avatar-mobile-monetization-manager a jtbd:Avatar ;
+    jtbd:avatarName "Mobile Game Monetization Manager" ;
+    jtbd:avatarDescription "Optimizes in-app purchase funnels, A/B tests monetization strategies, and balances revenue with player retention" ;
+    jtbd:avatarSegment "Business" ;
+    jtbd:avatarPainLevel "7"^^xsd:integer ;
+    jtbd:hasJob game:job-mobile-monetization .
+
+game:job-mobile-monetization a jtbd:Job ;
+    jtbd:jobName "Optimizing Mobile Game Monetization" ;
+    jtbd:jobDescription "Design IAP offers, run monetization A/B tests, optimize conversion funnels, and maximize revenue while maintaining player retention" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        game:step-mm-define,
+        game:step-mm-locate,
+        game:step-mm-prepare,
+        game:step-mm-confirm,
+        game:step-mm-execute,
+        game:step-mm-monitor,
+        game:step-mm-modify,
+        game:step-mm-conclude .
+
+game:step-mm-define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define monetization strategy: IAP tier structure, pricing, placement strategy, free vs. paid content balance" ;
+    jtbd:currentSolution "Analyze competitor monetization; conduct market research; define pricing tiers in design doc" ;
+    jtbd:painPoint "Competitor analysis outdated; market research low sample size; executive override strategy without data" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+game:step-mm-locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate monetization bottlenecks: analyze user funnel data, segment players by spending behavior, identify churn points" ;
+    jtbd:currentSolution "Mixpanel analytics; cohort analysis spreadsheets; monthly churn reports; user surveys" ;
+    jtbd:painPoint "Mixpanel interface complex; cohort analysis manual and error-prone; churn data lagged 1 week; surveys low response" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "13"^^xsd:integer .
+
+game:step-mm-prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare A/B testing framework: create offer variants, design test infrastructure, plan success metrics" ;
+    jtbd:currentSolution "Design 3-5 offer variants manually; Firebase A/B testing config; define primary metric (ARPU) and secondary metrics" ;
+    jtbd:painPoint "Offer design iterations slow; Firebase config error-prone; metric definitions change mid-test; cannibalization not modeled" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "13"^^xsd:integer .
+
+game:step-mm-confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Validate monetization A/B test results before rollout: statistical significance check, retention impact analysis, cannibalization review" ;
+    jtbd:currentSolution "Run test for 2 weeks; calculate p-values in spreadsheet; compare treatment vs. control retention manually" ;
+    jtbd:painPoint "Statistical rigor weak; cannibalization effects ignored; tests under-powered (missing lift); results cherry-picked" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "16"^^xsd:integer .
+
+game:step-mm-execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute winning offer: deploy to 100% of users, configure in-app store, update marketing, monitor early performance" ;
+    jtbd:currentSolution "Deploy via Firebase console; push notification campaign; monitor first 24h closely" ;
+    jtbd:painPoint "Deployment can go wrong (wrong IAP ID); notification campaign may not deliver; early performance metrics misleading" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "5"^^xsd:integer ;
+    jtbd:opportunityScore "11"^^xsd:integer .
+
+game:step-mm-monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor monetization metrics post-launch: ARPU, conversion rate, LTV by cohort, user retention impact, revenue trends" ;
+    jtbd:currentSolution "Daily ARPU dashboard; weekly cohort reports; monthly revenue P&L; quarterly LTV analysis" ;
+    jtbd:painPoint "Dashboard updates lag by 1 day; cohort reports manual; LTV analysis complex and uncertain; exogenous factors confound results" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "15"^^xsd:integer .
+
+game:step-mm-modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Iterate offer strategy: adjust pricing, placement, or messaging based on performance; run follow-up tests on learnings" ;
+    jtbd:currentSolution "If ARPU down, adjust pricing or add bundle offer; run 2-week test; measure impact" ;
+    jtbd:painPoint "Iteration cycle slow (2-3 weeks per cycle); cannibalization effects compound; pricing wars race to bottom" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+game:step-mm-conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude quarter with monetization analysis: revenue achieved vs. target, ARPU growth rate, retention impact, recommendations for next quarter" ;
+    jtbd:currentSolution "Compile quarterly revenue report; LTV cohort analysis; write strategy memo with recommendations" ;
+    jtbd:painPoint "Report relies on incomplete data; recommendations vague; executive feedback limited; no structured decision framework for next quarter" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+# ============================================================================
+# SUMMARY
+# ============================================================================
+# 7 Avatars × 8 Job Steps = 56 Total Job Steps
+# Avatar Segments: 3 Enterprise, 2 Specialist, 2 Operations, 1 Business
+# Average Pain Level: 7.9 / 10
+# ============================================================================

@@ -1,0 +1,674 @@
+@prefix jtbd: <https://ggen.io/ontology/jtbd#> .
+@prefix legal: <https://ggen.io/examples/jtbd/legal#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# LEGAL/COMPLIANCE CUSTOMER AVATARS & JOBS TO BE DONE
+# 7 avatars × 8 job steps = 56 total job steps
+# ============================================================================
+
+# AVATAR 1: General Counsel
+# ============================================================================
+legal:avatar-general-counsel a jtbd:Avatar ;
+    jtbd:avatarName "General Counsel" ;
+    jtbd:avatarDescription "C-suite executive responsible for managing overall corporate legal risk and ensuring the organization operates within legal boundaries" ;
+    jtbd:avatarSegment "Enterprise Legal" ;
+    jtbd:avatarPainLevel 9 ;
+    jtbd:hasJob legal:job-manage-legal-risk .
+
+legal:job-manage-legal-risk a jtbd:Job ;
+    jtbd:jobName "Manage Corporate Legal Risk" ;
+    jtbd:jobDescription "Identify, assess, and mitigate legal risks across the organization while maintaining compliance with applicable laws" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        legal:step-gc-1,
+        legal:step-gc-2,
+        legal:step-gc-3,
+        legal:step-gc-4,
+        legal:step-gc-5,
+        legal:step-gc-6,
+        legal:step-gc-7,
+        legal:step-gc-8 .
+
+legal:step-gc-1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Identify and prioritize legal risks across the organization through risk assessment workshops" ;
+    jtbd:currentSolution "Manual risk assessment meetings with business leaders" ;
+    jtbd:painPoint "Inconsistent risk identification, missing emerging threats" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+legal:step-gc-2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Find and consolidate relevant regulatory requirements and internal policies from multiple sources" ;
+    jtbd:currentSolution "Manually searching regulatory websites and document repositories" ;
+    jtbd:painPoint "Time-consuming, often incomplete, difficult to track versions" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+legal:step-gc-3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Develop comprehensive risk mitigation strategies and preventive measures" ;
+    jtbd:currentSolution "Ad-hoc strategy development based on past experience" ;
+    jtbd:painPoint "Lack of structured methodology, inconsistent across business units" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+legal:step-gc-4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Obtain stakeholder approval and buy-in for risk management approach" ;
+    jtbd:currentSolution "Email and meeting-based consensus building" ;
+    jtbd:painPoint "Slow process, difficult to track approval status" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+legal:step-gc-5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Implement legal controls, safeguards, and policies across the organization" ;
+    jtbd:currentSolution "Document creation and email distribution to departments" ;
+    jtbd:painPoint "Uneven adoption, unclear accountability for implementation" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+legal:step-gc-6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track legal compliance metrics and emerging risks through ongoing monitoring" ;
+    jtbd:currentSolution "Quarterly compliance reports and annual risk reviews" ;
+    jtbd:painPoint "Reactive rather than proactive, slow to detect new risks" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+legal:step-gc-7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Update policies and procedures based on regulatory changes and lessons learned" ;
+    jtbd:currentSolution "Manual policy review and update cycles (annual or as-needed)" ;
+    jtbd:painPoint "Slow response to regulatory changes, inconsistent updates" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+legal:step-gc-8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Prepare and deliver comprehensive legal risk report to Board and leadership" ;
+    jtbd:currentSolution "Annual legal risk presentation to Board" ;
+    jtbd:painPoint "Limited insight into trends, difficult to demonstrate progress" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+# AVATAR 2: Contract Manager
+# ============================================================================
+legal:avatar-contract-manager a jtbd:Avatar ;
+    jtbd:avatarName "Contract Manager" ;
+    jtbd:avatarDescription "Professional responsible for negotiating, drafting, and managing contracts and agreements across the organization" ;
+    jtbd:avatarSegment "Enterprise Legal" ;
+    jtbd:avatarPainLevel 8 ;
+    jtbd:hasJob legal:job-negotiate-track-agreements .
+
+legal:job-negotiate-track-agreements a jtbd:Job ;
+    jtbd:jobName "Negotiate and Track Agreements" ;
+    jtbd:jobDescription "Negotiate favorable contract terms, ensure proper execution, and maintain visibility into contract obligations and renewals" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        legal:step-cm-1,
+        legal:step-cm-2,
+        legal:step-cm-3,
+        legal:step-cm-4,
+        legal:step-cm-5,
+        legal:step-cm-6,
+        legal:step-cm-7,
+        legal:step-cm-8 .
+
+legal:step-cm-1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define contract requirements, scope, and key terms with requesting business units" ;
+    jtbd:currentSolution "Email discussion and informal meetings" ;
+    jtbd:painPoint "Vague requirements, scope creep, changing expectations" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+legal:step-cm-2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Search for and identify relevant contract templates and market standard terms" ;
+    jtbd:currentSolution "Manual search through contract repository and industry sources" ;
+    jtbd:painPoint "Incomplete templates, outdated versions, time-consuming search" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+legal:step-cm-3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Draft contract language, terms, and conditions based on requirements" ;
+    jtbd:currentSolution "Manual drafting using templates, back-and-forth with stakeholders" ;
+    jtbd:painPoint "Time-consuming, inconsistent language, version control issues" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 16 .
+
+legal:step-cm-4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Obtain internal and external stakeholder approval of contract terms" ;
+    jtbd:currentSolution "Email circulation for review and approval, phone calls with vendor" ;
+    jtbd:painPoint "Slow approval process, delays in vendor negotiations" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+legal:step-cm-5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Finalize contract and obtain proper signatures and execution" ;
+    jtbd:currentSolution "E-signature tools and manual coordination with signing authorities" ;
+    jtbd:painPoint "Coordination delays, lost documents, unclear final version" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+legal:step-cm-6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track contract obligations, key dates, renewal deadlines, and vendor performance" ;
+    jtbd:currentSolution "Spreadsheets and calendar reminders" ;
+    jtbd:painPoint "Manual tracking error-prone, missed renewal dates, unclear obligations" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 16 .
+
+legal:step-cm-7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Negotiate amendments, change orders, and modifications to existing contracts" ;
+    jtbd:currentSolution "Ad-hoc negotiation and manual amendment document creation" ;
+    jtbd:painPoint "Difficult to track changes, inconsistent amendment process" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+legal:step-cm-8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Archive contracts and report on contract portfolio performance and compliance" ;
+    jtbd:currentSolution "File archival and annual reporting on contract status" ;
+    jtbd:painPoint "Difficulty retrieving contracts, limited visibility into performance" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 11 .
+
+# AVATAR 3: Privacy Officer
+# ============================================================================
+legal:avatar-privacy-officer a jtbd:Avatar ;
+    jtbd:avatarName "Privacy Officer" ;
+    jtbd:avatarDescription "Executive responsible for ensuring the organization complies with privacy regulations and protecting personal data" ;
+    jtbd:avatarSegment "Regulatory & Compliance" ;
+    jtbd:avatarPainLevel 9 ;
+    jtbd:hasJob legal:job-ensure-privacy-compliance .
+
+legal:job-ensure-privacy-compliance a jtbd:Job ;
+    jtbd:jobName "Ensure GDPR and CCPA Compliance" ;
+    jtbd:jobDescription "Map personal data flows, implement privacy controls, and maintain ongoing compliance with data protection regulations" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        legal:step-po-1,
+        legal:step-po-2,
+        legal:step-po-3,
+        legal:step-po-4,
+        legal:step-po-5,
+        legal:step-po-6,
+        legal:step-po-7,
+        legal:step-po-8 .
+
+legal:step-po-1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Map personal data flows and identify compliance gaps across the organization" ;
+    jtbd:currentSolution "Manual data mapping through surveys and interviews" ;
+    jtbd:painPoint "Incomplete data inventory, difficult to maintain current map" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 17 .
+
+legal:step-po-2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Find and interpret applicable privacy laws, regulations, and industry standards" ;
+    jtbd:currentSolution "Manual review of regulatory agency websites and legal summaries" ;
+    jtbd:painPoint "Complex regulations, frequent changes, ambiguous requirements" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 16 .
+
+legal:step-po-3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Develop privacy policies, procedures, and consent mechanisms" ;
+    jtbd:currentSolution "Document drafting and template customization" ;
+    jtbd:painPoint "Time-intensive, difficult to maintain currency, limited scope" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+legal:step-po-4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Audit privacy compliance and identify control deficiencies" ;
+    jtbd:currentSolution "Annual privacy audit by external firm or manual internal review" ;
+    jtbd:painPoint "Infrequent audits, slow to identify issues, resource-intensive" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+legal:step-po-5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Implement privacy controls and consent management mechanisms" ;
+    jtbd:currentSolution "Privacy software tools and manual process implementation" ;
+    jtbd:painPoint "Complex implementation, integration challenges, inconsistent adoption" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 16 .
+
+legal:step-po-6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track privacy incidents and monitor for regulatory updates and enforcement" ;
+    jtbd:currentSolution "Spreadsheets for incident tracking, manual regulatory monitoring" ;
+    jtbd:painPoint "Delayed incident response, missed regulatory updates" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 16 .
+
+legal:step-po-7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Update privacy policies and procedures based on new regulations and incidents" ;
+    jtbd:currentSolution "Ad-hoc policy revision process" ;
+    jtbd:painPoint "Slow response to regulatory changes, unclear change management" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+legal:step-po-8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Report privacy compliance status and incidents to leadership and regulators" ;
+    jtbd:currentSolution "Annual compliance reports and incident notifications" ;
+    jtbd:painPoint "Limited real-time visibility, difficult to demonstrate compliance" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+# AVATAR 4: IP Attorney
+# ============================================================================
+legal:avatar-ip-attorney a jtbd:Avatar ;
+    jtbd:avatarName "IP Attorney" ;
+    jtbd:avatarDescription "Specialized attorney responsible for protecting the organization's intellectual property through patents, trademarks, and copyrights" ;
+    jtbd:avatarSegment "Specialized Legal" ;
+    jtbd:avatarPainLevel 7 ;
+    jtbd:hasJob legal:job-protect-intellectual-property .
+
+legal:job-protect-intellectual-property a jtbd:Job ;
+    jtbd:jobName "Protect Intellectual Property" ;
+    jtbd:jobDescription "Identify valuable IP assets, obtain legal protection through patents and trademarks, and enforce IP rights against infringement" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        legal:step-ip-1,
+        legal:step-ip-2,
+        legal:step-ip-3,
+        legal:step-ip-4,
+        legal:step-ip-5,
+        legal:step-ip-6,
+        legal:step-ip-7,
+        legal:step-ip-8 .
+
+legal:step-ip-1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Identify valuable IP assets and determine appropriate protection strategy" ;
+    jtbd:currentSolution "Technical interviews and market analysis" ;
+    jtbd:painPoint "Difficulty identifying valuable IP, unclear protection priority" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+legal:step-ip-2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Search patent and trademark databases for existing protections and potential conflicts" ;
+    jtbd:currentSolution "Manual searches in USPTO, WIPO, and international databases" ;
+    jtbd:painPoint "Time-consuming searches, complex search strategies, may miss conflicts" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+legal:step-ip-3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Draft patent applications, claims, and technical specifications" ;
+    jtbd:currentSolution "Working with technical experts and patent drafting tools" ;
+    jtbd:painPoint "Complex coordination with inventors, lengthy drafting process" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+legal:step-ip-4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Review USPTO/WIPO examiner feedback and refine patent applications" ;
+    jtbd:currentSolution "Examiner office action review and response preparation" ;
+    jtbd:painPoint "Complex prosecution process, back-and-forth with examiners" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+legal:step-ip-5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Prosecute patents and register trademarks and copyrights" ;
+    jtbd:currentSolution "Patent prosecution process and trademark registration filing" ;
+    jtbd:painPoint "Long prosecution timelines, coordination with multiple jurisdictions" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+legal:step-ip-6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track competitor IP and monitor for potential infringement" ;
+    jtbd:currentSolution "Manual patent monitoring and competitor intelligence" ;
+    jtbd:painPoint "Difficult to track all competitive activity, slow detection of infringement" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+legal:step-ip-7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Enforce IP rights and respond to infringement or invalidity challenges" ;
+    jtbd:currentSolution "Cease and desist letters, licensing negotiations, litigation" ;
+    jtbd:painPoint "Costly enforcement, uncertain outcomes, resource-intensive" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+legal:step-ip-8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Manage IP portfolio and report on protection status and ROI" ;
+    jtbd:currentSolution "Portfolio management spreadsheets and periodic reporting" ;
+    jtbd:painPoint "Limited visibility into portfolio value, unclear maintenance decisions" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+# AVATAR 5: E-Discovery Lead
+# ============================================================================
+legal:avatar-ediscovery-lead a jtbd:Avatar ;
+    jtbd:avatarName "E-Discovery Lead" ;
+    jtbd:avatarDescription "Professional managing legal holds, data preservation, and production of documents and data in litigation" ;
+    jtbd:avatarSegment "Litigation Support" ;
+    jtbd:avatarPainLevel 8 ;
+    jtbd:hasJob legal:job-manage-litigation-data .
+
+legal:job-manage-litigation-data a jtbd:Job ;
+    jtbd:jobName "Manage Litigation Data and Evidence" ;
+    jtbd:jobDescription "Identify, preserve, search, and produce relevant documents and data in response to litigation discovery requests" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        legal:step-ed-1,
+        legal:step-ed-2,
+        legal:step-ed-3,
+        legal:step-ed-4,
+        legal:step-ed-5,
+        legal:step-ed-6,
+        legal:step-ed-7,
+        legal:step-ed-8 .
+
+legal:step-ed-1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Identify documents, emails, and data subject to legal hold and discovery" ;
+    jtbd:currentSolution "Legal team reviews litigation notices and defines custodians" ;
+    jtbd:painPoint "Incomplete data identification, unclear scope of discovery" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+legal:step-ed-2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Search for and locate relevant documents across email, files, and systems" ;
+    jtbd:currentSolution "Full-text search across data repositories using e-discovery tools" ;
+    jtbd:painPoint "Complex search strategies, scattered data sources, slow search performance" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+legal:step-ed-3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Collect, preserve, and organize documents in chain of custody format" ;
+    jtbd:currentSolution "E-discovery platform with imaging and deduplication" ;
+    jtbd:painPoint "Large data volumes, coordination across departments, technical complexity" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+legal:step-ed-4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Review documents for attorney-client privilege and relevance" ;
+    jtbd:currentSolution "Manual review by attorneys and contract reviewers" ;
+    jtbd:painPoint "Labor-intensive, costly, quality consistency issues, timeline pressure" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 17 .
+
+legal:step-ed-5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Produce documents and data to opposing counsel in requested formats" ;
+    jtbd:currentSolution "E-discovery platform export and file delivery" ;
+    jtbd:painPoint "Format coordination issues, tracking document status, ensuring completeness" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+legal:step-ed-6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track production status and respond to discovery supplementation requests" ;
+    jtbd:currentSolution "Manual tracking of production status and supplemental requests" ;
+    jtbd:painPoint "Difficult to track completeness, responsive to ongoing requests" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+legal:step-ed-7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Update discovery searches based on new discovery issues and expert disclosure" ;
+    jtbd:currentSolution "Re-running searches and identifying additional custodians" ;
+    jtbd:painPoint "Search strategy refinement, additional review burden" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+legal:step-ed-8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Close discovery and prepare evidence package for trial preparation" ;
+    jtbd:currentSolution "Certification of completeness and archive of production set" ;
+    jtbd:painPoint "Uncertainty regarding completeness, difficulty locating trial materials" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+# AVATAR 6: Regulatory Affairs Manager
+# ============================================================================
+legal:avatar-regulatory-manager a jtbd:Avatar ;
+    jtbd:avatarName "Regulatory Affairs Manager" ;
+    jtbd:avatarDescription "Professional tracking regulatory changes and ensuring the organization maintains compliance with evolving regulations" ;
+    jtbd:avatarSegment "Regulatory & Compliance" ;
+    jtbd:avatarPainLevel 8 ;
+    jtbd:hasJob legal:job-track-regulations .
+
+legal:job-track-regulations a jtbd:Job ;
+    jtbd:jobName "Track Changing Regulations and Compliance" ;
+    jtbd:jobDescription "Monitor regulatory agencies, analyze impact of new rules, and implement compliance changes across the organization" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        legal:step-ra-1,
+        legal:step-ra-2,
+        legal:step-ra-3,
+        legal:step-ra-4,
+        legal:step-ra-5,
+        legal:step-ra-6,
+        legal:step-ra-7,
+        legal:step-ra-8 .
+
+legal:step-ra-1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Identify all applicable regulations and regulatory agencies for the business" ;
+    jtbd:currentSolution "Initial regulatory scan and compliance mapping" ;
+    jtbd:painPoint "Scope complexity, changing regulatory environment" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+legal:step-ra-2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Monitor regulatory agencies, federal registers, and rulemaking bodies for proposed rules" ;
+    jtbd:currentSolution "Subscription to Federal Register alerts and regulatory newsletters" ;
+    jtbd:painPoint "Information overload, missed important rulemaking, difficult to prioritize" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+legal:step-ra-3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Analyze impact of proposed rules on business operations and compliance" ;
+    jtbd:currentSolution "Internal analysis and consultation with subject matter experts" ;
+    jtbd:painPoint "Time-intensive analysis, uncertain regulatory interpretation" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+legal:step-ra-4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Coordinate with compliance team and business units on compliance requirements" ;
+    jtbd:currentSolution "Meetings and email communication with stakeholders" ;
+    jtbd:painPoint "Difficult coordination, unclear accountability for implementation" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+legal:step-ra-5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Implement changes to policies, procedures, and business processes" ;
+    jtbd:currentSolution "Policy revision and process improvement initiatives" ;
+    jtbd:painPoint "Uneven adoption, resource constraints, timeline pressure" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+legal:step-ra-6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track regulatory developments, compliance deadlines, and audit timelines" ;
+    jtbd:currentSolution "Spreadsheet tracking and calendar reminders" ;
+    jtbd:painPoint "Manual tracking error-prone, missed deadlines, reactive posture" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 16 .
+
+legal:step-ra-7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Update compliance programs as regulations are finalized and effective dates arrive" ;
+    jtbd:currentSolution "Policy update cycles aligned with regulatory implementation" ;
+    jtbd:painPoint "Condensed timelines, coordination challenges" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+legal:step-ra-8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Report regulatory risk and compliance status to leadership" ;
+    jtbd:currentSolution "Quarterly compliance reports and regulatory risk assessment" ;
+    jtbd:painPoint "Limited real-time visibility, difficult to demonstrate proactive compliance" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+# AVATAR 7: Legal Operations Director
+# ============================================================================
+legal:avatar-legal-ops-director a jtbd:Avatar ;
+    jtbd:avatarName "Legal Operations Director" ;
+    jtbd:avatarDescription "Executive responsible for optimizing legal department efficiency, cost management, and technology infrastructure" ;
+    jtbd:avatarSegment "Legal Operations" ;
+    jtbd:avatarPainLevel 7 ;
+    jtbd:hasJob legal:job-optimize-legal-spend .
+
+legal:job-optimize-legal-spend a jtbd:Job ;
+    jtbd:jobName "Optimize Legal Spend and Efficiency" ;
+    jtbd:jobDescription "Analyze legal spend patterns, implement cost-saving initiatives, and optimize legal operations processes and technology" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        legal:step-lo-1,
+        legal:step-lo-2,
+        legal:step-lo-3,
+        legal:step-lo-4,
+        legal:step-lo-5,
+        legal:step-lo-6,
+        legal:step-lo-7,
+        legal:step-lo-8 .
+
+legal:step-lo-1 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Analyze legal spend patterns and identify optimization opportunities" ;
+    jtbd:currentSolution "Financial analysis and spend categorization" ;
+    jtbd:painPoint "Incomplete spend data, difficult to categorize vendor costs" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+legal:step-lo-2 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Find alternative legal service providers, technology solutions, and vendor options" ;
+    jtbd:currentSolution "RFP process and market research" ;
+    jtbd:painPoint "Time-consuming vendor evaluation, risk of vendor lock-in" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+legal:step-lo-3 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Develop legal operations improvement initiatives and business cases" ;
+    jtbd:currentSolution "Project planning and ROI analysis" ;
+    jtbd:painPoint "Unclear ROI, difficulty justifying investments" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+legal:step-lo-4 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Obtain buy-in from general counsel and business leaders for initiatives" ;
+    jtbd:currentSolution "Presentations and business case review" ;
+    jtbd:painPoint "Competing priorities, difficulty getting approval" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 9 .
+
+legal:step-lo-5 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Implement new processes, tools, systems, and vendor relationships" ;
+    jtbd:currentSolution "Project management and change management processes" ;
+    jtbd:painPoint "Implementation complexity, user adoption challenges" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+legal:step-lo-6 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track metrics on cost, efficiency, quality, and user satisfaction" ;
+    jtbd:currentSolution "Dashboard development and regular reporting" ;
+    jtbd:painPoint "Difficult to isolate initiative impact, attribution challenges" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+legal:step-lo-7 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Adjust initiatives based on performance data and user feedback" ;
+    jtbd:currentSolution "Quarterly reviews and process refinement" ;
+    jtbd:painPoint "Slow response to feedback, unclear prioritization" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+legal:step-lo-8 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Report on legal operations improvements, cost savings, and ROI" ;
+    jtbd:currentSolution "Annual business review and cost savings report" ;
+    jtbd:painPoint "Limited visibility into cumulative impact, difficulty demonstrating value" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .

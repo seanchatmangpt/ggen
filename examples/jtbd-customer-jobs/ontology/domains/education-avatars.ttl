@@ -1,0 +1,682 @@
+@prefix jtbd: <https://ggen.io/ontology/jtbd#> .
+@prefix edu: <https://ggen.io/examples/jtbd/education#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# EDUCATION DOMAIN - JTBD CUSTOMER AVATARS (7 avatars × 8 steps = 56 steps)
+# =============================================================================
+
+# AVATAR 1: Online Course Creator
+# ============================================================================
+
+edu:Avatar1_OnlineCourseCreator a jtbd:Avatar ;
+    jtbd:avatarName "Online Course Creator" ;
+    jtbd:avatarDescription "Digital content creator building and delivering online courses for adult learners" ;
+    jtbd:avatarSegment "Content Creators (Adult Education)" ;
+    jtbd:avatarPainLevel 7 ;
+    jtbd:hasJob edu:Job1_CreateDeliverCourse .
+
+edu:Job1_CreateDeliverCourse a jtbd:Job ;
+    jtbd:jobName "Create and Deliver an Online Course" ;
+    jtbd:jobDescription "Build, structure, and launch a complete online learning experience for students worldwide" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        edu:Job1_Step1_Define ,
+        edu:Job1_Step2_Locate ,
+        edu:Job1_Step3_Prepare ,
+        edu:Job1_Step4_Confirm ,
+        edu:Job1_Step5_Execute ,
+        edu:Job1_Step6_Monitor ,
+        edu:Job1_Step7_Modify ,
+        edu:Job1_Step8_Conclude .
+
+edu:Job1_Step1_Define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define learning objectives and course structure" ;
+    jtbd:currentSolution "Manual outline in Google Docs or Word document" ;
+    jtbd:painPoint "No template for learning objectives alignment with standards" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+edu:Job1_Step2_Locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Find and select appropriate learning platform" ;
+    jtbd:currentSolution "Research 5-10 LMS options (Teachable, Thinkific, Moodle)" ;
+    jtbd:painPoint "Overwhelming number of options with unclear differentiation" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+edu:Job1_Step3_Prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Develop course content, modules, and media assets" ;
+    jtbd:currentSolution "Record videos, create slides, write lesson notes manually" ;
+    jtbd:painPoint "Time-consuming video production and editing without professional tools" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 17 .
+
+edu:Job1_Step4_Confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Test course navigation, interactions, and learning flow" ;
+    jtbd:currentSolution "Manual testing by creator or small beta group" ;
+    jtbd:painPoint "Limited user testing scope; missing edge cases in navigation" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+edu:Job1_Step5_Execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Launch course publicly and set pricing/enrollment" ;
+    jtbd:currentSolution "Configure platform settings, set up payment processing" ;
+    jtbd:painPoint "Complex payment integrations and tax compliance across regions" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+edu:Job1_Step6_Monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track student engagement, completion, and satisfaction" ;
+    jtbd:currentSolution "Basic platform analytics and student survey tools" ;
+    jtbd:painPoint "Lack of predictive analytics for at-risk students" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+edu:Job1_Step7_Modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Update content based on student feedback and performance data" ;
+    jtbd:currentSolution "Manual content updates and versioning in platform" ;
+    jtbd:painPoint "Difficulty managing multiple course versions and student cohorts" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+edu:Job1_Step8_Conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Sunset course or archive after lifecycle completion" ;
+    jtbd:currentSolution "Manual course archival or removal from catalog" ;
+    jtbd:painPoint "Difficulty preserving student data and learning records" ;
+    jtbd:importance 5 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 6 .
+
+# AVATAR 2: University Administrator
+# ============================================================================
+
+edu:Avatar2_UniversityAdministrator a jtbd:Avatar ;
+    jtbd:avatarName "University Administrator" ;
+    jtbd:avatarDescription "Higher education staff managing student enrollment, records, and system operations" ;
+    jtbd:avatarSegment "Higher Education Management" ;
+    jtbd:avatarPainLevel 8 ;
+    jtbd:hasJob edu:Job2_ManageEnrollment .
+
+edu:Job2_ManageEnrollment a jtbd:Job ;
+    jtbd:jobName "Manage Student Enrollment and Academic Records" ;
+    jtbd:jobDescription "Oversee the complete enrollment lifecycle from applications to degree conferral" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        edu:Job2_Step1_Define ,
+        edu:Job2_Step2_Locate ,
+        edu:Job2_Step3_Prepare ,
+        edu:Job2_Step4_Confirm ,
+        edu:Job2_Step5_Execute ,
+        edu:Job2_Step6_Monitor ,
+        edu:Job2_Step7_Modify ,
+        edu:Job2_Step8_Conclude .
+
+edu:Job2_Step1_Define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Determine enrollment requirements and policies" ;
+    jtbd:currentSolution "Policy documents maintained in shared drives" ;
+    jtbd:painPoint "Inconsistent policy interpretation across departments" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+edu:Job2_Step2_Locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Select or upgrade student information system (SIS)" ;
+    jtbd:currentSolution "Legacy systems (Banner, Colleague) or cloud platforms (Ellucian)" ;
+    jtbd:painPoint "High switching costs and lengthy implementation timelines" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 16 .
+
+edu:Job2_Step3_Prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Import and validate student data, set up system workflows" ;
+    jtbd:currentSolution "Manual data entry and ETL scripts with custom validation" ;
+    jtbd:painPoint "Data quality issues and mapping inconsistencies between systems" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+edu:Job2_Step4_Confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Verify data integrity and test enrollment workflows" ;
+    jtbd:currentSolution "Spot-check sample records and pilot with small cohort" ;
+    jtbd:painPoint "Difficulty detecting data anomalies at scale before go-live" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+edu:Job2_Step5_Execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Open enrollment period and process applications" ;
+    jtbd:currentSolution "Portal-based application submission and manual review" ;
+    jtbd:painPoint "Application backlogs during peak enrollment periods" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 17 .
+
+edu:Job2_Step6_Monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track enrollment metrics and identify system issues" ;
+    jtbd:currentSolution "Daily reports and manual monitoring of system logs" ;
+    jtbd:painPoint "Reactive issue detection rather than predictive alerts" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+edu:Job2_Step7_Modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Adjust enrollment policies and processes based on results" ;
+    jtbd:currentSolution "Ad-hoc policy changes and manual process workarounds" ;
+    jtbd:painPoint "Difficulty quickly deploying changes across all system users" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 11 .
+
+edu:Job2_Step8_Conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Close enrollment period and finalize student records" ;
+    jtbd:currentSolution "System-based enrollment closing and record archival" ;
+    jtbd:painPoint "Managing historical data for auditing and compliance" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+# AVATAR 3: Corporate Trainer
+# ============================================================================
+
+edu:Avatar3_CorporateTrainer a jtbd:Avatar ;
+    jtbd:avatarName "Corporate Trainer" ;
+    jtbd:avatarDescription "L&D professional delivering compliance and skills training to organizations" ;
+    jtbd:avatarSegment "Corporate Learning & Development" ;
+    jtbd:avatarPainLevel 6 ;
+    jtbd:hasJob edu:Job3_DeliverTraining .
+
+edu:Job3_DeliverTraining a jtbd:Job ;
+    jtbd:jobName "Deliver Effective Compliance Training Programs" ;
+    jtbd:jobDescription "Create, deploy, and track mandatory training across the organization" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        edu:Job3_Step1_Define ,
+        edu:Job3_Step2_Locate ,
+        edu:Job3_Step3_Prepare ,
+        edu:Job3_Step4_Confirm ,
+        edu:Job3_Step5_Execute ,
+        edu:Job3_Step6_Monitor ,
+        edu:Job3_Step7_Modify ,
+        edu:Job3_Step8_Conclude .
+
+edu:Job3_Step1_Define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Assess training needs and compliance requirements" ;
+    jtbd:currentSolution "Review regulatory requirements and audit training gaps" ;
+    jtbd:painPoint "Unclear which regulations apply to specific roles" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+edu:Job3_Step2_Locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Find and evaluate compliance content providers" ;
+    jtbd:currentSolution "Research LMS platforms with compliance content libraries" ;
+    jtbd:painPoint "Content quality varies significantly across providers" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+edu:Job3_Step3_Prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Customize content for organizational context and culture" ;
+    jtbd:currentSolution "Manual content editing and company-specific case studies" ;
+    jtbd:painPoint "Limited ability to customize generic content effectively" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+edu:Job3_Step4_Confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Get stakeholder approval and verify regulatory alignment" ;
+    jtbd:currentSolution "Review with legal and compliance teams before deployment" ;
+    jtbd:painPoint "Multiple approval cycles delaying training launch" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+edu:Job3_Step5_Execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Launch training and assign to all employees" ;
+    jtbd:currentSolution "Batch enrollment via LMS with email notifications" ;
+    jtbd:painPoint "Difficulty managing tiered rollouts and targeted audiences" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+edu:Job3_Step6_Monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track completion rates and comprehension metrics" ;
+    jtbd:currentSolution "LMS completion reports and certification tracking" ;
+    jtbd:painPoint "Limited insight into actual knowledge retention" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+edu:Job3_Step7_Modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Update content for regulatory and policy changes" ;
+    jtbd:currentSolution "Annual content reviews and updates in LMS" ;
+    jtbd:painPoint "Compliance updates needed frequently; content becomes stale" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+edu:Job3_Step8_Conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Archive training and maintain compliance audit trail" ;
+    jtbd:currentSolution "Records maintained in LMS with certification history" ;
+    jtbd:painPoint "Complex auditing requirements for regulatory inspections" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 9 .
+
+# AVATAR 4: EdTech Product Manager
+# ============================================================================
+
+edu:Avatar4_EdTechPM a jtbd:Avatar ;
+    jtbd:avatarName "EdTech Product Manager" ;
+    jtbd:avatarDescription "SaaS product leader building and scaling learning platform features" ;
+    jtbd:avatarSegment "EdTech SaaS Leadership" ;
+    jtbd:avatarPainLevel 9 ;
+    jtbd:hasJob edu:Job4_BuildPlatformFeatures .
+
+edu:Job4_BuildPlatformFeatures a jtbd:Job ;
+    jtbd:jobName "Build Scalable Learning Platform Features" ;
+    jtbd:jobDescription "Develop features that serve diverse customer segments and use cases" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        edu:Job4_Step1_Define ,
+        edu:Job4_Step2_Locate ,
+        edu:Job4_Step3_Prepare ,
+        edu:Job4_Step4_Confirm ,
+        edu:Job4_Step5_Execute ,
+        edu:Job4_Step6_Monitor ,
+        edu:Job4_Step7_Modify ,
+        edu:Job4_Step8_Conclude .
+
+edu:Job4_Step1_Define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Document feature requirements from customer feedback" ;
+    jtbd:currentSolution "Customer interviews, support tickets, and feature request tools" ;
+    jtbd:painPoint "Difficulty synthesizing conflicting requirements from diverse customers" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+edu:Job4_Step2_Locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Research competitive and emerging solutions" ;
+    jtbd:currentSolution "Competitor analysis and market research tools" ;
+    jtbd:painPoint "Rapid feature evolution makes competitive landscape unstable" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+edu:Job4_Step3_Prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Design architecture and technical specifications" ;
+    jtbd:currentSolution "Collaborative design docs and architecture review meetings" ;
+    jtbd:painPoint "Insufficient early input from engineering on scalability constraints" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+edu:Job4_Step4_Confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Get engineering and design sign-off on specifications" ;
+    jtbd:currentSolution "Design review meetings and engineering estimation" ;
+    jtbd:painPoint "Scope creep during implementation due to incomplete specs" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+edu:Job4_Step5_Execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Deploy feature to production with rollout strategy" ;
+    jtbd:currentSolution "Staged rollouts with feature flags and beta programs" ;
+    jtbd:painPoint "Unexpected compatibility issues with existing customer workflows" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+edu:Job4_Step6_Monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track feature adoption and performance metrics" ;
+    jtbd:currentSolution "Product analytics, usage metrics, and customer feedback" ;
+    jtbd:painPoint "Difficulty correlating feature adoption to business impact" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+edu:Job4_Step7_Modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Iterate based on user feedback and performance data" ;
+    jtbd:currentSolution "Rapid iteration cycles with weekly updates and A/B tests" ;
+    jtbd:painPoint "Balance between rapid iteration and platform stability" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+edu:Job4_Step8_Conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Deprecate old feature or transition to next iteration" ;
+    jtbd:currentSolution "Sunset plans with backward compatibility and migration tools" ;
+    jtbd:painPoint "Managing backward compatibility while deprecating legacy features" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+# AVATAR 5: K-12 Teacher
+# ============================================================================
+
+edu:Avatar5_K12Teacher a jtbd:Avatar ;
+    jtbd:avatarName "K-12 Teacher" ;
+    jtbd:avatarDescription "Public or private school educator managing diverse learners in one classroom" ;
+    jtbd:avatarSegment "K-12 Public/Private Education" ;
+    jtbd:avatarPainLevel 8 ;
+    jtbd:hasJob edu:Job5_DifferentiatedInstruction .
+
+edu:Job5_DifferentiatedInstruction a jtbd:Job ;
+    jtbd:jobName "Engage Diverse Learners with Differentiated Instruction" ;
+    jtbd:jobDescription "Provide personalized learning pathways for students with varying abilities and learning styles" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        edu:Job5_Step1_Define ,
+        edu:Job5_Step2_Locate ,
+        edu:Job5_Step3_Prepare ,
+        edu:Job5_Step4_Confirm ,
+        edu:Job5_Step5_Execute ,
+        edu:Job5_Step6_Monitor ,
+        edu:Job5_Step7_Modify ,
+        edu:Job5_Step8_Conclude .
+
+edu:Job5_Step1_Define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Assess student learning levels, abilities, and needs" ;
+    jtbd:currentSolution "Formative assessments, reading level tests, and individual observations" ;
+    jtbd:painPoint "Limited time for comprehensive individual student assessment" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+edu:Job5_Step2_Locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Find differentiated resources for various ability levels" ;
+    jtbd:currentSolution "Educational websites, textbook companion materials, and teacher forums" ;
+    jtbd:painPoint "Resources often not well-aligned to grade level or standards" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+edu:Job5_Step3_Prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Create differentiated lesson plans and materials" ;
+    jtbd:currentSolution "Manual lesson planning with multiple worksheet versions" ;
+    jtbd:painPoint "Time-consuming to create materials for 3-4 different ability levels" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 16 .
+
+edu:Job5_Step4_Confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Review materials for accessibility and learning standards alignment" ;
+    jtbd:currentSolution "Self-review against standards documents and accessibility checklists" ;
+    jtbd:painPoint "Difficult ensuring all versions meet accessibility requirements" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+edu:Job5_Step5_Execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Deliver lessons to mixed-ability groups" ;
+    jtbd:currentSolution "Station rotation, small group instruction, and independent practice" ;
+    jtbd:painPoint "Difficult managing multiple simultaneous activities and groups" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 17 .
+
+edu:Job5_Step6_Monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Check for understanding across ability groups" ;
+    jtbd:currentSolution "Informal observation, questioning, and exit tickets" ;
+    jtbd:painPoint "Difficult to systematically monitor all students simultaneously" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+edu:Job5_Step7_Modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Adjust pacing and difficulty dynamically during lesson" ;
+    jtbd:currentSolution "Real-time adjustments based on student responses" ;
+    jtbd:painPoint "Need to improvise on the fly without disruptive transitions" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+edu:Job5_Step8_Conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Assess learning outcomes and document student progress" ;
+    jtbd:currentSolution "Formal assessments, rubrics, and progress notes in gradebook" ;
+    jtbd:painPoint "Challenging to provide meaningful feedback to diverse learners" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+# AVATAR 6: Tutoring Platform Operator
+# ============================================================================
+
+edu:Avatar6_TutoringOperator a jtbd:Avatar ;
+    jtbd:avatarName "Tutoring Platform Operator" ;
+    jtbd:avatarDescription "EdTech platform manager matching students with qualified tutors at scale" ;
+    jtbd:avatarSegment "EdTech Platform Operations" ;
+    jtbd:avatarPainLevel 7 ;
+    jtbd:hasJob edu:Job6_MatchTutorStudent .
+
+edu:Job6_MatchTutorStudent a jtbd:Job ;
+    jtbd:jobName "Match Students with Qualified Tutors Efficiently" ;
+    jtbd:jobDescription "Connect students with best-fit tutors to maximize learning outcomes and satisfaction" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        edu:Job6_Step1_Define ,
+        edu:Job6_Step2_Locate ,
+        edu:Job6_Step3_Prepare ,
+        edu:Job6_Step4_Confirm ,
+        edu:Job6_Step5_Execute ,
+        edu:Job6_Step6_Monitor ,
+        edu:Job6_Step7_Modify ,
+        edu:Job6_Step8_Conclude .
+
+edu:Job6_Step1_Define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define tutor competency and qualification requirements" ;
+    jtbd:currentSolution "Internal criteria document with subject expertise and teaching standards" ;
+    jtbd:painPoint "Difficult to standardize competency assessment across subjects" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+edu:Job6_Step2_Locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Recruit and attract qualified tutor candidates" ;
+    jtbd:currentSolution "Job postings, contractor networks, and referral programs" ;
+    jtbd:painPoint "Difficulty finding tutors in less common subjects or niche areas" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+edu:Job6_Step3_Prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Onboard tutors and verify credentials" ;
+    jtbd:currentSolution "Document collection, background checks, and skill assessments" ;
+    jtbd:painPoint "Lengthy onboarding delays tutor availability" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+edu:Job6_Step4_Confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Match tutors to student needs and validate fit" ;
+    jtbd:currentSolution "Algorithm-based matching with human review layer" ;
+    jtbd:painPoint "Mismatches affect student satisfaction and session quality" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+edu:Job6_Step5_Execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Facilitate tutor-student pairings and session booking" ;
+    jtbd:currentSolution "Platform scheduling system with calendar integration" ;
+    jtbd:painPoint "Managing time zone differences and scheduling conflicts" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+edu:Job6_Step6_Monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track tutoring session quality and learning outcomes" ;
+    jtbd:currentSolution "Session ratings, student feedback, and learning assessments" ;
+    jtbd:painPoint "Limited insight into actual learning impact beyond test scores" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+edu:Job6_Step7_Modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Adjust match criteria and tutoring approach based on outcomes" ;
+    jtbd:currentSolution "Feedback loops and algorithm adjustments" ;
+    jtbd:painPoint "Slow iteration on matching criteria affects multiple active pairs" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 11 .
+
+edu:Job6_Step8_Conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Transition successful tutor-student relationships" ;
+    jtbd:currentSolution "Alumni management and referral incentives for continued engagement" ;
+    jtbd:painPoint "Difficulty retaining relationships after active tutoring ends" ;
+    jtbd:importance 6 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 8 .
+
+# AVATAR 7: Assessment Designer
+# ============================================================================
+
+edu:Avatar7_AssessmentDesigner a jtbd:Avatar ;
+    jtbd:avatarName "Assessment Designer" ;
+    jtbd:avatarDescription "Testing professional or curriculum specialist creating valid and reliable assessments" ;
+    jtbd:avatarSegment "Assessment & Educational Testing" ;
+    jtbd:avatarPainLevel 7 ;
+    jtbd:hasJob edu:Job7_DesignAssessment .
+
+edu:Job7_DesignAssessment a jtbd:Job ;
+    jtbd:jobName "Design Valid and Reliable Assessments" ;
+    jtbd:jobDescription "Create assessments that accurately measure student learning and are fair to all test-takers" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep
+        edu:Job7_Step1_Define ,
+        edu:Job7_Step2_Locate ,
+        edu:Job7_Step3_Prepare ,
+        edu:Job7_Step4_Confirm ,
+        edu:Job7_Step5_Execute ,
+        edu:Job7_Step6_Monitor ,
+        edu:Job7_Step7_Modify ,
+        edu:Job7_Step8_Conclude .
+
+edu:Job7_Step1_Define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Determine assessment objectives aligned with standards" ;
+    jtbd:currentSolution "Standards documents and learning outcome maps" ;
+    jtbd:painPoint "Misalignment between learning standards and assessment items" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+edu:Job7_Step2_Locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Research validated assessment frameworks and best practices" ;
+    jtbd:currentSolution "Academic journals, professional organizations, and assessment textbooks" ;
+    jtbd:painPoint "Difficult keeping current with latest validity frameworks" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+edu:Job7_Step3_Prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Create assessment items and scoring rubrics" ;
+    jtbd:currentSolution "Manual item writing with peer review and rubric templates" ;
+    jtbd:painPoint "Time-consuming item writing process with quality variation" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+edu:Job7_Step4_Confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Validate items for bias and clarity" ;
+    jtbd:currentSolution "Bias review panels and cognitive item analysis" ;
+    jtbd:painPoint "Bias detection requires specialized expertise and time investment" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+edu:Job7_Step5_Execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Administer assessment to student population" ;
+    jtbd:currentSolution "Paper-based or online testing platforms" ;
+    jtbd:painPoint "Standardization challenges with mixed administration formats" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+edu:Job7_Step6_Monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Analyze assessment results for validity and reliability" ;
+    jtbd:currentSolution "Classical test theory and item analysis with statistical software" ;
+    jtbd:painPoint "Complex statistical analysis requires specialized training" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+edu:Job7_Step7_Modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Refine assessment items based on validity evidence" ;
+    jtbd:currentSolution "Item revision and revalidation cycles" ;
+    jtbd:painPoint "Iterative refinement process delays assessment deployment" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+edu:Job7_Step8_Conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Report assessment results and document validity evidence" ;
+    jtbd:currentSolution "Assessment reports with validity documentation and technical appendices" ;
+    jtbd:painPoint "Communicating statistical evidence to non-technical stakeholders" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+# End of File

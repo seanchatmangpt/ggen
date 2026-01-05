@@ -1,0 +1,679 @@
+@prefix jtbd: <https://ggen.io/ontology/jtbd#> .
+@prefix health: <https://ggen.io/examples/jtbd/healthcare#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Healthcare Domain JTBD Customer Avatars (7 avatars × 8 job steps = 56 total)
+# Generated for jobs-to-be-done customer journey analysis
+
+# ============================================================================
+# Avatar 1: Hospital CIO - Managing Clinical IT Systems
+# ============================================================================
+
+health:avatar-hospital-cio a jtbd:Avatar ;
+    jtbd:avatarName "Hospital CIO" ;
+    jtbd:avatarDescription "Chief Information Officer overseeing enterprise clinical IT infrastructure, EHR systems, and medical device integrations" ;
+    jtbd:avatarSegment "Enterprise Healthcare Leadership" ;
+    jtbd:avatarPainLevel 8 ;
+    jtbd:hasJob health:job-hospital-cio-manage-systems .
+
+health:job-hospital-cio-manage-systems a jtbd:Job ;
+    jtbd:jobName "Manage Clinical IT Systems" ;
+    jtbd:jobDescription "Ensure 24/7 availability, security, and compliance of clinical information systems serving 500+ physician users" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep health:step-cio-1-define,
+        health:step-cio-2-locate,
+        health:step-cio-3-prepare,
+        health:step-cio-4-confirm,
+        health:step-cio-5-execute,
+        health:step-cio-6-monitor,
+        health:step-cio-7-modify,
+        health:step-cio-8-conclude .
+
+health:step-cio-1-define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define IT infrastructure requirements based on clinical workflow needs" ;
+    jtbd:currentSolution "Manual assessment meetings with department heads" ;
+    jtbd:painPoint "Requirements constantly shift without formal change control process" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+health:step-cio-2-locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Identify and source enterprise-grade EHR and monitoring solutions" ;
+    jtbd:currentSolution "Vendor RFP process with 6-month evaluation cycle" ;
+    jtbd:painPoint "Market moves faster than procurement timelines" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+health:step-cio-3-prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare IT infrastructure and security policies for new systems" ;
+    jtbd:currentSolution "Manual infrastructure provisioning and policy documentation" ;
+    jtbd:painPoint "Compliance requirements scattered across multiple frameworks (HIPAA, HITRUST)" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+health:step-cio-4-confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Verify security and compliance readiness before clinical deployment" ;
+    jtbd:currentSolution "Manual penetration testing and audit checklists" ;
+    jtbd:painPoint "Audits find issues late in deployment cycle" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 16 .
+
+health:step-cio-5-execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Roll out clinical systems to physician and nursing staff" ;
+    jtbd:currentSolution "Phased rollout with classroom training and superuser support" ;
+    jtbd:painPoint "Clinician adoption rates lower than expected; workflow disruptions" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+health:step-cio-6-monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track system performance, uptime, and user satisfaction metrics" ;
+    jtbd:currentSolution "Manual log review and quarterly satisfaction surveys" ;
+    jtbd:painPoint "Problems discovered by angry end-users instead of proactively" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+health:step-cio-7-modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Adjust system configurations and policies based on clinical feedback" ;
+    jtbd:currentSolution "Ad-hoc change requests; slow IT response cycle" ;
+    jtbd:painPoint "Clinical workflows blocked waiting for IT changes" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 11 .
+
+health:step-cio-8-conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Review system performance and plan next-generation upgrades" ;
+    jtbd:currentSolution "Annual board presentations with vendor roadmap reviews" ;
+    jtbd:painPoint "Technology debt accumulates faster than upgrade capacity" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+# ============================================================================
+# Avatar 2: Clinical Researcher - Running Patient Trials
+# ============================================================================
+
+health:avatar-clinical-researcher a jtbd:Avatar ;
+    jtbd:avatarName "Clinical Researcher" ;
+    jtbd:avatarDescription "Principal investigator managing multi-site clinical trials with 200+ patient enrollments" ;
+    jtbd:avatarSegment "Academic Medicine & Research" ;
+    jtbd:avatarPainLevel 9 ;
+    jtbd:hasJob health:job-researcher-manage-trials .
+
+health:job-researcher-manage-trials a jtbd:Job ;
+    jtbd:jobName "Run Patient Trials" ;
+    jtbd:jobDescription "Enroll, track, and monitor research subjects across multiple hospital sites while maintaining regulatory compliance" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep health:step-researcher-1-define,
+        health:step-researcher-2-locate,
+        health:step-researcher-3-prepare,
+        health:step-researcher-4-confirm,
+        health:step-researcher-5-execute,
+        health:step-researcher-6-monitor,
+        health:step-researcher-7-modify,
+        health:step-researcher-8-conclude .
+
+health:step-researcher-1-define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define trial protocol, inclusion/exclusion criteria, and outcome measures" ;
+    jtbd:currentSolution "Manual protocol development in Word documents with committee reviews" ;
+    jtbd:painPoint "Multiple protocol versions across sites; consistency issues" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 17 .
+
+health:step-researcher-2-locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Identify eligible patients and research sites meeting trial requirements" ;
+    jtbd:currentSolution "Manual chart reviews and coordination with department coordinators" ;
+    jtbd:painPoint "Finding eligible patients is 40% of effort; slow identification process" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 16 .
+
+health:step-researcher-3-prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare informed consent forms, study materials, and site training" ;
+    jtbd:currentSolution "PDF forms, in-person site initiation visits, paper-based training logs" ;
+    jtbd:painPoint "Inconsistent consent documentation; staff retrain between visits" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+health:step-researcher-4-confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Verify regulatory approvals (IRB, CRO, data safety board)" ;
+    jtbd:currentSolution "Email coordination with 3+ regulatory bodies; paper trail tracking" ;
+    jtbd:painPoint "Regulatory delays unpredictable; no centralized status visibility" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+health:step-researcher-5-execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Enroll subjects, conduct study visits, and collect outcome data" ;
+    jtbd:currentSolution "Paper case report forms (CRFs) with manual data entry by coordinators" ;
+    jtbd:painPoint "Data entry errors (5-10% error rate); lost follow-up visits" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 17 .
+
+health:step-researcher-6-monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track enrollment metrics, safety signals, and protocol violations" ;
+    jtbd:currentSolution "Spreadsheet tracking and monthly safety reports" ;
+    jtbd:painPoint "Real-time visibility poor; safety issues detected late" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 16 .
+
+health:step-researcher-7-modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Adjust recruitment strategies based on enrollment trends" ;
+    jtbd:currentSolution "Quarterly enrollment review meetings with site coordinators" ;
+    jtbd:painPoint "Response lag means missing enrollment targets" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 11 .
+
+health:step-researcher-8-conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Analyze trial results and prepare regulatory submissions" ;
+    jtbd:currentSolution "Manual statistical analysis and report writing (3-6 month process)" ;
+    jtbd:painPoint "Data cleaning and validation takes 60% of analysis time" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+# ============================================================================
+# Avatar 3: Telemedicine Provider - Delivering Remote Care
+# ============================================================================
+
+health:avatar-telemedicine-provider a jtbd:Avatar ;
+    jtbd:avatarName "Telemedicine Provider" ;
+    jtbd:avatarDescription "Board-certified physician managing 30-40 virtual patient consultations daily" ;
+    jtbd:avatarSegment "Digital Health Delivery" ;
+    jtbd:avatarPainLevel 7 ;
+    jtbd:hasJob health:job-telemedicine-deliver-care .
+
+health:job-telemedicine-deliver-care a jtbd:Job ;
+    jtbd:jobName "Deliver Remote Care" ;
+    jtbd:jobDescription "Conduct secure video consultations with patients across multiple states while maintaining clinical quality" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep health:step-telemedicine-1-define,
+        health:step-telemedicine-2-locate,
+        health:step-telemedicine-3-prepare,
+        health:step-telemedicine-4-confirm,
+        health:step-telemedicine-5-execute,
+        health:step-telemedicine-6-monitor,
+        health:step-telemedicine-7-modify,
+        health:step-telemedicine-8-conclude .
+
+health:step-telemedicine-1-define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define scope of practice and telemedicine capabilities by state" ;
+    jtbd:currentSolution "Manual licensing tracking and state law research" ;
+    jtbd:painPoint "Compliance requirements vary by state; easy to miss restrictions" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+health:step-telemedicine-2-locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Find and schedule patients seeking remote consultations" ;
+    jtbd:currentSolution "Patient portal with manual appointment scheduling" ;
+    jtbd:painPoint "No-show rate 15-20%; scheduling gaps difficult to fill" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+health:step-telemedicine-3-prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare clinical environment and review prior medical records" ;
+    jtbd:currentSolution "Fragmented EHR access across multiple health systems" ;
+    jtbd:painPoint "Missing records from other providers; inconsistent patient history" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+health:step-telemedicine-4-confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Verify patient identity and HIPAA-compliant connection before consultation" ;
+    jtbd:currentSolution "Manual photo ID verification and tech support screening" ;
+    jtbd:painPoint "Technology failures waste consultation time; security concerns" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+health:step-telemedicine-5-execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Conduct video consultation and document clinical findings" ;
+    jtbd:currentSolution "Real-time EHR documentation during video calls" ;
+    jtbd:painPoint "Dual-screen workflow reduces eye contact with patient" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+health:step-telemedicine-6-monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track patient compliance and follow-up outcomes" ;
+    jtbd:currentSolution "Manual follow-up calls and patient portal messages" ;
+    jtbd:painPoint "Limited visibility on patient adherence and outcomes post-visit" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 11 .
+
+health:step-telemedicine-7-modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Adjust treatment plans based on patient feedback and outcomes" ;
+    jtbd:currentSolution "Asynchronous messaging with patients" ;
+    jtbd:painPoint "Communication delays; unclear escalation path for urgent issues" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+health:step-telemedicine-8-conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Complete clinical documentation and prescription processing" ;
+    jtbd:currentSolution "Manual e-prescription to pharmacy systems" ;
+    jtbd:painPoint "Pharmacy integration issues; patients wait for prescription fulfillment" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+# ============================================================================
+# Avatar 4: Medical Device Engineer - Building Connected Devices
+# ============================================================================
+
+health:avatar-device-engineer a jtbd:Avatar ;
+    jtbd:avatarName "Medical Device Engineer" ;
+    jtbd:avatarDescription "R&D lead developing FDA-regulated connected medical devices with wireless capabilities" ;
+    jtbd:avatarSegment "Medical Device Innovation" ;
+    jtbd:avatarPainLevel 8 ;
+    jtbd:hasJob health:job-device-engineer-build-devices .
+
+health:job-device-engineer-build-devices a jtbd:Job ;
+    jtbd:jobName "Build Connected Devices" ;
+    jtbd:jobDescription "Design, prototype, and validate IoT-enabled medical devices while ensuring security and FDA compliance" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep health:step-device-1-define,
+        health:step-device-2-locate,
+        health:step-device-3-prepare,
+        health:step-device-4-confirm,
+        health:step-device-5-execute,
+        health:step-device-6-monitor,
+        health:step-device-7-modify,
+        health:step-device-8-conclude .
+
+health:step-device-1-define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define device specifications and regulatory pathway" ;
+    jtbd:currentSolution "Manual regulatory research and internal design reviews" ;
+    jtbd:painPoint "FDA guidance documents constantly updated; unclear applicability" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+health:step-device-2-locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Identify and evaluate wireless communication standards and security frameworks" ;
+    jtbd:currentSolution "Literature review and vendor product evaluation" ;
+    jtbd:painPoint "Rapidly evolving IoT security landscape; vendor claims unreliable" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+health:step-device-3-prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare development environment and security testing infrastructure" ;
+    jtbd:currentSolution "Ad-hoc test benches for each device variant" ;
+    jtbd:painPoint "Security testing expensive and time-consuming; hard to reproduce" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+health:step-device-4-confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Validate security, interoperability, and data privacy requirements" ;
+    jtbd:currentSolution "Third-party security testing and HIPAA compliance reviews" ;
+    jtbd:painPoint "Late-stage security findings delay launches (3-6 months)" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 17 .
+
+health:step-device-5-execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Develop firmware and integrate device connectivity" ;
+    jtbd:currentSolution "Embedded C development with custom networking code" ;
+    jtbd:painPoint "Security vulnerabilities in custom network code; hard to maintain" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+health:step-device-6-monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track device performance in clinical field deployments" ;
+    jtbd:currentSolution "Customer support tickets and device telemetry logs" ;
+    jtbd:painPoint "Connectivity issues in hospital environments hard to diagnose remotely" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 11 .
+
+health:step-device-7-modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Push firmware updates and patches to deployed devices" ;
+    jtbd:currentSolution "Manual OTA (over-the-air) updates with hospital IT coordination" ;
+    jtbd:painPoint "Update failures in locked-down hospital networks; rollback issues" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+health:step-device-8-conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Prepare post-market surveillance documentation and lifecycle management" ;
+    jtbd:currentSolution "Spreadsheet tracking of device incidents and field actions" ;
+    jtbd:painPoint "Regulatory reporting deadlines tight; data scattered across systems" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+# ============================================================================
+# Avatar 5: Health Insurance Analyst - Processing Claims
+# ============================================================================
+
+health:avatar-insurance-analyst a jtbd:Avatar ;
+    jtbd:avatarName "Health Insurance Analyst" ;
+    jtbd:avatarDescription "Senior claims analyst reviewing 200+ complex medical claims daily for authorization and coverage determination" ;
+    jtbd:avatarSegment "Insurance & Claims Management" ;
+    jtbd:avatarPainLevel 7 ;
+    jtbd:hasJob health:job-insurance-process-claims .
+
+health:job-insurance-process-claims a jtbd:Job ;
+    jtbd:jobName "Process Claims" ;
+    jtbd:jobDescription "Accurately review, authorize, and determine coverage for complex medical claims while maintaining regulatory compliance" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep health:step-insurance-1-define,
+        health:step-insurance-2-locate,
+        health:step-insurance-3-prepare,
+        health:step-insurance-4-confirm,
+        health:step-insurance-5-execute,
+        health:step-insurance-6-monitor,
+        health:step-insurance-7-modify,
+        health:step-insurance-8-conclude .
+
+health:step-insurance-1-define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define coverage rules based on patient plan and procedure type" ;
+    jtbd:currentSolution "Manual lookup of plan documents and billing code databases" ;
+    jtbd:painPoint "Coverage rules complex and frequently updated; inconsistent interpretation" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+health:step-insurance-2-locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Retrieve complete claim documentation and patient records" ;
+    jtbd:currentSolution "Federated searches across multiple legacy claims systems" ;
+    jtbd:painPoint "Missing attachments; incomplete clinical notes delay decisions" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+health:step-insurance-3-prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Organize claim details and medical necessity documentation" ;
+    jtbd:currentSolution "Manual document assembly in claim folder" ;
+    jtbd:painPoint "Unstructured documents; hard to extract key information quickly" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+health:step-insurance-4-confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Verify medical necessity based on evidence and guidelines" ;
+    jtbd:currentSolution "Manual review against clinical guidelines (when available)" ;
+    jtbd:painPoint "Guidelines outdated; no decision support for complex cases" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+health:step-insurance-5-execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Determine coverage and enter authorization decision" ;
+    jtbd:currentSolution "Manual entry into legacy claims system" ;
+    jtbd:painPoint "System interfaces poor; re-work common; audit trail incomplete" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+health:step-insurance-6-monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track appeals and grievances on denied or reduced claims" ;
+    jtbd:currentSolution "Manual appeal ticket tracking" ;
+    jtbd:painPoint "Appeal deadlines sometimes missed; poor visibility on trends" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 11 .
+
+health:step-insurance-7-modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Adjust decision based on additional clinical information or appeals" ;
+    jtbd:currentSolution "Manual re-review and manual system updates" ;
+    jtbd:painPoint "Reconciliation between original and modified decisions difficult" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 11 .
+
+health:step-insurance-8-conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Communicate decision to provider and patient" ;
+    jtbd:currentSolution "Manual letter generation and provider portal notification" ;
+    jtbd:painPoint "Communication delays frustrate providers; patient confusion common" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 10 .
+
+# ============================================================================
+# Avatar 6: Pharmacy Systems Manager - Managing Drug Inventory
+# ============================================================================
+
+health:avatar-pharmacy-manager a jtbd:Avatar ;
+    jtbd:avatarName "Pharmacy Systems Manager" ;
+    jtbd:avatarDescription "Director of pharmacy managing inventory, dispensing systems, and drug-drug interaction checking for large hospital" ;
+    jtbd:avatarSegment "Pharmacy Operations" ;
+    jtbd:avatarPainLevel 8 ;
+    jtbd:hasJob health:job-pharmacy-manage-inventory .
+
+health:job-pharmacy-manage-inventory a jtbd:Job ;
+    jtbd:jobName "Manage Drug Inventory" ;
+    jtbd:jobDescription "Maintain optimal medication inventory levels while ensuring patient safety, reducing waste, and maximizing cost efficiency" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep health:step-pharmacy-1-define,
+        health:step-pharmacy-2-locate,
+        health:step-pharmacy-3-prepare,
+        health:step-pharmacy-4-confirm,
+        health:step-pharmacy-5-execute,
+        health:step-pharmacy-6-monitor,
+        health:step-pharmacy-7-modify,
+        health:step-pharmacy-8-conclude .
+
+health:step-pharmacy-1-define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define inventory targets and reorder points for 2000+ medications" ;
+    jtbd:currentSolution "Manual spreadsheet analysis of usage patterns" ;
+    jtbd:painPoint "Usage patterns change seasonally; reorder points constantly off" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+health:step-pharmacy-2-locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Source medications and identify reliable suppliers" ;
+    jtbd:currentSolution "Multi-vendor contracts with manual supply chain tracking" ;
+    jtbd:painPoint "Supply shortages frequent; no visibility until medication runs out" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+health:step-pharmacy-3-prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare storage systems and cold-chain logistics for medications" ;
+    jtbd:currentSolution "Manual inventory placement and temperature monitoring" ;
+    jtbd:painPoint "Cold chain failures lead to drug waste; limited traceability" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+health:step-pharmacy-4-confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Verify medication integrity and expiration dates" ;
+    jtbd:currentSolution "Manual medication shelf review and barcode scanning" ;
+    jtbd:painPoint "Expired medications sometimes missed; recall coordination slow" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+health:step-pharmacy-5-execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Dispense medications and verify drug-drug interactions" ;
+    jtbd:currentSolution "Automated medication dispensing cabinets with integrated interaction checking" ;
+    jtbd:painPoint "Alert fatigue from excessive warnings; some interactions missed" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 13 .
+
+health:step-pharmacy-6-monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track medication usage patterns and identify outliers" ;
+    jtbd:currentSolution "Monthly variance reports; manual investigation of discrepancies" ;
+    jtbd:painPoint "Theft or errors detected late; accountability unclear" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+health:step-pharmacy-7-modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Adjust inventory levels based on clinical demand and usage data" ;
+    jtbd:currentSolution "Quarterly inventory reviews with manual level adjustments" ;
+    jtbd:painPoint "Lag between demand changes and inventory updates" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 11 .
+
+health:step-pharmacy-8-conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Generate regulatory reports and cost analysis" ;
+    jtbd:currentSolution "Manual report compilation from multiple pharmacy systems" ;
+    jtbd:painPoint "Data consistency issues; audit preparation time-consuming" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 11 .
+
+# ============================================================================
+# Avatar 7: Patient Experience Director - Improving Care Journeys
+# ============================================================================
+
+health:avatar-experience-director a jtbd:Avatar ;
+    jtbd:avatarName "Patient Experience Director" ;
+    jtbd:avatarDescription "Chief Experience Officer accountable for patient satisfaction scores (HCAHPS) and improving access to care" ;
+    jtbd:avatarSegment "Patient-Centered Healthcare" ;
+    jtbd:avatarPainLevel 8 ;
+    jtbd:hasJob health:job-experience-improve-journeys .
+
+health:job-experience-improve-journeys a jtbd:Job ;
+    jtbd:jobName "Improve Care Journeys" ;
+    jtbd:jobDescription "Design and implement patient-centric care experiences that reduce friction, improve satisfaction, and increase access" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep health:step-experience-1-define,
+        health:step-experience-2-locate,
+        health:step-experience-3-prepare,
+        health:step-experience-4-confirm,
+        health:step-experience-5-execute,
+        health:step-experience-6-monitor,
+        health:step-experience-7-modify,
+        health:step-experience-8-conclude .
+
+health:step-experience-1-define a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define target care journeys and patient segments" ;
+    jtbd:currentSolution "Annual focus groups and patient advisory board meetings" ;
+    jtbd:painPoint "Feedback collection slow; hard to prioritize improvements" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+health:step-experience-2-locate a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Identify pain points across patient journey touchpoints" ;
+    jtbd:currentSolution "Manual journey mapping workshops and complaint analysis" ;
+    jtbd:painPoint "Insights fragmented; hard to connect dots between touchpoints" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+health:step-experience-3-prepare a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare action plans and cross-functional implementation roadmaps" ;
+    jtbd:currentSolution "Spreadsheet roadmaps with departmental ownership" ;
+    jtbd:painPoint "Coordination across departments weak; accountability diffused" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+health:step-experience-4-confirm a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Validate improvement ideas with patient testing" ;
+    jtbd:currentSolution "Ad-hoc pilot programs with select patient groups" ;
+    jtbd:painPoint "Piloting slow and expensive; results hard to generalize" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+health:step-experience-5-execute a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Roll out experience improvements across care settings" ;
+    jtbd:currentSolution "Change management with training and communication campaigns" ;
+    jtbd:painPoint "Staff resistance high; inconsistent implementation across departments" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+health:step-experience-6-monitor a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Track patient satisfaction (HCAHPS, NPS) and access metrics" ;
+    jtbd:currentSolution "Quarterly patient surveys and monthly complaint logs" ;
+    jtbd:painPoint "Feedback lags by 2-3 months; hard to attribute improvements" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+health:step-experience-7-modify a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Adjust implementations based on patient feedback and outcomes" ;
+    jtbd:currentSolution "Quarterly improvement cycles with formal change requests" ;
+    jtbd:painPoint "Feedback loops slow; patient frustration accumulates" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+health:step-experience-8-conclude a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Report outcomes and celebrate improvements with organization" ;
+    jtbd:currentSolution "Annual state of patient experience report" ;
+    jtbd:painPoint "Impact not well communicated; staff doesn't see connection to their work" ;
+    jtbd:importance 7 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 11 .

@@ -1,0 +1,656 @@
+@prefix jtbd: <https://ggen.io/ontology/jtbd#> .
+@prefix fin: <https://ggen.io/examples/jtbd/fintech#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# FINTECH CUSTOMER AVATARS & JOBS TO BE DONE
+# 7 Avatars × 8 Job Steps = 56 Total Steps
+# ============================================================================
+
+# ============================================================================
+# AVATAR 1: Payments Product Manager
+# ============================================================================
+
+fin:avatar-payments-pm a jtbd:Avatar ;
+    jtbd:avatarName "Payments Product Manager" ;
+    jtbd:avatarDescription "Leads payment flow development, optimizing transaction success and user experience" ;
+    jtbd:avatarSegment "Enterprise Payment Processing" ;
+    jtbd:avatarPainLevel 7 ;
+    jtbd:hasJob fin:job-payments-pm-001 .
+
+fin:job-payments-pm-001 a jtbd:Job ;
+    jtbd:jobName "Build Seamless Payment Flows" ;
+    jtbd:jobDescription "Create end-to-end payment experiences that maximize conversion and minimize friction" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep fin:step-payments-pm-001, fin:step-payments-pm-002, fin:step-payments-pm-003,
+                    fin:step-payments-pm-004, fin:step-payments-pm-005, fin:step-payments-pm-006,
+                    fin:step-payments-pm-007, fin:step-payments-pm-008 .
+
+fin:step-payments-pm-001 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define payment flow requirements and success metrics" ;
+    jtbd:currentSolution "Manual requirements gathering and spreadsheets" ;
+    jtbd:painPoint "Unclear success metrics lead to misaligned implementations" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+fin:step-payments-pm-002 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Find and evaluate payment gateway providers and integrations" ;
+    jtbd:currentSolution "Manual vendor research and POC testing" ;
+    jtbd:painPoint "Vendor evaluation is slow and requires deep technical knowledge" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+fin:step-payments-pm-003 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare technical specifications and API integration plans" ;
+    jtbd:currentSolution "Writing custom API docs and integration guides" ;
+    jtbd:painPoint "Specs become outdated as vendor APIs evolve" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+fin:step-payments-pm-004 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Validate payment flow design with stakeholders and users" ;
+    jtbd:currentSolution "Iterative reviews and user testing sessions" ;
+    jtbd:painPoint "Late-stage feedback causes expensive rework" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+fin:step-payments-pm-005 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Implement payment processing and reconciliation logic" ;
+    jtbd:currentSolution "Engineering team writes custom payment handlers" ;
+    jtbd:painPoint "Implementation takes 4-6 months, blocking feature releases" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 18 .
+
+fin:step-payments-pm-006 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor transaction success rates and payment health metrics" ;
+    jtbd:currentSolution "Manual dashboards and alert systems" ;
+    jtbd:painPoint "Alert delays cause revenue impact before issues are detected" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+fin:step-payments-pm-007 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Optimize payment flows based on conversion data and user feedback" ;
+    jtbd:currentSolution "A/B testing and incremental optimization" ;
+    jtbd:painPoint "Testing cycle takes weeks, competitors move faster" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+fin:step-payments-pm-008 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Ensure PCI compliance and security certifications" ;
+    jtbd:currentSolution "Manual security audits and compliance checklists" ;
+    jtbd:painPoint "Compliance delays payment launch by 2-3 months" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 18 .
+
+# ============================================================================
+# AVATAR 2: Fraud Detection Engineer
+# ============================================================================
+
+fin:avatar-fraud-engineer a jtbd:Avatar ;
+    jtbd:avatarName "Fraud Detection Engineer" ;
+    jtbd:avatarDescription "Develops and maintains ML models to prevent financial crime and unauthorized transactions" ;
+    jtbd:avatarSegment "Risk & Compliance Technology" ;
+    jtbd:avatarPainLevel 9 ;
+    jtbd:hasJob fin:job-fraud-engineer-001 .
+
+fin:job-fraud-engineer-001 a jtbd:Job ;
+    jtbd:jobName "Prevent Financial Crime in Real-Time" ;
+    jtbd:jobDescription "Build ML-powered fraud detection systems that catch bad actors while minimizing false positives" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep fin:step-fraud-engineer-001, fin:step-fraud-engineer-002, fin:step-fraud-engineer-003,
+                    fin:step-fraud-engineer-004, fin:step-fraud-engineer-005, fin:step-fraud-engineer-006,
+                    fin:step-fraud-engineer-007, fin:step-fraud-engineer-008 .
+
+fin:step-fraud-engineer-001 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define fraud detection requirements and model objectives" ;
+    jtbd:currentSolution "Rule-based systems and manual case review" ;
+    jtbd:painPoint "Rules can't adapt to new fraud patterns fast enough" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 18 .
+
+fin:step-fraud-engineer-002 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Gather historical fraud data and transaction features" ;
+    jtbd:currentSolution "Manual data extraction from siloed systems" ;
+    jtbd:painPoint "Data quality issues and missing fraud labels slow training" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+fin:step-fraud-engineer-003 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare training data and feature engineering pipelines" ;
+    jtbd:currentSolution "Custom Python scripts and Jupyter notebooks" ;
+    jtbd:painPoint "Data pipelines break when upstream schemas change" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 18 .
+
+fin:step-fraud-engineer-004 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Validate model performance on holdout test set" ;
+    jtbd:currentSolution "Manual cross-validation and bootstrap sampling" ;
+    jtbd:painPoint "Validation metrics don't reflect real-world performance" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+fin:step-fraud-engineer-005 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Deploy fraud model to production with real-time inference" ;
+    jtbd:currentSolution "Manual deployment scripts and infrastructure management" ;
+    jtbd:painPoint "Deployment process is error-prone and takes days" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 1 ;
+    jtbd:opportunityScore 19 .
+
+fin:step-fraud-engineer-006 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor model drift and fraud detection performance" ;
+    jtbd:currentSolution "Daily manual reviews and alert systems" ;
+    jtbd:painPoint "Model drift goes undetected, allowing fraud to increase" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 18 .
+
+fin:step-fraud-engineer-007 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Retrain models with new fraud patterns and feedback loops" ;
+    jtbd:currentSolution "Manual retraining workflows every 2-4 weeks" ;
+    jtbd:painPoint "Fraud patterns evolve faster than retraining cycles" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 18 .
+
+fin:step-fraud-engineer-008 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Generate fraud audit trails and regulatory compliance reports" ;
+    jtbd:currentSolution "Manual report generation and case documentation" ;
+    jtbd:painPoint "Audit trails don't provide explainability for model decisions" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 16 .
+
+# ============================================================================
+# AVATAR 3: Compliance Officer
+# ============================================================================
+
+fin:avatar-compliance-officer a jtbd:Avatar ;
+    jtbd:avatarName "Compliance Officer" ;
+    jtbd:avatarDescription "Ensures financial platform meets regulatory requirements and industry standards" ;
+    jtbd:avatarSegment "Regulatory & Legal" ;
+    jtbd:avatarPainLevel 8 ;
+    jtbd:hasJob fin:job-compliance-officer-001 .
+
+fin:job-compliance-officer-001 a jtbd:Job ;
+    jtbd:jobName "Maintain Regulatory Compliance and Certifications" ;
+    jtbd:jobDescription "Navigate complex regulations (KYC, AML, PCI-DSS, GDPR) and maintain audit readiness" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep fin:step-compliance-officer-001, fin:step-compliance-officer-002, fin:step-compliance-officer-003,
+                    fin:step-compliance-officer-004, fin:step-compliance-officer-005, fin:step-compliance-officer-006,
+                    fin:step-compliance-officer-007, fin:step-compliance-officer-008 .
+
+fin:step-compliance-officer-001 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Interpret regulatory requirements for new products and features" ;
+    jtbd:currentSolution "Manual policy reading and legal consultants" ;
+    jtbd:painPoint "Regulations are ambiguous and change frequently" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 17 .
+
+fin:step-compliance-officer-002 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Identify gaps in current systems against compliance requirements" ;
+    jtbd:currentSolution "Manual audits and compliance questionnaires" ;
+    jtbd:painPoint "Gap analysis is incomplete and slows time-to-market" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+fin:step-compliance-officer-003 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare compliance documentation and evidence collection" ;
+    jtbd:currentSolution "Email chains and spreadsheet tracking" ;
+    jtbd:painPoint "Documentation is scattered and difficult to audit" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 18 .
+
+fin:step-compliance-officer-004 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Validate compliance with third-party auditors and regulators" ;
+    jtbd:currentSolution "In-person audits and manual compliance testing" ;
+    jtbd:painPoint "Audit findings are discovered late, requiring expensive remediation" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 18 .
+
+fin:step-compliance-officer-005 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Implement compliance controls in systems and processes" ;
+    jtbd:currentSolution "Engineering backlog prioritization and custom implementations" ;
+    jtbd:painPoint "Compliance fixes take 3-6 months, blocking feature releases" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 1 ;
+    jtbd:opportunityScore 19 .
+
+fin:step-compliance-officer-006 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor compliance violations and regulatory risk" ;
+    jtbd:currentSolution "Manual monitoring dashboards and alerts" ;
+    jtbd:painPoint "Violations are discovered after-the-fact, creating regulatory risk" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 18 .
+
+fin:step-compliance-officer-007 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Update policies and controls as regulations change" ;
+    jtbd:currentSolution "Quarterly policy reviews and compliance training" ;
+    jtbd:painPoint "Policy updates lag behind regulatory changes" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+fin:step-compliance-officer-008 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Prepare for regulatory examinations and demonstrate compliance" ;
+    jtbd:currentSolution "Ad-hoc document preparation and examination response" ;
+    jtbd:painPoint "Exam preparation is high-stress and error-prone" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 18 .
+
+# ============================================================================
+# AVATAR 4: Algorithmic Trader
+# ============================================================================
+
+fin:avatar-algo-trader a jtbd:Avatar ;
+    jtbd:avatarName "Algorithmic Trader" ;
+    jtbd:avatarDescription "Develops and executes automated trading strategies for optimal returns with minimal latency" ;
+    jtbd:avatarSegment "Institutional Trading" ;
+    jtbd:avatarPainLevel 8 ;
+    jtbd:hasJob fin:job-algo-trader-001 .
+
+fin:job-algo-trader-001 a jtbd:Job ;
+    jtbd:jobName "Execute High-Frequency Trading Strategies" ;
+    jtbd:jobDescription "Build and deploy trading algorithms that maximize returns while managing risk and latency" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep fin:step-algo-trader-001, fin:step-algo-trader-002, fin:step-algo-trader-003,
+                    fin:step-algo-trader-004, fin:step-algo-trader-005, fin:step-algo-trader-006,
+                    fin:step-algo-trader-007, fin:step-algo-trader-008 .
+
+fin:step-algo-trader-001 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define trading strategy rules and risk parameters" ;
+    jtbd:currentSolution "Manual strategy design in spreadsheets and documents" ;
+    jtbd:painPoint "Strategy parameters are hard to optimize and test" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+fin:step-algo-trader-002 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Source market data feeds and historical data" ;
+    jtbd:currentSolution "Multiple vendor subscriptions and data consolidation" ;
+    jtbd:painPoint "Data feeds have latency and reliability issues" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 17 .
+
+fin:step-algo-trader-003 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare trading infrastructure and market connectivity" ;
+    jtbd:currentSolution "Manual infrastructure setup and broker API integration" ;
+    jtbd:painPoint "Infrastructure setup takes weeks and has single points of failure" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 18 .
+
+fin:step-algo-trader-004 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Backtest strategy against historical data" ;
+    jtbd:currentSolution "Custom backtesting framework and manual analysis" ;
+    jtbd:painPoint "Backtest results don't account for slippage and real-world conditions" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 18 .
+
+fin:step-algo-trader-005 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Deploy and execute trading algorithms in live markets" ;
+    jtbd:currentSolution "Manual order submission and position monitoring" ;
+    jtbd:painPoint "Execution delays and network latency cost significant returns" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 1 ;
+    jtbd:opportunityScore 19 .
+
+fin:step-algo-trader-006 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor live trading performance and risk metrics" ;
+    jtbd:currentSolution "Real-time dashboards and manual circuit breakers" ;
+    jtbd:painPoint "Market anomalies cause unexpected losses before manual intervention" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 18 .
+
+fin:step-algo-trader-007 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Adjust strategy parameters based on market conditions" ;
+    jtbd:currentSolution "Manual tuning and A/B testing different parameter sets" ;
+    jtbd:painPoint "Market conditions change faster than parameter optimization cycles" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+fin:step-algo-trader-008 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Close positions and reconcile P&L at end of day" ;
+    jtbd:currentSolution "Manual position closing and Excel-based P&L reconciliation" ;
+    jtbd:painPoint "P&L reconciliation discrepancies create audit and accounting issues" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+# ============================================================================
+# AVATAR 5: Lending Platform Architect
+# ============================================================================
+
+fin:avatar-lending-architect a jtbd:Avatar ;
+    jtbd:avatarName "Lending Platform Architect" ;
+    jtbd:avatarDescription "Designs scalable loan origination and management systems balancing risk and accessibility" ;
+    jtbd:avatarSegment "Digital Lending" ;
+    jtbd:avatarPainLevel 7 ;
+    jtbd:hasJob fin:job-lending-architect-001 .
+
+fin:job-lending-architect-001 a jtbd:Job ;
+    jtbd:jobName "Build Scalable Lending Platforms" ;
+    jtbd:jobDescription "Create loan origination systems that assess risk, automate approvals, and manage portfolios" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep fin:step-lending-architect-001, fin:step-lending-architect-002, fin:step-lending-architect-003,
+                    fin:step-lending-architect-004, fin:step-lending-architect-005, fin:step-lending-architect-006,
+                    fin:step-lending-architect-007, fin:step-lending-architect-008 .
+
+fin:step-lending-architect-001 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define lending product terms and risk parameters" ;
+    jtbd:currentSolution "Domain expert meetings and pricing models in Excel" ;
+    jtbd:painPoint "Risk parameters not validated against actual portfolio performance" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+fin:step-lending-architect-002 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Find credit data sources and alternative risk signals" ;
+    jtbd:currentSolution "Bureau integrations and manual data onboarding" ;
+    jtbd:painPoint "Many data sources unavailable or have high integration cost" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+fin:step-lending-architect-003 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare underwriting rules and approval workflows" ;
+    jtbd:currentSolution "Rule engine configuration and manual policy documentation" ;
+    jtbd:painPoint "Rules become complex and hard to maintain as portfolio grows" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+fin:step-lending-architect-004 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Validate risk models against historical defaults and delinquencies" ;
+    jtbd:currentSolution "Backtesting against historical data" ;
+    jtbd:painPoint "Model validation takes months, delaying product launch" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+fin:step-lending-architect-005 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Implement loan origination, approval, and servicing systems" ;
+    jtbd:currentSolution "Custom builds on core banking platforms" ;
+    jtbd:painPoint "Implementation takes 12-18 months and requires ongoing customization" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 1 ;
+    jtbd:opportunityScore 19 .
+
+fin:step-lending-architect-006 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor portfolio performance and default rates" ;
+    jtbd:currentSolution "Monthly portfolio reviews and risk dashboards" ;
+    jtbd:painPoint "Portfolio trends lag actual performance, limiting ability to adjust" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 18 .
+
+fin:step-lending-architect-007 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Adjust underwriting rules based on portfolio performance" ;
+    jtbd:currentSolution "Quarterly policy reviews and rules adjustments" ;
+    jtbd:painPoint "Adjustments take time to test, delaying response to market changes" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+fin:step-lending-architect-008 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Report portfolio quality and regulatory compliance to stakeholders" ;
+    jtbd:currentSolution "Manual report generation and board presentations" ;
+    jtbd:painPoint "Reports are static and don't enable interactive analysis" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+# ============================================================================
+# AVATAR 6: Crypto Exchange Operator
+# ============================================================================
+
+fin:avatar-crypto-operator a jtbd:Avatar ;
+    jtbd:avatarName "Crypto Exchange Operator" ;
+    jtbd:avatarDescription "Manages digital asset exchange operations, liquidity, and custody for crypto trading" ;
+    jtbd:avatarSegment "Digital Asset Management" ;
+    jtbd:avatarPainLevel 9 ;
+    jtbd:hasJob fin:job-crypto-operator-001 .
+
+fin:job-crypto-operator-001 a jtbd:Job ;
+    jtbd:jobName "Operate Secure Cryptocurrency Exchange" ;
+    jtbd:jobDescription "Manage trading platform, custody, liquidity pools, and regulatory compliance for digital assets" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep fin:step-crypto-operator-001, fin:step-crypto-operator-002, fin:step-crypto-operator-003,
+                    fin:step-crypto-operator-004, fin:step-crypto-operator-005, fin:step-crypto-operator-006,
+                    fin:step-crypto-operator-007, fin:step-crypto-operator-008 .
+
+fin:step-crypto-operator-001 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define trading pairs, liquidity pools, and fee structures" ;
+    jtbd:currentSolution "Manual market analysis and competitor benchmarking" ;
+    jtbd:painPoint "Fee structures not optimized for market conditions" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+fin:step-crypto-operator-002 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Source blockchain nodes and liquidity from market makers" ;
+    jtbd:currentSolution "Manual node operation and liquidity provider agreements" ;
+    jtbd:painPoint "Node reliability is poor, causing exchange downtime" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 18 .
+
+fin:step-crypto-operator-003 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare cryptocurrency custody and cold storage solutions" ;
+    jtbd:currentSolution "Hardware wallets and manual key management" ;
+    jtbd:painPoint "Key management is error-prone and creates security risks" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 1 ;
+    jtbd:opportunityScore 19 .
+
+fin:step-crypto-operator-004 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Validate trading engine performance and order matching" ;
+    jtbd:currentSolution "Manual load testing and stress testing" ;
+    jtbd:painPoint "Performance issues only discovered during peak trading volume" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 18 .
+
+fin:step-crypto-operator-005 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Deploy trading engine and manage exchange operations" ;
+    jtbd:currentSolution "Custom trading engine development and manual operations" ;
+    jtbd:painPoint "Trading engine development takes 12-24 months" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 1 ;
+    jtbd:opportunityScore 19 .
+
+fin:step-crypto-operator-006 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor exchange health, security threats, and fraud" ;
+    jtbd:currentSolution "Security team monitoring and manual alert systems" ;
+    jtbd:painPoint "Security breaches discovered after massive losses" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 1 ;
+    jtbd:opportunityScore 19 .
+
+fin:step-crypto-operator-007 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Adapt to market conditions and emerging trading patterns" ;
+    jtbd:currentSolution "Manual feature releases every 2-4 weeks" ;
+    jtbd:painPoint "Feature releases are slow, competitors gain market advantage" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 16 .
+
+fin:step-crypto-operator-008 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Maintain regulatory licensing and compliance across jurisdictions" ;
+    jtbd:currentSolution "Manual compliance management across multiple regions" ;
+    jtbd:painPoint "Compliance violations result in exchange shutdowns" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 18 .
+
+# ============================================================================
+# AVATAR 7: Personal Finance App Developer
+# ============================================================================
+
+fin:avatar-finapp-developer a jtbd:Avatar ;
+    jtbd:avatarName "Personal Finance App Developer" ;
+    jtbd:avatarDescription "Builds user-friendly apps that help individuals track, budget, and optimize their finances" ;
+    jtbd:avatarSegment "Consumer Financial Services" ;
+    jtbd:avatarPainLevel 6 ;
+    jtbd:hasJob fin:job-finapp-developer-001 .
+
+fin:job-finapp-developer-001 a jtbd:Job ;
+    jtbd:jobName "Build Engaging Personal Finance Applications" ;
+    jtbd:jobDescription "Create apps that help users understand spending, save money, and achieve financial goals" ;
+    jtbd:jobType "functional" ;
+    jtbd:hasJobStep fin:step-finapp-developer-001, fin:step-finapp-developer-002, fin:step-finapp-developer-003,
+                    fin:step-finapp-developer-004, fin:step-finapp-developer-005, fin:step-finapp-developer-006,
+                    fin:step-finapp-developer-007, fin:step-finapp-developer-008 .
+
+fin:step-finapp-developer-001 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define financial product roadmap and user personas" ;
+    jtbd:currentSolution "User interviews and survey feedback" ;
+    jtbd:painPoint "User needs are unclear, leading to features users don't want" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+fin:step-finapp-developer-002 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Find and integrate with banking data and financial APIs" ;
+    jtbd:currentSolution "Manual bank API integration and data aggregation services" ;
+    jtbd:painPoint "Bank connections are fragile and break frequently" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 15 .
+
+fin:step-finapp-developer-003 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare secure authentication and data privacy infrastructure" ;
+    jtbd:currentSolution "Custom OAuth implementation and data encryption" ;
+    jtbd:painPoint "Security implementation is complex and error-prone" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 18 .
+
+fin:step-finapp-developer-004 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Validate app functionality and user experience" ;
+    jtbd:currentSolution "Manual testing and beta user feedback" ;
+    jtbd:painPoint "Bugs discovered in production cause user trust issues" ;
+    jtbd:importance 9 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 14 .
+
+fin:step-finapp-developer-005 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Implement core features: budgeting, spending analysis, savings goals" ;
+    jtbd:currentSolution "Custom development of each feature from scratch" ;
+    jtbd:painPoint "Feature implementation takes 2-3 months per feature" ;
+    jtbd:importance 10 ;
+    jtbd:satisfaction 2 ;
+    jtbd:opportunityScore 18 .
+
+fin:step-finapp-developer-006 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor app performance, crashes, and user engagement" ;
+    jtbd:currentSolution "Analytics dashboards and crash reporting" ;
+    jtbd:painPoint "User churn signals are not actionable in time" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 4 ;
+    jtbd:opportunityScore 12 .
+
+fin:step-finapp-developer-007 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Iterate on features based on user feedback and metrics" ;
+    jtbd:currentSolution "Two-week sprints with manual prioritization" ;
+    jtbd:painPoint "Release cycle takes 2 weeks, user needs change faster" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 5 ;
+    jtbd:opportunityScore 11 .
+
+fin:step-finapp-developer-008 a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Maintain compliance with financial regulations and app store policies" ;
+    jtbd:currentSolution "Manual policy review and compliance testing" ;
+    jtbd:painPoint "Policy changes cause unexpected app rejections" ;
+    jtbd:importance 8 ;
+    jtbd:satisfaction 3 ;
+    jtbd:opportunityScore 13 .
+
+# ============================================================================
+# SUMMARY STATISTICS
+# ============================================================================
+# Total Avatars: 7
+# Total Jobs: 7
+# Total Job Steps: 56 (7 avatars × 8 steps)
+# Average Pain Level: 7.86 / 10
+# Average Opportunity Score Range: 11-19
+# ============================================================================

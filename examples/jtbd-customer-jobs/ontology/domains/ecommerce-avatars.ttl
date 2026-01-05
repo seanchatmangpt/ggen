@@ -1,0 +1,712 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix jtbd: <https://ggen.io/ontology/jtbd#> .
+@prefix ecom: <https://ggen.io/examples/jtbd/ecommerce#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# AVATAR 1: MARKETPLACE SELLER
+# ============================================================================
+
+ecom:avatar-marketplace-seller
+    a jtbd:Avatar ;
+    jtbd:avatarName "Marketplace Seller" ;
+    jtbd:avatarDescription "E-commerce entrepreneur managing sales across multiple platforms (Amazon, eBay, Shopify, TikTok Shop)" ;
+    jtbd:avatarSegment "SMB/Mid-Market" ;
+    jtbd:avatarPainLevel "8"^^xsd:integer ;
+    jtbd:hasJob ecom:job-multi-channel-sales .
+
+ecom:job-multi-channel-sales
+    a jtbd:Job ;
+    jtbd:jobName "Manage Multi-Channel Sales" ;
+    jtbd:jobDescription "Synchronize inventory, pricing, and orders across multiple e-commerce platforms while maximizing profitability" ;
+    jtbd:jobType jtbd:Functional ;
+    jtbd:hasJobStep
+        ecom:ms-step-1, ecom:ms-step-2, ecom:ms-step-3, ecom:ms-step-4,
+        ecom:ms-step-5, ecom:ms-step-6, ecom:ms-step-7, ecom:ms-step-8 .
+
+ecom:ms-step-1
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define market channels and target platforms for expansion" ;
+    jtbd:currentSolution "Manual spreadsheet tracking of sales channels and performance metrics" ;
+    jtbd:painPoint "Channel data scattered across multiple dashboards; difficult to compare channel performance" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "15"^^xsd:integer .
+
+ecom:ms-step-2
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate products with highest demand and margin potential per channel" ;
+    jtbd:currentSolution "Manual analysis of sales history in each platform's dashboard" ;
+    jtbd:painPoint "High time investment; miss emerging trends; inconsistent data between platforms" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+ecom:ms-step-3
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare listings with optimized titles, descriptions, and images for each channel" ;
+    jtbd:currentSolution "Copy-paste content between platforms; manually adjust for platform requirements" ;
+    jtbd:painPoint "Listing inconsistencies; time-consuming formatting; SEO opportunities missed" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "10"^^xsd:integer .
+
+ecom:ms-step-4
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm inventory levels are accurate across all channels" ;
+    jtbd:currentSolution "Manual stock counts and platform sync every 24-48 hours" ;
+    jtbd:painPoint "Overselling and stockouts on some channels while overstock on others" ;
+    jtbd:importance "10"^^xsd:integer ;
+    jtbd:satisfaction "1"^^xsd:integer ;
+    jtbd:opportunityScore "19"^^xsd:integer .
+
+ecom:ms-step-5
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute pricing strategy aligned with competitor analysis and demand signals" ;
+    jtbd:currentSolution "Manual price updates in each platform; weekly monitoring of competitors" ;
+    jtbd:painPoint "Reactive pricing; margin erosion; high labor cost for price management" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "15"^^xsd:integer .
+
+ecom:ms-step-6
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor sales performance and orders from all channels in one view" ;
+    jtbd:currentSolution "Check each platform dashboard individually; export and merge data manually" ;
+    jtbd:painPoint "Fragmented visibility; delayed decision-making; human error in data consolidation" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+ecom:ms-step-7
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify product mix and inventory allocation based on channel performance" ;
+    jtbd:currentSolution "Quarterly reviews and manual redistribution of stock" ;
+    jtbd:painPoint "Slow response to market changes; missed seasonal opportunities; poor allocation" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+ecom:ms-step-8
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude with profitability analysis and channel ROI calculation" ;
+    jtbd:currentSolution "Manual Excel calculations of gross profit by channel" ;
+    jtbd:painPoint "Inaccurate numbers; time-consuming process; delayed insights" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "13"^^xsd:integer .
+
+# ============================================================================
+# AVATAR 2: INVENTORY MANAGER
+# ============================================================================
+
+ecom:avatar-inventory-manager
+    a jtbd:Avatar ;
+    jtbd:avatarName "Inventory Manager" ;
+    jtbd:avatarDescription "Operations professional responsible for maintaining optimal inventory levels across warehouses and fulfillment centers" ;
+    jtbd:avatarSegment "Enterprise/Large Retail" ;
+    jtbd:avatarPainLevel "7"^^xsd:integer ;
+    jtbd:hasJob ecom:job-optimize-stock-levels .
+
+ecom:job-optimize-stock-levels
+    a jtbd:Job ;
+    jtbd:jobName "Optimize Stock Levels" ;
+    jtbd:jobDescription "Balance inventory investment with service levels while minimizing carrying costs and stockouts" ;
+    jtbd:jobType jtbd:Functional ;
+    jtbd:hasJobStep
+        ecom:im-step-1, ecom:im-step-2, ecom:im-step-3, ecom:im-step-4,
+        ecom:im-step-5, ecom:im-step-6, ecom:im-step-7, ecom:im-step-8 .
+
+ecom:im-step-1
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define optimal inventory levels for each SKU based on demand variability" ;
+    jtbd:currentSolution "Manual calculation using historical averages and safety stock formulas" ;
+    jtbd:painPoint "One-size-fits-all approach; doesn't account for seasonality or trend changes" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "15"^^xsd:integer .
+
+ecom:im-step-2
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate slow-moving SKUs and dead stock requiring liquidation" ;
+    jtbd:currentSolution "Monthly inventory audits and manual review of SKU age reports" ;
+    jtbd:painPoint "Delayed identification; significant capital tied up; storage costs drain margins" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+ecom:im-step-3
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare demand forecasts for next quarter using sales history and promotions" ;
+    jtbd:currentSolution "Spreadsheet-based forecasting with limited historical data integration" ;
+    jtbd:painPoint "Forecast accuracy 60-70%; external factors not considered; manual updates" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+ecom:im-step-4
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm SKU mix allocation across multiple warehouse locations" ;
+    jtbd:currentSolution "Centralized planning with manual distribution by location" ;
+    jtbd:painPoint "Suboptimal allocation; stock imbalances between locations; high fulfillment costs" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "11"^^xsd:integer .
+
+ecom:im-step-5
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute replenishment orders with suppliers based on lead times" ;
+    jtbd:currentSolution "Manual PO creation with supplier communication via email/phone" ;
+    jtbd:painPoint "Lead time misalignment; human error; communication delays; stock issues" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+ecom:im-step-6
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor stock levels and receive alerts for min/max threshold breaches" ;
+    jtbd:currentSolution "Daily manual checks of inventory reports and emails from warehouse" ;
+    jtbd:painPoint "Reactive rather than proactive; high staffing cost; oversights occur" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "13"^^xsd:integer .
+
+ecom:im-step-7
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify allocation strategy when demand patterns shift or seasons change" ;
+    jtbd:currentSolution "Quarterly manual reviews and adjustments based on sales trends" ;
+    jtbd:painPoint "Slow response to market changes; missed seasonal preparation; waste" ;
+    jtbd:importance "6"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "10"^^xsd:integer .
+
+ecom:im-step-8
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude with inventory analytics and cost-per-unit tracking" ;
+    jtbd:currentSolution "End-of-month inventory accounting and manual cost reports" ;
+    jtbd:painPoint "Delayed insights; complex reconciliation; difficult to trace cost drivers" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "11"^^xsd:integer .
+
+# ============================================================================
+# AVATAR 3: CONVERSION OPTIMIZER
+# ============================================================================
+
+ecom:avatar-conversion-optimizer
+    a jtbd:Avatar ;
+    jtbd:avatarName "Conversion Optimizer" ;
+    jtbd:avatarDescription "Growth/CRO professional focused on improving checkout completion rates and average order value" ;
+    jtbd:avatarSegment "DTC/SaaS" ;
+    jtbd:avatarPainLevel "9"^^xsd:integer ;
+    jtbd:hasJob ecom:job-improve-checkout-rates .
+
+ecom:job-improve-checkout-rates
+    a jtbd:Job ;
+    jtbd:jobName "Improve Checkout Rates" ;
+    jtbd:jobDescription "Identify and eliminate friction points in the purchase funnel to increase conversion rate and AOV" ;
+    jtbd:jobType jtbd:Functional ;
+    jtbd:hasJobStep
+        ecom:co-step-1, ecom:co-step-2, ecom:co-step-3, ecom:co-step-4,
+        ecom:co-step-5, ecom:co-step-6, ecom:co-step-7, ecom:co-step-8 .
+
+ecom:co-step-1
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define baseline conversion metrics and identify high-impact improvement areas" ;
+    jtbd:currentSolution "Google Analytics reports and basic funnel visualization" ;
+    jtbd:painPoint "Limited data depth; missing mobile vs desktop insights; unclear drop-off drivers" ;
+    jtbd:importance "10"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "18"^^xsd:integer .
+
+ecom:co-step-2
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate friction points by analyzing user behavior and session recordings" ;
+    jtbd:currentSolution "Manual review of heatmaps and occasional session recordings" ;
+    jtbd:painPoint "Time-intensive analysis; small sample size; subjective interpretation" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "16"^^xsd:integer .
+
+ecom:co-step-3
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare A/B test hypotheses based on friction analysis and best practices" ;
+    jtbd:currentSolution "Whiteboard brainstorming sessions with team discussion and gut feel" ;
+    jtbd:painPoint "Inconsistent test selection; tests not data-driven; team bias influences choice" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "13"^^xsd:integer .
+
+ecom:co-step-4
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm statistical significance of test results and validate improvements" ;
+    jtbd:currentSolution "Manual calculation of significance using online calculators or basic spreadsheet" ;
+    jtbd:painPoint "Math errors common; false positives accepted; sample size often insufficient" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "16"^^xsd:integer .
+
+ecom:co-step-5
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute multivariate tests to isolate best-performing element combinations" ;
+    jtbd:currentSolution "Sequential single-variable testing over weeks/months" ;
+    jtbd:painPoint "Very slow iteration; confounding factors; full testing cycle 3-6 months" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+ecom:co-step-6
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor conversion impact across segments and traffic sources" ;
+    jtbd:currentSolution "Manual weekly review of analytics dashboards and segment breakdowns" ;
+    jtbd:painPoint "Delayed detection of regressions; miss segment-specific insights" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "13"^^xsd:integer .
+
+ecom:co-step-7
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify page layout and flows based on winning test variations" ;
+    jtbd:currentSolution "Engineering queue for winning changes; monthly release cycle" ;
+    jtbd:painPoint "Slow deployment; backlogs block iterations; business loses momentum" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+ecom:co-step-8
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude with annual conversion uplift analysis and ROI calculation" ;
+    jtbd:currentSolution "Year-end reporting combining analytics data with estimated impact" ;
+    jtbd:painPoint "Attribution is difficult; hard to prove causality; political debates on impact" ;
+    jtbd:importance "6"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "10"^^xsd:integer .
+
+# ============================================================================
+# AVATAR 4: FULFILLMENT COORDINATOR
+# ============================================================================
+
+ecom:avatar-fulfillment-coordinator
+    a jtbd:Avatar ;
+    jtbd:avatarName "Fulfillment Coordinator" ;
+    jtbd:avatarDescription "Logistics professional managing order picking, packing, and shipping across multiple warehouses" ;
+    jtbd:avatarSegment "3PL/Large Sellers" ;
+    jtbd:avatarPainLevel "6"^^xsd:integer ;
+    jtbd:hasJob ecom:job-ship-orders-efficiently .
+
+ecom:job-ship-orders-efficiently
+    a jtbd:Job ;
+    jtbd:jobName "Ship Orders Efficiently" ;
+    jtbd:jobDescription "Streamline order fulfillment from picking through final delivery while reducing operational costs" ;
+    jtbd:jobType jtbd:Functional ;
+    jtbd:hasJobStep
+        ecom:fc-step-1, ecom:fc-step-2, ecom:fc-step-3, ecom:fc-step-4,
+        ecom:fc-step-5, ecom:fc-step-6, ecom:fc-step-7, ecom:fc-step-8 .
+
+ecom:fc-step-1
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define fulfillment workflows and routing rules for different order types" ;
+    jtbd:currentSolution "Standard processes documented in PDF manuals; manual routing decisions by supervisors" ;
+    jtbd:painPoint "Process inconsistencies; outdated documentation; supervisors make inconsistent choices" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "10"^^xsd:integer .
+
+ecom:fc-step-2
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate optimal warehouse location and carrier for each shipment" ;
+    jtbd:currentSolution "Manual review of inventory locations; carrier selection by availability" ;
+    jtbd:painPoint "Inefficient routing; high shipping costs; inconsistent carrier utilization" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "13"^^xsd:integer .
+
+ecom:fc-step-3
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare shipments with correct dimensions, weight, and special handling requirements" ;
+    jtbd:currentSolution "Manual data entry from order to packing system; visual inspection by staff" ;
+    jtbd:painPoint "Data entry errors; incorrect dimensions shipped; delayed processing; high return rate" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+ecom:fc-step-4
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm correct items are picked and packed before shipping" ;
+    jtbd:currentSolution "Pick/pack slip review and occasional random audits" ;
+    jtbd:painPoint "Error rate 1-2%; customer complaints drive returns; QC labor intensive" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "15"^^xsd:integer .
+
+ecom:fc-step-5
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute carrier label generation and shipment handoff" ;
+    jtbd:currentSolution "System generates labels; manual scanning and sorting by staff" ;
+    jtbd:painPoint "Label generation delays; scanning errors; manual sorting labor-intensive" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "10"^^xsd:integer .
+
+ecom:fc-step-6
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor shipment tracking and flag potential delays or issues" ;
+    jtbd:currentSolution "Manual carrier tracking checks; email alerts from WMS when statuses change" ;
+    jtbd:painPoint "Limited proactive alerts; customers complain before we know of issues" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "11"^^xsd:integer .
+
+ecom:fc-step-7
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify carrier contracts and rates based on performance and volume changes" ;
+    jtbd:currentSolution "Annual contract negotiations; quarterly performance reviews" ;
+    jtbd:painPoint "Opportunities missed between negotiations; carrier rates creep upward" ;
+    jtbd:importance "6"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "9"^^xsd:integer .
+
+ecom:fc-step-8
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude with cost per shipment analysis and efficiency metrics" ;
+    jtbd:currentSolution "Monthly reporting of shipment volumes and carrier costs from billing" ;
+    jtbd:painPoint "Delayed cost data; difficult to attribute costs to orders; limited optimization insights" ;
+    jtbd:importance "6"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "9"^^xsd:integer .
+
+# ============================================================================
+# AVATAR 5: CUSTOMER SUPPORT LEAD
+# ============================================================================
+
+ecom:avatar-customer-support-lead
+    a jtbd:Avatar ;
+    jtbd:avatarName "Customer Support Lead" ;
+    jtbd:avatarDescription "Customer service manager handling inquiries, complaints, and resolutions across multiple channels" ;
+    jtbd:avatarSegment "Mid-Market/Enterprise" ;
+    jtbd:avatarPainLevel "8"^^xsd:integer ;
+    jtbd:hasJob ecom:job-resolve-buyer-issues .
+
+ecom:job-resolve-buyer-issues
+    a jtbd:Job ;
+    jtbd:jobName "Resolve Buyer Issues" ;
+    jtbd:jobDescription "Effectively handle customer inquiries and resolve disputes while maintaining brand reputation and loyalty" ;
+    jtbd:jobType jtbd:Functional ;
+    jtbd:hasJobStep
+        ecom:cs-step-1, ecom:cs-step-2, ecom:cs-step-3, ecom:cs-step-4,
+        ecom:cs-step-5, ecom:cs-step-6, ecom:cs-step-7, ecom:cs-step-8 .
+
+ecom:cs-step-1
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define support policies and resolution authority at different support tiers" ;
+    jtbd:currentSolution "Written policy handbook; occasional manager direction for edge cases" ;
+    jtbd:painPoint "Inconsistent application of policies; customer dissatisfaction with arbitrary decisions" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "4"^^xsd:integer ;
+    jtbd:opportunityScore "10"^^xsd:integer .
+
+ecom:cs-step-2
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate customer issues across email, chat, phone, and social media channels" ;
+    jtbd:currentSolution "Manual monitoring of multiple inboxes and channel dashboards" ;
+    jtbd:painPoint "Messages missed; response time varies wildly; issues on social media not escalated" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+ecom:cs-step-3
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare response templates and resolution options based on issue type" ;
+    jtbd:currentSolution "Manual lookup in document system for each issue; customized responses from scratch" ;
+    jtbd:painPoint "Slow response time; inconsistent message quality; reinventing responses repeatedly" ;
+    jtbd:importance "6"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "10"^^xsd:integer .
+
+ecom:cs-step-4
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm customer identity and order details before processing resolution" ;
+    jtbd:currentSolution "Manual lookup in order system; customer self-verification via email" ;
+    jtbd:painPoint "Fraud risk; manual lookups slow; customer frustration with repeated verification" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "13"^^xsd:integer .
+
+ecom:cs-step-5
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute refunds, replacements, or other resolutions" ;
+    jtbd:currentSolution "Manual refund processing via payment system; replacement requests emailed to warehouse" ;
+    jtbd:painPoint "Processing delays; refunds take 5-7 business days; replacement fulfillment slow" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "16"^^xsd:integer .
+
+ecom:cs-step-6
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor resolution satisfaction and flag chronic issues needing escalation" ;
+    jtbd:currentSolution "Post-resolution survey; manual review of negative feedback" ;
+    jtbd:painPoint "Low survey response rate; delayed identification of systemic problems" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+ecom:cs-step-7
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify policies and procedures based on recurring issue analysis" ;
+    jtbd:currentSolution "Monthly team meetings to discuss patterns; quarterly policy reviews" ;
+    jtbd:painPoint "Slow policy iteration; customers suffer from chronic issues that should be prevented" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "11"^^xsd:integer .
+
+ecom:cs-step-8
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude with team training and performance metrics sharing" ;
+    jtbd:currentSolution "Monthly training sessions and email dashboards of key metrics" ;
+    jtbd:painPoint "Training effectiveness hard to measure; staff turnover loses institutional knowledge" ;
+    jtbd:importance "6"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "9"^^xsd:integer .
+
+# ============================================================================
+# AVATAR 6: MERCHANDISING MANAGER
+# ============================================================================
+
+ecom:avatar-merchandising-manager
+    a jtbd:Avatar ;
+    jtbd:avatarName "Merchandising Manager" ;
+    jtbd:avatarDescription "Merchandising specialist curating product catalogs, managing categories, and optimizing product visibility" ;
+    jtbd:avatarSegment "Enterprise Retail" ;
+    jtbd:avatarPainLevel "7"^^xsd:integer ;
+    jtbd:hasJob ecom:job-curate-product-catalogs .
+
+ecom:job-curate-product-catalogs
+    a jtbd:Job ;
+    jtbd:jobName "Curate Product Catalogs" ;
+    jtbd:jobDescription "Organize and optimize product information to maximize discoverability, sales, and customer satisfaction" ;
+    jtbd:jobType jtbd:Functional ;
+    jtbd:hasJobStep
+        ecom:mm-step-1, ecom:mm-step-2, ecom:mm-step-3, ecom:mm-step-4,
+        ecom:mm-step-5, ecom:mm-step-6, ecom:mm-step-7, ecom:mm-step-8 .
+
+ecom:mm-step-1
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define product categories and taxonomy structure" ;
+    jtbd:currentSolution "Manual category hierarchy maintained in spreadsheet; updated quarterly" ;
+    jtbd:painPoint "Duplicates across categories; products in wrong categories; outdated taxonomy" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "13"^^xsd:integer .
+
+ecom:mm-step-2
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate new products from vendors matching category requirements" ;
+    jtbd:currentSolution "Vendor communications; manual assessment against product specs" ;
+    jtbd:painPoint "High time investment; miss emerging products; inconsistent vetting standards" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+ecom:mm-step-3
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare product descriptions, tags, and attributes for maximum SEO impact" ;
+    jtbd:currentSolution "Manual writing; copy-paste from vendor descriptions; inconsistent attribute tagging" ;
+    jtbd:painPoint "Time-consuming; variable quality; SEO missed opportunities; inconsistent tone" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "14"^^xsd:integer .
+
+ecom:mm-step-4
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm product images meet quality standards and show key details" ;
+    jtbd:currentSolution "Manual review of vendor images; request retakes for poor quality" ;
+    jtbd:painPoint "Vendor image quality variable; retake process slow; some bad images still published" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "11"^^xsd:integer .
+
+ecom:mm-step-5
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute product launches and seasonal collection rollouts" ;
+    jtbd:currentSolution "Manual data entry into product system; batch publishing on launch date" ;
+    jtbd:painPoint "Launch coordination complex; time zone issues; publish failures; support calls spike" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+ecom:mm-step-6
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor product performance metrics and trending interest" ;
+    jtbd:currentSolution "Manual review of analytics dashboards; weekly performance reports" ;
+    jtbd:painPoint "Delayed trend detection; small products get overlooked; merchandising reactive" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "11"^^xsd:integer .
+
+ecom:mm-step-7
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify collection focus and product mix based on seasonal demand and trends" ;
+    jtbd:currentSolution "Quarterly strategy reviews; manual collection reorganization" ;
+    jtbd:painPoint "Slow response to trends; seasonal preparation starts too late; inventory misalignment" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+ecom:mm-step-8
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude with merchandising effectiveness review and recommendations" ;
+    jtbd:currentSolution "End-of-period reporting on collection performance and category health" ;
+    jtbd:painPoint "Analysis delayed; attribution complex; hard to prove merchandising impact" ;
+    jtbd:importance "6"^^xsd:integer ;
+    jtbd:satisfaction "3"^^xsd:integer ;
+    jtbd:opportunityScore "9"^^xsd:integer .
+
+# ============================================================================
+# AVATAR 7: DROPSHIP ENTREPRENEUR
+# ============================================================================
+
+ecom:avatar-dropship-entrepreneur
+    a jtbd:Avatar ;
+    jtbd:avatarName "Dropship Entrepreneur" ;
+    jtbd:avatarDescription "Solo/small team founder running dropshipping business with minimal overhead and staff" ;
+    jtbd:avatarSegment "Solopreneur/Startup" ;
+    jtbd:avatarPainLevel "9"^^xsd:integer ;
+    jtbd:hasJob ecom:job-run-lean-operations .
+
+ecom:job-run-lean-operations
+    a jtbd:Job ;
+    jtbd:jobName "Run Lean Operations" ;
+    jtbd:jobDescription "Automate business processes and supplier integration to maximize profit with minimal operational overhead" ;
+    jtbd:jobType jtbd:Functional ;
+    jtbd:hasJobStep
+        ecom:de-step-1, ecom:de-step-2, ecom:de-step-3, ecom:de-step-4,
+        ecom:de-step-5, ecom:de-step-6, ecom:de-step-7, ecom:de-step-8 .
+
+ecom:de-step-1
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Define ;
+    jtbd:stepDescription "Define supplier selection criteria and vetting process" ;
+    jtbd:currentSolution "Manual supplier research and communication via email/WhatsApp" ;
+    jtbd:painPoint "High time investment; hard to compare supplier reliability; communication delays" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "16"^^xsd:integer .
+
+ecom:de-step-2
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Locate ;
+    jtbd:stepDescription "Locate winning products with profitable margins and market demand" ;
+    jtbd:currentSolution "Manual searching on AliExpress and supplier websites; trend research via social media" ;
+    jtbd:painPoint "Extremely time-consuming; biased product selection; hard to validate demand" ;
+    jtbd:importance "10"^^xsd:integer ;
+    jtbd:satisfaction "1"^^xsd:integer ;
+    jtbd:opportunityScore "19"^^xsd:integer .
+
+ecom:de-step-3
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Prepare ;
+    jtbd:stepDescription "Prepare store integration with supplier APIs for inventory and price sync" ;
+    jtbd:currentSolution "Manual import/export of product feeds; periodic spreadsheet syncing" ;
+    jtbd:painPoint "High technical barrier; frequent sync failures; inventory mismatches; manual workarounds" ;
+    jtbd:importance "9"^^xsd:integer ;
+    jtbd:satisfaction "1"^^xsd:integer ;
+    jtbd:opportunityScore "17"^^xsd:integer .
+
+ecom:de-step-4
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Confirm ;
+    jtbd:stepDescription "Confirm orders are automatically forwarded to suppliers with correct details" ;
+    jtbd:currentSolution "Manual copy-paste of order details into supplier order portal" ;
+    jtbd:painPoint "Error-prone; time-consuming; missed orders; supplier communication failures" ;
+    jtbd:importance "10"^^xsd:integer ;
+    jtbd:satisfaction "1"^^xsd:integer ;
+    jtbd:opportunityScore "19"^^xsd:integer .
+
+ecom:de-step-5
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Execute ;
+    jtbd:stepDescription "Execute fulfillment automation with tracking number propagation to customers" ;
+    jtbd:currentSolution "Manual tracking number collection and email to customers" ;
+    jtbd:painPoint "Very high touch; customer service complaints about missing tracking; missed shipments" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "1"^^xsd:integer ;
+    jtbd:opportunityScore "15"^^xsd:integer .
+
+ecom:de-step-6
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Monitor ;
+    jtbd:stepDescription "Monitor supplier performance metrics and customer satisfaction" ;
+    jtbd:currentSolution "Manual checking of late deliveries; occasional customer complaint review" ;
+    jtbd:painPoint "Reactive; miss patterns; supplier issues discovered through customer complaints" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "1"^^xsd:integer ;
+    jtbd:opportunityScore "13"^^xsd:integer .
+
+ecom:de-step-7
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Modify ;
+    jtbd:stepDescription "Modify supplier contracts and switch suppliers when performance degrades" ;
+    jtbd:currentSolution "Periodic supplier review; manual process of switching suppliers" ;
+    jtbd:painPoint "Switching suppliers manual and disruptive; fear of losing business; supplier lock-in" ;
+    jtbd:importance "7"^^xsd:integer ;
+    jtbd:satisfaction "2"^^xsd:integer ;
+    jtbd:opportunityScore "12"^^xsd:integer .
+
+ecom:de-step-8
+    a jtbd:JobStep ;
+    jtbd:stepType jtbd:Conclude ;
+    jtbd:stepDescription "Conclude with profitability analysis and margin optimization" ;
+    jtbd:currentSolution "Manual Excel tracking of costs vs revenue; informal P&L" ;
+    jtbd:painPoint "Inaccurate numbers; missing cost categories; hard to optimize; limited business insight" ;
+    jtbd:importance "8"^^xsd:integer ;
+    jtbd:satisfaction "1"^^xsd:integer ;
+    jtbd:opportunityScore "15"^^xsd:integer .
