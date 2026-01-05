@@ -386,7 +386,7 @@ saas:step-integration-8 a jtbd:JobStep ;
     jtbd:painPoint "Runbooks quickly become outdated; support team lacks context on edge cases" ;
     jtbd:importance 7 ;
     jtbd:satisfaction 4 ;
-    jtbd:opportunityScore 11 .
+    jtbd:opportunityScore 10 .
 
 # ==============================================================================
 # AVATAR 5: Usage Analytics Lead
@@ -473,7 +473,7 @@ saas:step-analytics-7 a jtbd:JobStep ;
     jtbd:painPoint "Slow iteration; changes often conflict with others working on same dashboard" ;
     jtbd:importance 7 ;
     jtbd:satisfaction 4 ;
-    jtbd:opportunityScore 11 .
+    jtbd:opportunityScore 10 .
 
 saas:step-analytics-8 a jtbd:JobStep ;
     jtbd:stepType jtbd:Conclude ;
@@ -569,7 +569,7 @@ saas:step-selfservice-7 a jtbd:JobStep ;
     jtbd:painPoint "Changes are ad-hoc; no systematic approach to content improvement" ;
     jtbd:importance 7 ;
     jtbd:satisfaction 4 ;
-    jtbd:opportunityScore 11 .
+    jtbd:opportunityScore 10 .
 
 saas:step-selfservice-8 a jtbd:JobStep ;
     jtbd:stepType jtbd:Conclude ;

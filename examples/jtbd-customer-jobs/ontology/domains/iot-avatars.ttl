@@ -663,7 +663,7 @@ iot:step-edge-6 a jtbd:JobStep ;
     jtbd:painPoint "Model performance degrades undetected, false positives increase" ;
     jtbd:importance 8 ;
     jtbd:satisfaction 1 ;
-    jtbd:opportunityScore 16 .
+    jtbd:opportunityScore 15 .
 
 iot:step-edge-7 a jtbd:JobStep ;
     jtbd:stepType jtbd:Modify ;
