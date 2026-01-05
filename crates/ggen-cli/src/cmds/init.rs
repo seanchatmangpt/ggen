@@ -17,14 +17,18 @@ use std::path::Path;
 /// Output for the `ggen init` command
 #[derive(Debug, Clone, Serialize)]
 pub struct InitOutput {
-    /// Overall status: "success" or "error"
+    /// Overall status: "success" or "partial" or "error"
     pub status: String,
 
-    /// Project directory created
+    /// Project directory initialized
     pub project_dir: String,
 
-    /// Files created
+    /// Files created (new files)
     pub files_created: Vec<String>,
+
+    /// Files overwritten (replaced existing files)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub files_overwritten: Option<Vec<String>>,
 
     /// Directories created
     pub directories_created: Vec<String>,
@@ -32,6 +36,10 @@ pub struct InitOutput {
     /// Error message (if failed)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<String>,
+
+    /// Warning message (if partial success)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub warning: Option<String>,
 
     /// Next steps
     pub next_steps: Vec<String>,
@@ -212,6 +220,12 @@ pub fn init(path: Option<String>, force: Option<bool>) -> clap_noun_verb::Result
 ///
 /// This function contains all the file I/O and directory creation logic,
 /// keeping the verb function thin and following the CLI architecture pattern.
+///
+/// Strategy:
+/// 1. Check if ggen artifacts already exist (not just any directory content)
+/// 2. If they do and --force is not used, error
+/// 3. Track which files are created vs overwritten
+/// 4. Report both clearly to user
 fn perform_init(
     project_dir: &str,
     force: bool,
@@ -219,21 +233,28 @@ fn perform_init(
     // Convert to Path for easier manipulation
     let base_path = Path::new(project_dir);
 
-    // Check if directory exists and has content
-    if base_path.exists() && base_path.is_dir() {
-        if let Ok(entries) = fs::read_dir(base_path) {
-            let has_content = entries.count() > 0;
-            if has_content && !force {
-                return Ok(InitOutput {
-                    status: "error".to_string(),
-                    project_dir: project_dir.to_string(),
-                    files_created: vec![],
-                    directories_created: vec![],
-                    error: Some("Directory is not empty. Use --force to overwrite.".to_string()),
-                    next_steps: vec![],
-                });
-            }
-        }
+    // List of ggen-specific artifacts to check for
+    let ggen_artifacts = vec!["ggen.toml", "Makefile", "schema/domain.ttl", "scripts/startup.sh"];
+
+    // Check if ggen has already been initialized in this directory
+    let has_ggen_artifacts = ggen_artifacts.iter().any(|artifact| {
+        let path = base_path.join(artifact);
+        path.exists()
+    });
+
+    if has_ggen_artifacts && !force {
+        return Ok(InitOutput {
+            status: "error".to_string(),
+            project_dir: project_dir.to_string(),
+            files_created: vec![],
+            files_overwritten: None,
+            directories_created: vec![],
+            error: Some(
+                "ggen project already initialized here. Use --force to reinitialize.".to_string(),
+            ),
+            warning: None,
+            next_steps: vec!["Run 'make build' to regenerate code".to_string()],
+        });
     }
 
     // Ensure base directory exists
@@ -242,13 +263,16 @@ fn perform_init(
             status: "error".to_string(),
             project_dir: project_dir.to_string(),
             files_created: vec![],
+            files_overwritten: None,
             directories_created: vec![],
             error: Some(format!("Failed to create project directory: {}", e)),
+            warning: None,
             next_steps: vec![],
         });
     }
 
     let mut files_created = vec![];
+    let mut files_overwritten = vec![];
     let mut directories_created = vec![];
     let mut errors = vec![];
 
@@ -262,51 +286,54 @@ fn perform_init(
         }
     }
 
+    // Helper closure to write file and track if it was created or overwritten
+    let mut write_file = |path: &Path, content: &str, filename: &str| {
+        let exists = path.exists();
+        match fs::write(path, content) {
+            Ok(_) => {
+                if exists {
+                    files_overwritten.push(filename.to_string());
+                } else {
+                    files_created.push(filename.to_string());
+                }
+            }
+            Err(e) => errors.push(format!("Failed to write {}: {}", filename, e)),
+        }
+    };
+
     // Create ggen.toml
     let toml_path = base_path.join("ggen.toml");
-    match fs::write(&toml_path, GGEN_TOML) {
-        Ok(_) => files_created.push("ggen.toml".to_string()),
-        Err(e) => errors.push(format!("Failed to create ggen.toml: {}", e)),
-    }
+    write_file(&toml_path, GGEN_TOML, "ggen.toml");
 
     // Create schema/domain.ttl
     let schema_path = base_path.join("schema").join("domain.ttl");
-    match fs::write(&schema_path, DOMAIN_TTL) {
-        Ok(_) => files_created.push("schema/domain.ttl".to_string()),
-        Err(e) => errors.push(format!("Failed to create schema/domain.ttl: {}", e)),
-    }
+    write_file(&schema_path, DOMAIN_TTL, "schema/domain.ttl");
 
     // Create Makefile
     let makefile_path = base_path.join("Makefile");
-    match fs::write(&makefile_path, MAKEFILE) {
-        Ok(_) => files_created.push("Makefile".to_string()),
-        Err(e) => errors.push(format!("Failed to create Makefile: {}", e)),
-    }
+    write_file(&makefile_path, MAKEFILE, "Makefile");
 
     // Create scripts/startup.sh
     let startup_sh_path = base_path.join("scripts").join("startup.sh");
-    match fs::write(&startup_sh_path, STARTUP_SH) {
-        Ok(_) => {
-            files_created.push("scripts/startup.sh".to_string());
-            // Make the script executable on Unix systems
-            #[cfg(unix)]
-            {
-                use std::os::unix::fs::PermissionsExt;
-                let _ = fs::set_permissions(&startup_sh_path, std::fs::Permissions::from_mode(0o755));
-            }
+    let exists_before_startup = startup_sh_path.exists();
+    write_file(&startup_sh_path, STARTUP_SH, "scripts/startup.sh");
+    // Make the script executable on Unix systems (only if we just created it)
+    if !exists_before_startup {
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            let _ = fs::set_permissions(&startup_sh_path, std::fs::Permissions::from_mode(0o755));
         }
-        Err(e) => errors.push(format!("Failed to create scripts/startup.sh: {}", e)),
     }
 
-    // Create .gitignore
+    // Create .gitignore (only if it doesn't exist - preserve user's gitignore)
     let gitignore_path = base_path.join(".gitignore");
-    let gitignore_content = "# ggen outputs\nsrc/generated/\n.ggen/\n";
-    match fs::write(&gitignore_path, gitignore_content) {
-        Ok(_) => files_created.push(".gitignore".to_string()),
-        Err(e) => errors.push(format!("Failed to create .gitignore: {}", e)),
+    if !gitignore_path.exists() {
+        let gitignore_content = "# ggen outputs\nsrc/generated/\n.ggen/\n";
+        write_file(&gitignore_path, gitignore_content, ".gitignore");
     }
 
-    // Create README.md
+    // Create README.md (only if it doesn't exist - preserve user's README)
     let readme_path = base_path.join("README.md");
     let readme_content = r#"# My ggen Project
 
@@ -382,12 +409,12 @@ See `ggen.toml` to configure which templates to run and where they output.
 - [Tera Template Language](https://keats.github.io/tera/)
 - [Custom Startup Scripts](scripts/startup.sh)
 "#;
-    match fs::write(&readme_path, readme_content) {
-        Ok(_) => files_created.push("README.md".to_string()),
-        Err(e) => errors.push(format!("Failed to create README.md: {}", e)),
+    // Create README.md (only if it doesn't exist - preserve user's README)
+    if !readme_path.exists() {
+        write_file(&readme_path, readme_content, "README.md");
     }
 
-    // Determine final status
+    // Determine final status and warnings
     let status = if errors.is_empty() {
         "success".to_string()
     } else {
@@ -400,12 +427,29 @@ See `ggen.toml` to configure which templates to run and where they output.
         Some(errors.join("; "))
     };
 
+    let warning = if !files_overwritten.is_empty() {
+        Some(format!(
+            "Overwrote {} file(s). Run --force to reinitialize.",
+            files_overwritten.len()
+        ))
+    } else {
+        None
+    };
+
+    let files_overwritten_opt = if files_overwritten.is_empty() {
+        None
+    } else {
+        Some(files_overwritten)
+    };
+
     Ok(InitOutput {
         status,
         project_dir: project_dir.to_string(),
         files_created,
+        files_overwritten: files_overwritten_opt,
         directories_created,
         error,
+        warning,
         next_steps: vec![
             "Run 'make setup' to initialize your project".to_string(),
             "Edit schema/domain.ttl to define your domain model".to_string(),
