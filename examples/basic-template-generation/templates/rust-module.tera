@@ -1,0 +1,126 @@
+---
+to: "generated/{{ module_name | snake_case }}.rs"
+vars:
+  module_name: string
+  description: string
+  has_validation: boolean
+---
+//! {{ description }}
+//!
+//! This module was auto-generated from template: rust-module.tera
+//! Demonstrates YAML frontmatter and variable substitution
+
+use std::error::Error;
+
+/// {{ description }}
+pub mod {{ module_name | snake_case }} {
+    use super::*;
+
+    /// Error type for module operations
+    #[derive(Debug, Clone)]
+    pub enum Error {
+        /// Generic validation error
+        ValidationError(String),
+        /// Resource not found
+        NotFound,
+        /// Internal error
+        Internal(String),
+    }
+
+    impl std::fmt::Display for Error {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            match self {
+                Error::ValidationError(msg) => write!(f, "Validation error: {}", msg),
+                Error::NotFound => write!(f, "Resource not found"),
+                Error::Internal(msg) => write!(f, "Internal error: {}", msg),
+            }
+        }
+    }
+
+    impl std::error::Error for Error {}
+
+    pub type Result<T> = std::result::Result<T, Error>;
+
+    {% if has_validation %}
+    /// Validates input according to module rules
+    pub fn validate(input: &str) -> Result<()> {
+        if input.is_empty() {
+            return Err(Error::ValidationError(
+                "Input cannot be empty".to_string(),
+            ));
+        }
+        Ok(())
+    }
+    {% endif %}
+
+    /// Creates a new {{ module_name | snake_case }} instance
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Lists all items (example operation)
+    pub fn list() -> Result<Vec<String>> {
+        Ok(vec![])
+    }
+
+    /// Gets an item by ID (example operation)
+    pub fn get(id: &str) -> Result<String> {
+        validate(id)?;
+        Err(Error::NotFound)
+    }
+
+    /// Creates a new item (example operation)
+    pub fn create(name: &str) -> Result<String> {
+        {% if has_validation %}validate(name)?;{% endif %}
+        Ok(format!("Created: {}", name))
+    }
+
+    /// Updates an existing item (example operation)
+    pub fn update(id: &str, name: &str) -> Result<String> {
+        {% if has_validation %}validate(name)?;{% endif %}
+        Ok(format!("Updated {} to {}", id, name))
+    }
+
+    /// Deletes an item (example operation)
+    pub fn delete(id: &str) -> Result<()> {
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_list_empty() {
+        let result = {{ module_name | snake_case }}::list();
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().len(), 0);
+    }
+
+    #[test]
+    fn test_create_success() {
+        let result = {{ module_name | snake_case }}::create("test");
+        assert!(result.is_ok());
+    }
+
+    {% if has_validation %}
+    #[test]
+    fn test_validate_empty_fails() {
+        let result = {{ module_name | snake_case }}::validate("");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_validate_non_empty_passes() {
+        let result = {{ module_name | snake_case }}::validate("valid input");
+        assert!(result.is_ok());
+    }
+    {% endif %}
+
+    #[test]
+    fn test_delete_success() {
+        let result = {{ module_name | snake_case }}::delete("123");
+        assert!(result.is_ok());
+    }
+}

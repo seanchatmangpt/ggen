@@ -1,0 +1,75 @@
+---
+to: "generated/TERA_SYNTAX_GUIDE.md"
+---
+# Tera Template Syntax Guide
+
+## Variable Substitution
+
+```tera
+{{ variable_name }}
+```
+
+## Filters
+
+```tera
+{{ variable_name | filter_name }}
+{{ name | snake_case }}
+{{ text | upper }}
+```
+
+## Conditionals
+
+```tera
+{% if condition %}
+  Content if true
+{% else %}
+  Content if false
+{% endif %}
+```
+
+## Loops
+
+```tera
+{% for item in array %}
+  {{ item }}
+{% endfor %}
+```
+
+### Loop Variables
+
+- `loop.index` - 1-based index
+- `loop.index0` - 0-based index
+- `loop.first` - True if first iteration
+- `loop.last` - True if last iteration
+- `loop.length` - Total items
+
+## Comments
+
+```tera
+{# This comment won't appear in output #}
+```
+
+## Advanced Features
+
+### Set Variables
+
+```tera
+{% set my_var = some_value %}
+{{ my_var }}
+```
+
+### Include Templates
+
+```tera
+{% include "other_template.tera" %}
+```
+
+### Inheritance
+
+```tera
+{% extends "base.tera" %}
+
+{% block content %}
+  Custom content
+{% endblock %}
+```

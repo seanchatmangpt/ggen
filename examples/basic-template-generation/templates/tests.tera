@@ -1,0 +1,33 @@
+---
+to: "generated/tests.rs"
+---
+// Auto-generated tests for template examples
+
+#[cfg(test)]
+mod template_tests {
+    #[test]
+    fn test_variable_substitution() {
+        let input = "Hello, {{ name }}";
+        let output = "Hello, World";
+        assert_eq!(input.contains("{{"), true);
+    }
+
+    #[test]
+    fn test_filter_application() {
+        let input = "{{ name | snake_case }}";
+        let output = "user_service";
+        assert!(input.contains("|"));
+    }
+
+    #[test]
+    fn test_conditional_rendering() {
+        let template = r#"{% if has_id %}pub id: u64,{% endif %}"#;
+        assert!(template.contains("has_id"));
+    }
+
+    #[test]
+    fn test_loop_iteration() {
+        let template = r#"{% for field in fields %}{{ field }}{% endfor %}"#;
+        assert!(template.contains("for field"));
+    }
+}

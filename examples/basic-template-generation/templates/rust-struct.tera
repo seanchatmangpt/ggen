@@ -1,0 +1,255 @@
+---
+to: "generated/{{ struct_name | snake_case }}.rs"
+vars:
+  struct_name: string
+  description: string
+  has_id: boolean
+  has_builder: boolean
+  fields: array
+---
+//! {{ description }}
+//!
+//! This struct was auto-generated from template: rust-struct.tera
+//! Demonstrates Tera loops, conditionals, and filters
+
+{% if has_id %}
+/// Unique identifier type
+pub type Id = u64;
+{% endif %}
+
+/// {{ description }}
+///
+/// Auto-generated struct with derive macros and implementation.
+#[derive(Debug, Clone, PartialEq, Eq)]
+{% if has_id %}
+#[derive(serde::Serialize, serde::Deserialize)]
+{% endif %}
+pub struct {{ struct_name | pascal_case }} {
+    {% if has_id %}
+    /// Unique identifier
+    pub id: Id,
+    {% endif %}
+    {% for field in fields %}
+    /// {{ field.description | default(value="Field") }}
+    pub {{ field.name }}: String,
+    {% endfor %}
+}
+
+impl Default for {{ struct_name | pascal_case }} {
+    fn default() -> Self {
+        Self {
+            {% if has_id %}
+            id: 0,
+            {% endif %}
+            {% for field in fields %}
+            {{ field.name }}: String::new(),
+            {% endfor %}
+        }
+    }
+}
+
+impl {{ struct_name | pascal_case }} {
+    /// Creates a new {{ struct_name | pascal_case }}
+    pub fn new(
+        {% if has_id %}
+        id: Id,
+        {% endif %}
+        {% for field in fields %}
+        {{ field.name }}: impl Into<String>,
+        {% endfor %}
+    ) -> Self {
+        Self {
+            {% if has_id %}
+            id,
+            {% endif %}
+            {% for field in fields %}
+            {{ field.name }}: {{ field.name }}.into(),
+            {% endfor %}
+        }
+    }
+
+    {% if has_id %}
+    /// Returns the ID of this {{ struct_name | lower }}
+    pub fn id(&self) -> Id {
+        self.id
+    }
+    {% endif %}
+
+    /// Returns the display name
+    pub fn display_name(&self) -> String {
+        format!(
+            "{{ struct_name | pascal_case }} {{ \"{\" }}{% for field in fields %}{{ field.name }}: {}{% if loop.last %}{% else %}, {% endif %}{% endfor %}{{ \"}\" }}",
+            {% for field in fields %}
+            self.{{ field.name }}{% if loop.last %}{% else %},{% endif %}
+            {% endfor %}
+        )
+    }
+
+    /// Validates this {{ struct_name | lower }}
+    pub fn validate(&self) -> Result<(), String> {
+        {% if has_id %}
+        if self.id == 0 {
+            return Err("ID cannot be zero".to_string());
+        }
+        {% endif %}
+        {% for field in fields %}
+        if self.{{ field.name }}.is_empty() {
+            return Err(format!("{{ field.name | capitalize }} cannot be empty"));
+        }
+        {% endfor %}
+        Ok(())
+    }
+}
+
+{% if has_builder %}
+/// Builder for constructing {{ struct_name | pascal_case }}
+pub struct {{ struct_name | pascal_case }}Builder {
+    {% if has_id %}
+    id: Option<Id>,
+    {% endif %}
+    {% for field in fields %}
+    {{ field.name }}: Option<String>,
+    {% endfor %}
+}
+
+impl Default for {{ struct_name | pascal_case }}Builder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl {{ struct_name | pascal_case }}Builder {
+    /// Creates a new builder
+    pub fn new() -> Self {
+        Self {
+            {% if has_id %}
+            id: None,
+            {% endif %}
+            {% for field in fields %}
+            {{ field.name }}: None,
+            {% endfor %}
+        }
+    }
+
+    {% if has_id %}
+    /// Sets the ID
+    pub fn id(mut self, id: Id) -> Self {
+        self.id = Some(id);
+        self
+    }
+    {% endif %}
+
+    {% for field in fields %}
+    /// Sets {{ field.name }}
+    pub fn {{ field.name }}(mut self, {{ field.name }}: impl Into<String>) -> Self {
+        self.{{ field.name }} = Some({{ field.name }}.into());
+        self
+    }
+    {% endfor %}
+
+    /// Builds the {{ struct_name | pascal_case }}
+    pub fn build(self) -> Result<{{ struct_name | pascal_case }}, String> {
+        Ok({{ struct_name | pascal_case }} {
+            {% if has_id %}
+            id: self.id.ok_or("id is required")?,
+            {% endif %}
+            {% for field in fields %}
+            {{ field.name }}: self.{{ field.name }}.ok_or(format!("{{ field.name }} is required"))?,
+            {% endfor %}
+        })
+    }
+}
+
+impl From<{{ struct_name | pascal_case }}> for {{ struct_name | pascal_case }}Builder {
+    fn from(value: {{ struct_name | pascal_case }}) -> Self {
+        Self {
+            {% if has_id %}
+            id: Some(value.id),
+            {% endif %}
+            {% for field in fields %}
+            {{ field.name }}: Some(value.{{ field.name }}),
+            {% endfor %}
+        }
+    }
+}
+{% endif %}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default() {
+        let instance = {{ struct_name | pascal_case }}::default();
+        {% if has_id %}
+        assert_eq!(instance.id, 0);
+        {% endif %}
+    }
+
+    #[test]
+    fn test_new() {
+        let instance = {{ struct_name | pascal_case }}::new(
+            {% if has_id %}
+            1,
+            {% endif %}
+            {% for field in fields %}
+            "test"{% if loop.last %}{% else %},{% endif %}
+            {% endfor %}
+        );
+        {% if has_id %}
+        assert_eq!(instance.id(), 1);
+        {% endif %}
+    }
+
+    {% if has_builder %}
+    #[test]
+    fn test_builder() {
+        let instance = {{ struct_name | pascal_case }}Builder::new()
+            {% if has_id %}
+            .id(1)
+            {% endif %}
+            {% for field in fields %}
+            .{{ field.name }}("test")
+            {% endfor %}
+            .build()
+            .unwrap();
+
+        {% if has_id %}
+        assert_eq!(instance.id, 1);
+        {% endif %}
+    }
+
+    #[test]
+    fn test_builder_missing_required() {
+        let result = {{ struct_name | pascal_case }}Builder::new()
+            .build();
+        assert!(result.is_err());
+    }
+    {% endif %}
+
+    #[test]
+    fn test_validate_success() {
+        let instance = {{ struct_name | pascal_case }}::new(
+            {% if has_id %}
+            1,
+            {% endif %}
+            {% for field in fields %}
+            "valid"{% if loop.last %}{% else %},{% endif %}
+            {% endfor %}
+        );
+        assert!(instance.validate().is_ok());
+    }
+
+    #[test]
+    fn test_validate_empty_fields() {
+        let instance = {{ struct_name | pascal_case }}::new(
+            {% if has_id %}
+            1,
+            {% endif %}
+            {% for field in fields %}
+            ""{% if loop.last %}{% else %},{% endif %}
+            {% endfor %}
+        );
+        assert!(instance.validate().is_err());
+    }
+}
