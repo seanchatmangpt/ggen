@@ -346,6 +346,885 @@ Evidence Trust Levels:
 
 ---
 
+## 🪝 HOOKS SYSTEM (Lifecycle Automation - 2026 Edition)
+
+**CRITICAL**: Claude Code Web hooks enable poka-yoke (error-proofing) automation at the tool execution level. Use hooks to prevent defects, enforce quality gates, and automate deterministic validation.
+
+### Hook Types and Triggers
+
+| Hook Type | Trigger Point | Primary Use Case | Configuration Location |
+|-----------|---------------|------------------|------------------------|
+| **PreToolUse** | Before any tool executes | Permission control, input validation, safety checks | `.claude/config.json` |
+| **PostToolUse** | After tool completes | Auto-format, validation, receipts generation | `.claude/config.json` |
+| **SessionStart** | New session begins | Environment verification, context loading, SLO setup | `.claude/hooks/SessionStart.md` |
+| **UserPromptSubmit** | User sends message | Instruction validation, specification checks | `.claude/config.json` |
+| **Stop** | Session ends | Cleanup, state persistence, metrics export | `.claude/config.json` |
+
+---
+
+### PreToolUse: Permission Control & Safety Gates
+
+**Purpose**: Block dangerous operations BEFORE execution, validate inputs, enforce poka-yoke constraints.
+
+**Configuration** (`.claude/config.json`):
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash",
+            "args": ["-c", "scripts/validate-bash-command.sh \"$TOOL_INPUT_COMMAND\""]
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash",
+            "args": ["-c", "scripts/validate-file-path.sh \"$TOOL_INPUT_FILE_PATH\""]
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**Permission Decision Outputs**:
+- `allow` - Bypass user confirmation, execute immediately
+- `deny` - Block operation, provide feedback to Claude (andon signal)
+- `ask` - Prompt user for confirmation (default behavior)
+
+**Example Validation Script** (`scripts/validate-bash-command.sh`):
+
+```bash
+#!/usr/bin/env bash
+# Poka-Yoke: Prevent dangerous cargo commands
+
+COMMAND="$1"
+
+# CRITICAL: Enforce cargo make protocol
+if echo "$COMMAND" | grep -qE '^cargo (check|test|build|clippy|run)'; then
+  echo "deny"
+  echo "ANDON RED: Direct cargo commands forbidden. Use 'cargo make' instead." >&2
+  exit 1
+fi
+
+# Allow cargo make commands
+if echo "$COMMAND" | grep -qE '^cargo make'; then
+  echo "allow"
+  exit 0
+fi
+
+# Deny destructive operations
+if echo "$COMMAND" | grep -qE '(rm -rf|git push.*--force|git reset --hard)'; then
+  echo "deny"
+  echo "ANDON RED: Destructive operation blocked by poka-yoke." >&2
+  exit 1
+fi
+
+# Default: ask user
+echo "ask"
+```
+
+**Example Path Validation** (`scripts/validate-file-path.sh`):
+
+```bash
+#!/usr/bin/env bash
+# Poka-Yoke: Prevent editing protected files
+
+FILE_PATH="$1"
+
+# Block editing generated markdown (must edit .ttl source)
+if echo "$FILE_PATH" | grep -qE '\.specify/.*\.md$'; then
+  echo "deny"
+  echo "ANDON RED: Cannot edit generated .md files. Edit .ttl source instead." >&2
+  exit 1
+fi
+
+# Block editing Cargo.lock
+if echo "$FILE_PATH" | grep -q 'Cargo.lock$'; then
+  echo "deny"
+  echo "ANDON RED: Cargo.lock is auto-generated. Do not edit manually." >&2
+  exit 1
+fi
+
+# Allow all other writes
+echo "allow"
+```
+
+**Use Cases**:
+- **Cargo Make Enforcement**: Block direct `cargo` commands, require `cargo make`
+- **Path Protection**: Prevent edits to `.specify/**/*.md` (generated files)
+- **Specification Closure**: Require `/speckit-verify` before implementation
+- **Git Safety**: Block force pushes to main/master
+- **Secrets Protection**: Deny commits containing `.env`, `credentials.json`
+
+---
+
+### PostToolUse: Automatic Quality Enforcement
+
+**Purpose**: Auto-format code, validate outputs, generate receipts, train patterns.
+
+**Configuration** (`.claude/config.json`):
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash",
+            "args": ["-c", "scripts/post-edit-hook.sh \"$TOOL_INPUT_FILE_PATH\""]
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash",
+            "args": ["-c", "scripts/post-bash-hook.sh \"$TOOL_INPUT_COMMAND\" \"$TOOL_EXIT_CODE\""]
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**Example Post-Edit Hook** (`scripts/post-edit-hook.sh`):
+
+```bash
+#!/usr/bin/env bash
+# Auto-format and validate after file edits
+
+FILE_PATH="$1"
+
+# Rust files: Run rustfmt
+if [[ "$FILE_PATH" =~ \.rs$ ]]; then
+  rustfmt "$FILE_PATH" 2>/dev/null || true
+fi
+
+# TOML files: Validate syntax
+if [[ "$FILE_PATH" =~ \.toml$ ]]; then
+  cargo metadata --format-version 1 &>/dev/null || echo "ANDON YELLOW: TOML syntax may be invalid" >&2
+fi
+
+# TTL files: Validate RDF syntax (if oxigraph CLI available)
+if [[ "$FILE_PATH" =~ \.ttl$ ]]; then
+  if command -v sparql &>/dev/null; then
+    sparql --data="$FILE_PATH" --query=<(echo "SELECT * WHERE {} LIMIT 1") &>/dev/null || echo "ANDON YELLOW: TTL syntax invalid" >&2
+  fi
+fi
+
+# Log edit for audit trail
+echo "$(date -Iseconds) EDIT $FILE_PATH" >> .claude/audit.log
+```
+
+**Example Post-Bash Hook** (`scripts/post-bash-hook.sh`):
+
+```bash
+#!/usr/bin/env bash
+# Generate receipts for validation commands
+
+COMMAND="$1"
+EXIT_CODE="$2"
+
+# Generate receipt for cargo make commands
+if echo "$COMMAND" | grep -qE '^cargo make (check|test|lint|pre-commit)'; then
+  TASK="${COMMAND#cargo make }"
+  if [ "$EXIT_CODE" -eq 0 ]; then
+    echo "[Receipt] cargo make $TASK: ✓ ($(date -Iseconds))" >> .claude/receipts.log
+  else
+    echo "[Receipt] cargo make $TASK: ✗ ($(date -Iseconds), exit $EXIT_CODE)" >> .claude/receipts.log
+    echo "ANDON RED: $TASK failed with exit code $EXIT_CODE" >&2
+  fi
+fi
+
+# Log all bash commands for audit
+echo "$(date -Iseconds) BASH exitcode=$EXIT_CODE: $COMMAND" >> .claude/audit.log
+```
+
+**Use Cases**:
+- **Auto-Format**: Run `rustfmt` after Rust file edits
+- **Syntax Validation**: Check TOML/TTL syntax after edits
+- **Receipt Generation**: Log validation results (Paradigm Shift 3)
+- **Audit Trail**: Track all commands for reproducibility
+- **Andon Signals**: Emit warnings/errors for quality gates
+- **Pattern Training**: Feed successful patterns to neural systems
+
+---
+
+### SessionStart: Environment Verification & Context Loading
+
+**Purpose**: Verify environment setup, load project context, initialize SLOs, restore session state.
+
+**Configuration** (`.claude/hooks/SessionStart.md`):
+
+```markdown
+---
+description: Initialize ggen development environment and verify toolchain
+allowed_tools: Bash, Read, Write
+---
+
+# Session Start Hook - ggen Project
+
+## 1. Environment Verification (Poka-Yoke)
+
+**Verify Rust toolchain:**
+```bash
+rustc --version | grep -q '1.91' || echo "ANDON YELLOW: Rust 1.91.1 recommended, $(rustc --version) detected"
+cargo --version
+cargo make --version || echo "ANDON RED: cargo-make not installed"
+```
+
+**Verify required tools:**
+```bash
+command -v git >/dev/null || echo "ANDON RED: git not found"
+command -v gh >/dev/null || echo "ANDON YELLOW: gh CLI not installed (needed for PRs)"
+```
+
+## 2. Project Context Loading
+
+**Read critical documentation:**
+```bash
+# Load project constitution
+cat CLAUDE.md | head -100  # First 100 lines for quick reference
+
+# Check current git status
+git status --short
+git log --oneline -5  # Recent commits
+
+# Verify clean workspace
+[ -z "$(git status --porcelain)" ] || echo "ANDON YELLOW: Uncommitted changes detected"
+```
+
+## 3. SLO Initialization
+
+**Establish performance baselines:**
+```bash
+# Record session start time
+echo "SESSION_START=$(date +%s)" > .claude/session.env
+
+# Quick health check
+timeout 5s cargo make check &>/dev/null && echo "SLO ✓: check <5s" || echo "ANDON YELLOW: check timeout"
+```
+
+## 4. Specification Status
+
+**Verify specification closure:**
+```bash
+# List incomplete specifications
+find .specify/specs -name '*.ttl' -exec grep -l 'TBD\|TODO\|FIXME' {} \; | while read f; do
+  echo "ANDON YELLOW: Incomplete spec: $f"
+done
+```
+
+## 5. Memory Restoration (if applicable)
+
+**Restore previous session context:**
+```bash
+# Load session memory if exists
+if [ -f .claude/session-memory.json ]; then
+  echo "Restoring session from $(date -r .claude/session-memory.json)"
+fi
+```
+
+## Summary
+
+Provide Claude with:
+- ✅ Environment status (Rust version, tools available)
+- ✅ Git status (branch, uncommitted changes)
+- ✅ SLO baselines (check passed/failed)
+- ✅ Specification status (complete/incomplete)
+- ⚠️ Any ANDON signals requiring attention
+```
+
+**Use Cases**:
+- **Toolchain Verification**: Ensure Rust 1.91.1, cargo-make installed
+- **Git Context**: Load current branch, recent commits, dirty state
+- **SLO Baselines**: Verify `cargo make check` passes in <5s
+- **Specification Status**: Check for incomplete .ttl files
+- **Session Restoration**: Load previous context from `.claude/session-memory.json`
+
+---
+
+### Hook Best Practices (Aligned with ggen Philosophy)
+
+**1. Poka-Yoke First**
+- Use PreToolUse to **prevent defects**, not detect them
+- Block operations that violate constitutional rules
+- Example: Deny edits to `.specify/**/*.md` (generated files)
+
+**2. Deterministic Receipts**
+- Use PostToolUse to **generate evidence**, not opinions
+- Log validation results to `.claude/receipts.log`
+- Format: `[Receipt] cargo make test: ✓ (347/347 pass, 2026-01-05T14:32:01Z)`
+
+**3. Andon Signal Protocol**
+- Emit signals via stderr: `echo "ANDON RED: ..." >&2`
+- **RED**: Blocking defect, stop the line
+- **YELLOW**: Warning, investigate before proceeding
+- **GREEN**: Clean output, continue
+
+**4. Audit Trail**
+- Log ALL tool executions to `.claude/audit.log`
+- Format: `2026-01-05T14:32:01Z BASH exitcode=0: cargo make check`
+- Enables reproducibility and debugging
+
+**5. Zero-Cost Abstractions**
+- Keep hooks **fast** (<100ms overhead)
+- Use `timeout` for validation commands
+- Example: `timeout 1s rustfmt --check file.rs`
+
+**6. Fail-Safe Defaults**
+- Hooks SHOULD NOT fail the operation on script errors
+- Use `|| true` to continue on validation failures
+- Example: `rustfmt "$FILE" 2>/dev/null || true`
+
+**7. Specification-First**
+- SessionStart hook MUST check specification closure
+- Block implementation if `/speckit-verify` shows incomplete specs
+- Align with Paradigm Shift 1 (Big Bang 80/20)
+
+**8. EPIC 9 Support**
+- Hooks enable parallel agent coordination
+- PostToolUse can broadcast completion to other agents
+- Example: Write completion markers to shared memory
+
+---
+
+### Hook Configuration File Locations
+
+| File | Purpose | Scope |
+|------|---------|-------|
+| `.claude/config.json` | Pre/Post hooks, permissions | Project |
+| `.claude/hooks/SessionStart.md` | Environment verification | Project |
+| `~/.claude/config.json` | Global hook defaults | User |
+| `scripts/validate-*.sh` | Validation logic | Project |
+| `.claude/audit.log` | Audit trail (auto-generated) | Session |
+| `.claude/receipts.log` | Validation receipts (auto-generated) | Session |
+
+---
+
+### Example: Complete Hook Setup for ggen
+
+**`.claude/config.json`:**
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash",
+            "args": ["-c", "scripts/validate-bash-command.sh \"$TOOL_INPUT_COMMAND\""]
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash",
+            "args": ["-c", "scripts/validate-file-path.sh \"$TOOL_INPUT_FILE_PATH\""]
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash",
+            "args": ["-c", "scripts/post-edit-hook.sh \"$TOOL_INPUT_FILE_PATH\""]
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash",
+            "args": ["-c", "scripts/post-bash-hook.sh \"$TOOL_INPUT_COMMAND\" \"$TOOL_EXIT_CODE\""]
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Read(**)",
+      "Bash(cargo make *)",
+      "Edit(src/**)",
+      "Edit(crates/**)",
+      "Write(tests/**)",
+      "Write(.claude/**)"
+    ],
+    "deny": [
+      "Bash(cargo check)",
+      "Bash(cargo test)",
+      "Bash(cargo build)",
+      "Bash(rm -rf *)",
+      "Edit(.specify/**/*.md)",
+      "Edit(Cargo.lock)",
+      "Write(.env*)",
+      "Write(**/*secret*)",
+      "Write(**/*credential*)"
+    ]
+  }
+}
+```
+
+**Validation Scripts**: Create `scripts/validate-bash-command.sh`, `scripts/validate-file-path.sh`, `scripts/post-edit-hook.sh`, `scripts/post-bash-hook.sh` as shown above.
+
+**SessionStart Hook**: Create `.claude/hooks/SessionStart.md` as shown above.
+
+---
+
+### Integration with Three Paradigm Shifts
+
+**Paradigm Shift 1: Big Bang 80/20**
+- SessionStart hook verifies specification closure before implementation
+- PreToolUse blocks code generation if `/speckit-verify` not run
+- Enforces "no implementation without closed spec"
+
+**Paradigm Shift 2: EPIC 9 Parallel-First**
+- PostToolUse broadcasts completion events to coordination layer
+- Hooks enable agents to work independently without polling
+- Example: Write `agent-1-complete` marker after task finish
+
+**Paradigm Shift 3: Deterministic Validation**
+- PostToolUse generates timestamped receipts automatically
+- All validation results logged to `.claude/receipts.log`
+- Replaces human review with reproducible evidence
+
+---
+
+### Hook Variables Reference
+
+**Available in hook commands:**
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `$TOOL_NAME` | Tool being executed | `Bash`, `Edit`, `Write` |
+| `$TOOL_INPUT_COMMAND` | Bash command (Bash tool) | `cargo make check` |
+| `$TOOL_INPUT_FILE_PATH` | File path (Edit/Write) | `src/main.rs` |
+| `$TOOL_EXIT_CODE` | Exit code (PostToolUse) | `0`, `1` |
+| `$TOOL_OUTPUT` | Tool output (PostToolUse) | Command stdout |
+
+**Custom environment variables** can be set in hooks and persisted to `.claude/session.env`.
+
+---
+
+### Advanced: Hook Chains & Composition
+
+**Hooks can be chained for complex workflows:**
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit(src/**/*.rs)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rustfmt",
+            "args": ["$TOOL_INPUT_FILE_PATH"]
+          },
+          {
+            "type": "command",
+            "command": "cargo",
+            "args": ["make", "check"]
+          },
+          {
+            "type": "command",
+            "command": "bash",
+            "args": ["-c", "echo '[Receipt] Edit + check: ✓' >> .claude/receipts.log"]
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**This creates a quality gate**: Edit → Auto-format → Fast check → Receipt generation.
+
+---
+
+### Troubleshooting Hooks
+
+**Hook script not executing:**
+- Verify script has execute permissions: `chmod +x scripts/*.sh`
+- Check script shebang: `#!/usr/bin/env bash`
+- Test manually: `bash scripts/validate-bash-command.sh "cargo make check"`
+
+**Hook blocking valid operations:**
+- Check PreToolUse output: Should be `allow`, `deny`, or `ask`
+- Review `.claude/audit.log` for details
+- Temporarily disable hook in `.claude/config.json`
+
+**Hook performance issues:**
+- Add `timeout` to slow operations: `timeout 1s validation-script.sh`
+- Use background jobs for non-blocking tasks: `task.sh &`
+- Profile with `time`: `time bash scripts/post-edit-hook.sh file.rs`
+
+---
+
+### 7. CONTEXT WINDOW OPTIMIZATION RULE
+
+**Maximize token efficiency and cognitive throughput through aggressive context management**
+
+Context windows are finite resources. Inefficient context usage creates three critical failures:
+1. **Token exhaustion** - Running out of context mid-task
+2. **Cognitive dilution** - Important signals buried in noise
+3. **Latency bloat** - Processing irrelevant context slows responses
+
+**The 80% Rule**: Never exceed 80% of context window capacity. Reserve 20% for:
+- Unexpected complexity expansion
+- Error recovery context
+- Collision detection results (EPIC 9)
+- Receipt accumulation (validation artifacts)
+
+---
+
+#### 7.1: The /context Command Pattern
+
+**Purpose**: Explicit context window monitoring and management
+
+**Usage**:
+```bash
+# Check current context utilization
+/context status
+
+# Show context breakdown by category
+/context breakdown
+
+# Identify largest context consumers
+/context top
+
+# Set context budget for current task
+/context budget 60%  # Reserve 40% for expansion
+```
+
+**When to use**:
+- Before starting EPIC 9 cycles (verify headroom for 10+ agent outputs)
+- When approaching 60% utilization (yellow threshold)
+- After large file reads (check impact)
+- Before spawning subagents (ensure each has adequate budget)
+
+**Thresholds**:
+```
+  0-60%: GREEN   - Normal operation, full capabilities available
+ 60-80%: YELLOW  - Caution, begin context compression strategies
+ 80-95%: ORANGE  - Critical, immediate compaction required
+95-100%: RED     - Emergency, task segmentation mandatory
+```
+
+---
+
+#### 7.2: The /compact Command Pattern
+
+**Purpose**: Aggressive context compression without information loss
+
+**Usage**:
+```bash
+# Compact current conversation (preserve decisions, discard exploration)
+/compact conversation
+
+# Compact file contents (extract schema, discard boilerplate)
+/compact files
+
+# Compact agent outputs (preserve conclusions, discard intermediate reasoning)
+/compact agents
+
+# Full context compression (emergency mode)
+/compact all --aggressive
+```
+
+**What gets compressed**:
+1. **Exploration artifacts**: Trial outputs, rejected alternatives, "what if" discussions
+2. **Redundant information**: Repeated file contents, duplicate explanations
+3. **Verbose outputs**: Stack traces → error summaries, full diffs → change summaries
+4. **Intermediate reasoning**: Keep conclusions, compress derivation paths
+
+**What gets preserved** (NEVER compact):
+1. **Specifications**: TTL files, API contracts, requirements
+2. **Decisions**: Architecture choices, trade-off rationale
+3. **Receipts**: Validation outputs, test results, SLO compliance
+4. **Active context**: Current task state, pending work
+
+**When to compact**:
+- Immediately when hitting YELLOW threshold (60%)
+- Before EPIC 9 fan-out (create clean slate for agents)
+- After exploration phases (compress before convergence)
+- When context contains >3 large file reads
+
+---
+
+#### 7.3: Subagent Isolation Patterns (EPIC 9 Enabler)
+
+**The Problem**: 10 parallel agents with full context = 10x token consumption = context explosion
+
+**The Solution**: Surgical context allocation via isolation
+
+**Pattern 1: Minimal Context Injection**
+
+Give agents ONLY what they need:
+
+```python
+# ❌ WRONG: Full context dump
+Agent("Implement user auth", context=full_conversation_history)
+
+# ✅ CORRECT: Surgical context
+Agent(
+  "Implement user auth",
+  context={
+    "spec": auth_spec_ttl,        # Only relevant spec
+    "constraints": security_reqs,  # Only relevant constraints
+    "interfaces": api_contract     # Only relevant interfaces
+  }
+)
+```
+
+**Pattern 2: Reference-Based Context**
+
+Instead of copying large artifacts, use references:
+
+```python
+# ❌ WRONG: Embed 50KB file in agent context
+Agent("Generate handler", files={"user.rs": file_contents_50kb})
+
+# ✅ CORRECT: Reference path, agent reads if needed
+Agent("Generate handler", file_refs=["/path/to/user.rs"])
+```
+
+**Pattern 3: Context Sharding**
+
+Partition work so each agent operates on disjoint context:
+
+```python
+# Shard by module (no overlap)
+Agent 1: context={module: "auth",   files: ["auth/**/*.rs"]}
+Agent 2: context={module: "db",     files: ["db/**/*.rs"]}
+Agent 3: context={module: "api",    files: ["api/**/*.rs"]}
+
+# Each agent sees ONLY their shard (10x context efficiency)
+```
+
+**Pattern 4: Lazy Context Loading**
+
+Agents request context on-demand, not upfront:
+
+```python
+# Agent spawned with minimal context
+agent = Agent("Optimize query performance", context={"target": "db_queries"})
+
+# Agent requests specific files ONLY when needed
+agent.read_file("src/db/query.rs")  # On-demand, not preloaded
+```
+
+---
+
+#### 7.4: Token Efficiency Best Practices
+
+**1. Prefer grep over read for exploration**
+
+```bash
+# ❌ INEFFICIENT: Read 10 files speculatively (10,000+ tokens)
+Read "file1.rs"
+Read "file2.rs"
+...
+
+# ✅ EFFICIENT: Grep first, read only matches (200 tokens)
+Grep pattern="UserAuth" → identifies 2 relevant files → Read those 2
+```
+
+**2. Use head_limit for large outputs**
+
+```bash
+# ❌ INEFFICIENT: Full 5000-line file
+Grep pattern="TODO" output_mode="content"
+
+# ✅ EFFICIENT: First 50 matches only
+Grep pattern="TODO" output_mode="content" head_limit=50
+```
+
+**3. Compress receipts into summaries**
+
+```bash
+# ❌ INEFFICIENT: 10KB test output
+[Full pytest output with 347 test names and timing details...]
+
+# ✅ EFFICIENT: Receipt summary
+[Receipt] cargo make test: ✓ (347/347 pass, 28.4s, 0 failures)
+```
+
+**4. Reference, don't repeat**
+
+```
+# ❌ INEFFICIENT: Repeat spec in every message
+"As specified in the TTL file (content repeated here)..."
+
+# ✅ EFFICIENT: Reference by path
+"As per specification in .specify/specs/024-auth/auth.ttl (lines 45-67)"
+```
+
+**5. Batch file operations**
+
+```python
+# ❌ INEFFICIENT: Sequential reads (10x round-trips)
+Read "a.rs"
+Read "b.rs"
+Read "c.rs"
+
+# ✅ EFFICIENT: Parallel reads (1 round-trip)
+[Single message with 3 Read calls]
+```
+
+---
+
+#### 7.5: Context Window SLOs
+
+**Target Utilization Curves**:
+
+```
+Task Type          | Peak Utilization | Reserve
+-------------------|------------------|----------
+Trivial (1 file)   | <20%            | 80%
+Moderate (3-5 ops) | <40%            | 60%
+Complex (EPIC 9)   | <70%            | 30%
+Emergency          | <90%            | 10% (danger zone)
+```
+
+**Enforcement**:
+- Monitor utilization after every major operation
+- Trigger /compact when crossing thresholds
+- Abort task if unable to maintain 10% reserve
+- Use subagent isolation for tasks predicting >80% utilization
+
+**Measurement**:
+```bash
+# Check if within SLO
+current_tokens / max_tokens <= 0.80  # PASS
+current_tokens / max_tokens > 0.80   # FAIL → compact required
+```
+
+---
+
+#### 7.6: EPIC 9 Context Budget Allocation
+
+**The Challenge**: 10 agents + collision detection + convergence = massive context
+
+**The Solution**: Pre-allocated context budgets with hard limits
+
+**Budget Allocation** (for 200K token context):
+```
+Main thread:           40K tokens (20%)  - Orchestration, specifications
+Agent outputs:        100K tokens (50%)  - 10 agents × 10K each (isolated)
+Collision detection:   20K tokens (10%)  - Overlap analysis
+Convergence synthesis: 20K tokens (10%)  - Selection + merge
+Reserve:               20K tokens (10%)  - Error recovery, expansion
+```
+
+**Enforcement**:
+- Each agent gets hard 10K token limit
+- Outputs exceeding limit → automatic summarization
+- Collision detection works on compressed artifacts
+- Convergence synthesizes from summaries, not full outputs
+
+**Example**:
+```python
+# EPIC 9 with context budgets
+for agent in agents:
+    agent.context_limit = 10_000  # Hard cap
+    agent.output_limit = 8_000    # Reserve for receipts
+
+# If agent tries to output 15K tokens → auto-compressed to 8K
+# Compression: preserve decisions, discard exploration
+```
+
+---
+
+#### 7.7: Context-Aware Task Segmentation
+
+**When single task exceeds context budget → segment into phases**
+
+**Pattern**:
+```
+Phase 1: Specification (consume: 20%, output: spec.ttl)
+  ↓ [/compact conversation]
+Phase 2: Implementation (consume: 60%, input: spec.ttl, output: code)
+  ↓ [/compact files]
+Phase 3: Validation (consume: 30%, input: code, output: receipts)
+  ↓ [/compact agents]
+Done: Total context reused 3x via aggressive compaction
+```
+
+**Segmentation Triggers**:
+- Task estimated to require >70% context (segment into 2-3 phases)
+- Current utilization >60% and more work remains (segment immediately)
+- EPIC 9 with >15 agents (phase 1: agents 1-10, phase 2: agents 11-15)
+
+**Benefits**:
+- Each phase starts with clean context (post-compact)
+- Intermediate artifacts stored in files (not context)
+- Can handle arbitrarily large tasks (N phases)
+
+---
+
+#### 7.8: Prohibited Patterns (Context Anti-Patterns)
+
+1. **Speculative reading**: Reading files "just in case" → Use grep first
+2. **Full file dumps**: Including entire files in responses → Reference by path + line numbers
+3. **Redundant explanations**: Repeating concepts already in context → Reference previous explanation
+4. **Verbose error outputs**: Full stack traces → Summarize to error type + location
+5. **Uncompressed agent outputs**: Keeping all 10 agent explorations → Compress after convergence
+6. **No utilization monitoring**: Blindly consuming context → Check after every major operation
+7. **Context hoarding**: Keeping "might need later" artifacts → Aggressive eviction, re-read if needed
+
+---
+
+#### 7.9: Benefits Summary
+
+**With Context Window Optimization**:
+- **2-3x more work per session** (via compression + reuse)
+- **Faster EPIC 9 cycles** (isolated agents = lower overhead)
+- **Higher quality outputs** (signal-to-noise ratio maximized)
+- **Reduced latency** (smaller context = faster processing)
+- **Deterministic capacity** (SLO-based budgets prevent exhaustion)
+
+**Without it**:
+- Context exhaustion mid-task (failure)
+- Cognitive dilution (important signals buried)
+- Latency bloat (processing irrelevant context)
+- EPIC 9 failure (10 agents exceed budget)
+
+**Context optimization is NOT optional for EPIC 9** - it's the prerequisite that makes parallel agent orchestration viable.
+
+---
+
 ## 📁 File Organization (Never Save to Root)
 
 ```
@@ -427,6 +1306,7 @@ ggen/
 5. **Sequential agent dispatch** - Use EPIC 9 (parallel)
 6. **Narrative review** - Use receipts (deterministic)
 7. **Saving to root** - Use proper subdirectories
+8. **Context window violations** - Exceeding 80% without compaction
 
 ---
 
@@ -998,6 +1878,10 @@ Pre-built templates and ontologies in `marketplace/packages/`:
 **Deterministic validation replaces human review**
 
 **Big Bang 80/20: Single-pass construction in low-entropy domains**
+
+**Context 80% rule: Never exceed 80% utilization without compaction**
+
+**Subagent isolation: Surgical context allocation, not full dumps**
 
 **Always use `cargo make` - NEVER direct cargo!**
 
