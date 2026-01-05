@@ -1,0 +1,45 @@
+---
+to: "generated/FRONTMATTER_EXAMPLES.md"
+---
+# YAML Frontmatter Examples
+
+## Basic Example
+
+```yaml
+---
+to: "generated/{{ name | snake_case }}.rs"
+vars:
+  name: string
+  description: string
+---
+```
+
+## Complex Example
+
+```yaml
+---
+to: "generated/{{ name | snake_case }}.rs"
+vars:
+  name: string
+  description: string
+  has_id: boolean
+  fields: array
+  validation_rules: object
+---
+```
+
+## Output Path Patterns
+
+```yaml
+# Simple file
+to: "output.rs"
+
+# With variable substitution
+to: "generated/{{ name }}.rs"
+
+# With filters
+to: "src/{{ module | snake_case }}/mod.rs"
+
+# With nested paths
+to: "src/generated/{{ category }}/{{ name | snake_case }}.rs"
+```

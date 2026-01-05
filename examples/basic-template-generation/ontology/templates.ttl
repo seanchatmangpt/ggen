@@ -1,0 +1,336 @@
+@prefix tmpl: <https://ggen.io/ontology/templates#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# ===== Schema Definitions =====
+
+# Template class - base concept
+tmpl:Template a rdfs:Class ;
+    rdfs:label "Template" ;
+    rdfs:comment "A template for code generation" .
+
+# RustModule class
+tmpl:RustModule a rdfs:Class ;
+    rdfs:subClassOf tmpl:Template ;
+    rdfs:label "RustModule" ;
+    rdfs:comment "A Rust module template" .
+
+# RustStruct class
+tmpl:RustStruct a rdfs:Class ;
+    rdfs:subClassOf tmpl:Template ;
+    rdfs:label "RustStruct" ;
+    rdfs:comment "A Rust struct template with derives and impl blocks" .
+
+# TeraFilter class - for template filters
+tmpl:TeraFilter a rdfs:Class ;
+    rdfs:label "TeraFilter" ;
+    rdfs:comment "A Tera template filter (snake_case, pascal_case, etc.)" .
+
+# VariableType class - for template variables
+tmpl:VariableType a rdfs:Class ;
+    rdfs:label "VariableType" ;
+    rdfs:comment "A template variable type (string, boolean, array, etc.)" .
+
+# TemplateTest class
+tmpl:TemplateTest a rdfs:Class ;
+    rdfs:label "TemplateTest" ;
+    rdfs:comment "A test for template generation" .
+
+# FrontmatterExample class
+tmpl:FrontmatterExample a rdfs:Class ;
+    rdfs:label "FrontmatterExample" ;
+    rdfs:comment "Example of YAML frontmatter syntax" .
+
+# TeraSyntax class
+tmpl:TeraSyntax a rdfs:Class ;
+    rdfs:label "TeraSyntax" ;
+    rdfs:comment "Tera template syntax element" .
+
+# TemplateError class
+tmpl:TemplateError a rdfs:Class ;
+    rdfs:label "TemplateError" ;
+    rdfs:comment "Common template error and solution" .
+
+# ===== Properties =====
+
+tmpl:name a rdf:Property ;
+    rdfs:domain tmpl:Template ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of the template or entity" .
+
+tmpl:fields a rdf:Property ;
+    rdfs:domain tmpl:RustStruct ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Fields in a struct" .
+
+tmpl:hasValidation a rdf:Property ;
+    rdfs:domain tmpl:RustModule ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether this module has validation" .
+
+tmpl:hasId a rdf:Property ;
+    rdfs:domain tmpl:RustStruct ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether this struct has an ID field" .
+
+tmpl:hasBuilder a rdf:Property ;
+    rdfs:domain tmpl:RustStruct ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether this struct generates a builder pattern" .
+
+tmpl:hasFields a rdf:Property ;
+    rdfs:domain tmpl:RustStruct ;
+    rdfs:range rdf:List ;
+    rdfs:comment "The fields of a struct" .
+
+tmpl:variables a rdf:Property ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Variables required by template" .
+
+tmpl:filters a rdf:Property ;
+    rdfs:range rdf:List ;
+    rdfs:comment "Filters available in template" .
+
+tmpl:examples a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Usage examples" .
+
+tmpl:testsModule a rdf:Property ;
+    rdfs:domain tmpl:TemplateTest ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Module being tested" .
+
+tmpl:yaml a rdf:Property ;
+    rdfs:domain tmpl:FrontmatterExample ;
+    rdfs:range xsd:string ;
+    rdfs:comment "YAML frontmatter content" .
+
+tmpl:example a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Example usage or content" .
+
+tmpl:category a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Category or classification" .
+
+tmpl:cause a rdf:Property ;
+    rdfs:domain tmpl:TemplateError ;
+    rdfs:range xsd:string ;
+    rdfs:comment "What causes this error" .
+
+tmpl:solution a rdf:Property ;
+    rdfs:domain tmpl:TemplateError ;
+    rdfs:range xsd:string ;
+    rdfs:comment "How to solve this error" .
+
+# ===== SHACL Validation =====
+
+tmpl:RustModuleShape a sh:NodeShape ;
+    sh:targetClass tmpl:RustModule ;
+    sh:property [
+        sh:path tmpl:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path tmpl:fields ;
+        sh:minCount 1 ;
+    ] .
+
+tmpl:RustStructShape a sh:NodeShape ;
+    sh:targetClass tmpl:RustStruct ;
+    sh:property [
+        sh:path tmpl:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path tmpl:hasFields ;
+        sh:minCount 1 ;
+    ] .
+
+# ===== Instance Data =====
+
+# Module template instance
+<#user_service_module> a tmpl:RustModule ;
+    tmpl:name "UserService" ;
+    rdfs:comment "User management service module" ;
+    tmpl:fields (
+        [ tmpl:name "id" ; rdfs:comment "User ID" ]
+        [ tmpl:name "username" ; rdfs:comment "Username" ]
+        [ tmpl:name "email" ; rdfs:comment "Email address" ]
+    ) ;
+    tmpl:hasValidation true .
+
+# Struct template instance
+<#user_struct> a tmpl:RustStruct ;
+    tmpl:name "User" ;
+    rdfs:comment "User entity with common fields" ;
+    tmpl:hasId true ;
+    tmpl:hasBuilder true ;
+    tmpl:hasFields (
+        [ tmpl:name "id" ; rdfs:comment "Unique identifier" ]
+        [ tmpl:name "username" ; rdfs:comment "Username for login" ]
+        [ tmpl:name "email" ; rdfs:comment "Contact email" ]
+        [ tmpl:name "is_active" ; rdfs:comment "Whether user is active" ]
+    ) .
+
+# Filter instances
+<#filter_snake_case> a tmpl:TeraFilter ;
+    tmpl:name "snake_case" ;
+    rdfs:comment "Converts string to snake_case format" ;
+    tmpl:example "user_service" ;
+    tmpl:category "String Case" .
+
+<#filter_pascal_case> a tmpl:TeraFilter ;
+    tmpl:name "pascal_case" ;
+    rdfs:comment "Converts string to PascalCase format" ;
+    tmpl:example "UserService" ;
+    tmpl:category "String Case" .
+
+<#filter_camel_case> a tmpl:TeraFilter ;
+    tmpl:name "camel_case" ;
+    rdfs:comment "Converts string to camelCase format" ;
+    tmpl:example "userService" ;
+    tmpl:category "String Case" .
+
+<#filter_capitalize> a tmpl:TeraFilter ;
+    tmpl:name "capitalize" ;
+    rdfs:comment "Capitalizes first character" ;
+    tmpl:example "User" ;
+    tmpl:category "String Manipulation" .
+
+<#filter_upper> a tmpl:TeraFilter ;
+    tmpl:name "upper" ;
+    rdfs:comment "Converts to uppercase" ;
+    tmpl:example "USER_SERVICE" ;
+    tmpl:category "String Case" .
+
+<#filter_lower> a tmpl:TeraFilter ;
+    tmpl:name "lower" ;
+    rdfs:comment "Converts to lowercase" ;
+    tmpl:example "user_service" ;
+    tmpl:category "String Case" .
+
+# Variable type instances
+<#var_string> a tmpl:VariableType ;
+    tmpl:name "string" ;
+    rdfs:comment "Text values" ;
+    tmpl:example "\"hello world\"" ;
+    tmpl:category "Scalar" .
+
+<#var_boolean> a tmpl:VariableType ;
+    tmpl:name "boolean" ;
+    rdfs:comment "True or false values" ;
+    tmpl:example "true" ;
+    tmpl:category "Scalar" .
+
+<#var_number> a tmpl:VariableType ;
+    tmpl:name "number" ;
+    rdfs:comment "Numeric values (integer or float)" ;
+    tmpl:example "42" ;
+    tmpl:category "Scalar" .
+
+<#var_array> a tmpl:VariableType ;
+    tmpl:name "array" ;
+    rdfs:comment "List of items" ;
+    tmpl:example "[\"item1\", \"item2\"]" ;
+    tmpl:category "Collection" .
+
+<#var_object> a tmpl:VariableType ;
+    tmpl:name "object" ;
+    rdfs:comment "Nested structures with key-value pairs" ;
+    tmpl:example "{\"key\": \"value\"}" ;
+    tmpl:category "Collection" .
+
+# Tera syntax instances
+<#syntax_variable> a tmpl:TeraSyntax ;
+    tmpl:name "Variable Substitution" ;
+    rdfs:comment "Insert a variable value into template output" ;
+    tmpl:example "{{ variable_name }}" ;
+    tmpl:category "Variables" .
+
+<#syntax_filter> a tmpl:TeraSyntax ;
+    tmpl:name "Filter Application" ;
+    rdfs:comment "Apply a filter to transform a variable" ;
+    tmpl:example "{{ variable | filter_name }}" ;
+    tmpl:category "Filters" .
+
+<#syntax_conditional> a tmpl:TeraSyntax ;
+    tmpl:name "Conditional Rendering" ;
+    rdfs:comment "Conditionally render template sections" ;
+    tmpl:example "{% if condition %}...{% endif %}" ;
+    tmpl:category "Control Flow" .
+
+<#syntax_loop> a tmpl:TeraSyntax ;
+    tmpl:name "Loop Iteration" ;
+    rdfs:comment "Iterate over arrays or objects" ;
+    tmpl:example "{% for item in items %}...{% endfor %}" ;
+    tmpl:category "Control Flow" .
+
+<#syntax_comment> a tmpl:TeraSyntax ;
+    tmpl:name "Template Comment" ;
+    rdfs:comment "Add comments in templates that don't appear in output" ;
+    tmpl:example "{# This is a comment #}" ;
+    tmpl:category "Syntax" .
+
+# Template test instances
+<#test_module> a tmpl:TemplateTest ;
+    tmpl:name "test_module_generation" ;
+    tmpl:testsModule "UserService" ;
+    rdfs:comment "Test that UserService module generates correctly" .
+
+<#test_struct> a tmpl:TemplateTest ;
+    tmpl:name "test_struct_generation" ;
+    tmpl:testsModule "User" ;
+    rdfs:comment "Test that User struct generates with proper derives and impl blocks" .
+
+# Frontmatter example instances
+<#example_simple> a tmpl:FrontmatterExample ;
+    tmpl:name "Simple Module Frontmatter" ;
+    tmpl:yaml "to: generated/{{ name | snake_case }}.rs\nvars:\n  name: string\n  description: string" ;
+    rdfs:comment "Basic YAML frontmatter for simple module generation" .
+
+<#example_complex> a tmpl:FrontmatterExample ;
+    tmpl:name "Complex Struct Frontmatter" ;
+    tmpl:yaml "to: generated/{{ name | snake_case }}.rs\nvars:\n  name: string\n  description: string\n  has_id: boolean\n  fields: array" ;
+    rdfs:comment "Advanced frontmatter with multiple variable types" .
+
+# Template error instances
+<#error_invalid_yaml> a tmpl:TemplateError ;
+    tmpl:name "Invalid YAML frontmatter" ;
+    tmpl:cause "Frontmatter is not valid YAML or not enclosed in --- markers" ;
+    tmpl:solution "Check that frontmatter is valid YAML and properly delimited with --- at start and end" ;
+    tmpl:category "Syntax" .
+
+<#error_unknown_filter> a tmpl:TemplateError ;
+    tmpl:name "Unknown filter" ;
+    tmpl:cause "Using a filter name that Tera doesn't recognize (e.g., {{ var | xyz }})" ;
+    tmpl:solution "Verify you're using supported Tera filters (snake_case, pascal_case, capitalize, upper, lower, trim)" ;
+    tmpl:category "Filters" .
+
+<#error_missing_variable> a tmpl:TemplateError ;
+    tmpl:name "Variable not provided" ;
+    tmpl:cause "Template requires a variable that wasn't defined or passed" ;
+    tmpl:solution "Ensure all required variables are defined in vars: section and passed when generating" ;
+    tmpl:category "Variables" .
+
+<#error_directory_creation> a tmpl:TemplateError ;
+    tmpl:name "Failed to create output directory" ;
+    tmpl:cause "Output directory path is invalid or lacks write permissions" ;
+    tmpl:solution "Check file permissions and verify the output path is valid and writable" ;
+    tmpl:category "IO" .
