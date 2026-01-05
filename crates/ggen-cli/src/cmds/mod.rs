@@ -1,12 +1,17 @@
-//! Command Router Module - ggen v5.0.0 (Fresh Start)
+//! Command Router Module - ggen v5.0.0 (Fresh Start + Init)
 //!
-//! ggen v5 has ONE command: `ggen sync`. All other commands have been removed
-//! for a fresh start. Utility commands may be added back incrementally in future versions.
+//! ggen v5 has two core commands:
+//! - `ggen sync` - Code synchronization pipeline
+//! - `ggen init` - Project scaffolding
 //!
-//! ## The Only Command
+//! All other commands have been removed for a fresh start.
+//! Utility commands may be added back incrementally in future versions.
+//!
+//! ## Core Commands
 //!
 //! ```bash
-//! ggen sync [OPTIONS]
+//! ggen sync [OPTIONS]    # Synchronize code generation
+//! ggen init [OPTIONS]    # Initialize new ggen project
 //! ```
 //!
 //! ## Removed Commands
@@ -28,11 +33,14 @@
 // Shared helpers for command modules
 pub mod helpers;
 
-// THE ONLY COMMAND: ggen sync
+// Core commands: ggen sync & ggen init
+pub mod init;
 pub mod sync;
 
-// CRITICAL: Force the sync module to be linked so its #[verb] registration works
+// CRITICAL: Force the modules to be linked so their #[verb] registration works
 // Without this import, the linker optimizes away the linkme static items from #[verb] macro
+#[allow(unused_imports)]
+use init as _;
 #[allow(unused_imports)]
 use sync as _;
 
