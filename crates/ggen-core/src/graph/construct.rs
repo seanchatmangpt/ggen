@@ -5,6 +5,7 @@
 
 use crate::graph::Graph;
 use ggen_utils::error::{Error, Result};
+use oxigraph::io::{RdfFormat, RdfSerializer};
 use oxigraph::sparql::QueryResults;
 use sha2::{Digest, Sha256};
 
@@ -57,13 +58,29 @@ impl<'a> ConstructExecutor<'a> {
             .map_err(|e| Error::new(&format!("CONSTRUCT query failed: {}", e)))?;
 
         // Handle CONSTRUCT results (Graph variant)
+        // Note: CONSTRUCT queries return Triple objects (not Quads)
         match results {
-            QueryResults::Graph(quads) => {
+            QueryResults::Graph(triples_iter) => {
                 let mut triples = Vec::new();
-                for quad_result in quads {
-                    let quad = quad_result
-                        .map_err(|e| Error::new(&format!("Error reading quad: {}", e)))?;
-                    triples.push(quad.to_string());
+                for triple_result in triples_iter {
+                    let triple = triple_result
+                        .map_err(|e| Error::new(&format!("Error reading triple: {}", e)))?;
+
+                    // Serialize triple to proper N-Triples format using RdfSerializer
+                    // This ensures proper formatting with trailing dots
+                    let mut buffer = Vec::new();
+                    let mut serializer = RdfSerializer::from_format(RdfFormat::NTriples)
+                        .for_writer(&mut buffer);
+                    serializer
+                        .serialize_triple(&triple)
+                        .map_err(|e| Error::new(&format!("Failed to serialize triple: {}", e)))?;
+                    serializer
+                        .finish()
+                        .map_err(|e| Error::new(&format!("Failed to finish serialization: {}", e)))?;
+
+                    let triple_str = String::from_utf8(buffer)
+                        .map_err(|e| Error::new(&format!("Invalid UTF-8 in serialized triple: {}", e)))?;
+                    triples.push(triple_str.trim().to_string());
                 }
                 Ok(triples)
             }
@@ -88,18 +105,56 @@ impl<'a> ConstructExecutor<'a> {
     /// * `Ok(usize)` - Number of triples added
     /// * `Err(Error)` - Query or insert error
     pub fn execute_and_materialize(&self, query: &str) -> Result<usize> {
-        // First execute the CONSTRUCT
-        let triples = self.execute(query)?;
-        let count = triples.len();
+        // Execute query using the graph's query method
+        let results = self
+            .graph
+            .query(query)
+            .map_err(|e| Error::new(&format!("CONSTRUCT query failed: {}", e)))?;
 
-        // Convert triples to N-Triples format and insert via Turtle
-        // Note: N-Triples is a subset of Turtle, so this works correctly
-        if !triples.is_empty() {
-            let ntriples = triples.join("\n");
-            self.graph.insert_turtle(&ntriples)?;
+        // Handle CONSTRUCT results (Graph variant)
+        // Note: CONSTRUCT queries return Triple objects (not Quads)
+        match results {
+            QueryResults::Graph(triples_iter) => {
+                // Collect all triples first
+                let collected: Vec<_> = triples_iter
+                    .collect::<std::result::Result<Vec<_>, _>>()
+                    .map_err(|e| Error::new(&format!("Error reading triples: {}", e)))?;
+
+                let count = collected.len();
+
+                if !collected.is_empty() {
+                    // Serialize all triples to proper N-Triples format using RdfSerializer
+                    // This ensures proper formatting with trailing dots that Turtle parser expects
+                    let mut buffer = Vec::new();
+                    let mut serializer = RdfSerializer::from_format(RdfFormat::NTriples)
+                        .for_writer(&mut buffer);
+
+                    for triple in &collected {
+                        serializer
+                            .serialize_triple(triple)
+                            .map_err(|e| Error::new(&format!("Failed to serialize triple: {}", e)))?;
+                    }
+
+                    serializer
+                        .finish()
+                        .map_err(|e| Error::new(&format!("Failed to finish serialization: {}", e)))?;
+
+                    let ntriples = String::from_utf8(buffer)
+                        .map_err(|e| Error::new(&format!("Invalid UTF-8 in serialized triples: {}", e)))?;
+
+                    // N-Triples is a subset of Turtle, so insert_turtle works correctly
+                    self.graph.insert_turtle(&ntriples)?;
+                }
+
+                Ok(count)
+            }
+            QueryResults::Solutions(_) => Err(Error::new(
+                "Expected CONSTRUCT query but got SELECT results",
+            )),
+            QueryResults::Boolean(_) => {
+                Err(Error::new("Expected CONSTRUCT query but got ASK results"))
+            }
         }
-
-        Ok(count)
     }
 
     /// Execute a chain of CONSTRUCT queries in order, materializing after each
