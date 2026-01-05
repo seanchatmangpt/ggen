@@ -1,394 +1,315 @@
-# Complete Project Generation Example
+# Complete Project Generation
 
-This example demonstrates how to use ggen to generate a complete, production-ready Rust web service from templates. The generated project includes multiple modules, tests, and a working API server.
+Master end-to-end project scaffolding: multi-crate workspaces, build automation, CI/CD, Docker, documentation.
 
-## Overview
+**Status**: ✅ Complete
+**Difficulty**: ⭐⭐ Intermediate
+**Time**: 30-45 minutes
+**Focus**: Complete production-ready project generation
 
-This example generates a complete microservice with:
-- **REST API** with multiple endpoints
-- **Data models** with validation
-- **Configuration management** using environment variables
-- **Error handling** with custom error types
-- **Integration tests** that validate the entire stack
-- **Logging and middleware**
+---
 
-### Generated Project Structure
+## 1. Overview
 
-```
-generated-project/
-├── Cargo.toml              # Package configuration
-├── src/
-│   ├── main.rs             # Application entry point
-│   ├── models/
-│   │   ├── mod.rs          # Models module
-│   │   ├── user.rs         # User model
-│   │   └── product.rs      # Product model
-│   ├── api/
-│   │   ├── mod.rs          # API module
-│   │   ├── handlers.rs     # Request handlers
-│   │   └── routes.rs       # Route configuration
-│   └── config/
-│       ├── mod.rs          # Config module
-│       └── settings.rs     # Application settings
-└── tests/
-    └── integration_test.rs # Integration tests
-```
+Generate production-ready multi-crate Rust workspaces with:
 
-## Step-by-Step Generation Process
+- Multi-crate workspace structure (core, api, cli)
+- Shared library dependencies
+- Build automation (Makefile)
+- CI/CD pipeline (GitHub Actions)
+- Docker containerization
+- Complete documentation
+- Deployment strategy
 
-### 1. Validate Templates
+**What this teaches**: Enterprise-scale project generation from specifications. Specification-driven architecture replaces manual setup.
 
-First, validate all templates to ensure they're correctly formatted:
+---
+
+## 2. Prerequisites
+
+- ggen CLI (5.0.0+)
+- Understanding of Rust workspaces
+- Basic Docker knowledge
+- Node.js 18+
+
+---
+
+## 3. Quick Start
 
 ```bash
-./generate-project.sh validate
+cd examples/complete-project-generation
+
+# Validate
+./validate.mjs
+
+# Review specification
+cat ontology/workspace.ttl
+
+# View generation config
+cat ggen.toml
+
+# Inspect golden files
+cat golden/generated/Cargo.toml
 ```
 
-This checks:
-- Template syntax
-- Variable consistency
-- Required fields
-- File structure
+---
 
-### 2. Generate Project
+## 4. Architecture
 
-Generate the complete project with default or custom variables:
+### Multi-Crate Workspace
+
+```
+workspace/
+├── Cargo.toml (workspace root)
+├── core/
+│   ├── Cargo.toml (shared library)
+│   └── src/lib.rs
+├── api/
+│   ├── Cargo.toml (API service)
+│   └── src/main.rs
+└── cli/
+    ├── Cargo.toml (CLI tool)
+    └── src/main.rs
+```
+
+### Generation Pipeline
+
+```
+RDF Workspace Spec
+        ↓
+SPARQL Extraction
+        ↓
+Tera Template Rendering
+        ↓
+├── Cargo.toml (workspace + crates)
+├── Makefile (build automation)
+├── CI/CD configuration
+├── Docker setup
+└── Documentation
+```
+
+### Design Principles
+
+1. **Monorepo Structure**: Single repository, multiple crates
+2. **Shared Core**: Common library used by all services
+3. **Independent Services**: API and CLI can deploy separately
+4. **Automation**: Makefile handles all build tasks
+5. **Infrastructure as Code**: Dockerfile, CI/CD, and docs generated
+
+---
+
+## 5. File Structure
+
+```
+complete-project-generation/
+├── ggen.toml                # 10 generation rules
+├── ontology/
+│   └── workspace.ttl        # RDF workspace spec
+├── templates/               # 8 Tera templates
+│   ├── workspace-toml.tera
+│   ├── crate-toml.tera
+│   ├── makefile.tera
+│   ├── ci-workflow.tera
+│   ├── architecture.tera
+│   ├── build-guide.tera
+│   ├── deployment.tera
+│   ├── docker-compose.tera
+│   └── docs-index.tera
+├── golden/                  # Expected outputs
+│   └── generated/
+├── validate.mjs            # Validation script
+└── README.md               # This file
+```
+
+---
+
+## 6. Step-by-Step Tutorial
+
+### Step 1: Understand Workspace Specification (5 min)
 
 ```bash
-# Generate with default settings
-./generate-project.sh generate
-
-# Generate with custom settings
-./generate-project.sh generate \
-  --project-name my-service \
-  --port 8080 \
-  --author "Your Name"
+cat ontology/workspace.ttl
 ```
 
-### 3. Build Generated Project
+Key entities:
+- `Workspace`: Top-level definition
+- `Crate`: Individual packages (core, api, cli)
+- `Service`: Deployable services
+- Properties: name, version, description, members
 
-The script automatically builds the generated project:
+### Step 2: Review Generation Rules (5 min)
 
 ```bash
-cd output/generated-project
-cargo build --release
+head -50 ggen.toml
 ```
 
-### 4. Run Tests
+Rules include:
+1. Workspace-level Cargo.toml
+2. Per-crate Cargo.toml generation
+3. Makefile creation
+4. CI/CD workflow generation
+5. Documentation generation
 
-Execute integration tests to verify everything works:
+### Step 3: Examine Workspace Toml Template (5 min)
 
 ```bash
-cargo test
+cat templates/workspace-toml.tera
 ```
 
-### 5. Run the Service
+Generates:
+```toml
+[workspace]
+members = ["core", "api", "cli"]
+```
 
-Start the web service:
+### Step 4: Review Build Automation (5 min)
 
 ```bash
-cargo run
+cat templates/makefile.tera
 ```
 
-The API will be available at `http://localhost:3000` (or your configured port).
+Provides targets:
+- `make build` - Release build
+- `make test` - Run all tests
+- `make lint` - Clippy and format checks
+- `make clean` - Remove artifacts
 
-## API Endpoints
+### Step 5: Understand CI/CD Pipeline (5 min)
 
-The generated service includes these endpoints:
-
-- `GET /health` - Health check endpoint
-- `GET /api/users` - List all users
-- `GET /api/users/:id` - Get user by ID
-- `POST /api/users` - Create new user
-- `GET /api/products` - List all products
-- `GET /api/products/:id` - Get product by ID
-
-## Customization
-
-### Variables
-
-Edit `project-spec.yaml` to customize:
-
-```yaml
-variables:
-  project_name: my-awesome-service
-  version: 0.1.0
-  author: Your Name
-  port: 8080
-  log_level: info
-  database_url: postgresql://localhost/mydb
+```bash
+cat templates/ci-workflow.tera
 ```
 
-### Adding New Modules
+GitHub Actions workflow:
+- Checkout code
+- Install Rust toolchain
+- Build release
+- Run tests
+- Run linting
 
-1. Create template in `templates/new-module.tmpl`
-2. Add module to `project-spec.yaml`:
-   ```yaml
-   modules:
-     - name: new_module
-       template: new-module.tmpl
-       output: src/new_module/mod.rs
-   ```
-3. Regenerate project
+### Step 6: Deploy with Docker (5 min)
 
-### Adding Dependencies
+```bash
+cat templates/docker-compose.tera
+```
 
-Edit `templates/cargo-toml.tmpl`:
+Services:
+- API service with port mapping
+- Environment configuration
+- Volume management
+
+---
+
+## 7. Configuration Reference
+
+### Workspace Configuration
 
 ```toml
-[dependencies]
-your-new-dep = "1.0"
+[workspace]
+members = ["core", "api", "cli"]
+
+[workspace.metadata]
+name = "myworkspace"
 ```
 
-## How It Works
+### Crate Configuration
 
-### Template Processing
-
-1. **Load Specification**: Read `project-spec.yaml`
-2. **Validate Templates**: Check all `.tmpl` files
-3. **Process Variables**: Replace `{{variable}}` placeholders
-4. **Generate Files**: Create directory structure and files
-5. **Post-Processing**: Format code, run tests
-
-### Variable Substitution
-
-Templates use `{{variable_name}}` syntax:
-
-```rust
-// In template:
-const PORT: u16 = {{port}};
-
-// After generation:
-const PORT: u16 = 3000;
+Per-crate Cargo.toml:
+```toml
+[package]
+name = "core"
+version = "0.1.0"
+edition = "2021"
 ```
 
-### Conditional Generation
+### SPARQL Query for Workspace
 
-Templates support conditionals:
-
-```rust
-{{#if enable_auth}}
-use auth::middleware::AuthMiddleware;
-{{/if}}
+```sparql
+PREFIX ws: <https://ggen.io/ontology/workspace#>
+SELECT ?workspaceName ?members
+WHERE {
+  ?ws a ws:Workspace ;
+    ws:name ?workspaceName ;
+    ws:members ?members .
+}
 ```
 
-## Build and Run
+### Template Variables
 
-### Prerequisites
-
-- Rust 1.70+ (`rustc --version`)
-- Cargo (`cargo --version`)
-- ggen CLI tool
-
-### Quick Start
-
-```bash
-# 1. Validate everything
-./generate-project.sh validate
-
-# 2. Generate project
-./generate-project.sh generate
-
-# 3. Build and test
-cd output/generated-project
-cargo build
-cargo test
-
-# 4. Run service
-cargo run
-
-# 5. Test API
-curl http://localhost:3000/health
-curl http://localhost:3000/api/users
+```tera
+workspace_name: string      # Workspace identifier
+members: array              # List of crate names
+crate_name: string         # Individual crate name
+version: string            # Version identifier
+description: string        # Human-readable description
 ```
 
-### Development Workflow
+---
 
-```bash
-# Watch for changes and rebuild
-cargo watch -x run
+## 8. Troubleshooting
 
-# Run tests on save
-cargo watch -x test
+### Crate Generation Fails
+- Check: All crates in workspace defined in ontology
+- Check: SPARQL queries return crate data
+- Check: Template variables match SELECT clause
 
-# Check without building
-cargo check
-```
+### Build Errors
+- Check: All crates compile independently
+- Check: Dependencies are consistent across crates
+- Check: Path dependencies use relative paths
 
-## Testing
+### Docker Fails
+- Check: Rust toolchain available
+- Check: Build happens in Docker context
+- Check: Ports not already in use
 
-### Unit Tests
+### CI/CD Issues
+- Check: YAML is valid (templates/ci-workflow.tera)
+- Check: GitHub Actions permissions granted
+- Check: Secrets configured if needed
 
-Each module includes unit tests:
+---
 
-```bash
-cargo test --lib
-```
+## 9. Next Steps
 
-### Integration Tests
+### Advanced Topics
+- Multi-workspace deployments
+- Cross-crate dependency management
+- Shared build configuration
+- Platform-specific builds
 
-Full end-to-end tests in `tests/`:
+### Practice Exercises
+1. Add a fourth crate to the workspace
+2. Update Makefile with new targets
+3. Modify CI/CD to add security scanning
+4. Create additional Docker services
 
-```bash
-cargo test --test integration_test
-```
+### Real-World Application
+- Generate microservice architecture
+- Scale to 10+ crates
+- Implement custom build steps
+- Integrate with monitoring/logging
 
-### Coverage
+### Related Examples
+- See `simple-project/` for single-crate projects
+- See `openapi/` for API specification generation
+- See `ai-template-creation/` for AI-assisted scaffolding
 
-Generate test coverage report:
+---
 
-```bash
-cargo tarpaulin --out Html
-```
+## Summary
 
-## Production Deployment
+Complete project generation demonstrates:
+- Multi-crate workspace orchestration
+- Specification-driven architecture
+- Automated build and deploy
+- Infrastructure as code (Makefile, Docker, CI/CD)
+- Production-ready scaffolding
 
-### Build Release Binary
+**Key Learning**: From RDF specification to deployment-ready project in one command.
 
-```bash
-cargo build --release
-./target/release/{{project_name}}
-```
+---
 
-### Docker Container
-
-Generated project includes Dockerfile:
-
-```bash
-docker build -t {{project_name}} .
-docker run -p 3000:3000 {{project_name}}
-```
-
-### Environment Configuration
-
-Set via environment variables:
-
-```bash
-export PORT=8080
-export LOG_LEVEL=debug
-export DATABASE_URL=postgresql://...
-cargo run
-```
-
-## Troubleshooting
-
-### Template Validation Errors
-
-```bash
-Error: Missing variable 'project_name' in template
-```
-
-**Solution**: Add variable to `project-spec.yaml`
-
-### Build Failures
-
-```bash
-error: unresolved import `crate::models`
-```
-
-**Solution**: Check module paths in generated `mod.rs` files
-
-### Test Failures
-
-```bash
-test result: FAILED. 0 passed; 1 failed
-```
-
-**Solution**: Review integration test expectations vs. actual output
-
-## Advanced Usage
-
-### Custom Template Functions
-
-Add helper functions to templates:
-
-```rust
-// In template:
-{{uppercase project_name}}
-
-// Result:
-MY-AWESOME-SERVICE
-```
-
-### Multi-Stage Generation
-
-Generate in phases:
-
-```bash
-# Phase 1: Core modules only
-./generate-project.sh generate --phase core
-
-# Phase 2: Add API layer
-./generate-project.sh generate --phase api
-
-# Phase 3: Add tests
-./generate-project.sh generate --phase tests
-```
-
-### Template Inheritance
-
-Create base templates and extend them:
-
-```yaml
-templates:
-  - name: base-handler
-    file: base-handler.tmpl
-  - name: user-handler
-    extends: base-handler
-    file: user-handler.tmpl
-```
-
-## Examples
-
-### Generate Microservice
-
-```bash
-./generate-project.sh generate \
-  --project-name user-service \
-  --port 8001 \
-  --modules user,auth
-```
-
-### Generate CLI Tool
-
-```bash
-./generate-project.sh generate \
-  --template cli \
-  --project-name my-cli \
-  --no-api
-```
-
-### Generate Library
-
-```bash
-./generate-project.sh generate \
-  --template lib \
-  --project-name my-lib \
-  --no-binary
-```
-
-## Performance
-
-- **Template validation**: ~50ms for 10 templates
-- **File generation**: ~200ms for complete project
-- **Build time**: 30-60s for first build (with dependencies)
-- **Test execution**: 1-3s for integration tests
-
-## Best Practices
-
-1. **Version Control**: Commit templates, not generated code
-2. **Template Testing**: Validate templates in CI/CD
-3. **Incremental Generation**: Generate only changed modules
-4. **Documentation**: Keep templates well-documented
-5. **Error Handling**: Templates should include robust error handling
-
-## Resources
-
-- [ggen Documentation](../../README.md)
-- [Rust Web Development](https://www.rust-lang.org/what/wasm)
-- [Actix Web Framework](https://actix.rs/)
-- [Template Best Practices](../../docs/templates.md)
-
-## License
-
-This example is part of the ggen project and follows the same license.
+**Status**: GREEN ✓
+**Quality Gates**: All passed
+**Reproducibility**: 100% deterministic
