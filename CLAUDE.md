@@ -394,10 +394,27 @@ ggen/
 - `cargo make ci` - Full CI pipeline
 
 **EPIC 9 Commands**:
-- `/speckit-verify [feature]` - Verify closure
-- `/bb80-parallel "[spec]"` - Orchestrate atomic cycle
-- `/collision-detect` - Analyze overlaps
-- `/convergence` - Synthesize result
+- `/speckit-verify [feature]` - Verify closure before implementation
+- `/bb80-parallel "[spec]"` - Orchestrate atomic cycle (10+ agents)
+- `/collision-detect` - Analyze overlaps between agent outputs
+- `/convergence` - Synthesize results from parallel agents
+
+**Quality Assurance Commands**:
+- `/speckit-check` - Validate RDF specs in .specify/ directory
+- `/test-audit` - Run mutation testing and assertion analysis
+- `/review-errors` - Audit error handling patterns
+- `/optimize` - Analyze and optimize Rust performance
+- `/bench-compare` - Compare benchmark results across commits
+
+**Available Skills** (auto-loaded by context):
+- `cargo-make-protocol` - Master cargo make build orchestration
+- `chicago-tdd-pattern` - State-based testing with AAA pattern
+- `poka-yoke-patterns` - Error-proofing and quality gates
+- `rdf-ontologies` - RDF/Turtle syntax and SPARQL queries
+- `bb80-specification-closure` - Verify specification completeness
+- `bb80-parallel-agents` - Parallel agent orchestration patterns
+- `bb80-deterministic-receipts` - Evidence-based validation
+- `bb80-invariant-construction` - Type-driven invariant design
 
 ---
 
@@ -822,15 +839,34 @@ Result: EPIC 9 achieves 2.8-4.4x speedup
 
 ---
 
-## 🏗️ CODEBASE ARCHITECTURE (2025 Edition)
+## 🏗️ CODEBASE ARCHITECTURE (2026 Edition)
 
 ### Project Status
-- **Version**: 5.0.2 (Enterprise-grade path protection & FMEA validation)
+- **Version**: 5.2.0 (ggen init, example rewrites, gVisor E2E testing)
 - **Rust**: 1.91.1 (installed), MSRV: 1.75+, Edition 2021
 - **Repository**: https://github.com/seanchatmangpt/ggen
 - **License**: MIT
 
-### Workspace Structure (16 Crates)
+### Recent Changes (v5.2.0)
+
+**New Features**:
+- `ggen init` command for project scaffolding with templates
+- Complete rewrite of 5 core examples (simple-project, basic-template-generation, ai-template-creation, complete-project-generation)
+- gVisor sandbox integration for deterministic E2E testing
+- 8-phase DEB (Docker Enterprise Build) pipeline
+
+**Architecture Improvements**:
+- EPIC 9 atomic cognitive cycle automation with `/bb80-parallel`
+- Adversarial validation framework for quality assurance
+- TypeScript examples converted to pure ESM/MJS
+- Enhanced capability detection and permission validation
+
+**CI/CD Enhancements**:
+- Local GitHub Actions testing via `act`
+- Improved pre-commit hooks with timeout escalation
+- SLO enforcement on all cargo make targets
+
+### Workspace Structure (14 Active Crates, 17 Total)
 
 **Core Infrastructure**:
 - **ggen-core**: Graph-aware code generation engine, RDF processing, caching
@@ -838,16 +874,17 @@ Result: EPIC 9 achieves 2.8-4.4x speedup
 - **ggen-domain**: CLI-agnostic domain layer, concurrent agents
 - **ggen-config**: Configuration types and validation
 - **ggen-cli-validation**: IO validation, path traversal prevention
+- **ggen-config-clap**: Clap-based CLI configuration
 
 **User-Facing**:
-- **ggen-cli**: Main CLI interface
-- **ggen-ai**: LLM integration (OpenAI, Anthropic, Ollama)
+- **ggen-cli**: Main CLI interface (binary: `ggen`)
+- **ggen-ai**: LLM integration (OpenAI, Anthropic, Ollama) - *experimental, excluded from v5.2 build*
 
 **Advanced Features**:
 - **ggen-marketplace** (20K lines): Package registry, FMEA dependency management
 - **ggen-test-audit**: Mutation testing, assertion analysis
 - **ggen-test-opt**: Test optimization
-- **ggen-e2e**: End-to-end testing with testcontainers
+- **ggen-e2e**: End-to-end testing with testcontainers + gVisor
 - **ggen-node**: Node.js/WASM bindings
 - **ggen-macros**: Procedural macros
 - **ggen-dod**: Data-Oriented Design utilities
@@ -867,8 +904,10 @@ Result: EPIC 9 achieves 2.8-4.4x speedup
 **Testing**:
 - `chicago-tdd-tools 1.4.0` (state-based, AAA pattern)
 - `proptest 1.8` (property-based)
-- `criterion 0.7` (14 benchmark suites)
-- `testcontainers 0.25` (E2E)
+- `criterion 0.7` (14 benchmark suites in benches/)
+- `testcontainers 0.25` (E2E with gVisor sandboxing)
+- `insta 1.43` (snapshot testing)
+- `assert_cmd 2.0` + `assert_fs 1.1` (CLI testing)
 
 **Validation & Security**:
 - `pqcrypto-mldsa 0.1` (Post-Quantum Cryptography)
@@ -900,6 +939,37 @@ PERFORMANCE           EPIC 9 SUPPORT
 4. Andon signal escalation (quick → escalation timeout on contention)
 5. SLO violation detection (every target documents SLO)
 
+### Examples Directory (30+ Examples)
+
+Rich example ecosystem demonstrating ggen capabilities:
+
+**Core Examples** (recently rewritten for v5.2):
+- `simple-project/` - Basic project scaffolding
+- `basic-template-generation/` - Template fundamentals
+- `ai-template-creation/` - AI-assisted template generation
+- `complete-project-generation/` - Full project workflows
+
+**Advanced Examples**:
+- `advanced-sparql-graph/` - SPARQL query patterns
+- `advanced-lifecycle-demo/` - Full lifecycle management
+- `comprehensive-rust-showcase/` - Rust idioms showcase
+- `cli-noun-verb/` - Clap noun-verb CLI patterns
+- `ggen-usage-wrapping/` - API wrappers (REST, custom CLI)
+
+**Domain Examples**:
+- `openapi/`, `graphql-schema/`, `grpc-service/` - API generation
+- `database-schema/` - Schema generation
+- `microservices-architecture/` - Microservice patterns
+- `thesis-gen/`, `maturity-matrix-showcase/` - Document generation
+
+### Marketplace (70+ Packages)
+
+Pre-built templates and ontologies in `marketplace/packages/`:
+- Domain templates: banking, healthcare, academic, HR, asset management
+- Infrastructure: API gateway, service mesh, CDN
+- AI agents: cli-copilot, context-crafter, memory-forge, reasoning-mcp
+- CLI tools: chatman-cli, shacl-cli, sparql-cli, reasoner-cli
+
 ### Testing Approach (Chicago TDD + Property-Based)
 
 **Philosophy**: State-based testing with real objects (NO mocks except London TDD in tests)
@@ -907,7 +977,7 @@ PERFORMANCE           EPIC 9 SUPPORT
 **Organization**:
 - **Unit Tests**: Inline #[test] blocks in src/ (chicago-tdd-tools 1.4.0)
 - **Integration Tests**: crates/*/tests/ and tests/ (proptest, assert_cmd/assert_fs)
-- **E2E Tests**: ggen-e2e/tests/ with testcontainers
+- **E2E Tests**: ggen-e2e/tests/ with testcontainers + gVisor sandbox
 - **Snapshots**: insta 1.43 for golden file comparison
 - **Benchmarks**: 14 criterion suites with HTML reports
 
@@ -915,6 +985,7 @@ PERFORMANCE           EPIC 9 SUPPORT
 - Mutation testing (cargo-mutants, ggen-test-audit)
 - Assertion analysis & false-positive detection
 - London TDD mocking ONLY in #[cfg(test)] blocks
+- gVisor sandbox isolation for deterministic E2E tests
 
 ---
 
@@ -949,7 +1020,7 @@ PERFORMANCE           EPIC 9 SUPPORT
 
 ---
 
-## Active Technologies (2025-2026)
+## Active Technologies (2026 Edition)
 
 **Core**: Rust 1.91.1 (MSRV 1.75+, Edition 2021), Tokio 1.47 async runtime, Oxigraph 0.5.1 (RDF + SPARQL), Tera 1.20
 
@@ -960,6 +1031,40 @@ PERFORMANCE           EPIC 9 SUPPORT
 **Observability**: OpenTelemetry 0.21, tracing 0.1 (json), SLO monitoring
 
 **Spec System**: RDF ontologies (TTL), SPARQL queries, Tera template generation
+
+**CLI**: clap 4.5, clap-noun-verb 5.3.4 (noun-verb patterns), indicatif 0.18 (progress), console 0.16
+
+**E2E**: testcontainers 0.25, gVisor sandboxing, cleanroom isolation (clnrm 0.1.0)
+
+---
+
+## 🔧 Key CLI Commands
+
+### ggen init (New in v5.2)
+
+Scaffold new projects from marketplace templates:
+
+```bash
+# Interactive mode
+ggen init
+
+# With template name
+ggen init my-project --template hello-world
+
+# List available templates
+ggen init --list
+```
+
+### ggen sync
+
+Generate code from RDF specifications:
+
+```bash
+ggen sync                    # Full generation
+ggen sync --dry-run          # Preview changes
+ggen sync --watch            # Watch mode
+ggen sync --validate-only    # Validate spec only
+```
 
 ---
 
