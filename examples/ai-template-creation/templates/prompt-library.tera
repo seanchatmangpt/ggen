@@ -1,0 +1,72 @@
+---
+to: "generated/PROMPT_LIBRARY.md"
+---
+# Prompt Library
+
+Reusable prompts for common template generation tasks. Each prompt demonstrates the kind of natural language descriptions that work well with ggen ai generate.
+
+## Struct Generation Prompts
+
+### Simple Struct
+```
+Generate a Rust struct named User with fields: id (u64), username (String), email (String)
+```
+
+### Struct with Validation
+```
+Create a Rust struct for Product with id, name, price (f64), and stock (i32) fields, plus validation methods
+```
+
+### Struct with Builder Pattern
+```
+Generate a Settings struct with multiple optional fields and a builder pattern implementation
+```
+
+## API Endpoint Prompts
+
+### CRUD Endpoint
+```
+Generate an Axum async function for creating a new User from a JSON request, with error handling
+```
+
+### List with Pagination
+```
+Create an Axum handler that lists users with skip/take pagination parameters
+```
+
+### Error Response
+```
+Generate a custom error type implementing axum::response::IntoResponse for API errors
+```
+
+## Test Generation Prompts
+
+### Unit Tests
+```
+Add unit tests to the User struct covering creation, validation, and modification
+```
+
+### Integration Tests
+```
+Create integration tests for the user creation endpoint
+```
+
+## Validation Prompts
+
+### Input Validation
+```
+Generate Zod schemas validating user creation requests with email validation
+```
+
+### Data Sanitization
+```
+Create validation methods that sanitize user input removing whitespace and validating length
+```
+
+## Example Workflow
+
+1. **Start simple**: Generate basic struct
+2. **Add features**: Ask AI to enhance with validation
+3. **Test**: Generate test suite
+4. **Validate**: Run ggen ai validate
+5. **Optimize**: Improve with ggen ai optimize
