@@ -1,0 +1,34 @@
+@startuml C4_Containers
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title ggen Examples Rewrite System - C4 Container Diagram
+
+Person(developer, "Developer", "Learning ggen patterns")
+
+Container(epic9_orchestrator, "EPIC 9 Orchestrator", "Node.js + Task Tool", "Spawns parallel agents\nManages atomic cycle phases\nCoordinates convergence")
+
+Container(example_generator, "Example Generator Engine", "Rust Agent", "Generates infrastructure:\nggen.toml, ontology, templates,\ngolden files, validation scripts")
+
+Container(specification_validator, "Specification Validator", "Rust Agent", "Validates SHACL closure\nVerifies RDF ontologies\nTests golden file parity")
+
+Container(template_system, "Template System", "Tera Templates", "9 templates per example\nYAML frontmatter + body\nVariable substitution & filters")
+
+Container(documentation_generator, "Documentation Generator", "Template Engine", "Generates 9-section README\nAPI reference documentation\nLearning progression guides")
+
+Container(validation_gates, "Validation Gates", "Node.js Scripts", "6 pre-implementation gates\n3 post-implementation gates\nAndon signal management")
+
+Container(git_integration, "Git Integration", "Bash + git CLI", "Commits with clear messages\nPushes to feature branches\nTracks progress")
+
+Container(artifact_store, "Artifact Store", "File System", "Stores examples, templates\nGolden files, validation reports\nArchitectural diagrams")
+
+Rel(developer, epic9_orchestrator, "Triggers parallel execution")
+Rel(epic9_orchestrator, example_generator, "Spawns 10+ agents in parallel")
+Rel(example_generator, template_system, "Reads template patterns")
+Rel(example_generator, documentation_generator, "Requests README generation")
+Rel(example_generator, artifact_store, "Writes infrastructure files")
+Rel(specification_validator, example_generator, "Validates outputs")
+Rel(validation_gates, specification_validator, "Runs quality checks")
+Rel(git_integration, artifact_store, "Commits artifacts")
+Rel(validation_gates, git_integration, "Triggers commits when passing")
+
+@enduml

@@ -1,0 +1,88 @@
+---
+to: "generated/AI_WORKFLOW_GUIDE.md"
+---
+# AI Workflow Guide
+
+This guide explains how to use ggen's AI capabilities for intelligent template generation and validation.
+
+## The AI-Powered Template Generation Workflow
+
+### Phase 1: Generation
+Write a natural language description of what code you want to generate:
+
+```bash
+ggen ai generate "Create a Rust User struct with id, username, email, and validation"
+```
+
+The AI analyzes your description and generates a complete, working template.
+
+### Phase 2: Validation
+Check if the generated template follows best practices:
+
+```bash
+ggen ai validate generated_template.tera
+```
+
+Validation checks:
+- Valid Rust syntax
+- Proper Tera template formatting
+- No unsafe blocks (in production code)
+- Includes tests
+
+### Phase 3: Iteration
+If validation finds issues, ask AI to fix them:
+
+```bash
+ggen ai generate "Previous template, but add proper error handling"
+```
+
+### Phase 4: Optimization
+Make the template more performant and readable:
+
+```bash
+ggen ai optimize generated_template.tera --focus performance
+```
+
+### Phase 5: Deployment
+Save the final template to your project:
+
+```bash
+cp generated_template.tera templates/user.tera
+```
+
+## Mock Mode vs Real AI
+
+### Mock Mode (Recommended for Learning)
+Uses pre-trained patterns, no API keys needed:
+
+```bash
+ggen ai generate --mock "User struct"
+```
+
+Benefits:
+- Free and instant
+- Deterministic for testing
+- Works offline
+- Great for CI/CD
+
+### Real Mode
+Uses actual LLM for advanced generation:
+
+```bash
+export ANTHROPIC_API_KEY="your-key"
+ggen ai generate "Complex nested structs with macros"
+```
+
+Benefits:
+- Handles complex requests
+- More creative solutions
+- Learns from feedback
+- Production-ready
+
+## Best Practices
+
+1. **Be specific**: Detailed descriptions produce better output
+2. **Iterate**: Use validation feedback to improve
+3. **Test locally**: Use --mock before real generation
+4. **Validate often**: Check quality after each generation
+5. **Save reusable templates**: Build a library of proven templates

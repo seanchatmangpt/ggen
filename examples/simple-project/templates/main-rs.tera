@@ -1,0 +1,8 @@
+---
+to: "generated/src/main.rs"
+vars:
+  project_name: string
+---
+fn main() {
+    println!("Welcome to {{ project_name }}!");
+}

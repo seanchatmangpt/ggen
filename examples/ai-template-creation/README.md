@@ -1,419 +1,532 @@
 # AI-Powered Template Creation
 
-This example demonstrates ggen's AI capabilities for creating, validating, and optimizing templates using natural language descriptions.
-
-## Overview
-
-ggen includes powerful AI features that allow you to:
-- Generate templates from natural language descriptions
-- Validate templates for correctness and best practices
-- Optimize templates for performance and maintainability
-- Iterate and improve templates based on validation feedback
-
-## AI Commands
-
-### 1. Generate Templates (`ggen ai generate`)
-
-Create templates from natural language descriptions:
-
-```bash
-# Basic usage (requires API key)
-ggen ai generate "A User struct with id, name, and email fields"
-
-# Mock mode (no API key needed, uses pre-trained patterns)
-ggen ai generate --mock "A User struct with id, name, and email fields"
-
-# Generate with validation
-ggen ai generate --validate "REST API for blog posts with CRUD operations"
-
-# Save to file
-ggen ai generate "Database model for products" > templates/product.ggen
-```
-
-### 2. Validate Templates (`ggen ai validate`)
-
-Check templates for correctness, best practices, and potential issues:
-
-```bash
-# Validate a template file
-ggen ai validate templates/user.ggen
-
-# Validate with detailed output
-ggen ai validate --verbose templates/api.ggen
-
-# Validate multiple templates
-ggen ai validate templates/*.ggen
-
-# Example output:
-# ✓ Valid template structure
-# ✓ All types are defined
-# ✗ Warning: Field 'email' lacks validation pattern
-# Issues: 1 warning, 0 errors
-```
-
-### 3. Optimize Templates (`ggen ai optimize`)
-
-Improve templates for better performance and maintainability:
-
-```bash
-# Optimize a template
-ggen ai optimize templates/user.ggen
-
-# Optimize with specific goals
-ggen ai optimize --focus performance templates/api.ggen
-ggen ai optimize --focus readability templates/models.ggen
-
-# Show optimization suggestions
-ggen ai optimize --dry-run templates/user.ggen
-```
-
-## Mock Mode vs Real AI
-
-### Mock Mode (Recommended for Learning)
-
-Mock mode uses pre-trained patterns and doesn't require API keys:
-
-```bash
-# Enable mock mode globally
-export GGEN_MOCK_AI=true
-
-# Or use --mock flag
-ggen ai generate --mock "User struct with validation"
-```
-
-**Benefits:**
-- No API keys or costs
-- Instant responses
-- Predictable outputs for testing
-- Great for learning and CI/CD
-
-**Limitations:**
-- Limited to common patterns
-- Less flexibility than real AI
-- Cannot handle highly complex or novel requests
-
-### Real AI Mode
-
-Real mode uses Claude AI for advanced generation:
-
-```bash
-# Set API key
-export ANTHROPIC_API_KEY="your-key-here"
-
-# Generate with real AI
-ggen ai generate "Complex event-sourced system with CQRS pattern"
-```
-
-**Benefits:**
-- Handles complex requirements
-- Learns from your codebase
-- Provides detailed explanations
-- Supports iterative refinement
-
-**When to Use:**
-- Complex domain models
-- Custom architectural patterns
-- Integration with existing systems
-- Production template generation
-
-## Iterative Improvement Workflow
-
-The recommended workflow for creating high-quality templates:
-
-### Step 1: Initial Generation
-
-Start with a clear, concise description:
-
-```bash
-ggen ai generate --mock "User authentication system with JWT tokens" \
-  > templates/auth.ggen
-```
-
-### Step 2: Validate
-
-Check for issues and warnings:
-
-```bash
-ggen ai validate templates/auth.ggen
-
-# Output:
-# ✗ Missing: Password validation rules
-# ✗ Warning: Token expiration not specified
-# Issues: 2 errors, 1 warning
-```
-
-### Step 3: Improve Description
-
-Refine your prompt based on validation feedback:
-
-```bash
-ggen ai generate --mock \
-  "User authentication system with JWT tokens, \
-   password validation (min 8 chars, symbols required), \
-   token expiration 24 hours, \
-   rate limiting on login attempts" \
-  > templates/auth.ggen
-```
-
-### Step 4: Re-validate
-
-Verify improvements:
-
-```bash
-ggen ai validate templates/auth.ggen
-
-# Output:
-# ✓ Valid template structure
-# ✓ All security requirements met
-# ✓ Performance optimizations applied
-# Issues: 0
-```
-
-### Step 5: Generate Code
-
-Once validated, generate the final implementation:
-
-```bash
-ggen generate templates/auth.ggen --language rust --output src/
-```
-
-## Example Prompts
-
-### Simple: Single Struct
-
-```bash
-ggen ai generate --mock \
-  "A Product struct with id (UUID), name, price (decimal), and quantity (integer)"
-```
-
-### Medium: REST API
-
-```bash
-ggen ai generate --mock \
-  "REST API for blog posts with:
-   - CRUD operations (Create, Read, Update, Delete)
-   - Posts have title, content, author, and timestamps
-   - Pagination support (limit and offset)
-   - Author validation required
-   - Rate limiting: 100 requests per minute"
-```
-
-### Complex: Domain Model
-
-```bash
-ggen ai generate --mock \
-  "E-commerce order system with:
-   - Order aggregate with items and total
-   - Payment processing with retry logic
-   - Inventory management with stock checking
-   - Event sourcing for order history
-   - State machine for order status (pending, confirmed, shipped, delivered)
-   - Integration with payment gateway API"
-```
-
-### Domain-Specific: Database Schema
-
-```bash
-ggen ai generate --mock \
-  "PostgreSQL schema for multi-tenant SaaS:
-   - Tenant table with isolation policies
-   - User table with tenant foreign key
-   - Role-based access control (RBAC)
-   - Audit logs for all changes
-   - Soft deletes with timestamps
-   - Indexes for performance"
-```
-
-## Best Practices for Prompts
-
-### 1. Be Specific
-
-❌ Bad: "Create a user system"
-✅ Good: "User authentication with email/password, JWT tokens, and password reset"
-
-### 2. Include Constraints
-
-❌ Bad: "API for products"
-✅ Good: "REST API for products with pagination (max 100 items), rate limiting (1000 req/hour), and caching"
-
-### 3. Specify Data Types
-
-❌ Bad: "User with name and age"
-✅ Good: "User with name (string, max 100 chars), age (integer, 0-150), email (validated format)"
-
-### 4. Mention Validations
-
-❌ Bad: "Order with items"
-✅ Good: "Order with items (1-50 items required), total > 0, customer email validated"
-
-### 5. Reference Patterns
-
-❌ Bad: "Complex system"
-✅ Good: "Event-sourced system using CQRS pattern, with command/query separation and event store"
-
-### 6. Include Business Rules
-
-❌ Bad: "Shopping cart"
-✅ Good: "Shopping cart with: max 100 items, free shipping over $50, discount codes, tax calculation based on location"
-
-## Validation Examples
-
-See the `validation-examples/` directory for:
-
-### valid-template.ggen
-A correctly structured template with no issues:
-```
-✓ Valid template structure
-✓ All types are defined
-✓ Proper validation rules
-✓ Performance optimizations applied
-Issues: 0
-```
-
-### invalid-template.ggen
-Common issues and how to fix them:
-```
-✗ Missing field validation for 'email'
-✗ Type 'Address' referenced but not defined
-✗ Warning: No rate limiting specified
-Issues: 2 errors, 1 warning
-```
-
-### fixed-template.ggen
-The corrected version showing improvements:
-```
-✓ All issues resolved
-✓ Email validation added (regex pattern)
-✓ Address type definition added
-✓ Rate limiting configured (100 req/min)
-Issues: 0
-```
-
-## Cost Considerations
-
-### Mock Mode (Free)
-- No API costs
-- Unlimited generations
-- Suitable for 80% of use cases
-- Perfect for learning and testing
-
-### Real AI Mode (Paid)
-- Claude API costs apply
-- ~$0.01 - $0.10 per generation (depending on complexity)
-- More cost-effective than manual template writing
-- Recommended for production use
-
-**Cost Optimization Tips:**
-1. Start with mock mode to refine prompts
-2. Use real AI only for complex, production templates
-3. Cache validated templates for reuse
-4. Use `--dry-run` to preview changes before committing
-
-## Integration with CI/CD
-
-Validate templates in your CI pipeline:
-
-```yaml
-# .github/workflows/validate-templates.yml
-name: Validate Templates
-on: [push, pull_request]
-
-jobs:
-  validate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install ggen
-        run: cargo install --path .
-      - name: Validate all templates
-        run: |
-          for template in templates/*.ggen; do
-            ggen ai validate "$template" || exit 1
-          done
-```
-
-## Advanced Usage
-
-### Custom Validation Rules
-
-Create custom validation rules:
-
-```bash
-# Define custom rules in .ggen/validation-rules.yaml
-ggen ai validate --rules .ggen/validation-rules.yaml templates/
-```
-
-### Template Libraries
-
-Share validated templates:
-
-```bash
-# Export validated templates
-ggen ai export-validated templates/ --output library/
-
-# Import from library
-ggen ai import library/validated-templates.tar.gz
-```
-
-### AI-Assisted Refactoring
-
-Use AI to refactor existing templates:
-
-```bash
-# Suggest improvements
-ggen ai refactor templates/old-api.ggen --suggest
-
-# Apply refactoring
-ggen ai refactor templates/old-api.ggen --apply --backup
-```
-
-## Troubleshooting
-
-### Mock Mode Not Working
-
-```bash
-# Verify mock mode is enabled
-ggen ai config --show
-
-# Reset mock data
-ggen ai mock --reset
-```
-
-### Validation Fails
-
-```bash
-# Get detailed validation report
-ggen ai validate --verbose --format json templates/user.ggen
-
-# Check for syntax errors
-ggen parse templates/user.ggen
-```
-
-### Generation Quality Issues
-
-```bash
-# Use more specific prompts
-# Add examples to your prompt
-# Try breaking complex prompts into smaller parts
-# Use real AI mode for complex requirements
-```
-
-## Next Steps
-
-1. **Try the workflow**: Run `./run-ai-workflow.sh` to see the full process
-2. **Experiment with prompts**: Modify examples in `prompts.txt`
-3. **Study validation**: Review examples in `validation-examples/`
-4. **Read the docs**: Check `../docs/AI_FEATURES.md` for advanced features
-5. **Join community**: Share templates and get feedback
-
-## Resources
-
-- **Documentation**: `docs/AI_FEATURES.md`
-- **API Reference**: `docs/AI_API.md`
-- **Prompt Library**: `examples/prompts/`
-- **Community Templates**: https://github.com/ggen-templates
-- **Discord**: Join for real-time help and sharing
+Learn to generate, validate, and optimize Rust code templates using ggen's AI capabilities and natural language descriptions.
+
+**Status**: ✅ Complete and validated
+**Difficulty**: ⭐⭐ Intermediate
+**Time**: 30-45 minutes
+**Focus**: AI-driven template generation and iterative improvement
 
 ---
 
-**Pro Tip**: Start with simple templates in mock mode, validate frequently, and only use real AI for complex production templates. The iterative improvement workflow ensures high-quality, production-ready templates every time.
+## 1. Overview
+
+This example demonstrates ggen's powerful AI integration for creating and refining code templates. Instead of writing templates manually, describe what you want in natural language, and ggen's AI generates complete templates that you can validate and iterate on.
+
+**Key capabilities**:
+- **Generate templates from natural language**: Describe code and get working templates
+- **Validate generated templates**: Check quality, safety, and best practices
+- **Optimize for performance/readability**: AI-powered template improvement
+- **Iterate and refine**: Feedback loops with validation
+
+**What you'll learn**:
+- Natural language prompting techniques for code generation
+- Template validation workflows
+- Mock mode for cost-free development and testing
+- Integration with real LLMs (Claude, GPT, etc.)
+- Iterative template refinement patterns
+
+**Key files**:
+- `ggen.toml` - 5 generation rules for AI documentation
+- `ontology/ai-workflows.ttl` - RDF specification of AI concepts
+- `templates/` - 6 Tera templates for workflow guidance
+- `validate.mjs` - Validation script
+- `prompts.txt` - Example prompts library (existing)
+- `run-ai-workflow.sh` - Demo script (existing)
+
+---
+
+## 2. Prerequisites
+
+### Required Knowledge
+
+- **ggen basics** - Understand template fundamentals (see `basic-template-generation/`)
+- **Natural language** - Ability to describe code clearly
+- **Rust fundamentals** - Understanding structs, functions, error handling
+
+### Required Tools
+
+- `ggen` (5.0.0+) with AI support
+- `Node.js` 18+ (for validation script)
+- Rust toolchain (optional, for compiling generated code)
+
+### Optional: API Keys
+
+For real AI generation (not required for learning):
+
+```bash
+# Anthropic Claude
+export ANTHROPIC_API_KEY="sk-ant-..."
+
+# OpenAI
+export OPENAI_API_KEY="sk-..."
+
+# Or use mock mode
+export GGEN_MOCK_AI=true
+```
+
+### Environment Verification
+
+```bash
+# Check ggen version
+ggen --version
+
+# Verify AI support
+ggen ai --help
+
+# Check Node.js
+node --version
+```
+
+---
+
+## 3. Quick Start
+
+### 5-Minute Demo
+
+```bash
+# Navigate to example
+cd examples/ai-template-creation
+
+# Validate environment
+./validate.mjs
+
+# Enable mock mode (no API key needed)
+export GGEN_MOCK_AI=true
+
+# Generate a template from description
+ggen ai generate --mock "Create a User struct with id, name, and email"
+
+# Validate the output
+ggen ai validate generated_output.tera
+
+# View the prompt library
+cat prompts.txt
+
+# Review the workflow guide
+cat templates/ai-workflow-guide.tera
+```
+
+### Full Example Workflow
+
+```bash
+# Step 1: Generate
+ggen ai generate --mock "User struct with validation methods"
+
+# Step 2: Validate
+ggen ai validate user_template.tera --verbose
+
+# Step 3: Iterate (if needed)
+ggen ai generate "Add builder pattern to User struct"
+
+# Step 4: Validate again
+ggen ai validate user_improved.tera
+
+# Step 5: Optimize
+ggen ai optimize user_improved.tera --focus readability
+
+# Step 6: Deploy
+cp user_improved.tera templates/user.tera
+```
+
+---
+
+## 4. Architecture & Key Concepts
+
+### The AI-Powered Generation Pipeline
+
+```
+┌──────────────────────────────────┐
+│  Natural Language Description    │
+│  "Create User struct with..."    │
+└──────────────┬────────────────────┘
+               │
+               ▼
+┌──────────────────────────────────┐
+│  AI Code Generation              │
+│  (Claude, GPT, or Mock)          │
+└──────────────┬────────────────────┘
+               │
+               ▼
+┌──────────────────────────────────┐
+│  Template Output                 │
+│  (Rust code or Tera template)    │
+└──────────────┬────────────────────┘
+               │
+               ▼
+┌──────────────────────────────────┐
+│  Validation                      │
+│  (Syntax, Safety, Coverage)      │
+└──────────────┬────────────────────┘
+               │
+          Passed?
+         /      \
+        ✓        ✗
+        │        │
+        ▼        ▼
+      Done   Iterate
+```
+
+### Three Generation Modes
+
+| Mode | Cost | Speed | Features | Use Case |
+|------|------|-------|----------|----------|
+| **Mock** | Free | Instant | Basic patterns | Learning, testing, CI/CD |
+| **Local (Ollama)** | Free | Slow | Good patterns | Offline, cost-free |
+| **Cloud (API)** | Paid | Fast | Advanced | Production, complex requests |
+
+### AI Commands
+
+- `ggen ai generate`: Create code from description
+- `ggen ai validate`: Check quality and safety
+- `ggen ai optimize`: Improve performance/readability
+
+### Validation Criteria
+
+Templates are checked for:
+
+- **Rust syntax**: Code must compile
+- **Safety**: No unsafe blocks (unless documented)
+- **Testing**: Tests included and meaningful
+- **Documentation**: Public items have doc comments
+
+### Mock Mode
+
+Mock mode provides pre-trained examples for common patterns:
+
+```bash
+ggen ai generate --mock "..."
+```
+
+Benefits:
+- ✅ No API keys
+- ✅ Instant responses
+- ✅ Reproducible for testing
+- ✅ Works offline
+- ✅ Zero cost
+
+---
+
+## 5. File Structure
+
+```
+examples/ai-template-creation/
+├── ggen.toml                      # 5 generation rules
+├── ontology/
+│   └── ai-workflows.ttl           # RDF AI concept definitions
+├── templates/                     # 6 Tera templates
+│   ├── ai-workflow-guide.tera     # Workflow documentation
+│   ├── prompt-library.tera        # Prompt examples
+│   ├── mock-responses.tera        # Mock mode guide
+│   ├── validation-rules.tera      # Validation checks
+│   ├── iterative-workflow.tera    # Iteration patterns
+│   └── command-reference.tera     # AI command reference
+├── prompts.txt                    # Example prompts library
+├── run-ai-workflow.sh             # Demo workflow script
+├── validate.mjs                   # Validation script
+├── validation-examples/           # Example validations
+└── README.md                      # This file
+```
+
+---
+
+## 6. Step-by-Step Tutorial
+
+### Step 1: Understand Prompts (5 min)
+
+Examine example prompts:
+
+```bash
+cat prompts.txt | head -20
+```
+
+Notice how prompts:
+- Describe desired code clearly
+- Specify data types and fields
+- Mention error handling needs
+- Include edge cases
+
+### Step 2: Generate with Mock Mode (5 min)
+
+Generate a template without API costs:
+
+```bash
+# Enable mock mode
+export GGEN_MOCK_AI=true
+
+# Generate
+ggen ai generate "User struct with id, username, email, validation"
+
+# Save output
+ggen ai generate "..." > user_template.tera
+```
+
+### Step 3: Validate Output (5 min)
+
+Check the generated template:
+
+```bash
+# Basic validation
+ggen ai validate user_template.tera
+
+# Detailed report
+ggen ai validate --verbose user_template.tera
+```
+
+Validation checks:
+- Valid Rust syntax
+- Proper Tera formatting
+- Safety constraints
+- Test presence
+
+### Step 4: Iterative Refinement (10 min)
+
+If validation finds issues, iterate:
+
+```bash
+# Request improvements
+ggen ai generate "Previous User struct, but add validation methods"
+
+# Validate again
+ggen ai validate user_v2.tera --verbose
+
+# Continue iterating until validation passes
+```
+
+### Step 5: Optimize (5 min)
+
+Make final improvements:
+
+```bash
+# Optimize for readability
+ggen ai optimize user_v2.tera --focus readability
+
+# Optimize for performance
+ggen ai optimize user_v2.tera --focus performance
+
+# See suggestions without modifying
+ggen ai optimize --dry-run user_v2.tera
+```
+
+### Step 6: Deploy (2 min)
+
+Save to project:
+
+```bash
+# Copy to templates directory
+cp user_v2.tera templates/user.tera
+
+# Use in generation rules
+# Add to ggen.toml:
+# [[generation.rules]]
+# name = "generate-user"
+# template = { file = "templates/user.tera" }
+```
+
+---
+
+## 7. Configuration Reference
+
+### ggen.toml Structure
+
+```toml
+[project]
+name = "ai-template-creation"
+version = "0.2.0"
+
+[ontology]
+source = "ontology/ai-workflows.ttl"
+
+[[generation.rules]]
+name = "generate-ai-workflow-guide"
+template = { file = "templates/ai-workflow-guide.tera" }
+output_file = "generated/AI_WORKFLOW_GUIDE.md"
+```
+
+### AI Command Options
+
+```bash
+# Generation
+ggen ai generate [--mock] [--validate] [--output FILE] <PROMPT>
+
+# Validation
+ggen ai validate [--verbose] [--strict] <FILE>
+
+# Optimization
+ggen ai optimize [--focus ASPECT] [--dry-run] <FILE>
+```
+
+### Environment Variables
+
+```bash
+# Enable mock mode
+export GGEN_MOCK_AI=true
+
+# Set API provider
+export GGEN_AI_PROVIDER=anthropic
+
+# Set API key
+export ANTHROPIC_API_KEY="your-key"
+
+# Timeout settings
+export GGEN_AI_TIMEOUT=30
+```
+
+---
+
+## 8. Troubleshooting
+
+### "ggen ai command not found"
+
+**Cause**: ggen not installed or doesn't have AI support
+
+**Solution**:
+```bash
+# Install ggen
+cargo install ggen-cli
+
+# Or build from source with features
+cd /path/to/ggen
+cargo install --path crates/ggen-cli --features=ai
+```
+
+### "API key not found"
+
+**Cause**: Using real AI mode without setting credentials
+
+**Solution**:
+```bash
+# Use mock mode (no key needed)
+export GGEN_MOCK_AI=true
+ggen ai generate --mock "..."
+
+# Or set API key
+export ANTHROPIC_API_KEY="sk-ant-..."
+ggen ai generate "..."
+```
+
+### "Validation failed: unknown filter"
+
+**Cause**: Generated template uses unsupported Tera filter
+
+**Solution**:
+1. Ask AI to use only standard filters
+2. Use valid Tera filters: snake_case, pascal_case, capitalize, upper, lower, trim
+3. Request optimization: `ggen ai optimize templates/file.tera`
+
+### "Generated code doesn't compile"
+
+**Cause**: AI generated syntactically invalid Rust
+
+**Solution**:
+```bash
+# Add validation to generation
+ggen ai generate --validate "Your prompt"
+
+# Or validate output
+ggen ai validate generated.tera
+
+# Request correction
+ggen ai generate "Fix the syntax errors in the previous output"
+```
+
+### "Too many tokens" error
+
+**Cause**: Prompt or context is too large
+
+**Solution**:
+- Simplify your prompt description
+- Generate smaller, focused templates
+- Use mock mode for testing
+- Split complex requests into multiple generations
+
+---
+
+## 9. Next Steps
+
+### Progression Path
+
+**Level 1 - Basic Generation** (you are here)
+- ✅ Generate from natural language
+- ✅ Use mock mode
+- ✅ Validate templates
+
+**Level 2 - Iterative Refinement** (next)
+- Feedback loops with validation
+- Optimization passes
+- Building a template library
+
+**Level 3 - Advanced Patterns** (advanced)
+- Complex multi-file generation
+- Cross-file references
+- Domain-specific templates
+
+**Level 4 - Integration** (expert)
+- CI/CD pipelines with AI generation
+- Automated template libraries
+- Custom validation rules
+
+### Practice Exercises
+
+1. **Generate variations**
+   - Create 3 different User struct implementations
+   - Compare generated code
+   - Vote on best version
+
+2. **Build a template library**
+   - Generate 5 common patterns (struct, endpoint, validator, etc.)
+   - Validate all templates
+   - Organize in templates/ directory
+
+3. **Create custom validation rules**
+   - Define project-specific requirements
+   - Validate against those rules
+   - Request fixes until validation passes
+
+### Related Examples
+
+- **`basic-template-generation/`** - Foundation for template concepts
+- **`source-code-analysis/`** - Extract patterns from existing code
+- **`openapi/`** - Generate API specifications
+- **`complete-project-generation/`** - Full project scaffolding
+
+### Resources
+
+- `prompts.txt` - Curated prompt examples
+- `run-ai-workflow.sh` - Demonstration script
+- `templates/ai-workflow-guide.tera` - Detailed workflow guide
+- `templates/command-reference.tera` - All AI commands
+- Generated `PROMPT_LIBRARY.md` - Reusable prompts
+- Generated `ITERATIVE_WORKFLOW.md` - Step-by-step patterns
+
+### Success Criteria
+
+Mastery achieved when you can:
+
+- [ ] Explain mock mode and when to use it
+- [ ] Write effective natural language prompts
+- [ ] Validate generated templates
+- [ ] Iterate based on validation feedback
+- [ ] Optimize templates for specific goals
+- [ ] Run full generation→validation→optimization→deployment cycle
+- [ ] Troubleshoot common AI generation issues
+- [ ] Create a reusable prompt library
+- [ ] Build custom validation rules
+- [ ] Integrate AI generation into ggen workflows
+
+---
+
+## Summary
+
+This example demonstrates **AI-assisted template generation**: using natural language descriptions and LLMs to create production-quality code templates, then validating and iterating until they're perfect.
+
+**Key learnings**:
+- AI can assist with template creation
+- Mock mode enables cost-free development
+- Validation ensures quality
+- Iteration improves templates
+- Integration with ggen is seamless
+
+**Next**: Explore iterative workflows in `templates/iterative-workflow.tera`
+
+Happy generating! 🚀

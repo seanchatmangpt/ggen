@@ -1,0 +1,134 @@
+---
+to: "generated/COMMAND_REFERENCE.md"
+---
+# AI Command Reference
+
+Complete reference for ggen's AI-powered code generation commands.
+
+## ggen ai generate
+
+**Purpose**: Generate code or templates from natural language descriptions
+
+**Syntax**:
+```bash
+ggen ai generate [OPTIONS] <PROMPT>
+```
+
+**Options**:
+- `--mock`: Use mock mode (no API key required)
+- `--validate`: Validate output after generation
+- `--output FILE`: Save to file instead of stdout
+- `--provider PROVIDER`: Specify LLM provider (openai, anthropic, ollama)
+
+**Examples**:
+```bash
+# Basic generation
+ggen ai generate "Create a User struct"
+
+# Mock mode (for testing)
+ggen ai generate --mock "User struct"
+
+# With validation
+ggen ai generate --validate "REST API endpoint"
+
+# Save to file
+ggen ai generate "Product model" --output product.tera
+
+# Specify provider
+ggen ai generate --provider anthropic "Complex code"
+```
+
+**Tips**:
+- Be specific in descriptions for better results
+- Use complete sentences
+- Mention error handling requirements
+- Specify programming language
+
+## ggen ai validate
+
+**Purpose**: Check generated templates for quality and correctness
+
+**Syntax**:
+```bash
+ggen ai validate [OPTIONS] <FILE>
+```
+
+**Options**:
+- `--verbose`: Show detailed validation results
+- `--strict`: Treat warnings as errors
+- `--rules FILE`: Custom validation rules
+
+**Examples**:
+```bash
+# Basic validation
+ggen ai validate templates/user.tera
+
+# Verbose output
+ggen ai validate --verbose templates/user.tera
+
+# Strict mode
+ggen ai validate --strict templates/user.tera
+
+# Multiple files
+ggen ai validate templates/*.tera
+```
+
+**Checks**:
+- Rust syntax validity
+- Tera template syntax
+- Best practices compliance
+- Test coverage presence
+- Documentation completeness
+
+## ggen ai optimize
+
+**Purpose**: Improve template performance and readability
+
+**Syntax**:
+```bash
+ggen ai optimize [OPTIONS] <FILE>
+```
+
+**Options**:
+- `--focus ASPECT`: performance, readability, safety, testing
+- `--dry-run`: Show suggestions without modifying
+- `--output FILE`: Save optimized version
+
+**Examples**:
+```bash
+# Basic optimization
+ggen ai optimize templates/user.tera
+
+# Focus on performance
+ggen ai optimize --focus performance templates/api.tera
+
+# Focus on readability
+ggen ai optimize --focus readability templates/model.tera
+
+# See suggestions without saving
+ggen ai optimize --dry-run templates/user.tera
+
+# Save optimized version
+ggen ai optimize templates/user.tera --output templates/user_optimized.tera
+```
+
+## Environment Variables
+
+- `ANTHROPIC_API_KEY`: API key for Anthropic Claude
+- `OPENAI_API_KEY`: API key for OpenAI
+- `GGEN_MOCK_AI`: Enable mock mode globally (true/false)
+- `GGEN_AI_PROVIDER`: Default AI provider
+
+## Configuration
+
+Set in .ggen/config.toml or environment:
+
+```toml
+[ai]
+provider = "anthropic"
+timeout = 30
+max_retries = 3
+mock_mode = false
+```
+
+See main documentation for more options.

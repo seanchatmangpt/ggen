@@ -1,0 +1,26 @@
+---
+to: "generated/VARIABLE_TYPES.md"
+---
+# Variable Types Reference
+
+Tera templates support several variable types.
+
+## Scalar Types
+
+- **string**: Text values (e.g., "hello")
+- **boolean**: True or false values
+- **number**: Numeric values (integers or floats)
+
+## Collection Types
+
+- **array**: List of items
+- **object**: Key-value pairs
+
+## Usage in Templates
+
+```tera
+{{ string_variable }}
+{% if boolean_variable %}content{% endif %}
+{% for item in array_variable %}{{ item }}{% endfor %}
+{{ object_variable.key }}
+```

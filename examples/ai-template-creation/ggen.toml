@@ -1,0 +1,145 @@
+# ggen Configuration for AI-Powered Template Creation
+# Demonstrates template generation using natural language and AI assistance
+
+[project]
+name = "ai-template-creation"
+version = "0.2.0"
+description = "Learn to create templates using AI assistance: ggen ai generate, validate, optimize workflows"
+
+[ontology]
+source = "ontology/ai-workflows.ttl"
+base_iri = "https://ggen.io/ontology/ai#"
+
+[ontology.prefixes]
+ai = "https://ggen.io/ontology/ai#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+sh = "http://www.w3.org/ns/shacl#"
+
+# Inference: Enrich AI workflow definitions
+[[inference.rules]]
+name = "enrich-prompts"
+construct = """
+PREFIX ai: <https://ggen.io/ontology/ai#>
+CONSTRUCT {
+  ?prompt ai:promptType ?type ;
+    ai:hasValidation ?validation .
+}
+WHERE {
+  ?prompt a ai:Prompt ;
+    rdfs:label ?type ;
+    ai:validation ?validation .
+}
+"""
+
+# Generation rules
+[[generation.rules]]
+name = "generate-ai-workflow-guide"
+sparql = """
+PREFIX ai: <https://ggen.io/ontology/ai#>
+SELECT ?workflowName ?description ?steps
+WHERE {
+  ?workflow a ai:AIWorkflow ;
+    ai:name ?workflowName ;
+    rdfs:comment ?description ;
+    ai:steps ?steps .
+}
+ORDER BY ?workflowName
+"""
+template = { file = "templates/ai-workflow-guide.tera" }
+output_file = "generated/AI_WORKFLOW_GUIDE.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-prompt-library"
+sparql = """
+PREFIX ai: <https://ggen.io/ontology/ai#>
+SELECT ?promptName ?category ?promptText ?expectedOutput
+WHERE {
+  ?prompt a ai:Prompt ;
+    ai:name ?promptName ;
+    ai:category ?category ;
+    ai:text ?promptText .
+  OPTIONAL { ?prompt ai:expectedOutput ?expectedOutput }
+}
+ORDER BY ?category ?promptName
+"""
+template = { file = "templates/prompt-library.tera" }
+output_file = "generated/PROMPT_LIBRARY.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-mock-responses"
+sparql = """
+PREFIX ai: <https://ggen.io/ontology/ai#>
+SELECT ?responseName ?prompt ?response
+WHERE {
+  ?mockResp a ai:MockResponse ;
+    ai:name ?responseName ;
+    ai:forPrompt ?prompt ;
+    ai:response ?response .
+}
+ORDER BY ?responseName
+"""
+template = { file = "templates/mock-responses.tera" }
+output_file = "generated/MOCK_RESPONSES.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-validation-rules"
+sparql = """
+PREFIX ai: <https://ggen.io/ontology/ai#>
+SELECT ?ruleName ?description ?examples
+WHERE {
+  ?rule a ai:ValidationRule ;
+    ai:name ?ruleName ;
+    rdfs:comment ?description .
+  OPTIONAL { ?rule ai:examples ?examples }
+}
+ORDER BY ?ruleName
+"""
+template = { file = "templates/validation-rules.tera" }
+output_file = "generated/VALIDATION_RULES.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-iterative-workflow"
+sparql = """
+PREFIX ai: <https://ggen.io/ontology/ai#>
+SELECT ?workflowName ?iteration ?prompt ?validation
+WHERE {
+  ?workflow a ai:IterativeWorkflow ;
+    ai:name ?workflowName .
+  ?iteration a ai:IterationStep ;
+    ai:stepNumber ?stepNum ;
+    ai:prompt ?prompt ;
+    ai:validates ?validation .
+}
+ORDER BY ?workflowName ?stepNum
+"""
+template = { file = "templates/iterative-workflow.tera" }
+output_file = "generated/ITERATIVE_WORKFLOW.md"
+mode = "Overwrite"
+
+[[generation.rules]]
+name = "generate-command-reference"
+sparql = """
+PREFIX ai: <https://ggen.io/ontology/ai#>
+SELECT ?command ?description ?syntax ?examples
+WHERE {
+  ?cmd a ai:Command ;
+    ai:name ?command ;
+    rdfs:comment ?description ;
+    ai:syntax ?syntax .
+  OPTIONAL { ?cmd ai:examples ?examples }
+}
+ORDER BY ?command
+"""
+template = { file = "templates/command-reference.tera" }
+output_file = "generated/COMMAND_REFERENCE.md"
+mode = "Overwrite"
+
+[validation]
+validate_syntax = true
+no_unsafe = false
+require_doc_comments = false

@@ -1,0 +1,46 @@
+---
+to: "generated/MOCK_RESPONSES.md"
+---
+# Mock Responses
+
+Mock mode provides pre-generated responses for common prompts. Use for testing and learning without API costs.
+
+## Enable Mock Mode
+
+```bash
+ggen ai generate --mock "Your prompt here"
+```
+
+Or globally:
+
+```bash
+export GGEN_MOCK_AI=true
+ggen ai generate "Any prompt"
+```
+
+## Available Mock Templates
+
+When using mock mode, ggen returns realistic examples for:
+
+- **Structs**: Fully implemented with derives and methods
+- **Endpoints**: Complete async handlers with error handling
+- **Validation**: Schemas and validation logic
+- **Tests**: Working unit and integration tests
+
+## Benefits of Mock Mode
+
+- **No API Keys**: Works offline, no credentials needed
+- **Instant**: Returns immediately without network delay
+- **Reproducible**: Same input always produces same output
+- **Testing**: Perfect for CI/CD pipelines
+- **Learning**: Understand patterns without costs
+
+## When to Use Real AI
+
+Switch to real AI when:
+- You need novel or custom patterns
+- You're building production templates
+- You want optimization suggestions
+- You need iterative refinement
+
+See configuration docs for setting API keys.
