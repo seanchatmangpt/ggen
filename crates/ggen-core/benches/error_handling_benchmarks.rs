@@ -21,6 +21,7 @@ enum ZeroAllocError {
 
 // Error types WITH string allocation (what users actually do in real code)
 #[derive(Debug)]
+#[allow(dead_code)]
 enum RealError {
     Io(String),
     Parse(String),
