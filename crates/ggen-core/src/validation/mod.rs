@@ -52,6 +52,8 @@ pub mod shacl;
 pub mod sparql_rules;
 pub mod validator;
 pub mod violation;
+pub mod checks;
+pub mod gate;
 
 #[cfg(test)]
 mod tests;
@@ -62,3 +64,5 @@ pub use shacl::{PropertyConstraint, ShaclShape, ShaclShapeSet, ShapeLoader};
 pub use sparql_rules::{RuleExecutor, RuleSeverity, ValidationRule};
 pub use validator::SparqlValidator;
 pub use violation::{ConstraintType, Severity, ValidationResult, Violation};
+pub use checks::{Check, CheckError, CompilationCheck, LintCheck, TestCheck, SecurityCheck};
+pub use gate::{QualityGate, QualityGateResult, CheckResult};
