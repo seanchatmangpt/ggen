@@ -1,0 +1,29 @@
+# Explanations (Conceptual Understanding)
+
+In-depth explanations of ggen concepts, philosophy, and internals.
+
+{% set categories = results | group_by(attribute="?category") %}
+
+{% for category_name, category_items in categories %}
+## {{ category_name }}
+
+{% for row in category_items | sort(attribute="?title") %}
+### {{ row["?title"] }}
+
+{{ row["?description"] }}
+
+**Time to read**: {{ row["?estimatedMinutes"] }} minutes
+
+**File**: `{{ row["?outputFile"] }}`
+
+---
+{% endfor %}
+{% endfor %}
+
+## Quick Reference
+
+| Concept | Time | File |
+|---------|------|------|
+{% for row in results | sort(attribute="?category") | sort(attribute="?title") %}
+| {{ row["?title"] }} | {{ row["?estimatedMinutes"] }}m | `{{ row["?outputFile"] }}` |
+{% endfor %}
