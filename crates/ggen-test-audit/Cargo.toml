@@ -1,6 +1,6 @@
 [package]
 name = "ggen-test-audit"
-version = "5.0.2"
+version = "5.1.0"
 edition = "2021"
 authors = ["ggen contributors"]
 description = "Test quality audit tooling for ggen - mutation testing, assertion analysis, false positive detection"

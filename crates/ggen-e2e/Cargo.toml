@@ -1,6 +1,6 @@
 [package]
 name = "ggen-e2e"
-version = "0.1.0"
+version = "5.1.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "End-to-end testing framework for ggen with testcontainers and cross-platform validation"
 edition = "2021"
