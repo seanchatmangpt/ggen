@@ -45,9 +45,9 @@ pub async fn require_auth(
 }
 
 /// Middleware to require specific tier
-pub async fn require_tier(min_tier: &str) -> impl Fn(Request, Next) -> futures::future::BoxFuture<'static, Response> + Clone {
+pub async fn require_tier(min_tier: &str) -> impl Fn(Request, Next) -> futures::future::BoxFuture<'static, Response> + Clone + use<'_> {
     move |request: Request, next: Next| {
-        let tier = min_tier.to_string();
+        let _tier = min_tier.to_string();
         Box::pin(async move {
             // TODO: Get User from request extensions
             // TODO: Check tier hierarchy: free < pro < enterprise

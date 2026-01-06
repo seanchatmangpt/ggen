@@ -18,12 +18,11 @@ tracing = { workspace = true }
 uuid = { workspace = true }
 chrono = { workspace = true }
 
-# Stripe integration
-stripe-rs = { version = "0.14", features = ["runtime-tokio"] }
-
-# HTTP
+# HTTP for Stripe API calls
 reqwest = { workspace = true }
 http = "1.0"
+hmac = "0.12"
+sha2 = { workspace = true }
 
 # Local crates
 ggen-utils = { workspace = true }

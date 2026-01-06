@@ -1,6 +1,7 @@
 //! OAuth2 provider integration
 
-use crate::{errors::AuthError, AuthResult};
+use urlencoding;
+use crate::AuthResult;
 
 /// OAuth provider types
 #[derive(Debug, Clone)]

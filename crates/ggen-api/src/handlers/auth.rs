@@ -18,10 +18,7 @@ pub async fn register(
     State(_state): State<AppState>,
     Json(req): Json<RegisterRequest>,
 ) -> ApiResult<(StatusCode, Json<LoginResponse>)> {
-    // Validate request
-    req.validate()
-        .map_err(|e| ApiError::BadRequest(format!("Validation failed: {}", e)))?;
-
+    // TODO: Validate request (email format, password requirements, etc.)
     // TODO: Check if user exists
     // TODO: Hash password
     // TODO: Insert user into database
@@ -47,10 +44,7 @@ pub async fn login(
     State(_state): State<AppState>,
     Json(req): Json<LoginRequest>,
 ) -> ApiResult<Json<LoginResponse>> {
-    // Validate request
-    req.validate()
-        .map_err(|e| ApiError::BadRequest(format!("Validation failed: {}", e)))?;
-
+    // TODO: Validate request (email format, password requirements, etc.)
     // TODO: Look up user by email
     // TODO: Verify password hash
     // TODO: Retrieve user tier from database
@@ -73,10 +67,7 @@ pub async fn create_api_key(
     State(_state): State<AppState>,
     Json(req): Json<CreateApiKeyRequest>,
 ) -> ApiResult<(StatusCode, Json<ApiKeyResponse>)> {
-    // Validate request
-    req.validate()
-        .map_err(|e| ApiError::BadRequest(format!("Validation failed: {}", e)))?;
-
+    // TODO: Validate request (name format, expiration, etc.)
     // TODO: Generate cryptographically secure API key
     // TODO: Hash the key before storing
     // TODO: Insert into database with expiration

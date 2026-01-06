@@ -32,8 +32,9 @@ impl RateLimiter {
     pub async fn check_rate_limit(&self, ip: &str) -> Result<(), RateLimitError> {
         let current = self
             .request_counts
-            .get_or_insert_with(ip.to_string(), async { 0 })
-            .await;
+            .try_get_with(ip.to_string(), async { Ok::<u32, std::io::Error>(0) })
+            .await
+            .unwrap_or(0);
 
         if current >= self.max_requests_per_minute {
             return Err(RateLimitError::TooManyRequests);

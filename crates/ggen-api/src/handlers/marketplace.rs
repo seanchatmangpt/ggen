@@ -94,7 +94,7 @@ pub async fn purchase_package(
     Ok((
         StatusCode::CREATED,
         Json(PurchaseResponse {
-            transaction_id,
+            transaction_id: transaction_id.clone(),
             package_id: req.package_id,
             price: 19.99,
             status: "pending".to_string(),

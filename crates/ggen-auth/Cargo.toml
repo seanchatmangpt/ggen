@@ -21,7 +21,6 @@ chrono = { workspace = true }
 # JWT & OAuth
 jsonwebtoken = "9.3"
 oauth2 = "4.4"
-openidconnect = "3.4"
 
 # Cryptography
 sha2 = { workspace = true }
@@ -29,9 +28,10 @@ hex = { workspace = true }
 base64 = { workspace = true }
 rand = "0.8"
 
-# HTTP
+# HTTP & Utilities
 reqwest = { workspace = true }
 http = "1.0"
+urlencoding = "2.1"
 
 # Local crates
 ggen-utils = { workspace = true }
