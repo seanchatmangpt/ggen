@@ -15,20 +15,23 @@ This directory contains older documentation files that are no longer actively ma
 - **remediation/** - Remediation framework and weekly fix tracking (completed initiative)
 - **duplicates/** - Duplicate DiATAXIS structures (kept canonical /docs/diataxis/ as source)
 
-## Archive Statistics
+## Archive Statistics (Final)
 
-**Total files archived**: 288 (across 2 commits)
-**Total space reclaimed**: ~4-5 MB
-**Root docs before**: 228 → **after**: 140 (39% reduction)
+**Total files archived**: 334 files (across 3 commits)
+**Total space reclaimed**: 5.0 MB
+**Root docs reduction**: 228 → 101 (**56% reduction**)
+**Overall docs reduction**: 788 → 454 files (**42% reduction**)
+**Archive completeness**: All superseded, temporal, and deprecated docs consolidated
 
-## Archival Batches
+## Archival Batches (Complete - 3 Commits)
 
-### Batch 1 (2026-01-06 Commit 1): Initial Cleanup - 45 files
+### Batch 1 (Commit 5c631e0): Initial Cleanup - 45 files
 - Old version documentation (GGEN V3, Marketplace V1-V2)
 - Phase-based documentation (PHASE1-2, WEEK1-3 reports)
 - Release notes (v2.0.0 through v2.6.0)
+- Rationale: Superseded by v5.2.0, obsolete version history
 
-### Batch 2 (2026-01-06 Commit 2): Deep Cleanup - 243 files
+### Batch 2 (Commit e565bdc): Deep Cleanup - 243 files
 
 **Polyglot Language Examples** (9 files)
 - Archived because v5.2.0 is Rust-only per CLAUDE.md
@@ -71,6 +74,50 @@ This directory contains older documentation files that are no longer actively ma
 - One-time research investigations (mutation testing, performance optimization, validation reports)
 - Generated manifests (GENERATED_GUIDES_MANIFEST.md, GENERATED_TODOS.md)
 - JSON data files (FASTAPI_ADVANCED_INNOVATIONS.json, etc.)
+
+### Batch 3 (Commit 2fffc46): Final Polish - 46 files
+
+**GVisor Documentation** (11 files)
+- GVISOR-*.md (5 files)
+- architecture/gvisor-*.md (3 files)
+- architecture/gvisor-*.puml (3 diagrams)
+- Rationale: Feature not in v5.2.0 release notes, not in active codebase
+
+**Implementation Planning** (10 files)
+- ACTION_PLAN_25_ITEMS.md
+- AGENT_KNOWLEDGE_REQUIREMENTS.md
+- PRD.md, PRIORITY_LIST.md
+- v5-docs-refactor-plan.md
+- And 5 more planning documents
+- Rationale: Completed work, superseded by execution
+
+**Old Standards & References** (8 files)
+- BEST_PRACTICES.md, CODING_STANDARDS.md, CHANGELOG.md, CLI_REFERENCE.md
+- AUTOMATION.md, CORE_TEAM_RECOMMENDATION.md, BACKEND_FIX_LOG.md
+- And 1 more
+- Rationale: Replaced by active reference documentation
+
+**Marketplace Implementation Details** (8 files)
+- marketplace_architecture.md, marketplace_data_structures.md
+- marketplace_implementation_guide.md, marketplace_architecture_diagrams.md
+- MARKETPLACE_MATURITY_MATRIX.md, MARKETPLACE_DOCUMENTATION_INDEX.md
+- marketplace-oxigraph-relationship.md, clap-noun-verb-current-usage.md
+- Rationale: Feature remains active in v5.2.0, implementation details archived
+
+**Obsolete Feature Docs** (2 files)
+- SWARM_INTEGRATION_ROADMAP.md, TASK_ORCHESTRATOR_FINDINGS.md
+- Rationale: Superseded by active documentation
+
+**Duplicate/Redundant Docs** (3 files)
+- DATAXIS_GUIDE.md, DOCUMENTATION_TOOLS_SURVEY.md, diataxis-index.md
+- DIATAXIS_EVALUATION_EXTERNAL_PERSPECTIVE.md, DIATAXIS_RESTRUCTURE.md
+- DIATAXIS_IMPLEMENTATION_ROADMAP.md
+- Rationale: Duplicate planning documents, consolidated to canonical structures
+
+**Status Completion Files** (2 files)
+- GRAPH_TESTS_VALIDATION.md, ERROR_MESSAGE_QUALITY_TESTS.md
+- verification_report_v5.2.0.md, DEPLOYMENT_READY_v5.2.0.md
+- Rationale: Evidence of completed work, not ongoing reference
 
 ---
 
