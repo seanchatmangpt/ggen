@@ -3,264 +3,473 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-# DOCUMENTATION STRUCTURE (RDF Ontology)
+# ============================================================================
+# GGEN DOCUMENTATION ONTOLOGY
+#
+# Source of truth for all ggen documentation.
+# Edit this file, then run: ggen sync --config .specify/specs/999-docs-as-code/ggen.toml
+# ============================================================================
 
-# Document Types
+# CLASSES
 doc:Document a rdfs:Class ;
   rdfs:label "Document" ;
   rdfs:comment "Base documentation entity" .
 
-doc:Guide a rdfs:Class ;
+doc:Tutorial a rdfs:Class ;
   rdfs:subClassOf doc:Document ;
-  rdfs:label "Guide" ;
-  rdfs:comment "Learning-oriented documentation" .
+  rdfs:label "Tutorial" ;
+  rdfs:comment "Step-by-step learning (hands-on)" .
+
+doc:HowTo a rdfs:Class ;
+  rdfs:subClassOf doc:Document ;
+  rdfs:label "How-To Guide" ;
+  rdfs:comment "Problem-oriented (solve a specific problem)" .
 
 doc:Reference a rdfs:Class ;
   rdfs:subClassOf doc:Document ;
   rdfs:label "Reference" ;
-  rdfs:comment "Quick lookup documentation" .
+  rdfs:comment "Complete lookup documentation" .
+
+doc:Explanation a rdfs:Class ;
+  rdfs:subClassOf doc:Document ;
+  rdfs:label "Explanation" ;
+  rdfs:comment "Conceptual background and context" .
 
 doc:Example a rdfs:Class ;
   rdfs:subClassOf doc:Document ;
   rdfs:label "Example" ;
-  rdfs:comment "Code example with usage" .
+  rdfs:comment "Working code example with walkthrough" .
 
 doc:Gap a rdfs:Class ;
   rdfs:label "Documentation Gap" ;
-  rdfs:comment "Missing documentation" .
+  rdfs:comment "Missing or incomplete documentation" .
 
-# Properties
+# PROPERTIES
 doc:title a rdf:Property ;
   rdfs:domain doc:Document ;
-  rdfs:range xsd:string .
+  rdfs:range xsd:string ;
+  rdfs:label "Title" .
 
 doc:description a rdf:Property ;
   rdfs:domain doc:Document ;
-  rdfs:range xsd:string .
+  rdfs:range xsd:string ;
+  rdfs:label "Short description" .
 
-doc:pages a rdf:Property ;
+doc:summary a rdf:Property ;
   rdfs:domain doc:Document ;
-  rdfs:range xsd:integer .
+  rdfs:range xsd:string ;
+  rdfs:label "Longer summary" .
+
+doc:estimatedMinutes a rdf:Property ;
+  rdfs:domain doc:Document ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Estimated reading/completion time" .
+
+doc:difficulty a rdf:Property ;
+  rdfs:domain doc:Document ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Beginner, Intermediate, Advanced" .
+
+doc:category a rdf:Property ;
+  rdfs:domain doc:Document ;
+  rdfs:range xsd:string ;
+  rdfs:label "Documentation category" .
+
+doc:prerequisite a rdf:Property ;
+  rdfs:domain doc:Document ;
+  rdfs:range xsd:string ;
+  rdfs:label "Required knowledge/docs" .
+
+doc:outputFile a rdf:Property ;
+  rdfs:domain doc:Document ;
+  rdfs:range xsd:string ;
+  rdfs:label "Output markdown filename" .
+
+doc:priority a rdf:Property ;
+  rdfs:domain doc:Gap ;
+  rdfs:range xsd:string ;
+  rdfs:comment "P0, P1, P2, P3 (critical to nice-to-have)" .
 
 doc:effort a rdf:Property ;
   rdfs:domain doc:Document ;
   rdfs:range xsd:string ;
   rdfs:comment "S, M, L, XL" .
 
-doc:priority a rdf:Property ;
-  rdfs:domain doc:Gap ;
+doc:codeRefs a rdf:Property ;
+  rdfs:domain doc:Document ;
   rdfs:range xsd:string ;
-  rdfs:comment "P0, P1, P2, P3" .
+  rdfs:label "Source code references" .
 
-doc:category a rdf:Property ;
-  rdfs:domain doc:Document ;
-  rdfs:range xsd:string .
+# ============================================================================
+# TUTORIALS (Learning by Doing)
+# ============================================================================
 
-doc:outputFile a rdf:Property ;
-  rdfs:domain doc:Document ;
-  rdfs:range xsd:string .
-
-doc:template a rdf:Property ;
-  rdfs:domain doc:Document ;
-  rdfs:range xsd:string .
-
-# GUIDES (Learning-oriented)
-
-doc:guide-sparql a doc:Guide ;
-  doc:title "SPARQL Inference Guide" ;
-  doc:description "Master CONSTRUCT queries for intelligent code generation" ;
-  doc:pages 20 ;
-  doc:effort "M" ;
-  doc:category "Learning" ;
-  doc:outputFile "SPARQL_INFERENCE_GUIDE.md" ;
-  doc:template "guide-sparql.tera" ;
-  doc:codeRefs (
-    "crates/ggen-core/src/graph/query.rs:37-106 - GraphQuery struct and SPARQL execution"
-    "crates/ggen-core/src/graph/core.rs:465-584 - Core query methods (cached, prepared)"
-    "crates/ggen-core/src/graph/construct.rs:12-157 - CONSTRUCT query executor"
-    "crates/ggen-core/src/codegen/pipeline.rs:212-254 - Inference rule execution pipeline"
-    "crates/ggen-ai/src/generators/sparql.rs:12-102 - AI-powered SPARQL generation"
-  ) .
-
-doc:guide-agi a doc:Guide ;
-  doc:title "AI/AGI Integration Guide" ;
-  doc:description "Build agentic systems that learn from generated code" ;
-  doc:pages 18 ;
-  doc:effort "M" ;
-  doc:category "Learning" ;
-  doc:outputFile "AI_AGI_INTEGRATION_GUIDE.md" ;
-  doc:template "guide-agi.tera" ;
-  doc:codeRefs (
-    "crates/ggen-core/src/codegen/audit.rs:13-155 - Audit trail tracking for agent feedback"
-    "crates/ggen-ai/src/error.rs:6-137 - AI error handling for agent integration"
-    "crates/ggen-core/src/lifecycle/exec.rs:67-324 - Lifecycle execution for orchestration"
-  ) .
-
-doc:guide-graph-api a doc:Guide ;
-  doc:title "Graph Querying API" ;
-  doc:description "Programmatic RDF access and manipulation" ;
-  doc:pages 15 ;
-  doc:effort "M" ;
-  doc:category "Learning" ;
-  doc:outputFile "GRAPH_QUERYING_API.md" ;
-  doc:template "guide-graph-api.tera" ;
-  doc:codeRefs (
-    "crates/ggen-core/src/graph/core.rs:92-434 - Graph struct and operations"
-    "crates/ggen-core/src/graph/export.rs:71-189 - RDF export/serialization"
-    "crates/ggen-core/src/graph/update.rs:63-233 - SPARQL INSERT/DELETE/UPDATE"
-    "crates/ggen-ai/src/rdf/query.rs:12-367 - Query result binding helpers"
-  ) .
-
-# REFERENCES (Quick lookup)
-
-doc:ref-sparql-card a doc:Reference ;
-  doc:title "SPARQL Reference Card" ;
-  doc:description "All SPARQL patterns on 2 pages" ;
-  doc:pages 2 ;
+doc:tut-quickstart a doc:Tutorial ;
+  doc:title "Quick Start (5 minutes)" ;
+  doc:description "Install ggen and generate your first ontology" ;
+  doc:summary "Get up and running in 5 minutes with a minimal example" ;
+  doc:estimatedMinutes 5 ;
+  doc:difficulty "Beginner" ;
+  doc:category "Getting Started" ;
   doc:effort "S" ;
-  doc:category "Reference" ;
-  doc:outputFile "SPARQL_REFERENCE_CARD.md" ;
-  doc:template "ref-sparql-card.tera" .
+  doc:outputFile "tutorials/01-quickstart.md" .
 
-doc:ref-toml a doc:Reference ;
-  doc:title "ggen.toml Complete Schema" ;
-  doc:description "Full configuration reference" ;
-  doc:pages 4 ;
+doc:tut-first-ontology a doc:Tutorial ;
+  doc:title "Create Your First Ontology" ;
+  doc:description "Build a domain model for a Person/Company system" ;
+  doc:summary "Learn RDF basics by defining your first ontology with classes, properties, and constraints" ;
+  doc:estimatedMinutes 15 ;
+  doc:difficulty "Beginner" ;
+  doc:category "Getting Started" ;
+  doc:prerequisite "Quick Start" ;
   doc:effort "S" ;
-  doc:category "Reference" ;
-  doc:outputFile "GGEN_TOML_REFERENCE.md" ;
-  doc:template "ref-toml.tera" .
+  doc:outputFile "tutorials/02-first-ontology.md" .
+
+doc:tut-first-template a doc:Tutorial ;
+  doc:title "Your First Code Generation" ;
+  doc:description "Create a Tera template to generate Rust structs" ;
+  doc:summary "Learn how Tera templates work by generating Rust code from your ontology" ;
+  doc:estimatedMinutes 20 ;
+  doc:difficulty "Beginner" ;
+  doc:category "Generation" ;
+  doc:prerequisite "Create Your First Ontology" ;
+  doc:effort "S" ;
+  doc:outputFile "tutorials/03-first-template.md" .
+
+doc:tut-sparql a doc:Tutorial ;
+  doc:title "Learn SPARQL for Code Generation" ;
+  doc:description "Master CONSTRUCT queries to prepare data for templates" ;
+  doc:summary "Understand SPARQL SELECT and CONSTRUCT to query ontologies and enrich them with inferred data" ;
+  doc:estimatedMinutes 30 ;
+  doc:difficulty "Intermediate" ;
+  doc:category "SPARQL & Queries" ;
+  doc:prerequisite "Your First Code Generation" ;
+  doc:effort "M" ;
+  doc:outputFile "tutorials/04-sparql-for-generation.md" .
+
+doc:tut-multi-language a doc:Tutorial ;
+  doc:title "Generate Code in Multiple Languages" ;
+  doc:description "Generate Rust, TypeScript, and Python from one ontology" ;
+  doc:summary "Learn how to use filters and language-specific templates to generate multi-language code" ;
+  doc:estimatedMinutes 25 ;
+  doc:difficulty "Intermediate" ;
+  doc:category "Generation" ;
+  doc:prerequisite "Your First Code Generation" ;
+  doc:effort "M" ;
+  doc:outputFile "tutorials/05-multi-language.md" .
+
+doc:tut-rest-api a doc:Tutorial ;
+  doc:title "Generate a Complete REST API" ;
+  doc:description "Define an API schema in RDF and generate Axum/Rocket code" ;
+  doc:summary "End-to-end example: ontology → SPARQL inference → REST API generation" ;
+  doc:estimatedMinutes 40 ;
+  doc:difficulty "Intermediate" ;
+  doc:category "Examples" ;
+  doc:prerequisite "Learn SPARQL for Code Generation" ;
+  doc:effort "M" ;
+  doc:outputFile "tutorials/06-rest-api-generation.md" .
+
+# ============================================================================
+# HOW-TO GUIDES (Problem-Oriented)
+# ============================================================================
+
+doc:howto-install a doc:HowTo ;
+  doc:title "Install ggen" ;
+  doc:description "Install ggen via Homebrew, Cargo, or Docker" ;
+  doc:estimatedMinutes 5 ;
+  doc:difficulty "Beginner" ;
+  doc:category "Setup" ;
+  doc:effort "S" ;
+  doc:outputFile "how-to/install.md" .
+
+doc:howto-config a doc:HowTo ;
+  doc:title "Configure ggen.toml" ;
+  doc:description "Set up generation rules, templates, and ontology sources" ;
+  doc:estimatedMinutes 10 ;
+  doc:difficulty "Intermediate" ;
+  doc:category "Configuration" ;
+  doc:effort "S" ;
+  doc:outputFile "how-to/configure-ggen.md" .
+
+doc:howto-validate a doc:HowTo ;
+  doc:title "Validate Your Ontology" ;
+  doc:description "Use SHACL shapes to catch errors early" ;
+  doc:estimatedMinutes 15 ;
+  doc:difficulty "Intermediate" ;
+  doc:category "Validation" ;
+  doc:effort "M" ;
+  doc:outputFile "how-to/validate-ontology.md" .
+
+doc:howto-debug-generation a doc:HowTo ;
+  doc:title "Debug Code Generation Issues" ;
+  doc:description "Use dry-run, verbose output, and step-by-step execution" ;
+  doc:estimatedMinutes 10 ;
+  doc:difficulty "Intermediate" ;
+  doc:category "Troubleshooting" ;
+  doc:effort "S" ;
+  doc:outputFile "how-to/debug-generation.md" .
+
+doc:howto-organize-project a doc:HowTo ;
+  doc:title "Organize Large Projects" ;
+  doc:description "Structure ontologies, templates, and output across multiple crates" ;
+  doc:estimatedMinutes 15 ;
+  doc:difficulty "Intermediate" ;
+  doc:category "Project Structure" ;
+  doc:effort "M" ;
+  doc:outputFile "how-to/organize-large-projects.md" .
+
+doc:howto-ci-cd a doc:HowTo ;
+  doc:title "Integrate with CI/CD" ;
+  doc:description "Run ggen sync in GitHub Actions, GitLab CI, or Jenkins" ;
+  doc:estimatedMinutes 15 ;
+  doc:difficulty "Intermediate" ;
+  doc:category "DevOps" ;
+  doc:effort "M" ;
+  doc:outputFile "how-to/ci-cd-integration.md" .
+
+doc:howto-custom-filters a doc:HowTo ;
+  doc:title "Write Custom Tera Filters" ;
+  doc:description "Extend Tera with domain-specific filters and functions" ;
+  doc:estimatedMinutes 20 ;
+  doc:difficulty "Advanced" ;
+  doc:category "Templates" ;
+  doc:effort "M" ;
+  doc:outputFile "how-to/custom-tera-filters.md" .
+
+# ============================================================================
+# REFERENCE DOCUMENTATION
+# ============================================================================
 
 doc:ref-cli a doc:Reference ;
   doc:title "CLI Reference" ;
-  doc:description "All commands and flags" ;
-  doc:pages 3 ;
-  doc:effort "S" ;
+  doc:description "All ggen commands, flags, and options" ;
+  doc:estimatedMinutes 5 ;
+  doc:difficulty "Beginner" ;
   doc:category "Reference" ;
-  doc:outputFile "CLI_REFERENCE.md" ;
-  doc:template "ref-cli.tera" .
-
-doc:ref-ultra a doc:Reference ;
-  doc:title "ULTRA Compressed Reference" ;
-  doc:description "100% information density - all key info on 2-3 pages" ;
-  doc:pages 3 ;
   doc:effort "S" ;
-  doc:category "Reference" ;
-  doc:outputFile "ULTRA_COMPRESSED_REFERENCE.md" ;
-  doc:template "ref-ultra.tera" ;
-  doc:codeRefs (
-    "crates/ggen-config/src/schema.rs:11-813 - Complete ggen.toml schema"
-    "crates/ggen-cli/src/cmds/sync.rs:147-219 - CLI sync command and flags"
-    "crates/ggen-core/src/tera_env.rs:62-85 - Tera template loading"
-  ) .
+  doc:outputFile "reference/cli.md" .
 
-doc:ref-patterns a doc:Reference ;
-  doc:title "ULTRA Patterns Matrix" ;
-  doc:description "Generate anything - REST/GraphQL/gRPC/DB/tests" ;
-  doc:pages 3 ;
+doc:ref-ggen-toml a doc:Reference ;
+  doc:title "ggen.toml Schema Reference" ;
+  doc:description "Complete configuration file specification" ;
+  doc:estimatedMinutes 10 ;
+  doc:difficulty "Intermediate" ;
+  doc:category "Reference" ;
   doc:effort "S" ;
-  doc:category "Reference" ;
-  doc:outputFile "ULTRA_PATTERNS_MATRIX.md" ;
-  doc:template "ref-patterns.tera" ;
-  doc:codeRefs (
-    "crates/ggen-core/src/template.rs:325-573 - Template rendering with context"
-    "crates/ggen-core/src/register.rs:101-366 - Tera filters and custom functions"
-    "crates/ggen-core/src/pipeline.rs:115-170 - Template pipeline execution"
-  ) .
+  doc:outputFile "reference/ggen-toml.md" .
 
-doc:ref-errors a doc:Reference ;
-  doc:title "Error Catalog Compressed" ;
-  doc:description "All error codes, causes, fixes" ;
-  doc:pages 2 ;
+doc:ref-sparql a doc:Reference ;
+  doc:title "SPARQL Quick Reference" ;
+  doc:description "SELECT, CONSTRUCT, INSERT/DELETE/UPDATE patterns" ;
+  doc:estimatedMinutes 5 ;
+  doc:difficulty "Intermediate" ;
+  doc:category "SPARQL & Queries" ;
   doc:effort "S" ;
-  doc:category "Reference" ;
-  doc:outputFile "ERROR_CATALOG_COMPRESSED.md" ;
-  doc:template "ref-errors.tera" ;
-  doc:codeRefs (
-    "crates/ggen-core/src/validation/error.rs:32-145 - Validation error types"
-    "crates/ggen-core/src/ontology/error.rs:7-35 - Ontology error types"
-    "crates/ggen-config/src/error.rs:10-51 - Configuration error types"
-    "crates/ggen-cli/src/error.rs:18-155 - CLI error handling and exit codes"
-  ) .
+  doc:outputFile "reference/sparql.md" .
 
-# GAPS (What's missing)
+doc:ref-tera a doc:Reference ;
+  doc:title "Tera Template Reference" ;
+  doc:description "Template syntax, filters, functions, and loops" ;
+  doc:estimatedMinutes 10 ;
+  doc:difficulty "Intermediate" ;
+  doc:category "Templates" ;
+  doc:effort "S" ;
+  doc:outputFile "reference/tera-templates.md" .
 
-doc:gap-shacl a doc:Gap ;
-  doc:title "Complete SHACL Validation" ;
-  doc:description "Fix T014 TODO in validator.rs" ;
-  doc:priority "P0" ;
+doc:ref-rdf a doc:Reference ;
+  doc:title "RDF/TTL Reference" ;
+  doc:description "Turtle syntax, prefixes, and RDF basics" ;
+  doc:estimatedMinutes 10 ;
+  doc:difficulty "Intermediate" ;
+  doc:category "RDF Basics" ;
+  doc:effort "S" ;
+  doc:outputFile "reference/rdf-ttl.md" .
+
+doc:ref-ontology-patterns a doc:Reference ;
+  doc:title "Ontology Design Patterns" ;
+  doc:description "Reusable patterns for common domain models" ;
+  doc:estimatedMinutes 15 ;
+  doc:difficulty "Intermediate" ;
+  doc:category "Ontology Design" ;
   doc:effort "M" ;
-  doc:category "Feature" ;
-  doc:codeRef "crates/ggen-core/src/validation/validator.rs:73-129 - SparqlValidator (STUBBED T014)" ;
-  doc:codeRef "crates/ggen-core/src/validation/shacl.rs:122-162 - ShapeLoader (STUBBED T014)" .
+  doc:outputFile "reference/ontology-patterns.md" .
+
+doc:ref-error-codes a doc:Reference ;
+  doc:title "Error Codes & Troubleshooting" ;
+  doc:description "All error codes, causes, and solutions" ;
+  doc:estimatedMinutes 5 ;
+  doc:difficulty "Beginner" ;
+  doc:category "Troubleshooting" ;
+  doc:effort "S" ;
+  doc:outputFile "reference/error-codes.md" .
+
+# ============================================================================
+# EXPLANATIONS (Conceptual Understanding)
+# ============================================================================
+
+doc:expl-why-rdf a doc:Explanation ;
+  doc:title "Why RDF & Ontologies?" ;
+  doc:description "Understand the motivation and benefits" ;
+  doc:summary "Discover why semantic web technologies enable better code generation than traditional templates" ;
+  doc:estimatedMinutes 15 ;
+  doc:difficulty "Beginner" ;
+  doc:category "Concepts" ;
+  doc:effort "S" ;
+  doc:outputFile "explanations/why-rdf.md" .
+
+doc:expl-deterministic a doc:Explanation ;
+  doc:title "Deterministic Code Generation" ;
+  doc:description "Why reproducible outputs matter" ;
+  doc:summary "Understand how ggen ensures same ontology + templates = identical code" ;
+  doc:estimatedMinutes 10 ;
+  doc:difficulty "Intermediate" ;
+  doc:category "Philosophy" ;
+  doc:effort "S" ;
+  doc:outputFile "explanations/deterministic-generation.md" .
+
+doc:expl-inference a doc:Explanation ;
+  doc:title "Inference & SPARQL CONSTRUCT" ;
+  doc:description "How to prepare data for code generation" ;
+  doc:summary "Learn how SPARQL CONSTRUCT enables intelligent preprocessing of ontologies" ;
+  doc:estimatedMinutes 20 ;
+  doc:difficulty "Intermediate" ;
+  doc:category "SPARQL & Queries" ;
+  doc:effort "M" ;
+  doc:outputFile "explanations/inference-and-construct.md" .
+
+doc:expl-architecture a doc:Explanation ;
+  doc:title "ggen Architecture" ;
+  doc:description "How ggen works internally" ;
+  doc:summary "Understand the pipeline: load ontology → SPARQL inference → template generation → validation" ;
+  doc:estimatedMinutes 20 ;
+  doc:difficulty "Advanced" ;
+  doc:category "Architecture" ;
+  doc:effort "M" ;
+  doc:outputFile "explanations/architecture.md" .
+
+doc:expl-validation a doc:Explanation ;
+  doc:title "Validation & Quality Gates" ;
+  doc:description "How ggen prevents bad outputs" ;
+  doc:summary "Understand SHACL shapes, validation rules, and andon signals for quality assurance" ;
+  doc:estimatedMinutes 15 ;
+  doc:difficulty "Intermediate" ;
+  doc:category "Validation" ;
+  doc:effort "M" ;
+  doc:outputFile "explanations/validation-gates.md" .
+
+# ============================================================================
+# EXAMPLE PROJECTS
+# ============================================================================
+
+doc:ex-rest-api a doc:Example ;
+  doc:title "REST API Generation" ;
+  doc:description "Generate Axum/Rocket server from RDF API spec" ;
+  doc:estimatedMinutes 30 ;
+  doc:difficulty "Intermediate" ;
+  doc:category "Examples" ;
+  doc:effort "M" ;
+  doc:outputFile "examples/rest-api.md" .
+
+doc:ex-graphql a doc:Example ;
+  doc:title "GraphQL API Generation" ;
+  doc:description "Generate GraphQL schema and resolvers" ;
+  doc:estimatedMinutes 30 ;
+  doc:difficulty "Intermediate" ;
+  doc:category "Examples" ;
+  doc:effort "M" ;
+  doc:outputFile "examples/graphql-api.md" .
+
+doc:ex-database a doc:Example ;
+  doc:title "Database Schema Generation" ;
+  doc:description "Generate PostgreSQL, SQLite, or MongoDB schemas" ;
+  doc:estimatedMinutes 25 ;
+  doc:difficulty "Intermediate" ;
+  doc:category "Examples" ;
+  doc:effort "M" ;
+  doc:outputFile "examples/database-schemas.md" .
+
+doc:ex-microservices a doc:Example ;
+  doc:title "Microservices Coordination" ;
+  doc:description "Generate service definitions and inter-service contracts" ;
+  doc:estimatedMinutes 35 ;
+  doc:difficulty "Advanced" ;
+  doc:category "Examples" ;
+  doc:effort "L" ;
+  doc:outputFile "examples/microservices.md" .
+
+# ============================================================================
+# DOCUMENTATION GAPS (P0 = Critical, P1 = Important, P2 = Nice-to-have)
+# ============================================================================
+
+# P0 GAPS
+doc:gap-shacl-impl a doc:Gap ;
+  doc:title "Complete SHACL Validation" ;
+  doc:description "Implement full SHACL shape validation in validator.rs" ;
+  doc:priority "P0" ;
+  doc:effort "L" ;
+  doc:category "Feature" .
 
 doc:gap-troubleshooting a doc:Gap ;
-  doc:title "Troubleshooting Guide" ;
-  doc:description "Error recovery and common mistakes" ;
+  doc:title "Comprehensive Troubleshooting Guide" ;
+  doc:description "Error recovery, common mistakes, debugging workflow" ;
   doc:priority "P0" ;
   doc:effort "M" ;
   doc:category "Documentation" .
 
-doc:gap-python a doc:Gap ;
+# P1 GAPS
+doc:gap-python-example a doc:Gap ;
   doc:title "Python FastAPI Example" ;
-  doc:description "Language-agnostic claim needs multi-language examples" ;
+  doc:description "Multi-language support: Rust backend + Python service" ;
   doc:priority "P1" ;
   doc:effort "M" ;
   doc:category "Example" .
 
-doc:gap-javascript a doc:Gap ;
-  doc:title "JavaScript Express Example" ;
-  doc:description "Backend developers need JS examples" ;
+doc:gap-javascript-example a doc:Gap ;
+  doc:title "JavaScript/Node.js Example" ;
+  doc:description "Generate TypeScript client libraries and Node.js servers" ;
   doc:priority "P1" ;
   doc:effort "M" ;
   doc:category "Example" .
 
-doc:gap-postgres a doc:Gap ;
-  doc:title "PostgreSQL Integration" ;
-  doc:description "Schema generation + ORM patterns" ;
-  doc:priority "P1" ;
-  doc:effort "M" ;
-  doc:category "Example" ;
-  doc:codeRef "crates/ggen-core/src/graph/core.rs:434 - load_path() auto-detects schema formats" .
-
-doc:gap-graphql a doc:Gap ;
-  doc:title "GraphQL Deep Dive" ;
-  doc:description "Complete GraphQL generation workflow" ;
+doc:gap-postgres-integration a doc:Gap ;
+  doc:title "PostgreSQL Deep Dive" ;
+  doc:description "Schema generation, migrations, ORM patterns" ;
   doc:priority "P1" ;
   doc:effort "M" ;
   doc:category "Documentation" .
 
+doc:gap-performance-tuning a doc:Gap ;
+  doc:title "Performance Tuning Guide" ;
+  doc:description "Optimize for 100k+ triples, large codebases" ;
+  doc:priority "P1" ;
+  doc:effort "M" ;
+  doc:category "Documentation" .
+
+# P2 GAPS
 doc:gap-grpc a doc:Gap ;
   doc:title "gRPC Service Generation" ;
-  doc:description ".proto files and service stubs" ;
-  doc:priority "P2" ;
-  doc:effort "M" ;
-  doc:category "Example" .
-
-doc:gap-github-actions a doc:Gap ;
-  doc:title "GitHub Actions CI/CD" ;
-  doc:description "Integration patterns and templates" ;
+  doc:description ".proto files, service stubs, client libraries" ;
   doc:priority "P2" ;
   doc:effort "M" ;
   doc:category "Example" .
 
 doc:gap-kafka a doc:Gap ;
-  doc:title "Kafka Event-Driven" ;
-  doc:description "Message schema generation" ;
+  doc:title "Event-Driven Kafka Integration" ;
+  doc:description "Message schema generation, producer/consumer stubs" ;
   doc:priority "P2" ;
   doc:effort "M" ;
   doc:category "Example" .
 
-doc:gap-performance a doc:Gap ;
-  doc:title "Performance Tuning" ;
-  doc:description "Optimize for 100k+ triples" ;
+doc:gap-security a doc:Gap ;
+  doc:title "Security Best Practices" ;
+  doc:description "Input validation, secrets management, safe code patterns" ;
   doc:priority "P2" ;
   doc:effort "M" ;
   doc:category "Documentation" .
 
-doc:gap-security a doc:Gap ;
-  doc:title "Security Hardening" ;
-  doc:description "Best practices for generated code" ;
+doc:gap-testing a doc:Gap ;
+  doc:title "Testing Generated Code" ;
+  doc:description "Unit, integration, and property-based testing strategies" ;
   doc:priority "P2" ;
   doc:effort "M" ;
-  doc:category "Documentation" .
+  doc:category "How-To" .
