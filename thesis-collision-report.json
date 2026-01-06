@@ -1,0 +1,240 @@
+[
+  {
+    "overlap_id": "OVERLAP_001",
+    "severity": "significant",
+    "chapter_1": "thesis.tex Chapter 3 (Template-Based Code Generation Architecture)",
+    "chapter_2": "chapter3-template-architecture.tex",
+    "section_1": "Lines 450-531 (81 lines)",
+    "section_2": "Lines 1-743 (743 lines)",
+    "description": "Both chapters cover template-based code generation architecture. The thesis.tex version is a condensed summary (81 lines) while the standalone file is a comprehensive treatment (743 lines - 9x longer). Both cover: Template System Overview, Two-Phase Generation, Tera Template Engine, YAML Frontmatter, Template Structure, and Template Engineering Principles.",
+    "overlapping_concepts": [
+      "Two-phase generation pipeline (Query Phase and Render Phase)",
+      "Tera template engine description and features",
+      "YAML frontmatter for metadata specification",
+      "Template structure with example code listing",
+      "Template engineering principles (separation of concerns, composability, readability, defensiveness)"
+    ],
+    "duplicate_sections": [
+      "Section 'Template System Overview' appears in both with identical structure",
+      "Subsection 'Two-Phase Generation' - identical concept and benefits list",
+      "Section 'Tera Template Engine' - same description of features",
+      "Subsection 'Template Structure' - same YAML frontmatter example"
+    ],
+    "duplicate_code_listings": [
+      "Template with YAML frontmatter example (entities.mjs generation) - appears in both versions"
+    ],
+    "recommendation": "Replace the brief Chapter 3 in thesis.tex with the comprehensive chapter3-template-architecture.tex content. The standalone file contains significantly more detail including: abstract, detailed Tera configuration code, frontmatter field specifications, template composition patterns, SPARQL result injection mechanisms, performance benchmarks, case studies, and comparison tables. Alternatively, if brevity is required, add a note in thesis.tex Chapter 3 directing readers to the extended version."
+  },
+  {
+    "overlap_id": "OVERLAP_002",
+    "severity": "significant",
+    "chapter_1": "thesis.tex Chapter 4 (OpenAPI Specification Generation)",
+    "chapter_2": "chapter4_openapi_generation.tex",
+    "section_1": "Lines 533-596 (63 lines)",
+    "section_2": "Lines 1-1020 (1020 lines)",
+    "description": "Both chapters address OpenAPI 3.0 specification generation from RDF ontologies. The thesis.tex version provides a minimal overview (63 lines) while the standalone is a comprehensive treatment (1020 lines - 16x longer). Both explain the OpenAPI standard, ontology-to-OpenAPI mapping, four-part generation pipeline, and constraint representation.",
+    "overlapping_concepts": [
+      "OpenAPI 3.0 standard definition and components",
+      "Mapping RDF entities to OpenAPI schemas",
+      "Four-part generation pipeline (Info, Schemas, Paths, Combined)",
+      "Constraint representation (RDF to OpenAPI mapping)",
+      "Email validation constraint example"
+    ],
+    "duplicate_sections": [
+      "Section 'OpenAPI 3.0 Standard' - identical high-level description",
+      "Section 'Generating OpenAPI from Ontology' - same mapping bullets",
+      "Subsection 'Four-Part Generation Pipeline' - identical four-stage enumeration",
+      "Section 'Constraint Representation' - same RDF and YAML examples"
+    ],
+    "duplicate_code_listings": [
+      "RDF constraint example for User_email property - identical in both",
+      "OpenAPI YAML constraint mapping for email field - identical in both"
+    ],
+    "recommendation": "Replace Chapter 4 in thesis.tex with the comprehensive chapter4_openapi_generation.tex content. The standalone includes extensive additional material: detailed REST API documentation format, OpenAPI version history, comprehensive SPARQL queries for schema extraction, endpoint definition extraction, request/response schema generation, server configuration, synchronization strategy details, quality assurance sections, validation methods, consistency checking code, compliance checklists, documentation coverage analysis, and integration workflows. If space is limited, use the standalone as the primary chapter and reduce thesis.tex Chapter 4 to a cross-reference."
+  },
+  {
+    "overlap_id": "OVERLAP_003",
+    "severity": "significant",
+    "chapter_1": "thesis.tex Chapter 7 (Type Guards and Runtime Validation)",
+    "chapter_2": "chapter7_type_guards.tex",
+    "section_1": "Lines 731-797 (66 lines)",
+    "section_2": "Lines 1-977 (977 lines)",
+    "description": "Both chapters focus on type guards and runtime validation in TypeScript/JavaScript. The thesis.tex version is a brief summary (66 lines) while the standalone is exhaustive (977 lines - 15x longer). Both discuss type guard fundamentals, generation from entity definitions, implementation strategies, and TypeScript integration.",
+    "overlapping_concepts": [
+      "Type guards as runtime type narrowing mechanisms",
+      "Type predicate functions using 'is' keyword",
+      "Generation of type guards from entity definitions",
+      "Guard implementation strategies (direct checks, schema-based, recursive)",
+      "Integration with TypeScript flow-sensitive typing"
+    ],
+    "duplicate_sections": [
+      "Section 'Type Guards in JavaScript' - identical introduction and isUser example",
+      "Section 'Generating Type Guard Functions' - same isUser code listing with minor variations",
+      "Section 'Guard Implementation Strategies' - same three-item enumeration",
+      "Section 'Integration with Type Systems' - identical TypeScript narrowing example"
+    ],
+    "duplicate_code_listings": [
+      "isUser type guard function - appears in both with nearly identical implementation",
+      "Type narrowing example with data.email access - identical in both",
+      "Generated type guard for User entity - nearly identical code"
+    ],
+    "recommendation": "Replace Chapter 7 in thesis.tex with chapter7_type_guards.tex content. The standalone file provides substantial additional coverage including: detailed introduction on the gap between static types and runtime behavior, type narrowing fundamentals, discriminated unions, exhaustiveness checking, SPARQL queries for guard metadata, XSD to JavaScript type mapping tables, array and object guards, schema-based validation patterns, recursive guards for nested types, performance optimization (caching, memoization, lazy validation), benchmarking methodology and results, compositional guard patterns, higher-order guards, comprehensive testing strategies (property-based testing, edge cases, precision/recall metrics), and extensive code examples. The standalone is significantly more rigorous and complete."
+  },
+  {
+    "overlap_id": "OVERLAP_004",
+    "severity": "moderate",
+    "chapter_1": "thesis.tex (Complete thesis with inline chapters)",
+    "chapter_2": "Standalone chapter files (chapter3, chapter4, chapter7)",
+    "section_1": "Chapters 3, 4, 7 embedded inline",
+    "section_2": "Separate comprehensive chapter files",
+    "description": "Structural redundancy exists between the complete thesis.tex file containing condensed inline chapters and the standalone detailed chapter files. This creates a 'two-version' problem where the same content exists in abbreviated and expanded forms, potentially causing confusion about which version is authoritative.",
+    "overlapping_concepts": [
+      "All core concepts from template architecture, OpenAPI generation, and type guards appear in both versions",
+      "Code examples are duplicated with varying levels of detail",
+      "Section structure is similar but depth varies dramatically"
+    ],
+    "duplicate_sections": [
+      "All major sections from chapters 3, 4, and 7 appear in both locations",
+      "Subsection headings are often identical even when content depth differs"
+    ],
+    "duplicate_code_listings": [
+      "Template frontmatter examples",
+      "RDF constraint examples",
+      "OpenAPI YAML examples",
+      "Type guard isUser function examples",
+      "TypeScript type narrowing examples"
+    ],
+    "recommendation": "Adopt one of three resolution strategies: (1) Single Source: Make thesis.tex the single source of truth and remove standalone files, expanding inline chapters to match standalone depth. (2) Modular Approach: Convert thesis.tex to use \\include or \\input directives to reference standalone chapter files, eliminating duplication entirely. (3) Hierarchical Documentation: Keep thesis.tex as a condensed overview/summary document and clearly mark standalone files as 'extended/detailed chapters' with cross-references. Recommended: Option 2 (Modular) is cleanest - modify thesis.tex to include external chapter files rather than duplicating content."
+  },
+  {
+    "overlap_id": "OVERLAP_005",
+    "severity": "trivial",
+    "chapter_1": "thesis.tex Chapter 3 - Tera Engine Description",
+    "chapter_2": "chapter3-template-architecture.tex - Tera Engine Description",
+    "section_1": "Lines 481-491 (Tera Template Engine section)",
+    "section_2": "Lines 21-30 (Tera Template Engine subsection)",
+    "description": "Both files describe the Tera template engine with nearly identical feature lists. The thesis.tex version provides a brief bullet list while the standalone expands with detailed explanations and Rust code examples.",
+    "overlapping_concepts": [
+      "Tera as Rust-native template language inspired by Jinja2",
+      "Template inheritance support",
+      "Built-in filters for string manipulation",
+      "Control flow capabilities",
+      "Safety features (no code execution)"
+    ],
+    "duplicate_sections": [
+      "Feature list for Tera template engine is nearly identical"
+    ],
+    "duplicate_code_listings": [
+      "None - thesis.tex omits code examples that appear in standalone"
+    ],
+    "recommendation": "When consolidating, use the comprehensive Tera description from chapter3-template-architecture.tex which includes actual Rust code for Tera configuration, detailed explanations of each feature, and technical implementation details."
+  },
+  {
+    "overlap_id": "OVERLAP_006",
+    "severity": "moderate",
+    "chapter_1": "thesis.tex Chapter 4 - Four-Part Generation Pipeline",
+    "chapter_2": "chapter4_openapi_generation.tex - Synchronization Strategy / Four-Part Generation Pipeline",
+    "section_1": "Lines 561-571 (Subsection on pipeline stages)",
+    "section_2": "Lines 316-571 (Section 3: Synchronization Strategy with extensive detail)",
+    "description": "Both describe the four-stage OpenAPI generation pipeline, but the standalone file provides dramatically more detail including SPARQL queries for each stage, complete YAML examples, and orchestration details.",
+    "overlapping_concepts": [
+      "Four-stage pipeline: Info, Schemas, Paths, Combined",
+      "Independent generation of each component",
+      "Merging strategy for final specification"
+    ],
+    "duplicate_sections": [
+      "Four-item enumeration of generation stages - identical structure",
+      "Stage names and descriptions match exactly"
+    ],
+    "duplicate_code_listings": [
+      "None in thesis.tex brief version; standalone includes extensive SPARQL queries and YAML examples for each stage"
+    ],
+    "recommendation": "Use the comprehensive synchronization strategy section from chapter4_openapi_generation.tex. It includes detailed SPARQL queries for info extraction (with contact/license details), complete schema generation examples, path definition examples with full operation specifications, and the ggen sync command for combination. The standalone version provides actionable implementation detail versus the thesis.tex summary."
+  },
+  {
+    "overlap_id": "OVERLAP_007",
+    "severity": "moderate",
+    "chapter_1": "thesis.tex Chapter 7 - Guard Implementation Strategies",
+    "chapter_2": "chapter7_type_guards.tex - Guard Implementation Strategies",
+    "section_1": "Lines 772-781 (Brief enumeration)",
+    "section_2": "Lines 240-408 (Comprehensive section with code examples)",
+    "description": "Both cover guard implementation strategies, but thesis.tex provides only a three-item enumeration while the standalone includes detailed subsections with extensive code examples for direct property checks, schema-based validation, recursive guards, and conditional logic.",
+    "overlapping_concepts": [
+      "Direct checks using property existence and type checking",
+      "Schema-based validation leveraging runtime schemas",
+      "Recursive guards for nested object structures"
+    ],
+    "duplicate_sections": [
+      "Three strategy categories are identical in name and order"
+    ],
+    "duplicate_code_listings": [
+      "None in thesis.tex; standalone includes isPerson direct check implementation, ClassSchema interface definition, validateAgainstSchema function, isDepartment recursive guard, and conditional validation functions"
+    ],
+    "recommendation": "Replace with comprehensive section from chapter7_type_guards.tex which includes: Direct Property Check Strategy with O(n) complexity analysis and early termination benefits, Schema-Based Validation with PropertyValidator and ClassSchema interfaces plus validateAgainstSchema implementation, Recursive Guards for Nested Types with cycle detection considerations, and Conditional Logic for owl:Restriction handling. The standalone provides implementable patterns versus abstract strategy names."
+  },
+  {
+    "overlap_id": "OVERLAP_008",
+    "severity": "trivial",
+    "chapter_1": "thesis.tex - Multiple chapters referencing 'ggen framework'",
+    "chapter_2": "All standalone chapters referencing 'ggen framework'",
+    "section_1": "Various locations throughout thesis.tex",
+    "section_2": "Various locations throughout all chapter files",
+    "description": "Both the thesis and standalone chapters refer to the 'ggen framework' as the implementation context. Definitions and explanations of ggen appear redundantly across files.",
+    "overlapping_concepts": [
+      "ggen as ontology-driven code generation framework",
+      "References to ggen sync command",
+      "ggen template system architecture"
+    ],
+    "duplicate_sections": [
+      "Framework references appear in introductions and implementation sections"
+    ],
+    "duplicate_code_listings": [
+      "ggen sync commands appear in multiple locations"
+    ],
+    "recommendation": "Establish a single authoritative introduction to ggen in Chapter 1 or a dedicated Framework Overview section, then use consistent cross-references throughout all chapters. Avoid re-explaining ggen in each chapter."
+  },
+  {
+    "overlap_id": "OVERLAP_009",
+    "severity": "trivial",
+    "chapter_1": "chapter3-template-architecture.tex - Template Example",
+    "chapter_2": "chapter4_openapi_generation.tex - OpenAPI Template Example",
+    "section_1": "Lines 491-587 (Case Study: OpenAPI Template)",
+    "section_2": "Various locations showing template usage",
+    "description": "Both chapters use OpenAPI-related templates as examples, creating some conceptual overlap in demonstrating template usage for OpenAPI generation.",
+    "overlapping_concepts": [
+      "Templates for OpenAPI schema generation",
+      "SPARQL results feeding into templates",
+      "YAML output generation"
+    ],
+    "duplicate_sections": [
+      "OpenAPI schema template examples appear in both contexts"
+    ],
+    "duplicate_code_listings": [
+      "openapi-schemas.tera template appears in chapter3",
+      "Similar schema generation templates referenced in chapter4"
+    ],
+    "recommendation": "Cross-reference between chapters rather than duplicating examples. Chapter 3 should focus on template mechanics using OpenAPI as one example, while Chapter 4 should reference Chapter 3's template explanation and focus on the OpenAPI-specific generation logic. Add explicit cross-references: 'For template architecture details, see Chapter 3, Section X.'"
+  },
+  {
+    "overlap_id": "OVERLAP_010",
+    "severity": "trivial",
+    "chapter_1": "thesis.tex - Code listing styles and formatting",
+    "chapter_2": "All standalone chapter files - Code listing styles",
+    "section_1": "Throughout thesis.tex",
+    "section_2": "Throughout all chapter files",
+    "description": "Code listings use inconsistent language tags and styling across files. Some use 'language=javascript', others 'language=JavaScript', some use 'language=typescript', 'language=sparql', 'language=SPARQL', etc.",
+    "overlapping_concepts": [
+      "LaTeX lstlisting environments for code",
+      "Language-specific syntax highlighting",
+      "Caption formatting"
+    ],
+    "duplicate_sections": [
+      "Similar code examples formatted differently"
+    ],
+    "duplicate_code_listings": [
+      "JavaScript/TypeScript examples use varying language tags",
+      "SPARQL examples inconsistently capitalized"
+    ],
+    "recommendation": "Standardize code listing language tags across all files: use lowercase (javascript, typescript, sparql, turtle, yaml, rust, bash) consistently. Update lstlisting preamble definitions to match. Apply consistent caption formatting."
+  }
+]
