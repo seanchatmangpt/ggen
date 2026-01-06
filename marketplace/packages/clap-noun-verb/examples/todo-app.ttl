@@ -1,0 +1,134 @@
+@prefix cnv: <https://ggen.dev/clap-noun-verb/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@base <http://example.com/todo-app/> .
+
+# =============================================================================
+# Todo App CLI Project
+# =============================================================================
+# Example RDF description for generating a todo app CLI using clap-noun-verb.
+#
+# Features:
+#   - Task management (create, complete, delete, list)
+#   - List organization
+#   - Filter and search
+#
+# Usage:
+#   ggen generate \
+#     --template marketplace/packages/clap-noun-verb/templates/cli-project.tmpl \
+#     --domain marketplace/packages/clap-noun-verb/examples/todo-app.ttl \
+#     --output ./todo-cli/
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Project Metadata
+# -----------------------------------------------------------------------------
+
+<http://example.com/todo-app> a cnv:CliProject ;
+    cnv:projectName "todo-app" ;
+    cnv:projectVersion "0.1.0" ;
+    rdfs:comment "Simple task management CLI" .
+
+# -----------------------------------------------------------------------------
+# Nouns (Resource Types)
+# -----------------------------------------------------------------------------
+
+<#task> a cnv:Noun ;
+    cnv:nounName "task" ;
+    rdfs:comment "Individual task item" ;
+    cnv:hasVerbs <#task_create>, <#task_complete>, <#task_delete>, <#task_list> .
+
+<#list> a cnv:Noun ;
+    cnv:nounName "list" ;
+    rdfs:comment "Task list or project" ;
+    cnv:hasVerbs <#list_create>, <#list_delete>, <#list_view> .
+
+# -----------------------------------------------------------------------------
+# Verbs for Task
+# -----------------------------------------------------------------------------
+
+<#task_create> a cnv:Verb ;
+    cnv:verbName "create" ;
+    rdfs:comment "Create a new task" ;
+    cnv:hasArguments <#task_create_title>, <#task_create_description> .
+
+<#task_complete> a cnv:Verb ;
+    cnv:verbName "complete" ;
+    rdfs:comment "Mark a task as complete" ;
+    cnv:hasArguments <#task_complete_id> .
+
+<#task_delete> a cnv:Verb ;
+    cnv:verbName "delete" ;
+    rdfs:comment "Delete a task" ;
+    cnv:hasArguments <#task_delete_id> .
+
+<#task_list> a cnv:Verb ;
+    cnv:verbName "list" ;
+    rdfs:comment "List all tasks" ;
+    cnv:hasArguments <#task_list_filter> .
+
+# Verbs for List
+<#list_create> a cnv:Verb ;
+    cnv:verbName "create" ;
+    rdfs:comment "Create a new list" ;
+    cnv:hasArguments <#list_create_name> .
+
+<#list_delete> a cnv:Verb ;
+    cnv:verbName "delete" ;
+    rdfs:comment "Delete a list" ;
+    cnv:hasArguments <#list_delete_id> .
+
+<#list_view> a cnv:Verb ;
+    cnv:verbName "view" ;
+    rdfs:comment "View list details" ;
+    cnv:hasArguments <#list_view_id> .
+
+# -----------------------------------------------------------------------------
+# Arguments for Task Verbs
+# -----------------------------------------------------------------------------
+
+<#task_create_title> a cnv:Argument ;
+    cnv:argumentName "title" ;
+    cnv:argumentType <#StringType> .
+
+<#task_create_description> a cnv:Argument ;
+    cnv:argumentName "description" ;
+    cnv:argumentType <#StringType> .
+
+<#task_complete_id> a cnv:Argument ;
+    cnv:argumentName "id" ;
+    cnv:argumentType <#i32Type> .
+
+<#task_delete_id> a cnv:Argument ;
+    cnv:argumentName "id" ;
+    cnv:argumentType <#i32Type> .
+
+<#task_list_filter> a cnv:Argument ;
+    cnv:argumentName "filter" ;
+    cnv:argumentType <#StringType> .
+
+# Arguments for List Verbs
+<#list_create_name> a cnv:Argument ;
+    cnv:argumentName "name" ;
+    cnv:argumentType <#StringType> .
+
+<#list_delete_id> a cnv:Argument ;
+    cnv:argumentName "id" ;
+    cnv:argumentType <#i32Type> .
+
+<#list_view_id> a cnv:Argument ;
+    cnv:argumentName "id" ;
+    cnv:argumentType <#i32Type> .
+
+# -----------------------------------------------------------------------------
+# Types
+# -----------------------------------------------------------------------------
+
+<#i32Type> a cnv:PrimitiveType ;
+    cnv:rust-type "i32" .
+
+<#StringType> a cnv:PrimitiveType ;
+    cnv:rust-type "String" .
+
+<#BoolType> a cnv:PrimitiveType ;
+    cnv:rust-type "bool" .
