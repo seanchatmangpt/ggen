@@ -1,0 +1,324 @@
+@prefix spec: <https://ggen.dev/spec#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix cnv: <https://ggen.dev/clap-noun-verb/> .
+@prefix : <https://ggen.dev/spec/clap-noun-verb-generator/queries#> .
+
+# =============================================================================
+# SPARQL EXTRACTION QUERIES
+# =============================================================================
+# These queries extract structured data from RDF CLI specifications.
+# Used by template rendering to populate context variables.
+# =============================================================================
+
+:ProjectMetadataQuery a spec:SparqlQuery ;
+    rdfs:label "Extract Project Metadata" ;
+    rdfs:comment "Retrieves project name, version, and description" ;
+    spec:returns [ spec:column "name" ; spec:column "version" ; spec:column "description" ] ;
+    spec:sparql """
+        PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+        SELECT ?name ?version ?description WHERE {
+            ?project a cnv:CliProject ;
+                cnv:projectName ?name ;
+                cnv:projectVersion ?version ;
+                rdfs:comment ?description .
+        }
+        LIMIT 1
+    """ ;
+    spec:example """
+        Result for calculator.ttl:
+        | name       | version | description             |
+        |------------|---------|-------------------------|
+        | calculator | 0.1.0   | Simple arithmetic CLI   |
+    """ .
+
+:NounsExtractionQuery a spec:SparqlQuery ;
+    rdfs:label "Extract All Nouns" ;
+    rdfs:comment "Retrieves all noun definitions (domain resources)" ;
+    spec:returns [ spec:column "nounId" ; spec:column "nounName" ; spec:column "description" ] ;
+    spec:sparql """
+        PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+        SELECT ?nounId ?nounName ?description WHERE {
+            ?nounId a cnv:Noun ;
+                cnv:nounName ?nounName ;
+                rdfs:comment ?description .
+        }
+        ORDER BY ?nounName
+    """ ;
+    spec:example """
+        Result for calculator.ttl:
+        | nounId       | nounName | description          |
+        |--------------|----------|----------------------|
+        | <#calc>      | calc     | Calculator operations|
+
+        Result for todo-app.ttl:
+        | nounId       | nounName | description          |
+        |--------------|----------|----------------------|
+        | <#task>      | task     | Individual task item |
+        | <#list>      | list     | Task list or project |
+    """ .
+
+:VerbsExtractionQuery a spec:SparqlQuery ;
+    rdfs:label "Extract Verbs for Each Noun" ;
+    rdfs:comment "Retrieves all verbs (actions) associated with each noun" ;
+    spec:returns [
+        spec:column "nounId" ;
+        spec:column "nounName" ;
+        spec:column "verbId" ;
+        spec:column "verbName" ;
+        spec:column "description"
+    ] ;
+    spec:sparql """
+        PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+        SELECT ?nounId ?nounName ?verbId ?verbName ?description WHERE {
+            ?nounId a cnv:Noun ;
+                cnv:nounName ?nounName ;
+                cnv:hasVerbs ?verbId .
+            ?verbId cnv:verbName ?verbName ;
+                rdfs:comment ?description .
+        }
+        ORDER BY ?nounName ?verbName
+    """ ;
+    spec:example """
+        Result for calculator.ttl:
+        | nounId  | nounName | verbId        | verbName   | description        |
+        |---------|----------|---------------|------------|-------------------|
+        | <#calc> | calc     | <#add>        | add        | Add two numbers   |
+        | <#calc> | calc     | <#divide>     | divide     | Divide left by... |
+        | <#calc> | calc     | <#multiply>   | multiply   | Multiply two...   |
+        | <#calc> | calc     | <#subtract>   | subtract   | Subtract right... |
+    """ .
+
+:ArgumentsExtractionQuery a spec:SparqlQuery ;
+    rdfs:label "Extract Arguments for Each Verb" ;
+    rdfs:comment "Retrieves all arguments/parameters for each verb with type information" ;
+    spec:returns [
+        spec:column "nounId" ;
+        spec:column "nounName" ;
+        spec:column "verbId" ;
+        spec:column "verbName" ;
+        spec:column "argId" ;
+        spec:column "argName" ;
+        spec:column "rustType" ;
+        spec:column "required"
+    ] ;
+    spec:sparql """
+        PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+        SELECT ?nounId ?nounName ?verbId ?verbName ?argId ?argName ?rustType ?required WHERE {
+            ?nounId a cnv:Noun ;
+                cnv:nounName ?nounName ;
+                cnv:hasVerbs ?verbId .
+            ?verbId cnv:verbName ?verbName ;
+                cnv:hasArguments ?argId .
+            ?argId cnv:argumentName ?argName ;
+                cnv:argumentType ?typeId ;
+                cnv:required ?required .
+            ?typeId cnv:rust-type ?rustType .
+        }
+        ORDER BY ?nounName ?verbName ?argName
+    """ ;
+    spec:example """
+        Result for calculator.ttl:
+        | nounId  | nounName | verbId   | verbName | argId        | argName | rustType | required |
+        |---------|----------|----------|----------|--------------|---------|----------|----------|
+        | <#calc> | calc     | <#add>   | add      | <#add_left>  | left    | i32      | true     |
+        | <#calc> | calc     | <#add>   | add      | <#add_right> | right   | i32      | true     |
+    """ .
+
+:TypesExtractionQuery a spec:SparqlQuery ;
+    rdfs:label "Extract Type Definitions" ;
+    rdfs:comment "Retrieves all type definitions including primitive and custom types" ;
+    spec:returns [
+        spec:column "typeId" ;
+        spec:column "typeName" ;
+        spec:column "rustType" ;
+        spec:column "typeClass"
+    ] ;
+    spec:sparql """
+        PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT ?typeId ?typeName ?rustType ?typeClass WHERE {
+            ?typeId rdf:type ?typeClass ;
+                cnv:rust-type ?rustType .
+            OPTIONAL { ?typeId rdfs:label ?typeName . }
+            FILTER (?typeClass IN (cnv:PrimitiveType, cnv:EnumType, cnv:StructType))
+        }
+        ORDER BY ?rustType
+    """ ;
+    spec:example """
+        Result for calculator.ttl:
+        | typeId          | typeName   | rustType | typeClass          |
+        |-----------------|------------|----------|-------------------|
+        | <#i32Type>      | (null)     | i32      | PrimitiveType     |
+        | <#f64Type>      | (null)     | f64      | PrimitiveType     |
+        | <#StringType>   | (null)     | String   | PrimitiveType     |
+    """ .
+
+:EnumTypesExtractionQuery a spec:SparqlQuery ;
+    rdfs:label "Extract Enum Type Definitions" ;
+    rdfs:comment "Retrieves enumeration types with their variants" ;
+    spec:returns [
+        spec:column "enumId" ;
+        spec:column "enumName" ;
+        spec:column "rustType" ;
+        spec:column "variantId" ;
+        spec:column "variantName"
+    ] ;
+    spec:sparql """
+        PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+        SELECT ?enumId ?enumName ?rustType ?variantId ?variantName WHERE {
+            ?enumId a cnv:EnumType ;
+                cnv:rust-type ?rustType ;
+                rdfs:label ?enumName ;
+                cnv:hasValues ?variantId .
+            ?variantId cnv:enumName ?variantName .
+        }
+        ORDER BY ?enumName ?variantName
+    """ ;
+    spec:example """
+        For future use with custom enum types like:
+        | enumId    | enumName | rustType  | variantId | variantName |
+        |-----------|----------|-----------|-----------|-------------|
+        | <#Status> | Status   | Status    | <#v1>     | Pending     |
+        | <#Status> | Status   | Status    | <#v2>     | Complete    |
+    """ .
+
+# =============================================================================
+# QUERY COMPOSITION FOR TEMPLATE CONTEXT
+# =============================================================================
+
+:TemplateContextComposition a spec:CompositeQuery ;
+    rdfs:label "Complete Template Context" ;
+    rdfs:comment "Combines all queries for single-pass template rendering" ;
+    spec:composition [
+        spec:includes :ProjectMetadataQuery ;
+        spec:includes :NounsExtractionQuery ;
+        spec:includes :VerbsExtractionQuery ;
+        spec:includes :ArgumentsExtractionQuery ;
+        spec:includes :TypesExtractionQuery ;
+        spec:includes :EnumTypesExtractionQuery ;
+    ] ;
+    spec:templateVariables [
+        spec:provides "project" ;
+        spec:provides "nouns" ;
+        spec:provides "verbs" ;
+        spec:provides "arguments" ;
+        spec:provides "types" ;
+        spec:provides "enums"
+    ] .
+
+# =============================================================================
+# VALIDATION QUERIES
+# =============================================================================
+
+:MissingProjectMetadataCheck a spec:ValidationQuery ;
+    rdfs:label "Check for Required Project Metadata" ;
+    rdfs:comment "Validates that project has required fields" ;
+    spec:sparql """
+        PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+
+        SELECT ?issue WHERE {
+            ?project a cnv:CliProject .
+            OPTIONAL { ?project cnv:projectName ?name . }
+            OPTIONAL { ?project cnv:projectVersion ?version . }
+            BIND(IF(!BOUND(?name), "Missing projectName", "") AS ?nameIssue)
+            BIND(IF(!BOUND(?version), "Missing projectVersion", "") AS ?versionIssue)
+            BIND(CONCAT(?nameIssue, ?versionIssue) AS ?issue)
+            FILTER(STRLEN(?issue) > 0)
+        }
+    """ ;
+    spec:failureMessage "Project must define projectName and projectVersion" .
+
+:NounWithoutVerbsCheck a spec:ValidationQuery ;
+    rdfs:label "Check for Nouns Without Verbs" ;
+    rdfs:comment "Validates that every noun has at least one verb" ;
+    spec:sparql """
+        PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+
+        SELECT ?noun WHERE {
+            ?noun a cnv:Noun .
+            FILTER NOT EXISTS { ?noun cnv:hasVerbs ?verb . }
+        }
+    """ ;
+    spec:failureMessage "All nouns must have at least one verb" .
+
+:VerbWithoutArgumentsCheck a spec:ValidationQuery ;
+    rdfs:label "Check for Verbs Without Arguments" ;
+    rdfs:comment "Validates that verbs have required arguments (if applicable)" ;
+    spec:sparql """
+        PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+
+        SELECT ?verb WHERE {
+            ?verb a cnv:Verb .
+            FILTER NOT EXISTS { ?verb cnv:hasArguments ?arg . }
+        }
+    """ ;
+    spec:failureMessage "Verbs should typically have arguments (or explicitly define zero)" .
+
+:UndefinedTypeCheck a spec:ValidationQuery ;
+    rdfs:label "Check for Undefined Argument Types" ;
+    rdfs:comment "Validates that all argument types are defined" ;
+    spec:sparql """
+        PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+
+        SELECT ?arg ?type WHERE {
+            ?arg a cnv:Argument ;
+                cnv:argumentType ?type .
+            FILTER NOT EXISTS { ?type cnv:rust-type ?rustType . }
+        }
+    """ ;
+    spec:failureMessage "All argument types must define cnv:rust-type" .
+
+# =============================================================================
+# QUERY DOCUMENTATION
+# =============================================================================
+
+:QueryDocumentation rdfs:comment """
+    ## Using SPARQL Queries in Templates
+
+    Each query can be executed by the template engine and results are
+    made available as Tera context variables.
+
+    ### In cli-project.tmpl
+
+    The template can execute queries like:
+
+    {# SPARQL: project #}
+    PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+    SELECT ?name ?version WHERE {
+        ?project a cnv:CliProject ;
+            cnv:projectName ?name ;
+            cnv:projectVersion ?version .
+    }
+    {# /SPARQL #}
+
+    Then in template: {{ project[0].name }}
+
+    ### Iterating Results
+
+    {% for noun in nouns %}
+        Noun: {{ noun.nounName }}
+        {% for verb in noun.verbs %}
+            Verb: {{ verb.verbName }}
+        {% endfor %}
+    {% endfor %}
+
+    ### Accessing Nested Data
+
+    Arguments are nested under verbs:
+    - project.name → "calculator"
+    - nouns → [{ nounName: "calc", verbs: [...] }]
+    - nouns[0].verbs[0].arguments → [{ argName: "left", rustType: "i32" }]
+""" .
