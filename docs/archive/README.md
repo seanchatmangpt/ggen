@@ -4,13 +4,77 @@ This directory contains older documentation files that are no longer actively ma
 
 ## Archive Organization
 
-- **root/** - Root-level documentation files moved from docs/
-- **releases/** - Old release notes and version-specific documentation
-- **research/** - Old research and analysis documents
-- **innovation/** - Old innovation/phase documentation
-- **metrics/** - Old metrics and reporting documents
+- **root/** - Root-level documentation files (status reports, implementation summaries, completed initiatives)
+- **releases/** - Old v2.x release notes and version-specific documentation
+- **research/** - Research, analysis artifacts, and data files
+- **innovation/** - Phase-based documentation and innovation frameworks
+- **metrics/** - Temporal metrics reports and weekly tracking
+- **academic/** - Academic papers, thesis variants, and research projects
+- **polyglot/** - Language-specific examples (Python, JavaScript, PostgreSQL, etc.) - archived as v5 is Rust-only
+- **reference/** - Quick reference guides and cheat sheets
+- **remediation/** - Remediation framework and weekly fix tracking (completed initiative)
+- **duplicates/** - Duplicate DiATAXIS structures (kept canonical /docs/diataxis/ as source)
 
-## Files Archived (45 total)
+## Archive Statistics
+
+**Total files archived**: 288 (across 2 commits)
+**Total space reclaimed**: ~4-5 MB
+**Root docs before**: 228 → **after**: 140 (39% reduction)
+
+## Archival Batches
+
+### Batch 1 (2026-01-06 Commit 1): Initial Cleanup - 45 files
+- Old version documentation (GGEN V3, Marketplace V1-V2)
+- Phase-based documentation (PHASE1-2, WEEK1-3 reports)
+- Release notes (v2.0.0 through v2.6.0)
+
+### Batch 2 (2026-01-06 Commit 2): Deep Cleanup - 243 files
+
+**Polyglot Language Examples** (9 files)
+- Archived because v5.2.0 is Rust-only per CLAUDE.md
+- Includes: Python FastAPI, JavaScript Express, PostgreSQL, GraphQL, GitHub Actions examples
+
+**Duplicate DiATAXIS Structures** (75 files)
+- `src/` - Full DiATAXIS with tutorials, how-tos, references, explanations
+- `v5/` - Minimal DiATAXIS from v5.0 era (superseded)
+- Kept canonical: `/docs/diataxis/` as single source of truth
+
+**Academic & Thesis Documentation** (112 files)
+- Papers directory (11 academic papers)
+- Thesis variants: ggen-v6-thesis/, spec-kit-3t-thesis/, thesis-construct-schema/
+- Thesis analysis files: competitive analysis, synthesis plans, prose guides
+- Note: Kept `/docs/thesis/3T-PhD-THESIS.md` as active document
+
+**Implementation Summaries & Status Reports** (14 files)
+- COMPLETE_IMPLEMENTATION_80_20.md
+- IMPLEMENTATION_CHECKLIST.md
+- Multiple IMPLEMENTATION_SUMMARY.md files from swarm/, lean_quality/
+- Status completion files: HIVE_MIND_INTEGRATION_COMPLETE.md, GAP_ANALYSIS_COMPLETE.md, etc.
+
+**Remediation Framework** (15 files)
+- Entire `/docs/remediation/` directory
+- Temporal evidence of completed remediation phase
+
+**Phase & Weekly Evidence** (10 files)
+- Innovation phases (PHASE2-4_IMPLEMENTATION.md)
+- Security weekly reports (WEEK_4_*.md)
+- Metrics weekly summaries (WEEK3_SUMMARY.md, WEEK4_SUMMARY.md, week4/ directory)
+- Daily reports directory
+
+**Quick Reference Guides** (6 files)
+- ULTRA_COMPRESSED_REFERENCE.md
+- ULTRA_PATTERNS_MATRIX.md
+- Quick start guides for various features
+- Note: Can be consolidated into single `/docs/reference/QUICK-START.md` if needed
+
+**Research & Analysis Artifacts** (14 files)
+- One-time research investigations (mutation testing, performance optimization, validation reports)
+- Generated manifests (GENERATED_GUIDES_MANIFEST.md, GENERATED_TODOS.md)
+- JSON data files (FASTAPI_ADVANCED_INNOVATIONS.json, etc.)
+
+---
+
+## Files Archived - Batch 1 (45 total)
 
 ### root/ subdirectory (41 files)
 
