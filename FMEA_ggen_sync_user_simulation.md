@@ -1388,26 +1388,787 @@ impl SyncExecutor {
 
 ---
 
-## Implementation Priority
+## Poka-Yoke Framework for ggen sync
 
-### Phase 1: CRITICAL (Week 1)
+### Core Poka-Yoke Principles Applied
+
+**1. Prevention (Yokuten)**: Make mistakes physically or logically impossible
+
+**2. Detection (Shakokugel)**: Make mistakes immediately visible
+
+**3. Reaction (Kakunin)**: Stop the process when mistakes detected
+
+### Poka-Yoke Type Examples in ggen sync
+
+#### Type 1: Automatic Prevention
+
+**Mechanism**: NewType pattern prevents invalid states at compile time
+
+```rust
+// PREVENT: Can't create invalid manifest without validation
+#[derive(Clone)]
+pub struct ValidatedManifest(GgenManifest);
+
+impl ValidatedManifest {
+    pub fn new(path: &Path) -> Result<Self> {
+        let manifest = GgenManifest::parse(path)?;
+
+        // Validation enforced here - can't bypass
+        validate_manifest(&manifest)?;
+        validate_ontology_imports(&manifest)?;
+        validate_circular_dependencies(&manifest)?;
+
+        Ok(ValidatedManifest(manifest))
+    }
+
+    // Can only get inner manifest after validation
+    pub fn inner(&self) -> &GgenManifest {
+        &self.0
+    }
+}
+
+// Usage - validation is mandatory:
+let manifest = ValidatedManifest::new("ggen.toml")?;  // MUST validate
+let m = manifest.inner();  // Now safe to use
+```
+
+**Effect**: User cannot proceed without passing validation
+
+---
+
+#### Type 2: Physical/Logical Constraints
+
+**Mechanism**: Directory structure prevents mixing concerns
+
+```
+ggen-project/
+├── ggen.toml              # Configuration (protected)
+├── ontology/              # RDF source of truth (read-only during sync)
+│   ├── schema.ttl         # Main ontology
+│   ├── domain.ttl         # Domain-specific
+│   └── types.ttl          # Type definitions
+├── templates/             # Generation templates (validated)
+│   ├── model.tera
+│   ├── enum.tera
+│   └── validation.tera
+├── src/generated/         # AUTO-GENERATED (regenerated each sync)
+│   ├── models.rs          # 🔴 DON'T EDIT - will be overwritten
+│   ├── enums.rs
+│   └── generated.rs
+├── src/manual/            # USER CODE (protected from overwrites)
+│   ├── implementations.rs
+│   ├── custom_logic.rs
+│   └── business_rules.rs
+└── .ggen/                 # Internal
+    ├── audit/             # Execution audit trail
+    ├── cache/             # Incremental cache
+    └── markers/           # Generation markers
+```
+
+**Effect**: Physical directory structure prevents mistakes
+
+---
+
+#### Type 3: Automatic Detection & Warning
+
+**Mechanism**: Pre-execution validation catches issues before generation
+
+```rust
+// DETECT: Warn before problem occurs
+pub fn preflight_checks(manifest: &GgenManifest) -> Result<PreflightReport> {
+    let mut warnings = Vec::new();
+    let mut errors = Vec::new();
+
+    // Check 1: Unused TTL files
+    for unused in detect_unused_ttl_files(manifest)? {
+        warnings.push(format!(
+            "Unused ontology file: {} (add to imports if needed)",
+            unused.display()
+        ));
+    }
+
+    // Check 2: Missing template files
+    for rule in &manifest.generation.rules {
+        if !rule.template.exists() {
+            errors.push(format!(
+                "Template not found for rule '{}': {}",
+                rule.name,
+                rule.template.display()
+            ));
+        }
+    }
+
+    // Check 3: Circular dependencies
+    if let Some(cycles) = detect_circular_dependencies(manifest)? {
+        errors.push(format!(
+            "Circular dependencies detected: {:?}",
+            cycles
+        ));
+    }
+
+    // Check 4: Output directory writability
+    if !is_writable(&manifest.generation.output_dir) {
+        errors.push(format!(
+            "Output directory not writable: {}",
+            manifest.generation.output_dir.display()
+        ));
+    }
+
+    // Check 5: Manifest schema compliance
+    validate_manifest_schema(manifest)?;
+
+    if !errors.is_empty() {
+        return Err(Error::PreflightCheckFailed { errors, warnings });
+    }
+
+    Ok(PreflightReport { warnings })
+}
+```
+
+**Effect**: Issues caught BEFORE generation phase starts
+
+---
+
+### Implementation Priority
+
+#### Phase 1: CRITICAL (Week 1) - Prevention
 - [ ] M1.1: Manifest template generation (`ggen init`)
 - [ ] M1.2: Enhanced validation error messages
-- [ ] M2.1: Improved error context
-- [ ] M2.5: Pre-flight permission checks
+- [ ] M1.4: Circular dependency detection (AUTO-PREVENT)
+- [ ] M2.5: Pre-flight permission checks (AUTO-DETECT)
 
-### Phase 2: HIGH (Week 2-3)
+#### Phase 2: HIGH (Week 2-3) - Detection
 - [ ] M1.3: Ontology import validation
-- [ ] M1.4: Circular dependency detection
 - [ ] M1.5: Template pre-validation
+- [ ] M2.1: Improved error context
 - [ ] M2.2: Improve validate-only mode
 - [ ] M2.3: Rule name validation
 
-### Phase 3: MEDIUM (Week 4)
+#### Phase 3: MEDIUM (Week 4) - Reaction
 - [ ] M2.4: Cache validation checksum
 - [ ] M3.1: User confirmation for overwrites
 - [ ] M3.2: Andon signals enforcement
 - [ ] M3.3: Comprehensive audit trail
+
+---
+
+## Andon Signal System for ggen sync
+
+**Andon** (安頓): Japanese "stop the line" protocol. When a defect is detected, stop immediately, don't hide it.
+
+### Signal Levels
+
+```
+🔴 RED SIGNAL (STOP)
+   ├─ Compilation error
+   ├─ Manifest validation failure
+   ├─ Circular dependency detected
+   ├─ Permission denied on output
+   ├─ SPARQL syntax error
+   └─ Timeout exceeded
+
+   Action: STOP immediately, fix required before proceeding
+
+🟡 YELLOW SIGNAL (CAUTION)
+   ├─ Unused TTL files in ontology/
+   ├─ Template contains unused variables
+   ├─ Cache invalidated (regenerating)
+   ├─ Clippy warnings in generated code
+   ├─ Performance: generation took >5s
+   └─ Large output files (>100KB)
+
+   Action: Investigate, review before release
+
+🟢 GREEN SIGNAL (GO)
+   ├─ All checks passed
+   ├─ Manifest valid
+   ├─ No circular dependencies
+   ├─ Templates valid
+   ├─ Permissions OK
+   ├─ All rules executed
+   └─ 0 warnings
+
+   Action: PROCEED safely
+```
+
+### Andon Implementation in ggen sync
+
+#### 1. RED Signal Handler
+
+```rust
+// crates/ggen-core/src/andon/signals.rs
+
+pub enum AndonSignal {
+    Red(CriticalError),
+    Yellow(Warning),
+    Green,
+}
+
+pub struct CriticalError {
+    pub code: String,                    // e.g., "MANIFEST_INVALID"
+    pub message: String,
+    pub context: String,
+    pub recovery_steps: Vec<String>,
+    pub documentation_link: String,
+}
+
+impl AndonSignal {
+    pub fn enforce(&self) -> Result<()> {
+        match self {
+            AndonSignal::Red(error) => {
+                eprintln!("╔════════════════════════════════════════════╗");
+                eprintln!("║ 🔴 ANDON SIGNAL: RED - STOP IMMEDIATELY   ║");
+                eprintln!("╚════════════════════════════════════════════╝");
+                eprintln!();
+                eprintln!("Error Code: {}", error.code);
+                eprintln!("Message: {}", error.message);
+                eprintln!();
+                eprintln!("Context:");
+                for line in error.context.lines() {
+                    eprintln!("  {}", line);
+                }
+                eprintln!();
+                eprintln!("Recovery Steps:");
+                for (i, step) in error.recovery_steps.iter().enumerate() {
+                    eprintln!("  {}. {}", i + 1, step);
+                }
+                eprintln!();
+                eprintln!("📖 Learn more: {}", error.documentation_link);
+                eprintln!();
+                eprintln!("Sync STOPPED. Fix error above and retry.");
+
+                Err(Error::AndonRedSignal(error.code))
+            }
+            AndonSignal::Yellow(warning) => {
+                eprintln!("⚠️  ANDON SIGNAL: YELLOW - CAUTION");
+                eprintln!("{}", warning.message);
+                eprintln!("  Suggestion: {}", warning.suggestion);
+                eprintln!();
+                eprintln!("Continuing (use --strict to error on warnings)");
+                Ok(())
+            }
+            AndonSignal::Green => {
+                println!("✓ 🟢 All Andon checks GREEN - proceeding");
+                Ok(())
+            }
+        }
+    }
+}
+```
+
+#### 2. RED Signal Examples
+
+**Example 1: Manifest Validation Failure**
+
+```
+╔════════════════════════════════════════════╗
+║ 🔴 ANDON SIGNAL: RED - STOP IMMEDIATELY   ║
+╚════════════════════════════════════════════╝
+
+Error Code: MANIFEST_INVALID
+Message: Manifest validation failed - 2 required fields missing
+
+Context:
+  File: ggen.toml
+  Issues:
+    1. [ontology].source is required (e.g., "ontology/schema.ttl")
+    2. [generation].rules must contain at least 1 rule
+
+Recovery Steps:
+  1. Open ggen.toml in editor
+  2. Add [ontology] section with source = "ontology/schema.ttl"
+  3. Add [generation] section with at least one rule
+  4. Or use `ggen init` to create valid template
+
+📖 Learn more: https://ggen.dev/docs/manifest-format
+
+Sync STOPPED. Fix error above and retry.
+```
+
+**Example 2: Circular Dependency Detected**
+
+```
+╔════════════════════════════════════════════╗
+║ 🔴 ANDON SIGNAL: RED - STOP IMMEDIATELY   ║
+╚════════════════════════════════════════════╝
+
+Error Code: CIRCULAR_DEPENDENCY
+Message: Circular dependency detected in ontology imports
+
+Context:
+  Cycle found:
+    ontology/a.ttl → ontology/b.ttl
+                  ↓
+    ontology/c.ttl → ontology/a.ttl (CLOSES CYCLE)
+
+  This creates infinite loop in dependency resolution
+
+Recovery Steps:
+  1. Review import statements in affected files
+  2. Restructure as directed acyclic graph (DAG)
+  3. Option A: Create root ontology that imports all
+  4. Option B: Move shared definitions to base ontology
+  5. Use `ggen sync --validate-only` to verify
+
+📖 Learn more: https://ggen.dev/docs/ontology-structure
+
+Sync STOPPED. Fix error above and retry.
+```
+
+**Example 3: Permission Denied**
+
+```
+╔════════════════════════════════════════════╗
+║ 🔴 ANDON SIGNAL: RED - STOP IMMEDIATELY   ║
+╚════════════════════════════════════════════╝
+
+Error Code: OUTPUT_DIR_NOT_WRITABLE
+Message: Cannot write to output directory
+
+Context:
+  Path: src/generated/
+  Permissions: dr-xr-xr-x (755 - read-only)
+  User: alice
+  Group: developers
+
+Recovery Steps:
+  1. Make directory writable:
+     $ chmod u+w src/generated/
+  2. Or use different output directory:
+     [generation]
+     output_dir = "src/gen"  # Change in ggen.toml
+  3. Or run with sudo (not recommended):
+     $ sudo ggen sync
+
+📖 Learn more: https://ggen.dev/docs/permissions
+
+Sync STOPPED. Fix error above and retry.
+```
+
+#### 3. YELLOW Signal Examples
+
+```
+⚠️  ANDON SIGNAL: YELLOW - CAUTION
+
+Found 3 unused ontology files:
+  - ontology/deprecated.ttl (8 months old)
+  - ontology/experimental.ttl (2 weeks old)
+  - ontology/old_schema.ttl (1 year old)
+
+Suggestion: If these aren't needed, delete them.
+Otherwise add to imports: ontology.imports = [...].
+
+Continuing (use --strict to error on warnings)
+```
+
+```
+⚠️  ANDON SIGNAL: YELLOW - CAUTION
+
+Template variable mismatch in templates/model.tera:
+  Variable '?author' used but not in SELECT results
+  Available: ?name, ?description, ?created_at
+
+Suggestion: Fix query to include ?author:
+  SELECT ?name ?description ?created_at ?author WHERE { ... }
+
+Continuing (use --strict to error on warnings)
+```
+
+```
+⚠️  ANDON SIGNAL: YELLOW - CAUTION
+
+Performance: Generation took 8.5s (target: <5s)
+  Inference rules: 3.2s
+  Template rendering: 4.1s
+  File writing: 1.2s
+
+Suggestion: Consider optimizing SPARQL queries or caching.
+
+Continuing (use --strict to error on warnings)
+```
+
+---
+
+## Quality Gate System
+
+**Quality Gate**: Mandatory checkpoints that must PASS before proceeding. Failure stops the pipeline.
+
+### Pre-Sync Quality Gates (Preflight)
+
+```
+$ ggen sync
+
+[Quality Gate: Manifest Schema]
+  ✓ TOML parsing succeeds
+  ✓ All required fields present
+  ✓ Field types correct
+
+[Quality Gate: Ontology Dependencies]
+  ✓ ontology.source file exists
+  ✓ All imports exist and readable
+  ✓ No circular dependencies
+  ✓ All files are valid Turtle syntax
+
+[Quality Gate: SPARQL Validation]
+  ✓ All SELECT queries are valid SPARQL
+  ✓ All CONSTRUCT rules are valid SPARQL
+  ✓ Query variables don't contain typos
+
+[Quality Gate: Template Validation]
+  ✓ All template files exist
+  ✓ Template syntax is valid Tera
+  ✓ Template variables match query results
+  ✓ No undefined variable references
+
+[Quality Gate: File Permissions]
+  ✓ Output directory exists
+  ✓ Output directory is writable
+  ✓ Sufficient disk space (>10MB)
+
+[Quality Gate: Rule Validation]
+  ✓ All generation rules reference existing templates
+  ✓ All selected rules (--rule) exist in manifest
+
+All Gates: ✅ PASSED → Proceeding to generation phase
+```
+
+### Gate Implementation
+
+```rust
+// crates/ggen-core/src/quality_gates/mod.rs
+
+pub trait QualityGate: Send + Sync {
+    fn name(&self) -> &str;
+    fn check(&self, manifest: &GgenManifest) -> Result<()>;
+}
+
+pub struct QualityGateRunner {
+    gates: Vec<Box<dyn QualityGate>>,
+}
+
+impl QualityGateRunner {
+    pub fn new() -> Self {
+        QualityGateRunner {
+            gates: vec![
+                Box::new(ManifestSchemaGate),
+                Box::new(OntologyDependenciesGate),
+                Box::new(SparqlValidationGate),
+                Box::new(TemplateValidationGate),
+                Box::new(FilePermissionsGate),
+                Box::new(RuleValidationGate),
+            ],
+        }
+    }
+
+    pub fn run_all(&self, manifest: &GgenManifest) -> Result<()> {
+        for gate in &self.gates {
+            print!("[Quality Gate: {}]", gate.name());
+            match gate.check(manifest) {
+                Ok(_) => println!(" ✓"),
+                Err(e) => {
+                    println!(" ✗");
+                    return Err(AndonSignal::Red(CriticalError {
+                        code: format!("GATE_{}", gate.name().to_uppercase()),
+                        message: format!("Quality gate failed: {}", gate.name()),
+                        context: e.to_string(),
+                        recovery_steps: gate.recovery_suggestions(&e),
+                        documentation_link: gate.docs_link(),
+                    }));
+                }
+            }
+        }
+
+        println!("\nAll Gates: ✅ PASSED → Proceeding to generation phase");
+        Ok(())
+    }
+}
+
+// Individual gates:
+
+pub struct ManifestSchemaGate;
+impl QualityGate for ManifestSchemaGate {
+    fn name(&self) -> &str { "Manifest Schema" }
+    fn check(&self, manifest: &GgenManifest) -> Result<()> {
+        // Validate manifest structure
+        Ok(())
+    }
+}
+
+pub struct OntologyDependenciesGate;
+impl QualityGate for OntologyDependenciesGate {
+    fn name(&self) -> &str { "Ontology Dependencies" }
+    fn check(&self, manifest: &GgenManifest) -> Result<()> {
+        // Check files exist, no cycles, valid TTL
+        Ok(())
+    }
+}
+
+pub struct SparqlValidationGate;
+impl QualityGate for SparqlValidationGate {
+    fn name(&self) -> &str { "SPARQL Validation" }
+    fn check(&self, manifest: &GgenManifest) -> Result<()> {
+        // Validate all queries
+        Ok(())
+    }
+}
+
+pub struct TemplateValidationGate;
+impl QualityGate for TemplateValidationGate {
+    fn name(&self) -> &str { "Template Validation" }
+    fn check(&self, manifest: &GgenManifest) -> Result<()> {
+        // Validate templates exist, syntax, variables
+        Ok(())
+    }
+}
+
+pub struct FilePermissionsGate;
+impl QualityGate for FilePermissionsGate {
+    fn name(&self) -> &str { "File Permissions" }
+    fn check(&self, manifest: &GgenManifest) -> Result<()> {
+        // Check write permissions, disk space
+        Ok(())
+    }
+}
+
+pub struct RuleValidationGate;
+impl QualityGate for RuleValidationGate {
+    fn name(&self) -> &str { "Rule Validation" }
+    fn check(&self, manifest: &GgenManifest) -> Result<()> {
+        // Check rules exist, templates referenced
+        Ok(())
+    }
+}
+```
+
+---
+
+## Stop-the-Line Protocol (Andon Pull Cord)
+
+**Stop-the-Line**: When a defect is detected, STOP PRODUCTION immediately. Don't hide problems.
+
+### When to Pull the Andon Cord (RED Signal)
+
+```
+PULL CORD IF ANY OF THESE OCCUR:
+
+1. Manifest Validation Fails
+   → Cannot proceed without valid manifest
+
+2. Circular Dependencies Detected
+   → Would cause infinite loops
+
+3. File Permissions Error
+   → Cannot write output
+
+4. SPARQL Syntax Error
+   → Query will fail at runtime
+
+5. Template Validation Fails
+   → Generation would fail mid-pipeline
+
+6. Execution Timeout
+   → Something is stuck/hanging
+
+7. Cache Corruption Detected
+   → Could generate stale code
+
+8. Unexpected Exception
+   → Unknown error state
+```
+
+### Protocol Flow
+
+```
+START ggen sync
+    ↓
+[Preflight Quality Gates]
+    ├─ ANY GATE FAILS? → 🔴 RED SIGNAL
+    │   ├─ Display error clearly
+    │   ├─ Show recovery steps
+    │   ├─ STOP immediately
+    │   └─ Require manual fix
+    │
+    └─ ALL GATES PASS? → Continue
+        ↓
+    [Load Ontology]
+        ├─ Error? → 🔴 RED SIGNAL
+        └─ Success? → Continue
+            ↓
+        [Execute Inference Rules]
+            ├─ Error/Timeout? → 🔴 RED SIGNAL
+            └─ Success? → Continue
+                ↓
+            [Execute Generation Rules]
+                ├─ Error? → 🔴 RED SIGNAL
+                └─ Success? → Continue
+                    ↓
+                [Validate Output]
+                    ├─ Warning? → 🟡 YELLOW SIGNAL (non-blocking)
+                    └─ Error? → 🔴 RED SIGNAL
+                        ↓
+                    [Write Files]
+                        ├─ Permission Error? → 🔴 RED SIGNAL
+                        └─ Success? → Continue
+                            ↓
+                        [Generate Audit Trail]
+                            ↓
+                        [Done: 🟢 GREEN SIGNAL]
+```
+
+### Example: Stop-the-Line in Action
+
+**User attempts sync with manifest error**:
+```bash
+$ ggen sync
+
+[Quality Gate: Manifest Schema]
+  ✗ FAILED - field 'ontology.source' is required
+
+╔════════════════════════════════════════════╗
+║ 🔴 ANDON SIGNAL: RED - STOP IMMEDIATELY   ║
+╚════════════════════════════════════════════╝
+
+Error Code: MANIFEST_INVALID
+Message: Manifest validation failed
+
+Recovery Steps:
+  1. Add [ontology] section
+  2. Set source = "ontology/schema.ttl"
+  3. Try again
+
+Sync STOPPED.
+```
+
+**User must fix the issue**:
+```bash
+$ cat >> ggen.toml <<EOF
+
+[ontology]
+source = "ontology/schema.ttl"
+EOF
+
+$ ggen sync
+
+[Quality Gate: Manifest Schema] ✓
+[Quality Gate: Ontology Dependencies] ✓
+[Quality Gate: SPARQL Validation] ✓
+[Quality Gate: Template Validation] ✓
+[Quality Gate: File Permissions] ✓
+[Quality Gate: Rule Validation] ✓
+
+All Gates: ✅ PASSED → Proceeding to generation phase
+
+✓ Sync completed: 5 files generated (234ms)
+🟢 GREEN SIGNAL - All checks passed
+```
+
+---
+
+## Error Classification & Responses
+
+| Error Class | Severity | Response | Examples |
+|-------------|----------|----------|----------|
+| **Manifest** | CRITICAL | 🔴 RED STOP | Missing required fields, invalid TOML |
+| **Dependency** | CRITICAL | 🔴 RED STOP | Missing files, circular imports |
+| **Syntax** | CRITICAL | 🔴 RED STOP | Invalid TTL, invalid SPARQL |
+| **Permission** | CRITICAL | 🔴 RED STOP | Cannot write output, file locked |
+| **Timeout** | CRITICAL | 🔴 RED STOP | Execution exceeded limit |
+| **Validation** | HIGH | 🟡 YELLOW WARN | Unused files, mismatched variables |
+| **Performance** | MEDIUM | 🟡 YELLOW WARN | Slow queries, large outputs |
+| **Info** | LOW | 🟢 GREEN OK | Cache hit, files updated |
+
+---
+
+## Deterministic Validation (Evidence-First)
+
+**Instead of**: "Looks good!" (opinion)
+
+**Use**: "[Receipt] Quality Gates: ✓ 6/6, No RED signals" (evidence)
+
+### Receipt Format
+
+```
+╔════════════════════════════════════════════╗
+║ SYNC RECEIPT                               ║
+╚════════════════════════════════════════════╝
+
+Execution ID: sync-20260106-143022
+Status: ✅ SUCCESS
+Duration: 234ms
+
+QUALITY GATES: 6/6 ✓
+  [✓] Manifest Schema
+  [✓] Ontology Dependencies
+  [✓] SPARQL Validation
+  [✓] Template Validation
+  [✓] File Permissions
+  [✓] Rule Validation
+
+ANDON SIGNALS:
+  [🟢] All GREEN - No RED signals
+  [🟡] 2 YELLOW warnings (--strict mode would fail)
+        - Unused: ontology/deprecated.ttl
+        - Performance: inference took 3.2s
+
+GENERATION RESULTS:
+  Ontology: ontology/schema.ttl (248 triples)
+  Rules Executed:
+    ✓ generate_structs (5 files, 2.1s)
+    ✓ generate_enums (2 files, 0.8s)
+    ✓ generate_traits (3 files, 1.3s)
+  Files Written: 10 files (12.4 KB total)
+
+CHECKSUMS:
+  Input Hash: abc123def456...
+  Output Hash: xyz789uvw012...
+  Cache Valid: YES
+
+AUDIT TRAIL: .ggen/audit/sync-20260106-143022.json
+
+NEXT STEPS:
+  ✓ Review generated files: src/generated/
+  ✓ Run tests: cargo test
+  ✓ Commit: git add src/generated/
+```
+
+---
+
+## Constitutional Rules Enforcement
+
+```rust
+// Enforce constitution at runtime
+
+pub struct ConstituationalGuard;
+
+impl ConstituationalGuard {
+    pub fn enforce_cargo_make_only() {
+        // 🔴 RED: Never allow direct cargo commands
+        // Only allow: cargo make check/test/lint
+    }
+
+    pub fn enforce_no_unwrap_in_production() {
+        // 🟡 YELLOW: Warn if unwrap/expect found in generated code
+        // 🔴 RED: Block if found in critical paths
+    }
+
+    pub fn enforce_andon_signals() {
+        // All errors mapped to RED/YELLOW/GREEN
+        // No silent failures allowed
+        // Errors must have recovery steps
+    }
+
+    pub fn enforce_rdf_first() {
+        // 🔴 RED: Reject edits to .md files (edit .ttl)
+        // Warn if .md generated but .ttl source not updated
+    }
+
+    pub fn enforce_error_handling() {
+        // 🔴 RED: No panics in production code
+        // All external APIs must return Result<T, E>
+        // All user input must be validated
+    }
+}
+```
 
 ---
 
