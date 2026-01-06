@@ -1,6 +1,12 @@
 //! Error handling and resilience performance benchmarks
 //!
-//! Benchmarks for error creation, propagation, and recovery scenarios
+//! DISCLAIMER: These benchmarks measure error handling patterns INCLUDING:
+//! - String allocation for error messages (dominates measurement time)
+//! - Enum variant construction
+//! - Error propagation through call stacks
+//!
+//! String allocation is typically microseconds, not nanoseconds.
+//! DO NOT interpret these numbers as "error creation overhead" in isolation.
 //!
 //! Run with: cargo bench --bench error_handling_benchmarks
 
