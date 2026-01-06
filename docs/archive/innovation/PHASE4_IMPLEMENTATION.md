@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Phase 4: Integration with Act - Implementation](#phase-4-integration-with-act---implementation)
+  - [Status: ✅ Complete](#status--complete)
+    - [Deliverables](#deliverables)
+    - [GitHub Actions Workflow Structure](#github-actions-workflow-structure)
+    - [Act Integration](#act-integration)
+    - [Monitoring and Alerting](#monitoring-and-alerting)
+    - [CI/CD Integration](#cicd-integration)
+    - [Benefits](#benefits)
+    - [Usage Examples](#usage-examples)
+      - [Local Testing with Act](#local-testing-with-act)
+      - [Monitoring](#monitoring)
+      - [CI/CD Integration](#cicd-integration-1)
+    - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Phase 4: Integration with Act - Implementation
 
 ## Status: ✅ Complete
@@ -142,4 +162,8 @@ The workflow runs automatically on:
 **Framework Status**: All 4 phases complete (100%)
 **Total Effort**: 8-12 hours
 **Value Delivered**: 100% - Complete Andon Signal Validation Framework
+
+
+
+
 
