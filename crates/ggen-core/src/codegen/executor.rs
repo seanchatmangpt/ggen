@@ -24,6 +24,7 @@ use crate::codegen::{
     SyncOptions,
 };
 use crate::manifest::{ManifestParser, ManifestValidator};
+use crate::poka_yoke::QualityGateRunner;
 use ggen_utils::error::{Error, Result};
 use serde::Serialize;
 use std::path::Path;
@@ -175,6 +176,15 @@ impl SyncExecutor {
                 dep_validator.failed_checks
             )));
         }
+
+        // Run quality gates - mandatory checkpoints before generation
+        let gate_runner = QualityGateRunner::new();
+        gate_runner.run_all(&manifest_data, base_path).map_err(|e| {
+            Error::new(&format!(
+                "error[E0004]: Quality gate validation failed\n  |\n  = error: {}\n  = help: Fix validation errors before syncing",
+                e
+            ))
+        })?;
 
         // Run marketplace pre-flight validation (FMEA analysis)
         let marketplace_validator = MarketplaceValidator::new(160);
