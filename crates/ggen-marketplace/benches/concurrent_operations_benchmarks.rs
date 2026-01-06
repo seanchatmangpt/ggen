@@ -1,6 +1,20 @@
-//! Concurrent marketplace operations benchmarks
+//! Thread spawning and atomic operation benchmarks - NOT marketplace operation benchmarks
 //!
-//! Benchmarks for concurrent installs, searches, and registry operations
+//! IMPORTANT DISCLAIMER:
+//! These benchmarks measure:
+//! - Thread spawning overhead
+//! - Atomic counter operations
+//! - Simple loop iterations in spawned threads
+//!
+//! They do NOT measure:
+//! - Real marketplace install operations
+//! - Real package search queries
+//! - Registry operations
+//! - RwLock contention with real data structures
+//! - Actual marketplace domain logic
+//!
+//! Current status: These benchmarks are INVALID for measuring marketplace concurrency.
+//! They measure test infrastructure only.
 //!
 //! Run with: cargo bench --bench concurrent_operations_benchmarks
 

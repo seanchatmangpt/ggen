@@ -1,6 +1,18 @@
-//! End-to-end sync operation performance benchmarks
+//! Test fixture setup benchmarks - NOT ggen sync operation benchmarks
 //!
-//! Benchmarks for the main ggen sync command and related operations
+//! IMPORTANT DISCLAIMER:
+//! These benchmarks measure test infrastructure creation (temporary directories,
+//! template files, configuration files) - NOT actual ggen sync operations.
+//!
+//! They do NOT call the real sync implementation. This is a SIMULATION benchmark,
+//! not a measurement of actual ggen performance.
+//!
+//! To benchmark real ggen sync, you would need to:
+//! - Call Generator::generate() or equivalent
+//! - Call Pipeline::execute()
+//! - Measure actual code generation operations
+//!
+//! Current status: These benchmarks are INVALID for measuring ggen sync.
 //!
 //! Run with: cargo bench --bench sync_operation_benchmarks
 
