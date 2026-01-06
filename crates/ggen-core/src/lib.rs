@@ -180,7 +180,9 @@ pub use lifecycle::{
 };
 
 // Re-export protection and signal types
-pub use protection::{GlobPattern, ProtectedPath, PathError, PathProtector, PathProtectionError};
+pub use protection::{
+    GlobPattern, ProtectedPath, PathError, PathProtector, PathProtectionError, GeneratorPathGuard,
+};
 pub use signals::{AndonSignal, AndonContext};
 
 // Re-export commonly used types for convenience
