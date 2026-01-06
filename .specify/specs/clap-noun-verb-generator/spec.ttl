@@ -1,0 +1,263 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix cnv: <https://ggen.dev/clap-noun-verb/> .
+@prefix spec: <http://ggen.io/spec/clap-noun-verb-generator#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+
+<http://ggen.io/spec/clap-noun-verb-generator> a dcat:Catalog ;
+    rdfs:label "clap-noun-verb Generator Enhancement Specification" ;
+    rdfs:comment "Complete, production-ready clap-noun-verb generator example with marketplace integration" ;
+    spec:phase "EPIC 9 - Parallel Agent Construction" ;
+    spec:agents 10 .
+
+# ============================================================================
+# AGENT 1: Enhanced Calculator Example
+# ============================================================================
+
+spec:agent-1 a spec:Agent ;
+    rdfs:label "Agent 1: Advanced Calculator Example" ;
+    spec:task """
+    Refactor /home/user/ggen/marketplace/packages/clap-noun-verb/examples/calculator.ttl to:
+    1. Add 8 more operations (power, sqrt, sin, cos, tan, log, exp, abs)
+    2. Add option flags (--precision N, --radians/--degrees for trig)
+    3. Add validation constraints via SHACL shapes
+    4. Add comprehensive rdfs:comment documentation for each operation
+    5. Ensure all 12 operations follow consistent patterns
+    6. Save as enhanced-calculator.ttl in examples/
+    """ ;
+    spec:output "examples/enhanced-calculator.ttl" ;
+    spec:validation "Valid RDF/Turtle, all 12 operations defined, SHACL-compatible shapes" .
+
+# ============================================================================
+# AGENT 2: Enhanced Enterprise Example
+# ============================================================================
+
+spec:agent-2 a spec:Agent ;
+    rdfs:label "Agent 2: Enterprise Multi-Tenant Example" ;
+    spec:task """
+    Enhance /home/user/ggen/marketplace/packages/clap-noun-verb/examples/enterprise-ops/
+    to multi-tenant with:
+    1. Add tenants/ subdirectory with tenant-specific ontologies
+    2. Add shared/base-operations.ttl (CRUD templates)
+    3. Add validation/constraints.ttl (SHACL rules for team collaboration)
+    4. Expand user management: 5 more verbs (export, import, audit, bulk-update)
+    5. Add config management with environment-specific overrides
+    6. Add comprehensive documentation in each noun's README
+    """ ;
+    spec:output "examples/enterprise-ops/ontology/" ;
+    spec:validation "Valid RDF, 50+ total operations, zero conflicts, team-ready" .
+
+# ============================================================================
+# AGENT 3: Documentation Templates
+# ============================================================================
+
+spec:agent-3 a spec:Agent ;
+    rdfs:label "Agent 3: Documentation Generation Template" ;
+    spec:task """
+    Create templates/doc-generation.tmpl for:
+    1. Extract all nouns and verbs from RDF using SPARQL
+    2. Generate markdown documentation with:
+       - Overview section
+       - Noun descriptions with verb lists
+       - Argument requirements and types
+       - Example usage for each verb
+       - Error handling patterns
+    3. Include mermaid diagrams for CLI architecture
+    4. Generate quick-reference command list
+    """ ;
+    spec:output "templates/doc-generation.tmpl" ;
+    spec:validation "Valid Tera template, SPARQL queries work, markdown valid" .
+
+# ============================================================================
+# AGENT 4: Golden File Generation & Validation
+# ============================================================================
+
+spec:agent-4 a spec:Agent ;
+    rdfs:label "Agent 4: Golden File System" ;
+    spec:task """
+    Create comprehensive golden file system:
+    1. Create golden/calculator-generated/ with expected output files from enhanced-calculator.ttl
+    2. Create golden/enterprise-generated/ with expected outputs from enterprise-ops
+    3. Create golden/comparison/ with deterministic comparison rules
+    4. Build validation manifest: golden-files.toml listing all golden artifacts
+    5. Create compare.sh script for bytewise comparison
+    """ ;
+    spec:output "golden/calculator-generated/, golden/enterprise-generated/, validation/" ;
+    spec:validation "All golden files complete, compare.sh executable, deterministic" .
+
+# ============================================================================
+# AGENT 5: Enhanced Package Manifest
+# ============================================================================
+
+spec:agent-5 a spec:Agent ;
+    rdfs:label "Agent 5: Package Manifest & FMEA" ;
+    spec:task """
+    Enhance marketplace package.toml:
+    1. Update version to 5.4.0
+    2. Add maturity_level: "production" with evidence
+    3. Add FMEA section with:
+       - F1: Edit generated file (warning header + protected paths)
+       - F2: Overwrite domain code (trait boundary protection)
+       - F5: Missing error handling (Result<T> enforcement)
+       - F9: Team merge conflicts (one-file-per-verb pattern)
+    4. Add validation hooks:
+       - Pre-generation: Turtle syntax, SHACL constraints
+       - Post-generation: Rust compilation, test execution
+    5. Document all three examples (calculator, enterprise-ops, new advanced)
+    """ ;
+    spec:output "package.toml" ;
+    spec:validation "TOML valid, all sections complete, SLOs documented" .
+
+# ============================================================================
+# AGENT 6: Integration Tests
+# ============================================================================
+
+spec:agent-6 a spec:Agent ;
+    rdfs:label "Agent 6: Integration Test Suite" ;
+    spec:task """
+    Create tests/integration_tests.rs with Chicago TDD tests:
+    1. test_calculator_generation - Generate from enhanced-calculator.ttl, verify compilation
+    2. test_enterprise_generation - Generate from enterprise-ops, verify all nouns
+    3. test_macro_expansion - Verify #[noun] and #[verb] macros compile correctly
+    4. test_error_handling - Ensure invalid RDF is rejected with clear errors
+    5. test_generated_cli_execution - Actually run calc add 10 5, verify output
+    6. test_deterministic_generation - Same RDF → same generated code (bytewise)
+    7. test_golden_file_comparison - Compare outputs against golden/ directory
+    """ ;
+    spec:output "tests/integration_tests.rs" ;
+    spec:validation "Tests compile, all pass, chicago-tdd-tools 1.4.0 AAA pattern" .
+
+# ============================================================================
+# AGENT 7: Rust Validation Macros
+# ============================================================================
+
+spec:agent-7 a spec:Agent ;
+    rdfs:label "Agent 7: Compile-Time Validation Macros" ;
+    spec:task """
+    Create crates/ggen-macros enhancements:
+    1. Enhance #[noun] macro to validate at compile-time:
+       - Ensure all required verbs present
+       - Check for name conflicts
+       - Verify trait implementations exist
+    2. Enhance #[verb] macro to validate:
+       - Arguments match RDF spec
+       - Error types are Result<T, E>
+       - No unwrap/expect in generated code
+    3. Create compile_assert! macro for RDF validation rules
+    4. Generate detailed error messages pointing to RDF source
+    """ ;
+    spec:output "crates/ggen-macros/src/" ;
+    spec:validation "Macros compile, generate proper errors, zero panics in production" .
+
+# ============================================================================
+# AGENT 8: Comprehensive Validation Script
+# ============================================================================
+
+spec:agent-8 a spec:Agent ;
+    rdfs:label "Agent 8: Validation & Test Harness" ;
+    spec:task """
+    Create validate.sh script that:
+    1. Checks ggen installation: ggen sync --version
+    2. Validates RDF syntax: all .ttl files in examples/
+    3. Validates SHACL constraints: SHACL validation rules
+    4. Runs code generation: ggen sync for calculator and enterprise examples
+    5. Compiles generated code: cargo check in output directories
+    6. Runs generated CLIs: execute calculator add 10 5, verify JSON output
+    7. Compares golden files: bytewise comparison of generated artifacts
+    8. Runs integration tests: cargo make test
+    9. Reports results with pass/fail status and exit codes
+    """ ;
+    spec:output "validate.sh, validate-results.json" ;
+    spec:validation "Executable, works end-to-end, deterministic output" .
+
+# ============================================================================
+# AGENT 9: Usage Documentation
+# ============================================================================
+
+spec:agent-9 a spec:Agent ;
+    rdfs:label "Agent 9: Usage Guide & Examples" ;
+    spec:task """
+    Create comprehensive USAGE.md documentation:
+    1. Update USAGE.md section 1: Quick Start (copy-paste ready)
+    2. Update section 2: RDF Vocabulary (cnv:Noun, cnv:Verb, etc with examples)
+    3. Update section 3: Three-Layer Architecture with diagrams
+    4. Add section 4: Real-World Examples
+       - calculator (simple)
+       - enterprise-ops (complex)
+       - (new advanced example)
+    5. Add section 5: Troubleshooting
+    6. Add section 6: Advanced Patterns
+       - Custom types
+       - Nested operations
+       - Cross-noun commands
+    7. Add checklists for users: pre-generation, post-generation
+    """ ;
+    spec:output "USAGE.md" ;
+    spec:validation "Markdown valid, all code snippets work, checklists complete" .
+
+# ============================================================================
+# AGENT 10: E2E Test Harness
+# ============================================================================
+
+spec:agent-10 a spec:Agent ;
+    rdfs:label "Agent 10: End-to-End Test Harness" ;
+    spec:task """
+    Create tests/e2e_tests.rs with testcontainers:
+    1. e2e_calculator_cli - Generate calculator CLI, run commands, verify outputs
+    2. e2e_enterprise_cli - Generate enterprise CLI, test all 50+ commands
+    3. e2e_error_scenarios - Test invalid inputs, error messages
+    4. e2e_json_output - Verify all output is valid JSON (agent-ready)
+    5. e2e_macro_compilation - Verify macros don't produce warnings
+    6. e2e_deterministic_generation - Generate twice, compare bytewise
+    7. e2e_marketplace_integration - Test package.toml FMEA mechanisms
+    8. Generate detailed HTML test report with coverage metrics
+    """ ;
+    spec:output "tests/e2e_tests.rs, test-report.html" ;
+    spec:validation "All e2e tests pass, report generates, zero flakes" .
+
+# ============================================================================
+# CONVERGENCE TARGETS
+# ============================================================================
+
+spec:convergence-target-1 a spec:DeliverableOutput ;
+    rdfs:label "Enhanced Calculator Example" ;
+    spec:agent spec:agent-1 ;
+    spec:artifact "examples/enhanced-calculator.ttl" ;
+    spec:checksum-validation "golden/calculator-generated/" ;
+    spec:success-criteria "12 operations, all valid RDF, compiles to working CLI" .
+
+spec:convergence-target-2 a spec:DeliverableOutput ;
+    rdfs:label "Enterprise Multi-Tenant Example" ;
+    spec:agent spec:agent-2 ;
+    spec:artifact "examples/enterprise-ops/" ;
+    spec:checksum-validation "golden/enterprise-generated/" ;
+    spec:success-criteria "50+ operations, team-ready, zero conflicts" .
+
+spec:convergence-target-3 a spec:DeliverableOutput ;
+    rdfs:label "Production-Ready Marketplace Package" ;
+    spec:agent spec:agent-5 ;
+    spec:artifact "package.toml, templates/, examples/" ;
+    spec:checksum-validation "integration tests pass, golden files match" ;
+    spec:success-criteria "Version 5.4.0, maturity=production, all FMEA controls in place" .
+
+spec:convergence-target-4 a spec:DeliverableOutput ;
+    rdfs:label "Validated & Executable CLI" ;
+    spec:agent spec:agent-8, spec:agent-10 ;
+    spec:artifact "generated CLIs, test reports, golden file comparisons" ;
+    spec:checksum-validation "validate.sh passes, e2e tests pass" ;
+    spec:success-criteria "All 10 agent outputs validated, zero failures, deterministic" .
+
+# ============================================================================
+# SPECIFICATION CLOSURE CHECKLIST
+# ============================================================================
+
+spec:closure a spec:ClosureCheckpoint ;
+    rdfs:label "Specification Closure - All Sections Complete" ;
+    spec:section-1 "Agent definitions: 10 agents, all tasks explicit" ;
+    spec:section-2 "Output artifacts: calculator.ttl, enterprise/, templates/, tests/" ;
+    spec:section-3 "Validation criteria: golden files, integration tests, e2e harness" ;
+    spec:section-4 "Convergence targets: 4 primary deliverables with success criteria" ;
+    spec:section-5 "Marketplace integration: package.toml FMEA, validation hooks" ;
+    spec:section-6 "Quality gates: Tests must pass, golden files must match, deterministic" ;
+    spec:closure-status "COMPLETE: Ready for /bb80-parallel orchestration" .

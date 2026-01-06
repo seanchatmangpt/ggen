@@ -1,0 +1,236 @@
+---
+to: "docs/{{ project_name | snake }}-reference.md"
+vars:
+  - project_name
+  - project_version
+sparql:
+  project_info: |
+    PREFIX cnv: <https://ggen.dev/clap-noun-verb#>
+    SELECT ?projectName ?version ?description
+    WHERE {
+      ?proj a cnv:CliProject ;
+        cnv:projectName ?projectName ;
+        cnv:projectVersion ?version ;
+        cnv:projectDescription ?description .
+    }
+    LIMIT 1
+  nouns: |
+    PREFIX cnv: <https://ggen.dev/clap-noun-verb#>
+    SELECT ?nounName ?nounDescription ?verbCount
+    WHERE {
+      ?noun a cnv:Noun ;
+        cnv:nounName ?nounName ;
+        cnv:nounDescription ?nounDescription .
+      {
+        SELECT ?noun (COUNT(?verb) as ?verbCount)
+        WHERE {
+          ?noun cnv:hasVerbs ?verb .
+        }
+        GROUP BY ?noun
+      }
+    }
+    ORDER BY ?nounName
+  verbs: |
+    PREFIX cnv: <https://ggen.dev/clap-noun-verb#>
+    SELECT ?nounName ?verbName ?verbDescription ?argCount ?category
+    WHERE {
+      ?noun a cnv:Noun ;
+        cnv:nounName ?nounName ;
+        cnv:hasVerbs ?verb .
+      ?verb cnv:verbName ?verbName ;
+        cnv:verbDescription ?verbDescription .
+      OPTIONAL { ?verb cnv:verbCategory ?category }
+      {
+        SELECT ?verb (COUNT(?arg) as ?argCount)
+        WHERE {
+          ?verb cnv:hasArguments ?arg .
+        }
+        GROUP BY ?verb
+      }
+    }
+    ORDER BY ?nounName ?verbName
+  arguments: |
+    PREFIX cnv: <https://ggen.dev/clap-noun-verb#>
+    SELECT ?verbName ?argumentName ?argumentType ?required ?description
+    WHERE {
+      ?verb a cnv:Verb ;
+        cnv:verbName ?verbName ;
+        cnv:hasArguments ?arg .
+      ?arg cnv:argumentName ?argumentName ;
+        cnv:argumentType ?argumentType ;
+        cnv:isRequired ?required ;
+        cnv:argumentDescription ?description .
+    }
+    ORDER BY ?verbName ?argumentName
+  flags: |
+    PREFIX cnv: <https://ggen.dev/clap-noun-verb#>
+    SELECT ?verbName ?flagName ?flagShort ?flagDescription ?flagType
+    WHERE {
+      ?verb a cnv:Verb ;
+        cnv:verbName ?verbName ;
+        cnv:hasFlags ?flag .
+      ?flag cnv:flagName ?flagName ;
+        cnv:flagDescription ?flagDescription ;
+        cnv:flagType ?flagType .
+      OPTIONAL { ?flag cnv:flagShort ?flagShort }
+    }
+    ORDER BY ?verbName ?flagName
+---
+# {{ project_info[0].projectName | pascal }} CLI Reference
+
+**Version**: {{ project_info[0].version }}
+
+{{ project_info[0].description }}
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Architecture](#architecture)
+- [Resources](#resources)
+- [Commands](#commands)
+- [Examples](#examples)
+
+---
+
+## Overview
+
+This CLI application is organized around the clap-noun-verb architecture:
+
+- **Resources (Nouns)**: Main entities that can be acted upon
+- **Actions (Verbs)**: Operations that can be performed on resources
+- **Parameters (Arguments & Flags)**: Values and options that control operations
+
+---
+
+## Architecture
+
+```
+┌─────────────────────────────────────────┐
+│  {{ project_info[0].projectName | pascal }} CLI                  │
+├─────────────────────────────────────────┤
+{% for noun in sparql_results.nouns %}
+│  └─ {{ noun.nounName | pascal }}: {{ noun.nounDescription }}  │
+{% endfor %}
+└─────────────────────────────────────────┘
+```
+
+---
+
+## Resources (Nouns)
+
+| Resource | Description | Operations |
+|----------|-------------|------------|
+{% for noun in sparql_results.nouns -%}
+| `{{ noun.nounName }}` | {{ noun.nounDescription }} | {{ noun.verbCount }} |
+{% endfor %}
+
+---
+
+## Commands
+
+{% for noun in sparql_results.nouns %}
+### {{ noun.nounName | pascal }}
+
+{{ noun.nounDescription }}
+
+{% set noun_verbs = sparql_results.verbs | selectattr("nounName", "equalto", noun.nounName) | list %}
+{% for verb in noun_verbs %}
+#### `{{ noun.nounName }} {{ verb.verbName }}`
+
+{{ verb.verbDescription }}
+
+{% set verb_args = sparql_results.arguments | selectattr("verbName", "equalto", verb.verbName) | list %}
+{% if verb_args %}
+**Arguments**:
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+{% for arg in verb_args -%}
+| `{{ arg.argumentName }}` | `{{ arg.argumentType }}` | {{ arg.required }} | {{ arg.description }} |
+{% endfor %}
+{% endif %}
+
+{% set verb_flags = sparql_results.flags | selectattr("verbName", "equalto", verb.verbName) | list %}
+{% if verb_flags %}
+**Options**:
+
+| Flag | Short | Type | Description |
+|------|-------|------|-------------|
+{% for flag in verb_flags -%}
+| `--{{ flag.flagName }}` | {% if flag.flagShort %}`-{{ flag.flagShort }}`{% else %}—{% endif %} | `{{ flag.flagType }}` | {{ flag.flagDescription }} |
+{% endfor %}
+{% endif %}
+
+---
+
+{% endfor %}
+{% endfor %}
+
+## Examples
+
+### Basic Usage
+
+```bash
+# Display help
+{{ project_name }} --help
+
+# Display command help
+{{ project_name }} {{ sparql_results.nouns[0].nounName }} --help
+```
+
+### Common Patterns
+
+#### Error Handling
+
+All operations report errors clearly:
+
+```bash
+$ {{ project_name }} {{ sparql_results.nouns[0].nounName }} invalid-operation
+Error: Unknown command 'invalid-operation'
+Use '{{ project_name }} {{ sparql_results.nouns[0].nounName }} --help' for usage information
+```
+
+#### JSON Output
+
+Operations support structured output:
+
+```bash
+{{ project_name }} {{ sparql_results.nouns[0].nounName }} {{ sparql_results.verbs[0].verbName }} --format json
+```
+
+---
+
+## Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | Success |
+| 1 | General error |
+| 2 | Command-line syntax error |
+| 3 | Validation error |
+
+---
+
+## Environment Variables
+
+The CLI may be configured via environment variables:
+
+```bash
+# Set default options
+export {{ project_name | upper }}_VERBOSE=1
+export {{ project_name | upper }}_OUTPUT_FORMAT=json
+```
+
+---
+
+## See Also
+
+- Project Repository: [GitHub](https://github.com/seanchatmangpt/ggen)
+- Documentation: [Full User Guide](../USAGE.md)
+- RDF Specification: [Ontology Definition](../examples/{{ project_name }}.ttl)
+
+---
+
+*Generated by ggen from RDF specification on {{ now() }}*

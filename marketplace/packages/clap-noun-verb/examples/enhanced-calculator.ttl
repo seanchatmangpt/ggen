@@ -1,0 +1,148 @@
+@prefix cnv: <https://ggen.dev/clap-noun-verb#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+
+# Enhanced Calculator Example with Advanced Mathematical Operations
+# Demonstrates 12 operations: add, subtract, multiply, divide, power, sqrt,
+# sin, cos, tan, log (base 10), exp, abs with optional flags
+
+<http://example.com/enhanced-calculator> a cnv:CliProject ;
+    cnv:projectName "calculator" ;
+    cnv:projectVersion "0.2.0" ;
+    cnv:projectDescription "Advanced scientific calculator with trigonometric, logarithmic, and exponential functions" ;
+    cnv:hasNoun <#calc> .
+
+# Main noun: calculator operations
+<#calc> a cnv:Noun ;
+    cnv:nounName "calc" ;
+    cnv:nounDescription "Perform mathematical calculations" ;
+    cnv:hasVerbs <#add>, <#subtract>, <#multiply>, <#divide>, <#power>,
+                 <#sqrt>, <#sin>, <#cos>, <#tan>, <#log>, <#exp>, <#abs> .
+
+# Basic Arithmetic Operations
+<#add> a cnv:Verb ;
+    cnv:verbName "add" ;
+    cnv:verbDescription "Add two numbers" ;
+    cnv:hasArguments <#leftNum>, <#rightNum> ;
+    cnv:verbCategory "arithmetic" .
+
+<#subtract> a cnv:Verb ;
+    cnv:verbName "subtract" ;
+    cnv:verbDescription "Subtract two numbers" ;
+    cnv:hasArguments <#leftNum>, <#rightNum> ;
+    cnv:verbCategory "arithmetic" .
+
+<#multiply> a cnv:Verb ;
+    cnv:verbName "multiply" ;
+    cnv:verbDescription "Multiply two numbers" ;
+    cnv:hasArguments <#leftNum>, <#rightNum> ;
+    cnv:verbCategory "arithmetic" .
+
+<#divide> a cnv:Verb ;
+    cnv:verbName "divide" ;
+    cnv:verbDescription "Divide two numbers" ;
+    cnv:hasArguments <#leftNum>, <#rightNum> ;
+    cnv:verbCategory "arithmetic" ;
+    cnv:hasFlags <#divisorZeroWarning> .
+
+# Advanced Operations
+<#power> a cnv:Verb ;
+    cnv:verbName "power" ;
+    cnv:verbDescription "Raise a number to a power" ;
+    cnv:hasArguments <#leftNum>, <#rightNum> ;
+    cnv:verbCategory "advanced" .
+
+<#sqrt> a cnv:Verb ;
+    cnv:verbName "sqrt" ;
+    cnv:verbDescription "Calculate square root" ;
+    cnv:hasArguments <#leftNum> ;
+    cnv:verbCategory "advanced" .
+
+<#abs> a cnv:Verb ;
+    cnv:verbName "abs" ;
+    cnv:verbDescription "Calculate absolute value" ;
+    cnv:hasArguments <#leftNum> ;
+    cnv:verbCategory "advanced" .
+
+# Trigonometric Functions
+<#sin> a cnv:Verb ;
+    cnv:verbName "sin" ;
+    cnv:verbDescription "Calculate sine (accepts radians or degrees)" ;
+    cnv:hasArguments <#leftNum> ;
+    cnv:verbCategory "trigonometric" ;
+    cnv:hasFlags <#radiansFlag> .
+
+<#cos> a cnv:Verb ;
+    cnv:verbName "cos" ;
+    cnv:verbDescription "Calculate cosine (accepts radians or degrees)" ;
+    cnv:hasArguments <#leftNum> ;
+    cnv:verbCategory "trigonometric" ;
+    cnv:hasFlags <#radiansFlag> .
+
+<#tan> a cnv:Verb ;
+    cnv:verbName "tan" ;
+    cnv:verbDescription "Calculate tangent (accepts radians or degrees)" ;
+    cnv:hasArguments <#leftNum> ;
+    cnv:verbCategory "trigonometric" ;
+    cnv:hasFlags <#radiansFlag> .
+
+# Logarithmic and Exponential Functions
+<#log> a cnv:Verb ;
+    cnv:verbName "log" ;
+    cnv:verbDescription "Calculate base-10 logarithm" ;
+    cnv:hasArguments <#leftNum> ;
+    cnv:verbCategory "advanced" .
+
+<#exp> a cnv:Verb ;
+    cnv:verbName "exp" ;
+    cnv:verbDescription "Calculate e raised to the power (exponential)" ;
+    cnv:hasArguments <#leftNum> ;
+    cnv:verbCategory "advanced" .
+
+# Arguments (Parameters)
+<#leftNum> a cnv:Argument ;
+    cnv:argumentName "left" ;
+    cnv:argumentType "f64" ;
+    cnv:argumentDescription "Left operand or single value" ;
+    cnv:isRequired true ;
+    cnv:argumentPosition 1 .
+
+<#rightNum> a cnv:Argument ;
+    cnv:argumentName "right" ;
+    cnv:argumentType "f64" ;
+    cnv:argumentDescription "Right operand" ;
+    cnv:isRequired false ;
+    cnv:argumentPosition 2 .
+
+# Flags (Optional Parameters)
+<#radiansFlag> a cnv:Flag ;
+    cnv:flagName "radians" ;
+    cnv:flagShort "r" ;
+    cnv:flagDescription "Use radians instead of degrees" ;
+    cnv:flagType "bool" ;
+    cnv:isRequired false .
+
+<#divisorZeroWarning> a cnv:Flag ;
+    cnv:flagName "strict" ;
+    cnv:flagShort "s" ;
+    cnv:flagDescription "Treat division by zero as error" ;
+    cnv:flagType "bool" ;
+    cnv:isRequired false .
+
+# Project Metadata
+<#projectMetadata> a cnv:ProjectMetadata ;
+    cnv:author "ggen Contributors" ;
+    cnv:license "MIT" ;
+    cnv:homepage "https://github.com/seanchatmangpt/ggen" ;
+    cnv:repository "https://github.com/seanchatmangpt/ggen" ;
+    cnv:keywords "calculator", "cli", "scientific", "math" ;
+    cnv:complexity "intermediate" ;
+    cnv:useCase "Scientific calculation with CLI interface" .
+
+# Validation Constraints
+<#validationRules> a cnv:ValidationRules ;
+    cnv:requiresRDF true ;
+    cnv:requiresCompileValidation true ;
+    cnv:requiresUnitTests true ;
+    cnv:requiresIntegrationTests true ;
+    cnv:enforceDeterminism true .
