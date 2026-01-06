@@ -64,9 +64,12 @@ impl JwtManager {
 
         decode::<TokenClaims>(token, &key, &validation)
             .map(|data| data.claims)
-            .map_err(|e| match e.kind {
-                jsonwebtoken::error::ErrorKind::ExpiredSignature => AuthError::TokenExpired,
-                _ => AuthError::InvalidToken,
+            .map_err(|e| {
+                if e.to_string().contains("ExpiredSignature") {
+                    AuthError::TokenExpired
+                } else {
+                    AuthError::InvalidToken
+                }
             })
     }
 

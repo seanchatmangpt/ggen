@@ -36,10 +36,6 @@ ggen-utils = { workspace = true }
 ggen-config = { workspace = true }
 ggen-domain = { workspace = true }
 
-# OpenAPI
-utoipa = { version = "4.2", features = ["axum"] }
-utoipa-swagger-ui = { version = "5.0", features = ["axum"] }
-
 # Validation
 validator = { version = "0.18", features = ["derive"] }
 

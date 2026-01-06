@@ -5,8 +5,6 @@ use hex;
 use sha2::{Digest, Sha256};
 use uuid::Uuid;
 
-use crate::{errors::AuthError, AuthResult};
-
 /// API key hash for storage
 #[derive(Debug, Clone)]
 pub struct ApiKeyHash {

@@ -1,14 +1,11 @@
 //! Shared application state
 
 use std::sync::Arc;
-use ggen_marketplace::Marketplace;
 use ggen_core::telemetry::TelemetryConfig;
 
 /// Shared application state
 #[derive(Clone)]
 pub struct AppState {
-    /// Marketplace instance
-    pub marketplace: Arc<Marketplace>,
     /// Configuration
     pub config: Arc<ApiConfig>,
     /// Telemetry configuration
@@ -43,12 +40,10 @@ impl Default for ApiConfig {
 
 impl AppState {
     pub fn new(
-        marketplace: Arc<Marketplace>,
         config: ApiConfig,
         telemetry: TelemetryConfig,
     ) -> Self {
         Self {
-            marketplace,
             config: Arc::new(config),
             telemetry: Arc::new(telemetry),
         }
