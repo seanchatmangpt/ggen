@@ -1,0 +1,66 @@
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+    layer/.style={rectangle, draw, fill=blue!10, minimum width=10cm, minimum height=1.2cm, font=\small\bfseries},
+    component/.style={rectangle, draw, fill=green!15, rounded corners, minimum width=2cm, minimum height=0.8cm, font=\small},
+    arrow/.style={->, >=stealth, thick, color=blue!60},
+    node distance=0.3cm
+]
+
+% Layer 1: Input Layer
+\node[layer] (input) at (0,0) {Input Layer};
+\node[component, below=of input, xshift=-3cm] (rdf) {RDF Ontology\\(Turtle)};
+\node[component, below=of input] (openapi) {OpenAPI\\Specs};
+\node[component, below=of input, xshift=3cm] (config) {Configuration\\(YAML)};
+
+% Layer 2: Processing Layer
+\node[layer, below=1.5cm of input] (processing) {Processing Layer};
+\node[component, below=of processing, xshift=-3cm] (oxigraph) {Oxigraph\\RDF Store};
+\node[component, below=of processing] (sparql) {SPARQL\\Query Engine};
+\node[component, below=of processing, xshift=3cm] (matcher) {Pattern\\Matcher};
+
+% Layer 3: Template Layer
+\node[layer, below=1.5cm of processing] (template) {Template Layer};
+\node[component, below=of template, xshift=-2cm] (tera) {Tera\\Templates};
+\node[component, below=of template, xshift=2cm] (frontmatter) {YAML\\Frontmatter};
+
+% Layer 4: Generation Layer
+\node[layer, below=1.5cm of template] (generation) {Generation Layer};
+\node[component, below=of generation, xshift=-3.5cm] (tsgen) {TypeScript\\Generator};
+\node[component, below=of generation, xshift=-1cm] (rustgen) {Rust\\Generator};
+\node[component, below=of generation, xshift=1.5cm] (pygen) {Python\\Generator};
+\node[component, below=of generation, xshift=4cm] (docgen) {Doc\\Generator};
+
+% Layer 5: Output Layer
+\node[layer, below=1.5cm of generation] (output) {Output Layer};
+\node[component, below=of output, xshift=-4cm] (types) {Type\\Defs};
+\node[component, below=of output, xshift=-2cm] (validators) {Validators};
+\node[component, below=of output, xshift=0cm] (clients) {API\\Clients};
+\node[component, below=of output, xshift=2.5cm] (docs) {Docs};
+\node[component, below=of output, xshift=4.5cm] (tests) {Tests};
+
+% Data flow arrows
+\draw[arrow] (rdf) -- (oxigraph);
+\draw[arrow] (openapi) -- (sparql);
+\draw[arrow] (config) -- (matcher);
+
+\draw[arrow] (oxigraph) -- (tera);
+\draw[arrow] (sparql) -- (tera);
+\draw[arrow] (matcher) -- (frontmatter);
+
+\draw[arrow] (tera) -- (tsgen);
+\draw[arrow] (tera) -- (rustgen);
+\draw[arrow] (frontmatter) -- (pygen);
+\draw[arrow] (frontmatter) -- (docgen);
+
+\draw[arrow] (tsgen) -- (types);
+\draw[arrow] (tsgen) -- (validators);
+\draw[arrow] (rustgen) -- (clients);
+\draw[arrow] (pygen) -- (clients);
+\draw[arrow] (docgen) -- (docs);
+\draw[arrow] (rustgen) -- (tests);
+
+\end{tikzpicture}
+\caption{System Architecture Overview of the ggen Framework. The architecture follows a layered design with clear separation between input specification, semantic processing, template-based transformation, language-specific generation, and artifact output.}
+\label{fig:system-architecture}
+\end{figure}
