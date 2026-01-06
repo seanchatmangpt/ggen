@@ -982,6 +982,126 @@ echo "  ✓ SPARQL query syntax validation"
 echo "  ✓ Deterministic processing verification"
 '''
 
+# ============================================================================
+# POKA-YOKE VALIDATION TASKS (Error-Proofing Quality Gates)
+# ============================================================================
+
+[tasks.poka-yoke-protection-check]
+description = """
+Validate Poka-Yoke path protection patterns (Type-Safety & Path Protection).
+Ensures ProtectedPath, PathProtector, and GlobPattern implementations work correctly.
+Returns RED Andon signal on failures, GREEN on all tests pass.
+
+Usage: cargo make poka-yoke-protection-check
+When: After path protection implementation, before commit
+SLO: <10s execution time
+
+Example output:
+  GREEN: "test protection::path::tests ... ok"
+  GREEN: "test protection::path_protector::tests ... ok"
+  RED: "test protection::... FAILED"
+"""
+workspace = false
+command = "timeout"
+args = ["10s", "cargo", "test", "--package", "ggen-core", "--lib", "protection::", "--", "--nocapture"]
+
+[tasks.poka-yoke-signal-check]
+description = """
+Validate Poka-Yoke Andon signal patterns (Error signaling).
+Ensures AndonSignal enum and AndonContext work correctly for RED/YELLOW/GREEN protocols.
+Returns RED Andon signal on failures, GREEN on all tests pass.
+
+Usage: cargo make poka-yoke-signal-check
+When: After Andon signal implementation, before commit
+SLO: <10s execution time
+"""
+workspace = false
+command = "timeout"
+args = ["10s", "cargo", "test", "--package", "ggen-core", "--lib", "signals::", "--", "--nocapture"]
+
+[tasks.poka-yoke-gate-check]
+description = """
+Validate Poka-Yoke quality gate patterns (Quality Gate validation).
+Ensures QualityGate, Check trait, and all check implementations work correctly.
+Returns RED Andon signal on failures, GREEN on all tests pass.
+
+Usage: cargo make poka-yoke-gate-check
+When: After quality gate implementation, before commit
+SLO: <10s execution time
+"""
+workspace = false
+command = "timeout"
+args = ["10s", "cargo", "test", "--package", "ggen-core", "--lib", "validation::", "--", "--nocapture"]
+
+[tasks.poka-yoke-validate]
+description = """
+Complete Poka-Yoke validation suite: protection, signals, and quality gates.
+Runs all Poka-Yoke pattern tests to verify error-proofing implementation.
+Returns RED Andon signal if ANY pattern fails, GREEN if all pass.
+
+Usage: cargo make poka-yoke-validate
+When: During development, before commit, CI validation
+SLO: <30s total execution time (3 checks × ~10s each)
+
+Example output:
+  GREEN: "test result: ok. 18 passed; 0 failed"
+  ANDON: 🟢 GREEN - All Poka-Yoke patterns verified
+  RED: "test result: FAILED"
+  ANDON: 🔴 RED - Poka-Yoke patterns contain defects - STOP
+"""
+workspace = false
+dependencies = ["poka-yoke-protection-check", "poka-yoke-signal-check", "poka-yoke-gate-check"]
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+echo "🚨 Poka-Yoke Validation Suite"
+echo "====================================="
+echo ""
+
+FAILED=0
+
+echo "1️⃣  Path Protection Check (Type-Safety + Path Protection)..."
+if cargo make poka-yoke-protection-check 2>&1 | tail -5; then
+  echo "   ✅ PASS"
+else
+  echo "   ❌ FAIL"
+  FAILED=$((FAILED + 1))
+fi
+echo ""
+
+echo "2️⃣  Andon Signal Check (Error Signaling)..."
+if cargo make poka-yoke-signal-check 2>&1 | tail -5; then
+  echo "   ✅ PASS"
+else
+  echo "   ❌ FAIL"
+  FAILED=$((FAILED + 1))
+fi
+echo ""
+
+echo "3️⃣  Quality Gate Check (Gate Validation)..."
+if cargo make poka-yoke-gate-check 2>&1 | tail -5; then
+  echo "   ✅ PASS"
+else
+  echo "   ❌ FAIL"
+  FAILED=$((FAILED + 1))
+fi
+echo ""
+
+echo "====================================="
+if [ $FAILED -eq 0 ]; then
+  echo "🟢 GREEN - All Poka-Yoke patterns verified ✅"
+  echo "====================================="
+  exit 0
+else
+  echo "🔴 RED - Poka-Yoke patterns contain defects - STOP 🛑"
+  echo "====================================="
+  echo "Fix all failing patterns before proceeding"
+  exit 1
+fi
+'''
+
 [tasks.test-testcontainers]
 description = "Run testcontainers production readiness validation tests"
 command = "cargo"
