@@ -1,0 +1,83 @@
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+    source/.style={cylinder, draw, fill=purple!25, shape border rotate=90, minimum width=2.5cm, minimum height=1cm, font=\small\bfseries},
+    artifact/.style={rectangle, draw, fill=blue!15, rounded corners, minimum width=2cm, minimum height=0.7cm, font=\small},
+    version/.style={rectangle, draw, fill=green!15, minimum width=2.5cm, minimum height=1cm, font=\small},
+    validation/.style={ellipse, draw, fill=yellow!20, minimum width=2.2cm, minimum height=0.7cm, font=\small},
+    arrow/.style={->, >=stealth, thick},
+    generate/.style={->, >=stealth, thick, color=blue!60},
+    validate/.style={->, >=stealth, thick, color=green!60, dashed},
+    update/.style={->, >=stealth, thick, color=red!60},
+    node distance=0.4cm
+]
+
+% Single source of truth
+\node[source] (ontology) at (0,4.5) {RDF\\Ontology};
+\node[font=\small\bfseries, above=0.1cm of ontology] {Single Source of Truth};
+
+% Generated artifacts
+\node[artifact] (types) at (-4,2.5) {TypeScript\\Types};
+\node[artifact] (zod) at (-2,2.5) {Zod\\Validators};
+\node[artifact] (api) at (0,2.5) {API\\Specs};
+\node[artifact] (docs) at (2,2.5) {Docs};
+\node[artifact] (tests) at (4,2.5) {Tests};
+
+\node[font=\small\bfseries, anchor=west] at (-5,3.2) {Generated Artifacts:};
+
+% Generation arrows
+\draw[generate] (ontology) -- (types);
+\draw[generate] (ontology) -- (zod);
+\draw[generate] (ontology) -- (api);
+\draw[generate] (ontology) -- (docs);
+\draw[generate] (ontology) -- (tests);
+
+% Versioning layer
+\node[version] (v1) at (-3,0.5) {v1.0 Branch\\(Stable)};
+\node[version] (v2) at (3,0.5) {v2.0 Branch\\(Breaking)};
+
+\node[font=\small\bfseries, anchor=west] at (-5,1.2) {Versioning:};
+
+\draw[arrow] (types) -- (v1);
+\draw[arrow] (zod) -- (v1);
+\draw[arrow] (api) -- (v2);
+\draw[arrow] (docs) -- (v2);
+
+% Consistency checking
+\node[validation] (check1) at (-3,-1) {Schema\\Validator};
+\node[validation] (check2) at (0,-1) {Type\\Checker};
+\node[validation] (check3) at (3,-1) {Contract\\Verifier};
+
+\node[font=\small\bfseries, anchor=west] at (-5,-0.3) {Consistency Checks:};
+
+\draw[validate] (v1) -- (check1);
+\draw[validate] (v2) -- (check2);
+\draw[validate] (types) -- (check2);
+\draw[validate] (tests) -- (check3);
+
+% Update flow
+\node[rectangle, draw, fill=orange!15, rounded corners, minimum width=8cm, minimum height=0.8cm] (update) at (0,-2.5) {};
+\node[font=\small, anchor=west] at (-3.8,-2.5) {Update Flow: Modify Ontology};
+\node[font=\small, anchor=west] at (-0.5,-2.5) {$\rightarrow$ Regenerate All};
+
+\draw[update] (ontology) -| (-5,2) |- (update);
+\draw[update] (update) -| (5,2) |- (ontology);
+
+% Consistency guarantee box
+\node[rectangle, draw, thick, fill=cyan!10, minimum width=2.5cm, minimum height=1.2cm] (guarantee) at (6,4.5) {};
+\node[font=\tiny\bfseries] at (6,4.9) {Guarantees:};
+\node[font=\tiny, align=left, anchor=west] at (4.8,4.6) {$\bullet$ All artifacts};
+\node[font=\tiny, align=left, anchor=west] at (5,4.35) {in sync};
+\node[font=\tiny, align=left, anchor=west] at (4.8,4.1) {$\bullet$ Type-safe};
+\node[font=\tiny, align=left, anchor=west] at (4.8,3.85) {$\bullet$ Versioned};
+
+% Error detection
+\node[validation, fill=red!15, minimum width=1.5cm, minimum height=0.5cm, font=\tiny] (error) at (6,0.5) {Error if\\Inconsistent};
+\draw[arrow, color=red!60] (check1) -- (error);
+\draw[arrow, color=red!60] (check2) -- (error);
+\draw[arrow, color=red!60] (check3) -- (error);
+
+\end{tikzpicture}
+\caption{Multi-Artifact Consistency Maintenance. The RDF ontology serves as the single source of truth from which all artifacts (types, validators, APIs, documentation, tests) are generated. Automated consistency checks validate artifacts across versions, and the update flow ensures all artifacts remain synchronized when the ontology changes.}
+\label{fig:multi-artifact-consistency}
+\end{figure}
