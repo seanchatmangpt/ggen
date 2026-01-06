@@ -1,6 +1,15 @@
 //! Disk I/O performance benchmarks
 //!
-//! Benchmarks for file reading, writing, and generation operations
+//! Measures real filesystem operations: file read/write, directory creation, metadata checks.
+//! These benchmarks measure actual OS-level I/O performance on the test system.
+//!
+//! Methodology:
+//! - Uses tempfile crate for isolated test directories
+//! - Measures actual fs::read_to_string, fs::write, fs::create_dir_all
+//! - Varies file sizes and operation counts to show scaling behavior
+//! - Reports throughput (bytes/sec) and latency with variance
+//!
+//! Note: I/O performance is system-dependent. These benchmarks show relative performance.
 //!
 //! Run with: cargo bench --bench disk_io_benchmarks
 

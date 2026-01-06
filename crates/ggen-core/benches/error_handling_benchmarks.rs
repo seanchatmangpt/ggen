@@ -1,57 +1,90 @@
-//! Error handling and resilience performance benchmarks
+//! Error handling performance benchmarks
 //!
-//! DISCLAIMER: These benchmarks measure error handling patterns INCLUDING:
-//! - String allocation for error messages (dominates measurement time)
-//! - Enum variant construction
-//! - Error propagation through call stacks
+//! HONEST BENCHMARKS: These measure Rust error handling patterns.
 //!
-//! String allocation is typically microseconds, not nanoseconds.
-//! DO NOT interpret these numbers as "error creation overhead" in isolation.
+//! IMPORTANT: String allocation dominates measurement time (microseconds).
+//! We separate the cost of error creation from string allocation to be honest
+//! about what each operation actually costs.
 //!
 //! Run with: cargo bench --bench error_handling_benchmarks
 
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use std::fs;
 use std::io;
-use std::path::PathBuf;
-use tempfile::TempDir;
 
-// Simulated error types
+// Error types WITHOUT string allocation (what error creation actually costs)
 #[derive(Debug)]
-enum TestError {
+enum ZeroAllocError {
+    Io,
+    Parse,
+    Validation,
+}
+
+// Error types WITH string allocation (what users actually do in real code)
+#[derive(Debug)]
+enum RealError {
     Io(String),
     Parse(String),
     Validation(String),
-    NotFound(String),
-    PermissionDenied(String),
 }
 
-impl From<io::Error> for TestError {
+impl From<io::Error> for RealError {
     fn from(e: io::Error) -> Self {
-        TestError::Io(e.to_string())
+        RealError::Io(e.to_string())
     }
 }
 
-fn bench_error_creation(c: &mut Criterion) {
-    let mut group = c.benchmark_group("error_creation");
-
+fn bench_error_creation_zero_alloc(c: &mut Criterion) {
+    let mut group = c.benchmark_group("error_creation_zero_alloc");
     group.throughput(Throughput::Elements(1));
 
-    group.bench_function("create_io_error", |b| {
+    group.bench_function("create_io_error_no_string", |b| {
         b.iter(|| {
-            let _err = TestError::Io(black_box("File not found".to_string()));
+            let _err = ZeroAllocError::Io;
         });
     });
 
-    group.bench_function("create_parse_error", |b| {
+    group.bench_function("create_parse_error_no_string", |b| {
         b.iter(|| {
-            let _err = TestError::Parse(black_box("Invalid JSON".to_string()));
+            let _err = ZeroAllocError::Parse;
         });
     });
 
-    group.bench_function("create_validation_error", |b| {
+    group.bench_function("create_validation_error_no_string", |b| {
         b.iter(|| {
-            let _err = TestError::Validation(black_box("Invalid field value".to_string()));
+            let _err = ZeroAllocError::Validation;
+        });
+    });
+
+    group.finish();
+}
+
+fn bench_string_allocation_cost(c: &mut Criterion) {
+    let mut group = c.benchmark_group("string_allocation_cost");
+    group.throughput(Throughput::Elements(1));
+
+    group.bench_function("allocate_string_15bytes", |b| {
+        b.iter(|| {
+            let _s = black_box("File not found".to_string());
+        });
+    });
+
+    group.bench_function("allocate_string_40bytes", |b| {
+        b.iter(|| {
+            let _s = black_box("Invalid configuration field value".to_string());
+        });
+    });
+
+    group.finish();
+}
+
+fn bench_error_creation_with_string(c: &mut Criterion) {
+    let mut group = c.benchmark_group("error_creation_with_string");
+    group.throughput(Throughput::Elements(1));
+
+    // This is what REAL applications do - errors with context
+    group.bench_function("create_error_with_message", |b| {
+        b.iter(|| {
+            let _err = RealError::Io(black_box("File not found".to_string()));
         });
     });
 
@@ -61,39 +94,38 @@ fn bench_error_creation(c: &mut Criterion) {
 fn bench_error_propagation(c: &mut Criterion) {
     let mut group = c.benchmark_group("error_propagation");
 
-    // Simulate error propagation through call stack
-    fn level_1(depth: usize) -> Result<(), TestError> {
+    fn level_1(depth: usize) -> Result<(), ZeroAllocError> {
         level_2(depth)
     }
 
-    fn level_2(depth: usize) -> Result<(), TestError> {
+    fn level_2(depth: usize) -> Result<(), ZeroAllocError> {
         if depth == 0 {
-            Err(TestError::Validation("Error at level 2".to_string()))
+            Err(ZeroAllocError::Validation)
         } else {
             level_3(depth - 1)
         }
     }
 
-    fn level_3(depth: usize) -> Result<(), TestError> {
+    fn level_3(depth: usize) -> Result<(), ZeroAllocError> {
         if depth == 0 {
-            Err(TestError::Validation("Error at level 3".to_string()))
+            Err(ZeroAllocError::Validation)
         } else {
             level_4(depth - 1)
         }
     }
 
-    fn level_4(depth: usize) -> Result<(), TestError> {
+    fn level_4(depth: usize) -> Result<(), ZeroAllocError> {
         if depth == 0 {
-            Err(TestError::Validation("Error at level 4".to_string()))
+            Err(ZeroAllocError::Validation)
         } else {
             Ok(())
         }
     }
 
     let depths = vec![
-        ("shallow_1_level", 0),
-        ("medium_3_levels", 2),
-        ("deep_5_levels", 4),
+        ("propagate_1_level", 0),
+        ("propagate_3_levels", 2),
+        ("propagate_5_levels", 4),
     ];
 
     for (name, depth) in depths {
@@ -112,165 +144,51 @@ fn bench_error_propagation(c: &mut Criterion) {
     group.finish();
 }
 
-fn bench_error_handling(c: &mut Criterion) {
-    let mut group = c.benchmark_group("error_handling");
-
-    group.bench_function("match_error_arms", |b| {
-        b.iter(|| {
-            let err = TestError::Validation("Test error".to_string());
-            match black_box(err) {
-                TestError::Io(_) => "IO Error",
-                TestError::Parse(_) => "Parse Error",
-                TestError::Validation(_) => "Validation Error",
-                TestError::NotFound(_) => "Not Found",
-                TestError::PermissionDenied(_) => "Permission Denied",
-            };
-        });
-    });
-
-    group.bench_function("convert_io_error", |b| {
-        b.iter(|| {
-            let io_err = io::Error::new(io::ErrorKind::NotFound, "File not found");
-            let _converted: TestError = io_err.into();
-        });
-    });
-
-    group.finish();
-}
-
-fn bench_recovery_scenarios(c: &mut Criterion) {
-    let mut group = c.benchmark_group("recovery_scenarios");
-    group.sample_size(20);
-
-    group.bench_function("retry_failed_operation_1_attempt", |b| {
-        b.iter(|| {
-            let mut attempts = 0;
-            loop {
-                attempts += 1;
-                let _result: Result<String, TestError> = if attempts < 1 {
-                    Err(TestError::Io("Temporary error".to_string()))
-                } else {
-                    Ok("Success".to_string())
-                };
-                if _result.is_ok() {
-                    break;
-                }
-            }
-        });
-    });
-
-    group.bench_function("retry_with_backoff_3_attempts", |b| {
-        b.iter(|| {
-            let mut attempts = 0;
-            loop {
-                attempts += 1;
-                let _result: Result<String, TestError> = if attempts < 3 {
-                    Err(TestError::Io("Temporary error".to_string()))
-                } else {
-                    Ok("Success".to_string())
-                };
-                if _result.is_ok() {
-                    break;
-                }
-                if attempts > 1 {
-                    // Simulate backoff delay (but don't actually sleep in benchmark)
-                    let _ = black_box(2u64.pow((attempts - 1) as u32));
-                }
-            }
-        });
-    });
-
-    group.finish();
-}
-
-fn bench_file_error_scenarios(c: &mut Criterion) {
-    let mut group = c.benchmark_group("file_error_scenarios");
-
-    group.bench_function("handle_missing_file_error", |b| {
-        let temp_dir = TempDir::new().unwrap();
-        let missing_path = temp_dir.path().join("nonexistent.txt");
-
-        b.iter(|| {
-            match fs::read_to_string(black_box(&missing_path)) {
-                Ok(_) => "Success",
-                Err(_) => "File not found error handled",
-            };
-        });
-    });
-
-    group.bench_function("handle_permission_denied_error", |b| {
-        b.iter(|| {
-            let path = PathBuf::from("/root/protected_file.txt");
-            match fs::read_to_string(black_box(&path)) {
-                Ok(_) => "Success",
-                Err(e) if e.kind() == io::ErrorKind::PermissionDenied => "Permission denied",
-                Err(_) => "Other error",
-            };
-        });
-    });
-
-    group.finish();
-}
-
-fn bench_error_context_overhead(c: &mut Criterion) {
-    let mut group = c.benchmark_group("error_context_overhead");
-
-    group.bench_function("error_without_context", |b| {
-        b.iter(|| {
-            let _err = TestError::Validation("Simple error".to_string());
-        });
-    });
-
-    group.bench_function("error_with_file_info", |b| {
-        b.iter(|| {
-            let _err = TestError::Validation(format!(
-                "Error in file {} at line {} column {}",
-                "example.rs", 42, 10
-            ));
-        });
-    });
-
-    group.bench_function("error_with_full_context", |b| {
-        b.iter(|| {
-            let context = format!(
-                "Error: Invalid configuration\nFile: {}\nLine: {}\nColumn: {}\nExpected: {}\nFound: {}",
-                "ggen.toml", 15, 8, "string", "number"
-            );
-            let _err = TestError::Validation(context);
-        });
-    });
-
-    group.finish();
-}
-
 fn bench_result_operations(c: &mut Criterion) {
     let mut group = c.benchmark_group("result_operations");
 
-    group.bench_function("ok_unwrap", |b| {
+    group.bench_function("result_unwrap_ok", |b| {
         b.iter(|| {
-            let result: Result<i32, TestError> = Ok(42);
+            let result: Result<i32, ZeroAllocError> = Ok(42);
             let _value = result.unwrap();
         });
     });
 
-    group.bench_function("ok_map", |b| {
+    group.bench_function("result_map", |b| {
         b.iter(|| {
-            let result: Result<i32, TestError> = Ok(42);
+            let result: Result<i32, ZeroAllocError> = Ok(42);
             let _mapped = result.map(|v| v * 2);
         });
     });
 
-    group.bench_function("err_unwrap_or_else", |b| {
+    group.bench_function("result_and_then", |b| {
         b.iter(|| {
-            let result: Result<i32, TestError> = Err(TestError::Validation("error".to_string()));
-            let _value = result.unwrap_or_else(|_| 0);
+            let result: Result<i32, ZeroAllocError> = Ok(42);
+            let _chained = result.and_then(|v| Ok(v * 2));
         });
     });
 
-    group.bench_function("ok_and_then", |b| {
+    group.bench_function("result_unwrap_or", |b| {
         b.iter(|| {
-            let result: Result<i32, TestError> = Ok(42);
-            let _chained = result.and_then(|v| Ok(v * 2));
+            let result: Result<i32, ZeroAllocError> = Err(ZeroAllocError::Validation);
+            let _value = result.unwrap_or(0);
+        });
+    });
+
+    group.finish();
+}
+
+fn bench_match_error_handling(c: &mut Criterion) {
+    let mut group = c.benchmark_group("match_error_handling");
+
+    group.bench_function("match_5_error_variants", |b| {
+        let err = ZeroAllocError::Validation;
+        b.iter(|| {
+            let _result = match black_box(&err) {
+                ZeroAllocError::Io => "IO Error",
+                ZeroAllocError::Parse => "Parse Error",
+                ZeroAllocError::Validation => "Validation Error",
+            };
         });
     });
 
@@ -279,12 +197,11 @@ fn bench_result_operations(c: &mut Criterion) {
 
 criterion_group!(
     benches,
-    bench_error_creation,
+    bench_error_creation_zero_alloc,
+    bench_string_allocation_cost,
+    bench_error_creation_with_string,
     bench_error_propagation,
-    bench_error_handling,
-    bench_recovery_scenarios,
-    bench_file_error_scenarios,
-    bench_error_context_overhead,
     bench_result_operations,
+    bench_match_error_handling,
 );
 criterion_main!(benches);

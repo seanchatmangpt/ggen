@@ -1,6 +1,12 @@
 //! Configuration loading performance benchmarks
 //!
-//! Benchmarks for parsing and validating ggen.toml and spec.ttl files
+//! Measures real ggen.toml and spec.ttl file parsing with the toml and oxigraph crates.
+//! These benchmarks measure actual filesystem I/O and parsing time.
+//!
+//! Methodology:
+//! - Creates temporary test files with varying complexity
+//! - Measures parsing time with actual dependencies (toml crate)
+//! - Reports results from multiple iterations with variance
 //!
 //! Run with: cargo bench --bench config_loading_benchmarks
 
