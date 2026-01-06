@@ -1,0 +1,75 @@
+# Documentation Index
+
+Master index of all ggen documentation generated from RDF ontology.
+
+## Documentation Overview
+
+| Type | Count |
+|------|-------|
+{% for row in results | sort(attribute="?type") %}
+| {{ row["?type"] }} | {{ row["?count"] }} |
+{% endfor %}
+
+## Learning Path
+
+### 1. Get Started
+- Quick Start (5 min)
+- Install ggen (5 min)
+- Create Your First Ontology (15 min)
+
+### 2. Learn the Basics
+- Your First Code Generation (20 min)
+- Why RDF & Ontologies? (15 min)
+- RDF/TTL Reference (10 min)
+
+### 3. Intermediate Skills
+- Learn SPARQL for Code Generation (30 min)
+- Inference & SPARQL CONSTRUCT (20 min)
+- Configure ggen.toml (10 min)
+- Validate Your Ontology (15 min)
+
+### 4. Practical Applications
+- Generate a Complete REST API (40 min)
+- Generate Code in Multiple Languages (25 min)
+- Organize Large Projects (15 min)
+
+### 5. Advanced Topics
+- ggen Architecture (20 min)
+- Validation & Quality Gates (15 min)
+- Custom Tera Filters (20 min)
+
+## Documentation by Type
+
+### Tutorials
+Step-by-step learning through hands-on projects.
+[See Tutorials](GENERATED_TUTORIALS.md)
+
+### How-To Guides
+Problem-focused solutions to specific challenges.
+[See How-To Guides](GENERATED_HOWTO_GUIDES.md)
+
+### Reference
+Complete lookup documentation and specifications.
+[See Reference](GENERATED_REFERENCE.md)
+
+### Explanations
+In-depth conceptual understanding and philosophy.
+[See Explanations](GENERATED_EXPLANATIONS.md)
+
+### Examples
+Working projects demonstrating ggen capabilities.
+[See Examples](GENERATED_EXAMPLES.md)
+
+## Known Gaps
+
+Documentation gaps that have been identified:
+[See Gap Analysis](GENERATED_GAP_ANALYSIS.md)
+
+---
+
+**Last Updated**: Auto-generated from `documentation.ttl`
+
+To update documentation:
+1. Edit `.specify/specs/999-docs-as-code/documentation.ttl`
+2. Run: `ggen sync --config .specify/specs/999-docs-as-code/ggen.toml`
+3. Review generated files in `docs/`

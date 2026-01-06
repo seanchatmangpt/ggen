@@ -1,0 +1,46 @@
+# How-To Guides (Problem-Oriented)
+
+Solution-focused guides to solve specific problems. Choose the guide that matches your problem.
+
+{% set categories = results | group_by(attribute="?category") %}
+
+{% for category_name, category_items in categories %}
+## {{ category_name }}
+
+{% for row in category_items | sort(attribute="?difficulty") | sort(attribute="?estimatedMinutes") %}
+### {{ row["?title"] }}
+
+**Time**: {{ row["?estimatedMinutes"] }} minutes | **Difficulty**: {{ row["?difficulty"] }}
+
+{{ row["?description"] }}
+
+**Read**: `{{ row["?outputFile"] }}`
+
+---
+{% endfor %}
+{% endfor %}
+
+## All How-To Guides at a Glance
+
+| Problem | Solution | Time | Level |
+|---------|----------|------|-------|
+{% for row in results | sort(attribute="?category") %}
+| {{ row["?category"] }} | {{ row["?title"] }} | {{ row["?estimatedMinutes"] }}m | {{ row["?difficulty"] }} |
+{% endfor %}
+
+## Index by Difficulty
+
+### Beginner
+{% for row in results | filter(attribute="?difficulty", value="Beginner") %}
+- {{ row["?title"] }} ({{ row["?estimatedMinutes"] }}m) - `{{ row["?outputFile"] }}`
+{% endfor %}
+
+### Intermediate
+{% for row in results | filter(attribute="?difficulty", value="Intermediate") %}
+- {{ row["?title"] }} ({{ row["?estimatedMinutes"] }}m) - `{{ row["?outputFile"] }}`
+{% endfor %}
+
+### Advanced
+{% for row in results | filter(attribute="?difficulty", value="Advanced") %}
+- {{ row["?title"] }} ({{ row["?estimatedMinutes"] }}m) - `{{ row["?outputFile"] }}`
+{% endfor %}

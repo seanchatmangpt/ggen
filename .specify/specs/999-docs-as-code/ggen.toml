@@ -15,35 +15,125 @@ rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 [generation]
 output_dir = "docs/"
 
-# GENERATION RULES: Render documentation
+# ============================================================================
+# GENERATION RULES: Render documentation from RDF
+# ============================================================================
 
+# Tutorials: Learning-by-doing documentation
 [[generation.rules]]
-name = "guides"
-description = "Generate all guides"
+name = "tutorials"
+description = "Generate tutorial catalog"
 query = { inline = """
 PREFIX doc: <https://ggen.example.com/docs/>
-SELECT ?title ?description ?pages ?effort ?outputFile ?template
+SELECT ?id ?title ?description ?estimatedMinutes ?difficulty ?category ?prerequisite ?outputFile
 WHERE {
-  ?guide a doc:Guide ;
+  ?id a doc:Tutorial ;
     doc:title ?title ;
     doc:description ?description ;
-    doc:pages ?pages ;
-    doc:effort ?effort ;
-    doc:outputFile ?outputFile ;
-    doc:template ?template .
+    doc:estimatedMinutes ?estimatedMinutes ;
+    doc:difficulty ?difficulty ;
+    doc:category ?category ;
+    doc:outputFile ?outputFile .
+  OPTIONAL { ?id doc:prerequisite ?prerequisite . }
 }
-ORDER BY ?title
+ORDER BY ?difficulty ?category ?estimatedMinutes ?title
 """ }
-template = { file = "templates/generate-guides.tera" }
-output_file = "GENERATED_GUIDES_MANIFEST.md"
+template = { file = "templates/tutorials.tera" }
+output_file = "GENERATED_TUTORIALS.md"
 mode = "Overwrite"
 
+# How-To Guides: Problem-oriented documentation
 [[generation.rules]]
-name = "gaps"
-description = "Generate gap analysis"
+name = "howto"
+description = "Generate how-to guide catalog"
 query = { inline = """
 PREFIX doc: <https://ggen.example.com/docs/>
-SELECT ?title ?description ?priority ?effort ?category ?codeRef
+SELECT ?id ?title ?description ?estimatedMinutes ?difficulty ?category ?outputFile
+WHERE {
+  ?id a doc:HowTo ;
+    doc:title ?title ;
+    doc:description ?description ;
+    doc:estimatedMinutes ?estimatedMinutes ;
+    doc:difficulty ?difficulty ;
+    doc:category ?category ;
+    doc:outputFile ?outputFile .
+}
+ORDER BY ?difficulty ?category ?estimatedMinutes
+""" }
+template = { file = "templates/howto.tera" }
+output_file = "GENERATED_HOWTO_GUIDES.md"
+mode = "Overwrite"
+
+# Reference Documentation
+[[generation.rules]]
+name = "reference"
+description = "Generate reference documentation catalog"
+query = { inline = """
+PREFIX doc: <https://ggen.example.com/docs/>
+SELECT ?id ?title ?description ?estimatedMinutes ?category ?outputFile
+WHERE {
+  ?id a doc:Reference ;
+    doc:title ?title ;
+    doc:description ?description ;
+    doc:estimatedMinutes ?estimatedMinutes ;
+    doc:category ?category ;
+    doc:outputFile ?outputFile .
+}
+ORDER BY ?category ?title
+""" }
+template = { file = "templates/reference.tera" }
+output_file = "GENERATED_REFERENCE.md"
+mode = "Overwrite"
+
+# Explanations: Conceptual understanding
+[[generation.rules]]
+name = "explanations"
+description = "Generate explanation guide catalog"
+query = { inline = """
+PREFIX doc: <https://ggen.example.com/docs/>
+SELECT ?id ?title ?description ?estimatedMinutes ?category ?outputFile
+WHERE {
+  ?id a doc:Explanation ;
+    doc:title ?title ;
+    doc:description ?description ;
+    doc:estimatedMinutes ?estimatedMinutes ;
+    doc:category ?category ;
+    doc:outputFile ?outputFile .
+}
+ORDER BY ?category ?title
+""" }
+template = { file = "templates/explanations.tera" }
+output_file = "GENERATED_EXPLANATIONS.md"
+mode = "Overwrite"
+
+# Examples: Working projects
+[[generation.rules]]
+name = "examples"
+description = "Generate example projects catalog"
+query = { inline = """
+PREFIX doc: <https://ggen.example.com/docs/>
+SELECT ?id ?title ?description ?estimatedMinutes ?difficulty ?outputFile
+WHERE {
+  ?id a doc:Example ;
+    doc:title ?title ;
+    doc:description ?description ;
+    doc:estimatedMinutes ?estimatedMinutes ;
+    doc:difficulty ?difficulty ;
+    doc:outputFile ?outputFile .
+}
+ORDER BY ?difficulty ?title
+""" }
+template = { file = "templates/examples.tera" }
+output_file = "GENERATED_EXAMPLES.md"
+mode = "Overwrite"
+
+# Documentation Gaps Analysis
+[[generation.rules]]
+name = "gaps"
+description = "Generate documentation gap analysis"
+query = { inline = """
+PREFIX doc: <https://ggen.example.com/docs/>
+SELECT ?title ?description ?priority ?effort ?category
 WHERE {
   ?gap a doc:Gap ;
     doc:title ?title ;
@@ -51,29 +141,59 @@ WHERE {
     doc:priority ?priority ;
     doc:effort ?effort ;
     doc:category ?category .
-  OPTIONAL { ?gap doc:codeRef ?codeRef . }
 }
-ORDER BY ?priority ?category ?title
+ORDER BY ?priority ?category ?effort ?title
 """ }
-template = { file = "templates/generate-gap-analysis.tera" }
+template = { file = "templates/gap-analysis.tera" }
 output_file = "GENERATED_GAP_ANALYSIS.md"
 mode = "Overwrite"
 
+# Documentation Index (Master listing)
 [[generation.rules]]
-name = "todos"
-description = "Generate todo list from gaps"
+name = "index"
+description = "Generate master documentation index"
 query = { inline = """
 PREFIX doc: <https://ggen.example.com/docs/>
-SELECT ?title ?description ?priority ?effort
+SELECT ?type ?count
 WHERE {
-  ?gap a doc:Gap ;
-    doc:title ?title ;
-    doc:description ?description ;
-    doc:priority ?priority ;
-    doc:effort ?effort .
+  {
+    SELECT (COUNT(?doc) as ?count)
+    WHERE { ?doc a doc:Tutorial . }
+  }
+  BIND(\"Tutorial\" as ?type)
+  UNION
+  {
+    SELECT (COUNT(?doc) as ?count)
+    WHERE { ?doc a doc:HowTo . }
+  }
+  BIND(\"How-To\" as ?type)
+  UNION
+  {
+    SELECT (COUNT(?doc) as ?count)
+    WHERE { ?doc a doc:Reference . }
+  }
+  BIND(\"Reference\" as ?type)
+  UNION
+  {
+    SELECT (COUNT(?doc) as ?count)
+    WHERE { ?doc a doc:Explanation . }
+  }
+  BIND(\"Explanation\" as ?type)
+  UNION
+  {
+    SELECT (COUNT(?doc) as ?count)
+    WHERE { ?doc a doc:Example . }
+  }
+  BIND(\"Example\" as ?type)
+  UNION
+  {
+    SELECT (COUNT(?doc) as ?count)
+    WHERE { ?doc a doc:Gap . }
+  }
+  BIND(\"Gap\" as ?type)
 }
-ORDER BY ?priority ?effort ?title
+ORDER BY ?type
 """ }
-template = { file = "templates/generate-todos.tera" }
-output_file = "GENERATED_TODOS.md"
+template = { file = "templates/index.tera" }
+output_file = "INDEX.md"
 mode = "Overwrite"
