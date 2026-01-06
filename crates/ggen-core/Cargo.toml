@@ -141,6 +141,10 @@ harness = false
 name = "regression_detection"
 harness = false
 
+[[bench]]
+name = "thesis_validation_benchmarks"
+harness = false
+
 # NOTE: marketplace_tests_main archived to tests-archive/broken-2025-11-21
 # [[test]]
 # name = "marketplace_tests_main"
