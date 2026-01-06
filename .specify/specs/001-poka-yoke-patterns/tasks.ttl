@@ -1,0 +1,598 @@
+@prefix spec: <https://ggen.dev/spec#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <https://ggen.dev/spec/poka-yoke-tasks#> .
+
+# ============================================================================
+# TASK BREAKDOWN: Poka-Yoke Error-Proofing Patterns
+# ============================================================================
+
+:TaskBreakdown a spec:TaskList ;
+    rdfs:label "Poka-Yoke Implementation Tasks" ;
+    spec:totalTasks 32 ;
+    spec:phase "EPIC 9 - Parallel Construction" ;
+    spec:sprintCycle "4 weeks" ;
+    spec:taskList (
+        :T001 :T002 :T003 :T004 :T005 :T006 :T007 :T008
+        :T009 :T010 :T011 :T012 :T013 :T014 :T015 :T016
+        :T017 :T018 :T019 :T020 :T021 :T022 :T023 :T024
+        :T025 :T026 :T027 :T028 :T029 :T030 :T031 :T032
+    ) .
+
+# ============================================================================
+# PHASE 1: DESIGN & ARCHITECTURE
+# ============================================================================
+
+:T001 a spec:AtomicTask ;
+    rdfs:label "Design: Type-Safety Pattern Architecture" ;
+    spec:phase "Phase 1 - Design" ;
+    spec:category "Architecture" ;
+    spec:module "ggen-core" ;
+    spec:dependencies () ;
+    spec:effort "4h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "NewType pattern documented"
+        "Builder pattern documented"
+        "Sealed abstractions documented"
+        "3+ use cases identified"
+    ) ;
+    spec:agent "architect" .
+
+:T002 a spec:AtomicTask ;
+    rdfs:label "Design: Path Protection Architecture" ;
+    spec:phase "Phase 1 - Design" ;
+    spec:category "Architecture" ;
+    spec:module "ggen-core" ;
+    spec:dependencies () ;
+    spec:effort "6h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "Protected paths list defined"
+        "Regeneratable paths list defined"
+        "Glob pattern syntax documented"
+        "Integration points identified"
+    ) ;
+    spec:agent "architect" .
+
+:T003 a spec:AtomicTask ;
+    rdfs:label "Design: Quality Gate System Architecture" ;
+    spec:phase "Phase 1 - Design" ;
+    spec:category "Architecture" ;
+    spec:module "ggen-core" ;
+    spec:dependencies () ;
+    spec:effort "5h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "QualityGate trait designed"
+        "Check trait designed"
+        "Concrete checks identified (5+)"
+        "Integration with Makefile.toml planned"
+    ) ;
+    spec:agent "architect" .
+
+:T004 a spec:AtomicTask ;
+    rdfs:label "Design: Andon Signal System Architecture" ;
+    spec:phase "Phase 1 - Design" ;
+    spec:category "Architecture" ;
+    spec:module "ggen-core" ;
+    spec:dependencies () ;
+    spec:effort "3h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "AndonSignal enum designed (RED/YELLOW/GREEN)"
+        "Signal emission mechanism planned"
+        "Visual indicators (emoji) defined"
+        "Output format specified"
+    ) ;
+    spec:agent "architect" .
+
+:T005 a spec:AtomicTask ;
+    rdfs:label "Design: Timeout Enforcement Architecture" ;
+    spec:phase "Phase 1 - Design" ;
+    spec:category "Architecture" ;
+    spec:module "ggen-core" ;
+    spec:dependencies () ;
+    spec:effort "3h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "Quick timeout (5s) rationale documented"
+        "Escalation timeout (120s) designed"
+        "Deadlock detection strategy planned"
+        "Configuration in Makefile.toml planned"
+    ) ;
+    spec:agent "architect" .
+
+# ============================================================================
+# PHASE 2: CORE IMPLEMENTATION
+# ============================================================================
+
+:T006 a spec:AtomicTask ;
+    rdfs:label "Implement: ProtectedPath NewType" ;
+    spec:phase "Phase 2 - Implementation" ;
+    spec:category "Type-Safety" ;
+    spec:module "ggen-core" ;
+    spec:file "src/protection/path.rs" ;
+    spec:dependencies ( :T001 ) ;
+    spec:effort "4h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "ProtectedPath wraps String"
+        "Constructor validates path safety"
+        "Error types defined"
+        "Deref/AsRef traits implemented"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T007 a spec:AtomicTask ;
+    rdfs:label "Implement: CrateName NewType" ;
+    spec:phase "Phase 2 - Implementation" ;
+    spec:category "Type-Safety" ;
+    spec:module "ggen-domain" ;
+    spec:file "src/crate/name.rs" ;
+    spec:dependencies ( :T001 ) ;
+    spec:effort "3h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "CrateName wraps String"
+        "Crate name validation rules enforced"
+        "Error handling proper"
+        "Serialization/deserialization support"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T008 a spec:AtomicTask ;
+    rdfs:label "Implement: Config NewType" ;
+    spec:phase "Phase 2 - Implementation" ;
+    spec:category "Type-Safety" ;
+    spec:module "ggen-config" ;
+    spec:file "src/config/validated.rs" ;
+    spec:dependencies ( :T001 ) ;
+    spec:effort "3h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "Config wraps inner type"
+        "Validation rules enforced"
+        "Builder pattern available"
+        "Error context preserved"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T009 a spec:AtomicTask ;
+    rdfs:label "Implement: GlobPattern parser" ;
+    spec:phase "Phase 2 - Implementation" ;
+    spec:category "Path Protection" ;
+    spec:module "ggen-core" ;
+    spec:file "src/protection/glob.rs" ;
+    spec:dependencies ( :T002 ) ;
+    spec:effort "5h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "Glob pattern parsing works"
+        "Wildcard matching implemented"
+        "Path normalization handled"
+        "Performance acceptable (<1ms per match)"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T010 a spec:AtomicTask ;
+    rdfs:label "Implement: PathProtector struct" ;
+    spec:phase "Phase 2 - Implementation" ;
+    spec:category "Path Protection" ;
+    spec:module "ggen-core" ;
+    spec:file "src/protection/path_protector.rs" ;
+    spec:dependencies ( :T009 ) ;
+    spec:effort "6h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "Protected paths enforced"
+        "Regeneratable paths tracked"
+        "can_write() method functional"
+        "Error messages clear"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T011 a spec:AtomicTask ;
+    rdfs:label "Implement: Check trait and implementations" ;
+    spec:phase "Phase 2 - Implementation" ;
+    spec:category "Quality Gates" ;
+    spec:module "ggen-core" ;
+    spec:file "src/validation/checks.rs" ;
+    spec:dependencies ( :T003 ) ;
+    spec:effort "8h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "Check trait defined"
+        "CompilationCheck implemented"
+        "LintCheck implemented"
+        "TestCheck implemented"
+        "SecurityCheck implemented"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T012 a spec:AtomicTask ;
+    rdfs:label "Implement: QualityGate orchestrator" ;
+    spec:phase "Phase 2 - Implementation" ;
+    spec:category "Quality Gates" ;
+    spec:module "ggen-core" ;
+    spec:file "src/validation/gate.rs" ;
+    spec:dependencies ( :T011 ) ;
+    spec:effort "4h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "QualityGate struct functional"
+        "verify() runs all checks"
+        "Short-circuit on failure (RED)"
+        "Results collected"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T013 a spec:AtomicTask ;
+    rdfs:label "Implement: AndonSignal enum" ;
+    spec:phase "Phase 2 - Implementation" ;
+    spec:category "Andon Signals" ;
+    spec:module "ggen-core" ;
+    spec:file "src/signals/andon.rs" ;
+    spec:dependencies ( :T004 ) ;
+    spec:effort "4h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "AndonSignal::Red variant"
+        "AndonSignal::Yellow variant"
+        "AndonSignal::Green variant"
+        "Display impl with emoji"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T014 a spec:AtomicTask ;
+    rdfs:label "Implement: Timeout enforcement in Makefile.toml" ;
+    spec:phase "Phase 2 - Implementation" ;
+    spec:category "Timeouts" ;
+    spec:file "Makefile.toml" ;
+    spec:dependencies ( :T005 ) ;
+    spec:effort "3h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "check task timeout = 5s"
+        "test task timeout = 10s"
+        "Escalation timeout = 120s"
+        "Proper signal on timeout"
+    ) ;
+    spec:agent "rust-coder" .
+
+# ============================================================================
+# PHASE 3: TESTING
+# ============================================================================
+
+:T015 a spec:AtomicTask ;
+    rdfs:label "Test: ProtectedPath unit tests" ;
+    spec:phase "Phase 3 - Testing" ;
+    spec:category "Unit Tests" ;
+    spec:module "ggen-core" ;
+    spec:file "tests/unit/protection/path_tests.rs" ;
+    spec:dependencies ( :T006 ) ;
+    spec:effort "4h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "Valid paths accepted"
+        "Invalid paths rejected"
+        "Error messages clear"
+        "Coverage >= 95%"
+    ) ;
+    spec:agent "test-engineer" .
+
+:T016 a spec:AtomicTask ;
+    rdfs:label "Test: PathProtector unit tests" ;
+    spec:phase "Phase 3 - Testing" ;
+    spec:category "Unit Tests" ;
+    spec:module "ggen-core" ;
+    spec:file "tests/unit/protection/glob_tests.rs" ;
+    spec:dependencies ( :T010 ) ;
+    spec:effort "5h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "Protected paths blocked"
+        "Regeneratable paths allowed"
+        "Glob patterns work correctly"
+        "Coverage >= 95%"
+    ) ;
+    spec:agent "test-engineer" .
+
+:T017 a spec:AtomicTask ;
+    rdfs:label "Test: QualityGate unit tests" ;
+    spec:phase "Phase 3 - Testing" ;
+    spec:category "Unit Tests" ;
+    spec:module "ggen-core" ;
+    spec:file "tests/unit/validation/gate_tests.rs" ;
+    spec:dependencies ( :T012 ) ;
+    spec:effort "6h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "All checks run"
+        "Failure short-circuits"
+        "Results collected properly"
+        "Coverage >= 95%"
+    ) ;
+    spec:agent "test-engineer" .
+
+:T018 a spec:AtomicTask ;
+    rdfs:label "Test: AndonSignal unit tests" ;
+    spec:phase "Phase 3 - Testing" ;
+    spec:category "Unit Tests" ;
+    spec:module "ggen-core" ;
+    spec:file "tests/unit/signals/andon_tests.rs" ;
+    spec:dependencies ( :T013 ) ;
+    spec:effort "3h" ;
+    spec:priority "MEDIUM" ;
+    spec:acceptance (
+        "Signals emit correctly"
+        "Emoji displayed properly"
+        "Display format correct"
+        "Coverage >= 90%"
+    ) ;
+    spec:agent "test-engineer" .
+
+:T019 a spec:AtomicTask ;
+    rdfs:label "Test: Integration - Full quality gate flow" ;
+    spec:phase "Phase 3 - Testing" ;
+    spec:category "Integration Tests" ;
+    spec:module "ggen-core" ;
+    spec:file "tests/integration/quality_gates_e2e.rs" ;
+    spec:dependencies ( :T012 :T013 ) ;
+    spec:effort "6h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "Compilation check passes"
+        "Lint check passes"
+        "Test check passes"
+        "GREEN signal emitted"
+    ) ;
+    spec:agent "test-engineer" .
+
+:T020 a spec:AtomicTask ;
+    rdfs:label "Test: Integration - Path protection workflow" ;
+    spec:phase "Phase 3 - Testing" ;
+    spec:category "Integration Tests" ;
+    spec:module "ggen-core" ;
+    spec:file "tests/integration/path_protection_e2e.rs" ;
+    spec:dependencies ( :T010 ) ;
+    spec:effort "5h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "Protected paths never overwritten"
+        "Regeneratable paths regenerated"
+        "Error handling proper"
+        "Recovery possible"
+    ) ;
+    spec:agent "test-engineer" .
+
+# ============================================================================
+# PHASE 4: INTEGRATION & CI/CD
+# ============================================================================
+
+:T021 a spec:AtomicTask ;
+    rdfs:label "CI/CD: Configure pre-commit gate" ;
+    spec:phase "Phase 4 - Integration" ;
+    spec:category "CI/CD" ;
+    spec:file ".git/hooks/pre-commit" ;
+    spec:dependencies ( :T012 :T014 ) ;
+    spec:effort "2h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "Hook installed and executable"
+        "Runs check target"
+        "Blocks on failure"
+        "Clear error messages"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T022 a spec:AtomicTask ;
+    rdfs:label "CI/CD: Configure pre-push gate" ;
+    spec:phase "Phase 4 - Integration" ;
+    spec:category "CI/CD" ;
+    spec:file ".git/hooks/pre-push" ;
+    spec:dependencies ( :T012 ) ;
+    spec:effort "2h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "Hook installed and executable"
+        "Runs test target"
+        "Runs lint target"
+        "Blocks on failure"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T023 a spec:AtomicTask ;
+    rdfs:label "CI/CD: Configure GitHub Actions workflow" ;
+    spec:phase "Phase 4 - Integration" ;
+    spec:category "CI/CD" ;
+    spec:file ".github/workflows/ci.yml" ;
+    spec:dependencies ( :T012 :T014 ) ;
+    spec:effort "3h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "Workflow runs cargo make check"
+        "Workflow runs cargo make test"
+        "Workflow runs cargo make lint"
+        "PR blocked on failure"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T024 a spec:AtomicTask ;
+    rdfs:label "Integration: PathProtector in code generator" ;
+    spec:phase "Phase 4 - Integration" ;
+    spec:category "Integration" ;
+    spec:module "ggen-cli" ;
+    spec:dependencies ( :T010 ) ;
+    spec:effort "4h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "PathProtector called before write"
+        "Protected paths never modified"
+        "Clear error on violation"
+        "No data loss possible"
+    ) ;
+    spec:agent "rust-coder" .
+
+# ============================================================================
+# PHASE 5: DOCUMENTATION & VALIDATION
+# ============================================================================
+
+:T025 a spec:AtomicTask ;
+    rdfs:label "Documentation: Type-Safety patterns guide" ;
+    spec:phase "Phase 5 - Documentation" ;
+    spec:category "Documentation" ;
+    spec:file "docs/patterns/type-safety.md" ;
+    spec:dependencies ( :T001 :T006 :T007 :T008 ) ;
+    spec:effort "3h" ;
+    spec:priority "MEDIUM" ;
+    spec:acceptance (
+        "NewType pattern explained"
+        "Code examples provided"
+        "Best practices documented"
+        "Common mistakes listed"
+    ) ;
+    spec:agent "technical-writer" .
+
+:T026 a spec:AtomicTask ;
+    rdfs:label "Documentation: Path Protection guide" ;
+    spec:phase "Phase 5 - Documentation" ;
+    spec:category "Documentation" ;
+    spec:file "docs/patterns/path-protection.md" ;
+    spec:dependencies ( :T002 :T010 ) ;
+    spec:effort "3h" ;
+    spec:priority "MEDIUM" ;
+    spec:acceptance (
+        "Protected paths explained"
+        "Regeneratable paths explained"
+        "Glob pattern syntax documented"
+        "Examples provided"
+    ) ;
+    spec:agent "technical-writer" .
+
+:T027 a spec:AtomicTask ;
+    rdfs:label "Documentation: Quality Gates guide" ;
+    spec:phase "Phase 5 - Documentation" ;
+    spec:category "Documentation" ;
+    spec:file "docs/patterns/quality-gates.md" ;
+    spec:dependencies ( :T003 :T012 ) ;
+    spec:effort "3h" ;
+    spec:priority "MEDIUM" ;
+    spec:acceptance (
+        "Gate types explained"
+        "Check mechanism documented"
+        "SLOs documented"
+        "Failure handling explained"
+    ) ;
+    spec:agent "technical-writer" .
+
+:T028 a spec:AtomicTask ;
+    rdfs:label "Documentation: Andon Signals guide" ;
+    spec:phase "Phase 5 - Documentation" ;
+    spec:category "Documentation" ;
+    spec:file "docs/patterns/andon-signals.md" ;
+    spec:dependencies ( :T004 :T013 ) ;
+    spec:effort "2h" ;
+    spec:priority "MEDIUM" ;
+    spec:acceptance (
+        "RED/YELLOW/GREEN explained"
+        "Stop-the-line protocol documented"
+        "Developer responsibilities clear"
+        "Examples provided"
+    ) ;
+    spec:agent "technical-writer" .
+
+:T029 a spec:AtomicTask ;
+    rdfs:label "Validation: FMEA analysis complete" ;
+    spec:phase "Phase 5 - Documentation" ;
+    spec:category "Validation" ;
+    spec:file ".specify/specs/001-poka-yoke-patterns/FMEA.md" ;
+    spec:dependencies ( :T001 :T002 :T003 :T005 ) ;
+    spec:effort "4h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "5+ failure modes identified"
+        "RPN calculated for each"
+        "Mitigations verified"
+        "Success criteria clear"
+    ) ;
+    spec:agent "architect" .
+
+:T030 a spec:AtomicTask ;
+    rdfs:label "Validation: All cargo make targets passing" ;
+    spec:phase "Phase 5 - Documentation" ;
+    spec:category "Validation" ;
+    spec:dependencies ( :T019 :T020 ) ;
+    spec:effort "2h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "cargo make check: PASS"
+        "cargo make test: PASS"
+        "cargo make test-unit: PASS"
+        "cargo make lint: PASS"
+    ) ;
+    spec:agent "test-engineer" .
+
+:T031 a spec:AtomicTask ;
+    rdfs:label "Validation: Receipt generation" ;
+    spec:phase "Phase 5 - Documentation" ;
+    spec:category "Validation" ;
+    spec:dependencies ( :T030 ) ;
+    spec:effort "1h" ;
+    spec:priority "HIGH" ;
+    spec:acceptance (
+        "Receipts generated for all tasks"
+        "Hashes computed correctly"
+        "Reproducibility verified"
+    ) ;
+    spec:agent "rust-coder" .
+
+:T032 a spec:AtomicTask ;
+    rdfs:label "Finalization: Commit and push" ;
+    spec:phase "Phase 5 - Documentation" ;
+    spec:category "Finalization" ;
+    spec:dependencies ( :T031 ) ;
+    spec:effort "1h" ;
+    spec:priority "CRITICAL" ;
+    spec:acceptance (
+        "All changes committed"
+        "Branch pushed successfully"
+        "PR ready for review"
+    ) ;
+    spec:agent "rust-coder" .
+
+# ============================================================================
+# TASK DEPENDENCIES GRAPH
+# ============================================================================
+
+:DependencyGraph a spec:Graph ;
+    rdfs:label "Task Dependency Graph" ;
+    spec:description """
+Phase 1 (Design - tasks 1-5): No dependencies
+    ↓
+Phase 2 (Implementation - tasks 6-14): Depends on Phase 1
+    ├─ T006,T007,T008 (NewType) ← T001
+    ├─ T009,T010 (PathProtector) ← T002
+    ├─ T011,T012 (QualityGate) ← T003
+    ├─ T013 (AndonSignal) ← T004
+    └─ T014 (Timeouts) ← T005
+    ↓
+Phase 3 (Testing - tasks 15-20): Depends on Phase 2
+    ├─ T015 ← T006
+    ├─ T016 ← T010
+    ├─ T017 ← T012
+    ├─ T018 ← T013
+    └─ T019,T020 ← Phase 2
+    ↓
+Phase 4 (Integration - tasks 21-24): Depends on Phase 2 & 3
+    ├─ T021,T022,T023 ← T012, T014
+    └─ T024 ← T010, T019
+    ↓
+Phase 5 (Documentation - tasks 25-32): Depends on all prior phases
+    ├─ T025,T026,T027,T028 ← Respective design tasks
+    ├─ T029 ← Design tasks
+    ├─ T030 ← Phase 3 tests
+    ├─ T031 ← T030
+    └─ T032 ← T031
+    """ .

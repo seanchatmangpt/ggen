@@ -1,0 +1,427 @@
+@prefix spec: <https://ggen.dev/spec#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix py: <https://ggen.dev/poka-yoke/> .
+@prefix : <https://ggen.dev/spec/poka-yoke-plan#> .
+
+# ============================================================================
+# IMPLEMENTATION PLAN: Poka-Yoke Error-Proofing Patterns for ggen
+# ============================================================================
+
+:ImplementationPlan a spec:Plan ;
+    rdfs:label "Poka-Yoke Implementation Plan" ;
+    spec:startDate "2026-01-06"^^xsd:date ;
+    spec:status "IN_PROGRESS" ;
+    spec:phase1 :Phase1_Foundation ;
+    spec:phase2 :Phase2_CorePatterns ;
+    spec:phase3 :Phase3_Integration ;
+    spec:phase4 :Phase4_Validation ;
+    spec:phase5 :Phase5_Documentation .
+
+# ============================================================================
+# PHASE 1: FOUNDATION (Type-Safety & Architecture)
+# ============================================================================
+
+:Phase1_Foundation a spec:Phase ;
+    rdfs:label "Phase 1: Foundation - Type-Safety & Architecture" ;
+    spec:duration "1-2 days" ;
+    spec:objectives (
+        "Design type-safe NewType wrappers"
+        "Plan path protection architecture"
+        "Design quality gate trait"
+        "Plan andon signal system"
+    ) ;
+    spec:tasks (
+        :Task1_TypeSystemDesign
+        :Task2_PathProtectionArch
+        :Task3_QualityGateDesign
+        :Task4_AndonSignalDesign
+    ) ;
+    spec:criticalPath true ;
+    spec:dependencies () .
+
+:Task1_TypeSystemDesign a spec:Task ;
+    rdfs:label "Design Type-Safe Patterns" ;
+    spec:description "Design NewType, Builder, and sealed abstractions" ;
+    spec:module "ggen-core" ;
+    spec:files (
+        "src/protection/mod.rs"
+        "src/protection/path.rs"
+        "src/protection/config.rs"
+    ) ;
+    spec:dependencies () ;
+    spec:effort "4h" .
+
+:Task2_PathProtectionArch a spec:Task ;
+    rdfs:label "Design Path Protection Architecture" ;
+    spec:description "Design PathProtector with glob patterns and validation" ;
+    spec:module "ggen-core" ;
+    spec:files (
+        "src/protection/glob.rs"
+        "src/protection/path_protector.rs"
+    ) ;
+    spec:dependencies ( :Task1_TypeSystemDesign ) ;
+    spec:effort "6h" .
+
+:Task3_QualityGateDesign a spec:Task ;
+    rdfs:label "Design Quality Gate System" ;
+    spec:description "Design QualityGate trait and implementations" ;
+    spec:module "ggen-core" ;
+    spec:files (
+        "src/validation/mod.rs"
+        "src/validation/gate.rs"
+        "src/validation/checks.rs"
+    ) ;
+    spec:dependencies ( :Task1_TypeSystemDesign ) ;
+    spec:effort "5h" .
+
+:Task4_AndonSignalDesign a spec:Task ;
+    rdfs:label "Design Andon Signal System" ;
+    spec:description "Design AndonSignal enum and emission system" ;
+    spec:module "ggen-core" ;
+    spec:files (
+        "src/signals/mod.rs"
+        "src/signals/andon.rs"
+    ) ;
+    spec:dependencies ( :Task1_TypeSystemDesign ) ;
+    spec:effort "3h" .
+
+# ============================================================================
+# PHASE 2: CORE PATTERNS (Implementation)
+# ============================================================================
+
+:Phase2_CorePatterns a spec:Phase ;
+    rdfs:label "Phase 2: Core Patterns - Implementation" ;
+    spec:duration "3-4 days" ;
+    spec:objectives (
+        "Implement type-safe NewType wrappers"
+        "Implement PathProtector with glob patterns"
+        "Implement QualityGate infrastructure"
+        "Implement AndonSignal system"
+    ) ;
+    spec:tasks (
+        :Task5_TypeSafetyImpl
+        :Task6_PathProtectorImpl
+        :Task7_QualityGateImpl
+        :Task8_AndonSignalImpl
+    ) ;
+    spec:criticalPath true ;
+    spec:dependencies ( :Phase1_Foundation ) .
+
+:Task5_TypeSafetyImpl a spec:Task ;
+    rdfs:label "Implement Type-Safe Patterns" ;
+    spec:description "Implement NewType wrappers for ProtectedPath, CrateName, Config" ;
+    spec:module "ggen-core" ;
+    spec:files (
+        "src/protection/path.rs"
+        "src/protection/config.rs"
+        "src/domain/crate_name.rs"
+    ) ;
+    spec:dependencies ( :Task1_TypeSystemDesign ) ;
+    spec:effort "8h" ;
+    spec:tests (
+        "tests/unit/protection/newtype.rs"
+        "tests/unit/protection/validation.rs"
+    ) .
+
+:Task6_PathProtectorImpl a spec:Task ;
+    rdfs:label "Implement PathProtector" ;
+    spec:description "Implement glob-based path whitelisting/blacklisting" ;
+    spec:module "ggen-core" ;
+    spec:files (
+        "src/protection/glob.rs"
+        "src/protection/path_protector.rs"
+    ) ;
+    spec:dependencies ( :Task2_PathProtectionArch :Task5_TypeSafetyImpl ) ;
+    spec:effort "10h" ;
+    spec:tests (
+        "tests/unit/protection/glob_patterns.rs"
+        "tests/unit/protection/path_protector.rs"
+    ) .
+
+:Task7_QualityGateImpl a spec:Task ;
+    rdfs:label "Implement Quality Gate System" ;
+    spec:description "Implement QualityGate trait, CompilationCheck, LintCheck, TestCheck" ;
+    spec:module "ggen-core" ;
+    spec:files (
+        "src/validation/gate.rs"
+        "src/validation/checks.rs"
+    ) ;
+    spec:dependencies ( :Task3_QualityGateDesign ) ;
+    spec:effort "12h" ;
+    spec:tests (
+        "tests/unit/validation/quality_gate.rs"
+        "tests/integration/quality_gates.rs"
+    ) .
+
+:Task8_AndonSignalImpl a spec:Task ;
+    rdfs:label "Implement Andon Signal System" ;
+    spec:description "Implement AndonSignal enum (RED/YELLOW/GREEN) and emission" ;
+    spec:module "ggen-core" ;
+    spec:files (
+        "src/signals/andon.rs"
+    ) ;
+    spec:dependencies ( :Task4_AndonSignalDesign ) ;
+    spec:effort "6h" ;
+    spec:tests (
+        "tests/unit/signals/andon.rs"
+    ) .
+
+# ============================================================================
+# PHASE 3: INTEGRATION (Cargo Make & CI/CD)
+# ============================================================================
+
+:Phase3_Integration a spec:Phase ;
+    rdfs:label "Phase 3: Integration - Cargo Make & CI/CD" ;
+    spec:duration "2-3 days" ;
+    spec:objectives (
+        "Integrate quality gates into Makefile.toml"
+        "Implement timeout enforcement"
+        "Integrate andon signals in build output"
+        "Configure pre-commit and pre-push gates"
+    ) ;
+    spec:tasks (
+        :Task9_MakefileIntegration
+        :Task10_TimeoutEnforcement
+        :Task11_CIIntegration
+        :Task12_HookIntegration
+    ) ;
+    spec:criticalPath true ;
+    spec:dependencies ( :Phase2_CorePatterns ) .
+
+:Task9_MakefileIntegration a spec:Task ;
+    rdfs:label "Integrate into Makefile.toml" ;
+    spec:description "Add quality gate tasks to Makefile.toml with proper timeouts" ;
+    spec:files (
+        "Makefile.toml"
+    ) ;
+    spec:dependencies ( :Task7_QualityGateImpl ) ;
+    spec:effort "4h" .
+
+:Task10_TimeoutEnforcement a spec:Task ;
+    rdfs:label "Implement Timeout Enforcement" ;
+    spec:description "Add quick timeout (5s) and escalation timeout (120s)" ;
+    spec:files (
+        "Makefile.toml"
+    ) ;
+    spec:dependencies ( :Task9_MakefileIntegration ) ;
+    spec:effort "3h" .
+
+:Task11_CIIntegration a spec:Task ;
+    rdfs:label "Integrate into CI Pipeline" ;
+    spec:description "Configure GitHub Actions for quality gates" ;
+    spec:files (
+        ".github/workflows/ci.yml"
+    ) ;
+    spec:dependencies ( :Task9_MakefileIntegration ) ;
+    spec:effort "5h" .
+
+:Task12_HookIntegration a spec:Task ;
+    rdfs:label "Integrate Pre-Commit/Pre-Push Hooks" ;
+    spec:description "Configure hooks to block broken code" ;
+    spec:files (
+        ".git/hooks/pre-commit"
+        ".git/hooks/pre-push"
+    ) ;
+    spec:dependencies ( :Task9_MakefileIntegration ) ;
+    spec:effort "3h" .
+
+# ============================================================================
+# PHASE 4: VALIDATION (Testing & FMEA)
+# ============================================================================
+
+:Phase4_Validation a spec:Phase ;
+    rdfs:label "Phase 4: Validation - Testing & FMEA" ;
+    spec:duration "2-3 days" ;
+    spec:objectives (
+        "Write comprehensive unit tests"
+        "Write integration tests"
+        "Complete FMEA analysis"
+        "Verify all gates functional"
+    ) ;
+    spec:tasks (
+        :Task13_UnitTests
+        :Task14_IntegrationTests
+        :Task15_FMEAAnalysis
+        :Task16_GateValidation
+    ) ;
+    spec:criticalPath true ;
+    spec:dependencies ( :Phase3_Integration ) .
+
+:Task13_UnitTests a spec:Task ;
+    rdfs:label "Write Unit Tests" ;
+    spec:description "Chicago TDD unit tests for all patterns" ;
+    spec:module "ggen-core" ;
+    spec:files (
+        "tests/unit/protection/*.rs"
+        "tests/unit/validation/*.rs"
+        "tests/unit/signals/*.rs"
+    ) ;
+    spec:dependencies ( :Phase2_CorePatterns ) ;
+    spec:effort "16h" ;
+    spec:coverage "95%+" .
+
+:Task14_IntegrationTests a spec:Task ;
+    rdfs:label "Write Integration Tests" ;
+    spec:description "End-to-end tests for quality gates and andon signals" ;
+    spec:module "ggen-core" ;
+    spec:files (
+        "tests/integration/quality_gates.rs"
+        "tests/integration/path_protection.rs"
+    ) ;
+    spec:dependencies ( :Phase3_Integration ) ;
+    spec:effort "12h" ;
+    spec:coverage "80%+" .
+
+:Task15_FMEAAnalysis a spec:Task ;
+    rdfs:label "Complete FMEA Analysis" ;
+    spec:description "Analyze failure modes and verify mitigations" ;
+    spec:files (
+        ".specify/specs/001-poka-yoke-patterns/FMEA.md"
+    ) ;
+    spec:dependencies ( :Phase2_CorePatterns ) ;
+    spec:effort "6h" ;
+    spec:deliverable "FMEA report with 5+ failure modes" .
+
+:Task16_GateValidation a spec:Task ;
+    rdfs:label "Validate All Quality Gates" ;
+    spec:description "Verify pre-commit and pre-push gates functional" ;
+    spec:files (
+        "tests/integration/gates.rs"
+    ) ;
+    spec:dependencies ( :Phase3_Integration ) ;
+    spec:effort "4h" .
+
+# ============================================================================
+# PHASE 5: DOCUMENTATION & RELEASE
+# ============================================================================
+
+:Phase5_Documentation a spec:Phase ;
+    rdfs:label "Phase 5: Documentation & Release" ;
+    spec:duration "1-2 days" ;
+    spec:objectives (
+        "Document all patterns with examples"
+        "Create implementation guide"
+        "Create architecture diagrams"
+        "Prepare release notes"
+    ) ;
+    spec:tasks (
+        :Task17_PatternDocumentation
+        :Task18_ImplementationGuide
+        :Task19_ArchitectureDiagrams
+        :Task20_ReleaseNotes
+    ) ;
+    spec:dependencies ( :Phase4_Validation ) .
+
+:Task17_PatternDocumentation a spec:Task ;
+    rdfs:label "Document All Patterns" ;
+    spec:description "Document Prevent, Detect, React patterns with examples" ;
+    spec:files (
+        "docs/patterns/type-safety.md"
+        "docs/patterns/path-protection.md"
+        "docs/patterns/quality-gates.md"
+        "docs/patterns/timeout-enforcement.md"
+        "docs/patterns/andon-signals.md"
+    ) ;
+    spec:effort "8h" .
+
+:Task18_ImplementationGuide a spec:Task ;
+    rdfs:label "Create Implementation Guide" ;
+    spec:description "Guide for using patterns in new features" ;
+    spec:files (
+        "docs/POKA_YOKE_GUIDE.md"
+    ) ;
+    spec:effort "6h" .
+
+:Task19_ArchitectureDiagrams a spec:Task ;
+    rdfs:label "Create Architecture Diagrams" ;
+    spec:description "C4 diagrams for patterns and integrations" ;
+    spec:files (
+        ".specify/C4_Poka_Yoke_Architecture.puml"
+        ".specify/C4_Quality_Gate_Flow.puml"
+    ) ;
+    spec:effort "4h" .
+
+:Task20_ReleaseNotes a spec:Task ;
+    rdfs:label "Prepare Release Notes" ;
+    spec:description "Summarize features, improvements, breaking changes" ;
+    spec:files (
+        "CHANGELOG.md"
+    ) ;
+    spec:dependencies ( :Task17_PatternDocumentation ) ;
+    spec:effort "3h" .
+
+# ============================================================================
+# KEY TECHNICAL DECISIONS
+# ============================================================================
+
+:Decision_TypeSystem a spec:TechnicalDecision ;
+    rdfs:label "Use Rust Type System for Prevention" ;
+    spec:rationale "Compile-time enforcement is strongest prevention mechanism" ;
+    spec:alternatives (
+        "Runtime validation (slower, easier to bypass)"
+        "Design patterns only (relies on discipline)"
+    ) ;
+    spec:chosen "Rust type system (NewType pattern)" ;
+    spec:impact "HIGH - Prevents entire classes of bugs" .
+
+:Decision_GlobPatterns a spec:TechnicalDecision ;
+    rdfs:label "Use Glob Patterns for Path Protection" ;
+    spec:rationale "Flexible, easy to maintain, well-understood" ;
+    spec:alternatives (
+        "Hardcoded paths (inflexible)"
+        "Configuration files (more overhead)"
+    ) ;
+    spec:chosen "Glob patterns (*.ttl, src/domain/*, etc.)" ;
+    spec:impact "MEDIUM - Enables flexible protection policies" .
+
+:Decision_TraitBasedGates a spec:TechnicalDecision ;
+    rdfs:label "Use Trait-Based Quality Gate System" ;
+    spec:rationale "Extensible, testable, follows Rust idioms" ;
+    spec:alternatives (
+        "Hardcoded gate logic (not extensible)"
+        "Configuration-based (less type-safe)"
+    ) ;
+    spec:chosen "Trait-based (impl Check for CompilationCheck)" ;
+    spec:impact "MEDIUM - Allows new gates without code changes" .
+
+# ============================================================================
+# RISK ANALYSIS
+# ============================================================================
+
+:Risk_Complexity a spec:Risk ;
+    rdfs:label "Implementation Complexity" ;
+    spec:probability "MEDIUM" ;
+    spec:impact "MEDIUM" ;
+    spec:mitigation "Phased approach, focus on core patterns first" ;
+    spec:contingency "Deliver essential patterns (TypeSafety, PathProtection) in v5.2" .
+
+:Risk_PerformanceImpact a spec:Risk ;
+    rdfs:label "Quality Gate Performance Impact" ;
+    spec:probability "LOW" ;
+    spec:impact "MEDIUM" ;
+    spec:mitigation "Timeout enforcement prevents hangs; parallel execution where possible" ;
+    spec:contingency "Profile and optimize hot paths" .
+
+:Risk_AdoptionResistance a spec:Risk ;
+    rdfs:label "Developer Adoption Resistance" ;
+    spec:probability "MEDIUM" ;
+    spec:impact "HIGH" ;
+    spec:mitigation "Clear documentation, examples, strong stop-the-line enforcement" ;
+    spec:contingency "Educational sessions on Poka-Yoke principles" .
+
+# ============================================================================
+# SUCCESS METRICS
+# ============================================================================
+
+:SuccessMetrics a spec:Metrics ;
+    rdfs:label "Success Metrics for Poka-Yoke Implementation" ;
+    spec:metric1 "Zero path traversal issues in generated code" ;
+    spec:metric2 "100% of quality gates passing before merge" ;
+    spec:metric3 "Average build time < 30s (SLO maintained)" ;
+    spec:metric4 "Zero defects escape to production" ;
+    spec:metric5 "Developer compliance with stop-the-line protocol: 100%" ;
+    spec:metric6 "Test coverage >= 95% for patterns" ;
+    spec:metric7 "FMEA RPN reduction: initial > 100 → final < 50" ;
+    spec:metric8 "Documentation completeness: 100%" .
