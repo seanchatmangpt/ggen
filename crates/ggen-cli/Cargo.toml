@@ -1,6 +1,6 @@
 [package]
 name = "ggen-cli-lib"
-version = "5.0.2"
+version = "5.1.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "CLI interface for ggen"
 edition = "2021"
