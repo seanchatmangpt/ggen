@@ -1,0 +1,49 @@
+# Example Projects
+
+Working examples demonstrating ggen capabilities end-to-end.
+
+## By Difficulty Level
+
+### Beginner Examples
+
+{% for row in results | filter(attribute="?difficulty", value="Beginner") %}
+**{{ row["?title"] }}** ({{ row["?estimatedMinutes"] }}m)
+
+{{ row["?description"] }}
+
+Read: `{{ row["?outputFile"] }}`
+
+---
+{% endfor %}
+
+### Intermediate Examples
+
+{% for row in results | filter(attribute="?difficulty", value="Intermediate") %}
+**{{ row["?title"] }}** ({{ row["?estimatedMinutes"] }}m)
+
+{{ row["?description"] }}
+
+Read: `{{ row["?outputFile"] }}`
+
+---
+{% endfor %}
+
+### Advanced Examples
+
+{% for row in results | filter(attribute="?difficulty", value="Advanced") %}
+**{{ row["?title"] }}** ({{ row["?estimatedMinutes"] }}m)
+
+{{ row["?description"] }}
+
+Read: `{{ row["?outputFile"] }}`
+
+---
+{% endfor %}
+
+## All Examples
+
+| Project | Difficulty | Time | File |
+|---------|------------|------|------|
+{% for row in results | sort(attribute="?difficulty") | sort(attribute="?title") %}
+| {{ row["?title"] }} | {{ row["?difficulty"] }} | {{ row["?estimatedMinutes"] }}m | `{{ row["?outputFile"] }}` |
+{% endfor %}
