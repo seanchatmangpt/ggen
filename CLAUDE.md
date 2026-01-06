@@ -15,7 +15,7 @@
 **Old**: Vague req → Plan → Code → Test → Iterate
 **New**: Spec closure → Single-pass → Receipts
 
-- Before coding: `/speckit-verify` (MANDATORY)
+- Before coding: Verify specification closure (MANDATORY)
 - If incomplete: **STOP**, clarify, update .ttl
 - Proceed only when closure = 100%
 
@@ -29,7 +29,6 @@ FAN-OUT → INDEPENDENT CONSTRUCTION → COLLISION DETECTION
 → CONVERGENCE → REFACTORING → CLOSURE
 ```
 
-Commands: `/speckit-verify` → `/bb80-parallel` → `/collision-detect` → `/convergence`
 
 ### 3. Deterministic Validation (Evidence-First)
 
@@ -94,21 +93,6 @@ cargo make lint       # <60s
 cargo make test       # <30s
 cargo make pre-commit # Format + lint + tests
 cargo make ci         # Full pipeline
-```
-
-### EPIC 9
-```bash
-/speckit-verify [feature]  # Verify closure
-/bb80-parallel "[spec]"    # 10 agents parallel
-/collision-detect          # Analyze overlaps
-/convergence               # Synthesize result
-```
-
-### Quality
-```bash
-/test-audit      # Mutation testing
-/review-errors   # Error handling audit
-/optimize        # Performance
 ```
 
 ---
