@@ -52,6 +52,12 @@ futures = { workspace = true }
 # Logging
 log = { workspace = true }
 
+# Database
+sqlx = { version = "0.7", features = ["sqlite", "runtime-tokio-rustls", "chrono", "uuid"] }
+
+# Password hashing
+bcrypt = "0.15"
+
 [dev-dependencies]
 assert_cmd = "2.0"
 predicates = "3.1"
