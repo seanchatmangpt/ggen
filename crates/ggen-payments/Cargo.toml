@@ -1,0 +1,33 @@
+[package]
+name = "ggen-payments"
+version = "5.0.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+description = "Payment processing for ggen: Stripe integration and billing operations"
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+
+# HTTP for Stripe API calls
+reqwest = { workspace = true }
+http = "1.0"
+hmac = "0.12"
+sha2 = { workspace = true }
+
+# Local crates
+ggen-utils = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
+insta = "1.43"
+mockall = "0.13"

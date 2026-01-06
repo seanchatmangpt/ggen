@@ -1,0 +1,31 @@
+[package]
+name = "ggen-saas"
+version = "5.0.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+description = "SaaS tier management and quota enforcement for ggen monetization"
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+
+# Rate limiting and caching
+moka = { version = "0.12", features = ["future"] }
+
+# Local crates
+ggen-utils = { workspace = true }
+ggen-core = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
+insta = "1.43"
+mockall = "0.13"
