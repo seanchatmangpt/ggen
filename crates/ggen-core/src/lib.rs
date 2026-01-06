@@ -143,6 +143,8 @@ pub mod packs; // Pack installation system - Phase 1
 pub mod pipeline;
 pub mod poc;
 pub mod poka_yoke; // Poka-Yoke error-proofing mechanisms
+pub mod protection; // Path protection and type-safe wrappers
+pub mod signals; // Andon signals for error-proofing
 pub mod pqc;
 pub mod preprocessor;
 pub mod prevention; // Week 3 Prevention Systems - DfLSS
@@ -176,6 +178,10 @@ pub use lifecycle::{
     Closed, Counter, EmptyPathError, EmptyStringError, FileHandle, NonEmptyPath, NonEmptyString,
     Open,
 };
+
+// Re-export protection and signal types
+pub use protection::{GlobPattern, ProtectedPath, PathError, PathProtector, PathProtectionError};
+pub use signals::{AndonSignal, AndonContext};
 
 // Re-export commonly used types for convenience
 pub use cache::{CacheManager, CachedPack};
