@@ -1,6 +1,16 @@
 //! Memory and stability performance benchmarks
 //!
-//! Long-running tests to detect memory leaks, performance regressions, and stability issues
+//! Measures performance consistency and memory behavior under repeated operations.
+//! These benchmarks help detect performance regressions and memory leaks.
+//!
+//! Methodology:
+//! - Repeats operations 100-400 times to measure consistency
+//! - Tracks allocation patterns and cache behavior
+//! - Measures lock fairness and contention scenarios
+//! - Reports mean time and variance across iterations
+//!
+//! Note: These are behavioral tests, not full memory profiling.
+//! Use valgrind or heaptrack for detailed memory analysis.
 //!
 //! Run with: cargo bench --bench stability_benchmarks
 
