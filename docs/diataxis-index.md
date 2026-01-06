@@ -64,8 +64,9 @@ Read: [Why Hive Mind Coordinates](diataxis/explanations/why-hive-mind-coordinate
 | [Clap-Noun-Verb Upgrade](diataxis/tutorials/02-clap-noun-verb-upgrade.md) | Walk through upgrading CLI from builder to derive pattern with zero regressions | 25 min | Intermediate |
 | [Zero Warnings Journey](diataxis/tutorials/03-zero-warnings-journey.md) | Experience the process of eliminating 847 warnings to achieve clean compilation | 30 min | Intermediate |
 | [Lean Manufacturing Intro](diataxis/tutorials/04-lean-manufacturing-intro.md) | Apply Toyota Production System principles to software testing | 25 min | Advanced |
+| [Code Generation Working Loop](diataxis/tutorials/05-code-generation-working-loop.md) | Learn RDF → SPARQL → Templates → Code flow with examples/openapi | 35 min | Intermediate |
 
-**Learning Path:** 01 → 02 → 03 → 04 (Total: ~100 minutes)
+**Learning Path:** 01 → 02 → 03 → 04 → 05 (Total: ~135 minutes)
 
 ---
 
@@ -99,14 +100,11 @@ Read: [Why Hive Mind Coordinates](diataxis/explanations/why-hive-mind-coordinate
 
 ### Design Philosophy
 - **[Why Poka-Yoke Prevents Errors](diataxis/explanations/why-poka-yoke-prevents-errors.md)** - How compile-time mistake-proofing eliminates runtime failures (5 patterns: guide pin, limit switches, fail-safe, counter, sequencing)
-
 - **[Why Lean Manufacturing Works](diataxis/explanations/why-lean-manufacturing-works.md)** - How Toyota Production System principles (Mura/Muda/Muri) apply to software testing
-
 - **[Why Zero Warnings Matters](diataxis/explanations/why-zero-warnings-matters.md)** - The compiler as design feedback tool: warnings are design smells, not noise
 
 ### Architectural Patterns
 - **[Why Hive Mind Coordinates](diataxis/explanations/why-hive-mind-coordinates.md)** - Byzantine fault-tolerant consensus for multi-agent coordination (Queen → Colonies → Workers)
-
 - **[Why Chicago-TDD Improves Tests](diataxis/explanations/why-chicago-tdd-improves-tests.md)** - Inside-out vs outside-in testing: when real collaborators beat mocks
 
 **Mental Models:**
@@ -151,11 +149,11 @@ Read: [Why Hive Mind Coordinates](diataxis/explanations/why-hive-mind-coordinate
 ## 📊 Documentation Metrics
 
 **Current Documentation Coverage:**
-- ✅ 4 Tutorials (Learning Paths)
+- ✅ 5 Tutorials (Learning Paths)
 - ✅ 5 How-to Guides (Problem Solving)
 - ✅ 5 Explanations (Understanding)
 - ✅ 7 Reference Documents (Lookup)
-- ✅ 21 Total Documents + Navigation Hub
+- ✅ 22 Total Documents + Navigation Hub
 
 **Estimated Time Investment:**
 - Quick lookup: 2-5 minutes (Reference)
@@ -245,12 +243,12 @@ START → Lean-Manufacturing-Intro (learn concepts)
 
 | Category | Planned | Created | Status |
 |----------|---------|---------|--------|
-| Tutorials | 4 | 4 | ✅ Complete |
+| Tutorials | 5 | 5 | ✅ Complete |
 | How-to Guides | 5 | 5 | ✅ Complete |
 | Explanations | 5 | 5 | ✅ Complete |
 | Reference | 7 | 7 | ✅ Complete |
-| **TOTAL** | **21** | **21** | **✅ Complete** |
+| **TOTAL** | **22** | **22** | **✅ Complete** |
 
-**Last Updated:** 2025-11-18
+**Last Updated:** 2026-01-06
 **Framework Version:** Diataxis 1.0
 **Maintained By:** ggen Core Team
