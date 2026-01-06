@@ -1,0 +1,18 @@
+[package]
+name = "diataxis-validator"
+version = "1.0.0"
+edition = "2021"
+
+[[bin]]
+name = "diataxis-validator"
+path = "diataxis-validator.rs"
+
+[dependencies]
+walkdir = "2"
+regex = "1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[profile.release]
+opt-level = 3
+lto = true
