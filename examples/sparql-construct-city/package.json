@@ -1,0 +1,41 @@
+{
+  "name": "sparql-construct-city",
+  "version": "1.0.0",
+  "description": "8 Bleeding Edge SPARQL CONSTRUCT Best Practices with Citty CLI Testing",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "sparql:query1": "node scripts/run-query.js 1",
+    "sparql:query2": "node scripts/run-query.js 2",
+    "sparql:query3": "node scripts/run-query.js 3",
+    "sparql:query4": "node scripts/run-query.js 4",
+    "sparql:query5": "node scripts/run-query.js 5",
+    "sparql:query6": "node scripts/run-query.js 6",
+    "sparql:query7": "node scripts/run-query.js 7",
+    "sparql:query8": "node scripts/run-query.js 8",
+    "sparql:all": "node scripts/run-all-queries.js"
+  },
+  "keywords": [
+    "sparql",
+    "construct",
+    "rdf",
+    "cli-testing",
+    "citty",
+    "semantic-web",
+    "knowledge-graph"
+  ],
+  "author": "ggen contributors",
+  "license": "MIT",
+  "devDependencies": {
+    "citty": "^0.1.x",
+    "vitest": "^1.x",
+    "@vitest/ui": "^1.x",
+    "@vitest/coverage-v8": "^1.x"
+  },
+  "dependencies": {
+    "oxigraph": "^0.3.x"
+  }
+}
