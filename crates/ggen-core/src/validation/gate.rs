@@ -1,6 +1,8 @@
 use std::fmt;
 use crate::signals::AndonSignal;
-use super::checks::{Check, CheckError};
+use super::checks::Check;
+#[cfg(test)]
+use super::checks::CheckError;
 
 #[derive(Debug, Clone)]
 pub struct CheckResult {
