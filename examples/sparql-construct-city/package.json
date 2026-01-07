@@ -30,12 +30,10 @@
   "author": "ggen contributors",
   "license": "MIT",
   "devDependencies": {
-    "citty": "^0.1.x",
-    "vitest": "^1.x",
-    "@vitest/ui": "^1.x",
-    "@vitest/coverage-v8": "^1.x"
+    "citty": "^0.1.0",
+    "vitest": "^1.0.0",
+    "@vitest/ui": "^1.0.0",
+    "@vitest/coverage-v8": "^1.0.0"
   },
-  "dependencies": {
-    "oxigraph": "^0.3.x"
-  }
+  "dependencies": {}
 }

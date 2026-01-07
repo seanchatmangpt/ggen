@@ -32,10 +32,7 @@
   "author": "ggen contributors",
   "license": "MIT",
   "dependencies": {
-    "citty": "^0.1.x",
-    "colored": "^1.4.x"
+    "citty": "^0.1.0"
   },
-  "devDependencies": {
-    "oxigraph": "^0.3.x"
-  }
+  "devDependencies": {}
 }
