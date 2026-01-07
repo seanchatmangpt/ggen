@@ -30,9 +30,6 @@ chrono = { workspace = true }
 # UUID generation
 uuid = { workspace = true }
 
-# Database
-rusqlite = { version = "0.37", features = ["bundled"] }
-
 # Configuration and environment
 dotenvy = "0.15"
 

@@ -27,6 +27,7 @@
 //! ```
 
 use std::fmt;
+use anyhow::{Result, Error};
 
 /// Critical error information for RED signal
 #[derive(Clone, Debug)]
@@ -76,11 +77,11 @@ impl AndonSignal {
     /// - RED: Prints error box, recovery steps, and documentation link. Returns Err.
     /// - YELLOW: Prints warning but continues. Returns Ok.
     /// - GREEN: Prints success message. Returns Ok.
-    pub fn enforce(&self) -> crate::Result<()> {
+    pub fn enforce(&self) -> Result<()> {
         match self {
             AndonSignal::Red(error) => {
                 eprint_red_signal(error);
-                Err(crate::Error::new(&format!(
+                Err(Error::msg(format!(
                     "error[{}]: {}",
                     error.code, error.message
                 )))

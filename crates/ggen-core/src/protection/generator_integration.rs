@@ -65,7 +65,6 @@ impl GeneratorPathGuard {
                         "PathGuard::verify_output_paths",
                     ))
                 }
-                _ => {}
             }
         }
         Ok(())
