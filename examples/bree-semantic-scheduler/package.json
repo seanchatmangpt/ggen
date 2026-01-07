@@ -30,5 +30,8 @@
     "@vitest/ui": "^1.0.0",
     "@vitest/coverage-v8": "^1.0.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "n3": "^1.17.0",
+    "comunica-sparql-stable": "^2.9.0"
+  }
 }
