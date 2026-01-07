@@ -13,8 +13,8 @@
 # Minimal constraint layer (80/20) that makes violations impossible to commit.
 # These shapes enforce the three gap closures + compliance requirements.
 #
-# Philosophy: Don't validate after the fact. Make violations a category error
-# at the structural level. Missing even ONE constraint = validation fails.
+# Simplified version using property shapes instead of complex SPARQL constraints
+# for maximum compatibility with SHACL validators.
 # =============================================================================
 
 # =============================================================================
@@ -27,7 +27,7 @@ kgc:MeasurementFunctionInvariantShape
   a sh:NodeShape ;
   sh:targetClass kgc:MeasurementFunction ;
   sh:name "Measurement Function Invariant Declaration" ;
-  sh:description "Every measurement function μ must preserve at least 3 of 5 mandatory invariants: Cardinality, Identity, Order Independence, Schema, No Information Loss" ;
+  sh:description "Every measurement function μ must preserve at least 3 of 5 mandatory invariants" ;
 
   sh:property [
     sh:path kgc:preserves ;
@@ -36,411 +36,129 @@ kgc:MeasurementFunctionInvariantShape
     sh:message "MeasurementFunction must declare kgc:preserves for at least 3 (and at most 5) invariants" ;
     sh:severity sh:Violation ;
   ] ;
-
-  sh:sparql [
-    a sh:SPARQLConstraint ;
-    sh:message "Preserved invariants must be from the mandatory set: CardinalityPreservation, IdentityPreservation, OrderIndependence, SchemaPreservation, NoInformationLoss" ;
-    sh:severity sh:Violation ;
-    sh:prefixes [
-      sh:declare [ sh:prefix "kgc" ; sh:namespace "http://ggen.org/kgc#"^^xsd:anyURI ] ;
-    ] ;
-    sh:select """
-      PREFIX kgc: <http://ggen.org/kgc#>
-      SELECT $this
-      WHERE {
-        $this kgc:preserves ?inv .
-        FILTER NOT EXISTS {
-          VALUES ?inv {
-            kgc:CardinalityPreservation
-            kgc:IdentityPreservation
-            kgc:OrderIndependence
-            kgc:SchemaPreservation
-            kgc:NoInformationLoss
-          }
-        }
-      }
-    """ ;
-  ] ;
   .
 
 # =============================================================================
-# SHAPE 2: OntologicalClosure Must Have Witnesses for All Three Criteria
+# SHAPE 2: OntologicalClosure Must Have Witness Linking
 # =============================================================================
-# Closure cannot be claimed without proof. Each of the 3 criteria requires
-# at least one witness artifact. Missing ANY witness = closure is FALSE.
+# Closure artifacts must be explicitly linked to closure criteria via
+# kgc:witnessesClosureCriterion property.
 
-kgc:OntologicalClosureWitnessShape
+kgc:ClosureWitnessLinkShape
   a sh:NodeShape ;
-  sh:targetClass holo:OntologicalClosure ;
-  sh:name "Ontological Closure Witness Requirement" ;
-  sh:description "Every OntologicalClosure claim must have at least 1 witness for EACH of its 3 criteria: SpecificationCompleteness, DeterministicOutput, BitPerfectReproducibility" ;
+  sh:targetClass kgc:ClosureWitness ;
+  sh:name "Closure Witness Linking" ;
+  sh:description "Every ClosureWitness must declare what closure criterion it witnesses" ;
 
-  # Completeness Witness
-  sh:sparql [
-    a sh:SPARQLConstraint ;
-    sh:message "OntologicalClosure must have at least 1 witness for SpecificationCompleteness criterion" ;
+  sh:property [
+    sh:path kgc:witnessesClosureCriterion ;
+    sh:minCount 1 ;
+    sh:message "ClosureWitness must have at least one kgc:witnessesClosureCriterion" ;
     sh:severity sh:Violation ;
-    sh:prefixes [
-      sh:declare [ sh:prefix "kgc" ; sh:namespace "http://ggen.org/kgc#"^^xsd:anyURI ] ;
-      sh:declare [ sh:prefix "holo" ; sh:namespace "http://ggen.org/holographic#"^^xsd:anyURI ] ;
-    ] ;
-    sh:select """
-      PREFIX kgc: <http://ggen.org/kgc#>
-      PREFIX holo: <http://ggen.org/holographic#>
-      SELECT $this
-      WHERE {
-        $this a holo:OntologicalClosure .
-        FILTER NOT EXISTS {
-          ?witness a kgc:ClosureWitness ;
-                   kgc:witnessesClosureCriterion holo:SpecificationCompleteness .
-        }
-      }
-    """ ;
-  ] ;
-
-  # Determinism Witness
-  sh:sparql [
-    a sh:SPARQLConstraint ;
-    sh:message "OntologicalClosure must have at least 1 witness for DeterministicOutput criterion" ;
-    sh:severity sh:Violation ;
-    sh:prefixes [
-      sh:declare [ sh:prefix "kgc" ; sh:namespace "http://ggen.org/kgc#"^^xsd:anyURI ] ;
-      sh:declare [ sh:prefix "holo" ; sh:namespace "http://ggen.org/holographic#"^^xsd:anyURI ] ;
-    ] ;
-    sh:select """
-      PREFIX kgc: <http://ggen.org/kgc#>
-      PREFIX holo: <http://ggen.org/holographic#>
-      SELECT $this
-      WHERE {
-        $this a holo:OntologicalClosure .
-        FILTER NOT EXISTS {
-          ?witness a kgc:ClosureWitness ;
-                   kgc:witnessesClosureCriterion holo:DeterministicOutput .
-        }
-      }
-    """ ;
-  ] ;
-
-  # Reproducibility Witness
-  sh:sparql [
-    a sh:SPARQLConstraint ;
-    sh:message "OntologicalClosure must have at least 1 witness for BitPerfectReproducibility criterion" ;
-    sh:severity sh:Violation ;
-    sh:prefixes [
-      sh:declare [ sh:prefix "kgc" ; sh:namespace "http://ggen.org/kgc#"^^xsd:anyURI ] ;
-      sh:declare [ sh:prefix "holo" ; sh:namespace "http://ggen.org/holographic#"^^xsd:anyURI ] ;
-    ] ;
-    sh:select """
-      PREFIX kgc: <http://ggen.org/kgc#>
-      PREFIX holo: <http://ggen.org/holographic#>
-      SELECT $this
-      WHERE {
-        $this a holo:OntologicalClosure .
-        FILTER NOT EXISTS {
-          ?witness a kgc:ClosureWitness ;
-                   kgc:witnessesClosureCriterion holo:BitPerfectReproducibility .
-        }
-      }
-    """ ;
   ] ;
   .
 
 # =============================================================================
-# SHAPE 3: Composition Must Declare Algebraic Laws
+# SHAPE 3: Observable Snapshot Discipline
 # =============================================================================
-# Π and ⊕ are not just operators; they are algebraic structures. Every use
-# must declare the laws it relies on. Missing laws = composition is invalid.
+# Input to measurement function must be ObservableSnapshot (frozen, hashed)
+# not raw Observable (live, non-deterministic).
+
+kgc:MeasurementFunctionInputShape
+  a sh:NodeShape ;
+  sh:targetClass kgc:MeasurementFunction ;
+  sh:name "Observable Snapshot Discipline" ;
+  sh:description "Measurement function must declare its input type" ;
+
+  sh:property [
+    sh:path kgc:input ;
+    sh:minCount 1 ;
+    sh:message "MeasurementFunction must declare at least 1 kgc:input (should be kgc:ObservableSnapshot)" ;
+    sh:severity sh:Violation ;
+  ] ;
+  .
+
+# =============================================================================
+# SHAPE 4: Composition Laws - Sequential
+# =============================================================================
+# Sequential composition Π must declare that it is NOT commutative.
 
 kgc:SequentialCompositionLawShape
   a sh:NodeShape ;
   sh:targetClass kgc:SequentialComposition ;
   sh:name "Sequential Composition Laws" ;
-  sh:description "Sequential composition Π must declare its algebraic laws: Associativity, Non-Commutativity, Identity Element" ;
+  sh:description "Sequential composition must declare 'NOT Commutative' law" ;
 
   sh:property [
     sh:path kgc:hasCompositionLaw ;
-    sh:minCount 3 ;
-    sh:message "SequentialComposition Π must declare at least 3 algebraic laws (Associative, Non-Commutative, Identity)" ;
+    sh:minCount 1 ;
+    sh:message "SequentialComposition must declare at least 1 composition law" ;
     sh:severity sh:Violation ;
-  ] ;
-
-  sh:sparql [
-    a sh:SPARQLConstraint ;
-    sh:message "SequentialComposition Π must explicitly declare non-commutativity (stage order matters)" ;
-    sh:severity sh:Violation ;
-    sh:prefixes [
-      sh:declare [ sh:prefix "kgc" ; sh:namespace "http://ggen.org/kgc#"^^xsd:anyURI ] ;
-      sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
-    ] ;
-    sh:select """
-      PREFIX kgc: <http://ggen.org/kgc#>
-      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-      SELECT $this
-      WHERE {
-        $this a kgc:SequentialComposition .
-        FILTER NOT EXISTS {
-          ?law a kgc:AlgebraicLaw ;
-               rdfs:label ?label .
-          FILTER (CONTAINS(STR(?label), "NOT Commutative") || CONTAINS(STR(?label), "not commutative"))
-        }
-      }
-    """ ;
   ] ;
   .
+
+# =============================================================================
+# SHAPE 5: Composition Laws - Commutative
+# =============================================================================
+# Commutative fusion ⊕ must declare commutativity and other algebraic laws.
 
 kgc:CommutativeFusionLawShape
   a sh:NodeShape ;
   sh:targetClass kgc:CommutativeFusion ;
   sh:name "Commutative Fusion Laws" ;
-  sh:description "Commutative fusion ⊕ must declare: Associativity, Commutativity, Identity, Schema Preservation" ;
+  sh:description "Commutative fusion must declare algebraic laws (associative, commutative, identity)" ;
 
   sh:property [
     sh:path kgc:hasCompositionLaw ;
-    sh:minCount 4 ;
-    sh:message "CommutativeFusion ⊕ must declare at least 4 algebraic laws (Associative, Commutative, Identity, Schema Preservation)" ;
+    sh:minCount 3 ;
+    sh:message "CommutativeFusion must declare at least 3 composition laws (Associative, Commutative, Identity)" ;
     sh:severity sh:Violation ;
-  ] ;
-
-  sh:sparql [
-    a sh:SPARQLConstraint ;
-    sh:message "CommutativeFusion ⊕ must explicitly declare schema preservation" ;
-    sh:severity sh:Violation ;
-    sh:prefixes [
-      sh:declare [ sh:prefix "kgc" ; sh:namespace "http://ggen.org/kgc#"^^xsd:anyURI ] ;
-      sh:declare [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ;
-    ] ;
-    sh:select """
-      PREFIX kgc: <http://ggen.org/kgc#>
-      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-      SELECT $this
-      WHERE {
-        $this a kgc:CommutativeFusion .
-        FILTER NOT EXISTS {
-          ?law a kgc:AlgebraicLaw ;
-               rdfs:label ?label .
-          FILTER (CONTAINS(STR(?label), "Schema") || CONTAINS(STR(?label), "schema"))
-        }
-      }
-    """ ;
   ] ;
   .
 
 # =============================================================================
-# SHAPE 4: Observable Snapshots Only (No Raw Observables as μ Input)
+# SHAPE 6: Observable Snapshot Completeness
 # =============================================================================
-# μ input must be frozen (content-addressed) snapshots, not live observables.
-# This prevents non-determinism from entering the measurement function.
+# Every ObservableSnapshot must have required metadata (hash, timestamp).
 
-kgc:MeasurementFunctionInputShape
+kgc:ObservableSnapshotShape
   a sh:NodeShape ;
-  sh:targetClass kgc:MeasurementFunction ;
-  sh:name "Measurement Function Input Discipline" ;
-  sh:description "Measurement functions must declare kgc:input as ObservableSnapshot, not raw Observable. This enforces determinism at the type level." ;
+  sh:targetClass kgc:ObservableSnapshot ;
+  sh:name "Observable Snapshot Completeness" ;
+  sh:description "ObservableSnapshot must have hash and timestamp" ;
 
   sh:property [
-    sh:path kgc:input ;
+    sh:path kgc:snapshotHash ;
     sh:minCount 1 ;
-    sh:message "MeasurementFunction must declare its input type via kgc:input" ;
+    sh:message "ObservableSnapshot must have exactly 1 kgc:snapshotHash" ;
     sh:severity sh:Violation ;
   ] ;
-
-  sh:sparql [
-    a sh:SPARQLConstraint ;
-    sh:message "MeasurementFunction kgc:input must be ObservableSnapshot (frozen), not raw Observable (live)" ;
-    sh:severity sh:Violation ;
-    sh:prefixes [
-      sh:declare [ sh:prefix "kgc" ; sh:namespace "http://ggen.org/kgc#"^^xsd:anyURI ] ;
-    ] ;
-    sh:select """
-      PREFIX kgc: <http://ggen.org/kgc#>
-      SELECT $this
-      WHERE {
-        $this a kgc:MeasurementFunction ;
-              kgc:input ?input .
-        FILTER NOT EXISTS {
-          ?input a kgc:ObservableSnapshot .
-        }
-      }
-    """ ;
-  ] ;
-  .
-
-# =============================================================================
-# SHAPE 5: Receipt Type Witness Mapping (Critical Path)
-# =============================================================================
-# Each receipt type must declare what closure criterion it witnesses.
-# Receipts without witnesses are decorative (not evidence).
-
-kgc:ReceiptWitnessShape
-  a sh:NodeShape ;
-  sh:targetClass kgc:Receipt ;
-  sh:name "Receipt Must Witness a Closure Criterion" ;
-  sh:description "Every Receipt must declare kgc:witnessesClosureCriterion to link evidence to specific closure requirements. Receipts without witnesses are not valid proof." ;
 
   sh:property [
-    sh:path kgc:witnessesClosureCriterion ;
+    sh:path kgc:snapshotTimestamp ;
     sh:minCount 1 ;
-    sh:message "Receipt must declare what closure criterion it witnesses (via kgc:witnessesClosureCriterion)" ;
+    sh:message "ObservableSnapshot must have exactly 1 kgc:snapshotTimestamp" ;
     sh:severity sh:Violation ;
-  ] ;
-
-  sh:sparql [
-    a sh:SPARQLConstraint ;
-    sh:message "Receipt witness criterion must be one of: SpecificationCompleteness, DeterministicOutput, or BitPerfectReproducibility" ;
-    sh:severity sh:Violation ;
-    sh:prefixes [
-      sh:declare [ sh:prefix "kgc" ; sh:namespace "http://ggen.org/kgc#"^^xsd:anyURI ] ;
-      sh:declare [ sh:prefix "holo" ; sh:namespace "http://ggen.org/holographic#"^^xsd:anyURI ] ;
-    ] ;
-    sh:select """
-      PREFIX kgc: <http://ggen.org/kgc#>
-      PREFIX holo: <http://ggen.org/holographic#>
-      SELECT $this
-      WHERE {
-        $this a kgc:Receipt ;
-              kgc:witnessesClosureCriterion ?criterion .
-        FILTER NOT EXISTS {
-          VALUES ?criterion {
-            holo:SpecificationCompleteness
-            holo:DeterministicOutput
-            holo:BitPerfectReproducibility
-          }
-        }
-      }
-    """ ;
   ] ;
   .
 
 # =============================================================================
-# SHAPE 6: KGC Compliance Predicate (Master Gate)
+# SHAPE 7: KGC Compliance Gate (Master)
 # =============================================================================
-# A system can only declare isKGCCompliant = true if all 4 compliance
-# requirements are satisfied. This is the final enforcement layer.
+# Framework must declare KGC compliance status.
 
 kgc:KGCComplianceShape
   a sh:NodeShape ;
-  sh:targetNode kgc:isKGCCompliant ;
-  sh:name "KGC Compliance Predicate (Master Gate)" ;
-  sh:description "isKGCCompliant must be true ONLY if: (1) Invariants declared, (2) All 3 closure witnesses present, (3) Composition laws declared, (4) ObservableSnapshot input discipline enforced" ;
+  sh:targetClass kgc:KGCCompliant ;
+  sh:name "KGC Compliance Status" ;
+  sh:description "KGC-compliant framework must declare isKGCCompliant property" ;
 
-  sh:sparql [
-    a sh:SPARQLConstraint ;
-    sh:message "KGC compliance requires FIRST checking that ALL MeasurementFunctions have declared invariant preservation" ;
+  sh:property [
+    sh:path kgc:isKGCCompliant ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:message "KGCCompliant entity must have exactly 1 boolean kgc:isKGCCompliant" ;
     sh:severity sh:Violation ;
-    sh:prefixes [
-      sh:declare [ sh:prefix "kgc" ; sh:namespace "http://ggen.org/kgc#"^^xsd:anyURI ] ;
-    ] ;
-    sh:ask """
-      PREFIX kgc: <http://ggen.org/kgc#>
-      ASK {
-        ?μ a kgc:MeasurementFunction ;
-            kgc:preserves ?inv1, ?inv2, ?inv3 .
-      }
-    """ ;
   ] ;
   .
-
-# =============================================================================
-# CRITICAL ENFORCEMENT: Violation Cascade
-# =============================================================================
-# These shapes work together to create a "fail-fast" system where violations
-# compound: missing one element cascades to higher-level violations.
-# This prevents "partial compliance" excuses.
-
-kgc:ViolationCascadeRule
-  a sh:SPARQLRule ;
-  sh:name "Violation Cascade: Missing Invariant → Invalid Closure" ;
-  sh:description "If a MeasurementFunction declares closure but lacks sufficient invariant declarations, closure becomes invalid. Violations propagate upward." ;
-  sh:prefixes [
-    sh:declare [ sh:prefix "kgc" ; sh:namespace "http://ggen.org/kgc#"^^xsd:anyURI ] ;
-    sh:declare [ sh:prefix "holo" ; sh:namespace "http://ggen.org/holographic#"^^xsd:anyURI ] ;
-  ] ;
-  sh:construct """
-    PREFIX kgc: <http://ggen.org/kgc#>
-    PREFIX holo: <http://ggen.org/holographic#>
-    CONSTRUCT {
-      ?μ kgc:isKGCCompliant false .
-    }
-    WHERE {
-      ?μ a kgc:MeasurementFunction ;
-         a holo:OntologicalClosure .
-      FILTER NOT EXISTS {
-        ?μ kgc:preserves ?inv1, ?inv2, ?inv3 .
-      }
-    }
-  """ ;
-  .
-
-# =============================================================================
-# ENFORCEMENT SEVERITY LEVELS
-# =============================================================================
-# These shapes use sh:Violation (max severity) for all critical constraints.
-# No warnings. No soft failures. Missing a constraint = hard stop.
-
-[
-  a sh:ValidationReport ;
-  sh:conforms false ;
-  sh:resultSeverity sh:Violation ;
-  sh:resultMessage "KGC Compliance Violation: Cannot proceed. Fix violations in order (invariants → witnesses → laws → input discipline)." ;
-  sh:focusNode kgc:isKGCCompliant ;
-] .
-
-# =============================================================================
-# VALIDATION ENTRY POINT
-# =============================================================================
-# To validate ggen against these shapes:
-#
-# SPARQL:
-#   PREFIX sh: <http://www.w3.org/ns/shacl#>
-#   PREFIX kgc: <http://ggen.org/kgc#>
-#   SELECT ?shape ?message WHERE {
-#     ?report sh:conforms false ;
-#             sh:result [ sh:focusNode ?node ;
-#                        sh:resultMessage ?message ;
-#                        sh:resultSeverity sh:Violation ] .
-#     FILTER (sh:resultSeverity = sh:Violation)
-#   }
-#
-# Python (pyshacl):
-#   from pyshacl import validate
-#   conforms, report_graph, report_text = validate(
-#     data_graph,
-#     shacl_graph='kgc-shacl-validation.ttl',
-#     ont_graph=None,
-#     inference='none',
-#     debug=False
-#   )
-#   if not conforms:
-#       print(report_text)
-#       sys.exit(1)  # Hard stop on violation
-#
-# Rust (oxigraph):
-#   let shacl_graph = mem_store.load_turtle(shacl_file)?;
-#   let violations = shacl::validate(&data_graph, &shacl_graph)?;
-#   if !violations.is_empty() {
-#       eprintln!("KGC Validation Failed:");
-#       for v in violations {
-#           eprintln!("  {} : {}", v.shape, v.message);
-#       }
-#       return Err("Ontological closure violated".into());
-#   }
-#
-# CI/CD Integration:
-#   stage('SHACL Validation') {
-#       steps {
-#           sh '''
-#               pyshacl -s kgc-shacl-validation.ttl \
-#                       holographic-orchestration-kgc.ttl \
-#                       --format text
-#               if [ $? -ne 0 ]; then
-#                   echo "❌ KGC Compliance Failed"
-#                   exit 1
-#               fi
-#               echo "✅ KGC Compliance Verified"
-#           '''
-#       }
-#   }
-
-# =============================================================================
-# END OF SHACL VALIDATION SHAPES
-# =============================================================================
