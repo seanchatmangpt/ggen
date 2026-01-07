@@ -1,0 +1,526 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix bree: <http://example.org/bree/> .
+@prefix citty: <http://example.org/citty/> .
+
+# ============================================================================
+# BREE SCHEDULER ONTOLOGY
+# ============================================================================
+# Comprehensive semantic model for Bree job scheduler
+# https://github.com/breejs/bree
+#
+# This ontology models:
+# 1. Bree instance configuration and lifecycle
+# 2. Job definitions with all scheduling options
+# 3. Worker execution and monitoring
+# 4. Integration with Citty CLI framework
+# ============================================================================
+
+# ============================================================================
+# CORE CLASSES
+# ============================================================================
+
+bree:BreeInstance
+  a owl:Class ;
+  rdfs:label "Bree Scheduler Instance" ;
+  rdfs:comment "A running instance of the Bree job scheduler" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty bree:hasJob ;
+    owl:minCardinality 0
+  ] .
+
+bree:Job
+  a owl:Class ;
+  rdfs:label "Job Definition" ;
+  rdfs:comment "A job scheduled in Bree with name, path, and timing configuration" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty bree:jobName ;
+    owl:cardinality 1
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty bree:jobPath ;
+    owl:minCardinality 0
+  ] .
+
+bree:Worker
+  a owl:Class ;
+  rdfs:label "Worker Thread" ;
+  rdfs:comment "A worker thread spawned by Bree to execute a job" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty bree:executesJob ;
+    owl:cardinality 1
+  ] .
+
+bree:JobExecution
+  a owl:Class ;
+  rdfs:label "Job Execution" ;
+  rdfs:comment "A single execution of a job with timing and exit information" .
+
+bree:IntervalSpecification
+  a owl:Class ;
+  rdfs:label "Interval Specification" ;
+  rdfs:comment "Timing specification: timeout, interval, cron, or date-based" .
+
+bree:CronExpression
+  a owl:Class ;
+  rdfs:label "Cron Expression" ;
+  rdfs:subClassOf bree:IntervalSpecification ;
+  rdfs:comment "Cron-formatted schedule (e.g., '0 0 * * *')" .
+
+bree:HumanInterval
+  a owl:Class ;
+  rdfs:label "Human Interval" ;
+  rdfs:subClassOf bree:IntervalSpecification ;
+  rdfs:comment "Human-readable interval (e.g., 'every 5 minutes')" .
+
+bree:MSInterval
+  a owl:Class ;
+  rdfs:label "Millisecond Interval" ;
+  rdfs:subClassOf bree:IntervalSpecification ;
+  rdfs:comment "Numeric millisecond-based interval" .
+
+bree:DateSchedule
+  a owl:Class ;
+  rdfs:label "Date Schedule" ;
+  rdfs:subClassOf bree:IntervalSpecification ;
+  rdfs:comment "Run job at specific date/time" .
+
+bree:ErrorHandler
+  a owl:Class ;
+  rdfs:label "Error Handler" ;
+  rdfs:comment "Callback function for handling job errors" .
+
+bree:WorkerOptions
+  a owl:Class ;
+  rdfs:label "Worker Options" ;
+  rdfs:comment "Configuration options for Node.js Worker instance" .
+
+bree:EventListener
+  a owl:Class ;
+  rdfs:label "Event Listener" ;
+  rdfs:comment "Listener for Bree events (worker created/deleted)" .
+
+bree:Logger
+  a owl:Class ;
+  rdfs:label "Logger" ;
+  rdfs:comment "Logging configuration for Bree instance" .
+
+# ============================================================================
+# BREE INSTANCE PROPERTIES
+# ============================================================================
+
+bree:hasJob
+  a owl:ObjectProperty ;
+  rdfs:label "has job" ;
+  rdfs:domain bree:BreeInstance ;
+  rdfs:range bree:Job ;
+  rdfs:comment "Bree instance contains scheduled jobs" .
+
+bree:hasWorker
+  a owl:ObjectProperty ;
+  rdfs:label "has worker" ;
+  rdfs:domain bree:BreeInstance ;
+  rdfs:range bree:Worker ;
+  rdfs:comment "Bree instance spawns worker threads" .
+
+bree:hasErrorHandler
+  a owl:ObjectProperty ;
+  rdfs:label "has error handler" ;
+  rdfs:domain bree:BreeInstance ;
+  rdfs:range bree:ErrorHandler ;
+  rdfs:comment "Bree instance has error handler callback" .
+
+bree:hasLogger
+  a owl:ObjectProperty ;
+  rdfs:label "has logger" ;
+  rdfs:domain bree:BreeInstance ;
+  rdfs:range bree:Logger ;
+  rdfs:comment "Bree instance has logging configuration" .
+
+bree:jobRoot
+  a owl:DataProperty ;
+  rdfs:label "job root directory" ;
+  rdfs:domain bree:BreeInstance ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Root directory for job files" .
+
+bree:removeCompleted
+  a owl:DatatypeProperty ;
+  rdfs:label "remove completed" ;
+  rdfs:domain bree:BreeInstance ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Whether to remove jobs after completion" .
+
+bree:defaultTimeout
+  a owl:DatatypeProperty ;
+  rdfs:label "default timeout" ;
+  rdfs:domain bree:BreeInstance ;
+  rdfs:range xsd:long ;
+  rdfs:comment "Default timeout in milliseconds for all jobs" .
+
+bree:defaultInterval
+  a owl:DatatypeProperty ;
+  rdfs:label "default interval" ;
+  rdfs:domain bree:BreeInstance ;
+  rdfs:range xsd:long ;
+  rdfs:comment "Default interval in milliseconds for all jobs" .
+
+bree:hasSeconds
+  a owl:DatatypeProperty ;
+  rdfs:label "has seconds" ;
+  rdfs:domain bree:BreeInstance ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Enable seconds in cron expressions" .
+
+# ============================================================================
+# JOB PROPERTIES
+# ============================================================================
+
+bree:jobName
+  a owl:DatatypeProperty ;
+  rdfs:label "job name" ;
+  rdfs:domain bree:Job ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Unique name of the job" .
+
+bree:jobPath
+  a owl:DatatypeProperty ;
+  rdfs:label "job path" ;
+  rdfs:domain bree:Job ;
+  rdfs:range xsd:string ;
+  rdfs:comment "File path to job module" .
+
+bree:hasTimeout
+  a owl:ObjectProperty ;
+  rdfs:label "has timeout" ;
+  rdfs:domain bree:Job ;
+  rdfs:range bree:IntervalSpecification ;
+  rdfs:comment "Job has timeout specification" .
+
+bree:hasInterval
+  a owl:ObjectProperty ;
+  rdfs:label "has interval" ;
+  rdfs:domain bree:Job ;
+  rdfs:range bree:IntervalSpecification ;
+  rdfs:comment "Job has interval specification" .
+
+bree:hasDate
+  a owl:ObjectProperty ;
+  rdfs:label "has date schedule" ;
+  rdfs:domain bree:Job ;
+  rdfs:range bree:DateSchedule ;
+  rdfs:comment "Job has date-based schedule" .
+
+bree:hasCron
+  a owl:ObjectProperty ;
+  rdfs:label "has cron" ;
+  rdfs:domain bree:Job ;
+  rdfs:range bree:CronExpression ;
+  rdfs:comment "Job has cron schedule" .
+
+bree:runOnStart
+  a owl:DatatypeProperty ;
+  rdfs:label "run on start" ;
+  rdfs:domain bree:Job ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Whether job runs immediately on start" .
+
+bree:hasWorkerOptions
+  a owl:ObjectProperty ;
+  rdfs:label "has worker options" ;
+  rdfs:domain bree:Job ;
+  rdfs:range bree:WorkerOptions ;
+  rdfs:comment "Job has custom worker configuration" .
+
+bree:closeWorkerAfterMs
+  a owl:DatatypeProperty ;
+  rdfs:label "close worker after" ;
+  rdfs:domain bree:Job ;
+  rdfs:range xsd:long ;
+  rdfs:comment "Terminate worker after this many milliseconds" .
+
+bree:outputWorkerMetadata
+  a owl:DatatypeProperty ;
+  rdfs:label "output worker metadata" ;
+  rdfs:domain bree:Job ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Include worker metadata in logging" .
+
+# ============================================================================
+# EXECUTION & MONITORING PROPERTIES
+# ============================================================================
+
+bree:executesJob
+  a owl:ObjectProperty ;
+  rdfs:label "executes job" ;
+  rdfs:domain bree:Worker ;
+  rdfs:range bree:Job ;
+  rdfs:comment "Worker executes this job" .
+
+bree:hasExecution
+  a owl:ObjectProperty ;
+  rdfs:label "has execution" ;
+  rdfs:domain bree:Job ;
+  rdfs:range bree:JobExecution ;
+  rdfs:comment "Job has execution record" .
+
+bree:startedAt
+  a owl:DatatypeProperty ;
+  rdfs:label "started at" ;
+  rdfs:domain bree:JobExecution ;
+  rdfs:range xsd:dateTime ;
+  rdfs:comment "Timestamp when execution started" .
+
+bree:completedAt
+  a owl:DatatypeProperty ;
+  rdfs:label "completed at" ;
+  rdfs:domain bree:JobExecution ;
+  rdfs:range xsd:dateTime ;
+  rdfs:comment "Timestamp when execution completed" .
+
+bree:exitCode
+  a owl:DatatypeProperty ;
+  rdfs:label "exit code" ;
+  rdfs:domain bree:JobExecution ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Process exit code (0=success, >0=error)" .
+
+bree:duration
+  a owl:DatatypeProperty ;
+  rdfs:label "duration" ;
+  rdfs:domain bree:JobExecution ;
+  rdfs:range xsd:long ;
+  rdfs:comment "Duration of execution in milliseconds" .
+
+bree:error
+  a owl:DatatypeProperty ;
+  rdfs:label "error" ;
+  rdfs:domain bree:JobExecution ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Error message if execution failed" .
+
+bree:threadId
+  a owl:DatatypeProperty ;
+  rdfs:label "thread ID" ;
+  rdfs:domain bree:Worker ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Node.js worker thread ID" .
+
+bree:isRunning
+  a owl:DatatypeProperty ;
+  rdfs:label "is running" ;
+  rdfs:domain bree:Worker ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Whether worker is currently running" .
+
+# ============================================================================
+# INTERVAL PROPERTIES
+# ============================================================================
+
+bree:cronExpression
+  a owl:DatatypeProperty ;
+  rdfs:label "cron expression" ;
+  rdfs:domain bree:CronExpression ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Cron format string (e.g., '0 0 * * *')" .
+
+bree:humanExpression
+  a owl:DatatypeProperty ;
+  rdfs:label "human expression" ;
+  rdfs:domain bree:HumanInterval ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Human-readable interval (e.g., 'every 5 minutes')" .
+
+bree:milliseconds
+  a owl:DatatypeProperty ;
+  rdfs:label "milliseconds" ;
+  rdfs:domain bree:MSInterval ;
+  rdfs:range xsd:long ;
+  rdfs:comment "Duration in milliseconds" .
+
+bree:scheduleDate
+  a owl:DatatypeProperty ;
+  rdfs:label "schedule date" ;
+  rdfs:domain bree:DateSchedule ;
+  rdfs:range xsd:dateTime ;
+  rdfs:comment "Specific date/time to run job" .
+
+# ============================================================================
+# CITTY INTEGRATION PROPERTIES
+# ============================================================================
+
+bree:hasCittyCommand
+  a owl:ObjectProperty ;
+  rdfs:label "has citty command" ;
+  rdfs:domain bree:Job ;
+  rdfs:range citty:CliCommand ;
+  rdfs:comment "Job can be exposed as Citty CLI command" .
+
+citty:CliCommand
+  a owl:Class ;
+  rdfs:label "CLI Command" ;
+  rdfs:comment "Citty CLI command definition" .
+
+citty:commandName
+  a owl:DatatypeProperty ;
+  rdfs:label "command name" ;
+  rdfs:domain citty:CliCommand ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Name of the CLI command" .
+
+citty:commandDescription
+  a owl:DatatypeProperty ;
+  rdfs:label "command description" ;
+  rdfs:domain citty:CliCommand ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Description of what the command does" .
+
+citty:hasArgument
+  a owl:ObjectProperty ;
+  rdfs:label "has argument" ;
+  rdfs:domain citty:CliCommand ;
+  rdfs:range citty:Argument .
+
+citty:Argument
+  a owl:Class ;
+  rdfs:label "CLI Argument" ;
+  rdfs:comment "Argument to a Citty command" .
+
+citty:argumentName
+  a owl:DatatypeProperty ;
+  rdfs:label "argument name" ;
+  rdfs:domain citty:Argument ;
+  rdfs:range xsd:string .
+
+citty:argumentType
+  a owl:DatatypeProperty ;
+  rdfs:label "argument type" ;
+  rdfs:domain citty:Argument ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Type: positional|string|number|boolean" .
+
+# ============================================================================
+# INFERENCE RULES (SPARQL)
+# ============================================================================
+
+# Rule 1: Job with past date should be considered inactive
+# CONSTRUCT { ?job bree:isInactive true . }
+# WHERE { ?job bree:hasDate ?date . FILTER (?date < NOW()) }
+
+# Rule 2: Worker running longer than closeWorkerAfterMs should timeout
+# CONSTRUCT { ?execution bree:timedOut true . }
+# WHERE {
+#   ?job bree:closeWorkerAfterMs ?max ;
+#     bree:hasExecution ?execution .
+#   ?execution bree:duration ?dur .
+#   FILTER (?dur > ?max)
+# }
+
+# Rule 3: Multiple executions = recurring job
+# CONSTRUCT { ?job bree:isRecurring true . }
+# WHERE {
+#   ?job bree:hasExecution ?e1, ?e2 .
+#   FILTER (?e1 != ?e2)
+# }
+
+# Rule 4: Jobs with cron or interval = scheduled
+# CONSTRUCT { ?job bree:isScheduled true . }
+# WHERE { ?job (bree:hasCron | bree:hasInterval) ?interval . }
+
+# Rule 5: Job with no error = success
+# CONSTRUCT { ?execution bree:succeeded true . }
+# WHERE {
+#   ?execution bree:exitCode 0 ;
+#     bree:error ?err .
+#   FILTER (!BOUND(?err) || ?err = "")
+# }
+
+# ============================================================================
+# SEMANTIC DIMENSIONS
+# ============================================================================
+
+# Scheduling strategy enumeration
+bree:SchedulingStrategy
+  a owl:Class ;
+  rdfs:label "Scheduling Strategy" .
+
+bree:OnceOnly a bree:SchedulingStrategy ;
+  rdfs:label "Once only" ;
+  rdfs:comment "Run job once (no interval)" .
+
+bree:Recurring a bree:SchedulingStrategy ;
+  rdfs:label "Recurring" ;
+  rdfs:comment "Run job repeatedly (interval, cron)" .
+
+bree:Delayed a bree:SchedulingStrategy ;
+  rdfs:label "Delayed" ;
+  rdfs:comment "Run job after delay (timeout)" .
+
+bree:Scheduled a bree:SchedulingStrategy ;
+  rdfs:label "Scheduled" ;
+  rdfs:comment "Run job at specific date/time" .
+
+# Execution status enumeration
+bree:ExecutionStatus
+  a owl:Class ;
+  rdfs:label "Execution Status" .
+
+bree:Success a bree:ExecutionStatus ;
+  rdfs:label "Success" ;
+  rdfs:comment "Job executed successfully" .
+
+bree:Failed a bree:ExecutionStatus ;
+  rdfs:label "Failed" ;
+  rdfs:comment "Job failed with non-zero exit code" .
+
+bree:Timeout a bree:ExecutionStatus ;
+  rdfs:label "Timeout" ;
+  rdfs:comment "Job exceeded closeWorkerAfterMs" .
+
+bree:Cancelled a bree:ExecutionStatus ;
+  rdfs:label "Cancelled" ;
+  rdfs:comment "Job was cancelled by user" .
+
+bree:Running a bree:ExecutionStatus ;
+  rdfs:label "Running" ;
+  rdfs:comment "Job is currently executing" .
+
+# ============================================================================
+# DOCUMENTATION
+# ============================================================================
+
+bree:documentation
+  rdfs:comment """
+  Bree Semantic Scheduler Ontology
+
+  This ontology provides a complete semantic model of the Bree job scheduler,
+  enabling:
+
+  1. DECLARATIVE JOB DEFINITION: Define jobs in Turtle instead of JavaScript
+  2. QUERY & ANALYSIS: Use SPARQL to query job metadata and execution history
+  3. VISUALIZATION: Generate job dependency graphs and execution timelines
+  4. INTEGRATION: Transform job specs into Citty CLI commands via CONSTRUCT
+  5. REASONING: Apply SHACL validation and OWL inference rules
+
+  Key concepts:
+  - BreeInstance: The scheduler container
+  - Job: Job configuration with timing and path
+  - Worker: Thread executing a job
+  - JobExecution: Historical record of one execution
+  - IntervalSpecification: Flexible timing model (cron, interval, date)
+  - CittyCommand: CLI interface to job management
+
+  Typical workflow:
+  1. Declare jobs in bree-jobs.ttl using this ontology
+  2. Query job metadata with SPARQL SELECT
+  3. Generate CLI commands with SPARQL CONSTRUCT
+  4. Execute jobs through Citty CLI
+  5. Record execution history back to RDF
+  6. Analyze patterns with SPARQL reasoning
+  """ .

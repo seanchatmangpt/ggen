@@ -961,3 +961,7 @@ ggen-binary
 
 # RDF/RocksDB runtime store artifacts (generated at runtime)
 **/.ggen/rdf-store/
+
+# KGC runtime snapshots and generated artifacts (not source code)
+.specify/snapshots/
+.env.snapshot

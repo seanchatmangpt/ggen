@@ -1,0 +1,132 @@
+@prefix city: <http://example.org/city/> .
+@prefix geo: <http://www.opengis.net/ont/sf#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# Cities
+city:sf a city:City ;
+    rdfs:label "San Francisco" ;
+    city:population 873965 ;
+    city:area 47.0 ;
+    city:founded 1776 ;
+    city:country "United States" ;
+    city:hasNeighbor city:oakland, city:berkeley ;
+    city:isMajor true ;
+    rdfs:comment "City by the Bay" .
+
+city:oakland a city:City ;
+    rdfs:label "Oakland" ;
+    city:population 433031 ;
+    city:area 55.8 ;
+    city:founded 1852 ;
+    city:country "United States" ;
+    city:hasNeighbor city:sf, city:berkeley ;
+    city:isMajor false ;
+    rdfs:comment "Port city across the bay" .
+
+city:berkeley a city:City ;
+    rdfs:label "Berkeley" ;
+    city:population 121643 ;
+    city:area 10.5 ;
+    city:founded 1868 ;
+    city:country "United States" ;
+    city:hasNeighbor city:sf, city:oakland ;
+    city:isMajor false ;
+    rdfs:comment "College town" .
+
+city:nyc a city:City ;
+    rdfs:label "New York City" ;
+    city:population 8335897 ;
+    city:area 302.6 ;
+    city:founded 1624 ;
+    city:country "United States" ;
+    city:hasNeighbor city:newark ;
+    city:isMajor true ;
+    rdfs:comment "The Big Apple" .
+
+city:newark a city:City ;
+    rdfs:label "Newark" ;
+    city:population 277140 ;
+    city:area 23.1 ;
+    city:founded 1666 ;
+    city:country "United States" ;
+    city:hasNeighbor city:nyc ;
+    city:isMajor false .
+
+# Landmarks
+city:GoldenGate a city:Landmark ;
+    rdfs:label "Golden Gate Bridge" ;
+    city:locatedIn city:sf ;
+    city:type "Bridge" ;
+    city:yearBuilt 1937 ;
+    city:heightMeters 152 .
+
+city:StatueOfLiberty a city:Landmark ;
+    rdfs:label "Statue of Liberty" ;
+    city:locatedIn city:nyc ;
+    city:type "Monument" ;
+    city:yearBuilt 1886 ;
+    city:heightMeters 93 .
+
+city:BerkeleyLab a city:Landmark ;
+    rdfs:label "Lawrence Berkeley Laboratory" ;
+    city:locatedIn city:berkeley ;
+    city:type "Research Institute" ;
+    city:yearBuilt 1931 ;
+    city:heightMeters 0 .
+
+# Landmarks in SF (for transitive path examples)
+city:PaintedLadies a city:Landmark ;
+    rdfs:label "Painted Ladies" ;
+    city:locatedIn city:sf ;
+    city:type "Houses" ;
+    city:yearBuilt 1892 .
+
+city:Alcatraz a city:Landmark ;
+    rdfs:label "Alcatraz Island" ;
+    city:locatedIn city:sf ;
+    city:type "Island" ;
+    city:yearBuilt 1934 .
+
+# Mayors (for OPTIONAL example)
+city:londonBreed a foaf:Person ;
+    foaf:name "London Breed" ;
+    city:mayorsOf city:sf ;
+    city:startYear 2018 ;
+    city:endYear 2024 .
+
+city:frankJordan a foaf:Person ;
+    foaf:name "Frank Jordan" ;
+    city:mayorsOf city:sf ;
+    city:startYear 1992 ;
+    city:endYear 1996 ;
+    city:predecessor city:art ;
+    city:successor city:willieAdams .
+
+city:willieAdams a foaf:Person ;
+    foaf:name "Willie Brown" ;
+    city:mayorsOf city:sf ;
+    city:startYear 1996 ;
+    city:endYear 2004 ;
+    city:predecessor city:frankJordan .
+
+city:artagnino a foaf:Person ;
+    foaf:name "Art Agnos" ;
+    city:mayorsOf city:sf ;
+    city:startYear 1988 ;
+    city:endYear 1992 .
+
+# Events
+city:SF_Tech_Summit a city:Event ;
+    rdfs:label "SF Tech Summit" ;
+    city:heldIn city:sf ;
+    city:date "2024-03-15"^^xsd:date ;
+    city:attendees 5000 .
+
+city:NYC_Marathon a city:Event ;
+    rdfs:label "NYC Marathon" ;
+    city:heldIn city:nyc ;
+    city:date "2024-11-03"^^xsd:date ;
+    city:attendees 50000 .
