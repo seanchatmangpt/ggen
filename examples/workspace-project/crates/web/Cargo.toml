@@ -1,0 +1,13 @@
+[package]
+name = "web"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+core = { path = "../core" }
+axum = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+
+[dev-dependencies]
+tokio = { version = "1.47", features = ["full"] }

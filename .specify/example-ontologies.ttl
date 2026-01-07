@@ -1,0 +1,347 @@
+# Example Ontologies - Shared RDF Definitions for ggen Examples
+# Purpose: Common RDF definitions reused across all examples
+# Version: 1.0
+# Updated: 2026-01-07
+
+@prefix ex: <http://ggen.example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# ==============================================================================
+# CORE ENTITY HIERARCHY
+# ==============================================================================
+
+ex:Entity a owl:Class ;
+    rdfs:label "Base entity for all domain models" ;
+    rdfs:comment "Root class for all domain entities in ggen examples" .
+
+ex:Service a owl:Class ;
+    rdfs:subClassOf ex:Entity ;
+    rdfs:label "A service (API, CLI, microservice, etc.)" ;
+    rdfs:comment "Represents a deployable service unit" .
+
+ex:Model a owl:Class ;
+    rdfs:subClassOf ex:Entity ;
+    rdfs:label "A data model or struct" ;
+    rdfs:comment "Represents a data structure with fields" .
+
+ex:Field a owl:Class ;
+    rdfs:label "A field in a model" ;
+    rdfs:comment "Individual field definition within a Model" .
+
+ex:Endpoint a owl:Class ;
+    rdfs:subClassOf ex:Entity ;
+    rdfs:label "An API endpoint or CLI command" ;
+    rdfs:comment "Represents a route, endpoint, or command in a service" .
+
+ex:Job a owl:Class ;
+    rdfs:subClassOf ex:Entity ;
+    rdfs:label "A background job or task" ;
+    rdfs:comment "Represents an asynchronous job for workers" .
+
+ex:Worker a owl:Class ;
+    rdfs:subClassOf ex:Service ;
+    rdfs:label "A background worker service" ;
+    rdfs:comment "Service that processes jobs asynchronously" .
+
+# ==============================================================================
+# CORE PROPERTIES
+# ==============================================================================
+
+# Structural properties
+ex:hasField a owl:ObjectProperty ;
+    rdfs:domain ex:Model ;
+    rdfs:range ex:Field ;
+    rdfs:label "has field" ;
+    rdfs:comment "A model has a field" .
+
+ex:hasEndpoint a owl:ObjectProperty ;
+    rdfs:domain ex:Service ;
+    rdfs:range ex:Endpoint ;
+    rdfs:label "has endpoint" ;
+    rdfs:comment "A service has an endpoint" .
+
+ex:hasJob a owl:ObjectProperty ;
+    rdfs:domain ex:Worker ;
+    rdfs:range ex:Job ;
+    rdfs:label "has job" ;
+    rdfs:comment "A worker processes a job" .
+
+# Field properties
+ex:fieldName a owl:DatatypeProperty ;
+    rdfs:domain ex:Field ;
+    rdfs:range xsd:string ;
+    rdfs:label "field name" ;
+    rdfs:comment "Name of the field (e.g., 'user_id', 'email')" .
+
+ex:fieldType a owl:DatatypeProperty ;
+    rdfs:domain ex:Field ;
+    rdfs:range xsd:string ;
+    rdfs:label "field type" ;
+    rdfs:comment "Data type of the field (e.g., 'string', 'i32', 'uuid')" .
+
+ex:fieldRequired a owl:DatatypeProperty ;
+    rdfs:domain ex:Field ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "field required" ;
+    rdfs:comment "Whether the field is required" .
+
+ex:fieldValidation a owl:DatatypeProperty ;
+    rdfs:domain ex:Field ;
+    rdfs:range xsd:string ;
+    rdfs:label "field validation" ;
+    rdfs:comment "Validation rule for the field (e.g., 'email', 'max_length:100')" .
+
+# Endpoint properties
+ex:endpointPath a owl:DatatypeProperty ;
+    rdfs:domain ex:Endpoint ;
+    rdfs:range xsd:string ;
+    rdfs:label "endpoint path" ;
+    rdfs:comment "HTTP path or CLI command (e.g., '/users', 'user list')" .
+
+ex:endpointMethod a owl:DatatypeProperty ;
+    rdfs:domain ex:Endpoint ;
+    rdfs:range xsd:string ;
+    rdfs:label "endpoint method" ;
+    rdfs:comment "HTTP method (GET, POST, PUT, DELETE) or CLI verb" .
+
+ex:endpointDescription a owl:DatatypeProperty ;
+    rdfs:domain ex:Endpoint ;
+    rdfs:range xsd:string ;
+    rdfs:label "endpoint description" ;
+    rdfs:comment "Human-readable description of what the endpoint does" .
+
+ex:endpointRequestModel a owl:ObjectProperty ;
+    rdfs:domain ex:Endpoint ;
+    rdfs:range ex:Model ;
+    rdfs:label "endpoint request model" ;
+    rdfs:comment "Model used for request body/parameters" .
+
+ex:endpointResponseModel a owl:ObjectProperty ;
+    rdfs:domain ex:Endpoint ;
+    rdfs:range ex:Model ;
+    rdfs:label "endpoint response model" ;
+    rdfs:comment "Model used for response body" .
+
+# Service properties
+ex:serviceName a owl:DatatypeProperty ;
+    rdfs:domain ex:Service ;
+    rdfs:range xsd:string ;
+    rdfs:label "service name" ;
+    rdfs:comment "Name of the service (e.g., 'user-service')" .
+
+ex:servicePort a owl:DatatypeProperty ;
+    rdfs:domain ex:Service ;
+    rdfs:range xsd:integer ;
+    rdfs:label "service port" ;
+    rdfs:comment "Port number the service runs on" .
+
+ex:serviceFramework a owl:DatatypeProperty ;
+    rdfs:domain ex:Service ;
+    rdfs:range xsd:string ;
+    rdfs:label "service framework" ;
+    rdfs:comment "Framework used (e.g., 'axum', 'actix', 'fastapi', 'express')" .
+
+ex:serviceLanguage a owl:DatatypeProperty ;
+    rdfs:domain ex:Service ;
+    rdfs:range xsd:string ;
+    rdfs:label "service language" ;
+    rdfs:comment "Programming language (e.g., 'rust', 'python', 'typescript')" .
+
+# ==============================================================================
+# FIELD TYPE ENUMERATION
+# ==============================================================================
+
+ex:FieldTypeString a rdf:Class ;
+    rdfs:label "String field type" .
+
+ex:FieldTypeInteger a rdf:Class ;
+    rdfs:label "Integer field type" .
+
+ex:FieldTypeBoolean a rdf:Class ;
+    rdfs:label "Boolean field type" .
+
+ex:FieldTypeUuid a rdf:Class ;
+    rdfs:label "UUID field type" .
+
+ex:FieldTypeTimestamp a rdf:Class ;
+    rdfs:label "Timestamp field type" .
+
+# ==============================================================================
+# VALIDATION CONSTRAINTS
+# ==============================================================================
+
+ex:ValidationEmail a rdf:Class ;
+    rdfs:label "Email validation" ;
+    rdfs:comment "Validates field as email address" .
+
+ex:ValidationUrl a rdf:Class ;
+    rdfs:label "URL validation" ;
+    rdfs:comment "Validates field as URL" .
+
+ex:ValidationMinLength a rdf:Class ;
+    rdfs:label "Minimum length validation" ;
+    rdfs:comment "Validates minimum string length" .
+
+ex:ValidationMaxLength a rdf:Class ;
+    rdfs:label "Maximum length validation" ;
+    rdfs:comment "Validates maximum string length" .
+
+ex:ValidationPattern a rdf:Class ;
+    rdfs:label "Pattern validation" ;
+    rdfs:comment "Validates string matches regex pattern" .
+
+# ==============================================================================
+# HTTP METHOD ENUMERATION
+# ==============================================================================
+
+ex:HttpGet a rdf:Class ;
+    rdfs:label "HTTP GET" .
+
+ex:HttpPost a rdf:Class ;
+    rdfs:label "HTTP POST" .
+
+ex:HttpPut a rdf:Class ;
+    rdfs:label "HTTP PUT" .
+
+ex:HttpPatch a rdf:Class ;
+    rdfs:label "HTTP PATCH" .
+
+ex:HttpDelete a rdf:Class ;
+    rdfs:label "HTTP DELETE" .
+
+ex:HttpHead a rdf:Class ;
+    rdfs:label "HTTP HEAD" .
+
+# ==============================================================================
+# FRAMEWORK ENUMERATION
+# ==============================================================================
+
+ex:FrameworkAxum a rdf:Class ;
+    rdfs:label "Axum" ;
+    rdfs:comment "Rust web framework" .
+
+ex:FrameworkActix a rdf:Class ;
+    rdfs:label "Actix" ;
+    rdfs:comment "Rust web framework" .
+
+ex:FrameworkWarp a rdf:Class ;
+    rdfs:label "Warp" ;
+    rdfs:comment "Rust web framework" .
+
+ex:FrameworkFastAPI a rdf:Class ;
+    rdfs:label "FastAPI" ;
+    rdfs:comment "Python web framework" .
+
+ex:FrameworkExpress a rdf:Class ;
+    rdfs:label "Express" ;
+    rdfs:comment "Node.js web framework" .
+
+# ==============================================================================
+# LANGUAGE ENUMERATION
+# ==============================================================================
+
+ex:LanguageRust a rdf:Class ;
+    rdfs:label "Rust" .
+
+ex:LanguagePython a rdf:Class ;
+    rdfs:label "Python" .
+
+ex:LanguageTypeScript a rdf:Class ;
+    rdfs:label "TypeScript" .
+
+ex:LanguageJavaScript a rdf:Class ;
+    rdfs:label "JavaScript" .
+
+# ==============================================================================
+# RELATIONSHIPS & ASSOCIATIONS
+# ==============================================================================
+
+ex:belongsTo a owl:ObjectProperty ;
+    rdfs:label "belongs to" ;
+    rdfs:comment "Generic association between entities" .
+
+ex:references a owl:ObjectProperty ;
+    rdfs:label "references" ;
+    rdfs:comment "One model references another model" .
+
+ex:hasMany a owl:ObjectProperty ;
+    rdfs:label "has many" ;
+    rdfs:comment "One-to-many relationship" .
+
+ex:hasOne a owl:ObjectProperty ;
+    rdfs:label "has one" ;
+    rdfs:comment "One-to-one relationship" .
+
+ex:manyToMany a owl:ObjectProperty ;
+    rdfs:label "many to many" ;
+    rdfs:comment "Many-to-many relationship" .
+
+# ==============================================================================
+# METADATA PROPERTIES
+# ==============================================================================
+
+ex:createdAt a owl:DatatypeProperty ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "created at" ;
+    rdfs:comment "When the entity was created" .
+
+ex:updatedAt a owl:DatatypeProperty ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "updated at" ;
+    rdfs:comment "When the entity was last updated" .
+
+ex:version a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "version" ;
+    rdfs:comment "Version identifier" .
+
+ex:deprecated a owl:DatatypeProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "deprecated" ;
+    rdfs:comment "Whether this entity is deprecated" .
+
+# ==============================================================================
+# EXAMPLE DEFINITIONS (for reference)
+# ==============================================================================
+
+# Example: A simple User model
+ex:UserModel a ex:Model ;
+    rdfs:label "User Model" ;
+    ex:hasField ex:UserIdField, ex:UserEmailField, ex:UserNameField .
+
+ex:UserIdField a ex:Field ;
+    ex:fieldName "id" ;
+    ex:fieldType "uuid" ;
+    ex:fieldRequired true .
+
+ex:UserEmailField a ex:Field ;
+    ex:fieldName "email" ;
+    ex:fieldType "string" ;
+    ex:fieldRequired true ;
+    ex:fieldValidation "email" .
+
+ex:UserNameField a ex:Field ;
+    ex:fieldName "name" ;
+    ex:fieldType "string" ;
+    ex:fieldRequired true ;
+    ex:fieldValidation "max_length:255" .
+
+# Example: A simple API endpoint
+ex:ListUsersEndpoint a ex:Endpoint ;
+    rdfs:label "List Users Endpoint" ;
+    ex:endpointPath "/users" ;
+    ex:endpointMethod "GET" ;
+    ex:endpointDescription "Retrieve a list of all users" ;
+    ex:endpointResponseModel ex:UserModel .
+
+# Example: A simple microservice
+ex:UserService a ex:Service ;
+    rdfs:label "User Service" ;
+    ex:serviceName "user-service" ;
+    ex:servicePort 3000 ;
+    ex:serviceFramework "axum" ;
+    ex:serviceLanguage "rust" ;
+    ex:hasEndpoint ex:ListUsersEndpoint .
