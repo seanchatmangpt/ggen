@@ -1,7 +1,5 @@
 //! Error types for governance system
 
-use thiserror::Error;
-
 /// Governance errors
 #[derive(Debug, thiserror::Error)]
 pub enum GovernanceError {
