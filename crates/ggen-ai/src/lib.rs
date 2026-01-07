@@ -43,6 +43,7 @@
 //! - `cache` - LLM response caching
 //! - `client` - LLM client abstraction
 //! - `config` - Configuration management
+//! - `dspy` - Rust equivalents of DSPy primitives (Signature, InputField, OutputField)
 //! - `generators` - Specialized generators (templates, SPARQL, ontologies)
 //! - `providers` - LLM provider implementations
 //! - `prompts` - Prompt templates and builders
@@ -73,6 +74,7 @@ pub mod cache;
 pub mod client;
 pub mod config;
 pub mod constants;
+pub mod dspy;
 pub mod error;
 pub mod error_utils;
 pub mod generators;
@@ -98,6 +100,12 @@ pub mod test_helpers;
 pub use cache::{CacheConfig, CacheStats, LlmCache};
 pub use client::{GenAiClient, LlmChunk, LlmClient, LlmConfig, LlmResponse, UsageStats};
 pub use config::{get_global_config, init_global_config, AiConfig, GlobalLlmConfig, LlmProvider};
+pub use dspy::{
+    InputField, OutputField, FieldMetadata,
+    Signature,
+    Module, ModuleError,
+    Predictor, ChainOfThought,
+};
 pub use error::{GgenAiError, Result};
 pub use generators::{
     NaturalSearchGenerator, OntologyGenerator, QualityMetrics, RefactorAssistant, SparqlGenerator,
