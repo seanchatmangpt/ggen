@@ -313,10 +313,7 @@ pub use types::{
     OwnersFile,
     // Path protection
     PathProtectionConfig,
-    PathProtectionError,
     PokaYokeConfig,
-    ProtectedPath,
-    RegeneratePath,
     RpnLevel,
     RpnScore,
     Severity,

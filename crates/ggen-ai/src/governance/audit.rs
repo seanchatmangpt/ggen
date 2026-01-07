@@ -8,7 +8,6 @@ use std::path::Path;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use uuid::Uuid;
-use rusqlite::{Connection, params, Result as SqliteResult};
 
 use super::error::{GovernanceError, Result};
 use super::policy::PolicyViolation;
@@ -83,7 +82,6 @@ pub struct AuditTrail {
     db_path: String,
     events: Arc<RwLock<Vec<AuditEvent>>>,
     retention_days: i64,
-    db_connection: Arc<RwLock<Option<Connection>>>,
 }
 
 impl AuditTrail {
@@ -91,22 +89,11 @@ impl AuditTrail {
     pub async fn new(db_path: impl AsRef<Path>) -> Result<Self> {
         let db_path = db_path.as_ref().to_string_lossy().to_string();
 
-        // Ensure parent directory exists
-        if let Some(parent) = Path::new(&db_path).parent() {
-            tokio::fs::create_dir_all(parent).await.map_err(|e| {
-                GovernanceError::AuditError(format!("Failed to create audit directory: {}", e))
-            })?;
-        }
-
         let trail = Self {
             db_path: db_path.clone(),
             events: Arc::new(RwLock::new(Vec::new())),
             retention_days: 365, // Default 1 year retention
-            db_connection: Arc::new(RwLock::new(None)),
         };
-        
-        // Initialize database
-        trail.initialize_database().await?;
 
         // Log startup
         trail
@@ -126,91 +113,12 @@ impl AuditTrail {
 
         Ok(trail)
     }
-    
-    /// Initialize SQLite database
-    async fn initialize_database(&self) -> Result<()> {
-        let conn = Connection::open(&self.db_path)
-            .map_err(|e| GovernanceError::AuditError(format!("Failed to open database: {}", e)))?;
-        
-        // Create audit_events table
-        conn.execute(
-            "CREATE TABLE IF NOT EXISTS audit_events (
-                id TEXT PRIMARY KEY,
-                event_type TEXT NOT NULL,
-                timestamp TEXT NOT NULL,
-                actor TEXT NOT NULL,
-                decision_id TEXT,
-                policy_id TEXT,
-                severity TEXT NOT NULL,
-                message TEXT NOT NULL,
-                details TEXT NOT NULL,
-                metadata TEXT NOT NULL
-            )",
-            [],
-        ).map_err(|e| GovernanceError::AuditError(format!("Failed to create table: {}", e)))?;
-        
-        // Create index on timestamp for efficient querying
-        conn.execute(
-            "CREATE INDEX IF NOT EXISTS idx_audit_events_timestamp ON audit_events(timestamp)",
-            [],
-        ).map_err(|e| GovernanceError::AuditError(format!("Failed to create index: {}", e)))?;
-        
-        // Create index on event_type for filtering
-        conn.execute(
-            "CREATE INDEX IF NOT EXISTS idx_audit_events_type ON audit_events(event_type)",
-            [],
-        ).map_err(|e| GovernanceError::AuditError(format!("Failed to create index: {}", e)))?;
-        
-        // Store connection
-        let mut db_conn = self.db_connection.write().await;
-        *db_conn = Some(conn);
-        
-        Ok(())
-    }
-    
-    /// Persist event to SQLite database
-    async fn persist_event(&self, event: &AuditEvent) -> Result<()> {
-        let db_conn = self.db_connection.read().await;
-        if let Some(ref conn) = *db_conn {
-            let event_type_str = serde_json::to_string(&event.event_type)
-                .map_err(|e| GovernanceError::SerializationError(e.to_string()))?;
-            let severity_str = serde_json::to_string(&event.severity)
-                .map_err(|e| GovernanceError::SerializationError(e.to_string()))?;
-            let details_str = serde_json::to_string(&event.details)
-                .map_err(|e| GovernanceError::SerializationError(e.to_string()))?;
-            let metadata_str = serde_json::to_string(&event.metadata)
-                .map_err(|e| GovernanceError::SerializationError(e.to_string()))?;
-            
-            conn.execute(
-                "INSERT INTO audit_events (id, event_type, timestamp, actor, decision_id, policy_id, severity, message, details, metadata)
-                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
-                params![
-                    event.id,
-                    event_type_str,
-                    event.timestamp.to_rfc3339(),
-                    event.actor,
-                    event.decision_id,
-                    event.policy_id,
-                    severity_str,
-                    event.message,
-                    details_str,
-                    metadata_str
-                ],
-            ).map_err(|e| GovernanceError::AuditError(format!("Failed to insert event: {}", e)))?;
-        }
-        
-        Ok(())
-    }
 
     /// Log a generic event
     pub async fn log_event(&self, event: AuditEvent) -> Result<()> {
         let mut events = self.events.write().await;
         events.push(event.clone());
-
-        // Persist to SQLite database
-        self.persist_event(&event).await?;
         tracing::info!("Audit event: {:?}", event.event_type);
-
         Ok(())
     }
 

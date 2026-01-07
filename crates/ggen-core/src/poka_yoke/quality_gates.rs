@@ -21,7 +21,7 @@
 
 use super::andon::AndonSignal;
 use crate::manifest::GgenManifest;
-use crate::{Error, Result};
+use anyhow::{Error, Result};
 use std::path::Path;
 
 /// A validation checkpoint that must pass
@@ -182,21 +182,21 @@ impl QualityGate for ManifestSchemaGate {
     fn check(&self, manifest: &GgenManifest, _base_path: &Path) -> Result<()> {
         // Check project section
         if manifest.project.name.is_empty() {
-            return Err(Error::new(
+            return Err(Error::msg(
                 "Field [project].name is empty - must be non-empty string",
             ));
         }
 
         // Check ontology section
         if manifest.ontology.source.as_os_str().is_empty() {
-            return Err(Error::new(
+            return Err(Error::msg(
                 "Field [ontology].source is required - e.g., 'ontology/schema.ttl'",
             ));
         }
 
         // Check generation section
         if manifest.generation.rules.is_empty() {
-            return Err(Error::new(
+            return Err(Error::msg(
                 "Field [generation].rules must contain at least 1 rule",
             ));
         }
@@ -231,7 +231,7 @@ impl QualityGate for OntologyDependenciesGate {
         // Check source file exists
         let source_path = base_path.join(&manifest.ontology.source);
         if !source_path.exists() {
-            return Err(Error::new(&format!(
+            return Err(Error::msg(format!(
                 "Ontology source file not found: {}",
                 source_path.display()
             )));
@@ -241,7 +241,7 @@ impl QualityGate for OntologyDependenciesGate {
         for import in &manifest.ontology.imports {
             let import_path = base_path.join(import);
             if !import_path.exists() {
-                return Err(Error::new(&format!(
+                return Err(Error::msg(format!(
                     "Ontology import file not found: {}",
                     import_path.display()
                 )));
@@ -319,7 +319,7 @@ impl QualityGate for TemplateValidationGate {
                 crate::manifest::TemplateSource::File { file } => {
                     let template_path = base_path.join(file);
                     if !template_path.exists() {
-                        return Err(Error::new(&format!(
+                        return Err(Error::msg(format!(
                             "Template not found for rule '{}': {}",
                             rule.name,
                             template_path.display()
@@ -369,7 +369,7 @@ impl QualityGate for FilePermissionsGate {
         // Create output directory if it doesn't exist
         if !output_dir.exists() {
             std::fs::create_dir_all(&output_dir).map_err(|e| {
-                Error::new(&format!(
+                Error::msg(format!(
                     "Cannot create output directory: {}\nReason: {}",
                     output_dir.display(),
                     e
@@ -385,7 +385,7 @@ impl QualityGate for FilePermissionsGate {
                 Ok(())
             }
             Err(e) => {
-                Err(Error::new(&format!(
+                Err(Error::msg(format!(
                     "Output directory not writable: {}\nReason: {}",
                     output_dir.display(),
                     e
@@ -422,7 +422,7 @@ impl QualityGate for RuleValidationGate {
                 crate::manifest::TemplateSource::File { file } => {
                     let template_path = base_path.join(file);
                     if !template_path.exists() {
-                        return Err(Error::new(&format!(
+                        return Err(Error::msg(format!(
                             "Generation rule '{}' references missing template: {}",
                             rule.name,
                             template_path.display()
