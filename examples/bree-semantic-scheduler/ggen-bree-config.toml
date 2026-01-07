@@ -1,0 +1,292 @@
+# ============================================================================
+# BREE SEMANTIC SCHEDULER: CODE GENERATION SPECIFICATION
+# ============================================================================
+# This configuration drives ggen to generate all Bree scheduler code from
+# RDF specifications. Demonstrates specification-first code generation.
+#
+# Pipeline: RDF Spec → ggen → Generated Bree Scheduler Code
+# ============================================================================
+
+[specification]
+description = "Bree Job Scheduler Code Generation"
+version = "1.0.0"
+
+# Source RDF specification
+rdf_source = "bree-ontology.ttl"
+rdf_jobs_data = "bree-jobs-sample.ttl"
+
+# SHACL validation (ensures spec is complete before generation)
+shacl_shapes = ".specify/bree-scheduler.shapes.ttl"
+
+# Output directory for generated code
+output_dir = "./generated"
+
+# ============================================================================
+# ENTITY: BreeInstance
+# ============================================================================
+[[entities]]
+name = "BreeInstance"
+sparql_class = "bree:BreeInstance"
+sparql_query = """
+SELECT ?instance ?name ?root ?timeout ?interval ?removeCompleted
+WHERE {
+  ?instance a bree:BreeInstance ;
+    rdfs:label ?name ;
+    bree:jobRoot ?root ;
+    bree:defaultTimeout ?timeout ;
+    bree:defaultInterval ?interval ;
+    bree:removeCompleted ?removeCompleted .
+}
+"""
+
+[entities.generation.javascript]
+template = "templates/bree-instance.js.tera"
+output_file = "generated/bree-instance.js"
+output_format = "javascript"
+
+[entities.generation.typescript]
+template = "templates/bree-instance.ts.tera"
+output_file = "generated/bree-instance.ts"
+output_format = "typescript"
+
+[entities.generation.config]
+template = "templates/bree-instance-config.json.tera"
+output_file = "generated/bree-instance-config.json"
+output_format = "json"
+
+# ============================================================================
+# ENTITY: Job
+# ============================================================================
+[[entities]]
+name = "Job"
+sparql_class = "bree:Job"
+sparql_query = """
+SELECT ?job ?name ?path ?label ?comment
+WHERE {
+  ?job a bree:Job ;
+    bree:jobName ?name ;
+    bree:jobPath ?path ;
+    rdfs:label ?label ;
+    rdfs:comment ?comment .
+}
+"""
+
+[entities.generation.definition]
+template = "templates/job-definition.js.tera"
+output_file = "generated/jobs/{name}.definition.js"
+output_format = "javascript"
+
+[entities.generation.executor]
+template = "templates/job-executor.js.tera"
+output_file = "generated/job-executor-{name}.js"
+output_format = "javascript"
+
+# ============================================================================
+# TRANSFORMATION: Job → Citty CLI Command
+# ============================================================================
+[[transformations]]
+name = "JobToCittyCommand"
+sparql_construct = """
+PREFIX bree: <http://example.org/bree/>
+PREFIX citty: <http://example.org/citty/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?command a citty:CliCommand ;
+    citty:commandName ?cmdName ;
+    citty:commandDescription ?cmdDesc ;
+    citty:jobReference ?jobName ;
+    citty:hasArgument ?arg .
+
+  ?arg citty:argumentName ?argName ;
+    citty:argumentType ?argType ;
+    citty:argumentDescription ?argDesc .
+}
+WHERE {
+  ?job a bree:Job ;
+    bree:jobName ?jobName ;
+    bree:hasCittyCommand ?cittyDef ;
+    rdfs:label ?jobLabel .
+
+  ?cittyDef
+    citty:commandName ?cmdName ;
+    citty:commandDescription ?cmdDesc .
+
+  OPTIONAL {
+    ?cittyDef citty:hasArgument ?arg .
+    ?arg
+      citty:argumentName ?argName ;
+      citty:argumentType ?argType ;
+      rdfs:comment ?argDesc .
+  }
+
+  BIND(UUID() AS ?command)
+}
+"""
+
+[transformations.generation]
+template = "templates/citty-command.js.tera"
+output_file = "generated/citty-commands/{jobName}-command.js"
+output_format = "javascript"
+
+# ============================================================================
+# VALIDATION: SHACL Rules
+# ============================================================================
+[[validations]]
+name = "BreeInstanceShape"
+shapes_file = ".specify/bree-scheduler.shapes.ttl"
+target_class = "bree:BreeInstance"
+required_properties = [
+  "bree:jobRoot",
+  "bree:defaultTimeout",
+  "bree:defaultInterval",
+]
+constraints = [
+  { property = "bree:defaultTimeout", datatype = "xsd:long", min = 0 },
+  { property = "bree:defaultInterval", datatype = "xsd:long", min = 0 },
+]
+
+[[validations]]
+name = "JobShape"
+shapes_file = ".specify/bree-scheduler.shapes.ttl"
+target_class = "bree:Job"
+required_properties = [
+  "bree:jobName",
+  "bree:jobPath",
+]
+constraints = [
+  { property = "bree:jobName", datatype = "xsd:string", minLength = 1 },
+  { property = "bree:jobPath", datatype = "xsd:string", minLength = 1 },
+  { property = "bree:closeWorkerAfterMs", datatype = "xsd:long", min = 1000 },
+]
+
+# ============================================================================
+# TEMPLATES REFERENCE
+# ============================================================================
+[templates]
+base_dir = "templates"
+
+# Bree Instance templates
+bree_instance_js = "bree-instance.js.tera"
+bree_instance_ts = "bree-instance.ts.tera"
+
+# Job definition templates
+job_definition = "job-definition.js.tera"
+job_executor = "job-executor.js.tera"
+
+# Citty CLI templates
+citty_command = "citty-command.js.tera"
+citty_cli_main = "citty-cli-main.js.tera"
+
+# Configuration templates
+config_json = "bree-instance-config.json.tera"
+package_json = "package.json.tera"
+
+# Documentation templates
+job_documentation = "job-documentation.md.tera"
+cli_reference = "cli-reference.md.tera"
+
+# ============================================================================
+# OUTPUT ORGANIZATION
+# ============================================================================
+[output]
+structure = """
+generated/
+├── bree-instance.js          # Main Bree instance
+├── bree-instance.ts          # TypeScript definitions
+├── bree-instance-config.json # Configuration JSON
+├── jobs/
+│   ├── send-emails.definition.js
+│   ├── db-backup.definition.js
+│   ├── warm-cache.definition.js
+│   └── ... (one per job)
+├── executors/
+│   ├── job-executor-send-emails.js
+│   ├── job-executor-db-backup.js
+│   └── ... (one per job)
+├── citty-commands/
+│   ├── email-command.js
+│   ├── backup-command.js
+│   └── ... (one per job)
+├── citty-cli-main.js         # Main CLI entry point
+├── package.json              # Dependencies
+└── docs/
+    ├── cli-reference.md
+    ├── job-documentation.md
+    └── architecture.md
+"""
+
+# ============================================================================
+# GENERATION PIPELINE STAGES
+# ============================================================================
+[pipeline]
+# Stage 1: Normalization
+normalization = {
+  expand_prefixes = true,
+  validate_uris = true,
+  merge_turtle_files = true,
+}
+
+# Stage 2: Extraction (via SPARQL CONSTRUCT)
+extraction = {
+  construct_patterns = [
+    "bree-construct-patterns.sparql",
+  ],
+  materialize_results = true,
+}
+
+# Stage 3: Emission (via Tera templates)
+emission = {
+  template_engine = "tera",
+  parallel_rendering = true,
+  preserve_formatting = true,
+}
+
+# Stage 4: Canonicalization
+canonicalization = {
+  format_javascript = true,
+  format_json = true,
+  format_markdown = true,
+}
+
+# Stage 5: Receipt (verification)
+receipt = {
+  verify_javascript = true,
+  generate_checksums = true,
+  produce_manifest = true,
+}
+
+# ============================================================================
+# PRODUCTION REQUIREMENTS
+# ============================================================================
+[production]
+# All generated code must pass these checks
+checks = [
+  "no_hardcoded_secrets",
+  "error_handling_required",
+  "audit_logging_required",
+  "type_checking",
+  "security_scanning",
+]
+
+# SLA enforcement
+sla = {
+  generation_time_ms = 5000,
+  code_coverage_percent = 90,
+  test_execution_time_ms = 30000,
+}
+
+# Documentation requirements
+documentation = {
+  require_jsdoc = true,
+  require_examples = true,
+  require_error_cases = true,
+}
+
+# Security & compliance
+security = {
+  require_audit_logging = true,
+  require_role_based_access = true,
+  require_secrets_management = true,
+  require_distributed_tracing = true,
+}

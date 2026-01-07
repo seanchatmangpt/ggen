@@ -1,0 +1,468 @@
+##############################################################################
+# BREE SEMANTIC SCHEDULER: 8 SPARQL CONSTRUCT PATTERNS
+# ============================================================================
+# Transform Bree Turtle ontology into executable configurations and CLI
+# ============================================================================
+
+# Pattern 1: Generate Job Configuration Objects from RDF
+# OUTPUT: JavaScript job configuration that can be passed to new Bree()
+# ============================================================================
+PREFIX bree: <http://example.org/bree/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?job a bree:CompiledJobConfig ;
+    bree:configJson ?configJson ;
+    bree:jobName ?name ;
+    bree:jobPath ?path ;
+    rdfs:comment ?comment .
+}
+WHERE {
+  ?job a bree:Job ;
+    bree:jobName ?name ;
+    bree:jobPath ?path ;
+    rdfs:comment ?comment .
+}
+
+# OUTPUT (example):
+# {
+#   "name": "send-emails",
+#   "path": "/opt/app/jobs/send-emails.js",
+#   "timeout": false,
+#   "interval": 300000,
+#   "closeWorkerAfterMs": 30000,
+#   "outputWorkerMetadata": true
+# }
+
+
+# Pattern 2: Extract Interval Specifications (Convert All Timing to MS)
+# OUTPUT: Normalized interval for Bree (always milliseconds)
+# ============================================================================
+PREFIX bree: <http://example.org/bree/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?job a bree:JobWithNormalizedTiming ;
+    bree:jobName ?jobName ;
+    bree:normalizedIntervalMs ?ms ;
+    bree:intervalType ?type ;
+    bree:intervalExpression ?expr ;
+    rdfs:comment ?intervalComment .
+}
+WHERE {
+  ?job a bree:Job ;
+    bree:jobName ?jobName .
+
+  {
+    # Path 1: MS Interval
+    ?job bree:hasInterval ?interval .
+    ?interval a bree:MSInterval ;
+      bree:milliseconds ?ms ;
+      rdfs:comment ?intervalComment .
+    BIND("milliseconds" AS ?type)
+    BIND(?ms AS ?expr)
+  }
+  UNION
+  {
+    # Path 2: Human Interval (convert to ms)
+    ?job bree:hasInterval ?interval .
+    ?interval a bree:HumanInterval ;
+      bree:milliseconds ?ms ;
+      bree:humanExpression ?expr ;
+      rdfs:comment ?intervalComment .
+    BIND("human-interval" AS ?type)
+  }
+  UNION
+  {
+    # Path 3: Cron Expression
+    ?job bree:hasCron ?cron ;
+      rdfs:comment ?intervalComment .
+    ?cron a bree:CronExpression ;
+      bree:cronExpression ?expr .
+    BIND("cron" AS ?type)
+    BIND(?expr AS ?ms)
+  }
+  UNION
+  {
+    # Path 4: Date Schedule
+    ?job bree:hasDate ?date ;
+      rdfs:comment ?intervalComment .
+    ?date a bree:DateSchedule ;
+      bree:scheduleDate ?expr .
+    BIND("date" AS ?type)
+    BIND("scheduled-date" AS ?ms)
+  }
+}
+
+# OUTPUT (example for each path):
+# { normalizedIntervalMs: 300000, intervalType: "milliseconds", expr: 300000 }
+# { normalizedIntervalMs: 300000, intervalType: "human-interval", expr: "every 5 minutes" }
+# { normalizedIntervalMs: null, intervalType: "cron", expr: "0 2 * * *" }
+# { normalizedIntervalMs: "scheduled", intervalType: "date", expr: "2025-01-01T00:00:00Z" }
+
+
+# Pattern 3: Jobs by Scheduling Strategy (Recurring vs Delayed vs Scheduled)
+# OUTPUT: Classify jobs for optimization/analysis
+# ============================================================================
+PREFIX bree: <http://example.org/bree/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?job a bree:ClassifiedJob ;
+    bree:jobName ?jobName ;
+    bree:strategy ?strategy ;
+    bree:strategyDescription ?description ;
+    rdfs:comment ?jobComment .
+}
+WHERE {
+  ?job a bree:Job ;
+    bree:jobName ?jobName ;
+    rdfs:comment ?jobComment .
+
+  {
+    # Recurring: Has interval or cron
+    ?job (bree:hasInterval | bree:hasCron) ?timing .
+    BIND(bree:Recurring AS ?strategy)
+    BIND("Executes repeatedly based on interval/cron schedule" AS ?description)
+  }
+  UNION
+  {
+    # Delayed: Has timeout, no interval/cron
+    ?job bree:hasTimeout ?timing .
+    FILTER NOT EXISTS { ?job (bree:hasInterval | bree:hasCron) _ }
+    BIND(bree:Delayed AS ?strategy)
+    BIND("Executes once after delay period" AS ?description)
+  }
+  UNION
+  {
+    # Scheduled: Has date
+    ?job bree:hasDate ?date .
+    BIND(bree:Scheduled AS ?strategy)
+    BIND("Executes at specific date/time" AS ?description)
+  }
+  UNION
+  {
+    # Once only: No timing specified (runs on start if runOnStart=true)
+    ?job bree:runOnStart true .
+    FILTER NOT EXISTS { ?job (bree:hasTimeout | bree:hasInterval | bree:hasCron | bree:hasDate) _ }
+    BIND(bree:OnceOnly AS ?strategy)
+    BIND("Executes once on startup" AS ?description)
+  }
+}
+
+# OUTPUT (examples):
+# { strategy: bree:Recurring, description: "Executes repeatedly..." }
+# { strategy: bree:Delayed, description: "Executes once after delay..." }
+# { strategy: bree:Scheduled, description: "Executes at specific date..." }
+# { strategy: bree:OnceOnly, description: "Executes once on startup" }
+
+
+# Pattern 4: Citty CLI Command Generation from Job Metadata
+# OUTPUT: CLI subcommand definition compatible with Citty framework
+# ============================================================================
+PREFIX bree: <http://example.org/bree/>
+PREFIX citty: <http://example.org/citty/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?jobCmd a citty:GeneratedCommand ;
+    citty:commandName ?cmdName ;
+    citty:commandDescription ?cmdDesc ;
+    citty:commandMeta ?cmdMeta ;
+    citty:jobBinding ?jobName ;
+    rdfs:comment "Generated from Bree job definition" .
+
+  ?jobCmd citty:hasArgument ?arg .
+
+  ?arg citty:argumentName ?argName ;
+    citty:argumentType ?argType ;
+    citty:argumentDescription ?argDesc .
+}
+WHERE {
+  ?job a bree:Job ;
+    bree:jobName ?jobName ;
+    bree:hasCittyCommand ?cittyDef ;
+    rdfs:label ?jobLabel .
+
+  ?cittyDef
+    citty:commandName ?cmdName ;
+    citty:commandDescription ?cmdDesc .
+
+  BIND(CONCAT("ggen-bree ", ?cmdName) AS ?cmdMeta)
+
+  OPTIONAL {
+    ?cittyDef citty:hasArgument ?arg .
+    ?arg
+      citty:argumentName ?argName ;
+      citty:argumentType ?argType ;
+      rdfs:comment ?argDesc .
+  }
+
+  ?cittyCmd a citty:GeneratedCommand ;
+    citty:jobBinding ?jobName .
+}
+
+# OUTPUT (JavaScript structure):
+# defineCommand({
+#   meta: { name: 'email', description: 'Manage email notifications queue' },
+#   args: {
+#     action: { type: 'positional', description: 'send|list|retry' },
+#     limit: { type: 'number', description: 'Max emails to process' }
+#   },
+#   async run({ args }) { ... }
+# })
+
+
+# Pattern 5: Job Execution Analysis - Success/Failure Rates
+# OUTPUT: Query execution history to compute job reliability metrics
+# ============================================================================
+PREFIX bree: <http://example.org/bree/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  ?job a bree:JobMetrics ;
+    bree:jobName ?jobName ;
+    bree:totalExecutions ?total ;
+    bree:successCount ?successes ;
+    bree:failureCount ?failures ;
+    bree:averageDurationMs ?avgDuration ;
+    bree:reliabilityPercent ?reliability ;
+    rdfs:comment ?analysis .
+}
+WHERE {
+  ?job a bree:Job ;
+    bree:jobName ?jobName ;
+    bree:hasExecution ?execution .
+
+  # Count total executions
+  {
+    SELECT ?job (COUNT(?execution) AS ?total)
+    WHERE { ?job bree:hasExecution ?execution . }
+    GROUP BY ?job
+  }
+
+  # Count successful executions (exitCode = 0)
+  {
+    SELECT ?job (COUNT(?exec) AS ?successes)
+    WHERE {
+      ?job bree:hasExecution ?exec .
+      ?exec bree:exitCode 0 .
+    }
+    GROUP BY ?job
+  }
+
+  # Count failures (exitCode != 0)
+  {
+    SELECT ?job (COUNT(?exec) AS ?failures)
+    WHERE {
+      ?job bree:hasExecution ?exec .
+      ?exec bree:exitCode ?code .
+      FILTER (?code != 0)
+    }
+    GROUP BY ?job
+  }
+
+  # Average duration
+  {
+    SELECT ?job (AVG(?dur) AS ?avgDuration)
+    WHERE {
+      ?job bree:hasExecution ?exec .
+      ?exec bree:duration ?dur .
+    }
+    GROUP BY ?job
+  }
+
+  # Reliability percentage
+  BIND(((?successes / ?total) * 100) AS ?reliability)
+
+  # Generate analysis comment
+  BIND(CONCAT(?jobName, ": ", STR(?total), " runs, ",
+              STR(?successes), " success, ", STR(?failures), " failed, ",
+              STR(?reliability), "% reliable") AS ?analysis)
+}
+
+# OUTPUT (example):
+# { totalExecutions: 156, successCount: 154, failureCount: 2,
+#   averageDurationMs: 2100, reliabilityPercent: 98.7 }
+
+
+# Pattern 6: Worker Pool Composition - Currently Running Jobs
+# OUTPUT: Show which workers are active and their metadata
+# ============================================================================
+PREFIX bree: <http://example.org/bree/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?worker a bree:ActiveWorker ;
+    bree:workerThreadId ?threadId ;
+    bree:executingJob ?jobName ;
+    bree:executionStartTime ?startTime ;
+    bree:executionStatus "running" ;
+    rdfs:comment ?metadata .
+}
+WHERE {
+  ?worker a bree:Worker ;
+    bree:isRunning true ;
+    bree:threadId ?threadId ;
+    bree:executesJob ?job .
+
+  ?job bree:jobName ?jobName ;
+    bree:hasExecution ?execution .
+
+  ?execution bree:startedAt ?startTime ;
+    bree:exitCode ?exit .
+
+  # Filter for currently running (no completedAt yet)
+  FILTER NOT EXISTS { ?execution bree:completedAt ?_ }
+
+  BIND(CONCAT("Worker ", ?threadId, " running: ", ?jobName) AS ?metadata)
+}
+
+# OUTPUT (example):
+# { workerThreadId: "1", executingJob: "send-emails",
+#   executionStartTime: "2025-01-07T18:00:30Z", executionStatus: "running" }
+
+
+# Pattern 7: Long-Running Job Detection (Timeouts)
+# OUTPUT: Identify jobs that exceeded closeWorkerAfterMs
+# ============================================================================
+PREFIX bree: <http://example.org/bree/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?execution a bree:TimedOutExecution ;
+    bree:jobName ?jobName ;
+    bree:duration ?duration ;
+    bree:maxAllowed ?maxMs ;
+    bree:exceededBy ?excessMs ;
+    bree:startedAt ?startTime ;
+    bree:completedAt ?endTime ;
+    rdfs:comment ?warning .
+}
+WHERE {
+  ?job a bree:Job ;
+    bree:jobName ?jobName ;
+    bree:closeWorkerAfterMs ?maxMs ;
+    bree:hasExecution ?execution .
+
+  ?execution
+    bree:duration ?duration ;
+    bree:startedAt ?startTime ;
+    bree:completedAt ?endTime .
+
+  # Duration exceeded timeout
+  FILTER (?duration > ?maxMs)
+
+  # Calculate overage
+  BIND((?duration - ?maxMs) AS ?excessMs)
+
+  BIND(CONCAT(?jobName, " exceeded timeout: ", STR(?duration), "ms > ", STR(?maxMs), "ms") AS ?warning)
+}
+
+# OUTPUT (example):
+# { jobName: "db-backup", duration: 65000, maxAllowed: 60000,
+#   exceededBy: 5000, warning: "db-backup exceeded timeout..." }
+
+
+# Pattern 8: Instance Configuration Snapshot
+# OUTPUT: Generate complete Bree instance configuration as structured data
+# ============================================================================
+PREFIX bree: <http://example.org/bree/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  ?instance a bree:ConfigSnapshot ;
+    bree:instanceName ?name ;
+    bree:jobRoot ?root ;
+    bree:defaultTimeout ?timeout ;
+    bree:defaultInterval ?interval ;
+    bree:removeCompleted ?remove ;
+    bree:hasSeconds ?seconds ;
+    bree:totalJobs ?totalJobs ;
+    bree:recurringJobs ?recurring ;
+    bree:delayedJobs ?delayed ;
+    bree:scheduledJobs ?scheduled ;
+    bree:oneTimeJobs ?onceOnly ;
+    bree:totalWorkers ?workers ;
+    rdfs:comment "Complete scheduler configuration snapshot" .
+}
+WHERE {
+  ?instance a bree:BreeInstance ;
+    rdfs:label ?name ;
+    bree:jobRoot ?root ;
+    bree:defaultTimeout ?timeout ;
+    bree:defaultInterval ?interval ;
+    bree:removeCompleted ?remove ;
+    bree:hasSeconds ?seconds .
+
+  # Count jobs by strategy
+  {
+    SELECT ?instance (COUNT(?j) AS ?totalJobs)
+    WHERE { ?instance bree:hasJob ?j . }
+    GROUP BY ?instance
+  }
+
+  {
+    SELECT ?instance (COUNT(?j) AS ?recurring)
+    WHERE {
+      ?instance bree:hasJob ?j .
+      ?j (bree:hasInterval | bree:hasCron) _ .
+    }
+    GROUP BY ?instance
+  }
+
+  {
+    SELECT ?instance (COUNT(?j) AS ?delayed)
+    WHERE {
+      ?instance bree:hasJob ?j .
+      ?j bree:hasTimeout _ .
+      FILTER NOT EXISTS { ?j (bree:hasInterval | bree:hasCron | bree:hasDate) _ }
+    }
+    GROUP BY ?instance
+  }
+
+  {
+    SELECT ?instance (COUNT(?j) AS ?scheduled)
+    WHERE {
+      ?instance bree:hasJob ?j .
+      ?j bree:hasDate _ .
+    }
+    GROUP BY ?instance
+  }
+
+  {
+    SELECT ?instance (COUNT(?j) AS ?onceOnly)
+    WHERE {
+      ?instance bree:hasJob ?j .
+      ?j bree:runOnStart true .
+      FILTER NOT EXISTS { ?j (bree:hasTimeout | bree:hasInterval | bree:hasCron | bree:hasDate) _ }
+    }
+    GROUP BY ?instance
+  }
+
+  {
+    SELECT ?instance (COUNT(?w) AS ?workers)
+    WHERE { ?instance bree:hasWorker ?w . }
+    GROUP BY ?instance
+  }
+}
+
+# OUTPUT (example):
+# {
+#   instanceName: "Production Job Scheduler",
+#   jobRoot: "/opt/app/jobs",
+#   defaultTimeout: 0,
+#   defaultInterval: 0,
+#   removeCompleted: false,
+#   hasSeconds: false,
+#   totalJobs: 6,
+#   recurringJobs: 4,
+#   delayedJobs: 1,
+#   scheduledJobs: 1,
+#   oneTimeJobs: 0,
+#   totalWorkers: 2
+# }

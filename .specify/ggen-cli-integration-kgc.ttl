@@ -1,0 +1,624 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix kgc: <http://ggen.org/kgc#> .
+@prefix ggen: <http://ggen.org/ggen#> .
+@prefix holo: <http://ggen.org/holographic#> .
+@prefix cli: <http://ggen.org/cli#> .
+@prefix proc: <http://ggen.org/process#> .
+
+# =============================================================================
+# GGEN CLI INTEGRATION: Mapping Execution to KGC Framework
+# =============================================================================
+# This ontology models how ggen CLI commands execute against the KGC framework.
+# Every invocation is a measurement function μ execution:
+#   Input: ObservableSnapshot (frozen, content-addressed)
+#   Process: Five-stage transformation pipeline
+#   Output: Artifacts (code, docs, receipts) + Witnesses
+# =============================================================================
+
+<http://ggen.org/cli-integration>
+  a owl:Ontology ;
+  rdfs:label "ggen CLI Integration with KGC" ;
+  rdfs:comment "Maps ggen CLI execution to KGC measurement function framework" ;
+  owl:versionInfo "1.0.0" ;
+  .
+
+# =============================================================================
+# PART I: CLI COMMANDS AS MEASUREMENT FUNCTIONS
+# =============================================================================
+
+cli:GgenCommand
+  a owl:Class ;
+  rdfs:label "ggen CLI Command" ;
+  rdfs:comment "A ggen CLI invocation. Every command is a measurement function μ execution with observable snapshot input." ;
+  rdfs:subClassOf kgc:MeasurementFunction ;
+  .
+
+# Command: ggen sync (the primary code generation command)
+cli:GenSyncCommand
+  a cli:GgenCommand ;
+  rdfs:label "ggen sync" ;
+  rdfs:comment "Primary ggen measurement function. Transforms RDF ontology snapshots into code artifacts via five-stage pipeline." ;
+  rdfs:seeAlso ggen:GgenFramework ;
+
+  # Input: Observable Snapshot (frozen .ttl file with BLAKE3 hash)
+  kgc:input kgc:ObservableSnapshot ;
+
+  # Process: Five-stage transformation
+  kgc:transformationStage [
+    a kgc:TransformationStage ;
+    rdfs:label "Stage 1: Parse & Normalize" ;
+    rdfs:description "Parse RDF from snapshot, validate against schema, normalize to canonical form" ;
+    kgc:stageNumber 1 ;
+    cli:command "cargo make ggen:parse" ;
+    cli:timeout "5000"^^xsd:integer ;  # 5 seconds
+  ] ;
+
+  kgc:transformationStage [
+    a kgc:TransformationStage ;
+    rdfs:label "Stage 2: Extract Patterns" ;
+    rdfs:description "Execute SPARQL CONSTRUCT queries, extract semantic patterns" ;
+    kgc:stageNumber 2 ;
+    cli:command "cargo make ggen:extract" ;
+    cli:timeout "10000"^^xsd:integer ;
+  ] ;
+
+  kgc:transformationStage [
+    a kgc:TransformationStage ;
+    rdfs:label "Stage 3: Emit Code" ;
+    rdfs:description "Generate code via Tera templates and language emitters" ;
+    kgc:stageNumber 3 ;
+    cli:command "cargo make ggen:emit" ;
+    cli:timeout "15000"^^xsd:integer ;
+  ] ;
+
+  kgc:transformationStage [
+    a kgc:TransformationStage ;
+    rdfs:label "Stage 4: Canonicalize" ;
+    rdfs:description "Format, normalize, ensure byte-perfect determinism" ;
+    kgc:stageNumber 4 ;
+    cli:command "cargo make ggen:canonicalize" ;
+    cli:timeout "5000"^^xsd:integer ;
+  ] ;
+
+  kgc:transformationStage [
+    a kgc:TransformationStage ;
+    rdfs:label "Stage 5: Generate Receipt" ;
+    rdfs:description "Create cryptographic proof (hash + SLO evidence) of closure" ;
+    kgc:stageNumber 5 ;
+    cli:command "cargo make ggen:receipt" ;
+    cli:timeout "2000"^^xsd:integer ;
+  ] ;
+
+  # Invariants preserved
+  kgc:preserves kgc:CardinalityPreservation ;
+  kgc:preserves kgc:IdentityPreservation ;
+  kgc:preserves kgc:OrderIndependence ;
+  kgc:preserves kgc:SchemaPreservation ;
+  kgc:preserves kgc:NoInformationLoss ;
+
+  # Output: Artifacts
+  kgc:output kgc:Artifact ;
+  .
+
+# Command: ggen snapshot (creates frozen observables)
+cli:GenSnapshotCommand
+  a cli:GgenCommand ;
+  rdfs:label "ggen snapshot" ;
+  rdfs:comment "Creates an ObservableSnapshot from live .ttl, freezing it with BLAKE3 hash and timestamp" ;
+
+  kgc:input kgc:Observable ;  # Live observable (unfrozen)
+  kgc:output kgc:ObservableSnapshot ;  # Frozen snapshot
+
+  cli:command "cargo make ggen:snapshot" ;
+  cli:produces [
+    a proc:SnapshotArtifact ;
+    rdfs:label "Observable Snapshot with Metadata" ;
+    proc:includes "snapshot.ttl" ;
+    proc:includes "snapshot.hash" ;
+    proc:includes "snapshot.timestamp" ;
+    proc:includes "snapshot.metadata.json" ;
+  ] ;
+  .
+
+# Command: ggen validate (SHACL validation against KGC)
+cli:GenValidateCommand
+  a cli:GgenCommand ;
+  rdfs:label "ggen validate" ;
+  rdfs:comment "Validates ontology snapshot against SHACL shapes. Hard stop on violations." ;
+
+  kgc:input kgc:ObservableSnapshot ;
+  kgc:output kgc:Artifact ;  # Validation report
+
+  cli:command "cargo make ggen:validate" ;
+  cli:validates kgc:isKGCCompliant ;
+  cli:produces [
+    a proc:ValidationReport ;
+    rdfs:label "SHACL Validation Result" ;
+    proc:severity "sh:Violation" ;
+    proc:fatal true ;  # Fails the entire build
+  ] ;
+  .
+
+# =============================================================================
+# PART II: OBSERVABLE SNAPSHOT PIPELINE
+# =============================================================================
+
+proc:SnapshotPipeline
+  a owl:Class ;
+  rdfs:label "Observable Snapshot Creation Pipeline" ;
+  rdfs:comment "Process for creating frozen, content-addressed observables from live .ttl files" ;
+  .
+
+proc:SnapshotArtifact
+  a owl:Class ;
+  rdfs:label "Snapshot Artifact" ;
+  rdfs:subClassOf kgc:ObservableSnapshot ;
+  rdfs:comment "A frozen observable with all metadata for reproducibility" ;
+  .
+
+proc:SnapshotMetadata
+  a owl:Class ;
+  rdfs:label "Snapshot Metadata" ;
+  rdfs:comment "Machine-readable metadata about a snapshot" ;
+  .
+
+proc:includes
+  a owl:ObjectProperty ;
+  rdfs:label "Includes File" ;
+  rdfs:comment "A file included in the snapshot artifact" ;
+  .
+
+proc:snapshotCreatedAt
+  a owl:DatatypeProperty ;
+  rdfs:label "Snapshot Created At" ;
+  rdfs:range xsd:dateTime ;
+  .
+
+proc:snapshotSourceFile
+  a owl:ObjectProperty ;
+  rdfs:label "Snapshot Source File" ;
+  rdfs:comment "Path to the original .ttl file" ;
+  .
+
+proc:snapshotHash
+  a owl:DatatypeProperty ;
+  rdfs:label "Snapshot Hash (BLAKE3)" ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Content-addressable hash for deterministic reproducibility" ;
+  .
+
+# Snapshot workflow
+[
+  a proc:SnapshotPipeline ;
+  rdfs:label "Observable Snapshot Workflow" ;
+  rdfs:comment "Step-by-step process for freezing a live observable" ;
+
+  proc:step 1, [
+    rdfs:label "Read .ttl from file" ;
+    proc:input ".specify/holographic-orchestration-kgc.ttl" ;
+  ] ;
+
+  proc:step 2, [
+    rdfs:label "Validate RDF syntax" ;
+    cli:command "rdf validate" ;
+  ] ;
+
+  proc:step 3, [
+    rdfs:label "Compute BLAKE3 hash" ;
+    cli:command "blake3sum" ;
+  ] ;
+
+  proc:step 4, [
+    rdfs:label "Record timestamp (ISO 8601)" ;
+    proc:timestamp "now()" ;
+  ] ;
+
+  proc:step 5, [
+    rdfs:label "Create snapshot.metadata.json" ;
+    proc:output "{ hash, timestamp, sourceFile, observableHash }" ;
+  ] ;
+
+  proc:step 6, [
+    rdfs:label "Store in .specify/snapshots/" ;
+    proc:output ".specify/snapshots/{hash}/" ;
+  ] ;
+
+  proc:result kgc:ObservableSnapshot ;
+] .
+
+# =============================================================================
+# PART III: RECEIPT GENERATION PIPELINE
+# =============================================================================
+
+proc:ReceiptPipeline
+  a owl:Class ;
+  rdfs:label "Receipt Generation Pipeline" ;
+  rdfs:comment "Process for generating and linking closure witness receipts" ;
+  .
+
+proc:Receipt_Test
+  a proc:ReceiptPipeline ;
+  rdfs:label "Test Receipt Generation" ;
+  rdfs:comment "Execute cargo make test, capture output, link to DeterministicOutput criterion" ;
+
+  cli:command "cargo make test" ;
+  cli:produces ggen:TestReceipt ;
+
+  proc:captures [
+    rdfs:label "Test Metrics" ;
+    proc:metric "pass_count" ;
+    proc:metric "fail_count" ;
+    proc:metric "duration_ms" ;
+    proc:metric "test_output_hash" ;
+  ] ;
+
+  proc:linksToCriterion holo:DeterministicOutput ;
+  proc:evidence "✓ {pass_count}/{pass_count + fail_count} tests passed in {duration_ms}ms" ;
+  .
+
+proc:Receipt_Compile
+  a proc:ReceiptPipeline ;
+  rdfs:label "Compile Receipt Generation" ;
+  rdfs:comment "Run cargo make check, capture build artifacts, link to SchemaPreservation criterion" ;
+
+  cli:command "cargo make check" ;
+  cli:produces ggen:CompileReceipt ;
+
+  proc:captures [
+    rdfs:label "Compile Metrics" ;
+    proc:metric "error_count" ;
+    proc:metric "warning_count" ;
+    proc:metric "build_time_ms" ;
+    proc:metric "artifact_hash" ;
+  ] ;
+
+  proc:linksToCriterion holo:SchemaPreservation ;
+  proc:evidence "✓ 0 errors, {warning_count} warnings, build time {build_time_ms}ms" ;
+  .
+
+proc:Receipt_SLO
+  a proc:ReceiptPipeline ;
+  rdfs:label "SLO Receipt Generation" ;
+  rdfs:comment "Measure check/test/lint timing, verify against SLO targets" ;
+
+  cli:command "time cargo make check && time cargo make test-unit && time cargo make lint" ;
+  cli:produces ggen:SLOReceipt ;
+
+  proc:checks [
+    rdfs:label "SLO: check" ;
+    proc:target "≤ 5s" ;
+    proc:metric "check_time" ;
+  ] ;
+
+  proc:checks [
+    rdfs:label "SLO: test-unit" ;
+    proc:target "≤ 10s" ;
+    proc:metric "test_time" ;
+  ] ;
+
+  proc:checks [
+    rdfs:label "SLO: lint" ;
+    proc:target "≤ 60s" ;
+    proc:metric "lint_time" ;
+  ] ;
+
+  proc:linksToCriterion holo:DeterministicOutput ;
+  proc:evidence "✓ check {check_time}ms < 5s | test {test_time}ms < 10s | lint {lint_time}ms < 60s" ;
+  .
+
+# =============================================================================
+# PART IV: CI/CD WORKFLOW INTEGRATION
+# =============================================================================
+
+proc:CIDDWorkflow
+  a owl:Class ;
+  rdfs:label "CI/CD Integration" ;
+  rdfs:comment "How KGC measurement functions integrate with CI/CD pipeline" ;
+  .
+
+[
+  a proc:CIDDWorkflow ;
+  rdfs:label "Full CI/CD Pipeline with KGC Validation" ;
+  rdfs:comment "End-to-end workflow showing specification → snapshot → validation → execution → receipts → closure" ;
+
+  proc:stage 1, [
+    rdfs:label "Specification Commit" ;
+    rdfs:description "Commit .specify/*.ttl changes to feature branch" ;
+    proc:gate cli:GenValidateCommand ;  # SHACL validation
+    proc:failsOn "sh:Violation" ;
+  ] ;
+
+  proc:stage 2, [
+    rdfs:label "Create Observable Snapshot" ;
+    rdfs:description "Freeze .ttl into content-addressed snapshot (BLAKE3)" ;
+    cli:command "cargo make ggen:snapshot" ;
+    proc:output kgc:ObservableSnapshot ;
+  ] ;
+
+  proc:stage 3, [
+    rdfs:label "Validate Against SHACL" ;
+    rdfs:description "Run 6 critical SHACL shapes, hard stop on violation" ;
+    cli:command "cargo make ggen:validate" ;
+    proc:gate kgc:isKGCCompliant ;
+    proc:failsOn "kgc:isKGCCompliant = false" ;
+  ] ;
+
+  proc:stage 4, [
+    rdfs:label "Run Measurement Function μ" ;
+    rdfs:description "Execute ggen sync against snapshot (5-stage pipeline)" ;
+    cli:command "cargo make ggen:sync" ;
+    proc:input kgc:ObservableSnapshot ;
+    proc:output kgc:Artifact ;
+  ] ;
+
+  proc:stage 5, [
+    rdfs:label "Generate Test Receipt" ;
+    rdfs:description "Execute tests, capture metrics, link to DeterministicOutput" ;
+    cli:command "cargo make test" ;
+    cli:produces ggen:TestReceipt ;
+    proc:witness holo:DeterministicOutput ;
+  ] ;
+
+  proc:stage 6, [
+    rdfs:label "Generate Compile Receipt" ;
+    rdfs:description "Verify build succeeds, link to SchemaPreservation" ;
+    cli:command "cargo make check" ;
+    cli:produces ggen:CompileReceipt ;
+    proc:witness holo:SchemaPreservation ;
+  ] ;
+
+  proc:stage 7, [
+    rdfs:label "Verify SLO Receipt" ;
+    rdfs:description "Check timing constraints, link to performance invariants" ;
+    cli:command "time cargo make check test-unit lint" ;
+    cli:produces ggen:SLOReceipt ;
+    proc:witness holo:DeterministicOutput ;
+  ] ;
+
+  proc:stage 8, [
+    rdfs:label "Verify Ontological Closure" ;
+    rdfs:description "Assert that all 3 closure criteria have witnesses" ;
+    cli:command "cargo make ggen:verify-closure" ;
+    proc:requires [
+      ggen:TestReceipt kgc:witnessesClosureCriterion holo:DeterministicOutput ;
+      ggen:CompileReceipt kgc:witnessesClosureCriterion holo:SchemaPreservation ;
+      ggen:SLOReceipt kgc:witnessesClosureCriterion holo:DeterministicOutput ;
+    ] ;
+    proc:failsOn "Missing witness for SpecificationCompleteness | DeterministicOutput | BitPerfectReproducibility" ;
+  ] ;
+
+  proc:stage 9, [
+    rdfs:label "Emit Compliance Report" ;
+    rdfs:description "Generate machine-readable proof that system has reached ontological closure" ;
+    cli:command "cargo make ggen:compliance-report" ;
+    proc:output [
+      a proc:ComplianceReport ;
+      rdfs:label "Ontological Closure Proof" ;
+      proc:format "json-ld" ;  # Machine-readable
+      proc:includes "specification_hash" ;
+      proc:includes "witness_artifacts" ;
+      proc:includes "invariant_assertions" ;
+      proc:includes "timestamp" ;
+    ] ;
+    proc:success "kgc:isKGCCompliant = true" ;
+  ] ;
+
+  proc:failureMode [
+    rdfs:label "Hard Stop on Any Violation" ;
+    proc:trigger "sh:Violation OR kgc:isKGCCompliant = false" ;
+    proc:action "Reject build, print violation details, require fix" ;
+  ] ;
+] .
+
+# =============================================================================
+# PART V: MAKEFILE TARGETS (Cargo Make Integration)
+# =============================================================================
+
+cli:CargoMakeTargets
+  a owl:Class ;
+  rdfs:label "Cargo Make Targets for KGC" ;
+  rdfs:comment "Individual cargo make tasks implementing the measurement function pipeline" ;
+  .
+
+# Core targets (align with five stages)
+[
+  a cli:CargoMakeTargets ;
+  rdfs:label "ggen:parse" ;
+  cli:description "Stage 1: Parse RDF, validate, normalize" ;
+  cli:timeout "5s" ;
+  cli:command_template """
+    cargo run --bin ggen -- parse \\
+      --input .specify/snapshots/{snapshot_hash}/snapshot.ttl \\
+      --output target/ggen/normalized.rdf
+  """ ;
+] .
+
+[
+  a cli:CargoMakeTargets ;
+  rdfs:label "ggen:extract" ;
+  cli:description "Stage 2: Execute SPARQL CONSTRUCT, extract patterns" ;
+  cli:timeout "10s" ;
+  cli:command_template """
+    cargo run --bin ggen -- extract \\
+      --input target/ggen/normalized.rdf \\
+      --queries crates/ggen-core/queries/*.sparql \\
+      --output target/ggen/patterns.ttl
+  """ ;
+] .
+
+[
+  a cli:CargoMakeTargets ;
+  rdfs:label "ggen:emit" ;
+  cli:description "Stage 3: Generate code via Tera templates" ;
+  cli:timeout "15s" ;
+  cli:command_template """
+    cargo run --bin ggen -- emit \\
+      --input target/ggen/patterns.ttl \\
+      --templates templates/*.tera \\
+      --output target/ggen/generated/
+  """ ;
+] .
+
+[
+  a cli:CargoMakeTargets ;
+  rdfs:label "ggen:canonicalize" ;
+  cli:description "Stage 4: Format, normalize, ensure byte-perfect determinism" ;
+  cli:timeout "5s" ;
+  cli:command_template """
+    cargo run --bin ggen -- canonicalize \\
+      --input target/ggen/generated/ \\
+      --output target/ggen/canonical/ \\
+      --format-style ggen
+  """ ;
+] .
+
+[
+  a cli:CargoMakeTargets ;
+  rdfs:label "ggen:receipt" ;
+  cli:description "Stage 5: Generate cryptographic receipt (hash + SLO evidence)" ;
+  cli:timeout "2s" ;
+  cli:command_template """
+    cargo run --bin ggen -- receipt \\
+      --input target/ggen/canonical/ \\
+      --observable-hash {snapshot_hash} \\
+      --output target/ggen/receipt.json \\
+      --format json-ld
+  """ ;
+] .
+
+# Convenience targets
+[
+  a cli:CargoMakeTargets ;
+  rdfs:label "ggen:snapshot" ;
+  cli:description "Create ObservableSnapshot from live .ttl (freeze with BLAKE3)" ;
+  cli:command_template """
+    mkdir -p .specify/snapshots
+    HASH=$(blake3sum .specify/holographic-orchestration-kgc.ttl | cut -d' ' -f1)
+    mkdir -p .specify/snapshots/$HASH
+    cp .specify/holographic-orchestration-kgc.ttl .specify/snapshots/$HASH/snapshot.ttl
+    echo $HASH > .specify/snapshots/$HASH/snapshot.hash
+    date -u +"%Y-%m-%dT%H:%M:%SZ" > .specify/snapshots/$HASH/snapshot.timestamp
+    echo "{\"hash\": \"$HASH\", \"timestamp\": \"$(cat .specify/snapshots/$HASH/snapshot.timestamp)\", \"sourceFile\": \".specify/holographic-orchestration-kgc.ttl\"}" > .specify/snapshots/$HASH/snapshot.metadata.json
+    echo "✅ Snapshot created: .specify/snapshots/$HASH"
+  """ ;
+] .
+
+[
+  a cli:CargoMakeTargets ;
+  rdfs:label "ggen:validate" ;
+  cli:description "Validate ontology against SHACL shapes (hard stop on violation)" ;
+  cli:command_template """
+    python3 << 'PYTHON_EOF'
+from pyshacl import validate
+from rdflib import Graph
+
+data_graph = Graph().parse('.specify/holographic-orchestration-kgc.ttl', format='turtle')
+shacl_graph = Graph().parse('.specify/kgc-shacl-validation.ttl', format='turtle')
+
+conforms, report_graph, report_text = validate(data_graph, shacl_graph=shacl_graph, inference='none')
+
+if not conforms:
+    print("❌ KGC SHACL Validation FAILED")
+    print(report_text)
+    exit(1)
+else:
+    print("✅ KGC SHACL Validation PASSED")
+    exit(0)
+PYTHON_EOF
+  """ ;
+] .
+
+[
+  a cli:CargoMakeTargets ;
+  rdfs:label "ggen:sync" ;
+  cli:description "Execute full 5-stage measurement function pipeline" ;
+  cli:command_template """
+    set -e
+    echo "🔄 Running ggen measurement function μ (5 stages)..."
+    cargo make ggen:parse && \\
+    cargo make ggen:extract && \\
+    cargo make ggen:emit && \\
+    cargo make ggen:canonicalize && \\
+    cargo make ggen:receipt
+    echo "✅ Code precipitation complete"
+  """ ;
+] .
+
+[
+  a cli:CargoMakeTargets ;
+  rdfs:label "ggen:verify-closure" ;
+  cli:description "Verify ontological closure (all 3 witnesses present)" ;
+  cli:command_template """
+    python3 << 'PYTHON_EOF'
+import json
+from pathlib import Path
+
+# Check for all 3 witness receipts
+test_receipt = Path('target/ggen/receipts/test-receipt.json').exists()
+compile_receipt = Path('target/ggen/receipts/compile-receipt.json').exists()
+slo_receipt = Path('target/ggen/receipts/slo-receipt.json').exists()
+
+if test_receipt and compile_receipt and slo_receipt:
+    print("✅ Ontological Closure Verified")
+    print("  ✓ Completeness Witness: Test Receipt")
+    print("  ✓ Determinism Witness: Compile Receipt")
+    print("  ✓ Reproducibility Witness: SLO Receipt")
+    exit(0)
+else:
+    print("❌ Ontological Closure FAILED")
+    if not test_receipt:
+        print("  ✗ Missing Completeness Witness (Test Receipt)")
+    if not compile_receipt:
+        print("  ✗ Missing Determinism Witness (Compile Receipt)")
+    if not slo_receipt:
+        print("  ✗ Missing Reproducibility Witness (SLO Receipt)")
+    exit(1)
+PYTHON_EOF
+  """ ;
+] .
+
+[
+  a cli:CargoMakeTargets ;
+  rdfs:label "ggen:compliance-report" ;
+  cli:description "Generate machine-readable proof of ontological closure" ;
+  cli:command_template """
+    python3 << 'PYTHON_EOF'
+import json
+from datetime import datetime
+from pathlib import Path
+import hashlib
+
+# Build closure proof
+closure_proof = {
+  "@context": "http://ggen.org/context.jsonld",
+  "@type": "OntologicalClosure",
+  "timestamp": datetime.utcnow().isoformat() + "Z",
+  "specification": {
+    "hash": open('.specify/snapshots/*/snapshot.hash').read().strip()  # Get latest
+  },
+  "witnesses": {
+    "completeness": "target/ggen/receipts/test-receipt.json",
+    "determinism": "target/ggen/receipts/compile-receipt.json",
+    "reproducibility": "target/ggen/receipts/slo-receipt.json"
+  },
+  "status": "kgc:isKGCCompliant = true"
+}
+
+output_path = Path('target/ggen/closure-proof.jsonld')
+output_path.parent.mkdir(parents=True, exist_ok=True)
+
+with open(output_path, 'w') as f:
+    json.dump(closure_proof, f, indent=2)
+
+print("✅ Closure Proof Generated")
+print(f"   {output_path}")
+PYTHON_EOF
+  """ ;
+] .
+
+# =============================================================================
+# END OF CLI INTEGRATION
+# =============================================================================

@@ -1,0 +1,382 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix bree: <http://example.org/bree/> .
+@prefix citty: <http://example.org/citty/> .
+
+# ============================================================================
+# BREE SCHEDULER SHACL VALIDATION SHAPES
+# ============================================================================
+# Constraints that ensure Bree specifications are complete and valid
+# before code generation (Big Bang 80/20 principle: validate early)
+# ============================================================================
+
+# ============================================================================
+# Shape: BreeInstanceShape
+# Validates that every Bree instance has all required properties
+# ============================================================================
+
+bree:BreeInstanceShape
+  a sh:NodeShape ;
+  sh:targetClass bree:BreeInstance ;
+  sh:nodeKind sh:IRI ;
+  sh:message "BreeInstance must be a valid IRI resource" ;
+
+  # Required properties
+  sh:property [
+    sh:path bree:jobRoot ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minLength 1 ;
+    sh:message "BreeInstance must have exactly one jobRoot (non-empty string)" ;
+  ] ;
+
+  sh:property [
+    sh:path bree:defaultTimeout ;
+    sh:datatype xsd:long ;
+    sh:minCount 1 ;
+    sh:minInclusive 0 ;
+    sh:message "BreeInstance must have defaultTimeout >= 0" ;
+  ] ;
+
+  sh:property [
+    sh:path bree:defaultInterval ;
+    sh:datatype xsd:long ;
+    sh:minCount 1 ;
+    sh:minInclusive 0 ;
+    sh:message "BreeInstance must have defaultInterval >= 0" ;
+  ] ;
+
+  sh:property [
+    sh:path bree:removeCompleted ;
+    sh:datatype xsd:boolean ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "BreeInstance must have removeCompleted (true|false)" ;
+  ] ;
+
+  sh:property [
+    sh:path bree:hasSeconds ;
+    sh:datatype xsd:boolean ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "BreeInstance must have hasSeconds flag" ;
+  ] ;
+
+  # Required relationships
+  sh:property [
+    sh:path bree:hasJob ;
+    sh:class bree:Job ;
+    sh:minCount 1 ;
+    sh:message "BreeInstance must have at least one Job" ;
+  ] ;
+
+  sh:property [
+    sh:path rdfs:label ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "BreeInstance must have rdfs:label" ;
+  ] .
+
+# ============================================================================
+# Shape: JobShape
+# Validates that every Job has complete configuration
+# ============================================================================
+
+bree:JobShape
+  a sh:NodeShape ;
+  sh:targetClass bree:Job ;
+  sh:nodeKind sh:IRI ;
+
+  # Core required properties
+  sh:property [
+    sh:path bree:jobName ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minLength 1 ;
+    sh:pattern "^[a-z0-9\\-]+$" ;
+    sh:message "Job jobName is required, must be lowercase alphanumeric with hyphens" ;
+  ] ;
+
+  sh:property [
+    sh:path bree:jobPath ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minLength 1 ;
+    sh:message "Job jobPath is required (file path)" ;
+  ] ;
+
+  sh:property [
+    sh:path rdfs:label ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Job must have rdfs:label" ;
+  ] ;
+
+  sh:property [
+    sh:path rdfs:comment ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Job must have rdfs:comment describing purpose" ;
+  ] ;
+
+  # Timing constraints - must have AT LEAST ONE
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Job must have timeout, interval, cron, or date scheduling" ;
+    sh:select """
+      PREFIX bree: <http://example.org/bree/>
+      SELECT ?this
+      WHERE {
+        FILTER NOT EXISTS { ?this bree:hasTimeout _ }
+        FILTER NOT EXISTS { ?this bree:hasInterval _ }
+        FILTER NOT EXISTS { ?this bree:hasCron _ }
+        FILTER NOT EXISTS { ?this bree:hasDate _ }
+      }
+    """ ;
+  ] ;
+
+  # closeWorkerAfterMs validation
+  sh:property [
+    sh:path bree:closeWorkerAfterMs ;
+    sh:datatype xsd:long ;
+    sh:minInclusive 1000 ;
+    sh:message "closeWorkerAfterMs must be >= 1000 (1 second minimum)" ;
+  ] ;
+
+  # outputWorkerMetadata must be boolean
+  sh:property [
+    sh:path bree:outputWorkerMetadata ;
+    sh:datatype xsd:boolean ;
+    sh:message "outputWorkerMetadata must be true or false" ;
+  ] ;
+
+  # If Citty command is defined, validate it
+  sh:property [
+    sh:path bree:hasCittyCommand ;
+    sh:class citty:CliCommand ;
+    sh:maxCount 1 ;
+    sh:message "Job can have at most one Citty command definition" ;
+  ] .
+
+# ============================================================================
+# Shape: IntervalSpecificationShape
+# Validates timing configurations
+# ============================================================================
+
+bree:IntervalSpecificationShape
+  a sh:NodeShape ;
+  sh:targetClass bree:IntervalSpecification ;
+
+  sh:property [
+    sh:path rdfs:comment ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:message "IntervalSpecification must have rdfs:comment" ;
+  ] .
+
+# ============================================================================
+# Shape: CronExpressionShape
+# Validates cron syntax
+# ============================================================================
+
+bree:CronExpressionShape
+  a sh:NodeShape ;
+  sh:targetClass bree:CronExpression ;
+
+  sh:property [
+    sh:path bree:cronExpression ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    # Simplified pattern: must have 5-6 space-separated fields
+    sh:pattern "^(\\*|[0-9]|[0-9\\*\\-\\/,]+)[\\s]+(\\*|[0-9]|[0-9\\*\\-\\/,]+)[\\s]+(\\*|[0-9]|[0-9\\*\\-\\/,]+)[\\s]+(\\*|[0-9]|[0-9\\*\\-\\/,]+)[\\s]+(\\*|[0-9]|[0-9\\*\\-\\/,]+)$" ;
+    sh:message "Cron expression must follow standard format (5 space-separated fields)" ;
+  ] .
+
+# ============================================================================
+# Shape: MSIntervalShape
+# Validates millisecond intervals
+# ============================================================================
+
+bree:MSIntervalShape
+  a sh:NodeShape ;
+  sh:targetClass bree:MSInterval ;
+
+  sh:property [
+    sh:path bree:milliseconds ;
+    sh:datatype xsd:long ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minInclusive 100 ;
+    sh:message "Milliseconds interval must be >= 100" ;
+  ] .
+
+# ============================================================================
+# Shape: HumanIntervalShape
+# Validates human-readable intervals
+# ============================================================================
+
+bree:HumanIntervalShape
+  a sh:NodeShape ;
+  sh:targetClass bree:HumanInterval ;
+
+  sh:property [
+    sh:path bree:humanExpression ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minLength 5 ;
+    sh:message "Human expression required (e.g., 'every 5 minutes')" ;
+  ] ;
+
+  sh:property [
+    sh:path bree:milliseconds ;
+    sh:datatype xsd:long ;
+    sh:minCount 1 ;
+    sh:minInclusive 100 ;
+    sh:message "Must have calculated milliseconds >= 100" ;
+  ] .
+
+# ============================================================================
+# Shape: DateScheduleShape
+# Validates date-based schedules
+# ============================================================================
+
+bree:DateScheduleShape
+  a sh:NodeShape ;
+  sh:targetClass bree:DateSchedule ;
+
+  sh:property [
+    sh:path bree:scheduleDate ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "DateSchedule must have scheduleDate (xsd:dateTime)" ;
+  ] .
+
+# ============================================================================
+# Shape: CittyCliCommandShape
+# Validates Citty command definitions
+# ============================================================================
+
+citty:CliCommandShape
+  a sh:NodeShape ;
+  sh:targetClass citty:CliCommand ;
+
+  sh:property [
+    sh:path citty:commandName ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minLength 1 ;
+    sh:pattern "^[a-z][a-z0-9-]*$" ;
+    sh:message "Command name must be lowercase and match pattern" ;
+  ] ;
+
+  sh:property [
+    sh:path citty:commandDescription ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minLength 10 ;
+    sh:message "Command must have meaningful description (>= 10 chars)" ;
+  ] ;
+
+  sh:property [
+    sh:path citty:hasArgument ;
+    sh:class citty:Argument ;
+    sh:message "Command can have zero or more arguments" ;
+  ] .
+
+# ============================================================================
+# Shape: CittyArgumentShape
+# Validates CLI arguments
+# ============================================================================
+
+citty:ArgumentShape
+  a sh:NodeShape ;
+  sh:targetClass citty:Argument ;
+
+  sh:property [
+    sh:path citty:argumentName ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minLength 1 ;
+    sh:message "Argument must have name" ;
+  ] ;
+
+  sh:property [
+    sh:path citty:argumentType ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:in (
+      "positional"
+      "string"
+      "number"
+      "boolean"
+    ) ;
+    sh:message "Argument type must be: positional, string, number, or boolean" ;
+  ] ;
+
+  sh:property [
+    sh:path rdfs:comment ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:message "Argument must have rdfs:comment documenting usage" ;
+  ] .
+
+# ============================================================================
+# COMPLIANCE RULES (Closed World Assumption)
+# ============================================================================
+
+# Every Job must belong to exactly one BreeInstance
+bree:JobBelongsToInstanceRule
+  a sh:SPARQLRule ;
+  sh:construct """
+    PREFIX bree: <http://example.org/bree/>
+    CONSTRUCT {
+      ?instance bree:hasJob ?job .
+    }
+    WHERE {
+      ?instance a bree:BreeInstance ;
+        bree:hasJob ?job .
+      ?job a bree:Job .
+    }
+  """ .
+
+# Every Job must have exactly one primary timing specification
+bree:JobTimingConsistencyRule
+  a sh:SPARQLConstraint ;
+  sh:message "Job has multiple conflicting timing specifications" ;
+  sh:select """
+    PREFIX bree: <http://example.org/bree/>
+    SELECT ?this
+    WHERE {
+      ?this a bree:Job ;
+        bree:hasCron ?cron ;
+        bree:hasDate ?date .
+      FILTER (?cron != ?date)
+    }
+  """ .
+
+# Execution history must reference valid jobs
+bree:ExecutionHistoryValidRule
+  a sh:SPARQLConstraint ;
+  sh:message "Job execution references non-existent job" ;
+  sh:select """
+    PREFIX bree: <http://example.org/bree/>
+    SELECT ?this
+    WHERE {
+      ?this a bree:JobExecution .
+      FILTER NOT EXISTS { ?job bree:hasExecution ?this . }
+    }
+  """ .
