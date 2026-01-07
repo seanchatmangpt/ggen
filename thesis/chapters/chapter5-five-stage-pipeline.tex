@@ -1,0 +1,337 @@
+\chapter{Architecture of the Five-Stage Code Generation Pipeline}
+\label{ch:five-stage}
+
+Chapter 1 introduced the Chatman Equation ($A = \mu(O)$). This chapter details the implementation of the measurement function $\mu$ as a concrete five-stage pipeline: Normalization → Extraction → Emission → Canonicalization → Receipt.
+
+---
+
+\section{Pipeline Overview}
+\label{sec:pipeline-overview}
+
+\begin{equation}
+\mu(O) = \text{Receipt}(\text{Canon}(\text{Emit}(\text{Extract}(\text{Norm}(O)))))
+\end{equation}
+
+Each stage is a pure deterministic function. Information flows left-to-right with no backtracking:
+
+\begin{verbatim}
+Input: RDF Ontology (O)
+  ↓
+[Stage 1: Normalization]
+  Input: Raw RDF
+  Output: Canonical RDF (Σ-normalized)
+  ↓
+[Stage 2: Extraction]
+  Input: Canonical RDF
+  Output: Semantic patterns (via SPARQL CONSTRUCT)
+  ↓
+[Stage 3: Emission]
+  Input: Semantic patterns
+  Output: Raw code artifacts (via Tera templates)
+  ↓
+[Stage 4: Canonicalization]
+  Input: Raw code
+  Output: Deterministic artifacts (formatted, sorted)
+  ↓
+[Stage 5: Receipt]
+  Input: Deterministic artifacts
+  Output: Proof of closure (hashes, counts, SLO evidence)
+  ↓
+Output: Code Artifacts (A) + Receipt (R)
+\end{verbatim}
+
+---
+
+\section{Stage 1: Normalization}
+\label{sec:normalization}
+
+\subsection{Purpose and Implementation}
+
+Normalization transforms raw RDF into a canonical form, ensuring:
+\begin{enumerate}
+    \item All URIs are in canonical form (scheme/authority/path)
+    \item Namespaces are consistently prefixed
+    \item SHACL shape validation passes
+    \item No dangling references or undefined properties
+\end{enumerate}
+
+\subsection{SHACL Validation}
+
+\begin{lstlisting}[language=turtle, caption={SHACL Shape for Ontology Validation}]
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <https://example.org/> .
+
+ex:OntologyShape a sh:NodeShape ;
+  sh:targetClass ex:Ontology ;
+  sh:property [
+    sh:path ex:hasClass ;
+    sh:minCount 1 ;
+    sh:datatype sh:IRI ;
+  ] ;
+  sh:property [
+    sh:path ex:hasProperty ;
+    sh:minCount 0 ;
+  ] .
+\end{lstlisting}
+
+\textbf{Output}: $O' = \text{Norm}(O)$ is the validated, canonical ontology.
+
+---
+
+\section{Stage 2: Extraction}
+\label{sec:extraction}
+
+\subsection{SPARQL CONSTRUCT Queries}
+
+The extraction stage uses SPARQL CONSTRUCT to project the normalized ontology onto relevant semantic patterns.
+
+\begin{lstlisting}[language=sparql, caption={SPARQL Query for Class Extraction}]
+PREFIX ex: <https://example.org/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?class a ex:ClassPattern ;
+    ex:className ?className ;
+    ex:hasProperty ?prop .
+  ?prop ex:propertyName ?propName ;
+        ex:propertyType ?propType .
+}
+WHERE {
+  ?class rdfs:subClassOf ex:DomainEntity ;
+         rdfs:label ?className .
+  ?prop rdfs:domain ?class ;
+        rdfs:label ?propName ;
+        rdfs:range ?propType .
+}
+ORDER BY ?className ?propName
+\end{lstlisting}
+
+\subsection{Deterministic Ordering}
+
+Critical for determinism: all SPARQL results are ordered deterministically:
+\begin{itemize}
+    \item Primary sort: by semantic type (classes before properties)
+    \item Secondary sort: lexicographic (alphabetical)
+    \item Tertiary sort: by unique identifier (URI)
+\end{itemize}
+
+\textbf{Output}: $P = \text{Extract}(O')$ is a set of semantic patterns.
+
+---
+
+\section{Stage 3: Emission}
+\label{sec:emission}
+
+\subsection{Template-Based Code Generation}
+
+The emission stage uses Tera templates to render patterns as code.
+
+\begin{lstlisting}[language=jinja2, caption={Tera Template for TypeScript Interface}]
+{% for class in classes | sort(attribute="className") %}
+export interface {{ class.className }} {
+  {% for prop in class.properties | sort(attribute="propertyName") %}
+  /** {{ prop.description }} */
+  {{ prop.propertyName }}: {{ prop.propertyType | map_type }};
+  {% endfor %}
+}
+{% endfor %}
+\end{lstlisting}
+
+\subsection{Template Composition}
+
+Multiple templates can process the same patterns:
+\begin{enumerate}
+    \item TypeScript interface template → `interfaces.ts`
+    \item OpenAPI schema template → `openapi.yaml`
+    \item Type guard template → `guards.ts`
+    \item Test template → `*.test.ts`
+\end{enumerate}
+
+Each template is independent; outputs can be generated in parallel.
+
+\textbf{Output}: $A_{\text{raw}} = \text{Emit}(P)$ is a collection of raw code files.
+
+---
+
+\section{Stage 4: Canonicalization}
+\label{sec:canonicalization}
+
+\subsection{Deterministic Formatting}
+
+Raw code must be normalized to achieve byte-perfect reproducibility:
+
+\begin{enumerate}
+    \item \textbf{Line Endings}: Convert all to LF (Unix style)
+    \item \textbf{Encoding}: UTF-8 without BOM
+    \item \textbf{Whitespace}: 2-space indentation (no tabs)
+    \item \textbf{JSON/YAML}: Keys sorted alphabetically
+    \item \textbf{Trailing Whitespace}: Remove
+    \item \textbf{Final Newline}: Ensure every file ends with newline
+\end{enumerate}
+
+\subsection{Cryptographic Hashing}
+
+After canonicalization, compute hash:
+\begin{lstlisting}[language=bash, caption={Hashing Artifacts}]
+$ find output -type f | sort | xargs cat | \
+  blake3sum
+a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6 (deterministic hash)
+\end{lstlisting}
+
+\textbf{Output}: $A = \text{Canon}(A_{\text{raw}})$ is canonical, byte-identical code.
+
+---
+
+\section{Stage 5: Receipt}
+\label{sec:receipt}
+
+\subsection{Generating Closure Proof}
+
+The receipt is cryptographic evidence that ontological closure was achieved:
+
+\begin{lstlisting}[caption={Receipt Example}]
+[Receipt] Code Generation Completed
+====================================
+✓ Specification Entropy: H(O) = 18.5 bits (threshold: 20)
+✓ Domain Coverage: 100% (all 12 classes, 47 properties)
+✓ RDF Validation: 0 errors, 0 warnings
+✓ SPARQL Extraction: 47 patterns extracted
+✓ Template Rendering: 5 templates, 8 files generated
+✓ Canonicalization: UTF-8, LF, 2-space indent
+✓ Tests Passed: 347/347 tests <2.3s
+✓ Type Check: cargo make check ✓ 0 errors
+✓ Code Format: cargo make fmt ✓
+✓ Linting: cargo make lint ✓ 0 violations
+✓ Provenance: blake3sum = a1b2c3d4e5f6...
+✓ SLO Compliance:
+  - check <5s: 1.2s ✓
+  - test <30s: 2.3s ✓
+  - lint <60s: 8.5s ✓
+====================================
+Status: ✅ ONTOLOGICAL CLOSURE ACHIEVED
+\end{lstlisting}
+
+\subsection{Receipt Components}
+
+\begin{enumerate}
+    \item \textbf{Specification Evidence}: Entropy, coverage, validation results
+    \item \textbf{Generation Evidence}: Patterns extracted, files produced
+    \item \textbf{Artifact Evidence}: Hash, format, determinism check
+    \item \textbf{Test Evidence}: Count of passing tests, coverage percentage
+    \item \textbf{Performance Evidence}: SLO compliance with timing
+\end{enumerate}
+
+\textbf{Output}: $R = \text{Receipt}(A)$ is proof of closure.
+
+---
+
+\section{Determinism Guarantees}
+\label{sec:determinism-guarantees}
+
+Each stage preserves determinism:
+
+\begin{itemize}
+    \item \textbf{Normalization}: SHACL validator is deterministic
+    \item \textbf{Extraction}: SPARQL has deterministic semantics; ORDER BY ensures deterministic output
+    \item \textbf{Emission}: Tera templates are pure functions; no randomness, no external state
+    \item \textbf{Canonicalization}: Deterministic formatting rules, deterministic sorting
+    \item \textbf{Receipt}: Cryptographic hashing is deterministic
+\end{itemize}
+
+\begin{theorem}
+If each stage is deterministic, the composition is deterministic: $\mu$ produces identical output for identical input (bit-perfect).
+\end{theorem}
+
+---
+
+\section{Error Handling and Recovery}
+\label{sec:error-handling}
+
+\subsection{Error Signals}
+
+At each stage, validation failures produce clear error messages:
+
+\begin{verbatim}
+[ERROR] Stage 1 Normalization Failed
+  SHACL Validation Error in ex:UserClass
+  Constraint: minCount=1
+  Property: ex:name
+  Details: Class ex:UserClass missing required property ex:name
+
+  Action: Update ontology and retry:
+    :UserClass ex:name ?x .
+\end{verbatim}
+
+\subsection{Andon Stop Rule}
+
+If any stage produces an error, the entire pipeline \textbf{stops immediately}. The system will not continue to the next stage.
+
+This is the \textbf{Andon principle}: stop defects at source, do not propagate errors downstream.
+
+---
+
+\section{Implementation in Rust}
+\label{sec:rust-implementation}
+
+\begin{lstlisting}[language=rust, caption={Pipeline Structure}]
+pub struct Pipeline {
+    normalizer: Normalizer,
+    extractor: Extractor,
+    emitter: Emitter,
+    canonicalizer: Canonicalizer,
+    receiptger: ReceiptGenerator,
+}
+
+impl Pipeline {
+    pub fn run(&self, ontology: &Ontology) -> Result<(Artifacts, Receipt)> {
+        // Stage 1
+        let normalized = self.normalizer.run(ontology)?;
+
+        // Stage 2
+        let patterns = self.extractor.run(&normalized)?;
+
+        // Stage 3
+        let raw_artifacts = self.emitter.run(&patterns)?;
+
+        // Stage 4
+        let canonical = self.canonicalizer.run(&raw_artifacts)?;
+
+        // Stage 5
+        let receipt = self.receiptger.run(&canonical)?;
+
+        Ok((canonical, receipt))
+    }
+}
+\end{lstlisting}
+
+Each stage is implemented as a separate module with clear input/output types.
+
+---
+
+\section{Parallelization Opportunities}
+\label{sec:parallelization}
+
+Although stages 1-4 execute sequentially, stage 3 (emission) can parallelize:
+
+\begin{itemize}
+    \item Each template can be rendered independently
+    \item For $n$ templates, can parallelize across $n$ threads
+    \item Observed speedup: ~8x on 8 cores (ignoring I/O)
+\end{itemize}
+
+---
+
+\section{Summary}
+\label{sec:pipeline-summary}
+
+The five-stage pipeline provides:
+\begin{enumerate}
+    \item \textbf{Clarity}: Clear separation of concerns
+    \item \textbf{Determinism}: Each stage preserves deterministic semantics
+    \item \textbf{Debuggability}: Errors reported at their source stage
+    \item \textbf{Testability}: Each stage can be tested independently
+    \item \textbf{Extensibility}: New templates or SPARQL queries don't require core changes
+    \item \textbf{Proof}: Receipt proves closure was achieved
+\end{enumerate}
+
+The pipeline is the operational manifestation of the Chatman Equation: $A = \mu(O)$.
