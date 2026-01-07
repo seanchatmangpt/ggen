@@ -1,0 +1,46 @@
+[env]
+RUST_LOG = "debug"
+CARGO_MAKE_SKIP_GIT_SKIP_ALLOWED_PUSH_BRANCH_CHECK = true
+
+[config]
+skip_core_tasks = false
+
+[tasks.check]
+command = "cargo"
+args = ["check"]
+
+[tasks.fmt]
+command = "cargo"
+args = ["fmt"]
+
+[tasks.lint]
+command = "cargo"
+args = ["clippy", "--all-targets", "--", "-D", "warnings"]
+
+[tasks.test]
+command = "cargo"
+args = ["test", "--all"]
+dependencies = ["check"]
+
+[tasks.pre-commit]
+script = """
+cargo fmt
+cargo clippy --all-targets -- -D warnings
+cargo test
+"""
+
+[tasks.run]
+command = "cargo"
+args = ["run"]
+dependencies = ["check"]
+
+[tasks.help]
+script = """
+echo "AI Code Generation - Available Tasks:"
+echo "  cargo make check        - Fast compilation check"
+echo "  cargo make test         - Run all tests"
+echo "  cargo make fmt          - Format code"
+echo "  cargo make lint         - Run clippy"
+echo "  cargo make run          - Run the demo"
+echo "  cargo make pre-commit   - Full validation"
+"""
