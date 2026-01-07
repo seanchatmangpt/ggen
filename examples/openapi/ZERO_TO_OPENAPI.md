@@ -727,22 +727,89 @@ app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openapi));
 
 ## Troubleshooting
 
-### Common Issues
+### Common Issues and Solutions
 
 **Q: "ggen command not found"**
-- A: Make sure ggen is installed and in your PATH
+- A: The `ggen` binary needs to be built from source
+- A: Run `cargo build --release -p ggen-cli-lib` from the ggen repository root
+- A: Add `./target/release` to your PATH, or use the full path: `./target/release/ggen sync`
 
-**Q: Generated files are empty**
-- A: Check SPARQL query syntax in ggen.toml
-- A: Verify ontology file has matching data
+**Q: Generated files are empty or missing**
+- A: Check that ontology file exists at `ontology/blog-api.ttl`
+- A: Verify SPARQL queries in ggen.toml are syntactically correct
+- A: Ensure RDF data matches the query patterns (use correct prefixes)
+- A: Check that template files exist in the `templates/` directory
+- A: Run with verbose output: `ggen sync --verbose` (if available)
 
-**Q: Template syntax errors**
-- A: Check Tera template documentation
-- A: Verify variable names match SPARQL results
+**Q: "SPARQL query returned no results"**
+- A: Check namespace prefixes in the ontology match the query
+- A: Example: Query uses `blog:` prefix but ontology uses `example:` prefix
+- A: Verify entity definitions use `a api:Entity` or correct type
+- A: Test query by running it separately with a SPARQL tool
 
-**Q: Output doesn't match golden files**
-- A: Run `node validate.mjs` to see differences
-- A: Check ontology definitions are complete
+**Q: Template syntax errors or undefined variables**
+- A: Template variables come from SPARQL SELECT clause
+- A: Variable names must match: `?entityName` in SELECT must appear in template as `row["?entityName"]`
+- A: Check case sensitivity: `?propertyType` ≠ `?PropertyType`
+- A: Review Tera template docs: https://keats.github.io/tera/
+
+**Q: Output doesn't match golden files or validate.mjs fails**
+- A: Run `node validate.mjs` to see detailed diff of mismatched files
+- A: Check that all entities and properties in ontology match golden files
+- A: Verify template formatting (trailing newlines, indentation) matches golden
+- A: Regenerate completely: `rm -rf lib/` then `ggen sync` again
+
+**Q: Modified ontology but changes didn't generate**
+- A: Make sure you ran `ggen sync` after editing the ontology file
+- A: Verify syntax of your ontology edits (RDF/Turtle can be picky)
+- A: Check file was actually saved (no unsaved changes in editor)
+- A: Try: `rm -rf lib/ && ggen sync` to force regeneration from scratch
+
+**Q: "Error: Template file not found"**
+- A: Verify template file path in ggen.toml uses correct relative path
+- A: Example: `templates/openapi-info.tera` (not `./templates/...`)
+- A: Ensure file extensions match: `.tera` not `.template` or `.jinja`
+- A: Run ggen from the `examples/openapi/` directory (where ggen.toml is)
+
+**Q: Generated JavaScript has syntax errors**
+- A: Check template doesn't have unclosed brackets or quotes
+- A: Verify Tera filter syntax: `| lower` not `.toLowerCase()`
+- A: Look for malformed JSON in templates (missing commas, trailing commas)
+- A: JSDoc types should use proper TypeScript syntax
+
+**Q: Zod schema validation always fails**
+- A: Verify schema property names match SPARQL output exactly
+- A: Check case sensitivity in Zod types: `z.string()` not `z.String()`
+- A: Ensure required properties use `z.object()` not `z.object({})`
+- A: Objects need curly braces: `z.object({ field: z.string() })`
+
+**Q: How do I add a new entity?**
+- A: Edit `ontology/blog-api.ttl` and add:
+  ```turtle
+  blog:NewEntity a api:Entity ;
+    api:name "NewEntity" ;
+    api:hasProperty blog:NewEntity_id .
+  blog:NewEntity_id a api:Property ;
+    api:name "id" ;
+    api:type "string" ;
+    api:required "true" .
+  ```
+- A: Save file, run `ggen sync`
+- A: New entity will appear in all generated files automatically
+
+**Q: How do I change a property type?**
+- A: Edit the `api:type` in the ontology:
+  ```turtle
+  blog:User_age a api:Property ;
+    api:type "integer" ;  # Change from "string"
+  ```
+- A: Run `ggen sync` to regenerate all outputs with new type
+
+**Q: Generated index files import nothing**
+- A: Index files work - they create barrel exports for convenience
+- A: Use them: `import { userSchema } from './lib/schemas/index.mjs'`
+- A: Or import directly: `import { userSchema } from './lib/schemas/entities.mjs'`
+- A: Both approaches work identically
 
 ---
 
@@ -759,11 +826,58 @@ app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openapi));
 
 ## Next Steps
 
+### Immediate (Now)
 1. ✅ **Understand the concepts** (you've done this!)
-2. 🔧 **Run `ggen sync`** in `examples/openapi/`
-3. 📝 **Modify the ontology** - add a property or entity
-4. 🎯 **Regenerate** and see how all outputs update
-5. 🚀 **Use in your project** - copy the generated code patterns
+2. 🔧 **Run `ggen sync`** in `examples/openapi/` directory
+3. 📝 **Examine generated files** in `lib/` directory
+   - Open and read a generated schema file
+   - Open the OpenAPI YAML to understand the structure
+4. 🎯 **Verify with validation** - Run `node validate.mjs` to confirm outputs
+
+### Short Term (Next Hour)
+5. ✏️ **Modify the ontology** - try adding a new property to User entity
+   - Edit `ontology/blog-api.ttl`
+   - Add a new `api:Property` definition
+   - Run `ggen sync` again
+   - Verify the change appears in all 13 output files
+6. 🔄 **Make another modification** - try adding a complete new entity
+   - Create a full entity with 3-4 properties
+   - See how all templates adapt automatically
+7. 🧪 **Test generated code** - use Zod schemas in JavaScript
+   - Create a simple Node.js script
+   - Import the generated schemas
+   - Test validation with valid and invalid data
+
+### Medium Term (Next Day)
+8. 🚀 **Use in a project** - integrate generated code into a real application
+   - Copy `lib/` directory to a Next.js or Express project
+   - Use the generated schemas in API route handlers
+   - Use the generated types for IDE autocomplete
+9. 📚 **Explore templates** - look at how code is generated
+   - Review `templates/*.tera` files
+   - Understand Tera syntax and template variables
+   - Consider creating custom templates for your own needs
+10. 🏗️ **Create your own ontology** - define an API for your domain
+    - Start with 3-4 core entities
+    - Define all properties with types
+    - Run `ggen sync` to generate your project's code
+    - Use the generated contracts in your API
+
+### Advanced (This Week)
+11. 🎨 **Customize templates** - modify generated code format
+    - Adjust naming conventions (camelCase vs snake_case)
+    - Add custom validation rules beyond Zod defaults
+    - Generate additional code (database models, migrations)
+    - Generate code for different languages (TypeScript, Python, Go)
+12. 🔌 **Integrate with API tools**
+    - Import OpenAPI spec into Swagger UI
+    - Use spec with API testing tools (Insomnia, Postman)
+    - Generate client SDK from OpenAPI spec
+13. 📊 **Version control your specification**
+    - Treat `.ttl` files as your single source of truth
+    - Track specification changes in git
+    - Generate release notes from spec diffs
+    - Build CI/CD pipeline around ggen sync
 
 ---
 
