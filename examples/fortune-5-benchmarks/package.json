@@ -1,0 +1,39 @@
+{
+  "name": "fortune-5-benchmarks",
+  "version": "1.0.0",
+  "description": "Fortune 5 enterprise performance benchmarks extending Bree scheduler with ggen",
+  "type": "module",
+  "main": "src/fortune-5-metrics.js",
+  "scripts": {
+    "test": "vitest --reporter=verbose",
+    "test:watch": "vitest --watch",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "benchmark": "node benchmarks/run-fortune-5.js",
+    "report": "node benchmarks/generate-report.js",
+    "validate-spec": "echo 'ggen sync --validate --config ggen.toml'",
+    "generate": "echo 'ggen sync --config ggen.toml'",
+    "start-metrics": "node src/metrics-server.js"
+  },
+  "keywords": [
+    "fortune-5",
+    "performance",
+    "benchmarks",
+    "enterprise",
+    "sla",
+    "ggen",
+    "bree",
+    "scheduler"
+  ],
+  "author": "ggen contributors",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^1.0.0",
+    "@vitest/ui": "^1.0.0",
+    "@vitest/coverage-v8": "^1.0.0"
+  },
+  "dependencies": {}
+}
