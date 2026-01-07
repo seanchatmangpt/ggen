@@ -1,0 +1,22 @@
+[tasks.check]
+command = "cargo"
+args = ["check", "--all"]
+
+[tasks.test]
+command = "cargo"
+args = ["test", "--all"]
+
+[tasks.build]
+command = "cargo"
+args = ["build", "--all"]
+
+[tasks.fmt]
+command = "cargo"
+args = ["fmt", "--all"]
+
+[tasks.lint]
+command = "cargo"
+args = ["clippy", "--all", "--", "-D", "warnings"]
+
+[tasks.pre-commit]
+script = "cargo fmt && cargo clippy --all -- -D warnings && cargo test"
