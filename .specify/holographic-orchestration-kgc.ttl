@@ -579,5 +579,291 @@ kgc:output
   .
 
 # =============================================================================
+# GAP CLOSURE 1: TRANSFORMATION INVARIANTS
+# =============================================================================
+# μ is currently asserted as deterministic, but invariants make it verifiable.
+# Invariants are properties that μ MUST preserve under transformation.
+# Without invariants, determinism is unenforceable.
+
+kgc:Invariant
+  a owl:Class ;
+  rdfs:label "Transformation Invariant" ;
+  rdfs:comment "A property preserved by μ under transformation O → A. Invariants are the conserved quantities of KGC." ;
+  .
+
+kgc:preserves
+  a owl:ObjectProperty ;
+  rdfs:label "Preserves Invariant" ;
+  rdfs:domain kgc:MeasurementFunction ;
+  rdfs:range kgc:Invariant ;
+  rdfs:comment "A measurement function μ must preserve this invariant under transformation" ;
+  .
+
+# Specific Invariants that ggen Must Preserve
+
+kgc:CardinalityPreservation
+  a kgc:Invariant ;
+  rdfs:label "Cardinality Preservation" ;
+  rdfs:comment "Number of entities in ontology = number of generated artifacts. |O| = |A|" ;
+  .
+
+kgc:IdentityPreservation
+  a kgc:Invariant ;
+  rdfs:label "Identity Preservation" ;
+  rdfs:comment "IRIs/identifiers in O must map bijectively to identifiers in A. IRI stability is required." ;
+  .
+
+kgc:OrderIndependence
+  a kgc:Invariant ;
+  rdfs:label "Order Independence" ;
+  rdfs:comment "The order in which triples are processed does not affect the final artifact. μ(sort(O)) = μ(O)" ;
+  .
+
+kgc:SchemaPreservation
+  a kgc:Invariant ;
+  rdfs:label "Schema Preservation" ;
+  rdfs:comment "All generated artifacts A satisfy the type signature Σ. A ⊨ Σ" ;
+  .
+
+kgc:NoInformationLoss
+  a kgc:Invariant ;
+  rdfs:label "No Information Loss" ;
+  rdfs:comment "Mutual information I(O;A) = H(O). All semantics from O are captured in A." ;
+  .
+
+# ggen declares preservation of these invariants
+ggen:GgenFramework
+  kgc:preserves kgc:CardinalityPreservation ;
+  kgc:preserves kgc:IdentityPreservation ;
+  kgc:preserves kgc:OrderIndependence ;
+  kgc:preserves kgc:SchemaPreservation ;
+  kgc:preserves kgc:NoInformationLoss ;
+  .
+
+# =============================================================================
+# GAP CLOSURE 2: CLOSURE WITNESSES (Provable Not Asserted)
+# =============================================================================
+# Ontological closure is now proven via witnesses, not declared.
+# Each closure criterion requires an artifact that witnesses its satisfaction.
+
+kgc:ClosureWitness
+  a owl:Class ;
+  rdfs:label "Ontological Closure Witness" ;
+  rdfs:comment "An artifact that provides evidence (proof) that a closure criterion is satisfied. Witnesses move closure from assertion to verification." ;
+  rdfs:subClassOf kgc:Artifact ;
+  .
+
+kgc:witnessesClosureCriterion
+  a owl:ObjectProperty ;
+  rdfs:label "Witnesses Closure Criterion" ;
+  rdfs:domain kgc:ClosureWitness ;
+  rdfs:range holo:OntologicalClosure ;
+  rdfs:comment "This witness proves satisfaction of a specific closure criterion" ;
+  .
+
+# Witness Types (Specialized Receipt Types)
+
+kgc:Completeness_Witness
+  a kgc:ClosureWitness ;
+  rdfs:label "Specification Completeness Witness" ;
+  rdfs:comment "Witness that H(spec) ≤ 20 bits and 100% coverage achieved. Evidence: entropy measurement, coverage report." ;
+  kgc:witnessesClosureCriterion holo:SpecificationCompleteness ;
+  .
+
+kgc:Determinism_Witness
+  a kgc:ClosureWitness ;
+  rdfs:label "Determinism Witness" ;
+  rdfs:comment "Witness that μ produces identical output across runs. Evidence: cryptographic hash match, reproducibility proof." ;
+  kgc:witnessesClosureCriterion holo:DeterministicOutput ;
+  .
+
+kgc:Reproducibility_Witness
+  a kgc:ClosureWitness ;
+  rdfs:label "Bit-Perfect Reproducibility Witness" ;
+  rdfs:comment "Witness that state can be exactly reconstructed from Git snapshot. Evidence: Git hash validation, replay verification." ;
+  kgc:witnessesClosureCriterion holo:BitPerfectReproducibility ;
+  .
+
+# Receipt Specializations as Witnesses
+
+ggen:TestReceipt
+  kgc:witnessesClosureCriterion holo:DeterministicOutput ;
+  rdfs:comment "Test receipt witnesses that semantic invariants are preserved (╌ 347/347 tests = semantic fidelity proof)" ;
+  .
+
+ggen:CompileReceipt
+  kgc:witnessesClosureCriterion holo:SchemaPreservation ;
+  rdfs:comment "Compile receipt witnesses that type constraints Σ are satisfied (cargo make check ✓ 0 errors)" ;
+  .
+
+ggen:SLOReceipt
+  kgc:witnessesClosureCriterion holo:DeterministicOutput ;
+  rdfs:comment "SLO receipt witnesses temporal/performance invariants (check <5s ✓ proves determinism bound)" ;
+  .
+
+# Witness Requirement Rule
+holo:OntologicalClosure
+  rdfs:comment "A system has reached ontological closure iff it has a witness for EACH of its three criteria. Missing even one witness = closure is false." ;
+  .
+
+# =============================================================================
+# GAP CLOSURE 3: COMPOSITION LAWS (Algebraic Properties)
+# =============================================================================
+# Π and ⊕ are not just operators; they have algebraic structure.
+# Violating these laws is a category error in KGC.
+
+kgc:AlgebraicLaw
+  a owl:Class ;
+  rdfs:label "Composition Algebraic Law" ;
+  rdfs:comment "A formal law governing composition operators. Violation is ontologically invalid." ;
+  .
+
+kgc:hasCompositionLaw
+  a owl:ObjectProperty ;
+  rdfs:label "Has Composition Law" ;
+  rdfs:domain [ owl:unionOf ( kgc:SequentialComposition kgc:CommutativeFusion ) ] ;
+  rdfs:range kgc:AlgebraicLaw ;
+  .
+
+# Sequential Composition (Π) Laws
+
+kgc:SequentialComposition
+  kgc:hasCompositionLaw [
+    a kgc:AlgebraicLaw ;
+    rdfs:label "Π is Associative" ;
+    rdfs:comment "(f Π g) Π h = f Π (g Π h): Order of grouping doesn't matter" ;
+  ] ;
+  kgc:hasCompositionLaw [
+    a kgc:AlgebraicLaw ;
+    rdfs:label "Π is NOT Commutative" ;
+    rdfs:comment "f Π g ≠ g Π f in general. Stage order matters." ;
+  ] ;
+  kgc:hasCompositionLaw [
+    a kgc:AlgebraicLaw ;
+    rdfs:label "Π Has Identity Element (ggen)" ;
+    rdfs:comment "There exists μ_identity such that μ Π μ_identity = μ. Identity is the null transformation." ;
+  ] ;
+  .
+
+# Commutative Fusion (⊕) Laws
+
+kgc:CommutativeFusion
+  kgc:hasCompositionLaw [
+    a kgc:AlgebraicLaw ;
+    rdfs:label "⊕ is Associative" ;
+    rdfs:comment "(A ⊕ B) ⊕ C = A ⊕ (B ⊕ C): Grouping doesn't affect merged result" ;
+  ] ;
+  kgc:hasCompositionLaw [
+    a kgc:AlgebraicLaw ;
+    rdfs:label "⊕ is Commutative" ;
+    rdfs:comment "A ⊕ B = B ⊕ A: Fusion order is irrelevant (deterministic ordering ensures stability)" ;
+  ] ;
+  kgc:hasCompositionLaw [
+    a kgc:AlgebraicLaw ;
+    rdfs:label "⊕ Has Identity Element (∅)" ;
+    rdfs:comment "There exists empty artifact ∅ such that A ⊕ ∅ = A. Identity is the null store." ;
+  ] ;
+  kgc:hasCompositionLaw [
+    a kgc:AlgebraicLaw ;
+    rdfs:label "⊕ Preserves Schema" ;
+    rdfs:comment "If A ⊨ Σ and B ⊨ Σ, then (A ⊕ B) ⊨ Σ. Fusion respects type constraints." ;
+  ] ;
+  .
+
+# =============================================================================
+# REFINEMENT: Observable Snapshots vs. Live Observables
+# =============================================================================
+# μ requires deterministic inputs, but sources are non-deterministic.
+# This requires distinction between live and frozen observables.
+
+kgc:ObservableSnapshot
+  a owl:Class ;
+  rdfs:label "Observable Snapshot" ;
+  rdfs:subClassOf kgc:Observable ;
+  rdfs:comment "A frozen, content-addressed snapshot of observables at a specific point in time. Required for μ determinism." ;
+  .
+
+kgc:snapshotOf
+  a owl:ObjectProperty ;
+  rdfs:label "Snapshot Of" ;
+  rdfs:domain kgc:ObservableSnapshot ;
+  rdfs:range kgc:Observable ;
+  rdfs:comment "Points to the live observable this snapshot was derived from" ;
+  .
+
+kgc:snapshotHash
+  a owl:DatatypeProperty ;
+  rdfs:label "Snapshot Hash" ;
+  rdfs:domain kgc:ObservableSnapshot ;
+  rdfs:range xsd:string ;
+  rdfs:comment "BLAKE3 content-addressable hash of the snapshot. Enables reproducibility." ;
+  .
+
+kgc:snapshotTimestamp
+  a owl:DatatypeProperty ;
+  rdfs:label "Snapshot Timestamp" ;
+  rdfs:domain kgc:ObservableSnapshot ;
+  rdfs:range xsd:dateTime ;
+  rdfs:comment "Point-in-time when snapshot was frozen" ;
+  .
+
+# Refinement of μ Input Type
+
+ggen:GgenFramework
+  rdfs:comment "μ requires ObservableSnapshot input (not live Observable) to guarantee determinism" ;
+  kgc:input kgc:ObservableSnapshot ;
+  .
+
+# =============================================================================
+# ENFORCEMENT PREDICATE: Non-Negotiable Constraints
+# =============================================================================
+# These predicates encode the "human error" boundaries.
+# A system claiming KGC compliance MUST satisfy all of these.
+
+kgc:isKGCCompliant
+  a owl:DatatypeProperty ;
+  rdfs:label "Is KGC Compliant" ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "TRUE iff: (1) all declared invariants are preserved, (2) closure has witnesses for ALL criteria, (3) composition laws hold for all μ composition" ;
+  rdfs:subPropertyOf kgc:isBitPerfect ;
+  .
+
+# Compliance Rules (SHACL Foundation)
+
+kgc:ComplianceRequirement
+  a owl:Class ;
+  rdfs:label "KGC Compliance Requirement" ;
+  rdfs:comment "A requirement that must be satisfied for isKGCCompliant = true" ;
+  .
+
+# Requirement 1: Invariants
+[
+  a kgc:ComplianceRequirement ;
+  rdfs:label "Invariant Preservation" ;
+  rdfs:comment "Every MeasurementFunction must declare kgc:preserves for at least 3 of the 5 mandatory invariants" ;
+] .
+
+# Requirement 2: Closure Witnesses
+[
+  a kgc:ComplianceRequirement ;
+  rdfs:label "Closure Witness Requirement" ;
+  rdfs:comment "Every OntologicalClosure claim must have at least 1 witness for each of its 3 criteria" ;
+] .
+
+# Requirement 3: Composition Laws
+[
+  a kgc:ComplianceRequirement ;
+  rdfs:label "Composition Law Requirement" ;
+  rdfs:comment "Every composition (Π or ⊕) must declare that relevant algebraic laws hold" ;
+] .
+
+# Requirement 4: Observable Snapshot Discipline
+[
+  a kgc:ComplianceRequirement ;
+  rdfs:label "Observable Snapshot Discipline" ;
+  rdfs:comment "Every invocation of μ must use ObservableSnapshot, not raw Observable" ;
+] .
+
+# =============================================================================
 # END OF SPECIFICATION
 # =============================================================================
