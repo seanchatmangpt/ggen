@@ -1,0 +1,149 @@
+# Generated Kubernetes Deployment Manifest
+# Container: {{ container_name }}
+# Technology: {{ technology }}
+# Generated: {{ now() | date(format="%Y-%m-%d %H:%M:%S") }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ container_name | snake_case }}
+  namespace: ggen-paas
+  labels:
+    app: {{ container_name | snake_case }}
+    managed-by: ggen-paas
+spec:
+  replicas: {{ replicas | default(value=3) }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: {{ container_name | snake_case }}
+  template:
+    metadata:
+      labels:
+        app: {{ container_name | snake_case }}
+        version: "1.0.0"
+    spec:
+      serviceAccountName: {{ container_name | snake_case }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+
+      containers:
+      - name: {{ container_name | snake_case }}
+        image: ggen/paas-{{ container_name | snake_case }}:latest
+        imagePullPolicy: Always
+
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        - name: metrics
+          containerPort: 9090
+          protocol: TCP
+
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        - name: LOG_LEVEL
+          value: "info"
+        - name: SERVICE_NAME
+          value: {{ container_name | snake_case }}
+
+        resources:
+          requests:
+            memory: {{ memory_request | default(value="256Mi") }}
+            cpu: {{ cpu_request | default(value="250m") }}
+          limits:
+            memory: {{ memory_limit | default(value="512Mi") }}
+            cpu: {{ cpu_limit | default(value="500m") }}
+
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2
+
+        volumeMounts:
+        - name: config
+          mountPath: /etc/config
+          readOnly: true
+        - name: tmp
+          mountPath: /tmp
+        - name: logs
+          mountPath: /var/log
+
+      volumes:
+      - name: config
+        configMap:
+          name: {{ container_name | snake_case }}-config
+          defaultMode: 0444
+      - name: tmp
+        emptyDir:
+          sizeLimit: 1Gi
+      - name: logs
+        emptyDir:
+          sizeLimit: 2Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ container_name | snake_case }}
+  namespace: ggen-paas
+  labels:
+    app: {{ container_name | snake_case }}
+    managed-by: ggen-paas
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    targetPort: http
+    protocol: TCP
+  - name: metrics
+    port: 9090
+    targetPort: metrics
+    protocol: TCP
+  selector:
+    app: {{ container_name | snake_case }}
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ container_name | snake_case }}
+  namespace: ggen-paas
+  labels:
+    app: {{ container_name | snake_case }}
+    managed-by: ggen-paas
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ container_name | snake_case }}-config
+  namespace: ggen-paas
+  labels:
+    app: {{ container_name | snake_case }}
+    managed-by: ggen-paas
+data:
+  service-name: "{{ container_name | snake_case }}"
+  description: "{{ description }}"
+  technology: "{{ technology }}"
