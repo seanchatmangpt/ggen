@@ -1,0 +1,28 @@
+#!/usr/bin/env node
+
+/**
+ * ggen-paas CLI Entry Point
+ *
+ * Command-line interface for ggen PaaS infrastructure management.
+ */
+
+import { CLIDispatcher } from '../lib/cli-dispatcher.js';
+
+async function main() {
+  const dispatcher = new CLIDispatcher({
+    verbose: process.argv.includes('-vvv'),
+    quiet: process.argv.includes('-q'),
+  });
+
+  // Get arguments: remove 'node' and script name
+  const argv = process.argv.slice(2);
+
+  try {
+    await dispatcher.dispatch(argv);
+  } catch (error) {
+    console.error(`Fatal error: ${error.message}`);
+    process.exit(1);
+  }
+}
+
+main();
