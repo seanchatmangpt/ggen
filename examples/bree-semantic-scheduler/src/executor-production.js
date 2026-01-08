@@ -23,8 +23,7 @@ import { Worker } from 'worker_threads';
 import { EventEmitter } from 'events';
 import path from 'path';
 import fs from 'fs';
-import { Parser, Store, Writer } from 'n3';
-import { newEngine } from 'comunica-sparql-stable';
+import { Parser, Store } from 'n3';
 
 /**
  * PRODUCTION CONSTANTS
@@ -302,11 +301,11 @@ export class ProductionBreeExecutor extends EventEmitter {
       for (const quad of store.match(null, rdfType, { termType: 'NamedNode', value: jobsURI })) {
         const jobIRI = quad.subject.value;
 
-        // Extract job properties
-        const nameQuads = store.match({ termType: 'NamedNode', value: jobIRI },
-                                       { termType: 'NamedNode', value: jobNameProp });
-        const pathQuads = store.match({ termType: 'NamedNode', value: jobIRI },
-                                       { termType: 'NamedNode', value: jobPathProp });
+        // Extract job properties (convert iterables to arrays)
+        const nameQuads = Array.from(store.match({ termType: 'NamedNode', value: jobIRI },
+                                                    { termType: 'NamedNode', value: jobNameProp }));
+        const pathQuads = Array.from(store.match({ termType: 'NamedNode', value: jobIRI },
+                                                   { termType: 'NamedNode', value: jobPathProp }));
 
         if (nameQuads.length === 0 || pathQuads.length === 0) {
           this.logger.warn(`[${trace.traceId}] Job ${jobIRI} missing required properties`);
@@ -319,45 +318,45 @@ export class ProductionBreeExecutor extends EventEmitter {
         // Extract timing configurations
         let timeout = null, interval = null, cron = null, date = null;
 
-        const timeoutQuads = store.match({ termType: 'NamedNode', value: jobIRI },
-                                          { termType: 'NamedNode', value: timeoutProp });
+        const timeoutQuads = Array.from(store.match({ termType: 'NamedNode', value: jobIRI },
+                                                      { termType: 'NamedNode', value: timeoutProp }));
         if (timeoutQuads.length > 0) {
           timeout = timeoutQuads[0].object.value;
         }
 
-        const intervalQuads = store.match({ termType: 'NamedNode', value: jobIRI },
-                                           { termType: 'NamedNode', value: intervalProp });
+        const intervalQuads = Array.from(store.match({ termType: 'NamedNode', value: jobIRI },
+                                                       { termType: 'NamedNode', value: intervalProp }));
         if (intervalQuads.length > 0) {
           interval = intervalQuads[0].object.value;
         }
 
-        const cronQuads = store.match({ termType: 'NamedNode', value: jobIRI },
-                                       { termType: 'NamedNode', value: cronProp });
+        const cronQuads = Array.from(store.match({ termType: 'NamedNode', value: jobIRI },
+                                                   { termType: 'NamedNode', value: cronProp }));
         if (cronQuads.length > 0) {
           cron = cronQuads[0].object.value;
         }
 
-        const dateQuads = store.match({ termType: 'NamedNode', value: jobIRI },
-                                       { termType: 'NamedNode', value: dateProp });
+        const dateQuads = Array.from(store.match({ termType: 'NamedNode', value: jobIRI },
+                                                   { termType: 'NamedNode', value: dateProp }));
         if (dateQuads.length > 0) {
           date = dateQuads[0].object.value;
         }
 
         // Extract optional properties
-        const closeWorkerQuads = store.match({ termType: 'NamedNode', value: jobIRI },
-                                              { termType: 'NamedNode', value: closeWorkerProp });
+        const closeWorkerQuads = Array.from(store.match({ termType: 'NamedNode', value: jobIRI },
+                                                          { termType: 'NamedNode', value: closeWorkerProp }));
         const closeWorkerAfterMs = closeWorkerQuads.length > 0
           ? parseInt(closeWorkerQuads[0].object.value)
           : LIMITS.DEFAULT_TIMEOUT_MS;
 
-        const outputMetadataQuads = store.match({ termType: 'NamedNode', value: jobIRI },
-                                                  { termType: 'NamedNode', value: outputMetadataProp });
+        const outputMetadataQuads = Array.from(store.match({ termType: 'NamedNode', value: jobIRI },
+                                                             { termType: 'NamedNode', value: outputMetadataProp }));
         const outputWorkerMetadata = outputMetadataQuads.length > 0
           ? outputMetadataQuads[0].object.value === 'true'
           : false;
 
-        const runOnStartQuads = store.match({ termType: 'NamedNode', value: jobIRI },
-                                             { termType: 'NamedNode', value: runOnStartProp });
+        const runOnStartQuads = Array.from(store.match({ termType: 'NamedNode', value: jobIRI },
+                                                         { termType: 'NamedNode', value: runOnStartProp }));
         const runOnStart = runOnStartQuads.length > 0
           ? runOnStartQuads[0].object.value === 'true'
           : false;
@@ -411,10 +410,7 @@ export class ProductionBreeExecutor extends EventEmitter {
     }
 
     try {
-      // Create Comunica engine with the store
-      const engine = newEngine();
-
-      // Execute SELECT query to extract configs
+      // Execute pattern matching on RDF store to extract configs
       // In this implementation, we'll manually process the RDF to extract normalized configs
       const result = {
         jobConfigs: [],
@@ -439,8 +435,8 @@ export class ProductionBreeExecutor extends EventEmitter {
       // Process MS intervals
       for (const quad of store.match(null, rdfType, { termType: 'NamedNode', value: msIntervalType })) {
         const intervalIRI = quad.subject.value;
-        const msQuads = store.match({ termType: 'NamedNode', value: intervalIRI },
-                                     { termType: 'NamedNode', value: millisecondsProp });
+        const msQuads = Array.from(store.match({ termType: 'NamedNode', value: intervalIRI },
+                                                 { termType: 'NamedNode', value: millisecondsProp }));
         if (msQuads.length > 0) {
           result.intervals[intervalIRI] = {
             type: 'milliseconds',
@@ -453,10 +449,10 @@ export class ProductionBreeExecutor extends EventEmitter {
       // Process human intervals
       for (const quad of store.match(null, rdfType, { termType: 'NamedNode', value: humanIntervalType })) {
         const intervalIRI = quad.subject.value;
-        const humanQuads = store.match({ termType: 'NamedNode', value: intervalIRI },
-                                        { termType: 'NamedNode', value: humanExprProp });
-        const msQuads = store.match({ termType: 'NamedNode', value: intervalIRI },
-                                     { termType: 'NamedNode', value: millisecondsProp });
+        const humanQuads = Array.from(store.match({ termType: 'NamedNode', value: intervalIRI },
+                                                    { termType: 'NamedNode', value: humanExprProp }));
+        const msQuads = Array.from(store.match({ termType: 'NamedNode', value: intervalIRI },
+                                                 { termType: 'NamedNode', value: millisecondsProp }));
         if (humanQuads.length > 0 && msQuads.length > 0) {
           result.intervals[intervalIRI] = {
             type: 'human-interval',
@@ -469,8 +465,8 @@ export class ProductionBreeExecutor extends EventEmitter {
       // Process cron expressions
       for (const quad of store.match(null, rdfType, { termType: 'NamedNode', value: cronType })) {
         const cronIRI = quad.subject.value;
-        const cronQuads = store.match({ termType: 'NamedNode', value: cronIRI },
-                                       { termType: 'NamedNode', value: cronExprProp });
+        const cronQuads = Array.from(store.match({ termType: 'NamedNode', value: cronIRI },
+                                                   { termType: 'NamedNode', value: cronExprProp }));
         if (cronQuads.length > 0) {
           result.intervals[cronIRI] = {
             type: 'cron',
@@ -483,8 +479,8 @@ export class ProductionBreeExecutor extends EventEmitter {
       // Process date schedules
       for (const quad of store.match(null, rdfType, { termType: 'NamedNode', value: dateType })) {
         const dateIRI = quad.subject.value;
-        const dateQuads = store.match({ termType: 'NamedNode', value: dateIRI },
-                                       { termType: 'NamedNode', value: scheduleeDateProp });
+        const dateQuads = Array.from(store.match({ termType: 'NamedNode', value: dateIRI },
+                                                   { termType: 'NamedNode', value: scheduleeDateProp }));
         if (dateQuads.length > 0) {
           result.intervals[dateIRI] = {
             type: 'date',
