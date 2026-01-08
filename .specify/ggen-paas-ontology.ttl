@@ -1,0 +1,594 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix kgc: <http://ggen.org/kgc#> .
+@prefix ggen: <http://ggen.org/ggen#> .
+@prefix holo: <http://ggen.org/holographic#> .
+@prefix paas: <http://ggen.org/paas#> .
+@prefix arch: <http://ggen.org/architecture#> .
+@prefix comp: <http://ggen.org/component#> .
+@prefix deploy: <http://ggen.org/deployment#> .
+
+# =============================================================================
+# GGEN PAAS - ONTOLOGY FOR PLATFORM-AS-A-SERVICE ARCHITECTURE
+# =============================================================================
+# Formal specification of the ggen PaaS system architecture, components,
+# containers, and deployment topology using semantic web standards.
+# This ontology drives all infrastructure code generation and documentation.
+# =============================================================================
+
+<http://ggen.org/paas-ontology>
+  a owl:Ontology ;
+  rdfs:label "ggen PaaS Ontology" ;
+  rdfs:comment "Source of truth for PaaS architecture. Defines system components, containers, deployment topology, and integration points." ;
+  owl:versionInfo "1.0.0" ;
+  .
+
+# =============================================================================
+# CORE CONCEPTS
+# =============================================================================
+
+paas:PaaS
+  a owl:Class ;
+  rdfs:label "Platform-as-a-Service" ;
+  rdfs:comment "A cloud platform providing code generation and semantic computing services" ;
+  .
+
+paas:System
+  a owl:Class ;
+  rdfs:label "System" ;
+  rdfs:comment "A top-level system in the architecture" ;
+  .
+
+paas:Container
+  a owl:Class ;
+  rdfs:label "Container" ;
+  rdfs:comment "A deployable unit with a specific responsibility" ;
+  .
+
+paas:Component
+  a owl:Class ;
+  rdfs:label "Component" ;
+  rdfs:comment "Internal part of a container" ;
+  .
+
+paas:Actor
+  a owl:Class ;
+  rdfs:label "Actor" ;
+  rdfs:comment "A person or external system that interacts with the PaaS" ;
+  .
+
+paas:DataStore
+  a owl:Class ;
+  rdfs:label "Data Store" ;
+  rdfs:comment "A persistent storage system" ;
+  .
+
+# =============================================================================
+# PROPERTIES
+# =============================================================================
+
+paas:hasTechnology
+  a owl:DatatypeProperty ;
+  rdfs:label "has technology" ;
+  rdfs:domain paas:Container ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Technology or programming language used in this container" ;
+  .
+
+paas:hasDescription
+  a owl:DatatypeProperty ;
+  rdfs:label "has description" ;
+  rdfs:domain paas:Container ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Description of container responsibilities" ;
+  .
+
+paas:hasComponent
+  a owl:ObjectProperty ;
+  rdfs:label "has component" ;
+  rdfs:domain paas:Container ;
+  rdfs:range paas:Component ;
+  rdfs:comment "Components that make up this container" ;
+  .
+
+paas:communicatesWith
+  a owl:ObjectProperty ;
+  rdfs:label "communicates with" ;
+  rdfs:domain paas:Container ;
+  rdfs:range paas:Container ;
+  rdfs:comment "This container communicates with another container" ;
+  .
+
+paas:usesDataStore
+  a owl:ObjectProperty ;
+  rdfs:label "uses data store" ;
+  rdfs:domain paas:Container ;
+  rdfs:range paas:DataStore ;
+  rdfs:comment "This container reads/writes to a data store" ;
+  .
+
+paas:hasSLA
+  a owl:ObjectProperty ;
+  rdfs:label "has SLA" ;
+  rdfs:domain paas:Container ;
+  rdfs:range paas:SLA ;
+  rdfs:comment "Service level agreement for this container" ;
+  .
+
+# =============================================================================
+# SLA - SERVICE LEVEL AGREEMENTS
+# =============================================================================
+
+paas:SLA
+  a owl:Class ;
+  rdfs:label "Service Level Agreement" ;
+  rdfs:comment "Performance and availability targets" ;
+  .
+
+paas:responseTimeMs
+  a owl:DatatypeProperty ;
+  rdfs:label "response time (ms)" ;
+  rdfs:domain paas:SLA ;
+  rdfs:range xsd:integer ;
+  .
+
+paas:availabilityPercent
+  a owl:DatatypeProperty ;
+  rdfs:label "availability (%)" ;
+  rdfs:domain paas:SLA ;
+  rdfs:range xsd:decimal ;
+  .
+
+# =============================================================================
+# SYSTEM CONTEXT (C1) - ACTORS AND EXTERNAL SYSTEMS
+# =============================================================================
+
+paas:DevelopmentTeam
+  a paas:Actor ;
+  rdfs:label "Development Team" ;
+  rdfs:comment "Uses ggen PaaS to generate code from RDF specifications" ;
+  .
+
+paas:PlatformAdmin
+  a paas:Actor ;
+  rdfs:label "Platform Admin" ;
+  rdfs:comment "Deploys and maintains ggen PaaS infrastructure" ;
+  .
+
+paas:ggenPaaS
+  a paas:System ;
+  rdfs:label "ggen PaaS" ;
+  rdfs:comment "Semantic code generation platform powered by RDF, SPARQL, and Tera templates" ;
+  .
+
+paas:RDFStore
+  a paas:System ;
+  rdfs:label "RDF Store (Oxigraph)" ;
+  rdfs:comment "Persistent RDF triple store for specifications" ;
+  paas:hasTechnology "Oxigraph 0.5.1" ;
+  .
+
+paas:GitRepository
+  a paas:System ;
+  rdfs:label "Git Repository" ;
+  rdfs:comment "Version control for generated code and specifications" ;
+  paas:hasTechnology "GitHub" ;
+  .
+
+paas:PackageRegistry
+  a paas:System ;
+  rdfs:label "Package Registry" ;
+  rdfs:comment "Distribution of generated packages" ;
+  paas:hasTechnology "Cargo, npm" ;
+  .
+
+paas:CIPipeline
+  a paas:System ;
+  rdfs:label "CI/CD Pipeline" ;
+  rdfs:comment "Automated testing and deployment" ;
+  paas:hasTechnology "GitHub Actions" ;
+  .
+
+# =============================================================================
+# CONTAINERS (C2)
+# =============================================================================
+
+# Frontend Layer
+
+paas:WebUIContainer
+  a paas:Container ;
+  rdfs:label "Web UI" ;
+  paas:hasTechnology "TypeScript/React" ;
+  paas:hasDescription "Interactive spec editor and code generation dashboard" ;
+  paas:communicatesWith paas:APIGatewayContainer ;
+  paas:hasSLA paas:WebUISLA ;
+  .
+
+paas:WebUISLA
+  a paas:SLA ;
+  paas:responseTimeMs 200 ;
+  paas:availabilityPercent "99.5" ;
+  .
+
+# API & Authentication Layer
+
+paas:APIGatewayContainer
+  a paas:Container ;
+  rdfs:label "API Gateway" ;
+  paas:hasTechnology "Rust (Axum)" ;
+  paas:hasDescription "REST API for spec management and code generation" ;
+  paas:communicatesWith paas:AuthServiceContainer ;
+  paas:communicatesWith paas:ggenEngineContainer ;
+  paas:communicatesWith paas:CacheDataStore ;
+  paas:hasSLA paas:APIGatewaySLA ;
+  .
+
+paas:APIGatewaySLA
+  a paas:SLA ;
+  paas:responseTimeMs 500 ;
+  paas:availabilityPercent "99.9" ;
+  .
+
+paas:AuthServiceContainer
+  a paas:Container ;
+  rdfs:label "Auth Service" ;
+  paas:hasTechnology "Rust (JWT/OAuth2)" ;
+  paas:hasDescription "User authentication and authorization" ;
+  paas:hasSLA paas:AuthServiceSLA ;
+  .
+
+paas:AuthServiceSLA
+  a paas:SLA ;
+  paas:responseTimeMs 100 ;
+  paas:availabilityPercent "99.99" ;
+  .
+
+# Core Generation Engine
+
+paas:ggenEngineContainer
+  a paas:Container ;
+  rdfs:label "ggen Engine" ;
+  paas:hasTechnology "Rust" ;
+  paas:hasDescription "Core code generation pipeline orchestration" ;
+  paas:hasComponent paas:RDFProcessorComponent ;
+  paas:hasComponent paas:SPARQLEngineComponent ;
+  paas:hasComponent paas:TemplateEngineComponent ;
+  paas:hasComponent paas:CodeGeneratorComponent ;
+  paas:communicatesWith paas:JobSchedulerContainer ;
+  paas:usesDataStore paas:SpecificationStore ;
+  paas:usesDataStore paas:MetadataDB ;
+  paas:hasSLA paas:ggenEngineSLA ;
+  .
+
+paas:ggenEngineSLA
+  a paas:SLA ;
+  paas:responseTimeMs 5000 ;
+  paas:availabilityPercent "99.9" ;
+  .
+
+paas:RDFProcessorContainer
+  a paas:Container ;
+  rdfs:label "RDF Processor" ;
+  paas:hasTechnology "Rust (oxigraph)" ;
+  paas:hasDescription "Parse, validate, and query RDF specifications" ;
+  paas:usesDataStore paas:SpecificationStore ;
+  .
+
+paas:SPARQLEngineContainer
+  a paas:Container ;
+  rdfs:label "SPARQL Engine" ;
+  paas:hasTechnology "Rust (oxigraph)" ;
+  paas:hasDescription "Execute CONSTRUCT patterns for data extraction" ;
+  .
+
+paas:TemplateEngineContainer
+  a paas:Container ;
+  rdfs:label "Template Engine" ;
+  paas:hasTechnology "Rust (Tera)" ;
+  paas:hasDescription "Render templates with extracted data" ;
+  .
+
+paas:CodeGeneratorContainer
+  a paas:Container ;
+  rdfs:label "Code Generator" ;
+  paas:hasTechnology "Rust" ;
+  paas:hasDescription "Output validation and formatting" ;
+  paas:communicatesWith paas:GitIntegration ;
+  paas:communicatesWith paas:RegistryIntegration ;
+  .
+
+# Background Processing
+
+paas:JobSchedulerContainer
+  a paas:Container ;
+  rdfs:label "Job Scheduler" ;
+  paas:hasTechnology "Bree (Node.js)" ;
+  paas:hasDescription "Background code generation jobs and task orchestration" ;
+  paas:usesDataStore paas:CacheDataStore ;
+  paas:communicatesWith paas:NotificationServiceContainer ;
+  paas:hasSLA paas:JobSchedulerSLA ;
+  .
+
+paas:JobSchedulerSLA
+  a paas:SLA ;
+  paas:responseTimeMs 10000 ;
+  paas:availabilityPercent "99.5" ;
+  .
+
+paas:NotificationServiceContainer
+  a paas:Container ;
+  rdfs:label "Notification Service" ;
+  paas:hasTechnology "Node.js" ;
+  paas:hasDescription "Event notifications and webhooks" ;
+  paas:communicatesWith paas:WebUIContainer ;
+  .
+
+# External Integrations
+
+paas:GitIntegration
+  a paas:Container ;
+  rdfs:label "Git Integration" ;
+  paas:hasTechnology "GitHub API" ;
+  paas:hasDescription "Commit and push generated code" ;
+  paas:communicatesWith paas:GitRepository ;
+  .
+
+paas:RegistryIntegration
+  a paas:Container ;
+  rdfs:label "Registry Integration" ;
+  paas:hasTechnology "Cargo/npm API" ;
+  paas:hasDescription "Publish generated packages" ;
+  paas:communicatesWith paas:PackageRegistry ;
+  .
+
+# =============================================================================
+# COMPONENTS (C3)
+# =============================================================================
+
+paas:RDFProcessorComponent
+  a paas:Component ;
+  rdfs:label "RDF Processor Component" ;
+  rdfs:comment "Parses and validates RDF/Turtle specifications" ;
+  .
+
+paas:SPARQLEngineComponent
+  a paas:Component ;
+  rdfs:label "SPARQL Engine Component" ;
+  rdfs:comment "Executes CONSTRUCT patterns for data extraction" ;
+  .
+
+paas:TemplateEngineComponent
+  a paas:Component ;
+  rdfs:label "Template Engine Component" ;
+  rdfs:comment "Renders Tera templates with extracted data" ;
+  .
+
+paas:CodeGeneratorComponent
+  a paas:Component ;
+  rdfs:label "Code Generator Component" ;
+  rdfs:comment "Validates and formats generated code" ;
+  .
+
+# =============================================================================
+# DATA STORES (Storage)
+# =============================================================================
+
+paas:SpecificationStore
+  a paas:DataStore ;
+  rdfs:label "Specification Store" ;
+  paas:hasTechnology "Oxigraph RDF Store" ;
+  paas:hasDescription "RDF ontologies and job specifications" ;
+  .
+
+paas:MetadataDB
+  a paas:DataStore ;
+  rdfs:label "Metadata DB" ;
+  paas:hasTechnology "PostgreSQL" ;
+  paas:hasDescription "User accounts, projects, audit logs" ;
+  .
+
+paas:CacheDataStore
+  a paas:DataStore ;
+  rdfs:label "Cache" ;
+  paas:hasTechnology "Redis" ;
+  paas:hasDescription "Generated code cache and session storage" ;
+  .
+
+paas:DynamoDBDataStore
+  a paas:DataStore ;
+  rdfs:label "NoSQL Store" ;
+  paas:hasTechnology "DynamoDB" ;
+  paas:hasDescription "RDF graph cache and session data" ;
+  .
+
+paas:NeptuneGraphDB
+  a paas:DataStore ;
+  rdfs:label "Graph Database" ;
+  paas:hasTechnology "Neptune" ;
+  paas:hasDescription "Oxigraph backend for RDF triple store" ;
+  .
+
+paas:ObjectStorage
+  a paas:DataStore ;
+  rdfs:label "Object Storage" ;
+  paas:hasTechnology "S3" ;
+  paas:hasDescription "Generated code artifacts and templates" ;
+  .
+
+paas:MessageQueue
+  a paas:DataStore ;
+  rdfs:label "Message Queue" ;
+  paas:hasTechnology "SQS" ;
+  paas:hasDescription "Async job tasks and distribution" ;
+  .
+
+# =============================================================================
+# DEPLOYMENT (C4)
+# =============================================================================
+
+deploy:DeploymentNode
+  a owl:Class ;
+  rdfs:label "Deployment Node" ;
+  rdfs:comment "Physical or virtual infrastructure node" ;
+  .
+
+deploy:AWSCloud
+  a deploy:DeploymentNode ;
+  rdfs:label "AWS Cloud" ;
+  paas:hasTechnology "AWS" ;
+  .
+
+deploy:LoadBalancer
+  a deploy:DeploymentNode ;
+  rdfs:label "Load Balancer" ;
+  paas:hasTechnology "ALB" ;
+  .
+
+deploy:ApplicationTier
+  a deploy:DeploymentNode ;
+  rdfs:label "Application Tier (ECS)" ;
+  paas:hasTechnology "ECS Cluster" ;
+  rdfs:comment "Containerized API and Web services" ;
+  .
+
+deploy:WorkerTier
+  a deploy:DeploymentNode ;
+  rdfs:label "Worker Tier (ECS)" ;
+  paas:hasTechnology "ECS Cluster" ;
+  rdfs:comment "Async job processors and schedulers" ;
+  .
+
+deploy:DataTier
+  a deploy:DeploymentNode ;
+  rdfs:label "Data Tier" ;
+  paas:hasTechnology "RDS, DynamoDB, ElastiCache, Neptune" ;
+  rdfs:comment "All persistent data stores" ;
+  .
+
+deploy:CloudFrontCDN
+  a deploy:DeploymentNode ;
+  rdfs:label "CDN" ;
+  paas:hasTechnology "CloudFront" ;
+  rdfs:comment "Global content delivery network" ;
+  .
+
+# =============================================================================
+# GENERATION PATTERNS
+# =============================================================================
+
+paas:ContainerDocumentationPattern
+  a owl:Class ;
+  rdfs:label "Container Documentation Pattern" ;
+  rdfs:comment "Generate container documentation from this ontology" ;
+  .
+
+paas:APISpecificationPattern
+  a owl:Class ;
+  rdfs:label "API Specification Pattern" ;
+  rdfs:comment "Generate OpenAPI 3.0 specifications from containers" ;
+  .
+
+paas:DeploymentScriptPattern
+  a owl:Class ;
+  rdfs:label "Deployment Script Pattern" ;
+  rdfs:comment "Generate Terraform/CloudFormation IaC from deployment nodes" ;
+  .
+
+paas:ArchitectureDiagramPattern
+  a owl:Class ;
+  rdfs:label "Architecture Diagram Pattern" ;
+  rdfs:comment "Generate C4 PlantUML diagrams from ontology" ;
+  .
+
+# =============================================================================
+# SPECIFICATION CLOSURE VALIDATION
+# =============================================================================
+
+paas:SpecificationClosure
+  a owl:Class ;
+  rdfs:label "Specification Closure" ;
+  rdfs:comment "Ensures all system components are specified and verifiable" ;
+  .
+
+paas:requiresAllContainersDefined
+  a owl:Restriction ;
+  rdfs:comment "All containers referenced must be defined with technology, description, and SLA" ;
+  .
+
+paas:requiresAllDataStoresDefined
+  a owl:Restriction ;
+  rdfs:comment "All data stores must specify technology and purpose" ;
+  .
+
+paas:requiresAllCommunicationDefined
+  a owl:Restriction ;
+  rdfs:comment "All container-to-container communication must be explicitly declared" ;
+  .
+
+# =============================================================================
+# INSTANCE DATA - ggen PaaS ARCHITECTURE
+# =============================================================================
+# This section instantiates the architecture as defined in the C4 models
+
+:GgenPaasInstance
+  a paas:PaaS ;
+  rdfs:label "ggen PaaS (Production Instance)" ;
+  paas:hasTechnology "Rust, Node.js, React, AWS" ;
+  paas:hasDescription "Ontology-driven code generation platform" ;
+  .
+
+:DevelopmentTeamInstance
+  a paas:DevelopmentTeam ;
+  rdfs:comment "Teams using ggen PaaS to generate code" ;
+  .
+
+:PlatformAdminInstance
+  a paas:PlatformAdmin ;
+  rdfs:comment "Teams managing ggen PaaS infrastructure" ;
+  .
+
+# Container Instances
+:WebUI
+  a paas:Container ;
+  rdfs:label "Web UI (Production)" ;
+  rdfs:seeAlso paas:WebUIContainer ;
+  .
+
+:APIGateway
+  a paas:Container ;
+  rdfs:label "API Gateway (Production)" ;
+  rdfs:seeAlso paas:APIGatewayContainer ;
+  .
+
+:ggenEngine
+  a paas:Container ;
+  rdfs:label "ggen Engine (Production)" ;
+  rdfs:seeAlso paas:ggenEngineContainer ;
+  .
+
+:JobScheduler
+  a paas:Container ;
+  rdfs:label "Job Scheduler (Production)" ;
+  rdfs:seeAlso paas:JobSchedulerContainer ;
+  .
+
+# Data Store Instances
+:PostgreSQL
+  a paas:DataStore ;
+  rdfs:label "PostgreSQL Cluster (Production)" ;
+  rdfs:seeAlso paas:MetadataDB ;
+  .
+
+:Redis
+  a paas:DataStore ;
+  rdfs:label "Redis Cluster (Production)" ;
+  rdfs:seeAlso paas:CacheDataStore ;
+  .
+
+:Oxigraph
+  a paas:DataStore ;
+  rdfs:label "Oxigraph RDF Store (Production)" ;
+  rdfs:seeAlso paas:SpecificationStore ;
+  .

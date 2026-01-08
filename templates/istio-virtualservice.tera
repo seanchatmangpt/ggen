@@ -1,0 +1,131 @@
+# Istio VirtualService for ggen PaaS
+# Generated from: ggen-paas-ontology.ttl
+# Generated: {{ now() | date(format="%Y-%m-%d %H:%M:%S") }}
+# Source: {{ from_container }} -> {{ to_container }}
+
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ to_container | snake_case }}-vs
+  namespace: ggen-paas
+  labels:
+    app: {{ to_container | snake_case }}
+    managed-by: ggen-paas
+spec:
+  hosts:
+  - {{ to_container | snake_case }}
+  - {{ to_container | snake_case }}.ggen-paas
+  - {{ to_container | snake_case }}.ggen-paas.svc.cluster.local
+
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: {{ to_container | snake_case }}
+        port:
+          number: 80
+      weight: 100
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+    corsPolicy:
+      allowOrigins:
+      - exact: "http://localhost:3000"
+      - exact: "https://*.ggen.io"
+      allowMethods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - OPTIONS
+      allowHeaders:
+      - Content-Type
+      - Authorization
+      maxAge: "24h"
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: {{ to_container | snake_case }}-dr
+  namespace: ggen-paas
+  labels:
+    app: {{ to_container | snake_case }}
+    managed-by: ggen-paas
+spec:
+  host: {{ to_container | snake_case }}
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 100
+        maxRequestsPerConnection: 2
+        h2UpgradePolicy: UPGRADE
+    loadBalancer:
+      simple: ROUND_ROBIN
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+      minRequestVolume: 10
+      splitExternalLocalOriginErrors: true
+
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+  - name: canary
+    labels:
+      version: canary
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: {{ from_container | snake_case }}-to-{{ to_container | snake_case }}-authn
+  namespace: ggen-paas
+spec:
+  jwtRules:
+  - issuer: "https://auth.ggen.io"
+    jwksUri: "https://auth.ggen.io/.well-known/jwks.json"
+    audiences: "ggen-paas-api"
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ from_container | snake_case }}-to-{{ to_container | snake_case }}-authz
+  namespace: ggen-paas
+spec:
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/ggen-paas/sa/{{ from_container | snake_case }}"]
+    to:
+    - operation:
+        methods: ["GET", "POST", "PUT", "DELETE"]
+        ports: ["8080"]
+
+---
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: {{ from_container | snake_case }}-to-{{ to_container | snake_case }}-telemetry
+  namespace: ggen-paas
+spec:
+  metrics:
+  - providers:
+    - name: prometheus
+    dimensions:
+    - request_path
+    - response_code
+    - grpc_method
+  tracing:
+  - providers:
+    - name: jaeger
+    randomSamplingPercentage: 100.0

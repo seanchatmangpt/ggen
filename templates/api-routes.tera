@@ -1,0 +1,140 @@
+# API Gateway Routes Configuration
+# Generated from: ggen-paas-ontology.ttl
+# Generated: {{ now() | date(format="%Y-%m-%d %H:%M:%S") }}
+
+api_gateway:
+  version: "1.0.0"
+  description: "API Gateway routing configuration for ggen PaaS"
+
+  routes:
+    # Web UI
+    - path: /
+      method: GET
+      target: web-ui:3000
+      name: root
+      description: "Serve Web UI"
+      rate_limit: 1000/minute
+
+    # API Routes
+    - path: /api/v1/specs
+      method: [GET, POST]
+      target: api-gateway:3001
+      name: specs
+      description: "Specification management"
+      auth_required: true
+      rate_limit: 100/minute
+
+    - path: /api/v1/generate
+      method: POST
+      target: api-gateway:3001
+      name: generate
+      description: "Trigger code generation"
+      auth_required: true
+      rate_limit: 50/minute
+      timeout: 60000
+
+    - path: /api/v1/jobs
+      method: [GET, POST]
+      target: job-scheduler:3003
+      name: jobs
+      description: "Job management"
+      auth_required: true
+      rate_limit: 100/minute
+
+    - path: /api/v1/jobs/:id
+      method: [GET, PUT, DELETE]
+      target: job-scheduler:3003
+      name: job-detail
+      description: "Individual job operations"
+      auth_required: true
+      rate_limit: 200/minute
+
+    - path: /api/v1/auth/login
+      method: POST
+      target: auth-service:3002
+      name: login
+      description: "User authentication"
+      auth_required: false
+      rate_limit: 10/minute
+
+    - path: /api/v1/auth/logout
+      method: POST
+      target: auth-service:3002
+      name: logout
+      description: "User logout"
+      auth_required: true
+      rate_limit: 100/minute
+
+    - path: /api/v1/health
+      method: GET
+      target: api-gateway:3001
+      name: health
+      description: "Health check endpoint"
+      auth_required: false
+      rate_limit: unlimited
+
+    # Health and Metrics
+    - path: /health
+      method: GET
+      target: api-gateway:3001
+      name: health-basic
+      description: "Basic health check"
+      auth_required: false
+      rate_limit: unlimited
+
+    - path: /metrics
+      method: GET
+      target: api-gateway:3001
+      name: metrics
+      description: "Prometheus metrics"
+      auth_required: false
+      rate_limit: 100/minute
+
+  middleware:
+    - type: cors
+      allowed_origins:
+        - "http://localhost:3000"
+        - "https://*.ggen.io"
+      allowed_methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+      allowed_headers: ["Content-Type", "Authorization"]
+
+    - type: rate_limiting
+      global_limit: 10000/minute
+      per_ip_limit: 1000/minute
+
+    - type: authentication
+      strategy: jwt
+      secret_env: JWT_SECRET
+      algorithms: ["HS256"]
+      exclude_paths:
+        - /api/v1/auth/login
+        - /health
+        - /metrics
+
+    - type: request_logging
+      include_headers: false
+      include_body: false
+      exclude_paths:
+        - /health
+        - /metrics
+
+    - type: response_compression
+      enabled: true
+      min_size: 1024
+
+  error_handlers:
+    - status_code: 401
+      message: "Unauthorized - please authenticate"
+
+    - status_code: 403
+      message: "Forbidden - insufficient permissions"
+
+    - status_code: 404
+      message: "Not found - endpoint does not exist"
+
+    - status_code: 429
+      message: "Too many requests - rate limit exceeded"
+
+    - status_code: 500
+      message: "Internal server error"
+      retry: true
