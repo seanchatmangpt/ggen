@@ -1,0 +1,49 @@
+@startuml C2_Containers
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+
+title ggen PaaS - Container Diagram (C2)
+caption High-level system architecture and major components
+
+Person(user, "Developer")
+
+Container(web_ui, "Web UI", "TypeScript/React", "Interactive spec editor and code generation dashboard")
+Container(api_gateway, "API Gateway", "Rust (Axum)", "REST API for spec management and code generation")
+Container(auth_service, "Auth Service", "Rust (JWT/OAuth2)", "User authentication and authorization")
+
+Container(ggen_engine, "ggen Engine", "Rust", "Core code generation pipeline")
+Container(rdf_processor, "RDF Processor", "Rust (oxigraph)", "Parse, validate, and query RDF specs")
+Container(sparql_engine, "SPARQL Engine", "Rust (oxigraph)", "Execute CONSTRUCT patterns for data extraction")
+Container(template_engine, "Template Engine", "Rust (Tera)", "Render templates with extracted data")
+Container(code_generator, "Code Generator", "Rust", "Output validation and formatting")
+
+Container(job_scheduler, "Job Scheduler", "Bree (Node.js)", "Background code generation jobs")
+Container(notification_service, "Notification Service", "Node.js", "Event notifications and webhooks")
+
+ContainerDb(spec_store, "Specification Store", "Oxigraph RDF Store", "RDF ontologies and job specifications")
+ContainerDb(metadata_db, "Metadata DB", "PostgreSQL", "User accounts, projects, audit logs")
+ContainerDb(cache, "Cache", "Redis", "Generated code cache, session storage")
+
+Container_Ext(git_integration, "Git Integration", "GitHub API", "Commit and push generated code")
+Container_Ext(registry_integration, "Registry Integration", "Cargo/npm API", "Publish generated packages")
+
+Rel(user, web_ui, "Accesses specs and triggers generation")
+Rel(web_ui, api_gateway, "HTTPS")
+Rel(api_gateway, auth_service, "Validates tokens")
+Rel(api_gateway, ggen_engine, "Orchestrates generation")
+
+Rel(ggen_engine, rdf_processor, "Parses specs")
+Rel(rdf_processor, sparql_engine, "Queries with SPARQL")
+Rel(sparql_engine, template_engine, "Provides extracted data")
+Rel(template_engine, code_generator, "Renders templates")
+
+Rel(ggen_engine, job_scheduler, "Queues jobs")
+Rel(job_scheduler, notification_service, "Emits events")
+Rel(code_generator, git_integration, "Commits code")
+Rel(code_generator, registry_integration, "Publishes packages")
+
+Rel(rdf_processor, spec_store, "Stores/queries specs")
+Rel(ggen_engine, metadata_db, "Reads/writes metadata")
+Rel(api_gateway, cache, "Caches results")
+
+SHOW_LEGEND()
+@enduml
