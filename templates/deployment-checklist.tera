@@ -1,0 +1,164 @@
+# ggen PaaS Deployment Checklist
+
+**Generated**: {{ now() | date(format="%Y-%m-%d %H:%M:%S") }}
+
+## Pre-Deployment Validation
+
+- [ ] All containers have SLA definitions
+- [ ] All containers have resource requests/limits
+- [ ] All containers have health checks configured
+- [ ] All communication paths are documented
+- [ ] All data stores are properly configured
+- [ ] Security groups allow required traffic
+- [ ] TLS certificates are valid
+- [ ] Database backups are tested
+
+## Container Deployment Checklist
+
+{% for container in containers | sort(attribute="container_name") %}
+### {{ container.container_name }}
+
+**SLA**: {{ container.sla_response_time }}ms response, {{ container.sla_availability }}% availability
+
+- [ ] Docker image builds successfully
+- [ ] Image passes security scanning
+- [ ] Health check endpoint responds
+- [ ] Memory limits: {{ container.memory_limit | default(value="512Mi") }}
+- [ ] CPU limits: {{ container.cpu_limit | default(value="500m") }}
+- [ ] Environment variables are set
+- [ ] Database migrations complete (if applicable)
+- [ ] Cache is warm
+- [ ] Logs are being collected
+- [ ] Metrics are being exported
+- [ ] Traces are being recorded
+- [ ] Service is registered in service mesh
+- [ ] Canary deployment (5% traffic)
+- [ ] Monitor error rates for 5 minutes
+- [ ] If errors < 1%, proceed to 50% traffic
+- [ ] If errors < 1%, proceed to 100% traffic
+- [ ] If errors > 1%, rollback immediately
+
+{% endfor %}
+
+## Infrastructure Validation
+
+- [ ] VPC is properly configured
+- [ ] Subnets are in multiple AZs
+- [ ] Internet gateway is attached
+- [ ] NAT gateways are deployed
+- [ ] Security groups are minimal (least privilege)
+- [ ] NACLs are not blocking traffic
+- [ ] Route tables are properly configured
+- [ ] ALB target groups are healthy
+- [ ] RDS instance is accessible
+- [ ] Redis cluster is healthy
+- [ ] S3 buckets have correct permissions
+- [ ] CloudFront distribution is active
+- [ ] SSL/TLS certificates are valid
+- [ ] Route53 DNS records are correct
+
+## Database Checks
+
+- [ ] PostgreSQL instance is running
+- [ ] Initial schema is created
+- [ ] Migrations have completed
+- [ ] Backup schedule is enabled
+- [ ] Replication is healthy
+- [ ] Connection pooling is configured
+- [ ] Query performance is acceptable
+- [ ] Disk usage is monitored
+- [ ] Slow query logs are enabled
+
+## Cache Configuration
+
+- [ ] Redis cluster is healthy
+- [ ] All nodes are reachable
+- [ ] Replication is working
+- [ ] Persistence is enabled
+- [ ] TTLs are configured
+- [ ] Memory is not full
+- [ ] Eviction policy is correct
+
+## RDF Store Setup
+
+- [ ] Oxigraph instance is running
+- [ ] ggen-paas-ontology.ttl is loaded
+- [ ] Ontology validation passes
+- [ ] SPARQL queries execute correctly
+- [ ] Query performance is acceptable
+- [ ] Backup is scheduled
+
+## Monitoring & Alerts
+
+- [ ] CloudWatch dashboards are created
+- [ ] Alarms are configured for:
+  - [ ] High error rates (> 1%)
+  - [ ] High latency (> SLA)
+  - [ ] Low availability (< SLA)
+  - [ ] CPU usage (> 80%)
+  - [ ] Memory usage (> 80%)
+  - [ ] Disk usage (> 80%)
+  - [ ] Database connections (> 90%)
+  - [ ] Cache hit rate (< 80%)
+- [ ] SNS topics are configured
+- [ ] PagerDuty integration is active
+- [ ] Log aggregation is working
+- [ ] Distributed tracing is active
+
+## Security Validation
+
+- [ ] IAM roles are minimal
+- [ ] Secrets are in Secrets Manager
+- [ ] Database password is rotated
+- [ ] JWT secret is strong
+- [ ] CORS is configured correctly
+- [ ] Rate limiting is enabled
+- [ ] DDoS protection is enabled
+- [ ] WAF rules are deployed
+- [ ] VPC Flow Logs are enabled
+- [ ] CloudTrail is logging
+- [ ] Security scanning passed
+
+## Performance Testing
+
+- [ ] Load test passes baseline (1000 req/s)
+- [ ] Stress test completes (5000 req/s)
+- [ ] Latency is < SLA ({{ sla_response_time }}ms p99)
+- [ ] Error rate is < 0.1%
+- [ ] Memory doesn't grow unbounded
+- [ ] Database connections are stable
+- [ ] Cache hit rate is > 80%
+
+## Disaster Recovery
+
+- [ ] RTO (Recovery Time Objective): 1 hour ✓
+- [ ] RPO (Recovery Point Objective): 15 minutes ✓
+- [ ] Database backup is restorable
+- [ ] S3 cross-region replication works
+- [ ] Failover procedure is documented
+- [ ] Failover has been tested
+- [ ] Runbook is up to date
+
+## Post-Deployment
+
+- [ ] Monitoring dashboard is visible
+- [ ] Team is trained on runbooks
+- [ ] On-call rotation is configured
+- [ ] Documentation is updated
+- [ ] Incidents are tracked
+- [ ] Post-mortems are scheduled
+- [ ] Lessons learned are documented
+
+## Sign-Off
+
+- [ ] Infrastructure team approves
+- [ ] Security team approves
+- [ ] Product team approves
+- [ ] Go/No-Go meeting completed
+- [ ] Deployment window confirmed
+- [ ] Rollback plan is ready
+- [ ] Communications sent to users
+
+**Deployment Date**: _______________
+**Deployed By**: _______________
+**Approved By**: _______________

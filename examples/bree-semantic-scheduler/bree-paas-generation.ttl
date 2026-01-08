@@ -1,0 +1,415 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix bree: <http://ggen.org/bree#> .
+@prefix paas: <http://ggen.org/paas#> .
+@prefix kgc: <http://ggen.org/kgc#> .
+
+# =============================================================================
+# BREE SEMANTIC SCHEDULER - ggen PaaS GENERATION JOBS
+# =============================================================================
+# This file defines the Bree job schedule for ggen sync code generation
+# Each job is a semantic task that generates infrastructure artifacts
+
+<http://ggen.org/bree-paas-generation>
+  a owl:Ontology ;
+  rdfs:label "Bree PaaS Generation Schedule" ;
+  rdfs:comment "Semantic scheduler configuration for ggen PaaS code generation jobs" ;
+  owl:versionInfo "1.0.0" ;
+  .
+
+# =============================================================================
+# GENERATION JOB: Docker Compose
+# =============================================================================
+# Generates docker-compose.yml from PaaS ontology for local development
+
+:GenerateDockerCompose
+  a bree:ScheduledJob ;
+  rdfs:label "Generate Docker Compose" ;
+  rdfs:comment "Generate docker-compose.yml from ggen-paas-ontology.ttl for local development environment" ;
+
+  bree:jobName "generate-docker-compose" ;
+  bree:jobPath "jobs/generate-docker-compose.js" ;
+
+  # Run daily at 2:00 AM UTC
+  bree:timing :DailySchedule ;
+  bree:priority 10 ;
+
+  # Dependencies and outputs
+  bree:dependsOn :LoadPaaSontology ;
+  bree:produces :DockerComposeArtifact ;
+
+  bree:timeout 300000 ; # 5 minutes
+  bree:shouldRetry true ;
+  bree:maxRetries 3 ;
+
+  paas:generateArtifact "generated/docker-compose.yml" ;
+  paas:usesRule "generate-docker-compose" ;
+  .
+
+:DailySchedule
+  a bree:HumanInterval ;
+  rdfs:label "Daily at 02:00 UTC" ;
+  bree:value 1 ;
+  bree:unit "days" ;
+  bree:hour 2 ;
+  bree:minute 0 ;
+  bree:timezone "UTC" ;
+  .
+
+:DockerComposeArtifact
+  a paas:Artifact ;
+  rdfs:label "docker-compose.yml" ;
+  paas:location "generated/docker-compose.yml" ;
+  paas:format "yaml" ;
+  paas:purpose "Local development environment" ;
+  .
+
+# =============================================================================
+# GENERATION JOB: Kubernetes Manifests
+# =============================================================================
+# Generates Kubernetes deployment manifests
+
+:GenerateKubernetesManifests
+  a bree:ScheduledJob ;
+  rdfs:label "Generate Kubernetes Manifests" ;
+  rdfs:comment "Generate Kubernetes Deployment specs from container definitions" ;
+
+  bree:jobName "generate-kubernetes-manifests" ;
+  bree:jobPath "jobs/generate-kubernetes-manifests.js" ;
+
+  # Run twice daily: 2:00 AM and 2:00 PM UTC
+  bree:timing :TwiceDaily ;
+  bree:priority 20 ;
+
+  bree:dependsOn :LoadPaaSontology ;
+  bree:produces :KubernetesArtifacts ;
+
+  bree:timeout 600000 ; # 10 minutes
+  bree:shouldRetry true ;
+  bree:maxRetries 3 ;
+
+  paas:generateArtifact "generated/k8s/*.yaml" ;
+  paas:usesRule "generate-kubernetes-deployments" ;
+  .
+
+:TwiceDaily
+  a bree:CronExpression ;
+  rdfs:label "Twice daily (02:00 and 14:00 UTC)" ;
+  bree:cron "0 2,14 * * *" ;
+  .
+
+:KubernetesArtifacts
+  a paas:ArtifactSet ;
+  rdfs:label "Kubernetes manifests" ;
+  paas:location "generated/k8s/" ;
+  paas:format "yaml" ;
+  paas:purpose "Production-ready Kubernetes deployments" ;
+  .
+
+# =============================================================================
+# GENERATION JOB: Terraform Configuration
+# =============================================================================
+# Generates AWS infrastructure code
+
+:GenerateTerraform
+  a bree:ScheduledJob ;
+  rdfs:label "Generate Terraform Configuration" ;
+  rdfs:comment "Generate Terraform code for AWS infrastructure provisioning" ;
+
+  bree:jobName "generate-terraform-aws" ;
+  bree:jobPath "jobs/generate-terraform-aws.js" ;
+
+  # Run once daily at 3:00 AM UTC (after Docker Compose)
+  bree:timing :DailyThreeAM ;
+  bree:priority 15 ;
+
+  bree:dependsOn :LoadPaaSontology ;
+  bree:produces :TerraformArtifacts ;
+
+  bree:timeout 300000 ; # 5 minutes
+  bree:shouldRetry true ;
+  bree:maxRetries 3 ;
+
+  paas:generateArtifact "generated/terraform/*.tf" ;
+  paas:usesRule "generate-terraform-aws" ;
+  .
+
+:DailyThreeAM
+  a bree:HumanInterval ;
+  rdfs:label "Daily at 03:00 UTC" ;
+  bree:value 1 ;
+  bree:unit "days" ;
+  bree:hour 3 ;
+  bree:minute 0 ;
+  .
+
+:TerraformArtifacts
+  a paas:ArtifactSet ;
+  rdfs:label "Terraform configuration" ;
+  paas:location "generated/terraform/" ;
+  paas:format "hcl" ;
+  paas:purpose "AWS infrastructure as code" ;
+  .
+
+# =============================================================================
+# GENERATION JOB: API Specification
+# =============================================================================
+# Generates OpenAPI specification
+
+:GenerateOpenAPISpec
+  a bree:ScheduledJob ;
+  rdfs:label "Generate OpenAPI Specification" ;
+  rdfs:comment "Generate OpenAPI 3.0 specification from API container definitions" ;
+
+  bree:jobName "generate-openapi-spec" ;
+  bree:jobPath "jobs/generate-openapi-spec.js" ;
+
+  # Run every 6 hours
+  bree:timing :Every6Hours ;
+  bree:priority 5 ;
+
+  bree:dependsOn :LoadPaaSontology ;
+  bree:produces :OpenAPIArtifact ;
+
+  bree:timeout 120000 ; # 2 minutes
+  bree:shouldRetry true ;
+  bree:maxRetries 2 ;
+
+  paas:generateArtifact "generated/api/openapi.yaml" ;
+  paas:usesRule "generate-openapi-spec" ;
+  .
+
+:EveryHours
+  a bree:CronExpression ;
+  rdfs:label "Every 6 hours" ;
+  bree:cron "0 */6 * * *" ;
+  .
+
+:OpenAPIArtifact
+  a paas:Artifact ;
+  rdfs:label "OpenAPI specification" ;
+  paas:location "generated/api/openapi.yaml" ;
+  paas:format "yaml" ;
+  paas:purpose "REST API contract specification" ;
+  .
+
+# =============================================================================
+# GENERATION JOB: Architecture Documentation
+# =============================================================================
+# Generates architecture documentation from ontology
+
+:GenerateArchitectureDocs
+  a bree:ScheduledJob ;
+  rdfs:label "Generate Architecture Documentation" ;
+  rdfs:comment "Generate markdown documentation from ggen PaaS ontology" ;
+
+  bree:jobName "generate-architecture-docs" ;
+  bree:jobPath "jobs/generate-architecture-docs.js" ;
+
+  # Run daily at 1:00 AM UTC (before other generation)
+  bree:timing :DailyOneAM ;
+  bree:priority 1 ; # Highest priority (generated first)
+
+  bree:dependsOn :LoadPaaSontology ;
+  bree:produces :DocumentationArtifact ;
+
+  bree:timeout 120000 ; # 2 minutes
+  bree:shouldRetry false ;
+
+  paas:generateArtifact "generated/docs/ARCHITECTURE.md" ;
+  paas:usesRule "generate-architecture-docs" ;
+  .
+
+:DailyOneAM
+  a bree:HumanInterval ;
+  rdfs:label "Daily at 01:00 UTC" ;
+  bree:value 1 ;
+  bree:unit "days" ;
+  bree:hour 1 ;
+  bree:minute 0 ;
+  .
+
+:DocumentationArtifact
+  a paas:Artifact ;
+  rdfs:label "Architecture documentation" ;
+  paas:location "generated/docs/ARCHITECTURE.md" ;
+  paas:format "markdown" ;
+  paas:purpose "System architecture documentation" ;
+  .
+
+# =============================================================================
+# GENERATION JOB: Deployment Checklist
+# =============================================================================
+# Generates deployment validation checklist
+
+:GenerateDeploymentChecklist
+  a bree:ScheduledJob ;
+  rdfs:label "Generate Deployment Checklist" ;
+  rdfs:comment "Generate pre-deployment validation checklist" ;
+
+  bree:jobName "generate-deployment-checklist" ;
+  bree:jobPath "jobs/generate-deployment-checklist.js" ;
+
+  # Run daily at 4:00 AM UTC
+  bree:timing :DailyFourAM ;
+  bree:priority 25 ;
+
+  bree:dependsOn :GenerateTerraform ;
+  bree:produces :ChecklistArtifact ;
+
+  bree:timeout 120000 ; # 2 minutes
+  bree:shouldRetry false ;
+
+  paas:generateArtifact "generated/docs/DEPLOYMENT_CHECKLIST.md" ;
+  paas:usesRule "generate-deployment-checklist" ;
+  .
+
+:DailyFourAM
+  a bree:HumanInterval ;
+  rdfs:label "Daily at 04:00 UTC" ;
+  bree:value 1 ;
+  bree:unit "days" ;
+  bree:hour 4 ;
+  bree:minute 0 ;
+  .
+
+:ChecklistArtifact
+  a paas:Artifact ;
+  rdfs:label "Deployment checklist" ;
+  paas:location "generated/docs/DEPLOYMENT_CHECKLIST.md" ;
+  paas:format "markdown" ;
+  paas:purpose "Pre-deployment validation guide" ;
+  .
+
+# =============================================================================
+# GENERATION JOB: Istio Service Mesh Configuration
+# =============================================================================
+# Generates Istio VirtualService and DestinationRule manifests
+
+:GenerateIstioConfig
+  a bree:ScheduledJob ;
+  rdfs:label "Generate Istio Service Mesh Configuration" ;
+  rdfs:comment "Generate Istio service mesh policies and routing rules" ;
+
+  bree:jobName "generate-istio-config" ;
+  bree:jobPath "jobs/generate-istio-config.js" ;
+
+  # Run twice daily: after Kubernetes generation
+  bree:timing :TwiceDaily ;
+  bree:priority 22 ;
+
+  bree:dependsOn :GenerateKubernetesManifests ;
+  bree:produces :IstioArtifacts ;
+
+  bree:timeout 240000 ; # 4 minutes
+  bree:shouldRetry true ;
+  bree:maxRetries 2 ;
+
+  paas:generateArtifact "generated/istio/*.yaml" ;
+  paas:usesRule "generate-istio-config" ;
+  .
+
+:IstioArtifacts
+  a paas:ArtifactSet ;
+  rdfs:label "Istio service mesh configuration" ;
+  paas:location "generated/istio/" ;
+  paas:format "yaml" ;
+  paas:purpose "Service mesh policies and traffic management" ;
+  .
+
+# =============================================================================
+# METADATA JOBS - Load Ontology
+# =============================================================================
+# These are prerequisite jobs that load and validate the ontology
+
+:LoadPaaSontology
+  a bree:ScheduledJob ;
+  rdfs:label "Load ggen PaaS Ontology" ;
+  rdfs:comment "Preload and validate ggen-paas-ontology.ttl for generation pipeline" ;
+
+  bree:jobName "load-paas-ontology" ;
+  bree:jobPath "jobs/load-paas-ontology.js" ;
+
+  # Run every 30 minutes to keep cache warm
+  bree:timing :Every30Minutes ;
+  bree:priority 0 ; # Lowest priority (background task)
+
+  bree:timeout 60000 ; # 1 minute
+  bree:shouldRetry false ;
+
+  rdfs:comment "Must complete successfully before any generation jobs" ;
+  .
+
+:Every30Minutes
+  a bree:CronExpression ;
+  rdfs:label "Every 30 minutes" ;
+  bree:cron "*/30 * * * *" ;
+  .
+
+# =============================================================================
+# VALIDATION AND TESTING JOBS
+# =============================================================================
+
+:ValidateGeneratedArtifacts
+  a bree:ScheduledJob ;
+  rdfs:label "Validate Generated Artifacts" ;
+  rdfs:comment "Validate syntax and structure of generated artifacts" ;
+
+  bree:jobName "validate-generated" ;
+  bree:jobPath "jobs/validate-generated.js" ;
+
+  # Run after all generation jobs complete (5:00 AM UTC)
+  bree:timing :DailyFiveAM ;
+  bree:priority 30 ;
+
+  bree:dependsOn :GenerateDockerCompose ;
+  bree:dependsOn :GenerateKubernetesManifests ;
+  bree:dependsOn :GenerateTerraform ;
+  bree:dependsOn :GenerateOpenAPISpec ;
+
+  bree:timeout 600000 ; # 10 minutes
+  bree:shouldRetry true ;
+  bree:maxRetries 1 ;
+
+  rdfs:comment "Validates all generated YAML, HCL, and JSON files" ;
+  .
+
+:DailyFiveAM
+  a bree:HumanInterval ;
+  rdfs:label "Daily at 05:00 UTC" ;
+  bree:value 1 ;
+  bree:unit "days" ;
+  bree:hour 5 ;
+  bree:minute 0 ;
+  .
+
+# =============================================================================
+# JOB METADATA AND SLAs
+# =============================================================================
+
+paas:GenerationSchedule
+  a paas:Schedule ;
+  rdfs:label "ggen PaaS Generation Schedule" ;
+  paas:startTime "2024-01-01T00:00:00Z"^^xsd:dateTime ;
+  paas:timezone "UTC" ;
+  paas:concurrencyLimit 3 ; # Max 3 concurrent jobs
+
+  paas:hasJob :GenerateArchitectureDocs ;
+  paas:hasJob :LoadPaaSontology ;
+  paas:hasJob :GenerateDockerCompose ;
+  paas:hasJob :GenerateKubernetesManifests ;
+  paas:hasJob :GenerateTerraform ;
+  paas:hasJob :GenerateOpenAPISpec ;
+  paas:hasJob :GenerateIstioConfig ;
+  paas:hasJob :GenerateDeploymentChecklist ;
+  paas:hasJob :ValidateGeneratedArtifacts ;
+
+  paas:slaJobSuccessRate 0.99 ; # 99% success rate
+  paas:slaJobDuration 600 ; # Complete within 10 minutes
+  paas:slaGenerationFrequency "hourly" ;
+
+  rdfs:comment "Complete generation cycle: 1 hour from ontology update to validated artifacts" ;
+  .

@@ -1,0 +1,59 @@
+@startuml C3_Components
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+title ggen Engine - Component Diagram (C3)
+caption Internal structure of the code generation pipeline
+
+Container_Boundary(ggen_core, "ggen-core") {
+  Component(graph, "Graph", "Rust", "In-memory RDF graph representation")
+  Component(query_exec, "Query Executor", "Rust", "SPARQL query execution engine")
+  Component(rdf_parser, "RDF Parser", "Rust (n3/turtle)", "Parse Turtle/N3 RDF formats")
+}
+
+Container_Boundary(ggen_generation, "Code Generation") {
+  Component(spec_validator, "Spec Validator", "Rust (SHACL)", "Validate specs against shapes")
+  Component(normalization, "Normalization", "Rust", "Expand prefixes, merge files")
+  Component(extraction, "Extraction", "Rust", "Execute SPARQL CONSTRUCT patterns")
+  Component(emission, "Emission", "Rust (Tera)", "Render templates with data")
+  Component(canonicalization, "Canonicalization", "Rust", "Format and validate output")
+  Component(receipt_gen, "Receipt Generator", "Rust (JSON)", "Generate verification manifests")
+}
+
+Container_Boundary(ggen_infrastructure, "Infrastructure") {
+  Component(api_framework, "API Framework", "Rust (Axum)", "HTTP server and routing")
+  Component(job_queue, "Job Queue", "Redis/RabbitMQ", "Async job processing")
+  Component(state_mgmt, "State Management", "PostgreSQL", "Project and user state")
+  Component(logging, "Logging & Tracing", "Rust (tracing)", "Observability instrumentation")
+}
+
+Container_Boundary(ggen_marketplace, "Marketplace") {
+  Component(template_registry, "Template Registry", "Rust/DB", "Community templates and specs")
+  Component(monetization, "Monetization", "Rust", "Billing and usage tracking")
+  Component(discovery, "Discovery Engine", "Rust", "Search and recommendation")
+}
+
+Container_Boundary(ggen_examples, "Example Frameworks") {
+  Component(bree_scheduler, "Bree Scheduler", "Node.js/Rust", "Job scheduling framework")
+  Component(api_endpoint, "API Endpoint", "Rust", "RESTful API generation")
+  Component(cli_tool, "CLI Tool", "Rust", "Command-line application generation")
+}
+
+Rel(rdf_parser, graph, "Populates")
+Rel(query_exec, graph, "Queries")
+Rel(spec_validator, rdf_parser, "Validates input")
+Rel(normalization, spec_validator, "After validation")
+Rel(extraction, query_exec, "Uses queries")
+Rel(emission, extraction, "Consumes data")
+Rel(canonicalization, emission, "Formats output")
+Rel(receipt_gen, canonicalization, "Verifies")
+Rel(api_framework, job_queue, "Enqueues")
+Rel(job_queue, extraction, "Executes jobs")
+Rel(state_mgmt, api_framework, "Persists state")
+Rel(logging, api_framework, "Instruments")
+Rel(template_registry, emission, "Provides templates")
+Rel(monetization, api_framework, "Tracks usage")
+Rel(discovery, template_registry, "Queries")
+Rel(bree_scheduler, emission, "Uses engine")
+
+SHOW_LEGEND()
+@enduml
