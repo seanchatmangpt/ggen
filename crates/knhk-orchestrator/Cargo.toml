@@ -1,0 +1,42 @@
+[package]
+name = "knhk-orchestrator"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Core async runtime
+tokio = { workspace = true }
+
+# KNHK systems (optional - to allow standalone compilation)
+knhk-etl = { workspace = true, optional = true }
+knhk-lockchain = { workspace = true, optional = true }
+knhk-otel = { workspace = true, optional = true }
+
+# Error handling
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Observability
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+
+# Utilities
+futures = { workspace = true }
+async-trait = { workspace = true }
+hex = { workspace = true }
+sha2 = { workspace = true }
+
+[dev-dependencies]
+chicago-tdd-tools = { workspace = true }
+proptest = { workspace = true }
+tempfile = { workspace = true }
+
+[features]
+default = []
+integration = ["knhk-etl", "knhk-lockchain", "knhk-otel"]
