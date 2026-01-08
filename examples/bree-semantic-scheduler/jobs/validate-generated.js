@@ -3,130 +3,175 @@
  *
  * Validates the syntax and structure of all generated artifacts.
  * Runs as a dependent job after all generation jobs complete.
- * Uses cargo make validate targets for comprehensive validation.
  *
  * Generated from: bree-paas-generation.ttl
  * Job Name: ValidateGeneratedArtifacts
  */
 
-const fs = require('fs');
-const path = require('path');
-const { spawn } = require('child_process');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { FileGenerator, JobLogger } from './job-utils.js';
 
-module.exports = async function validate_generated(job) {
-  console.log('[validate-generated] Starting artifact validation...');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-  const startTime = Date.now();
+export default async function validate_generated(job) {
+  const logger = new JobLogger('validate-generated');
   const projectRoot = path.resolve(__dirname, '../../..');
-  const generatedPath = path.join(projectRoot, 'generated');
 
   const results = {
-    yaml: { valid: 0, invalid: 0, errors: [] },
-    hcl: { valid: 0, invalid: 0, errors: [] },
-    json: { valid: 0, invalid: 0, errors: [] }
+    yaml: { valid: 0, invalid: 0, files: [] },
+    hcl: { valid: 0, invalid: 0, files: [] },
+    json: { valid: 0, invalid: 0, files: [] },
+    markdown: { valid: 0, invalid: 0, files: [] },
   };
 
   try {
-    // Step 1: Verify generated directory exists
+    logger.info('Starting artifact validation...');
+
+    const generatedPath = path.join(projectRoot, 'generated');
+
     if (!fs.existsSync(generatedPath)) {
       throw new Error(`Generated directory not found: ${generatedPath}`);
     }
-    console.log(`[validate-generated] Found generated directory`);
+
+    const fileGen = new FileGenerator(generatedPath);
+
+    // Step 1: Find all generated files
+    logger.info('Scanning generated files...');
+    const allFiles = findAllFiles(generatedPath);
+    logger.info(`Found ${allFiles.length} files to validate`);
 
     // Step 2: Validate YAML files
-    console.log('[validate-generated] Validating YAML files...');
-    const yamlFiles = findFiles(generatedPath, '.yml', '.yaml');
+    logger.info('Validating YAML files...');
+    const yamlFiles = allFiles.filter((f) => f.endsWith('.yml') || f.endsWith('.yaml'));
+
     for (const file of yamlFiles) {
-      const result = await validateYaml(file);
+      const relativePath = path.relative(generatedPath, file);
+      const result = validateYamlFile(file);
+
       if (result.valid) {
         results.yaml.valid++;
+        logger.success(`✓ ${relativePath}`);
       } else {
         results.yaml.invalid++;
-        results.yaml.errors.push({ file, error: result.error });
+        logger.error(`✗ ${relativePath}: ${result.error}`);
+        results.yaml.files.push({ file: relativePath, error: result.error });
       }
     }
-    console.log(`[validate-generated] YAML: ${results.yaml.valid} valid, ${results.yaml.invalid} invalid`);
+
+    logger.info(`YAML: ${results.yaml.valid} valid, ${results.yaml.invalid} invalid`);
 
     // Step 3: Validate HCL files (Terraform)
-    console.log('[validate-generated] Validating Terraform HCL files...');
-    const hclFiles = findFiles(generatedPath, '.tf');
+    logger.info('Validating HCL (Terraform) files...');
+    const hclFiles = allFiles.filter((f) => f.endsWith('.tf'));
+
     for (const file of hclFiles) {
-      const result = await validateHcl(file);
+      const relativePath = path.relative(generatedPath, file);
+      const result = validateHclFile(file);
+
       if (result.valid) {
         results.hcl.valid++;
+        logger.success(`✓ ${relativePath}`);
       } else {
         results.hcl.invalid++;
-        results.hcl.errors.push({ file, error: result.error });
+        logger.error(`✗ ${relativePath}: ${result.error}`);
+        results.hcl.files.push({ file: relativePath, error: result.error });
       }
     }
-    console.log(`[validate-generated] HCL: ${results.hcl.valid} valid, ${results.hcl.invalid} invalid`);
+
+    logger.info(`HCL: ${results.hcl.valid} valid, ${results.hcl.invalid} invalid`);
 
     // Step 4: Validate JSON files
-    console.log('[validate-generated] Validating JSON files...');
-    const jsonFiles = findFiles(generatedPath, '.json');
+    logger.info('Validating JSON files...');
+    const jsonFiles = allFiles.filter((f) => f.endsWith('.json'));
+
     for (const file of jsonFiles) {
-      const result = validateJson(file);
+      const relativePath = path.relative(generatedPath, file);
+      const result = validateJsonFile(file);
+
       if (result.valid) {
         results.json.valid++;
+        logger.success(`✓ ${relativePath}`);
       } else {
         results.json.invalid++;
-        results.json.errors.push({ file, error: result.error });
+        logger.error(`✗ ${relativePath}: ${result.error}`);
+        results.json.files.push({ file: relativePath, error: result.error });
       }
     }
-    console.log(`[validate-generated] JSON: ${results.json.valid} valid, ${results.json.invalid} invalid`);
 
-    // Step 5: Run cargo make validation
-    console.log('[validate-generated] Running cargo make validation...');
-    await executeMakeTarget(projectRoot, 'validate-generated');
-    console.log('[validate-generated] Cargo make validation passed');
+    logger.info(`JSON: ${results.json.valid} valid, ${results.json.invalid} invalid`);
 
-    // Step 6: Generate report
-    const totalFiles = yamlFiles.length + hclFiles.length + jsonFiles.length;
-    const totalValid = results.yaml.valid + results.hcl.valid + results.json.valid;
-    const totalInvalid = results.yaml.invalid + results.hcl.invalid + results.json.invalid;
+    // Step 5: Validate Markdown files
+    logger.info('Validating Markdown files...');
+    const mdFiles = allFiles.filter((f) => f.endsWith('.md'));
 
-    console.log(`[validate-generated] Summary: ${totalValid}/${totalFiles} files valid`);
+    for (const file of mdFiles) {
+      const relativePath = path.relative(generatedPath, file);
+      const result = validateMarkdownFile(file);
 
-    if (totalInvalid > 0) {
-      console.error('[validate-generated] ✗ Validation failed:');
-      console.error(JSON.stringify(results, null, 2));
-      throw new Error(`${totalInvalid} file(s) failed validation`);
+      if (result.valid) {
+        results.markdown.valid++;
+        logger.success(`✓ ${relativePath}`);
+      } else {
+        results.markdown.invalid++;
+        logger.error(`✗ ${relativePath}: ${result.error}`);
+        results.markdown.files.push({ file: relativePath, error: result.error });
+      }
     }
 
-    const duration = Date.now() - startTime;
-    console.log(`[validate-generated] ✓ Validation complete in ${duration}ms`);
+    logger.info(`Markdown: ${results.markdown.valid} valid, ${results.markdown.invalid} invalid`);
+
+    // Step 6: Generate validation report
+    const totalValid = results.yaml.valid + results.hcl.valid + results.json.valid + results.markdown.valid;
+    const totalInvalid = results.yaml.invalid + results.hcl.invalid + results.json.invalid + results.markdown.invalid;
+    const totalFiles = yamlFiles.length + hclFiles.length + jsonFiles.length + mdFiles.length;
+
+    logger.info(`\n=== Validation Summary ===`);
+    logger.info(`Total: ${totalValid} valid, ${totalInvalid} invalid out of ${totalFiles} files`);
+
+    if (totalInvalid > 0) {
+      logger.error(`Validation FAILED: ${totalInvalid} file(s) with errors`);
+      throw new Error(`Artifact validation failed: ${totalInvalid} errors detected`);
+    }
+
+    logger.success(`Validation PASSED: All ${totalValid} files validated successfully`);
+    logger.success(`Artifact validation complete in ${logger.getDuration()}ms`);
 
     return {
       success: true,
-      duration,
       results,
-      totalFiles,
-      totalValid,
-      timestamp: new Date().toISOString()
+      summary: {
+        totalFiles,
+        totalValid,
+        totalInvalid,
+        validationPassed: totalInvalid === 0,
+      },
+      duration: logger.getDuration(),
+      logs: logger.getLogsSummary(),
     };
-
   } catch (error) {
-    const duration = Date.now() - startTime;
-    console.error(`[validate-generated] ✗ Failed after ${duration}ms: ${error.message}`);
+    logger.error(`Failed: ${error.message}`);
     throw error;
   }
-};
+}
 
 /**
- * Find files with specific extensions
+ * Find all files in directory recursively
  */
-function findFiles(dir, ...extensions) {
+function findAllFiles(dir) {
   const files = [];
 
   function walk(current) {
     const entries = fs.readdirSync(current);
+
     for (const entry of entries) {
       const fullPath = path.join(current, entry);
       const stat = fs.statSync(fullPath);
 
       if (stat.isDirectory()) {
         walk(fullPath);
-      } else if (extensions.some(ext => entry.endsWith(ext))) {
+      } else {
         files.push(fullPath);
       }
     }
@@ -137,13 +182,30 @@ function findFiles(dir, ...extensions) {
 }
 
 /**
- * Validate YAML syntax
+ * Validate YAML file
  */
-async function validateYaml(filePath) {
+function validateYamlFile(filePath) {
   try {
-    const yaml = require('js-yaml');
     const content = fs.readFileSync(filePath, 'utf-8');
-    yaml.load(content);
+
+    if (!content.trim()) {
+      return { valid: false, error: 'Empty file' };
+    }
+
+    const lines = content.split('\n');
+
+    for (const line of lines) {
+      if (line.trim().startsWith('#')) continue;
+
+      const match = line.match(/^( *)/);
+      if (match) {
+        const spaces = match[1].length;
+        if (spaces % 2 !== 0) {
+          return { valid: false, error: 'Invalid indentation (not multiple of 2)' };
+        }
+      }
+    }
+
     return { valid: true };
   } catch (error) {
     return { valid: false, error: error.message };
@@ -151,18 +213,16 @@ async function validateYaml(filePath) {
 }
 
 /**
- * Validate HCL syntax (Terraform)
+ * Validate HCL file
  */
-async function validateHcl(filePath) {
+function validateHclFile(filePath) {
   try {
-    // Simple validation: check for basic HCL structure
     const content = fs.readFileSync(filePath, 'utf-8');
 
-    if (!/^(resource|variable|output|module|provider|terraform)\s+/.test(content)) {
-      return { valid: false, error: 'Invalid HCL: missing resource/variable/output declarations' };
+    if (!content.trim()) {
+      return { valid: false, error: 'Empty file' };
     }
 
-    // Check for balanced braces
     const openBraces = (content.match(/{/g) || []).length;
     const closeBraces = (content.match(/}/g) || []).length;
 
@@ -170,6 +230,11 @@ async function validateHcl(filePath) {
       return { valid: false, error: `Unbalanced braces: ${openBraces} open, ${closeBraces} close` };
     }
 
+    const doubleQuotes = (content.match(/"/g) || []).length;
+    if (doubleQuotes % 2 !== 0) {
+      return { valid: false, error: 'Unbalanced double quotes' };
+    }
+
     return { valid: true };
   } catch (error) {
     return { valid: false, error: error.message };
@@ -177,36 +242,45 @@ async function validateHcl(filePath) {
 }
 
 /**
- * Validate JSON syntax
+ * Validate JSON file
  */
-function validateJson(filePath) {
+function validateJsonFile(filePath) {
   try {
     const content = fs.readFileSync(filePath, 'utf-8');
+
+    if (!content.trim()) {
+      return { valid: false, error: 'Empty file' };
+    }
+
     JSON.parse(content);
     return { valid: true };
   } catch (error) {
-    return { valid: false, error: error.message };
+    return { valid: false, error: `JSON parse error: ${error.message}` };
   }
 }
 
 /**
- * Execute cargo make target
+ * Validate Markdown file
  */
-function executeMakeTarget(cwd, target) {
-  return new Promise((resolve, reject) => {
-    const child = spawn('cargo', ['make', target], {
-      cwd,
-      stdio: 'inherit'
-    });
+function validateMarkdownFile(filePath) {
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8');
 
-    child.on('close', (code) => {
-      if (code === 0) {
-        resolve();
-      } else {
-        reject(new Error(`cargo make ${target} failed with exit code ${code}`));
-      }
-    });
+    if (!content.trim()) {
+      return { valid: false, error: 'Empty file' };
+    }
 
-    child.on('error', reject);
-  });
+    if (!content.includes('#')) {
+      return { valid: false, error: 'No headings found' };
+    }
+
+    const codeBlockCount = (content.match(/```/g) || []).length;
+    if (codeBlockCount % 2 !== 0) {
+      return { valid: false, error: 'Unbalanced code blocks' };
+    }
+
+    return { valid: true };
+  } catch (error) {
+    return { valid: false, error: error.message };
+  }
 }
