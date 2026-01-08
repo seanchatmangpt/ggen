@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [PhD Thesis: ggen v6 - Ontology-First Software Construction](#phd-thesis-ggen-v6---ontology-first-software-construction)
+  - [A Meta-Circular System Where Artifacts are Deterministic Projections of Semantic Substrate](#a-meta-circular-system-where-artifacts-are-deterministic-projections-of-semantic-substrate)
+  - [The Ultimate Achievement](#the-ultimate-achievement)
+  - [3T Architecture](#3t-architecture)
+  - [How to Generate](#how-to-generate)
+    - [Prerequisites](#prerequisites)
+    - [Step 1: Generate LaTeX from Ontology](#step-1-generate-latex-from-ontology)
+    - [Step 2: Compile PDF](#step-2-compile-pdf)
+  - [Thesis Structure](#thesis-structure)
+    - [Part I: Foundations](#part-i-foundations)
+    - [Part II: The v6 System](#part-ii-the-v6-system)
+    - [Part III: Implementation & Validation](#part-iii-implementation--validation)
+    - [Part IV: Context & Future](#part-iv-context--future)
+  - [Key Contributions](#key-contributions)
+  - [Comparison with v5](#comparison-with-v5)
+  - [Comparison with figex](#comparison-with-figex)
+  - [Meta-Circular Properties](#meta-circular-properties)
+  - [Evidence of Meta-Circularity](#evidence-of-meta-circularity)
+  - [Theoretical Significance](#theoretical-significance)
+  - [Reproducibility](#reproducibility)
+  - [Citation](#citation)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # PhD Thesis: ggen v6 - Ontology-First Software Construction
 
 ## A Meta-Circular System Where Artifacts are Deterministic Projections of Semantic Substrate

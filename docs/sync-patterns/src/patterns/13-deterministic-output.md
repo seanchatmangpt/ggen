@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [13. DETERMINISTIC OUTPUT ***](#13-deterministic-output-)
+  - [Context](#context)
+  - [Connections](#connections)
+  - [Implementation](#implementation)
+    - [Ordered Data Structures](#ordered-data-structures)
+    - [Ordered Query Results](#ordered-query-results)
+    - [Ordered Rule Execution](#ordered-rule-execution)
+    - [No Timestamps](#no-timestamps)
+    - [Hash Verification](#hash-verification)
+  - [Testing Determinism](#testing-determinism)
+    - [The Double-Run Test](#the-double-run-test)
+    - [CI/CD Verification](#cicd-verification)
+  - [Sources of Non-Determinism](#sources-of-non-determinism)
+  - [The Determinism Equation](#the-determinism-equation)
+  - [Determinism Salt](#determinism-salt)
+  - [The Deeper Pattern](#the-deeper-pattern)
+  - [When Determinism Seems Impossible](#when-determinism-seems-impossible)
+  - [The Three-Star Pattern](#the-three-star-pattern)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 13. DETERMINISTIC OUTPUT ***
 
 *Given the same inputs, produce the same outputs. Always. Without exception.*

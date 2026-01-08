@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [📚 ggen Documentation Index](#-ggen-documentation-index)
+  - [🚀 Quick Start](#-quick-start)
+  - [📋 Quick Reference Cards (ULTRA-COMPRESSED)](#-quick-reference-cards-ultra-compressed)
+  - [📖 Core Documentation](#-core-documentation)
+    - [Advanced Capabilities (80/20 - Most Valuable)](#advanced-capabilities-8020---most-valuable)
+    - [Design & Architecture](#design--architecture)
+    - [Performance & Quality](#performance--quality)
+    - [Deployment](#deployment)
+  - [🏗️ Project Structure](#-project-structure)
+  - [🎯 By Feature](#-by-feature)
+    - [Poka-Yoke (Mistake-Proofing)](#poka-yoke-mistake-proofing)
+    - [End-to-End Testing](#end-to-end-testing)
+    - [Code Generation](#code-generation)
+    - [RDF & Specifications](#rdf--specifications)
+  - [🔗 External Resources](#-external-resources)
+  - [📝 Contributing](#-contributing)
+  - [🔄 Version Information](#-version-information)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 📚 ggen Documentation Index
 
 Complete knowledge base for ggen - the ontology-driven code generator.

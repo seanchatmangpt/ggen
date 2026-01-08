@@ -1,3 +1,49 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Reference: FMEA Risk Matrix](#reference-fmea-risk-matrix)
+  - [What is FMEA?](#what-is-fmea)
+  - [The Three Dimensions](#the-three-dimensions)
+    - [Severity (S): Impact if it happens](#severity-s-impact-if-it-happens)
+    - [Occurrence (O): How often it happens](#occurrence-o-how-often-it-happens)
+    - [Detection (D): Chance you'll catch it before production](#detection-d-chance-youll-catch-it-before-production)
+  - [RPN (Risk Priority Number)](#rpn-risk-priority-number)
+    - [Risk Thresholds](#risk-thresholds)
+    - [Decision Table](#decision-table)
+  - [Real-World Examples](#real-world-examples)
+    - [Example 1: User Email Validation](#example-1-user-email-validation)
+    - [Example 2: Database Deadlock](#example-2-database-deadlock)
+    - [Example 3: SQL Injection Vulnerability](#example-3-sql-injection-vulnerability)
+    - [Example 4: Off-by-One Error in Loop](#example-4-off-by-one-error-in-loop)
+  - [FMEA Matrix Template](#fmea-matrix-template)
+    - [For Test Planning](#for-test-planning)
+  - [Using FMEA for Test Prioritization](#using-fmea-for-test-prioritization)
+    - [Step 1: Identify Failure Modes](#step-1-identify-failure-modes)
+    - [Step 2: Score Each Failure](#step-2-score-each-failure)
+    - [Step 3: Prioritize by RPN](#step-3-prioritize-by-rpn)
+    - [Step 4: Assign Test Types](#step-4-assign-test-types)
+  - [Common Failure Modes by Category](#common-failure-modes-by-category)
+    - [Data Input](#data-input)
+    - [Concurrency](#concurrency)
+    - [Performance](#performance)
+    - [Security](#security)
+  - [FMEA vs. Test Coverage](#fmea-vs-test-coverage)
+    - [Common Mistake: Coverage Metrics](#common-mistake-coverage-metrics)
+    - [Better Approach: Risk-Based Testing](#better-approach-risk-based-testing)
+  - [Reducing RPN](#reducing-rpn)
+    - [Reduce Severity](#reduce-severity)
+    - [Reduce Occurrence](#reduce-occurrence)
+    - [Reduce Detection](#reduce-detection)
+  - [FMEA vs. Risk-Based Testing Frameworks](#fmea-vs-risk-based-testing-frameworks)
+    - [Comparison](#comparison)
+    - [Recommendation](#recommendation)
+  - [Template: FMEA Analysis Document](#template-fmea-analysis-document)
+  - [Key Takeaways](#key-takeaways)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Reference: FMEA Risk Matrix
 
 **Failure Mode Effects Analysis - Prioritizing test coverage by severity, occurrence, and detectability**

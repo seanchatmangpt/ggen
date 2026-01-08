@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How to Use This Pattern Language](#how-to-use-this-pattern-language)
+  - [Reading the Patterns](#reading-the-patterns)
+    - [The Pattern Structure](#the-pattern-structure)
+  - [The Confidence Stars](#the-confidence-stars)
+  - [Navigating the Language](#navigating-the-language)
+    - [By Need](#by-need)
+    - [By Layer](#by-layer)
+  - [Applying the Patterns](#applying-the-patterns)
+    - [Pattern as Conversation](#pattern-as-conversation)
+    - [Patterns Compose](#patterns-compose)
+    - [When Patterns Conflict](#when-patterns-conflict)
+  - [A Path Through the Language](#a-path-through-the-language)
+  - [The Living Language](#the-living-language)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How to Use This Pattern Language
 
 > *"The patterns are not isolated. They form a language. And the language is generative: it allows you to create new, coherent configurations by combining patterns in meaningful ways."*

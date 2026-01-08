@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen - Ontology-Driven Code Generation](#ggen---ontology-driven-code-generation)
+  - [What is ggen?](#what-is-ggen)
+    - [Why RDF Ontologies?](#why-rdf-ontologies)
+    - [Perfect For](#perfect-for)
+  - [Quick Start (5 Minutes)](#quick-start-5-minutes)
+    - [Installation](#installation)
+    - [Your First ggen Project (5 minutes)](#your-first-ggen-project-5-minutes)
+  - [Documentation](#documentation)
+    - [🎓 **I want to learn ggen**](#-i-want-to-learn-ggen)
+    - [🔍 **I need to solve a problem**](#-i-need-to-solve-a-problem)
+    - [📚 **I need reference information**](#-i-need-reference-information)
+    - [💡 **I want to understand concepts**](#-i-want-to-understand-concepts)
+    - [🏗️ **I want working examples**](#-i-want-working-examples)
+    - [📋 **Full Documentation Index**](#-full-documentation-index)
+  - [Core Concepts](#core-concepts)
+    - [1. Ontologies (RDF)](#1-ontologies-rdf)
+    - [2. SPARQL Queries](#2-sparql-queries)
+    - [3. Tera Templates](#3-tera-templates)
+    - [4. Generation Rules](#4-generation-rules)
+  - [Philosophy](#philosophy)
+    - [1. Specification-First (Big Bang 80/20)](#1-specification-first-big-bang-8020)
+    - [2. Deterministic Validation](#2-deterministic-validation)
+    - [3. RDF-First](#3-rdf-first)
+  - [Common Patterns](#common-patterns)
+    - [REST API Generation](#rest-api-generation)
+    - [Multi-Language Support](#multi-language-support)
+    - [Database Schema Generation](#database-schema-generation)
+  - [Status](#status)
+  - [Contributing](#contributing)
+  - [Resources](#resources)
+  - [Project Constitution](#project-constitution)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen - Ontology-Driven Code Generation
 
 [![Crates.io](https://img.shields.io/crates/v/ggen.svg)](https://crates.io/crates/ggen)

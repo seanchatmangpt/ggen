@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Maximum Depth PhD Thesis Enhancement Guide](#maximum-depth-phd-thesis-enhancement-guide)
+  - [Executive Summary](#executive-summary)
+    - [Quality Metrics](#quality-metrics)
+  - [Directory Structure](#directory-structure)
+  - [Integration Instructions](#integration-instructions)
+    - [Quick Start (30 minutes)](#quick-start-30-minutes)
+  - [Integration Strategies](#integration-strategies)
+    - [Strategy A: Full Integration (Recommended for Defense)](#strategy-a-full-integration-recommended-for-defense)
+    - [Strategy B: Selective Integration (Recommended for Timeline)](#strategy-b-selective-integration-recommended-for-timeline)
+    - [Strategy C: Incremental Integration (Recommended for Learning)](#strategy-c-incremental-integration-recommended-for-learning)
+  - [File-by-File Integration Guide](#file-by-file-integration-guide)
+    - [1. Related Work Chapter (CRITICAL)](#1-related-work-chapter-critical)
+    - [2. Bibliography Expansion (ESSENTIAL)](#2-bibliography-expansion-essential)
+    - [3. Glossary (PROFESSIONAL)](#3-glossary-professional)
+    - [4. Formal Semantics Chapter (RESEARCH DEPTH)](#4-formal-semantics-chapter-research-depth)
+    - [5. Evaluation & Methodology Chapter (RESEARCH SUBSTANCE)](#5-evaluation--methodology-chapter-research-substance)
+    - [6. Additional Case Studies (EVIDENCE)](#6-additional-case-studies-evidence)
+    - [7. Expanded Limitations & Future Work (MATURITY)](#7-expanded-limitations--future-work-maturity)
+  - [Complete Bibliography (BibTeX)](#complete-bibliography-bibtex)
+  - [Reference Materials (Decision Support)](#reference-materials-decision-support)
+    - [Strategic Planning](#strategic-planning)
+    - [Quick Reference](#quick-reference)
+    - [Competitive & Evaluation Analysis](#competitive--evaluation-analysis)
+    - [Writing Guidance](#writing-guidance)
+  - [Architecture Diagrams](#architecture-diagrams)
+  - [Timeline Recommendations](#timeline-recommendations)
+    - [Fast Path (5-7 hours to defensible thesis)](#fast-path-5-7-hours-to-defensible-thesis)
+    - [Comprehensive Path (12-15 hours to publication-ready)](#comprehensive-path-12-15-hours-to-publication-ready)
+    - [Iterative Path (Spread over 5-8 weeks)](#iterative-path-spread-over-5-8-weeks)
+  - [Quality Checklist](#quality-checklist)
+  - [File Sizes & Content Volumes](#file-sizes--content-volumes)
+  - [Next Steps](#next-steps)
+  - [Support Materials](#support-materials)
+  - [Questions & Troubleshooting](#questions--troubleshooting)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Maximum Depth PhD Thesis Enhancement Guide
 
 **Status:** Complete - All 10 parallel agents have generated comprehensive enhancements

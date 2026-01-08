@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [PhD Thesis Diagrams - Ontology-Driven Code Generation](#phd-thesis-diagrams---ontology-driven-code-generation)
+  - [Diagrams](#diagrams)
+    - [1. System Architecture Overview (`01_system_architecture.tex`)](#1-system-architecture-overview-01_system_architecturetex)
+    - [2. RDF Ontology Structure (`02_rdf_ontology.tex`)](#2-rdf-ontology-structure-02_rdf_ontologytex)
+    - [3. Generation Pipeline Flow (`03_generation_pipeline.tex`)](#3-generation-pipeline-flow-03_generation_pipelinetex)
+    - [4. Type Guard Composition (`04_type_guard_composition.tex`)](#4-type-guard-composition-04_type_guard_compositiontex)
+    - [5. Multi-Artifact Consistency (`05_multi_artifact_consistency.tex`)](#5-multi-artifact-consistency-05_multi_artifact_consistencytex)
+  - [Compilation](#compilation)
+    - [Individual Diagrams](#individual-diagrams)
+    - [All Diagrams Preview](#all-diagrams-preview)
+    - [Required Packages](#required-packages)
+  - [Design Features](#design-features)
+  - [Quality Standards](#quality-standards)
+  - [Usage in Thesis](#usage-in-thesis)
+  - [File Organization](#file-organization)
+  - [Credits](#credits)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # PhD Thesis Diagrams - Ontology-Driven Code Generation
 
 This directory contains 5 professional LaTeX TikZ diagrams for the PhD thesis on ontology-driven code generation using the ggen framework.

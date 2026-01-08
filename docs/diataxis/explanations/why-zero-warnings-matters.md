@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Explanation: Why Zero Warnings Matters](#explanation-why-zero-warnings-matters)
+  - [The Conventional Wisdom](#the-conventional-wisdom)
+  - [What Warnings Really Mean](#what-warnings-really-mean)
+    - [Warning = Design Smell](#warning--design-smell)
+    - [The Compiler Sees What You Don't](#the-compiler-sees-what-you-dont)
+  - [Why Zero Warnings Matters](#why-zero-warnings-matters)
+    - [Principle 1: Signal Clarity](#principle-1-signal-clarity)
+    - [Principle 2: Continuous Vigilance](#principle-2-continuous-vigilance)
+    - [Principle 3: Design Feedback](#principle-3-design-feedback)
+  - [The Slippery Slope](#the-slippery-slope)
+    - [Day 1](#day-1)
+    - [Week 1](#week-1)
+    - [Month 1](#month-1)
+    - [Year 1](#year-1)
+  - [Zero Warnings as a Discipline](#zero-warnings-as-a-discipline)
+    - [What It Signals](#what-it-signals)
+    - [What It Prevents](#what-it-prevents)
+  - [Real-World Impact: ggen's Zero Warnings Journey](#real-world-impact-ggens-zero-warnings-journey)
+    - [Before (847 Warnings)](#before-847-warnings)
+    - [The Cost](#the-cost)
+    - [After (Zero Warnings)](#after-zero-warnings)
+    - [The Benefit](#the-benefit)
+  - [How to Achieve Zero Warnings](#how-to-achieve-zero-warnings)
+    - [Method 1: Listen to Every Warning](#method-1-listen-to-every-warning)
+    - [Method 2: Fix Root Causes, Not Symptoms](#method-2-fix-root-causes-not-symptoms)
+    - [Method 3: Make it a CI Gate](#method-3-make-it-a-ci-gate)
+    - [Method 4: Run Regularly](#method-4-run-regularly)
+  - [Common Warnings and What They Mean](#common-warnings-and-what-they-mean)
+  - [Warnings vs. Errors](#warnings-vs-errors)
+    - [Compile Errors](#compile-errors)
+    - [Compile Warnings](#compile-warnings)
+  - [The Philosophy](#the-philosophy)
+  - [Psychological Safety](#psychological-safety)
+  - [Clippy: Beyond Warnings](#clippy-beyond-warnings)
+  - [The Meta-Lesson](#the-meta-lesson)
+  - [Key Insights](#key-insights)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Explanation: Why Zero Warnings Matters
 
 **The compiler as a design feedback tool, not a noise generator**

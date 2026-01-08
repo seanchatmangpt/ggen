@@ -1,3 +1,52 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Validation Feature](#validation-feature)
+  - [Overview](#overview)
+  - [Purpose](#purpose)
+  - [Validation Types](#validation-types)
+    - [1. SHACL Validation (Structural Constraints)](#1-shacl-validation-structural-constraints)
+    - [2. SPARQL ASK Validation (Semantic Constraints)](#2-sparql-ask-validation-semantic-constraints)
+  - [Usage](#usage)
+    - [Basic Validation](#basic-validation)
+    - [Combined with Generation](#combined-with-generation)
+    - [Validation Configuration](#validation-configuration)
+  - [SHACL Constraint Types](#shacl-constraint-types)
+    - [Cardinality Constraints](#cardinality-constraints)
+    - [Datatype Constraints](#datatype-constraints)
+    - [Value Constraints](#value-constraints)
+    - [Relationship Constraints](#relationship-constraints)
+  - [SPARQL ASK Validation Patterns](#sparql-ask-validation-patterns)
+    - [Existence Checks](#existence-checks)
+    - [Consistency Checks](#consistency-checks)
+    - [Business Rule Checks](#business-rule-checks)
+    - [Cross-Entity Validation](#cross-entity-validation)
+  - [Validation Output](#validation-output)
+    - [Success (No Violations)](#success-no-violations)
+    - [SHACL Violations](#shacl-violations)
+    - [SPARQL ASK Failures](#sparql-ask-failures)
+  - [Validation Workflow Examples](#validation-workflow-examples)
+    - [Example 1: Pre-Commit Validation](#example-1-pre-commit-validation)
+    - [Example 2: CI/CD Pipeline](#example-2-cicd-pipeline)
+    - [Example 3: Development Workflow](#example-3-development-workflow)
+    - [Example 4: Migration Validation](#example-4-migration-validation)
+  - [Validation Best Practices](#validation-best-practices)
+  - [Integration with Other Features](#integration-with-other-features)
+    - [With `--force`](#with---force)
+    - [With `--watch`](#with---watch)
+    - [With `--audit`](#with---audit)
+  - [Performance Impact](#performance-impact)
+    - [Optimization](#optimization)
+  - [Troubleshooting](#troubleshooting)
+    - [Issue: False positives](#issue-false-positives)
+    - [Issue: SPARQL ASK always fails](#issue-sparql-ask-always-fails)
+    - [Issue: Validation timeout](#issue-validation-timeout)
+  - [Security Considerations](#security-considerations)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Validation Feature
 
 ## Overview

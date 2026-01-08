@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Feature Completeness Matrix - ggen v5.2.0 Phase 3 MEDIUM](#feature-completeness-matrix---ggen-v520-phase-3-medium)
+  - [Executive Summary](#executive-summary)
+  - [Core Features Matrix](#core-features-matrix)
+  - [Advanced Features Matrix](#advanced-features-matrix)
+  - [Risk Priority Analysis](#risk-priority-analysis)
+    - [High Risk Features (RPN > 0.40)](#high-risk-features-rpn--040)
+    - [Medium Risk Features (0.20 < RPN < 0.40)](#medium-risk-features-020--rpn--040)
+    - [Low Risk Features (RPN < 0.20)](#low-risk-features-rpn--020)
+  - [HDOC Entropy Metrics](#hdoc-entropy-metrics)
+    - [Entropy Distribution](#entropy-distribution)
+  - [Test Coverage Analysis](#test-coverage-analysis)
+    - [Coverage by Category](#coverage-by-category)
+    - [Coverage Gaps](#coverage-gaps)
+  - [Documentation Quality Matrix](#documentation-quality-matrix)
+  - [Timeline Evolution](#timeline-evolution)
+    - [Feature Introduction by Version](#feature-introduction-by-version)
+  - [Release Readiness Assessment](#release-readiness-assessment)
+    - [v5.2.0 Phase 3 MEDIUM - Gate Criteria](#v520-phase-3-medium---gate-criteria)
+    - [Blocking Issues](#blocking-issues)
+    - [Recommended Actions](#recommended-actions)
+  - [Feature Dependencies](#feature-dependencies)
+    - [Critical Path Analysis](#critical-path-analysis)
+  - [Entropy-Risk Correlation Analysis](#entropy-risk-correlation-analysis)
+    - [Key Insights](#key-insights)
+    - [Predictive Model](#predictive-model)
+  - [Verification Procedures](#verification-procedures)
+    - [Green Status Requirements](#green-status-requirements)
+    - [Yellow Status Requirements](#yellow-status-requirements)
+    - [Red Status Triggers](#red-status-triggers)
+  - [Historical Trends](#historical-trends)
+    - [Test Coverage Growth](#test-coverage-growth)
+    - [Entropy Evolution](#entropy-evolution)
+  - [Appendix: Calculation Methodology](#appendix-calculation-methodology)
+    - [HDOC Entropy Calculation](#hdoc-entropy-calculation)
+    - [Risk Priority Number (RPN)](#risk-priority-number-rpn)
+    - [Test Coverage](#test-coverage)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Feature Completeness Matrix - ggen v5.2.0 Phase 3 MEDIUM
 
 ## Executive Summary

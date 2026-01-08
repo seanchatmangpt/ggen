@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [PhD Thesis Synthesis - Documentation Index](#phd-thesis-synthesis---documentation-index)
+  - [📚 What This Is](#-what-this-is)
+  - [📖 Documentation Files](#-documentation-files)
+    - [1️⃣ Start Here: Executive Summary](#-start-here-executive-summary)
+    - [2️⃣ Complete Analysis: Detailed Synthesis Plan](#-complete-analysis-detailed-synthesis-plan)
+    - [3️⃣ Visual Reference: Flow Diagrams](#-visual-reference-flow-diagrams)
+  - [🎯 Quick Decision Guide](#-quick-decision-guide)
+    - [If You Want to...](#if-you-want-to)
+  - [📊 Key Metrics Summary](#-key-metrics-summary)
+    - [Current Status (10 Chapters)](#current-status-10-chapters)
+    - [Projected After Optimization (8 Chapters)](#projected-after-optimization-8-chapters)
+  - [🗂️ Original Thesis Files](#-original-thesis-files)
+  - [✅ Recommended Actions](#-recommended-actions)
+    - [Step 1: Read the Summary (10-15 min)](#step-1-read-the-summary-10-15-min)
+    - [Step 2: Review Visual Diagrams (15-20 min)](#step-2-review-visual-diagrams-15-20-min)
+    - [Step 3: Deep Dive on Areas of Interest (30-60 min)](#step-3-deep-dive-on-areas-of-interest-30-60-min)
+    - [Step 4: Make Decision](#step-4-make-decision)
+  - [🔄 What Happens Next](#-what-happens-next)
+    - [If Approved:](#if-approved)
+  - [📋 Checklist for Review](#-checklist-for-review)
+  - [🎓 Strengths of Your Thesis (Preserved)](#-strengths-of-your-thesis-preserved)
+  - [📞 Contact/Feedback](#-contactfeedback)
+  - [🗺️ Navigation Map](#-navigation-map)
+  - [📈 Success Metrics (Target)](#-success-metrics-target)
+    - [Quick Links](#quick-links)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # PhD Thesis Synthesis - Documentation Index
 
 **Project:** Ontology-Driven Code Generation PhD Thesis Refactoring

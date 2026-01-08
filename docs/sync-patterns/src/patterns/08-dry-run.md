@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [8. DRY RUN **](#8-dry-run-)
+  - [Context](#context)
+  - [Connections](#connections)
+  - [Implementation](#implementation)
+    - [Invocation](#invocation)
+    - [Behavior](#behavior)
+    - [Output](#output)
+    - [JSON Output](#json-output)
+    - [Actions](#actions)
+    - [Change Detection](#change-detection)
+  - [Use Cases](#use-cases)
+    - [Safe Exploration](#safe-exploration)
+    - [Configuration Verification](#configuration-verification)
+    - [CI/CD Verification](#cicd-verification)
+    - [Learning](#learning)
+  - [The Deeper Pattern](#the-deeper-pattern)
+  - [Relationship to Other Safety Patterns](#relationship-to-other-safety-patterns)
+  - [When This Pattern Breaks](#when-this-pattern-breaks)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 8. DRY RUN **
 
 *Look before you leap. Ask before you change.*

@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [MEGA-PROMPT EVIDENCE CORPUS](#mega-prompt-evidence-corpus)
+  - [EXECUTIVE SUMMARY](#executive-summary)
+  - [AGENT REPORTS SUMMARY](#agent-reports-summary)
+    - [Agent 1: Scale & Throughput Collapse](#agent-1-scale--throughput-collapse)
+    - [Agent 2: Irreversibility & First-Error Dominance](#agent-2-irreversibility--first-error-dominance)
+    - [Agent 3: Determinism vs Probabilistic Control](#agent-3-determinism-vs-probabilistic-control)
+    - [Agent 4: Idempotence & Replayability](#agent-4-idempotence--replayability)
+    - [Agent 5: Coordination Complexity & Scaling](#agent-5-coordination-complexity--scaling)
+    - [Agent 6: Temporal Control & History Navigation](#agent-6-temporal-control--history-navigation)
+    - [Agent 7: Formal Minimality & Uniqueness](#agent-7-formal-minimality--uniqueness)
+    - [Agent 8: Buckminster Fuller Lineage](#agent-8-buckminster-fuller-lineage)
+    - [Agent 9: Active Falsification Search](#agent-9-active-falsification-search)
+  - [COLLISION DETECTION & RESOLUTION](#collision-detection--resolution)
+    - [Collision Summary](#collision-summary)
+    - [Domain Boundary Identified](#domain-boundary-identified)
+    - [Why Both Agents Are Correct](#why-both-agents-are-correct)
+    - [Analogy](#analogy)
+  - [FORMAL THESIS RECONCILIATION](#formal-thesis-reconciliation)
+    - [Unified Theorem](#unified-theorem)
+    - [Applicability to ggen](#applicability-to-ggen)
+  - [EVIDENCE CORPUS STATISTICS](#evidence-corpus-statistics)
+  - [CONSTITUTIONAL IMPACT FOR GGEN](#constitutional-impact-for-ggen)
+  - [NEXT STEPS](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # MEGA-PROMPT EVIDENCE CORPUS
 
 **Date**: 2026-01-06

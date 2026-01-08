@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [9. VALIDATION GATE **](#9-validation-gate-)
+  - [Context](#context)
+  - [Connections](#connections)
+  - [Implementation](#implementation)
+    - [Invocation](#invocation)
+    - [Behavior](#behavior)
+    - [Validation Layers](#validation-layers)
+    - [Output](#output)
+    - [Error Output](#error-output)
+  - [Validation Checks Summary](#validation-checks-summary)
+  - [Integration with CI/CD](#integration-with-cicd)
+  - [The Deeper Pattern](#the-deeper-pattern)
+  - [Relationship to DRY RUN](#relationship-to-dry-run)
+  - [When This Pattern Breaks](#when-this-pattern-breaks)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 9. VALIDATION GATE **
 
 *Check the map before starting the journey.*

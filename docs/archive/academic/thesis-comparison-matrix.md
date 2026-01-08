@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Thesis Comparison Matrix: Ontology-Driven Code Generation](#thesis-comparison-matrix-ontology-driven-code-generation)
+  - [Academic Research Comparison](#academic-research-comparison)
+    - [Academic Competitive Advantages ✓](#academic-competitive-advantages-%E2%9C%93)
+    - [Academic Competitive Weaknesses ✗](#academic-competitive-weaknesses-%E2%9C%97)
+  - [Industry Tools Comparison](#industry-tools-comparison)
+    - [Industry Competitive Advantages ✓](#industry-competitive-advantages-%E2%9C%93)
+    - [Industry Competitive Weaknesses ✗](#industry-competitive-weaknesses-%E2%9C%97)
+  - [Model-Driven Engineering Frameworks](#model-driven-engineering-frameworks)
+    - [MDE Competitive Advantages ✓](#mde-competitive-advantages-%E2%9C%93)
+    - [MDE Competitive Weaknesses ✗](#mde-competitive-weaknesses-%E2%9C%97)
+  - [Feature Matrix: Multi-Artifact Synchronization](#feature-matrix-multi-artifact-synchronization)
+  - [Empirical Metrics Comparison](#empirical-metrics-comparison)
+  - [Scalability Comparison](#scalability-comparison)
+  - [Standards & Technologies](#standards--technologies)
+  - [Publication Readiness Comparison](#publication-readiness-comparison)
+  - [Competitive Positioning Map](#competitive-positioning-map)
+  - [Bottom Line: Competitive Assessment](#bottom-line-competitive-assessment)
+    - [Strengths (vs. All Competitors) ✓](#strengths-vs-all-competitors-%E2%9C%93)
+    - [Weaknesses (vs. All Competitors) ✗](#weaknesses-vs-all-competitors-%E2%9C%97)
+    - [Unique Value Proposition](#unique-value-proposition)
+    - [Competitive Rating: ★★★★☆ **STRONG**](#competitive-rating-%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E2%98%86-strong)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Thesis Comparison Matrix: Ontology-Driven Code Generation
 
 **Quick Reference**: How does this thesis compare to related work?

@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [4. ONTOLOGY LOADING **](#4-ontology-loading-)
+  - [Context](#context)
+  - [Connections](#connections)
+  - [Implementation](#implementation)
+    - [Manifest Configuration](#manifest-configuration)
+    - [The Loading Process](#the-loading-process)
+    - [Graph Operations](#graph-operations)
+    - [Error Handling](#error-handling)
+  - [The Unified Graph](#the-unified-graph)
+  - [Prefix Handling](#prefix-handling)
+  - [The Deeper Pattern](#the-deeper-pattern)
+  - [Ontology Design Implications](#ontology-design-implications)
+  - [When This Pattern Breaks](#when-this-pattern-breaks)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 4. ONTOLOGY LOADING **
 
 *Before you can speak, you must have words. Before you can generate, you must have knowledge.*

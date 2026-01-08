@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [80/20 Implementation Checklist: 6 Weeks to Revenue](#8020-implementation-checklist-6-weeks-to-revenue)
+  - [Week 1-2: Database & Repository (Status: 70% Done)](#week-1-2-database--repository-status-70-done)
+    - [✅ Completed](#-completed)
+    - [⏳ To Complete](#-to-complete)
+    - [Commands](#commands)
+  - [Week 2-3: Wire Auth Handlers (Status: 40% Done)](#week-2-3-wire-auth-handlers-status-40-done)
+    - [Current State](#current-state)
+    - [Step-by-Step](#step-by-step)
+    - [Test](#test)
+  - [Week 3: Integrate Handlers with Database (Status: 30% Done)](#week-3-integrate-handlers-with-database-status-30-done)
+    - [Handlers to Update](#handlers-to-update)
+    - [Pattern](#pattern)
+    - [Test](#test-1)
+  - [Week 3-5: Payment Integration (Status: 10% Done)](#week-3-5-payment-integration-status-10-done)
+    - [Prerequisites](#prerequisites)
+    - [Implementation](#implementation)
+    - [Test](#test-2)
+  - [Week 4: React Dashboard (Status: 0% Done)](#week-4-react-dashboard-status-0-done)
+    - [Setup](#setup)
+    - [Key Pages to Create](#key-pages-to-create)
+    - [Template (Dashboard)](#template-dashboard)
+  - [Week 5-6: Monitoring & Production (Status: 0% Done)](#week-5-6-monitoring--production-status-0-done)
+    - [Monitoring Setup](#monitoring-setup)
+    - [Production Checklist](#production-checklist)
+  - [Validation Points](#validation-points)
+    - [After Each Week](#after-each-week)
+  - [Quick Reference: API Patterns](#quick-reference-api-patterns)
+    - [All handlers follow this pattern:](#all-handlers-follow-this-pattern)
+  - [Environment Variables](#environment-variables)
+  - [Success Criteria](#success-criteria)
+  - [Revenue at Launch](#revenue-at-launch)
+  - [Troubleshooting](#troubleshooting)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 80/20 Implementation Checklist: 6 Weeks to Revenue
 
 **Follow this checklist to activate all 7 revenue streams in production.**

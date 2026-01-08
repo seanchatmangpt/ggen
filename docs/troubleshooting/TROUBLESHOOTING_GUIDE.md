@@ -1,3 +1,49 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Troubleshooting Guide](#ggen-troubleshooting-guide)
+  - [Quick Start](#quick-start)
+  - [Table of Contents](#table-of-contents)
+  - [Compilation Issues](#compilation-issues)
+    - [Error: `error[E0433]: cannot find macro 'unwrap'`](#error-errore0433-cannot-find-macro-unwrap)
+    - [Error: `error[E0599]: no method named 'query' found`](#error-errore0599-no-method-named-query-found)
+    - [Error: `error: linking with 'cc' failed`](#error-error-linking-with-cc-failed)
+    - [Error: `warning: unused import`](#error-warning-unused-import)
+  - [SPARQL Query Issues](#sparql-query-issues)
+    - [Error: `SPARQL parse error: Unexpected token`](#error-sparql-parse-error-unexpected-token)
+    - [Error: `Query returned 0 results when 5 were expected`](#error-query-returned-0-results-when-5-were-expected)
+    - [Error: `Cartesian product explosion` (query times out)](#error-cartesian-product-explosion-query-times-out)
+  - [Template Issues](#template-issues)
+    - [Error: `tera error: variable not found: 'foo'`](#error-tera-error-variable-not-found-foo)
+    - [Error: `tera error: unexpected token`](#error-tera-error-unexpected-token)
+    - [Error: `Error: variable not found in SPARQL row`](#error-error-variable-not-found-in-sparql-row)
+  - [RDF Data Issues](#rdf-data-issues)
+    - [Error: `Invalid RDF/Turtle syntax`](#error-invalid-rdfturtle-syntax)
+    - [Error: `Blank node not unified`](#error-blank-node-not-unified)
+    - [Error: `Namespace collision`](#error-namespace-collision)
+  - [Performance Issues](#performance-issues)
+    - [Symptom: Queries take >10 seconds](#symptom-queries-take-10-seconds)
+    - [Symptom: Memory usage grows unbounded](#symptom-memory-usage-grows-unbounded)
+    - [Symptom: Generation takes much longer than expected](#symptom-generation-takes-much-longer-than-expected)
+  - [Configuration Issues](#configuration-issues)
+    - [Error: `config file not found: ggen.toml`](#error-config-file-not-found-ggentoml)
+    - [Error: `Invalid TOML syntax`](#error-invalid-toml-syntax)
+    - [Error: `ontology not found` when running generation](#error-ontology-not-found-when-running-generation)
+  - [Best Practices to Prevent Errors](#best-practices-to-prevent-errors)
+    - [1. Use `cargo make` Commands](#1-use-cargo-make-commands)
+    - [2. Validate RDF Data Before Use](#2-validate-rdf-data-before-use)
+    - [3. Test SPARQL Queries in Isolation](#3-test-sparql-queries-in-isolation)
+    - [4. Document Assumptions](#4-document-assumptions)
+    - [5. Use Result<T,E> Everywhere](#5-use-resultte-everywhere)
+  - [Getting Help](#getting-help)
+    - [Check Documentation](#check-documentation)
+    - [Debug Techniques](#debug-techniques)
+    - [Report Issues](#report-issues)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Troubleshooting Guide
 
 > Error recovery strategies, common mistakes, and poka-yoke defenses

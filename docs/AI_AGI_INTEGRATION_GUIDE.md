@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [AI/AGI Integration with ggen: Building Intelligent Code Generators](#aiagi-integration-with-ggen-building-intelligent-code-generators)
+  - [The Vision: Code Generation as a Feedback Loop](#the-vision-code-generation-as-a-feedback-loop)
+  - [Core Principle: Ontology-Driven Agents](#core-principle-ontology-driven-agents)
+  - [Architecture: 4-Layer Agentic System](#architecture-4-layer-agentic-system)
+    - [Layer 1: Understanding (Semantic Analysis)](#layer-1-understanding-semantic-analysis)
+    - [Layer 2: Generation (Code Synthesis)](#layer-2-generation-code-synthesis)
+    - [Layer 3: Validation (Testing & Learning)](#layer-3-validation-testing--learning)
+    - [Layer 4: Refinement (Spec Improvement)](#layer-4-refinement-spec-improvement)
+  - [Advanced Pattern: Multi-Agent Orchestration](#advanced-pattern-multi-agent-orchestration)
+  - [Integration Patterns](#integration-patterns)
+    - [Pattern A: CI/CD Integration (Automated Code Generation)](#pattern-a-cicd-integration-automated-code-generation)
+    - [Pattern B: Development Loop (Watch Mode)](#pattern-b-development-loop-watch-mode)
+    - [Pattern C: Agentic Refinement (Continuous Improvement)](#pattern-c-agentic-refinement-continuous-improvement)
+  - [Example: Building a Blog System](#example-building-a-blog-system)
+    - [Step 1: Natural Language Requirement](#step-1-natural-language-requirement)
+    - [Step 2: Agent Generates Ontology](#step-2-agent-generates-ontology)
+    - [Step 3: Agent Runs ggen](#step-3-agent-runs-ggen)
+    - [Step 4: Tests Run](#step-4-tests-run)
+    - [Step 5: Agent Analyzes Failures](#step-5-agent-analyzes-failures)
+    - [Step 6: Loop Back to Step 3](#step-6-loop-back-to-step-3)
+  - [Key Benefits of Agentic Code Generation](#key-benefits-of-agentic-code-generation)
+  - [Getting Started](#getting-started)
+  - [Advanced Topics](#advanced-topics)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # AI/AGI Integration with ggen: Building Intelligent Code Generators
 
 > **This guide shows how to use ggen as the foundation for AI-powered and agentic code generation systems.** Learn to build systems where agents generate code, learn from output, and continuously improve.

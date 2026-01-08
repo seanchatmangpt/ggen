@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Documentation Archive](#documentation-archive)
+  - [Archive Organization](#archive-organization)
+  - [Archive Statistics (Final)](#archive-statistics-final)
+  - [Archival Batches (Complete - 3 Commits)](#archival-batches-complete---3-commits)
+    - [Batch 1 (Commit 5c631e0): Initial Cleanup - 45 files](#batch-1-commit-5c631e0-initial-cleanup---45-files)
+    - [Batch 2 (Commit e565bdc): Deep Cleanup - 243 files](#batch-2-commit-e565bdc-deep-cleanup---243-files)
+    - [Batch 3 (Commit 2fffc46): Final Polish - 46 files](#batch-3-commit-2fffc46-final-polish---46-files)
+  - [Files Archived - Batch 1 (45 total)](#files-archived---batch-1-45-total)
+    - [root/ subdirectory (41 files)](#root-subdirectory-41-files)
+    - [releases/ subdirectory (4 files)](#releases-subdirectory-4-files)
+  - [Archive Rationale](#archive-rationale)
+    - [Muda Cleanup (Waste Elimination)](#muda-cleanup-waste-elimination)
+    - [Mura Cleanup (Unevenness Elimination)](#mura-cleanup-unevenness-elimination)
+  - [Migration Date](#migration-date)
+  - [Retrieval](#retrieval)
+  - [Cleanup Rationale](#cleanup-rationale)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Documentation Archive
 
 This directory contains older documentation files that are no longer actively maintained or have been superseded by newer versions.
