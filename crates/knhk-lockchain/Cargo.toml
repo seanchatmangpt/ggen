@@ -1,0 +1,25 @@
+[package]
+name = "knhk-lockchain"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+path = "src/lib.rs"
+
+[dependencies]
+# Use sha3 in no_std mode with proper features
+sha3 = { version = "0.10", default-features = false }
+# SHA-256 for receipts
+sha2 = { workspace = true }
+# JSON serialization for Git receipts
+serde_json = { workspace = true, optional = true }
+# Hex encoding for Git receipts
+hex = { workspace = true, optional = true }
+# Tokio for async operations
+tokio = { workspace = true, optional = true }
+
+[features]
+default = []
+std = ["sha3/std", "serde_json", "hex", "tokio"]
+

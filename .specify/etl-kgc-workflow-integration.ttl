@@ -1,0 +1,668 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix kgc: <http://ggen.org/kgc#> .
+@prefix ggen: <http://ggen.org/ggen#> .
+@prefix holo: <http://ggen.org/holographic#> .
+@prefix etl: <http://ggen.org/etl#> .
+@prefix wfe: <http://ggen.org/workflow-engine#> .
+@prefix orch: <http://ggen.org/orchestrator#> .
+@prefix event: <http://ggen.org/events#> .
+
+# =============================================================================
+# ETL-KGC-4D-WORKFLOW-ENGINE INTEGRATION SPECIFICATION
+# =============================================================================
+# Holographic orchestration of three Rust systems:
+# 1. knhk-etl: Extract-Transform-Load pipeline (RDF ingestion & processing)
+# 2. hknk-kgc-4d: Temporal knowledge graph layer (4D causality & event sourcing)
+# 3. knhk-workflow-engine: BPMN 2.0 orchestration (process execution & state management)
+#
+# Design Principle: A = μ(O) where O is the composed output of ETL + KGC-4D,
+# and A is the executable workflow instances.
+# =============================================================================
+
+<http://ggen.org/etl-kgc-workflow-integration>
+  a owl:Ontology ;
+  rdfs:label "ETL-KGC-4D-Workflow Engine Integration" ;
+  rdfs:comment "Specification-driven wiring of three Rust systems for optimized holographic orchestration" ;
+  owl:versionInfo "1.0.0" ;
+  .
+
+# =============================================================================
+# PART I: SYSTEM ROLES AND INTERFACES
+# =============================================================================
+
+# System 1: knhk-etl (The Data Ingester)
+etl:KnhkETL
+  a kgc:KGCComponent, owl:Class ;
+  rdfs:label "knhk-etl: RDF Extract-Transform-Load Pipeline" ;
+  rdfs:comment "High-performance 5-stage ETL processing RDF data with Merkle-linked receipts, C FFI hot-path optimization, and deterministic ordering (SoA arrays)." ;
+  kgc:provides [
+    a kgc:Capability ;
+    rdfs:label "RDF Ingestion" ;
+    kgc:function "Parse Turtle/RDF from files, streams, or connectors (Kafka, HTTP)" ;
+  ] ;
+  kgc:provides [
+    a kgc:Capability ;
+    rdfs:label "Data Transformation" ;
+    kgc:function "Schema validation, FNV-1a IRI hashing, Structure-of-Arrays normalization" ;
+  ] ;
+  kgc:provides [
+    a kgc:Capability ;
+    rdfs:label "Hot-Path Execution" ;
+    kgc:function "C FFI invocation for performance-critical operations (≤8 ticks, SIMD alignment)" ;
+  ] ;
+  kgc:provides [
+    a kgc:Capability ;
+    rdfs:label "Receipt Generation" ;
+    kgc:function "Merkle-linked lockchain persistence with OpenTelemetry span IDs" ;
+  ] ;
+  .
+
+# System 2: hknk-kgc-4d (The Temporal Layer)
+kgc:KGC4D
+  a kgc:KGCComponent, owl:Class ;
+  rdfs:label "hknk-kgc-4d: Knowledge Geometry Calculus 4D" ;
+  rdfs:comment "Temporal coherence layer providing 4D observables (O, t, V, G). Not a separate crate, but a framework for temporal context injection throughout the pipeline." ;
+  kgc:provides [
+    a kgc:Capability ;
+    rdfs:label "Temporal Snapshots" ;
+    kgc:function "Content-addressed BLAKE3 snapshots at each ETL stage for reproducibility" ;
+  ] ;
+  kgc:provides [
+    a kgc:Capability ;
+    rdfs:label "Causality Tracking" ;
+    kgc:function "Git-based event sourcing with happens-before relations (DAG structure)" ;
+  ] ;
+  kgc:provides [
+    a kgc:Capability ;
+    rdfs:label "Span Correlation" ;
+    kgc:function "OpenTelemetry integration linking ETL operations to workflow execution" ;
+  ] ;
+  .
+
+# System 3: knhk-workflow-engine (The Orchestrator)
+wfe:KnhkWorkflowEngine
+  a kgc:KGCComponent, owl:Class ;
+  rdfs:label "knhk-workflow-engine: BPMN 2.0 Orchestration Engine" ;
+  rdfs:comment "Async workflow execution with task management, gateways, events, and state persistence. Consumes processed data from ETL as process variables." ;
+  kgc:provides [
+    a kgc:Capability ;
+    rdfs:label "Workflow Management" ;
+    kgc:function "Create, validate, deploy, and version BPMN 2.0 processes" ;
+  ] ;
+  kgc:provides [
+    a kgc:Capability ;
+    rdfs:label "Process Execution" ;
+    kgc:function "Async execution with state persistence, pause/resume/cancel, and task assignment" ;
+  ] ;
+  kgc:provides [
+    a kgc:Capability ;
+    rdfs:label "Event-Driven Processing" ;
+    kgc:function "TimerEvents, MessageEvents, ErrorEvents, and custom signal events" ;
+  ] ;
+  kgc:provides [
+    a kgc:Capability ;
+    rdfs:label "Real-Time Metrics" ;
+    kgc:function "Performance tracking, instance state, and execution trace" ;
+  ] ;
+  .
+
+# =============================================================================
+# PART II: DATA FLOW AND EVENT STRUCTURES
+# =============================================================================
+
+# ETL Output Event: Triple Stream with Temporal Metadata
+event:ETLTripleEvent
+  a rdf:Class ;
+  rdfs:label "ETL Triple Event" ;
+  rdfs:comment "RDF triple produced by ETL pipeline with temporal and causal metadata for KGC-4D" ;
+  rdfs:subClassOf kgc:Artifact ;
+  .
+
+event:ETLTripleEvent
+  rdf:type [
+    a owl:Restriction ;
+    owl:onProperty event:triple ;
+    owl:someValuesFrom [
+      a owl:Restriction ;
+      owl:onProperty rdf:subject ;
+      owl:someValuesFrom xsd:anyURI ;
+    ] ;
+  ] ;
+  .
+
+# Event properties
+event:triple
+  a owl:ObjectProperty ;
+  rdfs:domain event:ETLTripleEvent ;
+  rdfs:comment "The RDF triple (S, P, O) produced by ETL" ;
+  .
+
+event:transactionId
+  a owl:DatatypeProperty ;
+  rdfs:domain event:ETLTripleEvent ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Unique transaction ID for trace correlation across ETL-KGC-Workflow pipeline" ;
+  .
+
+event:etlTimestamp
+  a owl:DatatypeProperty ;
+  rdfs:domain event:ETLTripleEvent ;
+  rdfs:range xsd:dateTime ;
+  rdfs:comment "Nanosecond-precision timestamp when triple exited ETL Emit stage" ;
+  .
+
+event:kgcSpanId
+  a owl:DatatypeProperty ;
+  rdfs:domain event:ETLTripleEvent ;
+  rdfs:range xsd:string ;
+  rdfs:comment "OpenTelemetry span ID for distributed tracing across systems" ;
+  .
+
+event:etlReceipt
+  a owl:ObjectProperty ;
+  rdfs:domain event:ETLTripleEvent ;
+  rdfs:range kgc:Receipt ;
+  rdfs:comment "Merkle-linked receipt from ETL proving deterministic transformation" ;
+  .
+
+# KGC-4D Context Injection
+kgc:TemporalContext
+  a owl:Class ;
+  rdfs:label "Temporal Context (KGC-4D)" ;
+  rdfs:comment "Injected into each ETL-produced event. Contains O, t, V, G coordinates." ;
+  .
+
+kgc:TemporalContext
+  rdf:type owl:Restriction ;
+  owl:onProperty kgc:observable ;
+  owl:minCardinality "1"^^xsd:integer ;
+  .
+
+kgc:observable
+  a owl:ObjectProperty ;
+  rdfs:domain kgc:TemporalContext ;
+  rdfs:range kgc:ObservableSnapshot ;
+  rdfs:comment "Content-addressed RDF snapshot at this moment" ;
+  .
+
+kgc:timestamp
+  a owl:DatatypeProperty ;
+  rdfs:domain kgc:TemporalContext ;
+  rdfs:range xsd:dateTime ;
+  rdfs:comment "Nanosecond-precision wall-clock time" ;
+  .
+
+kgc:causality
+  a owl:ObjectProperty ;
+  rdfs:domain kgc:TemporalContext ;
+  rdfs:range rdf:List ;
+  rdfs:comment "Happens-before relations to previous events (Git DAG)" ;
+  .
+
+kgc:gitReference
+  a owl:DatatypeProperty ;
+  rdfs:domain kgc:TemporalContext ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Git commit hash at this moment (for reproducibility)" ;
+  .
+
+# Workflow Engine Input: Workflow Trigger Event
+event:WorkflowTriggerEvent
+  a rdf:Class ;
+  rdfs:label "Workflow Trigger Event" ;
+  rdfs:comment "Command to start or continue a workflow instance, populated with ETL-processed data" ;
+  rdfs:subClassOf event:ETLTripleEvent ;
+  .
+
+event:WorkflowTriggerEvent
+  rdf:type owl:Restriction ;
+  owl:onProperty event:workflowId ;
+  owl:someValuesFrom xsd:string ;
+  .
+
+event:workflowId
+  a owl:DatatypeProperty ;
+  rdfs:domain event:WorkflowTriggerEvent ;
+  rdfs:range xsd:string ;
+  rdfs:comment "BPMN workflow identifier from workflow-engine" ;
+  .
+
+event:processVariables
+  a owl:ObjectProperty ;
+  rdfs:domain event:WorkflowTriggerEvent ;
+  rdfs:range rdf:Map ;
+  rdfs:comment "Key-value map of variables derived from ETL output (JSON-LD compatible)" ;
+  .
+
+event:correlationId
+  a owl:DatatypeProperty ;
+  rdfs:domain event:WorkflowTriggerEvent ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Links to transactionId for end-to-end tracing" ;
+  .
+
+# Workflow Engine Output: Process Instance State
+event:ProcessInstanceEvent
+  a rdf:Class ;
+  rdfs:label "Process Instance Event" ;
+  rdfs:comment "State change in a workflow instance, emitted back to KGC-4D for temporal tracking" ;
+  rdfs:subClassOf kgc:Artifact ;
+  .
+
+event:processInstanceId
+  a owl:DatatypeProperty ;
+  rdfs:domain event:ProcessInstanceEvent ;
+  rdfs:range xsd:string ;
+  rdfs:comment "UUID of the process instance from workflow-engine" ;
+  .
+
+event:workflowState
+  a owl:DatatypeProperty ;
+  rdfs:domain event:ProcessInstanceEvent ;
+  rdfs:range [ owl:oneOf (
+    "CREATED" "RUNNING" "PAUSED" "COMPLETED" "FAILED" "CANCELLED"
+  ) ] ;
+  rdfs:comment "State of the workflow instance" ;
+  .
+
+event:stateSnapshot
+  a owl:ObjectProperty ;
+  rdfs:domain event:ProcessInstanceEvent ;
+  rdfs:range rdf:Map ;
+  rdfs:comment "Complete state of all variables at this checkpoint" ;
+  .
+
+# =============================================================================
+# PART III: ORCHESTRATOR ARCHITECTURE
+# =============================================================================
+
+# Integration Bridge (knhk-orchestrator crate)
+orch:Orchestrator
+  a kgc:MeasurementFunction, owl:Class ;
+  rdfs:label "knhk-orchestrator: ETL-KGC-Workflow Integration Bridge" ;
+  rdfs:comment "Composable transformation μ: ETL output → KGC-4D temporal context → Workflow engine triggers. Implements composition operator Π." ;
+
+  # Pipeline stages
+  kgc:transformationStage [
+    a kgc:TransformationStage ;
+    rdfs:label "Stage 1: ETL Event Intake" ;
+    rdfs:description "Receive ETL triple events with receipts and metadata" ;
+    kgc:stageNumber 1 ;
+  ] ;
+
+  kgc:transformationStage [
+    a kgc:TransformationStage ;
+    rdfs:label "Stage 2: KGC-4D Context Injection" ;
+    rdfs:description "Enrich events with temporal coordinates (O, t, V, G)" ;
+    kgc:stageNumber 2 ;
+  ] ;
+
+  kgc:transformationStage [
+    a kgc:TransformationStage ;
+    rdfs:label "Stage 3: Process Variable Aggregation" ;
+    rdfs:description "Group related triples into coherent workflow input maps" ;
+    kgc:stageNumber 3 ;
+  ] ;
+
+  kgc:transformationStage [
+    a kgc:TransformationStage ;
+    rdfs:label "Stage 4: Workflow Trigger Generation" ;
+    rdfs:description "Create WorkflowTriggerEvent with correlationId + variables" ;
+    kgc:stageNumber 4 ;
+  ] ;
+
+  kgc:transformationStage [
+    a kgc:TransformationStage ;
+    rdfs:label "Stage 5: Workflow Execution & Receipt" ;
+    rdfs:description "Submit to workflow-engine, capture instance ID, generate receipt" ;
+    kgc:stageNumber 5 ;
+  ] ;
+
+  # Input and output
+  kgc:input event:ETLTripleEvent ;
+  kgc:output event:WorkflowTriggerEvent ;
+
+  # Composition law
+  kgc:isDeterministic true ;
+  kgc:isBitPerfect true ;
+
+  # Invariant preservation
+  kgc:preserves kgc:CardinalityPreservation ;
+  kgc:preserves kgc:IdentityPreservation ;
+  kgc:preserves kgc:OrderIndependence ;
+  kgc:preserves kgc:SchemaPreservation ;
+  .
+
+# Orchestrator as Composition of Three Systems
+orch:CompositionETL_KGC_WFE
+  a kgc:SequentialComposition ;
+  rdfs:label "Π: ETL Π KGC Π Workflow" ;
+  rdfs:comment "Sequential composition: ETL output → KGC context injection → Workflow triggers. Associative per composition laws." ;
+
+  # Function 1: ETL Π KGC
+  [
+    a owl:ReificationOf ;
+    rdf:predicate kgc:SequentialComposition ;
+    rdf:subject etl:KnhkETL ;
+    rdf:object kgc:KGC4D ;
+    rdfs:label "ETL output piped to KGC-4D context injection" ;
+  ] ;
+
+  # Function 2: (ETL Π KGC) Π WFE
+  [
+    a owl:ReificationOf ;
+    rdf:predicate kgc:SequentialComposition ;
+    rdf:subject orch:Orchestrator ;
+    rdf:object wfe:KnhkWorkflowEngine ;
+    rdfs:label "Enriched events piped to workflow-engine triggers" ;
+  ] ;
+  .
+
+# =============================================================================
+# PART IV: EVENT SOURCING AND TEMPORAL COHERENCE
+# =============================================================================
+
+# Event Bus (asynchronous, reliable delivery)
+orch:EventBus
+  a owl:Class ;
+  rdfs:label "Orchestrator Event Bus" ;
+  rdfs:comment "Asynchronous Tokio channels for inter-system communication with guaranteed ordering and delivery tracking" ;
+
+  kgc:provides [
+    a kgc:Capability ;
+    rdfs:label "ETL → Orchestrator Channel" ;
+    kgc:function "Unbounded Tokio MPSC for triple event streaming from ETL.emit()" ;
+  ] ;
+
+  kgc:provides [
+    a kgc:Capability ;
+    rdfs:label "Orchestrator → Workflow Channel" ;
+    kgc:function "Bounded Tokio MPSC for trigger events to workflow-engine process starts" ;
+  ] ;
+
+  kgc:provides [
+    a kgc:Capability ;
+    rdfs:label "Workflow → KGC Feedback Channel" ;
+    kgc:function "Return ProcessInstanceEvents for state snapshots in temporal history" ;
+  ] ;
+  .
+
+# Span Correlation (OpenTelemetry)
+orch:SpanCorrelation
+  a owl:Class ;
+  rdfs:label "Span Correlation Matrix" ;
+  rdfs:comment "Maps span IDs across ETL → Orchestrator → Workflow for distributed tracing" ;
+
+  kgc:provides [
+    a kgc:Capability ;
+    rdfs:label "End-to-End Tracing" ;
+    kgc:function "OTel parent-child span relationships linking all three systems" ;
+  ] ;
+
+  kgc:provides [
+    a kgc:Capability ;
+    rdfs:label "Latency Attribution" ;
+    kgc:function "Measure time in each stage (ETL emit → Orch injection → WFE execution)" ;
+  ] ;
+  .
+
+# KGC-4D Temporal Witness
+kgc:TemporalWitness
+  a kgc:ClosureWitness ;
+  rdfs:label "Temporal Coherence Witness" ;
+  rdfs:comment "Proves that end-to-end pipeline maintains KGC-4D invariants: monotonic time, causal ordering, Git reproducibility" ;
+  kgc:witnessesClosureCriterion holo:DeterministicOutput ;
+
+  kgc:provides [
+    a kgc:Capability ;
+    rdfs:label "Checkpoint Replay" ;
+    kgc:function "Reconstruct exact system state from any Git commit" ;
+  ] ;
+
+  kgc:provides [
+    a kgc:Capability ;
+    rdfs:label "Monotonic History" ;
+    kgc:function "Event timestamps are strictly increasing across all systems" ;
+  ] ;
+
+  kgc:provides [
+    a kgc:Capability ;
+    rdfs:label "Causal Consistency" ;
+    kgc:function "Happens-before relations respected in workflow execution order" ;
+  ] ;
+  .
+
+# =============================================================================
+# PART V: OPTIMIZATION STRATEGIES
+# =============================================================================
+
+# Strategy 1: Zero-Copy Data Flow (using Arc<T> in Rust)
+orch:ZeroCopyStrategy
+  a owl:Class ;
+  rdfs:label "Zero-Copy Data Pipeline" ;
+  rdfs:comment "Avoid cloning large RDF graphs and variable maps. Use Arc<RwLock<T>> for shared state." ;
+
+  rdfs:seeAlso [ rdfs:label "Implementation: Use Arc<T> for triple events, Arc<RwLock<Map<String,Value>>> for variables" ] ;
+  .
+
+# Strategy 2: Batch Processing (SoA arrays from ETL)
+orch:BatchProcessingStrategy
+  a owl:Class ;
+  rdfs:label "Batch Processing via Structure-of-Arrays" ;
+  rdfs:comment "ETL's SoA layout (64-byte alignment, max 8 runs) enables SIMD vectorization in KGC context injection" ;
+
+  rdfs:seeAlso [ rdfs:label "Implementation: Vectorize KGC timestamp/hash computations over SoA batches" ] ;
+  .
+
+# Strategy 3: Lazy Context Injection (on-demand KGC computation)
+orch:LazyContextStrategy
+  a owl:Class ;
+  rdfs:label "Lazy KGC-4D Context Injection" ;
+  rdfs:comment "Only compute BLAKE3 snapshots and causality chains when events enter workflow engine, not on every triple" ;
+
+  rdfs:seeAlso [ rdfs:label "Implementation: Use Cow<T> for lazy evaluation, materialize only when needed" ] ;
+  .
+
+# Strategy 4: Hot-Path Delegation to C FFI
+orch:HotPathOptimization
+  a owl:Class ;
+  rdfs:label "C FFI Hot-Path for Variable Aggregation" ;
+  rdfs:comment "Delegate variable map merging to knhk-hot C FFI (≤2ns per merge) for process variable aggregation stage" ;
+
+  rdfs:seeAlso [ rdfs:label "Implementation: Call knhk_hot::merge_maps_simd for batched variable aggregation" ] ;
+  .
+
+# Strategy 5: Event Deduplication (Idempotency)
+orch:IdempotencyStrategy
+  a owl:Class ;
+  rdfs:label "Event Deduplication via Transaction IDs" ;
+  rdfs:comment "Use transactionId to deduplicate events in case of retries. Enable at-least-once delivery semantics." ;
+
+  rdfs:seeAlso [ rdfs:label "Implementation: Maintain LRU cache of recent transactionIds, reject duplicates" ] ;
+  .
+
+# =============================================================================
+# PART VI: CONSTITUTIONAL RULES FOR INTEGRATION
+# =============================================================================
+
+# Integration Rule 1: Async Boundaries
+[
+  a kgc:ConstitutionalRule ;
+  rdfs:label "Async Boundary: All Inter-System Calls Must Be Non-Blocking" ;
+  rdfs:description "No synchronous .wait() calls between ETL → Orchestrator → Workflow. Use Tokio channels, futures::select!, and timeouts." ;
+] .
+
+# Integration Rule 2: Error Isolation
+[
+  a kgc:ConstitutionalRule ;
+  rdfs:label "Error Isolation: Failures Don't Cascade" ;
+  rdfs:description "If workflow-engine fails, orchestrator logs receipt but continues consuming ETL events. Partition failures via Result<T, E> and error channels." ;
+] .
+
+# Integration Rule 3: Deterministic Ordering
+[
+  a kgc:ConstitutionalRule ;
+  rdfs:label "Deterministic Ordering: Transaction ID Ordering" ;
+  rdfs:description "Order events by (Git commit hash, nanotime, transactionId) triple to ensure reproducible workflow execution across replays." ;
+] .
+
+# Integration Rule 4: Receipt Generation
+[
+  a kgc:ConstitutionalRule ;
+  rdfs:label "Receipt for Each Integration Layer" ;
+  rdfs:description "ETL → receipt (Merkle hash). KGC context → BLAKE3 snapshot. Workflow → instance ID. Each layer proves its transformation." ;
+] .
+
+# Integration Rule 5: Traceability
+[
+  a kgc:ConstitutionalRule ;
+  rdfs:label "Mandatory Span Correlation" ;
+  rdfs:description "Every event carries transactionId + kgcSpanId. All three systems must emit OTel traces with parent-child relationships." ;
+] .
+
+# =============================================================================
+# PART VII: ANDON SIGNALS FOR INTEGRATION PIPELINE
+# =============================================================================
+
+orch:IntegrationAndon
+  a owl:Class ;
+  rdfs:label "Orchestrator Andon Signals" ;
+  rdfs:comment "Quality gates for integrated system health" ;
+
+  kgc:signal [
+    a kgc:AndonSignal ;
+    rdfs:label "🔴 RED: ETL Event Queue Overflow" ;
+    kgc:trigger "Tokio MPSC channel buffer > 10,000 pending events (>5s backlog)" ;
+    kgc:action "STOP orchestrator, drain events, inspect ETL performance" ;
+  ] ;
+
+  kgc:signal [
+    a kgc:AndonSignal ;
+    rdfs:label "🔴 RED: Workflow Trigger Failure Rate > 5%" ;
+    kgc:trigger "workflow-engine.start() fails with >5% frequency" ;
+    kgc:action "STOP, check workflow validity, audit process variable types" ;
+  ] ;
+
+  kgc:signal [
+    a kgc:AndonSignal ;
+    rdfs:label "🟡 YELLOW: KGC Snapshot Latency > 100ms" ;
+    kgc:trigger "BLAKE3 snapshot computation exceeds 100ms per batch" ;
+    kgc:action "Profile, consider lazy evaluation strategy or batch size tuning" ;
+  ] ;
+
+  kgc:signal [
+    a kgc:AndonSignal ;
+    rdfs:label "🟡 YELLOW: Span Correlation Loss" ;
+    kgc:trigger ">1% events lose OTel span correlation across systems" ;
+    kgc:action "Investigate channel serialization, verify span propagation" ;
+  ] ;
+
+  kgc:signal [
+    a kgc:AndonSignal ;
+    rdfs:label "🟢 GREEN: All SLOs Met" ;
+    kgc:trigger "ETL latency <10ms, KGC injection <5ms, Workflow trigger <20ms, end-to-end <50ms" ;
+    kgc:action "Continue, emit metrics, maintain steady state" ;
+  ] ;
+  .
+
+# =============================================================================
+# PART VIII: SLOs FOR INTEGRATED SYSTEM
+# =============================================================================
+
+orch:SLOIntegrated
+  a kgc:SLO ;
+  rdfs:label "Integration Pipeline SLOs" ;
+
+  kgc:target "ETL → Orchestrator latency: ≤10ms (p99)" ;
+  kgc:target "KGC-4D context injection: ≤5ms per batch" ;
+  kgc:target "Workflow trigger generation: ≤20ms (includes variable aggregation)" ;
+  kgc:target "End-to-end ETL → Workflow execution: ≤50ms (p99)" ;
+  kgc:target "Event deduplication LRU lookups: ≤1µs per event" ;
+  kgc:target "Span correlation chain: 0 broken links, 100% traceability" ;
+  kgc:target "Receipt generation: ≤2ms (Merkle + BLAKE3 hashing)" ;
+  .
+
+# =============================================================================
+# PART IX: TESTABILITY AND VALIDATION
+# =============================================================================
+
+orch:TestStrategy
+  a owl:Class ;
+  rdfs:label "Integration Testing Strategy" ;
+  rdfs:comment "Chicago TDD: real objects, no mocks, verify observable state" ;
+
+  kgc:provides [
+    a kgc:Capability ;
+    rdfs:label "Unit Test: ETL → Orchestrator Binding" ;
+    kgc:function "Mock ETL events, verify orchestrator emits valid WorkflowTriggerEvents" ;
+  ] ;
+
+  kgc:provides [
+    a kgc:Capability ;
+    rdfs:label "Unit Test: KGC Context Injection" ;
+    kgc:function "Verify temporal context has monotonic timestamps, valid BLAKE3 hashes, correct causality chains" ;
+  ] ;
+
+  kgc:provides [
+    a kgc:Capability ;
+    rdfs:label "Integration Test: End-to-End ETL → Workflow" ;
+    kgc:function "Real ETL instance, real orchestrator, real workflow-engine with test BPMN. Verify execution traces." ;
+  ] ;
+
+  kgc:provides [
+    a kgc:Capability ;
+    rdfs:label "Benchmark: Latency & Throughput" ;
+    kgc:function "criterion.rs benchmarks for each stage. Verify SLO compliance." ;
+  ] ;
+
+  kgc:provides [
+    a kgc:Capability ;
+    rdfs:label "Chaos Test: Event Loss & Retry" ;
+    kgc:function "Simulate ETL/workflow-engine failures, verify event deduplication restores consistency" ;
+  ] ;
+  .
+
+# =============================================================================
+# PART X: ONTOLOGICAL CLOSURE FOR INTEGRATION
+# =============================================================================
+
+orch:IntegrationClosure
+  a holo:OntologicalClosure ;
+  rdfs:label "Integration Closure" ;
+  rdfs:comment "Proof that ETL-KGC-Workflow integration is complete, deterministic, reproducible" ;
+
+  kgc:criterion holo:SpecificationCompleteness ;
+  kgc:criterion holo:DeterministicOutput ;
+  kgc:criterion holo:BitPerfectReproducibility ;
+  .
+
+# Witness 1: Specification Closure
+orch:SpecificationWitness
+  a kgc:Completeness_Witness ;
+  rdfs:label "Specification Completeness Witness" ;
+  rdfs:comment "This TTL document proves 100% specification coverage. No ambiguity on interfaces, data flows, or optimization strategies." ;
+  kgc:witnessesClosureCriterion holo:SpecificationCompleteness ;
+  .
+
+# Witness 2: Deterministic Output
+orch:DeterminismWitness
+  a kgc:Determinism_Witness ;
+  rdfs:label "Determinism Witness (Tests)" ;
+  rdfs:comment "Integration tests demonstrate byte-perfect reproducibility. Given same ETL input + Git state, output workflow triggers are identical." ;
+  kgc:witnessesClosureCriterion holo:DeterministicOutput ;
+  .
+
+# Witness 3: Reproducibility
+orch:ReproducibilityWitness
+  a kgc:Reproducibility_Witness ;
+  rdfs:label "Bit-Perfect Reproducibility Witness" ;
+  rdfs:comment "Git checkpoints enable exact state reconstruction. Replay from any commit produces identical results via deterministic ordering." ;
+  kgc:witnessesClosureCriterion holo:BitPerfectReproducibility ;
+  .
+
+# =============================================================================
+# END OF SPECIFICATION
+# =============================================================================

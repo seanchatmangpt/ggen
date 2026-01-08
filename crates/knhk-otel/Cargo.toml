@@ -1,0 +1,23 @@
+[package]
+name = "knhk-otel"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+path = "src/lib.rs"
+
+[dependencies]
+opentelemetry = { workspace = true, optional = true }
+opentelemetry_sdk = { workspace = true, optional = true }
+opentelemetry-otlp = { workspace = true, optional = true }
+rand = { version = "0.8", optional = true, default-features = false }
+hashbrown = { version = "0.15", default-features = false }
+reqwest = { workspace = true, optional = true }
+serde_json = { workspace = true, optional = true }
+tokio = { workspace = true, optional = true }
+
+[features]
+default = []
+std = ["rand", "opentelemetry", "opentelemetry_sdk", "opentelemetry-otlp", "reqwest", "serde_json", "tokio"]
+
