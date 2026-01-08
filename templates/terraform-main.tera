@@ -1,0 +1,366 @@
+# Terraform Configuration for ggen PaaS
+# Generated from: ggen-paas-ontology.ttl
+# Generated: {{ now() | date(format="%Y-%m-%d %H:%M:%S") }}
+
+terraform {
+  required_version = ">= 1.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+
+  backend "s3" {
+    bucket         = "ggen-paas-terraform-state"
+    key            = "ggen-paas/terraform.tfstate"
+    region         = "us-east-1"
+    encrypt        = true
+    dynamodb_table = "terraform-locks"
+  }
+}
+
+provider "aws" {
+  region = var.aws_region
+
+  default_tags {
+    tags = {
+      Environment = var.environment
+      ManagedBy   = "terraform"
+      Project     = "ggen-paas"
+      CreatedAt   = timestamp()
+    }
+  }
+}
+
+# =============================================================================
+# VARIABLES
+# =============================================================================
+
+variable "aws_region" {
+  type        = string
+  default     = "us-east-1"
+  description = "AWS region for deployment"
+}
+
+variable "environment" {
+  type        = string
+  default     = "production"
+  description = "Environment name"
+}
+
+variable "vpc_cidr" {
+  type        = string
+  default     = "10.0.0.0/16"
+  description = "VPC CIDR block"
+}
+
+variable "container_registry" {
+  type        = string
+  default     = "ggen"
+  description = "Container registry prefix"
+}
+
+# =============================================================================
+# VPC AND NETWORKING
+# =============================================================================
+
+resource "aws_vpc" "main" {
+  cidr_block           = var.vpc_cidr
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+
+  tags = {
+    Name = "ggen-paas-vpc"
+  }
+}
+
+resource "aws_internet_gateway" "main" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "ggen-paas-igw"
+  }
+}
+
+resource "aws_subnet" "public_1" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.1.0/24"
+  availability_zone       = "${var.aws_region}a"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "ggen-paas-public-1"
+  }
+}
+
+resource "aws_subnet" "public_2" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.2.0/24"
+  availability_zone       = "${var.aws_region}b"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "ggen-paas-public-2"
+  }
+}
+
+resource "aws_subnet" "private_1" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.10.0/24"
+  availability_zone = "${var.aws_region}a"
+
+  tags = {
+    Name = "ggen-paas-private-1"
+  }
+}
+
+resource "aws_subnet" "private_2" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.11.0/24"
+  availability_zone = "${var.aws_region}b"
+
+  tags = {
+    Name = "ggen-paas-private-2"
+  }
+}
+
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block      = "0.0.0.0/0"
+    gateway_id      = aws_internet_gateway.main.id
+  }
+
+  tags = {
+    Name = "ggen-paas-public-rt"
+  }
+}
+
+resource "aws_route_table_association" "public_1" {
+  subnet_id      = aws_subnet.public_1.id
+  route_table_id = aws_route_table.public.id
+}
+
+resource "aws_route_table_association" "public_2" {
+  subnet_id      = aws_subnet.public_2.id
+  route_table_id = aws_route_table.public.id
+}
+
+# =============================================================================
+# SECURITY GROUPS
+# =============================================================================
+
+resource "aws_security_group" "alb" {
+  name        = "ggen-paas-alb"
+  description = "Security group for load balancer"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "ggen-paas-alb-sg"
+  }
+}
+
+resource "aws_security_group" "ecs" {
+  name        = "ggen-paas-ecs"
+  description = "Security group for ECS tasks"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port       = 0
+    to_port         = 65535
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "ggen-paas-ecs-sg"
+  }
+}
+
+# =============================================================================
+# APPLICATION LOAD BALANCER
+# =============================================================================
+
+resource "aws_lb" "main" {
+  name               = "ggen-paas-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.alb.id]
+  subnets            = [aws_subnet.public_1.id, aws_subnet.public_2.id]
+
+  tags = {
+    Name = "ggen-paas-alb"
+  }
+}
+
+resource "aws_lb_target_group" "api" {
+  name        = "ggen-paas-api-tg"
+  port        = 8080
+  protocol    = "HTTP"
+  vpc_id      = aws_vpc.main.id
+  target_type = "ip"
+
+  health_check {
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    timeout             = 3
+    interval            = 30
+    path                = "/health/ready"
+    matcher             = "200"
+  }
+
+  tags = {
+    Name = "ggen-paas-api-tg"
+  }
+}
+
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = aws_lb.main.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.api.arn
+  }
+}
+
+# =============================================================================
+# ECS CLUSTER AND SERVICES
+# =============================================================================
+
+resource "aws_ecs_cluster" "main" {
+  name = "ggen-paas-cluster"
+
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
+
+  tags = {
+    Name = "ggen-paas-cluster"
+  }
+}
+
+resource "aws_ecs_cluster_capacity_providers" "main" {
+  cluster_name = aws_ecs_cluster.main.name
+
+  capacity_providers = ["FARGATE", "FARGATE_SPOT"]
+
+  default_capacity_provider_strategy {
+    base              = 1
+    weight            = 100
+    capacity_provider = "FARGATE"
+  }
+}
+
+# =============================================================================
+# DATABASE (RDS PostgreSQL)
+# =============================================================================
+
+resource "aws_db_instance" "main" {
+  identifier            = "ggen-paas-postgres"
+  engine                = "postgres"
+  engine_version        = "16.1"
+  instance_class        = "db.t3.micro"
+  allocated_storage     = 20
+  storage_encrypted     = true
+  skip_final_snapshot   = false
+  final_snapshot_identifier = "ggen-paas-final-snapshot"
+
+  db_name  = "ggen_paas"
+  username = "ggen"
+  password = random_password.db_password.result
+
+  db_subnet_group_name   = aws_db_subnet_group.main.name
+  vpc_security_group_ids = [aws_security_group.rds.id]
+
+  backup_retention_period = 30
+  backup_window          = "03:00-04:00"
+  maintenance_window     = "sun:04:00-sun:05:00"
+
+  tags = {
+    Name = "ggen-paas-postgres"
+  }
+}
+
+resource "aws_db_subnet_group" "main" {
+  name       = "ggen-paas-db-subnet"
+  subnet_ids = [aws_subnet.private_1.id, aws_subnet.private_2.id]
+
+  tags = {
+    Name = "ggen-paas-db-subnet-group"
+  }
+}
+
+resource "aws_security_group" "rds" {
+  name        = "ggen-paas-rds"
+  description = "Security group for RDS"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.ecs.id]
+  }
+
+  tags = {
+    Name = "ggen-paas-rds-sg"
+  }
+}
+
+resource "random_password" "db_password" {
+  length  = 32
+  special = true
+}
+
+# =============================================================================
+# OUTPUTS
+# =============================================================================
+
+output "load_balancer_dns" {
+  value       = aws_lb.main.dns_name
+  description = "DNS name of the load balancer"
+}
+
+output "ecs_cluster_name" {
+  value       = aws_ecs_cluster.main.name
+  description = "Name of the ECS cluster"
+}
+
+output "rds_endpoint" {
+  value       = aws_db_instance.main.endpoint
+  description = "RDS database endpoint"
+  sensitive   = true
+}
