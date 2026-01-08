@@ -4,3 +4,9 @@
 [submodule "external/unrdf"]
 	path = external/unrdf
 	url = https://github.com/seanchatmangpt/unrdf.git
+[submodule "ggen-spec-kit"]
+	path = ggen-spec-kit
+	url = https://github.com/seanchatmangpt/ggen-spec-kit.git
+[submodule "clap-noun-verb"]
+	path = clap-noun-verb
+	url = https://github.com/seanchatmangpt/clap-noun-verb.git
