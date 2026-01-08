@@ -528,6 +528,98 @@ paas:requiresAllCommunicationDefined
   .
 
 # =============================================================================
+# ARTIFACT TYPES - CODE GENERATION OUTPUT
+# =============================================================================
+# Artifacts are generated outputs from the ggen PaaS system.
+# They represent infrastructure, code, and configuration files produced
+# by the generation pipeline as specifications are transformed.
+
+paas:Artifact
+  a owl:Class ;
+  rdfs:label "Artifact" ;
+  rdfs:comment "Generated code or infrastructure artifact produced by the generation pipeline" ;
+  .
+
+paas:Resource
+  a owl:Class ;
+  rdfs:label "Resource" ;
+  rdfs:comment "Any managed resource (container, datastore, artifact, service mesh, etc.)" ;
+  .
+
+paas:DockerArtifact
+  a owl:Class ;
+  rdfs:subClassOf paas:Artifact ;
+  rdfs:label "Docker Artifact" ;
+  rdfs:comment "Docker Compose or Dockerfile artifact for containerization" ;
+  paas:hasTechnology "Docker" ;
+  .
+
+paas:KubernetesArtifact
+  a owl:Class ;
+  rdfs:subClassOf paas:Artifact ;
+  rdfs:label "Kubernetes Artifact" ;
+  rdfs:comment "Kubernetes manifests (Deployment, Service, StatefulSet, ConfigMap, Secret, etc.)" ;
+  paas:hasTechnology "Kubernetes" ;
+  .
+
+paas:TerraformArtifact
+  a owl:Class ;
+  rdfs:subClassOf paas:Artifact ;
+  rdfs:label "Terraform Artifact" ;
+  rdfs:comment "Terraform Infrastructure-as-Code configuration files for cloud resources" ;
+  paas:hasTechnology "Terraform" ;
+  .
+
+paas:OpenAPIArtifact
+  a owl:Class ;
+  rdfs:subClassOf paas:Artifact ;
+  rdfs:label "OpenAPI Artifact" ;
+  rdfs:comment "OpenAPI 3.0 specification for REST API documentation and client generation" ;
+  paas:hasTechnology "OpenAPI" ;
+  .
+
+paas:IstioArtifact
+  a owl:Class ;
+  rdfs:subClassOf paas:Artifact ;
+  rdfs:label "Istio Artifact" ;
+  rdfs:comment "Istio service mesh configuration (VirtualService, DestinationRule, Gateway)" ;
+  paas:hasTechnology "Istio" ;
+  .
+
+paas:ArchitectureDocArtifact
+  a owl:Class ;
+  rdfs:subClassOf paas:Artifact ;
+  rdfs:label "Architecture Documentation Artifact" ;
+  rdfs:comment "Generated C4 diagrams and architecture documentation" ;
+  paas:hasTechnology "PlantUML" ;
+  .
+
+# Properties for artifact generation relationships
+paas:generatesArtifact
+  a owl:ObjectProperty ;
+  rdfs:label "generates artifact" ;
+  rdfs:domain paas:Container ;
+  rdfs:range paas:Artifact ;
+  rdfs:comment "Artifacts produced by this container during generation" ;
+  .
+
+paas:artifactType
+  a owl:DatatypeProperty ;
+  rdfs:label "artifact type" ;
+  rdfs:domain paas:Artifact ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Type/format of the artifact (docker, kubernetes, terraform, openapi)" ;
+  .
+
+paas:outputPath
+  a owl:DatatypeProperty ;
+  rdfs:label "output path" ;
+  rdfs:domain paas:Artifact ;
+  rdfs:range xsd:string ;
+  rdfs:comment "File system path where artifact is written" ;
+  .
+
+# =============================================================================
 # INSTANCE DATA - ggen PaaS ARCHITECTURE
 # =============================================================================
 # This section instantiates the architecture as defined in the C4 models
