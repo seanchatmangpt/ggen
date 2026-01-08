@@ -4,6 +4,187 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# ============================================================================
+# CLASS DEFINITIONS - CLI Ontology Schema
+# ============================================================================
+# Core semantic classes that define CLI structure and validation
+
+cli:Command
+  a owl:Class ;
+  rdfs:label "CLI Command" ;
+  rdfs:comment "A command that can be executed via the CLI interface" ;
+  .
+
+cli:Option
+  a owl:Class ;
+  rdfs:label "CLI Option" ;
+  rdfs:comment "A command-line option (flag) with optional values" ;
+  .
+
+cli:PositionalArgument
+  a owl:Class ;
+  rdfs:label "Positional Argument" ;
+  rdfs:comment "A positional argument to a command" ;
+  .
+
+cli:SLO
+  a owl:Class ;
+  rdfs:label "Service Level Objective" ;
+  rdfs:comment "Performance target for a command execution" ;
+  .
+
+cli:Category
+  a owl:Class ;
+  rdfs:label "Command Category" ;
+  rdfs:comment "Logical grouping of related commands" ;
+  .
+
+cli:GlobalOption
+  a owl:Class ;
+  rdfs:label "Global Option" ;
+  rdfs:comment "Option available to all commands" ;
+  .
+
+cli:Ontology
+  a owl:Class ;
+  rdfs:label "CLI Ontology" ;
+  rdfs:comment "The CLI specification ontology itself" ;
+  .
+
+# ============================================================================
+# PROPERTY DEFINITIONS - CLI Ontology Properties
+# ============================================================================
+# Properties with explicit domain/range for type safety
+
+cli:handler
+  a owl:DatatypeProperty ;
+  rdfs:label "handler" ;
+  rdfs:domain cli:Command ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Path to handler implementation file" ;
+  .
+
+cli:test
+  a owl:DatatypeProperty ;
+  rdfs:label "test" ;
+  rdfs:domain cli:Command ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Path to test file for command" ;
+  .
+
+cli:category
+  a owl:ObjectProperty ;
+  rdfs:label "category" ;
+  rdfs:domain cli:Command ;
+  rdfs:range cli:Category ;
+  rdfs:comment "Category this command belongs to" ;
+  .
+
+cli:slo
+  a owl:ObjectProperty ;
+  rdfs:label "slo" ;
+  rdfs:domain cli:Command ;
+  rdfs:range cli:SLO ;
+  rdfs:comment "SLO constraints for command execution" ;
+  .
+
+cli:type
+  a owl:DatatypeProperty ;
+  rdfs:label "type" ;
+  rdfs:domain [ owl:unionOf (cli:Option cli:PositionalArgument) ] ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Data type of the option or argument" ;
+  .
+
+cli:longForm
+  a owl:DatatypeProperty ;
+  rdfs:label "longForm" ;
+  rdfs:domain [ owl:unionOf (cli:Option cli:GlobalOption) ] ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Long form flag (e.g., --verbose)" ;
+  .
+
+cli:shortForm
+  a owl:DatatypeProperty ;
+  rdfs:label "shortForm" ;
+  rdfs:domain [ owl:unionOf (cli:Option cli:GlobalOption) ] ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Short form flag (e.g., -v)" ;
+  .
+
+cli:maxExecutionTimeMs
+  a owl:DatatypeProperty ;
+  rdfs:label "maxExecutionTimeMs" ;
+  rdfs:domain cli:SLO ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Maximum execution time in milliseconds" ;
+  .
+
+cli:position
+  a owl:DatatypeProperty ;
+  rdfs:label "position" ;
+  rdfs:domain cli:PositionalArgument ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Position of argument in command line" ;
+  .
+
+cli:required
+  a owl:DatatypeProperty ;
+  rdfs:label "required" ;
+  rdfs:domain [ owl:unionOf (cli:Option cli:PositionalArgument) ] ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Whether this parameter is required" ;
+  .
+
+cli:option
+  a owl:ObjectProperty ;
+  rdfs:label "option" ;
+  rdfs:domain cli:Command ;
+  rdfs:range cli:Option ;
+  rdfs:comment "Options available for this command" ;
+  .
+
+cli:argument
+  a owl:ObjectProperty ;
+  rdfs:label "argument" ;
+  rdfs:domain cli:Command ;
+  rdfs:range cli:PositionalArgument ;
+  rdfs:comment "Positional arguments for this command" ;
+  .
+
+cli:appliesToCommand
+  a owl:ObjectProperty ;
+  rdfs:label "appliesToCommand" ;
+  rdfs:domain cli:GlobalOption ;
+  rdfs:range cli:Command ;
+  rdfs:comment "Commands this global option applies to" ;
+  .
+
+cli:aliases
+  a owl:DatatypeProperty ;
+  rdfs:label "aliases" ;
+  rdfs:domain cli:Command ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Comma-separated aliases for command" ;
+  .
+
+cli:version
+  a owl:DatatypeProperty ;
+  rdfs:label "version" ;
+  rdfs:domain cli:Command ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Version of the command specification" ;
+  .
+
+cli:examples
+  a owl:DatatypeProperty ;
+  rdfs:label "examples" ;
+  rdfs:domain cli:Command ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Example command usage" ;
+  .
 
 # ============================================================================
 # CLI Ontology: Command Definitions for ggen-paas CLI
@@ -701,9 +882,10 @@ cli: a cli:Ontology ;
   rdfs:label "ggen CLI Ontology" ;
   rdfs:comment "RDF specification for ggen-paas command-line interface" ;
   dcterms:created "2026-01-08T00:00:00Z" ;
-  dcterms:modified "2026-01-08T00:00:00Z" ;
-  dcterms:version "1.0.0" ;
-  cli:specificationClosure 100 ;  # 100% complete specification
+  dcterms:modified "2026-01-08T10:30:00Z" ;
+  dcterms:version "1.0.1" ;
+  cli:specificationClosure 95 ;  # 95% closure: class definitions, properties, and SHACL schema complete
   cli:generatedFrom "ggen-paas.config.ttl" ;
-  cli:lastGeneratedAt "2026-01-08T10:00:00Z" ;
+  cli:lastGeneratedAt "2026-01-08T10:30:00Z" ;
+  cli:closureNotes "Added cli-schema.ttl (SHACL), class definitions, and artifact types to ggen-paas-ontology.ttl" ;
   .
