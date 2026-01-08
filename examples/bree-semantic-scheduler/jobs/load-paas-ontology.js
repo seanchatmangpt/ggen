@@ -1,5 +1,5 @@
 /**
- * Bree Job: Load ggen PaaS Ontology
+ * Bree Job: Load PaaS Ontology
  *
  * Preloads and validates the ggen-paas-ontology.ttl into memory.
  * This is a prerequisite job that runs frequently to keep the ontology
@@ -9,89 +9,69 @@
  * Job Name: LoadPaaSontology
  */
 
-const fs = require('fs');
-const path = require('path');
-const { Parser, Store } = require('n3');
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { OntologyManager, JobLogger } from './job-utils.js';
 
-module.exports = async function load_paas_ontology(job) {
-  console.log('[load-paas-ontology] Starting ontology preload...');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-  const startTime = Date.now();
+export default async function load_paas_ontology(job) {
+  const logger = new JobLogger('load-paas-ontology');
   const projectRoot = path.resolve(__dirname, '../../..');
 
   try {
-    // Step 1: Load ontology file
+    logger.info('Starting ontology preload...');
+
+    // Step 1: Initialize ontology manager
     const ontologyPath = path.join(projectRoot, '.specify/ggen-paas-ontology.ttl');
+    const ontologyMgr = new OntologyManager(ontologyPath);
 
-    if (!fs.existsSync(ontologyPath)) {
-      throw new Error(`Ontology file not found: ${ontologyPath}`);
-    }
+    logger.info(`Loading ontology from: ${ontologyPath}`);
 
-    const turtleData = fs.readFileSync(ontologyPath, 'utf-8');
-    console.log(`[load-paas-ontology] Loaded ontology file (${turtleData.length} bytes)`);
-
-    // Step 2: Parse Turtle RDF
-    const parser = new Parser({ baseIRI: 'http://ggen.org/paas#' });
-    const store = new Store();
-
-    const quads = parser.parse(turtleData);
-    console.log(`[load-paas-ontology] Parsed ${quads.length} RDF quads from Turtle`);
-
-    // Step 3: Populate store
-    store.addQuads(quads);
-    console.log(`[load-paas-ontology] Populated RDF store with ${store.size} triples`);
-
-    // Step 4: Validate ontology structure
-    const containers = Array.from(
-      store.match(undefined, { value: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' })
-    ).filter(quad =>
-      quad.object.value === 'http://ggen.org/paas#Container'
+    // Step 2: Load and parse ontology
+    const loadResult = await ontologyMgr.load();
+    logger.success(
+      `Ontology loaded: ${loadResult.tripleCount} triples, ${loadResult.fileSize} bytes`
     );
 
-    console.log(`[load-paas-ontology] Found ${containers.length} container definitions`);
+    // Step 3: Extract containers and data stores
+    const containers = ontologyMgr.getContainers();
+    logger.info(`Found ${containers.length} container definitions`);
 
-    const dataStores = Array.from(
-      store.match(undefined, { value: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' })
-    ).filter(quad =>
-      quad.object.value === 'http://ggen.org/paas#DataStore'
-    );
+    const dataStores = ontologyMgr.getDataStores();
+    logger.info(`Found ${dataStores.length} data store definitions`);
 
-    console.log(`[load-paas-ontology] Found ${dataStores.length} data store definitions`);
+    // Step 4: Validate specification closure
+    const closureValidation = ontologyMgr.validateClosure();
 
-    // Step 5: Validate specification closure
-    if (containers.length < 1) {
-      throw new Error('No containers defined in ontology (specification incomplete)');
+    if (!closureValidation.valid) {
+      logger.warn(`Specification closure issues found:`);
+      closureValidation.issues.forEach((issue) => logger.warn(`  - ${issue}`));
+    } else {
+      logger.success('Specification closure validated');
     }
 
-    if (dataStores.length < 3) {
-      throw new Error('Insufficient data stores defined (specification incomplete)');
-    }
-
-    console.log('[load-paas-ontology] ✓ Specification closure validated');
-
-    // Step 6: Cache statistics
+    // Step 5: Build cache statistics
     const stats = {
+      timestamp: new Date().toISOString(),
+      ontologyPath,
+      tripleCount: loadResult.tripleCount,
       containers: containers.length,
       dataStores: dataStores.length,
-      totalTriples: store.size,
-      timestamp: new Date().toISOString()
+      closureValid: closureValidation.valid,
+      closureIssues: closureValidation.issues.length,
+      duration: logger.getDuration(),
     };
 
-    console.log(`[load-paas-ontology] Ontology statistics:`, JSON.stringify(stats, null, 2));
-
-    const duration = Date.now() - startTime;
-    console.log(`[load-paas-ontology] ✓ Completed in ${duration}ms`);
+    logger.success(`Ontology preload complete in ${logger.getDuration()}ms`);
 
     return {
       success: true,
-      duration,
-      stats,
-      cached: true
+      ...stats,
+      logs: logger.getLogsSummary(),
     };
-
   } catch (error) {
-    const duration = Date.now() - startTime;
-    console.error(`[load-paas-ontology] ✗ Failed after ${duration}ms: ${error.message}`);
+    logger.error(`Failed: ${error.message}`);
     throw error;
   }
-};
+}

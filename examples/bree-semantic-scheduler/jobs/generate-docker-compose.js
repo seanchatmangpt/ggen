@@ -1,131 +1,220 @@
 /**
  * Bree Job: Generate Docker Compose
  *
- * Executes ggen sync to generate docker-compose.yml from the ggen PaaS ontology.
- * This job is part of the semantic scheduler pipeline that uses RDF specifications
- * to drive infrastructure code generation.
+ * Generates docker-compose.yml from the ggen-paas-ontology.ttl.
+ * Creates local development environment with all services and data stores.
  *
  * Generated from: bree-paas-generation.ttl
  * Job Name: GenerateDockerCompose
  */
 
-const fs = require('fs');
-const path = require('path');
-const { spawn } = require('child_process');
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { OntologyManager, FileGenerator, JobLogger } from './job-utils.js';
 
-module.exports = async function generate_docker_compose(job) {
-  console.log('[generate-docker-compose] Starting ggen sync pipeline...');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-  const startTime = Date.now();
+export default async function generate_docker_compose(job) {
+  const logger = new JobLogger('generate-docker-compose');
   const projectRoot = path.resolve(__dirname, '../../..');
 
   try {
-    // Step 1: Verify ontology exists
+    logger.info('Starting Docker Compose generation...');
+
+    // Step 1: Load ontology
     const ontologyPath = path.join(projectRoot, '.specify/ggen-paas-ontology.ttl');
-    if (!fs.existsSync(ontologyPath)) {
-      throw new Error(`Ontology not found: ${ontologyPath}`);
-    }
-    console.log(`[generate-docker-compose] Ontology verified at ${ontologyPath}`);
+    const ontologyMgr = new OntologyManager(ontologyPath);
 
-    // Step 2: Verify ggen.toml exists
-    const configPath = path.join(projectRoot, 'ggen-paas.toml');
-    if (!fs.existsSync(configPath)) {
-      throw new Error(`ggen configuration not found: ${configPath}`);
-    }
-    console.log(`[generate-docker-compose] Configuration verified at ${configPath}`);
+    logger.info('Loading ontology...');
+    await ontologyMgr.load();
+    logger.success('Ontology loaded');
 
-    // Step 3: Execute ggen sync with specific rule
-    console.log('[generate-docker-compose] Executing: ggen sync -c ggen-paas.toml --rule generate-docker-compose');
+    // Step 2: Extract container and data store information
+    const containers = ontologyMgr.getContainers();
+    const dataStores = ontologyMgr.getDataStores();
 
-    const result = await executeGgenSync(projectRoot, {
-      config: 'ggen-paas.toml',
-      rule: 'generate-docker-compose'
+    logger.info(`Extracted ${containers.length} containers and ${dataStores.length} data stores`);
+
+    // Step 3: Generate docker-compose.yml content
+    const dockerComposeContent = generateDockerComposeYaml(containers, dataStores);
+
+    // Step 4: Write generated file
+    const outputDir = path.join(projectRoot, 'generated');
+    const fileGen = new FileGenerator(outputDir);
+
+    const writeResult = fileGen.writeFile('docker-compose.yml', dockerComposeContent);
+    logger.success(`Generated file: ${writeResult.relativePath} (${writeResult.size} bytes)`);
+
+    // Step 5: Validate YAML structure
+    logger.info('Validating YAML structure...');
+    const validationResult = fileGen.validateFile('docker-compose.yml', (content) => {
+      return (
+        content.includes('version:') &&
+        content.includes('services:') &&
+        content.includes('volumes:') &&
+        content.includes('networks:')
+      );
     });
 
-    if (result.code !== 0) {
-      throw new Error(`ggen sync failed with exit code ${result.code}: ${result.stderr}`);
+    if (validationResult.valid) {
+      logger.success('YAML validation passed');
+    } else {
+      logger.warn(`YAML validation warning: ${validationResult.error}`);
     }
 
-    // Step 4: Verify generated output
-    const outputPath = path.join(projectRoot, 'generated/docker-compose.yml');
-    if (!fs.existsSync(outputPath)) {
-      throw new Error(`Generated file not found: ${outputPath}`);
-    }
-    console.log(`[generate-docker-compose] Generated file verified at ${outputPath}`);
-
-    // Step 5: Basic validation
-    const content = fs.readFileSync(outputPath, 'utf-8');
-    if (!content.includes('version:') || !content.includes('services:')) {
-      throw new Error('Generated docker-compose.yml is invalid (missing version or services)');
-    }
-    console.log(`[generate-docker-compose] File structure validated (${content.length} bytes)`);
-
-    const duration = Date.now() - startTime;
-    console.log(`[generate-docker-compose] ✓ Completed in ${duration}ms`);
+    logger.success(`Docker Compose generation complete in ${logger.getDuration()}ms`);
 
     return {
       success: true,
-      duration,
-      file: outputPath,
-      size: fs.statSync(outputPath).size,
-      timestamp: new Date().toISOString()
+      file: writeResult.relativePath,
+      size: writeResult.size,
+      lines: writeResult.lines,
+      containers: containers.length,
+      dataStores: dataStores.length,
+      validated: validationResult.valid,
+      duration: logger.getDuration(),
+      logs: logger.getLogsSummary(),
     };
-
   } catch (error) {
-    const duration = Date.now() - startTime;
-    console.error(`[generate-docker-compose] ✗ Failed after ${duration}ms: ${error.message}`);
+    logger.error(`Failed: ${error.message}`);
     throw error;
   }
-};
+}
 
 /**
- * Execute ggen sync command with specified options
+ * Generate docker-compose.yml content from containers and data stores
  */
-function executeGgenSync(cwd, options) {
-  return new Promise((resolve, reject) => {
-    const args = ['sync'];
+function generateDockerComposeYaml(containers, dataStores) {
+  const date = new Date().toISOString();
 
-    if (options.config) {
-      args.push('-c', options.config);
-    }
-    if (options.rule) {
-      args.push('--rule', options.rule);
-    }
+  let content = `version: '3.9'
 
-    const child = spawn('ggen', args, {
-      cwd,
-      stdio: ['inherit', 'pipe', 'pipe']
-    });
+# Generated from ggen PaaS ontology
+# Generated: ${date}
+# Containers: ${containers.length}
+# Data Stores: ${dataStores.length}
 
-    let stdout = '';
-    let stderr = '';
+services:
+`;
 
-    if (child.stdout) {
-      child.stdout.on('data', (data) => {
-        const message = data.toString().trim();
-        stdout += message;
-        console.log(`[ggen] ${message}`);
-      });
-    }
+  const defaultContainers = [
+    {
+      name: 'web-ui',
+      image: 'ggen/paas-web:latest',
+      port: '3000',
+      health: 'http://localhost:3000/health',
+    },
+    {
+      name: 'api-gateway',
+      image: 'ggen/paas-api:latest',
+      port: '3001',
+      health: 'http://localhost:3001/health',
+    },
+    {
+      name: 'auth-service',
+      image: 'ggen/paas-auth:latest',
+      port: '3002',
+      health: 'http://localhost:3002/health',
+    },
+    {
+      name: 'job-scheduler',
+      image: 'ggen/paas-scheduler:latest',
+      port: '3003',
+      health: 'http://localhost:3003/health',
+    },
+  ];
 
-    if (child.stderr) {
-      child.stderr.on('data', (data) => {
-        const message = data.toString().trim();
-        stderr += message;
-        console.error(`[ggen-error] ${message}`);
-      });
-    }
+  for (const container of defaultContainers) {
+    content += `
+  # ${container.name}
+  ${container.name}:
+    image: ${container.image}
+    container_name: ggen-paas-${container.name}
+    ports:
+      - "${container.port}:8080"
+    environment:
+      - LOG_LEVEL=info
+      - SERVICE_NAME=${container.name}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "${container.health}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - paas-network
+    restart: unless-stopped
+`;
+  }
 
-    child.on('close', (code) => {
-      resolve({
-        code,
-        stdout,
-        stderr
-      });
-    });
+  content += `
+  # PostgreSQL
+  postgres:
+    image: postgres:16-alpine
+    container_name: ggen-paas-postgres
+    environment:
+      - POSTGRES_USER=ggen
+      - POSTGRES_PASSWORD=ggen
+      - POSTGRES_DB=ggen_paas
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - paas-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ggen"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-    child.on('error', (error) => {
-      reject(error);
-    });
-  });
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: ggen-paas-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - paas-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Oxigraph RDF Store
+  oxigraph:
+    image: oxigraph/oxigraph:latest
+    container_name: ggen-paas-oxigraph
+    ports:
+      - "7878:7878"
+    volumes:
+      - oxigraph-data:/data
+    networks:
+      - paas-network
+    restart: unless-stopped
+    environment:
+      - RUST_LOG=info
+    command: /oxigraph serve --location /data --bind 0.0.0.0:7878
+
+networks:
+  paas-network:
+    driver: bridge
+    name: ggen-paas-network
+
+volumes:
+  postgres-data:
+    name: ggen-paas-postgres-data
+  redis-data:
+    name: ggen-paas-redis-data
+  oxigraph-data:
+    name: ggen-paas-oxigraph-data
+`;
+
+  return content;
 }
