@@ -74,6 +74,11 @@ md5 = "0.8"
 # Default: minimal dependencies for core CLI functionality
 default = []
 
+# PaaS Submodule Management Commands
+# Enables: ggen paas init, update, validate, sync, deploy, status, logs, describe, explain
+# Opt-in feature to keep core CLI lightweight
+paas = []
+
 # Autonomic capabilities (MAPE-K loop, introspection flags)
 # Enables: --capabilities, --introspect, --graph flags for AI agent discovery
 autonomic = ["clap-noun-verb/autonomic"]
@@ -95,7 +100,7 @@ kernel = ["clap-noun-verb/kernel"]
 async = ["clap-noun-verb/async"]
 
 # Full feature set (all optional features)
-full = ["autonomic", "agent2028", "rdf", "kernel", "async"]
+full = ["autonomic", "agent2028", "rdf", "kernel", "async", "paas"]
 
 # Testing features
 test-quality = ["ggen-test-audit"]
