@@ -31,7 +31,6 @@
     "@vitest/coverage-v8": "^1.0.0"
   },
   "dependencies": {
-    "n3": "^1.17.0",
-    "comunica-sparql-stable": "^2.9.0"
+    "n3": "^1.17.0"
   }
 }
