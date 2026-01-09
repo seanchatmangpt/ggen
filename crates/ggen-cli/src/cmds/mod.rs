@@ -33,9 +33,10 @@
 // Shared helpers for command modules
 pub mod helpers;
 
-// Core commands: ggen sync & ggen init
+// Core commands: ggen sync, ggen init, ggen wizard
 pub mod init;
 pub mod sync;
+pub mod wizard;
 
 // CRITICAL: Force the modules to be linked so their #[verb] registration works
 // Without this import, the linker optimizes away the linkme static items from #[verb] macro
@@ -43,6 +44,8 @@ pub mod sync;
 use init as _;
 #[allow(unused_imports)]
 use sync as _;
+#[allow(unused_imports)]
+use wizard as _;
 
 use ggen_utils::error::Result;
 use serde_json::json;
