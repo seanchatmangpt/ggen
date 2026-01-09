@@ -58,6 +58,8 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 // Command modules - clap-noun-verb v4.0.2 auto-discovery
 pub mod cmds; // clap-noun-verb v4 entry points with #[verb] functions
+#[cfg(feature = "paas")]
+pub mod commands; // Feature-gated optional command implementations
 pub mod conventions; // File-based routing conventions
                      // pub mod domain;          // Business logic layer - MOVED TO ggen-domain crate
 #[cfg(feature = "autonomic")]
