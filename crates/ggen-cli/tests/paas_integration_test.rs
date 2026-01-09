@@ -14,13 +14,13 @@ mod paas_integration_tests {
 
         // Act
         let path = Path::new(spec_path);
-        let found_files: Vec<_> = required_files
+        let found_count = required_files
             .iter()
             .filter(|f| path.join(*f).exists())
             .count();
 
         // Assert
-        assert!(found_files > 0, "At least one spec file should exist");
+        assert!(found_count > 0, "At least one spec file should exist");
     }
 
     /// Test that submodule names are validated
@@ -31,7 +31,7 @@ mod paas_integration_tests {
         let invalid_names = vec!["invalid", "nonexistent", ""];
 
         // Act & Assert
-        for name in valid_names {
+        for name in &valid_names {
             assert!(!name.is_empty(), "Valid name should not be empty");
             assert!(name.contains("-"), "Valid name should contain dash");
         }

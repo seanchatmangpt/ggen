@@ -1,0 +1,213 @@
+\chapter{CLI Reference}
+\label{app:cli-reference}
+
+This appendix provides a comprehensive reference for the ggen wizard command-line interface.
+
+\section{Wizard Commands}
+
+\subsection{ggen wizard new}
+
+Create a new project from a natural language description.
+
+\begin{lstlisting}[language=bash]
+ggen wizard new [OPTIONS] <DESCRIPTION>
+
+ARGUMENTS:
+  <DESCRIPTION>    Natural language project description
+
+OPTIONS:
+  -o, --output <DIR>       Output directory [default: .]
+  -i, --interactive        Enable interactive mode
+      --dry-run            Preview without generating
+      --format <FORMAT>    Output format: human, json, yaml
+  -v, --verbose            Verbose output
+  -h, --help               Print help
+\end{lstlisting}
+
+\textbf{Example:}
+\begin{lstlisting}[language=bash]
+ggen wizard new "REST API for user management with JWT auth" \
+    --output ./user-service \
+    --interactive
+\end{lstlisting}
+
+\subsection{ggen wizard add}
+
+Add a feature to an existing project specification.
+
+\begin{lstlisting}[language=bash]
+ggen wizard add [OPTIONS] <FEATURE>
+
+ARGUMENTS:
+  <FEATURE>    Natural language feature description
+
+OPTIONS:
+  -p, --project <PATH>     Project path [default: .]
+      --dry-run            Preview without modifying
+  -h, --help               Print help
+\end{lstlisting}
+
+\subsection{ggen wizard modify}
+
+Modify existing specifications conversationally.
+
+\begin{lstlisting}[language=bash]
+ggen wizard modify [OPTIONS] <CHANGE>
+
+ARGUMENTS:
+  <CHANGE>    Natural language change description
+
+OPTIONS:
+  -p, --project <PATH>     Project path [default: .]
+      --dry-run            Preview without modifying
+  -h, --help               Print help
+\end{lstlisting}
+
+\subsection{ggen wizard explain}
+
+Generate human-readable explanation of RDF specifications.
+
+\begin{lstlisting}[language=bash]
+ggen wizard explain [OPTIONS] <SPEC_FILE>
+
+ARGUMENTS:
+  <SPEC_FILE>    Path to .ttl specification file
+
+OPTIONS:
+      --format <FORMAT>    Output format: human, json, markdown
+      --diagrams           Include entity relationship diagrams
+  -h, --help               Print help
+\end{lstlisting}
+
+\section{Pack Commands}
+
+\subsection{Discovery Commands}
+
+\begin{lstlisting}[language=bash]
+ggen pack list [OPTIONS]
+ggen pack search <QUERY> [OPTIONS]
+ggen pack show <PACK_NAME> [OPTIONS]
+ggen pack info <PACK_NAME>
+\end{lstlisting}
+
+\subsection{Management Commands}
+
+\begin{lstlisting}[language=bash]
+ggen pack install <PACK_NAME> [OPTIONS]
+ggen pack uninstall <PACK_NAME> [OPTIONS]
+ggen pack update [PACK_NAME] [OPTIONS]
+ggen pack clean [OPTIONS]
+\end{lstlisting}
+
+\subsection{Generation Commands}
+
+\begin{lstlisting}[language=bash]
+ggen pack generate <PACK_NAME> --output <DIR> [OPTIONS]
+ggen pack regenerate [OPTIONS]
+\end{lstlisting}
+
+\subsection{Composition Commands}
+
+\begin{lstlisting}[language=bash]
+ggen pack compose --packs <P1,P2,...> --output <DIR> [OPTIONS]
+ggen pack merge <SOURCE_DIR> <TARGET_DIR> [OPTIONS]
+ggen pack plan --packs <P1,P2,...> [OPTIONS]
+\end{lstlisting}
+
+\subsection{Validation Commands}
+
+\begin{lstlisting}[language=bash]
+ggen pack validate <PACK_NAME> [OPTIONS]
+ggen pack lint <PACK_PATH> [OPTIONS]
+ggen pack check <PACK_NAME>
+\end{lstlisting}
+
+\subsection{Publishing Commands}
+
+\begin{lstlisting}[language=bash]
+ggen pack publish <PACK_PATH> [OPTIONS]
+ggen pack create [OPTIONS]
+ggen pack init [OPTIONS]
+\end{lstlisting}
+
+\subsection{Scoring Commands}
+
+\begin{lstlisting}[language=bash]
+ggen pack benchmark <PACK_NAME> [OPTIONS]
+ggen pack score <PACK_NAME> [OPTIONS]
+\end{lstlisting}
+
+\subsection{Utility Commands}
+
+\begin{lstlisting}[language=bash]
+ggen pack tree <PACK_NAME> [OPTIONS]
+ggen pack diff <PACK_NAME> <V1> <V2> [OPTIONS]
+ggen pack export <PACK_NAME> [OPTIONS]
+ggen pack import <FILE> [OPTIONS]
+\end{lstlisting}
+
+\section{Core Commands}
+
+\subsection{ggen sync}
+
+Synchronize generated code from ontology.
+
+\begin{lstlisting}[language=bash]
+ggen sync [OPTIONS]
+
+OPTIONS:
+      --dry-run       Preview without generating
+      --force         Force overwrite existing files
+      --audit         Generate audit trail
+  -h, --help          Print help
+\end{lstlisting}
+
+\subsection{ggen validate}
+
+Validate project configuration and specifications.
+
+\begin{lstlisting}[language=bash]
+ggen validate [OPTIONS]
+
+OPTIONS:
+      --closure-proof    Verify specification closure
+      --strict           Fail on warnings
+  -h, --help             Print help
+\end{lstlisting}
+
+\section{Exit Codes}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{cl}
+\toprule
+\textbf{Code} & \textbf{Meaning} \\
+\midrule
+0 & Success \\
+1 & General error \\
+2 & Validation failure \\
+3 & Specification not closed \\
+4 & Template error \\
+5 & Network error \\
+\bottomrule
+\end{tabular}
+\caption{ggen CLI exit codes}
+\end{table}
+
+\section{Environment Variables}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lp{8cm}}
+\toprule
+\textbf{Variable} & \textbf{Description} \\
+\midrule
+\texttt{GGEN\_HOME} & ggen home directory (default: \texttt{\textasciitilde/.ggen}) \\
+\texttt{OPENAI\_API\_KEY} & OpenAI API key for wizard AI features \\
+\texttt{ANTHROPIC\_API\_KEY} & Anthropic API key for Claude integration \\
+\texttt{GGEN\_LOG\_LEVEL} & Log level (trace, debug, info, warn, error) \\
+\texttt{GGEN\_NO\_COLOR} & Disable colored output \\
+\bottomrule
+\end{tabular}
+\caption{ggen environment variables}
+\end{table}
