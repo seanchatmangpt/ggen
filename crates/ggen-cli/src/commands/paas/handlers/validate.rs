@@ -8,7 +8,7 @@ use std::path::Path;
 pub async fn validate_specs(
     spec_path: &str,
     min_closure: f32,
-    strict: bool,
+    _strict: bool,
 ) -> Result<()> {
     let path = Path::new(spec_path);
 
@@ -31,8 +31,15 @@ pub async fn validate_specs(
         }
     }
 
-    if !missing.is_empty() {
-        let closure = ((required_files.len() - missing.len()) as f32 / required_files.len() as f32) * 100.0;
+    // Calculate closure percentage
+    let closure = if missing.is_empty() {
+        100.0
+    } else {
+        ((required_files.len() - missing.len()) as f32 / required_files.len() as f32) * 100.0
+    };
+
+    // Check if closure meets minimum threshold
+    if closure < min_closure {
         return Err(PaasError::ClosureIncomplete {
             current: closure,
             required: min_closure,
@@ -40,22 +47,7 @@ pub async fn validate_specs(
         });
     }
 
-    // In real implementation, would parse TTL and validate with SHACL
-    // For now, assume 100% closure since all files present
-    let closure = 100.0;
-
-    if closure < min_closure {
-        return Err(PaasError::ClosureIncomplete {
-            current: closure,
-            required: min_closure,
-            missing_specs: vec![],
-        });
-    }
-
-    if cfg!(feature = "verbose") {
-        eprintln!("✓ Specification validation passed (closure: {:.1}%)", closure);
-    }
-
+    // Specification validation passed
     Ok(())
 }
 

@@ -34,11 +34,7 @@ pub async fn update_submodule(
         return Err(PaasError::GitFailed(stderr.to_string()));
     }
 
-    if cfg!(feature = "verbose") {
-        let target = name.unwrap_or("all submodules");
-        eprintln!("✓ Updated {}", target);
-    }
-
+    // Submodule(s) updated successfully
     Ok(())
 }
 
