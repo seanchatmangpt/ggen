@@ -1,19 +1,19 @@
 {
-  "timestamp": "2026-01-09T07:02:09.959691525+00:00",
+  "timestamp": "2026-01-09T07:09:21.792557238+00:00",
   "rules_executed": 5,
   "files_changed": 49,
   "file_hashes": {
-    "./src/domain.rs": "3d0a7059634cd92b90b365d2a3ce71d461a4ef0cab710a3c19852b55a3b4bc36",
-    "./src/main.rs": "053010cdd74f81915553e44923444141fde763119e7f8e8f9f8cb1034afa96c7",
-    "./Cargo.toml": "d5e479af1a57f9cbbd9b7a76104c247faf69aee2d732d9500d547a3ff587c181",
     "./src/nouns.json": "176f856c5fb41cef28dc82bb0edf114995b6b2d2a60c38e006fa7a5a4ca60ed2",
-    "./src/error.rs": "bc313405fb297907a8e64bb6661e5746b189b2d0ecf6f3f301389b87069fb620"
+    "./Cargo.toml": "d5e479af1a57f9cbbd9b7a76104c247faf69aee2d732d9500d547a3ff587c181",
+    "./src/domain.rs": "9c029405485903b6d5b0e157af9c2cc63e31f7d24a0278ce5eafd4e9987b9758",
+    "./src/error.rs": "bc313405fb297907a8e64bb6661e5746b189b2d0ecf6f3f301389b87069fb620",
+    "./src/main.rs": "192dfb5991d1bdaf5f5a75507442639b8ca41d6f5d5435bc359aba9da9eeb591"
   },
   "metadata": {
     "ggen_version": "5.1.0",
     "manifest_path": "ggen.toml",
     "ontology_path": ".ggen/ggen-wizard.ttl",
     "spec_hash": "manifest-1.0.0",
-    "duration_ms": 30
+    "duration_ms": 28
   }
 }

@@ -1,19 +1,12 @@
-{# =============================================================================
-   ggen Wizard CLI - Domain Layer
-   Generated from clap-noun-verb RDF specification
-   ============================================================================= #}
 //! Domain Layer - Pure Business Logic for ggen Wizard
 //!
-//! This module contains all business logic for the wizard commands.
 //! Each function is pure and fully testable without CLI dependencies.
 
 use crate::error::DomainError;
 use serde::Serialize;
 
-/// Result type for domain operations
 pub type DomainResult<T> = Result<T, DomainError>;
 
-/// Output for wizard operations
 #[derive(Debug, Clone, Serialize)]
 pub struct WizardOutput {
     pub status: String,
@@ -44,32 +37,23 @@ impl WizardOutput {
         self
     }
 }
-
-{% set current_noun = "" %}
-{% for row in sparql_results %}
-{% set noun_name = row["?noun_name"] %}
-{% set verb_name = row["?verb_name"] %}
-{% if noun_name != current_noun %}
-{% if current_noun != "" %}
+{%- set current_noun = "" -%}
+{%- for row in sparql_results -%}
+{%- set noun_name = row["?noun_name"] -%}
+{%- set verb_name = row["?verb_name"] -%}
+{%- if noun_name != current_noun %}
+{%- if current_noun != "" %}
 }
-
 {% endif %}
-{% set_global current_noun = noun_name %}
-// ============================================================================
-// {{ noun_name | upper }} Domain Logic
-// ============================================================================
+{%- set_global current_noun = noun_name %}
 
 pub mod {{ noun_name }} {
     use super::*;
-
 {% endif %}
-    /// Domain logic for {{ noun_name }}::{{ verb_name }}
     pub fn {{ verb_name | replace(from="-", to="_") }}() -> DomainResult<WizardOutput> {
-        // TODO: Implement {{ noun_name }}::{{ verb_name }} logic
-        Ok(WizardOutput::success("{{ noun_name }}::{{ verb_name }} executed successfully"))
+        Ok(WizardOutput::success("{{ noun_name }}::{{ verb_name }} executed"))
     }
-
 {% endfor %}
-{% if current_noun != "" %}
+{%- if current_noun != "" %}
 }
-{% endif %}
+{% endif -%}
