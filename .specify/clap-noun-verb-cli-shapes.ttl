@@ -1,0 +1,417 @@
+@prefix cnv: <https://ggen.dev/clap-noun-verb/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# ============================================================================
+# SHACL Shapes for clap-noun-verb CLI Specifications
+#
+# These shapes define the constraints that ALL CLI specifications must
+# satisfy. They enforce the Toyota Production System principle of
+# POKA-YOKE (error-proofing): make invalid specs impossible to exist.
+#
+# Severity Levels:
+# - sh:Violation (🔴 RED): Critical - stops code generation
+# - sh:Warning (🟡 YELLOW): Non-critical - allows generation but warns
+# - sh:Info (ℹ️): Informational - for best practices
+# ============================================================================
+
+# ============================================================================
+# SHAPE 1: CliProject Root Validation
+# ============================================================================
+
+cnv:CliProjectShape a sh:NodeShape ;
+    sh:name "CLI Project Root Structure" ;
+    sh:description "Validates that a CliProject has all required metadata" ;
+    sh:targetClass cnv:CliProject ;
+
+    sh:property [
+        sh:path cnv:name ;
+        sh:name "Project Name" ;
+        sh:description "Kebab-case project identifier (e.g., my-cli)" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-z0-9]+(-[a-z0-9]+)*$" ;
+        sh:severity sh:Violation ;
+        sh:message "Project name must be kebab-case: ^[a-z0-9]+(-[a-z0-9]+)*$" ;
+    ] ;
+
+    sh:property [
+        sh:path rdfs:label ;
+        sh:name "Display Name" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 3 ;
+        sh:severity sh:Violation ;
+        sh:message "Project must have a display label (3+ characters)" ;
+    ] ;
+
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:name "Project Description" ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 10 ;
+        sh:severity sh:Violation ;
+        sh:message "Project must have a description (10+ characters)" ;
+    ] ;
+
+    sh:property [
+        sh:path cnv:version ;
+        sh:name "Version" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+\\.[0-9]+\\.[0-9]+$" ;
+        sh:severity sh:Violation ;
+        sh:message "Version must be semantic versioning (X.Y.Z)" ;
+    ] ;
+
+    sh:property [
+        sh:path cnv:nouns ;
+        sh:name "Nouns" ;
+        sh:description "At least one noun (resource type) must be defined" ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Project must define at least one noun (resource type)" ;
+    ] .
+
+# ============================================================================
+# SHAPE 2: Noun Validation
+# ============================================================================
+
+cnv:NounShape a sh:NodeShape ;
+    sh:name "Noun Structure" ;
+    sh:description "Validates that each Noun (resource type) is properly defined" ;
+    sh:targetClass cnv:Noun ;
+
+    sh:property [
+        sh:path cnv:name ;
+        sh:name "Noun Name" ;
+        sh:description "Snake_case identifier for the noun (e.g., my_resource)" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-z_][a-z0-9_]*$" ;
+        sh:severity sh:Violation ;
+        sh:message "Noun name must be snake_case: ^[a-z_][a-z0-9_]*$" ;
+    ] ;
+
+    sh:property [
+        sh:path cnv:plural ;
+        sh:name "Plural Form" ;
+        sh:description "Plural form of the noun for list operations" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-z_][a-z0-9_]*$" ;
+        sh:severity sh:Violation ;
+        sh:message "Plural noun must be snake_case" ;
+    ] ;
+
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:name "Description" ;
+        sh:description "Human-readable description of what this noun represents" ;
+        sh:minCount 1 ;
+        sh:minLength 10 ;
+        sh:severity sh:Violation ;
+        sh:message "Noun must have a description (10+ characters)" ;
+    ] ;
+
+    sh:property [
+        sh:path cnv:verbs ;
+        sh:name "Associated Verbs" ;
+        sh:description "List of verbs (actions) that can be performed on this noun" ;
+        sh:minCount 2 ;
+        sh:severity sh:Warning ;
+        sh:message "Noun should have at least 2 verbs (actions) for good UX" ;
+    ] .
+
+# ============================================================================
+# SHAPE 3: Verb Validation
+# ============================================================================
+
+cnv:VerbShape a sh:NodeShape ;
+    sh:name "Verb Structure" ;
+    sh:description "Validates that each Verb (action) is properly defined" ;
+    sh:targetClass cnv:Verb ;
+
+    sh:property [
+        sh:path cnv:name ;
+        sh:name "Verb Name" ;
+        sh:description "Snake_case action name (e.g., create, destroy)" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-z_][a-z0-9_]*$" ;
+        sh:severity sh:Violation ;
+        sh:message "Verb name must be snake_case: ^[a-z_][a-z0-9_]*$" ;
+    ] ;
+
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:name "Description" ;
+        sh:minCount 1 ;
+        sh:minLength 5 ;
+        sh:severity sh:Violation ;
+        sh:message "Verb must have a description (5+ characters)" ;
+    ] ;
+
+    sh:property [
+        sh:path cnv:appliesTo ;
+        sh:name "Applies To (Noun)" ;
+        sh:description "Reference to the noun this verb operates on" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:severity sh:Violation ;
+        sh:message "Verb must apply to exactly one noun" ;
+    ] ;
+
+    sh:property [
+        sh:path cnv:handler ;
+        sh:name "Handler Function" ;
+        sh:description "Name of the handler function (e.g., handle_noun_verb)" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^handle_[a-z_][a-z0-9_]*$" ;
+        sh:severity sh:Violation ;
+        sh:message "Handler must be named 'handle_<noun>_<verb>' pattern" ;
+    ] ;
+
+    sh:property [
+        sh:path cnv:examples ;
+        sh:name "Usage Examples" ;
+        sh:description "At least one usage example for documentation" ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Verb should have at least one usage example" ;
+    ] .
+
+# ============================================================================
+# SHAPE 4: Argument Validation
+# ============================================================================
+
+cnv:ArgumentShape a sh:NodeShape ;
+    sh:name "Argument Structure" ;
+    sh:description "Validates that each Argument (command parameter) is properly defined" ;
+    sh:targetClass cnv:Argument ;
+
+    sh:property [
+        sh:path cnv:name ;
+        sh:name "Argument Name" ;
+        sh:description "Snake_case parameter name" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-z_][a-z0-9_]*$" ;
+        sh:severity sh:Violation ;
+        sh:message "Argument name must be snake_case" ;
+    ] ;
+
+    sh:property [
+        sh:path cnv:type ;
+        sh:name "Rust Type" ;
+        sh:description "Valid Rust type for this argument" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            "String" "bool" "u32" "u64" "i32" "i64" "f32" "f64"
+            "PathBuf" "Vec<String>" "Option<String>"
+        ) ;
+        sh:severity sh:Violation ;
+        sh:message "Argument type must be from approved Rust types" ;
+    ] ;
+
+    sh:property [
+        sh:path cnv:required ;
+        sh:name "Required" ;
+        sh:description "Whether this argument is required or optional" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:severity sh:Violation ;
+        sh:message "Argument must declare if required (true/false)" ;
+    ] ;
+
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:name "Description" ;
+        sh:minCount 1 ;
+        sh:minLength 5 ;
+        sh:severity sh:Violation ;
+        sh:message "Argument must have a description (5+ characters)" ;
+    ] .
+
+# ============================================================================
+# SHAPE 5: Uniqueness Constraints
+# ============================================================================
+
+cnv:UniquNounsShape a sh:NodeShape ;
+    sh:name "Unique Noun Names" ;
+    sh:description "Prevents duplicate noun names in the same project" ;
+    sh:targetClass cnv:CliProject ;
+    sh:sparql [
+        sh:message "Duplicate noun names detected: {?name}" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+            SELECT $this ?name (COUNT(?noun) as ?count) WHERE {
+                $this a cnv:CliProject ;
+                   cnv:nouns ?noun .
+                ?noun cnv:name ?name .
+            }
+            GROUP BY ?name
+            HAVING (COUNT(?noun) > 1)
+        """
+    ] .
+
+cnv:UniqueVerbsPerNounShape a sh:NodeShape ;
+    sh:name "Unique Verbs Per Noun" ;
+    sh:description "Prevents duplicate verb names for the same noun" ;
+    sh:targetClass cnv:Noun ;
+    sh:sparql [
+        sh:message "Duplicate verb names for noun: {?verbName}" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+            SELECT $this ?verbName (COUNT(?verb) as ?count) WHERE {
+                $this a cnv:Noun ;
+                   cnv:verbs ?verb .
+                ?verb cnv:name ?verbName .
+            }
+            GROUP BY ?verbName
+            HAVING (COUNT(?verb) > 1)
+        """
+    ] .
+
+cnv:UniqueArgumentsPerVerbShape a sh:NodeShape ;
+    sh:name "Unique Arguments Per Verb" ;
+    sh:description "Prevents duplicate argument names in the same verb" ;
+    sh:targetClass cnv:Verb ;
+    sh:sparql [
+        sh:message "Duplicate argument names for verb: {?argName}" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+            SELECT $this ?argName (COUNT(?arg) as ?count) WHERE {
+                $this a cnv:Verb ;
+                   cnv:arguments ?arg .
+                ?arg cnv:name ?argName .
+            }
+            GROUP BY ?argName
+            HAVING (COUNT(?arg) > 1)
+        """
+    ] .
+
+# ============================================================================
+# SHAPE 6: Cardinality and Scale Constraints
+# ============================================================================
+
+cnv:CardinalityConstraintsShape a sh:NodeShape ;
+    sh:name "Reasonable Cardinality" ;
+    sh:description "Enforces reasonable limits on the number of nouns, verbs, and arguments" ;
+    sh:targetClass cnv:CliProject ;
+
+    sh:property [
+        sh:path cnv:nouns ;
+        sh:maxCount 50 ;
+        sh:severity sh:Warning ;
+        sh:message "Consider breaking up project with 50+ nouns into multiple CLIs" ;
+    ] .
+
+cnv:VerbCardinalityShape a sh:NodeShape ;
+    sh:name "Reasonable Verb Count" ;
+    sh:targetClass cnv:Noun ;
+
+    sh:property [
+        sh:path cnv:verbs ;
+        sh:maxCount 20 ;
+        sh:severity sh:Warning ;
+        sh:message "Noun has 20+ verbs - consider refactoring into smaller resources" ;
+    ] .
+
+cnv:ArgumentCardinalityShape a sh:NodeShape ;
+    sh:name "Reasonable Argument Count" ;
+    sh:targetClass cnv:Verb ;
+
+    sh:property [
+        sh:path cnv:arguments ;
+        sh:maxCount 15 ;
+        sh:severity sh:Warning ;
+        sh:message "Verb has 15+ arguments - consider grouping into config objects" ;
+    ] .
+
+# ============================================================================
+# SHAPE 7: Semantic Constraints
+# ============================================================================
+
+cnv:NoReservedKeywordsShape a sh:NodeShape ;
+    sh:name "Avoid Rust Reserved Keywords" ;
+    sh:description "Prevents using Rust reserved words as identifiers" ;
+    sh:targetClass cnv:Noun ;
+    sh:sparql [
+        sh:message "Noun name uses Rust reserved keyword: {?name}" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+            SELECT $this ?name WHERE {
+                $this a cnv:Noun ;
+                   cnv:name ?name .
+                FILTER(?name IN ("fn", "let", "mut", "const", "static", "struct",
+                               "enum", "trait", "impl", "pub", "mod", "crate",
+                               "async", "await", "match", "if", "else", "loop",
+                               "for", "while", "break", "continue", "return", "use"))
+            }
+        """
+    ] .
+
+cnv:NoReservedVerbKeywordsShape a sh:NodeShape ;
+    sh:name "Avoid Reserved Verb Names" ;
+    sh:description "Prevents using certain reserved verb names" ;
+    sh:targetClass cnv:Verb ;
+    sh:sparql [
+        sh:message "Verb name conflicts with system reserved: {?name}" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+            SELECT $this ?name WHERE {
+                $this a cnv:Verb ;
+                   cnv:name ?name .
+                FILTER(?name IN ("help", "version", "--help", "--version", "h", "v"))
+            }
+        """
+    ] .
+
+# ============================================================================
+# SHAPE 8: Cross-Reference Validation
+# ============================================================================
+
+cnv:HandlerReferenceValidityShape a sh:NodeShape ;
+    sh:name "Handler Function Naming" ;
+    sh:description "Validates that handler names follow the pattern handle_<noun>_<verb>" ;
+    sh:targetClass cnv:Verb ;
+    sh:sparql [
+        sh:message "Handler '{?handler}' doesn't match pattern 'handle_<noun>_<verb>'" ;
+        sh:severity sh:Violation ;
+        sh:select """
+            PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+            SELECT $this ?handler ?nounName ?verbName WHERE {
+                $this a cnv:Verb ;
+                   cnv:handler ?handler ;
+                   cnv:name ?verbName ;
+                   cnv:appliesTo ?noun .
+                ?noun cnv:name ?nounName .
+                FILTER(CONCAT("handle_", ?nounName, "_", ?verbName) != ?handler)
+            }
+        """
+    ] .
+
+# ============================================================================
+# END OF SHAPES
+# ============================================================================
