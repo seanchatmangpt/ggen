@@ -1,0 +1,52 @@
+@prefix ex: <http://example.com/ontology#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Multiple SHACL shapes for different classes
+ex:AuthorShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Author ;
+    sh:property [
+        sh:path ex:author_name ;
+        rdfs:comment "Author full name" ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path ex:biography ;
+        rdfs:comment "Biographical information" ;
+        sh:datatype xsd:string
+    ] .
+
+ex:BookShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Book ;
+    sh:property [
+        sh:path ex:title ;
+        rdfs:comment "Book title" ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path ex:isbn ;
+        rdfs:comment "ISBN identifier" ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path ex:publication_year ;
+        rdfs:comment "Year of publication" ;
+        sh:datatype xsd:integer
+    ] .
+
+ex:PublisherShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Publisher ;
+    sh:property [
+        sh:path ex:publisher_name ;
+        rdfs:comment "Publisher name" ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path ex:country ;
+        rdfs:comment "Country of origin" ;
+        sh:datatype xsd:string
+    ] .

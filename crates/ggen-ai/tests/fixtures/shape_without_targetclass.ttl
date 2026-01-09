@@ -1,0 +1,13 @@
+@prefix ex: <http://example.com/ontology#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# SHACL shape without sh:targetClass (should not be discovered)
+ex:OrphanShape
+    a sh:NodeShape ;
+    sh:property [
+        sh:path ex:orphan_field ;
+        rdfs:comment "A property in an orphan shape" ;
+        sh:datatype xsd:string
+    ] .

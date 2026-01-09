@@ -1,0 +1,44 @@
+@prefix ex: <http://example.com/ontology#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# SHACL shape with various XSD datatypes
+ex:DataTypeShape
+    a sh:NodeShape ;
+    sh:targetClass ex:DataTypeTest ;
+    sh:property [
+        sh:path ex:string_field ;
+        rdfs:comment "String type" ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path ex:int_field ;
+        rdfs:comment "Integer type" ;
+        sh:datatype xsd:integer
+    ] ;
+    sh:property [
+        sh:path ex:boolean_field ;
+        rdfs:comment "Boolean type" ;
+        sh:datatype xsd:boolean
+    ] ;
+    sh:property [
+        sh:path ex:float_field ;
+        rdfs:comment "Float type" ;
+        sh:datatype xsd:float
+    ] ;
+    sh:property [
+        sh:path ex:double_field ;
+        rdfs:comment "Double type" ;
+        sh:datatype xsd:double
+    ] ;
+    sh:property [
+        sh:path ex:long_field ;
+        rdfs:comment "Long integer type" ;
+        sh:datatype xsd:long
+    ] ;
+    sh:property [
+        sh:path ex:decimal_field ;
+        rdfs:comment "Decimal type" ;
+        sh:datatype xsd:decimal
+    ] .
