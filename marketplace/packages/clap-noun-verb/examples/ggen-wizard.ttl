@@ -1,0 +1,404 @@
+@prefix cnv: <https://ggen.dev/clap-noun-verb/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@base <http://ggen.dev/wizard/> .
+
+# =============================================================================
+# ggen Wizard CLI - Natural Language to RDF Code Generation
+# =============================================================================
+# The wizard command system enables users to generate specifications from
+# natural language descriptions. Users never write RDF ontologies or templates.
+#
+# WHY-WHAT-HOW Framework:
+#   WHY:  User describes intent in natural language
+#   WHAT: Wizard generates validated RDF specification
+#   HOW:  ggen pipeline produces deterministic code
+#
+# Usage:
+#   ggen wizard new "REST API for user management with JWT auth"
+#   ggen wizard add "add pagination to user list endpoint"
+#   ggen wizard explain
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Project Metadata
+# -----------------------------------------------------------------------------
+
+<http://ggen.dev/wizard> a cnv:CliProject ;
+    cnv:projectName "ggen-wizard" ;
+    cnv:projectVersion "1.0.0" ;
+    rdfs:comment "Natural language interface for ontology-driven code generation" .
+
+# -----------------------------------------------------------------------------
+# Nouns (Resource Types)
+# -----------------------------------------------------------------------------
+
+<#wizard> a cnv:Noun ;
+    cnv:nounName "wizard" ;
+    rdfs:comment "Wizard command for NL-driven specification generation" ;
+    cnv:hasVerbs <#wizard_new>, <#wizard_add>, <#wizard_modify>, <#wizard_explain>, <#wizard_validate>, <#wizard_generate> .
+
+<#spec> a cnv:Noun ;
+    cnv:nounName "spec" ;
+    rdfs:comment "RDF specification management" ;
+    cnv:hasVerbs <#spec_show>, <#spec_diff>, <#spec_export>, <#spec_import> .
+
+<#pack> a cnv:Noun ;
+    cnv:nounName "pack" ;
+    rdfs:comment "Template pack management for wizard" ;
+    cnv:hasVerbs <#pack_recommend>, <#pack_preview>, <#pack_apply> .
+
+# -----------------------------------------------------------------------------
+# Verbs for Wizard
+# -----------------------------------------------------------------------------
+
+<#wizard_new> a cnv:Verb ;
+    cnv:verbName "new" ;
+    rdfs:comment "Create new project from natural language description" ;
+    cnv:hasArguments <#wizard_new_description>, <#wizard_new_output>, <#wizard_new_pack>, <#wizard_new_dry_run> .
+
+<#wizard_add> a cnv:Verb ;
+    cnv:verbName "add" ;
+    rdfs:comment "Add feature to existing project from natural language" ;
+    cnv:hasArguments <#wizard_add_description>, <#wizard_add_project> .
+
+<#wizard_modify> a cnv:Verb ;
+    cnv:verbName "modify" ;
+    rdfs:comment "Modify existing specification based on natural language changes" ;
+    cnv:hasArguments <#wizard_modify_description>, <#wizard_modify_spec> .
+
+<#wizard_explain> a cnv:Verb ;
+    cnv:verbName "explain" ;
+    rdfs:comment "Generate human-readable explanation of specification" ;
+    cnv:hasArguments <#wizard_explain_spec>, <#wizard_explain_format> .
+
+<#wizard_validate> a cnv:Verb ;
+    cnv:verbName "validate" ;
+    rdfs:comment "Validate specification closure before generation" ;
+    cnv:hasArguments <#wizard_validate_spec>, <#wizard_validate_verbose> .
+
+<#wizard_generate> a cnv:Verb ;
+    cnv:verbName "generate" ;
+    rdfs:comment "Generate code from validated specification" ;
+    cnv:hasArguments <#wizard_generate_spec>, <#wizard_generate_output>, <#wizard_generate_force> .
+
+# -----------------------------------------------------------------------------
+# Verbs for Spec
+# -----------------------------------------------------------------------------
+
+<#spec_show> a cnv:Verb ;
+    cnv:verbName "show" ;
+    rdfs:comment "Display specification contents in human-readable format" ;
+    cnv:hasArguments <#spec_show_path>, <#spec_show_format> .
+
+<#spec_diff> a cnv:Verb ;
+    cnv:verbName "diff" ;
+    rdfs:comment "Show differences between two specifications" ;
+    cnv:hasArguments <#spec_diff_spec1>, <#spec_diff_spec2> .
+
+<#spec_export> a cnv:Verb ;
+    cnv:verbName "export" ;
+    rdfs:comment "Export specification to various formats" ;
+    cnv:hasArguments <#spec_export_spec>, <#spec_export_format>, <#spec_export_output> .
+
+<#spec_import> a cnv:Verb ;
+    cnv:verbName "import" ;
+    rdfs:comment "Import specification from external format" ;
+    cnv:hasArguments <#spec_import_source>, <#spec_import_format> .
+
+# -----------------------------------------------------------------------------
+# Verbs for Pack
+# -----------------------------------------------------------------------------
+
+<#pack_recommend> a cnv:Verb ;
+    cnv:verbName "recommend" ;
+    rdfs:comment "Recommend packs based on natural language description" ;
+    cnv:hasArguments <#pack_recommend_description>, <#pack_recommend_limit> .
+
+<#pack_preview> a cnv:Verb ;
+    cnv:verbName "preview" ;
+    rdfs:comment "Preview what a pack would generate" ;
+    cnv:hasArguments <#pack_preview_name>, <#pack_preview_spec> .
+
+<#pack_apply> a cnv:Verb ;
+    cnv:verbName "apply" ;
+    rdfs:comment "Apply pack templates to specification" ;
+    cnv:hasArguments <#pack_apply_name>, <#pack_apply_spec>, <#pack_apply_output> .
+
+# -----------------------------------------------------------------------------
+# Arguments for Wizard Verbs
+# -----------------------------------------------------------------------------
+
+# wizard new arguments
+<#wizard_new_description> a cnv:Argument ;
+    cnv:argumentName "description" ;
+    cnv:argumentType <#StringType> ;
+    cnv:required true ;
+    cnv:positional true ;
+    cnv:helpText "Natural language description of the project" .
+
+<#wizard_new_output> a cnv:Argument ;
+    cnv:argumentName "output" ;
+    cnv:argumentType <#StringType> ;
+    cnv:short "o" ;
+    cnv:defaultValue "." ;
+    cnv:helpText "Output directory for generated project" .
+
+<#wizard_new_pack> a cnv:Argument ;
+    cnv:argumentName "pack" ;
+    cnv:argumentType <#StringType> ;
+    cnv:short "p" ;
+    cnv:helpText "Template pack to use (auto-detected if not specified)" .
+
+<#wizard_new_dry_run> a cnv:Argument ;
+    cnv:argumentName "dry-run" ;
+    cnv:argumentType <#BoolType> ;
+    cnv:defaultValue "false" ;
+    cnv:helpText "Preview changes without generating files" .
+
+# wizard add arguments
+<#wizard_add_description> a cnv:Argument ;
+    cnv:argumentName "description" ;
+    cnv:argumentType <#StringType> ;
+    cnv:required true ;
+    cnv:positional true ;
+    cnv:helpText "Natural language description of feature to add" .
+
+<#wizard_add_project> a cnv:Argument ;
+    cnv:argumentName "project" ;
+    cnv:argumentType <#StringType> ;
+    cnv:short "p" ;
+    cnv:defaultValue "." ;
+    cnv:helpText "Path to existing project" .
+
+# wizard modify arguments
+<#wizard_modify_description> a cnv:Argument ;
+    cnv:argumentName "description" ;
+    cnv:argumentType <#StringType> ;
+    cnv:required true ;
+    cnv:positional true ;
+    cnv:helpText "Natural language description of modification" .
+
+<#wizard_modify_spec> a cnv:Argument ;
+    cnv:argumentName "spec" ;
+    cnv:argumentType <#StringType> ;
+    cnv:short "s" ;
+    cnv:helpText "Path to specification file to modify" .
+
+# wizard explain arguments
+<#wizard_explain_spec> a cnv:Argument ;
+    cnv:argumentName "spec" ;
+    cnv:argumentType <#StringType> ;
+    cnv:positional true ;
+    cnv:helpText "Path to specification to explain" .
+
+<#wizard_explain_format> a cnv:Argument ;
+    cnv:argumentName "format" ;
+    cnv:argumentType <#FormatType> ;
+    cnv:short "f" ;
+    cnv:defaultValue "markdown" ;
+    cnv:helpText "Output format (markdown, json, text)" .
+
+# wizard validate arguments
+<#wizard_validate_spec> a cnv:Argument ;
+    cnv:argumentName "spec" ;
+    cnv:argumentType <#StringType> ;
+    cnv:positional true ;
+    cnv:helpText "Path to specification to validate" .
+
+<#wizard_validate_verbose> a cnv:Argument ;
+    cnv:argumentName "verbose" ;
+    cnv:argumentType <#BoolType> ;
+    cnv:short "v" ;
+    cnv:defaultValue "false" ;
+    cnv:helpText "Show detailed validation output" .
+
+# wizard generate arguments
+<#wizard_generate_spec> a cnv:Argument ;
+    cnv:argumentName "spec" ;
+    cnv:argumentType <#StringType> ;
+    cnv:positional true ;
+    cnv:helpText "Path to specification to generate from" .
+
+<#wizard_generate_output> a cnv:Argument ;
+    cnv:argumentName "output" ;
+    cnv:argumentType <#StringType> ;
+    cnv:short "o" ;
+    cnv:defaultValue "." ;
+    cnv:helpText "Output directory for generated code" .
+
+<#wizard_generate_force> a cnv:Argument ;
+    cnv:argumentName "force" ;
+    cnv:argumentType <#BoolType> ;
+    cnv:defaultValue "false" ;
+    cnv:helpText "Overwrite existing files without confirmation" .
+
+# -----------------------------------------------------------------------------
+# Arguments for Spec Verbs
+# -----------------------------------------------------------------------------
+
+<#spec_show_path> a cnv:Argument ;
+    cnv:argumentName "path" ;
+    cnv:argumentType <#StringType> ;
+    cnv:positional true ;
+    cnv:helpText "Path to specification file" .
+
+<#spec_show_format> a cnv:Argument ;
+    cnv:argumentName "format" ;
+    cnv:argumentType <#FormatType> ;
+    cnv:short "f" ;
+    cnv:defaultValue "human" ;
+    cnv:helpText "Output format (human, json, turtle)" .
+
+<#spec_diff_spec1> a cnv:Argument ;
+    cnv:argumentName "spec1" ;
+    cnv:argumentType <#StringType> ;
+    cnv:positional true ;
+    cnv:helpText "First specification file" .
+
+<#spec_diff_spec2> a cnv:Argument ;
+    cnv:argumentName "spec2" ;
+    cnv:argumentType <#StringType> ;
+    cnv:positional true ;
+    cnv:helpText "Second specification file" .
+
+<#spec_export_spec> a cnv:Argument ;
+    cnv:argumentName "spec" ;
+    cnv:argumentType <#StringType> ;
+    cnv:positional true ;
+    cnv:helpText "Specification to export" .
+
+<#spec_export_format> a cnv:Argument ;
+    cnv:argumentName "format" ;
+    cnv:argumentType <#ExportFormatType> ;
+    cnv:short "f" ;
+    cnv:defaultValue "json" ;
+    cnv:helpText "Export format (json, yaml, turtle, markdown)" .
+
+<#spec_export_output> a cnv:Argument ;
+    cnv:argumentName "output" ;
+    cnv:argumentType <#StringType> ;
+    cnv:short "o" ;
+    cnv:helpText "Output file path" .
+
+<#spec_import_source> a cnv:Argument ;
+    cnv:argumentName "source" ;
+    cnv:argumentType <#StringType> ;
+    cnv:positional true ;
+    cnv:helpText "Source file to import" .
+
+<#spec_import_format> a cnv:Argument ;
+    cnv:argumentName "format" ;
+    cnv:argumentType <#ImportFormatType> ;
+    cnv:short "f" ;
+    cnv:helpText "Source format (auto-detected if not specified)" .
+
+# -----------------------------------------------------------------------------
+# Arguments for Pack Verbs
+# -----------------------------------------------------------------------------
+
+<#pack_recommend_description> a cnv:Argument ;
+    cnv:argumentName "description" ;
+    cnv:argumentType <#StringType> ;
+    cnv:positional true ;
+    cnv:helpText "Natural language description for pack recommendation" .
+
+<#pack_recommend_limit> a cnv:Argument ;
+    cnv:argumentName "limit" ;
+    cnv:argumentType <#i32Type> ;
+    cnv:short "n" ;
+    cnv:defaultValue "5" ;
+    cnv:helpText "Maximum number of recommendations" .
+
+<#pack_preview_name> a cnv:Argument ;
+    cnv:argumentName "name" ;
+    cnv:argumentType <#StringType> ;
+    cnv:positional true ;
+    cnv:helpText "Pack name to preview" .
+
+<#pack_preview_spec> a cnv:Argument ;
+    cnv:argumentName "spec" ;
+    cnv:argumentType <#StringType> ;
+    cnv:short "s" ;
+    cnv:helpText "Specification file for preview context" .
+
+<#pack_apply_name> a cnv:Argument ;
+    cnv:argumentName "name" ;
+    cnv:argumentType <#StringType> ;
+    cnv:positional true ;
+    cnv:helpText "Pack name to apply" .
+
+<#pack_apply_spec> a cnv:Argument ;
+    cnv:argumentName "spec" ;
+    cnv:argumentType <#StringType> ;
+    cnv:short "s" ;
+    cnv:required true ;
+    cnv:helpText "Specification file to use" .
+
+<#pack_apply_output> a cnv:Argument ;
+    cnv:argumentName "output" ;
+    cnv:argumentType <#StringType> ;
+    cnv:short "o" ;
+    cnv:defaultValue "." ;
+    cnv:helpText "Output directory" .
+
+# -----------------------------------------------------------------------------
+# Types
+# -----------------------------------------------------------------------------
+
+<#i32Type> a cnv:PrimitiveType ;
+    cnv:rust-type "i32" .
+
+<#StringType> a cnv:PrimitiveType ;
+    cnv:rust-type "String" .
+
+<#BoolType> a cnv:PrimitiveType ;
+    cnv:rust-type "bool" .
+
+<#FormatType> a cnv:EnumType ;
+    cnv:rust-type "OutputFormat" ;
+    cnv:hasValues <#format_markdown>, <#format_json>, <#format_text>, <#format_human> .
+
+<#format_markdown> a cnv:EnumValue ;
+    cnv:enumName "Markdown" .
+
+<#format_json> a cnv:EnumValue ;
+    cnv:enumName "Json" .
+
+<#format_text> a cnv:EnumValue ;
+    cnv:enumName "Text" .
+
+<#format_human> a cnv:EnumValue ;
+    cnv:enumName "Human" .
+
+<#ExportFormatType> a cnv:EnumType ;
+    cnv:rust-type "ExportFormat" ;
+    cnv:hasValues <#export_json>, <#export_yaml>, <#export_turtle>, <#export_markdown> .
+
+<#export_json> a cnv:EnumValue ;
+    cnv:enumName "Json" .
+
+<#export_yaml> a cnv:EnumValue ;
+    cnv:enumName "Yaml" .
+
+<#export_turtle> a cnv:EnumValue ;
+    cnv:enumName "Turtle" .
+
+<#export_markdown> a cnv:EnumValue ;
+    cnv:enumName "Markdown" .
+
+<#ImportFormatType> a cnv:EnumType ;
+    cnv:rust-type "ImportFormat" ;
+    cnv:hasValues <#import_json>, <#import_yaml>, <#import_openapi>, <#import_graphql> .
+
+<#import_json> a cnv:EnumValue ;
+    cnv:enumName "Json" .
+
+<#import_yaml> a cnv:EnumValue ;
+    cnv:enumName "Yaml" .
+
+<#import_openapi> a cnv:EnumValue ;
+    cnv:enumName "OpenApi" .
+
+<#import_graphql> a cnv:EnumValue ;
+    cnv:enumName "GraphQL" .

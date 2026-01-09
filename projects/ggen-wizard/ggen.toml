@@ -1,0 +1,157 @@
+# =============================================================================
+# ggen Wizard CLI - Code Generation Manifest
+# Generates a complete CLI from clap-noun-verb RDF specification
+# =============================================================================
+
+[project]
+name = "ggen-wizard"
+version = "1.0.0"
+description = "Natural language interface for ontology-driven code generation"
+
+[ontology]
+source = ".ggen/ggen-wizard.ttl"
+base_iri = "http://ggen.dev/wizard/"
+
+[ontology.prefixes]
+cnv = "https://ggen.dev/clap-noun-verb/"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+
+[inference]
+rules = []
+
+[generation]
+output_dir = "."
+require_audit_trail = true
+
+# =============================================================================
+# RULE 1: Generate Cargo.toml
+# =============================================================================
+[[generation.rules]]
+name = "cargo-toml"
+query = { inline = """
+PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?name ?version ?description WHERE {
+  ?proj a cnv:CliProject ;
+        cnv:projectName ?name .
+  OPTIONAL { ?proj cnv:projectVersion ?version }
+  OPTIONAL { ?proj rdfs:comment ?description }
+}
+LIMIT 1
+""" }
+template = { inline = """
+{% for row in sparql_results %}{% if loop.first %}[package]
+name = "{{ row["?name"] }}"
+version = "{{ row["?version"] | default(value="0.1.0") }}"
+edition = "2021"
+description = "{{ row["?description"] | default(value="Generated CLI") }}"
+
+[dependencies]
+clap-noun-verb = "5.3"
+clap-noun-verb-macros = "5.3"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+tokio = { version = "1.0", features = ["full"] }
+regex = "1.10"
+
+[[bin]]
+name = "{{ row["?name"] }}"
+path = "src/main.rs"
+{% endif %}{% endfor %}
+""" }
+output_file = "Cargo.toml"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 2: Generate nouns data
+# =============================================================================
+[[generation.rules]]
+name = "nouns-data"
+query = { inline = """
+PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?noun ?name ?description WHERE {
+  ?noun a cnv:Noun ;
+        cnv:nounName ?name .
+  OPTIONAL { ?noun rdfs:comment ?description }
+}
+ORDER BY ?name
+""" }
+template = { file = ".ggen/templates/nouns.tera" }
+output_file = "src/nouns.json"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 3: Generate main.rs with nouns and verbs
+# =============================================================================
+[[generation.rules]]
+name = "main-rs"
+query = { inline = """
+PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?noun_name ?noun_desc ?verb_name ?verb_desc WHERE {
+  ?noun a cnv:Noun ;
+        cnv:nounName ?noun_name ;
+        cnv:hasVerbs ?verb .
+  ?verb a cnv:Verb ;
+        cnv:verbName ?verb_name .
+  OPTIONAL { ?noun rdfs:comment ?noun_desc }
+  OPTIONAL { ?verb rdfs:comment ?verb_desc }
+}
+ORDER BY ?noun_name ?verb_name
+""" }
+template = { file = ".ggen/templates/main.tera" }
+output_file = "src/main.rs"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 4: Generate domain.rs
+# =============================================================================
+[[generation.rules]]
+name = "domain-rs"
+query = { inline = """
+PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?noun_name ?verb_name ?arg_name ?rust_type ?required ?positional ?help WHERE {
+  ?noun a cnv:Noun ;
+        cnv:nounName ?noun_name ;
+        cnv:hasVerbs ?verb .
+  ?verb a cnv:Verb ;
+        cnv:verbName ?verb_name ;
+        cnv:hasArguments ?arg .
+  ?arg a cnv:Argument ;
+       cnv:argumentName ?arg_name ;
+       cnv:argumentType ?type_node .
+  ?type_node cnv:rust-type ?rust_type .
+  OPTIONAL { ?arg cnv:required ?required }
+  OPTIONAL { ?arg cnv:positional ?positional }
+  OPTIONAL { ?arg cnv:helpText ?help }
+}
+ORDER BY ?noun_name ?verb_name ?arg_name
+""" }
+template = { file = ".ggen/templates/domain.tera" }
+output_file = "src/domain.rs"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 5: Generate error.rs
+# =============================================================================
+[[generation.rules]]
+name = "error-rs"
+query = { inline = """
+PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+SELECT ?name WHERE {
+  ?proj a cnv:CliProject ;
+        cnv:projectName ?name .
+}
+LIMIT 1
+""" }
+template = { file = ".ggen/templates/error.tera" }
+output_file = "src/error.rs"
+mode = "Overwrite"

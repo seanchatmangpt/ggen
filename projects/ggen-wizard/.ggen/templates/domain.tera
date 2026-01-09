@@ -1,0 +1,75 @@
+{# =============================================================================
+   ggen Wizard CLI - Domain Layer
+   Generated from clap-noun-verb RDF specification
+   ============================================================================= #}
+//! Domain Layer - Pure Business Logic for ggen Wizard
+//!
+//! This module contains all business logic for the wizard commands.
+//! Each function is pure and fully testable without CLI dependencies.
+
+use crate::error::DomainError;
+use serde::Serialize;
+
+/// Result type for domain operations
+pub type DomainResult<T> = Result<T, DomainError>;
+
+/// Output for wizard operations
+#[derive(Debug, Clone, Serialize)]
+pub struct WizardOutput {
+    pub status: String,
+    pub message: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub files_generated: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub spec_path: Option<String>,
+}
+
+impl WizardOutput {
+    pub fn success(message: impl Into<String>) -> Self {
+        Self {
+            status: "success".to_string(),
+            message: message.into(),
+            files_generated: None,
+            spec_path: None,
+        }
+    }
+
+    pub fn with_files(mut self, count: usize) -> Self {
+        self.files_generated = Some(count);
+        self
+    }
+
+    pub fn with_spec(mut self, path: impl Into<String>) -> Self {
+        self.spec_path = Some(path.into());
+        self
+    }
+}
+
+{% set current_noun = "" %}
+{% for row in sparql_results %}
+{% set noun_name = row["?noun_name"] %}
+{% set verb_name = row["?verb_name"] %}
+{% if noun_name != current_noun %}
+{% if current_noun != "" %}
+}
+
+{% endif %}
+{% set_global current_noun = noun_name %}
+// ============================================================================
+// {{ noun_name | upper }} Domain Logic
+// ============================================================================
+
+pub mod {{ noun_name }} {
+    use super::*;
+
+{% endif %}
+    /// Domain logic for {{ noun_name }}::{{ verb_name }}
+    pub fn {{ verb_name | replace(from="-", to="_") }}() -> DomainResult<WizardOutput> {
+        // TODO: Implement {{ noun_name }}::{{ verb_name }} logic
+        Ok(WizardOutput::success("{{ noun_name }}::{{ verb_name }} executed successfully"))
+    }
+
+{% endfor %}
+{% if current_noun != "" %}
+}
+{% endif %}

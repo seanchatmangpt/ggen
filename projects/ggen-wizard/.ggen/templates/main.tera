@@ -1,0 +1,62 @@
+{# =============================================================================
+   ggen Wizard CLI - Main Module
+   Generated from clap-noun-verb RDF specification
+   ============================================================================= #}
+//! ggen Wizard CLI - Natural Language to RDF Code Generation
+//!
+//! This CLI was generated using clap-noun-verb from an RDF specification.
+//!
+//! Architecture:
+//! - CLI Layer (this file): Argument parsing, command routing
+//! - Domain Layer (domain.rs): Pure business logic
+//! - Error Types (error.rs): Type-safe error handling
+
+use clap_noun_verb::Result;
+use clap_noun_verb_macros::noun;
+use serde::Serialize;
+
+mod domain;
+mod error;
+
+use error::CliError;
+
+{% set current_noun = "" %}
+{% for row in sparql_results %}
+{% set noun_name = row["?noun_name"] %}
+{% set verb_name = row["?verb_name"] %}
+{% set noun_desc = row["?noun_desc"] | default(value=noun_name) %}
+{% set verb_desc = row["?verb_desc"] | default(value=verb_name) %}
+{% if noun_name != current_noun %}
+{% if current_noun != "" %}
+}
+
+{% endif %}
+{% set_global current_noun = noun_name %}
+// ============================================================================
+// {{ noun_name | upper }} - {{ noun_desc }}
+// ============================================================================
+
+#[noun("{{ noun_name }}", "{{ noun_desc }}")]
+mod {{ noun_name }} {
+    use super::*;
+    use clap_noun_verb_macros::verb;
+
+{% endif %}
+    /// {{ verb_desc }}
+    #[verb("{{ verb_name }}")]
+    pub fn {{ verb_name | replace(from="-", to="_") }}() -> Result<serde_json::Value> {
+        // Delegate to domain layer
+        let result = crate::domain::{{ noun_name }}::{{ verb_name | replace(from="-", to="_") }}()
+            .map_err(CliError::from)?;
+
+        Ok(serde_json::to_value(&result).map_err(|e| CliError::Serialization(e.to_string()))?)
+    }
+
+{% endfor %}
+{% if current_noun != "" %}
+}
+{% endif %}
+
+fn main() -> Result<()> {
+    clap_noun_verb::run()
+}
