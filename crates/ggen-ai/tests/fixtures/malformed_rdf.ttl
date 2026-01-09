@@ -1,0 +1,10 @@
+@prefix ex: <http://example.com/ontology#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# Intentionally malformed Turtle syntax to test error handling
+ex:BrokenShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Broken
+    # Missing period at end of property, will cause parse error
+    sh:property [
+        sh:path ex:broken_prop
