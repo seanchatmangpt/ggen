@@ -27,6 +27,7 @@ pub mod dependency_validation;
 pub mod execution_lifecycle;
 pub mod execution_proof;
 pub mod executor;
+pub mod incremental; // Phase 4: Incremental generation with SHA256 JIT
 pub mod incremental_cache;
 #[allow(dead_code)]
 pub mod lifecycle_hooks;

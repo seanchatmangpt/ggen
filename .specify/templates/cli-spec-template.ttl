@@ -1,0 +1,289 @@
+@prefix cli: <http://ggen.example.com/cli#> .
+@prefix code: <http://ggen.example.com/code#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# ============================================================================
+# CLI SPECIFICATION TEMPLATE
+# ============================================================================
+#
+# This template defines the structure for CLI command specifications.
+# Replace {{COMMAND}}, {{DESCRIPTION}}, etc. with actual values.
+#
+# USAGE:
+#   1. Copy this template
+#   2. Replace {{PLACEHOLDERS}} with actual command details
+#   3. Add to ggen-cli-integration-kgc.ttl
+#   4. Validate with: cargo make check
+#
+# EXAMPLE REPLACEMENTS:
+#   {{COMMAND}} → "sync"
+#   {{DESCRIPTION}} → "Synchronize ontology to code"
+#   {{HANDLER}} → "handle_sync"
+#
+# ============================================================================
+
+# ============================================================================
+# EXAMPLE 1: ggen-sync command
+# ============================================================================
+
+cli:SyncCommand a cli:GgenCommand ;
+  rdfs:label "ggen sync" ;
+  cli:commandName "sync" ;
+  cli:description "Synchronize ontology specifications to generated code" ;
+  cli:handler_function "handle_sync" ;
+  cli:arguments [
+    rdf:type rdf:Seq ;
+    rdf:_1 [
+      rdfs:label "manifest" ;
+      code:arg_type "optional string" ;
+      code:short_flag "-m" ;
+      code:long_flag "--manifest" ;
+      code:description "Path to ggen.toml manifest" ;
+      code:default_value "./ggen.toml"
+    ] ;
+    rdf:_2 [
+      rdfs:label "output" ;
+      code:arg_type "optional string" ;
+      code:short_flag "-o" ;
+      code:long_flag "--output" ;
+      code:description "Output directory for generated code" ;
+      code:default_value "./src/generated"
+    ] ;
+    rdf:_3 [
+      rdfs:label "force" ;
+      code:arg_type "boolean flag" ;
+      code:long_flag "--force" ;
+      code:description "Force regeneration even if specs unchanged" ;
+      code:default_value "false"
+    ] ;
+    rdf:_4 [
+      rdfs:label "cache" ;
+      code:arg_type "boolean flag" ;
+      code:long_flag "--cache" ;
+      code:description "Use SHA256 caching to skip unchanged files" ;
+      code:default_value "true"
+    ]
+  ] ;
+  cli:validation [
+    rdfs:label "Input validation" ;
+    code:check_manifest_exists "Path must be valid file" ;
+    code:check_output_writable "Output dir must be writable"
+  ] ;
+  cli:error_handling [
+    rdfs:label "Error handling" ;
+    code:error_manifest_not_found "Return ConfigError with suggestion to create ggen.toml" ;
+    code:error_invalid_ttl "Return ValidationError with line/column information" ;
+    code:error_generation_failure "Return GenerationError with context (which file, why)"
+  ] ;
+  cli:examples [
+    rdf:type rdf:Seq ;
+    rdf:_1 "ggen sync" ;
+    rdf:_2 "ggen sync --manifest ./specs/ggen.toml" ;
+    rdf:_3 "ggen sync --force --output ./target/generated" ;
+    rdf:_4 "ggen sync --no-cache"
+  ] .
+
+# ============================================================================
+# EXAMPLE 2: ggen-validate command
+# ============================================================================
+
+cli:ValidateCommand a cli:GgenCommand ;
+  rdfs:label "ggen validate" ;
+  cli:commandName "validate" ;
+  cli:description "Validate ontology specifications and compute closure percentage" ;
+  cli:handler_function "handle_validate" ;
+  cli:arguments [
+    rdf:type rdf:Seq ;
+    rdf:_1 [
+      rdfs:label "spec_path" ;
+      code:arg_type "required string" ;
+      code:positional true ;
+      code:description "Path to .specify directory or .ttl file"
+    ] ;
+    rdf:_2 [
+      rdfs:label "strict" ;
+      code:arg_type "boolean flag" ;
+      code:long_flag "--strict" ;
+      code:description "Fail on warnings (not just errors)" ;
+      code:default_value "false"
+    ] ;
+    rdf:_3 [
+      rdfs:label "parallel" ;
+      code:arg_type "boolean flag" ;
+      code:long_flag "--parallel" ;
+      code:description "Validate multiple specs in parallel (rayon)" ;
+      code:default_value "true"
+    ]
+  ] ;
+  cli:validation [
+    code:check_path_exists "Spec path must exist" ;
+    code:check_ttl_valid "Must be valid Turtle syntax"
+  ] ;
+  cli:error_handling [
+    code:error_parse_failure "Return ValidationError with location" ;
+    code:error_closure_incomplete "Suggest missing requirements in output"
+  ] ;
+  cli:examples [
+    rdf:type rdf:Seq ;
+    rdf:_1 "ggen validate .specify/" ;
+    rdf:_2 "ggen validate .specify/phase-3-4-standardized-work-optimization.ttl --strict" ;
+    rdf:_3 "ggen validate .specify/ --parallel"
+  ] .
+
+# ============================================================================
+# EXAMPLE 3: ggen-list command
+# ============================================================================
+
+cli:ListCommand a cli:GgenCommand ;
+  rdfs:label "ggen list" ;
+  cli:commandName "list" ;
+  cli:description "List available template packs in marketplace" ;
+  cli:handler_function "handle_list" ;
+  cli:arguments [
+    rdf:type rdf:Seq ;
+    rdf:_1 [
+      rdfs:label "filter" ;
+      code:arg_type "optional string" ;
+      code:long_flag "--filter" ;
+      code:description "Filter packs by name pattern (regex)"
+    ] ;
+    rdf:_2 [
+      rdfs:label "format" ;
+      code:arg_type "optional string" ;
+      code:long_flag "--format" ;
+      code:description "Output format: text, json, table" ;
+      code:default_value "table"
+    ]
+  ] ;
+  cli:validation [
+    code:check_marketplace_readable "Marketplace directory must be accessible"
+  ] ;
+  cli:error_handling [
+    code:error_no_packs "Suggest installing packs with 'ggen install'"
+  ] ;
+  cli:examples [
+    rdf:type rdf:Seq ;
+    rdf:_1 "ggen list" ;
+    rdf:_2 "ggen list --filter 'rest-api'" ;
+    rdf:_3 "ggen list --format json"
+  ] .
+
+# ============================================================================
+# EXAMPLE 4: ggen-install command
+# ============================================================================
+
+cli:InstallCommand a cli:GgenCommand ;
+  rdfs:label "ggen install" ;
+  cli:commandName "install" ;
+  cli:description "Install template pack from marketplace" ;
+  cli:handler_function "handle_install" ;
+  cli:arguments [
+    rdf:type rdf:Seq ;
+    rdf:_1 [
+      rdfs:label "pack_name" ;
+      code:arg_type "required string" ;
+      code:positional true ;
+      code:description "Pack name (e.g., 'rest-api-server')"
+    ] ;
+    rdf:_2 [
+      rdfs:label "version" ;
+      code:arg_type "optional string" ;
+      code:long_flag "--version" ;
+      code:description "Specific pack version (default: latest)" ;
+      code:default_value "latest"
+    ]
+  ] ;
+  cli:validation [
+    code:check_pack_exists "Marketplace must contain pack" ;
+    code:check_disk_space "Sufficient disk space required"
+  ] ;
+  cli:error_handling [
+    code:error_pack_not_found "Suggest 'ggen list' to see available packs" ;
+    code:error_network_failure "Retry with exponential backoff, timeout after 30s"
+  ] ;
+  cli:examples [
+    rdf:type rdf:Seq ;
+    rdf:_1 "ggen install rest-api-server" ;
+    rdf:_2 "ggen install rest-api-server --version 2.0.1"
+  ] .
+
+# ============================================================================
+# EXAMPLE 5: ggen-generate command
+# ============================================================================
+
+cli:GenerateCommand a cli:GgenCommand ;
+  rdfs:label "ggen generate" ;
+  cli:commandName "generate" ;
+  cli:description "Generate code from template with custom variables" ;
+  cli:handler_function "handle_generate" ;
+  cli:arguments [
+    rdf:type rdf:Seq ;
+    rdf:_1 [
+      rdfs:label "template" ;
+      code:arg_type "required string" ;
+      code:positional true ;
+      code:description "Path to template file or pack identifier"
+    ] ;
+    rdf:_2 [
+      rdfs:label "output" ;
+      code:arg_type "required string" ;
+      code:short_flag "-o" ;
+      code:long_flag "--output" ;
+      code:description "Output file or directory"
+    ] ;
+    rdf:_3 [
+      rdfs:label "var" ;
+      code:arg_type "multiple key=value" ;
+      code:long_flag "--var" ;
+      code:description "Template variables (e.g., --var package_name=myapp)" ;
+      code:repeatable true
+    ]
+  ] ;
+  cli:validation [
+    code:check_template_exists "Template must be valid Tera file" ;
+    code:check_variables_complete "All required variables must be provided"
+  ] ;
+  cli:error_handling [
+    code:error_template_parse "Return detailed parse error with line/column" ;
+    code:error_missing_vars "List which variables are missing with descriptions"
+  ] ;
+  cli:examples [
+    rdf:type rdf:Seq ;
+    rdf:_1 "ggen generate rest-api --output src/api.rs --var version=1.0" ;
+    rdf:_2 "ggen generate ./templates/crud.tera -o models.rs --var table_name=users"
+  ] .
+
+# ============================================================================
+# TEMPLATE INSTRUCTIONS (NOT RDF - For Developer Guidance)
+# ============================================================================
+#
+# STEP 1: Copy a command example above (e.g., cli:SyncCommand)
+# STEP 2: Replace placeholders:
+#   - cli:commandName "sync" → cli:commandName "yourcommand"
+#   - cli:handler_function "handle_sync" → cli:handler_function "handle_yourcommand"
+#   - Customize cli:arguments with your actual arguments
+#   - Customize cli:validation checks
+#   - Customize cli:error_handling responses
+#   - Update cli:examples with realistic examples
+#
+# STEP 3: Ensure naming follows canonical rules:
+#   - Command names: lowercase, kebab-case (ggen-sync, ggen-validate)
+#   - Handler functions: snake_case, start with "handle_" (handle_sync)
+#   - Error messages: Clear, actionable, suggest next steps
+#
+# STEP 4: Add to ggen-cli-integration-kgc.ttl:
+#   cli:ggenCli ggen:includes cli:YourCommand .
+#
+# STEP 5: Validate with:
+#   cargo make check
+#   cargo make test
+#
+# VALIDATION CHECKLIST:
+#   ✓ All required arguments are present
+#   ✓ Default values are sensible
+#   ✓ Error messages are helpful
+#   ✓ Examples are realistic
+#   ✓ Handler function is implemented in ggen-cli/src/commands/
+#
+# ============================================================================
