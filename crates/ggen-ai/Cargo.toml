@@ -71,6 +71,9 @@ oxigraph = "0.5"
 # Crypto for caching
 sha2 = "0.10"
 
+# LRU cache for codegen metrics
+lru = "0.12"
+
 [features]
 default = []
 ollama-integration = []

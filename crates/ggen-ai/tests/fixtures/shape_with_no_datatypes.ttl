@@ -1,0 +1,16 @@
+@prefix ex: <http://example.com/ontology#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# SHACL shape without explicit datatypes (should default to String)
+ex:NoDataTypeShape
+    a sh:NodeShape ;
+    sh:targetClass ex:NoDataType ;
+    sh:property [
+        sh:path ex:field1 ;
+        rdfs:comment "Field without explicit datatype"
+    ] ;
+    sh:property [
+        sh:path ex:field2 ;
+        rdfs:comment "Another untyped field"
+    ] .

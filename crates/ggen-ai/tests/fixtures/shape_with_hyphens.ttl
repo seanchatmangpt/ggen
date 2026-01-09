@@ -1,0 +1,24 @@
+@prefix ex: <http://example.com/ontology#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# SHACL shape with hyphenated property names
+ex:HyphenatedShape
+    a sh:NodeShape ;
+    sh:targetClass ex:HyphenatedTest ;
+    sh:property [
+        sh:path ex:first-name ;
+        rdfs:comment "Person first name" ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path ex:last-name ;
+        rdfs:comment "Person last name" ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path ex:email-address ;
+        rdfs:comment "Contact email" ;
+        sh:datatype xsd:string
+    ] .

@@ -1,0 +1,29 @@
+@prefix ex: <http://example.com/ontology#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# SHACL shape with CamelCase property names for snake_case conversion test
+ex:DataValidationShape
+    a sh:NodeShape ;
+    sh:targetClass ex:DataValidation ;
+    sh:property [
+        sh:path ex:firstName ;
+        rdfs:comment "First name field" ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path ex:lastName ;
+        rdfs:comment "Last name field" ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path ex:emailAddress ;
+        rdfs:comment "Email address field" ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path ex:phoneNumber ;
+        rdfs:comment "Phone number field" ;
+        sh:datatype xsd:string
+    ] .

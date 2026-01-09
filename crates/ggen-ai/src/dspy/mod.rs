@@ -11,7 +11,7 @@ pub mod signature;
 pub mod module;
 pub mod predictor;
 
-pub use field::{FieldMetadata, InputField, OutputField};
+pub use field::{FieldConstraints, FieldMetadata, InputField, OutputField};
 pub use signature::Signature;
 pub use module::{Module, ModuleError};
 pub use predictor::{Predictor, ChainOfThought};
