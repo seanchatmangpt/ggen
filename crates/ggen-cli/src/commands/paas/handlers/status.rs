@@ -4,21 +4,9 @@
 use crate::commands::paas::errors::Result;
 
 /// Show deployment or system status
-pub async fn show_status(environment: Option<&str>, detailed: bool) -> Result<()> {
-    let env_display = environment.unwrap_or("all");
-
-    if detailed {
-        if cfg!(feature = "verbose") {
-            eprintln!("Status for environment: {}", env_display);
-            eprintln!("  Deployments: 0");
-            eprintln!("  Last sync: Never");
-            eprintln!("  Health: Unknown");
-        }
-    } else {
-        if cfg!(feature = "verbose") {
-            eprintln!("✓ Status: OK ({})", env_display);
-        }
-    }
+pub async fn show_status(_environment: Option<&str>, _detailed: bool) -> Result<()> {
+    // In a real implementation, would retrieve actual status
+    // For now, return success indicating system is operational
 
     Ok(())
 }
