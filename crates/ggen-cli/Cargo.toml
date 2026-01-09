@@ -47,6 +47,7 @@ ggen-utils.workspace = true
 ggen-core.workspace = true
 ggen-domain.workspace = true
 ggen-marketplace.workspace = true
+ggen-ai.workspace = true
 ggen-test-audit = { workspace = true, optional = true }
 
 # Crate-specific dependencies
