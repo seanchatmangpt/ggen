@@ -1,0 +1,9 @@
+@prefix ex: <http://example.com/ontology#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# SHACL shape with no properties (edge case)
+ex:EmptyShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Empty ;
+    rdfs:comment "An empty shape with no properties" .
