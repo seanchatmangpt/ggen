@@ -1,0 +1,32 @@
+@prefix ex: <http://example.com/ontology#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix cns: <http://cns.io/ontology#> .
+
+# SHACL shape with input and output field distinction
+ex:TransformationShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Transformation ;
+    sh:property [
+        sh:path ex:input_text ;
+        rdfs:comment "Text to transform" ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path ex:output_result ;
+        rdfs:comment "Transformed result output" ;
+        sh:datatype xsd:string ;
+        cns:outputField true
+    ] ;
+    sh:property [
+        sh:path ex:processing_time ;
+        rdfs:comment "output processing duration in milliseconds" ;
+        sh:datatype xsd:integer ;
+        cns:outputField "true"
+    ] ;
+    sh:property [
+        sh:path ex:format ;
+        rdfs:comment "Input format specification" ;
+        sh:datatype xsd:string
+    ] .

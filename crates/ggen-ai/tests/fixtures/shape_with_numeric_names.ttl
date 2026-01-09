@@ -1,0 +1,19 @@
+@prefix ex: <http://example.com/ontology#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# SHACL shape with numeric field names (should be prefixed)
+ex:NumericShape
+    a sh:NodeShape ;
+    sh:targetClass ex:NumericTest ;
+    sh:property [
+        sh:path ex:1stField ;
+        rdfs:comment "Field starting with number" ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path ex:2ndProperty ;
+        rdfs:comment "Second field starting with number" ;
+        sh:datatype xsd:string
+    ] .

@@ -42,6 +42,7 @@
 //!
 //! - `cache` - LLM response caching
 //! - `client` - LLM client abstraction
+//! - `codegen` - Code generation utilities (SHACL constraint extraction, type mapping)
 //! - `config` - Configuration management
 //! - `dspy` - Rust equivalents of DSPy primitives (Signature, InputField, OutputField)
 //! - `generators` - Specialized generators (templates, SPARQL, ontologies)
@@ -72,6 +73,7 @@ pub mod governance;
 // Core modules
 pub mod cache;
 pub mod client;
+pub mod codegen;
 pub mod config;
 pub mod constants;
 pub mod dspy;
@@ -99,9 +101,10 @@ pub mod test_helpers;
 // Re-export main types for convenience
 pub use cache::{CacheConfig, CacheStats, LlmCache};
 pub use client::{GenAiClient, LlmChunk, LlmClient, LlmConfig, LlmResponse, UsageStats};
+pub use codegen::{map_xsd_to_rust_type, SHACLConstraint, SHACLParser};
 pub use config::{get_global_config, init_global_config, AiConfig, GlobalLlmConfig, LlmProvider};
 pub use dspy::{
-    InputField, OutputField, FieldMetadata,
+    FieldConstraints, InputField, OutputField, FieldMetadata,
     Signature,
     Module, ModuleError,
     Predictor, ChainOfThought,
