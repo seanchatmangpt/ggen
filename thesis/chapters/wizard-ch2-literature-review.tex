@@ -1,0 +1,135 @@
+\chapter{Literature Review}
+\label{ch:literature-review}
+
+\section{Code Generation: A Historical Perspective}
+
+Code generation has evolved through several distinct paradigms, each attempting to bridge the gap between human intent and executable software.
+
+\subsection{Template-Based Generation}
+
+Early code generators relied on textual templates with placeholder substitution. Tools like Velocity, FreeMarker, and later Tera pioneered this approach \cite{fowler2010domain}. While effective for repetitive boilerplate, template-based systems suffer from:
+
+\begin{itemize}
+\item \textbf{Template proliferation}: Each variation requires a new template
+\item \textbf{Brittleness}: Changes to output format require template modification
+\item \textbf{Validation gaps}: Templates can produce syntactically invalid code
+\end{itemize}
+
+\subsection{Model-Driven Architecture}
+
+The Object Management Group's Model-Driven Architecture (MDA) formalized transformation from Platform-Independent Models (PIMs) to Platform-Specific Models (PSMs). While theoretically sound, MDA adoption remained limited due to:
+
+\begin{itemize}
+\item Complex metamodel hierarchies
+\item Vendor lock-in to proprietary tools
+\item Disconnect between modeling abstractions and implementation realities
+\end{itemize}
+
+\subsection{LLM-Based Code Generation}
+
+The emergence of large language models (Codex, GPT-4, Claude) introduced a new paradigm: natural language to code \cite{chen2021codex}. These systems demonstrate remarkable capability but suffer from:
+
+\begin{itemize}
+\item \textbf{Non-determinism}: Same prompt may yield different outputs
+\item \textbf{Hallucination}: Generated code may reference non-existent APIs
+\item \textbf{Context limitations}: Cannot maintain coherent large-scale architectures
+\end{itemize}
+
+\section{Semantic Web Technologies}
+
+\subsection{RDF and Knowledge Representation}
+
+The Resource Description Framework (RDF) provides a graph-based data model for knowledge representation \cite{berners-lee2001semantic}. RDF's subject-predicate-object triples enable rich semantic modeling:
+
+\begin{lstlisting}[language=SPARQL,caption={RDF Triple Example}]
+ex:User rdf:type owl:Class .
+ex:User rdfs:label "User Entity" .
+ex:User ex:hasField ex:username .
+\end{lstlisting}
+
+\subsection{Ontology Languages}
+
+OWL (Web Ontology Language) extends RDF with description logic constructs, enabling formal reasoning \cite{hitzler2009owl}:
+
+\begin{itemize}
+\item \textbf{Class hierarchies}: Inheritance relationships
+\item \textbf{Property restrictions}: Cardinality, domain/range constraints
+\item \textbf{Logical axioms}: Equivalence, disjointness, transitivity
+\end{itemize}
+
+\subsection{SPARQL Query Language}
+
+SPARQL enables pattern-based querying of RDF graphs. Its expressiveness supports complex extraction for code generation:
+
+\begin{lstlisting}[language=SPARQL,caption={SPARQL Query for Entity Extraction}]
+SELECT ?entity ?field ?type WHERE {
+  ?entity rdf:type ggen:Entity .
+  ?entity ggen:hasField ?field .
+  ?field ggen:fieldType ?type .
+}
+\end{lstlisting}
+
+\section{Natural Language Interfaces for Programming}
+
+\subsection{Early Natural Language Programming}
+
+Attempts at natural language programming date to the 1960s (COBOL's English-like syntax) and 1970s (Winograd's SHRDLU). These systems demonstrated both the appeal and limitations of natural language as a programming medium.
+
+\subsection{Intent Recognition Systems}
+
+Modern voice assistants (Alexa, Siri) demonstrate robust intent classification from natural language. Key techniques include:
+
+\begin{itemize}
+\item Named entity recognition (NER)
+\item Slot filling for parameter extraction
+\item Contextual understanding through dialogue state
+\end{itemize}
+
+\subsection{Conversational Development Environments}
+
+Recent tools like GitHub Copilot and Cursor represent partial moves toward conversational development. However, these systems:
+
+\begin{itemize}
+\item Generate code snippets, not specifications
+\item Lack formal validation of outputs
+\item Cannot guarantee deterministic reproduction
+\end{itemize}
+
+\section{Cognitive Load in Software Development}
+
+\subsection{Sweller's Cognitive Load Theory}
+
+Cognitive load theory distinguishes intrinsic, extraneous, and germane load \cite{sweller1988cognitive}. In the context of specification-driven development:
+
+\begin{itemize}
+\item \textbf{Intrinsic load}: The inherent complexity of the domain being modeled
+\item \textbf{Extraneous load}: The cognitive burden of RDF syntax, SPARQL queries
+\item \textbf{Germane load}: Mental effort devoted to building domain understanding
+\end{itemize}
+
+\subsection{The Syntax Tax}
+
+We introduce the concept of \textit{syntax tax}---the cognitive overhead imposed by formal notation systems beyond their semantic content. For RDF:
+
+\begin{equation}
+\text{Syntax Tax} = \frac{\text{Time learning syntax}}{\text{Time expressing intent}}
+\end{equation}
+
+Studies show syntax tax exceeds 3:1 for developers new to semantic web technologies.
+
+\section{Gap Analysis}
+
+Our literature review reveals a critical gap: no existing system combines:
+
+\begin{enumerate}
+\item Natural language input for specification authoring
+\item Formal ontology generation with validation
+\item Deterministic code generation from validated specifications
+\item Round-trip traceability from intent to implementation
+\end{enumerate}
+
+The ggen wizard commands address this gap by introducing a natural language abstraction layer over ontology-driven code generation.
+
+\section{Summary}
+
+Existing approaches fall into two camps: formal methods (MDA, ontologies) that ensure correctness but impose cognitive barriers, and informal methods (LLMs, templates) that are accessible but lack rigor. Wizard commands bridge this divide by accepting informal input (natural language) while producing formal output (validated RDF ontologies) that deterministically generates code.

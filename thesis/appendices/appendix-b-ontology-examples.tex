@@ -1,0 +1,304 @@
+\chapter{Ontology Examples}
+\label{app:ontology-examples}
+
+This appendix provides complete examples of wizard-generated RDF ontologies.
+
+\section{E-Commerce Domain}
+
+\begin{lstlisting}[language=sparql, caption={E-commerce ontology generated from natural language}]
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ecom: <https://example.com/ecommerce/> .
+
+# Classes
+ecom:Product a rdfs:Class ;
+    rdfs:label "Product" ;
+    rdfs:comment "A product available for purchase" .
+
+ecom:Customer a rdfs:Class ;
+    rdfs:label "Customer" ;
+    rdfs:comment "A customer who can place orders" .
+
+ecom:Order a rdfs:Class ;
+    rdfs:label "Order" ;
+    rdfs:comment "An order placed by a customer" .
+
+ecom:OrderItem a rdfs:Class ;
+    rdfs:label "OrderItem" ;
+    rdfs:comment "A line item in an order" .
+
+ecom:Payment a rdfs:Class ;
+    rdfs:label "Payment" ;
+    rdfs:comment "A payment for an order" .
+
+# Product Properties
+ecom:productId a rdf:Property ;
+    rdfs:domain ecom:Product ;
+    rdfs:range xsd:string ;
+    rdfs:label "Product ID" .
+
+ecom:productName a rdf:Property ;
+    rdfs:domain ecom:Product ;
+    rdfs:range xsd:string ;
+    rdfs:label "Product Name" .
+
+ecom:price a rdf:Property ;
+    rdfs:domain ecom:Product ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Price" .
+
+ecom:stockQuantity a rdf:Property ;
+    rdfs:domain ecom:Product ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Stock Quantity" .
+
+# Customer Properties
+ecom:customerId a rdf:Property ;
+    rdfs:domain ecom:Customer ;
+    rdfs:range xsd:string ;
+    rdfs:label "Customer ID" .
+
+ecom:email a rdf:Property ;
+    rdfs:domain ecom:Customer ;
+    rdfs:range xsd:string ;
+    rdfs:label "Email" .
+
+ecom:shippingAddress a rdf:Property ;
+    rdfs:domain ecom:Customer ;
+    rdfs:range xsd:string ;
+    rdfs:label "Shipping Address" .
+
+# Relationships
+ecom:placedBy a rdf:Property ;
+    rdfs:domain ecom:Order ;
+    rdfs:range ecom:Customer ;
+    rdfs:label "Placed By" .
+
+ecom:containsItem a rdf:Property ;
+    rdfs:domain ecom:Order ;
+    rdfs:range ecom:OrderItem ;
+    rdfs:label "Contains Item" .
+
+ecom:forProduct a rdf:Property ;
+    rdfs:domain ecom:OrderItem ;
+    rdfs:range ecom:Product ;
+    rdfs:label "For Product" .
+
+ecom:paidWith a rdf:Property ;
+    rdfs:domain ecom:Order ;
+    rdfs:range ecom:Payment ;
+    rdfs:label "Paid With" .
+
+# SHACL Shapes
+ecom:ProductShape a sh:NodeShape ;
+    sh:targetClass ecom:Product ;
+    sh:property [
+        sh:path ecom:productName ;
+        sh:minCount 1 ;
+        sh:maxLength 200 ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path ecom:price ;
+        sh:minCount 1 ;
+        sh:minInclusive 0 ;
+        sh:datatype xsd:decimal
+    ] .
+
+ecom:CustomerShape a sh:NodeShape ;
+    sh:targetClass ecom:Customer ;
+    sh:property [
+        sh:path ecom:email ;
+        sh:minCount 1 ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:datatype xsd:string
+    ] .
+\end{lstlisting}
+
+\section{Task Management Domain}
+
+\begin{lstlisting}[language=sparql, caption={Task management ontology}]
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix task: <https://example.com/tasks/> .
+
+# Classes
+task:Task a rdfs:Class ;
+    rdfs:label "Task" ;
+    rdfs:comment "A unit of work to be completed" .
+
+task:User a rdfs:Class ;
+    rdfs:label "User" ;
+    rdfs:comment "A user who can be assigned tasks" .
+
+task:Team a rdfs:Class ;
+    rdfs:label "Team" ;
+    rdfs:comment "A group of users" .
+
+# Task Properties
+task:title a rdf:Property ;
+    rdfs:domain task:Task ;
+    rdfs:range xsd:string .
+
+task:description a rdf:Property ;
+    rdfs:domain task:Task ;
+    rdfs:range xsd:string .
+
+task:dueDate a rdf:Property ;
+    rdfs:domain task:Task ;
+    rdfs:range xsd:dateTime .
+
+task:priority a rdf:Property ;
+    rdfs:domain task:Task ;
+    rdfs:range task:PriorityLevel .
+
+task:status a rdf:Property ;
+    rdfs:domain task:Task ;
+    rdfs:range task:TaskStatus .
+
+# Enumerations
+task:PriorityLevel a rdfs:Class ;
+    rdfs:comment "Priority level enumeration" .
+
+task:Low a task:PriorityLevel .
+task:Medium a task:PriorityLevel .
+task:High a task:PriorityLevel .
+
+task:TaskStatus a rdfs:Class ;
+    rdfs:comment "Task status enumeration" .
+
+task:Todo a task:TaskStatus .
+task:InProgress a task:TaskStatus .
+task:Done a task:TaskStatus .
+
+# Relationships
+task:assignedTo a rdf:Property ;
+    rdfs:domain task:Task ;
+    rdfs:range task:User ;
+    rdfs:comment "Task assigned to user (0..1)" .
+
+task:assignedToTeam a rdf:Property ;
+    rdfs:domain task:Task ;
+    rdfs:range task:Team ;
+    rdfs:comment "Task assigned to team (0..1)" .
+
+task:memberOf a rdf:Property ;
+    rdfs:domain task:User ;
+    rdfs:range task:Team ;
+    rdfs:comment "User belongs to team (0..N)" .
+\end{lstlisting}
+
+\section{Healthcare API Domain}
+
+\begin{lstlisting}[language=sparql, caption={HIPAA-compliant healthcare ontology}]
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix health: <https://example.com/healthcare/> .
+@prefix sec: <https://example.com/security/> .
+
+# Classes with security annotations
+health:Patient a rdfs:Class ;
+    rdfs:label "Patient" ;
+    sec:containsPHI true ;
+    sec:encryptionRequired true ;
+    sec:auditRequired true .
+
+health:Provider a rdfs:Class ;
+    rdfs:label "Healthcare Provider" ;
+    sec:requiresAuthentication true .
+
+health:Appointment a rdfs:Class ;
+    rdfs:label "Appointment" ;
+    sec:containsPHI true .
+
+health:MedicalRecord a rdfs:Class ;
+    rdfs:label "Medical Record" ;
+    sec:containsPHI true ;
+    sec:encryptionRequired true ;
+    sec:retentionYears 7 .
+
+# Patient Properties (PHI)
+health:patientId a rdf:Property ;
+    rdfs:domain health:Patient ;
+    rdfs:range xsd:string ;
+    sec:isPHI true .
+
+health:dateOfBirth a rdf:Property ;
+    rdfs:domain health:Patient ;
+    rdfs:range xsd:date ;
+    sec:isPHI true .
+
+health:socialSecurityNumber a rdf:Property ;
+    rdfs:domain health:Patient ;
+    rdfs:range xsd:string ;
+    sec:isPHI true ;
+    sec:encryptionRequired true .
+
+# Relationships
+health:hasProvider a rdf:Property ;
+    rdfs:domain health:Patient ;
+    rdfs:range health:Provider .
+
+health:hasAppointment a rdf:Property ;
+    rdfs:domain health:Patient ;
+    rdfs:range health:Appointment .
+
+health:hasMedicalRecord a rdf:Property ;
+    rdfs:domain health:Patient ;
+    rdfs:range health:MedicalRecord .
+\end{lstlisting}
+
+\section{Microservices Architecture Domain}
+
+\begin{lstlisting}[language=sparql, caption={Microservices architecture ontology}]
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ms: <https://example.com/microservices/> .
+
+# Service Classes
+ms:Service a rdfs:Class ;
+    rdfs:label "Microservice" .
+
+ms:APIGateway a rdfs:Class ;
+    rdfs:subClassOf ms:Service .
+
+ms:EventStore a rdfs:Class ;
+    rdfs:subClassOf ms:Service .
+
+ms:MessageBroker a rdfs:Class ;
+    rdfs:subClassOf ms:Service .
+
+# Service Properties
+ms:serviceName a rdf:Property ;
+    rdfs:domain ms:Service ;
+    rdfs:range xsd:string .
+
+ms:port a rdf:Property ;
+    rdfs:domain ms:Service ;
+    rdfs:range xsd:integer .
+
+ms:healthEndpoint a rdf:Property ;
+    rdfs:domain ms:Service ;
+    rdfs:range xsd:string .
+
+# Communication Patterns
+ms:communicatesWith a rdf:Property ;
+    rdfs:domain ms:Service ;
+    rdfs:range ms:Service ;
+    rdfs:comment "Synchronous HTTP communication" .
+
+ms:publishesTo a rdf:Property ;
+    rdfs:domain ms:Service ;
+    rdfs:range ms:MessageBroker ;
+    rdfs:comment "Async event publishing" .
+
+ms:subscribesTo a rdf:Property ;
+    rdfs:domain ms:Service ;
+    rdfs:range ms:MessageBroker ;
+    rdfs:comment "Async event subscription" .
+\end{lstlisting}
