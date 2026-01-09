@@ -13,7 +13,7 @@ pub mod handlers;
 pub mod validators;
 
 use clap::{Args, Subcommand};
-use errors::{PaasError, Result};
+use errors::Result;
 use std::path::PathBuf;
 
 /// PaaS submodule management command
@@ -184,9 +184,10 @@ impl PaasCommand {
     /// Execute PaaS command with noun-verb routing
     pub async fn execute(self) -> Result<()> {
         // Validate specification closure before any operation
-        let spec_dir = self.spec_dir.as_deref().unwrap_or_else(|| "".as_ref());
-        if !spec_dir.is_empty() {
-            validators::validate_closure(spec_dir, 95.0).await?;
+        if let Some(spec_dir) = self.spec_dir.as_ref() {
+            if let Some(spec_str) = spec_dir.to_str() {
+                validators::validate_closure(spec_str, 95.0).await?;
+            }
         }
 
         // Route noun-verb pair to appropriate handler
@@ -211,7 +212,10 @@ impl PaasCommand {
                 min_closure,
                 strict,
             } => {
-                let spec_path = spec.as_deref().unwrap_or(".specify");
+                let spec_path = spec
+                    .as_ref()
+                    .and_then(|p| p.to_str())
+                    .unwrap_or(".specify");
                 handlers::validate::validate_specs(spec_path, min_closure, strict).await?;
             }
             PaasAction::Sync {
@@ -219,8 +223,14 @@ impl PaasCommand {
                 target,
                 dry_run,
             } => {
-                let src = source.as_deref().unwrap_or(".specify");
-                let tgt = target.as_deref().unwrap_or("./generated");
+                let src = source
+                    .as_ref()
+                    .and_then(|p| p.to_str())
+                    .unwrap_or(".specify");
+                let tgt = target
+                    .as_ref()
+                    .and_then(|p| p.to_str())
+                    .unwrap_or("./generated");
                 handlers::sync::sync_specs(src, tgt, dry_run).await?;
             }
             PaasAction::Deploy {

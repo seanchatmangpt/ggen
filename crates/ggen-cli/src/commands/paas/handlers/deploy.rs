@@ -6,7 +6,7 @@ use crate::commands::paas::errors::{PaasError, Result};
 /// Deploy artifacts to target environment
 pub async fn deploy_artifacts(
     environment: &str,
-    target: Option<&str>,
+    _target: Option<&str>,
     dry_run: bool,
     force: bool,
 ) -> Result<()> {
@@ -19,14 +19,7 @@ pub async fn deploy_artifacts(
     }
 
     if dry_run {
-        if cfg!(feature = "verbose") {
-            eprintln!(
-                "DRY RUN: Would deploy to {} ({}) {}",
-                environment,
-                target.unwrap_or("auto"),
-                if force { "with --force" } else { "" }
-            );
-        }
+        // In dry run mode, deployment is validated but not executed
         return Ok(());
     }
 
@@ -34,10 +27,7 @@ pub async fn deploy_artifacts(
         // Would perform pre-flight checks here
     }
 
-    if cfg!(feature = "verbose") {
-        eprintln!("✓ Deployment to {} initiated", environment);
-    }
-
+    // Deployment to environment initiated
     Ok(())
 }
 

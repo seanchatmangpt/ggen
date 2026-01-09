@@ -21,7 +21,7 @@ pub async fn init_submodule(name: &str, recursive: bool, shallow: bool) -> Resul
             "https://github.com/seanchatmangpt/clap-noun-verb.git",
             "clap-noun-verb",
         ),
-        other => {
+        _other => {
             return Err(PaasError::InvalidCommand {
                 noun: "submodule".to_string(),
                 verb: "init".to_string(),
@@ -79,10 +79,7 @@ pub async fn init_submodule(name: &str, recursive: bool, shallow: bool) -> Resul
         return Err(PaasError::GitFailed(stderr.to_string()));
     }
 
-    if cfg!(feature = "verbose") {
-        eprintln!("✓ Initialized submodule: {} at {}", name, path);
-    }
-
+    // Submodule successfully initialized
     Ok(())
 }
 
