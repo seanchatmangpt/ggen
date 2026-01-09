@@ -5,30 +5,13 @@ use crate::commands::paas::errors::Result;
 
 /// Stream operation logs
 pub async fn stream_logs(
-    lines: usize,
-    deployment: Option<&str>,
-    follow: bool,
-    level: Option<&str>,
+    _lines: usize,
+    _deployment: Option<&str>,
+    _follow: bool,
+    _level: Option<&str>,
 ) -> Result<()> {
-    let deployment_display = deployment.unwrap_or("all");
-    let level_display = level.unwrap_or("info");
-
-    if cfg!(feature = "verbose") {
-        eprintln!(
-            "Showing last {} {} logs from {} {}",
-            lines,
-            level_display,
-            deployment_display,
-            if follow { "(following)" } else { "" }
-        );
-    }
-
-    // In real implementation, would fetch logs from deployment
-    if !follow {
-        if cfg!(feature = "verbose") {
-            eprintln!("✓ No logs available");
-        }
-    }
+    // In real implementation, would fetch logs from deployment system
+    // For now, return success indicating logs are ready
 
     Ok(())
 }

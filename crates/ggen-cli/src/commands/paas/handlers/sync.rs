@@ -14,9 +14,7 @@ pub async fn sync_specs(source: &str, target: &str, dry_run: bool) -> Result<()>
     }
 
     if dry_run {
-        if cfg!(feature = "verbose") {
-            eprintln!("DRY RUN: Would sync from {} to {}", source, target);
-        }
+        // In dry run mode, no actual sync is performed
         return Ok(());
     }
 
@@ -24,10 +22,7 @@ pub async fn sync_specs(source: &str, target: &str, dry_run: bool) -> Result<()>
     std::fs::create_dir_all(target_path)
         .map_err(|e| PaasError::IoError(format!("Failed to create target directory: {}", e)))?;
 
-    if cfg!(feature = "verbose") {
-        eprintln!("✓ Synced specifications from {} to {}", source, target);
-    }
-
+    // Specifications synced successfully
     Ok(())
 }
 

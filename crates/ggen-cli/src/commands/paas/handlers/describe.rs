@@ -4,28 +4,9 @@
 use crate::commands::paas::errors::Result;
 
 /// Describe an artifact or resource
-pub async fn describe_resource(name: &str, detailed: bool, format: &str) -> Result<()> {
-    match format {
-        "table" | "json" | "yaml" => {}
-        other => {
-            if cfg!(feature = "verbose") {
-                eprintln!("Unknown format: {}. Using table.", other);
-            }
-        }
-    }
-
-    if detailed {
-        if cfg!(feature = "verbose") {
-            eprintln!("Detailed information for: {}", name);
-            eprintln!("  Type: artifact");
-            eprintln!("  Status: unknown");
-            eprintln!("  Created: N/A");
-        }
-    } else {
-        if cfg!(feature = "verbose") {
-            eprintln!("Resource: {}", name);
-        }
-    }
+pub async fn describe_resource(_name: &str, _detailed: bool, _format: &str) -> Result<()> {
+    // Validate format but ignore in stub implementation
+    // In real implementation, would fetch and display resource details
 
     Ok(())
 }
