@@ -190,8 +190,9 @@ impl IncrementalGenerator {
 
     /// Compute SHA256 hash of file content
     pub fn compute_content_hash(file_path: &Path) -> Result<String> {
-        let mut file = fs::File::open(file_path)
-            .map_err(|e| Error::file_not_found(format!("Failed to open file: {}", e)))?;
+        let mut file = fs::File::open(file_path).map_err(|e| {
+            Error::io_error(format!("Failed to open file '{}': {}", file_path.display(), e))
+        })?;
 
         let mut hasher = Sha256::new();
         let mut buffer = [0; 8192]; // 8KB buffer for streaming
@@ -199,7 +200,9 @@ impl IncrementalGenerator {
         loop {
             let bytes_read = file
                 .read(&mut buffer)
-                .map_err(|e| Error::io_error(format!("Failed to read file: {}", e)))?;
+                .map_err(|e| {
+                    Error::io_error(format!("Failed to read file '{}': {}", file_path.display(), e))
+                })?;
 
             if bytes_read == 0 {
                 break;
@@ -251,7 +254,7 @@ impl IncrementalGenerator {
         let content_hash = Self::compute_content_hash(&file_path)?;
         let timestamp = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .map_err(|e| Error::system_error(format!("Failed to get timestamp: {}", e)))?
+            .map_err(|e| Error::io_error(format!("Failed to get timestamp: {}", e)))?
             .as_secs();
 
         let file_state = FileState::new(
