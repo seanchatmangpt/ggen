@@ -135,6 +135,7 @@ pub mod lockfile;
 pub mod lockfile_unified; // Unified lockfile trait system (v4.0)
 pub mod manifest;
 pub mod merge;
+pub mod naming; // Phase 3: Naming convention validator
 pub mod parallel_generator;
 // Ontology system - re-enabled after oxigraph API compatibility fixes
 pub mod ontology;
@@ -191,6 +192,7 @@ pub use delta::{DeltaType, GraphDelta, ImpactAnalyzer, TemplateImpact};
 pub use generator::{GenContext, Generator};
 pub use github::{GitHubClient, PagesConfig, RepoInfo, WorkflowRun, WorkflowRunsResponse};
 pub use gpack::GpackManifest;
+pub use naming::{NamingValidator, NamingError, ViolationType};
 pub use graph::{Graph, GraphStore};
 pub use lockfile::{LockEntry, Lockfile, LockfileManager};
 pub use merge::{
