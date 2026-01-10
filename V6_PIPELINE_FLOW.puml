@@ -1,0 +1,90 @@
+@startuml V6_PIPELINE_FLOW
+
+title ggen v6: 5-Stage Deterministic Pipeline (A = μ(O))
+
+rectangle "INPUTS (Observable O)" {
+  file schema.ttl as schema
+  file data.csv as data
+  file templates as tpl
+}
+
+rectangle "μ₁: NORMALIZE (RDF Enrichment)" {
+  database ontology1["RDF Graph (Loaded)"]
+  process construct["Execute CONSTRUCT\nInference Rules"]
+  database ontology2["RDF Graph (Enriched)"]
+}
+
+rectangle "μ₂: EXTRACT (Query Execution)" {
+  process select["Execute SELECT\nQueries"]
+  database bindings["Template Bindings\n(JSON)"]
+}
+
+rectangle "μ₃: EMIT (File Generation)" {
+  process tera["Render Tera\nTemplates"]
+  database files["Generated\nFiles"]
+}
+
+rectangle "μ₄: CANONICALIZE (Determinism)" {
+  process format["Normalize\nFormatting"]
+  database canon_files["Canonical\nFiles"]
+}
+
+rectangle "μ₅: RECEIPT (Provenance)" {
+  process hash["Compute SHA256\nHashes"]
+  file receipt.json as receipt
+}
+
+rectangle "OUTPUTS (Artifacts A)" {
+  file code as output
+}
+
+' Data flow
+schema --> ontology1: "load"
+ontology1 --> construct: "input"
+construct --> ontology2: "enrich"
+ontology2 --> select: "query"
+select --> bindings: "extract"
+bindings --> tera: "input"
+tpl --> tera: "load"
+tera --> files: "render"
+files --> format: "cleanup"
+format --> canon_files: "output"
+canon_files --> hash: "verify"
+hash --> receipt: "record"
+receipt --> output: "verify A"
+
+' Annotations
+note right of construct
+  LLM-assisted extend point:
+  Can call Predictor.forward()
+  to generate CONSTRUCT rules
+end note
+
+note right of tera
+  LLM-assisted extend point:
+  Can call Predictor.forward()
+  for code generation
+end note
+
+note right of hash
+  Epoch: hash(O)
+  Output: hash(A)
+  Proof: hash(μ(O)) = hash(A)
+end note
+
+' Constraint box
+rectangle "GUARANTEE: Determinism" {
+  note as guarantee
+    Same O (ontology + data + templates)
+    + Same μ (pipeline version)
+    = Same A (byte-for-byte identical output)
+
+    Proven by receipt:
+    ✓ All pass records logged
+    ✓ All output hashes recorded
+    ✓ Input epoch frozen
+    ✓ No manual edits in A
+  end note
+}
+
+@enduml

@@ -1,0 +1,93 @@
+@startuml KGC_ANCHOR_EXTEND
+
+title KGC Anchor/Extend Pattern (v6 = Anchor, v7 = Extend)
+
+package "v6: ANCHOR (Specification Closure)" {
+  rectangle "Standard Ontologies\n(Proven, Trusted)" {
+    component schema_org["schema.org\n(500+ types)"]
+    component foaf["FOAF\n(Social graphs)"]
+    component dublin["Dublin Core\n(Metadata)"]
+    component skos["SKOS\n(Vocabularies)"]
+  }
+
+  rectangle "Anchor Quality Gates" {
+    component screening["BIG BANG 80/20\nScreening Gate"]
+    component vocab_val["Vocabulary\nValidator"]
+    component receipt["Cryptographic\nReceipt"]
+  }
+
+  rectangle "Anchor Output" {
+    component deterministic["Deterministic\nCode Generation\n(A = μ(O))"]
+  }
+
+  schema_org --> screening: "accepted"
+  foaf --> screening: "accepted"
+  dublin --> screening: "accepted"
+  skos --> screening: "accepted"
+  screening --> vocab_val: "passes"
+  vocab_val --> deterministic: "gates"
+  deterministic --> receipt: "proves"
+}
+
+package "v7: EXTEND (Auto-Enhancement)" {
+  rectangle "Extension Tools" {
+    component infer["ggen infer\n(Auto-detect schema\nfrom CSV)"]
+    component extend_auto["Auto-extend\n(Suggest additions\nto standard)"]
+    component marketplace["Template\nMarketplace"]
+    component validate["48h Validation\nRunner"]
+  }
+
+  rectangle "Extension Discipline" {
+    component anchor_check["Anchor Check\n(Must extend from\nstandard, not custom)"]
+    component market_signal["Market Signal\nCollector"]
+    component feedback["Feedback\nLoop"]
+  }
+
+  infer --> anchor_check: "verify anchor"
+  extend_auto --> anchor_check: "verify anchor"
+  marketplace --> anchor_check: "verify anchor"
+  validate --> market_signal: "collect"
+  market_signal --> feedback: "feeds"
+}
+
+' Critical dependency
+anchor_check -.-> deterministic: "REQUIRES\nv6 anchor\nto be stable"
+
+' What happens without anchor (Seth pattern)
+rectangle "WITHOUT ANCHOR (Seth Pattern)" {
+  component custom["Build custom\nontology"]
+  component waste["3+ months\nwasted"]
+  component fail["Zero users,\nfail"]
+
+  custom --> waste
+  waste --> fail
+}
+
+fail -.-> screening: "BLOCKED by v6\nscreening gate"
+
+note top of (v6: ANCHOR (Specification Closure))
+  v6 proves:
+  ✓ Standard ontologies sufficient
+  ✓ Deterministic generation works
+  ✓ Screening prevents Seth patterns
+  ✓ Specification closure is achievable
+  ✓ No drift by construction (A = μ(O))
+end note
+
+note top of (v7: EXTEND (Auto-Enhancement))
+  v7 builds on anchor:
+  ✓ Auto-infer from data
+  ✓ Suggest extensions
+  ✓ Marketplace templates
+  ✓ Market validation
+  ✓ Feedback loop
+end note
+
+note bottom of (WITHOUT ANCHOR (Seth Pattern))
+  v6 gates prevent this:
+  Custom ontology rejection
+  Data requirement check
+  Standard-only enforcement
+end note
+
+@enduml
