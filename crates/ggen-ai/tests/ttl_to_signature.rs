@@ -29,7 +29,7 @@ fn load_ttl_fixture(filename: &str) -> oxigraph::store::Store {
     let ttl_content = fs::read_to_string(&path)
         .expect(&format!("Failed to read fixture file: {:?}", path));
 
-    let mut store = Store::new().expect("Failed to create RDF store");
+    let store = Store::new().expect("Failed to create RDF store");
     let reader = std::io::Cursor::new(ttl_content);
     store.load_from_reader(RdfFormat::Turtle, reader)
         .expect(&format!("Failed to load TTL from {}", filename));

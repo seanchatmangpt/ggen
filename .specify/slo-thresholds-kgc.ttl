@@ -1,0 +1,612 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix kgc: <http://ggen.org/kgc#> .
+@prefix perf: <http://ggen.org/performance#> .
+@prefix slo: <http://ggen.org/slo#> .
+@prefix constraint: <http://ggen.org/constraint#> .
+
+# =============================================================================
+# SLO THRESHOLDS AND PERFORMANCE BUDGETS
+# =============================================================================
+# Specification of Service Level Objectives (SLOs) for the ggen transformation
+# pipeline. Defines performance budgets, timeouts, and quality metrics that
+# must be met for the system to be considered production-ready.
+#
+# Core SLOs:
+# - Transpile: <500ms for typical projects
+# - Schema generation: <50ms
+# - Validation: <10ms
+# - End-to-end: <2 minutes for full pipeline
+# =============================================================================
+
+<http://ggen.org/slo-thresholds-spec>
+  a owl:Ontology ;
+  rdfs:label "ggen SLO Thresholds and Performance Specification" ;
+  rdfs:comment "Service Level Objectives for ggen transformation pipeline" ;
+  owl:versionInfo "1.0.0" ;
+  owl:imports <http://ggen.org/kgc#> ;
+  .
+
+# =============================================================================
+# SLO FRAMEWORK
+# =============================================================================
+
+slo:ServiceLevelObjective
+  a owl:Class ;
+  rdfs:label "Service Level Objective" ;
+  rdfs:comment "Quantitative target for performance, availability, or quality" ;
+  .
+
+slo:hasMetric
+  a owl:ObjectProperty ;
+  rdfs:label "Has Metric" ;
+  rdfs:domain slo:ServiceLevelObjective ;
+  rdfs:range slo:Metric ;
+  rdfs:comment "Performance metric measured for this SLO" ;
+  .
+
+slo:hasThreshold
+  a owl:ObjectProperty ;
+  rdfs:label "Has Threshold" ;
+  rdfs:domain slo:ServiceLevelObjective ;
+  rdfs:range slo:Threshold ;
+  rdfs:comment "Acceptance threshold for this SLO" ;
+  .
+
+slo:name
+  a owl:DatatypeProperty ;
+  rdfs:label "SLO Name" ;
+  rdfs:domain slo:ServiceLevelObjective ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Human-readable name of the SLO" ;
+  .
+
+slo:target
+  a owl:DatatypeProperty ;
+  rdfs:label "Target Value" ;
+  rdfs:domain slo:ServiceLevelObjective ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "Desired target value (percentage, milliseconds, etc.)" ;
+  .
+
+# =============================================================================
+# TRANSPILATION SLOs
+# =============================================================================
+
+slo:TranspilationSLO
+  a slo:ServiceLevelObjective ;
+  rdfs:label "Transpilation Performance SLO" ;
+  rdfs:comment "Code generation from RDF specification must complete quickly" ;
+  slo:name "Transpile Time" ;
+  slo:target 500 ;
+  slo:hasMetric perf:meanLatency ;
+  slo:hasThreshold [
+    a slo:Threshold ;
+    slo:metric perf:meanLatency ;
+    slo:operator "lessThan" ;
+    slo:value 500 ;
+    slo:unit "milliseconds" ;
+    slo:percentile 50 ;
+  ] ;
+  .
+
+slo:TranspilationP95SLO
+  a slo:ServiceLevelObjective ;
+  rdfs:label "Transpilation P95 SLO" ;
+  rdfs:comment "95th percentile transpilation latency must be reasonable" ;
+  slo:name "Transpile Time P95" ;
+  slo:target 1000 ;
+  slo:hasThreshold [
+    a slo:Threshold ;
+    slo:metric perf:p95Latency ;
+    slo:operator "lessThan" ;
+    slo:value 1000 ;
+    slo:unit "milliseconds" ;
+    slo:percentile 95 ;
+  ] ;
+  .
+
+slo:TranspilationP99SLO
+  a slo:ServiceLevelObjective ;
+  rdfs:label "Transpilation P99 SLO" ;
+  rdfs:comment "99th percentile transpilation latency (outliers acceptable)" ;
+  slo:name "Transpile Time P99" ;
+  slo:target 2000 ;
+  slo:hasThreshold [
+    a slo:Threshold ;
+    slo:metric perf:p99Latency ;
+    slo:operator "lessThan" ;
+    slo:value 2000 ;
+    slo:unit "milliseconds" ;
+    slo:percentile 99 ;
+  ] ;
+  .
+
+perf:TypeCheckingTime
+  a slo:ServiceLevelObjective ;
+  rdfs:label "Type Checking Duration" ;
+  rdfs:comment "Type inference and constraint checking (<50ms)" ;
+  slo:target 50 ;
+  slo:hasThreshold [
+    a slo:Threshold ;
+    slo:operator "lessThan" ;
+    slo:value 50 ;
+    slo:unit "milliseconds" ;
+  ] ;
+  .
+
+# =============================================================================
+# SCHEMA GENERATION SLOs
+# =============================================================================
+
+slo:SchemaGenerationSLO
+  a slo:ServiceLevelObjective ;
+  rdfs:label "Schema Generation SLO" ;
+  rdfs:comment "JSON-Schema and validation code generation <50ms" ;
+  slo:name "Schema Generation Time" ;
+  slo:target 50 ;
+  slo:hasThreshold [
+    a slo:Threshold ;
+    slo:metric perf:meanLatency ;
+    slo:operator "lessThan" ;
+    slo:value 50 ;
+    slo:unit "milliseconds" ;
+    slo:percentile 50 ;
+  ] ;
+  .
+
+slo:SchemaGenerationP95SLO
+  a slo:ServiceLevelObjective ;
+  rdfs:label "Schema Generation P95 SLO" ;
+  rdfs:comment "95th percentile schema generation <100ms" ;
+  slo:name "Schema Generation P95" ;
+  slo:target 100 ;
+  slo:hasThreshold [
+    a slo:Threshold ;
+    slo:metric perf:p95Latency ;
+    slo:operator "lessThan" ;
+    slo:value 100 ;
+    slo:unit "milliseconds" ;
+    slo:percentile 95 ;
+  ] ;
+  .
+
+slo:ShacleShapeGenerationSLO
+  a slo:ServiceLevelObjective ;
+  rdfs:label "SHACL Shape Generation SLO" ;
+  rdfs:comment "SHACL shape validation code <25ms" ;
+  slo:target 25 ;
+  slo:hasThreshold [
+    a slo:Threshold ;
+    slo:operator "lessThan" ;
+    slo:value 25 ;
+    slo:unit "milliseconds" ;
+  ] ;
+  .
+
+# =============================================================================
+# VALIDATION SLOs
+# =============================================================================
+
+slo:ValidationSLO
+  a slo:ServiceLevelObjective ;
+  rdfs:label "Validation Performance SLO" ;
+  rdfs:comment "SHACL constraint validation must complete in <10ms" ;
+  slo:name "Validation Time" ;
+  slo:target 10 ;
+  slo:hasThreshold [
+    a slo:Threshold ;
+    slo:metric perf:meanLatency ;
+    slo:operator "lessThan" ;
+    slo:value 10 ;
+    slo:unit "milliseconds" ;
+    slo:percentile 50 ;
+  ] ;
+  .
+
+slo:ValidationP95SLO
+  a slo:ServiceLevelObjective ;
+  rdfs:label "Validation P95 SLO" ;
+  rdfs:comment "95th percentile validation <20ms" ;
+  slo:name "Validation P95" ;
+  slo:target 20 ;
+  slo:hasThreshold [
+    a slo:Threshold ;
+    slo:metric perf:p95Latency ;
+    slo:operator "lessThan" ;
+    slo:value 20 ;
+    slo:unit "milliseconds" ;
+  ] ;
+  .
+
+slo:SparqlExecutionSLO
+  a slo:ServiceLevelObjective ;
+  rdfs:label "SPARQL Execution SLO" ;
+  rdfs:comment "SPARQL query execution <100ms for typical queries" ;
+  slo:target 100 ;
+  slo:hasThreshold [
+    a slo:Threshold ;
+    slo:operator "lessThan" ;
+    slo:value 100 ;
+    slo:unit "milliseconds" ;
+  ] ;
+  .
+
+# =============================================================================
+# END-TO-END PIPELINE SLOs
+# =============================================================================
+
+slo:FullPipelineSLO
+  a slo:ServiceLevelObjective ;
+  rdfs:label "Full Pipeline SLO" ;
+  rdfs:comment "Complete transformation from RDF to code: <2 minutes" ;
+  slo:name "Full Pipeline Duration" ;
+  slo:target 120000 ;
+  slo:hasThreshold [
+    a slo:Threshold ;
+    slo:metric perf:pipelineLatency ;
+    slo:operator "lessThan" ;
+    slo:value 120000 ;
+    slo:unit "milliseconds" ;
+  ] ;
+  .
+
+slo:CheckoutToArtifactSLO
+  a slo:ServiceLevelObjective ;
+  rdfs:label "Checkout to Artifact SLO" ;
+  rdfs:comment "Time from code checkout to generated artifacts: <60 seconds" ;
+  slo:target 60 ;
+  slo:hasThreshold [
+    a slo:Threshold ;
+    slo:operator "lessThan" ;
+    slo:value 60 ;
+    slo:unit "seconds" ;
+  ] ;
+  .
+
+slo:PreCommitChecksSLO
+  a slo:ServiceLevelObjective ;
+  rdfs:label "Pre-Commit Checks SLO" ;
+  rdfs:comment "Cargo make pre-commit must complete in <2 minutes" ;
+  slo:target 120 ;
+  slo:hasThreshold [
+    a slo:Threshold ;
+    slo:operator "lessThan" ;
+    slo:value 120 ;
+    slo:unit "seconds" ;
+  ] ;
+  kgc:includes [
+    "cargo make check",
+    "cargo make lint",
+    "cargo make test"
+  ] ;
+  .
+
+# =============================================================================
+# QUALITY METRICS AND TARGETS
+# =============================================================================
+
+perf:Metric
+  a owl:Class ;
+  rdfs:label "Performance Metric" ;
+  rdfs:comment "Measurable performance characteristic" ;
+  .
+
+perf:meanLatency
+  a perf:Metric ;
+  rdfs:label "Mean Latency" ;
+  rdfs:comment "Average response time across all executions" ;
+  perf:aggregation "mean" ;
+  .
+
+perf:p50Latency
+  a perf:Metric ;
+  rdfs:label "P50 Latency (Median)" ;
+  rdfs:comment "50th percentile response time (median)" ;
+  perf:aggregation "percentile_50" ;
+  .
+
+perf:p95Latency
+  a perf:Metric ;
+  rdfs:label "P95 Latency" ;
+  rdfs:comment "95th percentile response time (most queries faster)" ;
+  perf:aggregation "percentile_95" ;
+  .
+
+perf:p99Latency
+  a perf:Metric ;
+  rdfs:label "P99 Latency" ;
+  rdfs:comment "99th percentile response time (outliers)" ;
+  perf:aggregation "percentile_99" ;
+  .
+
+perf:maxLatency
+  a perf:Metric ;
+  rdfs:label "Max Latency" ;
+  rdfs:comment "Worst-case response time" ;
+  perf:aggregation "maximum" ;
+  .
+
+perf:throughput
+  a perf:Metric ;
+  rdfs:label "Throughput" ;
+  rdfs:comment "Operations per second" ;
+  perf:unit "ops/sec" ;
+  .
+
+perf:memoryUsage
+  a perf:Metric ;
+  rdfs:label "Memory Usage" ;
+  rdfs:comment "Peak memory consumed during execution" ;
+  perf:unit "megabytes" ;
+  .
+
+perf:cpuUtilization
+  a perf:Metric ;
+  rdfs:label "CPU Utilization" ;
+  rdfs:comment "Percentage of CPU resources used" ;
+  perf:unit "percent" ;
+  perf:target 70 ;
+  .
+
+perf:allocationsCount
+  a perf:Metric ;
+  rdfs:label "Allocation Count" ;
+  rdfs:comment "Number of memory allocations (lower is better)" ;
+  perf:unit "count" ;
+  .
+
+perf:pipelineLatency
+  a perf:Metric ;
+  rdfs:label "Full Pipeline Latency" ;
+  rdfs:comment "Total time for complete transformation" ;
+  perf:includes [
+    perf:parseLatency,
+    perf:extractLatency,
+    perf:emitLatency,
+    perf:canonicalizeLatency,
+    perf:receiptLatency
+  ] ;
+  .
+
+# =============================================================================
+# PERFORMANCE BUDGETS BY COMPONENT
+# =============================================================================
+
+slo:ComponentBudget
+  a owl:Class ;
+  rdfs:label "Component Performance Budget" ;
+  rdfs:comment "Time allocation for individual stages in pipeline" ;
+  .
+
+slo:parseStagebudget
+  a slo:ComponentBudget ;
+  rdfs:label "Parse Stage Budget" ;
+  rdfs:comment "RDF parsing and normalization: <100ms" ;
+  constraint:component "ggen-parser" ;
+  constraint:budget 100 ;
+  constraint:unit "milliseconds" ;
+  constraint:note "Includes file I/O for .ttl files" ;
+  .
+
+slo:extractStageBudget
+  a slo:ComponentBudget ;
+  rdfs:label "Extract Stage Budget" ;
+  rdfs:comment "SPARQL pattern extraction: <150ms" ;
+  constraint:component "ggen-sparql" ;
+  constraint:budget 150 ;
+  constraint:unit "milliseconds" ;
+  .
+
+slo:emitStageBudget
+  a slo:ComponentBudget ;
+  rdfs:label "Emit Stage Budget" ;
+  rdfs:comment "Tera template rendering: <200ms" ;
+  constraint:component "ggen-codegen" ;
+  constraint:budget 200 ;
+  constraint:unit "milliseconds" ;
+  constraint:note "Includes all template files" ;
+  .
+
+slo:canonicalizeStageBudget
+  a slo:ComponentBudget ;
+  rdfs:label "Canonicalize Stage Budget" ;
+  rdfs:comment "Output normalization: <50ms" ;
+  constraint:component "ggen-canonical" ;
+  constraint:budget 50 ;
+  constraint:unit "milliseconds" ;
+  .
+
+slo:receiptStageBudget
+  a slo:ComponentBudget ;
+  rdfs:label "Receipt Stage Budget" ;
+  rdfs:comment "Hash computation and receipt generation: <100ms" ;
+  constraint:component "ggen-receipt" ;
+  constraint:budget 100 ;
+  constraint:unit "milliseconds" ;
+  .
+
+# Total: 100ms + 150ms + 200ms + 50ms + 100ms = 600ms
+# Leaves buffer of 100ms from 700ms target for test suite overhead
+
+# =============================================================================
+# SLO THRESHOLD SPECIFICATIONS
+# =============================================================================
+
+slo:Threshold
+  a owl:Class ;
+  rdfs:label "SLO Threshold" ;
+  rdfs:comment "Specific boundary condition for accepting/rejecting performance" ;
+  .
+
+slo:metric
+  a owl:ObjectProperty ;
+  rdfs:label "Metric" ;
+  rdfs:domain slo:Threshold ;
+  rdfs:range perf:Metric ;
+  rdfs:comment "Which metric this threshold applies to" ;
+  .
+
+slo:operator
+  a owl:DatatypeProperty ;
+  rdfs:label "Comparison Operator" ;
+  rdfs:domain slo:Threshold ;
+  rdfs:range xsd:string ;
+  rdfs:comment "How to compare actual to threshold: lessThan, greaterThan, equals" ;
+  .
+
+slo:value
+  a owl:DatatypeProperty ;
+  rdfs:label "Threshold Value" ;
+  rdfs:domain slo:Threshold ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "Numeric boundary value" ;
+  .
+
+slo:unit
+  a owl:DatatypeProperty ;
+  rdfs:label "Unit" ;
+  rdfs:domain slo:Threshold ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Unit of measurement (ms, seconds, percent, etc.)" ;
+  .
+
+slo:percentile
+  a owl:DatatypeProperty ;
+  rdfs:label "Percentile" ;
+  rdfs:domain slo:Threshold ;
+  rdfs:range xsd:nonNegativeInteger ;
+  rdfs:comment "For latency metrics: which percentile (50, 95, 99)" ;
+  .
+
+slo:severity
+  a owl:DatatypeProperty ;
+  rdfs:label "Severity Level" ;
+  rdfs:domain slo:Threshold ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Impact of violation: Critical, High, Medium, Low" ;
+  .
+
+# =============================================================================
+# SLO COMPLIANCE TRACKING
+# =============================================================================
+
+slo:ComplianceReport
+  a owl:Class ;
+  rdfs:label "SLO Compliance Report" ;
+  rdfs:comment "Record of measured performance against SLOs" ;
+  .
+
+slo:reportDate
+  a owl:DatatypeProperty ;
+  rdfs:label "Report Date" ;
+  rdfs:domain slo:ComplianceReport ;
+  rdfs:range xsd:dateTime ;
+  rdfs:comment "When this report was generated" ;
+  .
+
+slo:sloMeasured
+  a owl:ObjectProperty ;
+  rdfs:label "SLO Measured" ;
+  rdfs:domain slo:ComplianceReport ;
+  rdfs:range slo:ServiceLevelObjective ;
+  rdfs:comment "Which SLO was measured" ;
+  .
+
+slo:actualValue
+  a owl:DatatypeProperty ;
+  rdfs:label "Actual Value" ;
+  rdfs:domain slo:ComplianceReport ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "Measured performance value" ;
+  .
+
+slo:isCompliant
+  a owl:DatatypeProperty ;
+  rdfs:label "Is Compliant" ;
+  rdfs:domain slo:ComplianceReport ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Whether actual value meets threshold" ;
+  .
+
+# =============================================================================
+# SLO VALIDATION SHAPES
+# =============================================================================
+
+slo:ServiceLevelObjectiveShape
+  a sh:NodeShape ;
+  sh:targetClass slo:ServiceLevelObjective ;
+  sh:name "Service Level Objective Definition" ;
+  sh:description "Every SLO must specify name, target, and threshold" ;
+
+  sh:property [
+    sh:path slo:name ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "SLO must have a name (slo:name)" ;
+  ] ;
+
+  sh:property [
+    sh:path slo:target ;
+    sh:minCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:message "SLO must have a target value (slo:target)" ;
+  ] ;
+
+  sh:property [
+    sh:path slo:hasThreshold ;
+    sh:minCount 1 ;
+    sh:message "SLO must have at least one threshold definition" ;
+  ] ;
+  .
+
+slo:ThresholdShape
+  a sh:NodeShape ;
+  sh:targetClass slo:Threshold ;
+  sh:name "Threshold Definition" ;
+  sh:description "All thresholds must specify metric, operator, and value" ;
+
+  sh:property [
+    sh:path slo:metric ;
+    sh:minCount 1 ;
+    sh:message "Threshold must specify which metric it bounds" ;
+  ] ;
+
+  sh:property [
+    sh:path slo:operator ;
+    sh:minCount 1 ;
+    sh:in ("lessThan" "greaterThan" "equals" "lessOrEqual" "greaterOrEqual") ;
+    sh:message "Threshold operator must be: lessThan, greaterThan, equals, etc." ;
+  ] ;
+
+  sh:property [
+    sh:path slo:value ;
+    sh:minCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:message "Threshold must specify numeric value" ;
+  ] ;
+  .
+
+slo:ComponentBudgetShape
+  a sh:NodeShape ;
+  sh:targetClass slo:ComponentBudget ;
+  sh:name "Component Performance Budget" ;
+  sh:description "Component budgets must specify allocation and unit" ;
+
+  sh:property [
+    sh:path constraint:budget ;
+    sh:minCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:message "ComponentBudget must specify time allocation" ;
+  ] ;
+
+  sh:property [
+    sh:path constraint:unit ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "ComponentBudget must specify unit (ms, seconds, etc.)" ;
+  ] ;
+  .

@@ -557,13 +557,16 @@ pub fn map_xsd_to_rust_type(xsd_uri: &str) -> String {
         // Boolean
         "http://www.w3.org/2001/XMLSchema#boolean" => "bool",
 
-        // Date/Time types
-        "http://www.w3.org/2001/XMLSchema#dateTime" => "String", // Use String for DateTime parsing
-        "http://www.w3.org/2001/XMLSchema#date" => "String",
-        "http://www.w3.org/2001/XMLSchema#time" => "String",
-        "http://www.w3.org/2001/XMLSchema#duration" => "String",
+        // Date/Time types (mapped to chrono types)
+        "http://www.w3.org/2001/XMLSchema#dateTime" => "chrono::DateTime<chrono::Utc>",
+        "http://www.w3.org/2001/XMLSchema#date" => "chrono::NaiveDate",
+        "http://www.w3.org/2001/XMLSchema#time" => "chrono::NaiveTime",
+        "http://www.w3.org/2001/XMLSchema#duration" => "chrono::Duration",
         "http://www.w3.org/2001/XMLSchema#gYear" => "u16",
-        "http://www.w3.org/2001/XMLSchema#gYearMonth" => "String",
+        "http://www.w3.org/2001/XMLSchema#gYearMonth" => "(u16, u8)", // (year, month)
+        "http://www.w3.org/2001/XMLSchema#gDay" => "u8", // day of month
+        "http://www.w3.org/2001/XMLSchema#gMonth" => "u8", // month value
+        "http://www.w3.org/2001/XMLSchema#gMonthDay" => "(u8, u8)", // (month, day)
 
         // Binary types
         "http://www.w3.org/2001/XMLSchema#hexBinary" => "Vec<u8>",
@@ -911,5 +914,98 @@ mod tests {
         assert_eq!(constraint.one_of_values.as_ref().map(|v| v.len()), Some(2));
         assert!(constraint.semantic_type.is_some());
         assert!(constraint.property_name.is_some());
+    }
+
+    // ===== DateTime Type Mapping Tests =====
+
+    #[test]
+    fn test_map_xsd_datetime() {
+        assert_eq!(
+            map_xsd_to_rust_type("http://www.w3.org/2001/XMLSchema#dateTime"),
+            "chrono::DateTime<chrono::Utc>"
+        );
+    }
+
+    #[test]
+    fn test_map_xsd_date() {
+        assert_eq!(
+            map_xsd_to_rust_type("http://www.w3.org/2001/XMLSchema#date"),
+            "chrono::NaiveDate"
+        );
+    }
+
+    #[test]
+    fn test_map_xsd_time() {
+        assert_eq!(
+            map_xsd_to_rust_type("http://www.w3.org/2001/XMLSchema#time"),
+            "chrono::NaiveTime"
+        );
+    }
+
+    #[test]
+    fn test_map_xsd_duration() {
+        assert_eq!(
+            map_xsd_to_rust_type("http://www.w3.org/2001/XMLSchema#duration"),
+            "chrono::Duration"
+        );
+    }
+
+    #[test]
+    fn test_map_xsd_gyear() {
+        assert_eq!(
+            map_xsd_to_rust_type("http://www.w3.org/2001/XMLSchema#gYear"),
+            "u16"
+        );
+    }
+
+    #[test]
+    fn test_map_xsd_gyear_month() {
+        assert_eq!(
+            map_xsd_to_rust_type("http://www.w3.org/2001/XMLSchema#gYearMonth"),
+            "(u16, u8)"
+        );
+    }
+
+    #[test]
+    fn test_map_xsd_gday() {
+        assert_eq!(
+            map_xsd_to_rust_type("http://www.w3.org/2001/XMLSchema#gDay"),
+            "u8"
+        );
+    }
+
+    #[test]
+    fn test_map_xsd_gmonth() {
+        assert_eq!(
+            map_xsd_to_rust_type("http://www.w3.org/2001/XMLSchema#gMonth"),
+            "u8"
+        );
+    }
+
+    #[test]
+    fn test_map_xsd_gmonth_day() {
+        assert_eq!(
+            map_xsd_to_rust_type("http://www.w3.org/2001/XMLSchema#gMonthDay"),
+            "(u8, u8)"
+        );
+    }
+
+    #[test]
+    fn test_map_all_datetime_types() {
+        let test_cases = vec![
+            ("http://www.w3.org/2001/XMLSchema#dateTime", "chrono::DateTime<chrono::Utc>"),
+            ("http://www.w3.org/2001/XMLSchema#date", "chrono::NaiveDate"),
+            ("http://www.w3.org/2001/XMLSchema#time", "chrono::NaiveTime"),
+            ("http://www.w3.org/2001/XMLSchema#duration", "chrono::Duration"),
+            ("http://www.w3.org/2001/XMLSchema#gYear", "u16"),
+            ("http://www.w3.org/2001/XMLSchema#gYearMonth", "(u16, u8)"),
+            ("http://www.w3.org/2001/XMLSchema#gDay", "u8"),
+            ("http://www.w3.org/2001/XMLSchema#gMonth", "u8"),
+            ("http://www.w3.org/2001/XMLSchema#gMonthDay", "(u8, u8)"),
+        ];
+
+        for (xsd, expected) in test_cases {
+            assert_eq!(map_xsd_to_rust_type(xsd), expected, "Failed for {}", xsd);
+        }
     }
 }

@@ -1,0 +1,605 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix constraint: <http://ggen.org/constraint#> .
+@prefix numeric: <http://ggen.org/numeric#> .
+@prefix cardinality: <http://ggen.org/cardinality#> .
+@prefix kgc: <http://ggen.org/kgc#> .
+
+# =============================================================================
+# NUMERIC AND CARDINALITY CONSTRAINTS SPECIFICATION
+# =============================================================================
+# Defines constraints for numeric values (integers, floats, decimals) and
+# collection cardinality (minCount, maxCount, uniqueness). Essential for
+# validating structured data in RDF and mapping to Rust types.
+#
+# Coverage:
+# - Numeric range constraints (min/max inclusive/exclusive)
+# - Floating point precision and rounding
+# - Integer range specifications
+# - Cardinality bounds (minCount, maxCount)
+# - Collection uniqueness (uniqueLang, uniqueValues)
+# - Bag vs set semantics
+# =============================================================================
+
+<http://ggen.org/numeric-cardinality-constraints-spec>
+  a owl:Ontology ;
+  rdfs:label "Numeric and Cardinality Constraints Specification" ;
+  rdfs:comment "Defines constraints for numeric values and collection cardinality" ;
+  owl:versionInfo "1.0.0" ;
+  .
+
+# =============================================================================
+# NUMERIC RANGE CONSTRAINTS
+# =============================================================================
+
+numeric:NumericConstraint
+  a owl:Class ;
+  rdfs:label "Numeric Constraint" ;
+  rdfs:comment "Specification for bounding numeric values" ;
+  .
+
+numeric:minInclusive
+  a owl:DatatypeProperty ;
+  rdfs:label "Minimum (Inclusive)" ;
+  rdfs:domain numeric:NumericConstraint ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "Minimum value that satisfies constraint (inclusive)" ;
+  .
+
+numeric:maxInclusive
+  a owl:DatatypeProperty ;
+  rdfs:label "Maximum (Inclusive)" ;
+  rdfs:domain numeric:NumericConstraint ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "Maximum value that satisfies constraint (inclusive)" ;
+  .
+
+numeric:minExclusive
+  a owl:DatatypeProperty ;
+  rdfs:label "Minimum (Exclusive)" ;
+  rdfs:domain numeric:NumericConstraint ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "Minimum value that satisfies constraint (exclusive, must be > this)" ;
+  .
+
+numeric:maxExclusive
+  a owl:DatatypeProperty ;
+  rdfs:label "Maximum (Exclusive)" ;
+  rdfs:domain numeric:NumericConstraint ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "Maximum value that satisfies constraint (exclusive, must be < this)" ;
+  .
+
+numeric:multipleOf
+  a owl:DatatypeProperty ;
+  rdfs:label "Multiple Of" ;
+  rdfs:domain numeric:NumericConstraint ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "Value must be multiple of this number" ;
+  .
+
+numeric:allowNegative
+  a owl:DatatypeProperty ;
+  rdfs:label "Allow Negative" ;
+  rdfs:domain numeric:NumericConstraint ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Whether negative values are permitted" ;
+  kgc:default-value "true" ;
+  .
+
+numeric:allowZero
+  a owl:DatatypeProperty ;
+  rdfs:label "Allow Zero" ;
+  rdfs:domain numeric:NumericConstraint ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Whether zero is permitted" ;
+  kgc:default-value "true" ;
+  .
+
+# =============================================================================
+# INTEGER RANGE SPECIFICATIONS
+# =============================================================================
+
+numeric:IntegerConstraint
+  a owl:Class ;
+  rdfs:subClassOf numeric:NumericConstraint ;
+  rdfs:label "Integer Constraint" ;
+  rdfs:comment "Constraint specific to integer values" ;
+  .
+
+numeric:intRange8Bit
+  a numeric:IntegerConstraint ;
+  rdfs:label "8-bit Integer Range" ;
+  rdfs:comment "Signed 8-bit: -128 to 127" ;
+  numeric:minInclusive -128 ;
+  numeric:maxInclusive 127 ;
+  numeric:rustType "i8" ;
+  constraint:bits 8 ;
+  constraint:signed true ;
+  .
+
+numeric:intRange16Bit
+  a numeric:IntegerConstraint ;
+  rdfs:label "16-bit Integer Range" ;
+  rdfs:comment "Signed 16-bit: -32768 to 32767" ;
+  numeric:minInclusive -32768 ;
+  numeric:maxInclusive 32767 ;
+  numeric:rustType "i16" ;
+  constraint:bits 16 ;
+  constraint:signed true ;
+  .
+
+numeric:intRange32Bit
+  a numeric:IntegerConstraint ;
+  rdfs:label "32-bit Integer Range" ;
+  rdfs:comment "Signed 32-bit: -2147483648 to 2147483647" ;
+  numeric:minInclusive -2147483648 ;
+  numeric:maxInclusive 2147483647 ;
+  numeric:rustType "i32" ;
+  constraint:bits 32 ;
+  constraint:signed true ;
+  .
+
+numeric:intRange64Bit
+  a numeric:IntegerConstraint ;
+  rdfs:label "64-bit Integer Range" ;
+  rdfs:comment "Signed 64-bit: -2^63 to 2^63-1" ;
+  numeric:minInclusive -9223372036854775808 ;
+  numeric:maxInclusive 9223372036854775807 ;
+  numeric:rustType "i64" ;
+  constraint:bits 64 ;
+  constraint:signed true ;
+  .
+
+numeric:intRangeUnsigned8Bit
+  a numeric:IntegerConstraint ;
+  rdfs:label "Unsigned 8-bit Integer Range" ;
+  rdfs:comment "Unsigned 8-bit: 0 to 255" ;
+  numeric:minInclusive 0 ;
+  numeric:maxInclusive 255 ;
+  numeric:rustType "u8" ;
+  constraint:bits 8 ;
+  constraint:signed false ;
+  numeric:allowNegative false ;
+  .
+
+numeric:intRangeUnsigned16Bit
+  a numeric:IntegerConstraint ;
+  rdfs:label "Unsigned 16-bit Integer Range" ;
+  rdfs:comment "Unsigned 16-bit: 0 to 65535" ;
+  numeric:minInclusive 0 ;
+  numeric:maxInclusive 65535 ;
+  numeric:rustType "u16" ;
+  constraint:bits 16 ;
+  constraint:signed false ;
+  numeric:allowNegative false ;
+  .
+
+numeric:intRangeUnsigned32Bit
+  a numeric:IntegerConstraint ;
+  rdfs:label "Unsigned 32-bit Integer Range" ;
+  rdfs:comment "Unsigned 32-bit: 0 to 4294967295" ;
+  numeric:minInclusive 0 ;
+  numeric:maxInclusive 4294967295 ;
+  numeric:rustType "u32" ;
+  constraint:bits 32 ;
+  constraint:signed false ;
+  numeric:allowNegative false ;
+  .
+
+numeric:intRangeUnsigned64Bit
+  a numeric:IntegerConstraint ;
+  rdfs:label "Unsigned 64-bit Integer Range" ;
+  rdfs:comment "Unsigned 64-bit: 0 to 2^64-1" ;
+  numeric:minInclusive 0 ;
+  numeric:maxInclusive 18446744073709551615 ;
+  numeric:rustType "u64" ;
+  constraint:bits 64 ;
+  constraint:signed false ;
+  numeric:allowNegative false ;
+  .
+
+numeric:intRangeNonNegative
+  a numeric:IntegerConstraint ;
+  rdfs:label "Non-Negative Integer Range" ;
+  rdfs:comment "0 and positive integers (no upper bound specified)" ;
+  numeric:minInclusive 0 ;
+  numeric:rustType "u64" ;
+  numeric:allowNegative false ;
+  constraint:note "Unbounded above; use minInclusive with maxInclusive for bounds" ;
+  .
+
+numeric:intRangePositive
+  a numeric:IntegerConstraint ;
+  rdfs:label "Positive Integer Range" ;
+  rdfs:comment "Positive integers only (> 0, no upper bound)" ;
+  numeric:minExclusive 0 ;
+  numeric:rustType "u64" ;
+  numeric:allowNegative false ;
+  numeric:allowZero false ;
+  constraint:note "Excludes zero" ;
+  .
+
+# =============================================================================
+# FLOATING POINT CONSTRAINTS
+# =============================================================================
+
+numeric:FloatConstraint
+  a owl:Class ;
+  rdfs:subClassOf numeric:NumericConstraint ;
+  rdfs:label "Floating Point Constraint" ;
+  rdfs:comment "Constraint specific to floating-point values" ;
+  .
+
+numeric:floatPrecision
+  a owl:DatatypeProperty ;
+  rdfs:label "Precision" ;
+  rdfs:domain numeric:FloatConstraint ;
+  rdfs:range xsd:nonNegativeInteger ;
+  rdfs:comment "Number of significant digits after decimal point" ;
+  .
+
+numeric:floatScale
+  a owl:DatatypeProperty ;
+  rdfs:label "Scale" ;
+  rdfs:domain numeric:FloatConstraint ;
+  rdfs:range xsd:nonNegativeInteger ;
+  rdfs:comment "Maximum number of digits to right of decimal" ;
+  .
+
+numeric:floatRoundingMode
+  a owl:DatatypeProperty ;
+  rdfs:label "Rounding Mode" ;
+  rdfs:domain numeric:FloatConstraint ;
+  rdfs:range xsd:string ;
+  rdfs:comment "How to round: HALF_UP, DOWN, CEILING, FLOOR, HALF_EVEN" ;
+  .
+
+numeric:float32Constraint
+  a numeric:FloatConstraint ;
+  rdfs:label "32-bit Float Constraint" ;
+  rdfs:comment "IEEE 754 single precision (f32 in Rust)" ;
+  numeric:minInclusive -3.4028234663852886e+38 ;
+  numeric:maxInclusive 3.4028234663852886e+38 ;
+  numeric:floatPrecision 7 ;
+  numeric:rustType "f32" ;
+  constraint:bits 32 ;
+  constraint:note "7-9 significant decimal digits" ;
+  .
+
+numeric:float64Constraint
+  a numeric:FloatConstraint ;
+  rdfs:label "64-bit Float Constraint" ;
+  rdfs:comment "IEEE 754 double precision (f64 in Rust)" ;
+  numeric:minInclusive -1.7976931348623157e+308 ;
+  numeric:maxInclusive 1.7976931348623157e+308 ;
+  numeric:floatPrecision 15 ;
+  numeric:rustType "f64" ;
+  constraint:bits 64 ;
+  constraint:note "15-17 significant decimal digits (default)" ;
+  .
+
+numeric:decimalConstraint
+  a numeric:FloatConstraint ;
+  rdfs:label "Decimal Constraint" ;
+  rdfs:comment "Arbitrary precision decimal (via Decimal crate)" ;
+  numeric:floatPrecision 28 ;
+  numeric:floatScale 10 ;
+  numeric:rustType "rust_decimal::Decimal" ;
+  constraint:note "Use for financial calculations requiring exact precision" ;
+  constraint:performance "Slower than f32/f64; use judiciously" ;
+  .
+
+# =============================================================================
+# CARDINALITY CONSTRAINTS
+# =============================================================================
+
+cardinality:CardinalityConstraint
+  a owl:Class ;
+  rdfs:label "Cardinality Constraint" ;
+  rdfs:comment "Specification for collection size bounds" ;
+  .
+
+cardinality:minCount
+  a owl:DatatypeProperty ;
+  rdfs:label "Minimum Count" ;
+  rdfs:domain cardinality:CardinalityConstraint ;
+  rdfs:range xsd:nonNegativeInteger ;
+  rdfs:comment "Minimum number of values required (inclusive)" ;
+  .
+
+cardinality:maxCount
+  a owl:DatatypeProperty ;
+  rdfs:label "Maximum Count" ;
+  rdfs:domain cardinality:CardinalityConstraint ;
+  rdfs:range xsd:nonNegativeInteger ;
+  rdfs:comment "Maximum number of values allowed (inclusive)" ;
+  .
+
+cardinality:exactCount
+  a owl:DatatypeProperty ;
+  rdfs:label "Exact Count" ;
+  rdfs:domain cardinality:CardinalityConstraint ;
+  rdfs:range xsd:nonNegativeInteger ;
+  rdfs:comment "Exactly this many values required" ;
+  .
+
+cardinality:optional
+  a cardinality:CardinalityConstraint ;
+  rdfs:label "Optional (0 or 1)" ;
+  rdfs:comment "Zero or one value allowed" ;
+  cardinality:minCount 0 ;
+  cardinality:maxCount 1 ;
+  constraint:rustType "Option<T>" ;
+  constraint:required false ;
+  .
+
+cardinality:required
+  a cardinality:CardinalityConstraint ;
+  rdfs:label "Required (exactly 1)" ;
+  rdfs:comment "Exactly one value required" ;
+  cardinality:minCount 1 ;
+  cardinality:maxCount 1 ;
+  constraint:rustType "T" ;
+  constraint:required true ;
+  .
+
+cardinality:multiple
+  a cardinality:CardinalityConstraint ;
+  rdfs:label "Multiple (1 or more)" ;
+  rdfs:comment "One or more values required" ;
+  cardinality:minCount 1 ;
+  constraint:rustType "Vec<T>" ;
+  constraint:required true ;
+  constraint:nonEmpty true ;
+  .
+
+cardinality:collection
+  a cardinality:CardinalityConstraint ;
+  rdfs:label "Collection (0 or more)" ;
+  rdfs:comment "Any number of values allowed (including empty)" ;
+  cardinality:minCount 0 ;
+  constraint:rustType "Vec<T>" ;
+  constraint:required false ;
+  .
+
+cardinality:requiredMinTwo
+  a cardinality:CardinalityConstraint ;
+  rdfs:label "Required Minimum Two" ;
+  rdfs:comment "At least two values required" ;
+  cardinality:minCount 2 ;
+  constraint:note "Useful for symmetric relationships, pairs" ;
+  .
+
+# =============================================================================
+# COLLECTION UNIQUENESS CONSTRAINTS
+# =============================================================================
+
+cardinality:UniquenessConstraint
+  a owl:Class ;
+  rdfs:label "Uniqueness Constraint" ;
+  rdfs:comment "Rules for duplicate prevention in collections" ;
+  .
+
+cardinality:uniqueValues
+  a cardinality:UniquenessConstraint ;
+  rdfs:label "Unique Values" ;
+  rdfs:comment "All values in collection must be distinct" ;
+  constraint:semantics "set" ;
+  constraint:algorithm "Hash-based deduplication" ;
+  constraint:rustStructure "HashSet<T> or BTreeSet<T>" ;
+  constraint:performance "O(n) iteration with O(1) lookup" ;
+  .
+
+cardinality:uniqueLang
+  a cardinality:UniquenessConstraint ;
+  rdfs:label "Unique Language Tags" ;
+  rdfs:comment "For language-tagged strings: one string per language" ;
+  constraint:semantics "multilingual string" ;
+  constraint:example '"hello"@en "bonjour"@fr' ;
+  constraint:forbids '"hello"@en "hi"@en' ;
+  constraint:rustStructure "HashMap<LanguageTag, String>" ;
+  .
+
+cardinality:uniqueByProperty
+  a cardinality:UniquenessConstraint ;
+  rdfs:label "Unique By Property" ;
+  rdfs:comment "Collection values must be unique by specific property" ;
+  constraint:example "List of User objects with unique email addresses" ;
+  constraint:note "Email is key; multiple users can't share email" ;
+  .
+
+cardinality:allowDuplicates
+  a cardinality:UniquenessConstraint ;
+  rdfs:label "Allow Duplicates" ;
+  rdfs:comment "Collection may contain duplicate values (bag semantics)" ;
+  constraint:semantics "bag/multiset" ;
+  constraint:rustStructure "Vec<T>" ;
+  .
+
+cardinality:allowDuplicatesByProperty
+  a cardinality:UniquenessConstraint ;
+  rdfs:label "Allow Duplicates By Property" ;
+  rdfs:comment "Duplicates allowed; only property is unique" ;
+  constraint:example "Multiple products can share same category" ;
+  constraint:note "Weaker constraint than uniqueByProperty" ;
+  .
+
+# =============================================================================
+# COLLECTION SEMANTICS: BAG VS SET
+# =============================================================================
+
+cardinality:CollectionSemantics
+  a owl:Class ;
+  rdfs:label "Collection Semantics" ;
+  rdfs:comment "Distinguishes between ordered list, set, and bag" ;
+  .
+
+cardinality:bagSemantics
+  a cardinality:CollectionSemantics ;
+  rdfs:label "Bag Semantics" ;
+  rdfs:comment "Unordered collection with possible duplicates" ;
+  constraint:ordered false ;
+  constraint:unique false ;
+  constraint:rustStructure "Vec<T>" ;
+  constraint:queryable "No index; must scan all elements" ;
+  .
+
+cardinality:setSemantics
+  a cardinality:CollectionSemantics ;
+  rdfs:label "Set Semantics" ;
+  rdfs:comment "Unordered collection with no duplicates" ;
+  constraint:ordered false ;
+  constraint:unique true ;
+  constraint:rustStructure "HashSet<T> or BTreeSet<T>" ;
+  constraint:queryable "O(1) membership check" ;
+  constraint:algebraic "Supports union, intersection, difference" ;
+  .
+
+cardinality:listSemantics
+  a cardinality:CollectionSemantics ;
+  rdfs:label "List Semantics" ;
+  rdfs:comment "Ordered collection (possibly with duplicates)" ;
+  constraint:ordered true ;
+  constraint:unique false ;
+  constraint:rustStructure "Vec<T>" ;
+  constraint:index "O(1) by position" ;
+  constraint:rdfMapping "rdf:List" ;
+  .
+
+cardinality:orderedSetSemantics
+  a cardinality:CollectionSemantics ;
+  rdfs:label "Ordered Set Semantics" ;
+  rdfs:comment "Ordered collection with no duplicates" ;
+  constraint:ordered true ;
+  constraint:unique true ;
+  constraint:rustStructure "Vec<T> with uniqueness check" ;
+  constraint:note "Must maintain insertion order while checking uniqueness" ;
+  .
+
+# =============================================================================
+# NUMERIC AND CARDINALITY VALIDATION SHAPES
+# =============================================================================
+
+numeric:NumericConstraintShape
+  a sh:NodeShape ;
+  sh:targetClass numeric:NumericConstraint ;
+  sh:name "Numeric Constraint Definition" ;
+  sh:description "Numeric constraints must define either range or allowable properties" ;
+
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Numeric constraint must define minInclusive, maxInclusive, or related bounds" ;
+    sh:prefixes [
+      sh:prefix "numeric" ;
+      sh:namespace <http://ggen.org/numeric#> ;
+    ] ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this a numeric:NumericConstraint .
+        FILTER NOT EXISTS { $this numeric:minInclusive ?min }
+        FILTER NOT EXISTS { $this numeric:maxInclusive ?max }
+        FILTER NOT EXISTS { $this numeric:minExclusive ?minEx }
+        FILTER NOT EXISTS { $this numeric:maxExclusive ?maxEx }
+      }
+    """ ;
+  ] ;
+  .
+
+cardinality:CardinalityConstraintShape
+  a sh:NodeShape ;
+  sh:targetClass cardinality:CardinalityConstraint ;
+  sh:name "Cardinality Constraint Definition" ;
+  sh:description "Cardinality constraints must define count bounds or exact count" ;
+
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Must specify minCount, maxCount, or exactCount" ;
+    sh:prefixes [
+      sh:prefix "cardinality" ;
+      sh:namespace <http://ggen.org/cardinality#> ;
+    ] ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this a cardinality:CardinalityConstraint .
+        FILTER NOT EXISTS { $this cardinality:minCount ?min }
+        FILTER NOT EXISTS { $this cardinality:maxCount ?max }
+        FILTER NOT EXISTS { $this cardinality:exactCount ?exact }
+      }
+    """ ;
+  ] ;
+  .
+
+cardinality:UniquenessConstraintShape
+  a sh:NodeShape ;
+  sh:targetClass cardinality:UniquenessConstraint ;
+  sh:name "Uniqueness Constraint Definition" ;
+  sh:description "Uniqueness constraints must define semantics" ;
+
+  sh:property [
+    sh:path constraint:semantics ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "UniquenessConstraint must define semantics (set, bag, etc.)" ;
+  ] ;
+  .
+
+cardinality:CollectionSemanticsShape
+  a sh:NodeShape ;
+  sh:targetClass cardinality:CollectionSemantics ;
+  sh:name "Collection Semantics Definition" ;
+  sh:description "Collection semantics must specify ordering and uniqueness" ;
+
+  sh:property [
+    sh:path constraint:ordered ;
+    sh:minCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:message "CollectionSemantics must declare if ordered" ;
+  ] ;
+
+  sh:property [
+    sh:path constraint:unique ;
+    sh:minCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:message "CollectionSemantics must declare if unique" ;
+  ] ;
+  .
+
+# =============================================================================
+# NUMERIC TYPE MAPPING
+# =============================================================================
+
+numeric:TypeMapping
+  a owl:Class ;
+  rdfs:label "Numeric Type Mapping" ;
+  rdfs:comment "Mapping from constraint to Rust type implementation" ;
+  .
+
+numeric:rustType
+  a owl:DatatypeProperty ;
+  rdfs:label "Rust Type" ;
+  rdfs:domain numeric:NumericConstraint, numeric:IntegerConstraint, numeric:FloatConstraint ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Corresponding Rust type (i8, i32, u64, f32, f64)" ;
+  .
+
+numeric:defaultValue
+  a owl:DatatypeProperty ;
+  rdfs:label "Default Value" ;
+  rdfs:domain numeric:NumericConstraint ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "Default value if not specified" ;
+  .
+
+numeric:literalSuffix
+  a owl:DatatypeProperty ;
+  rdfs:label "Literal Suffix" ;
+  rdfs:domain numeric:NumericConstraint ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Suffix for numeric literals (i32, u64, f64, etc.)" ;
+  .
