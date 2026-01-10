@@ -51,6 +51,8 @@
 //! - `rdf` - RDF-based CLI generation
 //! - `security` - API key masking and security
 //! - `streaming` - Streaming response support
+//! - `tool` - Tool metadata definitions and validation
+//! - `tool_registry` - Thread-safe registry for agent tool discovery
 //! - `types` - Type definitions
 
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
@@ -80,12 +82,15 @@ pub mod dspy;
 pub mod error;
 pub mod error_utils;
 pub mod generators;
+pub mod mcp;
 pub mod parsing_utils;
 pub mod prompts;
 pub mod providers;
 pub mod rdf;
 pub mod security;
 pub mod streaming;
+pub mod tool;
+pub mod tool_registry;
 pub mod types;
 
 // Test helpers for integrations
@@ -101,7 +106,7 @@ pub mod test_helpers;
 // Re-export main types for convenience
 pub use cache::{CacheConfig, CacheStats, LlmCache};
 pub use client::{GenAiClient, LlmChunk, LlmClient, LlmConfig, LlmResponse, UsageStats};
-pub use codegen::{map_xsd_to_rust_type, SHACLConstraint, SHACLParser};
+pub use codegen::{map_xsd_to_rust_type, RdfListValidator, SHACLConstraint, SHACLParser, ValidationError};
 pub use config::{get_global_config, init_global_config, AiConfig, GlobalLlmConfig, LlmProvider};
 pub use dspy::{
     FieldConstraints, InputField, OutputField, FieldMetadata,
@@ -123,6 +128,8 @@ pub use rdf::{
 };
 pub use security::{MaskApiKey, SecretString};
 pub use streaming::StreamConfig;
+pub use tool::{AuthScope, Tool, ToolExample, ToolSlo, ToolTag};
+pub use tool_registry::{ToolRegistry, REGISTRY};
 pub use types::{DecisionId, PolicyId, RequestId, RuleId};
 
 // Hyper-concurrent execution exports (disabled - incomplete test code)

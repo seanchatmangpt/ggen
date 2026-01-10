@@ -341,4 +341,8 @@ harness = false
 name = "ggen_benchmarks"
 harness = false
 
+[[bench]]
+name = "schema_layer_slo"
+harness = false
+
 # NOTE: Integration tests archived to .archive/ - only essential sync/codegen tests remain in crate src/

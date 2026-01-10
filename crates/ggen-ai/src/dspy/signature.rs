@@ -87,6 +87,27 @@ impl Signature {
         self.outputs.iter().find(|f| f.name() == name)
     }
 
+    /// Create a validator for this signature
+    ///
+    /// Returns a `SignatureValidator` that can validate JSON input against
+    /// the signature's input field constraints.
+    ///
+    /// # Example
+    /// ```ignore
+    /// use serde_json::json;
+    /// use ggen_ai::dspy::{Signature, InputField};
+    ///
+    /// let sig = Signature::new("QA", "Question answering")
+    ///     .with_input(InputField::new("question", "Question", "String"));
+    ///
+    /// let validator = sig.validator();
+    /// let input = json!({"question": "What is Rust?"});
+    /// assert!(validator.validate(&input).is_ok());
+    /// ```
+    pub fn validator(&self) -> crate::dspy::SignatureValidator {
+        crate::dspy::SignatureValidator::new(self.clone())
+    }
+
     /// Generate Rust struct code representing this signature
     pub fn as_rust_struct(&self) -> String {
         let inputs_doc = self.inputs.iter()

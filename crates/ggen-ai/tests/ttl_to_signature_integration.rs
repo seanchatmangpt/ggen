@@ -247,10 +247,15 @@ fn test_empty_and_edge_case_names() {
 
 #[test]
 fn test_ttl_loading_and_parsing() {
+    use oxigraph::sparql::SparqlEvaluator;
+
     let store = Store::new().expect("Failed to create store");
 
     // Store should be created successfully
-    assert!(store.query("SELECT ?s WHERE { ?s ?p ?o }").is_ok());
+    let result = SparqlEvaluator::new()
+        .parse_query("SELECT ?s WHERE { ?s ?p ?o }")
+        .and_then(|q| q.on_store(&store).execute().map_err(|e| e.into()));
+    assert!(result.is_ok());
 }
 
 #[test]
