@@ -13,7 +13,7 @@ use tracing::{debug, warn};
 /// based on inputs defined by the signature.
 pub struct Predictor {
     signature: Signature,
-    model: String,  // Model name (e.g. "gpt-4o", "claude-3-5-sonnet-20241022")
+    model: String,  // Model name (from ggen.toml or CLI)
     temperature: f32,
 }
 
@@ -41,7 +41,7 @@ impl Predictor {
         }
     }
 
-    /// Set the model (e.g. "gpt-4o", "claude-3-5-sonnet-20241022")
+    /// Set the model name
     pub fn model(mut self, model: impl Into<String>) -> Self {
         self.model = model.into();
         self
@@ -245,15 +245,15 @@ mod tests {
     #[test]
     fn test_predictor_creation() {
         let sig = create_test_signature();
-        let pred = Predictor::with_model(sig, "gpt-4o");
-        assert_eq!(pred.model_name(), "gpt-4o");
+        let pred = Predictor::with_model(sig, "test-model");
+        assert_eq!(pred.model_name(), "test-model");
         assert_eq!(pred.temperature(), 0.7);
     }
 
     #[test]
     fn test_temperature_clamping() {
         let sig = create_test_signature();
-        let pred = Predictor::with_model(sig, "gpt-4o")
+        let pred = Predictor::with_model(sig, "test-model")
             .with_temperature(3.0);
         assert_eq!(pred.temperature(), 2.0);
     }
@@ -261,14 +261,14 @@ mod tests {
     #[test]
     fn test_model_setter() {
         let sig = create_test_signature();
-        let pred = Predictor::new(sig).model("claude-3-5-sonnet-20241022");
-        assert_eq!(pred.model_name(), "claude-3-5-sonnet-20241022");
+        let pred = Predictor::new(sig).model("my-model");
+        assert_eq!(pred.model_name(), "my-model");
     }
 
     #[test]
     fn test_prompt_building() {
         let sig = create_test_signature();
-        let pred = Predictor::with_model(sig, "gpt-4o");
+        let pred = Predictor::with_model(sig, "test-model");
 
         let mut inputs = HashMap::new();
         inputs.insert("question".to_string(), Value::String("What is Rust?".to_string()));
