@@ -155,7 +155,7 @@ impl StandardOntologyValidator {
     /// # Returns
     /// - `Ok(StandardOntology)` if namespace is approved
     /// - `Err(ValidationError)` if custom/non-standard
-    pub fn validate_namespace(namespace: &str, strict: bool) -> Result<StandardOntology> {
+    pub fn validate_namespace(namespace: &str, _strict: bool) -> Result<StandardOntology> {
         StandardOntology::from_namespace(namespace).ok_or_else(|| {
             ValidationError::OxigraphError(format!(
                 "Custom ontology namespace '{}' rejected. Use one of: {}",
