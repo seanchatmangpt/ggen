@@ -1,0 +1,90 @@
+@startuml V6_ACTION_ITEMS
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title ggen v6: 5 Action Items to Ship
+
+System_Boundary(blocking, "CRITICAL: Currently Broken") {
+  Component(executor_old, "SyncExecutor\n[BROKEN]", "Still uses\nGenerationPipeline\n(v5)")
+}
+
+System_Boundary(actions, "5 Action Items to Wire v6") {
+  Component(action1, "ACTION 1:\nWire StagedPipeline", "File: codegen/executor.rs:223\nReplace GenerationPipeline\nwith StagedPipeline::new()\n[CRITICAL - unblocks all]")
+
+  Component(action2, "ACTION 2:\nIntegrate LLM Bridge", "File: v6/passes/emission.rs\nDetect LLM-marked templates\nCall Predictor.forward()\nChain: SPARQL → LLM → Tera\n[Enables extend]")
+
+  Component(action3, "ACTION 3:\nEnforce Screening Gate", "File: cmds/sync.rs\nValidate ggen.toml\nCheck standard_only = true\nBlock non-standard ontologies\n[Enforces anchor discipline]")
+
+  Component(action4, "ACTION 4:\nValidate Vocabularies", "File: v6/passes/normalization.rs\nCall VocabularyRegistry::validate\nEnsure all namespaces approved\n[Protects anchor quality]")
+
+  Component(action5, "ACTION 5:\nPredictor Bridge", "File: predictor.rs + emission.rs\nConvert SPARQL → LLM inputs\nParse LLM → template vars\n[Idempotent LLM in pipeline]")
+}
+
+System_Boundary(foundation, "v6 Foundation (Already Built)") {
+  Component(staged_pipe, "StagedPipeline\nv6/pipeline.rs", "5-stage pipeline\nComplete ✓")
+
+  Component(passes_impl, "5 Passes\nv6/passes/*.rs", "μ₁-μ₅ implemented\nComplete ✓")
+
+  Component(receipt_impl, "Receipt Generation\nv6/receipt.rs", "Cryptographic proof\nComplete ✓")
+
+  Component(predictor_impl, "Predictor.forward()\nggen-ai/dspy/predictor.rs", "Real LLM calls\nComplete ✓")
+
+  Component(standard_impl, "StandardOntology\nValidator", "5 approved ontologies\nComplete ✓")
+
+  Component(screening_impl, "Screening Gate\ncmds/init.rs", "5 litmus questions\nComplete ✓")
+}
+
+System_Boundary(result, "v6 Outcome After Action Items") {
+  Component(anchor_proven, "ANCHOR PROVEN", "deterministic generation\nwith receipts")
+  Component(extend_proven, "EXTEND PROVEN", "LLM augments\ndeterministic pipeline")
+  Component(discipline_proven, "DISCIPLINE PROVEN", "screening prevents\nSeth patterns")
+}
+
+action1 --> staged_pipe: "uses"
+action1 --> passes_impl: "orchestrates"
+action1 --> executor_old: "replaces [CRITICAL]"
+
+action2 --> predictor_impl: "integrates"
+action2 --> passes_impl: "modifies emission pass"
+
+action3 --> screening_impl: "enforces in sync"
+action3 --> standard_impl: "validates with"
+
+action4 --> passes_impl: "modifies normalization"
+action4 --> standard_impl: "validates with"
+
+action5 --> predictor_impl: "bridges"
+action5 --> passes_impl: "modifies emission"
+
+action1 --> anchor_proven: "enables"
+action2 --> extend_proven: "enables"
+action3 --> discipline_proven: "enables"
+action4 --> anchor_proven: "protects"
+action5 --> extend_proven: "completes"
+
+receipt_impl -.-> anchor_proven: "proof mechanism"
+
+note bottom of action1
+  START HERE
+  Single change unblocks all others
+  Replace 1 line of code
+  Everything else follows
+end note
+
+note right of foundation
+  All components built
+  Nothing needs to be created
+  Only integration needed
+end note
+
+note right of result
+  What v6 ships to prove:
+  - Code drifts impossible (A=μ(O))
+  - LLM can augment safely (idempotent)
+  - Discipline prevents waste (Seth filter)
+  - v7 can build on stable anchor
+end note
+
+SHOW_LEGEND()
+
+@enduml
