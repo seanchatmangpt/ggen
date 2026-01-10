@@ -1,9 +1,12 @@
 //! DSPy Predictor - LLM-backed prediction with signature interface
 
+use crate::client::LlmClient;
 use crate::dspy::signature::Signature;
+use crate::dspy::signature_validator::SignatureValidator;
 use crate::dspy::module::{Module, ModuleError, ModuleResult};
 use serde_json::Value;
 use std::collections::HashMap;
+use std::sync::Arc;
 
 /// Predictor: LLM-backed prediction with signature interface
 ///
@@ -11,24 +14,18 @@ use std::collections::HashMap;
 /// based on inputs defined by the signature.
 pub struct Predictor {
     signature: Signature,
-    llm_provider: String,
     temperature: f32,
+    client: Arc<dyn LlmClient>,
 }
 
 impl Predictor {
-    /// Create a new predictor with a signature
-    pub fn new(signature: Signature) -> Self {
+    /// Create a new predictor with a signature and LLM client
+    pub fn new(signature: Signature, client: Arc<dyn LlmClient>) -> Self {
         Self {
             signature,
-            llm_provider: "openai".to_string(),
             temperature: 0.7,
+            client,
         }
-    }
-
-    /// Set the LLM provider
-    pub fn with_provider(mut self, provider: impl Into<String>) -> Self {
-        self.llm_provider = provider.into();
-        self
     }
 
     /// Set the temperature (controls randomness)
@@ -37,9 +34,9 @@ impl Predictor {
         self
     }
 
-    /// Get the LLM provider
-    pub fn provider(&self) -> &str {
-        &self.llm_provider
+    /// Get the LLM model being used
+    pub fn model(&self) -> &str {
+        &self.client.get_config().model
     }
 
     /// Get the temperature
@@ -119,21 +116,40 @@ impl Module for Predictor {
     }
 
     async fn forward(&self, inputs: HashMap<String, Value>) -> ModuleResult<HashMap<String, Value>> {
-        // Validate inputs
+        // 1. Validate inputs
         self.validate_inputs(&inputs)?;
 
-        // Build prompt
-        let _prompt = self.build_prompt(&inputs)?;
+        // 2. Build prompt from inputs
+        let prompt = self.build_prompt(&inputs)?;
 
-        // TODO: Call actual LLM
-        // For now, return mock response
-        let response = format!(
-            "Mock response from {} with temperature {}",
-            self.llm_provider, self.temperature
+        // 3. Call actual LLM with temperature override
+        let llm_response = self
+            .client
+            .complete(&prompt)
+            .await
+            .map_err(|e| ModuleError::LlmError(
+                format!("LLM call failed: {}", e)
+            ))?;
+
+        // 4. Parse LLM response into structured output
+        let outputs = self.parse_output(&llm_response.content)?;
+
+        // 5. Validate outputs against signature constraints
+        // Note: We validate the combined outputs as a single JSON object
+        let outputs_json = serde_json::Value::Object(
+            outputs
+                .iter()
+                .map(|(k, v)| (k.clone(), v.clone()))
+                .collect()
         );
 
-        // Parse output
-        self.parse_output(&response)
+        SignatureValidator::new(self.signature.clone())
+            .validate(&outputs_json)
+            .map_err(|e| ModuleError::Other(
+                format!("Output validation failed: {}", e)
+            ))?;
+
+        Ok(outputs)
     }
 }
 
@@ -144,14 +160,14 @@ pub struct ChainOfThought {
 
 impl ChainOfThought {
     /// Create a new chain-of-thought predictor
-    pub fn new(signature: Signature) -> Self {
+    pub fn new(signature: Signature, client: Arc<dyn LlmClient>) -> Self {
         let mut sig = signature;
         sig.instructions = Some(
             "Think through this step-by-step before providing your answer.".to_string()
         );
 
         Self {
-            predictor: Predictor::new(sig),
+            predictor: Predictor::new(sig, client),
         }
     }
 
@@ -181,6 +197,7 @@ impl Module for ChainOfThought {
 mod tests {
     use super::*;
     use crate::dspy::field::{InputField, OutputField};
+    use crate::providers::MockClient;
 
     fn create_test_signature() -> Signature {
         Signature::new("QA", "Question answering")
@@ -188,18 +205,24 @@ mod tests {
             .with_output(OutputField::new("answer", "The answer", "String"))
     }
 
+    fn create_mock_client() -> Arc<dyn LlmClient> {
+        Arc::new(MockClient::with_response("answer: The Rust programming language is a systems language that provides memory safety without garbage collection."))
+    }
+
     #[test]
     fn test_predictor_creation() {
         let sig = create_test_signature();
-        let pred = Predictor::new(sig);
-        assert_eq!(pred.provider(), "openai");
+        let client = create_mock_client();
+        let pred = Predictor::new(sig, client);
+        assert_eq!(pred.model(), "mock-model");
         assert_eq!(pred.temperature(), 0.7);
     }
 
     #[test]
     fn test_temperature_clamping() {
         let sig = create_test_signature();
-        let pred = Predictor::new(sig)
+        let client = create_mock_client();
+        let pred = Predictor::new(sig, client)
             .with_temperature(2.0);
         assert_eq!(pred.temperature(), 1.0);
     }
@@ -207,7 +230,8 @@ mod tests {
     #[test]
     fn test_prompt_building() {
         let sig = create_test_signature();
-        let pred = Predictor::new(sig);
+        let client = create_mock_client();
+        let pred = Predictor::new(sig, client);
 
         let mut inputs = HashMap::new();
         inputs.insert("question".to_string(), Value::String("What is Rust?".to_string()));
@@ -221,8 +245,25 @@ mod tests {
     #[test]
     fn test_chain_of_thought() {
         let sig = create_test_signature();
-        let cot = ChainOfThought::new(sig);
+        let client = create_mock_client();
+        let cot = ChainOfThought::new(sig, client);
         assert!(cot.signature().instructions.is_some());
         assert!(cot.signature().instructions.as_ref().unwrap().contains("step-by-step"));
+    }
+
+    #[tokio::test]
+    async fn test_predictor_forward_with_mock() {
+        let sig = create_test_signature();
+        let client = create_mock_client();
+        let pred = Predictor::new(sig, client);
+
+        let mut inputs = HashMap::new();
+        inputs.insert("question".to_string(), Value::String("What is Rust?".to_string()));
+
+        let result = pred.forward(inputs).await;
+        assert!(result.is_ok(), "Forward should succeed with mock client");
+
+        let outputs = result.unwrap();
+        assert!(outputs.contains_key("answer"), "Should have answer field");
     }
 }
