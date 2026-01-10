@@ -1,0 +1,124 @@
+@prefix alpha: <http://ggen.example.com/alpha/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+
+alpha:GeopoliticalRiskSpec
+    a rdf:Description ;
+    rdfs:label "Geopolitical & Macro Risk Signals Specification" ;
+    prov:wasGeneratedBy alpha:Agent10 ;
+    prov:generatedAtTime "2026-01-10T00:00:00Z"^^xsd:dateTime ;
+    dcat:version "1.0" ;
+    alpha:minConfidence 0.55 ;
+    alpha:maxConfidence 0.89 ;
+    alpha:typicalConfidence 0.70 ;
+    alpha:dataSource alpha:ACLEDSource, alpha:GDELTSource, alpha:OFACSource, alpha:FederalReserveEPUSource, alpha:WorldBankTradeSource ;
+    alpha:hasConstructQuery """PREFIX alpha: <http://ggen.example.com/alpha/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+CONSTRUCT {
+  ?risk a alpha:GeopoliticalRisk ;
+    alpha:event_type ?eventType ;
+    alpha:risk_level ?riskLevel ;
+    alpha:affected_region ?region ;
+    alpha:affected_sectors ?sectors ;
+    alpha:trade_friction ?tradeFriction ;
+    alpha:conflict_severity ?conflictSeverity ;
+    alpha:timestamp ?timestamp .
+}
+WHERE {
+  ?signal a alpha:Signal ;
+    alpha:source ?source ;
+    alpha:event_type ?eventType ;
+    alpha:region ?region ;
+    alpha:sectors ?sectors ;
+    alpha:timestamp ?timestamp ;
+    alpha:confidence ?confidence .
+  BIND(IF(?eventType = "conflict", 0.85, IF(?eventType = "trade", 0.72, IF(?eventType = "sanctions", 0.88, 0.65))) AS ?riskLevel) .
+  BIND(IF(?eventType = "trade", 1.0, 0.0) AS ?tradeFriction) .
+  BIND(IF(?eventType = "conflict", 1.0, 0.0) AS ?conflictSeverity) .
+  BIND(UUID() AS ?risk) .
+  FILTER(?confidence >= 0.55) .
+  FILTER(xsd:dateTime(?timestamp) >= xsd:dateTime(NOW()) - "P7D"^^xsd:duration) .
+}""" .
+
+alpha:ACLEDSource
+    a dcat:Dataset ;
+    rdfs:label "Armed Conflict Location & Event Data" ;
+    alpha:updateFrequency "PT6H" ;
+    alpha:eventType "conflict" ;
+    rdfs:comment "Real-time conflict and violence events" .
+
+alpha:GDELTSource
+    a dcat:Dataset ;
+    rdfs:label "Global Database of Events, Language, and Tone" ;
+    alpha:updateFrequency "PT6H" ;
+    alpha:eventType "policy" ;
+    rdfs:comment "News sentiment and policy uncertainty signals" .
+
+alpha:OFACSource
+    a dcat:Dataset ;
+    rdfs:label "OFAC Sanctions List" ;
+    alpha:updateFrequency "PT24H" ;
+    alpha:eventType "sanctions" ;
+    rdfs:comment "U.S. Treasury Office of Foreign Assets Control" .
+
+alpha:FederalReserveEPUSource
+    a dcat:Dataset ;
+    rdfs:label "Federal Reserve Economic Policy Uncertainty Index" ;
+    alpha:updateFrequency "PT24H" ;
+    alpha:eventType "policy" ;
+    rdfs:comment "Macro volatility from policy uncertainty" .
+
+alpha:WorldBankTradeSource
+    a dcat:Dataset ;
+    rdfs:label "World Bank Trade Data" ;
+    alpha:updateFrequency "PT24H" ;
+    alpha:eventType "trade" ;
+    rdfs:comment "Tariffs, export controls, trade friction" .
+
+alpha:GeopoliticalRiskShape
+    a sh:NodeShape ;
+    sh:targetClass alpha:GeopoliticalRisk ;
+    sh:property [
+        sh:path alpha:event_type ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("conflict" "trade" "sanctions" "policy")
+    ] ;
+    sh:property [
+        sh:path alpha:risk_level ;
+        sh:datatype xsd:float ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0
+    ] ;
+    sh:property [
+        sh:path alpha:affected_region ;
+        sh:datatype xsd:string ;
+        sh:minCount 1
+    ] ;
+    sh:property [
+        sh:path alpha:affected_sectors ;
+        sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path alpha:timestamp ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] .
+
+alpha:Agent10
+    a prov:Agent ;
+    rdfs:label "Agent 10 - Geopolitical & Macro Risk Signals" ;
+    prov:actedOnBehalfOf alpha:EPIC9 ;
+    prov:endedAtTime "2026-01-10T00:00:00Z"^^xsd:dateTime .
+
+alpha:EPIC9
+    a prov:Agent ;
+    rdfs:label "EPIC 9 LLM-CONSTRUCT" .
