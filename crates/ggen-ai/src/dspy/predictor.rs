@@ -4,6 +4,8 @@ use crate::dspy::signature::Signature;
 use crate::dspy::module::{Module, ModuleError, ModuleResult};
 use serde_json::Value;
 use std::collections::HashMap;
+use genai::{Client, chat::{ChatMessage, ChatOptions, ChatRequest}};
+use tracing::{debug, warn};
 
 /// Predictor: LLM-backed prediction with signature interface
 ///
@@ -11,35 +13,49 @@ use std::collections::HashMap;
 /// based on inputs defined by the signature.
 pub struct Predictor {
     signature: Signature,
-    llm_provider: String,
+    model: String,  // Model name (from ggen.toml or CLI)
     temperature: f32,
 }
 
 impl Predictor {
-    /// Create a new predictor with a signature
+    /// Create a new predictor with a signature and model name
     pub fn new(signature: Signature) -> Self {
+        // Get model from environment or use empty string (will error if not set)
+        let model = std::env::var("GGEN_LLM_MODEL")
+            .or_else(|_| std::env::var("DEFAULT_MODEL"))
+            .unwrap_or_else(|_| "".to_string());
+
         Self {
             signature,
-            llm_provider: "openai".to_string(),
+            model,
             temperature: 0.7,
         }
     }
 
-    /// Set the LLM provider
-    pub fn with_provider(mut self, provider: impl Into<String>) -> Self {
-        self.llm_provider = provider.into();
+    /// Create a predictor with an explicit model
+    pub fn with_model(signature: Signature, model: impl Into<String>) -> Self {
+        Self {
+            signature,
+            model: model.into(),
+            temperature: 0.7,
+        }
+    }
+
+    /// Set the model name
+    pub fn model(mut self, model: impl Into<String>) -> Self {
+        self.model = model.into();
         self
     }
 
-    /// Set the temperature (controls randomness)
+    /// Set the temperature (controls randomness, 0.0-2.0)
     pub fn with_temperature(mut self, temperature: f32) -> Self {
-        self.temperature = temperature.clamp(0.0, 1.0);
+        self.temperature = temperature.clamp(0.0, 2.0);
         self
     }
 
-    /// Get the LLM provider
-    pub fn provider(&self) -> &str {
-        &self.llm_provider
+    /// Get the model name
+    pub fn model_name(&self) -> &str {
+        &self.model
     }
 
     /// Get the temperature
@@ -110,6 +126,46 @@ impl Predictor {
         }
         None
     }
+
+    /// Call the LLM with the given prompt using genai
+    async fn call_llm(&self, prompt: &str) -> Result<String, ModuleError> {
+        let client = Client::default();
+
+        if self.model.is_empty() {
+            return Err(ModuleError::LlmError(
+                "Model name not set. Set GGEN_LLM_MODEL or DEFAULT_MODEL env var, or use .model()".to_string()
+            ));
+        }
+
+        debug!("Calling LLM model: {}", self.model);
+
+        // Create chat request with system prompt and user input
+        let chat_req = ChatRequest::new(vec![
+            ChatMessage::system("You are a helpful assistant. Provide responses in the exact format requested."),
+            ChatMessage::user(prompt.to_string()),
+        ]);
+
+        // Set chat options
+        let chat_options = ChatOptions::default()
+            .with_temperature(self.temperature as f64)
+            .with_max_tokens(4096);
+
+        // Execute the request
+        match client.exec_chat(&self.model, chat_req, Some(&chat_options)).await {
+            Ok(response) => {
+                let content = response
+                    .first_text()
+                    .unwrap_or_default()
+                    .to_string();
+                debug!("LLM response received, length: {}", content.len());
+                Ok(content)
+            }
+            Err(e) => {
+                warn!("LLM call failed: {}", e);
+                Err(ModuleError::LlmError(format!("LLM call failed: {}", e)))
+            }
+        }
+    }
 }
 
 #[async_trait::async_trait]
@@ -123,14 +179,12 @@ impl Module for Predictor {
         self.validate_inputs(&inputs)?;
 
         // Build prompt
-        let _prompt = self.build_prompt(&inputs)?;
+        let prompt = self.build_prompt(&inputs)?;
+        debug!("Built prompt for {} with model {}", self.signature.name, self.model);
 
-        // TODO: Call actual LLM
-        // For now, return mock response
-        let response = format!(
-            "Mock response from {} with temperature {}",
-            self.llm_provider, self.temperature
-        );
+        // Call actual LLM
+        let response = self.call_llm(&prompt).await?;
+        debug!("Received LLM response: {}", response);
 
         // Parse output
         self.parse_output(&response)
@@ -191,23 +245,30 @@ mod tests {
     #[test]
     fn test_predictor_creation() {
         let sig = create_test_signature();
-        let pred = Predictor::new(sig);
-        assert_eq!(pred.provider(), "openai");
+        let pred = Predictor::with_model(sig, "test-model");
+        assert_eq!(pred.model_name(), "test-model");
         assert_eq!(pred.temperature(), 0.7);
     }
 
     #[test]
     fn test_temperature_clamping() {
         let sig = create_test_signature();
-        let pred = Predictor::new(sig)
-            .with_temperature(2.0);
-        assert_eq!(pred.temperature(), 1.0);
+        let pred = Predictor::with_model(sig, "test-model")
+            .with_temperature(3.0);
+        assert_eq!(pred.temperature(), 2.0);
+    }
+
+    #[test]
+    fn test_model_setter() {
+        let sig = create_test_signature();
+        let pred = Predictor::new(sig).model("my-model");
+        assert_eq!(pred.model_name(), "my-model");
     }
 
     #[test]
     fn test_prompt_building() {
         let sig = create_test_signature();
-        let pred = Predictor::new(sig);
+        let pred = Predictor::with_model(sig, "test-model");
 
         let mut inputs = HashMap::new();
         inputs.insert("question".to_string(), Value::String("What is Rust?".to_string()));
