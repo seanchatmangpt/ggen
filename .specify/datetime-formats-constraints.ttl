@@ -1,0 +1,365 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix kgc: <http://ggen.org/kgc#> .
+@prefix ggen: <http://ggen.org/ggen#> .
+@prefix time: <http://ggen.org/time#> .
+@prefix constraint: <http://ggen.org/constraint#> .
+
+# =============================================================================
+# DATETIME FORMATS AND CONSTRAINTS
+# =============================================================================
+# Specification for temporal data handling in RDF, including datetime, date,
+# time, and yearMonth formats, timezone handling, and temporal constraints.
+# This enables proper mapping between RDF temporal types and Rust chrono types.
+# =============================================================================
+
+<http://ggen.org/datetime-formats-spec>
+  a owl:Ontology ;
+  rdfs:label "DateTime Formats and Constraints Specification" ;
+  rdfs:comment "Defines temporal data handling across ggen RDF pipelines" ;
+  owl:versionInfo "1.0.0" ;
+  .
+
+# =============================================================================
+# DATETIME FORMATS: Core Type Mappings
+# =============================================================================
+
+time:DateTimeFormat
+  a owl:Class ;
+  rdfs:label "DateTime Format" ;
+  rdfs:comment "Specification for datetime formatting and parsing" ;
+  .
+
+time:xsdDateTimeFormat
+  a time:DateTimeFormat ;
+  rdfs:label "xsd:dateTime Format" ;
+  rdfs:comment "ISO 8601 datetime with timezone: YYYY-MM-DDTHH:MM:SS[.sss][±HH:MM]" ;
+  time:rustType "chrono::DateTime<chrono::Utc>" ;
+  time:parsePattern "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$" ;
+  time:example "2026-01-09T14:30:45.123Z" ;
+  .
+
+time:xsdDateFormat
+  a time:DateTimeFormat ;
+  rdfs:label "xsd:date Format" ;
+  rdfs:comment "ISO 8601 date only: YYYY-MM-DD with optional timezone" ;
+  time:rustType "chrono::NaiveDate" ;
+  time:parsePattern "^\\d{4}-\\d{2}-\\d{2}(Z|[+-]\\d{2}:\\d{2})?$" ;
+  time:example "2026-01-09" ;
+  .
+
+time:xsdTimeFormat
+  a time:DateTimeFormat ;
+  rdfs:label "xsd:time Format" ;
+  rdfs:comment "ISO 8601 time of day: HH:MM:SS[.sss][±HH:MM]" ;
+  time:rustType "chrono::NaiveTime" ;
+  time:parsePattern "^\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$" ;
+  time:example "14:30:45.123" ;
+  .
+
+time:xsdGYearMonthFormat
+  a time:DateTimeFormat ;
+  rdfs:label "xsd:gYearMonth Format" ;
+  rdfs:comment "Year and month: YYYY-MM with optional timezone" ;
+  time:rustType "ggen::YearMonth" ;
+  time:parsePattern "^\\d{4}-\\d{2}(Z|[+-]\\d{2}:\\d{2})?$" ;
+  time:example "2026-01" ;
+  .
+
+time:xsdGYearFormat
+  a time:DateTimeFormat ;
+  rdfs:label "xsd:gYear Format" ;
+  rdfs:comment "Year only: YYYY with optional timezone" ;
+  time:rustType "ggen::Year" ;
+  time:parsePattern "^\\d{4}(Z|[+-]\\d{2}:\\d{2})?$" ;
+  time:example "2026" ;
+  .
+
+# =============================================================================
+# TIMEZONE HANDLING
+# =============================================================================
+
+time:TimezonePolicy
+  a owl:Class ;
+  rdfs:label "Timezone Policy" ;
+  rdfs:comment "Rules for how to handle timezone information in temporal data" ;
+  .
+
+time:tzUTC
+  a time:TimezonePolicy ;
+  rdfs:label "UTC Normalization" ;
+  rdfs:comment "All input datetimes normalized to UTC (Z suffix)" ;
+  kgc:isDefault true ;
+  constraint:rule "Always convert to UTC for storage and comparison" ;
+  .
+
+time:tzPreserveOffset
+  a time:TimezonePolicy ;
+  rdfs:label "Preserve Timezone Offset" ;
+  rdfs:comment "Keep original timezone offset as provided in input" ;
+  constraint:rule "Store offset information in metadata" ;
+  .
+
+time:tzSystemLocal
+  a time:TimezonePolicy ;
+  rdfs:label "System Local Timezone" ;
+  rdfs:comment "Convert to system local timezone for display" ;
+  constraint:rule "Only for output formatting, not for storage" ;
+  .
+
+# =============================================================================
+# TEMPORAL CONSTRAINTS
+# =============================================================================
+
+time:TemporalConstraint
+  a owl:Class ;
+  rdfs:label "Temporal Constraint" ;
+  rdfs:comment "Constraint on temporal values (min/max date, before/after)" ;
+  .
+
+time:minDate
+  a owl:DatatypeProperty ;
+  rdfs:label "Minimum Date" ;
+  rdfs:domain time:TemporalConstraint ;
+  rdfs:range xsd:date ;
+  rdfs:comment "Earliest allowed date (inclusive)" ;
+  .
+
+time:maxDate
+  a owl:DatatypeProperty ;
+  rdfs:label "Maximum Date" ;
+  rdfs:domain time:TemporalConstraint ;
+  rdfs:range xsd:date ;
+  rdfs:comment "Latest allowed date (inclusive)" ;
+  .
+
+time:beforeDate
+  a owl:DatatypeProperty ;
+  rdfs:label "Before Date" ;
+  rdfs:domain time:TemporalConstraint ;
+  rdfs:range xsd:date ;
+  rdfs:comment "Must be strictly before this date (exclusive)" ;
+  .
+
+time:afterDate
+  a owl:DatatypeProperty ;
+  rdfs:label "After Date" ;
+  rdfs:domain time:TemporalConstraint ;
+  rdfs:range xsd:date ;
+  rdfs:comment "Must be strictly after this date (exclusive)" ;
+  .
+
+time:inRange
+  a owl:ObjectProperty ;
+  rdfs:label "In Date Range" ;
+  rdfs:domain time:TemporalConstraint ;
+  rdfs:range time:DateRange ;
+  rdfs:comment "Value must fall within specified date range" ;
+  .
+
+time:DateRange
+  a owl:Class ;
+  rdfs:label "Date Range" ;
+  rdfs:comment "Inclusive range between two dates" ;
+  .
+
+time:rangeStart
+  a owl:DatatypeProperty ;
+  rdfs:label "Range Start" ;
+  rdfs:domain time:DateRange ;
+  rdfs:range xsd:date ;
+  rdfs:comment "Start of range (inclusive)" ;
+  .
+
+time:rangeEnd
+  a owl:DatatypeProperty ;
+  rdfs:label "Range End" ;
+  rdfs:domain time:DateRange ;
+  rdfs:range xsd:date ;
+  rdfs:comment "End of range (inclusive)" ;
+  .
+
+# =============================================================================
+# DATETIME PRECISION AND TRUNCATION
+# =============================================================================
+
+time:PrecisionLevel
+  a owl:Class ;
+  rdfs:label "Precision Level" ;
+  rdfs:comment "How precisely datetime values are stored and compared" ;
+  .
+
+time:precisionYear
+  a time:PrecisionLevel ;
+  rdfs:label "Year Precision" ;
+  rdfs:comment "Round to nearest year" ;
+  constraint:truncateTo "year" ;
+  .
+
+time:precisionMonth
+  a time:PrecisionLevel ;
+  rdfs:label "Month Precision" ;
+  rdfs:comment "Round to nearest month" ;
+  constraint:truncateTo "month" ;
+  .
+
+time:precisionDay
+  a time:PrecisionLevel ;
+  rdfs:label "Day Precision" ;
+  rdfs:comment "Round to nearest day (default)" ;
+  constraint:truncateTo "day" ;
+  kgc:isDefault true ;
+  .
+
+time:precisionSecond
+  a time:PrecisionLevel ;
+  rdfs:label "Second Precision" ;
+  rdfs:comment "Precise to the second" ;
+  constraint:truncateTo "second" ;
+  .
+
+time:precisionMillisecond
+  a time:PrecisionLevel ;
+  rdfs:label "Millisecond Precision" ;
+  rdfs:comment "Precise to the millisecond" ;
+  constraint:truncateTo "millisecond" ;
+  .
+
+time:precisionMicrosecond
+  a time:PrecisionLevel ;
+  rdfs:label "Microsecond Precision" ;
+  rdfs:comment "Precise to the microsecond" ;
+  constraint:truncateTo "microsecond" ;
+  .
+
+# =============================================================================
+# DATETIME SHACL SHAPES FOR VALIDATION
+# =============================================================================
+
+time:DateTimeFormatShape
+  a sh:NodeShape ;
+  sh:targetClass time:DateTimeFormat ;
+  sh:name "DateTime Format Definition" ;
+  sh:description "Every datetime format must have required properties" ;
+
+  sh:property [
+    sh:path rdfs:label ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "DateTime format must have rdfs:label" ;
+  ] ;
+
+  sh:property [
+    sh:path time:rustType ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "DateTime format must specify Rust type mapping (time:rustType)" ;
+  ] ;
+
+  sh:property [
+    sh:path time:parsePattern ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "DateTime format may have regex parse pattern (time:parsePattern)" ;
+  ] ;
+  .
+
+time:TemporalConstraintShape
+  a sh:NodeShape ;
+  sh:targetClass time:TemporalConstraint ;
+  sh:name "Temporal Constraint Definition" ;
+  sh:description "Temporal constraints must have at least one boundary or range" ;
+
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Temporal constraint must define minDate, maxDate, beforeDate, afterDate, or inRange" ;
+    sh:prefixes [
+      sh:prefix "time" ;
+      sh:namespace <http://ggen.org/time#> ;
+    ] ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this a time:TemporalConstraint .
+        FILTER NOT EXISTS { $this time:minDate ?minDate }
+        FILTER NOT EXISTS { $this time:maxDate ?maxDate }
+        FILTER NOT EXISTS { $this time:beforeDate ?beforeDate }
+        FILTER NOT EXISTS { $this time:afterDate ?afterDate }
+        FILTER NOT EXISTS { $this time:inRange ?range }
+      }
+    """ ;
+  ] ;
+  .
+
+time:DateRangeShape
+  a sh:NodeShape ;
+  sh:targetClass time:DateRange ;
+  sh:name "Date Range Definition" ;
+  sh:description "Date ranges must have both start and end dates" ;
+
+  sh:property [
+    sh:path time:rangeStart ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:date ;
+    sh:message "DateRange must have exactly one time:rangeStart" ;
+  ] ;
+
+  sh:property [
+    sh:path time:rangeEnd ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:date ;
+    sh:message "DateRange must have exactly one time:rangeEnd" ;
+  ] ;
+  .
+
+# =============================================================================
+# DATETIME CONVERSION RULES
+# =============================================================================
+
+time:ConversionRule
+  a owl:Class ;
+  rdfs:label "Datetime Conversion Rule" ;
+  rdfs:comment "Specification for converting between datetime formats" ;
+  .
+
+time:dateTimeToDate
+  a time:ConversionRule ;
+  rdfs:label "DateTime to Date Conversion" ;
+  rdfs:comment "Extract date component from datetime, discarding time and timezone" ;
+  time:fromFormat time:xsdDateTimeFormat ;
+  time:toFormat time:xsdDateFormat ;
+  constraint:algorithm "truncate_to(input, 'day')" ;
+  .
+
+time:dateTimeToTime
+  a time:ConversionRule ;
+  rdfs:label "DateTime to Time Conversion" ;
+  rdfs:comment "Extract time component from datetime, discarding date" ;
+  time:fromFormat time:xsdDateTimeFormat ;
+  time:toFormat time:xsdTimeFormat ;
+  constraint:algorithm "extract_time(input)" ;
+  .
+
+time:dateToDateTime
+  a time:ConversionRule ;
+  rdfs:label "Date to DateTime Conversion" ;
+  rdfs:comment "Convert date to datetime using 00:00:00 UTC" ;
+  time:fromFormat time:xsdDateFormat ;
+  time:toFormat time:xsdDateTimeFormat ;
+  constraint:algorithm "append_time(input, '00:00:00Z')" ;
+  .
+
+time:normalizeToUTC
+  a time:ConversionRule ;
+  rdfs:label "Normalize DateTime to UTC" ;
+  rdfs:comment "Convert datetime to UTC timezone (Z suffix)" ;
+  time:fromFormat time:xsdDateTimeFormat ;
+  time:toFormat time:xsdDateTimeFormat ;
+  constraint:algorithm "convert_timezone(input, 'UTC')" ;
+  constraint:preserveInstant true ;
+  .
