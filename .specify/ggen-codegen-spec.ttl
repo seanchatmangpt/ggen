@@ -22,6 +22,11 @@
   rdfs:label "ggen Code Generation Specification" ;
   rdfs:comment "Source of truth for code generation. All code flows from this ontology through the measurement function μ." ;
   owl:versionInfo "1.0.0" ;
+  owl:imports <http://ggen.org/datetime-formats-spec> ;
+  owl:imports <http://ggen.org/rdf-list-semantics-spec> ;
+  owl:imports <http://ggen.org/sparql-safety-patterns-spec> ;
+  owl:imports <http://ggen.org/slo-thresholds-spec> ;
+  owl:imports <http://ggen.org/numeric-cardinality-constraints-spec> ;
   .
 
 # =============================================================================
