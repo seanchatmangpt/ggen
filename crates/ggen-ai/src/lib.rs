@@ -58,18 +58,17 @@
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 
 // Hyper-concurrent agent execution framework (10-agent max parallelism)
-// TODO: Re-enable after swarm module is fixed
+// TODO: Re-enable after fixing Send/Sync issues
 // pub mod hyper_concurrent;
 
 // Microframework for simplified 10-agent orchestration
-// TODO: Fix test compilation errors in microframework before enabling
-// pub mod microframework;
+pub mod microframework;
 
 // Existing agent infrastructure
 // NOTE: Disabled - these modules have incomplete test code
 // pub mod agents;
 pub mod governance;
-// pub mod swarm;
+// pub mod swarm;  // Temporarily disabled due to compilation errors
 // pub mod ultrathink;
 
 // Core modules
@@ -140,21 +139,21 @@ pub use types::{DecisionId, PolicyId, RequestId, RuleId};
 //     HyperConcurrentConfig, HyperConcurrentExecutor, WorkStealingAgentPool, MAX_CONCURRENT_AGENTS,
 // };
 
-// Swarm exports (disabled - incomplete test code)
+// Swarm exports (disabled - compilation errors)
 // pub use swarm::{
 //     SwarmAgent, SwarmConfig, SwarmContext, SwarmCoordinator, SwarmInput, SwarmResult,
 //     SwarmStatus, UltrathinkSwarm,
 // };
 
-// Microframework exports (disabled - incomplete test code)
-// pub use microframework::{
-//     AgentOrchestrator, AgentRole, BatchBuilder, BatchConfig, BatchProcessor, BatchResult,
-//     CodeGenAgent, CustomAgent, GraphStats, MicroAgent, MicroframeworkConfig, OrchestratorBuilder,
-//     OrchestratorStats, Pipeline, PipelineBuilder, PipelineConfig, PipelineResult, PipelineStage,
-//     ProgressBar, ProgressEvent, ProgressListener, ProgressSummary, ProgressTracker, ReviewerAgent,
-//     RdfProcessorAgent, StageResult, Task, TaskConfig, TaskGraph, TaskProgress, TaskResult,
-//     TaskStatus, TaskType, TemplateGenAgent, TesterAgent, ValidatorAgent,
-// };
+// Microframework exports
+pub use microframework::{
+    AgentOrchestrator, AgentRole, BatchBuilder, BatchConfig, BatchProcessor, BatchResult,
+    CodeGenAgent, CustomAgent, GraphStats, MicroAgent, MicroframeworkConfig, OrchestratorBuilder,
+    OrchestratorStats, Pipeline, PipelineBuilder, PipelineConfig, PipelineResult, PipelineStage,
+    ProgressBar, ProgressEvent, ProgressListener, ProgressSummary, ProgressTracker, ReviewerAgent,
+    RdfProcessorAgent, StageResult, Task, TaskConfig, TaskGraph, TaskProgress, TaskResult,
+    TaskStatus, TaskType, TemplateGenAgent, TesterAgent, ValidatorAgent,
+};
 
 /// Version information
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

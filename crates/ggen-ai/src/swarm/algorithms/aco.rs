@@ -195,7 +195,7 @@ impl SparqlAcoOptimizer {
 
         // Start with a random node
         if current_nodes.is_empty() {
-            return Err(GgenAiError::internal("No nodes to explore"));
+            return Err(GgenAiError::ultrathink_internal("No nodes to explore"));
         }
 
         let start_idx = fastrand::usize(0..current_nodes.len());
@@ -205,7 +205,7 @@ impl SparqlAcoOptimizer {
         // Build path by selecting next nodes probabilistically
         while !current_nodes.is_empty() {
             let current = visited.last()
-                .ok_or_else(|| GgenAiError::internal("Path construction failed: no nodes visited"))?;
+                .ok_or_else(|| GgenAiError::ultrathink_internal("Path construction failed: no nodes visited"))?;
             let next_node = self.select_next_node(current, &current_nodes).await?;
 
             // Calculate cost of this edge
@@ -248,11 +248,22 @@ impl SparqlAcoOptimizer {
         // Normalize probabilities
         if total_probability == 0.0 {
             // Fallback to random selection
-            return Ok(available[fastrand::usize(0..available.len())].clone());
+            use std::collections::hash_map::RandomState;
+            use std::hash::{BuildHasher, Hash, Hasher};
+            let hasher = RandomState::new();
+            let mut h = hasher.build_hasher();
+            available.len().hash(&mut h);
+            let idx = (h.finish() as usize) % available.len();
+            return Ok(available[idx].clone());
         }
 
         // Roulette wheel selection
-        let mut roulette = fastrand::f64() * total_probability;
+        use std::collections::hash_map::RandomState;
+        use std::hash::{BuildHasher, Hash, Hasher};
+        let hasher = RandomState::new();
+        let mut h = hasher.build_hasher();
+        total_probability.to_bits().hash(&mut h);
+        let mut roulette = ((h.finish() % 1000) as f64 / 1000.0) * total_probability;
         for (node, prob) in probabilities {
             roulette -= prob;
             if roulette <= 0.0 {
@@ -263,7 +274,7 @@ impl SparqlAcoOptimizer {
         // Fallback to last node
         available.last()
             .cloned()
-            .ok_or_else(|| GgenAiError::internal("No available nodes for selection"))
+            .ok_or_else(|| GgenAiError::ultrathink_internal("No available nodes for selection"))
     }
 
     /// Calculate edge cost between two nodes
@@ -405,7 +416,7 @@ pub fn parse_sparql_to_nodes(sparql: &str) -> Result<Vec<QueryNode>> {
     }
 
     if nodes.is_empty() {
-        return Err(GgenAiError::internal("No valid query patterns found"));
+        return Err(GgenAiError::ultrathink_internal("No valid query patterns found"));
     }
 
     Ok(nodes)

@@ -169,7 +169,7 @@ impl EventRouter {
     }
 
     /// Subscribe to events for a specific agent
-    pub fn subscribe_for_agent(&self, agent_name: &str) -> broadcast::Receiver<SystemEvent> {
+    pub fn subscribe_for_agent(&self, _agent_name: &str) -> broadcast::Receiver<SystemEvent> {
         self.event_broadcaster.subscribe()
     }
 
@@ -469,7 +469,7 @@ impl EventStream for ApiWebhookEventStream {
             self.current_endpoint = 0;
         }
 
-        let endpoint = &self.endpoints[self.current_endpoint];
+        let _endpoint = &self.endpoints[self.current_endpoint];
         self.current_endpoint += 1;
 
         // Would make HTTP request to check for new events
@@ -522,7 +522,7 @@ impl EventStream for RuntimeTelemetryEventStream {
             self.current_service = 0;
         }
 
-        let service = &self.services[self.current_service];
+        let _service = &self.services[self.current_service];
         self.current_service += 1;
 
         // Would query service for metrics
@@ -544,7 +544,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_event_filter_matching() {
-        let router = EventRouter::new();
+        let mut router = EventRouter::new();
 
         let filter = EventFilter {
             name: "test_filter".to_string(),
