@@ -52,8 +52,8 @@ chrono = { workspace = true }
 # Futures and streams
 futures = { workspace = true }
 
-# UUID for trace IDs
-uuid = { workspace = true }
+# UUID for trace IDs and temp files
+uuid = { workspace = true, features = ["v4"] }
 
 # Regular expressions for pattern matching
 regex = { workspace = true }

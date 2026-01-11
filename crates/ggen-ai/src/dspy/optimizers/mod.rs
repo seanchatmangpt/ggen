@@ -7,10 +7,9 @@
 //! - `OptimizationStatistics` - Performance tracking
 
 use crate::dspy::{Module, ModuleError};
-use crate::dspy::optimizer::{Example, Demonstration};
+use crate::dspy::optimizer::Example;
 use serde_json::Value;
 use std::collections::HashMap;
-use std::sync::Arc;
 use std::time::SystemTime;
 use async_trait::async_trait;
 

@@ -112,12 +112,16 @@ pub use dspy::{
     Signature,
     Module, ModuleError,
     Predictor, ChainOfThought,
-    Evaluate, EvaluationPoint, EvaluationResult, Trace, ModuleCall, MetricResult,
+    Evaluate, EvaluationPoint, EvaluationResult, EvaluationTrace, ModuleCall, MetricResult,
     SimpleMetricFn, EnhancedMetricFn, MetricError,
     exact_match, exact_match_ci, passage_match, substring_match, token_overlap,
     f1_score, length_within_range, composite,
-    ExactMatchMetric, F1Metric, PassageMatchMetric,
+    EvalExactMatchMetric, F1Metric, PassageMatchMetric,
     display_table, export_to_csv, export_to_json,
+    // Assertion system exports
+    Assertion, BacktrackExecutor, AssertionError, AssertionResult,
+    Validator, ValidationResult, AssertionLevel,
+    AssertableModule, AssertedModule,
 };
 pub use error::{GgenAiError, Result};
 pub use generators::{

@@ -161,10 +161,13 @@ pub fn token_overlap(field: &str) -> SimpleMetricFn {
 
         match (expected, actual) {
             (Some(exp), Some(act)) => {
+                let exp_lower = exp.to_lowercase();
+                let act_lower = act.to_lowercase();
+
                 let exp_tokens: std::collections::HashSet<_> =
-                    exp.to_lowercase().split_whitespace().collect();
+                    exp_lower.split_whitespace().collect();
                 let act_tokens: std::collections::HashSet<_> =
-                    act.to_lowercase().split_whitespace().collect();
+                    act_lower.split_whitespace().collect();
 
                 let intersection = exp_tokens.intersection(&act_tokens).count();
                 let union = exp_tokens.union(&act_tokens).count();
@@ -297,10 +300,13 @@ impl F1Metric {
                 .ok_or_else(|| MetricError::MissingField(expected_field.clone()))?;
 
             // Tokenize and calculate precision/recall
+            let predicted_lower = predicted.to_lowercase();
+            let expected_lower = expected.to_lowercase();
+
             let pred_tokens: std::collections::HashSet<_> =
-                predicted.to_lowercase().split_whitespace().collect();
+                predicted_lower.split_whitespace().collect();
             let exp_tokens: std::collections::HashSet<_> =
-                expected.to_lowercase().split_whitespace().collect();
+                expected_lower.split_whitespace().collect();
 
             if exp_tokens.is_empty() || pred_tokens.is_empty() {
                 return Ok(0.0);

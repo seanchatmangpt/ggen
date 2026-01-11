@@ -911,6 +911,511 @@ where
 
 ---
 
+## API Reference
+
+### Signature API
+
+```rust
+// Create signature
+let sig = Signature::new("TaskName", "Description");
+
+// Add inputs
+let sig = sig.with_input(InputField::new(
+    "field_name",     // Field identifier
+    "description",    // Human-readable description
+    "String"          // Type hint
+));
+
+// Add outputs
+let sig = sig.with_output(OutputField::new(
+    "result",
+    "The result",
+    "String"
+));
+
+// Add instructions
+let sig = sig.with_instructions(
+    "Detailed instructions for the LLM..."
+);
+
+// Access fields
+for input in &sig.inputs {
+    println!("{}: {}", input.name, input.description);
+}
+```
+
+### Module API
+
+```rust
+#[async_trait]
+pub trait Module: Send + Sync {
+    /// Get the signature defining this module's interface
+    fn signature(&self) -> &Signature;
+
+    /// Execute the module with given inputs
+    async fn forward(
+        &self,
+        inputs: HashMap<String, Value>
+    ) -> Result<HashMap<String, Value>, ModuleError>;
+}
+```
+
+**Implementation Example**:
+```rust
+struct MyModule {
+    predictor: Predictor,
+    signature: Signature,
+}
+
+#[async_trait]
+impl Module for MyModule {
+    fn signature(&self) -> &Signature {
+        &self.signature
+    }
+
+    async fn forward(
+        &self,
+        inputs: HashMap<String, Value>
+    ) -> Result<HashMap<String, Value>, ModuleError> {
+        // Validate inputs
+        for input_field in &self.signature.inputs {
+            if !inputs.contains_key(&input_field.name) {
+                return Err(ModuleError::MissingInput(
+                    input_field.name.clone()
+                ));
+            }
+        }
+
+        // Execute logic
+        self.predictor.forward(inputs).await
+    }
+}
+```
+
+### Predictor API
+
+```rust
+// Create predictor
+let predictor = Predictor::new(signature);
+
+// Configure (optional)
+let predictor = Predictor::new(signature)
+    .with_model("gpt-4o")         // Override model
+    .with_temperature(0.7)         // Set creativity
+    .with_max_tokens(500);         // Limit response length
+
+// Execute
+let mut inputs = HashMap::new();
+inputs.insert("question".into(), json!("What is Rust?"));
+
+let result = predictor.forward(inputs).await?;
+let answer = result["answer"].as_str().unwrap();
+```
+
+### ChainOfThought API
+
+```rust
+// ChainOfThought adds reasoning field automatically
+let cot = ChainOfThought::new(signature);
+
+// The signature is augmented with:
+// - reasoning: OutputField (step-by-step thinking)
+
+let result = cot.forward(inputs).await?;
+
+// Access reasoning
+let reasoning = result.get("reasoning")
+    .and_then(|v| v.as_str())
+    .unwrap_or("");
+
+println!("Reasoning: {}", reasoning);
+println!("Answer: {}", result["answer"]);
+```
+
+### Optimizer API
+
+```rust
+// Create optimizer
+let metric = Arc::new(|example: &Example, output: &HashMap<String, Value>| {
+    Ok(example.outputs.get("answer") == output.get("answer"))
+});
+
+let optimizer = BootstrapFewShot::new(metric)
+    .with_max_bootstrapped_demos(4)   // Max demos to collect
+    .with_max_labeled_demos(16)       // Max from training set
+    .with_teacher(Arc::new(teacher)); // Optional teacher module
+
+// Compile (optimize)
+let student = Predictor::new(signature);
+let optimized = optimizer.compile(&student, &trainset).await?;
+
+// Use optimized predictor
+let result = optimized.forward(inputs).await?;
+
+// Inspect demonstrations
+println!("Demos collected: {}", optimized.demonstration_count());
+```
+
+### Example API
+
+```rust
+// Create example
+let example = Example::new(
+    HashMap::from([
+        ("question".to_string(), json!("What is 2+2?")),
+    ]),
+    HashMap::from([
+        ("answer".to_string(), json!("4")),
+    ]),
+);
+
+// Access fields
+let inputs = &example.inputs;
+let outputs = &example.outputs;
+
+// Create from convenience method
+let examples = vec![
+    Example::new(
+        [("x".into(), json!(1))].into(),
+        [("y".into(), json!(2))].into(),
+    ),
+];
+```
+
+### Assertion API
+
+```rust
+use ggen_ai::dspy::assertions::*;
+
+// Create assertion
+let assertion = Assertion::assert(LengthValidator::between(10, 100))
+    .with_feedback("Must be 10-100 characters")
+    .max_retries(3);
+
+// Create suggestion (soft)
+let suggestion = Assertion::suggest(ContainsValidator::new("keyword"))
+    .with_feedback("Should contain keyword")
+    .max_retries(2);
+
+// Execute with backtracking
+let mut executor = BacktrackExecutor::new(vec![assertion, suggestion]);
+let result = executor.execute(&module, inputs).await?;
+
+// Check warnings
+for warning in executor.warnings() {
+    println!("Warning: {} (attempts: {})", warning.feedback, warning.attempts);
+}
+```
+
+### DummyLM API (Testing)
+
+```rust
+use ggen_ai::dspy::testing::DummyLM;
+
+// Sequential mode
+let dummy = DummyLM::sequential(vec![
+    HashMap::from([("answer".to_string(), json!("Response 1"))]),
+    HashMap::from([("answer".to_string(), json!("Response 2"))]),
+]);
+
+// Query-based mode
+let mut query_map = HashMap::new();
+query_map.insert(
+    "keyword".to_string(),
+    HashMap::from([("answer".to_string(), json!("Matched response"))]),
+);
+let dummy = DummyLM::query_based(query_map);
+
+// Example-following mode
+let dummy = DummyLM::example_following(vec![
+    (inputs1, outputs1),
+    (inputs2, outputs2),
+]);
+
+// Verify behavior
+assert_eq!(dummy.call_count(), 3);
+let history = dummy.history();
+dummy.reset();
+```
+
+---
+
+## Production Deployment Guide
+
+### Configuration Management
+
+**Environment-Based Configuration**:
+```rust
+use std::env;
+
+fn get_llm_config() -> LlmConfig {
+    LlmConfig::default()
+        .with_model(env::var("PRODUCTION_MODEL")
+            .unwrap_or_else(|_| "gpt-4".to_string()))
+        .with_temperature(0.0)  // Deterministic for production
+        .with_max_tokens(
+            env::var("MAX_TOKENS")
+                .ok()
+                .and_then(|s| s.parse().ok())
+                .unwrap_or(500)
+        )
+}
+```
+
+**Secrets Management**:
+```bash
+# Use environment variables, never hardcode
+export OPENAI_API_KEY=$(vault read -field=api_key secret/openai)
+export ANTHROPIC_API_KEY=$(vault read -field=api_key secret/anthropic)
+
+# Or use .env file (not checked into git)
+echo "OPENAI_API_KEY=sk-..." > .env
+```
+
+### Error Handling and Retries
+
+```rust
+use tokio::time::{sleep, Duration};
+
+async fn predict_with_retry(
+    module: &dyn Module,
+    inputs: HashMap<String, Value>,
+    max_retries: u32,
+) -> Result<HashMap<String, Value>, ModuleError> {
+    let mut attempts = 0;
+    let mut delay = Duration::from_secs(1);
+
+    loop {
+        match module.forward(inputs.clone()).await {
+            Ok(result) => return Ok(result),
+            Err(e) if attempts < max_retries => {
+                tracing::warn!(
+                    "Attempt {}/{} failed: {}. Retrying in {:?}",
+                    attempts + 1,
+                    max_retries,
+                    e,
+                    delay
+                );
+                sleep(delay).await;
+                attempts += 1;
+                delay *= 2; // Exponential backoff
+            }
+            Err(e) => return Err(e),
+        }
+    }
+}
+```
+
+### Monitoring and Observability
+
+```rust
+use tracing::{info, warn, instrument};
+use std::time::Instant;
+
+#[instrument(skip(module, inputs))]
+async fn predict_with_monitoring(
+    module: &dyn Module,
+    inputs: HashMap<String, Value>,
+) -> Result<HashMap<String, Value>, ModuleError> {
+    let start = Instant::now();
+
+    let result = module.forward(inputs).await;
+
+    let elapsed = start.elapsed();
+
+    match &result {
+        Ok(_) => {
+            info!(
+                latency_ms = elapsed.as_millis(),
+                "Prediction successful"
+            );
+        }
+        Err(e) => {
+            warn!(
+                latency_ms = elapsed.as_millis(),
+                error = %e,
+                "Prediction failed"
+            );
+        }
+    }
+
+    result
+}
+```
+
+### Caching Strategy
+
+```rust
+use moka::future::Cache;
+use sha2::{Sha256, Digest};
+use std::sync::Arc;
+
+struct CachedModule {
+    inner: Arc<dyn Module>,
+    cache: Cache<String, HashMap<String, Value>>,
+}
+
+impl CachedModule {
+    fn new(module: Arc<dyn Module>, max_capacity: u64) -> Self {
+        let cache = Cache::builder()
+            .max_capacity(max_capacity)
+            .time_to_live(Duration::from_secs(3600)) // 1 hour TTL
+            .build();
+
+        Self { inner: module, cache }
+    }
+
+    fn cache_key(inputs: &HashMap<String, Value>) -> String {
+        let json = serde_json::to_string(inputs).unwrap();
+        let mut hasher = Sha256::new();
+        hasher.update(json.as_bytes());
+        format!("{:x}", hasher.finalize())
+    }
+}
+
+#[async_trait]
+impl Module for CachedModule {
+    fn signature(&self) -> &Signature {
+        self.inner.signature()
+    }
+
+    async fn forward(
+        &self,
+        inputs: HashMap<String, Value>,
+    ) -> Result<HashMap<String, Value>, ModuleError> {
+        let key = Self::cache_key(&inputs);
+
+        if let Some(cached) = self.cache.get(&key).await {
+            tracing::debug!("Cache hit for key: {}", key);
+            return Ok(cached);
+        }
+
+        let result = self.inner.forward(inputs).await?;
+        self.cache.insert(key, result.clone()).await;
+
+        Ok(result)
+    }
+}
+```
+
+### Rate Limiting
+
+```rust
+use governor::{Quota, RateLimiter};
+use governor::clock::DefaultClock;
+use governor::state::{InMemoryState, NotKeyed};
+use std::num::NonZeroU32;
+
+struct RateLimitedModule {
+    inner: Arc<dyn Module>,
+    limiter: Arc<RateLimiter<NotKeyed, InMemoryState, DefaultClock>>,
+}
+
+impl RateLimitedModule {
+    fn new(module: Arc<dyn Module>, requests_per_minute: u32) -> Self {
+        let quota = Quota::per_minute(
+            NonZeroU32::new(requests_per_minute).unwrap()
+        );
+        let limiter = Arc::new(RateLimiter::direct(quota));
+
+        Self { inner: module, limiter }
+    }
+}
+
+#[async_trait]
+impl Module for RateLimitedModule {
+    fn signature(&self) -> &Signature {
+        self.inner.signature()
+    }
+
+    async fn forward(
+        &self,
+        inputs: HashMap<String, Value>,
+    ) -> Result<HashMap<String, Value>, ModuleError> {
+        // Wait for rate limit
+        self.limiter.until_ready().await;
+
+        self.inner.forward(inputs).await
+    }
+}
+```
+
+### Health Checks
+
+```rust
+use axum::{Router, routing::get};
+use std::sync::atomic::{AtomicU64, Ordering};
+
+#[derive(Clone)]
+struct HealthMetrics {
+    total_requests: Arc<AtomicU64>,
+    failed_requests: Arc<AtomicU64>,
+}
+
+async fn health_check(metrics: HealthMetrics) -> String {
+    let total = metrics.total_requests.load(Ordering::Relaxed);
+    let failed = metrics.failed_requests.load(Ordering::Relaxed);
+    let success_rate = if total > 0 {
+        ((total - failed) as f64 / total as f64) * 100.0
+    } else {
+        100.0
+    };
+
+    format!(
+        "{{\"status\": \"healthy\", \"total\": {}, \"failed\": {}, \"success_rate\": {:.2}}}",
+        total, failed, success_rate
+    )
+}
+
+#[tokio::main]
+async fn main() {
+    let metrics = HealthMetrics {
+        total_requests: Arc::new(AtomicU64::new(0)),
+        failed_requests: Arc::new(AtomicU64::new(0)),
+    };
+
+    let app = Router::new()
+        .route("/health", get(|| health_check(metrics)));
+
+    // Run server
+}
+```
+
+### Deployment Checklist
+
+```markdown
+## Pre-Deployment
+- [ ] All tests passing (cargo make test)
+- [ ] No clippy warnings (cargo make lint)
+- [ ] Load testing completed
+- [ ] Security audit passed
+- [ ] Secrets in vault/env, not code
+- [ ] Monitoring configured (traces, metrics)
+- [ ] Rate limits configured
+- [ ] Cache strategy defined
+- [ ] Error handling comprehensive
+- [ ] Retry logic with backoff
+
+## Deployment
+- [ ] Blue-green or canary deployment
+- [ ] Health checks enabled
+- [ ] Gradual traffic ramp-up
+- [ ] Monitor error rates
+- [ ] Monitor latency (p50, p95, p99)
+- [ ] Monitor cache hit rates
+- [ ] Monitor LLM API costs
+
+## Post-Deployment
+- [ ] Verify all endpoints healthy
+- [ ] Check logs for errors
+- [ ] Validate metrics dashboards
+- [ ] Test rollback procedure
+- [ ] Document any issues
+- [ ] Update runbooks
+```
+
+---
+
 ## References
 
 ### Documentation

@@ -278,9 +278,9 @@ impl Evaluate {
         let error_count = Arc::new(AtomicUsize::new(0));
 
         // Clone data for async tasks
-        let program_sig = program.signature().clone();
+        let _program_sig = program.signature().clone();
         let max_errors = self.max_errors;
-        let failure_score = self.failure_score;
+        let _failure_score = self.failure_score;
 
         let mut join_set = JoinSet::new();
 
@@ -297,7 +297,6 @@ impl Evaluate {
             // NOTE: Since we can't clone trait objects, we use program's signature
             // and would need to modify this for actual LLM calls. For now, this is a limitation.
             // In practice, the program would be wrapped in Arc<dyn Module>.
-            let program_name = program_sig.name.clone();
 
             join_set.spawn(async move {
                 let _permit = permit;

@@ -15,7 +15,7 @@
 //! 3. Return program with highest validation score
 //! ```
 
-use crate::dspy::{Module, ModuleError, Signature};
+use crate::dspy::{Module, ModuleError};
 use crate::dspy::optimizer::{Example, Demonstration, OptimizedPredictor, BootstrapFewShot};
 use super::{Optimizer, OptimizationStatistics, Metric};
 use async_trait::async_trait;
@@ -23,8 +23,6 @@ use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tracing::{debug, info, warn};
-use rand::seq::SliceRandom;
-use rand::thread_rng;
 
 /// BootstrapFewShotWithRandomSearch optimizer
 ///
@@ -154,7 +152,7 @@ impl BootstrapFewShotWithRandomSearch {
 
     /// Random sample K demonstrations from candidates
     fn random_sample(&self, candidates: &[Demonstration], k: usize) -> Vec<Demonstration> {
-        let mut rng = thread_rng();
+        let mut rng = rand::rng();
         let sample_size = k.min(candidates.len());
 
         candidates
@@ -311,6 +309,7 @@ impl Metric for MetricAdapter {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::Signature;
     use crate::dspy::field::{InputField, OutputField};
 
     fn create_test_signature() -> Signature {

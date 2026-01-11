@@ -28,7 +28,7 @@
 //! Phase 3: Return best program
 //! ```
 
-use crate::dspy::{Module, ModuleError, Signature, Predictor};
+use crate::dspy::{Module, ModuleError, Predictor};
 use crate::dspy::optimizer::Example;
 use super::{Optimizer, OptimizationStatistics, Metric};
 use async_trait::async_trait;
@@ -453,6 +453,7 @@ impl Optimizer for COPRO {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::Signature;
     use crate::dspy::field::{InputField, OutputField};
     use crate::dspy::optimizers::ExactMatchMetric;
 

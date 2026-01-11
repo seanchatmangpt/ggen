@@ -83,6 +83,14 @@ pub enum DspyError {
     #[error("Invalid input type for field '{field}': expected {expected}")]
     InvalidInputType { field: String, expected: String },
 
+    /// Field extraction error
+    #[error("Failed to extract field: {field}")]
+    FieldError { field: String },
+
+    /// Parsing error
+    #[error("Parsing error: {0}")]
+    ParsingError(String),
+
     /// Generic error with context
     #[error("{0}")]
     Other(String),
@@ -124,6 +132,11 @@ impl DspyError {
 
     /// Create a configuration error
     pub fn config(msg: impl Into<String>) -> Self {
+        Self::ConfigError(msg.into())
+    }
+
+    /// Alias for config (used by config module)
+    pub fn config_error(msg: impl Into<String>) -> Self {
         Self::ConfigError(msg.into())
     }
 

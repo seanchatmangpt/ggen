@@ -927,6 +927,464 @@ let predictor = Predictor::new(sig);  // Uses env vars
 
 ---
 
+## Common Pitfalls and Solutions
+
+### Pitfall 1: Forgetting `.await` on Async Calls
+
+**Python**: Async is optional
+```python
+result = predictor(question="...")  # May or may not be async
+```
+
+**Rust**: Async must be explicit
+```rust
+// ❌ WRONG - Compile error
+let result = predictor.forward(inputs);
+
+// ✅ CORRECT
+let result = predictor.forward(inputs).await?;
+```
+
+### Pitfall 2: Unwrapping in Production Code
+
+**Python**: Exceptions are common
+```python
+result = predictor(question="...")
+answer = result.answer  # Might raise AttributeError
+```
+
+**Rust**: Use Result pattern
+```rust
+// ❌ WRONG - Will panic on error
+let result = predictor.forward(inputs).await.unwrap();
+let answer = result["answer"].as_str().unwrap();
+
+// ✅ CORRECT - Proper error handling
+let result = predictor.forward(inputs).await?;
+let answer = result.get("answer")
+    .and_then(|v| v.as_str())
+    .ok_or_else(|| ModuleError::MissingOutput("answer".into()))?;
+```
+
+### Pitfall 3: Incorrect HashMap Construction
+
+**Python**: Dict literals are simple
+```python
+inputs = {"question": "What is Rust?", "context": "..."}
+```
+
+**Rust**: Multiple approaches
+```rust
+// ❌ WRONG - Type mismatch
+let inputs = HashMap::new();
+inputs.insert("question", "What is Rust?");  // &str != String
+
+// ✅ CORRECT - Explicit conversion
+let mut inputs = HashMap::new();
+inputs.insert("question".to_string(), json!("What is Rust?"));
+inputs.insert("context".to_string(), json!("..."));
+
+// ✅ BEST - From array shorthand
+let inputs: HashMap<String, Value> = [
+    ("question".into(), json!("What is Rust?")),
+    ("context".into(), json!("...")),
+].into();
+```
+
+### Pitfall 4: Module Ownership Issues
+
+**Python**: Everything is reference-counted
+```python
+module = MyModule()
+result1 = module(x="test")
+result2 = module(x="test2")  # Can reuse
+```
+
+**Rust**: Ownership and borrowing
+```rust
+// ❌ WRONG - Moves ownership
+let module = MyModule::new();
+let result1 = module.forward(inputs1).await?;
+let result2 = module.forward(inputs2).await?;  // Compile error if module moved
+
+// ✅ CORRECT - Borrow with &
+let module = MyModule::new();
+let result1 = module.forward(inputs1).await?;  // Borrows &self
+let result2 = module.forward(inputs2).await?;  // Can borrow again
+```
+
+### Pitfall 5: Cloning vs. Borrowing
+
+**Python**: Automatic reference management
+```python
+for example in trainset:
+    result = predictor(**example.inputs())  # Automatic copy/ref
+```
+
+**Rust**: Explicit cloning
+```rust
+// ❌ WRONG - Moves value
+for example in trainset {
+    let result = predictor.forward(example.inputs).await?;
+    // example.inputs moved, can't use again
+}
+
+// ✅ CORRECT - Borrow with iteration
+for example in &trainset {
+    let result = predictor.forward(example.inputs.clone()).await?;
+    // Clone inputs, example still owned by trainset
+}
+```
+
+### Pitfall 6: Missing Type Annotations
+
+**Python**: Types are inferred/optional
+```python
+def process(data):  # Any type
+    return transform(data)
+```
+
+**Rust**: Types must be explicit
+```rust
+// ❌ WRONG - Type unclear
+fn process(data) -> impl Future<Output = Result<_, _>> {
+    transform(data)
+}
+
+// ✅ CORRECT - Explicit types
+async fn process(
+    data: HashMap<String, Value>
+) -> Result<HashMap<String, Value>, ModuleError> {
+    transform(data).await
+}
+```
+
+### Pitfall 7: Metric Function Closures
+
+**Python**: Simple function
+```python
+def metric(example, pred, trace=None):
+    return example.answer == pred.answer
+```
+
+**Rust**: Arc<dyn Fn> with Send + Sync
+```rust
+// ❌ WRONG - Not Send/Sync
+let metric = |example, output| {
+    Ok(example.outputs["answer"] == output["answer"])
+};
+
+// ✅ CORRECT - Arc for shared ownership
+let metric = Arc::new(|example: &Example, output: &HashMap<String, Value>| {
+    Ok(example.outputs.get("answer") == output.get("answer"))
+});
+```
+
+### Pitfall 8: Nested Result Handling
+
+**Python**: Nested try/except
+```python
+try:
+    result = predictor(question="...")
+    try:
+        answer = result.answer
+    except AttributeError:
+        answer = "default"
+except Exception as e:
+    print(f"Error: {e}")
+```
+
+**Rust**: Chaining with combinators
+```rust
+// ❌ WRONG - Nested match hell
+match predictor.forward(inputs).await {
+    Ok(result) => {
+        match result.get("answer") {
+            Some(value) => {
+                match value.as_str() {
+                    Some(s) => println!("{}", s),
+                    None => eprintln!("Not a string"),
+                }
+            }
+            None => eprintln!("Missing answer"),
+        }
+    }
+    Err(e) => eprintln!("Error: {}", e),
+}
+
+// ✅ CORRECT - Combinators
+let answer = predictor.forward(inputs).await?
+    .get("answer")
+    .and_then(|v| v.as_str())
+    .unwrap_or("default");
+println!("{}", answer);
+```
+
+### Pitfall 9: Module Trait Implementation
+
+**Python**: Subclass dspy.Module
+```python
+class MyModule(dspy.Module):
+    def forward(self, question):
+        return self.predictor(question=question)
+```
+
+**Rust**: Implement Module trait
+```rust
+// ❌ WRONG - Missing signature, async_trait
+impl Module for MyModule {
+    fn forward(&self, inputs: HashMap<String, Value>)
+        -> Result<HashMap<String, Value>, ModuleError> {
+        self.predictor.forward(inputs)  // Not awaited
+    }
+}
+
+// ✅ CORRECT - Complete implementation
+#[async_trait]
+impl Module for MyModule {
+    fn signature(&self) -> &Signature {
+        &self.signature
+    }
+
+    async fn forward(&self, inputs: HashMap<String, Value>)
+        -> Result<HashMap<String, Value>, ModuleError> {
+        self.predictor.forward(inputs).await
+    }
+}
+```
+
+### Pitfall 10: Environment Variable Access
+
+**Python**: Simple os.environ
+```python
+import os
+model = os.environ.get("GGEN_LLM_MODEL", "gpt-4")
+```
+
+**Rust**: Result-based access
+```rust
+// ❌ WRONG - Panics if not set
+let model = std::env::var("GGEN_LLM_MODEL").unwrap();
+
+// ✅ CORRECT - With fallback
+let model = std::env::var("GGEN_LLM_MODEL")
+    .unwrap_or_else(|_| "gpt-4".to_string());
+
+// ✅ BETTER - Explicit error handling
+let model = std::env::var("GGEN_LLM_MODEL")
+    .map_err(|_| ConfigError::MissingEnvVar("GGEN_LLM_MODEL"))?;
+```
+
+---
+
+## Advanced Migration Examples
+
+### Example: Custom Optimizer
+
+**Python DSPy**:
+```python
+import dspy
+
+class CustomOptimizer:
+    def __init__(self, metric):
+        self.metric = metric
+
+    def compile(self, student, trainset, teacher=None):
+        teacher = teacher or student
+        demos = []
+
+        for example in trainset:
+            pred = teacher(**example.inputs())
+            if self.metric(example, pred):
+                demos.append(example)
+
+        # Return optimized student with demos
+        return student.copy(demos=demos)
+
+# Usage
+optimizer = CustomOptimizer(metric=accuracy)
+optimized = optimizer.compile(student, trainset)
+```
+
+**Rust ggen-dspy**:
+```rust
+use ggen_ai::dspy::*;
+use std::sync::Arc;
+
+struct CustomOptimizer {
+    metric: MetricFn,
+}
+
+impl CustomOptimizer {
+    fn new(metric: MetricFn) -> Self {
+        Self { metric }
+    }
+
+    async fn compile(
+        &self,
+        student: &Predictor,
+        trainset: &[Example],
+        teacher: Option<Arc<dyn Module>>,
+    ) -> Result<OptimizedPredictor, OptimizerError> {
+        let teacher = teacher.unwrap_or_else(|| Arc::new(student.clone()));
+        let mut demos = Vec::new();
+
+        for example in trainset {
+            let pred = teacher.forward(example.inputs.clone()).await?;
+
+            if (self.metric)(example, &pred)? {
+                demos.push(Demonstration {
+                    inputs: example.inputs.clone(),
+                    outputs: pred,
+                });
+            }
+        }
+
+        Ok(OptimizedPredictor::new(
+            student.clone(),
+            demos,
+        ))
+    }
+}
+
+// Usage
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let metric = Arc::new(|example: &Example, output: &HashMap<String, Value>| {
+        Ok(example.outputs.get("answer") == output.get("answer"))
+    });
+
+    let optimizer = CustomOptimizer::new(metric);
+    let optimized = optimizer.compile(&student, &trainset, None).await?;
+
+    Ok(())
+}
+```
+
+### Example: Streaming Responses
+
+**Python DSPy**:
+```python
+import dspy
+
+class StreamingModule(dspy.Module):
+    async def forward(self, question):
+        async for chunk in self.predictor.stream(question=question):
+            yield chunk
+
+# Usage
+async for chunk in module.forward(question="..."):
+    print(chunk, end="", flush=True)
+```
+
+**Rust ggen-dspy**:
+```rust
+use futures::stream::{Stream, StreamExt};
+use std::pin::Pin;
+
+struct StreamingModule {
+    predictor: Predictor,
+    signature: Signature,
+}
+
+impl StreamingModule {
+    async fn forward_stream(
+        &self,
+        inputs: HashMap<String, Value>,
+    ) -> Pin<Box<dyn Stream<Item = Result<String, ModuleError>> + Send>> {
+        // Implementation depends on LLM client streaming support
+        // This is a conceptual example
+        Box::pin(futures::stream::iter(vec![
+            Ok("Hello".to_string()),
+            Ok(" world".to_string()),
+        ]))
+    }
+}
+
+// Usage
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let module = StreamingModule::new();
+    let mut stream = module.forward_stream(inputs).await;
+
+    while let Some(chunk) = stream.next().await {
+        match chunk {
+            Ok(text) => print!("{}", text),
+            Err(e) => eprintln!("Error: {}", e),
+        }
+    }
+
+    Ok(())
+}
+```
+
+### Example: Parallel Module Execution
+
+**Python DSPy**:
+```python
+import asyncio
+import dspy
+
+async def parallel_execution(modules, inputs):
+    tasks = [module(**inputs) for module in modules]
+    results = await asyncio.gather(*tasks)
+    return results
+
+# Usage
+results = asyncio.run(parallel_execution([module1, module2, module3], inputs))
+```
+
+**Rust ggen-dspy**:
+```rust
+use futures::future::try_join_all;
+
+async fn parallel_execution(
+    modules: &[Arc<dyn Module>],
+    inputs: HashMap<String, Value>,
+) -> Result<Vec<HashMap<String, Value>>, ModuleError> {
+    let futures: Vec<_> = modules
+        .iter()
+        .map(|m| m.forward(inputs.clone()))
+        .collect();
+
+    try_join_all(futures).await
+}
+
+// Usage
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let modules: Vec<Arc<dyn Module>> = vec![
+        Arc::new(module1),
+        Arc::new(module2),
+        Arc::new(module3),
+    ];
+
+    let results = parallel_execution(&modules, inputs).await?;
+
+    for (i, result) in results.iter().enumerate() {
+        println!("Module {}: {:?}", i + 1, result);
+    }
+
+    Ok(())
+}
+```
+
+---
+
+## Performance Comparison
+
+| Aspect | Python DSPy | Rust ggen-dspy |
+|--------|------------|----------------|
+| **Cold Start** | ~200ms (import time) | ~10ms (compiled binary) |
+| **Memory Overhead** | ~50MB (Python interpreter) | ~2-5MB (Rust runtime) |
+| **Async Performance** | GIL limitations | True parallelism |
+| **Type Checking** | Runtime (optional) | Compile-time (mandatory) |
+| **Error Detection** | Runtime exceptions | Compile-time errors |
+| **Binary Size** | N/A (interpreted) | ~5-10MB (optimized) |
+| **Concurrency** | asyncio (single-threaded) | Tokio (multi-threaded) |
+
+---
+
 ## Next Steps
 
 1. Read [GGEN_DSPY_GUIDE.md](/home/user/ggen/docs/GGEN_DSPY_GUIDE.md) for comprehensive Rust guide
