@@ -4,12 +4,11 @@
 //! with support for hierarchical progress and ETA estimation.
 
 use super::tasks::{Task, TaskStatus};
-use crate::error::Result;
 use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 /// Progress tracker for monitoring task execution
 #[derive(Debug)]

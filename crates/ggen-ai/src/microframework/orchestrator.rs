@@ -3,44 +3,38 @@
 //! The central coordinator for the microframework.
 
 use super::agents::MicroAgent;
-use super::progress::{ProgressTracker, TaskProgress};
+use super::progress::ProgressTracker;
 use super::task_graph::TaskGraph;
-use super::tasks::{Task, TaskResult, TaskStatus};
+use super::tasks::{Task, TaskResult};
 use super::MicroframeworkConfig;
 use crate::error::{GgenAiError, Result};
-use crate::hyper_concurrent::{
-    AgentExecutionResult, CircuitBreaker, ConcurrencyMetrics, HyperConcurrentConfig,
-    HyperConcurrentExecutor,
-};
 use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use tracing::{debug, info, warn};
+use tracing::{debug, info};
 
 /// Agent orchestrator for managing parallel agent execution
 #[derive(Debug)]
 pub struct AgentOrchestrator {
     /// Configuration
+    #[allow(dead_code)]
     config: MicroframeworkConfig,
-    /// Hyper-concurrent executor
-    executor: Arc<HyperConcurrentExecutor>,
     /// Registered agents
     agents: DashMap<String, Arc<dyn MicroAgent>>,
     /// Progress tracker
     progress: Arc<ProgressTracker>,
     /// Task graph for dependencies
     task_graph: Arc<RwLock<TaskGraph>>,
-    /// Circuit breaker for agents
-    circuit_breaker: Arc<CircuitBreaker>,
-    /// Metrics
-    metrics: Arc<ConcurrencyMetrics>,
     /// Total tasks executed
     total_tasks: AtomicU64,
     /// Successful tasks
     successful_tasks: AtomicU64,
+    /// Total execution time
+    total_duration_ms: AtomicU64,
+    /// Active executions count
+    active_executions: Arc<AtomicU64>,
 }
 
 impl AgentOrchestrator {
@@ -51,26 +45,14 @@ impl AgentOrchestrator {
 
     /// Create with custom configuration
     pub fn with_config(config: MicroframeworkConfig) -> Self {
-        let hyper_config = HyperConcurrentConfig {
-            max_agents: config.max_agents,
-            enable_work_stealing: config.enable_work_stealing,
-            enable_circuit_breaker: config.enable_circuit_breaker,
-            enable_backpressure: config.enable_backpressure,
-            agent_timeout_secs: config.default_timeout_secs,
-            circuit_breaker_threshold: 5,
-            backpressure_queue_size: 100,
-            metrics_enabled: config.enable_metrics,
-        };
-
         Self {
-            executor: Arc::new(HyperConcurrentExecutor::new(hyper_config)),
             agents: DashMap::new(),
             progress: Arc::new(ProgressTracker::new()),
             task_graph: Arc::new(RwLock::new(TaskGraph::new())),
-            circuit_breaker: Arc::new(CircuitBreaker::new(5)),
-            metrics: Arc::new(ConcurrencyMetrics::new()),
             total_tasks: AtomicU64::new(0),
             successful_tasks: AtomicU64::new(0),
+            total_duration_ms: AtomicU64::new(0),
+            active_executions: Arc::new(AtomicU64::new(0)),
             config,
         }
     }
@@ -98,7 +80,7 @@ impl AgentOrchestrator {
         results
             .into_iter()
             .next()
-            .ok_or_else(|| GgenAiError::internal("No result returned"))
+            .ok_or_else(|| GgenAiError::orchestration("No result returned"))
     }
 
     /// Execute multiple tasks in parallel (up to 10)
@@ -111,85 +93,76 @@ impl AgentOrchestrator {
             self.progress.track_task(task);
         }
 
-        // Prepare execution closures
-        let mut executions: Vec<(String, _)> = Vec::new();
+        // Execute tasks in parallel using tokio
+        let mut handles = Vec::new();
 
         for task in tasks {
-            let task_id = task.id.clone();
             let agents = self.agents.clone();
             let progress = Arc::clone(&self.progress);
-            let metrics = Arc::clone(&self.metrics);
+            let active = Arc::clone(&self.active_executions);
 
-            let execution = move || {
-                let task = task;
-                let agents = agents;
-                let progress = progress;
-                let metrics = metrics;
+            let handle = tokio::spawn(async move {
+                active.fetch_add(1, Ordering::Relaxed);
+                let start = std::time::Instant::now();
 
-                async move {
-                    let start = std::time::Instant::now();
+                // Find an agent that can handle this task
+                let agent = agents
+                    .iter()
+                    .find(|entry| entry.value().can_handle(&task))
+                    .map(|entry| Arc::clone(entry.value()));
 
-                    // Find an agent that can handle this task
-                    let agent = agents
-                        .iter()
-                        .find(|entry| entry.value().can_handle(&task))
-                        .map(|entry| Arc::clone(entry.value()));
-
-                    let result = match agent {
-                        Some(agent) => {
-                            progress.start_task(&task.id);
-                            match agent.execute(&task).await {
-                                Ok(result) => {
-                                    progress.complete_task(&task.id, result.is_success());
-                                    metrics.record_success(start.elapsed().as_millis() as u64);
-                                    Ok(result)
-                                }
-                                Err(e) => {
-                                    progress.complete_task(&task.id, false);
-                                    metrics.record_failure(start.elapsed().as_millis() as u64);
-                                    Ok(TaskResult::failure(
-                                        task.id.clone(),
-                                        e.to_string(),
-                                        start.elapsed().as_millis() as u64,
-                                    ))
-                                }
+                let result = match agent {
+                    Some(agent) => {
+                        progress.start_task(&task.id);
+                        match agent.execute(&task).await {
+                            Ok(result) => {
+                                progress.complete_task(&task.id, result.is_success());
+                                result
+                            }
+                            Err(e) => {
+                                progress.complete_task(&task.id, false);
+                                TaskResult::failure(
+                                    task.id.clone(),
+                                    e.to_string(),
+                                    start.elapsed().as_millis() as u64,
+                                )
                             }
                         }
-                        None => {
-                            progress.complete_task(&task.id, false);
-                            Ok(TaskResult::failure(
-                                task.id.clone(),
-                                "No agent found for task type".to_string(),
-                                0,
-                            ))
-                        }
-                    };
+                    }
+                    None => {
+                        progress.complete_task(&task.id, false);
+                        TaskResult::failure(
+                            task.id.clone(),
+                            "No agent found for task type".to_string(),
+                            0,
+                        )
+                    }
+                };
 
-                    result
-                }
-            };
+                active.fetch_sub(1, Ordering::Relaxed);
+                result
+            });
 
-            executions.push((task_id, execution));
+            handles.push(handle);
         }
 
-        // Execute in parallel using hyper-concurrent executor
-        let execution_results = self.executor.execute_parallel(executions).await;
-
-        // Convert results
+        // Wait for all tasks to complete
         let mut results = Vec::with_capacity(task_count);
-        for exec_result in execution_results {
-            match exec_result.value {
-                Some(task_result) => {
-                    if task_result.is_success() {
+        for handle in handles {
+            match handle.await {
+                Ok(result) => {
+                    if result.is_success() {
                         self.successful_tasks.fetch_add(1, Ordering::Relaxed);
                     }
-                    results.push(task_result);
+                    self.total_duration_ms
+                        .fetch_add(result.duration_ms, Ordering::Relaxed);
+                    results.push(result);
                 }
-                None => {
+                Err(e) => {
                     results.push(TaskResult::failure(
-                        exec_result.agent_id,
-                        exec_result.error.unwrap_or_else(|| "Unknown error".to_string()),
-                        exec_result.duration_ms,
+                        "unknown".to_string(),
+                        format!("Task panicked: {}", e),
+                        0,
                     ));
                 }
             }
@@ -259,20 +232,25 @@ impl AgentOrchestrator {
 
     /// Get orchestrator statistics
     pub fn statistics(&self) -> OrchestratorStats {
-        let executor_metrics = self.executor.metrics();
+        let total = self.total_tasks.load(Ordering::Relaxed);
+        let successful = self.successful_tasks.load(Ordering::Relaxed);
+        let total_duration = self.total_duration_ms.load(Ordering::Relaxed);
 
         OrchestratorStats {
             registered_agents: self.agents.len(),
-            total_tasks: self.total_tasks.load(Ordering::Relaxed),
-            successful_tasks: self.successful_tasks.load(Ordering::Relaxed),
-            active_executions: executor_metrics.active_executions,
-            success_rate: if self.total_tasks.load(Ordering::Relaxed) > 0 {
-                self.successful_tasks.load(Ordering::Relaxed) as f64
-                    / self.total_tasks.load(Ordering::Relaxed) as f64
+            total_tasks: total,
+            successful_tasks: successful,
+            active_executions: self.active_executions.load(Ordering::Relaxed) as usize,
+            success_rate: if total > 0 {
+                successful as f64 / total as f64
             } else {
                 1.0
             },
-            avg_execution_time_ms: executor_metrics.avg_execution_time_ms,
+            avg_execution_time_ms: if total > 0 {
+                total_duration as f64 / total as f64
+            } else {
+                0.0
+            },
         }
     }
 

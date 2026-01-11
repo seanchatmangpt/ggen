@@ -190,7 +190,7 @@ impl CodeGeneratorAgent {
     async fn generate_code_for_language(
         &self,
         template_content: &str,
-        language: &str,
+        _language: &str,
         lang_config: &LanguageConfig,
         context: &HashMap<String, String>
     ) -> Result<String> {
@@ -223,9 +223,11 @@ impl CodeGeneratorAgent {
     }
 
     /// Generate appropriate file path for generated code
-    fn generate_file_path(&self, template_name: &str, language: &str, lang_config: &LanguageConfig) -> String {
-        let extension = lang_config.extensions.first().unwrap_or(&"txt".to_string());
-        let output_dir = self.code_context.output_paths.first().unwrap_or(&"generated".to_string());
+    fn generate_file_path(&self, template_name: &str, _language: &str, lang_config: &LanguageConfig) -> String {
+        let default_ext = "txt".to_string();
+        let default_path = "generated".to_string();
+        let extension = lang_config.extensions.first().unwrap_or(&default_ext);
+        let output_dir = self.code_context.output_paths.first().unwrap_or(&default_path);
 
         format!("{}/{}.{}", output_dir, template_name, extension)
     }
