@@ -1,0 +1,324 @@
+# E-commerce Microservices Domain Model
+# Comprehensive RDF/Turtle representation of the domain
+
+@prefix ex: <https://example.com/microservices/> .
+@prefix schema: <http://schema.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Core Domain Entities
+ex:User a schema:Person ;
+    rdfs:label "User" ;
+    rdfs:comment "A user of the e-commerce platform" ;
+    schema:hasProperty ex:userId, ex:email, ex:passwordHash, ex:firstName, ex:lastName, ex:phoneNumber, ex:address, ex:createdAt, ex:updatedAt, ex:isActive .
+
+ex:Product a schema:Product ;
+    rdfs:label "Product" ;
+    rdfs:comment "A product in the catalog" ;
+    schema:hasProperty ex:productId, ex:name, ex:description, ex:price, ex:category, ex:inventory, ex:sku, ex:images, ex:specifications, ex:createdAt, ex:updatedAt .
+
+ex:Order a schema:Order ;
+    rdfs:label "Order" ;
+    rdfs:comment "A customer order" ;
+    schema:hasProperty ex:orderId, ex:userId, ex:status, ex:totalAmount, ex:items, ex:shippingAddress, ex:billingAddress, ex:paymentMethod, ex:createdAt, ex:updatedAt .
+
+ex:OrderItem a schema:OrderItem ;
+    rdfs:label "Order Item" ;
+    rdfs:comment "An item within an order" ;
+    schema:hasProperty ex:orderItemId, ex:orderId, ex:productId, ex:quantity, ex:unitPrice, ex:totalPrice .
+
+ex:Payment a schema:Payment ;
+    rdfs:label "Payment" ;
+    rdfs:comment "A payment transaction" ;
+    schema:hasProperty ex:paymentId, ex:orderId, ex:amount, ex:method, ex:status, ex:transactionId, ex:processedAt, ex:failedAt .
+
+ex:Category a schema:Category ;
+    rdfs:label "Category" ;
+    rdfs:comment "A product category" ;
+    schema:hasProperty ex:categoryId, ex:name, ex:description, ex:parentCategory, ex:createdAt .
+
+# Service Architecture
+ex:ApiGateway a ex:Service ;
+    rdfs:label "API Gateway" ;
+    rdfs:comment "Main entry point for all API requests" ;
+    ex:framework "axum" ;
+    ex:port 8080 ;
+    ex:dependsOn ex:UserService, ex:ProductService, ex:OrderService, ex:PaymentService ;
+    ex:handles ex:routing, ex:loadBalancing, ex:rateLimiting, ex:authentication .
+
+ex:UserService a ex:Service ;
+    rdfs:label "User Service" ;
+    rdfs:comment "Manages user accounts and profiles" ;
+    ex:framework "actix-web" ;
+    ex:port 8081 ;
+    ex:dependsOn ex:AuthService ;
+    ex:manages ex:User ;
+    ex:handles ex:userRegistration, ex:userLogin, ex:profileManagement, ex:userDeletion .
+
+ex:ProductService a ex:Service ;
+    rdfs:label "Product Service" ;
+    rdfs:comment "Manages product catalog and inventory" ;
+    ex:framework "warp" ;
+    ex:port 8082 ;
+    ex:manages ex:Product, ex:Category ;
+    ex:handles ex:productSearch, ex:inventoryManagement, ex:catalogManagement .
+
+ex:AuthService a ex:Service ;
+    rdfs:label "Authentication Service" ;
+    rdfs:comment "Handles authentication and authorization" ;
+    ex:framework "tonic" ;
+    ex:port 8083 ;
+    ex:protocol "grpc" ;
+    ex:handles ex:tokenGeneration, ex:tokenValidation, ex:permissionChecking .
+
+ex:OrderService a ex:Service ;
+    rdfs:label "Order Service" ;
+    rdfs:comment "Manages order processing and fulfillment" ;
+    ex:framework "axum" ;
+    ex:port 8084 ;
+    ex:dependsOn ex:UserService, ex:ProductService, ex:PaymentService ;
+    ex:manages ex:Order, ex:OrderItem ;
+    ex:handles ex:orderCreation, ex:orderStatusUpdate, ex:orderCancellation .
+
+ex:PaymentService a ex:Service ;
+    rdfs:label "Payment Service" ;
+    rdfs:comment "Handles payment processing" ;
+    ex:framework "actix-web" ;
+    ex:port 8085 ;
+    ex:dependsOn ex:OrderService ;
+    ex:manages ex:Payment ;
+    ex:handles ex:paymentProcessing, ex:refundProcessing, ex:paymentVerification .
+
+# Data Properties
+ex:userId a rdf:Property ;
+    rdfs:label "User ID" ;
+    rdfs:domain ex:User ;
+    rdfs:range xsd:string .
+
+ex:email a rdf:Property ;
+    rdfs:label "Email" ;
+    rdfs:domain ex:User ;
+    rdfs:range xsd:string .
+
+ex:passwordHash a rdf:Property ;
+    rdfs:label "Password Hash" ;
+    rdfs:domain ex:User ;
+    rdfs:range xsd:string .
+
+ex:firstName a rdf:Property ;
+    rdfs:label "First Name" ;
+    rdfs:domain ex:User ;
+    rdfs:range xsd:string .
+
+ex:lastName a rdf:Property ;
+    rdfs:label "Last Name" ;
+    rdfs:domain ex:User ;
+    rdfs:range xsd:string .
+
+ex:phoneNumber a rdf:Property ;
+    rdfs:label "Phone Number" ;
+    rdfs:domain ex:User ;
+    rdfs:range xsd:string .
+
+ex:address a rdf:Property ;
+    rdfs:label "Address" ;
+    rdfs:domain ex:User ;
+    rdfs:range xsd:string .
+
+ex:createdAt a rdf:Property ;
+    rdfs:label "Created At" ;
+    rdfs:range xsd:dateTime .
+
+ex:updatedAt a rdf:Property ;
+    rdfs:label "Updated At" ;
+    rdfs:range xsd:dateTime .
+
+ex:isActive a rdf:Property ;
+    rdfs:label "Is Active" ;
+    rdfs:range xsd:boolean .
+
+ex:productId a rdf:Property ;
+    rdfs:label "Product ID" ;
+    rdfs:domain ex:Product ;
+    rdfs:range xsd:string .
+
+ex:name a rdf:Property ;
+    rdfs:label "Name" ;
+    rdfs:range xsd:string .
+
+ex:description a rdf:Property ;
+    rdfs:label "Description" ;
+    rdfs:range xsd:string .
+
+ex:price a rdf:Property ;
+    rdfs:label "Price" ;
+    rdfs:range xsd:decimal .
+
+ex:category a rdf:Property ;
+    rdfs:label "Category" ;
+    rdfs:range xsd:string .
+
+ex:inventory a rdf:Property ;
+    rdfs:label "Inventory" ;
+    rdfs:range xsd:integer .
+
+ex:sku a rdf:Property ;
+    rdfs:label "SKU" ;
+    rdfs:range xsd:string .
+
+ex:images a rdf:Property ;
+    rdfs:label "Images" ;
+    rdfs:range xsd:string .
+
+ex:specifications a rdf:Property ;
+    rdfs:label "Specifications" ;
+    rdfs:range xsd:string .
+
+ex:orderId a rdf:Property ;
+    rdfs:label "Order ID" ;
+    rdfs:domain ex:Order ;
+    rdfs:range xsd:string .
+
+ex:status a rdf:Property ;
+    rdfs:label "Status" ;
+    rdfs:range xsd:string .
+
+ex:totalAmount a rdf:Property ;
+    rdfs:label "Total Amount" ;
+    rdfs:range xsd:decimal .
+
+ex:items a rdf:Property ;
+    rdfs:label "Items" ;
+    rdfs:range ex:OrderItem .
+
+ex:shippingAddress a rdf:Property ;
+    rdfs:label "Shipping Address" ;
+    rdfs:range xsd:string .
+
+ex:billingAddress a rdf:Property ;
+    rdfs:label "Billing Address" ;
+    rdfs:range xsd:string .
+
+ex:paymentMethod a rdf:Property ;
+    rdfs:label "Payment Method" ;
+    rdfs:range xsd:string .
+
+ex:orderItemId a rdf:Property ;
+    rdfs:label "Order Item ID" ;
+    rdfs:domain ex:OrderItem ;
+    rdfs:range xsd:string .
+
+ex:quantity a rdf:Property ;
+    rdfs:label "Quantity" ;
+    rdfs:range xsd:integer .
+
+ex:unitPrice a rdf:Property ;
+    rdfs:label "Unit Price" ;
+    rdfs:range xsd:decimal .
+
+ex:totalPrice a rdf:Property ;
+    rdfs:label "Total Price" ;
+    rdfs:range xsd:decimal .
+
+ex:paymentId a rdf:Property ;
+    rdfs:label "Payment ID" ;
+    rdfs:domain ex:Payment ;
+    rdfs:range xsd:string .
+
+ex:amount a rdf:Property ;
+    rdfs:label "Amount" ;
+    rdfs:range xsd:decimal .
+
+ex:method a rdf:Property ;
+    rdfs:label "Method" ;
+    rdfs:range xsd:string .
+
+ex:transactionId a rdf:Property ;
+    rdfs:label "Transaction ID" ;
+    rdfs:range xsd:string .
+
+ex:processedAt a rdf:Property ;
+    rdfs:label "Processed At" ;
+    rdfs:range xsd:dateTime .
+
+ex:failedAt a rdf:Property ;
+    rdfs:label "Failed At" ;
+    rdfs:range xsd:dateTime .
+
+ex:categoryId a rdf:Property ;
+    rdfs:label "Category ID" ;
+    rdfs:domain ex:Category ;
+    rdfs:range xsd:string .
+
+ex:parentCategory a rdf:Property ;
+    rdfs:label "Parent Category" ;
+    rdfs:range ex:Category .
+
+# Service Properties
+ex:framework a rdf:Property ;
+    rdfs:label "Framework" ;
+    rdfs:range xsd:string .
+
+ex:port a rdf:Property ;
+    rdfs:label "Port" ;
+    rdfs:range xsd:integer .
+
+ex:protocol a rdf:Property ;
+    rdfs:label "Protocol" ;
+    rdfs:range xsd:string .
+
+ex:dependsOn a rdf:Property ;
+    rdfs:label "Depends On" ;
+    rdfs:range ex:Service .
+
+ex:manages a rdf:Property ;
+    rdfs:label "Manages" ;
+    rdfs:range rdfs:Class .
+
+ex:handles a rdf:Property ;
+    rdfs:label "Handles" ;
+    rdfs:range xsd:string .
+
+# Relationships
+ex:hasUser a rdf:Property ;
+    rdfs:label "Has User" ;
+    rdfs:domain ex:Order ;
+    rdfs:range ex:User .
+
+ex:hasProduct a rdf:Property ;
+    rdfs:label "Has Product" ;
+    rdfs:domain ex:OrderItem ;
+    rdfs:range ex:Product .
+
+ex:hasOrder a rdf:Property ;
+    rdfs:label "Has Order" ;
+    rdfs:domain ex:Payment ;
+    rdfs:range ex:Order .
+
+ex:belongsToCategory a rdf:Property ;
+    rdfs:label "Belongs To Category" ;
+    rdfs:domain ex:Product ;
+    rdfs:range ex:Category .
+
+# Service Dependencies Graph
+ex:ApiGateway ex:dependsOn ex:UserService .
+ex:ApiGateway ex:dependsOn ex:ProductService .
+ex:ApiGateway ex:dependsOn ex:OrderService .
+ex:ApiGateway ex:dependsOn ex:PaymentService .
+
+ex:UserService ex:dependsOn ex:AuthService .
+
+ex:OrderService ex:dependsOn ex:UserService .
+ex:OrderService ex:dependsOn ex:ProductService .
+ex:OrderService ex:dependsOn ex:PaymentService .
+
+ex:PaymentService ex:dependsOn ex:OrderService .
+
+# Entity Management
+ex:UserService ex:manages ex:User .
+ex:ProductService ex:manages ex:Product .
+ex:ProductService ex:manages ex:Category .
+ex:OrderService ex:manages ex:Order .
+ex:OrderService ex:manages ex:OrderItem .
+ex:PaymentService ex:manages ex:Payment .

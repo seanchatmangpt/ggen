@@ -9,6 +9,7 @@ use crate::swarm::{
     BaseAgent, AgentConfig, PerformanceThresholds, SystemEvent
 };
 use crate::client::{LlmClient, LlmConfig};
+use crate::providers::adapter::OllamaClient;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -99,12 +100,6 @@ impl GraphExtenderAgent {
             inference_client,
             graph_context,
         }
-    }
-
-    /// Create with default configuration for testing
-    pub fn default_config(graph_context: GraphContext) -> Self {
-        let client = Box::new(crate::providers::adapter::MockClient::with_response("test"));
-        Self::new(client, graph_context)
     }
 
 
@@ -232,7 +227,9 @@ impl SwarmAgent for GraphExtenderAgent {
         };
 
         // Infer facts from events
-        let inferred_facts = self.infer_facts_from_events(&events).await?;
+        let inferred_facts = self.execute_with_retry(|| async {
+            self.infer_facts_from_events(&events).await
+        }).await?;
 
         // Convert to output format
         let output_data = json!({

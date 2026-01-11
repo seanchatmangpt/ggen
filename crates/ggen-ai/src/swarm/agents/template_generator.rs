@@ -10,6 +10,7 @@ use crate::swarm::{
 };
 use crate::generators::TemplateGenerator;
 use crate::client::{LlmClient, LlmConfig};
+use crate::providers::adapter::OllamaClient;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -202,7 +203,7 @@ impl TemplateGeneratorAgent {
     /// Generate updated template content
     async fn generate_updated_template(&self, original: &str, graph_context: &str) -> Result<String> {
         // Use AI to regenerate template based on updated graph context
-        let _prompt = format!(
+        let prompt = format!(
             r#"You are an expert template engineer. Given an existing ggen template and updated graph context,
 regenerate the template to reflect the new domain knowledge while preserving the original structure and intent.
 

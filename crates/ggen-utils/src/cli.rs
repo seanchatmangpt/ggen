@@ -42,7 +42,6 @@ pub fn parse_variables(vars: &[String]) -> std::result::Result<BTreeMap<String, 
 mod tests {
     use super::*;
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_parse_variables_valid() {
         let vars = vec!["name=value".to_string(), "count=42".to_string()];
@@ -52,7 +51,6 @@ mod tests {
         assert_eq!(result.get("count").map(|s| s.as_str()), Some("42"));
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_parse_variables_empty() {
         let vars: Vec<String> = vec![];
@@ -61,7 +59,6 @@ mod tests {
         assert!(result.is_empty());
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_parse_variables_invalid() {
         let vars = vec!["invalid_format".to_string()];
@@ -71,7 +68,6 @@ mod tests {
         assert!(result.unwrap_err().contains("Invalid variable format"));
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_parse_variables_multiple_equals() {
         let vars = vec!["path=/usr/bin=/path".to_string()];

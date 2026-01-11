@@ -1,25 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Explanation: Ontology System Architecture](#explanation-ontology-system-architecture)
-  - [System Overview](#system-overview)
-  - [Design Principles](#design-principles)
-    - [1. Separation of Concerns](#1-separation-of-concerns)
-    - [2. Template-Driven Generation](#2-template-driven-generation)
-    - [3. Ontologies as First-Class Packs](#3-ontologies-as-first-class-packs)
-    - [4. Composition Over Hardcoding](#4-composition-over-hardcoding)
-  - [Dataflow: End-to-End](#dataflow-end-to-end)
-    - [Example: Generate TypeScript Types from Schema.org](#example-generate-typescript-types-from-schemaorg)
-  - [Key Components](#key-components)
-    - [OntologySchema (Core Data Structure)](#ontologyschema-core-data-structure)
-    - [OntologyOperation Trait](#ontologyoperation-trait)
-  - [Composition Example](#composition-example)
-  - [Scalability Characteristics](#scalability-characteristics)
-  - [Future Extensions](#future-extensions)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Explanation: Ontology System Architecture
 
 How the ontology-as-packs system is designed and why.

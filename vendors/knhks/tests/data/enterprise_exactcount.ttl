@@ -1,0 +1,18 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Enterprise Exact Count Validation Use Case
+# Precise cardinality constraints (exact count validation)
+# Test Case 7: Exact Count Validation (COUNT == k)
+# Limited to 8 triples for hot path (single predicate run)
+# Validates that users have exactly N roles (e.g., dual-role requirement)
+
+ex:alice ex:role ex:admin .
+ex:alice ex:role ex:editor .
+ex:bob ex:role ex:viewer .
+ex:bob ex:role ex:contributor .
+ex:charlie ex:role ex:admin .
+ex:charlie ex:role ex:viewer .
+ex:dave ex:role ex:editor .
+ex:dave ex:role ex:contributor .
+

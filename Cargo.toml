@@ -1,30 +1,17 @@
 [package]
 name = "ggen"
-version = "5.1.0"
+version = "3.3.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
 readme = "README.md"
 license = "MIT"
-keywords = ["code-generation", "rdf", "sparql", "ontology", "templates"]
+keywords = ["cli", "code-generation", "rdf", "templates"]
 homepage = "https://github.com/seanchatmangpt/ggen"
 categories = ["development-tools", "command-line-utilities"]
-description = "Ontology-driven code generation: Transform RDF ontologies into typed code through SPARQL queries and Tera templates"
-exclude = [
-  "docs/**/*",
-  "examples/**/*",
-  ".specify/**/*",
-  "tests/**/*",
-  "benches/**/*",
-  ".github/**/*",
-  ".git/**/*",
-  "scripts/**/*",
-  "target/**/*",
-  "*.md",
-  "*.toml.backup",
-  ".cursorrules",
-  ".gitignore",
-]
+description = """
+ggen is a deterministic, language-agnostic code generation framework that treats software artifacts as projections of knowledge graphs.
+"""
 
 [workspace]
 members = [
@@ -32,31 +19,19 @@ members = [
   "crates/ggen-cli",
   "crates/ggen-domain",
   "crates/ggen-core",
+  "crates/ggen-ai",
   "crates/ggen-config",
   "crates/ggen-cli-validation",
   "crates/ggen-config-clap",
-  "crates/ggen-marketplace",
-  "crates/ggen-test-audit",    # Feature 004: Test quality audit tooling
-  "crates/ggen-test-opt",      # Feature 004: Test optimization tooling
-  "crates/ggen-e2e",           # Feature 011: End-to-end testing with testcontainers
-  "crates/ggen-node", "crates/ggen-macros",
-  "crates/ggen-api",           # RevOps: REST API layer for monetization
-  "crates/ggen-auth",          # RevOps: Authentication (OAuth2, JWT, API keys)
-  "crates/ggen-payments",      # RevOps: Payment processing (Stripe integration)
-  "crates/ggen-saas",          # RevOps: SaaS tier management and quota enforcement
-  "crates/ggen-ai",            # AI orchestration and multi-provider LLM integration (v5.1.0)
-  "crates/ggen-dspy",          # DSPy-inspired programming framework for LLM agents
-  # KNHK Systems Integration: ETL + KGC-4D + Workflow Engine
-  "crates/knhk-etl",           # Extract-Transform-Load pipeline
-  "crates/knhk-hot",           # C FFI hot-path optimization
-  "crates/knhk-connectors",    # Connector registry (Kafka, HTTP, etc.)
-  "crates/knhk-lockchain",     # Merkle-linked receipt storage
-  "crates/knhk-otel",          # OpenTelemetry integration
-  "crates/knhk-orchestrator",  # Integration bridge (ETL → KGC-4D → Workflow)
+  "crates/ggen-marketplace-v2",
+  "examples/frontmatter-cli",
+  "examples/natural-market-search",
+  "examples/ai-template-project",
+  "crates/ggen-node", "crates/ggen-macros", "crates/ggen-dod",
   "playground",
 ]
 exclude = [
-  "examples/",
+  "examples/rust-cli-lifecycle",
   "examples/marketplace-demo/generated",
   "marketplace/packages/workflow-engine-cli",
 ]
@@ -77,8 +52,8 @@ tracing-subscriber = { version = "0.3", features = [
   "ansi",
 ] }
 clap = { version = "4.5", features = ["derive"] }
-clap-noun-verb = { version = "5.3.4", default-features = false }
-clap-noun-verb-macros = { version = "5.3.4" }
+clap-noun-verb = "5.0.0"
+clap-noun-verb-macros = "5.0.0"
 once_cell = "1.19"
 reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
 tempfile = "3.23"
@@ -93,42 +68,20 @@ serde_yaml = "0.9"
 regex = "1.12"
 rayon = "1.11"
 log = "0.4.28"
-sha2 = "0.10"
-hex = "0.4"
-
-# E2E testing with testcontainers
-testcontainers = "0.25"
-testcontainers-modules = "0.13"
-assert_cmd = "2.0"
-predicates = "3.1"
 
 # Workspace-local crates (use workspace = true pattern in workspace members)
-ggen-utils = { path = "crates/ggen-utils", version = "5.1.0" }
-ggen-core = { path = "crates/ggen-core", version = "5.1.0" }
-ggen-config = { path = "crates/ggen-config", version = "5.1.0" }
-ggen-cli-validation = { path = "crates/ggen-cli-validation", version = "5.1.0" }
-ggen-config-clap = { path = "crates/ggen-config-clap", version = "5.1.0" }
-ggen-marketplace = { path = "crates/ggen-marketplace", version = "5.1.0" }
-ggen-domain = { path = "crates/ggen-domain", version = "5.1.0" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "5.1.0" }
-ggen-node = { path = "crates/ggen-node", version = "5.1.0" }
-ggen-macros = { path = "crates/ggen-macros", version = "5.1.0" }
-ggen-test-audit = { path = "crates/ggen-test-audit", version = "5.1.0" }  # Feature 004
-ggen-test-opt = { path = "crates/ggen-test-opt", version = "5.1.0" }      # Feature 004
-ggen-api = { path = "crates/ggen-api", version = "5.1.0" }
-ggen-auth = { path = "crates/ggen-auth", version = "5.1.0" }
-ggen-payments = { path = "crates/ggen-payments", version = "5.1.0" }
-ggen-saas = { path = "crates/ggen-saas", version = "5.1.0" }
-ggen-ai = { path = "crates/ggen-ai", version = "5.1.0" }
-ggen-dspy = { path = "crates/ggen-dspy", version = "5.1.0" }
-
-# KNHK Systems (ETL + KGC-4D + Workflow Engine Integration)
-knhk-etl = { path = "crates/knhk-etl", version = "0.1.0" }
-knhk-hot = { path = "crates/knhk-hot", version = "1.0.0" }
-knhk-connectors = { path = "crates/knhk-connectors", version = "0.1.0" }
-knhk-lockchain = { path = "crates/knhk-lockchain", version = "0.1.0" }
-knhk-otel = { path = "crates/knhk-otel", version = "0.1.0" }
-knhk-orchestrator = { path = "crates/knhk-orchestrator", version = "0.1.0" }
+ggen-utils = { path = "crates/ggen-utils", version = "3.3.0" }
+ggen-core = { path = "crates/ggen-core", version = "3.3.0" }
+ggen-ai = { path = "crates/ggen-ai", version = "3.3.0" }
+ggen-config = { path = "crates/ggen-config", version = "3.3.0" }
+ggen-cli-validation = { path = "crates/ggen-cli-validation", version = "3.3.0" }
+ggen-config-clap = { path = "crates/ggen-config-clap", version = "3.3.0" }
+ggen-marketplace-v2 = { path = "crates/ggen-marketplace-v2", version = "3.0.0" }
+ggen-domain = { path = "crates/ggen-domain", version = "3.3.0" }
+ggen-cli-lib = { path = "crates/ggen-cli", version = "3.3.0" }
+ggen-node = { path = "crates/ggen-node", version = "3.3.0" }
+ggen-macros = { path = "crates/ggen-macros", version = "3.3.0" }
+ggen-dod = { path = "crates/ggen-dod", version = "3.3.0" }
 
 # OpenTelemetry dependencies
 opentelemetry = "0.21"
@@ -183,22 +136,17 @@ unimplemented = "deny"
 multiple_crate_versions = "allow"
 
 [features]
-default = []
-# Stable v3.x features
 nightly = ["ggen-utils/nightly"]
 termlog = ["ggen-utils/termlog"]
 journald = ["ggen-utils/journald"]
 syslog = ["ggen-utils/syslog"]
 london_tdd = []
-# EXPERIMENTAL: Marketplace v2 (planned for v4.0.0)
-# To enable: cargo build --features marketplace-v2
-marketplace-v2 = []
 
 [dependencies]
-ggen-utils = { path = "crates/ggen-utils", version = "5.1.0" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "5.1.0" }
-ggen-core = { path = "crates/ggen-core", version = "5.1.0" }
-ggen-domain = { path = "crates/ggen-domain", version = "5.1.0" }
+ggen-utils = { path = "crates/ggen-utils", version = "3.3.0" }
+ggen-cli-lib = { path = "crates/ggen-cli", version = "3.3.0" }
+ggen-core = { path = "crates/ggen-core", version = "3.3.0" }
+ggen-ai = { path = "crates/ggen-ai", version = "3.3.0" }
 human-panic = "2.0.3"
 better-panic = "0.3.0"
 log = "0.4.28"
@@ -335,16 +283,77 @@ harness = false
 name = "cli_startup_performance"
 harness = false
 
-[[bench]]
-name = "comprehensive_slo_benchmarks"
-harness = false
+[[test]]
+name = "testcontainer_marketplace_git_hooks"
+path = "tests/integration/testcontainer_marketplace_git_hooks.rs"
+required-features = []
 
-[[bench]]
-name = "ggen_benchmarks"
-harness = false
+[[test]]
+name = "full_cycle_container_validation"
+path = "tests/integration/full_cycle_container_validation.rs"
+required-features = []
 
-[[bench]]
-name = "schema_layer_slo"
-harness = false
+[[test]]
+name = "nextjs_ontology_sync"
+path = "tests/integration/nextjs_ontology_sync.rs"
+required-features = []
 
-# NOTE: Integration tests archived to .archive/ - only essential sync/codegen tests remain in crate src/
+[[test]]
+name = "marketplace_nextjs_ontology_e2e"
+path = "tests/integration/marketplace_nextjs_ontology_e2e.rs"
+required-features = []
+
+[[test]]
+name = "marketplace_package_e2e"
+path = "tests/integration/marketplace_package_e2e.rs"
+required-features = []
+
+[[test]]
+name = "lifecycle_tests"
+path = "tests/integration/lifecycle_tests.rs"
+required-features = []
+
+[[test]]
+name = "code_generation_tests"
+path = "tests/integration/code_generation_tests.rs"
+required-features = []
+
+[[test]]
+name = "cache_tests"
+path = "tests/integration/cache_tests.rs"
+required-features = []
+
+[[test]]
+name = "package_scoring_tests"
+path = "tests/integration/package_scoring_tests.rs"
+required-features = []
+
+[[test]]
+name = "lifecycle_simple_tests"
+path = "tests/integration/lifecycle_simple_tests.rs"
+required-features = []
+
+[[test]]
+name = "config_integration_test"
+path = "tests/integration/config/config_integration_test.rs"
+required-features = []
+
+[[test]]
+name = "config_performance_tests"
+path = "tests/integration/config/performance_tests.rs"
+required-features = []
+
+[[test]]
+name = "gemba_walk_verification"
+path = "tests/integration/gemba_walk_verification.rs"
+required-features = []
+
+[[test]]
+name = "fmea_risk_assessment"
+path = "tests/integration/fmea_risk_assessment.rs"
+required-features = []
+
+[[test]]
+name = "poka_yoke_patterns"
+path = "tests/integration/poka_yoke_patterns.rs"
+required-features = []

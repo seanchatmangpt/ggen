@@ -1,10 +1,12 @@
-use crate::ontology::SigmaSnapshot;
 use serde::{Deserialize, Serialize};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, RwLock};
+use thiserror::Error;
+
+use crate::ontology::SigmaSnapshot;
 
 /// Errors that can occur during snapshot promotion
-#[derive(Debug, thiserror::Error)]
+#[derive(Error, Debug)]
 pub enum PromotionError {
     /// RwLock was poisoned
     #[error("Lock poisoned: {0}")]
@@ -249,7 +251,6 @@ mod tests {
         assert_eq!(metrics.total_promotions, 1);
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_multiple_promotions() {
         let snap1 = create_test_snapshot("1.0.0");
@@ -267,7 +268,6 @@ mod tests {
         assert_eq!(metrics.total_promotions, 4);
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     #[allow(clippy::expect_used)]
     fn test_concurrent_reads() {
@@ -326,7 +326,6 @@ mod tests {
         assert_eq!(guard2.snapshot().version, "2.0.0");
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     #[allow(clippy::expect_used)]
     fn test_safe_concurrent_promotion_and_reads() {

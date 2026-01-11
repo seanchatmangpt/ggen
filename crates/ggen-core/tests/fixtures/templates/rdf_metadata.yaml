@@ -1,0 +1,23 @@
+---
+to: "generated/{{component_name}}.rs"
+vars:
+  component_name: "user_controller"
+prefixes:
+  ex: "http://example.org/"
+  ggen: "http://ggen.io/ontology/"
+base: "http://example.org/"
+rdf_inline:
+  - "ex:{{component_name}} a ggen:Component ."
+  - "ex:{{component_name}} ggen:generatesFile 'generated/{{component_name}}.rs' ."
+  - "ex:{{component_name}} ggen:language 'rust' ."
+  - "ex:{{component_name}} ggen:framework 'axum' ."
+sparql:
+  count_components: "SELECT (COUNT(?c) as ?count) WHERE { ?c a ggen:Component }"
+  get_files: "SELECT ?file WHERE { ?c ggen:generatesFile ?file }"
+---
+// Component: {{component_name}}
+// Generated files: {{ sparql_results.count_components }}
+
+pub struct {{component_name | capitalize}} {
+    // Implementation
+}

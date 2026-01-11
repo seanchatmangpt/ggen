@@ -1,0 +1,17 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Enterprise Simple Lookups Use Case
+# Single predicate property value retrieval
+# Test Case 5: Simple Lookups (5% of runtime)
+# Limited to 8 triples for hot path (single predicate run)
+# Fast property value lookups for configuration and metadata
+
+ex:config1 ex:property "production" .
+ex:config1 ex:property "region-us-east" .
+ex:config2 ex:property "staging" .
+ex:config3 ex:property "region-eu-west" .
+ex:config4 ex:property "development" .
+ex:config5 ex:property "region-ap-south" .
+ex:config6 ex:property "testing" .
+ex:config7 ex:property "region-us-west" .

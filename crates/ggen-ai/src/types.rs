@@ -254,7 +254,6 @@ mod tests {
         assert_eq!(id.to_string(), "test-policy-123");
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_policy_id_conversions() {
         let id = PolicyId::from("test-id");
@@ -264,7 +263,6 @@ mod tests {
         assert_eq!(id_from_string.as_str(), "another-id");
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_request_id_creation() {
         let id1 = RequestId::new();
@@ -272,7 +270,6 @@ mod tests {
         assert_ne!(id1, id2, "Each new RequestId should be unique");
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_request_id_from_string() {
         let id_str = "test-request-456".to_string();
@@ -280,7 +277,6 @@ mod tests {
         assert_eq!(id.as_str(), "test-request-456");
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_rule_id_creation() {
         let id1 = RuleId::new();
@@ -288,7 +284,6 @@ mod tests {
         assert_ne!(id1, id2, "Each new RuleId should be unique");
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_decision_id_creation() {
         let id1 = DecisionId::new();
@@ -296,7 +291,6 @@ mod tests {
         assert_ne!(id1, id2, "Each new DecisionId should be unique");
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_serialization() {
         let id = PolicyId::from("test-id");

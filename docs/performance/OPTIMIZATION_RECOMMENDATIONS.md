@@ -1,35 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Swarm Performance Optimization Recommendations](#swarm-performance-optimization-recommendations)
-  - [Priority Matrix (80/20 Focus)](#priority-matrix-8020-focus)
-    - [Tier 1: Critical Path Optimizations (Implement First)](#tier-1-critical-path-optimizations-implement-first)
-      - [1. Hash-Based Conflict Detection](#1-hash-based-conflict-detection)
-      - [2. Parallel Agent Spawning](#2-parallel-agent-spawning)
-      - [3. Snapshot Read Optimization with Crossbeam Epoch](#3-snapshot-read-optimization-with-crossbeam-epoch)
-    - [Tier 2: High-Impact Optimizations (Implement After Tier 1)](#tier-2-high-impact-optimizations-implement-after-tier-1)
-      - [4. Pipeline Stage Batching](#4-pipeline-stage-batching)
-      - [5. Agent Memory Pooling](#5-agent-memory-pooling)
-    - [Tier 3: Incremental Optimizations (Nice to Have)](#tier-3-incremental-optimizations-nice-to-have)
-      - [6. Adaptive Timeout Tuning](#6-adaptive-timeout-tuning)
-      - [7. Artifact Serialization Optimization](#7-artifact-serialization-optimization)
-      - [8. Memory-Mapped Snapshot Storage](#8-memory-mapped-snapshot-storage)
-  - [Implementation Roadmap](#implementation-roadmap)
-    - [Week 1: Critical Path (Tier 1)](#week-1-critical-path-tier-1)
-    - [Week 2: High-Impact (Tier 2)](#week-2-high-impact-tier-2)
-    - [Week 3: Lock-Free & Polish (Tier 1 & 2)](#week-3-lock-free--polish-tier-1--2)
-    - [Month 2+: Incremental (Tier 3)](#month-2-incremental-tier-3)
-  - [Validation Strategy](#validation-strategy)
-    - [Performance Regression Tests](#performance-regression-tests)
-    - [Continuous Monitoring](#continuous-monitoring)
-  - [Success Metrics](#success-metrics)
-    - [Tier 1 Success Criteria](#tier-1-success-criteria)
-    - [Tier 2 Success Criteria](#tier-2-success-criteria)
-    - [Overall Success](#overall-success)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Swarm Performance Optimization Recommendations
 
 ## Priority Matrix (80/20 Focus)

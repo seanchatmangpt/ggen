@@ -1,0 +1,13 @@
+@prefix db: <https://example.org/db/> .
+@prefix schema: <http://schema.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+db:Table a rdfs:Class ;
+    rdfs:label "Database Table" .
+
+db:Column a rdfs:Class ;
+    rdfs:label "Table Column" .
+
+db:hasColumn a rdf:Property ;
+    rdfs:domain db:Table ;
+    rdfs:range db:Column .

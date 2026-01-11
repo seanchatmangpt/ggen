@@ -1,0 +1,46 @@
+[package]
+name = "maturity-matrix-showcase"
+version = "1.0.0"
+description = "Complete showcase of all 5 maturity levels from simple to enterprise"
+authors = ["ggen-team"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/seanchatmangpt/ggen"
+keywords = ["maturity", "showcase", "examples", "enterprise", "scaling"]
+categories = ["examples", "showcase", "tutorial"]
+
+[marketplace]
+category = "examples"
+subcategory = "showcase"
+tags = ["maturity", "levels", "scaling", "enterprise", "examples"]
+crates_io_ready = true
+production_ready = true
+
+[features]
+level1 = ["Simple file generation (1-10 files)"]
+level2 = ["Small project (10-100 files)"]
+level3 = ["Medium project (100-1,000 files)"]
+level4 = ["Large project (1,000-10,000 files)"]
+level5 = ["Enterprise (10,000+ files)"]
+
+[ontology]
+file = "level1-simple/ontology.ttl"
+namespace = "http://ggen.io/ontology/maturity-matrix#"
+
+[templates]
+level1 = "level1-simple/template.tmpl"
+level2 = "level2-small/templates/"
+level3 = "level3-medium/templates/"
+level4 = "level4-large/templates/"
+level5 = "level5-enterprise/templates/"
+
+[examples]
+level1 = "cd level1-simple && ggen template generate template.tmpl"
+level2 = "cd level2-small && ggen template generate templates/"
+level3 = "cd level3-medium && ggen lifecycle run"
+level4 = "cd level4-large && ggen lifecycle run --incremental"
+level5 = "cd level5-enterprise && ggen lifecycle run --distributed"
+
+[documentation]
+readme = "README.md"
+migration_guide = "MIGRATION_GUIDE.md"
+

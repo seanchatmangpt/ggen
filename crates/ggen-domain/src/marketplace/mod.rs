@@ -4,20 +4,19 @@
 //!
 //! # Architecture
 //!
-//! NOTE: The CLI (`crates/ggen-cli/src/cmds/marketplace.rs`) uses `ggen-marketplace`
-//! directly and bypasses this domain layer for marketplace operations.
+//! The marketplace supports both legacy (v1) and RDF-backed (v2) implementations
+//! through the `MarketplaceRegistry` adapter trait, enabling gradual migration
+//! and parallel execution for validation.
 //!
-//! This module contains:
-//! - `adapter`: Legacy trait (not used by CLI, kept for reference)
-//! - `registry`: Legacy registry implementation
-//! - `search`: Legacy search implementation
+//! - `adapter`: Unified trait for multiple backend implementations
+//! - `registry`: Legacy v1 marketplace registry
+//! - `search`: Legacy v1 search implementation
 //! - `packs`: GGEN Packs command implementation
 //! - `packs_services`: Core services for package management
 
 pub mod adapter;
 pub mod artifact_generator;
 pub mod bundles;
-pub mod fmea_validator; // Enterprise FMEA validation for Fortune 500 packages
 pub mod guards;
 pub mod hook;
 pub mod install;
@@ -36,6 +35,7 @@ pub mod search;
 pub mod search_advanced;
 pub mod types; // Poka-yoke types for error prevention
 pub mod update;
+pub mod v2_adapter;
 pub mod validate;
 
 #[cfg(test)]
@@ -75,12 +75,6 @@ pub use types::{Checksum, NonEmptyQuery, SemanticVersion, ValidatedPackageName};
 // ============================================================================
 // INTERNAL SUPPORTING TYPES (Still exported for cross-module use, but not primary API)
 // ============================================================================
-
-// FMEA validation (enterprise-grade package validation)
-pub use fmea_validator::{
-    FmeaCategory, FmeaCheck, FmeaCheckResult, FmeaValidationReport, FmeaValidator,
-    FmeaValidatorError,
-};
 
 // Validation infrastructure (internal, but needed by multiple modules)
 pub use guards::{Guard, GuardCheckResult, ValidationReceipt};

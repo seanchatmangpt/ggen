@@ -1,33 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [How-to: Implement Andon System](#how-to-implement-andon-system)
-  - [Prerequisites](#prerequisites)
-  - [Problem Statement](#problem-statement)
-  - [Step 1: Define Alert Thresholds](#step-1-define-alert-thresholds)
-    - [Andon Levels](#andon-levels)
-  - [Step 2: Implement CI Detection Script](#step-2-implement-ci-detection-script)
-    - [Create Andon Check Script](#create-andon-check-script)
-  - [Step 3: Integrate with CI/CD](#step-3-integrate-with-cicd)
-    - [GitHub Actions](#github-actions)
-    - [GitLab CI](#gitlab-ci)
-  - [Step 4: Configure Notifications](#step-4-configure-notifications)
-    - [Slack Integration](#slack-integration)
-    - [Email Alerts](#email-alerts)
-  - [Step 5: Response Playbook](#step-5-response-playbook)
-    - [Yellow Andon Response (1-5 Failures)](#yellow-andon-response-1-5-failures)
-    - [Red Andon Response (6+ Failures)](#red-andon-response-6-failures)
-  - [Step 6: Dashboard Visualization](#step-6-dashboard-visualization)
-    - [Create Andon Status Page](#create-andon-status-page)
-  - [Verification Checklist](#verification-checklist)
-  - [Common Pitfalls](#common-pitfalls)
-    - [Pitfall 1: Alert Fatigue](#pitfall-1-alert-fatigue)
-    - [Pitfall 2: False Positives from Flaky Tests](#pitfall-2-false-positives-from-flaky-tests)
-  - [Related Guides](#related-guides)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # How-to: Implement Andon System
 
 **Set up rapid failure detection with yellow (1-5 failures) and red (6+) alerts**

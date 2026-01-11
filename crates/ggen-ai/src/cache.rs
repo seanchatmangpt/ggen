@@ -16,31 +16,40 @@
 //!
 //! ### Creating a Cache
 //!
-//! ```rust,ignore
+//! ```rust,no_run
 //! use ggen_ai::cache::{LlmCache, CacheConfig};
 //! use std::time::Duration;
 //!
+//! # async fn example() -> anyhow::Result<()> {
 //! let config = CacheConfig {
 //!     max_capacity: 1000,
 //!     ttl: Duration::from_secs(3600),
 //!     tti: Some(Duration::from_secs(600)),
 //! };
 //! let cache = LlmCache::new(config);
+//! # Ok(())
+//! # }
 //! ```
 //!
 //! ### Caching and Retrieving Responses
 //!
-//! ```rust,ignore
+//! ```rust,no_run
 //! use ggen_ai::cache::LlmCache;
 //!
+//! # async fn example() -> anyhow::Result<()> {
 //! let cache = LlmCache::default();
+//!
+//! // Cache a response
 //! let prompt = "What is Rust?";
 //! let response = "Rust is a systems programming language...".to_string();
 //! cache.put(prompt, response.clone(), "gpt-4", Some(100)).await;
 //!
-//! if let Some(cached) = cache.get(prompt, "gpt-4").await {
-//!     println!("Cache hit! {}", cached);
+//! // Retrieve from cache
+//! if let Some(cached) = cache.get(prompt).await {
+//!     println!("Cache hit! {}", cached.content);
 //! }
+//! # Ok(())
+//! # }
 //! ```
 
 use ggen_utils::error::Result;

@@ -1,0 +1,21 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ex: <http://example.org/maturity-matrix/level5/shared/core#> .
+
+# Level 5: Enterprise - Shared Core Ontology (20,000+ triples)
+# Federated ontology for enterprise multi-tenant system
+
+ex:EnterpriseModel a rdfs:Class ;
+    rdfs:label "Enterprise Model" .
+
+ex:Tenant a rdfs:Class ;
+    rdfs:subClassOf ex:EnterpriseModel ;
+    rdfs:label "Tenant" .
+
+ex:SharedResource a rdfs:Class ;
+    rdfs:subClassOf ex:EnterpriseModel ;
+    rdfs:label "Shared Resource" .
+
+# Core enterprise entities
+# (Expanded to 20,000+ triples in real implementation)
+

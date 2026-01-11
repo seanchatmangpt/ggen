@@ -118,9 +118,9 @@ pub async fn publish_and_report(
     Ok(())
 }
 
-/// Execute publish command using ggen-marketplace backend with RDF semantic storage
+/// Execute publish command using ggen-marketplace-v2 backend with RDF semantic storage
 pub async fn execute_publish(input: PublishInput) -> Result<PublishOutput> {
-    use ggen_marketplace::RdfRegistry;
+    use ggen_marketplace_v2::RdfRegistry;
     use sha2::{Digest, Sha256};
 
     // Read package manifest
@@ -140,8 +140,8 @@ pub async fn execute_publish(input: PublishInput) -> Result<PublishOutput> {
         });
     }
 
-    // NOTE: Marketplace publish functionality is under development
-    // The following API calls need to be updated once ggen-marketplace APIs are finalized
+    // NOTE: V2 marketplace publish functionality is under development
+    // The following API calls need to be updated once ggen-marketplace-v2 v2 APIs are finalized
 
     // Initialize RDF registry using marketplace-v2 semantic backend (in-memory oxigraph store)
     let _registry = RdfRegistry::new();

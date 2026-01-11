@@ -1,0 +1,29 @@
+# Workspace Member: core
+# Core functionality crate configuration
+
+[project]
+name = "workspace-core"
+version = "1.0.0"
+description = "Core functionality for workspace-project"
+author = "ggen-examples"
+license = "MIT"
+
+# Templates specific to core crate
+[templates]
+source_dir = "../../templates/core"
+output_dir = "src/generated"
+backup_enabled = true
+
+[templates.rust]
+style = "core-team"
+error_handling = "thiserror"
+
+# RDF for core domain models
+[rdf]
+base_uri = "https://example.com/workspace/core/"
+prefixes = { ex = "https://example.com/workspace/core/" }
+
+# Logging
+[logging]
+level = "debug"
+format = "text"

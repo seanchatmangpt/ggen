@@ -206,7 +206,7 @@ impl SwarmCoordinator {
         let result = self.execute_pipeline(agents, context, &mut exec_context, &input).await?;
 
         // Calculate final metrics
-        let _execution_time = start_time.elapsed().as_millis() as u64;
+        let execution_time = start_time.elapsed().as_millis() as u64;
         let metrics = ExecutionMetrics {
             total_operations: exec_context.stage_results.len() as u64,
             successful_operations: exec_context.stage_results.values()

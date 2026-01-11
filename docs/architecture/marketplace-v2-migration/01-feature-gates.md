@@ -1,37 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Feature Gate Strategy - Marketplace V2 Migration](#feature-gate-strategy---marketplace-v2-migration)
-  - [Overview](#overview)
-  - [Feature Flag Design](#feature-flag-design)
-    - [Cargo Features Hierarchy](#cargo-features-hierarchy)
-    - [Conditional Compilation Strategy](#conditional-compilation-strategy)
-      - [1. Backend Module Structure](#1-backend-module-structure)
-      - [2. Trait-Based Backend Selection](#2-trait-based-backend-selection)
-      - [3. Runtime Backend Selection](#3-runtime-backend-selection)
-  - [Cargo.toml Changes](#cargotoml-changes)
-    - [Root Workspace Cargo.toml](#root-workspace-cargotoml)
-    - [ggen-core/Cargo.toml](#ggen-corecargotoml)
-    - [ggen-cli/Cargo.toml](#ggen-clicargotoml)
-  - [Feature Flag Testing Matrix](#feature-flag-testing-matrix)
-  - [Build Commands](#build-commands)
-  - [Configuration File](#configuration-file)
-  - [Environment Variables](#environment-variables)
-  - [Migration Phases and Feature Flags](#migration-phases-and-feature-flags)
-    - [Phase 1: Feature Gates (Week 1)](#phase-1-feature-gates-week-1)
-    - [Phase 2: Adapter Layer (Week 1)](#phase-2-adapter-layer-week-1)
-    - [Phase 3: Search Migration (Week 2)](#phase-3-search-migration-week-2)
-    - [Phase 4: Registry/Installation (Week 3)](#phase-4-registryinstallation-week-3)
-    - [Phase 5: Publishing with Signing (Week 4)](#phase-5-publishing-with-signing-week-4)
-    - [Phase 6: Cutover (Week 5)](#phase-6-cutover-week-5)
-  - [Rollback Strategy](#rollback-strategy)
-  - [Success Metrics](#success-metrics)
-  - [Risk Mitigation](#risk-mitigation)
-  - [Next Steps](#next-steps)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Feature Gate Strategy - Marketplace V2 Migration
 
 ## Overview
@@ -50,7 +16,7 @@ default = ["marketplace-v1"]
 # Feature flags for backend selection
 marketplace-v1 = []           # Current tantivy-based marketplace (default)
 marketplace-v2 = [            # Next-gen RDF-based marketplace
-    "ggen-marketplace",
+    "ggen-marketplace-v2",
     "rdf-backend",
     "crypto-signing"
 ]
@@ -180,13 +146,13 @@ members = [
     "crates/ggen-cli",
     "crates/ggen-domain",
     "crates/ggen-marketplace",      # V1 backend
-    "crates/ggen-marketplace",   # V2 backend
+    "crates/ggen-marketplace-v2",   # V2 backend
     # ... other crates
 ]
 
 [workspace.dependencies]
 ggen-marketplace = { path = "crates/ggen-marketplace", version = "3.2.0" }
-ggen-marketplace = { path = "crates/ggen-marketplace", version = "3.0.0" }
+ggen-marketplace-v2 = { path = "crates/ggen-marketplace-v2", version = "3.0.0" }
 ```
 
 ### ggen-core/Cargo.toml
@@ -197,7 +163,7 @@ ggen-marketplace = { path = "crates/ggen-marketplace", version = "3.0.0" }
 ggen-marketplace = { workspace = true, optional = true }
 
 # V2 marketplace (opt-in)
-ggen-marketplace = { workspace = true, optional = true }
+ggen-marketplace-v2 = { workspace = true, optional = true }
 
 # ... existing dependencies
 
@@ -206,7 +172,7 @@ default = ["marketplace-v1", "dx"]
 
 # Backend selection features
 marketplace-v1 = ["ggen-marketplace"]
-marketplace-v2 = ["ggen-marketplace", "rdf-backend", "crypto-signing"]
+marketplace-v2 = ["ggen-marketplace-v2", "rdf-backend", "crypto-signing"]
 marketplace-parallel = ["marketplace-v1", "marketplace-v2", "dual-backend"]
 
 # Sub-features
@@ -230,7 +196,7 @@ ggen-core = { path = "../ggen-core", version = "3.2.0" }
 
 # Optional marketplace backends
 ggen-marketplace = { workspace = true, optional = true }
-ggen-marketplace = { workspace = true, optional = true }
+ggen-marketplace-v2 = { workspace = true, optional = true }
 
 # ... existing dependencies
 
@@ -239,8 +205,8 @@ default = ["marketplace-v1"]
 
 # Inherit from ggen-core
 marketplace-v1 = ["ggen-core/marketplace-v1", "ggen-marketplace"]
-marketplace-v2 = ["ggen-core/marketplace-v2", "ggen-marketplace"]
-marketplace-parallel = ["ggen-core/marketplace-parallel", "ggen-marketplace", "ggen-marketplace"]
+marketplace-v2 = ["ggen-core/marketplace-v2", "ggen-marketplace-v2"]
+marketplace-parallel = ["ggen-core/marketplace-parallel", "ggen-marketplace", "ggen-marketplace-v2"]
 ```
 
 ## Feature Flag Testing Matrix

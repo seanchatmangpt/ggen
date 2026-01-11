@@ -51,7 +51,7 @@
 //! ```
 
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
 
 /// Default configuration constants
 ///
@@ -178,9 +178,8 @@ pub struct Hooks {
     // Dynamic hooks for custom phases (and predefined phases via TOML)
     // Uses #[serde(flatten)] to allow TOML keys like "before_custom" to be deserialized
     // while maintaining backward compatibility with explicit fields above
-    /// **FMEA Fix**: Use BTreeMap for deterministic iteration order
     #[serde(flatten)]
-    pub phase_hooks: BTreeMap<String, Vec<String>>,
+    pub phase_hooks: HashMap<String, Vec<String>>,
     // Future: Error handling hooks (80/20 - not implemented yet, fail fast for now)
     // #[serde(default)]
     // pub on_error: Option<String>,

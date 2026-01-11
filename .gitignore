@@ -494,7 +494,6 @@ book/
 
 # Dependency directories (if using vendored deps)
 vendor/
-!vendors/
 
 # OS specific
 # macOS
@@ -908,17 +907,9 @@ claude-flow.config.json
 .swarm/
 .hive-mind/
 .claude-flow/
-/memory/
+memory/
 coordination/
-/memory/claude-flow-data.json
-# Allow .specify/memory/ for constitution and Speckit state
-!.specify/memory/
-
-# RDF-First Specification System (.specify/)
-# Source of truth: .ttl (Turtle/RDF) files - ALWAYS commit
-# Generated artifacts: .md files - Commit for GitHub viewing, but NEVER manually edit
-# Constitutional equation: spec.md = μ(feature.ttl)
-# To regenerate: ggen render spec.tera feature.ttl > spec.md
+memory/claude-flow-data.json
 memory/sessions/*
 !memory/sessions/README.md
 memory/agents/*
@@ -935,33 +926,3 @@ coordination/orchestration/*
 claude-flow
 # Removed Windows wrapper files per user request
 hive-mind-prompt-*.txt
-
-# Speckit / Claude Code agent folder (may contain credentials/tokens)
-# See: https://github.com/github/spec-kit security warning
-.claude/
-!.claude/commands/
-!.claude/agents/
-!.claude/skills/
-!.claude/hooks/
-!.claude/README.md
-!.claude/settings.json
-!.mcp.json
-.claude/commands/*.local.md
-.claude/settings.local.json
-.specify/specs/*/evidence/credentials.md
-.specify/specs/*/evidence/tokens.md
-
-# Feature 004: Test Quality Audit metadata (gitignored)
-.ggen/test-metadata/
-.ggen/mutation-reports/
-specs/*/output/
-
-# Compiled binaries (should not be committed)
-ggen-binary
-
-# RDF/RocksDB runtime store artifacts (generated at runtime)
-**/.ggen/rdf-store/
-
-# KGC runtime snapshots and generated artifacts (not source code)
-.specify/snapshots/
-.env.snapshot
