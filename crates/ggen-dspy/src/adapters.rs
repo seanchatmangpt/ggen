@@ -81,6 +81,7 @@ impl Demonstration {
 #[derive(Debug, Clone)]
 pub struct ChatAdapter {
     /// Field marker format: [[ ## field ## ]]
+    #[allow(dead_code)]
     marker_regex: Regex,
 }
 
@@ -259,7 +260,12 @@ impl JSONAdapter {
             .map_err(|e| DspyError::ParsingError(format!("Regex error: {}", e)))?;
 
         if let Some(captures) = json_block_regex.captures(response) {
-            return Ok(captures.get(1).unwrap().as_str().to_string());
+            let content = captures
+                .get(1)
+                .ok_or_else(|| DspyError::ParsingError("Failed to extract JSON content from code block".to_string()))?
+                .as_str()
+                .to_string();
+            return Ok(content);
         }
 
         // Try to extract from ``` blocks without json marker
@@ -267,7 +273,10 @@ impl JSONAdapter {
             .map_err(|e| DspyError::ParsingError(format!("Regex error: {}", e)))?;
 
         if let Some(captures) = code_block_regex.captures(response) {
-            let content = captures.get(1).unwrap().as_str();
+            let content = captures
+                .get(1)
+                .ok_or_else(|| DspyError::ParsingError("Failed to extract content from code block".to_string()))?
+                .as_str();
             // Verify it's valid JSON
             if content.trim().starts_with('{') {
                 return Ok(content.to_string());
@@ -308,7 +317,8 @@ impl LlmAdapter for JSONAdapter {
         }
 
         // Add schema
-        let schema_value = schema.unwrap_or(&self.generate_schema(output_fields));
+        let generated_schema = self.generate_schema(output_fields);
+        let schema_value = schema.unwrap_or(&generated_schema);
         prompt.push_str("Respond with a JSON object matching this schema:\n");
         prompt.push_str(&serde_json::to_string_pretty(schema_value)?);
         prompt.push_str("\n\n");
@@ -862,6 +872,206 @@ impl CompletionRequest {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::json;
+
+    // ============================================================================
+    // ChatAdapter Tests
+    // ============================================================================
+
+    #[test]
+    fn test_chat_adapter_format_prompt() {
+        let adapter = ChatAdapter::new();
+        let mut inputs = HashMap::new();
+        inputs.insert("question".to_string(), json!("What is Rust?"));
+
+        let output_fields = vec!["answer".to_string()];
+
+        let prompt = adapter
+            .format_prompt(&inputs, &output_fields, None, None)
+            .unwrap();
+
+        assert!(prompt.contains("question: What is Rust?"));
+        assert!(prompt.contains("[[ ## answer ## ]]"));
+    }
+
+    #[test]
+    fn test_chat_adapter_parse_response() {
+        let adapter = ChatAdapter::new();
+        let response = "[[ ## answer ## ]]\nRust is a systems programming language";
+        let output_fields = vec!["answer".to_string()];
+
+        let result = adapter.parse_response(response, &output_fields).unwrap();
+
+        assert_eq!(
+            result.get("answer").unwrap(),
+            &json!("Rust is a systems programming language")
+        );
+    }
+
+    #[test]
+    fn test_chat_adapter_missing_field() {
+        let adapter = ChatAdapter::new();
+        let response = "No markers here";
+        let output_fields = vec!["answer".to_string()];
+
+        let result = adapter.parse_response(response, &output_fields);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_chat_adapter_with_demonstrations() {
+        let adapter = ChatAdapter::new();
+
+        let mut demo_inputs = HashMap::new();
+        demo_inputs.insert("question".to_string(), json!("What is 2+2?"));
+
+        let mut demo_outputs = HashMap::new();
+        demo_outputs.insert("answer".to_string(), json!("4"));
+
+        let demo = Demonstration::new(demo_inputs, demo_outputs);
+
+        let mut inputs = HashMap::new();
+        inputs.insert("question".to_string(), json!("What is 3+3?"));
+
+        let output_fields = vec!["answer".to_string()];
+
+        let prompt = adapter
+            .format_prompt(&inputs, &output_fields, None, Some(&[demo]))
+            .unwrap();
+
+        assert!(prompt.contains("Here are some examples:"));
+        assert!(prompt.contains("Example 1"));
+        assert!(prompt.contains("What is 2+2?"));
+        assert!(prompt.contains("Your Turn"));
+    }
+
+    // ============================================================================
+    // JSONAdapter Tests
+    // ============================================================================
+
+    #[test]
+    fn test_json_adapter_format_prompt() {
+        let adapter = JSONAdapter::new();
+        let mut inputs = HashMap::new();
+        inputs.insert("question".to_string(), json!("What is Rust?"));
+
+        let output_fields = vec!["answer".to_string()];
+
+        let prompt = adapter
+            .format_prompt(&inputs, &output_fields, None, None)
+            .unwrap();
+
+        assert!(prompt.contains("Respond with a JSON object"));
+        assert!(prompt.contains(r#""question":"What is Rust?""#) || prompt.contains("question"));
+    }
+
+    #[test]
+    fn test_json_adapter_parse_response() {
+        let adapter = JSONAdapter::new();
+        let response = r#"{"answer": "Rust is a systems programming language"}"#;
+        let output_fields = vec!["answer".to_string()];
+
+        let result = adapter.parse_response(response, &output_fields).unwrap();
+
+        assert_eq!(
+            result.get("answer").unwrap(),
+            &json!("Rust is a systems programming language")
+        );
+    }
+
+    #[test]
+    fn test_json_adapter_extract_from_markdown() {
+        let adapter = JSONAdapter::new();
+        let response = r#"```json
+{"answer": "42"}
+```"#;
+        let output_fields = vec!["answer".to_string()];
+
+        let result = adapter.parse_response(response, &output_fields).unwrap();
+
+        assert_eq!(result.get("answer").unwrap(), &json!("42"));
+    }
+
+    #[test]
+    fn test_json_adapter_extract_from_code_block() {
+        let adapter = JSONAdapter::new();
+        let response = r#"```
+{"answer": "42"}
+```"#;
+        let output_fields = vec!["answer".to_string()];
+
+        let result = adapter.parse_response(response, &output_fields).unwrap();
+
+        assert_eq!(result.get("answer").unwrap(), &json!("42"));
+    }
+
+    #[test]
+    fn test_json_adapter_missing_field() {
+        let adapter = JSONAdapter::new();
+        let response = r#"{"wrong_field": "value"}"#;
+        let output_fields = vec!["answer".to_string()];
+
+        let result = adapter.parse_response(response, &output_fields);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_json_adapter_is_compatible() {
+        let adapter = JSONAdapter::new();
+
+        assert!(adapter.is_compatible("gpt-4"));
+        assert!(adapter.is_compatible("gpt-4-turbo"));
+        assert!(adapter.is_compatible("claude-3-opus"));
+        assert!(!adapter.is_compatible("llama-2"));
+    }
+
+    // ============================================================================
+    // CompletionAdapter Tests
+    // ============================================================================
+
+    #[test]
+    fn test_completion_adapter_single_output() {
+        let adapter = CompletionAdapter::new();
+        let response = "This is the answer";
+        let output_fields = vec!["answer".to_string()];
+
+        let result = adapter.parse_response(response, &output_fields).unwrap();
+
+        assert_eq!(result.get("answer").unwrap(), &json!("This is the answer"));
+    }
+
+    #[test]
+    fn test_completion_adapter_multiple_outputs() {
+        let adapter = CompletionAdapter::new();
+        let response = "Line 1\nLine 2\nLine 3";
+        let output_fields = vec!["first".to_string(), "second".to_string(), "third".to_string()];
+
+        let result = adapter.parse_response(response, &output_fields).unwrap();
+
+        assert_eq!(result.get("first").unwrap(), &json!("Line 1"));
+        assert_eq!(result.get("second").unwrap(), &json!("Line 2"));
+        assert_eq!(result.get("third").unwrap(), &json!("Line 3"));
+    }
+
+    // ============================================================================
+    // AdapterWithFallback Tests
+    // ============================================================================
+
+    #[test]
+    fn test_adapter_with_fallback_uses_json() {
+        let adapter = AdapterWithFallback::new("gpt-4");
+        assert_eq!(adapter.name(), "JSONAdapter");
+    }
+
+    #[test]
+    fn test_adapter_with_fallback_uses_chat() {
+        let adapter = AdapterWithFallback::new("llama-2");
+        assert_eq!(adapter.name(), "ChatAdapter");
+    }
+
+    // ============================================================================
+    // Retry Configuration Tests
+    // ============================================================================
 
     #[test]
     fn test_completion_request() {
@@ -886,6 +1096,19 @@ mod tests {
     }
 
     #[test]
+    fn test_retry_config_max_backoff() {
+        let config = RetryConfig::default();
+        let max_attempt = 100; // Very high attempt number
+
+        let duration = config.backoff_duration(max_attempt);
+        assert_eq!(duration, config.max_backoff);
+    }
+
+    // ============================================================================
+    // Token Counter Tests
+    // ============================================================================
+
+    #[test]
     fn test_token_counter() {
         let counter = TokenCounter::new();
         counter.add_usage(100, 50, "gpt-4".to_string());
@@ -901,6 +1124,25 @@ mod tests {
     }
 
     #[test]
+    fn test_token_counter_multiple_models() {
+        let counter = TokenCounter::new();
+        counter.add_usage(100, 50, "gpt-4".to_string());
+        counter.add_usage(200, 75, "claude-3".to_string());
+
+        let stats = counter.get_stats();
+        assert_eq!(stats.prompt_tokens, 300);
+        assert_eq!(stats.completion_tokens, 125);
+
+        assert_eq!(stats.model_usage.len(), 2);
+        assert!(stats.model_usage.contains_key("gpt-4"));
+        assert!(stats.model_usage.contains_key("claude-3"));
+    }
+
+    // ============================================================================
+    // Demonstration Tests
+    // ============================================================================
+
+    #[test]
     fn test_demonstration_creation() {
         let mut inputs = HashMap::new();
         inputs.insert("in".to_string(), Value::String("test".to_string()));
@@ -911,5 +1153,43 @@ mod tests {
         let demo = Demonstration::new(inputs.clone(), outputs.clone());
         assert_eq!(demo.inputs, inputs);
         assert_eq!(demo.outputs, outputs);
+    }
+
+    #[test]
+    fn test_demonstration_equality() {
+        let mut inputs = HashMap::new();
+        inputs.insert("in".to_string(), json!("test"));
+
+        let mut outputs = HashMap::new();
+        outputs.insert("out".to_string(), json!("result"));
+
+        let demo1 = Demonstration::new(inputs.clone(), outputs.clone());
+        let demo2 = Demonstration::new(inputs, outputs);
+
+        assert_eq!(demo1, demo2);
+    }
+
+    // ============================================================================
+    // Error Handling Tests
+    // ============================================================================
+
+    #[test]
+    fn test_json_adapter_invalid_json() {
+        let adapter = JSONAdapter::new();
+        let response = "This is not JSON";
+        let output_fields = vec!["answer".to_string()];
+
+        let result = adapter.parse_response(response, &output_fields);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_chat_adapter_empty_field() {
+        let adapter = ChatAdapter::new();
+        let response = "[[ ## answer ## ]]\n";
+        let output_fields = vec!["answer".to_string()];
+
+        let result = adapter.parse_response(response, &output_fields);
+        assert!(result.is_err());
     }
 }

@@ -123,7 +123,7 @@ impl Module for MultiHopQA {
         let mut hop_states = Vec::new();
 
         // Multi-hop retrieval loop
-        for hop_num in 0..self.config.max_hops {
+        for _hop_num in 0..self.config.max_hops {
             // Generate query for this hop
             let query = self.generate_query(question, &hop_states).await?;
 

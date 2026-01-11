@@ -6,7 +6,7 @@ use std::cell::RefCell;
 use std::future::Future;
 use tokio::task_local;
 
-use super::{get_dspy_config, DspySettings};
+use super::get_dspy_config;
 
 // Task-local storage for configuration overrides
 task_local! {

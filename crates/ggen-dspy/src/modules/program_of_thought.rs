@@ -2,12 +2,10 @@
 //!
 //! Generates executable code to solve problems, combining reasoning with computation.
 
-use crate::{Module, ModuleOutput, Result, DspyError};
+use crate::{DspyError, Module, ModuleOutput, Result};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::process::{Command, Stdio};
-use std::io::Write;
 
 /// Execution result from code execution
 #[derive(Debug, Clone, Serialize, Deserialize)]

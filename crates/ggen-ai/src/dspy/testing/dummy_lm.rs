@@ -285,6 +285,10 @@ impl Module for DummyLM {
 
         self.get_response(&prompt)
     }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
 }
 
 #[cfg(test)]

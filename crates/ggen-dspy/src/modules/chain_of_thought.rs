@@ -5,7 +5,7 @@
 
 use crate::{Module, ModuleOutput, Predictor, Result};
 use async_trait::async_trait;
-use ggen_ai::dspy::{InputField, OutputField, Signature};
+use ggen_ai::dspy::{OutputField, Signature};
 use tracing::debug;
 
 /// Chain of Thought module
@@ -126,7 +126,7 @@ impl Module for ChainOfThought {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::prelude::*;
+    use ggen_ai::dspy::InputField;
 
     #[test]
     fn test_cot_creation() {

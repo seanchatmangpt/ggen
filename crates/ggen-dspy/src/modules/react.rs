@@ -4,10 +4,9 @@
 //! The agent iteratively reasons about the task, takes actions using tools,
 //! and observes results until it reaches a conclusion.
 
-use crate::{DspyError, Module, ModuleOutput, Predictor, Result};
+use crate::{Module, ModuleOutput, Predictor, Result};
 use async_trait::async_trait;
 use ggen_ai::dspy::{InputField, OutputField, Signature};
-use std::collections::HashMap;
 use tracing::{debug, warn};
 
 /// Tool trait for ReAct actions
@@ -187,8 +186,10 @@ impl ReAct {
         debug!("Starting ReAct loop with {} tools, max {} iterations",
                self.tools.len(), self.max_iterations);
 
+        let mut iteration_count = 0;
         for iteration in 0..self.max_iterations {
-            debug!("ReAct iteration {}/{}", iteration + 1, self.max_iterations);
+            iteration_count = iteration + 1;
+            debug!("ReAct iteration {}/{}", iteration_count, self.max_iterations);
 
             // Add trajectory context
             if !trajectory.is_empty() {
@@ -257,7 +258,7 @@ impl ReAct {
         if let Some(answer) = final_answer {
             result.set("answer", answer);
             result.set("trajectory", trajectory.join("\n"));
-            result.set("iterations", iteration.to_string());
+            result.set("iterations", iteration_count.to_string());
         } else {
             warn!("ReAct reached max iterations without finishing");
             result.set(
@@ -286,25 +287,8 @@ impl Module for ReAct {
             "String",
         )];
 
-        // Create temporary predictor with modified signature
-        let temp_predictor = Predictor::new(react_sig)
-            .with_temperature(self.temperature)
-            .with_model(
-                self.predictor
-                    .signature()
-                    .name
-                    .clone(),
-            );
-
-        // Store original predictor and replace temporarily
-        let react = Self {
-            predictor: temp_predictor,
-            tools: self.tools.iter().map(|_| panic!("cannot clone tools")).collect(),
-            max_iterations: self.max_iterations,
-            temperature: self.temperature,
-        };
-
-        // Execute ReAct loop (this is a workaround - in production we'd refactor)
+        // Execute ReAct loop directly without cloning tools
+        // Note: We don't use the temporary predictor approach due to tool cloning issues
         self.react_loop(inputs).await
     }
 
@@ -319,7 +303,8 @@ pub type ReactAgent = ReAct;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::prelude::*;
+    use crate::DspyError;
+    use std::collections::HashMap;
 
     // Mock tool for testing
     struct MockTool {
@@ -335,6 +320,7 @@ mod tests {
             }
         }
 
+        #[allow(dead_code)]
         fn with_response(mut self, input: impl Into<String>, output: impl Into<String>) -> Self {
             self.responses.insert(input.into(), output.into());
             self

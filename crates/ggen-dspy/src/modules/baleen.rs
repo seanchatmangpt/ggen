@@ -126,7 +126,7 @@ impl SimplifiedBaleen {
     /// Synthesize final answer from all hops
     async fn synthesize_answer(
         &self,
-        question: &str,
+        _question: &str,
         hops: &[BaleenHop],
     ) -> Result<String> {
         // TODO: Use LLM to synthesize answer
