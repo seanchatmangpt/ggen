@@ -70,23 +70,6 @@ pub trait DeltaSigmaProposer: Send + Sync {
     ) -> Result<ProposalStream, String>;
 }
 
-/// Default maximum tokens per proposal
-///
-/// **Kaizen improvement**: Extracted magic number to named constant for clarity and maintainability.
-const DEFAULT_MAX_TOKENS: usize = 1024;
-
-/// Default temperature for LLM proposals (0.0 to 1.0)
-///
-/// **Kaizen improvement**: Extracted magic number to named constant for clarity and maintainability.
-/// Lower temperature = more deterministic output
-const DEFAULT_TEMPERATURE: f64 = 0.3;
-
-/// Default minimum confidence threshold for proposals
-///
-/// **Kaizen improvement**: Extracted magic number to named constant for clarity and maintainability.
-/// Proposals below this threshold are filtered out
-const DEFAULT_MIN_CONFIDENCE: f64 = 0.75;
-
 /// Configuration for the LLM proposer
 #[derive(Debug, Clone)]
 pub struct ProposerConfig {
@@ -128,10 +111,10 @@ impl Default for ProposerConfig {
 
         Self {
             model: "claude-opus".to_string(),
-            max_tokens: DEFAULT_MAX_TOKENS,
-            temperature: DEFAULT_TEMPERATURE,
+            max_tokens: 1024,
+            temperature: 0.3,
             enable_cache: true,
-            min_confidence: DEFAULT_MIN_CONFIDENCE,
+            min_confidence: 0.75,
             sector_policies: policies,
         }
     }

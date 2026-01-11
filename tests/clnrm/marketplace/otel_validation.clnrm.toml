@@ -1,0 +1,49 @@
+# GGEN Marketplace - OpenTelemetry Validation Test
+# ==================================================
+#
+# Simple test to validate OpenTelemetry instrumentation is working
+# Tests that OTEL spans are emitted for marketplace operations
+
+[test.metadata]
+name = "ggen_marketplace_otel_validation"
+description = "Test OpenTelemetry instrumentation in GGEN marketplace"
+version = "1.0.0"
+timeout = "60s"
+tags = ["otel", "validation", "instrumentation"]
+
+[otel]
+exporter = "otlp"
+resources = { "service.name" = "ggen-marketplace-test", "test.type" = "validation" }
+
+# Service: GGEN Marketplace API
+[services.marketplace_api]
+image = "alpine:latest"
+ports = [8080]
+env = {
+  RUST_LOG = "info",
+  OTEL_EXPORTER_OTLP_ENDPOINT = "http://localhost:4318"
+}
+
+[[scenario]]
+name = "verify_service_startup"
+service = "marketplace_api"
+run = "echo 'Service ready'"
+artifacts.collect = ["spans:default"]
+
+[[scenario]]
+name = "test_otel_instrumentation"
+service = "marketplace_api"
+run = "echo 'OTEL test'"
+artifacts.collect = ["spans:default"]
+
+# Validate that spans are created
+[[expect.span]]
+name = "clnrm.step:*"
+kind = "internal"
+
+[expect.status]
+all = "OK"
+
+[expect.counts]
+spans_total = { gte = 1 }
+

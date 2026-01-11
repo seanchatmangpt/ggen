@@ -1,0 +1,14 @@
+[gpack]
+id = "test.database"
+name = "Database Pack"
+version = "1.5.0"
+description = "Database schema and migration templates"
+license = "Apache-2.0"
+ggen_compat = ">=3.0.0"
+
+[rdf]
+base = "https://example.org/db/"
+
+[rdf.prefixes]
+db = "https://example.org/db/"
+schema = "http://schema.org/"

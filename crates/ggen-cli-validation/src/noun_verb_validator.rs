@@ -190,7 +190,6 @@ mod tests {
             .is_err());
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_audit_trail_recording() {
         let mut validator = NounVerbValidator::new();
@@ -207,7 +206,6 @@ mod tests {
         assert!(trail[0].success);
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_audit_trail_export() {
         let mut validator = NounVerbValidator::new();

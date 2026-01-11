@@ -38,13 +38,15 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 /// Get the current Unix timestamp.
 ///
-/// Returns 0 if system time is before Unix epoch (should never happen on properly configured systems).
+/// # Panics
+///
+/// Panics if the system time is before the Unix epoch.
 #[must_use]
 pub fn current_timestamp() -> u64 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .map(|d| d.as_secs())
-        .unwrap_or(0)
+        .expect("System time should not be before Unix epoch")
+        .as_secs()
 }
 
 /// Format a duration in seconds to a human-readable string.

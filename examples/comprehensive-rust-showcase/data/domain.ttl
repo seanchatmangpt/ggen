@@ -1,0 +1,462 @@
+# Comprehensive Rust Showcase Domain Model
+# Demonstrates complex RDF modeling with SPARQL integration
+
+@prefix ex: <http://example.org/comprehensive-rust-showcase/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+
+# Core Domain Entities
+ex:User a ex:Entity, foaf:Person ;
+    rdfs:label "User" ;
+    rdfs:comment "A user in the comprehensive showcase system" ;
+    ex:hasProperty ex:userId, ex:email, ex:name, ex:createdAt, ex:lastLogin ;
+    ex:hasRelationship ex:hasProfile, ex:hasOrders, ex:hasReviews, ex:hasPermissions ;
+    ex:businessRules ex:userValidationRules ;
+    ex:lifecycle ex:userLifecycle .
+
+ex:Product a ex:Entity, schema:Product ;
+    rdfs:label "Product" ;
+    rdfs:comment "A product in the catalog" ;
+    ex:hasProperty ex:productId, ex:name, ex:description, ex:price, ex:category, ex:inventory ;
+    ex:hasRelationship ex:hasReviews, ex:hasInventory, ex:belongsToCategory, ex:hasVariants ;
+    ex:businessRules ex:productValidationRules ;
+    ex:lifecycle ex:productLifecycle .
+
+ex:Order a ex:Entity, schema:Order ;
+    rdfs:label "Order" ;
+    rdfs:comment "A customer order" ;
+    ex:hasProperty ex:orderId, ex:userId, ex:totalAmount, ex:status, ex:createdAt, ex:shippedAt ;
+    ex:hasRelationship ex:hasOrderItems, ex:belongsToUser, ex:hasShipping, ex:hasPayment ;
+    ex:businessRules ex:orderValidationRules ;
+    ex:lifecycle ex:orderLifecycle .
+
+ex:Category a ex:Entity, schema:Category ;
+    rdfs:label "Category" ;
+    rdfs:comment "Product category hierarchy" ;
+    ex:hasProperty ex:categoryId, ex:name, ex:description, ex:parentCategory ;
+    ex:hasRelationship ex:hasProducts, ex:hasSubcategories, ex:hasParent ;
+    ex:businessRules ex:categoryValidationRules ;
+    ex:lifecycle ex:categoryLifecycle .
+
+ex:Microservice a ex:Entity ;
+    rdfs:label "Microservice" ;
+    rdfs:comment "A microservice in the system" ;
+    ex:hasProperty ex:serviceId, ex:name, ex:version, ex:port, ex:healthCheck ;
+    ex:hasRelationship ex:hasEndpoints, ex:hasDependencies, ex:hasConfig ;
+    ex:businessRules ex:serviceValidationRules ;
+    ex:lifecycle ex:serviceLifecycle .
+
+ex:APIEndpoint a ex:Entity ;
+    rdfs:label "API Endpoint" ;
+    rdfs:comment "A REST API endpoint" ;
+    ex:hasProperty ex:endpointId, ex:path, ex:method, ex:version, ex:description ;
+    ex:hasRelationship ex:belongsToService, ex:hasParameters, ex:hasResponse ;
+    ex:businessRules ex:endpointValidationRules ;
+    ex:lifecycle ex:endpointLifecycle .
+
+ex:DatabaseTable a ex:Entity ;
+    rdfs:label "Database Table" ;
+    rdfs:comment "A database table" ;
+    ex:hasProperty ex:tableId, ex:name, ex:schema, ex:engine ;
+    ex:hasRelationship ex:hasColumns, ex:hasIndexes, ex:hasConstraints ;
+    ex:businessRules ex:tableValidationRules ;
+    ex:lifecycle ex:tableLifecycle .
+
+# Properties with comprehensive metadata
+ex:userId a ex:Property ;
+    rdfs:label "User ID" ;
+    ex:dataType xsd:string ;
+    ex:isRequired true ;
+    ex:isUnique true ;
+    ex:validation "uuid" ;
+    ex:description "Unique identifier for the user" .
+
+ex:email a ex:Property ;
+    rdfs:label "Email" ;
+    ex:dataType xsd:string ;
+    ex:isRequired true ;
+    ex:isUnique true ;
+    ex:validation "email" ;
+    ex:description "User's email address" .
+
+ex:name a ex:Property ;
+    rdfs:label "Name" ;
+    ex:dataType xsd:string ;
+    ex:isRequired true ;
+    ex:isUnique false ;
+    ex:validation "minLength:2,maxLength:100" ;
+    ex:description "User's full name" .
+
+ex:createdAt a ex:Property ;
+    rdfs:label "Created At" ;
+    ex:dataType xsd:dateTime ;
+    ex:isRequired true ;
+    ex:isUnique false ;
+    ex:validation "past" ;
+    ex:description "When the record was created" .
+
+ex:lastLogin a ex:Property ;
+    rdfs:label "Last Login" ;
+    ex:dataType xsd:dateTime ;
+    ex:isRequired false ;
+    ex:isUnique false ;
+    ex:validation "past" ;
+    ex:description "When the user last logged in" .
+
+ex:productId a ex:Property ;
+    rdfs:label "Product ID" ;
+    ex:dataType xsd:string ;
+    ex:isRequired true ;
+    ex:isUnique true ;
+    ex:validation "uuid" ;
+    ex:description "Unique identifier for the product" .
+
+ex:price a ex:Property ;
+    rdfs:label "Price" ;
+    ex:dataType xsd:decimal ;
+    ex:isRequired true ;
+    ex:isUnique false ;
+    ex:validation "min:0" ;
+    ex:description "Product price in USD" .
+
+ex:inventory a ex:Property ;
+    rdfs:label "Inventory" ;
+    ex:dataType xsd:integer ;
+    ex:isRequired true ;
+    ex:isUnique false ;
+    ex:validation "min:0" ;
+    ex:description "Available inventory count" .
+
+ex:orderId a ex:Property ;
+    rdfs:label "Order ID" ;
+    ex:dataType xsd:string ;
+    ex:isRequired true ;
+    ex:isUnique true ;
+    ex:validation "uuid" ;
+    ex:description "Unique identifier for the order" .
+
+ex:totalAmount a ex:Property ;
+    rdfs:label "Total Amount" ;
+    ex:dataType xsd:decimal ;
+    ex:isRequired true ;
+    ex:isUnique false ;
+    ex:validation "min:0" ;
+    ex:description "Total order amount in USD" .
+
+ex:status a ex:Property ;
+    rdfs:label "Status" ;
+    ex:dataType xsd:string ;
+    ex:isRequired true ;
+    ex:isUnique false ;
+    ex:validation "enum:pending,processing,shipped,delivered,cancelled" ;
+    ex:description "Current status of the order" .
+
+ex:serviceId a ex:Property ;
+    rdfs:label "Service ID" ;
+    ex:dataType xsd:string ;
+    ex:isRequired true ;
+    ex:isUnique true ;
+    ex:validation "uuid" ;
+    ex:description "Unique identifier for the microservice" .
+
+ex:port a ex:Property ;
+    rdfs:label "Port" ;
+    ex:dataType xsd:integer ;
+    ex:isRequired true ;
+    ex:isUnique false ;
+    ex:validation "range:1024-65535" ;
+    ex:description "Port number for the service" .
+
+ex:endpointId a ex:Property ;
+    rdfs:label "Endpoint ID" ;
+    ex:dataType xsd:string ;
+    ex:isRequired true ;
+    ex:isUnique true ;
+    ex:validation "uuid" ;
+    ex:description "Unique identifier for the API endpoint" .
+
+ex:path a ex:Property ;
+    rdfs:label "Path" ;
+    ex:dataType xsd:string ;
+    ex:isRequired true ;
+    ex:isUnique false ;
+    ex:validation "pattern:^/[a-zA-Z0-9/_-]*$" ;
+    ex:description "API endpoint path" .
+
+ex:method a ex:Property ;
+    rdfs:label "HTTP Method" ;
+    ex:dataType xsd:string ;
+    ex:isRequired true ;
+    ex:isUnique false ;
+    ex:validation "enum:GET,POST,PUT,DELETE,PATCH" ;
+    ex:description "HTTP method for the endpoint" .
+
+ex:tableId a ex:Property ;
+    rdfs:label "Table ID" ;
+    ex:dataType xsd:string ;
+    ex:isRequired true ;
+    ex:isUnique true ;
+    ex:validation "uuid" ;
+    ex:description "Unique identifier for the database table" .
+
+ex:schema a ex:Property ;
+    rdfs:label "Schema" ;
+    ex:dataType xsd:string ;
+    ex:isRequired true ;
+    ex:isUnique false ;
+    ex:validation "pattern:^[a-zA-Z][a-zA-Z0-9_]*$" ;
+    ex:description "Database schema name" .
+
+# Relationships with cardinality and constraints
+ex:hasProfile a ex:Relationship ;
+    rdfs:label "Has Profile" ;
+    ex:from ex:User ;
+    ex:to ex:Profile ;
+    ex:cardinality "1:1" ;
+    ex:description "User has one profile" .
+
+ex:hasOrders a ex:Relationship ;
+    rdfs:label "Has Orders" ;
+    ex:from ex:User ;
+    ex:to ex:Order ;
+    ex:cardinality "1:N" ;
+    ex:description "User can have multiple orders" .
+
+ex:hasReviews a ex:Relationship ;
+    rdfs:label "Has Reviews" ;
+    ex:from ex:User ;
+    ex:to ex:Review ;
+    ex:cardinality "1:N" ;
+    ex:description "User can write multiple reviews" .
+
+ex:hasPermissions a ex:Relationship ;
+    rdfs:label "Has Permissions" ;
+    ex:from ex:User ;
+    ex:to ex:Permission ;
+    ex:cardinality "M:N" ;
+    ex:description "User can have multiple permissions" .
+
+ex:hasOrderItems a ex:Relationship ;
+    rdfs:label "Has Order Items" ;
+    ex:from ex:Order ;
+    ex:to ex:OrderItem ;
+    ex:cardinality "1:N" ;
+    ex:description "Order contains multiple items" .
+
+ex:belongsToUser a ex:Relationship ;
+    rdfs:label "Belongs To User" ;
+    ex:from ex:Order ;
+    ex:to ex:User ;
+    ex:cardinality "N:1" ;
+    ex:description "Order belongs to one user" .
+
+ex:hasEndpoints a ex:Relationship ;
+    rdfs:label "Has Endpoints" ;
+    ex:from ex:Microservice ;
+    ex:to ex:APIEndpoint ;
+    ex:cardinality "1:N" ;
+    ex:description "Microservice has multiple endpoints" .
+
+ex:hasDependencies a ex:Relationship ;
+    rdfs:label "Has Dependencies" ;
+    ex:from ex:Microservice ;
+    ex:to ex:Microservice ;
+    ex:cardinality "M:N" ;
+    ex:description "Microservice can depend on other services" .
+
+ex:belongsToService a ex:Relationship ;
+    rdfs:label "Belongs To Service" ;
+    ex:from ex:APIEndpoint ;
+    ex:to ex:Microservice ;
+    ex:cardinality "N:1" ;
+    ex:description "Endpoint belongs to one service" .
+
+ex:hasColumns a ex:Relationship ;
+    rdfs:label "Has Columns" ;
+    ex:from ex:DatabaseTable ;
+    ex:to ex:DatabaseColumn ;
+    ex:cardinality "1:N" ;
+    ex:description "Table has multiple columns" .
+
+ex:hasIndexes a ex:Relationship ;
+    rdfs:label "Has Indexes" ;
+    ex:from ex:DatabaseTable ;
+    ex:to ex:DatabaseIndex ;
+    ex:cardinality "1:N" ;
+    ex:description "Table can have multiple indexes" .
+
+# Business Rules
+ex:userValidationRules a ex:BusinessRule ;
+    rdfs:label "User Validation Rules" ;
+    ex:rules [
+        "User email must be unique across the system",
+        "User name must be between 2 and 100 characters",
+        "User must have at least one permission"
+    ] ;
+    ex:description "Validation rules for user entities" .
+
+ex:productValidationRules a ex:BusinessRule ;
+    rdfs:label "Product Validation Rules" ;
+    ex:rules [
+        "Product price must be greater than 0",
+        "Product inventory cannot be negative",
+        "Product must belong to a category"
+    ] ;
+    ex:description "Validation rules for product entities" .
+
+ex:orderValidationRules a ex:BusinessRule ;
+    rdfs:label "Order Validation Rules" ;
+    ex:rules [
+        "Order total amount must be greater than 0",
+        "Order must have at least one item",
+        "Order status must be valid"
+    ] ;
+    ex:description "Validation rules for order entities" .
+
+ex:serviceValidationRules a ex:BusinessRule ;
+    rdfs:label "Service Validation Rules" ;
+    ex:rules [
+        "Service port must be unique within the system",
+        "Service must have at least one endpoint",
+        "Service health check must be configured"
+    ] ;
+    ex:description "Validation rules for microservice entities" .
+
+ex:endpointValidationRules a ex:BusinessRule ;
+    rdfs:label "Endpoint Validation Rules" ;
+    ex:rules [
+        "Endpoint path must be unique within the service",
+        "Endpoint method must be valid HTTP method",
+        "Endpoint must have response definition"
+    ] ;
+    ex:description "Validation rules for API endpoint entities" .
+
+ex:tableValidationRules a ex:BusinessRule ;
+    rdfs:label "Table Validation Rules" ;
+    ex:rules [
+        "Table name must be unique within the schema",
+        "Table must have at least one column",
+        "Table must have a primary key"
+    ] ;
+    ex:description "Validation rules for database table entities" .
+
+# Lifecycle Definitions
+ex:userLifecycle a ex:Lifecycle ;
+    rdfs:label "User Lifecycle" ;
+    ex:states ["created", "active", "suspended", "deleted"] ;
+    ex:transitions [
+        "created -> active",
+        "active -> suspended",
+        "suspended -> active",
+        "active -> deleted",
+        "suspended -> deleted"
+    ] ;
+    ex:description "Lifecycle states for user entities" .
+
+ex:productLifecycle a ex:Lifecycle ;
+    rdfs:label "Product Lifecycle" ;
+    ex:states ["draft", "active", "discontinued", "archived"] ;
+    ex:transitions [
+        "draft -> active",
+        "active -> discontinued",
+        "discontinued -> archived"
+    ] ;
+    ex:description "Lifecycle states for product entities" .
+
+ex:orderLifecycle a ex:Lifecycle ;
+    rdfs:label "Order Lifecycle" ;
+    ex:states ["pending", "processing", "shipped", "delivered", "cancelled"] ;
+    ex:transitions [
+        "pending -> processing",
+        "processing -> shipped",
+        "shipped -> delivered",
+        "pending -> cancelled",
+        "processing -> cancelled"
+    ] ;
+    ex:description "Lifecycle states for order entities" .
+
+ex:serviceLifecycle a ex:Lifecycle ;
+    rdfs:label "Service Lifecycle" ;
+    ex:states ["development", "testing", "staging", "production", "deprecated"] ;
+    ex:transitions [
+        "development -> testing",
+        "testing -> staging",
+        "staging -> production",
+        "production -> deprecated"
+    ] ;
+    ex:description "Lifecycle states for microservice entities" .
+
+ex:endpointLifecycle a ex:Lifecycle ;
+    rdfs:label "Endpoint Lifecycle" ;
+    ex:states ["draft", "active", "deprecated", "removed"] ;
+    ex:transitions [
+        "draft -> active",
+        "active -> deprecated",
+        "deprecated -> removed"
+    ] ;
+    ex:description "Lifecycle states for API endpoint entities" .
+
+ex:tableLifecycle a ex:Lifecycle ;
+    rdfs:label "Table Lifecycle" ;
+    ex:states ["design", "active", "migrated", "archived"] ;
+    ex:transitions [
+        "design -> active",
+        "active -> migrated",
+        "migrated -> archived"
+    ] ;
+    ex:description "Lifecycle states for database table entities" .
+
+# Additional Entities
+ex:Profile a ex:Entity ;
+    rdfs:label "Profile" ;
+    ex:hasProperty ex:profileId, ex:firstName, ex:lastName, ex:avatar, ex:bio .
+
+ex:Review a ex:Entity ;
+    rdfs:label "Review" ;
+    ex:hasProperty ex:reviewId, ex:rating, ex:comment, ex:createdAt .
+
+ex:Permission a ex:Entity ;
+    rdfs:label "Permission" ;
+    ex:hasProperty ex:permissionId, ex:name, ex:description, ex:resource .
+
+ex:OrderItem a ex:Entity ;
+    rdfs:label "Order Item" ;
+    ex:hasProperty ex:itemId, ex:quantity, ex:unitPrice, ex:totalPrice .
+
+ex:DatabaseColumn a ex:Entity ;
+    rdfs:label "Database Column" ;
+    ex:hasProperty ex:columnId, ex:name, ex:dataType, ex:isNullable, ex:isPrimaryKey .
+
+ex:DatabaseIndex a ex:Entity ;
+    rdfs:label "Database Index" ;
+    ex:hasProperty ex:indexId, ex:name, ex:type, ex:columns .
+
+# SPARQL Query Examples
+ex:findAllUsers a ex:SPARQLQuery ;
+    rdfs:label "Find All Users" ;
+    ex:query "SELECT ?user ?name ?email WHERE { ?user a ex:User ; ex:name ?name ; ex:email ?email }" ;
+    ex:description "Query to find all users with their names and emails" .
+
+ex:findActiveProducts a ex:SPARQLQuery ;
+    rdfs:label "Find Active Products" ;
+    ex:query "SELECT ?product ?name ?price WHERE { ?product a ex:Product ; ex:name ?name ; ex:price ?price ; ex:status 'active' }" ;
+    ex:description "Query to find all active products" .
+
+ex:findUserOrders a ex:SPARQLQuery ;
+    rdfs:label "Find User Orders" ;
+    ex:query "SELECT ?order ?total WHERE { ?user ex:hasOrders ?order . ?order ex:totalAmount ?total }" ;
+    ex:description "Query to find orders for a specific user" .
+
+ex:findServiceEndpoints a ex:SPARQLQuery ;
+    rdfs:label "Find Service Endpoints" ;
+    ex:query "SELECT ?endpoint ?path ?method WHERE { ?service ex:hasEndpoints ?endpoint . ?endpoint ex:path ?path ; ex:method ?method }" ;
+    ex:description "Query to find all endpoints for a service" .
+
+ex:findTableColumns a ex:SPARQLQuery ;
+    rdfs:label "Find Table Columns" ;
+    ex:query "SELECT ?column ?name ?dataType WHERE { ?table ex:hasColumns ?column . ?column ex:name ?name ; ex:dataType ?dataType }" ;
+    ex:description "Query to find all columns for a table" .

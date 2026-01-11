@@ -1,15 +1,10 @@
 [package]
 name = "ggen-config-clap"
-version = "5.1.0"
+version = "3.3.0"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 license = "MIT"
 description = "Integration layer for loading ggen.toml into clap applications"
-repository = "https://github.com/seanchatmangpt/ggen"
-homepage = "https://github.com/seanchatmangpt/ggen"
-readme = "README.md"
-keywords = ["clap", "config", "toml", "cli"]
-categories = ["development-tools", "command-line-utilities"]
 
 [dependencies]
 ggen-config.workspace = true

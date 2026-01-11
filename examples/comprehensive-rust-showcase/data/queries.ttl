@@ -1,0 +1,302 @@
+# SPARQL Query Definitions
+# Demonstrates advanced SPARQL queries for code generation
+
+@prefix ex: <http://example.org/comprehensive-rust-showcase/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Entity Discovery Queries
+ex:findAllEntities a ex:SPARQLQuery ;
+    rdfs:label "Find All Entities" ;
+    ex:query "SELECT ?entity ?label WHERE { ?entity a ex:Entity ; rdfs:label ?label } ORDER BY ?label" ;
+    ex:description "Query to find all entities in the domain model" ;
+    ex:category "discovery" .
+
+ex:findEntitiesByType a ex:SPARQLQuery ;
+    rdfs:label "Find Entities by Type" ;
+    ex:query "SELECT ?entity ?label WHERE { ?entity a ex:Entity ; rdfs:label ?label }" ;
+    ex:description "Query to find entities by their type" ;
+    ex:category "discovery" .
+
+ex:findEntityProperties a ex:SPARQLQuery ;
+    rdfs:label "Find Entity Properties" ;
+    ex:query "SELECT ?entity ?property ?label WHERE { ?entity ex:hasProperty ?property . ?property rdfs:label ?label }" ;
+    ex:description "Query to find properties for each entity" ;
+    ex:category "discovery" .
+
+ex:findEntityRelationships a ex:SPARQLQuery ;
+    rdfs:label "Find Entity Relationships" ;
+    ex:query "SELECT ?entity ?relationship ?label WHERE { ?entity ex:hasRelationship ?relationship . ?relationship rdfs:label ?label }" ;
+    ex:description "Query to find relationships for each entity" ;
+    ex:category "discovery" .
+
+# User-Related Queries
+ex:findAllUsers a ex:SPARQLQuery ;
+    rdfs:label "Find All Users" ;
+    ex:query "SELECT ?user ?name ?email WHERE { ?user a ex:User ; ex:name ?name ; ex:email ?email }" ;
+    ex:description "Query to find all users with their names and emails" ;
+    ex:category "user" .
+
+ex:findUserById a ex:SPARQLQuery ;
+    rdfs:label "Find User by ID" ;
+    ex:query "SELECT ?user ?name ?email ?createdAt WHERE { ?user a ex:User ; ex:name ?name ; ex:email ?email ; ex:createdAt ?createdAt }" ;
+    ex:description "Query to find a specific user by ID" ;
+    ex:category "user" .
+
+ex:findUserOrders a ex:SPARQLQuery ;
+    rdfs:label "Find User Orders" ;
+    ex:query "SELECT ?user ?order ?totalAmount ?status WHERE { ?user ex:hasOrders ?order . ?order ex:totalAmount ?totalAmount ; ex:status ?status }" ;
+    ex:description "Query to find orders for a specific user" ;
+    ex:category "user" .
+
+ex:findUserReviews a ex:SPARQLQuery ;
+    rdfs:label "Find User Reviews" ;
+    ex:query "SELECT ?user ?review ?rating ?comment WHERE { ?user ex:hasReviews ?review . ?review ex:rating ?rating ; ex:comment ?comment }" ;
+    ex:description "Query to find reviews written by a user" ;
+    ex:category "user" .
+
+# Product-Related Queries
+ex:findAllProducts a ex:SPARQLQuery ;
+    rdfs:label "Find All Products" ;
+    ex:query "SELECT ?product ?name ?price ?category WHERE { ?product a ex:Product ; ex:name ?name ; ex:price ?price ; ex:category ?category }" ;
+    ex:description "Query to find all products with their details" ;
+    ex:category "product" .
+
+ex:findProductsByCategory a ex:SPARQLQuery ;
+    rdfs:label "Find Products by Category" ;
+    ex:query "SELECT ?product ?name ?price WHERE { ?product a ex:Product ; ex:name ?name ; ex:price ?price ; ex:belongsToCategory ?category }" ;
+    ex:description "Query to find products in a specific category" ;
+    ex:category "product" .
+
+ex:findProductReviews a ex:SPARQLQuery ;
+    rdfs:label "Find Product Reviews" ;
+    ex:query "SELECT ?product ?review ?rating ?comment ?user WHERE { ?product ex:hasReviews ?review . ?review ex:rating ?rating ; ex:comment ?comment ; ex:writtenBy ?user }" ;
+    ex:description "Query to find reviews for a specific product" ;
+    ex:category "product" .
+
+ex:findProductsInPriceRange a ex:SPARQLQuery ;
+    rdfs:label "Find Products in Price Range" ;
+    ex:query "SELECT ?product ?name ?price WHERE { ?product a ex:Product ; ex:name ?name ; ex:price ?price . FILTER(?price >= ?minPrice && ?price <= ?maxPrice) }" ;
+    ex:description "Query to find products within a price range" ;
+    ex:category "product" .
+
+# Order-Related Queries
+ex:findAllOrders a ex:SPARQLQuery ;
+    rdfs:label "Find All Orders" ;
+    ex:query "SELECT ?order ?user ?totalAmount ?status ?createdAt WHERE { ?order a ex:Order ; ex:belongsToUser ?user ; ex:totalAmount ?totalAmount ; ex:status ?status ; ex:createdAt ?createdAt }" ;
+    ex:description "Query to find all orders with their details" ;
+    ex:category "order" .
+
+ex:findOrdersByStatus a ex:SPARQLQuery ;
+    rdfs:label "Find Orders by Status" ;
+    ex:query "SELECT ?order ?user ?totalAmount ?createdAt WHERE { ?order a ex:Order ; ex:belongsToUser ?user ; ex:totalAmount ?totalAmount ; ex:status ?status ; ex:createdAt ?createdAt }" ;
+    ex:description "Query to find orders with a specific status" ;
+    ex:category "order" .
+
+ex:findOrderItems a ex:SPARQLQuery ;
+    rdfs:label "Find Order Items" ;
+    ex:query "SELECT ?order ?item ?product ?quantity ?unitPrice WHERE { ?order ex:hasOrderItems ?item . ?item ex:product ?product ; ex:quantity ?quantity ; ex:unitPrice ?unitPrice }" ;
+    ex:description "Query to find items for a specific order" ;
+    ex:category "order" .
+
+ex:findOrdersByDateRange a ex:SPARQLQuery ;
+    rdfs:label "Find Orders by Date Range" ;
+    ex:query "SELECT ?order ?user ?totalAmount ?createdAt WHERE { ?order a ex:Order ; ex:belongsToUser ?user ; ex:totalAmount ?totalAmount ; ex:createdAt ?createdAt . FILTER(?createdAt >= ?startDate && ?createdAt <= ?endDate) }" ;
+    ex:description "Query to find orders within a date range" ;
+    ex:category "order" .
+
+# Category-Related Queries
+ex:findAllCategories a ex:SPARQLQuery ;
+    rdfs:label "Find All Categories" ;
+    ex:query "SELECT ?category ?name ?description WHERE { ?category a ex:Category ; ex:name ?name ; ex:description ?description }" ;
+    ex:description "Query to find all categories" ;
+    ex:category "category" .
+
+ex:findCategoryHierarchy a ex:SPARQLQuery ;
+    rdfs:label "Find Category Hierarchy" ;
+    ex:query "SELECT ?category ?name ?parent WHERE { ?category a ex:Category ; ex:name ?name ; ex:hasParent ?parent }" ;
+    ex:description "Query to find category hierarchy relationships" ;
+    ex:category "category" .
+
+ex:findCategoryProducts a ex:SPARQLQuery ;
+    rdfs:label "Find Category Products" ;
+    ex:query "SELECT ?category ?product ?name ?price WHERE { ?category ex:hasProducts ?product . ?product ex:name ?name ; ex:price ?price }" ;
+    ex:description "Query to find products in a specific category" ;
+    ex:category "category" .
+
+# Microservice-Related Queries
+ex:findAllMicroservices a ex:SPARQLQuery ;
+    rdfs:label "Find All Microservices" ;
+    ex:query "SELECT ?service ?name ?version ?port WHERE { ?service a ex:Microservice ; ex:name ?name ; ex:version ?version ; ex:port ?port }" ;
+    ex:description "Query to find all microservices" ;
+    ex:category "microservice" .
+
+ex:findServiceEndpoints a ex:SPARQLQuery ;
+    rdfs:label "Find Service Endpoints" ;
+    ex:query "SELECT ?service ?endpoint ?path ?method WHERE { ?service ex:hasEndpoints ?endpoint . ?endpoint ex:path ?path ; ex:method ?method }" ;
+    ex:description "Query to find endpoints for a specific service" ;
+    ex:category "microservice" .
+
+ex:findServiceDependencies a ex:SPARQLQuery ;
+    rdfs:label "Find Service Dependencies" ;
+    ex:query "SELECT ?service ?dependency WHERE { ?service ex:hasDependencies ?dependency }" ;
+    ex:description "Query to find dependencies for a specific service" ;
+    ex:category "microservice" .
+
+ex:findServiceHealthChecks a ex:SPARQLQuery ;
+    rdfs:label "Find Service Health Checks" ;
+    ex:query "SELECT ?service ?healthCheck WHERE { ?service ex:healthCheck ?healthCheck }" ;
+    ex:description "Query to find health check endpoints for services" ;
+    ex:category "microservice" .
+
+# API Endpoint-Related Queries
+ex:findAllEndpoints a ex:SPARQLQuery ;
+    rdfs:label "Find All Endpoints" ;
+    ex:query "SELECT ?endpoint ?path ?method ?version WHERE { ?endpoint a ex:APIEndpoint ; ex:path ?path ; ex:method ?method ; ex:version ?version }" ;
+    ex:description "Query to find all API endpoints" ;
+    ex:category "api" .
+
+ex:findEndpointsByMethod a ex:SPARQLQuery ;
+    rdfs:label "Find Endpoints by Method" ;
+    ex:query "SELECT ?endpoint ?path WHERE { ?endpoint a ex:APIEndpoint ; ex:path ?path ; ex:method ?method }" ;
+    ex:description "Query to find endpoints by HTTP method" ;
+    ex:category "api" .
+
+ex:findEndpointsByPath a ex:SPARQLQuery ;
+    rdfs:label "Find Endpoints by Path" ;
+    ex:query "SELECT ?endpoint ?method WHERE { ?endpoint a ex:APIEndpoint ; ex:path ?path ; ex:method ?method }" ;
+    ex:description "Query to find endpoints by path pattern" ;
+    ex:category "api" .
+
+ex:findEndpointParameters a ex:SPARQLQuery ;
+    rdfs:label "Find Endpoint Parameters" ;
+    ex:query "SELECT ?endpoint ?param ?name ?type WHERE { ?endpoint ex:parameters ?param . ?param ex:name ?name ; ex:type ?type }" ;
+    ex:description "Query to find parameters for an endpoint" ;
+    ex:category "api" .
+
+ex:findEndpointResponses a ex:SPARQLQuery ;
+    rdfs:label "Find Endpoint Responses" ;
+    ex:query "SELECT ?endpoint ?response ?statusCode ?contentType WHERE { ?endpoint ex:response ?response . ?response ex:statusCode ?statusCode ; ex:contentType ?contentType }" ;
+    ex:description "Query to find responses for an endpoint" ;
+    ex:category "api" .
+
+# Database-Related Queries
+ex:findAllTables a ex:SPARQLQuery ;
+    rdfs:label "Find All Tables" ;
+    ex:query "SELECT ?table ?name ?schema WHERE { ?table a ex:DatabaseTable ; ex:tableName ?name ; ex:schema ?schema }" ;
+    ex:description "Query to find all database tables" ;
+    ex:category "database" .
+
+ex:findTableColumns a ex:SPARQLQuery ;
+    rdfs:label "Find Table Columns" ;
+    ex:query "SELECT ?table ?column ?name ?dataType WHERE { ?table ex:hasColumns ?column . ?column ex:columnName ?name ; ex:dataType ?dataType }" ;
+    ex:description "Query to find columns for a specific table" ;
+    ex:category "database" .
+
+ex:findTableIndexes a ex:SPARQLQuery ;
+    rdfs:label "Find Table Indexes" ;
+    ex:query "SELECT ?table ?index ?name ?type WHERE { ?table ex:hasIndexes ?index . ?index ex:indexName ?name ; ex:indexType ?type }" ;
+    ex:description "Query to find indexes for a specific table" ;
+    ex:category "database" .
+
+ex:findTableConstraints a ex:SPARQLQuery ;
+    rdfs:label "Find Table Constraints" ;
+    ex:query "SELECT ?table ?constraint ?name ?type WHERE { ?table ex:hasConstraints ?constraint . ?constraint ex:constraintName ?name ; ex:constraintType ?type }" ;
+    ex:description "Query to find constraints for a specific table" ;
+    ex:category "database" .
+
+ex:findForeignKeys a ex:SPARQLQuery ;
+    rdfs:label "Find Foreign Keys" ;
+    ex:query "SELECT ?table ?column ?refTable ?refColumn WHERE { ?table ex:hasConstraints ?constraint . ?constraint ex:constraintType 'foreign_key' ; ex:hasColumn ?column ; ex:referencesTable ?refTable ; ex:referencesColumn ?refColumn }" ;
+    ex:description "Query to find all foreign key relationships" ;
+    ex:category "database" .
+
+# Business Rules Queries
+ex:findAllBusinessRules a ex:SPARQLQuery ;
+    rdfs:label "Find All Business Rules" ;
+    ex:query "SELECT ?entity ?rule ?description WHERE { ?entity ex:businessRules ?rule . ?rule rdfs:label ?description }" ;
+    ex:description "Query to find all business rules" ;
+    ex:category "business" .
+
+ex:findEntityBusinessRules a ex:SPARQLQuery ;
+    rdfs:label "Find Entity Business Rules" ;
+    ex:query "SELECT ?entity ?rule ?rules WHERE { ?entity ex:businessRules ?rule . ?rule ex:rules ?rules }" ;
+    ex:description "Query to find business rules for a specific entity" ;
+    ex:category "business" .
+
+# Lifecycle Queries
+ex:findAllLifecycles a ex:SPARQLQuery ;
+    rdfs:label "Find All Lifecycles" ;
+    ex:query "SELECT ?entity ?lifecycle ?states WHERE { ?entity ex:lifecycle ?lifecycle . ?lifecycle ex:states ?states }" ;
+    ex:description "Query to find all lifecycle definitions" ;
+    ex:category "lifecycle" .
+
+ex:findEntityLifecycle a ex:SPARQLQuery ;
+    rdfs:label "Find Entity Lifecycle" ;
+    ex:query "SELECT ?entity ?lifecycle ?states ?transitions WHERE { ?entity ex:lifecycle ?lifecycle . ?lifecycle ex:states ?states ; ex:transitions ?transitions }" ;
+    ex:description "Query to find lifecycle for a specific entity" ;
+    ex:category "lifecycle" .
+
+# Complex Analytical Queries
+ex:findUserOrderSummary a ex:SPARQLQuery ;
+    rdfs:label "Find User Order Summary" ;
+    ex:query "SELECT ?user ?name (COUNT(?order) as ?orderCount) (SUM(?totalAmount) as ?totalSpent) WHERE { ?user a ex:User ; ex:name ?name ; ex:hasOrders ?order . ?order ex:totalAmount ?totalAmount } GROUP BY ?user ?name" ;
+    ex:description "Query to find order summary for each user" ;
+    ex:category "analytics" .
+
+ex:findProductSalesSummary a ex:SPARQLQuery ;
+    rdfs:label "Find Product Sales Summary" ;
+    ex:query "SELECT ?product ?name (COUNT(?item) as ?salesCount) (SUM(?quantity) as ?totalQuantity) WHERE { ?product a ex:Product ; ex:name ?name . ?item ex:product ?product ; ex:quantity ?quantity } GROUP BY ?product ?name" ;
+    ex:description "Query to find sales summary for each product" ;
+    ex:category "analytics" .
+
+ex:findCategoryPerformance a ex:SPARQLQuery ;
+    rdfs:label "Find Category Performance" ;
+    ex:query "SELECT ?category ?name (COUNT(?product) as ?productCount) (AVG(?price) as ?avgPrice) WHERE { ?category a ex:Category ; ex:name ?name ; ex:hasProducts ?product . ?product ex:price ?price } GROUP BY ?category ?name" ;
+    ex:description "Query to find performance metrics for each category" ;
+    ex:category "analytics" .
+
+ex:findServiceMetrics a ex:SPARQLQuery ;
+    rdfs:label "Find Service Metrics" ;
+    ex:query "SELECT ?service ?name (COUNT(?endpoint) as ?endpointCount) WHERE { ?service a ex:Microservice ; ex:name ?name ; ex:hasEndpoints ?endpoint } GROUP BY ?service ?name" ;
+    ex:description "Query to find metrics for each microservice" ;
+    ex:category "analytics" .
+
+# Validation Queries
+ex:findValidationRules a ex:SPARQLQuery ;
+    rdfs:label "Find Validation Rules" ;
+    ex:query "SELECT ?property ?validation WHERE { ?property ex:validation ?validation }" ;
+    ex:description "Query to find validation rules for properties" ;
+    ex:category "validation" .
+
+ex:findRequiredProperties a ex:SPARQLQuery ;
+    rdfs:label "Find Required Properties" ;
+    ex:query "SELECT ?entity ?property ?name WHERE { ?entity ex:hasProperty ?property . ?property ex:isRequired true ; ex:name ?name }" ;
+    ex:description "Query to find required properties for each entity" ;
+    ex:category "validation" .
+
+ex:findUniqueProperties a ex:SPARQLQuery ;
+    rdfs:label "Find Unique Properties" ;
+    ex:query "SELECT ?entity ?property ?name WHERE { ?entity ex:hasProperty ?property . ?property ex:isUnique true ; ex:name ?name }" ;
+    ex:description "Query to find unique properties for each entity" ;
+    ex:category "validation" .
+
+# Relationship Queries
+ex:findAllRelationships a ex:SPARQLQuery ;
+    rdfs:label "Find All Relationships" ;
+    ex:query "SELECT ?relationship ?from ?to ?cardinality WHERE { ?relationship ex:from ?from ; ex:to ?to ; ex:cardinality ?cardinality }" ;
+    ex:description "Query to find all relationships between entities" ;
+    ex:category "relationship" .
+
+ex:findEntityRelationships a ex:SPARQLQuery ;
+    rdfs:label "Find Entity Relationships" ;
+    ex:query "SELECT ?entity ?relationship ?target ?cardinality WHERE { ?entity ex:hasRelationship ?relationship . ?relationship ex:to ?target ; ex:cardinality ?cardinality }" ;
+    ex:description "Query to find relationships for a specific entity" ;
+    ex:category "relationship" .
+
+ex:findRelationshipConstraints a ex:SPARQLQuery ;
+    rdfs:label "Find Relationship Constraints" ;
+    ex:query "SELECT ?relationship ?constraint WHERE { ?relationship ex:hasConstraint ?constraint }" ;
+    ex:description "Query to find constraints for relationships" ;
+    ex:category "relationship" .

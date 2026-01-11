@@ -1,15 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [How-To: Compose Multiple Ontologies](#how-to-compose-multiple-ontologies)
-  - [Combining Vocabularies](#combining-vocabularies)
-  - [Real-World Example](#real-world-example)
-  - [Conflict Resolution](#conflict-resolution)
-  - [Validation After Composition](#validation-after-composition)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # How-To: Compose Multiple Ontologies
 
 ## Combining Vocabularies

@@ -1,25 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Error Handling & Validation Guide](#error-handling--validation-guide)
-  - [Result<T, E> Pattern](#resultt-e-pattern)
-    - [The ? Operator](#the--operator)
-  - [Custom Error Types](#custom-error-types)
-  - [Error Context](#error-context)
-  - [Validation Chains](#validation-chains)
-  - [Poka-Yoke (Mistake-Proofing)](#poka-yoke-mistake-proofing)
-  - [Security Validation Patterns](#security-validation-patterns)
-    - [Path Traversal Prevention](#path-traversal-prevention)
-    - [Input Sanitization](#input-sanitization)
-    - [SPARQL Injection Prevention](#sparql-injection-prevention)
-  - [Error Recovery](#error-recovery)
-  - [Testing Error Cases](#testing-error-cases)
-  - [Critical Rules](#critical-rules)
-  - [Quick Reference](#quick-reference)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Error Handling & Validation Guide
 
 ## Result<T, E> Pattern

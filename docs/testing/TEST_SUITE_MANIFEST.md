@@ -1,22 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Swarm Test Suite Manifest](#swarm-test-suite-manifest)
-  - [Test Files Created](#test-files-created)
-  - [Test Coverage by Category](#test-coverage-by-category)
-    - [Consensus (16 tests)](#consensus-16-tests)
-    - [Security (21 tests)](#security-21-tests)
-    - [Integration (14 tests)](#integration-14-tests)
-    - [Performance (14 tests)](#performance-14-tests)
-    - [Failure Recovery (16 tests)](#failure-recovery-16-tests)
-    - [End-to-End (12 tests)](#end-to-end-12-tests)
-  - [Execution Status](#execution-status)
-  - [Test Quality Metrics](#test-quality-metrics)
-  - [Next Steps](#next-steps)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Swarm Test Suite Manifest
 
 ## Test Files Created

@@ -1,57 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [How to Configure Language Models (LLMs) in ggen](#how-to-configure-language-models-llms-in-ggen)
-  - [Table of Contents](#table-of-contents)
-  - [Quick Start](#quick-start)
-    - [Option 1: Local AI (FREE - Recommended for Development)](#option-1-local-ai-free---recommended-for-development)
-    - [Option 2: OpenAI (GPT-4o)](#option-2-openai-gpt-4o)
-    - [Option 3: Anthropic (Claude)](#option-3-anthropic-claude)
-  - [Supported Models](#supported-models)
-    - [Free Local Models (via Ollama)](#free-local-models-via-ollama)
-    - [Cloud-Based Models](#cloud-based-models)
-      - [OpenAI](#openai)
-      - [Anthropic (Claude)](#anthropic-claude)
-      - [Other Providers (via genai crate)](#other-providers-via-genai-crate)
-  - [Configuration Methods](#configuration-methods)
-    - [Method 1: Environment Variables (Easiest)](#method-1-environment-variables-easiest)
-    - [Method 2: .env File (Project-Specific)](#method-2-env-file-project-specific)
-    - [Method 3: Configuration File (System-Wide)](#method-3-configuration-file-system-wide)
-    - [Method 4: Project-Specific Config](#method-4-project-specific-config)
-    - [Method 5: CLI Flags (One-Time Override)](#method-5-cli-flags-one-time-override)
-  - [Provider Setup](#provider-setup)
-    - [Setup: Ollama (Local, FREE)](#setup-ollama-local-free)
-    - [Setup: OpenAI (GPT-4o)](#setup-openai-gpt-4o)
-    - [Setup: Anthropic (Claude)](#setup-anthropic-claude)
-  - [Testing Your Setup](#testing-your-setup)
-    - [Test 1: Verify Provider Auto-Detection](#test-1-verify-provider-auto-detection)
-    - [Test 2: Simple Generation](#test-2-simple-generation)
-    - [Test 3: Check Model Availability](#test-3-check-model-availability)
-    - [Test 4: Monitor Token Usage](#test-4-monitor-token-usage)
-    - [Test 5: Verify Streaming (Optional)](#test-5-verify-streaming-optional)
-  - [Troubleshooting](#troubleshooting)
-    - [Problem: "No LLM configured"](#problem-no-llm-configured)
-    - [Problem: "API key invalid"](#problem-api-key-invalid)
-    - [Problem: "Model not found"](#problem-model-not-found)
-    - [Problem: "Rate limit exceeded"](#problem-rate-limit-exceeded)
-    - [Problem: Ollama won't start or connect](#problem-ollama-wont-start-or-connect)
-    - [Problem: "Connection timeout"](#problem-connection-timeout)
-  - [Cost Optimization](#cost-optimization)
-    - [Free Option: Ollama Development](#free-option-ollama-development)
-    - [Budget Option: Shared Cache](#budget-option-shared-cache)
-    - [Production Optimization](#production-optimization)
-    - [Monitoring Costs](#monitoring-costs)
-  - [Advanced Configuration](#advanced-configuration)
-    - [Custom Base URLs (Enterprise Proxies)](#custom-base-urls-enterprise-proxies)
-    - [Multiple Providers (Fallback)](#multiple-providers-fallback)
-    - [Organization IDs (OpenAI)](#organization-ids-openai)
-    - [Programmatic Configuration (Rust)](#programmatic-configuration-rust)
-  - [Summary](#summary)
-  - [Next Steps](#next-steps)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # How to Configure Language Models (LLMs) in ggen
 
 This guide covers setting up ggen to work with different AI language models for generating code, ontologies, and SPARQL queries.
@@ -176,14 +122,14 @@ ollama list
 - gpt-3.5-turbo: $0.50 per 1M input tokens, $1.50 per 1M output tokens
 
 #### Anthropic (Claude)
-- `claude-haiku-4-5-20251001` - Recommended, fastest (90% Sonnet performance, 4-5x faster)
-- `claude-3-5-sonnet-20241022` - Capable, balanced
+- `claude-3-5-sonnet-20241022` - Recommended, fastest
 - `claude-3-opus-20240229` - Most powerful, slower
+- `claude-3-haiku-20240307` - Budget option
 
 **Pricing (approx):**
-- Claude Haiku 4.5: $1 per 1M input, $5 per 1M output
 - Claude 3.5 Sonnet: $3 per 1M input, $15 per 1M output
 - Claude 3 Opus: $15 per 1M input, $75 per 1M output
+- Claude 3 Haiku: $0.80 per 1M input, $4 per 1M output
 
 #### Other Providers (via genai crate)
 - **Google Gemini** - https://makersuite.google.com/app/apikey

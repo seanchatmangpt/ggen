@@ -1,20 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Ontology Packs Documentation](#ontology-packs-documentation)
-  - [Documentation Quadrants](#documentation-quadrants)
-    - [🎓 Tutorials - Learning-Oriented](#-tutorials---learning-oriented)
-    - [🛠️ How-To Guides - Problem-Oriented](#-how-to-guides---problem-oriented)
-    - [📚 Reference - Information-Oriented](#-reference---information-oriented)
-    - [💡 Explanations - Understanding-Oriented](#-explanations---understanding-oriented)
-  - [Quick Navigation](#quick-navigation)
-    - [By Role](#by-role)
-    - [By Task](#by-task)
-  - [Document Evolution](#document-evolution)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Ontology Packs Documentation
 
 Welcome to the Ontology Packs documentation. This guide follows the [Diataxis](https://diataxis.fr/) framework to help you learn, use, reference, and understand the ontology-as-packs system.

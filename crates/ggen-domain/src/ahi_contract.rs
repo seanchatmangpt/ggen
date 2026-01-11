@@ -94,7 +94,6 @@ pub struct AHIInvariants {
 /// - Outputs are ΔΣ, ΔΠ, ΔQ, marketplace_actions
 /// - All changes are justified and auditable
 /// - Every cycle preserves AHIInvariants
-#[allow(clippy::type_complexity)]
 pub trait AHIDecisionCycle: Send + Sync + Debug {
     /// Observation type (receipts, metrics, anomalies from KNHK)
     type Observation: Debug + Clone + Send + Sync;

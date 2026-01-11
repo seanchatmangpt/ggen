@@ -48,7 +48,6 @@ pub mod app_config;
 pub mod cli;
 pub mod enhanced_error;
 pub mod error;
-pub mod fmea;
 pub mod logger;
 pub mod project_config;
 pub mod time;

@@ -134,18 +134,6 @@ pub enum GgenAiError {
     /// Generic error from `Box<dyn std::error::Error>`
     #[error("Generic error: {message}")]
     Other { message: String },
-
-    /// Ultrathink (experimental ultra-concurrent thinking) error
-    #[error("Ultrathink error: {0}")]
-    UltrathinkError(String),
-}
-
-// Alias for backward compatibility and ultrathink module
-impl GgenAiError {
-    /// Create a new ultrathink internal error
-    pub fn ultrathink_internal(message: impl Into<String>) -> Self {
-        Self::UltrathinkError(format!("Internal: {}", message.into()))
-    }
 }
 
 /// Result type for ggen-ai operations

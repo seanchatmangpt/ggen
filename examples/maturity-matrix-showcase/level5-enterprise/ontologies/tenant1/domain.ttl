@@ -1,0 +1,13 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ex: <http://example.org/maturity-matrix/level5/tenant1#> .
+
+# Level 5: Tenant 1 Specific Ontology (10,000+ triples)
+# Tenant-specific domain model
+
+ex:Tenant1Model a rdfs:Class ;
+    rdfs:label "Tenant 1 Model" .
+
+# Tenant-specific entities and relationships
+# (Expanded to 10,000+ triples in real implementation)
+

@@ -1,33 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [How-to: Refactor Tests with Lean](#how-to-refactor-tests-with-lean)
-  - [Prerequisites](#prerequisites)
-  - [Problem Statement](#problem-statement)
-  - [Step 1: Measure Current State](#step-1-measure-current-state)
-    - [Collect Baseline Metrics](#collect-baseline-metrics)
-    - [Identify Flaky Tests](#identify-flaky-tests)
-  - [Step 2: Eliminate Mura (Inconsistency)](#step-2-eliminate-mura-inconsistency)
-    - [Pattern 1: Standardize Test Structure (AAA)](#pattern-1-standardize-test-structure-aaa)
-    - [Pattern 2: Consistent Naming](#pattern-2-consistent-naming)
-  - [Step 3: Eliminate Muda (Waste)](#step-3-eliminate-muda-waste)
-    - [Muda Type 1: Overproduction (Duplicate Tests)](#muda-type-1-overproduction-duplicate-tests)
-    - [Muda Type 2: Waiting (Slow Tests)](#muda-type-2-waiting-slow-tests)
-    - [Muda Type 3: Transportation (File I/O)](#muda-type-3-transportation-file-io)
-    - [Muda Type 4: Defects (Flaky Tests)](#muda-type-4-defects-flaky-tests)
-  - [Step 4: Apply Poka-Yoke (Mistake-Proofing)](#step-4-apply-poka-yoke-mistake-proofing)
-    - [Pattern 1: Use Type System to Prevent Errors](#pattern-1-use-type-system-to-prevent-errors)
-    - [Pattern 2: Compile-Time Bounds](#pattern-2-compile-time-bounds)
-  - [Step 5: Measure Improvement](#step-5-measure-improvement)
-    - [Re-run Metrics](#re-run-metrics)
-    - [Calculate ROI](#calculate-roi)
-  - [Verification Checklist](#verification-checklist)
-  - [Automation Script](#automation-script)
-  - [Related Guides](#related-guides)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # How-to: Refactor Tests with Lean
 
 **Apply Mura (inconsistency) and Muda (waste) elimination to test suites**

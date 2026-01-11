@@ -1,33 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Tutorial: Hive Mind Swarm 101](#tutorial-hive-mind-swarm-101)
-  - [Learning Objectives](#learning-objectives)
-  - [What is a Hive Mind Swarm?](#what-is-a-hive-mind-swarm)
-  - [Architecture: 3-Tier Hierarchy](#architecture-3-tier-hierarchy)
-    - [Tier 1: The Queen (Strategic Coordination)](#tier-1-the-queen-strategic-coordination)
-    - [Tier 2: Colony Leaders (Tactical Execution)](#tier-2-colony-leaders-tactical-execution)
-    - [Tier 3: Workers (Specialized Tasks)](#tier-3-workers-specialized-tasks)
-  - [Step-by-Step: Your First Swarm](#step-by-step-your-first-swarm)
-    - [Step 1: Initialize Swarm Topology](#step-1-initialize-swarm-topology)
-    - [Step 2: Spawn Specialized Agents](#step-2-spawn-specialized-agents)
-    - [Step 3: Orchestrate a Task](#step-3-orchestrate-a-task)
-    - [Step 4: Monitor Progress](#step-4-monitor-progress)
-  - [Worked Example: CLI Refactoring](#worked-example-cli-refactoring)
-    - [Step 1: Queen Plans Strategy](#step-1-queen-plans-strategy)
-    - [Step 2: Colony Leaders Assign Workers](#step-2-colony-leaders-assign-workers)
-    - [Step 3: Workers Execute Tasks](#step-3-workers-execute-tasks)
-    - [Step 4: Consensus & Integration](#step-4-consensus--integration)
-  - [Byzantine Fault Tolerance (BFT)](#byzantine-fault-tolerance-bft)
-  - [When to Use Swarm vs Single Agent](#when-to-use-swarm-vs-single-agent)
-    - [Use Swarm When:](#use-swarm-when)
-    - [Use Single Agent When:](#use-single-agent-when)
-  - [Glossary](#glossary)
-  - [Next Steps](#next-steps)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Tutorial: Hive Mind Swarm 101
 
 **Learn how multi-agent swarm orchestration works with Queen-Colony-Worker architecture**

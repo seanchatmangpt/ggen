@@ -10,8 +10,6 @@
 
 use std::marker::PhantomData;
 use std::path::Path;
-#[allow(unused_imports)]
-use thiserror::Error;
 
 // ============================================================================
 // Type-Level States
@@ -117,12 +115,6 @@ impl Registry<Uninitialized> {
             templates,
             _state: PhantomData,
         })
-    }
-}
-
-impl Default for Registry<Uninitialized> {
-    fn default() -> Self {
-        Self::new()
     }
 }
 
@@ -252,8 +244,6 @@ impl Template {
 /// Rendering context
 #[derive(Debug, Clone, Default)]
 pub struct Context {
-    /// Template rendering variables
-    #[allow(dead_code)] // Reserved for future template variable rendering
     variables: std::collections::HashMap<String, String>,
 }
 
@@ -261,7 +251,9 @@ pub struct Context {
 // Error Types
 // ============================================================================
 
-#[derive(Debug, thiserror::Error)]
+use thiserror::Error;
+
+#[derive(Error, Debug)]
 pub enum RegistryError {
     #[error("No templates found at path: {path}")]
     NoTemplatesFound { path: String },
@@ -315,7 +307,6 @@ fn render_template(template: &Template, _context: Context) -> Result<String, Reg
 // ============================================================================
 
 #[cfg(test)]
-#[allow(clippy::expect_used)]
 mod tests {
     use super::*;
 

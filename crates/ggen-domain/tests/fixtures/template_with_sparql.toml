@@ -1,0 +1,23 @@
+---
+to: queries/{{ query_name }}.sparql
+vars:
+  query_name: user_query
+---
+# SPARQL Query: {{ query_name }}
+
+SELECT ?user ?name
+WHERE {
+  ?user rdf:type foaf:Person .
+  ?user foaf:name ?name .
+}
+
+# Invalid SPARQL (missing WHERE)
+SELECT ?user ?name
+
+# CONSTRUCT query
+CONSTRUCT {
+  ?s ?p ?o
+}
+WHERE {
+  ?s ?p ?o
+}

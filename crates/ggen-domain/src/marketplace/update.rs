@@ -169,9 +169,10 @@ pub async fn update_and_report(package: Option<&str>, all: bool, dry_run: bool) 
     Ok(())
 }
 
-/// Execute update command using ggen-marketplace backend with RDF semantic versioning
+/// Execute update command using ggen-marketplace-v2 backend with RDF semantic versioning
 pub async fn execute_update(input: UpdateInput) -> Result<UpdateOutput> {
-    use ggen_marketplace::RdfRegistry;
+    use ggen_marketplace_v2::prelude::*;
+    use ggen_marketplace_v2::RdfRegistry;
 
     let _registry_path = dirs::home_dir()
         .ok_or_else(|| ggen_utils::error::Error::new("home directory not found"))?
@@ -233,9 +234,13 @@ pub async fn execute_update(input: UpdateInput) -> Result<UpdateOutput> {
     let updated_count: usize = 0;
 
     for pkg_name in &packages_to_update {
-        let Some(_pkg_info) = lockfile.packages.get(pkg_name) else {
-            ggen_utils::alert_warning!("Missing lockfile entry for: {}", pkg_name);
-            continue;
+        // Create package ID with proper error handling
+        let _package_id = match PackageId::new(&format!("local/{}", pkg_name)) {
+            Ok(id) => id,
+            Err(_) => {
+                ggen_utils::alert_warning!("Invalid package ID for: {}", pkg_name);
+                continue;
+            }
         };
 
         // NOTE: v2 RDF-backed version querying to be implemented
