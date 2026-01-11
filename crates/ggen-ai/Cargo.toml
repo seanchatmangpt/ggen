@@ -74,6 +74,11 @@ sha2 = "0.10"
 # LRU cache for codegen metrics
 lru = "0.12"
 
+# Evaluation framework dependencies
+indicatif = "0.17"       # Progress bars for evaluation
+prettytable-rs = "0.10"  # Display results in tables
+csv = "1.3"              # CSV export
+
 [features]
 default = []
 ollama-integration = []
