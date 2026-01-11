@@ -18,7 +18,7 @@ use tracing::{debug, info, warn};
 /// Represents a single training or validation example consisting of
 /// input fields and expected output fields. Used by optimizers to
 /// bootstrap demonstrations.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Example {
     /// Input field values
     pub inputs: HashMap<String, Value>,
@@ -176,6 +176,16 @@ impl BootstrapFewShot {
         self
     }
 
+    /// Get the metric function (for subclass optimizers)
+    pub fn metric(&self) -> &MetricFn {
+        &self.metric
+    }
+
+    /// Get max bootstrapped demos (for subclass optimizers)
+    pub fn max_bootstrapped_demos(&self) -> usize {
+        self.max_bootstrapped_demos
+    }
+
     /// Compile/optimize a student module using training examples
     ///
     /// # Arguments
@@ -313,6 +323,11 @@ impl OptimizedPredictor {
         &self.demonstrations
     }
 
+    /// Downcast to concrete type (for optimizers that need to inspect the optimized predictor)
+    pub fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
+
     /// Build few-shot prompt with demonstrations
     fn build_prompt(&self, inputs: &HashMap<String, Value>) -> Result<String, ModuleError> {
         let mut prompt = format!("{}\n\n", self.signature.description);
@@ -445,6 +460,10 @@ impl Module for OptimizedPredictor {
 
         // Parse output
         self.parse_output(&response)
+    }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
     }
 }
 

@@ -61,7 +61,12 @@ pub enum DspyError {
 
     /// Tool execution failed
     #[error("Tool '{tool}' execution failed: {reason}")]
-    ToolError { tool: String, reason: String },
+    ToolError {
+        /// Tool name
+        tool: String,
+        /// Error reason
+        reason: String
+    },
 
     /// Retrieval operation failed
     #[error("Retrieval failed: {0}")]
@@ -81,11 +86,19 @@ pub enum DspyError {
 
     /// Invalid input type
     #[error("Invalid input type for field '{field}': expected {expected}")]
-    InvalidInputType { field: String, expected: String },
+    InvalidInputType {
+        /// Field name
+        field: String,
+        /// Expected type
+        expected: String
+    },
 
     /// Field extraction error
     #[error("Failed to extract field: {field}")]
-    FieldError { field: String },
+    FieldError {
+        /// Field name
+        field: String
+    },
 
     /// Parsing error
     #[error("Parsing error: {0}")]

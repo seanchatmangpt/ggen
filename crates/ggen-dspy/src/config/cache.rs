@@ -94,6 +94,7 @@ pub struct CacheManager {
     pub disk_cache: Option<Arc<sled::Db>>,
 
     /// Cache configuration
+    #[allow(dead_code)]
     config: CacheConfig,
 
     /// Statistics
@@ -189,10 +190,10 @@ impl CacheManager {
         if let Some(ref cache) = self.disk_cache {
             cache
                 .insert(key.as_bytes(), value.as_bytes())
-                .map_err(|e| DspyError::cache_error(format!("Failed to write to disk cache: {}", e)))?;
+                .map_err(|e| DspyError::cache(format!("Failed to write to disk cache: {}", e)))?;
             cache
                 .flush()
-                .map_err(|e| DspyError::cache_error(format!("Failed to flush disk cache: {}", e)))?;
+                .map_err(|e| DspyError::cache(format!("Failed to flush disk cache: {}", e)))?;
         }
 
         Ok(())
@@ -208,7 +209,7 @@ impl CacheManager {
         // Remove from disk cache
         if let Some(ref cache) = self.disk_cache {
             cache.remove(key.as_bytes()).map_err(|e| {
-                DspyError::cache_error(format!("Failed to remove from disk cache: {}", e))
+                DspyError::cache(format!("Failed to remove from disk cache: {}", e))
             })?;
         }
 
@@ -226,7 +227,7 @@ impl CacheManager {
         if let Some(ref cache) = self.disk_cache {
             cache
                 .clear()
-                .map_err(|e| DspyError::cache_error(format!("Failed to clear disk cache: {}", e)))?;
+                .map_err(|e| DspyError::cache(format!("Failed to clear disk cache: {}", e)))?;
         }
 
         Ok(())

@@ -5,8 +5,7 @@
 
 use crate::{DspyError, Module, ModuleOutput, Result};
 use async_trait::async_trait;
-use ggen_ai::dspy::{InputField, OutputField, Signature};
-use std::collections::HashMap;
+use ggen_ai::dspy::Signature;
 use tracing::{debug, warn};
 
 /// Basic predictor module that executes an LLM call
@@ -198,9 +197,11 @@ impl Predictor {
         let client = Client::default();
 
         // Determine model to use
+        let ggen_model = std::env::var("GGEN_LLM_MODEL").ok();
+        let default_model = std::env::var("DEFAULT_MODEL").ok();
         let model = self.model.as_deref()
-            .or_else(|| std::env::var("GGEN_LLM_MODEL").ok().as_deref())
-            .or_else(|| std::env::var("DEFAULT_MODEL").ok().as_deref())
+            .or_else(|| ggen_model.as_deref())
+            .or_else(|| default_model.as_deref())
             .unwrap_or("");
 
         if model.is_empty() {
@@ -220,7 +221,7 @@ impl Predictor {
         // Configure chat options
         let chat_options = ChatOptions::default()
             .with_temperature(self.temperature)
-            .with_max_tokens(self.max_tokens as i32);
+            .with_max_tokens(self.max_tokens as u32);
 
         // Execute request
         match client.exec_chat(model, chat_req, Some(&chat_options)).await {
@@ -260,7 +261,7 @@ impl Module for Predictor {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::prelude::*;
+    use ggen_ai::dspy::{InputField, OutputField};
 
     // Arrange-Act-Assert pattern from chicago-tdd-tools
 

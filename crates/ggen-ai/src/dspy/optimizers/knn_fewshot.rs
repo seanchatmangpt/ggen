@@ -404,6 +404,10 @@ impl Module for KNNPredictor {
         // Parse output
         self.parse_output(&response)
     }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
 }
 
 #[cfg(test)]

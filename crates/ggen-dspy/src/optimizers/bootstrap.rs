@@ -4,6 +4,7 @@ use crate::{Module, Optimizer, OptimizerConfig, Result, optimizers::TrainExample
 
 /// Bootstrap few-shot optimizer
 pub struct BootstrapFewShot {
+    #[allow(dead_code)]
     config: OptimizerConfig,
 }
 

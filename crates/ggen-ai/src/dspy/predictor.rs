@@ -189,6 +189,10 @@ impl Module for Predictor {
         // Parse output
         self.parse_output(&response)
     }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
 }
 
 /// ChainOfThought: Predictor with reasoning steps
@@ -228,6 +232,10 @@ impl Module for ChainOfThought {
 
     async fn forward(&self, inputs: HashMap<String, Value>) -> ModuleResult<HashMap<String, Value>> {
         self.predictor.forward(inputs).await
+    }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
     }
 }
 

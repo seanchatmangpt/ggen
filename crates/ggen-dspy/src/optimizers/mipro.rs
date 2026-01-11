@@ -4,6 +4,7 @@ use crate::{Module, Optimizer, OptimizerConfig, Result, optimizers::TrainExample
 
 /// MIPRO optimizer
 pub struct MiproOptimizer {
+    #[allow(dead_code)]
     config: OptimizerConfig,
 }
 

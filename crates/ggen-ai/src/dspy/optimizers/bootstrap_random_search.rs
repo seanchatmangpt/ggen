@@ -19,6 +19,7 @@ use crate::dspy::{Module, ModuleError};
 use crate::dspy::optimizer::{Example, Demonstration, OptimizedPredictor, BootstrapFewShot};
 use super::{Optimizer, OptimizationStatistics, Metric};
 use async_trait::async_trait;
+use rand::Rng;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -96,7 +97,7 @@ impl BootstrapFewShotWithRandomSearch {
         info!("Bootstrapping {} candidate demonstrations", num_candidates);
 
         // Use base optimizer with higher demo count
-        let base_with_more = BootstrapFewShot::new(self.base.metric.clone())
+        let base_with_more = BootstrapFewShot::new(Arc::clone(self.base.metric()))
             .with_max_bootstrapped_demos(num_candidates);
 
         let optimized = base_with_more.compile(student, trainset).await?;
@@ -115,7 +116,7 @@ impl BootstrapFewShotWithRandomSearch {
         &self,
         program: &OptimizedPredictor,
         validation: &[Example],
-        metric: &Arc<dyn Metric>,
+        metric: &MetricAdapter,
     ) -> Result<f64, ModuleError> {
         let mut total_score = 0.0;
         let mut successful = 0;
@@ -155,9 +156,20 @@ impl BootstrapFewShotWithRandomSearch {
         let mut rng = rand::rng();
         let sample_size = k.min(candidates.len());
 
-        candidates
-            .choose_multiple(&mut rng, sample_size)
-            .cloned()
+        if candidates.is_empty() {
+            return Vec::new();
+        }
+
+        // Use Fisher-Yates shuffle approach for random sampling
+        let mut indices: Vec<usize> = (0..candidates.len()).collect();
+        for i in 0..sample_size.min(indices.len()) {
+            let j = rng.random_range(i..indices.len());
+            indices.swap(i, j);
+        }
+
+        indices[..sample_size]
+            .iter()
+            .map(|&i| candidates[i].clone())
             .collect()
     }
 }
@@ -176,7 +188,7 @@ impl Optimizer for BootstrapFewShotWithRandomSearch {
         }
 
         // Use validation set if provided, otherwise use trainset
-        let validation = self.validation_set.as_ref().unwrap_or(trainset);
+        let validation = self.validation_set.as_deref().unwrap_or(trainset);
 
         if validation.is_empty() {
             return Err(ModuleError::Other(
@@ -204,13 +216,13 @@ impl Optimizer for BootstrapFewShotWithRandomSearch {
         info!("Bootstrapped {} candidate demonstrations", candidates.len());
 
         // Step 2: Random search over demo combinations
-        let max_demos = self.base.max_bootstrapped_demos;
+        let max_demos = self.base.max_bootstrapped_demos();
         let mut best_program: Option<OptimizedPredictor> = None;
         let mut best_score = -f64::INFINITY;
 
         // Create metric trait object for evaluation
         let metric = Arc::new(MetricAdapter {
-            inner: Arc::clone(&self.base.metric),
+            inner: Arc::clone(self.base.metric()),
         });
 
         for i in 0..self.num_candidate_programs {
@@ -225,7 +237,7 @@ impl Optimizer for BootstrapFewShotWithRandomSearch {
             );
 
             // Evaluate on validation set
-            let score = self.evaluate_program(&program, validation, &metric).await?;
+            let score = self.evaluate_program(&program, validation, metric.as_ref()).await?;
 
             debug!("Program {} score: {:.3}", i + 1, score);
 

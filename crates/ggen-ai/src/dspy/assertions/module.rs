@@ -114,7 +114,7 @@ impl<M: Module> AssertedModule<M> {
 }
 
 #[async_trait::async_trait]
-impl<M: Module + Send + Sync> Module for AssertedModule<M> {
+impl<M: Module + Send + Sync + 'static> Module for AssertedModule<M> {
     fn signature(&self) -> &crate::dspy::Signature {
         self.inner.signature()
     }
@@ -132,6 +132,10 @@ impl<M: Module + Send + Sync> Module for AssertedModule<M> {
         self.execute_with_assertions(inputs)
             .await
             .map_err(|e| ModuleError::Other(e.to_string()))
+    }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
     }
 }
 
