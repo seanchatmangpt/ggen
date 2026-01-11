@@ -32,8 +32,8 @@ pub use validation_error::{ValidationError, ValidationErrorDetail, ValidationErr
 pub use signature_validator::SignatureValidator;
 pub use optimizer::{BootstrapFewShot, Example, Demonstration, OptimizedPredictor, MetricFn};
 pub use optimizers::{
-    Optimizer, Metric, Trace, TraceStep, OptimizationStatistics,
-    ExactMatchMetric, FuzzyMatchMetric,
+    Optimizer, Metric, Trace as OptimizerTrace, TraceStep, OptimizationStatistics,
+    ExactMatchMetric as OptimizerExactMatchMetric, FuzzyMatchMetric,
     LabeledFewShot, KNNFewShot, BootstrapFewShotWithRandomSearch, COPRO,
     Vectorizer, CosineVectorizer,
 };
@@ -45,10 +45,11 @@ pub use assertions::{
 
 // Evaluation framework exports
 pub use evaluation::{
-    Evaluate, EvaluationPoint, EvaluationResult, Trace, ModuleCall, MetricResult,
+    Evaluate, EvaluationPoint, EvaluationResult,
+    Trace as EvaluationTrace, ModuleCall, MetricResult,
     SimpleMetricFn, EnhancedMetricFn, MetricError,
     exact_match, exact_match_ci, passage_match, substring_match, token_overlap,
     f1_score, length_within_range, composite,
-    ExactMatchMetric, F1Metric, PassageMatchMetric,
+    ExactMatchMetric as EvalExactMatchMetric, F1Metric, PassageMatchMetric,
     display_table, export_to_csv, export_to_json,
 };

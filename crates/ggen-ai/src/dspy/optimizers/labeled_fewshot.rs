@@ -6,7 +6,7 @@
 //!
 //! Use case: Quick baseline with manually labeled data
 
-use crate::dspy::{Module, ModuleError, Signature};
+use crate::dspy::{Module, ModuleError};
 use crate::dspy::optimizer::{Example, Demonstration, OptimizedPredictor};
 use super::{Optimizer, OptimizationStatistics};
 use async_trait::async_trait;
@@ -97,8 +97,7 @@ impl Optimizer for LabeledFewShot {
         let mut examples = trainset.to_vec();
         if self.shuffle {
             use rand::seq::SliceRandom;
-            use rand::thread_rng;
-            examples.shuffle(&mut thread_rng());
+            examples.shuffle(&mut rand::rng());
             debug!("Shuffled {} examples", examples.len());
         }
 
@@ -148,6 +147,7 @@ impl Optimizer for LabeledFewShot {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::Signature;
     use crate::dspy::field::{InputField, OutputField};
     use serde_json::Value;
     use std::collections::HashMap;

@@ -205,7 +205,7 @@ pub enum MetricError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EvaluationPoint {
     /// The example that was evaluated
-    #[serde(skip)]
+    #[serde(skip, default)]
     pub example: Example,
 
     /// Prediction outputs from the module

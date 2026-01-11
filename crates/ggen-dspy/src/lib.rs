@@ -108,6 +108,11 @@ pub use config::{
 // Module exports
 pub use modules::{
     ChainOfThought, Module, ModuleContext, ModuleOutput, Predictor, ReAct, ReactAgent,
+    Retrieve, Passage, RetrieverBackend, InMemoryRetriever, RetrieveBuilder,
+    MultiHopQA, MultiHopConfig, HopState, MultiHopQABuilder,
+    SimplifiedBaleen, BaleenConfig, BaleenHop, BaleenBuilder,
+    ProgramOfThought, ProgramOfThoughtConfig, ProgramOfThoughtBuilder,
+    CodeLanguage, ExecutionResult,
 };
 
 // Optimizer exports
@@ -120,7 +125,11 @@ pub use evaluation::{EvaluationMetrics, EvaluationResult, Evaluator, MetricValue
 pub use assertions::{Assert, AssertionError, Suggest};
 
 // Adapter exports
-pub use adapters::{GgenAiAdapter, LlmAdapter};
+pub use adapters::{
+    AdapterWithFallback, ChatAdapter, CompletionAdapter, CompletionRequest, Demonstration,
+    GgenAiAdapter, IntegratedAdapter, JSONAdapter, LlmAdapter, ModelUsage, RetryConfig,
+    TokenCounter, TokenStats,
+};
 
 // Pattern exports
 pub use patterns::{AgentPattern, PatternBuilder, PatternLibrary};

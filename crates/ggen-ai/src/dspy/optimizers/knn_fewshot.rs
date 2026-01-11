@@ -19,7 +19,7 @@
 use crate::dspy::{Module, ModuleError, Signature};
 use crate::dspy::optimizer::{Example, Demonstration};
 use crate::dspy::module::ModuleResult;
-use super::{Optimizer, OptimizationStatistics, Metric};
+use super::{Optimizer, Metric};
 use async_trait::async_trait;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -409,6 +409,7 @@ impl Module for KNNPredictor {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::Signature;
     use crate::dspy::field::{InputField, OutputField};
 
     fn create_test_signature() -> Signature {
