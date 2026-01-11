@@ -112,6 +112,12 @@ pub use dspy::{
     Signature,
     Module, ModuleError,
     Predictor, ChainOfThought,
+    Evaluate, EvaluationPoint, EvaluationResult, Trace, ModuleCall, MetricResult,
+    SimpleMetricFn, EnhancedMetricFn, MetricError,
+    exact_match, exact_match_ci, passage_match, substring_match, token_overlap,
+    f1_score, length_within_range, composite,
+    ExactMatchMetric, F1Metric, PassageMatchMetric,
+    display_table, export_to_csv, export_to_json,
 };
 pub use error::{GgenAiError, Result};
 pub use generators::{

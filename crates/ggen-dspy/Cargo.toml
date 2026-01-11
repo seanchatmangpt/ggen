@@ -1,0 +1,92 @@
+[package]
+name = "ggen-dspy"
+version = "5.1.0"
+edition = "2021"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+description = "DSPy-inspired programming framework for LLM agents in Rust"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+homepage = "https://github.com/seanchatmangpt/ggen"
+keywords = ["llm", "dspy", "agents", "code-generation", "optimization"]
+categories = ["development-tools", "command-line-utilities"]
+
+[dependencies]
+# Core ggen dependencies (use workspace = true pattern)
+ggen-ai = { workspace = true }
+
+# Async runtime and traits
+tokio = { workspace = true }
+async-trait = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# Caching with TTL and size limits
+moka = { version = "0.12", features = ["future"] }
+
+# Disk cache for persistent storage
+sled = "0.34"
+
+# Progress bars for optimization loops
+indicatif = { workspace = true }
+
+# CSV export for evaluation results
+csv = "1.3"
+
+# Pretty table display for metrics
+prettytable-rs = "0.10"
+
+# Logging
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+log = { workspace = true }
+
+# Time handling
+chrono = { workspace = true }
+
+# Futures and streams
+futures = { workspace = true }
+
+# UUID for trace IDs
+uuid = { workspace = true }
+
+# Regular expressions for pattern matching
+regex = { workspace = true }
+
+[dev-dependencies]
+# Property-based testing
+proptest = { workspace = true }
+
+# Chicago TDD tools for AAA testing
+chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras", "async"] }
+
+# Temporary files for testing
+tempfile = { workspace = true }
+
+# Criterion benchmarks
+criterion = { version = "0.7", features = ["html_reports"] }
+
+# Async test utilities
+tokio-test = "0.4"
+
+[features]
+default = []
+# Enable integration tests with live LLMs
+live-llm-tests = []
+
+[lib]
+name = "ggen_dspy"
+path = "src/lib.rs"
+
+[[bench]]
+name = "optimizer_benchmarks"
+harness = false
+
+[[bench]]
+name = "module_benchmarks"
+harness = false
