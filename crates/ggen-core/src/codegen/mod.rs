@@ -39,6 +39,7 @@ pub mod swarm_execution;
 pub mod swarm_executor_bridge;
 pub mod transaction; // Atomic file operations with rollback
 pub mod typescript;
+pub mod ux; // UX utilities: progress indicators and formatting
 pub mod watch;
 pub mod watch_cache_integration;
 pub mod watch_mode;
