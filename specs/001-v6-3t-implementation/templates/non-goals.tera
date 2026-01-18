@@ -1,0 +1,5 @@
+## Non-Goals / Out of Scope *(optional)*
+
+{% for row in sparql_results -%}
+- **{{ row.nonGoalId }}**: {{ row.description }}
+{% endfor %}

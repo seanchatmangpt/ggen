@@ -1,0 +1,128 @@
+# ggen v5 Thesis Generation Manifest
+# Generates LaTeX PhD thesis from RDF ontology
+
+[project]
+name = "ggen-thesis-phd"
+version = "1.0.0"
+description = "PhD Thesis: ggen sync as Hyperdimensional Information Theory Calculus"
+
+[ontology]
+source = "thesis-ontology.ttl"
+base_iri = "https://ggen.io/thesis/"
+
+[ontology.prefixes]
+thesis = "https://ggen.io/thesis/"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+
+[inference]
+rules = []
+
+[generation]
+output_dir = "thesis-output"
+require_audit_trail = true
+
+# Main thesis document generation
+[[generation.rules]]
+name = "thesis-main"
+query = { inline = """
+PREFIX : <https://ggen.io/thesis/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?thesisLabel
+WHERE {
+  ?thesis rdf:type :Thesis ;
+          rdfs:label ?thesisLabel .
+}
+""" }
+template = { file = "templates/thesis-main.tera" }
+output_file = "thesis.tex"
+mode = "Overwrite"
+
+# Chapter generation
+[[generation.rules]]
+name = "chapters"
+query = { inline = """
+PREFIX : <https://ggen.io/thesis/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?chapterNum ?chapterTitle ?chapterUri
+WHERE {
+  ?chapter rdf:type :Chapter ;
+           :chapterNumber ?chapterNum ;
+           :chapterTitle ?chapterTitle .
+  BIND(STR(?chapter) AS ?chapterUri)
+}
+ORDER BY ?chapterNum
+""" }
+template = { file = "templates/chapters.tera" }
+output_file = "chapters.tex"
+mode = "Overwrite"
+
+# Sections with content
+[[generation.rules]]
+name = "sections"
+query = { inline = """
+PREFIX : <https://ggen.io/thesis/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?chapterNum ?chapterTitle ?sectionTitle ?content ?sectionUri
+WHERE {
+  ?chapter rdf:type :Chapter ;
+           :chapterNumber ?chapterNum ;
+           :chapterTitle ?chapterTitle ;
+           :hasSection ?section .
+  ?section :sectionTitle ?sectionTitle ;
+           :content ?content .
+  BIND(STR(?section) AS ?sectionUri)
+}
+ORDER BY ?chapterNum ?sectionUri
+""" }
+template = { file = "templates/sections.tera" }
+output_file = "sections.tex"
+mode = "Overwrite"
+
+# Equations
+[[generation.rules]]
+name = "equations"
+query = { inline = """
+PREFIX : <https://ggen.io/thesis/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?sectionTitle ?latex ?eqUri
+WHERE {
+  ?section rdf:type :Section ;
+           :sectionTitle ?sectionTitle ;
+           :hasEquation ?eq .
+  ?eq :latexExpression ?latex .
+  BIND(STR(?eq) AS ?eqUri)
+}
+""" }
+template = { file = "templates/equations.tera" }
+output_file = "equations.tex"
+mode = "Overwrite"
+
+# Theorems and proofs
+[[generation.rules]]
+name = "theorems"
+query = { inline = """
+PREFIX : <https://ggen.io/thesis/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?sectionTitle ?theoremStatement ?proofSteps ?thmUri
+WHERE {
+  ?section rdf:type :Section ;
+           :sectionTitle ?sectionTitle ;
+           :hasTheorem ?thm .
+  ?thm :theoremStatement ?theoremStatement .
+  OPTIONAL {
+    ?thm :hasProof ?proof .
+    ?proof :proofSteps ?proofSteps .
+  }
+  BIND(STR(?thm) AS ?thmUri)
+}
+""" }
+template = { file = "templates/theorems.tera" }
+output_file = "theorems.tex"
+mode = "Overwrite"

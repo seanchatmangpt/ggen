@@ -1,0 +1,67 @@
+[package]
+name = "ggen-api"
+version = "5.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+description = "REST API layer for ggen monetization: marketplace, billing, and SaaS operations"
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+
+# HTTP Framework
+axum = "0.7"
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors", "trace", "timeout"] }
+hyper = { version = "1.0", features = ["full"] }
+http = "1.0"
+
+# Serialization
+toml = { workspace = true }
+
+# Local crates
+ggen-marketplace = { workspace = true }
+ggen-core = { workspace = true }
+ggen-utils = { workspace = true }
+ggen-config = { workspace = true }
+ggen-domain = { workspace = true }
+
+# Validation
+validator = { version = "0.18", features = ["derive"] }
+
+# Rate limiting (already in workspace)
+moka = { version = "0.12", features = ["future"] }
+
+# Futures
+futures = { workspace = true }
+
+# Logging
+log = { workspace = true }
+
+# Database
+sqlx = { version = "0.7", features = ["sqlite", "runtime-tokio-rustls", "chrono", "uuid"] }
+
+# Password hashing
+bcrypt = "0.15"
+
+[dev-dependencies]
+assert_cmd = "2.0"
+predicates = "3.1"
+tempfile = { workspace = true }
+mockall = "0.13"
+insta = "1.43"
+proptest = { workspace = true }
+
+[[test]]
+name = "integration_tests"
+path = "tests/integration.rs"

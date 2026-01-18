@@ -1,0 +1,17 @@
+@prefix dc:  <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix rev: <http://example.org/review#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://doi.org/10.0000/example123> a rev:Manuscript ;
+  dc:identifier "paper-001" ;
+  dc:title "Sample Manuscript for Peer Review Workflow" ;
+  dc:creator "Author, Alice" ;
+  dc:created "2025-01-15"^^xsd:date ;
+  rev:managingEditor "Editor Erin" ;
+  rev:deadline "2025-02-15"^^xsd:date ;
+  rev:status "submitted" .
+
+
+
+

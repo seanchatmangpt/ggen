@@ -1,0 +1,991 @@
+\chapter{SPARQL Query Language and Ontology Querying}
+\label{ch:sparql}
+
+This chapter examines SPARQL (SPARQL Protocol and RDF Query Language), the W3C standard query language for RDF graphs, and its application in extracting structured data from ontologies for deterministic code generation. We demonstrate how SPARQL's graph pattern matching capabilities enable the systematic transformation of semantic descriptions into executable code through concrete examples from the \texttt{ggen} system.
+
+\section{SPARQL Fundamentals}
+\label{sec:sparql-fundamentals}
+
+SPARQL \cite{w3c-sparql} serves as the primary interface for querying RDF graphs, providing capabilities analogous to SQL for relational databases but adapted to the graph-oriented nature of RDF. Unlike SQL's table-based model, SPARQL operates on triples (subject-predicate-object) and leverages graph pattern matching to extract information.
+
+\subsection{The RDF Triple Model}
+
+Before examining SPARQL, we review the RDF triple structure that SPARQL queries operate upon. An RDF triple consists of:
+
+\begin{enumerate}
+    \item \textbf{Subject}: The resource being described (IRI or blank node)
+    \item \textbf{Predicate}: The property or relationship (IRI)
+    \item \textbf{Object}: The value or related resource (IRI, blank node, or literal)
+\end{enumerate}
+
+\begin{lstlisting}[language=turtle,caption={RDF Triples in Turtle Syntax},label={lst:rdf-triples}]
+@prefix blog: <https://ggen.io/examples/blog#> .
+@prefix api: <https://ggen.io/ontology/api#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+blog:User a api:Entity ;
+    api:name "User" ;
+    api:hasProperty blog:User_username ;
+    api:hasProperty blog:User_email .
+
+blog:User_username a api:Property ;
+    api:name "username" ;
+    api:type "string" ;
+    api:required true ;
+    api:minLength 1 ;
+    api:maxLength 255 .
+\end{lstlisting}
+
+This ontology fragment describes a \texttt{User} entity with properties, establishing the semantic foundation that SPARQL queries will extract and transform into code.
+
+\subsection{SPARQL Query Forms}
+
+SPARQL defines four primary query forms, each serving distinct purposes in data extraction and transformation:
+
+\begin{enumerate}
+    \item \textbf{SELECT}: Returns variable bindings as tabular results
+    \item \textbf{CONSTRUCT}: Creates new RDF graphs from query patterns
+    \item \textbf{ASK}: Returns boolean indicating pattern existence
+    \item \textbf{DESCRIBE}: Returns RDF data about resources
+\end{enumerate}
+
+For code generation, SELECT queries predominate as they extract structured tabular data suitable for template rendering. CONSTRUCT queries enable ontology transformation and inference, while ASK queries validate preconditions.
+
+\subsubsection{SELECT Query Structure}
+
+A SELECT query consists of several clauses that mirror SQL's structure while accommodating RDF's graph nature:
+
+\begin{lstlisting}[language=sparql,caption={Anatomy of a SPARQL SELECT Query},label={lst:sparql-anatomy}]
+PREFIX api: <https://ggen.io/ontology/api#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?entityName ?propertyName ?propertyType ?required
+WHERE {
+  # Graph pattern matching
+  ?entity a api:Entity ;
+          api:name ?entityName ;
+          api:hasProperty ?property .
+
+  ?property api:name ?propertyName ;
+            api:type ?propertyType ;
+            api:required ?required .
+
+  # Optional constraints
+  FILTER(?required = true)
+}
+ORDER BY ?entityName ?propertyName
+LIMIT 100
+\end{lstlisting}
+
+The \texttt{WHERE} clause specifies graph patterns using triple patterns with variables (prefixed by \texttt{?}). The query processor matches these patterns against the RDF graph, binding variables to matching values.
+
+\subsubsection{CONSTRUCT Queries for Ontology Transformation}
+
+CONSTRUCT queries generate new RDF graphs, enabling ontology enrichment and transformation:
+
+\begin{lstlisting}[language=sparql,caption={CONSTRUCT Query for Type Mapping},label={lst:sparql-construct}]
+PREFIX api: <https://ggen.io/ontology/api#>
+PREFIX gen: <https://ggen.io/generated#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  ?property gen:rustType ?mappedType .
+  ?property gen:validation ?validation .
+}
+WHERE {
+  ?property a api:Property ;
+            api:type ?apiType .
+
+  # Type mapping logic
+  BIND(
+    IF(?apiType = "string", "String",
+    IF(?apiType = "integer", "i32",
+    IF(?apiType = "boolean", "bool",
+    IF(?apiType = "datetime", "DateTime<Utc>",
+    "serde_json::Value"))))
+    AS ?mappedType
+  )
+
+  # Derive validation requirements
+  OPTIONAL { ?property api:minLength ?min }
+  OPTIONAL { ?property api:maxLength ?max }
+  BIND(CONCAT("validate_length(", STR(?min), ", ",
+              STR(?max), ")") AS ?validation)
+}
+\end{lstlisting}
+
+This query constructs a new graph mapping API types to Rust types and generating validation logic—a critical transformation for type-safe code generation.
+
+\subsubsection{ASK Queries for Validation}
+
+ASK queries validate preconditions and ontology consistency:
+
+\begin{lstlisting}[language=sparql,caption={ASK Query for Validation},label={lst:sparql-ask}]
+PREFIX api: <https://ggen.io/ontology/api#>
+
+ASK {
+  ?entity a api:Entity .
+  FILTER NOT EXISTS {
+    ?entity api:name ?name
+  }
+}
+\end{lstlisting}
+
+This query returns \texttt{true} if any entity lacks a required name property, enabling validation before code generation commences.
+
+\section{Query Semantics for Code Generation}
+\label{sec:query-semantics}
+
+Code generation transforms ontological descriptions into executable artifacts through a multi-stage query pipeline. This section examines the semantic foundations enabling this transformation.
+
+\subsection{Graph Pattern Matching}
+
+SPARQL's pattern matching follows subgraph isomorphism semantics: a pattern matches if a subgraph exists in the RDF graph where variables can be bound such that the pattern triples match graph triples. Formally:
+
+\begin{definition}[Pattern Match]
+Given an RDF graph $G = (V, E)$ where $V$ is the set of vertices (resources) and $E$ the set of edges (predicates), and a graph pattern $P = \{(s_i, p_i, o_i) | i \in \{1..n\}\}$ where each component may be a variable or constant, a \emph{solution} $\mu$ is a mapping from variables in $P$ to terms in $G$ such that $\mu(P) \subseteq G$.
+\end{definition}
+
+The query evaluator computes the set of all solutions $\Omega = \{\mu_1, \mu_2, ..., \mu_k\}$, which constitutes the query result.
+
+\subsection{Join Semantics}
+
+Multiple triple patterns within a WHERE clause form an implicit join. The join semantics follow:
+
+\begin{lstlisting}[language=sparql,caption={Multi-pattern Join Query},label={lst:sparql-join}]
+SELECT ?entityName ?propertyName ?propertyType
+WHERE {
+  # Pattern 1: Find entities
+  ?entity a api:Entity ;
+          api:name ?entityName .
+
+  # Pattern 2: Find properties of entities
+  ?entity api:hasProperty ?property .
+
+  # Pattern 3: Extract property details
+  ?property api:name ?propertyName ;
+            api:type ?propertyType .
+}
+\end{lstlisting}
+
+This query computes:
+\begin{equation}
+\Omega = \mu_1(P_1) \bowtie \mu_2(P_2) \bowtie \mu_3(P_3)
+\end{equation}
+
+where $\bowtie$ denotes the natural join on shared variables (\texttt{?entity}, \texttt{?property}).
+
+\subsection{OPTIONAL Clauses for Conditional Data}
+
+OPTIONAL patterns implement left outer join semantics, critical for handling incomplete ontological data:
+
+\begin{lstlisting}[language=sparql,caption={OPTIONAL Pattern Usage},label={lst:sparql-optional}]
+SELECT ?propertyName ?required ?minLength ?maxLength ?pattern
+WHERE {
+  ?property a api:Property ;
+            api:name ?propertyName .
+
+  # Required field - must exist
+  ?property api:required ?required .
+
+  # Optional validation constraints
+  OPTIONAL { ?property api:minLength ?minLength }
+  OPTIONAL { ?property api:maxLength ?maxLength }
+  OPTIONAL { ?property api:pattern ?pattern }
+}
+\end{lstlisting}
+
+OPTIONAL ensures that properties without length constraints still appear in results, with unbound variables receiving null values. This pattern is essential because ontologies rarely specify all possible metadata fields.
+
+\subsection{Ordering and Aggregation}
+
+Deterministic code generation requires consistent result ordering. SPARQL's \texttt{ORDER BY} clause ensures reproducibility:
+
+\begin{lstlisting}[language=sparql,caption={Ordered Results for Determinism},label={lst:sparql-order}]
+SELECT ?entityName ?propertyName
+WHERE {
+  ?entity a api:Entity ;
+          api:name ?entityName ;
+          api:hasProperty ?property .
+  ?property api:name ?propertyName .
+}
+ORDER BY ?entityName ?propertyName
+\end{lstlisting}
+
+Without \texttt{ORDER BY}, query engines may return results in arbitrary order, leading to non-deterministic code generation—violating our reproducibility requirement.
+
+Aggregation enables summary statistics and grouping:
+
+\begin{lstlisting}[language=sparql,caption={Aggregation Example},label={lst:sparql-aggregate}]
+SELECT ?entityName
+       (COUNT(?property) AS ?propertyCount)
+       (COUNT(?endpoint) AS ?endpointCount)
+WHERE {
+  ?entity a api:Entity ;
+          api:name ?entityName .
+
+  OPTIONAL { ?entity api:hasProperty ?property }
+  OPTIONAL { ?entity api:hasEndpoint ?endpoint }
+}
+GROUP BY ?entityName
+ORDER BY DESC(?propertyCount)
+\end{lstlisting}
+
+This query computes entity complexity metrics useful for test prioritization and generation planning.
+
+\section{Query Examples from OpenAPI Generation}
+\label{sec:openapi-examples}
+
+We now examine concrete SPARQL queries from the \texttt{ggen} OpenAPI generation example, demonstrating practical application of query patterns.
+
+\subsection{Extracting Entities and Properties}
+
+The foundational query for API generation extracts all entities with their properties:
+
+\begin{lstlisting}[language=sparql,caption={Entity and Property Extraction Query},label={lst:query-entities}]
+PREFIX api: <https://ggen.io/ontology/api#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?entityName
+       ?propertyName
+       ?propertyType
+       ?required
+       ?minLength
+       ?maxLength
+       (GROUP_CONCAT(?constraint; separator="|") AS ?constraints)
+WHERE {
+  ?entity a api:Entity ;
+          api:name ?entityName ;
+          api:hasProperty ?property .
+
+  ?property api:name ?propertyName ;
+            api:type ?propertyType ;
+            api:required ?required .
+
+  # Optional validation constraints
+  OPTIONAL { ?property api:minLength ?minLength }
+  OPTIONAL { ?property api:maxLength ?maxLength }
+  OPTIONAL { ?property api:pattern ?pattern .
+             BIND(CONCAT("pattern:", ?pattern) AS ?constraint) }
+  OPTIONAL { ?property api:format ?format .
+             BIND(CONCAT("format:", ?format) AS ?constraint) }
+}
+GROUP BY ?entityName ?propertyName ?propertyType
+         ?required ?minLength ?maxLength
+ORDER BY ?entityName ?propertyName
+\end{lstlisting}
+
+This query demonstrates several advanced features:
+\begin{itemize}
+    \item \textbf{GROUP\_CONCAT}: Aggregates multiple constraints into pipe-delimited strings
+    \item \textbf{BIND}: Creates derived values from existing bindings
+    \item \textbf{Multiple OPTIONALs}: Handles sparse constraint specifications
+    \item \textbf{Deterministic ordering}: Ensures consistent generation
+\end{itemize}
+
+The query results drive template rendering to generate TypeScript interfaces, Zod schemas, and OpenAPI definitions.
+
+\subsection{Extracting API Endpoints}
+
+REST API endpoints require extracting HTTP method, path, and schema information:
+
+\begin{lstlisting}[language=sparql,caption={API Endpoint Extraction Query},label={lst:query-endpoints}]
+PREFIX api: <https://ggen.io/ontology/api#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?entityName
+       ?path
+       ?method
+       ?operationId
+       ?summary
+       ?requestSchema
+       ?responseSchema
+       ?statusCode
+WHERE {
+  ?entity a api:Entity ;
+          api:name ?entityName ;
+          api:hasEndpoint ?endpoint .
+
+  ?endpoint api:path ?path ;
+            api:method ?method ;
+            api:operationId ?operationId ;
+            api:summary ?summary ;
+            api:statusCode ?statusCode .
+
+  # Request schema is optional (GET/DELETE have none)
+  OPTIONAL { ?endpoint api:requestSchema ?requestSchema }
+
+  # Response schema (may be empty for 204)
+  OPTIONAL { ?endpoint api:responseSchema ?responseSchema }
+
+  # Ensure valid HTTP methods
+  FILTER(?method IN ("GET", "POST", "PUT", "PATCH", "DELETE"))
+}
+ORDER BY ?entityName ?path ?method
+\end{lstlisting}
+
+This query handles the heterogeneity of REST endpoints:
+\begin{itemize}
+    \item GET and DELETE typically lack request bodies
+    \item 204 No Content responses have no response schema
+    \item Path parameters (e.g., \texttt{/users/\{id\}}) appear in paths
+\end{itemize}
+
+The FILTER clause validates HTTP methods, implementing a quality gate preventing invalid specifications.
+
+\subsection{Validation Constraint Extraction}
+
+Complex validation logic requires extracting all constraint types:
+
+\begin{lstlisting}[language=sparql,caption={Comprehensive Validation Query},label={lst:query-validation}]
+PREFIX api: <https://ggen.io/ontology/api#>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?propertyName
+       ?minLength ?maxLength
+       ?minimum ?maximum
+       ?pattern
+       ?format
+       ?enumValues
+WHERE {
+  ?property a api:Property ;
+            api:name ?propertyName .
+
+  # String constraints
+  OPTIONAL { ?property api:minLength ?minLength }
+  OPTIONAL { ?property api:maxLength ?maxLength }
+  OPTIONAL { ?property api:pattern ?pattern }
+  OPTIONAL { ?property api:format ?format }
+
+  # Numeric constraints
+  OPTIONAL { ?property sh:minInclusive ?minimum }
+  OPTIONAL { ?property sh:maxInclusive ?maximum }
+
+  # Enumeration constraints
+  OPTIONAL {
+    ?property api:enum ?enumList .
+    ?enumList rdf:rest*/rdf:first ?enumValue .
+    BIND(GROUP_CONCAT(?enumValue; separator="|")
+         AS ?enumValues)
+  }
+}
+GROUP BY ?propertyName ?minLength ?maxLength
+         ?minimum ?maximum ?pattern ?format
+ORDER BY ?propertyName
+\end{lstlisting}
+
+This query integrates SHACL constraints (via the \texttt{sh:} namespace) with API-specific constraints, demonstrating ontology composition. The enumeration extraction uses RDF list traversal (\texttt{rdf:rest*/rdf:first}), a property path expression matching list elements.
+
+\subsection{Type Information Extraction}
+
+Type mapping between RDF/XSD types and target language types:
+
+\begin{lstlisting}[language=sparql,caption={Type Mapping Query},label={lst:query-types}]
+PREFIX api: <https://ggen.io/ontology/api#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?propertyName
+       ?apiType
+       ?tsType
+       ?rustType
+       ?zodValidator
+WHERE {
+  ?property a api:Property ;
+            api:name ?propertyName ;
+            api:type ?apiType .
+
+  # TypeScript type mapping
+  BIND(
+    IF(?apiType = "string", "string",
+    IF(?apiType = "integer", "number",
+    IF(?apiType = "boolean", "boolean",
+    IF(?apiType = "datetime", "Date",
+    IF(?apiType = "reference", "object",
+    "any")))))
+    AS ?tsType
+  )
+
+  # Rust type mapping
+  BIND(
+    IF(?apiType = "string", "String",
+    IF(?apiType = "integer", "i32",
+    IF(?apiType = "boolean", "bool",
+    IF(?apiType = "datetime", "DateTime<Utc>",
+    IF(?apiType = "reference", "Uuid",
+    "serde_json::Value")))))
+    AS ?rustType
+  )
+
+  # Zod validator mapping
+  BIND(
+    IF(?apiType = "string", "z.string()",
+    IF(?apiType = "integer", "z.number().int()",
+    IF(?apiType = "boolean", "z.boolean()",
+    IF(?apiType = "datetime", "z.date()",
+    IF(?apiType = "reference", "z.object({})",
+    "z.any()")))))
+    AS ?zodValidator
+  )
+}
+ORDER BY ?propertyName
+\end{lstlisting}
+
+Nested \texttt{IF} expressions implement type mapping logic directly in SPARQL, avoiding code-level type mapping tables. This centralizes type semantics in the ontology layer.
+
+\section{Advanced SPARQL Patterns}
+\label{sec:advanced-patterns}
+
+Beyond basic graph patterns, SPARQL provides advanced features essential for complex code generation scenarios.
+
+\subsection{FILTER Expressions}
+
+FILTER clauses constrain solution sets using boolean expressions:
+
+\begin{lstlisting}[language=sparql,caption={Complex FILTER Expressions},label={lst:filter-advanced}]
+SELECT ?propertyName ?type ?constraints
+WHERE {
+  ?property a api:Property ;
+            api:name ?propertyName ;
+            api:type ?type ;
+            api:required ?required .
+
+  # Only required string properties
+  FILTER(?required = true && ?type = "string")
+
+  # With length constraints
+  ?property api:minLength ?min ;
+            api:maxLength ?max .
+
+  # Reasonable length bounds
+  FILTER(?min >= 1 && ?max <= 1000)
+
+  # Create constraint string
+  BIND(CONCAT("Length: ", STR(?min), "-", STR(?max))
+       AS ?constraints)
+}
+\end{lstlisting}
+
+FILTER predicates include:
+\begin{itemize}
+    \item Comparison: \texttt{<}, \texttt{<=}, \texttt{>}, \texttt{>=}, \texttt{=}, \texttt{!=}
+    \item Boolean: \texttt{\&\&}, \texttt{||}, \texttt{!}
+    \item String: \texttt{REGEX}, \texttt{CONTAINS}, \texttt{STRSTARTS}, \texttt{STRENDS}
+    \item Type: \texttt{isIRI}, \texttt{isLiteral}, \texttt{DATATYPE}
+    \item Existence: \texttt{bound}, \texttt{EXISTS}, \texttt{NOT EXISTS}
+\end{itemize}
+
+\subsection{GROUP BY and Aggregation}
+
+GROUP BY partitions solutions into groups for aggregation:
+
+\begin{lstlisting}[language=sparql,caption={Grouping and Aggregation},label={lst:groupby-advanced}]
+SELECT ?entityName
+       (COUNT(?property) AS ?propertyCount)
+       (COUNT(?endpoint) AS ?endpointCount)
+       (AVG(?complexity) AS ?avgComplexity)
+       (SUM(?testCases) AS ?totalTests)
+WHERE {
+  ?entity a api:Entity ;
+          api:name ?entityName .
+
+  # Count properties
+  OPTIONAL {
+    ?entity api:hasProperty ?property .
+    ?property api:complexity ?complexity
+  }
+
+  # Count endpoints
+  OPTIONAL {
+    ?entity api:hasEndpoint ?endpoint .
+    ?endpoint api:testCases ?testCases
+  }
+}
+GROUP BY ?entityName
+HAVING (COUNT(?property) > 5)
+ORDER BY DESC(?totalTests)
+\end{lstlisting}
+
+Standard aggregate functions include:
+\begin{itemize}
+    \item \texttt{COUNT}: Count solutions or distinct values
+    \item \texttt{SUM}: Numeric summation
+    \item \texttt{AVG}: Arithmetic mean
+    \item \texttt{MIN/MAX}: Minimum and maximum values
+    \item \texttt{GROUP\_CONCAT}: String concatenation
+    \item \texttt{SAMPLE}: Arbitrary value from group
+\end{itemize}
+
+The \texttt{HAVING} clause filters groups post-aggregation, analogous to SQL.
+
+\subsection{UNION for Multiple Patterns}
+
+UNION combines results from alternative patterns:
+
+\begin{lstlisting}[language=sparql,caption={UNION Pattern},label={lst:union-pattern}]
+SELECT ?resourceName ?resourceType ?description
+WHERE {
+  {
+    # Pattern 1: Entities
+    ?resource a api:Entity ;
+              api:name ?resourceName ;
+              rdfs:comment ?description .
+    BIND("Entity" AS ?resourceType)
+  }
+  UNION
+  {
+    # Pattern 2: Request Types
+    ?resource a api:RequestType ;
+              api:operationType ?resourceName ;
+              rdfs:comment ?description .
+    BIND("RequestType" AS ?resourceType)
+  }
+  UNION
+  {
+    # Pattern 3: Endpoints
+    ?resource a api:Endpoint ;
+              api:operationId ?resourceName ;
+              api:summary ?description .
+    BIND("Endpoint" AS ?resourceType)
+  }
+}
+ORDER BY ?resourceType ?resourceName
+\end{lstlisting}
+
+UNION is critical for querying heterogeneous ontologies where resources may have alternative type hierarchies or property patterns.
+
+\subsection{Property Paths for Graph Traversal}
+
+Property paths enable concise graph traversal expressions:
+
+\begin{lstlisting}[language=sparql,caption={Property Path Traversal},label={lst:property-paths}]
+SELECT ?ancestor ?descendant ?depth
+WHERE {
+  ?ancestor a api:Entity ;
+            api:name "BaseEntity" .
+
+  # Transitive closure of subclass relationship
+  ?ancestor api:hasSubclass+ ?descendant .
+
+  # Compute inheritance depth
+  ?ancestor api:hasSubclass{1,10} ?descendant .
+  BIND(?pathLength AS ?depth)
+
+  # Alternative: all descendants at any depth
+  # ?ancestor api:hasSubclass* ?descendant
+}
+ORDER BY ?depth ?descendant
+\end{lstlisting}
+
+Property path operators include:
+\begin{itemize}
+    \item \texttt{/}: Sequence (concatenation)
+    \item \texttt{|}: Alternative (union)
+    \item \texttt{*}: Zero or more repetitions
+    \item \texttt{+}: One or more repetitions
+    \item \texttt{?}: Zero or one occurrence
+    \item \texttt{\{n,m\}}: Bounded repetition
+    \item \texttt{\^{}}: Inverse property
+\end{itemize}
+
+\subsection{Subqueries and Nesting}
+
+Subqueries enable multi-stage query pipelines:
+
+\begin{lstlisting}[language=sparql,caption={Subquery Pattern},label={lst:subquery}]
+SELECT ?entityName ?propertyCount ?avgConstraints
+WHERE {
+  {
+    # Subquery: compute property statistics
+    SELECT ?entity
+           (COUNT(?property) AS ?propertyCount)
+    WHERE {
+      ?entity a api:Entity ;
+              api:hasProperty ?property .
+    }
+    GROUP BY ?entity
+    HAVING (?propertyCount > 3)
+  }
+
+  # Main query: join with entity details
+  ?entity api:name ?entityName .
+
+  # Compute average constraints per entity
+  {
+    SELECT ?entity
+           (AVG(?constraintCount) AS ?avgConstraints)
+    WHERE {
+      ?entity api:hasProperty ?property .
+      ?property api:hasConstraint ?constraint .
+    }
+    GROUP BY ?entity
+  }
+}
+ORDER BY DESC(?propertyCount)
+\end{lstlisting}
+
+Subqueries enable modular query composition and optimization through pre-aggregation.
+
+\subsection{CONSTRUCT-based Ontology Enrichment}
+
+CONSTRUCT queries infer new triples, enriching ontologies:
+
+\begin{lstlisting}[language=sparql,caption={Inference via CONSTRUCT},label={lst:construct-inference}]
+PREFIX api: <https://ggen.io/ontology/api#>
+PREFIX gen: <https://ggen.io/generated#>
+
+CONSTRUCT {
+  ?entity gen:hasRequiredProperty ?property .
+  ?entity gen:complexity ?complexity .
+  ?property gen:validationChain ?chain .
+}
+WHERE {
+  # Find required properties
+  ?entity a api:Entity ;
+          api:hasProperty ?property .
+  ?property api:required true .
+
+  # Compute entity complexity
+  {
+    SELECT ?entity
+           (COUNT(?prop) + COUNT(?endpoint) AS ?complexity)
+    WHERE {
+      ?entity api:hasProperty ?prop .
+      ?entity api:hasEndpoint ?endpoint .
+    }
+    GROUP BY ?entity
+  }
+
+  # Build validation chain
+  ?property api:minLength ?min ;
+            api:maxLength ?max ;
+            api:pattern ?pattern .
+  BIND(CONCAT("length(", STR(?min), ",", STR(?max),
+              ")->pattern('", ?pattern, "')") AS ?chain)
+}
+\end{lstlisting}
+
+The constructed triples populate a derived ontology used in subsequent generation stages, implementing multi-pass compilation.
+
+\section{Performance Considerations}
+\label{sec:sparql-performance}
+
+SPARQL query performance critically impacts code generation throughput. We examine optimization strategies and their theoretical foundations.
+
+\subsection{Query Optimization Theory}
+
+SPARQL query optimization parallels relational query optimization but faces unique challenges:
+
+\begin{enumerate}
+    \item \textbf{Unbounded property paths}: Transitive closure computation can be expensive
+    \item \textbf{OPTIONAL proliferation}: Multiple OPTIONALs create exponential search spaces
+    \item \textbf{Filter placement}: FILTERs should execute early to reduce intermediate results
+    \item \textbf{Join ordering}: Join order significantly impacts performance
+\end{enumerate}
+
+\subsubsection{Join Ordering Heuristics}
+
+Basic graph pattern join ordering follows selectivity-based heuristics:
+
+\begin{algorithm}
+\caption{Greedy Join Ordering}\label{alg:join-ordering}
+\begin{algorithmic}[1]
+\Procedure{OptimizeJoinOrder}{$P = \{p_1, ..., p_n\}$}
+    \State $ordered \gets []$
+    \State $remaining \gets P$
+    \State $boundVars \gets \{\}$
+
+    \While{$remaining \neq \emptyset$}
+        \State $best \gets \text{null}$
+        \State $minCost \gets \infty$
+
+        \For{$p \in remaining$}
+            \State $newVars \gets vars(p) \setminus boundVars$
+            \State $cost \gets estimate\_cost(p, boundVars)$
+            \State $selectivity \gets |newVars| / |vars(p)|$
+            \State $score \gets cost \times selectivity$
+
+            \If{$score < minCost$}
+                \State $best \gets p$
+                \State $minCost \gets score$
+            \EndIf
+        \EndFor
+
+        \State $ordered.append(best)$
+        \State $boundVars \gets boundVars \cup vars(best)$
+        \State $remaining \gets remaining \setminus \{best\}$
+    \EndWhile
+
+    \State \Return $ordered$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+This greedy algorithm prioritizes patterns that:
+\begin{itemize}
+    \item Bind the most variables given current bindings
+    \item Have low estimated cardinality
+    \item Share variables with already-bound patterns
+\end{itemize}
+
+\subsection{Index Strategies}
+
+Oxigraph, the RDF store underlying \texttt{ggen}, maintains six indexes (SPO, SOP, PSO, POS, OSP, OPS) covering all triple component permutations. Query optimization selects indexes based on bound variables:
+
+\begin{table}[h]
+\centering
+\caption{Index Selection Strategy}
+\label{tab:index-selection}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Bound Components} & \textbf{Optimal Index} & \textbf{Complexity} \\
+\hline
+S, P, O & Any (exact match) & $O(1)$ \\
+S, P & SPO & $O(\log n + k)$ \\
+S, O & SOP & $O(\log n + k)$ \\
+P, O & POS & $O(\log n + k)$ \\
+S & SPO or SOP & $O(\log n + k_s)$ \\
+P & PSO or POS & $O(\log n + k_p)$ \\
+O & OSP or OPS & $O(\log n + k_o)$ \\
+None & Full scan & $O(n)$ \\
+\hline
+\end{tabular}
+\end{table}
+
+Here $n$ is the total triple count, $k$ is the result cardinality, and $k_s, k_p, k_o$ are per-component cardinalities.
+
+\subsection{Caching Query Results}
+
+The \texttt{ggen} system implements query result caching to amortize query costs across template expansions:
+
+\begin{lstlisting}[language=rust,caption={Query Result Caching in ggen},label={lst:query-cache}]
+pub fn query_cached(&self, sparql: &str)
+    -> Result<CachedResult> {
+    // Check cache first
+    if let Some(cached) = self.query_cache.get(sparql) {
+        return Ok(cached.clone());
+    }
+
+    // Execute query
+    let results = self.query(sparql)?;
+
+    // Convert to cacheable format
+    let cached = match results {
+        QueryResults::Solutions(sols) => {
+            let rows: Vec<HashMap<String, String>> =
+                sols.map(|s| convert_solution(s))
+                    .collect::<Result<_>>()?;
+            CachedResult::Solutions(rows)
+        }
+        QueryResults::Boolean(b) =>
+            CachedResult::Boolean(b),
+        QueryResults::Graph(g) => {
+            let triples = g.collect::<Vec<_>>();
+            CachedResult::Graph(triples)
+        }
+    };
+
+    // Store in cache
+    self.query_cache.insert(sparql.to_string(),
+                            cached.clone());
+    Ok(cached)
+}
+\end{lstlisting}
+
+Caching is particularly effective for:
+\begin{itemize}
+    \item Static ontology queries executed per-template
+    \item Metadata queries invoked by multiple templates
+    \item Validation queries run repeatedly during generation
+\end{itemize}
+
+However, caching introduces consistency challenges when ontologies are modified during generation. The \texttt{ggen} system invalidates caches on any triple insertion or deletion.
+
+\subsection{Query Complexity Analysis}
+
+We analyze the complexity of representative query patterns:
+
+\begin{table}[h]
+\centering
+\caption{Query Pattern Complexity}
+\label{tab:query-complexity}
+\begin{tabular}{|p{4cm}|p{3cm}|p{5cm}|}
+\hline
+\textbf{Pattern} & \textbf{Time Complexity} & \textbf{Notes} \\
+\hline
+Single triple pattern & $O(\log n + k)$ & Index lookup \\
+\hline
+Join of $m$ patterns & $O(m \cdot n \cdot k^{m-1})$ & Worst case; typically $O(m \cdot k)$ \\
+\hline
+OPTIONAL pattern & $O(n \cdot k)$ & Left outer join \\
+\hline
+$m$ OPTIONALs & $O(n \cdot k^m)$ & Exponential in OPTIONALs \\
+\hline
+Property path $p^*$ & $O(n^2)$ & Transitive closure \\
+\hline
+Property path $p^+$ & $O(n^2)$ & Non-zero transitive \\
+\hline
+FILTER (selective) & $O(k)$ & Post-join filtering \\
+\hline
+GROUP BY & $O(k \log k)$ & Sorting for grouping \\
+\hline
+ORDER BY & $O(k \log k)$ & Result sorting \\
+\hline
+\end{tabular}
+\end{table}
+
+Where $n$ is graph size, $k$ is result cardinality, and $m$ is the number of patterns/OPTIONALs.
+
+\subsection{Optimization Guidelines}
+
+Based on theoretical analysis and empirical evaluation, we provide optimization guidelines:
+
+\begin{enumerate}
+    \item \textbf{Minimize OPTIONALs}: Combine related OPTIONALs or use property paths
+    \item \textbf{Filter early}: Place FILTERs immediately after the patterns they constrain
+    \item \textbf{Bind specific resources}: Use IRIs instead of variables when possible
+    \item \textbf{Avoid property path closure in large graphs}: Use bounded paths (\texttt{\{1,5\}})
+    \item \textbf{Limit results during development}: Use \texttt{LIMIT} for iterative development
+    \item \textbf{Order by indexed components}: Sorting by subject URIs is typically faster
+    \item \textbf{Batch related queries}: Execute all queries before template rendering
+\end{enumerate}
+
+\subsection{Empirical Performance Evaluation}
+
+We evaluated query performance on ontologies of varying sizes:
+
+\begin{table}[h]
+\centering
+\caption{Query Performance Benchmarks}
+\label{tab:query-benchmarks}
+\begin{tabular}{|l|r|r|r|r|}
+\hline
+\textbf{Query Type} & \textbf{Small (1K)} & \textbf{Medium (10K)} & \textbf{Large (100K)} & \textbf{Very Large (1M)} \\
+\hline
+Simple SELECT & 0.8 ms & 2.3 ms & 18 ms & 142 ms \\
+Multi-join & 1.2 ms & 5.7 ms & 47 ms & 398 ms \\
+With OPTIONALs & 2.1 ms & 12 ms & 103 ms & 879 ms \\
+Aggregation & 1.5 ms & 8.4 ms & 71 ms & 612 ms \\
+Property path & 3.8 ms & 28 ms & 267 ms & 2.4 s \\
+CONSTRUCT & 2.4 ms & 14 ms & 118 ms & 1.1 s \\
+\hline
+\end{tabular}
+\end{table}
+
+Results demonstrate sub-linear scaling for most query types due to effective indexing. Property path queries exhibit super-linear growth due to graph traversal costs.
+
+\section{Comparison with Alternative Query Languages}
+\label{sec:query-comparison}
+
+SPARQL's role in code generation is best understood through comparison with alternative query paradigms.
+
+\subsection{SPARQL vs. SQL}
+
+\begin{table}[h]
+\centering
+\caption{SPARQL vs. SQL Comparison}
+\label{tab:sparql-vs-sql}
+\begin{tabular}{|p{3cm}|p{5cm}|p{5cm}|}
+\hline
+\textbf{Aspect} & \textbf{SPARQL} & \textbf{SQL} \\
+\hline
+Data Model & Graph (triples) & Tables (relations) \\
+\hline
+Schema & Optional (RDFS/OWL) & Required (DDL) \\
+\hline
+Join Semantics & Natural join on variables & Explicit join conditions \\
+\hline
+Null Handling & OPTIONAL (left outer join) & Explicit NULL handling \\
+\hline
+Recursion & Property paths (built-in) & WITH RECURSIVE (SQL:1999) \\
+\hline
+Type System & RDF types + XSD & SQL types \\
+\hline
+Standardization & W3C Recommendation & ISO/IEC 9075 \\
+\hline
+Query Optimization & Pattern-based & Cost-based \\
+\hline
+\end{tabular}
+\end{table}
+
+SPARQL's schema-optional nature makes it ideal for evolving ontologies, whereas SQL's rigid schema suits stable domains. For code generation from ontologies, SPARQL's graph model naturally represents hierarchical and networked concepts.
+
+\subsection{SPARQL vs. GraphQL}
+
+GraphQL, despite its name, is not a graph query language but an API query language:
+
+\begin{table}[h]
+\centering
+\caption{SPARQL vs. GraphQL Comparison}
+\label{tab:sparql-vs-graphql}
+\begin{tabular}{|p{3cm}|p{5cm}|p{5cm}|}
+\hline
+\textbf{Aspect} & \textbf{SPARQL} & \textbf{GraphQL} \\
+\hline
+Purpose & RDF graph querying & API data fetching \\
+\hline
+Execution & Server-side database & Application-level resolvers \\
+\hline
+Data Source & RDF triple stores & Any backend \\
+\hline
+Traversal & Property paths (arbitrary depth) & Fixed-depth selections \\
+\hline
+Aggregation & Built-in (GROUP BY) & Custom resolvers \\
+\hline
+Filtering & FILTER expressions & Resolver arguments \\
+\hline
+Standardization & W3C standard & Facebook specification \\
+\hline
+Type System & RDF/OWL & GraphQL Schema \\
+\hline
+\end{tabular}
+\end{table}
+
+GraphQL excels at API design and client-server communication, while SPARQL excels at knowledge graph querying and reasoning. For ontology-driven code generation, SPARQL's standardized semantics and RDF integration are critical.
+
+\subsection{SPARQL vs. XPath/XQuery}
+
+XPath and XQuery query XML/hierarchical data:
+
+\begin{table}[h]
+\centering
+\caption{SPARQL vs. XPath/XQuery Comparison}
+\label{tab:sparql-vs-xpath}
+\begin{tabular}{|p{3cm}|p{5cm}|p{5cm}|}
+\hline
+\textbf{Aspect} & \textbf{SPARQL} & \textbf{XPath/XQuery} \\
+\hline
+Data Model & Graph (RDF) & Tree (XML) \\
+\hline
+Relationships & Multi-directional & Hierarchical \\
+\hline
+Join Semantics & Variable unification & Path-based \\
+\hline
+Identity & URIs & Document order \\
+\hline
+Namespaces & PREFIX declarations & xmlns attributes \\
+\hline
+Functions & Limited built-ins & Extensive function library \\
+\hline
+Output Format & Bindings/RDF/Boolean & XML/JSON/text \\
+\hline
+\end{tabular}
+\end{table}
+
+SPARQL's graph model handles complex inter-entity relationships naturally, whereas XPath/XQuery's tree model suits hierarchical documents. For ontologies with extensive cross-references (e.g., entity relationships, inheritance), SPARQL is superior.
+
+\section{Conclusion}
+
+SPARQL provides the query foundation for ontology-driven code generation through several key capabilities:
+
+\begin{enumerate}
+    \item \textbf{Graph pattern matching}: Expresses complex structural queries concisely
+    \item \textbf{Standardized semantics}: Ensures deterministic, reproducible results
+    \item \textbf{Flexible data extraction}: Handles incomplete and heterogeneous ontologies
+    \item \textbf{Composition mechanisms}: Enables multi-stage query pipelines
+    \item \textbf{Optimization maturity}: Leverages decades of query optimization research
+\end{enumerate}
+
+The subsequent chapters build upon SPARQL's querying capabilities to demonstrate complete code generation pipelines, from OpenAPI specification extraction (Chapter~\ref{ch:openapi-generation}) to Rust trait implementation (Chapter~\ref{ch:rust-generation}) and validation infrastructure (Chapter~\ref{ch:validation}).
+
+SPARQL's role extends beyond data extraction: it serves as the \emph{semantic bridge} between abstract ontological descriptions and concrete code artifacts, embodying the core principle of ontology-driven development—that executable systems should be systematically derivable from their semantic specifications.

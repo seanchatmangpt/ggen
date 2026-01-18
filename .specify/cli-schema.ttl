@@ -1,0 +1,258 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix cli: <http://ggen.org/cli#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# =============================================================================
+# SHACL Validation Schema for CLI Commands Ontology
+# =============================================================================
+# This schema validates that all CLI commands, options, and arguments
+# meet structural and semantic requirements for code generation.
+
+# Shape 1: Command Requirements
+# Every command must have label, comment, handler, test, SLO, and category
+cli:CommandShape
+  a sh:NodeShape ;
+  sh:targetClass cli:Command ;
+  sh:message "Command validation failed" ;
+
+  sh:property [
+    sh:path rdfs:label ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Command must have exactly one rdfs:label" ;
+  ] ;
+
+  sh:property [
+    sh:path rdfs:comment ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Command must have exactly one rdfs:comment" ;
+  ] ;
+
+  sh:property [
+    sh:path cli:handler ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Command must have exactly one cli:handler path" ;
+  ] ;
+
+  sh:property [
+    sh:path cli:test ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Command must have exactly one cli:test path" ;
+  ] ;
+
+  sh:property [
+    sh:path cli:slo ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class cli:SLO ;
+    sh:message "Command must reference exactly one cli:SLO" ;
+  ] ;
+
+  sh:property [
+    sh:path cli:category ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:class cli:Category ;
+    sh:message "Command must belong to exactly one cli:Category" ;
+  ] ;
+  .
+
+# Shape 2: Option Requirements
+# Options must have type, longForm pattern, and optional shortForm
+cli:OptionShape
+  a sh:NodeShape ;
+  sh:targetClass cli:Option ;
+  sh:message "Option validation failed" ;
+
+  sh:property [
+    sh:path rdfs:label ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+  ] ;
+
+  sh:property [
+    sh:path cli:type ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:in ("string" "int" "bool" "float" "choice") ;
+    sh:message "Option type must be one of: string, int, bool, float, choice" ;
+  ] ;
+
+  sh:property [
+    sh:path cli:longForm ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:pattern "^--[a-z]([a-z0-9-]*[a-z0-9])?$" ;
+    sh:message "longForm must start with -- and follow kebab-case" ;
+  ] ;
+
+  sh:property [
+    sh:path cli:shortForm ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:pattern "^-[a-zA-Z]$" ;
+    sh:message "shortForm must be single -X format" ;
+  ] ;
+  .
+
+# Shape 3: PositionalArgument Requirements
+cli:PositionalArgumentShape
+  a sh:NodeShape ;
+  sh:targetClass cli:PositionalArgument ;
+  sh:message "Positional argument validation failed" ;
+
+  sh:property [
+    sh:path rdfs:label ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+  ] ;
+
+  sh:property [
+    sh:path cli:type ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:in ("string" "int" "path" "choice") ;
+  ] ;
+
+  sh:property [
+    sh:path cli:required ;
+    sh:datatype xsd:boolean ;
+  ] ;
+  .
+
+# Shape 4: SLO Requirements
+# SLOs must have numeric bounds for execution time
+cli:SLOShape
+  a sh:NodeShape ;
+  sh:targetClass cli:SLO ;
+  sh:message "SLO validation failed" ;
+
+  sh:property [
+    sh:path rdfs:label ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+  ] ;
+
+  sh:property [
+    sh:path cli:maxExecutionTimeMs ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 100 ;
+    sh:maxInclusive 60000 ;
+    sh:message "maxExecutionTimeMs must be between 100ms and 60s" ;
+  ] ;
+  .
+
+# Shape 5: Category Requirements
+cli:CategoryShape
+  a sh:NodeShape ;
+  sh:targetClass cli:Category ;
+  sh:message "Category validation failed" ;
+
+  sh:property [
+    sh:path rdfs:label ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+  ] ;
+
+  sh:property [
+    sh:path rdfs:comment ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+  ] ;
+  .
+
+# Shape 6: GlobalOption Requirements
+cli:GlobalOptionShape
+  a sh:NodeShape ;
+  sh:targetClass cli:GlobalOption ;
+  sh:message "Global option validation failed" ;
+
+  sh:property [
+    sh:path rdfs:label ;
+    sh:minCount 1 ;
+  ] ;
+
+  sh:property [
+    sh:path cli:longForm ;
+    sh:minCount 1 ;
+    sh:pattern "^--[a-z]([a-z0-9-]*[a-z0-9])?$" ;
+  ] ;
+
+  sh:property [
+    sh:path cli:appliesToCommand ;
+    sh:minCount 1 ;
+    sh:class cli:Command ;
+    sh:message "GlobalOption must apply to at least one Command" ;
+  ] ;
+  .
+
+# Cross-validation: Options must belong to a command
+cli:OptionCommandShape
+  a sh:NodeShape ;
+  sh:targetClass cli:Option ;
+
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Option {$this} is not referenced by any Command" ;
+    sh:select """
+      PREFIX cli: <http://ggen.org/cli#>
+      SELECT $this
+      WHERE {
+        $this a cli:Option .
+        FILTER NOT EXISTS { ?cmd cli:option $this . }
+      }
+    """ ;
+  ] ;
+  .
+
+# Cross-validation: PositionalArguments must belong to a command
+cli:PositionalArgumentCommandShape
+  a sh:NodeShape ;
+  sh:targetClass cli:PositionalArgument ;
+
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "PositionalArgument {$this} is not referenced by any Command" ;
+    sh:select """
+      PREFIX cli: <http://ggen.org/cli#>
+      SELECT $this
+      WHERE {
+        $this a cli:PositionalArgument .
+        FILTER NOT EXISTS { ?cmd cli:argument $this . }
+      }
+    """ ;
+  ] ;
+  .
+
+# Constraint: No duplicate long form options in a command
+cli:NoDuplicateOptionsShape
+  a sh:NodeShape ;
+  sh:targetClass cli:Command ;
+
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Command {$this} has duplicate option long forms" ;
+    sh:select """
+      PREFIX cli: <http://ggen.org/cli#>
+      SELECT $this ?longForm (COUNT(?opt) as ?count)
+      WHERE {
+        $this cli:option ?opt .
+        ?opt cli:longForm ?longForm .
+      }
+      GROUP BY $this ?longForm
+      HAVING (?count > 1)
+    """ ;
+  ] ;
+  .

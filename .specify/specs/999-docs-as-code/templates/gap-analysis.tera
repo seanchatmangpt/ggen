@@ -1,0 +1,66 @@
+# Documentation Gap Analysis
+
+Missing or incomplete documentation identified through specification audit.
+
+## Critical Gaps (P0)
+
+These are blocking issues that need immediate attention.
+
+| Title | Description | Effort | Category |
+|-------|-------------|--------|----------|
+{% for row in results | filter(attribute="?priority", value="P0") %}
+| {{ row["?title"] }} | {{ row["?description"] }} | {{ row["?effort"] }} | {{ row["?category"] }} |
+{% endfor %}
+
+## Important Gaps (P1)
+
+These should be addressed soon to improve documentation quality.
+
+| Title | Description | Effort | Category |
+|-------|-------------|--------|----------|
+{% for row in results | filter(attribute="?priority", value="P1") %}
+| {{ row["?title"] }} | {{ row["?description"] }} | {{ row["?effort"] }} | {{ row["?category"] }} |
+{% endfor %}
+
+## Nice-to-Have Gaps (P2)
+
+These enhance documentation but are lower priority.
+
+| Title | Description | Effort | Category |
+|-------|-------------|--------|----------|
+{% for row in results | filter(attribute="?priority", value="P2") %}
+| {{ row["?title"] }} | {{ row["?description"] }} | {{ row["?effort"] }} | {{ row["?category"] }} |
+{% endfor %}
+
+## Statistics
+
+**Total Gaps**: {{ results | length }}
+
+| Priority | Count | Total Effort |
+|----------|-------|-------------|
+{% set p0_count = results | filter(attribute="?priority", value="P0") | length %}
+{% set p1_count = results | filter(attribute="?priority", value="P1") | length %}
+{% set p2_count = results | filter(attribute="?priority", value="P2") | length %}
+| P0 (Critical) | {{ p0_count }} | ~ {{ p0_count * 2 }}-{{ p0_count * 4 }} days |
+| P1 (Important) | {{ p1_count }} | ~ {{ p1_count }}-{{ p1_count * 2 }} weeks |
+| P2 (Nice-to-have) | {{ p2_count }} | ~ {{ p2_count }}-{{ p2_count * 2 }} weeks |
+
+## By Category
+
+{% set categories = results | group_by(attribute="?category") %}
+{% for category_name, category_items in categories %}
+
+### {{ category_name }}
+
+- **Count**: {{ category_items | length }}
+- **Critical (P0)**: {{ category_items | filter(attribute="?priority", value="P0") | length }}
+- **Important (P1)**: {{ category_items | filter(attribute="?priority", value="P1") | length }}
+- **Nice-to-have (P2)**: {{ category_items | filter(attribute="?priority", value="P2") | length }}
+
+{% endfor %}
+
+## Recommended Priority Order
+
+1. **Stabilize Core**: Complete P0 gaps first (SHACL validation, troubleshooting)
+2. **Expand Use Cases**: P1 gaps add multi-language examples (Python, JavaScript)
+3. **Enhance Ecosystem**: P2 gaps fill advanced topics (gRPC, Kafka, security)

@@ -1,0 +1,67 @@
+---
+to: "generated/TROUBLESHOOTING.md"
+---
+# Template Troubleshooting Guide
+
+## Common Errors and Solutions
+
+### Invalid YAML Frontmatter
+
+**Error**: `Invalid YAML in frontmatter`
+
+**Cause**: YAML syntax error or missing delimiters
+
+**Solution**: 
+1. Ensure `---` markers at start and end
+2. Check YAML indentation (spaces, not tabs)
+3. Validate with a YAML linter
+
+### Unknown Filter
+
+**Error**: `Unknown filter: xyz`
+
+**Cause**: Using unsupported filter name
+
+**Solution**: 
+1. Check filter spelling
+2. Verify filter is Tera built-in
+3. Supported filters: snake_case, pascal_case, camel_case, capitalize, upper, lower, trim
+
+### Variable Not Provided
+
+**Error**: `Variable 'xyz' not provided`
+
+**Cause**: Template expects variable not in context
+
+**Solution**: 
+1. Check variable name spelling
+2. Ensure variable is in vars: section
+3. Verify variable is passed to template
+
+### Template Rendering Failed
+
+**Error**: `Failed to render template`
+
+**Cause**: Syntax error in template body
+
+**Solution**: 
+1. Check Tera syntax ({{ }}, {% %}, {# #})
+2. Verify variable and filter names
+3. Check loop/conditional closure
+
+## Validation Steps
+
+1. **Check YAML frontmatter**
+   ```bash
+   # Validate YAML syntax
+   ```
+
+2. **Verify variables**
+   ```bash
+   # Check all variables are defined
+   ```
+
+3. **Test template rendering**
+   ```bash
+   # Use ggen to test template
+   ```

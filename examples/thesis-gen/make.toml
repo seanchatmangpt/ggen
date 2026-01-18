@@ -1,0 +1,11 @@
+[tasks.check]
+command = "cargo"
+args = ["check"]
+
+[tasks.test]
+command = "cargo"
+args = ["test"]
+
+[tasks.lint]
+command = "cargo"
+args = ["clippy", "--", "-D", "warnings"]

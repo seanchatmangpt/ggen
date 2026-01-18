@@ -1,0 +1,17 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Enterprise Authorization Use Case
+# Role-Based Access Control (RBAC) permissions validation
+# Test Case 1: Authorization Checks (30% of runtime)
+# Limited to 8 triples for hot path (single predicate run)
+# Validates user permissions for authorization decisions
+
+ex:alice ex:hasPermission ex:read .
+ex:alice ex:hasPermission ex:write .
+ex:alice ex:hasPermission ex:delete .
+ex:alice ex:hasPermission ex:admin .
+ex:bob ex:hasPermission ex:read .
+ex:bob ex:hasPermission ex:write .
+ex:charlie ex:hasPermission ex:delete .
+ex:charlie ex:hasPermission ex:execute .

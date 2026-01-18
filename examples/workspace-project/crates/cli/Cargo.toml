@@ -1,0 +1,14 @@
+[package]
+name = "cli"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "workspace-cli"
+path = "src/main.rs"
+
+[dependencies]
+core = { path = "../core" }
+clap = { workspace = true }
+
+[dev-dependencies]

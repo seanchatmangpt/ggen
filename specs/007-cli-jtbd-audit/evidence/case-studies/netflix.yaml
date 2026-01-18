@@ -1,0 +1,68 @@
+# Fortune 500 Case Study Validation: Netflix
+# Schema: ../../contracts/case-study-validation.schema.yaml
+
+case_study: netflix
+industry: Entertainment/Technology
+fortune_rank: 115
+
+jtbd: "When content taxonomy evolves, I need backward-compatible schema migrations across all services, so that existing content remains accessible while new features are supported."
+
+scale_requirements:
+  content_items: 100000000
+  metadata_fields: 500
+  services: 100
+  latency_slo: "<30min for schema evolution"
+
+required_commands:
+  - command: "ggen ontology init"
+    purpose: "Initialize content ontology structure"
+    criticality: P2
+    current_support: pending
+    gaps: []
+
+  - command: "ggen marketplace validate"
+    purpose: "Validate schema evolution rules"
+    criticality: P1
+    current_support: pending
+    gaps: []
+
+  - command: "ggen template lint"
+    purpose: "Lint templates for backward compatibility"
+    criticality: P1
+    current_support: pending
+    gaps: []
+
+  - command: "ggen template new"
+    purpose: "Create new content type templates"
+    criticality: P2
+    current_support: pending
+    gaps: []
+
+validation_status: pending
+validated_date: null
+validator: claude-code
+
+test_scenarios:
+  - scenario: "Backward-compatible schema evolution"
+    steps:
+      - "ggen ontology init content-taxonomy-v2"
+      - "ggen template lint --check-compatibility content-v1.tmpl content-v2.tmpl"
+      - "ggen marketplace validate --package_id content-schema"
+    expected: "Schema changes validated for backward compatibility"
+    actual: pending
+
+  - scenario: "Content type extension"
+    steps:
+      - "ggen template new --name interactive-content --base content.tmpl"
+      - "ggen template lint --strict interactive-content.tmpl"
+    expected: "New content type extends base without breaking changes"
+    actual: pending
+
+gaps: []
+
+recommendations: []
+
+notes: |
+  Netflix case study focuses on schema evolution and backward compatibility.
+  Key concerns: zero breaking changes, migration automation, rollback.
+  Industry pattern: scale-driven with emphasis on data evolution.

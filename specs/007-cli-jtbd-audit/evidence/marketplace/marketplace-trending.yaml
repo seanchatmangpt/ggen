@@ -1,0 +1,46 @@
+command: "ggen marketplace trending"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 70
+agent_breakdown:
+  parseable_output: 25
+  error_messages: 14
+  idempotency: 15
+  progress_feedback: 6
+  dry_run: 10
+  documentation: 4
+  exit_codes: 2
+
+avatar_notes:
+  claude_code: "Trending packages with JSON; perfect for discovery"
+  cursor_ai: "Trending display in IDE"
+  copilot: "Simple discovery pattern"
+  aider: "Read-only discovery"
+  devin: "Can discover trending autonomously"
+  openhands: "Customizable trending criteria"
+  windsurf: "Native trending visualization"
+
+maturity_level: "L4"
+maturity_blockers: []
+
+evidence_files: []
+
+recommendations:
+  - priority: P3
+    description: "Add --period flag for time-based trending"
+    effort: low
+    impact: low
+
+jtbd: |
+  When I want to find trending marketplace packages,
+  I need to run 'ggen marketplace trending',
+  so that I can discover popular community templates.

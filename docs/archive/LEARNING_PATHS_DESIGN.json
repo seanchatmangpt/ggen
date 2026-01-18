@@ -1,0 +1,1278 @@
+{
+  "agent": 8,
+  "design_timestamp": "2026-01-04T00:00:00Z",
+  "design_standard": "OpenAPI Example (examples/openapi/README.md) used as reference for structure and quality",
+  "overview": {
+    "total_paths": 7,
+    "total_examples": 16,
+    "progression_levels": ["Foundational", "Intermediate", "Advanced", "Expert"],
+    "key_principle": "Each path builds on previous knowledge with increasing complexity"
+  },
+  "learning_paths": {
+    "path_1_template_author": {
+      "id": "path_1",
+      "name": "Template Author (From Scratch to Production)",
+      "target_audience": "Developers who want to learn ggen fundamentals and create reusable code templates",
+      "skill_level": "Beginner → Intermediate",
+      "time_estimate": "4-6 hours total",
+      "examples_in_order": [
+        {
+          "order": 1,
+          "example": "basic-template-generation",
+          "time": "15-30 min",
+          "focus": "Template anatomy and Tera fundamentals",
+          "what_you_learn": [
+            "YAML frontmatter structure",
+            "Tera template syntax (variables, filters, conditionals)",
+            "Basic variable substitution",
+            "Template validation",
+            "Single-file generation"
+          ],
+          "hands_on": [
+            "Examine template structure",
+            "Understand Tera filters (snake_case, pascal_case, etc.)",
+            "Modify variables and regenerate",
+            "Create simple custom templates"
+          ],
+          "success_metrics": [
+            "Can explain what YAML frontmatter does",
+            "Can modify template variables and see output change",
+            "Understand 5+ Tera filters",
+            "Successfully create a basic Rust module template"
+          ]
+        },
+        {
+          "order": 2,
+          "example": "ai-template-creation",
+          "time": "30-45 min",
+          "focus": "AI-assisted template generation and iteration",
+          "what_you_learn": [
+            "ggen ai generate command",
+            "Using mock mode for cost-free learning",
+            "Template validation and error detection",
+            "Iterative improvement workflow",
+            "Writing effective prompts"
+          ],
+          "hands_on": [
+            "Generate templates from descriptions (mock mode)",
+            "Run validation on generated templates",
+            "Fix validation errors and re-run",
+            "Compare hand-written vs AI-generated templates",
+            "Iterate template descriptions based on feedback"
+          ],
+          "success_metrics": [
+            "Can generate valid templates using AI in mock mode",
+            "Understand validation output and fix errors",
+            "Write clear prompts that produce usable templates",
+            "Successfully validate complex template (2+ iterations)"
+          ]
+        },
+        {
+          "order": 3,
+          "example": "complete-project-generation",
+          "time": "45-60 min",
+          "focus": "Multi-file template generation and project structure",
+          "what_you_learn": [
+            "Generating complete projects with multiple files",
+            "Template composition and module organization",
+            "Conditional generation with if/else logic",
+            "Loops for generating multiple similar artifacts",
+            "Project validation and testing"
+          ],
+          "hands_on": [
+            "Generate a complete Rust web service",
+            "Examine generated project structure",
+            "Modify variables and regenerate entire project",
+            "Build and test generated code",
+            "Customize output by editing templates"
+          ],
+          "success_metrics": [
+            "Successfully generate and build a complete project",
+            "All generated code compiles without errors",
+            "Generated tests pass (integration tests)",
+            "Can add new module to template and regenerate"
+          ]
+        },
+        {
+          "order": 4,
+          "example": "microservices-architecture",
+          "time": "90-120 min",
+          "focus": "Complex multi-service generation and orchestration",
+          "what_you_learn": [
+            "Generating multiple interdependent services",
+            "Service discovery and communication patterns",
+            "Marketplace integration for templates",
+            "Lifecycle management for complex projects",
+            "Infrastructure code generation (Docker, Kubernetes)"
+          ],
+          "hands_on": [
+            "Generate 6 different microservices from templates",
+            "Configure inter-service communication",
+            "Generate Docker Compose and Kubernetes configs",
+            "Build and deploy entire architecture",
+            "Test end-to-end service interactions"
+          ],
+          "success_metrics": [
+            "All 6 services generate and compile successfully",
+            "Docker Compose deployment works completely",
+            "Services can communicate and pass integration tests",
+            "Can regenerate entire architecture with one command"
+          ]
+        }
+      ],
+      "prerequisites": [
+        "Basic familiarity with YAML syntax",
+        "Understanding of template concepts (variable substitution)",
+        "Rust basics (for understanding generated code)",
+        "Command-line comfort"
+      ],
+      "success_criteria": [
+        "Create 3+ production-ready templates from scratch",
+        "Validate templates and fix all errors",
+        "Generate complete, compilable, testable projects",
+        "Understand when/how to use AI assistance vs hand-coding",
+        "Can teach others how to create templates"
+      ],
+      "next_steps": [
+        "Explore Path 2 for RDF/semantic modeling",
+        "Explore Path 3 for full-stack development",
+        "Contribute templates to ggen marketplace"
+      ]
+    },
+    "path_2_rdf_semantic_developer": {
+      "id": "path_2",
+      "name": "RDF Semantic Developer (Ontology-First Design)",
+      "target_audience": "Architects and developers who want to design systems using RDF/Turtle ontologies",
+      "skill_level": "Intermediate → Advanced",
+      "time_estimate": "6-8 hours total",
+      "examples_in_order": [
+        {
+          "order": 1,
+          "example": "basic-template-generation",
+          "time": "15-30 min",
+          "focus": "Foundation for understanding code generation",
+          "what_you_learn": [
+            "How template variables work",
+            "Template rendering pipeline",
+            "Basic Tera syntax",
+            "Output file generation"
+          ],
+          "hands_on": [
+            "Run basic-template-generation example",
+            "Examine templates to understand structure"
+          ],
+          "success_metrics": [
+            "Understand how templates consume variables",
+            "Can identify where data should come from"
+          ]
+        },
+        {
+          "order": 2,
+          "example": "openapi",
+          "time": "60-90 min",
+          "focus": "RDF ontologies as source of truth, SPARQL queries, synchronized artifacts",
+          "what_you_learn": [
+            "RDF/Turtle ontology modeling",
+            "SPARQL query fundamentals (SELECT)",
+            "Ontology design patterns",
+            "SPARQL results mapped to templates",
+            "Generating multiple synchronized outputs from one ontology",
+            "ggen.toml manifest structure",
+            "10-rule generation pipeline"
+          ],
+          "hands_on": [
+            "Examine blog-api.ttl ontology structure",
+            "Study entity and endpoint definitions",
+            "Review ggen.toml configuration (10 rules)",
+            "Understand SPARQL queries in manifest",
+            "Run ggen sync to generate outputs",
+            "Verify generated OpenAPI, Zod, and JSDoc are synchronized",
+            "Add new entity to ontology and regenerate",
+            "Compare golden/ outputs with generated/"
+          ],
+          "success_metrics": [
+            "Understand RDF triple structure and meaning",
+            "Can read and modify ontology definitions",
+            "Write 3+ SPARQL SELECT queries correctly",
+            "Generated outputs are 100% synchronized",
+            "Successfully add entity to ontology and regenerate"
+          ]
+        },
+        {
+          "order": 3,
+          "example": "fastapi-from-rdf",
+          "time": "90-120 min",
+          "focus": "RDF domain models generating complete applications (Python/FastAPI)",
+          "what_you_learn": [
+            "Advanced RDF modeling (models, fields, relationships)",
+            "Complex SPARQL queries (with filtering, aggregation)",
+            "Multi-file generation from single RDF source",
+            "Model relationships (one-to-many, many-to-many)",
+            "Business logic in RDF",
+            "Generating models, schemas, routes, tests from ontology"
+          ],
+          "hands_on": [
+            "Study domain.ttl structure (3 models, 20+ fields)",
+            "Understand relationship definitions",
+            "Review api-stack.tmpl (800+ lines)",
+            "Trace SPARQL queries and their results",
+            "Generate complete FastAPI project",
+            "Run generated application with Docker",
+            "Add new field to domain model and regenerate",
+            "Verify all 15+ files update consistently"
+          ],
+          "success_metrics": [
+            "Generate complete FastAPI application that runs",
+            "Understand multi-model RDF patterns",
+            "Write SPARQL queries with relationships",
+            "Docker Compose application works end-to-end",
+            "Successfully modify domain and regenerate all files"
+          ]
+        },
+        {
+          "order": 4,
+          "example": "microservices-architecture",
+          "time": "120-150 min",
+          "focus": "Multiple RDF ontologies for microservices architecture",
+          "what_you_learn": [
+            "Modular ontology design across services",
+            "Service-specific domain models",
+            "Inter-service data contracts in RDF",
+            "Generating entire microservice architectures",
+            "RDF-based service discovery",
+            "Semantic API documentation"
+          ],
+          "hands_on": [
+            "Design separate RDF ontologies for 6 services",
+            "Define relationships between service models",
+            "Generate all services from unified domain model",
+            "Implement service discovery using RDF",
+            "Document API contracts in semantic format",
+            "Generate Kubernetes deployment manifests from RDF"
+          ],
+          "success_metrics": [
+            "Create 6 separate ontologies for microservices",
+            "All services deploy and communicate correctly",
+            "Can add new service by adding ontology",
+            "Semantic documentation auto-generated",
+            "Architecture is fully queryable with SPARQL"
+          ]
+        }
+      ],
+      "prerequisites": [
+        "Completion of path_1_template_author recommended",
+        "Understanding of RDF/Turtle syntax (or willingness to learn)",
+        "SPARQL basics (tutorial provided)",
+        "Knowledge of semantic web concepts helpful but not required"
+      ],
+      "success_criteria": [
+        "Design and implement 3+ RDF ontologies",
+        "Create 5+ SPARQL queries that extract domain-specific data",
+        "Generate synchronized artifacts (3+ types) from single ontology",
+        "Successfully model complex relationships (1:N, M:N) in RDF",
+        "Build complete system from ontology to running application"
+      ],
+      "next_steps": [
+        "Create custom ontologies for your domain",
+        "Publish ontologies to SPARQL endpoints",
+        "Explore semantic web standards (OWL, SHACL)",
+        "Integrate with other RDF tools (Oxigraph, GraphDB)"
+      ]
+    },
+    "path_3_full_stack_developer": {
+      "id": "path_3",
+      "name": "Full-Stack Developer (Project Generation & Deployment)",
+      "target_audience": "Web developers who want rapid project generation with complete scaffolding",
+      "skill_level": "Beginner → Intermediate",
+      "time_estimate": "3-4 hours total",
+      "examples_in_order": [
+        {
+          "order": 1,
+          "example": "basic-template-generation",
+          "time": "15-30 min",
+          "focus": "Understanding template fundamentals",
+          "what_you_learn": [
+            "How templates work",
+            "Variable substitution",
+            "Tera filters for code generation"
+          ],
+          "hands_on": [
+            "Run example and examine output"
+          ],
+          "success_metrics": [
+            "Understand basic template mechanics"
+          ]
+        },
+        {
+          "order": 2,
+          "example": "complete-project-generation",
+          "time": "45-60 min",
+          "focus": "Generating complete, deployable projects",
+          "what_you_learn": [
+            "Multi-file project scaffolding",
+            "REST API generation",
+            "Data model generation",
+            "Integration test generation",
+            "Project customization"
+          ],
+          "hands_on": [
+            "Generate complete Rust web service",
+            "Examine generated project structure",
+            "Build and test generated code",
+            "Add custom business logic",
+            "Deploy locally"
+          ],
+          "success_metrics": [
+            "Generate buildable, testable project",
+            "All tests pass",
+            "API endpoints work correctly",
+            "Code compiles and runs"
+          ]
+        },
+        {
+          "order": 3,
+          "example": "fastapi-from-rdf",
+          "time": "60-90 min",
+          "focus": "Full-stack Python/FastAPI application from ontology",
+          "what_you_learn": [
+            "Complete full-stack generation (backend + DB + tests)",
+            "Docker-based deployment",
+            "Database schema generation",
+            "API documentation generation",
+            "Test suite generation"
+          ],
+          "hands_on": [
+            "Generate FastAPI project from RDF",
+            "Run with Docker Compose",
+            "Test API endpoints",
+            "Review generated database models",
+            "Examine test suite",
+            "Deploy to local Docker"
+          ],
+          "success_metrics": [
+            "Generate complete working FastAPI project",
+            "Docker Compose runs without errors",
+            "All endpoints respond correctly",
+            "Database operations work",
+            "Tests pass successfully"
+          ]
+        },
+        {
+          "order": 4,
+          "example": "microservices-architecture",
+          "time": "90-120 min",
+          "focus": "Complete microservices deployment",
+          "what_you_learn": [
+            "Multi-service architecture generation",
+            "Service-to-service communication",
+            "Docker Compose orchestration",
+            "Kubernetes deployment",
+            "Health checks and monitoring",
+            "Full DevOps workflow"
+          ],
+          "hands_on": [
+            "Generate 6 microservices",
+            "Deploy with Docker Compose",
+            "Test inter-service communication",
+            "Generate Kubernetes manifests",
+            "Deploy to Kubernetes",
+            "Monitor running services"
+          ],
+          "success_metrics": [
+            "All 6 services generate and compile",
+            "Docker Compose deployment works",
+            "All services pass integration tests",
+            "Can access all service endpoints",
+            "Kubernetes deployment succeeds"
+          ]
+        }
+      ],
+      "prerequisites": [
+        "Web development experience (Node.js, Python, or Rust)",
+        "Understanding of REST APIs",
+        "Docker basics helpful",
+        "Kubernetes basics helpful for final example"
+      ],
+      "success_criteria": [
+        "Generate 3+ complete, production-ready projects",
+        "All generated projects build and deploy successfully",
+        "Write integration tests for generated code",
+        "Deploy projects to Docker/Kubernetes",
+        "Customize generated projects for specific business requirements"
+      ],
+      "next_steps": [
+        "Explore path_2 for RDF-driven design",
+        "Explore path_4 for DevOps-focused workflows",
+        "Explore path_5 for AI-assisted generation"
+      ]
+    },
+    "path_4_devops_engineer": {
+      "id": "path_4",
+      "name": "DevOps Engineer (<60s Deployment Specialist)",
+      "target_audience": "Infrastructure and DevOps engineers who want rapid deployment automation",
+      "skill_level": "Intermediate → Advanced",
+      "time_estimate": "4-5 hours total",
+      "examples_in_order": [
+        {
+          "order": 1,
+          "example": "basic-template-generation",
+          "time": "15-30 min",
+          "focus": "Template fundamentals for infrastructure code",
+          "what_you_learn": [
+            "Template-as-code concept",
+            "Variable substitution for config generation",
+            "Template validation"
+          ],
+          "hands_on": [
+            "Run example",
+            "Understand how to apply to infrastructure"
+          ],
+          "success_metrics": [
+            "Understand templates as infrastructure code"
+          ]
+        },
+        {
+          "order": 2,
+          "example": "complete-project-generation",
+          "time": "45-60 min",
+          "focus": "Build and deployment automation",
+          "what_you_learn": [
+            "Dockerfile generation",
+            "Build configuration generation",
+            "CI/CD pipeline templates",
+            "Health check configuration",
+            "Deployment scripts"
+          ],
+          "hands_on": [
+            "Generate project with Dockerfile",
+            "Build and test Docker image",
+            "Create deployment scripts",
+            "Automate build pipeline",
+            "Validate deployed service"
+          ],
+          "success_metrics": [
+            "Generate and build Docker image",
+            "Deployment succeeds",
+            "Health checks pass",
+            "Can reproduce deployment easily"
+          ]
+        },
+        {
+          "order": 3,
+          "example": "fastapi-from-rdf",
+          "time": "60-90 min",
+          "focus": "Complete containerized deployment with databases",
+          "what_you_learn": [
+            "Multi-container Docker Compose",
+            "Database container generation",
+            "Environment configuration",
+            "Network setup",
+            "Volume management"
+          ],
+          "hands_on": [
+            "Generate project with docker-compose.yml",
+            "Deploy entire stack",
+            "Test service and database communication",
+            "Check logging and monitoring",
+            "Scale services"
+          ],
+          "success_metrics": [
+            "Docker Compose deployment works completely",
+            "Database is accessible from service",
+            "Logs are properly configured",
+            "Can scale services easily"
+          ]
+        },
+        {
+          "order": 4,
+          "example": "microservices-architecture",
+          "time": "120-180 min",
+          "focus": "Complete microservices deployment and orchestration",
+          "what_you_learn": [
+            "Kubernetes manifest generation",
+            "Multi-service orchestration",
+            "Service discovery and load balancing",
+            "Resource management and scaling",
+            "Monitoring and logging infrastructure",
+            "<60 second deployment cycles"
+          ],
+          "hands_on": [
+            "Generate Kubernetes manifests for 6 services",
+            "Deploy to Kubernetes cluster",
+            "Configure service discovery",
+            "Set up monitoring and logging",
+            "Implement auto-scaling",
+            "Measure deployment time (<60 seconds)",
+            "Test failover and recovery"
+          ],
+          "success_metrics": [
+            "Kubernetes deployment deploys all services in <60 seconds",
+            "All services are discoverable and reachable",
+            "Load balancing works correctly",
+            "Can scale services on demand",
+            "Monitoring and logging show service health",
+            "Can rollback deployments quickly"
+          ]
+        }
+      ],
+      "prerequisites": [
+        "Docker and Kubernetes knowledge required",
+        "Understanding of CI/CD concepts",
+        "Infrastructure as Code experience helpful",
+        "Command-line comfort with deployment tools"
+      ],
+      "success_criteria": [
+        "Generate and deploy 3+ containerized applications",
+        "Deploy microservices architecture to Kubernetes",
+        "Achieve <60 second deployment cycles",
+        "Implement health checks and monitoring",
+        "Automate rollback and recovery procedures",
+        "Document deployment procedures"
+      ],
+      "next_steps": [
+        "Explore path_2 for RDF-based infrastructure definitions",
+        "Create custom Kubernetes generators",
+        "Integrate with your existing CI/CD pipeline",
+        "Build marketplace packages for your organization"
+      ]
+    },
+    "path_5_ai_engineer": {
+      "id": "path_5",
+      "name": "AI Engineer (LLM-Assisted Code Generation)",
+      "target_audience": "Machine learning and AI engineers who want to use AI for code generation",
+      "skill_level": "Intermediate → Advanced",
+      "time_estimate": "5-6 hours total",
+      "examples_in_order": [
+        {
+          "order": 1,
+          "example": "basic-template-generation",
+          "time": "15-30 min",
+          "focus": "Understanding what templates can generate",
+          "what_you_learn": [
+            "Template structure and syntax",
+            "What code can be generated",
+            "Template validation"
+          ],
+          "hands_on": [
+            "Run example"
+          ],
+          "success_metrics": [
+            "Understand template capabilities"
+          ]
+        },
+        {
+          "order": 2,
+          "example": "ai-template-creation",
+          "time": "60-90 min",
+          "focus": "AI-powered template generation and iteration",
+          "what_you_learn": [
+            "ggen ai generate command",
+            "Mock mode (cost-free learning)",
+            "Real AI mode with LLMs",
+            "Prompt engineering for templates",
+            "Template validation feedback loops",
+            "Iterative improvement with AI",
+            "Cost optimization"
+          ],
+          "hands_on": [
+            "Generate templates in mock mode",
+            "Write and refine prompts",
+            "Validate generated templates",
+            "Fix validation errors",
+            "Iterate templates based on feedback",
+            "Understand when mock vs real AI",
+            "Cost-benefit analysis"
+          ],
+          "success_metrics": [
+            "Generate 5+ valid templates using mock mode",
+            "Understand validation output",
+            "Write clear, effective prompts",
+            "Successfully iterate templates to perfection",
+            "Can switch between mock and real AI appropriately"
+          ]
+        },
+        {
+          "order": 3,
+          "example": "comprehensive-rust-showcase",
+          "time": "90-120 min",
+          "focus": "AI-generated Rust patterns and architectural examples",
+          "what_you_learn": [
+            "Complex Rust patterns from AI",
+            "Error handling patterns",
+            "Async/await patterns",
+            "Testing patterns",
+            "Architecture patterns",
+            "Performance optimization patterns"
+          ],
+          "hands_on": [
+            "Study AI-generated Rust code",
+            "Understand pattern choices",
+            "Modify patterns using AI prompts",
+            "Generate variations for different use cases",
+            "Learn architectural best practices"
+          ],
+          "success_metrics": [
+            "Understand 5+ Rust patterns from AI examples",
+            "Can modify patterns for custom use cases",
+            "Generated code compiles and passes tests"
+          ]
+        },
+        {
+          "order": 4,
+          "example": "ai-code-generation",
+          "time": "120-150 min",
+          "focus": "Full end-to-end AI-assisted code generation workflows",
+          "what_you_learn": [
+            "Complete generation workflows",
+            "Multi-step prompt chains",
+            "Feedback incorporation",
+            "Quality metrics for generated code",
+            "Performance optimization",
+            "Code review and validation",
+            "Production deployment of AI-generated code"
+          ],
+          "hands_on": [
+            "Generate complete project using AI",
+            "Review generated code",
+            "Run generated tests",
+            "Incorporate feedback",
+            "Measure code quality metrics",
+            "Deploy and validate",
+            "Iterate based on real-world performance"
+          ],
+          "success_metrics": [
+            "AI-generated code passes all tests",
+            "Code quality metrics meet standards",
+            "Generated project deploys successfully",
+            "Can handle feedback and regenerate",
+            "Understand limitations of AI generation"
+          ]
+        }
+      ],
+      "prerequisites": [
+        "Understanding of LLMs and prompt engineering",
+        "Basic Rust or Python knowledge",
+        "Experience with code generation concepts",
+        "Comfort with iterative refinement workflows"
+      ],
+      "success_criteria": [
+        "Generate 10+ production-quality templates using AI",
+        "Understand AI strengths and limitations",
+        "Create effective prompts for code generation",
+        "Validate AI-generated code automatically",
+        "Build quality gates for AI-generated code",
+        "Integrate AI generation into development workflow"
+      ],
+      "next_steps": [
+        "Explore path_2 for structured AI generation (RDF-based)",
+        "Experiment with different LLM providers",
+        "Build custom validation for generated code",
+        "Create organizational template libraries using AI"
+      ]
+    },
+    "path_6_rust_specialist": {
+      "id": "path_6",
+      "name": "Rust Specialist (Advanced Patterns & Performance)",
+      "target_audience": "Rust developers who want production-grade code generation with advanced patterns",
+      "skill_level": "Advanced → Expert",
+      "time_estimate": "6-8 hours total",
+      "examples_in_order": [
+        {
+          "order": 1,
+          "example": "basic-template-generation",
+          "time": "20-30 min",
+          "focus": "Template generation of Rust code",
+          "what_you_learn": [
+            "Tera syntax for Rust code generation",
+            "Type safety in templates",
+            "Macro generation",
+            "Module organization"
+          ],
+          "hands_on": [
+            "Examine generated Rust code",
+            "Understand compilation process"
+          ],
+          "success_metrics": [
+            "Generated code compiles successfully"
+          ]
+        },
+        {
+          "order": 2,
+          "example": "complete-project-generation",
+          "time": "60-90 min",
+          "focus": "Complete Rust project with error handling and async patterns",
+          "what_you_learn": [
+            "Async/await code generation",
+            "Error handling with Result types",
+            "Trait implementations",
+            "Lifetimes and ownership",
+            "Testing patterns",
+            "Performance considerations"
+          ],
+          "hands_on": [
+            "Generate complete project",
+            "Review error handling patterns",
+            "Study async code generation",
+            "Analyze generated tests",
+            "Build and benchmark",
+            "Profile performance"
+          ],
+          "success_metrics": [
+            "Generated code compiles without warnings",
+            "All tests pass",
+            "Performance meets SLO targets",
+            "No unsafe code blocks"
+          ]
+        },
+        {
+          "order": 3,
+          "example": "comprehensive-rust-showcase",
+          "time": "90-120 min",
+          "focus": "Advanced Rust patterns and architectural choices",
+          "what_you_learn": [
+            "Builder patterns",
+            "RAII patterns",
+            "Trait objects vs generics",
+            "Memory optimization",
+            "Concurrency patterns",
+            "Zero-copy techniques",
+            "Macros and procedural macros"
+          ],
+          "hands_on": [
+            "Study each pattern implementation",
+            "Understand trade-offs",
+            "Benchmark pattern variants",
+            "Implement custom variations",
+            "Write integration tests"
+          ],
+          "success_metrics": [
+            "Understand trade-offs between 5+ patterns",
+            "Can implement patterns from scratch",
+            "Code passes clippy without warnings",
+            "Benchmarks show optimal performance"
+          ]
+        },
+        {
+          "order": 4,
+          "example": "microservices-architecture",
+          "time": "120-150 min",
+          "focus": "Production-grade microservices with advanced Rust patterns",
+          "what_you_learn": [
+            "Service architecture patterns",
+            "Error propagation across services",
+            "Async distributed systems",
+            "Concurrency in microservices",
+            "Zero-cost abstractions",
+            "Performance optimization at scale",
+            "Testing distributed systems"
+          ],
+          "hands_on": [
+            "Generate microservices",
+            "Analyze error handling",
+            "Profile service communication",
+            "Load test services",
+            "Implement custom error types",
+            "Optimize hot paths",
+            "Test failure scenarios"
+          ],
+          "success_metrics": [
+            "All services compile with zero warnings",
+            "Services handle errors gracefully",
+            "Performance benchmarks meet targets",
+            "Can debug complex async issues",
+            "Services scale horizontally"
+          ]
+        }
+      ],
+      "prerequisites": [
+        "Advanced Rust knowledge (lifetime management, trait objects, macros)",
+        "Experience with async/await and tokio",
+        "Understanding of performance profiling",
+        "Knowledge of distributed systems concepts"
+      ],
+      "success_criteria": [
+        "Generate production-grade Rust services",
+        "Achieve zero compiler warnings",
+        "Understand and explain generated patterns",
+        "Optimize generated code for performance",
+        "Extend ggen with custom Rust patterns",
+        "Contribute to ggen codebase"
+      ],
+      "next_steps": [
+        "Contribute custom templates to ggen",
+        "Explore ggen-core internals",
+        "Build ggen plugins for domain-specific patterns",
+        "Create benchmarking infrastructure for generated code"
+      ]
+    },
+    "path_7_architect": {
+      "id": "path_7",
+      "name": "System Architect (End-to-End Design)",
+      "target_audience": "Architects who want to design systems from ontology through deployment",
+      "skill_level": "Advanced → Expert",
+      "time_estimate": "8-10 hours total",
+      "examples_in_order": [
+        {
+          "order": 1,
+          "example": "openapi",
+          "time": "90-120 min",
+          "focus": "Ontology-first API design",
+          "what_you_learn": [
+            "RDF/OWL ontology modeling",
+            "API contract definition in RDF",
+            "Synchronized API documentation",
+            "SPARQL query design for APIs",
+            "Type safety across full stack"
+          ],
+          "hands_on": [
+            "Design complete API ontology",
+            "Create SPARQL queries",
+            "Generate OpenAPI specs",
+            "Validate API contracts"
+          ],
+          "success_metrics": [
+            "Ontology covers all API requirements",
+            "Generated OpenAPI spec is complete",
+            "All artifacts are synchronized"
+          ]
+        },
+        {
+          "order": 2,
+          "example": "fastapi-from-rdf",
+          "time": "120-150 min",
+          "focus": "RDF-driven full-stack architecture",
+          "what_you_learn": [
+            "Domain model design in RDF",
+            "Database schema from ontology",
+            "API implementation from RDF",
+            "Test generation from specs",
+            "Documentation from ontology",
+            "Technology selection from RDF"
+          ],
+          "hands_on": [
+            "Design complete domain ontology",
+            "Define 3+ entity types with relationships",
+            "Generate complete stack",
+            "Verify all layers match ontology",
+            "Add new domain requirements and regenerate"
+          ],
+          "success_metrics": [
+            "Complete system generates from single ontology",
+            "Database, API, tests all aligned",
+            "Can add features by modifying ontology only",
+            "No manual code changes needed"
+          ]
+        },
+        {
+          "order": 3,
+          "example": "microservices-architecture",
+          "time": "150-180 min",
+          "focus": "Microservices architecture from ontology to deployment",
+          "what_you_learn": [
+            "Service decomposition strategies",
+            "Semantic service contracts",
+            "Data consistency patterns",
+            "Service-to-service communication design",
+            "Deployment topology design",
+            "Monitoring and observability architecture"
+          ],
+          "hands_on": [
+            "Design system architecture in RDF",
+            "Define 6+ services with contracts",
+            "Generate all services",
+            "Design inter-service communication",
+            "Create deployment manifests",
+            "Implement observability",
+            "Design failure handling"
+          ],
+          "success_metrics": [
+            "Architecture is fully defined in RDF",
+            "All services generate consistently",
+            "Communication patterns are clear",
+            "Can add new service in 15 minutes",
+            "System scales to 10+ services"
+          ]
+        },
+        {
+          "order": 4,
+          "example": "comprehensive-rust-showcase",
+          "time": "120-150 min",
+          "focus": "Advanced architectural patterns and trade-offs",
+          "what_you_learn": [
+            "Architectural pattern selection",
+            "Trade-offs between approaches",
+            "Performance vs maintainability",
+            "Scalability considerations",
+            "Team structure implications",
+            "Technology choices"
+          ],
+          "hands_on": [
+            "Study multiple architectural approaches",
+            "Create decision matrix",
+            "Design alternatives",
+            "Document trade-offs",
+            "Present architecture decisions"
+          ],
+          "success_metrics": [
+            "Can articulate 5+ architectural patterns",
+            "Understand trade-offs deeply",
+            "Can design appropriate architecture for context",
+            "Can mentor others on architecture"
+          ]
+        }
+      ],
+      "prerequisites": [
+        "10+ years software engineering experience",
+        "Understanding of system design",
+        "Knowledge of RDF/ontologies helpful",
+        "Microservices architecture experience"
+      ],
+      "success_criteria": [
+        "Design complete system architectures in RDF",
+        "Generate complete systems from ontology",
+        "Define clear service contracts semantically",
+        "Create deployment-ready manifests",
+        "Document decisions in RDF format",
+        "Train team on ontology-first design"
+      ],
+      "next_steps": [
+        "Publish architectural decision records in RDF",
+        "Create organizational ontologies",
+        "Build architecture review processes around RDF",
+        "Establish patterns library"
+      ]
+    }
+  },
+  "missing_examples": [
+    {
+      "priority": "HIGH",
+      "name": "Data Pipeline Generation",
+      "description": "Generate ETL/ELT pipelines and data processing workflows from ontologies",
+      "ideal_position": "Between path_2 (RDF) and path_3 (Full-Stack)",
+      "key_concepts": [
+        "Data lineage modeling in RDF",
+        "Transform specification",
+        "Pipeline orchestration (Airflow, Dagster)",
+        "Data quality checks",
+        "Monitoring and logging"
+      ],
+      "estimated_time": "90-120 min"
+    },
+    {
+      "priority": "HIGH",
+      "name": "Frontend Code Generation (React/Vue/Angular)",
+      "description": "Generate complete web frontend from API ontology",
+      "ideal_position": "After path_3 (Full-Stack Development)",
+      "key_concepts": [
+        "Component generation from API schema",
+        "Form generation from validation rules",
+        "Type-safe API integration",
+        "State management",
+        "Testing frameworks"
+      ],
+      "estimated_time": "90-120 min"
+    },
+    {
+      "priority": "MEDIUM",
+      "name": "Mobile App Generation (React Native/Flutter)",
+      "description": "Generate complete mobile applications from ontology",
+      "ideal_position": "After Frontend Code Generation example",
+      "key_concepts": [
+        "Cross-platform code generation",
+        "Mobile-specific patterns",
+        "Native module integration",
+        "Performance optimization for mobile",
+        "Testing on device"
+      ],
+      "estimated_time": "120-150 min"
+    },
+    {
+      "priority": "MEDIUM",
+      "name": "GraphQL Code Generation",
+      "description": "Generate GraphQL schemas, resolvers, and clients from RDF",
+      "ideal_position": "After OpenAPI example as alternative API style",
+      "key_concepts": [
+        "GraphQL schema generation from RDF",
+        "Resolver code generation",
+        "Client type generation",
+        "Query optimization",
+        "Subscription patterns"
+      ],
+      "estimated_time": "90-120 min"
+    },
+    {
+      "priority": "MEDIUM",
+      "name": "Database Schema Evolution",
+      "description": "Generate database migrations and schema versioning",
+      "ideal_position": "After FastAPI example for database-focused developers",
+      "key_concepts": [
+        "Schema version management in RDF",
+        "Migration script generation",
+        "Backwards compatibility",
+        "Data transformation",
+        "Rollback strategies"
+      ],
+      "estimated_time": "90-120 min"
+    },
+    {
+      "priority": "MEDIUM",
+      "name": "Documentation Generation",
+      "description": "Generate API docs, architecture docs, and user guides from ontology",
+      "ideal_position": "After any example as capstone",
+      "key_concepts": [
+        "Multi-format documentation (HTML, PDF, Markdown)",
+        "API documentation generation",
+        "Architecture diagrams from RDF",
+        "User guides and tutorials",
+        "Search and indexing"
+      ],
+      "estimated_time": "60-90 min"
+    },
+    {
+      "priority": "MEDIUM",
+      "name": "Compliance & Security Code Generation",
+      "description": "Generate GDPR, HIPAA, PCI-DSS compliance code from ontology",
+      "ideal_position": "Advanced path for regulated industries",
+      "key_concepts": [
+        "Compliance rules in RDF",
+        "Audit logging generation",
+        "Data encryption from spec",
+        "Access control implementation",
+        "Compliance documentation"
+      ],
+      "estimated_time": "120-150 min"
+    },
+    {
+      "priority": "LOW",
+      "name": "Game Development Code Generation",
+      "description": "Generate game entities, systems, and behaviors from ontology",
+      "ideal_position": "Specialized path for game developers",
+      "key_concepts": [
+        "Entity system generation",
+        "Physics integration",
+        "AI behavior trees",
+        "Game loop patterns",
+        "Performance optimization"
+      ],
+      "estimated_time": "120-150 min"
+    }
+  ],
+  "path_dependencies": {
+    "path_1_template_author": {
+      "depends_on": [],
+      "enables": [
+        "path_2_rdf_semantic_developer",
+        "path_3_full_stack_developer",
+        "path_5_ai_engineer"
+      ]
+    },
+    "path_2_rdf_semantic_developer": {
+      "depends_on": [
+        "path_1_template_author"
+      ],
+      "enables": [
+        "path_7_architect"
+      ]
+    },
+    "path_3_full_stack_developer": {
+      "depends_on": [
+        "path_1_template_author"
+      ],
+      "enables": [
+        "path_4_devops_engineer"
+      ]
+    },
+    "path_4_devops_engineer": {
+      "depends_on": [
+        "path_3_full_stack_developer"
+      ],
+      "enables": []
+    },
+    "path_5_ai_engineer": {
+      "depends_on": [
+        "path_1_template_author"
+      ],
+      "enables": [
+        "path_2_rdf_semantic_developer"
+      ]
+    },
+    "path_6_rust_specialist": {
+      "depends_on": [
+        "path_1_template_author"
+      ],
+      "enables": [
+        "path_7_architect"
+      ]
+    },
+    "path_7_architect": {
+      "depends_on": [
+        "path_2_rdf_semantic_developer",
+        "path_6_rust_specialist"
+      ],
+      "enables": []
+    }
+  },
+  "recommended_structure": {
+    "directory_layout": {
+      "examples/": {
+        "README.md": "Update to reference all 7 learning paths",
+        "LEARNING_PATHS.md": "NEW: Comprehensive guide to all paths with recommendations",
+        "path_1_template_author/": "NEW: Directory grouping path 1 examples",
+        "path_2_rdf_semantic_developer/": "NEW: Directory grouping path 2 examples",
+        "path_3_full_stack_developer/": "NEW: Directory grouping path 3 examples",
+        "path_4_devops_engineer/": "NEW: Directory grouping path 4 examples",
+        "path_5_ai_engineer/": "NEW: Directory grouping path 5 examples",
+        "path_6_rust_specialist/": "NEW: Directory grouping path 6 examples",
+        "path_7_architect/": "NEW: Directory grouping path 7 examples",
+        "core_examples/": "Existing examples that are foundation for all paths",
+        "missing_examples/": "Templates for examples that should be created"
+      }
+    },
+    "documentation_updates": {
+      "examples/README.md": {
+        "add_section": "Learning Paths Overview",
+        "content": "Quick reference table showing all 7 paths with time estimates and target audiences"
+      },
+      "examples/LEARNING_PATHS.md": {
+        "is_new": true,
+        "content": "Comprehensive guide with:",
+        "items": [
+          "Path selection guide (quiz: which path for you?)",
+          "Detailed progression for each path",
+          "Time estimates and prerequisites",
+          "Success criteria and projects",
+          "Common mistakes and how to avoid them",
+          "Career progression guide",
+          "FAQ section"
+        ]
+      },
+      "examples/ONBOARDING.md": {
+        "is_new": true,
+        "content": "Quick start guide:",
+        "items": [
+          "Environment setup (ggen doctor)",
+          "Path selection questionnaire",
+          "First example walkthrough",
+          "Troubleshooting common issues",
+          "Community resources"
+        ]
+      }
+    },
+    "example_improvements": {
+      "all_examples": {
+        "add": [
+          "Learning path metadata (which paths use this example)",
+          "Estimated time to complete",
+          "Prerequisite checklist",
+          "Success metrics checklist",
+          "Next examples after this one",
+          "Common mistakes section"
+        ]
+      },
+      "openapi_example": {
+        "note": "Already excellent - use as template quality standard",
+        "improvements": [
+          "Add 'Quick Assessment' section to test understanding",
+          "Add video walkthrough reference",
+          "Add 'Compare with other paths' section"
+        ]
+      }
+    },
+    "progression_metrics": {
+      "beginner_to_intermediate": [
+        "Completed 2+ examples",
+        "Can run ggen sync successfully",
+        "Can modify templates and regenerate"
+      ],
+      "intermediate_to_advanced": [
+        "Completed all examples in a path",
+        "Created 3+ custom templates",
+        "Generated production-ready code",
+        "All generated code passes tests"
+      ],
+      "advanced_to_expert": [
+        "Mastered RDF ontology design",
+        "Generated complete system architectures",
+        "Contributing to ggen codebase",
+        "Teaching others effectively"
+      ]
+    }
+  },
+  "recommended_next_steps_for_implementation": {
+    "phase_1_documentation": [
+      "Create examples/LEARNING_PATHS.md with detailed path guides",
+      "Update examples/README.md to include learning paths overview",
+      "Add path metadata to each existing example README",
+      "Create examples/ONBOARDING.md for new users"
+    ],
+    "phase_2_missing_examples": [
+      "Create 'Frontend Code Generation' example (HIGH priority)",
+      "Create 'Data Pipeline Generation' example (HIGH priority)",
+      "Create 'GraphQL Code Generation' example (MEDIUM priority)",
+      "Create 'Documentation Generation' example (MEDIUM priority)"
+    ],
+    "phase_3_learning_experience": [
+      "Add checkpoint/assessment scripts for each path",
+      "Create video walkthroughs for each example",
+      "Build interactive path selector (CLI tool)",
+      "Create community project templates",
+      "Establish mentorship program"
+    ],
+    "phase_4_continuous_improvement": [
+      "Track path completion metrics",
+      "Gather feedback from learners",
+      "Update paths based on analytics",
+      "Add new examples as needed",
+      "Maintain quality standards"
+    ]
+  },
+  "quality_assurance": {
+    "every_example_must_have": [
+      "Working code that can be run immediately",
+      "Clear objectives and success criteria",
+      "Step-by-step instructions",
+      "Expected output documented",
+      "Common mistakes and fixes",
+      "Next steps for progression",
+      "Links to related examples"
+    ],
+    "path_quality_gates": [
+      "All examples compile without warnings",
+      "All generated code passes clippy",
+      "Tests pass 100%",
+      "Documentation is clear and complete",
+      "Time estimates are accurate",
+      "Prerequisites are accurate and complete"
+    ],
+    "learning_outcome_verification": [
+      "Can articulate what was learned",
+      "Can apply knowledge to new problems",
+      "Can complete practical project",
+      "Can explain to others",
+      "Can troubleshoot issues independently"
+    ]
+  },
+  "success_metrics_for_learning_paths": {
+    "individual_learner": [
+      "Completed at least one full path (6+ hours)",
+      "Generated 3+ production-ready projects",
+      "All generated code compiles and tests pass",
+      "Can explain 5+ key concepts from path",
+      "Successfully extended example with custom requirements"
+    ],
+    "organizational": [
+      "50+ developers completed learning paths",
+      "10+ internal marketplace packages created",
+      "Standard templates adopted across teams",
+      "30% reduction in boilerplate code",
+      "Developer onboarding time reduced by 50%"
+    ],
+    "community": [
+      "100+ public templates contributed",
+      "10+ community examples created",
+      "Active forums and Q&A activity",
+      "Regular community challenges",
+      "Featured success stories"
+    ]
+  }
+}

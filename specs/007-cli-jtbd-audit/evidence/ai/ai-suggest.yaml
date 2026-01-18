@@ -1,0 +1,56 @@
+command: "ggen ai suggest"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 54
+agent_breakdown:
+  parseable_output: 15
+  error_messages: 12
+  idempotency: 15
+  progress_feedback: 6
+  dry_run: 10
+  documentation: 2
+  exit_codes: 4
+
+avatar_notes:
+  claude_code: "Suggestions useful for improvement"
+  cursor_ai: "Suggestions in IDE helpful"
+  copilot: "Suggestion patterns learnable"
+  aider: "Can apply suggestions to code"
+  devin: "Can autonomously apply suggestions"
+  openhands: "Customizable suggestion parameters"
+  windsurf: "Suggestion visualization in editor"
+
+maturity_level: "L2"
+maturity_blockers:
+  - "Minimal documentation"
+  - "Exit codes not semantic"
+
+evidence_files: []
+
+recommendations:
+  - priority: P1
+    description: "Add comprehensive documentation with examples"
+    effort: low
+    impact: high
+  - priority: P1
+    description: "Add semantic exit codes"
+    effort: low
+    impact: medium
+  - priority: P2
+    description: "Add --category flag for targeted suggestions"
+    effort: low
+    impact: low
+
+jtbd: |
+  When I want AI suggestions for improvement,
+  I need to run 'ggen ai suggest' with code/object path,
+  so that I can get improvement recommendations.

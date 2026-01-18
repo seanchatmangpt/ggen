@@ -1,0 +1,86 @@
+@prefix ws: <https://ggen.io/ontology/workspace#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# Classes
+ws:Workspace a rdfs:Class ;
+    rdfs:label "Workspace" ;
+    rdfs:comment "Multi-crate Rust workspace" .
+
+ws:Crate a rdfs:Class ;
+    rdfs:label "Crate" ;
+    rdfs:comment "Individual crate in workspace" .
+
+ws:Service a rdfs:Class ;
+    rdfs:label "Service" ;
+    rdfs:comment "Deployable service" .
+
+ws:BuildStep a rdfs:Class ;
+    rdfs:label "BuildStep" ;
+    rdfs:comment "Build automation step" .
+
+# Properties
+ws:name a rdf:Property ; rdfs:range xsd:string .
+ws:version a rdf:Property ; rdfs:range xsd:string .
+ws:description a rdf:Property ; rdfs:range xsd:string .
+ws:members a rdf:Property ; rdfs:range rdf:List .
+ws:crates a rdf:Property ; rdfs:range rdf:List .
+ws:services a rdf:Property ; rdfs:range rdf:List .
+ws:architecture a rdf:Property ; rdfs:range xsd:string .
+ws:buildProcess a rdf:Property ; rdfs:range xsd:string .
+ws:deploymentStrategy a rdf:Property ; rdfs:range xsd:string .
+ws:documentation a rdf:Property ; rdfs:range xsd:string .
+
+# SHACL Validation
+ws:WorkspaceShape a sh:NodeShape ;
+    sh:targetClass ws:Workspace ;
+    sh:property [
+        sh:path ws:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ws:members ;
+        sh:minCount 1 ;
+    ] .
+
+# Instances
+<#myworkspace> a ws:Workspace ;
+    ws:name "myworkspace" ;
+    ws:version "0.1.0" ;
+    ws:description "Complete project workspace" ;
+    ws:members ("core" "api" "cli") ;
+    ws:crates ("core" "api" "cli") ;
+    ws:services ("api" "cli") ;
+    ws:architecture "Monorepo with shared core" ;
+    ws:buildProcess "Cargo workspace build" ;
+    ws:deploymentStrategy "Container-based" ;
+    ws:documentation "Complete user guide" .
+
+<#core-crate> a ws:Crate ;
+    ws:name "core" ;
+    ws:version "0.1.0" ;
+    ws:description "Core library" .
+
+<#api-crate> a ws:Crate ;
+    ws:name "api" ;
+    ws:version "0.1.0" ;
+    ws:description "REST API service" .
+
+<#cli-crate> a ws:Crate ;
+    ws:name "cli" ;
+    ws:version "0.1.0" ;
+    ws:description "Command-line interface" .
+
+<#api-service> a ws:Service ;
+    ws:name "api" ;
+    ws:description "API server" .
+
+<#build-test> a ws:BuildStep ;
+    ws:name "test" ;
+    ws:description "Run all tests" .
+
+<#build-lint> a ws:BuildStep ;
+    ws:name "lint" ;
+    ws:description "Lint code" .

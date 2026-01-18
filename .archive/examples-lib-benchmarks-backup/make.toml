@@ -1,0 +1,54 @@
+# Library Crate with Benchmarks - Performance-Focused Lifecycle
+# Demonstrates: benchmarking, profiling, optimization workflow
+
+[lifecycle.init]
+command = "cargo init --lib --name perf-lib || echo 'Initialized'"
+
+[lifecycle.setup]
+commands = [
+    "rustup component add rustfmt clippy",
+    "cargo install cargo-flamegraph cargo-criterion",
+]
+
+[lifecycle.format]
+command = "cargo fmt -- --check"
+
+[lifecycle.lint]
+command = "cargo clippy --all-targets -- -D warnings"
+
+[lifecycle.build]
+commands = [
+    "cargo build",
+    "cargo build --release",
+]
+
+[lifecycle.test]
+command = "cargo test --all-features -- --nocapture"
+
+[lifecycle.bench]
+commands = [
+    "cargo bench --bench performance -- --save-baseline baseline",
+    "cargo criterion",
+]
+
+[lifecycle.profile]
+command = "cargo flamegraph --bench performance -- --bench"
+
+[lifecycle.optimize]
+commands = [
+    "cargo build --release",
+    "cargo bench --bench performance",
+]
+
+[lifecycle.doc]
+command = "cargo doc --no-deps --document-private-items"
+
+# Performance-focused hooks
+[hooks]
+before_bench = ["build", "test"]
+after_optimize = ["bench"]
+
+[env]
+RUSTFLAGS = "-C target-cpu=native"
+CARGO_PROFILE_RELEASE_LTO = "fat"
+CARGO_PROFILE_RELEASE_CODEGEN_UNITS = "1"

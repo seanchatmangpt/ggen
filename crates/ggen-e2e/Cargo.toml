@@ -1,0 +1,37 @@
+[package]
+name = "ggen-e2e"
+version = "5.1.0"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+description = "End-to-end testing framework for ggen with testcontainers and cross-platform validation"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+keywords = ["e2e", "testing", "testcontainers", "cross-platform"]
+categories = ["development-tools", "development-tools::testing"]
+
+[dependencies]
+# Workspace dependencies
+anyhow.workspace = true
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+async-trait.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+clap.workspace = true
+tempfile.workspace = true
+regex.workspace = true
+sha2.workspace = true
+hex.workspace = true
+
+# Testing and container orchestration
+testcontainers.workspace = true
+testcontainers-modules.workspace = true
+
+[dev-dependencies]
+assert_cmd.workspace = true
+predicates.workspace = true
+
+[lints.clippy]
+multiple_crate_versions = "allow"

@@ -1,0 +1,20 @@
+{# =============================================================================
+   EQUATION TEMPLATE - Mathematical equations
+   ZERO HARDCODED STRINGS - All content from SPARQL variables
+   Uses sparql_results array with ?-prefixed keys
+   ============================================================================= #}
+{% for row in sparql_results %}
+{%- set description = row["?description"] | default(value="") -%}
+{%- set envBegin = row["?envBegin"] | default(value="\\begin{equation}") -%}
+{%- set envEnd = row["?envEnd"] | default(value="\\end{equation}") -%}
+{%- set latex = row["?latex"] | default(value="") -%}
+{%- set labelId = row["?labelId"] | default(value="") -%}
+{% if description %}
+{{ description }}
+{% endif %}
+{{ envBegin }}
+{{ latex }}
+\label{ {{- labelId -}} }
+{{ envEnd }}
+
+{% endfor %}

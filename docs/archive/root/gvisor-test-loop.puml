@@ -1,0 +1,258 @@
+@startuml gvisor-test-loop-c4
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Deployment.puml
+
+LAYOUT_TOP_DOWN()
+LAYOUT_WITH_LEGEND()
+
+title gVisor Test Loop - C4 Architecture
+
+' ============================================================================
+' Context Level (C4 Level 1)
+' ============================================================================
+
+Person(developer, "Developer", "Runs ggen tests in gVisor sandbox")
+
+System(ggen_test_runner, "ggen Test Runner", "Orchestrates ggen execution in gVisor sandbox without Docker runtime")
+
+System_Ext(colima_vm, "Colima VM", "Linux virtual machine providing Linux runtime environment")
+System_Ext(gvisor, "gVisor (runsc)", "Application kernel providing sandbox isolation")
+System_Ext(rust_build, "Rust Build System", "Compiles ggen binary from source")
+System_Ext(oci_system, "OCI Bundle System", "Creates and manages OCI-compliant container bundles")
+System_Ext(network, "Network", "Downloads runsc binaries and dependencies")
+
+Rel(developer, ggen_test_runner, "Executes test workflow")
+Rel(ggen_test_runner, colima_vm, "Deploys OCI bundle via SSH")
+Rel(ggen_test_runner, gvisor, "Executes container via runsc")
+Rel(ggen_test_runner, rust_build, "Builds ggen binary")
+Rel(ggen_test_runner, oci_system, "Creates OCI bundle")
+Rel(ggen_test_runner, network, "Downloads runsc if needed")
+
+@enduml
+
+@startuml gvisor-test-loop-containers
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_TOP_DOWN()
+
+title gVisor Test Loop - Container Diagram
+
+Person(developer, "Developer")
+
+System_Boundary(ggen_system, "ggen Test Runner System") {
+    Container(build_container, "Build Container", "Rust", "Compiles ggen binary on macOS host")
+    Container(bundle_creator, "Bundle Creator", "Bash/OCI", "Assembles OCI bundle with ggen binary")
+    Container(sandbox_runtime, "Sandbox Runtime", "gVisor/runsc", "Executes ggen in isolated sandbox")
+    Container(test_executor, "Test Executor", "ggen sync", "Processes README.md in sandbox")
+}
+
+System_Ext(colima, "Colima VM", "Linux VM")
+System_Ext(gvisor_binary, "runsc Binary", "gVisor runtime")
+
+Rel(developer, build_container, "Triggers build")
+Rel(build_container, bundle_creator, "Provides binary")
+Rel(bundle_creator, sandbox_runtime, "Provides OCI bundle")
+Rel(sandbox_runtime, test_executor, "Executes")
+Rel(sandbox_runtime, colima, "Runs in")
+Rel(sandbox_runtime, gvisor_binary, "Uses")
+
+note right of build_container
+  **Poka-Yoke**: Compile-time type checks
+  **FMEA**: Build failures (RPN 180)
+end note
+
+note right of bundle_creator
+  **Poka-Yoke**: ValidatedPath, config validation
+  **FMEA**: Invalid bundles (RPN 300)
+end note
+
+note right of sandbox_runtime
+  **Poka-Yoke**: Pre-flight checks, health monitoring
+  **FMEA**: Execution failures (RPN 250)
+end note
+
+note right of test_executor
+  **Poka-Yoke**: Dry-run mode, atomic writes
+  **FMEA**: Test failures (RPN 200)
+end note
+
+@enduml
+
+@startuml gvisor-test-loop-components
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_TOP_DOWN()
+
+title gVisor Test Loop - Component Diagram
+
+Container_Boundary(build_container, "Build Container") {
+    Component(binary_builder, "Binary Builder", "cargo build", "Compiles ggen from Rust source")
+}
+
+Container_Boundary(bundle_creator, "Bundle Creator") {
+    Component(script_orchestrator, "Script Orchestrator", "run-ggen-gvisor-final.sh", "Orchestrates entire workflow")
+    Component(bundle_assembler, "Bundle Assembler", "OCI Builder", "Creates OCI bundle structure")
+}
+
+Container_Boundary(sandbox_runtime, "Sandbox Runtime") {
+    Component(sandbox_manager, "Sandbox Manager", "runsc", "Manages gVisor sandbox lifecycle")
+}
+
+Container_Boundary(test_executor, "Test Executor") {
+    Component(test_runner, "Test Runner", "ggen sync", "Executes sync command")
+}
+
+Rel(script_orchestrator, binary_builder, "Triggers")
+Rel(script_orchestrator, bundle_assembler, "Creates bundle")
+Rel(script_orchestrator, sandbox_manager, "Deploys to")
+Rel(sandbox_manager, test_runner, "Executes")
+
+note right of script_orchestrator
+  **Poka-Yoke**: Step-by-step validation gates
+  **FMEA**: Orchestration errors (RPN 150)
+end note
+
+note right of binary_builder
+  **Poka-Yoke**: Build-time checks, dependency validation
+  **FMEA**: Build failures (RPN 180)
+end note
+
+note right of bundle_assembler
+  **Poka-Yoke**: Type-safe construction, validation
+  **FMEA**: Assembly errors (RPN 240)
+end note
+
+note right of sandbox_manager
+  **Poka-Yoke**: Pre-execution validation, health checks
+  **FMEA**: Sandbox failures (RPN 280)
+end note
+
+note right of test_runner
+  **Poka-Yoke**: Dry-run mode, protected paths
+  **FMEA**: Test execution errors (RPN 200)
+end note
+
+@enduml
+
+@startuml gvisor-test-loop-sequence
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title gVisor Test Loop - Sequence Diagram with FMEA/Poka-Yoke Gates
+
+actor Developer
+participant "Script Orchestrator" as Orchestrator
+participant "Binary Builder" as Builder
+participant "Bundle Assembler" as Assembler
+participant "Colima VM" as Colima
+participant "Sandbox Manager" as Sandbox
+participant "Test Runner" as Runner
+
+== Pre-flight Checks (Poka-Yoke Gate 1) ==
+Developer -> Orchestrator: Execute test workflow
+activate Orchestrator
+
+Orchestrator -> Orchestrator: Verify runsc availability
+note right: **FMEA**: Early detection (D=2)\n**Poka-Yoke**: Pre-flight validation
+
+Orchestrator -> Colima: Check VM status
+Colima --> Orchestrator: VM running
+
+Orchestrator -> Orchestrator: Validate prerequisites
+note right: **FMEA**: Reduces RPN from 400 to 200\n**Poka-Yoke**: Fail-fast if missing
+
+== Build Phase (Poka-Yoke Gate 2) ==
+Orchestrator -> Builder: Build ggen binary
+activate Builder
+Builder -> Builder: Compile Rust source
+Builder -> Builder: Validate build output
+note right: **FMEA**: Build validation (D=3)\n**Poka-Yoke**: Type checks at compile-time
+Builder --> Orchestrator: Binary ready
+deactivate Builder
+
+== Bundle Creation (Poka-Yoke Gate 3) ==
+Orchestrator -> Assembler: Create OCI bundle
+activate Assembler
+Assembler -> Assembler: Create rootfs structure
+Assembler -> Assembler: Copy ggen binary
+Assembler -> Assembler: Create config.json
+Assembler -> Assembler: Validate bundle structure
+note right: **FMEA**: Bundle validation (D=2)\n**Poka-Yoke**: ValidatedPath, type-safe config
+Assembler --> Orchestrator: Bundle ready
+deactivate Assembler
+
+== Deployment (Poka-Yoke Gate 4) ==
+Orchestrator -> Colima: Copy bundle to VM
+activate Colima
+Colima -> Colima: Verify file transfer
+Colima -> Colima: Check permissions
+note right: **FMEA**: Transfer validation (D=3)\n**Poka-Yoke**: Atomic file operations
+Colima --> Orchestrator: Deployment complete
+deactivate Colima
+
+== Execution (Poka-Yoke Gate 5) ==
+Orchestrator -> Sandbox: Execute in gVisor
+activate Sandbox
+Sandbox -> Sandbox: Initialize sandbox
+Sandbox -> Sandbox: Load OCI bundle
+Sandbox -> Sandbox: Start process
+note right: **FMEA**: Execution monitoring (D=2)\n**Poka-Yoke**: Health checks, timeout guards
+Sandbox -> Runner: Execute ggen sync
+activate Runner
+Runner -> Runner: Process README.md
+Runner --> Sandbox: Execution complete
+deactivate Runner
+Sandbox --> Orchestrator: Results available
+deactivate Sandbox
+
+== Validation (Poka-Yoke Gate 6) ==
+Orchestrator -> Orchestrator: Verify test results
+Orchestrator -> Orchestrator: Check exit codes
+Orchestrator -> Orchestrator: Validate output format
+note right: **FMEA**: Result validation (D=2)\n**Poka-Yoke**: Output validation, error detection
+Orchestrator --> Developer: Test complete
+
+@enduml
+
+@startuml gvisor-test-loop-deployment
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Deployment.puml
+
+LAYOUT_TOP_DOWN()
+
+title gVisor Test Loop - Deployment Diagram
+
+Deployment_Node(macos_host, "macOS Host", "Development machine") {
+    Container(build_container, "Build Container", "Rust", "Compiles ggen")
+    Container(bundle_creator, "Bundle Creator", "Bash", "Creates OCI bundle")
+}
+
+Deployment_Node(colima_vm, "Colima VM", "Linux Virtual Machine") {
+    Container(sandbox_runtime, "Sandbox Runtime", "gVisor/runsc", "Executes sandbox")
+    ContainerDb(runsc_binary, "runsc Binary", "File System", "gVisor runtime binary")
+}
+
+Deployment_Node(network, "Network", "Internet") {
+    System_Ext(download_sources, "Download Sources", "GitHub/Google Storage")
+}
+
+Rel(build_container, bundle_creator, "Provides binary")
+Rel(bundle_creator, sandbox_runtime, "Deploys bundle via SSH")
+Rel(sandbox_runtime, runsc_binary, "Uses")
+Rel(bundle_creator, download_sources, "Downloads runsc if needed")
+
+note right of macos_host
+  **Deployment**: macOS host runs build\nand bundle creation
+end note
+
+note right of colima_vm
+  **Deployment**: Linux VM runs gVisor\nsandbox execution
+end note
+
+note right of network
+  **Deployment**: Network provides\nrunsc binary downloads
+end note
+
+@enduml
+
+

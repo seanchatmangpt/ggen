@@ -1,0 +1,60 @@
+---
+to: "generated/VALIDATION_RULES.md"
+---
+# Template Validation Rules
+
+ggen ai validate checks AI-generated templates against these quality criteria.
+
+## Syntax Rules
+
+**Rust Syntax**: Template must compile with rustc
+- [ ] Code follows Rust style guidelines
+- [ ] All types are properly namespaced
+- [ ] Imports are included
+- [ ] No undefined variables
+
+**Template Syntax**: Valid YAML frontmatter and Tera
+- [ ] Frontmatter between --- markers
+- [ ] Valid YAML in frontmatter
+- [ ] Proper Tera syntax ({{ }}, {% %})
+- [ ] Filters are valid
+
+## Safety Rules
+
+**No Unsafe Blocks** (production code)
+- [ ] No unsafe {} blocks in main code
+- [ ] Unsafe only in well-documented sections
+- [ ] Alternative safe approaches documented
+
+**Error Handling**
+- [ ] All fallible operations use Result<T, E>
+- [ ] No unwrap() in production code
+- [ ] Errors properly propagated
+
+## Quality Rules
+
+**Documentation**
+- [ ] Public items have doc comments
+- [ ] Examples in documentation
+- [ ] Edge cases explained
+
+**Testing**
+- [ ] Unit tests included
+- [ ] Tests are meaningful
+- [ ] Coverage > 80%
+
+## Run Validation
+
+```bash
+ggen ai validate templates/user.tera
+ggen ai validate --verbose templates/user.tera
+```
+
+## Fix Common Issues
+
+| Issue | Fix |
+|-------|-----|
+| Unknown filter | Use only Tera built-in filters |
+| Invalid YAML | Check frontmatter syntax |
+| Undefined types | Add missing imports |
+| Unsafe blocks | Replace with safe alternatives |

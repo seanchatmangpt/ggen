@@ -1,0 +1,181 @@
+---
+to: "generated/TEMPLATE_GUIDE.md"
+---
+# Template Fundamentals Guide
+
+This guide explains the core concepts used in ggen template generation.
+
+## Template Anatomy
+
+Every ggen template consists of two parts:
+
+### 1. YAML Frontmatter
+
+Located between `---` delimiters at the start of the file:
+
+```yaml
+---
+to: "output/path/{{ variable | filter }}.rs"
+vars:
+  variable_name: type
+  another_var: type
+---
+```
+
+**Key fields:**
+- `to`: Output file path (supports variable substitution and filters)
+- `vars`: Required variables with their types
+
+### 2. Tera Template Body
+
+Everything after the frontmatter is processed with Tera template engine:
+
+```rust
+// Use variables: {{ variable_name }}
+// Apply filters: {{ variable_name | snake_case }}
+// Conditionals: {% if condition %}...{% endif %}
+// Loops: {% for item in items %}...{% endfor %}
+```
+
+## Variable Types
+
+Tera templates support multiple variable types:
+
+| Type | Example | Description |
+|------|---------|-------------|
+| `string` | `"hello"` | Text values |
+| `boolean` | `true`, `false` | True or false |
+| `number` | `42`, `3.14` | Numeric values |
+| `array` | `["a", "b"]` | Lists of items |
+| `object` | `{key: "value"}` | Nested structures |
+
+## Filters
+
+Filters transform variables. Common filters:
+
+| Filter | Input | Output | Use Case |
+|--------|-------|--------|----------|
+| `snake_case` | `UserService` | `user_service` | Rust module/file names |
+| `pascal_case` | `user_service` | `UserService` | Rust type names |
+| `camel_case` | `user_service` | `userService` | JavaScript/JSON names |
+| `capitalize` | `user` | `User` | Capitalize first letter |
+| `upper` | `user` | `USER` | All uppercase |
+| `lower` | `USER` | `user` | All lowercase |
+| `trim` | `" text "` | `text` | Remove whitespace |
+
+## Tera Syntax
+
+### Variables
+
+Insert a variable value:
+
+```tera
+{{ variable_name }}
+```
+
+### Filters
+
+Apply a filter to transform values:
+
+```tera
+{{ variable_name | snake_case }}
+{{ name | capitalize }}
+{{ description | upper }}
+```
+
+### Conditionals
+
+Render content conditionally:
+
+```tera
+{% if condition %}
+  This shows if condition is true
+{% else %}
+  This shows if condition is false
+{% endif %}
+```
+
+### Loops
+
+Iterate over arrays:
+
+```tera
+{% for item in items %}
+  Item: {{ item }}
+{% endfor %}
+```
+
+Access loop metadata:
+
+```tera
+{% for item in items %}
+  {{ item }} {% if not loop.last %}, {% endif %}
+{% endfor %}
+```
+
+### Comments
+
+Comments don't appear in output:
+
+```tera
+{# This is a comment #}
+```
+
+## Common Patterns
+
+### Case Conversion Pattern
+
+Generate consistent naming across languages:
+
+```tera
+// Rust module name (snake_case)
+pub mod {{ name | snake_case }} {
+    // Rust type name (PascalCase)
+    pub struct {{ name | pascal_case }} {
+        // Field name (snake_case)
+        pub {{ field | snake_case }}: String,
+    }
+}
+```
+
+### Conditional Field Pattern
+
+Include fields based on flags:
+
+```tera
+pub struct {{ struct_name | pascal_case }} {
+    {% if has_id %}
+    pub id: u64,
+    {% endif %}
+    {% for field in fields %}
+    pub {{ field }}: String,
+    {% endfor %}
+}
+```
+
+### Optional Section Pattern
+
+Include entire sections conditionally:
+
+```tera
+{% if has_validation %}
+impl {{ struct_name | pascal_case }} {
+    pub fn validate(&self) -> Result<()> {
+        // Validation logic
+        Ok(())
+    }
+}
+{% endif %}
+```
+
+## Best Practices
+
+1. **Use descriptive variable names** - `user_username` instead of `x`
+2. **Apply filters consistently** - Always use same filter for same type
+3. **Document with comments** - Use `{# comments #}` to explain complex logic
+4. **Test template output** - Verify generated code is valid before using in production
+5. **Keep templates focused** - One template ≈ one output type
+
+## Next Steps
+
+See the example templates in `templates/` directory to understand practical applications.

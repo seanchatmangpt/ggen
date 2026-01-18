@@ -1,0 +1,20 @@
+[
+  {
+    "id": "rev-1",
+    "name": "Reviewer One",
+    "role": "primary",
+    "conflict_of_interest": false,
+    "expertise": ["methods", "statistics"]
+  },
+  {
+    "id": "rev-2",
+    "name": "Reviewer Two",
+    "role": "secondary",
+    "conflict_of_interest": false,
+    "expertise": ["datasets", "interpretability"]
+  }
+]
+
+
+
+

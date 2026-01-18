@@ -1,0 +1,27 @@
+{# =============================================================================
+   THEOREM TEMPLATE - Theorems, lemmas, definitions with proofs
+   ZERO HARDCODED STRINGS - Even \begin{theorem} comes from ontology
+   Uses sparql_results array with ?-prefixed keys
+   ============================================================================= #}
+{% for row in sparql_results %}
+{%- set envBegin = row["?envBegin"] | default(value="\\begin{theorem}") -%}
+{%- set envEnd = row["?envEnd"] | default(value="\\end{theorem}") -%}
+{%- set theoremName = row["?theoremName"] | default(value="") -%}
+{%- set labelId = row["?labelId"] | default(value="") -%}
+{%- set statement = row["?statement"] | default(value="") -%}
+{%- set proof = row["?proof"] | default(value="") -%}
+{%- set proofEnvBegin = row["?proofEnvBegin"] | default(value="\\begin{proof}") -%}
+{%- set proofEnvEnd = row["?proofEnvEnd"] | default(value="\\end{proof}") -%}
+{{ envBegin }}{% if theoremName %}[{{ theoremName }}]{% endif %}
+
+\label{ {{- labelId -}} }
+{{ statement }}
+{{ envEnd }}
+
+{% if proof %}
+{{ proofEnvBegin }}
+{{ proof }}
+{{ proofEnvEnd }}
+{% endif %}
+
+{% endfor %}

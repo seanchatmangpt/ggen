@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-01-10T01:03:46.654772838+00:00",
+  "rules_executed": 5,
+  "files_changed": 33,
+  "file_hashes": {
+    "thesis-output/sections.tex": "2ec33086f92f09b2242adea36fcba68a8bfc9c3808218c008bb841e37ccacd43",
+    "thesis-output/thesis.tex": "b2a5a6e2caa8344ddf888e2199667b4f57197a6f1371822b9ad61a52ad2dc63c",
+    "thesis-output/chapters.tex": "4c4ac6a83e8320583f84a563abe5aefbb953118258fe4db055914a6875f740cf",
+    "thesis-output/equations.tex": "d5f3e2610faff71cb26a3b5cbce3d3b671d3165110a51e2079506ca902c77a56",
+    "thesis-output/theorems.tex": "c425f9a462ecabe8adc4a1ce6b96446413defae32cce8431d9b8de411c07bc24"
+  },
+  "metadata": {
+    "ggen_version": "5.1.0",
+    "manifest_path": "ggen.toml",
+    "ontology_path": "thesis-ontology.ttl",
+    "spec_hash": "manifest-1.0.0",
+    "duration_ms": 76
+  }
+}

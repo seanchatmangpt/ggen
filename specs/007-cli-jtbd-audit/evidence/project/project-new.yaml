@@ -1,0 +1,52 @@
+command: "ggen project new"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 62
+agent_breakdown:
+  parseable_output: 20
+  error_messages: 14
+  idempotency: 9
+  progress_feedback: 8
+  dry_run: 7
+  documentation: 4
+  exit_codes: 0
+
+avatar_notes:
+  claude_code: "Creates new projects with configuration; --dry-run preview helpful"
+  cursor_ai: "Project creation visible in IDE file explorer"
+  copilot: "Clear from help text and examples"
+  aider: "Mostly safe; supports git tracking of new files"
+  devin: "Can create projects autonomously"
+  openhands: "Customizable project templates"
+  windsurf: "Visual project structure preview useful"
+
+maturity_level: "L2"
+maturity_blockers:
+  - "Exit codes not differentiated"
+  - "Incomplete --dry-run support"
+
+evidence_files: []
+
+recommendations:
+  - priority: P1
+    description: "Implement comprehensive --dry-run with project structure preview"
+    effort: medium
+    impact: high
+  - priority: P1
+    description: "Add semantic exit codes for different error types"
+    effort: low
+    impact: medium
+
+jtbd: |
+  When I want to create a new ggen project,
+  I need to run 'ggen project new' with project configuration,
+  so that I can set up a reproducible project structure.

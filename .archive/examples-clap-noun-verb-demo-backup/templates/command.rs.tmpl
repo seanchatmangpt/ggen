@@ -1,0 +1,12 @@
+use anyhow::Result;
+
+/// Common trait for all commands
+pub trait Command {
+    /// Execute the command
+    fn execute(&self) -> Result<()>;
+
+    /// Validate command arguments before execution
+    fn validate(&self) -> Result<()> {
+        Ok(())
+    }
+}

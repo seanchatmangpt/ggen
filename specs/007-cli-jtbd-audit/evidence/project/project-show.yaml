@@ -1,0 +1,48 @@
+command: "ggen project show"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 48
+agent_breakdown:
+  parseable_output: 10
+  error_messages: 12
+  idempotency: 15
+  progress_feedback: 4
+  dry_run: 10
+  documentation: 2
+  exit_codes: 1
+
+avatar_notes:
+  claude_code: "Displays project; JSON structured output helpful"
+  cursor_ai: "Visual display for IDE"
+  copilot: "Simple command"
+  aider: "Read-only"
+  devin: "Parsing required"
+  openhands: "JSON format preferred"
+  windsurf: "Structure would improve rendering"
+
+maturity_level: "L1"
+maturity_blockers:
+  - "No JSON option"
+  - "Minimal documentation"
+
+evidence_files: []
+
+recommendations:
+  - priority: P1
+    description: "Add --output-format json"
+    effort: low
+    impact: high
+
+jtbd: |
+  When I want to examine project structure and metadata,
+  I need to run 'ggen project show <name>',
+  so that I can understand its composition.

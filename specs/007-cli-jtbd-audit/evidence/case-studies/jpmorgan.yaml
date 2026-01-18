@@ -1,0 +1,61 @@
+case_study: "jpmorgan"
+industry: "Banking/Finance"
+jtbd: |
+  When regulatory requirements change, I need to regenerate compliant code
+  across all services without manual intervention, so that I can maintain
+  regulatory compliance across 50K+ entities with automated code generation.
+
+required_commands:
+  - command: "ggen ontology validate"
+    purpose: "Validate regulatory compliance ontology"
+    criticality: "P1"
+    current_support: "full"
+    gaps: []
+  
+  - command: "ggen template generate"
+    purpose: "Generate compliant entity code"
+    criticality: "P1"
+    current_support: "full"
+    gaps: []
+  
+  - command: "ggen graph query"
+    purpose: "Query affected entities for regeneration"
+    criticality: "P2"
+    current_support: "partial"
+    gaps:
+      - "Missing --output-format json for structured results"
+      - "No --limit flag for batch processing"
+
+scale_requirements:
+  entities: 50000
+  services: 200
+  latency_slo: "Complete regeneration within 60 seconds for 1000 entity changes"
+
+validation_status: "partial"
+
+gaps:
+  - command: "ggen graph query"
+    issue: "No JSON output format available"
+    severity: "P1"
+    workaround: "Parse text output with regex (fragile)"
+    enhancement_request: "Add --output-format json flag for structured query results"
+  
+  - command: "ggen graph query"
+    issue: "No pagination or batching support"
+    severity: "P2"
+    workaround: "Split large queries manually"
+    enhancement_request: "Add --limit and --offset flags for batch processing"
+  
+  - command: "ggen template generate"
+    issue: "No --dry-run for change preview"
+    severity: "P2"
+    workaround: "Manual code review of generated files"
+    enhancement_request: "Add --dry-run flag to preview changes before applying"
+
+notes: |
+  JPMorgan's use case demonstrates the need for deterministic, scalable code
+  generation with full observability. The missing JSON output and batching
+  support are significant blockers for enterprise automation at this scale.
+  
+  With enhancements to graph query (P1) and template generate (P2), this
+  use case would be fully supported.

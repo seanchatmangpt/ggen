@@ -1,0 +1,12 @@
+[package]
+name = "core"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+serde = { workspace = true }
+thiserror = { workspace = true }
+uuid = { workspace = true }
+
+[dev-dependencies]
+tokio = { version = "1.47", features = ["full"] }

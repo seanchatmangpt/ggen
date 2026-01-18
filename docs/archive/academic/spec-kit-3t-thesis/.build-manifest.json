@@ -1,0 +1,136 @@
+{
+  "version": "2.0.0",
+  "builds": [
+    {
+      "timestamp": "2025-12-20T14:51:08.599582",
+      "pipeline_version": "2.0.0",
+      "constitutional_equation": "thesis.tex = \u03bc(ontology.ttl)",
+      "files_generated": 13,
+      "triples_processed": 688,
+      "build_duration_seconds": 0.120993,
+      "ontology_files": [
+        "thesis-schema.ttl",
+        "spec-kit-3t-content.ttl"
+      ],
+      "validation_passed": true
+    },
+    {
+      "timestamp": "2025-12-20T14:51:08.922433",
+      "pipeline_version": "2.0.0",
+      "constitutional_equation": "thesis.tex = \u03bc(ontology.ttl)",
+      "files_generated": 13,
+      "triples_processed": 688,
+      "build_duration_seconds": 0.120723,
+      "ontology_files": [
+        "thesis-schema.ttl",
+        "spec-kit-3t-content.ttl"
+      ],
+      "validation_passed": true
+    },
+    {
+      "timestamp": "2025-12-20T14:56:05.454644",
+      "pipeline_version": "2.0.0",
+      "constitutional_equation": "thesis.tex = \u03bc(ontology.ttl)",
+      "files_generated": 13,
+      "triples_processed": 688,
+      "build_duration_seconds": 0.11804,
+      "ontology_files": [
+        "thesis-schema.ttl",
+        "spec-kit-3t-content.ttl"
+      ],
+      "validation_passed": true
+    },
+    {
+      "timestamp": "2025-12-20T14:58:03.763077",
+      "pipeline_version": "2.0.0",
+      "constitutional_equation": "thesis.tex = \u03bc(ontology.ttl)",
+      "files_generated": 13,
+      "triples_processed": 688,
+      "build_duration_seconds": 0.112535,
+      "ontology_files": [
+        "thesis-schema.ttl",
+        "spec-kit-3t-content.ttl"
+      ],
+      "validation_passed": true
+    },
+    {
+      "timestamp": "2025-12-20T15:03:04.405767",
+      "pipeline_version": "2.0.0",
+      "constitutional_equation": "thesis.tex = \u03bc(ontology.ttl)",
+      "files_generated": 13,
+      "triples_processed": 688,
+      "build_duration_seconds": 0.119092,
+      "ontology_files": [
+        "thesis-schema.ttl",
+        "spec-kit-3t-content.ttl"
+      ],
+      "validation_passed": true
+    },
+    {
+      "timestamp": "2025-12-20T15:10:17.498457",
+      "pipeline_version": "2.0.0",
+      "constitutional_equation": "thesis.tex = \u03bc(ontology.ttl)",
+      "files_generated": 13,
+      "triples_processed": 688,
+      "build_duration_seconds": 0.128945,
+      "ontology_files": [
+        "thesis-schema.ttl",
+        "spec-kit-3t-content.ttl"
+      ],
+      "validation_passed": true
+    },
+    {
+      "timestamp": "2025-12-20T15:15:07.805920",
+      "pipeline_version": "2.0.0",
+      "constitutional_equation": "thesis.tex = \u03bc(ontology.ttl)",
+      "files_generated": 13,
+      "triples_processed": 688,
+      "build_duration_seconds": 0.130114,
+      "ontology_files": [
+        "thesis-schema.ttl",
+        "spec-kit-3t-content.ttl"
+      ],
+      "validation_passed": true
+    },
+    {
+      "timestamp": "2025-12-20T15:42:35.266609",
+      "pipeline_version": "2.0.0",
+      "constitutional_equation": "thesis.tex = \u03bc(ontology.ttl)",
+      "files_generated": 13,
+      "triples_processed": 688,
+      "build_duration_seconds": 0.113927,
+      "ontology_files": [
+        "thesis-schema.ttl",
+        "spec-kit-3t-content.ttl"
+      ],
+      "validation_passed": true
+    }
+  ],
+  "file_hashes": {
+    "/Users/sac/ggen/docs/spec-kit-3t-thesis/generated/frontmatter.tex": "b6f75a10298dd3f33ae29b39fd1e5c836c988585fd8280ffac186218d12b6d3c",
+    "/Users/sac/ggen/docs/spec-kit-3t-thesis/generated/chapter-01.tex": "00eef5bff5e3e4e76e5e659e85accd86c5602a6dfa1390200e0e91337cfcb779",
+    "/Users/sac/ggen/docs/spec-kit-3t-thesis/generated/chapter-02.tex": "bc740d35c6603df62f5d875431a66eca6d0ee1def9dda9b156399b883035282d",
+    "/Users/sac/ggen/docs/spec-kit-3t-thesis/generated/chapter-07.tex": "9cf6c9b00bbf7df88827d3545e5b0212f631dc479564b93a996662f38c99c882",
+    "/Users/sac/ggen/docs/spec-kit-3t-thesis/generated/chapter-08.tex": "8f8e6a1454a2e2b80c069da987e601f42bcf1636277ff1368285ba9c7782e759",
+    "/Users/sac/ggen/docs/spec-kit-3t-thesis/generated/chapter-09.tex": "cfad76c9b30f38c0b55565130d69371008bfbc9a0298656ba0bb7097b99a5948",
+    "/Users/sac/ggen/docs/spec-kit-3t-thesis/generated/chapter-10.tex": "497ec9edbb33ff0cf9bf47a5bcfbd4973064684de32078c5035f8d44f9c2b961",
+    "/Users/sac/ggen/docs/spec-kit-3t-thesis/generated/chapter-03.tex": "72e6e9dd83a3543d5868fb1a75c8bbefe31c3b3a1d374b97aee19b7a43590b7c",
+    "/Users/sac/ggen/docs/spec-kit-3t-thesis/generated/chapter-04.tex": "30fd1c18ee3bae5b41bc35c34aa02eeda9a3c5e50c559a8e8d19f740cdad11ab",
+    "/Users/sac/ggen/docs/spec-kit-3t-thesis/generated/chapter-05.tex": "cec342a65cf20698a0f2febb4d129b0793dc2a0d4e56479c05dbefef5a6c1f8a",
+    "/Users/sac/ggen/docs/spec-kit-3t-thesis/generated/chapter-06.tex": "a77ff1bd54f18ba2d48d9b36ab74cad0a9387cabad1ca6945c1684bce52066b5",
+    "/Users/sac/ggen/docs/spec-kit-3t-thesis/generated/thesis-main.tex": "9a4e8ed68df31af756a94a817d72b23e5823938d7ef422ae6396a338c2b86260"
+  },
+  "last_build": {
+    "timestamp": "2025-12-20T15:42:35.266609",
+    "pipeline_version": "2.0.0",
+    "constitutional_equation": "thesis.tex = \u03bc(ontology.ttl)",
+    "files_generated": 13,
+    "triples_processed": 688,
+    "build_duration_seconds": 0.113927,
+    "ontology_files": [
+      "thesis-schema.ttl",
+      "spec-kit-3t-content.ttl"
+    ],
+    "validation_passed": true
+  }
+}

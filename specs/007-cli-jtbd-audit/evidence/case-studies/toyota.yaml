@@ -1,0 +1,80 @@
+# Fortune 500 Case Study Validation: Toyota
+# Schema: ../../contracts/case-study-validation.schema.yaml
+
+case_study: toyota
+industry: Manufacturing/Automotive
+fortune_rank: 10
+
+jtbd: "When a new vehicle variant is defined, I need manufacturing system code generated within hours, not weeks, so that production can start without delay."
+
+scale_requirements:
+  vehicle_configurations: 1000
+  parts_per_vehicle: 30000
+  factories: 50
+  latency_slo: "<5s from change to regeneration"
+
+required_commands:
+  - command: "ggen fmea pareto"
+    purpose: "Prioritize failure modes for quality focus"
+    criticality: P1
+    current_support: pending
+    gaps: []
+
+  - command: "ggen project watch"
+    purpose: "Auto-regenerate on configuration changes"
+    criticality: P1
+    current_support: pending
+    gaps: []
+
+  - command: "ggen graph export"
+    purpose: "Export configuration to manufacturing systems"
+    criticality: P2
+    current_support: pending
+    gaps: []
+
+  - command: "ggen fmea show"
+    purpose: "Display safety analysis for review"
+    criticality: P2
+    current_support: pending
+    gaps: []
+
+  - command: "ggen marketplace validate_fmea"
+    purpose: "Validate automotive FMEA for ISO 26262"
+    criticality: P1
+    current_support: pending
+    gaps: []
+
+validation_status: pending
+validated_date: null
+validator: claude-code
+
+test_scenarios:
+  - scenario: "Just-in-time code regeneration"
+    steps:
+      - "ggen project watch --path ./vehicle-config --debounce 1000"
+      - "Modify configuration file"
+      - "Verify regeneration within 5s"
+    expected: "Watch mode triggers regeneration within SLO"
+    actual: pending
+
+  - scenario: "Pareto-prioritized quality analysis"
+    steps:
+      - "ggen fmea pareto --input vehicle-fmea.json --threshold 80"
+      - "ggen fmea show --top 10"
+    expected: "80/20 prioritization of failure modes for quality focus"
+    actual: pending
+
+  - scenario: "ISO 26262 compliant FMEA"
+    steps:
+      - "ggen marketplace validate_fmea --package_path ./brake-system --strict"
+    expected: "FMEA validation supporting automotive safety standard"
+    actual: pending
+
+gaps: []
+
+recommendations: []
+
+notes: |
+  Toyota case study focuses on just-in-time manufacturing and automotive safety.
+  Key concerns: low latency watch mode, FMEA for ISO 26262, MES integration.
+  Industry pattern: time-sensitive with manufacturing-specific requirements.

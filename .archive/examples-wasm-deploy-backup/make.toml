@@ -1,0 +1,50 @@
+# WebAssembly Deployment - Modern Web Lifecycle
+# Demonstrates: WASM builds, npm integration, deployment pipeline
+
+[lifecycle.init]
+commands = [
+    "cargo init --lib --name wasm-app || echo 'Initialized'",
+    "wasm-pack --version || cargo install wasm-pack",
+]
+
+[lifecycle.setup]
+commands = [
+    "rustup target add wasm32-unknown-unknown",
+    "cargo install wasm-bindgen-cli wasm-opt",
+]
+
+[lifecycle.lint]
+command = "cargo clippy --target wasm32-unknown-unknown -- -D warnings"
+
+[lifecycle.build]
+command = "wasm-pack build --target web --out-dir pkg"
+
+[lifecycle.test]
+commands = [
+    "cargo test",
+    "wasm-pack test --node",
+]
+
+[lifecycle.optimize]
+commands = [
+    "wasm-pack build --release --target web",
+    "wasm-opt -Oz pkg/wasm_app_bg.wasm -o pkg/wasm_app_bg.wasm",
+]
+
+[lifecycle.package]
+command = "wasm-pack pack pkg"
+
+[lifecycle.deploy]
+commands = [
+    "wasm-pack build --release --target web",
+    "mkdir -p dist",
+    "cp pkg/* dist/",
+    "echo 'Ready for deployment'",
+]
+
+[hooks]
+before_build = ["lint"]
+before_deploy = ["test", "optimize"]
+
+[env]
+RUST_TARGET = "wasm32-unknown-unknown"

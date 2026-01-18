@@ -1,0 +1,92 @@
+% Glossary Appendix for PhD Thesis
+% Ontology-Driven Code Generation: Deterministic API Contract Generation using RDF and SPARQL
+%
+% This glossary provides definitions for key terms and concepts used throughout the thesis.
+% Organized alphabetically for easy reference.
+%
+% Usage: Include this file as an appendix in the main thesis document
+%   This should be inserted before other appendices (e.g., SPARQL Reference)
+
+\appendix
+\chapter*{Glossary}
+\addcontentsline{toc}{chapter}{Glossary}
+\markboth{Glossary}{Glossary}
+
+\begin{description}
+
+\item[\textbf{API Contract:}] A formal agreement defining the structure, behavior, and constraints of an Application Programming Interface (API), encompassing endpoints, request/response schemas, validation rules, and error handling. In this thesis, API contracts are generated deterministically from RDF ontologies to ensure synchronization across all artifacts. See also: \textit{OpenAPI Specification}.
+
+\item[\textbf{Artifact:}] Any file or structured output produced by the code generation process, including source code files (TypeScript, Rust, Python), configuration files (YAML, JSON), validation schemas (Zod, JSON Schema), documentation (Markdown, HTML), and API specifications (OpenAPI). Different artifact types serve distinct purposes in the software development lifecycle.
+
+\item[\textbf{Code Generation:}] The automated creation of source code or structured artifacts from higher-level specifications. This thesis focuses on deterministic code generation from RDF ontologies, where identical inputs always produce byte-identical outputs. Contrast with manual code authoring and template-based generation without semantic foundations.
+
+\item[\textbf{Consistency Constraint:}] A formal rule defined in SHACL (Shapes Constraint Language) that enforces data conformance to ontological specifications. Consistency constraints ensure that all instances of a class satisfy required properties, data types, cardinality restrictions, and value constraints. See also: \textit{SHACL}.
+
+\item[\textbf{Deterministic Generation:}] A code generation process where identical inputs invariably produce identical outputs, with no dependence on external state, randomness, timestamps, or execution environment. Determinism is stronger than reproducibility and is essential for version control integration, continuous integration pipelines, and debuggability. Achieved through pure functions, stable ordering, and explicit dependencies.
+
+\item[\textbf{Entity:}] A domain concept representing a discrete object or concept in the problem space (e.g., User, Post, Comment). Entities are modeled as RDF classes in ontologies and become data structures (structs, interfaces, classes) in generated code. Each entity typically has properties, relationships to other entities, and validation constraints.
+
+\item[\textbf{Ontology:}] A formal, explicit specification of a shared conceptualization, expressed using the Web Ontology Language (OWL) and Resource Description Framework (RDF). Ontologies define classes, properties, relationships, and axioms that represent domain knowledge. This thesis uses ontologies as the single source of truth for code generation. See also: \textit{OWL}, \textit{RDF}.
+
+\item[\textbf{OpenAPI Specification:}] An industry-standard, language-agnostic format for describing RESTful APIs, version 3.0 or later. The specification defines API endpoints, request/response schemas, authentication mechanisms, and documentation. This thesis generates OpenAPI specifications from RDF ontologies to maintain synchronization with implementation code.
+
+\item[\textbf{OWL (Web Ontology Language):}] A W3C standard for expressing rich and complex knowledge about entities, groups of entities, and relationships. OWL extends RDF Schema with additional vocabulary for describing properties and classes, including cardinality, equality, richer typing, characteristics of properties, and enumerated classes. Used to define formal ontologies with reasoning capabilities.
+
+\item[\textbf{RDF (Resource Description Framework):}] A W3C standard model for data interchange on the web, based on making statements about resources in the form of subject-predicate-object triples. RDF provides a foundation for representing and linking structured data, enabling semantic interoperability across systems. This thesis uses RDF as the universal schema language for code generation.
+
+\item[\textbf{RDF Triple:}] The fundamental unit of RDF, consisting of three components: subject (the resource being described), predicate (the property or relationship), and object (the value or related resource). Example: \texttt{<User> <hasEmail> "user@example.com"}. Collections of triples form RDF graphs representing domain knowledge.
+
+\item[\textbf{SHACL (Shapes Constraint Language):}] A W3C standard for validating RDF graphs against a set of conditions (shapes). SHACL shapes define constraints on RDF data, including property existence, data types, cardinality, value ranges, and patterns. This thesis uses SHACL to enforce validation rules that are then transformed into runtime validation code.
+
+\item[\textbf{SPARQL (SPARQL Protocol and RDF Query Language):}] A W3C standard query language for retrieving and manipulating data stored in RDF format. SPARQL queries use graph pattern matching to extract information from RDF ontologies. This thesis employs SPARQL as the data extraction layer between ontologies and template rendering.
+
+\item[\textbf{SPARQL Query:}] A complete SPARQL statement including PREFIX declarations, query form (SELECT, CONSTRUCT, ASK, DESCRIBE), WHERE clause with graph patterns, and optional modifiers (ORDER BY, LIMIT, FILTER). Queries extract structured data from RDF graphs for use in code generation templates.
+
+\item[\textbf{Template Rendering:}] The process of combining templates (containing placeholders, conditional logic, and iteration constructs) with contextual data to produce final output text, typically source code or configuration files. This thesis uses the Tera template engine for deterministic rendering of code artifacts from SPARQL query results.
+
+\item[\textbf{Tera:}] A template engine for Rust, inspired by Jinja2 and Django templates. Tera provides variable interpolation, control flow (loops, conditionals), filters, macros, and template inheritance. Used in this thesis for generating code artifacts with type-safe rendering and zero runtime overhead.
+
+\item[\textbf{Turtle (Terse RDF Triple Language):}] A textual syntax for representing RDF graphs, optimized for human readability and writability. Turtle provides compact notation for common patterns, prefix declarations for URI abbreviation, and comments. This thesis uses Turtle as the primary serialization format for ontology authoring.
+
+\item[\textbf{Type Guard:}] A runtime function that performs type checking and narrows the type of a value within a type system, typically using TypeScript's type predicate syntax (\texttt{value is Type}). Type guards bridge the gap between compile-time type information (which is erased in JavaScript) and runtime validation, enabling type-safe processing of untrusted data.
+
+\item[\textbf{Type Predicate:}] A TypeScript syntax feature enabling type guards, expressed as a boolean-returning function with signature \texttt{(value: unknown) => value is Type}. When a type predicate returns true, TypeScript's compiler narrows the type of the value within the subsequent code scope. Generated from ontological class definitions in this thesis.
+
+\item[\textbf{TypeScript:}] A strongly-typed superset of JavaScript developed by Microsoft, adding optional static type checking, interfaces, and advanced type features. This thesis generates TypeScript interfaces and type guards from RDF ontologies to provide compile-time type safety for API contracts.
+
+\item[\textbf{Validation Schema:}] A declarative definition of data constraints and validation rules, typically expressed using a validation library such as Zod, JSON Schema, or Yup. Validation schemas specify required properties, data types, format constraints, value ranges, and custom validation logic. Distinguished from validators (the functions that execute validation).
+
+\item[\textbf{Validator:}] An executable function that checks data against a validation schema, throwing errors or returning validation results when data fails to conform. Validators are generated from ontological constraints in this thesis, implementing runtime enforcement of semantic rules defined in SHACL shapes.
+
+\item[\textbf{W3C (World Wide Web Consortium):}] An international standards organization for the World Wide Web, developing protocols and guidelines to ensure long-term growth of the web. W3C develops the RDF, OWL, SPARQL, and SHACL standards used as foundations for this thesis work.
+
+\item[\textbf{Zod:}] A TypeScript-first schema validation library providing runtime type checking with static type inference. Zod schemas serve as both runtime validators and TypeScript type definitions via \texttt{z.infer<typeof schema>}. This thesis generates Zod schemas from RDF ontologies to enforce validation constraints at API boundaries.
+
+\item[\textbf{Class (RDF/OWL):}] A set of individuals (instances) that share common characteristics, defined using \texttt{owl:Class} or \texttt{rdfs:Class}. Classes form the taxonomic structure of ontologies, with relationships expressed through properties. Example: \texttt{User} class with properties \texttt{email}, \texttt{username}. See also: \textit{Entity}.
+
+\item[\textbf{Constraint:}] A restriction or limitation on permissible values, structures, or relationships in data or ontologies. Constraints may specify data types, value ranges, cardinality (minimum/maximum occurrences), patterns (regular expressions), or complex logical conditions. SHACL provides the constraint language for RDF ontologies.
+
+\item[\textbf{Graph Pattern:}] A set of triple patterns in a SPARQL WHERE clause that defines the structure to match in an RDF graph. Graph patterns may include variables (prefixed with \texttt{?}), OPTIONAL clauses for non-required matches, FILTER expressions for value constraints, and property paths for transitive relationships.
+
+\item[\textbf{Property (RDF):}] A binary relation connecting subjects to objects in RDF triples. Properties may be data properties (connecting resources to literal values) or object properties (connecting resources to other resources). Defined using \texttt{rdf:Property}, \texttt{owl:DatatypeProperty}, or \texttt{owl:ObjectProperty}.
+
+\item[\textbf{Resource:}] Any entity identified by a URI (Uniform Resource Identifier) in RDF. Resources may be concrete entities (e.g., a specific user), abstract concepts (e.g., the User class), or relationships (e.g., properties). RDF resources form the nodes in RDF graphs, connected by properties.
+
+\item[\textbf{Schema:}] A structural definition specifying the organization, constraints, and relationships of data. Distinguished from ontologies (which provide semantic meaning and reasoning) and models (which provide abstract representations). Examples: JSON Schema (structure validation), database schemas (table definitions).
+
+\item[\textbf{Specification:}] A precise, formal description of requirements, structure, behavior, or constraints. In this thesis, specifications refer to API contracts (OpenAPI), ontologies (RDF/OWL), validation rules (SHACL), and generated artifacts. Abbreviation "spec" is used informally.
+
+\end{description}
+
+\vspace{1em}
+\noindent\textbf{Cross-References:} Terms marked with \textit{italics} indicate related glossary entries. For detailed explanations and usage examples, refer to the relevant thesis chapters.
+
+\vspace{1em}
+\noindent\textbf{Standards References:}
+\begin{itemize}
+    \item RDF 1.1 Primer: \url{https://www.w3.org/TR/rdf11-primer/}
+    \item SPARQL 1.1 Query Language: \url{https://www.w3.org/TR/sparql11-query/}
+    \item OWL 2 Web Ontology Language: \url{https://www.w3.org/TR/owl2-overview/}
+    \item SHACL Shapes Constraint Language: \url{https://www.w3.org/TR/shacl/}
+    \item OpenAPI Specification 3.0: \url{https://spec.openapis.org/oas/latest.html}
+\end{itemize}

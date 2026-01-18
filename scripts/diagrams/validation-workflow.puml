@@ -1,0 +1,77 @@
+@startuml validation-workflow
+' Validation Workflow Activity Diagram
+' Shows parallel execution opportunities
+
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam shadowing false
+
+title **ggen Validation Workflow**\n<size:12>//80/20 Optimization with Parallel Execution//</size>
+
+|Developer|
+start
+:Write code;
+:Stage changes;
+
+|Pre-Commit|
+:Trigger hook;
+note right: Target: <5 seconds
+partition "Gate 1: Cargo Check" #FFE4E4 {
+    :cargo make check (5s);
+    if (OK?) then (yes)
+    else (no)
+        :RED Andon;
+        stop
+    endif
+}
+partition "Gate 2: Format" #FFFBE4 {
+    :cargo fmt --check (2s);
+    if (OK?) then (yes)
+    else (no)
+        :Auto-fix;
+    endif
+}
+:Pre-commit PASSED;
+
+|Developer|
+:Commit done;
+:Ready to push;
+
+|Pre-Push|
+:Trigger hook;
+note right: Target: <60 seconds
+partition "Gate 1" #FFE4E4 {
+    :cargo check (15s);
+}
+fork
+    partition "Gate 2" #FFF4E4 {
+        :clippy (60s);
+    }
+fork again
+    partition "Gate 3" #FFFBE4 {
+        :format (10s);
+    }
+end fork
+partition "Gate 4" #FFE4E4 {
+    :tests (120s);
+}
+partition "Gate 5" #E4FFE4 {
+    :audit (30s, warn);
+}
+:Pre-push PASSED;
+
+|Developer|
+:Push complete;
+stop
+
+legend right
+    **Timeout SLA**
+    |= Gate |= Pre-Commit |= Pre-Push |
+    | Check | 5s | 15s |
+    | Lint | - | 60s |
+    | Format | 2s | 10s |
+    | Tests | - | 120s |
+    | Audit | - | 30s |
+endlegend
+
+@enduml

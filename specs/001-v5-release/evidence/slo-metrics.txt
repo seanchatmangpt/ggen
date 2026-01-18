@@ -1,0 +1,962 @@
+[cargo-make] INFO - cargo make 0.37.24
+[cargo-make] INFO - 
+[cargo-make] INFO - Project: ggen
+[cargo-make] INFO - Build File: Makefile.toml
+[cargo-make] INFO - Task: slo-check
+[cargo-make] INFO - Profile: development
+[cargo-make] INFO - Execute Command: "timeout" "180s" "cargo" "test" "-p" "ggen-core" "--" "--list"
+[1m[32m   Compiling[0m ggen-core v4.0.0 (/Users/sac/ggen/crates/ggen-core)
+[1m[32m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 12.19s
+[1m[32m     Running[0m unittests src/lib.rs (target/debug/deps/ggen_core-e5f95a78ec19cc2f)
+cache::tests::test_cache_manager_creation: test
+cache::tests::test_list_cached_empty: test
+cache::tests::test_sha256_calculation: test
+codegen::audit::tests::test_audit_builder: test
+codegen::audit::tests::test_hash_string: test
+codegen::audit::tests::test_record_output: test
+codegen::code_graph::tests::test_build_impl_belongs_to: test
+codegen::code_graph::tests::test_build_impl_has_many: test
+codegen::code_graph::tests::test_from_sparql_results: test
+codegen::code_graph::tests::test_parse_derives: test
+codegen::pipeline::tests::test_expand_output_path: test
+codegen::pipeline::tests::test_expand_output_path_no_vars: test
+codegen::typescript::tests::test_extract_class_name: test
+codegen::typescript::tests::test_generate_interfaces: test
+codegen::typescript::tests::test_generate_utility_types: test
+codegen::typescript::tests::test_generate_zod_schemas: test
+codegen::typescript::tests::test_property_to_zod_cardinality: test
+codegen::typescript::tests::test_property_to_zod_primitives: test
+config::andon_gemba::tests::test_andon_alert_trigger: test
+config::andon_gemba::tests::test_andon_critical_alerts: test
+config::andon_gemba::tests::test_gemba_walk_conduction: test
+config::hive_coordinator::tests::test_hive_agent: test
+config::hive_coordinator::tests::test_hive_orchestration: test
+config::hive_coordinator::tests::test_hive_queen_creation: test
+config::lock_manager::tests::test_lockfile_creation: test
+config::lock_manager::tests::test_lockfile_manager_verify: test
+config::lock_manager::tests::test_lockfile_to_env_vars: test
+config::lock_manager::tests::test_lockfile_to_version_spec: test
+config::ontology_config::tests::test_composition_strategies: test
+config::ontology_config::tests::test_ontology_config_builder: test
+config::ontology_config::tests::test_ontology_config_validation: test
+config::ontology_integration_test::tests::test_composition_strategies: test
+config::ontology_integration_test::tests::test_generation_targets: test
+config::ontology_integration_test::tests::test_ggen_lock_creation: test
+config::ontology_integration_test::tests::test_ggen_toml_ontology_section: test
+config::ontology_integration_test::tests::test_hive_queen_orchestration: test
+config::ontology_integration_test::tests::test_lock_file_env_export: test
+config::ontology_integration_test::tests::test_lock_file_version_spec: test
+config::ontology_integration_test::tests::test_pack_namespace_filtering: test
+config::qa_cli::tests::test_andon_status_command: test
+config::qa_cli::tests::test_fmea_analyze_command: test
+config::qa_cli::tests::test_gemba_status_command: test
+config::qa_cli::tests::test_generate_report: test
+config::qa_cli::tests::test_health_check_command: test
+config::qa_cli::tests::test_metrics_export: test
+config::qa_cli::tests::test_qa_cli_manager_creation: test
+config::quality_assurance::tests::test_fmea_rpn_calculation: test
+config::quality_assurance::tests::test_muda_quick_wins: test
+config::quality_assurance::tests::test_poka_yoke_effectiveness: test
+config::swarm_coordinator::tests::test_health_check: test
+config::swarm_coordinator::tests::test_task_assignment: test
+config::swarm_coordinator::tests::test_worker_registration: test
+config::swarm_intelligence::tests::test_collective_memory_storage: test
+config::swarm_intelligence::tests::test_consensus_voting: test
+config::swarm_intelligence::tests::test_worker_health: test
+config::system_health::tests::test_health_monitor_comprehensive_check: test
+config::system_health::tests::test_health_report_creation: test
+config::system_health::tests::test_health_trend_calculation: test
+config::template_config::tests::test_add_search_path: test
+config::template_config::tests::test_default_config: test
+config::template_config::tests::test_default_variables: test
+delta::tests::test_delta_affected_iris: test
+delta::tests::test_delta_creation: test
+delta::tests::test_delta_display: test
+delta::tests::test_delta_filtering: test
+delta::tests::test_graph_hash: test
+delta::tests::test_impact_analyzer: test
+e2e_tests::tests::test_end_to_end_deterministic_output: test
+e2e_tests::tests::test_end_to_end_error_handling: test
+e2e_tests::tests::test_end_to_end_template_generation: test
+e2e_tests::tests::test_end_to_end_with_rdf_data: test
+generator::tests::test_gen_context_dry: test
+generator::tests::test_gen_context_new: test
+generator::tests::test_gen_context_with_prefixes: test
+generator::tests::test_gen_context_with_vars: test
+generator::tests::test_generate_dry_run: test
+generator::tests::test_generate_invalid_template: test
+generator::tests::test_generate_missing_template_file: test
+generator::tests::test_generate_simple_template: test
+generator::tests::test_generate_with_default_output: test
+generator::tests::test_generate_with_nested_output_path: test
+generator::tests::test_generator_new: test
+generator::tests::test_insert_env: test
+github::tests::test_github_client_creation: test
+github::tests::test_repo_info_parse: test
+github::tests::test_repo_info_parse_invalid: test
+gpack::tests::test_manifest_load_from_file: test
+gpack::tests::test_manifest_parsing: test
+graph::construct::tests::test_construct_executor_creation: test
+graph::construct::tests::test_execute_simple_construct: test
+graph::construct::tests::test_generate_iri_deterministic: test
+graph::construct::tests::test_generate_iri_format: test
+graph::core::tests::test_build_prolog_with_base: test
+graph::core::tests::test_build_prolog_with_prefixes: test
+graph::core::tests::test_graph_insert_turtle: test
+graph::core::tests::test_graph_new: test
+graph::core::tests::test_graph_query_cached: test
+graph::export::tests::test_export_empty_graph: test
+graph::export::tests::test_export_format_specific_serialization: test
+graph::export::tests::test_export_nquads_format_includes_graph_context: test
+graph::export::tests::test_export_ntriples_format_uses_full_iris: test
+graph::export::tests::test_export_rdfxml_format_has_xml_structure: test
+graph::export::tests::test_export_trig_format_supports_named_graphs: test
+graph::export::tests::test_export_turtle_format_preserves_prefixes: test
+graph::export::tests::test_export_write_to_file: test
+graph::export::tests::test_export_write_to_file_auto_ntriples: test
+graph::export::tests::test_export_write_to_file_auto_turtle: test
+graph::export::tests::test_export_write_to_file_auto_unsupported_format: test
+graph::export::tests::test_export_write_to_string_ntriples: test
+graph::export::tests::test_export_write_to_string_rdfxml: test
+graph::export::tests::test_export_write_to_string_turtle: test
+graph::query::tests::test_query_ask_query: test
+graph::query::tests::test_query_builder: test
+graph::query::tests::test_query_execute: test
+graph::query::tests::test_query_execute_cached: test
+graph::query::tests::test_query_execute_prepared: test
+graph::query::tests::test_query_execute_with_base: test
+graph::query::tests::test_query_execute_with_prefixes: test
+graph::query::tests::test_query_invalid_syntax: test
+graph::store::tests::test_store_create_graph_and_insert: test
+graph::store::tests::test_store_inner_access: test
+graph::store::tests::test_store_multiple_graphs_share_data: test
+graph::store::tests::test_store_new: test
+graph::store::tests::test_store_open_and_create_graph: test
+graph::store::tests::test_store_persistent_storage: test
+graph::store::tests::test_store_resource_cleanup: test
+graph::types::tests::test_cached_result_boolean: test
+graph::types::tests::test_cached_result_clone: test
+graph::types::tests::test_cached_result_debug: test
+graph::types::tests::test_cached_result_graph: test
+graph::types::tests::test_cached_result_graph_empty: test
+graph::types::tests::test_cached_result_solutions: test
+graph::types::tests::test_cached_result_solutions_empty: test
+graph::types::tests::test_cached_result_to_json_boolean: test
+graph::types::tests::test_cached_result_to_json_graph: test
+graph::types::tests::test_cached_result_to_json_solutions: test
+graph::update::tests::test_update_clear: test
+graph::update::tests::test_update_clear_all: test
+graph::update::tests::test_update_clear_graph: test
+graph::update::tests::test_update_copy: test
+graph::update::tests::test_update_delete: test
+graph::update::tests::test_update_delete_where: test
+graph::update::tests::test_update_execute_invalid_syntax: test
+graph::update::tests::test_update_insert: test
+graph::update::tests::test_update_update_operation: test
+inject::tests::test_content_exists_in_file: test
+inject::tests::test_content_exists_in_nonexistent_file: test
+inject::tests::test_detect_eol_cr: test
+inject::tests::test_detect_eol_crlf: test
+inject::tests::test_detect_eol_lf: test
+inject::tests::test_detect_eol_no_eol: test
+inject::tests::test_detect_eol_nonexistent_file: test
+inject::tests::test_generate_exact_match: test
+inject::tests::test_generate_exact_match_with_special_chars: test
+inject::tests::test_generate_idempotent_pattern: test
+inject::tests::test_normalize_to_eol: test
+inject::tests::test_normalize_to_match_file: test
+inject::tests::test_platform_default: test
+lifecycle::dag::tests::test_deps_from_hooks: test
+lifecycle::dag::tests::test_topo_cycle_detection: test
+lifecycle::dag::tests::test_topo_parallel: test
+lifecycle::dag::tests::test_topo_simple: test
+lifecycle::dx::tests::test_ci_mode: test
+lifecycle::dx::tests::test_execution_mode_defaults: test
+lifecycle::dx::tests::test_format_duration: test
+lifecycle::dx::tests::test_metrics_tracking: test
+lifecycle::dx::tests::test_output_modes: test
+lifecycle::dx::tests::test_state_visualizer: test
+lifecycle::error::tests::test_cache_errors: test
+lifecycle::error::tests::test_command_failed_error: test
+lifecycle::error::tests::test_command_spawn_error: test
+lifecycle::error::tests::test_config_load_error: test
+lifecycle::error::tests::test_config_parse_error: test
+lifecycle::error::tests::test_dependency_cycle_error: test
+lifecycle::error::tests::test_error_display: test
+lifecycle::error::tests::test_error_downcasting: test
+lifecycle::error::tests::test_hook_recursion_error: test
+lifecycle::error::tests::test_hook_recursion_with_chain: test
+lifecycle::error::tests::test_make_toml_errors: test
+lifecycle::error::tests::test_parallel_execution_error: test
+lifecycle::error::tests::test_phase_not_found_error: test
+lifecycle::error::tests::test_state_errors: test
+lifecycle::hooks::tests::test_circular_dependency_fails: test
+lifecycle::hooks::tests::test_invalid_phase_reference_fails: test
+lifecycle::hooks::tests::test_self_reference_fails: test
+lifecycle::hooks::tests::test_valid_hooks_pass_validation: test
+lifecycle::integration_test::integration_tests::test_cache_key_changes_with_inputs: test
+lifecycle::integration_test::integration_tests::test_cache_key_generation: test
+lifecycle::integration_test::integration_tests::test_cache_storage_and_validation: test
+lifecycle::integration_test::integration_tests::test_concurrent_phase_execution_state: test
+lifecycle::integration_test::integration_tests::test_empty_phase_commands: test
+lifecycle::integration_test::integration_tests::test_get_cache_key: test
+lifecycle::integration_test::integration_tests::test_get_last_run: test
+lifecycle::integration_test::integration_tests::test_hooks_execution_order: test
+lifecycle::integration_test::integration_tests::test_load_make_or_default: test
+lifecycle::integration_test::integration_tests::test_load_make_toml: test
+lifecycle::integration_test::integration_tests::test_multiple_phase_runs_state_history: test
+lifecycle::integration_test::integration_tests::test_parallel_workspace_error_handling: test
+lifecycle::integration_test::integration_tests::test_parallel_workspace_execution: test
+lifecycle::integration_test::integration_tests::test_phase_commands_extraction: test
+lifecycle::integration_test::integration_tests::test_phase_names_listing: test
+lifecycle::integration_test::integration_tests::test_phase_not_found: test
+lifecycle::integration_test::integration_tests::test_pipeline_execution: test
+lifecycle::integration_test::integration_tests::test_run_single_phase: test
+lifecycle::integration_test::integration_tests::test_state_persistence: test
+lifecycle::integration_test::integration_tests::test_workspace_support: test
+lifecycle::optimization::tests::test_container_pool: test
+lifecycle::optimization::tests::test_container_pool_concurrent_init: test
+lifecycle::optimization::tests::test_container_pool_size: test
+lifecycle::optimization::tests::test_container_pool_zero_size: test
+lifecycle::optimization::tests::test_dependency_cache_is_cached: test
+lifecycle::optimization::tests::test_improvement_calculation: test
+lifecycle::optimization::tests::test_parallel_orchestrator: test
+lifecycle::optimization::tests::test_parallel_orchestrator_empty: test
+lifecycle::optimization::tests::test_parallel_orchestrator_max_parallelism: test
+lifecycle::optimization::tests::test_performance_targets: test
+lifecycle::optimization::tests::test_performance_targets_defaults: test
+lifecycle::optimization::tests::test_performance_targets_required_vs_stretch: test
+lifecycle::optimization::tests::test_pipeline_profiler: test
+lifecycle::optimization::tests::test_profiler_concurrent_stages: test
+lifecycle::optimization::tests::test_profiler_multiple_stages: test
+lifecycle::optimization::tests::test_profiler_no_start: test
+lifecycle::optimization::tests::test_profiler_report_output: test
+lifecycle::optimization::tests::test_profiler_stage_target_matching: test
+lifecycle::optimization::tests::test_profiler_total_duration: test
+lifecycle::optimization::tests::test_stage_metrics: test
+lifecycle::optimization::tests::test_stage_metrics_boundary_conditions: test
+lifecycle::optimization::tests::test_stage_metrics_percentage_precision: test
+lifecycle::optimization::tests::test_stage_metrics_sorting: test
+lifecycle::optimization::tests::test_stage_metrics_zero_duration: test
+lifecycle::poka_yoke::tests::test_counter_cannot_be_negative: test
+lifecycle::poka_yoke::tests::test_counter_cannot_overflow: test
+lifecycle::poka_yoke::tests::test_counter_normal_operations: test
+lifecycle::poka_yoke::tests::test_file_handle_type_safety: test
+lifecycle::poka_yoke::tests::test_non_empty_path_empty_rejected: test
+lifecycle::poka_yoke::tests::test_non_empty_path_join: test
+lifecycle::poka_yoke::tests::test_non_empty_path_valid: test
+lifecycle::poka_yoke::tests::test_non_empty_string_empty_rejected: test
+lifecycle::poka_yoke::tests::test_non_empty_string_valid: test
+lifecycle::production::tests::test_add_requirement_success: test
+lifecycle::production::tests::test_category_report_calculation: test
+lifecycle::production::tests::test_default_requirements: test
+lifecycle::production::tests::test_dependency_validation: test
+lifecycle::production::tests::test_get_by_category: test
+lifecycle::production::tests::test_get_by_status: test
+lifecycle::production::tests::test_placeholder_creation: test
+lifecycle::production::tests::test_placeholder_processor: test
+lifecycle::production::tests::test_placeholder_registry: test
+lifecycle::production::tests::test_placeholder_registry_by_category: test
+lifecycle::production::tests::test_placeholder_to_comment: test
+lifecycle::production::tests::test_readiness_category_ordering: test
+lifecycle::production::tests::test_readiness_report_generation: test
+lifecycle::production::tests::test_readiness_report_scoring: test
+lifecycle::production::tests::test_readiness_status_invalid_transitions: test
+lifecycle::production::tests::test_readiness_status_valid_transitions: test
+lifecycle::production::tests::test_requirement_not_found: test
+lifecycle::production::tests::test_status_transitions: test
+lifecycle::state_machine::tests::test_invalid_transition_validation: test
+lifecycle::state_machine::tests::test_state_access: test
+lifecycle::state_machine::tests::test_valid_state_transitions: test
+lifecycle::state_validation::tests::test_inconsistent_history_allowed_for_hooks: test
+lifecycle::state_validation::tests::test_invalid_cache_key_fails_validation: test
+lifecycle::state_validation::tests::test_missing_prerequisite_fails_validation: test
+lifecycle::state_validation::tests::test_valid_state_passes_validation: test
+lifecycle::state_validation::tests::test_validated_state_wrapper: test
+lockfile::tests::test_lockfile_create_and_save: test
+lockfile::tests::test_lockfile_load_nonexistent: test
+lockfile::tests::test_lockfile_manager_creation: test
+lockfile::tests::test_lockfile_remove: test
+lockfile::tests::test_lockfile_stats: test
+lockfile::tests::test_lockfile_upsert_and_get: test
+lockfile::tests::test_lockfile_upsert_with_pqc: test
+lockfile_unified::cache::tests::test_cache_basic_operations: test
+lockfile_unified::cache::tests::test_cache_cleanup_removes_expired: test
+lockfile_unified::cache::tests::test_cache_empty_operations: test
+lockfile_unified::cache::tests::test_cache_eviction: test
+lockfile_unified::cache::tests::test_cache_expiration: test
+lockfile_unified::cache::tests::test_cache_lock_poisoning_handling: test
+lockfile_unified::cache::tests::test_cache_stats: test
+lockfile_unified::cache::tests::test_cache_thread_safety: test
+lockfile_unified::cache::tests::test_dependency_cache: test
+lockfile_unified::entry::tests::test_extended_metadata_is_empty: test
+lockfile_unified::entry::tests::test_lock_source_display: test
+lockfile_unified::entry::tests::test_pqc_signature_creation: test
+lockfile_unified::entry::tests::test_unified_entry_creation: test
+lockfile_unified::format::tests::test_detect_format: test
+lockfile_unified::format::tests::test_json_roundtrip: test
+lockfile_unified::format::tests::test_toml_roundtrip: test
+lockfile_unified::validation::tests::test_circular_dependency_detection: test
+lockfile_unified::validation::tests::test_integrity_check: test
+lockfile_unified::validation::tests::test_is_valid_sha256: test
+lockfile_unified::validation::tests::test_validation_result_merge: test
+lockfile_unified::validation::tests::test_validation_result_operations: test
+manifest::parser::tests::test_parse_full_manifest: test
+manifest::parser::tests::test_parse_minimal_manifest: test
+manifest::parser::tests::test_parse_missing_required_field: test
+manifest::types::tests::test_default_values: test
+manifest::types::tests::test_generation_mode_default: test
+manifest::types::tests::test_validation_severity_default: test
+manifest::validation::tests::test_validate_empty_project_name: test
+manifest::validation::tests::test_validate_missing_ontology: test
+merge::tests::test_merge_strategies: test
+merge::tests::test_region_aware_merge: test
+merge::tests::test_region_check: test
+merge::tests::test_region_parsing: test
+ontology::constitution::tests::test_all_invariants_pass: test
+ontology::constitution::tests::test_constitution_creation: test
+ontology::constitution::tests::test_constitution_to_receipt: test
+ontology::constitution::tests::test_invariant_results: test
+ontology::control_loop::tests::test_control_loop_bounded_run: test
+ontology::control_loop::tests::test_control_loop_creation: test
+ontology::control_loop::tests::test_control_loop_iteration: test
+ontology::control_loop::tests::test_control_loop_observation: test
+ontology::control_loop::tests::test_control_loop_state_transitions: test
+ontology::delta_proposer::tests::test_propose_deltas_uses_cache: test
+ontology::delta_proposer::tests::test_stream_proposals: test
+ontology::e2e_example::e2e_tests::test_atomic_promotion_performance: test
+ontology::e2e_example::e2e_tests::test_autonomous_ontology_evolution_full_cycle: test
+ontology::e2e_example::e2e_tests::test_full_validation_with_invariants: test
+ontology::e2e_example::e2e_tests::test_ontology_statistics: test
+ontology::e2e_example::e2e_tests::test_pattern_mining_to_proposal: test
+ontology::e2e_example::e2e_tests::test_receipt_and_metrics: test
+ontology::extractor::tests::test_extract_local_name: test
+ontology::extractor::tests::test_infer_property_range: test
+ontology::pattern_miner::tests::test_add_observations: test
+ontology::pattern_miner::tests::test_mine_repeated_structures: test
+ontology::pattern_miner::tests::test_pattern_miner_creation: test
+ontology::pattern_miner::tests::test_stats: test
+ontology::promotion::tests::test_atomic_promotion: test
+ontology::promotion::tests::test_concurrent_reads: test
+ontology::promotion::tests::test_multiple_promotions: test
+ontology::promotion::tests::test_promoter_creation: test
+ontology::promotion::tests::test_promotion_metrics: test
+ontology::promotion::tests::test_promotion_with_guards: test
+ontology::promotion::tests::test_safe_concurrent_promotion_and_reads: test
+ontology::promotion::tests::test_snapshot_guard_raii: test
+ontology::schema::tests::test_cardinality_bounds: test
+ontology::schema::tests::test_ontology_schema: test
+ontology::schema::tests::test_property_range_conversion: test
+ontology::sigma_runtime::tests::test_as_dataset_empty: test
+ontology::sigma_runtime::tests::test_as_dataset_invalid_iri: test
+ontology::sigma_runtime::tests::test_as_dataset_with_triples: test
+ontology::sigma_runtime::tests::test_receipt_log: test
+ontology::sigma_runtime::tests::test_receipt_signing: test
+ontology::sigma_runtime::tests::test_runtime_creation: test
+ontology::sigma_runtime::tests::test_snapshot_creation: test
+ontology::sigma_runtime::tests::test_snapshot_id_determinism: test
+ontology::sigma_runtime::tests::test_snapshot_promotion: test
+ontology::sigma_runtime::tests::test_statement_round_trip_default_graph: test
+ontology::sigma_runtime::tests::test_statement_round_trip_named_graph: test
+ontology::validators::tests::test_composite_validator: test
+ontology::validators::tests::test_dynamic_validator: test
+ontology::validators::tests::test_invariant_checking: test
+ontology::validators::tests::test_performance_validator: test
+ontology::validators::tests::test_static_validator: test
+ontology_pack::tests::test_ontology_class_serialization: test
+ontology_pack::tests::test_ontology_format_extension: test
+packs::install::tests::test_install_nonexistent_pack: test
+packs::install::tests::test_install_pack_creates_ggen_directory: test
+packs::install::tests::test_install_pack_creates_lockfile: test
+packs::install::tests::test_install_pack_duplicates_without_force: test
+packs::install::tests::test_install_pack_overwrites_with_force: test
+packs::install::tests::test_install_pack_updates_lockfile: test
+packs::install::tests::test_install_pack_with_different_version_fails_without_force: test
+packs::install::tests::test_validate_version_format_invalid: test
+packs::install::tests::test_validate_version_format_valid: test
+packs::lockfile::tests::test_add_and_get_pack: test
+packs::lockfile::tests::test_new_lockfile: test
+packs::lockfile::tests::test_pack_source_display: test
+packs::lockfile::tests::test_remove_pack: test
+parallel_generator::tests::test_parallel_generation: test
+parallel_generator::tests::test_parallel_with_rdf_skip: test
+pipeline::tests::test_pipeline_builder_with_prefixes: test
+pipeline::tests::test_pipeline_new: test
+pipeline::tests::test_pipeline_register_prefixes: test
+pipeline::tests::test_pipeline_render_body: test
+pipeline::tests::test_pipeline_render_file_basic: test
+pipeline::tests::test_plan_apply_creates_file: test
+pipeline::tests::test_plan_apply_dry_run: test
+pipeline::tests::test_plan_unless_exists: test
+poc::tests::poc_with_prefixes_and_inline_rdf: test
+poka_yoke::tests::test_poka_yoke_modules_accessible: test
+pqc::tests::test_pqc_invalid_signature: test
+pqc::tests::test_pqc_pack_signature: test
+pqc::tests::test_pqc_sign_and_verify: test
+pqc::tests::test_pqc_signer_creation: test
+pqc::tests::test_sha256_calculation: test
+preprocessor::tests::test_freeze_stage_basic: test
+preprocessor::tests::test_include_stage_basic: test
+preprocessor::tests::test_preprocessor_pipeline: test
+prevention::contracts::tests::test_mock_provider_satisfies_contract: test
+prevention::contracts::tests::test_version_compatibility: test
+prevention::contracts::tests::test_version_display: test
+prevention::errors::tests::test_error_builder: test
+prevention::errors::tests::test_error_context: test
+prevention::errors::tests::test_format_error: test
+prevention::state_machine::tests::test_initialized_search_not_available: test
+prevention::state_machine::tests::test_state_machine_valid_transitions: test
+prevention::state_machine::tests::test_uninitialized_count_not_available: test
+prevention::state_machine::tests::test_validated_state_methods_available: test
+project_generator::common::tests::test_generate_editorconfig: test
+project_generator::common::tests::test_validate_project_name: test
+project_generator::nextjs::tests::test_generate_nextjs_project: test
+project_generator::nextjs::tests::test_generate_nuxt_project: test
+project_generator::rust::tests::test_generate_rust_cli_project: test
+project_generator::rust::tests::test_generate_rust_lib_project: test
+project_generator::rust::tests::test_generate_rust_web_project: test
+project_generator::tests::test_project_type_display: test
+project_generator::tests::test_project_type_from_str: test
+rdf::query::tests::test_cache_clear: test
+rdf::query::tests::test_cache_invalidation: test
+rdf::query::tests::test_query_cache_creation: test
+rdf::schema::tests::test_load_schema: test
+rdf::schema::tests::test_namespace_constants: test
+rdf::schema::tests::test_ontology_uris: test
+rdf::template_metadata::tests::test_escape_literal: test
+rdf::template_metadata::tests::test_find_by_category: test
+rdf::template_metadata::tests::test_metadata_store_operations: test
+rdf::template_metadata::tests::test_template_metadata_creation: test
+rdf::template_metadata::tests::test_template_to_turtle: test
+rdf::template_metadata::tests::test_template_variables: test
+rdf::validation::tests::test_is_semantic_version: test
+rdf::validation::tests::test_is_valid_identifier: test
+rdf::validation::tests::test_validate_empty_name: test
+rdf::validation::tests::test_validate_invalid_stability: test
+rdf::validation::tests::test_validate_invalid_version: test
+rdf::validation::tests::test_validate_valid_template: test
+rdf::validation::tests::test_validate_variable_name: test
+rdf::validation::tests::test_validate_variable_type: test
+rdf::validation::tests::test_validation_report: test
+register::tests::test_all_filters_registered: test
+register::tests::test_bless_context_name: test
+register::tests::test_bless_context_no_name: test
+register::tests::test_bless_context_non_string_name: test
+register::tests::test_case_conversions: test
+register::tests::test_change_case_aliases: test
+register::tests::test_complex_combinations: test
+register::tests::test_edge_cases: test
+register::tests::test_heck_fill_ins: test
+register::tests::test_non_string_input: test
+register::tests::test_ordinalization: test
+register::tests::test_real_world_scenarios: test
+register::tests::test_sparql_column_function: test
+register::tests::test_sparql_count_function: test
+register::tests::test_sparql_empty_function: test
+register::tests::test_sparql_first_function: test
+register::tests::test_sparql_row_function: test
+register::tests::test_sparql_values_function: test
+register::tests::test_string_manipulation: test
+registry::tests::test_registry_client_resolve: test
+registry::tests::test_registry_client_search: test
+resolver::tests::test_find_templates_in_pack_with_manifest: test
+resolver::tests::test_find_templates_in_pack_without_manifest: test
+resolver::tests::test_get_pack_templates_nonexistent_pack: test
+resolver::tests::test_parse_frontmatter_basic: test
+resolver::tests::test_parse_frontmatter_no_frontmatter: test
+resolver::tests::test_parse_template_ref: test
+resolver::tests::test_parse_template_ref_invalid: test
+resolver::tests::test_resolve_template_path: test
+resolver::tests::test_resolve_template_path_empty_components: test
+resolver::tests::test_resolve_template_path_nested: test
+resolver::tests::test_resolve_template_path_security: test
+resolver::tests::test_search_templates_empty: test
+resolver::tests::test_template_resolver_new: test
+security::command::tests::test_command_injection_prevention: test
+security::command::tests::test_executor_git: test
+security::command::tests::test_safe_command_arg_validation: test
+security::command::tests::test_safe_command_new_validates_whitelist: test
+security::command::tests::test_safe_command_rejects_dangerous_chars: test
+security::error::tests::test_file_error_sanitization: test
+security::error::tests::test_sanitize_message_removes_paths: test
+security::error::tests::test_sanitize_message_removes_sensitive_data: test
+security::error::tests::test_sanitize_path: test
+security::error::tests::test_sanitized_error_display: test
+security::tests::command_tests::test_command_whitelist: test
+security::tests::error_tests::test_error_sanitization: test
+security::tests::validation_tests::test_path_validation: test
+security::validation::tests::test_env_var_name_validation: test
+security::validation::tests::test_env_var_value_validation: test
+security::validation::tests::test_identifier_validation: test
+security::validation::tests::test_path_length_validation: test
+security::validation::tests::test_path_traversal_detection: test
+security::validation::tests::test_template_name_validation: test
+simple_tracing::tests::test_simple_timer: test
+simple_tracing::tests::test_time_operation_macro: test
+simple_tracing::tests::test_trace_level_ordering: test
+simple_tracing::tests::test_tracing_environment_variables: test
+simple_tracing::tests::test_tracing_methods: test
+snapshot::tests::test_file_snapshot: test
+snapshot::tests::test_snapshot_creation: test
+snapshot::tests::test_snapshot_manager: test
+snapshot::tests::test_template_snapshot: test
+streaming_generator::tests::test_streaming_generator_cache_reuse: test
+streaming_generator::tests::test_streaming_generator_multiple_files: test
+streaming_generator::tests::test_streaming_generator_nested_output: test
+streaming_generator::tests::test_streaming_generator_new: test
+streaming_generator::tests::test_streaming_generator_single_file: test
+telemetry::tests::test_telemetry_config_custom: test
+telemetry::tests::test_telemetry_config_default: test
+template::tests::body_render_inline_and_from_file: test
+template::tests::boolean_and_injection_flags: test
+template::tests::boolean_ask_and_empty_result_helpers: test
+template::tests::deserializers_string_or_seq_and_sparql_map: test
+template::tests::frontmatter_render_core_fields: test
+template::tests::frontmatter_supports_documented_directives: test
+template::tests::parse_variants_and_preserve_body: test
+template::tests::preprocessor_integration: test
+template::tests::projection_helpers_and_multiple_queries: test
+template::tests::query_blocks_populate_sparql_map_and_results: test
+template::tests::rdf_insert_and_select_visible: test
+template_cache::tests::test_cache_clear: test
+template_cache::tests::test_cache_eviction: test
+template_cache::tests::test_get_or_parse: test
+template_cache::tests::test_template_cache_default: test
+template_cache::tests::test_template_cache_new: test
+templates::business_logic::tests::test_business_logic_exists: test
+templates::business_logic::tests::test_force_overwrite_domain: test
+templates::business_logic::tests::test_generate_cli_wrapper: test
+templates::business_logic::tests::test_generate_domain_skeleton: test
+templates::business_logic::tests::test_generate_separated_files: test
+templates::business_logic::tests::test_no_overwrite_existing_domain: test
+templates::business_logic::tests::test_to_pascal_case: test
+templates::business_logic::tests::test_to_snake_case: test
+templates::context::tests::test_apply_defaults: test
+templates::context::tests::test_from_map: test
+templates::context::tests::test_merge: test
+templates::context::tests::test_new_context: test
+templates::context::tests::test_render_string: test
+templates::context::tests::test_set_and_get: test
+templates::context::tests::test_validate_required: test
+templates::context::tests::test_variable_names: test
+templates::file_tree_generator::tests::test_create_template: test
+templates::file_tree_generator::tests::test_parse_simple_format: test
+templates::file_tree_generator::tests::test_parse_template_with_rdf: test
+templates::file_tree_generator::tests::test_parse_yaml_template: test
+templates::file_tree_generator::tests::test_parser_extract_name: test
+templates::file_tree_generator::tests::test_template_validation: test
+templates::format::tests::test_directory_node: test
+templates::format::tests::test_empty_template_validation_fails: test
+templates::format::tests::test_file_node_with_content: test
+templates::format::tests::test_file_node_with_template: test
+templates::format::tests::test_template_format_creation: test
+templates::format::tests::test_template_format_validation: test
+templates::frozen::tests::test_extract_frozen_map: test
+templates::frozen::tests::test_has_frozen_sections: test
+templates::frozen::tests::test_merge_numbered_sections: test
+templates::frozen::tests::test_merge_with_frozen: test
+templates::frozen::tests::test_merge_without_frozen_sections: test
+templates::frozen::tests::test_parse_frozen_section_with_id: test
+templates::frozen::tests::test_parse_multiple_frozen_sections: test
+templates::frozen::tests::test_parse_simple_frozen_section: test
+templates::frozen::tests::test_parse_unclosed_frozen_tag: test
+templates::frozen::tests::test_strip_frozen_tags: test
+tera_env::tests::test_autoescape_disabled: test
+tera_env::tests::test_build_tera_empty_directory: test
+tera_env::tests::test_build_tera_minimal: test
+tera_env::tests::test_build_tera_with_glob: test
+types::codeowners::tests::test_generate_codeowners: test
+types::codeowners::tests::test_owner_entry_format: test
+types::codeowners::tests::test_parse_owners_file: test
+types::codeowners::tests::test_write_codeowners: test
+types::enterprise::tests::test_domain_protection_strategy_serde: test
+types::enterprise::tests::test_enterprise_config_default: test
+types::enterprise::tests::test_enterprise_config_fortune_500: test
+types::enterprise::tests::test_generation_config_builder: test
+types::enterprise::tests::test_poka_yoke_format_header_python: test
+types::enterprise::tests::test_poka_yoke_format_header_rust: test
+types::fmea::tests::test_failure_mode_unmitigated_critical_fails: test
+types::fmea::tests::test_failure_mode_validation_passes: test
+types::fmea::tests::test_fmea_config_coverage: test
+types::fmea::tests::test_fmea_config_duplicate_id: test
+types::fmea::tests::test_rpn_calculation: test
+types::fmea::tests::test_rpn_critical_threshold: test
+types::fmea::tests::test_severity_valid_range: test
+types::path_protection::tests::test_invalid_pattern: test
+types::path_protection::tests::test_path_protection_default: test
+types::path_protection::tests::test_pattern_lookup: test
+types::path_protection::tests::test_validate_write_existing_untracked_fails: test
+types::path_protection::tests::test_validate_write_new_file_passes: test
+types::path_protection::tests::test_validate_write_protected_fails: test
+types::path_protection::tests::test_validate_write_regeneratable_passes: test
+
+581 tests, 0 benchmarks
+[1m[32m   Doc-tests[0m ggen_core
+crates/ggen-core/src/cache.rs - cache (line 19): test
+crates/ggen-core/src/cache.rs - cache (line 35): test
+crates/ggen-core/src/cache.rs - cache (line 58): test
+crates/ggen-core/src/cache.rs - cache::CacheManager::cache_dir (line 150): test
+crates/ggen-core/src/cache.rs - cache::CacheManager::ensure (line 198): test
+crates/ggen-core/src/cache.rs - cache::CacheManager::ensure (line 220): test
+crates/ggen-core/src/cache.rs - cache::CacheManager::list_cached (line 420): test
+crates/ggen-core/src/cache.rs - cache::CacheManager::load_cached (line 334): test
+crates/ggen-core/src/cache.rs - cache::CacheManager::load_cached (line 349): test
+crates/ggen-core/src/cache.rs - cache::CacheManager::new (line 104): test
+crates/ggen-core/src/cache.rs - cache::CacheManager::remove (line 485): test
+crates/ggen-core/src/cache.rs - cache::CacheManager::remove (line 498): test
+crates/ggen-core/src/cache.rs - cache::CacheManager::with_dir (line 129): test
+crates/ggen-core/src/cli_generator/mod.rs - cli_generator (line 37): test
+crates/ggen-core/src/cli_generator/types.rs - cli_generator::types (line 18): test
+crates/ggen-core/src/cli_generator/types.rs - cli_generator::types (line 74): test
+crates/ggen-core/src/cli_generator/workspace.rs - cli_generator::workspace (line 30): test
+crates/ggen-core/src/cli_generator/workspace.rs - cli_generator::workspace::WorkspaceGenerator (line 70): test
+crates/ggen-core/src/cli_generator/workspace.rs - cli_generator::workspace::WorkspaceGenerator::generate (line 141): test
+crates/ggen-core/src/cli_generator/workspace.rs - cli_generator::workspace::WorkspaceGenerator::new (line 100): test
+crates/ggen-core/src/config/mod.rs - config (line 17): test
+crates/ggen-core/src/delta.rs - delta (line 25): test
+crates/ggen-core/src/delta.rs - delta (line 41): test
+crates/ggen-core/src/delta.rs - delta::DeltaType (line 117): test
+crates/ggen-core/src/delta.rs - delta::DeltaType (line 136): test
+crates/ggen-core/src/delta.rs - delta::DeltaType (line 77): test
+crates/ggen-core/src/delta.rs - delta::DeltaType::from_quads (line 184): test
+crates/ggen-core/src/delta.rs - delta::DeltaType::subjects (line 246): test
+crates/ggen-core/src/delta.rs - delta::GraphDelta (line 329): test
+crates/ggen-core/src/delta.rs - delta::GraphDelta::affected_iris (line 477): test
+crates/ggen-core/src/delta.rs - delta::GraphDelta::affects_iri (line 524): test
+crates/ggen-core/src/delta.rs - delta::GraphDelta::new (line 372): test
+crates/ggen-core/src/generator.rs - generator::GenContext::dry (line 184): test
+crates/ggen-core/src/generator.rs - generator::GenContext::new (line 103): test
+crates/ggen-core/src/generator.rs - generator::GenContext::with_prefixes (line 155): test
+crates/ggen-core/src/generator.rs - generator::GenContext::with_vars (line 130): test
+crates/ggen-core/src/generator.rs - generator::Generator::generate (line 273): test
+crates/ggen-core/src/generator.rs - generator::Generator::generate (line 298): test
+crates/ggen-core/src/generator.rs - generator::Generator::new (line 212): test
+crates/ggen-core/src/github.rs - github (line 109): test
+crates/ggen-core/src/github.rs - github (line 126): test
+crates/ggen-core/src/github.rs - github (line 165): test
+crates/ggen-core/src/github.rs - github (line 181): test
+crates/ggen-core/src/github.rs - github (line 198): test
+crates/ggen-core/src/github.rs - github (line 23): test
+crates/ggen-core/src/github.rs - github (line 39): test
+crates/ggen-core/src/github.rs - github (line 54): test
+crates/ggen-core/src/github.rs - github (line 94): test
+crates/ggen-core/src/gpack.rs - gpack (line 39): test
+crates/ggen-core/src/gpack.rs - gpack (line 52): test
+crates/ggen-core/src/gpack.rs - gpack (line 69): test
+crates/ggen-core/src/graph/construct.rs - graph::construct::ConstructExecutor<'a>::execute (line 36): test
+crates/ggen-core/src/graph/core.rs - graph::core::Graph (line 73): test
+crates/ggen-core/src/graph/core.rs - graph::core::Graph::new (line 104): test
+crates/ggen-core/src/graph/core.rs - graph::core::build_prolog (line 676): test
+crates/ggen-core/src/graph/core.rs - graph::core::build_prolog (line 691): test
+crates/ggen-core/src/graph/core.rs - graph::core::build_prolog (line 702): test
+crates/ggen-core/src/graph/export.rs - graph::export::GraphExport (line 39): test
+crates/ggen-core/src/graph/export.rs - graph::export::GraphExport (line 58): test
+crates/ggen-core/src/graph/mod.rs - graph (line 13): test
+crates/ggen-core/src/graph/mod.rs - graph (line 48): test
+crates/ggen-core/src/graph/query.rs - graph::query::GraphQuery (line 19): test
+crates/ggen-core/src/graph/query.rs - graph::query::GraphQuery<'a>::builder (line 88): test
+crates/ggen-core/src/graph/store.rs - graph::store::GraphStore (line 19): test
+crates/ggen-core/src/graph/types.rs - graph::types::CachedResult (line 21): test
+crates/ggen-core/src/graph/types.rs - graph::types::CachedResult (line 41): test
+crates/ggen-core/src/graph/update.rs - graph::update::GraphUpdate (line 17): test
+crates/ggen-core/src/graph/update.rs - graph::update::GraphUpdate (line 32): test
+crates/ggen-core/src/graph/update.rs - graph::update::GraphUpdate (line 47): test
+crates/ggen-core/src/inject.rs - inject (line 18): test
+crates/ggen-core/src/inject.rs - inject (line 31): test
+crates/ggen-core/src/inject.rs - inject (line 48): test
+crates/ggen-core/src/inject.rs - inject::EolNormalizer::detect_eol (line 73): test
+crates/ggen-core/src/inject.rs - inject::EolNormalizer::detect_eol_from_content (line 99): test
+crates/ggen-core/src/inject.rs - inject::EolNormalizer::normalize_to_eol (line 165): test
+crates/ggen-core/src/inject.rs - inject::EolNormalizer::normalize_to_match_file (line 186): test
+crates/ggen-core/src/inject.rs - inject::EolNormalizer::platform_default (line 139): test
+crates/ggen-core/src/inject.rs - inject::SkipIfGenerator (line 213): test
+crates/ggen-core/src/inject.rs - inject::SkipIfGenerator::content_exists_in_file (line 268): test
+crates/ggen-core/src/inject.rs - inject::SkipIfGenerator::generate_exact_match (line 241): test
+crates/ggen-core/src/inject.rs - inject::SkipIfGenerator::generate_idempotent_pattern (line 306): test
+crates/ggen-core/src/lib.rs - (line 100): test
+crates/ggen-core/src/lib.rs - (line 57): test
+crates/ggen-core/src/lib.rs - (line 81): test
+crates/ggen-core/src/lifecycle/cache.rs - lifecycle::cache (line 25): test
+crates/ggen-core/src/lifecycle/cache.rs - lifecycle::cache (line 43): test
+crates/ggen-core/src/lifecycle/dag.rs - lifecycle::dag (line 18): test
+crates/ggen-core/src/lifecycle/dag.rs - lifecycle::dag (line 38): test
+crates/ggen-core/src/lifecycle/exec.rs - lifecycle::exec (line 18): test
+crates/ggen-core/src/lifecycle/exec.rs - lifecycle::exec (line 40): test
+crates/ggen-core/src/lifecycle/loader.rs - lifecycle::loader (line 26): test
+crates/ggen-core/src/lifecycle/loader.rs - lifecycle::loader (line 39): test
+crates/ggen-core/src/lifecycle/model.rs - lifecycle::model::PhaseBuilder (line 211): test
+crates/ggen-core/src/lifecycle/poka_yoke.rs - lifecycle::poka_yoke::Counter (line 219): test
+crates/ggen-core/src/lifecycle/poka_yoke.rs - lifecycle::poka_yoke::FileHandle (line 305): test
+crates/ggen-core/src/lifecycle/poka_yoke.rs - lifecycle::poka_yoke::NonEmptyPath (line 29): test
+crates/ggen-core/src/lifecycle/poka_yoke.rs - lifecycle::poka_yoke::NonEmptyString (line 142): test
+crates/ggen-core/src/lifecycle/state.rs - lifecycle::state (line 18): test
+crates/ggen-core/src/lifecycle/state.rs - lifecycle::state (line 40): test
+crates/ggen-core/src/lifecycle/state_machine.rs - lifecycle::state_machine (line 13): test
+crates/ggen-core/src/lifecycle/state_validation.rs - lifecycle::state_validation::ValidatedLifecycleState::modify (line 80): test
+crates/ggen-core/src/lockfile.rs - lockfile (line 37): test
+crates/ggen-core/src/lockfile.rs - lockfile (line 49): test
+crates/ggen-core/src/lockfile.rs - lockfile (line 67): test
+crates/ggen-core/src/lockfile.rs - lockfile::LockfileManager::lockfile_path (line 172): test
+crates/ggen-core/src/lockfile.rs - lockfile::LockfileManager::new (line 138): test
+crates/ggen-core/src/lockfile_unified/format.rs - lockfile_unified::format::detect_format (line 109): test
+crates/ggen-core/src/lockfile_unified/mod.rs - lockfile_unified (line 35): test
+crates/ggen-core/src/manifest/parser.rs - manifest::parser::ManifestParser::parse (line 23): test
+crates/ggen-core/src/merge.rs - merge (line 28): test
+crates/ggen-core/src/merge.rs - merge (line 51): test
+crates/ggen-core/src/merge.rs - merge::ConflictType (line 137): test
+crates/ggen-core/src/merge.rs - merge::ConflictType (line 153): test
+crates/ggen-core/src/merge.rs - merge::MergeConflict (line 80): test
+crates/ggen-core/src/merge.rs - merge::MergeResult (line 192): test
+crates/ggen-core/src/merge.rs - merge::MergeResult::success (line 239): test
+crates/ggen-core/src/merge.rs - merge::MergeStrategy (line 282): test
+crates/ggen-core/src/merge.rs - merge::MergeStrategy (line 303): test
+crates/ggen-core/src/merge.rs - merge::RegionAwareMerger (line 495): test
+crates/ggen-core/src/merge.rs - merge::ThreeWayMerger (line 346): test
+crates/ggen-core/src/merge.rs - merge::ThreeWayMerger::merge (line 416): test
+crates/ggen-core/src/merge.rs - merge::ThreeWayMerger::new (line 384): test
+crates/ggen-core/src/ontology_pack.rs - ontology_pack (line 8): test
+crates/ggen-core/src/packs/install.rs - packs::install::install_pack (line 53): test
+crates/ggen-core/src/packs/lockfile.rs - packs::lockfile (line 41): test
+crates/ggen-core/src/packs/lockfile.rs - packs::lockfile (line 67): test
+crates/ggen-core/src/packs/lockfile.rs - packs::lockfile::PackLockfile::from_file (line 192): test
+crates/ggen-core/src/packs/lockfile.rs - packs::lockfile::PackLockfile::get_pack (line 288): test
+crates/ggen-core/src/packs/lockfile.rs - packs::lockfile::PackLockfile::new (line 166): test
+crates/ggen-core/src/packs/lockfile.rs - packs::lockfile::PackLockfile::save (line 241): test
+crates/ggen-core/src/packs/mod.rs - packs (line 21): test
+crates/ggen-core/src/parallel_generator.rs - parallel_generator::ParallelGenerator (line 29): test
+crates/ggen-core/src/pipeline.rs - pipeline (line 28): test
+crates/ggen-core/src/pipeline.rs - pipeline (line 52): test
+crates/ggen-core/src/pipeline.rs - pipeline::Pipeline::new (line 91): test
+crates/ggen-core/src/pipeline.rs - pipeline::PipelineBuilder::build (line 265): test
+crates/ggen-core/src/pipeline.rs - pipeline::PipelineBuilder::new (line 229): test
+crates/ggen-core/src/poc.rs - poc (line 37): test
+crates/ggen-core/src/poka_yoke/atomic_writer.rs - poka_yoke::atomic_writer::AtomicFileWriter (line 30): test
+crates/ggen-core/src/poka_yoke/dry_run.rs - poka_yoke::dry_run::DryRunMode (line 36): test
+crates/ggen-core/src/poka_yoke/lockfile_guard.rs - poka_yoke::lockfile_guard::LockfileGuard (line 27): test
+crates/ggen-core/src/poka_yoke/network_retry.rs - poka_yoke::network_retry::NetworkRetry (line 81): test
+crates/ggen-core/src/poka_yoke/sanitized_input.rs - poka_yoke::sanitized_input::SanitizedInput (line 34): test
+crates/ggen-core/src/poka_yoke/timeout_io.rs - poka_yoke::timeout_io::TimeoutIO::http_client (line 39): test
+crates/ggen-core/src/poka_yoke/validated_path.rs - poka_yoke::validated_path::ValidatedPath (line 24): test
+crates/ggen-core/src/pqc.rs - pqc (line 27): test
+crates/ggen-core/src/pqc.rs - pqc (line 38): test
+crates/ggen-core/src/preprocessor.rs - preprocessor (line 39): test
+crates/ggen-core/src/preprocessor.rs - preprocessor::FreezePolicy (line 86): test
+crates/ggen-core/src/prevention/contracts.rs - prevention::contracts::TemplateProvider (line 24): test
+crates/ggen-core/src/prevention/errors.rs - prevention::errors::ErrorBuilder (line 289): test
+crates/ggen-core/src/prevention/errors.rs - prevention::errors::ErrorContext (line 240): test
+crates/ggen-core/src/prevention/errors.rs - prevention::errors::GgenError (line 25): test
+crates/ggen-core/src/prevention/errors.rs - prevention::errors::Result (line 223): test
+crates/ggen-core/src/prevention/errors.rs - prevention::errors::format_error (line 356): test
+crates/ggen-core/src/prevention/errors.rs - prevention::errors::report_error (line 374): test
+crates/ggen-core/src/prevention/state_machine.rs - prevention::state_machine::Registry (line 43): test
+crates/ggen-core/src/prevention/state_machine.rs - prevention::state_machine::Registry<Initialized>::validate (line 140): test
+crates/ggen-core/src/prevention/state_machine.rs - prevention::state_machine::Registry<Uninitialized>::initialize (line 99): test
+crates/ggen-core/src/prevention/state_machine.rs - prevention::state_machine::Registry<Uninitialized>::new (line 71): test
+crates/ggen-core/src/prevention/state_machine.rs - prevention::state_machine::Registry<Validated>::render (line 202): test
+crates/ggen-core/src/prevention/state_machine.rs - prevention::state_machine::Registry<Validated>::search (line 177): test
+crates/ggen-core/src/project_generator/common.rs - project_generator::common (line 16): test
+crates/ggen-core/src/project_generator/common.rs - project_generator::common (line 34): test
+crates/ggen-core/src/project_generator/mod.rs - project_generator (line 25): test
+crates/ggen-core/src/project_generator/mod.rs - project_generator (line 44): test
+crates/ggen-core/src/project_generator/nextjs.rs - project_generator::nextjs (line 23): test
+crates/ggen-core/src/project_generator/nextjs.rs - project_generator::nextjs (line 44): test
+crates/ggen-core/src/project_generator/rust.rs - project_generator::rust (line 25): test
+crates/ggen-core/src/project_generator/rust.rs - project_generator::rust (line 46): test
+crates/ggen-core/src/rdf/mod.rs - rdf (line 26): test
+crates/ggen-core/src/rdf/mod.rs - rdf (line 39): test
+crates/ggen-core/src/rdf/mod.rs - rdf (line 55): test
+crates/ggen-core/src/rdf/query.rs - rdf::query (line 16): test
+crates/ggen-core/src/rdf/query.rs - rdf::query::QueryCache::new (line 73): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema (line 16): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema (line 27): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::artifact (line 130): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::category (line 536): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::created_at (line 308): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::dependency (line 146): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::depends_on (line 471): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::directory (line 114): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::extends (line 487): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::file (line 82): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::file_extension (line 438): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::file_format (line 162): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::file_path (line 422): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::file_size (line 454): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::generates_directory (line 195): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::generates_file (line 179): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::has_variable (line 211): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::includes (line 503): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::is_required (line 405): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::overrides (line 519): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::rdf_type (line 618): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::rdfs_comment (line 650): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::rdfs_label (line 634): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::requires_variable (line 227): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::stability (line 585): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::tag (line 552): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::template (line 66): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::template_author (line 292): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::template_description (line 276): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::template_name (line 244): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::template_version (line 260): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::test_coverage (line 569): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::updated_at (line 324): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::usage_count (line 601): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::variable (line 98): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::variable_default (line 373): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::variable_description (line 389): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::variable_name (line 341): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::GgenOntology::variable_type (line 357): test
+crates/ggen-core/src/rdf/schema.rs - rdf::schema::load_schema (line 669): test
+crates/ggen-core/src/rdf/template_metadata.rs - rdf::template_metadata::TemplateMetadata::new (line 89): test
+crates/ggen-core/src/rdf/template_metadata.rs - rdf::template_metadata::TemplateRelationship (line 322): test
+crates/ggen-core/src/rdf/template_metadata.rs - rdf::template_metadata::TemplateVariable (line 34): test
+crates/ggen-core/src/rdf/template_metadata_helper.rs - rdf::template_metadata_helper (line 18): test
+crates/ggen-core/src/rdf/validation.rs - rdf::validation (line 17): test
+crates/ggen-core/src/rdf/validation.rs - rdf::validation (line 39): test
+crates/ggen-core/src/rdf/validation.rs - rdf::validation::Severity (line 113): test
+crates/ggen-core/src/rdf/validation.rs - rdf::validation::ValidationReport::is_valid (line 202): test
+crates/ggen-core/src/rdf/validation.rs - rdf::validation::ValidationReport::new (line 151): test
+crates/ggen-core/src/rdf/validation.rs - rdf::validation::ValidationReport::total_issues (line 221): test
+crates/ggen-core/src/rdf/validation.rs - rdf::validation::ValidationResult (line 67): test
+crates/ggen-core/src/register.rs - register (line 49): test
+crates/ggen-core/src/register.rs - register (line 68): test
+crates/ggen-core/src/registry.rs - registry (line 26): test
+crates/ggen-core/src/registry.rs - registry (line 37): test
+crates/ggen-core/src/registry.rs - registry (line 53): test
+crates/ggen-core/src/registry.rs - registry (line 69): test
+crates/ggen-core/src/registry.rs - registry::RegistryClient::new (line 186): test
+crates/ggen-core/src/resolver.rs - resolver (line 26): test
+crates/ggen-core/src/resolver.rs - resolver (line 46): test
+crates/ggen-core/src/resolver.rs - resolver (line 68): test
+crates/ggen-core/src/resolver.rs - resolver::TemplateResolver::new (line 123): test
+crates/ggen-core/src/resolver.rs - resolver::TemplateResolver::resolve (line 158): test
+crates/ggen-core/src/resolver.rs - resolver::TemplateResolver::resolve (line 178): test
+crates/ggen-core/src/resolver.rs - resolver::TemplateResolver::resolve (line 198): test
+crates/ggen-core/src/resolver.rs - resolver::TemplateResolver::search_templates (line 315): test
+crates/ggen-core/src/security/command.rs - security::command::SafeCommand (line 51): test
+crates/ggen-core/src/security/error.rs - security::error::ErrorSanitizer::sanitize_message (line 100): test
+crates/ggen-core/src/security/error.rs - security::error::ErrorSanitizer::sanitize_path (line 71): test
+crates/ggen-core/src/security/validation.rs - security::validation::PathValidator::validate (line 62): test
+crates/ggen-core/src/simple_tracing.rs - simple_tracing (line 30): test
+crates/ggen-core/src/simple_tracing.rs - simple_tracing (line 42): test
+crates/ggen-core/src/simple_tracing.rs - simple_tracing (line 52): test
+crates/ggen-core/src/snapshot.rs - snapshot (line 28): test
+crates/ggen-core/src/snapshot.rs - snapshot (line 45): test
+crates/ggen-core/src/snapshot.rs - snapshot::FileSnapshot (line 260): test
+crates/ggen-core/src/snapshot.rs - snapshot::FileSnapshot::has_changed (line 331): test
+crates/ggen-core/src/snapshot.rs - snapshot::RegionType (line 410): test
+crates/ggen-core/src/snapshot.rs - snapshot::Snapshot (line 80): test
+crates/ggen-core/src/snapshot.rs - snapshot::Snapshot::is_compatible_with (line 182): test
+crates/ggen-core/src/snapshot.rs - snapshot::Snapshot::new (line 135): test
+crates/ggen-core/src/snapshot.rs - snapshot::SnapshotManager (line 436): test
+crates/ggen-core/src/snapshot.rs - snapshot::SnapshotManager::load (line 535): test
+crates/ggen-core/src/snapshot.rs - snapshot::SnapshotManager::new (line 476): test
+crates/ggen-core/src/snapshot.rs - snapshot::SnapshotManager::save (line 498): test
+crates/ggen-core/src/streaming_generator.rs - streaming_generator::GenerationResult (line 305): test
+crates/ggen-core/src/streaming_generator.rs - streaming_generator::GenerationResult::success_rate (line 360): test
+crates/ggen-core/src/streaming_generator.rs - streaming_generator::GenerationResult::throughput (line 385): test
+crates/ggen-core/src/streaming_generator.rs - streaming_generator::GenerationResult::total_count (line 338): test
+crates/ggen-core/src/streaming_generator.rs - streaming_generator::StreamingGenerator (line 29): test
+crates/ggen-core/src/streaming_generator.rs - streaming_generator::StreamingGenerator::cache_stats (line 278): test
+crates/ggen-core/src/streaming_generator.rs - streaming_generator::StreamingGenerator::generate_all (line 142): test
+crates/ggen-core/src/streaming_generator.rs - streaming_generator::StreamingGenerator::new (line 67): test
+crates/ggen-core/src/streaming_generator.rs - streaming_generator::StreamingGenerator::with_cache_capacity (line 100): test
+crates/ggen-core/src/telemetry.rs - telemetry (line 26): test
+crates/ggen-core/src/telemetry.rs - telemetry::init_telemetry (line 87): test
+crates/ggen-core/src/template.rs - template::Template::from_file (line 258): test
+crates/ggen-core/src/template.rs - template::Template::from_str (line 228): test
+crates/ggen-core/src/template.rs - template::Template::parse (line 196): test
+crates/ggen-core/src/template_cache.rs - template_cache::CacheStats (line 376): test
+crates/ggen-core/src/template_cache.rs - template_cache::TemplateCache (line 36): test
+crates/ggen-core/src/template_cache.rs - template_cache::TemplateCache::clear (line 262): test
+crates/ggen-core/src/template_cache.rs - template_cache::TemplateCache::get_or_parse (line 120): test
+crates/ggen-core/src/template_cache.rs - template_cache::TemplateCache::new (line 79): test
+crates/ggen-core/src/template_cache.rs - template_cache::TemplateCache::stats (line 310): test
+crates/ggen-core/src/templates/business_logic.rs - templates::business_logic (line 37): test
+crates/ggen-core/src/templates/business_logic.rs - templates::business_logic (line 60): test
+crates/ggen-core/src/templates/business_logic.rs - templates::business_logic (line 83): test
+crates/ggen-core/src/templates/business_logic.rs - templates::business_logic::BusinessLogicSeparator (line 110): test
+crates/ggen-core/src/templates/business_logic.rs - templates::business_logic::BusinessLogicSeparator::business_logic_exists (line 293): test
+crates/ggen-core/src/templates/business_logic.rs - templates::business_logic::BusinessLogicSeparator::generate_domain_skeleton (line 203): test
+crates/ggen-core/src/templates/business_logic.rs - templates::business_logic::BusinessLogicSeparator::generate_separated_files (line 327): test
+crates/ggen-core/src/templates/context.rs - templates::context (line 16): test
+crates/ggen-core/src/templates/context.rs - templates::context (line 33): test
+crates/ggen-core/src/templates/context.rs - templates::context::TemplateContext (line 63): test
+crates/ggen-core/src/templates/context.rs - templates::context::TemplateContext::apply_defaults (line 485): test
+crates/ggen-core/src/templates/context.rs - templates::context::TemplateContext::contains (line 269): test
+crates/ggen-core/src/templates/context.rs - templates::context::TemplateContext::from_map (line 115): test
+crates/ggen-core/src/templates/context.rs - templates::context::TemplateContext::get (line 197): test
+crates/ggen-core/src/templates/context.rs - templates::context::TemplateContext::get_string (line 232): test
+crates/ggen-core/src/templates/context.rs - templates::context::TemplateContext::merge (line 297): test
+crates/ggen-core/src/templates/context.rs - templates::context::TemplateContext::new (line 84): test
+crates/ggen-core/src/templates/context.rs - templates::context::TemplateContext::render_string (line 538): test
+crates/ggen-core/src/templates/context.rs - templates::context::TemplateContext::set (line 157): test
+crates/ggen-core/src/templates/context.rs - templates::context::TemplateContext::to_tera_context (line 337): test
+crates/ggen-core/src/templates/context.rs - templates::context::TemplateContext::validate_required (line 422): test
+crates/ggen-core/src/templates/context.rs - templates::context::TemplateContext::validate_required (line 439): test
+crates/ggen-core/src/templates/context.rs - templates::context::TemplateContext::variable_names (line 378): test
+crates/ggen-core/src/templates/file_tree_generator.rs - templates::file_tree_generator (line 44): test
+crates/ggen-core/src/templates/file_tree_generator.rs - templates::file_tree_generator (line 59): test
+crates/ggen-core/src/templates/file_tree_generator.rs - templates::file_tree_generator (line 80): test
+crates/ggen-core/src/templates/file_tree_generator.rs - templates::file_tree_generator::FileTreeTemplate (line 115): test
+crates/ggen-core/src/templates/file_tree_generator.rs - templates::file_tree_generator::FileTreeTemplate::defaults (line 348): test
+crates/ggen-core/src/templates/file_tree_generator.rs - templates::file_tree_generator::FileTreeTemplate::description (line 427): test
+crates/ggen-core/src/templates/file_tree_generator.rs - templates::file_tree_generator::FileTreeTemplate::from_file (line 188): test
+crates/ggen-core/src/templates/file_tree_generator.rs - templates::file_tree_generator::FileTreeTemplate::from_yaml (line 231): test
+crates/ggen-core/src/templates/file_tree_generator.rs - templates::file_tree_generator::FileTreeTemplate::name (line 405): test
+crates/ggen-core/src/templates/file_tree_generator.rs - templates::file_tree_generator::FileTreeTemplate::new (line 151): test
+crates/ggen-core/src/templates/file_tree_generator.rs - templates::file_tree_generator::FileTreeTemplate::nodes (line 449): test
+crates/ggen-core/src/templates/file_tree_generator.rs - templates::file_tree_generator::FileTreeTemplate::required_variables (line 322): test
+crates/ggen-core/src/templates/file_tree_generator.rs - templates::file_tree_generator::FileTreeTemplate::validate (line 378): test
+crates/ggen-core/src/templates/file_tree_generator.rs - templates::file_tree_generator::TemplateParser (line 472): test
+crates/ggen-core/src/templates/file_tree_generator.rs - templates::file_tree_generator::TemplateParser::parse_file (line 549): test
+crates/ggen-core/src/templates/file_tree_generator.rs - templates::file_tree_generator::TemplateParser::parse_simple (line 591): test
+crates/ggen-core/src/templates/file_tree_generator.rs - templates::file_tree_generator::TemplateParser::parse_yaml (line 510): test
+crates/ggen-core/src/templates/format.rs - templates::format (line 16): test
+crates/ggen-core/src/templates/format.rs - templates::format (line 44): test
+crates/ggen-core/src/templates/format.rs - templates::format::FileTreeNode (line 100): test
+crates/ggen-core/src/templates/format.rs - templates::format::FileTreeNode (line 109): test
+crates/ggen-core/src/templates/format.rs - templates::format::FileTreeNode::add_child (line 621): test
+crates/ggen-core/src/templates/format.rs - templates::format::FileTreeNode::directory (line 517): test
+crates/ggen-core/src/templates/format.rs - templates::format::FileTreeNode::file_with_content (line 552): test
+crates/ggen-core/src/templates/format.rs - templates::format::FileTreeNode::file_with_template (line 587): test
+crates/ggen-core/src/templates/format.rs - templates::format::FileTreeNode::with_mode (line 650): test
+crates/ggen-core/src/templates/format.rs - templates::format::NodeType (line 73): test
+crates/ggen-core/src/templates/format.rs - templates::format::TemplateFormat (line 149): test
+crates/ggen-core/src/templates/format.rs - templates::format::TemplateFormat::add_default (line 266): test
+crates/ggen-core/src/templates/format.rs - templates::format::TemplateFormat::add_node (line 294): test
+crates/ggen-core/src/templates/format.rs - templates::format::TemplateFormat::add_variable (line 235): test
+crates/ggen-core/src/templates/format.rs - templates::format::TemplateFormat::from_yaml (line 327): test
+crates/ggen-core/src/templates/format.rs - templates::format::TemplateFormat::new (line 200): test
+crates/ggen-core/src/templates/format.rs - templates::format::TemplateFormat::to_yaml (line 365): test
+crates/ggen-core/src/templates/format.rs - templates::format::TemplateFormat::validate (line 405): test
+crates/ggen-core/src/templates/format.rs - templates::format::TemplateFormat::validate (line 419): test
+crates/ggen-core/src/templates/format.rs - templates::format::TemplateFormat::validate (line 429): test
+crates/ggen-core/src/templates/frozen.rs - templates::frozen (line 46): test
+crates/ggen-core/src/templates/frozen.rs - templates::frozen (line 69): test
+crates/ggen-core/src/templates/frozen.rs - templates::frozen::FrozenMerger (line 306): test
+crates/ggen-core/src/templates/frozen.rs - templates::frozen::FrozenMerger::has_frozen_sections (line 447): test
+crates/ggen-core/src/templates/frozen.rs - templates::frozen::FrozenMerger::merge_with_frozen (line 341): test
+crates/ggen-core/src/templates/frozen.rs - templates::frozen::FrozenMerger::strip_frozen_tags (line 473): test
+crates/ggen-core/src/templates/frozen.rs - templates::frozen::FrozenParser (line 140): test
+crates/ggen-core/src/templates/frozen.rs - templates::frozen::FrozenParser::extract_frozen_map (line 267): test
+crates/ggen-core/src/templates/frozen.rs - templates::frozen::FrozenParser::parse_frozen_tags (line 190): test
+crates/ggen-core/src/templates/frozen.rs - templates::frozen::FrozenSection (line 102): test
+crates/ggen-core/src/templates/generator.rs - templates::generator (line 29): test
+crates/ggen-core/src/templates/generator.rs - templates::generator (line 50): test
+crates/ggen-core/src/templates/generator.rs - templates::generator::FileTreeGenerator (line 86): test
+crates/ggen-core/src/templates/generator.rs - templates::generator::FileTreeGenerator::generate (line 166): test
+crates/ggen-core/src/templates/generator.rs - templates::generator::FileTreeGenerator::new (line 124): test
+crates/ggen-core/src/templates/generator.rs - templates::generator::GenerationResult (line 346): test
+crates/ggen-core/src/templates/generator.rs - templates::generator::GenerationResult::directories (line 384): test
+crates/ggen-core/src/templates/generator.rs - templates::generator::GenerationResult::files (line 401): test
+crates/ggen-core/src/templates/generator.rs - templates::generator::GenerationResult::is_empty (line 435): test
+crates/ggen-core/src/templates/generator.rs - templates::generator::GenerationResult::total_count (line 418): test
+crates/ggen-core/src/templates/generator.rs - templates::generator::generate_file_tree (line 467): test
+crates/ggen-core/src/templates/mod.rs - templates (line 30): test
+crates/ggen-core/src/templates/mod.rs - templates (line 48): test
+crates/ggen-core/src/tera_env.rs - tera_env (line 18): test
+crates/ggen-core/src/tera_env.rs - tera_env (line 36): test
+
+365 tests, 0 benchmarks
+[cargo-make] INFO - Build Done in 15.29 seconds.

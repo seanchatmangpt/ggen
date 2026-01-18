@@ -1,0 +1,38 @@
+{
+  "name": "ggen-sparql-cli",
+  "version": "1.0.0",
+  "description": "SPARQL Query CLI built with Citty - Execute 8 bleeding edge CONSTRUCT patterns",
+  "type": "module",
+  "bin": {
+    "ggen-sparql": "src/cli.js"
+  },
+  "scripts": {
+    "dev": "node src/cli.js",
+    "start": "node src/cli.js",
+    "demo:optional": "node src/cli.js query optional",
+    "demo:bind": "node src/cli.js query bind",
+    "demo:filter": "node src/cli.js query filter",
+    "demo:union": "node src/cli.js query union",
+    "demo:concat": "node src/cli.js query concat",
+    "demo:values": "node src/cli.js query values",
+    "demo:exists": "node src/cli.js query exists",
+    "demo:paths": "node src/cli.js query paths",
+    "demo:all": "node src/cli.js query all",
+    "demo:help": "node src/cli.js --help",
+    "demo:version": "node src/cli.js --version"
+  },
+  "keywords": [
+    "cli",
+    "citty",
+    "sparql",
+    "query",
+    "rdf",
+    "semantic-web"
+  ],
+  "author": "ggen contributors",
+  "license": "MIT",
+  "dependencies": {
+    "citty": "^0.1.0"
+  },
+  "devDependencies": {}
+}

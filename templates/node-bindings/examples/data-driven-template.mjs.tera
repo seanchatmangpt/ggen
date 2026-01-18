@@ -1,0 +1,86 @@
+{# =============================================================================
+   DATA-DRIVEN INDEX.MJS TEMPLATE
+
+   This template is PURE - it only transforms query results into output.
+   NO hardcoded function names, types, or structures.
+
+   Input: SPARQL query results (functions, types, structs, enums)
+   Output: index.mjs with JSDoc annotations
+   ============================================================================= #}
+/**
+ * {{ module_name | default(value='ggen-node') }} - Node.js bindings (ESM)
+ * Generated from RDF ontology - DO NOT EDIT MANUALLY
+ *
+ * @module {{ module_name | default(value='ggen-node') }}
+ * @version {{ module_version | default(value='1.0.0') }}
+ */
+
+import { loadNative } from './native-loader.mjs';
+
+// Load the native addon
+const native = loadNative();
+
+// =============================================================================
+// Type Definitions (JSDoc)
+// =============================================================================
+
+{%- for type in types %}
+/**
+ * @typedef {{'{'}}{{ type.tsType }}} {{ type.typeName }}
+ * {{ type.description | default(value='Type mapping for ' ~ type.typeName) }}
+ * Rust: {{ type.rustType }}
+ */
+{% endfor %}
+
+{%- for struct in structs %}
+/**
+ * @typedef {{'{'}}Object} {{ struct.structName }}
+ * {{ struct.description | default(value=struct.structName) }}
+{%- for field in struct.fields %}
+ * @property {{'{'}}{{ field.fieldType }}{% if not field.required %}={% endif %}} {{ field.fieldName }}{% if field.description %} - {{ field.description }}{% endif %}
+{%- endfor %}
+ */
+{% endfor %}
+
+{%- for enum in enums %}
+/**
+ * {{ enum.description | default(value=enum.enumName) }}
+ * @typedef {{'{'}}{% for variant in enum.variants %}'{{ variant.variantValue }}'{% if not loop.last %}|{% endif %}{% endfor %}} {{ enum.enumName }}
+ */
+{% endfor %}
+
+// =============================================================================
+// Exported Functions with JSDoc
+// =============================================================================
+
+{%- for func in functions %}
+
+/**
+ * {{ func.description | default(value=func.funcName) }}
+{%- for param in func.parameters %}
+ * @param {{'{'}}{{ param.type }}{% if not param.required %}={% endif %}} {{ param.name }}{% if param.description %} - {{ param.description }}{% endif %}
+{%- endfor %}
+ * @returns {{'{'}}{% if func.async %}Promise<{{ func.returnType }}>{% else %}{{ func.returnType }}{% endif %}}
+{%- if func.throws %}
+ * @throws {Error} If operation fails
+{%- endif %}
+{%- if func.deprecated %}
+ * @deprecated
+{%- endif %}
+ */
+export const {{ func.funcName }} = native.{{ func.funcName }};
+{% endfor %}
+
+// =============================================================================
+// Default Export
+// =============================================================================
+
+/**
+ * All exported functions
+ * @type {{'{'}}Object}
+ */
+export default {
+{%- for func in functions %}
+  {{ func.funcName }},
+{%- endfor %}
+};

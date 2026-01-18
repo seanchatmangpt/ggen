@@ -1,0 +1,11 @@
+{% for row in sparql_results %}
+\begin{ {{- row.theoremType -}} }[{{ row.theoremName }}]
+\label{ {{- row.theoremLabel -}} }
+{{ row.statement }}
+\end{ {{- row.theoremType -}} }
+
+\begin{proof}
+{{ row.proof }}
+\end{proof}
+
+{% endfor %}

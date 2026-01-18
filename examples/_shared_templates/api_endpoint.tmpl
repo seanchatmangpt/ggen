@@ -1,0 +1,113 @@
+{% comment %}
+API Endpoint Base Template
+Purpose: Base template for generating REST API endpoints from RDF
+Version: 1.0
+Language: Tera (https://tera.netlify.app)
+
+This template generates HTTP endpoint handlers for various frameworks.
+It handles: routing, request/response models, validation, and error handling.
+
+Example SPARQL Query:
+SELECT ?path ?method ?description ?requestModel ?responseModel WHERE {
+  ?endpoint a ex:Endpoint ;
+    ex:endpointPath ?path ;
+    ex:endpointMethod ?method ;
+    ex:endpointDescription ?description ;
+    ex:endpointRequestModel ?requestModel ;
+    ex:endpointResponseModel ?responseModel .
+}
+{% endcomment %}
+
+{% if framework == "axum" %}
+// Generated Axum Endpoint
+use axum::{
+    extract::{Path, Json},
+    http::StatusCode,
+    response::IntoResponse,
+    Router,
+    routing::{{ method | lower }},
+};
+use serde::{Deserialize, Serialize};
+
+/// {{ description | default(value="") }}
+pub async fn {{ handler_name }}(
+    {% if request_model %}
+    Json(payload): Json<{{ request_model }}>,
+    {% endif %}
+    {% if path_params %}
+    Path(params): Path<{{ path_params_model }}>,
+    {% endif %}
+) -> impl IntoResponse {
+    // TODO: Implement handler logic
+    {% if response_model %}
+    Json({{ response_model }} {
+        {% for field in response_fields %}
+        {{ field.name }}: Default::default(),
+        {% endfor %}
+    })
+    {% else %}
+    StatusCode::OK
+    {% endif %}
+}
+
+pub fn router() -> Router {
+    Router::new()
+        .route("{{ path }}", {{ method | lower }}({{ handler_name }}))
+}
+
+{% elif framework == "fastapi" %}
+# Generated FastAPI Endpoint
+from fastapi import APIRouter, HTTPException
+from typing import Optional, List
+from pydantic import BaseModel
+
+router = APIRouter()
+
+# Request/Response Models
+{% if request_model %}
+class {{ request_model }}(BaseModel):
+    """Request model for {{ description | default(value="") }}"""
+    pass  # Fields generated from RDF
+{% endif %}
+
+{% if response_model %}
+class {{ response_model }}(BaseModel):
+    """Response model for {{ description | default(value="") }}"""
+    pass  # Fields generated from RDF
+{% endif %}
+
+@router.{{ method | lower }}("{{ path }}")
+async def {{ handler_name }}(
+    {% if request_model %}
+    payload: {{ request_model }},
+    {% endif %}
+) -> {% if response_model %}{{ response_model }}{% else %}dict{% endif %}:
+    """{{ description | default(value="") }}"""
+    # TODO: Implement handler logic
+    pass
+
+{% elif framework == "express" %}
+// Generated Express Endpoint
+import { Router, Request, Response } from 'express';
+
+const router = Router();
+
+/**
+ * {{ description | default(value="") }}
+ */
+router.{{ method | lower }}('{{ path }}', async (req: Request, res: Response) => {
+    try {
+        // TODO: Implement handler logic
+        res.status(200).json({
+            {% if response_model %}
+            // {{ response_model }} fields generated from RDF
+            {% endif %}
+        });
+    } catch (error) {
+        res.status(500).json({ error: String(error) });
+    }
+});
+
+export default router;
+
+{% endif %}

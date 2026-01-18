@@ -1,0 +1,51 @@
+{# =============================================================================
+   JSDOC TYPE DEFINITIONS - Generates types.d.mjs for IDE support
+   Optional file for enhanced IDE autocomplete
+   ============================================================================= #}
+/**
+ * JSDoc type definitions for {{ module_name | default(value='ggen-node') }}
+ * Generated from RDF ontology - DO NOT EDIT MANUALLY
+ *
+ * This file provides type hints for IDEs that support JSDoc
+ * @module {{ module_name | default(value='ggen-node') }}/types
+ * @version {{ module_version | default(value='1.0.0') }}
+ */
+
+// =============================================================================
+// Type Definitions
+// =============================================================================
+
+{%- for type in types | default(value=[]) %}
+/**
+ * @typedef {{'{'}}{{ type.tsType }}} {{ type.typeName }}
+ * {{ type.description | default(value='Type mapping for ' ~ type.typeName) }}
+ * Rust: {{ type.rustType }}
+ */
+{% endfor %}
+
+// =============================================================================
+// Struct Interfaces
+// =============================================================================
+
+{%- for struct in structs | default(value=[]) %}
+/**
+ * @typedef {{'{'}}Object} {{ struct.structName }}
+ * {{ struct.description | default(value=struct.structName) }}
+{%- for field in struct.fields | default(value=[]) %}
+ * @property {{'{'}}{{ field.fieldType }}{% if not field.required | default(value=false) %}={% endif %}} {{ field.fieldName }}{% if field.description %} - {{ field.description }}{% endif %}
+{%- endfor %}
+ */
+{% endfor %}
+
+// =============================================================================
+// Enum Types
+// =============================================================================
+
+{%- for enum in enums | default(value=[]) %}
+/**
+ * {{ enum.description | default(value=enum.enumName) }}
+ * @typedef {{'{'}}{% for variant in enum.variants | default(value=[]) %}'{{ variant.variantValue }}'{% if not loop.last %}|{% endif %}{% endfor %}} {{ enum.enumName }}
+ */
+{% endfor %}
+
+export {};

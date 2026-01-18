@@ -1,0 +1,293 @@
+/**
+ * ggen-paas CLI Command: {{ command.name }}
+ *
+ * Auto-generated from: .specify/cli-commands.ttl
+ * Generated: {{ generation_time }}
+ *
+ * Description: {{ command.description }}
+{%- if command.aliases %}
+ * Aliases: {{ command.aliases | join(", ") }}
+{%- endif %}
+ *
+ * MANUAL EDITS WILL BE LOST on next `ggen sync`
+ * Edit the RDF specification instead: .specify/cli-commands.ttl
+ */
+
+import { CommandBase } from '../cli-dispatcher.js';
+import { OntologyManager } from '../utils/ontology.js';
+import { Logger } from '../utils/logger.js';
+
+/**
+ * {{ command.name | capitalize }}Command
+ *
+ * {{ command.description }}
+ */
+export default class {{ command.name | capitalize }}Command extends CommandBase {
+  constructor() {
+    super({
+      name: '{{ command.name }}',
+      aliases: [{{ command.aliases | map(attribute='value') | map(attr='value') | join(', ') }}],
+      category: '{{ command.category }}',
+      description: `{{ command.description }}`,
+      examples: `
+        {{ command.examples | replace(from="\n", to="\n        ") }}
+      `,
+      slo: {
+        maxDurationMs: {{ command.slo.maxDurationMs }},
+        expectedPassRate: {{ command.slo.expectedPassRate }},
+      },
+    });
+  }
+
+  /**
+   * Define command schema from RDF specification
+   */
+  defineSchema() {
+    return {
+      positional: [
+{%- for arg in command.positional_args %}
+        {
+          name: '{{ arg.name }}',
+          type: '{{ arg.type }}',
+          required: {{ arg.required | lower }},
+          choices: [{{ arg.choices | map(attr='value') | join(', ') }}],
+          description: '{{ arg.description }}',
+        },
+{%- endfor %}
+      ],
+      options: {
+{%- for option in command.options %}
+        '{{ option.name }}': {
+          shortForm: '{{ option.shortForm }}',
+          longForm: '{{ option.longForm }}',
+          type: '{{ option.type }}',
+          default: {{ option.default }},
+{%- if option.choices %}
+          choices: [{{ option.choices | map(attr='value') | join(', ') }}],
+{%- endif %}
+          description: '{{ option.description }}',
+          stackable: {{ option.stackable | default(value=false) | lower }},
+        },
+{%- endfor %}
+      },
+    };
+  }
+
+  /**
+   * Main command execution
+   *
+   * @param {object} args - Parsed positional arguments
+   * @param {object} options - Parsed options
+   * @returns {Promise<Result>}
+   */
+  async execute(args, options) {
+    const logger = this.logger;
+
+    try {
+      // Log execution start
+      logger.info(`Starting {{ command.name }} command...`);
+      logger.debug(`Arguments: ${JSON.stringify(args)}`);
+      logger.debug(`Options: ${JSON.stringify(options)}`);
+
+      // Validate input arguments
+      const validation = this.validateArguments(args, options);
+      if (!validation.valid) {
+        logger.error(`Invalid arguments: ${validation.error}`);
+        return this.fail('INVALID_ARGUMENTS', validation.error);
+      }
+
+      // Load ontology manager
+      logger.debug('Loading ggen-paas ontology...');
+      const ontologyManager = new OntologyManager();
+      await ontologyManager.load();
+      logger.debug('Ontology loaded successfully');
+
+      // Validate specification closure
+      const closure = ontologyManager.validateClosure();
+      if (!closure.valid) {
+        logger.error('Specification closure validation failed');
+        logger.debug(`Closure issues: ${closure.issues.join(', ')}`);
+        return this.fail('SPEC_INCOMPLETE', 'Specification validation failed', {
+          issues: closure.issues,
+        });
+      }
+
+      // Execute the actual command logic
+      logger.info(`Executing {{ command.name }} with args: ${JSON.stringify(args)}`);
+      const result = await this.handle{{ command.name | capitalize }}(args, options, ontologyManager, logger);
+
+      // Format and return result
+      if (result.success) {
+        logger.success(`{{ command.name | capitalize }} completed successfully`);
+        return this.success(result, options.output);
+      } else {
+        logger.error(`{{ command.name | capitalize }} failed: ${result.error}`);
+        return this.fail(result.code || 'COMMAND_FAILED', result.error, result.details);
+      }
+    } catch (error) {
+      logger.error(`Unexpected error: ${error.message}`);
+      logger.debug(`Stack trace: ${error.stack}`);
+      return this.fail('UNEXPECTED_ERROR', error.message, {
+        stack: error.stack,
+      });
+    }
+  }
+
+  /**
+   * Handle {{ command.name }} command logic
+   *
+   * This is where you implement the actual command behavior.
+   * Replace the stub with your implementation.
+   *
+   * @private
+   */
+  async handle{{ command.name | capitalize }}(args, options, ontologyManager, logger) {
+    try {
+      // TODO: Implement command logic
+      // Reference the ontology manager to get data from RDF spec
+      // For example:
+      // const containers = ontologyManager.getContainers();
+      // const dataStores = ontologyManager.getDataStores();
+
+      // Placeholder implementation
+      const result = {
+        success: true,
+        command: '{{ command.name }}',
+        message: 'Command executed (placeholder implementation)',
+        timestamp: new Date().toISOString(),
+        args,
+        options,
+        duration: this.getDuration(),
+      };
+
+      return result;
+    } catch (error) {
+      return {
+        success: false,
+        code: '{{ command.name | upper }}_ERROR',
+        error: error.message,
+        details: { stack: error.stack },
+      };
+    }
+  }
+
+  /**
+   * Validate command arguments against schema
+   * @private
+   */
+  validateArguments(args, options) {
+    // Validate positional arguments
+{%- for arg in command.positional_args %}
+    if (args['{{ arg.name }}'] === undefined && {{ arg.required | lower }}) {
+      return { valid: false, error: `Missing required argument: {{ arg.name }}` };
+    }
+
+{%- if arg.choices %}
+    if (args['{{ arg.name }}'] && !['{{ arg.choices | join("', '") }}'].includes(args['{{ arg.name }}'])) {
+      return {
+        valid: false,
+        error: `Invalid {{ arg.name }}. Must be one of: {{ arg.choices | join(", ") }}`
+      };
+    }
+
+{%- endif %}
+{%- endfor %}
+
+    // Validate options
+{%- for option in command.options %}
+    if (options['{{ option.name }}'] !== undefined) {
+{%- if option.choices %}
+      if (!['{{ option.choices | join("', '") }}'].includes(options['{{ option.name }}'])) {
+        return {
+          valid: false,
+          error: `Invalid --{{ option.name }} option. Must be one of: {{ option.choices | join(", ") }}`
+        };
+      }
+{%- endif %}
+    }
+
+{%- endfor %}
+
+    return { valid: true };
+  }
+}
+
+{%- if include_test %}
+
+/**
+ * Generated test skeleton for {{ command.name }} command
+ *
+ * Location: tests/commands/{{ command.name }}.test.js
+ *
+ * Test this using Chicago TDD pattern:
+ * 1. Arrange: Set up test data and environment
+ * 2. Act: Execute the command
+ * 3. Assert: Verify observable behavior
+ */
+
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import {{ command.name | capitalize }}Command from './{{ command.name }}.js';
+import { OntologyManager } from '../utils/ontology.js';
+
+describe('{{ command.name | capitalize }}Command', () => {
+  let command;
+  let ontologyManager;
+
+  beforeEach(async () => {
+    command = new {{ command.name | capitalize }}Command();
+    ontologyManager = new OntologyManager();
+    await ontologyManager.load();
+  });
+
+  it('should execute {{ command.name }} command with valid arguments', async () => {
+    // Arrange
+    const args = {
+{%- for arg in command.positional_args | first %}
+      {{ arg.name }}: '{{ arg.choices | first }}',
+{%- endfor %}
+    };
+    const options = {
+      output: 'json',
+    };
+
+    // Act
+    const result = await command.execute(args, options);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.success).toBe(true);
+  });
+
+  it('should fail with invalid arguments', async () => {
+    // Arrange
+    const args = {
+      invalid: 'argument',
+    };
+    const options = {};
+
+    // Act
+    const result = await command.execute(args, options);
+
+    // Assert
+    expect(result.success).toBe(false);
+    expect(result.code).toBe('INVALID_ARGUMENTS');
+  });
+
+  it('should validate specification closure', async () => {
+    // Arrange
+    const args = { /* valid args */ };
+    const options = {};
+
+    // Act
+    const result = await command.execute(args, options);
+
+    // Assert
+    // Specification closure should be 100% valid
+    // (If this fails, check .specify/cli-commands.ttl)
+    expect(result.closure).toBeDefined();
+  });
+
+  // Add more specific tests for {{ command.name }} command behavior
+});
+
+{%- endif %}

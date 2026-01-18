@@ -1,0 +1,314 @@
+@prefix cnv: <https://ggen.dev/clap-noun-verb/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# =============================================================================
+# Clap-Noun-Verb Ontology
+# =============================================================================
+# Complete RDF vocabulary for defining CLI projects using noun-verb patterns.
+#
+# Namespace: https://ggen.dev/clap-noun-verb/
+#
+# This ontology enables specification of command-line interfaces where:
+# - Nouns represent domain resources (task, file, user, etc.)
+# - Verbs represent actions on those resources (create, delete, list, etc.)
+# - Arguments specify required/optional parameters for each verb
+# - Types ensure type-safe generation of Rust code
+#
+# Example usage is found in:
+#   - examples/calculator.ttl
+#   - examples/todo-app.ttl
+#   - examples/file-manager.ttl
+# =============================================================================
+
+# =============================================================================
+# CLASSES
+# =============================================================================
+
+cnv:CliProject a owl:Class ;
+    rdfs:label "CLI Project" ;
+    rdfs:comment "A complete command-line application specification" ;
+    rdfs:subClassOf rdfs:Resource .
+
+cnv:Noun a owl:Class ;
+    rdfs:label "Noun (Resource Type)" ;
+    rdfs:comment "A domain concept or resource type with associated verbs" ;
+    rdfs:subClassOf rdfs:Resource .
+
+cnv:Verb a owl:Class ;
+    rdfs:label "Verb (Action)" ;
+    rdfs:comment "An action or operation that can be performed on a noun" ;
+    rdfs:subClassOf rdfs:Resource .
+
+cnv:Argument a owl:Class ;
+    rdfs:label "Argument" ;
+    rdfs:comment "A parameter or option for a verb" ;
+    rdfs:subClassOf rdfs:Resource .
+
+cnv:Type a owl:Class ;
+    rdfs:label "Type" ;
+    rdfs:comment "A type specification for arguments" ;
+    rdfs:subClassOf rdfs:Resource .
+
+cnv:PrimitiveType a owl:Class ;
+    rdfs:label "Primitive Type" ;
+    rdfs:comment "A basic Rust type (i32, String, etc.)" ;
+    rdfs:subClassOf cnv:Type .
+
+cnv:EnumType a owl:Class ;
+    rdfs:label "Enum Type" ;
+    rdfs:comment "A custom enumeration type" ;
+    rdfs:subClassOf cnv:Type .
+
+cnv:StructType a owl:Class ;
+    rdfs:label "Struct Type" ;
+    rdfs:comment "A custom struct type" ;
+    rdfs:subClassOf cnv:Type .
+
+# =============================================================================
+# PROPERTIES FOR CliProject
+# =============================================================================
+
+cnv:projectName a owl:DatatypeProperty ;
+    rdfs:label "Project Name" ;
+    rdfs:comment "The name of the CLI project" ;
+    rdfs:domain cnv:CliProject ;
+    rdfs:range xsd:string .
+
+cnv:projectVersion a owl:DatatypeProperty ;
+    rdfs:label "Project Version" ;
+    rdfs:comment "Semantic version of the project (e.g., 0.1.0)" ;
+    rdfs:domain cnv:CliProject ;
+    rdfs:range xsd:string .
+
+cnv:hasNouns a owl:ObjectProperty ;
+    rdfs:label "Has Nouns" ;
+    rdfs:comment "Nouns (resource types) defined in this project" ;
+    rdfs:domain cnv:CliProject ;
+    rdfs:range cnv:Noun ;
+    owl:inverseOf cnv:partOfProject .
+
+cnv:partOfProject a owl:ObjectProperty ;
+    rdfs:label "Part of Project" ;
+    rdfs:comment "Project that contains this noun" ;
+    rdfs:domain cnv:Noun ;
+    rdfs:range cnv:CliProject .
+
+# =============================================================================
+# PROPERTIES FOR Noun
+# =============================================================================
+
+cnv:nounName a owl:DatatypeProperty ;
+    rdfs:label "Noun Name" ;
+    rdfs:comment "The identifier/name of the noun (e.g., 'task', 'file')" ;
+    rdfs:domain cnv:Noun ;
+    rdfs:range xsd:string .
+
+cnv:plural a owl:DatatypeProperty ;
+    rdfs:label "Plural Form" ;
+    rdfs:comment "Plural form of the noun (e.g., 'tasks', 'files')" ;
+    rdfs:domain cnv:Noun ;
+    rdfs:range xsd:string .
+
+cnv:hasVerbs a owl:ObjectProperty ;
+    rdfs:label "Has Verbs" ;
+    rdfs:comment "Verbs (actions) that can be performed on this noun" ;
+    rdfs:domain cnv:Noun ;
+    rdfs:range cnv:Verb ;
+    owl:inverseOf cnv:appliesTo .
+
+cnv:appliesTo a owl:ObjectProperty ;
+    rdfs:label "Applies To" ;
+    rdfs:comment "The noun that this verb operates on" ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range cnv:Noun .
+
+# =============================================================================
+# PROPERTIES FOR Verb
+# =============================================================================
+
+cnv:verbName a owl:DatatypeProperty ;
+    rdfs:label "Verb Name" ;
+    rdfs:comment "The action name (e.g., 'create', 'delete', 'list')" ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range xsd:string .
+
+cnv:hasArguments a owl:ObjectProperty ;
+    rdfs:label "Has Arguments" ;
+    rdfs:comment "Arguments/parameters for this verb" ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range cnv:Argument ;
+    owl:inverseOf cnv:argumentOf .
+
+cnv:argumentOf a owl:ObjectProperty ;
+    rdfs:label "Argument Of" ;
+    rdfs:comment "The verb that uses this argument" ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range cnv:Verb .
+
+cnv:returnType a owl:ObjectProperty ;
+    rdfs:label "Return Type" ;
+    rdfs:comment "The return type of this verb operation" ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range cnv:Type .
+
+cnv:handler a owl:DatatypeProperty ;
+    rdfs:label "Handler" ;
+    rdfs:comment "Rust method name to invoke for this verb" ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range xsd:string .
+
+# =============================================================================
+# PROPERTIES FOR Argument
+# =============================================================================
+
+cnv:argumentName a owl:DatatypeProperty ;
+    rdfs:label "Argument Name" ;
+    rdfs:comment "The parameter name (e.g., 'title', 'path', 'force')" ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string .
+
+cnv:argumentType a owl:ObjectProperty ;
+    rdfs:label "Argument Type" ;
+    rdfs:comment "The type of this argument" ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range cnv:Type .
+
+cnv:required a owl:DatatypeProperty ;
+    rdfs:label "Required" ;
+    rdfs:comment "Whether this argument is required (true) or optional (false)" ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:boolean .
+
+cnv:defaultValue a owl:DatatypeProperty ;
+    rdfs:label "Default Value" ;
+    rdfs:comment "Default value for optional arguments" ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string .
+
+cnv:helpText a owl:DatatypeProperty ;
+    rdfs:label "Help Text" ;
+    rdfs:comment "Help/description text for this argument" ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string .
+
+cnv:short a owl:DatatypeProperty ;
+    rdfs:label "Short Flag" ;
+    rdfs:comment "Single-letter short flag (e.g., 't' for --title/-t)" ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string .
+
+cnv:positional a owl:DatatypeProperty ;
+    rdfs:label "Positional" ;
+    rdfs:comment "Whether this is a positional argument (vs named/flag)" ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:boolean .
+
+# =============================================================================
+# PROPERTIES FOR Type
+# =============================================================================
+
+cnv:rust-type a owl:DatatypeProperty ;
+    rdfs:label "Rust Type" ;
+    rdfs:comment "The Rust type representation (e.g., 'String', 'i32', 'bool')" ;
+    rdfs:domain cnv:Type ;
+    rdfs:range xsd:string .
+
+cnv:derives a owl:DatatypeProperty ;
+    rdfs:label "Derives" ;
+    rdfs:comment "Derived traits for this type (e.g., 'Debug', 'Clone')" ;
+    rdfs:domain cnv:Type ;
+    rdfs:range xsd:string .
+
+# =============================================================================
+# PROPERTIES FOR EnumType
+# =============================================================================
+
+cnv:hasValues a owl:ObjectProperty ;
+    rdfs:label "Has Values" ;
+    rdfs:comment "Enumeration values" ;
+    rdfs:domain cnv:EnumType ;
+    rdfs:range cnv:EnumValue .
+
+cnv:EnumValue a owl:Class ;
+    rdfs:label "Enum Value" ;
+    rdfs:comment "A single variant in an enumeration" ;
+    rdfs:subClassOf rdfs:Resource .
+
+cnv:enumName a owl:DatatypeProperty ;
+    rdfs:label "Enum Name" ;
+    rdfs:comment "The name of an enum variant" ;
+    rdfs:domain cnv:EnumValue ;
+    rdfs:range xsd:string .
+
+# =============================================================================
+# PROPERTIES FOR StructType
+# =============================================================================
+
+cnv:hasFields a owl:ObjectProperty ;
+    rdfs:label "Has Fields" ;
+    rdfs:comment "Fields in this struct" ;
+    rdfs:domain cnv:StructType ;
+    rdfs:range cnv:StructField .
+
+cnv:StructField a owl:Class ;
+    rdfs:label "Struct Field" ;
+    rdfs:comment "A field in a struct type" ;
+    rdfs:subClassOf rdfs:Resource .
+
+cnv:fieldName a owl:DatatypeProperty ;
+    rdfs:label "Field Name" ;
+    rdfs:comment "The name of a struct field" ;
+    rdfs:domain cnv:StructField ;
+    rdfs:range xsd:string .
+
+cnv:fieldType a owl:ObjectProperty ;
+    rdfs:label "Field Type" ;
+    rdfs:comment "The type of a struct field" ;
+    rdfs:domain cnv:StructField ;
+    rdfs:range cnv:Type .
+
+# =============================================================================
+# ANNOTATION PROPERTIES
+# =============================================================================
+
+cnv:example a owl:AnnotationProperty ;
+    rdfs:label "Example" ;
+    rdfs:comment "An example usage or value" .
+
+cnv:pattern a owl:AnnotationProperty ;
+    rdfs:label "Pattern" ;
+    rdfs:comment "A regex pattern for validation" .
+
+cnv:generation-skip a owl:AnnotationProperty ;
+    rdfs:label "Skip Generation" ;
+    rdfs:comment "When true, skip generating code for this element" ;
+    rdfs:range xsd:boolean .
+
+# =============================================================================
+# ONTOLOGY METADATA
+# =============================================================================
+
+<https://ggen.dev/clap-noun-verb/> a owl:Ontology ;
+    owl:versionInfo "1.0.0" ;
+    dcterms:title "Clap Noun-Verb CLI Generator Ontology" ;
+    dcterms:description "RDF vocabulary for specifying command-line interfaces with noun-verb command patterns" ;
+    dcterms:creator "ggen project" ;
+    dcterms:created "2025-01-06"^^xsd:date ;
+    dcterms:license "MIT" ;
+    rdfs:seeAlso <https://github.com/seanchatmangpt/ggen> .
+
+# =============================================================================
+# EXAMPLES AND DOCUMENTATION
+# =============================================================================
+
+cnv:example-calculator rdfs:comment
+    "See examples/calculator.ttl for a simple arithmetic calculator CLI" .
+
+cnv:example-todo rdfs:comment
+    "See examples/todo-app.ttl for a task management application" .
+
+cnv:example-filemanager rdfs:comment
+    "See examples/file-manager.ttl for a file system operations CLI" .

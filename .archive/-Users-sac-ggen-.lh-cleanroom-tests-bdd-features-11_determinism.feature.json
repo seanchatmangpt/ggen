@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/11_determinism.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261841876,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261841876,
+            "name": "Commit-0",
+            "content": "# features/11_determinism.feature\n@determinism\nFeature: Deterministic outputs with seeded RNG and stable mounts\n  Background:\n    Given a fixture project \"cli_rng\"\n\n  Scenario Outline: Same seed yields identical outputs\n    Given seed \"<seed>\"\n    When I run [\"rand\",\"--count\",\"5\"] using \"auto\"\n    Then stdout equals the previous stdout for the same seed\n    And artifact hashes match\n\n    Examples:\n      | seed |\n      | 42   |\n      | 1337 |\n\n  Scenario: Different seeds yield different outputs\n    Given seed \"1\"\n    When I run [\"rand\",\"--count\",\"5\"] using \"auto\"\n    And I run [\"rand\",\"--count\",\"5\"] using \"auto\" with seed \"2\"\n    Then stdout differs\n"
+        }
+    ]
+}

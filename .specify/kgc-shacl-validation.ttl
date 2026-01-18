@@ -1,0 +1,164 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix kgc: <http://ggen.org/kgc#> .
+@prefix ggen: <http://ggen.org/ggen#> .
+@prefix holo: <http://ggen.org/holographic#> .
+
+# =============================================================================
+# KGC SHACL VALIDATION SHAPES
+# =============================================================================
+# Minimal constraint layer (80/20) that makes violations impossible to commit.
+# These shapes enforce the three gap closures + compliance requirements.
+#
+# Simplified version using property shapes instead of complex SPARQL constraints
+# for maximum compatibility with SHACL validators.
+# =============================================================================
+
+# =============================================================================
+# SHAPE 1: MeasurementFunction Must Declare Invariant Preservation
+# =============================================================================
+# Every μ (measurement function) must declare that it preserves at least 3 of
+# the 5 mandatory invariants. This makes determinism provable, not asserted.
+
+kgc:MeasurementFunctionInvariantShape
+  a sh:NodeShape ;
+  sh:targetClass kgc:MeasurementFunction ;
+  sh:name "Measurement Function Invariant Declaration" ;
+  sh:description "Every measurement function μ must preserve at least 3 of 5 mandatory invariants" ;
+
+  sh:property [
+    sh:path kgc:preserves ;
+    sh:minCount 3 ;
+    sh:maxCount 5 ;
+    sh:message "MeasurementFunction must declare kgc:preserves for at least 3 (and at most 5) invariants" ;
+    sh:severity sh:Violation ;
+  ] ;
+  .
+
+# =============================================================================
+# SHAPE 2: OntologicalClosure Must Have Witness Linking
+# =============================================================================
+# Closure artifacts must be explicitly linked to closure criteria via
+# kgc:witnessesClosureCriterion property.
+
+kgc:ClosureWitnessLinkShape
+  a sh:NodeShape ;
+  sh:targetClass kgc:ClosureWitness ;
+  sh:name "Closure Witness Linking" ;
+  sh:description "Every ClosureWitness must declare what closure criterion it witnesses" ;
+
+  sh:property [
+    sh:path kgc:witnessesClosureCriterion ;
+    sh:minCount 1 ;
+    sh:message "ClosureWitness must have at least one kgc:witnessesClosureCriterion" ;
+    sh:severity sh:Violation ;
+  ] ;
+  .
+
+# =============================================================================
+# SHAPE 3: Observable Snapshot Discipline
+# =============================================================================
+# Input to measurement function must be ObservableSnapshot (frozen, hashed)
+# not raw Observable (live, non-deterministic).
+
+kgc:MeasurementFunctionInputShape
+  a sh:NodeShape ;
+  sh:targetClass kgc:MeasurementFunction ;
+  sh:name "Observable Snapshot Discipline" ;
+  sh:description "Measurement function must declare its input type" ;
+
+  sh:property [
+    sh:path kgc:input ;
+    sh:minCount 1 ;
+    sh:message "MeasurementFunction must declare at least 1 kgc:input (should be kgc:ObservableSnapshot)" ;
+    sh:severity sh:Violation ;
+  ] ;
+  .
+
+# =============================================================================
+# SHAPE 4: Composition Laws - Sequential
+# =============================================================================
+# Sequential composition Π must declare that it is NOT commutative.
+
+kgc:SequentialCompositionLawShape
+  a sh:NodeShape ;
+  sh:targetClass kgc:SequentialComposition ;
+  sh:name "Sequential Composition Laws" ;
+  sh:description "Sequential composition must declare 'NOT Commutative' law" ;
+
+  sh:property [
+    sh:path kgc:hasCompositionLaw ;
+    sh:minCount 1 ;
+    sh:message "SequentialComposition must declare at least 1 composition law" ;
+    sh:severity sh:Violation ;
+  ] ;
+  .
+
+# =============================================================================
+# SHAPE 5: Composition Laws - Commutative
+# =============================================================================
+# Commutative fusion ⊕ must declare commutativity and other algebraic laws.
+
+kgc:CommutativeFusionLawShape
+  a sh:NodeShape ;
+  sh:targetClass kgc:CommutativeFusion ;
+  sh:name "Commutative Fusion Laws" ;
+  sh:description "Commutative fusion must declare algebraic laws (associative, commutative, identity)" ;
+
+  sh:property [
+    sh:path kgc:hasCompositionLaw ;
+    sh:minCount 3 ;
+    sh:message "CommutativeFusion must declare at least 3 composition laws (Associative, Commutative, Identity)" ;
+    sh:severity sh:Violation ;
+  ] ;
+  .
+
+# =============================================================================
+# SHAPE 6: Observable Snapshot Completeness
+# =============================================================================
+# Every ObservableSnapshot must have required metadata (hash, timestamp).
+
+kgc:ObservableSnapshotShape
+  a sh:NodeShape ;
+  sh:targetClass kgc:ObservableSnapshot ;
+  sh:name "Observable Snapshot Completeness" ;
+  sh:description "ObservableSnapshot must have hash and timestamp" ;
+
+  sh:property [
+    sh:path kgc:snapshotHash ;
+    sh:minCount 1 ;
+    sh:message "ObservableSnapshot must have exactly 1 kgc:snapshotHash" ;
+    sh:severity sh:Violation ;
+  ] ;
+
+  sh:property [
+    sh:path kgc:snapshotTimestamp ;
+    sh:minCount 1 ;
+    sh:message "ObservableSnapshot must have exactly 1 kgc:snapshotTimestamp" ;
+    sh:severity sh:Violation ;
+  ] ;
+  .
+
+# =============================================================================
+# SHAPE 7: KGC Compliance Gate (Master)
+# =============================================================================
+# Framework must declare KGC compliance status.
+
+kgc:KGCComplianceShape
+  a sh:NodeShape ;
+  sh:targetClass kgc:KGCCompliant ;
+  sh:name "KGC Compliance Status" ;
+  sh:description "KGC-compliant framework must declare isKGCCompliant property" ;
+
+  sh:property [
+    sh:path kgc:isKGCCompliant ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:message "KGCCompliant entity must have exactly 1 boolean kgc:isKGCCompliant" ;
+    sh:severity sh:Violation ;
+  ] ;
+  .

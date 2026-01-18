@@ -1,0 +1,325 @@
+# ============================================================================
+# ggen Configuration: Spec-Kit-3T PhD Thesis
+# ============================================================================
+# This configuration generates a PhD thesis using the 3T methodology
+# (TOML + Tera + Turtle) and following the Diataxis framework.
+#
+# Constitutional Equation: thesis.tex = μ(knowledge.ttl)
+# ============================================================================
+
+[project]
+name = "spec-kit-3t-thesis"
+version = "1.0.0"
+description = "Diataxis-Structured PhD Thesis on Spec-Kit-3T Framework"
+
+# ----------------------------------------------------------------------------
+# v6 Pipeline Configuration
+# ----------------------------------------------------------------------------
+
+[v6]
+enabled = true
+ontology = "ontology/thesis-schema.ttl,ontology/spec-kit-3t-content.ttl"
+output_dir = "generated"
+
+# Five-stage pipeline (μ₁ → μ₂ → μ₃ → μ₄ → μ₅)
+[v6.passes]
+normalization = { order = 1, type = "construct", enabled = true }
+extraction = { order = 2, type = "select", enabled = true }
+emission = { order = 3, type = "tera", enabled = true }
+canonicalization = { order = 4, type = "format", enabled = true }
+receipt = { order = 5, type = "hash", enabled = true }
+
+# Constitutional invariants
+[v6.invariants]
+idempotence = true       # μ∘μ = μ
+determinism = true       # Same ontology → same thesis
+provenance = true        # Cryptographic receipt
+no_edit = true          # Generated LaTeX never manually edited
+substrate_only = true   # Only .ttl files version-controlled
+
+# ----------------------------------------------------------------------------
+# Generation Rules: Thesis Components
+# ----------------------------------------------------------------------------
+
+# Main thesis document (LaTeX memoir class)
+[[generation]]
+name = "thesis-main"
+query = """
+PREFIX thesis: <http://github.com/seanchatmangpt/spec-kit-3t/thesis#>
+PREFIX diataxis: <http://diataxis.fr/>
+PREFIX : <http://github.com/seanchatmangpt/spec-kit-3t/content#>
+
+SELECT ?title ?subtitle ?author ?institution ?year ?degree
+WHERE {
+  ?thesis a thesis:Thesis ;
+          thesis:hasTitle ?title ;
+          thesis:hasSubtitle ?subtitle ;
+          thesis:hasInstitution ?institution ;
+          thesis:hasYear ?year ;
+          thesis:hasDegree ?degree .
+
+  ?thesis thesis:hasAuthor ?authorNode .
+  ?authorNode thesis:hasName ?author .
+}
+"""
+template = "templates/thesis-main.tera"
+output = "generated/thesis-main.tex"
+
+# Front matter (abstract, dedication, acknowledgments)
+[[generation]]
+name = "frontmatter"
+query = """
+PREFIX thesis: <http://github.com/seanchatmangpt/spec-kit-3t/thesis#>
+PREFIX : <http://github.com/seanchatmangpt/spec-kit-3t/content#>
+
+SELECT ?abstractContent ?dedication ?acknowledgments ?keywords
+WHERE {
+  :spec-kit-3t-thesis thesis:hasAbstract ?abstract ;
+                      thesis:dedication ?dedication ;
+                      thesis:acknowledgments ?acknowledgments ;
+                      thesis:keywords ?keywords .
+
+  ?abstract thesis:hasContent ?abstractContent .
+}
+"""
+template = "templates/frontmatter.tera"
+output = "generated/frontmatter.tex"
+
+# Chapter 1: Introduction
+[[generation]]
+name = "chapter-01-introduction"
+query = """
+PREFIX thesis: <http://github.com/seanchatmangpt/spec-kit-3t/thesis#>
+PREFIX : <http://github.com/seanchatmangpt/spec-kit-3t/content#>
+
+SELECT ?chapterTitle ?sectionTitle ?sectionContent
+WHERE {
+  :ch01-introduction a thesis:Introduction ;
+                     thesis:chapterTitle ?chapterTitle ;
+                     thesis:hasSection ?section .
+
+  ?section thesis:sectionTitle ?sectionTitle ;
+           thesis:hasContent ?sectionContent .
+}
+ORDER BY ?section
+"""
+template = "templates/chapter.tera"
+output = "generated/chapter-01.tex"
+
+# Chapter 2: Literature Review
+[[generation]]
+name = "chapter-02-literature"
+query = """
+PREFIX thesis: <http://github.com/seanchatmangpt/spec-kit-3t/thesis#>
+PREFIX : <http://github.com/seanchatmangpt/spec-kit-3t/content#>
+
+SELECT ?chapterTitle ?sectionTitle ?sectionContent
+WHERE {
+  :ch02-literature-review a thesis:LiteratureReview ;
+                          thesis:chapterTitle ?chapterTitle ;
+                          thesis:hasSection ?section .
+
+  ?section thesis:sectionTitle ?sectionTitle ;
+           thesis:hasContent ?sectionContent .
+}
+ORDER BY ?section
+"""
+template = "templates/chapter.tera"
+output = "generated/chapter-02.tex"
+
+# Chapter 3: Tutorial (Diataxis)
+[[generation]]
+name = "chapter-03-tutorial"
+query = """
+PREFIX thesis: <http://github.com/seanchatmangpt/spec-kit-3t/thesis#>
+PREFIX diataxis: <http://diataxis.fr/>
+PREFIX : <http://github.com/seanchatmangpt/spec-kit-3t/content#>
+
+SELECT ?chapterTitle ?learningObjective ?prerequisite ?sectionTitle ?sectionContent
+WHERE {
+  :ch03-tutorial a diataxis:Tutorial ;
+                 thesis:chapterTitle ?chapterTitle ;
+                 diataxis:learningObjective ?learningObjective ;
+                 diataxis:prerequisite ?prerequisite ;
+                 thesis:hasSection ?section .
+
+  ?section thesis:sectionTitle ?sectionTitle ;
+           thesis:hasContent ?sectionContent .
+}
+ORDER BY ?section
+"""
+template = "templates/diataxis-tutorial.tera"
+output = "generated/chapter-03.tex"
+
+# Chapter 4: How-to Guides (Diataxis)
+[[generation]]
+name = "chapter-04-howto"
+query = """
+PREFIX thesis: <http://github.com/seanchatmangpt/spec-kit-3t/thesis#>
+PREFIX diataxis: <http://diataxis.fr/>
+PREFIX : <http://github.com/seanchatmangpt/spec-kit-3t/content#>
+
+SELECT ?chapterTitle ?task ?sectionTitle ?sectionContent
+WHERE {
+  :ch04-howto a diataxis:HowTo ;
+              thesis:chapterTitle ?chapterTitle ;
+              diataxis:task ?task ;
+              thesis:hasSection ?section .
+
+  ?section thesis:sectionTitle ?sectionTitle ;
+           thesis:hasContent ?sectionContent .
+}
+ORDER BY ?section
+"""
+template = "templates/diataxis-howto.tera"
+output = "generated/chapter-04.tex"
+
+# Chapter 5: Reference (Diataxis)
+[[generation]]
+name = "chapter-05-reference"
+query = """
+PREFIX thesis: <http://github.com/seanchatmangpt/spec-kit-3t/thesis#>
+PREFIX diataxis: <http://diataxis.fr/>
+PREFIX : <http://github.com/seanchatmangpt/spec-kit-3t/content#>
+
+SELECT ?chapterTitle ?technicalDetail ?sectionTitle ?sectionContent
+WHERE {
+  :ch05-reference a diataxis:Reference ;
+                  thesis:chapterTitle ?chapterTitle ;
+                  diataxis:technicalDetail ?technicalDetail ;
+                  thesis:hasSection ?section .
+
+  ?section thesis:sectionTitle ?sectionTitle ;
+           thesis:hasContent ?sectionContent .
+}
+ORDER BY ?section
+"""
+template = "templates/diataxis-reference.tera"
+output = "generated/chapter-05.tex"
+
+# Chapter 6: Explanation (Diataxis)
+[[generation]]
+name = "chapter-06-explanation"
+query = """
+PREFIX thesis: <http://github.com/seanchatmangpt/spec-kit-3t/thesis#>
+PREFIX diataxis: <http://diataxis.fr/>
+PREFIX : <http://github.com/seanchatmangpt/spec-kit-3t/content#>
+
+SELECT ?chapterTitle ?concept ?sectionTitle ?sectionContent
+WHERE {
+  :ch06-explanation a diataxis:Explanation ;
+                    thesis:chapterTitle ?chapterTitle ;
+                    diataxis:concept ?concept ;
+                    thesis:hasSection ?section .
+
+  ?section thesis:sectionTitle ?sectionTitle ;
+           thesis:hasContent ?sectionContent .
+}
+ORDER BY ?section
+"""
+template = "templates/diataxis-explanation.tera"
+output = "generated/chapter-06.tex"
+
+# Bibliography
+[[generation]]
+name = "bibliography"
+query = """
+PREFIX thesis: <http://github.com/seanchatmangpt/spec-kit-3t/thesis#>
+PREFIX : <http://github.com/seanchatmangpt/spec-kit-3t/content#>
+
+SELECT DISTINCT ?citationKey
+WHERE {
+  ?section thesis:cites ?citation .
+  ?citation thesis:citationKey ?citationKey .
+}
+ORDER BY ?citationKey
+"""
+template = "templates/bibliography.tera"
+output = "generated/bibliography.bib"
+
+# Figures and tables extraction
+[[generation]]
+name = "figures"
+query = """
+PREFIX thesis: <http://github.com/seanchatmangpt/spec-kit-3t/thesis#>
+
+SELECT ?figureCaption ?figureContent
+WHERE {
+  ?section thesis:hasFigure ?figure .
+  ?figure thesis:figureCaption ?figureCaption ;
+          thesis:hasContent ?figureContent .
+}
+"""
+template = "templates/figures.tera"
+output = "generated/figures.tex"
+
+[[generation]]
+name = "tables"
+query = """
+PREFIX thesis: <http://github.com/seanchatmangpt/spec-kit-3t/thesis#>
+
+SELECT ?tableCaption ?tableContent
+WHERE {
+  ?section thesis:hasTable ?table .
+  ?table thesis:tableCaption ?tableCaption ;
+         thesis:hasContent ?tableContent .
+}
+"""
+template = "templates/tables.tera"
+output = "generated/tables.tex"
+
+# Code listings
+[[generation]]
+name = "code-listings"
+query = """
+PREFIX thesis: <http://github.com/seanchatmangpt/spec-kit-3t/thesis#>
+
+SELECT ?listingLanguage ?listingContent
+WHERE {
+  ?section thesis:hasCodeListing ?listing .
+  ?listing thesis:listingLanguage ?listingLanguage ;
+           thesis:hasContent ?listingContent .
+}
+"""
+template = "templates/code-listings.tera"
+output = "generated/code-listings.tex"
+
+# ----------------------------------------------------------------------------
+# LaTeX Build Configuration
+# ----------------------------------------------------------------------------
+
+[latex]
+compiler = "pdflatex"
+bibtex_compiler = "biber"
+document_class = "memoir"
+packages = [
+    "amsmath",
+    "amssymb",
+    "amsthm",
+    "graphicx",
+    "hyperref",
+    "listings",
+    "xcolor",
+    "booktabs",
+    "algorithm2e",
+    "biblatex"
+]
+
+# ----------------------------------------------------------------------------
+# Validation and Quality Checks
+# ----------------------------------------------------------------------------
+
+[validation]
+shacl_shapes = "ontology/thesis-schema.ttl"
+required_chapters = 10
+required_citations = 10
+min_words_per_chapter = 2000
+
+# ----------------------------------------------------------------------------
+# Output Configuration
+# ----------------------------------------------------------------------------
+
+[output]
+formats = ["pdf", "tex"]
+compile_pdf = true
+clean_auxiliary = true

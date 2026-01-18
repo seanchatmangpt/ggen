@@ -1,0 +1,891 @@
+@prefix cli: <http://ggen.org/cli#> .
+@prefix paas: <http://ggen.org/paas#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# ============================================================================
+# CLASS DEFINITIONS - CLI Ontology Schema
+# ============================================================================
+# Core semantic classes that define CLI structure and validation
+
+cli:Command
+  a owl:Class ;
+  rdfs:label "CLI Command" ;
+  rdfs:comment "A command that can be executed via the CLI interface" ;
+  .
+
+cli:Option
+  a owl:Class ;
+  rdfs:label "CLI Option" ;
+  rdfs:comment "A command-line option (flag) with optional values" ;
+  .
+
+cli:PositionalArgument
+  a owl:Class ;
+  rdfs:label "Positional Argument" ;
+  rdfs:comment "A positional argument to a command" ;
+  .
+
+cli:SLO
+  a owl:Class ;
+  rdfs:label "Service Level Objective" ;
+  rdfs:comment "Performance target for a command execution" ;
+  .
+
+cli:Category
+  a owl:Class ;
+  rdfs:label "Command Category" ;
+  rdfs:comment "Logical grouping of related commands" ;
+  .
+
+cli:GlobalOption
+  a owl:Class ;
+  rdfs:label "Global Option" ;
+  rdfs:comment "Option available to all commands" ;
+  .
+
+cli:Ontology
+  a owl:Class ;
+  rdfs:label "CLI Ontology" ;
+  rdfs:comment "The CLI specification ontology itself" ;
+  .
+
+# ============================================================================
+# PROPERTY DEFINITIONS - CLI Ontology Properties
+# ============================================================================
+# Properties with explicit domain/range for type safety
+
+cli:handler
+  a owl:DatatypeProperty ;
+  rdfs:label "handler" ;
+  rdfs:domain cli:Command ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Path to handler implementation file" ;
+  .
+
+cli:test
+  a owl:DatatypeProperty ;
+  rdfs:label "test" ;
+  rdfs:domain cli:Command ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Path to test file for command" ;
+  .
+
+cli:category
+  a owl:ObjectProperty ;
+  rdfs:label "category" ;
+  rdfs:domain cli:Command ;
+  rdfs:range cli:Category ;
+  rdfs:comment "Category this command belongs to" ;
+  .
+
+cli:slo
+  a owl:ObjectProperty ;
+  rdfs:label "slo" ;
+  rdfs:domain cli:Command ;
+  rdfs:range cli:SLO ;
+  rdfs:comment "SLO constraints for command execution" ;
+  .
+
+cli:type
+  a owl:DatatypeProperty ;
+  rdfs:label "type" ;
+  rdfs:domain [ owl:unionOf (cli:Option cli:PositionalArgument) ] ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Data type of the option or argument" ;
+  .
+
+cli:longForm
+  a owl:DatatypeProperty ;
+  rdfs:label "longForm" ;
+  rdfs:domain [ owl:unionOf (cli:Option cli:GlobalOption) ] ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Long form flag (e.g., --verbose)" ;
+  .
+
+cli:shortForm
+  a owl:DatatypeProperty ;
+  rdfs:label "shortForm" ;
+  rdfs:domain [ owl:unionOf (cli:Option cli:GlobalOption) ] ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Short form flag (e.g., -v)" ;
+  .
+
+cli:maxExecutionTimeMs
+  a owl:DatatypeProperty ;
+  rdfs:label "maxExecutionTimeMs" ;
+  rdfs:domain cli:SLO ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Maximum execution time in milliseconds" ;
+  .
+
+cli:position
+  a owl:DatatypeProperty ;
+  rdfs:label "position" ;
+  rdfs:domain cli:PositionalArgument ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Position of argument in command line" ;
+  .
+
+cli:required
+  a owl:DatatypeProperty ;
+  rdfs:label "required" ;
+  rdfs:domain [ owl:unionOf (cli:Option cli:PositionalArgument) ] ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Whether this parameter is required" ;
+  .
+
+cli:option
+  a owl:ObjectProperty ;
+  rdfs:label "option" ;
+  rdfs:domain cli:Command ;
+  rdfs:range cli:Option ;
+  rdfs:comment "Options available for this command" ;
+  .
+
+cli:argument
+  a owl:ObjectProperty ;
+  rdfs:label "argument" ;
+  rdfs:domain cli:Command ;
+  rdfs:range cli:PositionalArgument ;
+  rdfs:comment "Positional arguments for this command" ;
+  .
+
+cli:appliesToCommand
+  a owl:ObjectProperty ;
+  rdfs:label "appliesToCommand" ;
+  rdfs:domain cli:GlobalOption ;
+  rdfs:range cli:Command ;
+  rdfs:comment "Commands this global option applies to" ;
+  .
+
+cli:aliases
+  a owl:DatatypeProperty ;
+  rdfs:label "aliases" ;
+  rdfs:domain cli:Command ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Comma-separated aliases for command" ;
+  .
+
+cli:version
+  a owl:DatatypeProperty ;
+  rdfs:label "version" ;
+  rdfs:domain cli:Command ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Version of the command specification" ;
+  .
+
+cli:examples
+  a owl:DatatypeProperty ;
+  rdfs:label "examples" ;
+  rdfs:domain cli:Command ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Example command usage" ;
+  .
+
+# ============================================================================
+# CLI Ontology: Command Definitions for ggen-paas CLI
+# ============================================================================
+# Purpose: Define all ggen paas commands in RDF format
+# Each command is a specification-driven entity that will be:
+#   1. Validated via SHACL schema (.specify/cli-schema.ttl)
+#   2. Used to generate command handlers (lib/commands/<command>.js)
+#   3. Used to generate help text (auto-generated docs)
+#   4. Used to generate tests (tests/commands/<command>.test.js)
+# ============================================================================
+
+# ============================================================================
+# COMMAND: generate
+# Purpose: Generate infrastructure artifacts from RDF specifications
+# ============================================================================
+
+cli:GenerateCommand
+  a cli:Command ;
+  rdfs:label "generate" ;
+  rdfs:comment "Generate infrastructure artifacts from RDF specifications" ;
+  cli:aliases "gen", "g" ;
+  cli:category cli:CategoryGeneration ;
+  cli:positionalArgs cli:GenerateArtifactArg ;
+  cli:options cli:GenerateOutputOption, cli:GenerateValidateOption, cli:GenerateWatchOption, cli:GenerateDryRunOption ;
+  cli:slo cli:GenerateSLO ;
+  cli:examples """
+    ggen paas generate docker
+    ggen paas generate kubernetes --output yaml
+    ggen paas generate terraform --validate
+    ggen paas generate all --watch
+    ggen paas generate openapi --dry-run
+    """ ;
+  dcterms:created "2026-01-08T00:00:00Z" ;
+  cli:version "1.0.0" ;
+  cli:handler "lib/commands/generate.js" ;
+  cli:test "tests/commands/generate.test.js" ;
+  .
+
+cli:GenerateArtifactArg
+  a cli:PositionalArgument ;
+  rdfs:label "artifact" ;
+  cli:position 0 ;
+  cli:type xsd:string ;
+  cli:required true ;
+  cli:choices "docker", "kubernetes", "terraform", "openapi", "all" ;
+  rdfs:comment "Type of artifact to generate" ;
+  .
+
+cli:GenerateOutputOption
+  a cli:Option ;
+  rdfs:label "output" ;
+  cli:shortForm "-o" ;
+  cli:longForm "--output" ;
+  cli:type xsd:string ;
+  cli:default "text" ;
+  cli:choices "text", "json", "yaml" ;
+  rdfs:comment "Output format for generation results" ;
+  .
+
+cli:GenerateValidateOption
+  a cli:Option ;
+  rdfs:label "validate" ;
+  cli:longForm "--validate" ;
+  cli:type xsd:boolean ;
+  cli:default true ;
+  rdfs:comment "Validate generated artifacts before returning" ;
+  .
+
+cli:GenerateWatchOption
+  a cli:Option ;
+  rdfs:label "watch" ;
+  cli:shortForm "-w" ;
+  cli:longForm "--watch" ;
+  cli:type xsd:boolean ;
+  cli:default false ;
+  rdfs:comment "Watch for spec changes and auto-regenerate" ;
+  .
+
+cli:GenerateDryRunOption
+  a cli:Option ;
+  rdfs:label "dryRun" ;
+  cli:longForm "--dry-run" ;
+  cli:type xsd:boolean ;
+  cli:default false ;
+  rdfs:comment "Show what would be generated without writing files" ;
+  .
+
+cli:GenerateSLO
+  a cli:SLO ;
+  cli:maxDurationMs 10000 ;
+  cli:expectedPassRate 99.0 ;
+  rdfs:comment "SLA: 10 second max, 99% success rate" ;
+  .
+
+# ============================================================================
+# COMMAND: validate
+# Purpose: Validate specifications and generated artifacts
+# ============================================================================
+
+cli:ValidateCommand
+  a cli:Command ;
+  rdfs:label "validate" ;
+  rdfs:comment "Validate specifications and generated artifacts" ;
+  cli:aliases "check", "test" ;
+  cli:category cli:CategoryValidation ;
+  cli:positionalArgs cli:ValidateTargetArg ;
+  cli:options cli:ValidateVerboseOption, cli:ValidateStrictOption ;
+  cli:slo cli:ValidateSLO ;
+  cli:examples """
+    ggen paas validate artifacts
+    ggen paas validate closure --verbose
+    ggen paas validate infrastructure
+    ggen paas validate all --strict
+    """ ;
+  dcterms:created "2026-01-08T00:00:00Z" ;
+  cli:version "1.0.0" ;
+  cli:handler "lib/commands/validate.js" ;
+  cli:test "tests/commands/validate.test.js" ;
+  .
+
+cli:ValidateTargetArg
+  a cli:PositionalArgument ;
+  rdfs:label "target" ;
+  cli:position 0 ;
+  cli:type xsd:string ;
+  cli:required true ;
+  cli:choices "artifacts", "closure", "infrastructure", "all" ;
+  rdfs:comment "Validation target" ;
+  .
+
+cli:ValidateVerboseOption
+  a cli:Option ;
+  rdfs:label "verbose" ;
+  cli:shortForm "-v" ;
+  cli:longForm "--verbose" ;
+  cli:type xsd:boolean ;
+  cli:default false ;
+  rdfs:comment "Verbose validation output with detailed results" ;
+  .
+
+cli:ValidateStrictOption
+  a cli:Option ;
+  rdfs:label "strict" ;
+  cli:longForm "--strict" ;
+  cli:type xsd:boolean ;
+  cli:default false ;
+  rdfs:comment "Strict mode: fail on warnings, not just errors" ;
+  .
+
+cli:ValidateSLO
+  a cli:SLO ;
+  cli:maxDurationMs 30000 ;
+  cli:expectedPassRate 99.5 ;
+  rdfs:comment "SLA: 30 second max, 99.5% success rate" ;
+  .
+
+# ============================================================================
+# COMMAND: sync
+# Purpose: Synchronize with RDF store and cloud infrastructure
+# ============================================================================
+
+cli:SyncCommand
+  a cli:Command ;
+  rdfs:label "sync" ;
+  rdfs:comment "Synchronize specifications with RDF store and infrastructure" ;
+  cli:aliases "update" ;
+  cli:category cli:CategoryManagement ;
+  cli:positionalArgs cli:SyncTargetArg ;
+  cli:options cli:SyncDryRunOption, cli:SyncForceOption, cli:SyncEnvironmentOption ;
+  cli:slo cli:SyncSLO ;
+  cli:examples """
+    ggen paas sync infrastructure
+    ggen paas sync specifications --dry-run
+    ggen paas sync all --force
+    ggen paas sync infrastructure --environment production
+    """ ;
+  dcterms:created "2026-01-08T00:00:00Z" ;
+  cli:version "1.0.0" ;
+  cli:handler "lib/commands/sync.js" ;
+  cli:test "tests/commands/sync.test.js" ;
+  .
+
+cli:SyncTargetArg
+  a cli:PositionalArgument ;
+  rdfs:label "target" ;
+  cli:position 0 ;
+  cli:type xsd:string ;
+  cli:required true ;
+  cli:choices "specifications", "infrastructure", "all" ;
+  rdfs:comment "Sync target: specifications, infrastructure, or both" ;
+  .
+
+cli:SyncDryRunOption
+  a cli:Option ;
+  rdfs:label "dryRun" ;
+  cli:longForm "--dry-run" ;
+  cli:type xsd:boolean ;
+  cli:default false ;
+  rdfs:comment "Show what would be synced without making changes" ;
+  .
+
+cli:SyncForceOption
+  a cli:Option ;
+  rdfs:label "force" ;
+  cli:longForm "--force" ;
+  cli:type xsd:boolean ;
+  cli:default false ;
+  rdfs:comment "Force sync without confirmation" ;
+  .
+
+cli:SyncEnvironmentOption
+  a cli:Option ;
+  rdfs:label "environment" ;
+  cli:shortForm "-e" ;
+  cli:longForm "--environment" ;
+  cli:type xsd:string ;
+  cli:default "development" ;
+  cli:choices "development", "staging", "production" ;
+  rdfs:comment "Target environment for sync" ;
+  .
+
+cli:SyncSLO
+  a cli:SLO ;
+  cli:maxDurationMs 60000 ;
+  cli:expectedPassRate 99.0 ;
+  rdfs:comment "SLA: 60 second max, 99% success rate" ;
+  .
+
+# ============================================================================
+# COMMAND: deploy
+# Purpose: Deploy infrastructure to cloud environments
+# ============================================================================
+
+cli:DeployCommand
+  a cli:Command ;
+  rdfs:label "deploy" ;
+  rdfs:comment "Deploy infrastructure to target environment" ;
+  cli:aliases "promote" ;
+  cli:category cli:CategoryDeployment ;
+  cli:positionalArgs cli:DeployEnvironmentArg ;
+  cli:options cli:DeployDryRunOption, cli:DeployRegionOption, cli:DeployNamespaceOption, cli:DeployTimeoutOption ;
+  cli:slo cli:DeploySLO ;
+  cli:examples """
+    ggen paas deploy development
+    ggen paas deploy staging --dry-run
+    ggen paas deploy production --region us-east-1
+    ggen paas deploy production --namespace ggen-paas --timeout 600
+    """ ;
+  dcterms:created "2026-01-08T00:00:00Z" ;
+  cli:version "1.0.0" ;
+  cli:handler "lib/commands/deploy.js" ;
+  cli:test "tests/commands/deploy.test.js" ;
+  .
+
+cli:DeployEnvironmentArg
+  a cli:PositionalArgument ;
+  rdfs:label "environment" ;
+  cli:position 0 ;
+  cli:type xsd:string ;
+  cli:required true ;
+  cli:choices "development", "staging", "production" ;
+  rdfs:comment "Target deployment environment" ;
+  .
+
+cli:DeployDryRunOption
+  a cli:Option ;
+  rdfs:label "dryRun" ;
+  cli:longForm "--dry-run" ;
+  cli:type xsd:boolean ;
+  cli:default false ;
+  rdfs:comment "Preview deployment without applying changes" ;
+  .
+
+cli:DeployRegionOption
+  a cli:Option ;
+  rdfs:label "region" ;
+  cli:shortForm "-r" ;
+  cli:longForm "--region" ;
+  cli:type xsd:string ;
+  cli:default "us-east-1" ;
+  rdfs:comment "AWS region for deployment" ;
+  .
+
+cli:DeployNamespaceOption
+  a cli:Option ;
+  rdfs:label "namespace" ;
+  cli:shortForm "-n" ;
+  cli:longForm "--namespace" ;
+  cli:type xsd:string ;
+  cli:default "ggen-paas" ;
+  rdfs:comment "Kubernetes namespace for deployment" ;
+  .
+
+cli:DeployTimeoutOption
+  a cli:Option ;
+  rdfs:label "timeout" ;
+  cli:longForm "--timeout" ;
+  cli:type xsd:integer ;
+  cli:default 300 ;
+  rdfs:comment "Deployment timeout in seconds" ;
+  .
+
+cli:DeploySLO
+  a cli:SLO ;
+  cli:maxDurationMs 600000 ;
+  cli:expectedPassRate 99.5 ;
+  rdfs:comment "SLA: 10 minute max, 99.5% success rate" ;
+  .
+
+# ============================================================================
+# COMMAND: status
+# Purpose: Show current status of services and infrastructure
+# ============================================================================
+
+cli:StatusCommand
+  a cli:Command ;
+  rdfs:label "status" ;
+  rdfs:comment "Show current status of services and infrastructure" ;
+  cli:aliases "info", "health" ;
+  cli:category cli:CategoryManagement ;
+  cli:positionalArgs cli:StatusTargetArg ;
+  cli:options cli:StatusOutputOption, cli:StatusWatchOption ;
+  cli:slo cli:StatusSLO ;
+  cli:examples """
+    ggen paas status
+    ggen paas status services
+    ggen paas status infrastructure --output json
+    ggen paas status --watch
+    """ ;
+  dcterms:created "2026-01-08T00:00:00Z" ;
+  cli:version "1.0.0" ;
+  cli:handler "lib/commands/status.js" ;
+  cli:test "tests/commands/status.test.js" ;
+  .
+
+cli:StatusTargetArg
+  a cli:PositionalArgument ;
+  rdfs:label "target" ;
+  cli:position 0 ;
+  cli:type xsd:string ;
+  cli:required false ;
+  cli:choices "services", "infrastructure", "all" ;
+  cli:default "all" ;
+  rdfs:comment "Status target: services, infrastructure, or both" ;
+  .
+
+cli:StatusOutputOption
+  a cli:Option ;
+  rdfs:label "output" ;
+  cli:shortForm "-o" ;
+  cli:longForm "--output" ;
+  cli:type xsd:string ;
+  cli:default "text" ;
+  cli:choices "text", "json", "yaml" ;
+  rdfs:comment "Output format" ;
+  .
+
+cli:StatusWatchOption
+  a cli:Option ;
+  rdfs:label "watch" ;
+  cli:shortForm "-w" ;
+  cli:longForm "--watch" ;
+  cli:type xsd:boolean ;
+  cli:default false ;
+  rdfs:comment "Watch for status changes and update continuously" ;
+  .
+
+cli:StatusSLO
+  a cli:SLO ;
+  cli:maxDurationMs 5000 ;
+  cli:expectedPassRate 99.5 ;
+  rdfs:comment "SLA: 5 second max, 99.5% success rate" ;
+  .
+
+# ============================================================================
+# COMMAND: logs
+# Purpose: Stream logs from services
+# ============================================================================
+
+cli:LogsCommand
+  a cli:Command ;
+  rdfs:label "logs" ;
+  rdfs:comment "Stream logs from services" ;
+  cli:aliases "log", "tail" ;
+  cli:category cli:CategoryManagement ;
+  cli:positionalArgs cli:LogsServiceArg ;
+  cli:options cli:LogsFollowOption, cli:LogsLinesOption, cli:LogsNamespaceOption, cli:LogsLevelOption ;
+  cli:slo cli:LogsSLO ;
+  cli:examples """
+    ggen paas logs api-gateway
+    ggen paas logs web-ui --follow
+    ggen paas logs scheduler --lines 100 --namespace production
+    ggen paas logs postgres --level debug
+    """ ;
+  dcterms:created "2026-01-08T00:00:00Z" ;
+  cli:version "1.0.0" ;
+  cli:handler "lib/commands/logs.js" ;
+  cli:test "tests/commands/logs.test.js" ;
+  .
+
+cli:LogsServiceArg
+  a cli:PositionalArgument ;
+  rdfs:label "service" ;
+  cli:position 0 ;
+  cli:type xsd:string ;
+  cli:required true ;
+  rdfs:comment "Service name to stream logs from" ;
+  .
+
+cli:LogsFollowOption
+  a cli:Option ;
+  rdfs:label "follow" ;
+  cli:shortForm "-f" ;
+  cli:longForm "--follow" ;
+  cli:type xsd:boolean ;
+  cli:default false ;
+  rdfs:comment "Follow log stream (like tail -f)" ;
+  .
+
+cli:LogsLinesOption
+  a cli:Option ;
+  rdfs:label "lines" ;
+  cli:longForm "--lines" ;
+  cli:type xsd:integer ;
+  cli:default 20 ;
+  rdfs:comment "Number of recent lines to show" ;
+  .
+
+cli:LogsNamespaceOption
+  a cli:Option ;
+  rdfs:label "namespace" ;
+  cli:shortForm "-n" ;
+  cli:longForm "--namespace" ;
+  cli:type xsd:string ;
+  cli:default "ggen-paas" ;
+  rdfs:comment "Kubernetes namespace" ;
+  .
+
+cli:LogsLevelOption
+  a cli:Option ;
+  rdfs:label "level" ;
+  cli:longForm "--level" ;
+  cli:type xsd:string ;
+  cli:default "info" ;
+  cli:choices "debug", "info", "warn", "error" ;
+  rdfs:comment "Filter logs by severity level" ;
+  .
+
+cli:LogsSLO
+  a cli:SLO ;
+  cli:maxDurationMs 5000 ;
+  cli:expectedPassRate 99.0 ;
+  rdfs:comment "SLA: 5 second max to start streaming, 99% success rate" ;
+  .
+
+# ============================================================================
+# COMMAND: describe
+# Purpose: Describe a resource in detail
+# ============================================================================
+
+cli:DescribeCommand
+  a cli:Command ;
+  rdfs:label "describe" ;
+  rdfs:comment "Describe a resource (service, datastore, etc.) in detail" ;
+  cli:aliases "desc", "show" ;
+  cli:category cli:CategoryManagement ;
+  cli:positionalArgs cli:DescribeResourceArg ;
+  cli:options cli:DescribeOutputOption, cli:DescribeDetailOption ;
+  cli:slo cli:DescribeSLO ;
+  cli:examples """
+    ggen paas describe api-gateway
+    ggen paas describe postgres --detail full
+    ggen paas describe redis --output yaml
+    """ ;
+  dcterms:created "2026-01-08T00:00:00Z" ;
+  cli:version "1.0.0" ;
+  cli:handler "lib/commands/describe.js" ;
+  cli:test "tests/commands/describe.test.js" ;
+  .
+
+cli:DescribeResourceArg
+  a cli:PositionalArgument ;
+  rdfs:label "resource" ;
+  cli:position 0 ;
+  cli:type xsd:string ;
+  cli:required true ;
+  rdfs:comment "Resource name to describe" ;
+  .
+
+cli:DescribeOutputOption
+  a cli:Option ;
+  rdfs:label "output" ;
+  cli:shortForm "-o" ;
+  cli:longForm "--output" ;
+  cli:type xsd:string ;
+  cli:default "text" ;
+  cli:choices "text", "json", "yaml" ;
+  rdfs:comment "Output format" ;
+  .
+
+cli:DescribeDetailOption
+  a cli:Option ;
+  rdfs:label "detail" ;
+  cli:longForm "--detail" ;
+  cli:type xsd:string ;
+  cli:default "summary" ;
+  cli:choices "summary", "full", "extended" ;
+  rdfs:comment "Level of detail to show" ;
+  .
+
+cli:DescribeSLO
+  a cli:SLO ;
+  cli:maxDurationMs 5000 ;
+  cli:expectedPassRate 99.0 ;
+  rdfs:comment "SLA: 5 second max, 99% success rate" ;
+  .
+
+# ============================================================================
+# COMMAND: explain
+# Purpose: Explain RDF concepts and relationships
+# ============================================================================
+
+cli:ExplainCommand
+  a cli:Command ;
+  rdfs:label "explain" ;
+  rdfs:comment "Explain RDF concepts, properties, and relationships" ;
+  cli:aliases "help-rdf", "query" ;
+  cli:category cli:CategoryHelp ;
+  cli:positionalArgs cli:ExplainConceptArg ;
+  cli:options cli:ExplainDetailOption, cli:ExplainOutputOption ;
+  cli:slo cli:ExplainSLO ;
+  cli:examples """
+    ggen paas explain Container
+    ggen paas explain DataStore --detail full
+    ggen paas explain SLA --output yaml
+    """ ;
+  dcterms:created "2026-01-08T00:00:00Z" ;
+  cli:version "1.0.0" ;
+  cli:handler "lib/commands/explain.js" ;
+  cli:test "tests/commands/explain.test.js" ;
+  .
+
+cli:ExplainConceptArg
+  a cli:PositionalArgument ;
+  rdfs:label "concept" ;
+  cli:position 0 ;
+  cli:type xsd:string ;
+  cli:required true ;
+  rdfs:comment "RDF concept to explain (e.g., Container, DataStore)" ;
+  .
+
+cli:ExplainDetailOption
+  a cli:Option ;
+  rdfs:label "detail" ;
+  cli:longForm "--detail" ;
+  cli:type xsd:string ;
+  cli:default "summary" ;
+  cli:choices "summary", "full", "extended" ;
+  rdfs:comment "Level of detail" ;
+  .
+
+cli:ExplainOutputOption
+  a cli:Option ;
+  rdfs:label "output" ;
+  cli:shortForm "-o" ;
+  cli:longForm "--output" ;
+  cli:type xsd:string ;
+  cli:default "text" ;
+  cli:choices "text", "json", "yaml" ;
+  rdfs:comment "Output format" ;
+  .
+
+cli:ExplainSLO
+  a cli:SLO ;
+  cli:maxDurationMs 2000 ;
+  cli:expectedPassRate 99.5 ;
+  rdfs:comment "SLA: 2 second max, 99.5% success rate" ;
+  .
+
+# ============================================================================
+# CATEGORIES
+# ============================================================================
+
+cli:CategoryGeneration
+  a cli:Category ;
+  rdfs:label "Generation" ;
+  rdfs:comment "Commands for generating artifacts" ;
+  .
+
+cli:CategoryValidation
+  a cli:Category ;
+  rdfs:label "Validation" ;
+  rdfs:comment "Commands for validating specifications and artifacts" ;
+  .
+
+cli:CategoryManagement
+  a cli:Category ;
+  rdfs:label "Management" ;
+  rdfs:comment "Commands for managing deployments and services" ;
+  .
+
+cli:CategoryDeployment
+  a cli:Category ;
+  rdfs:label "Deployment" ;
+  rdfs:comment "Commands for deploying to environments" ;
+  .
+
+cli:CategoryHelp
+  a cli:Category ;
+  rdfs:label "Help" ;
+  rdfs:comment "Commands for getting help and information" ;
+  .
+
+# ============================================================================
+# GLOBAL OPTIONS (shared by all commands)
+# ============================================================================
+
+cli:GlobalHelpOption
+  a cli:GlobalOption ;
+  rdfs:label "help" ;
+  cli:shortForm "-h" ;
+  cli:longForm "--help" ;
+  cli:type xsd:boolean ;
+  rdfs:comment "Show help message and exit" ;
+  .
+
+cli:GlobalVersionOption
+  a cli:GlobalOption ;
+  rdfs:label "version" ;
+  cli:shortForm "-v" ;
+  cli:longForm "--version" ;
+  cli:type xsd:boolean ;
+  rdfs:comment "Show CLI version and exit" ;
+  .
+
+cli:GlobalVerboseOption
+  a cli:GlobalOption ;
+  rdfs:label "verbose" ;
+  cli:shortForm "-vvv" ;
+  cli:longForm "--verbose" ;
+  cli:type xsd:boolean ;
+  cli:stackable true ;
+  rdfs:comment "Increase logging verbosity (can be stacked: -vvv)" ;
+  .
+
+cli:GlobalQuietOption
+  a cli:GlobalOption ;
+  rdfs:label "quiet" ;
+  cli:shortForm "-q" ;
+  cli:longForm "--quiet" ;
+  cli:type xsd:boolean ;
+  rdfs:comment "Suppress output (only show errors)" ;
+  .
+
+cli:GlobalConfigOption
+  a cli:GlobalOption ;
+  rdfs:label "config" ;
+  cli:shortForm "-c" ;
+  cli:longForm "--config" ;
+  cli:type xsd:string ;
+  rdfs:comment "Configuration file path" ;
+  .
+
+# ============================================================================
+# RELATIONSHIPS: CLI Commands reference PaaS components
+# ============================================================================
+
+# Generate command generates from these PaaS artifacts
+cli:GenerateCommand cli:generatesFrom paas:DockerArtifact ;
+cli:GenerateCommand cli:generatesFrom paas:KubernetesArtifact ;
+cli:GenerateCommand cli:generatesFrom paas:TerraformArtifact ;
+cli:GenerateCommand cli:generatesFrom paas:OpenAPIArtifact ;
+
+# Deploy command deploys these containers
+cli:DeployCommand cli:deploys paas:Container ;
+
+# Status command reads status of containers and datastores
+cli:StatusCommand cli:readsStatusOf paas:Container ;
+cli:StatusCommand cli:readsStatusOf paas:DataStore ;
+
+# Logs command streams logs from containers
+cli:LogsCommand cli:logsFrom paas:Container ;
+
+# Describe command describes any PaaS resource
+cli:DescribeCommand cli:describes paas:Resource ;
+cli:DescribeCommand cli:describes paas:Container ;
+cli:DescribeCommand cli:describes paas:DataStore ;
+
+# ============================================================================
+# METADATA
+# ============================================================================
+
+cli: a cli:Ontology ;
+  rdfs:label "ggen CLI Ontology" ;
+  rdfs:comment "RDF specification for ggen-paas command-line interface" ;
+  dcterms:created "2026-01-08T00:00:00Z" ;
+  dcterms:modified "2026-01-08T10:30:00Z" ;
+  dcterms:version "1.0.1" ;
+  cli:specificationClosure 95 ;  # 95% closure: class definitions, properties, and SHACL schema complete
+  cli:generatedFrom "ggen-paas.config.ttl" ;
+  cli:lastGeneratedAt "2026-01-08T10:30:00Z" ;
+  cli:closureNotes "Added cli-schema.ttl (SHACL), class definitions, and artifact types to ggen-paas-ontology.ttl" ;
+  .

@@ -1,0 +1,60 @@
+{# =============================================================================
+   EXPLANATION TEMPLATE (Diataxis Quadrant 4: Understanding)
+   Generates understanding-oriented conceptual documentation
+   ============================================================================= #}
+# {{ title }}
+
+{{ description }}
+
+{% if conceptLabel -%}
+## Understanding {{ conceptLabel }}
+
+{% if conceptComment -%}
+{{ conceptComment }}
+{%- endif %}
+{%- endif %}
+
+## Key Concepts
+
+{%- for idea in keyIdeas %}
+- {{ idea }}
+{%- endfor %}
+
+{% if analogies -%}
+## Analogies
+
+{%- for analogy in analogies %}
+> {{ analogy }}
+{%- endfor %}
+{%- endif %}
+
+## Design Decisions
+
+{%- for decision in decisions %}
+
+### {{ decision.text }}
+
+**Rationale:**
+{%- for reason in decision.rationales %}
+- {{ reason }}
+{%- endfor %}
+
+{% if decision.tradeoffs -%}
+**Trade-offs:**
+{%- for tradeoff in decision.tradeoffs %}
+- {{ tradeoff }}
+{%- endfor %}
+{%- endif %}
+
+{% endfor %}
+
+## Further Reading
+
+- [RDF Specification](https://www.w3.org/TR/rdf11-concepts/)
+- [Semantic Web Primer](https://www.w3.org/standards/semanticweb/)
+
+## Related
+
+- [Tutorials](../tutorials/) - Learn by doing
+- [How-To Guides](../how-to/) - Solve specific problems
+- [Reference](../reference/) - Technical details

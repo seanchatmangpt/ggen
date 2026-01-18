@@ -1,0 +1,5 @@
+## Dependencies *(optional - only if relevant)*
+
+{% for row in sparql_results -%}
+- **{{ row.dependencyId }}**: {{ row.description }}
+{% endfor %}

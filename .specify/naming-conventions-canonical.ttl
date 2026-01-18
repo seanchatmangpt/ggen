@@ -1,0 +1,550 @@
+@prefix : <http://ggen.example.com/naming#> .
+@prefix code: <http://ggen.example.com/code#> .
+@prefix cli: <http://ggen.example.com/cli#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# ============================================================================
+# CANONICAL NAMING CONVENTIONS FOR GGEN
+# ============================================================================
+#
+# This ontology defines all naming conventions used throughout ggen.
+# These rules are AUTHORITATIVE and CANONICAL.
+#
+# All code, specifications, and documentation must follow these rules.
+# Enforcement: SHACL validation + naming validator module (ggen-core::naming)
+#
+# ============================================================================
+
+# ============================================================================
+# SECTION 1: TYPE NAMING CONVENTIONS
+# ============================================================================
+
+:TypeNamingRule a code:NamingRule ;
+  rdfs:label "Type Naming Convention (Rust structs, enums)" ;
+  rdfs:comment "All Rust types (structs, enums) use PascalCase with optional purpose suffix" ;
+  code:language "Rust" ;
+  code:applies_to "struct" "enum" "trait" ;
+  code:pattern "PascalCase" ;
+  code:suffix_usage "optional (indicates purpose or domain)" ;
+  code:examples (
+    [
+      rdfs:label "Struct with purpose suffix (Options)" ;
+      code:example_name "GenerateFileOptions" ;
+      code:breakdown "Generate + File + Options (purpose: holds configuration)" ;
+      code:domain "template generation"
+    ]
+    [
+      rdfs:label "Struct with purpose suffix (Input)" ;
+      code:example_name "ValidateInput" ;
+      code:breakdown "Validate + Input (purpose: input to validator)" ;
+      code:domain "validation"
+    ]
+    [
+      rdfs:label "Struct with purpose suffix (Result)" ;
+      code:example_name "GenerateFileResult" ;
+      code:breakdown "Generate + File + Result (purpose: holds result)" ;
+      code:domain "template generation"
+    ]
+    [
+      rdfs:label "Builder pattern struct" ;
+      code:example_name "CodeGraphBuilder" ;
+      code:breakdown "Code + Graph + Builder (purpose: builder for CodeGraph)" ;
+      code:domain "code generation"
+    ]
+    [
+      rdfs:label "Enum without suffix" ;
+      code:example_name "PipelineStage" ;
+      code:breakdown "Pipeline + Stage (context indicates it's an enum)" ;
+      code:domain "generation pipeline"
+    ]
+    [
+      rdfs:label "Enum variant" ;
+      code:example_name "PipelineStage::Ingest" ;
+      code:breakdown "All variants: PascalCase, fully qualified with enum name" ;
+      code:domain "generation pipeline"
+    ]
+  ) ;
+  code:bad_examples (
+    [
+      rdfs:label "All lowercase (WRONG)" ;
+      code:bad_example "generatefileoptions" ;
+      code:reason "Not PascalCase, violates Rust style conventions"
+    ]
+    [
+      rdfs:label "snake_case (WRONG for types)" ;
+      code:bad_example "generate_file_options" ;
+      code:reason "Function naming pattern, not type naming"
+    ]
+    [
+      rdfs:label "Unclear suffix (WRONG)" ;
+      code:bad_example "GenerateFileStuff" ;
+      code:reason "Suffix 'Stuff' is vague, use descriptive suffix"
+    ]
+  ) ;
+  code:rationale "PascalCase is Rust idiom. Suffixes improve clarity: Reader immediately knows struct holds options/results/configuration" .
+
+# ============================================================================
+# SECTION 2: FUNCTION NAMING CONVENTIONS
+# ============================================================================
+
+:FunctionNamingRule a code:NamingRule ;
+  rdfs:label "Function Naming Convention (Rust)" ;
+  rdfs:comment "All Rust functions use snake_case with verb-first pattern" ;
+  code:language "Rust" ;
+  code:applies_to "fn" "pub fn" "pub async fn" ;
+  code:pattern "snake_case" ;
+  code:prefix "verb-first (execute, generate, validate, parse, compute)" ;
+  code:examples (
+    [
+      rdfs:label "Execute action" ;
+      code:example_name "execute_validate()" ;
+      code:breakdown "execute (verb) + validate (action)" ;
+      code:signature "pub async fn execute_validate(input: Input) -> Result<Output>"
+    ]
+    [
+      rdfs:label "Generate output" ;
+      code:example_name "generate_file()" ;
+      code:breakdown "generate (verb) + file (output)" ;
+      code:signature "pub fn generate_file(options: GenerateFileOptions) -> Result<GenerateFileResult>"
+    ]
+    [
+      rdfs:label "Parse/extract from input" ;
+      code:example_name "parse_manifest()" ;
+      code:breakdown "parse (verb) + manifest (input)" ;
+      code:signature "pub fn parse_manifest(path: Path) -> Result<Manifest>"
+    ]
+    [
+      rdfs:label "Compute metric/value" ;
+      code:example_name "compute_content_hash()" ;
+      code:breakdown "compute (verb) + content_hash (output)" ;
+      code:signature "pub fn compute_content_hash(file_path: Path) -> String"
+    ]
+    [
+      rdfs:label "Builder pattern (with_X)" ;
+      code:example_name "with_var()" ;
+      code:breakdown "with_ (builder prefix) + var (field)" ;
+      code:signature "pub fn with_var(mut self, key: String, value: String) -> Self"
+    ]
+  ) ;
+  code:builder_pattern "Methods that take &mut self or self and return Self use 'with_' prefix" ;
+  code:async_functions "Use 'pub async fn' for functions returning futures" ;
+  code:bad_examples (
+    [
+      rdfs:label "PascalCase (WRONG for functions)" ;
+      code:bad_example "ExecuteValidate()" ;
+      code:reason "Type naming pattern, not function naming"
+    ]
+    [
+      rdfs:label "SCREAMING_SNAKE_CASE (WRONG for functions)" ;
+      code:bad_example "EXECUTE_VALIDATE()" ;
+      code:reason "Constant naming pattern, not function naming"
+    ]
+    [
+      rdfs:label "Passive voice (WRONG)" ;
+      code:bad_example "validation_executed()" ;
+      code:breakdown "Passive voice is less clear than verb-first active voice" ;
+      code:correct "execute_validation()"
+    ]
+  ) ;
+  code:rationale "snake_case is Rust idiom. Verb-first makes intent clear at call site: 'execute something', 'generate something', 'parse something'" .
+
+# ============================================================================
+# SECTION 3: ERROR TYPE NAMING CONVENTIONS
+# ============================================================================
+
+:ErrorNamingRule a code:NamingRule ;
+  rdfs:label "Error Type Naming Convention" ;
+  rdfs:comment "All error types use PascalCase + 'Error' suffix" ;
+  code:language "Rust" ;
+  code:applies_to "enum" "struct" ;
+  code:pattern "PascalCase + Error" ;
+  code:location "typically in errors.rs or error.rs per crate" ;
+  code:examples (
+    [
+      rdfs:label "Simple error enum" ;
+      code:example_name "ConfigError" ;
+      code:breakdown "Config (domain) + Error (suffix)" ;
+      code:crate_module "ggen-config/src/error.rs"
+    ]
+    [
+      rdfs:label "Domain-specific error" ;
+      code:example_name "ValidationError" ;
+      code:breakdown "Validation (domain) + Error (suffix)" ;
+      code:crate_module "ggen-spec-validator/src/error.rs"
+    ]
+    [
+      rdfs:label "Feature-specific error" ;
+      code:example_name "GenerationError" ;
+      code:breakdown "Generation (feature) + Error (suffix)" ;
+      code:crate_module "ggen-domain/src/ontology/error.rs"
+    ]
+    [
+      rdfs:label "Naming validator error (Phase 3)" ;
+      code:example_name "NamingError" ;
+      code:breakdown "Naming (feature) + Error (suffix)" ;
+      code:variants "InvalidHandlerName" "InvalidCommandName" "InvalidTypeName" ;
+      code:crate_module "ggen-core/src/naming.rs"
+    ]
+    [
+      rdfs:label "SaaS/payment error" ;
+      code:example_name "SaasError" ;
+      code:breakdown "Saas (domain) + Error (suffix)" ;
+      code:crate_module "ggen-saas/src/error.rs"
+    ]
+  ) ;
+  code:error_handling "All errors implement std::error::Error and Display" ;
+  code:result_type_alias "Each crate defines: type Result<T> = std::result::Result<T, CustomError>" ;
+  code:bad_examples (
+    [
+      rdfs:label "Without Error suffix (WRONG)" ;
+      code:bad_example "ConfigFailure" ;
+      code:reason "Inconsistent with codebase conventions" ;
+      code:correct "ConfigError"
+    ]
+    [
+      rdfs:label "All lowercase (WRONG)" ;
+      code:bad_example "config_error" ;
+      code:reason "Type naming should be PascalCase" ;
+      code:correct "ConfigError"
+    ]
+  ) ;
+  code:rationale "Consistent suffix enables pattern matching. Readers immediately recognize error types" .
+
+# ============================================================================
+# SECTION 4: CLI COMMAND NAMING CONVENTIONS
+# ============================================================================
+
+:CliCommandNamingRule a code:NamingRule ;
+  rdfs:label "CLI Command Naming Convention" ;
+  rdfs:comment "All CLI commands use lowercase kebab-case with optional domain prefix" ;
+  code:language "CLI" ;
+  code:applies_to "cli_command" "subcommand" ;
+  code:pattern "kebab-case" ;
+  code:prefix "optional domain (ggen-, ggen-marketplace-)" ;
+  code:examples (
+    [
+      rdfs:label "Core command" ;
+      code:example_name "ggen-sync" ;
+      code:breakdown "domain (ggen) + action (sync)" ;
+      code:invocation "ggen sync" ;
+      code:alias "ggen sync" ;
+      code:handler "handle_sync" "sync_handler"
+    ]
+    [
+      rdfs:label "Validation command" ;
+      code:example_name "ggen-validate" ;
+      code:breakdown "domain (ggen) + action (validate)" ;
+      code:invocation "ggen validate" ;
+      code:handler "handle_validate" "validate_handler"
+    ]
+    [
+      rdfs:label "Marketplace subcommand" ;
+      code:example_name "ggen marketplace batch-validate" ;
+      code:breakdown "ggen (main) + marketplace (subcommand) + batch-validate (action)" ;
+      code:invocation "ggen marketplace batch-validate" ;
+      code:handler "marketplace_batch_validate_handler"
+    ]
+    [
+      rdfs:label "Complex subcommand" ;
+      code:example_name "ggen paas deploy apply" ;
+      code:breakdown "ggen (main) + paas (domain) + deploy (action) + apply (sub-action)" ;
+      code:invocation "ggen paas deploy apply" ;
+      code:handler "paas_deploy_apply_handler"
+    ]
+  ) ;
+  code:separators "Use hyphen (-) to separate words in command names" ;
+  code:bad_examples (
+    [
+      rdfs:label "CamelCase (WRONG)" ;
+      code:bad_example "ggen Sync" ;
+      code:reason "CLI convention is lowercase kebab-case" ;
+      code:correct "ggen-sync"
+    ]
+    [
+      rdfs:label "Underscore (WRONG)" ;
+      code:bad_example "ggen_sync" ;
+      code:reason "Space or hyphen is standard CLI separator" ;
+      code:correct "ggen-sync"
+    ]
+    [
+      rdfs:label "All caps (WRONG)" ;
+      code:bad_example "GGEN-SYNC" ;
+      code:reason "CLI convention is lowercase" ;
+      code:correct "ggen-sync"
+    ]
+  ) ;
+  code:rationale "Kebab-case is CLI standard (Unix/POSIX convention). Improves discoverability in help text. Domain prefix prevents collisions" .
+
+# ============================================================================
+# SECTION 5: HANDLER FUNCTION NAMING CONVENTIONS
+# ============================================================================
+
+:HandlerNamingRule a code:NamingRule ;
+  rdfs:label "Handler Function Naming Convention" ;
+  rdfs:comment "CLI command handlers use consistent pattern: handle_{action} or {command}_{subcommand}_handler" ;
+  code:language "Rust" ;
+  code:applies_to "command_handler" "route_handler" ;
+  code:applies_in "ggen-cli/src/commands/" ;
+  code:pattern "Option A: handle_{action}() or Option B: {command}_{subcommand}_handler()" ;
+  code:preference "Prefer Option A (handle_X) for clarity and consistency" ;
+  code:examples (
+    [
+      rdfs:label "Primary pattern (preferred)" ;
+      code:example_name "handle_sync" ;
+      code:breakdown "handle_ (prefix) + sync (action)" ;
+      code:signature "pub async fn handle_sync(args: SyncArgs) -> Result<SyncOutput>" ;
+      code:handler_in "ggen-cli/src/commands/sync.rs"
+    ]
+    [
+      rdfs:label "Primary pattern (validation)" ;
+      code:example_name "handle_validate" ;
+      code:breakdown "handle_ (prefix) + validate (action)" ;
+      code:signature "pub async fn handle_validate(args: ValidateArgs) -> Result<ValidateOutput>" ;
+      code:handler_in "ggen-cli/src/commands/validate.rs"
+    ]
+    [
+      rdfs:label "Primary pattern (marketplace)" ;
+      code:example_name "handle_list" ;
+      code:breakdown "handle_ (prefix) + list (action)" ;
+      code:signature "pub async fn handle_list(args: ListArgs) -> Result<ListOutput>" ;
+      code:handler_in "ggen-cli/src/commands/marketplace/list.rs"
+    ]
+    [
+      rdfs:label "Marketplace subcommand" ;
+      code:example_name "handle_marketplace_install" ;
+      code:breakdown "handle_ (prefix) + marketplace_install (domain_action)" ;
+      code:signature "pub async fn handle_marketplace_install(args: InstallArgs) -> Result<InstallOutput>" ;
+      code:alternative "Or use marketplace_install_handler()" ;
+      code:handler_in "ggen-cli/src/commands/marketplace/install.rs"
+    ]
+  ) ;
+  code:arguments "Handler always takes single argument: CmdArgs struct with all parsed CLI arguments" ;
+  code:return_type "Handler returns Result<CmdOutput> or Result<()>" ;
+  code:routing "Main CLI router matches command_name → calls handle_X()" ;
+  code:bad_examples (
+    [
+      rdfs:label "Camel case (WRONG)" ;
+      code:bad_example "handleSync" ;
+      code:reason "Rust idiom is snake_case" ;
+      code:correct "handle_sync"
+    ]
+    [
+      rdfs:label "Passive voice (WRONG)" ;
+      code:bad_example "sync_handled" ;
+      code:reason "Active voice is clearer: 'handle sync' not 'sync handled'" ;
+      code:correct "handle_sync"
+    ]
+    [
+      rdfs:label "No handler prefix (WRONG)" ;
+      code:bad_example "sync()" ;
+      code:reason "Ambiguous - could be any function. 'handle_' clarifies it's a CLI handler" ;
+      code:correct "handle_sync"
+    ]
+  ] ;
+  code:rationale "'handle_' prefix makes handler functions discoverable and grouped in IDE outlines. Clear intent: 'this is a CLI command handler'" .
+
+# ============================================================================
+# SECTION 6: MODULE NAMING CONVENTIONS
+# ============================================================================
+
+:ModuleNamingRule a code:NamingRule ;
+  rdfs:label "Module Naming Convention (Rust)" ;
+  rdfs:comment "Rust modules and files use snake_case, grouped by concern" ;
+  code:language "Rust" ;
+  code:applies_to "mod.rs" "*.rs files" "module paths" ;
+  code:pattern "snake_case" ;
+  code:organization "One concern per file (audit.rs, validation.rs, graph.rs)" ;
+  code:examples (
+    [
+      rdfs:label "Core generation module" ;
+      code:file "ggen-core/src/codegen/audit.rs" ;
+      code:module "crate::codegen::audit" ;
+      code:contents "ExecutionAudit, AuditTrailBuilder" ;
+      code:concern "Execution audit trail tracking"
+    ]
+    [
+      rdfs:label "Validation module" ;
+      code:file "ggen-core/src/codegen/validation.rs" ;
+      code:module "crate::codegen::validation" ;
+      code:contents "ValidationResult, Validator" ;
+      code:concern "Code generation validation"
+    ]
+    [
+      rdfs:label "Graph management module" ;
+      code:file "ggen-core/src/graph/mod.rs" ;
+      code:module "crate::graph" ;
+      code:exports "Graph, GraphBuilder" ;
+      code:concern "RDF graph operations"
+    ]
+    [
+      rdfs:label "Error module" ;
+      code:file "ggen-core/src/error.rs" ;
+      code:module "crate::error" ;
+      code:exports "Error, Result" ;
+      code:concern "Crate-wide error definitions"
+    ]
+    [
+      rdfs:label "Naming validator module (Phase 3)" ;
+      code:file "ggen-core/src/naming.rs" ;
+      code:module "crate::naming" ;
+      code:exports "NamingValidator, NamingError" ;
+      code:concern "Naming convention validation (Phase 3)"
+    ]
+  ) ;
+  code:public_exports "Use pub use in mod.rs to re-export public types" ;
+  code:bad_examples (
+    [
+      rdfs:label "CamelCase (WRONG)" ;
+      code:bad_example "ValidationModule.rs" ;
+      code:reason "Rust idiom for files is snake_case" ;
+      code:correct "validation.rs"
+    ]
+    [
+      rdfs:label "Mixed concerns in one file (WRONG)" ;
+      code:bad_example "audit_validation_generation.rs" ;
+      code:reason "Multiple concerns; should split into separate files" ;
+      code:correct "audit.rs + validation.rs + generation.rs"
+    ]
+  ) ;
+  code:rationale "snake_case is Rust idiom. One concern per file improves maintainability and testability" .
+
+# ============================================================================
+# SECTION 7: VARIABLE & CONSTANT NAMING CONVENTIONS
+# ============================================================================
+
+:VariableNamingRule a code:NamingRule ;
+  rdfs:label "Variable and Constant Naming Convention" ;
+  rdfs:comment "Variables use snake_case, constants use SCREAMING_SNAKE_CASE" ;
+  code:language "Rust" ;
+  code:applies_to "let bindings" "function parameters" "const declarations" "static declarations" ;
+  code:patterns (
+    [
+      rdfs:label "Variable binding" ;
+      code:pattern "snake_case" ;
+      code:example "let manifest_path = Path::new(path);" ;
+      code:example "let mut output_buffer = Vec::new();"
+    ]
+    [
+      rdfs:label "Function parameter" ;
+      code:pattern "snake_case" ;
+      code:example "fn generate_file(output_path: Path, force_overwrite: bool) -> Result<()>"
+    ]
+    [
+      rdfs:label "Constant" ;
+      code:pattern "SCREAMING_SNAKE_CASE" ;
+      code:example "const DEFAULT_MANIFEST_PATH: &str = \"./ggen.toml\";" ;
+      code:example "const SLO_CHECK_TIMEOUT_SECS: u64 = 5;"
+    ]
+    [
+      rdfs:label "Static variable" ;
+      code:pattern "SCREAMING_SNAKE_CASE" ;
+      code:example "static REGISTRY: Lazy<RwLock<Registry>> = Lazy::new(...);"
+    ]
+  ) ;
+  code:bad_examples (
+    [
+      rdfs:label "PascalCase variable (WRONG)" ;
+      code:bad_example "let ManifestPath = Path::new(path);" ;
+      code:reason "Variables should be snake_case" ;
+      code:correct "let manifest_path = Path::new(path);"
+    ]
+    [
+      rdfs:label "Constant in snake_case (WRONG)" ;
+      code:bad_example "const default_manifest_path: &str = \"./ggen.toml\";" ;
+      code:reason "Constants should be SCREAMING_SNAKE_CASE" ;
+      code:correct "const DEFAULT_MANIFEST_PATH: &str = \"./ggen.toml\";"
+    ]
+  ) ;
+  code:rationale "Rust idiom: snake_case for variables/parameters signals mutability is possible. SCREAMING_SNAKE_CASE for constants signals immutability" .
+
+# ============================================================================
+# SHACL SHAPES FOR VALIDATION
+# ============================================================================
+
+:TypeNameShape a sh:NodeShape ;
+  sh:targetClass code:Type ;
+  sh:property [
+    sh:path code:name ;
+    sh:pattern "^[A-Z][a-zA-Z0-9]*$" ;
+    sh:message "Type name must be PascalCase (e.g., MyStruct, ValidationError)"
+  ] .
+
+:FunctionNameShape a sh:NodeShape ;
+  sh:targetClass code:Function ;
+  sh:property [
+    sh:path code:name ;
+    sh:pattern "^[a-z][a-z0-9]*(_[a-z0-9]+)*$" ;
+    sh:message "Function name must be snake_case (e.g., generate_file, execute_validate)"
+  ] .
+
+:CommandNameShape a sh:NodeShape ;
+  sh:targetClass cli:GgenCommand ;
+  sh:property [
+    sh:path cli:commandName ;
+    sh:pattern "^[a-z]([a-z0-9-]*[a-z0-9])?$" ;
+    sh:message "Command name must be lowercase kebab-case (e.g., sync, validate, batch-validate)"
+  ] .
+
+:HandlerNameShape a sh:NodeShape ;
+  sh:targetClass cli:CommandHandler ;
+  sh:property [
+    sh:path code:function_name ;
+    sh:pattern "^(handle_[a-z][a-z0-9_]*|[a-z][a-z0-9_]*_handler)$" ;
+    sh:message "Handler must be handle_X() or X_handler() (e.g., handle_sync, marketplace_install_handler)"
+  ] .
+
+# ============================================================================
+# ENFORCEMENT MECHANISMS
+# ============================================================================
+
+:NamingValidationEnforcement a code:EnforcementRule ;
+  rdfs:label "Naming Convention Enforcement" ;
+  rdfs:comment "Naming rules are enforced at compile-time and test-time" ;
+  code:enforcement_points (
+    [
+      rdfs:label "Compile-time checks" ;
+      code:tool "clippy" ;
+      code:rules "Rust naming conventions (built-in clippy checks)"
+    ]
+    [
+      rdfs:label "Runtime validation" ;
+      code:module "ggen-core::naming::NamingValidator" ;
+      code:methods "validate_handler_name()" "validate_command_name()" "validate_type_name()" ;
+      code:returns "Result<(), NamingError>" ;
+      code:used_in "ggen-cli validation pipeline"
+    ]
+    [
+      rdfs:label "Integration tests" ;
+      code:test_file "ggen-core/tests/naming_tests.rs" ;
+      code:checks "Verify all existing handlers/commands match naming conventions"
+    ]
+    [
+      rdfs:label "Pre-commit gate" ;
+      code:command "cargo make pre-commit" ;
+      code:includes "naming validation" ;
+      code:slo "<2 minutes"
+    ]
+  ) .
+
+# ============================================================================
+# SUMMARY TABLE
+# ============================================================================
+
+:NamingSummary a rdfs:Resource ;
+  rdfs:label "Naming Conventions Summary" ;
+  code:summary_table "
+
+  | Target                | Pattern           | Example              | File Location              |
+  |-----------------------|-------------------|----------------------|----------------------------|
+  | Struct / Enum         | PascalCase        | GenerateFileOptions  | Any .rs file               |
+  | Function              | snake_case        | execute_validate()   | Any .rs file               |
+  | Error Type            | PascalCase+Error  | ConfigError          | crate/src/error.rs         |
+  | CLI Command           | kebab-case        | ggen-sync            | ggen-cli/src/cmds/         |
+  | Handler Function      | handle_X          | handle_sync()        | ggen-cli/src/commands/     |
+  | Module/File           | snake_case        | audit.rs             | crate/src/                 |
+  | Variable              | snake_case        | manifest_path        | Any .rs file               |
+  | Constant              | SCREAMING_CASE    | DEFAULT_TIMEOUT      | Any .rs file               |
+
+  " .

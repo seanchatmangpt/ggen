@@ -1,0 +1,79 @@
+@startuml hooks-components
+' Git Hooks System - Component Diagram
+' DfLSS Design: Prevent defects at source with tiered validation
+
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam componentStyle uml2
+skinparam shadowing false
+skinparam roundcorner 10
+
+title **ggen Git Hooks System - Component Architecture**\n<size:12>//DfLSS: Tiered Validation with Andon Signals//</size>
+
+package "Developer Interface" {
+    [git commit] as GC
+    [git push] as GP
+}
+
+package "Hook Orchestration Layer" {
+    component "pre-commit.sh" as PC #E4FFE4
+    component "pre-push.sh" as PP #FFF4E4
+    component "install-hooks.sh" as IH #E4E4FF
+}
+
+package "Shared Infrastructure" as SI {
+    component "lib/hooks-common.sh" as HC #E4E4FF
+}
+
+package "Validation Gates" as VG {
+    component "Gate 1: Cargo Check" as G1 #FFE4E4
+    component "Gate 2: Clippy Lint" as G2 #FFF4E4
+    component "Gate 3: Formatting" as G3 #FFFBE4
+    component "Gate 4: Unit Tests" as G4 #FFE4E4
+    component "Gate 5: Security Audit" as G5 #FFF4E4
+}
+
+package "Build System" as BS {
+    component "Makefile.toml" as MT #E4E4FF
+    component "Cargo Toolchain" as CT #E4E4FF
+}
+
+GC --> PC : triggers
+GP --> PP : triggers
+
+IH --> PC : installs
+IH --> PP : installs
+
+PC --> HC : uses
+PP --> HC : uses
+
+PC --> G1 : runs (5s)
+PC --> G3 : runs (2s)
+
+PP --> G1 : runs (15s)
+PP --> G2 : runs (60s)
+PP --> G3 : runs (10s)
+PP --> G4 : runs (120s)
+PP --> G5 : runs (30s)
+
+G1 --> MT : cargo make check
+G2 --> MT : cargo make lint
+G4 --> MT : cargo make test-unit
+G5 --> MT : cargo make audit
+G3 --> CT : cargo fmt
+
+MT --> CT : invokes
+
+note as PARETO
+    **80/20 Pareto Analysis:**
+    //Vital Few (80% value)://
+    - Cargo Check: 60%
+    - Unit Tests: 20%
+    //Useful Many (17% value)://
+    - Clippy: 15%
+    - Security: 3%
+    //Trivial (3% value)://
+    - Format: 2% (auto-fix)
+end note
+
+@enduml

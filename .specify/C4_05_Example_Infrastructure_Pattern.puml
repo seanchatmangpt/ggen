@@ -1,0 +1,61 @@
+@startuml C4_Example_Pattern
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Example Infrastructure Pattern - What Each Example Must Have
+
+rectangle "examples/EXAMPLE-NAME/" {
+    rectangle "Configuration" {
+        component ggen_toml ["ggen.toml\n(85-100 lines)\n10 generation rules\n2-3 inference rules"]
+    }
+
+    rectangle "Specification" {
+        component ontology ["ontology/\n*.ttl\n(250-300 lines)\n8-10 classes\nSHACL constraints\n20+ instances"]
+    }
+
+    rectangle "Templates" {
+        component templates ["templates/\n*.tera\n(350-600 lines)\n6-10 Tera templates\nYAML frontmatter\nVariable & filters\nConditionals & loops"]
+    }
+
+    rectangle "Test Fixtures" {
+        component golden ["golden/\nExpected outputs\n(200-400 lines)\nReference implementations\nRegression test data\nDeterminism verification"]
+    }
+
+    rectangle "Validation" {
+        component validate ["validate.mjs\n(200-250 lines)\n6+ validation checks\nGit integration\nReproducibility test\nCI/CD ready"]
+    }
+
+    rectangle "Documentation" {
+        component readme ["README.md\n(500-650 lines)\n9-section standard:\n1. Overview\n2. Prerequisites\n3. Quick Start\n4. Architecture\n5. File Structure\n6. Tutorial\n7. Configuration\n8. Troubleshooting\n9. Next Steps"]
+    }
+
+    ggen_toml --|> ontology: defines
+    ontology --|> templates: specifies
+    templates --|> golden: generates
+    templates --|> readme: documents
+    golden --|> validate: tests
+    ggen_toml --|> validate: validates
+}
+
+rectangle "Quality Gates" {
+    component gate1 ["Gate 1: Spec Closure\n(SHACL validation)"]
+    component gate2 ["Gate 2: README\n(9 sections)"]
+    component gate3 ["Gate 3: ggen.toml\n(syntax & rules)"]
+    component gate4 ["Gate 4: SPARQL Results\n(ontology extraction)"]
+    component gate5 ["Gate 5: Template Rendering\n(generate outputs)"]
+    component gate6 ["Gate 6: Golden Match\n(output parity)"]
+    component gate7 ["Gate 7: Code Quality\n(clippy, format)"]
+    component gate8 ["Gate 8: Reproducibility\n(3x deterministic)"]
+    component gate9 ["Gate 9: Test Coverage\n(>80% coverage)"]
+}
+
+ggen_toml --|> gate1
+ggen_toml --|> gate3
+readme --|> gate2
+ontology --|> gate4
+templates --|> gate5
+golden --|> gate6
+templates --|> gate7
+validate --|> gate8
+validate --|> gate9
+
+@enduml

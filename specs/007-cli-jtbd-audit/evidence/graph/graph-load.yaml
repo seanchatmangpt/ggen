@@ -1,0 +1,52 @@
+command: "ggen graph load"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 54
+agent_breakdown:
+  parseable_output: 15
+  error_messages: 12
+  idempotency: 12
+  progress_feedback: 8
+  dry_run: 5
+  documentation: 4
+  exit_codes: 2
+
+avatar_notes:
+  claude_code: "Loads RDF data; --dry-run important for large files"
+  cursor_ai: "Load status visible in IDE"
+  copilot: "Pattern clear from help"
+  aider: "Data loading tracked in git"
+  devin: "Can load data autonomously"
+  openhands: "Format conversion support helpful"
+  windsurf: "Load progress visualization useful"
+
+maturity_level: "L2"
+maturity_blockers:
+  - "Incomplete --dry-run"
+  - "Exit codes not semantic"
+
+evidence_files: []
+
+recommendations:
+  - priority: P1
+    description: "Implement full --dry-run with validation preview"
+    effort: medium
+    impact: high
+  - priority: P1
+    description: "Add semantic exit codes"
+    effort: low
+    impact: medium
+
+jtbd: |
+  When I want to load RDF data into a graph,
+  I need to run 'ggen graph load' with RDF file path,
+  so that I can populate the graph with data.

@@ -1,0 +1,111 @@
+@prefix cnv: <https://ggen.dev/clap-noun-verb/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@base <http://example.com/calculator/> .
+
+# =============================================================================
+# Calculator CLI Project
+# =============================================================================
+# Example RDF description for generating a calculator CLI using clap-noun-verb.
+#
+# Usage:
+#   ggen generate \
+#     --template marketplace/packages/clap-noun-verb/templates/cli-project.tmpl \
+#     --domain marketplace/packages/clap-noun-verb/examples/calculator.ttl \
+#     --output ./calculator-cli/
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Project Metadata
+# -----------------------------------------------------------------------------
+
+<http://example.com/calculator> a cnv:CliProject ;
+    cnv:projectName "calculator" ;
+    cnv:projectVersion "0.1.0" ;
+    rdfs:comment "Simple arithmetic calculator CLI" .
+
+# -----------------------------------------------------------------------------
+# Nouns (Resource Types)
+# -----------------------------------------------------------------------------
+
+<#calc> a cnv:Noun ;
+    cnv:nounName "calc" ;
+    rdfs:comment "Calculator operations" ;
+    cnv:hasVerbs <#add>, <#subtract>, <#multiply>, <#divide> .
+
+# -----------------------------------------------------------------------------
+# Verbs (Actions)
+# -----------------------------------------------------------------------------
+
+<#add> a cnv:Verb ;
+    cnv:verbName "add" ;
+    rdfs:comment "Add two numbers" ;
+    cnv:hasArguments <#add_left>, <#add_right> .
+
+<#subtract> a cnv:Verb ;
+    cnv:verbName "subtract" ;
+    rdfs:comment "Subtract right from left" ;
+    cnv:hasArguments <#sub_left>, <#sub_right> .
+
+<#multiply> a cnv:Verb ;
+    cnv:verbName "multiply" ;
+    rdfs:comment "Multiply two numbers" ;
+    cnv:hasArguments <#mul_left>, <#mul_right> .
+
+<#divide> a cnv:Verb ;
+    cnv:verbName "divide" ;
+    rdfs:comment "Divide left by right" ;
+    cnv:hasArguments <#div_left>, <#div_right> .
+
+# -----------------------------------------------------------------------------
+# Arguments
+# -----------------------------------------------------------------------------
+
+# Add arguments
+<#add_left> a cnv:Argument ;
+    cnv:argumentName "left" ;
+    cnv:argumentType <#i32Type> .
+
+<#add_right> a cnv:Argument ;
+    cnv:argumentName "right" ;
+    cnv:argumentType <#i32Type> .
+
+# Subtract arguments
+<#sub_left> a cnv:Argument ;
+    cnv:argumentName "left" ;
+    cnv:argumentType <#i32Type> .
+
+<#sub_right> a cnv:Argument ;
+    cnv:argumentName "right" ;
+    cnv:argumentType <#i32Type> .
+
+# Multiply arguments
+<#mul_left> a cnv:Argument ;
+    cnv:argumentName "left" ;
+    cnv:argumentType <#i32Type> .
+
+<#mul_right> a cnv:Argument ;
+    cnv:argumentName "right" ;
+    cnv:argumentType <#i32Type> .
+
+# Divide arguments
+<#div_left> a cnv:Argument ;
+    cnv:argumentName "left" ;
+    cnv:argumentType <#i32Type> .
+
+<#div_right> a cnv:Argument ;
+    cnv:argumentName "right" ;
+    cnv:argumentType <#i32Type> .
+
+# -----------------------------------------------------------------------------
+# Types
+# -----------------------------------------------------------------------------
+
+<#i32Type> a cnv:PrimitiveType ;
+    cnv:rust-type "i32" .
+
+<#f64Type> a cnv:PrimitiveType ;
+    cnv:rust-type "f64" .
+
+<#StringType> a cnv:PrimitiveType ;
+    cnv:rust-type "String" .

@@ -1,0 +1,539 @@
+# clap-noun-verb Ontology
+# Formal RDF description of the clap-noun-verb CLI framework architecture
+#
+# This ontology defines:
+# - The layered architecture (CLI, Integration, Domain)
+# - Command structures (Nouns, Verbs, Arguments)
+# - Type-safety constraints (Type hints, Result types, Error handling)
+# - Validation rules and patterns
+#
+# Used by ggen to generate type-safe Rust CLI code from RDF descriptions
+
+@prefix cnv: <https://ggen.dev/clap-noun-verb/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# ============================================================================
+# Architecture Layer Classes
+# ============================================================================
+
+cnv:ArchitectureLayer a rdfs:Class ;
+    rdfs:label "Architecture Layer" ;
+    rdfs:comment "A layer in the clap-noun-verb three-tier architecture" .
+
+cnv:CLILayer a cnv:ArchitectureLayer ;
+    rdfs:label "CLI Layer" ;
+    rdfs:comment "Thin validation and routing layer. Accepts user input, validates syntax, delegates to integration layer." ;
+    cnv:responsibility "Input validation, error formatting, output serialization" ;
+    cnv:thickness "thin" ;
+    cnv:testability "integration-tested" ;
+    cnv:examples "argument parsing, help text, exit codes" .
+
+cnv:IntegrationLayer a cnv:ArchitectureLayer ;
+    rdfs:label "Integration Layer" ;
+    rdfs:comment "Minimal glue code. Maps CLI input to domain function calls. No business logic." ;
+    cnv:responsibility "Data transformation, function dispatch, error propagation" ;
+    cnv:thickness "minimal" ;
+    cnv:testability "unit-tested" ;
+    cnv:examples "type conversion, struct construction, error wrapping" .
+
+cnv:DomainLayer a cnv:ArchitectureLayer ;
+    rdfs:label "Domain Layer" ;
+    rdfs:comment "Pure Rust functions. Contains all business logic. No CLI awareness. Fully testable." ;
+    cnv:responsibility "Business logic, computations, domain invariants" ;
+    cnv:thickness "thick" ;
+    cnv:testability "thoroughly-unit-tested" ;
+    cnv:examples "algorithms, data structures, domain rules" .
+
+cnv:layerOf a rdf:Property ;
+    rdfs:domain cnv:Component ;
+    rdfs:range cnv:ArchitectureLayer ;
+    rdfs:label "layer of" ;
+    rdfs:comment "Specifies which architectural layer a component belongs to" .
+
+cnv:delegatesTo a rdf:Property ;
+    rdfs:domain cnv:ArchitectureLayer ;
+    rdfs:range cnv:ArchitectureLayer ;
+    rdfs:label "delegates to" ;
+    rdfs:comment "Specifies the next layer in the call chain" .
+
+# ============================================================================
+# Command Structure Classes
+# ============================================================================
+
+cnv:Command a rdfs:Class ;
+    rdfs:label "Command" ;
+    rdfs:comment "A CLI command with structure, arguments, and behavior" .
+
+cnv:Noun a rdfs:Class ;
+    rdfs:subClassOf cnv:Command ;
+    rdfs:label "Noun" ;
+    rdfs:comment "Top-level command representing a domain/resource (e.g., 'file', 'user', 'api')" ;
+    cnv:macro "#[noun]" ;
+    cnv:layer cnv:CLILayer ;
+    cnv:cardinality "one-or-more" .
+
+cnv:Verb a rdfs:Class ;
+    rdfs:subClassOf cnv:Command ;
+    rdfs:label "Verb" ;
+    rdfs:comment "Subcommand representing an action on a noun (e.g., 'create', 'list', 'delete')" ;
+    cnv:macro "#[verb]" ;
+    cnv:layer cnv:CLILayer ;
+    cnv:cardinality "one-or-more-per-noun" ;
+    cnv:parentNoun cnv:Noun .
+
+cnv:Argument a rdfs:Class ;
+    rdfs:label "Argument" ;
+    rdfs:comment "A single parameter to a verb command" ;
+    cnv:layer cnv:CLILayer ;
+    cnv:types "String, i32, i64, f64, bool, PathBuf, Vec<T>" .
+
+cnv:nounName a rdf:Property ;
+    rdfs:domain cnv:Noun ;
+    rdfs:range xsd:string ;
+    rdfs:label "noun name" ;
+    rdfs:comment "The identifier for this noun (e.g., 'file', 'user')" .
+
+cnv:verbName a rdf:Property ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range xsd:string ;
+    rdfs:label "verb name" ;
+    rdfs:comment "The identifier for this verb (e.g., 'create', 'list')" .
+
+cnv:argumentName a rdf:Property ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range xsd:string ;
+    rdfs:label "argument name" ;
+    rdfs:comment "Parameter identifier in the function signature" .
+
+cnv:hasVerbs a rdf:Property ;
+    rdfs:domain cnv:Noun ;
+    rdfs:range cnv:Verb ;
+    rdfs:label "has verbs" ;
+    rdfs:comment "Verbs available under this noun" .
+
+cnv:hasArguments a rdf:Property ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range cnv:Argument ;
+    rdfs:label "has arguments" ;
+    rdfs:comment "Arguments for this verb" .
+
+# ============================================================================
+# Type System Classes
+# ============================================================================
+
+cnv:Type a rdfs:Class ;
+    rdfs:label "Type" ;
+    rdfs:comment "A Rust type for CLI parameters or return values" .
+
+cnv:PrimitiveType a rdfs:Class ;
+    rdfs:subClassOf cnv:Type ;
+    rdfs:label "Primitive Type" ;
+    rdfs:comment "Built-in Rust types" ;
+    cnv:examples "String, i32, i64, f64, bool, u32, u64" .
+
+cnv:ComplexType a rdfs:Class ;
+    rdfs:subClassOf cnv:Type ;
+    rdfs:label "Complex Type" ;
+    rdfs:comment "Structured types" ;
+    cnv:examples "PathBuf, Vec<T>, HashMap<K,V>, Option<T>" .
+
+cnv:OutputType a rdfs:Class ;
+    rdfs:subClassOf cnv:Type ;
+    rdfs:label "Output Type" ;
+    rdfs:comment "Type returned by a verb command" ;
+    cnv:constraint "Must be serializable (impl Serialize)" ;
+    cnv:pattern "Result<OutputType, Error>" .
+
+cnv:argumentType a rdf:Property ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range cnv:Type ;
+    rdfs:label "argument type" ;
+    rdfs:comment "The Rust type of this argument" .
+
+cnv:returnType a rdf:Property ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range cnv:OutputType ;
+    rdfs:label "return type" ;
+    rdfs:comment "The output type this verb produces" .
+
+# ============================================================================
+# Type Safety Constraints
+# ============================================================================
+
+cnv:TypeSafetyConstraint a rdfs:Class ;
+    rdfs:label "Type Safety Constraint" ;
+    rdfs:comment "Rules enforced at compile-time to ensure safety" .
+
+cnv:CompileTimeValidation a cnv:TypeSafetyConstraint ;
+    rdfs:label "Compile-Time Validation" ;
+    rdfs:comment "All command structures validated by Rust compiler via macros" ;
+    cnv:enforced-by "clap-noun-verb-macros" ;
+    cnv:examples "Invalid argument types cause compilation error" .
+
+cnv:ExhaustiveMatching a cnv:TypeSafetyConstraint ;
+    rdfs:label "Exhaustive Matching" ;
+    rdfs:comment "All code paths must be handled. Compiler enforces via match expressions." ;
+    cnv:enforced-by "Rust match statement" ;
+    cnv:examples "All enum variants must have corresponding arm" .
+
+cnv:ResultTypes a cnv:TypeSafetyConstraint ;
+    rdfs:label "Result Types" ;
+    rdfs:comment "All fallible operations return Result<T, E>, not Options or panics" ;
+    cnv:enforced-by "Type system + Clippy lint" ;
+    cnv:examples "Result<Output, CliError>" ;
+    cnv:prohibition "No unwrap() in production code" .
+
+cnv:SerializationConstraint a cnv:TypeSafetyConstraint ;
+    rdfs:label "Serialization Constraint" ;
+    rdfs:comment "All output types must be serializable to JSON/YAML" ;
+    cnv:enforced-by "serde derives" ;
+    cnv:examples "#[derive(Serialize)]" .
+
+# ============================================================================
+# Argument Relationship Classes (Phase 2: Typer-like syntax)
+# ============================================================================
+
+cnv:ArgumentRelationship a rdfs:Class ;
+    rdfs:label "Argument Relationship" ;
+    rdfs:comment "Relationship between arguments (Phase 2 feature)" ;
+    cnv:phase "5.2.0+" .
+
+cnv:MutuallyExclusive a cnv:ArgumentRelationship ;
+    rdfs:label "Mutually Exclusive" ;
+    rdfs:comment "Arguments that cannot be used together (e.g., --json and --yaml)" ;
+    cnv:syntax "[group: name]" ;
+    cnv:example "json: bool [group: format], yaml: bool [group: format]" .
+
+cnv:Requires a cnv:ArgumentRelationship ;
+    rdfs:label "Requires" ;
+    rdfs:comment "One argument depends on another (e.g., --output requires --format)" ;
+    cnv:syntax "[requires: arg_name]" ;
+    cnv:example "output: String [requires: format]" .
+
+cnv:Conflicts a cnv:ArgumentRelationship ;
+    rdfs:label "Conflicts With" ;
+    rdfs:comment "Argument conflicts with another specific argument" ;
+    cnv:syntax "[conflicts: arg_name]" ;
+    cnv:example "parallel: bool [conflicts: sequential]" .
+
+cnv:EnvironmentVariable a cnv:ArgumentRelationship ;
+    rdfs:label "Environment Variable" ;
+    rdfs:comment "Argument can be read from environment variable" ;
+    cnv:syntax "[env: VAR_NAME]" ;
+    cnv:example "format: String [env: OUTPUT_FORMAT]" .
+
+cnv:DefaultValue a cnv:ArgumentRelationship ;
+    rdfs:label "Default Value" ;
+    rdfs:comment "Argument has a default value" ;
+    cnv:syntax "[default: value]" ;
+    cnv:example "threads: u32 [default: 8]" .
+
+cnv:ValueHint a cnv:ArgumentRelationship ;
+    rdfs:label "Value Hint" ;
+    rdfs:comment "Shell completion hint for this argument" ;
+    cnv:syntax "[value_hint: type]" ;
+    cnv:example "path: String [value_hint: FilePath]" .
+
+cnv:argumentRelationship a rdf:Property ;
+    rdfs:domain cnv:Argument ;
+    rdfs:range cnv:ArgumentRelationship ;
+    rdfs:label "argument relationship" ;
+    rdfs:comment "Relationship constraints on this argument" .
+
+# ============================================================================
+# Error Handling Classes
+# ============================================================================
+
+cnv:ErrorHandling a rdfs:Class ;
+    rdfs:label "Error Handling" ;
+    rdfs:comment "Error propagation and reporting mechanisms" .
+
+cnv:CliError a cnv:ErrorHandling ;
+    rdfs:label "CLI Error" ;
+    rdfs:comment "Error type for CLI layer" ;
+    cnv:implements "thiserror::Error" ;
+    cnv:serializable "true" ;
+    cnv:provides "error code, message, context" .
+
+cnv:DomainError a cnv:ErrorHandling ;
+    rdfs:label "Domain Error" ;
+    rdfs:comment "Error type for domain layer" ;
+    cnv:implements "thiserror::Error" ;
+    cnv:testable "true" ;
+    cnv:examples "ValidationError, NotFoundError, ConflictError" .
+
+cnv:ErrorPropagation a cnv:ErrorHandling ;
+    rdfs:label "Error Propagation" ;
+    rdfs:comment "Using ? operator to bubble errors up through layers" ;
+    cnv:pattern "Result<T, E> with ? operator" ;
+    cnv:noPanics "true" ;
+    cnv:noUnwrap "true" .
+
+cnv:errorType a rdf:Property ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range cnv:ErrorHandling ;
+    rdfs:label "error type" ;
+    rdfs:comment "Error type this verb can return" .
+
+# ============================================================================
+# Output/Serialization Classes
+# ============================================================================
+
+cnv:OutputFormat a rdfs:Class ;
+    rdfs:label "Output Format" ;
+    rdfs:comment "Format for serializing verb output" .
+
+cnv:JSONFormat a cnv:OutputFormat ;
+    rdfs:label "JSON" ;
+    rdfs:comment "Structured JSON output" ;
+    cnv:primary "true" ;
+    cnv:human-readable "true" ;
+    cnv:parseable "true" .
+
+cnv:YAMLFormat a cnv:OutputFormat ;
+    rdfs:label "YAML" ;
+    rdfs:comment "Human-friendly YAML output" ;
+    cnv:human-readable "true" ;
+    cnv:parseable "true" .
+
+cnv:HumanFormat a cnv:OutputFormat ;
+    rdfs:label "Human-Readable Text" ;
+    rdfs:comment "Plain text output for human consumption" ;
+    cnv:human-readable "true" ;
+    cnv:parseable "false" .
+
+cnv:outputFormat a rdf:Property ;
+    rdfs:domain cnv:Verb ;
+    rdfs:range cnv:OutputFormat ;
+    rdfs:label "output format" ;
+    rdfs:comment "Format for this verb's output" .
+
+# ============================================================================
+# Validation and Testing Classes
+# ============================================================================
+
+cnv:ValidationRule a rdfs:Class ;
+    rdfs:label "Validation Rule" ;
+    rdfs:comment "Rules for validating CLI structure and behavior" .
+
+cnv:ArgumentCountValidation a cnv:ValidationRule ;
+    rdfs:label "Argument Count Validation" ;
+    rdfs:comment "All verb arguments must be accounted for" ;
+    cnv:enforced-by "Rust compiler via function signature" .
+
+cnv:TypeMatchValidation a cnv:ValidationRule ;
+    rdfs:label "Type Match Validation" ;
+    rdfs:comment "Argument types must match function parameter types" ;
+    cnv:enforced-by "Rust type system" ;
+    cnv:compile-time "true" .
+
+cnv:ResultTypeValidation a cnv:ValidationRule ;
+    rdfs:label "Result Type Validation" ;
+    rdfs:comment "Verb functions must return Result<OutputType, CliError>" ;
+    cnv:enforced-by "clap-noun-verb macro" ;
+    cnv:compile-time "true" .
+
+cnv:SerializableValidation a cnv:ValidationRule ;
+    rdfs:label "Serializable Validation" ;
+    rdfs:comment "Output type must implement Serialize" ;
+    cnv:enforced-by "serde derive macro" ;
+    cnv:compile-time "true" .
+
+cnv:TestCoverageValidation a cnv:ValidationRule ;
+    rdfs:label "Test Coverage Validation" ;
+    rdfs:comment "Domain logic must have 80%+ test coverage" ;
+    cnv:enforced-by "cargo tarpaulin / cargo-cov" ;
+    cnv:runtime "true" ;
+    cnv:minimum-percentage "80" .
+
+cnv:NoPanicsValidation a cnv:ValidationRule ;
+    rdfs:label "No Panics Validation" ;
+    rdfs:comment "Production code must not contain unwrap() or expect()" ;
+    cnv:enforced-by "Clippy lints + code review" ;
+    cnv:compile-time "false" ;
+    cnv:runtime "true" .
+
+# ============================================================================
+# Macro Classes
+# ============================================================================
+
+cnv:Macro a rdfs:Class ;
+    rdfs:label "Macro" ;
+    rdfs:comment "Procedural macro for code generation and validation" .
+
+cnv:NounMacro a cnv:Macro ;
+    rdfs:label "#[noun] Macro" ;
+    rdfs:comment "Declares a top-level command noun" ;
+    cnv:syntax "#[noun(\"name\", \"description\")]" ;
+    cnv:generates "Command parser, help text, subcommand router" ;
+    cnv:example "#[noun(\"file\", \"File operations\")]" .
+
+cnv:VerbMacro a cnv:Macro ;
+    rdfs:label "#[verb] Macro" ;
+    rdfs:comment "Declares a verb subcommand under a noun" ;
+    cnv:syntax "#[verb(\"name\")]" ;
+    cnv:generates "Argument parser, validation, result wrapper" ;
+    cnv:example "#[verb(\"create\")]" ;
+    cnv:requires-parent cnv:Noun .
+
+cnv:macro a rdf:Property ;
+    rdfs:domain cnv:Macro ;
+    rdfs:range xsd:string ;
+    rdfs:label "macro" ;
+    rdfs:comment "The macro syntax string" .
+
+cnv:generates a rdf:Property ;
+    rdfs:domain cnv:Macro ;
+    rdfs:range xsd:string ;
+    rdfs:label "generates" ;
+    rdfs:comment "What code this macro generates" .
+
+# ============================================================================
+# Design Principles
+# ============================================================================
+
+cnv:DesignPrinciple a rdfs:Class ;
+    rdfs:label "Design Principle" ;
+    rdfs:comment "Core principle of clap-noun-verb framework" .
+
+cnv:ArchitectureFirst a cnv:DesignPrinciple ;
+    rdfs:label "Architecture First" ;
+    rdfs:comment "CLI is interface, not application. Domain logic must be separated from CLI layer." ;
+    cnv:consequence "Testable domain code, reusable components, clean boundaries" .
+
+cnv:TypeFirst a cnv:DesignPrinciple ;
+    rdfs:label "Type-First Thinking" ;
+    rdfs:comment "Express invariants and constraints in the type system" ;
+    cnv:consequence "Compile-time validation, fewer runtime errors, self-documenting code" .
+
+cnv:DeterministicOutput a cnv:DesignPrinciple ;
+    rdfs:label "Deterministic Output" ;
+    rdfs:comment "Same input always produces same output. JSON-first design." ;
+    cnv:consequence "Reproducible runs, agent-friendly, testable output" .
+
+cnv:ZeroCost a cnv:DesignPrinciple ;
+    rdfs:label "Zero-Cost Abstractions" ;
+    rdfs:comment "Use generics and macros, not trait objects or runtime overhead" ;
+    cnv:consequence "Fast startup, small binary, no performance penalty" .
+
+cnv:AgentReady a cnv:DesignPrinciple ;
+    rdfs:label "Agent-Ready" ;
+    rdfs:comment "CLIs designed for both humans and AI agents" ;
+    cnv:features "Structured JSON output, introspection, stateless design" ;
+    cnv:consequence "Compatible with MCP, Claude, and other agents" .
+
+# ============================================================================
+# Example CLI Structure (for reference)
+# ============================================================================
+
+cnv:Example_FileManagementCLI a cnv:Noun ;
+    cnv:nounName "file" ;
+    rdfs:label "File Management CLI Example" ;
+    rdfs:comment "Example CLI structure showing all concepts" ;
+    cnv:hasVerbs (
+        cnv:Example_CreateVerb,
+        cnv:Example_ListVerb,
+        cnv:Example_DeleteVerb
+    ) .
+
+cnv:Example_CreateVerb a cnv:Verb ;
+    cnv:verbName "create" ;
+    rdfs:label "Create File Verb" ;
+    cnv:hasArguments (
+        cnv:Example_PathArg,
+        cnv:Example_ContentArg
+    ) ;
+    cnv:returnType cnv:Example_FileOutput .
+
+cnv:Example_PathArg a cnv:Argument ;
+    cnv:argumentName "path" ;
+    cnv:argumentType cnv:String ;
+    cnv:argumentRelationship cnv:ValueHint .
+
+cnv:Example_ContentArg a cnv:Argument ;
+    cnv:argumentName "content" ;
+    cnv:argumentType cnv:String ;
+    cnv:argumentRelationship cnv:DefaultValue .
+
+cnv:Example_ListVerb a cnv:Verb ;
+    cnv:verbName "list" ;
+    cnv:hasArguments (
+        cnv:Example_DirArg,
+        cnv:Example_RecursiveArg
+    ) ;
+    cnv:returnType cnv:Example_FileListOutput .
+
+cnv:Example_DirArg a cnv:Argument ;
+    cnv:argumentName "directory" ;
+    cnv:argumentType cnv:PathBuf ;
+    cnv:argumentRelationship cnv:ValueHint .
+
+cnv:Example_RecursiveArg a cnv:Argument ;
+    cnv:argumentName "recursive" ;
+    cnv:argumentType cnv:Boolean ;
+    cnv:argumentRelationship cnv:DefaultValue .
+
+cnv:Example_DeleteVerb a cnv:Verb ;
+    cnv:verbName "delete" ;
+    cnv:hasArguments (
+        cnv:Example_DeletePathArg
+    ) ;
+    cnv:returnType cnv:Example_DeleteOutput .
+
+cnv:Example_DeletePathArg a cnv:Argument ;
+    cnv:argumentName "path" ;
+    cnv:argumentType cnv:PathBuf ;
+    cnv:argumentRelationship cnv:ValueHint .
+
+cnv:Example_FileOutput a cnv:OutputType ;
+    rdfs:label "File Output" ;
+    rdfs:comment "Output when creating a file" ;
+    cnv:fields "path: String, size: u64, created_at: String" .
+
+cnv:Example_FileListOutput a cnv:OutputType ;
+    rdfs:label "File List Output" ;
+    rdfs:comment "Output when listing files" ;
+    cnv:fields "files: Vec<FileEntry>, total: usize" .
+
+cnv:Example_DeleteOutput a cnv:OutputType ;
+    rdfs:label "Delete Output" ;
+    rdfs:comment "Output when deleting a file" ;
+    cnv:fields "path: String, deleted: bool" .
+
+# ============================================================================
+# Type Instances (for reference)
+# ============================================================================
+
+cnv:String a cnv:PrimitiveType ;
+    rdfs:label "String" ;
+    cnv:rust-type "String" .
+
+cnv:PathBuf a cnv:ComplexType ;
+    rdfs:label "PathBuf" ;
+    cnv:rust-type "std::path::PathBuf" ;
+    cnv:use-case "File paths with shell completion" .
+
+cnv:Boolean a cnv:PrimitiveType ;
+    rdfs:label "Boolean" ;
+    cnv:rust-type "bool" .
+
+cnv:Integer a cnv:PrimitiveType ;
+    rdfs:label "Integer" ;
+    cnv:rust-type "i32, i64, u32, u64" .
+
+# ============================================================================
+# Metadata
+# ============================================================================
+
+cnv: a owl:Ontology ;
+    rdfs:label "clap-noun-verb Ontology" ;
+    rdfs:comment "Formal RDF description of the clap-noun-verb CLI framework" ;
+    owl:versionInfo "1.0.0" ;
+    cnv:created "2025-12-13" ;
+    cnv:framework "clap-noun-verb" ;
+    cnv:framework-version "5.3.2" ;
+    cnv:purpose "Code generation templates for type-safe CLI applications" ;
+    cnv:used-by "ggen marketplace" .

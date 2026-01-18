@@ -1,0 +1,36 @@
+@prefix ex: <http://example.com/paper#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ex:Paper a rdfs:Class .
+
+ex:paper1 a ex:Paper ;
+  ex:hasBibliography [
+    ex:citeKey "lecun2015deep" ;
+    ex:bibType "article" ;
+    ex:authors "Yann LeCun and Yoshua Bengio and Geoffrey Hinton" ;
+    ex:title "Deep learning" ;
+    ex:journal "Nature" ;
+    ex:year "2015" ;
+    ex:volume "521" ;
+    ex:issue "7553" ;
+    ex:pages "436--444" ;
+    ex:doi "10.1038/nature14539" ;
+    ex:url "https://doi.org/10.1038/nature14539" ;
+    ex:publisher "Nature Publishing Group"
+  ] , [
+    ex:citeKey "vaswani2017attention" ;
+    ex:bibType "inproceedings" ;
+    ex:authors "Ashish Vaswani and Noam Shazeer and Niki Parmar and Jakob Uszkoreit and Llion Jones and Aidan N. Gomez and Lukasz Kaiser and Illia Polosukhin" ;
+    ex:title "Attention Is All You Need" ;
+    ex:booktitle "Advances in Neural Information Processing Systems" ;
+    ex:year "2017" ;
+    ex:pages "5998--6008" ;
+    ex:doi "10.5555/3295222.3295349" ;
+    ex:url "https://papers.nips.cc/paper/7181-attention-is-all-you-need.pdf" ;
+    ex:publisher "Curran Associates, Inc." ;
+    ex:publisher "Curran Associates, Inc."
+  ] .
+
+
+
+

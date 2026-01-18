@@ -1,0 +1,18 @@
+{# =============================================================================
+   APPENDIX TEMPLATE - Appendix sections
+   ZERO HARDCODED STRINGS - All content from SPARQL variables
+   Uses sparql_results array with ?-prefixed keys
+   ============================================================================= #}
+{% for row in sparql_results %}
+{%- set title = row["?title"] | default(value="") -%}
+{%- set labelId = row["?labelId"] | default(value="") -%}
+{%- set content = row["?content"] | default(value="") -%}
+\chapter{ {{- title -}} }
+\label{ {{- labelId -}} }
+
+{{ content | replace(from="\\n\\n", to="
+
+") | replace(from="\\n", to="
+") }}
+
+{% endfor %}

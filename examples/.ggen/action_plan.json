@@ -1,0 +1,781 @@
+{
+  "agent": 9,
+  "action_plan": {
+    "total_rewrites": 33,
+    "estimated_scope": "Regenerate all 33 examples using ggen itself (dogfooding). Estimated 80-120 hours total; 2.8-4.4x speedup with EPIC 9 orchestration. Single-pass construction enabled by specification closure for each example.",
+    "parallel_batches": 5,
+    "critical_path": [
+      "RW-001: Set up example regeneration framework (ggen commands, templates)",
+      "RW-002 through RW-010: Foundational examples (template, CLI, basic generation)",
+      "RW-011 through RW-020: Intermediate examples (APIs, schemas, configs)",
+      "RW-021 through RW-033: Advanced examples (services, architectures, deployments)",
+      "Validation checkpoint: All examples compile and pass tests",
+      "Publication: Publish 33 example templates to marketplace"
+    ]
+  },
+  "task_list": [
+    {
+      "task_id": "RW-001",
+      "example_name": "regeneration-framework-setup",
+      "description": "Set up ggen command templates and scripts for batch regeneration. Create framework for running ggen ai project and ggen ai generate across all examples.",
+      "files_affected": [
+        "examples/.ggen/regeneration-script.sh",
+        "examples/.ggen/template-registry.toml",
+        "examples/.ggen/batch-runner.rs"
+      ],
+      "dependencies": [],
+      "batch": 1,
+      "estimated_complexity": "high"
+    },
+    {
+      "task_id": "RW-002",
+      "example_name": "basic-template-generation",
+      "description": "Regenerate basic-template-generation using ggen ai template command. Demonstrates fundamental template creation and Tera syntax.",
+      "files_affected": [
+        "examples/basic-template-generation/ggen.toml",
+        "examples/basic-template-generation/templates/*.tmpl",
+        "examples/basic-template-generation/README.md",
+        "examples/basic-template-generation/run-example.sh"
+      ],
+      "dependencies": ["RW-001"],
+      "batch": 1,
+      "estimated_complexity": "low"
+    },
+    {
+      "task_id": "RW-003",
+      "example_name": "ai-template-creation",
+      "description": "Regenerate ai-template-creation using ggen ai generate with mock mode. Demonstrates AI-powered template creation.",
+      "files_affected": [
+        "examples/ai-template-creation/ggen.toml",
+        "examples/ai-template-creation/prompts.txt",
+        "examples/ai-template-creation/validation-examples/*.ggen",
+        "examples/ai-template-creation/run-ai-workflow.sh"
+      ],
+      "dependencies": ["RW-001", "RW-002"],
+      "batch": 1,
+      "estimated_complexity": "medium"
+    },
+    {
+      "task_id": "RW-004",
+      "example_name": "simple-project",
+      "description": "Regenerate simple-project as the simplest complete ggen project. Single ggen.toml, minimal ontology, basic templates.",
+      "files_affected": [
+        "examples/simple-project/ggen.toml",
+        "examples/simple-project/ontology.ttl",
+        "examples/simple-project/templates/*",
+        "examples/simple-project/README.md"
+      ],
+      "dependencies": ["RW-001"],
+      "batch": 1,
+      "estimated_complexity": "low"
+    },
+    {
+      "task_id": "RW-005",
+      "example_name": "complete-project-generation",
+      "description": "Regenerate complete-project-generation. Full REST API with 6 endpoints, integration tests, deployment scripts.",
+      "files_affected": [
+        "examples/complete-project-generation/ggen.toml",
+        "examples/complete-project-generation/project-spec.yaml",
+        "examples/complete-project-generation/templates/*.tmpl",
+        "examples/complete-project-generation/generate-project.sh",
+        "examples/complete-project-generation/QUICKSTART.md"
+      ],
+      "dependencies": ["RW-001", "RW-003"],
+      "batch": 1,
+      "estimated_complexity": "high"
+    },
+    {
+      "task_id": "RW-006",
+      "example_name": "cli-noun-verb",
+      "description": "Regenerate cli-noun-verb example. Demonstrates clap-noun-verb paradigm with OpenAPI generation.",
+      "files_affected": [
+        "examples/cli-noun-verb/ggen.toml",
+        "examples/cli-noun-verb/ontology/*.ttl",
+        "examples/cli-noun-verb/templates/*.tera"
+      ],
+      "dependencies": ["RW-001", "RW-002"],
+      "batch": 2,
+      "estimated_complexity": "medium"
+    },
+    {
+      "task_id": "RW-007",
+      "example_name": "rust-structs",
+      "description": "Regenerate rust-structs example. RDF ontology → Rust struct definitions.",
+      "files_affected": [
+        "examples/rust-structs/ggen.toml",
+        "examples/rust-structs/ontology.ttl",
+        "examples/rust-structs/templates/struct.rs.tmpl"
+      ],
+      "dependencies": ["RW-001"],
+      "batch": 2,
+      "estimated_complexity": "low"
+    },
+    {
+      "task_id": "RW-008",
+      "example_name": "ai-code-generation",
+      "description": "Regenerate ai-code-generation example. Uses ggen ai generate for Rust service templates.",
+      "files_affected": [
+        "examples/ai-code-generation/ggen.toml",
+        "examples/ai-code-generation/templates/book-service.tmpl"
+      ],
+      "dependencies": ["RW-001", "RW-003"],
+      "batch": 2,
+      "estimated_complexity": "medium"
+    },
+    {
+      "task_id": "RW-009",
+      "example_name": "config-generator",
+      "description": "Regenerate config-generator. Demonstrates YAML/TOML config generation from ontology.",
+      "files_affected": [
+        "examples/config-generator/ggen.toml",
+        "examples/config-generator/ontology.ttl",
+        "examples/config-generator/templates/config.toml.tmpl"
+      ],
+      "dependencies": ["RW-001"],
+      "batch": 2,
+      "estimated_complexity": "low"
+    },
+    {
+      "task_id": "RW-010",
+      "example_name": "validation-schemas",
+      "description": "Regenerate validation-schemas. JSON Schema, Zod, and async-validator from RDF.",
+      "files_affected": [
+        "examples/validation-schemas/ggen.toml",
+        "examples/validation-schemas/ontology.ttl",
+        "examples/validation-schemas/templates/*.tmpl"
+      ],
+      "dependencies": ["RW-001"],
+      "batch": 2,
+      "estimated_complexity": "medium"
+    },
+    {
+      "task_id": "RW-011",
+      "example_name": "database-schema",
+      "description": "Regenerate database-schema. SQL DDL, Rust models, migrations from RDF ontology.",
+      "files_affected": [
+        "examples/database-schema/ggen.toml",
+        "examples/database-schema/ontology.ttl",
+        "examples/database-schema/templates/*.tmpl"
+      ],
+      "dependencies": ["RW-001"],
+      "batch": 2,
+      "estimated_complexity": "medium"
+    },
+    {
+      "task_id": "RW-012",
+      "example_name": "openapi",
+      "description": "Regenerate openapi example. Full OpenAPI 3.0 spec generation from RDF.",
+      "files_affected": [
+        "examples/openapi/ggen.toml",
+        "examples/openapi/ontology/*.ttl",
+        "examples/openapi/templates/*.tmpl"
+      ],
+      "dependencies": ["RW-001", "RW-006"],
+      "batch": 3,
+      "estimated_complexity": "high"
+    },
+    {
+      "task_id": "RW-013",
+      "example_name": "openapi-variants",
+      "description": "Regenerate openapi-variants. Multiple OpenAPI templates for different frameworks.",
+      "files_affected": [
+        "examples/openapi-variants/ggen.toml",
+        "examples/openapi-variants/ontology/*.ttl",
+        "examples/openapi-variants/templates/*.tmpl"
+      ],
+      "dependencies": ["RW-001", "RW-012"],
+      "batch": 3,
+      "estimated_complexity": "high"
+    },
+    {
+      "task_id": "RW-014",
+      "example_name": "rest-api-advanced",
+      "description": "Regenerate rest-api-advanced. Advanced REST API with authentication, CORS, error handling.",
+      "files_affected": [
+        "examples/rest-api-advanced/ggen.toml",
+        "examples/rest-api-advanced/ontology/*.ttl",
+        "examples/rest-api-advanced/templates/*.tmpl"
+      ],
+      "dependencies": ["RW-001", "RW-012"],
+      "batch": 3,
+      "estimated_complexity": "high"
+    },
+    {
+      "task_id": "RW-015",
+      "example_name": "graphql-schema",
+      "description": "Regenerate graphql-schema. GraphQL schema and resolver generation from RDF.",
+      "files_affected": [
+        "examples/graphql-schema/ggen.toml",
+        "examples/graphql-schema/ontology/*.ttl",
+        "examples/graphql-schema/templates/*.tmpl"
+      ],
+      "dependencies": ["RW-001"],
+      "batch": 3,
+      "estimated_complexity": "high"
+    },
+    {
+      "task_id": "RW-016",
+      "example_name": "grpc-service",
+      "description": "Regenerate grpc-service. gRPC proto file and Rust service generation.",
+      "files_affected": [
+        "examples/grpc-service/ggen.toml",
+        "examples/grpc-service/ontology/*.ttl",
+        "examples/grpc-service/templates/*.tmpl"
+      ],
+      "dependencies": ["RW-001"],
+      "batch": 3,
+      "estimated_complexity": "high"
+    },
+    {
+      "task_id": "RW-017",
+      "example_name": "middleware-stack",
+      "description": "Regenerate middleware-stack. HTTP middleware generation for Axum/Actix.",
+      "files_affected": [
+        "examples/middleware-stack/ggen.toml",
+        "examples/middleware-stack/ontology/*.ttl",
+        "examples/middleware-stack/templates/*.tmpl"
+      ],
+      "dependencies": ["RW-001", "RW-012"],
+      "batch": 3,
+      "estimated_complexity": "medium"
+    },
+    {
+      "task_id": "RW-018",
+      "example_name": "comprehensive-rust-showcase",
+      "description": "Regenerate comprehensive-rust-showcase. Full-featured example with 6+ templates, database, deployment.",
+      "files_affected": [
+        "examples/comprehensive-rust-showcase/ggen.toml",
+        "examples/comprehensive-rust-showcase/data/*.ttl",
+        "examples/comprehensive-rust-showcase/templates/*.tmpl",
+        "examples/comprehensive-rust-showcase/scripts/deploy/*.sh"
+      ],
+      "dependencies": ["RW-001", "RW-014"],
+      "batch": 4,
+      "estimated_complexity": "high"
+    },
+    {
+      "task_id": "RW-019",
+      "example_name": "microservices-architecture",
+      "description": "Regenerate microservices-architecture. Multi-service architecture with shared templates.",
+      "files_affected": [
+        "examples/microservices-architecture/ggen.toml",
+        "examples/microservices-architecture/ontology/*.ttl",
+        "examples/microservices-architecture/templates/*.tmpl"
+      ],
+      "dependencies": ["RW-001", "RW-014"],
+      "batch": 4,
+      "estimated_complexity": "high"
+    },
+    {
+      "task_id": "RW-020",
+      "example_name": "thesis-gen",
+      "description": "Regenerate thesis-gen. Academic paper and thesis generation from RDF ontology.",
+      "files_affected": [
+        "examples/thesis-gen/ggen.toml",
+        "examples/thesis-gen/ontology/*.ttl",
+        "examples/thesis-gen/templates/*.tmpl"
+      ],
+      "dependencies": ["RW-001"],
+      "batch": 4,
+      "estimated_complexity": "high"
+    },
+    {
+      "task_id": "RW-021",
+      "example_name": "cli-subcommand",
+      "description": "Regenerate cli-subcommand. Simple CLI with subcommand structure generation.",
+      "files_affected": [
+        "examples/cli-subcommand/ggen.toml",
+        "examples/cli-subcommand/meta.yaml",
+        "examples/cli-subcommand/rust.tmpl"
+      ],
+      "dependencies": ["RW-001"],
+      "batch": 4,
+      "estimated_complexity": "low"
+    },
+    {
+      "task_id": "RW-022",
+      "example_name": "api-endpoint",
+      "description": "Regenerate api-endpoint. Single endpoint generation template.",
+      "files_affected": [
+        "examples/api-endpoint/ggen.toml",
+        "examples/api-endpoint/rust.tmpl"
+      ],
+      "dependencies": ["RW-001"],
+      "batch": 4,
+      "estimated_complexity": "low"
+    },
+    {
+      "task_id": "RW-023",
+      "example_name": "ai-templates",
+      "description": "Regenerate ai-templates. AI-generated template collection.",
+      "files_affected": [
+        "examples/ai-templates/*.tmpl"
+      ],
+      "dependencies": ["RW-001", "RW-003"],
+      "batch": 4,
+      "estimated_complexity": "low"
+    },
+    {
+      "task_id": "RW-024",
+      "example_name": "advanced-lifecycle-demo",
+      "description": "Regenerate advanced-lifecycle-demo. Workspace member demonstrating lifecycle system.",
+      "files_affected": [
+        "examples/advanced-lifecycle-demo/Cargo.toml",
+        "examples/advanced-lifecycle-demo/make.toml",
+        "examples/advanced-lifecycle-demo/src/main.rs"
+      ],
+      "dependencies": ["RW-001"],
+      "batch": 5,
+      "estimated_complexity": "medium"
+    },
+    {
+      "task_id": "RW-025",
+      "example_name": "advanced-sparql-graph",
+      "description": "Regenerate advanced-sparql-graph. Workspace member with SPARQL demonstrations.",
+      "files_affected": [
+        "examples/advanced-sparql-graph/Cargo.toml",
+        "examples/advanced-sparql-graph/src/main.rs",
+        "examples/advanced-sparql-graph/data/example.ttl"
+      ],
+      "dependencies": ["RW-001"],
+      "batch": 5,
+      "estimated_complexity": "medium"
+    },
+    {
+      "task_id": "RW-026",
+      "example_name": "ggen-usage-wrapping",
+      "description": "Regenerate ggen-usage-wrapping. Workspace member wrapping ggen in custom workflows.",
+      "files_affected": [
+        "examples/ggen-usage-wrapping/Cargo.toml",
+        "examples/ggen-usage-wrapping/src/main.rs"
+      ],
+      "dependencies": ["RW-001"],
+      "batch": 5,
+      "estimated_complexity": "medium"
+    },
+    {
+      "task_id": "RW-027",
+      "example_name": "cli-workspace-example",
+      "description": "Regenerate cli-workspace-example. Complete workspace with multiple crates.",
+      "files_affected": [
+        "examples/cli-workspace-example/ggen.toml",
+        "examples/cli-workspace-example/README.md"
+      ],
+      "dependencies": ["RW-001"],
+      "batch": 5,
+      "estimated_complexity": "medium"
+    },
+    {
+      "task_id": "RW-028",
+      "example_name": "workspace-project",
+      "description": "Regenerate workspace-project. Orchestrator for all other examples.",
+      "files_affected": [
+        "examples/workspace-project/ggen.toml",
+        "examples/workspace-project/Cargo.toml"
+      ],
+      "dependencies": ["RW-001"],
+      "batch": 5,
+      "estimated_complexity": "medium"
+    },
+    {
+      "task_id": "RW-029",
+      "example_name": "electric-schema",
+      "description": "Regenerate electric-schema. ElectricSQL schema generation from RDF.",
+      "files_affected": [
+        "examples/electric-schema/ggen.toml",
+        "examples/electric-schema/ontology.ttl",
+        "examples/electric-schema/templates/*.tmpl"
+      ],
+      "dependencies": ["RW-001", "RW-011"],
+      "batch": 5,
+      "estimated_complexity": "medium"
+    },
+    {
+      "task_id": "RW-030",
+      "example_name": "fastapi-from-rdf",
+      "description": "Regenerate fastapi-from-rdf. Python FastAPI generation from RDF ontology.",
+      "files_affected": [
+        "examples/fastapi-from-rdf/ggen.toml",
+        "examples/fastapi-from-rdf/ontology.ttl",
+        "examples/fastapi-from-rdf/templates/*.tmpl"
+      ],
+      "dependencies": ["RW-001"],
+      "batch": 5,
+      "estimated_complexity": "medium"
+    },
+    {
+      "task_id": "RW-031",
+      "example_name": "full-stack-app",
+      "description": "Regenerate full-stack-app. Rust backend + frontend template generation.",
+      "files_affected": [
+        "examples/full-stack-app/ggen.toml",
+        "examples/full-stack-app/ontology/*.ttl",
+        "examples/full-stack-app/templates/*.tmpl"
+      ],
+      "dependencies": ["RW-001", "RW-014"],
+      "batch": 5,
+      "estimated_complexity": "high"
+    },
+    {
+      "task_id": "RW-032",
+      "example_name": "maturity-matrix-showcase",
+      "description": "Regenerate maturity-matrix-showcase. Demonstrates project maturity levels and progression.",
+      "files_affected": [
+        "examples/maturity-matrix-showcase/ggen.toml",
+        "examples/maturity-matrix-showcase/ontology/*.ttl",
+        "examples/maturity-matrix-showcase/templates/*.tmpl"
+      ],
+      "dependencies": ["RW-001", "RW-018"],
+      "batch": 5,
+      "estimated_complexity": "high"
+    },
+    {
+      "task_id": "RW-033",
+      "example_name": "telemetry-demo",
+      "description": "Regenerate telemetry-demo. OpenTelemetry instrumentation code generation.",
+      "files_affected": [
+        "examples/telemetry-demo/ggen.toml",
+        "examples/telemetry-demo/ontology/*.ttl",
+        "examples/telemetry-demo/templates/*.tmpl"
+      ],
+      "dependencies": ["RW-001", "RW-014"],
+      "batch": 5,
+      "estimated_complexity": "high"
+    },
+    {
+      "task_id": "VAL-001",
+      "example_name": "batch-1-validation",
+      "description": "Validation checkpoint: All batch 1 examples (RW-001 through RW-005) compile and pass tests.",
+      "files_affected": [],
+      "dependencies": ["RW-001", "RW-002", "RW-003", "RW-004", "RW-005"],
+      "batch": 1,
+      "estimated_complexity": "low"
+    },
+    {
+      "task_id": "VAL-002",
+      "example_name": "batch-2-validation",
+      "description": "Validation checkpoint: All batch 2 examples (RW-006 through RW-010) compile and pass tests.",
+      "files_affected": [],
+      "dependencies": ["RW-006", "RW-007", "RW-008", "RW-009", "RW-010"],
+      "batch": 2,
+      "estimated_complexity": "low"
+    },
+    {
+      "task_id": "VAL-003",
+      "example_name": "batch-3-validation",
+      "description": "Validation checkpoint: All batch 3 examples (RW-011 through RW-017) compile and pass tests.",
+      "files_affected": [],
+      "dependencies": ["RW-011", "RW-012", "RW-013", "RW-014", "RW-015", "RW-016", "RW-017"],
+      "batch": 3,
+      "estimated_complexity": "low"
+    },
+    {
+      "task_id": "VAL-004",
+      "example_name": "batch-4-validation",
+      "description": "Validation checkpoint: All batch 4 examples (RW-018 through RW-023) compile and pass tests.",
+      "files_affected": [],
+      "dependencies": ["RW-018", "RW-019", "RW-020", "RW-021", "RW-022", "RW-023"],
+      "batch": 4,
+      "estimated_complexity": "low"
+    },
+    {
+      "task_id": "VAL-005",
+      "example_name": "batch-5-validation",
+      "description": "Validation checkpoint: All batch 5 examples (RW-024 through RW-033) compile and pass tests.",
+      "files_affected": [],
+      "dependencies": ["RW-024", "RW-025", "RW-026", "RW-027", "RW-028", "RW-029", "RW-030", "RW-031", "RW-032", "RW-033"],
+      "batch": 5,
+      "estimated_complexity": "low"
+    },
+    {
+      "task_id": "FINAL-001",
+      "example_name": "documentation-generation",
+      "description": "Generate comprehensive documentation for all 33 examples. Update README.md with regeneration sources.",
+      "files_affected": [
+        "examples/README.md",
+        "examples/REGENERATION_PLAN.md"
+      ],
+      "dependencies": ["VAL-001", "VAL-002", "VAL-003", "VAL-004", "VAL-005"],
+      "batch": 5,
+      "estimated_complexity": "low"
+    },
+    {
+      "task_id": "FINAL-002",
+      "example_name": "marketplace-publication",
+      "description": "Publish all 33 regenerated examples to marketplace as reusable templates.",
+      "files_affected": [],
+      "dependencies": ["FINAL-001"],
+      "batch": 5,
+      "estimated_complexity": "high"
+    },
+    {
+      "task_id": "FINAL-003",
+      "example_name": "integration-testing",
+      "description": "Comprehensive integration tests: Verify all examples can be consumed from marketplace and regenerated.",
+      "files_affected": [],
+      "dependencies": ["FINAL-002"],
+      "batch": 5,
+      "estimated_complexity": "high"
+    }
+  ],
+  "parallel_batches": {
+    "batch_1": {
+      "name": "Framework & Foundation",
+      "tasks": ["RW-001", "RW-002", "RW-003", "RW-004", "RW-005"],
+      "description": "Set up regeneration framework and create 4 foundational examples",
+      "estimated_hours": 16,
+      "can_run_simultaneously": false,
+      "reasoning": "RW-001 must complete first, then RW-002-005 can run in parallel (no cross-dependencies)"
+    },
+    "batch_2": {
+      "name": "Low-Complexity Examples",
+      "tasks": ["RW-006", "RW-007", "RW-008", "RW-009", "RW-010"],
+      "description": "5 intermediate examples with clear patterns and templates",
+      "estimated_hours": 14,
+      "can_run_simultaneously": true,
+      "reasoning": "All depend only on RW-001; no cross-dependencies; can parallelize fully"
+    },
+    "batch_3": {
+      "name": "API & Schema Examples",
+      "tasks": ["RW-011", "RW-012", "RW-013", "RW-014", "RW-015", "RW-016", "RW-017"],
+      "description": "7 API/schema examples with moderate complexity",
+      "estimated_hours": 20,
+      "can_run_simultaneously": true,
+      "reasoning": "Most depend only on RW-001 or RW-012; limited cross-dependencies; can parallelize"
+    },
+    "batch_4": {
+      "name": "Advanced Examples",
+      "tasks": ["RW-018", "RW-019", "RW-020", "RW-021", "RW-022", "RW-023"],
+      "description": "6 advanced examples with complex architectures",
+      "estimated_hours": 22,
+      "can_run_simultaneously": true,
+      "reasoning": "Depend on batch 2 or 3 examples; can parallelize once dependencies ready"
+    },
+    "batch_5": {
+      "name": "Workspace & Validation",
+      "tasks": ["RW-024", "RW-025", "RW-026", "RW-027", "RW-028", "RW-029", "RW-030", "RW-031", "RW-032", "RW-033"],
+      "description": "10 workspace members and final implementations",
+      "estimated_hours": 24,
+      "can_run_simultaneously": true,
+      "reasoning": "Depend on batch 1-4; can all parallelize once prerequisites done"
+    }
+  },
+  "validation_checkpoints": [
+    {
+      "checkpoint_id": "VAL-001",
+      "stage": "After Batch 1",
+      "criteria": [
+        "All batch 1 examples regenerated with ggen commands",
+        "Each has .ggen/generation.log showing regeneration source",
+        "All compile: cargo build --all-examples",
+        "All pass unit tests: cargo test --examples",
+        "Framework documented with usage instructions"
+      ],
+      "success_criteria": "100% pass rate; zero compilation errors"
+    },
+    {
+      "checkpoint_id": "VAL-002",
+      "stage": "After Batch 2",
+      "criteria": [
+        "All batch 2 examples follow regeneration pattern",
+        "Templates are DRY and reusable",
+        "All compile and pass tests",
+        "README.md files show ggen command used",
+        "No manual code in generated examples"
+      ],
+      "success_criteria": "100% examples validated; pattern consistency verified"
+    },
+    {
+      "checkpoint_id": "VAL-003",
+      "stage": "After Batch 3",
+      "criteria": [
+        "OpenAPI, gRPC, GraphQL examples conform to standards",
+        "All generated schemas valid (openapi-spec-validator, protoc, graphql-core)",
+        "Integration tests pass for all examples",
+        "No hardcoded paths or environment-specific config"
+      ],
+      "success_criteria": "Schema validation passes; integration tests 100% pass"
+    },
+    {
+      "checkpoint_id": "VAL-004",
+      "stage": "After Batch 4",
+      "criteria": [
+        "All advanced examples demonstrate ggen dogfooding",
+        "Comprehensive-rust-showcase builds and runs successfully",
+        "Microservices and lifecycle examples work end-to-end",
+        "All dependency specifications satisfied"
+      ],
+      "success_criteria": "Complex examples execute successfully; no unmet dependencies"
+    },
+    {
+      "checkpoint_id": "VAL-005",
+      "stage": "After Batch 5 & Documentation",
+      "criteria": [
+        "All 33 examples regenerated and validated",
+        "Marketplace publication metadata complete for each example",
+        "README.md documents full regeneration and consumption flow",
+        "All SLOs met: generation <5s per example, validation <30s batch"
+      ],
+      "success_criteria": "All 33 examples ready for publication; documentation complete"
+    },
+    {
+      "checkpoint_id": "VAL-FINAL",
+      "stage": "Full Integration Test",
+      "criteria": [
+        "Consume 5+ examples from marketplace successfully",
+        "Regenerate consumed examples using ggen commands",
+        "Output matches original examples",
+        "Full CI/CD pipeline passes: check + lint + test + docs",
+        "Zero unfixed Andon signals (RED: errors, YELLOW: warnings)"
+      ],
+      "success_criteria": "Full round-trip success; examples proven reproducible from marketplace"
+    }
+  ],
+  "risk_mitigation": {
+    "critical_risks": [
+      {
+        "risk": "Examples become outdated after regeneration",
+        "probability": "medium",
+        "impact": "high",
+        "mitigation": "Store ggen commands in .ggen/generation.log; include reproduction scripts; add CI job to regenerate monthly"
+      },
+      {
+        "risk": "Circular dependencies between examples",
+        "probability": "low",
+        "impact": "high",
+        "mitigation": "Audit dependency graph before starting; ensure framework (RW-001) is dependency-free; use DAG validation"
+      },
+      {
+        "risk": "Some examples require features not yet in ggen",
+        "probability": "medium",
+        "impact": "medium",
+        "mitigation": "Flag unimplemented features early; prioritize feature implementation; create fallback manual examples"
+      },
+      {
+        "risk": "Examples break due to template syntax changes",
+        "probability": "low",
+        "impact": "medium",
+        "mitigation": "Version templates; pin ggen version per example; maintain backward compatibility layer"
+      }
+    ],
+    "execution_risks": [
+      {
+        "risk": "Batch parallelization causes coordination failures",
+        "probability": "low",
+        "impact": "high",
+        "mitigation": "Use task queue (Slack integration); hourly sync; red-flag unblocked dependencies"
+      },
+      {
+        "risk": "Validation checkpoints expose widespread issues",
+        "probability": "medium",
+        "impact": "high",
+        "mitigation": "Run small sample validation early (RW-002, RW-007); fail fast; iterate framework before full scale"
+      },
+      {
+        "risk": "Time estimates are wildly inaccurate",
+        "probability": "medium",
+        "impact": "medium",
+        "mitigation": "Track actual hours per example; adjust batch sizes dynamically; re-baseline estimates after batch 2"
+      }
+    ],
+    "quality_risks": [
+      {
+        "risk": "Generated examples don't demonstrate ggen capabilities well",
+        "probability": "medium",
+        "impact": "high",
+        "mitigation": "Peer review regenerated examples; test with new users; iterate templates based on feedback"
+      },
+      {
+        "risk": "Examples have performance regressions",
+        "probability": "low",
+        "impact": "medium",
+        "mitigation": "Run benchmarks on key examples; compare before/after; profile if regressions detected"
+      }
+    ],
+    "andon_signals": [
+      {
+        "signal": "RED",
+        "trigger": "Example fails to compile or cargo test fails",
+        "action": "STOP batch; fix immediately; revert if needed; document root cause"
+      },
+      {
+        "signal": "YELLOW",
+        "trigger": "Clippy warnings or formatting issues",
+        "action": "Add to backlog; fix before checkpoint; don't block batch progression"
+      },
+      {
+        "signal": "GREEN",
+        "trigger": "All tests pass + no clippy warnings + documentation complete",
+        "action": "Proceed to next batch; update progress tracker"
+      }
+    ],
+    "mitigation_summary": "Adopt small-batch waterfall with continuous validation. RUN-TIME SAFEGUARD: If any batch fails validation, pause parallelization and revert to sequential mode for that batch. Feature gaps trigger immediate implementation, not workarounds. Maintain ggen command reproducibility at all costs—examples are the proof ggen works."
+  },
+  "execution_strategy": {
+    "phase_1_preparation": {
+      "duration": "2-3 hours",
+      "tasks": ["Audit current examples", "Identify template patterns", "Set up .ggen/generation.log framework", "Create regeneration script", "Define feature gaps"],
+      "deliverable": "RW-001 complete; ready to start batch 1"
+    },
+    "phase_2_foundation": {
+      "duration": "6-8 hours (sequential: RW-001 then RW-002-RW-005 parallel)",
+      "tasks": ["Generate framework", "Regenerate 4 foundational examples", "Run VAL-001 checkpoint", "Document regeneration pattern"],
+      "deliverable": "Batch 1 complete + validated; pattern proven"
+    },
+    "phase_3_scaling": {
+      "duration": "8-10 hours (5 examples parallel)",
+      "tasks": ["Regenerate RW-006 through RW-010 in parallel", "Run VAL-002 checkpoint", "Refine templates based on learnings"],
+      "deliverable": "Batch 2 complete + validated; parallelization proven"
+    },
+    "phase_4_specialization": {
+      "duration": "10-12 hours (7 examples parallel)",
+      "tasks": ["Regenerate API/schema examples RW-011 through RW-017", "Handle framework-specific quirks", "Run VAL-003 checkpoint"],
+      "deliverable": "Batch 3 complete; schema validation passed"
+    },
+    "phase_5_advanced": {
+      "duration": "12-14 hours (6 examples parallel)",
+      "tasks": ["Regenerate advanced examples RW-018 through RW-023", "Test full lifecycles", "Run VAL-004 checkpoint"],
+      "deliverable": "Batch 4 complete; complex examples proven"
+    },
+    "phase_6_finalization": {
+      "duration": "10-12 hours (10 examples parallel + final tasks)",
+      "tasks": ["Regenerate workspace examples RW-024 through RW-033", "Run VAL-005 checkpoint", "Documentation generation", "Marketplace publication"],
+      "deliverable": "All 33 examples complete; documentation + marketplace ready"
+    },
+    "phase_7_integration": {
+      "duration": "4-6 hours",
+      "tasks": ["Full integration testing (VAL-FINAL)", "Consume from marketplace", "Round-trip validation", "Final checkpoint"],
+      "deliverable": "FINAL-003 complete; system proven end-to-end"
+    },
+    "total_estimated_time": "52-65 hours (sequential baseline); 18-28 hours (with EPIC 9 parallelization = 2.8-3.6x speedup)"
+  },
+  "success_criteria": {
+    "completion": [
+      "All 33 examples regenerated using ggen commands (not manual)",
+      "Each example has .ggen/generation.log documenting regeneration source",
+      "All examples compile: cargo build --examples",
+      "All examples pass tests: cargo test --examples",
+      "All validation checkpoints pass (VAL-001 through VAL-FINAL)"
+    ],
+    "quality": [
+      "Zero Andon RED signals (compilation errors, test failures)",
+      "Zero clippy warnings in generated code",
+      "Documentation complete and accurate for all examples",
+      "Schema validation passes for all API/schema examples",
+      "Performance benchmarks show no regressions"
+    ],
+    "deployment": [
+      "All 33 examples published to marketplace",
+      "Marketplace metadata complete and accurate",
+      "README.md updated with consumption instructions",
+      "Round-trip test: consume → regenerate → verify successful",
+      "CI/CD pipeline: all checks + lints + tests pass"
+    ],
+    "proof_of_dogfooding": [
+      "Examples demonstrate ggen's full capability range",
+      "New users can follow examples to learn ggen",
+      "Examples serve as living documentation of ggen features",
+      "Examples are reproducible and maintainable long-term"
+    ]
+  }
+}

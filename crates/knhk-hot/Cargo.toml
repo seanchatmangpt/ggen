@@ -1,0 +1,15 @@
+[package]
+name = "knhk-hot"
+version = "1.0.0"
+edition = "2021"
+
+[lib]
+name = "knhk_hot"
+crate-type = ["staticlib", "cdylib"]
+
+[dependencies]
+tokio = { workspace = true }
+tracing = { workspace = true }
+
+[build-dependencies]
+

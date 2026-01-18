@@ -1,0 +1,31 @@
+[package]
+name = "taskmgr"
+version = "0.1.0"
+edition = "2021"
+authors = ["ggen lifecycle example"]
+description = "Example Rust noun-verb CLI demonstrating ggen lifecycle system"
+license = "MIT"
+readme = "README.md"
+
+[[bin]]
+name = "taskmgr"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4.5", features = ["derive", "color", "suggestions"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+anyhow = "1.0"
+tokio = { version = "1.0", features = ["full"] }
+colored = "2.0"
+
+[dev-dependencies]
+assert_cmd = "2.0"
+predicates = "3.0"
+tempfile = "3.0"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true

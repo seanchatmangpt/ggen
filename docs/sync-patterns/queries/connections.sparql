@@ -1,0 +1,34 @@
+# =============================================================================
+# SPARQL Query: Extract pattern connections for pattern map
+# =============================================================================
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pl: <https://ggen.dev/pattern-language#>
+PREFIX sync: <https://ggen.dev/sync-patterns#>
+
+SELECT
+    ?sourceLabel
+    ?sourceNumber
+    ?sourceSlug
+    ?targetLabel
+    ?targetNumber
+    ?targetSlug
+    ?connectionType
+    ?connectionReason
+WHERE {
+    ?source a pl:Pattern ;
+            rdfs:label ?sourceLabel ;
+            pl:hasNumber ?sourceNumber ;
+            pl:hasSlug ?sourceSlug ;
+            pl:hasConnection ?connection .
+
+    ?connection pl:connectsTo ?target ;
+                pl:connectionType ?connectionType ;
+                pl:connectionReason ?connectionReason .
+
+    ?target rdfs:label ?targetLabel ;
+            pl:hasNumber ?targetNumber ;
+            pl:hasSlug ?targetSlug .
+}
+ORDER BY ?sourceNumber ?targetNumber

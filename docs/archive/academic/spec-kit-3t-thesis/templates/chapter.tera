@@ -1,0 +1,17 @@
+%% ============================================================================
+%% Chapter: {{ rows[0].chapterTitle }}
+%% Generated from RDF ontology
+%% ============================================================================
+
+\chapter{ {{- rows[0].chapterTitle -}} }
+\label{ch:{{ rows[0].chapterTitle | slugify }}}
+
+{% for row in rows %}
+\section{ {{- row.sectionTitle -}} }
+\label{sec:{{ row.sectionTitle | slugify }}}
+
+{{ row.sectionContent }}
+
+{% endfor %}
+
+%% End of chapter

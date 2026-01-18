@@ -1,0 +1,95 @@
+{# =============================================================================
+   JAVASCRIPT WRAPPER TEMPLATE - Generates CommonJS wrapper
+   Loads native module and provides error handling
+   ============================================================================= #}
+/**
+ * {{ module_name | default(value='ggen-node') }} - Node.js bindings
+ * Generated from RDF ontology - DO NOT EDIT MANUALLY
+ *
+ * @module {{ module_name | default(value='ggen-node') }}
+ * @version {{ module_version | default(value='1.0.0') }}
+ */
+
+const { loadNative } = require('./native-loader');
+
+// Load the native addon
+let native;
+try {
+  native = loadNative();
+} catch (error) {
+  throw new Error(
+    `Failed to load native addon: ${error.message}\n` +
+    `Make sure you have run 'npm run build' to compile the native module.`
+  );
+}
+
+// =============================================================================
+// Type Definitions (JSDoc)
+// =============================================================================
+
+{%- for type in types | default(value=[]) %}
+/**
+ * @typedef {{'{'}}{{ type.tsType }}} {{ type.typeName }}
+ * {{ type.description | default(value='Type mapping for ' ~ type.typeName) }}
+ * Rust: {{ type.rustType }}
+ */
+{% endfor %}
+
+{%- for struct in structs | default(value=[]) %}
+/**
+ * @typedef {{'{'}}Object} {{ struct.structName }}
+ * {{ struct.description | default(value=struct.structName) }}
+{%- for field in struct.fields | default(value=[]) %}
+ * @property {{'{'}}{{ field.fieldType }}{% if not field.required | default(value=false) %}={% endif %}} {{ field.fieldName }}{% if field.description %} - {{ field.description }}{% endif %}
+{%- endfor %}
+ */
+{% endfor %}
+
+{%- for enum in enums | default(value=[]) %}
+/**
+ * {{ enum.description | default(value=enum.enumName) }}
+ * @typedef {{'{'}}{% for variant in enum.variants | default(value=[]) %}'{{ variant.variantValue }}'{% if not loop.last %}|{% endif %}{% endfor %}} {{ enum.enumName }}
+ */
+{% endfor %}
+
+// =============================================================================
+// Exported Functions with JSDoc
+// =============================================================================
+
+{%- for func in functions | default(value=[]) %}
+
+/**
+ * {{ func.description | default(value=func.functionName) }}
+{%- for param in func.parameters | default(value=[]) %}
+ * @param {{'{'}}{{ param.type }}{% if not param.required | default(value=false) %}={% endif %}} {{ param.paramName }}{% if param.description %} - {{ param.description }}{% endif %}
+{%- endfor %}
+ * @returns {{'{'}}{% if func.async | default(value=false) %}Promise<{{ func.returnType }}>{% else %}{{ func.returnType }}{% endif %}}
+{%- if func.throws | default(value=false) %}
+ * @throws {Error} If operation fails
+{%- endif %}
+{%- if func.deprecated | default(value=false) %}
+ * @deprecated
+{%- endif %}
+ */
+function {{ func.functionName }}({% for param in func.parameters | default(value=[]) %}{{ param.paramName }}{% if not loop.last %}, {% endif %}{% endfor %}) {
+  try {
+    {% if func.async | default(value=false) -%}
+    return Promise.resolve(native.{{ func.rustName | default(value=func.functionName) }}({% for param in func.parameters | default(value=[]) %}{{ param.paramName }}{% if not loop.last %}, {% endif %}{% endfor %}));
+    {%- else -%}
+    return native.{{ func.rustName | default(value=func.functionName) }}({% for param in func.parameters | default(value=[]) %}{{ param.paramName }}{% if not loop.last %}, {% endif %}{% endfor %});
+    {%- endif %}
+  } catch (error) {
+    throw new Error(`{{ func.functionName }} failed: ${error.message}`);
+  }
+}
+{% endfor %}
+
+// =============================================================================
+// Module Exports
+// =============================================================================
+
+module.exports = {
+{%- for func in functions | default(value=[]) %}
+  {{ func.functionName }},
+{%- endfor %}
+};

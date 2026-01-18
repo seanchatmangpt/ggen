@@ -1,0 +1,30 @@
+# Generated artifacts (regenerated from ontology via ggen sync)
+# These are derived from 3T files (TOML + Tera + Turtle) and should NOT be version-controlled
+# Constitutional equation: code = μ(spec.ttl)
+generated/
+
+# Cryptographic receipts (regenerated each time)
+.receipt.json
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Test outputs
+.coverage
+htmlcov/
+*.log
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db

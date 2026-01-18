@@ -1,0 +1,7 @@
+[package]
+name = "minimal-test-project"
+version = "1.0.0"
+description = "Minimal ggen project for E2E testing"
+
+[build]
+# Minimal build configuration for testing

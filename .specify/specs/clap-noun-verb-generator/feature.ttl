@@ -1,0 +1,326 @@
+@prefix spec: <https://ggen.dev/spec#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix cnv: <https://ggen.dev/clap-noun-verb/> .
+@prefix : <https://ggen.dev/spec/clap-noun-verb-generator#> .
+
+# ============================================================================
+# FEATURE: clap-noun-verb Generator - Complete RDF-Driven CLI Generation
+# ============================================================================
+
+:ClapNounVerbGenerator a spec:Feature ;
+    rdfs:label "Complete clap-noun-verb Generator" ;
+    rdfs:comment "Ontology-driven Rust CLI code generation for noun-verb command patterns with protected domain boundaries" ;
+    spec:maturity 90 ;
+    spec:epicNumber 9 ;
+    spec:specification :ClipNounVerbSpec .
+
+# ============================================================================
+# USER STORIES
+# ============================================================================
+
+:US1_GenericGenerator a spec:UserStory ;
+    rdfs:label "Generate CLI from RDF ontology" ;
+    spec:actor "Developer" ;
+    spec:action "Create RDF specification of CLI structure (nouns, verbs, arguments)" ;
+    spec:goal "System generates complete Rust CLI with noun-verb command pattern" ;
+    spec:acceptanceCriteria (
+        [ spec:criterion "Generated code compiles without errors" ]
+        [ spec:criterion "CLI executes noun and verb commands correctly" ]
+        [ spec:criterion "Arguments are properly typed and validated" ]
+        [ spec:criterion "Help text is automatically generated" ]
+    ) .
+
+:US2_EnterpriseFeatures a spec:UserStory ;
+    rdfs:label "Support enterprise protected domains" ;
+    spec:actor "Enterprise Developer" ;
+    spec:action "Define protected domain layer and regeneratable trait layer" ;
+    spec:goal "Team can regenerate CLI layer without losing domain logic" ;
+    spec:acceptanceCriteria (
+        [ spec:criterion "Protected paths survive regeneration" ]
+        [ spec:criterion "Trait boundaries preserve type safety" ]
+        [ spec:criterion "No merge conflicts between layers" ]
+    ) .
+
+:US3_MarketplacePackage a spec:UserStory ;
+    rdfs:label "Distribute as marketplace package" ;
+    spec:actor "Package Maintainer" ;
+    spec:action "Create production-ready marketplace package" ;
+    spec:goal "Package appears in ggen marketplace with documentation and examples" ;
+    spec:acceptanceCriteria (
+        [ spec:criterion "Package metadata complete and validated" ]
+        [ spec:criterion "README and USAGE guides provided" ]
+        [ spec:criterion "Example projects included" ]
+    ) .
+
+:US4_Validation a spec:UserStory ;
+    rdfs:label "Validate against golden tests" ;
+    spec:actor "Quality Assurance" ;
+    spec:action "Generate code and compare against known-good outputs" ;
+    spec:goal "All generated artifacts match expected structure and content" ;
+    spec:acceptanceCriteria (
+        [ spec:criterion "Golden test suite exists" ]
+        [ spec:criterion "All assertions pass" ]
+        [ spec:criterion "Coverage report generated" ]
+    ) .
+
+# ============================================================================
+# SPECIFICATION CLOSURE CHECKLIST
+# ============================================================================
+
+:ClipNounVerbSpec a spec:SpecificationChecklist ;
+    rdfs:label "Specification Closure Verification" ;
+    spec:completionStatus "100%" ;
+    spec:section1_RDFOntology :ChecklistRDF ;
+    spec:section2_TemplateSystem :ChecklistTemplates ;
+    spec:section3_CodeGeneration :ChecklistCodeGen ;
+    spec:section4_Testing :ChecklistTesting ;
+    spec:section5_Marketplace :ChecklistMarketplace .
+
+# Section 1: RDF Ontology Definition
+:ChecklistRDF a spec:Section ;
+    rdfs:label "RDF Ontology Definition" ;
+    spec:item1 "Clap-noun-verb vocabulary defined (nouns, verbs, arguments, types)" ;
+    spec:item2 "Example specifications: calculator, todo-app, file-manager" ;
+    spec:item3 "SPARQL queries for extraction defined" ;
+    spec:item4 "Validation rules (SHACL) defined" ;
+    spec:completed "true" .
+
+# Section 2: Template System
+:ChecklistTemplates a spec:Section ;
+    rdfs:label "Tera Template System" ;
+    spec:item1 "cli-project.tmpl - Master template generating all files" ;
+    spec:item2 "main.rs.tera - CLI layer with #[noun] and #[verb] macros" ;
+    spec:item3 "domain.rs.tera - Domain trait definitions" ;
+    spec:item4 "error.rs.tera - Type-safe error conversion" ;
+    spec:item5 "lib.rs.tera - Library exports" ;
+    spec:item6 "Cargo.toml.tera - Manifest generation" ;
+    spec:completed "true" .
+
+# Section 3: Code Generation
+:ChecklistCodeGen a spec:Section ;
+    rdfs:label "Code Generation Infrastructure" ;
+    spec:item1 "CLI generator implementation (RDF parser, code emitter)" ;
+    spec:item2 "Three-layer architecture: CLI -> Domain -> Error" ;
+    spec:item3 "Trait-boundary code protection" ;
+    spec:item4 "Protected paths vs regenerate-safe paths" ;
+    spec:item5 "FMEA failure mode controls (5 controls)" ;
+    spec:item6 "Pre-generation validation" ;
+    spec:item7 "Post-generation compilation checks" ;
+    spec:completed "true" .
+
+# Section 4: Testing
+:ChecklistTesting a spec:Section ;
+    rdfs:label "Chicago TDD Test Suite" ;
+    spec:item1 "Unit tests for CLI generation" ;
+    spec:item2 "Integration tests with real generated projects" ;
+    spec:item3 "Golden test comparisons" ;
+    spec:item4 "Mutation testing for error paths" ;
+    spec:item5 "Property-based tests with proptest" ;
+    spec:item6 "Benchmark tests with criterion" ;
+    spec:completed "true" .
+
+# Section 5: Marketplace Integration
+:ChecklistMarketplace a spec:Section ;
+    rdfs:label "Marketplace Package Integration" ;
+    spec:item1 "package.toml with enterprise metadata" ;
+    spec:item2 "README.md with quick start guide" ;
+    spec:item3 "USAGE.md with enterprise patterns" ;
+    spec:item4 "Example projects (calculator, enterprise-ops with 5 nouns)" ;
+    spec:item5 "Template files organized for package" ;
+    spec:item6 "Registry entry in marketplace/registry/" ;
+    spec:completed "true" .
+
+# ============================================================================
+# GENERATION RULES (SPARQL-based)
+# ============================================================================
+
+:CliProject a spec:GenerationTarget ;
+    rdfs:label "CLI Project" ;
+    spec:template "cli-project.tmpl" ;
+    spec:output "." ;
+    spec:rule1 :Extract_ProjectMetadata ;
+    spec:rule2 :Extract_Nouns ;
+    spec:rule3 :Extract_Verbs ;
+    spec:rule4 :Extract_Arguments ;
+    spec:rule5 :Extract_EnumTypes ;
+    spec:rule6 :Generate_MainRs ;
+    spec:rule7 :Generate_DomainRs ;
+    spec:rule8 :Generate_ErrorRs ;
+    spec:rule9 :Generate_LibRs ;
+    spec:rule10 :Generate_CargoToml ;
+    spec:rule11 :Generate_Documentation .
+
+:Extract_ProjectMetadata a spec:ExtractionRule ;
+    rdfs:label "Extract project metadata from RDF" ;
+    spec:sparql """
+        PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+        SELECT ?name ?version ?description WHERE {
+            ?project a cnv:CliProject ;
+                cnv:name ?name ;
+                cnv:version ?version ;
+                cnv:description ?description .
+        }
+    """ .
+
+:Extract_Nouns a spec:ExtractionRule ;
+    rdfs:label "Extract all nouns (resources) from RDF" ;
+    spec:sparql """
+        PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+        SELECT ?noun_id ?noun_name ?plural WHERE {
+            ?project a cnv:CliProject .
+            ?noun a cnv:Noun ;
+                cnv:nounId ?noun_id ;
+                cnv:name ?noun_name ;
+                cnv:plural ?plural .
+        }
+        ORDER BY ?noun_name
+    """ .
+
+:Extract_Verbs a spec:ExtractionRule ;
+    rdfs:label "Extract all verbs with associated nouns" ;
+    spec:sparql """
+        PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+        SELECT ?verb_id ?verb_name ?noun_name ?description WHERE {
+            ?verb a cnv:Verb ;
+                cnv:verbId ?verb_id ;
+                cnv:name ?verb_name ;
+                cnv:appliesTo ?noun ;
+                cnv:description ?description .
+            ?noun cnv:name ?noun_name .
+        }
+        ORDER BY ?noun_name ?verb_name
+    """ .
+
+:Extract_Arguments a spec:ExtractionRule ;
+    rdfs:label "Extract verb arguments with types" ;
+    spec:sparql """
+        PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+        SELECT ?arg_id ?arg_name ?rust_type ?required ?default_value ?help_text ?noun_name ?verb_name WHERE {
+            ?verb a cnv:Verb ;
+                cnv:verbId ?verb_id ;
+                cnv:name ?verb_name ;
+                cnv:appliesTo ?noun ;
+                cnv:hasArgument ?arg .
+            ?noun cnv:name ?noun_name .
+            ?arg cnv:argumentId ?arg_id ;
+                cnv:name ?arg_name ;
+                cnv:type ?rust_type ;
+                cnv:required ?required ;
+                cnv:defaultValue ?default_value ;
+                cnv:helpText ?help_text .
+        }
+        ORDER BY ?noun_name ?verb_name ?arg_name
+    """ .
+
+:Extract_EnumTypes a spec:ExtractionRule ;
+    rdfs:label "Extract custom enum types" ;
+    spec:sparql """
+        PREFIX cnv: <https://ggen.dev/clap-noun-verb/>
+        SELECT ?enum_name ?variant WHERE {
+            ?enum a cnv:EnumType ;
+                cnv:name ?enum_name ;
+                cnv:variants ?variant .
+        }
+        ORDER BY ?enum_name
+    """ .
+
+# ============================================================================
+# THREE-LAYER ARCHITECTURE
+# ============================================================================
+
+:ThreeLayerArchitecture a spec:Architecture ;
+    rdfs:label "Three-Layer CLI Architecture" ;
+    spec:layer1 :CLILayer ;
+    spec:layer2 :DomainLayer ;
+    spec:layer3 :ErrorLayer .
+
+:CLILayer a spec:Layer ;
+    rdfs:label "CLI Layer (main.rs)" ;
+    rdfs:comment "Thin argument parsing and command routing layer" ;
+    spec:responsibility "Parse user input, route to domain, format output" ;
+    spec:regeneratable "true" ;
+    spec:contents """
+        - clap argument definition and parsing
+        - #[noun] and #[verb] attribute macro invocations
+        - Command routing logic
+        - Output formatting
+        - File I/O operations
+    """ .
+
+:DomainLayer a spec:Layer ;
+    rdfs:label "Domain Layer (domain.rs)" ;
+    rdfs:comment "Protected business logic layer" ;
+    spec:responsibility "Implement core business logic and state management" ;
+    spec:protected "true" ;
+    spec:generated_from "Trait definitions (domain.rs)" ;
+    spec:contents """
+        - Trait implementations from domain.rs
+        - Custom domain types and enums
+        - Business logic
+        - State management
+        - Database/API integration (if applicable)
+    """ .
+
+:ErrorLayer a spec:Layer ;
+    rdfs:label "Error Handling (error.rs)" ;
+    rdfs:comment "Type-safe error conversion" ;
+    spec:responsibility "Convert domain errors to CLI errors with proper exit codes" ;
+    spec:regeneratable "true" ;
+    spec:contents """
+        - Custom error types
+        - Error context information
+        - Exit code mapping
+        - Help text for common errors
+    """ .
+
+# ============================================================================
+# FMEA FAILURE MODE CONTROLS
+# ============================================================================
+
+:FMEAControl1 a spec:FailureMode ;
+    rdfs:label "Missing Required Field in Spec" ;
+    spec:severity "High" ;
+    spec:control "SHACL validation before generation" .
+
+:FMEAControl2 a spec:FailureMode ;
+    rdfs:label "Generated Code Compilation Failure" ;
+    spec:severity "High" ;
+    spec:control "Post-generation cargo check" .
+
+:FMEAControl3 a spec:FailureMode ;
+    rdfs:label "Domain Layer Regression" ;
+    spec:severity "Critical" ;
+    spec:control "Protected path markers with merge detection" .
+
+:FMEAControl4 a spec:FailureMode ;
+    rdfs:label "Argument Type Mismatch" ;
+    spec:severity "High" ;
+    spec:control "Type validation in RDF + Rust compile-time checks" .
+
+:FMEAControl5 a spec:FailureMode ;
+    rdfs:label "Documentation Drift" ;
+    spec:severity "Medium" ;
+    spec:control "Auto-generated help text from RDF specifications" .
+
+# ============================================================================
+# COMPLETION CRITERIA
+# ============================================================================
+
+:CompletionCriteria a spec:Checklist ;
+    rdfs:label "Implementation Completion Criteria" ;
+    spec:criterion1 "RDF ontology complete with 3+ example specifications" ;
+    spec:criterion2 "6 Tera templates implemented and tested" ;
+    spec:criterion3 "CLI generator code compiles with cargo make check" ;
+    spec:criterion4 "100% of SPARQL extraction rules functional" ;
+    spec:criterion5 "Protected domain layer implementation strategy documented" ;
+    spec:criterion6 "5+ unit tests passing with cargo make test-unit" ;
+    spec:criterion7 "3+ integration tests with real generated projects" ;
+    spec:criterion8 "Golden test suite passes with 100% accuracy" ;
+    spec:criterion9 "Marketplace package.toml properly configured" ;
+    spec:criterion10 "README and USAGE guides complete" ;
+    spec:criterion11 "Example projects included (calculator, file-manager, todo-app, enterprise-ops)" ;
+    spec:criterion12 "All cargo make targets passing (check, test, lint, pre-commit)" ;
+    spec:criterion13 "Receipts generated for all validation steps" ;
+    spec:criterion14 "Branch pushed with complete commit history" .

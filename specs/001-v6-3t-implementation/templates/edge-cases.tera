@@ -1,0 +1,5 @@
+### Edge Cases
+
+{% for row in sparql_results -%}
+- **{{ row.scenario }}** {{ row.expectedBehavior }}
+{% endfor %}

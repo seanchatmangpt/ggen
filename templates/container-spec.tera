@@ -1,0 +1,57 @@
+# Container Specification
+# Generated from: ggen-paas-ontology.ttl
+# Generated: {{ now() | date(format="%Y-%m-%d %H:%M:%S") }}
+
+container:
+  name: "{{ container_name }}"
+  description: "{{ description }}"
+  technology: "{{ technology }}"
+
+  service_level_agreement:
+    response_time_ms: {{ response_time_ms }}
+    availability_percent: {{ availability_percent }}
+    max_error_rate: 0.5
+
+  deployment:
+    image: "ggen/paas-{{ container_name | snake_case }}:latest"
+    replicas: 3
+    restart_policy: unless-stopped
+
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 250m
+      limits:
+        memory: 512Mi
+        cpu: 500m
+
+    health_checks:
+      liveness:
+        endpoint: /health/live
+        interval_seconds: 10
+        timeout_seconds: 5
+        failure_threshold: 3
+      readiness:
+        endpoint: /health/ready
+        interval_seconds: 5
+        timeout_seconds: 3
+        failure_threshold: 2
+
+  networking:
+    port: 8080
+    protocol: http
+    expose: true
+
+  security:
+    run_as_non_root: true
+    run_as_user: 1000
+    security_context: restricted
+
+  observability:
+    metrics_port: 9090
+    logs_path: /var/log
+    tracing_enabled: true
+
+  environment:
+    LOG_LEVEL: info
+    SERVICE_NAME: "{{ container_name | snake_case }}"

@@ -1,0 +1,23 @@
+/**
+ * ggen-bindings - Auto-generated Node.js bindings
+ * Generated from RDF ontology using 3T methodology
+ */
+
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+
+let native;
+try {
+  native = require('../../native/index.node');
+} catch (err) {
+  throw new Error(`Failed to load native addon: ${err.message}`);
+}
+
+{%- for row in results %}
+/**
+ * {{ row.description }}
+ * @returns {{'{'}}{% if row.async == "true" %}Promise<{{ row.returnType }}>{% else %}{{ row.returnType }}{% endif %}}
+ {% if row.throws == "true" %}* @throws {{'{'}}Error}{% endif %}
+ */
+export const {{ row.funcName }} = native.{{ row.funcName }};
+{% endfor %}

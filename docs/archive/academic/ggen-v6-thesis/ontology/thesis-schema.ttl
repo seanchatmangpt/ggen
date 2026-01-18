@@ -1,0 +1,300 @@
+# Thesis Structure Vocabulary
+# Defines the ontology for PhD thesis documents
+# This schema is domain-agnostic - works for any thesis
+
+@prefix thesis: <http://ggen.dev/thesis#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+
+# =============================================================================
+# CORE THESIS STRUCTURE
+# =============================================================================
+
+thesis:Thesis
+  a owl:Class ;
+  rdfs:label "PhD Thesis"@en ;
+  rdfs:comment "A complete doctoral dissertation"@en .
+
+thesis:Chapter
+  a owl:Class ;
+  rdfs:label "Chapter"@en ;
+  rdfs:comment "A major division of the thesis"@en .
+
+thesis:Section
+  a owl:Class ;
+  rdfs:label "Section"@en ;
+  rdfs:comment "A subdivision of a chapter"@en .
+
+thesis:Subsection
+  a owl:Class ;
+  rdfs:label "Subsection"@en ;
+  rdfs:comment "A subdivision of a section"@en .
+
+# =============================================================================
+# MATHEMATICAL CONTENT
+# =============================================================================
+
+thesis:Theorem
+  a owl:Class ;
+  rdfs:label "Theorem"@en ;
+  rdfs:comment "A proven mathematical statement"@en .
+
+thesis:Lemma
+  a owl:Class ;
+  rdfs:label "Lemma"@en ;
+  rdfs:comment "A preliminary proven statement"@en .
+
+thesis:Definition
+  a owl:Class ;
+  rdfs:label "Definition"@en ;
+  rdfs:comment "A formal definition of a term"@en .
+
+thesis:Proof
+  a owl:Class ;
+  rdfs:label "Proof"@en ;
+  rdfs:comment "A mathematical proof"@en .
+
+thesis:Equation
+  a owl:Class ;
+  rdfs:label "Equation"@en ;
+  rdfs:comment "A mathematical equation"@en .
+
+thesis:Algorithm
+  a owl:Class ;
+  rdfs:label "Algorithm"@en ;
+  rdfs:comment "A formal algorithm specification"@en .
+
+# =============================================================================
+# SUPPORTING CONTENT
+# =============================================================================
+
+thesis:Figure
+  a owl:Class ;
+  rdfs:label "Figure"@en ;
+  rdfs:comment "An illustration or diagram"@en .
+
+thesis:Table
+  a owl:Class ;
+  rdfs:label "Table"@en ;
+  rdfs:comment "A data table"@en .
+
+thesis:CodeListing
+  a owl:Class ;
+  rdfs:label "Code Listing"@en ;
+  rdfs:comment "A code example"@en .
+
+thesis:Reference
+  a owl:Class ;
+  rdfs:label "Bibliographic Reference"@en ;
+  rdfs:comment "A cited work"@en .
+
+# =============================================================================
+# PROPERTIES: METADATA
+# =============================================================================
+
+thesis:title
+  a owl:DatatypeProperty ;
+  rdfs:label "title"@en ;
+  rdfs:domain thesis:Thesis ;
+  rdfs:range xsd:string .
+
+thesis:subtitle
+  a owl:DatatypeProperty ;
+  rdfs:label "subtitle"@en ;
+  rdfs:domain thesis:Thesis ;
+  rdfs:range xsd:string .
+
+thesis:author
+  a owl:DatatypeProperty ;
+  rdfs:label "author"@en ;
+  rdfs:domain thesis:Thesis ;
+  rdfs:range xsd:string .
+
+thesis:date
+  a owl:DatatypeProperty ;
+  rdfs:label "date"@en ;
+  rdfs:domain thesis:Thesis ;
+  rdfs:range xsd:string .
+
+thesis:abstract
+  a owl:DatatypeProperty ;
+  rdfs:label "abstract"@en ;
+  rdfs:domain thesis:Thesis ;
+  rdfs:range xsd:string .
+
+thesis:keywords
+  a owl:DatatypeProperty ;
+  rdfs:label "keywords"@en ;
+  rdfs:domain thesis:Thesis ;
+  rdfs:range xsd:string .
+
+# =============================================================================
+# PROPERTIES: STRUCTURE
+# =============================================================================
+
+thesis:hasChapter
+  a owl:ObjectProperty ;
+  rdfs:label "has chapter"@en ;
+  rdfs:domain thesis:Thesis ;
+  rdfs:range thesis:Chapter .
+
+thesis:hasSection
+  a owl:ObjectProperty ;
+  rdfs:label "has section"@en ;
+  rdfs:domain thesis:Chapter ;
+  rdfs:range thesis:Section .
+
+thesis:hasSubsection
+  a owl:ObjectProperty ;
+  rdfs:label "has subsection"@en ;
+  rdfs:domain thesis:Section ;
+  rdfs:range thesis:Subsection .
+
+thesis:orderIndex
+  a owl:DatatypeProperty ;
+  rdfs:label "order index"@en ;
+  rdfs:comment "Numerical ordering for chapters/sections"@en ;
+  rdfs:range xsd:integer .
+
+thesis:labelId
+  a owl:DatatypeProperty ;
+  rdfs:label "label ID"@en ;
+  rdfs:comment "LaTeX \\label identifier"@en ;
+  rdfs:range xsd:string .
+
+# =============================================================================
+# PROPERTIES: CONTENT
+# =============================================================================
+
+thesis:content
+  a owl:DatatypeProperty ;
+  rdfs:label "content"@en ;
+  rdfs:comment "Textual content (paragraph, section body, etc.)"@en ;
+  rdfs:range xsd:string .
+
+thesis:statement
+  a owl:DatatypeProperty ;
+  rdfs:label "statement"@en ;
+  rdfs:comment "Statement of a theorem/lemma/definition"@en ;
+  rdfs:range xsd:string .
+
+thesis:proof
+  a owl:DatatypeProperty ;
+  rdfs:label "proof"@en ;
+  rdfs:comment "Proof text"@en ;
+  rdfs:range xsd:string .
+
+thesis:theoremType
+  a owl:DatatypeProperty ;
+  rdfs:label "theorem type"@en ;
+  rdfs:comment "Type: theorem, lemma, proposition, corollary"@en ;
+  rdfs:range xsd:string .
+
+thesis:theoremName
+  a owl:DatatypeProperty ;
+  rdfs:label "theorem name"@en ;
+  rdfs:comment "Name of the theorem (e.g., 'Zero-Drift Theorem')"@en ;
+  rdfs:range xsd:string .
+
+thesis:algorithmName
+  a owl:DatatypeProperty ;
+  rdfs:label "algorithm name"@en ;
+  rdfs:range xsd:string .
+
+thesis:description
+  a owl:DatatypeProperty ;
+  rdfs:label "description"@en ;
+  rdfs:comment "Descriptive text"@en ;
+  rdfs:range xsd:string .
+
+# =============================================================================
+# PROPERTIES: BIBLIOGRAPHY
+# =============================================================================
+
+thesis:citeKey
+  a owl:DatatypeProperty ;
+  rdfs:label "citation key"@en ;
+  rdfs:comment "BibTeX citation key"@en ;
+  rdfs:domain thesis:Reference ;
+  rdfs:range xsd:string .
+
+thesis:entryType
+  a owl:DatatypeProperty ;
+  rdfs:label "entry type"@en ;
+  rdfs:comment "BibTeX entry type (article, inproceedings, book, etc.)"@en ;
+  rdfs:domain thesis:Reference ;
+  rdfs:range xsd:string .
+
+thesis:venue
+  a owl:DatatypeProperty ;
+  rdfs:label "venue"@en ;
+  rdfs:comment "Publication venue (journal, conference, etc.)"@en ;
+  rdfs:domain thesis:Reference ;
+  rdfs:range xsd:string .
+
+thesis:year
+  a owl:DatatypeProperty ;
+  rdfs:label "year"@en ;
+  rdfs:domain thesis:Reference ;
+  rdfs:range xsd:integer .
+
+thesis:url
+  a owl:DatatypeProperty ;
+  rdfs:label "URL"@en ;
+  rdfs:domain thesis:Reference ;
+  rdfs:range xsd:anyURI .
+
+# =============================================================================
+# SHACL SHAPES FOR VALIDATION
+# =============================================================================
+
+thesis:ThesisShape
+  a shacl:NodeShape ;
+  shacl:targetClass thesis:Thesis ;
+  shacl:property [
+    shacl:path thesis:title ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:datatype xsd:string ;
+  ] ;
+  shacl:property [
+    shacl:path thesis:author ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:datatype xsd:string ;
+  ] ;
+  shacl:property [
+    shacl:path thesis:hasChapter ;
+    shacl:minCount 1 ;  # At least one chapter required
+  ] .
+
+thesis:ChapterShape
+  a shacl:NodeShape ;
+  shacl:targetClass thesis:Chapter ;
+  shacl:property [
+    shacl:path thesis:title ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+  ] ;
+  shacl:property [
+    shacl:path thesis:orderIndex ;
+    shacl:minCount 1 ;
+    shacl:maxCount 1 ;
+    shacl:datatype xsd:integer ;
+  ] .
+
+thesis:SectionShape
+  a shacl:NodeShape ;
+  shacl:targetClass thesis:Section ;
+  shacl:property [
+    shacl:path thesis:title ;
+    shacl:minCount 1 ;
+  ] ;
+  shacl:property [
+    shacl:path thesis:content ;
+    shacl:minCount 1 ;
+  ] .

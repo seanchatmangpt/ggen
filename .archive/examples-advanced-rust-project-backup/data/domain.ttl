@@ -1,0 +1,322 @@
+# Advanced Rust Project Domain Model
+# Demonstrates RDF/SPARQL integration with complex domain modeling
+
+@prefix ex: <http://example.org/advanced-rust-project/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Domain Entities
+ex:User a ex:Entity ;
+    rdfs:label "User" ;
+    rdfs:comment "A user in the system" ;
+    ex:hasProperty ex:userId, ex:email, ex:name, ex:createdAt ;
+    ex:hasRelationship ex:hasProfile, ex:hasOrders, ex:hasReviews .
+
+ex:Product a ex:Entity ;
+    rdfs:label "Product" ;
+    rdfs:comment "A product in the catalog" ;
+    ex:hasProperty ex:productId, ex:name, ex:description, ex:price, ex:category ;
+    ex:hasRelationship ex:hasReviews, ex:hasInventory, ex:belongsToCategory .
+
+ex:Order a ex:Entity ;
+    rdfs:label "Order" ;
+    rdfs:comment "A customer order" ;
+    ex:hasProperty ex:orderId, ex:userId, ex:totalAmount, ex:status, ex:createdAt ;
+    ex:hasRelationship ex:hasOrderItems, ex:belongsToUser .
+
+ex:Category a ex:Entity ;
+    rdfs:label "Category" ;
+    rdfs:comment "Product category" ;
+    ex:hasProperty ex:categoryId, ex:name, ex:description ;
+    ex:hasRelationship ex:hasProducts, ex:hasSubcategories .
+
+# Properties
+ex:userId a ex:Property ;
+    rdfs:label "User ID" ;
+    ex:dataType xsd:string ;
+    ex:isRequired true ;
+    ex:isUnique true .
+
+ex:email a ex:Property ;
+    rdfs:label "Email" ;
+    ex:dataType xsd:string ;
+    ex:isRequired true ;
+    ex:isUnique true ;
+    ex:validation "email" .
+
+ex:name a ex:Property ;
+    rdfs:label "Name" ;
+    ex:dataType xsd:string ;
+    ex:isRequired true ;
+    ex:maxLength 255 .
+
+ex:createdAt a ex:Property ;
+    rdfs:label "Created At" ;
+    ex:dataType xsd:dateTime ;
+    ex:isRequired true ;
+    ex:defaultValue "now()" .
+
+ex:productId a ex:Property ;
+    rdfs:label "Product ID" ;
+    ex:dataType xsd:string ;
+    ex:isRequired true ;
+    ex:isUnique true .
+
+ex:description a ex:Property ;
+    rdfs:label "Description" ;
+    ex:dataType xsd:string ;
+    ex:isRequired false ;
+    ex:maxLength 1000 .
+
+ex:price a ex:Property ;
+    rdfs:label "Price" ;
+    ex:dataType xsd:decimal ;
+    ex:isRequired true ;
+    ex:minValue 0.0 .
+
+ex:category a ex:Property ;
+    rdfs:label "Category" ;
+    ex:dataType xsd:string ;
+    ex:isRequired true .
+
+ex:orderId a ex:Property ;
+    rdfs:label "Order ID" ;
+    ex:dataType xsd:string ;
+    ex:isRequired true ;
+    ex:isUnique true .
+
+ex:totalAmount a ex:Property ;
+    rdfs:label "Total Amount" ;
+    ex:dataType xsd:decimal ;
+    ex:isRequired true ;
+    ex:minValue 0.0 .
+
+ex:status a ex:Property ;
+    rdfs:label "Status" ;
+    ex:dataType xsd:string ;
+    ex:isRequired true ;
+    ex:allowedValues "pending", "confirmed", "shipped", "delivered", "cancelled" .
+
+ex:categoryId a ex:Property ;
+    rdfs:label "Category ID" ;
+    ex:dataType xsd:string ;
+    ex:isRequired true ;
+    ex:isUnique true .
+
+# Relationships
+ex:hasProfile a ex:Relationship ;
+    rdfs:label "Has Profile" ;
+    ex:fromEntity ex:User ;
+    ex:toEntity ex:Profile ;
+    ex:cardinality "1:1" .
+
+ex:hasOrders a ex:Relationship ;
+    rdfs:label "Has Orders" ;
+    ex:fromEntity ex:User ;
+    ex:toEntity ex:Order ;
+    ex:cardinality "1:N" .
+
+ex:hasReviews a ex:Relationship ;
+    rdfs:label "Has Reviews" ;
+    ex:fromEntity ex:User ;
+    ex:toEntity ex:Review ;
+    ex:cardinality "1:N" .
+
+ex:hasOrderItems a ex:Relationship ;
+    rdfs:label "Has Order Items" ;
+    ex:fromEntity ex:Order ;
+    ex:toEntity ex:OrderItem ;
+    ex:cardinality "1:N" .
+
+ex:belongsToUser a ex:Relationship ;
+    rdfs:label "Belongs To User" ;
+    ex:fromEntity ex:Order ;
+    ex:toEntity ex:User ;
+    ex:cardinality "N:1" .
+
+ex:hasProducts a ex:Relationship ;
+    rdfs:label "Has Products" ;
+    ex:fromEntity ex:Category ;
+    ex:toEntity ex:Product ;
+    ex:cardinality "1:N" .
+
+ex:belongsToCategory a ex:Relationship ;
+    rdfs:label "Belongs To Category" ;
+    ex:fromEntity ex:Product ;
+    ex:toEntity ex:Category ;
+    ex:cardinality "N:1" .
+
+# API Endpoints
+ex:UserAPI a ex:APIEndpoint ;
+    rdfs:label "User API" ;
+    ex:basePath "/api/v1/users" ;
+    ex:hasEndpoint ex:GetUsers, ex:GetUser, ex:CreateUser, ex:UpdateUser, ex:DeleteUser .
+
+ex:ProductAPI a ex:APIEndpoint ;
+    rdfs:label "Product API" ;
+    ex:basePath "/api/v1/products" ;
+    ex:hasEndpoint ex:GetProducts, ex:GetProduct, ex:CreateProduct, ex:UpdateProduct, ex:DeleteProduct .
+
+ex:OrderAPI a ex:APIEndpoint ;
+    rdfs:label "Order API" ;
+    ex:basePath "/api/v1/orders" ;
+    ex:hasEndpoint ex:GetOrders, ex:GetOrder, ex:CreateOrder, ex:UpdateOrder, ex:CancelOrder .
+
+# Individual Endpoints
+ex:GetUsers a ex:Endpoint ;
+    rdfs:label "Get Users" ;
+    ex:method "GET" ;
+    ex:path "/api/v1/users" ;
+    ex:description "Retrieve all users" ;
+    ex:responseType ex:UserList ;
+    ex:requiresAuth true .
+
+ex:GetUser a ex:Endpoint ;
+    rdfs:label "Get User" ;
+    ex:method "GET" ;
+    ex:path "/api/v1/users/{id}" ;
+    ex:description "Retrieve a specific user" ;
+    ex:responseType ex:User ;
+    ex:requiresAuth true .
+
+ex:CreateUser a ex:Endpoint ;
+    rdfs:label "Create User" ;
+    ex:method "POST" ;
+    ex:path "/api/v1/users" ;
+    ex:description "Create a new user" ;
+    ex:requestType ex:CreateUserRequest ;
+    ex:responseType ex:User ;
+    ex:requiresAuth true .
+
+ex:GetProducts a ex:Endpoint ;
+    rdfs:label "Get Products" ;
+    ex:method "GET" ;
+    ex:path "/api/v1/products" ;
+    ex:description "Retrieve all products" ;
+    ex:responseType ex:ProductList ;
+    ex:requiresAuth false .
+
+ex:GetProduct a ex:Endpoint ;
+    rdfs:label "Get Product" ;
+    ex:method "GET" ;
+    ex:path "/api/v1/products/{id}" ;
+    ex:description "Retrieve a specific product" ;
+    ex:responseType ex:Product ;
+    ex:requiresAuth false .
+
+ex:CreateOrder a ex:Endpoint ;
+    rdfs:label "Create Order" ;
+    ex:method "POST" ;
+    ex:path "/api/v1/orders" ;
+    ex:description "Create a new order" ;
+    ex:requestType ex:CreateOrderRequest ;
+    ex:responseType ex:Order ;
+    ex:requiresAuth true .
+
+# Database Schema
+ex:DatabaseSchema a ex:Schema ;
+    rdfs:label "Database Schema" ;
+    ex:hasTable ex:UsersTable, ex:ProductsTable, ex:OrdersTable, ex:CategoriesTable .
+
+ex:UsersTable a ex:Table ;
+    rdfs:label "Users Table" ;
+    ex:tableName "users" ;
+    ex:hasColumn ex:UserIdColumn, ex:EmailColumn, ex:NameColumn, ex:CreatedAtColumn .
+
+ex:ProductsTable a ex:Table ;
+    rdfs:label "Products Table" ;
+    ex:tableName "products" ;
+    ex:hasColumn ex:ProductIdColumn, ex:NameColumn, ex:DescriptionColumn, ex:PriceColumn, ex:CategoryIdColumn .
+
+ex:OrdersTable a ex:Table ;
+    rdfs:label "Orders Table" ;
+    ex:tableName "orders" ;
+    ex:hasColumn ex:OrderIdColumn, ex:UserIdColumn, ex:TotalAmountColumn, ex:StatusColumn, ex:CreatedAtColumn .
+
+ex:CategoriesTable a ex:Table ;
+    rdfs:label "Categories Table" ;
+    ex:tableName "categories" ;
+    ex:hasColumn ex:CategoryIdColumn, ex:NameColumn, ex:DescriptionColumn .
+
+# Table Columns
+ex:UserIdColumn a ex:Column ;
+    rdfs:label "User ID Column" ;
+    ex:columnName "user_id" ;
+    ex:dataType "VARCHAR(255)" ;
+    ex:isPrimaryKey true ;
+    ex:isNotNull true .
+
+ex:EmailColumn a ex:Column ;
+    rdfs:label "Email Column" ;
+    ex:columnName "email" ;
+    ex:dataType "VARCHAR(255)" ;
+    ex:isUnique true ;
+    ex:isNotNull true .
+
+ex:NameColumn a ex:Column ;
+    rdfs:label "Name Column" ;
+    ex:columnName "name" ;
+    ex:dataType "VARCHAR(255)" ;
+    ex:isNotNull true .
+
+ex:CreatedAtColumn a ex:Column ;
+    rdfs:label "Created At Column" ;
+    ex:columnName "created_at" ;
+    ex:dataType "TIMESTAMP" ;
+    ex:isNotNull true ;
+    ex:defaultValue "CURRENT_TIMESTAMP" .
+
+ex:ProductIdColumn a ex:Column ;
+    rdfs:label "Product ID Column" ;
+    ex:columnName "product_id" ;
+    ex:dataType "VARCHAR(255)" ;
+    ex:isPrimaryKey true ;
+    ex:isNotNull true .
+
+ex:DescriptionColumn a ex:Column ;
+    rdfs:label "Description Column" ;
+    ex:columnName "description" ;
+    ex:dataType "TEXT" ;
+    ex:isNotNull false .
+
+ex:PriceColumn a ex:Column ;
+    rdfs:label "Price Column" ;
+    ex:columnName "price" ;
+    ex:dataType "DECIMAL(10,2)" ;
+    ex:isNotNull true .
+
+ex:CategoryIdColumn a ex:Column ;
+    rdfs:label "Category ID Column" ;
+    ex:columnName "category_id" ;
+    ex:dataType "VARCHAR(255)" ;
+    ex:isNotNull true ;
+    ex:isForeignKey ex:CategoriesTable .
+
+ex:OrderIdColumn a ex:Column ;
+    rdfs:label "Order ID Column" ;
+    ex:columnName "order_id" ;
+    ex:dataType "VARCHAR(255)" ;
+    ex:isPrimaryKey true ;
+    ex:isNotNull true .
+
+ex:TotalAmountColumn a ex:Column ;
+    rdfs:label "Total Amount Column" ;
+    ex:columnName "total_amount" ;
+    ex:dataType "DECIMAL(10,2)" ;
+    ex:isNotNull true .
+
+ex:StatusColumn a ex:Column ;
+    rdfs:label "Status Column" ;
+    ex:columnName "status" ;
+    ex:dataType "VARCHAR(50)" ;
+    ex:isNotNull true ;
+    ex:defaultValue "pending" .
+
+ex:CategoryIdColumn a ex:Column ;
+    rdfs:label "Category ID Column" ;
+    ex:columnName "category_id" ;
+    ex:dataType "VARCHAR(255)" ;
+    ex:isPrimaryKey true ;
+    ex:isNotNull true .
