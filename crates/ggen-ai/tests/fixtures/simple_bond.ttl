@@ -1,0 +1,123 @@
+@prefix : <http://example.com/test#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Simple Bond class for testing basic extraction
+:Bond a owl:Class ;
+    rdfs:label "Test Bond" ;
+    rdfs:comment "A test bond for extraction" .
+
+# Datatype properties with ranges
+:hasISIN a owl:DatatypeProperty ;
+    rdfs:domain :Bond ;
+    rdfs:range xsd:string ;
+    rdfs:label "has ISIN" ;
+    rdfs:comment "International Securities Identification Number" .
+
+:hasMaturityDate a owl:DatatypeProperty ;
+    rdfs:domain :Bond ;
+    rdfs:range xsd:date ;
+    rdfs:label "has maturity date" .
+
+:hasCouponRate a owl:DatatypeProperty ;
+    rdfs:domain :Bond ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has coupon rate" .
+
+:hasParValue a owl:DatatypeProperty ;
+    rdfs:domain :Bond ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has par value" .
+
+# Object property
+:Issuer a owl:Class ;
+    rdfs:label "Issuer" ;
+    rdfs:comment "Bond issuer organization" .
+
+:hasIssuer a owl:ObjectProperty ;
+    rdfs:domain :Bond ;
+    rdfs:range :Issuer ;
+    rdfs:label "has issuer" .
+
+# Bond with cardinality restrictions
+:BondWithRestrictions a owl:Class ;
+    rdfs:subClassOf :Bond ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasISIN ;
+        owl:cardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasMaturityDate ;
+        owl:minCardinality 1
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasCouponRate ;
+        owl:maxCardinality 1
+    ] .
+
+# Bond with datatype restrictions (pattern and length)
+:BondWithDatatypeRestrictions a owl:Class ;
+    rdfs:subClassOf :Bond ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasISIN ;
+        owl:allValuesFrom [
+            a rdfs:Datatype ;
+            owl:onDatatype xsd:string ;
+            owl:withRestrictions (
+                [ xsd:pattern "[A-Z]{2}[A-Z0-9]{10}" ]
+                [ xsd:minLength 12 ]
+                [ xsd:maxLength 12 ]
+            )
+        ]
+    ] .
+
+# Bond with value restrictions
+:BondWithValueRestrictions a owl:Class ;
+    rdfs:subClassOf :Bond ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasIssuer ;
+        owl:allValuesFrom :Issuer
+    ] ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasCouponRate ;
+        owl:someValuesFrom xsd:decimal
+    ] .
+
+# Bond with numeric restrictions
+:BondWithNumericRestrictions a owl:Class ;
+    rdfs:subClassOf :Bond ;
+    rdfs:subClassOf [
+        a owl:Restriction ;
+        owl:onProperty :hasCouponRate ;
+        owl:allValuesFrom [
+            a rdfs:Datatype ;
+            owl:onDatatype xsd:decimal ;
+            owl:withRestrictions (
+                [ xsd:minInclusive 0.0 ]
+                [ xsd:maxInclusive 100.0 ]
+            )
+        ]
+    ] .
+
+# Class without properties for error testing
+:EmptyClass a owl:Class ;
+    rdfs:label "Empty Class" .
+
+# Multiple properties of same type
+:hasSecondaryISIN a owl:DatatypeProperty ;
+    rdfs:domain :Bond ;
+    rdfs:range xsd:string ;
+    rdfs:label "has secondary ISIN" .
+
+:hasAlternativeISIN a owl:DatatypeProperty ;
+    rdfs:domain :Bond ;
+    rdfs:range xsd:string ;
+    rdfs:label "has alternative ISIN" .

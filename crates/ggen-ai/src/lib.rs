@@ -68,6 +68,10 @@ pub mod security;
 pub mod streaming;
 pub mod types;
 
+// LLM-Construct Pattern modules
+pub mod owl;
+pub mod llm_construct;
+
 // Test helpers for mock clients
 #[cfg(test)]
 pub mod test_helpers;
