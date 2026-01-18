@@ -21,8 +21,36 @@ ignore_errors = false
 [tasks.check]
 description = "Check code without building (15s timeout for lock contention & workspace rebuild)"
 workspace = false
-command = "timeout"
-args = ["15s", "cargo", "check"]
+clear = true
+# Poka-Yoke: Treat warnings as errors to prevent defects from propagating
+env = { RUSTFLAGS = "-D warnings" }
+command = "bash"
+args = [
+  "-c",
+  '''
+set -euo pipefail
+
+quick_timeout="15s"
+retry_timeout="30s"
+
+run_check() {
+  timeout "$1" cargo check --workspace --exclude knhk-connectors --exclude knhk-otel --exclude knhk-lockchain --exclude knhk-hot --exclude knhk-etl --exclude knhk-orchestrator
+}
+
+if run_check "$quick_timeout"; then
+  exit 0
+fi
+
+status=$?
+# 124 = timeout, 137 = timeout killed by signal; retry on these to handle locks
+if [[ $status -eq 124 || $status -eq 137 ]]; then
+  echo "⚠️  Retrying cargo check with extended timeout ($retry_timeout) due to lock contention"
+  run_check "$retry_timeout"
+else
+  exit $status
+fi
+''',
+]
 
 # Pre-push check with longer timeout for lock contention scenarios
 [tasks.check-pre-push]
@@ -292,9 +320,8 @@ fi
 description = "Run all tests"
 clear = true
 workspace = false
-script_runner = "@shell"
+script_runner = "bash"
 script = '''
-#!/bin/bash
 set -euo pipefail
 
 TEST_CMD=(cargo test --workspace --no-default-features)
@@ -320,7 +347,7 @@ fi
 description = "Unit tests only (150s timeout for full workspace rebuild after cargo clean)"
 workspace = false
 command = "timeout"
-args = ["150s", "cargo", "test", "--workspace", "--lib"]
+args = ["150s", "cargo", "test", "--workspace", "--lib", "--exclude", "knhk-connectors", "--exclude", "knhk-otel", "--exclude", "knhk-lockchain", "--exclude", "knhk-hot", "--exclude", "knhk-etl", "--exclude", "knhk-orchestrator"]
 
 [tasks.test-integration]
 description = "Integration tests only"

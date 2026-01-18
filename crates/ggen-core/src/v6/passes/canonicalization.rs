@@ -10,21 +10,17 @@ use std::time::Instant;
 
 /// Canonicalization policy for different file types
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Default)]
 pub enum CanonicalizationPolicy {
     /// No formatting (preserve as-is)
     None,
     /// Remove trailing whitespace only
     TrimTrailingWhitespace,
     /// Normalize line endings to LF
+    #[default]
     NormalizeLineEndings,
     /// Full formatting (language-specific)
     Format,
-}
-
-impl Default for CanonicalizationPolicy {
-    fn default() -> Self {
-        Self::NormalizeLineEndings
-    }
 }
 
 /// μ₄: Canonicalization pass implementation

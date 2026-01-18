@@ -347,6 +347,7 @@ impl DriftDetector {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use ggen_utils::error::{Error, Result};
     use std::io::Write;
     use tempfile::TempDir;
 

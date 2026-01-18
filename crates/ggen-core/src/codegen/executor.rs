@@ -535,9 +535,9 @@ impl SyncExecutor {
             for rule in &state.executed_rules {
                 if rule.rule_type == RuleType::Generation {
                     eprintln!(
-                        "  {} {}",
+                        "  {} ({})",
                         rule.name,
-                        format!("({})", format_duration(rule.duration_ms))
+                        format_duration(rule.duration_ms)
                     );
                 }
             }

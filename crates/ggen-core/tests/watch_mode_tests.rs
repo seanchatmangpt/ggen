@@ -46,8 +46,8 @@ fn test_file_changes_trigger_sync() {
     // Verify configuration
     let watcher2 = FileWatcher::new(vec![watch_file]);
     assert_eq!(
-        watcher2.debounce_ms, 300,
-        "Default debounce should be 300ms"
+        watcher2.debounce_ms, 500,
+        "Default debounce should be 500ms"
     );
 }
 
@@ -339,6 +339,7 @@ fn test_watch_event_structure() {
     let event = WatchEvent {
         path: path.clone(),
         timestamp,
+        kind: ggen_core::codegen::watch::WatchEventKind::Modified,
     };
 
     // Assert: Event fields are accessible

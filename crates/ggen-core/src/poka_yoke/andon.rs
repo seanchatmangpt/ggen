@@ -130,7 +130,7 @@ impl AndonSignal {
             .map(|cycle| {
                 cycle
                     .iter()
-                    .map(|f| format!("{}", f))
+                    .map(|f| f.to_string())
                     .collect::<Vec<_>>()
                     .join(" → ")
             })
@@ -178,7 +178,7 @@ impl AndonSignal {
         AndonSignal::Yellow(Warning {
             code: "UNUSED_FILES".to_string(),
             message: format!("Found {} unused ontology files:", files.len()),
-            suggestion: if files.len() > 0 {
+            suggestion: if !files.is_empty() {
                 format!(
                     "If these aren't needed, delete them.\nOtherwise add to imports: ontology.imports = [{}]",
                     files.iter()
@@ -282,7 +282,6 @@ mod tests {
     fn test_red_signal_manifest_invalid() {
         let signal = AndonSignal::manifest_invalid(
             vec!["[ontology].source".to_string()],
-            "Add ontology section".to_string(),
         );
         assert!(signal.is_red());
     }

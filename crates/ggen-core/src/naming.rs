@@ -129,6 +129,19 @@ impl NamingValidator {
 
     /// Validate a type name (should be PascalCase)
     pub fn validate_type_name(&self, name: &str) -> Result<()> {
+        // Reject all-uppercase names with multiple letters (e.g., GENERATEFILEOPTIONS)
+        // Single uppercase letters (e.g., "A") are valid
+        if name.len() > 1 && name.chars().all(|c| c.is_uppercase() || c.is_numeric()) && name.chars().any(|c| c.is_alphabetic()) {
+            return Err(Error::invalid_input(
+                NamingError::new(
+                    ViolationType::InvalidTypeName,
+                    format!("Type name '{}' must be PascalCase, not all uppercase", name),
+                    Some("Use PascalCase (e.g., GenerateFileOptions instead of GENERATEFILEOPTIONS)".to_string()),
+                )
+                .to_string(),
+            ));
+        }
+
         if self.type_pattern.is_match(name) {
             Ok(())
         } else {

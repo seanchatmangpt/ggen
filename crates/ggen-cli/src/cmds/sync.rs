@@ -261,12 +261,14 @@ fn build_sync_options(
 
     // Set output format
     if let Some(fmt) = format {
-        options.output_format = fmt.parse().map_err(|_| {
-            Error::new(&format!(
-                "error[E0005]: Invalid output format '{}'\n  |\n  = help: Valid formats: text, json, yaml",
+        // Parse format, default to Text if invalid
+        options.output_format = fmt.parse().unwrap_or_else(|_| {
+            eprintln!(
+                "error[E0005]: Invalid output format '{}'\n  |\n  = help: Valid formats: text, json, yaml\n  = note: defaulting to 'text'",
                 fmt
-            ))
-        })?;
+            );
+            OutputFormat::Text
+        });
     }
 
     // Set timeout

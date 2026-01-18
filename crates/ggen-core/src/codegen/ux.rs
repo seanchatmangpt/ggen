@@ -151,7 +151,7 @@ pub fn info_message(message: &str) -> String {
 /// or `Err` if there's an I/O error.
 pub fn confirm_prompt(message: &str, default: bool) -> io::Result<bool> {
     let default_text = if default { "[Y/n]" } else { "[y/N]" };
-    print!("{} {} ", "?".yellow().bold(), format!("{} {}", message, default_text));
+    print!("{} {} {} ", "?".yellow().bold(), message, default_text);
     io::stdout().flush()?;
 
     let mut input = String::new();

@@ -25,8 +25,10 @@ use std::time::Instant;
 
 /// Verification mode for the pipeline
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Default)]
 pub enum VerifyMode {
     /// Don't verify, just generate
+    #[default]
     None,
     /// Verify inputs match epoch before running
     VerifyInputs,
@@ -34,12 +36,6 @@ pub enum VerifyMode {
     VerifyOutputs,
     /// Verify both inputs and outputs
     Full,
-}
-
-impl Default for VerifyMode {
-    fn default() -> Self {
-        Self::None
-    }
 }
 
 /// Pipeline configuration

@@ -54,6 +54,7 @@ impl fmt::Display for AndonSignal {
     }
 }
 
+#[derive(Debug)]
 pub struct AndonContext {
     pub signal: AndonSignal,
     pub message: String,

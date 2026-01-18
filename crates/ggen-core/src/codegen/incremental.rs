@@ -184,7 +184,7 @@ impl IncrementalGenerator {
     }
 
     /// Create with default configuration
-    pub fn default() -> Self {
+    pub fn with_defaults() -> Self {
         Self::new(IncrementalConfig::default())
     }
 
@@ -299,7 +299,7 @@ impl IncrementalGenerator {
 
 impl Default for IncrementalGenerator {
     fn default() -> Self {
-        Self::default()
+        Self::new(IncrementalConfig::default())
     }
 }
 

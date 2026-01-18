@@ -8,6 +8,7 @@ extern crate alloc;
 use alloc::string::String;
 use alloc::vec::Vec;
 use alloc::collections::BTreeMap;
+use alloc::format;
 
 #[cfg(feature = "std")]
 use hashbrown::HashMap;
@@ -450,8 +451,9 @@ impl ConnectorRegistry {
     }
 }
 
-pub mod kafka;
-pub mod salesforce;
+// TODO: Implement kafka and salesforce modules
+// pub mod kafka;
+// pub mod salesforce;
 
 #[cfg(test)]
 mod tests {

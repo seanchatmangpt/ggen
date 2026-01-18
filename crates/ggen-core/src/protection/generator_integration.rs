@@ -16,7 +16,7 @@ impl GeneratorPathGuard {
         Self { protector }
     }
 
-    pub fn default() -> Self {
+    pub fn with_defaults() -> Self {
         Self {
             protector: PathProtector::default_protection(),
         }
@@ -93,14 +93,14 @@ mod tests {
 
     #[test]
     fn test_generator_guard_blocks_protected() {
-        let guard = GeneratorPathGuard::default();
+        let guard = GeneratorPathGuard::with_defaults();
         let result = guard.verify_write_path(Path::new(".env"));
         assert!(result.is_err());
     }
 
     #[test]
     fn test_generator_guard_allows_regeneratable() {
-        let guard = GeneratorPathGuard::default();
+        let guard = GeneratorPathGuard::with_defaults();
         let result = guard.verify_write_path(Path::new("src/main.rs"));
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), AndonSignal::Green);
@@ -108,7 +108,7 @@ mod tests {
 
     #[test]
     fn test_verify_multiple_paths() {
-        let guard = GeneratorPathGuard::default();
+        let guard = GeneratorPathGuard::with_defaults();
         let paths = vec![
             PathBuf::from("src/main.rs"),
             PathBuf::from("src/generated/mod.rs"),
@@ -118,7 +118,7 @@ mod tests {
 
     #[test]
     fn test_verify_paths_with_protected() {
-        let guard = GeneratorPathGuard::default();
+        let guard = GeneratorPathGuard::with_defaults();
         let paths = vec![
             PathBuf::from("src/main.rs"),
             PathBuf::from(".env"),

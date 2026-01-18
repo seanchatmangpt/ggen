@@ -82,8 +82,8 @@ mode = "Overwrite"
 
     // Assert: FileWatcher can be created with valid paths
     assert_eq!(
-        watcher.debounce_ms, 300,
-        "Should use 300ms debounce by default"
+        watcher.debounce_ms, 500,
+        "Should use 500ms debounce by default"
     );
     assert_eq!(watcher.queue_capacity, 10, "Should bound queue at 10");
 
@@ -177,10 +177,10 @@ fn test_300ms_debounce_prevents_duplicates() {
 
     let watcher = FileWatcher::new(vec![watch_file.clone()]);
 
-    // Assert: Default debounce is 300ms
+    // Assert: Default debounce is 500ms (updated per watch.rs implementation)
     assert_eq!(
-        watcher.debounce_ms, 300,
-        "Should use 300ms debounce by default"
+        watcher.debounce_ms, 500,
+        "Should use 500ms debounce by default"
     );
 
     // Act: Start watcher

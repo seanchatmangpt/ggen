@@ -9,7 +9,7 @@
 
 use ggen_cli_lib::cmds::init::InitOutput;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use tempfile::TempDir;
 
 #[cfg(unix)]
@@ -24,7 +24,8 @@ use std::os::unix::fs::PermissionsExt;
 /// and verify the InitOutput structure.
 fn init_project(path: &str, force: bool) -> InitOutput {
     // Call the public init function from the CLI module
-    ggen_cli_lib::cmds::init::init(Some(path.to_string()), Some(force))
+    // skip_hooks = true for tests to avoid git dependencies
+    ggen_cli_lib::cmds::init::init(Some(path.to_string()), Some(force), Some(true))
         .expect("init should return Result")
 }
 
