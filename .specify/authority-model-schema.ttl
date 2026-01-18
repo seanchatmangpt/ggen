@@ -1,0 +1,533 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix auth: <http://ggen.io/authority/> .
+
+# =============================================================================
+# AUTHORITY MODEL ONTOLOGY
+#
+# DESIGN PHILOSOPHY:
+# "What makes a policy legally defensible under SOX/HIPAA/GDPR?"
+# Answer: WHO (signed by whom), WHAT (exact content), WHEN (timestamp),
+#         WHY (rationale), HOW (algorithm), WHERE (scope), RESULT (proof of effect)
+#
+# All facts are IMMUTABLE once recorded. Deletion is not permitted;
+# instead, we create new policy versions and audit events.
+# This design follows event sourcing + cryptographic accountability.
+# =============================================================================
+
+# =============================================================================
+# CORE CLASSES: The Five Pillars of Authority
+# =============================================================================
+
+auth:Policy a rdfs:Class ;
+    rdfs:label "Policy" ;
+    rdfs:comment "A named governance document (e.g., 'Payment Processing Rules'). Never modified in-place; instead, new versions are created." ;
+    rdfs:isDefinedBy auth: .
+
+auth:PolicyVersion a rdfs:Class ;
+    rdfs:label "Policy Version" ;
+    rdfs:comment "An immutable snapshot of a policy at a point in time. Once created, content never changes. Identified by policy ID + version number." ;
+    rdfs:isDefinedBy auth: .
+
+auth:PolicySignature a rdfs:Class ;
+    rdfs:label "Policy Signature" ;
+    rdfs:comment "Cryptographic proof of authorization. Links WHO approved WHAT policy WHEN using WHAT algorithm. Essential for non-repudiation." ;
+    rdfs:isDefinedBy auth: .
+
+auth:AuditEvent a rdfs:Class ;
+    rdfs:label "Audit Event" ;
+    rdfs:comment "Immutable record of every action on the authority system. Forms an append-only ledger. Supports queries like 'who changed policy X between date Y and Z'." ;
+    rdfs:isDefinedBy auth: .
+
+auth:AuthorityLevel a rdfs:Class ;
+    rdfs:label "Authority Level" ;
+    rdfs:comment "A role defining WHO can approve policies in WHICH domains with WHAT constraints (e.g., multi-signature, time bounds). Scoped governance." ;
+    rdfs:isDefinedBy auth: .
+
+auth:PolicyDomain a rdfs:Class ;
+    rdfs:label "Policy Domain" ;
+    rdfs:comment "A scoped area where policies apply (e.g., 'payment-processing', 'data-export'). Enables domain-scoped authority + compliance frameworks." ;
+    rdfs:isDefinedBy auth: .
+
+auth:Actor a rdfs:Class ;
+    rdfs:label "Actor" ;
+    rdfs:comment "A person, service, or system that takes actions in the authority ecosystem. All actions traced to an actor (human or service)." ;
+    rdfs:subClassOf foaf:Agent ;
+    rdfs:isDefinedBy auth: .
+
+# =============================================================================
+# POLICY STRUCTURE: Core Policy Management
+# =============================================================================
+
+auth:currentVersion a rdf:Property ;
+    rdfs:label "Current Version" ;
+    rdfs:comment "Pointer to the active PolicyVersion (for fast reads without version history traversal)" ;
+    rdfs:domain auth:Policy ;
+    rdfs:range auth:PolicyVersion ;
+    rdfs:isDefinedBy auth: .
+
+auth:hasVersionHistory a rdf:Property ;
+    rdfs:label "Has Version History" ;
+    rdfs:comment "Complete chronological chain of all PolicyVersions (immutable historical record)" ;
+    rdfs:domain auth:Policy ;
+    rdfs:range auth:PolicyVersion ;
+    rdfs:isDefinedBy auth: .
+
+auth:policyId a rdf:Property ;
+    rdfs:label "Policy ID" ;
+    rdfs:comment "Unique stable identifier (e.g., 'POL-2024-001'). Same ID used across all versions." ;
+    rdfs:domain auth:Policy ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+# =============================================================================
+# POLICY VERSION: Immutable Snapshot + Content Integrity
+# =============================================================================
+
+auth:versionNumber a rdf:Property ;
+    rdfs:label "Version Number" ;
+    rdfs:comment "Semantic version string (e.g., '1.0.0', '2.3.1'). Increments with each change." ;
+    rdfs:domain auth:PolicyVersion ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:policyContent a rdf:Property ;
+    rdfs:label "Policy Content" ;
+    rdfs:comment "The actual rules/text of the policy (UTF-8 JSON, markdown, or plain text). IMMUTABLE once recorded." ;
+    rdfs:domain auth:PolicyVersion ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:contentHash a rdf:Property ;
+    rdfs:label "Content Hash (SHA-256)" ;
+    rdfs:comment "Cryptographic hash (base64) of policyContent. Enables integrity verification and non-repudiation (signatures reference this hash)." ;
+    rdfs:domain auth:PolicyVersion ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:appliesTo a rdf:Property ;
+    rdfs:label "Applies To Domain" ;
+    rdfs:comment "Which PolicyDomain(s) this policy governs (e.g., payment-processing applies to 'payments' domain)" ;
+    rdfs:domain auth:PolicyVersion ;
+    rdfs:range auth:PolicyDomain ;
+    rdfs:isDefinedBy auth: .
+
+auth:createdAt a rdf:Property ;
+    rdfs:label "Created At" ;
+    rdfs:comment "ISO 8601 timestamp when this version was recorded (immutable). Timezone-aware for compliance audits." ;
+    rdfs:domain auth:PolicyVersion ;
+    rdfs:range xsd:dateTime ;
+    rdfs:isDefinedBy auth: .
+
+auth:createdBy a rdf:Property ;
+    rdfs:label "Created By" ;
+    rdfs:comment "Actor who authored this version (not approver, but drafter). Enables 'who wrote what' traceability." ;
+    rdfs:domain auth:PolicyVersion ;
+    rdfs:range auth:Actor ;
+    rdfs:isDefinedBy auth: .
+
+auth:effectiveFrom a rdf:Property ;
+    rdfs:label "Effective From" ;
+    rdfs:comment "ISO 8601 timestamp when policy takes effect. May be in future (for planned policies)." ;
+    rdfs:domain auth:PolicyVersion ;
+    rdfs:range xsd:dateTime ;
+    rdfs:isDefinedBy auth: .
+
+auth:effectiveUntil a rdf:Property ;
+    rdfs:label "Effective Until" ;
+    rdfs:comment "ISO 8601 timestamp when policy expires and is no longer in force. Optional (policies may be perpetual)." ;
+    rdfs:domain auth:PolicyVersion ;
+    rdfs:range xsd:dateTime ;
+    rdfs:isDefinedBy auth: .
+
+auth:rationale a rdf:Property ;
+    rdfs:label "Rationale / Change Summary" ;
+    rdfs:comment "Business reason for creating this version (e.g., 'GDPR Article 6 compliance', 'Fix issue X'). Essential for audit trail." ;
+    rdfs:domain auth:PolicyVersion ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:linkedChangeRequest a rdf:Property ;
+    rdfs:label "Linked Change Request" ;
+    rdfs:comment "URI to external ticket/RFC that triggered this change (e.g., JIRA link, RFC number). Connects policy to business driver." ;
+    rdfs:domain auth:PolicyVersion ;
+    rdfs:range xsd:anyURI ;
+    rdfs:isDefinedBy auth: .
+
+auth:hasSignature a rdf:Property ;
+    rdfs:label "Has Signature" ;
+    rdfs:comment "PolicySignature approving this version. May be multiple (for multi-approver policies)." ;
+    rdfs:domain auth:PolicyVersion ;
+    rdfs:range auth:PolicySignature ;
+    rdfs:isDefinedBy auth: .
+
+# =============================================================================
+# SIGNATURE: Cryptographic Non-Repudiation
+# =============================================================================
+
+auth:signedVersion a rdf:Property ;
+    rdfs:label "Signed Version" ;
+    rdfs:comment "Back-reference to the PolicyVersion this signature approves" ;
+    rdfs:domain auth:PolicySignature ;
+    rdfs:range auth:PolicyVersion ;
+    rdfs:isDefinedBy auth: .
+
+auth:signedBy a rdf:Property ;
+    rdfs:label "Signed By" ;
+    rdfs:comment "Actor (person or service) who created this signature. Non-repudiation: they cannot deny signing." ;
+    rdfs:domain auth:PolicySignature ;
+    rdfs:range auth:Actor ;
+    rdfs:isDefinedBy auth: .
+
+auth:signatureTimestamp a rdf:Property ;
+    rdfs:label "Signature Timestamp" ;
+    rdfs:comment "ISO 8601 timestamp when signature was created (immutable). Must be >= policyVersion.createdAt." ;
+    rdfs:domain auth:PolicySignature ;
+    rdfs:range xsd:dateTime ;
+    rdfs:isDefinedBy auth: .
+
+auth:signatureAlgorithm a rdf:Property ;
+    rdfs:label "Signature Algorithm" ;
+    rdfs:comment "Cryptographic algorithm (e.g., 'RSA-SHA256', 'ECDSA-SHA256'). Determines verification method." ;
+    rdfs:domain auth:PolicySignature ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:signatureValue a rdf:Property ;
+    rdfs:label "Signature Value" ;
+    rdfs:comment "Base64-encoded signature bytes. Signed over (contentHash || timestamp || signingKey)." ;
+    rdfs:domain auth:PolicySignature ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:certificateReference a rdf:Property ;
+    rdfs:label "Certificate Reference" ;
+    rdfs:comment "URI/fingerprint of the public certificate used to verify this signature. Enables offline verification." ;
+    rdfs:domain auth:PolicySignature ;
+    rdfs:range xsd:anyURI ;
+    rdfs:isDefinedBy auth: .
+
+auth:signatureStatus a rdf:Property ;
+    rdfs:label "Signature Status" ;
+    rdfs:comment "Lifecycle state: 'VALID' (current), 'REVOKED' (actor revoked authority), 'EXPIRED' (time-bound authority ended)" ;
+    rdfs:domain auth:PolicySignature ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:signingAuthority a rdf:Property ;
+    rdfs:label "Signing Authority" ;
+    rdfs:comment "AuthorityLevel that permitted this signature (e.g., 'CFO' level, 'Data Steward' level)" ;
+    rdfs:domain auth:PolicySignature ;
+    rdfs:range auth:AuthorityLevel ;
+    rdfs:isDefinedBy auth: .
+
+auth:multiApprovalRound a rdf:Property ;
+    rdfs:label "Multi-Approval Round" ;
+    rdfs:comment "For multi-signature policies: which round is this (1st, 2nd, etc.)? Used to verify full approval chain." ;
+    rdfs:domain auth:PolicySignature ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy auth: .
+
+# =============================================================================
+# AUDIT EVENT: Immutable Event Log for Forensics
+# =============================================================================
+
+auth:eventId a rdf:Property ;
+    rdfs:label "Event ID" ;
+    rdfs:comment "Unique immutable identifier (UUID) for this audit event. Used for deduplication and forensics." ;
+    rdfs:domain auth:AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:eventTimestamp a rdf:Property ;
+    rdfs:label "Event Timestamp" ;
+    rdfs:comment "ISO 8601 timestamp when action occurred (immutable). Timezone-aware." ;
+    rdfs:domain auth:AuditEvent ;
+    rdfs:range xsd:dateTime ;
+    rdfs:isDefinedBy auth: .
+
+auth:eventActor a rdf:Property ;
+    rdfs:label "Event Actor" ;
+    rdfs:comment "Who performed the action (human or service account). Enables accountability." ;
+    rdfs:domain auth:AuditEvent ;
+    rdfs:range auth:Actor ;
+    rdfs:isDefinedBy auth: .
+
+auth:eventType a rdf:Property ;
+    rdfs:label "Event Type" ;
+    rdfs:comment "Type of action: POLICY_CREATED, POLICY_MODIFIED, SIGNATURE_ADDED, POLICY_EXECUTED, EXECUTION_DENIED, AUTHORITY_GRANTED, AUTHORITY_REVOKED, etc." ;
+    rdfs:domain auth:AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:targetResource a rdf:Property ;
+    rdfs:label "Target Resource" ;
+    rdfs:comment "URI of the primary resource affected (policy, signature, authority)" ;
+    rdfs:domain auth:AuditEvent ;
+    rdfs:range xsd:anyURI ;
+    rdfs:isDefinedBy auth: .
+
+auth:targetResourceBefore a rdf:Property ;
+    rdfs:label "Target Resource State Before" ;
+    rdfs:comment "State snapshot BEFORE change (for policy modifications). Enables change diffing." ;
+    rdfs:domain auth:AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:targetResourceAfter a rdf:Property ;
+    rdfs:label "Target Resource State After" ;
+    rdfs:comment "State snapshot AFTER change (for policy modifications). Enables change diffing." ;
+    rdfs:domain auth:AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:eventReason a rdf:Property ;
+    rdfs:label "Event Reason / Justification" ;
+    rdfs:comment "Why the action was taken (e.g., 'GDPR article 28 requirement', 'Security hotfix', 'Compliance audit finding')." ;
+    rdfs:domain auth:AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:eventStatus a rdf:Property ;
+    rdfs:label "Event Status" ;
+    rdfs:comment "Outcome: 'SUCCESS' (action completed), 'DENIED' (authorization check failed), 'FAILED' (exception occurred)" ;
+    rdfs:domain auth:AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:denialReason a rdf:Property ;
+    rdfs:label "Denial/Failure Reason" ;
+    rdfs:comment "If DENIED or FAILED: Why the action was rejected (e.g., 'actor lacks authority in domain', 'insufficient signatures')" ;
+    rdfs:domain auth:AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:previousEvent a rdf:Property ;
+    rdfs:label "Previous Event" ;
+    rdfs:comment "Immutable chain pointer. Each event references prior event, forming an append-only ledger. Enables integrity verification." ;
+    rdfs:domain auth:AuditEvent ;
+    rdfs:range auth:AuditEvent ;
+    rdfs:isDefinedBy auth: .
+
+auth:relatedPolicy a rdf:Property ;
+    rdfs:label "Related Policy" ;
+    rdfs:comment "If this event is policy-related, link to the policy" ;
+    rdfs:domain auth:AuditEvent ;
+    rdfs:range auth:Policy ;
+    rdfs:isDefinedBy auth: .
+
+auth:relatedSignature a rdf:Property ;
+    rdfs:label "Related Signature" ;
+    rdfs:comment "If this event is signature-related, link to the signature" ;
+    rdfs:domain auth:AuditEvent ;
+    rdfs:range auth:PolicySignature ;
+    rdfs:isDefinedBy auth: .
+
+auth:sourceIpAddress a rdf:Property ;
+    rdfs:label "Source IP Address" ;
+    rdfs:comment "IP address of actor (if remote action). Useful for forensics and intrusion detection." ;
+    rdfs:domain auth:AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:userAgent a rdf:Property ;
+    rdfs:label "User Agent" ;
+    rdfs:comment "Client software identifier (e.g., 'ggen-cli/1.0', 'web-ui/2.3'). Helps diagnose issues." ;
+    rdfs:domain auth:AuditEvent ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+# =============================================================================
+# AUTHORITY LEVEL: Scoped Governance + Delegation
+# =============================================================================
+
+auth:authorityId a rdf:Property ;
+    rdfs:label "Authority ID" ;
+    rdfs:comment "Unique stable identifier (e.g., 'AUTH-HIPAA-OFFICER')" ;
+    rdfs:domain auth:AuthorityLevel ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:authorityName a rdf:Property ;
+    rdfs:label "Authority Name" ;
+    rdfs:comment "Human-readable role name (e.g., 'HIPAA Compliance Officer', 'CFO', 'Data Steward - EU')" ;
+    rdfs:domain auth:AuthorityLevel ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:authorityDescription a rdf:Property ;
+    rdfs:label "Authority Description" ;
+    rdfs:comment "What this role permits (e.g., 'Can approve payment policies and execute payment rules')" ;
+    rdfs:domain auth:AuthorityLevel ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:canApproveDomains a rdf:Property ;
+    rdfs:label "Can Approve Domains" ;
+    rdfs:comment "Which PolicyDomains can this authority approve policies for? Enables domain scoping." ;
+    rdfs:domain auth:AuthorityLevel ;
+    rdfs:range auth:PolicyDomain ;
+    rdfs:isDefinedBy auth: .
+
+auth:canExecuteInDomains a rdf:Property ;
+    rdfs:label "Can Execute In Domains" ;
+    rdfs:comment "Which PolicyDomains can this authority execute/invoke policies in? May differ from approval scope." ;
+    rdfs:domain auth:AuthorityLevel ;
+    rdfs:range auth:PolicyDomain ;
+    rdfs:isDefinedBy auth: .
+
+auth:requiresMultipleSignatures a rdf:Property ;
+    rdfs:label "Requires Multiple Signatures" ;
+    rdfs:comment "Boolean: if true, a policy approved by this authority alone is not sufficient; additional signers required." ;
+    rdfs:domain auth:AuthorityLevel ;
+    rdfs:range xsd:boolean ;
+    rdfs:isDefinedBy auth: .
+
+auth:requiredSignatureCount a rdf:Property ;
+    rdfs:label "Required Signature Count" ;
+    rdfs:comment "How many total signatories must approve a policy for this authority level? E.g., 2 (CFO + Board Chair)" ;
+    rdfs:domain auth:AuthorityLevel ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy auth: .
+
+auth:canDelegate a rdf:Property ;
+    rdfs:label "Can Delegate" ;
+    rdfs:comment "Can this authority delegate its powers to another actor (temporary delegation)?" ;
+    rdfs:domain auth:AuthorityLevel ;
+    rdfs:range xsd:boolean ;
+    rdfs:isDefinedBy auth: .
+
+auth:delegatesTo a rdf:Property ;
+    rdfs:label "Delegates To" ;
+    rdfs:comment "If delegated: who temporarily holds this authority (for succession planning)" ;
+    rdfs:domain auth:AuthorityLevel ;
+    rdfs:range auth:Actor ;
+    rdfs:isDefinedBy auth: .
+
+auth:authorityValidFrom a rdf:Property ;
+    rdfs:label "Authority Valid From" ;
+    rdfs:comment "ISO 8601 timestamp when this authority assignment becomes effective" ;
+    rdfs:domain auth:AuthorityLevel ;
+    rdfs:range xsd:dateTime ;
+    rdfs:isDefinedBy auth: .
+
+auth:authorityValidUntil a rdf:Property ;
+    rdfs:label "Authority Valid Until" ;
+    rdfs:comment "ISO 8601 timestamp when this authority assignment expires (e.g., end of fiscal year, end of employment)" ;
+    rdfs:domain auth:AuthorityLevel ;
+    rdfs:range xsd:dateTime ;
+    rdfs:isDefinedBy auth: .
+
+auth:approvalRiskLevel a rdf:Property ;
+    rdfs:label "Approval Risk Level" ;
+    rdfs:comment "Minimum risk level for policies this authority can approve (e.g., CRITICAL, HIGH, MEDIUM, LOW)" ;
+    rdfs:domain auth:AuthorityLevel ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+# =============================================================================
+# POLICY DOMAIN: Scope + Compliance Framework
+# =============================================================================
+
+auth:domainId a rdf:Property ;
+    rdfs:label "Domain ID" ;
+    rdfs:comment "Unique identifier (e.g., 'payment-processing', 'gdpr-data-export', 'healthcare-phi')" ;
+    rdfs:domain auth:PolicyDomain ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:domainName a rdf:Property ;
+    rdfs:label "Domain Name" ;
+    rdfs:comment "Human-readable name (e.g., 'Payment Processing', 'GDPR Data Export')" ;
+    rdfs:domain auth:PolicyDomain ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:domainDescription a rdf:Property ;
+    rdfs:label "Domain Description" ;
+    rdfs:comment "What this domain governs (e.g., 'Rules for processing credit card transactions')" ;
+    rdfs:domain auth:PolicyDomain ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:riskLevel a rdf:Property ;
+    rdfs:label "Risk Level" ;
+    rdfs:comment "Inherent risk of this domain: CRITICAL, HIGH, MEDIUM, LOW. Determines required signature count + authority levels." ;
+    rdfs:domain auth:PolicyDomain ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:complianceFrameworks a rdf:Property ;
+    rdfs:label "Compliance Frameworks" ;
+    rdfs:comment "Applicable regulations (e.g., 'HIPAA', 'GDPR', 'SOX', 'PCI-DSS', 'CCPA'). Justifies policy existence." ;
+    rdfs:domain auth:PolicyDomain ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:owningTeam a rdf:Property ;
+    rdfs:label "Owning Team" ;
+    rdfs:comment "Organization unit responsible (e.g., 'Compliance', 'Finance', 'Engineering')" ;
+    rdfs:domain auth:PolicyDomain ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+# =============================================================================
+# ACTOR: Identity + Accountability
+# =============================================================================
+
+auth:actorId a rdf:Property ;
+    rdfs:label "Actor ID" ;
+    rdfs:comment "Unique identifier (LDAP DN, OAuth subject, service account ID). Platform-independent." ;
+    rdfs:domain auth:Actor ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:actorType a rdf:Property ;
+    rdfs:label "Actor Type" ;
+    rdfs:comment "HUMAN (person), SERVICE (automated system/CI), SYSTEM (core ggen infrastructure)" ;
+    rdfs:domain auth:Actor ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:actorEmail a rdf:Property ;
+    rdfs:label "Actor Email" ;
+    rdfs:comment "Contact email for notifications + accountability. Can be group (e.g., dlgroup@company.com)" ;
+    rdfs:domain auth:Actor ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:actorName a rdf:Property ;
+    rdfs:label "Actor Display Name" ;
+    rdfs:comment "Human-readable name (e.g., 'Alice Johnson', 'ggen-sync-service')" ;
+    rdfs:domain auth:Actor ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+auth:hasAuthority a rdf:Property ;
+    rdfs:label "Has Authority" ;
+    rdfs:comment "AuthorityLevel(s) assigned to this actor (can be multiple roles)" ;
+    rdfs:domain auth:Actor ;
+    rdfs:range auth:AuthorityLevel ;
+    rdfs:isDefinedBy auth: .
+
+auth:isActive a rdf:Property ;
+    rdfs:label "Is Active" ;
+    rdfs:comment "Boolean: is this actor currently able to take actions? (allows soft deactivation without deletion)" ;
+    rdfs:domain auth:Actor ;
+    rdfs:range xsd:boolean ;
+    rdfs:isDefinedBy auth: .
+
+auth:publicKeyFingerprint a rdf:Property ;
+    rdfs:label "Public Key Fingerprint" ;
+    rdfs:comment "SHA-256 fingerprint of the actor's public key (for signature verification)" ;
+    rdfs:domain auth:Actor ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy auth: .
+
+# =============================================================================
+# END SCHEMA
+# =============================================================================
+

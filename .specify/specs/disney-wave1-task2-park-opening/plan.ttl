@@ -1,0 +1,375 @@
+@prefix : <http://ggen.example.org/disney/park-opening-plan#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fibo-fnd: <https://spec.edmcouncil.org/fibo/ontology/FND/> .
+@prefix process: <http://ggen.example.org/process#> .
+
+# ============================================================================
+# ARCHITECTURE PLAN: PARK OPENING CHECKLIST PROCESS
+# Gap 1: Killer Workflow - Proof of Concept for ggen-disney
+# ============================================================================
+
+:ParkOpeningArchitecturePlan a process:ArchitecturePlan ;
+    rdfs:label "Park Opening Checklist - Architecture Plan" ;
+    rdfs:comment "Design decisions, component interactions, risk mitigations for Wave 1, Task 2" ;
+    process:version "1.0" ;
+    process:createdDate "2026-01-18"^^xsd:date ;
+    process:designPhilosophy "Design for ops reality (not idealized); capture actual sequence with decision gates; enable automated verification via system integrations" ;
+    process:successMetric "Reverse-engineered specification validated by ops team; matches actual opening day workflow to >90% accuracy" ;
+    process:dependency :Dependency_WorkdayIntegration ;
+    process:dependency :Dependency_SAPIntegration ;
+    process:dependency :Dependency_SlackIntegration ;
+    process:dependency :Dependency_RideControlSystemAccess ;
+    process:dependency :Dependency_BadgeScanAPIAccess .
+
+# ============================================================================
+# DESIGN DECISIONS (Why We Built It This Way)
+# ============================================================================
+
+:DesignDecision_SequentialGates a process:DesignDecision ;
+    rdfs:label "Sequential Gate Model (Not Parallel)" ;
+    rdfs:comment "Six gates must pass in order: Security → Staffing → Equipment → Safety → Systems → Executive. No skipping." ;
+    process:status "Approved by Operations" ;
+    process:rationale "Security sweep must complete before staffing deployment (safety). Equipment checks require security clearance. Systems depend on equipment verification. Executive decision depends on all prior gates. This models real operational risk cascading." ;
+    process:consequence "Critical path is 210 minutes; cannot compress if any gate fails. Parallel phases (security + staffing) provide some time savings (parallel timing = 90 min security + 90 min staffing vs. 180 min sequential)." ;
+    process:alternativeConsidered "Fully parallel gates (all 6 in parallel) - REJECTED: Would require security sweep to happen while staff roaming park (safety violation)" ;
+    process:alternativeConsidered "Collapsing gates (e.g., combine equipment + safety) - REJECTED: Safety certification and equipment functionality are distinct concerns; require different expertise" ;
+    process:owner "Director of Park Operations" .
+
+:DesignDecision_SystemIntegrationPatterns a process:DesignDecision ;
+    rdfs:label "Read-Only Integration with Manual Fallbacks" ;
+    rdfs:comment "All integrations (Workday, SAP, Slack, systems) are read-only or event-driven. No automated system writes to process control state." ;
+    process:status "Approved by CISO, CTO" ;
+    process:rationale "Theme parks must never rely on external system availability for critical safety decisions. Every integration has a documented manual workaround (phone-based staffing confirmation, hand-written tickets, manual ride inspection)." ;
+    process:consequence "More human involvement than ideal, but ensures park can open even if all systems are down. Slower for optimistic case, but deterministic and safe for failure cases." ;
+    process:alternativeConsidered "Automated remediation (system X fails, automatically invoke procedure Y) - REJECTED: Introduces automation risk; humans must remain in control of safety-critical decisions" ;
+    process:alternativeConsidered "Tightly coupled integrations (Workday blocks gate 2 if API fails) - REJECTED: Creates hard dependency; would halt entire opening process" ;
+    process:owner "Chief Information Officer" .
+
+:DesignDecision_AuditTrailViaSlack a process:DesignDecision ;
+    rdfs:label "Slack #incident-ops as Immutable Audit Trail" ;
+    rdfs:comment "Every decision, gate passage, escalation, and exception logged to Slack #incident-ops. Slack becomes source of truth for what happened and when." ;
+    process:status "Approved by Compliance, Legal" ;
+    process:rationale "Slack provides: (1) timestamped log, (2) audit trail searchability, (3) real-time visibility for stakeholders, (4) integration with external compliance systems (Workday, SAP can read Slack for cross-verification), (5) low latency (immediate log entry vs. batch DB writes)" ;
+    process:consequence "Slack outage is critical (no audit logging possible). All sensitive decisions require manual log backup (paper handoff sheet). Not HIPAA-compliant for medical parks (requires different audit system)." ;
+    process:alternativeConsidered "Enterprise audit database (SAP audit trail) - REJECTED: Would require deep SAP integration; risky dependency; slower to query" ;
+    process:alternativeConsidered "Custom logging service - REJECTED: Adds complexity; Slack already used operationally; simpler to enhance than new system" ;
+    process:owner "Director of Compliance" .
+
+:DesignDecision_PhaseParallelism a process:DesignDecision ;
+    rdfs:label "Parallel Execution of Security + Staffing Phases" ;
+    rdfs:comment "Phase 1 (Security Sweep, 90 min) and Phase 2 (Staffing Verification, 90 min) run in parallel starting at 06:00 AM. Both can complete by 07:30 AM instead of 180 min if sequential." ;
+    process:status "Approved by Ops" ;
+    process:rationale "Security sweep covers perimeter (gates, cameras, patrol) with no staff involved. Staffing occurs in secure facility. No data dependency between phases. Parallel execution saves 90 minutes on critical path." ;
+    process:consequence "Requires two independent teams (security + staffing) to execute simultaneously. Scheduling must account for this. If either phase blocked, process still continues with other." ;
+    process:alternativeConsidered "Sequential phases (security first, then staffing) - Would add 90 min to total duration (300 min vs. 210 min); risk of late opening" ;
+    process:owner "Director of Park Operations" .
+
+:DesignDecision_RiskAcceptance_ManualTicketing a process:DesignDecision ;
+    rdfs:label "Accept Degraded Mode: Manual Ticketing If System Fails" ;
+    rdfs:comment "If ticketing system unavailable at opening, gate 5 fails, but park can open in 'manual mode' with hand-written tickets and reconciliation after recovery." ;
+    process:status "Approved by VP Operations, Finance" ;
+    process:rationale "Ticketing system downtime on opening day is rare (<0.5% probability), but revenue impact ($200k+/hr) justifies accepting degraded mode. Manual ticketing process documented and trained quarterly. 50 ticket booths with manual stubs ensure capacity for manual processing." ;
+    process:consequence "1-2 hour opening delay if ticketing requires manual recovery, but NOT a park closure. Revenue captured but reconciliation effort increases (~50 FTE hours). Customer experience degraded but manageable." ;
+    process:alternativeConsidered "Park closure if ticketing unavailable - REJECTED: Unacceptable revenue/brand impact" ;
+    process:alternativeConsidered "Mandatory ticketing system redundancy (dual-site failover) - REJECTED: $5M capex for 0.5% downtime; ROI insufficient" ;
+    process:owner "Vice President of Operations" .
+
+:DesignDecision_WeatherDecisionPoint a process:DesignDecision ;
+    rdfs:label "Weather Assessment in Phase 5 (Final Decision)" ;
+    rdfs:comment "Weather check (NOAA feed, lightning risk, severe storm) occurs in executive review phase (08:55 AM), not earlier. Can still delay opening at last minute." ;
+    process:status "Approved by VP Operations" ;
+    process:rationale "Weather patterns can change rapidly; 4-hour advance forecast unreliable. Checking at last moment (5-min buffer) provides most accurate risk assessment. If weather deteriorates, opening can be delayed without losing prep work." ;
+    process:consequence "Potential last-minute announcement to guests (ride closures, 30-min delay). Guest services team pre-positioned to handle announcements. Delay cost (~$50k per 30 min) acceptable to avoid operating in unsafe weather." ;
+    process:alternativeConsidered "Early weather cutoff (06:00 AM) - REJECTED: Would make 90 min of prep work redundant if weather worsens; inefficient" ;
+    process:owner "Chief Operating Officer" .
+
+:DesignDecision_CalloutDrill_Automatic a process:DesignDecision ;
+    rdfs:label "Automated Callout Drill Invocation (Conditional)" ;
+    rdfs:comment "If critical positions unfilled after Workday pull, automatically invoke callout system. No manual decision required; triggered by HR system." ;
+    process:status "Approved by HR, Ops" ;
+    process:rationale "Staffing gaps often detected early (05:00 AM). Automated callout system can reach on-call staff within 15 min. Faster response than manual coordination. Reduces 'hunting' for backup staff." ;
+    process:consequence "False positives possible (pulled schedule shows vacancy, but person called in overnight). Callout system configured to not double-call. HR must manage on-call roster carefully." ;
+    process:alternativeConsidered "Manual callout (HR coord decides) - REJECTED: Introduces decision latency; gaps go unfilled if HR slow to respond" ;
+    process:owner "Director of Human Resources" .
+
+:DesignDecision_ContinuousBadgeScanMonitoring a process:DesignDecision ;
+    rdfs:label "Continuous Badge Scan Monitoring (Not Point-in-Time)" ;
+    rdfs:comment "Phase 2 staffing verification runs continuously (06:30-08:00 AM), not as a single checkpoint. New arrivals scanned after initial pull." ;
+    process:status "Approved by Security, Ops" ;
+    process:rationale "Staff arrive staggered over 90 minutes. Continuous monitoring ensures late arrivals (delayed by traffic, etc.) still counted. Point-in-time check (e.g., 07:00 AM only) would miss late-arrivals counted in actual daily roster." ;
+    process:consequence "Security officer must monitor badge system continuously; cannot step away. Requires second security staff member or shift coverage." ;
+    process:alternativeConsidered "Single checkpoint at 07:00 AM - REJECTED: Would fail to count 15-20% of expected staff who arrive 07:15-08:00 AM" ;
+    process:owner "Director of Security" .
+
+:DesignDecision_RideTestsNightBefore a process:DesignDecision ;
+    rdfs:label "Pre-Run Ride Tests Night Before (Optimization)" ;
+    rdfs:comment "Maintenance team runs automated ride tests at 22:00 (closing day), not at opening. Opening day tests are verification only." ;
+    process:status "Approved by Maintenance" ;
+    process:rationale "Most ride issues surface during night tests. Issues flagged allow 7+ hours for repair before opening. Morning tests become fast confirmation (10 min vs. 30 min if running first time). Reduces critical path by 20 minutes." ;
+    process:consequence "Requires night team to run tests; adds 30 min to closing procedures. Risk: overnight maintenance could introduce new faults (software update, part replacement). Mitigated by requiring test re-run if any maintenance performed after 22:00." ;
+    process:alternativeConsidered "Single test at opening (current practice) - REJECTED: Takes 30 min; if failure found, repair eats into opening window; rework expensive under time pressure" ;
+    process:owner "Director of Maintenance" .
+
+# ============================================================================
+# COMPONENT INTERACTIONS & DATA FLOW
+# ============================================================================
+
+:ComponentInteraction_WorkdayStaffingFlow a process:ComponentInteraction ;
+    rdfs:label "Staffing Data Flow: Workday → HR System → Badge System" ;
+    rdfs:comment "Sequence: HR pulls today's schedule from Workday API → matches against badge system → identifies no-shows → triggers callout system" ;
+    process:step1 "06:30 AM: HR Operations calls Workday API /schedules/today; retrieves 250+ staff records" ;
+    process:step2 "06:30-08:00 AM: Security monitors badge system; each scan matched against Workday roster" ;
+    process:step3 "If badge count < 95% of roster by 07:45 AM: HR invokes automated callout system for unfilled roles" ;
+    process:step4 "08:00 AM: Director of Ops reviews final badge count; makes staffing gate pass/fail decision" ;
+    process:fallback "Workday API timeout: Accept previous day's schedule (cached) or phone-based verification" ;
+    process:fallback "Badge system down: Manual entry sheet at entry gates; reconcile after system recovery" ;
+    process:timeConstraint "Must complete by 08:00 AM (time for escalation if issues)" ;
+    process:criticality "HIGH: Cannot gate to next phase without staffing confirmation" .
+
+:ComponentInteraction_SAPEquipmentFlow a process:ComponentInteraction ;
+    rdfs:label "Equipment Verification Flow: SAP → Ride Systems → Maintenance Logs" ;
+    rdfs:comment "Sequence: Maintenance pulls asset list from SAP → physically walk rides → log findings → SAP updated with completion status" ;
+    process:step1 "03:00 PM previous day: Night maintenance pulls all rides from SAP; creates work order template for next morning" ;
+    process:step2 "07:30 AM: Day maintenance reviews SAP work orders; any open items from prior day flagged" ;
+    process:step3 "07:30-08:15 AM: Ride walkthrough team inspects each ride; photos uploaded to SAP with damage assessment" ;
+    process:step4 "08:15-08:30 AM: Ride systems team runs automated tests; results logged to SAP; any failures immediately escalated" ;
+    process:step5 "08:30 AM: Director of Maintenance reviews SAP logs; gates phase 3" ;
+    process:fallback "SAP unavailable: Paper-based ride log (printed night-before); maintenance team uses manual checklist; photo evidence collected" ;
+    process:timeConstraint "Must complete by 08:30 AM (allows 30-min equipment isolation time if failure)" ;
+    process:criticality "HIGH: Equipment failure blocks park opening" .
+
+:ComponentInteraction_SlackAuditTrail a process:ComponentInteraction ;
+    rdfs:label "Decision Logging: All Gates → Slack #incident-ops" ;
+    rdfs:comment "Real-time logging of every gate decision, escalation, and exception to Slack for audit trail and stakeholder visibility" ;
+    process:step1 "Each gate completion: Gatekeeper or admin posts gate status + timestamp + evidence summary to Slack thread" ;
+    process:step2 "If gate failed: Post failure reason + escalation path + assigned owner to resolve" ;
+    process:step3 "Final decision (GO/NO-GO): VP Operations posts signed decision + all 6 gate statuses to main thread" ;
+    process:step4 "Any exceptions (weather, incident, system outage) logged with context and mitigation" ;
+    process:integration "Slack message contains hyperlinks to SAP work order, Workday schedule confirmation, ride test logs" ;
+    process:fallback "Slack unavailable: Paper backup log (pre-printed template) filled manually; uploaded to Slack when restored" ;
+    process:timeConstraint "Logs posted within 5 minutes of decision (not held until end of process)" ;
+    process:criticality "HIGH: Audit trail required for compliance and incident investigation" .
+
+:ComponentInteraction_WeatherMonitoring a process:ComponentInteraction ;
+    rdfs:label "Weather Monitoring: NOAA Feed → Executive Review → Decision" ;
+    rdfs:comment "External weather data integrated into final executive decision; can trigger last-minute delay or closure" ;
+    process:step1 "06:00 AM: Weather duty officer checks NOAA forecast (lightning risk, severe weather)" ;
+    process:step2 "If severe weather >30% probability: Flag for executive review; prepare announcement templates" ;
+    process:step3 "08:55 AM: VP Operations reviews weather as part of final gate check; can defer opening if conditions deteriorated" ;
+    process:step4 "If delay decision made: Guest services announces via PA system + email + mobile app; ticketing adjusts hours" ;
+    process:fallback "Weather system unavailable: Use local radar (National Weather Service website) or airport ATIS; call local weather service" ;
+    process:timeConstraint "Weather review must complete by 08:55 AM (5-min decision buffer)" ;
+    process:criticality "MEDIUM: Weather delays are operationally acceptable but revenue-impacting" .
+
+# ============================================================================
+# RISK MITIGATION STRATEGIES (FMEA-Based)
+# ============================================================================
+
+:RiskMitigation_SecuritySweepIncomplete a process:RiskMitigation ;
+    rdfs:label "Mitigation: Security Sweep Incomplete" ;
+    rdfs:comment "Risk: Perimeter not fully patrolled; security breach possible" ;
+    process:riskSeverity 9 ;
+    process:riskProbability 2 ;
+    process:riskPriority 18 ;
+    process:mitigationStrategy "Automated gate checkpoint counts (RFID/sensor at each gate confirms scan);" ;
+    process:mitigationStrategy "GPS tracking of patrol team (confirms coverage pattern on map);" ;
+    process:mitigationStrategy "Photo evidence required at key waypoints (email time-stamped photos to Slack);" ;
+    process:mitigationStrategy "Second officer backup for patrol verification;" ;
+    process:responseTime "5 minutes (security call if coverage gap detected)" ;
+    process:owner "Director of Security" .
+
+:RiskMitigation_CriticalStaffNoShow a process:RiskMitigation ;
+    rdfs:label "Mitigation: Critical Staff No-Show" ;
+    rdfs:comment "Risk: Key positions unfilled; cannot staff opening" ;
+    process:riskSeverity 8 ;
+    process:riskProbability 3 ;
+    process:riskPriority 24 ;
+    process:mitigationStrategy "Automated callout system triggers within 5 min of detection (all on-call staff for that position called simultaneously);" ;
+    process:mitigationStrategy "20% surge capacity maintained (extra staff on standby at park by 06:00 AM);" ;
+    process:mitigationStrategy "Cross-training program ensures secondary staff can cover critical roles;" ;
+    process:mitigationStrategy "Temporary agency staff pre-positioned (contracts with 2 agencies, crew on-call);" ;
+    process:mitigationStrategy "If position still unfilled by 07:45 AM: Escalate to VP Operations; may trigger partial opening (some rides/areas closed) or 30-min delay;" ;
+    process:responseTime "15 minutes (callout to response)" ;
+    process:owner "Director of Human Resources" .
+
+:RiskMitigation_RideSystemFailure a process:RiskMitigation ;
+    rdfs:label "Mitigation: Ride System Test Failure" ;
+    rdfs:comment "Risk: Ride fails system test in morning; cannot be cleared for opening" ;
+    process:riskSeverity 9 ;
+    process:riskProbability 1 ;
+    process:riskPriority 9 ;
+    process:mitigationStrategy "Night-before pre-run tests (22:00) allow 7+ hours for repair;" ;
+    process:mitigationStrategy "If night test finds issue: Work order opened immediately; day maintenance has full shift to repair;" ;
+    process:mitigationStrategy "If morning test fails and repair cannot complete by 08:30 AM: Close ride to guests (mark offline in ticketing);" ;
+    process:mitigationStrategy "Spare parts inventory kept on-site (common PLC replacements, control boards);" ;
+    process:mitigationStrategy "External ride service (OEM) contract for emergency repairs (2-hour response time);" ;
+    process:responseTime "Immediate isolation (set ride to offline); repair time 1-4 hours depending on failure type" ;
+    process:owner "Director of Maintenance" .
+
+:RiskMitigation_TicketingSystemDown a process:RiskMitigation ;
+    rdfs:label "Mitigation: Ticketing System Unavailable" ;
+    rdfs:comment "Risk: Cannot sell tickets; revenue loss; guest frustration" ;
+    process:riskSeverity 7 ;
+    process:riskProbability 2 ;
+    process:riskPriority 14 ;
+    process:mitigationStrategy "Manual ticketing procedure documented (hand-written tickets, paper reconciliation);" ;
+    process:mitigationStrategy "50 ticket booths equipped with manual stub books (capacity for 5,000 tickets/hour);" ;
+    process:mitigationStrategy "Training: All ticketing staff trained quarterly on manual procedures;" ;
+    process:mitigationStrategy "If ticketing down: Open park on manual ticketing mode; accept revenue at gate until system restored;" ;
+    process:mitigationStrategy "Reconciliation: Post-opening, manual tickets scanned and reconciled with SAP (audit trail maintained);" ;
+    process:mitigationStrategy "Ticketing system has dual-server failover (automatic switchover <2 min if primary fails);" ;
+    process:responseTime "5 min (detect failure) + 2 min (failover) = 7 min total; if failover fails, manual ticketing activated" ;
+    process:owner "Chief Information Officer" .
+
+:RiskMitigation_WorkdayAPITimeout a process:RiskMitigation ;
+    rdfs:label "Mitigation: Workday API Timeout" ;
+    rdfs:comment "Risk: Cannot pull staffing schedule; don't know who is supposed to work today" ;
+    process:riskSeverity 5 ;
+    process:riskProbability 2 ;
+    process:riskPriority 10 ;
+    process:mitigationStrategy "Cache previous day's schedule in local database (updated nightly); use as fallback if API fails;" ;
+    process:mitigationStrategy "Timeout threshold: 30 seconds (if no response in 30s, use cached schedule);" ;
+    process:mitigationStrategy "Phone-based verification: HR coordinator calls key department heads to confirm today's staffing (~5 min);" ;
+    process:mitigationStrategy "Workday SLA: 99.9% uptime; API unavailability rare; tested quarterly with failover drills;" ;
+    process:responseTime "30 sec (timeout) + 5 min (phone confirmation) = acceptable within opening window" ;
+    process:owner "Director of Human Resources" .
+
+:RiskMitigation_SecurityCameraDown a process:RiskMitigation ;
+    rdfs:label "Mitigation: Security Camera System Down" ;
+    rdfs:comment "Risk: Cannot verify camera feed operational; compliance gap" ;
+    process:riskSeverity 6 ;
+    process:riskProbability 1 ;
+    process:riskPriority 6 ;
+    process:mitigationStrategy "Camera redundancy: Dual recording paths (main DVR + cloud backup); backup activates if DVR fails;" ;
+    process:mitigationStrategy "If camera system truly down: Increase foot patrols (additional security officer walks perimeter);" ;
+    process:mitigationStrategy "Manual incident log: Officer documents any unusual findings during patrol (replaces camera evidence);" ;
+    process:mitigationStrategy "External camera vendor (OEM) has 4-hour emergency response;" ;
+    process:responseTime "Immediate detection (system status check) + 15 min (increased patrols if needed)" ;
+    process:owner "Director of Security" .
+
+:RiskMitigation_WeatherEmergency a process:RiskMitigation ;
+    rdfs:label "Mitigation: Severe Weather Overnight" ;
+    rdfs:comment "Risk: Storm, lightning, debris; park must close or significantly delay" ;
+    process:riskSeverity 10 ;
+    process:riskProbability 1 ;
+    process:riskPriority 10 ;
+    process:mitigationStrategy "NOAA weather monitoring (automated alerts if severe weather within 25 miles);" ;
+    process:mitigationStrategy "Weather duty officer on call starting 04:00 AM; makes early assessment;" ;
+    process:mitigationStrategy "If weather deteriorates: VP Operations decides delay by 06:00 AM (3 hours notice to guests);" ;
+    process:mitigationStrategy "Announcement templates pre-drafted (email, PA, mobile app messages ready to send);" ;
+    process:mitigationStrategy "If delay necessary: Prep staff remains on clock; opening simply slides by 1-4 hours;" ;
+    process:mitigationStrategy "If severe weather continues: Full closure decision made by 07:00 AM (announced by 07:30 AM);" ;
+    process:responseTime "Decision made 06:00-07:00 AM; announcement sent immediately via multiple channels" ;
+    process:owner "Chief Operating Officer" .
+
+:RiskMitigation_ComplianceAuditFailed a process:RiskMitigation ;
+    rdfs:label "Mitigation: Safety Inspection Overdue" ;
+    rdfs:comment "Risk: Ride inspection expired; cannot legally operate until recertified" ;
+    process:riskSeverity 9 ;
+    process:riskProbability 1 ;
+    process:riskPriority 9 ;
+    process:mitigationStrategy "Automated compliance calendar (alerts 14 days before expiration);" ;
+    process:mitigationStrategy "Proactive scheduling: Annual inspections scheduled 90 days in advance;" ;
+    process:mitigationStrategy "Inspector pre-positioned on day-before if inspection due; allows overnight certification if minor issues;" ;
+    process:mitigationStrategy "If inspection still overdue morning-of: Ride must be closed (marked offline in guest systems);" ;
+    process:mitigationStrategy "VIP override available only with CISO + VP Operations approval (tracks all overrides for audit);" ;
+    process:responseTime "Prevention (proactive scheduling); if failure occurs, immediate ride closure" ;
+    process:owner "Director of Safety & Compliance" .
+
+# ============================================================================
+# IMPLEMENTATION SEQUENCE FOR WAVE 1
+# ============================================================================
+
+:WaveImplementationPlan a process:ImplementationPlan ;
+    rdfs:label "Wave 1 Implementation Sequence (Weeks 1-8)" ;
+    rdfs:comment "Phased approach to operationalize park opening spec" ;
+
+    process:week "Week 1-2: Specification Closure & Ops Team Validation" ;
+    process:deliverable "Reverse-engineered ontology (this document) validated by ops team" ;
+    process:deliverable "Assumptions documented and confirmed by stakeholders" ;
+    process:deliverable "All 6 gate definitions reviewed and signed-off by gatekeepers" ;
+    process:deliverable "System integration contracts finalized (Workday API, SAP asset read, Slack webhook)" ;
+
+    process:week "Week 3-4: System Integration & Automation" ;
+    process:deliverable "Workday API integration implemented (pull today's schedule)" ;
+    process:deliverable "SAP asset management read-only access verified" ;
+    process:deliverable "Slack #incident-ops channel automated posting (gate decisions logged via webhook)" ;
+    process:deliverable "Automated callout system integration tested with 10 on-call staff" ;
+    process:deliverable "Manual fallback procedures documented and tested" ;
+
+    process:week "Week 5-6: Process Execution Dry-Runs" ;
+    process:deliverable "Full process executed once with all systems live (non-guest day)" ;
+    process:deliverable "Issues identified and categorized (critical, major, minor)" ;
+    process:deliverable "Process iterations (updates to timings, task dependencies) based on findings" ;
+    process:deliverable "Staff training completed (50+ people trained on new process)" ;
+
+    process:week "Week 7-8: Production Validation & Wave 1 Gate" ;
+    process:deliverable "Process executed 3x with live guest admission (production opening days)" ;
+    process:deliverable "Metrics collected: actual duration vs. planned (210 min target), gate pass/fail counts, escalations" ;
+    process:deliverable "Ops team satisfaction survey: \"Does this spec match your actual process?\" (target >90% yes)" ;
+    process:deliverable "Wave 1 exit gate decision (CEO + COO approval to proceed to 4 more processes in Wave 2)" .
+
+# ============================================================================
+# METRICS & SUCCESS MEASURES
+# ============================================================================
+
+:SuccessMetrics a process:SuccessMetrics ;
+    rdfs:label "Wave 1 Success Metrics" ;
+
+    process:metric "Specification Accuracy: Does ontology match ops team actual process? Target: >90% (validated via survey)" ;
+    process:metric "Time Adherence: Process completes in ≤210 min (05:30-09:00 AM). Target: 100% of days" ;
+    process:metric "Gate Success Rate: All 6 gates pass without failure. Target: >95% (exception: weather delays acceptable)" ;
+    process:metric "Staff Adoption: No negative feedback on new process. Target: ≥80% satisfaction survey" ;
+    process:metric "System Reliability: Zero critical system failures. Target: 100% (fallbacks activate if any system down)" ;
+    process:metric "Audit Compliance: Zero missed compliance checks. Target: 100% (all safety certs verified pre-opening)" ;
+    process:metric "Incident Count: Zero guest safety incidents attributable to opening process. Target: 0 (baseline comparison)" ;
+    process:metric "Cost Efficiency: Cost to execute opening process unchanged. Target: no additional FTE required" .
+
+# ============================================================================
+# ASSUMPTIONS REQUIRING VALIDATION
+# ============================================================================
+
+:ValidatorAssumptions a process:ValidatorAssumptions ;
+    rdfs:label "Critical Assumptions Requiring Ops Team Validation" ;
+
+    process:assumption "Security sweep takes exactly 90 minutes (perimeter patrol + gate inspection + camera check)" ;
+    process:validationMethod "Timing study: Run 10 security sweeps, measure actual duration, document variance" ;
+
+    process:assumption "Staffing arrivals follow normal distribution with 95% present by 07:45 AM" ;
+    process:validationMethod "Historical badge data analysis: Review past 90 days of opening day staffing, plot arrival times" ;
+
+    process:assumption "Critical staff positions are the same 50 roles every day" ;
+    process:validationMethod "Interview 3 HR managers, review Workday schedule patterns, document any variations" ;
+
+    process:assumption "Ride system tests take 30 minutes (when run in morning); 10 min if pre-run night-before" ;
+    process:validationMethod "Timing study: Run automated tests 20x, measure from start to completion signal" ;
+
+    process:assumption "Manual ticketing fallback can process 5,000 tickets/hour (50 booths, 100 tickets/booth/hour)" ;
+    process:validationMethod "Time trial: Have ticketing staff hand-write 500 tickets, measure time, extrapolate capacity" ;
+
+    process:assumption "Workday API response time <5 seconds for 250-staff schedule pull" ;
+    process:validationMethod "Load test: Call API during peak HR usage, measure response times, identify p95 latency" ;
+
+    process:assumption "SAP asset management has current registry of all 25 rides with maintenance history ≤90 days" ;
+    process:validationMethod "Audit: Compare SAP asset list against physical inventory; verify maintenance records" ;
+
+    process:assumption "Callout system can reach 95% of on-call staff within 15 minutes" ;
+    process:validationMethod "Callout drill: Invoke system for 50 staff, track response times, measure success rate" .
+
+# ============================================================================
+# GOVERNANCE & CHANGE MANAGEMENT
+# ============================================================================
+
+:GovernanceStructure a process:GovernanceStructure ;
+    rdfs:label "Governance & Change Control" ;
+
+    process:processOwner "Vice President of Park Operations" ;
+    process:businessOwner "Director of Park Operations" ;
+    process:processAdmin "Park Opening Coordinator (new role, Wave 1)" ;
+
+    process:changeControl "Any changes to process (gates, phases, tasks, timings) require review by Process Owner + Business Owner. Approved changes documented in RDF (regenerate markdown). No ad-hoc changes allowed." ;
+    process:reviewCycle "Quarterly review (every 90 days). Monthly ops review (metrics + incidents). Weekly steering (during Wave 2)." ;
+    process:escalationPath "Level 1: Process Admin (routine adjustments). Level 2: Process Owner (structural changes). Level 3: COO (gate criteria changes, risk tolerance changes)." ;
+    process:auditTrail "All decisions logged in Slack #incident-ops (real-time) + SAP audit trail (batch) + manual backup (paper)" .
