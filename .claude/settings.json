@@ -11,7 +11,7 @@
   "hooks": {
     "SessionStart": [{"matcher": "", "hooks": [
       {"type": "command", "command": "./.claude/hooks/session-start.sh", "timeout": 30},
-      {"type": "prompt", "prompt": "Session initialized. ggen v5.2.0. Read CLAUDE.md. Rules: cargo make ONLY, EPIC 9 for non-trivial, /speckit-verify before impl, receipts not narratives."}
+      {"type": "prompt", "prompt": "Session initialized. ggen v6.0.0. Read CLAUDE.md. Rules: cargo make ONLY, EPIC 9 for non-trivial, receipts not narratives."}
     ]}],
     "PreToolUse": [
       {"matcher": "Write|Edit", "hooks": [{"type": "command", "command": "./.claude/hooks/pre-tool-use.sh", "timeout": 10}]},
@@ -33,7 +33,7 @@
     }
   },
   "environment": {
-    "env": {"RUST_BACKTRACE": "1", "RUST_LOG": "info", "CARGO_TERM_COLOR": "always", "RUSTFLAGS": "-D warnings", "GGEN_VERSION": "5.2.0"}
+    "env": {"RUST_BACKTRACE": "1", "RUST_LOG": "info", "CARGO_TERM_COLOR": "always", "RUSTFLAGS": "-D warnings", "GGEN_VERSION": "6.0.0"}
   },
   "tools_and_model": {
     "model": "claude-sonnet-4-5-20250929",
@@ -66,11 +66,11 @@
   },
   "project_metadata": {
     "name": "ggen",
-    "version": "5.2.0",
+    "version": "6.0.0",
     "description": "Ontology-driven code generation: RDF → reproducible code",
     "rust_version": "1.91.1",
     "msrv": "1.75+",
-    "workspace_crates": 17,
-    "tech_stack": ["Rust", "Tokio 1.47", "Oxigraph 0.5.1", "Tera 1.20", "chicago-tdd-tools 1.4.0"]
+    "workspace_crates": 27,
+    "tech_stack": ["Rust 1.91.1", "Tokio 1.47", "Oxigraph 0.5.1", "Tera 1.20", "genai 0.4", "chicago-tdd-tools 1.4.0"]
   }
 }
