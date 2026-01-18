@@ -7,6 +7,7 @@
 //! 4. Validate outputs
 //! 5. Write files and audit trail
 
+use crate::codegen::transaction::FileTransaction;
 use crate::graph::{ConstructExecutor, Graph};
 use crate::manifest::{GenerationRule, GgenManifest, InferenceRule};
 use ggen_utils::error::{Error, Result};
@@ -317,6 +318,9 @@ impl GenerationPipeline {
         // Join output_dir with base_path to make it relative to manifest location
         let output_dir = self.base_path.join(&self.manifest.generation.output_dir);
 
+        // Create transaction for atomic file operations
+        let mut transaction = FileTransaction::new()?;
+
         for rule in &rules {
             let start = Instant::now();
 
@@ -506,25 +510,9 @@ impl GenerationPipeline {
                     &rule.name,
                 )?;
 
-                // Ensure parent directory exists
-                if let Some(parent) = full_output_path.parent() {
-                    std::fs::create_dir_all(parent).map_err(|e| {
-                        Error::new(&format!(
-                            "Failed to create directory '{}': {}",
-                            parent.display(),
-                            e
-                        ))
-                    })?;
-                }
-
-                // Write file
-                std::fs::write(&full_output_path, &final_content).map_err(|e| {
-                    Error::new(&format!(
-                        "Failed to write file '{}': {}",
-                        full_output_path.display(),
-                        e
-                    ))
-                })?;
+                // Write file atomically with automatic rollback on failure
+                // FileTransaction handles parent directory creation internally
+                transaction.write_file(&full_output_path, &final_content)?;
 
                 // Record generated file
                 let content_hash = format!("{:x}", sha2::Sha256::digest(final_content.as_bytes()));
@@ -547,6 +535,10 @@ impl GenerationPipeline {
                 query_hash,
             });
         }
+
+        // Commit transaction - all files written successfully
+        // If any error occurred above, transaction will auto-rollback on drop
+        let _receipt = transaction.commit()?;
 
         self.generated_files.extend(generated.clone());
         Ok(generated)

@@ -19,10 +19,15 @@
 //! All business logic lives here in the executor.
 
 use crate::codegen::pipeline::{GenerationPipeline, RuleType};
+use crate::codegen::ux::{
+    format_duration, info_message, print_section, success_message, warning_message,
+    ProgressIndicator,
+};
 use crate::codegen::{
     DependencyValidator, IncrementalCache, MarketplaceValidator, OutputFormat, ProofCarrier,
     SyncOptions,
 };
+use crate::drift::DriftDetector;
 use crate::manifest::{ManifestParser, ManifestValidator};
 use crate::poka_yoke::QualityGateRunner;
 use ggen_utils::error::{Error, Result};
@@ -117,6 +122,27 @@ impl SyncExecutor {
     ///
     /// Returns `SyncResult` that can be serialized to JSON or formatted as text.
     pub fn execute(self) -> Result<SyncResult> {
+        // Pre-flight validation: Check environment before proceeding
+        let base_path = self
+            .options
+            .manifest_path
+            .parent()
+            .unwrap_or(Path::new("."));
+
+        let preflight = crate::validation::PreFlightValidator::for_sync(base_path)
+            .with_llm_check(false) // LLM check is optional (warning only)
+            .with_template_check(false) // Will check after parsing manifest
+            .with_git_check(false);
+
+        // Run basic pre-flight checks (without manifest, as we haven't parsed it yet)
+        if let Err(e) = preflight.validate(None) {
+            if self.options.verbose {
+                eprintln!("{}", warning_message(&format!("Pre-flight warning: {}", e)));
+            }
+        } else if self.options.verbose {
+            eprintln!("{}", success_message("Pre-flight checks passed"));
+        }
+
         // Validate manifest exists
         if !self.options.manifest_path.exists() {
             return Err(Error::new(&format!(
@@ -124,6 +150,9 @@ impl SyncExecutor {
                 self.options.manifest_path.display()
             )));
         }
+
+        // Check for drift (non-blocking warning)
+        self.check_and_warn_drift(base_path);
 
         // T017-T018: Watch mode implementation
         if self.options.watch {
@@ -408,13 +437,21 @@ impl SyncExecutor {
     fn execute_full_sync(
         &self, manifest_data: &crate::manifest::GgenManifest, base_path: &Path,
     ) -> Result<SyncResult> {
+        // Determine if progress indicators should be shown
+        // Show by default unless output_format is Json
+        let show_progress = self.options.output_format != OutputFormat::Json;
+
         let output_directory = self
             .options
             .output_dir
             .clone()
             .unwrap_or_else(|| manifest_data.generation.output_dir.clone());
 
+        // Create progress indicator
+        let mut progress = ProgressIndicator::new(show_progress);
+
         // Load incremental cache if enabled
+        progress.start_spinner("Loading manifest and cache...");
         let cache = if self.options.use_cache {
             let cache_dir = self
                 .options
@@ -428,6 +465,16 @@ impl SyncExecutor {
             None
         };
 
+        if self.options.verbose {
+            progress.clear();
+            eprintln!("{}", info_message(&format!("Manifest: {}", self.options.manifest_path.display())));
+            if cache.is_some() {
+                eprintln!("{}", info_message("Using incremental cache"));
+            }
+        } else {
+            progress.finish_with_message(&format!("Loaded manifest: {}", manifest_data.project.name));
+        }
+
         // Create pipeline and run
         let mut pipeline = GenerationPipeline::new(manifest_data.clone(), base_path.to_path_buf());
 
@@ -436,33 +483,62 @@ impl SyncExecutor {
             pipeline.set_force_overwrite(true);
         }
 
-        if self.options.verbose {
-            eprintln!("Loading manifest: {}", self.options.manifest_path.display());
-            if let Some(ref _cache) = cache {
-                eprintln!("Using incremental cache...");
-            }
-        }
-
+        // Run pipeline with progress
+        progress.start_spinner("Loading ontology and running inference...");
         let state = pipeline.run().map_err(|e| {
+            progress.finish_with_error("Pipeline execution failed");
             Error::new(&format!(
                 "error[E0003]: Pipeline execution failed\n  |\n  = error: {}\n  = help: Check ontology syntax and SPARQL queries",
                 e
             ))
         })?;
 
+        // Show ontology loaded
         if self.options.verbose {
-            eprintln!("Loading ontology: {} triples", state.ontology_graph.len());
-            for rule in &state.executed_rules {
-                if rule.rule_type == RuleType::Inference {
+            progress.clear();
+            print_section("Ontology Loaded");
+            eprintln!("{}", info_message(&format!("{} triples loaded", state.ontology_graph.len())));
+
+            let inference_rules: Vec<_> = state.executed_rules.iter()
+                .filter(|r| r.rule_type == RuleType::Inference)
+                .collect();
+
+            if !inference_rules.is_empty() {
+                eprintln!();
+                eprintln!("Inference rules executed:");
+                for rule in inference_rules {
                     eprintln!(
-                        "  [inference] {}: +{} triples ({}ms)",
-                        rule.name, rule.triples_added, rule.duration_ms
+                        "  {} +{} triples ({})",
+                        rule.name,
+                        rule.triples_added,
+                        format_duration(rule.duration_ms)
                     );
                 }
             }
+        } else {
+            progress.finish_with_message(&format!(
+                "Loaded {} triples, ran {} inference rules",
+                state.ontology_graph.len(),
+                state.executed_rules.iter().filter(|r| r.rule_type == RuleType::Inference).count()
+            ));
+        }
+
+        // Generate files with progress bar
+        let generation_count = state.executed_rules.iter()
+            .filter(|r| r.rule_type == RuleType::Generation)
+            .count();
+
+        if show_progress && !self.options.verbose {
+            eprintln!("{}", info_message(&format!("Generating {} files...", generation_count)));
+        } else if self.options.verbose {
+            print_section("Code Generation");
             for rule in &state.executed_rules {
                 if rule.rule_type == RuleType::Generation {
-                    eprintln!("  [generation] {}: ({}ms)", rule.name, rule.duration_ms);
+                    eprintln!(
+                        "  {} {}",
+                        rule.name,
+                        format!("({})", format_duration(rule.duration_ms))
+                    );
                 }
             }
         }
@@ -578,19 +654,51 @@ impl SyncExecutor {
 
         let duration = self.start_time.elapsed().as_millis() as u64;
 
-        if self.options.verbose || self.options.output_format == OutputFormat::Text {
-            eprintln!(
-                "\nSynced {} files in {:.3}s",
-                files_synced,
-                duration as f64 / 1000.0
-            );
-            for f in &synced_files {
-                eprintln!("  {} ({} bytes)", f.path, f.size_bytes);
-            }
-            if let Some(ref audit) = audit_path {
-                eprintln!("Audit trail: {}", audit);
+        // Print summary
+        if self.options.output_format == OutputFormat::Text {
+            if self.options.verbose {
+                // Verbose mode: detailed file listing
+                print_section("Summary");
+                eprintln!("{}", success_message(&format!("Synced {} files in {}", files_synced, format_duration(duration))));
+                eprintln!();
+                eprintln!("Files generated:");
+                for f in &synced_files {
+                    eprintln!("  {} ({} bytes)", f.path, f.size_bytes);
+                }
+                if let Some(ref audit) = audit_path {
+                    eprintln!();
+                    eprintln!("{}", info_message(&format!("Audit trail: {}", audit)));
+                }
+            } else {
+                // Concise mode: summary only
+                eprintln!();
+                eprintln!(
+                    "{}",
+                    success_message(&format!(
+                        "Generated {} files in {}",
+                        files_synced,
+                        format_duration(duration)
+                    ))
+                );
+
+                // Show summary statistics
+                let total_bytes: usize = synced_files.iter().map(|f| f.size_bytes).sum();
+                eprintln!(
+                    "  {} inference rules, {} generation rules",
+                    inference_count, generation_count
+                );
+                eprintln!(
+                    "  {} total bytes written",
+                    total_bytes
+                );
+                if let Some(ref audit) = audit_path {
+                    eprintln!("  Audit: {}", audit);
+                }
             }
         }
+
+        // Save drift state after successful sync
+        self.save_drift_state(base_path, manifest_data, files_synced, duration);
 
         Ok(SyncResult {
             status: "success".to_string(),
@@ -688,6 +796,100 @@ impl SyncExecutor {
                 Err(e) => {
                     return Err(Error::new(&format!("Watch error: {}", e)));
                 }
+            }
+        }
+    }
+
+    /// Check for drift and warn user (non-blocking)
+    fn check_and_warn_drift(&self, base_path: &Path) {
+        // Don't check drift in validate-only or watch mode
+        if self.options.validate_only || self.options.watch {
+            return;
+        }
+
+        let state_dir = base_path.join(".ggen");
+        let detector = match DriftDetector::new(&state_dir) {
+            Ok(d) => d,
+            Err(_) => return, // Silently skip if detector creation fails
+        };
+
+        // Only check if state file exists
+        if !detector.has_state() {
+            return;
+        }
+
+        // Parse manifest to get ontology path
+        let manifest_data = match ManifestParser::parse(&self.options.manifest_path) {
+            Ok(m) => m,
+            Err(_) => return, // Silently skip if manifest parsing fails
+        };
+
+        let ontology_path = base_path.join(&manifest_data.ontology.source);
+
+        // Check drift
+        match detector.check_drift(&ontology_path, &self.options.manifest_path) {
+            Ok(status) => {
+                if let Some(warning) = status.warning_message() {
+                    eprintln!("{}", warning);
+                }
+            }
+            Err(_) => {
+                // Silently ignore drift check errors
+            }
+        }
+    }
+
+    /// Save drift state after successful sync (non-blocking)
+    fn save_drift_state(
+        &self,
+        base_path: &Path,
+        manifest_data: &crate::manifest::GgenManifest,
+        files_synced: usize,
+        duration_ms: u64,
+    ) {
+        let state_dir = base_path.join(".ggen");
+        let detector = match DriftDetector::new(&state_dir) {
+            Ok(d) => d,
+            Err(e) => {
+                if self.options.verbose {
+                    eprintln!("Warning: Failed to create drift detector: {}", e);
+                }
+                return;
+            }
+        };
+
+        let ontology_path = base_path.join(&manifest_data.ontology.source);
+
+        // Collect imports (if any)
+        let imports = manifest_data
+            .ontology
+            .imports
+            .iter()
+            .map(|imp| base_path.join(imp))
+            .collect();
+
+        // Collect inference rule hashes (hash the SPARQL query)
+        let inference_rules: Vec<(String, String)> = manifest_data
+            .inference
+            .rules
+            .iter()
+            .map(|rule| {
+                let hash = crate::pqc::calculate_sha256(rule.construct.as_bytes());
+                (rule.name.clone(), hash)
+            })
+            .collect();
+
+        // Save state
+        if let Err(e) = detector.save_state_with_details(
+            &ontology_path,
+            &self.options.manifest_path,
+            imports,
+            inference_rules,
+            files_synced,
+            duration_ms,
+        ) {
+            if self.options.verbose {
+                eprintln!("Warning: Failed to save drift state: {}", e);
             }
         }
     }

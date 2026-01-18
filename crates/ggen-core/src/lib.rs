@@ -123,6 +123,7 @@ pub mod codegen;
 pub mod config;
 // N3/CONSTRUCT semantic code generation manifest (v5)
 pub mod delta;
+pub mod drift; // Drift detection for ontology changes
 #[cfg(test)]
 pub mod e2e_tests;
 pub mod generator;
@@ -189,6 +190,7 @@ pub use signals::{AndonSignal, AndonContext};
 // Re-export commonly used types for convenience
 pub use cache::{CacheManager, CachedPack};
 pub use delta::{DeltaType, GraphDelta, ImpactAnalyzer, TemplateImpact};
+pub use drift::{DriftDetector, DriftStatus, DriftChange, ChangeType, SyncState, FileHashState};
 pub use generator::{GenContext, Generator};
 pub use github::{GitHubClient, PagesConfig, RepoInfo, WorkflowRun, WorkflowRunsResponse};
 pub use gpack::GpackManifest;
