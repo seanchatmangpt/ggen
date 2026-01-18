@@ -45,6 +45,7 @@ members = [
   "crates/ggen-payments",      # RevOps: Payment processing (Stripe integration)
   "crates/ggen-saas",          # RevOps: SaaS tier management and quota enforcement
   "crates/ggen-ai",            # AI orchestration and multi-provider LLM integration (v5.1.0)
+  "crates/ggen-folk-strategy", # Folk strategy quantification from opportunity field dynamics
   # KNHK Systems Integration: ETL + KGC-4D + Workflow Engine
   "crates/knhk-etl",           # Extract-Transform-Load pipeline
   "crates/knhk-hot",           # C FFI hot-path optimization
@@ -119,6 +120,7 @@ ggen-auth = { path = "crates/ggen-auth", version = "5.1.0" }
 ggen-payments = { path = "crates/ggen-payments", version = "5.1.0" }
 ggen-saas = { path = "crates/ggen-saas", version = "5.1.0" }
 ggen-ai = { path = "crates/ggen-ai", version = "5.1.0" }
+ggen-folk-strategy = { path = "crates/ggen-folk-strategy", version = "5.1.0" }
 
 # KNHK Systems (ETL + KGC-4D + Workflow Engine Integration)
 knhk-etl = { path = "crates/knhk-etl", version = "0.1.0" }
