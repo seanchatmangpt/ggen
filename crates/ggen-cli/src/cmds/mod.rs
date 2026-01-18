@@ -7,6 +7,30 @@
 //! ```text
 //! cmds (router) -> auto-discovery -> [verb] functions -> domain (async logic)
 //! ```
+//!
+//! ## Removed Commands
+//!
+//! The following commands were removed in v5.0:
+//! - `ggen generate` → Use `ggen sync`
+//! - `ggen validate` → Use `ggen sync --validate-only`
+//! - `ggen template *` → Use `ggen sync`
+//! - `ggen project *` → Add back in v5.1+
+//! - `ggen graph *` → Add back in v5.1+
+//! - `ggen ontology *` → Add back in v5.1+
+//! - `ggen marketplace *` → Add back in v5.1+
+//! - `ggen ai *` → Add back in v5.1+
+//! - `ggen test *` → Add back in v5.1+
+//! - `ggen utils *` → Add back in v5.1+
+//! - `ggen ci *` → Add back in v5.1+
+//! - `ggen workflow *` → Add back in v5.1+
+
+// Shared helpers for command modules
+pub mod helpers;
+
+// Core commands: ggen sync & ggen init
+pub mod git_hooks;
+pub mod init;
+pub mod sync;
 
 // Command modules - clap-noun-verb auto-discovery
 pub mod ai;

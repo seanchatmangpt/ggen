@@ -56,7 +56,7 @@ clap = { version = "4.5", features = ["derive"] }
 clap-noun-verb = "5.0.0"
 clap-noun-verb-macros = "5.0.0"
 once_cell = "1.19"
-reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
+reqwest = { version = "0.12", features = ["blocking", "json", "rustls-tls"] }
 tempfile = "3.23"
 chrono = { version = "0.4", features = ["serde"] }
 futures = "0.3"
@@ -69,6 +69,18 @@ serde_yaml = "0.9"
 regex = "1.12"
 rayon = "1.11"
 log = "0.4.28"
+sha2 = "0.10"
+hex = "0.4"
+
+# E2E testing with testcontainers
+testcontainers = "0.25"
+testcontainers-modules = "0.13"
+
+# File watching for auto-regeneration
+notify = "7.0"
+notify-debouncer-full = "0.4"
+assert_cmd = "2.0"
+predicates = "3.1"
 
 # Workspace-local crates (use workspace = true pattern in workspace members)
 ggen-utils = { path = "crates/ggen-utils", version = "3.3.0" }
