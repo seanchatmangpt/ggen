@@ -107,6 +107,10 @@ pub enum GgenAiError {
     #[error("Ontology generation error: {0}")]
     OntologyGeneration(String),
 
+    /// Ontology processing errors (OWL extraction, SPARQL queries)
+    #[error("Ontology error: {message}")]
+    OntologyError { message: String },
+
     /// Configuration errors
     #[error("Configuration error: {0}")]
     Configuration(String),
@@ -305,6 +309,13 @@ impl GgenAiError {
     /// Create a new configuration error
     pub fn configuration(msg: impl Into<String>) -> Self {
         Self::Configuration(msg.into())
+    }
+
+    /// Create a new ontology error
+    pub fn ontology_error(message: impl Into<String>) -> Self {
+        Self::OntologyError {
+            message: message.into(),
+        }
     }
 }
 

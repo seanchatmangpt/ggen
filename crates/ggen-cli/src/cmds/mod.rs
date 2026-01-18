@@ -1,8 +1,9 @@
-//! Command Router Module - ggen v5.0.0 (Fresh Start + Init)
+//! Command Router Module - ggen v5.1.0
 //!
-//! ggen v5 has two core commands:
+//! ggen v5.1 has three core commands:
 //! - `ggen sync` - Code synchronization pipeline
 //! - `ggen init` - Project scaffolding
+//! - `ggen construct` - LLM-Construct pattern operations
 //!
 //! All other commands have been removed for a fresh start.
 //! Utility commands may be added back incrementally in future versions.
@@ -10,9 +11,19 @@
 //! ## Core Commands
 //!
 //! ```bash
-//! ggen sync [OPTIONS]    # Synchronize code generation
-//! ggen init [OPTIONS]    # Initialize new ggen project
+//! ggen sync [OPTIONS]              # Synchronize code generation
+//! ggen init [OPTIONS]              # Initialize new ggen project
+//! ggen construct create <spec>     # Create LLM-Construct from OWL spec
+//! ggen construct validate <name>   # Validate generated construct module
 //! ```
+//!
+//! ## LLM-Construct Pipeline
+//!
+//! The `ggen construct` commands implement the LLM-Construct pattern:
+//! 1. OWL Ontology (FIBO) → Extract classes, properties, restrictions
+//! 2. SHACL Shapes → Generate validation constraints
+//! 3. DSPy Signature → Map to constrained LLM fields
+//! 4. Rust Module → Generate executable code with validation
 //!
 //! ## Removed Commands
 //!
@@ -33,12 +44,15 @@
 // Shared helpers for command modules
 pub mod helpers;
 
-// Core commands: ggen sync & ggen init
+// Core commands: ggen sync & ggen init & ggen construct
+pub mod construct;
 pub mod init;
 pub mod sync;
 
 // CRITICAL: Force the modules to be linked so their #[verb] registration works
 // Without this import, the linker optimizes away the linkme static items from #[verb] macro
+#[allow(unused_imports)]
+use construct as _;
 #[allow(unused_imports)]
 use init as _;
 #[allow(unused_imports)]
@@ -51,8 +65,8 @@ use crate::debug_log;
 
 /// Setup and run the command router using clap-noun-verb auto-discovery
 ///
-/// ggen v5 has ONE command: `ggen sync`. All verb functions are discovered
-/// automatically via the `#[verb]` macro.
+/// ggen v5.1 has three core commands: `ggen sync`, `ggen init`, and `ggen construct`.
+/// All verb functions are discovered automatically via the `#[verb]` macro.
 pub fn run_cli() -> Result<()> {
     // Handle --version flag before delegating to clap-noun-verb
     let args: Vec<String> = std::env::args().collect();
