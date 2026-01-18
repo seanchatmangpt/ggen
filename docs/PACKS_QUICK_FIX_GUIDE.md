@@ -1,34 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Packs System - Quick Fix Guide](#packs-system---quick-fix-guide)
-  - [🎯 Goal: Get System Compiling in 2-4 Hours](#-goal-get-system-compiling-in-2-4-hours)
-  - [Fix 1: Add async-trait Dependency (5 minutes)](#fix-1-add-async-trait-dependency-5-minutes)
-  - [Fix 2: Make PackRepository Dyn-Compatible (30 minutes)](#fix-2-make-packrepository-dyn-compatible-30-minutes)
-  - [Fix 3: Fix Ownership in install.rs (15 minutes)](#fix-3-fix-ownership-in-installrs-15-minutes)
-  - [Fix 4: Fix String Type in installer.rs (15 minutes)](#fix-4-fix-string-type-in-installerrs-15-minutes)
-  - [Fix 5: Fix InstallInput Type (30 minutes)](#fix-5-fix-installinput-type-30-minutes)
-  - [Fix 6: Remove Unused Imports (10 minutes)](#fix-6-remove-unused-imports-10-minutes)
-  - [Verification Checklist](#verification-checklist)
-  - [Post-Fix Validation](#post-fix-validation)
-    - [Workflow 1: List Packs](#workflow-1-list-packs)
-    - [Workflow 2: Show Pack Details](#workflow-2-show-pack-details)
-    - [Workflow 3: Dry-Run Install](#workflow-3-dry-run-install)
-    - [Workflow 4: Generate Project](#workflow-4-generate-project)
-    - [Workflow 5: Compose Multi-Pack](#workflow-5-compose-multi-pack)
-    - [Workflow 6: Execute SPARQL](#workflow-6-execute-sparql)
-  - [Troubleshooting](#troubleshooting)
-    - [Issue: Still getting async trait errors after adding dependency](#issue-still-getting-async-trait-errors-after-adding-dependency)
-    - [Issue: Type conversion errors persist](#issue-type-conversion-errors-persist)
-    - [Issue: Tests fail after compilation succeeds](#issue-tests-fail-after-compilation-succeeds)
-    - [Issue: Workflows return "pack not found"](#issue-workflows-return-pack-not-found)
-  - [Timeline Estimate](#timeline-estimate)
-  - [Next Steps After Fixes](#next-steps-after-fixes)
-  - [Success Criteria](#success-criteria)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Packs System - Quick Fix Guide
 
 ## 🎯 Goal: Get System Compiling in 2-4 Hours

@@ -729,7 +729,38 @@ impl Agent for FeedbackAgent {
         Ok(())
     }
 
-    // Moved to impl FeedbackAgent block below to avoid trait method conflict
+    /// Run the analysis loop in a spawned task
+    ///
+    /// This is separated from the main run_analysis_loop to allow spawning
+    /// without requiring ownership of the entire agent. All necessary state is
+    /// passed as Arc-wrapped parameters, which are safe to share across threads.
+    async fn run_analysis_loop_spawned(
+        telemetry_buffer: Arc<RwLock<VecDeque<TelemetryData>>>,
+        analysis_history: Arc<RwLock<Vec<FeedbackAnalysis>>>,
+        improvement_suggestions: Arc<RwLock<Vec<ImprovementSuggestion>>>,
+        shutdown_notify: Arc<Notify>,
+        analysis_interval: Duration,
+    ) {
+        loop {
+            tokio::select! {
+                _ = shutdown_notify.notified() => {
+                    tracing::info!("FeedbackAgent analysis loop shutting down");
+                    break;
+                }
+                _ = tokio::time::sleep(analysis_interval) => {
+                    // Perform periodic analysis
+                    let buffer_size = {
+                        let buffer = telemetry_buffer.read().await;
+                        buffer.len()
+                    };
+
+                    if buffer_size > 0 {
+                        tracing::debug!("FeedbackAgent analyzing {} telemetry records", buffer_size);
+                    }
+                }
+            }
+        }
+    }
 
     async fn stop(&mut self) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Stopping FeedbackAgent");

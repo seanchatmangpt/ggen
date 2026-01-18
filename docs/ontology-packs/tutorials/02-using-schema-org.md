@@ -1,17 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Tutorial: Using Schema.org for E-Commerce Types](#tutorial-using-schemaorg-for-e-commerce-types)
-  - [What You'll Learn](#what-youll-learn)
-  - [Step 1: Discover Schema.org Pack](#step-1-discover-schemaorg-pack)
-  - [Step 2: Extract E-Commerce Subset](#step-2-extract-e-commerce-subset)
-  - [Step 3: Generate TypeScript Types](#step-3-generate-typescript-types)
-  - [Step 4: Use Generated Types](#step-4-use-generated-types)
-  - [Next Steps](#next-steps)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Tutorial: Using Schema.org for E-Commerce Types
 
 **Duration**: 15 minutes | **Level**: Intermediate | **Focus**: Real-world code generation

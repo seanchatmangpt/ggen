@@ -1,0 +1,9 @@
+# Invalid ggen.toml - Missing required [project] section
+# Should fail validation
+
+[templates]
+source_dir = "templates"
+output_dir = "generated"
+
+[ai]
+provider = "openai"

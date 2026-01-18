@@ -1,32 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Error Dependency Graph - Week 1 Validation](#error-dependency-graph---week-1-validation)
-  - [Visual Dependency Flow](#visual-dependency-flow)
-  - [Detailed Dependency Analysis](#detailed-dependency-analysis)
-    - [Level 1: Independent Root Causes (Fix First)](#level-1-independent-root-causes-fix-first)
-    - [Level 2: First-Order Dependencies (Fix Second)](#level-2-first-order-dependencies-fix-second)
-    - [Level 3: Second-Order Dependencies (Fix Third)](#level-3-second-order-dependencies-fix-third)
-    - [Level 4: Implementation Dependencies (Fix Fourth)](#level-4-implementation-dependencies-fix-fourth)
-    - [Level 5: Cleanup & Type Fixes (Fix Last)](#level-5-cleanup--type-fixes-fix-last)
-  - [Critical Path Analysis](#critical-path-analysis)
-    - [Fastest Path to Zero Errors](#fastest-path-to-zero-errors)
-  - [Parallel Execution Strategy](#parallel-execution-strategy)
-    - [Team 1: Core Structs (Hour 1)](#team-1-core-structs-hour-1)
-    - [Team 2: Validators (Hour 1, starts after Team 1 finishes Observation)](#team-2-validators-hour-1-starts-after-team-1-finishes-observation)
-    - [Team 3: Config Structs (Hour 2, starts after Team 2)](#team-3-config-structs-hour-2-starts-after-team-2)
-    - [Team 4: Implementation (Hour 3, starts after Teams 1-3)](#team-4-implementation-hour-3-starts-after-teams-1-3)
-    - [Team 5: Cleanup (Hour 4, starts after Teams 1-4)](#team-5-cleanup-hour-4-starts-after-teams-1-4)
-  - [Blocking Relationships](#blocking-relationships)
-    - [What Blocks What?](#what-blocks-what)
-  - [Risk Mitigation](#risk-mitigation)
-    - [High-Risk Dependencies](#high-risk-dependencies)
-  - [Verification Checkpoints](#verification-checkpoints)
-  - [Success Metrics](#success-metrics)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Error Dependency Graph - Week 1 Validation
 
 ## Visual Dependency Flow

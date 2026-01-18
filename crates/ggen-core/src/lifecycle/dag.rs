@@ -97,7 +97,6 @@ pub fn deps_from_hooks(phase: &str, before: &[String], after: &[String]) -> Vec<
 mod tests {
     use super::*;
 
-    #[allow(clippy::expect_used)]
     #[test]
     #[allow(clippy::expect_used)]
     fn test_topo_simple() {
@@ -109,7 +108,6 @@ mod tests {
         assert_eq!(order, vec!["init", "setup", "build"]);
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     #[allow(clippy::expect_used)]
     fn test_topo_parallel() {

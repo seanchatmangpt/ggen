@@ -1,33 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Code Organization & Implementation Structure](#code-organization--implementation-structure)
-  - [Overview](#overview)
-  - [Directory Structure](#directory-structure)
-  - [Module Hierarchy](#module-hierarchy)
-    - [ggen-marketplace (New Crate)](#ggen-marketplace-new-crate)
-    - [ggen-domain/src/marketplace](#ggen-domainsrcmarketplace)
-    - [ggen-core/src/marketplace](#ggen-coresrcmarketplace)
-  - [Conditional Compilation Patterns](#conditional-compilation-patterns)
-    - [Pattern 1: Feature-Gated Module Inclusion](#pattern-1-feature-gated-module-inclusion)
-    - [Pattern 2: Feature-Gated Implementations](#pattern-2-feature-gated-implementations)
-    - [Pattern 3: Feature-Gated Factory Functions](#pattern-3-feature-gated-factory-functions)
-    - [Pattern 4: Feature-Gated Dependencies](#pattern-4-feature-gated-dependencies)
-  - [Test Organization](#test-organization)
-    - [Unit Tests (Per-Backend)](#unit-tests-per-backend)
-    - [Integration Tests (Cross-Backend)](#integration-tests-cross-backend)
-    - [Benchmark Organization](#benchmark-organization)
-  - [Configuration File Organization](#configuration-file-organization)
-  - [CLI Command Structure](#cli-command-structure)
-  - [Error Handling Organization](#error-handling-organization)
-  - [Documentation Structure](#documentation-structure)
-  - [Build Script Organization](#build-script-organization)
-  - [CI/CD Configuration](#cicd-configuration)
-  - [Summary](#summary)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Code Organization & Implementation Structure
 
 ## Overview
@@ -49,7 +19,7 @@ ggen/
 │   │   ├── tests/
 │   │   └── Cargo.toml
 │   │
-│   ├── ggen-marketplace/        # V2 backend (new)
+│   ├── ggen-marketplace-v2/        # V2 backend (new)
 │   │   ├── src/
 │   │   │   ├── lib.rs
 │   │   │   ├── search/
@@ -177,10 +147,10 @@ ggen/
 
 ## Module Hierarchy
 
-### ggen-marketplace (New Crate)
+### ggen-marketplace-v2 (New Crate)
 
 ```rust
-// ggen-marketplace/src/lib.rs
+// ggen-marketplace-v2/src/lib.rs
 
 pub mod search;
 pub mod registry;
@@ -273,8 +243,8 @@ pub mod v1 {
 
 #[cfg(feature = "marketplace-v2")]
 pub mod v2 {
-    // Re-export ggen-marketplace types
-    pub use ggen_marketplace::*;
+    // Re-export ggen-marketplace-v2 types
+    pub use ggen_marketplace_v2::*;
 }
 
 #[cfg(feature = "marketplace-parallel")]
@@ -389,13 +359,13 @@ fn create_dual_backend(config: Config) -> Result<Box<dyn MarketplaceBackend>> {
 ggen-marketplace = { workspace = true, optional = true }
 
 # V2 backend (optional)
-ggen-marketplace = { workspace = true, optional = true }
+ggen-marketplace-v2 = { workspace = true, optional = true }
 
 # ... other deps
 
 [features]
 marketplace-v1 = ["ggen-marketplace"]
-marketplace-v2 = ["ggen-marketplace"]
+marketplace-v2 = ["ggen-marketplace-v2"]
 marketplace-parallel = ["marketplace-v1", "marketplace-v2"]
 ```
 
@@ -628,7 +598,7 @@ pub enum MarketplaceError {
     V1Error(#[from] ggen_marketplace::Error),
 
     #[error("V2 backend error: {0}")]
-    V2Error(#[from] ggen_marketplace::Error),
+    V2Error(#[from] ggen_marketplace_v2::Error),
 
     #[error("Conversion error: {0}")]
     ConversionError(String),
@@ -675,7 +645,7 @@ docs/
 ## Build Script Organization
 
 ```rust
-// ggen-marketplace/build.rs
+// ggen-marketplace-v2/build.rs
 
 fn main() {
     // Compile RDF schemas at build time

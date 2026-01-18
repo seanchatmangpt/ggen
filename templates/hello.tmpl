@@ -1,6 +1,7 @@
 ---
-to: "output.txt"
-vars:
-  name: "World"
+to: hello.rs
+vars: { name: "hello" }
 ---
-Hello, {{ name }}!
+fn main() {
+    println!("Hello, {name}!");
+}

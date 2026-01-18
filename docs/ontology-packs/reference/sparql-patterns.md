@@ -1,20 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Reference: SPARQL Query Patterns](#reference-sparql-query-patterns)
-  - [List All Classes](#list-all-classes)
-  - [List All Properties](#list-all-properties)
-  - [Find Class Properties](#find-class-properties)
-  - [Class Hierarchy](#class-hierarchy)
-  - [Properties by Range Type](#properties-by-range-type)
-  - [Find Required Properties](#find-required-properties)
-  - [Deprecated Elements](#deprecated-elements)
-  - [Count Statistics](#count-statistics)
-  - [Full Example: Schema.org Product](#full-example-schemaorg-product)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Reference: SPARQL Query Patterns
 
 Common SPARQL queries for working with ontologies.

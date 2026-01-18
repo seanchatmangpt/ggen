@@ -14,10 +14,8 @@
 //!
 //! - `analyze` - Code and project analysis operations
 //! - `generate` - AI-powered code generation operations
-//! - `execute` - Layer 2 integration (async coordination, resource management)
 
 pub mod analyze;
-pub mod execute;
 pub mod generate;
 
 pub use analyze::*;

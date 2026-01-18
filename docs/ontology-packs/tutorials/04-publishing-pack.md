@@ -1,39 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Tutorial: Publishing to the Marketplace](#tutorial-publishing-to-the-marketplace)
-  - [Step 1: Prepare Pack for Publishing](#step-1-prepare-pack-for-publishing)
-    - [Create README.md](#create-readmemd)
-    - [Create CHANGELOG.md](#create-changelogmd)
-    - [Add LICENSE](#add-license)
-  - [Step 2: Validate Pack Quality](#step-2-validate-pack-quality)
-  - [Step 3: Sign Your Pack](#step-3-sign-your-pack)
-  - [Step 4: Test in Isolated Environment](#step-4-test-in-isolated-environment)
-  - [Step 5: Create Marketplace Account](#step-5-create-marketplace-account)
-  - [Step 6: Publish to Marketplace](#step-6-publish-to-marketplace)
-    - [Via CLI (Recommended)](#via-cli-recommended)
-    - [Via Web Interface](#via-web-interface)
-  - [Step 7: Monitor Review Process](#step-7-monitor-review-process)
-  - [Step 8: Post-Publication](#step-8-post-publication)
-    - [Update pack.yaml](#update-packyaml)
-    - [Share Your Pack](#share-your-pack)
-    - [Monitor Analytics](#monitor-analytics)
-  - [Step 9: Publish Updates](#step-9-publish-updates)
-  - [Step 10: Deprecate Old Versions](#step-10-deprecate-old-versions)
-  - [Marketing Your Pack](#marketing-your-pack)
-    - [1. Create Landing Page](#1-create-landing-page)
-    - [2. Write Blog Post](#2-write-blog-post)
-    - [3. Share on Social Media](#3-share-on-social-media)
-    - [4. Create Video Tutorial](#4-create-video-tutorial)
-    - [5. Engage with Community](#5-engage-with-community)
-  - [Best Practices](#best-practices)
-  - [What You Learned](#what-you-learned)
-  - [Next Steps](#next-steps)
-  - [Troubleshooting](#troubleshooting)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Tutorial: Publishing to the Marketplace
 
 **Goal:** Publish your ontology pack to the ggen marketplace for others to use.

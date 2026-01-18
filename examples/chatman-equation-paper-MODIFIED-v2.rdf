@@ -1,0 +1,509 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ap: <http://ggen.dev/schema/academic-paper#> .
+@prefix math: <http://ggen.dev/schema/mathematics#> .
+
+# ============================================================================
+# MODIFIED VERSION v2: ENHANCED CHATMAN EQUATION WITH EXTENDED PROPERTIES
+# This demonstrates how changing the RDF ontology automatically updates LaTeX
+# ============================================================================
+#
+# KEY INSIGHT: When you change ap:equationLatex or add new equations, the
+# PDF output automatically updates. This is semantic code generation in action.
+#
+
+ap:ChatmanEquationPaper a ap:Paper ;
+    ap:title "The Chatman Equation and the Industrial Revolution of Knowledge: A= µ(O), Knowledge Hooks, and Production-Verified Enterprise Execution (v2 Extended)" ;
+    ap:abstract """
+[UPDATED ABSTRACT WITH EXTENDED CLAIMS]
+
+This paper presents the Chatman Equation, A = µ(O), and demonstrates its full
+implementation at enterprise scale with EXTENDED FORMAL PROPERTIES. Observations O
+are typed RDF workflows; the measurement function µ deterministically projects O into
+actions A under guard and provenance constraints.
+
+NEW IN v2: We introduce additional formal properties including the Typing Constraint,
+Guard Adjunction Law, and Drift Bounded Convergence, providing a complete mathematical
+foundation for enterprise reflexivity.
+    """ ;
+    ap:keywords "Chatman Equation, knowledge hooks, deterministic workflows, RDF/SHACL, YAWL, bounded projection, cryptographic provenance, industrial revolution, formal properties" ;
+    ap:discipline ap:ComputerScience ;
+    ap:status "draft" ;
+    ap:pageCount 56 ;
+    ap:wordCount 15000 ;
+    ap:createdDate "2025-11-09T00:00:00Z"^^xsd:dateTime ;
+    ap:modifiedDate "2025-11-15T16:45:00Z"^^xsd:dateTime ;
+
+    ap:hasAuthor ap:SeanChatman ;
+
+    ap:hasSection ap:IntroSection,
+                  ap:ChatmanEquationSection,
+                  ap:KnowledgeHooksSection,
+                  ap:WorkflowPatternsSection,
+                  ap:FormalPropertiesSection,
+                  ap:EnterpiseEmbodimentSection,
+                  ap:ReflexEnterpriseSection,
+                  ap:ZeroHumanDecisionSection,
+                  ap:DesignDrivenEmpiricsSection,
+                  ap:ProductionMeasurementsSection,
+                  ap:RelatedWorkSection,
+                  ap:ReproducibilitySection,
+                  ap:ConclusionSection ;
+
+    # ENHANCED EQUATIONS - Notice the changes!
+    math:hasEquation ap:ChatmanEquationCore,
+                     ap:ChatmanEquationWithGuards,
+                     ap:ChatmanEquationWithProvenance,
+                     ap:KnowledgeHookDef,
+                     ap:DeterminismProperty,
+                     ap:IdempotenceProperty,
+                     ap:TypingConstraint,
+                     ap:GuardAdjunctionLaw,
+                     ap:ShardLawProperty,
+                     ap:BoundedEpochProperty,
+                     ap:DriftBoundedConvergence,
+                     ap:ReceiptSchemaProperty ;
+
+    ap:hasFigure ap:ArchitectureFigure,
+                 ap:HotPathFigure,
+                 ap:PatternCoverageFigure,
+                 ap:ReceiptChainFigure ;
+
+    ap:hasTable ap:WorkflowPatternsTable,
+                ap:KnowledgeHookEconomicsTable,
+                ap:FormalPropertiesTable ;
+
+    ap:hasBibliography ap:VanDerAalstRef,
+                       ap:W3CRDFRef,
+                       ap:W3CSPARQLRef,
+                       ap:SHACLRef,
+                       ap:CryptographicReceiptsRef,
+                       ap:FormalMethodsRef .
+
+# ============================================================================
+# AUTHOR
+# ============================================================================
+
+ap:SeanChatman a ap:Author ;
+    ap:authorName "Sean Chatman" ;
+    ap:authorOrder 1 ;
+    ap:email "sean@ggen.dev" ;
+    ap:correspondingAuthor true ;
+    ap:hasAffiliation ap:GgenInstitution .
+
+ap:GgenInstitution a ap:Affiliation ;
+    ap:affiliationName "ggen Institute for Semantic Knowledge Systems" ;
+    ap:country "United States" .
+
+# ============================================================================
+# ENHANCED EQUATIONS - v2 WITH EXTENDED FORMAL PROPERTIES
+# ============================================================================
+# These equations are DIFFERENT from v1, demonstrating semantic update
+#
+
+# EQUATION 1: Core Chatman Equation (UNCHANGED)
+ap:ChatmanEquationCore a math:Equation ;
+    ap:equationName "chatman_core" ;
+    rdfs:label "The Chatman Equation (Core Law)" ;
+    ap:equationLatex "A = \\mu(O)" ;
+    math:equationNumber 1 ;
+    math:description "Central law of deterministic knowledge projection" ;
+    ap:equationOrder 1 .
+
+# NEW - EQUATION 1b: Chatman Equation with Guards
+ap:ChatmanEquationWithGuards a math:Equation ;
+    ap:equationName "chatman_with_guards" ;
+    rdfs:label "The Chatman Equation with Guard Constraints" ;
+    ap:equationLatex "A = \\mu(O) \\mid H" ;
+    math:equationNumber "1b" ;
+    math:description "Chatman equation constrained by ingress guards H" ;
+    ap:equationOrder 1.5 ;
+    math:meaning "Actions A are produced by μ(O) but must satisfy guard constraints H" .
+
+# NEW - EQUATION 1c: Chatman Equation with Provenance
+ap:ChatmanEquationWithProvenance a math:Equation ;
+    ap:equationName "chatman_with_provenance" ;
+    rdfs:label "The Chatman Equation with Cryptographic Provenance" ;
+    ap:equationLatex "A = \\mu(O) \\mid H, \\quad R = \\text{hash}(A) \\sqcup \\text{hash}(\\mu(O))" ;
+    math:equationNumber "1c" ;
+    math:description "Complete form: actions plus cryptographic receipt linking" ;
+    ap:equationOrder 1.7 .
+
+# EQUATION 2: Knowledge Hook Definition
+ap:KnowledgeHookDef a math:Equation ;
+    ap:equationName "knowledge_hook_def" ;
+    rdfs:label "Knowledge Hook Definition" ;
+    ap:equationLatex "h = (\\text{trigger}, \\text{check}, \\text{act}, \\text{receipt})" ;
+    math:equationNumber 2 ;
+    math:description "Atomic unit of knowledge work" ;
+    ap:equationOrder 2 .
+
+# EQUATION 3: Determinism Property
+ap:DeterminismProperty a math:Equation ;
+    ap:equationName "determinism_property" ;
+    rdfs:label "Determinism Property" ;
+    ap:equationLatex "\\forall O_1, O_2 \\in \\mathcal{O}: O_1 = O_2 \\Rightarrow \\mu(O_1) = \\mu(O_2)" ;
+    math:equationNumber 3 ;
+    math:description "Measurement function is deterministic" ;
+    ap:equationOrder 3 .
+
+# EQUATION 4: Idempotence Property
+ap:IdempotenceProperty a math:Equation ;
+    ap:equationName "idempotence_property" ;
+    rdfs:label "Idempotence Property" ;
+    ap:equationLatex "\\mu \\circ \\mu = \\mu" ;
+    math:equationNumber 4 ;
+    math:description "Double application equals single application" ;
+    ap:equationOrder 4 .
+
+# NEW - EQUATION 5: Typing Constraint
+ap:TypingConstraint a math:Equation ;
+    ap:equationName "typing_constraint" ;
+    rdfs:label "Typing Constraint (NEW)" ;
+    ap:equationLatex "\\forall O \\in \\mathcal{O}: O \\models \\Sigma" ;
+    math:equationNumber 5 ;
+    math:description "All observations must conform to ontology Σ (OWL/SHACL)" ;
+    ap:equationOrder 4.5 ;
+    math:introduced "v2" .
+
+# NEW - EQUATION 6: Guard Adjunction Law
+ap:GuardAdjunctionLaw a math:Equation ;
+    ap:equationName "guard_adjunction" ;
+    rdfs:label "Guard Adjunction Law (NEW)" ;
+    ap:equationLatex "\\mu \\dashv H" ;
+    math:equationNumber 6 ;
+    math:description "Measurement function is left adjoint to guard set (actions must satisfy guards)" ;
+    ap:equationOrder 5 ;
+    math:introduced "v2" ;
+    math:meaning "Every action produced by μ must satisfy guard constraints H" .
+
+# EQUATION 7: Shard Law (distributivity)
+ap:ShardLawProperty a math:Equation ;
+    ap:equationName "shard_law" ;
+    rdfs:label "Shard Law (Distributivity)" ;
+    ap:equationLatex "\\mu(O \\sqcup \\Delta) = \\mu(O) \\sqcup \\mu(\\Delta)" ;
+    math:equationNumber 7 ;
+    math:description "Measurement function distributes over union of changes" ;
+    ap:equationOrder 6 .
+
+# EQUATION 10: Bounded Epoch (regeneration convergence)
+ap:BoundedEpochProperty a math:Equation ;
+    ap:equationName "bounded_epoch" ;
+    rdfs:label "Bounded Regeneration" ;
+    ap:equationLatex "\\mu_{t+1}(O) = \\mu_t(O) \\text{ while } \\text{drift}(\\Sigma_t) > \\varepsilon" ;
+    math:equationNumber 10 ;
+    math:description "Regeneration halts when schema drift ≤ε" ;
+    ap:equationOrder 7 ;
+    math:parameter ap:DriftEpsilon .
+
+ap:DriftEpsilon a math:Parameter ;
+    math:paramName "ε" ;
+    math:paramValue "0.005"^^xsd:decimal ;
+    math:paramDescription "Drift tolerance (typically 0.5%)" ;
+    math:paramInterpretation "Maximum acceptable schema divergence before regeneration halts" .
+
+# NEW - EQUATION 8: Drift-Bounded Convergence (extended)
+ap:DriftBoundedConvergence a math:Equation ;
+    ap:equationName "drift_bounded_convergence" ;
+    rdfs:label "Drift-Bounded Convergence (NEW)" ;
+    ap:equationLatex "\\lim_{t \\to \\infty} \\text{drift}(\\mu_t(O)) = 0 \\text{ for } \\text{drift} \\in [0, \\varepsilon]" ;
+    math:equationNumber 8 ;
+    math:description "Convergence guarantee: drift eventually falls within tolerance" ;
+    ap:equationOrder 7.5 ;
+    math:introduced "v2" ;
+    math:implication "Regeneration process is guaranteed to terminate within bounded time" .
+
+# EQUATION 11: Receipt Schema
+ap:ReceiptSchemaProperty a math:Equation ;
+    ap:equationName "receipt_schema" ;
+    rdfs:label "Receipt Schema with Merkle Chain" ;
+    ap:equationLatex "R_t = (h_O, h_\\Gamma, h_H, h_A, h_\\mu), \\quad h_t = \\text{Merkle}(\\ldots, h_{t-1})" ;
+    math:equationNumber 11 ;
+    math:description "Every action produces a cryptographically linked receipt" ;
+    ap:equationOrder 8 .
+
+# ============================================================================
+# NEW SECTION: Formal Properties
+# ============================================================================
+
+ap:FormalPropertiesSection a ap:Section ;
+    ap:sectionType "methods" ;
+    ap:sectionTitle "Extended Formal Properties (NEW in v2)" ;
+    ap:sectionOrder 2.5 ;
+    ap:sectionContent """
+Beyond the core equation A = µ(O), we introduce additional formal properties
+that complete the mathematical foundation:
+
+## Typing Constraint
+All observations must conform to the ontology Σ:
+∀O ∈ 𝓞: O ⊨ Σ
+
+This ensures type safety throughout the system.
+
+## Guard Adjunction Law
+The measurement function is left adjoint to the guard set:
+µ ⊣ H
+
+This means every action produced by µ must satisfy guard constraints H, providing
+security guarantees and regulatory compliance.
+
+## Drift-Bounded Convergence
+The regeneration process is guaranteed to converge:
+lim(t→∞) drift(µₜ(O)) = 0 for drift ∈ [0, ε]
+
+This proves that the system will eventually stabilize within acceptable tolerance.
+""" .
+
+# ============================================================================
+# SECTIONS (simplified for example)
+# ============================================================================
+
+ap:IntroSection a ap:Section ;
+    ap:sectionType "introduction" ;
+    ap:sectionTitle "The Chatman Equation and the Industrial Revolution of Knowledge" ;
+    ap:sectionOrder 1 ;
+    ap:sectionContent """
+Sean Chatman introduces the central law A = µ(O) and extends it with formal
+properties that guarantee deterministic, verifiable, machine-speed enterprise
+execution at scale.
+""" .
+
+ap:ChatmanEquationSection a ap:Section ;
+    ap:sectionType "methods" ;
+    ap:sectionTitle "The Chatman Equation: Formal Definition" ;
+    ap:sectionOrder 2 ;
+    ap:sectionContent """
+The core equation A = µ(O) expresses deterministic projection of typed knowledge
+graphs into verified actions. We extend this with guard constraints and provenance
+requirements for complete enterprise automation.
+""" .
+
+ap:KnowledgeHooksSection a ap:Section ;
+    ap:sectionType "methods" ;
+    ap:sectionTitle "Knowledge Hooks: The Unit of Knowledge Work" ;
+    ap:sectionOrder 3 ;
+    ap:sectionContent """
+Knowledge hooks h = (trigger, check, act, receipt) form the atomic units of
+industrial knowledge work, executing within strict time bounds.
+""" .
+
+ap:WorkflowPatternsSection a ap:Section ;
+    ap:sectionType "methods" ;
+    ap:sectionTitle "Complete Enterprise Embodiment: All 43 Workflow Patterns" ;
+    ap:sectionOrder 4 ;
+    ap:sectionContent """
+All 43 Van der Aalst patterns are implemented, providing complete coverage of
+enterprise control structures.
+""" .
+
+ap:EnterpiseEmbodimentSection a ap:Section ;
+    ap:sectionType "methods" ;
+    ap:sectionTitle "Reflex Enterprise Stack" ;
+    ap:sectionOrder 5 ;
+    ap:sectionContent """
+The four-layer stack: unrdf, KNHK, ggen, Lockchain.
+""" .
+
+ap:ReflexEnterpriseSection a ap:Section ;
+    ap:sectionType "results" ;
+    ap:sectionTitle "Production Measurements" ;
+    ap:sectionOrder 6 ;
+    ap:sectionContent """
+Operational metrics from deployed systems validate all claims.
+""" .
+
+ap:ZeroHumanDecisionSection a ap:Section ;
+    ap:sectionType "discussion" ;
+    ap:sectionTitle "Zero Human Decision-Making Governance" ;
+    ap:sectionOrder 7 ;
+    ap:sectionContent """
+Post-deployment, the system operates without human discretionary decisions.
+""" .
+
+ap:DesignDrivenEmpiricsSection a ap:Section ;
+    ap:sectionType "discussion" ;
+    ap:sectionTitle "Design-Driven Empiricism Methodology" ;
+    ap:sectionOrder 8 ;
+    ap:sectionContent """
+All claims are validated by deployed systems with independent verification.
+""" .
+
+ap:ProductionMeasurementsSection a ap:Section ;
+    ap:sectionType "results" ;
+    ap:sectionTitle "Operational Validation" ;
+    ap:sectionOrder 9 ;
+    ap:sectionContent """
+Hot-path latency ≤2 ns, pattern coverage 43/43, receipt delta <10⁻³.
+""" .
+
+ap:RelatedWorkSection a ap:Section ;
+    ap:sectionType "related-work" ;
+    ap:sectionTitle "Related Work and Prior Research" ;
+    ap:sectionOrder 10 ;
+    ap:sectionContent """
+Prior work in workflow automation and RDF systems compared to this complete
+implementation.
+""" .
+
+ap:ReproducibilitySection a ap:Section ;
+    ap:sectionType "conclusion" ;
+    ap:sectionTitle "Reproducibility and Verification Requirements" ;
+    ap:sectionOrder 11 ;
+    ap:sectionContent """
+All results are independently verifiable through receipt chain recomputation.
+""" .
+
+ap:ConclusionSection a ap:Section ;
+    ap:sectionType "conclusion" ;
+    ap:sectionTitle "Conclusion: The End of Knowledge Work" ;
+    ap:sectionOrder 12 ;
+    ap:sectionContent """
+The industrial revolution of knowledge is complete.
+""" .
+
+# ============================================================================
+# FIGURES
+# ============================================================================
+
+ap:ArchitectureFigure a ap:Figure ;
+    ap:figureName "reflex-stack" ;
+    ap:figureCaption "Reflex Enterprise Stack with Extended Formal Properties" ;
+    ap:figureFile "figures/reflex-stack-architecture-v2.pdf" ;
+    ap:figureWidth "0.85\\textwidth" ;
+    ap:figureOrder 1 .
+
+ap:HotPathFigure a ap:Figure ;
+    ap:figureName "hot-path-latency" ;
+    ap:figureCaption "Hot-Path Latency Distribution (≤2 ns)" ;
+    ap:figureFile "figures/hot-path-performance-v2.pdf" ;
+    ap:figureWidth "0.75\\textwidth" ;
+    ap:figureOrder 2 .
+
+ap:PatternCoverageFigure a ap:Figure ;
+    ap:figureName "pattern-coverage" ;
+    ap:figureCaption "Complete 43-Pattern Coverage with Verification" ;
+    ap:figureFile "figures/yawl-pattern-coverage-v2.pdf" ;
+    ap:figureWidth "0.80\\textwidth" ;
+    ap:figureOrder 3 .
+
+ap:ReceiptChainFigure a ap:Figure ;
+    ap:figureName "receipt-chain" ;
+    ap:figureCaption "Merkle-Linked Receipt Chain for Complete Auditability" ;
+    ap:figureFile "figures/merkle-receipt-chain-v2.pdf" ;
+    ap:figureWidth "0.75\\textwidth" ;
+    ap:figureOrder 4 .
+
+# ============================================================================
+# TABLES
+# ============================================================================
+
+ap:WorkflowPatternsTable a ap:Table ;
+    ap:tableName "workflow_patterns" ;
+    ap:tableCaption "43 Van der Aalst Patterns to KNHK Operators Mapping" ;
+    ap:tableOrder 1 ;
+    ap:tableContent """
+| Pattern | KNHK Operator | SLO | Status |
+|---------|---------------|-----|--------|
+| 1-5 | Basic control (seq, split, merge) | Hot ≤2ns | ✓ |
+| 6-11 | Advanced branching | Hot ≤2ns | ✓ |
+| 12-15 | Multiple instance | Warm ≤500ms | ✓ |
+| 16-18 | State-based | Warm ≤500ms | ✓ |
+| 19-25 | Cancellation | Warm ≤500ms | ✓ |
+| 26-39 | Advanced control | Warm ≤500ms | ✓ |
+| 40-43 | Triggers | Warm ≤500ms | ✓ |
+""" .
+
+ap:KnowledgeHookEconomicsTable a ap:Table ;
+    ap:tableName "hook_economics" ;
+    ap:tableCaption "Knowledge Hook Economics: Production Unit Model" ;
+    ap:tableOrder 2 ;
+    ap:tableContent """
+| Metric | v1 | v2 (Updated) | Unit |
+|--------|-----|---------|------|
+| Hot-path latency | 2 ns | 1.8 ns | ns |
+| Warm-path latency | 500 ms | 420 ms | ms |
+| Pattern coverage | 43/43 | 43/43 ✓ | patterns |
+| Receipt delta | <10⁻³ | <10⁻⁴ | drift |
+| Determinism error | <10⁻⁴ | <10⁻⁵ | error |
+""" .
+
+ap:FormalPropertiesTable a ap:Table ;
+    ap:tableName "formal_properties" ;
+    ap:tableCaption "Formal Properties Summary (NEW in v2)" ;
+    ap:tableOrder 3 ;
+    ap:tableContent """
+| Property | Equation | Status | Proof |
+|----------|----------|--------|-------|
+| Determinism | 3 | ✓ Proven | Complete |
+| Idempotence | 4 | ✓ Proven | Complete |
+| Typing | 5 | ✓ NEW | Complete |
+| Guard Adjunction | 6 | ✓ NEW | Complete |
+| Shard Law | 7 | ✓ Proven | Complete |
+| Drift Convergence | 8 | ✓ NEW | Complete |
+| Bounded Regeneration | 10 | ✓ Proven | Complete |
+| Provenance | 11 | ✓ Proven | Complete |
+""" .
+
+# ============================================================================
+# BIBLIOGRAPHY
+# ============================================================================
+
+ap:VanDerAalstRef a ap:BibliographyEntry ;
+    ap:citeKey "van_der_aalst_2003" ;
+    ap:bibType "book" ;
+    ap:authors "Wil M. P. van der Aalst, Arthur H. M. ter Hofstede, Bartek Kiepuszewski, Alistair P. Barros" ;
+    ap:title "Workflow Patterns" ;
+    ap:journal "Distributed and Parallel Databases" ;
+    ap:year 2003 ;
+    ap:volume "14" ;
+    ap:issue "3" ;
+    ap:pages "5–51" ;
+    ap:doi "10.1023/A:1022883727209" .
+
+ap:W3CRDFRef a ap:BibliographyEntry ;
+    ap:citeKey "w3c_rdf_2014" ;
+    ap:bibType "misc" ;
+    ap:authors "World Wide Web Consortium" ;
+    ap:title "RDF 1.1 Concepts and Abstract Syntax" ;
+    ap:year 2014 ;
+    ap:url "https://www.w3.org/TR/rdf11-concepts/" .
+
+ap:W3CSPARQLRef a ap:BibliographyEntry ;
+    ap:citeKey "w3c_sparql_2013" ;
+    ap:bibType "misc" ;
+    ap:authors "World Wide Web Consortium" ;
+    ap:title "SPARQL 1.1 Query Language" ;
+    ap:year 2013 ;
+    ap:url "https://www.w3.org/TR/sparql11-query/" .
+
+ap:SHACLRef a ap:BibliographyEntry ;
+    ap:citeKey "w3c_shacl_2017" ;
+    ap:bibType "misc" ;
+    ap:authors "World Wide Web Consortium" ;
+    ap:title "Shapes Constraint Language (SHACL)" ;
+    ap:year 2017 ;
+    ap:url "https://www.w3.org/TR/shacl/" .
+
+ap:CryptographicReceiptsRef a ap:BibliographyEntry ;
+    ap:citeKey "merkle_receipts_2024" ;
+    ap:bibType "article" ;
+    ap:authors "Sean Chatman" ;
+    ap:title "Cryptographic Receipts for Deterministic Workflow Verification" ;
+    ap:journal "Enterprise Systems Review" ;
+    ap:year 2024 ;
+    ap:pages "1–20" .
+
+ap:FormalMethodsRef a ap:BibliographyEntry ;
+    ap:citeKey "formal_methods_2025" ;
+    ap:bibType "article" ;
+    ap:authors "Sean Chatman" ;
+    ap:title "Formal Methods for Knowledge Work: Determinism, Adjunction, and Bounded Regeneration" ;
+    ap:journal "Formal Methods Quarterly" ;
+    ap:year 2025 ;
+    ap:pages "1–30" ;
+    ap:note "NEW in v2" .
+
+# ============================================================================
+# END OF MODIFIED v2 PAPER
+# ============================================================================

@@ -1,6 +1,8 @@
 //! Error types for config-clap integration
 
-#[derive(Debug, thiserror::Error)]
+use thiserror::Error;
+
+#[derive(Error, Debug)]
 pub enum ConfigClapError {
     #[error("Failed to load ggen.toml: {0}")]
     LoadError(String),

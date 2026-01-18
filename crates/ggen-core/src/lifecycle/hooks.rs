@@ -5,7 +5,7 @@
 
 use super::error::{LifecycleError, Result};
 use super::model::{Hooks, Make};
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{HashMap, HashSet};
 
 /// Hook validation error
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -48,15 +48,14 @@ impl std::error::Error for HookValidationError {}
 pub struct ValidatedHooks {
     hooks: Hooks,
     #[allow(dead_code)] // Stored for validation metadata
-    /// **FMEA Fix**: Use BTreeSet for deterministic iteration order
-    phase_names: BTreeSet<String>,
+    phase_names: HashSet<String>,
 }
 
 impl ValidatedHooks {
     /// Create validated hooks from raw hooks and phase names
     ///
     /// Validates hooks before wrapping them. Returns error if validation fails.
-    pub fn new(hooks: Hooks, phase_names: BTreeSet<String>) -> Result<Self> {
+    pub fn new(hooks: Hooks, phase_names: HashSet<String>) -> Result<Self> {
         Self::validate(&hooks, &phase_names)?;
         Ok(Self { hooks, phase_names })
     }
@@ -72,10 +71,9 @@ impl ValidatedHooks {
     /// - No circular dependencies in hook chains
     /// - All referenced phases exist
     /// - No self-referential hooks
-    pub fn validate(hooks: &Hooks, phase_names: &BTreeSet<String>) -> Result<()> {
+    pub fn validate(hooks: &Hooks, phase_names: &HashSet<String>) -> Result<()> {
         // Build dependency graph
-        // **FMEA Fix**: Use BTreeMap for deterministic iteration order
-        let mut graph: BTreeMap<String, Vec<String>> = BTreeMap::new();
+        let mut graph: HashMap<String, Vec<String>> = HashMap::new();
 
         // Helper to add dependencies
         let mut add_deps = |hook_name: &str, deps: &Option<Vec<String>>| {
@@ -161,13 +159,12 @@ impl ValidatedHooks {
         }
 
         // Check for circular dependencies using DFS
-        // **FMEA Fix**: Use BTreeSet for deterministic iteration order
-        let mut visited: BTreeSet<String> = BTreeSet::new();
-        let mut rec_stack: BTreeSet<String> = BTreeSet::new();
+        let mut visited: HashSet<String> = HashSet::new();
+        let mut rec_stack: HashSet<String> = HashSet::new();
 
         fn has_cycle(
-            node: &str, graph: &BTreeMap<String, Vec<String>>, visited: &mut BTreeSet<String>,
-            rec_stack: &mut BTreeSet<String>, path: &mut Vec<String>,
+            node: &str, graph: &HashMap<String, Vec<String>>, visited: &mut HashSet<String>,
+            rec_stack: &mut HashSet<String>, path: &mut Vec<String>,
         ) -> Option<Vec<String>> {
             visited.insert(node.to_string());
             rec_stack.insert(node.to_string());
@@ -231,8 +228,7 @@ impl AsRef<Hooks> for ValidatedHooks {
 ///
 /// Convenience function to validate hooks against phases in a Make config.
 pub fn validate_hooks(make: &Make) -> Result<ValidatedHooks> {
-    // Use BTreeSet for deterministic iteration order (matches ValidatedHooks type)
-    let phase_names: BTreeSet<String> = make.phase_names().into_iter().collect();
+    let phase_names: HashSet<String> = make.phase_names().into_iter().collect();
 
     if let Some(hooks) = &make.hooks {
         ValidatedHooks::new(hooks.clone(), phase_names)
@@ -254,8 +250,7 @@ mod tests {
         let mut hooks = Hooks::default();
         hooks.before_build = Some(vec!["validate".to_string()]);
 
-        // **FMEA Fix**: Use BTreeSet for deterministic iteration order
-        let mut phase_names = BTreeSet::new();
+        let mut phase_names = HashSet::new();
         phase_names.insert("validate".to_string());
         phase_names.insert("build".to_string());
 
@@ -267,8 +262,7 @@ mod tests {
         let mut hooks = Hooks::default();
         hooks.before_build = Some(vec!["nonexistent".to_string()]);
 
-        // **FMEA Fix**: Use BTreeSet for deterministic iteration order
-        let mut phase_names = BTreeSet::new();
+        let mut phase_names = HashSet::new();
         phase_names.insert("build".to_string());
 
         assert!(ValidatedHooks::validate(&hooks, &phase_names).is_err());
@@ -279,8 +273,7 @@ mod tests {
         let mut hooks = Hooks::default();
         hooks.before_build = Some(vec!["build".to_string()]);
 
-        // **FMEA Fix**: Use BTreeSet for deterministic iteration order
-        let mut phase_names = BTreeSet::new();
+        let mut phase_names = HashSet::new();
         phase_names.insert("build".to_string());
 
         assert!(ValidatedHooks::validate(&hooks, &phase_names).is_err());
@@ -299,8 +292,7 @@ mod tests {
         hooks.before_all = Some(vec!["setup".to_string()]);
         hooks.after_all = Some(vec!["init".to_string()]);
 
-        // **FMEA Fix**: Use BTreeSet for deterministic iteration order
-        let mut phase_names = BTreeSet::new();
+        let mut phase_names = HashSet::new();
         phase_names.insert("init".to_string());
         phase_names.insert("setup".to_string());
         phase_names.insert("build".to_string());

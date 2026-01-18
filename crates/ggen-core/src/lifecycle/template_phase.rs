@@ -4,7 +4,7 @@
 //! allowing templates to be part of standard project workflows.
 
 use crate::lifecycle::{Context, LifecycleError, Result};
-use std::collections::BTreeMap;
+use std::collections::HashMap;
 use std::path::Path;
 
 /// Template generation phase configuration
@@ -17,8 +17,7 @@ pub struct TemplatePhaseConfig {
     pub output_dir: Option<String>,
 
     /// Variables to pass to template
-    /// **FMEA Fix**: Use BTreeMap for deterministic iteration order
-    pub variables: BTreeMap<String, String>,
+    pub variables: HashMap<String, String>,
 
     /// Run in interactive mode
     pub interactive: bool,
@@ -35,7 +34,7 @@ impl Default for TemplatePhaseConfig {
         Self {
             template: String::new(),
             output_dir: None,
-            variables: BTreeMap::new(),
+            variables: HashMap::new(),
             interactive: false,
             force: false,
             post_hooks: Vec::new(),
@@ -108,7 +107,7 @@ pub async fn execute_template_phase(
 /// Validate template variables are provided
 fn validate_template_variables(
     tree: &ggen_template::template_tree::TemplateTree,
-    variables: &BTreeMap<String, String>,
+    variables: &HashMap<String, String>,
 ) -> Result<()> {
     let required_vars = tree.required_variables();
     let mut missing = Vec::new();
@@ -133,7 +132,7 @@ fn validate_template_variables(
 fn check_file_conflicts(
     tree: &ggen_template::template_tree::TemplateTree,
     output_dir: &Path,
-    variables: &BTreeMap<String, String>,
+    variables: &HashMap<String, String>,
 ) -> Result<()> {
     let files = tree.preview_files(output_dir, variables).map_err(|e| {
         LifecycleError::ExecutionError(format!("Failed to preview files: {}", e))

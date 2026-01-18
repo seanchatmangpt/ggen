@@ -1,6 +1,7 @@
 //! Marketplace list domain logic
 //!
-//! Real implementation of installed packages listing functionality.
+//! Real implementation of installed packages listing functionality using ggen-marketplace-v2.
+
 use ggen_utils::error::Result;
 
 /// List command arguments
@@ -147,11 +148,69 @@ pub async fn list_and_display(detailed: bool, json: bool) -> Result<()> {
     Ok(())
 }
 
-/// Execute list command using local lockfile + repository scan
+/// Execute list command using ggen-marketplace-v2 backend
 pub async fn execute_list(_input: ListInput) -> Result<ListOutput> {
+    use ggen_marketplace_v2::prelude::*;
+    use ggen_marketplace_v2::RdfRegistry;
     use std::path::PathBuf;
 
+    // FM22 (RPN 350): Missing home directory - fail fast for determinism (no temp fallback)
+    let _registry_path = dirs::home_dir()
+        .ok_or_else(|| {
+            ggen_utils::error::Error::new(
+                "❌ Home directory not found. Cannot determine registry directory. Marketplace operations require a valid home directory."
+            )
+        })?
+        .join(".ggen")
+        .join("registry");
+
+    // Initialize RDF registry (v2 backend - in-memory oxigraph store)
+    let registry = RdfRegistry::new();
+
+    // FM22 (RPN 350): Missing home directory - fail fast for determinism (no temp fallback)
+    let packages_dir = dirs::home_dir()
+        .ok_or_else(|| {
+            ggen_utils::error::Error::new(
+                "❌ Home directory not found. Cannot determine packages directory. Marketplace operations require a valid home directory."
+            )
+        })?
+        .join(".ggen")
+        .join("packages");
+
+    let lockfile_path = packages_dir.join("ggen.lock");
+    let lockfile: Lockfile = if lockfile_path.exists() {
+        let content = tokio::fs::read_to_string(&lockfile_path).await?;
+        serde_json::from_str(&content)?
+    } else {
+        Lockfile {
+            version: String::new(),
+            packages: std::collections::HashMap::new(),
+        }
+    };
+
+    // Note: v2 RDF registry is in-memory, metadata operations pending
+    // let _metadata = registry.metadata().await?;
+
     let mut packages = vec![];
+
+    // Iterate through lockfile packages
+    for (name, info) in &lockfile.packages {
+        // Note: PackageId in v2 uses qualified format "namespace/name"
+        let package_id = match PackageId::new(&format!("local/{}", name)) {
+            Ok(id) => id,
+            Err(_) => continue, // Skip invalid package IDs
+        };
+
+        if let Ok(pkg) = registry.get_package(&package_id).await {
+            packages.push(PackageListItem {
+                name: name.clone(),
+                version: info.version.clone(),
+                title: pkg.metadata.name.clone(),
+                description: pkg.metadata.description.clone(),
+                installed_at: info.installed_at.clone(),
+            });
+        }
+    }
 
     // CRITICAL FIX: Fallback to repo marketplace packages if no installed packages
     // ROOT CAUSE: Developers expect to see all available packages, not just installed ones

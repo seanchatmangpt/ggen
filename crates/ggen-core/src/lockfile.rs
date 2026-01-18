@@ -87,7 +87,7 @@ use ggen_utils::error::{Error, Result};
 use lru::LruCache;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::collections::HashMap;
 use std::fs;
 use std::num::NonZeroUsize;
 use std::path::{Path, PathBuf};
@@ -145,9 +145,7 @@ impl LockfileManager {
     pub fn new(project_dir: &Path) -> Self {
         let lockfile_path = project_dir.join("ggen.lock");
         // OPTIMIZATION 1: Initialize dependency cache with capacity of 1000 entries
-        // SAFETY: 1000 is always non-zero
-        let cache_size = NonZeroUsize::new(1000).expect("1000 is non-zero");
-        let dep_cache = Arc::new(Mutex::new(LruCache::new(cache_size)));
+        let dep_cache = Arc::new(Mutex::new(LruCache::new(NonZeroUsize::new(1000).unwrap())));
         Self {
             lockfile_path,
             dep_cache,
@@ -156,9 +154,7 @@ impl LockfileManager {
 
     /// Create a lockfile manager with custom path
     pub fn with_path(lockfile_path: PathBuf) -> Self {
-        // SAFETY: 1000 is always non-zero
-        let cache_size = NonZeroUsize::new(1000).expect("1000 is non-zero");
-        let dep_cache = Arc::new(Mutex::new(LruCache::new(cache_size)));
+        let dep_cache = Arc::new(Mutex::new(LruCache::new(NonZeroUsize::new(1000).unwrap())));
         Self {
             lockfile_path,
             dep_cache,
@@ -270,10 +266,7 @@ impl LockfileManager {
 
         // OPTIMIZATION 1.2: Check cache first for memoization (30-50% speedup)
         {
-            let mut cache = self
-                .dep_cache
-                .lock()
-                .map_err(|e| Error::new(&format!("Dependency cache lock poisoned: {}", e)))?;
+            let mut cache = self.dep_cache.lock().unwrap();
             if let Some(cached_deps) = cache.get(&cache_key) {
                 return Ok(cached_deps.clone());
             }
@@ -304,10 +297,7 @@ impl LockfileManager {
 
         // OPTIMIZATION 1.2: Store in cache for future lookups
         {
-            let mut cache = self
-                .dep_cache
-                .lock()
-                .map_err(|e| Error::new(&format!("Dependency cache lock poisoned: {}", e)))?;
+            let mut cache = self.dep_cache.lock().unwrap();
             cache.put(cache_key, result.clone());
         }
 
@@ -379,11 +369,10 @@ impl LockfileManager {
     }
 
     /// Get installed packs as a map for quick lookup
-    /// **FMEA Fix**: Use BTreeMap for deterministic iteration order
-    pub fn installed_packs(&self) -> Result<BTreeMap<String, LockEntry>> {
+    pub fn installed_packs(&self) -> Result<HashMap<String, LockEntry>> {
         let lockfile = match self.load()? {
             Some(lockfile) => lockfile,
-            None => return Ok(BTreeMap::new()),
+            None => return Ok(HashMap::new()),
         };
 
         Ok(lockfile
@@ -460,8 +449,7 @@ impl LockfileManager {
         let new_entries = entries?;
 
         // Remove existing entries for the packs being updated
-        // **FMEA Fix**: Use BTreeSet for deterministic iteration order
-        let pack_ids: std::collections::BTreeSet<_> =
+        let pack_ids: std::collections::HashSet<_> =
             packs.iter().map(|(id, _, _, _)| id.as_str()).collect();
         lockfile
             .packs
@@ -478,20 +466,14 @@ impl LockfileManager {
 
     /// Clear dependency cache (useful for testing or when cache becomes stale)
     pub fn clear_cache(&self) {
-        // Mutex lock can fail if poisoned by panic - log error but don't propagate
-        // This is safe because clearing cache is best-effort operation
-        if let Ok(mut cache) = self.dep_cache.lock() {
-            cache.clear();
-        }
+        let mut cache = self.dep_cache.lock().unwrap();
+        cache.clear();
     }
 
     /// Get cache statistics
     pub fn cache_stats(&self) -> (usize, usize) {
-        // Return (0, 0) if mutex is poisoned - cache stats are non-critical
-        self.dep_cache
-            .lock()
-            .map(|cache| (cache.len(), cache.cap().get()))
-            .unwrap_or((0, 0))
+        let cache = self.dep_cache.lock().unwrap();
+        (cache.len(), cache.cap().get())
     }
 }
 

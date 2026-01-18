@@ -1,27 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [CLI Business Logic Extraction Matrix](#cli-business-logic-extraction-matrix)
-  - [EXECUTIVE SUMMARY](#executive-summary)
-  - [EXTRACTION MATRIX](#extraction-matrix)
-    - [Legend](#legend)
-  - [MARKETPLACE COMMANDS (19 functions)](#marketplace-commands-19-functions)
-  - [TEMPLATE COMMANDS (8 functions)](#template-commands-8-functions)
-  - [PROJECT COMMANDS (7 functions)](#project-commands-7-functions)
-  - [CODE DUPLICATION ANALYSIS](#code-duplication-analysis)
-  - [DETAILED EXTRACTION PLANS](#detailed-extraction-plans)
-    - [P1-1: Marketplace List Maturity Filtering (1 hour)](#p1-1-marketplace-list-maturity-filtering-1-hour)
-    - [P1-2: Marketplace Improve Template Application (30 minutes)](#p1-2-marketplace-improve-template-application-30-minutes)
-    - [P2-1: Variable Parsing Helper (15 minutes)](#p2-1-variable-parsing-helper-15-minutes)
-  - [EXECUTION PLAN](#execution-plan)
-    - [Phase 1: Important Extractions (1.5 hours)](#phase-1-important-extractions-15-hours)
-    - [Phase 2: Code Quality (15 minutes)](#phase-2-code-quality-15-minutes)
-  - [VALIDATION CHECKLIST](#validation-checklist)
-  - [SUCCESS CRITERIA](#success-criteria)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # CLI Business Logic Extraction Matrix
 
 **Generated:** 2025-11-20

@@ -1,0 +1,375 @@
+# Advanced CLI Tool - Complete Lifecycle Configuration
+# Demonstrates all ggen lifecycle phases with production-ready tasks
+
+[env]
+RUST_BACKTRACE = "1"
+RUST_LOG = "info"
+APP_NAME = "advanced-cli-tool"
+COVERAGE_THRESHOLD = "80"
+BENCHMARK_BASELINE = "main"
+TARGET_DIR = "target"
+DIST_DIR = "dist"
+
+[config]
+default_to_workspace = false
+min_version = "0.37.0"
+
+# ========================================
+# LIFECYCLE PHASES
+# ========================================
+
+# Phase 1: Initialize project
+[tasks.init]
+description = "Initialize project environment"
+script = '''
+echo "🚀 Initializing advanced-cli-tool..."
+rustup component add rustfmt clippy
+cargo install cargo-audit cargo-tarpaulin cargo-outdated cargo-tree
+echo "✅ Initialization complete"
+'''
+
+# Phase 2: Setup dependencies and pre-build
+[tasks.setup]
+description = "Setup dependencies and validate environment"
+dependencies = ["check-rust-version"]
+script = '''
+echo "📦 Setting up dependencies..."
+cargo fetch
+cargo tree --depth 1
+echo "✅ Setup complete"
+'''
+
+[tasks.check-rust-version]
+description = "Verify Rust version meets requirements"
+script = '''
+required_version="1.75.0"
+current_version=$(rustc --version | awk '{print $2}')
+echo "Current Rust version: $current_version"
+echo "Required version: >= $required_version"
+'''
+
+# Phase 3: Format code
+[tasks.format]
+description = "Format code with rustfmt"
+command = "cargo"
+args = ["fmt", "--all", "--check"]
+
+[tasks.format-fix]
+description = "Auto-fix formatting issues"
+command = "cargo"
+args = ["fmt", "--all"]
+
+# Phase 4: Lint code
+[tasks.lint]
+description = "Run clippy linter with strict rules"
+dependencies = ["format"]
+command = "cargo"
+args = [
+    "clippy",
+    "--all-targets",
+    "--all-features",
+    "--",
+    "-D", "warnings",
+    "-W", "clippy::all",
+    "-W", "clippy::pedantic",
+    "-W", "clippy::nursery",
+    "-A", "clippy::module_name_repetitions"
+]
+
+[tasks.lint-fix]
+description = "Auto-fix linting issues"
+command = "cargo"
+args = ["clippy", "--fix", "--allow-dirty", "--allow-staged"]
+
+# Phase 5: Build
+[tasks.build]
+description = "Build project in debug mode"
+dependencies = ["before_build"]
+command = "cargo"
+args = ["build", "--all-features"]
+run_task = { name = ["after_build"] }
+
+[tasks.build-release]
+description = "Build optimized release binary"
+dependencies = ["before_build", "lint", "test"]
+command = "cargo"
+args = ["build", "--release", "--all-features"]
+run_task = { name = ["after_build", "strip-binary"] }
+
+[tasks.before_build]
+description = "Pre-build validation"
+script = '''
+echo "🔍 Pre-build checks..."
+cargo check --all-features
+echo "✅ Pre-build validation complete"
+'''
+
+[tasks.after_build]
+description = "Post-build verification"
+script = '''
+echo "✅ Build complete"
+ls -lh target/debug/${APP_NAME} 2>/dev/null || ls -lh target/release/${APP_NAME} 2>/dev/null || true
+'''
+
+[tasks.strip-binary]
+description = "Strip debug symbols from release binary"
+condition = { files_exist = ["${TARGET_DIR}/release/${APP_NAME}"] }
+script = '''
+if command -v strip >/dev/null 2>&1; then
+    strip target/release/${APP_NAME}
+    echo "✅ Binary stripped"
+    ls -lh target/release/${APP_NAME}
+fi
+'''
+
+# Phase 6: Test
+[tasks.test]
+description = "Run all tests"
+dependencies = ["test-unit", "test-integration"]
+
+[tasks.test-unit]
+description = "Run unit tests"
+command = "cargo"
+args = ["test", "--lib", "--all-features"]
+
+[tasks.test-integration]
+description = "Run integration tests"
+command = "cargo"
+args = ["test", "--test", "*", "--all-features"]
+
+[tasks.test-coverage]
+description = "Generate code coverage report"
+script = '''
+echo "📊 Generating coverage report..."
+cargo tarpaulin \
+    --out Html \
+    --out Xml \
+    --output-dir coverage \
+    --all-features \
+    --workspace \
+    --timeout 300 \
+    --fail-under ${COVERAGE_THRESHOLD}
+echo "✅ Coverage report: coverage/index.html"
+'''
+
+[tasks.test-watch]
+description = "Run tests in watch mode"
+install_crate = "cargo-watch"
+command = "cargo"
+args = ["watch", "-x", "test"]
+
+# Phase 7: Benchmark
+[tasks.bench]
+description = "Run performance benchmarks"
+command = "cargo"
+args = ["bench", "--bench", "performance"]
+
+[tasks.bench-baseline]
+description = "Create baseline for benchmark comparison"
+script = '''
+echo "📊 Creating benchmark baseline..."
+cargo bench --bench performance -- --save-baseline ${BENCHMARK_BASELINE}
+echo "✅ Baseline saved: ${BENCHMARK_BASELINE}"
+'''
+
+[tasks.bench-compare]
+description = "Compare benchmarks against baseline"
+script = '''
+echo "📊 Comparing benchmarks..."
+cargo bench --bench performance -- --baseline ${BENCHMARK_BASELINE}
+'''
+
+# Phase 8: Audit
+[tasks.audit]
+description = "Security and dependency auditing"
+dependencies = ["audit-security", "audit-deps", "audit-licenses"]
+
+[tasks.audit-security]
+description = "Run cargo-audit for security vulnerabilities"
+command = "cargo"
+args = ["audit"]
+
+[tasks.audit-deps]
+description = "Check for outdated dependencies"
+command = "cargo"
+args = ["outdated", "--root-deps-only"]
+
+[tasks.audit-licenses]
+description = "Audit dependency licenses"
+script = '''
+echo "📜 Checking licenses..."
+cargo tree --depth 1 --prefix none | grep -v "^[[:space:]]*$" || true
+'''
+
+# Phase 9: Documentation
+[tasks.doc]
+description = "Generate project documentation"
+dependencies = ["doc-build", "doc-test"]
+
+[tasks.doc-build]
+description = "Build documentation"
+command = "cargo"
+args = ["doc", "--no-deps", "--all-features", "--document-private-items"]
+
+[tasks.doc-test]
+description = "Test documentation examples"
+command = "cargo"
+args = ["test", "--doc", "--all-features"]
+
+[tasks.doc-open]
+description = "Build and open documentation"
+command = "cargo"
+args = ["doc", "--no-deps", "--all-features", "--open"]
+
+# Phase 10: Deploy
+[tasks.deploy]
+description = "Complete deployment pipeline"
+dependencies = [
+    "before_deploy",
+    "build-release",
+    "test",
+    "audit",
+    "package"
+]
+run_task = { name = ["after_deploy"] }
+
+[tasks.before_deploy]
+description = "Pre-deployment validation"
+script = '''
+echo "🚀 Pre-deployment checks..."
+cargo test --release --all-features
+echo "✅ Pre-deployment validation complete"
+'''
+
+[tasks.package]
+description = "Create distribution packages"
+dependencies = ["build-release"]
+script = '''
+echo "📦 Creating distribution packages..."
+mkdir -p ${DIST_DIR}
+
+# Linux/macOS tar.gz
+if [ -f target/release/${APP_NAME} ]; then
+    tar -czf ${DIST_DIR}/${APP_NAME}-$(uname -s)-$(uname -m).tar.gz \
+        -C target/release ${APP_NAME}
+    echo "✅ Created: ${DIST_DIR}/${APP_NAME}-$(uname -s)-$(uname -m).tar.gz"
+fi
+
+# Generate checksums
+cd ${DIST_DIR}
+for file in *.tar.gz; do
+    [ -f "$file" ] && shasum -a 256 "$file" > "$file.sha256"
+done
+cd ..
+
+ls -lh ${DIST_DIR}/
+'''
+
+[tasks.after_deploy]
+description = "Post-deployment verification"
+script = '''
+echo "✅ Deployment complete!"
+echo "📦 Distribution artifacts:"
+ls -lh ${DIST_DIR}/ 2>/dev/null || echo "No artifacts found"
+'''
+
+# ========================================
+# COMPOUND TASKS
+# ========================================
+
+[tasks.before_all]
+description = "Execute before all tasks"
+script = '''
+echo "============================================"
+echo "🚀 Starting ${APP_NAME} build pipeline"
+echo "============================================"
+'''
+
+[tasks.after_all]
+description = "Execute after all tasks"
+script = '''
+echo "============================================"
+echo "✅ Pipeline complete!"
+echo "============================================"
+'''
+
+[tasks.ci]
+description = "Complete CI pipeline"
+dependencies = [
+    "before_all",
+    "setup",
+    "format",
+    "lint",
+    "build",
+    "test",
+    "audit",
+    "after_all"
+]
+
+[tasks.ci-full]
+description = "Complete CI pipeline with coverage and benchmarks"
+dependencies = [
+    "before_all",
+    "setup",
+    "format",
+    "lint",
+    "build",
+    "test-coverage",
+    "bench",
+    "audit",
+    "doc",
+    "after_all"
+]
+
+[tasks.pre-commit]
+description = "Pre-commit validation"
+dependencies = ["format-fix", "lint-fix", "test-unit"]
+
+[tasks.clean]
+description = "Clean build artifacts"
+command = "cargo"
+args = ["clean"]
+script_runner = "@shell"
+script = '''
+rm -rf ${DIST_DIR} coverage
+echo "✅ Cleaned build artifacts"
+'''
+
+[tasks.help]
+description = "Show available tasks"
+script = '''
+echo "Available lifecycle phases:"
+echo "  init          - Initialize project"
+echo "  setup         - Setup dependencies"
+echo "  format        - Format code"
+echo "  lint          - Lint code"
+echo "  build         - Build project"
+echo "  test          - Run tests"
+echo "  bench         - Run benchmarks"
+echo "  audit         - Security audit"
+echo "  doc           - Generate docs"
+echo "  deploy        - Deploy artifacts"
+echo ""
+echo "Compound tasks:"
+echo "  ci            - Complete CI pipeline"
+echo "  ci-full       - Full CI with coverage/bench"
+echo "  pre-commit    - Pre-commit checks"
+echo "  clean         - Clean artifacts"
+'''
+
+# ========================================
+# PARALLEL EXECUTION
+# ========================================
+
+[tasks.parallel-checks]
+description = "Run independent checks in parallel"
+dependencies = ["format", "lint"]
+run_task = { name = ["test-unit", "audit-security"], parallel = true }
+
+[tasks.parallel-build]
+description = "Build multiple targets in parallel"
+script = '''
+cargo build --all-features &
+cargo build --release --all-features &
+wait
+'''

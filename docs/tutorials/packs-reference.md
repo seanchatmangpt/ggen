@@ -20,7 +20,6 @@
     - [Dependencies](#dependencies)
   - [Error Codes](#error-codes)
   - [Configuration Options](#configuration-options)
-    - [Pack Configuration File](#pack-configuration-file)
   - [Environment Variables](#environment-variables)
   - [Exit Codes](#exit-codes)
 

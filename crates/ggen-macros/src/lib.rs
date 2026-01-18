@@ -53,11 +53,11 @@ pub fn derive_guard(input: TokenStream) -> TokenStream {
     }
 
     let guard_description = get_attr_value(&input.attrs, "guard_description")
-        .unwrap_or_else(|| format!("Validates {guard_name}"));
+        .unwrap_or_else(|| format!("Validates {}", guard_name));
 
     // Validate guard_description is not empty (use default if empty)
     let guard_description = if guard_description.is_empty() {
-        format!("Validates {guard_name}")
+        format!("Validates {}", guard_name)
     } else {
         guard_description
     };
@@ -191,7 +191,7 @@ fn get_attr_value(attrs: &[syn::Attribute], attr_name: &str) -> Option<String> {
                         return Some(lit_str.value());
                     }
                 }
-                Meta::Path(_) => {}
+                _ => {}
             }
             // Fallback: try parse_args for #[attr("value")] syntax
             attr.parse_args::<syn::LitStr>().ok().map(|lit| lit.value())

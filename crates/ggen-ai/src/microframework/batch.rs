@@ -5,7 +5,7 @@
 
 use super::orchestrator::AgentOrchestrator;
 use super::tasks::{Task, TaskResult, TaskType};
-use crate::error::{GgenAiError, Result};
+use crate::error::Result;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 

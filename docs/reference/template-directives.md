@@ -1,33 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Template Directives Reference](#template-directives-reference)
-  - [Frontmatter Structure](#frontmatter-structure)
-  - [Core Directives](#core-directives)
-    - [`output` (Required)](#output-required)
-    - [`vars` (Optional)](#vars-optional)
-    - [`when` (Optional)](#when-optional)
-    - [`query` (Optional)](#query-optional)
-    - [`determinism` (Optional)](#determinism-optional)
-    - [`rdf` (Optional)](#rdf-optional)
-    - [`sparql` (Optional)](#sparql-optional)
-  - [Advanced Directives](#advanced-directives)
-    - [`validate` (Optional)](#validate-optional)
-    - [`postprocess` (Optional)](#postprocess-optional)
-    - [`metadata` (Optional)](#metadata-optional)
-  - [Complete Example](#complete-example)
-  - [Template File Organization](#template-file-organization)
-  - [Context Variables](#context-variables)
-  - [Common Patterns](#common-patterns)
-    - [Multi-File Generation](#multi-file-generation)
-    - [Conditional Features](#conditional-features)
-    - [Parameterized Output Paths](#parameterized-output-paths)
-  - [Troubleshooting](#troubleshooting)
-  - [See Also](#see-also)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Template Directives Reference
 
 Complete reference for template metadata directives and frontmatter.

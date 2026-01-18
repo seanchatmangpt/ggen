@@ -3,13 +3,11 @@
 //! Enables defining and executing multi-stage pipelines with automatic
 //! data flow between stages.
 
-use super::agents::MicroAgent;
 use super::orchestrator::AgentOrchestrator;
-use super::tasks::{Task, TaskResult, TaskStatus, TaskType};
-use crate::error::{GgenAiError, Result};
+use super::tasks::{Task, TaskResult, TaskType};
+use crate::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::sync::Arc;
 
 /// A pipeline stage definition
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -93,6 +91,7 @@ pub struct Pipeline {
     /// Pipeline stages
     stages: Vec<PipelineStage>,
     /// Stage results
+    #[allow(dead_code)]
     results: HashMap<String, TaskResult>,
     /// Pipeline configuration
     config: PipelineConfig,
