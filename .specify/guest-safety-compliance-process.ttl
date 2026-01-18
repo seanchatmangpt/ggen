@@ -1,0 +1,599 @@
+@prefix ex: <http://ggen.example.org/disney/guest-safety-compliance#> .
+@prefix wo: <http://ggen.example.org/disney/work-objects#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ==============================================================================
+# Guest Safety & Compliance Process Ontology
+# ==============================================================================
+# Purpose: Continuous safety inspections, compliance certifications, incident tracking, regulatory reporting
+# Audience: Safety officers, compliance managers, regulatory affairs, incident response teams
+# Wave: 3 (Regulatory-critical process)
+# Status: Mapped to Work Object Model types
+# Created: 2026-01-18
+# ==============================================================================
+
+ex:GuestSafetyComplianceProcess a owl:Class ;
+  rdfs:label "Guest Safety & Compliance Process" ;
+  rdfs:comment "Continuous monitoring of guest safety, regulatory compliance, incident reporting, and certification management. Integrates inspections, certifications, incident tracking, and regulatory reporting." ;
+  rdfs:isDefinedBy ex:GuestSafetyComplianceOntology .
+
+ex:DailyComplianceCycle a ex:GuestSafetyComplianceProcess ;
+  rdfs:label "Daily Compliance Cycle" ;
+  rdfs:comment "Morning and evening safety sweeps, incident reviews, and compliance status updates." ;
+  ex:executionFrequency "Twice daily (morning at 05:00, evening at 21:00)" ;
+  ex:targetCompletionTime "60 minutes per cycle" ;
+  ex:estimatedDuration "PT60M"^^xsd:duration ;
+  ex:dependencies ex:InspectionApproval, ex:IncidentEscalationReview, ex:ComplianceCertificationReview .
+
+# ==============================================================================
+# SHIFTS (Maps to wo:Shift)
+# ==============================================================================
+
+ex:SafetyInspectionShift a wo:Shift ;
+  rdfs:label "Safety Inspection Shift" ;
+  rdfs:comment "Morning and evening safety teams conducting inspections." ;
+  ex:role "Safety Officer, Compliance Inspector, Environmental Health Specialist" ;
+  ex:startTime "2026-01-19T05:00:00"^^xsd:dateTime ;
+  ex:endTime "2026-01-19T14:00:00"^^xsd:dateTime ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "SHIFT-SAFETY-INSP-001" ;
+  ex:location ex:SafetyOperationsCenter ;
+  ex:staffingRequirement [
+    ex:role "Safety Officer" ;
+    ex:count 4 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "SAFETY-OFFICERS-001"
+  ] ;
+  ex:staffingRequirement [
+    ex:role "Compliance Inspector" ;
+    ex:count 3 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "COMPLIANCE-INSP-001"
+  ] ;
+  ex:staffingRequirement [
+    ex:role "Environmental Health Specialist" ;
+    ex:count 2 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "ENV-HEALTH-001"
+  ] .
+
+ex:IncidentResponseShift a wo:Shift ;
+  rdfs:label "Incident Response Shift" ;
+  rdfs:comment "24/7 incident response team on-call." ;
+  ex:role "Incident Commander, First Responder Coordinator, Legal Liaison" ;
+  ex:continuous "true" ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "SHIFT-INCIDENT-RESPONSE-001" ;
+  ex:location ex:IncidentCommandCenter ;
+  ex:staffingRequirement [
+    ex:role "Incident Commander" ;
+    ex:count 1 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "INC-CMD-001"
+  ] .
+
+# ==============================================================================
+# TASKS (Maps to wo:Task)
+# ==============================================================================
+
+ex:MorningAttractionInspection a wo:Task ;
+  rdfs:label "Morning Attraction Safety Inspection" ;
+  rdfs:comment "Comprehensive pre-opening inspection of all attractions; mechanical, electrical, safety systems." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-INSP-MORNING-001" ;
+  wo:hasTitle "Pre-Opening Safety Inspection: All Attractions" ;
+  wo:taskDescription "Walk all 23 attractions; verify no guest-facing hazards; inspect structural integrity; test safety systems; document findings in CMMS." ;
+  wo:taskAssignedTo ex:SafetyOfficerLead ;
+  wo:taskEstimatedDuration "PT45M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:InspectionAC1, ex:InspectionAC2, ex:InspectionAC3 ;
+  ex:executionOrder 1 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:InspectionDataValidation ;
+  ex:externalSystemDependency [
+    ex:system "SAP CMMS" ;
+    ex:functionality "Asset inspection history, maintenance schedules, open maintenance orders" ;
+    ex:requiredBefore "Inspection execution"
+  ] ;
+  ex:regulatoryMapping "OSHA 1910.147 (Lockout/Tagout), ANSI B77.1 (Amusement Ride Safety)" .
+
+ex:InspectionAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When inspection complete, then all 23 attractions inspected and documented in CMMS within 45 minutes." ;
+  wo:criterionVerified "false" .
+
+ex:InspectionAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When inspection complete, then zero safety defects identified that would prevent opening (critical defects escalated immediately)." ;
+  wo:criterionVerified "false" .
+
+ex:InspectionAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When inspection complete, then inspection checklist signed by lead safety officer and uploaded to compliance repository." ;
+  wo:criterionVerified "false" .
+
+ex:InspectionDataValidation a wo:Task ;
+  rdfs:label "Inspection Data Validation & Anomaly Detection" ;
+  rdfs:comment "Review inspection data; flag patterns suggesting recurring issues or systemic risks." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-DATA-VAL-001" ;
+  wo:hasTitle "Validate Inspection Data and Detect Anomalies" ;
+  wo:taskAssignedTo ex:ComplianceManagerLead ;
+  wo:taskEstimatedDuration "PT8M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:ValidationAC1, ex:ValidationAC2 ;
+  wo:dependsOn ex:MorningAttractionInspection ;
+  ex:executionOrder 2 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:InspectionApproval ;
+  ex:externalSystemDependency [
+    ex:system "Tableau Analytics" ;
+    ex:functionality "Historical defect patterns, trend analysis" ;
+    ex:requiredBefore "Anomaly detection"
+  ] .
+
+ex:ValidationAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When validation complete, then defects classified by severity (critical, major, minor) and trending tracked." ;
+  wo:criterionVerified "false" .
+
+ex:ValidationAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When validation complete, then anomalies (5+ consecutive defects in same system) flagged for engineering review." ;
+  wo:criterionVerified "false" .
+
+ex:IncidentEscalationReview a wo:Task ;
+  rdfs:label "Incident Escalation & Classification" ;
+  rdfs:comment "Review any incidents reported in past 24 hours; classify severity; determine if regulatory report required." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-INCIDENT-ESC-001" ;
+  wo:hasTitle "Review and Classify Guest Safety Incidents" ;
+  wo:taskAssignedTo ex:IncidentCommanderLead ;
+  wo:taskEstimatedDuration "PT15M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:IncidentAC1, ex:IncidentAC2 ;
+  ex:executionOrder 3 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:RegulatoryReportingDecision ;
+  ex:externalSystemDependency [
+    ex:system "ServiceNow Incident Management" ;
+    ex:functionality "All incidents reported in past 24 hours with medical detail" ;
+    ex:requiredBefore "Escalation decision"
+  ] ;
+  ex:regulatoryMapping "OSHA 301 (Incident Reporting), State Health Dept. Requirements, Local Fire Code" .
+
+ex:IncidentAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When review complete, then all incidents classified by severity (critical, major, minor) and causation analyzed." ;
+  wo:criterionVerified "false" .
+
+ex:IncidentAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When review complete, then any reportable incident flagged for legal review and regulatory notification within 2 hours." ;
+  wo:criterionVerified "false" .
+
+ex:RegulatoryReportingDecision a wo:Task ;
+  rdfs:label "Regulatory Reporting Decision" ;
+  rdfs:comment "Determine if incident requires regulatory notification; prepare required reports." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-REG-REPORTING-001" ;
+  wo:hasTitle "Evaluate and Execute Regulatory Reporting" ;
+  wo:taskAssignedTo ex:LegalLiaisonLead ;
+  wo:taskEstimatedDuration "PT20M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:ReportingAC1, ex:ReportingAC2 ;
+  wo:dependsOn ex:IncidentEscalationReview ;
+  ex:executionOrder 4 ;
+  ex:criticalPath "true" ;
+  ex:externalSystemDependency [
+    ex:system "Salesforce CRM (Legal Module)" ;
+    ex:functionality "Incident details, witness statements, medical reports" ;
+    ex:requiredBefore "Report generation"
+  ] ;
+  ex:regulatoryMapping "OSHA Form 301, State Incident Reports, Local Health Dept. Notifications" .
+
+ex:ReportingAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When decision complete, then all reportable incidents identified and regulatory filing deadline calculated." ;
+  wo:criterionVerified "false" .
+
+ex:ReportingAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When reports submitted, then all required forms filed with appropriate agencies within compliance deadline." ;
+  wo:criterionVerified "false" .
+
+ex:ComplianceCertificationReview a wo:Task ;
+  rdfs:label "Compliance Certification Management" ;
+  rdfs:comment "Track and manage safety certifications; flag approaching expiration dates." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-CERT-REVIEW-001" ;
+  wo:hasTitle "Review Compliance Certifications and Renewal Status" ;
+  wo:taskAssignedTo ex:ComplianceManagerLead ;
+  wo:taskEstimatedDuration "PT10M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:CertAC1, ex:CertAC2 ;
+  ex:executionOrder 5 ;
+  ex:criticalPath "true" ;
+  ex:externalSystemDependency [
+    ex:system "SAP CMMS" ;
+    ex:functionality "Certification tracking, expiration dates, renewal schedules" ;
+    ex:requiredBefore "Review"
+  ] .
+
+ex:CertAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When review complete, then all 23 attractions have valid safety certifications (none expired)." ;
+  wo:criterionVerified "false" .
+
+ex:CertAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When review complete, then any certifications expiring within 30 days flagged; renewal scheduled with vendor." ;
+  wo:criterionVerified "false" .
+
+# ==============================================================================
+# APPROVALS (Maps to wo:Approval)
+# ==============================================================================
+
+ex:InspectionApproval a wo:Approval ;
+  rdfs:label "Safety Inspection Approval" ;
+  rdfs:comment "Safety director approval for morning inspection results." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-INSP-001" ;
+  wo:hasTitle "Safety Director Inspection Approval" ;
+  wo:approvalsRequired 1 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:SafetyDirectorRole ;
+  ex:gates [
+    ex:gateName "All Attractions Inspected" ;
+    ex:dependsOn ex:InspectionDataValidation ;
+    ex:gateStatus "Awaiting"
+  ] ;
+  ex:gates [
+    ex:gateName "No Critical Defects" ;
+    ex:requiredEvidence "Inspection report with zero critical safety issues" ;
+    ex:gateStatus "Awaiting"
+  ] ;
+  ex:blocksProgression ex:DailyComplianceCycle .
+
+ex:IncidentEscalationApproval a wo:Approval ;
+  rdfs:label "Incident Escalation Approval" ;
+  rdfs:comment "Chief medical officer and legal approval for incident classification and regulatory action." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-INC-ESC-001" ;
+  wo:hasTitle "Medical and Legal Incident Approval" ;
+  wo:approvalsRequired 2 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:ChiefMedicalOfficerRole ;
+  wo:approvalRequiredFrom ex:GeneralCounselRole ;
+  ex:gates [
+    ex:gateName "Incident Review Complete" ;
+    ex:dependsOn ex:IncidentEscalationReview
+  ] ;
+  ex:gates [
+    ex:gateName "Regulatory Determination Made" ;
+    ex:dependsOn ex:RegulatoryReportingDecision
+  ] ;
+  ex:blocksProgression ex:RegulatoryReporting .
+
+# ==============================================================================
+# INCIDENTS (Maps to wo:Incident)
+# ==============================================================================
+
+ex:IncidentTemplate_EquipmentDefect a wo:Incident ;
+  rdfs:label "Critical Safety Defect Identified" ;
+  rdfs:comment "Inspection reveals critical safety defect requiring immediate action." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "INC-SAFETY-DEFECT-TEMPLATE" ;
+  ex:isTemplate "true" ;
+  ex:incidentSeverity "High" ;
+  ex:incidentDescription "Safety inspection identifies critical defect that could pose guest risk." ;
+  ex:blocksProcesses ex:DailyComplianceCycle ;
+  ex:remediationPath [
+    ex:firstStep "Isolate affected attraction; place closure signs" ;
+    ex:createTask ex:EmergencyRepairTask ;
+    ex:estimatedDelay "4-24 hours depending on severity" ;
+    ex:requiresApprovalBefore "Reopening"
+  ] ;
+  ex:escalationPath [
+    ex:severity "High" ;
+    ex:escalateTo ex:SafetyDirector
+  ] ;
+  ex:regulatoryMapping "OSHA 1910.22 (Hazard Correction)" .
+
+ex:IncidentTemplate_GuestInjury a wo:Incident ;
+  rdfs:label "Guest Injury Incident" ;
+  rdfs:comment "Medical incident involving guest injury; requires documentation and possible regulatory reporting." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "INC-GUEST-INJURY-TEMPLATE" ;
+  ex:isTemplate "true" ;
+  ex:incidentSeverity "Critical" ;
+  ex:incidentDescription "Guest medical incident requiring incident report, witness statements, and regulatory evaluation." ;
+  ex:remediationPath [
+    ex:firstStep "First aid and emergency medical response" ;
+    ex:createTask ex:IncidentDocumentationTask ;
+    ex:createTask ex:RegulatoryReportingTask ;
+    ex:estimatedDelay "2-48 hours for regulatory reporting"
+  ] ;
+  ex:escalationPath [
+    ex:severity "Critical" ;
+    ex:escalateTo ex:IncidentCommanderLead ;
+    ex:escalateTo ex:ChiefMedicalOfficer ;
+    ex:escalateTo ex:GeneralCounsel
+  ] ;
+  ex:regulatoryMapping "OSHA Form 301, State Health Dept. Incident Report" .
+
+# ==============================================================================
+# RESOURCES (Maps to wo:Resource)
+# ==============================================================================
+
+ex:InspectionEquipment a wo:Resource ;
+  rdfs:label "Safety Inspection Equipment" ;
+  rdfs:comment "Inspection tools, checklists, mobile devices." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "RES-INSP-EQUIP-001" ;
+  wo:resourceType "Equipment and Tools" ;
+  ex:requiredItems [
+    ex:item "Mobile inspection device (tablet with inspection app)" ;
+    ex:quantity 4 ;
+    ex:systemId "TABLET-INSP-001-004"
+  ] ;
+  ex:requiredItems [
+    ex:item "Inspection checklists (printed and digital)" ;
+    ex:quantity 1 ;
+    ex:systemId "CHECKLIST-SAFETY-V3"
+  ] ;
+  ex:requiredItems [
+    ex:item "First aid kits (distributed across park)" ;
+    ex:quantity 6 ;
+    ex:systemId "FIRST-AID-KIT-001-006"
+  ] ;
+  wo:resourceAvailability "Available" ;
+  ex:verificationMethod "Daily inventory check; battery charge verification" .
+
+ex:ComplianceDataSystem a wo:Resource ;
+  rdfs:label "Compliance Data Management System" ;
+  rdfs:comment "CMMS, incident management, regulatory reporting." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "RES-COMPLIANCE-SYS-001" ;
+  wo:resourceType "Software System" ;
+  ex:systemComponents [
+    ex:component "SAP CMMS (Computerized Maintenance Management System)" ;
+    ex:systemId "SAP-CMMS-PROD"
+  ] ;
+  ex:systemComponents [
+    ex:component "ServiceNow Incident Management" ;
+    ex:systemId "SERVICENOW-INC-PROD"
+  ] ;
+  ex:systemComponents [
+    ex:component "Regulatory Reporting Module" ;
+    ex:systemId "REG-REPORT-V2"
+  ] ;
+  wo:resourceAvailability "Available" ;
+  ex:verificationMethod "System health check; database backup verification" .
+
+# ==============================================================================
+# EVENTS (Maps to wo:Event)
+# ==============================================================================
+
+ex:EventInspectionComplete a wo:Event ;
+  rdfs:label "Morning Safety Inspection Complete" ;
+  rdfs:comment "Signal that morning inspection cycle finished." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "EVT-INSP-COMPLETE-001" ;
+  wo:eventType "milestone" ;
+  wo:eventMessage "Morning safety inspection complete. All 23 attractions inspected. No critical defects identified." ;
+  wo:eventSource "CMMS System" ;
+  ex:eventTrigger ex:InspectionDataValidation ;
+  ex:notificationChannel "Slack #safety-operations" .
+
+ex:EventRegulatoryAlert a wo:Event ;
+  rdfs:label "Regulatory Reporting Required" ;
+  rdfs:comment "Alert that incident requires regulatory notification." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "EVT-REG-ALERT-001" ;
+  wo:eventType "alert" ;
+  wo:eventMessage "Reportable incident detected. Regulatory filing required within 24 hours." ;
+  wo:eventSource "Incident Management System" ;
+  ex:eventTrigger ex:IncidentEscalationReview ;
+  ex:notificationChannel "Slack #incident-escalation, PagerDuty legal-on-call" .
+
+ex:EventCertificationExpiring a wo:Event ;
+  rdfs:label "Certification Expiration Alert" ;
+  rdfs:comment "Alert for approaching certification expiration." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "EVT-CERT-EXP-001" ;
+  wo:eventType "alert" ;
+  wo:eventSource "CMMS System" ;
+  ex:eventTrigger [
+    ex:condition "Certification expiring within 30 days" ;
+    ex:source "SAP CMMS"
+  ] ;
+  ex:notificationChannel "Slack #compliance-alerts, compliance-manager@disney.com" .
+
+# ==============================================================================
+# PROCESS FLOW & DEPENDENCIES
+# ==============================================================================
+
+ex:ComplianceCycleFlow a ex:ProcessFlow ;
+  rdfs:label "Compliance Cycle Critical Path" ;
+  rdfs:comment "Morning inspection through to approval." ;
+  ex:phase1_Inspection "MorningAttractionInspection (start 05:00, PT45M)" ;
+  ex:phase2_Validation "InspectionDataValidation (PT8M)" ;
+  ex:phase3_Escalation "IncidentEscalationReview (parallel, PT15M)" ;
+  ex:phase4_Reporting "RegulatoryReportingDecision (if incident exists, PT20M)" ;
+  ex:phase5_Certification "ComplianceCertificationReview (parallel, PT10M)" ;
+  ex:phase6_Approval "InspectionApproval (gates park opening)" ;
+  ex:criticalPathDuration "PT78M"^^xsd:duration ;
+  ex:targetCompleteTime "06:20 (60 minutes total)" ;
+  ex:frequency "Twice daily (morning and evening)" ;
+  ex:parallelizationOpportunity "Incident escalation and certification review can run in parallel with validation" .
+
+# ==============================================================================
+# EXTERNAL SYSTEM MAPPINGS
+# ==============================================================================
+
+ex:SAPCMMSMapping a ex:SystemMapping ;
+  rdfs:label "SAP CMMS Integration" ;
+  rdfs:comment "Maintenance orders, asset history, certification tracking." ;
+  ex:maps wo:Task ;
+  ex:dataFlow "SAP CMMS → Asset inspection history, open maintenance orders, certification status → Inspection execution and validation" ;
+  ex:readOnly "false" ;
+  ex:rollbackCapability "true" ;
+  ex:criticalForCompliance "true" .
+
+ex:ServiceNowMapping a ex:SystemMapping ;
+  rdfs:label "ServiceNow Incident Management Integration" ;
+  rdfs:comment "All incidents reported in past 24 hours." ;
+  ex:maps wo:Task ;
+  ex:dataFlow "ServiceNow → Incidents with medical detail, witness info → Escalation and regulatory decision" ;
+  ex:readOnly "true" ;
+  ex:rollbackCapability "false" ;
+  ex:criticalForCompliance "true" .
+
+ex:TableauMapping a ex:SystemMapping ;
+  rdfs:label "Tableau Analytics Integration" ;
+  rdfs:comment "Historical defect patterns and trend analysis." ;
+  ex:maps wo:Task ;
+  ex:dataFlow "Tableau → Defect history, trend analysis → Anomaly detection" ;
+  ex:readOnly "true" ;
+  ex:rollbackCapability "false" .
+
+ex:SalesforceMapping a ex:SystemMapping ;
+  rdfs:label "Salesforce CRM (Legal Module) Integration" ;
+  rdfs:comment "Incident details, witness statements, medical reports for legal tracking." ;
+  ex:maps wo:Task ;
+  ex:dataFlow "Salesforce → Incident narratives, witness contact info, medical notes → Regulatory reporting" ;
+  ex:readOnly "false" ;
+  ex:rollbackCapability "true" ;
+  ex:criticalForCompliance "true" .
+
+ex:SlackMapping a ex:SystemMapping ;
+  rdfs:label "Slack Notifications" ;
+  rdfs:comment "Safety operation alerts and compliance notifications." ;
+  ex:maps wo:Event ;
+  ex:channels (
+    "#safety-operations"
+    "#incident-escalation"
+    "#compliance-alerts"
+  ) ;
+  ex:messageTemplate "Safety Alert: {event} - {details} (Action Required: {action})" ;
+  ex:readOnly "true" ;
+  ex:rollbackCapability "false" .
+
+# ==============================================================================
+# SUCCESS METRICS & CYCLE TIME IMPROVEMENTS
+# ==============================================================================
+
+ex:SuccessMetrics a owl:Class ;
+  rdfs:label "Guest Safety & Compliance Success Metrics" ;
+  rdfs:comment "Key performance indicators for process improvement." ;
+  ex:metric_1 "Safety inspection completion rate (target: 100% daily)" ;
+  ex:metric_2 "Critical defect response time (target: <2 hours from identification to isolation)" ;
+  ex:metric_3 "Regulatory reporting compliance rate (target: 100% within deadline)" ;
+  ex:metric_4 "Incident report accuracy (target: Zero defects in filings)" ;
+  ex:metric_5 "Certification renewal rate (target: 100% before expiration)" ;
+  ex:metric_6 "Guest incident rate per 1M visitors (target: <5 reportable incidents)" ;
+  ex:metric_7 "Compliance audit pass rate (target: 100% on external audits)" .
+
+ex:CycleTimeImprovement a owl:Class ;
+  rdfs:label "Cycle Time Improvements" ;
+  rdfs:comment "Reduction vs manual process baseline." ;
+  ex:currentManualCycleTime "180 minutes (paper checklists, manual data entry)" ;
+  ex:targetAutomatedCycleTime "60 minutes (automated validation, incident routing)" ;
+  ex:cycleTimeReduction "66.7% (120 minutes faster per cycle, 240 min/day)" ;
+  ex:annualTimeRecovery "1,460 inspector hours/year" ;
+  ex:complianceImprovement "100% audit pass rate + zero reporting errors + 100% regulatory deadline compliance" ;
+  ex:businessImpact "Reduced liability exposure + regulatory confidence + improved safety culture" .
+
+# ==============================================================================
+# METADATA
+# ==============================================================================
+
+ex:GuestSafetyComplianceOntology a owl:Ontology ;
+  rdfs:label "Guest Safety & Compliance Process Ontology" ;
+  rdfs:comment "Safety inspections, compliance certifications, incident tracking, and regulatory reporting for theme park operations." ;
+  owl:versionInfo "1.0" ;
+  dcterms:created "2026-01-18"^^xsd:date ;
+  ex:phase "Wave 3 - Production Scale" ;
+  ex:processCategory "Safety and Compliance" ;
+  ex:taskCount 6 ;
+  ex:approvalGateCount 2 ;
+  ex:externalSystemsIntegrated 4 ;
+  ex:targetProcessTime "PT60M"^^xsd:duration ;
+  ex:cycleFrequency "Twice daily" ;
+  ex:readyForValidation "true" ;
+  ex:mapsToWorkObjectTypes (
+    wo:Shift
+    wo:Task
+    wo:Incident
+    wo:Approval
+    wo:Resource
+    wo:Event
+  ) ;
+  ex:regulatoryStandards (
+    "OSHA 1910 (General Industry Standards)"
+    "ANSI B77.1 (Amusement Ride Safety)"
+    "State Health Department Requirements"
+    "Local Fire and Building Codes"
+  ) ;
+  ex:businessValue "100% regulatory compliance + 66.7% cycle time reduction + zero audit defects" ;
+  ex:expectedROI "Litigation risk mitigation (estimated $5M-10M annually) + compliance confidence" .
+
+# ==============================================================================
+# ROLES
+# ==============================================================================
+
+ex:SafetyDirectorRole a ex:ApprovalRole ;
+  rdfs:label "Safety Director" ;
+  rdfs:comment "Approves safety inspection results." ;
+  ex:systemMapping "AD group: SAFETY_DIRECTORS" .
+
+ex:ChiefMedicalOfficerRole a ex:ApprovalRole ;
+  rdfs:label "Chief Medical Officer" ;
+  rdfs:comment "Approves incident classification and medical determinations." ;
+  ex:systemMapping "AD group: CMO_AUTHORITY" .
+
+ex:GeneralCounselRole a ex:ApprovalRole ;
+  rdfs:label "General Counsel" ;
+  rdfs:comment "Approves legal incident determinations and regulatory actions." ;
+  ex:systemMapping "AD group: GENERAL_COUNSEL_AUTHORITY" .
+
+ex:SafetyOfficerLead a ex:Person ;
+  rdfs:label "Safety Officer Lead" ;
+  ex:personRole ex:SafetyDirectorRole ;
+  ex:workdayId "SAFETY-001" .
+
+ex:ComplianceManagerLead a ex:Person ;
+  rdfs:label "Compliance Manager" ;
+  ex:workdayId "COMPLIANCE-001" .
+
+ex:IncidentCommanderLead a ex:Person ;
+  rdfs:label "Incident Commander" ;
+  ex:workdayId "INC-CMD-001" .
+
+ex:LegalLiaisonLead a ex:Person ;
+  rdfs:label "Legal Liaison" ;
+  ex:workdayId "LEGAL-LIA-001" .
+
+ex:SafetyDirector a ex:Person ;
+  rdfs:label "Safety Director" ;
+  ex:personRole ex:SafetyDirectorRole ;
+  ex:workdayId "SAFETY-DIR-001" .
+
+ex:ChiefMedicalOfficer a ex:Person ;
+  rdfs:label "Chief Medical Officer" ;
+  ex:personRole ex:ChiefMedicalOfficerRole ;
+  ex:workdayId "CMO-001" .
+
+ex:GeneralCounsel a ex:Person ;
+  rdfs:label "General Counsel" ;
+  ex:personRole ex:GeneralCounselRole ;
+  ex:workdayId "GC-001" .
+
+# ==============================================================================
+# LOCATIONS
+# ==============================================================================
+
+ex:SafetyOperationsCenter a ex:Location ;
+  rdfs:label "Safety Operations Center" ;
+  rdfs:comment "Centralized safety monitoring and incident command." ;
+  ex:locationCode "SOC-001" ;
+  ex:area "3,500 sq ft" ;
+  ex:inspectionStations 4 ;
+  ex:incidentCommandCenter "true" ;
+  ex:connectivity "Redundant fiber connections to all attractions" .
+
+ex:IncidentCommandCenter a ex:Location ;
+  rdfs:label "Incident Command Center" ;
+  rdfs:comment "24/7 emergency incident response facility." ;
+  ex:locationCode "ICC-001" ;
+  ex:staffed "24/7" ;
+  ex:communication "Dedicated phone lines, radio systems, secure network" .

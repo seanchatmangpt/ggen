@@ -1,0 +1,825 @@
+@prefix : <http://ggen.example.org/disney/ops-engineer-redesign#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix process: <http://ggen.example.org/process#> .
+
+# ============================================================================
+# WAVE 3 TASK 9: OPS ENGINEER 2.0 ORGANIZATIONAL REDESIGN
+# Headcount reduction: 800 → 500 (37.5% reduction via productivity gains)
+# Goals: Flatter org, stronger autonomy, clear promotion paths, <5% attrition spike
+# ============================================================================
+
+:OpsEngineer20Program a process:Process ;
+    rdfs:label "Ops Engineer 2.0 Organizational Redesign" ;
+    rdfs:comment "Complete reorganization of 200+ ops engineers across Disney operations, flattening hierarchy, increasing autonomy, establishing clear promotion paths" ;
+    process:businessOwner "VP, Ops Engineering" ;
+    process:executiveOwner "Chief Operations Officer" ;
+    process:startDate "2026-Q1-Week1"^^xsd:string ;
+    process:targetEndDate "2026-Q2-Week4"^^xsd:string ;
+    process:targetDurationWeeks 12 ;
+    process:criticality process:CriticalityHIGH ;
+    process:failureImpact "Attrition spike >15%, manager rejection, service degradation" ;
+    process:successCriteria (
+        :Criterion_HeadcountReduction
+        :Criterion_NoAttritionSpike
+        :Criterion_ManagerAcceptance
+        :Criterion_PromotionPathClear
+        :Criterion_OperationalStability
+    ) ;
+    process:targetMetrics [
+        rdf:type process:Metric ;
+        process:name "Attrition Spike" ;
+        process:targetValue "< 5%"^^xsd:string ;
+        process:baseline "~8% annual"^^xsd:string
+    ] ;
+    process:targetMetrics [
+        rdf:type process:Metric ;
+        process:name "Manager Satisfaction" ;
+        process:targetValue "> 70%"^^xsd:string ;
+        process:baseline "Unknown - new baseline"^^xsd:string
+    ] ;
+    process:targetMetrics [
+        rdf:type process:Metric ;
+        process:name "Ops Success Rate" ;
+        process:targetValue "> 98%"^^xsd:string ;
+        process:baseline "99.2% (maintain)"^^xsd:string
+    ] ;
+    process:hasMajorPhase :Phase_Discovery, :Phase_Design, :Phase_ManagerAlignment, :Phase_Communication, :Phase_Transition, :Phase_Stabilization, :Phase_Validation .
+
+# ============================================================================
+# PHASE DEFINITIONS
+# ============================================================================
+
+:Phase_Discovery a process:Phase ;
+    rdfs:label "Phase 1: Discovery & Analysis (Week 1-2)" ;
+    rdfs:comment "Analyze current org, identify high performers, skills inventory, readiness for new roles" ;
+    process:sequenceNumber 1 ;
+    process:durationDays 10 ;
+    process:hasTask :Task_OrgAnalysis, :Task_PeerReview, :Task_SkillsInventory, :Task_RetentionRiskMap .
+
+:Phase_Design a process:Phase ;
+    rdfs:label "Phase 2: New Org Design (Week 3-4)" ;
+    rdfs:comment "Design flattened org, role definitions, promotion criteria, compensation bands" ;
+    process:sequenceNumber 2 ;
+    process:durationDays 10 ;
+    process:dependsOnPhase :Phase_Discovery ;
+    process:hasTask :Task_OrgDesign, :Task_RoleDefinitions, :Task_CompensationBandDesign, :Task_CareerPathDefinition .
+
+:Phase_ManagerAlignment a process:Phase ;
+    rdfs:label "Phase 3: Manager Alignment & Training (Week 5)" ;
+    rdfs:comment "Manager trainings, objection handling, accountability framework, role clarity sessions" ;
+    process:sequenceNumber 3 ;
+    process:durationDays 5 ;
+    process:dependsOnPhase :Phase_Design ;
+    process:hasTask :Task_ManagerTraining, :Task_ObjectionHandling, :Task_AccountabilityFramework, :Task_CommunicationPrep .
+
+:Phase_Communication a process:Phase ;
+    rdfs:label "Phase 4: Organization-Wide Communication (Week 6)" ;
+    rdfs:comment "All-hands meetings, individual conversations, FAQ, role assignment notifications" ;
+    process:sequenceNumber 4 ;
+    process:durationDays 5 ;
+    process:dependsOnPhase :Phase_ManagerAlignment ;
+    process:hasTask :Task_AllHandsAnnouncement, :Task_IndividualConversations, :Task_FAQPublishing, :Task_RoleAssignments .
+
+:Phase_Transition a process:Phase ;
+    rdfs:label "Phase 5: Role Transitions (Week 7-10)" ;
+    rdfs:comment "New role onboarding, skill development, process updates, cross-training" ;
+    process:sequenceNumber 5 ;
+    process:durationDays 20 ;
+    process:dependsOnPhase :Phase_Communication ;
+    process:hasTask :Task_RoleOnboarding, :Task_SkillDevelopment, :Task_ProcessRefresh, :Task_CrossTraining, :Task_MentorshipSetup .
+
+:Phase_Stabilization a process:Phase ;
+    rdfs:label "Phase 6: Operational Stabilization (Week 11-12)" ;
+    rdfs:comment "Performance monitoring, adjustment cycles, early risk intervention" ;
+    process:sequenceNumber 6 ;
+    process:durationDays 10 ;
+    process:dependsOnPhase :Phase_Transition ;
+    process:hasTask :Task_PerformanceMonitoring, :Task_RiskIntervention, :Task_ProcessAdjustments, :Task_RetentionCheckpoint .
+
+:Phase_Validation a process:Phase ;
+    rdfs:label "Phase 7: Outcome Validation (Week 13-16)" ;
+    rdfs:comment "Extended 4-week validation that org operates successfully before gate closure" ;
+    process:sequenceNumber 7 ;
+    process:durationDays 28 ;
+    process:dependsOnPhase :Phase_Stabilization ;
+    process:hasTask :Task_OperationalValidation, :Task_MetricReporting, :Task_LessonsLearned, :Task_ExecutiveReceipt .
+
+# ============================================================================
+# ORGANIZATIONAL STRUCTURE: OLD (800) vs NEW (500)
+# ============================================================================
+
+:OldOrgStructure a org:Organization ;
+    rdfs:label "Current Org Structure (800 engineers)" ;
+    rdfs:comment "3-tier hierarchy with unclear autonomy and promotion ceilings" ;
+    org:hasSubOrganization :OldTier_JuniorOpsEngineer, :OldTier_SeniorOpsEngineer, :OldTier_LeadOpsEngineer ;
+    org:comment_raw "HEADCOUNT: 800 / 100 teams / 30 reporting lines" .
+
+:OldTier_JuniorOpsEngineer a org:OrganizationalUnit ;
+    rdfs:label "Junior Ops Engineer (IC1/IC2)" ;
+    rdfs:comment "Entry-level, limited decision authority, high task supervision" ;
+    org:unitSize "480 engineers (60% of org)"^^xsd:string ;
+    org:reportingLine "Team Lead (task assignment model)" ;
+    org:autonomyLevel "Low - detailed task direction required" ;
+    org:decisionAuthority "Execute approved runbooks only" ;
+    org:careerCeiling "Senior Ops Engineer (only 15% reach)" ;
+    org:compensationBand [
+        rdf:type org:CompensationBand ;
+        org:bandName "Band IC1-IC2" ;
+        org:min "$95k"^^xsd:string ;
+        org:midpoint "$125k"^^xsd:string ;
+        org:max "$155k"^^xsd:string ;
+        org:annualIncrease "2-3%"^^xsd:string
+    ] .
+
+:OldTier_SeniorOpsEngineer a org:OrganizationalUnit ;
+    rdfs:label "Senior Ops Engineer (IC3/IC4)" ;
+    rdfs:comment "Experienced, some decision authority, process ownership" ;
+    org:unitSize "240 engineers (30% of org)"^^xsd:string ;
+    org:reportingLine "Staff Engineer or Manager (mixed authority model)" ;
+    org:autonomyLevel "Medium - process-level decisions with approval" ;
+    org:decisionAuthority "Process design, incident response decisions" ;
+    org:careerCeiling "Staff Engineer (only 20% reach)" ;
+    org:compensationBand [
+        rdf:type org:CompensationBand ;
+        org:bandName "Band IC3-IC4" ;
+        org:min "$155k"^^xsd:string ;
+        org:midpoint "$195k"^^xsd:string ;
+        org:max "$235k"^^xsd:string ;
+        org:annualIncrease "2-3%"^^xsd:string
+    ] .
+
+:OldTier_LeadOpsEngineer a org:OrganizationalUnit ;
+    rdfs:label "Lead Ops Engineer (IC5+) / Staff Engineer" ;
+    rdfs:comment "Strategic decisions, architectural authority" ;
+    org:unitSize "80 engineers (10% of org)"^^xsd:string ;
+    org:reportingLine "Director or VP (unclear authority chain)" ;
+    org:autonomyLevel "High - strategic decisions autonomous" ;
+    org:decisionAuthority "Strategic architecture, hiring, budget allocation" ;
+    org:careerCeiling "Director (only 10% reach)" ;
+    org:compensationBand [
+        rdf:type org:CompensationBand ;
+        org:bandName "Band IC5+" ;
+        org:min "$235k"^^xsd:string ;
+        org:midpoint "$295k"^^xsd:string ;
+        org:max "$365k"^^xsd:string ;
+        org:annualIncrease "2-3%"^^xsd:string
+    ] .
+
+# ============================================================================
+# NEW ORGANIZATIONAL STRUCTURE (500 engineers - 37.5% reduction)
+# Flatter: 2-tier IC + 3-tier leadership
+# More autonomy via "process architect" model
+# ============================================================================
+
+:NewOrgStructure a org:Organization ;
+    rdfs:label "New Org Structure (500 engineers)" ;
+    rdfs:comment "Flatter hierarchy (2 IC tiers + 3 leadership) with process architecture focus instead of task management" ;
+    org:hasSubOrganization :NewTier_OpsEngineer, :NewTier_SeniorOpsEngineer, :NewTier_OpsArchitect, :NewTier_OpsLead, :NewTier_Manager, :NewTier_Director ;
+    org:comment_raw "HEADCOUNT: 500 / 50 teams / 10 reporting lines (centralized process governance)" .
+
+:NewTier_OpsEngineer a org:OrganizationalUnit ;
+    rdfs:label "Ops Engineer (IC1/IC2)" ;
+    rdfs:comment "Independent contributor, high autonomy within standardized processes, clear promotion path" ;
+    org:unitSize "250 engineers (50% of org)"^^xsd:string ;
+    org:reportingLine "Process Manager (no task assignment authority)" ;
+    org:autonomyLevel "High - owns process execution within approved frameworks" ;
+    org:decisionAuthority "Process variation, incident response, failure handling" ;
+    org:careerCeiling "Unlimited (clear path to Senior → Architect → Lead)" ;
+    org:careerPathProbability "50% advance to Senior within 24 months" ;
+    org:compensationBand [
+        rdf:type org:CompensationBand ;
+        org:bandName "Band IC1-IC2" ;
+        org:min "$110k"^^xsd:string ;
+        org:midpoint "$145k"^^xsd:string ;
+        org:max "$180k"^^xsd:string ;
+        org:rationale "10-12% increase due to expanded autonomy and process authority" ;
+        org:annualIncrease "3-5%"^^xsd:string
+    ] ;
+    org:successCriteria [
+        rdf:type org:Criterion ;
+        org:text "Execute processes with <2% error rate"
+    ] ;
+    org:successCriteria [
+        rdf:type org:Criterion ;
+        org:text "Identify and propose 2+ process improvements monthly"
+    ] ;
+    org:successCriteria [
+        rdf:type org:Criterion ;
+        org:text "Mentor 1-2 junior engineers quarterly"
+    ] .
+
+:NewTier_SeniorOpsEngineer a org:OrganizationalUnit ;
+    rdfs:label "Senior Ops Engineer (IC3/IC4)" ;
+    rdfs:comment "Technical expert, process owner, mentoring responsibility" ;
+    org:unitSize "180 engineers (36% of org)"^^xsd:string ;
+    org:reportingLine "Process Manager or Ops Architect" ;
+    org:autonomyLevel "Very High - owns process design, technical decisions" ;
+    org:decisionAuthority "Process design, tool selection, architecture within domain" ;
+    org:careerCeiling "Ops Architect or Staff role (clear path established)" ;
+    org:careerPathProbability "30% advance to Architect within 24 months" ;
+    org:compensationBand [
+        rdf:type org:CompensationBand ;
+        org:bandName "Band IC3-IC4" ;
+        org:min "$180k"^^xsd:string ;
+        org:midpoint "$230k"^^xsd:string ;
+        org:max "$280k"^^xsd:string ;
+        org:rationale "15-18% increase for deeper technical authority and mentoring responsibilities" ;
+        org:annualIncrease "3-5%"^^xsd:string
+    ] ;
+    org:successCriteria [
+        rdf:type org:Criterion ;
+        org:text "Design and implement 2+ process improvements annually"
+    ] ;
+    org:successCriteria [
+        rdf:type org:Criterion ;
+        org:text "Mentor 2-3 junior/mid-level engineers (active coaching)"
+    ] ;
+    org:successCriteria [
+        rdf:type org:Criterion ;
+        org:text "Lead cross-team initiative or capability build"
+    ] .
+
+:NewTier_OpsArchitect a org:OrganizationalUnit ;
+    rdfs:label "Ops Architect (IC5/Staff)" ;
+    rdfs:comment "Strategic technical leader, system-wide process design, architectural decisions" ;
+    org:unitSize "50 engineers (10% of org)"^^xsd:string ;
+    org:reportingLine "Ops Lead or Director (dotted to technology teams)" ;
+    org:autonomyLevel "Autonomous - architectural decisions, cross-team initiatives" ;
+    org:decisionAuthority "System architecture, major tool choices, capability roadmap" ;
+    org:careerCeiling "Ops Lead or Director (transparent career path)" ;
+    org:careerPathProbability "40% advance to Lead within 24 months" ;
+    org:compensationBand [
+        rdf:type org:CompensationBand ;
+        org:bandName "Band IC5-IC6" ;
+        org:min "$280k"^^xsd:string ;
+        org:midpoint "$355k"^^xsd:string ;
+        org:max "$430k"^^xsd:string ;
+        org:rationale "15-20% increase reflecting architectural scope and strategic impact" ;
+        org:annualIncrease "3-5%"^^xsd:string
+    ] ;
+    org:successCriteria [
+        rdf:type org:Criterion ;
+        org:text "Lead system-wide architectural decision (3+ team impact)"
+    ] ;
+    org:successCriteria [
+        rdf:type org:Criterion ;
+        org:text "Establish technical direction or standards adopted organization-wide"
+    ] ;
+    org:successCriteria [
+        rdf:type org:Criterion ;
+        org:text "Mentor 3+ senior engineers actively (quarterly career reviews)"
+    ] .
+
+:NewTier_OpsLead a org:OrganizationalUnit ;
+    rdfs:label "Ops Lead (Leadership / Principal)" ;
+    rdfs:comment "Strategic operations leader, major program ownership, hiring/budget authority" ;
+    org:unitSize "15 roles"^^xsd:string ;
+    org:reportingLine "Director of Operations (3 reports per Lead)" ;
+    org:autonomyLevel "Strategic autonomy - program direction, resource allocation" ;
+    org:decisionAuthority "Budget, hiring, strategic initiatives, cross-organizational roadmap" ;
+    org:managerResponsibilities "Hiring, termination authority, direct reports up to 25" ;
+    org:compensationBand [
+        rdf:type org:CompensationBand ;
+        org:bandName "Band Principal/Lead" ;
+        org:min "$350k"^^xsd:string ;
+        org:midpoint "$450k"^^xsd:string ;
+        org:max "$550k"^^xsd:string ;
+        org:rationale "People leadership premium + strategic scope" ;
+        org:annualIncrease "2-4% + bonus potential"^^xsd:string
+    ] ;
+    org:successCriteria [
+        rdf:type org:Criterion ;
+        org:text "Deliver strategic initiative on time and within budget (50M+ scope)"
+    ] ;
+    org:successCriteria [
+        rdf:type org:Criterion ;
+        org:text "Achieve retention target >95% on direct reports"
+    ] ;
+    org:successCriteria [
+        rdf:type org:Criterion ;
+        org:text "Develop 2+ promotion-ready subordinates annually"
+    ] .
+
+:NewTier_Manager a org:OrganizationalUnit ;
+    rdfs:label "Process Manager (People Leadership)" ;
+    rdfs:comment "Functional manager focus: career development, hiring, performance management, team culture" ;
+    org:unitSize "25 roles"^^xsd:string ;
+    org:reportingLine "Ops Lead" ;
+    org:autonomyLevel "Operational authority over people processes" ;
+    org:decisionAuthority "Hiring, performance ratings, promotions (with Ops Architect review), team composition" ;
+    org:directReportCap "15-20 engineers (mixed IC levels)" ;
+    org:roleChange "SHIFTED from task assignment → process architecture support, career development, team health" ;
+    org:managerResponsibilities [
+        rdf:type org:Responsibility ;
+        org:name "Career Development" ;
+        org:weight "40%"^^xsd:string ;
+        org:activities "Quarterly career conversations, promotion pipeline development, skill growth planning"
+    ] ;
+    org:managerResponsibilities [
+        rdf:type org:Responsibility ;
+        org:name "Technical Process Support" ;
+        org:weight "30%"^^xsd:string ;
+        org:activities "Enable team to execute processes, remove blockers, facilitate cross-team learning"
+    ] ;
+    org:managerResponsibilities [
+        rdf:type org:Responsibility ;
+        org:name "Team Health & Culture" ;
+        org:weight "20%"^^xsd:string ;
+        org:activities "Retention, psychological safety, recognition, team cohesion"
+    ] ;
+    org:managerResponsibilities [
+        rdf:type org:Responsibility ;
+        org:name "Hiring & Performance" ;
+        org:weight "10%"^^xsd:string ;
+        org:activities "Recruitment, onboarding, performance calibration"
+    ] ;
+    org:compensationBand [
+        rdf:type org:CompensationBand ;
+        org:bandName "Band Manager/M1" ;
+        org:min "$180k"^^xsd:string ;
+        org:midpoint "$240k"^^xsd:string ;
+        org:max "$300k"^^xsd:string ;
+        org:rationale "Reflects people leadership scope without technical IC premium (cross-level team)" ;
+        org:annualIncrease "2-4% + bonus potential"^^xsd:string
+    ] ;
+    org:trainingRequired [
+        rdf:type org:TrainingModule ;
+        org:title "Manager Fundamentals: From Task Assignment to Process Architecture" ;
+        org:hours 8 ;
+        org:completionRequirement "Required before phase 5 transition (Week 6)"
+    ] ;
+    org:trainingRequired [
+        rdf:type org:TrainingModule ;
+        org:title "Career Coaching & Retention Strategies" ;
+        org:hours 4 ;
+        org:completionRequirement "Required before phase 4 communication (Week 5)"
+    ] ;
+    org:trainingRequired [
+        rdf:type org:TrainingModule ;
+        org:title "Difficult Conversations & Objection Handling" ;
+        org:hours 4 ;
+        org:completionRequirement "Required before phase 4 communication (Week 5)"
+    ] ;
+    org:successCriteria [
+        rdf:type org:Criterion ;
+        org:text "Achieve >70% manager satisfaction in pulse survey (Week 12+)"
+    ] ;
+    org:successCriteria [
+        rdf:type org:Criterion ;
+        org:text "Achieve <5% attrition spike above baseline on direct reports"
+    ] ;
+    org:successCriteria [
+        rdf:type org:Criterion ;
+        org:text "Complete 4+ career development conversations per direct report"
+    ] .
+
+:NewTier_Director a org:OrganizationalUnit ;
+    rdfs:label "Director of Operations (Executive)" ;
+    rdfs:comment "Executive leadership, strategy, cross-functional alignment, executive communication" ;
+    org:unitSize "2 roles"^^xsd:string ;
+    org:reportingLine "Chief Operating Officer (COO)" ;
+    org:autonomyLevel "Strategic autonomy" ;
+    org:compensationBand [
+        rdf:type org:CompensationBand ;
+        org:bandName "Band Director" ;
+        org:min "$400k"^^xsd:string ;
+        org:midpoint "$525k"^^xsd:string ;
+        org:max "$650k"^^xsd:string ;
+        org:rationale "Executive scope with strategic impact accountability" ;
+        org:annualIncrease "2-4% + bonus potential"^^xsd:string
+    ] .
+
+# ============================================================================
+# PROMOTION CRITERIA & CAREER PATHS (THE RETENTION LEVER)
+# ============================================================================
+
+:CareerPath_OpsEngineerToSenior a process:CareerTransition ;
+    rdfs:label "Career Path: Ops Engineer → Senior Ops Engineer" ;
+    rdfs:comment "Transparent, achievable path with clear criteria and timeline" ;
+    process:sourceRole :NewTier_OpsEngineer ;
+    process:targetRole :NewTier_SeniorOpsEngineer ;
+    process:timelineExpectation "18-24 months"^^xsd:string ;
+    process:probabilityOfAdvance "50%"^^xsd:string ;
+    process:criterion [
+        rdf:type process:PromotionCriterion ;
+        process:area "Technical Excellence" ;
+        process:requirement "Consistent <2% error rate, demonstrates technical depth in 2+ operational domains"
+    ] ;
+    process:criterion [
+        rdf:type process:PromotionCriterion ;
+        process:area "Process Improvement" ;
+        process:requirement "Document and implement 4+ process improvements, each saving 5%+ time"
+    ] ;
+    process:criterion [
+        rdf:type process:PromotionCriterion ;
+        process:area "Mentoring & Leadership" ;
+        process:requirement "Actively mentor 2+ junior engineers with documented coaching"
+    ] ;
+    process:criterion [
+        rdf:type process:PromotionCriterion ;
+        process:area "Initiative Ownership" ;
+        process:requirement "Own cross-team capability or tool evaluation, deliver recommendations"
+    ] ;
+    process:criterion [
+        rdf:type process:PromotionCriterion ;
+        process:area "Manager Assessment" ;
+        process:requirement "Manager and peer reviews affirm readiness for senior scope"
+    ] ;
+    process:compensationAdjustment "$35-50k increase"^^xsd:string ;
+    process:successStories [
+        rdf:type process:SuccessStory ;
+        process:title "Ops Engineer → Senior: Marcus Chen (Cloud Ops)" ;
+        process:narrative "Started as cloud ops engineer, implemented 6 cost optimization processes saving $2M annually, mentored 3 engineers, promoted to Senior in 20 months. Now leads cloud architecture roadmap."
+    ] ;
+    process:successStories [
+        rdf:type process:SuccessStory ;
+        process:title "Ops Engineer → Senior: Priya Sharma (Database Ops)" ;
+        process:narrative "Designed automated backup validation system, eliminated 80% of manual checks, cross-trained entire team, promoted to Senior in 22 months. Now defines database operational standards."
+    ] .
+
+:CareerPath_SeniorToArchitect a process:CareerTransition ;
+    rdfs:label "Career Path: Senior Ops Engineer → Ops Architect" ;
+    rdfs:comment "Strategic technical leadership path - fewer positions but clearly achievable" ;
+    process:sourceRole :NewTier_SeniorOpsEngineer ;
+    process:targetRole :NewTier_OpsArchitect ;
+    process:timelineExpectation "24-36 months"^^xsd:string ;
+    process:probabilityOfAdvance "30%"^^xsd:string ;
+    process:criterion [
+        rdf:type process:PromotionCriterion ;
+        process:area "System Architecture" ;
+        process:requirement "Design and implement system-level solution with 3+ team impact, documented architecture"
+    ] ;
+    process:criterion [
+        rdf:type process:PromotionCriterion ;
+        process:area "Technical Vision" ;
+        process:requirement "Establish standards or technical direction adopted organization-wide"
+    ] ;
+    process:criterion [
+        rdf:type process:PromotionCriterion ;
+        process:area "Advanced Mentoring" ;
+        process:requirement "Develop 2+ architects or senior engineers, active quarterly reviews"
+    ] ;
+    process:criterion [
+        rdf:type process:PromotionCriterion ;
+        process:area "Cross-Functional Leadership" ;
+        process:requirement "Lead cross-team initiative requiring coordination of 4+ stakeholders"
+    ] ;
+    process:criterion [
+        rdf:type process:PromotionCriterion ;
+        process:area "Strategic Visibility" ;
+        process:requirement "Present strategic recommendations to leadership, influence roadmap"
+    ] ;
+    process:compensationAdjustment "$50-100k increase"^^xsd:string ;
+    process:successStories [
+        rdf:type process:SuccessStory ;
+        process:title "Senior → Architect: James Rodriguez (Platform Ops)" ;
+        process:narrative "Architected multi-region failover framework adopted across all parks, mentored 4 engineers who were promoted, recognized as platform authority, advanced to Architect in 28 months."
+    ] .
+
+:CareerPath_ArchitectToLead a process:CareerTransition ;
+    rdfs:label "Career Path: Ops Architect → Ops Lead (People Leadership)" ;
+    rdfs:comment "Transition from individual contributor to people leader with strategic scope" ;
+    process:sourceRole :NewTier_OpsArchitect ;
+    process:targetRole :NewTier_OpsLead ;
+    process:timelineExpectation "24-36 months"^^xsd:string ;
+    process:probabilityOfAdvance "40%"^^xsd:string ;
+    process:criterion [
+        rdf:type process:PromotionCriterion ;
+        process:area "Strategic Delivery" ;
+        process:requirement "Lead major operational program (50M+ scope), deliver on time and budget"
+    ] ;
+    process:criterion [
+        rdf:type process:PromotionCriterion ;
+        process:area "Team Development" ;
+        process:requirement "Demonstrate ability to develop high-performing team, 2+ promotions in team"
+    ] ;
+    process:criterion [
+        rdf:type process:PromotionCriterion ;
+        process:area "Hiring & Team Building" ;
+        process:requirement "Successfully recruit and onboard senior technical talent"
+    ] ;
+    process:criterion [
+        rdf:type process:PromotionCriterion ;
+        process:area "Organizational Influence" ;
+        process:requirement "Shape operational strategy across multiple domains"
+    ] ;
+    process:criterion [
+        rdf:type process:PromotionCriterion ;
+        process:area "Executive Communication" ;
+        process:requirement "Communicate effectively with executive team, board readiness"
+    ] ;
+    process:compensationAdjustment "$100-150k increase"^^xsd:string ;
+    process:managerTrainingRequired true ;
+    process:successStories [
+        rdf:type process:SuccessStory ;
+        process:title "Architect → Lead: Yuki Tanaka (Operations)" ;
+        process:narrative "Architected cloud modernization across 3 parks, managed $15M program, built team of 20 engineers, 3 promoted under her leadership, advanced to Ops Lead in 26 months."
+    ] .
+
+# ============================================================================
+# AUTHORITY MODEL: NEW MANAGER PARADIGM
+# ============================================================================
+
+:AuthorityModel_OldTaskAssignment a process:AuthorityModel ;
+    rdfs:label "OLD: Task Assignment Model" ;
+    rdfs:comment "Manager assigns daily/weekly tasks, enforces execution, limited autonomy" ;
+    process:decisions [
+        rdf:type process:DecisionType ;
+        process:name "What to do" ;
+        process:authority "Manager"
+    ] ;
+    process:decisions [
+        rdf:type process:DecisionType ;
+        process:name "How to do it" ;
+        process:authority "Manager"
+    ] ;
+    process:decisions [
+        rdf:type process:DecisionType ;
+        process:name "When to escalate" ;
+        process:authority "Manager"
+    ] ;
+    process:consequence "Engineers become executors, limited growth, manager bottleneck" .
+
+:AuthorityModel_NewProcessArchitecture a process:AuthorityModel ;
+    rdfs:label "NEW: Process Architecture Model" ;
+    rdfs:comment "Manager owns team health/career; engineers own process execution within frameworks" ;
+    process:decisions [
+        rdf:type process:DecisionType ;
+        process:name "What to do (Process Design)" ;
+        process:authority "Senior Ops Engineer / Architect / Process Manager (collaborative)"
+    ] ;
+    process:decisions [
+        rdf:type process:DecisionType ;
+        process:name "How to execute (Variation within Process)" ;
+        process:authority "Ops Engineer (autonomous within approved framework)"
+    ] ;
+    process:decisions [
+        rdf:type process:DecisionType ;
+        process:name "When to escalate (Incident Thresholds)" ;
+        process:authority "Ops Engineer (defined escalation rules, not manager gate)"
+    ] ;
+    process:decisions [
+        rdf:type process:DecisionType ;
+        process:name "Career Development (Paths and Timing)" ;
+        process:authority "Manager (with Senior/Architect input)"
+    ] ;
+    process:decisions [
+        rdf:type process:DecisionType ;
+        process:name "Tool Selection (within domain)" ;
+        process:authority "Senior Ops Engineer (with Architect approval)"
+    ] ;
+    process:consequence "Engineers grow autonomy rapidly, managers focus on retention/development, sustainable scaling" .
+
+:ManagerRole_Transformation a org:RoleTransformation ;
+    rdfs:label "Manager Role Transformation (Key to Acceptance)" ;
+    rdfs:comment "FROM task assignment and execution oversight TO career architect and team builder" ;
+    org:oldResponsibilities (
+        "Assign daily/weekly work tasks"
+        "Monitor task completion"
+        "Approve all process decisions"
+        "Escalate operational issues"
+        "Enforce compliance manually"
+    ) ;
+    org:newResponsibilities (
+        "Quarterly career development conversations with each report"
+        "Identify and develop promotion-ready engineers"
+        "Build team culture and psychological safety"
+        "Support engineers executing standardized processes"
+        "Remove organizational blockers for team success"
+        "Hiring and onboarding excellence"
+        "Retention and engagement (primary success metric)"
+    ) ;
+    org:timeAllocation [
+        rdf:type org:TimeAllocation ;
+        org:activity "Career Development" ;
+        org:percentOfTime "40%"
+    ] ;
+    org:timeAllocation [
+        rdf:type org:TimeAllocation ;
+        org:activity "Team Operations Support" ;
+        org:percentOfTime "30%"
+    ] ;
+    org:timeAllocation [
+        rdf:type org:TimeAllocation ;
+        org:activity "Team Health & Culture" ;
+        org:percentOfTime "20%"
+    ] ;
+    org:timeAllocation [
+        rdf:type org:TimeAllocation ;
+        org:activity "Hiring & Performance" ;
+        org:percentOfTime "10%"
+    ] ;
+    org:benefits [
+        rdf:type org:Benefit ;
+        org:forRole "Manager" ;
+        org:description "More strategic focus, less operational firefighting, larger capable teams, higher satisfaction" ;
+        org:expectedManagerSatisfaction "> 70%"
+    ] ;
+    org:benefits [
+        rdf:type org:Benefit ;
+        org:forRole "Engineer" ;
+        org:description "Autonomy, faster decision-making, clearer career paths, supportive mentoring" ;
+        org:expectedEngineeerSatisfaction "> 75%"
+    ] ;
+    org:benefits [
+        rdf:type org:Benefit ;
+        org:forRole "Organization" ;
+        org:description "Faster execution, innovation from autonomy, sustainable scaling, reduced attrition" ;
+        org:expectedOperationalImprovement "+ 5-10% productivity"
+    ] .
+
+# ============================================================================
+# HEADCOUNT MATH & PRODUCTIVITY GAINS (JUSTIFICATION FOR 37.5% REDUCTION)
+# ============================================================================
+
+:HeadcountReduction_Rationale a process:HeadcountJustification ;
+    rdfs:label "Headcount Reduction Justification: 800 → 500 (300 reduction)" ;
+    rdfs:comment "37.5% reduction achieved through productivity gains, not job elimination" ;
+    process:baseline "800 ops engineers, 30 reporting lines, 100 teams" ;
+    process:target "500 ops engineers, 10 reporting lines, 50 teams" ;
+    process:productivity [
+        rdf:type process:ProductivityGain ;
+        process:source "Standardized Processes (20% time savings)" ;
+        process:description "Documented, repeatable processes eliminate ad-hoc decision-making and rework" ;
+        process:effectiveHeadcount "-120 FTE"
+    ] ;
+    process:productivity [
+        rdf:type process:ProductivityGain ;
+        process:source "Automation (15% time savings)" ;
+        process:description "Tooling, orchestration, self-service reduce manual execution" ;
+        process:effectiveHeadcount "-90 FTE"
+    ] ;
+    process:productivity [
+        rdf:type process:ProductivityGain ;
+        process:source "Reduced Manager Overhead (10% time savings)" ;
+        process:description "Autonomous teams and decision authority eliminate task assignment coordination" ;
+        process:effectiveHeadcount "-60 FTE"
+    ] ;
+    process:productivity [
+        rdf:type process:ProductivityGain ;
+        process:source "Knowledge Consolidation (5% time savings)" ;
+        process:description "Flatter org with clearer roles, less cross-training waste" ;
+        process:effectiveHeadcount "-30 FTE"
+    ] ;
+    process:totalProductivityGain "-300 FTE"^^xsd:string ;
+    process:reductionMethod "Attrition, non-renewal of contractors, early retirement packages (NO LAYOFFS)" ;
+    process:timeline "12-18 months (gradual, not shock)" ;
+    process:riskOfServiceDegradation "Low (50% productivity gains absorbed by headcount reduction)" ;
+    process:assumption "Compensation increases (10-20% for advancing tiers) absorbed by productivity gains" .
+
+# ============================================================================
+# RETENTION STRATEGY (CORE TO SUCCESS)
+# ============================================================================
+
+:RetentionStrategy a process:RetentionPlan ;
+    rdfs:label "Retention Strategy: <5% Attrition Spike" ;
+    rdfs:comment "Comprehensive approach to minimize attrition spike during org redesign" ;
+    process:baseline "~8% annual voluntary attrition"^^xsd:string ;
+    process:targetDuringTransition "<10% (baseline + 2-5% spike)"^^xsd:string ;
+    process:targetPostTransition "<7% (below baseline)"^^xsd:string ;
+    process:lever :RetentionLever_ClearPath, :RetentionLever_Compensation, :RetentionLever_Autonomy, :RetentionLever_Mentoring, :RetentionLever_SuccessStories, :RetentionLever_RiskMitigation .
+
+:RetentionLever_ClearPath a process:RetentionLever ;
+    rdfs:label "Retention Lever 1: Clear Promotion Paths" ;
+    rdfs:comment "50% of engineers should see clear advancement opportunity" ;
+    process:mechanism "Publish transparent career progression with achievable criteria" ;
+    process:targetEngineers "All 500"^^xsd:string ;
+    process:expectedRetentionBenefit "+3% retention improvement" ;
+    process:deliverable "Career progression framework published Week 4" ;
+    process:successMetric "80%+ engineers report clear advancement path (survey)" .
+
+:RetentionLever_Compensation a process:RetentionLever ;
+    rdfs:label "Retention Lever 2: Competitive Compensation Adjustments" ;
+    rdfs:comment "10-20% increases at lower tiers offset by productivity gains" ;
+    process:mechanism "Announce promotion bands with 10-20% increases for expanded roles" ;
+    process:targetEngineers "All 500 (especially IC1-IC2 and IC3-IC4)"^^xsd:string ;
+    process:expectedRetentionBenefit "+2% retention improvement" ;
+    process:deliverable "Compensation bands announced Week 4, effective immediately" ;
+    process:successMetric "Salary satisfaction scores improve 10%+ (survey)" .
+
+:RetentionLever_Autonomy a process:RetentionLever ;
+    rdfs:label "Retention Lever 3: Autonomy & Decision Authority" ;
+    rdfs:comment "Engineers gain autonomy immediately with new role structures" ;
+    process:mechanism "Eliminate daily task assignment, shift to process framework autonomy" ;
+    process:targetEngineers "Especially IC1-IC2 (250 engineers)"^^xsd:string ;
+    process:expectedRetentionBenefit "+2% retention improvement" ;
+    process:deliverable "Authority model communicated Week 6, enforced by Week 7" ;
+    process:successMetric "Autonomy satisfaction +25% (engagement survey)" .
+
+:RetentionLever_Mentoring a process:RetentionLever ;
+    rdfs:label "Retention Lever 4: Mentoring & Development" ;
+    rdfs:comment "Career development focus reduces flight risk for high performers" ;
+    process:mechanism "Assign mentors, quarterly career conversations, skill development plans" ;
+    process:targetEngineers "Top 150 high-potential engineers"^^xsd:string ;
+    process:expectedRetentionBenefit "+1.5% retention improvement for HiPo segment" ;
+    process:deliverable "Mentorship assignments completed by Week 8" ;
+    process:successMetric "HiPo retention rate 95%+ (should exceed target)" .
+
+:RetentionLever_SuccessStories a process:RetentionLever ;
+    rdfs:label "Retention Lever 5: Visible Success Stories" ;
+    rdfs:comment "Early promotion stories demonstrate path is real, not cosmetic" ;
+    process:mechanism "Select 5-10 exemplary engineers for fast-track advancement as proof points" ;
+    process:targetAudience "All engineers (psychological effect)"^^xsd:string ;
+    process:expectedRetentionBenefit "+1% retention improvement (hope factor)" ;
+    process:deliverable "First batch of promotions announced Week 10 (after 4-week operational validation)" ;
+    process:successMetric "LinkedIn/internal buzz about new career paths (sentiment analysis)" .
+
+:RetentionLever_RiskMitigation a process:RetentionLever ;
+    rdfs:label "Retention Lever 6: Risk Mitigation (Those Not Advancing)" ;
+    rdfs:comment "Support engineers who don't advance to prevent downward spiral" ;
+    process:mechanism "Reskilling programs, lateral moves, clear expectations about role stability" ;
+    process:targetAudience "~150 engineers staying in IC1-IC2 long-term"^^xsd:string ;
+    process:expectedRetentionBenefit "+1.5% retention improvement" ;
+    process:deliverable "Reskilling program and lateral move opportunities defined by Week 8" ;
+    process:successMetric "95%+ satisfaction with role stability among staying ICs (survey)" .
+
+# ============================================================================
+# GATE CRITERIA FOR PHASE CLOSURE (ANDON STOPS)
+# ============================================================================
+
+:GateCriterion_HeadcountReduction a process:Gate ;
+    rdfs:label "Gate: Headcount Reduction Validated" ;
+    rdfs:comment "Verify 800 → 500 transition complete" ;
+    process:successCondition "500 engineers assigned to new roles, readiness confirmed" ;
+    process:failureCondition "Incomplete assignments or >10% No-Shows to role onboarding" ;
+    process:gateDate "2026-Q1-Week6"^^xsd:string ;
+    process:gateOwner "VP Ops Engineering" .
+
+:GateCriterion_ManagerAcceptance a process:Gate ;
+    rdfs:label "Gate: Manager Acceptance & Readiness" ;
+    rdfs:comment "Managers trained, aligned, ready to execute new role model" ;
+    process:successCondition "25 managers complete training, >70% satisfaction with new model" ;
+    process:failureCondition "<60% manager satisfaction OR critical objections unaddressed" ;
+    process:gateDate "2026-Q1-Week5"^^xsd:string ;
+    process:gateOwner "Director, Ops Engineering" .
+
+:GateCriterion_OperationalStability a process:Gate ;
+    rdfs:label "Gate: Operational Stability (Extended)" ;
+    rdfs:comment "4+ weeks of successful operations in new org structure" ;
+    process:successCondition "99%+ ops success rate maintained, <5% attrition spike, all systems stable" ;
+    process:failureCondition ">2% attrition spike monthly OR operational incidents increase" ;
+    process:gateDate "2026-Q2-Week4"^^xsd:string ;
+    process:gateOwner "Chief Operations Officer" ;
+    process:extendedValidation "4-week post-transition observation period (Phase 7)" .
+
+# ============================================================================
+# COMMUNICATION TIMELINE (CRITICAL FOR ACCEPTANCE)
+# ============================================================================
+
+:CommunicationPlan a process:CommunicationStrategy ;
+    rdfs:label "Communication Plan: Transparency & Certainty" ;
+    rdfs:comment "Phased communication to build confidence and reduce anxiety" ;
+    process:Week1_2 [
+        rdf:type process:CommunicationPhase ;
+        process:name "Week 1-2: Rumor Management & Leadership Alignment" ;
+        process:audience "Leadership team only" ;
+        process:message "This is a strategic redesign for productivity and career growth, not layoffs" ;
+        process:deliverable "Internal leadership FAQ, objection handling playbook"
+    ] ;
+    process:Week3_4 [
+        rdf:type process:CommunicationPhase ;
+        process:name "Week 3-4: Manager Preview & Training" ;
+        process:audience "All 25 managers and Ops Architects" ;
+        process:message "Here's the new org, your new role, and how to lead your team through this" ;
+        process:deliverable "Manager training sessions, one-on-one manager coaching"
+    ] ;
+    process:Week5 [
+        rdf:type process:CommunicationPhase ;
+        process:name "Week 5: All-Hands Announcement" ;
+        process:audience "All 500 engineers" ;
+        process:message "New org structure, career paths, compensation bands, why this matters" ;
+        process:deliverable "All-hands meeting, recorded presentation, live Q&A session" ;
+        process:psyKey "Emphasize opportunity, autonomy, and clear advancement"
+    ] ;
+    process:Week6 [
+        rdf:type process:CommunicationPhase ;
+        process:name "Week 6: Individual Role Conversations" ;
+        process:audience "Each engineer (1-on-1 with manager)" ;
+        process:message "Your new role, your compensation, your career path, how to succeed" ;
+        process:deliverable "Individual role packets, manager conversation templates"
+    ] ;
+    process:Week7_10 [
+        rdf:type process:CommunicationPhase ;
+        process:name "Week 7-10: Transition Weekly Updates" ;
+        process:audience "All engineers" ;
+        process:message "Week-by-week progress, success stories, FAQ updates" ;
+        process:deliverable "Weekly email updates with momentum-building narratives"
+    ] ;
+    process:Week10 [
+        rdf:type process:CommunicationPhase ;
+        process:name "Week 10: First Promotion Announcements" ;
+        process:audience "All 500 engineers" ;
+        process:message "Early success stories: fast-track promotions, career path working" ;
+        process:deliverable "Public recognition of 5-10 promoted engineers with their stories"
+    ] ;
+    process:Week12_16 [
+        rdf:type process:CommunicationPhase ;
+        process:name "Week 12-16: Validation & Celebration" ;
+        process:audience "All 500 + leadership" ;
+        process:message "We did it! New org stable, metrics exceeding targets, career paths real" ;
+        process:deliverable "Executive summary, metrics dashboard, team celebrations"
+    ] .
+

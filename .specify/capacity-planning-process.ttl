@@ -1,0 +1,680 @@
+@prefix ex: <http://ggen.example.org/disney/capacity-planning#> .
+@prefix wo: <http://ggen.example.org/disney/work-objects#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ==============================================================================
+# Capacity Planning Process Ontology
+# ==============================================================================
+# Purpose: Workforce and resource planning for optimal guest experience
+# Audience: HR managers, operations planners, finance, procurement
+# Wave: 2 (Scale proof - tests Tableau + Workday + SAP coordination)
+# Status: Maps guest forecasting to staffing and inventory planning
+# Created: 2026-01-18
+# ==============================================================================
+
+ex:CapacityPlanningProcess a owl:Class ;
+  rdfs:label "Capacity Planning Process" ;
+  rdfs:comment "Integrated demand forecasting, staffing optimization, and resource allocation to match guest volume and operational requirements." ;
+  rdfs:isDefinedBy ex:CapacityPlanningOntology .
+
+ex:AnnualCapacityPlanning a ex:CapacityPlanningProcess ;
+  rdfs:label "Annual Capacity Planning Cycle" ;
+  rdfs:comment "Multi-phase planning from forecast analysis through budget approval and schedule creation." ;
+  ex:startDate "2026-01-01"^^xsd:date ;
+  ex:completionDate "2026-03-31"^^xsd:date ;
+  ex:planningHorizon "PT52W"^^xsd:duration ;
+  ex:dependencies ex:HistoricalDataAvailable, ex:ForecastingModelReady, ex:BudgetAuthorization .
+
+ex:QuarterlyCapacityUpdate a ex:CapacityPlanningProcess ;
+  rdfs:label "Quarterly Capacity Review and Adjustment" ;
+  rdfs:comment "Quarterly review to adjust plans based on actual performance and updated forecasts." ;
+  ex:frequency "PT13W"^^xsd:duration ;
+  ex:planningHorizon "PT52W"^^xsd:duration ;
+  ex:dependencies ex:ActualPerformanceData, ex:RevisedForecast .
+
+# ==============================================================================
+# DEMAND FORECASTING PHASE (2-3 weeks)
+# ==============================================================================
+
+ex:GuestDemandForecastingTask a wo:Task ;
+  rdfs:label "Guest Demand Forecasting" ;
+  rdfs:comment "Analyze historical guest data and market trends to forecast daily guest volumes for next 12 months." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-DEMAND-001" ;
+  wo:hasTitle "Generate 12-Month Guest Volume Forecast" ;
+  wo:taskDescription "Using Tableau analytics, analyze historical attendance patterns, seasonality, marketing calendar, events, weather trends, and economic indicators to create probability distributions of daily guest volumes." ;
+  wo:taskAssignedTo ex:DemandPlanningLead ;
+  wo:taskEstimatedDuration "PT40H"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:ForecastAC1, ex:ForecastAC2, ex:ForecastAC3, ex:ForecastAC4 ;
+  ex:executionOrder 1 ;
+  ex:externalSystemDependency [
+    ex:system "Tableau" ;
+    ex:functionality "Historical guest data queries, forecasting models, scenario analysis" ;
+    ex:requiredBefore "Forecast generated"
+  ] ;
+  ex:externalSystemDependency [
+    ex:system "Workday" ;
+    ex:functionality "Historical staffing levels and scheduling patterns" ;
+    ex:requiredBefore "Baseline staffing ratios calculated"
+  ] .
+
+ex:ForecastAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When forecast complete, daily guest volume distribution generated for all 365 days covering low/medium/high/peak scenarios with 10th/50th/90th percentile confidence intervals." ;
+  wo:criterionVerified "false" .
+
+ex:ForecastAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When forecast validated, peak day capacity identified (target: serve 95% of forecasted guests without >4 hour waits)." ;
+  wo:criterionVerified "false" .
+
+ex:ForecastAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When forecast complete, accuracy comparison with prior year actual shows MAPE <8% for previous 12-month period." ;
+  wo:criterionVerified "false" .
+
+ex:ForecastAC4 a wo:AcceptanceCriterion ;
+  wo:criterionText "When forecast generated, Tableau dashboard published showing guest volume scenarios with staffing implications." ;
+  wo:criterionVerified "false" .
+
+ex:AttractionsCapacityAnalysisTask a wo:Task ;
+  rdfs:label "Attractions Capacity Analysis" ;
+  rdfs:comment "Determine hourly throughput requirements by attraction and identify bottleneck rides." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-ATTR-CAP-001" ;
+  wo:hasTitle "Map Guest Demand to Attraction Hourly Capacity" ;
+  wo:taskDescription "For each forecasted day, calculate required hourly throughput by attraction using historical guest flow patterns. Identify attractions that will exceed capacity and queue management requirements." ;
+  wo:taskAssignedTo ex:OperationsPlanningLead ;
+  wo:taskEstimatedDuration "PT30H"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:AttractionCapacityAC1, ex:AttractionCapacityAC2 ;
+  wo:dependsOn ex:GuestDemandForecastingTask ;
+  ex:executionOrder 2 .
+
+ex:AttractionCapacityAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When analysis complete, hourly capacity demand mapped for all 23 attractions for peak day scenario." ;
+  wo:criterionVerified "false" .
+
+ex:AttractionCapacityAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When capacity analyzed, bottleneck attractions identified and queue management plan documented." ;
+  wo:criterionVerified "false" .
+
+# ==============================================================================
+# STAFFING PLANNING PHASE (3-4 weeks)
+# ==============================================================================
+
+ex:StaffingRequirementCalculationTask a wo:Task ;
+  rdfs:label "Staffing Requirement Calculation" ;
+  rdfs:comment "Determine total staffing needs by department and daily staffing curve based on guest volume forecast." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-STAFF-REQ-001" ;
+  wo:hasTitle "Calculate Annual Staffing Requirements by Department" ;
+  wo:taskDescription "Using forecasted guest volumes and departmental staffing ratios (guests per staff: guest services 1:200, maintenance 1:1000, security 1:500), calculate required staffing levels by day, department, and shift. Identify peak staffing needs." ;
+  wo:taskAssignedTo ex:HRPlanningManager ;
+  wo:taskEstimatedDuration "PT35H"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:StaffingReqAC1, ex:StaffingReqAC2, ex:StaffingReqAC3 ;
+  wo:dependsOn ex:GuestDemandForecastingTask ;
+  ex:externalSystemDependency [
+    ex:system "Workday" ;
+    ex:functionality "Employee roster, department assignments, skill levels, availability" ;
+    ex:requiredBefore "Staffing plan feasibility checked"
+  ] ;
+  ex:externalSystemDependency [
+    ex:system "Tableau" ;
+    ex:functionality "Staffing requirement modeling and visualization" ;
+    ex:requiredBefore "Staffing curves generated"
+  ] ;
+  ex:executionOrder 3 .
+
+ex:StaffingReqAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When calculation complete, total annual FTE (full-time equivalent) requirement determined with breakdown by department: Guest Services, Maintenance, Security, Operations, Admin." ;
+  wo:criterionVerified "false" .
+
+ex:StaffingReqAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When calculation complete, daily staffing curve generated showing min/target/peak staffing by day for 365 days with department distribution." ;
+  wo:criterionVerified "false" .
+
+ex:StaffingReqAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When requirements finalized, comparison with current roster identifies shortfalls (hiring needs) or excesses (optimization opportunities)." ;
+  wo:criterionVerified "false" .
+
+ex:RecruitmentPlanningTask a wo:Task ;
+  rdfs:label "Recruitment and Hiring Plan" ;
+  rdfs:comment "Identify staffing gaps and plan recruitment campaigns to fill positions." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-RECRUIT-001" ;
+  wo:hasTitle "Develop Recruitment Plan for Staffing Gaps" ;
+  wo:taskDescription "Identify positions to be filled based on gap analysis. Plan recruitment timeline, channels, and campaigns to hire required staff before peak seasons. Coordinate with HR for onboarding timeline." ;
+  wo:taskAssignedTo ex:HRRecruitmentLead ;
+  wo:taskEstimatedDuration "PT25H"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:RecruitmentAC1, ex:RecruitmentAC2 ;
+  wo:dependsOn ex:StaffingRequirementCalculationTask ;
+  ex:executionOrder 4 .
+
+ex:RecruitmentAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When plan complete, recruitment timeline established with hiring targets, campaign start dates, and target completion dates (hire 60 days before peak season)." ;
+  wo:criterionVerified "false" .
+
+ex:RecruitmentAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When plan finalized, cost estimate for recruitment generated and approved by finance." ;
+  wo:criterionVerified "false" .
+
+# ==============================================================================
+# RESOURCE ALLOCATION PHASE (3-4 weeks)
+# ==============================================================================
+
+ex:MaintenanceResourcesAllocationTask a wo:Task ;
+  rdfs:label "Maintenance Resource Allocation" ;
+  rdfs:comment "Allocate maintenance labor and equipment based on attraction capacity and preventive maintenance schedule." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-MAINT-RES-001" ;
+  wo:hasTitle "Plan Maintenance Resource Allocation" ;
+  wo:taskDescription "Determine maintenance labor requirements by shift based on attraction uptime targets. Plan equipment needs, spare parts inventory, and tool allocation. Coordinate with SAP for asset management." ;
+  wo:taskAssignedTo ex:MaintenanceManagerRole ;
+  wo:taskEstimatedDuration "PT30H"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:MaintenanceResAC1, ex:MaintenanceResAC2, ex:MaintenanceResAC3 ;
+  wo:dependsOn ex:GuestDemandForecastingTask ;
+  ex:externalSystemDependency [
+    ex:system "SAP" ;
+    ex:functionality "Equipment catalog, spare parts inventory, asset depreciation" ;
+    ex:requiredBefore "Resource plan finalized"
+  ] ;
+  ex:executionOrder 5 .
+
+ex:MaintenanceResAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When allocation plan complete, maintenance staffing by shift determined to support 99.5% attraction uptime target." ;
+  wo:criterionVerified "false" .
+
+ex:MaintenanceResAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When allocation finalized, spare parts and equipment budget estimated in SAP with MOQ (minimum order quantities) and lead times." ;
+  wo:criterionVerified "false" .
+
+ex:MaintenanceResAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When plan complete, preventive maintenance schedule created in SAP with 365-day calendar showing planned downtime windows." ;
+  wo:criterionVerified "false" .
+
+ex:GuestServicesInventoryTask a wo:Task ;
+  rdfs:label "Guest Services Inventory Planning" ;
+  rdfs:comment "Plan inventory of supplies (ticketing, retail, food service) based on guest volume forecast." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-GS-INV-001" ;
+  wo:hasTitle "Forecast Guest Services Supply Requirements" ;
+  wo:taskDescription "Based on per-guest consumption rates for food, merchandise, guest services supplies (badges, maps, etc), calculate total inventory requirements by category and delivery schedule." ;
+  wo:taskAssignedTo ex:SupplyChainManager ;
+  wo:taskEstimatedDuration "PT25H"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:InventoryAC1, ex:InventoryAC2 ;
+  wo:dependsOn ex:GuestDemandForecastingTask ;
+  ex:externalSystemDependency [
+    ex:system "SAP" ;
+    ex:functionality "Inventory management, supplier orders, stock levels" ;
+    ex:requiredBefore "Inventory plan finalized"
+  ] ;
+  ex:executionOrder 6 .
+
+ex:InventoryAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When forecast complete, inventory requirements calculated for all categories with safety stock for peak demand scenarios." ;
+  wo:criterionVerified "false" .
+
+ex:InventoryAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When plan finalized, supplier orders created in SAP with delivery schedules to ensure stock availability throughout year." ;
+  wo:criterionVerified "false" .
+
+# ==============================================================================
+# SCHEDULE CREATION PHASE (2-3 weeks)
+# ==============================================================================
+
+ex:ScheduleGenerationTask a wo:Task ;
+  rdfs:label "Master Schedule Generation" ;
+  rdfs:comment "Create detailed daily shift schedules for all staff based on staffing requirements." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-SCHED-GEN-001" ;
+  wo:hasTitle "Generate Annual Master Schedule" ;
+  wo:taskDescription "Using calculated staffing requirements and employee availability/constraints, generate daily shift assignments for all 365 days. Optimize for fair distribution, cost minimization, and labor law compliance." ;
+  wo:taskAssignedTo ex:WorkforceSchedulingLead ;
+  wo:taskEstimatedDuration "PT45H"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:ScheduleAC1, ex:ScheduleAC2, ex:ScheduleAC3, ex:ScheduleAC4 ;
+  wo:dependsOn ex:StaffingRequirementCalculationTask, ex:RecruitmentPlanningTask ;
+  ex:externalSystemDependency [
+    ex:system "Workday" ;
+    ex:functionality "Employee constraints, availability, scheduling rules" ;
+    ex:requiredBefore "Schedule optimized"
+  ] ;
+  ex:externalSystemDependency [
+    ex:system "Kronos or Workday Scheduling" ;
+    ex:functionality "Schedule publishing and employee notification" ;
+    ex:requiredBefore "Schedule activated"
+  ] ;
+  ex:executionOrder 7 ;
+  ex:criticalPath "true" .
+
+ex:ScheduleAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When schedule generated, all 365 days covered with required staffing levels met for each shift (target: 100% coverage, zero shortfalls)." ;
+  wo:criterionVerified "false" .
+
+ex:ScheduleAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When schedule complete, labor law compliance verified: max hours per week, min rest periods, leave days honored, union agreements satisfied." ;
+  wo:criterionVerified "false" .
+
+ex:ScheduleAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When schedule finalized, fairness metrics calculated (distribution of peak shifts, weekends, holiday assignments) and reported." ;
+  wo:criterionVerified "false" .
+
+ex:ScheduleAC4 a wo:AcceptanceCriterion ;
+  wo:criterionText "When schedule published in Workday, all affected employees notified and 90-day advance notice provided for permanent assignments." ;
+  wo:criterionVerified "false" .
+
+ex:BudgetCalculationTask a wo:Task ;
+  rdfs:label "Annual Capacity Budget Calculation" ;
+  rdfs:comment "Calculate total cost of capacity plan including payroll, equipment, supplies." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-BUDGET-001" ;
+  wo:hasTitle "Build Annual Capacity Cost Budget" ;
+  wo:taskDescription "Calculate total labor costs (payroll + benefits), equipment and maintenance costs, supply costs, recruitment costs. Build budget by quarter and submit for approval." ;
+  wo:taskAssignedTo ex:FinancePlanningManager ;
+  wo:taskEstimatedDuration "PT20H"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:BudgetAC1, ex:BudgetAC2 ;
+  wo:dependsOn ex:ScheduleGenerationTask, ex:MaintenanceResourcesAllocationTask, ex:GuestServicesInventoryTask ;
+  ex:externalSystemDependency [
+    ex:system "SAP" ;
+    ex:functionality "Cost data, payroll rates, equipment pricing" ;
+    ex:requiredBefore "Budget calculated"
+  ] ;
+  ex:executionOrder 8 ;
+  ex:criticalPath "true" .
+
+ex:BudgetAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When calculation complete, total annual capacity budget generated with breakdown by cost center and quarterly distribution." ;
+  wo:criterionVerified "false" .
+
+ex:BudgetAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When budget submitted, comparison with prior year shows variance analysis and justification for changes >5%." ;
+  wo:criterionVerified "false" .
+
+# ==============================================================================
+# VERIFICATION & APPROVAL PHASE (1 week)
+# ==============================================================================
+
+ex:CapacityModelReviewTask a wo:Task ;
+  rdfs:label "Capacity Model Review and Validation" ;
+  rdfs:comment "Quality review of all forecast models, calculations, and assumptions." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-REVIEW-001" ;
+  wo:hasTitle "Validate Capacity Planning Models and Data" ;
+  wo:taskDescription "Independent review of forecast accuracy, staffing calculations, resource allocation assumptions, and budget math. Verify all data sources and model dependencies." ;
+  wo:taskAssignedTo ex:CapacityPlanningSupervisor ;
+  wo:taskEstimatedDuration "PT15H"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:ReviewAC1, ex:ReviewAC2 ;
+  wo:dependsOn ex:BudgetCalculationTask ;
+  ex:executionOrder 9 .
+
+ex:ReviewAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When review complete, all forecast models reviewed for mathematical correctness and assumption validity." ;
+  wo:criterionVerified "false" .
+
+ex:ReviewAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When review finalized, risk assessment completed for forecast sensitivity (what if guest volumes 20% lower/higher?)." ;
+  wo:criterionVerified "false" .
+
+# ==============================================================================
+# APPROVAL GATES
+# ==============================================================================
+
+ex:ForecastApproval a wo:Approval ;
+  rdfs:label "Guest Demand Forecast Approval" ;
+  rdfs:comment "Operations leadership approval of demand forecast and assumptions." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-FORECAST-001" ;
+  wo:hasTitle "Operations Director Forecast Approval" ;
+  wo:approvalsRequired 1 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:OperationsDirectorRole ;
+  ex:gates [
+    ex:gateName "Forecast Generated" ;
+    ex:dependsOn ex:GuestDemandForecastingTask
+  ] ;
+  ex:gates [
+    ex:gateName "Accuracy Validated" ;
+    ex:condition "MAPE <8% on prior year"
+  ] ;
+  ex:blocksProgression ex:StaffingPlanApproval .
+
+ex:StaffingPlanApproval a wo:Approval ;
+  rdfs:label "Staffing Plan Approval" ;
+  rdfs:comment "HR leadership approval of staffing levels, recruitment, and hiring budget." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-STAFF-001" ;
+  wo:hasTitle "HR Director and Finance VP Staffing Plan Approval" ;
+  wo:approvalsRequired 2 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:HRDirectorRole, ex:FinanceVPRole ;
+  ex:gates [
+    ex:gateName "Staffing Requirements Calculated" ;
+    ex:dependsOn ex:StaffingRequirementCalculationTask
+  ] ;
+  ex:gates [
+    ex:gateName "Recruitment Plan Created" ;
+    ex:dependsOn ex:RecruitmentPlanningTask
+  ] ;
+  ex:gates [
+    ex:gateName "Schedule Generated" ;
+    ex:dependsOn ex:ScheduleGenerationTask
+  ] ;
+  ex:blocksProgression ex:BudgetApproval .
+
+ex:BudgetApproval a wo:Approval ;
+  rdfs:label "Annual Capacity Budget Approval" ;
+  rdfs:comment "Finance and executive approval of full capacity planning budget." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-BUDGET-001" ;
+  wo:hasTitle "CFO and VP Operations Final Budget Approval" ;
+  wo:approvalsRequired 2 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:CFORole, ex:VPOperationsRole ;
+  ex:gates [
+    ex:gateName "Budget Calculated" ;
+    ex:dependsOn ex:BudgetCalculationTask
+  ] ;
+  ex:gates [
+    ex:gateName "Capacity Model Reviewed" ;
+    ex:dependsOn ex:CapacityModelReviewTask
+  ] ;
+  ex:gates [
+    ex:gateName "Variance Analysis Complete" ;
+    ex:condition "Justification provided for >5% change vs prior year"
+  ] ;
+  ex:gateCondition "Budget must be within 10% of strategic plan assumptions" .
+
+# ==============================================================================
+# RESOURCE & TEAM DEFINITIONS
+# ==============================================================================
+
+ex:CapacityPlanningTeam a wo:Team ;
+  rdfs:label "Capacity Planning Team" ;
+  rdfs:comment "Cross-functional team responsible for demand forecasting and resource planning." ;
+  ex:members [
+    ex:role "Demand Planning Lead" ;
+    ex:person ex:DemandPlanningLead ;
+    ex:source "Workday" ;
+    ex:workdayId "PLAN-001"
+  ] ;
+  ex:members [
+    ex:role "HR Planning Manager" ;
+    ex:person ex:HRPlanningManager ;
+    ex:source "Workday" ;
+    ex:workdayId "HR-PLAN-001"
+  ] ;
+  ex:members [
+    ex:role "Workforce Scheduling Lead" ;
+    ex:person ex:WorkforceSchedulingLead ;
+    ex:source "Workday" ;
+    ex:workdayId "SCHED-001"
+  ] ;
+  ex:members [
+    ex:role "Finance Planning Manager" ;
+    ex:person ex:FinancePlanningManager ;
+    ex:source "Workday" ;
+    ex:workdayId "FIN-PLAN-001"
+  ] ;
+  ex:meetingFrequency "PT2W"^^xsd:duration ;
+  ex:meetingLocation "Online/Conference Room A" .
+
+# ==============================================================================
+# PROCESS FLOW & DEPENDENCIES
+# ==============================================================================
+
+ex:CapacityPlanningFlow a ex:ProcessFlow ;
+  rdfs:label "Annual Capacity Planning Critical Path" ;
+  rdfs:comment "Multi-phase planning with dependencies and approval gates." ;
+  ex:phase1_Forecasting "Weeks 1-3: Demand forecasting, attraction capacity analysis" ;
+  ex:phase2_Staffing "Weeks 2-4: Staffing requirements, recruitment planning" ;
+  ex:phase3_Resources "Weeks 3-5: Maintenance and supply resource allocation" ;
+  ex:phase4_Scheduling "Weeks 4-6: Master schedule generation (parallel with budgeting)" ;
+  ex:phase5_Budgeting "Weeks 5-7: Cost calculation and approval" ;
+  ex:phase6_Verification "Weeks 7-8: Review, validation, and final approvals" ;
+  ex:totalDuration "PT8W"^^xsd:duration ;
+  ex:parallelPaths 3 ;
+  ex:approvalGates 3 .
+
+ex:QuarterlyUpdateFlow a ex:ProcessFlow ;
+  rdfs:label "Quarterly Capacity Update Process" ;
+  rdfs:comment "Faster cycle to adjust plans based on actual performance." ;
+  ex:phase1_Analysis "Review prior quarter actuals vs plan (PT1W)" ;
+  ex:phase2_Adjustment "Update forecast and staffing for next quarter (PT1W)" ;
+  ex:phase3_Schedule "Generate updated schedules if needed (PT3D)" ;
+  ex:phase4_Approval "Quick approval by director (PT2D)" ;
+  ex:totalDuration "PT3W"^^xsd:duration ;
+  ex:approvalGates 1 .
+
+# ==============================================================================
+# EXTERNAL SYSTEM MAPPINGS
+# ==============================================================================
+
+ex:TableauMapping a ex:SystemMapping ;
+  rdfs:label "Tableau Analytics Platform" ;
+  rdfs:comment "Forecasting, modeling, and visualization of capacity requirements." ;
+  ex:maps ex:GuestDemandForecastingTask ;
+  ex:maps ex:AttractionsCapacityAnalysisTask ;
+  ex:purpose "Historical analysis, forecasting models, scenario analysis, dashboarding" ;
+  ex:dataFlow "Historical guest data from ticketing system → Tableau → forecast scenarios → staffing implications" ;
+  ex:readOnly "true" ;
+  ex:rollbackCapability "false" ;
+  ex:newToParkOperations "true" .
+
+ex:WorkdaySchedulingMapping a ex:SystemMapping ;
+  rdfs:label "Workday Scheduling and Planning" ;
+  rdfs:comment "Integration with Workday for staff constraints, scheduling, and publication." ;
+  ex:maps wo:Shift ;
+  ex:maps ex:ScheduleGenerationTask ;
+  ex:dataFlow "Staffing plan → Schedule optimizer → Workday schedule publication → employee notifications" ;
+  ex:readOnly "false" ;
+  ex:rollbackCapability "true" ;
+  ex:functions [
+    ex:function "Load employee constraints and availability" ;
+    ex:function "Publish schedules to employee portal" ;
+    ex:function "Send shift notifications via Workday app"
+  ] .
+
+ex:SAPResourceMapping a ex:SystemMapping ;
+  rdfs:label "SAP Resource and Asset Planning" ;
+  rdfs:comment "Equipment, maintenance, and supply chain integration." ;
+  ex:maps ex:MaintenanceResourcesAllocationTask ;
+  ex:maps ex:GuestServicesInventoryTask ;
+  ex:dataFlow "Maintenance/supply requirements → SAP planning → supplier orders → inventory management" ;
+  ex:readOnly "false" ;
+  ex:rollbackCapability "true" ;
+  ex:modules [
+    ex:module "SAP PM (Preventive Maintenance)" ;
+    ex:module "SAP MM (Materials Management)" ;
+    ex:module "SAP CO (Controlling/Budgeting)"
+  ] .
+
+ex:SlackCapacityAlerts a ex:SystemMapping ;
+  rdfs:label "Slack Capacity Notifications" ;
+  rdfs:comment "Alert distribution for staffing changes and capacity issues." ;
+  ex:maps wo:Event ;
+  ex:maps ex:ScheduleGenerationTask ;
+  ex:channels (
+    "#capacity-planning"
+    "#operations-planning"
+    "#hr-updates"
+  ) ;
+  ex:readOnly "true" ;
+  ex:rollbackCapability "false" ;
+  ex:automations [
+    ex:trigger "Schedule published" ;
+    ex:action "Notify #operations-planning of staffing adjustments"
+  ] .
+
+ex:WorkforceManagementSystem a ex:SystemMapping ;
+  rdfs:label "Workforce Management System" ;
+  rdfs:comment "Advanced scheduling optimization and labor management." ;
+  ex:maps ex:ScheduleGenerationTask ;
+  ex:purpose "Schedule optimization, fairness algorithms, labor law compliance" ;
+  ex:newToParkOperations "true" ;
+  ex:vendor "Kronos/UKG or similar WFM solution" ;
+  ex:capabilities [
+    ex:capability "Multi-week schedule optimization" ;
+    ex:capability "Fair distribution algorithms" ;
+    ex:capability "Labor law constraint enforcement"
+  ] .
+
+# ==============================================================================
+# NEW SYSTEMS (Specific to Capacity Planning)
+# ==============================================================================
+
+ex:DemandForecastingEngine a ex:ExternalSystem ;
+  rdfs:label "Demand Forecasting Engine" ;
+  rdfs:comment "Statistical models for guest volume forecasting." ;
+  ex:purpose "Predict daily guest volumes using historical patterns and external factors" ;
+  ex:models [
+    ex:model "Seasonal decomposition (STL)" ;
+    ex:model "ARIMA time series" ;
+    ex:model "Holiday/event impact adjustment" ;
+    ex:model "Weather correlation analysis"
+  ] ;
+  ex:inputData "365 days historical guest counts, event calendar, weather data" ;
+  ex:outputData "Daily forecast distributions (low/medium/high/peak scenarios with confidence intervals)" ;
+  ex:accuracy "Target: MAPE <8% on holdout test set" .
+
+ex:CapacityPlanningDashboard a ex:ExternalSystem ;
+  rdfs:label "Capacity Planning Dashboard" ;
+  rdfs:comment "Real-time view of staffing actuals vs plan and resource utilization." ;
+  ex:purpose "Monitor staffing execution and identify variances" ;
+  ex:displays [
+    ex:metric "Scheduled vs actual staffing by department (daily)" ;
+    ex:metric "Guest volume vs forecast (daily update)" ;
+    ex:metric "Maintenance schedule adherence" ;
+    ex:metric "Budget spend vs plan (monthly)" ;
+    ex:metric "Attraction uptime vs 99.5% target"
+  ] ;
+  ex:dataSource "Workday, timekeeping system, ticketing system, SAP, Tableau" ;
+  ex:refreshRate "PT1H"^^xsd:duration ;
+  ex:newToParkOperations "true" .
+
+# ==============================================================================
+# ROLES
+# ==============================================================================
+
+ex:OperationsDirectorRole a ex:ApprovalRole ;
+  rdfs:label "Operations Director" ;
+  rdfs:comment "Approves demand forecast and staffing strategy." ;
+  ex:systemMapping "AD group: OPERATIONS_DIRECTORS" .
+
+ex:HRDirectorRole a ex:ApprovalRole ;
+  rdfs:label "HR Director" ;
+  rdfs:comment "Approves staffing plan and recruitment strategy." ;
+  ex:systemMapping "AD group: HR_DIRECTORS" .
+
+ex:FinanceVPRole a ex:ApprovalRole ;
+  rdfs:label "VP Finance" ;
+  rdfs:comment "Approves staffing and capacity budget." ;
+  ex:systemMapping "AD group: CFO_OFFICE" .
+
+ex:CFORole a ex:ApprovalRole ;
+  rdfs:label "Chief Financial Officer" ;
+  rdfs:comment "Final approval of annual capacity budget." ;
+  ex:systemMapping "AD group: EXECUTIVE_COUNCIL" .
+
+ex:VPOperationsRole a ex:ApprovalRole ;
+  rdfs:label "VP Operations" ;
+  rdfs:comment "Co-approval of annual capacity budget." ;
+  ex:systemMapping "AD group: EXECUTIVE_COUNCIL" .
+
+ex:MaintenanceManagerRole a ex:Role ;
+  rdfs:label "Maintenance Manager" ;
+  rdfs:comment "Plans maintenance resource allocation." ;
+  ex:systemMapping "AD group: MAINTENANCE_MANAGERS" .
+
+ex:CapacityPlanningSupervisor a ex:Person ;
+  rdfs:label "Capacity Planning Supervisor" ;
+  ex:workdayId "PLAN-SUPER-001" .
+
+ex:DemandPlanningLead a ex:Person ;
+  rdfs:label "Demand Planning Lead" ;
+  ex:workdayId "DEMAND-LEAD-001" .
+
+ex:HRPlanningManager a ex:Person ;
+  rdfs:label "HR Planning Manager" ;
+  ex:workdayId "HR-PLAN-MGR-001" .
+
+ex:WorkforceSchedulingLead a ex:Person ;
+  rdfs:label "Workforce Scheduling Lead" ;
+  ex:workdayId "SCHED-LEAD-001" .
+
+ex:FinancePlanningManager a ex:Person ;
+  rdfs:label "Finance Planning Manager" ;
+  ex:workdayId "FIN-PLAN-MGR-001" .
+
+ex:SupplyChainManager a ex:Person ;
+  rdfs:label "Supply Chain Manager" ;
+  ex:workdayId "SUPPLY-MGR-001" .
+
+ex:HRRecruitmentLead a ex:Person ;
+  rdfs:label "HR Recruitment Lead" ;
+  ex:workdayId "RECRUIT-LEAD-001" .
+
+# ==============================================================================
+# SUCCESS METRICS
+# ==============================================================================
+
+ex:SuccessMetrics a owl:Class ;
+  rdfs:label "Capacity Planning Success Metrics" ;
+  ex:metric_ForecastAccuracy "Guest volume forecast MAPE <8%" ;
+  ex:metric_StaffingCoverage "100% of required positions filled on schedule date" ;
+  ex:metric_ScheduleFairnessScore ">0.85 fairness index for shift distribution" ;
+  ex:metric_BudgetVariance "Actual spend within 5% of approved budget (quarterly review)" ;
+  ex:metric_AttractionUptime "99.5% target attraction availability during peak season" ;
+  ex:metric_LaborLawCompliance "100% compliance with all labor law constraints" ;
+  ex:metric_SchedulePublicationTiming "Master schedule published 90 days before execution" ;
+  ex:metric_RecruitmentCycle "Hiring completed 60 days before peak season" ;
+  ex:metric_TalentRetention "Staffing continuity: <15% turnover during peak season" ;
+  ex:metric_GuestWaitTimes "95% of guests served within target wait times (by attraction)" .
+
+# ==============================================================================
+# VALIDATION CHECKLIST
+# ==============================================================================
+
+ex:ValidationChecklist a owl:Class ;
+  rdfs:label "Capacity Planning Validation Checklist" ;
+  ex:check_1 "Demand forecasting model validated with <8% MAPE on prior 12 months" ;
+  ex:check_2 "Attraction capacity analysis complete with queue management plans" ;
+  ex:check_3 "Staffing requirements calculated for all departments and day types" ;
+  ex:check_4 "Recruitment plan includes timeline and hiring targets" ;
+  ex:check_5 "Master schedule generated with 100% coverage and labor law compliance" ;
+  ex:check_6 "Maintenance resource allocation supports 99.5% uptime target" ;
+  ex:check_7 "Supply chain plan includes all inventory categories and delivery schedules" ;
+  ex:check_8 "Annual budget calculated with variance analysis vs prior year" ;
+  ex:check_9 "Tableau forecasting dashboards created and published" ;
+  ex:check_10 "Workday scheduling integration tested and employee notifications verified" .
+
+# ==============================================================================
+# METADATA
+# ==============================================================================
+
+ex:CapacityPlanningOntology a owl:Ontology ;
+  rdfs:label "Capacity Planning Process Ontology" ;
+  rdfs:comment "Specification for integrated workforce and resource planning cycle." ;
+  owl:versionInfo "1.0" ;
+  dcterms:created "2026-01-18"^^xsd:date ;
+  ex:phase "Wave 2 - Scale Proof" ;
+  ex:processType "Strategic workforce and resource planning" ;
+  ex:frequency "Annual with quarterly updates" ;
+  ex:taskCount 10 ;
+  ex:approvalGateCount 3 ;
+  ex:newSystemsIntroduced (
+    ex:Tableau
+    ex:WorkforceManagementSystem
+    ex:DemandForecastingEngine
+    ex:CapacityPlanningDashboard
+  ) ;
+  ex:externalSystemsIntegrated 5 ;
+  ex:targetPlanningDuration "PT8W"^^xsd:duration ;
+  ex:targetQuarterlyUpdateDuration "PT3W"^^xsd:duration ;
+  ex:readyForValidation "true" ;
+  ex:mapsToWorkObjectTypes (
+    wo:Task
+    wo:Approval
+    wo:Event
+    wo:Team
+    wo:Shift
+  ) .

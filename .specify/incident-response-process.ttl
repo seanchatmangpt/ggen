@@ -1,0 +1,755 @@
+@prefix ex: <http://ggen.example.org/disney/incident-response#> .
+@prefix wo: <http://ggen.example.org/disney/work-objects#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ==============================================================================
+# Incident Response Process Ontology
+# ==============================================================================
+# Purpose: Emergency incident management and escalation workflow
+# Audience: Operations center, incident commanders, first responders, comms team
+# Wave: 2 (Scale proof - tests PagerDuty + Jira + Slack coordination)
+# Status: Tests incident detection, severity assessment, escalation paths
+# Created: 2026-01-18
+# ==============================================================================
+
+ex:IncidentResponseProcess a owl:Class ;
+  rdfs:label "Incident Response Process" ;
+  rdfs:comment "Coordinated response to operational incidents: safety hazards, equipment failures, medical events, security breaches. Maps to PagerDuty/Jira/Slack ecosystem." ;
+  rdfs:isDefinedBy ex:IncidentResponseOntology .
+
+ex:DailyIncidentManagement a ex:IncidentResponseProcess ;
+  rdfs:label "Daily Incident Management Operations" ;
+  rdfs:comment "Continuous incident detection, assessment, escalation, and resolution cycle during operating hours." ;
+  ex:startTime "09:00:00"^^xsd:time ;
+  ex:endTime "23:00:00"^^xsd:time ;
+  ex:operatingHours "14 hours (full park operating day)" ;
+  ex:dependencies ex:IncidentDetectionCapability, ex:EscalationAuthorization, ex:CommunicationReadiness .
+
+# ==============================================================================
+# INCIDENT TYPES (Categorization)
+# ==============================================================================
+
+ex:SafetyIncident a wo:IncidentType ;
+  rdfs:label "Safety Incident" ;
+  rdfs:comment "Guest injury, near-miss, or unsafe condition detected." ;
+  ex:exampleScenarios "Guest fall, attraction malfunction with guest aboard, medical emergency" ;
+  ex:severityRange ex:Medium, ex:High, ex:Critical .
+
+ex:EquipmentIncident a wo:IncidentType ;
+  rdfs:label "Equipment Incident" ;
+  rdfs:comment "Ride, system, or critical infrastructure failure during operation." ;
+  ex:exampleScenarios "Attraction emergency stop, HVAC failure, network outage" ;
+  ex:severityRange ex:Low, ex:Medium, ex:High .
+
+ex:SecurityIncident a wo:IncidentType ;
+  rdfs:label "Security Incident" ;
+  rdfs:comment "Unauthorized access, breach, or security event." ;
+  ex:exampleScenarios "Intrusion attempt, credential breach, unauthorized area access" ;
+  ex:severityRange ex:Medium, ex:High, ex:Critical .
+
+ex:CommunicationIncident a wo:IncidentType ;
+  rdfs:label "Communication Incident" ;
+  rdfs:comment "System outage affecting guest notifications or internal comms." ;
+  ex:exampleScenarios "PA system failure, messaging system down, lost radio comms" ;
+  ex:severityRange ex:Low, ex:Medium, ex:High .
+
+# ==============================================================================
+# DETECTION PHASE (Continuous)
+# ==============================================================================
+
+ex:IncidentDetectionTask a wo:Task ;
+  rdfs:label "Monitor for Incident Signals" ;
+  rdfs:comment "Continuous monitoring across all detection channels: sensors, guest reports, staff alerts." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-DETECT-001" ;
+  wo:hasTitle "Real-Time Incident Detection Across All Channels" ;
+  wo:taskDescription "Monitor IoT sensors on attractions, guest services alerts, staff radio channels, phone lines, and social media for incident signals." ;
+  wo:taskAssignedTo ex:OperationsCenter ;
+  wo:taskEstimatedDuration "PT1M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:DetectionAC1, ex:DetectionAC2, ex:DetectionAC3 ;
+  ex:continuousActivity "true" ;
+  ex:externalSystemDependency [
+    ex:system "IoT Sensor Network" ;
+    ex:functionality "Real-time alerts from 150+ sensors on attractions" ;
+    ex:requiredBefore "Detection starts"
+  ] ;
+  ex:externalSystemDependency [
+    ex:system "Slack #incident-alerts" ;
+    ex:functionality "Staff and guest service alerts" ;
+    ex:requiredBefore "Detection starts"
+  ] .
+
+ex:DetectionAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When sensor event triggered, IoT system transmits alert to ops center within <2 seconds." ;
+  wo:criterionVerified "false" .
+
+ex:DetectionAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When Slack incident-alert posted, alert appears in ops center dashboard within <5 seconds." ;
+  wo:criterionVerified "false" .
+
+ex:DetectionAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When incident detected, automated ticket creation triggered in PagerDuty within <10 seconds." ;
+  wo:criterionVerified "false" .
+
+# ==============================================================================
+# ASSESSMENT PHASE (0-5 minutes)
+# ==============================================================================
+
+ex:SeverityAssessmentTask a wo:Task ;
+  rdfs:label "Assess Incident Severity" ;
+  rdfs:comment "Incident commander evaluates severity (Low/Medium/High/Critical) and determines response level." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-ASSESS-001" ;
+  wo:hasTitle "Incident Severity Assessment and Categorization" ;
+  wo:taskDescription "Using incident details, determine if guest/staff safety at risk, guest experience impact, operational impact, reputational risk. Assign severity and incident type." ;
+  wo:taskAssignedTo ex:IncidentCommander ;
+  wo:taskEstimatedDuration "PT5M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:AssessmentAC1, ex:AssessmentAC2, ex:AssessmentAC3 ;
+  wo:dependsOn ex:IncidentDetectionTask ;
+  ex:criticalPath "true" ;
+  ex:externalSystemDependency [
+    ex:system "Jira" ;
+    ex:functionality "Create and categorize incident ticket" ;
+    ex:requiredBefore "Assessment documented"
+  ] ;
+  ex:externalSystemDependency [
+    ex:system "ServiceNow" ;
+    ex:functionality "Cross-reference with known issues database" ;
+    ex:requiredBefore "Assessment finalized"
+  ] .
+
+ex:AssessmentAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When incident assessed, severity level assigned (Low/Medium/High/Critical) and documented in Jira ticket." ;
+  wo:criterionVerified "false" .
+
+ex:AssessmentAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When assessment complete, response playbook selected based on severity and category." ;
+  wo:criterionVerified "false" .
+
+ex:AssessmentAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When severity >Medium, on-call leadership notified within <3 minutes." ;
+  wo:criterionVerified "false" .
+
+# ==============================================================================
+# ESCALATION PHASE (Severity-based, 1-10 minutes)
+# ==============================================================================
+
+ex:EscalationTask a wo:Task ;
+  rdfs:label "Execute Escalation Protocol" ;
+  rdfs:comment "Activate response team based on severity; dispatch responders, notify stakeholders." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-ESCALATE-001" ;
+  wo:hasTitle "Escalate Incident and Activate Response Teams" ;
+  wo:taskDescription "Based on severity, activate appropriate response teams: first aid, maintenance, security, or C-level. Create PagerDuty incident and Slack response channel." ;
+  wo:taskAssignedTo ex:IncidentCommander ;
+  wo:taskEstimatedDuration "PT2M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:EscalationAC1, ex:EscalationAC2, ex:EscalationAC3, ex:EscalationAC4 ;
+  wo:dependsOn ex:SeverityAssessmentTask ;
+  ex:criticalPath "true" ;
+  ex:externalSystemDependency [
+    ex:system "PagerDuty" ;
+    ex:functionality "Create incident, page on-call teams" ;
+    ex:requiredBefore "Escalation initiated"
+  ] ;
+  ex:externalSystemDependency [
+    ex:system "Slack" ;
+    ex:functionality "Create incident channel, post alert" ;
+    ex:requiredBefore "Communication started"
+  ] .
+
+ex:EscalationAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When severity=Critical, on-call director paged within <1 minute via PagerDuty." ;
+  wo:criterionVerified "false" .
+
+ex:EscalationAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When escalation triggered, Slack #incident-response-[ID] channel created and primary team added." ;
+  wo:criterionVerified "false" .
+
+ex:EscalationAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When escalation initiated, first responder (medical/maintenance/security) notified and ETA provided within <5 minutes." ;
+  wo:criterionVerified "false" .
+
+ex:EscalationAC4 a wo:AcceptanceCriterion ;
+  wo:criterionText "When severity=High or higher, public comms team alerted to prepare guest messaging within <2 minutes." ;
+  wo:criterionVerified "false" .
+
+# ==============================================================================
+# COMMUNICATION PHASE (Parallel with response, 0-30 minutes)
+# ==============================================================================
+
+ex:CommunicationTask a wo:Task ;
+  rdfs:label "Coordinate Communications" ;
+  rdfs:comment "Manage internal notifications, guest communications, and external messaging." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-COMM-001" ;
+  wo:hasTitle "Incident Communications Cascade" ;
+  wo:taskDescription "Post incident summary to response Slack channel, send internal Slack updates, activate guest messaging displays, prepare social media response, notify partner vendors if needed." ;
+  wo:taskAssignedTo ex:CommunicationsLead ;
+  wo:taskEstimatedDuration "PT3M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:CommAC1, ex:CommAC2, ex:CommAC3 ;
+  wo:dependsOn ex:EscalationTask ;
+  ex:externalSystemDependency [
+    ex:system "Slack" ;
+    ex:functionality "Multi-channel messaging to response team, ops, leadership" ;
+    ex:requiredBefore "Communications sent"
+  ] ;
+  ex:externalSystemDependency [
+    ex:system "Guest Display System (CMS)" ;
+    ex:functionality "Update attraction status or messaging" ;
+    ex:requiredBefore "Guest messaging deployed"
+  ] .
+
+ex:CommAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When incident response starts, Slack #incident-response-[ID] receives structured incident summary (type/severity/location/ETA)." ;
+  wo:criterionVerified "false" .
+
+ex:CommAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When guest safety incident detected, guest-facing comms posted to display systems within <5 minutes." ;
+  wo:criterionVerified "false" .
+
+ex:CommAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When severity=Critical, C-level leadership receives executive summary email within <10 minutes." ;
+  wo:criterionVerified "false" .
+
+# ==============================================================================
+# RESOLUTION PHASE (5-90 minutes depending on severity)
+# ==============================================================================
+
+ex:ResolutionCoordinationTask a wo:Task ;
+  rdfs:label "Coordinate Incident Resolution" ;
+  rdfs:comment "Field teams execute remediation; coordinate across maintenance, security, medical, comms." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-RESOLVE-001" ;
+  wo:hasTitle "Execute Incident Remediation Plan" ;
+  wo:taskDescription "First responders address root cause: repair equipment, treat guest injury, secure area, contain breach. Maintain communication channel open for status updates every 15 minutes." ;
+  wo:taskAssignedTo ex:FirstResponderLead ;
+  wo:taskEstimatedDuration "PT30M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:ResolutionAC1, ex:ResolutionAC2, ex:ResolutionAC3 ;
+  wo:dependsOn ex:CommunicationTask ;
+  ex:externalSystemDependency [
+    ex:system "Slack" ;
+    ex:functionality "Status updates in incident channel every 15 minutes" ;
+    ex:requiredBefore "Updates sent"
+  ] ;
+  ex:externalSystemDependency [
+    ex:system "Jira" ;
+    ex:functionality "Create and assign linked technical tasks" ;
+    ex:requiredBefore "Remediation tracked"
+  ] .
+
+ex:ResolutionAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When remediation begins, status update posted to incident channel within 5 minutes." ;
+  wo:criterionVerified "false" .
+
+ex:ResolutionAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When incident ongoing >15 minutes, status updates posted to incident channel every 15 minutes until resolved." ;
+  wo:criterionVerified "false" .
+
+ex:ResolutionAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When remediation complete, incident status updated in Jira and PagerDuty marked 'Resolved' with RCA summary." ;
+  wo:criterionVerified "false" .
+
+# ==============================================================================
+# CLOSEOUT PHASE (Post-resolution, 30-120 minutes)
+# ==============================================================================
+
+ex:IncidentCloseoutTask a wo:Task ;
+  rdfs:label "Incident Closeout and Post-Mortem" ;
+  rdfs:comment "Document incident, create post-mortem, identify preventive actions." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-CLOSEOUT-001" ;
+  wo:hasTitle "Incident Post-Mortem and Prevention Plan" ;
+  wo:taskDescription "Document root cause, impact, resolution, and follow-up actions in Jira. Schedule post-mortem meeting if severity >Medium. Create action items for prevention." ;
+  wo:taskAssignedTo ex:IncidentCommanderRole ;
+  wo:taskEstimatedDuration "PT20M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:CloseoutAC1, ex:CloseoutAC2 ;
+  wo:dependsOn ex:ResolutionCoordinationTask ;
+  ex:externalSystemDependency [
+    ex:system "Jira" ;
+    ex:functionality "Incident document, root cause, prevention actions" ;
+    ex:requiredBefore "Closeout complete"
+  ] ;
+  ex:externalSystemDependency [
+    ex:system "Google Calendar" ;
+    ex:functionality "Schedule post-mortem if needed" ;
+    ex:requiredBefore "Meeting scheduled"
+  ] .
+
+ex:CloseoutAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When incident resolved, post-mortem document completed in Jira with root cause, impact, and 3+ prevention actions." ;
+  wo:criterionVerified "false" .
+
+ex:CloseoutAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When severity=High or Critical, post-mortem meeting scheduled within 24 hours with all response team leads." ;
+  wo:criterionVerified "false" .
+
+# ==============================================================================
+# APPROVAL GATES (Escalation and Authorization)
+# ==============================================================================
+
+ex:IncidentCommanderApproval a wo:Approval ;
+  rdfs:label "Incident Commander Authority" ;
+  rdfs:comment "Incident commander approved and activated for response coordination." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-CMD-001" ;
+  wo:hasTitle "Incident Commander Operational Authority" ;
+  wo:approvalsRequired 1 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:IncidentCommanderRole ;
+  ex:gates [
+    ex:gateName "Assessment Complete" ;
+    ex:dependsOn ex:SeverityAssessmentTask
+  ] ;
+  ex:blocksProgression ex:EscalationTask .
+
+ex:DirectorEscalationApproval a wo:Approval ;
+  rdfs:label "Director-Level Escalation" ;
+  rdfs:comment "For High/Critical incidents, director approval for extended response or public comms." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-DIR-001" ;
+  wo:hasTitle "Director Approval for High/Critical Incident Response" ;
+  wo:approvalsRequired 1 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:DirectorOnCallRole ;
+  ex:gates [
+    ex:gateName "Severity Assessed >Medium" ;
+    ex:condition "Incident severity must be High or Critical"
+  ] ;
+  ex:gates [
+    ex:gateName "Escalation Initiated" ;
+    ex:dependsOn ex:EscalationTask
+  ] ;
+  ex:blocksProgression ex:PublicCommunicationApproval .
+
+ex:PublicCommunicationApproval a wo:Approval ;
+  rdfs:label "Public Communication Authorization" ;
+  rdfs:comment "For guest-facing or reputational incidents, approval to post public messaging." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-PUB-001" ;
+  wo:hasTitle "Public Messaging Authorization" ;
+  wo:approvalsRequired 1 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:ParkPublicAffairsRole ;
+  ex:gates [
+    ex:gateName "Comms Strategy Prepared" ;
+    ex:dependsOn ex:CommunicationTask
+  ] ;
+  ex:gateCondition "Public comms only released after approval." .
+
+# ==============================================================================
+# INCIDENTS (Templates for common scenarios)
+# ==============================================================================
+
+ex:IncidentTemplate_GuestInjury a wo:Incident ;
+  rdfs:label "Guest Injury Incident" ;
+  rdfs:comment "Template: Guest sustains injury (fall, attraction-related, etc)." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "INC-INJURY-TEMPLATE" ;
+  ex:isTemplate "true" ;
+  ex:incidentSeverity ex:High ;
+  ex:incidentType ex:SafetyIncident ;
+  ex:incidentDescription "Guest injury requiring first aid or emergency medical services." ;
+  ex:blocksProcesses ex:DailyIncidentManagement ;
+  ex:responseTeams (ex:FirstAidTeam ex:SecurityTeam ex:CommunicationsTeam) ;
+  ex:remediationPath [
+    ex:step1 "Deploy first aid to guest location" ;
+    ex:step2 "Assess injury severity and call EMS if needed" ;
+    ex:step3 "Clear surrounding area and manage crowd" ;
+    ex:step4 "Document incident and guest information" ;
+    ex:estimatedTime "PT15M to PT30M"
+  ] ;
+  ex:escalationPath [
+    ex:severityThreshold "High" ;
+    ex:escalateTo ex:SecurityDirectorRole, ex:ParkDirectorRole ;
+    ex:notifyLegal "true"
+  ] .
+
+ex:IncidentTemplate_AttractionEmergencyStop a wo:Incident ;
+  rdfs:label "Attraction Emergency Stop" ;
+  rdfs:comment "Template: Ride automatically stopped due to malfunction or sensor alert." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "INC-ESTOP-TEMPLATE" ;
+  ex:isTemplate "true" ;
+  ex:incidentSeverity ex:Medium ;
+  ex:incidentType ex:EquipmentIncident ;
+  ex:incidentDescription "Attraction emergency stop triggered; guests may be aboard." ;
+  ex:responseTeams (ex:MaintenanceTeam ex:SecurityTeam ex:GuestServicesTeam) ;
+  ex:remediationPath [
+    ex:step1 "Maintenance dispatched to attraction" ;
+    ex:step2 "Diagnostic check to identify fault code" ;
+    ex:step3 "Guest evacuation if needed (safety protocol)" ;
+    ex:step4 "Determine if equipment repair needed or operational" ;
+    ex:estimatedTime "PT10M to PT60M"
+  ] ;
+  ex:escalationPath [
+    ex:severityThreshold "High" ;
+    ex:condition "If guests require evacuation or high-risk situation" ;
+    ex:escalateTo ex:MaintenanceDirectorRole
+  ] .
+
+ex:IncidentTemplate_NetworkOutage a wo:Incident ;
+  rdfs:label "Critical System Outage" ;
+  rdfs:comment "Template: IT or network system outage affecting operations." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "INC-OUTAGE-TEMPLATE" ;
+  ex:isTemplate "true" ;
+  ex:incidentSeverity ex:High ;
+  ex:incidentType ex:EquipmentIncident ;
+  ex:incidentDescription "Critical IT system (ticketing, POS, comms) offline." ;
+  ex:responseTeams (ex:ITTeam ex:OperationsTeam ex:CommunicationsTeam) ;
+  ex:remediationPath [
+    ex:step1 "IT escalation: identify failed component" ;
+    ex:step2 "Failover to backup systems if available" ;
+    ex:step3 "Manual operations or guest services workarounds" ;
+    ex:step4 "Restore primary system and verify" ;
+    ex:estimatedTime "PT5M to PT120M"
+  ] ;
+  ex:escalationPath [
+    ex:severityThreshold "High" ;
+    ex:escalateTo ex:ITDirectorRole, ex:OperationsManagerRole ;
+    ex:decisionPoint "Manual operations approval by ops manager"
+  ] .
+
+ex:IncidentTemplate_SecurityBreach a wo:Incident ;
+  rdfs:label "Security Breach" ;
+  rdfs:comment "Template: Unauthorized access, intrusion, or credential compromise." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "INC-BREACH-TEMPLATE" ;
+  ex:isTemplate "true" ;
+  ex:incidentSeverity ex:Critical ;
+  ex:incidentType ex:SecurityIncident ;
+  ex:incidentDescription "Potential unauthorized access or security perimeter breach." ;
+  ex:responseTeams (ex:SecurityTeam ex:ITTeam ex:LegalTeam) ;
+  ex:remediationPath [
+    ex:step1 "Security sweep of affected area" ;
+    ex:step2 "Isolate compromised systems" ;
+    ex:step3 "Preserve evidence for investigation" ;
+    ex:step4 "IT security forensics and remediation" ;
+    ex:estimatedTime "PT30M to PT240M"
+  ] ;
+  ex:escalationPath [
+    ex:severityThreshold "Critical" ;
+    ex:escalateTo ex:SecurityDirectorRole, ex:ChiefSecurityOfficer, ex:Legal ;
+    ex:notifyExternalAgencies "true" ;
+    ex:notifyLaw "FBI or local law enforcement if breach confirmed"
+  ] .
+
+# ==============================================================================
+# RESOURCE & TEAM DEFINITIONS
+# ==============================================================================
+
+ex:FirstAidTeam a wo:Team ;
+  rdfs:label "First Aid Response Team" ;
+  rdfs:comment "Trained medical personnel ready for guest injuries." ;
+  ex:staffingRequirement [
+    ex:role "Paramedic or Nurse" ;
+    ex:count 2 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "MEDICAL-TEAM-001"
+  ] ;
+  ex:location ex:FirstAidStation ;
+  ex:responseTime "PT5M" .
+
+ex:MaintenanceTeam a wo:Team ;
+  rdfs:label "Maintenance Response Team" ;
+  rdfs:comment "Equipment technicians for rapid response to equipment failures." ;
+  ex:staffingRequirement [
+    ex:role "Technician" ;
+    ex:count 4 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "MAINT-RESPONSE-001"
+  ] ;
+  ex:location ex:MaintenanceShop ;
+  ex:responseTime "PT10M" ;
+  ex:tools [
+    ex:item "Diagnostic scanner" ;
+    ex:sapAssetId "SAP-DIAG-001"
+  ] .
+
+ex:SecurityTeam a wo:Team ;
+  rdfs:label "Security Response Team" ;
+  rdfs:comment "Security personnel for area containment and threat response." ;
+  ex:staffingRequirement [
+    ex:role "Security Officer" ;
+    ex:count 6 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "SECURITY-RESPONSE-001"
+  ] ;
+  ex:location ex:SecurityOperationsCenter ;
+  ex:responseTime "PT3M" .
+
+ex:ITTeam a wo:Team ;
+  rdfs:label "IT/Systems Response Team" ;
+  rdfs:comment "IT specialists for system outages and cybersecurity incidents." ;
+  ex:staffingRequirement [
+    ex:role "Systems Engineer" ;
+    ex:count 3 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "IT-ONCALL-001"
+  ] ;
+  ex:location ex:DataCenter ;
+  ex:responseTime "PT2M" .
+
+# ==============================================================================
+# PROCESS FLOW & CRITICAL PATH
+# ==============================================================================
+
+ex:IncidentResponseFlow a ex:ProcessFlow ;
+  rdfs:label "Incident Response Critical Path" ;
+  rdfs:comment "Real-time incident detection to resolution and closeout." ;
+  ex:phase1_Detection "Continuous: IoT sensors + staff alerts + guest reports" ;
+  ex:phase2_Assessment "0-5 min: Severity determination and response activation" ;
+  ex:phase3_Escalation "0-2 min (parallel): Notify on-call, create channels, activate teams" ;
+  ex:phase4_Communication "0-3 min (parallel): Internal alerts + guest messaging" ;
+  ex:phase5_Resolution "5-90 min: Field response teams remediate incident" ;
+  ex:phase6_Closeout "Post-resolution: Documentation and prevention planning" ;
+  ex:criticalPathDuration "PT120M"^^xsd:duration ;
+  ex:targetResolutionTime "PT30M" ;
+  ex:targetCloseoutTime "PT24H" .
+
+ex:SeverityEscalationMatrix a ex:Matrix ;
+  rdfs:label "Incident Severity Escalation Matrix" ;
+  ex:entry [
+    ex:severity "Low" ;
+    ex:responseTime "PT30M" ;
+    ex:escalateTo "Team Lead" ;
+    ex:updateFrequency "As needed"
+  ] ;
+  ex:entry [
+    ex:severity "Medium" ;
+    ex:responseTime "PT10M" ;
+    ex:escalateTo "Director" ;
+    ex:updateFrequency "PT15M"
+  ] ;
+  ex:entry [
+    ex:severity "High" ;
+    ex:responseTime "PT5M" ;
+    ex:escalateTo "VP Operations + C-level briefing" ;
+    ex:updateFrequency "PT10M"
+  ] ;
+  ex:entry [
+    ex:severity "Critical" ;
+    ex:responseTime "PT2M" ;
+    ex:escalateTo "C-level + External agencies" ;
+    ex:updateFrequency "PT5M"
+  ] .
+
+# ==============================================================================
+# EXTERNAL SYSTEM MAPPINGS
+# ==============================================================================
+
+ex:PagerDutyMapping a ex:SystemMapping ;
+  rdfs:label "PagerDuty Integration" ;
+  rdfs:comment "Incident escalation and on-call team activation." ;
+  ex:maps wo:Incident ;
+  ex:dataFlow "Incident created → PagerDuty incident created → on-call team paged based on severity" ;
+  ex:escalationPolicy [
+    ex:level 1 ;
+    ex:target "Team Lead" ;
+    ex:afterMinutes 5
+  ] ;
+  ex:escalationPolicy [
+    ex:level 2 ;
+    ex:target "Director" ;
+    ex:afterMinutes 15
+  ] ;
+  ex:escalationPolicy [
+    ex:level 3 ;
+    ex:target "VP Operations" ;
+    ex:afterMinutes 30
+  ] ;
+  ex:readOnly "false" ;
+  ex:rollbackCapability "true" .
+
+ex:JiraMapping a ex:SystemMapping ;
+  rdfs:label "Jira Integration" ;
+  rdfs:comment "Incident documentation, tracking, and post-mortem." ;
+  ex:maps wo:Incident ;
+  ex:maps wo:Task ;
+  ex:dataFlow "Incident ticket created → linked to assessment/resolution tasks → post-mortem actions tracked as subtasks" ;
+  ex:issueType "Incident" ;
+  ex:customFields [
+    ex:field "Severity" ;
+    ex:field "IncidentType" ;
+    ex:field "ResponseTeams" ;
+    ex:field "RootCause" ;
+    ex:field "PreventionActions"
+  ] ;
+  ex:readOnly "false" ;
+  ex:rollbackCapability "true" .
+
+ex:SlackIntegrationIncident a ex:SystemMapping ;
+  rdfs:label "Slack Incident Coordination" ;
+  rdfs:comment "Real-time incident response team communication." ;
+  ex:maps wo:Incident ;
+  ex:maps wo:Event ;
+  ex:channels (
+    "#incident-alerts"
+    "#incident-response-[ID]"
+    "#operations-center"
+    "#executive-incidents"
+  ) ;
+  ex:automations [
+    ex:trigger "Incident severity >Medium" ;
+    ex:action "Create #incident-response-[ID] channel" ;
+    ex:action "Add response team leads to channel" ;
+    ex:action "Post incident summary with severity/ETA/next steps"
+  ] ;
+  ex:messageTemplate "Incident {ID}: {type} severity={severity} location={location} ETA={eta} teams={teams}" ;
+  ex:readOnly "true" ;
+  ex:rollbackCapability "false" .
+
+ex:ServiceNowIncidentMapping a ex:SystemMapping ;
+  rdfs:label "ServiceNow Incident Tracking" ;
+  rdfs:comment "Enterprise incident correlation and knowledge base." ;
+  ex:maps wo:Incident ;
+  ex:dataFlow "High-severity incidents from park operations → ServiceNow incident ticket" ;
+  ex:severityMapping [
+    ex:parkSeverity "Critical" ;
+    ex:servicenowPriority "P1" ;
+    ex:assignmentGroup "Executive Incident Management"
+  ] ;
+  ex:severityMapping [
+    ex:parkSeverity "High" ;
+    ex:servicenowPriority "P2" ;
+    ex:assignmentGroup "Incident Management Team"
+  ] ;
+  ex:readOnly "false" ;
+  ex:rollbackCapability "true" .
+
+ex:GoogleCalendarMapping a ex:SystemMapping ;
+  rdfs:label "Calendar Integration" ;
+  rdfs:comment "Post-mortem meeting scheduling." ;
+  ex:maps wo:Event ;
+  ex:dataFlow "Incident closes → auto-schedule post-mortem meeting if severity >Medium" ;
+  ex:attendeeTemplate "Response team leads + manager + CISO (if security)" ;
+  ex:readOnly "false" ;
+  ex:rollbackCapability "true" .
+
+# ==============================================================================
+# NEW SYSTEMS (Specific to Incident Response)
+# ==============================================================================
+
+ex:IoTSensorNetwork a ex:ExternalSystem ;
+  rdfs:label "IoT Sensor Network" ;
+  rdfs:comment "Real-time monitoring of attractions and critical infrastructure." ;
+  ex:purpose "Early incident detection" ;
+  ex:sensors [
+    ex:type "Attraction emergency stop sensor" ;
+    ex:count 23
+  ] ;
+  ex:sensors [
+    ex:type "Environmental sensor (temperature, power)" ;
+    ex:count 45
+  ] ;
+  ex:sensors [
+    ex:type "Structural stress sensor" ;
+    ex:count 12
+  ] ;
+  ex:alertThreshold "Any anomalous reading triggers Slack alert <2 seconds" ;
+  ex:integration "REST API → local Slack bot" .
+
+ex:IncidentManagementDashboard a ex:ExternalSystem ;
+  rdfs:label "Incident Management Dashboard" ;
+  rdfs:comment "Real-time visualization of active incidents and response progress." ;
+  ex:purpose "Incident command center situational awareness" ;
+  ex:displays [
+    ex:metric "Active incidents (count by severity)" ;
+    ex:metric "On-call teams activated" ;
+    ex:metric "Mean time to assess (MTTA)" ;
+    ex:metric "Mean time to resolve (MTTR)" ;
+    ex:metric "Communication channel status"
+  ] ;
+  ex:dataSource "PagerDuty, Jira, Slack, IoT sensors" ;
+  ex:refreshRate "PT10S"^^xsd:duration .
+
+# ==============================================================================
+# ROLES (Specific to Incident Response)
+# ==============================================================================
+
+ex:IncidentCommanderRole a ex:ApprovalRole ;
+  rdfs:label "Incident Commander" ;
+  rdfs:comment "Activates and coordinates response; maintains communication flow." ;
+  ex:systemMapping "AD group: INCIDENT_COMMANDERS" ;
+  ex:responsibilities "Severity assessment, team activation, communication coordination" .
+
+ex:DirectorOnCallRole a ex:ApprovalRole ;
+  rdfs:label "Director On-Call" ;
+  rdfs:comment "Director-level authority for High/Critical incidents." ;
+  ex:systemMapping "PagerDuty schedule: DIRECTORS_ONCALL" ;
+  ex:escalationLevel 2 .
+
+ex:ParkPublicAffairsRole a ex:ApprovalRole ;
+  rdfs:label "Park Public Affairs" ;
+  rdfs:comment "Controls public messaging and media communications." ;
+  ex:systemMapping "AD group: PUBLIC_AFFAIRS_TEAM" ;
+  ex:responsibilities "Guest-facing messaging, media responses, social media" .
+
+# ==============================================================================
+# VALIDATION CHECKLIST
+# ==============================================================================
+
+ex:ValidationChecklist a owl:Class ;
+  rdfs:label "Incident Response Validation Checklist" ;
+  ex:check_1 "All incident types have severity assessment criteria" ;
+  ex:check_2 "Escalation matrix covers Low/Medium/High/Critical" ;
+  ex:check_3 "Response teams defined with staffing and response times" ;
+  ex:check_4 "PagerDuty escalation policy maps to incident severity" ;
+  ex:check_5 "Jira incident template with required custom fields" ;
+  ex:check_6 "Slack automation rules for channel creation and alerts" ;
+  ex:check_7 "Post-mortem process documented in approval gates" ;
+  ex:check_8 "IoT sensor integration and alert latency <2 seconds documented" ;
+  ex:check_9 "All roles mapped to AD groups or PagerDuty schedules" ;
+  ex:check_10 "MTTA targets defined: Low <30m, Medium <10m, High <5m, Critical <2m" .
+
+# ==============================================================================
+# SUCCESS METRICS
+# ==============================================================================
+
+ex:SuccessMetrics a owl:Class ;
+  rdfs:label "Incident Response Success Metrics" ;
+  ex:metric_MTTA "Mean Time to Assess: <5 min for Medium, <2 min for High/Critical" ;
+  ex:metric_MTTR "Mean Time to Resolve: <30 min for Medium, <60 min for High" ;
+  ex:metric_Escalation "95% of High/Critical incidents escalated within SLA" ;
+  ex:metric_Communication "100% of incidents receive Slack updates every 15 min until resolved" ;
+  ex:metric_PostMortem "100% of High/Critical incidents have post-mortem within 24 hours" ;
+  ex:metric_Prevention "70% of post-mortem prevention actions completed within 30 days" ;
+  ex:metric_Detection "IoT sensor alerts processed <2 seconds, 99.9% uptime" ;
+  ex:metric_TeamReady "Response teams acknowledge PagerDuty pages within 1 minute for 95% of incidents" .
+
+# ==============================================================================
+# METADATA
+# ==============================================================================
+
+ex:IncidentResponseOntology a owl:Ontology ;
+  rdfs:label "Incident Response Process Ontology" ;
+  rdfs:comment "Specification for coordinated emergency incident management and escalation." ;
+  owl:versionInfo "1.0" ;
+  dcterms:created "2026-01-18"^^xsd:date ;
+  ex:phase "Wave 2 - Scale Proof" ;
+  ex:processType "Emergency response workflow" ;
+  ex:taskCount 6 ;
+  ex:approvalGateCount 3 ;
+  ex:incidentTypeCount 4 ;
+  ex:newSystemsIntroduced (
+    ex:PagerDuty
+    ex:Jira
+    ex:IoTSensorNetwork
+    ex:IncidentManagementDashboard
+  ) ;
+  ex:externalSystemsIntegrated 6 ;
+  ex:targetAssessmentTime "PT5M"^^xsd:duration ;
+  ex:targetResolutionTime "PT30M"^^xsd:duration ;
+  ex:targetCloseoutTime "PT24H"^^xsd:duration ;
+  ex:readyForValidation "true" ;
+  ex:mapsToWorkObjectTypes (
+    wo:Incident
+    wo:Task
+    wo:Approval
+    wo:Team
+    wo:Event
+  ) .

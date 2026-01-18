@@ -1,0 +1,529 @@
+@prefix : <http://ggen.example.org/disney/wave2-task3#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix spec: <http://ggen.example.org/spec#> .
+@prefix security: <http://ggen.example.org/security#> .
+
+# ============================================================================
+# AUTHORITY LEVELS (5 graduated escalation)
+# ============================================================================
+
+:AuthorityLevel a rdfs:Class ;
+    rdfs:label "Authority Level" ;
+    rdfs:comment "A level of human-AI collaboration from read-only to autonomous execution" ;
+    rdfs:subClassOf spec:SecurityControl ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "level number" ;
+        rdfs:domain :AuthorityLevel ;
+        rdfs:range xsd:integer
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "permissions" ;
+        rdfs:domain :AuthorityLevel ;
+        rdfs:range :Permission
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "gates" ;
+        rdfs:domain :AuthorityLevel ;
+        rdfs:range :AuthorityGate
+    ] .
+
+:Level0ReadOnly a :AuthorityLevel ;
+    rdfs:label "Level 0: Read-Only" ;
+    rdfs:comment "Ingest only, no decisions, pure analysis. Zero mutations." ;
+    :levelNumber 0 ;
+    :canIngest true ;
+    :canRecommend true ;
+    :canDecideApprove false ;
+    :canExecute false ;
+    :canEscalate false ;
+    :requiredApprovals 0 ;
+    :hasGate :TransactionReadOnlyGate, :NoStateMutationGate ;
+    :interruptible false .
+
+:Level1Assist a :AuthorityLevel ;
+    rdfs:label "Level 1: Assist" ;
+    rdfs:comment "Recommend actions, human must explicitly approve each. One-by-one." ;
+    :levelNumber 1 ;
+    :canIngest true ;
+    :canRecommend true ;
+    :canDecideApprove false ;
+    :canExecute false ;
+    :canEscalate false ;
+    :requiredApprovals 1 ;
+    :hasGate :HumanApprovalGate, :PerActionGate, :ExplicitConfirmationGate ;
+    :interruptible false .
+
+:Level2Recommend a :AuthorityLevel ;
+    rdfs:label "Level 2: Recommend" ;
+    rdfs:comment "Propose batches, human reviews all before execution. Atomic batches." ;
+    :levelNumber 2 ;
+    :canIngest true ;
+    :canRecommend true ;
+    :canDecideApprove false ;
+    :canExecute false ;
+    :canEscalate false ;
+    :requiredApprovals 1 ;
+    :hasGate :AtomicBatchGate, :HumanReviewGate, :AllOrNothingGate ;
+    :interruptible false ;
+    :maxBatchSize 100 .
+
+:Level3Act a :AuthorityLevel ;
+    rdfs:label "Level 3: Act" ;
+    rdfs:comment "Execute changes, human observes and can interrupt mid-operation." ;
+    :levelNumber 3 ;
+    :canIngest true ;
+    :canRecommend true ;
+    :canDecideApprove true ;
+    :canExecute true ;
+    :canEscalate false ;
+    :requiredApprovals 1 ;
+    :hasGate :InterruptibleExecutionGate, :HumanObservationGate, :RollbackOnInterruptGate ;
+    :interruptible true ;
+    :maxConcurrentOps 10 .
+
+:Level4Enforce a :AuthorityLevel ;
+    rdfs:label "Level 4: Enforce" ;
+    rdfs:comment "Execute autonomously, human out of loop (production only, rare)." ;
+    :levelNumber 4 ;
+    :canIngest true ;
+    :canRecommend true ;
+    :canDecideApprove true ;
+    :canExecute true ;
+    :canEscalate true ;
+    :requiredApprovals 0 ;
+    :hasGate :NoHumanInterventionGate, :AuditOnlyGate ;
+    :interruptible false ;
+    :productionOnly true .
+
+# ============================================================================
+# AUTHORITY GATES (Enforcement Points)
+# ============================================================================
+
+:AuthorityGate a rdfs:Class ;
+    rdfs:label "Authority Gate" ;
+    rdfs:comment "A checkpoint that enforces authority level constraints" ;
+    rdfs:subClassOf spec:SecurityControl ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "gate name" ;
+        rdfs:domain :AuthorityGate ;
+        rdfs:range xsd:string
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "enforcement" ;
+        rdfs:domain :AuthorityGate ;
+        rdfs:range [
+            owl:oneOf (:Compile :Runtime :Audit)
+        ]
+    ] .
+
+:TransactionReadOnlyGate a :AuthorityGate ;
+    rdfs:label "Transaction Read-Only Gate" ;
+    rdfs:comment "Type system enforces read-only semantics" ;
+    :enforcement :Compile ;
+    :implementation "Rust &T vs &mut T: commit returns immutable reference" ;
+    :severity :High .
+
+:NoStateMutationGate a :AuthorityGate ;
+    rdfs:label "No State Mutation Gate" ;
+    rdfs:comment "Prevents any writes to persistent state" ;
+    :enforcement :Runtime ;
+    :implementation "StorageLayer.validate_read_only() before each operation" ;
+    :severity :High .
+
+:HumanApprovalGate a :AuthorityGate ;
+    rdfs:label "Human Approval Gate" ;
+    rdfs:comment "Each proposed action requires explicit human approval" ;
+    :enforcement :Runtime ;
+    :implementation "Action.state in [PROPOSED, PENDING_APPROVAL] blocks execution" ;
+    :severity :High ;
+    :timeout 3600 .
+
+:PerActionGate a :AuthorityGate ;
+    rdfs:label "Per-Action Gate" ;
+    rdfs:comment "Each action is approved independently, no batching" ;
+    :enforcement :Runtime ;
+    :implementation "Validate batch_size == 1" ;
+    :severity :High .
+
+:ExplicitConfirmationGate a :AuthorityGate ;
+    rdfs:label "Explicit Confirmation Gate" ;
+    rdfs:comment "Requires active human confirmation, not passive timeout" ;
+    :enforcement :Runtime ;
+    :implementation "AuditLog must contain HUMAN_APPROVED event before execution" ;
+    :severity :High .
+
+:AtomicBatchGate a :AuthorityGate ;
+    rdfs:label "Atomic Batch Gate" ;
+    rdfs:comment "All actions in batch succeed or all rollback, no partial" ;
+    :enforcement :Runtime ;
+    :implementation "Transaction ACID properties: all-or-nothing" ;
+    :severity :Critical .
+
+:HumanReviewGate a :AuthorityGate ;
+    rdfs:label "Human Review Gate" ;
+    rdfs:comment "Human must review entire batch before execution" ;
+    :enforcement :Runtime ;
+    :implementation "Batch.state == REVIEW_COMPLETE before execution" ;
+    :severity :High ;
+    :timeout 7200 .
+
+:AllOrNothingGate a :AuthorityGate ;
+    rdfs:label "All Or Nothing Gate" ;
+    rdfs:comment "No partial batch execution" ;
+    :enforcement :Runtime ;
+    :implementation "Transaction rollback on any error within batch" ;
+    :severity :Critical .
+
+:InterruptibleExecutionGate a :AuthorityGate ;
+    rdfs:label "Interruptible Execution Gate" ;
+    rdfs:comment "Human can interrupt mid-operation" ;
+    :enforcement :Runtime ;
+    :implementation "Check for INTERRUPT signal every operation checkpoint" ;
+    :severity :Critical .
+
+:HumanObservationGate a :AuthorityGate ;
+    rdfs:label "Human Observation Gate" ;
+    rdfs:comment "All operations streamed to human observer in real-time" ;
+    :enforcement :Runtime ;
+    :implementation "Publish operation events to audit log, human dashboard" ;
+    :severity :High .
+
+:RollbackOnInterruptGate a :AuthorityGate ;
+    rdfs:label "Rollback On Interrupt Gate" ;
+    rdfs:comment "If interrupted, rollback completes cleanly" ;
+    :enforcement :Runtime ;
+    :implementation "INTERRUPT signal triggers rollback sequence" ;
+    :severity :Critical .
+
+:NoHumanInterventionGate a :AuthorityGate ;
+    rdfs:label "No Human Intervention Gate" ;
+    rdfs:comment "Changes execute immediately, no human can intervene" ;
+    :enforcement :Audit ;
+    :implementation "Operations execute without awaiting human confirmation" ;
+    :severity :Critical ;
+    :productionOnly true .
+
+:AuditOnlyGate a :AuthorityGate ;
+    rdfs:label "Audit Only Gate" ;
+    rdfs:comment "Only audit log entry required, no functional gate" ;
+    :enforcement :Audit ;
+    :implementation "All operations logged in immutable audit trail" ;
+    :severity :High .
+
+# ============================================================================
+# IMMUTABLE EVENTS (Core Event Model)
+# ============================================================================
+
+:Event a rdfs:Class ;
+    rdfs:label "Immutable Event" ;
+    rdfs:comment "A state-changing operation recorded in append-only event log" ;
+    rdfs:subClassOf spec:Entity ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "event ID" ;
+        rdfs:domain :Event ;
+        rdfs:range xsd:string
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "timestamp" ;
+        rdfs:domain :Event ;
+        rdfs:range xsd:dateTime
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "action type" ;
+        rdfs:domain :Event ;
+        rdfs:range [
+            owl:oneOf (:CreateResource :UpdateResource :DeleteResource :EscalateAuthority :ApproveAction :RejectAction :RollbackAction :RollbackSequence)
+        ]
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "actor" ;
+        rdfs:domain :Event ;
+        rdfs:range xsd:string
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "authority level" ;
+        rdfs:domain :Event ;
+        rdfs:range :AuthorityLevel
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "payload" ;
+        rdfs:domain :Event ;
+        rdfs:range xsd:string
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "previous event hash" ;
+        rdfs:domain :Event ;
+        rdfs:range xsd:hexBinary
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "event hash" ;
+        rdfs:domain :Event ;
+        rdfs:range xsd:hexBinary
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "state after event" ;
+        rdfs:domain :Event ;
+        rdfs:range xsd:string
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "blast radius" ;
+        rdfs:domain :Event ;
+        rdfs:range :BlastRadius
+    ] .
+
+:EventLog a rdfs:Class ;
+    rdfs:label "Event Log" ;
+    rdfs:comment "Append-only immutable log of all events" ;
+    rdfs:subClassOf spec:Entity ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "events" ;
+        rdfs:domain :EventLog ;
+        rdfs:range :Event
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "head hash" ;
+        rdfs:domain :EventLog ;
+        rdfs:range xsd:hexBinary
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "event count" ;
+        rdfs:domain :EventLog ;
+        rdfs:range xsd:integer
+    ] .
+
+:EventLogEntry a rdfs:Class ;
+    rdfs:label "Event Log Entry" ;
+    rdfs:comment "Immutable entry in event log with cryptographic chaining" ;
+    rdfs:subClassOf :Event ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "sequence number" ;
+        rdfs:domain :EventLogEntry ;
+        rdfs:range xsd:integer
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "committed" ;
+        rdfs:domain :EventLogEntry ;
+        rdfs:range xsd:boolean
+    ] .
+
+# ============================================================================
+# BLAST RADIUS CONSTRAINTS
+# ============================================================================
+
+:BlastRadius a rdfs:Class ;
+    rdfs:label "Blast Radius" ;
+    rdfs:comment "Defines the scope of failure containment across service/region/percentage" ;
+    rdfs:subClassOf spec:SecurityConstraint ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "service scope" ;
+        rdfs:domain :BlastRadius ;
+        rdfs:range :ServiceScope
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "region scope" ;
+        rdfs:domain :BlastRadius ;
+        rdfs:range :RegionScope
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "percentage scope" ;
+        rdfs:domain :BlastRadius ;
+        rdfs:range xsd:float
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "calculated radius" ;
+        rdfs:domain :BlastRadius ;
+        rdfs:range xsd:float
+    ] .
+
+:ServiceScope a rdfs:Class ;
+    rdfs:label "Service Scope" ;
+    rdfs:comment "Blast radius scoped to a single service" ;
+    rdfs:subClassOf spec:Entity ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "service ID" ;
+        rdfs:domain :ServiceScope ;
+        rdfs:range xsd:string
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "max resource count" ;
+        rdfs:domain :ServiceScope ;
+        rdfs:range xsd:integer
+    ] .
+
+:RegionScope a rdfs:Class ;
+    rdfs:label "Region Scope" ;
+    rdfs:comment "Blast radius scoped to a single region" ;
+    rdfs:subClassOf spec:Entity ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "region ID" ;
+        rdfs:domain :RegionScope ;
+        rdfs:range xsd:string
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "max resource count" ;
+        rdfs:domain :RegionScope ;
+        rdfs:range xsd:integer
+    ] .
+
+# ============================================================================
+# INCIDENT RECOVERY
+# ============================================================================
+
+:Incident a rdfs:Class ;
+    rdfs:label "Incident" ;
+    rdfs:comment "A detected anomaly requiring recovery" ;
+    rdfs:subClassOf spec:Entity ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "incident ID" ;
+        rdfs:domain :Incident ;
+        rdfs:range xsd:string
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "detected timestamp" ;
+        rdfs:domain :Incident ;
+        rdfs:range xsd:dateTime
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "anomaly type" ;
+        rdfs:domain :Incident ;
+        rdfs:range [
+            owl:oneOf (:ErrorRateSpike :LatencySpike :ResourceExhaustion :DataCorruption)
+        ]
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "severity" ;
+        rdfs:domain :Incident ;
+        rdfs:range [
+            owl:oneOf (:Critical :High :Medium :Low)
+        ]
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "culprit event" ;
+        rdfs:domain :Incident ;
+        rdfs:range :Event
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "rollback sequence" ;
+        rdfs:domain :Incident ;
+        rdfs:range :Event
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "recovery time" ;
+        rdfs:domain :Incident ;
+        rdfs:range xsd:duration
+    ] .
+
+:RootCauseAnalysis a rdfs:Class ;
+    rdfs:label "Root Cause Analysis" ;
+    rdfs:comment "Analysis linking incident to causal event" ;
+    rdfs:subClassOf spec:Entity ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "incident" ;
+        rdfs:domain :RootCauseAnalysis ;
+        rdfs:range :Incident
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "causal event" ;
+        rdfs:domain :RootCauseAnalysis ;
+        rdfs:range :Event
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "confidence" ;
+        rdfs:domain :RootCauseAnalysis ;
+        rdfs:range xsd:float
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "analysis timestamp" ;
+        rdfs:domain :RootCauseAnalysis ;
+        rdfs:range xsd:dateTime
+    ] .
+
+# ============================================================================
+# AUDIT TRAIL (Compliance)
+# ============================================================================
+
+:AuditEntry a rdfs:Class ;
+    rdfs:label "Audit Entry" ;
+    rdfs:comment "Tamper-evident audit log entry" ;
+    rdfs:subClassOf :Event ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "entry ID" ;
+        rdfs:domain :AuditEntry ;
+        rdfs:range xsd:string
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "entry type" ;
+        rdfs:domain :AuditEntry ;
+        rdfs:range [
+            owl:oneOf (:AuthorityEscalation :ApprovalDecision :RollbackOperation :AnomalyDetection)
+        ]
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "related event" ;
+        rdfs:domain :AuditEntry ;
+        rdfs:range :Event
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "actor ID" ;
+        rdfs:domain :AuditEntry ;
+        rdfs:range xsd:string
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "reason" ;
+        rdfs:domain :AuditEntry ;
+        rdfs:range xsd:string
+    ] ;
+    rdfs:property [
+        a rdf:Property ;
+        rdfs:label "decision" ;
+        rdfs:domain :AuditEntry ;
+        rdfs:range [
+            owl:oneOf (:Approved :Rejected :Deferred)
+        ]
+    ] .

@@ -1,0 +1,546 @@
+@prefix ex: <http://ggen.example.org/disney/revenue-management#> .
+@prefix wo: <http://ggen.example.org/disney/work-objects#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ==============================================================================
+# Revenue Management Process Ontology
+# ==============================================================================
+# Purpose: Dynamic pricing, inventory management, demand forecasting, yield optimization
+# Audience: Revenue managers, data scientists, finance, pricing strategists
+# Wave: 3 (Advanced process integrating multiple systems)
+# Status: Mapped to Work Object Model types
+# Created: 2026-01-18
+# ==============================================================================
+
+ex:RevenueManagementProcess a owl:Class ;
+  rdfs:label "Revenue Management Process" ;
+  rdfs:comment "Continuous optimization of pricing, inventory, and demand forecasting to maximize revenue. Ingests POS, reservation, weather, event, and capacity data to drive dynamic pricing decisions." ;
+  rdfs:isDefinedBy ex:RevenueManagementOntology .
+
+ex:DailyRevenueOptimization a ex:RevenueManagementProcess ;
+  rdfs:label "Daily Revenue Optimization Cycle" ;
+  rdfs:comment "Near real-time process for pricing adjustments, inventory allocation, and demand signals." ;
+  ex:executionFrequency "Every 6 hours" ;
+  ex:targetCompletionTime "15 minutes per cycle" ;
+  ex:estimatedDuration "PT15M"^^xsd:duration ;
+  ex:dependencies ex:DemandForecastApproval, ex:PricingStrategyReview, ex:InventoryAllocationReview .
+
+# ==============================================================================
+# SHIFTS (Maps to wo:Shift)
+# ==============================================================================
+
+ex:RevenueAnalysisShift a wo:Shift ;
+  rdfs:label "Revenue Analysis Shift" ;
+  rdfs:comment "Continuous monitoring of pricing, demand, and revenue metrics." ;
+  ex:role "Revenue Manager, Pricing Analyst, Data Scientist, Operations Analyst" ;
+  ex:startTime "2026-01-19T06:00:00"^^xsd:dateTime ;
+  ex:endTime "2026-01-20T06:00:00"^^xsd:dateTime ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "SHIFT-REVENUE-ANALYSIS-001" ;
+  ex:location ex:RevenueManagementCenter ;
+  ex:staffingRequirement [
+    ex:role "Revenue Manager" ;
+    ex:count 2 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "REVENUE-MGR-001"
+  ] ;
+  ex:staffingRequirement [
+    ex:role "Pricing Analyst" ;
+    ex:count 3 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "PRICING-ANALYSIS-001"
+  ] ;
+  ex:staffingRequirement [
+    ex:role "Data Scientist" ;
+    ex:count 2 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "DATA-SCI-REVENUE-001"
+  ] .
+
+# ==============================================================================
+# TASKS (Maps to wo:Task)
+# ==============================================================================
+
+ex:DemandForeasting a wo:Task ;
+  rdfs:label "Demand Forecasting" ;
+  rdfs:comment "Ingest POS data, historical reservations, weather, events; predict visitor volume 6-24 hours ahead." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-FORECAST-001" ;
+  wo:hasTitle "Generate 6-Hour and 24-Hour Demand Forecasts" ;
+  wo:taskDescription "Collect real-time and historical data; run machine learning model; generate confidence intervals; identify anomalies." ;
+  wo:taskAssignedTo ex:DataScientistLead ;
+  wo:taskEstimatedDuration "PT8M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:ForecastAC1, ex:ForecastAC2, ex:ForecastAC3 ;
+  ex:executionOrder 1 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:PricingOptimization, ex:InventoryAllocation ;
+  ex:externalSystemDependency [
+    ex:system "Oracle POS" ;
+    ex:functionality "Real-time transaction data, hourly revenue streams" ;
+    ex:requiredBefore "Forecast execution"
+  ] ;
+  ex:externalSystemDependency [
+    ex:system "Salesforce CRM" ;
+    ex:functionality "Group booking trends, seasonal patterns" ;
+    ex:requiredBefore "Historical baseline"
+  ] .
+
+ex:ForecastAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When forecast model runs, then 6-hour and 24-hour visitor volume predictions generated with 85% accuracy vs baseline." ;
+  wo:criterionVerified "false" .
+
+ex:ForecastAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When anomalies detected (>3 sigma), then alert sent to revenue manager within 2 minutes." ;
+  wo:criterionVerified "false" .
+
+ex:ForecastAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When forecast complete, then results stored in analytics warehouse with timestamp and model version." ;
+  wo:criterionVerified "false" .
+
+ex:PricingOptimization a wo:Task ;
+  rdfs:label "Dynamic Pricing Optimization" ;
+  rdfs:comment "Use demand forecast, inventory levels, and competitor pricing to calculate optimal price points." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-PRICING-OPT-001" ;
+  wo:hasTitle "Calculate Optimal Price Points for Next 6-Hour Window" ;
+  wo:taskAssignedTo ex:PricingManagerLead ;
+  wo:taskEstimatedDuration "PT5M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:PricingAC1, ex:PricingAC2 ;
+  wo:dependsOn ex:DemandForeasting ;
+  ex:executionOrder 2 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:PricingStrategyReview ;
+  ex:externalSystemDependency [
+    ex:system "Tableau Analytics" ;
+    ex:functionality "Historical price elasticity, competitor benchmarks" ;
+    ex:requiredBefore "Optimization run"
+  ] .
+
+ex:PricingAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When optimization complete, then price points calculated for 8 ticket categories (adult, child, senior, group, etc.)." ;
+  wo:criterionVerified "false" .
+
+ex:PricingAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When pricing complete, then revenue impact forecast shows ≥2% uplift vs baseline pricing." ;
+  wo:criterionVerified "false" .
+
+ex:InventoryAllocation a wo:Task ;
+  rdfs:label "Inventory Allocation & Capacity Planning" ;
+  rdfs:comment "Allocate capacity across attractions based on demand signals; manage line queue targets." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-INVENTORY-ALLOC-001" ;
+  wo:hasTitle "Allocate Capacity and Set Queue Targets" ;
+  wo:taskAssignedTo ex:OperationsPlanner ;
+  wo:taskEstimatedDuration "PT7M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:InventoryAC1, ex:InventoryAC2 ;
+  wo:dependsOn ex:DemandForeasting ;
+  ex:executionOrder 3 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:InventoryAllocationReview ;
+  ex:externalSystemDependency [
+    ex:system "SAP" ;
+    ex:functionality "Attraction capacity, maintenance schedules, staffing availability" ;
+    ex:requiredBefore "Allocation"
+  ] .
+
+ex:InventoryAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When allocation complete, then all 23 attractions have assigned capacity utilization targets (60-95% range)." ;
+  wo:criterionVerified "false" .
+
+ex:InventoryAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When allocation complete, then predicted average wait times ≤ 45 minutes for tier-1 attractions." ;
+  wo:criterionVerified "false" .
+
+ex:PricingStrategyReview a wo:Task ;
+  rdfs:label "Pricing Strategy Review & Approval" ;
+  rdfs:comment "Revenue manager reviews calculated pricing; approves or adjusts based on business rules and constraints." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-PRICING-REVIEW-001" ;
+  wo:hasTitle "Review and Approve Dynamic Pricing" ;
+  wo:taskAssignedTo ex:RevenueDirector ;
+  wo:taskEstimatedDuration "PT3M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:ReviewAC1 ;
+  wo:dependsOn ex:PricingOptimization ;
+  ex:executionOrder 4 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:PricingStrategyApproval .
+
+ex:ReviewAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When review complete, then manager confirms pricing aligns with brand guidelines and no prices deviate >15% from historical range." ;
+  wo:criterionVerified "false" .
+
+ex:InventoryAllocationReview a wo:Task ;
+  rdfs:label "Inventory Allocation Review" ;
+  rdfs:comment "Operations team reviews and validates capacity allocation." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-INV-REVIEW-001" ;
+  wo:hasTitle "Validate Inventory Allocation" ;
+  wo:taskAssignedTo ex:OperationsDirector ;
+  wo:taskEstimatedDuration "PT2M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:InvReviewAC1 ;
+  wo:dependsOn ex:InventoryAllocation ;
+  ex:executionOrder 5 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:InventoryAllocationApproval .
+
+ex:InvReviewAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When review complete, then operations manager confirms all staffing and maintenance constraints honored." ;
+  wo:criterionVerified "false" .
+
+# ==============================================================================
+# APPROVALS (Maps to wo:Approval)
+# ==============================================================================
+
+ex:PricingStrategyApproval a wo:Approval ;
+  rdfs:label "Dynamic Pricing Approval" ;
+  rdfs:comment "Revenue director approval for price changes before implementation." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-PRICING-001" ;
+  wo:hasTitle "Revenue Director Pricing Approval" ;
+  wo:approvalsRequired 1 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:RevenueDirectorRole ;
+  ex:gates [
+    ex:gateName "Pricing Optimization Complete" ;
+    ex:dependsOn ex:PricingStrategyReview ;
+    ex:gateStatus "Awaiting"
+  ] ;
+  ex:gates [
+    ex:gateName "Revenue Impact Projected" ;
+    ex:requiredEvidence "Forecast showing ≥2% uplift" ;
+    ex:gateStatus "Awaiting"
+  ] ;
+  ex:blocksProgression ex:PricingImplementation .
+
+ex:InventoryAllocationApproval a wo:Approval ;
+  rdfs:label "Capacity Allocation Approval" ;
+  rdfs:comment "Operations director approval for capacity reallocation." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-INV-001" ;
+  wo:hasTitle "Operations Director Allocation Approval" ;
+  wo:approvalsRequired 1 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:OperationsDirectorRole ;
+  ex:gates [
+    ex:gateName "Inventory Allocation Reviewed" ;
+    ex:dependsOn ex:InventoryAllocationReview
+  ] ;
+  ex:blocksProgression ex:InventoryImplementation .
+
+ex:DemandForecastApproval a wo:Approval ;
+  rdfs:label "Demand Forecast Approval" ;
+  rdfs:comment "Data science lead approves forecast model outputs." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-FORECAST-001" ;
+  wo:hasTitle "Forecast Model Validation" ;
+  wo:approvalsRequired 1 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:DataScientistLeadRole ;
+  ex:gates [
+    ex:gateName "Forecast Accuracy ≥85%" ;
+    ex:dependsOn ex:DemandForeasting
+  ] ;
+  ex:blocksProgression ex:PricingOptimization, ex:InventoryAllocation .
+
+# ==============================================================================
+# INCIDENTS (Maps to wo:Incident)
+# ==============================================================================
+
+ex:IncidentTemplate_ForecastDrift a wo:Incident ;
+  rdfs:label "Forecast Accuracy Degradation" ;
+  rdfs:comment "Actual visitor volume diverges significantly from forecast." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "INC-FORECAST-DRIFT-TEMPLATE" ;
+  ex:isTemplate "true" ;
+  ex:incidentSeverity "Medium" ;
+  ex:incidentDescription "Forecast error exceeds 15% threshold; suggests model drift or external event not captured." ;
+  ex:blocksProcesses ex:DailyRevenueOptimization ;
+  ex:remediationPath [
+    ex:firstStep "Data scientist reviews real-time data and model inputs" ;
+    ex:createTask ex:ForecastDebugTask ;
+    ex:estimatedDelay "20-45 minutes"
+  ] ;
+  ex:escalationPath [
+    ex:severity "Medium" ;
+    ex:escalateTo ex:DataScientistLead
+  ] .
+
+ex:IncidentTemplate_PricingConstraintViolation a wo:Incident ;
+  rdfs:label "Pricing Constraint Violation" ;
+  rdfs:comment "Calculated pricing violates business rules or regulatory constraints." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "INC-PRICING-CONSTRAINT-TEMPLATE" ;
+  ex:isTemplate "true" ;
+  ex:incidentSeverity "High" ;
+  ex:incidentDescription "Pricing algorithm recommends price violating min/max bounds or competitive guardrails." ;
+  ex:blocksProcesses ex:DailyRevenueOptimization ;
+  ex:remediationPath [
+    ex:firstStep "Revenue manager manually adjusts price within valid range" ;
+    ex:createTask ex:ManualPricingAdjustmentTask ;
+    ex:estimatedDelay "5-10 minutes"
+  ] .
+
+# ==============================================================================
+# RESOURCES (Maps to wo:Resource)
+# ==============================================================================
+
+ex:AnalyticsInfrastructure a wo:Resource ;
+  rdfs:label "Analytics Infrastructure" ;
+  rdfs:comment "Data warehouses, ML platforms, real-time dashboards." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "RES-ANALYTICS-001" ;
+  wo:resourceType "Software and Infrastructure" ;
+  ex:requiredItems [
+    ex:item "Oracle Data Warehouse" ;
+    ex:quantity 1 ;
+    ex:systemId "ORACLE-DW-REVENUE"
+  ] ;
+  ex:requiredItems [
+    ex:item "ML Model Pipeline (Demand Forecasting)" ;
+    ex:quantity 1 ;
+    ex:systemId "ML-FORECAST-V3"
+  ] ;
+  ex:requiredItems [
+    ex:item "Real-time Pricing Dashboard" ;
+    ex:quantity 1 ;
+    ex:systemId "TABLEAU-PRICING-RT"
+  ] ;
+  wo:resourceAvailability "Available" ;
+  ex:verificationMethod "Health check via API; model inference latency <2sec" .
+
+ex:PricingEngine a wo:Resource ;
+  rdfs:label "Pricing Optimization Engine" ;
+  rdfs:comment "Algorithms for dynamic pricing calculation." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "RES-PRICING-ENGINE-001" ;
+  wo:resourceType "Software Component" ;
+  ex:systemComponents [
+    ex:component "Elasticity model" ;
+    ex:systemId "ELASTICITY-V2"
+  ] ;
+  ex:systemComponents [
+    ex:component "Competitor benchmark processor" ;
+    ex:systemId "COMPETITOR-BENCH-V1"
+  ] ;
+  ex:systemHealthCheck "Pricing latency <5 sec per batch" .
+
+# ==============================================================================
+# EVENTS (Maps to wo:Event)
+# ==============================================================================
+
+ex:EventForecastComplete a wo:Event ;
+  rdfs:label "Demand Forecast Complete" ;
+  rdfs:comment "Signal that demand forecasting cycle finished." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "EVT-FORECAST-COMPLETE-001" ;
+  wo:eventType "milestone" ;
+  wo:eventMessage "Demand forecast generated: 6-hour and 24-hour predictions with confidence intervals." ;
+  wo:eventSource "ML Pipeline" ;
+  ex:eventTrigger ex:DemandForeasting ;
+  ex:notificationChannel "Slack #revenue-operations" .
+
+ex:EventPricingApproved a wo:Event ;
+  rdfs:label "Dynamic Pricing Approved" ;
+  rdfs:comment "Signal that pricing strategy approved and ready for implementation." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "EVT-PRICING-APPROVED-001" ;
+  wo:eventType "milestone" ;
+  wo:eventMessage "Dynamic pricing approved by revenue director; implementation queued." ;
+  wo:eventSource "Operations Center" ;
+  ex:eventTrigger ex:PricingStrategyApproval ;
+  ex:notificationChannel "Slack #pricing-team, PagerDuty on-call" .
+
+ex:EventRevenueAlert a wo:Event ;
+  rdfs:label "Revenue Variance Alert" ;
+  rdfs:comment "Alert if revenue variance exceeds threshold." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "EVT-REVENUE-ALERT-001" ;
+  wo:eventType "alert" ;
+  wo:eventSource "Analytics Platform" ;
+  ex:eventTrigger [
+    ex:condition "Actual revenue vs forecast variance >10%" ;
+    ex:source "POS and forecasting system"
+  ] ;
+  ex:notificationChannel "Slack #revenue-alerts, PagerDuty revenue-manager" .
+
+# ==============================================================================
+# PROCESS FLOW & DEPENDENCIES
+# ==============================================================================
+
+ex:RevenueOptimizationFlow a ex:ProcessFlow ;
+  rdfs:label "Revenue Management Critical Path" ;
+  rdfs:comment "Parallel and sequential optimization steps." ;
+  ex:phase1_Start "DemandForeasting (start T+0)" ;
+  ex:phase2_Parallel_1 "PricingOptimization (after forecast, T+8min)" ;
+  ex:phase2_Parallel_2 "InventoryAllocation (after forecast, T+8min)" ;
+  ex:phase3_Review "PricingStrategyReview (after optimization, T+13min)" ;
+  ex:phase3_Review_Parallel "InventoryAllocationReview (parallel, T+15min)" ;
+  ex:phase4_Approval "Both approvals (gates implementation)" ;
+  ex:phase5_Publish "Pricing and inventory changes published to systems" ;
+  ex:phase6_Monitor "Real-time monitoring and anomaly detection" ;
+  ex:criticalPathDuration "PT15M"^^xsd:duration ;
+  ex:targetCompleteTime "15 minutes per cycle" ;
+  ex:cycleFrequency "Every 6 hours (4 cycles/day)" .
+
+# ==============================================================================
+# EXTERNAL SYSTEM MAPPINGS
+# ==============================================================================
+
+ex:OraclePOSMapping a ex:SystemMapping ;
+  rdfs:label "Oracle POS Integration" ;
+  rdfs:comment "Real-time transaction data and revenue streams." ;
+  ex:maps wo:Task ;
+  ex:dataFlow "Oracle POS → Hourly revenue summary, transaction details → Analytics warehouse" ;
+  ex:readOnly "true" ;
+  ex:rollbackCapability "false" ;
+  ex:latencyTarget "5-minute lag" .
+
+ex:SalesforceMapping a ex:SystemMapping ;
+  rdfs:label "Salesforce CRM Integration" ;
+  rdfs:comment "Group bookings, customer segments, seasonal trends." ;
+  ex:maps wo:Task ;
+  ex:dataFlow "Salesforce → Group booking pipeline, customer segments → Forecast baseline" ;
+  ex:readOnly "true" ;
+  ex:rollbackCapability "false" ;
+  ex:latencyTarget "Hourly refresh" .
+
+ex:SAPMapping a ex:SystemMapping ;
+  rdfs:label "SAP Inventory Integration" ;
+  rdfs:comment "Capacity, maintenance schedules, staffing constraints." ;
+  ex:maps wo:Task ;
+  ex:dataFlow "SAP → Attraction capacity, maintenance windows, staff availability → Allocation constraints" ;
+  ex:readOnly "true" ;
+  ex:rollbackCapability "false" ;
+  ex:latencyTarget "Hourly refresh" .
+
+ex:TableauMapping a ex:SystemMapping ;
+  rdfs:label "Tableau Analytics Integration" ;
+  rdfs:comment "Historical analytics, elasticity models, competitor benchmarks." ;
+  ex:maps wo:Task ;
+  ex:dataFlow "Tableau → Price elasticity, competitor data, historical baselines → Pricing optimizer" ;
+  ex:readOnly "true" ;
+  ex:rollbackCapability "false" ;
+  ex:latencyTarget "Daily refresh" .
+
+ex:SlackMapping a ex:SystemMapping ;
+  rdfs:label "Slack Notifications" ;
+  rdfs:comment "Real-time alerts and milestone notifications." ;
+  ex:maps wo:Event ;
+  ex:channels (
+    "#revenue-operations"
+    "#pricing-team"
+    "#revenue-alerts"
+  ) ;
+  ex:messageTemplate "Revenue Update: {event} at {timestamp}" ;
+  ex:readOnly "true" ;
+  ex:rollbackCapability "false" .
+
+# ==============================================================================
+# SUCCESS METRICS & CYCLE TIME IMPROVEMENTS
+# ==============================================================================
+
+ex:SuccessMetrics a owl:Class ;
+  rdfs:label "Revenue Management Success Metrics" ;
+  rdfs:comment "Key performance indicators for process improvement." ;
+  ex:metric_1 "Demand forecast accuracy (target: 85% vs baseline)" ;
+  ex:metric_2 "Revenue uplift from dynamic pricing (target: 2-4% vs static pricing)" ;
+  ex:metric_3 "Capacity utilization optimization (target: 5-8% improvement)" ;
+  ex:metric_4 "Process cycle time (target: <15 minutes per 6-hour cycle)" ;
+  ex:metric_5 "Pricing approval turnaround (target: <5 minutes)" ;
+  ex:metric_6 "System availability (target: 99.5% uptime)" ;
+  ex:metric_7 "Alert response time (target: <2 minutes from alert to action)" .
+
+ex:CycleTimeImprovement a owl:Class ;
+  rdfs:label "Cycle Time Improvements" ;
+  rdfs:comment "Reduction vs manual process baseline." ;
+  ex:currentManualCycleTime "120 minutes (analyst-driven, ad-hoc)" ;
+  ex:targetAutomatedCycleTime "15 minutes (4 cycles/day, near real-time)" ;
+  ex:cycleTimeReduction "87.5% (105 minutes faster per cycle, 420 min/day)" ;
+  ex:annualTimeRecovery "2,100 analyst hours/year" ;
+  ex:businessImpact "Enables rapid response to demand shifts; 2-4% revenue uplift; competitive advantage in price wars" .
+
+# ==============================================================================
+# METADATA
+# ==============================================================================
+
+ex:RevenueManagementOntology a owl:Ontology ;
+  rdfs:label "Revenue Management Process Ontology" ;
+  rdfs:comment "Dynamic pricing, demand forecasting, and inventory optimization for theme park operations." ;
+  owl:versionInfo "1.0" ;
+  dcterms:created "2026-01-18"^^xsd:date ;
+  ex:phase "Wave 3 - Production Scale" ;
+  ex:processCategory "Revenue Optimization" ;
+  ex:taskCount 5 ;
+  ex:approvalGateCount 3 ;
+  ex:externalSystemsIntegrated 4 ;
+  ex:targetProcessTime "PT15M"^^xsd:duration ;
+  ex:cycleFrequency "Every 6 hours (4 cycles/day)" ;
+  ex:readyForValidation "true" ;
+  ex:mapsToWorkObjectTypes (
+    wo:Shift
+    wo:Task
+    wo:Incident
+    wo:Approval
+    wo:Resource
+    wo:Event
+  ) ;
+  ex:businessValue "2-4% revenue uplift + 87.5% cycle time reduction + competitive pricing agility" ;
+  ex:expectedROI "300-500% Year 1" .
+
+# ==============================================================================
+# ROLES
+# ==============================================================================
+
+ex:RevenueDirectorRole a ex:ApprovalRole ;
+  rdfs:label "Revenue Director" ;
+  rdfs:comment "Approves pricing strategy." ;
+  ex:systemMapping "AD group: REVENUE_DIRECTORS" .
+
+ex:OperationsDirectorRole a ex:ApprovalRole ;
+  rdfs:label "Operations Director" ;
+  rdfs:comment "Approves capacity allocation." ;
+  ex:systemMapping "AD group: OPS_DIRECTORS" .
+
+ex:DataScientistLeadRole a ex:ApprovalRole ;
+  rdfs:label "Data Science Lead" ;
+  rdfs:comment "Validates forecast model outputs." ;
+  ex:systemMapping "AD group: DATA_SCI_LEADS" .
+
+ex:RevenueDirector a ex:Person ;
+  rdfs:label "Revenue Director" ;
+  ex:personRole ex:RevenueDirectorRole ;
+  ex:workdayId "REV-DIR-001" .
+
+ex:DataScientistLead a ex:Person ;
+  rdfs:label "Data Scientist Lead" ;
+  ex:personRole ex:DataScientistLeadRole ;
+  ex:workdayId "DATA-SCI-001" .
+
+ex:PricingManagerLead a ex:Person ;
+  rdfs:label "Pricing Manager" ;
+  ex:workdayId "PRICING-MGR-001" .
+
+ex:OperationsPlanner a ex:Person ;
+  rdfs:label "Operations Planner" ;
+  ex:workdayId "OPS-PLAN-001" .
+
+ex:OperationsDirector a ex:Person ;
+  rdfs:label "Operations Director" ;
+  ex:personRole ex:OperationsDirectorRole ;
+  ex:workdayId "OPS-DIR-001" .
+
+# ==============================================================================
+# LOCATIONS
+# ==============================================================================
+
+ex:RevenueManagementCenter a ex:Location ;
+  rdfs:label "Revenue Management Center" ;
+  rdfs:comment "Centralized location for pricing and revenue optimization." ;
+  ex:locationCode "RMC-001" ;
+  ex:area "2,000 sq ft" ;
+  ex:analyticsWorkstations 7 ;
+  ex:dataConnectionRedundancy "Dual fiber to Oracle and Salesforce" .

@@ -1,0 +1,906 @@
+@prefix : <http://ggen.example.org/disney/adapters#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix system: <http://ggen.example.org/system#> .
+@prefix process: <http://ggen.example.org/process#> .
+@prefix data: <http://ggen.example.org/data#> .
+@prefix resilience: <http://ggen.example.org/resilience#> .
+
+# =============================================================================
+# WAVE 3, TASK 7: 11-SYSTEM ADAPTER INTEGRATION SUITE
+# =============================================================================
+# Complete specification for expanding adapters from 3-5 (Wave 2) to full 11
+# systems. Ensures operational resilience, clean exit patterns, and data
+# quality across all integrations.
+#
+# Source of Truth: This TTL specification
+# Generated Artifacts: Markdown, test scaffolding, deployment configs
+# Timeline: 30-minute design, specification-driven implementation
+# =============================================================================
+
+<http://ggen.example.org/disney/wave3-task7-adapter-suite>
+  a owl:Ontology ;
+  rdfs:label "Wave 3, Task 7: 11-System Adapter Integration Suite" ;
+  rdfs:comment "Complete specification for multi-system integration with resilience patterns" ;
+  owl:versionInfo "1.0.0" ;
+  .
+
+# =============================================================================
+# FEATURE DEFINITION
+# =============================================================================
+
+:Feature_AdapterSuiteExpansion a :Feature ;
+    rdfs:label "Feature: Expand Adapters from 3-5 to 11-System Suite" ;
+    rdfs:comment "Fully specified integration of 11 external systems with proven resilience patterns" ;
+    :featureNumber "W3T7" ;
+    :priority :P1 ;
+    :businessValue "Enable unified operations across entire Disney technology stack; eliminate manual data transfer; proven restart/exit patterns reduce operational risk from $2M to <$50k" ;
+    :targetDelivery "2026-01-31" ;
+    :hasUserStory :US_OperationsManager, :US_SystemsArchitect, :US_ComplianceOfficer, :US_DisasterRecovery ;
+    :hasArchitecturalConstraint :Constraint_NoDataLoss, :Constraint_CleanExit, :Constraint_ReadOnly, :Constraint_RestartableState ;
+    .
+
+# =============================================================================
+# USER STORIES
+# =============================================================================
+
+:US_OperationsManager a :UserStory ;
+    rdfs:label "Operations Manager: Unified Dashboard" ;
+    :asA "Operations Manager" ;
+    :iWant "to see real-time data from all 11 systems in a single dashboard" ;
+    :soThat "I can detect issues before they impact park operations" ;
+    :priority :P1 ;
+    :hasAcceptanceCriterion :AC_US1_C1, :AC_US1_C2, :AC_US1_C3 ;
+    .
+
+:AC_US1_C1 a :AcceptanceCriterion ;
+    :text "Given adapters are running for all 11 systems, when manager opens dashboard, then data is ≤2 minutes stale from source systems" ;
+    :expected "Max latency 120 seconds from source to display" ;
+    .
+
+:AC_US1_C2 a :AcceptanceCriterion ;
+    :text "When any adapter fails or disconnects, then dashboard shows explicit 'system offline' indicator within 10 seconds" ;
+    :expected "Graceful degradation; no data corruption; other adapters continue" ;
+    .
+
+:AC_US1_C3 a :AcceptanceCriterion ;
+    :text "When operations manager uses dashboard, no manual queries needed; all transformations automated" ;
+    :expected "Zero-touch normalized view across heterogeneous systems" ;
+    .
+
+:US_SystemsArchitect a :UserStory ;
+    rdfs:label "Systems Architect: Proven Restart Pattern" ;
+    :asA "Systems Architect" ;
+    :iWant "to be able to restart any adapter without data loss or duplication" ;
+    :soThat "I can safely recover from failures or perform maintenance" ;
+    :priority :P1 ;
+    :hasAcceptanceCriterion :AC_US2_C1, :AC_US2_C2, :AC_US2_C3 ;
+    .
+
+:AC_US2_C1 a :AcceptanceCriterion ;
+    :text "When I restart adapter X, previous unprocessed events are replayed correctly using watermark offsets" ;
+    :expected "Zero event loss; correct processing order; idempotent transactions" ;
+    .
+
+:AC_US2_C2 a :AcceptanceCriterion ;
+    :text "When I restart an adapter during backup/restore cycle, checkpoint files preserve exact state" ;
+    :expected "Resume from last checkpoint; no duplicate processing; <30 second recovery time" ;
+    .
+
+:AC_US2_C3 a :AcceptanceCriterion ;
+    :text "When I remove an adapter from the suite, other adapters continue operating without degradation" ;
+    :expected "Clean exit pattern: drain queue, close connections, release resources, verify independent operation" ;
+    .
+
+:US_ComplianceOfficer a :UserStory ;
+    rdfs:label "Compliance Officer: Immutable Audit Trail" ;
+    :asA "Compliance Officer" ;
+    :iWant "an immutable, tamper-proof record of all data extracted from each system" ;
+    :soThat "I can prove regulatory compliance and troubleshoot issues via audit trail" ;
+    :priority :P1 ;
+    :hasAcceptanceCriterion :AC_US3_C1, :AC_US3_C2, :AC_US3_C3 ;
+    .
+
+:AC_US3_C1 a :AcceptanceCriterion ;
+    :text "Given a compliance query about when data X was extracted from system Y, then audit log shows timestamp, source, transformer function, and result hash" ;
+    :expected "Timestamped entry in immutable audit trail with cryptographic proof" ;
+    .
+
+:AC_US3_C2 a :AcceptanceCriterion ;
+    :text "When audit trail queries run, they cannot be altered or deleted; read-only access enforced at database layer" ;
+    :expected "WORM (Write-Once-Read-Many) storage pattern; no update/delete capability" ;
+    .
+
+:AC_US3_C3 a :AcceptanceCriterion ;
+    :text "When external auditors query 'prove data quality checks were run on Workday import', results include timestamp, validation rules applied, pass/fail per record" ;
+    :expected "Complete data lineage chain: raw extract → validation → normalized → outcome" ;
+    .
+
+:US_DisasterRecovery a :UserStory ;
+    rdfs:label "Disaster Recovery Manager: Proven Failover" ;
+    :asA "Disaster Recovery Manager" ;
+    :iWant "adapters to survive zone/system failures without requiring manual intervention" ;
+    :soThat "park operations continue during infrastructure failures" ;
+    :priority :P1 ;
+    :hasAcceptanceCriterion :AC_US4_C1, :AC_US4_C2, :AC_US4_C3 ;
+    .
+
+:AC_US4_C1 a :AcceptanceCriterion ;
+    :text "When primary adapter instance fails, secondary instance takes over within 30 seconds using shared checkpoint state" ;
+    :expected "Automatic failover with zero manual intervention; event replay from last watermark" ;
+    .
+
+:AC_US4_C2 a :AcceptanceCriterion ;
+    :text "When zone failure occurs, adapters automatically redirect to alternate zone without dropping queued events" ;
+    :expected "Events persisted to durable queue; failover detected via health check timeout (10s)" ;
+    .
+
+:AC_US4_C3 a :AcceptanceCriterion ;
+    :text "When DR test runs, prove each of 11 adapters survives the simulated failure and recovers all state" ;
+    :expected "Annual DR test results: 11/11 adapters recover successfully with zero data loss" ;
+    .
+
+# =============================================================================
+# ADAPTER DEFINITIONS (11 SYSTEMS)
+# =============================================================================
+
+:AdapterSuiteComplete a :AdapterSuite ;
+    rdfs:label "Complete 11-System Adapter Suite" ;
+    rdfs:comment "All external system adapters required for unified Disney operations" ;
+    :hasAdapter :Adapter_Workday, :Adapter_SAP, :Adapter_Slack, :Adapter_ServiceNow,
+                :Adapter_RideControl, :Adapter_BadgeScan, :Adapter_Ticketing,
+                :Adapter_Parking, :Adapter_POS, :Adapter_Compliance, :Adapter_InHouse ;
+    :totalSystemCount 11 ;
+    :readOnlyMode true ;
+    :eventDrivenArchitecture true ;
+    .
+
+# ============ ADAPTER 1: WORKDAY ============
+
+:Adapter_Workday a :ExternalSystemAdapter ;
+    rdfs:label "Workday Adapter (HR, Staffing)" ;
+    rdfs:comment "Extract employee records, shift assignments, leave balances, callout status for park operations" ;
+    :systemCode "WD" ;
+    :sequenceNumber 1 ;
+    :priority :P1 ;
+    :criticality :CriticalityHIGH ;
+    :dataCategory :HumanResources ;
+
+    # Connection properties
+    :protocol :HTTPS_REST ;
+    :authenticationMethod :OAuth2_Workday ;
+    :rateLimit "100 req/min" ;
+    :connectionTimeout 30 ;
+    :readTimeout 60 ;
+
+    # Data extraction
+    :primaryDataEntities :EmployeeRecord, :ShiftAssignment, :LeaveBalance, :CalloutStatus ;
+    :extractionFrequency :RealTime_EventBased ;
+    :batchFallbackFrequency 3600 ;  # seconds; hourly if event stream fails
+    :maxBatchSize 5000 ;
+    :minBatchSize 100 ;
+
+    # Normalization
+    :normalizationRules :WorkdayNormRules ;
+    :primaryKey :EmployeeID ;
+    :canonicalSchema :CanonicalEmployeeModel ;
+
+    # Resilience
+    :hasCheckpointStrategy :WatermarkCheckpoint ;
+    :checkpointInterval 60 ;  # seconds
+    :retryPolicy :ExponentialBackoff ;
+    :maxRetries 5 ;
+    :circuitBreakerThreshold 10 ;  # consecutive failures
+    :gracefulDegradation true ;
+    :sharedStateLocation :RedisCluster_Adapters ;
+
+    # Exit pattern
+    :canBeRemovedCleanly true ;
+    :exitProcedure :WorkdayExitPattern ;
+    :dependentAdapters () ;  # None depend on Workday
+
+    # Data quality
+    :hasDataQualityRules :WorkdayQualityRules ;
+    :schemaValidation true ;
+    :referentialIntegrityCheck true ;
+    :duplicateDetection true ;
+
+    # Audit trail
+    :auditTrailEnabled true ;
+    :immutableEventLog :WorkdayEventLog ;
+    :complianceFramework :SOX, :GDPR ;
+    .
+
+# ============ ADAPTER 2: SAP ============
+
+:Adapter_SAP a :ExternalSystemAdapter ;
+    rdfs:label "SAP Adapter (Finance, Operations)" ;
+    rdfs:comment "Extract equipment assets, maintenance schedules, financial transactions, operational costs" ;
+    :systemCode "SAP" ;
+    :sequenceNumber 2 ;
+    :priority :P1 ;
+    :criticality :CriticalityHIGH ;
+    :dataCategory :Finance_Operations ;
+
+    # Connection properties
+    :protocol :SOAP_XML ;
+    :authenticationMethod :BasicAuth_SAP ;
+    :rateLimit "50 req/min" ;
+    :connectionTimeout 60 ;
+    :readTimeout 120 ;
+
+    # Data extraction
+    :primaryDataEntities :EquipmentAsset, :MaintenanceSchedule, :FinancialTransaction, :OperationalCost ;
+    :extractionFrequency :BatchDaily ;
+    :batchExecutionTime "02:00 AM UTC" ;
+    :maxBatchSize 10000 ;
+    :incrementalChangeDataCapture true ;
+
+    # Normalization
+    :normalizationRules :SAPNormRules ;
+    :primaryKey :AssetID ;
+    :canonicalSchema :CanonicalAssetModel ;
+
+    # Resilience
+    :hasCheckpointStrategy :WatermarkCheckpoint ;
+    :checkpointInterval 300 ;  # seconds
+    :retryPolicy :ExponentialBackoff ;
+    :maxRetries 3 ;
+    :circuitBreakerThreshold 5 ;
+    :gracefulDegradation true ;
+    :sharedStateLocation :RedisCluster_Adapters ;
+
+    # Exit pattern
+    :canBeRemovedCleanly true ;
+    :exitProcedure :SAPExitPattern ;
+    :dependentAdapters () ;
+
+    # Data quality
+    :hasDataQualityRules :SAPQualityRules ;
+    :schemaValidation true ;
+    :financialReconciliation true ;
+    :completenessCheck true ;
+
+    # Audit trail
+    :auditTrailEnabled true ;
+    :immutableEventLog :SAPEventLog ;
+    :complianceFramework :SOX, :IAS ;
+    .
+
+# ============ ADAPTER 3: SLACK ============
+
+:Adapter_Slack a :ExternalSystemAdapter ;
+    rdfs:label "Slack Adapter (Communications, Audit Trail)" ;
+    rdfs:comment "Extract incident alerts, operational messages, escalations from Slack channels" ;
+    :systemCode "SLACK" ;
+    :sequenceNumber 3 ;
+    :priority :P2 ;
+    :criticality :CriticalityMEDIUM ;
+    :dataCategory :Communications ;
+
+    # Connection properties
+    :protocol :HTTPS_REST ;
+    :authenticationMethod :BearerToken_Slack ;
+    :rateLimit "200 req/min" ;
+    :connectionTimeout 15 ;
+    :readTimeout 30 ;
+
+    # Data extraction
+    :primaryDataEntities :SlackMessage, :IncidentAlert, :Escalation ;
+    :extractionFrequency :RealTime_WebhookBased ;
+    :webhookChannels "#incident-ops, #park-ops, #maintenance" ;
+    :maxBatchSize 1000 ;
+
+    # Normalization
+    :normalizationRules :SlackNormRules ;
+    :primaryKey :MessageID ;
+    :canonicalSchema :CanonicalCommunicationModel ;
+
+    # Resilience
+    :hasCheckpointStrategy :WatermarkCheckpoint ;
+    :checkpointInterval 30 ;  # seconds
+    :retryPolicy :ExponentialBackoff ;
+    :maxRetries 7 ;
+    :circuitBreakerThreshold 20 ;
+    :gracefulDegradation true ;
+
+    # Exit pattern
+    :canBeRemovedCleanly true ;
+    :exitProcedure :SlackExitPattern ;
+    :dependentAdapters () ;
+
+    # Data quality
+    :hasDataQualityRules :SlackQualityRules ;
+    :messageValidation true ;
+    :threadingPreservation true ;
+
+    # Audit trail
+    :auditTrailEnabled true ;
+    :immutableEventLog :SlackEventLog ;
+    :complianceFramework :GDPR ;
+    .
+
+# ============ ADAPTER 4: SERVICENOW ============
+
+:Adapter_ServiceNow a :ExternalSystemAdapter ;
+    rdfs:label "ServiceNow Adapter (Ticketing, ITSM)" ;
+    rdfs:comment "Extract IT tickets, incident status, change requests, service catalog items" ;
+    :systemCode "SNOW" ;
+    :sequenceNumber 4 ;
+    :priority :P1 ;
+    :criticality :CriticalityHIGH ;
+    :dataCategory :ITSM_Ticketing ;
+
+    # Connection properties
+    :protocol :HTTPS_REST ;
+    :authenticationMethod :OAuth2_ServiceNow ;
+    :rateLimit "100 req/min" ;
+    :connectionTimeout 30 ;
+    :readTimeout 60 ;
+
+    # Data extraction
+    :primaryDataEntities :Incident, :ServiceRequest, :ChangeRequest, :Problem ;
+    :extractionFrequency :RealTime_EventBased ;
+    :batchFallbackFrequency 300 ;  # seconds; 5-min fallback
+    :maxBatchSize 5000 ;
+    :fieldMappings :ServiceNowFieldMap ;
+
+    # Normalization
+    :normalizationRules :ServiceNowNormRules ;
+    :primaryKey :TicketID ;
+    :canonicalSchema :CanonicalTicketModel ;
+
+    # Resilience
+    :hasCheckpointStrategy :WatermarkCheckpoint ;
+    :checkpointInterval 120 ;  # seconds
+    :retryPolicy :ExponentialBackoff ;
+    :maxRetries 5 ;
+    :circuitBreakerThreshold 8 ;
+    :gracefulDegradation true ;
+
+    # Exit pattern
+    :canBeRemovedCleanly true ;
+    :exitProcedure :ServiceNowExitPattern ;
+    :dependentAdapters () ;
+
+    # Data quality
+    :hasDataQualityRules :ServiceNowQualityRules ;
+    :ticketStatusValidation true ;
+    :assigneeVerification true ;
+    :slaComplianceTracking true ;
+
+    # Audit trail
+    :auditTrailEnabled true ;
+    :immutableEventLog :ServiceNowEventLog ;
+    :complianceFramework :ITIL, :ISO20000 ;
+    .
+
+# ============ ADAPTER 5: RIDE CONTROL SYSTEMS ============
+
+:Adapter_RideControl a :ExternalSystemAdapter ;
+    rdfs:label "Ride Control Systems Adapter (Operations, Safety)" ;
+    rdfs:comment "Extract ride operational status, safety sensor data, downtime events, guest counts" ;
+    :systemCode "RCS" ;
+    :sequenceNumber 5 ;
+    :priority :P1 ;
+    :criticality :CriticalityHIGH ;
+    :dataCategory :Safety_Operations ;
+
+    # Connection properties
+    :protocol :MQTT_Binary ;
+    :authenticationMethod :ClientCertificate ;
+    :connectionTimeout 10 ;
+    :readTimeout 5 ;
+    :publishInterval 1 ;  # second; real-time sensor stream
+
+    # Data extraction
+    :primaryDataEntities :RideStatus, :SafetyEvent, :GuestCount, :DowntimeEvent ;
+    :extractionFrequency :RealTime_Streaming ;
+    :streamingProtocol :MQTT ;
+    :topicPattern "park/ride/*/status, park/ride/*/safety, park/ride/*/downtime" ;
+    :maxBatchSize 10000 ;
+    :bufferSize 50000 ;  # high throughput
+
+    # Normalization
+    :normalizationRules :RideControlNormRules ;
+    :primaryKey :RideID ;
+    :canonicalSchema :CanonicalRideModel ;
+    :timeSeriesAggregation true ;
+    :aggregationWindow 5 ;  # seconds
+
+    # Resilience
+    :hasCheckpointStrategy :StreamingCheckpoint ;
+    :checkpointInterval 10 ;  # seconds
+    :retryPolicy :ImmediateRetry ;
+    :maxRetries 10 ;
+    :circuitBreakerThreshold 15 ;
+    :gracefulDegradation true ;
+    :redundantConnection true ;  # dual MQTT brokers
+
+    # Exit pattern
+    :canBeRemovedCleanly true ;
+    :exitProcedure :RideControlExitPattern ;
+    :dependentAdapters () ;
+
+    # Data quality
+    :hasDataQualityRules :RideControlQualityRules ;
+    :sensorDataValidation true ;
+    :outOfRangeDetection true ;
+    :anomalyDetection true ;
+    :safetyAlarmValidation true ;
+
+    # Audit trail
+    :auditTrailEnabled true ;
+    :immutableEventLog :RideControlEventLog ;
+    :complianceFramework :ASTM_F24, :NFPA_70 ;
+    .
+
+# ============ ADAPTER 6: BADGE SCAN ============
+
+:Adapter_BadgeScan a :ExternalSystemAdapter ;
+    rdfs:label "Badge Scan Adapter (Access, Presence)" ;
+    rdfs:comment "Extract badge swipes, access events, attendance records, unauthorized access attempts" ;
+    :systemCode "BADGE" ;
+    :sequenceNumber 6 ;
+    :priority :P1 ;
+    :criticality :CriticalityHIGH ;
+    :dataCategory :Access_Presence ;
+
+    # Connection properties
+    :protocol :HTTPS_REST ;
+    :authenticationMethod :APIKey_BadgeScan ;
+    :rateLimit "500 req/min" ;
+    :connectionTimeout 10 ;
+    :readTimeout 20 ;
+
+    # Data extraction
+    :primaryDataEntities :BadgeSwipe, :AccessEvent, :AttendanceRecord, :UnauthorizedAttempt ;
+    :extractionFrequency :RealTime_EventBased ;
+    :batchFallbackFrequency 60 ;  # seconds
+    :maxBatchSize 10000 ;
+    :captureTiming true ;  # millisecond precision
+
+    # Normalization
+    :normalizationRules :BadgeScanNormRules ;
+    :primaryKey :SwipeID ;
+    :canonicalSchema :CanonicalAccessModel ;
+    :timeZoneCorrection true ;
+
+    # Resilience
+    :hasCheckpointStrategy :WatermarkCheckpoint ;
+    :checkpointInterval 30 ;  # seconds
+    :retryPolicy :ExponentialBackoff ;
+    :maxRetries 7 ;
+    :circuitBreakerThreshold 12 ;
+    :gracefulDegradation true ;
+    :localBufferingOnFailure true ;  # queue on device
+
+    # Exit pattern
+    :canBeRemovedCleanly true ;
+    :exitProcedure :BadgeScanExitPattern ;
+    :dependentAdapters () ;
+
+    # Data quality
+    :hasDataQualityRules :BadgeScanQualityRules ;
+    :clockSkewDetection true ;
+    :duplicateSwipeFiltering true ;
+    :unauthorizedAccessAnomalyDetection true ;
+
+    # Audit trail
+    :auditTrailEnabled true ;
+    :immutableEventLog :BadgeScanEventLog ;
+    :complianceFramework :GDPR, :CCPA ;
+    .
+
+# ============ ADAPTER 7: TICKETING ============
+
+:Adapter_Ticketing a :ExternalSystemAdapter ;
+    rdfs:label "Ticketing Adapter (Revenue, Demand)" ;
+    rdfs:comment "Extract ticket sales, demand signals, capacity forecasts, revenue transactions" ;
+    :systemCode "TKT" ;
+    :sequenceNumber 7 ;
+    :priority :P1 ;
+    :criticality :CriticalityHIGH ;
+    :dataCategory :Revenue_Demand ;
+
+    # Connection properties
+    :protocol :HTTPS_REST ;
+    :authenticationMethod :OAuth2_Ticketing ;
+    :rateLimit "200 req/min" ;
+    :connectionTimeout 15 ;
+    :readTimeout 45 ;
+
+    # Data extraction
+    :primaryDataEntities :TicketSale, :DemandSignal, :CapacityForecast, :RevenueTransaction ;
+    :extractionFrequency :RealTime_EventBased ;
+    :batchFallbackFrequency 300 ;  # seconds
+    :maxBatchSize 20000 ;
+    :incrementalChangeDataCapture true ;
+
+    # Normalization
+    :normalizationRules :TicketingNormRules ;
+    :primaryKey :TransactionID ;
+    :canonicalSchema :CanonicalRevenueModel ;
+    :currencyNormalization true ;
+
+    # Resilience
+    :hasCheckpointStrategy :WatermarkCheckpoint ;
+    :checkpointInterval 60 ;  # seconds
+    :retryPolicy :ExponentialBackoff ;
+    :maxRetries 5 ;
+    :circuitBreakerThreshold 10 ;
+    :gracefulDegradation true ;
+    :eventSourcing true ;  # financial accuracy
+
+    # Exit pattern
+    :canBeRemovedCleanly true ;
+    :exitProcedure :TicketingExitPattern ;
+    :dependentAdapters () ;
+
+    # Data quality
+    :hasDataQualityRules :TicketingQualityRules ;
+    :transactionValidation true ;
+    :priceVerification true ;
+    :reconciliationChecking true ;
+    :douboonRequiredValidation true ;
+
+    # Audit trail
+    :auditTrailEnabled true ;
+    :immutableEventLog :TicketingEventLog ;
+    :complianceFramework :PCI_DSS, :SOX ;
+    .
+
+# ============ ADAPTER 8: PARKING ============
+
+:Adapter_Parking a :ExternalSystemAdapter ;
+    rdfs:label "Parking Adapter (Capacity, Rates)" ;
+    rdfs:comment "Extract lot capacity, occupancy rates, revenue, vehicle counts, access control" ;
+    :systemCode "PKG" ;
+    :sequenceNumber 8 ;
+    :priority :P2 ;
+    :criticality :CriticalityMEDIUM ;
+    :dataCategory :Facilities ;
+
+    # Connection properties
+    :protocol :HTTPS_REST ;
+    :authenticationMethod :APIKey_Parking ;
+    :rateLimit "100 req/min" ;
+    :connectionTimeout 20 ;
+    :readTimeout 40 ;
+
+    # Data extraction
+    :primaryDataEntities :LotCapacity, :OccupancyEvent, :RevenueRecord, :VehicleCount ;
+    :extractionFrequency :RealTime_EventBased ;
+    :batchFallbackFrequency 300 ;  # seconds
+    :maxBatchSize 5000 ;
+
+    # Normalization
+    :normalizationRules :ParkingNormRules ;
+    :primaryKey :LotID ;
+    :canonicalSchema :CanonicalFacilitiesModel ;
+    :spatialCalculations true ;
+
+    # Resilience
+    :hasCheckpointStrategy :WatermarkCheckpoint ;
+    :checkpointInterval 60 ;  # seconds
+    :retryPolicy :ExponentialBackoff ;
+    :maxRetries 5 ;
+    :circuitBreakerThreshold 10 ;
+    :gracefulDegradation true ;
+
+    # Exit pattern
+    :canBeRemovedCleanly true ;
+    :exitProcedure :ParkingExitPattern ;
+    :dependentAdapters () ;
+
+    # Data quality
+    :hasDataQualityRules :ParkingQualityRules ;
+    :occupancyValidation true ;
+    :revenueReconciliation true ;
+
+    # Audit trail
+    :auditTrailEnabled true ;
+    :immutableEventLog :ParkingEventLog ;
+    :complianceFramework :GDPR ;
+    .
+
+# ============ ADAPTER 9: POS ============
+
+:Adapter_POS a :ExternalSystemAdapter ;
+    rdfs:label "POS Adapter (Sales, Inventory)" ;
+    rdfs:comment "Extract point-of-sale transactions, inventory levels, stock movements, pricing updates" ;
+    :systemCode "POS" ;
+    :sequenceNumber 9 ;
+    :priority :P1 ;
+    :criticality :CriticalityHIGH ;
+    :dataCategory :Retail_Inventory ;
+
+    # Connection properties
+    :protocol :HTTPS_REST ;
+    :authenticationMethod :OAuth2_POS ;
+    :rateLimit "300 req/min" ;
+    :connectionTimeout 10 ;
+    :readTimeout 30 ;
+
+    # Data extraction
+    :primaryDataEntities :Transaction, :InventoryLevel, :StockMovement, :PricingUpdate ;
+    :extractionFrequency :RealTime_EventBased ;
+    :batchFallbackFrequency 60 ;  # seconds
+    :maxBatchSize 50000 ;
+    :multiStoreSupport true ;
+
+    # Normalization
+    :normalizationRules :POSNormRules ;
+    :primaryKey :TransactionID ;
+    :canonicalSchema :CanonicalRetailModel ;
+    :currencyNormalization true ;
+    :skuStandardization true ;
+
+    # Resilience
+    :hasCheckpointStrategy :WatermarkCheckpoint ;
+    :checkpointInterval 30 ;  # seconds
+    :retryPolicy :ExponentialBackoff ;
+    :maxRetries 7 ;
+    :circuitBreakerThreshold 12 ;
+    :gracefulDegradation true ;
+    :eventSourcing true ;
+
+    # Exit pattern
+    :canBeRemovedCleanly true ;
+    :exitProcedure :POSExitPattern ;
+    :dependentAdapters () ;
+
+    # Data quality
+    :hasDataQualityRules :POSQualityRules ;
+    :transactionValidation true ;
+    :inventoryReconciliation true ;
+    :priceVerification true ;
+    :locationValidation true ;
+
+    # Audit trail
+    :auditTrailEnabled true ;
+    :immutableEventLog :POSEventLog ;
+    :complianceFramework :PCI_DSS, :SOX ;
+    .
+
+# ============ ADAPTER 10: COMPLIANCE DATABASE ============
+
+:Adapter_Compliance a :ExternalSystemAdapter ;
+    rdfs:label "Compliance Database Adapter (Inspections, Certifications)" ;
+    rdfs:comment "Extract inspection records, safety certifications, audit results, defect tracking" ;
+    :systemCode "COMP" ;
+    :sequenceNumber 10 ;
+    :priority :P1 ;
+    :criticality :CriticalityHIGH ;
+    :dataCategory :Compliance ;
+
+    # Connection properties
+    :protocol :HTTPS_REST ;
+    :authenticationMethod :OAuth2_Compliance ;
+    :rateLimit "50 req/min" ;
+    :connectionTimeout 30 ;
+    :readTimeout 90 ;
+
+    # Data extraction
+    :primaryDataEntities :InspectionRecord, :SafetyCertification, :AuditResult, :DefectRecord ;
+    :extractionFrequency :BatchDaily ;
+    :batchExecutionTime "03:00 AM UTC" ;
+    :maxBatchSize 10000 ;
+    :incrementalChangeDataCapture true ;
+    :historicalDataRetention true ;
+
+    # Normalization
+    :normalizationRules :ComplianceNormRules ;
+    :primaryKey :RecordID ;
+    :canonicalSchema :CanonicalComplianceModel ;
+    :timestampPrecision :Second ;
+
+    # Resilience
+    :hasCheckpointStrategy :WatermarkCheckpoint ;
+    :checkpointInterval 300 ;  # seconds
+    :retryPolicy :ExponentialBackoff ;
+    :maxRetries 3 ;
+    :circuitBreakerThreshold 5 ;
+    :gracefulDegradation true ;
+    :immutableStateArchive true ;
+
+    # Exit pattern
+    :canBeRemovedCleanly true ;
+    :exitProcedure :ComplianceExitPattern ;
+    :dependentAdapters () ;
+
+    # Data quality
+    :hasDataQualityRules :ComplianceQualityRules ;
+    :recordValidation true ;
+    :certificationDateValidation true ;
+    :defectStatusTracking true ;
+    :auditTrailIntegrity true ;
+
+    # Audit trail
+    :auditTrailEnabled true ;
+    :immutableEventLog :ComplianceEventLog ;
+    :complianceFramework :SOX, :HIPAA, :NFPA_70, :ASTM_F24 ;
+    .
+
+# ============ ADAPTER 11: CUSTOM IN-HOUSE SYSTEMS ============
+
+:Adapter_InHouse a :ExternalSystemAdapter ;
+    rdfs:label "Custom In-House Systems Adapter" ;
+    rdfs:comment "Extensible adapter framework for proprietary Disney systems; generic message ingestion pattern" ;
+    :systemCode "CUSTOM" ;
+    :sequenceNumber 11 ;
+    :priority :P2 ;
+    :criticality :CriticalityMEDIUM ;
+    :dataCategory :Proprietary ;
+
+    # Connection properties
+    :protocol :HTTPS_REST ;
+    :authenticationMethod :JWT_InHouse ;
+    :rateLimit "200 req/min" ;
+    :connectionTimeout 15 ;
+    :readTimeout 45 ;
+    :customPluginSupport true ;
+
+    # Data extraction
+    :primaryDataEntities :GenericMessage, :CustomEvent ;
+    :extractionFrequency :RealTime_EventBased ;
+    :batchFallbackFrequency 300 ;  # seconds
+    :maxBatchSize 10000 ;
+    :schemaRegistry true ;  # dynamic schema support
+
+    # Normalization
+    :normalizationRules :InHouseNormRules ;
+    :primaryKey :MessageID ;
+    :canonicalSchema :CanonicalGenericModel ;
+    :flexibleTransformationEngine true ;
+
+    # Resilience
+    :hasCheckpointStrategy :WatermarkCheckpoint ;
+    :checkpointInterval 120 ;  # seconds
+    :retryPolicy :ExponentialBackoff ;
+    :maxRetries 5 ;
+    :circuitBreakerThreshold 8 ;
+    :gracefulDegradation true ;
+    :pluginFaultIsolation true ;
+
+    # Exit pattern
+    :canBeRemovedCleanly true ;
+    :exitProcedure :InHouseExitPattern ;
+    :dependentAdapters () ;
+
+    # Data quality
+    :hasDataQualityRules :InHouseQualityRules ;
+    :schemaValidation true ;
+    :customValidationRules true ;
+
+    # Audit trail
+    :auditTrailEnabled true ;
+    :immutableEventLog :InHouseEventLog ;
+    :complianceFramework :CustomPolicy ;
+    .
+
+# =============================================================================
+# RESILIENCE PATTERNS - RESTART WITHOUT DATA LOSS
+# =============================================================================
+
+:WatermarkCheckpoint a resilience:CheckpointStrategy ;
+    rdfs:label "Watermark Checkpoint" ;
+    rdfs:comment "Save event offset/watermark to enable exactly-once processing on restart" ;
+    :implementation :WatermarkImplementation ;
+    :storage :RedisCluster_Adapters ;
+    :format :JSON ;
+    :recoveryBehavior "Replay all events from saved watermark offset; idempotent processing" ;
+    :dataLossRisk :NoneIfProperlyImplemented ;
+    :recoveryTime "< 30 seconds" ;
+    .
+
+:StreamingCheckpoint a resilience:CheckpointStrategy ;
+    rdfs:label "Streaming Checkpoint" ;
+    rdfs:comment "High-throughput checkpoint for streaming adapters (RideControl); microsecond precision" ;
+    :implementation :StreamingImplementation ;
+    :storage :DuplicateRedisCluster ;
+    :format :BinaryProtobuf ;
+    :checkpointFrequency 10 ;  # seconds
+    :recoveryBehavior "Resume from exact offset in MQTT topic" ;
+    :dataLossRisk :NoneIfDualBroker ;
+    :recoveryTime "< 5 seconds" ;
+    .
+
+# =============================================================================
+# CLEAN EXIT PATTERNS - REMOVE ADAPTER WITHOUT BREAKING OTHERS
+# =============================================================================
+
+:WorkdayExitPattern a resilience:ExitPattern ;
+    rdfs:label "Workday Clean Exit Pattern" ;
+    rdfs:comment "Safely remove Workday adapter while maintaining park operations" ;
+    :phase1_PrepareForShutdown "Send NO_ACCEPT signal to event queue; wait for in-flight requests" ;
+    :phase1_timeout 60 ;  # seconds
+    :phase2_DrainQueue "Process all buffered events; write final state to audit trail" ;
+    :phase2_timeout 300 ;  # seconds
+    :phase3_CloseConnections "Gracefully close HTTP connections; release connection pools" ;
+    :phase3_timeout 30 ;  # seconds
+    :phase4_ReleaseState "Delete watermark checkpoint; signal other adapters for independent operation" ;
+    :phase4_timeout 10 ;  # seconds
+    :verifyIndependentOperation "Run 30-second health check on remaining adapters; confirm no degradation" ;
+    :rollbackCapability true ;  # can reconnect if needed
+    :estimatedDowntimeSeconds 0 ;  # zero-downtime exit
+    .
+
+# =============================================================================
+# DETAILED ARCHITECTURAL CONSTRAINTS
+# =============================================================================
+
+:Constraint_NoDataLoss a :ArchitecturalConstraint ;
+    rdfs:label "No Data Loss Guarantee" ;
+    rdfs:comment "Every event from any of 11 systems must be captured exactly once" ;
+    :implementation "Watermark-based checkpointing + event sourcing + idempotent processing" ;
+    :verificationMethod "Replay full event stream from archive; compare counts with source system" ;
+    :acceptanceCriteria "Source event count == processed event count; zero duplicates detected" ;
+    :testFrequency :WeeklyAutomated ;
+    .
+
+:Constraint_CleanExit a :ArchitecturalConstraint ;
+    rdfs:label "Clean Exit - Remove Adapter Without Breaking Others" ;
+    rdfs:comment "Any single adapter can be removed without degrading remaining 10 adapters" ;
+    :implementation "No cross-adapter dependencies; explicit exit pattern for each adapter" ;
+    :verificationMethod "Run exit procedure; verify 10/10 remaining adapters continue operating" ;
+    :acceptanceCriteria "Remaining adapters show zero degradation; all 10 continue at SLA" ;
+    :testFrequency :MonthlyManual ;
+    .
+
+:Constraint_ReadOnly a :ArchitecturalConstraint ;
+    rdfs:label "Read-Only Integration" ;
+    rdfs:comment "Adapters never write back to source systems; only extract and normalize" ;
+    :implementation "Remove write permissions at adapter layer; use read-only API credentials" ;
+    :verificationMethod "Scan adapter code; verify zero write/update/delete operations to external systems" ;
+    :acceptanceCriteria "Code review passes; no write operations detected in any adapter" ;
+    :testFrequency :PerRelease ;
+    .
+
+:Constraint_RestartableState a :ArchitecturalConstraint ;
+    rdfs:label "Restartable State" ;
+    rdfs:comment "Each adapter can be restarted at any time without state loss" ;
+    :implementation "Checkpoint strategy + external state storage (Redis) + event replay capability" ;
+    :verificationMethod "Stop adapter; perform manual restart; verify no data loss" ;
+    :acceptanceCriteria "State fully recovered; processing continues from watermark; zero duplicates" ;
+    :testFrequency :WeeklyAutomated ;
+    .
+
+# =============================================================================
+# SPECIFICATION CLOSURE VALIDATION
+# =============================================================================
+
+:SpecClosure_AdapterSuite a :SpecificationClosure ;
+    rdfs:label "Adapter Suite Specification Closure" ;
+    rdfs:comment "Verification that all 11 adapters are fully specified and ready for implementation" ;
+
+    # Completeness checks
+    :requiresAllAdaptersDefined true ;
+    :requiredAdapterCount 11 ;
+    :definedAdapterCount 11 ;
+    :requiresAllConnectionsDefined true ;
+    :requiresAllNormalizationRulesDefined true ;
+    :requiresAllExitPatternsDefined true ;
+    :requiresAllDataQualityRulesDefined true ;
+    :requiresAllCheckpointStrategiesDefined true ;
+
+    # Quality gates
+    :requiresAllUserStoriesSatisfied true ;
+    :requiresAllAcceptanceCriteriaMet true ;
+    :requiresAllConstraintsSatisfied true ;
+    :requiresArchitectureReview true ;
+    :requiresSecurityReview true ;
+    :requiresOperationsReview true ;
+    :requiresComplianceReview true ;
+
+    # Evidence requirements
+    :requiresImplementationGuide true ;
+    :requiresTestPlan true ;
+    :requiresOperationsProcedures true ;
+    :requiresDisasterRecoveryPlan true ;
+    :requiresRollbackPlan true ;
+
+    :closureStatus :Pending ;  # Will be marked Complete after implementation
+    .
