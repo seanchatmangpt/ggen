@@ -587,11 +587,11 @@ impl GenerationPipeline {
             ontology_graph: self
                 .ontology_graph
                 .take()
-                .unwrap_or_else(|| Graph::new().expect("Failed to create fallback graph")),
+                .ok_or_else(|| Error::new("Ontology graph not initialized"))?,
             code_graph: self
                 .code_graph
                 .take()
-                .unwrap_or_else(|| Graph::new().expect("Failed to create fallback graph")),
+                .ok_or_else(|| Error::new("Code graph not initialized"))?,
             executed_rules: self.executed_rules.clone(),
             generated_files: self.generated_files.clone(),
             validation_results: self.validation_results.clone(),

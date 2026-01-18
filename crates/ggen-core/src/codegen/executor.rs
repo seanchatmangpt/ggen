@@ -539,11 +539,23 @@ impl SyncExecutor {
 
         // Generate execution proof for determinism verification
         let mut proof_carrier = ProofCarrier::new();
-        let manifest_content =
-            std::fs::read_to_string(&self.options.manifest_path).unwrap_or_default();
+        let manifest_content = std::fs::read_to_string(&self.options.manifest_path)
+            .map_err(|e| {
+                Error::new(&format!(
+                    "error[E0006]: Failed to read manifest for proof generation\n  --> {}\n  |\n  = error: {}",
+                    self.options.manifest_path.display(),
+                    e
+                ))
+            })?;
         let ontology_content =
             std::fs::read_to_string(base_path.join(&manifest_data.ontology.source))
-                .unwrap_or_default();
+                .map_err(|e| {
+                    Error::new(&format!(
+                        "error[E0007]: Failed to read ontology for proof generation\n  --> {}\n  |\n  = error: {}",
+                        base_path.join(&manifest_data.ontology.source).display(),
+                        e
+                    ))
+                })?;
 
         if let Ok(proof) = proof_carrier.generate_proof(
             &manifest_content,

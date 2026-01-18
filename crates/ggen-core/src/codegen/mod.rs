@@ -37,6 +37,7 @@ pub mod pipeline;
 pub mod proof_archive;
 pub mod swarm_execution;
 pub mod swarm_executor_bridge;
+pub mod transaction; // Atomic file operations with rollback
 pub mod typescript;
 pub mod watch;
 pub mod watch_cache_integration;
@@ -63,6 +64,7 @@ pub use pipeline::{
 pub use proof_archive::{ChainVerification, ProofArchive};
 pub use swarm_execution::{Agent, SwarmCoordinator, SwarmSummary};
 pub use swarm_executor_bridge::{ExecutionStrategy, SwarmExecutorBridge};
+pub use transaction::{FileTransaction, TransactionReceipt};
 pub use typescript::TypeScriptGenerator;
 pub use watch::{collect_watch_paths, FileWatcher, WatchEvent};
 pub use watch_cache_integration::{AffectedRulesAnalysis, WatchCacheIntegration};
