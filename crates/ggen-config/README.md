@@ -22,7 +22,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-ggen-config = { version = "4.0.0", path = "../ggen-config" }
+ggen-config = { version = "3.2.0", path = "../ggen-config" }
 ```
 
 ## Usage
@@ -283,7 +283,7 @@ The crate provides comprehensive error types:
 
 ```toml
 [dependencies]
-ggen-config = { version = "4.0.0", features = ["full"] }
+ggen-config = { version = "3.2.0", features = ["full"] }
 ```
 
 ## Testing

@@ -1,6 +1,6 @@
 [package]
 name = "ggen-ai"
-version = "5.1.0"
+version = "3.3.0"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Thin wrapper around genai for ggen - LLM integration with environment support"
@@ -30,6 +30,9 @@ chrono = { workspace = true }
 # UUID generation
 uuid = { workspace = true }
 
+# Database
+rusqlite = { version = "0.37", features = ["bundled"] }
+
 # Configuration and environment
 dotenvy = "0.15"
 
@@ -39,19 +42,9 @@ thiserror = { workspace = true }
 # Streaming and futures
 futures = { workspace = true }
 
-# Advanced concurrency primitives for hyper-concurrent agent execution
-crossbeam = "0.8"           # Lock-free data structures
-dashmap = "6.1"             # Concurrent hashmap
-parking_lot = "0.12"        # Faster mutexes
-flume = "0.11"              # Fast multi-producer channels
-arc-swap = "1.7"            # Atomic Arc swapping
-governor = "0.8"            # Rate limiting for backpressure
-
 # Logging
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
-log = { workspace = true }
-once_cell = { workspace = true }
 
 # Template engine (for prompt templating in generators)
 tera = { workspace = true }
@@ -71,31 +64,16 @@ oxigraph = "0.5"
 # Crypto for caching
 sha2 = "0.10"
 
-# LRU cache for codegen metrics
-lru = "0.12"
-
 [features]
 default = []
-ollama-integration = []
-openai-integration = []
-anthropic-integration = []
-live-llm-tests = []
-all-integrations = [
-  "ollama-integration",
-  "openai-integration",
-  "anthropic-integration",
-  "live-llm-tests",
-]
+all-integrations = []
 
 [dev-dependencies]
 tokio-test = "0.4"
 tempfile = "3"
 testcontainers = "0.25"
 rand = "0.9"
-chicago-tdd-tools = { version = "1.4.0", features = [
-  "testing-extras",
-  "async",
-] }
+chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras"] }
 criterion = { version = "0.7", features = ["html_reports"] }
 
 [[bench]]

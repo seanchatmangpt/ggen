@@ -1,9 +1,10 @@
-name: London TDD Tests (Disabled - Compilation Errors)
+name: London TDD Tests
 
 on:
-  workflow_dispatch:  # Manual trigger only
-  # Disabled: London TDD tests have compilation errors (missing type imports)
-  # Re-enable after fixing PackageId, ContentId, LocalRegistry, Query, Version imports
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

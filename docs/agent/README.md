@@ -1,28 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Agent Documentation for ggen](#agent-documentation-for-ggen)
-  - [For advanced AI agents building production-ready ggen projects](#for-advanced-ai-agents-building-production-ready-ggen-projects)
-  - [📖 Core Knowledge Base](#-core-knowledge-base)
-  - [🎯 Specialized Guides (By Task)](#-specialized-guides-by-task)
-    - [**Building CLI Commands**](#building-cli-commands)
-    - [**RDF & SPARQL Integration**](#rdf--sparql-integration)
-    - [**Template System**](#template-system)
-    - [**Marketplace Packages**](#marketplace-packages)
-    - [**Testing (Chicago TDD)**](#testing-chicago-tdd)
-    - [**Build System & Hooks**](#build-system--hooks)
-    - [**Error Handling & Validation**](#error-handling--validation)
-    - [**Configuration Management**](#configuration-management)
-    - [**Polyglot Code Generation**](#polyglot-code-generation)
-    - [**Advanced Patterns**](#advanced-patterns)
-  - [🗂️ Reference by Crate](#-reference-by-crate)
-  - [🔍 Quick Navigation](#-quick-navigation)
-  - [📌 Critical Rules (Agents Must Know)](#-critical-rules-agents-must-know)
-  - [🚀 Getting Started (Agent Flow)](#-getting-started-agent-flow)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Agent Documentation for ggen
 
 ## For advanced AI agents building production-ready ggen projects
@@ -136,7 +111,7 @@ This documentation is structured for agent navigation—direct, technical, no fl
 - `src/marketplace/` - Marketplace operations
 - `src/project/` - Project operations
 
-**ggen-marketplace** - Package system
+**ggen-marketplace-v2** - Package system
 - `src/models.rs` - Package types
 - `src/registry.rs` - Package registry
 - `src/traits.rs` - AsyncRepository trait

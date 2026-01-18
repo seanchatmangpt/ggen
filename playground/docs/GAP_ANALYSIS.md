@@ -191,7 +191,7 @@ let temp_dir = tempfile::tempdir().map_err(|e| MarketplaceError::Io(e.to_string(
 
 **Severity**: CRITICAL
 **Impact**: Multiple RDF-based tests fail
-**Location**: `crates/ggen-marketplace/src/rdf_mapper.rs`
+**Location**: `crates/ggen-marketplace-v2/src/rdf_mapper.rs`
 
 **Error**:
 ```rust
@@ -223,7 +223,7 @@ if let QueryResults::Solutions(solutions) = results {
 ```
 
 **Files Requiring Fix**:
-- `crates/ggen-marketplace/src/rdf_mapper.rs:522-540`
+- `crates/ggen-marketplace-v2/src/rdf_mapper.rs:522-540`
 - `crates/ggen-core/tests/test_marketplace_local.rs`
 
 **Estimated Fix Time**: 45 minutes (multiple occurrences)
@@ -234,12 +234,12 @@ if let QueryResults::Solutions(solutions) = results {
 
 **Severity**: CRITICAL
 **Impact**: RDF async operations fail to compile
-**Location**: `crates/ggen-marketplace/src/registry_rdf.rs:165, 196`
+**Location**: `crates/ggen-marketplace-v2/src/registry_rdf.rs:165, 196`
 
 **Error**:
 ```rust
 error: future cannot be sent between threads safely
-  --> crates/ggen-marketplace/src/registry_rdf.rs:165:5
+  --> crates/ggen-marketplace-v2/src/registry_rdf.rs:165:5
    |
    = help: the trait `Send` is not implemented for `dyn Iterator<Item = ...>`
 ```
@@ -301,7 +301,7 @@ error[E0433]: failed to resolve: could not find `SignatureAlgorithm` in `models`
 | `ggen-core/tests/test_marketplace_local.rs` | 4 | ❌ Won't compile |
 | `ggen-core/tests/marketplace_graph_integration.rs` | 8 | ❌ Won't compile |
 | `ggen-node/tests/integration_tests.rs` | 16 macros | ❌ Won't compile |
-| `ggen-marketplace` (lib test) | 4 | ❌ Won't compile |
+| `ggen-marketplace-v2` (lib test) | 4 | ❌ Won't compile |
 
 **Total Broken Tests**: 40+ (cannot get exact count until compilation succeeds)
 
@@ -373,7 +373,7 @@ crates/ggen-core/examples/embedded-iot/src/**           [EXAMPLE CODE]
 | `ggen-core/lifecycle` | 60% | CRITICAL | State machine untested |
 | `ggen-core/registry` | 30% | HIGH | No direct tests found |
 | `ggen-marketplace` | 70% | MEDIUM | Tests broken but exist |
-| `ggen-marketplace` | 50% | HIGH | RDF mapper untested |
+| `ggen-marketplace-v2` | 50% | HIGH | RDF mapper untested |
 | `ggen-ai` | 40% | MEDIUM | RDF query/parser gaps |
 | `ggen-cli` | 75% | MEDIUM | Good integration tests |
 | `ggen-utils` | 85% | LOW | Well tested |
@@ -410,16 +410,16 @@ crates/ggen-domain/src/marketplace/adapter.rs            [V1 ADAPTER DEPRECATED]
 **Workspace Version**: 3.2.0
 **Individual Crate Versions**: Mixed
 
-**Issue**: `ggen-marketplace` declared as version `3.0.0` in some places, causing dependency issues.
+**Issue**: `ggen-marketplace-v2` declared as version `3.0.0` in some places, causing dependency issues.
 
 **From git status**:
 ```
-M crates/ggen-marketplace/src/registry_rdf.rs
+M crates/ggen-marketplace-v2/src/registry_rdf.rs
 ```
 
 **Recent Commit**:
 ```
-689b666c fix: Update ggen-marketplace version constraint to 3.0.0
+689b666c fix: Update ggen-marketplace-v2 version constraint to 3.0.0
 ```
 
 **Impact**: Version confusion, potential build cache issues
@@ -601,10 +601,10 @@ warning: unused import: `std::path::PathBuf`
  --> crates/ggen-marketplace/tests/integration_critical_paths.rs:9:5
 
 warning: unused imports: `PackageMetadata`, `PackageVersion`, and `Package`
- --> crates/ggen-marketplace/src/install.rs:254:25
+ --> crates/ggen-marketplace-v2/src/install.rs:254:25
 
 warning: unused import: `chrono::Utc`
- --> crates/ggen-marketplace/src/registry.rs:254:9
+ --> crates/ggen-marketplace-v2/src/registry.rs:254:9
 ```
 
 **Impact**: Low (but indicates dead code paths)

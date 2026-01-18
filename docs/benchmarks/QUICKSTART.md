@@ -1,40 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Marketplace V2 Performance Benchmarking - Quick Start Guide](#marketplace-v2-performance-benchmarking---quick-start-guide)
-  - [Overview](#overview)
-  - [SLO Targets](#slo-targets)
-  - [Benchmark Categories](#benchmark-categories)
-    - [1. Comprehensive Performance (`comprehensive_performance.rs`)](#1-comprehensive-performance-comprehensive_performancers)
-    - [2. V1 vs V2 Comparison (`v1_vs_v2_comparison.rs`)](#2-v1-vs-v2-comparison-v1_vs_v2_comparisonrs)
-    - [3. SLO Validation (`slo_validation.rs`)](#3-slo-validation-slo_validationrs)
-  - [Running Benchmarks](#running-benchmarks)
-    - [Prerequisites](#prerequisites)
-    - [Run All Benchmarks](#run-all-benchmarks)
-    - [Run Specific Benchmark Groups](#run-specific-benchmark-groups)
-    - [View Results](#view-results)
-  - [Test Dataset Sizes](#test-dataset-sizes)
-  - [Interpreting Results](#interpreting-results)
-    - [Latency Metrics](#latency-metrics)
-    - [Example Good Results](#example-good-results)
-    - [Performance Improvements (V2 vs V1)](#performance-improvements-v2-vs-v1)
-  - [Benchmark Configuration](#benchmark-configuration)
-    - [Criterion Settings](#criterion-settings)
-    - [Customization](#customization)
-  - [Optimization Workflow](#optimization-workflow)
-  - [Continuous Integration](#continuous-integration)
-    - [GitHub Actions Example](#github-actions-example)
-  - [Performance Report](#performance-report)
-  - [Troubleshooting](#troubleshooting)
-    - [Benchmarks Taking Too Long](#benchmarks-taking-too-long)
-    - [Inconsistent Results](#inconsistent-results)
-    - [Out of Memory](#out-of-memory)
-  - [Next Steps](#next-steps)
-  - [Resources](#resources)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Marketplace V2 Performance Benchmarking - Quick Start Guide
 
 ## Overview
@@ -95,7 +58,7 @@ Production readiness validation:
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 # Navigate to marketplace-v2
-cd crates/ggen-marketplace
+cd crates/ggen-marketplace-v2
 ```
 
 ### Run All Benchmarks

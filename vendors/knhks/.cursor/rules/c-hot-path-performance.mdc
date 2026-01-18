@@ -1,0 +1,73 @@
+---
+description: C hot path performance requirements
+globs:
+  - "src/**/*.c"
+  - "include/**/*.h"
+alwaysApply: false
+---
+
+# C Hot Path Performance Requirements
+
+## Performance Budget
+
+- All hot path operations: ≤8 ticks (Chatman Constant)
+- Target: ≤2 nanoseconds per operation
+- Measurement: Use `rd_ticks()` for accurate timing
+
+## Optimization Techniques
+
+1. **SIMD Operations**
+   - Use NEON intrinsics on ARM64
+   - Use AVX2 intrinsics on x86_64
+   - Fully unroll loops for NROWS=8
+
+2. **Branchless Code**
+   - Avoid conditional branches in hot path
+   - Use conditional moves when possible
+   - Reorder conditions for branch prediction
+
+3. **Memory Layout**
+   - Structure-of-Arrays (SoA) layout
+   - 64-byte alignment for SIMD operations
+   - Cache-friendly access patterns
+
+4. **Function Inlining**
+   - Use `static inline` for hot path functions
+   - Reduce function call overhead
+   - Enable compiler optimizations
+
+## Guard Constraints
+
+- `max_run_len ≤ 8` - Enforced at compile time
+- Validate at build/load time, not runtime
+- No bounds checks in hot path
+
+## Examples
+
+### BAD: Bounds Check in Hot Path
+```c
+for (int i = 0; i < run.len; i++) {
+    if (i >= NROWS) return -1;  // Bounds check in hot path
+    result += S[i];
+}
+```
+
+### GOOD: Branchless Hot Path
+```c
+// Validate run.len ≤ 8 at build time
+static inline uint64_t sum_run(const uint64_t *S, uint32_t len) {
+    uint64_t sum = 0;
+    // Fully unrolled for len ≤ 8
+    if (len > 0) sum += S[0];
+    if (len > 1) sum += S[1];
+    // ... etc
+    return sum;
+}
+```
+
+## Measurement
+
+- Use `rd_ticks()` for timing
+- Measure p50, p95, p99 latencies
+- Exclude warmup/cold path from measurements
+- Verify with OTEL spans/metrics

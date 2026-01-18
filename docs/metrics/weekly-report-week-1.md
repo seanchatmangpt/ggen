@@ -1,32 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [ggen Kaizen Metrics - Week 1 Report](#ggen-kaizen-metrics---week-1-report)
-  - [Executive Summary](#executive-summary)
-  - [Critical Metrics Comparison](#critical-metrics-comparison)
-    - [1. Compiler Errors (Target: 0)](#1-compiler-errors-target-0)
-    - [2. Test Pass Rate (Target: 100%)](#2-test-pass-rate-target-100)
-    - [3. Build Time (Target: <15s for 47% reduction)](#3-build-time-target-15s-for-47-reduction)
-    - [4. Template Accessibility (Target: 100%)](#4-template-accessibility-target-100)
-    - [5. Waste Score (Target: 2.0)](#5-waste-score-target-20)
-    - [6. Code Quality (Target: 9.5)](#6-code-quality-target-95)
-  - [Overall Progress Toward 76% Waste Reduction](#overall-progress-toward-76-waste-reduction)
-    - [Achievements This Week](#achievements-this-week)
-    - [Remaining Gaps](#remaining-gaps)
-  - [Andon Signals (Current Status)](#andon-signals-current-status)
-    - [✅ All Clear - No Active Andon Signals](#-all-clear---no-active-andon-signals)
-  - [Week 1 Action Items](#week-1-action-items)
-    - [High Priority (This Week)](#high-priority-this-week)
-    - [Medium Priority (Next Week)](#medium-priority-next-week)
-    - [Low Priority (Future Sprints)](#low-priority-future-sprints)
-  - [Cost of Waste Analysis](#cost-of-waste-analysis)
-  - [Trend Visualization](#trend-visualization)
-  - [Next Steps](#next-steps)
-  - [Kaizen Principle](#kaizen-principle)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # ggen Kaizen Metrics - Week 1 Report
 **Generated**: 2025-11-20
 **Reporting Period**: Week 0 → Week 1

@@ -85,10 +85,7 @@ pub mod store;
 pub mod types;
 pub mod update;
 
-pub mod construct;
-
 // Re-export main types
-pub use construct::ConstructExecutor;
 pub use core::{build_prolog, Graph};
 pub use export::GraphExport;
 pub use query::GraphQuery;

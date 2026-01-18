@@ -13,7 +13,7 @@ timeout_secs = 60
 [providers.anthropic]
 # API key loaded from ANTHROPIC_API_KEY environment variable
 # base_url = "https://api.anthropic.com/v1"  # Optional: custom base URL
-default_model = "claude-haiku-4-5-20251001"
+default_model = "claude-3-sonnet-20240229"
 timeout_secs = 60
 
 [providers.ollama]

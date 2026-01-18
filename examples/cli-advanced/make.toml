@@ -1,0 +1,69 @@
+# Advanced CLI Tool - Production-Ready Lifecycle
+# Demonstrates: TDD, benchmarks, security auditing, deployment
+
+[lifecycle.init]
+commands = [
+    "cargo init --name advanced-cli || echo 'Already initialized'",
+    "mkdir -p src tests benches docs",
+]
+
+[lifecycle.setup]
+commands = [
+    "rustup component add rustfmt clippy",
+    "cargo install cargo-tarpaulin cargo-outdated cargo-audit",
+]
+
+[lifecycle.format]
+command = "cargo fmt -- --check"
+
+[lifecycle.lint]
+commands = [
+    "cargo clippy --all-targets -- -D warnings",
+    "cargo outdated --exit-code 1 || echo 'Warning: outdated dependencies'",
+]
+
+[lifecycle.build]
+command = "cargo build --release"
+cache_key = "{{ hash('Cargo.lock') }}"
+
+[lifecycle.test]
+commands = [
+    "cargo test --all-features",
+    "cargo test --doc",
+]
+
+[lifecycle.coverage]
+command = "cargo tarpaulin --out Html --output-dir target/coverage"
+
+[lifecycle.bench]
+command = "cargo bench --bench cli_benchmarks"
+
+[lifecycle.security]
+command = "cargo audit"
+
+[lifecycle.doc]
+command = "cargo doc --no-deps --open"
+
+[lifecycle.package]
+command = "cargo package --allow-dirty"
+
+[lifecycle.deploy]
+commands = [
+    "cargo build --release",
+    "strip target/release/advanced-cli || true",
+    "mkdir -p dist",
+    "cp target/release/advanced-cli dist/",
+    "tar -czf dist/advanced-cli.tar.gz -C dist advanced-cli",
+]
+
+# Advanced hooks
+[hooks]
+before_all = ["init"]
+before_build = ["format", "lint"]
+after_build = ["test"]
+before_deploy = ["security", "test", "build"]
+after_deploy = ["package"]
+
+[env]
+RUST_BACKTRACE = "1"
+CARGO_TERM_COLOR = "always"

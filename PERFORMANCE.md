@@ -10,12 +10,6 @@ This document details the performance characteristics, benchmarks, and optimizat
 - **Watch Mode**: Event detection within 100ms
 - **Memory Usage**: ~50-200MB for typical projects
 
-## Running Performance Checks (make-only)
-
-- `cargo make slo-check`: verify SLO thresholds with enforced timeouts
-- `cargo make check`, `cargo make test`, `cargo make lint`: baseline health before measuring
-- Add or extend Makefile targets for profiling/benchmarks; avoid raw `cargo bench`, `cargo flamegraph`, or `perf` so timeout guards stay active
-
 ## Kernel Decision Performance (μ(O))
 
 The MAPE-K kernel is the heart of ggen's autonomous decision-making system.
@@ -41,6 +35,12 @@ Total Kernel Time: ≤ 8ms
 ```
 
 ### Benchmark Results
+
+Run kernel benchmarks:
+
+```bash
+cargo bench --bench kernel_decision_time
+```
 
 Typical results (Intel i7-9700K, Ubuntu 22.04):
 
@@ -73,16 +73,10 @@ Typical results (Intel i7-9700K, Ubuntu 22.04):
 ### Full Generation Pipeline
 
 ```bash
-# Configure in ggen.toml (v5.0.2+)
-cat > ggen.toml <<'EOF'
-[generation]
-ontology_dir = "ontologies/"
-templates_dir = "templates/"
-output_dir = "generated/"
-EOF
-
 # Time a complete code generation
-time ggen sync
+time ggen generate --ontology large-ontology.ttl \
+                   --template complex-template.jinja2 \
+                   --output generated/
 ```
 
 Expected timeline for medium project:
@@ -113,7 +107,7 @@ Typical memory usage during operations:
 
 ### Heap Memory by Crate
 
-From a make-managed release build and heaptrack run (wrapped with timeout):
+From `cargo build --release; heaptrack ggen generate ...`:
 
 ```
 ggen-ai:         12MB (14%) - LLM integration, caching
@@ -133,7 +127,7 @@ Total:           83MB
 1. **Use smaller templates**: Split large templates into includes
 2. **Enable caching**: Generated code is cached by default
 3. **Batch operations**: Process multiple files in one command
-4. **Profile frequently**: Add a Makefile flamegraph target for hot paths (keep timeout + Andon guards)
+4. **Profile frequently**: Use `cargo flamegraph` for hot paths
 
 ### For Ontology Processing
 
@@ -153,7 +147,16 @@ Total:           83MB
 
 ### Running Benchmarks
 
-Use Makefile-managed targets for any benchmarking so timeout and Andon guards stay active; if a new benchmark is needed, add a dedicated task in `Makefile.toml` rather than invoking raw `cargo bench`.
+```bash
+# All benchmarks
+cargo bench --all
+
+# Specific crate
+cargo bench -p ggen-core
+
+# Specific benchmark
+cargo bench --bench ontology_parsing
+```
 
 ### Benchmark Suites
 
@@ -190,15 +193,40 @@ criterion_main!(benches);
 
 ### Flame Graphs
 
-Wrap flamegraph runs in a Makefile task with timeout enforcement to avoid hanging profilers; prefer crate-specific targets over raw `cargo flamegraph`.
+Generate CPU flame graphs:
+
+```bash
+cargo install flamegraph
+cargo flamegraph --bench kernel_decision_time
+# Opens flamegraph.svg
+
+# Or profile actual command
+cargo flamegraph -- generate --ontology ontology.ttl
+```
 
 ### Memory Profiling
 
-Use Makefile-managed wrappers (with timeouts) around heaptrack invocations to ensure profiling does not bypass Andon enforcement. Capture commands in a dedicated task before running.
+```bash
+# Install heaptrack
+sudo apt-get install heaptrack heaptrack-gui
+
+# Profile
+heaptrack ggen generate --template template.jinja2
+
+# View results
+heaptrack_gui heaptrack.ggen.*.gz
+```
 
 ### Perf Analysis
 
-Add a Makefile target for perf record/report so profiling respects timeout + SLO gates; avoid invoking `perf` directly from the CLI.
+```bash
+# Record
+cargo build --release
+perf record -g target/release/ggen generate --ontology ontology.ttl
+
+# Analyze
+perf report
+```
 
 ## Scaling Characteristics
 
@@ -235,16 +263,18 @@ Performance degrades gracefully; scaling beyond tested limits may require optimi
 
 ### Mitigation Strategies
 
-```toml
-# Configure in ggen.toml (v5.0.2+)
-[generation]
-ontology_dir = "ontologies/"  # Split: base.ttl, domain-specific.ttl
-templates_dir = "templates/"
-output_dir = "generated/"
-cache_dir = "/tmp/ggen-cache"
+```bash
+# Split large ontology
+ggen generate --ontology base.ttl --include-ontology domain-specific.ttl
 
-# Then run
-# ggen sync
+# Limit watch scope
+ggen watch --include-pattern "src/**/*.rs" --exclude-pattern "**/test/**"
+
+# Pre-filter invariants
+ggen generate --ontology ontology.ttl --skip-invariants
+
+# Use caching
+ggen generate --cache-dir /tmp/ggen-cache
 ```
 
 ## Performance Goals for v3.1
@@ -259,14 +289,16 @@ cache_dir = "/tmp/ggen-cache"
 
 If you observe performance problems:
 
-1. **Collect baseline**: Run `cargo make slo-check` and any Makefile benchmark targets for comparison (add a target if needed)
-2. **Profile the issue**: Use Makefile-wrapped flamegraph/perf tasks to identify hot paths
+1. **Collect baseline**: Run `cargo bench` for comparison
+2. **Profile the issue**: Use `cargo flamegraph` to identify hot paths
 3. **Report with data**: Include timing measurements and system info
 4. **Provide reproduction**: Include ontology and template files
 
 ```bash
-# Example reproduction report (configure in ggen.toml)
-RUST_LOG=debug ggen sync
+# Example reproduction report
+ggen generate --ontology large.ttl \
+              --template complex.jinja2 \
+              --explain-timing
 ```
 
 ## Performance Tips for Users
@@ -274,24 +306,35 @@ RUST_LOG=debug ggen sync
 ### Code Generation
 
 ```bash
-# v5.0.2: All configuration in ggen.toml
-ggen sync
+# ✗ Slow: Individual files
+for file in *.ttl; do
+    ggen generate --ontology "$file"
+done
 
-# Place all .ttl files in configured ontology_dir
-# Place all .tera templates in configured templates_dir
+# ✓ Fast: Batch processing
+ggen generate --ontology *.ttl
+```
+
+### Watch Mode
+
+```bash
+# ✗ Slow: Watch everything
+ggen watch
+
+# ✓ Fast: Watch specific patterns
+ggen watch --include-pattern "src/**/*.rs" \
+           --include-pattern "ontologies/**/*.ttl"
 ```
 
 ### Template Development
 
 ```bash
-# ✓ Fast: Use test fixtures in ggen.toml
-[generation]
-ontology_dir = "ontologies/test-fixtures/"  # minimal ontology
-templates_dir = "templates/"
-output_dir = "generated/"
+# ✗ Slow: Full regeneration each time
+ggen generate --template new.jinja2
 
-# Then iterate
-ggen sync
+# ✓ Fast: Use test fixtures
+ggen generate --template new.jinja2 \
+              --ontology test-fixtures/minimal.ttl
 ```
 
 ## Questions?

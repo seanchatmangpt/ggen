@@ -29,7 +29,6 @@ mod tests {
     }
 
     /// Test ggen.lock file creation for reproducible builds
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_ggen_lock_creation() {
         let mut packages = BTreeMap::new();
@@ -57,7 +56,6 @@ mod tests {
             validation_status: "valid".to_string(),
         };
 
-        #[allow(clippy::expect_used)]
         let lockfile =
             LockfileManager::create(packages, composition).expect("Should create lockfile");
 

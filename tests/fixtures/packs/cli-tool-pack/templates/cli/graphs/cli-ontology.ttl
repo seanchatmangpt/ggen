@@ -1,0 +1,13 @@
+@prefix cli: <https://example.org/cli/> .
+@prefix tool: <https://example.org/tool/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+cli:CommandLineTool a rdfs:Class ;
+    rdfs:label "Command Line Tool" .
+
+cli:Command a rdfs:Class ;
+    rdfs:label "CLI Command" .
+
+cli:hasCommand a rdf:Property ;
+    rdfs:domain cli:CommandLineTool ;
+    rdfs:range cli:Command .

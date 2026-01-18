@@ -1,0 +1,24 @@
+---
+to: "{{ output_dir }}/handlers/{{ endpoint_name }}.rs"
+---
+//! {{ endpoint_name }} API handler
+
+use axum::{Json, extract::Path};
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct {{ resource_name }} {
+    pub id: String,
+    pub name: String,
+}
+
+pub async fn get_{{ endpoint_name }}(Path(id): Path<String>) -> Json<{{ resource_name }}> {
+    Json({{ resource_name }} {
+        id,
+        name: "Example".to_string(),
+    })
+}
+
+pub async fn list_{{ endpoint_name }}s() -> Json<Vec<{{ resource_name }}>> {
+    Json(vec![])
+}

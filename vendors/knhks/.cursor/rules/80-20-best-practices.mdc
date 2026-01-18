@@ -1,0 +1,78 @@
+---
+description: KNHKS 80/20 Core Team Best Practices
+globs:
+  - "**/*.rs"
+  - "**/*.c"
+  - "**/*.h"
+alwaysApply: true
+---
+
+# KNHKS Core Team Best Practices - 80/20 Production-Ready Code
+
+## Core Principle: No Placeholders, Real Implementations
+
+All code must be production-ready with proper error handling. Focus on critical path implementations that provide 80% of value.
+
+**Key Principle**: "Never trust the text, only trust test results" - All implementations must be verifiable through tests and OTEL validation.
+
+## Prohibited Patterns ❌
+
+1. **Placeholders** - No "In production, this would..." comments
+2. **TODOs** - No TODO comments except clearly documented future enhancements
+3. **Unhandled errors** - No `unwrap()`, `expect()`, or panics in production code
+4. **Stubs** - No functions that always succeed without implementation
+5. **Simulated behavior** - Use real libraries when available (rdkafka, reqwest, etc.)
+6. **Claims without verification** - Never claim code works without test/OTEL validation
+
+## Required Patterns ✅
+
+1. **Real library integrations** - Use actual dependencies when available
+2. **Error handling** - `Result<T, E>` for all fallible operations (Rust)
+3. **Feature gating** - `#[cfg(feature = "...")]` for optional dependencies
+4. **Input validation** - Validate all inputs, enforce guard constraints (max_run_len ≤ 8)
+5. **Test verification** - All code must be testable and tested (OTEL validation preferred)
+
+## Performance Requirements
+
+- Hot path operations: ≤8 ticks (Chatman Constant)
+- Zero-copy when possible (references over clones)
+- Branchless operations for hot path (constant-time execution)
+- Focus on 20% of features that provide 80% of value
+
+## Error Handling Requirements
+
+- Use `Result<T, E>` for all fallible operations (Rust)
+- Return error codes: `int process(...)` with `-1` on error (C)
+- Validate inputs early: check NULL pointers, bounds
+- Never use `unwrap()` or `expect()` in production code paths
+- Provide context in error messages
+
+## Testing Requirements
+
+- Test all public APIs
+- Test error paths and guard violations
+- Test critical paths (aim for 80%+ coverage)
+- **OTEL validation is ultimate truth source** - verify with real spans/metrics
+- Never trust claims without test/OTEL verification
+
+## Guard Constraints
+
+- max_run_len ≤ 8 (Chatman Constant)
+- max_batch_size validation
+- Schema validation (IRI format checking)
+- Operation validation (H_hot set membership)
+
+## Code Review Checklist
+
+- [ ] All functions have proper error handling
+- [ ] All inputs are validated
+- [ ] No `unwrap()` or `panic!()` in production paths
+- [ ] Real implementations, not placeholders
+- [ ] Feature-gated when dependencies are optional
+- [ ] Tests cover critical paths
+- [ ] Guard constraints enforced (max_run_len ≤ 8)
+- [ ] Resources are properly cleaned up
+- [ ] No secrets or credentials in code
+- [ ] Hot path operations are branchless/constant-time
+- [ ] Performance constraints met (≤8 ticks for hot path)
+- [ ] Code verified with tests/OTEL validation

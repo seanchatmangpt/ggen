@@ -1,26 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Hive Mind Swarm Performance Benchmarking Suite](#hive-mind-swarm-performance-benchmarking-suite)
-  - [Overview](#overview)
-  - [Benchmark Suites](#benchmark-suites)
-    - [1. Hive Coordination (`ggen-core`)](#1-hive-coordination-ggen-core)
-    - [2. Swarm Coordination (`ggen-ai`)](#2-swarm-coordination-ggen-ai)
-    - [3. Swarm Primitives (`ggen-domain`)](#3-swarm-primitives-ggen-domain)
-  - [Quick Start](#quick-start)
-    - [Run All Benchmarks](#run-all-benchmarks)
-    - [Run Specific Suite](#run-specific-suite)
-    - [Run Specific Benchmark](#run-specific-benchmark)
-  - [Performance Targets (80/20 Critical Path)](#performance-targets-8020-critical-path)
-  - [Documentation](#documentation)
-  - [Benchmark Implementation Details](#benchmark-implementation-details)
-    - [Technologies](#technologies)
-    - [Coverage](#coverage)
-  - [Results Storage](#results-storage)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Hive Mind Swarm Performance Benchmarking Suite
 
 ## Overview

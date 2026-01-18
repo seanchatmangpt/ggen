@@ -1,34 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [clap-noun-verb Upgrade Research: 3.7.1 → 4.0.2](#clap-noun-verb-upgrade-research-371-%E2%86%92-402)
-  - [Executive Summary](#executive-summary)
-  - [Breaking Changes Summary](#breaking-changes-summary)
-    - [v4.0.0 (The Only Breaking Release)](#v400-the-only-breaking-release)
-    - [v4.0.1 (Non-Breaking Improvements)](#v401-non-breaking-improvements)
-    - [v4.0.2 (Quality Release)](#v402-quality-release)
-  - [Migration Strategy (80/20 Focus)](#migration-strategy-8020-focus)
-    - [Critical 20% Actions](#critical-20-actions)
-    - [Low-Priority 80% (Can Defer)](#low-priority-80-can-defer)
-  - [Code Patterns Requiring Updates](#code-patterns-requiring-updates)
-    - [Pattern 1: Macro Usage (Likely Unchanged)](#pattern-1-macro-usage-likely-unchanged)
-    - [Pattern 2: Command Registration (Check Docs)](#pattern-2-command-registration-check-docs)
-    - [Pattern 3: JSON Output (Should Be Stable)](#pattern-3-json-output-should-be-stable)
-  - [Testing Checklist](#testing-checklist)
-    - [Must Test (Critical 20%)](#must-test-critical-20)
-    - [Should Test (Nice to Have)](#should-test-nice-to-have)
-  - [Risk Assessment](#risk-assessment)
-  - [Recommended Upgrade Path](#recommended-upgrade-path)
-    - [Phase 1: Pre-Upgrade (15 min)](#phase-1-pre-upgrade-15-min)
-    - [Phase 2: Migration (30-60 min)](#phase-2-migration-30-60-min)
-    - [Phase 3: Testing (30 min)](#phase-3-testing-30-min)
-    - [Phase 4: Validation (15 min)](#phase-4-validation-15-min)
-  - [Resources](#resources)
-  - [Conclusion](#conclusion)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # clap-noun-verb Upgrade Research: 3.7.1 → 4.0.2
 
 **Research Date:** 2025-11-18

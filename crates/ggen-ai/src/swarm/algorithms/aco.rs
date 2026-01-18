@@ -163,9 +163,9 @@ impl SparqlAcoOptimizer {
 
             // Find best path in this iteration
             if let Some(best) = iteration_paths.iter()
-                .min_by(|a, b| a.cost.partial_cmp(&b.cost).unwrap_or(std::cmp::Ordering::Equal))
+                .min_by(|a, b| a.cost.partial_cmp(&b.cost).unwrap())
             {
-                if iteration_best.as_ref().map_or(true, |current| best.cost < current.cost) {
+                if iteration_best.is_none() || best.cost < iteration_best.as_ref().unwrap().cost {
                     iteration_best = Some(best.clone());
                 }
             }
@@ -176,7 +176,7 @@ impl SparqlAcoOptimizer {
             // Update global best
             if let Some(iter_best) = &iteration_best {
                 let mut best_path = self.best_path.write().await;
-                if best_path.as_ref().map_or(true, |current| iter_best.cost < current.cost) {
+                if best_path.is_none() || iter_best.cost < best_path.as_ref().unwrap().cost {
                     *best_path = Some(iter_best.clone());
                     info!("ACO iteration {}: new best path with cost {}", iteration, iter_best.cost);
                 }
@@ -204,8 +204,7 @@ impl SparqlAcoOptimizer {
 
         // Build path by selecting next nodes probabilistically
         while !current_nodes.is_empty() {
-            let current = visited.last()
-                .ok_or_else(|| GgenAiError::internal("Path construction failed: no nodes visited"))?;
+            let current = visited.last().unwrap();
             let next_node = self.select_next_node(current, &current_nodes).await?;
 
             // Calculate cost of this edge
@@ -261,9 +260,7 @@ impl SparqlAcoOptimizer {
         }
 
         // Fallback to last node
-        available.last()
-            .cloned()
-            .ok_or_else(|| GgenAiError::internal("No available nodes for selection"))
+        Ok(available.last().unwrap().clone())
     }
 
     /// Calculate edge cost between two nodes
@@ -296,7 +293,7 @@ impl SparqlAcoOptimizer {
 
         // Elite ants get extra pheromone
         let mut sorted_paths = paths.to_vec();
-        sorted_paths.sort_by(|a, b| b.quality.partial_cmp(&a.quality).unwrap_or(std::cmp::Ordering::Equal));
+        sorted_paths.sort_by(|a, b| b.quality.partial_cmp(&a.quality).unwrap());
 
         for path in sorted_paths.iter().take(self.config.elite_ant_count) {
             let elite_deposit = self.config.pheromone_weight * path.quality * 2.0;

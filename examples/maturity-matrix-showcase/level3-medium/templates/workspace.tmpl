@@ -1,0 +1,38 @@
+---
+to: generated/Cargo.toml
+rdf:
+  - ontology/domain.ttl
+sparql:
+  workspace_info: |
+    PREFIX ex: <http://example.org/maturity-matrix/level3#>
+    SELECT ?name WHERE {
+      ?workspace a ex:Workspace .
+      ?workspace ex:workspaceName ?name .
+    }
+    LIMIT 1
+  workspace_crates: |
+    PREFIX ex: <http://example.org/maturity-matrix/level3#>
+    SELECT ?crateName ?cratePath WHERE {
+      ?workspace a ex:Workspace .
+      ?workspace ex:workspaceCrates ?crate .
+      ?crate ex:crateName ?crateName .
+      ?crate ex:cratePath ?cratePath .
+    }
+    ORDER BY ?crateName
+---
+
+# Level 3: Workspace Cargo.toml
+# AUTO-GENERATED from ontology - DO NOT EDIT
+
+[workspace]
+members = [
+{% for row in sparql_results.workspace_crates %}
+    "{{ row.cratePath }}",
+{% endfor %}
+]
+
+[workspace.package]
+name = "{{ sparql_results.workspace_info[0].name | default("maturity-matrix-level3") }}"
+version = "1.0.0"
+edition = "2021"
+

@@ -1,22 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Explanation: Design Philosophy](#explanation-design-philosophy)
-  - [1. Universal Standards Over Proprietary Formats](#1-universal-standards-over-proprietary-formats)
-  - [2. Composition Over Hardcoding](#2-composition-over-hardcoding)
-  - [3. Templates Enable Infinite Extensibility](#3-templates-enable-infinite-extensibility)
-  - [4. Packs as a Social Construct](#4-packs-as-a-social-construct)
-  - [5. Marketplace Reuse Over Reimplementation](#5-marketplace-reuse-over-reimplementation)
-  - [6. Progressive Disclosure of Complexity](#6-progressive-disclosure-of-complexity)
-  - [7. DRY (Don't Repeat Yourself) Across Dimensions](#7-dry-dont-repeat-yourself-across-dimensions)
-  - [8. Deterministic Output](#8-deterministic-output)
-  - [9. Observe-Understand-Improve Cycle](#9-observe-understand-improve-cycle)
-  - [10. Principle of Least Surprise](#10-principle-of-least-surprise)
-  - [Summary Table](#summary-table)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Explanation: Design Philosophy
 
 Core principles guiding the ontology-as-packs architecture.

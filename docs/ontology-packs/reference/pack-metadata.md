@@ -1,18 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Reference: Pack Metadata Specification](#reference-pack-metadata-specification)
-  - [gpack.toml Structure](#gpacktoml-structure)
-    - [&#91;package&#93; Section](#package-section)
-    - [&#91;ontology&#93; Section](#ontology-section)
-    - [&#91;templates&#93; Section](#templates-section)
-    - [&#91;dependencies&#93; Section](#dependencies-section)
-  - [Complete Example](#complete-example)
-  - [Metadata Constraints](#metadata-constraints)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Reference: Pack Metadata Specification
 
 ## gpack.toml Structure
