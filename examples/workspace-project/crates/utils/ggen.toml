@@ -1,0 +1,24 @@
+# Workspace Member: utils
+# Utility functions crate configuration
+
+[project]
+name = "workspace-utils"
+version = "1.0.0"
+description = "Utility functions for workspace-project"
+author = "ggen-examples"
+license = "MIT"
+
+# Templates for utility code
+[templates]
+source_dir = "../../templates/utils"
+output_dir = "src/generated"
+
+[templates.rust]
+style = "core-team"
+error_handling = "thiserror"
+testing = "comprehensive"
+
+# Logging
+[logging]
+level = "debug"
+format = "text"

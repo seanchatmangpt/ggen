@@ -1,7 +1,9 @@
 //! Error types for governance system
 
+use thiserror::Error;
+
 /// Governance errors
-#[derive(Debug, thiserror::Error)]
+#[derive(Error, Debug)]
 pub enum GovernanceError {
     #[error("Policy not found: {0}")]
     PolicyNotFound(String),

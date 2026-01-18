@@ -186,7 +186,6 @@ pub fn add_llm_args(command: Command) -> Command {
 mod tests {
     use super::*;
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_cli_config_builder() {
         let cmd = CliConfigBuilder::new("test")
@@ -202,7 +201,6 @@ mod tests {
         assert!(cmd.get_arguments().any(|arg| arg.get_id() == "temperature"));
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_extract_llm_config() {
         let cmd = CliConfigBuilder::new("test")

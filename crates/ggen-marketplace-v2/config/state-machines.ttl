@@ -1,0 +1,364 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ggen: <http://ggen.dev/ontology#> .
+@prefix sm: <http://ggen.dev/statemachine#> .
+@prefix : <http://ggen.dev/sm-instances#> .
+
+# State Machine Ontology Extension
+sm:StateMachine a owl:Class ;
+    rdfs:label "State Machine" ;
+    rdfs:comment "Finite state machine definition" .
+
+sm:State a owl:Class ;
+    rdfs:label "State" ;
+    rdfs:comment "A state in a state machine" .
+
+sm:Transition a owl:Class ;
+    rdfs:label "Transition" ;
+    rdfs:comment "State transition definition" .
+
+sm:Event a owl:Class ;
+    rdfs:label "Event" ;
+    rdfs:comment "Event that triggers a transition" .
+
+# Properties
+sm:hasState a owl:ObjectProperty ;
+    rdfs:domain sm:StateMachine ;
+    rdfs:range sm:State .
+
+sm:hasTransition a owl:ObjectProperty ;
+    rdfs:domain sm:StateMachine ;
+    rdfs:range sm:Transition .
+
+sm:initialState a owl:ObjectProperty ;
+    rdfs:domain sm:StateMachine ;
+    rdfs:range sm:State .
+
+sm:fromState a owl:ObjectProperty ;
+    rdfs:domain sm:Transition ;
+    rdfs:range sm:State .
+
+sm:toState a owl:ObjectProperty ;
+    rdfs:domain sm:Transition ;
+    rdfs:range sm:State .
+
+sm:triggeredBy a owl:ObjectProperty ;
+    rdfs:domain sm:Transition ;
+    rdfs:range sm:Event .
+
+sm:condition a owl:DatatypeProperty ;
+    rdfs:domain sm:Transition ;
+    rdfs:range xsd:string .
+
+sm:action a owl:DatatypeProperty ;
+    rdfs:domain sm:Transition ;
+    rdfs:range xsd:string .
+
+sm:isFinal a owl:DatatypeProperty ;
+    rdfs:domain sm:State ;
+    rdfs:range xsd:boolean .
+
+# Package Lifecycle State Machine
+:package-lifecycle a sm:StateMachine ;
+    rdfs:label "Package Lifecycle State Machine" ;
+    rdfs:comment "State machine for package publication and lifecycle" ;
+    sm:initialState :state-draft ;
+    sm:hasState :state-draft, :state-validating, :state-published, :state-deprecated, :state-yanked, :state-archived ;
+    sm:hasTransition
+        :trans-draft-to-validating,
+        :trans-validating-to-published,
+        :trans-validating-to-draft,
+        :trans-published-to-deprecated,
+        :trans-published-to-yanked,
+        :trans-deprecated-to-archived,
+        :trans-yanked-to-archived .
+
+# States
+:state-draft a sm:State ;
+    rdfs:label "Draft" ;
+    rdfs:comment "Package is being prepared for publication" ;
+    sm:isFinal "false"^^xsd:boolean .
+
+:state-validating a sm:State ;
+    rdfs:label "Validating" ;
+    rdfs:comment "Package is undergoing validation checks" ;
+    sm:isFinal "false"^^xsd:boolean .
+
+:state-published a sm:State ;
+    rdfs:label "Published" ;
+    rdfs:comment "Package is published and available for installation" ;
+    sm:isFinal "false"^^xsd:boolean .
+
+:state-deprecated a sm:State ;
+    rdfs:label "Deprecated" ;
+    rdfs:comment "Package is deprecated but still installable" ;
+    sm:isFinal "false"^^xsd:boolean .
+
+:state-yanked a sm:State ;
+    rdfs:label "Yanked" ;
+    rdfs:comment "Package version is yanked and cannot be installed" ;
+    sm:isFinal "false"^^xsd:boolean .
+
+:state-archived a sm:State ;
+    rdfs:label "Archived" ;
+    rdfs:comment "Package is archived and read-only" ;
+    sm:isFinal "true"^^xsd:boolean .
+
+# Transitions
+:trans-draft-to-validating a sm:Transition ;
+    sm:fromState :state-draft ;
+    sm:toState :state-validating ;
+    sm:triggeredBy :event-submit ;
+    sm:condition "package.hasRequiredFields() && package.hasValidManifest()" ;
+    sm:action "startValidation(package)" .
+
+:trans-validating-to-published a sm:Transition ;
+    sm:fromState :state-validating ;
+    sm:toState :state-published ;
+    sm:triggeredBy :event-validation-success ;
+    sm:condition "validation.result == 'valid'" ;
+    sm:action "publishPackage(package)" .
+
+:trans-validating-to-draft a sm:Transition ;
+    sm:fromState :state-validating ;
+    sm:toState :state-draft ;
+    sm:triggeredBy :event-validation-failure ;
+    sm:condition "validation.result == 'invalid'" ;
+    sm:action "notifyAuthor(package, validation.errors)" .
+
+:trans-published-to-deprecated a sm:Transition ;
+    sm:fromState :state-published ;
+    sm:toState :state-deprecated ;
+    sm:triggeredBy :event-deprecate ;
+    sm:condition "user.isOwner(package)" ;
+    sm:action "markAsDeprecated(package)" .
+
+:trans-published-to-yanked a sm:Transition ;
+    sm:fromState :state-published ;
+    sm:toState :state-yanked ;
+    sm:triggeredBy :event-yank ;
+    sm:condition "user.isOwner(package)" ;
+    sm:action "yankPackage(package)" .
+
+:trans-deprecated-to-archived a sm:Transition ;
+    sm:fromState :state-deprecated ;
+    sm:toState :state-archived ;
+    sm:triggeredBy :event-archive ;
+    sm:condition "timeSinceDeprecated(package) > 180 days" ;
+    sm:action "archivePackage(package)" .
+
+:trans-yanked-to-archived a sm:Transition ;
+    sm:fromState :state-yanked ;
+    sm:toState :state-archived ;
+    sm:triggeredBy :event-archive ;
+    sm:condition "timeSinceYanked(package) > 30 days" ;
+    sm:action "archivePackage(package)" .
+
+# Events
+:event-submit a sm:Event ;
+    rdfs:label "Submit" ;
+    rdfs:comment "Author submits package for publication" .
+
+:event-validation-success a sm:Event ;
+    rdfs:label "Validation Success" ;
+    rdfs:comment "Package passes all validation checks" .
+
+:event-validation-failure a sm:Event ;
+    rdfs:label "Validation Failure" ;
+    rdfs:comment "Package fails validation checks" .
+
+:event-deprecate a sm:Event ;
+    rdfs:label "Deprecate" ;
+    rdfs:comment "Package owner deprecates the package" .
+
+:event-yank a sm:Event ;
+    rdfs:label "Yank" ;
+    rdfs:comment "Package owner yanks a version" .
+
+:event-archive a sm:Event ;
+    rdfs:label "Archive" ;
+    rdfs:comment "Package is archived after grace period" .
+
+# Installation State Machine
+:installation-lifecycle a sm:StateMachine ;
+    rdfs:label "Installation Lifecycle State Machine" ;
+    rdfs:comment "State machine for package installation process" ;
+    sm:initialState :inst-pending ;
+    sm:hasState :inst-pending, :inst-downloading, :inst-validating-install, :inst-installing, :inst-installed, :inst-failed, :inst-updating, :inst-removing ;
+    sm:hasTransition
+        :trans-pending-to-downloading,
+        :trans-downloading-to-validating,
+        :trans-downloading-to-failed,
+        :trans-validating-to-installing,
+        :trans-validating-to-failed,
+        :trans-installing-to-installed,
+        :trans-installing-to-failed,
+        :trans-installed-to-updating,
+        :trans-installed-to-removing,
+        :trans-updating-to-installed,
+        :trans-updating-to-failed .
+
+# Installation States
+:inst-pending a sm:State ;
+    rdfs:label "Pending" ;
+    rdfs:comment "Installation request queued" ;
+    sm:isFinal "false"^^xsd:boolean .
+
+:inst-downloading a sm:State ;
+    rdfs:label "Downloading" ;
+    rdfs:comment "Package is being downloaded" ;
+    sm:isFinal "false"^^xsd:boolean .
+
+:inst-validating-install a sm:State ;
+    rdfs:label "Validating" ;
+    rdfs:comment "Downloaded package is being validated" ;
+    sm:isFinal "false"^^xsd:boolean .
+
+:inst-installing a sm:State ;
+    rdfs:label "Installing" ;
+    rdfs:comment "Package files are being installed" ;
+    sm:isFinal "false"^^xsd:boolean .
+
+:inst-installed a sm:State ;
+    rdfs:label "Installed" ;
+    rdfs:comment "Package is successfully installed" ;
+    sm:isFinal "true"^^xsd:boolean .
+
+:inst-failed a sm:State ;
+    rdfs:label "Failed" ;
+    rdfs:comment "Installation failed" ;
+    sm:isFinal "true"^^xsd:boolean .
+
+:inst-updating a sm:State ;
+    rdfs:label "Updating" ;
+    rdfs:comment "Package is being updated to new version" ;
+    sm:isFinal "false"^^xsd:boolean .
+
+:inst-removing a sm:State ;
+    rdfs:label "Removing" ;
+    rdfs:comment "Package is being removed" ;
+    sm:isFinal "false"^^xsd:boolean .
+
+# Installation Transitions
+:trans-pending-to-downloading a sm:Transition ;
+    sm:fromState :inst-pending ;
+    sm:toState :inst-downloading ;
+    sm:triggeredBy :event-start-install ;
+    sm:action "downloadPackage(package, version)" .
+
+:trans-downloading-to-validating a sm:Transition ;
+    sm:fromState :inst-downloading ;
+    sm:toState :inst-validating-install ;
+    sm:triggeredBy :event-download-complete ;
+    sm:condition "checksum.verify(downloadedFile)" ;
+    sm:action "validateDownload(package)" .
+
+:trans-downloading-to-failed a sm:Transition ;
+    sm:fromState :inst-downloading ;
+    sm:toState :inst-failed ;
+    sm:triggeredBy :event-download-failed ;
+    sm:action "logError(error)" .
+
+:trans-validating-to-installing a sm:Transition ;
+    sm:fromState :inst-validating-install ;
+    sm:toState :inst-installing ;
+    sm:triggeredBy :event-validation-success ;
+    sm:action "extractAndInstall(package)" .
+
+:trans-validating-to-failed a sm:Transition ;
+    sm:fromState :inst-validating-install ;
+    sm:toState :inst-failed ;
+    sm:triggeredBy :event-validation-failure ;
+    sm:action "logError(validation.errors)" .
+
+:trans-installing-to-installed a sm:Transition ;
+    sm:fromState :inst-installing ;
+    sm:toState :inst-installed ;
+    sm:triggeredBy :event-install-complete ;
+    sm:action "updateRegistry(package, 'installed')" .
+
+:trans-installing-to-failed a sm:Transition ;
+    sm:fromState :inst-installing ;
+    sm:toState :inst-failed ;
+    sm:triggeredBy :event-install-failed ;
+    sm:action "rollback(package)" .
+
+:trans-installed-to-updating a sm:Transition ;
+    sm:fromState :inst-installed ;
+    sm:toState :inst-updating ;
+    sm:triggeredBy :event-update ;
+    sm:condition "newVersionAvailable(package)" ;
+    sm:action "startUpdate(package, newVersion)" .
+
+:trans-installed-to-removing a sm:Transition ;
+    sm:fromState :inst-installed ;
+    sm:toState :inst-removing ;
+    sm:triggeredBy :event-remove ;
+    sm:action "uninstallPackage(package)" .
+
+:trans-updating-to-installed a sm:Transition ;
+    sm:fromState :inst-updating ;
+    sm:toState :inst-installed ;
+    sm:triggeredBy :event-update-complete ;
+    sm:action "updateRegistry(package, 'updated')" .
+
+:trans-updating-to-failed a sm:Transition ;
+    sm:fromState :inst-updating ;
+    sm:toState :inst-failed ;
+    sm:triggeredBy :event-update-failed ;
+    sm:action "rollbackToStable(package)" .
+
+# Installation Events
+:event-start-install a sm:Event ;
+    rdfs:label "Start Install" .
+
+:event-download-complete a sm:Event ;
+    rdfs:label "Download Complete" .
+
+:event-download-failed a sm:Event ;
+    rdfs:label "Download Failed" .
+
+:event-install-complete a sm:Event ;
+    rdfs:label "Install Complete" .
+
+:event-install-failed a sm:Event ;
+    rdfs:label "Install Failed" .
+
+:event-update a sm:Event ;
+    rdfs:label "Update" .
+
+:event-update-complete a sm:Event ;
+    rdfs:label "Update Complete" .
+
+:event-update-failed a sm:Event ;
+    rdfs:label "Update Failed" .
+
+:event-remove a sm:Event ;
+    rdfs:label "Remove" .
+
+# Validation State Machine
+:validation-process a sm:StateMachine ;
+    rdfs:label "Validation Process State Machine" ;
+    sm:initialState :val-queued ;
+    sm:hasState :val-queued, :val-running, :val-valid, :val-invalid, :val-warning .
+
+:val-queued a sm:State ;
+    rdfs:label "Queued" ;
+    sm:isFinal "false"^^xsd:boolean .
+
+:val-running a sm:State ;
+    rdfs:label "Running" ;
+    sm:isFinal "false"^^xsd:boolean .
+
+:val-valid a sm:State ;
+    rdfs:label "Valid" ;
+    sm:isFinal "true"^^xsd:boolean .
+
+:val-invalid a sm:State ;
+    rdfs:label "Invalid" ;
+    sm:isFinal "true"^^xsd:boolean .
+
+:val-warning a sm:State ;
+    rdfs:label "Warning" ;
+    sm:isFinal "true"^^xsd:boolean .

@@ -1,0 +1,44 @@
+---
+to: "services/{{service_name}}/src/main.rs"
+vars:
+  service_name: "user_service"
+  port: "8080"
+  database_url: "postgresql://localhost/{{service_name}}"
+prefixes:
+  service: "http://example.org/services/"
+rdf_inline:
+  - "service:{{service_name}} a service:Microservice ; service:port {{port}} ."
+sparql:
+  check_service: "ASK WHERE { ?s a service:Microservice }"
+---
+//! {{service_name}} - Microservice implementation
+
+use axum::{
+    routing::{get, post},
+    Router,
+};
+
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+    let app = Router::new()
+        .route("/health", get(health_check))
+        .route("/api/v1/users", get(list_users).post(create_user));
+
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:{{port}}").await?;
+    println!("{{service_name}} listening on port {{port}}");
+
+    axum::serve(listener, app).await?;
+    Ok(())
+}
+
+async fn health_check() -> &'static str {
+    "OK"
+}
+
+async fn list_users() -> &'static str {
+    "[]"
+}
+
+async fn create_user() -> &'static str {
+    "Created"
+}

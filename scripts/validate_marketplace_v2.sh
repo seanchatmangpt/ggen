@@ -56,7 +56,7 @@ echo ""
 print_header "1. Build & Compilation"
 
 echo "Building marketplace-v2..."
-if cargo build --package ggen-marketplace 2>&1 | grep -q "Finished"; then
+if cargo build --package ggen-marketplace-v2 2>&1 | grep -q "Finished"; then
     print_success "Marketplace v2 builds successfully"
 else
     print_failure "Marketplace v2 build failed"
@@ -77,7 +77,7 @@ else
 fi
 
 echo "Checking for clippy warnings..."
-CLIPPY_OUTPUT=$(cargo clippy --package ggen-marketplace 2>&1 || true)
+CLIPPY_OUTPUT=$(cargo clippy --package ggen-marketplace-v2 2>&1 || true)
 CLIPPY_WARNINGS=$(echo "$CLIPPY_OUTPUT" | grep -c "warning:" || true)
 if [ "$CLIPPY_WARNINGS" -eq 0 ]; then
     print_success "No clippy warnings"
@@ -91,7 +91,7 @@ echo ""
 print_header "2. Testing Coverage"
 
 echo "Running marketplace v2 unit tests..."
-TEST_OUTPUT=$(cargo test --package ggen-marketplace --lib 2>&1 || true)
+TEST_OUTPUT=$(cargo test --package ggen-marketplace-v2 --lib 2>&1 || true)
 if echo "$TEST_OUTPUT" | grep -q "test result: ok"; then
     TEST_COUNT=$(echo "$TEST_OUTPUT" | grep "test result:" | grep -oE '[0-9]+ passed' | cut -d' ' -f1)
     print_success "All $TEST_COUNT v2 unit tests passed"
@@ -120,7 +120,7 @@ print_header "3. Performance Validation"
 
 echo "Checking compilation time..."
 START_TIME=$(date +%s)
-cargo build --package ggen-marketplace --release > /dev/null 2>&1
+cargo build --package ggen-marketplace-v2 --release > /dev/null 2>&1
 END_TIME=$(date +%s)
 COMPILE_TIME=$((END_TIME - START_TIME))
 
@@ -136,21 +136,21 @@ echo ""
 print_header "4. Security Assessment"
 
 echo "Checking for hardcoded secrets..."
-if grep -rn "secret\|password\|api_key" crates/ggen-marketplace/src/ --include="*.rs" | grep -v "// " | grep -v "TODO" > /dev/null 2>&1; then
+if grep -rn "secret\|password\|api_key" crates/ggen-marketplace-v2/src/ --include="*.rs" | grep -v "// " | grep -v "TODO" > /dev/null 2>&1; then
     print_warning "Potential hardcoded secrets found (review manually)"
 else
     print_success "No obvious hardcoded secrets detected"
 fi
 
 echo "Checking for unsafe code..."
-if grep -rn "unsafe" crates/ggen-marketplace/src/ --include="*.rs" > /dev/null 2>&1; then
+if grep -rn "unsafe" crates/ggen-marketplace-v2/src/ --include="*.rs" > /dev/null 2>&1; then
     print_warning "Unsafe code blocks found (review manually)"
 else
     print_success "No unsafe code blocks"
 fi
 
 echo "Checking Ed25519 implementation..."
-if grep -q "ed25519-dalek" crates/ggen-marketplace/Cargo.toml; then
+if grep -q "ed25519-dalek" crates/ggen-marketplace-v2/Cargo.toml; then
     print_success "Ed25519 dependency present"
 else
     print_failure "Ed25519 dependency missing"
@@ -171,7 +171,7 @@ fi
 
 echo "Checking feature definitions..."
 if grep -q "marketplace-v1 = \[\]" crates/ggen-cli/Cargo.toml && \
-   grep -q "marketplace-v2 = \[\"ggen-marketplace\"\]" crates/ggen-cli/Cargo.toml && \
+   grep -q "marketplace-v2 = \[\"ggen-marketplace-v2\"\]" crates/ggen-cli/Cargo.toml && \
    grep -q "marketplace-parallel" crates/ggen-cli/Cargo.toml; then
     print_success "All feature gates defined correctly"
 else
@@ -184,16 +184,16 @@ echo ""
 print_header "6. Dependencies Check"
 
 echo "Checking workspace dependencies..."
-if grep -q "ggen-marketplace" Cargo.toml; then
-    print_success "ggen-marketplace in workspace members"
+if grep -q "ggen-marketplace-v2" Cargo.toml; then
+    print_success "ggen-marketplace-v2 in workspace members"
 else
-    print_failure "ggen-marketplace not in workspace"
+    print_failure "ggen-marketplace-v2 not in workspace"
 fi
 
 echo "Checking critical dependencies..."
 CRITICAL_DEPS=("oxigraph" "moka" "ed25519-dalek" "fst" "sha2")
 for dep in "${CRITICAL_DEPS[@]}"; do
-    if grep -q "^$dep = " crates/ggen-marketplace/Cargo.toml; then
+    if grep -q "^$dep = " crates/ggen-marketplace-v2/Cargo.toml; then
         print_success "Dependency $dep present"
     else
         print_failure "Dependency $dep missing"
@@ -226,7 +226,7 @@ echo ""
 print_header "8. File Structure Validation"
 
 echo "Checking source files..."
-V2_SOURCE_COUNT=$(find crates/ggen-marketplace/src -name "*.rs" -type f | wc -l)
+V2_SOURCE_COUNT=$(find crates/ggen-marketplace-v2/src -name "*.rs" -type f | wc -l)
 if [ "$V2_SOURCE_COUNT" -gt 10 ]; then
     print_success "Found $V2_SOURCE_COUNT source files in v2"
 else
@@ -234,7 +234,7 @@ else
 fi
 
 echo "Checking test files..."
-V2_TEST_COUNT=$(find crates/ggen-marketplace -name "*test*.rs" -type f | wc -l)
+V2_TEST_COUNT=$(find crates/ggen-marketplace-v2 -name "*test*.rs" -type f | wc -l)
 if [ "$V2_TEST_COUNT" -gt 0 ]; then
     print_success "Found $V2_TEST_COUNT test files"
 else

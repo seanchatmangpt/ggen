@@ -1,0 +1,327 @@
+# Lifecycle Initialization Tests with OTEL Validation
+# Tests: initialization, template generation, project setup
+
+[meta]
+name = "lifecycle_initialization_tests"
+description = "Test lifecycle initialization with OTEL span validation"
+version = "1.0.0"
+
+[otel]
+exporter = "otlp"
+endpoint = "http://localhost:4318"
+service_name = "ggen-lifecycle-init"
+enable_tracing = true
+enable_metrics = true
+
+[service.ggen]
+plugin = "generic_container"
+image = "rust:latest"
+volumes = ["/tmp/ggen-test:/workspace"]
+working_dir = "/workspace"
+
+# Test 1: Basic initialization
+[[scenario]]
+name = "basic_lifecycle_init"
+service = "ggen"
+run = """
+mkdir -p /workspace/test-project && cd /workspace/test-project && \
+cat > make.toml << 'EOF'
+[project]
+name = "test-project"
+
+[lifecycle.init]
+command = "echo 'Initializing project'"
+EOF
+ggen lifecycle run init
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.init"
+attributes = { "lifecycle.phase" = "init", "project.name" = "test-project" }
+min_duration_ms = 1
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.phase.execute"
+parent = "ggen.lifecycle.init"
+attributes = { "command" = "echo 'Initializing project'" }
+
+[scenario.expect.attestation]
+sha256 = true
+hermetic = true
+reproducible = true
+
+# Test 2: Multi-step initialization
+[[scenario]]
+name = "multi_step_initialization"
+service = "ggen"
+run = """
+mkdir -p /workspace/multi-init && cd /workspace/multi-init && \
+cat > make.toml << 'EOF'
+[project]
+name = "multi-init-project"
+
+[lifecycle.init]
+commands = [
+    "echo 'Step 1: Create directory structure'",
+    "mkdir -p src tests docs",
+    "echo 'Step 2: Initialize git repository'",
+    "git init",
+    "echo 'Step 3: Create initial files'"
+]
+EOF
+ggen lifecycle run init
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.init"
+attributes = { "lifecycle.phase" = "init", "command_count" = "5" }
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.command.execute"
+parent = "ggen.lifecycle.init"
+count = 5
+
+[scenario.expect.window]
+parent = "ggen.lifecycle.init"
+must_contain = ["ggen.lifecycle.command.execute"]
+min_child_spans = 5
+
+[scenario.expect.graph]
+must_include = [
+  ["ggen.lifecycle.init", "ggen.lifecycle.command.execute"]
+]
+acyclic = true
+
+# Test 3: Template generation in init phase
+[[scenario]]
+name = "template_generation_during_init"
+service = "ggen"
+run = """
+mkdir -p /workspace/template-init && cd /workspace/template-init && \
+cat > make.toml << 'EOF'
+[project]
+name = "template-generation"
+
+[lifecycle.init]
+commands = [
+    "echo 'Initializing project structure'",
+    "echo 'ggen template generate rust-service:api.tmpl'",
+    "echo 'ggen template generate rust-service:database.tmpl'"
+]
+EOF
+ggen lifecycle run init
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.init"
+attributes = { "lifecycle.phase" = "init" }
+
+[[scenario.expect.span]]
+name = "ggen.template.generate"
+parent = "ggen.lifecycle.init"
+count_min = 2
+attributes_pattern = { "template.name" = ".*\\.tmpl" }
+
+[scenario.expect.temporal]
+ordering = [
+  "ggen.lifecycle.init",
+  "ggen.template.generate"
+]
+
+# Test 4: Init with state persistence
+[[scenario]]
+name = "init_with_state_persistence"
+service = "ggen"
+run = """
+mkdir -p /workspace/state-init && cd /workspace/state-init && \
+cat > make.toml << 'EOF'
+[project]
+name = "state-persistence-test"
+
+[lifecycle.init]
+command = "echo 'Initializing with state tracking'"
+EOF
+ggen lifecycle run init && \
+test -f .ggen/state.json && \
+grep -q '"last_phase":"init"' .ggen/state.json
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.init"
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.state.save"
+parent = "ggen.lifecycle.init"
+attributes = { "state.file" = ".ggen/state.json" }
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.state.persist"
+must_follow = ["ggen.lifecycle.init"]
+attributes = { "phase_recorded" = "init" }
+
+[scenario.expect.attestation]
+files_created = [".ggen/state.json"]
+sha256 = true
+
+# Test 5: Init failure handling
+[[scenario]]
+name = "init_failure_with_rollback"
+service = "ggen"
+run = """
+mkdir -p /workspace/init-failure && cd /workspace/init-failure && \
+cat > make.toml << 'EOF'
+[project]
+name = "init-failure-test"
+
+[lifecycle.init]
+commands = [
+    "echo 'Step 1 succeeded'",
+    "exit 1",
+    "echo 'This should not run'"
+]
+EOF
+ggen lifecycle run init || echo "Init failed as expected"
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.init"
+expect_error = true
+attributes = { "error.type" = "command_execution_failed" }
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.error.handle"
+parent = "ggen.lifecycle.init"
+attributes = { "error.phase" = "init", "error.fatal" = "true" }
+
+[scenario.expect.temporal]
+ordering = [
+  "ggen.lifecycle.init",
+  "ggen.lifecycle.error.handle"
+]
+
+# Test 6: Rust project initialization
+[[scenario]]
+name = "rust_project_init"
+service = "ggen"
+run = """
+mkdir -p /workspace/rust-init && cd /workspace/rust-init && \
+cat > make.toml << 'EOF'
+[project]
+name = "rust-project-init"
+type = "rust"
+
+[lifecycle.init]
+commands = [
+    "cargo init --name test-project",
+    "echo 'Rust project initialized'"
+]
+EOF
+ggen lifecycle run init
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.init"
+attributes = { "project.type" = "rust" }
+
+[[scenario.expect.span]]
+name = "ggen.cargo.init"
+parent = "ggen.lifecycle.init"
+attributes = { "cargo.command" = "init" }
+
+[scenario.expect.attestation]
+files_created = ["Cargo.toml", "src/main.rs"]
+sha256 = true
+hermetic = true
+
+# Test 7: Init with marketplace packages
+[[scenario]]
+name = "init_with_marketplace_packages"
+service = "ggen"
+run = """
+mkdir -p /workspace/marketplace-init && cd /workspace/marketplace-init && \
+cat > make.toml << 'EOF'
+[project]
+name = "marketplace-integration"
+
+[lifecycle.init]
+commands = [
+    "echo 'Initializing with marketplace'",
+    "echo 'ggen market search rust-web'",
+    "echo 'ggen market add rust-axum-service'"
+]
+EOF
+ggen lifecycle run init
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.init"
+
+[[scenario.expect.span]]
+name = "ggen.marketplace.search"
+parent = "ggen.lifecycle.init"
+attributes = { "query" = "rust-web" }
+
+[[scenario.expect.span]]
+name = "ggen.marketplace.add"
+parent = "ggen.lifecycle.init"
+attributes = { "package" = "rust-axum-service" }
+
+[scenario.expect.temporal]
+ordering = [
+  "ggen.lifecycle.init",
+  "ggen.marketplace.search",
+  "ggen.marketplace.add"
+]
+
+# Test 8: Concurrent initialization validation
+[[scenario]]
+name = "concurrent_init_isolation"
+service = "ggen"
+run = """
+mkdir -p /workspace/concurrent-{1,2} && \
+(cd /workspace/concurrent-1 && \
+cat > make.toml << 'EOF'
+[project]
+name = "concurrent-1"
+
+[lifecycle.init]
+command = "echo 'Init concurrent-1'"
+EOF
+ggen lifecycle run init) & \
+(cd /workspace/concurrent-2 && \
+cat > make.toml << 'EOF'
+[project]
+name = "concurrent-2"
+
+[lifecycle.init]
+command = "echo 'Init concurrent-2'"
+EOF
+ggen lifecycle run init) & \
+wait
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.init"
+count = 2
+attributes_unique = ["project.name"]
+
+[scenario.expect.graph]
+must_not_include = [
+  ["ggen.lifecycle.init[project=concurrent-1]", "ggen.lifecycle.init[project=concurrent-2]"]
+]
+isolated = true
+
+# Summary expectations
+[expect.report]
+format = "json"
+output_path = "/tmp/lifecycle-init-report.json"
+include_metrics = true
+include_traces = true
+
+[expect.performance]
+max_duration_ms = 5000
+max_memory_mb = 512
+
+[expect.determinism]
+require_same_traces_on_retry = true
+retry_count = 2

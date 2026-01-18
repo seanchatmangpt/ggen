@@ -32,13 +32,12 @@ use ggen_utils::error::{Error, Result};
 use lru::LruCache;
 use oxigraph::sparql::QueryResults;
 use oxigraph::store::Store;
-use std::collections::BTreeMap;
+use std::collections::HashMap;
 use std::num::NonZeroUsize;
 use std::sync::{Arc, Mutex};
 
 /// Type alias for predicate index: maps predicate URIs to subject-object pairs
-/// **FMEA Fix**: Use BTreeMap instead of HashMap for deterministic iteration order
-type PredicateIndex = Arc<Mutex<BTreeMap<String, Vec<(String, String)>>>>;
+type PredicateIndex = Arc<Mutex<HashMap<String, Vec<(String, String)>>>>;
 
 /// SPARQL query result cache
 /// OPTIMIZATION 2.1: Cache query results to avoid re-evaluation (50-100% speedup)
@@ -80,7 +79,7 @@ impl QueryCache {
             cache: Arc::new(Mutex::new(LruCache::new(
                 NonZeroUsize::new(capacity).unwrap(),
             ))),
-            predicate_index: Arc::new(Mutex::new(BTreeMap::new())),
+            predicate_index: Arc::new(Mutex::new(HashMap::new())),
             version: Arc::new(Mutex::new(0)),
         }
     }
@@ -99,17 +98,11 @@ impl QueryCache {
     /// Cached or fresh query results
     pub fn execute_cached(&self, store: &Store, query_str: &str) -> Result<String> {
         // Get current cache version
-        let current_version = *self
-            .version
-            .lock()
-            .map_err(|_| Error::new("Lock poisoned: version lock"))?;
+        let current_version = *self.version.lock().unwrap();
 
         // Check cache first
         {
-            let mut cache = self
-                .cache
-                .lock()
-                .map_err(|_| Error::new("Lock poisoned: cache lock"))?;
+            let mut cache = self.cache.lock().unwrap();
             if let Some(cached) = cache.get(query_str) {
                 // Validate cache entry is still valid
                 if cached.version == current_version {
@@ -123,10 +116,7 @@ impl QueryCache {
 
         // Store in cache
         {
-            let mut cache = self
-                .cache
-                .lock()
-                .map_err(|_| Error::new("Lock poisoned: cache lock"))?;
+            let mut cache = self.cache.lock().unwrap();
             cache.put(
                 query_str.to_string(),
                 CachedResult {
@@ -151,8 +141,7 @@ impl QueryCache {
                     let solution = solution.map_err(|e| {
                         Error::with_context("Query execution failed", &e.to_string())
                     })?;
-                    // **FMEA Fix**: Use BTreeMap for deterministic iteration order
-                    let mut row = BTreeMap::new();
+                    let mut row = HashMap::new();
                     for (var, term) in solution.iter() {
                         row.insert(var.as_str().to_string(), term.to_string());
                     }
@@ -204,8 +193,7 @@ impl QueryCache {
             let query = format!("SELECT ?s ?o WHERE {{ ?s <{}> ?o }}", predicate);
 
             let results = self.execute_query(store, &query)?;
-            // **FMEA Fix**: Use BTreeMap for deterministic iteration order
-            let parsed: Vec<BTreeMap<String, String>> =
+            let parsed: Vec<HashMap<String, String>> =
                 serde_json::from_str(&results).map_err(|e| {
                     Error::with_context("Failed to parse index results", &e.to_string())
                 })?;

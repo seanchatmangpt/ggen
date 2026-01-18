@@ -1,22 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Reference: Template Context Variables](#reference-template-context-variables)
-  - [Global Context](#global-context)
-  - [Class Variables](#class-variables)
-  - [Property Variables](#property-variables)
-  - [Constraint Variables](#constraint-variables)
-  - [Filters](#filters)
-    - [Naming Filters](#naming-filters)
-    - [Type Filters](#type-filters)
-    - [String Filters](#string-filters)
-  - [Conditional Helpers](#conditional-helpers)
-  - [Example: TypeScript Type Template](#example-typescript-type-template)
-  - [Example: Rust Struct Template](#example-rust-struct-template)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Reference: Template Context Variables
 
 ## Global Context

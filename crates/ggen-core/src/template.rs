@@ -12,18 +12,14 @@
 //! - **SPARQL integration**: Execute queries, expose results to templates
 //! - **File injection**: Modify existing files with markers/line numbers
 //! - **Hygen compatible**: Standard template fields work unchanged
-//! - **Template directives**: Supports `output/to`, `vars`, `when`, `query`,
-//!   `determinism`, `validate`, `postprocess`, `metadata`
 //!
-//! ## Frontmatter Fields (v2.1)
-//! - `to/output` + `from/input`: Output/input file paths
-//! - `vars`: Required/default vars (list or map)
-//! - `when`: Conditional generation gates
-//! - `query`: Named SPARQL queries (file or inline) with params
-//! - `rdf_inline` and `rdf`: Inline triples + filesystem RDF sources
-//! - `sparql`: Direct query map (merged with `query`)
+//! ## Frontmatter Fields (v2.0)
+//! - `to/from`: Output/input file paths
+//! - `rdf_inline`: Inline Turtle triples (kept for convenience)
+//! - `sparql`: Named queries → `sparql_results.<name>`
 //! - `inject/before/after`: File modification markers
-//! - `determinism`, `validate`, `postprocess`, `metadata`: Repro, validation, docs
+//! - ❌ REMOVED: `vars:` - Variables now come from CLI/API only
+//! - ❌ REMOVED: `rdf:` - RDF files now loaded via CLI/API only
 //!
 //! ## SPARQL Results Access
 //! ```tera
@@ -36,7 +32,6 @@ use ggen_utils::error::{Error, Result};
 use gray_matter::{engine::YAML, Matter, ParsedEntity};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-use std::path::{Path, PathBuf};
 use tera::{Context, Tera};
 
 use crate::graph::Graph;
@@ -45,20 +40,12 @@ use crate::preprocessor::{FreezePolicy, FreezeStage, PrepCtx, Preprocessor};
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Frontmatter {
     // Hygen core
-    #[serde(alias = "output")]
     pub to: Option<String>,
-    #[serde(alias = "input")]
     pub from: Option<String>,
     #[serde(default)]
     pub force: bool,
     #[serde(default)]
     pub unless_exists: bool,
-
-    // Variable declarations and conditions
-    #[serde(default)]
-    pub vars: Option<VarsSpec>,
-    #[serde(default, deserialize_with = "string_or_seq")]
-    pub when: Vec<String>,
 
     // Injection
     #[serde(default)]
@@ -91,10 +78,8 @@ pub struct Frontmatter {
     pub rdf: Vec<String>,
     #[serde(default, deserialize_with = "sparql_map")]
     pub sparql: BTreeMap<String, String>,
-    #[serde(default, rename = "query", alias = "queries")]
-    pub queries: Vec<QuerySpec>,
 
-    // Variables declared in frontmatter (list or map) are preserved for validation
+    // ❌ REMOVED: vars: BTreeMap - Variables now come from CLI/API, not frontmatter
 
     // Safety and idempotency
     #[serde(default)]
@@ -114,67 +99,9 @@ pub struct Frontmatter {
     #[serde(default)]
     pub freeze_slots_dir: Option<String>,
 
-    // Validation + postprocess + metadata
-    #[serde(default)]
-    pub validate: Vec<ValidationRule>,
-    #[serde(default)]
-    pub postprocess: Vec<PostprocessStep>,
-    #[serde(default)]
-    pub metadata: BTreeMap<String, serde_yaml::Value>,
-
-    // Extensibility (future-proof for additional directives)
-    #[serde(default, flatten)]
-    pub extensions: BTreeMap<String, serde_yaml::Value>,
-
     // SPARQL results storage (populated during process_graph)
     #[serde(skip)]
     pub sparql_results: BTreeMap<String, serde_json::Value>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(untagged)]
-pub enum VarsSpec {
-    List(Vec<String>),
-    Map(BTreeMap<String, serde_yaml::Value>),
-}
-
-impl VarsSpec {
-    pub fn as_list(&self) -> Option<&[String]> {
-        match self {
-            VarsSpec::List(v) => Some(v.as_slice()),
-            VarsSpec::Map(_) => None,
-        }
-    }
-
-    pub fn as_map(&self) -> Option<&BTreeMap<String, serde_yaml::Value>> {
-        match self {
-            VarsSpec::List(_) => None,
-            VarsSpec::Map(m) => Some(m),
-        }
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct QuerySpec {
-    pub name: String,
-    #[serde(default)]
-    pub file: Option<String>,
-    #[serde(default)]
-    pub inline: Option<String>,
-    #[serde(default)]
-    pub params: BTreeMap<String, serde_yaml::Value>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct ValidationRule {
-    pub rule: String,
-    #[serde(default)]
-    pub message: Option<String>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct PostprocessStep {
-    pub command: String,
 }
 
 #[derive(Clone)]
@@ -196,7 +123,7 @@ impl Template {
     /// ```rust
     /// use ggen_core::Template;
     ///
-    /// # fn main() -> Result<()> {
+    /// # fn main() -> anyhow::Result<()> {
     /// let template = Template::parse(r#"
     /// ---
     /// to: "output.rs"
@@ -228,7 +155,7 @@ impl Template {
     /// ```rust
     /// use ggen_core::Template;
     ///
-    /// # fn main() -> Result<()> {
+    /// # fn main() -> anyhow::Result<()> {
     /// let template = Template::from_str(r#"
     /// ---
     /// to: "output.rs"
@@ -259,7 +186,7 @@ impl Template {
     /// use ggen_core::Template;
     /// use std::path::Path;
     ///
-    /// # fn main() -> Result<()> {
+    /// # fn main() -> anyhow::Result<()> {
     /// let template = Template::from_file(Path::new("template.tmpl"))?;
     /// # Ok(())
     /// # }
@@ -329,63 +256,6 @@ impl Template {
         Ok(())
     }
 
-    /// Hydrate structured `query:` blocks into the unified `sparql` map.
-    ///
-    /// This keeps backward compatibility with existing `sparql:` maps while enabling
-    /// documented features (file/inline queries + params).
-    fn hydrate_queries(
-        &mut self, tera: &mut Tera, vars: &Context, template_path: &Path,
-    ) -> Result<()> {
-        if self.front.queries.is_empty() {
-            return Ok(());
-        }
-
-        for spec in &self.front.queries {
-            // Do not overwrite explicit sparql entries
-            if self.front.sparql.contains_key(&spec.name) {
-                continue;
-            }
-
-            // Build a rendering context that includes query params
-            let mut query_ctx = vars.clone();
-            for (k, v) in &spec.params {
-                query_ctx.insert(k, v);
-            }
-
-            let raw_query = match (&spec.inline, &spec.file) {
-                (Some(inline), Some(_)) | (Some(inline), None) => inline.clone(),
-                (None, Some(file_path)) => {
-                    let rendered_path = tera.render_str(file_path, &query_ctx)?;
-                    let resolved = if rendered_path.starts_with('/') {
-                        PathBuf::from(&rendered_path)
-                    } else {
-                        template_path
-                            .parent()
-                            .unwrap_or_else(|| Path::new("."))
-                            .join(&rendered_path)
-                    };
-                    std::fs::read_to_string(&resolved).map_err(|e| {
-                        Error::with_source(
-                            &format!("Failed to read query file '{}'", resolved.display()),
-                            Box::new(e),
-                        )
-                    })?
-                }
-                (None, None) => {
-                    return Err(Error::new(&format!(
-                        "Query '{}' missing 'file' or 'inline'",
-                        spec.name
-                    )));
-                }
-            };
-
-            let rendered_query = tera.render_str(&raw_query, &query_ctx)?;
-            self.front.sparql.insert(spec.name.clone(), rendered_query);
-        }
-
-        Ok(())
-    }
-
     /// Load RDF and run SPARQL using the rendered frontmatter.
     ///
     /// **QUICK WIN 1: LAZY RDF LOADING**
@@ -403,9 +273,6 @@ impl Template {
         {
             self.render_frontmatter(tera, vars)?;
         }
-
-        // Normalize structured queries into the executable SPARQL map
-        self.hydrate_queries(tera, vars, template_path)?;
 
         // QUICK WIN 1: Early return if no RDF/SPARQL content
         // Skip expensive RDF processing if template doesn't use it
@@ -625,7 +492,7 @@ where
     de.deserialize_any(StrOrSeq)
 }
 
-// Legacy flexible vars deserializer removed; VarsSpec now captures declarations
+// ❌ REMOVED: deserialize_flexible_vars - vars field no longer in frontmatter
 
 // Accept either "sparql: '<query>'" or "sparql: { name: '<query>' }"
 fn sparql_map<'de, D>(de: D) -> std::result::Result<BTreeMap<String, String>, D::Error>
@@ -762,99 +629,7 @@ body"#;
         assert_eq!(t.front.base.as_deref(), Some("http://example.org/test/"));
         assert_eq!(t.front.rdf_inline.len(), 1);
         assert_eq!(t.front.sparql.len(), 1);
-        // vars supported via VarsSpec; legacy test removed
-    }
-
-    #[test]
-    fn frontmatter_supports_documented_directives() {
-        let input = r#"---
-output: "src/{{name}}.rs"
-vars:
-  - name
-  - feature_flag
-when: production
-validate:
-  - rule: "file_size < 100000"
-    message: "too big"
-postprocess:
-  - command: "rustfmt --edition 2021"
-metadata:
-  author: "QA"
-  tags: ["a", "b"]
-determinism: { seed: 42 }
----
-body"#;
-
-        let mut tmpl = Template::parse(input).unwrap();
-        let mut tera = mk_tera();
-        let vars = ctx(&[("name", "Service")]);
-        tmpl.render_frontmatter(&mut tera, &vars).unwrap();
-
-        assert_eq!(tmpl.front.to.as_deref(), Some("src/Service.rs"));
-        let required: Vec<String> = tmpl
-            .front
-            .vars
-            .as_ref()
-            .and_then(VarsSpec::as_list)
-            .map(|v| v.to_vec())
-            .unwrap_or_default();
-        assert!(required.contains(&"feature_flag".to_string()));
-        assert_eq!(tmpl.front.when, vec!["production".to_string()]);
-        assert_eq!(tmpl.front.validate.len(), 1);
-        assert_eq!(tmpl.front.postprocess.len(), 1);
-        assert_eq!(
-            tmpl.front.metadata.get("author"),
-            Some(&serde_yaml::Value::String("QA".to_string()))
-        );
-        assert!(tmpl.front.determinism.is_some());
-    }
-
-    #[ignore = "SPARQL parse error - pre-existing issue, needs investigation"]
-    #[test]
-    fn query_blocks_populate_sparql_map_and_results() {
-        let mut query_file = NamedTempFile::new().unwrap();
-        writeln!(
-            query_file,
-            "SELECT ?s WHERE {{ ?s ?p ?o }} LIMIT {{ limit }}"
-        )
-        .unwrap();
-
-        let input = format!(
-            r#"---
-to: "output.rs"
-query:
-  - name: file_query
-    file: "{}"
-    params:
-      limit: 2
-  - name: inline_query
-    inline: "SELECT ?s WHERE {{ ?s ?p ?o }} LIMIT {{ limit }}"
-    params:
-      limit: 5
-rdf_inline:
-  - "<urn:s> <urn:p> <urn:o> ."
----
-body"#,
-            query_file.path().display()
-        );
-
-        let mut tmpl = Template::parse(&input).unwrap();
-        let mut graph = Graph::new().unwrap();
-        let mut tera = mk_tera();
-        let vars = Context::new();
-
-        tmpl.process_graph(
-            &mut graph,
-            &mut tera,
-            &vars,
-            Path::new("templates/test.tmpl"),
-        )
-        .unwrap();
-
-        let inline_q = tmpl.front.sparql.get("inline_query").unwrap();
-        assert_contains!(inline_q, "LIMIT 5");
-        assert!(tmpl.front.sparql.contains_key("file_query"));
-        assert!(tmpl.front.sparql_results.contains_key("inline_query"));
+        // ❌ REMOVED: vars test - no longer in frontmatter
     }
 
     #[test]
@@ -1084,7 +859,7 @@ fn main() {
                 }
             }
 
-            // Legacy frontmatter_vars_roundtrip test removed when vars were disabled
+            // ❌ REMOVED: frontmatter_vars_roundtrip test - vars no longer in frontmatter
 
             #[test]
             fn template_paths_are_valid(

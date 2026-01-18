@@ -1,37 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Pack System: Quick Reference Guide](#pack-system-quick-reference-guide)
-  - [System Overview Diagram](#system-overview-diagram)
-  - [Pack Structure](#pack-structure)
-  - [pack.toml Quick Reference](#packtoml-quick-reference)
-  - [CLI Command Cheat Sheet](#cli-command-cheat-sheet)
-    - [Discovery](#discovery)
-    - [Management](#management)
-    - [Generation](#generation)
-    - [Composition](#composition)
-    - [Validation](#validation)
-    - [Publishing](#publishing)
-    - [Benchmarking](#benchmarking)
-    - [Utility](#utility)
-  - [composition.yaml Quick Reference](#compositionyaml-quick-reference)
-  - [Performance Quick Reference](#performance-quick-reference)
-  - [Common Patterns](#common-patterns)
-    - [Pattern 1: Simple Single-Pack Generation](#pattern-1-simple-single-pack-generation)
-    - [Pattern 2: Multi-Pack Composition](#pattern-2-multi-pack-composition)
-    - [Pattern 3: Custom Pack Creation](#pattern-3-custom-pack-creation)
-    - [Pattern 4: Pack Quality Improvement](#pattern-4-pack-quality-improvement)
-  - [Troubleshooting](#troubleshooting)
-    - [Common Issues and Solutions](#common-issues-and-solutions)
-  - [Environment Variables](#environment-variables)
-  - [Exit Codes](#exit-codes)
-  - [Glossary](#glossary)
-  - [Related Resources](#related-resources)
-  - [Getting Help](#getting-help)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Pack System: Quick Reference Guide
 
 ## System Overview Diagram

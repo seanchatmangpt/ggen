@@ -1,6 +1,8 @@
 //! Validation error types
 
-#[derive(Debug, thiserror::Error)]
+use thiserror::Error;
+
+#[derive(Error, Debug)]
 pub enum ValidationError {
     #[error("File not found: {path}")]
     FileNotFound { path: String },

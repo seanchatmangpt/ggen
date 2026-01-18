@@ -25,17 +25,13 @@
 
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 
-#[cfg(feature = "ai")]
 pub mod ai;
 pub mod audit;
 pub mod ci;
-pub mod generation;
 pub mod graph;
 pub mod mape_k;
-#[cfg(feature = "marketplace-v2")]
 pub mod marketplace;
 pub mod ontology;
-#[cfg(feature = "marketplace-v2")]
 pub mod packs;
 pub mod project;
 pub mod rdf;
@@ -47,7 +43,6 @@ pub mod utils;
 pub mod ahi_contract;
 pub mod auto_promotion_pipeline;
 pub mod doctrine_engine;
-#[cfg(feature = "marketplace-v2")]
 pub mod marketplace_scorer;
 pub mod ontology_proposal_engine;
 pub mod proof_carrier;

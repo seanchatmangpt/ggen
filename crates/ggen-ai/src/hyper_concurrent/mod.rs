@@ -56,6 +56,9 @@ pub use metrics::*;
 pub use streaming::*;
 pub use work_stealing::*;
 
+#[cfg(test)]
+mod tests;
+
 use serde::{Deserialize, Serialize};
 
 /// Maximum concurrent agents (Claude Code's limit)

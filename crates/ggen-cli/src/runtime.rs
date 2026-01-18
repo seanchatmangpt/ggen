@@ -13,7 +13,7 @@ use std::future::Future;
 ///
 /// # Examples
 ///
-/// ```rust,ignore
+/// ```no_run
 /// use ggen_utils::error::Result;
 ///
 /// fn sync_command() -> Result<()> {
@@ -46,7 +46,7 @@ where
 ///
 /// # Examples
 ///
-/// ```rust,ignore
+/// ```no_run
 /// use ggen_utils::error::Result;
 ///
 /// fn get_data() -> Result<String> {

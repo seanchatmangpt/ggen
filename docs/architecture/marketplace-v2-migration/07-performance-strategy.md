@@ -1,34 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Performance Strategy, SLOs, and Monitoring](#performance-strategy-slos-and-monitoring)
-  - [Overview](#overview)
-  - [Service Level Objectives (SLOs)](#service-level-objectives-slos)
-    - [Search Performance](#search-performance)
-    - [Installation Performance](#installation-performance)
-    - [Publishing Performance](#publishing-performance)
-    - [Backend Adapter Overhead](#backend-adapter-overhead)
-  - [Performance Optimization Strategies](#performance-optimization-strategies)
-    - [1. SPARQL Query Optimization](#1-sparql-query-optimization)
-    - [2. Caching Strategy](#2-caching-strategy)
-    - [3. RDF Store Optimization](#3-rdf-store-optimization)
-    - [4. Parallel Processing](#4-parallel-processing)
-    - [5. Signature Verification Optimization](#5-signature-verification-optimization)
-  - [Performance Monitoring](#performance-monitoring)
-    - [OpenTelemetry Instrumentation](#opentelemetry-instrumentation)
-    - [Performance Dashboard (Grafana)](#performance-dashboard-grafana)
-  - [Performance Testing](#performance-testing)
-    - [Benchmark Suite](#benchmark-suite)
-    - [Load Testing](#load-testing)
-  - [Performance Optimization Checklist](#performance-optimization-checklist)
-    - [Pre-Launch Optimization](#pre-launch-optimization)
-    - [Post-Launch Monitoring](#post-launch-monitoring)
-    - [Continuous Improvement](#continuous-improvement)
-  - [Success Criteria](#success-criteria)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Performance Strategy, SLOs, and Monitoring
 
 ## Overview
@@ -80,7 +49,7 @@ The performance strategy ensures marketplace-v2 meets or exceeds v1 performance 
 ### 1. SPARQL Query Optimization
 
 ```rust
-// ggen-marketplace/src/search/query_optimizer.rs
+// ggen-marketplace-v2/src/search/query_optimizer.rs
 
 pub struct SparqlQueryOptimizer {
     query_cache: Arc<Mutex<LruCache<String, String>>>,
@@ -149,7 +118,7 @@ impl PreparedQuery {
 ### 2. Caching Strategy
 
 ```rust
-// ggen-marketplace/src/cache.rs
+// ggen-marketplace-v2/src/cache.rs
 
 use moka::future::Cache;
 use std::time::Duration;
@@ -224,7 +193,7 @@ impl MarketplaceCacheV2 {
 ### 3. RDF Store Optimization
 
 ```rust
-// ggen-marketplace/src/registry/store_config.rs
+// ggen-marketplace-v2/src/registry/store_config.rs
 
 use oxigraph::store::Store;
 
@@ -296,7 +265,7 @@ impl RdfStoreConfig {
 ### 4. Parallel Processing
 
 ```rust
-// ggen-marketplace/src/search/parallel_search.rs
+// ggen-marketplace-v2/src/search/parallel_search.rs
 
 use rayon::prelude::*;
 
@@ -350,7 +319,7 @@ impl ParallelSearchEngine {
 ### 5. Signature Verification Optimization
 
 ```rust
-// ggen-marketplace/src/crypto/batch_verify.rs
+// ggen-marketplace-v2/src/crypto/batch_verify.rs
 
 use ed25519_dalek::{Signature, PublicKey, Verifier};
 use rayon::prelude::*;
@@ -402,7 +371,7 @@ impl BatchSignatureVerifier {
 ### OpenTelemetry Instrumentation
 
 ```rust
-// ggen-marketplace/src/metrics.rs
+// ggen-marketplace-v2/src/metrics.rs
 
 use opentelemetry::{
     metrics::{Counter, Histogram, ObservableGauge},

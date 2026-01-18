@@ -1,18 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [How-To: Manage Ontology Pack Versions](#how-to-manage-ontology-pack-versions)
-  - [Understanding Semantic Versioning](#understanding-semantic-versioning)
-  - [Checking for Updates](#checking-for-updates)
-  - [Updating Packs](#updating-packs)
-  - [Version Compatibility](#version-compatibility)
-  - [Lockfiles](#lockfiles)
-  - [Tracking Changes](#tracking-changes)
-  - [Migration Guide](#migration-guide)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # How-To: Manage Ontology Pack Versions
 
 ## Understanding Semantic Versioning
