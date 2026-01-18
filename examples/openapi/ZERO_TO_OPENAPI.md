@@ -1,0 +1,921 @@
+# 🚀 From Zero to OpenAPI: Complete Beginner's Guide
+
+## Welcome!
+
+This guide will take you from zero knowledge to generating a complete REST API with OpenAPI specs, validation schemas, and type definitions—all from a single RDF specification.
+
+**Time needed**: 30 minutes for full understanding + examples
+**Prerequisites**: Basic command line familiarity, text editor, Node.js 18+
+**End result**: Full API contract (OpenAPI + Zod schemas + JSDoc types)
+
+---
+
+## 📚 What You're About to Learn
+
+By the end of this guide, you'll understand:
+
+1. **What is ggen?** - An ontology-driven code generation system
+2. **What is RDF?** - A way to describe data that computers can understand
+3. **What is SPARQL?** - A query language to extract data from RDF
+4. **What are templates?** - How to turn extracted data into code
+5. **How it all works together** - The complete pipeline from spec to code
+
+---
+
+## Part 1: Understanding ggen (5 minutes)
+
+### What is ggen?
+
+`ggen` is a **specification-first code generation** tool. Instead of writing code manually, you:
+
+1. **Write a specification** (RDF ontology) describing your API domain
+2. **Run ggen sync** to generate code from that specification
+3. **Get three synchronized outputs** (all in perfect agreement):
+   - OpenAPI 3.0 spec (REST API documentation)
+   - Zod validation schemas (runtime validation)
+   - JSDoc type definitions (IDE support)
+
+### Why This Matters
+
+- **Single source of truth**: Change the spec, regenerate everything
+- **Zero divergence**: Spec and code are always in sync
+- **Type-safe**: Types, validation, and docs from one source
+- **Deterministic**: Same spec → identical output every time
+
+### Real-World Analogy
+
+Think of it like a **recipe that generates restaurants**:
+
+```
+Recipe (ontology)
+    ↓
+    ├─→ Kitchen specifications (OpenAPI)
+    ├─→ Ingredient validators (Zod)
+    └─→ Equipment guides (JSDoc types)
+```
+
+Change one recipe → all three update automatically.
+
+---
+
+## Part 2: Understanding RDF (10 minutes)
+
+### What is RDF?
+
+RDF stands for **Resource Description Framework**. It's a way to describe data as **triples**.
+
+A triple is: **Subject - Predicate - Object**
+
+**Example 1**:
+```
+User  hasProperty  email
+```
+(The entity "User" has a property named "email")
+
+**Example 2**:
+```
+email  hasType  string
+```
+(The property "email" has the type "string")
+
+### RDF in Turtle Syntax
+
+RDF is written in **Turtle** format (`.ttl` files):
+
+```turtle
+# Define a User entity
+blog:User a api:Entity ;
+    api:name "User" ;
+    api:hasProperty blog:User_id ;
+    api:hasProperty blog:User_email .
+
+# Define properties
+blog:User_id a api:Property ;
+    api:name "id" ;
+    api:type "string" ;
+    api:required "true" .
+
+blog:User_email a api:Property ;
+    api:name "email" ;
+    api:type "string" ;
+    api:required "true" .
+```
+
+**Breaking it down:**
+
+- `blog:User` - A reference (namespace:name)
+- `a api:Entity` - This is an Entity type
+- `api:name "User"` - Its display name is "User"
+- `api:hasProperty blog:User_id` - It has a property called User_id
+- `;` - Continue defining this resource
+- `.` - End the definition
+
+### The Blog API Example
+
+The `examples/openapi/ontology/blog-api.ttl` file defines:
+
+- **Entities**: User, Post, Comment, Tag
+- **Properties**: Each entity has id, name, email, etc.
+- **Endpoints**: CRUD operations for each entity
+- **Request types**: CreateUserRequest, UpdateUserRequest, etc.
+
+### Key Concepts
+
+| Concept | Meaning | Example |
+|---------|---------|---------|
+| Entity | A data type in your domain | User, Post, Comment |
+| Property | A field of an entity | id, username, email |
+| Type | The data type of a property | string, number, boolean |
+| Required | Whether a property must be present | true, false |
+
+---
+
+## Part 3: Understanding SPARQL (5 minutes)
+
+### What is SPARQL?
+
+SPARQL is like **SQL for RDF graphs**. It queries RDF data and extracts results.
+
+### A Simple SPARQL Query
+
+```sparql
+PREFIX api: <https://ggen.io/ontology/api#>
+
+SELECT ?entityName ?propertyName ?propertyType ?required
+WHERE {
+  ?entity a api:Entity ;
+          api:name ?entityName ;
+          api:hasProperty ?property .
+  ?property api:name ?propertyName ;
+            api:type ?propertyType .
+  OPTIONAL { ?property api:required ?required }
+}
+ORDER BY ?entityName ?propertyName
+```
+
+**What this does:**
+
+1. **SELECT** - Choose what to return
+   - `?entityName` - Store entity name in a variable
+   - `?propertyName` - Store property name in a variable
+   - `?propertyType` - Store property type in a variable
+   - `?required` - Store required flag in a variable
+
+2. **WHERE** - Define the pattern to match
+   - Find all entities (`?entity a api:Entity`)
+   - Get their name (`api:name ?entityName`)
+   - Get their properties (`api:hasProperty ?property`)
+   - Get property details (name, type)
+
+3. **OPTIONAL** - Include this if it exists (may be missing)
+   - `required` flag is optional
+
+4. **ORDER BY** - Sort results
+
+### Query Results
+
+This query returns a table of results:
+
+```
+entityName | propertyName | propertyType | required
+-----------|--------------|--------------|----------
+User       | id           | string       | true
+User       | username     | string       | true
+User       | email        | string       | true
+Post       | id           | string       | true
+Post       | title        | string       | true
+...
+```
+
+**This is what gets passed to templates!**
+
+---
+
+## Part 4: Understanding Templates (5 minutes)
+
+### What are Templates?
+
+Templates are files that transform SPARQL results into code. They use **Tera** (a templating language, like Handlebars or Jinja2).
+
+### Template Structure
+
+Every template has **two parts**:
+
+#### Part 1: YAML Frontmatter (metadata)
+
+```yaml
+---
+to: lib/schemas/entities.mjs
+description: Generates Zod validation schemas for entities
+---
+```
+
+This tells ggen:
+- Where to write the output (`to: lib/schemas/entities.mjs`)
+- What this template does (`description`)
+
+#### Part 2: Template Body (code generation)
+
+```tera
+// Zod schemas for validation
+{% for row in sparql_results %}
+export const {{ row["?entityName"] | lower }}Schema = z.object({
+  {% for prop_row in sparql_results %}
+    {% if prop_row["?entityName"] == row["?entityName"] %}
+    {{ prop_row["?propertyName"] }}: z.string(),
+    {% endif %}
+  {% endfor %}
+});
+{% endfor %}
+```
+
+### How Templates Work: Step-by-Step
+
+**Input**: SPARQL results (the table from above)
+
+**Template Logic**:
+1. Loop through each entity
+2. For each entity, create a Zod schema
+3. For each property of that entity, add a field
+4. Substitute variable values
+
+**Output**: Generated code
+
+```javascript
+// Generated output
+export const userSchema = z.object({
+  id: z.string(),
+  username: z.string(),
+  email: z.string(),
+});
+
+export const postSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+});
+```
+
+### Template Variables
+
+In a template, you can access:
+- `sparql_results` - The table of results
+- `row["?variableName"]` - Access a specific variable
+- Filters: `| lower`, `| upper`, `| capitalize` - Transform values
+
+---
+
+## Part 5: The Complete Flow (5 minutes)
+
+### Step-by-Step Process
+
+```
+1. You run: ggen sync
+                ↓
+2. ggen reads: ontology/blog-api.ttl (the RDF spec)
+                ↓
+3. For each rule in ggen.toml:
+    a) Run SPARQL query → get results
+    b) Pass results to template
+    c) Render template with results
+    d) Write to output file
+                ↓
+4. Output: lib/ directory with generated files
+```
+
+### Concrete Example: Generating a Zod Schema
+
+**Step 1: Input (Ontology)**
+```turtle
+blog:User a api:Entity ;
+    api:name "User" ;
+    api:hasProperty blog:User_email .
+blog:User_email a api:Property ;
+    api:name "email" ;
+    api:type "string" .
+```
+
+**Step 2: SPARQL Query** (extract the data)
+```sparql
+SELECT ?entityName ?propertyName ?propertyType
+WHERE {
+  ?entity a api:Entity ;
+          api:name ?entityName ;
+          api:hasProperty ?property .
+  ?property api:name ?propertyName ;
+            api:type ?propertyType .
+}
+```
+
+**Step 3: Query Results** (what the template gets)
+```
+entityName | propertyName | propertyType
+-----------|--------------|---------------
+User       | email        | string
+```
+
+**Step 4: Template** (generates code from results)
+```tera
+{% for row in sparql_results %}
+export const {{ row["?entityName"] | lower }}Schema = z.object({
+  {{ row["?propertyName"] }}: z.{{ row["?propertyType"] | lower }}(),
+});
+{% endfor %}
+```
+
+**Step 5: Generated Output**
+```javascript
+export const userSchema = z.object({
+  email: z.string(),
+});
+```
+
+**Step 6: Write to File**
+```
+lib/schemas/entities.mjs
+```
+
+---
+
+## Part 6: The 13 Generation Rules
+
+The `ggen.toml` file has 13 rules that generate different outputs:
+
+### Core Rules (1-4): OpenAPI Specification
+| Rule | Output | Purpose |
+|------|--------|---------|
+| 1 | `lib/openapi/api-info.yaml` | OpenAPI spec header (title, version, servers) |
+| 2 | `lib/openapi/schemas.yaml` | OpenAPI component schemas (entities) |
+| 3 | `lib/openapi/paths.yaml` | OpenAPI paths/endpoints (CRUD operations) |
+| 4 | `lib/openapi/openapi.yaml` | Combined OpenAPI spec (complete, mergeable) |
+
+### JavaScript Validation Rules (5-9): Type Safety
+| Rule | Output | Purpose |
+|------|--------|---------|
+| 5 | `lib/types/entities.mjs` | JSDoc type definitions for entities |
+| 6 | `lib/types/requests.mjs` | JSDoc type definitions for requests |
+| 7 | `lib/schemas/entities.mjs` | Zod validation schemas for entities |
+| 8 | `lib/schemas/requests.mjs` | Zod validation schemas for requests |
+| 9 | `lib/guards/entities.mjs` | Runtime type guard functions |
+
+### Index/Barrel Export Rules (10-13): Clean Imports
+| Rule | Output | Purpose |
+|------|--------|---------|
+| 10 | `lib/index.mjs` | Main barrel export for all generated modules |
+| 11 | `lib/schemas/index.mjs` | Barrel export for schemas subdirectory |
+| 12 | `lib/types/index.mjs` | Barrel export for types subdirectory |
+| 13 | `lib/guards/index.mjs` | Barrel export for guards subdirectory |
+
+Each rule:
+- Has a unique SPARQL query to extract relevant data from the ontology
+- Uses a specific Tera template to transform the data
+- Produces one output file with deterministic formatting
+- Runs independently but in coordinated sequence by ggen sync
+
+---
+
+## Part 7: Getting Started (15 minutes)
+
+### Prerequisites
+
+```bash
+# Check you have Node.js
+node --version  # Should be 18+
+
+# Install/check ggen (from your ggen repo)
+# You'll run ggen from the examples/openapi directory
+```
+
+### Setup
+
+```bash
+# Navigate to the example
+cd examples/openapi
+
+# List files
+ls -la
+# You should see:
+# - ggen.toml (configuration with 10 rules)
+# - ontology/blog-api.ttl (the RDF spec)
+# - templates/ (template files for code generation)
+# - golden/ (expected outputs for testing)
+```
+
+### Generate Code
+
+```bash
+# Generate all outputs from specification
+ggen sync
+
+# Check output was created
+ls -la lib/
+# You should see: schemas/, types/, guards/, openapi/, index.mjs
+```
+
+### Verify Output
+
+```bash
+# Check generated files
+cat lib/schemas/entities.mjs
+# You should see Zod schemas
+
+cat lib/openapi/openapi.yaml
+# You should see OpenAPI spec
+
+cat lib/types/entities.mjs
+# You should see JSDoc types
+```
+
+### Test Output
+
+```bash
+# Compare with golden files (expected output)
+node validate.mjs
+# Should output: ✅ All files match golden files
+```
+
+---
+
+## Part 8: Modifying the Example
+
+### Add a New Property
+
+1. **Edit** `ontology/blog-api.ttl`
+
+```turtle
+# Add a new property to User entity
+blog:User_avatar a api:Property ;
+    api:name "avatar" ;
+    api:type "string" ;
+    api:format "url" .
+
+# Link it to User
+blog:User api:hasProperty blog:User_avatar .
+```
+
+2. **Regenerate**
+
+```bash
+ggen sync
+```
+
+3. **Verify**
+
+```bash
+cat lib/schemas/entities.mjs
+# Should now include avatar field in userSchema
+```
+
+### Add a New Entity
+
+1. **Edit** `ontology/blog-api.ttl`
+
+```turtle
+# Define new entity
+blog:Category a api:Entity ;
+    api:name "Category" ;
+    rdfs:comment "Post category" ;
+    api:hasProperty blog:Category_id ;
+    api:hasProperty blog:Category_name .
+
+# Define properties
+blog:Category_id a api:Property ;
+    api:name "id" ;
+    api:type "string" ;
+    api:required "true" .
+
+blog:Category_name a api:Property ;
+    api:name "name" ;
+    api:type "string" ;
+    api:required "true" .
+```
+
+2. **Regenerate**
+
+```bash
+ggen sync
+```
+
+3. **Verify**
+
+```bash
+cat lib/schemas/entities.mjs
+# Should include categorySchema
+```
+
+---
+
+## Part 9: Understanding the Output
+
+### Generated Files
+
+**`lib/schemas/entities.mjs`** - Zod validation
+```javascript
+import { z } from 'zod';
+
+export const userSchema = z.object({
+  id: z.string(),
+  username: z.string(),
+  email: z.string(),
+});
+
+// Use in code:
+const result = userSchema.safeParse(data);
+if (result.success) {
+  // data is valid
+  console.log(result.data);
+} else {
+  // Show validation errors
+  console.error(result.error.flatten());
+}
+```
+
+**`lib/types/entities.mjs`** - JSDoc types
+```javascript
+/**
+ * @typedef {Object} User
+ * @property {string} id
+ * @property {string} username
+ * @property {string} email
+ * @property {string} bio
+ * @property {string[]} posts
+ */
+```
+
+**`lib/guards/entities.mjs`** - Runtime type guards
+```javascript
+// Type guard function generated from the ontology
+export function isUser(data) {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    typeof data.id === 'string' &&
+    typeof data.username === 'string' &&
+    typeof data.email === 'string'
+  );
+}
+```
+
+**`lib/openapi/openapi.yaml`** - Complete API documentation
+```yaml
+openapi: 3.0.0
+info:
+  title: Blog API
+  version: 1.0.0
+paths:
+  /users:
+    get:
+      summary: List all users
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  /users/{id}:
+    get:
+      summary: Get a user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id: { type: string }
+        username: { type: string }
+        email: { type: string }
+```
+
+### Using in Next.js
+
+```javascript
+// app/api/users/route.mjs
+import { createUserSchema } from '@/lib/schemas/requests.mjs';
+import { isUser } from '@/lib/guards/entities.mjs';
+import type { User } from '@/lib/types/entities.mjs';
+
+export async function POST(request) {
+  const body = await request.json();
+
+  // Validate using generated schema
+  const result = createUserSchema.safeParse(body);
+  if (!result.success) {
+    return Response.json(
+      { error: 'Invalid user data', issues: result.error.flatten() },
+      { status: 400 }
+    );
+  }
+
+  // Create user (data is now type-safe)
+  const user = await db.users.create(result.data);
+
+  // Verify output with guard
+  if (!isUser(user)) {
+    console.error('Database returned invalid user data');
+  }
+
+  return Response.json(user);
+}
+
+export async function GET(request) {
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get('id');
+
+  if (!id) {
+    const users = await db.users.list();
+    return Response.json(users);
+  }
+
+  const user = await db.users.findById(id);
+  if (!user) {
+    return Response.json({ error: 'User not found' }, { status: 404 });
+  }
+
+  return Response.json(user);
+}
+```
+
+### Using in Express.js
+
+```javascript
+// routes/users.js
+import { Router } from 'express';
+import { userSchema, createUserSchema } from '../lib/schemas/index.mjs';
+
+const router = Router();
+
+// Middleware: Validate request body
+function validateBody(schema) {
+  return (req, res, next) => {
+    const result = schema.safeParse(req.body);
+    if (!result.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        issues: result.error.flatten()
+      });
+    }
+    req.validatedData = result.data;
+    next();
+  };
+}
+
+// GET /users
+router.get('/', async (req, res) => {
+  const users = await db.users.list();
+  // All users are guaranteed to match userSchema
+  res.json(users);
+});
+
+// POST /users
+router.post(
+  '/',
+  validateBody(createUserSchema),
+  async (req, res) => {
+    // req.validatedData already validated by schema
+    const user = await db.users.create(req.validatedData);
+    res.status(201).json(user);
+  }
+);
+
+export default router;
+```
+
+### Using the OpenAPI Spec
+
+Generated `lib/openapi/openapi.yaml` can be used with:
+- **Swagger UI**: Display interactive API documentation
+- **ReDoc**: Pretty-print API docs
+- **Insomnia/Postman**: Import specs for testing
+- **API Gateway**: Use for request validation
+- **Client generation**: Generate SDK from spec
+
+```bash
+# Serve OpenAPI spec with Swagger UI
+npm install swagger-ui-express
+```
+
+```javascript
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yaml';
+import fs from 'fs';
+
+const openapi = YAML.parse(fs.readFileSync('./lib/openapi/openapi.yaml', 'utf8'));
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openapi));
+```
+
+---
+
+## Part 10: Key Concepts Summary
+
+| Concept | What It Is | Why It Matters |
+|---------|-----------|----------------|
+| **RDF** | Graph data format | Describes domain semantically |
+| **Ontology** | RDF file describing domain | Single source of truth |
+| **SPARQL** | Query language for RDF | Extracts specific data patterns |
+| **Template** | Code generation template | Transforms data to code |
+| **Rule** | Query + Template + Output | One artifact generated |
+| **ggen sync** | Runs all 10 rules | Creates all outputs at once |
+
+---
+
+## Troubleshooting
+
+### Common Issues and Solutions
+
+**Q: "ggen command not found"**
+- A: The `ggen` binary needs to be built from source
+- A: Run `cargo build --release -p ggen-cli-lib` from the ggen repository root
+- A: Add `./target/release` to your PATH, or use the full path: `./target/release/ggen sync`
+
+**Q: Generated files are empty or missing**
+- A: Check that ontology file exists at `ontology/blog-api.ttl`
+- A: Verify SPARQL queries in ggen.toml are syntactically correct
+- A: Ensure RDF data matches the query patterns (use correct prefixes)
+- A: Check that template files exist in the `templates/` directory
+- A: Run with verbose output: `ggen sync --verbose` (if available)
+
+**Q: "SPARQL query returned no results"**
+- A: Check namespace prefixes in the ontology match the query
+- A: Example: Query uses `blog:` prefix but ontology uses `example:` prefix
+- A: Verify entity definitions use `a api:Entity` or correct type
+- A: Test query by running it separately with a SPARQL tool
+
+**Q: Template syntax errors or undefined variables**
+- A: Template variables come from SPARQL SELECT clause
+- A: Variable names must match: `?entityName` in SELECT must appear in template as `row["?entityName"]`
+- A: Check case sensitivity: `?propertyType` ≠ `?PropertyType`
+- A: Review Tera template docs: https://keats.github.io/tera/
+
+**Q: Output doesn't match golden files or validate.mjs fails**
+- A: Run `node validate.mjs` to see detailed diff of mismatched files
+- A: Check that all entities and properties in ontology match golden files
+- A: Verify template formatting (trailing newlines, indentation) matches golden
+- A: Regenerate completely: `rm -rf lib/` then `ggen sync` again
+
+**Q: Modified ontology but changes didn't generate**
+- A: Make sure you ran `ggen sync` after editing the ontology file
+- A: Verify syntax of your ontology edits (RDF/Turtle can be picky)
+- A: Check file was actually saved (no unsaved changes in editor)
+- A: Try: `rm -rf lib/ && ggen sync` to force regeneration from scratch
+
+**Q: "Error: Template file not found"**
+- A: Verify template file path in ggen.toml uses correct relative path
+- A: Example: `templates/openapi-info.tera` (not `./templates/...`)
+- A: Ensure file extensions match: `.tera` not `.template` or `.jinja`
+- A: Run ggen from the `examples/openapi/` directory (where ggen.toml is)
+
+**Q: Generated JavaScript has syntax errors**
+- A: Check template doesn't have unclosed brackets or quotes
+- A: Verify Tera filter syntax: `| lower` not `.toLowerCase()`
+- A: Look for malformed JSON in templates (missing commas, trailing commas)
+- A: JSDoc types should use proper TypeScript syntax
+
+**Q: Zod schema validation always fails**
+- A: Verify schema property names match SPARQL output exactly
+- A: Check case sensitivity in Zod types: `z.string()` not `z.String()`
+- A: Ensure required properties use `z.object()` not `z.object({})`
+- A: Objects need curly braces: `z.object({ field: z.string() })`
+
+**Q: How do I add a new entity?**
+- A: Edit `ontology/blog-api.ttl` and add:
+  ```turtle
+  blog:NewEntity a api:Entity ;
+    api:name "NewEntity" ;
+    api:hasProperty blog:NewEntity_id .
+  blog:NewEntity_id a api:Property ;
+    api:name "id" ;
+    api:type "string" ;
+    api:required "true" .
+  ```
+- A: Save file, run `ggen sync`
+- A: New entity will appear in all generated files automatically
+
+**Q: How do I change a property type?**
+- A: Edit the `api:type` in the ontology:
+  ```turtle
+  blog:User_age a api:Property ;
+    api:type "integer" ;  # Change from "string"
+  ```
+- A: Run `ggen sync` to regenerate all outputs with new type
+
+**Q: Generated index files import nothing**
+- A: Index files work - they create barrel exports for convenience
+- A: Use them: `import { userSchema } from './lib/schemas/index.mjs'`
+- A: Or import directly: `import { userSchema } from './lib/schemas/entities.mjs'`
+- A: Both approaches work identically
+
+---
+
+## Learning Resources
+
+- **RDF/Turtle**: https://www.w3.org/TR/rdf11-primer/
+- **SPARQL**: https://www.w3.org/2009/Talks/0615-qbe/
+- **Tera Templates**: https://keats.github.io/tera/
+- **Zod**: https://zod.dev/
+- **JSDoc**: https://jsdoc.app/
+- **OpenAPI**: https://swagger.io/specification/
+
+---
+
+## Next Steps
+
+### Immediate (Now)
+1. ✅ **Understand the concepts** (you've done this!)
+2. 🔧 **Run `ggen sync`** in `examples/openapi/` directory
+3. 📝 **Examine generated files** in `lib/` directory
+   - Open and read a generated schema file
+   - Open the OpenAPI YAML to understand the structure
+4. 🎯 **Verify with validation** - Run `node validate.mjs` to confirm outputs
+
+### Short Term (Next Hour)
+5. ✏️ **Modify the ontology** - try adding a new property to User entity
+   - Edit `ontology/blog-api.ttl`
+   - Add a new `api:Property` definition
+   - Run `ggen sync` again
+   - Verify the change appears in all 13 output files
+6. 🔄 **Make another modification** - try adding a complete new entity
+   - Create a full entity with 3-4 properties
+   - See how all templates adapt automatically
+7. 🧪 **Test generated code** - use Zod schemas in JavaScript
+   - Create a simple Node.js script
+   - Import the generated schemas
+   - Test validation with valid and invalid data
+
+### Medium Term (Next Day)
+8. 🚀 **Use in a project** - integrate generated code into a real application
+   - Copy `lib/` directory to a Next.js or Express project
+   - Use the generated schemas in API route handlers
+   - Use the generated types for IDE autocomplete
+9. 📚 **Explore templates** - look at how code is generated
+   - Review `templates/*.tera` files
+   - Understand Tera syntax and template variables
+   - Consider creating custom templates for your own needs
+10. 🏗️ **Create your own ontology** - define an API for your domain
+    - Start with 3-4 core entities
+    - Define all properties with types
+    - Run `ggen sync` to generate your project's code
+    - Use the generated contracts in your API
+
+### Advanced (This Week)
+11. 🎨 **Customize templates** - modify generated code format
+    - Adjust naming conventions (camelCase vs snake_case)
+    - Add custom validation rules beyond Zod defaults
+    - Generate additional code (database models, migrations)
+    - Generate code for different languages (TypeScript, Python, Go)
+12. 🔌 **Integrate with API tools**
+    - Import OpenAPI spec into Swagger UI
+    - Use spec with API testing tools (Insomnia, Postman)
+    - Generate client SDK from OpenAPI spec
+13. 📊 **Version control your specification**
+    - Treat `.ttl` files as your single source of truth
+    - Track specification changes in git
+    - Generate release notes from spec diffs
+    - Build CI/CD pipeline around ggen sync
+
+---
+
+## Quick Reference
+
+### Files You'll Edit
+
+```
+examples/openapi/
+├── ontology/blog-api.ttl      ← Edit here to change domain
+├── ggen.toml                   ← 10 rules (read-only usually)
+└── templates/*.tera            ← Templates (advanced)
+```
+
+### Commands You'll Run
+
+```bash
+# Generate everything
+ggen sync
+
+# Verify output
+node validate.mjs
+
+# Check a generated file
+cat lib/schemas/entities.mjs
+```
+
+### The Pipeline
+
+```
+Edit ontology/
+  → ggen sync
+    → lib/ updated
+      → Use in project
+```
+
+---
+
+**You're ready to generate APIs from specifications! 🚀**
+
+Questions? Check the README.md and CONFIGURATION_EXPLAINED.md files in the example directory.

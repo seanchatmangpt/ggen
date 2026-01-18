@@ -1,0 +1,46 @@
+command: "ggen fmea report"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 60
+agent_breakdown:
+  parseable_output: 20
+  error_messages: 12
+  idempotency: 15
+  progress_feedback: 6
+  dry_run: 10
+  documentation: 4
+  exit_codes: 2
+
+avatar_notes:
+  claude_code: "Generates FMEA report with multiple formats"
+  cursor_ai: "Report generation visible"
+  copilot: "Report patterns learnable"
+  aider: "Can track reports in git"
+  devin: "Can generate autonomously"
+  openhands: "Customizable report formats"
+  windsurf: "Report preview in IDE"
+
+maturity_level: "L3"
+maturity_blockers: []
+
+evidence_files: []
+
+recommendations:
+  - priority: P2
+    description: "Add --format pdf for standard reports"
+    effort: medium
+    impact: medium
+
+jtbd: |
+  When I want to generate an FMEA report,
+  I need to run 'ggen fmea report',
+  so that I can document failure analysis for stakeholders.

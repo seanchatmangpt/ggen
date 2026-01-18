@@ -1,0 +1,14 @@
+---
+to: "generated/STRUCTURE.md"
+---
+# Project Structure
+
+```
+project/
+├── src/
+│   ├── lib.rs       (Library code)
+│   └── main.rs      (Binary entry)
+├── tests/           (Integration tests)
+├── Cargo.toml       (Manifest)
+└── .gitignore       (Git excludes)
+```

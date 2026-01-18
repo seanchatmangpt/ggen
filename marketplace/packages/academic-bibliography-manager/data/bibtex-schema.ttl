@@ -1,0 +1,21 @@
+@prefix bib: <http://example.com/bibtex#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Minimal schema for bibliography fields used by the template
+bib:Entry a rdfs:Class .
+bib:citeKey a rdf:Property ; rdfs:domain bib:Entry ; rdfs:range xsd:string .
+bib:title a rdf:Property ; rdfs:domain bib:Entry ; rdfs:range xsd:string .
+bib:authors a rdf:Property ; rdfs:domain bib:Entry ; rdfs:range xsd:string .
+bib:journal a rdf:Property ; rdfs:domain bib:Entry ; rdfs:range xsd:string .
+bib:booktitle a rdf:Property ; rdfs:domain bib:Entry ; rdfs:range xsd:string .
+bib:year a rdf:Property ; rdfs:domain bib:Entry ; rdfs:range xsd:gYear .
+bib:volume a rdf:Property ; rdfs:domain bib:Entry ; rdfs:range xsd:string .
+bib:issue a rdf:Property ; rdfs:domain bib:Entry ; rdfs:range xsd:string .
+bib:pages a rdf:Property ; rdfs:domain bib:Entry ; rdfs:range xsd:string .
+bib:doi a rdf:Property ; rdfs:domain bib:Entry ; rdfs:range xsd:string .
+bib:url a rdf:Property ; rdfs:domain bib:Entry ; rdfs:range xsd:anyURI .
+bib:publisher a rdf:Property ; rdfs:domain bib:Entry ; rdfs:range xsd:string .
+
+
+
+

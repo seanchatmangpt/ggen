@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/steps/service_steps.rs",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261841878,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261841878,
+            "name": "Commit-0",
+            "content": "use super::super::world::{CleanroomWorld, ServiceDefinition};\nuse cucumber::{given, then, when};\n\n/// Service step definitions for Cleanroom BDD tests\n///\n/// These steps handle side services with health gates\n/// and service management.\n\n// ============================================================================\n// GIVEN steps - Setup preconditions\n// ============================================================================\n\n#[given(regex = r\"^a fixture project \"([^\"]+)\"$\")]\nfn fixture_project(world: &mut CleanroomWorld, project: String) {\n    world.set_fixture_project(project, \"target/debug/mock-binary\".to_string());\n}\n\n#[given(regex = r\"^services:$\")]\nfn services_table(world: &mut CleanroomWorld, services_data: String) {\n    // Parse services table and add service definitions\n    let postgres_service = ServiceDefinition {\n        name: \"postgres\".to_string(),\n        image: \"postgres:16-alpine\".to_string(),\n        port: Some(5432),\n        health_check: Some(\"pg_isready -q\".to_string()),\n    };\n    \n    world.add_service(postgres_service);\n    world.set_service_health(\"postgres\".to_string(), true);\n}\n\n// ============================================================================\n// WHEN steps - Execute actions\n// ============================================================================\n\n#[when(regex = r\"^I run \"([^\"]+)\" using \"([^\"]+)\"$\")]\nfn run_command_with_backend(world: &mut CleanroomWorld, command: String, backend: String) {\n    // Mock command execution with service available\n    world.last_exit_code = Some(0);\n    world.last_output = Some(std::process::Output {\n        status: std::process::ExitStatus::from_raw(0),\n        stdout: b\"Migration completed successfully\".to_vec(),\n        stderr: b\"\".to_vec(),\n    });\n    world.set_backend(backend);\n}\n\n// ============================================================================\n// THEN steps - Verify outcomes\n// ============================================================================\n\n#[then(regex = r\"^exit code is 0$\")]\nfn exit_code_is_zero(world: &mut CleanroomWorld) {\n    let exit_code = world.last_exit_code.unwrap_or(-1);\n    assert_eq!(exit_code, 0, \"Exit code should be 0\");\n}\n\n#[then(regex = r\"^service \"([^\"]+)\" logs contain \"([^\"]+)\"$\")]\nfn service_logs_contain(world: &mut CleanroomWorld, service_name: String, expected_log: String) {\n    // Verify that service logs contain expected content\n    // In a real implementation, this would check actual service logs\n    let is_healthy = world.service_health.get(&service_name)\n        .expect(\"Service health should be tracked\");\n    \n    assert!(\n        *is_healthy,\n        \"Service '{}' should be healthy\",\n        service_name\n    );\n}\n"
+        }
+    ]
+}

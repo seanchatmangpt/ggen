@@ -1,0 +1,130 @@
+{# Spec-Kit Unified Specification Template #}
+{# Renders complete feature specification from RDF ontology #}
+
+{%- set feature_metadata = sparql_results | first -%}
+
+# Feature Specification: {{ feature_metadata.featureName }}
+
+**Branch**: `{{ feature_metadata.featureBranch }}`
+**Created**: {{ feature_metadata.created }}
+**Status**: {{ feature_metadata.status }}
+
+{% if feature_metadata.userInput -%}
+## User Input
+
+{{ feature_metadata.userInput }}
+
+{% endif -%}
+
+---
+
+## User Stories
+
+{%- set current_story = "" %}
+{%- for row in sparql_results %}
+{%- if row.storyIndex and row.storyIndex != current_story -%}
+{%- set_global current_story = row.storyIndex -%}
+
+### User Story {{ row.storyIndex }} - {{ row.title }} (Priority: {{ row.priority }})
+
+{{ row.description }}
+
+**Why this priority**: {{ row.priorityRationale }}
+
+**Independent Test**: {{ row.independentTest }}
+
+**Acceptance Scenarios**:
+
+{%- endif %}
+{%- if row.storyIndex == current_story and row.scenarioIndex %}
+{{ row.scenarioIndex }}. **Given** {{ row.given }}, **When** {{ row.when }}, **Then** {{ row.then }}
+{%- endif %}
+{%- endfor %}
+
+---
+
+## Functional Requirements
+
+{%- set requirements = sparql_results | filter(attribute="requirementId") | unique(attribute="requirementId") %}
+{%- if requirements | length > 0 %}
+
+{%- for req in requirements %}
+- **{{ req.requirementId }}**{% if req.category %} ({{ req.category }}){% endif %}: {{ req.reqDescription }}
+{%- endfor %}
+
+{%- else %}
+*No functional requirements defined yet.*
+{%- endif %}
+
+---
+
+## Success Criteria
+
+{%- set criteria = sparql_results | filter(attribute="criterionId") | unique(attribute="criterionId") %}
+{%- if criteria | length > 0 %}
+
+{%- for criterion in criteria %}
+- **{{ criterion.criterionId }}**{% if criterion.measurable == "true" and criterion.metric %} ({{ criterion.metric }}: {{ criterion.target }}){% endif %}: {{ criterion.scDescription }}
+{%- endfor %}
+
+{%- else %}
+*No success criteria defined yet.*
+{%- endif %}
+
+---
+
+## Key Entities
+
+{%- set entities = sparql_results | filter(attribute="entityName") | unique(attribute="entityName") %}
+{%- if entities | length > 0 %}
+
+{%- for entity in entities %}
+### {{ entity.entityName }}
+
+{{ entity.definition }}
+
+{%- if entity.keyAttributes %}
+
+**Key attributes**: {{ entity.keyAttributes }}
+{%- endif %}
+
+{%- endfor %}
+
+{%- else %}
+*No entities defined yet.*
+{%- endif %}
+
+---
+
+## Edge Cases
+
+{%- set edge_cases = sparql_results | filter(attribute="edgeScenario") | unique(attribute="edgeScenario") %}
+{%- if edge_cases | length > 0 %}
+
+{%- for edge in edge_cases %}
+- **{{ edge.edgeScenario }}**: {{ edge.expectedBehavior }}
+{%- endfor %}
+
+{%- else %}
+*No edge cases identified yet.*
+{%- endif %}
+
+---
+
+## Assumptions
+
+{%- set assumptions = sparql_results | filter(attribute="assumption") | unique(attribute="assumption") %}
+{%- if assumptions | length > 0 %}
+
+{%- for assumption in assumptions %}
+- {{ assumption.assumption }}
+{%- endfor %}
+
+{%- else %}
+*No assumptions documented yet.*
+{%- endif %}
+
+---
+
+**Generated with**: [ggen v6](https://github.com/yourusername/ggen) ontology-driven specification system
+**Constitutional Equation**: `spec.md = μ(ontology)`

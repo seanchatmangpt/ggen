@@ -1,0 +1,347 @@
+# Thesis Generation Contract
+# OpenAPI-style specification for ggen thesis generation
+
+openapi: 3.0.0
+info:
+  title: Grand Unified KGC Thesis Generation
+  version: 1.0.0
+  description: |
+    Contract specification for generating PhD thesis from RDF ontology
+    using ggen code generation framework.
+
+paths:
+  /sync:
+    post:
+      summary: Generate LaTeX from ontology
+      description: |
+        Executes all generation rules defined in ggen.toml manifest,
+        producing LaTeX files from RDF ontology content.
+      requestBody:
+        required: true
+        content:
+          application/toml:
+            schema:
+              $ref: '#/components/schemas/GgenManifest'
+      responses:
+        '200':
+          description: Generation successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerationResult'
+        '400':
+          description: Invalid ontology or manifest
+        '500':
+          description: Generation error
+
+  /validate:
+    post:
+      summary: Validate ontology structure
+      description: |
+        Validates RDF ontology against thesis schema requirements.
+      requestBody:
+        required: true
+        content:
+          text/turtle:
+            schema:
+              type: string
+      responses:
+        '200':
+          description: Validation passed
+        '400':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrors'
+
+  /query:
+    post:
+      summary: Execute SPARQL query
+      description: |
+        Executes SPARQL query against loaded ontology.
+      requestBody:
+        required: true
+        content:
+          application/sparql-query:
+            schema:
+              type: string
+      responses:
+        '200':
+          description: Query results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryResults'
+
+components:
+  schemas:
+    GgenManifest:
+      type: object
+      required:
+        - project
+        - ontology
+        - generation
+      properties:
+        project:
+          $ref: '#/components/schemas/ProjectConfig'
+        ontology:
+          $ref: '#/components/schemas/OntologyConfig'
+        generation:
+          $ref: '#/components/schemas/GenerationConfig'
+
+    ProjectConfig:
+      type: object
+      required:
+        - name
+        - version
+      properties:
+        name:
+          type: string
+          example: "grand-unified-kgc-thesis"
+        version:
+          type: string
+          example: "1.0.0"
+        description:
+          type: string
+
+    OntologyConfig:
+      type: object
+      required:
+        - source
+        - base_iri
+      properties:
+        source:
+          type: string
+          description: Path to main ontology file
+          example: "ontology/kgc-unified-content.ttl"
+        base_iri:
+          type: string
+          example: "https://ggen.io/thesis/kgc-unified/"
+        schema:
+          type: string
+          description: Path to schema ontology
+          example: "ontology/thesis-schema.ttl"
+        prefixes:
+          type: object
+          additionalProperties:
+            type: string
+
+    GenerationConfig:
+      type: object
+      required:
+        - output_dir
+        - rules
+      properties:
+        output_dir:
+          type: string
+          example: "output"
+        require_audit_trail:
+          type: boolean
+          default: true
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/GenerationRule'
+
+    GenerationRule:
+      type: object
+      required:
+        - name
+        - query
+        - template
+        - output_file
+      properties:
+        name:
+          type: string
+          example: "thesis-main"
+        query:
+          oneOf:
+            - type: object
+              properties:
+                inline:
+                  type: string
+            - type: object
+              properties:
+                file:
+                  type: string
+        template:
+          type: object
+          properties:
+            file:
+              type: string
+              example: "templates/thesis-main.tera"
+        output_file:
+          type: string
+          example: "thesis.tex"
+        mode:
+          type: string
+          enum: [Overwrite, Append]
+          default: Overwrite
+
+    GenerationResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        files_generated:
+          type: array
+          items:
+            type: string
+        generation_time_ms:
+          type: integer
+        triples_processed:
+          type: integer
+        audit_trail:
+          type: string
+          description: Path to audit trail file
+
+    ValidationErrors:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              entity:
+                type: string
+              field:
+                type: string
+              message:
+                type: string
+              severity:
+                type: string
+                enum: [error, warning]
+
+    QueryResults:
+      type: object
+      properties:
+        variables:
+          type: array
+          items:
+            type: string
+        results:
+          type: array
+          items:
+            type: object
+
+# Generation Rule Specifications
+
+x-generation-rules:
+  thesis-main:
+    description: Main document structure
+    sparql: |
+      SELECT ?title ?subtitle ?author ?institution ?department ?date ?abstract
+      WHERE {
+        ?t a thesis:Thesis ;
+           thesis:title ?title ;
+           thesis:author ?author ;
+           thesis:institution ?institution ;
+           thesis:date ?date ;
+           thesis:abstract ?abstract .
+        OPTIONAL { ?t thesis:subtitle ?subtitle }
+        OPTIONAL { ?t thesis:department ?department }
+      } LIMIT 1
+    template: thesis-main.tera
+    output: thesis.tex
+
+  chapters:
+    description: All chapters with sections
+    sparql: |
+      SELECT ?chapterOrder ?chapterTitle ?chapterAbstract ?chapterLabel
+             ?sectionOrder ?sectionTitle ?sectionContent ?sectionLabel
+      WHERE {
+        ?chapter a thesis:Chapter ;
+                 thesis:orderIndex ?chapterOrder ;
+                 thesis:title ?chapterTitle ;
+                 thesis:labelId ?chapterLabel ;
+                 thesis:hasSection ?section .
+        OPTIONAL { ?chapter thesis:abstract ?chapterAbstract }
+        ?section thesis:orderIndex ?sectionOrder ;
+                 thesis:title ?sectionTitle ;
+                 thesis:content ?sectionContent ;
+                 thesis:labelId ?sectionLabel .
+      } ORDER BY ?chapterOrder ?sectionOrder
+    template: chapter.tera
+    output: chapters/all-chapters.tex
+
+  theorems:
+    description: Theorems, lemmas, definitions
+    sparql: |
+      SELECT ?chapterOrder ?sectionOrder ?theoremOrder
+             ?theoremType ?theoremName ?statement ?proof ?labelId
+      WHERE {
+        ?chapter a thesis:Chapter ;
+                 thesis:orderIndex ?chapterOrder ;
+                 thesis:hasSection ?section .
+        ?section thesis:orderIndex ?sectionOrder ;
+                 thesis:hasTheorem ?theorem .
+        ?theorem a thesis:Theorem ;
+                 thesis:orderIndex ?theoremOrder ;
+                 thesis:theoremType ?theoremType ;
+                 thesis:statement ?statement ;
+                 thesis:labelId ?labelId .
+        OPTIONAL { ?theorem thesis:theoremName ?theoremName }
+        OPTIONAL { ?theorem thesis:proof ?proof }
+      } ORDER BY ?chapterOrder ?sectionOrder ?theoremOrder
+    template: theorem.tera
+    output: theorems.tex
+
+  equations:
+    description: Mathematical equations
+    sparql: |
+      SELECT ?chapterOrder ?sectionOrder ?equationOrder
+             ?latex ?description ?labelId
+      WHERE {
+        ?chapter a thesis:Chapter ;
+                 thesis:orderIndex ?chapterOrder ;
+                 thesis:hasSection ?section .
+        ?section thesis:orderIndex ?sectionOrder ;
+                 thesis:hasEquation ?equation .
+        ?equation a thesis:Equation ;
+                  thesis:orderIndex ?equationOrder ;
+                  thesis:latex ?latex ;
+                  thesis:labelId ?labelId .
+        OPTIONAL { ?equation thesis:description ?description }
+      } ORDER BY ?chapterOrder ?sectionOrder ?equationOrder
+    template: equation.tera
+    output: equations.tex
+
+  bibliography:
+    description: BibTeX references
+    sparql: |
+      SELECT ?citeKey ?bibType ?author ?title ?year
+             ?journal ?booktitle ?publisher ?school
+             ?volume ?pages ?doi ?url ?howpublished
+      WHERE {
+        ?ref a thesis:Reference ;
+             thesis:citeKey ?citeKey ;
+             thesis:bibType ?bibType ;
+             thesis:author ?author ;
+             thesis:title ?title ;
+             thesis:year ?year .
+        OPTIONAL { ?ref thesis:journal ?journal }
+        OPTIONAL { ?ref thesis:booktitle ?booktitle }
+        OPTIONAL { ?ref thesis:publisher ?publisher }
+        OPTIONAL { ?ref thesis:school ?school }
+        OPTIONAL { ?ref thesis:volume ?volume }
+        OPTIONAL { ?ref thesis:pages ?pages }
+        OPTIONAL { ?ref thesis:doi ?doi }
+        OPTIONAL { ?ref thesis:url ?url }
+        OPTIONAL { ?ref thesis:howpublished ?howpublished }
+      } ORDER BY ?citeKey
+    template: bibliography.tera
+    output: references.bib
+
+# Performance SLOs
+x-slos:
+  generation_time:
+    target: 5000ms
+    max: 10000ms
+  memory_usage:
+    target: 100MB
+    max: 200MB
+  first_compile:
+    target: 0 errors
+    warning_threshold: 5

@@ -1,0 +1,459 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix sparql: <http://ggen.org/sparql#> .
+@prefix security: <http://ggen.org/security#> .
+@prefix kgc: <http://ggen.org/kgc#> .
+@prefix constraint: <http://ggen.org/constraint#> .
+
+# =============================================================================
+# SPARQL SAFETY PATTERNS AND CONSTRAINTS
+# =============================================================================
+# Specification for safe SPARQL patterns, injection prevention, query complexity
+# limits, and trusted vs untrusted input handling. Ensures SPARQL queries
+# generated from specifications are deterministic, auditable, and safe.
+# =============================================================================
+
+<http://ggen.org/sparql-safety-patterns-spec>
+  a owl:Ontology ;
+  rdfs:label "SPARQL Safety Patterns Specification" ;
+  rdfs:comment "Defines safe SPARQL patterns and injection prevention rules" ;
+  owl:versionInfo "1.0.0" ;
+  .
+
+# =============================================================================
+# SAFE SPARQL PATTERNS
+# =============================================================================
+
+sparql:SafePattern
+  a owl:Class ;
+  rdfs:label "Safe SPARQL Pattern" ;
+  rdfs:comment "SPARQL query pattern that is deterministic and injection-safe" ;
+  .
+
+sparql:simpleTriplePattern
+  a sparql:SafePattern ;
+  rdfs:label "Simple Triple Pattern" ;
+  rdfs:comment "Basic BGP with static resources and variables" ;
+  constraint:syntax "?s ?p ?o" ;
+  constraint:injection-resistant true ;
+  constraint:deterministic true ;
+  constraint:example "?person foaf:name ?name" ;
+  .
+
+sparql:prefixedURIPattern
+  a sparql:SafePattern ;
+  rdfs:label "Prefixed URI Pattern" ;
+  rdfs:comment "BGP using @prefix declarations (static)" ;
+  constraint:syntax "ex:resource ex:property ?var" ;
+  constraint:injection-resistant true ;
+  constraint:deterministic true ;
+  constraint:example "ggen:Feature ggen:title ?title" ;
+  .
+
+sparql:constructPattern
+  a sparql:SafePattern ;
+  rdfs:label "CONSTRUCT Pattern" ;
+  rdfs:comment "SPARQL CONSTRUCT with template graph" ;
+  constraint:syntax "CONSTRUCT { ?s ?p ?o } WHERE { ... }" ;
+  constraint:injection-resistant true ;
+  constraint:deterministic true ;
+  constraint:use-case "Code generation via SPARQL" ;
+  .
+
+sparql:filterWithLiterals
+  a sparql:SafePattern ;
+  rdfs:label "FILTER with Literal Values" ;
+  rdfs:comment "FILTER expressions using static literal values" ;
+  constraint:syntax "FILTER (?age > 18) FILTER (?name = \"Alice\")" ;
+  constraint:injection-resistant true ;
+  constraint:deterministic true ;
+  constraint:note "Only literals and bound variables allowed" ;
+  .
+
+sparql:bindWithStaticValue
+  a sparql:SafePattern ;
+  rdfs:label "BIND with Static Value" ;
+  rdfs:comment "BIND expressions assigning static values" ;
+  constraint:syntax "BIND (\"literal\" AS ?var) BIND (42 AS ?count)" ;
+  constraint:injection-resistant true ;
+  constraint:deterministic true ;
+  .
+
+sparql:selectOrderByLimit
+  a sparql:SafePattern ;
+  rdfs:label "SELECT with ORDER BY and LIMIT" ;
+  rdfs:comment "Pagination via ORDER BY with LIMIT/OFFSET" ;
+  constraint:syntax "SELECT ?var ... ORDER BY ?var LIMIT 100 OFFSET 0" ;
+  constraint:injection-resistant true ;
+  constraint:deterministic true ;
+  constraint:use-case "Chunked processing" ;
+  .
+
+sparql:optionalPattern
+  a sparql:SafePattern ;
+  rdfs:label "OPTIONAL Pattern" ;
+  rdfs:comment "Left-outer-join with OPTIONAL clause" ;
+  constraint:syntax "{ ?s ?p ?o } OPTIONAL { ?s ex:extra ?val }" ;
+  constraint:injection-resistant true ;
+  constraint:deterministic true ;
+  .
+
+sparql:unionPattern
+  a sparql:SafePattern ;
+  rdfs:label "UNION Pattern" ;
+  rdfs:comment "Multiple alternative BGPs with UNION" ;
+  constraint:syntax "{ ?s a ex:Type1 } UNION { ?s a ex:Type2 }" ;
+  constraint:injection-resistant true ;
+  constraint:deterministic true ;
+  .
+
+# =============================================================================
+# INJECTION PREVENTION RULES
+# =============================================================================
+
+security:InjectionPrevention
+  a owl:Class ;
+  rdfs:label "Injection Prevention Rule" ;
+  rdfs:comment "Rules for preventing SPARQL injection attacks" ;
+  .
+
+security:noRawUserInput
+  a security:InjectionPrevention ;
+  rdfs:label "No Raw User Input" ;
+  rdfs:comment "User input must never be directly interpolated in queries" ;
+  constraint:rule "All user input must be parameterized via BIND or VALUES" ;
+  constraint:forbidden "String concatenation for query construction" ;
+  constraint:example-unsafe "FILTER (?name = \"" + userName + "\")" ;
+  constraint:example-safe "BIND (\"value\" AS ?name) FILTER (?name = ?name)" ;
+  .
+
+security:whitelistProperties
+  a security:InjectionPrevention ;
+  rdfs:label "Whitelist Properties" ;
+  rdfs:comment "Only allow queries on known, approved properties" ;
+  constraint:rule "Query variables must reference predefined IRIs" ;
+  constraint:implementation "Generate SPARQL from static specification, never user input" ;
+  constraint:mechanism "SPARQL generation from RDF spec" ;
+  .
+
+security:parameterizedQueries
+  a security:InjectionPrevention ;
+  rdfs:label "Parameterized Queries" ;
+  rdfs:comment "Use parameter binding instead of string interpolation" ;
+  constraint:syntax "BIND (?userValue AS ?safeParam)" ;
+  constraint:example """
+    BIND (?searchTerm AS ?term)
+    FILTER (contains(str(?title), str(?term)))
+  """ ;
+  constraint:engine "All SPARQL engines support BIND" ;
+  .
+
+security:escapeStringValues
+  a security:InjectionPrevention ;
+  rdfs:label "Escape String Values" ;
+  rdfs:comment "If string literals must be created, escape special chars" ;
+  constraint:chars-to-escape "\\u005C\\u0022\\u000A\\u000D\\u0009" ;
+  constraint:note "Better: use BIND to avoid escaping entirely" ;
+  .
+
+security:limitQueryComplexity
+  a security:InjectionPrevention ;
+  rdfs:label "Limit Query Complexity" ;
+  rdfs:comment "Prevent expensive queries via complexity limits" ;
+  constraint:rule "Enforce max variables, patterns, and join depth" ;
+  constraint:monitoring "Track query execution time" ;
+  .
+
+# =============================================================================
+# QUERY COMPLEXITY LIMITS
+# =============================================================================
+
+sparql:QueryComplexity
+  a owl:Class ;
+  rdfs:label "Query Complexity" ;
+  rdfs:comment "Specification for bounding SPARQL query complexity" ;
+  .
+
+sparql:maxVariables
+  a owl:DatatypeProperty ;
+  rdfs:label "Maximum Variables" ;
+  rdfs:domain sparql:QueryComplexity ;
+  rdfs:range xsd:nonNegativeInteger ;
+  rdfs:comment "Maximum number of variables in a query" ;
+  kgc:default-value "50" ;
+  .
+
+sparql:maxTriplePatterns
+  a owl:DatatypeProperty ;
+  rdfs:label "Maximum Triple Patterns" ;
+  rdfs:domain sparql:QueryComplexity ;
+  rdfs:range xsd:nonNegativeInteger ;
+  rdfs:comment "Maximum number of triple patterns in WHERE clause" ;
+  kgc:default-value "20" ;
+  .
+
+sparql:maxJoinDepth
+  a owl:DatatypeProperty ;
+  rdfs:label "Maximum Join Depth" ;
+  rdfs:domain sparql:QueryComplexity ;
+  rdfs:range xsd:nonNegativeInteger ;
+  rdfs:comment "Maximum depth of nested join operations" ;
+  kgc:default-value "5" ;
+  .
+
+sparql:maxUnions
+  a owl:DatatypeProperty ;
+  rdfs:label "Maximum UNION Clauses" ;
+  rdfs:domain sparql:QueryComplexity ;
+  rdfs:range xsd:nonNegativeInteger ;
+  rdfs:comment "Maximum number of UNION branches" ;
+  kgc:default-value "10" ;
+  .
+
+sparql:timeoutSeconds
+  a owl:DatatypeProperty ;
+  rdfs:label "Query Timeout" ;
+  rdfs:domain sparql:QueryComplexity ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "Maximum execution time in seconds" ;
+  kgc:default-value "30.0" ;
+  .
+
+sparql:maxResultSize
+  a owl:DatatypeProperty ;
+  rdfs:label "Maximum Result Size" ;
+  rdfs:domain sparql:QueryComplexity ;
+  rdfs:range xsd:nonNegativeInteger ;
+  rdfs:comment "Maximum number of result rows/bindings" ;
+  kgc:default-value "10000" ;
+  .
+
+# =============================================================================
+# TRUSTED VS UNTRUSTED INPUT HANDLING
+# =============================================================================
+
+security:InputTrustLevel
+  a owl:Class ;
+  rdfs:label "Input Trust Level" ;
+  rdfs:comment "Classification of input sources and handling requirements" ;
+  .
+
+security:trustedSpecification
+  a security:InputTrustLevel ;
+  rdfs:label "Trusted Specification" ;
+  rdfs:comment "Input from verified .ttl specifications (committed to git)" ;
+  constraint:rule "Can be used directly in SPARQL generation" ;
+  constraint:validation "Must pass SHACL before use" ;
+  constraint:audit-trail "Git history provides provenance" ;
+  constraint:risk-level "Low" ;
+  .
+
+security:trustedManifest
+  a security:InputTrustLevel ;
+  rdfs:label "Trusted Manifest" ;
+  rdfs:comment "Input from configuration files reviewed by team" ;
+  constraint:rule "Can be used in SPARQL after validation" ;
+  constraint:validation "Must match schema and constraints" ;
+  constraint:audit-trail "Version controlled and signed" ;
+  constraint:risk-level "Low" ;
+  .
+
+security:untrustedUserInput
+  a security:InputTrustLevel ;
+  rdfs:label "Untrusted User Input" ;
+  rdfs:comment "Input from users, CLI args, or external APIs" ;
+  constraint:rule "Must be parameterized via BIND" ;
+  constraint:validation "Strict type checking and format validation" ;
+  constraint:sanitization "Escape or reject special characters" ;
+  constraint:audit-trail "Log all user inputs for security review" ;
+  constraint:risk-level "High" ;
+  .
+
+security:externalAPIData
+  a security:InputTrustLevel ;
+  rdfs:label "External API Data" ;
+  rdfs:comment "Data from third-party APIs or services" ;
+  constraint:rule "Treat as untrusted; validate format and content" ;
+  constraint:validation "Type-check and schema validation required" ;
+  constraint:rate-limiting "Apply rate limits to prevent abuse" ;
+  constraint:audit-trail "Log all external data received" ;
+  constraint:risk-level "High" ;
+  .
+
+# =============================================================================
+# SPARQL GENERATION RULES
+# =============================================================================
+
+sparql:GenerationRule
+  a owl:Class ;
+  rdfs:label "SPARQL Generation Rule" ;
+  rdfs:comment "Rules for generating safe SPARQL from specifications" ;
+  .
+
+sparql:generateFromSpecification
+  a sparql:GenerationRule ;
+  rdfs:label "Generate from Specification" ;
+  rdfs:comment "SPARQL patterns extracted from RDF specifications" ;
+  constraint:source "Static .ttl files" ;
+  constraint:mechanism "Template-based SPARQL generation" ;
+  constraint:validation "SHACL constraint checking" ;
+  constraint:immutable "Queries don't change at runtime" ;
+  .
+
+sparql:parameterizeUserInput
+  a sparql:GenerationRule ;
+  rdfs:label "Parameterize User Input" ;
+  rdfs:comment "Accept user values only via BIND parameters" ;
+  constraint:pattern "BIND (?userValue AS ?param) ... FILTER (?obj = ?param)" ;
+  constraint:engine-support "All SPARQL 1.1 engines" ;
+  constraint:performance "Minimal overhead" ;
+  .
+
+sparql:validateQueryStructure
+  a sparql:GenerationRule ;
+  rdfs:label "Validate Query Structure" ;
+  rdfs:comment "Verify queries comply with complexity limits" ;
+  constraint:checks [
+    sparql:maxVariables "50",
+    sparql:maxTriplePatterns "20",
+    sparql:maxJoinDepth "5"
+  ] ;
+  constraint:early-rejection "Fail before sending to server" ;
+  .
+
+# =============================================================================
+# SPARQL SAFETY SHACL SHAPES
+# =============================================================================
+
+sparql:SafePatternShape
+  a sh:NodeShape ;
+  sh:targetClass sparql:SafePattern ;
+  sh:name "Safe SPARQL Pattern Definition" ;
+  sh:description "All safe patterns must declare their safety properties" ;
+
+  sh:property [
+    sh:path constraint:syntax ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "SafePattern must define SPARQL syntax example" ;
+  ] ;
+
+  sh:property [
+    sh:path constraint:injection-resistant ;
+    sh:minCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:message "SafePattern must declare injection resistance" ;
+  ] ;
+  .
+
+security:InjectionPreventionShape
+  a sh:NodeShape ;
+  sh:targetClass security:InjectionPrevention ;
+  sh:name "Injection Prevention Rule Definition" ;
+  sh:description "Prevention rules must specify their mechanism" ;
+
+  sh:property [
+    sh:path constraint:rule ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "InjectionPrevention must define prevention rule" ;
+  ] ;
+
+  sh:property [
+    sh:path constraint:implementation ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "InjectionPrevention may specify implementation approach" ;
+  ] ;
+  .
+
+sparql:QueryComplexityShape
+  a sh:NodeShape ;
+  sh:targetClass sparql:QueryComplexity ;
+  sh:name "Query Complexity Limits" ;
+  sh:description "Complexity constraints must define at least timeout" ;
+
+  sh:property [
+    sh:path sparql:timeoutSeconds ;
+    sh:minCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:message "QueryComplexity must define timeout in seconds" ;
+  ] ;
+
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "If maxVariables defined, must be positive" ;
+    sh:prefixes [
+      sh:prefix "sparql" ;
+      sh:namespace <http://ggen.org/sparql#> ;
+    ] ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this sparql:maxVariables ?max .
+        FILTER (?max <= 0)
+      }
+    """ ;
+  ] ;
+  .
+
+security:InputTrustLevelShape
+  a sh:NodeShape ;
+  sh:targetClass security:InputTrustLevel ;
+  sh:name "Input Trust Level Definition" ;
+  sh:description "Trust levels must specify handling rules and risk" ;
+
+  sh:property [
+    sh:path constraint:rule ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "InputTrustLevel must define handling rule" ;
+  ] ;
+
+  sh:property [
+    sh:path constraint:risk-level ;
+    sh:minCount 1 ;
+    sh:message "InputTrustLevel must specify risk level" ;
+  ] ;
+  .
+
+# =============================================================================
+# QUERY EXECUTION POLICIES
+# =============================================================================
+
+sparql:ExecutionPolicy
+  a owl:Class ;
+  rdfs:label "Query Execution Policy" ;
+  rdfs:comment "Rules for safe query execution against RDF stores" ;
+  .
+
+sparql:readOnlyExecution
+  a sparql:ExecutionPolicy ;
+  rdfs:label "Read-Only Execution" ;
+  rdfs:comment "Queries execute in read-only mode (SELECT, CONSTRUCT)" ;
+  constraint:allowed "SELECT, CONSTRUCT, DESCRIBE, ASK" ;
+  constraint:forbidden "INSERT, DELETE, UPDATE" ;
+  constraint:rationale "Prevent accidental data mutation" ;
+  .
+
+sparql:sandboxedExecution
+  a sparql:ExecutionPolicy ;
+  rdfs:label "Sandboxed Execution" ;
+  rdfs:comment "Queries execute with restricted resource access" ;
+  constraint:timeout "30 second maximum" ;
+  constraint:memory "512MB maximum" ;
+  constraint:cpu "Single-core processor limit" ;
+  constraint:network "No external network access" ;
+  .
+
+sparql:auditedExecution
+  a sparql:ExecutionPolicy ;
+  rdfs:label "Audited Execution" ;
+  rdfs:comment "All queries logged with input/output and execution time" ;
+  constraint:logging "Query text, parameters, execution time, result count" ;
+  constraint:retention "Logs retained for 90 days" ;
+  constraint:access-control "Only authorized users view logs" ;
+  .

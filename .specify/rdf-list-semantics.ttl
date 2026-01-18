@@ -1,0 +1,381 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix list: <http://ggen.org/list#> .
+@prefix kgc: <http://ggen.org/kgc#> .
+@prefix constraint: <http://ggen.org/constraint#> .
+
+# =============================================================================
+# RDF LIST SEMANTICS AND CONSTRAINTS
+# =============================================================================
+# Specification for RDF list handling, including list chain validation,
+# termination rules, nested lists, empty list semantics, and collection
+# consistency constraints. Essential for proper handling of RDF lists in code generation.
+# =============================================================================
+
+<http://ggen.org/rdf-list-semantics-spec>
+  a owl:Ontology ;
+  rdfs:label "RDF List Semantics and Constraints Specification" ;
+  rdfs:comment "Defines semantic constraints for RDF list chains and collection handling" ;
+  owl:versionInfo "1.0.0" ;
+  .
+
+# =============================================================================
+# RDF LIST STRUCTURE AND SEMANTICS
+# =============================================================================
+
+list:ListChain
+  a owl:Class ;
+  rdfs:label "List Chain" ;
+  rdfs:comment "Sequence of rdf:List nodes connected via rdf:rest" ;
+  .
+
+list:ListNode
+  a owl:Class ;
+  rdfs:label "List Node" ;
+  rdfs:comment "Individual cons cell in an RDF list (rdf:List)" ;
+  rdfs:subClassOf rdf:List ;
+  .
+
+list:chainLength
+  a owl:DatatypeProperty ;
+  rdfs:label "Chain Length" ;
+  rdfs:domain list:ListChain ;
+  rdfs:range xsd:nonNegativeInteger ;
+  rdfs:comment "Number of elements in the list chain" ;
+  .
+
+list:chainElements
+  a owl:ObjectProperty ;
+  rdfs:label "Chain Elements" ;
+  rdfs:domain list:ListChain ;
+  rdfs:comment "All rdf:first values in the chain in order" ;
+  .
+
+list:chainTerminator
+  a owl:ObjectProperty ;
+  rdfs:label "Chain Terminator" ;
+  rdfs:domain list:ListChain ;
+  rdfs:range list:ListTerminator ;
+  rdfs:comment "How this chain terminates (nil or error)" ;
+  .
+
+# =============================================================================
+# LIST TERMINATION RULES
+# =============================================================================
+
+list:ListTerminator
+  a owl:Class ;
+  rdfs:label "List Terminator" ;
+  rdfs:comment "Specification for how a list chain should terminate" ;
+  .
+
+list:terminatesAtNil
+  a list:ListTerminator ;
+  rdfs:label "Terminates at rdf:nil" ;
+  rdfs:comment "Proper list terminating with rdf:nil (required)" ;
+  constraint:rule "rdf:rest* must eventually reach rdf:nil" ;
+  kgc:isDefault true ;
+  constraint:isValid true ;
+  .
+
+list:terminatesAtUnbound
+  a list:ListTerminator ;
+  rdfs:label "Terminates at Unbound Variable" ;
+  rdfs:comment "rdf:rest points to unbound variable (error condition)" ;
+  constraint:rule "rdf:rest points to variable not in RDF store" ;
+  constraint:isValid false ;
+  constraint:errorType "IncompleteList" ;
+  .
+
+list:terminatesInCycle
+  a list:ListTerminator ;
+  rdfs:label "Terminates in Cycle" ;
+  rdfs:comment "rdf:rest creates cycle back to earlier node (error)" ;
+  constraint:rule "Following rdf:rest encounters already-visited node" ;
+  constraint:isValid false ;
+  constraint:errorType "CyclicList" ;
+  .
+
+list:terminatesAtNotNil
+  a list:ListTerminator ;
+  rdfs:label "Terminates at Non-Nil Value" ;
+  rdfs:comment "rdf:rest points to non-rdf:List value (improper list)" ;
+  constraint:rule "rdf:rest terminates at non-rdf:List node" ;
+  constraint:isValid false ;
+  constraint:errorType "ImproperList" ;
+  constraint:note "LISP-style cons lists allow this; strict RDF requires rdf:nil" ;
+  .
+
+# =============================================================================
+# EMPTY LIST SEMANTICS
+# =============================================================================
+
+list:EmptyListSemantics
+  a owl:Class ;
+  rdfs:label "Empty List Semantics" ;
+  rdfs:comment "Rules for interpreting empty lists (rdf:nil)" ;
+  .
+
+list:emptyListRepresentation
+  a list:EmptyListSemantics ;
+  rdfs:label "Empty List is rdf:nil" ;
+  rdfs:comment "The empty list is represented by the resource rdf:nil" ;
+  constraint:rule "rdf:nil must not have rdf:first or rdf:rest properties" ;
+  kgc:isDefault true ;
+  .
+
+list:zeroElementChain
+  a list:EmptyListSemantics ;
+  rdfs:label "Zero-Element Chain" ;
+  rdfs:comment "Chain with no elements has chainLength 0" ;
+  constraint:rule "When list equals rdf:nil, chainLength = 0" ;
+  .
+
+list:emptyListCardinality
+  a list:EmptyListSemantics ;
+  rdfs:label "Empty List Cardinality" ;
+  rdfs:comment "Empty list satisfies minCount 0 constraints" ;
+  constraint:rule "List can satisfy 'at least 0 items' via rdf:nil" ;
+  .
+
+# =============================================================================
+# NESTED LIST CONSTRAINTS
+# =============================================================================
+
+list:NestedListConstraint
+  a owl:Class ;
+  rdfs:label "Nested List Constraint" ;
+  rdfs:comment "Rules for lists that contain other lists" ;
+  .
+
+list:allowNesting
+  a list:NestedListConstraint ;
+  rdfs:label "Nesting Allowed" ;
+  rdfs:comment "List may contain rdf:List values as elements" ;
+  constraint:rule "rdf:first may point to another rdf:List node" ;
+  .
+
+list:forbidNesting
+  a list:NestedListConstraint ;
+  rdfs:label "Nesting Forbidden" ;
+  rdfs:comment "All rdf:first values must be non-list values" ;
+  constraint:rule "rdf:first must not be instance of rdf:List" ;
+  constraint:checkType true ;
+  .
+
+list:maxNestingDepth
+  a owl:DatatypeProperty ;
+  rdfs:label "Maximum Nesting Depth" ;
+  rdfs:domain list:NestedListConstraint ;
+  rdfs:range xsd:nonNegativeInteger ;
+  rdfs:comment "Maximum allowed depth of nested lists (0 = no nesting)" ;
+  .
+
+list:nestedListValidation
+  a list:NestedListConstraint ;
+  rdfs:label "Validate Nested Lists" ;
+  rdfs:comment "Recursively validate all nested list chains" ;
+  constraint:rule "Each nested list must satisfy list termination rules" ;
+  constraint:recursive true ;
+  .
+
+# =============================================================================
+# COLLECTION SEMANTICS (rdf:List vs rdf:Collection)
+# =============================================================================
+
+list:CollectionSemantics
+  a owl:Class ;
+  rdfs:label "Collection Semantics" ;
+  rdfs:comment "Distinguish between rdf:List chains and RDF collection syntax" ;
+  .
+
+list:rdfListChain
+  a list:CollectionSemantics ;
+  rdfs:label "rdf:List Chain" ;
+  rdfs:comment "Explicit chain using rdf:rest (verbose, full control)" ;
+  constraint:syntax "(?x rdf:first ?v) . (?x rdf:rest ?rest)" ;
+  constraint:advantage "Explicit, queryable, supports SPARQL CONSTRUCT" ;
+  .
+
+list:rdfCollectionSyntax
+  a list:CollectionSemantics ;
+  rdfs:label "RDF Collection Syntax" ;
+  rdfs:comment "Parenthesized shorthand (a b c) expands to rdf:List chain" ;
+  constraint:syntax "(item1 item2 item3)" ;
+  constraint:expands "to internal rdf:List chain at parse time" ;
+  constraint:note "Both syntaxes represent same logical structure" ;
+  .
+
+list:collectionUnification
+  a list:CollectionSemantics ;
+  rdfs:label "Collection Unification" ;
+  rdfs:comment "Both rdf:List and (item) syntax must be treated identically" ;
+  constraint:rule "Parse both syntaxes into common internal representation" ;
+  constraint:generated "Emit both forms consistently" ;
+  .
+
+# =============================================================================
+# LIST VALIDATION SHACL SHAPES
+# =============================================================================
+
+list:ListChainShape
+  a sh:NodeShape ;
+  sh:targetClass list:ListChain ;
+  sh:name "List Chain Validation" ;
+  sh:description "Every list chain must terminate properly" ;
+
+  sh:property [
+    sh:path list:chainTerminator ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "ListChain must have exactly one terminator specification" ;
+  ] ;
+
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Chain must eventually reach rdf:nil or declare alternative termination" ;
+    sh:prefixes [
+      sh:prefix "rdf" ;
+      sh:namespace <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ;
+    ] ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this a <http://ggen.org/list#ListChain> ;
+               <http://ggen.org/list#chainTerminator> ?term .
+        FILTER (?term != <http://ggen.org/list#terminatesAtNil> &&
+                NOT EXISTS { ?term <http://ggen.org/constraint#isValid> false })
+      }
+    """ ;
+  ] ;
+  .
+
+list:ListNodeShape
+  a sh:NodeShape ;
+  sh:targetClass list:ListNode ;
+  sh:name "List Node Well-Formedness" ;
+  sh:description "Each list node must have rdf:first and rdf:rest" ;
+
+  sh:property [
+    sh:path rdf:first ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "ListNode must have exactly one rdf:first" ;
+  ] ;
+
+  sh:property [
+    sh:path rdf:rest ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "ListNode must have exactly one rdf:rest" ;
+  ] ;
+  .
+
+list:NestedListConstraintShape
+  a sh:NodeShape ;
+  sh:targetClass list:NestedListConstraint ;
+  sh:name "Nested List Constraint Specification" ;
+  sh:description "Nested list constraints must specify validation rules" ;
+
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "If nesting forbidden, must verify no rdf:first values are rdf:List" ;
+    sh:prefixes [
+      sh:prefix "list" ;
+      sh:namespace <http://ggen.org/list#> ;
+    ] ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this list:forbidNesting [] .
+        FILTER NOT EXISTS { $this list:nestedListValidation [] }
+      }
+    """ ;
+  ] ;
+  .
+
+# =============================================================================
+# LIST SERIALIZATION RULES
+# =============================================================================
+
+list:SerializationRule
+  a owl:Class ;
+  rdfs:label "List Serialization Rule" ;
+  rdfs:comment "How to serialize RDF lists to code (Vec, Array, etc.)" ;
+  .
+
+list:serializeToRustVec
+  a list:SerializationRule ;
+  rdfs:label "Serialize to Rust Vec" ;
+  rdfs:comment "Convert RDF list to Rust Vec<T>" ;
+  constraint:algorithm "iterate rdf:rest, collect rdf:first values" ;
+  constraint:rustCode "vec![item1, item2, ...]" ;
+  constraint:ownership "T must be Clone or Rc<T>" ;
+  .
+
+list:serializeToRustArray
+  a list:SerializationRule ;
+  rdfs:label "Serialize to Rust Array" ;
+  rdfs:comment "Convert RDF list to fixed-size Rust array" ;
+  constraint:algorithm "iterate rdf:rest, collect rdf:first into [T; N]" ;
+  constraint:requirement "List length must be known at compile time" ;
+  constraint:error "Cannot serialize variable-length list to fixed array" ;
+  .
+
+list:serializeToRustIterator
+  a list:SerializationRule ;
+  rdfs:label "Serialize to Rust Iterator" ;
+  rdfs:comment "Convert RDF list to lazy Iterator (lazy evaluation)" ;
+  constraint:algorithm "Create iterator adapter that walks rdf:rest chain" ;
+  constraint:advantage "Memory efficient for large lists" ;
+  .
+
+# =============================================================================
+# LIST INTEGRITY CONSTRAINTS
+# =============================================================================
+
+list:IntegrityConstraint
+  a owl:Class ;
+  rdfs:label "List Integrity Constraint" ;
+  rdfs:comment "Constraints ensuring list consistency and validity" ;
+  .
+
+list:acyclicChain
+  a list:IntegrityConstraint ;
+  rdfs:label "Acyclic Chain" ;
+  rdfs:comment "List chain must not contain cycles" ;
+  constraint:check "No node appears twice in rdf:rest* path" ;
+  constraint:algorithm "Detect cycles during list traversal" ;
+  constraint:violation "CyclicListError" ;
+  .
+
+list:properTermination
+  a list:IntegrityConstraint ;
+  rdfs:label "Proper Termination" ;
+  rdfs:comment "List must terminate at rdf:nil (proper list)" ;
+  constraint:check "Following rdf:rest eventually reaches rdf:nil" ;
+  constraint:algorithm "Count steps, must be finite" ;
+  constraint:timeoutSteps 10000 ;
+  constraint:violation "ImproperListError | IncompleteListError" ;
+  .
+
+list:consistentElementType
+  a list:IntegrityConstraint ;
+  rdfs:label "Consistent Element Type" ;
+  rdfs:comment "All rdf:first values should have consistent type" ;
+  constraint:check "All elements are instances of same class or compatible types" ;
+  constraint:strict false ;
+  constraint:note "Advisory constraint; not strictly enforced" ;
+  .
+
+list:uniqueElements
+  a list:IntegrityConstraint ;
+  rdfs:label "Unique Elements" ;
+  rdfs:comment "All rdf:first values are distinct (set semantics)" ;
+  constraint:check "No duplicate values in rdf:first across chain" ;
+  constraint:applicable "When list represents a set, not bag" ;
+  constraint:algorithm "Hash set deduplication during validation" ;
+  .

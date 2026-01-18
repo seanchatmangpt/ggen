@@ -1,0 +1,16 @@
+---
+to: "generated/PROJECT_GUIDE.md"
+vars:
+  project_name: string
+  description: string
+---
+# {{ project_name | capitalize }}
+
+{{ description }}
+
+## Project Layout
+
+- `src/lib.rs` - Core library code
+- `src/main.rs` - Binary entry point
+- `tests/` - Integration tests
+- `Cargo.toml` - Project manifest

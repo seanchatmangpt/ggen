@@ -1,0 +1,245 @@
+@startuml gvisor-poka-yoke
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title gVisor Test Loop - Poka-Yoke Error-Proofing Mechanisms
+
+skinparam component {
+    BackgroundColor<<prevention>> #6BCF7F
+    BackgroundColor<<detection>> #FFD93D
+    BackgroundColor<<correction>> #4D96FF
+}
+
+' ============================================================================
+' Poka-Yoke Type 1: Prevention (Make Error Impossible)
+' ============================================================================
+
+package "Type 1: Prevention (Compile-Time)" <<prevention>> {
+    component "Type-Safe OCI Bundle" as type_safe_bundle
+    component "ValidatedPath" as validated_path
+    component "Architecture Enum" as arch_enum
+    component "Config Newtype" as config_newtype
+}
+
+note right of type_safe_bundle
+  **Prevents**: Invalid bundle structure
+  **Mechanism**: Rust types enforce valid OCI bundle
+  **Effect**: Cannot create invalid bundle at compile-time
+  **FMEA Impact**: Reduces RPN from 288 to 144 (D=2)
+end note
+
+note right of validated_path
+  **Prevents**: Path traversal attacks
+  **Mechanism**: ValidatedPath type prevents unsafe paths
+  **Effect**: Compiler rejects invalid paths
+  **FMEA Impact**: Eliminates security vulnerabilities
+end note
+
+note right of arch_enum
+  **Prevents**: Architecture mismatch
+  **Mechanism**: Enum type for architectures
+  **Effect**: Type system prevents wrong arch
+  **FMEA Impact**: Reduces RPN from 360 to 180 (O=2)
+end note
+
+note right of config_newtype
+  **Prevents**: Invalid config.json
+  **Mechanism**: Newtype wrapper validates config
+  **Effect**: Only valid configs can be created
+  **FMEA Impact**: Reduces RPN from 288 to 144 (D=2)
+end note
+
+' ============================================================================
+' Poka-Yoke Type 2: Detection (Make Error Obvious)
+' ============================================================================
+
+package "Type 2: Detection (Runtime)" <<detection>> {
+    component "Pre-flight Checks" as preflight
+    component "Andon Signals" as andon
+    component "Validation Gates" as validation
+    component "Health Monitoring" as health
+}
+
+note right of preflight
+  **Detects**: Missing prerequisites
+  **Mechanism**: Check all requirements before starting
+  **Effect**: Fail-fast with clear errors
+  **FMEA Impact**: Reduces D from 8 to 2 (early detection)
+  **RPN Reduction**: 360 → 90 (75% reduction)
+end note
+
+note right of andon
+  **Detects**: Any failure condition
+  **Mechanism**: Visual indicators (red/yellow/green)
+  **Effect**: Immediate visibility of problems
+  **FMEA Impact**: Reduces D from 7 to 2
+  **RPN Reduction**: 252 → 72 (71% reduction)
+end note
+
+note right of validation
+  **Detects**: Invalid states before execution
+  **Mechanism**: Multiple validation checkpoints
+  **Effect**: Catch errors before expensive operations
+  **FMEA Impact**: Reduces D from 9 to 2
+  **RPN Reduction**: 288 → 64 (78% reduction)
+end note
+
+note right of health
+  **Detects**: Process failures during execution
+  **Mechanism**: Continuous monitoring
+  **Effect**: Immediate failure detection
+  **FMEA Impact**: Reduces D from 7 to 2
+  **RPN Reduction**: 252 → 72 (71% reduction)
+end note
+
+' ============================================================================
+' Poka-Yoke Type 3: Correction (Auto-Fix Errors)
+' ============================================================================
+
+package "Type 3: Correction (Auto-Recovery)" <<correction>> {
+    component "Retry Logic" as retry
+    component "Fallback Sources" as fallback
+    component "Auto-Create Dirs" as auto_create
+    component "Config Auto-Fix" as auto_fix
+}
+
+note right of retry
+  **Corrects**: Transient network failures
+  **Mechanism**: Exponential backoff retry
+  **Effect**: Automatically recovers from temporary failures
+  **FMEA Impact**: Reduces O from 5 to 2
+  **RPN Reduction**: 360 → 144 (60% reduction)
+end note
+
+note right of fallback
+  **Corrects**: Download URL failures
+  **Mechanism**: Try multiple download sources
+  **Effect**: Automatically finds working source
+  **FMEA Impact**: Reduces O from 5 to 2
+  **RPN Reduction**: 360 → 144 (60% reduction)
+end note
+
+note right of auto_create
+  **Corrects**: Missing directories
+  **Mechanism**: Auto-create required directories
+  **Effect**: Prevents file system errors
+  **FMEA Impact**: Reduces O from 4 to 1
+  **RPN Reduction**: 288 → 72 (75% reduction)
+end note
+
+note right of auto_fix
+  **Corrects**: Common config issues
+  **Mechanism**: Fix known config problems
+  **Effect**: Automatically corrects mistakes
+  **FMEA Impact**: Reduces O from 4 to 2
+  **RPN Reduction**: 288 → 144 (50% reduction)
+end note
+
+' ============================================================================
+' Poka-Yoke Integration with Workflow
+' ============================================================================
+
+package "Workflow Integration" {
+    component "Gate 1: Pre-flight" as gate1
+    component "Gate 2: Build" as gate2
+    component "Gate 3: Bundle" as gate3
+    component "Gate 4: Deploy" as gate4
+    component "Gate 5: Execute" as gate5
+    component "Gate 6: Validate" as gate6
+}
+
+gate1 --> preflight : Uses
+gate1 --> andon : Triggers on failure
+gate2 --> type_safe_bundle : Uses
+gate2 --> arch_enum : Uses
+gate3 --> validated_path : Uses
+gate3 --> config_newtype : Uses
+gate3 --> validation : Performs
+gate4 --> retry : Uses
+gate4 --> fallback : Uses
+gate4 --> auto_create : Uses
+gate5 --> health : Monitors
+gate5 --> andon : Triggers on failure
+gate6 --> validation : Performs
+
+note bottom of gate1
+  **Poka-Yoke Gate 1**: Pre-flight Checks
+  - Verify runsc availability
+  - Check Colima VM status
+  - Validate prerequisites
+  - **FMEA**: Early detection (D=2)
+end note
+
+note bottom of gate2
+  **Poka-Yoke Gate 2**: Build Validation
+  - Type-safe compilation
+  - Architecture checks
+  - Dependency validation
+  - **FMEA**: Build validation (D=3)
+end note
+
+note bottom of gate3
+  **Poka-Yoke Gate 3**: Bundle Validation
+  - Type-safe construction
+  - Path validation
+  - Config validation
+  - **FMEA**: Bundle validation (D=2)
+end note
+
+note bottom of gate4
+  **Poka-Yoke Gate 4**: Deployment Validation
+  - Retry on failure
+  - Fallback sources
+  - Auto-create directories
+  - **FMEA**: Transfer validation (D=3)
+end note
+
+note bottom of gate5
+  **Poka-Yoke Gate 5**: Execution Monitoring
+  - Health checks
+  - Timeout guards
+  - Process monitoring
+  - **FMEA**: Execution monitoring (D=2)
+end note
+
+note bottom of gate6
+  **Poka-Yoke Gate 6**: Result Validation
+  - Output validation
+  - Exit code checks
+  - Error detection
+  - **FMEA**: Result validation (D=2)
+end note
+
+' ============================================================================
+' RPN Reduction Summary
+' ============================================================================
+
+package "RPN Reduction Summary" {
+    component "Before Poka-Yoke" as before
+    component "After Poka-Yoke" as after
+}
+
+before --> after : Poka-Yoke Implementation
+
+note right of before
+  **Original RPNs**:
+  - runsc install: 360
+  - Bundle create: 288
+  - gVisor exec: 252
+  - Colima comm: 126
+  - ggen build: 48
+  **Total Risk**: 1074
+end note
+
+note right of after
+  **Reduced RPNs**:
+  - runsc install: 90 (75% reduction)
+  - Bundle create: 64 (78% reduction)
+  - gVisor exec: 72 (71% reduction)
+  - Colima comm: 63 (50% reduction)
+  - ggen build: 24 (50% reduction)
+  **Total Risk**: 313 (71% overall reduction)
+end note
+
+@enduml
+
+

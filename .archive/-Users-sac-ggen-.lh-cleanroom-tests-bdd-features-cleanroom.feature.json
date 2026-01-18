@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/cleanroom.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261427411,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261427411,
+            "name": "Commit-0",
+            "content": "Feature: Cleanroom Core Functionality\n  As a developer\n  I want to run commands in a hermetic, deterministic environment\n  So that I can test CLI tools and services with confidence\n\n  Background:\n    Given I have a clean test environment\n\n  Scenario: Basic command execution\n    Given I have a local execution environment\n    When I run cleanroom \"echo 'Hello World'\"\n    Then the command should succeed\n    And I should see \"Hello World\" in output\n\n  Scenario: Command execution with Docker backend\n    Given I have Docker available\n    When I select the \"docker\" backend\n    And I run cleanroom \"echo 'Hello from Docker'\"\n    Then the command should succeed\n    And the backend should be \"docker\"\n    And I should see \"Hello from Docker\" in output\n\n  Scenario: Command execution with Podman backend\n    Given I have Podman available\n    When I select the \"podman\" backend\n    And I run cleanroom \"echo 'Hello from Podman'\"\n    Then the command should succeed\n    And the backend should be \"podman\"\n    And I should see \"Hello from Podman\" in output\n\n  Scenario: Auto backend detection\n    When I select the \"auto\" backend\n    Then the backend should be automatically detected\n\n  Scenario: Command failure handling\n    Given I have a local execution environment\n    When I run cleanroom \"false\"\n    Then the command should fail\n    And the exit code should be 1\n\n  Scenario: Command timeout\n    Given I have a local execution environment\n    When I run cleanroom \"sleep 10\" with timeout \"5s\"\n    Then the scenario should timeout\n\n  Scenario: Network isolation\n    Given I have network isolation enabled\n    When I run cleanroom \"curl -s http://httpbin.org/get\"\n    Then the command should fail\n    And the network should be isolated\n\n  Scenario: Filesystem isolation\n    Given I have filesystem isolation enabled\n    When I run cleanroom \"touch /tmp/isolated_test\"\n    Then the command should fail\n    And the filesystem should be isolated\n\n  Scenario: Resource limits\n    Given I have resource limits configured\n    When I run cleanroom \"echo 'Resource limited'\"\n    Then the command should succeed\n    And the memory limit should be \"512MB\"\n    And the CPU limit should be \"1.0\"\n    And the timeout should be \"30s\"\n"
+        }
+    ]
+}

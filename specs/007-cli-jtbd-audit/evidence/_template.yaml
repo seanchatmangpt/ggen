@@ -1,0 +1,46 @@
+# Audit Result Template
+# Schema: ../contracts/audit-result.schema.yaml
+# Copy this file and fill in for each command audit
+
+command: "ggen <category> <subcommand>"
+version_tested: "5.3.2"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: false           # Command runs without crash
+  help_works: false         # --help provides usage information
+  happy_path: false         # Valid inputs produce expected output
+  error_handling: false     # Invalid inputs produce helpful errors
+  exit_codes: false         # Exit code 0 on success, non-zero on failure
+
+agent_score: 0              # Sum of agent_breakdown (0-100)
+agent_breakdown:
+  parseable_output: 0       # /25 - JSON/structured output availability
+  error_messages: 0         # /20 - Actionable error messages
+  idempotency: 0            # /15 - Safe to retry
+  progress_feedback: 0      # /10 - Progress indicators
+  dry_run: 0                # /10 - --dry-run support
+  documentation: 0          # /10 - Documentation quality
+  exit_codes: 0             # /10 - Semantic exit codes
+
+avatar_notes:
+  claude_code: ""
+  cursor_ai: ""
+  copilot: ""
+  aider: ""
+  devin: ""
+  openhands: ""
+  windsurf: ""
+
+maturity_level: L0          # L0, L0-DEP, L1, L2, L3, L4, L5
+maturity_blockers: []       # Reasons preventing higher maturity
+
+evidence_files: []          # Relative paths to evidence log files
+
+recommendations: []
+# Example recommendation:
+# - priority: P1
+#   description: "Add JSON output format"
+#   effort: low
+#   impact: high

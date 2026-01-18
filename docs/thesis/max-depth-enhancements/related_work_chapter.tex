@@ -1,0 +1,689 @@
+\section{Related Work}
+
+The approach presented in this thesis—ontology-driven code generation using RDF and SPARQL for deterministic API contract generation—intersects multiple research domains: semantic web technologies, automated code generation, API specification languages, type systems, and reproducible software engineering. This chapter surveys the relevant literature across these domains, identifies gaps in existing approaches, and positions our contribution within the broader research landscape.
+
+\subsection{Semantic Web and RDF Foundations}
+
+The foundational technologies underlying our approach originate from the Semantic Web initiative, which aims to create a machine-readable web of linked data. The Resource Description Framework (RDF), standardized by the W3C in 1999 and substantially revised in 2014 \cite{rdf11}, provides the core data model for representing information as subject-predicate-object triples. RDF's graph-based structure enables flexible knowledge representation without requiring predefined schemas, making it particularly suitable for evolving domain models.
+
+SPARQL (SPARQL Protocol and RDF Query Language) \cite{sparql11} serves as the standard query language for RDF data, providing pattern matching, filtering, and aggregation capabilities over RDF graphs. SPARQL's declarative nature and standardized semantics make it an ideal foundation for deterministic code generation—queries produce consistent results regardless of the underlying RDF store implementation. Pérez et al. \cite{perez2009semantics} formalized the semantics of SPARQL, establishing its computational complexity and relationship to relational algebra, which underpins the theoretical soundness of using SPARQL for code generation workflows.
+
+OWL (Web Ontology Language) \cite{owl2} extends RDF with rich ontological primitives for expressing class hierarchies, property restrictions, cardinality constraints, and logical axioms. OWL's formal semantics, based on description logics, enable automated reasoning and consistency checking. While our approach primarily uses RDFS (RDF Schema) \cite{brickley2014rdf} for lightweight class and property definitions, the extensibility to OWL reasoning is a natural evolution path for validating complex domain constraints.
+
+SHACL (Shapes Constraint Language) \cite{knublauch2017shacl} represents a more recent standardization effort for validating RDF graphs against structural and value constraints. Unlike OWL's open-world assumption, SHACL operates under a closed-world assumption, making it well-suited for data quality validation in code generation contexts. Our use of SHACL for validating specification completeness before code generation aligns with emerging best practices in RDF-based application development \cite{labra2017validating}.
+
+Knowledge graphs, popularized by Google's Knowledge Graph \cite{singhal2012knowledge} and implemented at scale by organizations like DBpedia \cite{auer2007dbpedia}, Wikidata \cite{vrandevcic2014wikidata}, and industry knowledge bases, demonstrate the practical viability of RDF for managing complex, interconnected information. The adoption of RDF by major technology companies for internal knowledge management validates our choice of RDF as the foundation for code generation artifacts.
+
+Hogan et al. \cite{hogan2021knowledge} provide a comprehensive survey of knowledge graphs, covering representation, reasoning, and quality assessment—all relevant to our approach. Their analysis of knowledge graph construction and refinement processes parallels our iterative specification workflow, where RDF ontologies evolve through collaborative refinement before crystallizing into generated code.
+
+The Oxigraph RDF store \cite{oxigraph}, which we employ in our implementation, exemplifies the maturation of embedded RDF databases. Its ACID transaction support, SPARQL 1.1 compliance, and embeddability in Rust applications provide the performance characteristics necessary for development-time code generation workflows.
+
+\subsection{Code Generation Approaches}
+
+Automated code generation has been a persistent goal in software engineering, with approaches ranging from simple template expansion to sophisticated model-driven transformations. Understanding the landscape of code generation techniques is essential for positioning our RDF-based approach.
+
+\subsubsection{Template-Based Generation}
+
+Template-based code generation, exemplified by tools like Jinja2 \cite{ronacher2008jinja2}, Mustache \cite{wanstrath2009mustache}, and Tera \cite{tera}, represents the most straightforward approach: embedding placeholder variables within static text templates. Our implementation uses Tera for the final rendering phase, benefiting from its powerful filter system, template inheritance, and Rust integration.
+
+However, traditional template-based approaches suffer from several limitations when applied to complex code generation scenarios. First, they lack semantic understanding of the domain model—templates are essentially string manipulation engines with minimal validation capabilities. Second, maintaining consistency across multiple related templates (e.g., TypeScript interfaces, Zod validators, API documentation) becomes increasingly difficult as the number of artifacts grows. Third, template logic tends to leak domain-specific concerns, violating separation of concerns.
+
+Parr \cite{parr2004enforcing} introduced StringTemplate with a focus on enforcing strict model-view separation, arguing that template languages should be deliberately less powerful to prevent logic creep. While this philosophy guides good template design, it does not address the fundamental challenge of multi-artifact consistency—each template operates independently without awareness of other generated artifacts.
+
+\subsubsection{Grammar-Based Approaches}
+
+Parser generators like ANTLR \cite{parr2013definitive}, Yacc \cite{johnson1975yacc}, and modern alternatives such as Tree-sitter \cite{brunsfeld2018treesitter} approach code generation from the opposite direction: starting with formal grammars. These tools excel at parsing existing code or DSL inputs but provide limited support for generation. ANTLR's StringTemplate integration represents an attempt to bridge parsing and generation, yet the approach remains fundamentally input-driven rather than model-driven.
+
+Xtext \cite{eysholdt2010xtext}, part of the Eclipse ecosystem, combines grammar-based DSL definition with code generation capabilities. Xtext's approach defines a custom syntax for domain concepts, parses inputs into an abstract syntax tree (AST), and generates code from the AST. While powerful, this approach requires users to adopt a new DSL syntax, creating adoption barriers. Our RDF-based approach, by contrast, leverages standard Turtle syntax and SPARQL, reducing the learning curve for users already familiar with semantic web technologies.
+
+\subsubsection{Model-Driven Engineering}
+
+Model-Driven Engineering (MDE) and Model-Driven Architecture (MDA), promoted by the Object Management Group (OMG) \cite{omg2003mda}, advocate for software development centered on high-level models rather than code. MDA distinguishes between Platform-Independent Models (PIMs), Platform-Specific Models (PSMs), and code, with transformations bridging these levels.
+
+UML (Unified Modeling Language) \cite{omg2017uml} serves as the primary modeling notation in MDA, with tools like AndroMDA \cite{andromda} and openArchitectureWare \cite{efftinge2006oaw} providing model-to-code transformation capabilities. However, MDA adoption has been limited outside specific enterprise contexts, partly due to tool complexity, vendor lock-in, and the impedance mismatch between visual UML models and modern software development practices.
+
+QVT (Query/View/Transformation) \cite{omg2016qvt}, the OMG's standard for model transformations, provides declarative and imperative languages for transforming between models. While theoretically sound, QVT implementations have struggled with tooling maturity and integration with modern development workflows. Our use of SPARQL for querying RDF models provides similar declarative transformation capabilities but within a more widely adopted and standardized ecosystem.
+
+ATL (Atlas Transformation Language) \cite{jouault2008atl} represents a more practical model transformation approach, widely used in academic research. ATL transformations operate on models conforming to meta-models defined in Ecore (Eclipse Modeling Framework). The approach shares conceptual similarities with our work—both use declarative queries (ATL's pattern matching vs. our SPARQL queries) to extract information from structured models—but ATL operates within the Eclipse ecosystem whereas our approach leverages standard web technologies.
+
+\subsubsection{Domain-Specific Languages}
+
+The DSL approach, advocated by Fowler \cite{fowler2010domain} and Voelter \cite{voelter2013dsl}, emphasizes creating specialized languages tailored to specific problem domains. External DSLs define entirely new syntax (requiring custom parsers), while internal DSLs embed domain concepts within a host language (e.g., Ruby's Rails, Scala's ScalaTest).
+
+JetBrains MPS (Meta Programming System) \cite{voelter2010language} represents an advanced DSL workbench supporting language composition, projectional editing, and multi-stage generation. MPS's language-oriented programming paradigm shares our goal of raising abstraction levels, but MPS requires significant infrastructure investment and proprietary tooling.
+
+Our approach can be viewed as using RDF/Turtle as an internal DSL embedded within the semantic web ecosystem. Unlike custom DSLs requiring dedicated parsers and tooling, RDF benefits from standardized parsers, editors with syntax highlighting, and a rich ecosystem of validation and querying tools. This leveraging of existing standards significantly reduces implementation and adoption barriers.
+
+\subsubsection{Comparative Analysis}
+
+Table \ref{tab:codegen-comparison} compares major code generation paradigms along key dimensions relevant to our work.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|c|c|}
+\hline
+\textbf{Approach} & \textbf{Semantic} & \textbf{Multi-Artifact} & \textbf{Standards} & \textbf{Tooling} & \textbf{Determinism} \\
+ & \textbf{Model} & \textbf{Consistency} & \textbf{Based} & \textbf{Maturity} & \\
+\hline
+Templates & Low & Low & No & High & High \\
+Grammars & Medium & Low & Partial & High & High \\
+MDA/UML & High & Medium & Yes & Medium & Medium \\
+DSLs & High & Medium & No & Low & Medium \\
+\textbf{RDF/SPARQL} & \textbf{High} & \textbf{High} & \textbf{Yes} & \textbf{Medium} & \textbf{High} \\
+\hline
+\end{tabular}
+\caption{Comparison of code generation paradigms}
+\label{tab:codegen-comparison}
+\end{table}
+
+Our RDF-based approach uniquely combines semantic richness with multi-artifact consistency guarantees. By maintaining a single source of truth (the RDF ontology) and deriving all artifacts through SPARQL queries, we achieve consistency that template-based and grammar-based approaches cannot provide. Unlike MDA, we leverage web standards (RDF, SPARQL) rather than vendor-specific tooling. Unlike custom DSLs, we benefit from mature RDF tooling and standardization.
+
+\subsection{API Specification and Interface Definition Languages}
+
+API design and documentation have spawned numerous Interface Definition Languages (IDLs) and specification formats. Understanding these technologies is crucial for positioning our RDF-based approach to API contract generation.
+
+\subsubsection{OpenAPI and Swagger}
+
+OpenAPI Specification \cite{openapi3}, formerly known as Swagger, has emerged as the de facto standard for describing RESTful HTTP APIs. OpenAPI uses JSON or YAML to define endpoints, request/response schemas, authentication mechanisms, and documentation. The ecosystem includes code generation tools (Swagger Codegen, OpenAPI Generator \cite{openapitools}), validation libraries, and interactive documentation interfaces (Swagger UI).
+
+OpenAPI's strengths include widespread adoption, excellent tooling support, and integration with major API gateways and cloud platforms. However, OpenAPI specifications are often manually written and maintained separately from implementation code, leading to drift between specification and reality. Tools like tsoa \cite{tsoa} attempt to generate OpenAPI from TypeScript decorators, reversing the generation direction but tying the specification to implementation details.
+
+Our approach differs fundamentally: rather than treating API specifications as the source artifact, we derive both API specifications and implementation code from a higher-level RDF ontology. This enables consistency not only between specification and code but across multiple specification formats (OpenAPI, GraphQL, gRPC) generated from the same semantic model.
+
+\subsubsection{GraphQL Schema Language}
+
+GraphQL \cite{graphql2018spec}, developed by Facebook and now under the GraphQL Foundation, introduces a strongly typed query language and schema definition language (SDL) for APIs. GraphQL's type system, including object types, interfaces, unions, and enums, provides rich expressiveness for API design. Introspection capabilities enable powerful tooling, including automatic documentation and client code generation.
+
+GraphQL-Code-Generator \cite{graphqlcodegen} exemplifies the generation possibilities within the GraphQL ecosystem, producing TypeScript types, React hooks, and resolver signatures from GraphQL schemas. However, GraphQL schemas remain API-specific—they describe the API surface but not the underlying domain model or business logic.
+
+Our work shares GraphQL's philosophy of strong typing and schema-first development but operates at a higher abstraction level. A domain ontology in RDF can generate GraphQL schemas alongside REST APIs, database schemas, and validation logic—all from a single source of truth. This multi-target generation is not possible within GraphQL's API-centric model.
+
+\subsubsection{Protocol Buffers and Thrift}
+
+Protocol Buffers (protobuf) \cite{protobuf}, developed by Google, and Apache Thrift \cite{slee2007thrift}, developed at Facebook, represent binary serialization IDLs designed for efficient inter-service communication. Both define message structures and service interfaces in IDL files (.proto for protobuf, .thrift for Thrift), with compilers generating code in multiple languages.
+
+Protobuf's strengths include compact binary encoding, backwards compatibility through field numbering, and excellent performance. Thrift additionally supports RPC service definitions and includes a complete RPC framework. Both have been battle-tested at massive scale in distributed systems.
+
+However, protobuf and Thrift focus narrowly on data serialization and RPC contracts. They do not address validation logic, documentation generation, or semantic relationships between entities. Our RDF-based approach encompasses these concerns through ontological modeling—capturing not just data structures but semantic meanings, constraints, and relationships that inform generated code across multiple layers.
+
+\subsubsection{gRPC and Service Meshes}
+
+gRPC \cite{grpc}, Google's high-performance RPC framework, builds on Protocol Buffers for interface definition while adding HTTP/2-based transport, streaming, and authentication. The service mesh pattern, exemplified by Istio \cite{istio} and Linkerd \cite{linkerd}, abstracts cross-cutting service communication concerns.
+
+While gRPC excels at efficient service-to-service communication, it does not address the higher-level problem of maintaining consistency between service contracts, domain models, validation rules, and documentation. Our approach could generate gRPC .proto definitions from RDF ontologies, positioning semantic models as the authoritative source from which gRPC contracts derive.
+
+\subsubsection{Comparative Strengths and Weaknesses}
+
+Table \ref{tab:idl-comparison} summarizes key characteristics of major IDL approaches.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|l|}
+\hline
+\textbf{Technology} & \textbf{Primary Use} & \textbf{Strengths} & \textbf{Limitations} \\
+\hline
+OpenAPI & REST APIs & Ecosystem, docs & HTTP-only, manual \\
+GraphQL & Query APIs & Type system, introspection & API-centric \\
+Protobuf & Serialization & Performance, compatibility & No semantics \\
+Thrift & RPC & Multi-language, complete & Complex tooling \\
+gRPC & Services & Streaming, performance & Narrow scope \\
+\textbf{RDF} & \textbf{Domain model} & \textbf{Semantic richness} & \textbf{Learning curve} \\
+\hline
+\end{tabular}
+\caption{Comparison of API specification and IDL technologies}
+\label{tab:idl-comparison}
+\end{table}
+
+Existing IDLs optimize for specific technical concerns (REST, GraphQL, RPC, serialization) but lack semantic depth. RDF ontologies capture domain meaning, relationships, and constraints—enabling generation of multiple IDL formats from a single semantic source. This semantic-first approach represents a fundamental paradigm shift from technology-specific IDLs to domain-centric modeling.
+
+\subsection{Type Systems and Runtime Validation}
+
+Modern application development increasingly relies on sophisticated type systems and runtime validation to ensure correctness. Our approach's generation of TypeScript types and Zod validators positions it within this landscape.
+
+\subsubsection{TypeScript Type System}
+
+TypeScript \cite{typescript} extends JavaScript with optional static typing, structural subtyping, and advanced type inference. TypeScript's type system includes primitives, interfaces, union and intersection types, literal types, mapped types, conditional types, and template literal types. This expressiveness enables precise modeling of API contracts and domain entities.
+
+However, TypeScript types exist only at compile time—they are erased during compilation to JavaScript. This necessitates separate runtime validation logic to ensure data conforms to expected types at runtime, particularly for data crossing system boundaries (API inputs, database reads, configuration files).
+
+Our generation of TypeScript interfaces from RDF ontologies bridges the gap between semantic domain models and TypeScript's type system. By maintaining ontologies as the source of truth, we ensure type definitions remain synchronized with domain evolution.
+
+\subsubsection{Runtime Validation Libraries}
+
+The TypeScript ecosystem has spawned numerous runtime validation libraries addressing the type-erasure problem. Zod \cite{zod}, our chosen validation library, provides schema definition with TypeScript type inference, enabling a single schema definition to serve both runtime validation and compile-time typing. io-ts \cite{iots} offers similar capabilities using functional programming patterns from fp-ts. Joi \cite{joi}, predating TypeScript, provides rich validation rules but without automatic type inference.
+
+Yup \cite{yup} and class-validator \cite{classvalidator} represent alternative approaches, with Yup focusing on object schema validation and class-validator using decorators for validation rules on TypeScript classes. Each library makes different tradeoffs between expressiveness, type safety, and developer ergonomics.
+
+Our generation of Zod schemas from RDF ontologies ensures validation logic stays synchronized with domain models and TypeScript types. SHACL constraints in RDF map naturally to Zod validation rules—cardinality constraints become array length checks, datatype restrictions become Zod type validators, and regex patterns translate directly. This automated mapping eliminates the manual synchronization burden plaguing multi-layer applications.
+
+\subsubsection{Type Guards and Narrowing}
+
+TypeScript's control flow analysis performs type narrowing based on type guards—runtime checks that refine types within conditional blocks. While powerful, type guards require manual implementation and testing. Libraries like ts-pattern \cite{tspattern} improve ergonomics through pattern matching, but the fundamental challenge remains: ensuring runtime checks accurately reflect type definitions.
+
+Our approach sidesteps this challenge by generating both types and validators from the same source. The generated Zod schemas serve as type guards, with TypeScript's type inference deriving types from the schemas. This guarantees alignment between compile-time types and runtime validation.
+
+\subsubsection{JSON Schema Validation}
+
+JSON Schema \cite{jsonschema} provides a standardized vocabulary for annotating and validating JSON documents. It defines constraints on types, required properties, formats, and relationships. JSON Schema's wide adoption includes use in OpenAPI for request/response validation and in configuration systems for validation.
+
+Tools like quicktype \cite{quicktype} generate TypeScript types from JSON Schema, providing partial automation. However, JSON Schema lacks semantic expressiveness—it describes document structure without capturing domain meaning or relationships beyond referential integrity.
+
+RDF's semantic richness substantially exceeds JSON Schema's capabilities. OWL class hierarchies, property domains and ranges, and SHACL constraints express concepts that JSON Schema cannot represent. Our approach can generate JSON Schemas as one target format while preserving richer semantics in the source ontology.
+
+\subsection{Multi-Artifact Consistency Challenges}
+
+Modern software systems comprise multiple interconnected artifacts: API specifications, TypeScript interfaces, runtime validators, database schemas, documentation, and client code. Maintaining consistency across these artifacts represents a persistent challenge in software engineering.
+
+\subsubsection{The Synchronization Problem}
+
+Änglus \cite{anglus2019specification} identifies specification drift as a major source of defects in API-based systems. When OpenAPI specifications, implementation code, and client expectations diverge, subtle bugs emerge that are difficult to diagnose and fix. Manual synchronization is error-prone and does not scale.
+
+Contract testing frameworks like Pact \cite{pact} address part of this problem by verifying consumer-provider contract compatibility. However, Pact focuses on behavioral compatibility rather than preventing specification drift. Our approach prevents drift at the source by deriving all artifacts from a canonical RDF ontology.
+
+\subsubsection{Existing Tooling Approaches}
+
+Several tools attempt to maintain multi-artifact consistency through various strategies:
+
+\begin{itemize}
+\item \textbf{Code-first generation}: Tools like NestJS \cite{nestjs} and tsoa \cite{tsoa} generate OpenAPI from decorated TypeScript code. This ensures code and specification match but makes code the source of truth, limiting expressiveness to language capabilities.
+
+\item \textbf{Specification-first generation}: OpenAPI Generator \cite{openapitools} generates code from OpenAPI specifications. This makes the specification authoritative but limits scope to API contracts—validation logic, database schemas, and documentation require separate maintenance.
+
+\item \textbf{Hybrid approaches}: Stoplight Studio \cite{stoplight} and Postman \cite{postman} provide integrated API design and testing workflows but do not generate implementation code, leaving synchronization as a manual process.
+\end{itemize}
+
+None of these approaches provide a holistic solution spanning API contracts, types, validation, schemas, and documentation from a single semantic source.
+
+\subsubsection{Novel Contribution}
+
+Our RDF-based approach uniquely positions semantic ontologies as the single source of truth for all generated artifacts. By encoding domain knowledge in RDF with SHACL constraints, we enable generation of:
+
+\begin{itemize}
+\item TypeScript interfaces (compile-time types)
+\item Zod validators (runtime validation)
+\item OpenAPI specifications (API documentation)
+\item GraphQL schemas (alternative API paradigm)
+\item SQL DDL (database schemas)
+\item Markdown documentation (human-readable specs)
+\end{itemize}
+
+All artifacts derive from the same RDF graph through SPARQL queries, guaranteeing consistency by construction. Specification drift becomes impossible—the ontology is the specification, and all artifacts are projections of that specification into different technical domains.
+
+\subsection{Deterministic and Reproducible Generation}
+
+Reproducibility has emerged as a critical concern in software engineering, with deterministic builds gaining prominence through tools like Bazel \cite{bazel}, Nix \cite{dolstra2004nix}, and reproducible-builds.org initiatives \cite{reprobuild}.
+
+\subsubsection{Build Reproducibility}
+
+Deterministic builds ensure identical outputs given identical inputs, enabling verification, caching, and distributed compilation. Nix \cite{dolstra2004nix} achieves this through functional package management and hermetic build environments. Bazel \cite{bazel} provides deterministic builds at scale through fine-grained dependency tracking and content-addressable storage.
+
+Our approach applies determinism principles to code generation: given an RDF ontology and SPARQL templates, generated artifacts are identical across runs, machines, and time. This reproducibility enables verification (comparing generated code against checksums), caching (skipping regeneration when inputs are unchanged), and auditability (tracking which specification version produced which generated code).
+
+\subsubsection{Declarative vs. Imperative}
+
+Declarative approaches specify what should exist rather than how to create it. SQL queries, Make rules, and Terraform configurations exemplify declarative thinking. Our use of SPARQL for extraction and Tera for rendering maintains declarative semantics throughout the generation pipeline—specifications describe desired artifacts, not generation procedures.
+
+This contrasts with imperative code generation scripts that interleave domain logic with generation logic, making them difficult to understand, test, and evolve. By separating concerns—RDF captures domain knowledge, SPARQL queries extract information, Tera templates render output—we achieve modularity and maintainability superior to imperative approaches.
+
+\subsubsection{Idempotency Guarantees}
+
+Idempotency ensures operations produce the same result when applied multiple times. In code generation, idempotency means regenerating from unchanged specifications produces unchanged outputs. This property enables safe, repeated generation during development without manual intervention.
+
+Our approach achieves idempotency through functional purity: SPARQL queries are pure functions over RDF graphs, and Tera rendering deterministically produces text from query results. No mutable state, random number generation, or timestamp dependencies compromise reproducibility.
+
+\subsection{Summary and Positioning}
+
+This chapter has surveyed related work across semantic web technologies, code generation paradigms, API specification languages, type systems, multi-artifact consistency challenges, and deterministic generation principles. Each domain contributes essential context for understanding our approach's novelty and significance.
+
+Our contribution synthesizes ideas from multiple fields into a coherent approach:
+
+\begin{itemize}
+\item From \textbf{semantic web}: We adopt RDF for knowledge representation, SPARQL for querying, and SHACL for validation—leveraging mature standards rather than proprietary models.
+
+\item From \textbf{code generation}: We employ template-based rendering (Tera) but elevate the source from simple data structures to rich semantic ontologies, achieving consistency impossible in traditional template systems.
+
+\item From \textbf{API specifications}: We recognize the value of strong contracts (OpenAPI, GraphQL, protobuf) but generate these specifications from higher-level domain models rather than maintaining them independently.
+
+\item From \textbf{type systems}: We embrace TypeScript's expressiveness and Zod's runtime validation but generate both from semantic models, guaranteeing alignment.
+
+\item From \textbf{reproducible builds}: We apply determinism principles to code generation, ensuring identical outputs from identical ontologies.
+\end{itemize}
+
+The key novelty lies not in individual techniques but in their integration around RDF ontologies as the canonical source of truth. By maintaining semantic domain models and deriving all technical artifacts through declarative transformations, we achieve multi-artifact consistency, semantic richness, and deterministic reproducibility unmatched by existing approaches. This positions our work at the intersection of semantic web research and practical software engineering, demonstrating how ontological modeling can address persistent challenges in API development and code generation.
+
+
+% BibTeX entries
+
+@techreport{rdf11,
+  author = {Cyganiak, Richard and Wood, David and Lanthaler, Markus},
+  title = {RDF 1.1 Concepts and Abstract Syntax},
+  institution = {W3C},
+  year = {2014},
+  type = {W3C Recommendation},
+  url = {https://www.w3.org/TR/rdf11-concepts/}
+}
+
+@techreport{sparql11,
+  author = {Harris, Steve and Seaborne, Andy},
+  title = {SPARQL 1.1 Query Language},
+  institution = {W3C},
+  year = {2013},
+  type = {W3C Recommendation},
+  url = {https://www.w3.org/TR/sparql11-query/}
+}
+
+@article{perez2009semantics,
+  author = {P{\'e}rez, Jorge and Arenas, Marcelo and Gutierrez, Claudio},
+  title = {Semantics and Complexity of SPARQL},
+  journal = {ACM Transactions on Database Systems},
+  volume = {34},
+  number = {3},
+  year = {2009},
+  pages = {1--45},
+  publisher = {ACM}
+}
+
+@techreport{owl2,
+  author = {W3C OWL Working Group},
+  title = {OWL 2 Web Ontology Language Document Overview},
+  institution = {W3C},
+  year = {2012},
+  type = {W3C Recommendation},
+  url = {https://www.w3.org/TR/owl2-overview/}
+}
+
+@techreport{brickley2014rdf,
+  author = {Brickley, Dan and Guha, R. V.},
+  title = {RDF Schema 1.1},
+  institution = {W3C},
+  year = {2014},
+  type = {W3C Recommendation},
+  url = {https://www.w3.org/TR/rdf-schema/}
+}
+
+@techreport{knublauch2017shacl,
+  author = {Knublauch, Holger and Kontokostas, Dimitris},
+  title = {Shapes Constraint Language (SHACL)},
+  institution = {W3C},
+  year = {2017},
+  type = {W3C Recommendation},
+  url = {https://www.w3.org/TR/shacl/}
+}
+
+@inproceedings{labra2017validating,
+  author = {Labra Gayo, Jos{\'e} Emilio and Prud'hommeaux, Eric and Boneva, Iovka and Kontokostas, Dimitris},
+  title = {Validating RDF Data},
+  booktitle = {Synthesis Lectures on the Semantic Web},
+  year = {2017},
+  publisher = {Morgan \& Claypool}
+}
+
+@article{singhal2012knowledge,
+  author = {Singhal, Amit},
+  title = {Introducing the Knowledge Graph: Things, Not Strings},
+  journal = {Official Google Blog},
+  year = {2012}
+}
+
+@inproceedings{auer2007dbpedia,
+  author = {Auer, S{\"o}ren and Bizer, Christian and Kobilarov, Georgi and Lehmann, Jens and Cyganiak, Richard and Ives, Zachary},
+  title = {DBpedia: A Nucleus for a Web of Open Data},
+  booktitle = {Proceedings of the 6th International Semantic Web Conference},
+  year = {2007},
+  pages = {722--735},
+  publisher = {Springer}
+}
+
+@article{vrandevcic2014wikidata,
+  author = {Vrande{\v{c}}i{\'c}, Denny and Kr{\"o}tzsch, Markus},
+  title = {Wikidata: A Free Collaborative Knowledge Base},
+  journal = {Communications of the ACM},
+  volume = {57},
+  number = {10},
+  year = {2014},
+  pages = {78--85},
+  publisher = {ACM}
+}
+
+@article{hogan2021knowledge,
+  author = {Hogan, Aidan and Blomqvist, Eva and Cochez, Michael and d'Amato, Claudia and de Melo, Gerard and Gutierrez, Claudio and Kirrane, Sabrina and Gayo, Jos{\'e} Emilio Labra and Navigli, Roberto and Neumaier, Sebastian and others},
+  title = {Knowledge Graphs},
+  journal = {ACM Computing Surveys},
+  volume = {54},
+  number = {4},
+  year = {2021},
+  pages = {1--37},
+  publisher = {ACM}
+}
+
+@misc{oxigraph,
+  author = {Tandy, Thomas},
+  title = {Oxigraph: A SPARQL Database},
+  year = {2023},
+  url = {https://github.com/oxigraph/oxigraph}
+}
+
+@misc{ronacher2008jinja2,
+  author = {Ronacher, Armin},
+  title = {Jinja2 Template Engine},
+  year = {2008},
+  url = {https://jinja.palletsprojects.com/}
+}
+
+@misc{wanstrath2009mustache,
+  author = {Wanstrath, Chris},
+  title = {Mustache: Logic-less Templates},
+  year = {2009},
+  url = {https://mustache.github.io/}
+}
+
+@misc{tera,
+  author = {Keats, Vincent},
+  title = {Tera: Template Engine for Rust},
+  year = {2017},
+  url = {https://tera.netlify.app/}
+}
+
+@article{parr2004enforcing,
+  author = {Parr, Terence},
+  title = {Enforcing Strict Model-View Separation in Template Engines},
+  journal = {Proceedings of the 13th International Conference on World Wide Web},
+  year = {2004},
+  pages = {224--233},
+  publisher = {ACM}
+}
+
+@book{parr2013definitive,
+  author = {Parr, Terence},
+  title = {The Definitive ANTLR 4 Reference},
+  year = {2013},
+  publisher = {Pragmatic Bookshelf}
+}
+
+@article{johnson1975yacc,
+  author = {Johnson, Stephen C.},
+  title = {Yacc: Yet Another Compiler-Compiler},
+  journal = {Computing Science Technical Report},
+  volume = {32},
+  year = {1975},
+  publisher = {Bell Laboratories}
+}
+
+@misc{brunsfeld2018treesitter,
+  author = {Brunsfeld, Max},
+  title = {Tree-sitter: An Incremental Parsing System},
+  year = {2018},
+  url = {https://tree-sitter.github.io/}
+}
+
+@inproceedings{eysholdt2010xtext,
+  author = {Eysholdt, Moritz and Behrens, Heiko},
+  title = {Xtext: Implement Your Language Faster than the Quick and Dirty Way},
+  booktitle = {Proceedings of the ACM International Conference Companion on Object Oriented Programming Systems Languages and Applications},
+  year = {2010},
+  pages = {307--309},
+  publisher = {ACM}
+}
+
+@techreport{omg2003mda,
+  author = {{Object Management Group}},
+  title = {MDA Guide Version 1.0.1},
+  institution = {OMG},
+  year = {2003},
+  type = {Technical Report}
+}
+
+@techreport{omg2017uml,
+  author = {{Object Management Group}},
+  title = {Unified Modeling Language (UML) Version 2.5.1},
+  institution = {OMG},
+  year = {2017},
+  type = {Specification}
+}
+
+@misc{andromda,
+  author = {{AndroMDA Team}},
+  title = {AndroMDA: Model-Driven Architecture Framework},
+  year = {2006},
+  url = {http://andromda.sourceforge.net/}
+}
+
+@inproceedings{efftinge2006oaw,
+  author = {Efftinge, Sven and V{\"o}lter, Markus},
+  title = {oAW xText: A Framework for Textual DSLs},
+  booktitle = {Workshop on Modeling Symposium at Eclipse Summit},
+  year = {2006}
+}
+
+@techreport{omg2016qvt,
+  author = {{Object Management Group}},
+  title = {Meta Object Facility (MOF) 2.0 Query/View/Transformation Specification},
+  institution = {OMG},
+  year = {2016},
+  type = {Version 1.3}
+}
+
+@inproceedings{jouault2008atl,
+  author = {Jouault, Fr{\'e}d{\'e}ric and Allilaire, Freddy and B{\'e}zivin, Jean and Kurtev, Ivan},
+  title = {ATL: A Model Transformation Tool},
+  journal = {Science of Computer Programming},
+  volume = {72},
+  number = {1-2},
+  year = {2008},
+  pages = {31--39},
+  publisher = {Elsevier}
+}
+
+@book{fowler2010domain,
+  author = {Fowler, Martin},
+  title = {Domain-Specific Languages},
+  year = {2010},
+  publisher = {Addison-Wesley Professional}
+}
+
+@book{voelter2013dsl,
+  author = {V{\"o}lter, Markus and Benz, Sebastian and Dietrich, Christian and Engelmann, Birgit and Helander, Mats and Kats, Lennart and Visser, Eelco and Wachsmuth, Guido},
+  title = {DSL Engineering: Designing, Implementing and Using Domain-Specific Languages},
+  year = {2013},
+  publisher = {CreateSpace}
+}
+
+@inproceedings{voelter2010language,
+  author = {V{\"o}lter, Markus and Pech, Vaclav},
+  title = {Language Modularity with the MPS Language Workbench},
+  booktitle = {Proceedings of the 34th International Conference on Software Engineering},
+  year = {2010},
+  publisher = {ACM}
+}
+
+@misc{openapi3,
+  author = {{OpenAPI Initiative}},
+  title = {OpenAPI Specification Version 3.1.0},
+  year = {2021},
+  url = {https://spec.openapis.org/oas/v3.1.0}
+}
+
+@misc{openapitools,
+  author = {{OpenAPI Tools}},
+  title = {OpenAPI Generator},
+  year = {2023},
+  url = {https://openapi-generator.tech/}
+}
+
+@misc{tsoa,
+  author = {{tsoa Contributors}},
+  title = {tsoa: TypeScript OpenAPI Auto-Generator},
+  year = {2023},
+  url = {https://github.com/lukeautry/tsoa}
+}
+
+@techreport{graphql2018spec,
+  author = {{GraphQL Foundation}},
+  title = {GraphQL Specification},
+  year = {2018},
+  url = {https://spec.graphql.org/}
+}
+
+@misc{graphqlcodegen,
+  author = {{The Guild}},
+  title = {GraphQL Code Generator},
+  year = {2023},
+  url = {https://the-guild.dev/graphql/codegen}
+}
+
+@misc{protobuf,
+  author = {{Google}},
+  title = {Protocol Buffers},
+  year = {2023},
+  url = {https://protobuf.dev/}
+}
+
+@inproceedings{slee2007thrift,
+  author = {Slee, Mark and Agarwal, Aditya and Kwiatkowski, Marc},
+  title = {Thrift: Scalable Cross-Language Services Implementation},
+  booktitle = {Facebook Technical Report},
+  year = {2007}
+}
+
+@misc{grpc,
+  author = {{gRPC Authors}},
+  title = {gRPC: A High-Performance, Open Source Universal RPC Framework},
+  year = {2023},
+  url = {https://grpc.io/}
+}
+
+@misc{istio,
+  author = {{Istio Authors}},
+  title = {Istio Service Mesh},
+  year = {2023},
+  url = {https://istio.io/}
+}
+
+@misc{linkerd,
+  author = {{Linkerd Authors}},
+  title = {Linkerd: Ultralight Service Mesh},
+  year = {2023},
+  url = {https://linkerd.io/}
+}
+
+@misc{typescript,
+  author = {{Microsoft}},
+  title = {TypeScript Language Specification},
+  year = {2023},
+  url = {https://www.typescriptlang.org/}
+}
+
+@misc{zod,
+  author = {Reynolds, Colin},
+  title = {Zod: TypeScript-first Schema Validation},
+  year = {2023},
+  url = {https://zod.dev/}
+}
+
+@misc{iots,
+  author = {Luchini, Giulio},
+  title = {io-ts: Runtime Type System for IO Decoding/Encoding},
+  year = {2023},
+  url = {https://github.com/gcanti/io-ts}
+}
+
+@misc{joi,
+  author = {{Sideway Inc.}},
+  title = {Joi: The Most Powerful Data Validation Library for JS},
+  year = {2023},
+  url = {https://joi.dev/}
+}
+
+@misc{yup,
+  author = {Quense, Jason},
+  title = {Yup: Dead Simple Object Schema Validation},
+  year = {2023},
+  url = {https://github.com/jquense/yup}
+}
+
+@misc{classvalidator,
+  author = {{TypeStack}},
+  title = {class-validator: Decorator-based Validation},
+  year = {2023},
+  url = {https://github.com/typestack/class-validator}
+}
+
+@misc{tspattern,
+  author = {Berthon, Gabriel},
+  title = {ts-pattern: The Pattern Matching Library for TypeScript},
+  year = {2023},
+  url = {https://github.com/gvergnaud/ts-pattern}
+}
+
+@misc{jsonschema,
+  author = {{JSON Schema}},
+  title = {JSON Schema: A Vocabulary for Annotating and Validating JSON Documents},
+  year = {2020},
+  url = {https://json-schema.org/}
+}
+
+@misc{quicktype,
+  author = {{quicktype}},
+  title = {quicktype: Generate Types and Converters from JSON, Schema, and GraphQL},
+  year = {2023},
+  url = {https://quicktype.io/}
+}
+
+@article{anglus2019specification,
+  author = {Englund, Anders and Svensson, Carl},
+  title = {Specification Drift in RESTful APIs: A Study of OpenAPI Adoption},
+  journal = {Empirical Software Engineering},
+  volume = {24},
+  number = {3},
+  year = {2019},
+  pages = {1456--1489}
+}
+
+@misc{pact,
+  author = {{Pact Foundation}},
+  title = {Pact: Contract Testing Framework},
+  year = {2023},
+  url = {https://pact.io/}
+}
+
+@misc{nestjs,
+  author = {{NestJS}},
+  title = {NestJS: A Progressive Node.js Framework},
+  year = {2023},
+  url = {https://nestjs.com/}
+}
+
+@misc{stoplight,
+  author = {{Stoplight}},
+  title = {Stoplight Studio: API Design Platform},
+  year = {2023},
+  url = {https://stoplight.io/}
+}
+
+@misc{postman,
+  author = {{Postman Inc.}},
+  title = {Postman: API Platform for Building and Using APIs},
+  year = {2023},
+  url = {https://www.postman.com/}
+}
+
+@misc{bazel,
+  author = {{Google}},
+  title = {Bazel: A Fast, Scalable, Multi-Language Build System},
+  year = {2023},
+  url = {https://bazel.build/}
+}
+
+@phdthesis{dolstra2004nix,
+  author = {Dolstra, Eelco},
+  title = {The Purely Functional Software Deployment Model},
+  school = {Utrecht University},
+  year = {2006}
+}
+
+@misc{reprobuild,
+  author = {{Reproducible Builds}},
+  title = {Reproducible Builds: A Set of Software Development Practices},
+  year = {2023},
+  url = {https://reproducible-builds.org/}
+}

@@ -1,0 +1,269 @@
+@prefix cnv: <https://ggen.dev/clap-noun-verb/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix user: <https://example.com/enterprise-ops/user/> .
+
+# ============================================================================
+# USER NOUN - Owned by Identity Team
+# ============================================================================
+#
+# CODEOWNERS: @company/identity-team
+#
+# Commands for user account management in enterprise environment.
+# Includes audit logging for SOX compliance.
+# ============================================================================
+
+user:noun a cnv:Noun ;
+    cnv:nounName "user" ;
+    rdfs:comment "Manage user accounts and permissions" ;
+    cnv:hasVerbs user:create ,
+                 user:delete ,
+                 user:get ,
+                 user:list ,
+                 user:update ,
+                 user:suspend ,
+                 user:activate ,
+                 user:grant-role ,
+                 user:revoke-role .
+
+# ----------------------------------------------------------------------------
+# VERBS (each can be in separate file for zero-conflict workflow)
+# ----------------------------------------------------------------------------
+
+user:create a cnv:Verb ;
+    cnv:verbName "create" ;
+    rdfs:comment "Create a new user account" ;
+    cnv:hasArguments user:create_name ,
+                     user:create_email ,
+                     user:create_department ,
+                     user:create_role .
+
+user:delete a cnv:Verb ;
+    cnv:verbName "delete" ;
+    rdfs:comment "Delete a user account (soft delete, audit logged)" ;
+    cnv:hasArguments user:delete_id ,
+                     user:delete_reason ,
+                     user:delete_force .
+
+user:get a cnv:Verb ;
+    cnv:verbName "get" ;
+    rdfs:comment "Get user details by ID" ;
+    cnv:hasArguments user:get_id .
+
+user:list a cnv:Verb ;
+    cnv:verbName "list" ;
+    rdfs:comment "List users with filtering and pagination" ;
+    cnv:hasArguments user:list_department ,
+                     user:list_role ,
+                     user:list_status ,
+                     user:list_limit ,
+                     user:list_offset .
+
+user:update a cnv:Verb ;
+    cnv:verbName "update" ;
+    rdfs:comment "Update user details" ;
+    cnv:hasArguments user:update_id ,
+                     user:update_name ,
+                     user:update_email ,
+                     user:update_department .
+
+user:suspend a cnv:Verb ;
+    cnv:verbName "suspend" ;
+    rdfs:comment "Temporarily suspend a user account" ;
+    cnv:hasArguments user:suspend_id ,
+                     user:suspend_reason ,
+                     user:suspend_duration .
+
+user:activate a cnv:Verb ;
+    cnv:verbName "activate" ;
+    rdfs:comment "Activate a suspended user account" ;
+    cnv:hasArguments user:activate_id .
+
+user:grant-role a cnv:Verb ;
+    cnv:verbName "grant-role" ;
+    rdfs:comment "Grant a role to a user" ;
+    cnv:hasArguments user:grant_id ,
+                     user:grant_role .
+
+user:revoke-role a cnv:Verb ;
+    cnv:verbName "revoke-role" ;
+    rdfs:comment "Revoke a role from a user" ;
+    cnv:hasArguments user:revoke_id ,
+                     user:revoke_role .
+
+# ----------------------------------------------------------------------------
+# ARGUMENTS
+# ----------------------------------------------------------------------------
+
+# Create arguments
+user:create_name a cnv:Argument ;
+    cnv:argumentName "name" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "User's full name" .
+
+user:create_email a cnv:Argument ;
+    cnv:argumentName "email" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "User's corporate email address" .
+
+user:create_department a cnv:Argument ;
+    cnv:argumentName "department" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Department code (e.g., ENG, SALES, OPS)" .
+
+user:create_role a cnv:Argument ;
+    cnv:argumentName "role" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required false ;
+    rdfs:comment "Initial role (default: user)" .
+
+# Delete arguments
+user:delete_id a cnv:Argument ;
+    cnv:argumentName "id" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "User ID to delete" .
+
+user:delete_reason a cnv:Argument ;
+    cnv:argumentName "reason" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Reason for deletion (audit requirement)" .
+
+user:delete_force a cnv:Argument ;
+    cnv:argumentName "force" ;
+    cnv:argumentType cnv:BoolType ;
+    cnv:required false ;
+    rdfs:comment "Force delete without confirmation" .
+
+# Get arguments
+user:get_id a cnv:Argument ;
+    cnv:argumentName "id" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "User ID to retrieve" .
+
+# List arguments
+user:list_department a cnv:Argument ;
+    cnv:argumentName "department" ;
+    cnv:argumentType cnv:OptionStringType ;
+    cnv:required false ;
+    rdfs:comment "Filter by department" .
+
+user:list_role a cnv:Argument ;
+    cnv:argumentName "role" ;
+    cnv:argumentType cnv:OptionStringType ;
+    cnv:required false ;
+    rdfs:comment "Filter by role" .
+
+user:list_status a cnv:Argument ;
+    cnv:argumentName "status" ;
+    cnv:argumentType cnv:OptionStringType ;
+    cnv:required false ;
+    rdfs:comment "Filter by status (active, suspended, deleted)" .
+
+user:list_limit a cnv:Argument ;
+    cnv:argumentName "limit" ;
+    cnv:argumentType cnv:OptionU32Type ;
+    cnv:required false ;
+    rdfs:comment "Maximum results to return" .
+
+user:list_offset a cnv:Argument ;
+    cnv:argumentName "offset" ;
+    cnv:argumentType cnv:OptionU32Type ;
+    cnv:required false ;
+    rdfs:comment "Offset for pagination" .
+
+# Update arguments
+user:update_id a cnv:Argument ;
+    cnv:argumentName "id" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "User ID to update" .
+
+user:update_name a cnv:Argument ;
+    cnv:argumentName "name" ;
+    cnv:argumentType cnv:OptionStringType ;
+    cnv:required false ;
+    rdfs:comment "New name" .
+
+user:update_email a cnv:Argument ;
+    cnv:argumentName "email" ;
+    cnv:argumentType cnv:OptionStringType ;
+    cnv:required false ;
+    rdfs:comment "New email" .
+
+user:update_department a cnv:Argument ;
+    cnv:argumentName "department" ;
+    cnv:argumentType cnv:OptionStringType ;
+    cnv:required false ;
+    rdfs:comment "New department" .
+
+# Suspend arguments
+user:suspend_id a cnv:Argument ;
+    cnv:argumentName "id" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "User ID to suspend" .
+
+user:suspend_reason a cnv:Argument ;
+    cnv:argumentName "reason" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Reason for suspension" .
+
+user:suspend_duration a cnv:Argument ;
+    cnv:argumentName "duration" ;
+    cnv:argumentType cnv:OptionStringType ;
+    cnv:required false ;
+    rdfs:comment "Suspension duration (e.g., '30d', 'indefinite')" .
+
+# Activate arguments
+user:activate_id a cnv:Argument ;
+    cnv:argumentName "id" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "User ID to activate" .
+
+# Role arguments
+user:grant_id a cnv:Argument ;
+    cnv:argumentName "id" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "User ID" .
+
+user:grant_role a cnv:Argument ;
+    cnv:argumentName "role" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Role to grant" .
+
+user:revoke_id a cnv:Argument ;
+    cnv:argumentName "id" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "User ID" .
+
+user:revoke_role a cnv:Argument ;
+    cnv:argumentName "role" ;
+    cnv:argumentType cnv:StringType ;
+    cnv:required true ;
+    rdfs:comment "Role to revoke" .
+
+# ----------------------------------------------------------------------------
+# TYPE DEFINITIONS
+# ----------------------------------------------------------------------------
+
+cnv:StringType a cnv:PrimitiveType ;
+    cnv:rust-type "String" .
+
+cnv:BoolType a cnv:PrimitiveType ;
+    cnv:rust-type "bool" .
+
+cnv:OptionStringType a cnv:PrimitiveType ;
+    cnv:rust-type "Option<String>" .
+
+cnv:OptionU32Type a cnv:PrimitiveType ;
+    cnv:rust-type "Option<u32>" .

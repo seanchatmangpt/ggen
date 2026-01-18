@@ -1,0 +1,430 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/ruvnet/ggen/schemas/budget-violation.json",
+  "title": "Budget Violation Schema",
+  "description": "Structured output for 'ggen test budget-check' command. Contains budget compliance results and violation details.",
+  "type": "object",
+  "required": ["summary", "breakdown", "violations", "recommendations", "metadata"],
+  "properties": {
+    "summary": {
+      "type": "object",
+      "description": "High-level budget compliance summary",
+      "required": [
+        "budget_met",
+        "time_budget_ms",
+        "time_used_ms",
+        "memory_budget_mb",
+        "memory_used_mb",
+        "violations"
+      ],
+      "properties": {
+        "budget_met": {
+          "type": "boolean",
+          "description": "True if all budgets satisfied"
+        },
+        "time_budget_ms": {
+          "type": "integer",
+          "description": "Time budget (milliseconds)",
+          "minimum": 0
+        },
+        "time_used_ms": {
+          "type": "integer",
+          "description": "Actual time used (milliseconds)",
+          "minimum": 0
+        },
+        "time_percentage": {
+          "type": "number",
+          "description": "Percentage of time budget used (0.0-N)",
+          "minimum": 0.0
+        },
+        "memory_budget_mb": {
+          "type": "integer",
+          "description": "Memory budget (megabytes)",
+          "minimum": 0
+        },
+        "memory_used_mb": {
+          "type": "integer",
+          "description": "Actual memory used (megabytes)",
+          "minimum": 0
+        },
+        "memory_percentage": {
+          "type": "number",
+          "description": "Percentage of memory budget used (0.0-N)",
+          "minimum": 0.0
+        },
+        "violations": {
+          "type": "array",
+          "description": "List of budget violations",
+          "items": {
+            "type": "object",
+            "required": ["type", "budget", "actual", "overage", "percentage"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["time", "memory", "test_count"],
+                "description": "Type of budget violation"
+              },
+              "budget": {
+                "type": "number",
+                "description": "Budget limit",
+                "minimum": 0
+              },
+              "actual": {
+                "type": "number",
+                "description": "Actual usage",
+                "minimum": 0
+              },
+              "overage": {
+                "type": "number",
+                "description": "Amount over budget",
+                "minimum": 0
+              },
+              "percentage": {
+                "type": "number",
+                "description": "Percentage of budget used (>100 if violated)",
+                "minimum": 0.0
+              },
+              "severity": {
+                "type": "string",
+                "enum": ["critical", "high", "medium", "low"],
+                "description": "Violation severity"
+              }
+            }
+          }
+        }
+      }
+    },
+    "breakdown": {
+      "type": "array",
+      "description": "Per-file budget breakdown",
+      "items": {
+        "type": "object",
+        "required": [
+          "file",
+          "execution_time_ms",
+          "memory_mb",
+          "test_count",
+          "percentage_of_total_time",
+          "percentage_of_total_memory"
+        ],
+        "properties": {
+          "file": {
+            "type": "string",
+            "description": "Test file path"
+          },
+          "execution_time_ms": {
+            "type": "integer",
+            "description": "File execution time (milliseconds)",
+            "minimum": 0
+          },
+          "memory_mb": {
+            "type": "integer",
+            "description": "Peak memory usage (megabytes)",
+            "minimum": 0
+          },
+          "test_count": {
+            "type": "integer",
+            "description": "Number of tests in file",
+            "minimum": 0
+          },
+          "percentage_of_total_time": {
+            "type": "number",
+            "description": "Percentage of total execution time (0.0-100.0)",
+            "minimum": 0.0,
+            "maximum": 100.0
+          },
+          "percentage_of_total_memory": {
+            "type": "number",
+            "description": "Percentage of total memory usage (0.0-100.0)",
+            "minimum": 0.0,
+            "maximum": 100.0
+          },
+          "is_bottleneck": {
+            "type": "boolean",
+            "description": "True if this file is a performance bottleneck"
+          },
+          "slowest_test": {
+            "type": "object",
+            "description": "Slowest test in this file",
+            "properties": {
+              "name": {"type": "string"},
+              "execution_time_ms": {"type": "integer", "minimum": 0}
+            }
+          }
+        }
+      }
+    },
+    "violations": {
+      "type": "array",
+      "description": "Detailed violation information",
+      "items": {
+        "type": "object",
+        "required": ["type", "severity", "message", "affected_files"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["time", "memory", "test_count"],
+            "description": "Violation type"
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low"],
+            "description": "Violation severity"
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable violation message"
+          },
+          "affected_files": {
+            "type": "array",
+            "description": "Files contributing to violation",
+            "items": {
+              "type": "object",
+              "properties": {
+                "file": {"type": "string"},
+                "contribution_percentage": {
+                  "type": "number",
+                  "description": "Percentage contribution to violation (0.0-100.0)",
+                  "minimum": 0.0,
+                  "maximum": 100.0
+                }
+              }
+            }
+          },
+          "threshold_gap": {
+            "type": "number",
+            "description": "Gap between budget and actual (negative if over budget)"
+          }
+        }
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "description": "Actionable recommendations to meet budget",
+      "items": {
+        "type": "object",
+        "required": ["priority", "category", "message", "action"],
+        "properties": {
+          "priority": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low"],
+            "description": "Recommendation priority"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "optimization",
+              "parallelization",
+              "test_selection",
+              "infrastructure",
+              "refactoring"
+            ],
+            "description": "Recommendation category"
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable recommendation message"
+          },
+          "action": {
+            "type": "string",
+            "description": "Concrete action to take (e.g., CLI command)"
+          },
+          "expected_improvement": {
+            "type": "object",
+            "description": "Expected impact of recommendation",
+            "properties": {
+              "time_reduction_ms": {
+                "type": "integer",
+                "description": "Expected time reduction (milliseconds)",
+                "minimum": 0
+              },
+              "memory_reduction_mb": {
+                "type": "integer",
+                "description": "Expected memory reduction (megabytes)",
+                "minimum": 0
+              },
+              "budget_compliance_probability": {
+                "type": "number",
+                "description": "Probability of meeting budget after change (0.0-1.0)",
+                "minimum": 0.0,
+                "maximum": 1.0
+              }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Command execution metadata",
+      "required": [
+        "command",
+        "version",
+        "timestamp",
+        "arguments"
+      ],
+      "properties": {
+        "command": {
+          "type": "string",
+          "description": "Full command executed",
+          "const": "ggen test budget-check"
+        },
+        "version": {
+          "type": "string",
+          "description": "ggen version (semver)",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "ISO 8601 timestamp of execution",
+          "format": "date-time"
+        },
+        "arguments": {
+          "type": "object",
+          "description": "Command-line arguments used",
+          "properties": {
+            "paths": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "time_budget_ms": {"type": "integer"},
+            "memory_budget_mb": {"type": "integer"},
+            "fail_on_violation": {"type": "boolean"},
+            "include_breakdown": {"type": "boolean"}
+          }
+        },
+        "execution_environment": {
+          "type": "object",
+          "properties": {
+            "rust_version": {"type": "string"},
+            "cargo_version": {"type": "string"},
+            "os": {"type": "string"},
+            "cpu_count": {"type": "integer"}
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "summary": {
+        "budget_met": false,
+        "time_budget_ms": 30000,
+        "time_used_ms": 35200,
+        "time_percentage": 117.3,
+        "memory_budget_mb": 500,
+        "memory_used_mb": 245,
+        "memory_percentage": 49.0,
+        "violations": [
+          {
+            "type": "time",
+            "budget": 30000,
+            "actual": 35200,
+            "overage": 5200,
+            "percentage": 117.3,
+            "severity": "high"
+          }
+        ]
+      },
+      "breakdown": [
+        {
+          "file": "tests/integration/end_to_end.rs",
+          "execution_time_ms": 8500,
+          "memory_mb": 85,
+          "test_count": 12,
+          "percentage_of_total_time": 24.1,
+          "percentage_of_total_memory": 34.7,
+          "is_bottleneck": true,
+          "slowest_test": {
+            "name": "test_full_pipeline",
+            "execution_time_ms": 4200
+          }
+        },
+        {
+          "file": "tests/aci/timeout_enforcement_tests.rs",
+          "execution_time_ms": 1200,
+          "memory_mb": 15,
+          "test_count": 8,
+          "percentage_of_total_time": 3.4,
+          "percentage_of_total_memory": 6.1,
+          "is_bottleneck": false,
+          "slowest_test": {
+            "name": "test_timeout_enforced",
+            "execution_time_ms": 450
+          }
+        }
+      ],
+      "violations": [
+        {
+          "type": "time",
+          "severity": "high",
+          "message": "Test execution time exceeded budget by 5.2s (17.3% over)",
+          "affected_files": [
+            {
+              "file": "tests/integration/end_to_end.rs",
+              "contribution_percentage": 45.5
+            },
+            {
+              "file": "tests/graph/large_dataset.rs",
+              "contribution_percentage": 32.1
+            }
+          ],
+          "threshold_gap": -5200
+        }
+      ],
+      "recommendations": [
+        {
+          "priority": "critical",
+          "category": "test_selection",
+          "message": "Use value-based test selection to reduce execution time",
+          "action": "ggen test optimize --time-budget-ms 30000 --value-threshold 0.75",
+          "expected_improvement": {
+            "time_reduction_ms": 7500,
+            "memory_reduction_mb": 50,
+            "budget_compliance_probability": 0.92
+          }
+        },
+        {
+          "priority": "high",
+          "category": "parallelization",
+          "message": "Increase parallelism to reduce execution time",
+          "action": "ggen test optimize --threads 16 --time-budget-ms 30000",
+          "expected_improvement": {
+            "time_reduction_ms": 8200,
+            "memory_reduction_mb": 0,
+            "budget_compliance_probability": 0.85
+          }
+        },
+        {
+          "priority": "medium",
+          "category": "optimization",
+          "message": "Optimize slow test: tests/integration/end_to_end.rs::test_full_pipeline (4.2s)",
+          "action": "Review test implementation, consider mocking external dependencies",
+          "expected_improvement": {
+            "time_reduction_ms": 3000,
+            "memory_reduction_mb": 20,
+            "budget_compliance_probability": 0.70
+          }
+        }
+      ],
+      "metadata": {
+        "command": "ggen test budget-check",
+        "version": "0.4.0",
+        "timestamp": "2025-12-11T11:15:00Z",
+        "arguments": {
+          "paths": ["tests/"],
+          "time_budget_ms": 30000,
+          "memory_budget_mb": 500,
+          "fail_on_violation": true,
+          "include_breakdown": true
+        },
+        "execution_environment": {
+          "rust_version": "1.74.0",
+          "cargo_version": "1.74.0",
+          "os": "linux",
+          "cpu_count": 8
+        }
+      }
+    }
+  ]
+}

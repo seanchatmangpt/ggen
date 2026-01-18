@@ -1,0 +1,15 @@
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Test data for datatype validation
+# Each person has an age (xsd:integer) and email (xsd:string)
+
+ex:person1 ex:age "25"^^xsd:integer .
+ex:person2 ex:age "30"^^xsd:integer .
+ex:person3 ex:age "35"^^xsd:integer .
+ex:person4 ex:age "40"^^xsd:integer .
+ex:person5 ex:age "45"^^xsd:integer .
+ex:person6 ex:age "50"^^xsd:integer .
+ex:person7 ex:age "55"^^xsd:integer .
+ex:person8 ex:age "60"^^xsd:integer .
+

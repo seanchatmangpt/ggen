@@ -20,6 +20,7 @@ members = [
   "crates/ggen-domain",
   "crates/ggen-core",
   "crates/ggen-ai",
+  "crates/ggen-dspy",
   "crates/ggen-config",
   "crates/ggen-cli-validation",
   "crates/ggen-config-clap",

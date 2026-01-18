@@ -1,0 +1,68 @@
+# Tutorials (Learning by Doing)
+
+Learn ggen through hands-on projects. Each tutorial builds on the previous one.
+
+## Beginner Tutorials
+
+{% for row in results | filter(attribute="?difficulty", value="Beginner") %}
+### {{ row["?title"] }}
+
+**Estimated Time**: {{ row["?estimatedMinutes"] }} minutes
+**Category**: {{ row["?category"] }}
+
+{{ row["?description"] }}
+
+{% if row["?prerequisite"] -%}
+**Prerequisites**: {{ row["?prerequisite"] }}
+{% endif -%}
+
+**Read**: `{{ row["?outputFile"] }}`
+
+---
+{% endfor %}
+
+## Intermediate Tutorials
+
+{% for row in results | filter(attribute="?difficulty", value="Intermediate") %}
+### {{ row["?title"] }}
+
+**Estimated Time**: {{ row["?estimatedMinutes"] }} minutes
+**Category**: {{ row["?category"] }}
+
+{{ row["?description"] }}
+
+{% if row["?prerequisite"] -%}
+**Prerequisites**: {{ row["?prerequisite"] }}
+{% endif -%}
+
+**Read**: `{{ row["?outputFile"] }}`
+
+---
+{% endfor %}
+
+## Advanced Tutorials
+
+{% for row in results | filter(attribute="?difficulty", value="Advanced") %}
+### {{ row["?title"] }}
+
+**Estimated Time**: {{ row["?estimatedMinutes"] }} minutes
+**Category**: {{ row["?category"] }}
+
+{{ row["?description"] }}
+
+{% if row["?prerequisite"] -%}
+**Prerequisites**: {{ row["?prerequisite"] }}
+{% endif -%}
+
+**Read**: `{{ row["?outputFile"] }}`
+
+---
+{% endfor %}
+
+## Quick Summary
+
+| Title | Time | Difficulty |
+|-------|------|------------|
+{% for row in results -%}
+| {{ row["?title"] }} | {{ row["?estimatedMinutes"] }}m | {{ row["?difficulty"] }} |
+{% endfor %}

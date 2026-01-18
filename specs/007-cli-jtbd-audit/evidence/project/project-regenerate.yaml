@@ -1,0 +1,52 @@
+command: "ggen project regenerate"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 56
+agent_breakdown:
+  parseable_output: 15
+  error_messages: 12
+  idempotency: 12
+  progress_feedback: 8
+  dry_run: 5
+  documentation: 4
+  exit_codes: 2
+
+avatar_notes:
+  claude_code: "Re-generation with updates; --force supports idempotency"
+  cursor_ai: "Refresh visible in IDE"
+  copilot: "Pattern learnable"
+  aider: "Tracks changes in git"
+  devin: "Can orchestrate regeneration"
+  openhands: "Customizable regeneration"
+  windsurf: "Visual diff useful"
+
+maturity_level: "L2"
+maturity_blockers:
+  - "Incomplete --dry-run"
+  - "Exit codes not semantic"
+
+evidence_files: []
+
+recommendations:
+  - priority: P1
+    description: "Implement full --dry-run with diff preview"
+    effort: medium
+    impact: high
+  - priority: P1
+    description: "Add semantic exit codes"
+    effort: low
+    impact: medium
+
+jtbd: |
+  When I want to regenerate a project with updated configuration,
+  I need to run 'ggen project regenerate',
+  so that I can refresh project outputs.

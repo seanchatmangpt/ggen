@@ -1,0 +1,5 @@
+## Assumptions *(optional - only if relevant)*
+
+{% for row in sparql_results -%}
+- **{{ row.assumptionId }}**: {{ row.description }}
+{% endfor %}

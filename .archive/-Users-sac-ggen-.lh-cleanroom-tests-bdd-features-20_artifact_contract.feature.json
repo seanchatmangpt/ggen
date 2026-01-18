@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/20_artifact_contract.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261841877,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261841877,
+            "name": "Commit-0",
+            "content": "# features/20_artifact_contract.feature\n@artifacts\nFeature: Artifact capture, structure, and size limits\n  Background:\n    Given a fixture project \"cli_artifacts\"\n\n  Scenario: Logs and files captured under run id\n    When I run [\"produce-artifacts\"] using \"auto\"\n    Then an artifact directory exists \"artifacts/<run_id>/\"\n    And contains files:\n      | path               |\n      | stdout.log         |\n      | stderr.log         |\n      | config.json        |\n    And total size <= 10MB by default\n"
+        }
+    ]
+}

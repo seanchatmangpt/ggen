@@ -1,0 +1,49 @@
+@prefix rev: <http://example.org/review#> .
+@prefix dc:  <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+rev:Review a rdfs:Class ;
+  rdfs:label "Peer Review Record" ;
+  rdfs:comment "Structured review record for a manuscript." .
+
+rev:reviewer a rdf:Property ;
+  rdfs:label "Reviewer entry" ;
+  rdfs:domain rev:Review ;
+  rdfs:range foaf:Person .
+
+rev:role a rdf:Property ;
+  rdfs:label "Reviewer role" ;
+  rdfs:domain foaf:Person ;
+  rdfs:range rdfs:Literal .
+
+rev:conflictOfInterest a rdf:Property ;
+  rdfs:label "Conflict of interest flag" ;
+  rdfs:domain foaf:Person ;
+  rdfs:range xsd:boolean .
+
+rev:score a rdf:Property ;
+  rdfs:label "Reviewer score" ;
+  rdfs:domain foaf:Person ;
+  rdfs:range xsd:integer .
+
+rev:comment a rdf:Property ;
+  rdfs:label "Reviewer comment" ;
+  rdfs:domain foaf:Person ;
+  rdfs:range rdfs:Literal .
+
+rev:decisionDraft a rdf:Property ;
+  rdfs:label "Draft decision" ;
+  rdfs:domain rev:Review ;
+  rdfs:range rdfs:Literal .
+
+rev:summary a rdf:Property ;
+  rdfs:label "Review summary" ;
+  rdfs:domain rev:Review ;
+  rdfs:range rdfs:Literal .
+
+
+
+

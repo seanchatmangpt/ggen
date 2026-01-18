@@ -1,0 +1,5 @@
+## Risks & Mitigations *(optional)*
+
+{% for row in sparql_results -%}
+- **{{ row.riskId }}**: **Risk**: {{ row.description }} **Mitigation**: {{ row.mitigation }}
+{% endfor %}

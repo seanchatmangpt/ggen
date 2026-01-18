@@ -1,0 +1,20 @@
+# Generated output directory - DO NOT COMMIT
+lib/
+
+# Old output directory (if it exists) - DO NOT COMMIT
+output/
+
+# Node.js
+node_modules/
+package-lock.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+

@@ -1,0 +1,57 @@
+command: "ggen template get"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 48
+agent_breakdown:
+  parseable_output: 10
+  error_messages: 12
+  idempotency: 15
+  progress_feedback: 4
+  dry_run: 10
+  documentation: 2
+  exit_codes: 2
+
+avatar_notes:
+  claude_code: "Retrieval is basic; lacks JSON structure"
+  cursor_ai: "Works but would benefit from JSON response"
+  copilot: "Simple retrieval pattern; clear from help text"
+  aider: "Read-only operation; safe for workflows"
+  devin: "Requires text parsing; JSON format preferred"
+  openhands: "Good base command; could add more retrieval options"
+  windsurf: "Plain text output; structured format would improve usability"
+
+maturity_level: "L1"
+maturity_blockers:
+  - "Missing JSON output format"
+  - "Minimal documentation"
+  - "No structured error handling"
+
+evidence_files: []
+
+recommendations:
+  - priority: P1
+    description: "Add --output-format json for template metadata"
+    effort: low
+    impact: high
+  - priority: P1
+    description: "Add documentation with JTBD and examples"
+    effort: low
+    impact: high
+  - priority: P2
+    description: "Support --include-content flag for inline template code"
+    effort: medium
+    impact: medium
+
+jtbd: |
+  When I need to retrieve a specific template,
+  I need to run 'ggen template get <name>',
+  so that I can examine and use template details.

@@ -1,0 +1,384 @@
+% ============================================================================
+% CHAPTER 5: SPECIFICATION-FIRST CODE GENERATION FRAMEWORK
+% ============================================================================
+
+\chapter{Specification-First Code Generation Framework}
+\label{ch:framework}
+
+\section{Overview}
+
+This chapter describes the complete framework for specification-first code generation, implementing the Chatman Equation $A = \mu(O)$ in practice.
+
+\section{Architecture}
+
+\subsection{Layered Architecture}
+
+The framework consists of four layers:
+
+\begin{equation}
+\begin{array}{|c|}
+\hline
+\text{Generated Code (JavaScript/TypeScript)} \\
+\hline
+\text{Emission Layer (Tera Templates)} \\
+\hline
+\text{Extraction Layer (SPARQL Queries)} \\
+\hline
+\text{Specification Layer (RDF/Turtle + SHACL)} \\
+\hline
+\end{array}
+\end{equation}
+
+\subsection{Five-Stage Pipeline}
+
+The complete generation process follows five stages:
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.8]
+  \node[draw, rectangle, minimum width=2cm, minimum height=1cm] (stage1) at (0,0) {Stage 1\\Normalize};
+  \node[draw, rectangle, minimum width=2cm, minimum height=1cm] (stage2) at (3,0) {Stage 2\\Extract};
+  \node[draw, rectangle, minimum width=2cm, minimum height=1cm] (stage3) at (6,0) {Stage 3\\Emit};
+  \node[draw, rectangle, minimum width=2cm, minimum height=1cm] (stage4) at (9,0) {Stage 4\\Canonicalize};
+  \node[draw, rectangle, minimum width=2cm, minimum height=1cm] (stage5) at (12,0) {Stage 5\\Receipt};
+
+  \draw[->,thick] (stage1) -- (stage2);
+  \draw[->,thick] (stage2) -- (stage3);
+  \draw[->,thick] (stage3) -- (stage4);
+  \draw[->,thick] (stage4) -- (stage5);
+
+  \node[below=1cm of stage1, font=\small] {RDF/Turtle};
+  \node[below=1cm of stage2, font=\small] {Data};
+  \node[below=1cm of stage3, font=\small] {Code};
+  \node[below=1cm of stage4, font=\small] {Formatted};
+  \node[below=1cm of stage5, font=\small] {Verified};
+\end{tikzpicture}
+\caption{Five-stage code generation pipeline}
+\label{fig:pipeline}
+\end{figure}
+
+\section{Stage 1: Normalization}
+
+\subsection{Input}
+
+Raw RDF files in Turtle format with:
+- Undefined namespace prefixes
+- Relative file paths
+- Inconsistent naming conventions
+
+\subsection{Processing}
+
+\begin{enumerate}
+    \item \textbf{Prefix Expansion}: Convert \texttt{@prefix} declarations to full IRIs
+    \item \textbf{URI Validation}: Verify all IRIs are well-formed
+    \item \textbf{File Merging}: Combine multiple Turtle files
+    \item \textbf{Syntax Checking}: Verify Turtle syntax correctness
+\end{enumerate}
+
+\subsection{Output}
+
+Canonical RDF graph with:
+- All prefixes expanded
+- All URIs validated
+- Consistent representation
+
+\section{Stage 2: Extraction}
+
+\subsection{Input}
+
+Canonical RDF graph from Stage 1.
+
+\subsection{Processing}
+
+Execute SPARQL CONSTRUCT queries to transform RDF:
+
+\begin{lstlisting}[language=SQL]
+CONSTRUCT {
+  ?job a bree:CompiledJobConfig ;
+    bree:configJson ?configJson ;
+    bree:jobName ?name ;
+    bree:jobPath ?path .
+}
+WHERE {
+  ?job a bree:Job ;
+    bree:jobName ?name ;
+    bree:jobPath ?path .
+}
+\end{lstlisting}
+
+\subsection{Output}
+
+Extracted data in structured format (typically JSON or YAML), ready for template substitution.
+
+\section{Stage 3: Emission}
+
+\subsection{Input}
+
+Extracted data from Stage 2.
+
+\subsection{Processing}
+
+Apply Tera templates to generate code:
+
+\begin{lstlisting}[language=jinja]
+const bree = new Bree({
+  root: path.join(__dirname, '{{ instance.root }}'),
+  removeCompleted: {{ instance.removeCompleted|lower }},
+  jobs: [
+    {% for job in jobs %}
+    {
+      name: '{{ job.jobName }}',
+      path: path.join(__dirname, '{{ job.jobPath }}'),
+      {% if job.hasInterval %}interval: {{ job.interval }},{% endif %}
+    },
+    {% endfor %}
+  ],
+});
+\end{lstlisting}
+
+\subsection{Output}
+
+Generated JavaScript/TypeScript code.
+
+\section{Stage 4: Canonicalization}
+
+\subsection{Input}
+
+Raw generated code from Stage 3.
+
+\subsection{Processing}
+
+\begin{enumerate}
+    \item \textbf{Formatting}: Apply code style (Prettier, eslint)
+    \item \textbf{Syntax Validation}: Run parser to verify correctness
+    \item \textbf{Type Checking}: TypeScript type checking (if applicable)
+    \item \textbf{Linting}: Code quality analysis
+\end{enumerate}
+
+\subsection{Output}
+
+Production-quality code meeting all quality standards.
+
+\section{Stage 5: Receipt}
+
+\subsection{Input}
+
+Canonical code from Stage 4.
+
+\subsection{Processing}
+
+\begin{enumerate}
+    \item \textbf{Checksumming}: Compute blake3 hash of output
+    \item \textbf{Manifest Generation}: Create list of all generated files
+    \item \textbf{Verification}: Compare hashes with previous generation (if available)
+    \item \textbf{Logging}: Record generation metadata
+\end{enumerate}
+
+\subsection{Output}
+
+Receipt containing:
+
+\begin{lstlisting}[language=json]
+{
+  "specification_hash": "blake3:abc123...",
+  "generated_code_hash": "blake3:def456...",
+  "timestamp": "2026-01-07T18:00:00Z",
+  "files": [
+    { "path": "generated/bree-instance.js", "hash": "..." },
+    { "path": "generated/citty-cli-main.js", "hash": "..." }
+  ],
+  "deterministic": true
+}
+\end{lstlisting}
+
+\section{Big Bang 80/20: Specification Validation}
+
+Before entering the generation pipeline, specifications must achieve \textit{closure}:
+
+\begin{equation}
+\text{Closure} = \text{All required properties present} \land \text{No conflicts}
+\end{equation}
+
+\subsection{SHACL Validation}
+
+We use SHACL shapes to validate:
+
+\begin{lstlisting}[language=turtle]
+bree:JobShape
+  a sh:NodeShape ;
+  sh:targetClass bree:Job ;
+
+  sh:property [
+    sh:path bree:jobName ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Job must have exactly one jobName" ;
+  ] ;
+
+  sh:sparql [
+    a sh:SPARQLConstraint ;
+    sh:message "Job must have timing specification" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        FILTER NOT EXISTS { $this (bree:hasTimeout | bree:hasInterval | bree:hasCron | bree:hasDate) ?timing . }
+      }
+    """ ;
+  ] .
+\end{lstlisting}
+
+\subsection{Closure Algorithm}
+
+\begin{algorithm}
+\caption{Specification Closure Validation}
+\label{alg:closure}
+\begin{algorithmic}
+\Require Specification RDF graph $O$, SHACL shapes $\Sigma$
+\Ensure $O$ achieves closure or error
+
+\For{each shape $\sigma \in \Sigma$}
+  \For{each instance $i$ matching $\sigma$}
+    \For{each property constraint $(p, C) \in \sigma$}
+      \If{not satisfies($i$, $p$, $C$)}
+        \State \Return \texttt{Error: Constraint violation}
+      \EndIf
+    \EndFor
+  \EndFor
+\EndFor
+
+\State \Return \texttt{Success: Specification achieves closure}
+\end{algorithmic}
+\end{algorithm}
+
+\section{Determinism Guarantee}
+
+\subsection{Theorem: Pipeline Determinism}
+
+\begin{theorem}
+If each stage $S_i$ is deterministic (pure function, no side effects), then the complete pipeline is deterministic:
+\begin{equation}
+\forall O: \text{Pipeline}(O) = \text{Pipeline}(O)
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+By induction:
+\begin{enumerate}
+    \item Base case: Stage 1 is deterministic (pure function of input RDF)
+    \item Inductive step: If Stage $i$ is deterministic, Stage $i+1$ input is deterministic
+    \item Therefore: Stage $i+1$ output is deterministic (composition of pure functions)
+    \item Conclusion: All five stages are deterministic, so pipeline is deterministic
+\end{enumerate}
+\end{proof}
+
+\subsection{Hash-Based Verification}
+
+Determinism enables hash-based verification:
+
+\begin{equation}
+\text{blake3}(O) \xrightarrow{\text{deterministic}} A \xrightarrow{\text{hash}} \text{blake3}(A)
+\end{equation}
+
+Two deployments with:
+- Same specification hash $\text{blake3}(O)$
+- Always produce identical code
+
+This enables:
+- \textbf{Auditability}: Code commit hash uniquely identifies specification
+- \textbf{Reproducibility}: Any developer can regenerate identical code
+- \textbf{Compliance}: Specification → Code mapping is traceable
+
+\section{Configuration: ggen-bree-config.toml}
+
+\subsection{Structure}
+
+\begin{lstlisting}[language=toml]
+[specification]
+description = "Bree Job Scheduler Code Generation"
+rdf_source = "bree-ontology.ttl"
+rdf_jobs_data = "bree-jobs-sample.ttl"
+shacl_shapes = ".specify/bree-scheduler.shapes.ttl"
+output_dir = "./generated"
+
+[[entities]]
+name = "BreeInstance"
+sparql_class = "bree:BreeInstance"
+sparql_query = "SELECT ?instance ?name ... WHERE { ... }"
+
+[entities.generation.javascript]
+template = "templates/bree-instance.js.tera"
+output_file = "generated/bree-instance.js"
+
+[[transformations]]
+name = "JobToCittyCommand"
+sparql_construct = "CONSTRUCT { ... } WHERE { ... }"
+
+[transformations.generation]
+template = "templates/citty-command.js.tera"
+
+[[validations]]
+name = "BreeInstanceShape"
+shapes_file = ".specify/bree-scheduler.shapes.ttl"
+target_class = "bree:BreeInstance"
+
+[pipeline]
+normalization = { expand_prefixes = true, validate_uris = true }
+extraction = { construct_patterns = ["bree-construct-patterns.sparql"] }
+emission = { template_engine = "tera", parallel_rendering = true }
+canonicalization = { format_javascript = true }
+receipt = { verify_javascript = true, generate_checksums = true }
+\end{lstlisting}
+
+\section{Templates: Tera Integration}
+
+\subsection{Template Variables}
+
+Templates receive extracted data:
+
+\begin{lstlisting}[language=jinja]
+{%  for job in jobs %}
+  const job_{{ loop.index }} = {
+    name: "{{ job.jobName }}",
+    path: "{{ job.jobPath }}",
+    timeout: {{ job.closeWorkerAfterMs }},
+  };
+{% endfor %}
+\end{lstlisting}
+
+\subsection{Conditional Rendering}
+
+\begin{lstlisting}[language=jinja]
+{%  if job.hasCron %}
+  cron: "{{ job.cron }}",
+{% elif job.hasInterval %}
+  interval: {{ job.interval }},
+{% elif job.hasTimeout %}
+  timeout: {{ job.timeout }},
+{% endif %}
+\end{lstlisting}
+
+\subsection{Filters and Functions}
+
+\begin{lstlisting}[language=jinja]
+timeout: {{ timeout|default(value=30000) }},
+removeCompleted: {{ removeCompleted|lower }},
+jobCount: {{ jobs|length }},
+\end{lstlisting}
+
+\section{Summary}
+
+The specification-first code generation framework:
+
+\begin{enumerate}
+    \item Validates specifications achieve closure (SHACL)
+    \item Normalizes and canonicalizes RDF
+    \item Extracts data via SPARQL queries
+    \item Generates code via Tera templates
+    \item Validates output code quality
+    \item Produces cryptographic receipt for auditability
+\end{enumerate}
+
+This five-stage pipeline guarantees determinism and auditability at enterprise scale.
+
+\newpage

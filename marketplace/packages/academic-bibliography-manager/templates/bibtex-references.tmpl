@@ -1,0 +1,52 @@
+---
+name: BibTeX References
+description: Auto-generated BibTeX bibliography from RDF paper ontology
+input_type: rdf
+output_type: bibtex
+author: ggen core team
+version: 1.0.0
+tags: [bibliography, bibtex, citations, references]
+---
+% ============================================================================
+% BIBTEX REFERENCES
+% Generated from Academic Paper Ontology
+% ============================================================================
+
+{% for bib in paper.hasBibliography | sort_by("year") %}
+@{{ bib.bibType | default("article") }}{
+    {{- bib.citeKey }},
+    author = { {{- bib.authors -}} },
+    title = { {{- bib.title -}} },
+    {% if bib.journal %}
+    journal = { {{- bib.journal -}} },
+    {% elif bib.booktitle %}
+    booktitle = { {{- bib.booktitle -}} },
+    {% endif %}
+    {% if bib.year %}
+    year = { {{- bib.year -}} },
+    {% endif %}
+    {% if bib.volume %}
+    volume = { {{- bib.volume -}} },
+    {% endif %}
+    {% if bib.issue %}
+    number = { {{- bib.issue -}} },
+    {% endif %}
+    {% if bib.pages %}
+    pages = { {{- bib.pages -}} },
+    {% endif %}
+    {% if bib.doi %}
+    doi = { {{- bib.doi -}} },
+    {% endif %}
+    {% if bib.url %}
+    url = { {{- bib.url -}} },
+    {% endif %}
+    {% if bib.publisher %}
+    publisher = { {{- bib.publisher -}} },
+    {% endif %}
+}
+
+{% endfor %}
+
+
+
+

@@ -1,0 +1,29 @@
+# Reference Documentation
+
+Quick lookup documentation for all ggen features.
+
+{% set categories = results | group_by(attribute="?category") %}
+
+{% for category_name, category_items in categories %}
+## {{ category_name }}
+
+{% for row in category_items | sort(attribute="?title") %}
+### {{ row["?title"] }}
+
+{{ row["?description"] }}
+
+**Time to read**: {{ row["?estimatedMinutes"] }} minutes
+
+**File**: `{{ row["?outputFile"] }}`
+
+---
+{% endfor %}
+{% endfor %}
+
+## All References
+
+| Title | Category | Time | File |
+|-------|----------|------|------|
+{% for row in results | sort(attribute="?category") | sort(attribute="?title") %}
+| {{ row["?title"] }} | {{ row["?category"] }} | {{ row["?estimatedMinutes"] }}m | `{{ row["?outputFile"] }}` |
+{% endfor %}

@@ -1,0 +1,33 @@
+# =============================================================================
+# Extract Tutorial Documentation (Diataxis Quadrant 1: Learning)
+# Learning-oriented, practical documentation
+# =============================================================================
+
+PREFIX doc: <https://ggen.dev/ontology/documentation#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?title ?description ?difficulty ?time ?order
+       ?prerequisite ?objective
+       ?stepOrder ?stepAction ?stepCode ?stepLanguage ?stepExplanation
+WHERE {
+  ?tutorial a doc:Tutorial ;
+            doc:title ?title ;
+            doc:order ?order .
+
+  OPTIONAL { ?tutorial doc:description ?description }
+  OPTIONAL { ?tutorial doc:difficultyLevel ?difficulty }
+  OPTIONAL { ?tutorial doc:estimatedTime ?time }
+  OPTIONAL { ?tutorial doc:hasPrerequisite ?prerequisite }
+  OPTIONAL { ?tutorial doc:hasLearningObjective ?objective }
+
+  OPTIONAL {
+    ?tutorial doc:hasStep ?step .
+    ?step doc:order ?stepOrder ;
+          doc:action ?stepAction .
+
+    OPTIONAL { ?step doc:codeExample ?stepCode }
+    OPTIONAL { ?step doc:codeLanguage ?stepLanguage }
+    OPTIONAL { ?step doc:explanation ?stepExplanation }
+  }
+}
+ORDER BY ?order ?stepOrder

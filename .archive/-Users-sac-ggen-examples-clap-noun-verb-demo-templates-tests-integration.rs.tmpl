@@ -1,0 +1,45 @@
+use assert_cmd::Command;
+use predicates::prelude::*;
+
+#[test]
+fn test_help() {
+    let mut cmd = Command::cargo_bin("{{ project.name }}").unwrap();
+    cmd.arg("--help")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("{{ project.description }}"));
+}
+
+#[test]
+fn test_version() {
+    let mut cmd = Command::cargo_bin("{{ project.name }}").unwrap();
+    cmd.arg("--version")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("{{ project.version }}"));
+}
+
+{% for noun in project.nouns -%}
+#[test]
+fn test_{{ noun.name }}_help() {
+    let mut cmd = Command::cargo_bin("{{ project.name }}").unwrap();
+    cmd.arg("{{ noun.name }}")
+        .arg("--help")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("{{ noun.description }}"));
+}
+
+{% for verb in noun.verbs -%}
+#[test]
+fn test_{{ noun.name }}_{{ verb.name }}_help() {
+    let mut cmd = Command::cargo_bin("{{ project.name }}").unwrap();
+    cmd.arg("{{ noun.name }}")
+        .arg("{{ verb.name }}")
+        .arg("--help")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("{{ verb.description }}"));
+}
+{% endfor %}
+{% endfor %}

@@ -1,0 +1,99 @@
+---
+to: "generated/ITERATIVE_WORKFLOW.md"
+---
+# Iterative Template Refinement Workflow
+
+For complex templates, use iteration to progressively improve the output.
+
+## Workflow Steps
+
+### Step 1: Generate Initial Version
+
+Start with a clear description:
+
+```bash
+ggen ai generate --mock "Rust User struct with id, username, and email"
+```
+
+Save the output:
+
+```bash
+ggen ai generate --mock "..." > user.tera
+```
+
+### Step 2: Validate Initial Output
+
+Check if basic structure is correct:
+
+```bash
+ggen ai validate user.tera
+```
+
+Look for:
+- Syntax errors
+- Missing imports
+- Style issues
+
+### Step 3: Enhance with Validation
+
+Ask AI to add validation logic:
+
+```bash
+ggen ai generate "Previous User struct, but add field validation methods"
+```
+
+### Step 4: Validate Again
+
+Verify enhancements don't break anything:
+
+```bash
+ggen ai validate user_v2.tera
+```
+
+### Step 5: Add Tests
+
+Request test coverage:
+
+```bash
+ggen ai generate "Add comprehensive tests to User struct"
+```
+
+### Step 6: Final Validation
+
+Run complete validation:
+
+```bash
+ggen ai validate user_final.tera --verbose
+```
+
+### Step 7: Optimize
+
+Make final improvements:
+
+```bash
+ggen ai optimize user_final.tera --focus readability
+```
+
+### Step 8: Deploy
+
+Save to project:
+
+```bash
+cp user_final.tera templates/user.tera
+```
+
+## Iteration Cycle
+
+```
+Generate → Validate → [Satisfied?] 
+              ↑          No
+              └──────────┘
+```
+
+## Tips for Successful Iteration
+
+1. **Validate after each change** - Catch issues early
+2. **Request one feature at a time** - Easier to iterate
+3. **Save versions** - Track improvements
+4. **Use verbose mode** - See detailed feedback
+5. **Test locally first** - Use --mock before real AI

@@ -1,0 +1,56 @@
+command: "ggen template lint"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 52
+agent_breakdown:
+  parseable_output: 15
+  error_messages: 12
+  idempotency: 15
+  progress_feedback: 4
+  dry_run: 10
+  documentation: 2
+  exit_codes: 2
+
+avatar_notes:
+  claude_code: "Linting results useful for validation; JSON output preferred"
+  cursor_ai: "Validates templates in-place; good for IDE validation hooks"
+  copilot: "Error messages show validation rules clearly"
+  aider: "Read-only validation; safe for git pre-commit"
+  devin: "Could use structured error format; currently requires parsing"
+  openhands: "Needs more configuration options for linting rules"
+  windsurf: "Error visualization would help template debugging"
+
+maturity_level: "L2"
+maturity_blockers:
+  - "Minimal documentation; no JTBD provided"
+  - "Error messages could be more structured"
+
+evidence_files: []
+
+recommendations:
+  - priority: P1
+    description: "Add detailed documentation with examples and JTBD"
+    effort: low
+    impact: high
+  - priority: P1
+    description: "Add --output-format json for structured lint results"
+    effort: low
+    impact: high
+  - priority: P2
+    description: "Support --strict mode with customizable rules"
+    effort: medium
+    impact: medium
+
+jtbd: |
+  When I have template files to validate,
+  I need to run 'ggen template lint',
+  so that I can catch template errors before generation.

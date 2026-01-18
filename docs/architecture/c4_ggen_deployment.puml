@@ -1,0 +1,81 @@
+@startuml C4_Deployment
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Deployment.puml
+
+title ggen PaaS - Deployment Diagram (C4)
+caption Production infrastructure and deployment topology
+
+Deployment_Node(cdn, "CDN", "CloudFront") {
+  Container(web_assets, "Web Assets", "Static files, JS bundles")
+}
+
+Deployment_Node(cloud, "AWS Cloud") {
+  Deployment_Node(lb, "Load Balancer", "ALB") {
+    Container(lb_container, "HTTP(S) Traffic")
+  }
+  
+  Deployment_Node(app_tier, "Application Tier (ECS)") {
+    Deployment_Node(api_container, "API Service", "Docker") {
+      Component(api_app, "ggen API", "Rust (Axum)")
+    }
+    Deployment_Node(web_container, "Web Service", "Docker") {
+      Component(web_app, "React Frontend", "TypeScript/React")
+    }
+  }
+  
+  Deployment_Node(worker_tier, "Worker Tier (ECS)") {
+    Deployment_Node(job_container, "Job Worker", "Docker") {
+      Component(worker_app, "Code Generator", "Rust")
+    }
+    Deployment_Node(bree_container, "Scheduler Worker", "Docker") {
+      Component(bree_app, "Bree Scheduler", "Node.js")
+    }
+  }
+  
+  Deployment_Node(data_tier, "Data Tier") {
+    Deployment_Node(rds, "Database Cluster", "RDS") {
+      ContainerDb(postgres_db, "PostgreSQL", "User data, metadata, audit logs")
+    }
+    Deployment_Node(nosql, "NoSQL Store", "DynamoDB") {
+      ContainerDb(spec_db, "Specification Store", "RDF graph cache")
+    }
+    Deployment_Node(cache_tier, "Cache Tier", "ElastiCache") {
+      ContainerDb(redis, "Redis", "Session, generated code cache")
+    }
+    Deployment_Node(graph_db, "Graph Database", "Neptune") {
+      ContainerDb(graph_data, "RDF Store", "Oxigraph backend")
+    }
+  }
+  
+  Deployment_Node(storage, "Object Storage", "S3") {
+    Container(bucket, "Generated Code Bucket", "Code artifacts, templates")
+  }
+  
+  Deployment_Node(messaging, "Message Queue", "SQS") {
+    Container(queue, "Job Queue", "Async job tasks")
+  }
+}
+
+Deployment_Node(external, "External Services") {
+  Deployment_Node(git_service, "GitHub", "Git Hosting") {
+    Container(git_repo, "Repositories")
+  }
+  Deployment_Node(registry_service, "Package Registries") {
+    Container(cargo_registry, "Crates.io")
+    Container(npm_registry, "npm Registry")
+  }
+}
+
+Rel(cdn, web_assets, "Serves")
+Rel(lb, api_container, "Routes traffic")
+Rel(lb, web_container, "Routes traffic")
+Rel(api_container, worker_tier, "Enqueues jobs")
+Rel(api_container, rds, "Reads/Writes")
+Rel(api_container, cache_tier, "Caches")
+Rel(worker_tier, graph_db, "Queries specs")
+Rel(worker_tier, storage, "Stores output")
+Rel(worker_tier, messaging, "Consumes jobs")
+Rel(worker_tier, git_service, "Pushes code")
+Rel(worker_tier, registry_service, "Publishes packages")
+
+SHOW_LEGEND()
+@enduml

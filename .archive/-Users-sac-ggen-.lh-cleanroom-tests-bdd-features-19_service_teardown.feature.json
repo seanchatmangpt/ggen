@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/19_service_teardown.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261841877,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261841877,
+            "name": "Commit-0",
+            "content": "# features/19_service_teardown.feature\n@services @teardown\nFeature: Idempotent teardown of services and workspaces\n  Background:\n    Given a fixture project \"cli_pg\"\n\n  Scenario: Teardown always succeeds\n    Given a postgres service is running\n    When I teardown services\n    And I teardown services again\n    Then both operations succeed\n    And no containers remain with label \"cleanroom\"\n"
+        }
+    ]
+}

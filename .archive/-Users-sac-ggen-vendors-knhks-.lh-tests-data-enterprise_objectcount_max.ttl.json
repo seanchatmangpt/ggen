@@ -1,0 +1,18 @@
+{
+    "sourceFile": "tests/data/enterprise_objectcount_max.ttl",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1762310767401,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1762310767401,
+            "name": "Commit-0",
+            "content": "@prefix ex: <http://example.org/> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n\n# Enterprise Object Count MaxCount Validation Use Case\n# Email domain uniqueness constraints (maxCount validation)\n# Test Case 11: Object Count MaxCount (COUNT O,P <= k)\n# Limited to 8 triples for hot path (single predicate run)\n# Validates that shared email domains appear at most N times\n\nex:user1 ex:email \"alice@acme.com\" .\nex:user2 ex:email \"bob@acme.com\" .\nex:user3 ex:email \"charlie@acme.com\" .\nex:user4 ex:email \"dave@acme.com\" .\nex:user5 ex:email \"eve@techcorp.com\" .\nex:user6 ex:email \"frank@techcorp.com\" .\nex:user7 ex:email \"grace@startup.io\" .\nex:user8 ex:email \"henry@startup.io\" .\n\n"
+        }
+    ]
+}

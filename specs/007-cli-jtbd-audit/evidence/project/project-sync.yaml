@@ -1,0 +1,52 @@
+command: "ggen project sync"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 58
+agent_breakdown:
+  parseable_output: 15
+  error_messages: 14
+  idempotency: 12
+  progress_feedback: 8
+  dry_run: 5
+  documentation: 4
+  exit_codes: 2
+
+avatar_notes:
+  claude_code: "Synchronizes projects; --dry-run essential"
+  cursor_ai: "Sync status visible in IDE"
+  copilot: "Pattern clear from examples"
+  aider: "Tracks file changes in git"
+  devin: "Can orchestrate sync operations"
+  openhands: "Customizable sync rules"
+  windsurf: "Visual diff preview helpful"
+
+maturity_level: "L2"
+maturity_blockers:
+  - "Incomplete --dry-run implementation"
+  - "Exit codes not semantic"
+
+evidence_files: []
+
+recommendations:
+  - priority: P1
+    description: "Implement comprehensive --dry-run with full diff"
+    effort: medium
+    impact: high
+  - priority: P1
+    description: "Add semantic exit codes"
+    effort: low
+    impact: medium
+
+jtbd: |
+  When I want to synchronize project changes,
+  I need to run 'ggen project sync',
+  so that I can keep projects updated with latest configuration.

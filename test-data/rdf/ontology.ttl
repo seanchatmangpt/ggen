@@ -1,0 +1,30 @@
+@prefix : <https://ggen.dev/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Minimal ggen ontology for testing sync command
+# This is a proof-of-concept RDF graph demonstrating the sync pipeline
+
+:GgenOntology a rdf:Class ;
+  rdfs:label "ggen Ontology" ;
+  rdfs:comment "Root ontology class for ggen code generation" .
+
+:version a rdf:Property ;
+  rdfs:label "version" ;
+  rdfs:domain :GgenOntology ;
+  rdfs:range xsd:string .
+
+:Example a rdf:Class ;
+  rdfs:label "Example" ;
+  rdfs:comment "Example entity for demonstration" .
+
+:name a rdf:Property ;
+  rdfs:label "name" ;
+  rdfs:domain :Example ;
+  rdfs:range xsd:string .
+
+# Sample data
+:demo a :Example ;
+  :name "ggen v5.0.2" ;
+  :version "5.0.2" .

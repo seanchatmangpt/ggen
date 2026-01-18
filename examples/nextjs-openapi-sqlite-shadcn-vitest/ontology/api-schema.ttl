@@ -1,0 +1,163 @@
+# =============================================================================
+# Next.js + SQLite + shadcn/ui API Ontology Schema
+# =============================================================================
+# Vocabulary definitions for generating full-stack Next.js applications
+# Namespace: https://ggen.io/ontology/nextjs-api#
+# Prefix: napi:
+# =============================================================================
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix napi: <https://ggen.io/ontology/nextjs-api#> .
+
+# -----------------------------------------------------------------------------
+# Core Classes
+# -----------------------------------------------------------------------------
+
+napi:Entity a rdfs:Class ;
+    rdfs:label "Entity" ;
+    rdfs:comment "A domain model (User, Task, Project)" .
+
+napi:Property a rdfs:Class ;
+    rdfs:label "Property" ;
+    rdfs:comment "An entity field with type and validation" .
+
+napi:Endpoint a rdfs:Class ;
+    rdfs:label "Endpoint" ;
+    rdfs:comment "A REST API endpoint (Next.js API route)" .
+
+napi:Page a rdfs:Class ;
+    rdfs:label "Page" ;
+    rdfs:comment "A Next.js page/route" .
+
+napi:Component a rdfs:Class ;
+    rdfs:label "Component" ;
+    rdfs:comment "A React UI component (shadcn/ui)" .
+
+napi:Table a rdfs:Class ;
+    rdfs:label "Table" ;
+    rdfs:comment "A SQLite database table" .
+
+napi:Test a rdfs:Class ;
+    rdfs:label "Test" ;
+    rdfs:comment "A test specification (unit/integration/e2e)" .
+
+# -----------------------------------------------------------------------------
+# Entity Relationships
+# -----------------------------------------------------------------------------
+
+napi:hasProperty a rdf:Property ;
+    rdfs:domain napi:Entity ;
+    rdfs:range napi:Property .
+
+napi:hasEndpoint a rdf:Property ;
+    rdfs:domain napi:Entity ;
+    rdfs:range napi:Endpoint .
+
+napi:hasPage a rdf:Property ;
+    rdfs:domain napi:Entity ;
+    rdfs:range napi:Page .
+
+napi:usesComponent a rdf:Property ;
+    rdfs:domain napi:Page ;
+    rdfs:range napi:Component .
+
+# -----------------------------------------------------------------------------
+# Property Attributes
+# -----------------------------------------------------------------------------
+
+napi:name a rdf:Property ;
+    rdfs:range xsd:string .
+
+napi:type a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type: string, integer, boolean, datetime, enum, reference" .
+
+napi:required a rdf:Property ;
+    rdfs:range xsd:boolean .
+
+napi:format a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Format: email, url, uuid, date-time" .
+
+napi:minLength a rdf:Property ;
+    rdfs:range xsd:integer .
+
+napi:maxLength a rdf:Property ;
+    rdfs:range xsd:integer .
+
+napi:pattern a rdf:Property ;
+    rdfs:range xsd:string .
+
+napi:enumValues a rdf:Property ;
+    rdfs:range xsd:string .
+
+napi:references a rdf:Property ;
+    rdfs:range napi:Entity .
+
+napi:isPrimaryKey a rdf:Property ;
+    rdfs:range xsd:boolean .
+
+napi:isUnique a rdf:Property ;
+    rdfs:range xsd:boolean .
+
+# -----------------------------------------------------------------------------
+# Endpoint Attributes
+# -----------------------------------------------------------------------------
+
+napi:path a rdf:Property ;
+    rdfs:range xsd:string .
+
+napi:method a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:comment "HTTP method: GET, POST, PUT, DELETE" .
+
+napi:operationId a rdf:Property ;
+    rdfs:range xsd:string .
+
+napi:description a rdf:Property ;
+    rdfs:range xsd:string .
+
+napi:returns a rdf:Property ;
+    rdfs:range napi:Entity .
+
+napi:accepts a rdf:Property ;
+    rdfs:range napi:Entity .
+
+# -----------------------------------------------------------------------------
+# Page Attributes
+# -----------------------------------------------------------------------------
+
+napi:pagePath a rdf:Property ;
+    rdfs:range xsd:string .
+
+napi:pageTitle a rdf:Property ;
+    rdfs:range xsd:string .
+
+napi:pageType a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type: list, detail, create, edit, dashboard" .
+
+# -----------------------------------------------------------------------------
+# Component Attributes
+# -----------------------------------------------------------------------------
+
+napi:componentName a rdf:Property ;
+    rdfs:range xsd:string .
+
+napi:componentType a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type: Card, List, Form, Layout" .
+
+# -----------------------------------------------------------------------------
+# Test Attributes
+# -----------------------------------------------------------------------------
+
+napi:testType a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type: unit, integration, e2e" .
+
+napi:testFramework a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Framework: vitest, playwright" .

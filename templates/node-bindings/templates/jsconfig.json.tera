@@ -1,0 +1,30 @@
+{# =============================================================================
+   JSCONFIG.JSON TEMPLATE - Configures JavaScript/JSDoc for IDEs
+   Enables type checking from JSDoc annotations
+   ============================================================================= #}
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "checkJs": true,
+    "maxNodeModuleJsDepth": 1,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "*": ["node_modules/*"]
+    }
+  },
+  "include": [
+    "*.mjs",
+    "*.cjs",
+    "*.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "native",
+    "build"
+  ]
+}

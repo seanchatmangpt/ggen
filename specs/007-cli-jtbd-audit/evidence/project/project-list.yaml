@@ -1,0 +1,46 @@
+command: "ggen project list"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 70
+agent_breakdown:
+  parseable_output: 25
+  error_messages: 14
+  idempotency: 15
+  progress_feedback: 6
+  dry_run: 10
+  documentation: 4
+  exit_codes: 2
+
+avatar_notes:
+  claude_code: "Lists projects with JSON; perfect for discovery and orchestration"
+  cursor_ai: "Project enumeration works well for IDE"
+  copilot: "Simple list command; easy to learn"
+  aider: "Read-only; safe for all workflows"
+  devin: "Can discover projects for orchestration"
+  openhands: "Filterable project lists useful"
+  windsurf: "Native JSON makes rendering straightforward"
+
+maturity_level: "L4"
+maturity_blockers: []
+
+evidence_files: []
+
+recommendations:
+  - priority: P2
+    description: "Add --filter flag for searching by project type"
+    effort: low
+    impact: medium
+
+jtbd: |
+  When I want to discover available projects,
+  I need to run 'ggen project list',
+  so that I can see what projects are configured.

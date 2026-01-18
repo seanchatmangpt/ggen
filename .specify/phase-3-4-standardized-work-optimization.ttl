@@ -1,0 +1,368 @@
+@prefix : <http://ggen.example.com/phase-3-4#> .
+@prefix ggen: <http://ggen.example.com/ggen#> .
+@prefix code: <http://ggen.example.com/code#> .
+@prefix cli: <http://ggen.example.com/cli#> .
+@prefix kgc: <http://ggen.example.com/kgc#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# PHASE 3: STANDARDIZED WORK - Naming Conventions & Canonical Rules
+# ============================================================================
+
+:Phase3_StandardizedWork a ggen:Phase ;
+  rdfs:label "Phase 3: Standardized Work" ;
+  rdfs:comment "Establish canonical naming conventions, naming validator, handler patterns, and CLI specification templates" ;
+  ggen:phase_number 3 ;
+  ggen:contains :NamingValidatorRequirement,
+                :HandlerPatternEnforcerRequirement,
+                :CliSpecTemplateRequirement,
+                :CanonicalNamingRulesRequirement .
+
+# ============================================================================
+# PHASE 3 REQUIREMENT 1: Naming Validator Module
+# ============================================================================
+
+:NamingValidatorRequirement a ggen:Requirement ;
+  rdfs:label "Naming Convention Validator" ;
+  rdfs:comment "Module to validate CLI command, handler, and type naming conventions" ;
+  ggen:component "ggen-core::naming" ;
+  ggen:status "pending" ;
+  ggen:evidence_files "/home/user/ggen/crates/ggen-core/src/naming.rs",
+                      "/home/user/ggen/crates/ggen-core/tests/naming_tests.rs" ;
+  ggen:deliverables (
+    [
+      rdfs:label "NamingValidator struct" ;
+      rdfs:comment "Core validator with validate_handler_name(), validate_command_name(), validate_type_name()" ;
+      code:exports_type "NamingValidator" ;
+      code:methods "validate_handler_name" "validate_command_name" "validate_type_name" ;
+      code:returns "Result<(), NamingError>"
+    ]
+    [
+      rdfs:label "Integration with ggen-cli validation pipeline" ;
+      code:integrates_crate "ggen-cli" ;
+      code:integrates_module "src/validation"
+    ]
+  ) ;
+  ggen:dod (
+    "NamingValidator compiles without warnings (-D warnings)"
+    "All tests pass: cargo make test-unit <16s"
+    "Chicago TDD pattern: real objects, AAA structure"
+    "Zero unwrap/expect in production code"
+  ) .
+
+# ============================================================================
+# PHASE 3 REQUIREMENT 2: Handler Naming Pattern Enforcer
+# ============================================================================
+
+:HandlerPatternEnforcerRequirement a ggen:Requirement ;
+  rdfs:label "Handler Naming Pattern Enforcer" ;
+  rdfs:comment "Enforce {command}_{subcommand}_handler() or handle_{action}() patterns in CLI" ;
+  ggen:component "ggen-cli::handler_conventions" ;
+  ggen:status "pending" ;
+  ggen:evidence_files "/home/user/ggen/crates/ggen-cli/src/handler_conventions.rs",
+                      "/home/user/ggen/crates/ggen-cli/tests/handler_pattern_tests.rs" ;
+  ggen:deliverables (
+    [
+      rdfs:label "HandlerPattern struct" ;
+      code:validates "handler naming patterns across ggen-cli/src/commands/" ;
+      code:returns "Result<PatternCheckResult>"
+    ]
+    [
+      rdfs:label "Integration test with real handlers" ;
+      code:tests_handlers "ggen_sync", "ggen_validate", "ggen_list", "ggen_install"
+    ]
+  ) ;
+  ggen:dod (
+    "Enforcer validates existing CLI handlers"
+    "Tests pass with real handler examples"
+    "Zero warnings in compilation"
+    "Compile time <5s (incremental)"
+  ) .
+
+# ============================================================================
+# PHASE 3 REQUIREMENT 3: CLI Specification Template
+# ============================================================================
+
+:CliSpecTemplateRequirement a ggen:Requirement ;
+  rdfs:label "CLI Specification Template" ;
+  rdfs:comment "Reusable Turtle template for CLI command specifications with arguments, validation, error handling" ;
+  ggen:component "specifications::templates" ;
+  ggen:status "pending" ;
+  ggen:evidence_files "/home/user/ggen/.specify/templates/cli-spec-template.ttl" ;
+  ggen:deliverables (
+    [
+      rdfs:label "cli-spec-template.ttl" ;
+      rdfs:comment "Template with placeholders: {{COMMAND}}, {{DESCRIPTION}}, {{ARGUMENTS}}, {{VALIDATION}}, {{ERROR_HANDLING}}" ;
+      code:includes_sections "command_definition" "argument_schema" "validation_rules" "error_handling" "examples" ;
+      code:example_commands "generate" "validate" "sync" "list" "install"
+    ]
+  ) ;
+  ggen:dod (
+    "Template is valid Turtle (no parse errors)"
+    "Template covers all required CLI spec sections"
+    "Examples in comments demonstrate usage"
+    "Aligns with ggen-cli-integration-kgc.ttl patterns"
+  ) .
+
+# ============================================================================
+# PHASE 3 REQUIREMENT 4: Canonical Naming Rules Documentation
+# ============================================================================
+
+:CanonicalNamingRulesRequirement a ggen:Requirement ;
+  rdfs:label "Canonical Naming Rules Specification" ;
+  rdfs:comment "RDF specification of canonical naming rules for types, functions, errors, CLI commands, and handlers" ;
+  ggen:component "specifications::naming-conventions" ;
+  ggen:status "pending" ;
+  ggen:evidence_files "/home/user/ggen/.specify/naming-conventions-canonical.ttl" ;
+  ggen:naming_rules (
+    [
+      rdfs:label "Type Naming Rule" ;
+      code:pattern "PascalCase" ;
+      code:suffix "suffix optional (GenerateFileOptions, ValidateInput, SyncOptions)" ;
+      code:examples "GenerateFileOptions" "ValidateInput" "SyncOptions" "CodeGraphBuilder"
+    ]
+    [
+      rdfs:label "Function Naming Rule" ;
+      code:pattern "snake_case" ;
+      code:examples "execute_validate" "generate_file" "generate_tree" "parse_manifest"
+    ]
+    [
+      rdfs:label "Error Type Rule" ;
+      code:pattern "PascalCase + Error suffix" ;
+      code:examples "ConfigError" "SaasError" "ValidationError" "NamingError"
+    ]
+    [
+      rdfs:label "CLI Command Rule" ;
+      code:pattern "kebab-case" ;
+      code:examples "ggen-sync" "ggen-validate" "ggen-list" "ggen-install"
+    ]
+    [
+      rdfs:label "Handler Function Rule" ;
+      code:pattern "{command}_{subcommand}_handler or handle_{action}" ;
+      code:examples "sync_marketplace_handler" "handle_generate" "validate_all_handler"
+    ]
+  ) ;
+  ggen:doc_files "/home/user/ggen/.specify/README.md" ;
+  ggen:dod (
+    "All naming patterns in codebase match TTL rules"
+    "TTL file is semantically valid (Oxigraph parse check)"
+    "SHACL shapes are executable"
+    "Coverage: 100% of Phase 3 naming requirements"
+  ) .
+
+# ============================================================================
+# PHASE 4: VALUE STREAM OPTIMIZATION - Performance & Caching
+# ============================================================================
+
+:Phase4_ValueStreamOptimization a ggen:Phase ;
+  rdfs:label "Phase 4: Value Stream Optimization" ;
+  rdfs:comment "Implement incremental generation, parallel validation, caching, batch processing, and SLO metrics" ;
+  ggen:phase_number 4 ;
+  ggen:target_slo "Sync 10+ specs in <30s (end state: <60s with caching)" ;
+  ggen:contains :IncrementalGeneratorRequirement,
+                :ParallelValidatorRequirement,
+                :SpecCacheRequirement,
+                :MarketplaceBatchRequirement,
+                :MetricsAndSLORequirement .
+
+# ============================================================================
+# PHASE 4 REQUIREMENT 1: Incremental Generator with SHA256-based JIT
+# ============================================================================
+
+:IncrementalGeneratorRequirement a ggen:Requirement ;
+  rdfs:label "Incremental Code Generator (SHA256 JIT)" ;
+  rdfs:comment "Skip unchanged files using content hash + spec hash comparison" ;
+  ggen:component "ggen-core::codegen::incremental" ;
+  ggen:status "pending" ;
+  ggen:evidence_files "/home/user/ggen/crates/ggen-core/src/codegen/incremental.rs",
+                      "/home/user/ggen/crates/ggen-core/tests/incremental_tests.rs" ;
+  ggen:deliverables (
+    [
+      rdfs:label "IncrementalGenerator struct" ;
+      code:methods "compute_content_hash" "should_regenerate" "generate_incremental" ;
+      code:returns "Result<GenerationResult>" ;
+      code:hash_algo "SHA256" ;
+      code:cache_location ".ggen/cache/ or memory"
+    ]
+    [
+      rdfs:label "Integration tests" ;
+      code:tests "generate_basic" "modify_spec_partial_regenerate" "hash_consistency"
+    ]
+  ) ;
+  ggen:dod (
+    "cargo make test-unit <16s (includes incremental tests)"
+    "Hash computation is deterministic (same input → same hash)"
+    "Performance: Skip ~70-80% of files when spec unchanged"
+    "Zero unwrap/expect in production code"
+  ) ;
+  ggen:performance_target "70-80% file skip rate on spec change" .
+
+# ============================================================================
+# PHASE 4 REQUIREMENT 2: Parallel Validator using rayon
+# ============================================================================
+
+:ParallelValidatorRequirement a ggen:Requirement ;
+  rdfs:label "Parallel Validator (rayon)" ;
+  rdfs:comment "Validate multiple specs in parallel for <30s SLO" ;
+  ggen:component "ggen-spec-validator::parallel" ;
+  ggen:status "pending" ;
+  ggen:evidence_files "/home/user/ggen/crates/ggen-spec-validator/src/parallel.rs",
+                      "/home/user/ggen/crates/ggen-spec-validator/tests/parallel_tests.rs" ;
+  ggen:deliverables (
+    [
+      rdfs:label "ParallelValidator struct" ;
+      code:methods "validate_all" ;
+      code:input "Vec<PathBuf>" ;
+      code:output "Result<Vec<ValidationResult>>" ;
+      code:parallelization "rayon::par_iter()"
+    ]
+    [
+      rdfs:label "CLI integration" ;
+      code:cli_flag "--parallel" ;
+      code:command "ggen validate --parallel"
+    ]
+  ) ;
+  ggen:dod (
+    "Validates 5 specs in parallel (~5x speedup)"
+    "Error collection (one invalid spec doesn't block others)"
+    "Thread-safe validation"
+    "cargo make test <30s"
+  ) ;
+  ggen:performance_target "~5x speedup for 5 specs" .
+
+# ============================================================================
+# PHASE 4 REQUIREMENT 3: Cache Layer for Parsed Specifications
+# ============================================================================
+
+:SpecCacheRequirement a ggen:Requirement ;
+  rdfs:label "Parsed Specification Cache" ;
+  rdfs:comment "In-memory cache for parsed RDF graphs with automatic invalidation" ;
+  ggen:component "ggen-core::cache" ;
+  ggen:status "pending" ;
+  ggen:evidence_files "/home/user/ggen/crates/ggen-core/src/cache.rs",
+                      "/home/user/ggen/crates/ggen-core/tests/cache_tests.rs" ;
+  ggen:deliverables (
+    [
+      rdfs:label "SpecCache struct" ;
+      code:methods "get" "put" "is_valid" "invalidate" ;
+      code:cache_key "{spec_path, file_modification_time}" ;
+      code:thread_safety "Arc<RwLock<>>"
+    ]
+    [
+      rdfs:label "Integration with template generation" ;
+      code:integrates "ggen-domain/src/template/generate.rs"
+    ]
+  ) ;
+  ggen:dod (
+    "Reduces spec parsing time by 60-70%"
+    "Automatic invalidation on file change"
+    "Thread-safe caching"
+    "Zero memory leaks (proper cleanup)"
+  ) ;
+  ggen:performance_target "60-70% reduction in parsing time" .
+
+# ============================================================================
+# PHASE 4 REQUIREMENT 4: Marketplace Batch Validation
+# ============================================================================
+
+:MarketplaceBatchRequirement a ggen:Requirement ;
+  rdfs:label "Marketplace Batch Validation" ;
+  rdfs:comment "Validate all template packs in marketplace directory" ;
+  ggen:component "ggen-marketplace::batch" ;
+  ggen:status "pending" ;
+  ggen:evidence_files "/home/user/ggen/crates/ggen-marketplace/src/batch.rs",
+                      "/home/user/ggen/crates/ggen-marketplace/tests/batch_tests.rs" ;
+  ggen:deliverables (
+    [
+      rdfs:label "BatchValidator struct" ;
+      code:methods "validate_packs" ;
+      code:input "pack_dir: PathBuf" ;
+      code:output "Result<BatchValidationResult>" ;
+      code:validates "ggen.toml" ".specify/" "templates/"
+    ]
+    [
+      rdfs:label "CLI command" ;
+      code:cli_command "ggen marketplace batch-validate ./marketplace/packs" ;
+      code:output_format "JSON + human-readable summary"
+    ]
+  ) ;
+  ggen:dod (
+    "Validates all packs in <30s"
+    "Detailed error report with pack-by-pack results"
+    "Skips invalid packs gracefully"
+    "Performance: <100ms per pack"
+  ) ;
+  ggen:performance_target "<100ms per pack, <30s total for 10+ packs" .
+
+# ============================================================================
+# PHASE 4 REQUIREMENT 5: Metrics & SLO Dashboard
+# ============================================================================
+
+:MetricsAndSLORequirement a ggen:Requirement ;
+  rdfs:label "Execution Metrics & SLO Dashboard" ;
+  rdfs:comment "Collect execution metrics and verify SLO targets" ;
+  ggen:component "ggen-core::metrics, ggen-domain::slo_dashboard" ;
+  ggen:status "pending" ;
+  ggen:evidence_files "/home/user/ggen/crates/ggen-core/src/metrics.rs",
+                      "/home/user/ggen/crates/ggen-domain/src/slo_dashboard.rs",
+                      "/home/user/ggen/crates/ggen-domain/tests/slo_tests.rs" ;
+  ggen:deliverables (
+    [
+      rdfs:label "ExecutionMetrics struct" ;
+      code:fields "parse_time" "generation_time" "validation_time" "total_time" "files_generated" "cache_hits" ;
+      code:collection_points "sync" "validate" "generate" "marketplace_batch"
+    ]
+    [
+      rdfs:label "SLODashboard struct" ;
+      code:methods "check_slos" ;
+      code:output_format "JSON + terminal dashboard"
+    ]
+    [
+      rdfs:label "SLO Targets" ;
+      ggen:slo_check_5s "cargo make check <5s" ;
+      ggen:slo_test_unit_16s "cargo make test-unit <16s" ;
+      ggen:slo_test_30s "cargo make test <30s" ;
+      ggen:slo_lint_60s "cargo make lint <60s" ;
+      ggen:slo_sync_60s "cargo make sync (10 specs) <60s"
+    ]
+  ) ;
+  ggen:dod (
+    "Metrics collected for all operations"
+    "SLO checks are deterministic"
+    "Results exportable to JSON"
+    "cargo make sync (10 specs) <60s achievable"
+  ) .
+
+# ============================================================================
+# CLOSURE VERIFICATION
+# ============================================================================
+
+:Phase3_4_Closure a ggen:ClosureSpecification ;
+  rdfs:label "Phase 3-4 Specification Closure" ;
+  rdfs:comment "Verification that all Phase 3 and Phase 4 requirements are implemented and tested" ;
+  ggen:closure_percentage_target 100 ;
+  ggen:phase_3_requirements 4 ;
+  ggen:phase_4_requirements 5 ;
+  ggen:total_requirements 9 ;
+  ggen:closure_items (
+    :NamingValidatorRequirement
+    :HandlerPatternEnforcerRequirement
+    :CliSpecTemplateRequirement
+    :CanonicalNamingRulesRequirement
+    :IncrementalGeneratorRequirement
+    :ParallelValidatorRequirement
+    :SpecCacheRequirement
+    :MarketplaceBatchRequirement
+    :MetricsAndSLORequirement
+  ) ;
+  ggen:verification_command "cargo make verify-closure phase-3-4" ;
+  ggen:quality_gates (
+    "cargo make check <5s ✓"
+    "cargo make test-unit <16s ✓"
+    "cargo make test <30s ✓"
+    "cargo make lint <60s ✓"
+    "Zero unwrap/expect in production ✓"
+    "All APIs return Result<T, E> ✓"
+    "100% closure percentage ✓"
+  ) .

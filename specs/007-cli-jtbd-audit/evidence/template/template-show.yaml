@@ -1,0 +1,56 @@
+command: "ggen template show"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 50
+agent_breakdown:
+  parseable_output: 10
+  error_messages: 12
+  idempotency: 15
+  progress_feedback: 4
+  dry_run: 10
+  documentation: 2
+  exit_codes: 1
+
+avatar_notes:
+  claude_code: "Display works but structured output needed"
+  cursor_ai: "Visual display useful for IDE context"
+  copilot: "Simple command to learn"
+  aider: "Read-only; safe for git workflows"
+  devin: "Requires parsing plain text output"
+  openhands: "Could support --format json for better integration"
+  windsurf: "IDE rendering would benefit from structured output"
+
+maturity_level: "L1"
+maturity_blockers:
+  - "Missing JSON output option"
+  - "Minimal documentation and examples"
+
+evidence_files: []
+
+recommendations:
+  - priority: P1
+    description: "Add --output-format json for structured template display"
+    effort: low
+    impact: high
+  - priority: P1
+    description: "Add comprehensive documentation with JTBD"
+    effort: low
+    impact: high
+  - priority: P2
+    description: "Support --compact flag for minimal output"
+    effort: low
+    impact: low
+
+jtbd: |
+  When I want to examine a template's structure and metadata,
+  I need to run 'ggen template show <name>',
+  so that I can understand its composition before using it.

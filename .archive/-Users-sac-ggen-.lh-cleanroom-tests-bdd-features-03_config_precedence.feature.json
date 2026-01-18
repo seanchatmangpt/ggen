@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/03_config_precedence.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261841876,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261841876,
+            "name": "Commit-0",
+            "content": "# features/03_config_precedence.feature\n@core @config\nFeature: Config precedence and validation\n  Background:\n    Given a fixture project \"cli_smoke\"\n    And Cargo.toml contains:\n      \"\"\"\n      [package.metadata.cleanroom]\n      timeout_ms = 10000\n      env.FROM_TOML = \"1\"\n      \"\"\"\n\n  Scenario: Test options override toml and env\n    Given environment CLEANROOM_TIMEOUT_MS=\"20000\"\n    And I pass --timeout-ms=5000 to run()\n    When I run [\"--help\"]\n    Then effective timeout is 5000\n    And env contains \"FROM_TOML=1\"\n\n  Scenario: Env overrides defaults but not explicit test options\n    Given environment CLEANROOM_TIMEOUT_MS=\"15000\"\n    When I run [\"--help\"]\n    Then effective timeout is 15000\n"
+        }
+    ]
+}

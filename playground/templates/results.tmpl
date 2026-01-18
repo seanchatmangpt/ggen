@@ -1,0 +1,31 @@
+\chapter{{{ chapter.chapterTitle }}}
+
+{% for section in chapter.sections %}
+\section{{{ section.sectionTitle }}}
+
+{{ section.content }}
+
+{% if section.equations %}
+\subsection{Fidelity Formulation}
+{% for eq in section.equations %}
+\[
+{{ eq.latexExpression }}
+\]
+{% endfor %}
+{% endif %}
+
+{% if section.theorems %}
+\subsection{Key Theorems}
+{% for thm in section.theorems %}
+\begin{theorem}
+{{ thm.theoremStatement }}
+\end{theorem}
+{% if thm.proof %}
+\begin{proof}
+{{ thm.proof.proofSteps }}
+\end{proof}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% endfor %}

@@ -1,0 +1,17 @@
+---
+to: "generated/.github/workflows/ci.yml"
+vars:
+  project_name: string
+---
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+      - run: cargo build --verbose
+      - run: cargo test --verbose

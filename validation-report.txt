@@ -1,0 +1,25 @@
+==========================================
+Andon Signal Validation Framework Report
+Generated: 2025-12-12T01:35:24Z
+==========================================
+
+Layer 1: Compile-Time Validation (RED)
+----------------------------------------
+❌ Compilation: FAILED
+✅ Linting: PASSED
+
+Layer 2: Test-Time Validation (YELLOW)
+----------------------------------------
+⚠️  Unit Tests: FAILED
+⚠️  Integration Tests (clnrm): FAILED
+
+Layer 3: Runtime Validation (GREEN)
+----------------------------------------
+❌ CLI Verification: FAILED
+
+==========================================
+Summary
+==========================================
+Report saved to: validation-report.txt
+Timestamp: 2025-12-12T01:35:24Z
+

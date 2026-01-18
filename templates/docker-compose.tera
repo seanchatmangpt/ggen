@@ -1,0 +1,233 @@
+version: '3.9'
+
+# Generated from ggen PaaS ontology
+# Source: .specify/ggen-paas-ontology.ttl
+# Generated: {{ now() | date(format="%Y-%m-%d %H:%M:%S") }}
+
+services:
+  # =============================================================================
+  # WEB UI - React Frontend
+  # =============================================================================
+  web-ui:
+    image: ggen/paas-web:latest
+    container_name: ggen-paas-web
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:3001
+      - NODE_ENV=development
+    depends_on:
+      - api-gateway
+    networks:
+      - paas-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # =============================================================================
+  # API GATEWAY - Rust/Axum Backend
+  # =============================================================================
+  api-gateway:
+    image: ggen/paas-api:latest
+    container_name: ggen-paas-api
+    ports:
+      - "3001:3001"
+    environment:
+      - RUST_LOG=info,ggen=debug
+      - DATABASE_URL=postgresql://ggen:ggen@postgres:5432/ggen_paas
+      - REDIS_URL=redis://redis:6379
+      - OXIGRAPH_URL=http://oxigraph:7878
+      - JWT_SECRET=${JWT_SECRET:-dev-secret-key-change-in-production}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      oxigraph:
+        condition: service_started
+    networks:
+      - paas-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # =============================================================================
+  # AUTH SERVICE
+  # =============================================================================
+  auth-service:
+    image: ggen/paas-auth:latest
+    container_name: ggen-paas-auth
+    ports:
+      - "3002:3002"
+    environment:
+      - JWT_SECRET=${JWT_SECRET:-dev-secret-key-change-in-production}
+      - DATABASE_URL=postgresql://ggen:ggen@postgres:5432/ggen_paas
+      - OAUTH_GITHUB_CLIENT_ID=${OAUTH_GITHUB_CLIENT_ID:-}
+      - OAUTH_GITHUB_CLIENT_SECRET=${OAUTH_GITHUB_CLIENT_SECRET:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - paas-network
+    restart: unless-stopped
+
+  # =============================================================================
+  # JOB SCHEDULER - Bree (Node.js)
+  # =============================================================================
+  job-scheduler:
+    image: ggen/paas-scheduler:latest
+    container_name: ggen-paas-scheduler
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://ggen:ggen@postgres:5432/ggen_paas
+      - API_URL=http://api-gateway:3001
+      - LOG_LEVEL=info
+    depends_on:
+      - api-gateway
+      - redis
+      - postgres
+    networks:
+      - paas-network
+    restart: unless-stopped
+    volumes:
+      - ./jobs:/app/jobs
+      - job-scheduler-logs:/app/logs
+
+  # =============================================================================
+  # NOTIFICATION SERVICE
+  # =============================================================================
+  notification-service:
+    image: ggen/paas-notifications:latest
+    container_name: ggen-paas-notifications
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://ggen:ggen@postgres:5432/ggen_paas
+      - SMTP_HOST=${SMTP_HOST:-localhost}
+      - SMTP_PORT=${SMTP_PORT:-1025}
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET:-dev-webhook-secret}
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - paas-network
+    restart: unless-stopped
+
+  # =============================================================================
+  # DATA STORES
+  # =============================================================================
+
+  # PostgreSQL - Metadata and relational data
+  postgres:
+    image: postgres:16-alpine
+    container_name: ggen-paas-postgres
+    environment:
+      - POSTGRES_USER=ggen
+      - POSTGRES_PASSWORD=ggen
+      - POSTGRES_DB=ggen_paas
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./db/migrations:/docker-entrypoint-initdb.d/migrations:ro
+    networks:
+      - paas-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ggen -d ggen_paas"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis - Cache and session store
+  redis:
+    image: redis:7-alpine
+    container_name: ggen-paas-redis
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_REPLICATION_MODE=master
+    volumes:
+      - redis-data:/data
+    networks:
+      - paas-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: redis-server --appendonly yes --appendfsync everysec
+
+  # Oxigraph - RDF triple store
+  oxigraph:
+    image: oxigraph/oxigraph:latest
+    container_name: ggen-paas-oxigraph
+    ports:
+      - "7878:7878"
+    volumes:
+      - oxigraph-data:/data
+      - ./.specify/ggen-paas-ontology.ttl:/data/ontology.ttl:ro
+    networks:
+      - paas-network
+    restart: unless-stopped
+    environment:
+      - RUST_LOG=info
+    command: /oxigraph serve --location /data --bind 0.0.0.0:7878
+
+  # =============================================================================
+  # DEVELOPMENT UTILITIES
+  # =============================================================================
+
+  # MailHog - Email testing
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: ggen-paas-mailhog
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web UI
+    networks:
+      - paas-network
+    restart: unless-stopped
+
+  # pgAdmin - PostgreSQL web admin
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: ggen-paas-pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@ggen.local
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - paas-network
+    restart: unless-stopped
+
+networks:
+  paas-network:
+    driver: bridge
+    name: ggen-paas-network
+
+volumes:
+  postgres-data:
+    name: ggen-paas-postgres-data
+  redis-data:
+    name: ggen-paas-redis-data
+  oxigraph-data:
+    name: ggen-paas-oxigraph-data
+  job-scheduler-logs:
+    name: ggen-paas-scheduler-logs

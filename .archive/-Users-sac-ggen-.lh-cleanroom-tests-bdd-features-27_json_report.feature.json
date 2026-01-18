@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/27_json_report.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261841878,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261841878,
+            "name": "Commit-0",
+            "content": "# features/27_json_report.feature\n@report\nFeature: Machine-readable run reports\n  Background:\n    Given a fixture project \"cli_smoke\"\n\n  Scenario: Report contains normalized schema\n    When I run [\"--help\"] using \"auto\" with report enabled\n    Then \"artifacts/<run_id>/report.json\" exists\n    And $.backend in report is one of [\"local\",\"docker\",\"podman\"]\n    And $.steps[0].name == \"run --help\"\n    And $.steps[0].exit_code == 0\n"
+        }
+    ]
+}

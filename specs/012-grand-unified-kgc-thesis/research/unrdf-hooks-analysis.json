@@ -1,0 +1,200 @@
+{
+  "hookArchitecture": {
+    "defineHook": {
+      "signature": "defineHook(config: HookConfig): Hook",
+      "purpose": "Creates a validated hook with pre-computed optimization flags. Accepts HookConfig with name, trigger, optional validate/transform functions, and metadata. Returns Hook object with _validated, _hasValidation, _hasTransformation flags for sub-1μs execution (Zod-free hot path).",
+      "validation": "Uses Zod schema HookConfigSchema to validate configuration. Requires either validate OR transform function. Pre-computes type checks to skip Zod in hot execution paths."
+    },
+    "executeHook": {
+      "signature": "executeHook(hook: Hook, quad: Quad, options?: object): HookResult",
+      "semantics": "Executes single hook on a quad. Fast path skips Zod if hook has _validated flag. Runs validation first (if present), then transformation (if present). Returns HookResult with {valid: boolean, quad?: Quad, error?: string, hookName: string}. Includes POKA-YOKE guards for non-boolean validation returns and invalid transform outputs.",
+      "executionFlow": "1) Validate hook structure (fast path if _validated), 2) Execute hook.validate(quad) if present, 3) Check validation result is boolean (POKA-YOKE guard), 4) Execute hook.transform(quad) if present and validation passed, 5) Validate transform output has subject/predicate/object properties, 6) Return HookResult with final quad and status."
+    },
+    "KnowledgeHookManager": {
+      "orchestrationPatterns": "Class-based wrapper providing registry management and execution orchestration. Key patterns: 1) Registry pattern - createHookRegistry() stores hooks by trigger type, 2) Execution depth tracking - prevents recursive hook execution with configurable maxExecutionDepth (1-10, default 3), 3) Batch operations - executeByTrigger filters hooks by trigger and chains execution, 4) Built-in hook library - optional includeBuiltins flag registers standardValidation, normalizeNamespace, etc., 5) Lifecycle management - define/register/unregister/clear hooks with stats tracking.",
+      "recursionGuard": "POKA-YOKE pattern guards against infinite recursion. Tracks #executionDepth private field, increments on executeByTrigger entry, decrements on exit (finally block). Throws RECURSIVE_HOOK_EXECUTION error if depth >= maxExecutionDepth. Provides getExecutionDepth() and isExecuting() introspection."
+    }
+  },
+  "hookTypes": {
+    "validation": {
+      "purpose": "Schema validation from SHACL shapes and custom predicates",
+      "implementation": "Hook.validate function receives quad, returns boolean. Used in before-add, before-query, before-remove triggers. Built-in validators: validateSubjectIRI, validatePredicateIRI, validateObjectLiteral, validateIRIFormat, validateLanguageTag, rejectBlankNodes.",
+      "execution": "Validation-only fast path via validateOnly(hooks, quad) skips transformations for sub-1μs execution. Returns early on first validation failure. Used in dry-run checks via wouldPassHooks()."
+    },
+    "authorization": {
+      "purpose": "Permission checking and access control enforcement",
+      "implementation": "Implemented via validation hooks with access control logic. Can leverage SPARQL ASK queries to check user permissions in condition-evaluator. Integrates with SHACL-based authorization patterns (e.g., checking user roles against sh:targetClass constraints).",
+      "triggers": "Executed on before-add, before-query, before-remove to gate operations. Can use condition-evaluator's evaluateSparql for complex permission queries."
+    },
+    "businessRules": {
+      "purpose": "Domain-specific rules and invariant enforcement",
+      "implementation": "Combines validation and transformation. Validation enforces invariants (e.g., minCount, maxCount, datatype constraints). Transformation applies business logic (e.g., normalizeNamespace, trimLiterals). Can compose multiple hooks via executeHookChain for complex multi-step rules.",
+      "triggers": "Pre-hooks (before-*) enforce rules, post-hooks (after-*) track compliance. Quality hooks (quality-gate, defect-detection, continuous-improvement) enable Lean Six Sigma patterns."
+    }
+  },
+  "crudHooks": {
+    "preCreate": {
+      "trigger": "before-add",
+      "semantics": "Executed before quad is added to store. Validation failure prevents insertion. Transformation can modify quad before storage. Typical use: IRI validation, blank node rejection, namespace normalization, authorization checks.",
+      "executionOrder": "All before-add hooks execute in registration order via executeHookChain. First validation failure stops chain. Transformations pipeline (output of hook N becomes input to hook N+1)."
+    },
+    "postCreate": {
+      "trigger": "after-add",
+      "semantics": "Executed after quad is successfully added to store. Cannot prevent insertion (already committed). Used for side effects: audit logging, event emission, metrics collection, downstream notifications.",
+      "executionOrder": "Executes even if main operation succeeded. Does not participate in rollback logic (transaction already committed). Errors logged but don't affect operation success."
+    },
+    "preUpdate": {
+      "trigger": "before-add (for updates)",
+      "semantics": "RDF is immutable (no in-place updates), so updates are remove + add. Pre-update validation happens on before-add trigger for replacement quad. Can enforce update-specific business rules by checking if quad's subject already exists in store.",
+      "pattern": "Combine before-remove (validate can remove old) + before-add (validate can add new). Use shared validation hook registered for both triggers."
+    },
+    "postUpdate": {
+      "trigger": "after-add (for updates)",
+      "semantics": "Fires after replacement quad is added. Used to detect update events by tracking subject existence. Can compute diffs between old and new values for audit trails.",
+      "pattern": "Query store in after-add hook to check if subject had prior value (indicates update vs create). Emit update-specific events with before/after snapshots."
+    },
+    "preDelete": {
+      "trigger": "before-remove",
+      "semantics": "Executed before quad is removed from store. Validation failure prevents deletion. Can enforce referential integrity (e.g., prevent deleting entities with active references). Transformation not typically used (deletes don't transform data).",
+      "executionOrder": "All before-remove hooks execute in registration order. First validation failure aborts deletion. Can query store to check dependent data before allowing removal."
+    },
+    "postDelete": {
+      "trigger": "after-remove",
+      "semantics": "Executed after quad is successfully removed from store. Used for cleanup side effects: cascade deletes, audit logging, cache invalidation, event notifications. Cannot prevent deletion (already committed).",
+      "executionOrder": "Executes after successful removal. Errors logged but don't rollback deletion. Typical pattern: emit deletion event, update materialized views, invalidate caches."
+    }
+  },
+  "shaclIntegration": {
+    "shapeToHook": {
+      "mechanism": "SHACL shapes loaded via loadShaclFile(uri, expectedHash) from file-resolver. Shapes compiled to validation hooks via condition-evaluator's evaluateShacl(condition, graph, resolver, env). Hook's when condition references SHACL file URI + SHA-256 hash for content-addressed integrity.",
+      "process": "1) Define hook with trigger (e.g., before-add) and when: {type: 'shacl', ref: {uri: 'shapes.ttl', sha256: 'abc123...'}}. 2) On hook execution, condition-evaluator loads SHACL file via resolver. 3) Resolver validates file hash matches sha256 (content integrity). 4) Resolver checks for SHACL namespace and terms (sh:NodeShape, sh:PropertyShape, sh:targetClass, sh:path). 5) validateShacl(graph, turtle, options) executes SHACL validation. 6) Validation report determines if hook proceeds or fails.",
+      "caching": "File resolver includes caching layer (createFileResolver({enableCache: true})). Cache key: 'shacl:{uri}:{expectedHash}'. Loaded shapes cached to avoid repeated file I/O and parsing."
+    },
+    "constraintTypes": [
+      "sh:minCount - Minimum cardinality validation (e.g., sh:minCount 1 requires at least 1 value)",
+      "sh:maxCount - Maximum cardinality validation (e.g., sh:maxCount 1 enforces single value)",
+      "sh:datatype - Datatype constraint (e.g., sh:datatype xsd:integer validates literal type)",
+      "sh:pattern - Regex validation for string literals",
+      "sh:minLength / sh:maxLength - String length constraints",
+      "sh:minInclusive / sh:maxInclusive - Numeric range constraints",
+      "sh:nodeKind - Node type constraint (IRI, BlankNode, Literal)",
+      "sh:class - RDF type constraint (subject must be instance of class)",
+      "sh:in - Enumeration constraint (value must be in list)",
+      "sh:uniqueLang - Language tag uniqueness for multi-lingual literals",
+      "sh:hasValue - Required value constraint",
+      "sh:languageIn - Allowed language tags",
+      "sh:closed - Closed shape (no additional properties allowed)"
+    ],
+    "errorHandling": {
+      "validationReport": "validateShacl returns report with {conforms: boolean, results: ValidationResult[]}. Each ValidationResult includes: focusNode (subject), resultPath (property), sourceConstraintComponent (which SHACL constraint failed), resultMessage (human-readable error), resultSeverity (sh:Violation, sh:Warning, sh:Info).",
+      "hookIntegration": "When SHACL validation fails (conforms: false), condition-evaluator returns false, causing hook's when condition to fail. This prevents hook execution. Validation errors captured in HookResult.error field with details from SHACL report.",
+      "strictMode": "strictMode flag causes validation warnings to be treated as errors. Passed to validateShacl via env.strictMode. Enables zero-tolerance quality gates for production systems."
+    }
+  },
+  "formalModel": {
+    "hookComposition": {
+      "mathematicalModel": "Hook execution is a monadic chain: executeHookChain([h1, h2, ..., hn], quad) ≅ hn(... h2(h1(quad))). Each hook hi : Quad → Result<Quad, Error>. Validation short-circuits on first Err. Transformations compose (quad' = transform(quad), quad'' = transform(quad'), ...).",
+      "properties": "1) Associativity: (h1 ∘ h2) ∘ h3 ≡ h1 ∘ (h2 ∘ h3) for pure transformations. 2) Identity: id(quad) = quad (no-op hook). 3) Short-circuit: ∃ hi invalid ⇒ chain stops at hi, returns Err. 4) Stateless: Hook execution has no side effects on hook state (only on quad/store). 5) Type preservation: transform : Quad → Quad (must return valid Quad with subject/predicate/object)."
+    },
+    "executionOrder": {
+      "deterministicOrdering": "Hooks execute in registration order within same trigger. Order is guaranteed stable across executions. Registry stores hooks in Map (insertion order preserved). executeHooksByTrigger filters by trigger, preserves registration order, passes to executeHookChain.",
+      "chainSemantics": "Given hooks [h1, h2, h3] for trigger T, execution order: 1) h1.validate(quad), 2) h1.transform(quad) → quad1, 3) h2.validate(quad1), 4) h2.transform(quad1) → quad2, 5) h3.validate(quad2), 6) h3.transform(quad2) → quad3. Final result: quad3 if all validations pass, else first error.",
+      "parallelism": "Single trigger hooks are sequential (pipeline). Different trigger hooks can execute in parallel (before-add and after-add are independent). Batch operations (executeBatch, validateBatch) process multiple quads in parallel internally (Uint8Array bitmap for validation results)."
+    },
+    "idempotency": {
+      "validationIdempotency": "Validation hooks SHOULD be idempotent: validate(validate(quad)) = validate(quad). Repeated validation of same quad returns same result. No state mutation in validation logic. Built-in validators (validateSubjectIRI, validateIRIFormat, etc.) are pure functions.",
+      "transformIdempotency": "Transformation hooks are NOT required to be idempotent (transform(transform(quad)) may ≠ transform(quad)). Example: trimLiterals repeatedly applied is idempotent. normalizeNamespace may change prefix on each application if multiple namespace mappings exist. Pooled transforms (trimLiteralsPooled) are idempotent due to object pooling (same pooled quad returned).",
+      "systemIdempotency": "Hook REGISTRATION is idempotent: registerHook(registry, hook) multiple times with same hook.name replaces prior hook. Hook EXECUTION is deterministic given same input quad and hook chain. Batch operations (executeBatch, validateBatch) produce same results given same inputs (no random behavior).",
+      "caveats": "Side-effecting hooks (e.g., after-add logging) are NOT idempotent at system level (re-executing creates duplicate logs). Use at-most-once semantics for side effects. Transaction hooks (before-commit, after-commit) depend on external transaction state, not idempotent in presence of retries."
+    }
+  },
+  "implementationPatterns": {
+    "zodFreeHotPath": "Validation overhead minimized via pre-computed flags. defineHook sets _validated: true, _hasValidation, _hasTransformation flags. executeHook checks hook._validated to skip HookSchema.parse in hot path. Reduces per-execution overhead from ~50μs (Zod parse) to ~0.1μs (flag check). Critical for sub-1μs execution target.",
+    "pokaYokeGuards": [
+      {
+        "guard": "Non-boolean validation return",
+        "location": "executeHook line 84-89",
+        "behavior": "Detects when validate() returns non-boolean. Logs warning with hook name and actual type. Coerces to boolean. Adds result.warning field. RPN reduction: 280 → 28 (severity downgrade via early detection)."
+      },
+      {
+        "guard": "Transform return type validation",
+        "location": "executeHook line 103-114",
+        "behavior": "Checks transform() returns object with subject/predicate/object properties. Throws TypeError if invalid. Prevents silent data corruption. RPN reduction: 280 → 28."
+      },
+      {
+        "guard": "Pooled quad leak detection",
+        "location": "executeHook line 117-122",
+        "behavior": "Warns if transform() returns quad with _pooled flag. Indicates potential memory issue (pooled quads must be cloned before storage). Prevents use-after-free bugs. Configurable via options.warnPooledQuads."
+      },
+      {
+        "guard": "Recursive execution guard",
+        "location": "KnowledgeHookManager.executeByTrigger line 230-237",
+        "behavior": "Tracks execution depth, throws RECURSIVE_HOOK_EXECUTION error if depth >= maxExecutionDepth. Prevents infinite loops from hooks triggering other hooks. RPN reduction: 128 → 0 (complete prevention)."
+      },
+      {
+        "guard": "Stack trace preservation",
+        "location": "executeHook line 132-139",
+        "behavior": "Captures error.stack, hookName, hookTrigger in result.errorDetails. Preserves original Error object. Enables root cause analysis. RPN reduction: 504 → 50 (diagnostics improvement)."
+      }
+    ],
+    "batchOptimizations": {
+      "validateBatch": "Hyper-speed validation via Uint8Array bitmap. No Zod parsing, no result objects. Returns bitmap where bitmap[i] = 1 if quads[i] valid, 0 if invalid. Achieves sub-1μs per quad for large batches. Used for bulk import validation.",
+      "executeBatch": "Batch execution with options.stopOnError flag. Returns {results: ChainResult[], validCount, invalidCount}. Zod-free hot path for pre-validated hooks. Useful for ETL pipelines processing thousands of quads.",
+      "transformBatch": "Batch transformation with optional validateFirst flag. Returns {transformed: Quad[], errors: [{index, error}]}. Skips invalid quads, collects successful transforms. Enables fault-tolerant bulk processing."
+    },
+    "caching": {
+      "hookValidationCache": "WeakMap<Hook, boolean> caches pre-validated hooks. Auto-clears when hooks garbage collected. prewarmHookCache(hooks) pre-validates hooks array at startup to avoid first-execution overhead.",
+      "fileResolverCache": "Caches loaded SPARQL/SHACL files by cacheKey 'sparql:{uri}:{hash}' or 'shacl:{uri}:{hash}'. Avoids repeated file I/O and parsing. Configurable via createFileResolver({enableCache: true}).",
+      "conditionCache": "condition-cache.mjs provides caching for evaluated conditions. Reduces redundant SPARQL/SHACL execution for repeated conditions on similar quads.",
+      "compiledChainCache": "hook-chain-compiler.mjs provides JIT compilation of hook chains. Caches compiled chains by chain signature. Enables near-native execution speed for hot paths."
+    }
+  },
+  "performanceTargets": {
+    "executionSpeed": "Sub-1μs per hook execution (Zod-free hot path). Sub-10μs for hook chain of 5 hooks. Sub-100μs for SHACL validation with simple shapes. Batch operations: <1μs per quad for validateBatch with 1000+ quads.",
+    "memoryUsage": "QuadPool enables zero-allocation transforms via object pooling. Pooled quads reused across hook executions. WeakMap caches allow automatic garbage collection. No memory leaks from hook registration (hooks can be unregistered).",
+    "scalability": "Tested with 10,000+ hooks registered. Trigger-based filtering keeps execution sets small. Registry uses Map for O(1) hook lookup by name. Batch operations scale linearly with quad count (no quadratic complexity)."
+  },
+  "triggerTaxonomy": {
+    "coreCRUD": ["before-add", "after-add", "before-query", "after-query", "before-remove", "after-remove"],
+    "transactions": ["before-commit", "after-commit", "before-rollback", "after-rollback"],
+    "errorHandling": ["on-error", "on-validation-fail", "on-transform", "on-timeout", "on-circuit-open"],
+    "asyncIO": ["before-fetch", "after-fetch", "before-sync", "after-sync", "before-import", "after-import"],
+    "scheduling": ["on-schedule", "on-interval", "on-idle", "on-startup"],
+    "leanSixSigma": ["quality-gate", "defect-detection", "continuous-improvement", "spc-control", "capability-analysis", "root-cause", "kaizen-event", "audit-trail"]
+  },
+  "codeExamples": {
+    "defineValidationHook": "const iriValidator = defineHook({ name: 'validate-iri', trigger: 'before-add', validate: (quad) => quad.subject.termType === 'NamedNode' });",
+    "defineTransformHook": "const normalizer = defineHook({ name: 'normalize-ns', trigger: 'before-add', transform: (quad) => ({ ...quad, subject: normalizeIRI(quad.subject) }) });",
+    "executeSingleHook": "const result = executeHook(iriValidator, quad); if (!result.valid) console.error(result.error);",
+    "executeHookChain": "const result = executeHookChain([validator, transformer], quad); if (result.valid) store.add(result.quad);",
+    "managerUsage": "const manager = new KnowledgeHookManager({ includeBuiltins: true, maxExecutionDepth: 3 }); manager.define({ name: 'my-hook', trigger: 'before-add', validate: (q) => true }); const result = await manager.executeByTrigger('before-add', quad, context);",
+    "shaclValidation": "const hook = defineHook({ name: 'shacl-check', trigger: 'before-add', when: { type: 'shacl', ref: { uri: 'file://shapes.ttl', sha256: 'abc123...' } }, validate: (quad) => true }); // when condition pre-filters via SHACL before validate() runs",
+    "batchValidation": "const bitmap = validateBatch([iriValidator, typeValidator], quads); // bitmap[i] = 1 if quads[i] valid",
+    "batchTransform": "const { transformed, errors } = transformBatch([normalizer, trimmer], quads, { validateFirst: true });"
+  },
+  "researchSources": [
+    "@unrdf/hooks v5.0.1 package.json",
+    "@unrdf/hooks/src/hooks/define-hook.mjs (defineHook, HookSchema, hasValidation, hasTransformation)",
+    "@unrdf/hooks/src/hooks/hook-executor.mjs (executeHook, executeHookChain, validateBatch, executeBatch, transformBatch)",
+    "@unrdf/hooks/src/hooks/knowledge-hook-manager.mjs (KnowledgeHookManager class, recursion guard, registry pattern)",
+    "@unrdf/hooks/src/hooks/file-resolver.mjs (loadShaclFile, createFileResolver, caching)",
+    "@unrdf/hooks/src/hooks/condition-evaluator.mjs (evaluateShacl, SHACL integration)",
+    "@unrdf/hooks/README.md (API overview, use cases)",
+    "vendors/knhk/CONVO.txt (Knowledge Hook execution architecture from KNHK v0.4.0)",
+    "marketplace/packages/chatman-cli/examples/knowledge_hooks.rs (Rust integration example)"
+  ],
+  "thesisRelevance": {
+    "chapter6Focus": "@unrdf/hooks v5.0.1 provides production-ready implementation of Knowledge Hooks policy framework referenced in thesis Chapter 6. Demonstrates practical application of ontology-driven policy enforcement.",
+    "keyContributions": [
+      "Formal hook execution model with deterministic ordering and composition semantics",
+      "SHACL shape integration via content-addressed file resolution and validation",
+      "Sub-1μs execution via Zod-free hot paths and pre-computed type flags",
+      "POKA-YOKE error-proofing guards reducing RPN from 280→28 (validation) and 128→0 (recursion)",
+      "Batch operations (validateBatch, executeBatch) scaling to 1000+ quads with linear complexity",
+      "Comprehensive trigger taxonomy (33 triggers) covering CRUD, transactions, errors, scheduling, and Lean Six Sigma quality gates"
+    ],
+    "formalFoundations": "Hook composition follows monadic semantics. Validation is short-circuit disjunction (∃ invalid ⇒ fail). Transformation is function composition (fn ∘ ... ∘ f2 ∘ f1). Execution order is deterministic (insertion-order Map). Idempotency guarantees for validation (pure functions), best-effort for transforms.",
+    "shaclTheory": "SHACL shapes compile to validation hooks via condition-evaluator. Shapes loaded via content-addressed URIs (SHA-256 integrity). Constraint types (minCount, maxCount, datatype, pattern, etc.) map to validation logic. Validation reports provide structured error feedback with focusNode, resultPath, sourceConstraintComponent.",
+    "practicalDemonstration": "Thesis can reference @unrdf/hooks as proof-of-concept implementation. Show how defineHook API enables declarative policy definition. Demonstrate SHACL-to-hook compilation for schema validation. Illustrate pre/post hook patterns for create/update/delete lifecycle. Cite performance metrics (sub-1μs execution, batch processing scalability)."
+  }
+}

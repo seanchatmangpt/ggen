@@ -1,0 +1,36 @@
+{
+  "name": "bree-semantic-scheduler",
+  "version": "1.0.0",
+  "description": "Production-grade RDF-driven job scheduler with Bree, Citty, and ggen",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "generate": "echo 'ggen sync --config ggen-bree-config.toml'",
+    "validate": "echo 'sparql-validate --shapes .specify/bree-scheduler.shapes.ttl --data bree-jobs-sample.ttl'",
+    "start": "node generated/bree-instance.js",
+    "cli": "node generated/citty-cli-main.js"
+  },
+  "keywords": [
+    "bree",
+    "scheduler",
+    "rdf",
+    "sparql",
+    "citty",
+    "ggen",
+    "semantic",
+    "specification-first"
+  ],
+  "author": "ggen contributors",
+  "license": "MIT",
+  "devDependencies": {
+    "vitest": "^1.0.0",
+    "@vitest/ui": "^1.0.0",
+    "@vitest/coverage-v8": "^1.0.0"
+  },
+  "dependencies": {
+    "n3": "^1.17.0"
+  }
+}

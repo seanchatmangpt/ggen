@@ -1,0 +1,492 @@
+# Quickstart: ggen v5 - Unified Sync Command
+
+**Branch**: `008-n3-code-gen` | **Date**: 2024-12-14
+
+---
+
+## Overview
+
+This guide walks through creating your first ggen v5 project. You'll define a domain ontology, configure generation rules, and produce Rust code using the single `ggen sync` command.
+
+**Time**: ~10 minutes
+
+**Key Concept**: ggen v5 has ONE command: `ggen sync`. That's it.
+
+---
+
+## Prerequisites
+
+- ggen v5.0.0+ installed (`cargo install ggen`)
+- Rust toolchain (for validating generated code)
+
+---
+
+## Step 1: Create Project Structure
+
+```bash
+mkdir my-domain && cd my-domain
+
+# Create directory structure
+mkdir -p domain templates queries src/generated
+```
+
+Create the structure:
+```
+my-domain/
+├── ggen.toml           # Generation manifest (you'll create this)
+├── domain/
+│   └── model.ttl       # Domain ontology
+├── templates/
+│   └── struct.tera     # Rust struct template
+├── queries/
+│   └── structs.sparql  # Entity extraction query
+└── src/generated/      # Output directory
+```
+
+---
+
+## Step 2: Define Domain Ontology
+
+Create `domain/model.ttl`:
+
+```turtle
+@prefix : <http://example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Define a User entity
+:User a rdfs:Class ;
+    rdfs:label "User" ;
+    rdfs:comment "A system user with authentication" ;
+    :auditable true .  # Will infer created_at, updated_at
+
+# User properties
+:User :hasField :userId, :userName, :email .
+
+:userId a :Field ;
+    rdfs:label "id" ;
+    :fieldType "Uuid" .
+
+:userName a :Field ;
+    rdfs:label "name" ;
+    :fieldType "String" .
+
+:email a :Field ;
+    rdfs:label "email" ;
+    :fieldType "String" .
+
+# Define an Order entity
+:Order a rdfs:Class ;
+    rdfs:label "Order" ;
+    rdfs:comment "A customer order" .
+
+:Order :hasField :orderId, :total, :status .
+
+:orderId a :Field ;
+    rdfs:label "id" ;
+    :fieldType "Uuid" .
+
+:total a :Field ;
+    rdfs:label "total" ;
+    :fieldType "f64" .
+
+:status a :Field ;
+    rdfs:label "status" ;
+    :fieldType "OrderStatus" .
+
+# Relationship: User has many Orders
+:User :has_many :Order .
+```
+
+---
+
+## Step 3: Configure ggen.toml
+
+Create `ggen.toml`:
+
+```toml
+[project]
+name = "my-domain"
+version = "0.1.0"
+
+[ontology]
+source = "domain/model.ttl"
+base_iri = "http://example.org/"
+
+[ontology.prefixes]
+code = "http://ggen.dev/code#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+"" = "http://example.org/"
+
+# Inference rule: Add audit fields to auditable entities
+[[inference.rules]]
+name = "auditable_fields"
+description = "Add created_at and updated_at to auditable entities"
+construct = """
+PREFIX : <http://example.org/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX code: <http://ggen.dev/code#>
+
+CONSTRUCT {
+  ?entity :hasField ?createdField, ?updatedField .
+  ?createdField a :Field ;
+                rdfs:label "created_at" ;
+                :fieldType "DateTime<Utc>" .
+  ?updatedField a :Field ;
+                rdfs:label "updated_at" ;
+                :fieldType "DateTime<Utc>" .
+}
+WHERE {
+  ?entity a rdfs:Class ;
+          :auditable true .
+  BIND(IRI(CONCAT(STR(?entity), "_created_at")) AS ?createdField)
+  BIND(IRI(CONCAT(STR(?entity), "_updated_at")) AS ?updatedField)
+}
+"""
+order = 1
+
+# Inference rule: Add Serialize/Deserialize to structs with Uuid
+[[inference.rules]]
+name = "uuid_derives"
+description = "Add serde derives to structs with Uuid fields"
+construct = """
+PREFIX : <http://example.org/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX code: <http://ggen.dev/code#>
+
+CONSTRUCT {
+  ?entity :derives "Serialize", "Deserialize" .
+}
+WHERE {
+  ?entity a rdfs:Class ;
+          :hasField ?field .
+  ?field :fieldType "Uuid" .
+}
+"""
+order = 2
+
+# Generation rule: Create Rust structs
+[[generation.rules]]
+name = "structs"
+query = { file = "queries/structs.sparql" }
+template = { file = "templates/struct.tera" }
+output_file = "src/generated/models/{{name | lower}}.rs"
+skip_empty = true
+
+[generation]
+max_sparql_timeout_ms = 5000
+require_audit_trail = true
+output_dir = "src/generated"
+
+[validation]
+validate_syntax = true
+no_unsafe = true
+```
+
+---
+
+## Step 4: Create SPARQL Query
+
+Create `queries/structs.sparql`:
+
+```sparql
+PREFIX : <http://example.org/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?name ?docstring ?derives (GROUP_CONCAT(?fieldName; separator=",") AS ?fields)
+       (GROUP_CONCAT(?fieldType; separator=",") AS ?types)
+WHERE {
+  ?entity a rdfs:Class ;
+          rdfs:label ?name .
+
+  OPTIONAL { ?entity rdfs:comment ?docstring }
+  OPTIONAL { ?entity :derives ?derives }
+
+  ?entity :hasField ?field .
+  ?field rdfs:label ?fieldName ;
+         :fieldType ?fieldType .
+}
+GROUP BY ?entity ?name ?docstring ?derives
+ORDER BY ?name
+```
+
+---
+
+## Step 5: Create Tera Template
+
+Create `templates/struct.tera`:
+
+```jinja
+//! Generated by ggen sync - DO NOT EDIT
+//! Source: domain/model.ttl
+
+{% if docstring %}/// {{ docstring }}{% endif %}
+#[derive(Debug, Clone{% if derives %}, {{ derives | join(sep=", ") }}{% endif %})]
+pub struct {{ name }} {
+{% for i in range(end=fields | split(pat=",") | length) %}
+{% set field = fields | split(pat=",") | nth(n=i) %}
+{% set type = types | split(pat=",") | nth(n=i) %}
+    pub {{ field }}: {{ type }},
+{% endfor %}
+}
+
+impl {{ name }} {
+    /// Create a new {{ name }}
+    pub fn new({% for i in range(end=fields | split(pat=",") | length) %}{% set field = fields | split(pat=",") | nth(n=i) %}{% set type = types | split(pat=",") | nth(n=i) %}{{ field }}: {{ type }}{% if not loop.last %}, {% endif %}{% endfor %}) -> Self {
+        Self {
+{% for i in range(end=fields | split(pat=",") | length) %}
+{% set field = fields | split(pat=",") | nth(n=i) %}
+            {{ field }},
+{% endfor %}
+        }
+    }
+}
+```
+
+---
+
+## Step 6: Run ggen sync
+
+```bash
+# Validate first (using sync with --validate-only)
+ggen sync --validate-only
+
+# Sync with verbose output
+ggen sync --verbose
+```
+
+**Expected output**:
+```
+Loading manifest: ./ggen.toml
+Loading ontology: domain/model.ttl (15 triples)
+Executing inference rules:
+  [1/2] auditable_fields: +6 triples (3ms)
+  [2/2] uuid_derives: +4 triples (2ms)
+Executing generation rules:
+  [1/1] structs: 2 entities (8ms)
+Writing output:
+  src/generated/models/user.rs (1.2KB)
+  src/generated/models/order.rs (0.9KB)
+Validation: PASSED
+Audit trail: ./audit.json
+Synced 2 files in 0.234s
+```
+
+---
+
+## Step 7: Review Generated Code
+
+`src/generated/models/user.rs`:
+
+```rust
+//! Generated by ggen sync - DO NOT EDIT
+//! Source: domain/model.ttl
+
+/// A system user with authentication
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct User {
+    pub id: Uuid,
+    pub name: String,
+    pub email: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+impl User {
+    /// Create a new User
+    pub fn new(id: Uuid, name: String, email: String, created_at: DateTime<Utc>, updated_at: DateTime<Utc>) -> Self {
+        Self {
+            id,
+            name,
+            email,
+            created_at,
+            updated_at,
+        }
+    }
+}
+```
+
+**Notice**: The `created_at` and `updated_at` fields were **inferred** from the `:auditable true` annotation via the CONSTRUCT inference rule!
+
+---
+
+## Step 8: Verify Determinism
+
+```bash
+# Sync again to /tmp
+ggen sync --output-dir /tmp/gen2
+
+# Compare outputs
+diff -r src/generated /tmp/gen2
+# Should show no differences
+```
+
+---
+
+## What's Happening
+
+1. **Manifest Load**: `ggen.toml` is parsed for configuration
+2. **Ontology Load**: `domain/model.ttl` is parsed into an RDF graph
+3. **Inference**: CONSTRUCT rules add derived triples (audit fields, derives)
+4. **Query**: SPARQL SELECT extracts entities from the enriched graph
+5. **Template**: Tera renders the query results into Rust code
+6. **Validation**: Generated code is checked for syntax errors
+7. **Audit**: `audit.json` records all inputs and outputs for reproducibility
+
+---
+
+## Common Workflows
+
+### Development Mode (Watch)
+
+```bash
+# Auto-regenerate on file changes
+ggen sync --watch --verbose
+```
+
+### Preview Changes (Dry Run)
+
+```bash
+# See what would be generated without writing
+ggen sync --dry-run
+```
+
+### CI/CD Pipeline
+
+```bash
+# Validate and sync with JSON output
+ggen sync --validate-only --format json
+ggen sync --audit --format json
+```
+
+### Force Regeneration
+
+```bash
+# Overwrite protected files
+ggen sync --force
+```
+
+---
+
+## Next Steps
+
+### Add Relationships
+
+```turtle
+# In domain/model.ttl
+:User :has_many :Order .
+```
+
+Add a generation rule to create accessor methods:
+
+```toml
+[[generation.rules]]
+name = "accessors"
+query = { inline = """
+  SELECT ?from ?to ?methodName
+  WHERE {
+    ?from :has_many ?to .
+    ?to rdfs:label ?toName .
+    BIND(CONCAT("get_", LCASE(?toName), "s") AS ?methodName)
+  }
+""" }
+template = { file = "templates/accessor.tera" }
+output_file = "src/generated/impls/{{from | lower}}_accessors.rs"
+```
+
+### Add SHACL Validation
+
+Create `shapes/domain.ttl`:
+
+```turtle
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix : <http://example.org/> .
+
+:EntityShape a sh:NodeShape ;
+    sh:targetClass rdfs:Class ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+    ] .
+
+:FieldShape a sh:NodeShape ;
+    sh:targetClass :Field ;
+    sh:property [
+        sh:path :fieldType ;
+        sh:minCount 1 ;
+    ] .
+```
+
+Add to `ggen.toml`:
+
+```toml
+[validation]
+shacl = ["shapes/domain.ttl"]
+```
+
+---
+
+## Troubleshooting
+
+### "Manifest not found"
+```bash
+# Check ggen.toml exists
+ls ggen.toml
+
+# Or specify path explicitly
+ggen sync --manifest path/to/ggen.toml
+```
+
+### "Ontology not found"
+```bash
+# Check path in ggen.toml matches actual file
+ls domain/model.ttl
+```
+
+### "SPARQL syntax error"
+```bash
+# Validate the manifest and queries
+ggen sync --validate-only --verbose
+```
+
+### "Field missing type"
+Ensure every `:Field` has a `:fieldType` property:
+```turtle
+:myField a :Field ;
+    rdfs:label "my_field" ;
+    :fieldType "String" .  # Required!
+```
+
+### "Non-deterministic output"
+Check for:
+- Missing `ORDER BY` in SPARQL queries
+- HashMap iteration (use BTreeMap)
+- Timestamps in output (remove or use fixed epoch)
+
+---
+
+## Reference
+
+- [Full Specification](./spec.md)
+- [Data Model](./data-model.md)
+- [CLI Contract](./contracts/cli-contract.md)
+- [Research Notes](./research.md)
+
+---
+
+## The Single Command
+
+Remember: ggen v5 has **one command**: `ggen sync`
+
+```bash
+ggen sync                    # Basic usage
+ggen sync --verbose          # See what's happening
+ggen sync --dry-run          # Preview without writing
+ggen sync --watch            # Development mode
+ggen sync --validate-only    # Check without generating
+ggen sync --audit            # Generate audit.json
+ggen sync --help             # Full options
+```
+
+That's it. One command to sync your ontology to code.

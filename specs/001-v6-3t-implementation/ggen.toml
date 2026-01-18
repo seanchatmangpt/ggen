@@ -1,0 +1,289 @@
+# ============================================================================
+# ggen v6 - 3T Specification Generation Configuration
+# ============================================================================
+# Purpose: Generate human-readable specification from RDF ontology
+# Constitutional Equation: spec.md = μ(ontology)
+# Created: 2025-12-19
+# ============================================================================
+
+[project]
+name = "v6-3t-specification"
+version = "1.0.0"
+description = "Ontology-driven specification for ggen v6 3T implementation"
+
+# ----------------------------------------------------------------------------
+# v6 Pipeline Configuration
+# ----------------------------------------------------------------------------
+
+[v6]
+enabled = true
+ontology = "ontology/spec-schema.ttl,ontology/v6-spec-content.ttl"
+output_dir = "generated"
+
+# Five-stage compilation pipeline (μ₁ through μ₅)
+[v6.passes]
+normalization = { order = 1, type = "construct" }
+extraction = { order = 2, type = "select" }
+emission = { order = 3, type = "tera" }
+canonicalization = { order = 4, type = "format" }
+receipt = { order = 5, type = "hash" }
+
+# Constitutional invariants enforced by v6
+[v6.invariants]
+idempotence = true         # μ∘μ = μ (regenerating produces identical output)
+determinism = true         # Same ontology → same markdown
+provenance = true          # Receipt proves: spec.md = μ(RDF)
+no_edit = true             # Generated files never hand-edited
+substrate_only = true      # Only RDF is authored
+
+# Vocabulary governance (allowed RDF namespaces)
+[v6.vocabulary]
+allowed = [
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "http://www.w3.org/2000/01/rdf-schema#",
+    "http://www.w3.org/2001/XMLSchema#",
+    "http://www.w3.org/2002/07/owl#",
+    "http://www.w3.org/ns/shacl#",
+    "http://ggen.dev/speckit#",
+    "http://ggen.dev/spec/v6/content#",
+]
+
+# ============================================================================
+# Generation Rules (SPARQL → Template → Output)
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Rule 1: Specification Metadata
+# ----------------------------------------------------------------------------
+
+[[generation]]
+name = "spec-metadata"
+query = """
+PREFIX spec: <http://ggen.dev/speckit#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?name ?featureBranch ?created ?status ?inputDescription
+WHERE {
+  ?spec a spec:Specification ;
+        spec:name ?name ;
+        spec:featureBranch ?featureBranch ;
+        spec:created ?created ;
+        spec:status ?status ;
+        spec:inputDescription ?inputDescription .
+}
+LIMIT 1
+"""
+template = "spec-main.tera"
+output = "spec-header.md"
+
+# ----------------------------------------------------------------------------
+# Rule 2: User Stories with Nested Acceptance Scenarios
+# ----------------------------------------------------------------------------
+
+[[generation]]
+name = "user-stories"
+query = """
+PREFIX spec: <http://ggen.dev/speckit#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?storyIndex ?title ?priority ?description ?rationale ?testStrategy
+       ?scenarioIndex ?given ?when ?then
+WHERE {
+  ?story a spec:UserStory ;
+         spec:storyIndex ?storyIndex ;
+         spec:title ?title ;
+         spec:priority ?priority ;
+         spec:description ?description ;
+         spec:rationale ?rationale ;
+         spec:testStrategy ?testStrategy ;
+         spec:hasAcceptanceScenario ?scenario .
+
+  ?scenario spec:scenarioIndex ?scenarioIndex ;
+            spec:given ?given ;
+            spec:when ?when ;
+            spec:then ?then .
+}
+ORDER BY ?storyIndex ?scenarioIndex
+"""
+template = "user-stories.tera"
+output = "user-stories.md"
+
+# ----------------------------------------------------------------------------
+# Rule 3: Functional Requirements
+# ----------------------------------------------------------------------------
+
+[[generation]]
+name = "requirements"
+query = """
+PREFIX spec: <http://ggen.dev/speckit#>
+
+SELECT ?requirementId ?description
+WHERE {
+  ?req a spec:FunctionalRequirement ;
+       spec:requirementId ?requirementId ;
+       spec:description ?description .
+}
+ORDER BY ?requirementId
+"""
+template = "requirements.tera"
+output = "requirements.md"
+
+# ----------------------------------------------------------------------------
+# Rule 4: Success Criteria
+# ----------------------------------------------------------------------------
+
+[[generation]]
+name = "success-criteria"
+query = """
+PREFIX spec: <http://ggen.dev/speckit#>
+
+SELECT ?criterionId ?description
+WHERE {
+  ?criterion a spec:SuccessCriterion ;
+             spec:criterionId ?criterionId ;
+             spec:description ?description .
+}
+ORDER BY ?criterionId
+"""
+template = "success-criteria.tera"
+output = "success-criteria.md"
+
+# ----------------------------------------------------------------------------
+# Rule 5: Key Entities
+# ----------------------------------------------------------------------------
+
+[[generation]]
+name = "entities"
+query = """
+PREFIX spec: <http://ggen.dev/speckit#>
+
+SELECT ?entityName ?definition
+WHERE {
+  ?entity a spec:Entity ;
+          spec:entityName ?entityName ;
+          spec:definition ?definition .
+}
+ORDER BY ?entityName
+"""
+template = "entities.tera"
+output = "entities.md"
+
+# ----------------------------------------------------------------------------
+# Rule 6: Edge Cases
+# ----------------------------------------------------------------------------
+
+[[generation]]
+name = "edge-cases"
+query = """
+PREFIX spec: <http://ggen.dev/speckit#>
+
+SELECT ?scenario ?expectedBehavior
+WHERE {
+  ?edge a spec:EdgeCase ;
+        spec:scenario ?scenario ;
+        spec:expectedBehavior ?expectedBehavior .
+}
+"""
+template = "edge-cases.tera"
+output = "edge-cases.md"
+
+# ----------------------------------------------------------------------------
+# Rule 7: Dependencies
+# ----------------------------------------------------------------------------
+
+[[generation]]
+name = "dependencies"
+query = """
+PREFIX spec: <http://ggen.dev/speckit#>
+
+SELECT ?dependencyId ?description
+WHERE {
+  ?dep a spec:Dependency ;
+       spec:dependencyId ?dependencyId ;
+       spec:description ?description .
+}
+ORDER BY ?dependencyId
+"""
+template = "dependencies.tera"
+output = "dependencies.md"
+
+# ----------------------------------------------------------------------------
+# Rule 8: Assumptions
+# ----------------------------------------------------------------------------
+
+[[generation]]
+name = "assumptions"
+query = """
+PREFIX spec: <http://ggen.dev/speckit#>
+
+SELECT ?assumptionId ?description
+WHERE {
+  ?assump a spec:Assumption ;
+          spec:assumptionId ?assumptionId ;
+          spec:description ?description .
+}
+ORDER BY ?assumptionId
+"""
+template = "assumptions.tera"
+output = "assumptions.md"
+
+# ----------------------------------------------------------------------------
+# Rule 9: Non-Goals
+# ----------------------------------------------------------------------------
+
+[[generation]]
+name = "non-goals"
+query = """
+PREFIX spec: <http://ggen.dev/speckit#>
+
+SELECT ?nonGoalId ?description
+WHERE {
+  ?ng a spec:NonGoal ;
+      spec:nonGoalId ?nonGoalId ;
+      spec:description ?description .
+}
+ORDER BY ?nonGoalId
+"""
+template = "non-goals.tera"
+output = "non-goals.md"
+
+# ----------------------------------------------------------------------------
+# Rule 10: Risks with Mitigations
+# ----------------------------------------------------------------------------
+
+[[generation]]
+name = "risks"
+query = """
+PREFIX spec: <http://ggen.dev/speckit#>
+
+SELECT ?riskId ?description ?mitigation
+WHERE {
+  ?risk a spec:Risk ;
+        spec:riskId ?riskId ;
+        spec:description ?description ;
+        spec:mitigation ?mitigation .
+}
+ORDER BY ?riskId
+"""
+template = "risks.tera"
+output = "risks.md"
+
+# ============================================================================
+# Configuration Notes
+# ============================================================================
+#
+# This configuration demonstrates the pure 3T paradigm:
+# - TOML: Pipeline orchestration (this file)
+# - Tera: Template transformations (templates/*.tera)
+# - Turtle: Semantic substrate (ontology/*.ttl)
+#
+# Running `ggen sync` executes μ₁-μ₅ pipeline:
+#   μ₁: Normalize ontology + SHACL validation
+#   μ₂: Extract RDF bindings via SPARQL SELECT
+#   μ₃: Emit markdown via Tera templates
+#   μ₄: Canonicalize output (normalize whitespace)
+#   μ₅: Generate cryptographic receipt
+#
+# Output: generated/spec.md = μ(ontology)
+# Provenance: generated/.receipt.json proves spec.md derived from RDF
+# ============================================================================

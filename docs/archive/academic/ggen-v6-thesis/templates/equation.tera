@@ -1,0 +1,9 @@
+{% for row in sparql_results %}
+\begin{equation}
+{{ row.eqContent }}
+\label{ {{- row.eqLabel -}} }
+\end{equation}
+
+\noindent {{ row.eqDescription }}
+
+{% endfor %}

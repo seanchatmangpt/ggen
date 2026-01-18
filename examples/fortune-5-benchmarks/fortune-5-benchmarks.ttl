@@ -1,0 +1,323 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix bree: <http://example.org/bree/> .
+@prefix f5: <http://example.org/fortune-5/> .
+@prefix perf: <http://example.org/performance/> .
+
+# ============================================================================
+# FORTUNE 5 BENCHMARKS - EXTENSION TO BREE SCHEDULER
+# ============================================================================
+# Measures the 5 Fortune 500 performance patterns using actual Bree execution
+# ============================================================================
+
+# ============================================================================
+# PATTERN 1: CLI STARTUP (ggen --version must be <100ms)
+# ============================================================================
+
+perf:pattern-1-cli-startup
+  a f5:PerformancePattern ;
+  rdfs:label "Pattern 1: CLI Startup Performance" ;
+  rdfs:comment "Measure Bree CLI initialization time <100ms (cold/warm start)" ;
+  f5:patternIndex 1 ;
+  f5:targetSLA "< 100ms" ;
+  f5:targetUnit "ms" ;
+  f5:targetThreshold 100.0 ;
+  f5:benchmarkType "CLI_STARTUP" .
+
+perf:benchmark-1a-cold-start
+  a f5:Benchmark ;
+  rdfs:label "Cold Start: ggen --version" ;
+  f5:benchmarkName "cli_version_cold" ;
+  f5:benchmarkDescription "Absolute minimum: --version flag" ;
+  f5:command "ggen --version" ;
+  f5:targetSLA "< 50ms" ;
+  f5:iteration-count 100 .
+
+perf:benchmark-1b-warm-start
+  a f5:Benchmark ;
+  rdfs:label "Warm Start: ggen --help" ;
+  f5:benchmarkName "cli_help_warm" ;
+  f5:benchmarkDescription "Full help output rendering" ;
+  f5:command "ggen --help" ;
+  f5:targetSLA "< 100ms" ;
+  f5:iteration-count 100 .
+
+perf:benchmark-1c-subcommand
+  a f5:Benchmark ;
+  rdfs:label "Subcommand Routing: bree start" ;
+  f5:benchmarkName "cli_subcommand_bree" ;
+  f5:benchmarkDescription "Start Bree scheduler via CLI" ;
+  f5:command "bree start" ;
+  f5:targetSLA "< 150ms" ;
+  f5:iteration-count 50 .
+
+# ============================================================================
+# PATTERN 2: TEMPLATE RENDERING (1 template <1s, 100 templates <5s)
+# ============================================================================
+
+perf:pattern-2-template-rendering
+  a f5:PerformancePattern ;
+  rdfs:label "Pattern 2: Template Rendering at Scale" ;
+  rdfs:comment "Generate bree-instance.js and cli files: <1s single, <5s for 100 files" ;
+  f5:patternIndex 2 ;
+  f5:targetSLA "< 1000ms typical, < 5000ms large" ;
+  f5:targetUnit "ms" ;
+  f5:benchmarkType "TEMPLATE_RENDERING" .
+
+perf:benchmark-2a-single-template
+  a f5:Benchmark ;
+  rdfs:label "Single Template: bree-instance.js.tera" ;
+  f5:benchmarkName "template_single_bree_instance" ;
+  f5:benchmarkDescription "Render one Bree instance template with 6 jobs" ;
+  f5:templateName "bree-instance.js.tera" ;
+  f5:jobCount 6 ;
+  f5:targetSLA "< 500ms" ;
+  f5:iteration-count 20 .
+
+perf:benchmark-2b-multi-template
+  a f5:Benchmark ;
+  rdfs:label "Multi-Template: Generate all Bree templates" ;
+  f5:benchmarkName "template_multi_bree" ;
+  f5:benchmarkDescription "Render bree-instance.js + citty-cli + docs + config" ;
+  f5:templateCount 4 ;
+  f5:jobCount 6 ;
+  f5:targetSLA "< 1000ms" ;
+  f5:iteration-count 20 .
+
+perf:benchmark-2c-monorepo-scale
+  a f5:Benchmark ;
+  rdfs:label "Monorepo Scale: 100 job definitions" ;
+  f5:benchmarkName "template_monorepo_100_jobs" ;
+  f5:benchmarkDescription "Render job definitions for 100 jobs in parallel" ;
+  f5:jobCount 100 ;
+  f5:targetSLA "< 2000ms" ;
+  f5:iteration-count 10 .
+
+# ============================================================================
+# PATTERN 3: RDF QUERY PERFORMANCE (SPARQL <100ms at p90)
+# ============================================================================
+
+perf:pattern-3-rdf-query
+  a f5:PerformancePattern ;
+  rdfs:label "Pattern 3: RDF Query Performance" ;
+  rdfs:comment "Query Bree job graph: <100ms at 90th percentile" ;
+  f5:patternIndex 3 ;
+  f5:targetSLA "< 100ms (p90)" ;
+  f5:targetUnit "ms" ;
+  f5:targetThreshold 100.0 ;
+  f5:benchmarkType "RDF_QUERY" .
+
+perf:benchmark-3a-simple-query
+  a f5:Benchmark ;
+  rdfs:label "Simple Query: All jobs" ;
+  f5:benchmarkName "sparql_select_all_jobs" ;
+  f5:benchmarkDescription "SELECT ?job WHERE { ?job a bree:Job }" ;
+  f5:queryComplexity "simple" ;
+  f5:targetSLA "< 50ms" ;
+  f5:iteration-count 1000 .
+
+perf:benchmark-3b-join-query
+  a f5:Benchmark ;
+  rdfs:label "Join Query: Jobs with execution history" ;
+  f5:benchmarkName "sparql_jobs_with_executions" ;
+  f5:benchmarkDescription "SELECT ?job ?execution WHERE { ?job bree:hasExecution ?execution }" ;
+  f5:queryComplexity "moderate" ;
+  f5:targetSLA "< 100ms" ;
+  f5:iteration-count 500 .
+
+perf:benchmark-3c-complex-query
+  a f5:Benchmark ;
+  rdfs:label "Complex Query: Job analysis" ;
+  f5:benchmarkName "sparql_job_analysis" ;
+  f5:benchmarkDescription "Multi-join analysis of job execution patterns" ;
+  f5:queryComplexity "complex" ;
+  f5:targetSLA "< 150ms" ;
+  f5:iteration-count 100 .
+
+# ============================================================================
+# PATTERN 4: MEMORY USAGE (<500MB peak, baseline <50MB)
+# ============================================================================
+
+perf:pattern-4-memory-usage
+  a f5:PerformancePattern ;
+  rdfs:label "Pattern 4: Memory Usage Management" ;
+  rdfs:comment "Bree process memory: <50MB baseline, <500MB under load" ;
+  f5:patternIndex 4 ;
+  f5:targetSLA "< 500MB peak" ;
+  f5:targetUnit "MB" ;
+  f5:targetThreshold 500.0 ;
+  f5:benchmarkType "MEMORY_USAGE" .
+
+perf:benchmark-4a-baseline
+  a f5:Benchmark ;
+  rdfs:label "Memory Baseline: Empty Bree instance" ;
+  f5:benchmarkName "memory_baseline_bree" ;
+  f5:benchmarkDescription "Create empty Bree instance, measure RSS" ;
+  f5:targetSLA "< 30MB" ;
+  f5:iteration-count 10 .
+
+perf:benchmark-4b-with-jobs
+  a f5:Benchmark ;
+  rdfs:label "Memory: Bree with 6 jobs" ;
+  f5:benchmarkName "memory_bree_6_jobs" ;
+  f5:benchmarkDescription "Create Bree with sample jobs, measure RSS" ;
+  f5:jobCount 6 ;
+  f5:targetSLA "< 100MB" ;
+  f5:iteration-count 10 .
+
+perf:benchmark-4c-long-running
+  a f5:Benchmark ;
+  rdfs:label "Memory: Long-running 1000 job executions" ;
+  f5:benchmarkName "memory_long_running_1000_jobs" ;
+  f5:benchmarkDescription "Run Bree for 1000 job executions, measure for leaks" ;
+  f5:jobCount 6 ;
+  f5:execution-count 1000 ;
+  f5:targetSLA "< 500MB (no growth)" ;
+  f5:iteration-count 1 .
+
+# ============================================================================
+# PATTERN 5: CONCURRENT OPERATIONS (linear scaling to 8 cores)
+# ============================================================================
+
+perf:pattern-5-concurrent-ops
+  a f5:PerformancePattern ;
+  rdfs:label "Pattern 5: Concurrent Operations" ;
+  rdfs:comment "Bree job parallelism: linear scaling to 8 cores" ;
+  f5:patternIndex 5 ;
+  f5:targetSLA "≥ 0.95 scaling efficiency" ;
+  f5:targetUnit "ratio" ;
+  f5:benchmarkType "CONCURRENT_OPS" .
+
+perf:benchmark-5a-1core-baseline
+  a f5:Benchmark ;
+  rdfs:label "1-Core Baseline" ;
+  f5:benchmarkName "concurrency_1_core" ;
+  f5:benchmarkDescription "Bree throughput on 1 core (baseline)" ;
+  f5:parallelLevel 1 ;
+  f5:jobCount 6 ;
+  f5:executionTime "30s" ;
+  f5:targetSLA "baseline" ;
+  f5:iteration-count 5 .
+
+perf:benchmark-5b-2core-scaling
+  a f5:Benchmark ;
+  rdfs:label "2-Core Scaling" ;
+  f5:benchmarkName "concurrency_2_core" ;
+  f5:benchmarkDescription "Bree throughput on 2 cores (should be ~2x)" ;
+  f5:parallelLevel 2 ;
+  f5:jobCount 6 ;
+  f5:executionTime "30s" ;
+  f5:targetSLA "≥ 1.9x" ;
+  f5:iteration-count 5 .
+
+perf:benchmark-5c-4core-scaling
+  a f5:Benchmark ;
+  rdfs:label "4-Core Scaling" ;
+  f5:benchmarkName "concurrency_4_core" ;
+  f5:benchmarkDescription "Bree throughput on 4 cores (should be ~4x)" ;
+  f5:parallelLevel 4 ;
+  f5:jobCount 6 ;
+  f5:executionTime "30s" ;
+  f5:targetSLA "≥ 3.8x" ;
+  f5:iteration-count 5 .
+
+perf:benchmark-5d-8core-scaling
+  a f5:Benchmark ;
+  rdfs:label "8-Core Scaling" ;
+  f5:benchmarkName "concurrency_8_core" ;
+  f5:benchmarkDescription "Bree throughput on 8 cores (should be ~8x)" ;
+  f5:parallelLevel 8 ;
+  f5:jobCount 6 ;
+  f5:executionTime "30s" ;
+  f5:targetSLA "≥ 7.5x" ;
+  f5:iteration-count 5 .
+
+# ============================================================================
+# PERFORMANCE PROPERTIES (New)
+# ============================================================================
+
+f5:patternIndex
+  a owl:DatatypeProperty ;
+  rdfs:domain f5:PerformancePattern ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Pattern number (1-5)" .
+
+f5:targetSLA
+  a owl:DatatypeProperty ;
+  rdfs:domain f5:PerformancePattern ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Human-readable SLA target" .
+
+f5:targetUnit
+  a owl:DatatypeProperty ;
+  rdfs:domain f5:PerformancePattern ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Unit (ms, MB, ratio)" .
+
+f5:targetThreshold
+  a owl:DatatypeProperty ;
+  rdfs:domain f5:PerformancePattern ;
+  rdfs:range xsd:double ;
+  rdfs:comment "Numeric threshold" .
+
+f5:benchmarkType
+  a owl:DatatypeProperty ;
+  rdfs:domain f5:PerformancePattern ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Type of benchmark" .
+
+f5:command
+  a owl:DatatypeProperty ;
+  rdfs:domain f5:Benchmark ;
+  rdfs:range xsd:string ;
+  rdfs:comment "CLI command to benchmark" .
+
+f5:templateName
+  a owl:DatatypeProperty ;
+  rdfs:domain f5:Benchmark ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Name of template to render" .
+
+f5:jobCount
+  a owl:DatatypeProperty ;
+  rdfs:domain f5:Benchmark ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Number of jobs in scenario" .
+
+f5:templateCount
+  a owl:DatatypeProperty ;
+  rdfs:domain f5:Benchmark ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Number of templates to render" .
+
+f5:queryComplexity
+  a owl:DatatypeProperty ;
+  rdfs:domain f5:Benchmark ;
+  rdfs:range xsd:string ;
+  rdfs:comment "simple|moderate|complex" .
+
+f5:executionTime
+  a owl:DatatypeProperty ;
+  rdfs:domain f5:Benchmark ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Duration of benchmark run" .
+
+f5:parallelLevel
+  a owl:DatatypeProperty ;
+  rdfs:domain f5:Benchmark ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Number of parallel workers" .
+
+f5:iteration-count
+  a owl:DatatypeProperty ;
+  rdfs:domain f5:Benchmark ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Number of iterations" .
+
+f5:execution-count
+  a owl:DatatypeProperty ;
+  rdfs:domain f5:Benchmark ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Number of job executions" .

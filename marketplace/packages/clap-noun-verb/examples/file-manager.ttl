@@ -1,0 +1,146 @@
+@prefix cnv: <https://ggen.dev/clap-noun-verb/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@base <http://example.com/file-manager/> .
+
+# =============================================================================
+# File Manager CLI Project
+# =============================================================================
+# Example RDF description for generating a file manager CLI using clap-noun-verb.
+#
+# Features:
+#   - File operations (copy, move, delete, list)
+#   - Directory operations
+#   - Path handling and recursive operations
+#
+# Usage:
+#   ggen generate \
+#     --template marketplace/packages/clap-noun-verb/templates/cli-project.tmpl \
+#     --domain marketplace/packages/clap-noun-verb/examples/file-manager.ttl \
+#     --output ./file-manager-cli/
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Project Metadata
+# -----------------------------------------------------------------------------
+
+<http://example.com/file-manager> a cnv:CliProject ;
+    cnv:projectName "file-manager" ;
+    cnv:projectVersion "0.1.0" ;
+    rdfs:comment "File system operations CLI" .
+
+# -----------------------------------------------------------------------------
+# Nouns (Resource Types)
+# -----------------------------------------------------------------------------
+
+<#file> a cnv:Noun ;
+    cnv:nounName "file" ;
+    rdfs:comment "File system file" ;
+    cnv:hasVerbs <#file_copy>, <#file_move>, <#file_delete>, <#file_view> .
+
+<#directory> a cnv:Noun ;
+    cnv:nounName "directory" ;
+    rdfs:comment "File system directory" ;
+    cnv:hasVerbs <#dir_create>, <#dir_delete>, <#dir_list> .
+
+# -----------------------------------------------------------------------------
+# Verbs for File
+# -----------------------------------------------------------------------------
+
+<#file_copy> a cnv:Verb ;
+    cnv:verbName "copy" ;
+    rdfs:comment "Copy a file" ;
+    cnv:hasArguments <#file_copy_source>, <#file_copy_destination> .
+
+<#file_move> a cnv:Verb ;
+    cnv:verbName "move" ;
+    rdfs:comment "Move or rename a file" ;
+    cnv:hasArguments <#file_move_source>, <#file_move_destination> .
+
+<#file_delete> a cnv:Verb ;
+    cnv:verbName "delete" ;
+    rdfs:comment "Delete a file" ;
+    cnv:hasArguments <#file_delete_path>, <#file_delete_force> .
+
+<#file_view> a cnv:Verb ;
+    cnv:verbName "view" ;
+    rdfs:comment "View file contents" ;
+    cnv:hasArguments <#file_view_path> .
+
+# Verbs for Directory
+<#dir_create> a cnv:Verb ;
+    cnv:verbName "create" ;
+    rdfs:comment "Create a directory" ;
+    cnv:hasArguments <#dir_create_path> .
+
+<#dir_delete> a cnv:Verb ;
+    cnv:verbName "delete" ;
+    rdfs:comment "Delete a directory" ;
+    cnv:hasArguments <#dir_delete_path>, <#dir_delete_recursive> .
+
+<#dir_list> a cnv:Verb ;
+    cnv:verbName "list" ;
+    rdfs:comment "List directory contents" ;
+    cnv:hasArguments <#dir_list_path> .
+
+# -----------------------------------------------------------------------------
+# Arguments for File Verbs
+# -----------------------------------------------------------------------------
+
+<#file_copy_source> a cnv:Argument ;
+    cnv:argumentName "source" ;
+    cnv:argumentType <#PathType> .
+
+<#file_copy_destination> a cnv:Argument ;
+    cnv:argumentName "destination" ;
+    cnv:argumentType <#PathType> .
+
+<#file_move_source> a cnv:Argument ;
+    cnv:argumentName "source" ;
+    cnv:argumentType <#PathType> .
+
+<#file_move_destination> a cnv:Argument ;
+    cnv:argumentName "destination" ;
+    cnv:argumentType <#PathType> .
+
+<#file_delete_path> a cnv:Argument ;
+    cnv:argumentName "path" ;
+    cnv:argumentType <#PathType> .
+
+<#file_delete_force> a cnv:Argument ;
+    cnv:argumentName "force" ;
+    cnv:argumentType <#BoolType> .
+
+<#file_view_path> a cnv:Argument ;
+    cnv:argumentName "path" ;
+    cnv:argumentType <#PathType> .
+
+# Arguments for Directory Verbs
+<#dir_create_path> a cnv:Argument ;
+    cnv:argumentName "path" ;
+    cnv:argumentType <#PathType> .
+
+<#dir_delete_path> a cnv:Argument ;
+    cnv:argumentName "path" ;
+    cnv:argumentType <#PathType> .
+
+<#dir_delete_recursive> a cnv:Argument ;
+    cnv:argumentName "recursive" ;
+    cnv:argumentType <#BoolType> .
+
+<#dir_list_path> a cnv:Argument ;
+    cnv:argumentName "path" ;
+    cnv:argumentType <#PathType> .
+
+# -----------------------------------------------------------------------------
+# Types
+# -----------------------------------------------------------------------------
+
+<#PathType> a cnv:PrimitiveType ;
+    cnv:rust-type "std::path::PathBuf" .
+
+<#StringType> a cnv:PrimitiveType ;
+    cnv:rust-type "String" .
+
+<#BoolType> a cnv:PrimitiveType ;
+    cnv:rust-type "bool" .

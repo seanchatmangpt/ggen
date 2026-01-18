@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/scenarios.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261427411,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261427411,
+            "name": "Commit-0",
+            "content": "Feature: Test Scenario Execution\n  As a developer\n  I want to run complex test scenarios in cleanroom\n  So that I can validate CLI tools and services comprehensively\n\n  Background:\n    Given I have a clean test environment\n\n  Scenario: Simple test scenario execution\n    Given I have a test scenario \"simple_test\"\n    When I run the scenario \"simple_test\"\n    Then the scenario should complete successfully\n    And the scenario should produce output\n\n  Scenario: Test scenario with policy\n    Given I have a test scenario \"policy_test\"\n    And I have a policy file \"test_policy.yaml\" with:\n      \"\"\"\n      network: isolated\n      filesystem: readonly\n      memory_limit: 256MB\n      \"\"\"\n    When I run the scenario with policy \"test_policy.yaml\"\n    Then the scenario should complete successfully\n    And the policy should be active\n\n  Scenario: Test scenario with backend selection\n    Given I have a test scenario \"backend_test\"\n    And I have Docker available\n    When I run the scenario with backend \"docker\"\n    Then the scenario should complete successfully\n    And the backend should be \"docker\"\n\n  Scenario: Failing test scenario\n    Given I have a failing test scenario\n    When I run the scenario \"failing_scenario\"\n    Then the scenario should fail\n\n  Scenario: Long-running test scenario\n    Given I have a long-running test scenario\n    When I run the scenario \"long_running_scenario\"\n    Then the scenario should complete successfully\n    And the scenario should complete within the timeout\n\n  Scenario: Test scenario with network access\n    Given I have a test scenario with network access\n    And I have network isolation enabled\n    When I run the scenario \"network_scenario\"\n    Then the scenario should respect network constraints\n\n  Scenario: Test scenario with file operations\n    Given I have a test scenario with file operations\n    And I have filesystem isolation enabled\n    When I run the scenario \"file_ops_scenario\"\n    Then the scenario should respect filesystem constraints\n\n  Scenario: Parallel scenario execution\n    Given I have a test scenario \"parallel_test\"\n    When I run the scenario in parallel\n    Then the scenario should complete successfully\n\n  Scenario: Deterministic scenario execution\n    Given I have a test scenario \"deterministic_test\"\n    When I run the scenario \"deterministic_test\"\n    And I run the scenario \"deterministic_test\"\n    Then the scenario should produce consistent results\n"
+        }
+    ]
+}

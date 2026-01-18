@@ -1,0 +1,108 @@
+{% comment %}
+CLI Command Base Template
+Purpose: Generate CLI commands from RDF definitions
+Version: 1.0
+Language: Tera
+
+This template generates command implementations for various CLI frameworks.
+Supports: clap, clap-noun-verb, Click, etc.
+
+Example SPARQL Query:
+SELECT ?cmdName ?cmdDescription ?verb ?noun ?args WHERE {
+  ?cmd a ex:CliCommand ;
+    rdfs:label ?cmdName ;
+    rdfs:comment ?cmdDescription ;
+    ex:verb ?verb ;
+    ex:noun ?noun ;
+    ex:args ?args .
+}
+{% endcomment %}
+
+{% if framework == "clap_noun_verb" %}
+// Generated Clap Noun-Verb Command
+use clap_noun_verb::{Noun, Verb};
+
+#[derive(Debug, Clone, Noun)]
+pub struct {{ noun_struct }} {
+    /// {{ description | default(value="") }}
+    pub id: String,
+    {% for arg in args %}
+    /// {{ arg.description }}
+    pub {{ arg.name }}: {{ arg.rust_type }},
+    {% endfor %}
+}
+
+impl {{ noun_struct }} {
+    pub async fn run(self) -> Result<(), Box<dyn std::error::Error>> {
+        match self.verb() {
+            {% for verb in verbs %}
+            "{{ verb.name }}" => {
+                println!("{{ verb.name | capitalize }} {{ noun_struct | lowercase }}");
+                // TODO: Implement {{ verb.name }} logic
+                Ok(())
+            }
+            {% endfor %}
+            _ => Err("Unknown command".into()),
+        }
+    }
+}
+
+{% elif framework == "clap" %}
+// Generated Clap Command
+use clap::Parser;
+
+/// {{ description | default(value="") }}
+#[derive(Parser, Debug)]
+pub struct {{ command_struct }} {
+    {% for arg in args %}
+    /// {{ arg.description }}
+    #[arg(short, long)]
+    pub {{ arg.name }}: {{ arg.rust_type }},
+    {% endfor %}
+}
+
+impl {{ command_struct }} {
+    pub async fn run(self) -> Result<(), Box<dyn std::error::Error>> {
+        println!("Executing: {{ command_name }}");
+        // TODO: Implement command logic
+        Ok(())
+    }
+}
+
+{% elif framework == "click" %}
+# Generated Click Command
+import click
+
+@click.command()
+{% for arg in args %}
+@click.option('--{{ arg.name }}', help='{{ arg.description }}')
+{% endfor %}
+def {{ command_name }}({% for arg in args %}{{ arg.name }}, {% endfor %}):
+    """{{ description | default(value="") }}"""
+    click.echo(f"Executing: {{ command_name }}")
+    # TODO: Implement command logic
+    pass
+
+{% elif framework == "yargs" %}
+// Generated Yargs Command
+import yargs from 'yargs';
+
+export const {{ command_name }}Command = {
+    command: '{{ command_name }}',
+    describe: '{{ description | default(value="") }}',
+    builder: (yargs) => {
+        return yargs
+            {% for arg in args %}
+            .option('{{ arg.name }}', {
+                describe: '{{ arg.description }}',
+                type: '{{ arg.js_type }}',
+            })
+            {% endfor %}
+    },
+    handler: async (argv) => {
+        console.log('Executing: {{ command_name }}');
+        // TODO: Implement command logic
+    },
+};
+
+{% endif %}

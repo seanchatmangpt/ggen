@@ -1,0 +1,13 @@
+# Config with inline RDF data
+
+[project]
+output_dir = "generated"
+
+[rdf]
+inline = [
+  "@prefix ex: <http://example.org/> .",
+  "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .",
+  "",
+  "ex:TestClass a rdfs:Class ;",
+  "    rdfs:label \"Test Class\" ."
+]

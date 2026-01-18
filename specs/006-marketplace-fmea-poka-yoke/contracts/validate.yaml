@@ -1,0 +1,196 @@
+# CLI Contract: ggen marketplace validate
+# Validates marketplace package FMEA and Poka-Yoke compliance
+
+command: ggen marketplace validate
+
+description: |
+  Validates a marketplace package for enterprise readiness, checking FMEA
+  (Failure Mode and Effects Analysis) controls and Poka-Yoke error-proofing
+  configuration.
+
+arguments:
+  - name: package
+    type: path
+    required: false
+    default: "."
+    description: Path to package directory containing package.toml
+
+options:
+  - name: --strict
+    short: -s
+    type: boolean
+    default: false
+    description: Treat warnings as errors (fail on any non-GREEN signal)
+
+  - name: --fmea-report
+    short: -r
+    type: path
+    required: false
+    description: Generate FMEA report to specified file path
+
+  - name: --format
+    short: -f
+    type: enum
+    values: [text, json, yaml]
+    default: text
+    description: Output format for validation results
+
+  - name: --quiet
+    short: -q
+    type: boolean
+    default: false
+    description: Only output errors, suppress informational messages
+
+examples:
+  - description: Validate current directory
+    command: ggen marketplace validate
+
+  - description: Validate specific package with strict mode
+    command: ggen marketplace validate ./my-package --strict
+
+  - description: Generate FMEA report as JSON
+    command: ggen marketplace validate --fmea-report fmea.json --format json
+
+  - description: Validate in CI pipeline (strict, quiet)
+    command: ggen marketplace validate --strict --quiet
+
+exit_codes:
+  0: Validation passed (GREEN)
+  1: Validation failed - critical errors (RED)
+  2: Validation passed with warnings (YELLOW, only with --strict)
+  3: Package not found or invalid structure
+
+output:
+  success:
+    format: |
+      ✅ Package validation passed
+
+      FMEA Summary:
+        Total failure modes: {count}
+        Critical (RPN >200): {critical_count} - all mitigated
+        High (RPN 100-200): {high_count}
+        Medium (RPN <100): {medium_count}
+        Coverage: {coverage}%
+
+      Poka-Yoke Controls:
+        Generated file header: ✅ configured
+        Gitignore patterns: {gitignore_count} patterns
+        Gitattributes patterns: {gitattributes_count} patterns
+
+      Path Protection:
+        Protected paths: {protected_count} patterns
+        Regenerate paths: {regenerate_count} patterns
+        Overlap check: ✅ no conflicts
+
+  failure_missing_fmea:
+    exit_code: 1
+    format: |
+      ❌ Package validation failed
+
+      ERROR: Missing [fmea] section in package.toml
+
+      Enterprise packages MUST document failure modes.
+      Add an [fmea] section with at least one control:
+
+        [fmea]
+        enabled = true
+
+        [[fmea.controls]]
+        id = "F1"
+        mode = "Description of failure mode"
+        severity = 5
+        occurrence = 5
+        detection = 5
+        control = "Mitigation strategy"
+
+  failure_unmitigated_critical:
+    exit_code: 1
+    format: |
+      ❌ Package validation failed
+
+      ERROR: Unmitigated critical failure mode
+
+      Failure Mode: {id} - {mode}
+      RPN: {rpn} (Critical: >200)
+      Control: MISSING
+
+      Critical failure modes (RPN >200) MUST have a documented control.
+      Add a 'control' field with the mitigation strategy.
+
+  failure_path_overlap:
+    exit_code: 1
+    format: |
+      ❌ Package validation failed
+
+      ERROR: Protected path overlaps with regenerate path
+
+      Path pattern: {pattern}
+      Matched in: protected_paths AND regenerate_paths
+
+      A path cannot be both protected and regeneratable.
+      Remove from one of the lists.
+
+  warning_high_unmitigated:
+    exit_code: 0  # (exit_code: 2 with --strict)
+    format: |
+      ⚠️ Package validation passed with warnings
+
+      WARNING: High-risk failure mode without control
+
+      Failure Mode: {id} - {mode}
+      RPN: {rpn} (High: 100-200)
+      Control: not specified
+
+      Recommendation: Add a control for high-risk failure modes.
+
+validation_rules:
+  fmea:
+    - rule: "[fmea] section exists when enterprise.fmea_controls = true"
+      error: "Missing [fmea] section"
+      severity: critical
+
+    - rule: "All failure modes have valid ratings (1-10)"
+      error: "Invalid {field} rating: {value} (must be 1-10)"
+      severity: critical
+
+    - rule: "No duplicate failure mode IDs"
+      error: "Duplicate failure mode ID: {id}"
+      severity: critical
+
+    - rule: "Critical failure modes (RPN >200) have control"
+      error: "Unmitigated critical failure mode: {id}"
+      severity: critical
+
+    - rule: "High failure modes (RPN 100-200) have control"
+      error: "High-risk failure mode without control: {id}"
+      severity: warning
+
+    - rule: "Coverage meets minimum threshold"
+      error: "FMEA coverage {actual}% below minimum {min}%"
+      severity: critical
+
+  poka_yoke:
+    - rule: "generated_file_header is non-empty"
+      error: "Empty generated file header"
+      severity: warning
+
+    - rule: "gitignore_patterns are valid glob syntax"
+      error: "Invalid gitignore pattern: {pattern}"
+      severity: critical
+
+    - rule: "gitattributes_patterns follow format"
+      error: "Invalid gitattributes pattern: {pattern}"
+      severity: critical
+
+  path_protection:
+    - rule: "protected_paths and regenerate_paths don't overlap"
+      error: "Path overlap detected: {pattern}"
+      severity: critical
+
+    - rule: "protected_paths patterns are valid glob"
+      error: "Invalid protected path pattern: {pattern}"
+      severity: critical
+
+    - rule: "regenerate_paths patterns are valid glob"
+      error: "Invalid regenerate path pattern: {pattern}"
+      severity: critical

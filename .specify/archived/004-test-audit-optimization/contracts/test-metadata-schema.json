@@ -1,0 +1,409 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/ruvnet/ggen/schemas/test-metadata.json",
+  "title": "Test Metadata Schema",
+  "description": "Structured output for 'ggen test audit' command. Contains test suite quality metrics, coverage, and actionable recommendations.",
+  "type": "object",
+  "required": ["summary", "files", "recommendations", "metadata"],
+  "properties": {
+    "summary": {
+      "type": "object",
+      "description": "High-level test suite metrics",
+      "required": [
+        "total_tests",
+        "test_files",
+        "mutation_kill_rate",
+        "code_coverage",
+        "execution_time_ms",
+        "thresholds_met"
+      ],
+      "properties": {
+        "total_tests": {
+          "type": "integer",
+          "description": "Total number of test cases across all files",
+          "minimum": 0
+        },
+        "test_files": {
+          "type": "integer",
+          "description": "Number of test files analyzed",
+          "minimum": 0
+        },
+        "mutation_kill_rate": {
+          "type": "number",
+          "description": "Percentage of mutants killed (0.0-1.0)",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "code_coverage": {
+          "type": "number",
+          "description": "Code coverage percentage (0.0-1.0)",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "execution_time_ms": {
+          "type": "integer",
+          "description": "Total test execution time in milliseconds",
+          "minimum": 0
+        },
+        "thresholds_met": {
+          "type": "boolean",
+          "description": "True if all thresholds (kill rate, coverage, test count) are satisfied"
+        },
+        "threshold_details": {
+          "type": "object",
+          "description": "Detailed threshold comparison",
+          "properties": {
+            "kill_rate": {
+              "type": "object",
+              "properties": {
+                "threshold": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+                "actual": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+                "met": {"type": "boolean"}
+              }
+            },
+            "coverage": {
+              "type": "object",
+              "properties": {
+                "threshold": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+                "actual": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+                "met": {"type": "boolean"}
+              }
+            },
+            "test_count": {
+              "type": "object",
+              "properties": {
+                "threshold": {"type": "integer", "minimum": 0},
+                "actual": {"type": "integer", "minimum": 0},
+                "met": {"type": "boolean"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "files": {
+      "type": "array",
+      "description": "Per-file test metrics",
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "test_count",
+          "mutation_kill_rate",
+          "code_coverage",
+          "execution_time_ms",
+          "value_score"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Relative path to test file",
+            "pattern": "^tests/.*\\.rs$"
+          },
+          "test_count": {
+            "type": "integer",
+            "description": "Number of test cases in file",
+            "minimum": 0
+          },
+          "mutation_kill_rate": {
+            "type": "number",
+            "description": "File-specific mutation kill rate (0.0-1.0)",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "code_coverage": {
+            "type": "number",
+            "description": "File-specific code coverage (0.0-1.0)",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "execution_time_ms": {
+            "type": "integer",
+            "description": "File execution time in milliseconds",
+            "minimum": 0
+          },
+          "value_score": {
+            "type": "number",
+            "description": "Composite value score (0.0-1.0) = weighted(kill_rate, coverage, execution_time)",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "issues": {
+            "type": "array",
+            "description": "Test quality issues found",
+            "items": {
+              "type": "object",
+              "required": ["severity", "message", "line"],
+              "properties": {
+                "severity": {
+                  "type": "string",
+                  "enum": ["critical", "high", "medium", "low"],
+                  "description": "Issue severity level"
+                },
+                "message": {
+                  "type": "string",
+                  "description": "Human-readable issue description"
+                },
+                "line": {
+                  "type": "integer",
+                  "description": "Line number where issue occurs",
+                  "minimum": 1
+                },
+                "code": {
+                  "type": "string",
+                  "description": "Issue code (e.g., 'LOW_KILL_RATE', 'SLOW_EXECUTION')"
+                }
+              }
+            }
+          },
+          "test_cases": {
+            "type": "array",
+            "description": "Individual test case metrics (optional, only if --verbose)",
+            "items": {
+              "type": "object",
+              "required": ["name", "execution_time_ms", "status"],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Test function name"
+                },
+                "execution_time_ms": {
+                  "type": "integer",
+                  "description": "Test case execution time in milliseconds",
+                  "minimum": 0
+                },
+                "status": {
+                  "type": "string",
+                  "enum": ["passed", "failed", "ignored"],
+                  "description": "Test execution status"
+                },
+                "mutations_detected": {
+                  "type": "integer",
+                  "description": "Number of mutants killed by this test",
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "description": "Actionable recommendations for improving test suite",
+      "items": {
+        "type": "object",
+        "required": ["priority", "category", "message", "action"],
+        "properties": {
+          "priority": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low"],
+            "description": "Recommendation priority"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "mutation_testing",
+              "code_coverage",
+              "performance",
+              "test_quality",
+              "parallelization"
+            ],
+            "description": "Recommendation category"
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable recommendation message"
+          },
+          "action": {
+            "type": "string",
+            "description": "Concrete action to take (e.g., 'ggen test mutate tests/aci/store_tests.rs')"
+          },
+          "affected_files": {
+            "type": "array",
+            "description": "Files affected by this recommendation",
+            "items": {
+              "type": "string"
+            }
+          },
+          "impact": {
+            "type": "object",
+            "description": "Expected impact of implementing recommendation",
+            "properties": {
+              "kill_rate_improvement": {
+                "type": "number",
+                "description": "Expected kill rate improvement (0.0-1.0)"
+              },
+              "coverage_improvement": {
+                "type": "number",
+                "description": "Expected coverage improvement (0.0-1.0)"
+              },
+              "time_reduction_ms": {
+                "type": "integer",
+                "description": "Expected execution time reduction in milliseconds"
+              }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Command execution metadata",
+      "required": [
+        "command",
+        "version",
+        "timestamp",
+        "arguments"
+      ],
+      "properties": {
+        "command": {
+          "type": "string",
+          "description": "Full command executed",
+          "const": "ggen test audit"
+        },
+        "version": {
+          "type": "string",
+          "description": "ggen version (semver)",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "ISO 8601 timestamp of execution",
+          "format": "date-time"
+        },
+        "arguments": {
+          "type": "object",
+          "description": "Command-line arguments used",
+          "properties": {
+            "paths": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "kill_rate_threshold": {"type": "number"},
+            "test_count_threshold": {"type": "integer"},
+            "coverage_threshold": {"type": "number"},
+            "fail_on_threshold": {"type": "boolean"},
+            "include_suggestions": {"type": "boolean"},
+            "verbose": {"type": "boolean"}
+          }
+        },
+        "execution_environment": {
+          "type": "object",
+          "description": "Execution environment details",
+          "properties": {
+            "rust_version": {"type": "string"},
+            "cargo_version": {"type": "string"},
+            "os": {"type": "string"},
+            "cpu_count": {"type": "integer"}
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "summary": {
+        "total_tests": 245,
+        "test_files": 18,
+        "mutation_kill_rate": 0.87,
+        "code_coverage": 0.82,
+        "execution_time_ms": 12340,
+        "thresholds_met": true,
+        "threshold_details": {
+          "kill_rate": {
+            "threshold": 0.80,
+            "actual": 0.87,
+            "met": true
+          },
+          "coverage": {
+            "threshold": 0.80,
+            "actual": 0.82,
+            "met": true
+          },
+          "test_count": {
+            "threshold": 200,
+            "actual": 245,
+            "met": true
+          }
+        }
+      },
+      "files": [
+        {
+          "path": "tests/aci/tool_selection_tests.rs",
+          "test_count": 15,
+          "mutation_kill_rate": 0.92,
+          "code_coverage": 0.88,
+          "execution_time_ms": 850,
+          "value_score": 0.91,
+          "issues": []
+        },
+        {
+          "path": "tests/aci/timeout_enforcement_tests.rs",
+          "test_count": 8,
+          "mutation_kill_rate": 0.65,
+          "code_coverage": 0.70,
+          "execution_time_ms": 1200,
+          "value_score": 0.68,
+          "issues": [
+            {
+              "severity": "high",
+              "message": "Mutation kill rate below threshold (65% < 80%)",
+              "line": 1,
+              "code": "LOW_KILL_RATE"
+            }
+          ]
+        }
+      ],
+      "recommendations": [
+        {
+          "priority": "high",
+          "category": "mutation_testing",
+          "message": "Add mutation tests for timeout enforcement logic",
+          "action": "ggen test mutate crates/ggen-core/src/aci/timeout.rs --mutators negate-condition,replace-binary-op",
+          "affected_files": ["tests/aci/timeout_enforcement_tests.rs"],
+          "impact": {
+            "kill_rate_improvement": 0.15,
+            "coverage_improvement": 0.10,
+            "time_reduction_ms": 0
+          }
+        },
+        {
+          "priority": "medium",
+          "category": "performance",
+          "message": "Parallelize slow test files to reduce execution time",
+          "action": "ggen test optimize --threads 8 --time-budget-ms 10000",
+          "affected_files": [
+            "tests/integration/end_to_end.rs",
+            "tests/aci/timeout_enforcement_tests.rs"
+          ],
+          "impact": {
+            "kill_rate_improvement": 0.0,
+            "coverage_improvement": 0.0,
+            "time_reduction_ms": 4500
+          }
+        }
+      ],
+      "metadata": {
+        "command": "ggen test audit",
+        "version": "0.4.0",
+        "timestamp": "2025-12-11T10:30:00Z",
+        "arguments": {
+          "paths": ["tests/"],
+          "kill_rate_threshold": 0.80,
+          "test_count_threshold": 200,
+          "coverage_threshold": 0.80,
+          "fail_on_threshold": false,
+          "include_suggestions": true,
+          "verbose": false
+        },
+        "execution_environment": {
+          "rust_version": "1.74.0",
+          "cargo_version": "1.74.0",
+          "os": "linux",
+          "cpu_count": 8
+        }
+      }
+    }
+  ]
+}

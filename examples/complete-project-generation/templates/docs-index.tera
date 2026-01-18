@@ -1,0 +1,12 @@
+---
+to: "generated/docs/index.md"
+---
+# Project Documentation
+
+Welcome to the complete project documentation.
+
+## Contents
+
+- [Architecture](../ARCHITECTURE.md)
+- [Build Guide](../BUILD.md)
+- [Deployment](../DEPLOYMENT.md)

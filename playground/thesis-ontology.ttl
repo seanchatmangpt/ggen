@@ -1,0 +1,358 @@
+@prefix : <https://ggen.io/thesis/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# ════════════════════════════════════════════════════════════════════════════════
+# THESIS ONTOLOGY: Information Theory & Hyperdimensional Calculus
+# ════════════════════════════════════════════════════════════════════════════════
+
+# Base Classes
+
+:Thesis a rdfs:Class ;
+    rdfs:label "PhD Thesis" ;
+    rdfs:comment "Complete doctoral thesis on ggen sync + information theory" .
+
+:Chapter a rdfs:Class ;
+    rdfs:label "Thesis Chapter" ;
+    rdfs:comment "Numbered chapter with sections" .
+
+:Section a rdfs:Class ;
+    rdfs:label "Section" ;
+    rdfs:comment "Subsection within chapter" .
+
+:Concept a rdfs:Class ;
+    rdfs:label "Core Concept" ;
+    rdfs:comment "Foundational theory or result" .
+
+:Equation a rdfs:Class ;
+    rdfs:label "Mathematical Equation" ;
+    rdfs:comment "LaTeX mathematical expression" .
+
+:Theorem a rdfs:Class ;
+    rdfs:label "Theorem" ;
+    rdfs:comment "Proven mathematical statement" .
+
+:Proof a rdfs:Class ;
+    rdfs:label "Proof" ;
+    rdfs:comment "Formal proof of a theorem" .
+
+:HyperdimensionalSpace a rdfs:Class ;
+    rdfs:label "Hyperdimensional Vector Space" ;
+    rdfs:comment "N-dimensional information encoding space" .
+
+:InformationConcept a rdfs:Class ;
+    rdfs:label "Information Theory Concept" ;
+    rdfs:comment "Shannon entropy, divergence, mutual information" .
+
+:SyncMechanism a rdfs:Class ;
+    rdfs:label "ggen sync Mechanism" ;
+    rdfs:comment "Synchronization operation in ggen" .
+
+:ConstructQuery a rdfs:Class ;
+    rdfs:label "SPARQL CONSTRUCT Query" ;
+    rdfs:comment "Query that generates new RDF triples" .
+
+# Properties
+
+:hasChapter a rdf:Property ;
+    rdfs:domain :Thesis ;
+    rdfs:range :Chapter ;
+    rdfs:label "has chapter" .
+
+:chapterNumber a rdf:Property ;
+    rdfs:domain :Chapter ;
+    rdfs:range xsd:integer ;
+    rdfs:label "chapter number" .
+
+:chapterTitle a rdf:Property ;
+    rdfs:domain :Chapter ;
+    rdfs:range xsd:string ;
+    rdfs:label "chapter title" .
+
+:hasSection a rdf:Property ;
+    rdfs:domain :Chapter ;
+    rdfs:range :Section ;
+    rdfs:label "has section" .
+
+:sectionTitle a rdf:Property ;
+    rdfs:domain :Section ;
+    rdfs:range xsd:string ;
+    rdfs:label "section title" .
+
+:content a rdf:Property ;
+    rdfs:domain :Section ;
+    rdfs:range xsd:string ;
+    rdfs:label "content text" .
+
+:hasEquation a rdf:Property ;
+    rdfs:domain :Section ;
+    rdfs:range :Equation ;
+    rdfs:label "has equation" .
+
+:latexExpression a rdf:Property ;
+    rdfs:domain :Equation ;
+    rdfs:range xsd:string ;
+    rdfs:label "LaTeX expression" .
+
+:hasTheorem a rdf:Property ;
+    rdfs:domain :Section ;
+    rdfs:range :Theorem ;
+    rdfs:label "has theorem" .
+
+:theoremStatement a rdf:Property ;
+    rdfs:domain :Theorem ;
+    rdfs:range xsd:string ;
+    rdfs:label "theorem statement" .
+
+:hasProof a rdf:Property ;
+    rdfs:domain :Theorem ;
+    rdfs:range :Proof ;
+    rdfs:label "has proof" .
+
+:proofSteps a rdf:Property ;
+    rdfs:domain :Proof ;
+    rdfs:range xsd:string ;
+    rdfs:label "proof steps" .
+
+:dimension a rdf:Property ;
+    rdfs:domain :HyperdimensionalSpace ;
+    rdfs:range xsd:integer ;
+    rdfs:label "number of dimensions" .
+
+:encodes a rdf:Property ;
+    rdfs:domain :HyperdimensionalSpace ;
+    rdfs:range :InformationConcept ;
+    rdfs:label "encodes information concept" .
+
+:entropy a rdf:Property ;
+    rdfs:domain :InformationConcept ;
+    rdfs:range xsd:float ;
+    rdfs:label "Shannon entropy" .
+
+:syncMode a rdf:Property ;
+    rdfs:domain :SyncMechanism ;
+    rdfs:range xsd:string ;
+    rdfs:label "sync mode (full, incremental, verify)" .
+
+:generatesTriples a rdf:Property ;
+    rdfs:domain :ConstructQuery ;
+    rdfs:range :Concept ;
+    rdfs:label "generates RDF triples" .
+
+# ════════════════════════════════════════════════════════════════════════════════
+# THESIS STRUCTURE (Instance Data)
+# ════════════════════════════════════════════════════════════════════════════════
+
+:thesis-2025 a :Thesis ;
+    rdfs:label "ggen Sync as Hyperdimensional Information Calculus" ;
+    :hasChapter :chapter-1, :chapter-2, :chapter-3, :chapter-4, :chapter-5, :chapter-6 .
+
+# Chapter 1: Introduction
+:chapter-1 a :Chapter ;
+    :chapterNumber 1 ;
+    :chapterTitle "Introduction: From Synchronization to Information Theory" ;
+    :hasSection :sec-1-1, :sec-1-2, :sec-1-3 .
+
+:sec-1-1 a :Section ;
+    :sectionTitle "Motivation: The Synchronization Problem" ;
+    :content "In large-scale software systems, maintaining consistency between ontologies, templates, and generated code represents a critical information synchronization challenge. Traditional approaches treat synchronization as string manipulation. We propose treating ggen sync as an information-theoretic operation on hyperdimensional vector spaces." .
+
+:sec-1-2 a :Section ;
+    :sectionTitle "Core Thesis" ;
+    :content "ggen sync implements a form of hyperdimensional information projection: mapping high-dimensional semantic spaces (RDF ontologies) to lower-dimensional projections (generated code) while preserving information-theoretic properties such as mutual information and conditional entropy." .
+
+:sec-1-3 a :Section ;
+    :sectionTitle "Contributions" ;
+    :content "1) Formal model of code generation as information projection. 2) Proof that incremental sync preserves Shannon entropy bounds. 3) Algorithm for optimal dimension reduction in CONSTRUCT queries." .
+
+# Chapter 2: Information Theory Foundations
+:chapter-2 a :Chapter ;
+    :chapterNumber 2 ;
+    :chapterTitle "Mathematical Foundations: Shannon Entropy & Vector Spaces" ;
+    :hasSection :sec-2-1, :sec-2-2, :sec-2-3 .
+
+:sec-2-1 a :Section ;
+    :sectionTitle "Shannon Entropy and Information Content" ;
+    :content "Let X be a discrete random variable with probability distribution P(x). Shannon entropy is defined as H(X) = -Σ P(x) log P(x). In our context, X represents possible RDF triple selections, and H(X) quantifies the information content of an ontology." ;
+    :hasEquation :eq-shannon-entropy .
+
+:eq-shannon-entropy a :Equation ;
+    :latexExpression "H(X) = -\\sum_{x} P(x) \\log P(x)" .
+
+:sec-2-2 a :Section ;
+    :sectionTitle "Hyperdimensional Computing" ;
+    :content "Hyperdimensional spaces of dimension d >> 1 enable semantic representations. Each RDF triple maps to a binary vector in {-1,+1}^d. Semantic relationships emerge through vector operations: similarity via dot product, binding via element-wise multiplication." ;
+    :hasEquation :eq-hdcomputing .
+
+:eq-hdcomputing a :Equation ;
+    :latexExpression "v_{triple} \\in \\{-1,+1\\}^{d}, \\quad d \\gg 1" .
+
+:sec-2-3 a :Section ;
+    :sectionTitle "Mutual Information and Correlation" ;
+    :content "Mutual information I(X;Y) measures the information shared between variables X and Y. For ggen sync: I(Ontology; GeneratedCode) quantifies how much the ontology constrains code generation." ;
+    :hasEquation :eq-mutualinfo ;
+    :hasTheorem :thm-mutual-info .
+
+:eq-mutualinfo a :Equation ;
+    :latexExpression "I(X;Y) = H(X) + H(Y) - H(X,Y)" .
+
+:thm-mutual-info a :Theorem ;
+    :theoremStatement "If ontology O fully determines generated code C, then I(O;C) = H(C)." ;
+    :hasProof :proof-mutual-info .
+
+:proof-mutual-info a :Proof ;
+    :proofSteps "1. Assume ∀c ∈ C, ∃! o ∈ O such that o → c (generation is deterministic). 2. Then H(C|O) = 0 (code fully determined by ontology). 3. By definition I(O;C) = H(C) - H(C|O) = H(C) - 0 = H(C). ∎" .
+
+# Chapter 3: ggen sync as Information Projection
+:chapter-3 a :Chapter ;
+    :chapterNumber 3 ;
+    :chapterTitle "ggen Sync: Hyperdimensional Projection Mechanism" ;
+    :hasSection :sec-3-1, :sec-3-2, :sec-3-3 .
+
+:sec-3-1 a :Section ;
+    :sectionTitle "Full Sync: Orthogonal Projection" ;
+    :content "Full sync mode regenerates all artifacts from source ontology. Formally, this is an orthogonal projection from the high-dimensional semantic space R^d (RDF triples) to lower-dimensional code space R^k where k << d." ;
+    :hasEquation :eq-projection .
+
+:eq-projection a :Equation ;
+    :latexExpression "P: \\mathbb{R}^{d} \\to \\mathbb{R}^{k}, \\quad k \\ll d, \\quad \\|P\\| = 1" .
+
+:sec-3-2 a :Section ;
+    :sectionTitle "Incremental Sync: Conditional Projection" ;
+    :content "Incremental sync computes the projection conditioned on existing code: P(new code | existing code, ontology changes). This preserves manual edits marked with MANUAL pragma, implementing information retention." ;
+    :hasEquation :eq-conditional-projection .
+
+:eq-conditional-projection a :Equation ;
+    :latexExpression "P_{inc}(C_{new} | C_{old}, \\Delta O) = \\frac{P(C_{new} | \\Delta O) \\cap C_{old}}{Z}" .
+
+:sec-3-3 a :Section ;
+    :sectionTitle "Verify Mode: Information Consistency Check" ;
+    :content "Verify mode computes the mutual information between source ontology and target code without modification. If I(O; Generated) < threshold, report conflicts." .
+
+# Chapter 4: CONSTRUCT Queries as Information Extraction
+:chapter-4 a :Chapter ;
+    :chapterNumber 4 ;
+    :chapterTitle "SPARQL CONSTRUCT: Extracting Patterns from Ontology Space" ;
+    :hasSection :sec-4-1, :sec-4-2, :sec-4-3 .
+
+:sec-4-1 a :Section ;
+    :sectionTitle "CONSTRUCT as Semantic Compression" ;
+    :content "SPARQL CONSTRUCT queries implement lossy compression on RDF spaces. A CONSTRUCT query selects relevant triples (loss function) and reorders them (dimensionality reduction). The result is a smaller RDF graph encoding the essential information." .
+
+:sec-4-2 a :Section ;
+    :sectionTitle "Template Rendering: Final Projection to Code" ;
+    :content "Tera templates perform the final transformation: CONSTRUCT output → LaTeX/Rust/TypeScript. Template variables map to RDF triple properties. Template logic implements the code generation algorithm." .
+
+:sec-4-3 a :Section ;
+    :sectionTitle "Fidelity: Measuring Information Loss" ;
+    :content "Define fidelity F as the KL-divergence between original and reconstructed information spaces: F = D_KL(P(O) || P(Reconstruct(O))). Lower fidelity means information loss during projection." ;
+    :hasEquation :eq-fidelity ;
+    :hasTheorem :thm-fidelity-bound .
+
+:eq-fidelity a :Equation ;
+    :latexExpression "F = D_{KL}(P(O) \\parallel P(R(O))) = \\sum_x P(x) \\log \\frac{P(x)}{P(R(x))}" .
+
+:thm-fidelity-bound a :Theorem ;
+    :theoremStatement "For deterministic generation (Murphy's law: code fully determined by ontology), fidelity F = 0." ;
+    :hasProof :proof-fidelity .
+
+:proof-fidelity a :Proof ;
+    :proofSteps "If generation is deterministic, R(O) = O (reconstruction is perfect). Then P(x) = P(R(x)) ∀x. Therefore KL divergence = 0, and F = 0. ∎" .
+
+# Chapter 5: Hyperdimensional Encoding of ggen.toml
+:chapter-5 a :Chapter ;
+    :chapterNumber 5 ;
+    :chapterTitle "ggen.toml as Configuration Space: Encoding Synchronization Strategy" ;
+    :hasSection :sec-5-1, :sec-5-2, :sec-5-3 .
+
+:sec-5-1 a :Section ;
+    :sectionTitle "Configuration as State Vector" ;
+    :content "Each ggen.toml file represents a point in a configuration space Ω. The state vector s ∈ Ω encodes: sync mode, conflict resolution strategy, template selection, output formatting. The trajectory through Ω during multiple syncs traces the evolution of synchronization state." .
+
+:sec-5-2 a :Section ;
+    :sectionTitle "Phase Space Dynamics" ;
+    :content "ggen sync traces a trajectory in phase space: (Ontology State, Code State, Configuration) evolves over time. Stable configurations correspond to attractors where I(Ontology; Code) is maximized subject to ggen.toml constraints." .
+
+:sec-5-3 a :Section ;
+    :sectionTitle "Optimal Configuration Search" ;
+    :content "Finding optimal ggen.toml is equivalent to optimizing over Ω: max_{s ∈ Ω} I(O; C) - λ||s||_1. This is a constrained optimization problem solvable via gradient descent on the configuration space." .
+
+# Chapter 6: Conclusions and Future Work
+:chapter-6 a :Chapter ;
+    :chapterNumber 6 ;
+    :chapterTitle "Conclusions: Towards Semantic Synchronization" ;
+    :hasSection :sec-6-1, :sec-6-2, :sec-6-3 .
+
+:sec-6-1 a :Section ;
+    :sectionTitle "Summary of Results" ;
+    :content "We have shown: (1) ggen sync is a legitimate information-theoretic operation. (2) CONSTRUCT queries extract maximum information while preserving fidelity bounds. (3) ggen.toml encodes optimal synchronization strategy. (4) Hyperdimensional encoding unifies code generation theory." .
+
+:sec-6-2 a :Section ;
+    :sectionTitle "Practical Implications" ;
+    :content "These theoretical results guide practical implementation: choose sync modes to preserve information bounds, validate CONSTRUCT queries for semantic completeness, design ggen.toml with entropy constraints in mind." .
+
+:sec-6-3 a :Section ;
+    :sectionTitle "Future Directions" ;
+    :content "Extend to: (1) Multi-agent synchronization (game-theoretic analysis). (2) Quantum information analog. (3) Neural network approximation of CONSTRUCT queries. (4) Real-time adaptive ggen.toml based on entropy monitoring." .
+
+# Hyperdimensional Space Definition
+:hdspace-ggen a :HyperdimensionalSpace ;
+    :dimension 10000 ;
+    :encodes :entropy-coding, :mutual-info-coding, :sync-strategy-coding ;
+    rdfs:label "ggen Semantic Vector Space" .
+
+:entropy-coding a :InformationConcept ;
+    :entropy 7.5 ;
+    rdfs:label "Entropy of RDF triple selection" .
+
+:mutual-info-coding a :InformationConcept ;
+    :entropy 6.2 ;
+    rdfs:label "Mutual information between ontology and code" .
+
+:sync-strategy-coding a :InformationConcept ;
+    :entropy 3.1 ;
+    rdfs:label "Information content of synchronization strategy" .
+
+# Sync Mechanism Definitions
+:sync-full a :SyncMechanism ;
+    :syncMode "full" ;
+    rdfs:label "Full synchronization (regenerate all)" ;
+    :generatesTriples :concept-deterministic-projection .
+
+:sync-incremental a :SyncMechanism ;
+    :syncMode "incremental" ;
+    rdfs:label "Incremental synchronization (preserve edits)" ;
+    :generatesTriples :concept-conditional-projection .
+
+:sync-verify a :SyncMechanism ;
+    :syncMode "verify" ;
+    rdfs:label "Verification mode (check consistency)" ;
+    :generatesTriples :concept-entropy-check .
+
+# Core Concepts
+:concept-deterministic-projection a :Concept ;
+    rdfs:label "Deterministic projection property" ;
+    rdfs:comment "Code generation is fully determined by ontology" .
+
+:concept-conditional-projection a :Concept ;
+    rdfs:label "Conditional projection with preservation" ;
+    rdfs:comment "Manual edits preserved in incremental sync" .
+
+:concept-entropy-check a :Concept ;
+    rdfs:label "Entropy-based consistency check" ;
+    rdfs:comment "Verify mutual information between ontology and code" .
+
+# CONSTRUCT Query Definitions
+:construct-full-sync a :ConstructQuery ;
+    rdfs:label "Full Sync: Select all triples" ;
+    :generatesTriples :concept-deterministic-projection .
+
+:construct-incremental a :ConstructQuery ;
+    rdfs:label "Incremental Sync: Only changed triples" ;
+    :generatesTriples :concept-conditional-projection .
+
+:construct-verify a :ConstructQuery ;
+    rdfs:label "Verify: Check entropy bounds" ;
+    :generatesTriples :concept-entropy-check .

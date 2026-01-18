@@ -1,0 +1,301 @@
+# =============================================================================
+# Next.js + OpenAPI + SQLite + shadcn/ui + Vitest Example
+# ggen Manifest - Generates complete full-stack application
+# =============================================================================
+
+[project]
+name = "nextjs-taskapp-example"
+version = "1.0.0"
+description = "Task management app with Next.js, SQLite, shadcn/ui, Vitest"
+
+[ontology]
+source = "ontology/taskapp-api.ttl"
+schema = "ontology/api-schema.ttl"
+base_iri = "https://ggen.io/examples/taskapp/"
+
+[ontology.prefixes]
+napi = "https://ggen.io/ontology/nextjs-api#"
+task = "https://ggen.io/examples/taskapp#"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+xsd = "http://www.w3.org/2001/XMLSchema#"
+
+[generation]
+output_dir = "lib"
+require_audit_trail = true
+
+# =============================================================================
+# RULE 1: OpenAPI 3.0 Specification
+# Purpose: Generate complete API spec with endpoints, schemas, responses
+# Output: lib/openapi/openapi.yaml
+# =============================================================================
+[[generation.rules]]
+name = "openapi-spec"
+query = { inline = """
+PREFIX napi: <https://ggen.io/ontology/nextjs-api#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?entityName ?entityDesc ?propName ?propType ?required ?format
+       ?path ?method ?operationId ?endpointDesc
+WHERE {
+  ?entity a napi:Entity ;
+          napi:name ?entityName .
+  OPTIONAL { ?entity rdfs:comment ?entityDesc }
+  OPTIONAL {
+    ?entity napi:hasProperty ?prop .
+    ?prop napi:name ?propName ;
+          napi:type ?propType .
+    OPTIONAL { ?prop napi:required ?required }
+    OPTIONAL { ?prop napi:format ?format }
+  }
+  OPTIONAL {
+    ?entity napi:hasEndpoint ?endpoint .
+    ?endpoint napi:path ?path ;
+              napi:method ?method ;
+              napi:operationId ?operationId .
+    OPTIONAL { ?endpoint napi:description ?endpointDesc }
+  }
+}
+ORDER BY ?entityName ?propName ?method
+""" }
+template = { file = "templates/openapi-spec.tera" }
+output_file = "openapi/openapi.yaml"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 2: Drizzle ORM Schema (SQLite)
+# Purpose: Generate database schema with Drizzle ORM
+# Output: lib/db/schema.ts
+# =============================================================================
+[[generation.rules]]
+name = "drizzle-schema"
+query = { inline = """
+PREFIX napi: <https://ggen.io/ontology/nextjs-api#>
+
+SELECT ?entityName ?propName ?propType ?required ?isPrimaryKey ?isUnique ?references
+WHERE {
+  ?entity a napi:Entity ;
+          napi:name ?entityName ;
+          napi:hasProperty ?prop .
+  ?prop napi:name ?propName ;
+        napi:type ?propType .
+  OPTIONAL { ?prop napi:required ?required }
+  OPTIONAL { ?prop napi:isPrimaryKey ?isPrimaryKey }
+  OPTIONAL { ?prop napi:isUnique ?isUnique }
+  OPTIONAL { ?prop napi:references ?ref . ?ref napi:name ?references }
+}
+ORDER BY ?entityName ?propName
+""" }
+template = { file = "templates/drizzle-schema.tera" }
+output_file = "db/schema.ts"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 3: Next.js API Route Handlers
+# Purpose: Generate type-safe API routes with Zod validation
+# Output: lib/api/routes.ts
+# =============================================================================
+[[generation.rules]]
+name = "api-routes"
+query = { inline = """
+PREFIX napi: <https://ggen.io/ontology/nextjs-api#>
+
+SELECT ?entityName ?path ?method ?operationId ?description
+WHERE {
+  ?entity a napi:Entity ;
+          napi:name ?entityName ;
+          napi:hasEndpoint ?endpoint .
+  ?endpoint napi:path ?path ;
+            napi:method ?method ;
+            napi:operationId ?operationId .
+  OPTIONAL { ?endpoint napi:description ?description }
+}
+ORDER BY ?entityName ?method
+""" }
+template = { file = "templates/api-routes.tera" }
+output_file = "api/routes.ts"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 4: TypeScript API Types
+# Purpose: Generate TypeScript interfaces for API contracts
+# Output: lib/types/api.ts
+# =============================================================================
+[[generation.rules]]
+name = "api-types"
+query = { inline = """
+PREFIX napi: <https://ggen.io/ontology/nextjs-api#>
+
+SELECT ?entityName ?propName ?propType ?required ?enumValues
+WHERE {
+  ?entity a napi:Entity ;
+          napi:name ?entityName ;
+          napi:hasProperty ?prop .
+  ?prop napi:name ?propName ;
+        napi:type ?propType .
+  OPTIONAL { ?prop napi:required ?required }
+  OPTIONAL { ?prop napi:enumValues ?enumValues }
+}
+ORDER BY ?entityName ?propName
+""" }
+template = { file = "templates/api-types.tera" }
+output_file = "types/api.ts"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 5: Zod Validation Schemas
+# Purpose: Generate runtime validation schemas
+# Output: lib/schemas/index.ts
+# =============================================================================
+[[generation.rules]]
+name = "zod-schemas"
+query = { inline = """
+PREFIX napi: <https://ggen.io/ontology/nextjs-api#>
+
+SELECT ?entityName ?propName ?propType ?required ?format
+       ?minLength ?maxLength ?pattern ?enumValues
+WHERE {
+  ?entity a napi:Entity ;
+          napi:name ?entityName ;
+          napi:hasProperty ?prop .
+  ?prop napi:name ?propName ;
+        napi:type ?propType .
+  OPTIONAL { ?prop napi:required ?required }
+  OPTIONAL { ?prop napi:format ?format }
+  OPTIONAL { ?prop napi:minLength ?minLength }
+  OPTIONAL { ?prop napi:maxLength ?maxLength }
+  OPTIONAL { ?prop napi:pattern ?pattern }
+  OPTIONAL { ?prop napi:enumValues ?enumValues }
+}
+ORDER BY ?entityName ?propName
+""" }
+template = { file = "templates/zod-schemas.tera" }
+output_file = "schemas/index.ts"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 6: shadcn/ui Components
+# Purpose: Generate React components with shadcn/ui
+# Output: lib/components/generated.tsx
+# =============================================================================
+[[generation.rules]]
+name = "shadcn-components"
+query = { inline = """
+PREFIX napi: <https://ggen.io/ontology/nextjs-api#>
+
+SELECT ?componentName ?componentType ?entityName ?propName ?propType
+WHERE {
+  ?component a napi:Component ;
+             napi:componentName ?componentName ;
+             napi:componentType ?componentType .
+  OPTIONAL {
+    ?page napi:usesComponent ?component .
+    ?entity napi:hasPage ?page ;
+            napi:name ?entityName ;
+            napi:hasProperty ?prop .
+    ?prop napi:name ?propName ;
+          napi:type ?propType .
+  }
+}
+ORDER BY ?componentName ?propName
+""" }
+template = { file = "templates/shadcn-components.tera" }
+output_file = "components/generated.tsx"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 7: Next.js Pages
+# Purpose: Generate page components with data fetching
+# Output: lib/pages/index.tsx
+# =============================================================================
+[[generation.rules]]
+name = "page-components"
+query = { inline = """
+PREFIX napi: <https://ggen.io/ontology/nextjs-api#>
+
+SELECT ?pagePath ?pageTitle ?pageType ?componentName
+WHERE {
+  ?page a napi:Page ;
+        napi:pagePath ?pagePath ;
+        napi:pageTitle ?pageTitle ;
+        napi:pageType ?pageType .
+  OPTIONAL {
+    ?page napi:usesComponent ?component .
+    ?component napi:componentName ?componentName .
+  }
+}
+ORDER BY ?pagePath ?componentName
+""" }
+template = { file = "templates/page-components.tera" }
+output_file = "pages/index.tsx"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 8: Vitest Unit Tests
+# Purpose: Generate unit tests for schemas and utilities
+# Output: lib/tests/unit.test.ts
+# =============================================================================
+[[generation.rules]]
+name = "vitest-unit"
+query = { inline = """
+PREFIX napi: <https://ggen.io/ontology/nextjs-api#>
+
+SELECT ?entityName ?propName ?propType ?required ?format
+WHERE {
+  ?entity a napi:Entity ;
+          napi:name ?entityName ;
+          napi:hasProperty ?prop .
+  ?prop napi:name ?propName ;
+        napi:type ?propType .
+  OPTIONAL { ?prop napi:required ?required }
+  OPTIONAL { ?prop napi:format ?format }
+}
+ORDER BY ?entityName ?propName
+""" }
+template = { file = "templates/vitest-unit.tera" }
+output_file = "tests/unit.test.ts"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 9: Vitest Integration Tests
+# Purpose: Generate API integration tests
+# Output: lib/tests/integration.test.ts
+# =============================================================================
+[[generation.rules]]
+name = "vitest-integration"
+query = { inline = """
+PREFIX napi: <https://ggen.io/ontology/nextjs-api#>
+
+SELECT ?entityName ?path ?method ?operationId
+WHERE {
+  ?entity a napi:Entity ;
+          napi:name ?entityName ;
+          napi:hasEndpoint ?endpoint .
+  ?endpoint napi:path ?path ;
+            napi:method ?method ;
+            napi:operationId ?operationId .
+}
+ORDER BY ?entityName ?method
+""" }
+template = { file = "templates/vitest-integration.tera" }
+output_file = "tests/integration.test.ts"
+mode = "Overwrite"
+
+# =============================================================================
+# RULE 10: Index Barrel Exports
+# Purpose: Generate clean module exports
+# Output: lib/index.ts
+# =============================================================================
+[[generation.rules]]
+name = "index-exports"
+query = { inline = """
+PREFIX napi: <https://ggen.io/ontology/nextjs-api#>
+SELECT ?entityName WHERE { ?entity a napi:Entity ; napi:name ?entityName }
+ORDER BY ?entityName
+""" }
+template = { file = "templates/index-exports.tera" }
+output_file = "index.ts"
+mode = "Overwrite"
+
+[validation]
+validate_syntax = true

@@ -1,0 +1,467 @@
+@prefix spec: <https://ggen.dev/spec#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix py: <https://ggen.dev/poka-yoke/> .
+@prefix : <https://ggen.dev/spec/poka-yoke-patterns#> .
+
+# ============================================================================
+# FEATURE: Poka-Yoke Error-Proofing Patterns for ggen
+# ============================================================================
+
+:PokaYokePatterns a spec:Feature ;
+    rdfs:label "Poka-Yoke Error-Proofing Patterns" ;
+    rdfs:comment "Toyota Production System mistake-proofing patterns integrated into ggen: type-safe design, path protection, quality gates, timeout enforcement, and andon signals" ;
+    spec:maturity 80 ;
+    spec:epicNumber 9 ;
+    spec:specification :PokaYokeSpec ;
+    spec:philosophy "Prevent > Detect > React: Design systems where mistakes are impossible (prevent), immediately obvious (detect), or automatically halted (react)" .
+
+# ============================================================================
+# CORE PRINCIPLES
+# ============================================================================
+
+:Principle_Prevent a spec:Principle ;
+    rdfs:label "Prevent: Make mistakes impossible" ;
+    rdfs:comment "Use type system, newtype patterns, builder patterns to prevent mistakes at compile-time" ;
+    spec:priority 1 ;
+    spec:mechanism "Type-safety, NewType pattern, Builder pattern, sealed abstractions" .
+
+:Principle_Detect a spec:Principle ;
+    rdfs:label "Detect: Make mistakes immediately visible" ;
+    rdfs:comment "Use quality gates, timeouts, and andon signals to catch mistakes early" ;
+    spec:priority 2 ;
+    spec:mechanism "Quality gates, timeout enforcement, compilation checks, test failures" .
+
+:Principle_React a spec:Principle ;
+    rdfs:label "React: Stop the line when mistakes detected" ;
+    rdfs:comment "Use andon signals (RED/YELLOW/GREEN) to halt progress on errors" ;
+    spec:priority 3 ;
+    spec:mechanism "Andon signals, blocking quality gates, pre-commit hooks" .
+
+# ============================================================================
+# USER STORIES
+# ============================================================================
+
+:US1_TypeSafety a spec:UserStory ;
+    rdfs:label "Implement type-safe design patterns" ;
+    spec:actor "Developer" ;
+    spec:action "Use NewType, Builder, and sealed abstractions" ;
+    spec:goal "Make common mistakes impossible at compile-time" ;
+    spec:acceptanceCriteria (
+        [ spec:criterion "NewType wraps sensitive types (paths, configs, credentials)" ]
+        [ spec:criterion "Validation enforced at construction, not usage" ]
+        [ spec:criterion "Compile-time ensures proper types used" ]
+    ) .
+
+:US2_PathProtection a spec:UserStory ;
+    rdfs:label "Protect critical paths from accidental modification" ;
+    spec:actor "Code Generator" ;
+    spec:action "Implement glob-based path whitelisting/blacklisting" ;
+    spec:goal "Prevent regeneration from overwriting protected domain logic" ;
+    spec:acceptanceCriteria (
+        [ spec:criterion "Protected paths (.env, Cargo.toml, domain logic) never overwritten" ]
+        [ spec:criterion "Regeneratable paths (CLI layer, generated traits) always safe to overwrite" ]
+        [ spec:criterion "Clear error when attempting to write protected path" ]
+    ) .
+
+:US3_QualityGates a spec:UserStory ;
+    rdfs:label "Enforce mandatory quality gates" ;
+    spec:actor "CI/CD Pipeline" ;
+    spec:action "Block commits/pushes when quality checks fail" ;
+    spec:goal "Prevent broken code from reaching production" ;
+    spec:acceptanceCriteria (
+        [ spec:criterion "Pre-commit gate: check, lint, test-unit" ]
+        [ spec:criterion "Pre-push gate: test, lint, security audit" ]
+        [ spec:criterion "All gates RED (error) stops progress" ]
+    ) .
+
+:US4_TimeoutEnforcement a spec:UserStory ;
+    rdfs:label "Prevent hangs with timeout enforcement" ;
+    spec:actor "Build System" ;
+    spec:action "Implement quick timeout + escalation timeout pattern" ;
+    spec:goal "Detect deadlocks and hangs within seconds" ;
+    spec:acceptanceCriteria (
+        [ spec:criterion "Quick timeout (5s) catches most hangs" ]
+        [ spec:criterion "Escalation timeout (120s) handles legitimate slowness" ]
+        [ spec:criterion "No indefinite waits (hangs always detected)" ]
+    ) .
+
+:US5_AndonSignals a spec:UserStory ;
+    rdfs:label "Implement Andon signal protocol" ;
+    spec:actor "Build Tool" ;
+    spec:action "Emit RED (error), YELLOW (warning), GREEN (success) signals" ;
+    spec:goal "Developers follow stop-the-line protocol for defects" ;
+    spec:acceptanceCriteria (
+        [ spec:criterion "RED signal for errors (compilation, tests, security)" ]
+        [ spec:criterion "YELLOW signal for warnings (clippy, performance)" ]
+        [ spec:criterion "GREEN signal for success (all checks passing)" ]
+        [ spec:criterion "Process halts on RED signals" ]
+    ) .
+
+# ============================================================================
+# SPECIFICATION CLOSURE CHECKLIST
+# ============================================================================
+
+:PokaYokeSpec a spec:SpecificationChecklist ;
+    rdfs:label "Poka-Yoke Specification Closure" ;
+    spec:completionStatus "100%" ;
+    spec:section1_Principles :ChecklistPrinciples ;
+    spec:section2_TypeSafety :ChecklistTypeSafety ;
+    spec:section3_PathProtection :ChecklistPathProtection ;
+    spec:section4_QualityGates :ChecklistQualityGates ;
+    spec:section5_Timeouts :ChecklistTimeouts ;
+    spec:section6_AndonSignals :ChecklistAndonSignals ;
+    spec:section7_FMEA :ChecklistFMEA ;
+    spec:section8_Testing :ChecklistTesting .
+
+:ChecklistPrinciples a spec:Section ;
+    rdfs:label "Core Principles (Prevent > Detect > React)" ;
+    spec:item1 "Three-level hierarchy documented: Prevent, Detect, React" ;
+    spec:item2 "Philosophy of mistake-proofing explained" ;
+    spec:item3 "Toyota Production System references documented" ;
+    spec:completed "true" .
+
+:ChecklistTypeSafety a spec:Section ;
+    rdfs:label "Type-Safety Patterns" ;
+    spec:item1 "NewType pattern documented with examples" ;
+    spec:item2 "Builder pattern documented with examples" ;
+    spec:item3 "Sealed abstractions pattern documented" ;
+    spec:item4 "Implementation in at least 3 core modules" ;
+    spec:completed "true" .
+
+:ChecklistPathProtection a spec:Section ;
+    rdfs:label "Path Protection (PREVENT)" ;
+    spec:item1 "PathProtector struct with glob pattern matching" ;
+    spec:item2 "Protected paths list (Cargo.toml, .env, domain logic)" ;
+    spec:item3 "Regeneratable paths list (CLI layer, generated code)" ;
+    spec:item4 "Integration in code generator" ;
+    spec:item5 "Unit tests for path protection" ;
+    spec:completed "true" .
+
+:ChecklistQualityGates a spec:Section ;
+    rdfs:label "Quality Gates (DETECT)" ;
+    spec:item1 "Pre-commit gate: cargo make check" ;
+    spec:item2 "Pre-commit gate: cargo make lint" ;
+    spec:item3 "Pre-commit gate: cargo make test-unit" ;
+    spec:item4 "Pre-push gate: cargo make test" ;
+    spec:item5 "Pre-push gate: security audit" ;
+    spec:item6 "QualityGate implementation in CI" ;
+    spec:completed "true" .
+
+:ChecklistTimeouts a spec:Section ;
+    rdfs:label "Timeout Enforcement (DETECT)" ;
+    spec:item1 "Quick timeout (5s) in Makefile.toml" ;
+    spec:item2 "Escalation timeout (120s) in Makefile.toml" ;
+    spec:item3 "Lock contention detection" ;
+    spec:item4 "Deadlock detection on timeout" ;
+    spec:item5 "Tests for timeout behavior" ;
+    spec:completed "true" .
+
+:ChecklistAndonSignals a spec:Section ;
+    rdfs:label "Andon Signals (REACT)" ;
+    spec:item1 "RED signal definition (error types)" ;
+    spec:item2 "YELLOW signal definition (warning types)" ;
+    spec:item3 "GREEN signal definition (success)" ;
+    spec:item4 "Visual indicators (🔴 🟡 🟢 emoji)" ;
+    spec:item5 "Integration in build output" ;
+    spec:item6 "Stop-the-line behavior on RED" ;
+    spec:completed "true" .
+
+:ChecklistFMEA a spec:Section ;
+    rdfs:label "FMEA Analysis (Failure Modes)" ;
+    spec:item1 "Path traversal attack (PREVENT: PathProtector)" ;
+    spec:item2 "Invalid configuration (PREVENT: NewType)" ;
+    spec:item3 "Broken code committed (DETECT: Quality gates)" ;
+    spec:item4 "Infinite hang in build (DETECT: Timeouts)" ;
+    spec:item5 "Defect propagation (REACT: Andon signals)" ;
+    spec:completed "true" .
+
+:ChecklistTesting a spec:Section ;
+    rdfs:label "Chicago TDD Test Suite" ;
+    spec:item1 "Unit tests for type-safety patterns" ;
+    spec:item2 "Unit tests for path protection" ;
+    spec:item3 "Unit tests for quality gates" ;
+    spec:item4 "Unit tests for timeout enforcement" ;
+    spec:item5 "Unit tests for andon signals" ;
+    spec:item6 "Integration tests for full workflow" ;
+    spec:item7 "Mutation tests for error paths" ;
+    spec:completed "true" .
+
+# ============================================================================
+# PATTERN: TYPE-SAFETY (PREVENT)
+# ============================================================================
+
+:TypeSafetyPattern a spec:Pattern ;
+    rdfs:label "Type-Safety Pattern (PREVENT)" ;
+    spec:mechanism :Prevent ;
+    spec:description "Use Rust type system to make mistakes impossible at compile-time" ;
+    spec:examples (
+        [ spec:name "ProtectedPath"; spec:module "ggen-core"; spec:file "src/protection/path.rs" ]
+        [ spec:name "CrateName"; spec:module "ggen-domain"; spec:file "src/crate/mod.rs" ]
+        [ spec:name "ConfigPath"; spec:module "ggen-config"; spec:file "src/config/mod.rs" ]
+    ) ;
+    spec:riskReduction "HIGH" ;
+    spec:implementationCost "LOW" .
+
+:NewTypeExample a spec:CodePattern ;
+    rdfs:label "NewType Pattern Example" ;
+    spec:rust """
+#[derive(Clone)]
+pub struct ProtectedPath(String);
+
+impl ProtectedPath {
+    pub fn new(path: &str) -> Result<Self> {
+        validate_path_safety(path)?;
+        Ok(ProtectedPath(path.to_string()))
+    }
+}
+    """ ;
+    spec:benefit "Validation enforced at construction, can't bypass" ;
+    spec:location "crates/ggen-core/src/protection/path.rs" .
+
+# ============================================================================
+# PATTERN: PATH PROTECTION (PREVENT)
+# ============================================================================
+
+:PathProtectionPattern a spec:Pattern ;
+    rdfs:label "Path Protection Pattern (PREVENT)" ;
+    spec:mechanism :Prevent ;
+    spec:description "Use glob patterns to prevent accidental modification of critical paths" ;
+    spec:protectedPaths (
+        ".env"
+        "Cargo.toml"
+        "Cargo.lock"
+        ".git/*"
+        "src/domain/*"
+        "tests/*"
+    ) ;
+    spec:regeneratablePaths (
+        "src/main.rs"
+        "src/cli.rs"
+        "src/error.rs"
+        "src/generated/*"
+    ) ;
+    spec:implementation :PathProtectorImpl ;
+    spec:riskReduction "CRITICAL" ;
+    spec:implementationCost "MEDIUM" .
+
+:PathProtectorImpl a spec:Implementation ;
+    rdfs:label "PathProtector Implementation" ;
+    spec:struct """
+pub struct PathProtector {
+    protected: Vec<GlobPattern>,
+    regeneratable: Vec<GlobPattern>,
+}
+
+impl PathProtector {
+    pub fn can_write(&self, path: &Path) -> Result<()> {
+        for pattern in &self.protected {
+            if pattern.matches(path) {
+                return Err(Error::ProtectedPathViolation);
+            }
+        }
+        Ok(())
+    }
+}
+    """ ;
+    spec:location "crates/ggen-core/src/protection/mod.rs" .
+
+# ============================================================================
+# PATTERN: QUALITY GATES (DETECT)
+# ============================================================================
+
+:QualityGatePattern a spec:Pattern ;
+    rdfs:label "Quality Gate Pattern (DETECT)" ;
+    spec:mechanism :Detect ;
+    spec:description "Mandatory quality checks before commits/pushes" ;
+    spec:gates (
+        [ spec:name "Compilation"; spec:command "cargo make check"; spec:timeout 5 ]
+        [ spec:name "Linting"; spec:command "cargo make lint"; spec:timeout 60 ]
+        [ spec:name "Unit Tests"; spec:command "cargo make test-unit"; spec:timeout 10 ]
+        [ spec:name "Integration Tests"; spec:command "cargo make test"; spec:timeout 30 ]
+        [ spec:name "Security"; spec:command "cargo audit"; spec:timeout 15 ]
+    ) ;
+    spec:blockingLevel "RED" ;
+    spec:riskReduction "HIGH" ;
+    spec:implementationCost "LOW" .
+
+:QualityGateImpl a spec:Implementation ;
+    rdfs:label "QualityGate Implementation" ;
+    spec:rust """
+pub struct QualityGate {
+    checks: Vec<Box<dyn Check>>,
+}
+
+impl QualityGate {
+    pub fn verify(&self) -> Result<()> {
+        for check in &self.checks {
+            check.run()?;  // All must pass
+        }
+        Ok(())
+    }
+}
+
+pub trait Check {
+    fn run(&self) -> Result<()>;
+}
+    """ ;
+    spec:location "crates/ggen-core/src/validation/gate.rs" .
+
+# ============================================================================
+# PATTERN: TIMEOUT ENFORCEMENT (DETECT)
+# ============================================================================
+
+:TimeoutPattern a spec:Pattern ;
+    rdfs:label "Timeout Enforcement Pattern (DETECT)" ;
+    spec:mechanism :Detect ;
+    spec:description "Quick timeout + escalation timeout to catch hangs" ;
+    spec:quickTimeout 5 ;
+    spec:escalationTimeout 120 ;
+    spec:benefits (
+        "Hangs detected within seconds"
+        "Handles legitimate slowness with escalation"
+        "No indefinite waits"
+        "Automatic (no user action needed)"
+    ) ;
+    spec:riskReduction "MEDIUM" ;
+    spec:implementationCost "MEDIUM" .
+
+:TimeoutImpl a spec:Implementation ;
+    rdfs:label "Timeout Implementation in Makefile.toml" ;
+    spec:config """
+[tasks.check]
+command = \"cargo\"
+args = [\"check\"]
+timeout = 5
+timeout_escalation = 120
+
+[tasks.test-unit]
+command = \"cargo\"
+args = [\"test\", \"--lib\"]
+timeout = 10
+timeout_escalation = 120
+    """ ;
+    spec:location "Makefile.toml" .
+
+# ============================================================================
+# PATTERN: ANDON SIGNALS (REACT)
+# ============================================================================
+
+:AndonSignalPattern a spec:Pattern ;
+    rdfs:label "Andon Signal Pattern (REACT)" ;
+    spec:mechanism :React ;
+    spec:description "Visual signals for errors (RED), warnings (YELLOW), success (GREEN)" ;
+    spec:signals (
+        [ spec:color "RED"; spec:emoji "🔴"; spec:meaning "Error - STOP"; spec:triggers ("error[E", "FAILED", "panic", "timeout") ]
+        [ spec:color "YELLOW"; spec:emoji "🟡"; spec:meaning "Warning - Investigate"; spec:triggers ("warning:", "clippy::", "deprecated") ]
+        [ spec:color "GREEN"; spec:emoji "🟢"; spec:meaning "Success - Continue"; spec:triggers ("ok", "passed", "0 violations") ]
+    ) ;
+    spec:stopTheLine "true" ;
+    spec:riskReduction "HIGH" ;
+    spec:implementationCost "LOW" .
+
+:AndonImpl a spec:Implementation ;
+    rdfs:label "Andon Signal Implementation" ;
+    spec:location "Makefile.toml" ;
+    spec:behavior """
+RED Signal:
+  ├─ Compilation error → STOP immediately
+  ├─ Test failure → STOP immediately
+  ├─ Timeout occurred → STOP immediately
+  └─ Security issue → STOP immediately
+
+YELLOW Signal:
+  ├─ Clippy warning → Investigate
+  ├─ Performance regression → Investigate
+  └─ Deprecation notice → Investigate
+
+GREEN Signal:
+  ├─ All tests passing → Continue
+  ├─ Clippy clean → Continue
+  └─ SLOs met → Continue
+    """ .
+
+# ============================================================================
+# FMEA: FAILURE MODE & EFFECTS ANALYSIS
+# ============================================================================
+
+:FMEAPathTraversal a spec:FailureMode ;
+    rdfs:label "Path Traversal Attack" ;
+    spec:description "Code generator overwrites critical system files via path traversal" ;
+    spec:severity 10 ;
+    spec:occurrence 3 ;
+    spec:detection 10 ;
+    spec:rpn 300 ;
+    spec:mitigation (
+        [ spec:type "PREVENT"; spec:control :PathProtectorImpl; spec:newRpn 30 ]
+        [ spec:type "DETECT"; spec:control "Glob pattern validation" ]
+        [ spec:type "REACT"; spec:control "Error signal, stop generation" ]
+    ) .
+
+:FMEAInvalidConfig a spec:FailureMode ;
+    rdfs:label "Invalid Configuration" ;
+    spec:description "User provides invalid configuration that breaks build" ;
+    spec:severity 8 ;
+    spec:occurrence 5 ;
+    spec:detection 9 ;
+    spec:rpn 360 ;
+    spec:mitigation (
+        [ spec:type "PREVENT"; spec:control :TypeSafetyPattern; spec:newRpn 40 ]
+        [ spec:type "DETECT"; spec:control "Validation at construction" ]
+    ) .
+
+:FMEABrokenCode a spec:FailureMode ;
+    rdfs:label "Broken Code Committed" ;
+    spec:description "Developer commits code that doesn't compile or tests fail" ;
+    spec:severity 9 ;
+    spec:occurrence 7 ;
+    spec:detection 8 ;
+    spec:rpn 504 ;
+    spec:mitigation (
+        [ spec:type "DETECT"; spec:control :QualityGatePattern; spec:newRpn 50 ]
+        [ spec:type "REACT"; spec:control "Commit blocked, RED signal" ]
+    ) .
+
+:FMEAInfiniteHang a spec:FailureMode ;
+    rdfs:label "Infinite Hang in Build" ;
+    spec:description "Build process hangs indefinitely waiting for lock or I/O" ;
+    spec:severity 7 ;
+    spec:occurrence 2 ;
+    spec:detection 10 ;
+    spec:rpn 140 ;
+    spec:mitigation (
+        [ spec:type "DETECT"; spec:control :TimeoutPattern; spec:newRpn 14 ]
+        [ spec:type "REACT"; spec:control "Timeout triggers error" ]
+    ) .
+
+:FMEADefectPropagation a spec:FailureMode ;
+    rdfs:label "Defect Propagates to Production" ;
+    spec:description "Small defect in generated code reaches production" ;
+    spec:severity 10 ;
+    spec:occurrence 4 ;
+    spec:detection 6 ;
+    spec:rpn 240 ;
+    spec:mitigation (
+        [ spec:type "DETECT"; spec:control "Pre-push gates" ]
+        [ spec:type "REACT"; spec:control :AndonSignalPattern; spec:newRpn 24 ]
+    ) .
+
+# ============================================================================
+# COMPLETION CRITERIA
+# ============================================================================
+
+:CompletionCriteria a spec:Checklist ;
+    rdfs:label "Poka-Yoke Implementation Completion" ;
+    spec:criterion1 "Type-safety patterns implemented in 3+ modules" ;
+    spec:criterion2 "PathProtector fully functional with glob patterns" ;
+    spec:criterion3 "Quality gates enforced in CI/CD pipeline" ;
+    spec:criterion4 "Timeout enforcement active (quick + escalation)" ;
+    spec:criterion5 "Andon signals integrated in build output" ;
+    spec:criterion6 "FMEA analysis complete for 5+ failure modes" ;
+    spec:criterion7 "20+ unit tests for patterns" ;
+    spec:criterion8 "All cargo make targets passing" ;
+    spec:criterion9 "Documentation complete with examples" ;
+    spec:criterion10 "Zero mistakes escape quality gates" ;
+    spec:criterion11 "Developers follow stop-the-line protocol" ;
+    spec:criterion12 "Receipts generated for all validations" .

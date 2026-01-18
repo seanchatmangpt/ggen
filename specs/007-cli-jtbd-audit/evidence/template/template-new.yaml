@@ -1,0 +1,57 @@
+command: "ggen template new"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 58
+agent_breakdown:
+  parseable_output: 15
+  error_messages: 14
+  idempotency: 9
+  progress_feedback: 8
+  dry_run: 7
+  documentation: 4
+  exit_codes: 1
+
+avatar_notes:
+  claude_code: "Can parse template structure via --output-json; --dry-run useful for verification"
+  cursor_ai: "Help text is clear; useful for creating templates in IDE context"
+  copilot: "Patterns are learnable from examples; good for scaffolding"
+  aider: "Mostly safe; minimal side effects for git tracking"
+  devin: "Can execute but would benefit from full --dry-run and structured output"
+  openhands: "Template creation is customizable; good integration point"
+  windsurf: "Visual preview helpful for template validation"
+
+maturity_level: "L2"
+maturity_blockers:
+  - "Missing full JSON schema for output"
+  - "Progress feedback could be more structured"
+  - "Exit codes not semantically differentiated"
+
+evidence_files: []
+
+recommendations:
+  - priority: P1
+    description: "Add --output-format json for structured template metadata"
+    effort: low
+    impact: high
+  - priority: P2
+    description: "Implement semantic exit codes (1=validation error, 2=file exists, etc)"
+    effort: low
+    impact: medium
+  - priority: P2
+    description: "Add --force flag for idempotent re-generation"
+    effort: medium
+    impact: medium
+
+jtbd: |
+  When I want to create a new code generation template,
+  I need to run 'ggen template new' with template metadata,
+  so that I can define reusable code generation patterns.

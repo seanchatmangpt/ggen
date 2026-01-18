@@ -1,0 +1,15 @@
+# Gap Analysis (Generated from RDF)
+
+Documentation gaps identified and prioritized by SPARQL query.
+
+## All Gaps
+
+| Title | Description | Priority | Effort | Category |
+|-------|-------------|----------|--------|----------|
+{% for gap in results -%}
+| {{ gap["?title"] }} | {{ gap["?description"] }} | {{ gap["?priority"] }} | {{ gap["?effort"] }} | {{ gap["?category"] }} |
+{% endfor %}
+
+## Statistics
+
+Total Gaps: {{ results | length }}

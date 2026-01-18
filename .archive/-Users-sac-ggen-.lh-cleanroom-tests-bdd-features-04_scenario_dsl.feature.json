@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/04_scenario_dsl.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261841876,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261841876,
+            "name": "Commit-0",
+            "content": "# features/04_scenario_dsl.feature\n@dsl\nFeature: Scenario DSL for multi-step workflows\n  Background:\n    Given a fixture project \"cli_workflow\"\n\n  Scenario: Sequential steps succeed\n    When I define scenario \"Build process\"\n      | step         | args                  | expect  |\n      | version      | [\"--version\"]         | success |\n      | build prod   | [\"build\",\"--prod\"]    | success |\n    And I execute the scenario on backend \"auto\"\n    Then all steps succeeded\n    And aggregated duration <= 30000 ms\n    And step order is deterministic\n\n  Scenario: Concurrent steps with deterministic aggregation\n    When I define concurrent scenario \"Parallel smoke\"\n      | step     | args             | expect  |\n      | help1    | [\"--help\"]       | success |\n      | help2    | [\"--help\"]       | success |\n    And I execute the scenario on backend \"auto\"\n    Then all steps succeeded\n    And logs are order-stable by (start_ts, step_name)\n"
+        }
+    ]
+}

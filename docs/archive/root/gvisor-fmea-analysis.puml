@@ -1,0 +1,237 @@
+@startuml gvisor-fmea-analysis
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title gVisor Test Loop - FMEA Analysis
+
+skinparam component {
+    BackgroundColor<<high_risk>> #FF6B6B
+    BackgroundColor<<medium_risk>> #FFD93D
+    BackgroundColor<<low_risk>> #6BCF7F
+}
+
+' ============================================================================
+' FMEA Table Structure
+' ============================================================================
+
+package "FMEA Analysis - Failure Modes" {
+    component "runsc Installation Failures" as runsc_install <<high_risk>>
+    component "OCI Bundle Creation Failures" as bundle_create <<high_risk>>
+    component "Colima VM Communication Failures" as colima_comm <<medium_risk>>
+    component "gVisor Execution Failures" as gvisor_exec <<high_risk>>
+    component "ggen Binary Failures" as ggen_build <<medium_risk>>
+}
+
+' ============================================================================
+' Detailed FMEA Analysis
+' ============================================================================
+
+note top of runsc_install
+  **Failure Mode**: runsc Installation Failures
+  
+  **Failure Modes**:
+  1. Download URL 404 errors
+  2. Build process failures
+  3. Permission errors
+  4. Architecture mismatch
+  
+  **Effects**:
+  - Cannot execute gVisor sandbox
+  - Test workflow blocked
+  - User must manually install
+  
+  **Severity (S)**: 9 (Critical - blocks entire workflow)
+  **Occurrence (O)**: 5 (Occasional - URLs change, builds fail)
+  **Detection (D)**: 8 (Late detection - fails at execution time)
+  **RPN = S × O × D = 360** (HIGH RISK)
+  
+  **Causes**:
+  - External URL changes
+  - Build dependencies missing
+  - Permission issues
+  - Architecture detection errors
+  
+  **Current Controls**:
+  - Manual download fallback
+  - Build script attempts
+  - Architecture detection
+  
+  **Recommended Actions**:
+  - Vendor runsc binary
+  - Pre-validate URLs
+  - Early architecture check
+  - Clear error messages with solutions
+end note
+
+note top of bundle_create
+  **Failure Mode**: OCI Bundle Creation Failures
+  
+  **Failure Modes**:
+  1. Missing files
+  2. Invalid config.json
+  3. Permission issues
+  4. Path traversal vulnerabilities
+  
+  **Effects**:
+  - Bundle rejected by runsc
+  - Security vulnerabilities
+  - Execution fails
+  
+  **Severity (S)**: 8 (High - blocks execution)
+  **Occurrence (O)**: 4 (Occasional - script errors)
+  **Detection (D)**: 9 (Very late - fails at runsc)
+  **RPN = S × O × D = 288** (HIGH RISK)
+  
+  **Causes**:
+  - Script errors
+  - Missing validation
+  - File system issues
+  - Invalid JSON syntax
+  
+  **Current Controls**:
+  - Basic file checks
+  - JSON structure creation
+  
+  **Recommended Actions**:
+  - Type-safe bundle construction
+  - ValidatedPath for all paths
+  - Schema validation for config.json
+  - Pre-execution validation
+end note
+
+note top of colima_comm
+  **Failure Mode**: Colima VM Communication Failures
+  
+  **Failure Modes**:
+  1. SSH connection failures
+  2. File copy failures
+  3. Network timeouts
+  4. VM not running
+  
+  **Effects**:
+  - Cannot deploy bundle
+  - Workflow blocked
+  - User must manually start VM
+  
+  **Severity (S)**: 7 (High - blocks deployment)
+  **Occurrence (O)**: 3 (Occasional - network issues)
+  **Detection (D)**: 6 (Moderate - fails during copy)
+  **RPN = S × O × D = 126** (MEDIUM RISK)
+  
+  **Causes**:
+  - VM not started
+  - Network issues
+  - SSH key problems
+  - File system full
+  
+  **Current Controls**:
+  - Basic VM status check
+  - SSH connection attempts
+  
+  **Recommended Actions**:
+  - Pre-flight VM check
+  - Retry with backoff
+  - Clear error messages
+  - Auto-start VM option
+end note
+
+note top of gvisor_exec
+  **Failure Mode**: gVisor Execution Failures
+  
+  **Failure Modes**:
+  1. runsc not found
+  2. Invalid OCI bundle
+  3. Sandbox initialization failures
+  4. Process execution errors
+  
+  **Effects**:
+  - Test cannot run
+  - Sandbox fails to start
+  - Process crashes
+  
+  **Severity (S)**: 9 (Critical - blocks testing)
+  **Occurrence (O)**: 4 (Occasional - config issues)
+  **Detection (D)**: 7 (Late - fails at execution)
+  **RPN = S × O × D = 252** (HIGH RISK)
+  
+  **Causes**:
+  - Missing runsc
+  - Invalid bundle format
+  - Permission issues
+  - Resource limits
+  
+  **Current Controls**:
+  - Basic runsc check
+  - Bundle validation attempt
+  
+  **Recommended Actions**:
+  - Pre-execution validation
+  - Health monitoring
+  - Timeout guards
+  - Clear error messages
+end note
+
+note top of ggen_build
+  **Failure Mode**: ggen Binary Failures
+  
+  **Failure Modes**:
+  1. Build failures
+  2. Missing dependencies
+  3. Architecture mismatch
+  4. Runtime errors
+  
+  **Effects**:
+  - Cannot create binary
+  - Wrong architecture
+  - Runtime crashes
+  
+  **Severity (S)**: 8 (High - blocks workflow)
+  **Occurrence (O)**: 2 (Rare - usually works)
+  **Detection (D)**: 3 (Early - fails at build)
+  **RPN = S × O × D = 48** (LOW RISK)
+  
+  **Causes**:
+  - Compilation errors
+  - Missing Rust toolchain
+  - Architecture mismatch
+  - Dependency issues
+  
+  **Current Controls**:
+  - Compile-time checks
+  - Type system validation
+  - Build output verification
+  
+  **Recommended Actions**:
+  - Pre-build validation
+  - Architecture check
+  - Dependency verification
+  - Clear build errors
+end note
+
+' ============================================================================
+' Risk Priority Matrix
+' ============================================================================
+
+package "Risk Priority Matrix" {
+    component "Critical (RPN > 300)" as critical <<high_risk>>
+    component "High (RPN 200-300)" as high <<medium_risk>>
+    component "Medium (RPN 100-200)" as medium <<medium_risk>>
+    component "Low (RPN < 100)" as low <<low_risk>>
+}
+
+critical --> runsc_install : RPN 360
+critical --> bundle_create : RPN 288
+high --> gvisor_exec : RPN 252
+medium --> colima_comm : RPN 126
+low --> ggen_build : RPN 48
+
+note right of critical
+  **Priority Actions**:
+  1. Vendor runsc binary
+  2. Type-safe bundle construction
+  3. Pre-execution validation
+  4. Early error detection
+end note
+
+@enduml
+
+

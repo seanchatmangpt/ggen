@@ -1,0 +1,170 @@
+@startuml file-dependency-graph
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam shadowing false
+skinparam linetype ortho
+
+title **Marketplace-V2: File Dependency Graph**\n<size:12>//Critical Files for Migration//</size>
+
+package "Root Workspace" {
+    file "Cargo.toml" as root_cargo {
+        note right: **Critical Changes:**\n- Line 26: marketplace-v2 workspace member\n- Line 79: ggen-marketplace dependency\n- Update version: v2→v3
+    }
+}
+
+package "ggen-cli Crate" {
+    file "src/cmds/mod.rs" as cli_mod {
+        note right: **BLOCKING ISSUE:**\nLine 15: pub mod marketplace;\n(Currently commented out)\n\n**Fix:**\nUncomment line 15\nto enable module discovery
+    }
+    
+    file "src/cmds/marketplace.rs" as cli_marketplace {
+        note right: **Implementation:**\n- 9 marketplace commands\n- #[verb] attributes\n- Async command bridge\n\n**Current State:**\nFile exists but disabled\n\n**Status:** ~128 compilation\nerrors pending
+    }
+    
+    file "src/lib.rs" as cli_lib {
+        note right: **Used By:**\nProvides prelude imports\nfor marketplace commands
+    }
+    
+    file "src/main.rs" as cli_main {
+        note right: **Entry Point:**\nDelegates to ggen_cli_lib\nwhich uses clap-noun-verb\nauto-discovery
+    }
+}
+
+package "ggen-marketplace Crate" {
+    file "src/lib.rs" as mkt_lib {
+        note right: **Key Exports (lines 104-114):**\n- pub use error::{Error, Result}\n- pub use install::Installer\n- pub use models::*\n- pub use registry::Registry\n- pub use search::SearchEngine\n- pub use traits::*\n\n**Must have:** All types CLI needs
+    }
+    
+    file "src/models.rs" as mkt_models {
+        note right: **Core Types:**\n- Package\n- PackageVersion\n- PackageId\n- PackageMetadata\n- Manifest
+    }
+    
+    file "src/traits.rs" as mkt_traits {
+        note right: **Core Traits:**\n- AsyncRepository\n- Installable\n- Observable\n- Queryable\n- Signable\n- Validatable\n\n**Must be:** Send+Sync
+    }
+    
+    file "src/error.rs" as mkt_error {
+        note right: **Result<T> Type:**\npub type Result<T> = \n  std::result::Result<T, Error>
+    }
+    
+    file "src/install.rs" as mkt_install {
+        note right: **Installer Implementation:**\n- Download packages\n- Validate checksums\n- Extract files\n- Resolve dependencies
+    }
+    
+    file "src/search.rs" as mkt_search {
+        note right: **Search Implementations:**\n- SearchEngine trait\n- FST-based indexing\n- In-memory search
+    }
+    
+    file "src/search_sparql.rs" as mkt_sparql {
+        note right: **SPARQL Implementation:**\n- SparqlSearchEngine\n- RDF graph queries\n- Full-text search
+    }
+    
+    file "src/registry.rs" as mkt_registry {
+        note right: **Registry Trait:**\nDefines CRUD interface\nfor package storage
+    }
+    
+    file "src/registry_rdf.rs" as mkt_registry_rdf {
+        note right: **RDF Registry:**\nRDF-backed storage\nimplementation
+    }
+    
+    file "src/security.rs" as mkt_security {
+        note right: **Cryptography:**\n- Ed25519 signatures\n- SHA-256 hashing\n- Signature verification
+    }
+    
+    file "src/validation.rs" as mkt_validation {
+        note right: **Package Validation:**\n- Manifest schema\n- Dependency constraints\n- Version validation
+    }
+    
+    file "src/rdf/mod.rs" as mkt_rdf {
+        note right: **RDF Storage:**\noxigraph triplestore\nSPARQL engine
+    }
+    
+    file "Cargo.toml" as mkt_cargo {
+        note right: **Dependencies:**\n- tokio (async)\n- oxigraph (RDF store)\n- async-trait\n- ed25519-dalek\n- serde_json\n\n**Must match:** workspace versions
+    }
+    
+    file "tests/unit/*.rs" as mkt_tests {
+        note right: **Test Suites:**\n- 84: Core tests (15)\n- 85: Registry (20)\n- 86: Search (22)\n- 87: Install (18)\n- 88: Security (16)\n- 89: Integration (12)\n- 90: Property (4)\n\n**Total: 107 tests PASSING**
+    }
+}
+
+package "External Dependencies" {
+    file "oxigraph 0.5.1" as dep_oxigraph {
+        note right: **RDF Triplestore:**\nSemantic data store\nSPARQL queries\nin-memory or persistent
+    }
+    
+    file "tokio" as dep_tokio {
+        note right: **Async Runtime:**\nRequired for async/await\nmust support Send bounds
+    }
+    
+    file "async-trait" as dep_async_trait {
+        note right: **Async Trait Support:**\nRequired for trait methods\nwith async functions
+    }
+    
+    file "clap-noun-verb v4" as dep_clap {
+        note right: **CLI Framework:**\nAuto-discovers [verb] functions\nRoutes commands\nhandled by ggen-cli
+    }
+}
+
+' Dependencies
+root_cargo -.-> mkt_cargo : workspace member
+root_cargo -.-> cli_lib : workspace member
+
+cli_mod -.-> cli_marketplace : imports module
+cli_marketplace -.-> cli_lib : uses prelude
+cli_marketplace -.-> mkt_lib : imports Installer, etc.
+
+mkt_lib -.-> mkt_models : re-exports
+mkt_lib -.-> mkt_traits : re-exports
+mkt_lib -.-> mkt_error : re-exports
+mkt_lib -.-> mkt_install : re-exports
+mkt_lib -.-> mkt_search : re-exports
+mkt_lib -.-> mkt_sparql : re-exports
+mkt_lib -.-> mkt_registry : re-exports
+mkt_lib -.-> mkt_security : re-exports
+mkt_lib -.-> mkt_validation : re-exports
+
+mkt_traits -.-> mkt_install : implements
+mkt_traits -.-> mkt_search : implements
+mkt_traits -.-> mkt_registry : defines
+mkt_traits -.-> mkt_security : implements
+
+mkt_registry -.-> mkt_models : uses
+mkt_registry_rdf -.-> mkt_registry : implements
+mkt_registry_rdf -.-> mkt_rdf : uses
+
+mkt_install -.-> mkt_models : uses
+mkt_install -.-> mkt_security : verifies signatures
+mkt_install -.-> mkt_validation : validates packages
+
+mkt_search -.-> mkt_models : queries
+mkt_sparql -.-> mkt_models : queries
+mkt_sparql -.-> mkt_rdf : uses SPARQL
+
+mkt_security -.-> mkt_error : uses Result type
+
+mkt_cargo -.-> dep_oxigraph : depends
+mkt_cargo -.-> dep_tokio : depends
+mkt_cargo -.-> dep_async_trait : depends
+
+cli_marketplace -.-> dep_clap : #[verb] attribute
+
+mkt_rdf -.-> dep_oxigraph : uses triplestore
+
+mkt_tests -.-> mkt_lib : tests
+
+legend right
+    <b>Relationship Types</b>
+    |= Type |= Meaning |
+    | solid | requires |
+    | dashed | imports/uses |
+    | dotted | depends on |
+    
+    <b>Critical Path for Integration</b>
+    - root_cargo imports marketplace-v2
+    - cli_mod enables marketplace module
+    - cli_marketplace uses marketplace-v2 types
+    - All re-exports from mkt_lib
+endlegend
+
+@enduml

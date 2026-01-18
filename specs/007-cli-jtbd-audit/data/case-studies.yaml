@@ -1,0 +1,443 @@
+# Fortune 500 Case Studies
+# 7 Enterprise Scenarios for ggen CLI Validation
+# Generated: 2024-12-14
+
+case_studies:
+  # ============================================
+  # CASE STUDY 1: JPMORGAN CHASE
+  # ============================================
+  - id: jpmorgan
+    name: JPMorgan Chase
+    industry: Banking/Finance
+    fortune_rank: 17  # 2024
+
+    context:
+      description: >
+        World's largest bank by assets needs to maintain regulatory compliance
+        across 200+ microservices. When regulations change (Basel IV, SOX, PCI-DSS),
+        they must regenerate compliant code structures across the entire codebase.
+      scale:
+        entities: 50000+
+        microservices: 200+
+        developers: 5000+
+        annual_regulatory_changes: 50+
+
+    jtbd_statement: >
+      When regulatory requirements change, I need to regenerate compliant code
+      across all services without manual intervention, so that we maintain
+      continuous compliance and avoid regulatory fines.
+
+    required_commands:
+      - command: ggen ontology validate
+        purpose: Validate regulatory ontology before code generation
+        criticality: P1
+        current_support: TBD
+
+      - command: ggen template generate
+        purpose: Generate compliant entity structures
+        criticality: P1
+        current_support: TBD
+
+      - command: ggen graph query
+        purpose: Query for affected entities when regulations change
+        criticality: P2
+        current_support: TBD
+
+    slo_requirements:
+      generation_time: <60s for 1000 entities
+      validation_time: <5s per ontology
+      determinism: 100% reproducible outputs
+
+    success_criteria:
+      - All generated code passes compliance validation
+      - Audit trail maintained for all generations
+      - Zero manual intervention required for standard changes
+
+    gaps: []  # TBD during audit
+
+  # ============================================
+  # CASE STUDY 2: AMAZON
+  # ============================================
+  - id: amazon
+    name: Amazon
+    industry: Technology/Retail
+    fortune_rank: 2  # 2024
+
+    context:
+      description: >
+        Amazon maintains APIs for AWS services and retail platform.
+        When API specs change, SDKs in 8+ languages must be regenerated
+        consistently. Currently uses internal tools; evaluating ggen for
+        unified ontology-driven generation.
+      scale:
+        api_endpoints: 1000000+
+        sdk_languages: 8
+        api_versions: 1000+
+        daily_api_calls: 10B+
+
+    jtbd_statement: >
+      When I update an API spec, I need consistent SDK updates across
+      8 languages within the same commit, so that customers always have
+      synchronized SDK versions.
+
+    required_commands:
+      - command: ggen project generate
+        purpose: Generate multi-language SDK projects
+        criticality: P1
+        current_support: TBD
+
+      - command: ggen ai generate
+        purpose: AI-assisted SDK code generation
+        criticality: P2
+        current_support: TBD
+
+      - command: ggen marketplace install
+        purpose: Install language-specific templates
+        criticality: P2
+        current_support: TBD
+
+      - command: ggen template new
+        purpose: Create new language SDK templates
+        criticality: P3
+        current_support: TBD
+
+    slo_requirements:
+      generation_time: <5min for all 8 SDKs
+      consistency: Byte-for-byte reproducible
+      parallelism: 8 languages simultaneously
+
+    success_criteria:
+      - All SDKs generated in single atomic operation
+      - Breaking changes detected automatically
+      - Changelog generated from ontology diff
+
+    gaps: []  # TBD during audit
+
+  # ============================================
+  # CASE STUDY 3: PFIZER
+  # ============================================
+  - id: pfizer
+    name: Pfizer
+    industry: Healthcare/Biotech
+    fortune_rank: 42  # 2024
+
+    context:
+      description: >
+        Pharmaceutical company conducting 500+ clinical trials needs
+        data models compliant with FDA CDISC standards. Currently manual
+        process takes weeks; seeking automation through ontology-driven
+        generation from CDISC ontologies.
+      scale:
+        clinical_studies: 500+
+        data_domains: 50+
+        submissions_per_year: 20+
+        countries: 80+
+
+    jtbd_statement: >
+      When I design a new trial, I need data models that automatically
+      comply with FDA CDISC requirements, so that I can accelerate
+      submissions and reduce compliance risk.
+
+    required_commands:
+      - command: ggen ontology extract
+        purpose: Extract entities from CDISC ontologies
+        criticality: P1
+        current_support: TBD
+
+      - command: ggen graph load
+        purpose: Load CDISC standards into graph
+        criticality: P1
+        current_support: TBD
+
+      - command: ggen template generate-tree
+        purpose: Generate complete trial data structure
+        criticality: P1
+        current_support: TBD
+
+      - command: ggen ontology validate
+        purpose: Validate CDISC compliance
+        criticality: P1
+        current_support: TBD
+
+    slo_requirements:
+      generation_time: <10min for complete trial structure
+      compliance: 100% CDISC conformance
+      traceability: Full audit trail to requirements
+
+    success_criteria:
+      - Generated models pass FDA validation
+      - Mappings to CDISC maintained automatically
+      - Study-specific extensions cleanly separated
+
+    gaps: []  # TBD during audit
+
+  # ============================================
+  # CASE STUDY 4: BOEING
+  # ============================================
+  - id: boeing
+    name: Boeing
+    industry: Manufacturing/Defense
+    fortune_rank: 35  # 2024
+
+    context:
+      description: >
+        Aerospace manufacturer needs to generate code from SysML models
+        for safety-critical systems. FAA certification requires traceability
+        from requirements through models to code. FMEA analysis critical
+        for flight safety.
+      scale:
+        aircraft_parts: 10000000+
+        requirements: 100000+
+        safety_critical_systems: 500+
+        certification_artifacts: 50000+
+
+    jtbd_statement: >
+      When I modify a system model, I need to trace code changes back
+      to requirements for certification, so that I can maintain FAA
+      airworthiness approval.
+
+    required_commands:
+      - command: ggen fmea report
+        purpose: Generate FMEA analysis for safety certification
+        criticality: P1
+        current_support: TBD
+
+      - command: ggen workflow analyze
+        purpose: Analyze requirement-to-code traceability
+        criticality: P1
+        current_support: TBD
+
+      - command: ggen graph visualize
+        purpose: Visualize system architecture and dependencies
+        criticality: P2
+        current_support: TBD
+
+      - command: ggen fmea show
+        purpose: Display failure mode analysis
+        criticality: P2
+        current_support: TBD
+
+    slo_requirements:
+      traceability: 100% requirement coverage
+      fmea_generation: <5min per subsystem
+      certification_format: DO-178C compliant
+
+    success_criteria:
+      - Generated code maintains bidirectional traceability
+      - FMEA reports accepted by certification authorities
+      - Change impact analysis automated
+
+    gaps: []  # TBD during audit
+
+  # ============================================
+  # CASE STUDY 5: NETFLIX
+  # ============================================
+  - id: netflix
+    name: Netflix
+    industry: Entertainment/Technology
+    fortune_rank: 115  # 2024
+
+    context:
+      description: >
+        Streaming platform manages content metadata across 100M+ items.
+        When taxonomy evolves (genres, categories, accessibility features),
+        schema changes must propagate backward-compatibly to all services.
+      scale:
+        content_items: 100000000+
+        metadata_fields: 500+
+        services: 100+
+        daily_recommendations: 1B+
+
+    jtbd_statement: >
+      When content taxonomy evolves, I need backward-compatible schema
+      migrations across all services, so that existing content remains
+      accessible while new features are supported.
+
+    required_commands:
+      - command: ggen ontology init
+        purpose: Initialize content ontology structure
+        criticality: P2
+        current_support: TBD
+
+      - command: ggen marketplace validate
+        purpose: Validate schema evolution rules
+        criticality: P1
+        current_support: TBD
+
+      - command: ggen template lint
+        purpose: Lint templates for backward compatibility
+        criticality: P1
+        current_support: TBD
+
+      - command: ggen template new
+        purpose: Create new content type templates
+        criticality: P2
+        current_support: TBD
+
+    slo_requirements:
+      migration_time: <30min for schema evolution
+      compatibility: Zero breaking changes to existing data
+      rollback: Instant revert capability
+
+    success_criteria:
+      - Schema changes are backward compatible by default
+      - Breaking changes require explicit approval
+      - Migration scripts generated automatically
+
+    gaps: []  # TBD during audit
+
+  # ============================================
+  # CASE STUDY 6: TOYOTA
+  # ============================================
+  - id: toyota
+    name: Toyota
+    industry: Manufacturing/Automotive
+    fortune_rank: 10  # 2024 (global)
+
+    context:
+      description: >
+        Automotive manufacturer uses product ontologies to define vehicle
+        configurations. With just-in-time manufacturing, code generation
+        for production systems must be fast and reliable. FMEA critical
+        for automotive safety.
+      scale:
+        vehicle_configurations: 1000+
+        parts_per_vehicle: 30000+
+        factories: 50+
+        daily_production: 25000+
+
+    jtbd_statement: >
+      When a new vehicle variant is defined, I need manufacturing system
+      code generated within hours, not weeks, so that production can
+      start without delay.
+
+    required_commands:
+      - command: ggen fmea pareto
+        purpose: Prioritize failure modes for quality focus
+        criticality: P1
+        current_support: TBD
+
+      - command: ggen project watch
+        purpose: Auto-regenerate on configuration changes
+        criticality: P1
+        current_support: TBD
+
+      - command: ggen graph export
+        purpose: Export configuration to manufacturing systems
+        criticality: P2
+        current_support: TBD
+
+      - command: ggen fmea show
+        purpose: Display safety analysis for review
+        criticality: P2
+        current_support: TBD
+
+    slo_requirements:
+      watch_latency: <5s from change to regeneration
+      generation_time: <1hr for complete variant
+      fmea_completeness: 100% failure mode coverage
+
+    success_criteria:
+      - Watch mode triggers within SLO
+      - Generated code integrates with MES systems
+      - FMEA reports support ISO 26262
+
+    gaps: []  # TBD during audit
+
+  # ============================================
+  # CASE STUDY 7: GOLDMAN SACHS
+  # ============================================
+  - id: goldman
+    name: Goldman Sachs
+    industry: Finance/Trading
+    fortune_rank: 62  # 2024
+
+    context:
+      description: >
+        Investment bank's trading systems require type-safe code that
+        passes compliance review. When market structure changes (new
+        instruments, regulations), systems must be updated with full
+        audit trail for regulators.
+      scale:
+        daily_trading_volume: 500000000000  # $500B
+        instruments: 100000+
+        trades_per_second: 10000+
+        latency_requirement_us: 100  # microseconds
+
+    jtbd_statement: >
+      When market structure changes, I need type-safe trading code that
+      passes compliance review automatically, so that we can trade new
+      instruments without regulatory delays.
+
+    required_commands:
+      - command: ggen ai analyze
+        purpose: AI analysis of regulatory impact
+        criticality: P2
+        current_support: TBD
+
+      - command: ggen template regenerate
+        purpose: Regenerate trading entities on spec changes
+        criticality: P1
+        current_support: TBD
+
+      - command: ggen project watch
+        purpose: Auto-regenerate on market data changes
+        criticality: P2
+        current_support: TBD
+
+      - command: ggen ci
+        purpose: CI/CD integration for automated deployment
+        criticality: P1
+        current_support: TBD
+
+    slo_requirements:
+      generation_latency: <1s for incremental changes
+      type_safety: 100% compile-time verification
+      audit_trail: Complete for regulatory review
+
+    success_criteria:
+      - Generated code compiles without warnings
+      - Compliance annotations maintained
+      - Deployment pipeline fully automated
+
+    gaps: []  # TBD during audit
+
+# Summary by Command Usage
+command_usage_summary:
+  high_demand:  # Used by 4+ case studies
+    - ggen template generate: [jpmorgan, amazon, pfizer, toyota, goldman]
+    - ggen project watch: [toyota, goldman]
+    - ggen ontology validate: [jpmorgan, pfizer]
+    - ggen fmea show: [boeing, toyota]
+
+  medium_demand:  # Used by 2-3 case studies
+    - ggen fmea report: [boeing]
+    - ggen fmea pareto: [toyota]
+    - ggen graph query: [jpmorgan, pfizer]
+    - ggen ai analyze: [goldman]
+    - ggen marketplace validate: [netflix]
+    - ggen marketplace validate_fmea: [boeing, toyota]
+
+  industry_specific:
+    finance: [ggen ci, ggen ai analyze, ggen template regenerate]
+    healthcare: [ggen ontology extract, ggen graph load]
+    aerospace: [ggen fmea report, ggen workflow analyze]
+    manufacturing: [ggen fmea pareto, ggen graph export]
+    technology: [ggen project generate, ggen marketplace install]
+
+# Cross-Industry Patterns
+patterns:
+  compliance_driven:
+    industries: [jpmorgan, pfizer, boeing, goldman]
+    key_commands: [ontology validate, fmea report, workflow analyze]
+    critical_features: [traceability, audit trail, determinism]
+
+  scale_driven:
+    industries: [amazon, netflix]
+    key_commands: [project generate, template generate-tree, marketplace install]
+    critical_features: [parallelism, consistency, backward compatibility]
+
+  time_sensitive:
+    industries: [toyota, goldman]
+    key_commands: [project watch, template regenerate, ci]
+    critical_features: [low latency, incremental generation, automation]

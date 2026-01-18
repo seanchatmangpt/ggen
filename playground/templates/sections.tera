@@ -1,0 +1,13 @@
+% ============================================================================
+% SECTIONS - Generated from RDF Ontology
+% ============================================================================
+
+{% for row in sparql_results %}
+% Chapter {{ row["?chapterNum"] }}: {{ row["?chapterTitle"] }}
+% Section: {{ row["?sectionTitle"] }}
+
+\section{ {{ row["?sectionTitle"] }} }
+
+{{ row["?content"] }}
+
+{% endfor %}

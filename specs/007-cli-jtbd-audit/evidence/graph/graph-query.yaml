@@ -1,0 +1,46 @@
+command: "ggen graph query"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 68
+agent_breakdown:
+  parseable_output: 25
+  error_messages: 14
+  idempotency: 15
+  progress_feedback: 6
+  dry_run: 10
+  documentation: 4
+  exit_codes: 2
+
+avatar_notes:
+  claude_code: "SPARQL queries on RDF; JSON results excellent"
+  cursor_ai: "Query visualization helpful for IDE"
+  copilot: "SPARQL syntax learnable from examples"
+  aider: "Query deterministic; safe for git"
+  devin: "Can execute queries autonomously"
+  openhands: "Customizable query support"
+  windsurf: "Result rendering via JSON"
+
+maturity_level: "L4"
+maturity_blockers: []
+
+evidence_files: []
+
+recommendations:
+  - priority: P2
+    description: "Add --explain flag for query optimization hints"
+    effort: medium
+    impact: low
+
+jtbd: |
+  When I want to query an RDF graph with SPARQL,
+  I need to run 'ggen graph query' with SPARQL statement,
+  so that I can extract specific RDF data from the graph.

@@ -1,0 +1,47 @@
+# Embedded Rust - Cross-Compilation Lifecycle
+# Demonstrates: multiple targets, cross-compilation, embedded workflow
+
+[lifecycle.init]
+command = "cargo init --name embedded-app || echo 'Initialized'"
+
+[lifecycle.setup]
+commands = [
+    "rustup target add thumbv7em-none-eabihf",
+    "rustup target add thumbv7m-none-eabi",
+    "cargo install cargo-binutils cargo-embed",
+]
+
+[lifecycle.lint]
+command = "cargo clippy --target thumbv7em-none-eabihf -- -D warnings"
+
+[lifecycle.build-arm]
+command = "cargo build --release --target thumbv7em-none-eabihf"
+
+[lifecycle.build-cortex-m]
+command = "cargo build --release --target thumbv7m-none-eabi"
+
+[lifecycle.build]
+commands = [
+    "cargo build --release --target thumbv7em-none-eabihf",
+    "cargo build --release --target thumbv7m-none-eabi",
+]
+parallel = true
+
+[lifecycle.size]
+commands = [
+    "cargo size --release --target thumbv7em-none-eabihf -- -A",
+    "cargo objdump --release --target thumbv7em-none-eabihf -- -d > target/disassembly.txt",
+]
+
+[lifecycle.test]
+command = "cargo test --lib"
+
+[lifecycle.flash]
+command = "cargo embed --release --target thumbv7em-none-eabihf"
+
+[hooks]
+before_build = ["lint"]
+after_build = ["size"]
+
+[env]
+CARGO_TARGET_THUMBV7EM_NONE_EABIHF_RUNNER = "probe-run --chip STM32F401RETx"

@@ -1,0 +1,102 @@
+# ggen PaaS Architecture Documentation
+
+**Generated**: {{ now() | date(format="%Y-%m-%d %H:%M:%S") }}
+**Source**: `.specify/ggen-paas-ontology.ttl`
+
+## Overview
+
+ggen PaaS is a semantic code generation platform that uses RDF ontologies, SPARQL patterns, and Tera templates to generate infrastructure and application code.
+
+## Containers
+
+{% for container in containers | sort(attribute="container_name") %}
+### {{ container.container_name }}
+
+**Technology**: {{ container.technology }}
+**Description**: {{ container.description }}
+**SLA Response Time**: {{ container.response_time_ms }}ms
+**SLA Availability**: {{ container.availability_percent }}%
+
+**Responsibilities**:
+- {{ container.container_name | replace(from="-", to=" ") | capitalize }}
+
+{% endfor %}
+
+## Data Flow
+
+1. **User Submission**: User submits RDF specification via Web UI
+2. **API Gateway**: API Gateway validates and routes request to ggen Engine
+3. **RDF Processing**: RDF Processor parses and validates specifications
+4. **SPARQL Execution**: SPARQL Engine extracts data using CONSTRUCT patterns
+5. **Template Rendering**: Template Engine renders code with extracted data
+6. **Code Generation**: Code Generator validates and formats output
+7. **Job Scheduling**: Job Scheduler queues async generation jobs
+8. **Caching**: Results are cached in Redis
+9. **Git Integration**: Generated code is committed to Git
+10. **Publishing**: Packages are published to registries (npm, Cargo)
+
+## Technology Stack
+
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **Frontend** | React, TypeScript | Interactive UI |
+| **API** | Rust, Axum, Tokio | REST API server |
+| **Auth** | JWT, OAuth2 | Authentication |
+| **RDF** | Oxigraph, n3-rs | RDF storage and SPARQL |
+| **Templates** | Tera | Jinja2-like templating |
+| **Jobs** | Bree, Node.js | Background scheduling |
+| **Database** | PostgreSQL | Metadata and relational data |
+| **Cache** | Redis | Session and query cache |
+| **Container Orchestration** | Kubernetes | Production deployment |
+| **Infrastructure** | Terraform, AWS | Cloud infrastructure |
+
+## Security
+
+- All API endpoints require JWT authentication
+- Non-root containers with restricted security contexts
+- Encrypted data in transit (TLS/HTTPS)
+- Encrypted data at rest in databases
+- Database backups with 30-day retention
+- VPC isolation with security groups
+
+## High Availability
+
+- Multi-AZ deployments across 2+ availability zones
+- Auto-scaling groups for compute resources
+- RDS read replicas for database
+- Redis cluster for caching
+- Load balancer for traffic distribution
+- Container health checks and automatic restarts
+
+## Monitoring & Observability
+
+- Prometheus metrics on port 9090
+- Structured logging to CloudWatch
+- Distributed tracing with X-Ray
+- Health check endpoints on every service
+- Andon signals for SLO violations
+
+## Disaster Recovery
+
+- Daily automated database backups
+- S3 cross-region replication
+- RTO (Recovery Time Objective): 1 hour
+- RPO (Recovery Point Objective): 15 minutes
+- Tested monthly
+
+## Cost Optimization
+
+- Spot instances for non-critical workloads
+- Reserved instances for baseline capacity
+- Auto-scaling based on CPU/memory metrics
+- S3 lifecycle policies for archival
+- Database query optimization
+
+## Future Enhancements
+
+1. Multi-region deployment
+2. Advanced analytics and dashboards
+3. Custom ontology marketplace
+4. GraphQL API support
+5. Real-time collaboration features
+6. AI-assisted code generation

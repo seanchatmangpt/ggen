@@ -1,0 +1,22 @@
+
+\chapter{Complete Thesis Ontology Schema}
+\label{app:schema}
+
+This appendix presents the complete thesis generation ontology schema used by ggen to produce this dissertation. The schema defines all classes, properties, and constraints required for thesis document generation.\n\nThe ontology follows RDF 1.1 conventions with SHACL shapes for validation. All classes inherit from \\texttt{rdfs:Resource} and properties are typed with appropriate ranges.\n\nSee Section~\\ref{sec:ontologies-as-specs} for discussion of how this schema enables zero-hardcoded template generation.
+
+\chapter{Sample Tera Templates}
+\label{app:templates}
+
+This appendix provides sample Tera templates demonstrating the zero-hardcoding principle. Each template contains only structural LaTeX markup and variable placeholders---all textual content originates from SPARQL query results.\n\nThe templates demonstrate key patterns:\n\\begin{itemize}\n\\item Iteration over query results with \\texttt{\\{% for row in results \\%\\}}\n\\item Conditional rendering with \\texttt{\\{% if \\%\\}}\n\\item Default value handling with \\texttt{| default(value=\
+
+\chapter{Generated Code Examples}
+\label{app:code-examples}
+
+This appendix provides generated code examples demonstrating the framework's multi-language output capabilities. Code listings show Rust, TypeScript, and SPARQL artifacts generated from unified ontologies.
+
+\chapter{Ontology Schema Definitions}
+\label{app:ontology-schemas}
+
+This appendix contains complete ontology schemas for ASTRO, Figex, TanStack, and @unrdf/hooks systems. Schemas demonstrate RDF/OWL modeling patterns and SHACL validation constraints.
+
+

@@ -1,0 +1,9 @@
+# CODEOWNERS for user noun
+# Changes to this directory require approval from Identity Team
+
+@company/identity-team
+@john.smith
+@jane.doe
+
+# Breaking changes require platform team approval
+*.breaking.ttl @company/platform-team

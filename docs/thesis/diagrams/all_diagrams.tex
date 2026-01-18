@@ -1,0 +1,49 @@
+% Complete set of TikZ diagrams for PhD thesis on Ontology-Driven Code Generation
+% Author: Generated for ggen framework thesis
+% Date: 2026-01-06
+%
+% This file contains all 5 architectural diagrams ready for inclusion in thesis.tex
+% Each diagram is self-contained and can be compiled independently or included via \input{}
+%
+% Usage in main thesis:
+%   \input{diagrams/01_system_architecture.tex}
+%   \input{diagrams/02_rdf_ontology.tex}
+%   etc.
+%
+% Or compile this file directly to preview all diagrams
+
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, positioning, shapes.multipart, shapes.symbols}
+
+\begin{document}
+
+\title{Ontology-Driven Code Generation:\\Architectural Diagrams}
+\author{PhD Thesis Supporting Materials}
+\date{\today}
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{System Architecture Overview}
+\input{01_system_architecture.tex}
+
+\newpage
+\section{RDF Ontology Structure}
+\input{02_rdf_ontology.tex}
+
+\newpage
+\section{Generation Pipeline Flow}
+\input{03_generation_pipeline.tex}
+
+\newpage
+\section{Type Guard Composition}
+\input{04_type_guard_composition.tex}
+
+\newpage
+\section{Multi-Artifact Consistency}
+\input{05_multi_artifact_consistency.tex}
+
+\end{document}

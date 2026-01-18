@@ -1,0 +1,13 @@
+{
+  "name": "figex-refined-modules",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:doctest": "vitest run --reporter=verbose"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.16"
+  }
+}

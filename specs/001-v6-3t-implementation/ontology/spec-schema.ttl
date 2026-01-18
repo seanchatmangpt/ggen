@@ -1,0 +1,684 @@
+@prefix spec: <http://ggen.dev/speckit#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+
+# ============================================================================
+# Specification Ontology Schema
+# ============================================================================
+# Purpose: Define RDF vocabulary for software specifications with SHACL validation
+# Version: 1.0.0
+# Created: 2025-12-19
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Ontology Metadata
+# ----------------------------------------------------------------------------
+
+<http://ggen.dev/speckit#> a owl:Ontology ;
+    rdfs:label "ggen Specification Kit Ontology"@en ;
+    rdfs:comment "Vocabulary for representing software specifications as RDF triples"@en ;
+    owl:versionInfo "1.0.0" .
+
+# ----------------------------------------------------------------------------
+# Core Classes
+# ----------------------------------------------------------------------------
+
+spec:Specification
+    a owl:Class ;
+    rdfs:label "Specification"@en ;
+    rdfs:comment "Complete software feature specification document"@en .
+
+spec:UserStory
+    a owl:Class ;
+    rdfs:label "User Story"@en ;
+    rdfs:comment "User-facing scenario describing feature value: As a [role], I want [capability] so that [benefit]"@en .
+
+spec:AcceptanceScenario
+    a owl:Class ;
+    rdfs:label "Acceptance Scenario"@en ;
+    rdfs:comment "Testable Given-When-Then acceptance criterion for user story validation"@en .
+
+spec:FunctionalRequirement
+    a owl:Class ;
+    rdfs:label "Functional Requirement"@en ;
+    rdfs:comment "Specific functional requirement the system must implement"@en .
+
+spec:SuccessCriterion
+    a owl:Class ;
+    rdfs:label "Success Criterion"@en ;
+    rdfs:comment "Measurable outcome indicating project success"@en .
+
+spec:Entity
+    a owl:Class ;
+    rdfs:label "Key Entity"@en ;
+    rdfs:comment "Important domain entity in the system specification"@en .
+
+spec:EdgeCase
+    a owl:Class ;
+    rdfs:label "Edge Case"@en ;
+    rdfs:comment "Boundary condition or exceptional scenario requiring special handling"@en .
+
+spec:Risk
+    a owl:Class ;
+    rdfs:label "Risk"@en ;
+    rdfs:comment "Project risk with associated mitigation strategy"@en .
+
+spec:Dependency
+    a owl:Class ;
+    rdfs:label "Dependency"@en ;
+    rdfs:comment "External dependency required for implementation"@en .
+
+spec:Assumption
+    a owl:Class ;
+    rdfs:label "Assumption"@en ;
+    rdfs:comment "Project assumption that must hold for success"@en .
+
+spec:NonGoal
+    a owl:Class ;
+    rdfs:label "Non-Goal"@en ;
+    rdfs:comment "Explicitly out-of-scope functionality"@en .
+
+# ----------------------------------------------------------------------------
+# Specification Properties
+# ----------------------------------------------------------------------------
+
+spec:name
+    a owl:DatatypeProperty ;
+    rdfs:label "name"@en ;
+    rdfs:comment "Specification name or title"@en ;
+    rdfs:domain spec:Specification ;
+    rdfs:range xsd:string .
+
+spec:featureBranch
+    a owl:DatatypeProperty ;
+    rdfs:label "feature branch"@en ;
+    rdfs:comment "Git branch name for this feature (e.g., 001-v6-3t-implementation)"@en ;
+    rdfs:domain spec:Specification ;
+    rdfs:range xsd:string .
+
+spec:created
+    a owl:DatatypeProperty ;
+    rdfs:label "created"@en ;
+    rdfs:comment "Date specification was created"@en ;
+    rdfs:domain spec:Specification ;
+    rdfs:range xsd:date .
+
+spec:status
+    a owl:DatatypeProperty ;
+    rdfs:label "status"@en ;
+    rdfs:comment "Specification status: Draft, Review, Approved, Implemented"@en ;
+    rdfs:domain spec:Specification ;
+    rdfs:range xsd:string .
+
+spec:inputDescription
+    a owl:DatatypeProperty ;
+    rdfs:label "input description"@en ;
+    rdfs:comment "Original user input that triggered specification creation"@en ;
+    rdfs:domain spec:Specification ;
+    rdfs:range xsd:string .
+
+# ----------------------------------------------------------------------------
+# User Story Properties
+# ----------------------------------------------------------------------------
+
+spec:storyIndex
+    a owl:DatatypeProperty ;
+    rdfs:label "story index"@en ;
+    rdfs:comment "Numerical ordering of user story (1, 2, 3...)"@en ;
+    rdfs:domain spec:UserStory ;
+    rdfs:range xsd:integer .
+
+spec:title
+    a owl:DatatypeProperty ;
+    rdfs:label "title"@en ;
+    rdfs:comment "User story or requirement title"@en ;
+    rdfs:range xsd:string .
+
+spec:priority
+    a owl:DatatypeProperty ;
+    rdfs:label "priority"@en ;
+    rdfs:comment "Priority level: P1 (highest), P2 (medium), P3 (lowest)"@en ;
+    rdfs:domain spec:UserStory ;
+    rdfs:range xsd:string .
+
+spec:rationale
+    a owl:DatatypeProperty ;
+    rdfs:label "rationale"@en ;
+    rdfs:comment "Explanation of why this priority was assigned"@en ;
+    rdfs:domain spec:UserStory ;
+    rdfs:range xsd:string .
+
+spec:testStrategy
+    a owl:DatatypeProperty ;
+    rdfs:label "test strategy"@en ;
+    rdfs:comment "How to independently test this user story"@en ;
+    rdfs:domain spec:UserStory ;
+    rdfs:range xsd:string .
+
+spec:description
+    a owl:DatatypeProperty ;
+    rdfs:label "description"@en ;
+    rdfs:comment "Detailed description of item"@en ;
+    rdfs:range xsd:string .
+
+# ----------------------------------------------------------------------------
+# Acceptance Scenario Properties
+# ----------------------------------------------------------------------------
+
+spec:scenarioIndex
+    a owl:DatatypeProperty ;
+    rdfs:label "scenario index"@en ;
+    rdfs:comment "Numerical ordering of acceptance scenario within a user story"@en ;
+    rdfs:domain spec:AcceptanceScenario ;
+    rdfs:range xsd:integer .
+
+spec:given
+    a owl:DatatypeProperty ;
+    rdfs:label "given"@en ;
+    rdfs:comment "Precondition: initial state before action"@en ;
+    rdfs:domain spec:AcceptanceScenario ;
+    rdfs:range xsd:string .
+
+spec:when
+    a owl:DatatypeProperty ;
+    rdfs:label "when"@en ;
+    rdfs:comment "Action: what the user or system does"@en ;
+    rdfs:domain spec:AcceptanceScenario ;
+    rdfs:range xsd:string .
+
+spec:then
+    a owl:DatatypeProperty ;
+    rdfs:label "then"@en ;
+    rdfs:comment "Expected outcome: observable result after action"@en ;
+    rdfs:domain spec:AcceptanceScenario ;
+    rdfs:range xsd:string .
+
+# ----------------------------------------------------------------------------
+# Functional Requirement Properties
+# ----------------------------------------------------------------------------
+
+spec:requirementId
+    a owl:DatatypeProperty ;
+    rdfs:label "requirement ID"@en ;
+    rdfs:comment "Unique requirement identifier (e.g., FR-001, FR-002)"@en ;
+    rdfs:domain spec:FunctionalRequirement ;
+    rdfs:range xsd:string .
+
+spec:category
+    a owl:DatatypeProperty ;
+    rdfs:label "category"@en ;
+    rdfs:comment "Requirement category for grouping"@en ;
+    rdfs:domain spec:FunctionalRequirement ;
+    rdfs:range xsd:string .
+
+# ----------------------------------------------------------------------------
+# Success Criterion Properties
+# ----------------------------------------------------------------------------
+
+spec:criterionId
+    a owl:DatatypeProperty ;
+    rdfs:label "criterion ID"@en ;
+    rdfs:comment "Unique success criterion identifier (e.g., SC-001, SC-002)"@en ;
+    rdfs:domain spec:SuccessCriterion ;
+    rdfs:range xsd:string .
+
+spec:measurable
+    a owl:DatatypeProperty ;
+    rdfs:label "measurable"@en ;
+    rdfs:comment "Whether this criterion has quantifiable metrics (true/false)"@en ;
+    rdfs:domain spec:SuccessCriterion ;
+    rdfs:range xsd:boolean .
+
+spec:metric
+    a owl:DatatypeProperty ;
+    rdfs:label "metric"@en ;
+    rdfs:comment "What is being measured"@en ;
+    rdfs:domain spec:SuccessCriterion ;
+    rdfs:range xsd:string .
+
+spec:target
+    a owl:DatatypeProperty ;
+    rdfs:label "target"@en ;
+    rdfs:comment "Target value or threshold for success"@en ;
+    rdfs:domain spec:SuccessCriterion ;
+    rdfs:range xsd:string .
+
+# ----------------------------------------------------------------------------
+# Entity Properties
+# ----------------------------------------------------------------------------
+
+spec:entityName
+    a owl:DatatypeProperty ;
+    rdfs:label "entity name"@en ;
+    rdfs:comment "Name of the domain entity"@en ;
+    rdfs:domain spec:Entity ;
+    rdfs:range xsd:string .
+
+spec:definition
+    a owl:DatatypeProperty ;
+    rdfs:label "definition"@en ;
+    rdfs:comment "Detailed definition of entity or concept"@en ;
+    rdfs:domain spec:Entity ;
+    rdfs:range xsd:string .
+
+# ----------------------------------------------------------------------------
+# Edge Case Properties
+# ----------------------------------------------------------------------------
+
+spec:scenario
+    a owl:DatatypeProperty ;
+    rdfs:label "scenario"@en ;
+    rdfs:comment "Edge case scenario description"@en ;
+    rdfs:domain spec:EdgeCase ;
+    rdfs:range xsd:string .
+
+spec:expectedBehavior
+    a owl:DatatypeProperty ;
+    rdfs:label "expected behavior"@en ;
+    rdfs:comment "How system should handle this edge case"@en ;
+    rdfs:domain spec:EdgeCase ;
+    rdfs:range xsd:string .
+
+# ----------------------------------------------------------------------------
+# Risk Properties
+# ----------------------------------------------------------------------------
+
+spec:riskId
+    a owl:DatatypeProperty ;
+    rdfs:label "risk ID"@en ;
+    rdfs:comment "Unique risk identifier (e.g., R-001, R-002)"@en ;
+    rdfs:domain spec:Risk ;
+    rdfs:range xsd:string .
+
+spec:severity
+    a owl:DatatypeProperty ;
+    rdfs:label "severity"@en ;
+    rdfs:comment "Risk severity: Low, Medium, High, Critical"@en ;
+    rdfs:domain spec:Risk ;
+    rdfs:range xsd:string .
+
+spec:mitigation
+    a owl:DatatypeProperty ;
+    rdfs:label "mitigation"@en ;
+    rdfs:comment "Strategy to mitigate or reduce this risk"@en ;
+    rdfs:domain spec:Risk ;
+    rdfs:range xsd:string .
+
+# ----------------------------------------------------------------------------
+# Dependency Properties
+# ----------------------------------------------------------------------------
+
+spec:dependencyId
+    a owl:DatatypeProperty ;
+    rdfs:label "dependency ID"@en ;
+    rdfs:comment "Unique dependency identifier (e.g., D-001, D-002)"@en ;
+    rdfs:domain spec:Dependency ;
+    rdfs:range xsd:string .
+
+spec:version
+    a owl:DatatypeProperty ;
+    rdfs:label "version"@en ;
+    rdfs:comment "Required version of dependency"@en ;
+    rdfs:domain spec:Dependency ;
+    rdfs:range xsd:string .
+
+# ----------------------------------------------------------------------------
+# Assumption Properties
+# ----------------------------------------------------------------------------
+
+spec:assumptionId
+    a owl:DatatypeProperty ;
+    rdfs:label "assumption ID"@en ;
+    rdfs:comment "Unique assumption identifier (e.g., A-001, A-002)"@en ;
+    rdfs:domain spec:Assumption ;
+    rdfs:range xsd:string .
+
+# ----------------------------------------------------------------------------
+# Non-Goal Properties
+# ----------------------------------------------------------------------------
+
+spec:nonGoalId
+    a owl:DatatypeProperty ;
+    rdfs:label "non-goal ID"@en ;
+    rdfs:comment "Unique non-goal identifier (e.g., NG-001, NG-002)"@en ;
+    rdfs:domain spec:NonGoal ;
+    rdfs:range xsd:string .
+
+# ----------------------------------------------------------------------------
+# Object Properties (Relationships)
+# ----------------------------------------------------------------------------
+
+spec:hasUserStory
+    a owl:ObjectProperty ;
+    rdfs:label "has user story"@en ;
+    rdfs:comment "Specification contains this user story"@en ;
+    rdfs:domain spec:Specification ;
+    rdfs:range spec:UserStory .
+
+spec:hasAcceptanceScenario
+    a owl:ObjectProperty ;
+    rdfs:label "has acceptance scenario"@en ;
+    rdfs:comment "User story validated by this acceptance scenario"@en ;
+    rdfs:domain spec:UserStory ;
+    rdfs:range spec:AcceptanceScenario .
+
+spec:hasRequirement
+    a owl:ObjectProperty ;
+    rdfs:label "has requirement"@en ;
+    rdfs:comment "Specification contains this requirement"@en ;
+    rdfs:domain spec:Specification ;
+    rdfs:range spec:FunctionalRequirement .
+
+spec:hasSuccessCriterion
+    a owl:ObjectProperty ;
+    rdfs:label "has success criterion"@en ;
+    rdfs:comment "Specification evaluated by this success criterion"@en ;
+    rdfs:domain spec:Specification ;
+    rdfs:range spec:SuccessCriterion .
+
+spec:hasEntity
+    a owl:ObjectProperty ;
+    rdfs:label "has entity"@en ;
+    rdfs:comment "Specification defines this key entity"@en ;
+    rdfs:domain spec:Specification ;
+    rdfs:range spec:Entity .
+
+spec:hasEdgeCase
+    a owl:ObjectProperty ;
+    rdfs:label "has edge case"@en ;
+    rdfs:comment "Specification addresses this edge case"@en ;
+    rdfs:domain spec:Specification ;
+    rdfs:range spec:EdgeCase .
+
+spec:hasRisk
+    a owl:ObjectProperty ;
+    rdfs:label "has risk"@en ;
+    rdfs:comment "Specification identifies this risk"@en ;
+    rdfs:domain spec:Specification ;
+    rdfs:range spec:Risk .
+
+spec:hasDependency
+    a owl:ObjectProperty ;
+    rdfs:label "has dependency"@en ;
+    rdfs:comment "Specification requires this dependency"@en ;
+    rdfs:domain spec:Specification ;
+    rdfs:range spec:Dependency .
+
+spec:hasAssumption
+    a owl:ObjectProperty ;
+    rdfs:label "has assumption"@en ;
+    rdfs:comment "Specification relies on this assumption"@en ;
+    rdfs:domain spec:Specification ;
+    rdfs:range spec:Assumption .
+
+spec:hasNonGoal
+    a owl:ObjectProperty ;
+    rdfs:label "has non-goal"@en ;
+    rdfs:comment "Specification explicitly excludes this non-goal"@en ;
+    rdfs:domain spec:Specification ;
+    rdfs:range spec:NonGoal .
+
+# ============================================================================
+# SHACL Validation Shapes
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Specification Shape
+# ----------------------------------------------------------------------------
+
+spec:SpecificationShape
+    a shacl:NodeShape ;
+    shacl:targetClass spec:Specification ;
+    shacl:property [
+        shacl:path spec:name ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:description "Specification must have exactly one name"@en ;
+    ] ;
+    shacl:property [
+        shacl:path spec:featureBranch ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:pattern "^[0-9]{3}-[a-z0-9-]+$" ;
+        shacl:description "Feature branch must match pattern: NNN-feature-name"@en ;
+    ] ;
+    shacl:property [
+        shacl:path spec:status ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:in ("Draft" "Review" "Approved" "Implemented") ;
+        shacl:description "Status must be one of: Draft, Review, Approved, Implemented"@en ;
+    ] ;
+    shacl:property [
+        shacl:path spec:hasUserStory ;
+        shacl:class spec:UserStory ;
+        shacl:minCount 1 ;
+        shacl:description "Specification must have at least one user story"@en ;
+    ] .
+
+# ----------------------------------------------------------------------------
+# User Story Shape
+# ----------------------------------------------------------------------------
+
+spec:UserStoryShape
+    a shacl:NodeShape ;
+    shacl:targetClass spec:UserStory ;
+    shacl:property [
+        shacl:path spec:storyIndex ;
+        shacl:datatype xsd:integer ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:minInclusive 1 ;
+        shacl:description "User story must have a positive integer index"@en ;
+    ] ;
+    shacl:property [
+        shacl:path spec:title ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:minLength 5 ;
+        shacl:description "User story must have a title of at least 5 characters"@en ;
+    ] ;
+    shacl:property [
+        shacl:path spec:priority ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:in ("P1" "P2" "P3") ;
+        shacl:description "Priority must be P1, P2, or P3"@en ;
+    ] ;
+    shacl:property [
+        shacl:path spec:description ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:minLength 10 ;
+        shacl:description "User story must have a description of at least 10 characters"@en ;
+    ] ;
+    shacl:property [
+        shacl:path spec:hasAcceptanceScenario ;
+        shacl:class spec:AcceptanceScenario ;
+        shacl:minCount 1 ;
+        shacl:description "User story must have at least one acceptance scenario"@en ;
+    ] .
+
+# ----------------------------------------------------------------------------
+# Acceptance Scenario Shape
+# ----------------------------------------------------------------------------
+
+spec:AcceptanceScenarioShape
+    a shacl:NodeShape ;
+    shacl:targetClass spec:AcceptanceScenario ;
+    shacl:property [
+        shacl:path spec:scenarioIndex ;
+        shacl:datatype xsd:integer ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:minInclusive 1 ;
+        shacl:description "Acceptance scenario must have a positive integer index"@en ;
+    ] ;
+    shacl:property [
+        shacl:path spec:given ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:minLength 5 ;
+        shacl:description "Acceptance scenario must have a Given clause"@en ;
+    ] ;
+    shacl:property [
+        shacl:path spec:when ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:minLength 5 ;
+        shacl:description "Acceptance scenario must have a When clause"@en ;
+    ] ;
+    shacl:property [
+        shacl:path spec:then ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:minLength 5 ;
+        shacl:description "Acceptance scenario must have a Then clause"@en ;
+    ] .
+
+# ----------------------------------------------------------------------------
+# Functional Requirement Shape
+# ----------------------------------------------------------------------------
+
+spec:FunctionalRequirementShape
+    a shacl:NodeShape ;
+    shacl:targetClass spec:FunctionalRequirement ;
+    shacl:property [
+        shacl:path spec:requirementId ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:pattern "^(FR|NFR)-[0-9]{3}$" ;
+        shacl:description "Requirement ID must match pattern: FR-XXX or NFR-XXX"@en ;
+    ] ;
+    shacl:property [
+        shacl:path spec:description ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:minLength 10 ;
+        shacl:description "Requirement must have a description of at least 10 characters"@en ;
+    ] .
+
+# ----------------------------------------------------------------------------
+# Success Criterion Shape
+# ----------------------------------------------------------------------------
+
+spec:SuccessCriterionShape
+    a shacl:NodeShape ;
+    shacl:targetClass spec:SuccessCriterion ;
+    shacl:property [
+        shacl:path spec:criterionId ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:pattern "^SC-[0-9]{3}$" ;
+        shacl:description "Success criterion ID must match pattern: SC-XXX"@en ;
+    ] ;
+    shacl:property [
+        shacl:path spec:description ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:minLength 10 ;
+        shacl:description "Success criterion must have a description"@en ;
+    ] ;
+    shacl:property [
+        shacl:path spec:measurable ;
+        shacl:datatype xsd:boolean ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:description "Success criterion must indicate if it is measurable"@en ;
+    ] .
+
+# ----------------------------------------------------------------------------
+# Entity Shape
+# ----------------------------------------------------------------------------
+
+spec:EntityShape
+    a shacl:NodeShape ;
+    shacl:targetClass spec:Entity ;
+    shacl:property [
+        shacl:path spec:entityName ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:minLength 2 ;
+        shacl:description "Entity must have a name"@en ;
+    ] ;
+    shacl:property [
+        shacl:path spec:definition ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:minLength 10 ;
+        shacl:description "Entity must have a definition"@en ;
+    ] .
+
+# ----------------------------------------------------------------------------
+# Edge Case Shape
+# ----------------------------------------------------------------------------
+
+spec:EdgeCaseShape
+    a shacl:NodeShape ;
+    shacl:targetClass spec:EdgeCase ;
+    shacl:property [
+        shacl:path spec:scenario ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:minLength 10 ;
+        shacl:description "Edge case must have a scenario description"@en ;
+    ] ;
+    shacl:property [
+        shacl:path spec:expectedBehavior ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:minLength 10 ;
+        shacl:description "Edge case must define expected behavior"@en ;
+    ] .
+
+# ----------------------------------------------------------------------------
+# Risk Shape
+# ----------------------------------------------------------------------------
+
+spec:RiskShape
+    a shacl:NodeShape ;
+    shacl:targetClass spec:Risk ;
+    shacl:property [
+        shacl:path spec:riskId ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:pattern "^R-[0-9]{3}$" ;
+        shacl:description "Risk ID must match pattern: R-XXX"@en ;
+    ] ;
+    shacl:property [
+        shacl:path spec:severity ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:in ("Low" "Medium" "High" "Critical") ;
+        shacl:description "Severity must be Low, Medium, High, or Critical"@en ;
+    ] ;
+    shacl:property [
+        shacl:path spec:mitigation ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:minLength 10 ;
+        shacl:description "Risk must have a mitigation strategy"@en ;
+    ] .

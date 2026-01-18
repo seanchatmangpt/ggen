@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cleanroom/tests/bdd/features/25_workdir_isolation.feature",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1760261841878,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1760261841878,
+            "name": "Commit-0",
+            "content": "# features/25_workdir_isolation.feature\n@isolation\nFeature: Ephemeral workspace and read-only rootfs\n  Background:\n    Given a fixture project \"cli_fs\"\n\n  Scenario: Writes land in tmpfs workdir\n    When I run [\"write\",\"/tmp/testfile\"] using \"docker\"\n    Then file \"/tmp/testfile\" exists inside container\n    And no writes occurred on host source directory\n"
+        }
+    ]
+}

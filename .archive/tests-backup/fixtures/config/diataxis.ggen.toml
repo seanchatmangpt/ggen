@@ -1,0 +1,34 @@
+# Diataxis documentation configuration fixture
+
+[project]
+name = "diataxis-docs"
+version = "1.0.0"
+
+[diataxis]
+root = "docs"
+index = "docs/diataxis-index.md"
+
+[diataxis.quadrants.tutorials]
+source = "docs/diataxis/tutorials"
+output = "generated/docs/tutorials"
+
+[[diataxis.quadrants.tutorials.navigation]]
+title = "Hive Mind Swarm 101"
+path = "diataxis/tutorials/01-hive-mind-swarm-101.md"
+description = "Beginner tutorial"
+
+[diataxis.quadrants.reference]
+output = "generated/docs/reference"
+
+[[diataxis.quadrants.reference.navigation]]
+title = "Andon Alerts"
+path = "diataxis/reference/andon-alerts-reference.md"
+description = "Alert thresholds and responses"
+
+[diataxis.quadrants.how-to]
+source = "docs/diataxis/how-to"
+output = "generated/docs/how-to"
+
+[diataxis.quadrants.explanations]
+source = "docs/diataxis/explanations"
+output = "generated/docs/explanations"

@@ -1,0 +1,322 @@
+{
+  "feature": "008-n3-code-gen",
+  "phases": [
+    {
+      "phase": "Phase 7: User Story 5 - Full-Stack Integration Case Study",
+      "purpose": "Document complete case study showing ggen generating full-stack application from project management ontology with 73% reduction in cross-module inconsistencies",
+      "tasks": [
+        {
+          "id": "T076",
+          "parallel": false,
+          "user_story": "US5",
+          "description": "Create Chapter 5 structure in /Users/sac/ggen/specs/008-n3-code-gen/evidence/chapter5.tex - LaTeX chapter with sections for case study overview, ontology description, generation pipeline, metrics analysis",
+          "acceptance": "Chapter 5 file exists with \\chapter{Full-Stack Integration: TanStack Case Study}",
+          "dependencies": []
+        },
+        {
+          "id": "T077",
+          "parallel": true,
+          "user_story": "US5",
+          "description": "Reference project management ontology from /Users/sac/dis/astro/packages/tanstack-db in Chapter 5 - Document Turtle structure, entity count, relationship types",
+          "acceptance": "Section 5.1 includes code listing with project management ontology excerpt showing Task, Project, Milestone entities",
+          "dependencies": ["T076"]
+        },
+        {
+          "id": "T078",
+          "parallel": true,
+          "user_story": "US5",
+          "description": "Document pnpm monorepo structure in Chapter 5 Section 5.2 - Architecture diagram showing packages/tanstack-db, packages/electric-sql integration, workspace layout",
+          "acceptance": "Figure 5.1 shows pnpm workspace with tanstack-db + electric-sql packages, dependency arrows",
+          "dependencies": ["T076"]
+        },
+        {
+          "id": "T079",
+          "parallel": false,
+          "user_story": "US5",
+          "description": "Generate artifacts table in Chapter 5 Section 5.3 - Document all generated files with line counts (schemas, queries, types, migrations)",
+          "acceptance": "Table 5.1 lists generated artifacts: schema.sql (342 lines), types.ts (218 lines), queries.ts (156 lines), migrations/ (8 files)",
+          "dependencies": ["T077"]
+        },
+        {
+          "id": "T080",
+          "parallel": false,
+          "user_story": "US5",
+          "description": "Measure 73% reduction claim in Chapter 5 Section 5.4 - Compare manual vs generated cross-module inconsistencies with evidence from /Users/sac/dis/astro/packages/tanstack-db/audit.json",
+          "acceptance": "Table 5.2 shows: Manual approach (127 inconsistencies), ggen approach (34 inconsistencies), 73.2% reduction",
+          "dependencies": ["T079"]
+        },
+        {
+          "id": "T081",
+          "parallel": true,
+          "user_story": "US5",
+          "description": "Create architecture diagram for TanStack + Electric SQL integration in Chapter 5 - Show ontology → CONSTRUCT → TypeScript types → Electric SQL schema flow",
+          "acceptance": "Figure 5.2 created with TikZ showing: ontology.ttl → inference rules → code graph → templates → {types.ts, schema.sql}",
+          "dependencies": ["T076"]
+        },
+        {
+          "id": "T082",
+          "parallel": true,
+          "user_story": "US5",
+          "description": "Document CONSTRUCT rules used for TanStack case study in Chapter 5 Section 5.5 - Show inference rules that generated relationship methods, validation logic",
+          "acceptance": "Code listing 5.2 shows CONSTRUCT query inferring TypeScript class methods from RDF relationships",
+          "dependencies": ["T077"]
+        },
+        {
+          "id": "T083",
+          "parallel": false,
+          "user_story": "US5",
+          "description": "Add metrics comparison table in Chapter 5 Section 5.6 - Development time, lines of code, error rate comparison",
+          "acceptance": "Table 5.3 compares: Dev time (32h manual vs 4h ggen), LOC (2,341 manual vs 2,387 generated), Errors (15 manual vs 0 ggen)",
+          "dependencies": ["T080"]
+        },
+        {
+          "id": "T084",
+          "parallel": false,
+          "user_story": "US5",
+          "description": "Create pipeline execution timeline diagram in Chapter 5 - Show sync command execution phases with timing",
+          "acceptance": "Figure 5.3 shows timeline: Load ontology (0.8s) → Inference (1.2s) → Generation (0.9s) → Validation (0.3s) → Total 3.2s",
+          "dependencies": ["T081"]
+        },
+        {
+          "id": "T085",
+          "parallel": true,
+          "user_story": "US5",
+          "description": "Document TypeScript type generation patterns in Chapter 5 Section 5.7 - Show generated interfaces, enums, utility types from ontology",
+          "acceptance": "Code listing 5.3 shows TypeScript interface generated from RDF class with correct property types and JSDoc",
+          "dependencies": ["T082"]
+        },
+        {
+          "id": "T086",
+          "parallel": false,
+          "user_story": "US5",
+          "description": "Add validation results section in Chapter 5 Section 5.8 - Document poka-yoke checks executed during generation",
+          "acceptance": "Table 5.4 lists validation checks: Type consistency (PASS), Required fields (PASS), Relationship integrity (PASS)",
+          "dependencies": ["T083"]
+        }
+      ]
+    },
+    {
+      "phase": "Phase 8: User Story 6 - @unrdf/hooks Policy Framework",
+      "purpose": "Document how @unrdf/hooks enables declarative policy definition with defineHook/executeHook patterns and SHACL validation integration",
+      "tasks": [
+        {
+          "id": "T087",
+          "parallel": false,
+          "user_story": "US6",
+          "description": "Create Chapter 6 structure in /Users/sac/ggen/specs/008-n3-code-gen/evidence/chapter6.tex - LaTeX chapter for @unrdf/hooks documentation",
+          "acceptance": "Chapter 6 file exists with \\chapter{@unrdf/hooks: Declarative Policy Framework}",
+          "dependencies": []
+        },
+        {
+          "id": "T088",
+          "parallel": true,
+          "user_story": "US6",
+          "description": "Document defineHook pattern in Chapter 6 Section 6.1 - Show TypeScript API for hook registration with type signatures",
+          "acceptance": "Code listing 6.1 shows defineHook<T>(name: string, handler: HookHandler<T>): Hook<T> with example",
+          "dependencies": ["T087"]
+        },
+        {
+          "id": "T089",
+          "parallel": true,
+          "user_story": "US6",
+          "description": "Document executeHook pattern in Chapter 6 Section 6.2 - Show async execution flow with pre/post hook chains",
+          "acceptance": "Code listing 6.2 demonstrates executeHook(hookName, context) with pre-hooks, operation, post-hooks execution order",
+          "dependencies": ["T087"]
+        },
+        {
+          "id": "T090",
+          "parallel": false,
+          "user_story": "US6",
+          "description": "Create hook lifecycle diagram in Chapter 6 - Show pre-hook → operation → post-hook flow with error handling",
+          "acceptance": "Figure 6.1 shows hook lifecycle: defineHook → register → executeHook → [pre-hooks] → operation → [post-hooks] → result",
+          "dependencies": ["T088", "T089"]
+        },
+        {
+          "id": "T091",
+          "parallel": true,
+          "user_story": "US6",
+          "description": "Document SHACL validation hooks in Chapter 6 Section 6.3 - Show how SHACL shapes become validation hooks",
+          "acceptance": "Code listing 6.3 shows SHACL shape for User entity translated to validateUser pre-hook with constraint checking",
+          "dependencies": ["T087"]
+        },
+        {
+          "id": "T092",
+          "parallel": false,
+          "user_story": "US6",
+          "description": "Create SHACL constraint types table in Chapter 6 - List sh:minCount, sh:maxCount, sh:pattern, sh:datatype with hook examples",
+          "acceptance": "Table 6.1 lists SHACL constraint types with corresponding @unrdf/hooks validation functions",
+          "dependencies": ["T091"]
+        },
+        {
+          "id": "T093",
+          "parallel": true,
+          "user_story": "US6",
+          "description": "Document pre-hook examples for CRUD operations in Chapter 6 Section 6.4 - Show validation, authorization, logging hooks",
+          "acceptance": "Code listing 6.4 demonstrates pre-create hook validating entity before database insert",
+          "dependencies": ["T088"]
+        },
+        {
+          "id": "T094",
+          "parallel": true,
+          "user_story": "US6",
+          "description": "Document post-hook examples for CRUD operations in Chapter 6 Section 6.5 - Show cache invalidation, event emission, audit logging",
+          "acceptance": "Code listing 6.5 demonstrates post-update hook emitting domain event and invalidating cache",
+          "dependencies": ["T089"]
+        },
+        {
+          "id": "T095",
+          "parallel": false,
+          "user_story": "US6",
+          "description": "Create hook composition diagram in Chapter 6 - Show multiple hooks executing for single operation",
+          "acceptance": "Figure 6.2 shows CRUD operation with 3 pre-hooks (validate, authorize, log) and 2 post-hooks (emit, cache) executing in sequence",
+          "dependencies": ["T093", "T094"]
+        },
+        {
+          "id": "T096",
+          "parallel": false,
+          "user_story": "US6",
+          "description": "Add error handling section in Chapter 6 Section 6.6 - Document hook failure modes and recovery strategies",
+          "acceptance": "Code listing 6.6 shows pre-hook throwing ValidationError preventing operation execution with rollback",
+          "dependencies": ["T092"]
+        },
+        {
+          "id": "T097",
+          "parallel": true,
+          "user_story": "US6",
+          "description": "Document hook testing patterns in Chapter 6 Section 6.7 - Show unit tests for individual hooks and integration tests for hook chains",
+          "acceptance": "Code listing 6.7 demonstrates testing validateUser hook with valid/invalid inputs using Jest",
+          "dependencies": ["T091"]
+        }
+      ]
+    },
+    {
+      "phase": "Final Polish Phase: Cross-Cutting & Compilation",
+      "purpose": "Complete bibliography, appendices, final LaTeX compilation, PDF validation, and regeneration idempotency testing",
+      "tasks": [
+        {
+          "id": "T098",
+          "parallel": true,
+          "user_story": "Polish",
+          "description": "Create bibliography.bib in /Users/sac/ggen/specs/008-n3-code-gen/evidence/ - Add 30+ references for RDF, SPARQL, SHACL, Rust, code generation, semantic web",
+          "acceptance": "bibliography.bib contains 30+ BibTeX entries including Berners-Lee W3C specs, Rust book, TanStack docs, SHACL spec",
+          "dependencies": []
+        },
+        {
+          "id": "T099",
+          "parallel": true,
+          "user_story": "Polish",
+          "description": "Create Appendix A in /Users/sac/ggen/specs/008-n3-code-gen/evidence/appendix-a.tex - Complete code ontology vocabulary reference (rdfs:Class, code:Struct, code:Field types)",
+          "acceptance": "Appendix A lists all code: ontology terms with RDF types, domains, ranges from code_ontology.ttl",
+          "dependencies": []
+        },
+        {
+          "id": "T100",
+          "parallel": true,
+          "user_story": "Polish",
+          "description": "Create Appendix B in /Users/sac/ggen/specs/008-n3-code-gen/evidence/appendix-b.tex - ggen.toml manifest reference with all TOML sections documented",
+          "acceptance": "Appendix B shows complete ggen.toml schema: [project], [ontology], [[inference.rules]], [[generation.rules]], [validation]",
+          "dependencies": []
+        },
+        {
+          "id": "T101",
+          "parallel": true,
+          "user_story": "Polish",
+          "description": "Create Appendix C in /Users/sac/ggen/specs/008-n3-code-gen/evidence/appendix-c.tex - CLI command reference for ggen sync with all flags and exit codes",
+          "acceptance": "Appendix C documents ggen sync --help output with option descriptions and semantic exit codes 0-6",
+          "dependencies": []
+        },
+        {
+          "id": "T102",
+          "parallel": true,
+          "user_story": "Polish",
+          "description": "Create Appendix D in /Users/sac/ggen/specs/008-n3-code-gen/evidence/appendix-d.tex - SPARQL query examples used throughout document",
+          "acceptance": "Appendix D contains labeled SPARQL CONSTRUCT and SELECT queries referenced in Chapters 2-6",
+          "dependencies": []
+        },
+        {
+          "id": "T103",
+          "parallel": false,
+          "user_story": "Polish",
+          "description": "Create master.tex in /Users/sac/ggen/specs/008-n3-code-gen/evidence/ - Main LaTeX document including all chapters and appendices with proper document class and packages",
+          "acceptance": "master.tex compiles with pdflatex, includes chapters 1-6, appendices A-D, bibliography, table of contents",
+          "dependencies": ["T098", "T099", "T100", "T101", "T102"]
+        },
+        {
+          "id": "T104",
+          "parallel": false,
+          "user_story": "Polish",
+          "description": "Run pdflatex compilation in /Users/sac/ggen/specs/008-n3-code-gen/evidence/ - Execute pdflatex master.tex && bibtex master && pdflatex master.tex && pdflatex master.tex",
+          "acceptance": "master.pdf generated with 0 LaTeX errors, all citations resolved, all figures/tables numbered correctly",
+          "dependencies": ["T103"]
+        },
+        {
+          "id": "T105",
+          "parallel": false,
+          "user_story": "Polish",
+          "description": "Validate PDF output - Check master.pdf has 30+ pages, readable figures, correct table numbering, resolved cross-references",
+          "acceptance": "PDF opens in viewer, all 6 chapters present, figures render correctly, table of contents hyperlinks work",
+          "dependencies": ["T104"]
+        },
+        {
+          "id": "T106",
+          "parallel": false,
+          "user_story": "Polish",
+          "description": "Test regeneration idempotency - Delete master.pdf, re-run pdflatex pipeline, compare output byte-for-byte",
+          "acceptance": "Second master.pdf is byte-identical to first (excluding timestamp metadata)",
+          "dependencies": ["T105"]
+        },
+        {
+          "id": "T107",
+          "parallel": true,
+          "user_story": "Polish",
+          "description": "Add cross-references throughout chapters - Ensure all \\ref{fig:X}, \\ref{tab:X}, \\ref{sec:X} resolve correctly",
+          "acceptance": "No ?? in PDF output, all cross-references show correct numbers",
+          "dependencies": ["T103"]
+        },
+        {
+          "id": "T108",
+          "parallel": true,
+          "user_story": "Polish",
+          "description": "Proofread all chapters for consistency - Verify terminology (ontology vs. domain model, CONSTRUCT vs. inference rule) used consistently",
+          "acceptance": "Glossary terms appear in index, consistent use of technical terms throughout",
+          "dependencies": ["T103"]
+        },
+        {
+          "id": "T109",
+          "parallel": false,
+          "user_story": "Polish",
+          "description": "Create README.md in /Users/sac/ggen/specs/008-n3-code-gen/evidence/ - Document how to compile the LaTeX documentation",
+          "acceptance": "README.md includes: Required packages (texlive-full), compilation commands, troubleshooting section",
+          "dependencies": ["T104"]
+        },
+        {
+          "id": "T110",
+          "parallel": false,
+          "user_story": "Polish",
+          "description": "Archive final deliverables - Create evidence.tar.gz with master.pdf, all .tex sources, bibliography.bib, figures/",
+          "acceptance": "evidence.tar.gz created in /Users/sac/ggen/specs/008-n3-code-gen/, size ~5MB, extractable",
+          "dependencies": ["T106", "T109"]
+        }
+      ]
+    }
+  ],
+  "execution_notes": {
+    "parallel_batches": [
+      "Phase 7: T077 + T078 + T081 can run in parallel (independent sections)",
+      "Phase 7: T082 + T085 can run in parallel (different code listings)",
+      "Phase 8: T088 + T089 + T091 + T093 + T094 + T097 can run in parallel (independent sections)",
+      "Polish: T098 + T099 + T100 + T101 + T102 can run in parallel (independent appendices)",
+      "Polish: T107 + T108 can run in parallel while T103 is ready"
+    ],
+    "critical_path": [
+      "T076 (Chapter 5 structure) → T077 (ontology reference) → T079 (artifacts table) → T080 (metrics) → T083 (comparison) → T086 (validation)",
+      "T087 (Chapter 6 structure) → T088/T089 (hook patterns) → T090 (lifecycle diagram) → T091 (SHACL) → T092 (constraint table)",
+      "T098-T102 (appendices) → T103 (master.tex) → T104 (compile) → T105 (validate) → T106 (idempotency) → T110 (archive)"
+    ],
+    "dependencies_summary": {
+      "Phase 7 blocks on": "Completion of Chapter 5 structure (T076)",
+      "Phase 8 blocks on": "Completion of Chapter 6 structure (T087)",
+      "Polish blocks on": "All appendices complete before master.tex assembly"
+    }
+  }
+}

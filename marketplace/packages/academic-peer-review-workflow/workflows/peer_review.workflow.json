@@ -1,0 +1,48 @@
+{
+  "name": "Academic Peer Review",
+  "version": "1.0.0",
+  "description": "Deterministic peer review lifecycle with reviewer coordination, author responses, and decision tracking.",
+  "variables": {
+    "paper_id": { "type": "string", "required": true, "description": "Stable manuscript identifier" },
+    "deadline": { "type": "string", "required": true, "description": "Review deadline in YYYY-MM-DD" },
+    "managing_editor": { "type": "string", "required": true, "description": "Accountable editor" },
+    "num_reviewers": { "type": "integer", "required": false, "default": 3, "description": "Number of assigned reviewers" }
+  },
+  "required_files": [
+    "paper.rdf",
+    "reviewers.json"
+  ],
+  "stages": [
+    { "id": "initial-submission", "description": "Author submits manuscript and metadata." },
+    { "id": "editorial-screening", "description": "Editor screens for scope, ethics, and completeness." },
+    { "id": "reviewer-assignment", "description": "Assign reviewers, check COI, confirm availability." },
+    { "id": "review-period", "description": "Reviewers annotate, score, and submit reports." },
+    { "id": "decision-compilation", "description": "Editor compiles reviews, computes consensus, drafts decision." },
+    { "id": "decision-communication", "description": "Decision letter sent to authors." },
+    { "id": "author-revision", "description": "Authors respond and submit revised manuscript." },
+    { "id": "re-review", "description": "Reviewers verify revisions and updated responses." },
+    { "id": "final-decision", "description": "Final acceptance/rejection with archived artifacts." }
+  ],
+  "artifacts": {
+    "review_graph": {
+      "source": "paper.rdf",
+      "schema": "data/review-schema.ttl",
+      "template": "templates/reviewer-template.rdf"
+    },
+    "author_response": {
+      "template": "templates/response-template.md",
+      "output": "output/author-response.md"
+    }
+  },
+  "hooks": {
+    "pre_run": ["hooks/validate.sh"]
+  },
+  "determinism": {
+    "seeded": true,
+    "notes": "Sorted reviewer order and stage ordering are stable; RDF outputs must be canonicalized before diffing."
+  }
+}
+
+
+
+

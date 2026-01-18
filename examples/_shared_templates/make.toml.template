@@ -1,0 +1,141 @@
+# Lifecycle Configuration Template for ggen Examples
+# Purpose: Shared make.toml configuration for example projects
+# Instructions: Copy this file and customize for your example
+
+[env]
+RUST_LOG = "debug"
+CARGO_MAKE_SKIP_GIT_SKIP_ALLOWED_PUSH_BRANCH_CHECK = true
+
+[config]
+skip_core_tasks = false
+default_to_shell = false
+
+# ==============================================================================
+# CORE LIFECYCLE TASKS
+# ==============================================================================
+
+[tasks.check]
+description = "Fast compilation check (< 5s)"
+command = "cargo"
+args = ["check", "--all"]
+dependencies = []
+
+[tasks.fmt]
+description = "Format code using rustfmt"
+command = "cargo"
+args = ["fmt", "--all"]
+dependencies = []
+
+[tasks.lint]
+description = "Run clippy linter"
+command = "cargo"
+args = ["clippy", "--all", "--all-targets", "--", "-D", "warnings"]
+dependencies = []
+
+[tasks.test-unit]
+description = "Run unit tests only (< 10s)"
+command = "cargo"
+args = ["test", "--lib", "--all"]
+dependencies = ["check"]
+
+[tasks.test]
+description = "Run all tests (< 30s)"
+command = "cargo"
+args = ["test", "--all"]
+dependencies = ["check"]
+
+[tasks.pre-commit]
+description = "Full validation before commit (format + lint + test)"
+command = "cargo"
+args = ["make", "fmt", "lint", "test"]
+dependencies = []
+
+[tasks.ci]
+description = "Full CI pipeline"
+command = "cargo"
+args = ["make", "check", "fmt", "lint", "test"]
+dependencies = []
+
+# ==============================================================================
+# GENERATION TASKS (RDF-Based Examples)
+# ==============================================================================
+
+[tasks.validate-spec]
+description = "Validate RDF specification closure with SHACL"
+command = "cargo"
+args = ["run", "--bin", "ggen-spec-validator", "--", "validate", "${GGEN_SPEC_FILE}"]
+dependencies = []
+condition = { env_set = ["GGEN_SPEC_FILE"] }
+
+[tasks.generate]
+description = "Generate code from RDF + templates"
+command = "cargo"
+args = ["run", "--bin", "ggen-generate", "--", "--spec", "${GGEN_SPEC_FILE}", "--templates", "./templates", "--output", "./generated"]
+dependencies = ["validate-spec"]
+condition = { env_set = ["GGEN_SPEC_FILE"] }
+
+[tasks.generate.env]
+GGEN_SPEC_FILE = "domain.ttl"
+
+# ==============================================================================
+# DOCKER & DEPLOYMENT TASKS
+# ==============================================================================
+
+[tasks.docker-build]
+description = "Build Docker image"
+command = "docker"
+args = ["build", "-t", "${DOCKER_IMAGE}:latest", "."]
+condition = { files_exist = ["Dockerfile"] }
+
+[tasks.docker-run]
+description = "Run Docker container"
+command = "docker"
+args = ["run", "-p", "3000:3000", "${DOCKER_IMAGE}:latest"]
+condition = { files_exist = ["Dockerfile"] }
+
+# ==============================================================================
+# EXAMPLE-SPECIFIC TASKS (Override in example's make.toml)
+# ==============================================================================
+
+[tasks.build]
+description = "Build the example (override in example's make.toml)"
+command = "cargo"
+args = ["build", "--release"]
+dependencies = ["check"]
+
+[tasks.run]
+description = "Run the example (override in example's make.toml)"
+command = "cargo"
+args = ["run", "--release"]
+dependencies = ["build"]
+
+[tasks.demo]
+description = "Run a quick demonstration"
+script = """
+echo "Running demonstration..."
+# Override in example's make.toml with specific demo commands
+"""
+dependencies = ["build"]
+
+# ==============================================================================
+# HELP & DOCUMENTATION
+# ==============================================================================
+
+[tasks.help]
+description = "Show available tasks"
+script = """
+echo "Available tasks:"
+echo "  cargo make check        - Fast compilation check"
+echo "  cargo make fmt          - Format code"
+echo "  cargo make lint         - Run linter"
+echo "  cargo make test         - Run tests"
+echo "  cargo make pre-commit   - Run all checks before committing"
+echo "  cargo make ci           - Run full CI pipeline"
+echo "  cargo make generate     - Generate code from RDF (if applicable)"
+echo "  cargo make docker-build - Build Docker image (if available)"
+echo "  cargo make help         - Show this message"
+"""
+
+[tasks.default]
+command = "cargo"
+args = ["make", "help"]

@@ -1,0 +1,46 @@
+command: "ggen fmea export"
+version_tested: "4.0.0"
+date: "2024-12-14"
+tester: "claude-code"
+
+functional_correctness:
+  executes: true
+  help_works: true
+  happy_path: true
+  error_handling: true
+  exit_codes: true
+
+agent_score: 62
+agent_breakdown:
+  parseable_output: 20
+  error_messages: 14
+  idempotency: 12
+  progress_feedback: 6
+  dry_run: 10
+  documentation: 4
+  exit_codes: 2
+
+avatar_notes:
+  claude_code: "Exports FMEA with multiple formats"
+  cursor_ai: "Export options clear"
+  copilot: "Format patterns learnable"
+  aider: "Can track exported files"
+  devin: "Can export autonomously"
+  openhands: "Customizable formats"
+  windsurf: "Export destination clear"
+
+maturity_level: "L3"
+maturity_blockers: []
+
+evidence_files: []
+
+recommendations:
+  - priority: P3
+    description: "Add compression option for exports"
+    effort: low
+    impact: low
+
+jtbd: |
+  When I want to export FMEA data,
+  I need to run 'ggen fmea export' with format and destination,
+  so that I can share FMEA results in different formats.

@@ -1,0 +1,12 @@
+---
+to: "generated/ARCHITECTURE.md"
+---
+# Project Architecture
+
+Multi-crate workspace with shared core library.
+
+## Crates
+
+- **core**: Shared business logic
+- **api**: REST API service
+- **cli**: Command-line interface

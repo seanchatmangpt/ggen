@@ -1,0 +1,78 @@
+{% comment %}
+Model Base Template
+Purpose: Base template for generating data models from RDF
+Version: 1.0
+Language: Tera (https://tera.netlify.app)
+
+Usage:
+- Use in SPARQL to extract model definitions from RDF
+- Iterate over models and fields to generate struct definitions
+- Support multiple languages (Rust, Python, TypeScript, etc.)
+
+Example SPARQL Query:
+SELECT ?modelName ?fieldName ?fieldType WHERE {
+  ?model a ex:Model ;
+    rdfs:label ?modelName ;
+    ex:hasField ?field .
+  ?field ex:fieldName ?fieldName ;
+    ex:fieldType ?fieldType .
+}
+{% endcomment %}
+
+{% if language == "rust" %}
+// Generated Rust Model
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct {{ model_name }} {
+    {% for field in fields %}
+    /// {{ field.description | default(value="") }}
+    pub {{ field.name }}: {{ field.rust_type }},
+    {% endfor %}
+}
+
+impl {{ model_name }} {
+    pub fn new(
+        {% for field in fields %}
+        {{ field.name }}: {{ field.rust_type }},
+        {% endfor %}
+    ) -> Self {
+        Self {
+            {% for field in fields %}
+            {{ field.name }},
+            {% endfor %}
+        }
+    }
+}
+
+{% elif language == "python" %}
+# Generated Python Model
+from dataclasses import dataclass
+from typing import Optional
+from datetime import datetime
+from uuid import UUID
+
+@dataclass
+class {{ model_name }}:
+    """{{ model_description | default(value="") }}"""
+    {% for field in fields %}
+    {{ field.name }}: {{ field.python_type }}
+    {% endfor %}
+
+{% elif language == "typescript" %}
+// Generated TypeScript Model
+export interface {{ model_name }} {
+    {% for field in fields %}
+    /** {{ field.description | default(value="") }} */
+    {{ field.name }}: {{ field.typescript_type }};
+    {% endfor %}
+}
+
+export const {{ model_name }}Schema = {
+    {% for field in fields %}
+    {{ field.name }}: { type: '{{ field.type }}', required: {{ field.required }} },
+    {% endfor %}
+};
+
+{% endif %}

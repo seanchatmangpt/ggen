@@ -1,0 +1,4 @@
+{% for class in classes %}
+#[derive(Debug, Clone)]
+pub struct {{ class.name }} { }
+{% endfor %}

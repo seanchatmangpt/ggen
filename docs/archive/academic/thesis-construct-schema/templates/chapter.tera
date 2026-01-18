@@ -1,0 +1,41 @@
+{# =============================================================================
+   CHAPTER CONTENT TEMPLATE - Full chapters with sections
+   ZERO HARDCODED STRINGS - All content from SPARQL variables
+   Groups by chapter, then outputs sections within each chapter
+   Uses sparql_results array with ?-prefixed keys
+   ============================================================================= #}
+{%- set current_chapter = "" -%}
+{% for row in sparql_results %}
+{%- set chapterLabel = row["?chapterLabel"] | default(value="") -%}
+{%- set chapterTitle = row["?chapterTitle"] | default(value="") -%}
+{%- set chapterAbstract = row["?chapterAbstract"] | default(value="") -%}
+{%- set sectionTitle = row["?sectionTitle"] | default(value="") -%}
+{%- set sectionLabel = row["?sectionLabel"] | default(value="") -%}
+{%- set sectionContent = row["?sectionContent"] | default(value="") -%}
+{%- if chapterLabel != current_chapter -%}
+{%- if current_chapter != "" -%}
+
+{%- endif -%}
+{%- set_global current_chapter = chapterLabel -%}
+
+\chapter{ {{- chapterTitle -}} }
+\label{ {{- chapterLabel -}} }
+
+{% if chapterAbstract %}
+{{ chapterAbstract | replace(from="\\n\\n", to="
+
+") | replace(from="\\n", to="
+") }}
+
+{% endif %}
+{%- endif -%}
+
+\section{ {{- sectionTitle -}} }
+\label{ {{- sectionLabel -}} }
+
+{{ sectionContent | replace(from="\\n\\n", to="
+
+") | replace(from="\\n", to="
+") }}
+
+{% endfor %}

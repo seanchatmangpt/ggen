@@ -1,0 +1,15 @@
+-rw-------@ 1 sac  staff  1194 Dec 16 08:35 examples/thesis-gen/templates/algorithm.tera
+-rw-------@ 1 sac  staff   601 Dec 16 08:36 examples/thesis-gen/templates/appendix.tera
+-rw-------@ 1 sac  staff  1825 Dec 16 08:36 examples/thesis-gen/templates/bibliography.tera
+-rw-------@ 1 sac  staff   555 Dec 16 08:36 examples/thesis-gen/templates/chapter-index.tera
+-rw-------@ 1 sac  staff   505 Dec 16 08:36 examples/thesis-gen/templates/chapter-list.tera
+-rw-------@ 1 sac  staff  1264 Dec 16 08:35 examples/thesis-gen/templates/chapter.tera
+-rw-------@ 1 sac  staff   741 Dec 16 08:36 examples/thesis-gen/templates/code-listing.tera
+-rw-------@ 1 sac  staff   812 Dec 16 08:35 examples/thesis-gen/templates/equation.tera
+-rw-------@ 1 sac  staff   842 Dec 16 08:35 examples/thesis-gen/templates/figure.tera
+-rw-------@ 1 sac  staff   599 Dec 16 08:32 examples/thesis-gen/templates/front-matter.tera
+-rw-------@ 1 sac  staff  1143 Dec 16 08:29 examples/thesis-gen/templates/preamble.tera
+-rw-------@ 1 sac  staff   623 Dec 16 08:37 examples/thesis-gen/templates/subsection.tera
+-rw-------@ 1 sac  staff  2009 Dec 16 08:36 examples/thesis-gen/templates/table.tera
+-rw-------@ 1 sac  staff  1141 Dec 16 08:35 examples/thesis-gen/templates/theorem.tera
+-rw-------@ 1 sac  staff  1090 Dec 16 08:32 examples/thesis-gen/templates/thesis-main.tera

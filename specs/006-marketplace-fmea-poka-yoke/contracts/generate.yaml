@@ -1,0 +1,225 @@
+# CLI Contract: ggen generate (protection extension)
+# Extended behavior for domain protection and Poka-Yoke controls
+
+command: ggen generate
+
+description: |
+  Generate code from RDF ontology using templates. Extended with enterprise
+  domain protection and Poka-Yoke error-proofing controls.
+
+new_options:
+  - name: --respect-protection
+    type: boolean
+    default: true
+    description: |
+      Respect protected_paths from package.toml. When true, generation will
+      fail if it would modify any protected path.
+
+  - name: --skip-poka-yoke
+    type: boolean
+    default: false
+    description: |
+      Skip Poka-Yoke controls (header injection, gitignore/gitattributes).
+      NOT RECOMMENDED for enterprise use.
+
+  - name: --first-generation
+    type: boolean
+    default: false
+    description: |
+      Force first-generation behavior (create domain stubs with unimplemented!()).
+      Use when setting up a new project.
+
+  - name: --codeowners
+    type: boolean
+    default: false
+    description: |
+      Generate .github/CODEOWNERS from noun OWNERS files.
+
+extended_behavior:
+  path_protection:
+    description: |
+      Before writing any file, check if the output path matches any pattern
+      in the package's protected_paths configuration.
+
+    algorithm: |
+      1. Load protected_paths and regenerate_paths from package.toml
+      2. For each output file:
+         a. Check if path matches protected_paths → ERROR
+         b. Check if path matches regenerate_paths → ALLOW overwrite
+         c. If no match → Check file exists:
+            - Exists: ERROR (implicit protection)
+            - Not exists: ALLOW (new file)
+      3. If any error: Rollback all writes, exit with error code
+
+    examples:
+      protected_write_attempt: |
+        $ ggen generate --output src/domain/user.rs
+        ❌ ERROR: Cannot write to protected path: src/domain/user.rs
+
+        This path matches protected pattern: src/domain/**
+        Protected paths contain domain logic that MUST NOT be overwritten.
+
+        To regenerate generated code only, use:
+          ggen generate --output src/generated/
+
+      implicit_protection: |
+        $ ggen generate --output src/custom/handler.rs
+        ❌ ERROR: Cannot write to existing file: src/custom/handler.rs
+
+        File exists but is not in regenerate_paths.
+        Either add to regenerate_paths or use a different output path.
+
+  header_injection:
+    description: |
+      Inject warning header at the top of all generated files.
+
+    algorithm: |
+      1. Load generated_file_header from poka_yoke config
+      2. Detect file type from extension
+      3. Format header with appropriate comment syntax
+      4. Prepend header to generated content
+      5. Include regeneration command in header
+
+    supported_languages:
+      rust: "// {line}"
+      typescript: "// {line}"
+      javascript: "// {line}"
+      python: "# {line}"
+      go: "// {line}"
+      java: "// {line}"
+      kotlin: "// {line}"
+      swift: "// {line}"
+      c: "// {line}"
+      cpp: "// {line}"
+      csharp: "// {line}"
+      ruby: "# {line}"
+      shell: "# {line}"
+      yaml: "# {line}"
+      toml: "# {line}"
+
+  gitignore_generation:
+    description: |
+      Generate or update .gitignore with patterns from poka_yoke.gitignore_patterns.
+
+    algorithm: |
+      1. Load gitignore_patterns from poka_yoke config
+      2. If .gitignore exists:
+         a. Parse existing content
+         b. Add section marker: "# ggen-generated (DO NOT EDIT THIS SECTION)"
+         c. Add patterns between markers
+         d. Preserve user patterns outside markers
+      3. If .gitignore doesn't exist:
+         a. Create with patterns
+
+    example: |
+      # .gitignore (auto-managed section)
+
+      # User patterns above this line are preserved
+
+      # ggen-generated (DO NOT EDIT THIS SECTION)
+      src/generated/
+      # end ggen-generated
+
+      # User patterns below this line are preserved
+
+  gitattributes_generation:
+    description: |
+      Generate or update .gitattributes to mark generated files.
+
+    algorithm: |
+      1. Load gitattributes_patterns from poka_yoke config
+      2. Similar to gitignore: merge with existing, use section markers
+      3. Default pattern: linguist-generated=true (hides from GitHub stats)
+
+    example: |
+      # .gitattributes (auto-managed section)
+
+      # ggen-generated (DO NOT EDIT THIS SECTION)
+      src/generated/** linguist-generated=true
+      # end ggen-generated
+
+  first_generation_stubs:
+    description: |
+      On first generation, create domain file stubs with unimplemented!() macros.
+
+    detection: |
+      First generation is detected when:
+      - --first-generation flag is set, OR
+      - No files exist in protected_paths, AND
+      - No files exist in regenerate_paths
+
+    stub_format: |
+      // ⚠️ IMPLEMENT YOUR DOMAIN LOGIC HERE
+      // This file is protected and will NOT be overwritten.
+      //
+      // The trait below is defined in src/generated/{noun}.rs
+      // Implement each method with your business logic.
+
+      use crate::generated::{NounName}Trait;
+      use crate::error::DomainError;
+
+      pub struct {NounName}Domain;
+
+      impl {NounName}Trait for {NounName}Domain {
+          fn {verb_name}(&self, /* args */) -> Result<{ReturnType}, DomainError> {
+              unimplemented!("{noun}::{verb}")
+          }
+      }
+
+  codeowners_generation:
+    description: |
+      Aggregate noun-level OWNERS files into .github/CODEOWNERS.
+
+    trigger: "--codeowners flag OR first generation with OWNERS files present"
+
+    algorithm: |
+      1. Scan ontology/ directory for */OWNERS files
+      2. Parse each OWNERS file (GitHub CODEOWNERS format)
+      3. Generate aggregated CODEOWNERS with path prefixes
+      4. Write to .github/CODEOWNERS
+
+    example_output: |
+      # Auto-generated by ggen from noun OWNERS files
+      # DO NOT EDIT - regenerate with: ggen generate --codeowners
+
+      # user noun (Identity Team)
+      /ontology/user/ @company/identity-team @john.smith
+      /src/generated/user/ @company/identity-team @john.smith
+      /src/domain/user/ @company/identity-team @john.smith
+
+      # order noun (Commerce Team)
+      /ontology/order/ @company/commerce-team
+
+      # Breaking changes require Platform Team
+      *.breaking.ttl @company/platform-team
+
+errors:
+  - code: E001
+    name: ProtectedPathViolation
+    message: "Cannot write to protected path: {path}"
+    description: "Generation would overwrite a file in protected_paths"
+    resolution: "Target regenerate_paths instead, or remove from protected_paths"
+
+  - code: E002
+    name: ImplicitProtectionViolation
+    message: "Cannot write to existing file not in regenerate_paths: {path}"
+    description: "File exists but is not explicitly marked as regeneratable"
+    resolution: "Add path to regenerate_paths or use --first-generation"
+
+  - code: E003
+    name: PathOverlapError
+    message: "Path matches both protected and regenerate patterns: {path}"
+    description: "Configuration conflict in package.toml"
+    resolution: "Remove path from one of the lists"
+
+  - code: E004
+    name: HeaderInjectionFailed
+    message: "Cannot inject header for file type: {extension}"
+    description: "Unknown file extension, cannot determine comment syntax"
+    resolution: "Add custom comment prefix to poka_yoke config"
+
+exit_codes:
+  0: Generation successful
+  1: Protection violation (would overwrite protected path)
+  2: Configuration error (invalid package.toml)
+  3: Template error (generation failed)

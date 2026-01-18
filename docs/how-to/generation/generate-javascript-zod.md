@@ -1,0 +1,470 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How to Generate JavaScript + Zod from Schema.org](#how-to-generate-javascript--zod-from-schemaorg)
+  - [Prerequisites](#prerequisites)
+  - [Step 1: Download Schema.org Ontology](#step-1-download-schemaorg-ontology)
+  - [Step 2: Load Schema.org into ggen Graph](#step-2-load-schemaorg-into-ggen-graph)
+  - [Step 3: Query for Specific Types](#step-3-query-for-specific-types)
+  - [Step 4: Extract Schema for Target Types](#step-4-extract-schema-for-target-types)
+  - [Step 5: Create JavaScript + Zod Template](#step-5-create-javascript--zod-template)
+  - [Step 6: Generate JavaScript Module](#step-6-generate-javascript-module)
+  - [Step 7: Use Generated Schemas in Your Application](#step-7-use-generated-schemas-in-your-application)
+  - [Step 8: Add JSDoc Type Checking (Optional)](#step-8-add-jsdoc-type-checking-optional)
+  - [Advanced: Generate Multiple Schema.org Types](#advanced-generate-multiple-schemaorg-types)
+  - [Troubleshooting](#troubleshooting)
+  - [Related](#related)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+# How to Generate JavaScript + Zod from Schema.org
+
+**Problem**: "I want to generate JavaScript modules with Zod validation schemas from Schema.org vocabulary"
+
+**Solution**: Use ggen to download Schema.org ontology, extract the schema, and generate JavaScript + Zod code.
+
+**Time**: 15 minutes
+**Difficulty**: Intermediate
+
+---
+
+## Prerequisites
+
+- ggen installed ([installation guide](../../getting-started/README.md#installation))
+- Basic understanding of Schema.org
+- Node.js project with Zod installed (`npm install zod`)
+
+---
+
+## Step 1: Download Schema.org Ontology
+
+Schema.org publishes their vocabulary in multiple formats. Download the RDF/Turtle format:
+
+```bash
+# Create project directory
+mkdir schema-org-models
+cd schema-org-models
+
+# Download Schema.org ontology (RDF/Turtle format)
+curl -o schemaorg.ttl https://schema.org/version/latest/schemaorg-current-https.ttl
+```
+
+**Alternative**: Download specific version:
+```bash
+# Download a specific version (e.g., 15.0)
+curl -o schemaorg.ttl https://schema.org/version/15.0/schemaorg-current-https.ttl
+```
+
+---
+
+## Step 2: Load Schema.org into ggen Graph
+
+Load the ontology into ggen's RDF graph:
+
+```bash
+ggen graph load --file schemaorg.ttl
+```
+
+**Expected output**:
+```
+✓ Loaded 15,432 triples from schemaorg.ttl
+```
+
+**Note**: Schema.org is large! This may take 10-15 seconds.
+
+---
+
+## Step 3: Query for Specific Types
+
+Instead of generating ALL Schema.org types, query for the ones you need:
+
+**Example**: Generate only e-commerce related types (Product, Offer, Organization):
+
+```bash
+ggen graph query --sparql_query '
+PREFIX schema: <https://schema.org/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?class ?label ?comment
+WHERE {
+  VALUES ?class {
+    schema:Product
+    schema:Offer
+    schema:Organization
+    schema:Person
+    schema:PostalAddress
+  }
+  ?class a rdfs:Class .
+  ?class rdfs:label ?label .
+  OPTIONAL { ?class rdfs:comment ?comment }
+}
+' > ecommerce-classes.json
+```
+
+---
+
+## Step 4: Extract Schema for Target Types
+
+Extract schema for your selected types:
+
+```bash
+# Create a filtered ontology with only Product and related types
+cat > product-schema.ttl << 'EOF'
+@prefix schema: <https://schema.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+schema:Product a rdfs:Class ;
+    rdfs:label "Product" ;
+    rdfs:comment "Any offered product or service" .
+
+schema:name a rdf:Property ;
+    rdfs:domain schema:Product ;
+    rdfs:range xsd:string ;
+    rdfs:label "name" ;
+    rdfs:comment "The name of the item" .
+
+schema:description a rdf:Property ;
+    rdfs:domain schema:Product ;
+    rdfs:range xsd:string ;
+    rdfs:label "description" ;
+    rdfs:comment "A description of the item" .
+
+schema:sku a rdf:Property ;
+    rdfs:domain schema:Product ;
+    rdfs:range xsd:string ;
+    rdfs:label "sku" ;
+    rdfs:comment "The Stock Keeping Unit (SKU)" .
+
+schema:brand a rdf:Property ;
+    rdfs:domain schema:Product ;
+    rdfs:range schema:Brand ;
+    rdfs:label "brand" ;
+    rdfs:comment "The brand of the product" .
+
+schema:offers a rdf:Property ;
+    rdfs:domain schema:Product ;
+    rdfs:range schema:Offer ;
+    rdfs:label "offers" ;
+    rdfs:comment "An offer to provide this item" .
+EOF
+
+# Extract schema to JSON
+ggen ontology extract --ontology_file product-schema.ttl --output product-schema.json
+```
+
+---
+
+## Step 5: Create JavaScript + Zod Template
+
+Create a production-ready template with proper type mappings:
+
+```bash
+cat > javascript-zod-schemaorg.tmpl << 'EOF'
+---
+name: "Schema.org JavaScript + Zod Generator"
+description: "Generate JavaScript with Zod schemas from Schema.org ontology"
+version: "1.0.0"
+author: "ggen"
+variables:
+  - name: "namespace"
+    description: "JavaScript module namespace"
+    default: "schema"
+---
+/**
+ * @fileoverview Schema.org data models with Zod validation
+ * @generated Generated by ggen from Schema.org ontology - DO NOT EDIT
+ * @see https://schema.org
+ */
+
+import { z } from 'zod';
+
+// ============================================================================
+// Schema.org Type Definitions
+// ============================================================================
+
+{% for class in classes %}
+/**
+ * {{ class.comment | default(value="Schema.org " ~ class.name) }}
+ * @see https://schema.org/{{ class.name }}
+ * @typedef {Object} {{ class.name }}
+{% for prop in class.properties %}
+ * @property {{ "{" }}{% if prop.required %}{% else %}?{% endif %}{{ prop.jsType | default(value="string") }}{{ "}" }} {{ prop.name }} - {{ prop.comment | default(value="") }}
+{% endfor %}
+ */
+
+/**
+ * Zod validation schema for {{ class.name }}
+ * @type {z.ZodSchema<{{ class.name }}>}
+ */
+export const {{ class.name }}Schema = z.object({
+{% for prop in class.properties %}
+  /**
+   * {{ prop.comment | default(value=prop.name) }}
+   * @see https://schema.org/{{ prop.name }}
+   */
+  {{ prop.name }}: z.{{ prop.zodType | default(value="string") }}(){% if not prop.required %}.optional(){% endif %}{% if prop.defaultValue %}.default({{ prop.defaultValue }}){% endif %},
+{% endfor %}
+}){% if class.strict %}.strict(){% endif %};
+
+/**
+ * Create a validated {{ class.name }} object
+ * @param {Partial<{{ class.name }}>} data - Initial data
+ * @returns {{ "{" }}{{ class.name }}{{ "}" }} Validated {{ class.name }} instance
+ * @throws {z.ZodError} If validation fails
+ */
+export function create{{ class.name }}(data) {
+  return {{ class.name }}Schema.parse(data);
+}
+
+/**
+ * Safely validate {{ class.name }} data
+ * @param {unknown} data - Data to validate
+ * @returns {{ "{" }}success: true, data: {{ class.name }}{{ "}" }} | {{ "{" }}success: false, error: z.ZodError{{ "}" }}
+ */
+export function validate{{ class.name }}(data) {
+  const result = {{ class.name }}Schema.safeParse(data);
+  if (result.success) {
+    return { success: true, data: result.data };
+  }
+  return { success: false, error: result.error };
+}
+
+/**
+ * Check if data matches {{ class.name }} schema
+ * @param {unknown} data - Data to check
+ * @returns {data is {{ class.name }}} True if data is valid {{ class.name }}
+ */
+export function is{{ class.name }}(data) {
+  return {{ class.name }}Schema.safeParse(data).success;
+}
+
+{% endfor %}
+
+// ============================================================================
+// Re-exports for convenience
+// ============================================================================
+
+export const schemas = {
+{% for class in classes %}
+  {{ class.name }}: {{ class.name }}Schema,
+{% endfor %}
+};
+
+export const validators = {
+{% for class in classes %}
+  {{ class.name }}: validate{{ class.name }},
+{% endfor %}
+};
+
+export const creators = {
+{% for class in classes %}
+  {{ class.name }}: create{{ class.name }},
+{% endfor %}
+};
+EOF
+```
+
+---
+
+## Step 6: Generate JavaScript Module
+
+Generate your JavaScript + Zod module:
+
+```bash
+ggen project gen \
+  --template_ref javascript-zod-schemaorg.tmpl \
+  --vars schema_file=product-schema.json \
+  --vars namespace=schemaorg \
+  --output src/models/schemaorg.js
+```
+
+**View generated code**:
+```bash
+cat src/models/schemaorg.js
+```
+
+---
+
+## Step 7: Use Generated Schemas in Your Application
+
+Create an example usage file:
+
+```javascript
+// src/example.js
+import {
+  ProductSchema,
+  createProduct,
+  validateProduct,
+  isProduct
+} from './models/schemaorg.js';
+
+// Example 1: Create and validate a product
+const product = createProduct({
+  name: "Wireless Bluetooth Headphones",
+  description: "Premium noise-cancelling headphones",
+  sku: "WBH-2024-001",
+  brand: { name: "AudioTech" },
+  offers: {
+    price: "199.99",
+    priceCurrency: "USD",
+    availability: "https://schema.org/InStock"
+  }
+});
+
+console.log("✓ Valid product:", product);
+
+// Example 2: Validate user input
+const userInput = {
+  name: "Mystery Product",
+  // Missing required fields
+};
+
+const result = validateProduct(userInput);
+if (result.success) {
+  console.log("✓ Valid:", result.data);
+} else {
+  console.error("✗ Validation errors:", result.error.format());
+}
+
+// Example 3: Type guard
+function processProduct(data) {
+  if (isProduct(data)) {
+    // TypeScript-like safety in JavaScript
+    console.log(`Processing: ${data.name}`);
+  } else {
+    console.error("Invalid product data");
+  }
+}
+
+// Example 4: Form validation with Zod
+import { z } from 'zod';
+
+const productFormSchema = ProductSchema.extend({
+  // Add custom validation rules
+  name: z.string().min(3).max(200),
+  sku: z.string().regex(/^[A-Z]{3}-\d{4}-\d{3}$/),
+});
+
+const formData = {
+  name: "AB", // Too short!
+  sku: "invalid-sku",
+};
+
+try {
+  productFormSchema.parse(formData);
+} catch (error) {
+  console.error("Form errors:", error.flatten());
+}
+```
+
+---
+
+## Step 8: Add JSDoc Type Checking (Optional)
+
+Enable type checking without TypeScript:
+
+```javascript
+// @ts-check
+/** @typedef {import('./models/schemaorg.js').Product} Product */
+
+/**
+ * Calculate product price with tax
+ * @param {Product} product - The product
+ * @param {number} taxRate - Tax rate (e.g., 0.08 for 8%)
+ * @returns {number} Total price with tax
+ */
+function calculatePriceWithTax(product, taxRate) {
+  const basePrice = parseFloat(product.offers?.price || '0');
+  return basePrice * (1 + taxRate);
+}
+
+// VS Code will provide autocomplete and type checking!
+```
+
+---
+
+## Advanced: Generate Multiple Schema.org Types
+
+Generate a comprehensive library:
+
+```bash
+# Create a script to generate all common types
+cat > generate-schemaorg.sh << 'EOF'
+#!/bin/bash
+
+# Types to generate
+TYPES=(
+  "Product"
+  "Offer"
+  "Organization"
+  "Person"
+  "Place"
+  "Event"
+  "CreativeWork"
+  "Article"
+  "Review"
+  "Rating"
+)
+
+# Generate each type
+for type in "${TYPES[@]}"; do
+  echo "Generating $type..."
+  ggen project gen \
+    --template_ref javascript-zod-schemaorg.tmpl \
+    --vars type="$type" \
+    --output "src/models/${type,,}.js"
+done
+
+echo "✓ Generated ${#TYPES[@]} Schema.org types"
+EOF
+
+chmod +x generate-schemaorg.sh
+./generate-schemaorg.sh
+```
+
+---
+
+## Troubleshooting
+
+**Problem**: "Schema.org ontology is too large"
+**Solution**: Filter to specific types using SPARQL queries (Step 3)
+
+**Problem**: "Type mappings are incorrect"
+**Solution**: Customize the template's type mapping logic (XSD → Zod)
+
+**Problem**: "Generated code has circular references"
+**Solution**: Use Zod's `z.lazy()` for recursive schemas:
+```javascript
+const PersonSchema = z.object({
+  name: z.string(),
+  knows: z.lazy(() => PersonSchema).optional(), // Circular reference
+});
+```
+
+---
+
+## Related
+
+- [Quick Start Tutorial](../../getting-started/quick-start.md)
+- [Query RDF with SPARQL](query-rdf-sparql.md)
+- [Custom Template Creation](../../tutorials/core/03-custom-template-creation.md)
+- [Schema.org Documentation](https://schema.org/docs/documents.html)
+
+---
+
+## Summary
+
+You learned how to:
+- ✅ Download and load Schema.org ontology
+- ✅ Query for specific types with SPARQL
+- ✅ Extract schema to JSON
+- ✅ Generate JavaScript + Zod validation schemas
+- ✅ Use JSDoc for type safety
+- ✅ Validate data at runtime with Zod
+
+**Next**: Try generating from your own domain ontology!

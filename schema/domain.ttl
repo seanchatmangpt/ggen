@@ -1,0 +1,18 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ex: <https://example.com/> .
+
+ex:Person a rdfs:Class ;
+    rdfs:label "Person" ;
+    rdfs:comment "Represents a person in the system" .
+
+ex:name a rdf:Property ;
+    rdfs:domain ex:Person ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "name" .
+
+ex:email a rdf:Property ;
+    rdfs:domain ex:Person ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "email" .
+
