@@ -1,0 +1,175 @@
+# Advanced Rust Project Configuration
+# Demonstrates all ggen configuration features
+
+[project]
+name = "advanced-rust-project"
+version = "1.0.0"
+description = "Advanced Rust project demonstrating all ggen features"
+author = "ggen-examples"
+license = "MIT"
+repository = "https://github.com/example/advanced-rust-project"
+
+# Template configuration
+[templates]
+source_dir = "templates"
+output_dir = "generated"
+backup_enabled = true
+idempotent = true
+dry_run = false
+
+# AI configuration
+[ai]
+provider = "openai"
+model = "gpt-4"
+temperature = 0.7
+max_tokens = 2000
+timeout_seconds = 30
+retry_attempts = 3
+
+# RDF/SPARQL configuration
+[rdf]
+base_iri = "http://example.org/advanced-rust-project/"
+default_format = "turtle"
+cache_queries = true
+query_timeout_seconds = 10
+
+# Graph configuration
+[graph]
+enable_caching = true
+cache_size = 1000
+cache_ttl_seconds = 3600
+enable_tracing = true
+
+# Pipeline configuration
+[pipeline]
+parallel_execution = true
+max_parallel_templates = 4
+timeout_seconds = 300
+retry_attempts = 3
+
+# Security configuration
+[security]
+validate_paths = true
+block_shell_injection = true
+require_confirmation = false
+audit_operations = true
+backup_before_write = true
+
+# Logging configuration
+[logging]
+level = "info"
+format = "json"
+output = "file"
+file_path = ".ggen/logs/ggen.log"
+max_file_size = "10MB"
+max_files = 5
+
+# Performance configuration
+[performance]
+enable_profiling = false
+profile_output = ".ggen/profiles/"
+memory_limit_mb = 512
+cpu_limit_percent = 80
+
+# Environment-specific overrides
+[env.development]
+ai.model = "gpt-3.5-turbo"
+ai.temperature = 0.9
+logging.level = "debug"
+security.require_confirmation = false
+
+[env.staging]
+ai.model = "gpt-4"
+ai.temperature = 0.5
+logging.level = "info"
+security.require_confirmation = true
+
+[env.production]
+ai.model = "gpt-4"
+ai.temperature = 0.3
+logging.level = "warn"
+security.require_confirmation = true
+security.audit_operations = true
+
+# Template-specific configurations
+[templates.rust-service]
+description = "Complete Rust microservice template"
+variables = { language = "rust", framework = "axum" }
+output_pattern = "generated/src/services/{name}.rs"
+backup_enabled = true
+
+[templates.api-endpoint]
+description = "REST API endpoint template"
+variables = { method = "GET", path = "/api/v1" }
+output_pattern = "generated/src/api/{name}.rs"
+backup_enabled = true
+
+[templates.database-schema]
+description = "Database schema from RDF"
+variables = { database = "postgresql", orm = "sqlx" }
+output_pattern = "generated/src/database/{name}.rs"
+backup_enabled = true
+
+[templates.documentation]
+description = "Auto-generated documentation"
+variables = { format = "markdown", style = "github" }
+output_pattern = "generated/docs/{name}.md"
+backup_enabled = true
+
+# RDF data sources
+[data_sources]
+domain_model = "data/domain.ttl"
+api_specification = "data/api-spec.ttl"
+database_schema = "data/database.ttl"
+
+# SPARQL query definitions
+[queries]
+find_endpoints = "SELECT ?endpoint WHERE { ?endpoint a <http://example.org/APIEndpoint> }"
+find_entities = "SELECT ?entity WHERE { ?entity a <http://example.org/Entity> }"
+find_relationships = "SELECT ?rel WHERE { ?rel a <http://example.org/Relationship> }"
+
+# Build configuration
+[build]
+target = "release"
+features = ["default"]
+profile = "release"
+parallel_jobs = 4
+
+# Test configuration
+[test]
+framework = "cargo"
+parallel = true
+timeout_seconds = 300
+coverage_enabled = true
+coverage_threshold = 80
+
+# Deployment configuration
+[deployment]
+strategy = "rolling"
+health_check_path = "/health"
+rollback_enabled = true
+max_instances = 3
+min_instances = 1
+
+# Monitoring configuration
+[monitoring]
+metrics_enabled = true
+tracing_enabled = true
+health_checks_enabled = true
+alerting_enabled = true
+
+# Backup configuration
+[backup]
+enabled = true
+strategy = "incremental"
+retention_days = 30
+compression = true
+encryption = false
+
+# Cache configuration
+[cache]
+enabled = true
+strategy = "lru"
+max_size_mb = 100
+ttl_seconds = 3600
+persistent = true

@@ -1,25 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Code Generation Options Reference](#code-generation-options-reference)
-  - [Basic Usage](#basic-usage)
-  - [Required Arguments](#required-arguments)
-    - [`<pack>`](#pack)
-  - [Options](#options)
-    - [`--template <NAME>`](#--template-name)
-    - [`--output <DIR>`](#--output-dir)
-    - [`--config <JSON|FILE>`](#--config-jsonfile)
-    - [`--filter <CLASSES>`](#--filter-classes)
-    - [`--exclude <CLASSES>`](#--exclude-classes)
-    - [`--force`](#--force)
-    - [`--dry-run`](#--dry-run)
-    - [`--verbose`](#--verbose)
-  - [Complete Example](#complete-example)
-  - [Related References](#related-references)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Code Generation Options Reference
 
 Complete CLI options for `ggen ontology generate` command.

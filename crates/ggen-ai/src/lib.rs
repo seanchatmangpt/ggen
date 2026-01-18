@@ -42,119 +42,57 @@
 //!
 //! - `cache` - LLM response caching
 //! - `client` - LLM client abstraction
-//! - `codegen` - Code generation utilities (SHACL constraint extraction, type mapping)
 //! - `config` - Configuration management
-//! - `dspy` - Rust equivalents of DSPy primitives (Signature, InputField, OutputField)
 //! - `generators` - Specialized generators (templates, SPARQL, ontologies)
 //! - `providers` - LLM provider implementations
 //! - `prompts` - Prompt templates and builders
 //! - `rdf` - RDF-based CLI generation
 //! - `security` - API key masking and security
 //! - `streaming` - Streaming response support
-//! - `tool` - Tool metadata definitions and validation
-//! - `tool_registry` - Thread-safe registry for agent tool discovery
 //! - `types` - Type definitions
 
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 
-// Hyper-concurrent agent execution framework (10-agent max parallelism)
-// TODO: Re-enable after swarm module is fixed
-// pub mod hyper_concurrent;
-
-// Microframework for simplified 10-agent orchestration
-// TODO: Fix test compilation errors in microframework before enabling
-// pub mod microframework;
-
-// Existing agent infrastructure
-// NOTE: Disabled - these modules have incomplete test code
-// pub mod agents;
-pub mod governance;
-// pub mod swarm;
-// pub mod ultrathink;
-
-// Core modules
 pub mod cache;
 pub mod client;
-pub mod codegen;
 pub mod config;
 pub mod constants;
-pub mod dspy;
 pub mod error;
 pub mod error_utils;
 pub mod generators;
-pub mod mcp;
 pub mod parsing_utils;
 pub mod prompts;
 pub mod providers;
 pub mod rdf;
 pub mod security;
 pub mod streaming;
-pub mod tool;
-pub mod tool_registry;
 pub mod types;
 
-// Test helpers for integrations
-#[cfg(any(
-    test,
-    feature = "ollama-integration",
-    feature = "openai-integration",
-    feature = "anthropic-integration",
-    feature = "live-llm-tests"
-))]
+// LLM-Construct Pattern modules
+pub mod owl;
+pub mod llm_construct;
+
+// Test helpers for mock clients
+#[cfg(test)]
 pub mod test_helpers;
 
 // Re-export main types for convenience
 pub use cache::{CacheConfig, CacheStats, LlmCache};
 pub use client::{GenAiClient, LlmChunk, LlmClient, LlmConfig, LlmResponse, UsageStats};
-pub use codegen::{map_xsd_to_rust_type, RdfListValidator, SHACLConstraint, SHACLParser, ValidationError};
 pub use config::{get_global_config, init_global_config, AiConfig, GlobalLlmConfig, LlmProvider};
-pub use dspy::{
-    FieldConstraints, InputField, OutputField, FieldMetadata,
-    Signature,
-    Module, ModuleError,
-    Predictor, ChainOfThought,
-};
 pub use error::{GgenAiError, Result};
 pub use generators::{
     NaturalSearchGenerator, OntologyGenerator, QualityMetrics, RefactorAssistant, SparqlGenerator,
     TemplateGenerator, TemplateValidator, ValidationIssue,
 };
-pub use providers::adapter::{
-    ollama_default_config, ollama_ministral_3b_config, ollama_qwen3_coder_config, MockClient,
-};
+pub use providers::adapter::{ollama_default_config, ollama_qwen3_coder_config, MockClient};
 pub use rdf::{
     Argument, ArgumentType, CliGenerator, CliProject, Dependency, Noun, QueryExecutor, RdfParser,
     TemplateRenderer, Validation, Verb,
 };
 pub use security::{MaskApiKey, SecretString};
 pub use streaming::StreamConfig;
-pub use tool::{AuthScope, Tool, ToolExample, ToolSlo, ToolTag};
-pub use tool_registry::{ToolRegistry, REGISTRY};
 pub use types::{DecisionId, PolicyId, RequestId, RuleId};
-
-// Hyper-concurrent execution exports (disabled - incomplete test code)
-// pub use hyper_concurrent::{
-//     AdaptiveConcurrencyController, AgentBarrier, AgentExecutionResult, AgentExecutionState,
-//     AgentMessage, AsyncStreamingCoordinator, BackpressureHandler, ChannelOrchestrator,
-//     CircuitBreaker, ConcurrencyMetrics, ExecutionPriority, ExecutorMetrics,
-//     HyperConcurrentConfig, HyperConcurrentExecutor, WorkStealingAgentPool, MAX_CONCURRENT_AGENTS,
-// };
-
-// Swarm exports (disabled - incomplete test code)
-// pub use swarm::{
-//     SwarmAgent, SwarmConfig, SwarmContext, SwarmCoordinator, SwarmInput, SwarmResult,
-//     SwarmStatus, UltrathinkSwarm,
-// };
-
-// Microframework exports (disabled - incomplete test code)
-// pub use microframework::{
-//     AgentOrchestrator, AgentRole, BatchBuilder, BatchConfig, BatchProcessor, BatchResult,
-//     CodeGenAgent, CustomAgent, GraphStats, MicroAgent, MicroframeworkConfig, OrchestratorBuilder,
-//     OrchestratorStats, Pipeline, PipelineBuilder, PipelineConfig, PipelineResult, PipelineStage,
-//     ProgressBar, ProgressEvent, ProgressListener, ProgressSummary, ProgressTracker, ReviewerAgent,
-//     RdfProcessorAgent, StageResult, Task, TaskConfig, TaskGraph, TaskProgress, TaskResult,
-//     TaskStatus, TaskType, TemplateGenAgent, TesterAgent, ValidatorAgent,
-// };
 
 /// Version information
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

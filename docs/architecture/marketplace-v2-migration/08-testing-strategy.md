@@ -1,34 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Comprehensive Testing Strategy for Migration](#comprehensive-testing-strategy-for-migration)
-  - [Overview](#overview)
-  - [Test Pyramid Structure](#test-pyramid-structure)
-  - [Test Categories](#test-categories)
-    - [1. Unit Tests (400 tests, 50%)](#1-unit-tests-400-tests-50)
-      - [Conversion Tests (80 tests)](#conversion-tests-80-tests)
-      - [Backend Adapter Tests (100 tests)](#backend-adapter-tests-100-tests)
-      - [Error Handling Tests (60 tests)](#error-handling-tests-60-tests)
-    - [2. Component Tests (200 tests, 30%)](#2-component-tests-200-tests-30)
-      - [V2 Search Component (50 tests)](#v2-search-component-50-tests)
-      - [V2 Crypto Component (40 tests)](#v2-crypto-component-40-tests)
-      - [V2 RDF Component (60 tests)](#v2-rdf-component-60-tests)
-    - [3. Integration Tests (80 tests, 15%)](#3-integration-tests-80-tests-15)
-      - [Cross-Backend Integration (30 tests)](#cross-backend-integration-30-tests)
-      - [Migration Integration (20 tests)](#migration-integration-20-tests)
-      - [CLI Integration (30 tests)](#cli-integration-30-tests)
-    - [4. End-to-End Tests (20 tests, 5%)](#4-end-to-end-tests-20-tests-5)
-  - [Feature Flag Testing Matrix](#feature-flag-testing-matrix)
-  - [Performance Testing](#performance-testing)
-    - [Benchmark Suite](#benchmark-suite)
-    - [Load Testing](#load-testing)
-  - [Continuous Integration Testing](#continuous-integration-testing)
-  - [Test Coverage Requirements](#test-coverage-requirements)
-  - [Success Criteria](#success-criteria)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Comprehensive Testing Strategy for Migration
 
 ## Overview
@@ -302,7 +271,7 @@ fn test_error_conversion() {
 #### V2 Search Component (50 tests)
 
 ```rust
-// ggen-marketplace/tests/search_component_tests.rs
+// ggen-marketplace-v2/tests/search_component_tests.rs
 
 #[tokio::test]
 async fn test_sparql_query_builder() {
@@ -336,7 +305,7 @@ async fn test_result_ranking() {
 #### V2 Crypto Component (40 tests)
 
 ```rust
-// ggen-marketplace/tests/crypto_component_tests.rs
+// ggen-marketplace-v2/tests/crypto_component_tests.rs
 
 #[test]
 fn test_keygen() {
@@ -372,7 +341,7 @@ fn test_batch_verification() {
 #### V2 RDF Component (60 tests)
 
 ```rust
-// ggen-marketplace/tests/rdf_component_tests.rs
+// ggen-marketplace-v2/tests/rdf_component_tests.rs
 
 #[test]
 fn test_rdf_triple_generation() {
@@ -691,7 +660,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run component tests
-        run: cargo test --package ggen-marketplace
+        run: cargo test --package ggen-marketplace-v2
 
   integration-tests:
     runs-on: ubuntu-latest

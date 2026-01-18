@@ -1,23 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Reference: Gemba Checklist](#reference-gemba-checklist)
-  - [Quick Reference Card](#quick-reference-card)
-  - [Detailed Criteria](#detailed-criteria)
-    - [1. Observability](#1-observability)
-    - [2. Isolation](#2-isolation)
-    - [3. Clarity](#3-clarity)
-    - [4. Edge Cases](#4-edge-cases)
-    - [5. Performance](#5-performance)
-    - [6. Determinism](#6-determinism)
-    - [7. Error Messages](#7-error-messages)
-    - [8. Maintainability](#8-maintainability)
-  - [Scoring Matrix](#scoring-matrix)
-  - [Related Resources](#related-resources)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Reference: Gemba Checklist
 
 **8-point test quality inspection criteria with scoring guide**

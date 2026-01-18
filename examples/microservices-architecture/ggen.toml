@@ -1,0 +1,87 @@
+# ggen Configuration for Microservices Architecture
+# Demonstrates comprehensive ggen features
+
+[project]
+name = "microservices-architecture"
+version = "1.0.0"
+description = "E-commerce microservices with Rust"
+authors = ["ggen-example"]
+
+[ai]
+provider = "ollama"
+model = "qwen2.5-coder"
+temperature = 0.7
+max_tokens = 4000
+timeout = 30
+
+[ai.prompts]
+system = "You are an expert Rust developer specializing in microservices architecture. Generate production-ready code with proper error handling, testing, and documentation."
+user_prefix = "Generate a Rust microservice with the following requirements:"
+
+[ai.validation]
+enabled = true
+quality_threshold = 0.8
+max_iterations = 3
+
+[templates]
+directory = "templates"
+output_directory = "generated"
+backup_enabled = true
+
+[templates.rust]
+style = "core-team"
+error_handling = "thiserror"
+logging = "tracing"
+async_runtime = "tokio"
+testing = "comprehensive"
+
+[templates.microservice]
+framework = "auto-detect"  # axum, actix-web, warp, tonic
+database = "postgresql"
+cache = "redis"
+monitoring = "prometheus"
+documentation = "openapi"
+
+[rdf]
+base_uri = "https://example.com/microservices/"
+prefixes = { ex = "https://example.com/microservices/", schema = "http://schema.org/", rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#" }
+
+[sparql]
+timeout = 10
+max_results = 1000
+cache_enabled = true
+
+[lifecycle]
+enabled = true
+config_file = "make.toml"
+cache_directory = ".ggen/cache"
+state_file = ".ggen/state.json"
+
+[lifecycle.phases]
+default = ["init", "setup", "build", "test"]
+development = ["init", "setup", "build", "test", "dev"]
+production = ["build", "test", "docker", "deploy"]
+
+[security]
+path_traversal_protection = true
+shell_injection_protection = true
+template_sandboxing = true
+
+[performance]
+parallel_execution = true
+max_workers = 16
+cache_size = "1GB"
+
+[logging]
+level = "info"
+format = "json"
+file = "logs/ggen.log"
+rotation = "daily"
+
+[features]
+ai_generation = true
+sparql_queries = true
+lifecycle_management = true
+template_validation = true
+graph_analysis = true
+documentation_generation = true

@@ -1,36 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [SPARQL Cookbook](#sparql-cookbook)
-  - [Getting Started](#getting-started)
-  - [Discover Classes](#discover-classes)
-  - [Extract Properties](#extract-properties)
-  - [Find Constraints](#find-constraints)
-  - [Identify Relationships](#identify-relationships)
-  - [Find Data Properties](#find-data-properties)
-  - [Count Entities](#count-entities)
-  - [Find Optional Properties](#find-optional-properties)
-  - [Validate Class Properties](#validate-class-properties)
-  - [Find Inheritance](#find-inheritance)
-  - [Type Mapping](#type-mapping)
-  - [List Required Parameters](#list-required-parameters)
-  - [Find Enum Values](#find-enum-values)
-  - [Advanced: Conditional Generation](#advanced-conditional-generation)
-  - [Query RDF in Templates](#query-rdf-in-templates)
-  - [Common Filters](#common-filters)
-  - [Performance Tips](#performance-tips)
-    - [Use OPTIONAL sparingly](#use-optional-sparingly)
-    - [Use FILTER before JOIN](#use-filter-before-join)
-    - [Limit results for testing](#limit-results-for-testing)
-  - [Debugging Queries](#debugging-queries)
-    - [Check what's loaded](#check-whats-loaded)
-    - [List all predicates](#list-all-predicates)
-    - [Find broken references](#find-broken-references)
-  - [See Also](#see-also)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # SPARQL Cookbook
 
 Quick reference for SPARQL patterns organized by common tasks.

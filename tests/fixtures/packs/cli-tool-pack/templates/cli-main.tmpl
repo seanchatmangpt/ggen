@@ -1,0 +1,19 @@
+---
+to: "{{ output_dir }}/src/main.rs"
+---
+//! {{ cli_name }} - Command-line interface
+
+use clap::Parser;
+
+#[derive(Parser)]
+#[command(name = "{{ cli_name }}")]
+#[command(about = "{{ cli_description }}")]
+struct Cli {
+    #[arg(short, long)]
+    verbose: bool,
+}
+
+fn main() {
+    let cli = Cli::parse();
+    println!("Running {{ cli_name }}...");
+}

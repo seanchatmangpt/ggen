@@ -1,0 +1,26 @@
+---
+to: generated/src/main.rs
+rdf:
+  - ontology.ttl
+sparql:
+  all_classes: |
+    PREFIX ex: <http://example.org/maturity-matrix/level2#>
+    SELECT ?class ?label WHERE {
+      ?class a rdfs:Class .
+      ?class rdfs:label ?label .
+      FILTER(STRSTARTS(STR(?class), "http://example.org/maturity-matrix/level2#"))
+    }
+    ORDER BY ?class
+---
+
+// Level 2: Small Project - Main Module
+// AUTO-GENERATED from ontology.ttl - DO NOT EDIT
+
+{% for row in sparql_results.all_classes %}
+mod {{ row.class | split("#") | last | snake_case }};
+{% endfor %}
+
+fn main() {
+    println!("Level 2: Small Project Generated");
+}
+

@@ -1,35 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Template System Guide](#template-system-guide)
-  - [Tera Template Engine](#tera-template-engine)
-    - [Template Loading & Rendering](#template-loading--rendering)
-    - [Variable Substitution](#variable-substitution)
-    - [Conditional Rendering](#conditional-rendering)
-    - [Looping](#looping)
-    - [Filters & Functions](#filters--functions)
-  - [SPARQL Queries in Templates](#sparql-queries-in-templates)
-    - [Dynamic Template Selection](#dynamic-template-selection)
-    - [Query Results in Loops](#query-results-in-loops)
-  - [File Injection Patterns](#file-injection-patterns)
-    - [Copy-and-Inject Pattern](#copy-and-inject-pattern)
-    - [File Tree Generation](#file-tree-generation)
-    - [Conditional File Inclusion](#conditional-file-inclusion)
-  - [Liquid Template Syntax for Rust Contexts](#liquid-template-syntax-for-rust-contexts)
-    - [Render Context Structure](#render-context-structure)
-    - [Passing Context to Tera](#passing-context-to-tera)
-  - [Template Metadata](#template-metadata)
-  - [Performance Characteristics](#performance-characteristics)
-  - [Testing Template Rendering](#testing-template-rendering)
-  - [Critical Rules](#critical-rules)
-  - [Examples](#examples)
-    - [Rust Model Generation](#rust-model-generation)
-    - [TypeScript Interface Generation](#typescript-interface-generation)
-    - [Dynamic Imports](#dynamic-imports)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Template System Guide
 
 ## Tera Template Engine

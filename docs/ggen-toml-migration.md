@@ -1,39 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Migration Guide: From Other Config Formats to ggen.toml](#migration-guide-from-other-config-formats-to-ggentoml)
-  - [Table of Contents](#table-of-contents)
-  - [Migration from Cargo.toml (Rust)](#migration-from-cargotoml-rust)
-    - [Basic Package Metadata](#basic-package-metadata)
-    - [Workspace Configuration](#workspace-configuration)
-    - [Features and Profiles](#features-and-profiles)
-  - [Migration from pyproject.toml (Python)](#migration-from-pyprojecttoml-python)
-    - [Basic Project Metadata](#basic-project-metadata)
-    - [Poetry Configuration](#poetry-configuration)
-  - [Migration from package.json (Node.js)](#migration-from-packagejson-nodejs)
-    - [Basic Package Configuration](#basic-package-configuration)
-  - [Hybrid Projects](#hybrid-projects)
-    - [Rust + TypeScript (e.g., Tauri, WASM)](#rust--typescript-eg-tauri-wasm)
-    - [Python + Rust (e.g., PyO3)](#python--rust-eg-pyo3)
-  - [Common Patterns](#common-patterns)
-    - [Pattern 1: Coexistence Strategy](#pattern-1-coexistence-strategy)
-    - [Pattern 2: Template Organization](#pattern-2-template-organization)
-    - [Pattern 3: Environment-Specific Configs](#pattern-3-environment-specific-configs)
-    - [Pattern 4: Incremental Migration](#pattern-4-incremental-migration)
-  - [Migration Checklist](#migration-checklist)
-    - [From Cargo.toml](#from-cargotoml)
-    - [From pyproject.toml](#from-pyprojecttoml)
-    - [From package.json](#from-packagejson)
-  - [Troubleshooting](#troubleshooting)
-    - [Issue: Duplicate metadata in multiple files](#issue-duplicate-metadata-in-multiple-files)
-    - [Issue: Conflicting configurations](#issue-conflicting-configurations)
-    - [Issue: Complex workspace setup](#issue-complex-workspace-setup)
-  - [Examples](#examples)
-  - [Next Steps](#next-steps)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Migration Guide: From Other Config Formats to ggen.toml
 
 This guide helps you migrate from other project configuration formats (Cargo.toml, pyproject.toml, package.json) to ggen.toml.

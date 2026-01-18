@@ -2,7 +2,6 @@
 //!
 //! Provides a fluent API for configuring the orchestrator.
 
-use super::agents::MicroAgent;
 use super::orchestrator::AgentOrchestrator;
 use super::MicroframeworkConfig;
 use crate::error::{GgenAiError, Result};
@@ -13,8 +12,6 @@ use std::time::Duration;
 pub struct OrchestratorBuilder {
     /// Configuration being built
     config: MicroframeworkConfig,
-    /// Agents to register
-    agents: Vec<Box<dyn FnOnce(&AgentOrchestrator) + Send>>,
 }
 
 impl OrchestratorBuilder {
@@ -22,7 +19,6 @@ impl OrchestratorBuilder {
     pub fn new() -> Self {
         Self {
             config: MicroframeworkConfig::default(),
-            agents: Vec::new(),
         }
     }
 
@@ -126,8 +122,9 @@ impl OrchestratorBuilder {
     pub fn build(self) -> Result<AgentOrchestrator> {
         // Validate configuration
         if self.config.max_agents == 0 || self.config.max_agents > 10 {
-            return Err(GgenAiError::invalid_input(
-                "max_agents must be between 1 and 10",
+            return Err(GgenAiError::invalid_config(
+                "max_agents",
+                "must be between 1 and 10",
             ));
         }
 

@@ -1,36 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Hyper-Advanced Rust Integration Test Patterns](#hyper-advanced-rust-integration-test-patterns)
-  - [Table of Contents](#table-of-contents)
-  - [1. Generic Associated Types (GATs)](#1-generic-associated-types-gats)
-    - [1.1 Test Fixture Trait with GATs](#11-test-fixture-trait-with-gats)
-    - [1.2 Error Handling with Associated Types](#12-error-handling-with-associated-types)
-  - [2. Higher-Ranked Trait Bounds (HRTB)](#2-higher-ranked-trait-bounds-hrtb)
-    - [2.1 Test Parametrization with HRTB](#21-test-parametrization-with-hrtb)
-    - [2.2 Polymorphic Test Execution](#22-polymorphic-test-execution)
-  - [3. Type-Level Programming](#3-type-level-programming)
-    - [3.1 Type-State Pattern for Test Phases](#31-type-state-pattern-for-test-phases)
-    - [3.2 Phantom Types for Test Categorization](#32-phantom-types-for-test-categorization)
-  - [4. Zero-Copy Semantics](#4-zero-copy-semantics)
-    - [4.1 Reference-Based Test Data](#41-reference-based-test-data)
-    - [4.2 Smart Pointers for Shared State](#42-smart-pointers-for-shared-state)
-  - [5. Advanced Async Patterns](#5-advanced-async-patterns)
-    - [5.1 Structured Concurrency with JoinSet](#51-structured-concurrency-with-joinset)
-    - [5.2 Cancellation-Safe Test Execution](#52-cancellation-safe-test-execution)
-  - [6. FMEA & Gemba Integration](#6-fmea--gemba-integration)
-    - [6.1 Type-Safe RPN Scoring](#61-type-safe-rpn-scoring)
-    - [6.2 Gemba Walk Test Inspection](#62-gemba-walk-test-inspection)
-  - [7. Performance Characteristics](#7-performance-characteristics)
-    - [Summary Table](#summary-table)
-    - [Benchmarking](#benchmarking)
-  - [8. Complete Integration Example](#8-complete-integration-example)
-    - [Full Integration Test Using All Patterns](#full-integration-test-using-all-patterns)
-  - [Conclusion](#conclusion)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Hyper-Advanced Rust Integration Test Patterns
 
 **Author**: Code Quality Analyzer

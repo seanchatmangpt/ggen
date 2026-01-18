@@ -15,7 +15,7 @@
 
 ## 1. Marketplace Lifecycle Analysis
 
-### 1.1 Installation Workflow (`ggen-marketplace/src/install.rs`)
+### 1.1 Installation Workflow (`ggen-marketplace-v2/src/install.rs`)
 
 **What It Has:**
 ```rust

@@ -264,7 +264,6 @@ impl SparqlPrompts {
 mod tests {
     use super::*;
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_sparql_prompt_builder() {
         let prompt = SparqlPromptBuilder::new("Find all users".to_string())
@@ -280,7 +279,6 @@ mod tests {
         assert!(prompt.contains("SELECT ?user WHERE"));
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_find_instances_prompt() {
         let prompt = SparqlPrompts::find_instances(
@@ -293,7 +291,6 @@ mod tests {
         assert!(prompt.contains("instances"));
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_find_properties_prompt() {
         let prompt = SparqlPrompts::find_properties(

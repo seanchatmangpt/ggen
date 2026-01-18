@@ -1,0 +1,29 @@
+# Workspace Member: cli
+# CLI application crate configuration
+
+[project]
+name = "workspace-cli"
+version = "1.0.0"
+description = "CLI application for workspace-project"
+author = "ggen-examples"
+license = "MIT"
+
+# Templates for CLI code generation
+[templates]
+source_dir = "../../templates/cli"
+output_dir = "src/generated"
+
+[templates.rust]
+style = "core-team"
+error_handling = "thiserror"
+async_runtime = "tokio"
+
+# CLI-specific features
+[features]
+code_validation = true
+documentation_generation = true
+
+# Logging
+[logging]
+level = "info"
+format = "pretty"

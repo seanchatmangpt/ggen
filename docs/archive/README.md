@@ -1,219 +1,211 @@
 # Documentation Archive
 
-This directory contains older documentation files that are no longer actively maintained or have been superseded by newer versions.
+This directory contains historical analysis documents, detailed implementation reports, and technical planning documents.
 
-## Archive Organization
+## Organization
 
-- **root/** - Root-level documentation files (status reports, implementation summaries, completed initiatives)
-- **releases/** - Old v2.x release notes and version-specific documentation
-- **research/** - Research, analysis artifacts, and data files
-- **innovation/** - Phase-based documentation and innovation frameworks
-- **metrics/** - Temporal metrics reports and weekly tracking
-- **academic/** - Academic papers, thesis variants, and research projects
-- **polyglot/** - Language-specific examples (Python, JavaScript, PostgreSQL, etc.) - archived as v5 is Rust-only
-- **reference/** - Quick reference guides and cheat sheets
-- **remediation/** - Remediation framework and weekly fix tracking (completed initiative)
-- **duplicates/** - Duplicate DiATAXIS structures (kept canonical /docs/diataxis/ as source)
+```
+archive/
+├── analysis/              # Technical analysis and planning documents
+│   ├── README.md
+│   ├── AUTONOMOUS_ONTOLOGY_SYSTEM.md
+│   ├── GGEN_8020_ROADMAP.md
+│   └── ... (40+ more analysis docs)
+└── README.md              # This file
+```
 
-## Archive Statistics (Final)
+## What's Here
 
-**Total files archived**: 334 files (across 3 commits)
-**Total space reclaimed**: 5.0 MB
-**Root docs reduction**: 228 → 101 (**56% reduction**)
-**Overall docs reduction**: 788 → 454 files (**42% reduction**)
-**Archive completeness**: All superseded, temporal, and deprecated docs consolidated
+### Analysis Documents (`analysis/`)
 
-## Archival Batches (Complete - 3 Commits)
+These files contain:
+- **Implementation planning** - Phase implementations (Phase 3, 4, 4D, etc.)
+- **Testing strategies** - Test suite design, coverage analysis, expert testing patterns
+- **CI/CD design** - GitHub Actions workflows, bulletproof architecture
+- **Audit reports** - Code quality, security, compliance audits
+- **Research documents** - Dark matter measurement, evidence graph schemas
+- **Progress reports** - Completion summaries, integration status, delivery reports
+- **Conversion records** - Doctest conversions, data motion validation
+- **Integration guides** - Sector bundles, collaboration patterns, marketplace guide
 
-### Batch 1 (Commit 5c631e0): Initial Cleanup - 45 files
-- Old version documentation (GGEN V3, Marketplace V1-V2)
-- Phase-based documentation (PHASE1-2, WEEK1-3 reports)
-- Release notes (v2.0.0 through v2.6.0)
-- Rationale: Superseded by v5.2.0, obsolete version history
+### Why Archived?
 
-### Batch 2 (Commit e565bdc): Deep Cleanup - 243 files
+These documents are:
+- **Historical** - Captured the development process at specific points in time
+- **Detailed** - Contain extensive technical planning and reasoning
+- **Reference** - Useful for understanding "why" certain decisions were made
+- **Large** - 40+ files, mostly superseded by current documentation
 
-**Polyglot Language Examples** (9 files)
-- Archived because v5.2.0 is Rust-only per CLAUDE.md
-- Includes: Python FastAPI, JavaScript Express, PostgreSQL, GraphQL, GitHub Actions examples
+### Finding What You Need
 
-**Duplicate DiATAXIS Structures** (75 files)
-- `src/` - Full DiATAXIS with tutorials, how-tos, references, explanations
-- `v5/` - Minimal DiATAXIS from v5.0 era (superseded)
-- Kept canonical: `/docs/diataxis/` as single source of truth
+**Most users should:**
+1. Start with `/README.md` in the repository root
+2. Navigate to `/docs/` for current documentation
+3. Check the main documentation sections:
+   - Tutorials (how to get started)
+   - How-to guides (accomplish specific tasks)
+   - Reference (detailed technical info)
+   - Explanations (understand concepts)
 
-**Academic & Thesis Documentation** (112 files)
-- Papers directory (11 academic papers)
-- Thesis variants: ggen-v6-thesis/, spec-kit-3t-thesis/, thesis-construct-schema/
-- Thesis analysis files: competitive analysis, synthesis plans, prose guides
-- Note: Kept `/docs/thesis/3T-PhD-THESIS.md` as active document
+**If you need historical context:**
+- Browse `archive/analysis/` for detailed planning documents
+- Search for specific topics using `grep` or `find`
+- Check git history for evolution of decisions
 
-**Implementation Summaries & Status Reports** (14 files)
-- COMPLETE_IMPLEMENTATION_80_20.md
-- IMPLEMENTATION_CHECKLIST.md
-- Multiple IMPLEMENTATION_SUMMARY.md files from swarm/, lean_quality/
-- Status completion files: HIVE_MIND_INTEGRATION_COMPLETE.md, GAP_ANALYSIS_COMPLETE.md, etc.
+## Key Documents by Purpose
 
-**Remediation Framework** (15 files)
-- Entire `/docs/remediation/` directory
-- Temporal evidence of completed remediation phase
+### If You Want to Understand...
 
-**Phase & Weekly Evidence** (10 files)
-- Innovation phases (PHASE2-4_IMPLEMENTATION.md)
-- Security weekly reports (WEEK_4_*.md)
-- Metrics weekly summaries (WEEK3_SUMMARY.md, WEEK4_SUMMARY.md, week4/ directory)
-- Daily reports directory
+**System Architecture:**
+- `/docs/explanations/architecture.md` - Current architecture
+- `archive/analysis/AUTONOMOUS_ONTOLOGY_SYSTEM.md` - Detailed design
 
-**Quick Reference Guides** (6 files)
-- ULTRA_COMPRESSED_REFERENCE.md
-- ULTRA_PATTERNS_MATRIX.md
-- Quick start guides for various features
-- Note: Can be consolidated into single `/docs/reference/QUICK-START.md` if needed
+**Development Phases:**
+- `archive/analysis/GGEN_8020_ROADMAP.md` - Overall roadmap
+- `archive/analysis/PHASE_3_IMPLEMENTATION_SUMMARY.md` - Phase 3 details
+- `archive/analysis/PHASE_4_COMPLETION_SUMMARY.md` - Phase 4 completion
+- `archive/analysis/PHASES_4_6_ADVANCED_RUST.md` - Phases 4-6
 
-**Research & Analysis Artifacts** (14 files)
-- One-time research investigations (mutation testing, performance optimization, validation reports)
-- Generated manifests (GENERATED_GUIDES_MANIFEST.md, GENERATED_TODOS.md)
-- JSON data files (FASTAPI_ADVANCED_INNOVATIONS.json, etc.)
+**Testing Strategy:**
+- `/docs/TESTING.md` - Current testing guidelines
+- `archive/analysis/COMPREHENSIVE_TEST_SUITE_SUMMARY.md` - Test suite design
+- `archive/analysis/EXPERT_TESTING_PATTERNS.md` - Testing patterns
 
-### Batch 3 (Commit 2fffc46): Final Polish - 46 files
+**CI/CD Implementation:**
+- `/docs/how-to-guides/cicd-workflows.md` - How to use CI/CD
+- `archive/analysis/BULLETPROOF_CI_CD_ARCHITECTURE.md` - Architecture design
+- `archive/analysis/CI_CD_IMPLEMENTATION_GUIDE.md` - Implementation guide
 
-**GVisor Documentation** (11 files)
-- GVISOR-*.md (5 files)
-- architecture/gvisor-*.md (3 files)
-- architecture/gvisor-*.puml (3 diagrams)
-- Rationale: Feature not in v5.2.0 release notes, not in active codebase
+**Quality & Audits:**
+- `archive/analysis/CODEBASE_AUDIT_REPORT.md` - Code quality audit
+- `archive/analysis/AUDIT_REPORT.md` - Security audit
+- `archive/analysis/TEST_COVERAGE_ANALYSIS_COMPREHENSIVE.md` - Coverage analysis
 
-**Implementation Planning** (10 files)
-- ACTION_PLAN_25_ITEMS.md
-- AGENT_KNOWLEDGE_REQUIREMENTS.md
-- PRD.md, PRIORITY_LIST.md
-- v5-docs-refactor-plan.md
-- And 5 more planning documents
-- Rationale: Completed work, superseded by execution
+**Marketplace System:**
+- `/docs/explanations/marketplace.md` - Current marketplace
+- `archive/analysis/MARKETPLACE_COMPREHENSIVE_GUIDE.md` - Detailed guide
+- `archive/analysis/SECTOR_BUNDLES_INTEGRATION_GUIDE.md` - Bundles design
 
-**Old Standards & References** (8 files)
-- BEST_PRACTICES.md, CODING_STANDARDS.md, CHANGELOG.md, CLI_REFERENCE.md
-- AUTOMATION.md, CORE_TEAM_RECOMMENDATION.md, BACKEND_FIX_LOG.md
-- And 1 more
-- Rationale: Replaced by active reference documentation
+**Ontology System:**
+- `/docs/explanations/ontology-driven.md` - Ontology principles
+- `archive/analysis/AUTONOMOUS_ONTOLOGY_SYSTEM.md` - System design
+- `archive/analysis/EVIDENCE_GRAPH_SCHEMA.md` - Schema definition
 
-**Marketplace Implementation Details** (8 files)
-- marketplace_architecture.md, marketplace_data_structures.md
-- marketplace_implementation_guide.md, marketplace_architecture_diagrams.md
-- MARKETPLACE_MATURITY_MATRIX.md, MARKETPLACE_DOCUMENTATION_INDEX.md
-- marketplace-oxigraph-relationship.md, clap-noun-verb-current-usage.md
-- Rationale: Feature remains active in v5.2.0, implementation details archived
+## File Listing
 
-**Obsolete Feature Docs** (2 files)
-- SWARM_INTEGRATION_ROADMAP.md, TASK_ORCHESTRATOR_FINDINGS.md
-- Rationale: Superseded by active documentation
+### Phase & Implementation (8 files)
+- PHASE_3_IMPLEMENTATION_SUMMARY.md
+- PHASE_4_COMPLETION_SUMMARY.md
+- PHASE_4D_COMPILATION_REPORT.md
+- PHASE_4_6_COMPLETE_IMPLEMENTATION.md
+- PHASES_4_6_ADVANCED_RUST.md
+- FINAL_DELIVERY_SUMMARY.md
+- INTEGRATION_STATUS_REPORT.md
+- GGEN_8020_ROADMAP.md
 
-**Duplicate/Redundant Docs** (3 files)
-- DATAXIS_GUIDE.md, DOCUMENTATION_TOOLS_SURVEY.md, diataxis-index.md
-- DIATAXIS_EVALUATION_EXTERNAL_PERSPECTIVE.md, DIATAXIS_RESTRUCTURE.md
-- DIATAXIS_IMPLEMENTATION_ROADMAP.md
-- Rationale: Duplicate planning documents, consolidated to canonical structures
+### Testing & Quality (9 files)
+- COMPREHENSIVE_TEST_SUITE_SUMMARY.md
+- EXPERT_TESTING_PATTERNS.md
+- EXPERT_TESTING_IMPLEMENTATION_STATUS.md
+- TEST_FRAMEWORK_SUMMARY.md
+- TEST_COVERAGE_ANALYSIS_COMPREHENSIVE.md
+- CRITICAL_UNTESTED_PATHS.md
+- TESTING_GAPS_ANALYSIS.md
+- TESTING_ANALYSIS_SUMMARY.md
+- TESTING_IMPLEMENTATION_GUIDE.md
 
-**Status Completion Files** (2 files)
-- GRAPH_TESTS_VALIDATION.md, ERROR_MESSAGE_QUALITY_TESTS.md
-- verification_report_v5.2.0.md, DEPLOYMENT_READY_v5.2.0.md
-- Rationale: Evidence of completed work, not ongoing reference
+### CI/CD & Infrastructure (4 files)
+- BULLETPROOF_CI_CD_ARCHITECTURE.md
+- BULLETPROOF_CI_CD_SUMMARY.md
+- CI_CD_IMPLEMENTATION_GUIDE.md
+- DATA_MOTION_FIXES_SUMMARY.md
+
+### Audits & Reports (5 files)
+- CODEBASE_AUDIT_REPORT.md
+- AUDIT_REPORT.md
+- MARKDOWN_ANALYSIS_REPORT.md
+- AI_INTEGRATION_REPORT.md
+- AI_GENERATORS_GRANITE4_TEST_REPORT.md
+
+### System Design (6 files)
+- AUTONOMOUS_ONTOLOGY_SYSTEM.md
+- EVIDENCE_GRAPH_SCHEMA.md
+- DARK_MATTER_MEASUREMENT.md
+- COMPLETE_8020_SYSTEM_SUMMARY.md
+- SECTOR_BUNDLES_INTEGRATION_GUIDE.md
+- MARKETPLACE_COMPREHENSIVE_GUIDE.md
+
+### Doctest & Data (5 files)
+- DOCTEST_CONVERSION_SUMMARY.md
+- DOCTEST_CONVERSION_ANALYSIS.md
+- DOCTEST_CONVERSION_CHECKLIST.md
+- DATA_MOTION_VALIDATION.md
+- FMEA_DOCTEST_CONVERSION.md
+
+### Planning & Process (8 files)
+- CREATE_PR_INSTRUCTIONS.md
+- COLLABORATION_GUIDE.md
+- ACADEMIC_PAPER_SYSTEM_INDEX.md
+- ANALYSIS_INDEX.md
+- MURA_INVENTORY.md
+- DIATAXIS_INTEGRATION_SUMMARY.md
+- FMEA_CHANGES_REVIEW.md
+- PR_DESCRIPTION.md
+
+## How to Search the Archive
+
+### Using grep (find mentions of a topic)
+
+```bash
+# Find documents mentioning "marketplace"
+grep -r "marketplace" docs/archive/
+
+# Find documents mentioning "SPARQL"
+grep -r "SPARQL" docs/archive/
+
+# Find documents mentioning "testing"
+grep -r "testing" docs/archive/
+```
+
+### Using find (locate specific files)
+
+```bash
+# List all files in archive
+find docs/archive/ -type f -name "*.md"
+
+# Find files matching pattern
+find docs/archive/ -type f -name "*PHASE*"
+
+# Find files mentioning a date
+find docs/archive/ -type f -mtime -30  # Last 30 days
+```
+
+### Search GitHub
+
+Many of these documents are also in git history:
+```bash
+git log --all --full-history --source --remotes --oneline -- 'GGEN_8020_ROADMAP.md'
+```
+
+## Contributing
+
+If you're working on improvements to ggen:
+
+1. **Current documentation:** Check `/docs/` first
+2. **Historical context:** Browse `archive/` for rationale
+3. **New findings:** Update current docs, archive old docs when superseded
+4. **Analysis:** Add to `archive/analysis/` with descriptive title
+
+## File Cleanup Schedule
+
+Archive files are kept indefinitely for historical reference but:
+- **Regularly reviewed** for accuracy
+- **Linked from** current docs where relevant
+- **Superseded by** newer documentation in `/docs/`
+- **Never deleted** to preserve development history
 
 ---
 
-## Files Archived - Batch 1 (45 total)
-
-### root/ subdirectory (41 files)
-
-**GGEN V3 Architecture (10 files)**
-- GGEN_V3_ARCHITECTURE_C4.md
-- GGEN_V3_COMPREHENSIVE_INDEX.md
-- GGEN_V3_IMPLEMENTATION_ROADMAP.md
-- GGEN_V3_ONTOLOGY_SPEC.md
-- GGEN_V3_PROJECTION_FAMILIES_DETAILED.md
-- GGEN_V3_SECTOR_BUNDLES_CATALOG.md
-- GGEN_V3_SECURITY_THREAT_MODEL.md
-- GGEN_V3_SPARQL_PATTERNS_AND_OPTIMIZATION.md
-- GGEN_V3_TYPE_SYSTEM_COMPREHENSIVE.md
-- GGEN_V3_VISION.md
-
-**Marketplace V1 & V2 (14 files)**
-- MARKETPLACE_V1_REMOVAL_PLAN.md
-- MARKETPLACE_V2_25_ITEM_ACTION_PLAN.md
-- MARKETPLACE_V2_API.md
-- MARKETPLACE_V2_ARCHITECTURE.md
-- MARKETPLACE_V2_DEPLOYMENT_GUIDE.md
-- MARKETPLACE_V2_INDEX.md
-- MARKETPLACE_V2_MIGRATION.md
-- MARKETPLACE_V2_MONITORING_SETUP.md
-- MARKETPLACE_V2_PRODUCTION_VALIDATION.md
-- MARKETPLACE_V2_README.md
-- MARKETPLACE_V2_REFACTORING.puml
-- MARKETPLACE_V2_TEST_DELIVERABLES.md
-- MARKETPLACE_V2_VALIDATION_SUMMARY.txt
-- marketplace-v2-quality-report.md
-
-**Phase-Based Documentation (6 files)**
-- PHASE2-4_CONSOLIDATION_ROADMAP.md
-- PHASE2_3_TEST_QUICK_REFERENCE.md
-- TESTER_PHASE2_DELIVERABLES.md
-- phase1-implementation-summary.md
-- phase2-quality-report.md
-- testing-strategy-phase1-critical-analysis.md
-
-**Weekly Reports (8 files)**
-- WEEK1_RESULTS.md
-- WEEK1_VALIDATION_AUDIT.md
-- WEEK1_VALIDATION_INDEX.md
-- WEEK2_INFRASTRUCTURE_DELIVERABLES.md
-- WEEK3_MEDIUM_OPTIMIZATIONS.md
-- WEEK3_PERFORMANCE_DELIVERABLES.md
-- TEST_IMPROVEMENTS_WEEK1.md
-- marketplace_v2_test_execution_guide.md
-- marketplace_v2_test_strategy.md
-
-**Version Transition Documents (3 files)**
-- v4-to-v5-sync-analysis.md
-- watch-mode-verification-v5.2.0-phase1.md
-- (additional phase 1 content)
-
-### releases/ subdirectory (4 files)
-
-**Old Release Notes (v2.x)**
-- RELEASE_v2.0.0_COMMANDS.md
-- RELEASE_v2.5.1_CHECKLIST.md
-- RELEASE_v2.6.0_CHECKLIST.md
-- RELEASE_v2.6.0_STATUS.md
-
-## Archive Rationale
-
-### Muda Cleanup (Waste Elimination)
-These files represent accumulated documentation debt:
-- Superseded by v5+ documentation
-- Obsolete version history from v2, v3, v4 iterations
-- Temporary weekly/phase reports no longer relevant
-
-### Mura Cleanup (Unevenness Elimination)
-Addressed documentation inconsistencies:
-- Duplicate information across versions (v2 marketplace docs, v3 architecture)
-- Phase-based documentation cluttering main docs/
-- Weekly reports creating noise instead of signal
-
-## Migration Date
-
-Files archived: 2026-01-06 (Current version: v5.2.0)
-
-## Retrieval
-
-If you need to reference archived documentation:
-1. Search the specific archive subdirectory
-2. Check the creation/modification dates to understand document age
-3. Use git history to find the original context
-
-## Cleanup Rationale
-
-These files were archived as part of muda/mura cleanup to:
-- Reduce documentation clutter (muda = waste)
-- Eliminate version duplication (mura = unevenness)
-- Improve navigation in active documentation
-- Maintain clean docs/index for current version (v5+)
+**Last Updated:** November 17, 2025
+**Archive Reorganization:** Moved analysis docs from repository root to reduce clutter
+**Maintained By:** ggen Documentation Team

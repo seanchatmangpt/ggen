@@ -1,34 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Tutorial: Clap-Noun-Verb Upgrade](#tutorial-clap-noun-verb-upgrade)
-  - [Learning Objectives](#learning-objectives)
-  - [What is the Noun-Verb Pattern?](#what-is-the-noun-verb-pattern)
-  - [Builder vs Derive Pattern](#builder-vs-derive-pattern)
-    - [Builder Pattern (Old Approach)](#builder-pattern-old-approach)
-    - [Derive Pattern (Modern Approach)](#derive-pattern-modern-approach)
-  - [Step-by-Step Migration](#step-by-step-migration)
-    - [Step 1: Analyze Current CLI Structure](#step-1-analyze-current-cli-structure)
-    - [Step 2: Design the Derive Structure](#step-2-design-the-derive-structure)
-    - [Step 3: Implement the Root CLI Structure](#step-3-implement-the-root-cli-structure)
-    - [Step 4: Implement Subcommand Enums](#step-4-implement-subcommand-enums)
-    - [Step 5: Update main.rs to Use Derive](#step-5-update-mainrs-to-use-derive)
-  - [Testing for Zero Regressions](#testing-for-zero-regressions)
-    - [Test 1: Command Availability](#test-1-command-availability)
-    - [Test 2: Global Flags Work](#test-2-global-flags-work)
-    - [Test 3: Help Output Unchanged](#test-3-help-output-unchanged)
-  - [Common Migration Pitfalls](#common-migration-pitfalls)
-    - [Pitfall 1: Losing Default Values](#pitfall-1-losing-default-values)
-    - [Pitfall 2: Changing Argument Names](#pitfall-2-changing-argument-names)
-    - [Pitfall 3: Forgetting Short Flags](#pitfall-3-forgetting-short-flags)
-  - [Verification Checklist](#verification-checklist)
-  - [Real-World Results](#real-world-results)
-  - [Glossary](#glossary)
-  - [Next Steps](#next-steps)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Tutorial: Clap-Noun-Verb Upgrade
 
 **Walk through upgrading CLI from builder to derive pattern with zero regressions**

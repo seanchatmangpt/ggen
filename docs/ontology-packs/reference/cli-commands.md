@@ -1,30 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Reference: CLI Commands](#reference-cli-commands)
-  - [Discovery Commands](#discovery-commands)
-    - [discover](#discover)
-    - [info](#info)
-  - [Installation Commands](#installation-commands)
-    - [install](#install)
-    - [update](#update)
-    - [list](#list)
-    - [uninstall](#uninstall)
-  - [Generation Commands](#generation-commands)
-    - [extract](#extract)
-    - [generate](#generate)
-    - [compose](#compose)
-    - [validate](#validate)
-  - [Lock File Commands](#lock-file-commands)
-    - [lock create](#lock-create)
-    - [lock update](#lock-update)
-  - [Publishing Commands](#publishing-commands)
-    - [pack publish](#pack-publish)
-    - [pack validate](#pack-validate)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Reference: CLI Commands
 
 ## Discovery Commands

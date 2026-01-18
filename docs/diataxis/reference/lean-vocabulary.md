@@ -1,28 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Reference: Lean Vocabulary](#reference-lean-vocabulary)
-  - [The 3M Framework](#the-3m-framework)
-    - [Mura (斑) - Inconsistency](#mura-%E6%96%91---inconsistency)
-    - [Muda (無駄) - Waste](#muda-%E7%84%A1%E9%A7%84---waste)
-    - [Muri (無理) - Overburden](#muri-%E7%84%A1%E7%90%86---overburden)
-  - [Continuous Improvement](#continuous-improvement)
-    - [Kaizen (改善) - Continuous Improvement](#kaizen-%E6%94%B9%E5%96%84---continuous-improvement)
-  - [Observation & Alerting](#observation--alerting)
-    - [Gemba (現場) - The Real Place](#gemba-%E7%8F%BE%E5%A0%B4---the-real-place)
-    - [Andon (行灯) - Visual Alert](#andon-%E8%A1%8C%E7%81%AF---visual-alert)
-    - [Poka-Yoke (ポカヨケ) - Mistake-Proofing](#poka-yoke-%E3%83%9D%E3%82%AB%E3%83%A8%E3%82%B1---mistake-proofing)
-  - [Quality Standards](#quality-standards)
-    - [Jidoka (自働化) - Autonomation](#jidoka-%E8%87%AA%E5%83%8D%E5%8C%96---autonomation)
-    - [Kanban (看板) - Signboard](#kanban-%E7%9C%8B%E6%9D%BF---signboard)
-  - [Root Cause Analysis](#root-cause-analysis)
-    - [5 Whys (五回のなぜ)](#5-whys-%E4%BA%94%E5%9B%9E%E3%81%AE%E3%81%AA%E3%81%9C)
-  - [Quick Reference](#quick-reference)
-  - [Related Resources](#related-resources)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Reference: Lean Vocabulary
 
 **Mura, Muda, Muri, Kaizen, Gemba, Andon definitions with software examples**

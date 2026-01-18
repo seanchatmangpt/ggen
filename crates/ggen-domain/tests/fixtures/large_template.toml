@@ -1,0 +1,84 @@
+---
+to: src/{{ module_name }}/mod.rs
+vars:
+  module_name: large_module
+  author: "Test Author"
+  license: "MIT"
+---
+//! {{ module_name }} - Large template for performance testing
+//!
+//! Author: {{ author }}
+//! License: {{ license }}
+
+use std::collections::HashMap;
+use serde::{Serialize, Deserialize};
+
+/// Main structure for {{ module_name }}
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct {{ module_name | capitalize }} {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub metadata: HashMap<String, String>,
+}
+
+impl {{ module_name | capitalize }} {
+    pub fn new(id: String, name: String) -> Self {
+        Self {
+            id,
+            name,
+            description: String::new(),
+            metadata: HashMap::new(),
+        }
+    }
+
+    pub fn with_description(mut self, description: String) -> Self {
+        self.description = description;
+        self
+    }
+
+    pub fn add_metadata(&mut self, key: String, value: String) {
+        self.metadata.insert(key, value);
+    }
+
+    pub fn get_metadata(&self, key: &str) -> Option<&String> {
+        self.metadata.get(key)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_new() {
+        let module = {{ module_name | capitalize }}::new(
+            "test-id".to_string(),
+            "Test Module".to_string(),
+        );
+        assert_eq!(module.id, "test-id");
+        assert_eq!(module.name, "Test Module");
+    }
+
+    #[test]
+    fn test_with_description() {
+        let module = {{ module_name | capitalize }}::new(
+            "test-id".to_string(),
+            "Test Module".to_string(),
+        )
+        .with_description("Test description".to_string());
+
+        assert_eq!(module.description, "Test description");
+    }
+
+    #[test]
+    fn test_metadata() {
+        let mut module = {{ module_name | capitalize }}::new(
+            "test-id".to_string(),
+            "Test Module".to_string(),
+        );
+
+        module.add_metadata("key1".to_string(), "value1".to_string());
+        assert_eq!(module.get_metadata("key1"), Some(&"value1".to_string()));
+    }
+}

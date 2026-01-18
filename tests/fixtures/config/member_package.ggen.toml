@@ -1,0 +1,19 @@
+# Member package ggen.toml
+# Tests workspace member configuration inheritance
+
+[project]
+name = "member-package"
+version = "0.2.0"
+description = "Workspace member package"
+
+# Inherits workspace.dependencies, workspace.marketplace, etc.
+# Can override with local settings
+
+[templates]
+source_dir = "local/templates"
+output_dir = "local/generated"
+
+[ai]
+# Override workspace AI settings for this package
+provider = "ollama"
+model = "qwen2.5-coder:7b"

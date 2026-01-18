@@ -6,7 +6,7 @@
 use ggen_utils::error::{Error, Result};
 use lru::LruCache;
 use serde_yaml::Value as YamlValue;
-use std::collections::BTreeMap;
+use std::collections::HashMap;
 use std::num::NonZeroUsize;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
@@ -57,11 +57,9 @@ pub struct TemplateCache {
     hits: Arc<Mutex<u64>>,
     misses: Arc<Mutex<u64>>,
     // OPTIMIZATION 3.1: Cache for parsed frontmatter (30-50% speedup)
-    // **FMEA Fix**: Use BTreeMap for deterministic iteration order
-    frontmatter_cache: Arc<Mutex<BTreeMap<String, Arc<YamlValue>>>>,
+    frontmatter_cache: Arc<Mutex<HashMap<String, Arc<YamlValue>>>>,
     // OPTIMIZATION 3.2: Cache for compiled Tera templates (20-40% speedup)
-    // **FMEA Fix**: Use BTreeMap for deterministic iteration order
-    tera_cache: Arc<Mutex<BTreeMap<String, String>>>,
+    tera_cache: Arc<Mutex<HashMap<String, String>>>,
 }
 
 impl TemplateCache {
@@ -95,9 +93,8 @@ impl TemplateCache {
             hits: Arc::new(Mutex::new(0)),
             misses: Arc::new(Mutex::new(0)),
             // OPTIMIZATION 3: Initialize frontmatter and Tera caches
-            // **FMEA Fix**: Use BTreeMap for deterministic iteration order
-            frontmatter_cache: Arc::new(Mutex::new(BTreeMap::new())),
-            tera_cache: Arc::new(Mutex::new(BTreeMap::new())),
+            frontmatter_cache: Arc::new(Mutex::new(HashMap::new())),
+            tera_cache: Arc::new(Mutex::new(HashMap::new())),
         }
     }
 

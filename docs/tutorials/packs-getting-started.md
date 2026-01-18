@@ -9,11 +9,6 @@
   - [Step 3: Validate a Pack (1 minute)](#step-3-validate-a-pack-1-minute)
   - [Step 4: Preview Installation (2 minutes)](#step-4-preview-installation-2-minutes)
   - [Step 5: Understand Pack Categories (3 minutes)](#step-5-understand-pack-categories-3-minutes)
-    - [Startup Essentials (Quick MVP Development)](#startup-essentials-quick-mvp-development)
-    - [Enterprise Backend (Production-Grade Systems)](#enterprise-backend-production-grade-systems)
-    - [Data Science Toolkit (ML/AI Development)](#data-science-toolkit-mlai-development)
-    - [DevOps Automation (Infrastructure as Code)](#devops-automation-infrastructure-as-code)
-    - [Modern Frontend (Web UI Development)](#modern-frontend-web-ui-development)
   - [What You've Learned](#what-youve-learned)
   - [Next Steps](#next-steps)
 

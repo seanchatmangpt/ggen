@@ -1,0 +1,64 @@
+services:
+  # OpenTelemetry Collector - Receives traces/metrics/logs via OTLP
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.91.0
+    container_name: ggen-otel-collector
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver
+      - "13133:13133" # Health check
+      - "8888:8888"   # Prometheus metrics (collector self-monitoring)
+      - "55679:55679" # zpages (debug UI)
+    networks:
+      - otel-test
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:13133"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  # Jaeger - Trace visualization and storage
+  jaeger:
+    image: jaegertracing/all-in-one:1.52
+    container_name: ggen-jaeger
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    ports:
+      - "16686:16686" # Jaeger UI
+      - "14250:14250" # gRPC collector
+    networks:
+      - otel-test
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:16686"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Prometheus - Metrics storage and query
+  prometheus:
+    image: prom/prometheus:v2.48.1
+    container_name: ggen-prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090" # Prometheus UI
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    networks:
+      - otel-test
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+networks:
+  otel-test:
+    driver: bridge
