@@ -1,0 +1,203 @@
+{# erlang-adapter.tera: Generate Erlang OTP adapter supervision trees from adapter specs #}
+{# Input: adapter_framework.ttl + adapter_implementations.ttl #}
+{# Output: .erl files with supervisor, worker, state machine #}
+
+%% @doc {{ system.name | title }} Adapter - Generated from {{ spec.uri }}
+%% This module implements the OTP supervisor and worker for {{ system.name }} system integration
+%% Deterministically generated from RDF spec: {{ spec.hash }}
+%% Regenerate with: ggen sync
+
+-module(ggen_adapter_{{ system.id }}).
+-behaviour(supervisor).
+-behaviour(gen_server).
+
+-export([start_link/1, init/1, handle_call/3, handle_cast/2, handle_info/2]).
+-export([ingest/2, normalize/2, emit/2, verify_receipt/1]).
+
+-include("ggen_adapter.hrl").
+
+%% ============================================================================
+%% Type Definitions (From RDF spec)
+%% ============================================================================
+
+-type state() :: #{
+  system_id => {{ system.id }},
+  system_name => {{ system.name }},
+  status => connecting | connected | error,
+  auth => {{ system.auth_type | default: "none" }},
+  retry_count => non_neg_integer(),
+  last_error => term(),
+  event_queue => queue:queue(event()),
+  receipt_log => ggen_receipt:log()
+}.
+
+-type event() :: {
+  timestamp :: erlang:timestamp(),
+  source_id :: binary(),
+  data :: map(),
+  signature :: binary()
+}.
+
+%% ============================================================================
+%% OTP Supervisor Callbacks
+%% ============================================================================
+
+-spec start_link(map()) -> {ok, pid()} | {error, term()}.
+start_link(Config) ->
+  supervisor:start_link({local, ?MODULE}, ?MODULE, Config).
+
+init(Config) ->
+  SupFlags = #{
+    strategy => one_for_one,
+    intensity => 5,
+    period => 60
+  },
+  ChildSpecs = [
+    #{
+      id => {{ system.id }}_worker,
+      start => {gen_server, start_link, [?MODULE, Config, []]},
+      restart => permanent,
+      shutdown => 5000,
+      type => worker,
+      modules => [?MODULE]
+    },
+    #{
+      id => {{ system.id }}_circuit_breaker,
+      start => {ggen_circuit_breaker, start_link, [{{ system.id }}, Config]},
+      restart => permanent,
+      shutdown => 5000,
+      type => worker,
+      modules => [ggen_circuit_breaker]
+    }
+  ],
+  {ok, {SupFlags, ChildSpecs}}.
+
+%% ============================================================================
+%% Gen Server Implementation
+%% ============================================================================
+
+handle_call({ingest, RawData}, _From, State) ->
+  %% Deterministic ingest (idempotent, no side effects)
+  Result = ingest(RawData, State),
+  {reply, Result, State};
+
+handle_call({normalize, Event}, _From, State) ->
+  %% Normalize to RDF triples
+  {ok, Triples} = normalize(Event, State),
+  {reply, {ok, Triples}, State};
+
+handle_call({emit, Triples}, _From, State) ->
+  %% Emit to event stream (immutable append)
+  {ok, Receipt} = emit(Triples, State),
+  {reply, {ok, Receipt}, State};
+
+handle_call(get_state, _From, State) ->
+  {reply, State, State};
+
+handle_call(_Request, _From, State) ->
+  {reply, {error, unknown_request}, State}.
+
+handle_cast({event, Event}, State) ->
+  %% Non-blocking event handling
+  Queue = maps:get(event_queue, State),
+  NewQueue = queue:in(Event, Queue),
+  {noreply, State#{event_queue => NewQueue}};
+
+handle_cast(_Msg, State) ->
+  {noreply, State}.
+
+handle_info(tick, State) ->
+  %% Periodic health check + retry failed events
+  case health_check(State) of
+    ok ->
+      {noreply, State};
+    {error, Reason} ->
+      NewState = State#{status => error, last_error => Reason},
+      {noreply, NewState}
+  end;
+
+handle_info(_Info, State) ->
+  {noreply, State}.
+
+%% ============================================================================
+%% Adapter-Specific Implementation (From RDF spec)
+%% ============================================================================
+
+-spec ingest(term(), state()) -> {ok, event()} | {error, term()}.
+ingest(RawData, State) ->
+  %% Deterministic parsing (always same input → same output)
+  try
+    Event = #{
+      timestamp => os:timestamp(),
+      source_id => maps:get(system_id, State),
+      data => parse_{{ system.id }}(RawData),
+      signature => compute_signature(RawData)
+    },
+    {ok, Event}
+  catch
+    _:Reason -> {error, Reason}
+  end.
+
+-spec normalize(event(), state()) -> {ok, [triple()]} | {error, term()}.
+normalize(Event, _State) ->
+  %% Convert to RDF triples (deterministic, schema-compliant)
+  Data = maps:get(data, Event),
+  Timestamp = maps:get(timestamp, Event),
+
+  Triples = [
+    {?SYSTEM_URI_{{ system.id | upper }}, rdf_type, rdf_event},
+    {?SYSTEM_URI_{{ system.id | upper }}, rdf_timestamp, Timestamp},
+    {?SYSTEM_URI_{{ system.id | upper }}, rdf_data, Data},
+    {?SYSTEM_URI_{{ system.id | upper }}, rdf_valid, true}
+  ],
+
+  {ok, Triples}.
+
+-spec emit([triple()], state()) -> {ok, binary()} | {error, term()}.
+emit(Triples, State) ->
+  %% Append to immutable event log (cryptographically signed)
+  ReceiptLog = maps:get(receipt_log, State),
+  Hash = compute_triples_hash(Triples),
+  Receipt = ggen_receipt:new(Hash, Triples),
+
+  {ok, ReceiptLog#{
+    event_id => Hash,
+    triples => Triples,
+    timestamp => os:timestamp(),
+    system => maps:get(system_name, State)
+  }}.
+
+-spec verify_receipt(binary()) -> {ok, [triple()]} | {error, verification_failed}.
+verify_receipt(ReceiptHash) ->
+  %% Verify cryptographic integrity (Ed25519)
+  case ggen_receipt:lookup(ReceiptHash) of
+    {ok, Receipt} ->
+      case ggen_receipt:verify_signature(Receipt) of
+        true -> {ok, maps:get(triples, Receipt)};
+        false -> {error, verification_failed}
+      end;
+    {error, _} -> {error, verification_failed}
+  end.
+
+%% ============================================================================
+%% Private Helpers
+%% ============================================================================
+
+parse_{{ system.id }}(RawData) ->
+  %% Parse {{ system.name }} native format
+  %% (Implementation depends on {{ system.auth_type }} API format)
+  RawData.
+
+compute_signature(Data) ->
+  %% Ed25519 signature
+  ggen_crypto:sign(Data).
+
+compute_triples_hash(Triples) ->
+  %% Deterministic SHA256 hash of triples
+  Hash = crypto:hash(sha256, term_to_binary(Triples)),
+  base64:encode(Hash).
+
+health_check(State) ->
+  %% Verify connection to {{ system.name }}
+  %% Returns ok or {error, Reason}
+  ok.

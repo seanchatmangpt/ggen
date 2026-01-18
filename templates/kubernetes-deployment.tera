@@ -1,0 +1,377 @@
+{# kubernetes-deployment.tera: Generate K8s manifests from adapter and authority specs #}
+{# Input: adapter_framework.ttl, authority_model.ttl #}
+{# Output: YAML deployments, services, RBAC, network policies #}
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ggen-disney
+  labels:
+    app: ggen-disney
+    spec-hash: "{{ spec.hash }}"
+    generated-from: "{{ spec.uri }}"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ggen-adapter-config
+  namespace: ggen-disney
+data:
+  adapters.json: |
+    {
+      "adapters": [
+        {% for adapter in adapters -%}
+        {
+          "id": "{{ adapter.id }}",
+          "name": "{{ adapter.name }}",
+          "system": "{{ adapter.system }}",
+          "auth_type": "{{ adapter.auth_type }}",
+          "ingest_pattern": "{{ adapter.ingest_pattern }}",
+          "retry_policy": {
+            "max_retries": {{ adapter.retry_max }},
+            "backoff_seconds": {{ adapter.retry_backoff }}
+          }
+        }{{ "," if not loop.last else "" }}
+        {% endfor %}
+      ]
+    }
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ggen-adapters
+  namespace: ggen-disney
+  labels:
+    component: adapters
+    spec-hash: "{{ spec.hash }}"
+spec:
+  replicas: {{ adapters | length }}
+  selector:
+    matchLabels:
+      component: adapters
+  template:
+    metadata:
+      labels:
+        component: adapters
+        spec-hash: "{{ spec.hash }}"
+      annotations:
+        spec.generated-from: "{{ spec.uri }}"
+        determinism: "true"
+    spec:
+      serviceAccountName: ggen-adapters
+
+      initContainers:
+      - name: verify-spec-integrity
+        image: ggen/verify:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          echo "Verifying RDF spec integrity..."
+          ACTUAL_HASH=$(sha256sum /specs/*.ttl | sha256sum)
+          EXPECTED_HASH="{{ spec.hash }}"
+          if [ "$ACTUAL_HASH" != "$EXPECTED_HASH" ]; then
+            echo "FAIL: Spec hash mismatch! Spec may have been tampered with."
+            exit 1
+          fi
+          echo "PASS: Spec integrity verified"
+        volumeMounts:
+        - name: specs
+          mountPath: /specs
+          readOnly: true
+
+      containers:
+      {% for adapter in adapters %}
+      - name: {{ adapter.id }}-adapter
+        image: ggen/adapters:{{ adapter.id }}-latest
+        imagePullPolicy: Always
+
+        env:
+        - name: ADAPTER_ID
+          value: "{{ adapter.id }}"
+        - name: SYSTEM_NAME
+          value: "{{ adapter.system }}"
+        - name: AUTH_TYPE
+          value: "{{ adapter.auth_type }}"
+        - name: SPEC_HASH
+          value: "{{ spec.hash }}"
+        - name: LOG_LEVEL
+          value: "info"
+
+        # Secrets: injected from external secret manager (sealed)
+        envFrom:
+        - secretRef:
+            name: {{ adapter.id }}-credentials
+
+        ports:
+        - name: rpc
+          containerPort: {{ 5000 + loop.index0 }}
+          protocol: TCP
+        - name: metrics
+          containerPort: {{ 9000 + loop.index0 }}
+          protocol: TCP
+
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2
+
+        volumeMounts:
+        - name: specs
+          mountPath: /specs
+          readOnly: true
+        - name: audit-logs
+          mountPath: /var/log/audit
+      {% endfor %}
+
+      volumes:
+      - name: specs
+        configMap:
+          name: ggen-specs
+          items:
+          - key: adapter-framework.ttl
+            path: adapter-framework.ttl
+          - key: authority-model.ttl
+            path: authority-model.ttl
+      - name: audit-logs
+        emptyDir: {}
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ggen-adapters
+  namespace: ggen-disney
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ggen-adapters
+rules:
+# Read-only access to specs
+- apiGroups: ["v1"]
+  resources: ["configmaps"]
+  verbs: ["get", "list", "watch"]
+  resourceNames: ["ggen-specs", "ggen-adapter-config"]
+
+# Read audit trail
+- apiGroups: ["v1"]
+  resources: ["secrets"]
+  verbs: ["get"]
+  resourceNames: ["ggen-audit-trail"]
+
+# Post metrics
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ggen-adapters
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ggen-adapters
+subjects:
+- kind: ServiceAccount
+  name: ggen-adapters
+  namespace: ggen-disney
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ggen-adapters
+  namespace: ggen-disney
+  labels:
+    component: adapters
+spec:
+  type: ClusterIP
+  selector:
+    component: adapters
+  ports:
+  {% for adapter in adapters %}
+  - name: {{ adapter.id }}-rpc
+    port: {{ 5000 + loop.index0 }}
+    targetPort: {{ 5000 + loop.index0 }}
+    protocol: TCP
+  - name: {{ adapter.id }}-metrics
+    port: {{ 9000 + loop.index0 }}
+    targetPort: {{ 9000 + loop.index0 }}
+    protocol: TCP
+  {% endfor %}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ggen-adapters
+  namespace: ggen-disney
+spec:
+  podSelector:
+    matchLabels:
+      component: adapters
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Allow traffic from audit trail
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ggen-disney
+    ports:
+    - protocol: TCP
+      port: 5000
+  # Allow metrics scraping
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 9000
+  egress:
+  # Allow DNS
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: UDP
+      port: 53
+  # Allow external system integrations
+  - to:
+    - podSelector: {}
+    ports:
+    - protocol: TCP
+      port: 443
+  # Allow audit trail
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: ggen-disney
+    ports:
+    - protocol: TCP
+      port: 6379
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ggen-adapters
+  namespace: ggen-disney
+spec:
+  minAvailable: {{ (adapters | length / 2) | round(0, 'ceil') | int }}
+  selector:
+    matchLabels:
+      component: adapters
+
+---
+# Audit Trail Service (separate, immutable append-only)
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ggen-audit-trail
+  namespace: ggen-disney
+spec:
+  serviceName: ggen-audit-trail
+  replicas: 3
+  selector:
+    matchLabels:
+      component: audit-trail
+  template:
+    metadata:
+      labels:
+        component: audit-trail
+        spec-hash: "{{ spec.hash }}"
+    spec:
+      containers:
+      - name: audit-trail
+        image: ggen/audit-trail:latest
+
+        env:
+        - name: SPEC_HASH
+          value: "{{ spec.hash }}"
+        - name: REPLICATION_FACTOR
+          value: "3"
+
+        ports:
+        - name: api
+          containerPort: 6379
+        - name: metrics
+          containerPort: 9090
+
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+
+        volumeMounts:
+        - name: data
+          mountPath: /data
+
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: component
+                operator: In
+                values:
+                - audit-trail
+            topologyKey: kubernetes.io/hostname
+
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: fast-ssd
+      resources:
+        requests:
+          storage: 50Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ggen-audit-trail
+  namespace: ggen-disney
+spec:
+  clusterIP: None
+  selector:
+    component: audit-trail
+  ports:
+  - port: 6379
+    name: api
+  - port: 9090
+    name: metrics
