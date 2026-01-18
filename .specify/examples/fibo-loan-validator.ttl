@@ -1,0 +1,547 @@
+@prefix : <http://ggen.ai/examples/fibo-loan#> .
+@prefix llm: <http://ggen.ai/llm-construct#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fibo-loan: <https://spec.edmcouncil.org/fibo/ontology/LOAN/LoanContracts#> .
+
+# ============================================================================
+# EXAMPLE: FIBO LOAN APPLICATION VALIDATOR
+# ============================================================================
+# This example demonstrates LLM-Construct for validating loan applications
+# against FIBO lending standards.
+#
+# Use Case: Extract and validate loan application data from documents
+# Constraints: Credit score ranges, income validation, LTV ratios
+# ============================================================================
+
+# ============================================================================
+# STAGE 1: SOURCE OWL ONTOLOGY (Simplified FIBO Loan)
+# ============================================================================
+
+:LoanApplication a owl:Class ;
+    rdfs:label "Loan Application" ;
+    rdfs:comment "An application for a loan product" ;
+    rdfs:subClassOf fibo-loan:LoanContract .
+
+:Borrower a owl:Class ;
+    rdfs:label "Borrower" ;
+    rdfs:comment "Individual or entity applying for the loan" .
+
+:Property a owl:Class ;
+    rdfs:label "Property" ;
+    rdfs:comment "Real estate property securing the loan (for mortgage)" .
+
+# ============================================================================
+# BORROWER PROPERTIES
+# ============================================================================
+
+:borrowerName a owl:DatatypeProperty ;
+    rdfs:domain :Borrower ;
+    rdfs:range xsd:string ;
+    rdfs:label "Borrower Name" ;
+    rdfs:comment "Full legal name of the borrower" .
+
+:creditScore a owl:DatatypeProperty ;
+    rdfs:domain :Borrower ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Credit Score" ;
+    rdfs:comment "FICO or equivalent credit score" .
+
+:annualIncome a owl:DatatypeProperty ;
+    rdfs:domain :Borrower ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Annual Income" ;
+    rdfs:comment "Borrower's annual gross income in USD" .
+
+:employmentStatus a owl:DatatypeProperty ;
+    rdfs:domain :Borrower ;
+    rdfs:range :EmploymentStatus ;
+    rdfs:label "Employment Status" .
+
+:EmploymentStatus a rdfs:Datatype ;
+    owl:oneOf ("Employed" "Self-Employed" "Retired" "Unemployed") .
+
+# ============================================================================
+# LOAN APPLICATION PROPERTIES
+# ============================================================================
+
+:loanAmount a owl:DatatypeProperty ;
+    rdfs:domain :LoanApplication ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Loan Amount" ;
+    rdfs:comment "Principal amount requested in USD" .
+
+:loanPurpose a owl:DatatypeProperty ;
+    rdfs:domain :LoanApplication ;
+    rdfs:range :LoanPurpose ;
+    rdfs:label "Loan Purpose" .
+
+:LoanPurpose a rdfs:Datatype ;
+    owl:oneOf ("Purchase" "Refinance" "Home Improvement" "Debt Consolidation") .
+
+:interestRate a owl:DatatypeProperty ;
+    rdfs:domain :LoanApplication ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Interest Rate" ;
+    rdfs:comment "Annual interest rate as percentage" .
+
+:loanTerm a owl:DatatypeProperty ;
+    rdfs:domain :LoanApplication ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Loan Term" ;
+    rdfs:comment "Loan duration in months" .
+
+# ============================================================================
+# PROPERTY (COLLATERAL) PROPERTIES
+# ============================================================================
+
+:propertyValue a owl:DatatypeProperty ;
+    rdfs:domain :Property ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Property Value" ;
+    rdfs:comment "Appraised value of the property in USD" .
+
+:propertyAddress a owl:DatatypeProperty ;
+    rdfs:domain :Property ;
+    rdfs:range xsd:string ;
+    rdfs:label "Property Address" .
+
+:propertyType a owl:DatatypeProperty ;
+    rdfs:domain :Property ;
+    rdfs:range :PropertyType ;
+    rdfs:label "Property Type" .
+
+:PropertyType a rdfs:Datatype ;
+    owl:oneOf ("Single-Family" "Condo" "Townhouse" "Multi-Family" "Commercial") .
+
+# ============================================================================
+# OBJECT PROPERTIES (RELATIONSHIPS)
+# ============================================================================
+
+:hasBorrower a owl:ObjectProperty ;
+    rdfs:domain :LoanApplication ;
+    rdfs:range :Borrower ;
+    rdfs:label "Has Borrower" .
+
+:hasCollateral a owl:ObjectProperty ;
+    rdfs:domain :LoanApplication ;
+    rdfs:range :Property ;
+    rdfs:label "Has Collateral" ;
+    rdfs:comment "Property securing the loan (for mortgage)" .
+
+# ============================================================================
+# OWL RESTRICTIONS - BORROWER
+# ============================================================================
+
+# Borrower Name: Required, non-empty
+:Borrower rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :borrowerName ;
+    owl:cardinality 1
+] , [
+    a owl:Restriction ;
+    owl:onProperty :borrowerName ;
+    owl:allValuesFrom [
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:string ;
+        owl:withRestrictions (
+            [ xsd:minLength 2 ]
+            [ xsd:maxLength 100 ]
+        )
+    ]
+] .
+
+# Credit Score: 300-850 (FICO range)
+:Borrower rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :creditScore ;
+    owl:cardinality 1
+] , [
+    a owl:Restriction ;
+    owl:onProperty :creditScore ;
+    owl:allValuesFrom [
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:integer ;
+        owl:withRestrictions (
+            [ xsd:minInclusive 300 ]
+            [ xsd:maxInclusive 850 ]
+        )
+    ]
+] .
+
+# Annual Income: Required, must be positive
+:Borrower rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :annualIncome ;
+    owl:minCardinality 1
+] , [
+    a owl:Restriction ;
+    owl:onProperty :annualIncome ;
+    owl:allValuesFrom [
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:decimal ;
+        owl:withRestrictions (
+            [ xsd:minExclusive 0.0 ]
+        )
+    ]
+] .
+
+# Employment Status: Required
+:Borrower rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :employmentStatus ;
+    owl:cardinality 1
+] .
+
+# ============================================================================
+# OWL RESTRICTIONS - LOAN APPLICATION
+# ============================================================================
+
+# Loan Amount: Required, must be positive
+:LoanApplication rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :loanAmount ;
+    owl:cardinality 1
+] , [
+    a owl:Restriction ;
+    owl:onProperty :loanAmount ;
+    owl:allValuesFrom [
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:decimal ;
+        owl:withRestrictions (
+            [ xsd:minExclusive 0.0 ]
+            [ xsd:maxInclusive 10000000.0 ]  # $10M max
+        )
+    ]
+] .
+
+# Loan Purpose: Required
+:LoanApplication rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :loanPurpose ;
+    owl:cardinality 1
+] .
+
+# Interest Rate: 0%-30% (reasonable range)
+:LoanApplication rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :interestRate ;
+    owl:cardinality 1
+] , [
+    a owl:Restriction ;
+    owl:onProperty :interestRate ;
+    owl:allValuesFrom [
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:decimal ;
+        owl:withRestrictions (
+            [ xsd:minInclusive 0.0 ]
+            [ xsd:maxInclusive 30.0 ]
+        )
+    ]
+] .
+
+# Loan Term: 1-360 months (30 years max)
+:LoanApplication rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :loanTerm ;
+    owl:cardinality 1
+] , [
+    a owl:Restriction ;
+    owl:onProperty :loanTerm ;
+    owl:allValuesFrom [
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:integer ;
+        owl:withRestrictions (
+            [ xsd:minInclusive 1 ]
+            [ xsd:maxInclusive 360 ]
+        )
+    ]
+] .
+
+# Borrower: Required, exactly 1 primary borrower
+:LoanApplication rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasBorrower ;
+    owl:cardinality 1
+] .
+
+# Collateral: Optional (required for mortgage, not for personal loan)
+:LoanApplication rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :hasCollateral ;
+    owl:maxCardinality 1
+] .
+
+# ============================================================================
+# OWL RESTRICTIONS - PROPERTY
+# ============================================================================
+
+# Property Value: Required if property exists, must be positive
+:Property rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :propertyValue ;
+    owl:cardinality 1
+] , [
+    a owl:Restriction ;
+    owl:onProperty :propertyValue ;
+    owl:allValuesFrom [
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:decimal ;
+        owl:withRestrictions (
+            [ xsd:minExclusive 0.0 ]
+        )
+    ]
+] .
+
+# Property Address: Required, non-empty
+:Property rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :propertyAddress ;
+    owl:cardinality 1
+] , [
+    a owl:Restriction ;
+    owl:onProperty :propertyAddress ;
+    owl:allValuesFrom [
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:string ;
+        owl:withRestrictions (
+            [ xsd:minLength 5 ]
+        )
+    ]
+] .
+
+# Property Type: Required
+:Property rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty :propertyType ;
+    owl:cardinality 1
+] .
+
+# ============================================================================
+# STAGE 2: LLM-CONSTRUCT SPECIFICATION
+# ============================================================================
+
+:LoanValidatorConstruct a llm:LLMConstruct ;
+    llm:name "FIBOLoanValidator" ;
+    llm:intent "Extract and validate loan application data against FIBO lending standards" ;
+    llm:sourceOntology <http://ggen.ai/examples/fibo-loan#> ;
+    llm:targetClass :LoanApplication ;
+    llm:promptTemplate """
+You are a loan application data extraction and validation system following FIBO (Financial Industry Business Ontology) standards.
+
+Extract structured loan application information from the provided document.
+
+REQUIRED fields:
+
+Borrower:
+  - name: Full legal name (2-100 characters)
+  - credit_score: FICO score (300-850)
+  - annual_income: Gross annual income in USD (must be positive)
+  - employment_status: One of ["Employed", "Self-Employed", "Retired", "Unemployed"]
+
+Loan Application:
+  - loan_amount: Principal amount in USD (0-10,000,000)
+  - loan_purpose: One of ["Purchase", "Refinance", "Home Improvement", "Debt Consolidation"]
+  - interest_rate: Annual rate as percentage (0-30%)
+  - loan_term: Duration in months (1-360)
+
+Property (OPTIONAL, for mortgages):
+  - property_value: Appraised value in USD (must be positive)
+  - property_address: Full address (min 5 characters)
+  - property_type: One of ["Single-Family", "Condo", "Townhouse", "Multi-Family", "Commercial"]
+
+Return JSON with this structure:
+{
+    "loan_amount": 250000.00,
+    "loan_purpose": "Purchase",
+    "interest_rate": 4.5,
+    "loan_term": 360,
+    "borrower": {
+        "name": "Jane Doe",
+        "credit_score": 720,
+        "annual_income": 85000.00,
+        "employment_status": "Employed"
+    },
+    "collateral": {  // Optional
+        "property_value": 320000.00,
+        "property_address": "123 Main St, Anytown, CA 90210",
+        "property_type": "Single-Family"
+    }
+}
+
+CRITICAL: All constraints must be satisfied. Invalid data will be rejected with specific error messages.
+""" .
+
+# ============================================================================
+# STAGE 3: BUSINESS RULES (Custom Validators)
+# ============================================================================
+
+:LoanToValueRatio a llm:CustomValidator ;
+    rdfs:label "Loan-to-Value Ratio Validator" ;
+    rdfs:comment """
+    For mortgage loans, validate LTV ratio:
+    - LTV = loan_amount / property_value
+    - Must be <= 0.97 (97%) for conventional loans
+    - Warning if > 0.80 (80%, typically requires PMI)
+    """ ;
+    llm:validationRule """
+    if (loan.hasCollateral && loan.hasCollateral.propertyValue) {
+        const ltv = loan.loanAmount / loan.hasCollateral.propertyValue;
+        if (ltv > 0.97) {
+            throw ValidationError("LTV ratio exceeds 97% limit");
+        }
+        if (ltv > 0.80) {
+            warnings.push("LTV > 80%, PMI may be required");
+        }
+    }
+    """ .
+
+:DebtToIncomeRatio a llm:CustomValidator ;
+    rdfs:label "Debt-to-Income Ratio Validator" ;
+    rdfs:comment """
+    Validate DTI ratio (assuming monthly payment estimate):
+    - Monthly payment = loan_amount * (interest_rate/12) / (1 - (1 + interest_rate/12)^(-loan_term))
+    - DTI = monthly_payment / (annual_income / 12)
+    - Must be <= 0.43 (43%) for qualified mortgages
+    """ ;
+    llm:validationRule """
+    const monthlyRate = loan.interestRate / 100 / 12;
+    const monthlyPayment = loan.loanAmount * monthlyRate /
+                          (1 - Math.pow(1 + monthlyRate, -loan.loanTerm));
+    const monthlyIncome = loan.hasBorrower.annualIncome / 12;
+    const dti = monthlyPayment / monthlyIncome;
+
+    if (dti > 0.43) {
+        throw ValidationError(`DTI ratio ${(dti*100).toFixed(1)}% exceeds 43% limit`);
+    }
+    """ .
+
+:CreditScoreMinimum a llm:CustomValidator ;
+    rdfs:label "Minimum Credit Score by Loan Type" ;
+    rdfs:comment """
+    Enforce minimum credit scores:
+    - Conventional: 620+
+    - FHA: 580+
+    - VA: No minimum (but warn if < 620)
+    """ ;
+    llm:validationRule """
+    const minScore = {
+        "Purchase": 620,
+        "Refinance": 620,
+        "Home Improvement": 580,
+        "Debt Consolidation": 640
+    };
+
+    const required = minScore[loan.loanPurpose] || 620;
+    if (loan.hasBorrower.creditScore < required) {
+        throw ValidationError(
+            `Credit score ${loan.hasBorrower.creditScore} below minimum ${required} for ${loan.loanPurpose}`
+        );
+    }
+    """ .
+
+# ============================================================================
+# STAGE 4: EXAMPLE USAGE
+# ============================================================================
+
+:UsageExample a llm:Example ;
+    rdfs:label "Loan Application Validation Example" ;
+    rdfs:comment """
+    Example document:
+
+    "John Smith is applying for a $300,000 mortgage to purchase a home.
+    The property at 456 Oak Ave, Springfield, IL 62701 is a single-family home
+    appraised at $350,000. John's credit score is 740, and he earns $95,000
+    annually as a software engineer. The loan has a 4.25% interest rate
+    over a 30-year term."
+
+    Expected output (valid):
+    {
+        "loan_amount": 300000.00,
+        "loan_purpose": "Purchase",
+        "interest_rate": 4.25,
+        "loan_term": 360,
+        "borrower": {
+            "name": "John Smith",
+            "credit_score": 740,
+            "annual_income": 95000.00,
+            "employment_status": "Employed"
+        },
+        "collateral": {
+            "property_value": 350000.00,
+            "property_address": "456 Oak Ave, Springfield, IL 62701",
+            "property_type": "Single-Family"
+        }
+    }
+
+    Validation results:
+    ✓ All FIBO constraints satisfied
+    ✓ LTV ratio: 85.7% (< 97% limit)
+    ⚠ Warning: LTV > 80%, PMI required
+    ✓ DTI ratio: 28.3% (< 43% limit)
+    ✓ Credit score 740 meets 620 minimum for Purchase
+    """ .
+
+:InvalidExample a llm:Example ;
+    rdfs:label "Invalid Loan Application Example" ;
+    rdfs:comment """
+    Example document (invalid):
+
+    "Sarah Johnson wants a $450,000 loan to purchase a $400,000 condo.
+    Her credit score is 580, and she's self-employed with $60,000 annual income.
+    Interest rate: 6.5%, 30-year term."
+
+    Validation errors:
+    ✗ LTV ratio: 112.5% exceeds 97% limit
+    ✗ Credit score 580 below minimum 620 for Purchase
+    ✗ DTI ratio: 48.7% exceeds 43% limit
+
+    LLM-Construct automatically rejects this application with specific error messages.
+    """ .
+
+# ============================================================================
+# PIPELINE RECEIPT
+# ============================================================================
+
+:PipelineReceipt a llm:Receipt ;
+    rdfs:label "FIBO Loan Validator Pipeline Receipt" ;
+    rdfs:comment """
+    [✓] Stage 1 - OWL Extraction:
+        - Classes: 3 (LoanApplication, Borrower, Property)
+        - Datatype Properties: 12
+        - Object Properties: 2
+        - Restrictions: 18
+        - Enumerations: 3
+        - Duration: 0.5s
+
+    [✓] Stage 2 - SHACL Generation:
+        - NodeShapes: 3
+        - PropertyShapes: 14
+        - Constraints: 32 (cardinality, range, enumeration)
+        - Custom Validators: 3 (LTV, DTI, Credit Score)
+        - Duration: 0.3s
+
+    [✓] Stage 3 - DSPy Mapping:
+        - Signature: FIBOLoanValidatorSignature
+        - InputFields: 1 (document_text)
+        - OutputFields: 12 (nested: borrower, collateral)
+        - FieldConstraints: 32
+        - Custom Validators: 3
+        - Duration: 0.2s
+
+    [✓] Stage 4 - Code Generation:
+        - Module: crates/ggen-ai/src/constructs/fibo_loan_validator.rs
+        - Lines: 412
+        - Tests: crates/ggen-ai/tests/constructs/fibo_loan_validator_test.rs
+        - Duration: 0.6s
+
+    [✓] Validation:
+        - cargo make check: PASS (<4s)
+        - cargo make test: PASS (23/23 tests <15s)
+        - cargo make lint: PASS (<12s)
+
+    [✓] Total: 1.6s (generation) + 31s (validation) = 32.6s
+    """ .
