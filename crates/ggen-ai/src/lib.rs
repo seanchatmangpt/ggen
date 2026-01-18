@@ -82,7 +82,9 @@ pub mod dspy;
 pub mod error;
 pub mod error_utils;
 pub mod generators;
+pub mod llm_construct;
 pub mod mcp;
+pub mod owl;
 pub mod parsing_utils;
 pub mod prompts;
 pub mod providers;
@@ -118,6 +120,11 @@ pub use error::{GgenAiError, Result};
 pub use generators::{
     NaturalSearchGenerator, OntologyGenerator, QualityMetrics, RefactorAssistant, SparqlGenerator,
     TemplateGenerator, TemplateValidator, ValidationIssue,
+};
+pub use llm_construct::{LLMConstruct, LLMConstructBuilder, LLMConstructSpec, LLMConstructCodeGen};
+pub use owl::{
+    DatatypeFacet, GeneratedShape, OWLClass, OWLProperty, OWLRestriction,
+    PropertyShape, SHACLGenerator, ValueRestrictionType,
 };
 pub use providers::adapter::{
     ollama_default_config, ollama_ministral_3b_config, ollama_qwen3_coder_config, MockClient,
