@@ -1,0 +1,412 @@
+@prefix spec: <https://ggen.dev/spec#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sec: <https://ggen.dev/security#> .
+@prefix : <https://ggen.dev/spec/wave2-task4/retention#> .
+
+# ============================================================================
+# FEATURE: Data Retention & Compliance Policies
+# Wave 2, Task 4: GDPR, HIPAA, CCPA, SOC 2 Compliance
+# ============================================================================
+
+:DataRetentionFramework a spec:Feature ;
+    rdfs:label "Data Retention & Compliance Policy Engine" ;
+    rdfs:comment "Automated enforcement of GDPR right-to-be-forgotten, HIPAA de-identification, CCPA deletion, SOC 2 retention, with audit trail and compliance evidence" ;
+    spec:epicNumber 9 ;
+    spec:priority spec:P1 ;
+    spec:wave "wave-2" ;
+    spec:taskNumber "task-4" ;
+    spec:businessValue "Reduces compliance risk, automates regulatory obligations, enables data subject rights fulfillment within legal deadlines" ;
+    spec:hasUserStory :US_GDPRCompliance, :US_HIPAACompliance, :US_CCPACompliance, :US_RetentionEnforcement, :US_DeletionVerification .
+
+# ============================================================================
+# USER STORIES
+# ============================================================================
+
+:US_GDPRCompliance a spec:UserStory ;
+    rdfs:label "Implement GDPR compliance (Right to Erasure, Data Subject Rights)" ;
+    spec:actor "Data Controller (Disney)" ;
+    spec:action "Receive deletion request from data subject, process within 30 days" ;
+    spec:goal "Delete all personal data while maintaining audit trail of deletion (not deletion itself)" ;
+    spec:priority spec:P1 ;
+    spec:hasAcceptanceCriterion
+        :AC_GDPRDeletionRequest,
+        :AC_GDPRDeletionDeadline,
+        :AC_GDPRDeletionAudit,
+        :AC_GDPRDataExport .
+
+:AC_GDPRDeletionRequest a spec:AcceptanceCriterion ;
+    spec:text "Given data subject submits deletion request, When request received, Then system creates deletion_request record: request_id, data_subject_id, request_date, requested_data (fields), legal_basis" ;
+    spec:expected "Request tracked, eligible for fulfillment within 30-day SLA" ;
+    spec:testCase "integration-gdpr-deletion-request-creation" .
+
+:AC_GDPRDeletionDeadline a spec:AcceptanceCriterion ;
+    spec:text "Given deletion request created at T1, When deletion deadline = T1 + 30 days, Then automated process checks deadline, triggers deletion on day 25 to ensure compliance before deadline" ;
+    spec:expected "No deletion requests overdue; deadline enforcement automated" ;
+    spec:testCase "integration-gdpr-deletion-deadline-enforcement" .
+
+:AC_GDPRDeletionAudit a spec:AcceptanceCriterion ;
+    spec:text "Given deletion executed, When deletion recorded, Then audit trail shows: request_id, deletion_method (cryptographic erase vs. overwrite), records_deleted_count, executed_at, executed_by (system), verification_result" ;
+    spec:expected "Deletion evidence available for data subject and auditor; not the deletion itself (that's gone)" ;
+    spec:testCase "integration-gdpr-deletion-audit-trail" .
+
+:AC_GDPRDataExport a spec:AcceptanceCriterion ;
+    spec:text "Given data subject requests personal data export, When request received, Then system exports all personal data in portable JSON format within 7 days" ;
+    spec:expected "Export complete, machine-readable, includes metadata for transfer to another controller" ;
+    spec:testCase "integration-gdpr-data-export-fulfillment" .
+
+:US_HIPAACompliance a spec:UserStory ;
+    rdfs:label "Implement HIPAA compliance (De-identification, PHI Protection)" ;
+    spec:actor "Covered Entity" ;
+    spec:action "De-identify patient health information per HIPAA Safe Harbor or Expert Determination" ;
+    spec:goal "Remove PHI identifiers while preserving utility for legitimate uses (research, analytics)" ;
+    spec:priority spec:P1 ;
+    spec:hasAcceptanceCriterion
+        :AC_HIPAADeidenti,
+        :AC_HIPAASafeHarbor,
+        :AC_HIPAAAccessLog,
+        :AC_HIPAACECompliance .
+
+:AC_HIPAADeidenti a spec:AcceptanceCriterion ;
+    spec:text "Given patient record with PHI (MRN, SSN, name, DOB, address, phone), When de-identification requested, Then system removes: names, addresses, phone/fax, emails, MRN, SSN, health plan identifiers, full dates (keep only year)" ;
+    spec:expected "Remaining data does not contain HIPAA-defined identifiers" ;
+    spec:testCase "unit-hipaa-safe-harbor-deidentification" .
+
+:AC_HIPAASafeHarbor a spec:AcceptanceCriterion ;
+    spec:text "Given de-identified dataset, When Safe Harbor validation run, Then validates: 18 identifier types removed, re-identification risk <0.04 (expert determination)" ;
+    spec:expected "Safe Harbor compliance verified, certificate generated" ;
+    spec:testCase "integration-hipaa-safe-harbor-validation" .
+
+:AC_HIPAAAccessLog a spec:AcceptanceCriterion ;
+    spec:text "Given PHI accessed, When access logged, Then audit includes: user_id, patient_id (or account_id), access_type (view/export/update), timestamp, purpose (treatment/payment/operations/research)" ;
+    spec:expected "PHI access auditable per HIPAA Audit Log requirements" ;
+    spec:testCase "integration-hipaa-phi-access-audit" .
+
+:AC_HIPAACECompliance a spec:AcceptanceCriterion ;
+    spec:text "Given researcher requests de-identified dataset, When Covered Entity reviews request, Then enforcement: export only de-identified data, log request + outcome" ;
+    spec:expected "Researcher cannot access original PHI; only de-identified copy available" ;
+    spec:testCase "integration-hipaa-ce-access-enforcement" .
+
+:US_CCPACompliance a spec:UserStory ;
+    rdfs:label "Implement CCPA compliance (California Consumer Rights)" ;
+    spec:actor "Business (ggen Disney service)" ;
+    spec:action "Handle consumer deletion, opt-out, and disclosure requests" ;
+    spec:goal "Fulfill CCPA consumer rights within 45-day deadline with proof of compliance" ;
+    spec:priority spec:P1 ;
+    spec:hasAcceptanceCriterion
+        :AC_CCPADeletion,
+        :AC_CCPAOptOut,
+        :AC_CCPADisclosure,
+        :AC_CCPAVerification .
+
+:AC_CCPADeletion a spec:AcceptanceCriterion ;
+    spec:text "Given California consumer submits deletion request, When request verified (identity confirmed via email/auth), Then deletion executed: personal data removed from all systems within 45 days, service providers directed to delete" ;
+    spec:expected "Deletion deadline automatically enforced, deletion evidence logged" ;
+    spec:testCase "integration-ccpa-deletion-deadline-enforcement" .
+
+:AC_CCPAOptOut a spec:AcceptanceCriterion ;
+    spec:text "Given consumer clicks 'Do Not Sell My Data', When opt-out submitted, Then system records: consumer_id, opt_out_date, flags personal data for non-sale" ;
+    spec:expected "Data marked opt-out cannot be sold to third parties; enforcement automated" ;
+    spec:testCase "integration-ccpa-opt-out-enforcement" .
+
+:AC_CCPADisclosure a spec:AcceptanceCriterion ;
+    spec:text "Given consumer requests disclosure, When request submitted, Then export includes: categories of personal data collected, purposes, categories of third parties, consumer rights explanation" ;
+    spec:expected "Disclosure in plain language, completes within 45 days" ;
+    spec:testCase "integration-ccpa-disclosure-fulfillment" .
+
+:AC_CCPAVerification a spec:AcceptanceCriterion ;
+    spec:text "Given CCPA request, When fulfilled, Then evidence stored: request_id, request_type (delete/opt-out/disclose), fulfillment_date, verification_method (email/auth), status (fulfilled/denied/pending)" ;
+    spec:expected "Proof of compliance available for regulatory review" ;
+    spec:testCase "integration-ccpa-compliance-verification" .
+
+:US_RetentionEnforcement a spec:UserStory ;
+    rdfs:label "Enforce data retention policies with automated purge" ;
+    spec:actor "Data Governance Engine" ;
+    spec:action "Define retention schedules per data type; automatically purge expired data" ;
+    spec:goal "Keep data only as long as necessary for business/legal purpose; reduce storage cost and breach surface" ;
+    spec:priority spec:P1 ;
+    spec:hasAcceptanceCriterion
+        :AC_RetentionSchedule,
+        :AC_RetentionPurge,
+        :AC_RetentionEvidence,
+        :AC_RetentionException .
+
+:AC_RetentionSchedule a spec:AcceptanceCriterion ;
+    spec:text "Given data type (user_profile, audit_log, transaction_history), When retention schedule defined, Then includes: retention_period, start_date (creation/access/modification), legal_basis, exception_rules" ;
+    spec:expected "Schedule documented, reviewer-approved, stored in database" ;
+    spec:testCase "unit-retention-schedule-definition" .
+
+:AC_RetentionPurge a spec:AcceptanceCriterion ;
+    spec:text "Given data expires per retention schedule, When expiration_date reached, Then background job purges: data deleted cryptographically (overwrite 3x), deletion logged, backup also purged" ;
+    spec:expected "Purge completes within 24 hours, no stale data in backups" ;
+    spec:testCase "integration-retention-purge-execution" .
+
+:AC_RetentionEvidence a spec:AcceptanceCriterion ;
+    spec:text "Given purge executed, When evidence checked, Then log includes: data_type, record_count_purged, purged_by (system), purged_at, retention_period_applied, legal_basis" ;
+    spec:expected "Evidence suitable for compliance audit" ;
+    spec:testCase "integration-retention-purge-evidence" .
+
+:AC_RetentionException a spec:AcceptanceCriterion ;
+    spec:text "Given data under legal hold (litigation/investigation), When purge scheduled, Then retention extended: legal_hold flag set, normal purge skipped, notification sent to legal team" ;
+    spec:expected "Legal holds respected; data retained indefinitely until hold released" ;
+    spec:testCase "integration-retention-legal-hold-bypass" .
+
+:US_DeletionVerification a spec:UserStory ;
+    rdfs:label "Verify and certify data deletion via offline validation" ;
+    spec:actor "Auditor" ;
+    spec:action "Run offline validation tool against encrypted backups to confirm deletion" ;
+    spec:goal "Provide irrefutable evidence that data was cryptographically erased (not just marked deleted)" ;
+    spec:priority spec:P1 ;
+    spec:hasAcceptanceCriterion
+        :AC_DeletionCryptographic,
+        :AC_DeletionBackupClean,
+        :AC_DeletionCertificate .
+
+:AC_DeletionCryptographic a spec:AcceptanceCriterion ;
+    spec:text "Given data marked for deletion, When purge executed, Then deletion method uses cryptographic erase: NIST SP 800-88 compliant, 3-pass overwrite (zeros, ones, random), verification hash computed" ;
+    spec:expected "Deletion verified cryptographically, recovery impossible even with disk forensics" ;
+    spec:testCase "unit-deletion-cryptographic-verification" .
+
+:AC_DeletionBackupClean a spec:AcceptanceCriterion ;
+    spec:text "Given full backup created, When data deleted from production, Then backup creation process ensures: new backups exclude deleted data, old backups expire per retention schedule, metadata cleaned" ;
+    spec:expected "No residual data in backups; data truly gone from all systems" ;
+    spec:testCase "integration-deletion-backup-cleanup" .
+
+:AC_DeletionCertificate a spec:AcceptanceCriterion ;
+    spec:text "Given deletion verification complete, When certificate generated, Then includes: data_subject_id, deletion_date, method (NIST SP 800-88), verification_hash, certifying_authority (auditor), signature" ;
+    spec:expected "Certificate suitable for data subject proof and regulatory submission" ;
+    spec:testCase "integration-deletion-certificate-generation" .
+
+# ============================================================================
+# DOMAIN ENTITIES: Data Retention Model
+# ============================================================================
+
+sec:RetentionPolicy a rdfs:Class ;
+    rdfs:label "Retention Policy" ;
+    rdfs:comment "Rules for how long data of given type must be retained" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:property sec:dataType, sec:retentionPeriod, sec:startEvent, sec:legalBasis, sec:goveranceOwner, sec:exceptions .
+
+sec:dataType a rdf:Property ;
+    rdfs:label "Data Type" ;
+    rdfs:range sec:DataTypeEnum ;
+    rdfs:domain sec:RetentionPolicy ;
+    spec:values "user_profile, session, audit_log, transaction_history, api_key, phi, pii, financial_record" .
+
+sec:retentionPeriod a rdf:Property ;
+    rdfs:label "Retention Period (Days)" ;
+    rdfs:range xsd:integer ;
+    rdfs:domain sec:RetentionPolicy ;
+    spec:constraint "xsd:integer >= 0" .
+
+sec:DeletionRequest a rdfs:Class ;
+    rdfs:label "Deletion Request" ;
+    rdfs:comment "User or regulatory request for data deletion" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:property sec:requestId, sec:dataSubjectId, sec:requestType, sec:requestDate, sec:deadlineDate, sec:legalBasis, sec:status .
+
+sec:requestType a rdf:Property ;
+    rdfs:label "Request Type" ;
+    rdfs:range sec:RequestTypeEnum ;
+    rdfs:domain sec:DeletionRequest ;
+    spec:values "gdpr_erasure, ccpa_deletion, hipaa_deidentification, legal_hold_release, retention_expiry" .
+
+sec:status a rdf:Property ;
+    rdfs:label "Request Status" ;
+    rdfs:range sec:StatusEnum ;
+    rdfs:domain sec:DeletionRequest ;
+    spec:values "pending, in_progress, completed, failed, appealed" .
+
+sec:DeletionEvidence a rdfs:Class ;
+    rdfs:label "Deletion Evidence" ;
+    rdfs:comment "Proof that data was deleted per policy" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:property sec:evidenceId, sec:requestId, sec:deletionMethod, sec:recordsDeleted, sec:deletedAt, sec:verificationHash, sec:certificate .
+
+sec:DeidentificationCertificate a rdfs:Class ;
+    rdfs:label "De-identification Certificate" ;
+    rdfs:comment "Proof of HIPAA Safe Harbor compliance" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:property sec:certificateId, sec:datasetId, sec:identifiersRemoved, sec:reidentificationRisk, sec:expertDetermination, sec:validUntil, sec:auditorSignature .
+
+# ============================================================================
+# RETENTION SCHEDULES
+# ============================================================================
+
+:Schedule_SessionData a sec:RetentionPolicy ;
+    sec:dataType :DataType_Session ;
+    sec:retentionPeriod 90 ;
+    sec:startEvent "session_end_or_inactivity" ;
+    sec:legalBasis "SOC 2 requirement: 90-day session audit trail" ;
+    spec:notes "Active sessions never purged, only inactive sessions" .
+
+:Schedule_AuditLog a sec:RetentionPolicy ;
+    sec:dataType :DataType_AuditLog ;
+    sec:retentionPeriod 2555 ;
+    sec:startEvent "event_creation_date" ;
+    sec:legalBasis "HIPAA (6 years), SOC 2 Type II (3 years minimum), GDPR (not longer than necessary for purpose)" ;
+    spec:notes "Audit logs kept 7 years for regulatory compliance, then archived to glacier storage" .
+
+:Schedule_PHI a sec:RetentionPolicy ;
+    sec:dataType :DataType_PHI ;
+    sec:retentionPeriod 2555 ;
+    sec:startEvent "patient_discharge_or_last_encounter" ;
+    sec:legalBasis "HIPAA Minimum Necessary, CCPA right to deletion" ;
+    spec:notes "PHI retained per statute, de-identified after retention period, or deleted on patient request" .
+
+:Schedule_UserProfile a sec:RetentionPolicy ;
+    sec:dataType :DataType_UserProfile ;
+    sec:retentionPeriod 30 ;
+    sec:startEvent "account_deletion_request" ;
+    sec:legalBasis "GDPR right to erasure (30-day SLA), CCPA right to delete" ;
+    spec:notes "User profile deleted within 30 days of request; backups cleaned on next cycle" .
+
+:Schedule_PII a sec:RetentionPolicy ;
+    sec:dataType :DataType_PII ;
+    sec:retentionPeriod 365 ;
+    sec:startEvent "collection_date" ;
+    sec:legalBasis "GDPR data minimization, CCPA deletion right" ;
+    spec:notes "PII kept only as long as necessary for stated purpose, then deleted" .
+
+# ============================================================================
+# DESIGN DECISIONS
+# ============================================================================
+
+:DD_RetentionAutomation a spec:DesignDecision ;
+    rdfs:label "Automate retention purge via background job, not manual approval" ;
+    spec:rationale "Reduces human error, ensures timely compliance, reduces breach risk of stale data" ;
+    spec:consequence "Accidental deletion possible if schedule misconfigured; mitigation via staging delete and soft-delete flag" ;
+    spec:aligns sec:ComplianceAutomation .
+
+:DD_DeidentificationSafeHarbor a spec:DesignDecision ;
+    rdfs:label "Use HIPAA Safe Harbor method for de-identification (deterministic, verifiable)" ;
+    spec:rationale "Safe Harbor is deterministic (remove 18 identifier types); expert determination requires external consultant" ;
+    spec:consequence "Less utility-preserving than expert determination; more conservative but simpler" ;
+    spec:aligns sec:HIPAACompliance .
+
+:DD_DeletionCryptographic a spec:DesignDecision ;
+    rdfs:label "Use cryptographic erase (NIST SP 800-88) instead of logical delete" ;
+    spec:rationale "Logical delete leaves data recoverable via forensics; crypto erase is irreversible" ;
+    spec:consequence "Performance impact (disk I/O for overwrite); mitigation via off-peak scheduling" ;
+    spec:aligns sec:DataSecurityPosture .
+
+:DD_RetentionTiering a spec:DesignDecision ;
+    rdfs:label "Tier data: hot (PostgreSQL, indexed) -> warm (S3 standard) -> cold (S3 Glacier)" ;
+    spec:rationale "Cost optimization: hot data expensive but fast, cold data cheap but slow" ;
+    spec:consequence "Access latency increases; migration between tiers must account for compliance searches" ;
+    spec:aligns sec:CostOptimization .
+
+:DD_ComplianceEvidence a spec:DesignDecision ;
+    rdfs:label "Store deletion evidence itself in immutable audit log (never delete)" ;
+    spec:rationale "Data is deleted but evidence of deletion must persist for audit trail" ;
+    spec:consequence "Paradox: cannot delete deletion evidence; retention schedule applies to data, not evidence" ;
+    spec:aligns sec:ForensicReadiness .
+
+# ============================================================================
+# CONSTRAINTS & VALIDATION
+# ============================================================================
+
+:Constraint_RetentionScheduleDefined a spec:Constraint ;
+    rdfs:label "Retention Schedule Must Be Defined" ;
+    spec:rule "Every data type in system must have a retention policy; no orphan data types" ;
+    spec:severity spec:Must ;
+    spec:testable true .
+
+:Constraint_DeletionSLACal a spec:Constraint ;
+    rdfs:label "GDPR/CCPA Deletion SLA" ;
+    spec:rule "GDPR deletion request fulfilled within 30 days; CCPA deletion request fulfilled within 45 days" ;
+    spec:severity spec:Must ;
+    spec:testable true .
+
+:Constraint_DeletionCryptographic a spec:Constraint ;
+    rdfs:label "Cryptographic Deletion Verification" ;
+    spec:rule "Deleted data must be cryptographically erased per NIST SP 800-88 (3-pass minimum)" ;
+    spec:severity spec:Must ;
+    spec:testable true .
+
+:Constraint_BackupCleanup a spec:Constraint ;
+    rdfs:label "Backup Cleanup" ;
+    spec:rule "Deleted data must not appear in any backup; old backups must expire per retention schedule" ;
+    spec:severity spec:Must ;
+    spec:testable true .
+
+:Constraint_AuditEvidencePersistence a spec:Constraint ;
+    rdfs:label "Audit Evidence Persistence" ;
+    spec:rule "Evidence of deletion (timestamps, hash, method) must persist in immutable audit log forever" ;
+    spec:severity spec:Must ;
+    spec:testable true .
+
+:Constraint_PHIRiskAssessment a spec:Constraint ;
+    rdfs:label "PHI De-identification Risk Assessment" ;
+    spec:rule "De-identified dataset re-identification risk must be <0.04 (4%) per expert determination" ;
+    spec:severity spec:Must ;
+    spec:testable true .
+
+# ============================================================================
+# COMPLIANCE REGULATIONS MAPPING
+# ============================================================================
+
+:Regulation_GDPR a spec:ComplianceFramework ;
+    rdfs:label "General Data Protection Regulation (GDPR)" ;
+    rdfs:comment "EU data protection regulation for personal data" ;
+    spec:requirements :Req_GDPR_RightToErasure, :Req_GDPR_DataPortability, :Req_GDPR_Accountability ;
+    spec:implementedVia :US_GDPRCompliance, :US_DeletionVerification .
+
+:Req_GDPR_RightToErasure a spec:Requirement ;
+    rdfs:label "Right to Erasure (Article 17)" ;
+    spec:text "Data subject right to obtain erasure of personal data within 30 days" ;
+    spec:mappedTo :AC_GDPRDeletionDeadline .
+
+:Req_GDPR_DataPortability a spec:Requirement ;
+    rdfs:label "Data Portability (Article 20)" ;
+    spec:text "Data subject right to receive personal data in machine-readable format" ;
+    spec:mappedTo :AC_GDPRDataExport .
+
+:Req_GDPR_Accountability a spec:Requirement ;
+    rdfs:label "Accountability (Article 5)" ;
+    spec:text "Data controller must demonstrate compliance with GDPR principles" ;
+    spec:mappedTo :US_ComplianceReporting .
+
+:Regulation_HIPAA a spec:ComplianceFramework ;
+    rdfs:label "Health Insurance Portability and Accountability Act" ;
+    rdfs:comment "US law protecting patient health information" ;
+    spec:requirements :Req_HIPAA_PHIProtection, :Req_HIPAA_AuditLog, :Req_HIPAA_Deidentification ;
+    spec:implementedVia :US_HIPAACompliance .
+
+:Req_HIPAA_PHIProtection a spec:Requirement ;
+    rdfs:label "PHI Protection & Access Control" ;
+    spec:text "Only authorized users access PHI; audit all access" ;
+    spec:mappedTo :AC_HIPAAAccessLog .
+
+:Req_HIPAA_Deidentification a spec:Requirement ;
+    rdfs:label "Safe Harbor De-identification" ;
+    spec:text "Remove 18 HIPAA identifiers OR expert determination" ;
+    spec:mappedTo :AC_HIPAASafeHarbor .
+
+:Regulation_CCPA a spec:ComplianceFramework ;
+    rdfs:label "California Consumer Privacy Act" ;
+    rdfs:comment "California state law protecting consumer personal information" ;
+    spec:requirements :Req_CCPA_DeleteRight, :Req_CCPA_OptOut, :Req_CCPA_Disclosure ;
+    spec:implementedVia :US_CCPACompliance .
+
+:Req_CCPA_DeleteRight a spec:Requirement ;
+    rdfs:label "Right to Delete (Sec 1798.100)" ;
+    spec:text "Consumer right to deletion within 45 days" ;
+    spec:mappedTo :AC_CCPADeletion .
+
+:Req_CCPA_OptOut a spec:Requirement ;
+    rdfs:label "Right to Opt-Out (Sec 1798.120)" ;
+    spec:text "Consumer right to opt out of personal data sale" ;
+    spec:mappedTo :AC_CCPAOptOut .
+
+:Regulation_SOC2 a spec:ComplianceFramework ;
+    rdfs:label "SOC 2 Type II Compliance" ;
+    rdfs:comment "System and organization controls for service providers" ;
+    spec:requirements :Req_SOC2_ChangeManagement, :Req_SOC2_AccessControl, :Req_SOC2_Monitoring ;
+    spec:implementedVia :US_RetentionEnforcement .
+
+:Req_SOC2_ChangeManagement a spec:Requirement ;
+    rdfs:label "Change Management (CC7)" ;
+    spec:text "All system changes logged, approved, and traceable" ;
+    spec:mappedTo :AC_RetentionEvidence .

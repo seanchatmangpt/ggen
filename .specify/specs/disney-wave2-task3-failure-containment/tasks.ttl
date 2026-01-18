@@ -1,0 +1,425 @@
+@prefix : <http://ggen.example.org/disney/wave2-task3#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix spec: <http://ggen.example.org/spec#> .
+
+# ============================================================================
+# TASK BREAKDOWN: WAVE 2, TASK 3
+# ============================================================================
+
+:Wave2Task3TaskBreakdown a spec:TaskBreakdown ;
+    spec:title "Task Breakdown for Staged Authority & Immutable Events" ;
+    spec:totalEstimatedHours 80 ;
+    spec:targetWaveCompletion "Wave 2" ;
+    spec:successCriteria "5+ simulated failures pass recovery tests, zero unplanned cascades" ;
+    spec:hasTask :task-001, :task-002, :task-003, :task-004, :task-005,
+                 :task-006, :task-007, :task-008, :task-009, :task-010,
+                 :task-011, :task-012, :task-013, :task-014, :task-015 .
+
+# ============================================================================
+# PHASE 1: ARCHITECTURE & DESIGN (Weeks 1)
+# ============================================================================
+
+:task-001 a spec:Task ;
+    spec:title "Design Rust Type System for Immutable Events" ;
+    spec:description """
+        Define Rust types that enforce immutability at compile time:
+        - Event<S> (generic state type)
+        - Ref<Event<S>> for committed (immutable) events
+        - SHA256 hash chaining in type signature
+
+        Deliverable: src/events/types.rs with complete type definitions
+    """ ;
+    spec:linkedUserStory :us-002 ;
+    spec:linkedAcceptanceCriterion :ac-002-01, :ac-002-02 ;
+    spec:estimatedHours 8 ;
+    spec:complexity spec:High ;
+    spec:dependsOn [ ] ;
+    spec:sequenceNumber 1 ;
+    spec:status spec:Pending ;
+    spec:owner "Security Architect" ;
+    spec:successMetrics "Type system compiles, no unsafe blocks" .
+
+:task-002 a spec:Task ;
+    spec:title "Implement 5-Level Authority Type Enum" ;
+    spec:description """
+        Create Rust enum for 5 authority levels with associated gates:
+        - Level0(ReadOnly)
+        - Level1(Assist)
+        - Level2(Recommend)
+        - Level3(Act)
+        - Level4(Enforce)
+
+        Each variant carries type-safe gate constraints.
+        Deliverable: src/authority/levels.rs
+    """ ;
+    spec:linkedUserStory :us-001 ;
+    spec:linkedAcceptanceCriterion :ac-001-01, :ac-001-02, :ac-001-03, :ac-001-04, :ac-001-05 ;
+    spec:estimatedHours 6 ;
+    spec:complexity spec:Medium ;
+    spec:dependsOn [ ] ;
+    spec:sequenceNumber 2 ;
+    spec:status spec:Pending ;
+    spec:owner "Security Architect" .
+
+:task-003 a spec:Task ;
+    spec:title "Design Blast Radius Constraint System" ;
+    spec:description """
+        Model blast radius as 3-dimensional:
+        - ServiceScope(service_id, max_count)
+        - RegionScope(region_id, max_count)
+        - PercentageScope(percent_limit)
+
+        Constraint calculation: min(s, r, p)
+        Deliverable: src/constraints/blast_radius.rs
+    """ ;
+    spec:linkedUserStory :us-003 ;
+    spec:linkedAcceptanceCriterion :ac-003-01, :ac-003-02, :ac-003-03, :ac-003-04 ;
+    spec:estimatedHours 5 ;
+    spec:complexity spec:Medium ;
+    spec:dependsOn [ ] ;
+    spec:sequenceNumber 3 ;
+    spec:status spec:Pending ;
+    spec:owner "Platform Engineer" .
+
+:task-004 a spec:Task ;
+    spec:title "Design Event Log Schema & Storage Strategy" ;
+    spec:description """
+        Define event log data model:
+        - Event IDs (UUID)
+        - Sequence numbers (monotonic)
+        - Hash chain (SHA256)
+        - State snapshots (every N events)
+
+        Storage: RocksDB for persistence
+        Deliverable: Architecture doc + RocksDB schema design
+    """ ;
+    spec:linkedUserStory :us-002 ;
+    spec:linkedAcceptanceCriterion :ac-002-02, :ac-002-03 ;
+    spec:estimatedHours 6 ;
+    spec:complexity spec:Medium ;
+    spec:dependsOn :task-001 ;
+    spec:sequenceNumber 4 ;
+    spec:status spec:Pending ;
+    spec:owner "Database Architect" .
+
+# ============================================================================
+# PHASE 2: CORE IMPLEMENTATION (Weeks 2-3)
+# ============================================================================
+
+:task-005 a spec:Task ;
+    spec:title "Implement Event Store (RocksDB Backend)" ;
+    spec:description """
+        Implement append-only event store:
+        - append(event: Event) -> CommittedEvent
+        - get(id) -> Ref<Event>
+        - range(start, end) -> Vec<Ref<Event>>
+        - verify_chain() -> bool
+
+        No mutable access to committed events.
+        Deliverable: src/event_store/rocksdb_backend.rs with tests
+    """ ;
+    spec:linkedUserStory :us-002 ;
+    spec:linkedAcceptanceCriterion :ac-002-01, :ac-002-02 ;
+    spec:estimatedHours 12 ;
+    spec:complexity spec:High ;
+    spec:dependsOn :task-001, :task-004 ;
+    spec:sequenceNumber 5 ;
+    spec:status spec:Pending ;
+    spec:owner "Backend Engineer" ;
+    spec:successMetrics "SLO: append <5ms, get <1ms, verify <100ms/10k events" .
+
+:task-006 a spec:Task ;
+    spec:title "Implement Deterministic Replay Engine" ;
+    spec:description """
+        Implement forward replay and backward rollback:
+        - replay_forward(events: Vec<Event>) -> State
+        - rollback_backward(events: Vec<Event>) -> State
+
+        Property tests verify determinism:
+        Same event sequence -> same state always
+        Deliverable: src/replay/engine.rs with property tests
+    """ ;
+    spec:linkedUserStory :us-002 ;
+    spec:linkedAcceptanceCriterion :ac-002-03, :ac-002-04 ;
+    spec:estimatedHours 14 ;
+    spec:complexity spec:Critical ;
+    spec:dependsOn :task-005 ;
+    spec:sequenceNumber 6 ;
+    spec:status spec:Pending ;
+    spec:owner "Core Engineer" ;
+    spec:successMetrics "SLO: < 100ms per 10k events, 100% determinism test pass rate" ;
+    spec:riskNote "Determinism is critical; any non-determinism breaks recovery" .
+
+:task-007 a spec:Task ;
+    spec:title "Implement Authority Controller with Gates" ;
+    spec:description """
+        Implement authority level enforcement:
+        - check_authority(actor, level) -> Result
+        - For each level, verify required gates pass
+        - Level 0: TransactionReadOnlyGate, NoStateMutationGate
+        - Level 1: HumanApprovalGate, PerActionGate, ExplicitConfirmationGate
+        - Level 2: AtomicBatchGate, HumanReviewGate
+        - Level 3: InterruptibleExecutionGate, RollbackOnInterruptGate
+        - Level 4: NoHumanInterventionGate, AuditOnlyGate
+
+        Deliverable: src/authority/controller.rs with all gates
+    """ ;
+    spec:linkedUserStory :us-001 ;
+    spec:linkedAcceptanceCriterion :ac-001-01, :ac-001-02, :ac-001-03, :ac-001-04, :ac-001-05 ;
+    spec:estimatedHours 16 ;
+    spec:complexity spec:Critical ;
+    spec:dependsOn :task-002 ;
+    spec:sequenceNumber 7 ;
+    spec:status spec:Pending ;
+    spec:owner "Security Engineer" ;
+    spec:successMetrics "All 5 levels + 11 gates implemented and tested" .
+
+:task-008 a spec:Task ;
+    spec:title "Implement Blast Radius Validator" ;
+    spec:description """
+        Implement constraint checking:
+        - calculate(service, region, percent) -> BlastRadius
+        - validate(event, radius) -> Result<(), Violation>
+        - get_affected_resources(event) -> Vec<ResourceId>
+
+        Minimum strategy ensures strictest constraint wins.
+        Deliverable: src/constraints/validator.rs
+    """ ;
+    spec:linkedUserStory :us-003 ;
+    spec:linkedAcceptanceCriterion :ac-003-01, :ac-003-02, :ac-003-03, :ac-003-04 ;
+    spec:estimatedHours 10 ;
+    spec:complexity spec:High ;
+    spec:dependsOn :task-003 ;
+    spec:sequenceNumber 8 ;
+    spec:status spec:Pending ;
+    spec:owner "Platform Engineer" ;
+    spec:successMetrics "All 3 scopes validated correctly, minimum strategy verified" .
+
+# ============================================================================
+# PHASE 3: RECOVERY & INCIDENT HANDLING (Week 4)
+# ============================================================================
+
+:task-009 a spec:Task ;
+    spec:title "Implement Incident Detector & Root Cause Analysis" ;
+    spec:description """
+        Implement anomaly detection:
+        - detect_anomaly(metrics) -> Option<Incident>
+        - root_cause_analysis(incident) -> RootCauseAnalysis
+        - recommend_rollback(incident) -> Vec<Event>
+
+        Thresholds: 2x error rate spike, 30s confirmation
+        Deliverable: src/incident/detector.rs
+    """ ;
+    spec:linkedUserStory :us-004 ;
+    spec:linkedAcceptanceCriterion :ac-004-01, :ac-004-02 ;
+    spec:estimatedHours 12 ;
+    spec:complexity spec:High ;
+    spec:dependsOn :task-005, :task-006 ;
+    spec:sequenceNumber 9 ;
+    spec:status spec:Pending ;
+    spec:owner "Reliability Engineer" ;
+    spec:successMetrics "SLO: detection <30s, RCA <10s, 100% accuracy in property tests" .
+
+:task-010 a spec:Task ;
+    spec:title "Implement Atomic Rollback Executor" ;
+    spec:description """
+        Implement deterministic rollback:
+        - execute_rollback(events: Vec<Event>) -> Result<State>
+        - Reverse topological order (latest event first)
+        - All or nothing semantics (no partial rollback)
+        - Verify final state matches pre-incident baseline
+
+        Deliverable: src/recovery/rollback.rs
+    """ ;
+    spec:linkedUserStory :us-004 ;
+    spec:linkedAcceptanceCriterion :ac-004-03, :ac-004-04 ;
+    spec:estimatedHours 10 ;
+    spec:complexity spec:Critical ;
+    spec:dependsOn :task-006 ;
+    spec:sequenceNumber 10 ;
+    spec:status spec:Pending ;
+    spec:owner "Core Engineer" ;
+    spec:successMetrics "MTTR < 2 minutes, 100% deterministic, 100% test pass rate" ;
+    spec:riskNote "Rollback failure would prevent recovery; critical testing required" .
+
+:task-011 a spec:Task ;
+    spec:title "Implement Immutable Audit Log (PostgreSQL)" ;
+    spec:description """
+        Implement compliance audit trail:
+        - log_escalation(from, to, actor)
+        - log_approval(action, decision, actor)
+        - log_rollback(incident, sequence, actor)
+        - query(filter) -> Vec<AuditEntry>
+
+        Append-only semantics (no updates).
+        Deliverable: src/audit/postgres_backend.rs + SQL migrations
+    """ ;
+    spec:linkedUserStory :us-005 ;
+    spec:linkedAcceptanceCriterion :ac-005-01, :ac-005-02, :ac-005-03 ;
+    spec:estimatedHours 8 ;
+    spec:complexity spec:Medium ;
+    spec:dependsOn :task-007, :task-009, :task-010 ;
+    spec:sequenceNumber 11 ;
+    spec:status spec:Pending ;
+    spec:owner "Backend Engineer" ;
+    spec:successMetrics "SLO: log <10ms, query <100ms, 100% traceability" .
+
+# ============================================================================
+# PHASE 4: TESTING & VALIDATION (Week 5)
+# ============================================================================
+
+:task-012 a spec:Task ;
+    spec:title "Implement Comprehensive Test Suite" ;
+    spec:description """
+        Test suite covering:
+        1. Unit tests: Each component in isolation
+           - Authority levels (11 gates tested)
+           - Event store (immutability, chaining)
+           - Replay engine (determinism, idempotence)
+
+        2. Integration tests: Multi-component interactions
+           - Level 0-4 workflows
+           - Blast radius enforcement
+           - Event log consistency
+
+        3. Property tests: Random event sequences
+           - Deterministic replay (100+ random sequences)
+           - Rollback correctness (1000+ mutations)
+           - Blast radius calculations (100+ configs)
+
+        4. Chaos tests: Failure scenarios
+           - Disk full (recovery)
+           - Corrupted events (detection)
+           - Interrupted operations (cleanup)
+
+        Deliverable: tests/ directory with 200+ test cases
+    """ ;
+    spec:linkedUserStory :us-001, :us-002, :us-003, :us-004, :us-005 ;
+    spec:linkedAcceptanceCriterion :ac-001-01, :ac-002-03, :ac-003-04, :ac-004-04, :ac-005-03 ;
+    spec:estimatedHours 20 ;
+    spec:complexity spec:Critical ;
+    spec:dependsOn :task-005, :task-006, :task-007, :task-008, :task-009, :task-010 ;
+    spec:sequenceNumber 12 ;
+    spec:status spec:Pending ;
+    spec:owner "Test Engineer" ;
+    spec:successMetrics "200+ tests, >90% code coverage, all passing" .
+
+:task-013 a spec:Task ;
+    spec:title "Simulate 5+ Failure Scenarios" ;
+    spec:description """
+        Run simulated failures in staging environment:
+        1. Service failure: Kill service A, verify no impact on B
+        2. Region failure: Simulate region loss, verify rollback
+        3. Partial failure: Affect 5% of resources, verify containment
+        4. Cascading failure: Multiple changes, detect root cause
+        5. Recovery timeout: Slow rollback, verify completes <2min
+
+        Each scenario documents:
+        - Failure injected
+        - Anomaly detected (timestamp)
+        - Root cause identified (timestamp)
+        - Rollback executed (timestamp)
+        - Recovery verified (timestamp, metrics)
+        - MTTR measurement
+
+        Deliverable: evidence/failure-scenarios.md with 5+ detailed walkthroughs
+    """ ;
+    spec:linkedUserStory :us-003, :us-004 ;
+    spec:linkedAcceptanceCriterion :ac-003-01, :ac-004-01, :ac-004-04 ;
+    spec:estimatedHours 12 ;
+    spec:complexity spec:High ;
+    spec:dependsOn :task-012 ;
+    spec:sequenceNumber 13 ;
+    spec:status spec:Pending ;
+    spec:owner "Reliability Team" ;
+    spec:successMetrics "5+ scenarios pass, MTTR < 2 minutes all cases" .
+
+:task-014 a spec:Task ;
+    spec:title "Compliance Audit & SOC2 Documentation" ;
+    spec:description """
+        Prepare for SOC2 audit:
+        1. Audit trail verification
+           - Authority escalations logged
+           - Approval decisions traced
+           - Rollback operations documented
+
+        2. Change management (SOC2 5.1)
+           - Authority levels document (Level 0-4)
+           - Approval workflows (who can approve what)
+           - Change log (every escalation, approval)
+
+        3. Incident response (SOC2 5.2)
+           - Incident detection process
+           - Root cause analysis method
+           - Recovery procedures (rollback)
+           - Incident documentation (audit log)
+
+        Deliverable: docs/compliance/SOC2-controls.md with evidence
+    """ ;
+    spec:linkedUserStory :us-005 ;
+    spec:linkedAcceptanceCriterion :ac-005-01, :ac-005-02, :ac-005-03 ;
+    spec:estimatedHours 8 ;
+    spec:complexity spec:Medium ;
+    spec:dependsOn :task-011 ;
+    spec:sequenceNumber 14 ;
+    spec:status spec:Pending ;
+    spec:owner "Compliance Officer" ;
+    spec:successMetrics "SOC2 5.1 and 5.2 controls documented with audit evidence" .
+
+:task-015 a spec:Task ;
+    spec:title "Operational Runbook & Deployment Guide" ;
+    spec:description """
+        Create operational documentation:
+        1. Runbook: How to operate Wave 2 system
+           - Authority escalation procedure
+           - Incident response playbook
+           - Rollback command reference
+           - Metrics monitoring dashboard
+
+        2. Deployment guide
+           - Prerequisites (RocksDB, PostgreSQL)
+           - Configuration (blast radius limits, thresholds)
+           - Health checks (log verification, chain validation)
+           - Upgrade procedure (snapshot strategy)
+
+        3. Troubleshooting
+           - Common failures and recovery
+           - Log analysis techniques
+           - Metric interpretation
+           - Emergency procedures
+
+        Deliverable: docs/wave-2-task-3-operational-guide.md
+    """ ;
+    spec:linkedUserStory :us-001, :us-002, :us-003, :us-004, :us-005 ;
+    spec:estimatedHours 6 ;
+    spec:complexity spec:Low ;
+    spec:dependsOn :task-013, :task-014 ;
+    spec:sequenceNumber 15 ;
+    spec:status spec:Pending ;
+    spec:owner "DevOps Engineer" ;
+    spec:successMetrics "Runbook covers all major operations, deployable following guide" .
+
+# ============================================================================
+# TASK DEPENDENCIES SUMMARY
+# ============================================================================
+
+# Phase 1 (Design): 1, 2, 3, 4 - no dependencies
+# Phase 2 (Implementation):
+#   5 depends on 1, 4
+#   6 depends on 5 (CRITICAL)
+#   7 depends on 2
+#   8 depends on 3
+# Phase 3 (Recovery):
+#   9 depends on 5, 6
+#   10 depends on 6 (CRITICAL)
+#   11 depends on 7, 9, 10
+# Phase 4 (Testing):
+#   12 depends on 5-10 (all implementation)
+#   13 depends on 12 (testing)
+#   14 depends on 11 (audit)
+#   15 depends on 13, 14 (final)
+
+# Critical path: 1 -> 4 -> 5 -> 6 -> 10 -> 11 -> 14 -> 15
+# Estimated critical path: 8 + 6 + 12 + 14 + 10 + 8 + 8 + 6 = 72 hours

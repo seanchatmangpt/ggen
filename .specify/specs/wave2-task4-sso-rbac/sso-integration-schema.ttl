@@ -1,0 +1,327 @@
+@prefix spec: <https://ggen.dev/spec#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sec: <https://ggen.dev/security#> .
+@prefix : <https://ggen.dev/spec/wave2-task4/sso#> .
+
+# ============================================================================
+# FEATURE: SSO/RBAC Integration Schema for ggen-disney
+# Wave 2, Task 4: Security Architecture Foundation
+# ============================================================================
+
+:SSOIntegrationFramework a spec:Feature ;
+    rdfs:label "SSO Integration & Identity Management Framework" ;
+    rdfs:comment "Single Sign-On integration with Disney AD and Okta, identity mapping, session lifecycle, MFA enforcement, and OIDC/SAML 2.0 contract compliance" ;
+    spec:epicNumber 9 ;
+    spec:priority spec:P1 ;
+    spec:wave "wave-2" ;
+    spec:taskNumber "task-4" ;
+    spec:businessValue "Enables enterprise-grade SSO, reducing credential sprawl and enabling audit trail continuity from identity to action" ;
+    spec:hasUserStory :US_DisneyADIntegration, :US_OktaIntegration, :US_SessionLifecycle, :US_MFAEnforcement, :US_IdentityMapping .
+
+# ============================================================================
+# USER STORIES
+# ============================================================================
+
+:US_DisneyADIntegration a spec:UserStory ;
+    rdfs:label "Integrate Disney Active Directory for enterprise authentication" ;
+    spec:actor "System Administrator" ;
+    spec:action "Configure LDAP/SAML connection to Disney AD" ;
+    spec:goal "Enable employees to authenticate via existing corporate credentials without credential duplication" ;
+    spec:priority spec:P1 ;
+    spec:hasAcceptanceCriterion
+        :AC_DisneyAD_Connection,
+        :AC_DisneyAD_AttributeMapping,
+        :AC_DisneyAD_FailoverBehavior,
+        :AC_DisneyAD_AuditLog .
+
+:AC_DisneyAD_Connection a spec:AcceptanceCriterion ;
+    spec:text "Given system is configured, When user initiates login, Then SAML IdP redirects to Disney AD, authenticates, and returns assertion" ;
+    spec:expected "SAML assertion signed, verified within 2 seconds" ;
+    spec:testCase "e2e-disney-ad-login-flow" .
+
+:AC_DisneyAD_AttributeMapping a spec:AcceptanceCriterion ;
+    spec:text "Given SAML assertion received, When attributes parsed, Then sAMAccountName maps to email, distinguishedName maps to department" ;
+    spec:expected "User identity normalized into canonical form" ;
+    spec:testCase "unit-saml-attribute-extraction" .
+
+:AC_DisneyAD_FailoverBehavior a spec:AcceptanceCriterion ;
+    spec:text "Given Disney AD unavailable, When login attempted, Then system falls back to Okta (secondary IdP)" ;
+    spec:expected "User redirected to Okta within 5 seconds" ;
+    spec:testCase "e2e-disney-ad-failover" .
+
+:AC_DisneyAD_AuditLog a spec:AcceptanceCriterion ;
+    spec:text "Given authentication success/failure, When audit event generated, Then immutable log contains: timestamp, user, status, IdP, MFA result" ;
+    spec:expected "Audit log entry written within 100ms, signed and persisted" ;
+    spec:testCase "integration-audit-sso-flow" .
+
+:US_OktaIntegration a spec:UserStory ;
+    rdfs:label "Integrate Okta as primary/fallback SSO provider" ;
+    spec:actor "Security Architect" ;
+    spec:action "Configure Okta OIDC application, enrollment policies, and MFA rules" ;
+    spec:goal "Provide flexible SSO with MFA enforcement and device compliance verification" ;
+    spec:priority spec:P1 ;
+    spec:hasAcceptanceCriterion
+        :AC_Okta_OIDCFlow,
+        :AC_Okta_TokenManagement,
+        :AC_Okta_MFAPolicy,
+        :AC_Okta_DeviceCompliance .
+
+:AC_Okta_OIDCFlow a spec:AcceptanceCriterion ;
+    spec:text "Given OIDC authorization request, When sent to Okta, Then authorization code returned and exchanged for ID token + access token + refresh token" ;
+    spec:expected "All tokens issued with correct claims, signing verified within 1 second" ;
+    spec:testCase "e2e-okta-oidc-authorization-flow" .
+
+:AC_Okta_TokenManagement a spec:AcceptanceCriterion ;
+    spec:text "Given access token expiry (15 min), When refresh token used, Then new tokens issued, old tokens invalidated" ;
+    spec:expected "Refresh completes within 2 seconds, revocation persisted" ;
+    spec:testCase "integration-okta-token-refresh-revocation" .
+
+:AC_Okta_MFAPolicy a spec:AcceptanceCriterion ;
+    spec:text "Given admin user login, When MFA factor selection presented, Then TOTP/push/SMS options available per policy" ;
+    spec:expected "MFA challenge enforced, challenge response verified within 5 seconds" ;
+    spec:testCase "e2e-okta-mfa-challenge-response" .
+
+:AC_Okta_DeviceCompliance a spec:AcceptanceCriterion ;
+    spec:text "Given device posture context available, When non-compliant device detected, Then access denied with compliance error" ;
+    spec:expected "Compliance check completes within 3 seconds, decision cached" ;
+    spec:testCase "integration-okta-device-posture-check" .
+
+:US_SessionLifecycle a spec:UserStory ;
+    rdfs:label "Manage session lifecycle with secure token storage and revocation" ;
+    spec:actor "Session Manager Service" ;
+    spec:action "Create, validate, refresh, and revoke sessions with timeout enforcement" ;
+    spec:goal "Ensure sessions cannot be reused after logout, timeout, or token revocation" ;
+    spec:priority spec:P1 ;
+    spec:hasAcceptanceCriterion
+        :AC_SessionCreate,
+        :AC_SessionTimeout,
+        :AC_SessionRevocation,
+        :AC_SessionConcurrency .
+
+:AC_SessionCreate a spec:AcceptanceCriterion ;
+    spec:text "Given successful authentication, When session created, Then session record includes: session_id (cryptographic random), user_id, created_at, expires_at, idle_timeout, token_hash, device_fingerprint" ;
+    spec:expected "Session persisted in tamper-proof store within 50ms" ;
+    spec:testCase "unit-session-creation-cryptography" .
+
+:AC_SessionTimeout a spec:AcceptanceCriterion ;
+    spec:text "Given session.expires_at exceeded OR idle > 30 min, When token presented, Then session considered invalid, user redirected to login" ;
+    spec:expected "Timeout check enforced on every request, <10ms latency" ;
+    spec:testCase "integration-session-timeout-enforcement" .
+
+:AC_SessionRevocation a spec:AcceptanceCriterion ;
+    spec:text "Given user logout, When revocation event emitted, Then session marked revoked, token blacklist updated, future token validation fails" ;
+    spec:expected "Revocation persisted within 100ms, distributed to all nodes within 2 seconds" ;
+    spec:testCase "integration-session-revocation-propagation" .
+
+:AC_SessionConcurrency a spec:AcceptanceCriterion ;
+    spec:text "Given max_concurrent_sessions = 3, When user creates 4th session, Then oldest session revoked, audit event generated" ;
+    spec:expected "Enforcement happens within 200ms, audit event signed and persisted" ;
+    spec:testCase "integration-session-concurrency-limit" .
+
+:US_MFAEnforcement a spec:UserStory ;
+    rdfs:label "Enforce Multi-Factor Authentication per role and resource sensitivity" ;
+    spec:actor "Security Policy Engine" ;
+    spec:action "Evaluate MFA requirement based on role, resource, location, time, and risk factors" ;
+    spec:goal "Ensure sensitive operations (admin, data export) require MFA approval before execution" ;
+    spec:priority spec:P1 ;
+    spec:hasAcceptanceCriterion
+        :AC_MFAPolicy,
+        :AC_MFAChallenge,
+        :AC_MFAVerification,
+        :AC_MFARiskyLogin .
+
+:AC_MFAPolicy a spec:AcceptanceCriterion ;
+    spec:text "Given role = admin, When MFA policy evaluated, Then MFA enforcement = required; Given role = viewer and access from known location, Then MFA enforcement = optional" ;
+    spec:expected "Policy evaluated within 100ms, cached per user-session" ;
+    spec:testCase "unit-mfa-policy-evaluation" .
+
+:AC_MFAChallenge a spec:AcceptanceCriterion ;
+    spec:text "Given MFA required, When login attempt evaluated, Then MFA challenge issued: TOTP secret OR push notification OR SMS code" ;
+    spec:expected "Challenge issued within 2 seconds, challenge_id persisted" ;
+    spec:testCase "e2e-mfa-challenge-issuance" .
+
+:AC_MFAVerification a spec:AcceptanceCriterion ;
+    spec:text "Given MFA challenge issued, When user provides response (TOTP code or push approval), Then signature verified against enrolled factor" ;
+    spec:expected "Verification completes within 3 seconds, one-time use enforced (replay prevention)" ;
+    spec:testCase "e2e-mfa-challenge-verification" .
+
+:AC_MFARiskyLogin a spec:AcceptanceCriterion ;
+    spec:text "Given risky login detected (new IP, new device, impossible travel), When user authenticates, Then MFA required regardless of role" ;
+    spec:expected "Risk assessment completes within 500ms, override impossible" ;
+    spec:testCase "integration-risk-assessment-mfa-override" .
+
+:US_IdentityMapping a spec:UserStory ;
+    rdfs:label "Maintain canonical identity record with federated identity normalization" ;
+    spec:actor "Identity Synchronization Service" ;
+    spec:action "Map Disney AD user to Okta user to internal user_id with conflict resolution" ;
+    spec:goal "Ensure audit trail traces back to unique human identity despite multiple IdPs" ;
+    spec:priority spec:P1 ;
+    spec:hasAcceptanceCriterion
+        :AC_CanonicalUserID,
+        :AC_IdentityMapping,
+        :AC_ConflictResolution,
+        :AC_IdentityAudit .
+
+:AC_CanonicalUserID a spec:AcceptanceCriterion ;
+    spec:text "Given user authenticates via Disney AD or Okta, When identity mapped, Then internal user_id generated/retrieved and immutable across all login methods" ;
+    spec:expected "Mapping lookup/creation completes within 200ms, user_id deterministic" ;
+    spec:testCase "unit-canonical-user-id-generation" .
+
+:AC_IdentityMapping a spec:AcceptanceCriterion ;
+    spec:text "Given Disney AD email = john.doe@disney.com and Okta email = john.doe@disney.com, When identity sync runs, Then both IdP accounts linked to same user_id" ;
+    spec:expected "Sync completes within 5 seconds per account, audit trail logged" ;
+    spec:testCase "integration-identity-federated-linking" .
+
+:AC_ConflictResolution a spec:AcceptanceCriterion ;
+    spec:text "Given two different users claim same email (account takeover attempt), When conflict detected, When conflict detected, Then automatic linking DENIED, security alert issued, manual review required" ;
+    spec:expected "Conflict detection within 1 second, alert signed and persisted" ;
+    spec:testCase "integration-identity-conflict-detection" .
+
+:AC_IdentityAudit a spec:AcceptanceCriterion ;
+    spec:text "Given identity mapping event, When audit log queried, Then complete history available: who mapped, when, why, IdP used, attributes changed" ;
+    spec:expected "Audit history immutable, tamper-proof signature, accessible within 500ms" ;
+    spec:testCase "integration-identity-audit-trail-retrieval" .
+
+# ============================================================================
+# DOMAIN ENTITIES: SSO Architecture
+# ============================================================================
+
+sec:User a rdfs:Class ;
+    rdfs:label "User" ;
+    rdfs:comment "Individual with identity in one or more IdPs" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:property sec:userId, sec:email, sec:displayName, sec:department .
+
+sec:userId a rdf:Property ;
+    rdfs:label "Canonical User ID" ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Cryptographic random UUID, immutable, globally unique" .
+
+sec:email a rdf:Property ;
+    rdfs:label "Email Address" ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Corporate email, used for identity mapping across IdPs" .
+
+sec:Session a rdfs:Class ;
+    rdfs:label "Session" ;
+    rdfs:comment "Authenticated session with timeout and revocation tracking" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:property sec:sessionId, sec:userId, sec:createdAt, sec:expiresAt, sec:idleTimeout, sec:tokenHash, sec:deviceFingerprint, sec:isRevoked .
+
+sec:IdPProvider a rdfs:Class ;
+    rdfs:label "Identity Provider" ;
+    rdfs:comment "External SSO provider (Disney AD via SAML, Okta via OIDC)" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:property sec:idpName, sec:idpType, sec:priority, sec:enabled .
+
+sec:idpName a rdf:Property ;
+    rdfs:label "IdP Name" ;
+    rdfs:range xsd:string ;
+    rdfs:domain sec:IdPProvider .
+
+sec:idpType a rdf:Property ;
+    rdfs:label "IdP Type" ;
+    rdfs:range sec:IdPTypeEnum ;
+    rdfs:domain sec:IdPProvider .
+
+sec:IdPTypeEnum a rdfs:Class ;
+    rdfs:label "Identity Provider Type" ;
+    spec:value sec:SAML20, sec:OIDC, sec:LDAP .
+
+sec:MFAFactor a rdfs:Class ;
+    rdfs:label "Multi-Factor Authentication Factor" ;
+    rdfs:comment "Enrolled MFA method: TOTP, push, SMS" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:property sec:factorType, sec:enrolledAt, sec:verifiedAt, sec:isDefault .
+
+# ============================================================================
+# DESIGN DECISIONS
+# ============================================================================
+
+:DD_OIDC_Primary a spec:DesignDecision ;
+    rdfs:label "Use OIDC as primary protocol with SAML 2.0 fallback" ;
+    spec:rationale "OIDC provides JWT tokens (JSON-native, easier integration), SAML 2.0 satisfies legacy AD requirements" ;
+    spec:consequence "Must support token introspection, refresh grant, and SAML assertion validation" ;
+    spec:aligns sec:SelectedProtocols .
+
+:DD_JWTTokenStorage a spec:DesignDecision ;
+    rdfs:label "Store JWT tokens in HTTP-only, Secure, SameSite cookies" ;
+    spec:rationale "Prevents XSS token theft, automatic submission on requests, resistant to CSRF" ;
+    spec:consequence "Cannot use tokens from non-browser clients (CLI, API clients use service credentials)" ;
+    spec:aligns sec:TokenSecurityModel .
+
+:DD_TokenBlacklist a spec:DesignDecision ;
+    rdfs:label "Implement token revocation via Redis-backed blacklist with TTL" ;
+    spec:rationale "Instant revocation without database query, TTL auto-cleanup, distributed cache for latency" ;
+    spec:consequence "Must handle Redis outage (fall-safe: deny on cache miss)" ;
+    spec:aligns sec:RevocationStrategy .
+
+:DD_SessionStoreDistributed a spec:DesignDecision ;
+    rdfs:label "Store session state in PostgreSQL (primary) + Redis (cache)" ;
+    spec:rationale "PostgreSQL ensures durability for audit, Redis enables <10ms validation on hot path" ;
+    spec:consequence "Cache coherence required, must invalidate on revocation within 2s" ;
+    spec:aligns sec:StateManagementArchitecture .
+
+:DD_DeviceFingerprint a spec:DesignDecision ;
+    rdfs:label "Collect device fingerprint (User-Agent + IP) to detect session anomalies" ;
+    spec:rationale "Lightweight indicator of credential sharing or session hijacking" ;
+    spec:consequence "IP changes (mobile, VPN) may flag legitimate users; must allow override with MFA" ;
+    spec:aligns sec:RiskAssessmentModel .
+
+# ============================================================================
+# CONSTRAINTS & VALIDATION
+# ============================================================================
+
+:Constraint_TokenExpiry a spec:Constraint ;
+    rdfs:label "Token Expiry Times" ;
+    spec:rule "access_token_ttl <= 15 min, refresh_token_ttl <= 7 days, session_idle_timeout <= 30 min" ;
+    spec:severity spec:Must ;
+    spec:testable true .
+
+:Constraint_MFAChallengeLifetime a spec:Constraint ;
+    rdfs:label "MFA Challenge Lifetime" ;
+    spec:rule "MFA challenge expires within 5 minutes, one-time use only (no replay)" ;
+    spec:severity spec:Must ;
+    spec:testable true .
+
+:Constraint_SessionConcurrency a spec:Constraint ;
+    rdfs:label "Session Concurrency Limit" ;
+    spec:rule "User may hold max 3 concurrent sessions; 4th session triggers revocation of oldest" ;
+    spec:severity spec:Should ;
+    spec:testable true .
+
+:Constraint_AuditCompleteness a spec:Constraint ;
+    rdfs:label "Audit Event Completeness" ;
+    spec:rule "Every SSO event must include: timestamp (UTC), user_id (canonical), IdP, status (success/failure), action_type, client_ip, device_fingerprint" ;
+    spec:severity spec:Must ;
+    spec:testable true .
+
+# ============================================================================
+# DEPENDENCIES & EXTERNAL SYSTEMS
+# ============================================================================
+
+:Dependency_DisneyAD a spec:ExternalDependency ;
+    rdfs:label "Disney Active Directory" ;
+    spec:interface "SAML 2.0 IdP (HTTPS, XML assertions)" ;
+    spec:sla "99.5% uptime, <2s auth latency" ;
+    spec:contactTeam "Disney Identity Services (security-ops@disney.com)" .
+
+:Dependency_Okta a spec:ExternalDependency ;
+    rdfs:label "Okta SaaS Platform" ;
+    spec:interface "OIDC Authorization Server, MFA API" ;
+    spec:sla "99.99% uptime, <1s token issuance" ;
+    spec:contactTeam "Okta Support (enterprise account manager)" .
+
+:Dependency_PostgreSQL a spec:ExternalDependency ;
+    rdfs:label "PostgreSQL Database" ;
+    spec:interface "Sessions and identity mappings (immutable audit trail)" ;
+    spec:sla "99.9% availability (HA replicas)" ;
+    spec:capacity "100K sessions * 1KB per session = 100MB, grows ~10% monthly" .
+
+:Dependency_Redis a spec:ExternalDependency ;
+    rdfs:label "Redis Cache Cluster" ;
+    spec:interface "Session validation, token blacklist (sub-millisecond)" ;
+    spec:sla "99.95% uptime, active-active replication" ;
+    spec:capacity "Token blacklist: 100K tokens * 100 bytes = 10MB, TTL-based cleanup" .

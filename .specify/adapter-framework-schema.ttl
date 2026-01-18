@@ -1,0 +1,481 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ex: <http://ggen.example.org/disney/adapters#> .
+@prefix wom: <http://ggen.example.org/disney/work-objects#> .
+
+# ==============================================================================
+# Adapter Framework Schema for ggen-disney Wave 2 Task 2
+# ==============================================================================
+# Purpose: Define universal adapter contract for read-only multi-system ingest
+# Audience: Integration architects, adapter implementers, platform engineers
+# Wave: 2 (Framework design; 3-5 adapters in Wave 2, expanded to 11 in Wave 3)
+# Status: Framework specification
+# Created: 2026-01-18
+# ==============================================================================
+
+# ==============================================================================
+# ADAPTER CONTRACT: Core Framework Types
+# ==============================================================================
+
+ex:Adapter a owl:Class ;
+  rdfs:label "Adapter" ;
+  rdfs:comment "Universal adapter for read-only ingest from external systems. Stateless, idempotent, resumable." .
+
+ex:adapterId a owl:DatatypeProperty ;
+  rdfs:domain ex:Adapter ;
+  rdfs:range xsd:string ;
+  rdfs:label "Adapter ID" ;
+  rdfs:comment "Unique identifier (e.g., 'workday-shifts', 'sap-resources')" .
+
+ex:adapterVersion a owl:DatatypeProperty ;
+  rdfs:domain ex:Adapter ;
+  rdfs:range xsd:string ;
+  rdfs:label "Adapter Version" ;
+  rdfs:comment "Semantic version (e.g., '1.0.0', '1.2.1'). Breaking changes bump minor version." .
+
+ex:sourceSystem a owl:ObjectProperty ;
+  rdfs:domain ex:Adapter ;
+  rdfs:range ex:SourceSystem ;
+  rdfs:label "Source System" ;
+  rdfs:comment "Reference to external system (Workday, SAP, Slack, etc.)" .
+
+ex:targetWorkObjectType a owl:ObjectProperty ;
+  rdfs:domain ex:Adapter ;
+  rdfs:range ex:WorkObjectTypeMapping ;
+  rdfs:label "Target Work Object Type" ;
+  rdfs:comment "Maps to Shift, Task, Incident, Approval, Resource, or Event" .
+
+ex:ingestPattern a owl:ObjectProperty ;
+  rdfs:domain ex:Adapter ;
+  rdfs:range ex:IngestPattern ;
+  rdfs:label "Ingest Pattern" ;
+  rdfs:comment "Pull (request-response), Stream (webhook/event), or Batch (scheduled)" .
+
+ex:normalizationStrategy a owl:ObjectProperty ;
+  rdfs:domain ex:Adapter ;
+  rdfs:range ex:NormalizationStrategy ;
+  rdfs:label "Normalization Strategy" ;
+  rdfs:comment "How to map source fields to target work object properties" .
+
+ex:errorHandling a owl:ObjectProperty ;
+  rdfs:domain ex:Adapter ;
+  rdfs:range ex:ErrorHandlingPolicy ;
+  rdfs:label "Error Handling Policy" ;
+  rdfs:comment "Fail-fast, retry, or degrade gracefully" .
+
+ex:readOnly a owl:DatatypeProperty ;
+  rdfs:domain ex:Adapter ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Read Only" ;
+  rdfs:comment "Always true. No reverse writes to source system." .
+
+# ==============================================================================
+# SOURCE SYSTEM DEFINITIONS
+# ==============================================================================
+
+ex:SourceSystem a owl:Class ;
+  rdfs:label "Source System" ;
+  rdfs:comment "External system providing data (Workday, SAP, Slack, etc.)" .
+
+ex:systemName a owl:DatatypeProperty ;
+  rdfs:domain ex:SourceSystem ;
+  rdfs:range xsd:string ;
+  rdfs:label "System Name" ;
+  rdfs:comment "Human-readable name (e.g., 'Workday HR System')" .
+
+ex:systemType a owl:DatatypeProperty ;
+  rdfs:domain ex:SourceSystem ;
+  rdfs:range xsd:string ;
+  rdfs:label "System Type" ;
+  rdfs:comment "Category: ERP (SAP), HRIS (Workday), Ticketing (ServiceNow), Comms (Slack), etc." .
+
+ex:apiAuthentication a owl:ObjectProperty ;
+  rdfs:domain ex:SourceSystem ;
+  rdfs:range ex:AuthenticationMethod ;
+  rdfs:label "API Authentication" ;
+  rdfs:comment "OAuth2, API Key, Basic Auth, Service Account, etc." .
+
+ex:rateLimitPerMinute a owl:DatatypeProperty ;
+  rdfs:domain ex:SourceSystem ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Rate Limit (per minute)" ;
+  rdfs:comment "API rate limit to prevent throttling" .
+
+ex:dataRefreshInterval a owl:DatatypeProperty ;
+  rdfs:domain ex:SourceSystem ;
+  rdfs:range xsd:string ;
+  rdfs:label "Data Refresh Interval" ;
+  rdfs:comment "ISO 8601 duration (e.g., 'PT1H' for hourly, 'P1D' for daily)" .
+
+# ==============================================================================
+# INGEST PATTERNS
+# ==============================================================================
+
+ex:IngestPattern a owl:Class ;
+  rdfs:label "Ingest Pattern" ;
+  rdfs:comment "Pattern for retrieving data from source system" .
+
+ex:PatternPull a ex:IngestPattern ;
+  rdfs:label "Pull" ;
+  rdfs:comment "Adapter requests data (REST API, JDBC query)" .
+
+ex:PatternStream a ex:IngestPattern ;
+  rdfs:label "Stream" ;
+  rdfs:comment "Source system pushes data (webhook, event subscription)" .
+
+ex:PatternBatch a ex:IngestPattern ;
+  rdfs:label "Batch" ;
+  rdfs:comment "Scheduled export (S3 drop, scheduled API dump)" .
+
+# ==============================================================================
+# NORMALIZATION STRATEGY: Field Mapping
+# ==============================================================================
+
+ex:NormalizationStrategy a owl:Class ;
+  rdfs:label "Normalization Strategy" ;
+  rdfs:comment "Mapping from source fields to target work object properties" .
+
+ex:hasFieldMapping a owl:ObjectProperty ;
+  rdfs:domain ex:NormalizationStrategy ;
+  rdfs:range ex:FieldMapping ;
+  rdfs:label "Field Mapping" ;
+  rdfs:comment "Set of source→target field rules" .
+
+ex:normalizeTimestamp a owl:DatatypeProperty ;
+  rdfs:domain ex:NormalizationStrategy ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Normalize Timestamp" ;
+  rdfs:comment "Convert all datetime fields to ISO 8601 UTC" .
+
+ex:normalizeStatus a owl:DatatypeProperty ;
+  rdfs:domain ex:NormalizationStrategy ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Normalize Status" ;
+  rdfs:comment "Map source status values to WOM terminal states" .
+
+ex:dropFields a owl:DatatypeProperty ;
+  rdfs:domain ex:NormalizationStrategy ;
+  rdfs:range xsd:string ;
+  rdfs:label "Drop Fields" ;
+  rdfs:comment "Comma-separated list of fields to exclude (space optimization)" .
+
+ex:FieldMapping a owl:Class ;
+  rdfs:label "Field Mapping" ;
+  rdfs:comment "Single source→target field rule" .
+
+ex:sourceFieldName a owl:DatatypeProperty ;
+  rdfs:domain ex:FieldMapping ;
+  rdfs:range xsd:string ;
+  rdfs:label "Source Field Name" ;
+  rdfs:comment "Field name in source system (e.g., 'employee_id', 'start_timestamp')" .
+
+ex:targetProperty a owl:DatatypeProperty ;
+  rdfs:domain ex:FieldMapping ;
+  rdfs:range xsd:string ;
+  rdfs:label "Target Property" ;
+  rdfs:comment "WOM property name (e.g., 'shiftAssignedTo', 'shiftStartTime')" .
+
+ex:dataType a owl:DatatypeProperty ;
+  rdfs:domain ex:FieldMapping ;
+  rdfs:range xsd:string ;
+  rdfs:label "Data Type" ;
+  rdfs:comment "Expected type (string, datetime, integer, reference)" .
+
+ex:transformation a owl:DatatypeProperty ;
+  rdfs:domain ex:FieldMapping ;
+  rdfs:range xsd:string ;
+  rdfs:label "Transformation" ;
+  rdfs:comment "Transformation rule (identity, parse-datetime, lookup-reference, etc.)" .
+
+ex:mandatory a owl:DatatypeProperty ;
+  rdfs:domain ex:FieldMapping ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Mandatory" ;
+  rdfs:comment "If true, missing value causes adapter error" .
+
+# ==============================================================================
+# ERROR HANDLING POLICIES
+# ==============================================================================
+
+ex:ErrorHandlingPolicy a owl:Class ;
+  rdfs:label "Error Handling Policy" ;
+  rdfs:comment "How adapter handles errors and failures" .
+
+ex:PolicyFailFast a ex:ErrorHandlingPolicy ;
+  rdfs:label "Fail-Fast" ;
+  rdfs:comment "Single error stops entire adapter. Transactional semantics." .
+
+ex:PolicyRetry a ex:ErrorHandlingPolicy ;
+  rdfs:label "Retry" ;
+  rdfs:comment "Exponential backoff (max 3 attempts). Skip failed record, continue." .
+
+ex:PolicyDegrade a ex:ErrorHandlingPolicy ;
+  rdfs:label "Degrade" ;
+  rdfs:comment "Skip error, log, continue. Missing optional fields permitted." .
+
+ex:maxRetries a owl:DatatypeProperty ;
+  rdfs:domain ex:ErrorHandlingPolicy ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Max Retries" ;
+  rdfs:comment "Maximum retry attempts (1-5). Applies to Retry policy." .
+
+ex:backoffMultiplier a owl:DatatypeProperty ;
+  rdfs:domain ex:ErrorHandlingPolicy ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "Backoff Multiplier" ;
+  rdfs:comment "Exponential backoff factor (typically 2.0)" .
+
+# ==============================================================================
+# STATE MANAGEMENT: Adapter Execution Context
+# ==============================================================================
+
+ex:AdapterState a owl:Class ;
+  rdfs:label "Adapter State" ;
+  rdfs:comment "Execution context for adapter run. Enables clean restart semantics." .
+
+ex:adapterRunId a owl:DatatypeProperty ;
+  rdfs:domain ex:AdapterState ;
+  rdfs:range xsd:string ;
+  rdfs:label "Adapter Run ID" ;
+  rdfs:comment "UUID v4 for this execution. Used for idempotency and resumption." .
+
+ex:lastSuccessfulCursor a owl:DatatypeProperty ;
+  rdfs:domain ex:AdapterState ;
+  rdfs:range xsd:string ;
+  rdfs:label "Last Successful Cursor" ;
+  rdfs:comment "Pagination cursor or timestamp of last successful record. Enables resumption." .
+
+ex:recordsProcessed a owl:DatatypeProperty ;
+  rdfs:domain ex:AdapterState ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Records Processed" ;
+  rdfs:comment "Count of successfully normalized records in this run" .
+
+ex:recordsSkipped a owl:DatatypeProperty ;
+  rdfs:domain ex:AdapterState ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Records Skipped" ;
+  rdfs:comment "Count of records skipped due to errors (Degrade policy)" .
+
+ex:recordsFailed a owl:DatatypeProperty ;
+  rdfs:domain ex:AdapterState ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Records Failed" ;
+  rdfs:comment "Count of records that failed (Fail-Fast policy aborts)" .
+
+ex:startedAt a owl:DatatypeProperty ;
+  rdfs:domain ex:AdapterState ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Started At" ;
+  rdfs:comment "Execution start timestamp (ISO 8601 UTC)" .
+
+ex:completedAt a owl:DatatypeProperty ;
+  rdfs:domain ex:AdapterState ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Completed At" ;
+  rdfs:comment "Execution completion timestamp (ISO 8601 UTC)" .
+
+ex:status a owl:DatatypeProperty ;
+  rdfs:domain ex:AdapterState ;
+  rdfs:range xsd:string ;
+  rdfs:label "Status" ;
+  rdfs:comment "One of: Running, Success, FailedRetryable, FailedFatal" .
+
+# ==============================================================================
+# ERROR CATALOG: Deterministic Error Codes
+# ==============================================================================
+
+ex:AdapterError a owl:Class ;
+  rdfs:label "Adapter Error" ;
+  rdfs:comment "Error that occurred during adapter execution" .
+
+ex:errorCode a owl:DatatypeProperty ;
+  rdfs:domain ex:AdapterError ;
+  rdfs:range xsd:string ;
+  rdfs:label "Error Code" ;
+  rdfs:comment "Deterministic code (e.g., 'AUTH_FAILED', 'RATE_LIMITED', 'TRANSFORM_ERROR')" .
+
+ex:errorMessage a owl:DatatypeProperty ;
+  rdfs:domain ex:AdapterError ;
+  rdfs:range xsd:string ;
+  rdfs:label "Error Message" ;
+  rdfs:comment "Human-readable error description" .
+
+ex:retryable a owl:DatatypeProperty ;
+  rdfs:domain ex:AdapterError ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Retryable" ;
+  rdfs:comment "If true, error may resolve on retry (transient). If false, fatal." .
+
+ex:ErrorAuthFailed a ex:AdapterError ;
+  rdfs:label "Auth Failed" ;
+  rdfs:comment "Authentication/authorization error. Fatal. Check credentials." .
+
+ex:ErrorRateLimited a ex:AdapterError ;
+  rdfs:label "Rate Limited" ;
+  rdfs:comment "API rate limit exceeded. Retryable. Backoff and retry." .
+
+ex:ErrorTransformFailed a ex:AdapterError ;
+  rdfs:label "Transform Failed" ;
+  rdfs:comment "Field transformation error (parse, lookup). Depends on policy." .
+
+ex:ErrorMissingMandatory a ex:AdapterError ;
+  rdfs:label "Missing Mandatory" ;
+  rdfs:comment "Required field missing from source. Depends on policy." .
+
+ex:ErrorInvalidState a ex:AdapterError ;
+  rdfs:label "Invalid State" ;
+  rdfs:comment "Adapter state corrupted or inconsistent. Fatal." .
+
+ex:ErrorExternalTimeout a ex:AdapterError ;
+  rdfs:label "External Timeout" ;
+  rdfs:comment "Source system timeout. Retryable. Backoff and retry." .
+
+# ==============================================================================
+# VERSIONING & COMPATIBILITY
+# ==============================================================================
+
+ex:AdapterVersion a owl:Class ;
+  rdfs:label "Adapter Version" ;
+  rdfs:comment "Semantic version for adapter contract" .
+
+ex:majorVersion a owl:DatatypeProperty ;
+  rdfs:domain ex:AdapterVersion ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Major Version" ;
+  rdfs:comment "Breaking changes (output schema change)" .
+
+ex:minorVersion a owl:DatatypeProperty ;
+  rdfs:domain ex:AdapterVersion ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Minor Version" ;
+  rdfs:comment "Non-breaking changes (new field mappings)" .
+
+ex:patchVersion a owl:DatatypeProperty ;
+  rdfs:domain ex:AdapterVersion ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Patch Version" ;
+  rdfs:comment "Bug fixes (same output schema)" .
+
+# ==============================================================================
+# AUTHENTICATION METHODS
+# ==============================================================================
+
+ex:AuthenticationMethod a owl:Class ;
+  rdfs:label "Authentication Method" ;
+  rdfs:comment "Mechanism for authenticating with source system" .
+
+ex:AuthOAuth2 a ex:AuthenticationMethod ;
+  rdfs:label "OAuth2" ;
+  rdfs:comment "Standard OAuth2 flow. Tokens stored in secret backend." .
+
+ex:AuthApiKey a ex:AuthenticationMethod ;
+  rdfs:label "API Key" ;
+  rdfs:comment "Static API key (header or query param). Rotated monthly." .
+
+ex:AuthBasic a ex:AuthenticationMethod ;
+  rdfs:label "Basic Auth" ;
+  rdfs:comment "HTTP Basic (user:pass Base64). Deprecated; OAuth2 preferred." .
+
+ex:AuthServiceAccount a ex:AuthenticationMethod ;
+  rdfs:label "Service Account" ;
+  rdfs:comment "Service account identity (e.g., SAP technical user)" .
+
+# ==============================================================================
+# ROLLBACK & CLEAN EXIT SEMANTICS
+# ==============================================================================
+
+ex:RollbackStrategy a owl:Class ;
+  rdfs:label "Rollback Strategy" ;
+  rdfs:comment "How to handle adapter failures and recover" .
+
+ex:StatelessIdempotent a ex:RollbackStrategy ;
+  rdfs:label "Stateless Idempotent" ;
+  rdfs:comment "Adapter is stateless. Re-run from last cursor produces identical output." .
+
+ex:NoSideEffectsOnFailure a ex:RollbackStrategy ;
+  rdfs:label "No Side Effects on Failure" ;
+  rdfs:comment "All writes to RDF store are atomic. Failed run leaves store untouched." .
+
+ex:ResumableFromCursor a ex:RollbackStrategy ;
+  rdfs:label "Resumable from Cursor" ;
+  rdfs:comment "Adapter persists cursor. Next run continues from last successful record." .
+
+# ==============================================================================
+# IMMUTABILITY & IDEMPOTENCY
+# ==============================================================================
+
+ex:idempotencyKey a owl:DatatypeProperty ;
+  rdfs:domain ex:NormalizationStrategy ;
+  rdfs:range xsd:string ;
+  rdfs:label "Idempotency Key" ;
+  rdfs:comment "Primary key for deduplication (e.g., 'shift_id', 'incident_id'). Prevents duplicate ingests." .
+
+ex:deduplicationWindow a owl:DatatypeProperty ;
+  rdfs:domain ex:NormalizationStrategy ;
+  rdfs:range xsd:string ;
+  rdfs:comment "ISO 8601 duration for deduplication (e.g., 'P7D' for 7 days)" .
+
+ex:outputIsImmutable a owl:DatatypeProperty ;
+  rdfs:domain ex:Adapter ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Output is Immutable" ;
+  rdfs:comment "Work objects are written once. Updates create new events, not modifications." .
+
+# ==============================================================================
+# PERFORMANCE CONSTRAINTS
+# ==============================================================================
+
+ex:PerformanceSLA a owl:Class ;
+  rdfs:label "Performance SLA" ;
+  rdfs:comment "Performance targets for adapter execution" .
+
+ex:targetLatencySecs a owl:DatatypeProperty ;
+  rdfs:domain ex:PerformanceSLA ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Target Latency (seconds)" ;
+  rdfs:comment "Target end-to-end latency from source to RDF store" .
+
+ex:throughputRecordsPerSec a owl:DatatypeProperty ;
+  rdfs:domain ex:PerformanceSLA ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "Throughput (records/sec)" ;
+  rdfs:comment "Target records processed per second" .
+
+ex:maxMemoryMb a owl:DatatypeProperty ;
+  rdfs:domain ex:PerformanceSLA ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Max Memory (MB)" ;
+  rdfs:comment "Memory limit to prevent runaway consumption" .
+
+# ==============================================================================
+# ADAPTER FRAMEWORK CONSTRAINTS
+# ==============================================================================
+
+ex:FrameworkConstraint a owl:Class ;
+  rdfs:label "Framework Constraint" ;
+  rdfs:comment "Non-negotiable constraint for all adapters" .
+
+ex:ConstraintReadOnly :
+  rdfs:label "Read-Only Constraint" ;
+  rdfs:comment "All adapters are read-only. No reverse writes to source." .
+
+ex:ConstraintStateless :
+  rdfs:label "Stateless Constraint" ;
+  rdfs:comment "Adapters have no local state. State is persisted externally (DB, RDF store)." .
+
+ex:ConstraintIdempotent :
+  rdfs:label "Idempotent Constraint" ;
+  rdfs:comment "Multiple runs with identical input produce identical output." .
+
+ex:ConstraintAtomic :
+  rdfs:label "Atomic Constraint" ;
+  rdfs:comment "All writes to RDF store succeed or fail atomically. No partial writes." .
+
+ex:ConstraintLessThan500LOC :
+  rdfs:label "Less Than 500 LOC" ;
+  rdfs:comment "Each adapter implementation is <500 lines of code (proof of framework generalizability)." .
+

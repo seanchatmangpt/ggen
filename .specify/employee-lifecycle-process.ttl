@@ -1,0 +1,710 @@
+@prefix ex: <http://ggen.example.org/disney/employee-lifecycle#> .
+@prefix wo: <http://ggen.example.org/disney/work-objects#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ==============================================================================
+# Employee Onboarding & Offboarding Process Ontology
+# ==============================================================================
+# Purpose: Hire, train, assign, retire employees through standardized workflow
+# Audience: HR managers, onboarding specialists, training coordinators, department managers
+# Wave: 3 (Critical for ops workforce scaling)
+# Status: Mapped to Work Object Model types
+# Created: 2026-01-18
+# ==============================================================================
+
+ex:EmployeeLifecycleProcess a owl:Class ;
+  rdfs:label "Employee Onboarding & Offboarding Process" ;
+  rdfs:comment "End-to-end employee lifecycle management from hiring through training, assignment, role transition, and retirement. Integrates background checks, onboarding workflows, training tracking, and offboarding." ;
+  rdfs:isDefinedBy ex:EmployeeLifecycleOntology .
+
+ex:OnboardingCycle a ex:EmployeeLifecycleProcess ;
+  rdfs:label "Employee Onboarding Cycle" ;
+  rdfs:comment "Process for bringing new hires from offer acceptance through first day on job." ;
+  ex:executionFrequency "Continuous (20-40 new hires per month typical)" ;
+  ex:targetCompletionTime "10 business days from offer to productive start" ;
+  ex:estimatedDuration "PT2H"^^xsd:duration ;
+  ex:dependencies ex:BackgroundCheckApproval, ex:TrainingCompletion, ex:DepartmentReadiness .
+
+ex:OffboardingCycle a ex:EmployeeLifecycleProcess ;
+  rdfs:label "Employee Offboarding Cycle" ;
+  rdfs:comment "Process for departing employees: exit interviews, asset retrieval, access revocation." ;
+  ex:executionFrequency "Continuous (5-10 departures per month typical)" ;
+  ex:targetCompletionTime "5 business days from notice to full offboarding" ;
+  ex:estimatedDuration "PT2H"^^xsd:duration ;
+  ex:dependencies ex:ExitInterview, ex:AssetRecovery, ex:AccessRevocation .
+
+# ==============================================================================
+# SHIFTS (Maps to wo:Shift)
+# ==============================================================================
+
+ex:OnboardingShift a wo:Shift ;
+  rdfs:label "Onboarding Operations Shift" ;
+  rdfs:comment "HR and training team managing new hire intake." ;
+  ex:role "HR Manager, Onboarding Specialist, Training Coordinator, Benefits Administrator" ;
+  ex:startTime "2026-01-19T08:00:00"^^xsd:dateTime ;
+  ex:endTime "2026-01-19T17:00:00"^^xsd:dateTime ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "SHIFT-ONBOARDING-001" ;
+  ex:location ex:HRServiceCenter ;
+  ex:staffingRequirement [
+    ex:role "HR Manager" ;
+    ex:count 2 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "HR-MGR-ONBOARDING-001"
+  ] ;
+  ex:staffingRequirement [
+    ex:role "Onboarding Specialist" ;
+    ex:count 3 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "ONBOARDING-SPEC-001"
+  ] ;
+  ex:staffingRequirement [
+    ex:role "Training Coordinator" ;
+    ex:count 2 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "TRAINING-COORD-001"
+  ] ;
+  ex:staffingRequirement [
+    ex:role "Benefits Administrator" ;
+    ex:count 1 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "BENEFITS-ADMIN-001"
+  ] .
+
+ex:OffboardingShift a wo:Shift ;
+  rdfs:label "Offboarding Operations Shift" ;
+  rdfs:comment "HR and IT team managing departing employees." ;
+  ex:role "HR Manager, Offboarding Specialist, IT Security Officer" ;
+  ex:startTime "2026-01-19T08:00:00"^^xsd:dateTime ;
+  ex:endTime "2026-01-19T17:00:00"^^xsd:dateTime ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "SHIFT-OFFBOARDING-001" ;
+  ex:location ex:HRServiceCenter ;
+  ex:staffingRequirement [
+    ex:role "HR Manager" ;
+    ex:count 1 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "HR-MGR-OFFBOARDING-001"
+  ] ;
+  ex:staffingRequirement [
+    ex:role "Offboarding Specialist" ;
+    ex:count 2 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "OFFBOARDING-SPEC-001"
+  ] ;
+  ex:staffingRequirement [
+    ex:role "IT Security Officer" ;
+    ex:count 1 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "IT-SEC-OFFBOARDING-001"
+  ] .
+
+# ==============================================================================
+# TASKS (Maps to wo:Task)
+# ==============================================================================
+
+ex:BackgroundCheckInitiation a wo:Task ;
+  rdfs:label "Background Check Initiation" ;
+  rdfs:comment "Submit new hire for background check and reference verification." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-BGCHECK-001" ;
+  wo:hasTitle "Initiate Background Check and References" ;
+  wo:taskDescription "Submit offer letter accepted candidate to background check vendor; track status; obtain clearance before day 1." ;
+  wo:taskAssignedTo ex:HRManagerLead ;
+  wo:taskEstimatedDuration "PT30M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:BGCheckAC1, ex:BGCheckAC2 ;
+  ex:executionOrder 1 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:OnboardingPreparation ;
+  ex:externalSystemDependency [
+    ex:system "Workday HCM" ;
+    ex:functionality "New hire data, offer letter details, candidate contact info" ;
+    ex:requiredBefore "Background check submission"
+  ] ;
+  ex:externalSystemDependency [
+    ex:system "Background Check Vendor API" ;
+    ex:functionality "Submit candidate for background check, retrieve clearance status" ;
+    ex:requiredBefore "Clearance tracking"
+  ] .
+
+ex:BGCheckAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When submission complete, then background check initiated and tracking reference created in Workday." ;
+  wo:criterionVerified "false" .
+
+ex:BGCheckAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When clearance received, then candidate marked 'background cleared' before day 1 start." ;
+  wo:criterionVerified "false" .
+
+ex:OnboardingPreparation a wo:Task ;
+  rdfs:label "Onboarding Preparation" ;
+  rdfs:comment "Prepare workstation, IT access, uniforms, safety equipment." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-ONBOARD-PREP-001" ;
+  wo:hasTitle "Prepare Workstation and Materials" ;
+  wo:taskAssignedTo ex:OnboardingSpecialistLead ;
+  wo:taskEstimatedDuration "PT45M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:PrepAC1, ex:PrepAC2, ex:PrepAC3 ;
+  wo:dependsOn ex:BackgroundCheckInitiation ;
+  ex:executionOrder 2 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:FirstDayOrientation ;
+  ex:externalSystemDependency [
+    ex:system "Workday" ;
+    ex:functionality "New hire role, department, location assignments" ;
+    ex:requiredBefore "Workstation setup"
+  ] ;
+  ex:externalSystemDependency [
+    ex:system "Active Directory" ;
+    ex:functionality "User account creation, email provisioning" ;
+    ex:requiredBefore "IT access"
+  ] .
+
+ex:PrepAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When preparation complete, then workstation ready (desk, computer, phone, software licenses)." ;
+  wo:criterionVerified "false" .
+
+ex:PrepAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When preparation complete, then uniforms and safety equipment ordered/available at orientation." ;
+  wo:criterionVerified "false" .
+
+ex:PrepAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When preparation complete, then IT access provisioned and tested (AD account, email, systems access)." ;
+  wo:criterionVerified "false" .
+
+ex:FirstDayOrientation a wo:Task ;
+  rdfs:label "First Day Orientation" ;
+  rdfs:comment "Day 1: Welcome, facility tour, HR paperwork, safety orientation." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-ORIENTATION-001" ;
+  wo:hasTitle "First Day Orientation and Welcome" ;
+  wo:taskAssignedTo ex:OnboardingSpecialistLead ;
+  wo:taskEstimatedDuration "PT240M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:OrientAC1, ex:OrientAC2 ;
+  wo:dependsOn ex:OnboardingPreparation ;
+  ex:executionOrder 3 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:RoleSpecificTraining ;
+  ex:externalSystemDependency [
+    ex:system "Learning Management System (LMS)" ;
+    ex:functionality "Orientation content, policy acknowledgment tracking" ;
+    ex:requiredBefore "Training assignment"
+  ] .
+
+ex:OrientAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When orientation complete, then employee completes all mandatory orientation tasks (policies, safety, facility tour, HR paperwork)." ;
+  wo:criterionVerified "false" .
+
+ex:OrientAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When orientation complete, then employee has active AD account, email, and access to role-specific systems." ;
+  wo:criterionVerified "false" .
+
+ex:RoleSpecificTraining a wo:Task ;
+  rdfs:label "Role-Specific Training" ;
+  rdfs:comment "Days 1-10: Role training, systems training, safety certifications." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-TRAINING-001" ;
+  wo:hasTitle "Role-Specific Training and Certifications" ;
+  wo:taskAssignedTo ex:TrainingCoordinatorLead ;
+  wo:taskEstimatedDuration "PT3600M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:TrainingAC1, ex:TrainingAC2 ;
+  wo:dependsOn ex:FirstDayOrientation ;
+  ex:executionOrder 4 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:TrainingCompletion ;
+  ex:externalSystemDependency [
+    ex:system "Learning Management System (LMS)" ;
+    ex:functionality "Role training curriculum, assessments, certification tracking" ;
+    ex:requiredBefore "Training assignment"
+  ] .
+
+ex:TrainingAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When training complete, then employee passes all role-specific training modules and assessments (≥80% score)." ;
+  wo:criterionVerified "false" .
+
+ex:TrainingAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When training complete, then required safety certifications obtained (fire safety, hazard awareness, etc. per role)." ;
+  wo:criterionVerified "false" .
+
+ex:TrainingCompletion a wo:Task ;
+  rdfs:label "Training Completion & Clearance" ;
+  rdfs:comment "Verify training complete; sign off on readiness for independent work." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-TRAINING-COMPLETE-001" ;
+  wo:hasTitle "Verify Training Completion and Issue Clearance" ;
+  wo:taskAssignedTo ex:TrainingCoordinatorLead ;
+  wo:taskEstimatedDuration "PT30M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:ClearanceAC1 ;
+  wo:dependsOn ex:RoleSpecificTraining ;
+  ex:executionOrder 5 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:DepartmentReadiness .
+
+ex:ClearanceAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When clearance issued, then employee marked 'training complete' in LMS and department notified employee is ready for assignment." ;
+  wo:criterionVerified "false" .
+
+ex:DepartmentReadiness a wo:Task ;
+  rdfs:label "Department Assignment Confirmation" ;
+  rdfs:comment "Department manager confirms onboarded employee ready for independent work." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-DEPT-READY-001" ;
+  wo:hasTitle "Confirm Employee Ready for Independent Work" ;
+  wo:taskAssignedTo ex:DepartmentManagerLead ;
+  wo:taskEstimatedDuration "PT15M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:DeptAC1 ;
+  wo:dependsOn ex:TrainingCompletion ;
+  ex:executionOrder 6 ;
+  ex:criticalPath "true" ;
+  ex:externalSystemDependency [
+    ex:system "Workday" ;
+    ex:functionality "Employee status, training completion tracking" ;
+    ex:requiredBefore "Readiness confirmation"
+  ] .
+
+ex:DeptAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When confirmation complete, then department manager signs off and employee transitioned to full productivity status." ;
+  wo:criterionVerified "false" .
+
+# ==============================================================================
+# OFFBOARDING TASKS
+# ==============================================================================
+
+ex:ExitInterview a wo:Task ;
+  rdfs:label "Exit Interview" ;
+  rdfs:comment "Conduct exit interview; collect feedback on employment experience." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-EXIT-INTERVIEW-001" ;
+  wo:hasTitle "Conduct Employee Exit Interview" ;
+  wo:taskAssignedTo ex:HRManagerLead ;
+  wo:taskEstimatedDuration "PT60M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:ExitAC1 ;
+  ex:executionOrder 1 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:AssetRecovery ;
+  ex:externalSystemDependency [
+    ex:system "Workday Exit Portal" ;
+    ex:functionality "Exit interview template, feedback collection, benefits continuation information" ;
+    ex:requiredBefore "Interview"
+  ] .
+
+ex:ExitAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When interview complete, then exit feedback documented in employee record and benefits continuation details provided." ;
+  wo:criterionVerified "false" .
+
+ex:AssetRecovery a wo:Task ;
+  rdfs:label "Asset and Equipment Recovery" ;
+  rdfs:comment "Retrieve all company assets (laptop, badge, keys, uniforms)." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-ASSET-RECOVERY-001" ;
+  wo:hasTitle "Recover All Company Assets" ;
+  wo:taskAssignedTo ex:OffboardingSpecialistLead ;
+  wo:taskEstimatedDuration "PT45M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:AssetAC1, ex:AssetAC2 ;
+  wo:dependsOn ex:ExitInterview ;
+  ex:executionOrder 2 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:AccessRevocation ;
+  ex:externalSystemDependency [
+    ex:system "Fixed Asset Management (SAP)" ;
+    ex:functionality "Asset tracking, inventory reconciliation" ;
+    ex:requiredBefore "Asset recovery"
+  ] .
+
+ex:AssetAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When recovery complete, then all company assets (laptop, badge, keys, uniforms, parking pass) recovered and logged." ;
+  wo:criterionVerified "false" .
+
+ex:AssetAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When recovery complete, then final expense reports submitted and any outstanding employee debts resolved." ;
+  wo:criterionVerified "false" .
+
+ex:AccessRevocation a wo:Task ;
+  rdfs:label "IT Access Revocation" ;
+  rdfs:comment "Disable all IT access and system accounts." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-ACCESS-REVOKE-001" ;
+  wo:hasTitle "Revoke All IT Access and Disable Accounts" ;
+  wo:taskAssignedTo ex:ITSecurityOfficerLead ;
+  wo:taskEstimatedDuration "PT30M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:AccessAC1, ex:AccessAC2 ;
+  wo:dependsOn ex:AssetRecovery ;
+  ex:executionOrder 3 ;
+  ex:criticalPath "true" ;
+  ex:externalSystemDependency [
+    ex:system "Active Directory" ;
+    ex:functionality "User account management, group membership removal, email forwarding" ;
+    ex:requiredBefore "Access revocation"
+  ] ;
+  ex:externalSystemDependency [
+    ex:system "Workday" ;
+    ex:functionality "Offboarding status updates" ;
+    ex:requiredBefore "Status change"
+  ] .
+
+ex:AccessAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When revocation complete, then employee AD account disabled, email access revoked, VPN access revoked." ;
+  wo:criterionVerified "false" .
+
+ex:AccessAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When revocation complete, then employee email forwarding configured to manager for 30 days; Workday record marked 'separated'." ;
+  wo:criterionVerified "false" .
+
+# ==============================================================================
+# APPROVALS (Maps to wo:Approval)
+# ==============================================================================
+
+ex:BackgroundCheckApproval a wo:Approval ;
+  rdfs:label "Background Check Approval" ;
+  rdfs:comment "HR approval of background check clearance." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-BGCHECK-001" ;
+  wo:hasTitle "Background Check Clearance Approval" ;
+  wo:approvalsRequired 1 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:HRDirectorRole ;
+  ex:gates [
+    ex:gateName "Background Check Passed" ;
+    ex:dependsOn ex:BackgroundCheckInitiation ;
+    ex:gateStatus "Awaiting"
+  ] ;
+  ex:blocksProgression ex:FirstDayOrientation .
+
+ex:TrainingApproval a wo:Approval ;
+  rdfs:label "Training Completion Approval" ;
+  rdfs:comment "Manager approval of employee training completion." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-TRAINING-001" ;
+  wo:hasTitle "Manager Training Completion Approval" ;
+  wo:approvalsRequired 1 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:DepartmentManagerRole ;
+  ex:gates [
+    ex:gateName "All Training Complete" ;
+    ex:dependsOn ex:TrainingCompletion ;
+    ex:gateStatus "Awaiting"
+  ] ;
+  ex:blocksProgression ex:DepartmentReadiness .
+
+# ==============================================================================
+# INCIDENTS (Maps to wo:Incident)
+# ==============================================================================
+
+ex:IncidentTemplate_BackgroundCheckFail a wo:Incident ;
+  rdfs:label "Background Check Failure" ;
+  rdfs:comment "Candidate fails background check; offer may need to be rescinded." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "INC-BGCHECK-FAIL-TEMPLATE" ;
+  ex:isTemplate "true" ;
+  ex:incidentSeverity "High" ;
+  ex:incidentDescription "Background check returned disqualifying results; requires legal review and candidate communication." ;
+  ex:blocksProcesses ex:OnboardingCycle ;
+  ex:remediationPath [
+    ex:firstStep "HR and Legal review findings" ;
+    ex:createTask ex:OfferRescissionTask ;
+    ex:estimatedDelay "2-5 business days"
+  ] ;
+  ex:escalationPath [
+    ex:severity "High" ;
+    ex:escalateTo ex:HRDirector, ex:GeneralCounsel
+  ] .
+
+ex:IncidentTemplate_TrainingFailure a wo:Incident ;
+  rdfs:label "Employee Training Failure" ;
+  rdfs:comment "Employee fails to pass training assessments." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "INC-TRAINING-FAIL-TEMPLATE" ;
+  ex:isTemplate "true" ;
+  ex:incidentSeverity "Medium" ;
+  ex:incidentDescription "Employee scores <80% on training assessment; may require extended training or role reassignment." ;
+  ex:remediationPath [
+    ex:firstStep "Training coordinator and manager discuss performance" ;
+    ex:createTask ex:RetrainingOrRoleAdjustmentTask ;
+    ex:estimatedDelay "5-10 days"
+  ] ;
+  ex:escalationPath [
+    ex:severity "Medium" ;
+    ex:escalateTo ex:TrainingCoordinator, ex:DepartmentManager
+  ] .
+
+# ==============================================================================
+# RESOURCES (Maps to wo:Resource)
+# ==============================================================================
+
+ex:OnboardingMaterials a wo:Resource ;
+  rdfs:label "Onboarding Materials and Systems" ;
+  rdfs:comment "Orientation content, training modules, IT systems." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "RES-ONBOARDING-MAT-001" ;
+  wo:resourceType "Software and Content" ;
+  ex:requiredItems [
+    ex:item "Learning Management System (LMS)" ;
+    ex:quantity 1 ;
+    ex:systemId "LMS-PROD"
+  ] ;
+  ex:requiredItems [
+    ex:item "Orientation video library" ;
+    ex:quantity 1 ;
+    ex:systemId "ORIENTATION-VIDEOS-V3"
+  ] ;
+  ex:requiredItems [
+    ex:item "IT onboarding playbook" ;
+    ex:quantity 1 ;
+    ex:systemId "ONBOARDING-PLAYBOOK-V2"
+  ] ;
+  wo:resourceAvailability "Available" ;
+  ex:verificationMethod "Daily LMS health check; video playback verification" .
+
+ex:WorkstationEquipment a wo:Resource ;
+  rdfs:label "Workstation Equipment" ;
+  rdfs:comment "Computers, monitors, phones, furniture." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "RES-WORKSTATION-001" ;
+  wo:resourceType "Equipment" ;
+  ex:requiredItems [
+    ex:item "Desktop computer with pre-loaded software" ;
+    ex:quantity 1 ;
+    ex:systemId "DESKTOP-IMAGING-V4"
+  ] ;
+  ex:requiredItems [
+    ex:item "Monitor and peripherals" ;
+    ex:quantity 1 ;
+    ex:systemId "PERIPHERALS-BUNDLE-V1"
+  ] ;
+  ex:requiredItems [
+    ex:item "Office furniture (desk, chair, shelving)" ;
+    ex:quantity 1 ;
+    ex:systemId "FURNITURE-STD-001"
+  ] ;
+  wo:resourceAvailability "Available" ;
+  ex:verificationMethod "Physical inventory check; software license verification" .
+
+# ==============================================================================
+# EVENTS (Maps to wo:Event)
+# ==============================================================================
+
+ex:EventNewHireStarted a wo:Event ;
+  rdfs:label "New Employee Started" ;
+  rdfs:comment "Signal that new hire completed orientation." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "EVT-NEWHIRE-START-001" ;
+  wo:eventType "milestone" ;
+  wo:eventMessage "New employee completed first day orientation. Welcome to the team!" ;
+  wo:eventSource "Workday" ;
+  ex:eventTrigger ex:FirstDayOrientation ;
+  ex:notificationChannel "Slack #company-announcements, team-specific channel" .
+
+ex:EventTrainingComplete a wo:Event ;
+  rdfs:label "Employee Training Complete" ;
+  rdfs:comment "Signal that employee completed role-specific training." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "EVT-TRAINING-COMPLETE-001" ;
+  wo:eventType "milestone" ;
+  wo:eventMessage "Employee completed all role-specific training and certifications. Ready for independent work." ;
+  wo:eventSource "LMS" ;
+  ex:eventTrigger ex:TrainingCompletion ;
+  ex:notificationChannel "Slack #hr-operations, manager-specific notification" .
+
+ex:EventEmployeeOffboarded a wo:Event ;
+  rdfs:label "Employee Offboarded" ;
+  rdfs:comment "Signal that departing employee completely offboarded." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "EVT-OFFBOARD-COMPLETE-001" ;
+  wo:eventType "state_change" ;
+  wo:eventMessage "Employee offboarding complete. Record marked as separated." ;
+  wo:eventSource "Workday" ;
+  ex:eventTrigger ex:AccessRevocation ;
+  ex:notificationChannel "Slack #hr-operations" .
+
+# ==============================================================================
+# PROCESS FLOW & DEPENDENCIES
+# ==============================================================================
+
+ex:OnboardingFlow a ex:ProcessFlow ;
+  rdfs:label "Onboarding Critical Path" ;
+  rdfs:comment "From offer acceptance through day 1 productive contribution." ;
+  ex:phase1_BGCheck "BackgroundCheckInitiation (start T+0, <2 days)" ;
+  ex:phase2_Prep "OnboardingPreparation (parallel with BGCheck, PT45M)" ;
+  ex:phase3_Day1 "FirstDayOrientation (day 1, PT240M)" ;
+  ex:phase4_Training "RoleSpecificTraining (days 1-10, PT3600M)" ;
+  ex:phase5_Complete "TrainingCompletion (day 10, PT30M)" ;
+  ex:phase6_Confirm "DepartmentReadiness (day 10, PT15M)" ;
+  ex:criticalPathDuration "PT10D"^^xsd:duration ;
+  ex:targetCompleteTime "Day 10 (10 business days)" ;
+  ex:parallelizationOpportunity "Workstation prep can run in parallel with background check" .
+
+ex:OffboardingFlow a ex:ProcessFlow ;
+  rdfs:label "Offboarding Critical Path" ;
+  rdfs:comment "From separation notice through complete access revocation." ;
+  ex:phase1_Exit "ExitInterview (day 1 of separation, PT60M)" ;
+  ex:phase2_Assets "AssetRecovery (day 1-2, PT45M)" ;
+  ex:phase3_Access "AccessRevocation (day 2-3, PT30M)" ;
+  ex:criticalPathDuration "PT3D"^^xsd:duration ;
+  ex:targetCompleteTime "Day 3 (3 business days from notice)" .
+
+# ==============================================================================
+# EXTERNAL SYSTEM MAPPINGS
+# ==============================================================================
+
+ex:WorkdayMapping a ex:SystemMapping ;
+  rdfs:label "Workday HCM Integration" ;
+  rdfs:comment "Employee data, onboarding workflows, benefits administration." ;
+  ex:maps wo:Task ;
+  ex:dataFlow "Workday ↔ New hire records, training tracking, employee status, benefits enrollment" ;
+  ex:readOnly "false" ;
+  ex:rollbackCapability "true" ;
+  ex:criticalForOperations "true" .
+
+ex:LMSMapping a ex:SystemMapping ;
+  rdfs:label "Learning Management System Integration" ;
+  rdfs:comment "Training content, assessments, certification tracking." ;
+  ex:maps wo:Task ;
+  ex:dataFlow "LMS → Training curriculum assignment, assessment scores, certification tracking" ;
+  ex:readOnly "false" ;
+  ex:rollbackCapability "true" .
+
+ex:ActiveDirectoryMapping a ex:SystemMapping ;
+  rdfs:label "Active Directory Integration" ;
+  rdfs:comment "User account provisioning and deprovisioning." ;
+  ex:maps wo:Task ;
+  ex:dataFlow "AD ↔ User account creation, email provisioning, group membership, access revocation" ;
+  ex:readOnly "false" ;
+  ex:rollbackCapability "true" ;
+  ex:criticalForOperations "true" .
+
+ex:BackgroundCheckVendorMapping a ex:SystemMapping ;
+  rdfs:label "Background Check Vendor Integration" ;
+  rdfs:comment "Third-party background check processing." ;
+  ex:maps wo:Task ;
+  ex:dataFlow "Vendor API ↔ Candidate submission, background check results, clearance status" ;
+  ex:readOnly "false" ;
+  ex:rollbackCapability "false" ;
+  ex:latencyTarget "3-5 business days for results" .
+
+ex:SlackMapping a ex:SystemMapping ;
+  rdfs:label "Slack Notifications" ;
+  rdfs:comment "Employee lifecycle milestone notifications." ;
+  ex:maps wo:Event ;
+  ex:channels (
+    "#company-announcements"
+    "#hr-operations"
+    "#team-specific"
+  ) ;
+  ex:messageTemplate "{Employee} milestone: {event} on {date}" ;
+  ex:readOnly "true" ;
+  ex:rollbackCapability "false" .
+
+# ==============================================================================
+# SUCCESS METRICS & CYCLE TIME IMPROVEMENTS
+# ==============================================================================
+
+ex:SuccessMetrics a owl:Class ;
+  rdfs:label "Employee Lifecycle Success Metrics" ;
+  rdfs:comment "Key performance indicators for process improvement." ;
+  ex:metric_1 "Time-to-productivity (target: 10 business days from offer to independent contribution)" ;
+  ex:metric_2 "Onboarding completion rate (target: 100% by day 10)" ;
+  ex:metric_3 "Training pass rate (target: 95% first attempt, ≥80% score)" ;
+  ex:metric_4 "Offboarding cycle time (target: 3 business days)" ;
+  ex:metric_5 "Training content accuracy (target: Zero compliance gaps)" ;
+  ex:metric_6 "New hire 90-day retention (target: ≥90%)" ;
+  ex:metric_7 "Background check pass rate (target: ≥99% of candidates)" ;
+  ex:metric_8 "IT access provisioning time (target: <4 hours from approval)" .
+
+ex:CycleTimeImprovement a owl:Class ;
+  rdfs:label "Cycle Time Improvements" ;
+  rdfs:comment "Reduction vs manual process baseline." ;
+  ex:currentManualCycleTime "20 business days (paper onboarding, manual data entry, fragmented communication)" ;
+  ex:targetAutomatedCycleTime "10 business days (automated workflows, system-driven data sync)" ;
+  ex:cycleTimeReduction "50% (10 days faster per hire)" ;
+  ex:annualTimeRecovery "500 new hires/year × 10 days = 5,000 FTE-days recovery opportunity" ;
+  ex:businessImpact "50% reduction in time-to-productivity + improved new hire satisfaction + reduced onboarding errors" ;
+  ex:costSavings "At 300 hrs/year per onboarding specialist: 2 FTE/year savings" .
+
+# ==============================================================================
+# METADATA
+# ==============================================================================
+
+ex:EmployeeLifecycleOntology a owl:Ontology ;
+  rdfs:label "Employee Onboarding & Offboarding Process Ontology" ;
+  rdfs:comment "End-to-end employee lifecycle from hiring through training, assignment, role transition, and retirement." ;
+  owl:versionInfo "1.0" ;
+  dcterms:created "2026-01-18"^^xsd:date ;
+  ex:phase "Wave 3 - Production Scale" ;
+  ex:processCategory "Human Resources & Workforce Management" ;
+  ex:taskCount 9 ;
+  ex:approvalGateCount 2 ;
+  ex:externalSystemsIntegrated 4 ;
+  ex:targetProcessTime "PT10D"^^xsd:duration ;
+  ex:readyForValidation "true" ;
+  ex:mapsToWorkObjectTypes (
+    wo:Shift
+    wo:Task
+    wo:Incident
+    wo:Approval
+    wo:Resource
+    wo:Event
+  ) ;
+  ex:businessValue "50% cycle time reduction + improved new hire satisfaction + 2 FTE savings annually" ;
+  ex:expectedROI "250-350% Year 1" ;
+  ex:scalabilityNote "Process scales linearly: 500 new hires/year × 50% improvement = 5,000 FTE-days recovered" .
+
+# ==============================================================================
+# ROLES
+# ==============================================================================
+
+ex:HRDirectorRole a ex:ApprovalRole ;
+  rdfs:label "HR Director" ;
+  rdfs:comment "Approves background checks and onboarding." ;
+  ex:systemMapping "AD group: HR_DIRECTORS" .
+
+ex:DepartmentManagerRole a ex:ApprovalRole ;
+  rdfs:label "Department Manager" ;
+  rdfs:comment "Approves employee readiness for independent work." ;
+  ex:systemMapping "AD group: DEPARTMENT_MANAGERS" .
+
+ex:HRManagerLead a ex:Person ;
+  rdfs:label "HR Manager" ;
+  ex:personRole ex:HRDirectorRole ;
+  ex:workdayId "HR-MGR-001" .
+
+ex:OnboardingSpecialistLead a ex:Person ;
+  rdfs:label "Onboarding Specialist" ;
+  ex:workdayId "ONBOARDING-001" .
+
+ex:TrainingCoordinatorLead a ex:Person ;
+  rdfs:label "Training Coordinator" ;
+  ex:workdayId "TRAINING-001" .
+
+ex:OffboardingSpecialistLead a ex:Person ;
+  rdfs:label "Offboarding Specialist" ;
+  ex:workdayId "OFFBOARDING-001" .
+
+ex:ITSecurityOfficerLead a ex:Person ;
+  rdfs:label "IT Security Officer" ;
+  ex:workdayId "IT-SEC-001" .
+
+ex:DepartmentManagerLead a ex:Person ;
+  rdfs:label "Department Manager" ;
+  ex:personRole ex:DepartmentManagerRole ;
+  ex:workdayId "DEPT-MGR-001" .
+
+ex:HRDirector a ex:Person ;
+  rdfs:label "HR Director" ;
+  ex:personRole ex:HRDirectorRole ;
+  ex:workdayId "HR-DIR-001" .
+
+# ==============================================================================
+# LOCATIONS
+# ==============================================================================
+
+ex:HRServiceCenter a ex:Location ;
+  rdfs:label "HR Service Center" ;
+  rdfs:comment "Centralized HR onboarding and offboarding operations." ;
+  ex:locationCode "HRSC-001" ;
+  ex:area "2,000 sq ft" ;
+  ex:interviewRooms 3 ;
+  ex:workstations 8 ;
+  ex:storageArea "Equipment and material storage" .

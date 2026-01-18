@@ -1,0 +1,425 @@
+@prefix spec: <https://ggen.dev/spec#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sec: <https://ggen.dev/security#> .
+@prefix : <https://ggen.dev/spec/wave2-task4/rbac#> .
+
+# ============================================================================
+# FEATURE: Role-Based Access Control (RBAC) Hierarchy
+# Wave 2, Task 4: Permission Model & Delegation Framework
+# ============================================================================
+
+:RBACHierarchyFramework a spec:Feature ;
+    rdfs:label "Role-Based Access Control (RBAC) Hierarchy & Permission Model" ;
+    rdfs:comment "Five-tier role hierarchy (Admin, Manager, Operator, Auditor, Viewer) with granular permissions, permission inheritance, delegation, and conflict resolution" ;
+    spec:epicNumber 9 ;
+    spec:priority spec:P1 ;
+    spec:wave "wave-2" ;
+    spec:taskNumber "task-4" ;
+    spec:businessValue "Enables least-privilege access, reduces insider risk, simplifies compliance certification" ;
+    spec:hasUserStory :US_RoleDefinition, :US_PermissionGranularity, :US_DelegationFramework, :US_ConflictResolution, :US_PermissionAudit .
+
+# ============================================================================
+# USER STORIES
+# ============================================================================
+
+:US_RoleDefinition a spec:UserStory ;
+    rdfs:label "Define five-tier role hierarchy with inheritance" ;
+    spec:actor "Security Architect" ;
+    spec:action "Create roles: Admin > Manager > Operator > Auditor > Viewer with permission inheritance" ;
+    spec:goal "Ensure role matrix is mutually exclusive, comprehensive, and clearly documented" ;
+    spec:priority spec:P1 ;
+    spec:hasAcceptanceCriterion
+        :AC_RoleDefAdmin,
+        :AC_RoleDefManager,
+        :AC_RoleDefOperator,
+        :AC_RoleDefAuditor,
+        :AC_RoleDefViewer,
+        :AC_RoleInheritance .
+
+:AC_RoleDefAdmin a spec:AcceptanceCriterion ;
+    spec:text "Given role = Admin, When permissions evaluated, Then includes: user management, role management, system config, audit log access, compliance reporting" ;
+    spec:expected "Admin role has no restrictions, full system access" ;
+    spec:testCase "unit-role-admin-permissions" .
+
+:AC_RoleDefManager a spec:AcceptanceCriterion ;
+    spec:text "Given role = Manager, When attempting system config change, Then denied; when attempting to manage operators, Then allowed" ;
+    spec:expected "Manager inherits Operator permissions + team management, cannot modify system-wide settings" ;
+    spec:testCase "unit-role-manager-permissions" .
+
+:AC_RoleDefOperator a spec:AcceptanceCriterion ;
+    spec:text "Given role = Operator, When accessing resource, Then permissions include: create, read, update (own resources only), delete (own resources only)" ;
+    spec:expected "Operator can manage operational tasks, cannot access other users' data" ;
+    spec:testCase "unit-role-operator-permissions" .
+
+:AC_RoleDefAuditor a spec:AcceptanceCriterion ;
+    spec:text "Given role = Auditor, When accessing resource, Then permissions include: read all audit logs, generate compliance reports, CANNOT modify, create, delete" ;
+    spec:expected "Auditor has read-only access to sensitive logs, cannot change any data" ;
+    spec:testCase "unit-role-auditor-permissions" .
+
+:AC_RoleDefViewer a spec:AcceptanceCriterion ;
+    spec:text "Given role = Viewer, When accessing resource, Then permissions include: read public dashboards, read own profile, CANNOT access audit logs or sensitive data" ;
+    spec:expected "Viewer has minimal read-only access to non-sensitive data" ;
+    spec:testCase "unit-role-viewer-permissions" .
+
+:AC_RoleInheritance a spec:AcceptanceCriterion ;
+    spec:text "Given role hierarchy, When Manager accesses Operator resource, Then Manager inherits all Operator permissions" ;
+    spec:expected "Inheritance is transitive: Admin ⊇ Manager ⊇ Operator, no cycles" ;
+    spec:testCase "unit-role-inheritance-transitivity" .
+
+:US_PermissionGranularity a spec:UserStory ;
+    rdfs:label "Define granular permissions with resource scoping" ;
+    spec:actor "Developer" ;
+    spec:action "Implement permissions as (resource_type, action, scope) tuples" ;
+    spec:goal "Enable fine-grained access control (e.g., Operator can read all dashboards but update only owned)" ;
+    spec:priority spec:P1 ;
+    spec:hasAcceptanceCriterion
+        :AC_PermissionResourceType,
+        :AC_PermissionAction,
+        :AC_PermissionScope,
+        :AC_PermissionEvaluation .
+
+:AC_PermissionResourceType a spec:AcceptanceCriterion ;
+    spec:text "Given permission evaluation, When resource accessed, Then resource_type identified: (user, role, audit_log, config, report, dashboard)" ;
+    spec:expected "Resource type lookup completes within 100us" ;
+    spec:testCase "unit-permission-resource-type-identification" .
+
+:AC_PermissionAction a spec:AcceptanceCriterion ;
+    spec:text "Given resource_type, When action requested, Then action evaluated: (create, read, update, delete, export, audit)" ;
+    spec:expected "Action permission checked against role matrix, decision cached per session" ;
+    spec:testCase "unit-permission-action-mapping" .
+
+:AC_PermissionScope a spec:AcceptanceCriterion ;
+    spec:text "Given user with Operator role, When update attempted on dashboard, Then scope evaluated: (own=allowed, team=conditional, org=denied)" ;
+    spec:expected "Scope logic resolved within 500us, no permission escalation possible" ;
+    spec:testCase "integration-permission-scope-resolution" .
+
+:AC_PermissionEvaluation a spec:AcceptanceCriterion ;
+    spec:text "Given (resource, action, scope, role) tuple, When permission checked, Then evaluation result cached with TTL=5min, expires on permission change" ;
+    spec:expected "Permission check cached, <1ms latency on cache hit" ;
+    spec:testCase "integration-permission-caching-invalidation" .
+
+:US_DelegationFramework a spec:UserStory ;
+    rdfs:label "Enable temporary role delegation with expiration and audit trail" ;
+    spec:actor "Manager" ;
+    spec:action "Delegate Operator role to team member for duration of project" ;
+    spec:goal "Support temporary elevated access without changing permanent role assignment" ;
+    spec:priority spec:P2 ;
+    spec:hasAcceptanceCriterion
+        :AC_DelegationCreate,
+        :AC_DelegationExpiration,
+        :AC_DelegationRevocation,
+        :AC_DelegationAudit .
+
+:AC_DelegationCreate a spec:AcceptanceCriterion ;
+    spec:text "Given manager initiates delegation, When form submitted with target user and duration, Then delegation record created with: delegated_from_role, delegated_to_user, start_time, expiry_time, reason, approver" ;
+    spec:expected "Delegation active immediately, effective permissions include delegated role" ;
+    spec:testCase "integration-delegation-creation" .
+
+:AC_DelegationExpiration a spec:AcceptanceCriterion ;
+    spec:text "Given delegation.expiry_time exceeded, When user authenticates, Then delegated permissions revoked, original role restored" ;
+    spec:expected "Automatic expiration enforced on next request, no manual action required" ;
+    spec:testCase "integration-delegation-auto-expiration" .
+
+:AC_DelegationRevocation a spec:AcceptanceCriterion ;
+    spec:text "Given delegation active, When manager revokes delegation, Then delegated permissions immediately removed, audit event signed" ;
+    spec:expected "Revocation takes effect within 2 seconds across distributed sessions" ;
+    spec:testCase "integration-delegation-manual-revocation" .
+
+:AC_DelegationAudit a spec:AcceptanceCriterion ;
+    spec:text "Given delegation active, When user action recorded, Then audit event includes: (original_user_id, delegated_from_role, action, resource, timestamp)" ;
+    spec:expected "Audit trail clearly distinguishes delegated vs. original permissions" ;
+    spec:testCase "integration-delegation-audit-trail" .
+
+:US_ConflictResolution a spec:UserStory ;
+    rdfs:label "Resolve permission conflicts with deny-by-default strategy" ;
+    spec:actor "Authorization Engine" ;
+    spec:action "Evaluate multiple permission sources (roles, delegations, exceptions)" ;
+    spec:goal "Ensure explicit deny always wins; no permission escalation via role conflicts" ;
+    spec:priority spec:P1 ;
+    spec:hasAcceptanceCriterion
+        :AC_ConflictDenyByDefault,
+        :AC_ConflictPrecedence,
+        :AC_ConflictLogging .
+
+:AC_ConflictDenyByDefault a spec:AcceptanceCriterion ;
+    spec:text "Given user with conflicting permissions (Admin via role + restricted via exception), When access checked, Then deny wins (restrictive interpretation)" ;
+    spec:expected "No permission grants overridden by exceptions" ;
+    spec:testCase "unit-permission-conflict-deny-by-default" .
+
+:AC_ConflictPrecedence a spec:AcceptanceCriterion ;
+    spec:text "Given permission sources: (role=Admin, delegation=Operator, exception=deny:reports), When report access attempted, Then precedence: exception > delegation > role, result=deny" ;
+    spec:expected "Conflict resolution deterministic, documented, reproducible" ;
+    spec:testCase "unit-permission-conflict-precedence" .
+
+:AC_ConflictLogging a spec:AcceptanceCriterion ;
+    spec:text "Given permission conflict detected, When decision made, Then audit event logs: user, resource, action, permission sources (role+delegation+exception), final decision, rationale" ;
+    spec:expected "Conflict logged with full context for security review" ;
+    spec:testCase "integration-permission-conflict-logging" .
+
+:US_PermissionAudit a spec:UserStory ;
+    rdfs:label "Audit role assignments and permission usage for compliance" ;
+    spec:actor "Compliance Officer" ;
+    spec:action "Query permission assignment history and usage patterns" ;
+    spec:goal "Demonstrate role-to-action traceability for SOC 2 / HIPAA certification" ;
+    spec:priority spec:P1 ;
+    spec:hasAcceptanceCriterion
+        :AC_AssignmentAudit,
+        :AC_UsageAudit,
+        :AC_PermissionReport .
+
+:AC_AssignmentAudit a spec:AcceptanceCriterion ;
+    spec:text "Given user, When role history queried, Then complete timeline available: role assigned date, assigned_by, role removed date, removed_by, reason" ;
+    spec:expected "Role assignment changes immutable, tamper-proof" ;
+    spec:testCase "integration-audit-role-assignment-history" .
+
+:AC_UsageAudit a spec:AcceptanceCriterion ;
+    spec:text "Given user + timerange, When permission usage queried, Then results show: every action taken, resource accessed, role used, timestamp, result (success/denied)" ;
+    spec:expected "Usage audit correlated with session ID for full traceability" ;
+    spec:testCase "integration-audit-permission-usage" .
+
+:AC_PermissionReport a spec:AcceptanceCriterion ;
+    spec:text "Given compliance period, When report generated, Then includes: (user_id, role, effective_permissions, delegations, exceptions, last_assignment_change)" ;
+    spec:expected "Report cryptographically signed, stored in immutable evidence directory" ;
+    spec:testCase "integration-audit-permission-report-generation" .
+
+# ============================================================================
+# DOMAIN ENTITIES: RBAC Data Model
+# ============================================================================
+
+sec:Role a rdfs:Class ;
+    rdfs:label "Role" ;
+    rdfs:comment "Named collection of permissions with hierarchy support" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:property sec:roleName, sec:roleDescription, sec:parentRole, sec:priority, sec:isActive .
+
+sec:roleName a rdf:Property ;
+    rdfs:label "Role Name" ;
+    rdfs:range xsd:string ;
+    rdfs:domain sec:Role ;
+    spec:constraint "must match /^[A-Z_]+$/ (ADMIN, MANAGER, OPERATOR, AUDITOR, VIEWER)" .
+
+sec:parentRole a rdf:Property ;
+    rdfs:label "Parent Role (Inheritance)" ;
+    rdfs:range sec:Role ;
+    rdfs:domain sec:Role ;
+    spec:constraint "No cycles allowed; only Admin has no parent" .
+
+sec:Permission a rdfs:Class ;
+    rdfs:label "Permission" ;
+    rdfs:comment "Atomic permission: (resource_type, action, scope)" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:property sec:resourceType, sec:action, sec:scope, sec:condition .
+
+sec:resourceType a rdf:Property ;
+    rdfs:label "Resource Type" ;
+    rdfs:range sec:ResourceTypeEnum ;
+    rdfs:domain sec:Permission ;
+    spec:values "user, role, audit_log, config, report, dashboard, api_key, template" .
+
+sec:action a rdf:Property ;
+    rdfs:label "Action" ;
+    rdfs:range sec:ActionEnum ;
+    rdfs:domain sec:Permission ;
+    spec:values "create, read, update, delete, export, execute, audit" .
+
+sec:scope a rdf:Property ;
+    rdfs:label "Scope" ;
+    rdfs:range sec:ScopeEnum ;
+    rdfs:domain sec:Permission ;
+    spec:values "own (resource owned by user), team (resources in user's team), org (all org resources), public (no restrictions)" .
+
+sec:RoleAssignment a rdfs:Class ;
+    rdfs:label "Role Assignment" ;
+    rdfs:comment "User assigned to role at specific time" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:property sec:userId, sec:roleName, sec:assignedAt, sec:assignedBy, sec:reason .
+
+sec:PermissionDelegation a rdfs:Class ;
+    rdfs:label "Permission Delegation" ;
+    rdfs:comment "Temporary elevation of user permissions" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:property sec:delegationId, sec:delegatedFromRole, sec:delegatedToUser, sec:startTime, sec:expiryTime, sec:delegatedBy, sec:reason .
+
+sec:PermissionException a rdfs:Class ;
+    rdfs:label "Permission Exception" ;
+    rdfs:comment "Override of standard role permissions (usually deny)" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:property sec:userId, sec:roleRestriction, sec:resourceRestriction, sec:startTime, sec:expiryTime, sec:reason .
+
+# ============================================================================
+# ROLE HIERARCHY DEFINITION
+# ============================================================================
+
+:Role_Admin a sec:Role ;
+    sec:roleName "ADMIN" ;
+    rdfs:label "Administrator" ;
+    rdfs:comment "Full system access, system configuration, user management" ;
+    sec:priority 1 ;
+    sec:isActive true ;
+    spec:hasPermission :Perm_Admin_Full .
+
+:Perm_Admin_Full a sec:Permission ;
+    rdfs:label "Full System Access" ;
+    sec:resourceType :ResourceType_All ;
+    sec:action :Action_All ;
+    sec:scope :Scope_Org ;
+    spec:constraint "No restrictions" .
+
+:Role_Manager a sec:Role ;
+    sec:roleName "MANAGER" ;
+    rdfs:label "Team Manager" ;
+    rdfs:comment "Team management, operator oversight, report access" ;
+    sec:parentRole :Role_Admin ;
+    sec:priority 2 ;
+    sec:isActive true ;
+    spec:hasPermission :Perm_Manager_UserManage, :Perm_Manager_Dashboards, :Perm_Manager_Reports .
+
+:Perm_Manager_UserManage a sec:Permission ;
+    rdfs:label "Manage Team Users" ;
+    sec:resourceType :ResourceType_User ;
+    sec:action :Action_CRUD ;
+    sec:scope :Scope_Team .
+
+:Perm_Manager_Dashboards a sec:Permission ;
+    rdfs:label "Read Team Dashboards" ;
+    sec:resourceType :ResourceType_Dashboard ;
+    sec:action :Action_Read ;
+    sec:scope :Scope_Team .
+
+:Perm_Manager_Reports a sec:Permission ;
+    rdfs:label "Generate Reports" ;
+    sec:resourceType :ResourceType_Report ;
+    sec:action :Action_Execute ;
+    sec:scope :Scope_Org .
+
+:Role_Operator a sec:Role ;
+    sec:roleName "OPERATOR" ;
+    rdfs:label "System Operator" ;
+    rdfs:comment "Operational tasks, resource management, limited self-service" ;
+    sec:parentRole :Role_Manager ;
+    sec:priority 3 ;
+    sec:isActive true ;
+    spec:hasPermission :Perm_Op_Dashboard, :Perm_Op_Resources, :Perm_Op_SelfService .
+
+:Perm_Op_Dashboard a sec:Permission ;
+    rdfs:label "Access Dashboards" ;
+    sec:resourceType :ResourceType_Dashboard ;
+    sec:action :Action_Read ;
+    sec:scope :Scope_Own .
+
+:Perm_Op_Resources a sec:Permission ;
+    rdfs:label "Manage Resources" ;
+    sec:resourceType :ResourceType_Resource ;
+    sec:action :Action_CRUD ;
+    sec:scope :Scope_Own .
+
+:Perm_Op_SelfService a sec:Permission ;
+    rdfs:label "Self-Service API Keys" ;
+    sec:resourceType :ResourceType_APIKey ;
+    sec:action :Action_Create ;
+    sec:scope :Scope_Own .
+
+:Role_Auditor a sec:Role ;
+    sec:roleName "AUDITOR" ;
+    rdfs:label "Auditor/Compliance" ;
+    rdfs:comment "Read-only audit log access, compliance reporting" ;
+    sec:priority 4 ;
+    sec:isActive true ;
+    spec:hasPermission :Perm_Auditor_Logs, :Perm_Auditor_Reports .
+
+:Perm_Auditor_Logs a sec:Permission ;
+    rdfs:label "Read Audit Logs" ;
+    sec:resourceType :ResourceType_AuditLog ;
+    sec:action :Action_Read ;
+    sec:scope :Scope_Org ;
+    spec:constraint "Read-only, no export without Manager approval" .
+
+:Perm_Auditor_Reports a sec:Permission ;
+    rdfs:label "Generate Compliance Reports" ;
+    sec:resourceType :ResourceType_Report ;
+    sec:action :Action_Execute ;
+    sec:scope :Scope_Org .
+
+:Role_Viewer a sec:Role ;
+    sec:roleName "VIEWER" ;
+    rdfs:label "Viewer" ;
+    rdfs:comment "Limited read-only access to dashboards and own profile" ;
+    sec:priority 5 ;
+    sec:isActive true ;
+    spec:hasPermission :Perm_Viewer_Dashboard, :Perm_Viewer_Profile .
+
+:Perm_Viewer_Dashboard a sec:Permission ;
+    rdfs:label "View Public Dashboards" ;
+    sec:resourceType :ResourceType_Dashboard ;
+    sec:action :Action_Read ;
+    sec:scope :Scope_Public .
+
+:Perm_Viewer_Profile a sec:Permission ;
+    rdfs:label "View Own Profile" ;
+    sec:resourceType :ResourceType_User ;
+    sec:action :Action_Read ;
+    sec:scope :Scope_Own .
+
+# ============================================================================
+# DESIGN DECISIONS
+# ============================================================================
+
+:DD_RBAC_DenyByDefault a spec:DesignDecision ;
+    rdfs:label "Deny-by-default authorization model" ;
+    spec:rationale "Explicit deny always wins over permit; safer default than permit-by-default" ;
+    spec:consequence "Requires explicit permission grants for all operations; no implicit access" ;
+    spec:aligns sec:SecurityPosture_LeastPrivilege .
+
+:DD_RoleInheritance a spec:DesignDecision ;
+    rdfs:label "Transitive role inheritance" ;
+    spec:rationale "Admin > Manager > Operator enables permission layering; simpler than flat matrix" ;
+    spec:consequence "Must prevent cycles; cycle detection required in role provisioning" ;
+    spec:aligns sec:RoleHierarchyModel .
+
+:DD_PermissionCaching a spec:DesignDecision ;
+    rdfs:label "Cache permission evaluation with TTL invalidation" ;
+    spec:rationale "Permission checks on hot path (sub-millisecond latency required); caching essential" ;
+    spec:consequence "Stale permission cache possible until invalidation; max staleness = 5 min" ;
+    spec:aligns sec:PerformanceRequirements .
+
+:DD_ScopeGranularity a spec:DesignDecision ;
+    rdfs:label "Four-level scope model: (own, team, org, public)" ;
+    spec:rationale "Balances granularity vs. complexity; covers common use cases" ;
+    spec:consequence "Custom scopes require code change; not runtime-configurable" ;
+    spec:aligns sec:GranularityVsComplexity .
+
+# ============================================================================
+# CONSTRAINTS & VALIDATION
+# ============================================================================
+
+:Constraint_NoRoleCycles a spec:Constraint ;
+    rdfs:label "No Role Inheritance Cycles" ;
+    spec:rule "Role hierarchy must form a DAG (Directed Acyclic Graph); no cycles allowed" ;
+    spec:severity spec:Must ;
+    spec:testable true .
+
+:Constraint_PermissionCompleteness a spec:Constraint ;
+    rdfs:label "Permission Definition Completeness" ;
+    spec:rule "Every role must have at least one permission defined; orphan roles must be deleted" ;
+    spec:severity spec:Should ;
+    spec:testable true .
+
+:Constraint_ActionVerbs a spec:Constraint ;
+    rdfs:label "Standard Action Verbs" ;
+    spec:rule "Actions must use standard verbs: create, read, update, delete, export, execute, audit (extensible via schema change)" ;
+    spec:severity spec:Should ;
+    spec:testable true .
+
+:Constraint_DelegationExpiry a spec:Constraint ;
+    rdfs:label "Delegation Must Have Expiry" ;
+    spec:rule "Every delegation must have expiry_time <= start_time + 90 days" ;
+    spec:severity spec:Must ;
+    spec:testable true .
+
+:Constraint_AuditCompleteness a spec:Constraint ;
+    rdfs:label "Role Change Audit Completeness" ;
+    spec:rule "Every role assignment change must log: who, when, why, previous_role, new_role" ;
+    spec:severity spec:Must ;
+    spec:testable true .
