@@ -1,0 +1,532 @@
+@prefix : <http://ggen.example.org/disney/park-opening-tasks#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix process: <http://ggen.example.org/process#> .
+
+# ============================================================================
+# TASK BREAKDOWN: PARK OPENING CHECKLIST IMPLEMENTATION
+# Wave 1, Task 2 - Reverse-Engineered Process Specification
+# ============================================================================
+
+:TaskBreakdown a process:TaskBreakdown ;
+    rdfs:label "Park Opening Checklist - Implementation Task Breakdown" ;
+    rdfs:comment "Operationalization of specification for Wave 1 (Weeks 1-8)" ;
+    process:totalEstimatedHours 320 ;
+    process:criticalPathHours 180 ;
+    process:team "4 core team + 20+ ops staff for validation" ;
+    process:status "Ready for execution" ;
+    process:targetStartDate "2026-02-01"^^xsd:date ;
+    process:targetEndDate "2026-03-26"^^xsd:date .
+
+# ============================================================================
+# WORKSTREAM 1: SPECIFICATION CLOSURE & VALIDATION (40 hours, Week 1-2)
+# ============================================================================
+
+:Task_SpecClosure a process:Task ;
+    rdfs:label "WS1.1: Specification Closure Review" ;
+    rdfs:comment "Present ontology to ops team; gather feedback; iterate spec; finalize version 1.0" ;
+    process:workstream "WS1: Specification Closure" ;
+    process:sequenceNumber 1.0 ;
+    process:estimatedHours 20 ;
+    process:actor "Architect, Director of Ops, Security Lead, Maintenance Lead, HR Lead" ;
+    process:status "Not Started" ;
+    process:startDate "2026-02-01"^^xsd:date ;
+    process:endDate "2026-02-07"^^xsd:date ;
+    process:dependencies () ;
+    process:deliverables (
+        "Presentation slides (ontology overview, 6 gates, 22 tasks, 10 actors, 11 systems)"
+        "Feedback document (issues, clarifications, assumed timings for validation)"
+        "Updated spec v1.0 incorporating feedback"
+        "Signed sign-off from Process Owner + all gatekeepers"
+    ) ;
+    process:acceptance "All gatekeepers (6 roles) have reviewed and approved spec. Assumptions documented with validation method for each." ;
+    process:owner "Enterprise Architect" .
+
+:Task_AssumptionsValidationPlan a process:Task ;
+    rdfs:label "WS1.2: Assumptions Validation Methodology" ;
+    rdfs:comment "Design validation studies for critical assumptions (timing, staffing, system performance)" ;
+    process:workstream "WS1: Specification Closure" ;
+    process:sequenceNumber 1.1 ;
+    process:estimatedHours 12 ;
+    process:actor "Process Analytics, Operations Analytics, IT Performance Team" ;
+    process:status "Not Started" ;
+    process:startDate "2026-02-01"^^xsd:date ;
+    process:endDate "2026-02-08"^^xsd:date ;
+    process:dependencies ( :Task_SpecClosure ) ;
+    process:deliverables (
+        "Timing study protocol (security sweep, ride tests, staffing check)"
+        "Data collection methods (badge logs, SAP logs, Slack posts)"
+        "Statistical analysis plan (variance analysis, confidence intervals)"
+        "Measurement tools (stopwatch, log aggregation scripts, survey template)"
+    ) ;
+    process:acceptance "All 8 critical assumptions have documented validation method. Methods approved by process owner." ;
+    process:owner "Operations Analytics Manager" .
+
+:Task_StakeholderAlignment a process:Task ;
+    rdfs:label "WS1.3: Stakeholder Alignment & Sign-Off" ;
+    rdfs:comment "Executive alignment with COO, CFO, CTO, CISO on spec, risk acceptance, implementation plan" ;
+    process:workstream "WS1: Specification Closure" ;
+    process:sequenceNumber 1.2 ;
+    process:estimatedHours 8 ;
+    process:actor "Program Steward (COO delegate), CEO, CFO, CTO, CISO, VP Ops, Director Ops" ;
+    process:status "Not Started" ;
+    process:startDate "2026-02-05"^^xsd:date ;
+    process:endDate "2026-02-10"^^xsd:date ;
+    process:dependencies ( :Task_SpecClosure ) ;
+    process:deliverables (
+        "Executive summary (1-pager: process, risks, timeline, cost, benefits)"
+        "Risk acceptance memo (CISO approval for identified risks + mitigations)"
+        "Financial impact summary (zero incremental cost for Wave 1)"
+        "Executive sign-off (COO approval to proceed with Weeks 3-8)"
+    ) ;
+    process:acceptance "COO, CFO, CTO, CISO have signed off. No open objections. Steering committee scheduled weekly." ;
+    process:owner "Program Steward" .
+
+# ============================================================================
+# WORKSTREAM 2: SYSTEM INTEGRATION & AUTOMATION (80 hours, Week 3-4)
+# ============================================================================
+
+:Task_WorkdayIntegration a process:Task ;
+    rdfs:label "WS2.1: Workday API Integration" ;
+    rdfs:comment "Implement API client to pull today's staffing schedule from Workday; cache fallback" ;
+    process:workstream "WS2: System Integration" ;
+    process:sequenceNumber 2.1 ;
+    process:estimatedHours 20 ;
+    process:actor "HR Systems Engineer, CTO, IT Operations" ;
+    process:status "Not Started" ;
+    process:startDate "2026-02-10"^^xsd:date ;
+    process:endDate "2026-02-21"^^xsd:date ;
+    process:dependencies ( :Task_SpecClosure ) ;
+    process:deliverables (
+        "Python/Rust client library (Workday API auth, schedule pull, error handling)"
+        "Local cache mechanism (persist previous day's schedule; fallback if API fails)"
+        "Timeout handler (30-second cutoff; escalate to manual if timeout)"
+        "Integration tests (3 test scenarios: success, API timeout, network down)"
+        "Documentation (API contract, error codes, fallback procedures)"
+    ) ;
+    process:acceptance "API client successfully pulls schedule <5 seconds. Fallback works when API blocked. Tests pass." ;
+    process:testPlan "Unit tests (API mocking) + integration test with Workday sandbox (if available) + live test with small schedule pull" ;
+    process:owner "HR Systems Engineer" ;
+    process:criticality "HIGH" ;
+    process:risk "Workday API contract changes; requires quarterly review" .
+
+:Task_SAPAssetIntegration a process:Task ;
+    rdfs:label "WS2.2: SAP Asset Management Read-Only Access" ;
+    rdfs:comment "Configure read-only access to SAP asset database; equipment registry + maintenance history" ;
+    process:workstream "WS2: System Integration" ;
+    process:sequenceNumber 2.2 ;
+    process:estimatedHours 16 ;
+    process:actor "SAP Systems Engineer, Maintenance Lead, IT Security" ;
+    process:status "Not Started" ;
+    process:startDate "2026-02-12"^^xsd:date ;
+    process:endDate "2026-02-24"^^xsd:date ;
+    process:dependencies () ;
+    process:deliverables (
+        "SAP RFC connection configured (read-only to MM module, asset master, maintenance history)"
+        "Query library (equipment by type, maintenance status, inspection dates)"
+        "Data export scripts (daily batch pull of equipment status, work order completion)"
+        "Access control setup (park opening service account, read-only, audit logging)"
+        "Documentation (data dictionary, query examples, troubleshooting guide)"
+    ) ;
+    process:acceptance "Can retrieve all 25 rides + status + maintenance history within 30 seconds. Data verified against manual asset list." ;
+    process:testPlan "Connect to SAP sandbox; retrieve sample equipment data; verify against production asset list; time performance" ;
+    process:owner "SAP Systems Engineer" ;
+    process:criticality "HIGH" ;
+    process:risk "SAP access controls may restrict new connections; requires SAP security approvals (lead time: 2-4 weeks)" .
+
+:Task_SlackAutomation a process:Task ;
+    rdfs:label "WS2.3: Slack #incident-ops Automation" ;
+    rdfs:comment "Configure Slack bot to post gate decisions, escalations, and exceptions automatically" ;
+    process:workstream "WS2: System Integration" ;
+    process:sequenceNumber 2.3 ;
+    process:estimatedHours 16 ;
+    process:actor "IT Developer, Park Ops Tech, Slack Admin" ;
+    process:status "Not Started" ;
+    process:startDate "2026-02-10"^^xsd:date ;
+    process:endDate "2026-02-20"^^xsd:date ;
+    process:dependencies () ;
+    process:deliverables (
+        "Slack bot (written in Python/Go; listens for gate completion events)"
+        "Gate decision message templates (formatted for clarity; includes timestamp, evidence summary)"
+        "Escalation alerts (YELLOW/RED signals trigger @here mentions; priority tagged)"
+        "Message threading (each opening day logged in single thread with indexed gates)"
+        "Backup logging (if Slack unavailable, logs to local file; syncs when restored)"
+        "Documentation (Slack bot setup, message format examples, troubleshooting)"
+    ) ;
+    process:acceptance "Slack bot posts gate decisions in real-time. Messages searchable and time-stamped. Backup logging works." ;
+    process:testPlan "Deploy bot to test Slack workspace; manually trigger gate events; verify message posting" ;
+    process:owner "IT Developer" ;
+    process:criticality "HIGH" ;
+    process:risk "Slack API rate limits; requires monitoring for high-volume messaging" .
+
+:Task_CalloutSystemIntegration a process:Task ;
+    rdfs:label "WS2.4: Automated Callout System Integration" ;
+    rdfs:comment "Configure automated phone/SMS callout system; trigger on staffing gaps; track responses" ;
+    process:workstream "WS2: System Integration" ;
+    process:sequenceNumber 2.4 ;
+    process:estimatedHours 16 ;
+    process:actor "HR Systems Engineer, Telecom Vendor, IT Operations" ;
+    process:status "Not Started" ;
+    process:startDate "2026-02-15"^^xsd:date ;
+    process:endDate "2026-02-28"^^xsd:date ;
+    process:dependencies ( :Task_WorkdayIntegration ) ;
+    process:deliverables (
+        "Callout script (phone tree routing; critical role → on-call staff list; confirm/decline response)"
+        "Vendor integration (contract finalized; API credentials provisioned; test environment ready)"
+        "Callout trigger logic (monitor Workday + badge counts; if gap detected, invoke system automatically)"
+        "Response tracking (capture accept/decline, time-to-respond, staff assigned)"
+        "Notification to HR & Ops (callout results posted to Slack #incident-ops)"
+        "Documentation (callout procedures, on-call roster management, response SLAs)"
+    ) ;
+    process:acceptance "Callout system successfully reaches 95%+ of on-call staff. Responses logged. HR notified within 2 min." ;
+    process:testPlan "Test with 10 volunteer on-call staff; simulate gap detection; verify phone calls received and responses captured" ;
+    process:owner "HR Systems Engineer" ;
+    process:criticality "HIGH" ;
+    process:risk "Phone system outages (contingency: manual phone calls by HR coordinator)" .
+
+:Task_RideControlSystemAccess a process:Task ;
+    rdfs:label "WS2.5: Ride Control System Test Interface" ;
+    rdfs:comment "Configure read-only access to ride PLC/SCADA; enable automated test execution and logging" ;
+    process:workstream "WS2: System Integration" ;
+    process:sequenceNumber 2.5 ;
+    process:estimatedHours 12 ;
+    process:actor "Electrical Engineer, Ride OEM Support, IT Operations" ;
+    process:status "Not Started" ;
+    process:startDate "2026-02-20"^^xsd:date ;
+    process:endDate "2026-02-28"^^xsd:date ;
+    process:dependencies ( :Task_SAPAssetIntegration ) ;
+    process:deliverables (
+        "PLC/SCADA connection protocol (serial or ethernet; identify control IP addresses)"
+        "Test execution sequence (E-stop test, anti-rollback test, brake test; standard industrial tests)"
+        "Automated test runner (script that cycles through all 25 rides; executes test sequence; logs results)"
+        "Logging to SAP (test results posted to work order completion logs in SAP MM module)"
+        "Safety review (electrical engineer certifies that test procedure is safe and non-damaging)"
+        "Documentation (control system diagram, test sequence details, safety hazard analysis)"
+    ) ;
+    process:acceptance "Automated ride tests execute on 5 rides without errors. Safety review completed by electrical engineer. Logs appear in SAP." ;
+    process:testPlan "Conduct safety review first (non-negotiable). Test on oldest/simplest ride first. Escalate to OEM if PLC comms fail." ;
+    process:owner "Electrical Engineer" ;
+    process:criticality "CRITICAL" ;
+    process:risk "PLC firmware incompatibility; OEM may not support automated testing (fallback: manual E-stop test)" .
+
+:Task_ManualFallbackDocumentation a process:Task ;
+    rdfs:label "WS2.6: Manual Fallback Procedures" ;
+    rdfs:comment "Document step-by-step manual procedures for each system failure scenario" ;
+    process:workstream "WS2: System Integration" ;
+    process:sequenceNumber 2.6 ;
+    process:estimatedHours 16 ;
+    process:actor "Process Lead, HR Lead, Maintenance Lead, IT Ops Lead" ;
+    process:status "Not Started" ;
+    process:startDate "2026-02-10"^^xsd:date ;
+    process:endDate "2026-02-28"^^xsd:date ;
+    process:dependencies () ;
+    process:deliverables (
+        "Fallback guide (Workday down, SAP down, Slack down, Ride control system down, Badge system down, Ticketing down)"
+        "Decision tree (how to know which fallback to invoke; escalation triggers)"
+        "Process flow charts (paper-based alternatives with timing estimates)"
+        "Training materials (video walkthroughs, printed guides, troubleshooting checklist)"
+        "Backup forms (paper logs, emergency phone trees, manual checklists)"
+        "Quarterly drill schedule (practice each fallback scenario with relevant teams)"
+    ) ;
+    process:acceptance "All fallback procedures documented and tested. Ops staff can execute manually without confusion." ;
+    process:testPlan "Walk through each fallback scenario with representatives from each team; time the manual execution" ;
+    process:owner "Process Lead" ;
+    process:criticality "HIGH" ;
+    process:risk "Staff forgetfulness; requires quarterly retraining and drills" .
+
+# ============================================================================
+# WORKSTREAM 3: TESTING & VALIDATION (100 hours, Week 5-6)
+# ============================================================================
+
+:Task_DryRunPlanning a process:Task ;
+    rdfs:label "WS3.1: Dry-Run #1 Planning & Staging" ;
+    rdfs:comment "Plan full process execution on non-guest day; stage all systems, teams, monitoring" ;
+    process:workstream "WS3: Process Validation" ;
+    process:sequenceNumber 3.1 ;
+    process:estimatedHours 12 ;
+    process:actor "Project Manager, Director of Ops, IT Operations Lead" ;
+    process:status "Not Started" ;
+    process:startDate "2026-03-01"^^xsd:date ;
+    process:endDate "2026-03-06"^^xsd:date ;
+    process:dependencies ( :Task_CalloutSystemIntegration, :Task_ManualFallbackDocumentation ) ;
+    process:deliverables (
+        "Dry-run schedule (05:30 AM start, all gates executed in sequence, expected 210 min duration)"
+        "Observer guide (capture actual timings, gate decisions, escalations, exceptions)"
+        "Communication plan (Slack channel for dry-run events, daily standup)"
+        "Rollback plan (how to abort if critical failure; return to manual process)"
+        "Measurement tools (stopwatches, timesheets, system logs collection)"
+        "Success criteria (all gates pass OR identified issues with root causes + mitigations)"
+    ) ;
+    process:acceptance "Dry-run plan reviewed and approved by Director of Ops. All teams understand their roles. Measurement tools prepared." ;
+    process:owner "Project Manager" .
+
+:Task_DryRun1_Execution a process:Task ;
+    rdfs:label "WS3.2: Dry-Run #1 Execution (Non-Guest Day)" ;
+    rdfs:comment "Execute full opening process with all systems live; capture metrics and issues" ;
+    process:workstream "WS3: Process Validation" ;
+    process:sequenceNumber 3.2 ;
+    process:estimatedHours 8 ;
+    process:actor "All park ops teams (Security, Maintenance, HR, Ticketing, IT)" ;
+    process:status "Not Started" ;
+    process:startDate "2026-03-06"^^xsd:date ;
+    process:endDate "2026-03-07"^^xsd:date ;
+    process:dependencies ( :Task_DryRunPlanning ) ;
+    process:deliverables (
+        "Execution log (actual gate pass/fail times, decision maker notes, escalations)"
+        "Timing data (each task duration vs. planned; variance analysis)"
+        "System logs (Slack posts, Workday API calls, SAP asset queries, badge scans)"
+        "Incident log (any issues, workarounds, fallback invocations)"
+        "Photos/videos (gate inspections, patrol routes, equipment tests)"
+    ) ;
+    process:acceptance "Process completes in ≤210 minutes. All 6 gates pass (or identified root causes for failures). Zero safety incidents." ;
+    process:testPlan "Full execution with observers and data collection. Process continues even if issues found (document them). Debrief with all teams immediately after." ;
+    process:owner "Director of Ops" ;
+    process:criticality "CRITICAL" ;
+    process:milestone "Dry-run #1 completion gates Wave 3 (production validation)" .
+
+:Task_DryRun1_Analysis a process:Task ;
+    rdfs:label "WS3.3: Dry-Run #1 Analysis & Iteration" ;
+    rdfs:comment "Analyze dry-run data; identify issues and required spec updates" ;
+    process:workstream "WS3: Process Validation" ;
+    process:sequenceNumber 3.3 ;
+    process:estimatedHours 16 ;
+    process:actor "Architect, Process Lead, Maintenance Lead, HR Lead" ;
+    process:status "Not Started" ;
+    process:startDate "2026-03-07"^^xsd:date ;
+    process:endDate "2026-03-10"^^xsd:date ;
+    process:dependencies ( :Task_DryRun1_Execution ) ;
+    process:deliverables (
+        "Issue summary (categorized as Critical, Major, Minor)"
+        "Root cause analysis (why did each issue occur?)"
+        "Process iterations (timing adjustments, task sequence changes, new contingencies)"
+        "Updated RDF spec (regenerated from corrected .ttl files)"
+        "Lessons learned (what worked well, what needs rework)"
+    ) ;
+    process:acceptance "All critical issues have identified mitigations. Spec updated. Ops team agrees with iterations. Ready for Dry-Run #2." ;
+    process:owner "Architect" .
+
+:Task_StaffTraining a process:Task ;
+    rdfs:label "WS3.4: Staff Training & Certification" ;
+    rdfs:comment "Train 50+ ops staff on new process; certify them in their roles and fallback procedures" ;
+    process:workstream "WS3: Process Validation" ;
+    process:sequenceNumber 3.4 ;
+    process:estimatedHours 20 ;
+    process:actor "Training Manager, Process Lead, Subject Matter Experts (one per team)" ;
+    process:status "Not Started" ;
+    process:startDate "2026-03-08"^^xsd:date ;
+    process:endDate "2026-03-15"^^xsd:date ;
+    process:dependencies ( :Task_DryRun1_Analysis, :Task_ManualFallbackDocumentation ) ;
+    process:deliverables (
+        "Training curriculum (process overview, role-specific tasks, decision criteria, fallback scenarios)"
+        "Training sessions (classroom 2-hour session + hands-on drill for each team)"
+        "Training materials (slide deck, printed guides, video walkthroughs, quick-reference cards)"
+        "Certification quiz (knowledge check; pass/fail; retrain if failed)"
+        "Attendance log (track who trained and certified)"
+    ) ;
+    process:acceptance "50+ staff trained and certified. Average quiz score >80%. All staff can articulate their role and escalation path." ;
+    process:testPlan "Run training sessions; administer knowledge quiz; observe on-the-job performance in dry-run #2" ;
+    process:owner "Training Manager" ;
+    process:criticality "HIGH" ;
+    process:risk "Staff turnover; requires retraining of new hires (quarterly refresher for all staff)" .
+
+:Task_DryRun2_3_Execution a process:Task ;
+    rdfs:label "WS3.5: Dry-Run #2 & #3 Execution" ;
+    rdfs:comment "Execute process 2 more times; validate iterations and staff competency" ;
+    process:workstream "WS3: Process Validation" ;
+    process:sequenceNumber 3.5 ;
+    process:estimatedHours 16 ;
+    process:actor "All park ops teams" ;
+    process:status "Not Started" ;
+    process:startDate "2026-03-13"^^xsd:date ;
+    process:endDate "2026-03-20"^^xsd:date ;
+    process:dependencies ( :Task_StaffTraining, :Task_DryRun1_Analysis ) ;
+    process:deliverables (
+        "Execution logs (dry-run #2 and #3, same format as #1)"
+        "Timing data (compare across 3 dry-runs; trend analysis)"
+        "Staff performance observations (confidence, execution quality, exception handling)"
+        "Final issue list (any remaining gaps; mitigation plan)"
+    ) ;
+    process:acceptance "Dry-runs #2 and #3 both complete in ≤210 minutes. Gate pass rates >95%. Staff executing with confidence." ;
+    process:testPlan "Reduced observer presence (train-the-trainer); let staff lead execution. Capture metrics. Provide feedback." ;
+    process:owner "Director of Ops" ;
+    process:milestone "3 successful dry-runs gate Wave 4 (production validation with guests)" .
+
+# ============================================================================
+# WORKSTREAM 4: PRODUCTION VALIDATION (80 hours, Week 7-8)
+# ============================================================================
+
+:Task_ProductionReady a process:Task ;
+    rdfs:label "WS4.1: Production Readiness Review" ;
+    rdfs:comment "Final verification that all systems, teams, and contingencies are production-ready" ;
+    process:workstream "WS4: Production Validation" ;
+    process:sequenceNumber 4.1 ;
+    process:estimatedHours 8 ;
+    process:actor "VP Operations, CTO, CISO, Director of Ops" ;
+    process:status "Not Started" ;
+    process:startDate "2026-03-20"^^xsd:date ;
+    process:endDate "2026-03-22"^^xsd:date ;
+    process:dependencies ( :Task_DryRun2_3_Execution ) ;
+    process:deliverables (
+        "Readiness checklist (100+ items: systems operational, staff trained, fallbacks tested, metrics ready)"
+        "Risk assessment review (updated FMEA with actual experience from dry-runs)"
+        "Sign-off from all gatekeepers (Director of Security, HR, Maintenance, IT, Ops)"
+        "Go/No-Go decision (VP Operations final approval to open to real guests)"
+    ) ;
+    process:acceptance "All checklist items complete. Risk assessment approved by CISO. All gatekeepers sign off. VP Ops gives GO." ;
+    process:owner "VP Operations" ;
+    process:criticality "CRITICAL" ;
+    process:milestone "Production readiness completed; gates production day opening" .
+
+:Task_ProductionOpening_Day1 a process:Task ;
+    rdfs:label "WS4.2: Production Opening - Day 1 (Real Guests)" ;
+    rdfs:comment "Execute process with real guest admission; full metric collection and observation" ;
+    process:workstream "WS4: Production Validation" ;
+    process:sequenceNumber 4.2 ;
+    process:estimatedHours 8 ;
+    process:actor "All park ops teams + observers/project team" ;
+    process:status "Not Started" ;
+    process:startDate "2026-03-22"^^xsd:date ;
+    process:endDate "2026-03-23"^^xsd:date ;
+    process:dependencies ( :Task_ProductionReady ) ;
+    process:deliverables (
+        "Opening execution log (gate times, decisions, escalations; same format as dry-runs)"
+        "System performance data (API response times, Slack posting latency, badge scan success rate)"
+        "Staff performance notes (confidence, decision quality, incident handling)"
+        "Guest impact assessment (any opening delays, staff confusion, guest complaints related to new process)"
+        "Issue log (any problems discovered in production; categorize as critical, major, minor)"
+    ) ;
+    process:acceptance "Process executes successfully with real guests. All 6 gates pass. No guest safety incidents. Systems perform as expected." ;
+    process:testPlan "Reduced intervention; observers in background. Ops team leads execution. Real-time escalation path if critical issues arise." ;
+    process:owner "Director of Ops" ;
+    process:criticality "CRITICAL" ;
+    process:risk "Unknown unknowns with real guest load; contingency: able to invoke manual procedures and adapt on-the-fly" ;
+    process:milestone "Production opening #1 successful" .
+
+:Task_ProductionOpening_Day2_3 a process:Task ;
+    rdfs:label "WS4.3: Production Opening - Days 2 & 3 (Sustained)" ;
+    rdfs:comment "Execute process 2 more times; validate sustained performance and continuous improvement" ;
+    process:workstream "WS4: Production Validation" ;
+    process:sequenceNumber 4.3 ;
+    process:estimatedHours 8 ;
+    process:actor "All park ops teams" ;
+    process:status "Not Started" ;
+    process:startDate "2026-03-23"^^xsd:date ;
+    process:endDate "2026-03-26"^^xsd:date ;
+    process:dependencies ( :Task_ProductionOpening_Day1 ) ;
+    process:deliverables (
+        "Execution logs (Day 2 and Day 3, same format)"
+        "Performance trends (timing, gate pass rates, escalations across 3 days)"
+        "Continuous improvement log (quick fixes applied between days)"
+        "Staff feedback (survey: \"How confident are you in this process?\" target ≥80%)"
+    ) ;
+    process:acceptance "All 3 production days execute successfully. Timing stable (≤210 min). Gate pass rates ≥95%. Staff confidence growing." ;
+    process:testPlan "Minimal observation; ops team autonomous. Feedback collected daily. Quick iterations applied overnight." ;
+    process:owner "Director of Ops" ;
+    process:milestone "3 successful production openings gate Wave 1 exit" .
+
+:Task_Wave1_ExitGate a process:Task ;
+    rdfs:label "WS4.4: Wave 1 Exit Gate Review & Decision" ;
+    rdfs:comment "Executive review of all metrics and validation data; decision to proceed to Wave 2 (4 more processes)" ;
+    process:workstream "WS4: Production Validation" ;
+    process:sequenceNumber 4.4 ;
+    process:estimatedHours 12 ;
+    process:actor "CEO, COO, VP Operations, CTO, CISO, Architect" ;
+    process:status "Not Started" ;
+    process:startDate "2026-03-24"^^xsd:date ;
+    process:endDate "2026-03-26"^^xsd:date ;
+    process:dependencies ( :Task_ProductionOpening_Day2_3 ) ;
+    process:deliverables (
+        "Wave 1 Performance Report (executive summary: metrics, success vs. targets, lessons learned)"
+        "Ops Team Validation Survey (\"Does this spec match your actual process?\" - target >90% yes)"
+        "Financial Impact Report (cost of Wave 1 implementation, ROI vs. baseline)"
+        "Wave 2 Readiness Assessment (4 new processes identified; team staffed; timeline planned)"
+        "Go/No-Go Decision (COO + CEO approval to proceed OR defer with remediation plan)"
+    ) ;
+    process:acceptance "All Wave 1 exit gates passed per ggen-disney adoption model. Metrics show >90% accuracy vs. ops team expectations. COO + CEO sign off on Wave 2 start." ;
+    process:testPlan "Present findings to steering committee. Gather feedback. Publish decision memo to all stakeholders." ;
+    process:owner "Program Steward (COO)" ;
+    process:criticality "CRITICAL" ;
+    process:milestone "Wave 1 complete; Wave 2 gates open" .
+
+# ============================================================================
+# CRITICAL DEPENDENCIES & MILESTONES
+# ============================================================================
+
+:CriticalPath a process:CriticalPath ;
+    rdfs:label "Critical Path for Wave 1" ;
+    process:estimatedDuration "8 weeks (2026-02-01 to 2026-03-26)" ;
+    process:criticalPathActivities (
+        :Task_SpecClosure
+        :Task_WorkdayIntegration
+        :Task_SAPAssetIntegration
+        :Task_SlackAutomation
+        :Task_RideControlSystemAccess
+        :Task_DryRunPlanning
+        :Task_DryRun1_Execution
+        :Task_DryRun1_Analysis
+        :Task_StaffTraining
+        :Task_DryRun2_3_Execution
+        :Task_ProductionReady
+        :Task_ProductionOpening_Day1
+        :Task_ProductionOpening_Day2_3
+        :Task_Wave1_ExitGate
+    ) ;
+    process:slackActivities (
+        :Task_AssumptionsValidationPlan
+        :Task_StakeholderAlignment
+        :Task_CalloutSystemIntegration
+        :Task_ManualFallbackDocumentation
+    ) ;
+    process:note "Workday + SAP + Slack integrations are on critical path. Can start in parallel (Week 2), but must complete by Week 4 to enable dry-runs (Week 5)." .
+
+:Milestone_SpecClosed a process:Milestone ;
+    rdfs:label "Milestone: Specification Closed" ;
+    process:targetDate "2026-02-07"^^xsd:date ;
+    process:criteria "All stakeholders reviewed and approved spec. Assumptions documented. Ready for implementation." ;
+    process:dependency :Task_SpecClosure .
+
+:Milestone_SystemsIntegrated a process:Milestone ;
+    rdfs:label "Milestone: Systems Integrated" ;
+    process:targetDate "2026-02-28"^^xsd:date ;
+    process:criteria "Workday, SAP, Slack, Callout, Ride Control all integrated. Fallback procedures documented and tested." ;
+    process:dependency :Task_CalloutSystemIntegration, :Task_RideControlSystemAccess .
+
+:Milestone_DryRuns_Complete a process:Milestone ;
+    rdfs:label "Milestone: Dry-Runs Complete" ;
+    process:targetDate "2026-03-20"^^xsd:date ;
+    process:criteria "3 successful dry-run executions. 50+ staff trained. All issues resolved or mitigated." ;
+    process:dependency :Task_DryRun2_3_Execution .
+
+:Milestone_ProductionValidated a process:Milestone ;
+    rdfs:label "Milestone: Production Validated" ;
+    process:targetDate "2026-03-26"^^xsd:date ;
+    process:criteria "3 production openings executed successfully. Metrics show >90% accuracy vs. spec. Ops team validation survey passed." ;
+    process:dependency :Task_ProductionOpening_Day2_3 .
+
+:Milestone_Wave1_Exit a process:Milestone ;
+    rdfs:label "Milestone: Wave 1 Exit Gate" ;
+    process:targetDate "2026-03-26"^^xsd:date ;
+    process:criteria "All exit gates passed. COO + CEO approve Wave 2 start. 4 new processes identified for Wave 2." ;
+    process:dependency :Task_Wave1_ExitGate .
+
+# ============================================================================
+# RESOURCE ALLOCATION
+# ============================================================================
+
+:ResourceAllocation a process:ResourceAllocation ;
+    rdfs:label "Wave 1 Resource Plan" ;
+
+    process:coreTeam "4 FTE" ;
+    process:coreTeamRoles ( "Enterprise Architect (lead)", "Project Manager", "Process Lead", "Systems Engineer" ) ;
+    process:coreTeamCost "4 × $180k/year ÷ 26 weeks = $27.7k" ;
+
+    process:dedicatedTeam "8 weeks, 2000+ hours across park ops" ;
+    process:dedicatedTeamRoles ( "Director of Ops", "Maintenance Lead", "Security Lead", "HR Lead", "IT Ops Lead", "20+ staff observers/participants" ) ;
+    process:dedicatedTeamCost "Offset by normal operating costs (staff scheduled anyway); minimal incremental" ;
+
+    process:systemCosts "Workday API access (included)", "SAP access (included)", "Slack business plan (included)", "Callout vendor ($2k/month × 2 months = $4k)", "Ride control OEM support ($5k)" ;
+    process:totalAdditionalCost "$9k" ;
+
+    process:totalInvestment "$27.7k (labor) + $9k (systems) = $36.7k" ;
+    process:roi "Conservative: 30% cycle time reduction × $5M daily revenue × 365 days × 0.3 × 0.5 (50% confidence) = $273.75M (not justified by single process; justified by portfolio of 8 processes in Wave 3)" .
