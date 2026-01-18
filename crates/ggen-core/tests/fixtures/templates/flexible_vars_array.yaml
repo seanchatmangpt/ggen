@@ -1,0 +1,10 @@
+---
+to: "output.txt"
+vars:
+  - "first"
+  - "second"
+  - "third"
+---
+Var0: {{var0}}
+Var1: {{var1}}
+Var2: {{var2}}

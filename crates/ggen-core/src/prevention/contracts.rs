@@ -9,6 +9,8 @@
 //! type-safe and version-aware.
 
 use std::path::Path;
+use thiserror::Error;
+
 // ============================================================================
 // Core Contracts
 // ============================================================================
@@ -101,7 +103,9 @@ pub trait CliBridge: Send + Sync {
     /// - Provider error
     /// - Output formatting error
     fn execute<P: TemplateProvider>(
-        &self, cmd: Command, provider: &P,
+        &self,
+        cmd: Command,
+        provider: &P,
     ) -> Result<Output, BridgeError>;
 
     /// Format output for display
@@ -235,7 +239,7 @@ pub struct RenderFeatures {
 // Error Types
 // ============================================================================
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Error, Debug)]
 pub enum ProviderError {
     #[error("Template not found: {path}")]
     TemplateNotFound { path: String },
@@ -256,7 +260,7 @@ pub enum ProviderError {
     Io(#[from] std::io::Error),
 }
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Error, Debug)]
 pub enum BridgeError {
     #[error("Invalid command: {command}")]
     InvalidCommand { command: String },
@@ -271,7 +275,7 @@ pub enum BridgeError {
     Provider(#[from] ProviderError),
 }
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Error, Debug)]
 pub enum RenderError {
     #[error("Syntax error at line {line}, column {column}: {message}")]
     SyntaxError {
@@ -306,7 +310,9 @@ pub enum RenderError {
 /// }
 /// ```
 #[cfg(test)]
-pub fn verify_template_provider_contract<P: TemplateProvider>(provider: P) -> Result<(), String> {
+pub fn verify_template_provider_contract<P: TemplateProvider>(
+    provider: P,
+) -> Result<(), String> {
     use std::path::PathBuf;
 
     // Contract requirement: discover must return valid templates

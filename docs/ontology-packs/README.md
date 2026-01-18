@@ -1,29 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Ontology Packs Documentation](#ontology-packs-documentation)
-  - [Quick Start](#quick-start)
-  - [Documentation Structure](#documentation-structure)
-    - [📚 Tutorials - Learning-Oriented](#-tutorials---learning-oriented)
-    - [🛠️ How-To Guides - Problem-Oriented](#-how-to-guides---problem-oriented)
-    - [📖 Reference - Information-Oriented](#-reference---information-oriented)
-    - [💡 Explanations - Understanding-Oriented](#-explanations---understanding-oriented)
-  - [Navigation Guides](#navigation-guides)
-  - [Documentation Highlights](#documentation-highlights)
-    - [⭐ Must-Read: The Case Study](#-must-read-the-case-study)
-  - [Finding What You Need](#finding-what-you-need)
-    - [By Role](#by-role)
-    - [By Goal](#by-goal)
-  - [Documentation Philosophy](#documentation-philosophy)
-  - [File Structure](#file-structure)
-  - [Contributing to Documentation](#contributing-to-documentation)
-  - [Documentation Versions](#documentation-versions)
-  - [Feedback](#feedback)
-  - [License](#license)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Ontology Packs Documentation
 
 Complete documentation for the ggen ontology-as-packs system, organized using the [Diataxis](https://diataxis.fr/) framework.

@@ -1,7 +1,6 @@
 //! OpenAI configuration
 
 use crate::client::LlmConfig;
-use crate::constants::models;
 use crate::error::{GgenAiError, Result};
 use crate::security::SecretString;
 use serde::{Deserialize, Serialize};
@@ -28,7 +27,7 @@ impl Default for OpenAIConfig {
             model: std::env::var("OPENAI_MODEL")
                 .or_else(|_| std::env::var("GGEN_DEFAULT_MODEL"))
                 .or_else(|_| std::env::var("DEFAULT_MODEL"))
-                .unwrap_or_else(|_| models::OPENAI_DEFAULT.to_string()),
+                .unwrap_or_else(|_| "qwen3-coder:30b".to_string()),
             organization: None,
         }
     }
@@ -112,7 +111,7 @@ impl OpenAIConfig {
         let model = std::env::var("OPENAI_MODEL")
             .or_else(|_| std::env::var("GGEN_DEFAULT_MODEL"))
             .or_else(|_| std::env::var("DEFAULT_MODEL"))
-            .unwrap_or_else(|_| models::OPENAI_DEFAULT.to_string());
+            .unwrap_or_else(|_| "qwen3-coder:30b".to_string());
 
         let organization = std::env::var("OPENAI_ORGANIZATION").ok();
 

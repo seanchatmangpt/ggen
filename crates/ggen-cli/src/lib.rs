@@ -25,7 +25,7 @@
 //!
 //! ### Basic CLI Execution
 //!
-//! ```rust,ignore
+//! ```rust,no_run
 //! use ggen_cli::cli_match;
 //!
 //! # async fn example() -> ggen_utils::error::Result<()> {
@@ -37,7 +37,7 @@
 //!
 //! ### Programmatic Execution
 //!
-//! ```rust,ignore
+//! ```rust,no_run
 //! use ggen_cli::run_for_node;
 //!
 //! # async fn example() -> ggen_utils::error::Result<()> {
@@ -52,241 +52,28 @@
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 #![allow(non_upper_case_globals)] // Allow macro-generated static variables from clap-noun-verb
 
-use std::fs::OpenOptions;
 use std::io::{Read, Write};
-use std::time::{SystemTime, UNIX_EPOCH};
 
 // Command modules - clap-noun-verb v4.0.2 auto-discovery
 pub mod cmds; // clap-noun-verb v4 entry points with #[verb] functions
-#[cfg(feature = "paas")]
-pub mod commands; // Feature-gated optional command implementations
 pub mod conventions; // File-based routing conventions
                      // pub mod domain;          // Business logic layer - MOVED TO ggen-domain crate
-#[cfg(feature = "autonomic")]
-pub mod introspection; // AI agent introspection: verb metadata discovery, capability handlers
 pub mod prelude;
 pub mod runtime; // Async/sync bridge utilities
 pub mod runtime_helper; // Sync CLI wrapper utilities for async operations // Common imports for commands
-#[cfg(any(feature = "full", feature = "test-quality"))]
-pub mod validation; // Compile-time validation (Andon Signal Validation Framework)
 
 // Re-export clap-noun-verb for auto-discovery
-pub use clap_noun_verb::{run, CliBuilder, CommandRouter, Result as ClapNounVerbResult};
-use serde_json::json;
-
-fn debug_log(hypothesis_id: &str, location: &str, message: &str, data: serde_json::Value) {
-    let timestamp = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map(|d| d.as_millis())
-        .unwrap_or(0);
-
-    let payload = json!({
-        "sessionId": "debug-session",
-        "runId": "pre-fix",
-        "hypothesisId": hypothesis_id,
-        "location": location,
-        "message": message,
-        "data": data,
-        "timestamp": timestamp
-    });
-
-    if let Ok(mut file) = OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open("/Users/sac/ggen/.cursor/debug.log")
-    {
-        let _ = writeln!(file, "{}", payload);
-    }
-}
+pub use clap_noun_verb::{run, CommandRouter, Result as ClapNounVerbResult};
 
 /// Main entry point using clap-noun-verb v4.0.2 auto-discovery
 ///
-/// This function handles global introspection flags (--capabilities, --introspect, --graph)
-/// before delegating to clap-noun-verb::run() which automatically discovers
+/// This function delegates to clap-noun-verb::run() which automatically discovers
 /// all `\[verb\]` functions in the cmds module and its submodules.
 /// The version flag is handled automatically by clap-noun-verb.
 pub async fn cli_match() -> ggen_utils::error::Result<()> {
-    // Check for introspection flags (must come before clap-noun-verb processing)
-    // These flags are for AI agent discovery and capability planning
-    #[cfg(feature = "autonomic")]
-    {
-        let args: Vec<String> = std::env::args().collect();
-        // #region agent log
-        debug_log(
-            "H1",
-            "lib.rs:cli_match:entry",
-            "cli_match entry with args",
-            json!({ "args": args.clone() }),
-        );
-        // #endregion
-        // Handle --graph flag (export complete command graph)
-        if args.contains(&"--graph".to_string()) {
-            let graph = introspection::build_command_graph();
-            let json = serde_json::to_string_pretty(&graph).map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Failed to serialize command graph: {}", e))
-            })?;
-            println!("{}", json);
-            // #region agent log
-            debug_log(
-                "H2",
-                "lib.rs:cli_match:graph",
-                "handled --graph flag",
-                json!({ "total_verbs": graph.total_verbs, "noun_count": graph.nouns.len() }),
-            );
-            // #endregion
-            return Ok(());
-        }
-
-        // Handle --capabilities noun verb (list verb metadata and arguments)
-        if args.contains(&"--capabilities".to_string()) {
-            if args.len() >= 4 {
-                let noun = &args[args.iter().position(|x| x == "--capabilities").unwrap() + 1];
-                let verb = &args[args.iter().position(|x| x == "--capabilities").unwrap() + 2];
-
-                match introspection::get_verb_metadata(noun, verb) {
-                    Some(metadata) => {
-                        let json = serde_json::to_string_pretty(&metadata).map_err(|e| {
-                            ggen_utils::error::Error::new(&format!(
-                                "Failed to serialize metadata: {}",
-                                e
-                            ))
-                        })?;
-                        println!("{}", json);
-                        // #region agent log
-                        debug_log(
-                            "H3",
-                            "lib.rs:cli_match:capabilities",
-                            "served --capabilities metadata",
-                            json!({ "noun": metadata.noun, "verb": metadata.verb, "arg_count": metadata.arguments.len() }),
-                        );
-                        // #endregion
-                        return Ok(());
-                    }
-                    None => {
-                        eprintln!("Verb not found: {}::{}", noun, verb);
-                        // #region agent log
-                        debug_log(
-                            "H3",
-                            "lib.rs:cli_match:capabilities",
-                            "capabilities verb not found",
-                            json!({ "noun": noun, "verb": verb }),
-                        );
-                        // #endregion
-                        return Err(ggen_utils::error::Error::new(&format!(
-                            "Verb {}::{} not found",
-                            noun, verb
-                        )));
-                    }
-                }
-            } else {
-                // #region agent log
-                debug_log(
-                    "H3",
-                    "lib.rs:cli_match:capabilities",
-                    "capabilities usage error",
-                    json!({ "arg_len": args.len() }),
-                );
-                // #endregion
-                return Err(ggen_utils::error::Error::new(
-                    "Usage: ggen --capabilities <noun> <verb>",
-                ));
-            }
-        }
-
-        // Handle --introspect noun verb (show type information)
-        if args.contains(&"--introspect".to_string()) {
-            if args.len() >= 4 {
-                let noun = &args[args.iter().position(|x| x == "--introspect").unwrap() + 1];
-                let verb = &args[args.iter().position(|x| x == "--introspect").unwrap() + 2];
-
-                match introspection::get_verb_metadata(noun, verb) {
-                    Some(metadata) => {
-                        // Show detailed type information
-                        println!("Verb: {}::{}", metadata.noun, metadata.verb);
-                        println!("Description: {}", metadata.description);
-                        println!("Return Type: {}", metadata.return_type);
-                        println!("JSON Output: {}", metadata.supports_json_output);
-                        println!("\nArguments:");
-                        for arg in &metadata.arguments {
-                            println!(
-                                "  - {} ({}): {}",
-                                arg.name, arg.argument_type, arg.description
-                            );
-                            if let Some(default) = &arg.default_value {
-                                println!("    Default: {}", default);
-                            }
-                            if arg.optional {
-                                println!("    Optional: yes");
-                            } else {
-                                println!("    Required: yes");
-                            }
-                        }
-                        // #region agent log
-                        debug_log(
-                            "H4",
-                            "lib.rs:cli_match:introspect",
-                            "served --introspect metadata",
-                            json!({ "noun": metadata.noun, "verb": metadata.verb, "arg_count": metadata.arguments.len(), "return_type": metadata.return_type }),
-                        );
-                        // #endregion
-                        return Ok(());
-                    }
-                    None => {
-                        eprintln!("Verb not found: {}::{}", noun, verb);
-                        // #region agent log
-                        debug_log(
-                            "H4",
-                            "lib.rs:cli_match:introspect",
-                            "introspect verb not found",
-                            json!({ "noun": noun, "verb": verb }),
-                        );
-                        // #endregion
-                        return Err(ggen_utils::error::Error::new(&format!(
-                            "Verb {}::{} not found",
-                            noun, verb
-                        )));
-                    }
-                }
-            } else {
-                // #region agent log
-                debug_log(
-                    "H4",
-                    "lib.rs:cli_match:introspect",
-                    "introspect usage error",
-                    json!({ "arg_len": args.len() }),
-                );
-                // #endregion
-                return Err(ggen_utils::error::Error::new(
-                    "Usage: ggen --introspect <noun> <verb>",
-                ));
-            }
-        }
-    }
-
-    // Use cmds::run_cli() which calls clap_noun_verb::run() directly
-    // This properly discovers verbs registered via #[verb] macro using linkme
-    // #region agent log
-    debug_log(
-        "H5",
-        "lib.rs:cli_match:router",
-        "delegating to cmds::run_cli for verb discovery",
-        json!({ "version": env!("CARGO_PKG_VERSION") }),
-    );
-    // #endregion
-
-    // IMPORTANT: Don't wrap clap-noun-verb errors. Help/version are returned as errors
-    // with exit code 0, and wrapping them causes "ERROR: CLI execution failed" to appear.
-    // See: docs/howto/setup-help-and-version.md
-    cmds::run_cli()?;
-
-    // #region agent log
-    debug_log(
-        "H5",
-        "lib.rs:cli_match:router",
-        "cmds::run_cli completed",
-        json!({}),
-    );
-    // #endregion
+    // Use clap-noun-verb auto-discovery (handles --version automatically)
+    clap_noun_verb::run()
+        .map_err(|e| ggen_utils::error::Error::new(&format!("CLI execution failed: {}", e)))?;
     Ok(())
 }
 
@@ -300,10 +87,6 @@ pub struct RunResult {
 
 /// Programmatic entrypoint to execute the CLI with provided arguments and capture output.
 /// This avoids spawning a new process and preserves deterministic behavior.
-///
-/// Note: Uses deprecated run_cli() because cli_match() is async and cannot be called
-/// inside spawn_blocking. This is a legitimate architectural constraint.
-#[allow(deprecated)]
 pub async fn run_for_node(args: Vec<String>) -> ggen_utils::error::Result<RunResult> {
     use std::sync::Arc;
     use std::sync::Mutex;
@@ -382,7 +165,7 @@ pub async fn run_for_node(args: Vec<String>) -> ggen_utils::error::Result<RunRes
 
     // Retrieve captured output, handle mutex poisoning gracefully
     let stdout = match stdout_buffer.lock() {
-        Ok(guard) => String::from_utf8_lossy(&guard).to_string(),
+        Ok(guard) => String::from_utf8_lossy(&*guard).to_string(),
         Err(_poisoned) => {
             log::warn!("Stdout buffer mutex was poisoned when reading, using empty string");
             String::new()
@@ -390,7 +173,7 @@ pub async fn run_for_node(args: Vec<String>) -> ggen_utils::error::Result<RunRes
     };
 
     let stderr = match stderr_buffer.lock() {
-        Ok(guard) => String::from_utf8_lossy(&guard).to_string(),
+        Ok(guard) => String::from_utf8_lossy(&*guard).to_string(),
         Err(_poisoned) => {
             log::warn!("Stderr buffer mutex was poisoned when reading, using empty string");
             String::new()

@@ -1,6 +1,6 @@
 [package]
 name = "ggen-cli-lib"
-version = "5.1.0"
+version = "3.3.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "CLI interface for ggen"
 edition = "2021"
@@ -9,7 +9,6 @@ repository = "https://github.com/seanchatmangpt/ggen"
 readme = "README.md"
 keywords = ["cli", "code-generation", "rdf", "templates"]
 categories = ["development-tools", "command-line-utilities"]
-build = false                                                # No build.rs for this crate (validation is in root build.rs)
 
 [lints.clippy]
 multiple_crate_versions = "allow"
@@ -37,7 +36,7 @@ rayon.workspace = true
 tracing.workspace = true
 log.workspace = true
 clap.workspace = true
-clap-noun-verb = { workspace = true, default-features = false }
+clap-noun-verb.workspace = true
 once_cell.workspace = true
 uuid.workspace = true
 futures.workspace = true
@@ -45,9 +44,9 @@ futures.workspace = true
 # Local dependencies (use workspace = true pattern for consistency)
 ggen-utils.workspace = true
 ggen-core.workspace = true
+ggen-ai.workspace = true
 ggen-domain.workspace = true
-ggen-marketplace.workspace = true
-ggen-test-audit = { workspace = true, optional = true }
+ggen-marketplace-v2 = { path = "../ggen-marketplace-v2", version = "3.0.0" }
 
 # Crate-specific dependencies
 gag = "0.1"
@@ -72,40 +71,11 @@ md5 = "0.8"
 
 
 [features]
-# Default: minimal dependencies for core CLI functionality
+# Marketplace v2 only (RDF-backed semantic marketplace)
 default = []
 
-# PaaS Submodule Management Commands
-# Enables: ggen paas init, update, validate, sync, deploy, status, logs, describe, explain
-# Opt-in feature to keep core CLI lightweight
-paas = []
-
-# Autonomic capabilities (MAPE-K loop, introspection flags)
-# Enables: --capabilities, --introspect, --graph flags for AI agent discovery
-autonomic = ["clap-noun-verb/autonomic"]
-
-# Agent2028 (cryptographic receipts for trillion-agent ecosystem)
-# Enables: proof-of-execution, deterministic transaction receipts
-agent2028 = ["clap-noun-verb/agent2028"]
-
-# RDF/Ontology Control Layer with MCP
-# Enables: RDF metadata processing, ontology management
-rdf = ["clap-noun-verb/rdf"]
-
-# Kernel capabilities (deterministic execution)
-# Enables: deterministic command execution, replay safety
-kernel = ["clap-noun-verb/kernel"]
-
-# Async runtime support
-# Enables: tokio async tasks, futures coordination
-async = ["clap-noun-verb/async"]
-
-# Full feature set (all optional features)
-full = ["autonomic", "agent2028", "rdf", "kernel", "async", "paas"]
-
 # Testing features
-test-quality = ["ggen-test-audit"]
-live-llm-tests = []                # Opt-in for live LLM integration tests (planned v5.1+)
+live-llm-tests = [] # Opt-in for live LLM integration tests
 
 [dev-dependencies]
 assert_cmd = "2"
@@ -122,10 +92,7 @@ criterion = { version = "0.5", features = [
 ] } # Benchmarking framework
 tokio-test = "0.4" # Tokio testing utilities
 notify = "6.1" # File system watcher for watch mode tests
-chicago-tdd-tools = { version = "1.4.0", features = [
-  "testing-extras",
-  "async",
-] }
+chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras"] }
 
 [[bench]]
 name = "marketplace_benchmark"

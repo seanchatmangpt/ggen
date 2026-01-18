@@ -1,0 +1,3 @@
+{% for noun in project.nouns -%}
+pub mod {{ noun.name }};
+{% endfor %}

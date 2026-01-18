@@ -1,14 +1,10 @@
-//! Auto-Promotion Pipeline - Autonomic Package Promotion/Retirement (v4.0.0 feature)
+//! Auto-Promotion Pipeline - Autonomic Package Promotion/Retirement
 //!
 //! Continuously monitors marketplace packages and autonomously:
 //! - Promotes packages meeting SLO, guard, and adoption criteria
 //! - Deprecates packages declining in performance or adoption
 //! - Suggests ontology improvements based on package health
 //! - Ensures all promotions are justified by Γ signals and doctrine-aligned
-//!
-//! **Note**: This module requires the `marketplace-v2` feature and is scheduled for v4.0.0
-
-#![cfg(feature = "marketplace-v2")]
 
 use super::ahi_contract::AHIError;
 use super::marketplace_scorer::{MarketplaceScorer, PackageRecommendation, PackageScore};

@@ -116,12 +116,10 @@
 
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 
-pub mod audit;
 pub mod cache;
 pub mod cli_generator;
 pub mod codegen;
 pub mod config;
-// N3/CONSTRUCT semantic code generation manifest (v5)
 pub mod delta;
 pub mod drift; // Drift detection for ontology changes
 #[cfg(test)]
@@ -133,10 +131,7 @@ pub mod graph;
 pub mod inject;
 pub mod lifecycle;
 pub mod lockfile;
-pub mod lockfile_unified; // Unified lockfile trait system (v4.0)
-pub mod manifest;
 pub mod merge;
-pub mod naming; // Phase 3: Naming convention validator
 pub mod parallel_generator;
 // Ontology system - re-enabled after oxigraph API compatibility fixes
 pub mod ontology;
@@ -144,12 +139,8 @@ pub mod ontology_pack;
 pub mod packs; // Pack installation system - Phase 1
 pub mod pipeline;
 pub mod poc;
-pub mod poka_yoke; // Poka-Yoke error-proofing mechanisms
-pub mod protection; // Path protection and type-safe wrappers
-pub mod signals; // Andon signals for error-proofing
 pub mod pqc;
 pub mod preprocessor;
-pub mod prevention; // Week 3 Prevention Systems - DfLSS
 pub mod project_generator;
 pub mod rdf;
 pub mod register;
@@ -163,11 +154,8 @@ pub mod template;
 pub mod template_cache;
 pub mod templates;
 pub mod tera_env;
-pub mod types; // Enterprise FMEA & Poka-Yoke types for marketplace
-               // pub mod tracing; // Temporarily disabled due to missing tracing_subscriber dependency
+// pub mod tracing; // Temporarily disabled due to missing tracing_subscriber dependency
 pub mod simple_tracing;
-pub mod v6;
-pub mod validation; // SHACL validation for ggen sync poka-yoke (005-ttl-shacl-validation) // ggen v6: Fully-Rendered Libraries via Ontology-First Compilation
 
 // Re-export production readiness types from lifecycle module
 pub use lifecycle::{
@@ -181,12 +169,6 @@ pub use lifecycle::{
     Open,
 };
 
-// Re-export protection and signal types
-pub use protection::{
-    GlobPattern, ProtectedPath, PathError, PathProtector, PathProtectionError, GeneratorPathGuard,
-};
-pub use signals::{AndonSignal, AndonContext};
-
 // Re-export commonly used types for convenience
 pub use cache::{CacheManager, CachedPack};
 pub use delta::{DeltaType, GraphDelta, ImpactAnalyzer, TemplateImpact};
@@ -194,8 +176,7 @@ pub use drift::{DriftDetector, DriftStatus, DriftChange, ChangeType, SyncState, 
 pub use generator::{GenContext, Generator};
 pub use github::{GitHubClient, PagesConfig, RepoInfo, WorkflowRun, WorkflowRunsResponse};
 pub use gpack::GpackManifest;
-pub use naming::{NamingValidator, NamingError, ViolationType};
-pub use graph::{Graph, GraphStore};
+pub use graph::Graph;
 pub use lockfile::{LockEntry, Lockfile, LockfileManager};
 pub use merge::{
     ConflictType, MergeConflict, MergeResult, MergeStrategy, RegionAwareMerger, RegionUtils,
@@ -298,61 +279,3 @@ pub use ontology::{
 
 // Note: Cardinality, OntologySchema, PropertyRange are exported from ontology_pack module above
 // to avoid conflicts with ontology module exports
-
-// Re-export enterprise FMEA & Poka-Yoke types for marketplace
-pub use types::{
-    // CODEOWNERS generation
-    CodeownersGenerator,
-    // FMEA types
-    Detection,
-    // Enterprise configuration
-    DomainProtectionStrategy,
-    EnterpriseConfig,
-    FailureModeEntry,
-    FmeaConfig,
-    FmeaValidationError,
-    GenerationConfig,
-    Occurrence,
-    OwnerEntry,
-    OwnersFile,
-    // Path protection
-    PathProtectionConfig,
-    PokaYokeConfig,
-    RpnLevel,
-    RpnScore,
-    Severity,
-};
-
-// Re-export v6 ontology compilation types
-pub use v6::{
-    // Vocabulary governance
-    AllowedVocabulary,
-    // Core types
-    BuildReceipt,
-    // Pass implementations
-    CanonicalizationPass,
-    EmissionPass,
-    Epoch,
-    EpochId,
-    ExtractionPass,
-    ForbiddenVocabulary,
-    // Guard system
-    Guard,
-    GuardAction,
-    GuardViolation,
-    NormalizationPass,
-    OutputFile,
-    // Pass system
-    Pass,
-    PassContext,
-    PassExecution,
-    PassResult,
-    PassType,
-    PathGuard,
-    PipelineConfig,
-    ReceiptGenerationPass,
-    SecretGuard,
-    StagedPipeline,
-    VerifyMode,
-    VocabularyRegistry,
-};

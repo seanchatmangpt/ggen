@@ -1,0 +1,68 @@
+---
+to: "{{ project_name }}/tests/integration_test.rs"
+vars:
+  project_name: "my-cli"
+  noun: "resource"
+  verbs: ["create", "list", "get", "update", "delete"]
+---
+//! Integration tests for {{ project_name }}
+
+use assert_cmd::Command;
+use assert_fs::prelude::*;
+use predicates::prelude::*;
+
+#[test]
+fn test_help() {
+    let mut cmd = Command::cargo_bin("{{ project_name }}").unwrap();
+    cmd.arg("--help");
+    cmd.assert()
+        .success()
+        .stdout(predicate::str::contains("{{ project_name }}"));
+}
+
+#[test]
+fn test_version() {
+    let mut cmd = Command::cargo_bin("{{ project_name }}").unwrap();
+    cmd.arg("--version");
+    cmd.assert()
+        .success()
+        .stdout(predicate::str::contains(env!("CARGO_PKG_VERSION")));
+}
+
+{% for verb in verbs %}
+#[test]
+fn test_{{ noun }}_{{ verb }}() {
+    let mut cmd = Command::cargo_bin("{{ project_name }}").unwrap();
+    cmd.arg("{{ noun }}").arg("{{ verb }}");
+
+    {% if verb == "create" %}cmd.arg("--name").arg("test-{{ noun }}");{% endif %}
+    {% if verb == "get" or verb == "update" or verb == "delete" %}cmd.arg("test-123");{% endif %}
+    {% if verb == "delete" %}cmd.arg("--dry-run");{% endif %}
+
+    cmd.assert().success();
+}
+{% endfor %}
+
+#[test]
+fn test_{{ noun }}_list_with_format() {
+    let mut cmd = Command::cargo_bin("{{ project_name }}").unwrap();
+    cmd.arg("{{ noun }}")
+        .arg("list")
+        .arg("--format")
+        .arg("json");
+
+    cmd.assert()
+        .success()
+        .stdout(predicate::str::contains("["));
+}
+
+#[test]
+fn test_{{ noun }}_list_with_limit() {
+    let mut cmd = Command::cargo_bin("{{ project_name }}").unwrap();
+    cmd.arg("{{ noun }}")
+        .arg("list")
+        .arg("--limit")
+        .arg("2");
+
+    cmd.assert().success();
+}

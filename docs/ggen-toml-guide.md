@@ -1,52 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [ggen.toml User Guide](#ggentoml-user-guide)
-  - [Introduction](#introduction)
-  - [Quick Start](#quick-start)
-    - [Creating Your First ggen.toml](#creating-your-first-ggentoml)
-    - [Generate Code](#generate-code)
-  - [Configuration Sections](#configuration-sections)
-    - [1. Project Metadata](#1-project-metadata)
-    - [2. Template Configuration](#2-template-configuration)
-    - [3. AI Configuration](#3-ai-configuration)
-    - [4. RDF and SPARQL Configuration](#4-rdf-and-sparql-configuration)
-    - [5. Marketplace Integration](#5-marketplace-integration)
-    - [6. Lifecycle Management](#6-lifecycle-management)
-    - [7. Template Type-Specific Configuration](#7-template-type-specific-configuration)
-    - [8. Security Configuration](#8-security-configuration)
-    - [9. Performance Configuration](#9-performance-configuration)
-    - [10. Logging Configuration](#10-logging-configuration)
-    - [11. Feature Flags](#11-feature-flags)
-  - [Common Workflows](#common-workflows)
-    - [1. Simple Project Generation](#1-simple-project-generation)
-    - [2. AI-Powered Microservice](#2-ai-powered-microservice)
-    - [3. Knowledge Graph Code Generation](#3-knowledge-graph-code-generation)
-    - [4. Marketplace Package Development](#4-marketplace-package-development)
-  - [Environment Variables](#environment-variables)
-  - [Best Practices](#best-practices)
-    - [1. Version Control](#1-version-control)
-    - [2. Security](#2-security)
-    - [3. Performance](#3-performance)
-    - [4. Organization](#4-organization)
-    - [5. Testing](#5-testing)
-  - [Migration from Other Tools](#migration-from-other-tools)
-    - [From Cargo.toml](#from-cargotoml)
-    - [From pyproject.toml](#from-pyprojecttoml)
-  - [Troubleshooting](#troubleshooting)
-    - [Configuration Not Found](#configuration-not-found)
-    - [Invalid TOML Syntax](#invalid-toml-syntax)
-    - [AI Provider Errors](#ai-provider-errors)
-  - [Advanced Topics](#advanced-topics)
-    - [Custom Template Engines](#custom-template-engines)
-    - [Multi-Environment Configuration](#multi-environment-configuration)
-    - [Configuration Inheritance](#configuration-inheritance)
-  - [Reference](#reference)
-  - [Getting Help](#getting-help)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # ggen.toml User Guide
 
 ## Introduction
@@ -166,7 +117,7 @@ model = "gpt-4"
 
 [ai.providers.anthropic]
 api_key_env = "ANTHROPIC_API_KEY"
-model = "claude-haiku-4-5-20251001"
+model = "claude-3-5-sonnet-20241022"
 
 [ai.providers.ollama]
 base_url = "http://localhost:11434"

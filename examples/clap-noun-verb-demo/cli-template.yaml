@@ -1,0 +1,101 @@
+# CLI Template File Tree Specification
+# This YAML defines the complete project structure generated from TTL files
+
+version: "1.0.0"
+description: "clap-noun-verb v3.2.0 project template"
+
+# Variable substitution markers
+variables:
+  project_name: "{{ project.name }}"
+  project_version: "{{ project.version }}"
+  project_description: "{{ project.description }}"
+  authors: "{{ project.authors }}"
+  edition: "{{ project.edition }}"
+  license: "{{ project.license }}"
+
+# File tree structure
+structure:
+  # Root level files
+  - path: "Cargo.toml"
+    template: "templates/Cargo.toml.tmpl"
+    description: "Cargo manifest with dependencies"
+
+  - path: "README.md"
+    template: "templates/README.md.tmpl"
+    description: "Project documentation"
+
+  - path: ".gitignore"
+    template: "templates/gitignore.tmpl"
+    description: "Git ignore file"
+
+  # Source files
+  - path: "src/main.rs"
+    template: "templates/main.rs.tmpl"
+    description: "Entry point with clap parser"
+
+  - path: "src/lib.rs"
+    template: "templates/lib.rs.tmpl"
+    description: "Library exports"
+
+  # Command trait
+  - path: "src/command.rs"
+    template: "templates/command.rs.tmpl"
+    description: "Command trait definition"
+
+  # Commands directory structure
+  - path: "src/cmds/mod.rs"
+    template: "templates/cmds/mod.rs.tmpl"
+    description: "Commands module exports"
+
+  # Noun modules (dynamic - one per noun)
+  - path: "src/cmds/{{ noun.name }}/mod.rs"
+    template: "templates/cmds/noun_mod.rs.tmpl"
+    description: "Noun module with verb subcommands"
+    foreach: "project.nouns"
+
+  - path: "src/cmds/{{ noun.name }}/{{ verb.name }}.rs"
+    template: "templates/cmds/verb.rs.tmpl"
+    description: "Verb implementation"
+    foreach: "noun.verbs"
+
+  # Tests
+  - path: "tests/integration_test.rs"
+    template: "templates/tests/integration.rs.tmpl"
+    description: "Integration tests"
+
+  - path: "tests/{{ noun.name }}_tests.rs"
+    template: "templates/tests/noun_test.rs.tmpl"
+    description: "Noun-specific tests"
+    foreach: "project.nouns"
+
+# Template rendering order
+render_order:
+  1. "Cargo.toml"
+  2. "src/command.rs"
+  3. "src/cmds/mod.rs"
+  4. "src/cmds/*/mod.rs"
+  5. "src/cmds/*/*/*.rs"
+  6. "src/lib.rs"
+  7. "src/main.rs"
+  8. "tests/*.rs"
+  9. "README.md"
+
+# Post-generation hooks
+post_generation:
+  - command: "cargo fmt"
+    description: "Format generated code"
+  - command: "cargo check"
+    description: "Verify compilation"
+  - command: "cargo test"
+    description: "Run tests"
+
+# Validation rules
+validation:
+  - rule: "at_least_one_noun"
+    message: "Project must have at least one noun"
+  - rule: "each_noun_has_verb"
+    message: "Each noun must have at least one verb"
+  - rule: "unique_noun_names"
+    message: "Noun names must be unique"
+  - rule: "unique_verb_names_per_noun"
+    message: "Verb names must be unique within a noun"

@@ -1,0 +1,18 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Enterprise MaxCount Validation Use Case
+# Upper bound cardinality constraints (SHACL maxCount)
+# Test Case 6: MaxCount Validation (COUNT <= k)
+# Limited to 8 triples for hot path (single predicate run)
+# Validates that users have at most N email addresses
+
+ex:alice ex:email "alice@example.com" .
+ex:alice ex:email "alice.backup@example.com" .
+ex:bob ex:email "bob@example.com" .
+ex:charlie ex:email "charlie@example.com" .
+ex:charlie ex:email "charlie.alternate@example.com" .
+ex:charlie ex:email "charlie.third@example.com" .
+ex:dave ex:email "dave@example.com" .
+ex:eve ex:email "eve@example.com" .
+

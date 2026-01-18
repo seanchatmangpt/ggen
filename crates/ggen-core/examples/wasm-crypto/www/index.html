@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WASM Crypto Demo - Pure Vanilla JS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header .badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 0.9em;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            color: #667eea;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .demo-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .demo-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .output {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            word-break: break-all;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .output.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .output.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .perf-indicator {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.85em;
+            margin-left: 10px;
+        }
+
+        .perf-indicator.fast {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .perf-indicator.medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 1.2em;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .capabilities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .capability-badge {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">
+        <div>🔐 Loading WASM Crypto Module...</div>
+        <div style="margin-top: 10px; font-size: 0.9em;">Initializing cryptographic primitives</div>
+    </div>
+
+    <div class="container hidden" id="app">
+        <div class="header">
+            <h1>🔐 WASM Crypto Demo</h1>
+            <div class="badge">Pure Vanilla JavaScript + Rust WebAssembly</div>
+        </div>
+
+        <div class="stats" id="stats"></div>
+
+        <div class="info-box">
+            <h3>Module Information</h3>
+            <div id="module-info"></div>
+        </div>
+
+        <!-- Password Hashing -->
+        <div class="demo-section">
+            <h2>🔑 Password Hashing (Argon2)</h2>
+            <div class="form-group">
+                <label>Password:</label>
+                <input type="password" id="password-input" placeholder="Enter password to hash" value="mySecurePassword123">
+            </div>
+            <div class="button-group">
+                <button onclick="hashPassword()">Hash Password</button>
+                <button onclick="verifyPassword()">Verify Password</button>
+            </div>
+            <div id="password-output" class="output"></div>
+        </div>
+
+        <!-- Encryption -->
+        <div class="demo-section">
+            <h2>🔒 AES-256-GCM Encryption</h2>
+            <div class="form-group">
+                <label>Plaintext:</label>
+                <textarea id="encrypt-input" placeholder="Enter text to encrypt">Hello from WebAssembly! This is secure encryption.</textarea>
+            </div>
+            <div class="button-group">
+                <button onclick="performEncryption()">Encrypt</button>
+                <button onclick="performDecryption()">Decrypt</button>
+                <button onclick="generateNewKey()">Generate New Key</button>
+            </div>
+            <div id="encryption-output" class="output"></div>
+        </div>
+
+        <!-- Digital Signatures -->
+        <div class="demo-section">
+            <h2>✍️ Ed25519 Digital Signatures</h2>
+            <div class="form-group">
+                <label>Message:</label>
+                <textarea id="signature-input" placeholder="Enter message to sign">This message is cryptographically signed.</textarea>
+            </div>
+            <div class="button-group">
+                <button onclick="generateSignatureKeypair()">Generate Keypair</button>
+                <button onclick="signMessage()">Sign Message</button>
+                <button onclick="verifySignature()">Verify Signature</button>
+            </div>
+            <div id="signature-output" class="output"></div>
+        </div>
+
+        <!-- Hashing -->
+        <div class="demo-section">
+            <h2>🔗 SHA-256 Hashing</h2>
+            <div class="form-group">
+                <label>Data:</label>
+                <input type="text" id="hash-input" placeholder="Enter data to hash" value="Hash this data">
+            </div>
+            <div class="button-group">
+                <button onclick="performHash()">Compute Hash</button>
+                <button onclick="generateRandom()">Generate Random (32 bytes)</button>
+            </div>
+            <div id="hash-output" class="output"></div>
+        </div>
+    </div>
+
+    <script type="module" src="./index.js"></script>
+</body>
+</html>

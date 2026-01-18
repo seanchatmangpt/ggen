@@ -1,0 +1,18 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Enterprise Reverse Lookup Use Case
+# Object-to-subject queries (inverse property lookups)
+# Test Case 8: Reverse Lookup (ASK O,P)
+# Limited to 8 triples for hot path (single predicate run)
+# Validates if email addresses are registered to any user
+
+ex:alice ex:email "alice@example.com" .
+ex:bob ex:email "bob@example.com" .
+ex:charlie ex:email "charlie@example.com" .
+ex:dave ex:email "dave@example.com" .
+ex:eve ex:email "eve@example.com" .
+ex:frank ex:email "frank@example.com" .
+ex:grace ex:email "grace@example.com" .
+ex:henry ex:email "henry@example.com" .
+

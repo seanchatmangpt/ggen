@@ -1,0 +1,46 @@
+name: rust-service-generator
+version: 1.0.0
+description: Generate Rust microservice from RDF project definition
+
+# File tree structure
+tree:
+  - path: "{{ project_name }}/Cargo.toml"
+    template: cargo-toml.tmpl
+
+  - path: "{{ project_name }}/src/main.rs"
+    template: main-rs.tmpl
+
+  - path: "{{ project_name }}/src/models.rs"
+    template: models-rs.tmpl
+
+  - path: "{{ project_name }}/README.md"
+    template: readme.tmpl
+
+# SPARQL queries to extract data from RDF
+queries:
+  project_info: |
+    PREFIX : <http://example.org/project#>
+    SELECT ?name ?description ?version ?author ?language
+    WHERE {
+      ?project a :SoftwareProject ;
+               :name ?name ;
+               :description ?description ;
+               :version ?version ;
+               :author ?author ;
+               :language ?language .
+    }
+
+  structs: |
+    PREFIX : <http://example.org/project#>
+    SELECT ?struct_name (GROUP_CONCAT(?field_info; separator="|") AS ?fields)
+    WHERE {
+      ?struct a :Struct ;
+              :structName ?struct_name .
+      OPTIONAL {
+        ?struct :hasField ?field .
+        ?field :fieldName ?fname ;
+               :fieldType ?ftype .
+        BIND(CONCAT(?fname, ":", ?ftype) AS ?field_info)
+      }
+    }
+    GROUP BY ?struct_name

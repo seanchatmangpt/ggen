@@ -1,60 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Gradual Migration Path - 6-Phase Rollout](#gradual-migration-path---6-phase-rollout)
-  - [Overview](#overview)
-  - [Timeline Overview](#timeline-overview)
-  - [Phase 1: Feature Gates (Days 1-2)](#phase-1-feature-gates-days-1-2)
-    - [Objectives](#objectives)
-    - [Tasks](#tasks)
-    - [Validation](#validation)
-    - [Success Criteria](#success-criteria)
-    - [Rollback Plan](#rollback-plan)
-  - [Phase 2: Adapter Layer (Days 3-7)](#phase-2-adapter-layer-days-3-7)
-    - [Objectives](#objectives-1)
-    - [Tasks](#tasks-1)
-    - [Validation](#validation-1)
-    - [Success Criteria](#success-criteria-1)
-    - [Rollback Plan](#rollback-plan-1)
-  - [Phase 3: Search Migration (Days 8-14)](#phase-3-search-migration-days-8-14)
-    - [Objectives](#objectives-2)
-    - [Tasks](#tasks-2)
-    - [Validation](#validation-2)
-    - [Success Criteria](#success-criteria-2)
-    - [Rollback Plan](#rollback-plan-2)
-  - [Phase 4: Registry/Installation Migration (Days 15-21)](#phase-4-registryinstallation-migration-days-15-21)
-    - [Objectives](#objectives-3)
-    - [Tasks](#tasks-3)
-    - [Validation](#validation-3)
-    - [Success Criteria](#success-criteria-3)
-    - [Rollback Plan](#rollback-plan-3)
-  - [Phase 5: Publishing with Signing (Days 22-28)](#phase-5-publishing-with-signing-days-22-28)
-    - [Objectives](#objectives-4)
-    - [Tasks](#tasks-4)
-    - [Validation](#validation-4)
-    - [Success Criteria](#success-criteria-4)
-    - [Rollback Plan](#rollback-plan-4)
-  - [Phase 6: Documentation & Cutover (Days 29-35)](#phase-6-documentation--cutover-days-29-35)
-    - [Objectives](#objectives-5)
-    - [Tasks](#tasks-5)
-    - [Validation](#validation-5)
-    - [Success Criteria](#success-criteria-5)
-    - [Rollback Plan](#rollback-plan-5)
-  - [Risk Assessment Matrix](#risk-assessment-matrix)
-  - [Monitoring & Metrics](#monitoring--metrics)
-    - [Key Metrics to Track](#key-metrics-to-track)
-    - [Monitoring Dashboard](#monitoring-dashboard)
-  - [Communication Plan](#communication-plan)
-    - [Stakeholders](#stakeholders)
-    - [Milestones](#milestones)
-  - [Success Criteria Summary](#success-criteria-summary)
-  - [Post-Migration](#post-migration)
-    - [V1 Deprecation Timeline](#v1-deprecation-timeline)
-    - [Continuous Improvement](#continuous-improvement)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Gradual Migration Path - 6-Phase Rollout
 
 ## Overview
@@ -84,13 +27,13 @@ The migration from marketplace-v1 to marketplace-v2 follows a 6-phase approach d
 **Day 1: Cargo.toml Setup**
 ```bash
 # Update workspace Cargo.toml
-- Add ggen-marketplace to workspace members
+- Add ggen-marketplace-v2 to workspace members
 - Define workspace dependencies for v2
 
 # Update ggen-core/Cargo.toml
 - Add feature flags: marketplace-v1, marketplace-v2, marketplace-parallel
 - Make ggen-marketplace optional
-- Add ggen-marketplace as optional dependency
+- Add ggen-marketplace-v2 as optional dependency
 
 # Update ggen-cli/Cargo.toml
 - Inherit feature flags from ggen-core
@@ -155,7 +98,7 @@ cargo test
 **Day 5-6: V2 Adapter**
 ```rust
 // ggen-domain/src/marketplace/v2_adapter.rs
-- Implement V2Adapter (wraps ggen-marketplace)
+- Implement V2Adapter (wraps ggen-marketplace-v2)
 - Implement all MarketplaceBackend methods
 - Add RDF conversion helpers (v2 ↔ unified)
 ```
@@ -209,7 +152,7 @@ cargo test --no-default-features --features marketplace-v1
 
 **Day 8-9: V2 Search Implementation**
 ```rust
-// ggen-marketplace/src/search.rs
+// ggen-marketplace-v2/src/search.rs
 - Implement SparqlSearchEngine
 - Build SPARQL query templates
 - Add result ranking algorithm
@@ -275,7 +218,7 @@ cargo test marketplace_stress_suite --features marketplace-parallel
 
 **Day 15-16: V2 Registry Implementation**
 ```rust
-// ggen-marketplace/src/registry.rs
+// ggen-marketplace-v2/src/registry.rs
 - Implement RdfRegistry
 - Support RDF-based package storage
 - Implement installation logic
@@ -348,7 +291,7 @@ cargo test marketplace_install_e2e --features marketplace-parallel
 
 **Day 22-23: Ed25519 Signing Implementation**
 ```rust
-// ggen-marketplace/src/crypto.rs
+// ggen-marketplace-v2/src/crypto.rs
 - Implement Ed25519Signer
 - Add key generation utilities
 - Add signature verification

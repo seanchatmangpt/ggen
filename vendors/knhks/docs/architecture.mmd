@@ -1,0 +1,37 @@
+graph TB
+    subgraph "Query Input"
+        Q[SPARQL Query]
+    end
+    
+    subgraph "Analysis Layer"
+        A[Query Analyzer]
+        A --> |Simple & ≤8| HP[Hot Path]
+        A --> |Complex or >8| CP[Cold Path]
+    end
+    
+    subgraph "Hot Path (≤8 ticks)"
+        HP --> IR[Hook IR]
+        IR --> SIMD[Branchless SIMD]
+        SIMD --> SoA[SoA Arrays]
+        SoA --> RES1[Result]
+    end
+    
+    subgraph "Cold Path"
+        CP --> ENG[Full SPARQL Engine]
+        ENG --> RES2[Result]
+    end
+    
+    subgraph "Data Layer"
+        RDF[RDF/Turtle File]
+        RDF --> PARSER[Raptor Parser]
+        PARSER --> HASH[Hash Term IDs]
+        HASH --> SoA
+    end
+    
+    RES1 --> OUT[Query Result]
+    RES2 --> OUT
+    
+    style HP fill:#90EE90
+    style CP fill:#FFB6C1
+    style SIMD fill:#87CEEB
+

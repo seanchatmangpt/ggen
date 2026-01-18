@@ -107,6 +107,10 @@ pub enum GgenAiError {
     #[error("Ontology generation error: {0}")]
     OntologyGeneration(String),
 
+    /// Ontology processing errors (OWL extraction, SPARQL queries)
+    #[error("Ontology error: {message}")]
+    OntologyError { message: String },
+
     /// Configuration errors
     #[error("Configuration error: {0}")]
     Configuration(String),
@@ -134,18 +138,6 @@ pub enum GgenAiError {
     /// Generic error from `Box<dyn std::error::Error>`
     #[error("Generic error: {message}")]
     Other { message: String },
-
-    /// Ultrathink (experimental ultra-concurrent thinking) error
-    #[error("Ultrathink error: {0}")]
-    UltrathinkError(String),
-}
-
-// Alias for backward compatibility and ultrathink module
-impl GgenAiError {
-    /// Create a new ultrathink internal error
-    pub fn ultrathink_internal(message: impl Into<String>) -> Self {
-        Self::UltrathinkError(format!("Internal: {}", message.into()))
-    }
 }
 
 /// Result type for ggen-ai operations
@@ -305,6 +297,13 @@ impl GgenAiError {
     /// Create a new configuration error
     pub fn configuration(msg: impl Into<String>) -> Self {
         Self::Configuration(msg.into())
+    }
+
+    /// Create a new ontology error
+    pub fn ontology_error(message: impl Into<String>) -> Self {
+        Self::OntologyError {
+            message: message.into(),
+        }
     }
 }
 

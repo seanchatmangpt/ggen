@@ -48,9 +48,7 @@ jobs:
 
       - name: Run tests
         run: |
-          # Exclude London TDD tests (broken - missing type imports)
-          cargo test --workspace --lib --verbose
-          cargo test --test cli --test marketplace --verbose
+          cargo test --verbose
           if [ "${{ matrix.rust }}" = "nightly" ]; then
             echo "⚠️  Nightly tests completed (failures ignored)"
           fi

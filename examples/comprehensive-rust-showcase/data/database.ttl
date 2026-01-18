@@ -1,0 +1,529 @@
+# Database Schema in RDF
+# Demonstrates database modeling with SPARQL integration
+
+@prefix ex: <http://example.org/comprehensive-rust-showcase/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix db: <http://example.org/database/> .
+
+# Database Schema
+ex:ComprehensiveSchema a ex:DatabaseSchema ;
+    rdfs:label "Comprehensive Database Schema" ;
+    rdfs:comment "Complete database schema for the showcase" ;
+    ex:hasTable ex:UsersTable, ex:ProductsTable, ex:OrdersTable, ex:OrderItemsTable, ex:CategoriesTable ;
+    ex:version "1.0.0" ;
+    ex:engine "postgresql" ;
+    ex:characterSet "utf8" ;
+    ex:collation "utf8_general_ci" .
+
+# Database Tables
+ex:UsersTable a ex:DatabaseTable ;
+    rdfs:label "Users Table" ;
+    rdfs:comment "Table storing user information" ;
+    ex:tableName "users" ;
+    ex:schema "public" ;
+    ex:engine "postgresql" ;
+    ex:hasColumn ex:UserIdColumn, ex:UserNameColumn, ex:UserEmailColumn, ex:UserCreatedAtColumn, ex:UserUpdatedAtColumn ;
+    ex:hasIndex ex:UsersEmailIndex, ex:UsersCreatedAtIndex ;
+    ex:hasConstraint ex:UsersPrimaryKey, ex:UsersEmailUnique ;
+    ex:rowCount 0 ;
+    ex:estimatedSize "1MB" .
+
+ex:ProductsTable a ex:DatabaseTable ;
+    rdfs:label "Products Table" ;
+    rdfs:comment "Table storing product information" ;
+    ex:tableName "products" ;
+    ex:schema "public" ;
+    ex:engine "postgresql" ;
+    ex:hasColumn ex:ProductIdColumn, ex:ProductNameColumn, ex:ProductDescriptionColumn, ex:ProductPriceColumn, ex:ProductCategoryIdColumn ;
+    ex:hasIndex ex:ProductsNameIndex, ex:ProductsCategoryIndex ;
+    ex:hasConstraint ex:ProductsPrimaryKey, ex:ProductsCategoryForeignKey ;
+    ex:rowCount 0 ;
+    ex:estimatedSize "5MB" .
+
+ex:OrdersTable a ex:DatabaseTable ;
+    rdfs:label "Orders Table" ;
+    rdfs:comment "Table storing order information" ;
+    ex:tableName "orders" ;
+    ex:schema "public" ;
+    ex:engine "postgresql" ;
+    ex:hasColumn ex:OrderIdColumn, ex:OrderUserIdColumn, ex:OrderTotalAmountColumn, ex:OrderStatusColumn, ex:OrderCreatedAtColumn ;
+    ex:hasIndex ex:OrdersUserIdIndex, ex:OrdersStatusIndex, ex:OrdersCreatedAtIndex ;
+    ex:hasConstraint ex:OrdersPrimaryKey, ex:OrdersUserForeignKey ;
+    ex:rowCount 0 ;
+    ex:estimatedSize "10MB" .
+
+ex:OrderItemsTable a ex:DatabaseTable ;
+    rdfs:label "Order Items Table" ;
+    rdfs:comment "Table storing order item information" ;
+    ex:tableName "order_items" ;
+    ex:schema "public" ;
+    ex:engine "postgresql" ;
+    ex:hasColumn ex:OrderItemIdColumn, ex:OrderItemOrderIdColumn, ex:OrderItemProductIdColumn, ex:OrderItemQuantityColumn, ex:OrderItemUnitPriceColumn ;
+    ex:hasIndex ex:OrderItemsOrderIdIndex, ex:OrderItemsProductIdIndex ;
+    ex:hasConstraint ex:OrderItemsPrimaryKey, ex:OrderItemsOrderForeignKey, ex:OrderItemsProductForeignKey ;
+    ex:rowCount 0 ;
+    ex:estimatedSize "20MB" .
+
+ex:CategoriesTable a ex:DatabaseTable ;
+    rdfs:label "Categories Table" ;
+    rdfs:comment "Table storing category information" ;
+    ex:tableName "categories" ;
+    ex:schema "public" ;
+    ex:engine "postgresql" ;
+    ex:hasColumn ex:CategoryIdColumn, ex:CategoryNameColumn, ex:CategoryDescriptionColumn, ex:CategoryParentIdColumn ;
+    ex:hasIndex ex:CategoriesNameIndex, ex:CategoriesParentIndex ;
+    ex:hasConstraint ex:CategoriesPrimaryKey, ex:CategoriesParentForeignKey ;
+    ex:rowCount 0 ;
+    ex:estimatedSize "1MB" .
+
+# Database Columns
+ex:UserIdColumn a ex:DatabaseColumn ;
+    rdfs:label "User ID Column" ;
+    ex:columnName "id" ;
+    ex:dataType "uuid" ;
+    ex:isNullable false ;
+    ex:isPrimaryKey true ;
+    ex:isUnique true ;
+    ex:defaultValue "gen_random_uuid()" ;
+    ex:description "Unique identifier for the user" .
+
+ex:UserNameColumn a ex:DatabaseColumn ;
+    rdfs:label "User Name Column" ;
+    ex:columnName "name" ;
+    ex:dataType "varchar" ;
+    ex:maxLength 100 ;
+    ex:isNullable false ;
+    ex:isPrimaryKey false ;
+    ex:isUnique false ;
+    ex:description "User's full name" .
+
+ex:UserEmailColumn a ex:DatabaseColumn ;
+    rdfs:label "User Email Column" ;
+    ex:columnName "email" ;
+    ex:dataType "varchar" ;
+    ex:maxLength 255 ;
+    ex:isNullable false ;
+    ex:isPrimaryKey false ;
+    ex:isUnique true ;
+    ex:description "User's email address" .
+
+ex:UserCreatedAtColumn a ex:DatabaseColumn ;
+    rdfs:label "User Created At Column" ;
+    ex:columnName "created_at" ;
+    ex:dataType "timestamp" ;
+    ex:isNullable false ;
+    ex:isPrimaryKey false ;
+    ex:isUnique false ;
+    ex:defaultValue "CURRENT_TIMESTAMP" ;
+    ex:description "When the user was created" .
+
+ex:UserUpdatedAtColumn a ex:DatabaseColumn ;
+    rdfs:label "User Updated At Column" ;
+    ex:columnName "updated_at" ;
+    ex:dataType "timestamp" ;
+    ex:isNullable false ;
+    ex:isPrimaryKey false ;
+    ex:isUnique false ;
+    ex:defaultValue "CURRENT_TIMESTAMP" ;
+    ex:description "When the user was last updated" .
+
+ex:ProductIdColumn a ex:DatabaseColumn ;
+    rdfs:label "Product ID Column" ;
+    ex:columnName "id" ;
+    ex:dataType "uuid" ;
+    ex:isNullable false ;
+    ex:isPrimaryKey true ;
+    ex:isUnique true ;
+    ex:defaultValue "gen_random_uuid()" ;
+    ex:description "Unique identifier for the product" .
+
+ex:ProductNameColumn a ex:DatabaseColumn ;
+    rdfs:label "Product Name Column" ;
+    ex:columnName "name" ;
+    ex:dataType "varchar" ;
+    ex:maxLength 200 ;
+    ex:isNullable false ;
+    ex:isPrimaryKey false ;
+    ex:isUnique false ;
+    ex:description "Product name" .
+
+ex:ProductDescriptionColumn a ex:DatabaseColumn ;
+    rdfs:label "Product Description Column" ;
+    ex:columnName "description" ;
+    ex:dataType "text" ;
+    ex:isNullable true ;
+    ex:isPrimaryKey false ;
+    ex:isUnique false ;
+    ex:description "Product description" .
+
+ex:ProductPriceColumn a ex:DatabaseColumn ;
+    rdfs:label "Product Price Column" ;
+    ex:columnName "price" ;
+    ex:dataType "decimal" ;
+    ex:precision 10 ;
+    ex:scale 2 ;
+    ex:isNullable false ;
+    ex:isPrimaryKey false ;
+    ex:isUnique false ;
+    ex:description "Product price in USD" .
+
+ex:ProductCategoryIdColumn a ex:DatabaseColumn ;
+    rdfs:label "Product Category ID Column" ;
+    ex:columnName "category_id" ;
+    ex:dataType "uuid" ;
+    ex:isNullable false ;
+    ex:isPrimaryKey false ;
+    ex:isUnique false ;
+    ex:description "Foreign key to categories table" .
+
+ex:OrderIdColumn a ex:DatabaseColumn ;
+    rdfs:label "Order ID Column" ;
+    ex:columnName "id" ;
+    ex:dataType "uuid" ;
+    ex:isNullable false ;
+    ex:isPrimaryKey true ;
+    ex:isUnique true ;
+    ex:defaultValue "gen_random_uuid()" ;
+    ex:description "Unique identifier for the order" .
+
+ex:OrderUserIdColumn a ex:DatabaseColumn ;
+    rdfs:label "Order User ID Column" ;
+    ex:columnName "user_id" ;
+    ex:dataType "uuid" ;
+    ex:isNullable false ;
+    ex:isPrimaryKey false ;
+    ex:isUnique false ;
+    ex:description "Foreign key to users table" .
+
+ex:OrderTotalAmountColumn a ex:DatabaseColumn ;
+    rdfs:label "Order Total Amount Column" ;
+    ex:columnName "total_amount" ;
+    ex:dataType "decimal" ;
+    ex:precision 10 ;
+    ex:scale 2 ;
+    ex:isNullable false ;
+    ex:isPrimaryKey false ;
+    ex:isUnique false ;
+    ex:description "Total order amount in USD" .
+
+ex:OrderStatusColumn a ex:DatabaseColumn ;
+    rdfs:label "Order Status Column" ;
+    ex:columnName "status" ;
+    ex:dataType "varchar" ;
+    ex:maxLength 50 ;
+    ex:isNullable false ;
+    ex:isPrimaryKey false ;
+    ex:isUnique false ;
+    ex:defaultValue "'pending'" ;
+    ex:description "Order status" .
+
+ex:OrderCreatedAtColumn a ex:DatabaseColumn ;
+    rdfs:label "Order Created At Column" ;
+    ex:columnName "created_at" ;
+    ex:dataType "timestamp" ;
+    ex:isNullable false ;
+    ex:isPrimaryKey false ;
+    ex:isUnique false ;
+    ex:defaultValue "CURRENT_TIMESTAMP" ;
+    ex:description "When the order was created" .
+
+ex:OrderItemIdColumn a ex:DatabaseColumn ;
+    rdfs:label "Order Item ID Column" ;
+    ex:columnName "id" ;
+    ex:dataType "uuid" ;
+    ex:isNullable false ;
+    ex:isPrimaryKey true ;
+    ex:isUnique true ;
+    ex:defaultValue "gen_random_uuid()" ;
+    ex:description "Unique identifier for the order item" .
+
+ex:OrderItemOrderIdColumn a ex:DatabaseColumn ;
+    rdfs:label "Order Item Order ID Column" ;
+    ex:columnName "order_id" ;
+    ex:dataType "uuid" ;
+    ex:isNullable false ;
+    ex:isPrimaryKey false ;
+    ex:isUnique false ;
+    ex:description "Foreign key to orders table" .
+
+ex:OrderItemProductIdColumn a ex:DatabaseColumn ;
+    rdfs:label "Order Item Product ID Column" ;
+    ex:columnName "product_id" ;
+    ex:dataType "uuid" ;
+    ex:isNullable false ;
+    ex:isPrimaryKey false ;
+    ex:isUnique false ;
+    ex:description "Foreign key to products table" .
+
+ex:OrderItemQuantityColumn a ex:DatabaseColumn ;
+    rdfs:label "Order Item Quantity Column" ;
+    ex:columnName "quantity" ;
+    ex:dataType "integer" ;
+    ex:isNullable false ;
+    ex:isPrimaryKey false ;
+    ex:isUnique false ;
+    ex:description "Quantity of the product" .
+
+ex:OrderItemUnitPriceColumn a ex:DatabaseColumn ;
+    rdfs:label "Order Item Unit Price Column" ;
+    ex:columnName "unit_price" ;
+    ex:dataType "decimal" ;
+    ex:precision 10 ;
+    ex:scale 2 ;
+    ex:isNullable false ;
+    ex:isPrimaryKey false ;
+    ex:isUnique false ;
+    ex:description "Unit price of the product" .
+
+ex:CategoryIdColumn a ex:DatabaseColumn ;
+    rdfs:label "Category ID Column" ;
+    ex:columnName "id" ;
+    ex:dataType "uuid" ;
+    ex:isNullable false ;
+    ex:isPrimaryKey true ;
+    ex:isUnique true ;
+    ex:defaultValue "gen_random_uuid()" ;
+    ex:description "Unique identifier for the category" .
+
+ex:CategoryNameColumn a ex:DatabaseColumn ;
+    rdfs:label "Category Name Column" ;
+    ex:columnName "name" ;
+    ex:dataType "varchar" ;
+    ex:maxLength 100 ;
+    ex:isNullable false ;
+    ex:isPrimaryKey false ;
+    ex:isUnique false ;
+    ex:description "Category name" .
+
+ex:CategoryDescriptionColumn a ex:DatabaseColumn ;
+    rdfs:label "Category Description Column" ;
+    ex:columnName "description" ;
+    ex:dataType "text" ;
+    ex:isNullable true ;
+    ex:isPrimaryKey false ;
+    ex:isUnique false ;
+    ex:description "Category description" .
+
+ex:CategoryParentIdColumn a ex:DatabaseColumn ;
+    rdfs:label "Category Parent ID Column" ;
+    ex:columnName "parent_id" ;
+    ex:dataType "uuid" ;
+    ex:isNullable true ;
+    ex:isPrimaryKey false ;
+    ex:isUnique false ;
+    ex:description "Foreign key to parent category" .
+
+# Database Indexes
+ex:UsersEmailIndex a ex:DatabaseIndex ;
+    rdfs:label "Users Email Index" ;
+    ex:indexName "idx_users_email" ;
+    ex:indexType "btree" ;
+    ex:isUnique true ;
+    ex:hasColumn ex:UserEmailColumn ;
+    ex:description "Unique index on user email" .
+
+ex:UsersCreatedAtIndex a ex:DatabaseIndex ;
+    rdfs:label "Users Created At Index" ;
+    ex:indexName "idx_users_created_at" ;
+    ex:indexType "btree" ;
+    ex:isUnique false ;
+    ex:hasColumn ex:UserCreatedAtColumn ;
+    ex:description "Index on user creation date" .
+
+ex:ProductsNameIndex a ex:DatabaseIndex ;
+    rdfs:label "Products Name Index" ;
+    ex:indexName "idx_products_name" ;
+    ex:indexType "btree" ;
+    ex:isUnique false ;
+    ex:hasColumn ex:ProductNameColumn ;
+    ex:description "Index on product name" .
+
+ex:ProductsCategoryIndex a ex:DatabaseIndex ;
+    rdfs:label "Products Category Index" ;
+    ex:indexName "idx_products_category" ;
+    ex:indexType "btree" ;
+    ex:isUnique false ;
+    ex:hasColumn ex:ProductCategoryIdColumn ;
+    ex:description "Index on product category" .
+
+ex:OrdersUserIdIndex a ex:DatabaseIndex ;
+    rdfs:label "Orders User ID Index" ;
+    ex:indexName "idx_orders_user_id" ;
+    ex:indexType "btree" ;
+    ex:isUnique false ;
+    ex:hasColumn ex:OrderUserIdColumn ;
+    ex:description "Index on order user ID" .
+
+ex:OrdersStatusIndex a ex:DatabaseIndex ;
+    rdfs:label "Orders Status Index" ;
+    ex:indexName "idx_orders_status" ;
+    ex:indexType "btree" ;
+    ex:isUnique false ;
+    ex:hasColumn ex:OrderStatusColumn ;
+    ex:description "Index on order status" .
+
+ex:OrdersCreatedAtIndex a ex:DatabaseIndex ;
+    rdfs:label "Orders Created At Index" ;
+    ex:indexName "idx_orders_created_at" ;
+    ex:indexType "btree" ;
+    ex:isUnique false ;
+    ex:hasColumn ex:OrderCreatedAtColumn ;
+    ex:description "Index on order creation date" .
+
+ex:OrderItemsOrderIdIndex a ex:DatabaseIndex ;
+    rdfs:label "Order Items Order ID Index" ;
+    ex:indexName "idx_order_items_order_id" ;
+    ex:indexType "btree" ;
+    ex:isUnique false ;
+    ex:hasColumn ex:OrderItemOrderIdColumn ;
+    ex:description "Index on order item order ID" .
+
+ex:OrderItemsProductIdIndex a ex:DatabaseIndex ;
+    rdfs:label "Order Items Product ID Index" ;
+    ex:indexName "idx_order_items_product_id" ;
+    ex:indexType "btree" ;
+    ex:isUnique false ;
+    ex:hasColumn ex:OrderItemProductIdColumn ;
+    ex:description "Index on order item product ID" .
+
+ex:CategoriesNameIndex a ex:DatabaseIndex ;
+    rdfs:label "Categories Name Index" ;
+    ex:indexName "idx_categories_name" ;
+    ex:indexType "btree" ;
+    ex:isUnique false ;
+    ex:hasColumn ex:CategoryNameColumn ;
+    ex:description "Index on category name" .
+
+ex:CategoriesParentIndex a ex:DatabaseIndex ;
+    rdfs:label "Categories Parent Index" ;
+    ex:indexName "idx_categories_parent" ;
+    ex:indexType "btree" ;
+    ex:isUnique false ;
+    ex:hasColumn ex:CategoryParentIdColumn ;
+    ex:description "Index on category parent" .
+
+# Database Constraints
+ex:UsersPrimaryKey a ex:DatabaseConstraint ;
+    rdfs:label "Users Primary Key" ;
+    ex:constraintName "pk_users" ;
+    ex:constraintType "primary_key" ;
+    ex:hasColumn ex:UserIdColumn ;
+    ex:description "Primary key constraint on users table" .
+
+ex:UsersEmailUnique a ex:DatabaseConstraint ;
+    rdfs:label "Users Email Unique" ;
+    ex:constraintName "uk_users_email" ;
+    ex:constraintType "unique" ;
+    ex:hasColumn ex:UserEmailColumn ;
+    ex:description "Unique constraint on user email" .
+
+ex:ProductsPrimaryKey a ex:DatabaseConstraint ;
+    rdfs:label "Products Primary Key" ;
+    ex:constraintName "pk_products" ;
+    ex:constraintType "primary_key" ;
+    ex:hasColumn ex:ProductIdColumn ;
+    ex:description "Primary key constraint on products table" .
+
+ex:ProductsCategoryForeignKey a ex:DatabaseConstraint ;
+    rdfs:label "Products Category Foreign Key" ;
+    ex:constraintName "fk_products_category" ;
+    ex:constraintType "foreign_key" ;
+    ex:hasColumn ex:ProductCategoryIdColumn ;
+    ex:referencesTable ex:CategoriesTable ;
+    ex:referencesColumn ex:CategoryIdColumn ;
+    ex:onDelete "restrict" ;
+    ex:onUpdate "cascade" ;
+    ex:description "Foreign key constraint on product category" .
+
+ex:OrdersPrimaryKey a ex:DatabaseConstraint ;
+    rdfs:label "Orders Primary Key" ;
+    ex:constraintName "pk_orders" ;
+    ex:constraintType "primary_key" ;
+    ex:hasColumn ex:OrderIdColumn ;
+    ex:description "Primary key constraint on orders table" .
+
+ex:OrdersUserForeignKey a ex:DatabaseConstraint ;
+    rdfs:label "Orders User Foreign Key" ;
+    ex:constraintName "fk_orders_user" ;
+    ex:constraintType "foreign_key" ;
+    ex:hasColumn ex:OrderUserIdColumn ;
+    ex:referencesTable ex:UsersTable ;
+    ex:referencesColumn ex:UserIdColumn ;
+    ex:onDelete "restrict" ;
+    ex:onUpdate "cascade" ;
+    ex:description "Foreign key constraint on order user" .
+
+ex:OrderItemsPrimaryKey a ex:DatabaseConstraint ;
+    rdfs:label "Order Items Primary Key" ;
+    ex:constraintName "pk_order_items" ;
+    ex:constraintType "primary_key" ;
+    ex:hasColumn ex:OrderItemIdColumn ;
+    ex:description "Primary key constraint on order items table" .
+
+ex:OrderItemsOrderForeignKey a ex:DatabaseConstraint ;
+    rdfs:label "Order Items Order Foreign Key" ;
+    ex:constraintName "fk_order_items_order" ;
+    ex:constraintType "foreign_key" ;
+    ex:hasColumn ex:OrderItemOrderIdColumn ;
+    ex:referencesTable ex:OrdersTable ;
+    ex:referencesColumn ex:OrderIdColumn ;
+    ex:onDelete "cascade" ;
+    ex:onUpdate "cascade" ;
+    ex:description "Foreign key constraint on order item order" .
+
+ex:OrderItemsProductForeignKey a ex:DatabaseConstraint ;
+    rdfs:label "Order Items Product Foreign Key" ;
+    ex:constraintName "fk_order_items_product" ;
+    ex:constraintType "foreign_key" ;
+    ex:hasColumn ex:OrderItemProductIdColumn ;
+    ex:referencesTable ex:ProductsTable ;
+    ex:referencesColumn ex:ProductIdColumn ;
+    ex:onDelete "restrict" ;
+    ex:onUpdate "cascade" ;
+    ex:description "Foreign key constraint on order item product" .
+
+ex:CategoriesPrimaryKey a ex:DatabaseConstraint ;
+    rdfs:label "Categories Primary Key" ;
+    ex:constraintName "pk_categories" ;
+    ex:constraintType "primary_key" ;
+    ex:hasColumn ex:CategoryIdColumn ;
+    ex:description "Primary key constraint on categories table" .
+
+ex:CategoriesParentForeignKey a ex:DatabaseConstraint ;
+    rdfs:label "Categories Parent Foreign Key" ;
+    ex:constraintName "fk_categories_parent" ;
+    ex:constraintType "foreign_key" ;
+    ex:hasColumn ex:CategoryParentIdColumn ;
+    ex:referencesTable ex:CategoriesTable ;
+    ex:referencesColumn ex:CategoryIdColumn ;
+    ex:onDelete "restrict" ;
+    ex:onUpdate "cascade" ;
+    ex:description "Foreign key constraint on category parent" .
+
+# SPARQL Queries for Database Generation
+ex:findAllTables a ex:SPARQLQuery ;
+    rdfs:label "Find All Tables" ;
+    ex:query "SELECT ?table ?name WHERE { ?table a ex:DatabaseTable ; ex:tableName ?name }" ;
+    ex:description "Query to find all database tables" .
+
+ex:findColumnsByTable a ex:SPARQLQuery ;
+    rdfs:label "Find Columns by Table" ;
+    ex:query "SELECT ?column ?name ?dataType WHERE { ?table ex:hasColumn ?column . ?column ex:columnName ?name ; ex:dataType ?dataType }" ;
+    ex:description "Query to find columns for a specific table" .
+
+ex:findIndexesByTable a ex:SPARQLQuery ;
+    rdfs:label "Find Indexes by Table" ;
+    ex:query "SELECT ?index ?name ?type WHERE { ?table ex:hasIndex ?index . ?index ex:indexName ?name ; ex:indexType ?type }" ;
+    ex:description "Query to find indexes for a specific table" .
+
+ex:findConstraintsByTable a ex:SPARQLQuery ;
+    rdfs:label "Find Constraints by Table" ;
+    ex:query "SELECT ?constraint ?name ?type WHERE { ?table ex:hasConstraint ?constraint . ?constraint ex:constraintName ?name ; ex:constraintType ?type }" ;
+    ex:description "Query to find constraints for a specific table" .
+
+ex:findForeignKeys a ex:SPARQLQuery ;
+    rdfs:label "Find Foreign Keys" ;
+    ex:query "SELECT ?constraint ?table ?column ?refTable ?refColumn WHERE { ?constraint ex:constraintType 'foreign_key' ; ex:hasColumn ?column ; ex:referencesTable ?refTable ; ex:referencesColumn ?refColumn . ?table ex:hasConstraint ?constraint }" ;
+    ex:description "Query to find all foreign key relationships" .

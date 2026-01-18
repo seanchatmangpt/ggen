@@ -1,0 +1,47 @@
+[package]
+name = "cleanroom"
+version = "0.1.0"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+edition = "2021"
+description = "Production-ready cleanroom testing utilities with isolated container-based testing and deterministic validation"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+documentation = "https://docs.rs/cleanroom"
+readme = "README.md"
+keywords = ["test", "testing", "cleanroom", "isolated", "containers"]
+categories = ["development-tools::testing"]
+
+[dependencies]
+# Core ggen functionality (graph, RDF, SPARQL)
+ggen-core = { path = "../ggen-core", version = "1.2.0" }
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+anyhow = "1.0"
+thiserror = "2.0"
+tempfile = "3"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.0", features = ["v4", "serde"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+# Parallelism and system info
+num_cpus = "1.16"
+# Testcontainers for cleanroom isolation
+testcontainers = "0.22"
+
+[dev-dependencies]
+tokio-test = "0.4"
+pretty_assertions = "1.0"
+rstest = "0.18"
+
+[features]
+default = []
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+
+[profile.test]
+opt-level = 2
+incremental = true

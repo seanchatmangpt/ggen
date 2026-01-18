@@ -1,0 +1,109 @@
+================================================================================
+GGEN CLI CODEBASE ANALYSIS - QUICK REFERENCE
+================================================================================
+
+COMMAND COMPLETENESS BREAKDOWN:
+  
+  Module               | Total | Complete | Partial | Stub | Status
+  =====================|=======|==========|=========|======|==================
+  AI (ai.rs)          |   3   |    3     |    0    |  0   | ✅ COMPLETE
+  Graph (graph.rs)    |   4   |    4     |    0    |  0   | ✅ COMPLETE  
+  Hook (hook.rs)      |   4   |    4     |    0    |  0   | ✅ COMPLETE
+  Utils (utils.rs)    |   2   |    2     |    0    |  0   | ✅ COMPLETE
+  ─────────────────────|───────|──────────|─────────|──────|──────────────────
+  Template (tmpl.rs)  |   8   |    6     |    2    |  0   | ⚠️  MOSTLY
+  Project (proj.rs)   |   7   |    6     |    1    |  0   | ⚠️  MOSTLY  
+  Marketplace (mkt.rs)|  14   |    7     |    7    |  0   | ⚠️  PARTIAL
+  ─────────────────────|───────|──────────|─────────|──────|──────────────────
+  Paper (paper.rs)    |   9   |    2     |    7    |  0   | ❌ MOSTLY STUB
+  Workflow (wf.rs)    |   5   |    0     |    0    |  5   | ❌ ALL STUBS
+  CI (ci.rs)          |   1   |    0     |    0    |  1   | ❌ LEGACY PATTERN
+  ─────────────────────|───────|──────────|─────────|──────|──────────────────
+  TOTALS              |  57   |   35     |   17    |  5   | 61% FUNCTIONAL
+  ════════════════════════════════════════════════════════════════════════════
+
+KEY FINDINGS:
+
+1. ARCHITECTURE ✅
+   - Uses clap-noun-verb v3.4.0 for auto-discovery
+   - Clean #[verb] macro pattern (all except CI)
+   - Proper async/sync bridge with block_on()
+   - Centralized error handling (ggen-utils::error)
+   - JSON-serializable output structs
+
+2. DOCUMENTED vs IMPLEMENTED ⚠️
+   - ❌ ggen ai generate-ontology (mentioned in README, NOT implemented)
+   - ✅ ggen template generate-rdf (implemented, fully working)
+   - ✅ ggen project commands (mostly implemented)
+   - ✅ ggen marketplace search/install (working)
+   - ⚠️ Paper commands (9 verbs exist, mostly stubs)
+   - ❌ Workflow commands (5 verbs, all stubs with demo output)
+
+3. ERROR HANDLING ✅
+   - No unwrap/expect/panic in production command paths
+   - Consistent use of .map_err() patterns
+   - Custom Error type with source chaining
+   - Minor: Some defensive .unwrap_or_else() could be simplified
+
+4. INCOMPLETE IMPLEMENTATIONS:
+   
+   HIGH PRIORITY:
+   - paper::compile - Returns 0KB, no pdflatex execution
+   - paper::generate - Placeholder output only
+   - workflow::* - All 5 return hardcoded demo data
+   - marketplace::list - Maturity filtering documented but not implemented
+   - template::regenerate - Merge strategies unimplemented
+   - project::watch - Blocking operation (architectural issue)
+
+   LOWER PRIORITY:
+   - paper validation - File existence check only
+   - CI commands - Uses legacy Subcommand enum (not #[verb])
+   - Paper submission tracking - Draft status only
+
+COMMAND GROUPING BY STATUS:
+
+FULLY FUNCTIONAL (13 commands):
+├─ ai: generate, chat, analyze
+├─ graph: load, query, export, visualize  
+├─ hook: create, list, remove, monitor
+├─ utils: doctor, env
+└─ template: show, new, list, lint, generate, generate-rdf
+
+MOSTLY WORKING (14 commands):
+├─ template: generate-tree (placeholder)
+├─ template: regenerate (stub)
+├─ project: new, plan, gen, apply, init, generate (all working)
+├─ project: watch (blocking issue)
+└─ marketplace: search, install, list, publish, validate, maturity, dashboard
+
+STUB/INCOMPLETE (17 commands):
+├─ marketplace: generate-artifacts, maturity-filtering, sorting (incomplete)
+├─ paper: all 9 (mostly demo output)
+├─ workflow: all 5 (hardcoded demo)
+└─ ci: 1 (legacy pattern)
+
+CLI ENTRY POINT:
+  ggen binary
+    └─> main.rs (simple wrapper)
+        └─> ggen_cli_lib::cli_match()
+            └─> clap_noun_verb::run() [auto-discovery]
+                └─> cmds/ modules
+                    └─> domain layer (async logic)
+
+RUNTIME PATTERN:
+  All verbs follow: async domain logic wrapped in block_on()
+  Returns clap_noun_verb::Result<T> where T: Serialize
+  
+  Example:
+    #[verb]
+    fn command() -> Result<Output> {
+        block_on(async { domain::execute(...).await })
+    }
+
+ERROR HANDLING PATTERN:
+  .map_err(|e| NounVerbError::execution_error(e.to_string()))
+  ✅ No panics in CLI layer
+  ✅ Proper error propagation
+  ⚠️ Placeholder implementations don't return real errors
+
+================================================================================

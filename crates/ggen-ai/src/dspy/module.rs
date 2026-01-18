@@ -36,6 +36,9 @@ pub trait Module: Send + Sync {
         }
         Ok(())
     }
+
+    /// Downcast to concrete type (for optimizer introspection)
+    fn as_any(&self) -> &dyn std::any::Any;
 }
 
 /// Error type for module operations
@@ -92,6 +95,10 @@ mod tests {
 
         async fn forward(&self, _inputs: HashMap<String, Value>) -> Result<HashMap<String, Value>, ModuleError> {
             Ok(HashMap::new())
+        }
+
+        fn as_any(&self) -> &dyn std::any::Any {
+            self
         }
     }
 
