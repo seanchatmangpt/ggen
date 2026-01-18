@@ -257,6 +257,109 @@ pub struct {}_Outputs {{
         schema
     }
 
+    /// Generate JSON Schema for output fields
+    ///
+    /// Creates a valid JSON Schema that describes the output fields with their types,
+    /// constraints, and descriptions. This is useful for structured generation where
+    /// LLMs need to produce outputs matching a specific schema.
+    ///
+    /// # Returns
+    /// A `serde_json::Value` containing the JSON Schema object with:
+    /// - "type": "object"
+    /// - "properties": object mapping output field names to their schemas
+    /// - "required": array of required output field names
+    /// - "description": description of outputs
+    ///
+    /// # Example
+    /// ```ignore
+    /// let output_schema = signature.outputs_as_json_schema();
+    /// // {
+    /// //   "type": "object",
+    /// //   "properties": {"answer": {...}, "confidence": {...}},
+    /// //   "required": ["answer"],
+    /// //   "description": "Output from QA module"
+    /// // }
+    /// ```
+    pub fn outputs_as_json_schema(&self) -> serde_json::Value {
+        use serde_json::{json, Value};
+
+        let mut properties = serde_json::Map::new();
+        let mut required_fields = Vec::new();
+
+        // Process output fields
+        for field in &self.outputs {
+            let field_schema = Self::field_to_json_schema(field.type_annotation(), &field.constraints);
+            let mut field_obj = field_schema;
+
+            // Add description if present
+            if !field.desc().is_empty() {
+                if let Value::Object(ref mut obj) = field_obj {
+                    obj.insert("description".to_string(), Value::String(field.desc().to_string()));
+                }
+            }
+
+            properties.insert(field.name().to_string(), field_obj);
+
+            // Mark required if no default
+            if field.constraints.required {
+                required_fields.push(field.name().to_string());
+            }
+        }
+
+        // Build the schema
+        let mut schema = json!({
+            "type": "object",
+            "properties": Value::Object(properties),
+        });
+
+        // Add required array if not empty
+        if !required_fields.is_empty() {
+            if let Some(obj) = schema.as_object_mut() {
+                obj.insert("required".to_string(), json!(required_fields));
+            }
+        }
+
+        // Add description
+        if let Some(obj) = schema.as_object_mut() {
+            obj.insert("description".to_string(), Value::String(format!("Output from {}", self.name)));
+        }
+
+        schema
+    }
+
+    /// Generate full JSON Schema including both inputs and outputs
+    ///
+    /// Creates a comprehensive JSON Schema with separate "input" and "output" definitions.
+    /// This is useful for documenting the complete module interface.
+    ///
+    /// # Returns
+    /// A `serde_json::Value` containing:
+    /// - "name": module name
+    /// - "description": module description
+    /// - "input": JSON Schema for input fields
+    /// - "output": JSON Schema for output fields
+    ///
+    /// # Example
+    /// ```ignore
+    /// let full_schema = signature.as_full_json_schema();
+    /// // {
+    /// //   "name": "QA",
+    /// //   "description": "Question answering module",
+    /// //   "input": { "type": "object", "properties": {...} },
+    /// //   "output": { "type": "object", "properties": {...} }
+    /// // }
+    /// ```
+    pub fn as_full_json_schema(&self) -> serde_json::Value {
+        use serde_json::json;
+
+        json!({
+            "name": self.name,
+            "description": self.description,
+            "input": self.as_json_schema(),
+            "output": self.outputs_as_json_schema(),
+        })
+    }
+
     /// Convert a Rust type annotation to JSON Schema type definition
     ///
     /// Handles basic types, vectors, and applies constraints.
@@ -757,5 +860,365 @@ mod tests {
         assert!(properties.contains_key("first"));
         assert!(properties.contains_key("second"));
         assert!(properties.contains_key("third"));
+    }
+
+    // ===== Multi-Output Field Support Tests =====
+
+    #[test]
+    fn test_single_output_field_json_schema() {
+        // Arrange
+        let sig = Signature::new("QA", "Question answering")
+            .with_input(InputField::new("question", "The question", "String"))
+            .with_output(OutputField::new("answer", "The answer", "String"));
+
+        // Act
+        let output_schema = sig.outputs_as_json_schema();
+
+        // Assert
+        assert_eq!(output_schema["type"], "object");
+        assert_eq!(output_schema["properties"]["answer"]["type"], "string");
+        assert_eq!(output_schema["properties"]["answer"]["description"], "The answer");
+        assert_eq!(output_schema["description"], "Output from QA");
+    }
+
+    #[test]
+    fn test_multiple_output_fields_json_schema() {
+        // Arrange
+        let sig = Signature::new("Reasoning", "Multi-step reasoning")
+            .with_input(InputField::new("question", "Question to answer", "String"))
+            .with_output(OutputField::new("rationale", "Step-by-step reasoning", "String"))
+            .with_output(OutputField::new("answer", "Final answer", "String"))
+            .with_output(OutputField::new("confidence", "Confidence score", "f64"));
+
+        // Act
+        let output_schema = sig.outputs_as_json_schema();
+
+        // Assert
+        assert_eq!(output_schema["type"], "object");
+        assert_eq!(output_schema["properties"]["rationale"]["type"], "string");
+        assert_eq!(output_schema["properties"]["answer"]["type"], "string");
+        assert_eq!(output_schema["properties"]["confidence"]["type"], "number");
+    }
+
+    #[test]
+    fn test_output_fields_with_constraints() {
+        // Arrange
+        let mut answer_field = OutputField::new("answer", "Generated answer", "String");
+        answer_field.constraints = FieldConstraints::new()
+            .required(true)
+            .min_length(10)
+            .max_length(500);
+
+        let mut tags_field = OutputField::new("tags", "Generated tags", "Vec<String>");
+        tags_field.constraints = FieldConstraints::new()
+            .min_items(1)
+            .max_items(5);
+
+        let sig = Signature::new("ContentGenerator", "Generate content with tags")
+            .with_input(InputField::new("topic", "Content topic", "String"))
+            .with_output(answer_field)
+            .with_output(tags_field);
+
+        // Act
+        let output_schema = sig.outputs_as_json_schema();
+
+        // Assert
+        assert_eq!(output_schema["properties"]["answer"]["minLength"], 10);
+        assert_eq!(output_schema["properties"]["answer"]["maxLength"], 500);
+        assert_eq!(output_schema["properties"]["tags"]["minItems"], 1);
+        assert_eq!(output_schema["properties"]["tags"]["maxItems"], 5);
+
+        // Verify required fields
+        let required = output_schema["required"].as_array().unwrap();
+        assert_eq!(required.len(), 1);
+        assert!(required.contains(&serde_json::json!("answer")));
+    }
+
+    #[test]
+    fn test_output_fields_with_enum_constraint() {
+        // Arrange
+        let mut classification_field = OutputField::new("category", "Document category", "String");
+        classification_field.constraints = FieldConstraints::new()
+            .required(true)
+            .enum_values(vec![
+                "technical".to_string(),
+                "business".to_string(),
+                "legal".to_string(),
+            ]);
+
+        let sig = Signature::new("Classifier", "Classify documents")
+            .with_input(InputField::new("text", "Document text", "String"))
+            .with_output(classification_field);
+
+        // Act
+        let output_schema = sig.outputs_as_json_schema();
+
+        // Assert
+        let enum_vals = output_schema["properties"]["category"]["enum"].as_array().unwrap();
+        assert_eq!(enum_vals.len(), 3);
+        assert_eq!(enum_vals[0], "technical");
+        assert_eq!(enum_vals[1], "business");
+        assert_eq!(enum_vals[2], "legal");
+    }
+
+    #[test]
+    fn test_full_json_schema_with_inputs_and_outputs() {
+        // Arrange
+        let sig = Signature::new("Translation", "Translate text between languages")
+            .with_input(InputField::new("text", "Text to translate", "String"))
+            .with_input(InputField::new("target_lang", "Target language", "String"))
+            .with_output(OutputField::new("translated_text", "Translated text", "String"))
+            .with_output(OutputField::new("detected_lang", "Detected source language", "String"));
+
+        // Act
+        let full_schema = sig.as_full_json_schema();
+
+        // Assert
+        assert_eq!(full_schema["name"], "Translation");
+        assert_eq!(full_schema["description"], "Translate text between languages");
+
+        // Verify input schema
+        assert_eq!(full_schema["input"]["type"], "object");
+        assert!(full_schema["input"]["properties"]["text"].is_object());
+        assert!(full_schema["input"]["properties"]["target_lang"].is_object());
+
+        // Verify output schema
+        assert_eq!(full_schema["output"]["type"], "object");
+        assert!(full_schema["output"]["properties"]["translated_text"].is_object());
+        assert!(full_schema["output"]["properties"]["detected_lang"].is_object());
+    }
+
+    #[test]
+    fn test_backward_compatibility_as_json_schema_only_inputs() {
+        // Arrange: Create signature with both inputs and outputs
+        let sig = Signature::new("BackwardCompat", "Test backward compatibility")
+            .with_input(InputField::new("input1", "First input", "String"))
+            .with_input(InputField::new("input2", "Second input", "i32"))
+            .with_output(OutputField::new("output1", "First output", "String"));
+
+        // Act: Call the original as_json_schema method
+        let input_schema = sig.as_json_schema();
+
+        // Assert: Only input fields are in the schema (backward compatible)
+        assert_eq!(input_schema["type"], "object");
+        assert!(input_schema["properties"]["input1"].is_object());
+        assert!(input_schema["properties"]["input2"].is_object());
+        assert!(input_schema["properties"].get("output1").is_none());
+    }
+
+    #[test]
+    fn test_outputs_as_json_schema_with_no_outputs() {
+        // Arrange: Signature with no outputs
+        let sig = Signature::new("NoOutputs", "Module with no outputs")
+            .with_input(InputField::new("data", "Input data", "String"));
+
+        // Act
+        let output_schema = sig.outputs_as_json_schema();
+
+        // Assert: Empty but valid schema
+        assert_eq!(output_schema["type"], "object");
+        assert_eq!(output_schema["properties"].as_object().unwrap().len(), 0);
+    }
+
+    #[test]
+    fn test_outputs_with_complex_types() {
+        // Arrange
+        let sig = Signature::new("ComplexOutputs", "Module with complex output types")
+            .with_input(InputField::new("query", "Search query", "String"))
+            .with_output(OutputField::new("results", "Search results", "Vec<String>"))
+            .with_output(OutputField::new("scores", "Relevance scores", "Vec<f64>"))
+            .with_output(OutputField::new("metadata", "Result metadata", "Vec<Vec<String>>"));
+
+        // Act
+        let output_schema = sig.outputs_as_json_schema();
+
+        // Assert
+        assert_eq!(output_schema["properties"]["results"]["type"], "array");
+        assert_eq!(output_schema["properties"]["results"]["items"]["type"], "string");
+
+        assert_eq!(output_schema["properties"]["scores"]["type"], "array");
+        assert_eq!(output_schema["properties"]["scores"]["items"]["type"], "number");
+
+        assert_eq!(output_schema["properties"]["metadata"]["type"], "array");
+        assert_eq!(output_schema["properties"]["metadata"]["items"]["type"], "array");
+        assert_eq!(output_schema["properties"]["metadata"]["items"]["items"]["type"], "string");
+    }
+
+    #[test]
+    fn test_output_schema_serialization() {
+        // Arrange
+        let mut answer_field = OutputField::new("answer", "Generated answer", "String");
+        answer_field.constraints = FieldConstraints::new()
+            .required(true)
+            .min_length(5);
+
+        let sig = Signature::new("Generator", "Content generator")
+            .with_output(answer_field);
+
+        // Act
+        let output_schema = sig.outputs_as_json_schema();
+        let json_str = serde_json::to_string(&output_schema).expect("Should serialize");
+        let parsed: serde_json::Value = serde_json::from_str(&json_str).expect("Should deserialize");
+
+        // Assert: Round trip preserves structure
+        assert_eq!(output_schema["type"], parsed["type"]);
+        assert_eq!(output_schema["properties"]["answer"]["minLength"], parsed["properties"]["answer"]["minLength"]);
+    }
+
+    #[test]
+    fn test_full_schema_serialization() {
+        // Arrange
+        let sig = Signature::new("FullModule", "Complete module")
+            .with_input(InputField::new("input", "Input field", "String"))
+            .with_output(OutputField::new("output", "Output field", "String"));
+
+        // Act
+        let full_schema = sig.as_full_json_schema();
+        let json_str = serde_json::to_string_pretty(&full_schema).expect("Should serialize");
+
+        // Assert: Contains all expected keys
+        assert!(json_str.contains("\"name\""));
+        assert!(json_str.contains("\"description\""));
+        assert!(json_str.contains("\"input\""));
+        assert!(json_str.contains("\"output\""));
+    }
+
+    #[test]
+    fn test_chain_of_thought_pattern_multiple_outputs() {
+        // Arrange: Chain-of-thought pattern with rationale and answer
+        let mut rationale_field = OutputField::new("rationale", "Step-by-step reasoning", "String");
+        rationale_field.constraints = FieldConstraints::new()
+            .required(true)
+            .min_length(20);
+
+        let mut answer_field = OutputField::new("answer", "Final answer", "String");
+        answer_field.constraints = FieldConstraints::new()
+            .required(true)
+            .min_length(1);
+
+        let sig = Signature::new("ChainOfThought", "Answer with reasoning")
+            .with_input(InputField::new("question", "Question to answer", "String"))
+            .with_output(rationale_field)
+            .with_output(answer_field);
+
+        // Act
+        let output_schema = sig.outputs_as_json_schema();
+
+        // Assert
+        let required = output_schema["required"].as_array().unwrap();
+        assert_eq!(required.len(), 2);
+        assert!(required.contains(&serde_json::json!("rationale")));
+        assert!(required.contains(&serde_json::json!("answer")));
+
+        assert_eq!(output_schema["properties"]["rationale"]["minLength"], 20);
+        assert_eq!(output_schema["properties"]["answer"]["minLength"], 1);
+    }
+
+    #[test]
+    fn test_output_field_names_retrieval() {
+        // Arrange
+        let sig = Signature::new("MultiOutput", "Multiple outputs")
+            .with_output(OutputField::new("result1", "First result", "String"))
+            .with_output(OutputField::new("result2", "Second result", "String"))
+            .with_output(OutputField::new("result3", "Third result", "i32"));
+
+        // Act
+        let output_names = sig.output_names();
+
+        // Assert
+        assert_eq!(output_names.len(), 3);
+        assert_eq!(output_names, vec!["result1", "result2", "result3"]);
+    }
+
+    #[test]
+    fn test_output_field_lookup() {
+        // Arrange
+        let sig = Signature::new("Lookup", "Test field lookup")
+            .with_output(OutputField::new("answer", "The answer", "String"))
+            .with_output(OutputField::new("confidence", "Confidence score", "f64"));
+
+        // Act & Assert
+        assert!(sig.get_output("answer").is_some());
+        assert!(sig.get_output("confidence").is_some());
+        assert!(sig.get_output("nonexistent").is_none());
+
+        let answer_field = sig.get_output("answer").unwrap();
+        assert_eq!(answer_field.name(), "answer");
+        assert_eq!(answer_field.desc(), "The answer");
+    }
+
+    #[test]
+    fn test_rust_struct_generation_multiple_outputs() {
+        // Arrange
+        let sig = Signature::new("MultiStruct", "Test struct generation")
+            .with_input(InputField::new("input", "Input data", "String"))
+            .with_output(OutputField::new("output1", "First output", "String"))
+            .with_output(OutputField::new("output2", "Second output", "i32"));
+
+        // Act
+        let code = sig.as_rust_struct();
+
+        // Assert: Both outputs appear in the generated struct
+        assert!(code.contains("pub output1: String"));
+        assert!(code.contains("pub output2: i32"));
+        assert!(code.contains("MultiStruct_Outputs"));
+    }
+
+    #[test]
+    fn test_output_schema_with_pattern_constraint() {
+        // Arrange
+        let mut uuid_field = OutputField::new("uuid", "Generated UUID", "String");
+        uuid_field.constraints = FieldConstraints::new()
+            .pattern("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$");
+
+        let sig = Signature::new("UUIDGenerator", "Generate UUIDs")
+            .with_output(uuid_field);
+
+        // Act
+        let output_schema = sig.outputs_as_json_schema();
+
+        // Assert
+        assert!(output_schema["properties"]["uuid"]["pattern"].is_string());
+        let pattern = output_schema["properties"]["uuid"]["pattern"].as_str().unwrap();
+        assert!(pattern.contains("^[0-9a-f]{8}"));
+    }
+
+    #[test]
+    fn test_mixed_required_and_optional_outputs() {
+        // Arrange
+        let mut required_output = OutputField::new("answer", "Required answer", "String");
+        required_output.constraints = FieldConstraints::new().required(true);
+
+        let mut optional_output = OutputField::new("explanation", "Optional explanation", "String");
+        optional_output.constraints = FieldConstraints::new().required(false);
+
+        let sig = Signature::new("MixedOutputs", "Mixed required/optional outputs")
+            .with_output(required_output)
+            .with_output(optional_output);
+
+        // Act
+        let output_schema = sig.outputs_as_json_schema();
+
+        // Assert
+        let required = output_schema["required"].as_array().unwrap();
+        assert_eq!(required.len(), 1);
+        assert!(required.contains(&serde_json::json!("answer")));
+        assert!(!required.contains(&serde_json::json!("explanation")));
+    }
+
+    #[test]
+    fn test_output_schema_preserves_descriptions() {
+        // Arrange
+        let sig = Signature::new("Descriptions", "Test description preservation")
+            .with_output(OutputField::new("result", "A detailed result description", "String"));
+
+        // Act
+        let output_schema = sig.outputs_as_json_schema();
+
+        // Assert
+        assert_eq!(
+            output_schema["properties"]["result"]["description"],
+            "A detailed result description"
+        );
     }
 }

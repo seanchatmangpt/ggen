@@ -54,6 +54,8 @@ pub mod validator;
 pub mod violation;
 pub mod checks;
 pub mod gate;
+pub mod standard_ontologies;
+pub mod preflight;
 
 #[cfg(test)]
 mod tests;
@@ -66,3 +68,7 @@ pub use validator::SparqlValidator;
 pub use violation::{ConstraintType, Severity, ValidationResult, Violation};
 pub use checks::{Check, CheckError, CompilationCheck, LintCheck, TestCheck, SecurityCheck};
 pub use gate::{QualityGate, QualityGateResult, CheckResult};
+pub use standard_ontologies::{
+    OntologyScreeningConfig, StandardOntology, StandardOntologyValidator,
+};
+pub use preflight::{PreFlightValidator, PreFlightResult};

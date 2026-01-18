@@ -1,36 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [How-to: Run Gemba Walk](#how-to-run-gemba-walk)
-  - [Prerequisites](#prerequisites)
-  - [Problem Statement](#problem-statement)
-  - [What is a Gemba Walk?](#what-is-a-gemba-walk)
-  - [Step 1: Randomly Sample Tests](#step-1-randomly-sample-tests)
-    - [Select 10 Tests (Stratified Sampling)](#select-10-tests-stratified-sampling)
-  - [Step 2: Apply 8-Point Quality Checklist](#step-2-apply-8-point-quality-checklist)
-    - [1. Observability](#1-observability)
-    - [2. Isolation](#2-isolation)
-    - [3. Clarity](#3-clarity)
-    - [4. Edge Cases](#4-edge-cases)
-    - [5. Performance](#5-performance)
-    - [6. Determinism](#6-determinism)
-    - [7. Error Messages](#7-error-messages)
-    - [8. Maintainability](#8-maintainability)
-  - [Step 3: Score and Aggregate](#step-3-score-and-aggregate)
-    - [Scoring Template](#scoring-template)
-    - [Interpret Results](#interpret-results)
-  - [Step 4: Prioritize Improvements](#step-4-prioritize-improvements)
-    - [Focus on Lowest Scores](#focus-on-lowest-scores)
-    - [Create Action Items](#create-action-items)
-  - [Step 5: Track Progress](#step-5-track-progress)
-    - [Monthly Gemba Walks](#monthly-gemba-walks)
-    - [Trend Analysis](#trend-analysis)
-  - [Verification Checklist](#verification-checklist)
-  - [Related Guides](#related-guides)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # How-to: Run Gemba Walk
 
 **Inspect test quality using 8-point checklist (observability, isolation, clarity, edge cases)**

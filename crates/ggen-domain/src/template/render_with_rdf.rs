@@ -164,90 +164,20 @@ pub fn render_with_rdf(options: &RenderWithRdfOptions) -> Result<RenderWithRdfRe
         context.insert(key, value);
     }
 
+    // Count SPARQL queries from frontmatter
+    let sparql_count = template.front.sparql.len();
+
     // Create RDF graph
     let mut graph = Graph::new().map_err(|e| {
         ggen_utils::error::Error::new(&format!("Failed to create RDF graph: {}", e))
     })?;
 
-    // Render frontmatter first - this populates template.front from raw_frontmatter
+    // Render frontmatter first
     template
         .render_frontmatter(&mut tera, &context)
         .map_err(|e| {
             ggen_utils::error::Error::new(&format!("Failed to render frontmatter: {}", e))
         })?;
-
-    // Count SPARQL queries from frontmatter AFTER render_frontmatter populates it
-    let sparql_count = template.front.sparql.len();
-
-    // Determine base output directory for resolving frontmatter `to` paths
-    let base_output_dir = if options.output_path.is_dir() {
-        options.output_path.clone()
-    } else {
-        options
-            .output_path
-            .parent()
-            .map(|p| p.to_path_buf())
-            .unwrap_or_else(|| {
-                std::env::current_dir().unwrap_or_else(|_| std::path::PathBuf::from("."))
-            })
-    };
-
-    // Resolve final output path from frontmatter `to` if present
-    // This honors the template's declared output path (e.g., `to: "ggen.toml"`)
-    let resolved_output_path = if let Some(to_path) = &template.front.to {
-        // Render the `to` path through Tera to resolve any template variables
-        let rendered_to = tera.render_str(to_path, &context).map_err(|e| {
-            ggen_utils::error::Error::new(&format!(
-                "Failed to render frontmatter 'to' path '{}': {}",
-                to_path, e
-            ))
-        })?;
-
-        // Join with base output directory
-        let joined_path = base_output_dir.join(&rendered_to);
-
-        // Security: Prevent path traversal attacks by ensuring the resolved path
-        // stays within base_output_dir. This prevents paths like "../../../etc/passwd"
-        // from escaping the output directory.
-        // We normalize the path and check that all components stay within base_output_dir
-        let normalized = joined_path.components().collect::<Vec<_>>();
-        let base_components = base_output_dir.components().collect::<Vec<_>>();
-
-        // Check that normalized path starts with base components
-        if normalized.len() < base_components.len() {
-            return Err(ggen_utils::error::Error::new(&format!(
-                "Output path '{}' would escape output root '{}'",
-                rendered_to,
-                base_output_dir.display()
-            )));
-        }
-
-        for (i, component) in base_components.iter().enumerate() {
-            if normalized.get(i) != Some(component) {
-                return Err(ggen_utils::error::Error::new(&format!(
-                    "Output path '{}' would escape output root '{}'",
-                    rendered_to,
-                    base_output_dir.display()
-                )));
-            }
-        }
-
-        joined_path
-    } else {
-        // No frontmatter `to` - use the provided output_path
-        options.output_path.clone()
-    };
-
-    // Re-check overwrite guard for resolved path (if different from original)
-    if resolved_output_path != options.output_path
-        && resolved_output_path.exists()
-        && !options.force_overwrite
-    {
-        return Err(ggen_utils::error::Error::new(&format!(
-            "Output file already exists: {}. Use force_overwrite to overwrite.",
-            resolved_output_path.display()
-        )));
-    }
 
     // Render using v2 RDF integration
     // If RDF files provided via CLI, use those (take precedence)
@@ -294,9 +224,24 @@ pub fn render_with_rdf(options: &RenderWithRdfOptions) -> Result<RenderWithRdfRe
     // Check for file markers and split if present
     let (files_created, total_bytes, output_path) = if rendered_content.contains("{# FILE:") {
         // Multi-file generation mode
-        // Use base_output_dir for file markers
+        // Use output_path's parent as base directory for file markers
         // File markers contain paths relative to project root (e.g., "crates/clnrm-v2-generated/...")
-        let files = split_file_markers(&rendered_content, &base_output_dir)?;
+        let base_dir = if options.output_path.is_dir() {
+            options.output_path.clone()
+        } else {
+            // Get parent directory, fallback to current directory if no parent
+            options
+                .output_path
+                .parent()
+                .map(|p| p.to_path_buf())
+                .unwrap_or_else(|| {
+                    // If no parent, try to get project root from current directory
+                    // Use proper error handling - fallback to current directory
+                    std::env::current_dir().unwrap_or_else(|_| std::path::PathBuf::from("."))
+                })
+        };
+
+        let files = split_file_markers(&rendered_content, &base_dir)?;
 
         for (file_path, content) in &files {
             if let Some(parent) = file_path.parent() {
@@ -319,29 +264,14 @@ pub fn render_with_rdf(options: &RenderWithRdfOptions) -> Result<RenderWithRdfRe
         }
 
         let total_bytes: usize = files.iter().map(|(_, content)| content.len()).sum();
-        (files.len(), total_bytes, base_output_dir.to_path_buf())
+        (files.len(), total_bytes, base_dir.to_path_buf())
     } else {
-        // Single file output - use resolved path (honors frontmatter `to`)
-        // Ensure parent directory exists
-        if let Some(parent) = resolved_output_path.parent() {
-            std::fs::create_dir_all(parent).map_err(|e| {
-                ggen_utils::error::Error::new(&format!(
-                    "Failed to create output directory for {}: {}",
-                    resolved_output_path.display(),
-                    e
-                ))
-            })?;
-        }
-
-        std::fs::write(&resolved_output_path, &rendered_content).map_err(|e| {
-            ggen_utils::error::Error::new(&format!(
-                "Failed to write output to {}: {}",
-                resolved_output_path.display(),
-                e
-            ))
+        // Single file output (existing behavior)
+        std::fs::write(&options.output_path, &rendered_content).map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to write output: {}", e))
         })?;
 
-        (1, rendered_content.len(), resolved_output_path)
+        (1, rendered_content.len(), options.output_path.clone())
     };
 
     // Count RDF files loaded (from CLI args or frontmatter)
@@ -642,79 +572,6 @@ Content for file 2
         assert_eq!(files[0].1.trim(), "Content for file 1\nLine 2");
         assert_eq!(files[1].0, base_dir.join("subdir/file2.txt"));
         assert_eq!(files[1].1.trim(), "Content for file 2");
-    }
-
-    #[test]
-    fn test_render_honors_frontmatter_to_for_ggen_toml() {
-        // Regression test: Verify that frontmatter `to: "ggen.toml"` is honored
-        // even when a placeholder output path is provided (CLI-style usage)
-        let temp_dir = TempDir::new().unwrap();
-        let template_path = temp_dir.path().join("ggen.toml.tmpl");
-        let placeholder_output = temp_dir.path().join("placeholder");
-
-        // Create template with frontmatter `to: "ggen.toml"` and template variables
-        fs::write(
-            &template_path,
-            r#"---
-to: "ggen.toml"
----
-[project]
-name = "{{ project_name }}"
-version = "{{ project_version }}"
-description = "{{ project_description }}"
-"#,
-        )
-        .unwrap();
-
-        // Use placeholder output path (simulating CLI usage)
-        let options = RenderWithRdfOptions::new(template_path, placeholder_output.clone())
-            .with_var("project_name", "test-project")
-            .with_var("project_version", "1.0.0")
-            .with_var("project_description", "A test project");
-
-        let result = render_with_rdf(&options).unwrap();
-
-        // Verify file was written to resolved location (not placeholder)
-        let resolved_path = temp_dir.path().join("ggen.toml");
-        assert!(
-            resolved_path.exists(),
-            "File should be written to resolved path: {}",
-            resolved_path.display()
-        );
-        assert_eq!(
-            result.output_path, resolved_path,
-            "Result should report resolved path"
-        );
-
-        // Verify placeholder was NOT created
-        assert!(
-            !placeholder_output.exists(),
-            "Placeholder path should not exist: {}",
-            placeholder_output.display()
-        );
-
-        // Verify content was rendered correctly with variables
-        let content = fs::read_to_string(&resolved_path).unwrap();
-        assert!(
-            content.contains("name = \"test-project\""),
-            "Content should contain rendered project_name"
-        );
-        assert!(
-            content.contains("version = \"1.0.0\""),
-            "Content should contain rendered project_version"
-        );
-        assert!(
-            content.contains("description = \"A test project\""),
-            "Content should contain rendered project_description"
-        );
-        assert!(
-            content.contains("[project]"),
-            "Content should contain project section"
-        );
-
-        // Verify bytes written
-        assert!(result.bytes_written > 0, "Should report bytes written");
-        assert_eq!(result.files_created, 1, "Should report 1 file created");
     }
 }
 

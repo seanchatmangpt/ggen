@@ -1,0 +1,99 @@
+// Generated LLM-Construct: {{ construct_name }}
+// Intent: {{ intent }}
+// Generated at: {{ timestamp }}
+
+use ggen_ai::dspy::{Signature, InputField, OutputField, FieldConstraints};
+use serde::{Deserialize, Serialize};
+
+/// {{ description }}
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct {{ struct_name }} {
+    signature: Signature,
+}
+
+impl {{ struct_name }} {
+    pub fn new() -> Self {
+        let signature = Signature::new(
+            "{{ construct_name }}",
+            "{{ description }}"
+        )
+        .with_input(
+            InputField::new(
+                "{{ input_field_name }}",
+                "{{ input_description }}",
+                "String"
+            )
+        )
+        {% for field in output_fields -%}
+        .with_output(
+            OutputField::new(
+                "{{ field.name }}",
+                "{{ field.description }}",
+                "{{ field.type_annotation }}"
+            )
+            {%- if field.constraints.required %}
+            .required({{ field.constraints.required }})
+            {%- endif %}
+            {%- if field.constraints.min_length %}
+            .with_min_length({{ field.constraints.min_length }})
+            {%- endif %}
+            {%- if field.constraints.max_length %}
+            .with_max_length({{ field.constraints.max_length }})
+            {%- endif %}
+            {%- if field.constraints.pattern %}
+            .with_pattern("{{ field.constraints.pattern }}")
+            {%- endif %}
+            {%- if field.constraints.semantic_type %}
+            .with_semantic_type("{{ field.constraints.semantic_type }}")
+            {%- endif %}
+        )
+        {% endfor -%}
+        {%- if instructions %}
+        .with_instructions(r#"{{ instructions }}"#)
+        {%- endif %};
+
+        Self { signature }
+    }
+
+    pub fn signature(&self) -> &Signature {
+        &self.signature
+    }
+}
+
+impl Default for {{ struct_name }} {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_{{ struct_name | lower }}_creation() {
+        let construct = {{ struct_name }}::new();
+        let sig = construct.signature();
+
+        assert_eq!(sig.name, "{{ construct_name }}");
+        assert_eq!(sig.description, "{{ description }}");
+        assert_eq!(sig.inputs.len(), 1);
+        assert_eq!(sig.outputs.len(), {{ output_fields | length }});
+    }
+
+    #[test]
+    fn test_{{ struct_name | lower }}_field_names() {
+        let construct = {{ struct_name }}::new();
+        let sig = construct.signature();
+
+        assert_eq!(sig.input_names(), vec!["{{ input_field_name }}"]);
+        {% if output_fields | length > 0 -%}
+        let expected_outputs = vec![
+            {%- for field in output_fields %}
+            "{{ field.name }}"{{ "," if not loop.last }}
+            {%- endfor %}
+        ];
+        assert_eq!(sig.output_names(), expected_outputs);
+        {%- endif %}
+    }
+}

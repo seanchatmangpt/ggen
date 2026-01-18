@@ -1,33 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [ggen-config Module Structure](#ggen-config-module-structure)
-  - [Overview](#overview)
-  - [Crate Structure](#crate-structure)
-  - [Module Responsibilities](#module-responsibilities)
-    - [lib.rs - Public API](#librs---public-api)
-    - [types.rs - Data Structures](#typesrs---data-structures)
-    - [parser.rs - TOML Parsing](#parserrs---toml-parsing)
-    - [validator.rs - Validation](#validatorrs---validation)
-    - [normalizer.rs - Smart Defaults](#normalizerrs---smart-defaults)
-    - [graph_integration.rs - RDF Graph](#graph_integrationrs---rdf-graph)
-    - [template_integration.rs - Templates](#template_integrationrs---templates)
-    - [ontology_integration.rs - Ontology Validation](#ontology_integrationrs---ontology-validation)
-    - [plugin_integration.rs - Plugin System](#plugin_integrationrs---plugin-system)
-    - [profile_resolver.rs - Profile Management](#profile_resolverrs---profile-management)
-    - [error.rs - Error Types](#errorrs---error-types)
-  - [Cargo.toml](#cargotoml)
-  - [Testing Strategy](#testing-strategy)
-    - [Unit Tests](#unit-tests)
-    - [Integration Tests](#integration-tests)
-    - [Property Tests](#property-tests)
-    - [Fixtures](#fixtures)
-  - [Implementation Priority](#implementation-priority)
-  - [Next Steps](#next-steps)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # ggen-config Module Structure
 
 ## Overview

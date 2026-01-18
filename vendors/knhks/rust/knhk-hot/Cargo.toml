@@ -1,0 +1,16 @@
+[package]
+name = "knhk-hot"
+version = "1.0.0"
+edition = "2021"
+
+[lib]
+name = "knhk_hot"
+crate-type = ["staticlib", "cdylib"]
+
+[dependencies]
+
+[build-dependencies]
+
+[build.rs]
+file = "build.rs"
+

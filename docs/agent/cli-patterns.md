@@ -1,23 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [CLI Patterns Guide](#cli-patterns-guide)
-  - [clap-noun-verb Auto-Discovery](#clap-noun-verb-auto-discovery)
-    - [Directory Structure](#directory-structure)
-    - [Verb Function Pattern](#verb-function-pattern)
-    - [Macro Expansion](#macro-expansion)
-    - [Error Handling & Serialization](#error-handling--serialization)
-    - [Command Routing & Conventions](#command-routing--conventions)
-    - [Argument Type Mapping](#argument-type-mapping)
-    - [Result Serialization](#result-serialization)
-    - [Testing CLI Commands](#testing-cli-commands)
-    - [Performance Characteristics](#performance-characteristics)
-    - [Security Considerations](#security-considerations)
-  - [Critical Rules](#critical-rules)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # CLI Patterns Guide
 
 ## clap-noun-verb Auto-Discovery

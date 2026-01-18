@@ -11,6 +11,8 @@
 //! Every error must be visible, propagated, and actionable.
 //! Errors are first-class citizens with context and suggestions.
 
+use thiserror::Error;
+
 // ============================================================================
 // Top-Level Error Type
 // ============================================================================
@@ -29,7 +31,7 @@
 ///     // ...
 /// }
 /// ```
-#[derive(Debug, thiserror::Error)]
+#[derive(Error, Debug)]
 pub enum GgenError {
     // ========================================================================
     // Template Errors
@@ -150,7 +152,7 @@ pub enum GgenError {
 // ============================================================================
 
 /// Validation-specific errors with detailed diagnostics
-#[derive(Debug, thiserror::Error)]
+#[derive(Error, Debug)]
 pub enum ValidationError {
     #[error("Missing required field: '{field}' in {location}")]
     MissingField {
@@ -189,10 +191,13 @@ pub enum ValidationError {
 // ============================================================================
 
 /// Configuration-specific errors
-#[derive(Debug, thiserror::Error)]
+#[derive(Error, Debug)]
 pub enum ConfigError {
     #[error("Configuration file not found: {path}\nSearched locations: {searched:?}")]
-    FileNotFound { path: String, searched: Vec<String> },
+    FileNotFound {
+        path: String,
+        searched: Vec<String>,
+    },
 
     #[error("Invalid configuration: {reason}\nFile: {file}\nLine: {line}")]
     InvalidConfig {
@@ -257,7 +262,7 @@ pub trait ErrorContext<T> {
 }
 
 impl<T, E: Into<GgenError>> ErrorContext<T> for std::result::Result<T, E> {
-    fn context(self, _msg: impl Into<String>) -> Result<T> {
+    fn context(self, msg: impl Into<String>) -> Result<T> {
         self.map_err(|e| {
             let error: GgenError = e.into();
             // Enhance error with context (implementation would wrap error)
@@ -300,7 +305,6 @@ pub struct ErrorBuilder {
     suggestion: Option<String>,
 }
 
-#[allow(dead_code)] // Some variants reserved for future error builder patterns
 enum ErrorType {
     TemplateNotFound { path: String },
     InvalidSyntax { file: String, line: usize },
@@ -361,10 +365,7 @@ impl ErrorBuilder {
 /// ```
 pub fn format_error(error: &GgenError) -> String {
     // Implementation would create rich, colorized output
-    format!(
-        "ERROR: {}\n\nFor more information, run with RUST_LOG=debug",
-        error
-    )
+    format!("ERROR: {}\n\nFor more information, run with RUST_LOG=debug", error)
 }
 
 /// Report error with full diagnostic information

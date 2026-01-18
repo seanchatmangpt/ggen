@@ -1,9 +1,8 @@
 //! SPARQL query execution domain logic with real Oxigraph operations
 //!
 //! Chicago TDD: Uses REAL in-memory RDF stores and ACTUAL SPARQL queries
-//! v4.0.0: Queries persistent GraphStore for data loaded across sessions
 
-use ggen_core::{Graph, GraphStore};
+use ggen_core::Graph;
 use ggen_utils::error::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -78,20 +77,13 @@ impl QueryResult {
 /// Execute SPARQL query against RDF graph
 ///
 /// Chicago TDD: This executes REAL SPARQL queries using Oxigraph
-/// v4.0.0: Queries persistent store if no file specified
 pub fn execute_sparql(options: QueryOptions) -> Result<QueryResult> {
-    // Load graph if file provided, otherwise use persistent store
+    // Load graph if file provided, otherwise create empty graph
     let graph = if let Some(graph_file) = &options.graph_file {
-        // One-time query: load file into temporary in-memory graph
         Graph::load_from_file(graph_file)
             .context(format!("Failed to load graph from file: {}", graph_file))?
     } else {
-        // Query persistent store (data loaded via `ggen graph load`)
-        let store = GraphStore::open(".ggen/rdf-store")
-            .context("Failed to open persistent RDF store at .ggen/rdf-store")?;
-        store
-            .create_graph()
-            .context("Failed to create graph from persistent store")?
+        Graph::new().context("Failed to create empty graph")?
     };
 
     // Execute REAL SPARQL query using Oxigraph
@@ -155,7 +147,6 @@ pub fn execute_sparql(options: QueryOptions) -> Result<QueryResult> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serial_test::serial;
 
     /// Chicago TDD: Test with REAL in-memory RDF graph
     #[test]
@@ -248,14 +239,7 @@ mod tests {
 
     /// Chicago TDD: Test empty graph returns no results
     #[test]
-    #[serial]
     fn test_execute_sparql_empty_graph() -> Result<()> {
-        // Clean up persistent store to ensure empty state
-        let store_path = std::path::Path::new(".ggen/rdf-store");
-        if store_path.exists() {
-            std::fs::remove_dir_all(store_path).ok();
-        }
-
         // Execute query on empty graph
         let options = QueryOptions {
             query: "SELECT ?s ?p ?o WHERE { ?s ?p ?o }".to_string(),

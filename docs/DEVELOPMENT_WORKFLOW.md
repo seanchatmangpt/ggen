@@ -6,15 +6,12 @@
   - [Overview](#overview)
   - [Development Commands](#development-commands)
     - [Required: Use `cargo make` Commands](#required-use-cargo-make-commands)
-    - [Quickstart (cargo make only)](#quickstart-cargo-make-only)
-    - [Toolchain / MSRV](#toolchain--msrv)
     - [Timeout SLAs](#timeout-slas)
   - [Testing Strategy](#testing-strategy)
     - [Chicago TDD (Test-Driven Development)](#chicago-tdd-test-driven-development)
       - [Test Macros](#test-macros)
       - [Testing Principles](#testing-principles)
       - [Test Execution](#test-execution)
-  - [Determinism and Reproducibility](#determinism-and-reproducibility)
   - [Error Handling Standards](#error-handling-standards)
     - [Error Types](#error-types)
     - [Error Construction](#error-construction)
@@ -23,12 +20,9 @@
     - [Signal Types](#signal-types)
     - [Andon Workflow](#andon-workflow)
     - [Verification Before Completion](#verification-before-completion)
-  - [Security and Compliance](#security-and-compliance)
-  - [Spec-First Workflow (Speckit)](#spec-first-workflow-speckit)
   - [Code Quality Standards](#code-quality-standards)
     - [Prohibited Patterns](#prohibited-patterns)
     - [Required Patterns](#required-patterns)
-  - [Troubleshooting (common failures)](#troubleshooting-common-failures)
   - [Continuous Improvement (Kaizen)](#continuous-improvement-kaizen)
     - [Kaizen Workflow](#kaizen-workflow)
     - [Improvement Criteria](#improvement-criteria)
@@ -79,22 +73,6 @@ cargo make test-timings    # Identify slow tests
 cargo make completions     # Generate shell completions
 ```
 
-### Quickstart (cargo make only)
-
-1. `cargo make timeout-check` (verify timeouts exist)
-2. `cargo make check` (compile; stop on any warning/error)
-3. `cargo make test-unit` (fast loop) → `cargo make test` (full suite)
-4. `cargo make lint` (clippy; zero warnings)
-5. `cargo make slo-check` (performance SLO guardrails)
-6. `cargo make audit` (security advisories) + `cargo make validate-templates` + `cargo make validate-rdf`
-7. For single tests: `cargo make test test_name` (respect timeout wrappers)
-
-### Toolchain / MSRV
-
-- Rust stable pinned; MSRV: 1.74+ (edition 2021) per workspace toolchain.
-- Use `rustup show` to confirm; do not upgrade toolchain without coordination.
-- Feature gating: enable optional features explicitly; avoid cfg mazes.
-
 ### Timeout SLAs
 
 All CLI commands have timeout wrappers to prevent indefinite hangs:
@@ -105,7 +83,6 @@ All CLI commands have timeout wrappers to prevent indefinite hangs:
 - **Unit tests**: `timeout 10s` (cargo test --lib)
 - **Integration tests**: `timeout 30s` (cargo test --test)
 - **Pre-push hooks**: `timeout 30s` (cargo make check-pre-push) - Longer timeout for lock contention
-- **Security/validation**: `timeout 60s` (cargo make audit, cargo make validate-templates, cargo make validate-rdf)
 
 ## Testing Strategy
 
@@ -179,12 +156,6 @@ cargo make deterministic
 # Identify slow tests
 cargo make test-timings
 ```
-
-## Determinism and Reproducibility
-
-- **Seeds**: Use `cargo make deterministic` (fixed seed) and `cargo make test-single-threaded` to eliminate scheduling variance. For generators, set explicit seeds (`GGEN_SEED` or command-level seed flags where available).
-- **Environment**: Pin locale/timezone (`TZ=UTC`), ensure stable input ordering (prefer `BTreeMap`/sorted collections over `HashMap`), and avoid wall-clock dependent code in tests.
-- **Artifacts**: Compare outputs across runs; snapshots must match byte-for-byte. If differences appear, stop the line and trace nondeterministic sources (hash iteration, temp paths, clock, randomness without seed).
 
 ## Error Handling Standards
 
@@ -280,17 +251,6 @@ cargo make slo-check
 
 **All signals must be cleared before work continues.**
 
-## Security and Compliance
-
-- `cargo make audit` (advisories), `cargo make validate-templates`, `cargo make validate-rdf` (template/RDF integrity).
-- Treat audit failures as Andon (critical); fix or explicitly document and gate before proceeding.
-- Lock down third-party updates; prefer minimal dependency surface and feature flags off by default.
-
-## Spec-First Workflow (Speckit)
-
-- Define/refresh specs before coding: `cargo make speckit-check` (verifies spec presence) and follow `/speckit.*` commands as per team workflow.
-- Keep evidence in `.specify/specs/<feature>/`; do not implement features without an up-to-date spec/plan/tasks chain.
-
 ## Code Quality Standards
 
 ### Prohibited Patterns
@@ -309,16 +269,6 @@ cargo make slo-check
 - Feature gating - `#[cfg(feature = "...")]` for optional dependencies
 - Test verification - All code must be testable and tested
 - Behavior verification - Tests must verify observable outputs/state changes
-
-## Troubleshooting (common failures)
-
-- **Direct `cargo` usage blocked**: Use `cargo make <task>` equivalents; see Quickstart.
-- **Timeouts hit**: Check for parallel builds holding locks; retry after `cargo make timeout-check` and ensure tasks match SLA category.
-- **Nondeterministic tests/output**: Run `cargo make deterministic` + `cargo make test-single-threaded`; replace unordered collections with deterministic ones.
-- **Clippy warnings**: Treat as Andon (stop); run `cargo make lint` and fix root causes—no `#[allow]` unless justified and documented.
-- **SLO regression**: Run `cargo make slo-check`, profile hot paths, and optimize allocations/ordering.
-- **Audit failures**: Run `cargo make audit`/`validate-templates`/`validate-rdf`; pin or patch dependencies before continuing.
-- **Spec missing/stale**: Refresh specs with Speckit (`cargo make speckit-check`) before coding changes.
 
 ## Continuous Improvement (Kaizen)
 

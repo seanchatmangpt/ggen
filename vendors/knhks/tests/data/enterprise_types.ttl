@@ -1,0 +1,17 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Enterprise Type Checking Use Case
+# RDF type validation for schema compliance
+# Test Case 4: Type Checking (10% of runtime)
+# Limited to 8 triples for hot path (single predicate run)
+# Validates resource types for type-safe operations
+
+ex:document1 a ex:ValidType .
+ex:document2 a ex:ValidType .
+ex:document3 a ex:ValidType .
+ex:document4 a ex:ValidType .
+ex:document5 a ex:ValidType .
+ex:document6 a ex:ValidType .
+ex:document7 a ex:ValidType .
+ex:document8 a ex:InvalidType .

@@ -1,11 +1,12 @@
 [package]
 name = "ggen-core"
-version = "5.1.0"
+version = "3.3.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Core graph-aware code generation engine"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/seanchatmangpt/ggen"
+readme = "README.md"
 keywords = ["cli", "code-generation", "rdf", "templates"]
 categories = ["development-tools", "command-line-utilities"]
 
@@ -15,7 +16,6 @@ multiple_crate_versions = "allow"
 [dependencies]
 # Use workspace = true pattern for workspace-local crates
 ggen-utils.workspace = true
-anyhow.workspace = true
 tera = "1.20"
 oxigraph = "0.5"
 serde = { version = "1.0", features = ["derive"] }
@@ -27,14 +27,15 @@ num_cpus = "1.17"
 thiserror = "2.0"
 log = "0.4.28"
 rand = "0.9"
-# shacl_validation = "0.1" # Removed - replaced with SPARQL-based validation (005-ttl-shacl-validation)
-# srdf = "0.1" # Removed - unused abstraction layer
+shacl_validation = "0.1"
+srdf = "0.1"
 tempfile = "3"
 gray_matter = { version = "0.3.2", features = ["yaml"] }
 Inflector = "0.11"
 heck = "0.5"
 regex = "1.12"
 colored = "3.0"
+indicatif = "0.17"
 toml = "0.9"
 lru = "0.16"
 ahash = "0.8"
@@ -43,9 +44,7 @@ tokio = { version = "1.47", features = ["full"] }
 reqwest = { workspace = true, features = ["rustls-tls", "stream"] }
 url = "2.5"
 chrono = { version = "0.4", features = ["serde"] }
-# git2: Using vendored-libgit2 with native TLS backend (macOS: Security.framework, Linux: system OpenSSL)
-# This eliminates the OpenSSL from-source compilation bottleneck (PHASE 1.2 optimization)
-git2 = { version = "0.20", default-features = false, features = ["vendored-libgit2", "https"] }
+git2 = { version = "0.20", features = ["vendored-openssl"] }
 tar = "0.4"
 flate2 = "1.1"
 dirs = "6.0"
@@ -69,6 +68,19 @@ futures = "0.3"
 bytes = "1.10"
 petgraph = "0.8.3"
 uuid = { version = "1.18", features = ["v4", "serde"] }
+# File watching with debouncing for watch mode
+notify = { workspace = true }
+notify-debouncer-full = { workspace = true }
+signal-hook = "0.3"
+signal-hook-tokio = { version = "0.3", features = ["futures-v0_3"] }
+
+[target.'cfg(unix)'.dependencies]
+# Unix system calls for disk space checking
+nix = { version = "0.29", features = ["fs"] }
+
+[target.'cfg(windows)'.dependencies]
+# Windows API for disk space checking
+windows = { version = "0.58", features = ["Win32_Storage_FileSystem"] }
 
 [features]
 default = ["dx"]
@@ -87,7 +99,7 @@ proptest = { workspace = true }
 tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
 testcontainers = "0.25"
 uuid = { version = "1.18", features = ["v4"] }
-chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras", "testcontainers", "async"] }
+chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras", "testcontainers"] }
 anyhow = "1.0"
 
 [[bench]]
@@ -142,11 +154,6 @@ harness = false
 name = "regression_detection"
 harness = false
 
-[[bench]]
-name = "thesis_validation_benchmarks"
-harness = false
-
-# NOTE: marketplace_tests_main archived to tests-archive/broken-2025-11-21
-# [[test]]
-# name = "marketplace_tests_main"
-# path = "tests/marketplace_tests_main.rs"
+[[test]]
+name = "marketplace_tests_main"
+path = "tests/marketplace_tests_main.rs"

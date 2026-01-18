@@ -1,36 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Tutorial: Lean Manufacturing Introduction](#tutorial-lean-manufacturing-introduction)
-  - [Learning Objectives](#learning-objectives)
-  - [What is Lean Manufacturing?](#what-is-lean-manufacturing)
-  - [The 3M Framework](#the-3m-framework)
-    - [Mura (Inconsistency)](#mura-inconsistency)
-    - [Muda (Waste)](#muda-waste)
-      - [1. Overproduction (Excessive Tests)](#1-overproduction-excessive-tests)
-      - [2. Waiting (Slow Tests)](#2-waiting-slow-tests)
-      - [3. Transportation (Data Movement)](#3-transportation-data-movement)
-      - [4. Overprocessing (Excessive Setup)](#4-overprocessing-excessive-setup)
-      - [5. Inventory (Unused Test Code)](#5-inventory-unused-test-code)
-      - [6. Motion (Context Switching)](#6-motion-context-switching)
-      - [7. Defects (Flaky Tests)](#7-defects-flaky-tests)
-    - [Muri (Overburden)](#muri-overburden)
-  - [Gemba: Go and See](#gemba-go-and-see)
-    - [Gemba Walk Example](#gemba-walk-example)
-  - [Andon: Visual Management](#andon-visual-management)
-    - [Andon Cord System](#andon-cord-system)
-  - [Poka-Yoke: Mistake-Proofing](#poka-yoke-mistake-proofing)
-    - [Pattern 1: Guide Pin (Compile-Time Constraints)](#pattern-1-guide-pin-compile-time-constraints)
-    - [Pattern 2: Limit Switch (Bounded Values)](#pattern-2-limit-switch-bounded-values)
-  - [Real-World Case Study](#real-world-case-study)
-    - [Before Lean](#before-lean)
-    - [After Lean (3M Framework Applied)](#after-lean-3m-framework-applied)
-  - [Glossary](#glossary)
-  - [Next Steps](#next-steps)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Tutorial: Lean Manufacturing Introduction
 
 **Apply Toyota Production System principles (Mura/Muda/Muri) to software testing**

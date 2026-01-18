@@ -1,0 +1,106 @@
+@prefix knhks: <urn:knhks:> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# O_sys Ontology - System logic defined as RDF triples
+# This ontology defines hooks, guards, epochs, and runs as RDF data
+
+# Core Classes
+knhks:Reflex a rdfs:Class ;
+    rdfs:label "Reflex" ;
+    rdfs:comment "≤8-tick execution unit" .
+
+knhks:Hook a rdfs:Class ;
+    rdfs:label "Hook" ;
+    rdfs:comment "Entry point for reflex" ;
+    rdfs:subClassOf knhks:Reflex .
+
+knhks:Run a rdfs:Class ;
+    rdfs:label "Run" ;
+    rdfs:comment "Contiguous predicate window" .
+
+knhks:Epoch a rdfs:Class ;
+    rdfs:label "Epoch" ;
+    rdfs:comment "Time slice (τ ≤ 8)" .
+
+knhks:Guard a rdfs:Class ;
+    rdfs:label "Guard" ;
+    rdfs:comment "Constraint that blocks execution" .
+
+knhks:Receipt a rdfs:Class ;
+    rdfs:label "Receipt" ;
+    rdfs:comment "Provenance record" .
+
+knhks:Span a rdfs:Class ;
+    rdfs:label "Span" ;
+    rdfs:comment "OTEL trace context" .
+
+knhks:Policy a rdfs:Class ;
+    rdfs:label "Policy" ;
+    rdfs:comment "Rule as triples" .
+
+# Properties
+knhks:hasEpoch a rdf:Property ;
+    rdfs:label "hasEpoch" ;
+    rdfs:comment "Time window constraint" ;
+    rdfs:domain knhks:Reflex ;
+    rdfs:range knhks:Epoch .
+
+knhks:hasGuard a rdf:Property ;
+    rdfs:label "hasGuard" ;
+    rdfs:comment "Guard controlling execution" ;
+    rdfs:domain knhks:Reflex ;
+    rdfs:range knhks:Guard .
+
+knhks:emits a rdf:Property ;
+    rdfs:label "emits" ;
+    rdfs:comment "Output artifact" ;
+    rdfs:domain knhks:Reflex ;
+    rdfs:range knhks:Receipt .
+
+knhks:operatesOn a rdf:Property ;
+    rdfs:label "operatesOn" ;
+    rdfs:comment "Input data run" ;
+    rdfs:domain knhks:Reflex ;
+    rdfs:range knhks:Run .
+
+knhks:preserves a rdf:Property ;
+    rdfs:label "preserves" ;
+    rdfs:comment "Invariant Q" ;
+    rdfs:domain knhks:Reflex ;
+    rdfs:range knhks:Policy .
+
+knhks:execTime a rdf:Property ;
+    rdfs:label "execTime" ;
+    rdfs:comment "Measured latency" ;
+    rdfs:domain knhks:Receipt ;
+    rdfs:range xsd:integer .
+
+knhks:hashMatch a rdf:Property ;
+    rdfs:label "hashMatch" ;
+    rdfs:comment "Receipt verification" ;
+    rdfs:domain knhks:Receipt ;
+    rdfs:range xsd:boolean .
+
+# Example Hook Definition
+knhks:exampleHook a knhks:Hook ;
+    knhks:hasEpoch knhks:exampleEpoch ;
+    knhks:hasGuard knhks:maxRunLenGuard ;
+    knhks:operatesOn knhks:exampleRun ;
+    knhks:preserves knhks:examplePolicy .
+
+knhks:exampleEpoch a knhks:Epoch ;
+    knhks:tau 8 .
+
+knhks:maxRunLenGuard a knhks:Guard ;
+    knhks:maxRunLen 8 .
+
+knhks:exampleRun a knhks:Run ;
+    knhks:predicate <urn:knhks:example:predicate> ;
+    knhks:offset 0 ;
+    knhks:length 8 .
+
+knhks:examplePolicy a knhks:Policy ;
+    rdfs:comment "Example policy constraint" .
+

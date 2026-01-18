@@ -1,0 +1,491 @@
+---
+to: "services/api-gateway/src/main.rs"
+vars:
+  service_name: "API Gateway"
+  framework: "axum"
+  port: 8080
+  description: "Main entry point for all API requests with routing and load balancing"
+rdf_inline:
+  - "@prefix ex: <https://example.com/microservices/> . ex:ApiGateway ex:handles ex:routing, ex:loadBalancing, ex:rateLimiting, ex:authentication ."
+sparql:
+  dependencies: "SELECT ?service WHERE { ex:ApiGateway ex:dependsOn ?service }"
+---
+//! {{ service_name }}
+//! 
+//! {{ description }}
+//! 
+//! This gateway provides:
+//! - Request routing to appropriate microservices
+//! - Load balancing across service instances
+//! - Rate limiting and throttling
+//! - Authentication and authorization
+//! - Request/response transformation
+//! - Circuit breaker pattern implementation
+
+use axum::{
+    extract::{Path, Query, State},
+    http::{HeaderMap, StatusCode},
+    response::Json,
+    routing::{get, post, put, delete},
+    Router,
+};
+use serde::{Deserialize, Serialize};
+use std::{collections::HashMap, sync::Arc};
+use tokio::time::{timeout, Duration};
+use tower::ServiceBuilder;
+use tower_http::{
+    cors::CorsLayer,
+    trace::TraceLayer,
+    timeout::TimeoutLayer,
+};
+use tracing::{info, error, warn};
+use uuid::Uuid;
+use thiserror::Error;
+
+/// Gateway configuration
+#[derive(Debug, Clone)]
+pub struct GatewayConfig {
+    pub user_service_url: String,
+    pub product_service_url: String,
+    pub order_service_url: String,
+    pub payment_service_url: String,
+    pub auth_service_url: String,
+    pub rate_limit_requests: u32,
+    pub rate_limit_window: Duration,
+    pub timeout_duration: Duration,
+}
+
+/// Gateway state
+#[derive(Debug, Clone)]
+pub struct GatewayState {
+    pub config: GatewayConfig,
+    pub http_client: reqwest::Client,
+}
+
+/// Error types for API Gateway
+#[derive(Error, Debug)]
+pub enum GatewayError {
+    #[error("Service unavailable: {service}")]
+    ServiceUnavailable { service: String },
+    
+    #[error("Request timeout: {service}")]
+    RequestTimeout { service: String },
+    
+    #[error("Authentication failed: {reason}")]
+    AuthenticationFailed { reason: String },
+    
+    #[error("Rate limit exceeded")]
+    RateLimitExceeded,
+    
+    #[error("Invalid request: {message}")]
+    InvalidRequest { message: String },
+    
+    #[error("Internal error: {0}")]
+    Internal(#[from] anyhow::Error),
+}
+
+impl axum::response::IntoResponse for GatewayError {
+    fn into_response(self) -> axum::response::Response {
+        let (status, error_message) = match self {
+            GatewayError::ServiceUnavailable { .. } => (StatusCode::SERVICE_UNAVAILABLE, self.to_string()),
+            GatewayError::RequestTimeout { .. } => (StatusCode::REQUEST_TIMEOUT, self.to_string()),
+            GatewayError::AuthenticationFailed { .. } => (StatusCode::UNAUTHORIZED, self.to_string()),
+            GatewayError::RateLimitExceeded => (StatusCode::TOO_MANY_REQUESTS, self.to_string()),
+            GatewayError::InvalidRequest { .. } => (StatusCode::BAD_REQUEST, self.to_string()),
+            GatewayError::Internal(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error".to_string()),
+        };
+
+        let body = Json(serde_json::json!({
+            "error": error_message,
+            "timestamp": chrono::Utc::now()
+        }));
+
+        (status, body).into_response()
+    }
+}
+
+/// User service proxy
+pub struct UserServiceProxy {
+    client: reqwest::Client,
+    base_url: String,
+}
+
+impl UserServiceProxy {
+    pub fn new(base_url: String) -> Self {
+        Self {
+            client: reqwest::Client::new(),
+            base_url,
+        }
+    }
+
+    pub async fn create_user(&self, user_data: serde_json::Value) -> Result<serde_json::Value, GatewayError> {
+        let response = self.client
+            .post(&format!("{}/api/v1/users", self.base_url))
+            .json(&user_data)
+            .send()
+            .await
+            .map_err(|e| GatewayError::ServiceUnavailable { 
+                service: "user-service".to_string() 
+            })?;
+
+        if response.status().is_success() {
+            Ok(response.json().await.map_err(|_| GatewayError::Internal(anyhow::anyhow!("Failed to parse response")))?)
+        } else {
+            Err(GatewayError::ServiceUnavailable { 
+                service: "user-service".to_string() 
+            })
+        }
+    }
+
+    pub async fn get_user(&self, user_id: Uuid) -> Result<serde_json::Value, GatewayError> {
+        let response = self.client
+            .get(&format!("{}/api/v1/users/{}", self.base_url, user_id))
+            .send()
+            .await
+            .map_err(|e| GatewayError::ServiceUnavailable { 
+                service: "user-service".to_string() 
+            })?;
+
+        if response.status().is_success() {
+            Ok(response.json().await.map_err(|_| GatewayError::Internal(anyhow::anyhow!("Failed to parse response")))?)
+        } else {
+            Err(GatewayError::ServiceUnavailable { 
+                service: "user-service".to_string() 
+            })
+        }
+    }
+
+    pub async fn list_users(&self, query_params: HashMap<String, String>) -> Result<serde_json::Value, GatewayError> {
+        let mut request = self.client
+            .get(&format!("{}/api/v1/users", self.base_url));
+
+        for (key, value) in query_params {
+            request = request.query(&[(key, value)]);
+        }
+
+        let response = request
+            .send()
+            .await
+            .map_err(|e| GatewayError::ServiceUnavailable { 
+                service: "user-service".to_string() 
+            })?;
+
+        if response.status().is_success() {
+            Ok(response.json().await.map_err(|_| GatewayError::Internal(anyhow::anyhow!("Failed to parse response")))?)
+        } else {
+            Err(GatewayError::ServiceUnavailable { 
+                service: "user-service".to_string() 
+            })
+        }
+    }
+}
+
+/// Product service proxy
+pub struct ProductServiceProxy {
+    client: reqwest::Client,
+    base_url: String,
+}
+
+impl ProductServiceProxy {
+    pub fn new(base_url: String) -> Self {
+        Self {
+            client: reqwest::Client::new(),
+            base_url,
+        }
+    }
+
+    pub async fn get_products(&self, query_params: HashMap<String, String>) -> Result<serde_json::Value, GatewayError> {
+        let mut request = self.client
+            .get(&format!("{}/api/v1/products", self.base_url));
+
+        for (key, value) in query_params {
+            request = request.query(&[(key, value)]);
+        }
+
+        let response = request
+            .send()
+            .await
+            .map_err(|e| GatewayError::ServiceUnavailable { 
+                service: "product-service".to_string() 
+            })?;
+
+        if response.status().is_success() {
+            Ok(response.json().await.map_err(|_| GatewayError::Internal(anyhow::anyhow!("Failed to parse response")))?)
+        } else {
+            Err(GatewayError::ServiceUnavailable { 
+                service: "product-service".to_string() 
+            })
+        }
+    }
+
+    pub async fn get_product(&self, product_id: Uuid) -> Result<serde_json::Value, GatewayError> {
+        let response = self.client
+            .get(&format!("{}/api/v1/products/{}", self.base_url, product_id))
+            .send()
+            .await
+            .map_err(|e| GatewayError::ServiceUnavailable { 
+                service: "product-service".to_string() 
+            })?;
+
+        if response.status().is_success() {
+            Ok(response.json().await.map_err(|_| GatewayError::Internal(anyhow::anyhow!("Failed to parse response")))?)
+        } else {
+            Err(GatewayError::ServiceUnavailable { 
+                service: "product-service".to_string() 
+            })
+        }
+    }
+}
+
+/// Authentication middleware
+async fn authenticate_request(headers: &HeaderMap) -> Result<String, GatewayError> {
+    let auth_header = headers
+        .get("authorization")
+        .and_then(|h| h.to_str().ok())
+        .ok_or_else(|| GatewayError::AuthenticationFailed { 
+            reason: "Missing authorization header".to_string() 
+        })?;
+
+    if !auth_header.starts_with("Bearer ") {
+        return Err(GatewayError::AuthenticationFailed { 
+            reason: "Invalid authorization format".to_string() 
+        });
+    }
+
+    let token = &auth_header[7..];
+    
+    // In a real implementation, validate the JWT token here
+    // For this example, we'll just check if it's not empty
+    if token.is_empty() {
+        return Err(GatewayError::AuthenticationFailed { 
+            reason: "Empty token".to_string() 
+        });
+    }
+
+    Ok(token.to_string())
+}
+
+/// Health check endpoint
+async fn health_check() -> Json<serde_json::Value> {
+    Json(serde_json::json!({
+        "status": "healthy",
+        "service": "{{ service_name }}",
+        "timestamp": chrono::Utc::now(),
+        "version": "1.0.0"
+    }))
+}
+
+/// Create user endpoint
+async fn create_user(
+    State(state): State<Arc<GatewayState>>,
+    headers: HeaderMap,
+    Json(payload): Json<serde_json::Value>,
+) -> Result<Json<serde_json::Value>, GatewayError> {
+    // Authenticate request
+    let _token = authenticate_request(&headers).await?;
+
+    // Create user service proxy
+    let user_proxy = UserServiceProxy::new(state.config.user_service_url.clone());
+
+    // Forward request to user service
+    let result = timeout(
+        state.config.timeout_duration,
+        user_proxy.create_user(payload)
+    ).await
+    .map_err(|_| GatewayError::RequestTimeout { 
+        service: "user-service".to_string() 
+    })??;
+
+    Ok(Json(result))
+}
+
+/// Get user endpoint
+async fn get_user(
+    State(state): State<Arc<GatewayState>>,
+    headers: HeaderMap,
+    Path(user_id): Path<Uuid>,
+) -> Result<Json<serde_json::Value>, GatewayError> {
+    // Authenticate request
+    let _token = authenticate_request(&headers).await?;
+
+    // Create user service proxy
+    let user_proxy = UserServiceProxy::new(state.config.user_service_url.clone());
+
+    // Forward request to user service
+    let result = timeout(
+        state.config.timeout_duration,
+        user_proxy.get_user(user_id)
+    ).await
+    .map_err(|_| GatewayError::RequestTimeout { 
+        service: "user-service".to_string() 
+    })??;
+
+    Ok(Json(result))
+}
+
+/// List users endpoint
+async fn list_users(
+    State(state): State<Arc<GatewayState>>,
+    headers: HeaderMap,
+    Query(params): Query<HashMap<String, String>>,
+) -> Result<Json<serde_json::Value>, GatewayError> {
+    // Authenticate request
+    let _token = authenticate_request(&headers).await?;
+
+    // Create user service proxy
+    let user_proxy = UserServiceProxy::new(state.config.user_service_url.clone());
+
+    // Forward request to user service
+    let result = timeout(
+        state.config.timeout_duration,
+        user_proxy.list_users(params)
+    ).await
+    .map_err(|_| GatewayError::RequestTimeout { 
+        service: "user-service".to_string() 
+    })??;
+
+    Ok(Json(result))
+}
+
+/// Get products endpoint
+async fn get_products(
+    State(state): State<Arc<GatewayState>>,
+    headers: HeaderMap,
+    Query(params): Query<HashMap<String, String>>,
+) -> Result<Json<serde_json::Value>, GatewayError> {
+    // Authenticate request
+    let _token = authenticate_request(&headers).await?;
+
+    // Create product service proxy
+    let product_proxy = ProductServiceProxy::new(state.config.product_service_url.clone());
+
+    // Forward request to product service
+    let result = timeout(
+        state.config.timeout_duration,
+        product_proxy.get_products(params)
+    ).await
+    .map_err(|_| GatewayError::RequestTimeout { 
+        service: "product-service".to_string() 
+    })??;
+
+    Ok(Json(result))
+}
+
+/// Get product endpoint
+async fn get_product(
+    State(state): State<Arc<GatewayState>>,
+    headers: HeaderMap,
+    Path(product_id): Path<Uuid>,
+) -> Result<Json<serde_json::Value>, GatewayError> {
+    // Authenticate request
+    let _token = authenticate_request(&headers).await?;
+
+    // Create product service proxy
+    let product_proxy = ProductServiceProxy::new(state.config.product_service_url.clone());
+
+    // Forward request to product service
+    let result = timeout(
+        state.config.timeout_duration,
+        product_proxy.get_product(product_id)
+    ).await
+    .map_err(|_| GatewayError::RequestTimeout { 
+        service: "product-service".to_string() 
+    })??;
+
+    Ok(Json(result))
+}
+
+/// Service discovery endpoint
+async fn service_discovery(State(state): State<Arc<GatewayState>>) -> Json<serde_json::Value> {
+    Json(serde_json::json!({
+        "services": {
+            "user-service": {
+                "url": state.config.user_service_url,
+                "status": "healthy"
+            },
+            "product-service": {
+                "url": state.config.product_service_url,
+                "status": "healthy"
+            },
+            "order-service": {
+                "url": state.config.order_service_url,
+                "status": "healthy"
+            },
+            "payment-service": {
+                "url": state.config.payment_service_url,
+                "status": "healthy"
+            },
+            "auth-service": {
+                "url": state.config.auth_service_url,
+                "status": "healthy"
+            }
+        },
+        "timestamp": chrono::Utc::now()
+    }))
+}
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Initialize tracing
+    tracing_subscriber::fmt()
+        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+        .init();
+
+    // Load configuration from environment
+    let config = GatewayConfig {
+        user_service_url: std::env::var("USER_SERVICE_URL")
+            .unwrap_or_else(|_| "http://localhost:8081".to_string()),
+        product_service_url: std::env::var("PRODUCT_SERVICE_URL")
+            .unwrap_or_else(|_| "http://localhost:8082".to_string()),
+        order_service_url: std::env::var("ORDER_SERVICE_URL")
+            .unwrap_or_else(|_| "http://localhost:8084".to_string()),
+        payment_service_url: std::env::var("PAYMENT_SERVICE_URL")
+            .unwrap_or_else(|_| "http://localhost:8085".to_string()),
+        auth_service_url: std::env::var("AUTH_SERVICE_URL")
+            .unwrap_or_else(|_| "http://localhost:8083".to_string()),
+        rate_limit_requests: 100,
+        rate_limit_window: Duration::from_secs(60),
+        timeout_duration: Duration::from_secs(30),
+    };
+
+    // Create HTTP client
+    let http_client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(30))
+        .build()?;
+
+    // Create gateway state
+    let state = Arc::new(GatewayState {
+        config,
+        http_client,
+    });
+
+    // Get port from environment
+    let port = std::env::var("API_GATEWAY_PORT")
+        .unwrap_or_else(|_| "{{ port }}".to_string())
+        .parse::<u16>()?;
+
+    info!("Starting {{ service_name }} on port {}", port);
+
+    // Build router with middleware
+    let app = Router::new()
+        .route("/health", get(health_check))
+        .route("/discovery", get(service_discovery))
+        .route("/api/v1/users", post(create_user))
+        .route("/api/v1/users", get(list_users))
+        .route("/api/v1/users/:user_id", get(get_user))
+        .route("/api/v1/products", get(get_products))
+        .route("/api/v1/products/:product_id", get(get_product))
+        .layer(
+            ServiceBuilder::new()
+                .layer(TraceLayer::new_for_http())
+                .layer(TimeoutLayer::new(Duration::from_secs(30)))
+                .layer(CorsLayer::permissive())
+        )
+        .with_state(state);
+
+    // Start server
+    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", port)).await?;
+    axum::serve(listener, app).await?;
+
+    Ok(())
+}

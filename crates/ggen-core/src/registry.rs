@@ -89,7 +89,7 @@ use chrono::{DateTime, Utc};
 use ggen_utils::error::{Error, Result};
 use reqwest;
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::collections::HashMap;
 use url::Url;
 
 /// Registry client for fetching gpack metadata from registry.ggen.dev
@@ -100,11 +100,10 @@ pub struct RegistryClient {
 }
 
 /// Registry index structure matching the JSON format
-/// **FMEA Fix**: Use BTreeMap for deterministic iteration order
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RegistryIndex {
     pub updated: DateTime<Utc>,
-    pub packs: BTreeMap<String, PackMetadata>,
+    pub packs: HashMap<String, PackMetadata>,
 }
 
 /// Metadata for a single gpack
@@ -118,8 +117,7 @@ pub struct PackMetadata {
     pub category: Option<String>,
     pub author: Option<String>,
     pub latest_version: String,
-    /// **FMEA Fix**: Use BTreeMap for deterministic iteration order
-    pub versions: BTreeMap<String, VersionMetadata>,
+    pub versions: HashMap<String, VersionMetadata>,
     pub downloads: Option<u64>,
     pub updated: Option<chrono::DateTime<chrono::Utc>>,
     pub license: Option<String>,
@@ -186,7 +184,7 @@ impl RegistryClient {
     /// ```rust,no_run
     /// use ggen_core::registry::RegistryClient;
     ///
-    /// # async fn example() -> Result<()> {
+    /// # async fn example() -> anyhow::Result<()> {
     /// let client = RegistryClient::new()?;
     /// // Client is ready to use
     /// # Ok(())
@@ -604,8 +602,8 @@ impl RegistryClient {
     /// Get popular categories with template counts
     pub async fn get_popular_categories(&self) -> Result<Vec<(String, u64)>> {
         let index = self.fetch_index().await?;
-        // **FMEA Fix**: Use BTreeMap for deterministic iteration order
-        let mut category_counts: BTreeMap<String, u64> = BTreeMap::new();
+        let mut category_counts: std::collections::HashMap<String, u64> =
+            std::collections::HashMap::new();
 
         for (_, pack) in index.packs {
             if let Some(category) = pack.category {
@@ -622,8 +620,8 @@ impl RegistryClient {
     /// Get popular keywords with template counts
     pub async fn get_popular_keywords(&self) -> Result<Vec<(String, u64)>> {
         let index = self.fetch_index().await?;
-        // **FMEA Fix**: Use BTreeMap for deterministic iteration order
-        let mut keyword_counts: BTreeMap<String, u64> = BTreeMap::new();
+        let mut keyword_counts: std::collections::HashMap<String, u64> =
+            std::collections::HashMap::new();
 
         for (_, pack) in index.packs {
             for keyword in pack.keywords {
@@ -675,10 +673,10 @@ mod tests {
                 }
 
                 // Create a minimal registry index
-                let mut packs = BTreeMap::new();
+                let mut packs = HashMap::new();
                 for i in 0..pack_count {
                     let id = format!("{}-{}", pack_id, i);
-                    let mut versions = BTreeMap::new();
+                    let mut versions = HashMap::new();
                     versions.insert(pack_version.clone(), VersionMetadata {
                         version: pack_version.clone(),
                         git_url: format!("https://github.com/test/{}.git", id),

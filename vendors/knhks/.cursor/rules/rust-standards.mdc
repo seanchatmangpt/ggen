@@ -1,0 +1,64 @@
+---
+description: Rust-specific coding standards for KNHKS
+globs:
+  - "rust/**/*.rs"
+alwaysApply: false
+---
+
+# Rust Coding Standards
+
+## Error Handling
+
+- Use `Result<T, E>` for all fallible operations
+- Never use `unwrap()` or `expect()` in production code paths
+- Use `map_err()` to add context to errors
+- Propagate errors with `?` operator when appropriate
+- Provide meaningful error messages
+
+## Feature Gating
+
+- Use `#[cfg(feature = "...")]` for optional dependencies
+- Support both `std` and `no_std` when possible
+- Use `#[cfg(feature = "serde_json")]` for optional serialization
+
+## Performance
+
+- Use references (`&str`, `&[T]`) over owned types when possible
+- Zero-copy when feasible
+- Use `Box` only when necessary
+- Prefer `Vec` over `String` for binary data
+
+## Code Organization
+
+- Keep modules focused and cohesive
+- Use `pub` sparingly - only expose what's necessary
+- Document public APIs with `///` doc comments
+- Group related functionality together
+
+## Testing
+
+- Write unit tests for all public APIs
+- Test error paths
+- Test guard constraint violations
+- Use property-based testing where appropriate
+
+## Examples
+
+### BAD: Unhandled Error
+```rust
+fn process(input: &str) -> u64 {
+    input.parse().unwrap()
+}
+```
+
+### GOOD: Proper Error Handling
+```rust
+fn process(input: &str) -> Result<u64, ProcessingError> {
+    if input.is_empty() {
+        return Err(ProcessingError::EmptyInput);
+    }
+    
+    input.parse()
+        .map_err(|e| ProcessingError::ParseFailed(e.to_string()))
+}
+```

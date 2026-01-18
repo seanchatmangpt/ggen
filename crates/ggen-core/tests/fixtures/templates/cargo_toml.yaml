@@ -1,0 +1,18 @@
+---
+to: "services/{{service_name}}/Cargo.toml"
+vars:
+  service_name: "user_service"
+  version: "0.1.0"
+  rust_edition: "2021"
+---
+[package]
+name = "{{service_name}}"
+version = "{{version}}"
+edition = "{{rust_edition}}"
+
+[dependencies]
+axum = "0.7"
+tokio = { version = "1", features = ["full"] }
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

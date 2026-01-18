@@ -1,0 +1,127 @@
+# Advanced ggen.toml - All features enabled
+# Tests complex configuration with all subsystems
+
+[project]
+name = "advanced-project"
+version = "2.5.0"
+description = "Advanced project with all ggen features"
+author = "Advanced Team <team@example.com>"
+license = "MIT"
+repository = "https://github.com/example/advanced"
+homepage = "https://example.com"
+keywords = ["ai", "templates", "code-gen"]
+
+# Lifecycle configuration
+[lifecycle]
+makefile = "make.toml"
+hooks_enabled = true
+pre_generate = ["validate_schema", "check_deps"]
+post_generate = ["format_code", "run_tests"]
+
+# Marketplace configuration
+[marketplace]
+registry_url = "https://registry.ggen.dev"
+cache_dir = ".ggen/marketplace"
+offline_mode = false
+verify_signatures = true
+auto_update = true
+dependencies = [
+  "rust-microservice@^1.0",
+  "api-template@~2.3",
+  "test-framework@latest"
+]
+
+# Template configuration
+[templates]
+source_dir = "templates"
+output_dir = "generated"
+backup_enabled = true
+idempotent = true
+variable_prefix = "$"
+template_engine = "tera"
+parallel_generation = true
+max_workers = 4
+
+# AI configuration
+[ai]
+provider = "anthropic"
+model = "claude-3-5-sonnet-20241022"
+temperature = 0.7
+max_tokens = 4000
+timeout_seconds = 60
+retry_attempts = 5
+stream_enabled = true
+safety_checks = true
+
+[ai.cache]
+enabled = true
+ttl_seconds = 7200
+max_entries = 5000
+strategy = "lru"
+compression = true
+
+[ai.providers.openai]
+api_key_env = "OPENAI_API_KEY"
+organization_env = "OPENAI_ORG_ID"
+model = "gpt-4-turbo"
+base_url = "https://api.openai.com/v1"
+
+[ai.providers.anthropic]
+api_key_env = "ANTHROPIC_API_KEY"
+model = "claude-3-5-sonnet-20241022"
+max_tokens = 4096
+
+[ai.providers.ollama]
+base_url = "http://localhost:11434"
+model = "qwen2.5-coder:7b"
+keep_alive = "5m"
+
+# Graph/SPARQL configuration
+[graph]
+base_iri = "http://example.org/advanced/"
+cache_queries = true
+query_timeout_seconds = 45
+max_query_results = 10000
+reasoning_enabled = true
+validation_mode = "strict"
+
+# Security configuration
+[security]
+validate_paths = true
+audit_operations = true
+require_confirmation = true
+allowed_domains = ["example.com", "github.com"]
+blocked_patterns = ["*.secret", "*.key"]
+sanitize_input = true
+
+# Logging configuration
+[logging]
+level = "debug"
+format = "json"
+output = "file"
+file_path = ".ggen/logs/ggen.log"
+max_file_size_mb = 100
+max_backups = 10
+enable_tracing = true
+otel_endpoint = "http://localhost:4317"
+
+# Performance configuration
+[performance]
+enable_profiling = true
+memory_limit_mb = 2048
+cpu_limit_percent = 80
+cache_size_mb = 512
+parallel_operations = true
+batch_size = 100
+
+# Custom environment variables
+[environment]
+NODE_ENV = "production"
+RUST_LOG = "debug"
+CUSTOM_VAR = "value"
+
+# Build configuration
+[build]
+target = "release"
+features = ["full", "ai", "marketplace"]
+cargo_flags = ["--locked", "--all-features"]

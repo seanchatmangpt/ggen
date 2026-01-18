@@ -1,49 +1,94 @@
 //! DSPy Predictor - LLM-backed prediction with signature interface
+//!
+//! This module implements the core prediction logic using LLMs.
+//! Key improvements over naive implementations:
+//! - Constraint-aware decoding (validates outputs against field constraints)
+//! - Prompt-IR based prompt construction
+//! - Model capabilities awareness
 
-use crate::dspy::signature::Signature;
+use crate::dspy::constraint::decode_and_validate;
+use crate::dspy::model_capabilities::{Model, ModelCapabilities};
 use crate::dspy::module::{Module, ModuleError, ModuleResult};
+use crate::dspy::prompt_ir::{OutputFormat, PromptIR, PromptRenderer, RenderConfig, TextRenderer};
+use crate::dspy::signature::Signature;
+use genai::chat::{ChatMessage, ChatOptions, ChatRequest};
+use genai::Client;
 use serde_json::Value;
 use std::collections::HashMap;
-use genai::{Client, chat::{ChatMessage, ChatOptions, ChatRequest}};
 use tracing::{debug, warn};
 
 /// Predictor: LLM-backed prediction with signature interface
 ///
 /// A concrete implementation of Module that uses an LLM to generate outputs
 /// based on inputs defined by the signature.
+///
+/// Key capabilities:
+/// - Constraint-aware decoding: Validates outputs against field constraints
+/// - Prompt-IR based: Structured prompt representation before rendering
+/// - Model-aware: Uses model capabilities for optimal behavior
 pub struct Predictor {
     signature: Signature,
-    model: String,  // Model name (from ggen.toml or CLI)
+    model: Model,
     temperature: f32,
+    /// Whether to validate outputs against constraints
+    validate_outputs: bool,
+    /// Preferred output format
+    output_format: OutputFormat,
+    /// Render configuration for prompt generation
+    render_config: RenderConfig,
 }
 
 impl Predictor {
     /// Create a new predictor with a signature and model name
     pub fn new(signature: Signature) -> Self {
         // Get model from environment or use empty string (will error if not set)
-        let model = std::env::var("GGEN_LLM_MODEL")
+        let model_name = std::env::var("GGEN_LLM_MODEL")
             .or_else(|_| std::env::var("DEFAULT_MODEL"))
-            .unwrap_or_else(|_| "".to_string());
+            .unwrap_or_default();
 
+        Self {
+            signature,
+            model: Model::from_name(model_name),
+            temperature: 0.7,
+            validate_outputs: true,
+            output_format: OutputFormat::Text,
+            render_config: RenderConfig::new().with_prefixes(),
+        }
+    }
+
+    /// Create a predictor with an explicit model name
+    pub fn with_model(signature: Signature, model: impl Into<String>) -> Self {
+        Self {
+            signature,
+            model: Model::from_name(model),
+            temperature: 0.7,
+            validate_outputs: true,
+            output_format: OutputFormat::Text,
+            render_config: RenderConfig::new().with_prefixes(),
+        }
+    }
+
+    /// Create a predictor with a typed Model
+    pub fn with_typed_model(signature: Signature, model: Model) -> Self {
         Self {
             signature,
             model,
             temperature: 0.7,
+            validate_outputs: true,
+            output_format: OutputFormat::Text,
+            render_config: RenderConfig::new().with_prefixes(),
         }
     }
 
-    /// Create a predictor with an explicit model
-    pub fn with_model(signature: Signature, model: impl Into<String>) -> Self {
-        Self {
-            signature,
-            model: model.into(),
-            temperature: 0.7,
-        }
-    }
-
-    /// Set the model name
+    /// Set the model by name
     pub fn model(mut self, model: impl Into<String>) -> Self {
-        self.model = model.into();
+        self.model = Model::from_name(model);
+        self
+    }
+
+    /// Set a typed Model
+    pub fn typed_model(mut self, model: Model) -> Self {
+        self.model = model;
         self
     }
 
@@ -53,8 +98,31 @@ impl Predictor {
         self
     }
 
+    /// Enable or disable output validation
+    pub fn with_output_validation(mut self, validate: bool) -> Self {
+        self.validate_outputs = validate;
+        self
+    }
+
+    /// Set the output format
+    pub fn with_output_format(mut self, format: OutputFormat) -> Self {
+        self.output_format = format;
+        self
+    }
+
+    /// Configure constraint embedding in prompts
+    pub fn with_constraints_in_prompt(mut self) -> Self {
+        self.render_config = self.render_config.with_constraints();
+        self
+    }
+
     /// Get the model name
     pub fn model_name(&self) -> &str {
+        &self.model.name
+    }
+
+    /// Get the typed Model
+    pub fn model_ref(&self) -> &Model {
         &self.model
     }
 
@@ -63,38 +131,63 @@ impl Predictor {
         self.temperature
     }
 
-    /// Build a prompt from inputs
-    fn build_prompt(&self, inputs: &HashMap<String, Value>) -> Result<String, ModuleError> {
-        let mut prompt = format!("{}\n\n", self.signature.description);
+    /// Get model capabilities
+    pub fn capabilities(&self) -> &ModelCapabilities {
+        &self.model.capabilities
+    }
 
-        if let Some(instructions) = &self.signature.instructions {
-            prompt.push_str(&format!("Instructions: {}\n\n", instructions));
+    /// Build a prompt from inputs using Prompt-IR
+    fn build_prompt(&self, inputs: &HashMap<String, Value>) -> Result<String, ModuleError> {
+        let input_vec: Vec<(String, Value)> = inputs
+            .iter()
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect();
+
+        let mut ir = PromptIR::from_signature(&self.signature, &input_vec);
+
+        // Set output format if JSON is preferred
+        if matches!(self.output_format, OutputFormat::Json) {
+            ir = ir.with_output_format(OutputFormat::Json);
         }
 
-        // Add input fields
-        prompt.push_str("Input:\n");
-        for input_field in &self.signature.inputs {
-            if let Some(value) = inputs.get(input_field.name()) {
-                let prefix = input_field.metadata.prefix.as_deref().unwrap_or("");
-                prompt.push_str(&format!("{}{}: {}\n", prefix, input_field.name(), value));
+        // Render using the text renderer
+        let renderer = TextRenderer;
+        Ok(renderer.render(&ir, &self.render_config))
+    }
+
+    /// Parse and validate output from LLM response using constraint-aware decoding
+    fn parse_output(&self, response: &str) -> Result<HashMap<String, Value>, ModuleError> {
+        if self.validate_outputs {
+            // Use constraint-aware decoding
+            decode_and_validate(response, &self.signature.outputs).map_err(|e| {
+                ModuleError::Other(format!("Output validation failed: {}", e))
+            })
+        } else {
+            // Fall back to simple extraction without validation
+            self.parse_output_simple(response)
+        }
+    }
+
+    /// Simple output parsing without constraint validation (fallback)
+    fn parse_output_simple(&self, response: &str) -> Result<HashMap<String, Value>, ModuleError> {
+        let mut outputs = HashMap::new();
+
+        // Try JSON parsing first
+        if let Ok(json_value) = serde_json::from_str::<Value>(response) {
+            if let Some(obj) = json_value.as_object() {
+                for output_field in &self.signature.outputs {
+                    if let Some(value) = obj.get(output_field.name()) {
+                        outputs.insert(output_field.name().to_string(), value.clone());
+                    }
+                }
+                if !outputs.is_empty() {
+                    return Ok(outputs);
+                }
             }
         }
 
-        prompt.push_str("\nOutput:\n");
+        // Fall back to text parsing
         for output_field in &self.signature.outputs {
-            prompt.push_str(&format!("{}: ", output_field.name()));
-        }
-
-        Ok(prompt)
-    }
-
-    /// Parse output from LLM response
-    fn parse_output(&self, response: &str) -> Result<HashMap<String, Value>, ModuleError> {
-        let mut outputs = HashMap::new();
-
-        // Simple parsing: extract output field values from response
-        for output_field in &self.signature.outputs {
-            // Try to extract field value from response
             if let Some(value) = self.extract_field_value(response, output_field.name()) {
                 outputs.insert(output_field.name().to_string(), Value::String(value));
             }
@@ -103,7 +196,9 @@ impl Predictor {
         if outputs.is_empty() {
             // If no structured output found, return entire response
             outputs.insert(
-                self.signature.outputs.first()
+                self.signature
+                    .outputs
+                    .first()
                     .map(|f| f.name().to_string())
                     .unwrap_or_else(|| "output".to_string()),
                 Value::String(response.to_string()),
@@ -115,13 +210,20 @@ impl Predictor {
 
     /// Extract field value from response text
     fn extract_field_value(&self, response: &str, field_name: &str) -> Option<String> {
-        let pattern = format!("{}: ", field_name);
-        if let Some(start) = response.find(&pattern) {
-            let text = &response[start + pattern.len()..];
-            // Take until newline or end of string
-            let value = text.lines().next().unwrap_or("").trim();
-            if !value.is_empty() {
-                return Some(value.to_string());
+        let patterns = [
+            format!("{}: ", field_name),
+            format!("{}:", field_name),
+            format!("**{}**:", field_name),
+            format!("**{}**: ", field_name),
+        ];
+
+        for pattern in &patterns {
+            if let Some(start) = response.find(pattern) {
+                let text = &response[start + pattern.len()..];
+                let value = text.lines().next().unwrap_or("").trim();
+                if !value.is_empty() {
+                    return Some(value.to_string());
+                }
             }
         }
         None
@@ -131,32 +233,50 @@ impl Predictor {
     async fn call_llm(&self, prompt: &str) -> Result<String, ModuleError> {
         let client = Client::default();
 
-        if self.model.is_empty() {
+        if self.model.name.is_empty() {
             return Err(ModuleError::LlmError(
-                "Model name not set. Set GGEN_LLM_MODEL or DEFAULT_MODEL env var, or use .model()".to_string()
+                "Model name not set. Set GGEN_LLM_MODEL or DEFAULT_MODEL env var, or use .model()"
+                    .to_string(),
             ));
         }
 
-        debug!("Calling LLM model: {}", self.model);
+        debug!(
+            "Calling LLM model: {} (provider: {:?})",
+            self.model.name, self.model.provider
+        );
+
+        // Build system message based on output format
+        let system_msg = match self.output_format {
+            OutputFormat::Json => {
+                "You are a helpful assistant. Respond with valid JSON only."
+            }
+            _ => "You are a helpful assistant. Provide responses in the exact format requested.",
+        };
 
         // Create chat request with system prompt and user input
         let chat_req = ChatRequest::new(vec![
-            ChatMessage::system("You are a helpful assistant. Provide responses in the exact format requested."),
+            ChatMessage::system(system_msg.to_string()),
             ChatMessage::user(prompt.to_string()),
         ]);
 
-        // Set chat options
+        // Set chat options using model capabilities
+        let max_tokens = self
+            .model
+            .capabilities
+            .max_output_tokens
+            .min(4096) as u32;
+
         let chat_options = ChatOptions::default()
             .with_temperature(self.temperature as f64)
-            .with_max_tokens(4096);
+            .with_max_tokens(max_tokens);
 
         // Execute the request
-        match client.exec_chat(&self.model, chat_req, Some(&chat_options)).await {
+        match client
+            .exec_chat(&self.model.name, chat_req, Some(&chat_options))
+            .await
+        {
             Ok(response) => {
-                let content = response
-                    .first_text()
-                    .unwrap_or_default()
-                    .to_string();
+                let content = response.first_text().unwrap_or_default().to_string();
                 debug!("LLM response received, length: {}", content.len());
                 Ok(content)
             }
@@ -180,7 +300,7 @@ impl Module for Predictor {
 
         // Build prompt
         let prompt = self.build_prompt(&inputs)?;
-        debug!("Built prompt for {} with model {}", self.signature.name, self.model);
+        debug!("Built prompt for {} with model {}", self.signature.name, self.model.name);
 
         // Call actual LLM
         let response = self.call_llm(&prompt).await?;
@@ -188,6 +308,10 @@ impl Module for Predictor {
 
         // Parse output
         self.parse_output(&response)
+    }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
     }
 }
 
@@ -229,12 +353,16 @@ impl Module for ChainOfThought {
     async fn forward(&self, inputs: HashMap<String, Value>) -> ModuleResult<HashMap<String, Value>> {
         self.predictor.forward(inputs).await
     }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::dspy::field::{InputField, OutputField};
+    use crate::dspy::field::{FieldConstraints, InputField, OutputField};
 
     fn create_test_signature() -> Signature {
         Signature::new("QA", "Question answering")
@@ -253,8 +381,7 @@ mod tests {
     #[test]
     fn test_temperature_clamping() {
         let sig = create_test_signature();
-        let pred = Predictor::with_model(sig, "test-model")
-            .with_temperature(3.0);
+        let pred = Predictor::with_model(sig, "test-model").with_temperature(3.0);
         assert_eq!(pred.temperature(), 2.0);
     }
 
@@ -266,17 +393,75 @@ mod tests {
     }
 
     #[test]
+    fn test_typed_model() {
+        let sig = create_test_signature();
+        let model = Model::from_name("gpt-4-turbo");
+        let pred = Predictor::with_typed_model(sig, model);
+
+        assert_eq!(pred.model_name(), "gpt-4-turbo");
+        assert!(pred.capabilities().function_calling);
+    }
+
+    #[test]
     fn test_prompt_building() {
         let sig = create_test_signature();
         let pred = Predictor::with_model(sig, "test-model");
 
         let mut inputs = HashMap::new();
-        inputs.insert("question".to_string(), Value::String("What is Rust?".to_string()));
+        inputs.insert(
+            "question".to_string(),
+            Value::String("What is Rust?".to_string()),
+        );
 
         let prompt = pred.build_prompt(&inputs).unwrap();
-        // Value::String formats with quotes, so check for the JSON representation
-        assert!(prompt.contains("question:") && prompt.contains("What is Rust?"));
-        assert!(prompt.contains("answer:"));
+        assert!(prompt.contains("question") && prompt.contains("What is Rust?"));
+        assert!(prompt.contains("answer"));
+    }
+
+    #[test]
+    fn test_prompt_with_constraints() {
+        let sig = Signature::new("Constrained", "Test with constraints")
+            .with_input(InputField::new("input", "Input", "String"))
+            .with_output(
+                OutputField::new("status", "Status", "String").add_constraints(
+                    FieldConstraints::new()
+                        .required(true)
+                        .enum_values(vec!["active".to_string(), "inactive".to_string()]),
+                ),
+            );
+
+        let pred = Predictor::with_model(sig, "test-model").with_constraints_in_prompt();
+
+        let mut inputs = HashMap::new();
+        inputs.insert("input".to_string(), Value::String("test".to_string()));
+
+        let prompt = pred.build_prompt(&inputs).unwrap();
+        assert!(prompt.contains("status"));
+    }
+
+    #[test]
+    fn test_output_format_json() {
+        let sig = create_test_signature();
+        let pred = Predictor::with_model(sig, "test-model").with_output_format(OutputFormat::Json);
+
+        let mut inputs = HashMap::new();
+        inputs.insert(
+            "question".to_string(),
+            Value::String("What is Rust?".to_string()),
+        );
+
+        let prompt = pred.build_prompt(&inputs).unwrap();
+        assert!(prompt.contains("JSON"));
+    }
+
+    #[test]
+    fn test_output_validation_toggle() {
+        let sig = create_test_signature();
+        let pred = Predictor::with_model(sig, "test-model").with_output_validation(false);
+
+        // Parse simple response without validation
+        let result = pred.parse_output_simple("answer: This is the answer").unwrap();
+        assert!(result.contains_key("answer"));
     }
 
     #[test]
@@ -284,6 +469,43 @@ mod tests {
         let sig = create_test_signature();
         let cot = ChainOfThought::new(sig);
         assert!(cot.signature().instructions.is_some());
-        assert!(cot.signature().instructions.as_ref().unwrap().contains("step-by-step"));
+        assert!(cot
+            .signature()
+            .instructions
+            .as_ref()
+            .unwrap()
+            .contains("step-by-step"));
+    }
+
+    #[test]
+    fn test_parse_json_response() {
+        let sig = create_test_signature();
+        let pred = Predictor::with_model(sig, "test-model").with_output_validation(false);
+
+        let json_response = r#"{"answer": "42 is the answer"}"#;
+        let result = pred.parse_output_simple(json_response).unwrap();
+
+        assert_eq!(result.get("answer").unwrap(), &Value::String("42 is the answer".to_string()));
+    }
+
+    #[test]
+    fn test_parse_markdown_response() {
+        let sig = create_test_signature();
+        let pred = Predictor::with_model(sig, "test-model").with_output_validation(false);
+
+        let md_response = "**answer**: The answer is 42";
+        let result = pred.parse_output_simple(md_response).unwrap();
+
+        assert!(result.get("answer").unwrap().as_str().unwrap().contains("42"));
+    }
+
+    #[test]
+    fn test_model_capabilities_access() {
+        let sig = create_test_signature();
+        let pred = Predictor::with_model(sig, "claude-3-opus");
+
+        // Claude 3 Opus should have 200k context
+        assert_eq!(pred.capabilities().max_context_tokens, 200_000);
+        assert!(pred.capabilities().vision);
     }
 }

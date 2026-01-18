@@ -1,0 +1,788 @@
+{
+  "metadata": {
+    "generated_at": "2025-11-01T18:15:00Z",
+    "analyst_agent": "Beta",
+    "matrix_version": "1.0.0",
+    "total_permutations": 432,
+    "high_value_scenarios": 87,
+    "stress_test_vectors": 45,
+    "coverage_target": "80%"
+  },
+  "command_dimensions": {
+    "market_commands": [
+      "search",
+      "add",
+      "remove",
+      "list",
+      "update",
+      "info",
+      "recommend",
+      "offline",
+      "cache",
+      "sync",
+      "categories",
+      "publish",
+      "unpublish",
+      "natural"
+    ],
+    "lifecycle_commands": [
+      "list",
+      "show",
+      "run",
+      "pipeline",
+      "readiness",
+      "readiness-update",
+      "placeholders",
+      "validate"
+    ]
+  },
+  "parameter_permutations": {
+    "market_search": {
+      "command": "ggen market search",
+      "base_params": ["<query>"],
+      "optional_flags": [
+        "--category <cat>",
+        "--keyword <kw>",
+        "--author <author>",
+        "--license <license>",
+        "--min-stars <N>",
+        "--min-downloads <N>",
+        "--sort <field>",
+        "--order <asc|desc>",
+        "--fuzzy",
+        "--suggestions",
+        "--detailed",
+        "--json",
+        "--limit <N>"
+      ],
+      "valid_combinations": 2048,
+      "high_value_combinations": [
+        {
+          "scenario": "basic_search",
+          "command": "ggen market search \"rust cli\"",
+          "expected": "Returns 1-10 results, validates query"
+        },
+        {
+          "scenario": "filtered_search",
+          "command": "ggen market search \"web\" --category api --min-stars 100 --detailed",
+          "expected": "Applies filters, shows detailed output"
+        },
+        {
+          "scenario": "json_output",
+          "command": "ggen market search \"database\" --json --limit 20",
+          "expected": "Valid JSON array with max 20 items"
+        },
+        {
+          "scenario": "fuzzy_suggestions",
+          "command": "ggen market search \"authntication\" --fuzzy --suggestions",
+          "expected": "Handles typo, suggests 'authentication'"
+        },
+        {
+          "scenario": "sorted_results",
+          "command": "ggen market search \"rust\" --sort downloads --order desc --limit 5",
+          "expected": "Results sorted by downloads descending"
+        },
+        {
+          "scenario": "empty_query",
+          "command": "ggen market search \"\"",
+          "expected": "Error: Search query cannot be empty"
+        },
+        {
+          "scenario": "query_too_long",
+          "command": "ggen market search \"$('a' * 1001)\"",
+          "expected": "Error: Search query too long (max 1000)"
+        },
+        {
+          "scenario": "limit_too_high",
+          "command": "ggen market search \"rust\" --limit 101",
+          "expected": "Error: Result limit too high (max 100)"
+        },
+        {
+          "scenario": "invalid_sort_field",
+          "command": "ggen market search \"rust\" --sort invalid",
+          "expected": "Error: Invalid sort field"
+        },
+        {
+          "scenario": "combined_filters",
+          "command": "ggen market search \"web framework\" --category api --author ggen-team --license MIT --min-stars 50",
+          "expected": "All filters applied correctly"
+        }
+      ]
+    },
+    "market_add": {
+      "command": "ggen market add",
+      "base_params": ["<gpack_id>"],
+      "version_formats": [
+        "package-name",
+        "package-name@1.0.0",
+        "package-name@1.0.0-beta",
+        "io.ggen.package",
+        "io.ggen.package@2.1.0"
+      ],
+      "valid_combinations": 5,
+      "high_value_combinations": [
+        {
+          "scenario": "add_latest",
+          "command": "ggen market add \"rust-cli-template\"",
+          "expected": "Installs latest version"
+        },
+        {
+          "scenario": "add_specific_version",
+          "command": "ggen market add \"web-api@1.2.0\"",
+          "expected": "Installs specified version"
+        },
+        {
+          "scenario": "add_beta_version",
+          "command": "ggen market add \"experimental@0.1.0-beta\"",
+          "expected": "Installs pre-release version"
+        },
+        {
+          "scenario": "add_empty_id",
+          "command": "ggen market add \"\"",
+          "expected": "Error: Gpack ID cannot be empty"
+        },
+        {
+          "scenario": "add_invalid_chars",
+          "command": "ggen market add \"invalid/package\"",
+          "expected": "Error: Invalid gpack ID format"
+        },
+        {
+          "scenario": "add_too_long",
+          "command": "ggen market add \"$('a' * 201)\"",
+          "expected": "Error: Gpack ID too long (max 200)"
+        },
+        {
+          "scenario": "add_empty_version",
+          "command": "ggen market add \"package@\"",
+          "expected": "Error: Version cannot be empty when @ specified"
+        },
+        {
+          "scenario": "add_already_installed",
+          "command": "ggen market add \"rust-cli-template\" (twice)",
+          "expected": "ℹ️ Gpack already installed"
+        }
+      ]
+    },
+    "market_sync": {
+      "command": "ggen market sync",
+      "optional_flags": [
+        "--category <cat>",
+        "--force",
+        "--verbose",
+        "--dry-run"
+      ],
+      "valid_combinations": 16,
+      "high_value_combinations": [
+        {
+          "scenario": "basic_sync",
+          "command": "ggen market sync",
+          "expected": "Syncs all packages"
+        },
+        {
+          "scenario": "category_sync",
+          "command": "ggen market sync --category \"rust\"",
+          "expected": "Syncs only rust category"
+        },
+        {
+          "scenario": "force_sync",
+          "command": "ggen market sync --force",
+          "expected": "Force syncs even if cache fresh"
+        },
+        {
+          "scenario": "verbose_sync",
+          "command": "ggen market sync --verbose",
+          "expected": "Shows detailed progress"
+        },
+        {
+          "scenario": "dry_run",
+          "command": "ggen market sync --dry-run",
+          "expected": "Shows preview without syncing"
+        },
+        {
+          "scenario": "combined_flags",
+          "command": "ggen market sync --category \"web\" --force --verbose",
+          "expected": "All flags applied"
+        }
+      ]
+    },
+    "market_cache": {
+      "command": "ggen market cache",
+      "subcommands": ["clear", "stats", "status", "validate", "cleanup", "compact"],
+      "valid_combinations": 6,
+      "high_value_combinations": [
+        {
+          "scenario": "cache_clear",
+          "command": "ggen market cache clear",
+          "expected": "Removes all cache files"
+        },
+        {
+          "scenario": "cache_stats",
+          "command": "ggen market cache stats",
+          "expected": "Shows package count, size, dates"
+        },
+        {
+          "scenario": "cache_validate",
+          "command": "ggen market cache validate",
+          "expected": "Checks JSON integrity"
+        },
+        {
+          "scenario": "cache_cleanup",
+          "command": "ggen market cache cleanup",
+          "expected": "Removes orphaned entries"
+        },
+        {
+          "scenario": "cache_compact",
+          "command": "ggen market cache compact",
+          "expected": "Optimizes cache files"
+        }
+      ]
+    },
+    "lifecycle_run": {
+      "command": "ggen lifecycle run",
+      "base_params": ["<phase>"],
+      "optional_flags": [
+        "--root <path>",
+        "--env <environment>"
+      ],
+      "phase_names": ["init", "setup", "build", "test", "deploy", "lint", "clean"],
+      "environment_names": ["development", "staging", "production"],
+      "valid_combinations": 147,
+      "high_value_combinations": [
+        {
+          "scenario": "run_init",
+          "command": "ggen lifecycle run init",
+          "expected": "Executes init phase"
+        },
+        {
+          "scenario": "run_with_env",
+          "command": "ggen lifecycle run deploy --env production",
+          "expected": "Sets GGEN_ENV=production"
+        },
+        {
+          "scenario": "run_custom_root",
+          "command": "ggen lifecycle run build --root ./my-project",
+          "expected": "Uses specified project root"
+        },
+        {
+          "scenario": "run_nonexistent_phase",
+          "command": "ggen lifecycle run invalid-phase",
+          "expected": "Error: Phase not found"
+        },
+        {
+          "scenario": "run_no_make_toml",
+          "command": "ggen lifecycle run test (no make.toml)",
+          "expected": "Error: make.toml not found"
+        }
+      ]
+    },
+    "lifecycle_pipeline": {
+      "command": "ggen lifecycle pipeline",
+      "base_params": ["<phase1> <phase2> ..."],
+      "optional_flags": [
+        "--root <path>",
+        "--env <environment>"
+      ],
+      "valid_combinations": 343,
+      "high_value_combinations": [
+        {
+          "scenario": "simple_pipeline",
+          "command": "ggen lifecycle pipeline init setup build",
+          "expected": "Runs phases in sequence"
+        },
+        {
+          "scenario": "full_pipeline",
+          "command": "ggen lifecycle pipeline init setup build test deploy",
+          "expected": "Complete deployment pipeline"
+        },
+        {
+          "scenario": "pipeline_with_env",
+          "command": "ggen lifecycle pipeline build test --env staging",
+          "expected": "Pipeline uses staging env"
+        },
+        {
+          "scenario": "single_phase_pipeline",
+          "command": "ggen lifecycle pipeline build",
+          "expected": "Works with single phase"
+        },
+        {
+          "scenario": "pipeline_failure",
+          "command": "ggen lifecycle pipeline build invalid test",
+          "expected": "Stops at invalid phase"
+        }
+      ]
+    },
+    "lifecycle_validate": {
+      "command": "ggen lifecycle validate",
+      "optional_flags": [
+        "--root <path>",
+        "--env <environment>",
+        "--strict"
+      ],
+      "environment_names": ["development", "staging", "production"],
+      "valid_combinations": 18,
+      "high_value_combinations": [
+        {
+          "scenario": "validate_production",
+          "command": "ggen lifecycle validate --env production",
+          "expected": "Checks production readiness"
+        },
+        {
+          "scenario": "validate_strict",
+          "command": "ggen lifecycle validate --strict",
+          "expected": "Fails on any issues"
+        },
+        {
+          "scenario": "validate_staging",
+          "command": "ggen lifecycle validate --env staging",
+          "expected": "Checks staging requirements"
+        },
+        {
+          "scenario": "validate_custom_root",
+          "command": "ggen lifecycle validate --root ./project --env production",
+          "expected": "Validates specified project"
+        }
+      ]
+    }
+  },
+  "combinatorial_sequences": {
+    "description": "Real-world command sequences representing common workflows",
+    "workflows": [
+      {
+        "name": "discover_and_install",
+        "scenario": "User searches for package and installs it",
+        "commands": [
+          "ggen market search \"rust web framework\"",
+          "ggen market info \"rust-axum-service\"",
+          "ggen market add \"rust-axum-service@1.2.0\""
+        ],
+        "expected_state": "Package installed in .ggen/packages/"
+      },
+      {
+        "name": "offline_workflow",
+        "scenario": "User works offline with cached data",
+        "commands": [
+          "ggen market sync",
+          "ggen market cache stats",
+          "(disconnect network)",
+          "ggen market offline search \"database\"",
+          "ggen market offline info \"postgresql-database\""
+        ],
+        "expected_state": "Works without network access"
+      },
+      {
+        "name": "marketplace_management",
+        "scenario": "User manages marketplace cache and updates",
+        "commands": [
+          "ggen market cache validate",
+          "ggen market cache cleanup",
+          "ggen market update",
+          "ggen market sync --force"
+        ],
+        "expected_state": "Cache clean, packages updated"
+      },
+      {
+        "name": "full_project_lifecycle",
+        "scenario": "Initialize and deploy project",
+        "commands": [
+          "ggen market add \"rust-cli-template\"",
+          "ggen lifecycle run init",
+          "ggen lifecycle run setup",
+          "ggen lifecycle run build",
+          "ggen lifecycle run test",
+          "ggen lifecycle readiness",
+          "ggen lifecycle validate --env production",
+          "ggen lifecycle run deploy --env production"
+        ],
+        "expected_state": "Project deployed to production"
+      },
+      {
+        "name": "readiness_workflow",
+        "scenario": "Check and update production readiness",
+        "commands": [
+          "ggen lifecycle readiness --detailed",
+          "ggen lifecycle placeholders --category critical",
+          "ggen lifecycle readiness-update auth-basic complete",
+          "ggen lifecycle readiness",
+          "ggen lifecycle validate --env production --strict"
+        ],
+        "expected_state": "Production readiness score improved"
+      },
+      {
+        "name": "publish_workflow",
+        "scenario": "Developer publishes package to marketplace",
+        "commands": [
+          "ggen lifecycle run test",
+          "ggen lifecycle validate --env production",
+          "ggen market publish --tag stable",
+          "ggen market info \"my-package\"",
+          "ggen market search \"my-package\""
+        ],
+        "expected_state": "Package published and searchable"
+      }
+    ]
+  },
+  "stress_test_vectors": {
+    "description": "Edge cases, resource exhaustion, and concurrent operations",
+    "categories": {
+      "concurrent_operations": [
+        {
+          "name": "parallel_searches",
+          "scenario": "Multiple search commands executed concurrently",
+          "commands": [
+            "ggen market search \"rust\" & ggen market search \"web\" & ggen market search \"database\"",
+            "ggen market search \"cli\" & ggen market search \"api\" & ggen market search \"auth\""
+          ],
+          "expected": "All searches complete without deadlock",
+          "concurrency_level": 3
+        },
+        {
+          "name": "concurrent_add_remove",
+          "scenario": "Adding and removing packages simultaneously",
+          "commands": [
+            "ggen market add \"pkg1\" & ggen market remove \"pkg2\" & ggen market add \"pkg3\""
+          ],
+          "expected": "Lockfile remains consistent",
+          "concurrency_level": 3
+        },
+        {
+          "name": "pipeline_interference",
+          "scenario": "Multiple lifecycle pipelines running",
+          "commands": [
+            "ggen lifecycle pipeline build test & ggen lifecycle pipeline lint clean"
+          ],
+          "expected": "No state corruption",
+          "concurrency_level": 2
+        }
+      ],
+      "resource_exhaustion": [
+        {
+          "name": "large_result_sets",
+          "scenario": "Search returning maximum results",
+          "command": "ggen market search \"*\" --limit 100",
+          "expected": "Handles 100 results without OOM"
+        },
+        {
+          "name": "massive_query",
+          "scenario": "Query at maximum length",
+          "command": "ggen market search \"$('a' * 1000)\"",
+          "expected": "Validates and processes 1000 char query"
+        },
+        {
+          "name": "deep_pipeline",
+          "scenario": "Pipeline with many phases",
+          "command": "ggen lifecycle pipeline init setup build test lint security-scan deploy clean",
+          "expected": "Handles 8+ phases without stack overflow"
+        },
+        {
+          "name": "cache_overflow",
+          "scenario": "Sync with thousands of packages",
+          "command": "ggen market sync (with 10,000 packages)",
+          "expected": "Handles large cache without crashing"
+        }
+      ],
+      "edge_cases": [
+        {
+          "name": "unicode_queries",
+          "scenario": "Search with Unicode characters",
+          "command": "ggen market search \"Rust 🦀 CLI 工具\"",
+          "expected": "Handles Unicode correctly"
+        },
+        {
+          "name": "special_characters",
+          "scenario": "Package names with special chars",
+          "command": "ggen market add \"@scope/package-name_v2\"",
+          "expected": "Validates special characters"
+        },
+        {
+          "name": "empty_marketplace",
+          "scenario": "Commands when no packages available",
+          "command": "ggen market search \"anything\" (empty registry)",
+          "expected": "Graceful error message"
+        },
+        {
+          "name": "corrupted_cache",
+          "scenario": "Cache files contain invalid JSON",
+          "command": "ggen market cache validate (corrupted data)",
+          "expected": "Detects corruption, suggests fix"
+        },
+        {
+          "name": "missing_dependencies",
+          "scenario": "Package with missing transitive deps",
+          "command": "ggen market add \"package-with-missing-deps\"",
+          "expected": "Error: Dependency resolution failed"
+        },
+        {
+          "name": "circular_dependencies",
+          "scenario": "Packages with circular deps",
+          "command": "ggen market add \"pkg-a\" (depends on pkg-b which depends on pkg-a)",
+          "expected": "Detects and reports circular dependency"
+        },
+        {
+          "name": "network_timeout",
+          "scenario": "Marketplace API slow/unavailable",
+          "command": "ggen market search \"rust\" (with 30s network timeout)",
+          "expected": "Timeout, fallback to cache"
+        },
+        {
+          "name": "disk_full",
+          "scenario": "No space for cache writes",
+          "command": "ggen market sync (disk full)",
+          "expected": "Error: Cannot write to cache"
+        },
+        {
+          "name": "permission_denied",
+          "scenario": "Cache directory not writable",
+          "command": "ggen market cache clear (no write permissions)",
+          "expected": "Error: Permission denied"
+        }
+      ],
+      "boundary_conditions": [
+        {
+          "name": "min_limit",
+          "scenario": "Limit set to 1",
+          "command": "ggen market search \"rust\" --limit 1",
+          "expected": "Returns exactly 1 result"
+        },
+        {
+          "name": "max_limit",
+          "scenario": "Limit at maximum",
+          "command": "ggen market search \"rust\" --limit 100",
+          "expected": "Returns up to 100 results"
+        },
+        {
+          "name": "zero_results",
+          "scenario": "Query matching nothing",
+          "command": "ggen market search \"xyzabc123nonexistent\"",
+          "expected": "Returns empty result set with suggestions"
+        },
+        {
+          "name": "single_character_query",
+          "scenario": "Query is single character",
+          "command": "ggen market search \"a\"",
+          "expected": "Processes single-char query"
+        },
+        {
+          "name": "exact_length_query",
+          "scenario": "Query exactly 1000 chars",
+          "command": "ggen market search \"$('a' * 1000)\"",
+          "expected": "Accepts query at boundary"
+        }
+      ]
+    }
+  },
+  "performance_benchmarks": {
+    "description": "Performance metrics and targets for stress testing",
+    "metrics": [
+      {
+        "operation": "market_search",
+        "target_latency_p50": "< 100ms",
+        "target_latency_p95": "< 500ms",
+        "target_latency_p99": "< 1000ms",
+        "target_throughput": "100 searches/sec",
+        "memory_limit": "< 100MB"
+      },
+      {
+        "operation": "market_add",
+        "target_latency_p50": "< 200ms",
+        "target_latency_p95": "< 1000ms",
+        "target_latency_p99": "< 2000ms",
+        "target_throughput": "50 installs/sec",
+        "memory_limit": "< 200MB"
+      },
+      {
+        "operation": "market_sync",
+        "target_latency_p50": "< 5s",
+        "target_latency_p95": "< 15s",
+        "target_latency_p99": "< 30s",
+        "target_throughput": "10 syncs/min",
+        "memory_limit": "< 500MB"
+      },
+      {
+        "operation": "lifecycle_run",
+        "target_latency_p50": "< 1s",
+        "target_latency_p95": "< 5s",
+        "target_latency_p99": "< 10s",
+        "target_throughput": "20 runs/min",
+        "memory_limit": "< 300MB"
+      },
+      {
+        "operation": "lifecycle_pipeline",
+        "target_latency_p50": "< 10s",
+        "target_latency_p95": "< 30s",
+        "target_latency_p99": "< 60s",
+        "target_throughput": "5 pipelines/min",
+        "memory_limit": "< 500MB"
+      },
+      {
+        "operation": "cache_operations",
+        "target_latency_p50": "< 50ms",
+        "target_latency_p95": "< 200ms",
+        "target_latency_p99": "< 500ms",
+        "target_throughput": "200 ops/sec",
+        "memory_limit": "< 50MB"
+      }
+    ],
+    "load_profiles": [
+      {
+        "name": "light_load",
+        "description": "Typical single-user usage",
+        "commands_per_minute": 10,
+        "concurrent_users": 1,
+        "duration": "5 minutes"
+      },
+      {
+        "name": "moderate_load",
+        "description": "Small team usage",
+        "commands_per_minute": 50,
+        "concurrent_users": 5,
+        "duration": "15 minutes"
+      },
+      {
+        "name": "heavy_load",
+        "description": "Large team or CI/CD",
+        "commands_per_minute": 200,
+        "concurrent_users": 20,
+        "duration": "30 minutes"
+      },
+      {
+        "name": "stress_test",
+        "description": "Peak load simulation",
+        "commands_per_minute": 500,
+        "concurrent_users": 50,
+        "duration": "10 minutes"
+      }
+    ]
+  },
+  "coverage_analysis": {
+    "description": "Code coverage targets for permutation testing",
+    "targets": {
+      "statement_coverage": "80%",
+      "branch_coverage": "75%",
+      "function_coverage": "90%",
+      "line_coverage": "80%"
+    },
+    "critical_paths": [
+      "cli/src/cmds/market/search.rs::run (search execution)",
+      "cli/src/cmds/market/add.rs::run (package installation)",
+      "cli/src/cmds/lifecycle/mod.rs::run_single_phase (phase execution)",
+      "ggen-marketplace/src/backend/centralized.rs::search (search engine)",
+      "ggen-marketplace/src/storage/filesystem.rs (cache operations)",
+      "cli/src/cmds/market/search.rs::validate_search_input (input validation)",
+      "cli/src/cmds/market/add.rs::validate_gpack_input (input validation)",
+      "cli/src/cmds/lifecycle/mod.rs::validate_for_deployment (production validation)"
+    ],
+    "untested_scenarios": [
+      "Network failures during sync",
+      "Concurrent lockfile modifications",
+      "Large cache file compaction",
+      "Cross-platform path handling",
+      "Unicode in package metadata",
+      "Marketplace API version mismatch",
+      "Corrupted state.json recovery"
+    ]
+  },
+  "test_execution_strategy": {
+    "description": "80/20 approach to maximize value",
+    "priority_tiers": [
+      {
+        "tier": "P0_critical",
+        "description": "Must-pass tests for production readiness",
+        "test_count": 35,
+        "scenarios": [
+          "Basic search functionality",
+          "Package add/remove",
+          "Lifecycle init/build/test/deploy",
+          "Production validation",
+          "Input validation (all commands)",
+          "Error handling (network, disk, permissions)"
+        ],
+        "execution_order": 1
+      },
+      {
+        "tier": "P1_important",
+        "description": "High-value features and edge cases",
+        "test_count": 52,
+        "scenarios": [
+          "Filtered searches",
+          "Cache management",
+          "Offline operations",
+          "Pipeline execution",
+          "Readiness tracking",
+          "Concurrent operations"
+        ],
+        "execution_order": 2
+      },
+      {
+        "tier": "P2_nice_to_have",
+        "description": "Advanced features and optimizations",
+        "test_count": 30,
+        "scenarios": [
+          "Fuzzy search",
+          "Natural language search",
+          "GraphQL API",
+          "Advanced caching",
+          "Performance benchmarks"
+        ],
+        "execution_order": 3
+      }
+    ],
+    "execution_phases": [
+      {
+        "phase": 1,
+        "name": "smoke_tests",
+        "duration": "2 minutes",
+        "test_count": 20,
+        "description": "Verify basic functionality works"
+      },
+      {
+        "phase": 2,
+        "name": "unit_tests",
+        "duration": "10 minutes",
+        "test_count": 87,
+        "description": "Test individual command permutations"
+      },
+      {
+        "phase": 3,
+        "name": "integration_tests",
+        "duration": "15 minutes",
+        "test_count": 45,
+        "description": "Test command sequences and workflows"
+      },
+      {
+        "phase": 4,
+        "name": "stress_tests",
+        "duration": "30 minutes",
+        "test_count": 30,
+        "description": "Test edge cases and resource limits"
+      },
+      {
+        "phase": 5,
+        "name": "performance_tests",
+        "duration": "20 minutes",
+        "test_count": 18,
+        "description": "Validate performance benchmarks"
+      }
+    ]
+  },
+  "implementation_notes": {
+    "testing_frameworks": [
+      "Rust: cargo test with tokio runtime",
+      "Property testing: proptest for combinatorial explosion",
+      "Benchmarking: criterion for performance tests",
+      "Concurrency: loom for race condition detection",
+      "Mocking: mockall for trait-based dependency injection"
+    ],
+    "automation": [
+      "CI/CD: Run P0 tests on every commit",
+      "Nightly: Run full test suite including stress tests",
+      "Pre-release: Run all permutations with performance validation",
+      "Post-release: Monitor production metrics against benchmarks"
+    ],
+    "test_data_generation": [
+      "Marketplace fixtures: 100 sample packages across 10 categories",
+      "Query corpus: 500 realistic search queries",
+      "Package specs: Valid/invalid ID patterns",
+      "Unicode test data: Common special characters and emojis"
+    ]
+  }
+}

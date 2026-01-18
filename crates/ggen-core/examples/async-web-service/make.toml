@@ -1,0 +1,425 @@
+[config]
+default_to_workspace = false
+skip_core_tasks = true
+
+[env]
+DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/async_web_service"
+TEST_DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/async_web_service_test"
+REDIS_URL = "redis://127.0.0.1:6379"
+JWT_SECRET = "dev-secret-key"
+BIND_ADDRESS = "127.0.0.1:8080"
+
+# =============================================================================
+# Development Phase
+# =============================================================================
+
+[tasks.install-deps]
+description = "Install system dependencies (PostgreSQL, Redis)"
+script = '''
+#!/bin/bash
+set -e
+
+echo "🔧 Checking dependencies..."
+
+# Check PostgreSQL
+if ! command -v psql &> /dev/null; then
+    echo "❌ PostgreSQL not found. Install with:"
+    echo "   macOS: brew install postgresql@16"
+    echo "   Ubuntu: sudo apt install postgresql-16"
+    exit 1
+fi
+
+# Check Redis
+if ! command -v redis-cli &> /dev/null; then
+    echo "❌ Redis not found. Install with:"
+    echo "   macOS: brew install redis"
+    echo "   Ubuntu: sudo apt install redis-server"
+    exit 1
+fi
+
+# Install SQLx CLI
+if ! command -v sqlx &> /dev/null; then
+    echo "📦 Installing SQLx CLI..."
+    cargo install sqlx-cli --no-default-features --features postgres
+fi
+
+echo "✅ All dependencies installed"
+'''
+
+[tasks.db-setup]
+description = "Set up development database"
+script = '''
+#!/bin/bash
+set -e
+
+echo "🗄️  Setting up database..."
+
+# Create database if it doesn't exist
+psql -U postgres -tc "SELECT 1 FROM pg_database WHERE datname = 'async_web_service'" | grep -q 1 || \
+    psql -U postgres -c "CREATE DATABASE async_web_service"
+
+# Run migrations
+sqlx migrate run --database-url "${DATABASE_URL}"
+
+echo "✅ Database setup complete"
+'''
+
+[tasks.db-reset]
+description = "Reset database (drop and recreate)"
+script = '''
+#!/bin/bash
+set -e
+
+echo "🔄 Resetting database..."
+psql -U postgres -c "DROP DATABASE IF EXISTS async_web_service"
+psql -U postgres -c "CREATE DATABASE async_web_service"
+sqlx migrate run --database-url "${DATABASE_URL}"
+echo "✅ Database reset complete"
+'''
+
+[tasks.db-test-setup]
+description = "Set up test database"
+script = '''
+#!/bin/bash
+set -e
+
+echo "🧪 Setting up test database..."
+psql -U postgres -tc "SELECT 1 FROM pg_database WHERE datname = 'async_web_service_test'" | grep -q 1 || \
+    psql -U postgres -c "CREATE DATABASE async_web_service_test"
+sqlx migrate run --database-url "${TEST_DATABASE_URL}"
+echo "✅ Test database ready"
+'''
+
+[tasks.redis-start]
+description = "Start Redis server"
+script = '''
+#!/bin/bash
+if pgrep redis-server > /dev/null; then
+    echo "✅ Redis already running"
+else
+    echo "🚀 Starting Redis..."
+    redis-server --daemonize yes
+    echo "✅ Redis started"
+fi
+'''
+
+[tasks.dev-prepare]
+description = "Prepare development environment"
+dependencies = ["install-deps", "redis-start", "db-setup"]
+
+[tasks.dev]
+description = "Run service in development mode with hot reload"
+dependencies = ["dev-prepare"]
+install_crate = { crate_name = "cargo-watch", binary = "cargo-watch", test_arg = "--version" }
+script = '''
+#!/bin/bash
+echo "🚀 Starting development server with hot reload..."
+cargo watch -x 'run' -w src -w Cargo.toml
+'''
+
+[tasks.check]
+description = "Check code without building"
+command = "cargo"
+args = ["check", "--all-targets"]
+
+[tasks.fmt]
+description = "Format code"
+command = "cargo"
+args = ["fmt", "--all"]
+
+[tasks.lint]
+description = "Run clippy linter"
+command = "cargo"
+args = ["clippy", "--all-targets", "--", "-D", "warnings"]
+
+# =============================================================================
+# Testing Phase
+# =============================================================================
+
+[tasks.test-unit]
+description = "Run unit tests"
+command = "cargo"
+args = ["test", "--lib"]
+
+[tasks.test-integration]
+description = "Run integration tests"
+dependencies = ["db-test-setup"]
+script = '''
+#!/bin/bash
+export DATABASE_URL="${TEST_DATABASE_URL}"
+cargo test --test api_tests -- --test-threads=1
+'''
+
+[tasks.test-all]
+description = "Run all tests"
+dependencies = ["test-unit", "test-integration"]
+
+[tasks.test-coverage]
+description = "Generate test coverage report"
+install_crate = { crate_name = "cargo-tarpaulin", binary = "cargo-tarpaulin", test_arg = "--version" }
+script = '''
+#!/bin/bash
+export DATABASE_URL="${TEST_DATABASE_URL}"
+cargo tarpaulin --out Html --output-dir coverage --exclude-files "tests/*"
+echo "📊 Coverage report: coverage/index.html"
+'''
+
+[tasks.load-test]
+description = "Run load tests with oha"
+dependencies = ["build-release"]
+script = '''
+#!/bin/bash
+set -e
+
+# Check if oha is installed
+if ! command -v oha &> /dev/null; then
+    echo "📦 Installing oha..."
+    cargo install oha
+fi
+
+# Start server in background
+echo "🚀 Starting server..."
+./target/release/async-web-service &
+SERVER_PID=$!
+sleep 3
+
+# Wait for server to be ready
+until curl -s http://127.0.0.1:8080/api/v1/health > /dev/null; do
+    echo "⏳ Waiting for server..."
+    sleep 1
+done
+
+echo "📊 Running load tests..."
+
+# Health endpoint test
+echo "Testing /api/v1/health..."
+oha -z 30s -c 100 http://127.0.0.1:8080/api/v1/health
+
+# Cleanup
+kill $SERVER_PID
+echo "✅ Load tests complete"
+'''
+
+# =============================================================================
+# Build Phase
+# =============================================================================
+
+[tasks.build]
+description = "Build in debug mode"
+command = "cargo"
+args = ["build"]
+
+[tasks.build-release]
+description = "Build optimized release binary"
+command = "cargo"
+args = ["build", "--release"]
+
+[tasks.docker-build]
+description = "Build Docker image"
+script = '''
+#!/bin/bash
+echo "🐳 Building Docker image..."
+docker build -t async-web-service:latest .
+echo "✅ Docker image built: async-web-service:latest"
+'''
+
+[tasks.docker-compose-up]
+description = "Start services with Docker Compose"
+script = '''
+#!/bin/bash
+echo "🐳 Starting services with Docker Compose..."
+docker-compose up -d
+echo "✅ Services started. API: http://localhost:8080"
+'''
+
+[tasks.docker-compose-down]
+description = "Stop Docker Compose services"
+command = "docker-compose"
+args = ["down"]
+
+# =============================================================================
+# Deployment Phase
+# =============================================================================
+
+[tasks.pre-deploy]
+description = "Pre-deployment checks"
+dependencies = ["lint", "test-all", "build-release"]
+script = '''
+#!/bin/bash
+echo "✅ Pre-deployment checks passed"
+'''
+
+[tasks.deploy-local]
+description = "Deploy locally with health checks"
+dependencies = ["pre-deploy"]
+script = '''
+#!/bin/bash
+set -e
+
+echo "🚀 Starting local deployment..."
+
+# Stop existing instance if running
+pkill async-web-service || true
+
+# Start new instance
+./target/release/async-web-service &
+SERVER_PID=$!
+echo "Server PID: $SERVER_PID"
+
+# Health check with retries
+MAX_RETRIES=30
+RETRY_COUNT=0
+
+while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+    if curl -s http://127.0.0.1:8080/api/v1/health | grep -q "healthy"; then
+        echo "✅ Deployment successful - Health check passed"
+        echo "📍 API: http://127.0.0.1:8080"
+        echo "📖 Swagger UI: http://127.0.0.1:8080/swagger-ui/"
+        exit 0
+    fi
+    echo "⏳ Waiting for service... ($RETRY_COUNT/$MAX_RETRIES)"
+    sleep 2
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+done
+
+echo "❌ Deployment failed - Health check timeout"
+kill $SERVER_PID
+exit 1
+'''
+
+[tasks.deploy-docker]
+description = "Deploy using Docker Compose"
+dependencies = ["docker-build"]
+script = '''
+#!/bin/bash
+echo "🚀 Deploying with Docker Compose..."
+docker-compose down
+docker-compose up -d
+
+# Health check
+sleep 5
+if curl -s http://localhost:8080/api/v1/health | grep -q "healthy"; then
+    echo "✅ Docker deployment successful"
+    echo "📍 API: http://localhost:8080"
+    echo "📖 Swagger UI: http://localhost:8080/swagger-ui/"
+else
+    echo "❌ Docker deployment failed"
+    docker-compose logs
+    exit 1
+fi
+'''
+
+# =============================================================================
+# Monitoring & Maintenance
+# =============================================================================
+
+[tasks.logs]
+description = "Tail application logs"
+script = '''
+#!/bin/bash
+if [ -f "app.log" ]; then
+    tail -f app.log
+else
+    echo "No log file found. Service might be using stdout."
+fi
+'''
+
+[tasks.metrics]
+description = "View Prometheus metrics"
+script = '''
+#!/bin/bash
+curl -s http://127.0.0.1:8080/api/v1/metrics
+'''
+
+[tasks.db-migrate-new]
+description = "Create new database migration"
+script = '''
+#!/bin/bash
+read -p "Migration name: " name
+sqlx migrate add "$name"
+echo "✅ Migration created in migrations/"
+'''
+
+[tasks.api-docs]
+description = "Open Swagger UI in browser"
+script = '''
+#!/bin/bash
+echo "📖 Opening Swagger UI..."
+open http://127.0.0.1:8080/swagger-ui/ || xdg-open http://127.0.0.1:8080/swagger-ui/
+'''
+
+[tasks.clean]
+description = "Clean build artifacts"
+script = '''
+#!/bin/bash
+cargo clean
+rm -rf coverage/
+echo "✅ Cleaned build artifacts"
+'''
+
+# =============================================================================
+# Lifecycle Phases
+# =============================================================================
+
+[tasks.lifecycle-dev]
+description = "Complete development lifecycle"
+dependencies = ["dev-prepare", "check", "fmt", "lint"]
+run_task = "dev"
+
+[tasks.lifecycle-test]
+description = "Complete testing lifecycle"
+dependencies = ["db-test-setup", "test-all", "test-coverage"]
+
+[tasks.lifecycle-build]
+description = "Complete build lifecycle"
+dependencies = ["fmt", "lint", "test-all", "build-release"]
+
+[tasks.lifecycle-deploy]
+description = "Complete deployment lifecycle"
+dependencies = ["pre-deploy", "docker-build", "deploy-docker"]
+
+[tasks.lifecycle-full]
+description = "Full lifecycle: dev → test → build → deploy"
+dependencies = ["lifecycle-dev", "lifecycle-test", "lifecycle-build", "lifecycle-deploy"]
+
+[tasks.default]
+description = "Show available tasks"
+script = '''
+#!/bin/bash
+echo "🚀 Async Web Service - Available Tasks"
+echo ""
+echo "Development:"
+echo "  dev-prepare     - Prepare development environment"
+echo "  dev             - Run with hot reload"
+echo "  check           - Check code"
+echo "  fmt             - Format code"
+echo "  lint            - Run linter"
+echo ""
+echo "Testing:"
+echo "  test-unit       - Run unit tests"
+echo "  test-integration - Run integration tests"
+echo "  test-all        - Run all tests"
+echo "  test-coverage   - Generate coverage report"
+echo "  load-test       - Run load tests"
+echo ""
+echo "Build:"
+echo "  build           - Debug build"
+echo "  build-release   - Release build"
+echo "  docker-build    - Build Docker image"
+echo ""
+echo "Deploy:"
+echo "  deploy-local    - Deploy locally"
+echo "  deploy-docker   - Deploy with Docker"
+echo ""
+echo "Database:"
+echo "  db-setup        - Setup database"
+echo "  db-reset        - Reset database"
+echo "  db-migrate-new  - Create migration"
+echo ""
+echo "Lifecycles:"
+echo "  lifecycle-dev   - Development lifecycle"
+echo "  lifecycle-test  - Testing lifecycle"
+echo "  lifecycle-build - Build lifecycle"
+echo "  lifecycle-deploy - Deployment lifecycle"
+echo "  lifecycle-full  - Complete lifecycle"
+'''
