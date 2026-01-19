@@ -1,6 +1,6 @@
 [package]
 name = "ggen-dspy"
-version = "5.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "DSPy-inspired programming framework for LLM agents in Rust"
