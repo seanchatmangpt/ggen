@@ -36,6 +36,7 @@ members = [
   "crates/ggen-ai",            # AI orchestration and multi-provider LLM integration (v5.1.0)
   "crates/ggen-folk-strategy", # Folk strategy quantification from opportunity field dynamics
   "crates/ggen-dod",           # Domain-driven design patterns (from origin/main)
+  "crates/ggen-ontology-core", # Ontology handling layer: RDF/TTL, SPARQL, entity mapping
   # KNHK Systems Integration: ETL + KGC-4D + Workflow Engine
   "crates/knhk-etl",           # Extract-Transform-Load pipeline
   "crates/knhk-hot",           # C FFI hot-path optimization
@@ -118,6 +119,7 @@ ggen-saas = { path = "crates/ggen-saas", version = "5.1.0" }
 ggen-ai = { path = "crates/ggen-ai", version = "3.3.0" }
 ggen-folk-strategy = { path = "crates/ggen-folk-strategy", version = "5.1.0" }
 ggen-dod = { path = "crates/ggen-dod", version = "3.3.0" }  # Domain-driven design (origin/main)
+ggen-ontology-core = { path = "crates/ggen-ontology-core", version = "3.3.0" }  # Ontology handling layer
 
 # KNHK Systems (ETL + KGC-4D + Workflow Engine Integration)
 knhk-etl = { path = "crates/knhk-etl", version = "0.1.0" }
