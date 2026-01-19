@@ -1,13 +1,10 @@
 [package]
 name = "ggen-macros"
-version = "5.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "Procedural macros for ggen"
 license = "MIT"
 repository = "https://github.com/seanchatmangpt/ggen"
-homepage = "https://github.com/seanchatmangpt/ggen"
-keywords = ["macros", "proc-macro", "code-generation"]
-categories = ["development-tools::procedural-macro-helpers"]
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 
 [lib]

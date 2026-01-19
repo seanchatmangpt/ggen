@@ -1,0 +1,416 @@
+---
+to: "services/user-service/src/main.rs"
+vars:
+  service_name: "User Service"
+  framework: "actix-web"
+  port: 8081
+  database: "postgresql"
+  description: "User management microservice with CRUD operations"
+rdf_inline:
+  - "@prefix ex: <https://example.com/microservices/> . ex:UserService ex:manages ex:User ."
+sparql:
+  user_operations: "SELECT ?operation WHERE { ex:UserService ex:handles ?operation }"
+---
+//! {{ service_name }}
+//! 
+//! {{ description }}
+//! 
+//! This service provides comprehensive user management functionality including:
+//! - User registration and authentication
+//! - Profile management
+//! - User data validation
+//! - Integration with authentication service
+
+use actix_web::{web, App, HttpServer, Result, HttpResponse, middleware::Logger};
+use serde::{Deserialize, Serialize};
+use sqlx::{PgPool, Row};
+use std::env;
+use tracing::{info, error};
+use uuid::Uuid;
+use chrono::{DateTime, Utc};
+use thiserror::Error;
+
+/// User entity representing a user in the system
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
+pub struct User {
+    pub user_id: Uuid,
+    pub email: String,
+    pub password_hash: String,
+    pub first_name: String,
+    pub last_name: String,
+    pub phone_number: Option<String>,
+    pub address: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub is_active: bool,
+}
+
+/// User creation request
+#[derive(Debug, Deserialize)]
+pub struct CreateUserRequest {
+    pub email: String,
+    pub password: String,
+    pub first_name: String,
+    pub last_name: String,
+    pub phone_number: Option<String>,
+    pub address: Option<String>,
+}
+
+/// User update request
+#[derive(Debug, Deserialize)]
+pub struct UpdateUserRequest {
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub phone_number: Option<String>,
+    pub address: Option<String>,
+}
+
+/// User response (without sensitive data)
+#[derive(Debug, Serialize)]
+pub struct UserResponse {
+    pub user_id: Uuid,
+    pub email: String,
+    pub first_name: String,
+    pub last_name: String,
+    pub phone_number: Option<String>,
+    pub address: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub is_active: bool,
+}
+
+/// Error types for user service
+#[derive(Error, Debug)]
+pub enum UserError {
+    #[error("Database error: {0}")]
+    Database(#[from] sqlx::Error),
+    
+    #[error("User not found: {user_id}")]
+    UserNotFound { user_id: Uuid },
+    
+    #[error("Email already exists: {email}")]
+    EmailExists { email: String },
+    
+    #[error("Invalid input: {message}")]
+    InvalidInput { message: String },
+    
+    #[error("Internal server error: {0}")]
+    Internal(#[from] anyhow::Error),
+}
+
+impl actix_web::error::ResponseError for UserError {
+    fn error_response(&self) -> HttpResponse {
+        match self {
+            UserError::UserNotFound { .. } => HttpResponse::NotFound().json(serde_json::json!({
+                "error": "User not found",
+                "message": self.to_string()
+            })),
+            UserError::EmailExists { .. } => HttpResponse::Conflict().json(serde_json::json!({
+                "error": "Email already exists",
+                "message": self.to_string()
+            })),
+            UserError::InvalidInput { .. } => HttpResponse::BadRequest().json(serde_json::json!({
+                "error": "Invalid input",
+                "message": self.to_string()
+            })),
+            _ => HttpResponse::InternalServerError().json(serde_json::json!({
+                "error": "Internal server error",
+                "message": "An unexpected error occurred"
+            })),
+        }
+    }
+}
+
+/// User service implementation
+pub struct UserService {
+    pool: PgPool,
+}
+
+impl UserService {
+    pub fn new(pool: PgPool) -> Self {
+        Self { pool }
+    }
+
+    /// Create a new user
+    pub async fn create_user(&self, request: CreateUserRequest) -> Result<UserResponse, UserError> {
+        // Validate email format
+        if !request.email.contains('@') {
+            return Err(UserError::InvalidInput {
+                message: "Invalid email format".to_string(),
+            });
+        }
+
+        // Check if email already exists
+        let existing_user = sqlx::query("SELECT user_id FROM users WHERE email = $1")
+            .bind(&request.email)
+            .fetch_optional(&self.pool)
+            .await?;
+
+        if existing_user.is_some() {
+            return Err(UserError::EmailExists {
+                email: request.email.clone(),
+            });
+        }
+
+        // Hash password (in production, use proper password hashing)
+        let password_hash = format!("hashed_{}", request.password);
+
+        let user_id = Uuid::new_v4();
+        let now = Utc::now();
+
+        // Insert user into database
+        sqlx::query(
+            r#"
+            INSERT INTO users (user_id, email, password_hash, first_name, last_name, phone_number, address, created_at, updated_at, is_active)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            "#
+        )
+        .bind(user_id)
+        .bind(&request.email)
+        .bind(&password_hash)
+        .bind(&request.first_name)
+        .bind(&request.last_name)
+        .bind(&request.phone_number)
+        .bind(&request.address)
+        .bind(now)
+        .bind(now)
+        .bind(true)
+        .execute(&self.pool)
+        .await?;
+
+        info!("Created user: {}", user_id);
+
+        // Return user response
+        Ok(UserResponse {
+            user_id,
+            email: request.email,
+            first_name: request.first_name,
+            last_name: request.last_name,
+            phone_number: request.phone_number,
+            address: request.address,
+            created_at: now,
+            updated_at: now,
+            is_active: true,
+        })
+    }
+
+    /// Get user by ID
+    pub async fn get_user(&self, user_id: Uuid) -> Result<UserResponse, UserError> {
+        let user = sqlx::query_as::<_, User>(
+            "SELECT * FROM users WHERE user_id = $1 AND is_active = true"
+        )
+        .bind(user_id)
+        .fetch_optional(&self.pool)
+        .await?
+        .ok_or_else(|| UserError::UserNotFound { user_id })?;
+
+        Ok(UserResponse {
+            user_id: user.user_id,
+            email: user.email,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            phone_number: user.phone_number,
+            address: user.address,
+            created_at: user.created_at,
+            updated_at: user.updated_at,
+            is_active: user.is_active,
+        })
+    }
+
+    /// Update user
+    pub async fn update_user(&self, user_id: Uuid, request: UpdateUserRequest) -> Result<UserResponse, UserError> {
+        let now = Utc::now();
+
+        // Update user in database
+        let rows_affected = sqlx::query(
+            r#"
+            UPDATE users 
+            SET first_name = COALESCE($2, first_name),
+                last_name = COALESCE($3, last_name),
+                phone_number = COALESCE($4, phone_number),
+                address = COALESCE($5, address),
+                updated_at = $6
+            WHERE user_id = $1 AND is_active = true
+            "#
+        )
+        .bind(user_id)
+        .bind(&request.first_name)
+        .bind(&request.last_name)
+        .bind(&request.phone_number)
+        .bind(&request.address)
+        .bind(now)
+        .execute(&self.pool)
+        .await?
+        .rows_affected();
+
+        if rows_affected == 0 {
+            return Err(UserError::UserNotFound { user_id });
+        }
+
+        info!("Updated user: {}", user_id);
+
+        // Return updated user
+        self.get_user(user_id).await
+    }
+
+    /// Delete user (soft delete)
+    pub async fn delete_user(&self, user_id: Uuid) -> Result<(), UserError> {
+        let rows_affected = sqlx::query(
+            "UPDATE users SET is_active = false, updated_at = $2 WHERE user_id = $1 AND is_active = true"
+        )
+        .bind(user_id)
+        .bind(Utc::now())
+        .execute(&self.pool)
+        .await?
+        .rows_affected();
+
+        if rows_affected == 0 {
+            return Err(UserError::UserNotFound { user_id });
+        }
+
+        info!("Deleted user: {}", user_id);
+        Ok(())
+    }
+
+    /// List users with pagination
+    pub async fn list_users(&self, limit: i64, offset: i64) -> Result<Vec<UserResponse>, UserError> {
+        let users = sqlx::query_as::<_, User>(
+            "SELECT * FROM users WHERE is_active = true ORDER BY created_at DESC LIMIT $1 OFFSET $2"
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&self.pool)
+        .await?;
+
+        let responses = users.into_iter().map(|user| UserResponse {
+            user_id: user.user_id,
+            email: user.email,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            phone_number: user.phone_number,
+            address: user.address,
+            created_at: user.created_at,
+            updated_at: user.updated_at,
+            is_active: user.is_active,
+        }).collect();
+
+        Ok(responses)
+    }
+}
+
+/// Health check endpoint
+async fn health_check() -> Result<HttpResponse> {
+    Ok(HttpResponse::Ok().json(serde_json::json!({
+        "status": "healthy",
+        "service": "{{ service_name }}",
+        "timestamp": chrono::Utc::now()
+    })))
+}
+
+/// Create user endpoint
+async fn create_user(
+    service: web::Data<UserService>,
+    request: web::Json<CreateUserRequest>,
+) -> Result<HttpResponse, UserError> {
+    let user = service.create_user(request.into_inner()).await?;
+    Ok(HttpResponse::Created().json(user))
+}
+
+/// Get user endpoint
+async fn get_user(
+    service: web::Data<UserService>,
+    path: web::Path<Uuid>,
+) -> Result<HttpResponse, UserError> {
+    let user = service.get_user(path.into_inner()).await?;
+    Ok(HttpResponse::Ok().json(user))
+}
+
+/// Update user endpoint
+async fn update_user(
+    service: web::Data<UserService>,
+    path: web::Path<Uuid>,
+    request: web::Json<UpdateUserRequest>,
+) -> Result<HttpResponse, UserError> {
+    let user = service.update_user(path.into_inner(), request.into_inner()).await?;
+    Ok(HttpResponse::Ok().json(user))
+}
+
+/// Delete user endpoint
+async fn delete_user(
+    service: web::Data<UserService>,
+    path: web::Path<Uuid>,
+) -> Result<HttpResponse, UserError> {
+    service.delete_user(path.into_inner()).await?;
+    Ok(HttpResponse::NoContent().finish())
+}
+
+/// List users endpoint
+async fn list_users(
+    service: web::Data<UserService>,
+    query: web::Query<serde_json::Value>,
+) -> Result<HttpResponse, UserError> {
+    let limit = query.get("limit").and_then(|v| v.as_i64()).unwrap_or(10);
+    let offset = query.get("offset").and_then(|v| v.as_i64()).unwrap_or(0);
+    
+    let users = service.list_users(limit, offset).await?;
+    Ok(HttpResponse::Ok().json(serde_json::json!({
+        "users": users,
+        "pagination": {
+            "limit": limit,
+            "offset": offset
+        }
+    })))
+}
+
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    // Initialize tracing
+    tracing_subscriber::fmt()
+        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+        .init();
+
+    // Get database URL from environment
+    let database_url = env::var("DATABASE_URL")
+        .expect("DATABASE_URL must be set");
+
+    // Create database connection pool
+    let pool = PgPool::connect(&database_url)
+        .await
+        .expect("Failed to connect to database");
+
+    // Run migrations
+    sqlx::migrate!("./migrations")
+        .run(&pool)
+        .await
+        .expect("Failed to run migrations");
+
+    // Create user service
+    let user_service = web::Data::new(UserService::new(pool));
+
+    // Get port from environment
+    let port = env::var("USER_SERVICE_PORT")
+        .unwrap_or_else(|_| "{{ port }}".to_string())
+        .parse::<u16>()
+        .expect("Invalid port number");
+
+    info!("Starting {{ service_name }} on port {}", port);
+
+    // Start HTTP server
+    HttpServer::new(move || {
+        App::new()
+            .app_data(user_service.clone())
+            .wrap(Logger::default())
+            .service(
+                web::scope("/api/v1")
+                    .route("/health", web::get().to(health_check))
+                    .route("/users", web::post().to(create_user))
+                    .route("/users", web::get().to(list_users))
+                    .route("/users/{user_id}", web::get().to(get_user))
+                    .route("/users/{user_id}", web::put().to(update_user))
+                    .route("/users/{user_id}", web::delete().to(delete_user))
+            )
+    })
+    .bind(format!("0.0.0.0:{}", port))?
+    .run()
+    .await
+}

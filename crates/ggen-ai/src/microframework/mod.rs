@@ -88,9 +88,7 @@ pub mod prelude {
     pub use super::progress::{ProgressTracker, TaskProgress};
     pub use super::task_graph::{TaskGraph, GraphStats};
     pub use super::tasks::{Task, TaskConfig, TaskResult, TaskStatus};
-    pub use crate::hyper_concurrent::{
-        HyperConcurrentConfig, HyperConcurrentExecutor, MAX_CONCURRENT_AGENTS,
-    };
+    pub use super::MicroframeworkConfig;
 }
 
 use serde::{Deserialize, Serialize};

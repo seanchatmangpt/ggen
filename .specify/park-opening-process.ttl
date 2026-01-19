@@ -1,0 +1,563 @@
+@prefix ex: <http://ggen.example.org/disney/park-opening#> .
+@prefix wo: <http://ggen.example.org/disney/work-objects#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ==============================================================================
+# Park Opening Process Ontology
+# ==============================================================================
+# Purpose: Reverse-engineered ontology for theme park opening checklist
+# Audience: Park operations, process engineers, system integrators
+# Wave: 1 (Single real process for validation)
+# Status: Mapped to Work Object Model types
+# Created: 2026-01-18
+# ==============================================================================
+
+ex:ParkOpeningProcess a owl:Class ;
+  rdfs:label "Park Opening Process" ;
+  rdfs:comment "Daily process for opening a theme park to guests. Involves coordinated shifts, approval gates, incident management, and resource deployment." ;
+  rdfs:isDefinedBy ex:ParkOpeningOntology .
+
+ex:DailyParkOpening a ex:ParkOpeningProcess ;
+  rdfs:label "Daily Park Opening" ;
+  rdfs:comment "Full process from pre-opening setup through guest admission gate opening." ;
+  ex:startTime "06:00:00"^^xsd:time ;
+  ex:targetOpenTime "09:00:00"^^xsd:time ;
+  ex:estimatedDuration "PT3H"^^xsd:duration ;
+  ex:dependencies ex:SecurityApproval, ex:OperationsReadiness, ex:WeatherCheck .
+
+# ==============================================================================
+# SHIFTS (Maps to wo:Shift)
+# ==============================================================================
+
+ex:PreOpeningShift a wo:Shift ;
+  rdfs:label "Pre-Opening Shift" ;
+  rdfs:comment "Early morning operations team on site for setup." ;
+  ex:role "Shift Manager, Security, Maintenance, Guest Services" ;
+  ex:startTime "2026-01-19T06:00:00"^^xsd:dateTime ;
+  ex:endTime "2026-01-19T14:00:00"^^xsd:dateTime ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "SHIFT-PRE-OPENING-001" ;
+  ex:location ex:MainEntrance ;
+  ex:staffingRequirement [
+    ex:role "Security" ;
+    ex:count 8 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "SECURITY-MAIN"
+  ] ;
+  ex:staffingRequirement [
+    ex:role "Operations" ;
+    ex:count 12 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "OPS-MAIN"
+  ] ;
+  ex:staffingRequirement [
+    ex:role "Guest Services" ;
+    ex:count 6 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "GS-MAIN"
+  ] .
+
+ex:OpeningShift a wo:Shift ;
+  rdfs:label "Opening Shift" ;
+  rdfs:comment "Shift for gate operations and initial guest interaction." ;
+  ex:startTime "2026-01-19T08:00:00"^^xsd:dateTime ;
+  ex:endTime "2026-01-19T16:00:00"^^xsd:dateTime ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "SHIFT-OPENING-001" ;
+  ex:location ex:MainEntrance ;
+  wo:dependsOn ex:PreOpeningShift .
+
+# ==============================================================================
+# TASKS (Maps to wo:Task)
+# ==============================================================================
+
+ex:SecuritySweep a wo:Task ;
+  rdfs:label "Security Sweep" ;
+  rdfs:comment "Comprehensive inspection of all park areas for safety hazards and unauthorized items." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-SEC-SWEEP-001" ;
+  wo:hasTitle "Complete Security Sweep of All Areas" ;
+  wo:taskDescription "Walk entire perimeter and all guest areas; verify no overnight intrusions, hazards, or unauthorized items." ;
+  wo:taskAssignedTo ex:SecurityChief ;
+  wo:taskEstimatedDuration "PT45M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:SecuritySweepAC1, ex:SecuritySweepAC2, ex:SecuritySweepAC3 ;
+  ex:executionOrder 1 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:MainEntranceCheck, ex:EquipmentStartup .
+
+ex:SecuritySweepAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "Given all park areas, when security personnel complete perimeter walk, then no unauthorized items found or documented." ;
+  wo:criterionVerified "false" .
+
+ex:SecuritySweepAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "Given documented checklist, when sweep complete, then all 47 zones checked and signed off by security lead." ;
+  wo:criterionVerified "false" .
+
+ex:SecuritySweepAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When sweep complete within target time (45 min), security sweep completion notification sent to operations center." ;
+  wo:criterionVerified "false" .
+
+ex:MainEntranceCheck a wo:Task ;
+  rdfs:label "Main Entrance Inspection" ;
+  rdfs:comment "Verify entrance gates, ticketing systems, and guest flow paths are clear and operational." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-MAIN-ENT-001" ;
+  wo:hasTitle "Verify Main Entrance Gate and Ticketing" ;
+  wo:taskAssignedTo ex:EntranceManager ;
+  wo:taskEstimatedDuration "PT30M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:MainEntranceAC1, ex:MainEntranceAC2 ;
+  wo:dependsOn ex:SecuritySweep ;
+  ex:executionOrder 2 ;
+  ex:criticalPath "true" .
+
+ex:MainEntranceAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When entrance inspected, then all ticketing kiosks boot and respond to test transaction." ;
+  wo:criterionVerified "false" .
+
+ex:MainEntranceAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When entrance inspected, then turnstiles pass mechanical and electrical checks." ;
+  wo:criterionVerified "false" .
+
+ex:EquipmentStartup a wo:Task ;
+  rdfs:label "Equipment Startup" ;
+  rdfs:comment "Power on all rides and attractions; run safety self-diagnostics." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-EQUIP-STARTUP-001" ;
+  wo:hasTitle "Power On and Diagnostics: All Attractions" ;
+  wo:taskAssignedTo ex:MaintenanceLead ;
+  wo:taskEstimatedDuration "PT90M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:EquipmentAC1, ex:EquipmentAC2 ;
+  wo:dependsOn ex:SecuritySweep ;
+  ex:executionOrder 3 ;
+  ex:criticalPath "true" ;
+  ex:externalSystemDependency [
+    ex:system "SAP" ;
+    ex:functionality "Equipment maintenance order status" ;
+    ex:requiredBefore "Startup can proceed"
+  ] .
+
+ex:EquipmentAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When diagnostic run complete, then all 23 attractions report green status (no fault codes)." ;
+  wo:criterionVerified "false" .
+
+ex:EquipmentAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When startup complete, then SAP PM order marked as 'Ready for Operation'." ;
+  wo:criterionVerified "false" .
+
+ex:StaffingDeployment a wo:Task ;
+  rdfs:label "Deploy Shift Staff" ;
+  rdfs:comment "Assign personnel to stations; verify staffing levels match plan." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-STAFF-DEPLOY-001" ;
+  wo:hasTitle "Verify All Shift Staff Deployed to Stations" ;
+  wo:taskAssignedTo ex:ShiftManager ;
+  wo:taskEstimatedDuration "PT60M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:StaffingAC1 ;
+  ex:externalSystemDependency [
+    ex:system "Workday" ;
+    ex:functionality "Shift roster, staff availability" ;
+    ex:requiredBefore "Deployment checklist"
+  ] ;
+  ex:executionOrder 4 ;
+  ex:criticalPath "true" .
+
+ex:StaffingAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When deployment complete, then staffing report confirms 100% of required positions filled (26 staff on duty)." ;
+  wo:criterionVerified "false" .
+
+ex:WeatherMonitoring a wo:Task ;
+  rdfs:label "Weather Check" ;
+  rdfs:comment "Verify current and forecast weather; escalate if conditions affect operations." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-WEATHER-001" ;
+  wo:hasTitle "Verify Weather Conditions Safe for Opening" ;
+  wo:taskAssignedTo ex:OpsController ;
+  wo:taskEstimatedDuration "PT15M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:WeatherAC1 ;
+  ex:externalSystemIntegration [
+    ex:type "Weather API" ;
+    ex:source "National Weather Service + private vendor" ;
+    ex:mapping "Wind speed, lightning, precipitation, visibility"
+  ] ;
+  ex:executionOrder 5 .
+
+ex:WeatherAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When weather check complete, then conditions within acceptable limits (wind <25mph, no lightning, visibility >0.5mi)." ;
+  wo:criterionVerified "false" .
+
+# ==============================================================================
+# APPROVALS (Maps to wo:Approval)
+# ==============================================================================
+
+ex:SecurityApproval a wo:Approval ;
+  rdfs:label "Security Clearance" ;
+  rdfs:comment "Security director approval before park can open to public." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-SEC-001" ;
+  wo:hasTitle "Security Director Sign-Off" ;
+  wo:approvalsRequired 1 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:SecurityDirectorRole ;
+  ex:gates [
+    ex:gateName "Security Sweep Complete" ;
+    ex:dependsOn ex:SecuritySweep ;
+    ex:gateStatus "Awaiting"
+  ] ;
+  ex:gates [
+    ex:gateName "Perimeter Secure" ;
+    ex:requiredEvidence "Signed security log" ;
+    ex:gateStatus "Awaiting"
+  ] ;
+  ex:blocksProgression ex:OperationsApproval .
+
+ex:OperationsApproval a wo:Approval ;
+  rdfs:label "Operations Readiness" ;
+  rdfs:comment "Operations manager approval: all systems tested and ready." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-OPS-001" ;
+  wo:hasTitle "Operations Manager Sign-Off" ;
+  wo:approvalsRequired 1 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:OperationsManagerRole ;
+  ex:gates [
+    ex:gateName "Equipment Startup Complete" ;
+    ex:dependsOn ex:EquipmentStartup
+  ] ;
+  ex:gates [
+    ex:gateName "Entrance Operational" ;
+    ex:dependsOn ex:MainEntranceCheck
+  ] ;
+  ex:gates [
+    ex:gateName "Staffing Verified" ;
+    ex:dependsOn ex:StaffingDeployment
+  ] ;
+  ex:blocksProgression ex:ExecutiveApproval .
+
+ex:ExecutiveApproval a wo:Approval ;
+  rdfs:label "Executive Opening Authorization" ;
+  rdfs:comment "Park Director final authorization to open gates to public." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-EXEC-001" ;
+  wo:hasTitle "Park Director Opening Authorization" ;
+  wo:approvalsRequired 1 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:ParkDirectorRole ;
+  ex:gates [
+    ex:gateName "All Approvals Complete" ;
+    ex:dependsOn ex:SecurityApproval, ex:OperationsApproval, ex:WeatherApproval
+  ] ;
+  ex:gateCondition "All upstream approvals must be completed and no incidents escalated." .
+
+ex:WeatherApproval a wo:Approval ;
+  rdfs:label "Weather Clearance" ;
+  rdfs:comment "Ops controller approval based on weather conditions." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-WEATHER-001" ;
+  wo:hasTitle "Weather Clearance" ;
+  wo:approvalsRequired 1 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:OpsControllerRole ;
+  wo:dependsOn ex:WeatherMonitoring .
+
+# ==============================================================================
+# INCIDENTS (Maps to wo:Incident)
+# ==============================================================================
+
+ex:IncidentTemplate_EquipmentFailure a wo:Incident ;
+  rdfs:label "Equipment Failure During Startup" ;
+  rdfs:comment "Template: Ride or attraction fails diagnostic or safety check before opening." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "INC-EQUIP-TEMPLATE" ;
+  ex:isTemplate "true" ;
+  ex:incidentSeverity "High" ;
+  ex:incidentDescription "One or more attractions failed power-on or safety diagnostic test." ;
+  ex:blocksProcesses ex:DailyParkOpening ;
+  ex:remediationPath [
+    ex:firstStep "Engage maintenance technician" ;
+    ex:createTask ex:EquipmentRepairTask ;
+    ex:estimatedDelay "30-180 minutes"
+  ] ;
+  ex:escalationPath [
+    ex:severity "High" ;
+    ex:escalateTo ex:MaintenanceDirector
+  ] .
+
+ex:IncidentTemplate_WeatherEvent a wo:Incident ;
+  rdfs:label "Adverse Weather Event" ;
+  rdfs:comment "Template: Weather conditions fall outside acceptable parameters." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "INC-WEATHER-TEMPLATE" ;
+  ex:isTemplate "true" ;
+  ex:incidentSeverity "Medium" ;
+  ex:incidentDescription "Wind, lightning, or precipitation exceeds safety thresholds." ;
+  ex:blocksProcesses ex:DailyParkOpening ;
+  ex:remediationPath [
+    ex:firstStep "Ops controller decision: delay or cancel opening" ;
+    ex:decision "Trigger WeatherDelay approval OR proceed to contingency plan"
+  ] .
+
+# ==============================================================================
+# RESOURCES (Maps to wo:Resource)
+# ==============================================================================
+
+ex:MaintenanceEquipment a wo:Resource ;
+  rdfs:label "Maintenance Equipment Fleet" ;
+  rdfs:comment "Vehicles, tools, diagnostic equipment needed during opening process." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "RES-MAINT-001" ;
+  wo:resourceType "Maintenance Vehicles and Tools" ;
+  ex:requiredItems [
+    ex:item "Diagnostic scanner for attractions" ;
+    ex:quantity 3 ;
+    ex:sapAssetId "SAP-20000234"
+  ] ;
+  ex:requiredItems [
+    ex:item "Maintenance vehicle (electric cart)" ;
+    ex:quantity 2 ;
+    ex:sapAssetId "SAP-20001200"
+  ] ;
+  wo:resourceAvailability "Available" ;
+  ex:verificationMethod "SAP inventory check + physical walkthrough" .
+
+ex:EntranceGates a wo:Resource ;
+  rdfs:label "Entrance Gate Systems" ;
+  rdfs:comment "Ticketing and guest flow control systems." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "RES-GATES-001" ;
+  wo:resourceType "Gate and Ticketing Hardware" ;
+  ex:systemComponents [
+    ex:component "Ticket kiosk (6 units)" ;
+    ex:systemId "POS-KIOSK-001 through 006"
+  ] ;
+  ex:systemComponents [
+    ex:component "Turnstile with thermal screening (12 units)" ;
+    ex:systemId "GATE-001 through 012"
+  ] ;
+  ex:systemHealthCheck "POST request to each device; verify response <500ms" .
+
+# ==============================================================================
+# EVENTS (Maps to wo:Event)
+# ==============================================================================
+
+ex:EventShiftStart a wo:Event ;
+  rdfs:label "Pre-Opening Shift Start" ;
+  rdfs:comment "Signal that early staff have arrived and shift begins." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "EVT-SHIFT-START-001" ;
+  wo:eventType "shift_start" ;
+  wo:eventMessage "Pre-opening shift staff (26 personnel) on site and checked in." ;
+  wo:eventSource "Workday" ;
+  ex:eventTrigger ex:PreOpeningShift ;
+  ex:notificationChannel "Slack #park-operations" .
+
+ex:EventEquipmentGreen a wo:Event ;
+  rdfs:label "All Equipment Diagnostics Passed" ;
+  rdfs:comment "Signal that all attractions have passed safety checks." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "EVT-EQUIP-GREEN-001" ;
+  wo:eventType "milestone" ;
+  wo:eventMessage "All 23 attractions reported green status from diagnostic suite." ;
+  wo:eventSource "SAP" ;
+  ex:eventTrigger ex:EquipmentStartup ;
+  ex:notificationChannel "Slack #maintenance-ops" .
+
+ex:EventWeatherAlert a wo:Event ;
+  rdfs:label "Weather Warning" ;
+  rdfs:comment "Alert if weather conditions degrade." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "EVT-WEATHER-ALERT-001" ;
+  wo:eventType "alert" ;
+  wo:eventSource "Weather API" ;
+  ex:eventTrigger [
+    ex:condition "Wind speed >20 mph OR lightning detected" ;
+    ex:source "National Weather Service"
+  ] ;
+  ex:notificationChannel "Slack #weather-alerts, PagerDuty ops-on-call" .
+
+ex:EventParkOpeningGate a wo:Event ;
+  rdfs:label "Park Opening Gate" ;
+  rdfs:comment "Public announcement: park is now open." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "EVT-OPENING-001" ;
+  wo:eventType "state_change" ;
+  wo:eventMessage "Park officially opened to public guests." ;
+  wo:eventSource "Operations Center" ;
+  ex:eventTrigger ex:ExecutiveApproval ;
+  ex:notificationChannel "Display systems, social media, Slack #company-announcements" .
+
+# ==============================================================================
+# PROCESS FLOW & DEPENDENCIES
+# ==============================================================================
+
+ex:OpeningProcessFlow a ex:ProcessFlow ;
+  rdfs:label "Park Opening Critical Path" ;
+  rdfs:comment "Sequential and parallel task dependencies." ;
+  ex:phase1_Parallel "SecuritySweep, EquipmentStartup run in parallel (start 06:00)" ;
+  ex:phase2_Sequential "MainEntranceCheck (depends on SecuritySweep)" ;
+  ex:phase3_Parallel "StaffingDeployment (parallel with equipment)" ;
+  ex:phase4_Approval "SecurityApproval (blocks OperationsApproval)" ;
+  ex:phase5_Approval "OperationsApproval (gates final executive sign-off)" ;
+  ex:phase6_Final "ExecutiveApproval → Park opens to public" ;
+  ex:criticalPathDuration "PT180M"^^xsd:duration ;
+  ex:targetCompleteTime "09:00:00"^^xsd:time .
+
+# ==============================================================================
+# EXTERNAL SYSTEM MAPPINGS
+# ==============================================================================
+
+ex:WorkdayMapping a ex:SystemMapping ;
+  rdfs:label "Workday Integration" ;
+  rdfs:comment "How park opening process integrates with Workday staff management." ;
+  ex:maps wo:Shift ;
+  ex:workdayTeamIds (
+    "SECURITY-MAIN"
+    "OPS-MAIN"
+    "GS-MAIN"
+  ) ;
+  ex:dataFlow "Workday → Read shift roster, staff availability → Block if staffing <100%" ;
+  ex:readOnly "true" ;
+  ex:rollbackCapability "true" .
+
+ex:SAPMapping a ex:SystemMapping ;
+  rdfs:label "SAP Integration" ;
+  rdfs:comment "How park opening process integrates with SAP maintenance orders." ;
+  ex:maps wo:Task ;
+  ex:maps wo:Resource ;
+  ex:sapFunctionality [
+    ex:query "Equipment maintenance orders for today" ;
+    ex:updatesOn "EquipmentStartup completion"
+  ] ;
+  ex:dataFlow "SAP → Equipment status → validate all systems green → update PM order status" ;
+  ex:readOnly "false" ;
+  ex:rollbackCapability "true" .
+
+ex:SlackMapping a ex:SystemMapping ;
+  rdfs:label "Slack Notifications" ;
+  rdfs:comment "How park opening events propagate to Slack." ;
+  ex:maps wo:Event ;
+  ex:channels (
+    "#park-operations"
+    "#maintenance-ops"
+    "#weather-alerts"
+    "#company-announcements"
+  ) ;
+  ex:messageTemplate "Task {title}: {status} at {timestamp}" ;
+  ex:readOnly "true" ;
+  ex:rollbackCapability "false" .
+
+ex:ServiceNowMapping a ex:SystemMapping ;
+  rdfs:label "ServiceNow Integration" ;
+  rdfs:comment "How park opening incidents escalate to ServiceNow." ;
+  ex:maps wo:Incident ;
+  ex:dataFlow "On incident creation, create ServiceNow ticket with severity mapping" ;
+  ex:severityMapping [
+    ex:disneySeverity "High" ;
+    ex:servicenowPriority "P1"
+  ] ;
+  ex:readOnly "false" ;
+  ex:rollbackCapability "true" .
+
+# ==============================================================================
+# VALIDATION CHECKLIST
+# ==============================================================================
+
+ex:ValidationChecklist a owl:Class ;
+  rdfs:label "Park Opening Validation Checklist" ;
+  rdfs:comment "Quality gates before marking process ready for execution." ;
+  ex:check_1 "All tasks have defined acceptance criteria" ;
+  ex:check_2 "All approvals map to actual roles/people (not abstract)" ;
+  ex:check_3 "Critical path is clear and achieves 09:00 target" ;
+  ex:check_4 "All incidents have defined remediation paths" ;
+  ex:check_5 "External system dependencies are documented and validated" ;
+  ex:check_6 "Slack notification channels exist and are monitored" ;
+  ex:check_7 "Workday shift roster can be loaded for opening day" ;
+  ex:check_8 "SAP PM orders for equipment maintenance are current" .
+
+# ==============================================================================
+# METADATA
+# ==============================================================================
+
+ex:ParkOpeningOntology a owl:Ontology ;
+  rdfs:label "Park Opening Process Ontology" ;
+  rdfs:comment "Reverse-engineered specification of daily theme park opening workflow." ;
+  owl:versionInfo "1.0" ;
+  dcterms:created "2026-01-18"^^xsd:date ;
+  ex:phase "Wave 1 - Foundation" ;
+  ex:realWorldProcess "Actual Disney theme park opening (anonymized)" ;
+  ex:taskCount 5 ;
+  ex:approvalGateCount 4 ;
+  ex:externalSystemsIntegrated 4 ;
+  ex:targetProcessTime "PT3H"^^xsd:duration ;
+  ex:targetCompleteTime "09:00:00"^^xsd:time ;
+  ex:readyForValidation "true" ;
+  ex:mapsToWorkObjectTypes (
+    wo:Shift
+    wo:Task
+    wo:Incident
+    wo:Approval
+    wo:Resource
+    wo:Event
+  ) .
+
+# ==============================================================================
+# ROLES (for approvals and assignments)
+# ==============================================================================
+
+ex:SecurityDirectorRole a ex:ApprovalRole ;
+  rdfs:label "Security Director" ;
+  rdfs:comment "Approves security readiness." ;
+  ex:systemMapping "AD group: SECURITY_DIRECTORS" .
+
+ex:OperationsManagerRole a ex:ApprovalRole ;
+  rdfs:label "Operations Manager" ;
+  rdfs:comment "Approves operational readiness." ;
+  ex:systemMapping "AD group: OPS_MANAGERS" .
+
+ex:ParkDirectorRole a ex:ApprovalRole ;
+  rdfs:label "Park Director" ;
+  rdfs:comment "Final approval to open park." ;
+  ex:systemMapping "AD group: PARK_DIRECTORS" .
+
+ex:OpsControllerRole a ex:ApprovalRole ;
+  rdfs:label "Operations Controller" ;
+  rdfs:comment "Monitors weather and environmental conditions." ;
+  ex:systemMapping "AD group: OPS_CONTROLLERS" .
+
+ex:SecurityChief a ex:Person ;
+  rdfs:label "Security Chief" ;
+  ex:personRole ex:SecurityDirectorRole ;
+  ex:workdayId "SEC-001" .
+
+ex:EntranceManager a ex:Person ;
+  rdfs:label "Entrance Manager" ;
+  ex:workdayId "GS-ENTRANCE-001" .
+
+ex:MaintenanceLead a ex:Person ;
+  rdfs:label "Maintenance Lead" ;
+  ex:workdayId "MAINT-001" .
+
+ex:ShiftManager a ex:Person ;
+  rdfs:label "Shift Manager" ;
+  ex:workdayId "OPS-SHIFT-001" .
+
+ex:OpsController a ex:Person ;
+  rdfs:label "Operations Controller" ;
+  ex:personRole ex:OpsControllerRole ;
+  ex:workdayId "OPS-CTRL-001" .
+
+# ==============================================================================
+# LOCATIONS
+# ==============================================================================
+
+ex:MainEntrance a ex:Location ;
+  rdfs:label "Main Entrance Area" ;
+  rdfs:comment "Primary guest entry point." ;
+  ex:locationCode "MAIN-ENT-001" ;
+  ex:area "10,000 sq ft" ;
+  ex:securityZones 4 ;
+  ex:equipmentCount 12 .
+

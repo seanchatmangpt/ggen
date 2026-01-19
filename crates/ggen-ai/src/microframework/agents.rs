@@ -2,11 +2,10 @@
 //!
 //! These agents integrate with ggen's existing code generation infrastructure.
 
-use super::tasks::{Task, TaskResult, TaskStatus, TaskType};
+use super::tasks::{Task, TaskResult, TaskType};
 use crate::error::Result;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::sync::Arc;
 
 /// Agent role classification
@@ -483,7 +482,6 @@ impl MicroAgent for TemplateGenAgent {
 }
 
 /// Custom agent for user-defined behavior
-#[derive(Debug)]
 pub struct CustomAgent {
     /// Agent name
     pub name: String,
@@ -493,6 +491,17 @@ pub struct CustomAgent {
     pub task_types: Vec<TaskType>,
     /// Custom handler
     handler: Arc<dyn Fn(&Task) -> serde_json::Value + Send + Sync>,
+}
+
+impl std::fmt::Debug for CustomAgent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("CustomAgent")
+            .field("name", &self.name)
+            .field("role_name", &self.role_name)
+            .field("task_types", &self.task_types)
+            .field("handler", &"<function>")
+            .finish()
+    }
 }
 
 impl CustomAgent {

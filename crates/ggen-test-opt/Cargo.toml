@@ -1,6 +1,6 @@
 [package]
 name = "ggen-test-opt"
-version = "5.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["ggen contributors"]
 description = "Test optimization and selection tooling for ggen - value scoring, Pareto selection, parallel execution"

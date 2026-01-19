@@ -1,0 +1,490 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix spec: <http://ggen.io/spec/> .
+@prefix audit: <http://ggen.io/audit/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# SOC 2 Type II Audit Readiness Checklist
+# Tracks implementation status of all 98 detailed criteria and evidence gathering
+
+audit:readinessChecklist a spec:AuditReadinessFramework ;
+    spec:name "SOC 2 Type II Audit Readiness Checklist" ;
+    spec:version "1.0" ;
+    spec:organization "ggen-disney" ;
+    spec:createdDate "2026-01-18"^^xsd:date ;
+    spec:targetAuditDate "2026-08-01"^^xsd:date ;
+    spec:lastUpdated "2026-01-18"^^xsd:date ;
+    spec:status "In Development" ;
+    spec:completionPercentage 0 ;
+    spec:hasControlArea audit:governance-area, audit:communications-area, audit:infrastructure-area,
+                        audit:access-area, audit:monitoring-area, audit:availability-area,
+                        audit:processing-area, audit:confidentiality-area, audit:privacy-area .
+
+# ===== GOVERNANCE CONTROL AREA =====
+
+audit:governance-area a spec:ControlArea ;
+    spec:name "Governance (CC1)" ;
+    spec:description "Board oversight, management structure, authority delegation, competence, and confidentiality" ;
+    spec:principleNumber "CC1" ;
+    spec:totalCriteria 16 ;
+    spec:completedCriteria 0 ;
+    spec:criteriaCompletionPercentage "0%" ;
+    spec:hasCheckItem audit:gov-ci-001, audit:gov-ci-002, audit:gov-ci-003, audit:gov-ci-004,
+                      audit:gov-ci-005, audit:gov-ci-006, audit:gov-ci-007, audit:gov-ci-008,
+                      audit:gov-ci-009, audit:gov-ci-010, audit:gov-ci-011, audit:gov-ci-012,
+                      audit:gov-ci-013, audit:gov-ci-014, audit:gov-ci-015, audit:gov-ci-016 ;
+    spec:dependsOn spec:executive-commitment, spec:board-oversight, spec:risk-committee .
+
+audit:gov-ci-001 a spec:ChecklistItem ;
+    spec:id "CC1.1" ;
+    spec:description "Board of directors demonstrates independence and exercises oversight responsibility" ;
+    spec:acceptanceCriteria "Board charter documents oversight; minutes show discussion of internal controls" ;
+    spec:status "Not Started" ;
+    spec:priority spec:P1 ;
+    spec:owner "CEO/Board Chair" ;
+    spec:targetDate "2026-03-15"^^xsd:date ;
+    spec:evidence-required "Board charter, meeting minutes, committee charter" ;
+    spec:evidenceLocation "Board portal, governance documentation repository" ;
+    spec:estimatedCompletionHours 8 ;
+    spec:isCompleted false ;
+    spec:completionPercentage 0 .
+
+audit:gov-ci-002 a spec:ChecklistItem ;
+    spec:id "CC1.2" ;
+    spec:description "Board establishes oversight responsibilities related to system and internal control" ;
+    spec:acceptanceCriteria "Documented board responsibilities for control; evidence of oversight activities" ;
+    spec:status "Not Started" ;
+    spec:priority spec:P1 ;
+    spec:owner "Board Audit Committee" ;
+    spec:targetDate "2026-03-15"^^xsd:date ;
+    spec:evidence-required "Audit committee charter, meeting agendas, internal audit reports" ;
+    spec:evidenceLocation "Board materials repository, compliance files" ;
+    spec:estimatedCompletionHours 6 ;
+    spec:isCompleted false ;
+    spec:completionPercentage 0 .
+
+audit:gov-ci-003 a spec:ChecklistItem ;
+    spec:id "CC1.3" ;
+    spec:description "Management establishes responsibility for all objectives and accountability for internal control" ;
+    spec:acceptanceCriteria "Role descriptions define control responsibilities; org chart shows authority lines" ;
+    spec:status "Not Started" ;
+    spec:priority spec:P1 ;
+    spec:owner "Chief Compliance Officer" ;
+    spec:targetDate "2026-03-31"^^xsd:date ;
+    spec:evidence-required "Role descriptions, org chart, delegation of authority documents" ;
+    spec:evidenceLocation "HR system, governance documentation" ;
+    spec:estimatedCompletionHours 12 ;
+    spec:isCompleted false ;
+    spec:completionPercentage 0 .
+
+audit:gov-ci-004 a spec:ChecklistItem ;
+    spec:id "CC1.4" ;
+    spec:description "Entity holds individuals accountable for their internal control responsibilities" ;
+    spec:acceptanceCriteria "Performance reviews address control responsibilities; consequences for violations" ;
+    spec:status "Not Started" ;
+    spec:priority spec:P2 ;
+    spec:owner "CHRO" ;
+    spec:targetDate "2026-04-15"^^xsd:date ;
+    spec:evidence-required "Performance evaluation templates, disciplinary policies, training records" ;
+    spec:evidenceLocation "HR management system, personnel files" ;
+    spec:estimatedCompletionHours 10 ;
+    spec:isCompleted false ;
+    spec:completionPercentage 0 .
+
+audit:gov-ci-005 a spec:ChecklistItem ;
+    spec:id "CC1.5" ;
+    spec:description "Entity designates, develops, and retains competent individuals" ;
+    spec:acceptanceCriteria "Job descriptions define qualifications; hiring process documents competence assessment" ;
+    spec:status "Not Started" ;
+    spec:priority spec:P1 ;
+    spec:owner "Chief HR Officer" ;
+    spec:targetDate "2026-04-15"^^xsd:date ;
+    spec:evidence-required "Job descriptions, hiring procedures, training records, competency assessments" ;
+    spec:evidenceLocation "HR system, learning management system" ;
+    spec:estimatedCompletionHours 16 ;
+    spec:isCompleted false ;
+    spec:completionPercentage 0 .
+
+audit:gov-ci-006 a spec:ChecklistItem ;
+    spec:id "CC1.6" ;
+    spec:description "Entity commits to competence through training programs" ;
+    spec:acceptanceCriteria "Training curriculum defined; staff complete compliance and security training" ;
+    spec:status "Not Started" ;
+    spec:priority spec:P1 ;
+    spec:owner "Learning & Development" ;
+    spec:targetDate "2026-04-30"^^xsd:date ;
+    spec:evidence-required "Training policy, LMS records, completion certificates, training materials" ;
+    spec:evidenceLocation "Learning management system" ;
+    spec:estimatedCompletionHours 20 ;
+    spec:isCompleted false ;
+    spec:completionPercentage 0 .
+
+audit:gov-ci-007 a spec:ChecklistItem ;
+    spec:id "CC1.7" ;
+    spec:description "Entity holds individuals accountable for adherence to confidentiality commitments" ;
+    spec:acceptanceCriteria "NDAs signed; policies communicated; violations tracked and acted upon" ;
+    spec:status "Not Started" ;
+    spec:priority spec:P1 ;
+    spec:owner "Chief Compliance Officer" ;
+    spec:targetDate "2026-03-15"^^xsd:date ;
+    spec:evidence-required "NDA templates, signed agreements, training records, violation logs" ;
+    spec:evidenceLocation "HR system, compliance tracking system" ;
+    spec:estimatedCompletionHours 12 ;
+    spec:isCompleted false ;
+    spec:completionPercentage 0 .
+
+audit:gov-ci-008 a spec:ChecklistItem ;
+    spec:id "CC1.8" ;
+    spec:description "Entity assigns responsibility for system performance objectives and control responsibilities" ;
+    spec:acceptanceCriteria "RACI matrix documents responsibilities; role-based authority levels defined" ;
+    spec:status "Not Started" ;
+    spec:priority spec:P1 ;
+    spec:owner "Chief Operating Officer" ;
+    spec:targetDate "2026-03-31"^^xsd:date ;
+    spec:evidence-required "RACI matrix, role definitions, authority delegation documents, org chart" ;
+    spec:evidenceLocation "Governance documentation repository" ;
+    spec:estimatedCompletionHours 14 ;
+    spec:isCompleted false ;
+    spec:completionPercentage 0 .
+
+audit:gov-ci-009 a spec:ChecklistItem ;
+    spec:id "CC1.9" ;
+    spec:description "Entity takes corrective actions regarding control deficiencies" ;
+    spec:acceptanceCriteria "Process for identifying and remediating control deficiencies; tracking of remediation" ;
+    spec:status "Not Started" ;
+    spec:priority spec:P1 ;
+    spec:owner "Chief Risk Officer" ;
+    spec:targetDate "2026-04-30"^^xsd:date ;
+    spec:evidence-required "Deficiency tracking system, remediation plans, closure documentation" ;
+    spec:evidenceLocation "Risk management system, control testing results" ;
+    spec:estimatedCompletionHours 18 ;
+    spec:isCompleted false ;
+    spec:completionPercentage 0 .
+
+audit:gov-ci-010 a spec:ChecklistItem ;
+    spec:id "CC2.1" ;
+    spec:description "Board and management communicate the importance of system objectives and responsibility" ;
+    spec:acceptanceCriteria "Communication policy documented; staff understand control responsibilities" ;
+    spec:status "Not Started" ;
+    spec:priority spec:P2 ;
+    spec:owner "Chief Communications Officer" ;
+    spec:targetDate "2026-04-15"^^xsd:date ;
+    spec:evidence-required "Communication plans, training materials, awareness campaign records" ;
+    spec:evidenceLocation "Intranet, email campaigns, training LMS" ;
+    spec:estimatedCompletionHours 12 ;
+    spec:isCompleted false ;
+    spec:completionPercentage 0 .
+
+audit:gov-ci-011 a spec:ChecklistItem ;
+    spec:id "CC2.2" ;
+    spec:description "Board communicates with external parties regarding responsibility for control" ;
+    spec:acceptanceCriteria "External communications policy; privacy policy discloses control practices" ;
+    spec:status "Not Started" ;
+    spec:priority spec:P2 ;
+    spec:owner "Chief Legal Officer" ;
+    spec:targetDate "2026-04-30"^^xsd:date ;
+    spec:evidence-required "Privacy policy, trust center documentation, security disclosures" ;
+    spec:evidenceLocation "Company website, trust center, terms of service" ;
+    spec:estimatedCompletionHours 10 ;
+    spec:isCompleted false ;
+    spec:completionPercentage 0 .
+
+audit:gov-ci-012 a spec:ChecklistItem ;
+    spec:id "CC2.3" ;
+    spec:description "Entity communicates information to support system objectives" ;
+    spec:acceptanceCriteria "Incident reporting procedures; escalation paths defined; communication logs maintained" ;
+    spec:status "Not Started" ;
+    spec:priority spec:P1 ;
+    spec:owner "Chief Security Officer" ;
+    spec:targetDate "2026-05-15"^^xsd:date ;
+    spec:evidence-required "Incident response procedures, escalation matrix, communication templates" ;
+    spec:evidenceLocation "Security operations center, incident management system" ;
+    spec:estimatedCompletionHours 16 ;
+    spec:isCompleted false ;
+    spec:completionPercentage 0 .
+
+audit:gov-ci-013 a spec:ChecklistItem ;
+    spec:id "CC3.1" ;
+    spec:description "Entity obtains information to support objectives" ;
+    spec:acceptanceCriteria "Data inventory maintained; information requirements documented; data flows mapped" ;
+    spec:status "Not Started" ;
+    spec:priority spec:P1 ;
+    spec:owner "Chief Data Officer" ;
+    spec:targetDate "2026-03-31"^^xsd:date ;
+    spec:evidence-required "Data inventory, data flow diagrams, requirements documentation, classification scheme" ;
+    spec:evidenceLocation "Data governance repository, architecture documentation" ;
+    spec:estimatedCompletionHours 20 ;
+    spec:isCompleted false ;
+    spec:completionPercentage 0 .
+
+audit:gov-ci-014 a spec:ChecklistItem ;
+    spec:id "CC3.2" ;
+    spec:description "System infrastructure supports objectives through secure architecture" ;
+    spec:acceptanceCriteria "Architecture reviewed; infrastructure hardened; security controls documented" ;
+    spec:status "Not Started" ;
+    spec:priority spec:P1 ;
+    spec:owner "Chief Information Security Officer" ;
+    spec:targetDate "2026-05-15"^^xsd:date ;
+    spec:evidence-required "Architecture diagrams, design reviews, security control matrix" ;
+    spec:evidenceLocation "Enterprise architecture repository, security documentation" ;
+    spec:estimatedCompletionHours 32 ;
+    spec:isCompleted false ;
+    spec:completionPercentage 0 .
+
+audit:gov-ci-015 a spec:ChecklistItem ;
+    spec:id "CC3.3" ;
+    spec:description "System infrastructure is monitored for changes" ;
+    spec:acceptanceCriteria "Change management process implemented; system changes tracked; impact assessed" ;
+    spec:status "Not Started" ;
+    spec:priority spec:P1 ;
+    spec:owner "Chief Technology Officer" ;
+    spec:targetDate "2026-05-15"^^xsd:date ;
+    spec:evidence-required "Change management procedure, change logs, change approvals, impact assessments" ;
+    spec:evidenceLocation "ITSM system, version control, configuration management database" ;
+    spec:estimatedCompletionHours 24 ;
+    spec:isCompleted false ;
+    spec:completionPercentage 0 .
+
+audit:gov-ci-016 a spec:ChecklistItem ;
+    spec:id "CC3.4" ;
+    spec:description "System operations maintained per specifications" ;
+    spec:acceptanceCriteria "Runbooks created; operational procedures documented; maintenance scheduled" ;
+    spec:status "Not Started" ;
+    spec:priority spec:P2 ;
+    spec:owner "Head of Platform Operations" ;
+    spec:targetDate "2026-05-15"^^xsd:date ;
+    spec:evidence-required "Operational runbooks, maintenance schedule, operations procedures" ;
+    spec:evidenceLocation "Operations wiki, documentation portal, ticketing system" ;
+    spec:estimatedCompletionHours 20 ;
+    spec:isCompleted false ;
+    spec:completionPercentage 0 .
+
+# ===== COMMUNICATIONS CONTROL AREA =====
+
+audit:communications-area a spec:ControlArea ;
+    spec:name "Communications & Information (CC2)" ;
+    spec:description "Internal and external communication of control responsibilities and objectives" ;
+    spec:principleNumber "CC2" ;
+    spec:totalCriteria 5 ;
+    spec:completedCriteria 0 ;
+    spec:criteriaCompletionPercentage "0%" ;
+    spec:dependsOn audit:governance-area ;
+    spec:estimatedCompletionHours 50 .
+
+# ===== INFRASTRUCTURE CONTROL AREA =====
+
+audit:infrastructure-area a spec:ControlArea ;
+    spec:name "System & Infrastructure (CC3)" ;
+    spec:description "Infrastructure solutions for achieving system objectives" ;
+    spec:principleNumber "CC3" ;
+    spec:totalCriteria 10 ;
+    spec:completedCriteria 0 ;
+    spec:criteriaCompletionPercentage "0%" ;
+    spec:dependsOn audit:governance-area ;
+    spec:estimatedCompletionHours 100 .
+
+# ===== ACCESS CONTROL AREA =====
+
+audit:access-area a spec:ControlArea ;
+    spec:name "Logical & Physical Access (CC4)" ;
+    spec:description "Restriction and management of logical and physical access to assets" ;
+    spec:principleNumber "CC4" ;
+    spec:totalCriteria 8 ;
+    spec:completedCriteria 0 ;
+    spec:criteriaCompletionPercentage "0%" ;
+    spec:dependsOn audit:infrastructure-area ;
+    spec:estimatedCompletionHours 88 .
+
+# ===== MONITORING CONTROL AREA =====
+
+audit:monitoring-area a spec:ControlArea ;
+    spec:name "Monitoring & Investigation (CC5)" ;
+    spec:description "System monitoring for anomalies and incident response" ;
+    spec:principleNumber "CC5" ;
+    spec:totalCriteria 9 ;
+    spec:completedCriteria 0 ;
+    spec:criteriaCompletionPercentage "0%" ;
+    spec:dependsOn audit:access-area, audit:infrastructure-area ;
+    spec:estimatedCompletionHours 116 .
+
+# ===== AVAILABILITY CONTROL AREA =====
+
+audit:availability-area a spec:ControlArea ;
+    spec:name "System Availability (A1)" ;
+    spec:description "System availability and performance maintenance" ;
+    spec:principleNumber "A1" ;
+    spec:totalCriteria 6 ;
+    spec:completedCriteria 0 ;
+    spec:criteriaCompletionPercentage "0%" ;
+    spec:dependsOn audit:infrastructure-area ;
+    spec:estimatedCompletionHours 104 .
+
+# ===== PROCESSING INTEGRITY CONTROL AREA =====
+
+audit:processing-area a spec:ControlArea ;
+    spec:name "Processing Integrity (PI1-PI3)" ;
+    spec:description "Authorized, complete, accurate, and timely processing" ;
+    spec:principleNumber "PI1-PI3" ;
+    spec:totalCriteria 12 ;
+    spec:completedCriteria 0 ;
+    spec:criteriaCompletionPercentage "0%" ;
+    spec:dependsOn audit:access-area, audit:monitoring-area ;
+    spec:estimatedCompletionHours 132 .
+
+# ===== CONFIDENTIALITY CONTROL AREA =====
+
+audit:confidentiality-area a spec:ControlArea ;
+    spec:name "Confidentiality (C1-C2)" ;
+    spec:description "Information confidentiality protection and breach response" ;
+    spec:principleNumber "C1-C2" ;
+    spec:totalCriteria 9 ;
+    spec:completedCriteria 0 ;
+    spec:criteriaCompletionPercentage "0%" ;
+    spec:dependsOn audit:access-area, audit:monitoring-area ;
+    spec:estimatedCompletionHours 104 .
+
+# ===== PRIVACY CONTROL AREA =====
+
+audit:privacy-area a spec:ControlArea ;
+    spec:name "Privacy (P1-P3)" ;
+    spec:description "Personal information collection, use, access, and deletion rights" ;
+    spec:principleNumber "P1-P3" ;
+    spec:totalCriteria 11 ;
+    spec:completedCriteria 0 ;
+    spec:criteriaCompletionPercentage "0%" ;
+    spec:dependsOn audit:communications-area, audit:access-area ;
+    spec:estimatedCompletionHours 128 .
+
+# ===== EVIDENCE GATHERING REQUIREMENTS =====
+
+audit:evidence-repository a spec:EvidenceManagement ;
+    spec:name "SOC 2 Evidence Repository" ;
+    spec:description "Centralized storage for all audit evidence organized by control area" ;
+    spec:location "/evidence/soc2-audit/" ;
+    spec:accessControl "Role-based; auditor read access granted" ;
+    spec:retentionPeriod "3 years post-certification (minimum)" ;
+    spec:hasEvidenceCategory audit:policies-procedures, audit:system-evidence, audit:operational-evidence,
+                              audit:training-evidence, audit:incident-evidence, audit:testing-evidence .
+
+audit:policies-procedures a spec:EvidenceCategory ;
+    spec:name "Policies & Procedures" ;
+    spec:description "All documented policies, procedures, and standards" ;
+    spec:expectedCount 40 ;
+    spec:location "governance-repository" ;
+    spec:owner "Chief Compliance Officer" .
+
+audit:system-evidence a spec:EvidenceCategory ;
+    spec:name "System & Technical Evidence" ;
+    spec:description "System configurations, logs, and technical controls evidence" ;
+    spec:expectedCount 60 ;
+    spec:location "siem-and-security-logs" ;
+    spec:owner "Chief Information Security Officer" .
+
+audit:operational-evidence a spec:EvidenceCategory ;
+    spec:name "Operational Evidence" ;
+    spec:description "Logs, records, and documentation of operational activities" ;
+    spec:expectedCount 50 ;
+    spec:location "operations-management-system" ;
+    spec:owner "Chief Operating Officer" .
+
+audit:training-evidence a spec:EvidenceCategory ;
+    spec:name "Training & Competence Evidence" ;
+    spec:description "Training records, certifications, and competence assessments" ;
+    spec:expectedCount 30 ;
+    spec:location "learning-management-system" ;
+    spec:owner "Chief HR Officer" .
+
+audit:incident-evidence a spec:EvidenceCategory ;
+    spec:name "Incident & Risk Evidence" ;
+    spec:description "Incident logs, investigations, and risk assessments" ;
+    spec:expectedCount 25 ;
+    spec:location "incident-management-system" ;
+    spec:owner "Chief Risk Officer" .
+
+audit:testing-evidence a spec:EvidenceCategory ;
+    spec:name "Control Testing Evidence" ;
+    spec:description "Test results, test procedures, and control effectiveness evidence" ;
+    spec:expectedCount 45 ;
+    spec:location "quality-assurance-system" ;
+    spec:owner "Chief Audit Officer" .
+
+# ===== AUDITOR COORDINATION =====
+
+audit:auditor-engagement a spec:AuditorEngagement ;
+    spec:name "SOC 2 Type II Auditor Engagement" ;
+    spec:status "Vendor Selection Phase" ;
+    spec:targetSelectionDate "2026-03-15"^^xsd:date ;
+    spec:engagementStartDate "2026-06-01"^^xsd:date ;
+    spec:fieldworkStartDate "2026-08-01"^^xsd:date ;
+    spec:fieldworkEndDate "2026-10-31"^^xsd:date ;
+    spec:reportDeliveryDate "2026-11-30"^^xsd:date ;
+    spec:preferredAuditors "Deloitte, EY, KPMG, PwC, CliftonLarsonAllen" ;
+    spec:requiredQualifications "Big 4 or equivalent; 50+ SOC 2 Type II audits; SaaS platform experience; current inspection good standing" ;
+    spec:estimatedCost 75000 ;
+    spec:currency "USD" ;
+    spec:hasDeliverable audit:rfi-response, audit:auditor-selection, audit:engagement-letter,
+                         audit:fieldwork-plan, audit:management-representation-letter, audit:final-soc2-report .
+
+audit:rfi-response a spec:DeliverableItem ;
+    spec:name "Auditor RFI Response" ;
+    spec:dueDate "2026-02-15"^^xsd:date ;
+    spec:owner "CFO/General Counsel" ;
+    spec:description "Response to auditor request for information during selection process" .
+
+audit:auditor-selection a spec:DeliverableItem ;
+    spec:name "Auditor Selection & Contracting" ;
+    spec:dueDate "2026-03-15"^^xsd:date ;
+    spec:owner "CFO" ;
+    spec:description "Auditor selected, SOW signed, engagement letter executed" .
+
+audit:engagement-letter a spec:DeliverableItem ;
+    spec:name "Engagement Letter" ;
+    spec:dueDate "2026-03-31"^^xsd:date ;
+    spec:owner "General Counsel" ;
+    spec:description "Signed engagement letter with auditor outlining scope and terms" .
+
+audit:fieldwork-plan a spec:DeliverableItem ;
+    spec:name "Fieldwork Plan" ;
+    spec:dueDate "2026-07-15"^^xsd:date ;
+    spec:owner "Chief Compliance Officer" ;
+    spec:description "Detailed fieldwork plan provided by auditor with testing schedule" .
+
+audit:management-representation-letter a spec:DeliverableItem ;
+    spec:name "Management Representation Letter" ;
+    spec:dueDate "2026-10-15"^^xsd:date ;
+    spec:owner "CEO/CFO" ;
+    spec:description "Management representation letter confirming assertions about controls" .
+
+audit:final-soc2-report a spec:DeliverableItem ;
+    spec:name "Final SOC 2 Type II Report" ;
+    spec:dueDate "2026-11-30"^^xsd:date ;
+    spec:owner "Chief Compliance Officer" ;
+    spec:description "Final SOC 2 Type II certification report with auditor sign-off" .
+
+# Success Metrics
+audit:successMetrics a spec:SuccessMetrics ;
+    spec:name "Audit Readiness Success Criteria" ;
+    spec:allControlsDesigned "100% of 98 criteria designed by 2026-05-31" ;
+    spec:allControlsImplemented "100% of 98 criteria implemented by 2026-06-30" ;
+    spec:allEvidenceGathered "100% of required evidence collected and organized by 2026-07-15" ;
+    spec:auditFindingsTarget "Maximum 5 minor findings (zero critical/major)" ;
+    spec:reportDeliveryDate "2026-11-30" ;
+    spec:certificationValidityPeriod "2 years (until 2028-12-31)" .
+
+spec:P1 a spec:Priority ;
+    rdfs:label "Priority 1 - Critical" .
+
+spec:P2 a spec:Priority ;
+    rdfs:label "Priority 2 - High" .
+
+spec:P3 a spec:Priority ;
+    rdfs:label "Priority 3 - Medium" .
+
+spec:NotStarted a spec:Status ;
+    rdfs:label "Not Started" .
+
+spec:InProgress a spec:Status ;
+    rdfs:label "In Progress" .
+
+spec:Completed a spec:Status ;
+    rdfs:label "Completed" .

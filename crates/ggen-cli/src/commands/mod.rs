@@ -13,3 +13,9 @@
 /// Enable with `--features=paas` or via the `full` feature set.
 #[cfg(feature = "paas")]
 pub mod paas;
+
+/// LLM-Construct Pattern Commands
+///
+/// Generate constraint-aware DSPy modules from OWL ontologies.
+/// Implements the LLM-Construct transformation pipeline: OWL → SHACL → DSPy.
+pub mod construct;

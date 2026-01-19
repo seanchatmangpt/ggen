@@ -1,0 +1,390 @@
+@prefix ex: <http://ggen.example.org/disney/work-objects#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ==============================================================================
+# Work Object Model: Type Hierarchy for ggen-disney Wave 1
+# ==============================================================================
+# Purpose: Define universal artifact types that all domain processes can map to
+# Audience: Architects, system integrators, domain experts
+# Wave: 1 (Minimal schema for Gap 1 coverage)
+# Status: Phase 1 - Foundation (Phase 2 generalization deferred to Wave 3)
+# Created: 2026-01-18
+# ==============================================================================
+
+ex:WorkObject a owl:Class ;
+  rdfs:label "Work Object" ;
+  rdfs:comment "Base class for all work artifacts. Universal type for any work item across all domains." ;
+  rdfs:isDefinedBy ex:WorkObjectModel .
+
+# State Machine Definition (applies to all work objects)
+ex:WorkObjectState a owl:Class ;
+  rdfs:label "Work Object State" ;
+  rdfs:comment "Terminal state in a work object's lifecycle." .
+
+ex:StateUndefined a ex:WorkObjectState ;
+  rdfs:label "Undefined" ;
+  rdfs:comment "Object created but state not yet assigned." .
+
+ex:StatePending a ex:WorkObjectState ;
+  rdfs:label "Pending" ;
+  rdfs:comment "Object awaiting approval, scheduling, or resource assignment." .
+
+ex:StateAssigned a ex:WorkObjectState ;
+  rdfs:label "Assigned" ;
+  rdfs:comment "Object assigned to responsible party; not yet active." .
+
+ex:StateActive a ex:WorkObjectState ;
+  rdfs:label "Active" ;
+  rdfs:comment "Object in progress." .
+
+ex:StateBlocked a ex:WorkObjectState ;
+  rdfs:label "Blocked" ;
+  rdfs:comment "Object cannot proceed (dependent work incomplete, resource unavailable, approval denied)." .
+
+ex:StateCompleted a ex:WorkObjectState ;
+  rdfs:label "Completed" ;
+  rdfs:comment "Object finished successfully." .
+
+ex:StateCancelled a ex:WorkObjectState ;
+  rdfs:label "Cancelled" ;
+  rdfs:comment "Object terminated before completion." .
+
+ex:StateRolledBack a ex:WorkObjectState ;
+  rdfs:label "RolledBack" ;
+  rdfs:comment "Object effects reversed (staged authority rollback)." .
+
+# ==============================================================================
+# CORE WORK OBJECT TYPES (Wave 1 Minimal Schema)
+# ==============================================================================
+
+# TYPE 1: SHIFT
+ex:Shift a owl:Class ;
+  rdfs:subClassOf ex:WorkObject ;
+  rdfs:label "Shift" ;
+  rdfs:comment "Time-bounded assignment of personnel to roles/locations. Maps to Workday shifts, capacity planning windows." .
+
+ex:shiftStartTime a owl:DatatypeProperty ;
+  rdfs:domain ex:Shift ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Start Time" .
+
+ex:shiftEndTime a owl:DatatypeProperty ;
+  rdfs:domain ex:Shift ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "End Time" .
+
+ex:shiftRole a owl:ObjectProperty ;
+  rdfs:domain ex:Shift ;
+  rdfs:range ex:Role ;
+  rdfs:label "Role" ;
+  rdfs:comment "E.g., 'Guest Services', 'Security', 'Maintenance'" .
+
+ex:shiftAssignedTo a owl:ObjectProperty ;
+  rdfs:domain ex:Shift ;
+  rdfs:range ex:Person ;
+  rdfs:label "Assigned To" ;
+  rdfs:comment "Primary assignee (employee/contractor ID)" .
+
+# TYPE 2: TASK
+ex:Task a owl:Class ;
+  rdfs:subClassOf ex:WorkObject ;
+  rdfs:label "Task" ;
+  rdfs:comment "Discrete work unit with clear success criteria. Maps to SAP orders, Jira tickets, checklist items." .
+
+ex:taskTitle a owl:DatatypeProperty ;
+  rdfs:domain ex:Task ;
+  rdfs:range xsd:string ;
+  rdfs:label "Title" ;
+  rdfs:comment "Short description of work to be done." .
+
+ex:taskDescription a owl:DatatypeProperty ;
+  rdfs:domain ex:Task ;
+  rdfs:range xsd:string ;
+  rdfs:label "Description" .
+
+ex:taskAcceptanceCriteria a owl:ObjectProperty ;
+  rdfs:domain ex:Task ;
+  rdfs:range ex:AcceptanceCriterion ;
+  rdfs:label "Acceptance Criteria" .
+
+ex:taskAssignedTo a owl:ObjectProperty ;
+  rdfs:domain ex:Task ;
+  rdfs:range ex:Person ;
+  rdfs:label "Assigned To" .
+
+ex:taskDependsOn a owl:ObjectProperty ;
+  rdfs:domain ex:Task ;
+  rdfs:range ex:Task ;
+  rdfs:label "Depends On" ;
+  rdfs:comment "Predecessor task(s) that must be completed first." .
+
+ex:taskEstimatedDuration a owl:DatatypeProperty ;
+  rdfs:domain ex:Task ;
+  rdfs:range xsd:duration ;
+  rdfs:label "Estimated Duration" .
+
+# TYPE 3: INCIDENT
+ex:Incident a owl:Class ;
+  rdfs:subClassOf ex:WorkObject ;
+  rdfs:label "Incident" ;
+  rdfs:comment "Unplanned event requiring response. Maps to ServiceNow incidents, alerts, emergencies." .
+
+ex:incidentSeverity a owl:DatatypeProperty ;
+  rdfs:domain ex:Incident ;
+  rdfs:range xsd:string ;
+  rdfs:label "Severity" ;
+  rdfs:comment "Critical, High, Medium, Low." .
+
+ex:incidentDetectedTime a owl:DatatypeProperty ;
+  rdfs:domain ex:Incident ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Detected Time" .
+
+ex:incidentResolvedTime a owl:DatatypeProperty ;
+  rdfs:domain ex:Incident ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Resolved Time" .
+
+ex:incidentDescription a owl:DatatypeProperty ;
+  rdfs:domain ex:Incident ;
+  rdfs:range xsd:string ;
+  rdfs:label "Description" .
+
+ex:incidentAssignedTo a owl:ObjectProperty ;
+  rdfs:domain ex:Incident ;
+  rdfs:range ex:Person ;
+  rdfs:label "Assigned To" .
+
+ex:incidentRemediationTask a owl:ObjectProperty ;
+  rdfs:domain ex:Incident ;
+  rdfs:range ex:Task ;
+  rdfs:label "Remediation Task" .
+
+# TYPE 4: APPROVAL
+ex:Approval a owl:Class ;
+  rdfs:subClassOf ex:WorkObject ;
+  rdfs:label "Approval" ;
+  rdfs:comment "Gating decision required before progression. Maps to sign-offs, authorizations, policy decisions." .
+
+ex:approvalGates a owl:ObjectProperty ;
+  rdfs:domain ex:Approval ;
+  rdfs:range ex:ApprovalGate ;
+  rdfs:label "Gates" .
+
+ex:approvalsRequired a owl:DatatypeProperty ;
+  rdfs:domain ex:Approval ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Approvals Required" ;
+  rdfs:comment "How many authorizers must sign off." .
+
+ex:approvalsReceived a owl:DatatypeProperty ;
+  rdfs:domain ex:Approval ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Approvals Received" .
+
+ex:approvalRequiredFrom a owl:ObjectProperty ;
+  rdfs:domain ex:Approval ;
+  rdfs:range ex:Role ;
+  rdfs:label "Required From" .
+
+ex:approvalApprovedBy a owl:ObjectProperty ;
+  rdfs:domain ex:Approval ;
+  rdfs:range ex:Person ;
+  rdfs:label "Approved By" .
+
+ex:ApprovalGate a owl:Class ;
+  rdfs:label "Approval Gate" ;
+  rdfs:comment "Single authorization point." .
+
+ex:approvalGateName a owl:DatatypeProperty ;
+  rdfs:domain ex:ApprovalGate ;
+  rdfs:range xsd:string ;
+  rdfs:label "Gate Name" .
+
+# TYPE 5: RESOURCE
+ex:Resource a owl:Class ;
+  rdfs:subClassOf ex:WorkObject ;
+  rdfs:label "Resource" ;
+  rdfs:comment "Equipment, facility, or tool required by work. Maps to SAP assets, vehicle reservations, tools." .
+
+ex:resourceType a owl:DatatypeProperty ;
+  rdfs:domain ex:Resource ;
+  rdfs:range xsd:string ;
+  rdfs:label "Type" ;
+  rdfs:comment "Category of resource (Vehicle, HVAC, Crane, etc.)." .
+
+ex:resourceAvailability a owl:DatatypeProperty ;
+  rdfs:domain ex:Resource ;
+  rdfs:range xsd:string ;
+  rdfs:label "Availability" ;
+  rdfs:comment "Available, InUse, UnderMaintenance, Offline." .
+
+ex:resourceAssignedTo a owl:ObjectProperty ;
+  rdfs:domain ex:Resource ;
+  rdfs:range ex:Shift ;
+  rdfs:label "Assigned To" .
+
+# TYPE 6: EVENT
+ex:Event a owl:Class ;
+  rdfs:subClassOf ex:WorkObject ;
+  rdfs:label "Event" ;
+  rdfs:comment "Occurrence or state change. Maps to Slack messages, system alerts, log entries." .
+
+ex:eventTimestamp a owl:DatatypeProperty ;
+  rdfs:domain ex:Event ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Timestamp" .
+
+ex:eventType a owl:DatatypeProperty ;
+  rdfs:domain ex:Event ;
+  rdfs:range xsd:string ;
+  rdfs:label "Type" ;
+  rdfs:comment "alert, notification, milestone, state_change, etc." .
+
+ex:eventMessage a owl:DatatypeProperty ;
+  rdfs:domain ex:Event ;
+  rdfs:range xsd:string ;
+  rdfs:label "Message" .
+
+ex:eventSource a owl:DatatypeProperty ;
+  rdfs:domain ex:Event ;
+  rdfs:range xsd:string ;
+  rdfs:label "Source" ;
+  rdfs:comment "System that generated event (Slack, SAP, Workday, ServiceNow)." .
+
+ex:eventRelatedTo a owl:ObjectProperty ;
+  rdfs:domain ex:Event ;
+  rdfs:range ex:WorkObject ;
+  rdfs:label "Related To" .
+
+# ==============================================================================
+# SUPPORTING ENTITIES
+# ==============================================================================
+
+ex:AcceptanceCriterion a owl:Class ;
+  rdfs:label "Acceptance Criterion" ;
+  rdfs:comment "Measurable condition that determines task success." .
+
+ex:criterionText a owl:DatatypeProperty ;
+  rdfs:domain ex:AcceptanceCriterion ;
+  rdfs:range xsd:string ;
+  rdfs:label "Text" .
+
+ex:criterionVerified a owl:DatatypeProperty ;
+  rdfs:domain ex:AcceptanceCriterion ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Verified" .
+
+ex:Person a owl:Class ;
+  rdfs:label "Person" ;
+  rdfs:comment "Human actor in work processes." .
+
+ex:personId a owl:DatatypeProperty ;
+  rdfs:domain ex:Person ;
+  rdfs:range xsd:string ;
+  rdfs:label "ID" .
+
+ex:personName a owl:DatatypeProperty ;
+  rdfs:domain ex:Person ;
+  rdfs:range xsd:string ;
+  rdfs:label "Name" .
+
+ex:personRole a owl:ObjectProperty ;
+  rdfs:domain ex:Person ;
+  rdfs:range ex:Role ;
+  rdfs:label "Role" .
+
+ex:Role a owl:Class ;
+  rdfs:label "Role" ;
+  rdfs:comment "Job function or responsibility area." .
+
+ex:roleName a owl:DatatypeProperty ;
+  rdfs:domain ex:Role ;
+  rdfs:range xsd:string ;
+  rdfs:label "Name" .
+
+ex:Location a owl:Class ;
+  rdfs:label "Location" ;
+  rdfs:comment "Physical or logical place." .
+
+ex:locationName a owl:DatatypeProperty ;
+  rdfs:domain ex:Location ;
+  rdfs:range xsd:string ;
+  rdfs:label "Name" .
+
+ex:locationCode a owl:DatatypeProperty ;
+  rdfs:domain ex:Location ;
+  rdfs:range xsd:string ;
+  rdfs:label "Code" .
+
+# ==============================================================================
+# COMMON PROPERTIES (All Work Objects)
+# ==============================================================================
+
+ex:hasId a owl:DatatypeProperty ;
+  rdfs:domain ex:WorkObject ;
+  rdfs:range xsd:string ;
+  rdfs:label "ID" .
+
+ex:hasStatus a owl:ObjectProperty ;
+  rdfs:domain ex:WorkObject ;
+  rdfs:range ex:WorkObjectState ;
+  rdfs:label "Status" .
+
+ex:hasTitle a owl:DatatypeProperty ;
+  rdfs:domain ex:WorkObject ;
+  rdfs:range xsd:string ;
+  rdfs:label "Title" .
+
+ex:createdAt a owl:DatatypeProperty ;
+  rdfs:domain ex:WorkObject ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Created At" .
+
+ex:updatedAt a owl:DatatypeProperty ;
+  rdfs:domain ex:WorkObject ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Updated At" .
+
+ex:dependsOn a owl:ObjectProperty ;
+  rdfs:domain ex:WorkObject ;
+  rdfs:range ex:WorkObject ;
+  rdfs:label "Depends On" .
+
+ex:blocks a owl:ObjectProperty ;
+  rdfs:domain ex:WorkObject ;
+  rdfs:range ex:WorkObject ;
+  rdfs:label "Blocks" ;
+  owl:inverseOf ex:dependsOn .
+
+ex:startTime a owl:DatatypeProperty ;
+  rdfs:domain ex:WorkObject ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Start Time" .
+
+ex:endTime a owl:DatatypeProperty ;
+  rdfs:domain ex:WorkObject ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "End Time" .
+
+ex:owner a owl:ObjectProperty ;
+  rdfs:domain ex:WorkObject ;
+  rdfs:range ex:Person ;
+  rdfs:label "Owner" .
+
+# ==============================================================================
+# METADATA
+# ==============================================================================
+
+ex:WorkObjectModel a owl:Ontology ;
+  rdfs:label "Work Object Model - Wave 1" ;
+  rdfs:comment "Minimal universal type hierarchy covering 80% of park opening process." ;
+  owl:versionInfo "1.0" ;
+  dcterms:created "2026-01-18"^^xsd:date ;
+  ex:phase "Wave 1 - Foundation" ;
+  ex:coverage "Shift, Task, Incident, Approval, Resource, Event" ;
+  ex:readyForValidation "true" .

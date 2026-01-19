@@ -1,0 +1,830 @@
+@prefix ex: <http://ggen.example.org/disney/maintenance-scheduling#> .
+@prefix wo: <http://ggen.example.org/disney/work-objects#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ==============================================================================
+# Maintenance Scheduling Process Ontology
+# ==============================================================================
+# Purpose: Equipment maintenance planning, preventive/corrective maintenance execution
+# Audience: Maintenance supervisors, equipment engineers, work planners, technicians
+# Wave: 2 (Scale proof - tests SAP + IoT sensor integration + Slack coordination)
+# Status: Maps preventive maintenance schedule to operational downtime windows
+# Created: 2026-01-18
+# ==============================================================================
+
+ex:MaintenanceSchedulingProcess a owl:Class ;
+  rdfs:label "Maintenance Scheduling Process" ;
+  rdfs:comment "Integrated preventive and corrective maintenance planning to maximize equipment availability while minimizing guest impact and safety risks." ;
+  rdfs:isDefinedBy ex:MaintenanceSchedulingOntology .
+
+ex:AnnualMaintenancePlanning a ex:MaintenanceSchedulingProcess ;
+  rdfs:label "Annual Maintenance Schedule Planning" ;
+  rdfs:comment "Comprehensive preventive maintenance schedule for 365 days across all 23+ attractions and critical infrastructure." ;
+  ex:startDate "2026-01-01"^^xsd:date ;
+  ex:completionDate "2026-03-31"^^xsd:date ;
+  ex:planningHorizon "PT52W"^^xsd:duration ;
+  ex:dependencies ex:EquipmentInventoryComplete, ex:MaintenanceHistoryAnalyzed, ex:DowntimeWindowsIdentified .
+
+ex:DailyMaintenanceExecution a ex:MaintenanceSchedulingProcess ;
+  rdfs:label "Daily Maintenance Execution and Coordination" ;
+  rdfs:comment "Real-time coordination of scheduled maintenance, emergency repairs, and workload prioritization." ;
+  ex:executionTime "06:00:00"^^xsd:time ;
+  ex:targetCompletionTime "14:00:00"^^xsd:time ;
+  ex:dependencies ex:SchedulePublished, ex:TeamsAssigned, ex:PartsAvailable .
+
+# ==============================================================================
+# MAINTENANCE NEED IDENTIFICATION PHASE (3-4 weeks)
+# ==============================================================================
+
+ex:EquipmentInventoryAuditTask a wo:Task ;
+  rdfs:label "Equipment Inventory Audit" ;
+  rdfs:comment "Comprehensive inventory of all equipment, systems, and critical components." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-AUDIT-001" ;
+  wo:hasTitle "Complete Equipment Inventory and Asset Register" ;
+  wo:taskDescription "Walk all attractions and infrastructure; document equipment, serial numbers, installation dates, and criticality. Cross-reference with SAP asset registry. Create 360-degree photos and condition assessments." ;
+  wo:taskAssignedTo ex:MaintenancePlanner ;
+  wo:taskEstimatedDuration "PT60H"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:AuditAC1, ex:AuditAC2, ex:AuditAC3 ;
+  ex:executionOrder 1 ;
+  ex:externalSystemDependency [
+    ex:system "SAP" ;
+    ex:functionality "Asset registry and PM module" ;
+    ex:requiredBefore "Audit data loaded"
+  ] ;
+  ex:externalSystemDependency [
+    ex:system "IoT Sensor Network" ;
+    ex:functionality "Condition monitoring and degradation trends" ;
+    ex:requiredBefore "Predictive maintenance integrated"
+  ] .
+
+ex:AuditAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When audit complete, all 23 attractions and 150+ critical assets documented with serial numbers, installation dates, and current condition in SAP." ;
+  wo:criterionVerified "false" .
+
+ex:AuditAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When inventory verified, 100% reconciliation achieved between physical assets and SAP registry (zero discrepancies)." ;
+  wo:criterionVerified "false" .
+
+ex:AuditAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When audit finalized, risk assessment completed: 30 critical assets flagged for proactive replacement or intensive maintenance planning." ;
+  wo:criterionVerified "false" .
+
+ex:HistoricalMaintenanceAnalysisTask a wo:Task ;
+  rdfs:label "Historical Maintenance Analysis" ;
+  rdfs:comment "Analyze past 3 years of maintenance records to identify patterns and failure modes." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-HISTORY-001" ;
+  wo:hasTitle "Analyze Maintenance History and Failure Patterns" ;
+  wo:taskDescription "Extract maintenance records from SAP for past 3 years. Analyze failure frequencies, MTBF (mean time between failures), repair costs, and downtime impact. Identify equipment with chronic issues vs one-offs." ;
+  wo:taskAssignedTo ex:MaintenanceEngineer ;
+  wo:taskEstimatedDuration "PT40H"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:HistoryAC1, ex:HistoryAC2, ex:HistoryAC3 ;
+  wo:dependsOn ex:EquipmentInventoryAuditTask ;
+  ex:executionOrder 2 ;
+  ex:externalSystemDependency [
+    ex:system "SAP" ;
+    ex:functionality "Historical PM order queries, failure code analysis" ;
+    ex:requiredBefore "Analysis generated"
+  ] .
+
+ex:HistoryAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When analysis complete, failure frequency and MTBF calculated for all 150+ assets with equipment grouped by reliability tier (Tier A/B/C)." ;
+  wo:criterionVerified "false" .
+
+ex:HistoryAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When patterns identified, equipment with repeat failures flagged for redesign or replacement consideration." ;
+  wo:criterionVerified "false" .
+
+ex:HistoryAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When analysis finalized, cost/benefit analysis completed for condition-based vs time-based maintenance strategies." ;
+  wo:criterionVerified "false" .
+
+ex:PredictiveMaintenanceEnablementTask a wo:Task ;
+  rdfs:label "Predictive Maintenance Setup" ;
+  rdfs:comment "Configure IoT sensors for condition-based monitoring and anomaly detection." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-PREDICT-001" ;
+  wo:hasTitle "Deploy Condition Monitoring and Predictive Analytics" ;
+  wo:taskDescription "Install vibration, temperature, and performance sensors on 30 critical assets (attractions, HVAC, power systems). Configure threshold alerts for degradation. Train machine learning model on historical data for predictive failure detection." ;
+  wo:taskAssignedTo ex:IoTEngineer ;
+  wo:taskEstimatedDuration "PT50H"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:PredictiveAC1, ex:PredictiveAC2, ex:PredictiveAC3 ;
+  wo:dependsOn ex:HistoricalMaintenanceAnalysisTask ;
+  ex:executionOrder 3 ;
+  ex:externalSystemDependency [
+    ex:system "IoT Sensor Network" ;
+    ex:functionality "Sensor deployment, data collection, alerting" ;
+    ex:requiredBefore "Monitoring active"
+  ] ;
+  ex:externalSystemDependency [
+    ex:system "SAP" ;
+    ex:functionality "Integrate sensor alerts into PM order workflow" ;
+    ex:requiredBefore "Alerts trigger actions"
+  ] .
+
+ex:PredictiveAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When deployment complete, 30 critical assets equipped with sensors transmitting condition data every 5 minutes to monitoring system." ;
+  wo:criterionVerified "false" .
+
+ex:PredictiveAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When monitoring active, anomaly detection algorithm trained with 12-month historical data and achieving 80%+ precision for early failure signals." ;
+  wo:criterionVerified "false" .
+
+ex:PredictiveAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When system operational, threshold alerts automatically create SAP PM work orders for sensor-triggered maintenance opportunities (before catastrophic failure)." ;
+  wo:criterionVerified "false" .
+
+# ==============================================================================
+# MAINTENANCE PLANNING PHASE (3-4 weeks)
+# ==============================================================================
+
+ex:MaintenanceScheduleCreationTask a wo:Task ;
+  rdfs:label "Preventive Maintenance Schedule Creation" ;
+  rdfs:comment "Build 365-day preventive maintenance calendar balancing asset protection with operational availability." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-SCHED-CREATE-001" ;
+  wo:hasTitle "Generate Annual Preventive Maintenance Schedule" ;
+  wo:taskDescription "For each of 150+ assets, determine optimal maintenance intervals based on manufacturer specs, historical failure patterns, and criticality. Schedule PM tasks on low-guest-volume days/times to minimize impact. Create rolling calendar with no conflicting maintenance windows." ;
+  wo:taskAssignedTo ex:MaintenancePlanner ;
+  wo:taskEstimatedDuration "PT45H"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:SchedCreateAC1, ex:SchedCreateAC2, ex:SchedCreateAC3, ex:SchedCreateAC4 ;
+  wo:dependsOn ex:HistoricalMaintenanceAnalysisTask ;
+  ex:executionOrder 4 ;
+  ex:criticalPath "true" ;
+  ex:externalSystemDependency [
+    ex:system "SAP PM" ;
+    ex:functionality "Create maintenance orders, bill of materials, labor estimates" ;
+    ex:requiredBefore "Schedule documented"
+  ] ;
+  ex:externalSystemDependency [
+    ex:system "Tableau" ;
+    ex:functionality "Maintenance calendar visualization" ;
+    ex:requiredBefore "Schedule published"
+  ] .
+
+ex:SchedCreateAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When schedule created, all 150+ assets assigned maintenance intervals (time-based or condition-based) documented in SAP PM module." ;
+  wo:criterionVerified "false" .
+
+ex:SchedCreateAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When schedule finalized, no conflicting maintenance windows: max 3 attractions down simultaneously, critical infrastructure (power, HVAC) never down during operating hours." ;
+  wo:criterionVerified "false" .
+
+ex:SchedCreateAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When schedule complete, 365-day calendar shows zero guest-impact maintenance windows during peak season (maintain 99.5% availability target)." ;
+  wo:criterionVerified "false" .
+
+ex:SchedCreateAC4 a wo:AcceptanceCriterion ;
+  wo:criterionText "When schedule published in SAP, maintenance orders generated for all planned tasks with estimated labor hours and parts requirements." ;
+  wo:criterionVerified "false" .
+
+ex:SpareParts InventoryPlanTask a wo:Task ;
+  rdfs:label "Spare Parts and Materials Planning" ;
+  rdfs:comment "Determine parts, materials, and consumables needed for annual preventive maintenance." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-PARTS-001" ;
+  wo:hasTitle "Plan Spare Parts Inventory for Maintenance Schedule" ;
+  wo:taskDescription "For each PM task, determine parts and materials required: bearings, belts, filters, lubricants, hydraulic fluid, fasteners. Calculate quantities, lead times, and storage requirements. Create purchase orders with suppliers coordinating delivery to minimize inventory holding." ;
+  wo:taskAssignedTo ex:ProcurementSpecialist ;
+  wo:taskEstimatedDuration "PT30H"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:PartsAC1, ex:PartsAC2, ex:PartsAC3 ;
+  wo:dependsOn ex:MaintenanceScheduleCreationTask ;
+  ex:executionOrder 5 ;
+  ex:externalSystemDependency [
+    ex:system "SAP MM" ;
+    ex:functionality "Materials management, purchasing, inventory" ;
+    ex:requiredBefore "Purchase orders created"
+  ] .
+
+ex:PartsAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When plan complete, all parts and materials identified in SAP with supplier SKUs, unit costs, and lead times." ;
+  wo:criterionVerified "false" .
+
+ex:PartsAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When planning finalized, purchase orders created in SAP ensuring part delivery dates align with maintenance schedule with 2-week buffer." ;
+  wo:criterionVerified "false" .
+
+ex:PartsAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When procurement complete, spare parts received and staged in warehouse with 100% inventory verification." ;
+  wo:criterionVerified "false" .
+
+ex:DowntimeWindowOptimizationTask a wo:Task ;
+  rdfs:label "Downtime Window Optimization" ;
+  rdfs:comment "Optimize maintenance scheduling to minimize guest impact and operational disruption." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-WINDOW-001" ;
+  wo:hasTitle "Optimize Maintenance Downtime Windows" ;
+  wo:taskDescription "Using capacity planning forecast and attraction usage patterns, identify lowest-impact time windows for each maintenance task. Cluster short tasks into maintenance windows. Schedule critical maintenance during seasonal low periods." ;
+  wo:taskAssignedTo ex:MaintenancePlanner ;
+  wo:taskEstimatedDuration "PT25H"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:WindowAC1, ex:WindowAC2 ;
+  wo:dependsOn ex:MaintenanceScheduleCreationTask ;
+  ex:executionOrder 6 .
+
+ex:WindowAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When optimization complete, downtime windows assigned to each maintenance task minimizing peak-season impact and guest wait times." ;
+  wo:criterionVerified "false" .
+
+ex:WindowAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When schedule finalized, expected guest impact calculated: <10% impact on low days, <5% on peak days, zero impact on critical systems during operating hours." ;
+  wo:criterionVerified "false" .
+
+# ==============================================================================
+# SCHEDULING & COORDINATION PHASE (2-3 weeks)
+# ==============================================================================
+
+ex:TechnicianAssignmentTask a wo:Task ;
+  rdfs:label "Technician Assignment and Skill Mapping" ;
+  rdfs:comment "Assign maintenance technicians to tasks based on skills and availability." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-ASSIGN-001" ;
+  wo:hasTitle "Assign Technicians to Maintenance Tasks" ;
+  wo:taskDescription "Map PM tasks to available technicians matching required skills (mechanical, electrical, hydraulic, etc). Consider certifications (OSHA, manufacturer-specific), team coordination, and work-life balance. Create detailed maintenance shift schedules." ;
+  wo:taskAssignedTo ex:MaintenanceSupervisor ;
+  wo:taskEstimatedDuration "PT20H"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:AssignAC1, ex:AssignAC2, ex:AssignAC3 ;
+  wo:dependsOn ex:MaintenanceScheduleCreationTask ;
+  ex:executionOrder 7 ;
+  ex:externalSystemDependency [
+    ex:system "Workday" ;
+    ex:functionality "Technician roster, skills, availability" ;
+    ex:requiredBefore "Assignments optimized"
+  ] .
+
+ex:AssignAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When assignment complete, all 365-day PM tasks assigned to qualified technicians with required certifications and skills." ;
+  wo:criterionVerified "false" .
+
+ex:AssignAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When assignments finalized, workload balanced: technicians allocated <50 hours/week maintenance tasks, leaving capacity for emergencies." ;
+  wo:criterionVerified "false" .
+
+ex:AssignAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When schedule published in Workday, all technicians notified of assigned maintenance tasks with 30-day advance notice." ;
+  wo:criterionVerified "false" .
+
+ex:SchedulePublicationTask a wo:Task ;
+  rdfs:label "Maintenance Schedule Publication" ;
+  rdfs:comment "Publish finalized schedule to all stakeholders: technicians, supervisors, operations, guest services." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-PUB-001" ;
+  wo:hasTitle "Publish Annual Maintenance Calendar" ;
+  wo:taskDescription "Create visual maintenance calendar in Tableau showing planned downtime by attraction. Publish in Slack, email, and operations displays. Brief guest services on expected closure/downtime dates for guest communications." ;
+  wo:taskAssignedTo ex:MaintenancePlanner ;
+  wo:taskEstimatedDuration "PT8H"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:PubAC1, ex:PubAC2, ex:PubAC3 ;
+  wo:dependsOn ex:TechnicianAssignmentTask ;
+  ex:executionOrder 8 ;
+  ex:externalSystemDependency [
+    ex:system "Tableau" ;
+    ex:functionality "Maintenance calendar dashboard" ;
+    ex:requiredBefore "Published"
+  ] ;
+  ex:externalSystemDependency [
+    ex:system "Slack" ;
+    ex:functionality "Distribution to operations and guest services" ;
+    ex:requiredBefore "Notifications sent"
+  ] .
+
+ex:PubAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When schedule published, visual calendar created in Tableau showing all 365 days of planned downtime by attraction." ;
+  wo:criterionVerified "false" .
+
+ex:PubAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When published, notifications sent to #maintenance-ops, #operations, and #guest-services Slack channels with schedule links." ;
+  wo:criterionVerified "false" .
+
+ex:PubAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When schedule finalized, guest-facing closure calendar updated with maintenance downtime windows." ;
+  wo:criterionVerified "false" .
+
+# ==============================================================================
+# EXECUTION PHASE (Daily/Weekly)
+# ==============================================================================
+
+ex:DailyMaintenanceDispatchTask a wo:Task ;
+  rdfs:label "Daily Maintenance Dispatch" ;
+  rdfs:comment "Dispatch assigned technicians to daily maintenance tasks with work orders and safety briefings." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-DISPATCH-001" ;
+  wo:hasTitle "Daily Maintenance Work Order Dispatch" ;
+  wo:taskDescription "At start of shift, retrieve all scheduled PM work orders from SAP. Brief technicians on daily tasks, safety hazards, and required permits. Distribute work orders with parts lists and procedure documentation. Track crew movements and task progress." ;
+  wo:taskAssignedTo ex:MaintenanceSupervisor ;
+  wo:taskEstimatedDuration "PT15M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:DispatchAC1, ex:DispatchAC2 ;
+  ex:continuousActivity "true" ;
+  ex:externalSystemDependency [
+    ex:system "SAP" ;
+    ex:functionality "Daily PM work order retrieval" ;
+    ex:requiredBefore "Work orders distributed"
+  ] ;
+  ex:externalSystemDependency [
+    ex:system "Mobile work order app (SAP Fiori or similar)" ;
+    ex:functionality "Technicians receive and acknowledge work orders" ;
+    ex:requiredBefore "Tasks dispatched"
+  ] .
+
+ex:DispatchAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When dispatch complete, all scheduled PM work orders for the day distributed to assigned technicians with task details and safety briefing completed." ;
+  wo:criterionVerified "false" .
+
+ex:DispatchAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When tasks in progress, supervisor monitors work order completion status in SAP and resolves blockers within 30 minutes." ;
+  wo:criterionVerified "false" .
+
+ex:TaskExecutionAndTrackingTask a wo:Task ;
+  rdfs:label "Maintenance Task Execution" ;
+  rdfs:comment "Technicians execute assigned maintenance work following procedures and documenting work." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-EXEC-001" ;
+  wo:hasTitle "Execute Preventive Maintenance Work Orders" ;
+  wo:taskDescription "Technicians perform assigned PM tasks following manufacturer procedures. Document work performed, parts used, labor hours, any findings/observations in SAP work order. Take photos of work. Upon completion, supervisor verifies work meets quality standards." ;
+  wo:taskAssignedTo ex:MaintenanceTechnician ;
+  wo:taskEstimatedDuration "PT1H to PT8H"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:ExecAC1, ex:ExecAC2, ex:ExecAC3 ;
+  ex:continuousActivity "true" .
+
+ex:ExecAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When task executed, work documented in SAP with labor hours, parts consumed, and findings recorded." ;
+  wo:criterionVerified "false" .
+
+ex:ExecAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When task completed, supervisor verifies work quality and signs off on work order (zero rework rate target)." ;
+  wo:criterionVerified "false" .
+
+ex:ExecAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When maintenance complete, equipment tested to verify functionality and returned to operation." ;
+  wo:criterionVerified "false" .
+
+ex:EquipmentReturnToServiceTask a wo:Task ;
+  rdfs:label "Equipment Return to Service Verification" ;
+  rdfs:comment "Verify maintained equipment passes safety checks before returning to operation." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-RTS-001" ;
+  wo:hasTitle "Verify Equipment Ready for Operation" ;
+  wo:taskDescription "After PM completion, run system diagnostics and safety tests. For attractions, complete full test cycle with empty ride. Verify no fault codes. Obtain operational authorization from supervisor before opening to guests." ;
+  wo:taskAssignedTo ex:MaintenanceSupervisor ;
+  wo:taskEstimatedDuration "PT15M to PT30M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:RTSAc1, ex:RTSAc2 ;
+  wo:dependsOn ex:TaskExecutionAndTrackingTask .
+
+ex:RTSAc1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When testing complete, equipment passed all diagnostics with green status (zero fault codes) documented in SAP." ;
+  wo:criterionVerified "false" .
+
+ex:RTSAc2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When verified safe, equipment marked 'Ready for Operation' in SAP and returned to guest service." ;
+  wo:criterionVerified "false" .
+
+ex:EmergencyRepairTask a wo:Task ;
+  rdfs:label "Emergency Repair Coordination" ;
+  rdfs:comment "Rapid response to unplanned equipment failures during operating hours." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-EMERG-001" ;
+  wo:hasTitle "Emergency Equipment Repair Response" ;
+  wo:taskDescription "When equipment failure detected (guest report, IoT sensor alert, or operator observation), immediately dispatch on-call maintenance technician. Assess failure severity. If critical, close attraction immediately. Perform rapid diagnostics and repair or isolate failed component. Escalate if extended downtime needed." ;
+  wo:taskAssignedTo ex:MaintenanceTechnicianOnCall ;
+  wo:taskEstimatedDuration "PT5M to PT120M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:EmergAC1, ex:EmergAC2, ex:EmergAC3 ;
+  ex:continuousActivity "true" ;
+  ex:externalSystemDependency [
+    ex:system "Slack" ;
+    ex:functionality "Emergency alert distribution" ;
+    ex:requiredBefore "Technician alerted"
+  ] .
+
+ex:EmergAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When failure detected, on-call technician paged within <2 minutes via PagerDuty/Slack." ;
+  wo:criterionVerified "false" .
+
+ex:EmergAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When technician arrives, preliminary diagnostics completed within 15 minutes to determine severity and estimated repair time." ;
+  wo:criterionVerified "false" .
+
+ex:EmergAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When repair begins, supervisor updated every 15 minutes with progress. If repair >60 minutes, escalate to maintenance manager." ;
+  wo:criterionVerified "false" .
+
+# ==============================================================================
+# VERIFICATION & CLOSEOUT PHASE (Weekly/Monthly)
+# ==============================================================================
+
+ex:MaintenanceQualityReviewTask a wo:Task ;
+  rdfs:label "Maintenance Quality Audits" ;
+  rdfs:comment "Periodic audits to verify maintenance work meets quality standards and procedures followed." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-AUDIT-QA-001" ;
+  wo:hasTitle "Monthly Maintenance Quality Audits" ;
+  wo:taskDescription "Each month, conduct 10-15 spot checks on completed PM work: verify procedure compliance, parts quality, documentation accuracy, test completeness. Interview technicians. Identify training or process gaps." ;
+  wo:taskAssignedTo ex:MaintenanceQAEngineer ;
+  wo:taskEstimatedDuration "PT12H per month"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:QAAc1, ex:QAAc2 ;
+  ex:frequency "Monthly" ;
+  ex:externalSystemDependency [
+    ex:system "SAP" ;
+    ex:functionality "Work order sampling and quality metrics" ;
+    ex:requiredBefore "Audit metrics calculated"
+  ] .
+
+ex:QAAc1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When audit complete, sample of 10-15 work orders reviewed with results documented (compliance score target >95%)." ;
+  wo:criterionVerified "false" .
+
+ex:QAAc2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When findings identified, training or process improvements scheduled within 7 days." ;
+  wo:criterionVerified "false" .
+
+ex:MaintenancePerformanceReportingTask a wo:Task ;
+  rdfs:label "Maintenance Performance Reporting" ;
+  rdfs:comment "Monthly reporting of maintenance metrics and equipment health." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-REPORT-001" ;
+  wo:hasTitle "Generate Monthly Maintenance Performance Report" ;
+  wo:taskDescription "Extract metrics from SAP: PM completion rate, equipment uptime, MTBF trends, emergency repairs, costs. Compare against targets. Identify equipment degradation trends. Create executive dashboard in Tableau." ;
+  wo:taskAssignedTo ex:MaintenanceEngineer ;
+  wo:taskEstimatedDuration "PT8H per month"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:ReportAC1, ex:ReportAC2 ;
+  ex:frequency "Monthly" ;
+  ex:externalSystemDependency [
+    ex:system "SAP" ;
+    ex:functionality "PM metrics queries" ;
+    ex:requiredBefore "Data extracted"
+  ] ;
+  ex:externalSystemDependency [
+    ex:system "Tableau" ;
+    ex:functionality "Dashboard publishing" ;
+    ex:requiredBefore "Report published"
+  ] .
+
+ex:ReportAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When report generated, key metrics calculated: PM completion %, equipment uptime %, emergency repairs count, cost vs budget." ;
+  wo:criterionVerified "false" .
+
+ex:ReportAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When published, executive dashboard shared with operations leadership showing trends and alerts." ;
+  wo:criterionVerified "false" .
+
+# ==============================================================================
+# APPROVAL GATES
+# ==============================================================================
+
+ex:EquipmentInventoryApproval a wo:Approval ;
+  rdfs:label "Equipment Inventory Sign-Off" ;
+  rdfs:comment "Maintenance director approval of asset registry and audit findings." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-INV-001" ;
+  wo:hasTitle "Maintenance Director Equipment Inventory Approval" ;
+  wo:approvalsRequired 1 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:MaintenanceDirectorRole ;
+  ex:gates [
+    ex:gateName "Inventory Audit Complete" ;
+    ex:dependsOn ex:EquipmentInventoryAuditTask
+  ] ;
+  ex:gates [
+    ex:gateName "SAP Registry Reconciled" ;
+    ex:condition "100% reconciliation, zero discrepancies"
+  ] ;
+  ex:blocksProgression ex:ScheduleApproval .
+
+ex:ScheduleApproval a wo:Approval ;
+  rdfs:label "Maintenance Schedule Approval" ;
+  rdfs:comment "Operations and maintenance approval of planned maintenance schedule." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-SCHED-001" ;
+  wo:hasTitle "Operations and Maintenance Director Schedule Approval" ;
+  wo:approvalsRequired 2 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:OperationsDirectorRole, ex:MaintenanceDirectorRole ;
+  ex:gates [
+    ex:gateName "Schedule Created" ;
+    ex:dependsOn ex:MaintenanceScheduleCreationTask
+  ] ;
+  ex:gates [
+    ex:gateName "Downtime Impact Analyzed" ;
+    ex:dependsOn ex:DowntimeWindowOptimizationTask ;
+    ex:condition "Guest impact <5% on peak days"
+  ] ;
+  ex:gates [
+    ex:gateName "Parts Procured" ;
+    ex:dependsOn ex:SpareParts InventoryPlanTask
+  ] ;
+  ex:blocksProgression ex:ExecutionApproval .
+
+ex:ExecutionApproval a wo:Approval ;
+  rdfs:label "Maintenance Execution Authorization" ;
+  rdfs:comment "Final authorization to execute annual maintenance schedule." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-EXEC-001" ;
+  wo:hasTitle "Maintenance Supervisor Execution Authority" ;
+  wo:approvalsRequired 1 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:MaintenanceSupervisorRole ;
+  ex:gates [
+    ex:gateName "Technicians Assigned" ;
+    ex:dependsOn ex:TechnicianAssignmentTask
+  ] ;
+  ex:gates [
+    ex:gateName "Schedule Published" ;
+    ex:dependsOn ex:SchedulePublicationTask
+  ] ;
+  ex:gateCondition "All prerequisites met to begin execution" .
+
+# ==============================================================================
+# RESOURCE & TEAM DEFINITIONS
+# ==============================================================================
+
+ex:MaintenanceTechnicians a wo:Team ;
+  rdfs:label "Maintenance Technician Team" ;
+  rdfs:comment "Skilled technicians performing preventive and emergency repairs." ;
+  ex:staffingRequirement [
+    ex:role "Mechanical Technician" ;
+    ex:count 6 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "MAINT-MECH-001"
+  ] ;
+  ex:staffingRequirement [
+    ex:role "Electrical Technician" ;
+    ex:count 4 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "MAINT-ELEC-001"
+  ] ;
+  ex:staffingRequirement [
+    ex:role "Hydraulic Technician" ;
+    ex:count 2 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "MAINT-HYD-001"
+  ] ;
+  ex:skills (
+    "OSHA Certification"
+    "Lockout/Tagout (LOTO)"
+    "Ride manufacturer training (Arrow, Vekoma, B&M, etc.)"
+    "Diagnostic equipment operation"
+  ) ;
+  ex:oncallRotation "24/7 rotation for emergency repairs during operating hours" .
+
+# ==============================================================================
+# PROCESS FLOW & DEPENDENCIES
+# ==============================================================================
+
+ex:MaintenanceSchedulingFlow a ex:ProcessFlow ;
+  rdfs:label "Annual Maintenance Scheduling Critical Path" ;
+  rdfs:comment "Multi-phase planning from asset audit through execution." ;
+  ex:phase1_Identification "Weeks 1-3: Equipment audit, history analysis, predictive setup" ;
+  ex:phase2_Planning "Weeks 3-5: Schedule creation, parts planning, downtime optimization" ;
+  ex:phase3_Coordination "Weeks 5-6: Technician assignment, schedule publication" ;
+  ex:phase4_Execution "Weeks 6-52: Daily dispatch, task execution, emergency response" ;
+  ex:phase5_Monitoring "Weeks 6-52 (parallel): Quality audits, performance reporting" ;
+  ex:totalDuration "PT52W"^^xsd:duration ;
+  ex:approvalGates 3 ;
+  ex:parallelPaths 2 .
+
+ex:DailyMaintenanceFlow a ex:ProcessFlow ;
+  rdfs:label "Daily Maintenance Execution" ;
+  rdfs:comment "Real-time task dispatch and execution coordination." ;
+  ex:step1_Dispatch "06:00: Retrieve scheduled PM work orders from SAP" ;
+  ex:step2_Brief "06:15: Safety briefing and task assignment to technicians" ;
+  ex:step3_Execute "06:30-14:00: Technicians perform assigned maintenance tasks" ;
+  ex:step4_Document "Continuous: Work documentation in SAP (labor, parts, findings)" ;
+  ex:step5_Verify "Upon completion: Supervisor quality check and sign-off" ;
+  ex:step6_RTS "Task complete: Return equipment to operation after verification" ;
+  ex:step7_Emergency "24/7: Emergency repairs for unplanned failures" ;
+  ex:totalDuration "PT8H"^^xsd:duration ;
+  ex:continuousActivity "true" .
+
+# ==============================================================================
+# EXTERNAL SYSTEM MAPPINGS
+# ==============================================================================
+
+ex:SAPPMMapping a ex:SystemMapping ;
+  rdfs:label "SAP Plant Maintenance (PM) Module" ;
+  rdfs:comment "Core maintenance planning, scheduling, and execution system." ;
+  ex:maps wo:Task ;
+  ex:maps ex:MaintenanceSchedulingProcess ;
+  ex:purpose "Manage PM orders, parts, labor, and maintenance history" ;
+  ex:dataFlow "Schedule → SAP PM orders → technician assignment → work execution → labor/parts tracking" ;
+  ex:readOnly "false" ;
+  ex:rollbackCapability "true" ;
+  ex:modules [
+    ex:module "PM02: Create PM order" ;
+    ex:module "PM03: Maintain PM order" ;
+    ex:module "IW39: PM schedule board" ;
+    ex:module "IW48: PM history queries"
+  ] .
+
+ex:IoTSensorMappingMaint a ex:SystemMapping ;
+  rdfs:label "IoT Condition Monitoring System" ;
+  rdfs:comment "Real-time equipment condition monitoring and predictive alerts." ;
+  ex:maps ex:PredictiveMaintenanceEnablementTask ;
+  ex:purpose "Early detection of equipment degradation before failure" ;
+  ex:sensors [
+    ex:sensor "Vibration monitoring" ;
+    ex:count 15
+  ] ;
+  ex:sensors [
+    ex:sensor "Temperature monitoring" ;
+    ex:count 10
+  ] ;
+  ex:sensors [
+    ex:sensor "Performance/load monitoring" ;
+    ex:count 5
+  ] ;
+  ex:alertThreshold "Anomalous readings trigger SAP alert within <5 minutes" ;
+  ex:readOnly "true" ;
+  ex:rollbackCapability "false" ;
+  ex:newToParkOperations "true" .
+
+ex:SAPMMMapping a ex:SystemMapping ;
+  rdfs:label "SAP Materials Management (MM) Module" ;
+  rdfs:comment "Spare parts procurement and inventory management." ;
+  ex:maps ex:SpareParts InventoryPlanTask ;
+  ex:purpose "Manage spare parts purchasing, delivery, and stock levels" ;
+  ex:dataFlow "Parts requirement → SAP PO creation → supplier delivery → goods receipt → inventory" ;
+  ex:readOnly "false" ;
+  ex:rollbackCapability "true" .
+
+ex:WorkdayMaintMapping a ex:SystemMapping ;
+  rdfs:label "Workday Maintenance Staffing" ;
+  rdfs:comment "Technician roster, skills, availability, and shift assignment." ;
+  ex:maps ex:TechnicianAssignmentTask ;
+  ex:purpose "Manage technician schedules and assignments" ;
+  ex:dataFlow "Technician roster → skill matrix → availability constraints → schedule creation" ;
+  ex:readOnly "true" ;
+  ex:rollbackCapability "false" .
+
+ex:SlackMaintenanceMapping a ex:SystemMapping ;
+  rdfs:label "Slack Maintenance Coordination" ;
+  rdfs:comment "Team communication for daily dispatch and emergency response." ;
+  ex:maps ex:DailyMaintenanceDispatchTask ;
+  ex:maps ex:EmergencyRepairTask ;
+  ex:channels (
+    "#maintenance-daily"
+    "#maintenance-emergency"
+    "#maintenance-ops"
+  ) ;
+  ex:automations [
+    ex:trigger "Emergency failure detected" ;
+    ex:action "Post alert to #maintenance-emergency" ;
+    ex:action "Page on-call technician via PagerDuty"
+  ] ;
+  ex:readOnly "true" ;
+  ex:rollbackCapability "false" .
+
+ex:TableauMaintenanceMapping a ex:SystemMapping ;
+  rdfs:label "Tableau Maintenance Dashboard" ;
+  rdfs:comment "Visualization of maintenance schedule, equipment status, and performance metrics." ;
+  ex:maps ex:MaintenancePerformanceReportingTask ;
+  ex:purpose "Real-time visibility into maintenance status and equipment health" ;
+  ex:displays [
+    ex:metric "Annual maintenance calendar (365 days, by attraction)" ;
+    ex:metric "Equipment condition trends (by asset)" ;
+    ex:metric "PM completion rate (%)" ;
+    ex:metric "Equipment uptime (% by critical asset)" ;
+    ex:metric "Emergency repairs count and causes" ;
+    ex:metric "Maintenance cost vs budget"
+  ] ;
+  ex:dataSource "SAP PM, IoT sensors" ;
+  ex:refreshRate "PT1H"^^xsd:duration ;
+  ex:newToParkOperations "true" .
+
+# ==============================================================================
+# NEW SYSTEMS (Specific to Maintenance Scheduling)
+# ==============================================================================
+
+ex:PredictiveMaintenanceEngine a ex:ExternalSystem ;
+  rdfs:label "Predictive Maintenance Analytics" ;
+  rdfs:comment "Machine learning model for early failure prediction." ;
+  ex:purpose "Forecast equipment failures before they occur" ;
+  ex:inputs "Historical PM data, IoT sensor readings, equipment age, failure codes" ;
+  ex:outputs "Failure risk scores, predicted remaining useful life (RUL), recommended actions" ;
+  ex:accuracy "Target: 80%+ precision for early failure signals" ;
+  ex:newToParkOperations "true" .
+
+ex:MaintenanceWorkOrderApp a ex:ExternalSystem ;
+  rdfs:label "Mobile Maintenance Work Order System" ;
+  rdfs:comment "Mobile app for technicians to receive, execute, and document work." ;
+  ex:purpose "Enable technicians to access work orders and complete documentation in field" ;
+  ex:platform "SAP Fiori or similar" ;
+  ex:features [
+    ex:feature "Work order retrieval and assignment" ;
+    ex:feature "Procedure documentation and photos" ;
+    ex:feature "Parts checklist and consumption tracking" ;
+    ex:feature "Labor time tracking" ;
+    ex:feature "Quality sign-off"
+  ] ;
+  ex:newToParkOperations "true" .
+
+# ==============================================================================
+# ROLES
+# ==============================================================================
+
+ex:MaintenanceDirectorRole a ex:ApprovalRole ;
+  rdfs:label "Maintenance Director" ;
+  rdfs:comment "Approves asset inventory and maintenance schedule." ;
+  ex:systemMapping "AD group: MAINTENANCE_DIRECTORS" .
+
+ex:MaintenanceSupervisorRole a ex:Role ;
+  rdfs:label "Maintenance Supervisor" ;
+  rdfs:comment "Oversees daily dispatch, execution, and quality assurance." ;
+  ex:systemMapping "AD group: MAINTENANCE_SUPERVISORS" .
+
+ex:MaintenancePlanner a ex:Person ;
+  rdfs:label "Maintenance Planner" ;
+  ex:workdayId "PLAN-001" .
+
+ex:MaintenanceEngineer a ex:Person ;
+  rdfs:label "Maintenance Engineer" ;
+  ex:workdayId "MAINT-ENG-001" .
+
+ex:IoTEngineer a ex:Person ;
+  rdfs:label "IoT/Sensors Engineer" ;
+  ex:workdayId "IOT-ENG-001" .
+
+ex:ProcurementSpecialist a ex:Person ;
+  rdfs:label "Procurement Specialist" ;
+  ex:workdayId "PROC-001" .
+
+ex:MaintenanceQAEngineer a ex:Person ;
+  rdfs:label "Maintenance QA Engineer" ;
+  ex:workdayId "QA-MAINT-001" .
+
+ex:MaintenanceTechnicianOnCall a ex:Person ;
+  rdfs:label "On-Call Maintenance Technician" ;
+  ex:oncallRotation "24/7 during operating hours" .
+
+ex:MaintenanceSupervisor a ex:Person ;
+  rdfs:label "Maintenance Supervisor" ;
+  ex:workdayId "MAINT-SUPER-001" .
+
+# ==============================================================================
+# SUCCESS METRICS
+# ==============================================================================
+
+ex:SuccessMetrics a owl:Class ;
+  rdfs:label "Maintenance Scheduling Success Metrics" ;
+  ex:metric_Availability "Equipment availability: 99.5% for attractions, 99.9% for critical infrastructure" ;
+  ex:metric_PMCompletion "Preventive maintenance completion rate: 100% on schedule" ;
+  ex:metric_MTTR "Mean Time To Repair emergency failures: <60 minutes" ;
+  ex:metric_QualityScore "Maintenance quality audit score: >95% compliance with procedures" ;
+  ex:metric_PredictiveAccuracy "Predictive maintenance model precision: >80% for early failure detection" ;
+  ex:metric_CostEfficiency "Maintenance cost per guest visit <$5" ;
+  ex:metric_EmergencyRate "Emergency repairs <10% of total work hours (vs routine preventive)" ;
+  ex:metric_ScheduleAdherence "Schedule adherence: 95% of PM tasks completed within planned window" ;
+  ex:metric_ZeroUnplanned "Zero unplanned downtime during peak season on critical systems" ;
+  ex:metric_TechnicianSafety "Zero safety incidents during maintenance work (12-month rolling)" .
+
+# ==============================================================================
+# VALIDATION CHECKLIST
+# ==============================================================================
+
+ex:ValidationChecklist a owl:Class ;
+  rdfs:label "Maintenance Scheduling Validation Checklist" ;
+  ex:check_1 "Equipment inventory audit complete with 100% SAP reconciliation" ;
+  ex:check_2 "Historical maintenance analysis identifying failure patterns and MTBF" ;
+  ex:check_3 "Predictive maintenance sensors deployed on 30 critical assets" ;
+  ex:check_4 "365-day preventive maintenance schedule created with zero conflicting windows" ;
+  ex:check_5 "Spare parts inventory procured with delivery aligned to maintenance schedule" ;
+  ex:check_6 "Downtime windows optimized for minimal guest and operational impact" ;
+  ex:check_7 "All technicians assigned to tasks with required skills and certifications" ;
+  ex:check_8 "Maintenance calendar published in Tableau and distributed to stakeholders" ;
+  ex:check_9 "Mobile work order system tested and available for technicians" ;
+  ex:check_10 "Performance metrics dashboard created with real-time updates" .
+
+# ==============================================================================
+# METADATA
+# ==============================================================================
+
+ex:MaintenanceSchedulingOntology a owl:Ontology ;
+  rdfs:label "Maintenance Scheduling Process Ontology" ;
+  rdfs:comment "Specification for integrated preventive and emergency maintenance management." ;
+  owl:versionInfo "1.0" ;
+  dcterms:created "2026-01-18"^^xsd:date ;
+  ex:phase "Wave 2 - Scale Proof" ;
+  ex:processType "Equipment and infrastructure maintenance management" ;
+  ex:frequency "Annual planning with daily execution" ;
+  ex:taskCount 14 ;
+  ex:approvalGateCount 3 ;
+  ex:equipmentCount 150 ;
+  ex:newSystemsIntroduced (
+    ex:IoTSensorNetwork
+    ex:PredictiveMaintenanceEngine
+    ex:MaintenanceWorkOrderApp
+    ex:TableauMaintenanceMapping
+  ) ;
+  ex:externalSystemsIntegrated 6 ;
+  ex:targetAvailability "99.5% for attractions, 99.9% critical infrastructure" ;
+  ex:targetMTTR "PT60M"^^xsd:duration ;
+  ex:targetPMCompletion "100%" ;
+  ex:readyForValidation "true" ;
+  ex:mapsToWorkObjectTypes (
+    wo:Task
+    wo:Approval
+    wo:Team
+    wo:Resource
+    wo:Event
+  ) .

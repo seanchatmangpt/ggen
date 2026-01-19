@@ -1,0 +1,395 @@
+# WASM Crypto Module Build Lifecycle
+# Comprehensive WebAssembly build, test, optimize, and deploy workflow
+
+[config]
+default_to_workspace = false
+skip_core_tasks = true
+
+[env]
+CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
+WASM_TARGET = "wasm32-unknown-unknown"
+WASM_PACK_TARGET = "web"
+WASM_OPT_LEVEL = "z"
+OUTPUT_DIR = "pkg"
+WWW_DIR = "www"
+DIST_DIR = "dist"
+
+# ============================================================================
+# SETUP & DEPENDENCIES
+# ============================================================================
+
+[tasks.install-deps]
+description = "Install all required dependencies for WASM development"
+script = '''
+#!/bin/bash
+set -e
+
+echo "📦 Installing WASM development dependencies..."
+
+# Check for wasm-pack
+if ! command -v wasm-pack &> /dev/null; then
+    echo "Installing wasm-pack..."
+    curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+else
+    echo "✅ wasm-pack already installed"
+fi
+
+# Check for wasm-opt (from binaryen)
+if ! command -v wasm-opt &> /dev/null; then
+    echo "⚠️  wasm-opt not found. Install binaryen for optimization:"
+    echo "   macOS: brew install binaryen"
+    echo "   Linux: apt-get install binaryen"
+    echo "   Or download from: https://github.com/WebAssembly/binaryen/releases"
+else
+    echo "✅ wasm-opt already installed"
+fi
+
+# Check for basic-http-server for local testing
+if ! command -v basic-http-server &> /dev/null; then
+    echo "Installing basic-http-server for local serving..."
+    cargo install basic-http-server || echo "⚠️  Failed to install basic-http-server"
+else
+    echo "✅ basic-http-server already installed"
+fi
+
+echo "✅ Dependencies check complete"
+'''
+
+# ============================================================================
+# BUILD PHASES
+# ============================================================================
+
+[tasks.wasm-build]
+description = "Build WASM module with wasm-pack for web target"
+dependencies = ["install-deps"]
+script = '''
+#!/bin/bash
+set -e
+
+echo "🔨 Building WASM module..."
+echo "Target: ${WASM_TARGET}"
+echo "Pack target: ${WASM_PACK_TARGET}"
+
+# Build with wasm-pack
+wasm-pack build \
+    --target ${WASM_PACK_TARGET} \
+    --out-dir ${OUTPUT_DIR} \
+    --release
+
+echo "✅ WASM build complete"
+
+# Show initial size
+if [ -f "${OUTPUT_DIR}/wasm_crypto_bg.wasm" ]; then
+    SIZE=$(wc -c < "${OUTPUT_DIR}/wasm_crypto_bg.wasm")
+    SIZE_KB=$((SIZE / 1024))
+    echo "📊 Initial WASM size: ${SIZE_KB}KB"
+fi
+'''
+
+[tasks.wasm-optimize]
+description = "Optimize WASM binary with wasm-opt (Oz level for minimal size)"
+dependencies = ["wasm-build"]
+script = '''
+#!/bin/bash
+set -e
+
+echo "⚡ Optimizing WASM binary..."
+
+WASM_FILE="${OUTPUT_DIR}/wasm_crypto_bg.wasm"
+
+if [ ! -f "$WASM_FILE" ]; then
+    echo "❌ WASM file not found: $WASM_FILE"
+    exit 1
+fi
+
+# Get initial size
+INITIAL_SIZE=$(wc -c < "$WASM_FILE")
+INITIAL_KB=$((INITIAL_SIZE / 1024))
+
+# Check if wasm-opt is available
+if command -v wasm-opt &> /dev/null; then
+    echo "Running wasm-opt with -Oz (maximum size optimization)..."
+    wasm-opt -Oz \
+        --enable-mutable-globals \
+        --enable-bulk-memory \
+        "$WASM_FILE" \
+        -o "${WASM_FILE}.opt"
+
+    mv "${WASM_FILE}.opt" "$WASM_FILE"
+
+    # Get optimized size
+    OPTIMIZED_SIZE=$(wc -c < "$WASM_FILE")
+    OPTIMIZED_KB=$((OPTIMIZED_SIZE / 1024))
+    REDUCTION=$((100 - (OPTIMIZED_SIZE * 100 / INITIAL_SIZE)))
+
+    echo "✅ Optimization complete"
+    echo "📊 Before: ${INITIAL_KB}KB"
+    echo "📊 After:  ${OPTIMIZED_KB}KB"
+    echo "📊 Reduction: ${REDUCTION}%"
+else
+    echo "⚠️  wasm-opt not found, skipping optimization"
+    echo "Install binaryen for optimization support"
+fi
+
+# Check gzip size
+if command -v gzip &> /dev/null; then
+    GZIP_SIZE=$(gzip -c "$WASM_FILE" | wc -c)
+    GZIP_KB=$((GZIP_SIZE / 1024))
+    echo "📊 Gzipped size: ${GZIP_KB}KB"
+fi
+'''
+
+[tasks.wasm-test]
+description = "Run WASM tests with wasm-bindgen-test"
+script = '''
+#!/bin/bash
+set -e
+
+echo "🧪 Running WASM tests..."
+
+# Run tests in browser (headless Chrome)
+wasm-pack test --headless --chrome
+
+echo "✅ All WASM tests passed"
+'''
+
+# ============================================================================
+# ANALYSIS & VALIDATION
+# ============================================================================
+
+[tasks.size-check]
+description = "Analyze WASM binary size and composition"
+dependencies = ["wasm-optimize"]
+script = '''
+#!/bin/bash
+set -e
+
+echo "📊 WASM Binary Size Analysis"
+echo "================================"
+
+WASM_FILE="${OUTPUT_DIR}/wasm_crypto_bg.wasm"
+
+if [ ! -f "$WASM_FILE" ]; then
+    echo "❌ WASM file not found"
+    exit 1
+fi
+
+# Size analysis
+RAW_SIZE=$(wc -c < "$WASM_FILE")
+RAW_KB=$((RAW_SIZE / 1024))
+
+echo "Raw size:     ${RAW_KB}KB (${RAW_SIZE} bytes)"
+
+# Gzip compression
+if command -v gzip &> /dev/null; then
+    GZIP_SIZE=$(gzip -c "$WASM_FILE" | wc -c)
+    GZIP_KB=$((GZIP_SIZE / 1024))
+    COMPRESSION=$((100 - (GZIP_SIZE * 100 / RAW_SIZE)))
+    echo "Gzipped:      ${GZIP_KB}KB (${COMPRESSION}% compression)"
+fi
+
+# Brotli compression (if available)
+if command -v brotli &> /dev/null; then
+    BROTLI_SIZE=$(brotli -c "$WASM_FILE" | wc -c)
+    BROTLI_KB=$((BROTLI_SIZE / 1024))
+    BR_COMPRESSION=$((100 - (BROTLI_SIZE * 100 / RAW_SIZE)))
+    echo "Brotli:       ${BROTLI_KB}KB (${BR_COMPRESSION}% compression)"
+fi
+
+echo "================================"
+
+# Size target check
+TARGET_KB=50
+if [ $GZIP_KB -lt $TARGET_KB ]; then
+    echo "✅ Size target met: ${GZIP_KB}KB < ${TARGET_KB}KB"
+else
+    echo "⚠️  Size target not met: ${GZIP_KB}KB >= ${TARGET_KB}KB"
+fi
+
+# Analyze sections (if wasm-objdump available)
+if command -v wasm-objdump &> /dev/null; then
+    echo ""
+    echo "Section sizes:"
+    wasm-objdump -h "$WASM_FILE" | grep -E "^\s+[0-9]+" || true
+fi
+'''
+
+[tasks.type-check]
+description = "Validate TypeScript definitions"
+dependencies = ["wasm-build"]
+script = '''
+#!/bin/bash
+
+echo "📝 Checking TypeScript definitions..."
+
+TS_FILE="${OUTPUT_DIR}/wasm_crypto.d.ts"
+
+if [ -f "$TS_FILE" ]; then
+    echo "✅ TypeScript definitions generated"
+    echo "Exported functions:"
+    grep "export function" "$TS_FILE" || true
+else
+    echo "⚠️  TypeScript definitions not found"
+fi
+'''
+
+# ============================================================================
+# DEVELOPMENT & SERVING
+# ============================================================================
+
+[tasks.setup-www]
+description = "Copy WASM artifacts to www directory"
+dependencies = ["wasm-optimize"]
+script = '''
+#!/bin/bash
+set -e
+
+echo "📁 Setting up www directory..."
+
+mkdir -p "${WWW_DIR}/pkg"
+
+# Copy WASM and JS glue code
+cp -r ${OUTPUT_DIR}/* "${WWW_DIR}/pkg/"
+
+echo "✅ www directory ready"
+ls -lh "${WWW_DIR}/pkg/" | grep -E "\.(wasm|js)$" || true
+'''
+
+[tasks.serve]
+description = "Serve demo locally on http://localhost:8080"
+dependencies = ["setup-www"]
+script = '''
+#!/bin/bash
+set -e
+
+echo "🌐 Starting local server..."
+echo "Open http://localhost:8080 in your browser"
+echo "Press Ctrl+C to stop"
+
+if command -v basic-http-server &> /dev/null; then
+    cd ${WWW_DIR} && basic-http-server -a 0.0.0.0:8080
+elif command -v python3 &> /dev/null; then
+    cd ${WWW_DIR} && python3 -m http.server 8080
+else
+    echo "❌ No HTTP server available"
+    echo "Install basic-http-server: cargo install basic-http-server"
+    exit 1
+fi
+'''
+
+[tasks.dev]
+description = "Development mode: build, optimize, and serve with watch"
+script = '''
+#!/bin/bash
+set -e
+
+echo "🔄 Development mode"
+echo "Building and serving with auto-reload..."
+
+# Initial build
+cargo make setup-www
+
+# Watch for changes (requires cargo-watch)
+if command -v cargo-watch &> /dev/null; then
+    cargo watch -i "${OUTPUT_DIR}/*" -i "${WWW_DIR}/*" -s "cargo make setup-www"
+else
+    echo "⚠️  cargo-watch not installed. Install with: cargo install cargo-watch"
+    echo "Serving static files only..."
+    cargo make serve
+fi
+'''
+
+# ============================================================================
+# DEPLOYMENT
+# ============================================================================
+
+[tasks.deploy]
+description = "Prepare optimized build for CDN deployment"
+dependencies = ["wasm-optimize", "size-check"]
+script = '''
+#!/bin/bash
+set -e
+
+echo "📦 Preparing deployment package..."
+
+mkdir -p ${DIST_DIR}
+
+# Copy optimized WASM and JS
+cp ${OUTPUT_DIR}/wasm_crypto_bg.wasm ${DIST_DIR}/
+cp ${OUTPUT_DIR}/wasm_crypto.js ${DIST_DIR}/
+cp ${OUTPUT_DIR}/wasm_crypto.d.ts ${DIST_DIR}/
+
+# Copy demo files
+cp ${WWW_DIR}/index.html ${DIST_DIR}/
+cp ${WWW_DIR}/index.js ${DIST_DIR}/
+
+# Create package.json for npm publishing
+cat > ${DIST_DIR}/package.json <<EOF
+{
+  "name": "wasm-crypto",
+  "version": "0.1.0",
+  "description": "WebAssembly cryptographic operations module",
+  "main": "wasm_crypto.js",
+  "types": "wasm_crypto.d.ts",
+  "files": [
+    "wasm_crypto_bg.wasm",
+    "wasm_crypto.js",
+    "wasm_crypto.d.ts"
+  ],
+  "keywords": ["wasm", "crypto", "encryption", "signatures"],
+  "license": "MIT"
+}
+EOF
+
+echo "✅ Deployment package ready in ${DIST_DIR}/"
+echo ""
+echo "Deploy to:"
+echo "  • NPM: cd ${DIST_DIR} && npm publish"
+echo "  • CDN: Upload ${DIST_DIR}/* to your CDN"
+echo "  • Static host: Upload ${DIST_DIR}/* to hosting provider"
+'''
+
+# ============================================================================
+# CLEANUP
+# ============================================================================
+
+[tasks.clean]
+description = "Clean all build artifacts"
+script = '''
+#!/bin/bash
+
+echo "🧹 Cleaning build artifacts..."
+
+rm -rf ${OUTPUT_DIR}
+rm -rf ${DIST_DIR}
+rm -rf ${WWW_DIR}/pkg
+cargo clean
+
+echo "✅ Clean complete"
+'''
+
+# ============================================================================
+# COMPLETE WORKFLOW
+# ============================================================================
+
+[tasks.all]
+description = "Complete build, test, optimize workflow"
+dependencies = [
+    "wasm-build",
+    "wasm-optimize",
+    "wasm-test",
+    "size-check",
+    "type-check"
+]
+script = '''
+echo ""
+echo "✅ All tasks completed successfully"
+echo ""
+echo "Next steps:"
+echo "  • cargo make serve    - Test locally"
+echo "  • cargo make deploy   - Prepare for deployment"
+echo "  • cargo make dev      - Development mode"
+'''
+
+[tasks.default]
+alias = "all"

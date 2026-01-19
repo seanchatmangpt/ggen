@@ -1,0 +1,341 @@
+@prefix spec: <https://ggen.dev/spec#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sec: <https://ggen.dev/security#> .
+@prefix : <https://ggen.dev/spec/wave2-task4/audit#> .
+
+# ============================================================================
+# FEATURE: Immutable, Tamper-Proof Audit Logging
+# Wave 2, Task 4: Compliance & Forensics
+# ============================================================================
+
+:AuditLoggingFramework a spec:Feature ;
+    rdfs:label "Immutable Audit Logging with Cryptographic Signatures" ;
+    rdfs:comment "Structured, tamper-proof audit trail with cryptographic integrity verification, blockchain-style hashing, and offline verification capabilities for SOC 2 / HIPAA / GDPR compliance" ;
+    spec:epicNumber 9 ;
+    spec:priority spec:P1 ;
+    spec:wave "wave-2" ;
+    spec:taskNumber "task-4" ;
+    spec:businessValue "Enables forensic analysis, regulatory compliance, insider threat detection, and irrefutable accountability" ;
+    spec:hasUserStory :US_AuditEventStructure, :US_CryptographicIntegrity, :US_AuditSearch, :US_ComplianceReporting, :US_ForensicAnalysis .
+
+# ============================================================================
+# USER STORIES
+# ============================================================================
+
+:US_AuditEventStructure a spec:UserStory ;
+    rdfs:label "Define canonical audit event structure with required fields" ;
+    spec:actor "Compliance Officer" ;
+    spec:action "Create structured audit event schema with mandatory fields" ;
+    spec:goal "Ensure every event captures complete context for forensic reconstruction" ;
+    spec:priority spec:P1 ;
+    spec:hasAcceptanceCriterion
+        :AC_EventFields,
+        :AC_EventContext,
+        :AC_EventTiming,
+        :AC_EventNormalization .
+
+:AC_EventFields a spec:AcceptanceCriterion ;
+    spec:text "Given audit event emitted, When event created, Then event includes: event_id (UUID), timestamp (UTC), event_type, actor (user_id), action, resource (type + id), result (success/failure), error_message, client_ip, user_agent, session_id" ;
+    spec:expected "All fields present, no null values for mandatory fields" ;
+    spec:testCase "unit-audit-event-field-validation" .
+
+:AC_EventContext a spec:AcceptanceCriterion ;
+    spec:text "Given user action, When context available, Then event captures: request_id (tracing), correlation_id (distributed transaction), changed_fields (for update events), original_value + new_value (before/after)" ;
+    spec:expected "Full context available for forensic reconstruction" ;
+    spec:testCase "integration-audit-event-context-completeness" .
+
+:AC_EventTiming a spec:AcceptanceCriterion ;
+    spec:text "Given action at T1, When audit logged, Then timestamp accurate to millisecond (UTC), NTP-synced across all nodes" ;
+    spec:expected "Timing accurate, reproducible, no clock skew > 100ms between nodes" ;
+    spec:testCase "integration-audit-timing-accuracy" .
+
+:AC_EventNormalization a spec:AcceptanceCriterion ;
+    spec:text "Given different event sources (API, CLI, UI), When normalized, Then all events follow canonical structure" ;
+    spec:expected "Event parsing deterministic, validates against JSON schema" ;
+    spec:testCase "unit-audit-event-normalization" .
+
+:US_CryptographicIntegrity a spec:UserStory ;
+    rdfs:label "Implement cryptographic integrity verification with chain hashing" ;
+    spec:actor "Security Architect" ;
+    spec:action "Sign each event with HMAC-SHA256 and chain hash to predecessor" ;
+    spec:goal "Enable detection of log tampering via blockchain-style chain validation" ;
+    spec:priority spec:P1 ;
+    spec:hasAcceptanceCriterion
+        :AC_EventSignature,
+        :AC_ChainHashing,
+        :AC_TamperDetection,
+        :AC_KeyRotation .
+
+:AC_EventSignature a spec:AcceptanceCriterion ;
+    spec:text "Given audit event, When logged, Then event serialized as JSON, HMAC-SHA256 signature computed using signing_key, signature stored with event" ;
+    spec:expected "Signature verifiable offline, replay prevention via nonce/timestamp" ;
+    spec:testCase "unit-audit-event-signing" .
+
+:AC_ChainHashing a spec:AcceptanceCriterion ;
+    spec:text "Given events E1, E2, E3, When E2 created, Then previous_hash = SHA256(E1_payload + E1_signature); When E3 created, previous_hash = SHA256(E2_payload + E2_signature)" ;
+    spec:expected "Chain forms immutable sequence; modifying E1 breaks all subsequent hashes" ;
+    spec:testCase "integration-audit-chain-integrity" .
+
+:AC_TamperDetection a spec:AcceptanceCriterion ;
+    spec:text "Given audit log potentially tampered, When log validator run offline, Then detects: altered event, missing event (broken chain), signature mismatch" ;
+    spec:expected "Offline validation tool reports tamper evidence with forensic detail" ;
+    spec:testCase "integration-audit-log-validator-offline" .
+
+:AC_KeyRotation a spec:AcceptanceCriterion ;
+    spec:text "Given signing_key_version=1 expiring, When rotation scheduled, Then events start using signing_key_version=2, old signatures still verifiable" ;
+    spec:expected "Key rotation transparent to audit trail, backward compatible verification" ;
+    spec:testCase "integration-audit-key-rotation-compatibility" .
+
+:US_AuditSearch a spec:UserStory ;
+    rdfs:label "Enable fast, secure search of audit logs via indexed queries" ;
+    spec:actor "Security Analyst" ;
+    spec:action "Query audit logs by user, time range, action type, resource" ;
+    spec:goal "Enable forensic investigation without full log scan (O(1) by indexed fields)" ;
+    spec:priority spec:P1 ;
+    spec:hasAcceptanceCriterion
+        :AC_SearchIndexes,
+        :AC_SearchLatency,
+        :AC_SearchAuthorization,
+        :AC_SearchEvidence .
+
+:AC_SearchIndexes a spec:AcceptanceCriterion ;
+    spec:text "Given audit log, When indexes created, Then indexes on: (user_id, timestamp), (event_type, timestamp), (resource_id, timestamp), (client_ip, timestamp)" ;
+    spec:expected "Queries return results within 1 second for any indexed combination" ;
+    spec:testCase "integration-audit-search-index-coverage" .
+
+:AC_SearchLatency a spec:AcceptanceCriterion ;
+    spec:text "Given 1M event log, When query for (user_id='alice', timestamp >= T1 and <= T2), Then results returned within 500ms" ;
+    spec:expected "Index scan efficient, no full table scans" ;
+    spec:testCase "benchmark-audit-search-latency" .
+
+:AC_SearchAuthorization a spec:AcceptanceCriterion ;
+    spec:text "Given admin searches any user's events, When operator searches, Then operator can only search own events (user_id = self or team members)" ;
+    spec:expected "Authorization enforced per-query; no unauthorized log access" ;
+    spec:testCase "integration-audit-search-authorization" .
+
+:AC_SearchEvidence a spec:AcceptanceCriterion ;
+    spec:text "Given search query executed, When results exported, Then export includes: search_query, executor (user_id), execution_time, result_count, hash_of_results, signed_by_audit_service" ;
+    spec:expected "Search evidence itself audited; double audit trail for forensic integrity" ;
+    spec:testCase "integration-audit-search-evidence-trail" .
+
+:US_ComplianceReporting a spec:UserStory ;
+    rdfs:label "Generate compliance reports (SOC 2, HIPAA, GDPR) from audit logs" ;
+    spec:actor "Compliance Officer" ;
+    spec:action "Generate reports: user access log (HIPAA), data access patterns (GDPR), privileged activities (SOC 2)" ;
+    spec:goal "Provide evidence of compliance controls for external auditors" ;
+    spec:priority spec:P1 ;
+    spec:hasAcceptanceCriterion
+        :AC_ReportSOC2,
+        :AC_ReportHIPAA,
+        :AC_ReportGDPR,
+        :AC_ReportSigning .
+
+:AC_ReportSOC2 a spec:AcceptanceCriterion ;
+    spec:text "Given time period, When SOC 2 report generated, Then includes: all admin activities, all role changes, all failed access attempts, all system config changes" ;
+    spec:expected "Report shows continuous monitoring of P1 changes, zero gaps" ;
+    spec:testCase "integration-audit-soc2-report-generation" .
+
+:AC_ReportHIPAA a spec:AcceptanceCriterion ;
+    spec:text "Given HIPAA audit period, When report generated, Then includes: user access to PHI (patient health information), reason for access, timestamp, outcome" ;
+    spec:expected "Report ready for HIPAA audit in 30 seconds, no manual review needed" ;
+    spec:testCase "integration-audit-hipaa-report-generation" .
+
+:AC_ReportGDPR a spec:AcceptanceCriterion ;
+    spec:text "Given GDPR audit period, When report generated, Then includes: personal data access (user consent tracking), data export requests, deletion requests, cross-border transfers" ;
+    spec:expected "Report demonstrates data processing transparency, controller-processor accountability" ;
+    spec:testCase "integration-audit-gdpr-report-generation" .
+
+:AC_ReportSigning a spec:AcceptanceCriterion ;
+    spec:text "Given compliance report generated, When signed, Then signature includes: report_hash, generated_by, generated_at, scope, period_covered, certifying_authority" ;
+    spec:expected "Report cryptographically signed, evidence of authenticity for external auditor" ;
+    spec:testCase "integration-audit-report-signing" .
+
+:US_ForensicAnalysis a spec:UserStory ;
+    rdfs:label "Support forensic investigation of security incidents" ;
+    spec:actor "Security Incident Response Team" ;
+    spec:action "Reconstruct user actions, data access, lateral movement from audit trail" ;
+    spec:goal "Detect insider threats, data exfiltration, unauthorized access patterns" ;
+    spec:priority spec:P1 ;
+    spec:hasAcceptanceCriterion
+        :AC_IncidentTimeline,
+        :AC_UserActionReconstruction,
+        :AC_DataAccessPatterns,
+        :AC_IncidentReport .
+
+:AC_IncidentTimeline a spec:AcceptanceCriterion ;
+    spec:text "Given potential incident at T1, When timeline reconstructed, Then events shown in chronological order with microsecond precision, gaps flagged" ;
+    spec:expected "Timeline complete, no events missing (chain validation confirms)" ;
+    spec:testCase "integration-forensic-incident-timeline" .
+
+:AC_UserActionReconstruction a spec:AcceptanceCriterion ;
+    spec:text "Given user 'alice' potentially compromised, When action history queried, Then shows every login, session activity, command, resource access, result for past 90 days" ;
+    spec:expected "Complete reconstruction of user behavior available for analysis" ;
+    spec:testCase "integration-forensic-user-action-history" .
+
+:AC_DataAccessPatterns a spec:AcceptanceCriterion ;
+    spec:text "Given potential data exfiltration, When patterns analyzed, Then detects: unusual volume (export 1M records vs. normal 100), unusual timing (3am access vs. 9-5 pattern), unusual resource access (PII vs. standard data)" ;
+    spec:expected "Anomaly detection identifies exfiltration candidates for investigation" ;
+    spec:testCase "integration-forensic-data-access-anomaly" .
+
+:AC_IncidentReport a spec:AcceptanceCriterion ;
+    spec:text "Given forensic investigation complete, When incident report generated, Then includes: timeline, actors involved, affected resources, data accessed, evidence chain, recommendations" ;
+    spec:expected "Report suitable for C-suite briefing and legal hold discovery" ;
+    spec:testCase "integration-forensic-incident-report-generation" .
+
+# ============================================================================
+# DOMAIN ENTITIES: Audit Data Model
+# ============================================================================
+
+sec:AuditEvent a rdfs:Class ;
+    rdfs:label "Audit Event" ;
+    rdfs:comment "Immutable record of action taken in system" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:property sec:eventId, sec:eventType, sec:timestamp, sec:actorUserId, sec:action, sec:resourceType, sec:resourceId, sec:result, sec:errorMessage, sec:clientIp, sec:userAgent, sec:sessionId, sec:requestId, sec:correlationId, sec:signature, sec:previousHash, sec:keyVersion .
+
+sec:eventId a rdf:Property ;
+    rdfs:label "Event ID" ;
+    rdfs:range xsd:string ;
+    rdfs:domain sec:AuditEvent ;
+    spec:constraint "UUID v4, globally unique" .
+
+sec:eventType a rdf:Property ;
+    rdfs:label "Event Type" ;
+    rdfs:range sec:EventTypeEnum ;
+    rdfs:domain sec:AuditEvent ;
+    spec:values "user.login, user.logout, user.password_change, role.assign, role.revoke, permission.grant, permission.deny, resource.create, resource.read, resource.update, resource.delete, resource.export, data.delete_gdpr, data.anonymize_hipaa, config.change, audit.export, admin.action" .
+
+sec:timestamp a rdf:Property ;
+    rdfs:label "Timestamp (UTC)" ;
+    rdfs:range xsd:dateTime ;
+    rdfs:domain sec:AuditEvent ;
+    spec:constraint "ISO 8601, NTP-synchronized" .
+
+sec:signature a rdf:Property ;
+    rdfs:label "HMAC-SHA256 Signature" ;
+    rdfs:range xsd:string ;
+    rdfs:domain sec:AuditEvent ;
+    spec:constraint "Base64-encoded HMAC-SHA256(event_payload || event_version || key_version)" .
+
+sec:previousHash a rdf:Property ;
+    rdfs:label "Previous Event Hash (Chain Link)" ;
+    rdfs:range xsd:string ;
+    rdfs:domain sec:AuditEvent ;
+    spec:constraint "SHA256(E_n-1_payload || E_n-1_signature), links to predecessor" .
+
+sec:AuditSearchIndex a rdfs:Class ;
+    rdfs:label "Audit Search Index" ;
+    rdfs:comment "Fast-lookup index over audit events" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:property sec:indexName, sec:indexedFields, sec:cardinality, sec:queryLatencySLA .
+
+sec:ComplianceReport a rdfs:Class ;
+    rdfs:label "Compliance Report" ;
+    rdfs:comment "Generated evidence for external auditor" ;
+    rdfs:subClassOf spec:Entity ;
+    spec:property sec:reportType, sec:generatedAt, sec:generatedBy, sec:period, sec:eventCount, sec:reportHash, sec:reportSignature .
+
+sec:reportType a rdf:Property ;
+    rdfs:label "Report Type" ;
+    rdfs:range sec:ReportTypeEnum ;
+    rdfs:domain sec:ComplianceReport ;
+    spec:values "soc2_change_log, soc2_access_log, hipaa_phi_access_log, gdpr_data_processing_log, gdpr_data_subject_request_log, incident_forensics_report" .
+
+# ============================================================================
+# DESIGN DECISIONS
+# ============================================================================
+
+:DD_EventChainHashing a spec:DesignDecision ;
+    rdfs:label "Use blockchain-style event chain hashing for tamper detection" ;
+    spec:rationale "Each event links to predecessor via hash; modifying any event breaks all downstream hashes, making tampering obvious" ;
+    spec:consequence "Must maintain integrity of hash chain; corruption recovery requires manual intervention" ;
+    spec:aligns sec:TamperProofArchitecture .
+
+:DD_HMACoverAsymmetric a spec:DesignDecision ;
+    rdfs:label "Use HMAC-SHA256 instead of asymmetric signatures for performance" ;
+    spec:rationale "HMAC 100x faster than RSA signing; sufficient for internal audit (server verifies, not third parties)" ;
+    spec:consequence "Requires secure key management; compromise of signing key can forge events" ;
+    spec:aligns sec:PerformanceBudget_SubMillisecond .
+
+:DD_AuditStorageImmutable a spec:DesignDecision ;
+    rdfs:label "Audit logs stored in append-only database with no update/delete operations" ;
+    spec:rationale "Prevents accidental/intentional modification; database enforces immutability at storage layer" ;
+    spec:consequence "Requires DELETE capability for GDPR right-to-be-forgotten (handled separately with anonymization)" ;
+    spec:aligns sec:ImmutabilityRequirement .
+
+:DD_AuditRetentionTiered a spec:DesignDecision ;
+    rdfs:label "Tiered audit retention: hot (90 days in PostgreSQL), cold (7 years in S3 glacier)" ;
+    spec:rationale "Hot queries fast (indexed), historical queries slower (acceptable), cost-effective long-term storage" ;
+    spec:consequence "Migration from hot to cold happens at 90-day boundary; must account for archival latency" ;
+    spec:aligns sec:CostOptimization .
+
+:DD_ComplianceReportAutomation a spec:DesignDecision ;
+    rdfs:label "Automate compliance report generation from audit trail" ;
+    spec:rationale "Reduces manual work, ensures consistency, provides evidence of continuous monitoring" ;
+    spec:consequence "Report templates must be reviewed by external auditor annually" ;
+    spec:aligns sec:ComplianceExecution .
+
+# ============================================================================
+# CONSTRAINTS & VALIDATION
+# ============================================================================
+
+:Constraint_AuditEventCompleteness a spec:Constraint ;
+    rdfs:label "Audit Event Completeness" ;
+    spec:rule "Every event must have all mandatory fields: event_id, timestamp, actor_user_id, action, resource_type, resource_id, result, signature" ;
+    spec:severity spec:Must ;
+    spec:testable true .
+
+:Constraint_SignatureVerification a spec:Constraint ;
+    rdfs:label "Signature Verification" ;
+    spec:rule "Every event signature must verify against known signing_key for key_version; failed verification triggers security alert" ;
+    spec:severity spec:Must ;
+    spec:testable true .
+
+:Constraint_ChainIntegrity a spec:Constraint ;
+    rdfs:label "Chain Hash Integrity" ;
+    spec:rule "Every event.previous_hash must equal SHA256(E_n-1_payload || E_n-1_signature); missing or mismatched hash indicates tampering" ;
+    spec:severity spec:Must ;
+    spec:testable true .
+
+:Constraint_NoAuditGaps a spec:Constraint ;
+    rdfs:label "No Audit Event Gaps" ;
+    spec:rule "Sequence of event_ids must be contiguous; gaps detected automatically" ;
+    spec:severity spec:Should ;
+    spec:testable true .
+
+:Constraint_TimestampAccuracy a spec:Constraint ;
+    rdfs:label "Timestamp Accuracy" ;
+    spec:rule "Event timestamp must be within 100ms of actual occurrence time (NTP-synchronized)" ;
+    spec:severity spec:Should ;
+    spec:testable true .
+
+:Constraint_RetentionCompliance a spec:Constraint ;
+    rdfs:label "Retention Policy Compliance" ;
+    spec:rule "HIPAA events retained 6+ years, GDPR events retained until 30 days after deletion, SOC 2 events retained 3 years minimum" ;
+    spec:severity spec:Must ;
+    spec:testable true .
+
+# ============================================================================
+# AUDIT EVENT TYPES
+# ============================================================================
+
+:EventType_UserLogin a sec:EventTypeEnum ;
+    rdfs:label "User Login" ;
+    spec:requiredFields sec:userId, sec:idpUsed, sec:mfaResult, sec:clientIp ;
+    spec:auditClass "AuthenticationEvent" .
+
+:EventType_DataDelete a sec:EventTypeEnum ;
+    rdfs:label "Data Deletion (GDPR)" ;
+    spec:requiredFields sec:userId, sec:recordCount, sec:purpose, sec:deleteMethod ;
+    spec:auditClass "DataGovernanceEvent" .
+
+:EventType_RoleAssign a sec:EventTypeEnum ;
+    rdfs:label "Role Assignment" ;
+    spec:requiredFields sec:targetUserId, sec:roleName, sec:grantedBy, sec:reason ;
+    spec:auditClass "AccessControlEvent" .
+
+:EventType_AdminAction a sec:EventTypeEnum ;
+    rdfs:label "Administrative Action" ;
+    spec:requiredFields sec:userId, sec:actionType, sec:configurationChanges, sec:approver ;
+    spec:auditClass "PrivilegedActionEvent" .

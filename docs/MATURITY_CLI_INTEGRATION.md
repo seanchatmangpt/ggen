@@ -1,34 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Marketplace Maturity Matrix - CLI Integration Guide](#marketplace-maturity-matrix---cli-integration-guide)
-  - [Overview](#overview)
-  - [New CLI Commands](#new-cli-commands)
-    - [`ggen marketplace maturity`](#ggen-marketplace-maturity)
-    - [`ggen marketplace dashboard`](#ggen-marketplace-dashboard)
-    - [`ggen marketplace list` (Enhanced)](#ggen-marketplace-list-enhanced)
-    - [`ggen marketplace validate` (Enhanced)](#ggen-marketplace-validate-enhanced)
-    - [`ggen marketplace maturity-batch`](#ggen-marketplace-maturity-batch)
-  - [Integration Patterns](#integration-patterns)
-    - [Pattern 1: CI/CD Gate for Package Publishing](#pattern-1-cicd-gate-for-package-publishing)
-    - [Pattern 2: Monthly Maturity Report](#pattern-2-monthly-maturity-report)
-    - [Pattern 3: Package Improvement Tracking](#pattern-3-package-improvement-tracking)
-    - [Pattern 4: Marketplace Quality Dashboard](#pattern-4-marketplace-quality-dashboard)
-    - [Pattern 5: Maturity-Based Recommendations](#pattern-5-maturity-based-recommendations)
-  - [Integration with DevOps](#integration-with-devops)
-    - [Pre-Release Checklist](#pre-release-checklist)
-  - [Integration with RevOps](#integration-with-revops)
-    - [Quarterly Business Review (QBR)](#quarterly-business-review-qbr)
-  - [Integration with GTM](#integration-with-gtm)
-    - [Feature Production Packages](#feature-production-packages)
-  - [Dashboard Customization](#dashboard-customization)
-    - [HTML Dashboard Template](#html-dashboard-template)
-  - [Best Practices](#best-practices)
-  - [Troubleshooting](#troubleshooting)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Marketplace Maturity Matrix - CLI Integration Guide
 
 ## Overview

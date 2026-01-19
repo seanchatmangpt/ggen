@@ -192,7 +192,7 @@ impl<T: Clone + Send + 'static> AgentStreamHandle<T> {
         self.central_sender
             .send(item.clone())
             .await
-            .map_err(|_| crate::error::GgenAiError::internal("Stream closed"))?;
+            .map_err(|_| crate::error::GgenAiError::stream_error("hyper_concurrent", "Stream closed"))?;
 
         // Send to local stream
         let _ = self.sender.send(item).await;
@@ -209,7 +209,7 @@ impl<T: Clone + Send + 'static> AgentStreamHandle<T> {
         self.central_sender
             .send(item.clone())
             .await
-            .map_err(|_| crate::error::GgenAiError::internal("Stream closed"))?;
+            .map_err(|_| crate::error::GgenAiError::stream_error("hyper_concurrent", "Stream closed"))?;
 
         let _ = self.sender.send(item).await;
 

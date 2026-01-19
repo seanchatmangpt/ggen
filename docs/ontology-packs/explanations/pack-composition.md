@@ -1,21 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Understanding Pack Composition and Dependencies](#understanding-pack-composition-and-dependencies)
-  - [Why Composition?](#why-composition)
-  - [Composition Strategies](#composition-strategies)
-    - [1. Union (Combine All)](#1-union-combine-all)
-    - [2. Intersection (Common Only)](#2-intersection-common-only)
-    - [3. Extend (Base + Additions)](#3-extend-base--additions)
-  - [Handling Conflicts](#handling-conflicts)
-    - [Name Conflicts](#name-conflicts)
-    - [Property Conflicts](#property-conflicts)
-  - [Dependencies](#dependencies)
-  - [Related Explanations](#related-explanations)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Understanding Pack Composition and Dependencies
 
 Deep dive into how multiple ontologies work together.

@@ -1,0 +1,599 @@
+@prefix : <http://ggen.example.org/process#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fibo-fnd: <https://spec.edmcouncil.org/fibo/ontology/FND/> .
+
+# ============================================================================
+# CORE PROCESS DOMAIN ENTITIES
+# ============================================================================
+
+:Process a rdfs:Class ;
+    rdfs:label "Process" ;
+    rdfs:comment "A repeatable sequence of tasks, gates, decisions, and phases that achieve business outcomes" ;
+    rdfs:subClassOf fibo-fnd:ActivitiesAndProcesses ;
+    owl:equivalentClass [ a owl:Class ; owl:unionOf (:Process_Operational :Process_Strategic :Process_Support) ] ;
+    rdfs:isDefinedBy : .
+
+:Process_Operational a rdfs:Class ;
+    rdfs:label "Operational Process" ;
+    rdfs:comment "Daily, high-frequency processes (e.g., park opening, shift change)" ;
+    rdfs:subClassOf :Process .
+
+:Process_Strategic a rdfs:Class ;
+    rdfs:label "Strategic Process" ;
+    rdfs:comment "Annual or major lifecycle processes (e.g., capacity planning, budgeting)" ;
+    rdfs:subClassOf :Process .
+
+:Process_Support a rdfs:Class ;
+    rdfs:label "Support Process" ;
+    rdfs:comment "Enabling processes (e.g., HR onboarding, equipment ordering)" ;
+    rdfs:subClassOf :Process .
+
+# ============================================================================
+# PHASE & SEQUENCING ENTITIES
+# ============================================================================
+
+:Phase a rdfs:Class ;
+    rdfs:label "Process Phase" ;
+    rdfs:comment "A logical grouping of tasks within a process; can run sequentially or in parallel" ;
+    rdfs:range :Process ;
+    rdfs:isDefinedBy : .
+
+:Sequence a rdfs:Class ;
+    rdfs:label "Sequence Ordering" ;
+    rdfs:comment "Defines task or phase ordering relationships (sequential, parallel, conditional)" ;
+    rdfs:isDefinedBy : .
+
+:SequenceType a rdfs:Class ;
+    rdfs:label "Sequence Type" ;
+    rdfs:comment "Type of ordering: Sequential, Parallel, Conditional, Or" ;
+    owl:oneOf ( :Sequential :Parallel :Conditional :OrSequence ) .
+
+:Sequential a :SequenceType ;
+    rdfs:label "Sequential" ;
+    rdfs:comment "Task B cannot start until Task A completes" .
+
+:Parallel a :SequenceType ;
+    rdfs:label "Parallel" ;
+    rdfs:comment "Tasks can execute simultaneously; no dependency" .
+
+:Conditional a :SequenceType ;
+    rdfs:label "Conditional" ;
+    rdfs:comment "Task B only executes if condition from Task A is met" .
+
+:OrSequence a :SequenceType ;
+    rdfs:label "Or Sequence" ;
+    rdfs:comment "Task B starts after Task A OR Task C completes (any one)" .
+
+# ============================================================================
+# TASK & WORK UNIT ENTITIES
+# ============================================================================
+
+:Task a rdfs:Class ;
+    rdfs:label "Task" ;
+    rdfs:comment "Atomic unit of work; assigned to one or more actors; has acceptance criteria and estimated duration" ;
+    rdfs:isDefinedBy : .
+
+:TaskStatus a rdfs:Class ;
+    rdfs:label "Task Status" ;
+    owl:oneOf ( :Pending :InProgress :Blocked :Complete :Failed ) .
+
+:Pending a :TaskStatus ;
+    rdfs:label "Pending" ;
+    rdfs:comment "Task not yet started; prerequisites not met" .
+
+:InProgress a :TaskStatus ;
+    rdfs:label "In Progress" ;
+    rdfs:comment "Task actively being executed" .
+
+:Blocked a :TaskStatus ;
+    rdfs:label "Blocked" ;
+    rdfs:comment "Task cannot proceed; dependency or blocker exists" .
+
+:Complete a :TaskStatus ;
+    rdfs:label "Complete" ;
+    rdfs:comment "Task finished successfully; acceptance criteria met" .
+
+:Failed a :TaskStatus ;
+    rdfs:label "Failed" ;
+    rdfs:comment "Task failed; requires rework or escalation" .
+
+:SubTask a rdfs:Class ;
+    rdfs:label "Sub-Task" ;
+    rdfs:comment "Smaller unit within a task; supports granular tracking" ;
+    rdfs:subClassOf :Task .
+
+# ============================================================================
+# GATE & DECISION ENTITIES
+# ============================================================================
+
+:Gate a rdfs:Class ;
+    rdfs:label "Gate" ;
+    rdfs:comment "Mandatory control point that must be passed before proceeding; has clear pass/fail criteria" ;
+    rdfs:isDefinedBy : .
+
+:GateType a rdfs:Class ;
+    rdfs:label "Gate Type" ;
+    owl:oneOf ( :SafetyGate :ComplianceGate :QualityGate :ApprovalGate ) .
+
+:SafetyGate a :GateType ;
+    rdfs:label "Safety Gate" ;
+    rdfs:comment "Gate assessing safety conditions and certifications" .
+
+:ComplianceGate a :GateType ;
+    rdfs:label "Compliance Gate" ;
+    rdfs:comment "Gate assessing regulatory or policy compliance" .
+
+:QualityGate a :GateType ;
+    rdfs:label "Quality Gate" ;
+    rdfs:comment "Gate assessing quality, performance, or operational readiness" .
+
+:ApprovalGate a :GateType ;
+    rdfs:label "Approval Gate" ;
+    rdfs:comment "Gate requiring authorization from decision maker" .
+
+:Decision a rdfs:Class ;
+    rdfs:label "Decision Point" ;
+    rdfs:comment "Binary or multi-option choice made by gatekeeper; influences process flow" ;
+    rdfs:isDefinedBy : .
+
+:DecisionOutcome a rdfs:Class ;
+    rdfs:label "Decision Outcome" ;
+    owl:oneOf ( :DecisionPass :DecisionFail :DecisionEscalate :DecisionDefer ) .
+
+:DecisionPass a :DecisionOutcome ;
+    rdfs:label "Pass" ;
+    rdfs:comment "Criteria met; proceed with normal path" .
+
+:DecisionFail a :DecisionOutcome ;
+    rdfs:label "Fail" ;
+    rdfs:comment "Criteria not met; trigger failure path (isolation, escalation, rework)" .
+
+:DecisionEscalate a :DecisionOutcome ;
+    rdfs:label "Escalate" ;
+    rdfs:comment "Ambiguous or exception case; escalate to higher authority" .
+
+:DecisionDefer a :DecisionOutcome ;
+    rdfs:label "Defer" ;
+    rdfs:comment "Decision deferred pending additional information" .
+
+# ============================================================================
+# ACTOR & ROLE ENTITIES
+# ============================================================================
+
+:Role a rdfs:Class ;
+    rdfs:label "Role" ;
+    rdfs:comment "A position or responsibility; can be filled by one or more people; has skills, certifications, system access" ;
+    rdfs:isDefinedBy : .
+
+:Actor a rdfs:Class ;
+    rdfs:label "Actor" ;
+    rdfs:comment "A person, team, or system that executes tasks or gates within a process" ;
+    rdfs:isDefinedBy : .
+
+:Department a rdfs:Class ;
+    rdfs:label "Department" ;
+    rdfs:comment "Organizational unit grouping related roles" ;
+    rdfs:isDefinedBy : .
+
+:Skill a rdfs:Class ;
+    rdfs:label "Skill" ;
+    rdfs:comment "Required competency for a role (technical, behavioral, domain)" ;
+    rdfs:isDefinedBy : .
+
+:Certification a rdfs:Class ;
+    rdfs:label "Certification" ;
+    rdfs:comment "Formal credential required for a role (license, training, background check)" ;
+    rdfs:isDefinedBy : .
+
+:SystemAccess a rdfs:Class ;
+    rdfs:label "System Access" ;
+    rdfs:comment "Permission to interact with a system (read, write, admin)" ;
+    rdfs:isDefinedBy : .
+
+# ============================================================================
+# SYSTEM INTEGRATION ENTITIES
+# ============================================================================
+
+:SystemIntegration a rdfs:Class ;
+    rdfs:label "System Integration Point" ;
+    rdfs:comment "Connection to external system (HR, asset, communication, control system)" ;
+    rdfs:isDefinedBy : .
+
+:IntegrationPattern a rdfs:Class ;
+    rdfs:label "Integration Pattern" ;
+    owl:oneOf ( :ReadOnly :WriteOnly :ReadWrite :EventStream :Batch ) .
+
+:ReadOnly a :IntegrationPattern ;
+    rdfs:label "Read Only" ;
+    rdfs:comment "Process reads data from system; no write-back" .
+
+:WriteOnly a :IntegrationPattern ;
+    rdfs:label "Write Only" ;
+    rdfs:comment "Process writes data to system; no feedback loop" .
+
+:ReadWrite a :IntegrationPattern ;
+    rdfs:label "Read Write" ;
+    rdfs:comment "Bidirectional data flow between process and system" .
+
+:EventStream a :IntegrationPattern ;
+    rdfs:label "Event Stream" ;
+    rdfs:comment "Continuous stream of events from system (sensors, logs, feeds)" .
+
+:Batch a :IntegrationPattern ;
+    rdfs:label "Batch" ;
+    rdfs:comment "Periodic data synchronization (nightly, hourly)" .
+
+:CriticalityLevel a rdfs:Class ;
+    rdfs:label "Criticality Level" ;
+    owl:oneOf ( :CriticalityHIGH :CriticalityMedium :CriticalityLow ) .
+
+:CriticalityHIGH a :CriticalityLevel ;
+    rdfs:label "Critical" ;
+    rdfs:comment "System failure blocks process; no manual workaround" .
+
+:CriticalityMedium a :CriticalityLevel ;
+    rdfs:label "Medium" ;
+    rdfs:comment "System failure causes delay; partial manual workaround available" .
+
+:CriticalityLow a :CriticalityLevel ;
+    rdfs:label "Low" ;
+    rdfs:comment "System failure has minor impact; full manual workaround available" .
+
+:RollbackStrategy a rdfs:Class ;
+    rdfs:label "Rollback Strategy" ;
+    rdfs:comment "Contingency procedure if system fails; manual process, failover system, or degrade mode" ;
+    rdfs:isDefinedBy : .
+
+# ============================================================================
+# SUCCESS CRITERIA & METRICS ENTITIES
+# ============================================================================
+
+:SuccessCriteria a rdfs:Class ;
+    rdfs:label "Success Criteria" ;
+    rdfs:comment "Observable, measurable conditions that must be met for process success" ;
+    rdfs:isDefinedBy : .
+
+:MetricType a rdfs:Class ;
+    rdfs:label "Metric Type" ;
+    owl:oneOf ( :SafetyMetric :TimeMetric :QualityMetric :ComplianceMetric :CostMetric ) .
+
+:SafetyMetric a :MetricType ;
+    rdfs:label "Safety Metric" ;
+    rdfs:comment "Measures safety outcomes (zero incidents, certifications current)" .
+
+:TimeMetric a :MetricType ;
+    rdfs:label "Time Metric" ;
+    rdfs:comment "Measures duration, timeliness, latency" .
+
+:QualityMetric a :MetricType ;
+    rdfs:label "Quality Metric" ;
+    rdfs:comment "Measures operational quality, performance, efficiency" .
+
+:ComplianceMetric a :MetricType ;
+    rdfs:label "Compliance Metric" ;
+    rdfs:comment "Measures regulatory or policy adherence" .
+
+:CostMetric a :MetricType ;
+    rdfs:label "Cost Metric" ;
+    rdfs:comment "Measures resource consumption, cost efficiency" .
+
+# ============================================================================
+# RISK & MITIGATION ENTITIES
+# ============================================================================
+
+:RiskAssessment a rdfs:Class ;
+    rdfs:label "Risk Assessment" ;
+    rdfs:comment "Formal FMEA-style risk analysis with severity, probability, RPN, mitigation" ;
+    rdfs:isDefinedBy : .
+
+:RiskItem a rdfs:Class ;
+    rdfs:label "Risk Item" ;
+    rdfs:comment "A potential failure mode or adverse event" ;
+    rdfs:isDefinedBy : .
+
+:Severity a rdfs:Class ;
+    rdfs:label "Severity" ;
+    rdfs:comment "Impact magnitude if risk occurs (1-10 scale)" ;
+    rdfs:range xsd:integer .
+
+:Probability a rdfs:Class ;
+    rdfs:label "Probability" ;
+    rdfs:comment "Likelihood of risk occurring (1-10 scale)" ;
+    rdfs:range xsd:integer .
+
+:RPN a rdfs:Class ;
+    rdfs:label "Risk Priority Number" ;
+    rdfs:comment "Severity × Probability; prioritizes mitigation efforts" ;
+    rdfs:range xsd:integer .
+
+:Mitigation a rdfs:Class ;
+    rdfs:label "Mitigation Strategy" ;
+    rdfs:comment "Action to reduce severity or probability" ;
+    rdfs:isDefinedBy : .
+
+# ============================================================================
+# PROCESS GOVERNANCE ENTITIES
+# ============================================================================
+
+:ProcessMetadata a rdfs:Class ;
+    rdfs:label "Process Metadata" ;
+    rdfs:comment "Governance information: owner, approval status, review cadence, version" ;
+    rdfs:isDefinedBy : .
+
+:ApprovalStatus a rdfs:Class ;
+    rdfs:label "Approval Status" ;
+    owl:oneOf ( :Draft :PendingReview :Approved :InProduction :Retired ) .
+
+:Draft a :ApprovalStatus ;
+    rdfs:label "Draft" ;
+    rdfs:comment "Process specification incomplete or not yet reviewed" .
+
+:PendingReview a :ApprovalStatus ;
+    rdfs:label "Pending Review" ;
+    rdfs:comment "Specification complete; awaiting stakeholder approval" .
+
+:Approved a :ApprovalStatus ;
+    rdfs:label "Approved" ;
+    rdfs:comment "Specification approved by governance board" .
+
+:InProduction a :ApprovalStatus ;
+    rdfs:label "In Production" ;
+    rdfs:comment "Process actively executing in production environment" .
+
+:Retired a :ApprovalStatus ;
+    rdfs:label "Retired" ;
+    rdfs:comment "Process no longer used; archived for historical reference" .
+
+:ProcessOwner a rdfs:Class ;
+    rdfs:label "Process Owner" ;
+    rdfs:comment "Executive accountable for process design, performance, compliance" ;
+    rdfs:subClassOf :Role ;
+    rdfs:isDefinedBy : .
+
+:BusinessOwner a rdfs:Class ;
+    rdfs:label "Business Owner" ;
+    rdfs:comment "Senior manager defining business requirements for process" ;
+    rdfs:subClassOf :Role ;
+    rdfs:isDefinedBy : .
+
+:ProcessAdmin a rdfs:Class ;
+    rdfs:label "Process Administrator" ;
+    rdfs:comment "Day-to-day executor; handles exceptions, escalations, metrics" ;
+    rdfs:subClassOf :Role ;
+    rdfs:isDefinedBy : .
+
+# ============================================================================
+# ASSUMPTION & VALIDATION ENTITIES
+# ============================================================================
+
+:AssumptionSet a rdfs:Class ;
+    rdfs:label "Assumption Set" ;
+    rdfs:comment "Collection of assumptions made during process design; to be validated by stakeholders" ;
+    rdfs:isDefinedBy : .
+
+:Assumption a rdfs:Class ;
+    rdfs:label "Assumption" ;
+    rdfs:comment "Belief about process context, timing, resources, or environment" ;
+    rdfs:isDefinedBy : .
+
+:ValidationStatus a rdfs:Class ;
+    rdfs:label "Validation Status" ;
+    owl:oneOf ( :Unvalidated :ValidatedByOps :ValidatedByAudit :ValidatedByExecutive ) .
+
+:Unvalidated a :ValidationStatus ;
+    rdfs:label "Unvalidated" ;
+    rdfs:comment "Assumption not yet verified against reality" .
+
+:ValidatedByOps a :ValidationStatus ;
+    rdfs:label "Validated by Operations" ;
+    rdfs:comment "Operations team confirmed assumption matches actual process" .
+
+:ValidatedByAudit a :ValidationStatus ;
+    rdfs:label "Validated by Audit" ;
+    rdfs:comment "Compliance/audit team verified assumption" .
+
+:ValidatedByExecutive a :ValidationStatus ;
+    rdfs:label "Validated by Executive" ;
+    rdfs:comment "Executive sponsor confirmed assumption" .
+
+# ============================================================================
+# PROPERTIES & RELATIONSHIPS
+# ============================================================================
+
+# Process Properties
+:hasPhase a rdf:Property ;
+    rdfs:label "has Phase" ;
+    rdfs:domain :Process ;
+    rdfs:range :Phase .
+
+:hasTask a rdf:Property ;
+    rdfs:label "has Task" ;
+    rdfs:domain [ owl:unionOf (:Process :Phase) ] ;
+    rdfs:range :Task .
+
+:hasGate a rdf:Property ;
+    rdfs:label "has Gate" ;
+    rdfs:domain :Process ;
+    rdfs:range :Gate .
+
+:businessOwner a rdf:Property ;
+    rdfs:label "business Owner" ;
+    rdfs:domain :Process ;
+    rdfs:range :Role .
+
+:executiveOwner a rdf:Property ;
+    rdfs:label "executive Owner" ;
+    rdfs:domain :Process ;
+    rdfs:range :Role .
+
+# Task Properties
+:actor a rdf:Property ;
+    rdfs:label "actor" ;
+    rdfs:domain :Task ;
+    rdfs:range [ owl:unionOf (:Role :Actor :SystemIntegration) ] .
+
+:durationMinutes a rdf:Property ;
+    rdfs:label "duration (minutes)" ;
+    rdfs:domain :Task ;
+    rdfs:range xsd:integer .
+
+:dependsOnTask a rdf:Property ;
+    rdfs:label "depends On Task" ;
+    rdfs:domain :Task ;
+    rdfs:range :Task .
+
+:gatingPhase a rdf:Property ;
+    rdfs:label "gating Phase" ;
+    rdfs:domain :Task ;
+    rdfs:range :Phase .
+
+:gatingGate a rdf:Property ;
+    rdfs:label "gating Gate" ;
+    rdfs:domain :Task ;
+    rdfs:range :Gate .
+
+:successCriteria a rdf:Property ;
+    rdfs:label "success Criteria" ;
+    rdfs:domain [ owl:unionOf (:Task :Gate :Process) ] ;
+    rdfs:range xsd:string .
+
+:sequenceNumber a rdf:Property ;
+    rdfs:label "sequence Number" ;
+    rdfs:domain [ owl:unionOf (:Phase :Task) ] ;
+    rdfs:range xsd:float .
+
+# Gate Properties
+:gateKeeper a rdf:Property ;
+    rdfs:label "gate Keeper" ;
+    rdfs:domain :Gate ;
+    rdfs:range :Role .
+
+:passCondition a rdf:Property ;
+    rdfs:label "pass Condition" ;
+    rdfs:domain :Gate ;
+    rdfs:range xsd:string .
+
+:failureAction a rdf:Property ;
+    rdfs:label "failure Action" ;
+    rdfs:domain :Gate ;
+    rdfs:range xsd:string .
+
+:evidenceRequired a rdf:Property ;
+    rdfs:label "evidence Required" ;
+    rdfs:domain :Gate ;
+    rdfs:range xsd:string .
+
+:integrationPoint a rdf:Property ;
+    rdfs:label "integration Point" ;
+    rdfs:domain [ owl:unionOf (:Process :Phase :Task :Gate) ] ;
+    rdfs:range :SystemIntegration .
+
+# System Integration Properties
+:integrationPattern a rdf:Property ;
+    rdfs:label "integration Pattern" ;
+    rdfs:domain :SystemIntegration ;
+    rdfs:range :IntegrationPattern .
+
+:dataFrequency a rdf:Property ;
+    rdfs:label "data Frequency" ;
+    rdfs:domain :SystemIntegration ;
+    rdfs:range xsd:string .
+
+:APIendpoint a rdf:Property ;
+    rdfs:label "API endpoint" ;
+    rdfs:domain :SystemIntegration ;
+    rdfs:range xsd:string .
+
+:criticality a rdf:Property ;
+    rdfs:label "criticality" ;
+    rdfs:domain :SystemIntegration ;
+    rdfs:range :CriticalityLevel .
+
+# Risk Properties
+:severity a rdf:Property ;
+    rdfs:label "severity" ;
+    rdfs:domain :RiskItem ;
+    rdfs:range xsd:integer .
+
+:probability a rdf:Property ;
+    rdfs:label "probability" ;
+    rdfs:domain :RiskItem ;
+    rdfs:range xsd:integer .
+
+:rpn a rdf:Property ;
+    rdfs:label "risk Priority Number" ;
+    rdfs:domain :RiskItem ;
+    rdfs:range xsd:integer .
+
+:mitigation a rdf:Property ;
+    rdfs:label "mitigation" ;
+    rdfs:domain :RiskItem ;
+    rdfs:range xsd:string .
+
+:mitigationOwner a rdf:Property ;
+    rdfs:label "mitigation Owner" ;
+    rdfs:domain :RiskItem ;
+    rdfs:range :Role .
+
+# Role & Actor Properties
+:hasSkill a rdf:Property ;
+    rdfs:label "has Skill" ;
+    rdfs:domain :Role ;
+    rdfs:range :Skill .
+
+:hasCertification a rdf:Property ;
+    rdfs:label "has Certification" ;
+    rdfs:domain :Role ;
+    rdfs:range :Certification .
+
+:hasSystemAccess a rdf:Property ;
+    rdfs:label "has System Access" ;
+    rdfs:domain :Role ;
+    rdfs:range :SystemIntegration .
+
+:department a rdf:Property ;
+    rdfs:label "department" ;
+    rdfs:domain :Role ;
+    rdfs:range :Department .
+
+:reportingLine a rdf:Property ;
+    rdfs:label "reporting Line" ;
+    rdfs:domain :Role ;
+    rdfs:range :Role .
+
+# Assumption Properties
+:assumption a rdf:Property ;
+    rdfs:label "assumption" ;
+    rdfs:domain [ owl:unionOf (:Process :Phase :Task) ] ;
+    rdfs:range xsd:string .
+
+:validationStatus a rdf:Property ;
+    rdfs:label "validation Status" ;
+    rdfs:domain :Assumption ;
+    rdfs:range :ValidationStatus .
+
+# ============================================================================
+# CARDINALITY & CONSTRAINTS
+# ============================================================================
+
+:Process
+    owl:hasKey ( :processNumber ) .
+
+:Task
+    owl:maxCardinality 1 [ owl:onProperty :gatingPhase ] ;
+    owl:minCardinality 1 [ owl:onProperty :successCriteria ] .
+
+:Gate
+    owl:minCardinality 1 [ owl:onProperty :gateKeeper ] ;
+    owl:minCardinality 1 [ owl:onProperty :passCondition ] ;
+    owl:minCardinality 1 [ owl:onProperty :failureAction ] .
+
+:Role
+    owl:minCardinality 1 [ owl:onProperty :department ] .
+
+:SystemIntegration
+    owl:minCardinality 1 [ owl:onProperty :integrationPattern ] ;
+    owl:minCardinality 1 [ owl:onProperty :criticality ] .

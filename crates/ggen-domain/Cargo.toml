@@ -1,6 +1,6 @@
 [package]
 name = "ggen-domain"
-version = "5.1.0"
+version = "0.2.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Domain logic layer for ggen - pure business logic without CLI dependencies"
 edition = "2021"
@@ -23,12 +23,10 @@ thiserror = { workspace = true }
 
 # Local infrastructure dependencies (use workspace = true pattern)
 ggen-core.workspace = true
+ggen-ai.workspace = true
 ggen-utils.workspace = true
-ggen-marketplace.workspace = true
-# NOTE: ggen-config NOT included to avoid cyclic dependency
-# Config types are defined locally in src/generation/ modules
+ggen-marketplace-v2 = { path = "../ggen-marketplace-v2", version = "3.0.0" }
 
-# NOTE: ggen-marketplace deferred to v4.0.0 via optional feature
 # Crate-specific dependencies
 tera = { workspace = true }
 toml = { workspace = true }
@@ -56,12 +54,8 @@ async-trait = "0.1"
 # Domain must be CLI-agnostic
 
 [features]
+# Marketplace v2 only (RDF-backed semantic marketplace)
 default = []
-# AI integration (LLM providers: OpenAI, Anthropic, Ollama, etc.)
-# Planned for v5.1+ - ggen-ai is excluded from v5.0.2 build
-ai = []
-# EXPERIMENTAL: Marketplace v2 (planned for v4.0.0)
-marketplace-v2 = []
 
 [dev-dependencies]
 assert_cmd = "2"
@@ -69,12 +63,8 @@ assert_fs = "1"
 predicates = "3"
 tempfile = { workspace = true }
 tokio-test = "0.4"
-chicago-tdd-tools = { version = "1.4.0", features = [
-  "testing-extras",
-  "async",
-] }
+chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras"] }
 criterion = { version = "0.7", features = ["html_reports"] }
-serial_test = "3.2"
 
 [[bench]]
 name = "swarm_primitives"

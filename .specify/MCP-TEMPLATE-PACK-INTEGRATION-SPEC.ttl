@@ -1,0 +1,611 @@
+@prefix chatman: <https://chatmangpt.io/ontology/> .
+@prefix ggen: <https://ggen.io/ontology/> .
+@prefix mcp: <https://modelcontextprotocol.io/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# ChatmanGPT MCP Template Pack Integration Specification
+# ============================================================================
+# Core Thesis:
+# ggen is a compiler for MCP proposal generation. It takes enterprise ontology
+# (O) + provider surface (Σ_provider) + manufacturing ontology (Σ_factory) and
+# produces deterministic, reviewable, receipted MCP packages.
+#
+# The "propose-not-execute" safety theorem prevents 80% of integration disasters.
+# ============================================================================
+
+# The Integration Doctrine (Immutable)
+chatman:IntegrationDoctrine a ggen:Ontology ;
+  rdfs:comment "System can only emit proposals, receipts, guards, and runbooks. Never direct mutations." ;
+  ggen:constrains [
+    rdf:value "No irreversible mutation against enterprise internals without approval outside runtime" ;
+    ggen:prevents "unreviewed destructive actions, automation optimism, irreversible drift, implicit policy violations"
+  ] .
+
+# ============================================================================
+# 1. Build Inputs: Three Ontologies (The Stable Interface)
+# ============================================================================
+
+# (A) Enterprise Ontology (O)
+chatman:EnterpriseOntology a ggen:OntologyLayer ;
+  rdfs:label "Enterprise Reality Graph" ;
+  rdfs:comment "The customer's domain model: apps, workflows, identities, queues, owners, policies, data classes" ;
+  ggen:hasEntity [
+    a ggen:EntityClass ;
+    rdfs:label "App" ;
+    ggen:properties ("name" "owner" "dataClass" "approvalChain")
+  ] ;
+  ggen:hasEntity [
+    a ggen:EntityClass ;
+    rdfs:label "Workflow" ;
+    ggen:properties ("name" "steps" "manualGates" "dataInputs" "approvals")
+  ] ;
+  ggen:hasEntity [
+    a ggen:EntityClass ;
+    rdfs:label "Identity" ;
+    ggen:properties ("id" "role" "permissions" "constraints")
+  ] ;
+  ggen:hasEntity [
+    a ggen:EntityClass ;
+    rdfs:label "Queue" ;
+    ggen:properties ("name" "service" "throughput" "retention")
+  ] ;
+  ggen:hasEntity [
+    a ggen:EntityClass ;
+    rdfs:label "Policy" ;
+    ggen:properties ("name" "enforcedOn" "constraints" "exceptions")
+  ] .
+
+# (B) Provider Surface (Σ_provider)
+chatman:ProviderSurface a ggen:OntologyLayer ;
+  rdfs:label "Cloud Provider Arteries" ;
+  rdfs:comment "AWS/Azure/GCP/SaaS as consumable operations, permissions, constraints" ;
+  ggen:supportsProvider "AWS" ;
+  ggen:supportsProvider "Azure" ;
+  ggen:supportsProvider "GCP" ;
+  ggen:hasOperation [
+    a ggen:ProviderOperation ;
+    rdfs:label "CreateRole" ;
+    ggen:provider "AWS" ;
+    ggen:requiredPermissions ("iam:CreateRole") ;
+    ggen:constraints ("NoPublicAssumeRole")
+  ] ;
+  ggen:hasOperation [
+    a ggen:ProviderOperation ;
+    rdfs:label "PutRolePolicy" ;
+    ggen:provider "AWS" ;
+    ggen:requiredPermissions ("iam:PutRolePolicy") ;
+    ggen:constraints ("PolicyBoundaryEnforced")
+  ] ;
+  ggen:hasOperation [
+    a ggen:ProviderOperation ;
+    rdfs:label "CreateEventBridgeRule" ;
+    ggen:provider "AWS" ;
+    ggen:requiredPermissions ("events:PutRule" "events:PutTargets") ;
+    ggen:constraints ("EncryptionRequired")
+  ] .
+
+# (C) Manufacturing Ontology (Σ_factory)
+chatman:ManufacturingOntology a ggen:OntologyLayer ;
+  rdfs:label "Factory Language" ;
+  rdfs:comment "The output language: Proposal, Guard, Receipt, Ticket, Runbook, Patch, IaC" ;
+  ggen:definesArtifact chatman:Proposal ;
+  ggen:definesArtifact chatman:Guard ;
+  ggen:definesArtifact chatman:Receipt ;
+  ggen:definesArtifact chatman:Ticket ;
+  ggen:definesArtifact chatman:Runbook ;
+  ggen:definesArtifact chatman:Patch ;
+  ggen:definesArtifact chatman:IaCModule .
+
+# The Stable Interface (The Compilation Target)
+chatman:CompilationTarget a ggen:Specification ;
+  rdfs:label "MCP Package Output Envelope" ;
+  rdfs:comment "O ⊔ Σ_provider ⊔ Σ_factory → A_MCP_package" ;
+  ggen:produces [
+    a mcp:Server ;
+    rdfs:label "MCP Proposal Server" ;
+    mcp:hasTools [] ;
+    mcp:hasResources [] ;
+    mcp:hasPrompts []
+  ] ;
+  ggen:produces [
+    a ggen:Artifact ;
+    rdfs:label "Infrastructure Module" ;
+    ggen:format "Terraform/CloudFormation/ARM"
+  ] ;
+  ggen:produces [
+    a ggen:Artifact ;
+    rdfs:label "CI Pipeline Configuration" ;
+    ggen:format "GitHub Actions/GitLab CI/Jenkins"
+  ] ;
+  ggen:produces [
+    a ggen:Artifact ;
+    rdfs:label "Receipt Chain" ;
+    ggen:format "JSON with cryptographic proof"
+  ] .
+
+# ============================================================================
+# 2. The 6 Extraction Queries (SPARQL-Based Feeders)
+# ============================================================================
+
+chatman:ExtractionQueries a ggen:QuerySet ;
+  rdfs:label "Minimum Viable Extraction Set" ;
+  rdfs:comment "SPARQL queries that feed MCP template generation" .
+
+# Q1: Entities → MCP Resources
+chatman:Q1_EntityExtraction a ggen:SparqlQuery ;
+  rdfs:label "What domain entities become MCP resources?" ;
+  ggen:outputShape [
+    a ggen:OutputShape ;
+    rdfs:label "Entity" ;
+    ggen:hasField ("name" "idShape" "properties" "constraints")
+  ] ;
+  ggen:producesFor "mcp-resources.tera" ;
+  ggen:produces mcp:Resource .
+
+# Q2: Integration Needs → Tools
+chatman:Q2_ToolExtraction a ggen:SparqlQuery ;
+  rdfs:label "What operations do we propose?" ;
+  ggen:outputShape [
+    a ggen:OutputShape ;
+    rdfs:label "Tool" ;
+    ggen:hasField ("name" "inputSchemaRef" "guardSet" "proposalShape")
+  ] ;
+  ggen:producesFor "mcp-tools.tera" ;
+  ggen:produces mcp:Tool .
+
+# Q3: Workflows → Prompts
+chatman:Q3_WorkflowExtraction a ggen:SparqlQuery ;
+  rdfs:label "What guided sequences exist?" ;
+  ggen:outputShape [
+    a ggen:OutputShape ;
+    rdfs:label "Workflow" ;
+    ggen:hasField ("name" "steps" "manualSteps" "approvals")
+  ] ;
+  ggen:producesFor "mcp-prompts.tera" ;
+  ggen:produces mcp:Prompt .
+
+# Q4: Guard Pack Bindings
+chatman:Q4_GuardBindings a ggen:SparqlQuery ;
+  rdfs:label "Which guards apply where?" ;
+  ggen:outputShape [
+    a ggen:OutputShape ;
+    rdfs:label "ToolGuardBinding" ;
+    ggen:hasField ("tool" "guards")
+  ] ;
+  ggen:producesFor "mcp-guards.tera" ;
+  ggen:produces chatman:Guard .
+
+# Q5: Provider Projection
+chatman:Q5_ProviderProjection a ggen:SparqlQuery ;
+  rdfs:label "Given tool X, what provider operations does it map onto?" ;
+  ggen:outputShape [
+    a ggen:OutputShape ;
+    rdfs:label "ProviderPlan" ;
+    ggen:hasField ("tool" "ops" "permissions" "constraints")
+  ] ;
+  ggen:producesFor "mcp-provider-plan.tera" ;
+  ggen:produces chatman:ProviderPlan .
+
+# Q6: Receipt Envelope
+chatman:Q6_ReceiptSchema a ggen:SparqlQuery ;
+  rdfs:label "What hashes + proofs bind this?" ;
+  ggen:outputShape [
+    a ggen:OutputShape ;
+    rdfs:label "ReceiptSchema" ;
+    ggen:hasField ("fields" "hashInputs" "proofSteps")
+  ] ;
+  ggen:producesFor "mcp-receipt.tera" ;
+  ggen:produces chatman:Receipt .
+
+# ============================================================================
+# 3. Tool Contract: "Tool = Proposal Constructor"
+# ============================================================================
+
+chatman:ToolContract a ggen:DesignPattern ;
+  rdfs:label "Proposal Constructor Pattern" ;
+  rdfs:comment "Tool output must be stable, reviewable, and never execute directly" .
+
+# Proposal Data Structure
+chatman:Proposal a ggen:DataStructure ;
+  rdfs:label "Proposal" ;
+  rdfs:comment "Tool output envelope containing computation closure but no execution" ;
+  ggen:hasField [
+    a ggen:Field ;
+    ggen:name "tool" ;
+    ggen:type "string" ;
+    ggen:description "Identifier of the tool that generated this proposal"
+  ] ;
+  ggen:hasField [
+    a ggen:Field ;
+    ggen:name "input" ;
+    ggen:type "any" ;
+    ggen:description "Validated input to the tool"
+  ] ;
+  ggen:hasField [
+    a ggen:Field ;
+    ggen:name "plan" ;
+    ggen:type "object" ;
+    ggen:description "Provider operations plan (NOT executed, only proposed)"
+  ] ;
+  ggen:hasField [
+    a ggen:Field ;
+    ggen:name "guards" ;
+    ggen:type "array<Guard>" ;
+    ggen:description "Guard evaluations with pass/fail status and proof"
+  ] ;
+  ggen:hasField [
+    a ggen:Field ;
+    ggen:name "receipt" ;
+    ggen:type "object" ;
+    ggen:description "Deterministic proof envelope with hashes and signatures"
+  ] ;
+  ggen:hasField [
+    a ggen:Field ;
+    ggen:name "status" ;
+    ggen:type "enum[proposed]" ;
+    ggen:description "Always 'proposed' - never 'executed' or 'applied'"
+  ] ;
+  ggen:hasField [
+    a ggen:Field ;
+    ggen:name "message" ;
+    ggen:type "string" ;
+    ggen:description "Human-readable summary: 'Review and approve to execute'"
+  ] ;
+  ggen:constraint [
+    rdfs:comment "Output must include stable serialization for receipt proof"
+  ] ;
+  ggen:constraint [
+    rdfs:comment "Output must never contain executed state changes"
+  ] .
+
+# Safety Boundary: This creates separation of concerns
+chatman:SafetyBoundary a ggen:DesignConstraint ;
+  rdfs:label "Proposal-Not-Execution Boundary" ;
+  rdfs:comment "System computes closure. Enterprise chooses execution." ;
+  ggen:prevents [
+    rdf:value "Unreviewed mutations" ;
+    ggen:severity "CRITICAL"
+  ] ;
+  ggen:prevents [
+    rdf:value "Credential exposure in MCP server" ;
+    ggen:severity "CRITICAL"
+  ] ;
+  ggen:prevents [
+    rdf:value "Blast radius without approval" ;
+    ggen:severity "HIGH"
+  ] .
+
+# ============================================================================
+# 4. Execution Adapter (OUTSIDE the MCP Server)
+# ============================================================================
+
+chatman:ExecutionAdapter a ggen:SystemComponent ;
+  rdfs:label "Enterprise Executor" ;
+  rdfs:comment "Runs in customer's CI/CD. Applies approved diffs. Owns blast radius." ;
+  ggen:ownership "Enterprise (not vendor)" ;
+  ggen:location "Customer's CI/CD pipeline" ;
+  ggen:responsibility "Apply approved proposals to cloud infrastructure" ;
+  ggen:privilege "Assumes customer's IAM credentials" ;
+  ggen:auditability "All actions are PR-able, reviewable, revertible" ;
+  ggen:prevents [
+    rdfs:comment "No credential sharing between vendor and customer"
+  ] ;
+  ggen:prevents [
+    rdfs:comment "No 'oops we deleted prod' scenarios"
+  ] ;
+  ggen:prevents [
+    rdfs:comment "All actions require approval before execution"
+  ] ;
+  ggen:enables [
+    rdfs:comment "Supply chain model: proposal → approval → execution"
+  ] .
+
+# Two-Program Separation (The Critical Architecture)
+chatman:TwoProgramModel a ggen:ArchitecturePattern ;
+  rdfs:label "Vendor-Customer Program Separation" ;
+  rdfs:comment "Eliminates integration disasters by removing vendor blast radius" ;
+  ggen:program1 [
+    a chatman:MCPProposalServer ;
+    ggen:location "Vendor infrastructure or customer network" ;
+    ggen:capabilities ("reads" "computes" "proposes" "emits receipts") ;
+    ggen:constraints ("never mutates" "no credential access" "deterministic output")
+  ] ;
+  ggen:program2 [
+    a chatman:EnterpriseExecutor ;
+    ggen:location "Customer CI/CD" ;
+    ggen:capabilities ("applies approved diffs" "assumes customer privileges" "owns blast radius") ;
+    ggen:constraints ("executes only approved proposals" "all actions auditable")
+  ] .
+
+# ============================================================================
+# 5. Provider Plan as First-Class Artifact
+# ============================================================================
+
+chatman:ProviderPlan a ggen:DataStructure ;
+  rdfs:label "Provider-Native Plan Graph" ;
+  rdfs:comment "Ensures proposals are executable, testable, policy-checkable, diffable" ;
+  ggen:hasField [
+    a ggen:Field ;
+    ggen:name "provider" ;
+    ggen:type "string" ;
+    ggen:enum ("AWS" "Azure" "GCP" "Custom") ;
+    ggen:description "Cloud provider identifier"
+  ] ;
+  ggen:hasField [
+    a ggen:Field ;
+    ggen:name "operations" ;
+    ggen:type "array<Operation>" ;
+    ggen:description "Ordered list of provider operations"
+  ] ;
+  ggen:hasField [
+    a ggen:Field ;
+    ggen:name "constraints" ;
+    ggen:type "array<Constraint>" ;
+    ggen:description "Policy constraints that must hold throughout execution"
+  ] ;
+  ggen:structure [
+    ggen:field "operations" ;
+    ggen:hasField [
+      ggen:name "op" ;
+      ggen:type "string" ;
+      ggen:example "CreateRole"
+    ] ;
+    ggen:hasField [
+      ggen:name "requires" ;
+      ggen:type "array<string>" ;
+      ggen:example ("iam:CreateRole")
+    ] ;
+    ggen:hasField [
+      ggen:name "idempotent" ;
+      ggen:type "boolean" ;
+      ggen:description "Can safely retry"
+    ] ;
+    ggen:hasField [
+      ggen:name "reversible" ;
+      ggen:type "boolean" ;
+      ggen:description "Can be rolled back"
+    ]
+  ] ;
+  ggen:enables [
+    rdfs:comment "Execution by someone else with different credentials"
+  ] ;
+  ggen:enables [
+    rdfs:comment "Policy compliance checking before execution"
+  ] ;
+  ggen:enables [
+    rdfs:comment "Diffing against actual cloud state"
+  ] ;
+  ggen:enables [
+    rdfs:comment "Deterministic testing in staging"
+  ] .
+
+# ============================================================================
+# 6. Receipt Chain (The Irreducible Proof)
+# ============================================================================
+
+chatman:ReceiptChain a ggen:DataStructure ;
+  rdfs:label "Deterministic Proof Envelope" ;
+  rdfs:comment "The competitive moat: integrators cannot produce receipts like this" ;
+  ggen:hasField [
+    a ggen:Field ;
+    ggen:name "input_hash" ;
+    ggen:type "string" ;
+    ggen:hashAlgorithm "SHA256" ;
+    ggen:description "Hash of canonicalized RDF + tool inputs"
+  ] ;
+  ggen:hasField [
+    a ggen:Field ;
+    ggen:name "proposal_hash" ;
+    ggen:type "string" ;
+    ggen:hashAlgorithm "SHA256" ;
+    ggen:description "Hash of stable serialization of proposal object"
+  ] ;
+  ggen:hasField [
+    a ggen:Field ;
+    ggen:name "guards" ;
+    ggen:type "array<GuardProof>" ;
+    ggen:description "Guard evaluation results with cryptographic proof"
+  ] ;
+  ggen:hasField [
+    a ggen:Field ;
+    ggen:name "steps" ;
+    ggen:type "array<Step>" ;
+    ggen:description "Reconstruction steps showing µ(O) computation"
+  ] ;
+  ggen:hasField [
+    a ggen:Field ;
+    ggen:name "timestamp" ;
+    ggen:type "integer" ;
+    ggen:format "Unix epoch" ;
+    ggen:description "When proposal was generated"
+  ] ;
+  ggen:hasField [
+    a ggen:Field ;
+    ggen:name "proof" ;
+    ggen:type "string" ;
+    ggen:description "Hash of entire receipt (chain of title)"
+  ] ;
+  ggen:hasField [
+    a ggen:Field ;
+    ggen:name "signature" ;
+    ggen:type "string" ;
+    ggen:algorithm "Ed25519" ;
+    ggen:description "Cryptographic signature of proposal + receipt"
+  ] ;
+  ggen:enables [
+    rdfs:comment "Prove proposal is lawful (all guards passed)"
+  ] ;
+  ggen:enables [
+    rdfs:comment "Prove proposal is reproducible (input + steps → output)"
+  ] ;
+  ggen:enables [
+    rdfs:comment "Attach receipt to approval for audit trail"
+  ] ;
+  ggen:enables [
+    rdfs:comment "Detect tampering (broken hash chain)"
+  ] ;
+  ggen:enables [
+    rdfs:comment "Compliance teams to trust automation without reviewing code"
+  ] .
+
+# ============================================================================
+# 7. Guard Pack (Type Safety for the Cloud)
+# ============================================================================
+
+chatman:Guard a ggen:DataStructure ;
+  rdfs:label "Proposal Guard" ;
+  rdfs:comment "Pre-execution constraint enforcement" ;
+  ggen:hasField [
+    ggen:name "name" ;
+    ggen:type "string" ;
+    ggen:example "TYPE_MISMATCH"
+  ] ;
+  ggen:hasField [
+    ggen:name "condition" ;
+    ggen:type "string" ;
+    ggen:description "Boolean expression that must hold"
+  ] ;
+  ggen:hasField [
+    ggen:name "result" ;
+    ggen:type "enum[PASS|FAIL|WARN]"
+  ] ;
+  ggen:hasField [
+    ggen:name "proof" ;
+    ggen:type "string" ;
+    ggen:description "Hash proving guard evaluation"
+  ] ;
+  ggen:hasField [
+    ggen:name "message" ;
+    ggen:type "string" ;
+    ggen:description "Human-readable failure reason"
+  ] ;
+  ggen:examples [
+    ggen:example [
+      ggen:name "NoPublicS3" ;
+      ggen:condition "bucket.publicAccess == false" ;
+      ggen:result "PASS"
+    ] ;
+    ggen:example [
+      ggen:name "RegionCompliance" ;
+      ggen:condition "region in [us-east-1, us-west-2]" ;
+      ggen:result "FAIL" ;
+      ggen:message "Proposed region eu-west-1 violates data residency policy"
+    ] ;
+    ggen:example [
+      ggen:name "RoleAssumePolicy" ;
+      ggen:condition "no wildcard principals" ;
+      ggen:result "WARN" ;
+      ggen:message "Role assumes from 3 service principals (unexpected)"
+    ]
+  ] .
+
+# ============================================================================
+# 8. What This Makes Possible
+# ============================================================================
+
+chatman:IntegrationWithoutAccess a ggen:BusinessCapability ;
+  rdfs:label "Integration Without Vendor Access" ;
+  rdfs:comment "Customer runs MCP internally, generates PRs internally, executes internally" ;
+  ggen:enables "Vendor becomes compiler vendor, not contractor" ;
+  ggen:enables "No credential sharing" ;
+  ggen:enables "Customer owns every step" ;
+  ggen:enables "Regulatory approval of process, not code review" .
+
+chatman:CognitiveLoadRemoval a ggen:BusinessCapability ;
+  rdfs:label "Cognitive Load Removal" ;
+  rdfs:comment "MCP outputs what-to-do-next, what-will-break, what-must-stay-manual, what-evidence-exists" ;
+  ggen:enables "Zero meetings to 'figure it out'" ;
+  ggen:enables "Just review proposals + receipts" ;
+  ggen:enables "Compliance can trust without deep cloud expertise" ;
+  ggen:enables "Operations teams can focus on orchestration, not glue code" .
+
+# ============================================================================
+# 9. Next Artifacts in Sequence
+# ============================================================================
+
+chatman:DemoPhase a ggen:Milestone ;
+  rdfs:label "Sample End-to-End Generation Demo" ;
+  rdfs:comment "Turns the stack from theoretical to inevitable" ;
+  ggen:input [
+    rdfs:label "Tiny Enterprise Ontology" ;
+    ggen:entities 5 ;
+    ggen:workflows 2
+  ] ;
+  ggen:input [
+    rdfs:label "AWS Artery Slice" ;
+    ggen:services ("IAM" "Lambda" "EventBridge") ;
+    ggen:scope "minimal viable integration"
+  ] ;
+  ggen:input [
+    rdfs:label "Stop-the-Line Guard Pack" ;
+    ggen:guards ("NoPublicAssumeRole" "EncryptionRequired" "RegionCompliance")
+  ] ;
+  ggen:output [
+    rdfs:label "MCP Server Package" ;
+    ggen:artifacts ("mcp-server.ts" "types.ts" "handlers.ts")
+  ] ;
+  ggen:output [
+    rdfs:label "2 Tools" ;
+    ggen:examples ("CreateIdentity" "ConfigureEventFlow")
+  ] ;
+  ggen:output [
+    rdfs:label "2 Resources" ;
+    ggen:examples ("Role" "EventRule")
+  ] ;
+  ggen:output [
+    rdfs:label "1 Workflow Prompt" ;
+    ggen:description "Guided sequence for provisioning identity + event flow"
+  ] ;
+  ggen:output [
+    rdfs:label "Infrastructure Module" ;
+    ggen:format "Terraform"
+  ] ;
+  ggen:output [
+    rdfs:label "Receipt Chain" ;
+    ggen:format "JSON with signatures"
+  ] ;
+  ggen:becomes [
+    rdfs:label "Sales Demo" ;
+    ggen:audience "prospective customers, investors"
+  ] ;
+  ggen:becomes [
+    rdfs:label "Onboarding Accelerant" ;
+    ggen:audience "implementation partners"
+  ] ;
+  ggen:becomes [
+    rdfs:label "Regression Test" ;
+    ggen:audience "internal CI/CD"
+  ] .
+
+chatman:ReceiptSchemaRegistry a ggen:Milestone ;
+  rdfs:label "Receipt Schema Registry" ;
+  rdfs:comment "Receipts become contractual objects (second order effects)" ;
+  ggen:enables "Industry-wide receipt standard" ;
+  ggen:enables "Cross-vendor proof verification" ;
+  ggen:enables "Compliance-as-code" ;
+  ggen:enables "Insurance underwriting for automation" .
+
+chatman:InterferometerSpec a ggen:Milestone ;
+  rdfs:label "Interferometer Specification" ;
+  rdfs:comment "Measure speed + accuracy + determinism against baselines" ;
+  ggen:enables "Speed: ChatmanGPT vs manual integrators (3-10x)" ;
+  ggen:enables "Accuracy: Proposal satisfaction + guard pass rate (>99%)" ;
+  ggen:enables "Determinism: Receipt verification (100%)" ;
+  ggen:enables "Competitive moat: once measured, market follows" .
+
+# ============================================================================
+# Summary: The Integrator-Killer
+# ============================================================================
+
+chatman:IntegratorKiller a ggen:Thesis ;
+  rdfs:label "ChatmanGPT: The Integrator-Killer" ;
+  rdfs:comment "We remove cognitive load by replacing humans-holding-graphs with deterministic closure" ;
+  ggen:oldModel "people + meetings + fragile custom glue + slow approvals" ;
+  ggen:newModel "ontology + closure + proposals + receipts + enterprise-owned execution" ;
+  ggen:advantage "Cognitive load removal is the only defensible moat in integration" ;
+  ggen:advantage "Integrators operate on meetings. We operate on receipts." ;
+  ggen:advantage "We scale to infinity. They scale to number of people." ;
+  ggen:advantage "Receipts become insurance understandable. Code never does." .

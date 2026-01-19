@@ -19,7 +19,6 @@ use tempfile::tempdir;
 // Pattern 1: Error Path Testing
 // ============================================================================
 
-#[allow(clippy::expect_used)]
 #[test]
 fn test_export_error_invalid_output_path() {
     // Arrange: Invalid output path (parent directory doesn't exist)
@@ -58,7 +57,6 @@ fn test_export_error_invalid_output_path() {
     }
 }
 
-#[allow(clippy::expect_used)]
 #[test]
 fn test_export_error_permission_denied() {
     // Arrange: Try to write to read-only directory (if possible)
@@ -85,7 +83,6 @@ fn test_export_error_permission_denied() {
     );
 }
 
-#[allow(clippy::expect_used)]
 #[test]
 fn test_export_error_unsupported_format() {
     // Arrange: JSON-LD and N3 are not yet supported
@@ -119,7 +116,6 @@ fn test_export_error_unsupported_format() {
 // Pattern 2: Boundary Condition Testing
 // ============================================================================
 
-#[allow(clippy::expect_used)]
 #[test]
 fn test_export_boundary_empty_graph() {
     // Arrange: Empty graph (boundary: no data)
@@ -149,7 +145,6 @@ fn test_export_boundary_empty_graph() {
     }
 }
 
-#[allow(clippy::expect_used)]
 #[test]
 fn test_export_boundary_very_large_graph() {
     // Arrange: Graph with many triples (boundary: large dataset)
@@ -193,7 +188,6 @@ fn test_export_boundary_very_large_graph() {
     }
 }
 
-#[allow(clippy::expect_used)]
 #[test]
 fn test_export_boundary_max_path_length() {
     // Arrange: Very long output path (boundary: path length)
@@ -233,7 +227,6 @@ fn test_export_boundary_max_path_length() {
 // Pattern 3: Resource Cleanup Testing
 // ============================================================================
 
-#[allow(clippy::expect_used)]
 #[test]
 fn test_export_resource_cleanup_temp_files() {
     // Arrange: Export to file
@@ -286,7 +279,6 @@ fn test_export_resource_cleanup_temp_files() {
     );
 }
 
-#[allow(clippy::expect_used)]
 #[test]
 fn test_export_resource_cleanup_file_handles() {
     // Arrange: Multiple exports to same file
@@ -390,7 +382,6 @@ async fn test_export_concurrent_writes() {
 // Pattern 5: Error Recovery Testing
 // ============================================================================
 
-#[allow(clippy::expect_used)]
 #[test]
 fn test_export_error_recovery_after_failure() {
     // Arrange: First export fails, then retry succeeds

@@ -1,7 +1,6 @@
 //! Ollama configuration
 
 use crate::client::LlmConfig;
-use crate::constants::models;
 use crate::error::{GgenAiError, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -21,7 +20,7 @@ impl Default for OllamaConfig {
     fn default() -> Self {
         Self {
             base_url: "http://localhost:11434".to_string(),
-            model: models::OLLAMA_DEFAULT.to_string(),
+            model: "qwen3-coder:30b".to_string(),
             timeout: 30,
         }
     }
@@ -83,8 +82,7 @@ impl OllamaConfig {
         let base_url = std::env::var("OLLAMA_BASE_URL")
             .unwrap_or_else(|_| "http://localhost:11434".to_string());
 
-        let model = std::env::var("OLLAMA_MODEL")
-            .unwrap_or_else(|_| models::OLLAMA_DEFAULT.to_string());
+        let model = std::env::var("OLLAMA_MODEL").unwrap_or_else(|_| "qwen3-coder:30b".to_string());
 
         let timeout = std::env::var("OLLAMA_TIMEOUT")
             .unwrap_or_else(|_| "30".to_string())

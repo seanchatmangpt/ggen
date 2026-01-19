@@ -1,0 +1,467 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix spec: <http://ggen.io/spec/> .
+@prefix folk: <http://ggen.io/folk/> .
+@prefix market: <http://ggen.io/market/> .
+@prefix sm: <http://ggen.io/statemachine/> .
+
+# ============================================================================
+# MARKET PHASE DIAGRAM: Folk Strategy as State Machine
+# ============================================================================
+# RDF encoding of market evolution: Vacuum → Formation → Growth → Commodity
+# All transitions encoded as measurable state changes with observables
+# ============================================================================
+
+market:MarketPhaseDiagram a rdf:Ontology ;
+    rdfs:label "Market Phase State Machine" ;
+    rdfs:comment "RDF ontology encoding market evolution phases and transitions" ;
+    rdfs:version "1.0.0" ;
+    rdfs:isDefinedBy <http://ggen.io/market/phase-diagram> ;
+    sm:numStates "4"^^xsd:integer ;
+    sm:numTransitions "8"^^xsd:integer ;
+    sm:hasState
+        market:VacuumState,
+        market:FormationState,
+        market:GrowthState,
+        market:CommodityState ;
+    sm:hasTransition
+        market:T_Vacuum_Formation,
+        market:T_Formation_Vacuum,
+        market:T_Formation_Growth,
+        market:T_Growth_Formation,
+        market:T_Growth_Commodity,
+        market:T_Growth_Vacuum,
+        market:T_Commodity_Formation,
+        market:T_Commodity_Vacuum .
+
+# ============================================================================
+# STATE 1: VACUUM
+# ============================================================================
+# Definition: Market does not exist; problem space unknown or unsolved
+# Folk sense: "This need doesn't exist yet" or "Nobody's tried solving this"
+
+market:VacuumState a sm:State ;
+    rdfs:label "Vacuum" ;
+    rdfs:comment "Market does not exist; problem unknown or presumed unsolvable" ;
+    sm:stateId "S1" ;
+    sm:isInitialState true ;
+
+    # Core properties
+    sm:demandLevel market:DemandLevel_None ;
+    sm:supplyLevel market:SupplyLevel_None ;
+    sm:competitionLevel market:CompetitionLevel_None ;
+
+    # Metrics (all minimal)
+    sm:estimatedMarketSize "0"^^xsd:decimal ;
+    sm:customerCount "0"^^xsd:integer ;
+    sm:competitorCount "0"^^xsd:integer ;
+    sm:averageCAC "0"^^xsd:decimal ;
+    sm:averageLTV "0"^^xsd:decimal ;
+    sm:marketGrowthRate "0"^^xsd:decimal ;
+    sm:productIterationCycleTime "infinite"^^xsd:string ;
+
+    # Characteristic behaviors (what founders/strategists do)
+    sm:characteristicBehavior
+        "No founder focus (problem not visible)",
+        "No customer conversations happening",
+        "Research phase: is this real?" ,
+        "Thought experiments and theoretical analysis",
+        "Assumption validation against real people",
+        "Niche discovery (finding the initial 10 people)" ;
+
+    # What you see in Vacuum
+    sm:observable
+        "Disinterest from potential customers",
+        "Skepticism about problem existence",
+        "Founder working alone or with co-conspirators",
+        "No revenue (or founder self-funded experiments)",
+        "High friction to explain problem",
+        "Founder questions: 'Is anyone willing to pay?'" ;
+
+    # What traps you in Vacuum (pain of staying)
+    sm:trapCondition
+        "Infinite planning without validation (analysis paralysis)",
+        "Building in isolation without customer feedback",
+        "Assuming problem scale without testing",
+        "Founder burnout (invisible problem feels pointless)",
+        "Capital constraints (no revenue to sustain effort)" ;
+
+    # What makes you leave Vacuum (exit conditions)
+    sm:exitCondition
+        "Finding first true believer customer (willing to engage)",
+        "Discovering unexpected customer segment with real pain",
+        "Founder persistence beyond 6-12 months of exploration",
+        "Clear articulation of problem that resonates with someone else",
+        "First transactional engagement (even if not for money)" ;
+
+    # Duration in Vacuum
+    sm:typicalDuration "6-18 months"^^xsd:string ;
+    sm:minDuration "3 months"^^xsd:string ;
+    sm:maxDuration "never (perpetual research)" ;
+
+    # Risk profile
+    sm:failureRate "95%"^^xsd:decimal ;
+    sm:failureMechanism "Wrong problem, wrong customer, wrong timing" ;
+
+    # Economic activity
+    sm:economicActivity "Founder time + research + maybe consulting revenue" ;
+    sm:cashBurn "Low (pre-revenue)" ;
+    sm:fundingType "Self-funded, friends/family, or no funding" .
+
+# ============================================================================
+# STATE 2: FORMATION
+# ============================================================================
+# Definition: Market exists but nascent; PMF exploration underway
+# Folk sense: "We found customers!" or "There's interest but..."
+
+market:FormationState a sm:State ;
+    rdfs:label "Formation" ;
+    rdfs:comment "Market emerging; initial product-market fit exploration; early customers validate problem" ;
+    sm:stateId "S2" ;
+
+    # Core properties
+    sm:demandLevel market:DemandLevel_Low ;
+    sm:supplyLevel market:SupplyLevel_Few ;
+    sm:competitionLevel market:CompetitionLevel_Few ;
+
+    # Metrics (early validation)
+    sm:estimatedMarketSize "Low"^^xsd:string ;
+    sm:customerCount "1-100"^^xsd:string ;
+    sm:competitorCount "0-2"^^xsd:integer ;
+    sm:averageCAC "Highly variable (referral, founder pitch)"^^xsd:string ;
+    sm:averageLTV "Unknown/Unpredictable"^^xsd:string ;
+    sm:marketGrowthRate "Unknown (no trend yet)"^^xsd:decimal ;
+    sm:churnRate "High (30-50% monthly)"^^xsd:decimal ;
+    sm:productIterationCycleTime "1-4 weeks"^^xsd:string ;
+    sm:npsScore "Variable (-50 to +50)"^^xsd:string ;
+    sm:featureCompleteness "Minimal viable (5-10 core features)"^^xsd:decimal ;
+
+    # Characteristic behaviors
+    sm:characteristicBehavior
+        "Founder-driven customer acquisition (personal networks)",
+        "Weekly/bi-weekly product iteration based on customer feedback",
+        "Pivot-ready (willingness to change problem/solution)",
+        "Customer research interviews (qualitative over quantitative)",
+        "Building core value prop, ignoring secondary features",
+        "Testing multiple customer segments (fishing in different ponds)",
+        "Revenue experiments (freemium, SaaS, consulting hybrid)" ;
+
+    # What you observe in Formation
+    sm:observable
+        "First paying customers (even if referral-only)",
+        "Clear customer feedback on problem and solution fit",
+        "Founder can articulate problem in customer language",
+        "Product changes weekly based on customer asks",
+        "Founder(s) spend 50%+ time in customer conversations",
+        "Revenue exists but unpredictable (0-10k MRR typical)",
+        "No hired salespeople or marketing (founder-led growth)",
+        "Social proof: customer testimonials, case studies emerging" ;
+
+    # Traps in Formation (hard to escape once stuck)
+    sm:trapCondition
+        "Stuck on wrong customer segment (clear problem, wrong audience)",
+        "Feature creep: trying to serve two incompatible segments",
+        "Local maximum: profitable in niche, but niche too small to scale",
+        "Founder ego: attached to original idea despite feedback",
+        "Premature hiring: payroll before PMF creates burn treadmill",
+        "False PMF: customers happy but unwilling to pay at scale",
+        "Slow iteration: technical debt prevents responding to feedback" ;
+
+    # Exit conditions (moving to Growth)
+    sm:exitCondition
+        "Consistent, repeatable customer acquisition (>50% CAC/LTV ratio)",
+        "Clear primary customer segment with large addressable market",
+        "Product-market fit signals: 40%+ users 'very disappointed' if gone",
+        "20-30% MoM growth sustained for 2+ months",
+        "NPS > 30 from paying customers",
+        "Sales cycle predictable and repeatable",
+        "Revenue per customer > 3-5x CAC annually (LTV/CAC > 3)" ;
+
+    # Duration in Formation
+    sm:typicalDuration "9-24 months"^^xsd:string ;
+    sm:minDuration "3 months (rare, highly focused)"^^xsd:string ;
+    sm:maxDuration "5+ years (local maximum trap)" ;
+
+    # Risk profile
+    sm:failureRate "80%"^^xsd:decimal ;
+    sm:failureMechanism "Wrong customer segment, insufficient market size, false PMF" ;
+
+    # Economic activity
+    sm:economicActivity "Founder + 1-5 early team members; revenue growing but < payroll" ;
+    sm:cashBurn "Medium (modest team burn vs. early revenue)" ;
+    sm:fundingType "Seed funding ($100k-$1M), angel investors, pre-revenue bootstrap" .
+
+# ============================================================================
+# STATE 3: GROWTH
+# ============================================================================
+# Definition: Market rapidly expanding; clear PMF; competition entering
+# Folk sense: "It's taking off!" or "We're everywhere"
+
+market:GrowthState a sm:State ;
+    rdfs:label "Growth" ;
+    rdfs:comment "Market expanding rapidly; PMF proven; competition emerging; investment influx; team scaling" ;
+    sm:stateId "S3" ;
+
+    # Core properties
+    sm:demandLevel market:DemandLevel_High ;
+    sm:supplyLevel market:SupplyLevel_Multiple ;
+    sm:competitionLevel market:CompetitionLevel_Multiple ;
+
+    # Metrics (high growth)
+    sm:estimatedMarketSize "Medium to Large"^^xsd:string ;
+    sm:customerCount "1000-100000"^^xsd:string ;
+    sm:competitorCount "3-15"^^xsd:integer ;
+    sm:averageCAC "20-40% of annual LTV"^^xsd:string ;
+    sm:averageLTV "Predictable, 3-5x CAC"^^xsd:string ;
+    sm:marketGrowthRate "50-300% YoY"^^xsd:decimal ;
+    sm:churnRate "Low (5-10% monthly)"^^xsd:decimal ;
+    sm:productIterationCycleTime "2-8 weeks (planned roadmap)"^^xsd:string ;
+    sm:npsScore "50-70"^^xsd:integer ;
+    sm:featureCompleteness "Broad (20-50+ features)"^^xsd:decimal ;
+    sm:marketConcentration "Low-Medium (multiple players ~20-30% each)"^^xsd:string ;
+
+    # Characteristic behaviors
+    sm:characteristicBehavior
+        "Scaling customer acquisition (marketing + sales team hired)",
+        "Planned product roadmap (quarterly planning, not reactive)",
+        "Feature prioritization debates (opportunity cost becomes real)",
+        "Building brand differentiation (not just product parity)",
+        "Series A/B fundraising (institutional capital inflow)",
+        "Team expansion (sales, marketing, ops, customer success)",
+        "Partnerships and integrations (ecosystem building)",
+        "Geographic or vertical expansion (new markets, new verticals)" ;
+
+    # What you observe in Growth
+    sm:observable
+        "Founder can no longer keep up with all customer interactions",
+        "Sales team closing deals; CAC measurable and declining",
+        "Compounding growth: 10% MoM growth over 6+ months",
+        "Marketing working (CAC down, payback period < 12 months)",
+        "Team of 20-50 people; founder CEO managing leadership team",
+        "Multiple product tiers or customer segments",
+        "Competitors launching similar offerings",
+        "Inbound interest from investors and acquirers",
+        "Revenue: $100k-$10M ARR" ;
+
+    # Traps in Growth (Innovator's Dilemma)
+    sm:trapCondition
+        "Feature bloat: adding features competitors have, losing differentiation",
+        "Scaling misalignment: growth in wrong channels or segments",
+        "Premature optimization: chasing enterprise deals, losing core SMB market",
+        "Organizational complexity: chaos from rapid hiring",
+        "Market saturation: early moat advantage erodes as competitors enter",
+        "Tech debt: rapid iteration left codebase fragile",
+        "Founder distraction: fundraising and management pull focus from market",
+        "Dependency on single channel: acquisition channel dries up" ;
+
+    # Exit conditions (moving to Commodity)
+    sm:exitCondition
+        "Market consolidation: 3-4 clear winners with 80%+ share",
+        "Product parity: features standardized across competitors",
+        "Customer preference driving on price, not features",
+        "CAC rising year-over-year (saturation)",
+        "LTV declining (customers switching more easily)",
+        "Gross margins compressing due to competition",
+        "Market growth slowing below 20% YoY" ;
+
+    # Regression conditions (back to Formation)
+    sm:regressionCondition
+        "Major product failure: trust loss in customer base",
+        "Competitor disruption: incumbent's innovation outpaces",
+        "Market rejection: pivot required, going back to PMF validation",
+        "Team exodus: key people leave, losing institutional knowledge",
+        "Funding drought: unable to raise, scaling stalls" ;
+
+    # Collapse condition (back to Vacuum)
+    sm:collapseCondition
+        "Market obsolescence: technology disruption (e.g., mobile vs. desktop)",
+        "Regulatory change: industry becomes illegal or highly restricted",
+        "Macro shift: customer need disappears (e.g., economic recession)",
+        "Existential competition: incumbent with 10x resources enters" ;
+
+    # Duration in Growth
+    sm:typicalDuration "3-7 years"^^xsd:string ;
+    sm:minDuration "1 year (hyper-growth)"^^xsd:string ;
+    sm:maxDuration "15+ years (extended growth periods)" ;
+
+    # Risk profile
+    sm:failureRate "40%"^^xsd:decimal ;
+    sm:failureMechanism "Execution failure, market saturation, competitor disruption, macro collapse" ;
+
+    # Economic activity
+    sm:economicActivity "Team of 20-500+; significant revenue; venture capital fueling scaling" ;
+    sm:cashBurn "High absolute (payroll + marketing) but decreasing as % of revenue" ;
+    sm:fundingType "Series A, B, C funding; institutional investors; potential IPO preparation" .
+
+# ============================================================================
+# STATE 4: COMMODITY
+# ============================================================================
+# Definition: Market mature; product feature parity; competition on price and distribution
+# Folk sense: "It's just a commodity now" or "Margin pressure is intense"
+
+market:CommodityState a sm:State ;
+    rdfs:label "Commodity" ;
+    rdfs:comment "Market mature; feature standardization; price competition dominates; differentiation difficult" ;
+    sm:stateId "S4" ;
+
+    # Core properties
+    sm:demandLevel market:DemandLevel_Stable ;
+    sm:supplyLevel market:SupplyLevel_Many ;
+    sm:competitionLevel market:CompetitionLevel_Intense ;
+
+    # Metrics (stabilized, competitive)
+    sm:estimatedMarketSize "Large (>$100M)"^^xsd:string ;
+    sm:customerCount "100000-10M"^^xsd:string ;
+    sm:competitorCount "20+ (fragmented or consolidated)"^^xsd:integer ;
+    sm:marketConcentration "High (Herfindahl > 2500)"^^xsd:string ;
+    sm:averageCAC "High relative to LTV (30-60% annual)"^^xsd:string ;
+    sm:averageLTV "Declining (customers easily switch)"^^xsd:string ;
+    sm:marketGrowthRate "0-10% YoY (mature)"^^xsd:decimal ;
+    sm:churnRate "High (15-30% annually, switching common)"^^xsd:decimal ;
+    sm:productIterationCycleTime "1-2 weeks (maintenance mode, internal tooling)"^^xsd:string ;
+    sm:npsScore "40-50 (adequate, not exciting)"^^xsd:integer ;
+    sm:featureCompleteness "Complete (50-200+ features, feature parity with competitors)"^^xsd:decimal ;
+    sm:priceElasticity "High (demand shifts with price)"^^xsd:decimal ;
+
+    # Characteristic behaviors
+    sm:characteristicBehavior
+        "Competition on price and distribution channels",
+        "Cost optimization and efficiency focus (ops-driven)",
+        "Commoditization plays: bundles, integrations, packaging",
+        "M&A activity: consolidation and market roll-ups",
+        "White-label or OEM partnerships (hiding brand behind integrations)",
+        "Niche expansion: vertical or geographic arbitrage",
+        "Platform shifting: moving to adjacent markets (lateral play)",
+        "Harvesting: reducing investment, maximizing cash extraction" ;
+
+    # What you observe in Commodity
+    sm:observable
+        "Intense price wars (unit economics under pressure)",
+        "Feature parity: difficult to differentiate on features alone",
+        "Distribution dominance: market access determines success",
+        "Consolidation: mergers and acquisitions frequent",
+        "Customer inertia: lock-in (switching costs) driving retention, not quality",
+        "Commoditized sales: self-service or low-touch channels dominant",
+        "Margin compression: gross margins 40-60% (vs. 70-90% in Growth)",
+        "Legacy code: maintenance-focused engineering (not innovation)" ;
+
+    # Traps in Commodity (why companies stay and decline)
+    sm:trapCondition
+        "Margin squeeze: CAC rising, LTV declining, path to profitability unclear",
+        "Innovation debt: too busy optimizing costs to build next-gen product",
+        "Competitive stalemate: all players equal, no one can differentiate",
+        "Loss of talent: best engineers leave for growth-stage companies",
+        "Regulatory capture: entrenched players lobby against disruption",
+        "Legacy customer base: migrations costs prevent price increases" ;
+
+    # Exit conditions (transcendence to Formation in new market)
+    sm:exitCondition
+        "Internal innovation: building new product in adjacent market (restart Formation in new space)",
+        "Technology jump: leap-frog with new platform (mobile, AI, blockchain)",
+        "Vertical integration: moving up or down value chain to escape commodity",
+        "Geographic expansion: entering new markets (repeating Growth in new region)" ;
+
+    # Collapse conditions (back to Vacuum)
+    sm:collapseCondition
+        "Disruptive entrant: new technology makes entire category obsolete",
+        "Regulatory elimination: market becomes illegal (e.g., CFC, asbestos)",
+        "Customer need shift: macro change makes product irrelevant",
+        "Macro recession: demand evaporates below sustainability level" ;
+
+    # Duration in Commodity
+    sm:typicalDuration "5-20+ years"^^xsd:string ;
+    sm:minDuration "1-2 years (rapid disruption)"^^xsd:string ;
+    sm:maxDuration "50+ years (infrastructure, utilities)" ;
+
+    # Risk profile
+    sm:failureRate "50%"^^xsd:decimal ;
+    sm:failureMechanism "Disruption from new entrant, regulatory change, margin collapse" ;
+
+    # Economic activity
+    sm:economicActivity "Stable revenue ($10M-$10B+); public companies common; PE-backed roll-ups; M&A exit liquidity" ;
+    sm:cashBurn "Minimal (profitable); focus on cash generation" ;
+    sm:fundingType "Mature equity (dividends), debt financing, IPO, acquisition" .
+
+# ============================================================================
+# DEMAND LEVELS (Enumeration)
+# ============================================================================
+
+market:DemandLevel_None a sm:DemandLevel ;
+    rdfs:label "None" ;
+    rdfs:comment "No perceived demand; market does not exist" .
+
+market:DemandLevel_Low a sm:DemandLevel ;
+    rdfs:label "Low" ;
+    rdfs:comment "Emerging demand; early customers validating problem" .
+
+market:DemandLevel_High a sm:DemandLevel ;
+    rdfs:label "High" ;
+    rdfs:comment "Strong demand; rapid customer acquisition; market expansion" .
+
+market:DemandLevel_Stable a sm:DemandLevel ;
+    rdfs:label "Stable" ;
+    rdfs:comment "Mature demand; stable market size; growth near zero" .
+
+# ============================================================================
+# SUPPLY LEVELS (Enumeration)
+# ============================================================================
+
+market:SupplyLevel_None a sm:SupplyLevel ;
+    rdfs:label "None" ;
+    rdfs:comment "No suppliers; market does not exist" .
+
+market:SupplyLevel_Few a sm:SupplyLevel ;
+    rdfs:label "Few" ;
+    rdfs:comment "Few suppliers; nascent supply ecosystem" .
+
+market:SupplyLevel_Multiple a sm:SupplyLevel ;
+    rdfs:label "Multiple" ;
+    rdfs:comment "Multiple suppliers; growing ecosystem" .
+
+market:SupplyLevel_Many a sm:SupplyLevel ;
+    rdfs:label "Many" ;
+    rdfs:comment "Many suppliers; mature ecosystem; commoditized supply" .
+
+# ============================================================================
+# COMPETITION LEVELS (Enumeration)
+# ============================================================================
+
+market:CompetitionLevel_None a sm:CompetitionLevel ;
+    rdfs:label "None" ;
+    rdfs:comment "No competition; no market" .
+
+market:CompetitionLevel_Few a sm:CompetitionLevel ;
+    rdfs:label "Few" ;
+    rdfs:comment "Few competitors; nascent market" .
+
+market:CompetitionLevel_Multiple a sm:CompetitionLevel ;
+    rdfs:label "Multiple" ;
+    rdfs:comment "Multiple competitors; growing competitive intensity" .
+
+market:CompetitionLevel_Intense a sm:CompetitionLevel ;
+    rdfs:label "Intense" ;
+    rdfs:comment "Intense competition; mature market; fragmented or consolidated play" .
+
+# ============================================================================
+# MARKET CONSTANTS & DEFINITIONS
+# ============================================================================
+
+market:PMF_Definition a rdfs:Resource ;
+    rdfs:label "Product-Market Fit Definition" ;
+    rdfs:comment "Quantitative: LTV/CAC >= 3; NPS > 30; 40%+ customers would be 'very disappointed' if product gone; 20%+ MoM growth" .
+
+market:Formation_Formation_Boundary a rdfs:Resource ;
+    rdfs:label "Formation-Growth Boundary" ;
+    rdfs:comment "Crossed when PMF signals appear: LTV/CAC ratio > 3, NPS > 30, 20%+ MoM growth, clear primary customer segment" .
+
+market:Growth_Commodity_Boundary a rdfs:Resource ;
+    rdfs:label "Growth-Commodity Boundary" ;
+    rdfs:comment "Crossed when market growth slows below 20% YoY, product parity achieved, competition intensifies, CAC rising" .
+
+market:TypicalMarketLifecycle a rdf:Seq ;
+    rdf:_1 "Vacuum (6-18 months)" ;
+    rdf:_2 "Formation (9-24 months)" ;
+    rdf:_3 "Growth (3-7 years)" ;
+    rdf:_4 "Commodity (5-20+ years)" ;
+    rdfs:comment "Typical path: Vacuum → Formation → Growth → Commodity" .

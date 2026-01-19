@@ -89,7 +89,7 @@ pub async fn execute_validate(input: &ValidateInput) -> Result<ValidateOutput> {
         validation_time_ms: elapsed.as_millis() as u64,
     };
 
-    let valid = (!input.strict || warnings.is_empty()) && errors.is_empty();
+    let valid = errors.is_empty() && !(input.strict && !warnings.is_empty());
     let score = if valid { 100 } else { 50 };
 
     Ok(ValidateOutput {

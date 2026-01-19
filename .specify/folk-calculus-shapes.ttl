@@ -1,0 +1,545 @@
+# Folk Calculus SHACL Validation Shapes
+# Ensures completeness and consistency of folk strategy to calculus mappings
+# Version: 1.0
+# Created: 2026-01-18
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix folk: <http://ggen.io/folk-strategy/> .
+@prefix calc: <http://ggen.io/calculus/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# ==============================================================================
+# FOLK TERM VALIDATION SHAPE
+# ==============================================================================
+# Every folk term must have complete mapping information
+
+folk:FolkTermShape
+    a sh:NodeShape ;
+    sh:targetClass folk:FolkTerm ;
+    sh:message "Folk term validation failed" ;
+
+    # Required: label (human readable)
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Folk term must have exactly one rdfs:label" ;
+    ] ;
+
+    # Required: comment (explanation)
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Folk term must have exactly one rdfs:comment explaining the concept" ;
+    ] ;
+
+    # Required: category (which group it belongs to)
+    sh:property [
+        sh:path folk:category ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class folk:Category ;
+        sh:message "Folk term must belong to exactly one folk:Category" ;
+    ] ;
+
+    # Required: attribution (what is this attributed to)
+    sh:property [
+        sh:path folk:hasAttribution ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (folk:Luck folk:Skill folk:Art folk:Mystery folk:System) ;
+        sh:message "Folk term must have one attribution (Luck, Skill, Art, Mystery, or System)" ;
+    ] ;
+
+    # Required: usage example
+    sh:property [
+        sh:path folk:usageExample ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 10 ;
+        sh:message "Folk term must have usage example (minimum 10 characters)" ;
+    ] ;
+
+    # Required: formula (mathematical expression)
+    sh:property [
+        sh:path folk:formula ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 5 ;
+        sh:message "Folk term must have mathematical formula (minimum 5 characters)" ;
+    ] ;
+
+    # Required: maps to calculus object
+    sh:property [
+        sh:path folk:mapsTo ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class calc:CalculusObject ;
+        sh:message "Folk term must map to exactly one calc:CalculusObject" ;
+    ] .
+
+# ==============================================================================
+# CATEGORY VALIDATION SHAPE
+# ==============================================================================
+
+folk:CategoryShape
+    a sh:NodeShape ;
+    sh:targetClass folk:Category ;
+    sh:message "Category validation failed" ;
+
+    # Required: label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Category must have exactly one rdfs:label" ;
+    ] ;
+
+    # Required: comment
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Category must have exactly one rdfs:comment" ;
+    ] ;
+
+    # Recommended: should have at least 2 terms
+    sh:property [
+        sh:path folk:hasTerm ;
+        sh:minCount 2 ;
+        sh:message "Category should contain at least 2 folk terms" ;
+        sh:severity sh:Warning ;
+    ] .
+
+# ==============================================================================
+# CALCULUS OBJECT VALIDATION SHAPE
+# ==============================================================================
+
+calc:CalculusObjectShape
+    a sh:NodeShape ;
+    sh:targetClass calc:CalculusObject ;
+    sh:message "Calculus object validation failed" ;
+
+    # Required: label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Calculus object must have exactly one rdfs:label" ;
+    ] ;
+
+    # Required: comment
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Calculus object must have exactly one rdfs:comment" ;
+    ] .
+
+# ==============================================================================
+# ATTRIBUTION VALIDATION SHAPE
+# ==============================================================================
+
+folk:AttributionShape
+    a sh:NodeShape ;
+    sh:targetClass folk:Attribution ;
+    sh:message "Attribution validation failed" ;
+
+    # Must be one of the defined types
+    sh:property [
+        sh:path rdf:type ;
+        sh:in (folk:Luck folk:Skill folk:Art folk:Mystery folk:System) ;
+        sh:message "Attribution must be one of: Luck, Skill, Art, Mystery, System" ;
+    ] ;
+
+    # Required: label
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Attribution must have exactly one rdfs:label" ;
+    ] ;
+
+    # Required: comment
+    sh:property [
+        sh:path rdfs:comment ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Attribution must have exactly one rdfs:comment" ;
+    ] .
+
+# ==============================================================================
+# COMPLEX CONSTRAINT CHECKS
+# ==============================================================================
+
+# Constraint: Folk terms in same category must be distinct
+folk:CategoryDistinctnessShape
+    a sh:NodeShape ;
+    sh:targetClass folk:Category ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Category contains duplicate folk terms" ;
+        sh:select """
+            PREFIX folk: <http://ggen.io/folk-strategy/>
+            SELECT $this ?term1 ?term2
+            WHERE {
+                $this folk:hasTerm ?term1 .
+                $this folk:hasTerm ?term2 .
+                FILTER (?term1 < ?term2)
+                FILTER (?term1 = ?term2)
+            }
+        """ ;
+    ] .
+
+# Constraint: Each folk term must map to one unique calculus object
+folk:UniqueCalculusMapShape
+    a sh:NodeShape ;
+    sh:targetClass folk:FolkTerm ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Folk term maps to multiple different calculus objects" ;
+        sh:select """
+            PREFIX folk: <http://ggen.io/folk-strategy/>
+            SELECT $this ?calc1 ?calc2
+            WHERE {
+                $this folk:mapsTo ?calc1 .
+                $this folk:mapsTo ?calc2 .
+                FILTER (?calc1 != ?calc2)
+            }
+        """ ;
+    ] .
+
+# Constraint: Attribution must be valid
+folk:AttributionValidityShape
+    a sh:NodeShape ;
+    sh:targetClass folk:FolkTerm ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Folk term has invalid attribution" ;
+        sh:select """
+            PREFIX folk: <http://ggen.io/folk-strategy/>
+            SELECT $this ?attr
+            WHERE {
+                $this folk:hasAttribution ?attr .
+                FILTER NOT EXISTS {
+                    FILTER (?attr IN (folk:Luck, folk:Skill, folk:Art, folk:Mystery, folk:System))
+                }
+            }
+        """ ;
+    ] .
+
+# Constraint: All folk terms must be assigned to at least one category
+folk:CategoryAssignmentShape
+    a sh:NodeShape ;
+    sh:targetClass folk:FolkTerm ;
+    sh:property [
+        sh:path folk:category ;
+        sh:minCount 1 ;
+        sh:message "Folk term must be assigned to at least one category" ;
+    ] .
+
+# Constraint: Formula must be non-empty
+folk:FormulaValidityShape
+    a sh:NodeShape ;
+    sh:targetClass folk:FolkTerm ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Folk term formula is empty or too short" ;
+        sh:select """
+            PREFIX folk: <http://ggen.io/folk-strategy/>
+            SELECT $this
+            WHERE {
+                $this folk:formula ?formula .
+                FILTER (strlen(str(?formula)) < 3)
+            }
+        """ ;
+    ] .
+
+# ==============================================================================
+# COVERAGE VALIDATION
+# ==============================================================================
+
+# Check: Coverage of all 12 categories (minimum)
+folk:CategoryCoverageShape
+    a sh:SPARQLShape ;
+    sh:message "Insufficient category coverage - should have at least 12 categories" ;
+    sh:select """
+        PREFIX folk: <http://ggen.io/folk-strategy/>
+        SELECT (COUNT(DISTINCT ?cat) as ?count)
+        WHERE {
+            ?cat a folk:Category .
+        }
+        HAVING (?count < 12)
+    """ .
+
+# Check: Coverage of folk terms (minimum 60)
+folk:FolkTermCoverageShape
+    a sh:SPARQLShape ;
+    sh:message "Insufficient folk term coverage - should have at least 60 terms" ;
+    sh:select """
+        PREFIX folk: <http://ggen.io/folk-strategy/>
+        SELECT (COUNT(DISTINCT ?term) as ?count)
+        WHERE {
+            ?term a folk:FolkTerm .
+        }
+        HAVING (?count < 60)
+    """ .
+
+# Check: Coverage of calculus objects (minimum 40)
+folk:CalculusObjectCoverageShape
+    a sh:SPARQLShape ;
+    sh:message "Insufficient calculus object coverage - should have at least 40 objects" ;
+    sh:select """
+        PREFIX calc: <http://ggen.io/calculus/>
+        SELECT (COUNT(DISTINCT ?obj) as ?count)
+        WHERE {
+            ?obj a calc:CalculusObject .
+        }
+        HAVING (?count < 40)
+    """ .
+
+# ==============================================================================
+# CONSISTENCY CHECKS
+# ==============================================================================
+
+# Check: No cyclic category relationships
+folk:AcyclicCategoryShape
+    a sh:SPARQLShape ;
+    sh:message "Category definitions contain cycles" ;
+    sh:select """
+        PREFIX folk: <http://ggen.io/folk-strategy/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        SELECT ?cat1 ?cat2
+        WHERE {
+            ?cat1 rdfs:subClassOf+ ?cat2 .
+            ?cat2 rdfs:subClassOf+ ?cat1 .
+        }
+    """ .
+
+# Check: All folk terms must have distinct identifiers
+folk:UniqueIdentifierShape
+    a sh:SPARQLShape ;
+    sh:message "Folk terms must have unique identifiers" ;
+    sh:select """
+        PREFIX folk: <http://ggen.io/folk-strategy/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        SELECT ?label (COUNT(?term) as ?count)
+        WHERE {
+            ?term a folk:FolkTerm ;
+                rdfs:label ?label .
+        }
+        GROUP BY ?label
+        HAVING (?count > 1)
+    """ .
+
+# Check: Attribution counts should be balanced
+folk:AttributionBalanceShape
+    a sh:SPARQLShape ;
+    sh:message "Attribution distribution should be relatively balanced" ;
+    sh:select """
+        PREFIX folk: <http://ggen.io/folk-strategy/>
+        SELECT ?attr (COUNT(?term) as ?count)
+        WHERE {
+            ?term folk:hasAttribution ?attr .
+        }
+        GROUP BY ?attr
+        HAVING (?count < 3)
+    """ ;
+    sh:severity sh:Warning .
+
+# ==============================================================================
+# SEMANTIC VALIDATION
+# ==============================================================================
+
+# Check: Folk-to-calculus mapping should be many-to-one or one-to-one (not many-to-many)
+folk:CalculusMapMultiplicityShape
+    a sh:SPARQLShape ;
+    sh:message "Folk terms should map to one calculus object each; many-to-many violates semantic consistency" ;
+    sh:select """
+        PREFIX folk: <http://ggen.io/folk-strategy/>
+        SELECT ?term (COUNT(?calc) as ?count)
+        WHERE {
+            ?term folk:mapsTo ?calc .
+        }
+        GROUP BY ?term
+        HAVING (?count > 1)
+    """ .
+
+# Check: Categories should not contain identical folk terms
+folk:TermUniquenessPerCategoryShape
+    a sh:SPARQLShape ;
+    sh:message "Same folk term appears in multiple categories" ;
+    sh:select """
+        PREFIX folk: <http://ggen.io/folk-strategy/>
+        SELECT ?term (COUNT(DISTINCT ?cat) as ?cat_count)
+        WHERE {
+            ?term folk:category ?cat .
+        }
+        GROUP BY ?term
+        HAVING (?cat_count > 1)
+    """ .
+
+# Check: Observable consequences should follow from formula
+folk:FormulaConsistencyShape
+    a sh:NodeShape ;
+    sh:targetClass folk:FolkTerm ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Folk term should have observable consequence aligned with formula" ;
+        sh:select """
+            PREFIX folk: <http://ggen.io/folk-strategy/>
+            SELECT $this
+            WHERE {
+                $this folk:formula ?formula .
+                FILTER NOT EXISTS {
+                    $this folk:hasObservableConsequence ?consequence .
+                }
+            }
+        """ ;
+        sh:severity sh:Warning ;
+    ] .
+
+# ==============================================================================
+# DATA QUALITY METRICS
+# ==============================================================================
+
+# Metric: Average formula length (should be >15 characters)
+folk:FormulaLengthMetric
+    a sh:SPARQLShape ;
+    sh:message "Average formula length is too short - formulas should be detailed" ;
+    sh:select """
+        PREFIX folk: <http://ggen.io/folk-strategy/>
+        SELECT (AVG(strlen(str(?formula))) as ?avg_length)
+        WHERE {
+            ?term folk:formula ?formula .
+        }
+        HAVING (?avg_length < 15)
+    """ ;
+    sh:severity sh:Warning .
+
+# Metric: Average usage example length (should be >30 characters)
+folk:ExampleLengthMetric
+    a sh:SPARQLShape ;
+    sh:message "Usage examples are too brief - should provide concrete context" ;
+    sh:select """
+        PREFIX folk: <http://ggen.io/folk-strategy/>
+        SELECT (AVG(strlen(str(?example))) as ?avg_length)
+        WHERE {
+            ?term folk:usageExample ?example .
+        }
+        HAVING (?avg_length < 30)
+    """ ;
+    sh:severity sh:Warning .
+
+# ==============================================================================
+# DOCUMENTATION COMPLETENESS
+# ==============================================================================
+
+# Check: All calculus objects used should be defined
+folk:CalculusObjectDefinedShape
+    a sh:SPARQLShape ;
+    sh:message "Folk term maps to undefined calculus object" ;
+    sh:select """
+        PREFIX folk: <http://ggen.io/folk-strategy/>
+        PREFIX calc: <http://ggen.io/calculus/>
+        SELECT ?term ?calc
+        WHERE {
+            ?term folk:mapsTo ?calc .
+            FILTER NOT EXISTS {
+                ?calc a calc:CalculusObject .
+            }
+        }
+    """ .
+
+# Check: Attribution objects should be defined
+folk:AttributionDefinedShape
+    a sh:SPARQLShape ;
+    sh:message "Folk term references undefined attribution" ;
+    sh:select """
+        PREFIX folk: <http://ggen.io/folk-strategy/>
+        SELECT ?term ?attr
+        WHERE {
+            ?term folk:hasAttribution ?attr .
+            FILTER NOT EXISTS {
+                ?attr a folk:Attribution .
+            }
+        }
+    """ .
+
+# ==============================================================================
+# INTEGRITY CONSTRAINTS
+# ==============================================================================
+
+# Integrity: Each folk term should have meaningful differentiation
+folk:SemanticDistinctionShape
+    a sh:SPARQLShape ;
+    sh:message "Folk terms may lack semantic distinctiveness" ;
+    sh:select """
+        PREFIX folk: <http://ggen.io/folk-strategy/>
+        SELECT ?term1 ?term2
+        WHERE {
+            ?term1 a folk:FolkTerm ;
+                folk:category ?cat1 ;
+                folk:hasAttribution ?attr1 .
+            ?term2 a folk:FolkTerm ;
+                folk:category ?cat1 ;
+                folk:hasAttribution ?attr1 .
+            ?term1 folk:mapsTo ?calc1 .
+            ?term2 folk:mapsTo ?calc1 .
+            FILTER (?term1 < ?term2)
+        }
+    """ ;
+    sh:severity sh:Warning .
+
+# Integrity: Attributed to field should be exhaustive
+folk:AttributionExhaustiveShape
+    a sh:SPARQLShape ;
+    sh:message "Some folk terms lack attribution (required field)" ;
+    sh:select """
+        PREFIX folk: <http://ggen.io/folk-strategy/>
+        SELECT ?term
+        WHERE {
+            ?term a folk:FolkTerm .
+            FILTER NOT EXISTS {
+                ?term folk:hasAttribution ?attr .
+            }
+        }
+    """ .
+
+# ==============================================================================
+# CUSTOM VALIDATION REPORT SHAPE
+# ==============================================================================
+
+folk:ValidationReportShape
+    a sh:SPARQLShape ;
+    sh:message "Validation report for folk-calculus mapping completeness" ;
+    sh:select """
+        PREFIX folk: <http://ggen.io/folk-strategy/>
+        PREFIX calc: <http://ggen.io/calculus/>
+        SELECT
+            (COUNT(DISTINCT ?term) as ?folk_term_count)
+            (COUNT(DISTINCT ?cat) as ?category_count)
+            (COUNT(DISTINCT ?calc) as ?calculus_object_count)
+            (COUNT(DISTINCT ?attr) as ?attribution_count)
+        WHERE {
+            ?term a folk:FolkTerm ;
+                folk:category ?cat ;
+                folk:hasAttribution ?attr ;
+                folk:mapsTo ?calc .
+        }
+    """ .
+

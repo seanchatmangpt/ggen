@@ -1,0 +1,235 @@
+{# chicago-tdd-suite.tera: Generate Chicago TDD test suites from RDF specs #}
+{# Pattern: Arrange (real objects) → Act → Assert (observable behavior) #}
+{# Input: process specs (park_opening, adapter_framework, authority_model) #}
+{# Output: .rs files with AAA tests, real objects, no mocks #}
+
+//! Chicago TDD Test Suite for {{ spec.name | title }}
+//! Generated from {{ spec.uri }}
+//! Hash: {{ spec.hash }}
+//!
+//! Pattern: Arrange (real objects) → Act (observable behavior) → Assert
+//! No mocks. Real collaborators. Tests verify actual behavior.
+//!
+//! Regenerate with: ggen sync
+
+use chicago_tdd_tools::test_fixture::*;
+use ggen_processes::{{ process.module }}::*;
+use ggen_audit::AuditTrail;
+use std::sync::Arc;
+
+{% for test_case in spec.test_cases %}
+
+#[test]
+fn test_{{ test_case.name | snake_case }}() {
+    // ========================================================================
+    // ARRANGE: Create real objects (no mocks)
+    // ========================================================================
+
+    let fixture = TestFixture::new();
+
+    {% for setup in test_case.arrange -%}
+    let {{ setup.var }} = {{ setup.create }};
+    {% endfor %}
+
+    // Real process state machine
+    let mut process = {{ process.name }}::new(
+        {% for param in test_case.init_params -%}
+        {{ param.var }}.clone(),
+        {% endfor %}
+    );
+
+    // Real audit trail (immutable, signed)
+    let audit_trail = Arc::new(AuditTrail::new());
+
+    // Verify ARRANGE state (no side effects yet)
+    assert_eq!(process.current_state(), "{{ test_case.initial_state }}");
+
+    // ========================================================================
+    // ACT: Observable behavior (single logical step)
+    // ========================================================================
+
+    {% for action in test_case.act -%}
+    let result = {{ action.call }};
+    {% endfor %}
+
+    // Log to audit trail (real, signed)
+    audit_trail.log_action("{{ test_case.name }}", result.clone());
+
+    // ========================================================================
+    // ASSERT: Verify observable state (not mocks, not side effects)
+    // ========================================================================
+
+    {% for assertion in test_case.assertions -%}
+    assert_eq!({{ assertion.actual }}, {{ assertion.expected }});
+    {% endfor %}
+
+    // Verify process transitioned correctly
+    assert_eq!(process.current_state(), "{{ test_case.final_state }}");
+
+    // Verify audit trail contains exactly this action
+    let audit_log = audit_trail.get_actions();
+    assert_eq!(audit_log.len(), 1);
+    assert_eq!(audit_log[0].action, "{{ test_case.name }}");
+
+    // Verify determinism: re-run produces identical result
+    let result2 = {{ action.call }};
+    assert_eq!(result, result2, "Action must be deterministic");
+}
+
+{% endfor %}
+
+// ============================================================================
+// PROPERTY-BASED TESTS (Verify invariants for all inputs)
+// ============================================================================
+
+{% for property in spec.properties -%}
+
+#[test]
+fn property_{{ property.name | snake_case }}() {
+    use proptest::prelude::*;
+
+    proptest!(|(input in any::<{{ property.input_type }}>())| {
+        let fixture = TestFixture::new();
+        let mut process = {{ process.name }}::new();
+
+        // For all valid inputs, invariant should hold
+        let result = process.transition(input.clone());
+
+        prop_assert!({{ property.invariant }},
+                     "Invariant {{ property.name }} violated for input: {:?}",
+                     input);
+    });
+}
+
+{% endfor %}
+
+// ============================================================================
+// INTEGRATION TESTS (Real collaborators, end-to-end)
+// ============================================================================
+
+#[test]
+fn integration_{{ process.name | snake_case }}_full_workflow() {
+    // Arrange: Multi-step workflow with real objects
+    let fixture = TestFixture::new();
+    let mut process = {{ process.name }}::new();
+    let audit_trail = Arc::new(AuditTrail::new());
+
+    {% for step in spec.workflow_steps -%}
+    // Step: {{ step.description }}
+    let state_before = process.current_state();
+    let result_{{ step.name }} = process.{{ step.action }}({{ step.args }});
+    audit_trail.log_action("{{ step.name }}", result_{{ step.name }}.clone());
+    assert_eq!(process.current_state(), "{{ step.expected_state }}");
+
+    {% endfor %}
+
+    // Final state verification
+    assert_eq!(process.current_state(), "{{ spec.final_state }}");
+
+    // Verify audit trail is immutable and complete
+    let actions = audit_trail.get_actions();
+    assert_eq!(actions.len(), {{ spec.workflow_steps | length }});
+
+    // Verify all actions are signed and timestamped
+    for action in &actions {
+        assert!(!action.signature.is_empty(), "All actions must be signed");
+        assert!(action.timestamp.is_some(), "All actions must be timestamped");
+    }
+}
+
+// ============================================================================
+// FAILURE MODE TESTS (Chicago TDD: test real error conditions)
+// ============================================================================
+
+{% for failure_case in spec.failure_modes -%}
+
+#[test]
+fn test_handles_{{ failure_case.name | snake_case }}() {
+    let fixture = TestFixture::new();
+    let mut process = {{ process.name }}::new();
+
+    // Arrange: Set up condition that triggers failure
+    {% for setup in failure_case.arrange -%}
+    {{ setup.code }};
+    {% endfor %}
+
+    // Act: Trigger the failure condition
+    let result = process.transition({{ failure_case.trigger }});
+
+    // Assert: Verify graceful handling (not panic, not corruption)
+    match result {
+        Err(e) => {
+            // Error is expected
+            assert_eq!(e.error_type(), {{ failure_case.expected_error }});
+
+            // Process state is unchanged (rollback)
+            assert_eq!(process.current_state(), "{{ failure_case.safe_state }}");
+        },
+        Ok(_) => panic!("Expected error for {{ failure_case.name }}, but got Ok"),
+    }
+}
+
+{% endfor %}
+
+// ============================================================================
+// DETERMINISM TESTS (Verify A = μ(O): same spec → identical code behavior)
+// ============================================================================
+
+#[test]
+fn test_determinism_same_input_same_output() {
+    let fixture = TestFixture::new();
+
+    // Create two identical processes from spec
+    let mut process1 = {{ process.name }}::new();
+    let mut process2 = {{ process.name }}::new();
+
+    // Same input to both
+    let input = vec![{% for val in spec.determinism_test_input %}{{ val }}, {% endfor %}];
+
+    // Run both processes
+    let result1 = process1.execute(input.clone());
+    let result2 = process2.execute(input.clone());
+
+    // Verify identical output (byte-for-byte equality)
+    assert_eq!(
+        format!("{:?}", result1),
+        format!("{:?}", result2),
+        "Same spec → same behavior (determinism violated)"
+    );
+
+    // Verify identical state transitions
+    assert_eq!(process1.current_state(), process2.current_state());
+
+    // Verify audit trails are identical
+    let audit1 = process1.get_audit_log();
+    let audit2 = process2.get_audit_log();
+    assert_eq!(audit1.hash(), audit2.hash());
+}
+
+// ============================================================================
+// SLO COMPLIANCE TESTS (Verify performance SLOs from spec)
+// ============================================================================
+
+#[test]
+fn test_slo_process_completes_within_target_time() {
+    let fixture = TestFixture::new();
+    let mut process = {{ process.name }}::new();
+
+    let start = std::time::Instant::now();
+
+    let result = process.execute(vec![
+        {% for item in spec.slo_test_inputs -%}
+        {{ item }},
+        {% endfor %}
+    ]);
+
+    let elapsed = start.elapsed();
+
+    assert!(result.is_ok());
+    assert!(
+        elapsed.as_millis() < {{ spec.target_latency_ms }},
+        "Process exceeded SLO: {} ms > {} ms",
+        elapsed.as_millis(),
+        {{ spec.target_latency_ms }}
+    );
+}

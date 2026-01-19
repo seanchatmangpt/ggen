@@ -1,0 +1,30 @@
+# Valid ggen.toml configuration for testing
+
+[project]
+name = "test-project"
+version = "1.0.0"
+description = "A test project for clap validation"
+
+[template]
+default_engine = "tera"
+output_dir = "./generated"
+file_ext = ".rs"
+
+[marketplace]
+enabled = true
+cache_ttl = 3600
+registry_url = "https://marketplace.ggen.io"
+
+[build]
+target_dir = "./target"
+release = false
+
+[[templates]]
+name = "cli-template"
+path = "./templates/cli"
+engine = "tera"
+
+[[templates]]
+name = "api-template"
+path = "./templates/api"
+engine = "handlebars"

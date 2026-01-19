@@ -65,76 +65,6 @@ use std::collections::BTreeMap;
 use std::path::PathBuf;
 
 // ============================================================================
-// Diataxis Documentation Section
-// ============================================================================
-
-/// Diataxis documentation configuration (tutorials, how-to, reference, explanations)
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub struct Diataxis {
-    /// Root directory containing source documentation
-    #[serde(default = "default_diataxis_root")]
-    pub root: String,
-
-    /// Path to diataxis index/landing page
-    #[serde(default = "default_diataxis_index")]
-    pub index: String,
-
-    /// Quadrant-specific configuration
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub quadrants: Option<DiataxisQuadrants>,
-}
-
-/// Quadrant definitions
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-#[serde(rename_all = "kebab-case")]
-pub struct DiataxisQuadrants {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub tutorials: Option<DiataxisSection>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub reference: Option<DiataxisSection>,
-
-    #[serde(rename = "how-to", skip_serializing_if = "Option::is_none")]
-    pub how_to: Option<DiataxisSection>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub explanations: Option<DiataxisSection>,
-}
-
-/// Per-quadrant configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub struct DiataxisSection {
-    /// Source directory where authored docs live
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub source: Option<String>,
-
-    /// Output directory where generated docs should be written
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub output: Option<String>,
-
-    /// Navigation entries for this quadrant
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub navigation: Vec<DiataxisNav>,
-}
-
-/// Navigation entry within a quadrant
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
-pub struct DiataxisNav {
-    /// Display title
-    pub title: String,
-
-    /// Relative path to the document
-    pub path: String,
-
-    /// Optional description or summary
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
-}
-
-// ============================================================================
 // Root Configuration
 // ============================================================================
 
@@ -179,10 +109,6 @@ pub struct GgenConfig {
     /// Template configuration
     #[serde(skip_serializing_if = "Option::is_none")]
     pub templates: Option<Templates>,
-
-    /// Diataxis documentation configuration
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub diataxis: Option<Diataxis>,
 
     /// Code generator configuration
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -481,45 +407,6 @@ pub struct Templates {
     /// SPARQL-driven template queries
     #[serde(skip_serializing_if = "Option::is_none")]
     pub queries: Option<BTreeMap<String, String>>,
-}
-
-/// Quadrant identifier for resolved diataxis sections
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
-#[serde(rename_all = "kebab-case")]
-pub enum DiataxisQuadrant {
-    Tutorials,
-    HowTo,
-    Reference,
-    Explanations,
-}
-
-impl DiataxisQuadrant {
-    /// Directory-friendly name for the quadrant
-    pub fn as_dir(&self) -> &'static str {
-        match self {
-            Self::Tutorials => "tutorials",
-            Self::HowTo => "how-to",
-            Self::Reference => "reference",
-            Self::Explanations => "explanations",
-        }
-    }
-}
-
-/// Resolved diataxis section with effective paths and navigation
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub struct ResolvedDiataxisSection {
-    pub quadrant: DiataxisQuadrant,
-    pub source: String,
-    pub output: String,
-    pub navigation: Vec<DiataxisNav>,
-}
-
-fn default_diataxis_root() -> String {
-    "docs".to_string()
-}
-
-fn default_diataxis_index() -> String {
-    "docs/diataxis-index.md".to_string()
 }
 
 // ============================================================================
@@ -1019,74 +906,6 @@ impl GgenConfig {
             }
         }
 
-        self.validate_diataxis()?;
-
-        Ok(())
-    }
-
-    fn validate_diataxis(&self) -> Result<(), String> {
-        let Some(diataxis) = &self.diataxis else {
-            return Ok(());
-        };
-
-        if diataxis.root.trim().is_empty() {
-            return Err("Diataxis root cannot be empty".to_string());
-        }
-
-        if diataxis.index.trim().is_empty() {
-            return Err("Diataxis index cannot be empty".to_string());
-        }
-
-        let quadrants = diataxis
-            .quadrants
-            .as_ref()
-            .ok_or_else(|| "Diataxis quadrants must be specified".to_string())?;
-
-        let mut seen = false;
-        let mut check_section = |name: &str, section: &DiataxisSection| -> Result<(), String> {
-            seen = true;
-
-            if let Some(source) = &section.source {
-                if source.trim().is_empty() {
-                    return Err(format!("{name} source cannot be empty"));
-                }
-            }
-
-            if let Some(output) = &section.output {
-                if output.trim().is_empty() {
-                    return Err(format!("{name} output cannot be empty"));
-                }
-            }
-
-            for nav in &section.navigation {
-                if nav.title.trim().is_empty() {
-                    return Err(format!("{name} navigation title cannot be empty"));
-                }
-                if nav.path.trim().is_empty() {
-                    return Err(format!("{name} navigation path cannot be empty"));
-                }
-            }
-
-            Ok(())
-        };
-
-        if let Some(section) = &quadrants.tutorials {
-            check_section("tutorials", section)?;
-        }
-        if let Some(section) = &quadrants.how_to {
-            check_section("how-to", section)?;
-        }
-        if let Some(section) = &quadrants.reference {
-            check_section("reference", section)?;
-        }
-        if let Some(section) = &quadrants.explanations {
-            check_section("explanations", section)?;
-        }
-
-        if !seen {
-            return Err("At least one diataxis quadrant must be defined".to_string());
-        }
-
         Ok(())
     }
 
@@ -1155,55 +974,6 @@ impl GgenConfig {
 
         vars
     }
-
-    /// Resolve diataxis sections with effective source/output paths and navigation
-    ///
-    /// Defaults:
-    /// - source: `<root>/<quadrant>`
-    /// - output: `<root>/generated/<quadrant>`
-    pub fn resolved_diataxis_sections(&self) -> Option<Vec<ResolvedDiataxisSection>> {
-        let diataxis = self.diataxis.as_ref()?;
-        let quadrants = diataxis.quadrants.as_ref()?;
-
-        let mut sections = Vec::new();
-
-        let resolve =
-            |quadrant: DiataxisQuadrant, section: &DiataxisSection| -> ResolvedDiataxisSection {
-                let source = section
-                    .source
-                    .clone()
-                    .unwrap_or_else(|| format!("{}/{}", diataxis.root, quadrant.as_dir()));
-                let output = section.output.clone().unwrap_or_else(|| {
-                    format!("{}/generated/{}", diataxis.root, quadrant.as_dir())
-                });
-
-                ResolvedDiataxisSection {
-                    quadrant,
-                    source,
-                    output,
-                    navigation: section.navigation.clone(),
-                }
-            };
-
-        if let Some(section) = &quadrants.tutorials {
-            sections.push(resolve(DiataxisQuadrant::Tutorials, section));
-        }
-        if let Some(section) = &quadrants.how_to {
-            sections.push(resolve(DiataxisQuadrant::HowTo, section));
-        }
-        if let Some(section) = &quadrants.reference {
-            sections.push(resolve(DiataxisQuadrant::Reference, section));
-        }
-        if let Some(section) = &quadrants.explanations {
-            sections.push(resolve(DiataxisQuadrant::Explanations, section));
-        }
-
-        if sections.is_empty() {
-            None
-        } else {
-            Some(sections)
-        }
-    }
 }
 
 impl Default for GgenConfig {
@@ -1231,7 +1001,6 @@ impl Default for GgenConfig {
             target: BTreeMap::new(),
             ontology: None,
             templates: None,
-            diataxis: None,
             generators: None,
             lifecycle: None,
             plugins: None,
@@ -1317,60 +1086,5 @@ mod tests {
         assert_eq!(deps.len(), 2);
         assert!(deps.contains_key("base"));
         assert!(deps.contains_key("dev-dep"));
-    }
-
-    #[test]
-    fn test_resolved_diataxis_sections_with_defaults() {
-        let config: GgenConfig = toml::from_str(
-            r#"
-            [project]
-            name = "docs"
-            version = "1.0.0"
-
-            [diataxis]
-
-            [diataxis.quadrants.tutorials]
-            output = "generated/tutorials"
-
-            [[diataxis.quadrants.tutorials.navigation]]
-            title = "Intro"
-            path = "diataxis/tutorials/intro.md"
-        "#,
-        )
-        .unwrap();
-
-        config.validate().unwrap();
-        let sections = config.resolved_diataxis_sections().unwrap();
-        let tutorials = sections
-            .iter()
-            .find(|s| matches!(s.quadrant, DiataxisQuadrant::Tutorials))
-            .unwrap();
-
-        assert_eq!(tutorials.source, "docs/tutorials");
-        assert_eq!(tutorials.output, "generated/tutorials");
-        assert_eq!(tutorials.navigation.len(), 1);
-    }
-
-    #[test]
-    fn test_invalid_diataxis_empty_nav_path() {
-        let config: GgenConfig = toml::from_str(
-            r#"
-            [project]
-            name = "docs"
-            version = "1.0.0"
-
-            [diataxis]
-
-            [diataxis.quadrants.reference]
-            source = "docs/reference"
-
-            [[diataxis.quadrants.reference.navigation]]
-            title = "Ref"
-            path = ""
-        "#,
-        )
-        .unwrap();
-
-        assert!(config.validate().is_err());
     }
 }

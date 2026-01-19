@@ -1,36 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Production Validation Reports](#production-validation-reports)
-  - [ggen Marketplace v3.2.0 Certification Documentation](#ggen-marketplace-v320-certification-documentation)
-  - [Quick Links](#quick-links)
-  - [Certification Summary](#certification-summary)
-    - [Overall Assessment: ✅ **GO FOR PRODUCTION**](#overall-assessment--go-for-production)
-    - [Component Scores](#component-scores)
-  - [Key Findings](#key-findings)
-    - [Strengths ✅](#strengths-)
-    - [Known Limitations ⚠️](#known-limitations-)
-    - [Recommendations for v3.3.0 🔧](#recommendations-for-v330-)
-  - [Report Structure](#report-structure)
-    - [1. POKA YOKE Validation Report (2,400+ lines)](#1-poka-yoke-validation-report-2400-lines)
-    - [2. FMEA Validation Report (2,200+ lines)](#2-fmea-validation-report-2200-lines)
-    - [3. RDF/Turtle Validation Report (1,800+ lines)](#3-rdfturtle-validation-report-1800-lines)
-    - [4. Marketplace V2 Validation Report (1,600+ lines)](#4-marketplace-v2-validation-report-1600-lines)
-    - [5. Combined Certification (2,000+ lines)](#5-combined-certification-2000-lines)
-  - [Validation Methodology](#validation-methodology)
-    - [Standards Used](#standards-used)
-    - [Testing Approach](#testing-approach)
-    - [Validation Phases](#validation-phases)
-  - [Usage Guide](#usage-guide)
-    - [For Developers](#for-developers)
-    - [For Architects](#for-architects)
-    - [For Executives](#for-executives)
-  - [Certification Authority](#certification-authority)
-  - [Contact & Support](#contact--support)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Production Validation Reports
 ## ggen Marketplace v3.2.0 Certification Documentation
 

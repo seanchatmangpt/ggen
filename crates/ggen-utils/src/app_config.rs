@@ -83,7 +83,7 @@ use std::path::Path;
 use std::sync::LazyLock;
 use std::sync::RwLock;
 
-use super::error::{Error, Result};
+use super::error::Result;
 use crate::types::LogLevel;
 
 // CONFIG static variable. It's actually an AppConfig
@@ -192,14 +192,16 @@ impl AppConfig {
     ///
     /// # Errors
     ///
-    /// Returns an error if the configuration file cannot be read or parsed, or if the lock is poisoned.
+    /// Returns an error if the configuration file cannot be read or parsed.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the `RwLock` is poisoned.
     pub fn merge_config(config_file: Option<&Path>) -> Result<()> {
         // Merge settings with config file if there is one
         if let Some(config_file_path) = config_file {
             {
-                let mut w = BUILDER
-                    .write()
-                    .map_err(|e| Error::new(&format!("RwLock poisoned: {}", e)))?;
+                let mut w = BUILDER.write().expect("RwLock should not be poisoned");
                 *w = w.clone().add_source(config::File::with_name(
                     config_file_path.to_str().unwrap_or(""),
                 ));
@@ -212,12 +214,14 @@ impl AppConfig {
     ///
     /// # Errors
     ///
-    /// Returns an error if the configuration value cannot be set or if the lock is poisoned.
+    /// Returns an error if the configuration value cannot be set.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the `RwLock` is poisoned.
     pub fn set(key: &str, value: &str) -> Result<()> {
         {
-            let mut w = BUILDER
-                .write()
-                .map_err(|e| Error::new(&format!("RwLock poisoned: {}", e)))?;
+            let mut w = BUILDER.write().expect("RwLock should not be poisoned");
             *w = w.clone().set_override(key, value)?;
         }
 

@@ -1,30 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Data Model Bridging - V1 ↔ V2 Conversion](#data-model-bridging---v1--v2-conversion)
-  - [Overview](#overview)
-  - [Core Data Models](#core-data-models)
-    - [V1 Data Model (Current)](#v1-data-model-current)
-    - [V2 Data Model (RDF-based)](#v2-data-model-rdf-based)
-    - [Unified Data Model (Adapter Layer)](#unified-data-model-adapter-layer)
-  - [Conversion Layer](#conversion-layer)
-    - [V1 → Unified Conversion](#v1-%E2%86%92-unified-conversion)
-    - [V2 → Unified Conversion](#v2-%E2%86%92-unified-conversion)
-    - [Unified → V1 Conversion](#unified-%E2%86%92-v1-conversion)
-    - [Unified → V2 Conversion](#unified-%E2%86%92-v2-conversion)
-  - [RDF Schema Definition](#rdf-schema-definition)
-    - [Package Ontology](#package-ontology)
-  - [Manifest Format Migration](#manifest-format-migration)
-    - [V1 Manifest (gpack.yaml)](#v1-manifest-gpackyaml)
-    - [V2 Manifest (gpack.yaml + RDF metadata)](#v2-manifest-gpackyaml--rdf-metadata)
-  - [Bidirectional Conversion Testing](#bidirectional-conversion-testing)
-  - [Schema Versioning Strategy](#schema-versioning-strategy)
-  - [Migration Utilities](#migration-utilities)
-  - [Success Criteria](#success-criteria)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Data Model Bridging - V1 ↔ V2 Conversion
 
 ## Overview
@@ -86,7 +59,7 @@ pub struct V1PackageMetadata {
 ### V2 Data Model (RDF-based)
 
 ```rust
-// ggen-marketplace/src/models.rs
+// ggen-marketplace-v2/src/models.rs
 
 /// V2 Package model (RDF triple format)
 #[derive(Debug, Clone)]
@@ -292,7 +265,7 @@ impl From<ggen_marketplace::V1Dependency> for UnifiedDependency {
 ```rust
 // ggen-domain/src/marketplace/conversion/v2_to_unified.rs
 
-use ggen_marketplace::{V2Package, PackageMetadata};
+use ggen_marketplace_v2::{V2Package, PackageMetadata};
 
 impl From<V2Package> for UnifiedPackage {
     fn from(v2: V2Package) -> Self {
@@ -325,8 +298,8 @@ impl From<V2Package> for UnifiedPackage {
     }
 }
 
-impl From<ggen_marketplace::Dependency> for UnifiedDependency {
-    fn from(v2: ggen_marketplace::Dependency) -> Self {
+impl From<ggen_marketplace_v2::Dependency> for UnifiedDependency {
+    fn from(v2: ggen_marketplace_v2::Dependency) -> Self {
         Self {
             name: v2.name,
             version: v2.version,
@@ -382,7 +355,7 @@ impl TryFrom<UnifiedPackage> for V1Package {
 ```rust
 // ggen-domain/src/marketplace/conversion/unified_to_v2.rs
 
-use ggen_marketplace::{V2Package, PackageMetadata, Triple, TripleObject};
+use ggen_marketplace_v2::{V2Package, PackageMetadata, Triple, TripleObject};
 
 impl TryFrom<UnifiedPackage> for V2Package {
     type Error = ConversionError;
@@ -519,7 +492,7 @@ fn build_package_triples(uri: &PackageUri, pkg: &UnifiedPackage) -> Result<Vec<T
 ### Package Ontology
 
 ```turtle
-# ggen-marketplace/schemas/package.ttl
+# ggen-marketplace-v2/schemas/package.ttl
 
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .

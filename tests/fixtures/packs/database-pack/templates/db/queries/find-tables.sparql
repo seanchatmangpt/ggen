@@ -1,0 +1,8 @@
+PREFIX db: <https://example.org/db/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?table ?column
+WHERE {
+    ?table a db:Table ;
+           db:hasColumn ?column .
+}

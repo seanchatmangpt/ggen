@@ -1,0 +1,1142 @@
+@prefix : <http://ggen.example.org/disney/ops-engineer-redesign-program#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix program: <http://ggen.example.org/program#> .
+
+# ============================================================================
+# WAVE 3 TASK 9: OPS ENGINEER 2.0 COMPLETE PROGRAM TRACKING
+# 200+ Engineers managed through 12-week transformation (800→500)
+# ============================================================================
+
+:OpseEngineering20Program a program:Program ;
+    rdfs:label "Ops Engineer 2.0 Complete Program" ;
+    rdfs:comment "Comprehensive tracking of all 200+ ops engineers through organizational redesign" ;
+    program:programID "DISNEY-WAVE3-TASK9" ;
+    program:startDate "2026-01-20"^^xsd:date ;
+    program:endDate "2026-04-12"^^xsd:date ;
+    program:durationWeeks 12 ;
+    program:executiveOwner "Chief Operations Officer" ;
+    program:programDirector "VP, Ops Engineering" ;
+    program:totalEngineers 200 ;
+    program:targetEngineersRelocated 200 ;
+    program:currentHeadcount 800 ;
+    program:targetHeadcount 500 ;
+    program:headdountReduction 300 ;
+    program:headdountReductionMethod "Attrition (60%), non-renewal (30%), early retirement (10%)" ;
+    program:timelineAcceptability "12-18 months (gradual, sustainable)" ;
+    program:criticalSuccessFactor [
+        rdf:type program:CSF ;
+        program:name "Manager Alignment" ;
+        program:rationale "Managers must embrace new role model; rejection = program failure"
+    ] ;
+    program:criticalSuccessFactor [
+        rdf:type program:CSF ;
+        program:name "Retention Control" ;
+        program:rationale "Attrition spike >10% = org destabilization; need <5% spike target"
+    ] ;
+    program:criticalSuccessFactor [
+        rdf:type program:CSF ;
+        program:name "Early Wins" ;
+        program:rationale "Visible promotions and success stories by Week 10 = morale sustaining"
+    ] ;
+    program:criticalSuccessFactor [
+        rdf:type program:CSF ;
+        program:name "Operational Continuity" ;
+        program:rationale "Ops success rate cannot dip below 99% - customer facing"
+    ] ;
+    program:successMetric [
+        rdf:type program:Metric ;
+        program:name "Attrition Spike" ;
+        program:target "< 5% above baseline"^^xsd:string ;
+        program:baseline "8% annual"^^xsd:string ;
+        program:measurementFrequency "Bi-weekly"
+    ] ;
+    program:successMetric [
+        rdf:type program:Metric ;
+        program:name "Manager Satisfaction" ;
+        program:target "> 70%"^^xsd:string ;
+        program:baseline "Unknown (survey baseline)"^^xsd:string ;
+        program:measurementFrequency "Week 5, Week 12"
+    ] ;
+    program:successMetric [
+        rdf:type program:Metric ;
+        program:name "Engineer Career Clarity" ;
+        program:target "> 75% report clear path"^^xsd:string ;
+        program:baseline "~40% currently"^^xsd:string ;
+        program:measurementFrequency "Week 6, Week 12"
+    ] ;
+    program:successMetric [
+        rdf:type program:Metric ;
+        program:name "Ops Success Rate" ;
+        program:target "> 98%"^^xsd:string ;
+        program:baseline "99.2%"^^xsd:string ;
+        program:measurementFrequency "Continuous"
+    ] ;
+    program:successMetric [
+        rdf:type program:Metric ;
+        program:name "Role Assignment Completion" ;
+        program:target "100% by Week 6"^^xsd:string ;
+        program:baseline "0% at start"^^xsd:string ;
+        program:measurementFrequency "Weekly"
+    ] .
+
+# ============================================================================
+# ENGINEER COHORTS (Key to Tracking)
+# ============================================================================
+
+:EngineerCohort_ClearedForPromotion a program:EngineerCohort ;
+    rdfs:label "Cohort 1: High Performers Cleared for Promotion" ;
+    rdfs:comment "Top-tier engineers ready for immediate advancement into senior/architect roles" ;
+    program:cohortID "C1-HiPo" ;
+    program:targetCount 80 ;
+    program:criteria [
+        rdf:type program:CohortCriterion ;
+        program:dimension "Performance" ;
+        program:requirement "Performance rating 4.0+ (top 15%)"
+    ] ;
+    program:criteria [
+        rdf:type program:CohortCriterion ;
+        program:dimension "Readiness" ;
+        program:requirement "Manager confirms readiness for next level within 6 months"
+    ] ;
+    program:criteria [
+        rdf:type program:CohortCriterion ;
+        program:dimension "Retention" ;
+        program:requirement "Retention risk: Low (no external offers, internal motivation)"
+    ] ;
+    program:expectedOutcome "50-60 promoted to Senior/Architect within 6 months (proof of concept)" ;
+    program:retentionExpectation "98%+ (opportunity is powerful retention lever)" ;
+    program:trainingRequired [
+        rdf:type program:Training ;
+        program:name "Senior Role Readiness" ;
+        program:hours 4 ;
+        program:content "Strategic thinking, mentoring skills, broader scope"
+    ] ;
+    program:communicationStrategy "Announce early and publicly - these are the proof points" ;
+    program:riskMitigation "Fast-track 5-10 to promotions by Week 10 to demonstrate path is real" .
+
+:EngineerCohort_ReadyForStability a program:EngineerCohort ;
+    rdfs:label "Cohort 2: Core Stable Engineers (Long-term IC)" ;
+    rdfs:comment "Solid performers who want to stay as individual contributors, non-managerial" ;
+    program:cohortID "C2-Stable" ;
+    program:targetCount 150 ;
+    program:criteria [
+        rdf:type program:CohortCriterion ;
+        program:dimension "Performance" ;
+        program:requirement "Performance rating 3.0-3.5 (solid, reliable)"
+    ] ;
+    program:criteria [
+        rdf:type program:CohortCriterion ;
+        program:dimension "Preference" ;
+        program:requirement "Expressed preference for IC track, not people management"
+    ] ;
+    program:criteria [
+        rdf:type program:CohortCriterion ;
+        program:dimension "Stability" ;
+        program:requirement "Tenure 3+ years, low flight risk"
+    ] ;
+    program:newRole "Senior Ops Engineer (IC3-IC4) or Ops Engineer (IC1-IC2) - promoted in place" ;
+    program:expectedOutcome "Compensation increase (10-15%), expanded authority, same team" ;
+    program:retentionExpectation "95%+ (comp increase + autonomy + no forced management)" ;
+    program:riskMitigation "Clear messaging: 'You don't have to manage people to advance or earn well - IC path is valued'" ;
+    program:trainingRequired [
+        rdf:type program:Training ;
+        program:name "Expanded Process Authority" ;
+        program:hours 2 ;
+        program:content "How to make decisions autonomously within process frameworks"
+    ] ;
+    program:communicationStrategy "Celebrate 'we value expert individual contributors' (defuse promotion anxiety)" .
+
+:EngineerCohort_AttritionAccounted a program:EngineerCohort ;
+    rdfs:label "Cohort 3: Attrition-Accounted (Expected Natural Attrition)" ;
+    rdfs:comment "Segment expected to leave org during transition (baseline attrition projected)" ;
+    program:cohortID "C3-Attrition" ;
+    program:targetCount 30 ;
+    program:rationale "At 8% annual attrition over 6 months = 4% = ~32 engineers expected to leave naturally" ;
+    program:baselineAttrition "4% over 6 months"^^xsd:string ;
+    program:criteria [
+        rdf:type program:CohortCriterion ;
+        program:dimension "Risk" ;
+        program:requirement "Retention risk flagged by manager (external job search, reduced engagement)"
+    ] ;
+    program:criteria [
+        rdf:type program:CohortCriterion ;
+        program:dimension "Tenure" ;
+        program:requirement "Often newer engineers (6-18 months) or those with limited advancement"
+    ] ;
+    program:strategy "Don't invest heavily in retention - focus resources on C1 and C2 instead" ;
+    program:communicationStrategy "Low-touch; not targeted for special development" ;
+    program:expectedOutcome "10-15 voluntary departures (acceptable, baseline-aligned)" ;
+    program:targetOutcome "Attrition stays ≤5%, NOT exceeding baseline + 2%" .
+
+:EngineerCohort_RequiringIntervention a program:EngineerCohort ;
+    rdfs:label "Cohort 4: Requiring Active Intervention (Flight Risk)" ;
+    rdfs:comment "High-value engineers who may leave; need active retention campaign" ;
+    program:cohortID "C4-Intervention" ;
+    program:targetCount 40 ;
+    program:criteria [
+        rdf:type program:CohortCriterion ;
+        program:dimension "Value" ;
+        program:requirement "High performers (3.5+) OR critical skill holders"
+    ] ;
+    program:criteria [
+        rdf:type program:CohortCriterion ;
+        program:dimension "Risk" ;
+        program:requirement "Retention risk: Medium-High (external offers likely, uncertainty about future)"
+    ] ;
+    program:criteria [
+        rdf:type program:CohortCriterion ;
+        program:dimension "Transition" ;
+        program:requirement "May be losing supervisory/team lead roles in flattening (career disruption)"
+    ] ;
+    program:retentionStrategy "Targeted career planning, comp adjustments, mentoring, fast-track opportunities" ;
+    program:interventions [
+        rdf:type program:RetentionIntervention ;
+        program:type "Executive Mentoring" ;
+        program:description "Pair with Ops Architect or Lead for career counseling" ;
+        program:frequency "Monthly, 1:1 sessions"
+    ] ;
+    program:interventions [
+        rdf:type program:RetentionIntervention ;
+        program:type "Accelerated Promotion Consideration" ;
+        program:description "Front-line candidates for Week 10 promotion announcements" ;
+        program:timing "Announce by Week 9 to retain"
+    ] ;
+    program:interventions [
+        rdf:type program:RetentionIntervention ;
+        program:type "Stretch Assignment" ;
+        program:description "High-profile project or leadership opportunity" ;
+        program:duration "3-6 months"
+    ] ;
+    program:interventions [
+        rdf:type program:RetentionIntervention ;
+        program:type "Compensation Review" ;
+        program:description "Market adjustment or retention bonus if needed" ;
+        program:triggers "If external offer received or resignation risk spiked"
+    ] ;
+    program:expectedOutcome "90%+ retention (vs 80% baseline for this cohort)" ;
+    program:successCriteria "Zero resignations in this cohort through Week 16" .
+
+# ============================================================================
+# TASK BREAKDOWN (WHO DOES WHAT, BY WEEK)
+# ============================================================================
+
+:ProgramTask_OrgAnalysis a program:Task ;
+    rdfs:label "Task 1: Org Analysis & Skills Inventory" ;
+    rdfs:comment "Analyze current org, identify high performers, map skills, assess readiness" ;
+    program:taskID "T1" ;
+    program:phase "Discovery (Week 1-2)" ;
+    program:owner "VP Ops Engineering + HR Partner" ;
+    program:completionDate "2026-01-31"^^xsd:date ;
+    program:estimatedHours 80 ;
+    program:subtasks [
+        rdf:type program:Subtask ;
+        program:name "Performance data pull (last 12 months)" ;
+        program:owner "HR Analytics" ;
+        program:days 2
+    ] ;
+    program:subtasks [
+        rdf:type program:Subtask ;
+        program:name "Skills inventory survey (technical, domain, interpersonal)" ;
+        program:owner "Ops Leadership" ;
+        program:days 3
+    ] ;
+    program:subtasks [
+        rdf:type program:Subtask ;
+        program:name "Peer review sessions (managers assess readiness)" ;
+        program:owner "VP Ops Engineering" ;
+        program:days 3
+    ] ;
+    program:subtasks [
+        rdf:type program:Subtask ;
+        program:name "Retention risk scoring (exit probability model)" ;
+        program:owner "HR + Ops Analytics" ;
+        program:days 2
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Engineer Profile Database" ;
+        program:description "800 engineers × {performance, skills, readiness, retention risk, recommended cohort}"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Cohort Recommendations" ;
+        program:description "80 C1, 150 C2, 30 C3, 40 C4 (+ gaps to fill from external)"
+    ] ;
+    program:risks [
+        rdf:type program:Risk ;
+        program:description "Manager subjectivity in readiness assessment" ;
+        program:mitigation "Use objective criteria + calibration sessions"
+    ] ;
+    program:successCriteria "Database complete, 100% of engineers coded by Jan 31" .
+
+:ProgramTask_OrgDesign a program:Task ;
+    rdfs:label "Task 2: Org Design & Role Definitions" ;
+    rdfs:comment "Design new 2-tier IC + 3-tier leadership structure, define roles" ;
+    program:taskID "T2" ;
+    program:phase "Design (Week 3-4)" ;
+    program:owner "VP Ops Engineering + Consulting Partner (if needed)" ;
+    program:completionDate "2026-02-14"^^xsd:date ;
+    program:dependsOn :ProgramTask_OrgAnalysis ;
+    program:estimatedHours 120 ;
+    program:subtasks [
+        rdf:type program:Subtask ;
+        program:name "Org chart design (2-tier IC + 3-tier leadership)" ;
+        program:owner "VP Ops Engineering" ;
+        program:days 3
+    ] ;
+    program:subtasks [
+        rdf:type program:Subtask ;
+        program:name "Role descriptions (500+ positions, detailed)" ;
+        program:owner "HR + Ops Leadership" ;
+        program:days 5
+    ] ;
+    program:subtasks [
+        rdf:type program:Subtask ;
+        program:name "Authority model documentation (who decides what)" ;
+        program:owner "VP Ops Engineering" ;
+        program:days 2
+    ] ;
+    program:subtasks [
+        rdf:type program:Subtask ;
+        program:name "Manager role redefinition (shift from task assignment → people architect)" ;
+        program:owner "HR + VP Ops Engineering" ;
+        program:days 3
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "New Org Chart (500 roles, 10 reporting lines)"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Role Definitions (IC1-IC6, Manager, Architect, Lead, Director)"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Promotion Criteria Framework"
+    ] ;
+    program:successCriteria "Org design approved by COO by Feb 14" .
+
+:ProgramTask_CompensationDesign a program:Task ;
+    rdfs:label "Task 3: Compensation Band Design" ;
+    rdfs:comment "Design new compensation bands reflecting expanded roles and autonomy" ;
+    program:taskID "T3" ;
+    program:phase "Design (Week 3-4)" ;
+    program:owner "VP Ops Engineering + Compensation Specialist + HR" ;
+    program:completionDate "2026-02-14"^^xsd:date ;
+    program:parallelWith :ProgramTask_OrgDesign ;
+    program:estimatedHours 60 ;
+    program:subtasks [
+        rdf:type program:Subtask ;
+        program:name "Benchmark market rates (IC1-IC6, Manager, Architect)" ;
+        program:owner "Compensation Specialist" ;
+        program:days 2
+    ] ;
+    program:subtasks [
+        rdf:type program:Subtask ;
+        program:name "Design compensation bands with 10-20% increases (justified by productivity)" ;
+        program:owner "CFO + HR + Ops" ;
+        program:days 3
+    ] ;
+    program:subtasks [
+        rdf:type program:Subtask ;
+        program:name "Financial impact analysis (total comp increase, budget absorption)" ;
+        program:owner "CFO" ;
+        program:days 2
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Compensation Band Framework (6 bands + 2 leadership bands)"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Total Comp Increase Projection (% by cohort, total budget impact)"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Retention Bonus Strategy (Cohort 4 intervention)"
+    ] ;
+    program:successCriteria "CFO approves comp budget by Feb 14" .
+
+:ProgramTask_CareerPathDef a program:Task ;
+    rdfs:label "Task 4: Career Path Definitions & Promotion Criteria" ;
+    rdfs:comment "Define transparent promotion paths: IC→Senior→Architect→Lead" ;
+    program:taskID "T4" ;
+    program:phase "Design (Week 3-4)" ;
+    program:owner "VP Ops Engineering + HR" ;
+    program:completionDate "2026-02-14"^^xsd:date ;
+    program:parallelWith :ProgramTask_OrgDesign ;
+    program:estimatedHours 80 ;
+    program:subtasks [
+        rdf:type program:Subtask ;
+        program:name "Define IC1→IC2→IC3→IC4→IC5→IC6 progression criteria" ;
+        program:owner "VP Ops Engineering + Architects" ;
+        program:days 3
+    ] ;
+    program:subtasks [
+        rdf:type program:Subtask ;
+        program:name "Develop manager/leader track (parallel path)" ;
+        program:owner "HR + VP Ops Engineering" ;
+        program:days 2
+    ] ;
+    program:subtasks [
+        rdf:type program:Subtask ;
+        program:name "Create success stories (case studies of typical paths)" ;
+        program:owner "HR" ;
+        program:days 2
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Career Progression Framework (transparent, achievable)"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Promotion Criteria Rubrics (by role, assessment template)"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Success Story Case Studies (5-10 exemplary paths)"
+    ] ;
+    program:successCriteria "Framework approved and ready for communication by Feb 14" .
+
+:ProgramTask_ManagerTraining a program:Task ;
+    rdfs:label "Task 5: Manager Training & Alignment (CRITICAL)" ;
+    rdfs:comment "Train 25 managers on new role model, objection handling, accountability" ;
+    program:taskID "T5" ;
+    program:phase "Manager Alignment (Week 5)" ;
+    program:owner "VP Ops Engineering + HR + External Coach" ;
+    program:completionDate "2026-02-28"^^xsd:date ;
+    program:dependsOn :ProgramTask_OrgDesign, :ProgramTask_CareerPathDef ;
+    program:estimatedHours 200 ;
+    program:successCriteria "100% of 25 managers trained and >70% satisfied with new model by Week 5" ;
+    program:trainingModules [
+        rdf:type program:TrainingModule ;
+        program:name "From Task Assignment to Process Architecture" ;
+        program:hours 8 ;
+        program:topics ("Shift in authority model" "How to enable autonomy" "Decision frameworks" "Removing blockers instead of assigning tasks") ;
+        program:facilitator "VP Ops Engineering + External Coach"
+    ] ;
+    program:trainingModules [
+        rdf:type program:TrainingModule ;
+        program:name "Career Development & Retention Strategies" ;
+        program:hours 4 ;
+        program:topics ("Quarterly career conversations" "Promotion readiness assessment" "Handling resistance to flattening" "Building succession pipeline") ;
+        program:facilitator "HR"
+    ] ;
+    program:trainingModules [
+        rdf:type program:TrainingModule ;
+        program:name "Difficult Conversations Toolkit" ;
+        program:hours 4 ;
+        program:topics ("Role clarity conversations" "Handling concerns about compensation" "Managing team cohesion" "Navigating attrition fears") ;
+        program:facilitator "External Coach"
+    ] ;
+    program:trainingModules [
+        rdf:type program:TrainingModule ;
+        program:name "Manager Success Metrics & Accountability" ;
+        program:hours 2 ;
+        program:topics ("What you're measured on (retention, team health, ops success)" "Weekly reporting" "Escalation protocols") ;
+        program:facilitator "VP Ops Engineering"
+    ] ;
+    program:format "In-person or virtual sessions, small groups (8-10 managers)" ;
+    program:duration "5 full days (1 week of training)" ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Manager Training Completion Certificates"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Objection Handling Playbook (FAQ + talking points)"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Manager Satisfaction Survey Results"
+    ] ;
+    program:risks [
+        rdf:type program:Risk ;
+        program:description "Manager resistance to 'letting go' of task assignment authority" ;
+        program:mitigation "Frame as evolution, not threat; show data on autonomy benefits; executive sponsorship"
+    ] ;
+    program:risks [
+        rdf:type program:Risk ;
+        program:description "Concern about loss of control / visibility" ;
+        program:mitigation "Introduce metrics-based visibility (ops dashboards, retention tracking, not task lists)"
+    ] ;
+    program:risks [
+        rdf:type program:Risk ;
+        program:description "Fear of headcount reduction leading to manager layoffs" ;
+        program:mitigation "Commit: No manager layoffs; 25 manager roles protected"
+    ] .
+
+:ProgramTask_AllHandsAnnounce a program:Task ;
+    rdfs:label "Task 6: All-Hands Announcement" ;
+    rdfs:comment "Announce new org structure, career paths, compensation, why it matters" ;
+    program:taskID "T6" ;
+    program:phase "Communication (Week 6)" ;
+    program:owner "VP Ops Engineering + CEO/COO" ;
+    program:completionDate "2026-03-07"^^xsd:date ;
+    program:dependsOn :ProgramTask_ManagerTraining ;
+    program:estimatedHours 40 ;
+    program:format "Company-wide all-hands meeting (in-person + virtual)" ;
+    program:keyMessages [
+        rdf:type program:Message ;
+        program:content "This is a strategic redesign for productivity AND career growth, not layoffs" ;
+        program:emphasis "Emphasize opportunity, not threat"
+    ] ;
+    program:keyMessages [
+        rdf:type program:Message ;
+        program:content "New roles come with expanded autonomy - you'll make more decisions, faster" ;
+        program:emphasis "Appeal to desire for agency"
+    ] ;
+    program:keyMessages [
+        rdf:type program:Message ;
+        program:content "Clear promotion paths: 50% of you could advance to Senior within 24 months" ;
+        program:emphasis "Hope factor - this is achievable"
+    ] ;
+    program:keyMessages [
+        rdf:type program:Message ;
+        program:content "Competitive compensation increases for expanded roles (10-20% at IC1-IC2)" ;
+        program:emphasis "Show financials, justify with productivity"
+    ] ;
+    program:keyMessages [
+        rdf:type program:Message ;
+        program:content "No layoffs - headcount reduction through attrition and non-renewals" ;
+        program:emphasis "Clear commitment"
+    ] ;
+    program:agenda [
+        rdf:type program:AgendaItem ;
+        program:topic "Why we're doing this (business case)" ;
+        program:speaker "COO" ;
+        program:minutes 15
+    ] ;
+    program:agenda [
+        rdf:type program:AgendaItem ;
+        program:topic "What's changing (new org structure, roles, reporting)" ;
+        program:speaker "VP Ops Engineering" ;
+        program:minutes 20
+    ] ;
+    program:agenda [
+        rdf:type program:AgendaItem ;
+        program:topic "Career paths (transparent progression, criteria)" ;
+        program:speaker "VP Ops Engineering + HR" ;
+        program:minutes 15
+    ] ;
+    program:agenda [
+        rdf:type program:AgendaItem ;
+        program:topic "Compensation updates (bands, why they increase)" ;
+        program:speaker "HR" ;
+        program:minutes 10
+    ] ;
+    program:agenda [
+        rdf:type program:AgendaItem ;
+        program:topic "Q&A session (live, unscripted)" ;
+        program:speaker "VP Ops Engineering + executives" ;
+        program:minutes 20
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Presentation Deck (org structure, career paths, comp bands)"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Recording (for those who couldn't attend)"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "FAQ Document (50+ common questions + answers)"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Individual Role Packets (prepared for Week 6-7 conversations)"
+    ] ;
+    program:successCriteria "Live attendance 85%+, 95%+ watching recording by end of Week 6" ;
+    program:successCriteria "Sentiment analysis: 70%+ positive or neutral (not fearful)" ;
+    program:successCriteria "FAQ addresses 80%+ of questions" .
+
+:ProgramTask_IndividualConversations a program:Task ;
+    rdfs:label "Task 7: Individual Role Conversations" ;
+    rdfs:comment "Each manager has 1-on-1 with each direct report (200+ conversations)" ;
+    program:taskID "T7" ;
+    program:phase "Communication (Week 6)" ;
+    program:owner "All 25 Managers" ;
+    program:completionDate "2026-03-14"^^xsd:date ;
+    program:dependsOn :ProgramTask_AllHandsAnnounce ;
+    program:estimatedHours 400 ;
+    program:scope "200 engineers × 1 hour conversation = 200 hours for managers + prep" ;
+    program:conversationTemplate [
+        rdf:type program:ConversationGuide ;
+        program:step "1. Your new role and what's staying the same" ;
+        program:guidance "Clarity on title, responsibilities, direct manager, team composition"
+    ] ;
+    program:conversationTemplate [
+        rdf:type program:ConversationGuide ;
+        program:step "2. Your compensation (salary, benefits, any adjustments)" ;
+        program:guidance "Be clear on the band, % increase, timing of increase"
+    ] ;
+    program:conversationTemplate [
+        rdf:type program:ConversationGuide ;
+        program:step "3. Your career path and advancement opportunities" ;
+        program:guidance "Where you could go, what it takes, timeline, your readiness"
+    ] ;
+    program:conversationTemplate [
+        rdf:type program:ConversationGuide ;
+        program:step "4. Listen to concerns and address directly" ;
+        program:guidance "Use objection handling playbook; acknowledge fears; offer solutions"
+    ] ;
+    program:conversationTemplate [
+        rdf:type program:ConversationGuide ;
+        program:step "5. Next steps and commitment" ;
+        program:guidance "What happens next week, when we'll check in again"
+    ] ;
+    program:materialsPrepared [
+        rdf:type program:Material ;
+        program:name "Individual Role Packets (printed, personalized)" ;
+        program:contains "New role description, comp band, career path, reporting structure"
+    ] ;
+    program:materialsPrepared [
+        rdf:type program:Material ;
+        program:name "Conversation Guide for Managers (templated, Q&A coaching)"
+    ] ;
+    program:materialsPrepared [
+        rdf:type program:Material ;
+        program:name "Objection Handling Playbook"
+    ] ;
+    program:timing "1 week of 1-on-1 conversations (can be spread Mon-Fri)" ;
+    program:successCriteria "100% of 200 engineers have individual conversation by end of Week 6" ;
+    program:successCriteria "90%+ engineers feel heard and understood (pulse survey)" ;
+    program:risks [
+        rdf:type program:Risk ;
+        program:description "Manager inconsistency in messaging" ;
+        program:mitigation "Training, conversation guides, executive spot-checks"
+    ] ;
+    program:risks [
+        rdf:type program:Risk ;
+        program:description "Engineers feel undervalued or surprised by new role" ;
+        program:mitigation "Personalized role packets prepared in advance, manager practice sessions"
+    ] .
+
+:ProgramTask_RoleTransitions a program:Task ;
+    rdfs:label "Task 8: Role Transitions & Onboarding" ;
+    rdfs:comment "Implement new roles, onboard teams, establish new manager-engineer relationships" ;
+    program:taskID "T8" ;
+    program:phase "Transition (Week 7-10)" ;
+    program:owner "All 25 Managers + HR + OpsLeadership" ;
+    program:startDate "2026-03-21"^^xsd:date ;
+    program:completionDate "2026-04-18"^^xsd:date ;
+    program:estimatedHours 600 ;
+    program:subtasks [
+        rdf:type program:Subtask ;
+        program:name "Hire/promote new Ops Architects and Leads (fill gaps)" ;
+        program:owner "VP Ops Engineering + HR" ;
+        program:days 10 ;
+        program:estimate "5-10 external hires, 10-15 internal promotions"
+    ] ;
+    program:subtasks [
+        rdf:type program:Subtask ;
+        program:name "Team restructuring (assign engineers to new managers, teams)" ;
+        program:owner "All 25 Managers + VP" ;
+        program:days 5
+    ] ;
+    program:subtasks [
+        rdf:type program:Subtask ;
+        program:name "New process framework rollout (autonomy-enabling processes)" ;
+        program:owner "Ops Architects" ;
+        program:days 10
+    ] ;
+    program:subtasks [
+        rdf:type program:Subtask ;
+        program:name "Skill development workshops (expanded role, new authority)" ;
+        program:owner "HR + Ops Leadership" ;
+        program:days 10 ;
+        program:coverage "All 200 engineers"
+    ] ;
+    program:subtasks [
+        rdf:type program:Subtask ;
+        program:name "Mentorship program launch (senior-to-junior pairings)" ;
+        program:owner "HR" ;
+        program:days 3 ;
+        program:coverage "50 mentorship pairs (100 engineers)"
+    ] ;
+    program:subtasks [
+        rdf:type program:Subtask ;
+        program:name "Cross-training (capability transfer, reduce key-person risk)" ;
+        program:owner "Team Leads + Engineers" ;
+        program:days 10
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "New org structure operational (all 200 engineers assigned)"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Process framework rollout (SOPs, decision authority docs)"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Skill development completion records (200 engineers)"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Mentorship program active (50 pairs, 1st month check-ins complete)"
+    ] ;
+    program:weeklyCheckPoints [
+        rdf:type program:Checkpoint ;
+        program:week 7 ;
+        program:checkpoint "New roles live, 100% assignment" ;
+        program:owner "VP Ops Engineering"
+    ] ;
+    program:weeklyCheckPoints [
+        rdf:type program:Checkpoint ;
+        program:week 8 ;
+        program:checkpoint "Process framework understood by 80%+ of teams" ;
+        program:owner "Ops Architects"
+    ] ;
+    program:weeklyCheckPoints [
+        rdf:type program:Checkpoint ;
+        program:week 9 ;
+        program:checkpoint "Mentorship program active, 1st month feedback positive" ;
+        program:owner "HR"
+    ] ;
+    program:weeklyCheckPoints [
+        rdf:type program:Checkpoint ;
+        program:week 10 ;
+        program:checkpoint "Ops success rate maintained ≥98%, no degradation" ;
+        program:owner "VP Ops Engineering"
+    ] ;
+    program:risks [
+        rdf:type program:Risk ;
+        program:description "Transition friction: team cohesion breaks, productivity drops" ;
+        program:mitigation "Gradual transition over 4 weeks; operational monitoring; swift adjustments"
+    ] ;
+    program:risks [
+        rdf:type program:Risk ;
+        program:description "Engineers struggle with expanded autonomy (miss task assignment clarity)" ;
+        program:mitigation "Training, clear process frameworks, manager support"
+    ] ;
+    program:risks [
+        rdf:type program:Risk ;
+        program:description "Manager overwhelmed by new role as team coach vs task assigner" ;
+        program:mitigation "Continued coaching, role modeling from VP, support systems"
+    ] .
+
+:ProgramTask_PerformanceMonitoring a program:Task ;
+    rdfs:label "Task 9: Performance Monitoring & Risk Intervention" ;
+    rdfs:comment "Track metrics, intervene on risks in real-time" ;
+    program:taskID "T9" ;
+    program:phase "Stabilization (Week 11-12)" ;
+    program:owner "VP Ops Engineering + HR + Ops Architects" ;
+    program:startDate "2026-04-04"^^xsd:date ;
+    program:completionDate "2026-04-18"^^xsd:date ;
+    program:estimatedHours 200 ;
+    program:metricsTracked [
+        rdf:type program:Metric ;
+        program:name "Attrition Rate" ;
+        program:frequency "Bi-weekly" ;
+        program:target "< 5% cumulative"
+    ] ;
+    program:metricsTracked [
+        rdf:type program:Metric ;
+        program:name "Ops Success Rate" ;
+        program:frequency "Daily" ;
+        program:target "> 98%"
+    ] ;
+    program:metricsTracked [
+        rdf:type program:Metric ;
+        program:name "Manager Satisfaction (pulse)" ;
+        program:frequency "Weekly" ;
+        program:target "> 70%"
+    ] ;
+    program:metricsTracked [
+        rdf:type program:Metric ;
+        program:name "Engineer Career Clarity (pulse)" ;
+        program:frequency "Weekly" ;
+        program:target "> 75%"
+    ] ;
+    program:metricsTracked [
+        rdf:type program:Metric ;
+        program:name "Escalation Volume (Cohort 4 retention)" ;
+        program:frequency "Daily" ;
+        program:target "< 5 resignation notices/week"
+    ] ;
+    program:interventionProtocol [
+        rdf:type program:Protocol ;
+        program:trigger "Attrition spike >2% in any week" ;
+        program:response "Emergency retention review: identify at-risk engineers, VP outreach"
+    ] ;
+    program:interventionProtocol [
+        rdf:type program:Protocol ;
+        program:trigger "Ops success rate dips <98%" ;
+        program:response "Daily stand-up with ops leadership, identify root cause, adjust processes"
+    ] ;
+    program:interventionProtocol [
+        rdf:type program:Protocol ;
+        program:trigger "Manager satisfaction <60%" ;
+        program:response "One-on-one coaching sessions, address blockers, executive support"
+    ] ;
+    program:interventionProtocol [
+        rdf:type program:Protocol ;
+        program:trigger "Career clarity <65%" ;
+        program:response "All-hands clarity session, Q&A, additional communication"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Bi-weekly metrics dashboard (attrition, ops success, satisfaction)"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Risk intervention log (actions taken, outcomes)"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Weekly executive summary (VP to COO)"
+    ] ;
+    program:successCriteria "Attrition maintained <5%, ops success >98%, manager satisfaction >70%" .
+
+:ProgramTask_EarlyPromotions a program:Task ;
+    rdfs:label "Task 10: Announce First Promotion Batch (Critical Success Factor)" ;
+    rdfs:comment "Public recognition of 5-10 promoted engineers - proof the career path is real" ;
+    program:taskID "T10" ;
+    program:phase "Stabilization/Validation (Week 10)" ;
+    program:owner "VP Ops Engineering + HR" ;
+    program:completionDate "2026-04-01"^^xsd:date ;
+    program:estimatedHours 40 ;
+    program:candidates [
+        rdf:type program:PromotionCandidate ;
+        program:count 5 ;
+        program:promotionType "IC1→IC2 or IC2→IC3" ;
+        program:criteria "High performers from Cohort 1, demonstrated readiness, peer validation"
+    ] ;
+    program:candidates [
+        rdf:type program:PromotionCandidate ;
+        program:count 3 ;
+        program:promotionType "IC3→Architect" ;
+        program:criteria "Strategic thinkers, system-wide impact, team developers"
+    ] ;
+    program:candidates [
+        rdf:type program:PromotionCandidate ;
+        program:count 2 ;
+        program:promotionType "IC5→Lead (or new Manager roles)" ;
+        program:criteria "People developers, strategic delivery, ready for 50M+ programs"
+    ] ;
+    program:promotionAnnouncement "All-hands celebration event (virtual or in-person)" ;
+    program:announcementContent [
+        rdf:type program:AnnouncementItem ;
+        program:element "Individual profiles (photo, role transition, why promoted)"
+    ] ;
+    program:announcementContent [
+        rdf:type program:AnnouncementItem ;
+        program:element "Promotion criteria met (transparent rubric)"
+    ] ;
+    program:announcementContent [
+        rdf:type program:AnnouncementItem ;
+        program:element "Success stories (specific examples of impact)"
+    ] ;
+    program:announcementContent [
+        rdf:type program:AnnouncementItem ;
+        program:element "Message: 'This is the first of many - the path is real'"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Promotion announcements (10 engineers, formal & social media)"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Success story articles (LinkedIn, internal newsletter)"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Promotion ceremony (all-hands celebration)"
+    ] ;
+    program:successCriteria "Promotion announcements generate positive sentiment (80%+ approval in social)" ;
+    program:successCriteria "Engagement in Cohort 1-2 increases 10%+ (survey)" ;
+    program:psychologicalEffect "Hope factor - engineers see path is real, reduces resignation risk" .
+
+:ProgramTask_OperationalValidation a program:Task ;
+    rdfs:label "Task 11: Operational Validation (Extended 4-week)" ;
+    rdfs:comment "Confirm new org operates successfully for 4+ weeks before gate closure" ;
+    program:taskID "T11" ;
+    program:phase "Validation (Week 13-16)" ;
+    program:owner "VP Ops Engineering + COO" ;
+    program:startDate "2026-04-19"^^xsd:date ;
+    program:completionDate "2026-05-16"^^xsd:date ;
+    program:estimatedHours 100 ;
+    program:validationCriteria [
+        rdf:type program:ValidationCriterion ;
+        program:metric "Ops Success Rate" ;
+        program:target "> 98%"^^xsd:string ;
+        program:duration "4 consecutive weeks"
+    ] ;
+    program:validationCriteria [
+        rdf:type program:ValidationCriterion ;
+        program:metric "Attrition (cumulative)" ;
+        program:target "< 5% above baseline"^^xsd:string ;
+        program:duration "4 consecutive weeks"
+    ] ;
+    program:validationCriteria [
+        rdf:type program:ValidationCriterion ;
+        program:metric "Manager Effectiveness" ;
+        program:target "> 70% satisfaction (pulse survey)"^^xsd:string ;
+        program:duration "Measured at Week 16"
+    ] ;
+    program:validationCriteria [
+        rdf:type program:ValidationCriterion ;
+        program:metric "Engineer Career Satisfaction" ;
+        program:target "> 75% report clear path (survey)"^^xsd:string ;
+        program:duration "Measured at Week 16"
+    ] ;
+    program:validationCriteria [
+        rdf:type program:ValidationCriterion ;
+        program:metric "Role Stability" ;
+        program:target "No unplanned manager changes, stable teams"^^xsd:string ;
+        program:duration "4 consecutive weeks"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Weekly ops metrics report (success rate, incidents, anomalies)"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Bi-weekly retention tracking (attrition rate, cohort analysis)"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Pulse surveys (Week 12, Week 16 - manager satisfaction, career clarity)"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Executive Validation Report (all criteria met, ready for gate closure)"
+    ] ;
+    program:gateDecision "If validation passes: Wave 3 Task 9 closure, proceed to Long-term Monitoring" ;
+    program:gateDecision "If validation fails: Extend stabilization, identify root causes, correct"
+    program:successCriteria "All 5 validation criteria met for 4 consecutive weeks = GREEN gate" .
+
+:ProgramTask_ExecutiveReceipt a program:Task ;
+    rdfs:label "Task 12: Executive Receipt & Lessons Learned" ;
+    rdfs:comment "Final sign-off, documentation, playbook for future org redesigns" ;
+    program:taskID "T12" ;
+    program:phase "Validation/Closure (Week 16+)" ;
+    program:owner "VP Ops Engineering + COO + CFO" ;
+    program:completionDate "2026-05-23"^^xsd:date ;
+    program:estimatedHours 60 ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Executive Summary (what we did, results, business impact)"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Metrics Report (attrition, ops success, manager satisfaction, career advancement)"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Lessons Learned Document (what worked, what didn't, why)"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Playbook: 'How to Redesign Ops Orgs' (replicable for other functions)"
+    ] ;
+    program:deliverables [
+        rdf:type program:Deliverable ;
+        program:name "Board-ready presentation (business case closure)"
+    ] ;
+    program:gateApproval "COO sign-off: 'Wave 3 Task 9 complete, objectives achieved'" ;
+    program:successCriteria "All deliverables complete, gate approval obtained, playbook documented" .
+
+# ============================================================================
+# RISKS & RISK MITIGATION (FMEA STYLE)
+# ============================================================================
+
+:Risk_ManagerResistance a program:Risk ;
+    rdfs:label "Risk 1: Manager Resistance (HIGH SEVERITY)" ;
+    rdfs:comment "Managers feel loss of control, reject autonomy model" ;
+    program:severity "High (program failure if managers reject model)" ;
+    program:probability "Medium (30% chance if not addressed)" ;
+    program:riskScore "7.5 / 10" ;
+    program:rootCause "Managers accustomed to task assignment; autonomy model feels risky" ;
+    program:symptoms [
+        rdf:type program:Symptom ;
+        program:indicator "Managers continue assigning daily tasks instead of enabling autonomy" ;
+        program:timeline "Week 7+ (visible during transition)"
+    ] ;
+    program:symptoms [
+        rdf:type program:Symptom ;
+        program:indicator "Managers resist training, low engagement in workshops" ;
+        program:timeline "Week 5 (visible during manager training)"
+    ] ;
+    program:symptoms [
+        rdf:type program:Symptom ;
+        program:indicator "Manager satisfaction survey <50% (critical rejection)" ;
+        program:timeline "Week 5 (visible after first training)"
+    ] ;
+    program:prevention [
+        rdf:type program:PreventionControl ;
+        program:name "Executive Sponsorship" ;
+        program:description "COO/VP publicly endorse autonomy model, show data on benefits" ;
+        program:timing "Week 4 (before all-hands announcement)"
+    ] ;
+    program:prevention [
+        rdf:type program:PreventionControl ;
+        program:name "Manager Training" ;
+        program:description "In-depth training on new role model with role-playing and coaching" ;
+        program:timing "Week 5 (5-day intensive)"
+    ] ;
+    program:prevention [
+        rdf:type program:PreventionControl ;
+        program:name "Peer Pressure from High-Performing Managers" ;
+        program:description "Identify 3-4 naturally innovative managers, get their buy-in first, they convince others" ;
+        program:timing "Week 3-4 (before broad training)"
+    ] ;
+    program:remediation [
+        rdf:type program:RemediationControl ;
+        program:name "One-on-One Executive Coaching" ;
+        program:description "If manager <60% satisfied, VP provides 1-on-1 coaching, addresses concerns" ;
+        program:trigger "Manager satisfaction survey <60%"
+    ] ;
+    program:remediation [
+        rdf:type program:RemediationControl ;
+        program:name "Authority Model Audit" ;
+        program:description "Weekly audit of team interactions (spot checks, skip-level conversations) to ensure autonomy model being followed" ;
+        program:trigger "Week 7-10 (during transition)"
+    ] ;
+    program:remediation [
+        rdf:type program:RemediationControl ;
+        program:name "Manager Role Clarity Session" ;
+        program:description "All-managers meeting to clarify what success looks like, reset expectations" ;
+        program:trigger "If issues persist past Week 8"
+    ] ;
+    program:consequence "If unaddressed: Engineers lose autonomy gains, morale drops, attrition spike >10%" ;
+    program:contingency "Plan B: Extend manager training, provide ongoing coaching, re-baseline expectations" .
+
+:Risk_AttritionSpike a program:Risk ;
+    rdfs:label "Risk 2: Attrition Spike >5% (HIGH SEVERITY)" ;
+    rdfs:comment "Engineers leave during transition, especially high-value Cohort 4" ;
+    program:severity "High (strategic loss of capability)" ;
+    program:probability "Medium (40% without active retention if uncertainty exists)" ;
+    program:riskScore "8.0 / 10" ;
+    program:rootCause "Uncertainty about role stability, comp fairness, career ceiling; external opportunities" ;
+    program:symptoms [
+        rdf:type program:Symptom ;
+        program:indicator "Resignation spike Week 6-8 (immediately after announcement)" ;
+        program:timeline "Week 6-8"
+    ] ;
+    program:symptoms [
+        rdf:type program:Symptom ;
+        program:indicator "Disproportionate attrition in Cohort 4 (high performers, flight risk)" ;
+        program:timeline "Week 6+ (tracked bi-weekly)"
+    ] ;
+    program:symptoms [
+        rdf:type program:Symptom ;
+        program:indicator "Exit interviews cite 'unclear career path', 'better opportunity elsewhere'" ;
+        program:timeline "Ongoing"
+    ] ;
+    program:prevention [
+        rdf:type program:PreventionControl ;
+        program:name "Early Retention Conversations" ;
+        program:description "Manager 1-on-1 with Cohort 4 engineers BEFORE all-hands to address concerns" ;
+        program:timing "Week 4-5 (before announcement)"
+    ] ;
+    program:prevention [
+        rdf:type program:PreventionControl ;
+        program:name "Transparent Career Paths" ;
+        program:description "Publish clear, believable promotion criteria and success stories" ;
+        program:timing "Week 4 (in role packets)"
+    ] ;
+    program:prevention [
+        rdf:type program:PreventionControl ;
+        program:name "Competitive Compensation Increases" ;
+        program:description "10-20% increases at IC1-IC2, 15-18% at IC3-IC4 (justified by productivity gains)" ;
+        program:timing "Effective immediately upon announcement (Week 6)"
+    ] ;
+    program:prevention [
+        rdf:type program:PreventionControl ;
+        program:name "Fast-Track Promotion Signals" ;
+        program:description "Signal to Cohort 4 that they're being considered for Week 10 promotions" ;
+        program:timing "Week 6 (individual conversations)"
+    ] ;
+    program:remediation [
+        rdf:type program:RemediationControl ;
+        program:name "Retention Bonus Program" ;
+        program:description "If resignation wave starts, offer retention bonuses for Cohort 4 (key talent)" ;
+        program:trigger "If >2 resignations/week in Week 6-8"
+    ] ;
+    program:remediation [
+        rdf:type program:RemediationControl ;
+        program:name "Executive Retention Calls" ;
+        program:description "VP/COO personally reach out to Cohort 4 engineers expressing confidence in them" ;
+        program:trigger "If resignation spike detected"
+    ] ;
+    program:remediation [
+        rdf:type program:RemediationControl ;
+        program:name "Accelerate Promotion Timeline" ;
+        program:description "Move first promotions from Week 10 to Week 8 if attrition spike detected" ;
+        program:trigger "If attrition >3% cumulative by Week 8"
+    ] ;
+    program:consequence "If unaddressed: >10% attrition spike, loss of 20-30 key engineers, capability gaps, customer impact" ;
+    program:contingency "Plan B: Activate retention bonus pool, accelerate promotions, increase communication cadence" .
+
+:Risk_OperationalDegradation a program:Risk ;
+    rdfs:label "Risk 3: Operational Degradation (MEDIUM SEVERITY)" ;
+    rdfs:comment "Transition friction causes ops incidents, success rate dips <98%" ;
+    program:severity "Medium (customer impact, revenue risk)" ;
+    program:probability "Medium (35% if not monitored closely)" ;
+    program:riskScore "6.0 / 10" ;
+    program:rootCause "Team cohesion breaks during transition, process confusion, unclear escalation authority" ;
+    program:symptoms [
+        rdf:type program:Symptom ;
+        program:indicator "Increase in operational incidents Week 7-10" ;
+        program:timeline "Week 7-10"
+    ] ;
+    program:symptoms [
+        rdf:type program:Symptom ;
+        program:indicator "Escalations increase (engineers unsure who to ask)" ;
+        program:timeline "Week 7-10"
+    ] ;
+    program:symptoms [
+        rdf:type program:Symptom ;
+        program:indicator "Ops success rate dips <98%" ;
+        program:timeline "Week 7-10"
+    ] ;
+    program:prevention [
+        rdf:type program:PreventionControl ;
+        program:name "Process Framework Pre-rollout" ;
+        program:description "Develop clear process documentation BEFORE transition (Week 4-5)" ;
+        program:timing "Week 5 (ready for Week 7 rollout)"
+    ] ;
+    program:prevention [
+        rdf:type program:PreventionControl ;
+        program:name "Escalation Guidelines" ;
+        program:description "Define clear escalation criteria and decision authority (autonomy boundaries)" ;
+        program:timing "Week 5 (communicated in Week 6)"
+    ] ;
+    program:prevention [
+        rdf:type program:PreventionControl ;
+        program:name "Team Stability Measures" ;
+        program:description "Minimize team splits during transition (keep existing teams intact where possible)" ;
+        program:timing "Week 6-7 (during restructuring)"
+    ] ;
+    program:prevention [
+        rdf:type program:PreventionControl ;
+        program:name "Daily Ops Standups" ;
+        program:description "During Week 7-10, daily 15-min standups to catch issues early" ;
+        program:timing "Week 7-10 (daily, can reduce to 3x/week after Week 10)"
+    ] ;
+    program:remediation [
+        rdf:type program:RemediationControl ;
+        program:name "Process Refinement" ;
+        program:description "If ops success dips, adjust process framework, add clarity, remove friction" ;
+        program:trigger "If ops success rate <98% for 2+ days"
+    ] ;
+    program:remediation [
+        rdf:type program:RemediationControl ;
+        program:name "Manager Support" ;
+        program:description "Increase manager coaching during transition to help team cohesion" ;
+        program:trigger "If incidents spike >2 per day"
+    ] ;
+    program:remediation [
+        rdf:type program:RemediationControl ;
+        program:name "Rollback Decision" ;
+        program:description "If ops success can't be recovered, revert to partial old structure for stabilization" ;
+        program:trigger "If ops success rate <95% for 5+ consecutive days (extreme case)"
+    ] ;
+    program:consequence "If unaddressed: Customer incidents, SLA breaches, revenue impact, loss of confidence in new org" ;
+    program:contingency "Plan B: Extend transition timeline (slower rollout), increase daily monitoring, manager coaching" .
+

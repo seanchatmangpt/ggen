@@ -1,0 +1,342 @@
+@prefix : <http://ggen.ai/llm-construct#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dspy: <http://ggen.ai/dspy#> .
+@prefix fibo-fnd: <https://spec.edmcouncil.org/fibo/ontology/FND/> .
+
+# ============================================================================
+# LLM-CONSTRUCT PATTERN ONTOLOGY
+# ============================================================================
+# Core Equation: LLM-Construct = μ(OWL) → SHACL → DSPy → Constrained Behavior
+#
+# Where:
+#   μ = Transformation pipeline
+#   OWL = Domain ontology (e.g., FIBO)
+#   SHACL = Generated shape constraints
+#   DSPy = Constraint-aware LLM module
+#   Constrained Behavior = Validated LLM outputs
+# ============================================================================
+
+:LLMConstruct a owl:Class ;
+    rdfs:label "LLM Construct" ;
+    rdfs:comment """
+    An LLM-Construct is a specification that generates a DSPy module from OWL ontology.
+
+    It combines:
+    1. Domain knowledge (OWL classes, properties, restrictions)
+    2. Structural constraints (generated SHACL shapes)
+    3. LLM behavior (DSPy signature with prompt templates)
+    4. Validation/repair (constraint calculus enforcement)
+
+    Philosophy: Domain ontologies should directly precipitate LLM behaviors.
+    Instead of hand-coding prompts and parsing logic, declare the domain model
+    and let the system generate type-safe, constraint-aware LLM modules.
+    """ ;
+    rdfs:seeAlso <https://spec.edmcouncil.org/fibo/ontology/> .
+
+# ============================================================================
+# CORE PROPERTIES
+# ============================================================================
+
+:sourceOntology a owl:ObjectProperty ;
+    rdfs:domain :LLMConstruct ;
+    rdfs:range owl:Ontology ;
+    rdfs:label "source ontology" ;
+    rdfs:comment "The OWL ontology that serves as source of truth for domain knowledge." .
+
+:targetClass a owl:ObjectProperty ;
+    rdfs:domain :LLMConstruct ;
+    rdfs:range owl:Class ;
+    rdfs:label "target class" ;
+    rdfs:comment "The OWL class to generate LLM behavior for." .
+
+:generatedSHACL a owl:ObjectProperty ;
+    rdfs:domain :LLMConstruct ;
+    rdfs:range sh:NodeShape ;
+    rdfs:label "generated SHACL" ;
+    rdfs:comment "SHACL shapes automatically derived from OWL restrictions." .
+
+:generatedDSPy a owl:ObjectProperty ;
+    rdfs:domain :LLMConstruct ;
+    rdfs:range dspy:Signature ;
+    rdfs:label "generated DSPy" ;
+    rdfs:comment "DSPy signature with constraints mapped from SHACL." .
+
+:intent a owl:DatatypeProperty ;
+    rdfs:domain :LLMConstruct ;
+    rdfs:range xsd:string ;
+    rdfs:label "intent" ;
+    rdfs:comment """
+    Natural language description of what the LLM construct should do.
+
+    Examples:
+    - 'Extract product information from financial documents'
+    - 'Validate loan application data against FIBO lending rules'
+    - 'Generate compliant financial instrument descriptions'
+    """ .
+
+:promptTemplate a owl:DatatypeProperty ;
+    rdfs:domain :LLMConstruct ;
+    rdfs:range xsd:string ;
+    rdfs:label "prompt template" ;
+    rdfs:comment "Tera template for generating DSPy module prompts." .
+
+# ============================================================================
+# TRANSFORMATION STAGES
+# ============================================================================
+
+:TransformationStage a owl:Class ;
+    rdfs:label "Transformation Stage" ;
+    rdfs:comment "A stage in the OWL→SHACL→DSPy→LLM pipeline." .
+
+:OWLExtractionStage a owl:Class ;
+    rdfs:subClassOf :TransformationStage ;
+    rdfs:label "OWL Extraction Stage" ;
+    rdfs:comment """
+    Stage 1: Extract domain knowledge from OWL ontology.
+
+    Inputs:
+    - OWL ontology (e.g., FIBO)
+    - Target class URI
+
+    Outputs:
+    - Class definition
+    - Property domains/ranges
+    - Cardinality restrictions (owl:minCardinality, owl:maxCardinality)
+    - Value restrictions (owl:hasValue, owl:allValuesFrom, owl:someValuesFrom)
+    - Datatype restrictions (xsd:minLength, xsd:pattern via owl:withRestrictions)
+
+    Implementation: Uses RDF graph queries (SPARQL or Oxigraph API)
+    """ .
+
+:SHACLGenerationStage a owl:Class ;
+    rdfs:subClassOf :TransformationStage ;
+    rdfs:label "SHACL Generation Stage" ;
+    rdfs:comment """
+    Stage 2: Generate SHACL shapes from OWL restrictions.
+
+    Transformation rules:
+    - owl:Class → sh:NodeShape with sh:targetClass
+    - owl:DatatypeProperty → sh:PropertyShape with sh:datatype
+    - owl:ObjectProperty → sh:PropertyShape with sh:class
+    - owl:minCardinality → sh:minCount
+    - owl:maxCardinality → sh:maxCount
+    - owl:cardinality → sh:minCount + sh:maxCount (both equal)
+    - xsd:minLength → sh:minLength
+    - xsd:maxLength → sh:maxLength
+    - xsd:pattern → sh:pattern
+    - owl:oneOf → sh:in
+
+    Output: SHACL shapes that can be parsed by existing ggen SHACL parser
+    """ .
+
+:DSPyMappingStage a owl:Class ;
+    rdfs:subClassOf :TransformationStage ;
+    rdfs:label "DSPy Mapping Stage" ;
+    rdfs:comment """
+    Stage 3: Map SHACL shapes to DSPy signatures.
+
+    Uses existing ggen pipeline:
+    - SHACL → SHACLConstraint (via shacl_parser.rs)
+    - SHACLConstraint → FieldConstraints (via to_field_constraints)
+    - FieldConstraints → ConstraintSet (via from_field_constraints)
+
+    Generates:
+    - InputField/OutputField with constraints
+    - Signature with typed inputs/outputs
+    - Constraint calculus enforcement hooks
+    """ .
+
+:LLMConstructRealizationStage a owl:Class ;
+    rdfs:subClassOf :TransformationStage ;
+    rdfs:label "LLM Construct Realization Stage" ;
+    rdfs:comment """
+    Stage 4: Generate executable DSPy module code.
+
+    Outputs:
+    - Rust struct implementing DSPy signature
+    - Prompt template with domain context
+    - Validation hooks using constraint calculus
+    - Repair strategies for constraint violations
+    - Integration with existing ggen-ai infrastructure
+
+    Result: Type-safe, constraint-aware LLM module that respects ontology
+    """ .
+
+# ============================================================================
+# OWL → SHACL MAPPING RULES
+# ============================================================================
+
+:MappingRule a owl:Class ;
+    rdfs:label "Mapping Rule" ;
+    rdfs:comment "A transformation rule from OWL construct to SHACL construct." .
+
+:owlConstruct a owl:DatatypeProperty ;
+    rdfs:domain :MappingRule ;
+    rdfs:range xsd:string ;
+    rdfs:label "OWL construct" .
+
+:shaclConstruct a owl:DatatypeProperty ;
+    rdfs:domain :MappingRule ;
+    rdfs:range xsd:string ;
+    rdfs:label "SHACL construct" .
+
+:CardinalityRule a :MappingRule ;
+    :owlConstruct "owl:minCardinality n" ;
+    :shaclConstruct "sh:minCount n" ;
+    rdfs:comment "OWL cardinality restrictions map to SHACL count constraints." .
+
+:DatatypeRestrictionRule a :MappingRule ;
+    :owlConstruct "owl:onDatatype xsd:T, owl:withRestrictions (xsd:minLength n)" ;
+    :shaclConstruct "sh:datatype xsd:T, sh:minLength n" ;
+    rdfs:comment "OWL datatype restrictions map to SHACL property constraints." .
+
+:ValueRestrictionRule a :MappingRule ;
+    :owlConstruct "owl:allValuesFrom C" ;
+    :shaclConstruct "sh:class C" ;
+    rdfs:comment "OWL value restrictions map to SHACL class constraints." .
+
+:EnumerationRule a :MappingRule ;
+    :owlConstruct "owl:oneOf (v1 v2 v3)" ;
+    :shaclConstruct "sh:in (v1 v2 v3)" ;
+    rdfs:comment "OWL enumerations map to SHACL 'in' constraints." .
+
+# ============================================================================
+# EXAMPLE: FIBO FINANCIAL INSTRUMENT
+# ============================================================================
+
+:FIBOInstrumentConstruct a :LLMConstruct ;
+    rdfs:label "FIBO Financial Instrument LLM-Construct" ;
+    :sourceOntology <https://spec.edmcouncil.org/fibo/ontology/SEC/Debt/Bonds/> ;
+    :targetClass fibo-fnd:FinancialInstrument ;
+    :intent """
+    Extract structured financial instrument data from unstructured text.
+
+    Task: Given a financial document (10-K, prospectus, term sheet), extract:
+    - Instrument identifier (ISIN, CUSIP)
+    - Instrument type (bond, equity, derivative)
+    - Issuer information
+    - Maturity date
+    - Coupon rate (if applicable)
+    - Face value
+
+    Constraints derived from FIBO ontology ensure:
+    - Valid instrument types per FIBO taxonomy
+    - Required fields per instrument class
+    - Data format compliance (e.g., ISIN format)
+    - Semantic consistency (e.g., bonds must have maturity)
+    """ ;
+    :promptTemplate """
+    You are a financial data extraction system that strictly follows FIBO ontology.
+
+    Extract financial instrument information from the following text:
+
+    {{ input_text }}
+
+    Return a structured {{ instrument_class }} with the following required fields:
+    {{ #each output_fields }}
+    - {{ this.name }} ({{ this.semantic_type }}): {{ this.description }}
+      Constraints: {{ this.constraints }}
+    {{ /each }}
+
+    CRITICAL: Your output must satisfy all constraints. Invalid data will be rejected.
+    """ .
+
+# ============================================================================
+# CONSTRAINT SATISFACTION GUARANTEES
+# ============================================================================
+
+:ConstraintGuarantee a owl:Class ;
+    rdfs:label "Constraint Guarantee" ;
+    rdfs:comment """
+    LLM-Constructs provide formal guarantees about output validity.
+
+    Guarantee levels:
+    1. Structural: Type safety (Rust compiler enforces)
+    2. Operational: Constraint calculus validates at runtime
+    3. Semantic: Ontology alignment preserved (metadata for reasoning)
+
+    If LLM output violates operational constraints:
+    - Constraint violation detected (via ConstraintSet.check)
+    - Repair strategy applied (truncate, retry, coerce, default)
+    - Fallback to user-defined error handler if repair fails
+
+    Result: Either valid output satisfying all constraints, or explicit error
+    """ .
+
+:structuralGuarantee a owl:DatatypeProperty ;
+    rdfs:domain :ConstraintGuarantee ;
+    rdfs:range xsd:string ;
+    rdfs:label "structural guarantee" ;
+    rdfs:comment "Guarantees enforced by type system at compile time." .
+
+:operationalGuarantee a owl:DatatypeProperty ;
+    rdfs:domain :ConstraintGuarantee ;
+    rdfs:range xsd:string ;
+    rdfs:label "operational guarantee" ;
+    rdfs:comment "Guarantees enforced by constraint calculus at runtime." .
+
+:semanticAlignment a owl:DatatypeProperty ;
+    rdfs:domain :ConstraintGuarantee ;
+    rdfs:range xsd:string ;
+    rdfs:label "semantic alignment" ;
+    rdfs:comment "Ontological metadata preserved for future reasoning." .
+
+# ============================================================================
+# INTEGRATION WITH GGEN INFRASTRUCTURE
+# ============================================================================
+
+:GGenIntegration a owl:Class ;
+    rdfs:label "ggen Integration Points" ;
+    rdfs:comment """
+    How LLM-Construct pattern integrates with existing ggen:
+
+    1. RDF Store (Oxigraph):
+       - Load FIBO ontology into graph
+       - SPARQL queries for OWL extraction
+
+    2. SHACL Parser (crates/ggen-ai/src/codegen/shacl_parser.rs):
+       - Reuse existing SHACLParser
+       - Feed generated SHACL shapes
+       - Get SHACLConstraint structs
+
+    3. Field Constraints (crates/ggen-ai/src/dspy/field.rs):
+       - Use to_field_constraints() method
+       - Generate InputField/OutputField
+
+    4. Constraint Calculus (crates/ggen-ai/src/dspy/constraint.rs):
+       - ConstraintSet::from_field_constraints()
+       - Runtime validation via check()
+       - Repair strategies via suggest_repair()
+
+    5. DSPy Modules (crates/ggen-ai/src/dspy/):
+       - Generate Signature structs
+       - Implement Forward trait
+       - Integrate with LLM clients
+
+    6. Code Generation (Tera templates):
+       - Template for LLM-Construct Rust code
+       - Generated via 'ggen sync' command
+    """ .
+
+# ============================================================================
+# RECEIPTS & VALIDATION
+# ============================================================================
+
+:Receipt a owl:Class ;
+    rdfs:label "Transformation Receipt" ;
+    rdfs:comment """
+    Evidence that transformation succeeded and meets quality gates.
+
+    Required receipts:
+    - [✓] OWL ontology loaded (N triples)
+    - [✓] M classes extracted from ontology
+    - [✓] K SHACL shapes generated
+    - [✓] Generated SHACL validates via 'ggen validate-shacl'
+    - [✓] DSPy signature compiles (cargo make check <5s)
+    - [✓] All tests pass (cargo make test <30s)
+    - [✓] Lint clean (cargo make lint <60s)
+    """ .

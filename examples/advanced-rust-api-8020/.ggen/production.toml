@@ -1,0 +1,259 @@
+[[requirements]]
+id = "auth-basic"
+name = "Basic Authentication"
+description = "User authentication system with login/logout"
+category = "Critical"
+status = "Missing"
+components = [
+    "src/auth.rs",
+    "templates/auth.tmpl",
+]
+dependencies = []
+effort_hours = 8
+priority = 10
+last_assessed = "2025-10-12T06:36:26.939558Z"
+notes = "Core authentication is essential for production"
+
+[[requirements]]
+id = "error-handling"
+name = "Comprehensive Error Handling"
+description = "Proper error handling with thiserror, no unwrap/expect in production code"
+category = "Critical"
+status = "Missing"
+components = [
+    "src/error.rs",
+    "templates/error-handling.tmpl",
+]
+dependencies = []
+effort_hours = 12
+priority = 10
+last_assessed = "2025-10-12T06:36:26.939566Z"
+notes = "Production code must handle errors gracefully"
+
+[[requirements]]
+id = "logging-tracing"
+name = "Structured Logging & Tracing"
+description = "Comprehensive logging with tracing crate and structured output"
+category = "Critical"
+status = "Missing"
+components = [
+    "src/logging.rs",
+    "config/tracing.toml",
+]
+dependencies = []
+effort_hours = 6
+priority = 9
+last_assessed = "2025-10-12T06:36:26.939567Z"
+notes = "Essential for debugging and monitoring in production"
+
+[[requirements]]
+id = "health-checks"
+name = "Health Check Endpoints"
+description = "HTTP health check endpoints for load balancer and monitoring"
+category = "Critical"
+status = "Complete"
+components = [
+    "src/health.rs",
+    "templates/health.tmpl",
+]
+dependencies = []
+effort_hours = 4
+priority = 8
+last_assessed = "2025-10-12T06:36:26.939592Z"
+notes = "Required for container orchestration and monitoring"
+
+[[requirements]]
+id = "input-validation"
+name = "Input Validation & Sanitization"
+description = "Comprehensive input validation and sanitization to prevent injection attacks"
+category = "Critical"
+status = "Missing"
+components = [
+    "src/validation.rs",
+    "templates/validation.tmpl",
+]
+dependencies = ["auth-basic"]
+effort_hours = 10
+priority = 9
+last_assessed = "2025-10-12T06:36:26.939568Z"
+notes = "Critical for security and data integrity"
+
+[[requirements]]
+id = "database-migrations"
+name = "Database Schema Migrations"
+description = "Automated database schema migrations with rollback capability"
+category = "Critical"
+status = "Missing"
+components = [
+    "migrations/",
+    "src/database.rs",
+]
+dependencies = []
+effort_hours = 8
+priority = 8
+last_assessed = "2025-10-12T06:36:26.939568Z"
+notes = "Essential for zero-downtime deployments"
+
+[[requirements]]
+id = "api-documentation"
+name = "OpenAPI Documentation"
+description = "Complete OpenAPI/Swagger documentation for all endpoints"
+category = "Important"
+status = "Missing"
+components = [
+    "docs/api.md",
+    "openapi.yaml",
+]
+dependencies = []
+effort_hours = 12
+priority = 7
+last_assessed = "2025-10-12T06:36:26.939569Z"
+notes = "Important for API consumers and automated testing"
+
+[[requirements]]
+id = "unit-tests"
+name = "Comprehensive Unit Tests"
+description = "Unit tests for all public functions with >80% coverage"
+category = "Important"
+status = "Missing"
+components = ["tests/unit/"]
+dependencies = []
+effort_hours = 20
+priority = 7
+last_assessed = "2025-10-12T06:36:26.939569Z"
+notes = "Essential for code quality and refactoring confidence"
+
+[[requirements]]
+id = "integration-tests"
+name = "Integration Tests"
+description = "Integration tests for component interactions"
+category = "Important"
+status = "Missing"
+components = ["tests/integration/"]
+dependencies = ["unit-tests"]
+effort_hours = 16
+priority = 6
+last_assessed = "2025-10-12T06:36:26.939570Z"
+notes = "Validates component interactions work correctly"
+
+[[requirements]]
+id = "performance-monitoring"
+name = "Performance Monitoring"
+description = "Basic performance metrics collection and alerting"
+category = "Important"
+status = "Missing"
+components = [
+    "src/metrics.rs",
+    "config/metrics.toml",
+]
+dependencies = ["logging-tracing"]
+effort_hours = 8
+priority = 6
+last_assessed = "2025-10-12T06:36:26.939571Z"
+notes = "Essential for production performance management"
+
+[[requirements]]
+id = "docker-containerization"
+name = "Docker Containerization"
+description = "Production-ready Docker containers with multi-stage builds"
+category = "Important"
+status = "Missing"
+components = [
+    "Dockerfile",
+    "docker-compose.yml",
+]
+dependencies = ["health-checks"]
+effort_hours = 6
+priority = 7
+last_assessed = "2025-10-12T06:36:26.939572Z"
+notes = "Required for consistent deployment across environments"
+
+[[requirements]]
+id = "configuration-management"
+name = "Configuration Management"
+description = "Environment-based configuration with validation"
+category = "Important"
+status = "Missing"
+components = [
+    "config/",
+    "src/config.rs",
+]
+dependencies = []
+effort_hours = 8
+priority = 7
+last_assessed = "2025-10-12T06:36:26.939573Z"
+notes = "Essential for multi-environment deployments"
+
+[[requirements]]
+id = "rate-limiting"
+name = "Rate Limiting"
+description = "API rate limiting to prevent abuse"
+category = "NiceToHave"
+status = "Missing"
+components = ["src/rate_limit.rs"]
+dependencies = ["auth-basic"]
+effort_hours = 12
+priority = 4
+last_assessed = "2025-10-12T06:36:26.939573Z"
+notes = "Nice to have for high-traffic applications"
+
+[[requirements]]
+id = "caching-layer"
+name = "Advanced Caching"
+description = "Redis-based caching with cache invalidation strategies"
+category = "NiceToHave"
+status = "Missing"
+components = [
+    "src/cache.rs",
+    "config/redis.toml",
+]
+dependencies = ["performance-monitoring"]
+effort_hours = 16
+priority = 3
+last_assessed = "2025-10-12T06:36:26.939574Z"
+notes = "Improves performance but adds complexity"
+
+[[requirements]]
+id = "circuit-breaker"
+name = "Circuit Breaker Pattern"
+description = "Circuit breaker for external service calls"
+category = "NiceToHave"
+status = "Missing"
+components = ["src/circuit_breaker.rs"]
+dependencies = ["error-handling"]
+effort_hours = 10
+priority = 3
+last_assessed = "2025-10-12T06:36:26.939574Z"
+notes = "Improves resilience but adds complexity"
+
+[[requirements]]
+id = "advanced-security"
+name = "Advanced Security Features"
+description = "Advanced security features like CSRF protection, CORS, security headers"
+category = "NiceToHave"
+status = "Missing"
+components = [
+    "src/security.rs",
+    "config/security.toml",
+]
+dependencies = ["input-validation"]
+effort_hours = 14
+priority = 4
+last_assessed = "2025-10-12T06:36:26.939575Z"
+notes = "Additional security hardening for sensitive applications"
+
+[[requirements]]
+id = "monitoring-dashboard"
+name = "Monitoring Dashboard"
+description = "Grafana/Kibana dashboard for comprehensive monitoring"
+category = "NiceToHave"
+status = "Missing"
+components = [
+    "docker/grafana/",
+    "docker/kibana/",
+]
+dependencies = ["performance-monitoring"]
+effort_hours = 20
+priority = 2
+last_assessed = "2025-10-12T06:36:26.939576Z"
+notes = "Nice for observability but not essential for MVP"

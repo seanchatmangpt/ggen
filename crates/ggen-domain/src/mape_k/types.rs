@@ -209,13 +209,13 @@ pub enum ValidationStage {
     Security,
 }
 
-impl std::fmt::Display for ValidationStage {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ToString for ValidationStage {
+    fn to_string(&self) -> String {
         match self {
-            ValidationStage::SHACL => write!(f, "SHACL"),
-            ValidationStage::TDD => write!(f, "TDD"),
-            ValidationStage::Performance => write!(f, "Performance"),
-            ValidationStage::Security => write!(f, "Security"),
+            ValidationStage::SHACL => "SHACL".to_string(),
+            ValidationStage::TDD => "TDD".to_string(),
+            ValidationStage::Performance => "Performance".to_string(),
+            ValidationStage::Security => "Security".to_string(),
         }
     }
 }
@@ -385,7 +385,7 @@ pub struct SnapshotMetadata {
 }
 
 /// MAPE-K execution metrics
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MAPEMetrics {
     /// Total observations ingested
     pub observations_ingested: usize,
@@ -404,4 +404,17 @@ pub struct MAPEMetrics {
 
     /// Last execution timestamp
     pub last_execution_timestamp: u64,
+}
+
+impl Default for MAPEMetrics {
+    fn default() -> Self {
+        Self {
+            observations_ingested: 0,
+            findings_generated: 0,
+            overlays_proposed: 0,
+            overlays_promoted: 0,
+            total_execution_time_ms: 0,
+            last_execution_timestamp: 0,
+        }
+    }
 }

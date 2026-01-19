@@ -1,0 +1,353 @@
+@prefix : <http://ggen.example.org/disney/wave2-task3#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix spec: <http://ggen.example.org/spec#> .
+
+# ============================================================================
+# ARCHITECTURE OVERVIEW
+# ============================================================================
+
+:Wave2Task3Architecture a spec:ArchitecturePlan ;
+    spec:title "Staged Authority & Immutable Events Architecture" ;
+    spec:description """
+        Five-layer authority system with append-only immutable event log for
+        deterministic incident recovery. Each authority level has explicit gates
+        that prevent accidental escalation. Blast radius constraints isolate
+        failures across service, region, and percentage dimensions.
+    """ ;
+    spec:targetDeployment "Wave 2 (simulated), Wave 3 (production)" ;
+    spec:component :AuthorityController, :EventStore, :ReplayEngine,
+                   :BlastRadiusCalculator, :IncidentDetector, :AuditLog ;
+    spec:designDecision :dd-001, :dd-002, :dd-003, :dd-004, :dd-005,
+                        :dd-006, :dd-007, :dd-008 ;
+    spec:risk :risk-001, :risk-002, :risk-003, :risk-004, :risk-005 ;
+    spec:assumption :assume-001, :assume-002, :assume-003 .
+
+# ============================================================================
+# COMPONENTS
+# ============================================================================
+
+:AuthorityController a spec:Component ;
+    spec:name "Authority Controller" ;
+    spec:purpose "Enforces authority level constraints and gate checks" ;
+    spec:language "Rust" ;
+    spec:publicInterface [
+        spec:method "check_authority(actor: Actor, level: Level) -> Result<(), AuthError>" ;
+        spec:method "escalate(from: Level, to: Level) -> Result<Escalation, AuthError>" ;
+        spec:method "execute_at_level(action: Action, level: Level) -> Result<Event, AuthError>"
+    ] ;
+    spec:dependencies "EventStore, AuditLog" ;
+    spec:SLO "Authority check < 1ms per operation" .
+
+:EventStore a spec:Component ;
+    spec:name "Event Store" ;
+    spec:purpose "Append-only immutable event log with cryptographic chaining" ;
+    spec:language "Rust" ;
+    spec:publicInterface [
+        spec:method "append(event: Event) -> Result<CommittedEvent, StoreError>" ;
+        spec:method "get(id: EventId) -> Result<Ref<Event>, StoreError>" ;
+        spec:method "range(start: usize, end: usize) -> Result<Vec<Ref<Event>>, StoreError>" ;
+        spec:method "verify_chain() -> Result<(), IntegrityError>"
+    ] ;
+    spec:storageBackend "RocksDB (persistent) + in-memory cache" ;
+    spec:SLO "Append < 5ms, Get < 1ms, Chain verify < 100ms/10k events" .
+
+:ReplayEngine a spec:Component ;
+    spec:name "Replay Engine" ;
+    spec:purpose "Deterministic forward replay and backward rollback of events" ;
+    spec:language "Rust" ;
+    spec:publicInterface [
+        spec:method "replay_forward(events: Vec<Event>) -> Result<State, ReplayError>" ;
+        spec:method "rollback_backward(events: Vec<Event>) -> Result<State, RollbackError>" ;
+        spec:method "verify_deterministic(event_seq: Vec<Event>) -> Result<(), DeterminismError>"
+    ] ;
+    spec:dependencies "EventStore, StateRepository" ;
+    spec:SLO "Replay/rollback deterministic < 100ms per 10k events" .
+
+:BlastRadiusCalculator a spec:Component ;
+    spec:name "Blast Radius Calculator" ;
+    spec:purpose "Calculates and enforces blast radius limits across 3 dimensions" ;
+    spec:language "Rust" ;
+    spec:publicInterface [
+        spec:method "calculate(service: Service, region: Region, percent: f32) -> BlastRadius" ;
+        spec:method "validate(event: Event, radius: BlastRadius) -> Result<(), RadiusViolation>" ;
+        spec:method "get_affected_resources(event: Event) -> Vec<ResourceId>"
+    ] ;
+    spec:dependencies "ServiceRegistry, RegionRegistry" ;
+    spec:SLO "Calculate < 10ms, Validate < 5ms" .
+
+:IncidentDetector a spec:Component ;
+    spec:name "Incident Detector" ;
+    spec:purpose "Detects anomalies and identifies causal events" ;
+    spec:language "Rust" ;
+    spec:publicInterface [
+        spec:method "detect_anomaly(metrics: MetricSnapshot) -> Option<Incident>" ;
+        spec:method "root_cause_analysis(incident: Incident) -> RootCauseAnalysis" ;
+        spec:method "recommend_rollback(incident: Incident) -> Vec<Event>"
+    ] ;
+    spec:dependencies "MetricsStore, EventStore, RootCauseAnalyzer" ;
+    spec:SLO "Anomaly detection < 30s, RCA < 10s" .
+
+:StateRepository a spec:Component ;
+    spec:name "State Repository" ;
+    spec:purpose "Stores system state snapshots for efficient replay" ;
+    spec:language "Rust" ;
+    spec:publicInterface [
+        spec:method "save_snapshot(seq: usize, state: State) -> Result<(), StoreError>" ;
+        spec:method "get_snapshot(seq: usize) -> Result<State, StoreError>" ;
+        spec:method "prune_old_snapshots(keep_count: usize) -> Result<(), StoreError>"
+    ] ;
+    spec:storageBackend "RocksDB" ;
+    spec:strategy "Snapshot every 100 events, TTL 7 days" ;
+    spec:SLO "Save/Get < 20ms" .
+
+:AuditLog a spec:Component ;
+    spec:name "Audit Log" ;
+    spec:purpose "Tamper-evident audit trail for compliance" ;
+    spec:language "Rust" ;
+    spec:publicInterface [
+        spec:method "log_escalation(from: Level, to: Level, actor: Actor) -> Result<(), LogError>" ;
+        spec:method "log_approval(action: Action, decision: Decision, actor: Actor) -> Result<(), LogError>" ;
+        spec:method "log_rollback(incident: Incident, rollback_seq: Vec<Event>) -> Result<(), LogError>" ;
+        spec:method "query(filter: AuditFilter) -> Vec<AuditEntry>"
+    ] ;
+    spec:storageBackend "PostgreSQL (immutable)" ;
+    spec:immutability "No updates after creation, append-only" ;
+    spec:SLO "Log < 10ms, Query < 100ms" .
+
+# ============================================================================
+# DESIGN DECISIONS
+# ============================================================================
+
+:dd-001 a spec:DesignDecision ;
+    spec:title "Event-Sourced Architecture" ;
+    spec:decision "Use append-only event log as source of truth for all state changes" ;
+    spec:reasoning """
+        Event sourcing provides:
+        - Complete audit trail (compliance requirement)
+        - Deterministic replay (guaranteed recovery)
+        - Time-travel debugging (root cause analysis)
+        - No lost updates (immutable append semantics)
+    """ ;
+    spec:consequence "Must implement replay engine, snapshot strategy for performance" ;
+    spec:alternative "Traditional mutable state: loses audit trail, non-deterministic recovery" ;
+    spec:tradeoff "Slightly higher storage (event log) vs guaranteed correctness" .
+
+:dd-002 a spec:DesignDecision ;
+    spec:title "5-Level Authority Graduated Escalation" ;
+    spec:decision "Implement 5 levels from read-only to autonomous, each with explicit gates" ;
+    spec:reasoning """
+        Graduated escalation allows:
+        - Human oversight at critical points
+        - Progressive autonomy as confidence increases
+        - No 'all or nothing' authority decision
+        - Clear authority boundaries (hard to accidentally escalate)
+    """ ;
+    spec:consequence "Complex gate system, must verify all 5 levels thoroughly" ;
+    spec:alternative "Binary (human vs autonomous): risky, loses oversight" ;
+    spec:tradeoff "More gates to manage vs better failure containment" .
+
+:dd-003 a spec:DesignDecision ;
+    spec:title "Cryptographic Event Chaining" ;
+    spec:decision "Each event hash includes previous event hash (hash chain)" ;
+    spec:reasoning """
+        Hash chaining provides:
+        - Tamper detection (any change breaks chain)
+        - Immutability guarantee (can't rewrite history)
+        - Compliance with audit requirements
+        - Zero-knowledge proof of sequence integrity
+    """ ;
+    spec:consequence "SHA256 hash per event, chain validation at replay time" ;
+    spec:alternative "Append-only without chaining: weaker integrity" ;
+    spec:tradeoff "Minimal perf overhead (<1%) vs strong integrity guarantee" .
+
+:dd-004 a spec:DesignDecision ;
+    spec:title "Multi-Dimensional Blast Radius (Service + Region + Percentage)" ;
+    spec:decision "Scope failures across 3 orthogonal dimensions, use minimum as final limit" ;
+    spec:reasoning """
+        3-dimensional scoping prevents:
+        - Service A failure cascading to Service B
+        - US-EAST-1 outage spreading to US-WEST-2
+        - One change affecting >N% of resources
+        Minimum strategy ensures strictest constraint wins.
+    """ ;
+    spec:consequence "Must implement 3 independent scope validators" ;
+    spec:alternative "Single dimension (e.g., percentage only): weaker isolation" ;
+    spec:tradeoff "More complex validation vs comprehensive failure containment" .
+
+:dd-005 a spec:DesignDecision ;
+    spec:title "Deterministic State Machine for Replay" ;
+    spec:decision "All replay/rollback operations must be fully deterministic" ;
+    spec:reasoning """
+        Determinism guarantees:
+        - Same event sequence → same state always (reproducible recovery)
+        - Incident investigation not dependent on timing
+        - Test cases valid for production (no surprises)
+        - Formal verification possible
+    """ ;
+    spec:consequence "No randomness, no I/O, no timing dependencies in replay logic" ;
+    spec:alternative "Non-deterministic recovery: unpredictable behavior, hard to debug" ;
+    spec:tradeoff "More strict implementation vs guaranteed correctness" .
+
+:dd-006 a spec:DesignDecision ;
+    spec:title "Atomic Batch Transactions for Level 2" ;
+    spec:decision "Batch changes are all-or-nothing, no partial execution" ;
+    spec:reasoning """
+        All-or-nothing semantics prevent:
+        - Partial state corruption
+        - Unclear recovery state
+        - Cascading errors
+    """ ;
+    spec:consequence "Must implement transaction rollback for Level 2" ;
+    spec:alternative "Partial batches: risk partial state corruption" ;
+    spec:tradeoff "Rollback complexity vs guaranteed consistency" .
+
+:dd-007 a spec:DesignDecision ;
+    spec:title "Interruptible Operations for Level 3" ;
+    spec:decision "Level 3 operations can be interrupted by human, with clean rollback" ;
+    spec:reasoning """
+        Interruptible execution provides:
+        - Human can stop misbehaving operations
+        - Avoids waiting for operations to complete
+        - Preserves human authority
+    """ ;
+    spec:consequence "Operations must have checkpoint logic for clean interruption" ;
+    spec:alternative "Non-interruptible: human must wait for completion" ;
+    spec:tradeoff "Checkpoint implementation overhead vs human control" .
+
+:dd-008 a spec:DesignDecision ;
+    spec:title "Immutable Event Objects (Rust Semantics)" ;
+    spec:decision "Use Rust's type system to enforce immutability at compile time" ;
+    spec:reasoning """
+        Type-system enforcement provides:
+        - Zero-cost (compile-time only)
+        - Impossible to accidentally mutate
+        - No runtime checks needed
+        - Compiler prevents entire class of bugs
+    """ ;
+    spec:consequence "Must design Rust types carefully: Event::commit() returns Ref<T>" ;
+    spec:alternative "Runtime checks: easier to implement but slower, catchable at runtime only" ;
+    spec:tradeoff "Design complexity vs guaranteed immutability" .
+
+# ============================================================================
+# RISKS & MITIGATIONS (FMEA)
+# ============================================================================
+
+:risk-001 a spec:Risk ;
+    spec:title "Event Log Divergence During Replay" ;
+    spec:description """
+        If state mutations occur during replay (non-deterministic),
+        final state may not match original state. This could cause:
+        - Incorrect incident recovery (wrong state after rollback)
+        - Silent data corruption (no error signal)
+        - Lost trust in rollback system
+    """ ;
+    spec:severity spec:Critical ;
+    spec:likelihood "Low (type system enforces immutability)" ;
+    spec:impact "Catastrophic (corrupted recovery state)" ;
+    spec:mitigation """
+        1. Property-based testing: generate random events, replay, compare to original
+        2. Determinism verifier: audit trail must show zero I/O during replay
+        3. State diff validation: log diff between original and replayed state
+        4. Canary replay: run replay on copy before applying to production
+    """ ;
+    spec:mitigationSLO "100% test coverage of replay paths" ;
+    spec:monitoringStrategy "Periodic determinism audits (weekly)" .
+
+:risk-002 a spec:Risk ;
+    spec:title "Authority Level Bypass" ;
+    spec:description """
+        A developer accidentally uses Level 3/4 permissions when Level 1 is required.
+        Could cause:
+        - Unauthorized changes without human approval
+        - Cascading failures without oversight
+        - Compliance violation
+    """ ;
+    spec:severity spec:Critical ;
+    spec:likelihood "Medium (human error likely)" ;
+    spec:impact "Critical (compliance violation, data corruption)" ;
+    spec:mitigation """
+        1. Type system: make Level an enum, not string (cannot accidentally upgrade)
+        2. Code review: all authority transitions manually reviewed
+        3. Testing: property tests verify each level's constraints
+        4. Audit alerts: log all authority escalations, alert on unexpected
+    """ ;
+    spec:mitigationSLO "100% code coverage of authority gates" ;
+    spec:monitoringStrategy "Alert on any Level 3+ escalation" .
+
+:risk-003 a spec:Risk ;
+    spec:title "Blast Radius Calculation Error" ;
+    spec:description """
+        If blast radius constraint is miscalculated (e.g., < instead of >),
+        changes could affect >N% of resources, cascading failure.
+    """ ;
+    spec:severity spec:High ;
+    spec:likelihood "Low (tested logic)" ;
+    spec:impact "High (failure cascade)" ;
+    spec:mitigation """
+        1. Fuzz testing: generate random radius configs, verify calculations
+        2. Symbolic execution: prove mathematical correctness
+        3. Manual audit: human review of all radius calculations
+        4. Redundant checks: calculator + verifier both validate
+    """ ;
+    spec:mitigationSLO "Redundant validation of all radius calculations" .
+
+:risk-004 a spec:Risk ;
+    spec:title "Event Log Disk Space Exhaustion" ;
+    spec:description """
+        If event log grows unbounded, disk fills, system crashes.
+        Recovery becomes impossible (can't write new events).
+    """ ;
+    spec:severity spec:High ;
+    spec:likelihood "Medium (logs grow indefinitely)" ;
+    spec:impact "High (system outage)" ;
+    spec:mitigation """
+        1. Snapshot strategy: save state every 100 events, prune old logs
+        2. Compression: gzip old event logs (read < 100ms)
+        3. Archival: move logs >30 days old to cold storage
+        4. Monitoring: alert if log growth >1GB/day
+    """ ;
+    spec:mitigationSLO "Maintain event log < 100GB at all times" ;
+    spec:monitoringStrategy "Daily log size audit" .
+
+:risk-005 a spec:Risk ;
+    spec:title "Incident Detector False Positives" ;
+    spec:description """
+        If anomaly detection triggers on normal behavior,
+        unnecessary rollbacks could cause worse outage.
+    """ ;
+    spec:severity spec:High ;
+    spec:likelihood "Medium (tuning difficult)" ;
+    spec:impact "High (unnecessary recovery, service interruption)" ;
+    spec:mitigation """
+        1. Conservative thresholds: 2x baseline for error rate (high bar)
+        2. Confirmation period: require anomaly to persist >30s before action
+        3. Dry-run mode: simulate rollback without executing in Wave 2
+        4. Human confirmation: human approves rollback before execution
+        5. Baseline learning: collect 1 week baseline before enabling
+    """ ;
+    spec:mitigationSLO "< 1 false positive per 1000 true anomalies" ;
+    spec:monitoringStrategy "Track false positive rate hourly" .
+
+# ============================================================================
+# ASSUMPTIONS
+# ============================================================================
+
+:assume-001 a spec:Assumption ;
+    spec:title "Event Ordering is Guaranteed" ;
+    spec:text "Events are appended in strict causal order (no out-of-order events)" ;
+    spec:rationale "Required for deterministic replay; timestamp alone insufficient" ;
+    spec:validationMethod "RocksDB sequential write semantics guarantee this" .
+
+:assume-002 a spec:Assumption ;
+    spec:title "Metrics System is Reliable" ;
+    spec:text "Error rate metrics are accurate and available within 30 seconds" ;
+    spec:rationale "Incident detection depends on metric accuracy" ;
+    spec:validationMethod "Metrics SLA: 99.95% uptime, < 10s accuracy" .
+
+:assume-003 a spec:Assumption ;
+    spec:title "Single-Region Deployment Initially" ;
+    spec:text "Wave 2 deployment is single-region; multi-region added in Wave 3" ;
+    spec:rationale "Simplifies region-scoped blast radius testing" ;
+    spec:validationMethod "Deployment config locked to single region in Wave 2" .

@@ -6,7 +6,7 @@
 
 ### P0: Compilation Blockers (Fix Today)
 ```rust
-// File: crates/ggen-marketplace/src/registry_rdf.rs
+// File: crates/ggen-marketplace-v2/src/registry_rdf.rs
 // Issue: 4 Send trait violations blocking workspace compilation
 // Lines: 165, 196 (get_package, all_packages)
 // Fix: Convert to SparqlEvaluator, collect iterators before .await
@@ -14,7 +14,7 @@
 
 **Command to verify fix**:
 ```bash
-cd crates/ggen-marketplace
+cd crates/ggen-marketplace-v2
 cargo build --lib
 ```
 
@@ -83,8 +83,8 @@ cargo build --lib
 
 ### Day 1 Morning: Fix Compilation
 ```bash
-# 1. Fix ggen-marketplace
-cd crates/ggen-marketplace
+# 1. Fix ggen-marketplace-v2
+cd crates/ggen-marketplace-v2
 # Edit src/registry_rdf.rs and src/rdf_mapper.rs
 # Replace Store::query() with SparqlEvaluator
 # Collect iterators before .await

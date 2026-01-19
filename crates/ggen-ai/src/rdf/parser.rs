@@ -16,13 +16,16 @@
 //!
 //! ### Loading RDF Files
 //!
-//! ```rust,ignore
+//! ```rust,no_run
 //! use ggen_ai::rdf::RdfParser;
 //! use std::path::Path;
 //!
+//! # fn main() -> anyhow::Result<()> {
 //! let mut parser = RdfParser::new()?;
 //! parser.load_schema()?;
 //! parser.load_ttl(Path::new("sample-cli.ttl"))?;
+//! # Ok(())
+//! # }
 //! ```
 
 use ggen_utils::{bail, error::Result};
@@ -36,13 +39,16 @@ use std::path::Path;
 ///
 /// # Example
 ///
-/// ```rust,ignore
+/// ```no_run
 /// use ggen_ai::rdf::RdfParser;
 /// use std::path::Path;
 ///
+/// # fn main() -> anyhow::Result<()> {
 /// let mut parser = RdfParser::new()?;
 /// parser.load_schema()?;
 /// parser.load_ttl(Path::new("sample-cli.ttl"))?;
+/// # Ok(())
+/// # }
 /// ```
 pub struct RdfParser {
     store: Store,
@@ -153,9 +159,11 @@ impl RdfParser {
     }
 }
 
-// NOTE: Default implementation removed - RdfParser::new() can fail (Store::new())
-// Use RdfParser::new() explicitly and handle the Result
-// This prevents panic!() in production code per PHASE 1.1 requirements
+impl Default for RdfParser {
+    fn default() -> Self {
+        Self::new().expect("Failed to create default RdfParser")
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -259,8 +267,8 @@ ex2:subject3 ex2:predicate3 "value3" .
     }
 
     #[test]
-    fn test_new_parser() {
-        let parser = RdfParser::new().unwrap();
+    fn test_default_parser() {
+        let parser = RdfParser::default();
         assert_eq!(parser.triple_count(), 0);
     }
 

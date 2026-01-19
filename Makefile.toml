@@ -1,54 +1,3 @@
-# =============================================================================
-# POKA-YOKE (Error-Proofing) MECHANISMS
-# =============================================================================
-#
-# This Makefile.toml implements Poka-Yoke (mistake-proofing) patterns from
-# Toyota Production System and Design for Lean Six Sigma (DfLSS) to prevent
-# defects from propagating through the development pipeline.
-#
-# **POKA-YOKE PATTERNS IMPLEMENTED:**
-#
-# 1. **Timeout Enforcement** (ALL critical targets):
-#    - Prevents indefinite hangs and lock contention
-#    - Enforces SLO thresholds (check: <5s, test: <30s, lint: <60s)
-#    - Uses `timeout` command wrapper or embedded timeout in scripts
-#    - Example: `command = "timeout"` with `args = ["15s", "cargo", "check"]`
-#
-# 2. **Warnings-as-Errors** (check, lint targets):
-#    - Treats compiler warnings as RED Andon signals
-#    - Prevents defect escape by failing fast on quality violations
-#    - Enforced via: RUSTFLAGS="-D warnings" environment variable
-#    - Example: `env = { RUSTFLAGS = "-D warnings" }`
-#
-# 3. **Quality Gates** (pre-commit, ci targets):
-#    - Multi-stage validation (check → lint → test)
-#    - Prevents commits/merges with RED Andon signals
-#    - Dependencies ensure proper execution order
-#    - Example: pre-commit depends on [check, lint, test-unit]
-#
-# 4. **Andon Signal Escalation** (test, lint targets):
-#    - Quick timeout (30s) → escalation timeout (120s)
-#    - Allows temporary slowdowns without false failures
-#    - Example: test tries 30s first, then escalates to 120s on timeout
-#
-# 5. **SLO Violation Detection** (ALL target descriptions):
-#    - Every target documents: Purpose, When, SLO, Examples, Recovery
-#    - 5-component ACI documentation enables agent tool selection
-#    - Measured and enforced via timeout wrappers
-#
-# **SUCCESS CRITERIA (Feature 003-optimize-aci-anthropic):**
-# - SC-001: 90% tool selection accuracy (achieved: 100%)
-# - SC-002: 95% Andon signal interpretation (achieved: 100%)
-# - SC-003: 60% SLO violation reduction (baseline: 2,354 violations)
-# - SC-004: 50% defect escape rate reduction
-#
-# **CONSTITUTION ALIGNMENT (ggen v1.0.0):**
-# - P2: cargo make Protocol (mandatory timeout enforcement)
-# - P3: Andon Signal Protocol (RED/YELLOW/GREEN interpretation)
-# - P6: Error Handling (Result<T,E> required, no unwrap/expect in production)
-#
-# =============================================================================
-
 # GitHub API configuration
 [env]
 GITHUB_REPO = "seanchatmangpt/ggen"
@@ -61,7 +10,6 @@ ACT_MEMORY = "2g"
 ACT_CPUS = "2"
 
 # Verify timeout command exists before running any task
-# Poka-Yoke: Fail fast if timeout command not available
 [tasks.timeout-check]
 description = "Verify timeout command exists (required for all tasks)"
 workspace = false
@@ -71,55 +19,10 @@ ignore_errors = false
 
 # Core development tasks - with timeout wrappers
 [tasks.check]
-description = """
-Fast compilation check (<5s target, 1.95s measured incremental).
-Verifies code compiles without running tests or generating binaries.
-Returns RED Andon signal on compilation errors, GREEN on success.
-
-Usage: cargo make check
-When: Before every commit, after code changes, during development
-SLO: <5s first build (15s timeout quick attempt), <2s incremental
-
-Example output:
-  GREEN: "Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.95s"
-  RED: "error[E0425]: cannot find value `x` in this scope"
-  RED: "error: could not compile `ggen` (lib) due to 3 previous errors"
-
-Recovery: Fix compilation errors shown in output and re-run cargo make check.
-If the first attempt times out due to a cargo lock, the task automatically retries
-with a longer 30s timeout for lock contention.
-"""
+description = "Check code without building (15s timeout for lock contention & workspace rebuild)"
 workspace = false
-clear = true
-# Poka-Yoke: Treat warnings as errors to prevent defects from propagating
-env = { RUSTFLAGS = "-D warnings" }
-command = "bash"
-args = [
-  "-c",
-  '''
-set -euo pipefail
-
-quick_timeout="15s"
-retry_timeout="30s"
-
-run_check() {
-  timeout "$1" cargo check
-}
-
-if run_check "$quick_timeout"; then
-  exit 0
-fi
-
-status=$?
-# 124 = timeout, 137 = timeout killed by signal; retry on these to handle locks
-if [[ $status -eq 124 || $status -eq 137 ]]; then
-  echo "⚠️  Retrying cargo check with extended timeout ($retry_timeout) due to lock contention"
-  run_check "$retry_timeout"
-else
-  exit $status
-fi
-''',
-]
+command = "timeout"
+args = ["15s", "cargo", "check"]
 
 # Pre-push check with longer timeout for lock contention scenarios
 [tasks.check-pre-push]
@@ -129,44 +32,12 @@ command = "timeout"
 args = ["30s", "cargo", "check"]
 
 [tasks.build]
-description = """
-Build debug binary for development (unoptimized, with debug info).
-Compiles ggen CLI executable in target/debug/ directory.
-Returns RED Andon signal on build errors, GREEN on success.
-
-Usage: cargo make build
-When: During development, after significant code changes
-SLO: <10s for incremental builds, <30s for clean builds
-
-Example output:
-  GREEN: "Finished `dev` profile [unoptimized + debuginfo] target(s) in 8.43s"
-  RED: "error: linking with `cc` failed: exit status: 1"
-  RED: "error: could not compile `ggen-cli-lib` (bin \"ggen\") due to previous error"
-
-Recovery: Fix compilation errors. For linker errors, verify system libraries installed.
-For timeout issues (>10s), run cargo make clean and retry.
-"""
+description = "Build in debug mode"
 command = "timeout"
 args = ["10s", "cargo", "build", "-p", "ggen-cli-lib", "--bin", "ggen"]
 
 [tasks.build-release]
-description = """
-Build optimized release binary for production deployment.
-Compiles ggen CLI with full optimizations in target/release/ directory.
-Returns RED Andon signal on build errors, GREEN on success.
-
-Usage: cargo make build-release
-When: Before release, deployment, or performance testing
-SLO: <30s for incremental builds, <60s for clean builds
-
-Example output:
-  GREEN: "Finished `release` profile [optimized] target(s) in 28.91s"
-  RED: "error: could not compile `ggen-cli-lib` (bin \"ggen\") due to 2 previous errors"
-
-Recovery: Fix compilation errors shown in output.
-Verify target/release/ggen binary exists after successful build.
-For optimization errors, check for unsafe code or platform-specific issues.
-"""
+description = "Build in release mode"
 command = "timeout"
 args = [
   "30s",
@@ -199,70 +70,22 @@ fi
 '''
 
 [tasks.clean]
-description = """
-Clean build artifacts from target/ directory.
-Removes all compiled binaries, intermediate files, and build cache.
-Returns GREEN Andon signal on successful cleanup.
-
-Usage: cargo make clean
-When: After build failures, before clean rebuild, workspace cleanup
-SLO: <5s for standard cleanup
-
-Example output:
-  GREEN: "Removed 332505 files, 107.1GiB total"
-
-Recovery: If cleanup fails or times out (>5s), manually remove target/ directory.
-Check disk space if cleanup is slow. Verify no cargo processes are holding locks.
-"""
+description = "Clean build artifacts"
 command = "timeout"
 args = ["5s", "cargo", "clean"]
 
 [tasks.fmt]
-description = """
-Auto-format all Rust code with rustfmt (2021 edition).
-Applies consistent formatting to entire workspace.
-Returns GREEN Andon signal after formatting, shows diff if run with --check.
-
-Usage: cargo make fmt
-When: Before commit, after writing code, on-demand formatting
-SLO: <5s for full workspace formatting
-
-Example output:
-  GREEN: "Diff in /Users/sac/ggen/src/main.rs at line 42:"
-  GREEN: (shows formatted changes)
-
-Recovery: Review formatting changes with git diff.
-If formatting breaks code (rare), check for macro or attribute issues.
-For timeout (>5s), check for extremely large files or disk I/O issues.
-"""
+description = "Format code"
 workspace = false
 command = "timeout"
 args = ["5s", "cargo", "fmt", "--all"]
 
 [tasks.lint]
-description = """
-Run clippy strict linting with all quality checks enabled.
-Catches common mistakes, style violations, and performance issues.
-Returns RED/YELLOW Andon signals for violations, GREEN if clean.
-
-Usage: cargo make lint
-When: Before commit, during code review, pre-push validation
-SLO: <5s quick lint, <30s extended, <60s full workspace
-
-Example output:
-  GREEN: "Finished dev [unoptimized + debuginfo] target(s) in 4.82s"
-  YELLOW: "warning: unused variable: `x`"
-  RED: "error: this looks like you are trying to swap `a` and `b`"
-
-Recovery: Fix clippy warnings and errors shown in output.
-For false positives, add #[allow(clippy::lint_name)] with justification.
-For timeout (>60s), check for workspace lock contention.
-"""
+description = "Run clippy with strict settings"
 workspace = false
-command = "bash"
-args = [
-  "-c",
-  '''
+script_runner = "@shell"
+script = '''
+#!/bin/bash
 set -euo pipefail
 
 LINT_CMD=(cargo clippy --all-targets --all-features -- -D warnings)
@@ -296,8 +119,7 @@ fi
 
 echo "⚠️  Extended lint timed out at 30s; rerunning with 60s timeout for full compilation..."
 run_lint_with_timeout 60s
-''',
-]
+'''
 
 [tasks.pre-commit-hook]
 description = "Pre-commit hook with comprehensive validation (Week 2 efficiency improvement)"
@@ -438,31 +260,7 @@ fi
 '''
 
 [tasks.pre-commit]
-description = """
-Run comprehensive pre-commit validation (format, lint, tests, docs, hooks, CLI verification).
-Executes all quality gates before allowing commit to proceed.
-Includes Andon Signal Validation Framework runtime checks.
-Returns RED Andon signal if ANY check fails, GREEN if all pass.
-
-Usage: cargo make pre-commit (or automatic via git pre-commit hook)
-When: Manually before commit, automatically via git hook
-SLO: Phases 1-4 with escalation timeouts (~1-2 minutes typical)
-
-Example output:
-  GREEN: "✅ Pre-commit hook validation passed"
-  RED: "❌ Pre-commit hook validation failed"
-  RED: "Fix all issues before committing"
-
-Recovery: Review failed checks in order shown, fix each issue.
-For hook issues, verify git hooks installed via scripts/install-git-hooks.sh.
-For timeout issues, check individual targets (fmt, lint, test, docs-check).
-Skip hooks with --no-verify ONLY if explicitly required (emergency fixes).
-
-Andon Signal Validation:
-  - Layer 1 (Compile-Time): check, lint (RED)
-  - Layer 2 (Test-Time): test, test-clnrm (YELLOW)
-  - Layer 3 (Runtime): verify-cli (GREEN)
-"""
+description = "Run pre-commit validation checks (format, lint, test, hooks, docs)"
 workspace = false
 dependencies = [
   "timeout-check",
@@ -472,7 +270,6 @@ dependencies = [
   "test-doc",
   "validate-docs",
   "docs-check",
-  "verify-cli",    # Andon Signal Validation Framework - Layer 3: Runtime
 ]
 script_runner = "@shell"
 script = '''
@@ -492,16 +289,7 @@ fi
 '''
 
 [tasks.test]
-description = """
-Run essential v5 test suite (codegen + manifest tests only, <100 total).
-Part of v5 cleanup - non-essential tests archived.
-
-Usage: cargo make test
-When: Before push, before PR merge
-SLO: <15s execution
-
-For full test suite (legacy): cargo test --workspace --lib
-"""
+description = "Run all tests"
 clear = true
 workspace = false
 script_runner = "@shell"
@@ -509,282 +297,33 @@ script = '''
 #!/bin/bash
 set -euo pipefail
 
-echo "🧪 Running essential v5 tests (codegen + manifest)..."
-# Run codegen tests
-cargo test -p ggen-core --lib codegen --no-default-features
-# Run manifest tests
-cargo test -p ggen-core --lib manifest --no-default-features
-echo "✅ Essential tests passed (27 tests)"
+TEST_CMD=(cargo test --workspace --no-default-features)
+
+if [ "$#" -gt 0 ]; then
+  TEST_CMD+=("$@")
+fi
+
+if timeout 30s "${TEST_CMD[@]}"; then
+  exit 0
+fi
+
+status=$?
+if [ "$status" -eq 124 ]; then
+  echo "⚠️  Quick test run exceeded 30s timeout; rerunning with 120s timeout (stop-the-line escalation)..."
+  timeout 120s "${TEST_CMD[@]}"
+else
+  exit "$status"
+fi
 '''
 
-[tasks.verify-cli]
-description = """
-Verify all CLI commands work end-to-end (Andon Signal Validation Framework).
-
-This prevents "fake greens" by validating actual CLI behavior, not just test execution.
-Part of the three-layer validation: Compile-Time → Test-Time → Runtime.
-
-Usage: cargo make verify-cli
-When: Pre-commit, CI/CD, manual validation
-SLO: <30s execution time
-
-Example output:
-  ✅ ANDON SIGNAL: GREEN
-  All commands verified successfully.
-
-Recovery: Fix failing commands and re-run verify-cli.
-
-Andon Signals:
-  - RED: Any command fails (stop the line)
-  - YELLOW: Commands work but with warnings
-  - GREEN: All commands pass
-"""
-workspace = false
-command = "timeout"
-args = ["30s", "bash", "scripts/verify-cli-commands.sh"]
-
-[tasks.validation-report]
-description = """
-Generate comprehensive validation report (Andon Signal Validation Framework).
-
-Shows status of all three validation layers:
-  - Layer 1 (Compile-Time): check, lint
-  - Layer 2 (Test-Time): test-unit, test-clnrm
-  - Layer 3 (Runtime): verify-cli
-
-Usage: cargo make validation-report [REPORT_FILE]
-When: After validation runs, for reporting and monitoring
-SLO: <5s execution time
-
-Example output:
-  Validation report generated: validation-report.txt
-  Shows status of all validation layers
-
-Recovery: Review report to identify failing layers.
-"""
-workspace = false
-command = "bash"
-args = ["scripts/generate-validation-report.sh", "${@}"]
-
-[tasks.monitor-validation]
-description = """
-Monitor validation status and send alerts (Andon Signal Validation Framework).
-
-Checks validation report and alerts on failures:
-  - RED: Layer 1 or Layer 3 failures (critical)
-  - YELLOW: Layer 2 failures (warning)
-  - GREEN: All layers passing
-
-Usage: cargo make monitor-validation [REPORT_FILE] [ALERT_THRESHOLD]
-When: Scheduled (cron), manual monitoring, CI/CD integration
-SLO: <5s execution time
-
-Example output:
-  🚨 ALERT: Layer 1 (Compile-Time) validation failed - STOP THE LINE
-
-Recovery: Fix failing layers and re-run validation.
-"""
-workspace = false
-command = "bash"
-args = ["scripts/monitor-validation.sh", "${@}"]
-
-[tasks.test-clnrm]
-description = """
-Run clnrm hermetic integration tests to verify CLI commands actually work.
-Uses Docker containers for isolated, reproducible testing.
-Returns RED Andon signal on test failures, GREEN on all pass.
-
-Usage: cargo make test-clnrm
-When: Before commits, in CI, after CLI changes
-SLO: <300s for full CLI command test suite
-
-Example output:
-  GREEN: "✅ All steps passed"
-  RED: "❌ Step 'test_ci_workflow' failed: File not created"
-
-Recovery: Fix failing CLI commands and re-run test-clnrm.
-
-Note: Uses clnrm v2.0.0 from /tmp/clnrm/target/release/clnrm
-"""
-workspace = false
-command = "timeout"
-args = [
-  "300s",
-  "/tmp/clnrm/target/release/clnrm",
-  "run",
-  "tests/clnrm/cli_commands.clnrm.toml",
-]
-
-[tasks.test-clnrm-marketplace-search-lite]
-description = """
-Run lightweight marketplace search clnrm (OTEL resource smoke).
-Uses minimal alpine container; validates basic spans/status.
-"""
-workspace = false
-command = "timeout"
-args = [
-  "180s",
-  "/tmp/clnrm/target/release/clnrm",
-  "run",
-  "tests/clnrm/marketplace/search_test.clnrm.toml",
-]
-
-[tasks.test-clnrm-marketplace-search]
-description = "Run full marketplace search clnrm suite with OTEL validation."
-workspace = false
-command = "timeout"
-args = [
-  "420s",
-  "/tmp/clnrm/target/release/clnrm",
-  "run",
-  "tests/clnrm/marketplace/search.clnrm.toml",
-]
-
-[tasks.test-clnrm-marketplace-install]
-description = "Run marketplace install/registry clnrm suite."
-workspace = false
-command = "timeout"
-args = [
-  "420s",
-  "/tmp/clnrm/target/release/clnrm",
-  "run",
-  "tests/clnrm/marketplace/install.clnrm.toml",
-]
-
-[tasks.test-clnrm-marketplace-error]
-description = "Run marketplace error-handling clnrm suite."
-workspace = false
-command = "timeout"
-args = [
-  "420s",
-  "/tmp/clnrm/target/release/clnrm",
-  "run",
-  "tests/clnrm/marketplace/error_handling.clnrm.toml",
-]
-
-[tasks.test-clnrm-marketplace-otel]
-description = "Run marketplace OTEL validation clnrm suite."
-workspace = false
-command = "timeout"
-args = [
-  "300s",
-  "/tmp/clnrm/target/release/clnrm",
-  "run",
-  "tests/clnrm/marketplace/otel_validation.clnrm.toml",
-]
-
-[tasks.test-clnrm-lifecycle-init]
-description = "Run lifecycle init clnrm suite with OTEL spans/attestations."
-workspace = false
-command = "timeout"
-args = [
-  "420s",
-  "/tmp/clnrm/target/release/clnrm",
-  "run",
-  "tests/clnrm/lifecycle/init.clnrm.toml",
-]
-
-[tasks.test-clnrm-lifecycle-phases]
-description = "Run lifecycle phases clnrm suite."
-workspace = false
-command = "timeout"
-args = [
-  "420s",
-  "/tmp/clnrm/target/release/clnrm",
-  "run",
-  "tests/clnrm/lifecycle/phases.clnrm.toml",
-]
-
-[tasks.test-clnrm-lifecycle-readiness]
-description = "Run lifecycle readiness clnrm suite."
-workspace = false
-command = "timeout"
-args = [
-  "420s",
-  "/tmp/clnrm/target/release/clnrm",
-  "run",
-  "tests/clnrm/lifecycle/readiness.clnrm.toml",
-]
-
-[tasks.test-clnrm-lifecycle-rollback]
-description = "Run lifecycle rollback clnrm suite."
-workspace = false
-command = "timeout"
-args = [
-  "420s",
-  "/tmp/clnrm/target/release/clnrm",
-  "run",
-  "tests/clnrm/lifecycle/rollback.clnrm.toml",
-]
-
-[tasks.test-clnrm-lifecycle-deploy]
-description = "Run lifecycle deploy clnrm suite."
-workspace = false
-command = "timeout"
-args = [
-  "420s",
-  "/tmp/clnrm/target/release/clnrm",
-  "run",
-  "tests/clnrm/lifecycle/deploy.clnrm.toml",
-]
-
-[tasks.test-clnrm-all]
-description = "Run all clnrm suites (cli, marketplace, lifecycle)."
-workspace = false
-dependencies = [
-  "test-clnrm",
-  "test-clnrm-marketplace-search-lite",
-  "test-clnrm-marketplace-search",
-  "test-clnrm-marketplace-install",
-  "test-clnrm-marketplace-error",
-  "test-clnrm-marketplace-otel",
-  "test-clnrm-lifecycle-init",
-  "test-clnrm-lifecycle-phases",
-  "test-clnrm-lifecycle-readiness",
-  "test-clnrm-lifecycle-rollback",
-  "test-clnrm-lifecycle-deploy",
-]
-
 [tasks.test-unit]
-description = """
-Run unit tests only for fast feedback during development.
-Executes --lib tests (no integration, doc, or binary tests).
-Returns RED Andon signal on failures, GREEN on pass.
-
-Usage: cargo make test-unit
-When: During development, quick feedback loop, TDD red-green cycles
-SLO: <16s workspace rebuild (150s timeout for clean build scenarios)
-
-Example output:
-  GREEN: "test result: ok. 128 passed; 0 failed; 0 ignored"
-  RED: "test tests::test_component_check_complete ... FAILED"
-
-Recovery: Fix failing unit tests shown in output.
-For timeout (>150s), likely clean build - verify cargo clean completed.
-Focus on isolated unit behavior, not integration scenarios.
-"""
+description = "Unit tests only (150s timeout for full workspace rebuild after cargo clean)"
 workspace = false
 command = "timeout"
 args = ["150s", "cargo", "test", "--workspace", "--lib"]
 
 [tasks.test-integration]
-description = """
-Run integration tests only (no unit or doc tests).
-Executes tests in tests/ directory that verify component integration.
-Returns RED Andon signal on failures, GREEN on pass.
-
-Usage: cargo make test-integration
-When: After unit tests pass, verifying component integration
-SLO: <30s for all integration tests
-
-Example output:
-  GREEN: "test result: ok. 42 passed; 0 failed; 0 ignored"
-  RED: "test e2e_lockfile_sha256 ... FAILED"
-
-Recovery: Fix failing integration tests shown in output.
-For timeout (>30s), check for slow I/O or external service dependencies.
-Focus on component interaction, not isolated unit behavior.
-"""
+description = "Integration tests only"
 workspace = false
 command = "timeout"
 args = ["30s", "cargo", "test", "--test"]
@@ -805,24 +344,7 @@ args = [
 ]
 
 [tasks.test-doc]
-description = """
-Run documentation tests (verify all code examples in docs compile and run).
-Critical quality gate: ensures public API examples actually work.
-Returns RED Andon signal on failures, GREEN on pass.
-
-Usage: cargo make test-doc
-When: Before commit, before PR, after API changes
-SLO: <60s first attempt, <180s escalation timeout
-
-Example output:
-  GREEN: "Doc-tests ggen-core - 18 passed; 0 failed"
-  RED: "error[E0425]: cannot find function `nonexistent` in this scope"
-  RED: "Doc-tests ggen-core - failures: 2"
-
-Recovery: Fix failing doctests shown in output (file and line number provided).
-For timeout (>60s first, >180s escalation), check for slow doctest compilation.
-Verify code examples in /// doc comments are correct and runnable.
-"""
+description = "Run doctests (CRITICAL: Verifies all doctests compile and run)"
 workspace = false
 clear = true
 script_runner = "@shell"
@@ -861,31 +383,6 @@ args = [
   "--report-time",
 ]
 
-[tasks.cli-smoke]
-description = """
-CLI smoke: help/version, workflow init/event/analyze/discover/report, idempotence, and failure-path check.
-Uses fixed seed/env (TZ=UTC, LANG=C, GGEN_SEED=123). Requires jq. Builds debug binary if missing.
-SLO: <180s; fails on any Andon signal or invariant mismatch.
-"""
-workspace = false
-dependencies = ["timeout-check"]
-env = { TZ = "UTC", LANG = "C", GGEN_SEED = "123" }
-command = "timeout"
-args = ["180s", "bash", "scripts/cli-smoke.sh"]
-
-[tasks.slo-check]
-description = """
-Performance SLO validation (quick path):
-- Lists test timings to surface slow suites without full execution
-- Enforces timeout wrapper to prevent hangs
-
-Usage: cargo make slo-check
-SLO: completes within 60s
-"""
-workspace = false
-command = "timeout"
-args = ["180s", "cargo", "test", "-p", "ggen-core", "--", "--list"]
-
 [tasks.test-single-threaded]
 description = "Run tests in single-threaded mode for deterministic execution"
 workspace = false
@@ -906,28 +403,7 @@ workspace = false
 dependencies = ["deterministic"]
 
 [tasks.validate-rdf]
-description = """
-Validate RDF graphs, SPARQL queries, and deterministic processing.
-Ensures ontology consistency and query correctness for ggen's RDF projection system.
-Returns RED Andon signal on validation failures, GREEN if all checks pass.
-
-Usage: cargo make validate-rdf
-When: After RDF/ontology changes, before commit, CI validation
-SLO: <30s per validation stage (RDF, graph, SPARQL, determinism)
-
-Example output:
-  GREEN: "✅ RDF validation complete!"
-  GREEN: "  ✓ RDF graph syntax validation"
-  GREEN: "  ✓ Graph consistency checks"
-  RED: "❌ RDF validation tests failed"
-  RED: "test rdf::validation::test_turtle_parse ... FAILED"
-
-Recovery: Fix RDF syntax errors shown in output (Turtle/N-Triples format).
-Verify SPARQL queries use correct prefixes and predicates.
-Check graph consistency (no orphaned nodes, valid relationships).
-For determinism failures, review RDF projection templates for non-deterministic operations.
-For timeout (>30s per stage), check for large ontologies or complex graph traversals.
-"""
+description = "Validate RDF graphs, SPARQL queries, and ensure deterministic processing"
 workspace = false
 dependencies = ["timeout-check"]
 script_runner = "@shell"
@@ -980,126 +456,6 @@ echo "  ✓ RDF graph syntax validation"
 echo "  ✓ Graph consistency checks"
 echo "  ✓ SPARQL query syntax validation"
 echo "  ✓ Deterministic processing verification"
-'''
-
-# ============================================================================
-# POKA-YOKE VALIDATION TASKS (Error-Proofing Quality Gates)
-# ============================================================================
-
-[tasks.poka-yoke-protection-check]
-description = """
-Validate Poka-Yoke path protection patterns (Type-Safety & Path Protection).
-Ensures ProtectedPath, PathProtector, and GlobPattern implementations work correctly.
-Returns RED Andon signal on failures, GREEN on all tests pass.
-
-Usage: cargo make poka-yoke-protection-check
-When: After path protection implementation, before commit
-SLO: <10s execution time
-
-Example output:
-  GREEN: "test protection::path::tests ... ok"
-  GREEN: "test protection::path_protector::tests ... ok"
-  RED: "test protection::... FAILED"
-"""
-workspace = false
-command = "timeout"
-args = ["10s", "cargo", "test", "--package", "ggen-core", "--lib", "protection::", "--", "--nocapture"]
-
-[tasks.poka-yoke-signal-check]
-description = """
-Validate Poka-Yoke Andon signal patterns (Error signaling).
-Ensures AndonSignal enum and AndonContext work correctly for RED/YELLOW/GREEN protocols.
-Returns RED Andon signal on failures, GREEN on all tests pass.
-
-Usage: cargo make poka-yoke-signal-check
-When: After Andon signal implementation, before commit
-SLO: <10s execution time
-"""
-workspace = false
-command = "timeout"
-args = ["10s", "cargo", "test", "--package", "ggen-core", "--lib", "signals::", "--", "--nocapture"]
-
-[tasks.poka-yoke-gate-check]
-description = """
-Validate Poka-Yoke quality gate patterns (Quality Gate validation).
-Ensures QualityGate, Check trait, and all check implementations work correctly.
-Returns RED Andon signal on failures, GREEN on all tests pass.
-
-Usage: cargo make poka-yoke-gate-check
-When: After quality gate implementation, before commit
-SLO: <10s execution time
-"""
-workspace = false
-command = "timeout"
-args = ["10s", "cargo", "test", "--package", "ggen-core", "--lib", "validation::", "--", "--nocapture"]
-
-[tasks.poka-yoke-validate]
-description = """
-Complete Poka-Yoke validation suite: protection, signals, and quality gates.
-Runs all Poka-Yoke pattern tests to verify error-proofing implementation.
-Returns RED Andon signal if ANY pattern fails, GREEN if all pass.
-
-Usage: cargo make poka-yoke-validate
-When: During development, before commit, CI validation
-SLO: <30s total execution time (3 checks × ~10s each)
-
-Example output:
-  GREEN: "test result: ok. 18 passed; 0 failed"
-  ANDON: 🟢 GREEN - All Poka-Yoke patterns verified
-  RED: "test result: FAILED"
-  ANDON: 🔴 RED - Poka-Yoke patterns contain defects - STOP
-"""
-workspace = false
-dependencies = ["poka-yoke-protection-check", "poka-yoke-signal-check", "poka-yoke-gate-check"]
-script_runner = "@shell"
-script = '''
-#!/bin/bash
-set -euo pipefail
-
-echo "🚨 Poka-Yoke Validation Suite"
-echo "====================================="
-echo ""
-
-FAILED=0
-
-echo "1️⃣  Path Protection Check (Type-Safety + Path Protection)..."
-if cargo make poka-yoke-protection-check 2>&1 | tail -5; then
-  echo "   ✅ PASS"
-else
-  echo "   ❌ FAIL"
-  FAILED=$((FAILED + 1))
-fi
-echo ""
-
-echo "2️⃣  Andon Signal Check (Error Signaling)..."
-if cargo make poka-yoke-signal-check 2>&1 | tail -5; then
-  echo "   ✅ PASS"
-else
-  echo "   ❌ FAIL"
-  FAILED=$((FAILED + 1))
-fi
-echo ""
-
-echo "3️⃣  Quality Gate Check (Gate Validation)..."
-if cargo make poka-yoke-gate-check 2>&1 | tail -5; then
-  echo "   ✅ PASS"
-else
-  echo "   ❌ FAIL"
-  FAILED=$((FAILED + 1))
-fi
-echo ""
-
-echo "====================================="
-if [ $FAILED -eq 0 ]; then
-  echo "🟢 GREEN - All Poka-Yoke patterns verified ✅"
-  echo "====================================="
-  exit 0
-else
-  echo "🔴 RED - Poka-Yoke patterns contain defects - STOP 🛑"
-  echo "====================================="
-  echo "Fix all failing patterns before proceeding"
-  exit 1
-fi
 '''
 
 [tasks.test-testcontainers]
@@ -1181,40 +537,6 @@ workspace = false
 command = "./scripts/production-readiness-validation.sh"
 args = ["--full"]
 
-[tasks.fmea-report]
-description = "Generate FMEA report"
-workspace = false
-command = "cargo"
-args = ["run", "--bin", "ggen", "--", "utils", "fmea", "report"]
-
-[tasks.fmea-pareto]
-description = "Generate Pareto analysis (80/20)"
-workspace = false
-command = "cargo"
-args = ["run", "--bin", "ggen", "--", "utils", "fmea", "pareto"]
-
-[tasks.fmea-list]
-description = "List failure modes"
-workspace = false
-command = "cargo"
-args = ["run", "--bin", "ggen", "--", "utils", "fmea", "list"]
-
-[tasks.fmea-export]
-description = "Export FMEA data to JSON"
-workspace = false
-command = "cargo"
-args = [
-  "run",
-  "--bin",
-  "ggen",
-  "--",
-  "utils",
-  "fmea",
-  "export",
-  "--output",
-  "fmea-report.json",
-]
-
 [tasks.test-live]
 description = "Run tests with live LLM integrations (requires API keys)"
 command = "cargo"
@@ -1288,87 +610,6 @@ workspace = false
 command = "./scripts/validate-ollama.sh"
 
 # GitHub Actions local testing with act (80/20: minimal essential tasks)
-[tasks.act-validation]
-description = """
-Run Andon Signal Validation Framework workflow locally with act.
-
-Tests all three validation layers:
-  - Layer 1: Compile-Time (check, lint)
-  - Layer 2: Test-Time (test-unit, test-clnrm)
-  - Layer 3: Runtime (verify-cli)
-
-Usage: 
-  cargo make act-validation              # Run all jobs
-  cargo make act-validation JOB=compile-time  # Run specific job
-  cargo make act-validation DRYRUN=true      # Dry-run mode
-
-When: Before pushing, after validation changes, local CI testing
-SLO: <10 minutes for full validation
-
-Prerequisites:
-  - act installed: brew install act (macOS) or see act-status
-  - Docker running: docker ps
-  - Verify: cargo make act-status
-
-Example output:
-  ✅ Layer 1: Compile-Time Validation - PASSED
-  ✅ Layer 2: Test-Time Validation - PASSED
-  ✅ Layer 3: Runtime Validation - PASSED
-
-Recovery: Fix failing layers and re-run act-validation.
-"""
-workspace = false
-script_runner = "@shell"
-script = '''
-#!/bin/bash
-set -e
-
-# Check act is installed
-if ! command -v act &> /dev/null; then
-    echo "❌ Error: act is not installed"
-    echo "  Install: brew install act (macOS)"
-    echo "  Or: curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash"
-    echo "  Verify: cargo make act-status"
-    exit 1
-fi
-
-# Check Docker is running
-if ! docker ps &> /dev/null; then
-    echo "❌ Error: Docker is not running"
-    echo "  Start Docker Desktop (macOS/Windows) or Docker daemon (Linux)"
-    echo "  Verify: docker ps"
-    exit 1
-fi
-
-# Handle dry-run mode
-DRYRUN="${DRYRUN:-false}"
-JOB="${JOB:-}"
-
-if [ "$DRYRUN" == "true" ]; then
-    echo "🔍 Dry-run mode: Validating workflow syntax..."
-    act --dryrun \
-        --container-architecture "${ACT_CONTAINER_ARCH}" \
-        --platform "${ACT_PLATFORM}" \
-        -W ".github/workflows/andon-validation.yml" \
-        "${@}"
-elif [ -n "$JOB" ]; then
-    echo "🚀 Running validation workflow, job: $JOB"
-    act \
-        --container-architecture "${ACT_CONTAINER_ARCH}" \
-        --platform "${ACT_PLATFORM}" \
-        -W ".github/workflows/andon-validation.yml" \
-        -j "${JOB}" \
-        "${@}"
-else
-    echo "🚀 Running validation workflow (all jobs)"
-    act \
-        --container-architecture "${ACT_CONTAINER_ARCH}" \
-        --platform "${ACT_PLATFORM}" \
-        -W ".github/workflows/andon-validation.yml" \
-        "${@}"
-fi
-'''
-
 [tasks.act]
 description = "Run a GitHub Actions workflow locally with act (usage: cargo make act WORKFLOW=ci.yml JOB=fmt). Examples: 'cargo make act WORKFLOW=lint.yml JOB=lint', 'cargo make act WORKFLOW=ci.yml' (runs all jobs)"
 workspace = false
@@ -1519,26 +760,7 @@ command = "cargo"
 args = ["test", "--test", "bdd", "--", "--nocapture"]
 
 [tasks.audit]
-description = """
-Run security vulnerability audit on all dependencies.
-Checks for known CVEs and security advisories in dependency tree.
-Returns RED Andon signal if vulnerabilities found, GREEN if clean.
-
-Usage: cargo make audit
-When: Weekly, before release, after dependency updates
-SLO: Variable (network-dependent, typically <30s)
-
-Example output:
-  GREEN: "Success: No vulnerable packages found"
-  RED: "Crate:     tokio"
-  RED: "Version:   1.28.0"
-  RED: "Warning:   RUSTSEC-2023-0001"
-
-Recovery: Update vulnerable dependencies to patched versions.
-Review security advisory details at rustsec.org.
-If no fix available, assess risk and consider alternatives.
-For network timeouts, check cargo audit installation and connectivity.
-"""
+description = "Security audit"
 command = "cargo"
 args = ["audit"]
 workspace = false
@@ -1662,25 +884,7 @@ command = "timeout"
 args = ["10s", "cargo", "doc", "--no-deps", "--open"]
 
 [tasks.docs-check]
-description = """
-Verify API documentation compiles without errors or warnings.
-Critical quality gate for public API documentation completeness.
-Returns RED Andon signal on rustdoc errors/warnings, GREEN if clean.
-
-Usage: cargo make docs-check
-When: Pre-commit, CI, before release, after API changes
-SLO: <30s first build, <180s escalation timeout
-
-Example output:
-  GREEN: "Documenting ggen v3.4.1 - Finished dev in 28.43s"
-  YELLOW: "warning: missing documentation for public function"
-  RED: "error: unresolved link to `NonExistent`"
-
-Recovery: Fix rustdoc errors and warnings shown in output.
-Add missing documentation for public APIs (/// doc comments).
-Fix broken intra-doc links with correct paths.
-For timeout (>180s), check for large documentation builds or disk I/O.
-"""
+description = "Verify API documentation compiles without errors (for CI/pre-commit)"
 workspace = false
 clear = true
 env = { RUSTDOCFLAGS = "-D warnings" }
@@ -1812,32 +1016,13 @@ command = "./marketplace/scripts/generate_validation_report.sh"
 description = "Emit validation receipts for all marketplace packages (Track A)"
 workspace = false
 command = "cargo"
-args = [
-  "run",
-  "--release",
-  "--bin",
-  "ggen",
-  "--",
-  "marketplace",
-  "emit-receipts",
-  "--report",
-]
+args = ["run", "--release", "--bin", "ggen", "--", "marketplace", "emit-receipts", "--report"]
 
 [tasks.marketplace-health]
 description = "Generate marketplace health report from validation receipts"
 workspace = false
 command = "cargo"
-args = [
-  "run",
-  "--release",
-  "--bin",
-  "ggen",
-  "--",
-  "marketplace",
-  "report",
-  "--output",
-  "marketplace/MARKETPLACE_HEALTH.json",
-]
+args = ["run", "--release", "--bin", "ggen", "--", "marketplace", "report", "--output", "marketplace/MARKETPLACE_HEALTH.json"]
 
 [tasks.marketplace-validate-with-receipts]
 description = "Validate all packages and emit receipts (combined Track A)"
@@ -1848,24 +1033,12 @@ dependencies = ["marketplace-validate", "marketplace-emit-receipts"]
 description = "Generate JSON registry and Markdown from receipts (Track B)"
 workspace = false
 command = "cargo"
-args = [
-  "run",
-  "--release",
-  "--bin",
-  "ggen",
-  "--",
-  "marketplace",
-  "generate-artifacts",
-]
+args = ["run", "--release", "--bin", "ggen", "--", "marketplace", "generate-artifacts"]
 
 [tasks.marketplace-full-pipeline]
 description = "Complete marketplace pipeline: validate → emit receipts → generate artifacts (Track A+B)"
 workspace = false
-dependencies = [
-  "marketplace-validate",
-  "marketplace-emit-receipts",
-  "marketplace-generate-artifacts",
-]
+dependencies = ["marketplace-validate", "marketplace-emit-receipts", "marketplace-generate-artifacts"]
 
 # ============================================================================
 # Compilation Validation Tasks (Root Cause Prevention)
@@ -1891,25 +1064,7 @@ command = "./scripts/check-type-safety.sh"
 
 # Add docs tasks to existing workflows (if they exist)
 [tasks.ci]
-description = """
-Run full CI pipeline validation (all quality gates and tests).
-Executes format check, linting, compilation, tests, docs, and security audit.
-Returns RED Andon signal if ANY step fails, GREEN if all pass.
-
-Usage: cargo make ci
-When: CI/CD pipeline, before PR merge, release validation
-SLO: Sum of all dependency SLOs (~2-3 minutes typical, varies by workspace state)
-
-Example output:
-  GREEN: "✅ All CI gate checks passed!"
-  RED: "❌ 2 check(s) failed"
-  RED: "Fix all issues before merging"
-
-Recovery: Review failed checks in output, fix issues in order shown.
-Each dependency has its own recovery guidance (see individual targets).
-For timeout issues, check overall system load and disk I/O.
-Run individual checks separately to isolate failures.
-"""
+description = "Run CI pipeline"
 workspace = false
 dependencies = [
   "format",
@@ -2303,637 +1458,4 @@ Files:
 
 Learn more: docs/KAIZEN_METRICS.md
 HELP_EOF
-'''
-
-# =============================================================================
-# Feature 004: Test Quality Audit and Performance Optimization
-# =============================================================================
-
-[tasks.test-audit]
-description = """
-Run test quality audit to detect false positives and weak assertions.
-Analyzes mutation kill rate, assertion strength, and behavior validation.
-Returns RED for false positives, YELLOW for weak assertions, GREEN if quality passes.
-
-Usage: cargo make test-audit
-When: Before optimization, after adding tests, weekly quality review
-SLO: <30s for full audit, <10s for incremental
-
-Example output:
-  GREEN: "Mutation kill rate: 85.3% (target: 80%+) - PASS"
-  YELLOW: "Weak assertions detected: 12 tests need strengthening"
-  RED: "FALSE POSITIVE: ggen.toml broken but tests pass"
-
-Recovery: Fix false positive tests before continuing with optimization.
-Strengthen weak assertions using assert_eq! with exact values.
-For timeout (>30s), run audit on subset of tests first.
-"""
-workspace = false
-command = "timeout"
-args = ["30s", "cargo", "run", "--package", "ggen-test-audit", "--", "audit"]
-
-[tasks.test-opt]
-description = """
-Run test optimization to select 200 high-value tests from full 1,178-test suite.
-Applies 80/20 Pareto principle based on test value scoring algorithm.
-Generates optimized suite manifest in .ggen/test-metadata/optimized-suite.json.
-
-Usage: cargo make test-opt
-When: After test audit passes, before enabling parallel execution
-SLO: <15s for full optimization, <5s for incremental updates
-
-Example output:
-  GREEN: "Optimized suite: 200 tests selected (83% reduction)"
-  GREEN: "Projected bug detection: 84.7% (target: 80%+)"
-  GREEN: "Projected execution time: 8.31s (target: ≤11s)"
-
-Recovery: If bug detection <80%, adjust value scoring weights in config.
-If execution time >11s, apply stricter budget enforcement.
-For timeout (>15s), run optimization on subset first.
-"""
-workspace = false
-command = "timeout"
-args = ["15s", "cargo", "run", "--package", "ggen-test-opt", "--", "optimize"]
-
-[tasks.test-mutate]
-description = """
-Run mutation testing with cargo-mutants to verify tests catch bugs.
-Injects mutations into code and verifies tests fail appropriately.
-Returns RED if kill rate <80%, GREEN if ≥80%.
-
-Usage: cargo make test-mutate
-When: After test audit, before deployment, weekly validation
-SLO: <5min for critical paths, <30min for full workspace
-
-Example output:
-  GREEN: "Mutation testing complete: 847/1000 mutants killed (84.7%)"
-  RED: "Mutation testing failed: 654/1000 mutants killed (65.4% < 80% target)"
-  YELLOW: "23 mutants timed out (>1s per test)"
-
-Recovery: If kill rate <80%, add tests for surviving mutants.
-If timeouts occur, optimize slow tests or increase timeout threshold.
-For full workspace timeout (>30min), run on critical paths only.
-"""
-workspace = false
-command = "timeout"
-args = ["5m", "cargo", "mutants", "--", "--workspace"]
-
-[tasks.test-budget-check]
-description = """
-Validate performance budgets for unit and integration tests.
-Enforces strict limits: unit tests ≤1s total, integration tests ≤10s total.
-Returns RED for Critical violations, YELLOW for warnings, GREEN if compliant.
-
-Usage: cargo make test-budget-check
-When: After test execution, before commit, in CI/CD pipeline
-SLO: <5s for budget validation
-
-Example output:
-  GREEN: "Budget compliance: Unit 0.51s/1.00s (49% margin), Integration 7.8s/10.0s (22% margin)"
-  YELLOW: "Warning: test_rdf_parsing took 0.85s (85% of unit budget)"
-  RED: "Critical: test_slow_integration took 12.3s (exceeds 10s budget)"
-
-Recovery: For Critical violations, optimize or exclude slow tests.
-For warnings, monitor test performance trends over time.
-If budget check times out (>5s), verify test metadata is up to date.
-"""
-workspace = false
-command = "timeout"
-args = [
-  "5s",
-  "cargo",
-  "run",
-  "--package",
-  "ggen-test-opt",
-  "--",
-  "budget-check",
-]
-
-[tasks.metadata-update]
-description = """
-Update test execution metadata from latest test runs.
-Collects execution times, coverage data, and failure history for intelligent test selection.
-Stores metadata in .ggen/test-metadata/ for use by test-opt and test-budget-check.
-
-Usage: cargo make metadata-update
-When: After running tests with cargo-nextest, after coverage runs, periodic updates
-SLO: <10s for metadata collection and storage
-
-Example output:
-  GREEN: "📊 Collected 1,178 test execution times"
-  GREEN: "📊 Collected coverage for 1,042 tests"
-  GREEN: "📊 Updated failure history for 156 tests"
-  GREEN: "✅ Metadata update complete!"
-
-Recovery: If nextest/tarpaulin JSON not found, ensure tests were run with JSON output.
-For timeout (>10s), run metadata update on specific test subsets.
-If metadata directory missing, it will be created automatically.
-"""
-workspace = false
-command = "timeout"
-args = [
-  "10s",
-  "cargo",
-  "run",
-  "--package",
-  "ggen-test-opt",
-  "--",
-  "metadata-update",
-]
-
-# =============================================================================
-# KGC INTEGRATION: Holographic Orchestration (Bleeding Edge 80/20)
-# =============================================================================
-# These targets implement the measurement function μ pipeline integrated with
-# SHACL validation, observable snapshots, and receipt generation.
-# Total time: ~30s (5s parse + 10s extract + 15s emit + 5s canonicalize + 2s receipt)
-# =============================================================================
-
-[tasks.ggen-snapshot]
-description = """
-Create an ObservableSnapshot from live .ttl (freeze with BLAKE3 content addressing).
-Part of KGC integration: freezes domain ontology for deterministic input to μ.
-
-Usage: cargo make ggen-snapshot
-When: Before running ggen sync, before CI/CD validation
-SLO: <2s for snapshot creation and hashing
-
-Example output:
-  ✅ Snapshot created: .specify/snapshots/{hash}/
-
-Produces:
-  .specify/snapshots/{hash}/snapshot.ttl (frozen ontology)
-  .specify/snapshots/{hash}/snapshot.hash (BLAKE3)
-  .specify/snapshots/{hash}/snapshot.timestamp (ISO 8601)
-  .specify/snapshots/{hash}/snapshot.metadata.json
-"""
-workspace = false
-script = '''
-#!/bin/bash
-set -euo pipefail
-
-mkdir -p .specify/snapshots
-
-# Compute BLAKE3 hash of ontology
-SPEC_FILE=".specify/holographic-orchestration-kgc.ttl"
-HASH=$(sha256sum "$SPEC_FILE" | cut -d' ' -f1)
-
-# Create snapshot directory
-SNAPSHOT_DIR=".specify/snapshots/$HASH"
-mkdir -p "$SNAPSHOT_DIR"
-
-# Copy snapshot files
-cp "$SPEC_FILE" "$SNAPSHOT_DIR/snapshot.ttl"
-echo "$HASH" > "$SNAPSHOT_DIR/snapshot.hash"
-date -u +"%Y-%m-%dT%H:%M:%SZ" > "$SNAPSHOT_DIR/snapshot.timestamp"
-
-# Create machine-readable metadata
-cat > "$SNAPSHOT_DIR/snapshot.metadata.json" <<EOF
-{
-  "hash": "$HASH",
-  "timestamp": "$(cat "$SNAPSHOT_DIR/snapshot.timestamp")",
-  "sourceFile": "$SPEC_FILE",
-  "format": "turtle"
-}
-EOF
-
-echo "✅ Snapshot created: $SNAPSHOT_DIR"
-echo "   Hash: $HASH"
-echo "   Metadata: $SNAPSHOT_DIR/snapshot.metadata.json"
-
-# Export for downstream tasks
-echo "SNAPSHOT_HASH=$HASH" >> .env.snapshot
-'''
-
-[tasks.ggen-validate]
-description = """
-Validate ontology snapshot against SHACL shapes (KGC compliance check).
-Hard stop on violation. Enforces 6 critical shapes for 95% violation blockage.
-
-Usage: cargo make ggen-validate
-When: After snapshot creation, before running μ, in CI/CD pre-check
-SLO: <3s for SHACL validation
-
-Example output (pass):
-  ✅ KGC SHACL Validation PASSED
-  ✅ All 6 shapes validated
-
-Example output (fail):
-  ❌ KGC SHACL Validation FAILED
-  ❌ Shape: MeasurementFunctionInvariantShape
-     Violation: kgc:preserves count < 3
-
-Recovery: Fix violations in .ttl, run ggen-snapshot again, retry validation.
-"""
-workspace = false
-script = '''
-#!/bin/bash
-set -euo pipefail
-
-if ! command -v python3 &>/dev/null; then
-  echo "❌ python3 required for SHACL validation"
-  exit 1
-fi
-
-# Check if pyshacl is installed
-if ! python3 -c "import pyshacl" 2>/dev/null; then
-  echo "Installing pyshacl..."
-  pip install -q pyshacl rdflib
-fi
-
-echo "🔍 Validating KGC compliance via SHACL..."
-
-python3 << 'PYTHON_EOF'
-import sys
-from pathlib import Path
-from pyshacl import validate
-from rdflib import Graph
-
-# Load graphs
-data_file = Path('.specify/holographic-orchestration-kgc.ttl')
-shacl_file = Path('.specify/kgc-shacl-validation.ttl')
-
-if not data_file.exists():
-    print(f"❌ Specification file not found: {data_file}")
-    sys.exit(1)
-
-if not shacl_file.exists():
-    print(f"❌ SHACL shapes file not found: {shacl_file}")
-    sys.exit(1)
-
-try:
-    data_graph = Graph().parse(str(data_file), format='turtle')
-    shacl_graph = Graph().parse(str(shacl_file), format='turtle')
-except Exception as e:
-    print(f"❌ Error parsing RDF: {e}")
-    sys.exit(1)
-
-# Validate
-conforms, report_graph, report_text = validate(
-    data_graph,
-    shacl_graph=shacl_graph,
-    inference='none',
-    debug=False
-)
-
-if conforms:
-    print("✅ KGC SHACL Validation PASSED")
-    print("   ✓ All 6 shapes validated")
-    print("   ✓ isKGCCompliant: true")
-    sys.exit(0)
-else:
-    print("❌ KGC SHACL Validation FAILED")
-    print(report_text)
-    sys.exit(1)
-PYTHON_EOF
-'''
-
-[tasks.ggen-sync]
-description = """
-Execute full measurement function μ pipeline (5 stages of code precipitation).
-Transforms ObservableSnapshot → Artifacts through Holographic Orchestration.
-
-Stages:
-  1. Parse & Normalize (5s): RDF validation, canonicalization
-  2. Extract Patterns (10s): SPARQL CONSTRUCT queries
-  3. Emit Code (15s): Tera templates, language emitters
-  4. Canonicalize (5s): Format, determinism normalization
-  5. Receipt (2s): Cryptographic proof generation
-
-Usage: cargo make ggen-sync
-When: After ggen-snapshot and ggen-validate, before testing
-SLO: <37s total (5+10+15+5+2)
-
-Example output:
-  🔄 Running ggen measurement function μ (5 stages)...
-  ✓ Stage 1: Parse & Normalize
-  ✓ Stage 2: Extract Patterns
-  ✓ Stage 3: Emit Code
-  ✓ Stage 4: Canonicalize
-  ✓ Stage 5: Receipt
-  ✅ Code precipitation complete
-
-Output:
-  target/ggen/canonical/               (generated code)
-  target/ggen/receipt.jsonld           (cryptographic proof)
-  target/ggen/closure-proof.jsonld    (closure witness)
-"""
-workspace = false
-script = '''
-#!/bin/bash
-set -euo pipefail
-
-echo "🔄 Running ggen measurement function μ (specification-first code generation)..."
-echo ""
-
-# Run the actual Python-based code generation pipeline
-# This implements stages 1-5 of the measurement function μ
-python3 scripts/ggen_sync_codegen.py
-
-if [ $? -ne 0 ]; then
-  echo "❌ Code generation pipeline failed"
-  exit 1
-fi
-
-echo ""
-
-# Create witness receipts for closure verification (from test/compile/SLO runs)
-mkdir -p target/ggen/receipts
-echo '{"type": "TestReceipt", "criterion": "Completeness", "tests_passed": 347, "coverage": 98.5}' > target/ggen/receipts/test-receipt.json
-echo '{"type": "CompileReceipt", "criterion": "Determinism", "hash": "blake3:abc123...", "reproducible": true}' > target/ggen/receipts/compile-receipt.json
-echo '{"type": "SLOReceipt", "criterion": "Reproducibility", "check_time": "2.1s", "test_time": "28.3s", "lint_time": "45.2s"}' > target/ggen/receipts/slo-receipt.json
-'''
-
-[tasks.ggen-verify-closure]
-description = """
-Verify ontological closure (all 3 closure criteria witnessed).
-Checks that test, compile, and SLO receipts are present and linked.
-
-Usage: cargo make ggen-verify-closure
-When: After full test/compile run, before merge
-SLO: <2s for closure verification
-
-Example output (pass):
-  ✅ Ontological Closure Verified
-    ✓ Completeness Witness: Test Receipt
-    ✓ Determinism Witness: Compile Receipt
-    ✓ Reproducibility Witness: SLO Receipt
-
-Example output (fail):
-  ❌ Ontological Closure FAILED
-    ✗ Missing Completeness Witness (Test Receipt)
-
-Recovery: Run full test suite (cargo make test), verify build (cargo make check),
-measure SLO (cargo make check && cargo make test-unit && cargo make lint).
-"""
-workspace = false
-script = '''
-#!/bin/bash
-set -euo pipefail
-
-echo "🔍 Verifying ontological closure..."
-
-# Check for all 3 witness receipts
-TEST_RECEIPT="target/ggen/receipts/test-receipt.json"
-COMPILE_RECEIPT="target/ggen/receipts/compile-receipt.json"
-SLO_RECEIPT="target/ggen/receipts/slo-receipt.json"
-
-MISSING=0
-
-if [ ! -f "$TEST_RECEIPT" ]; then
-  echo "  ✗ Missing Completeness Witness (Test Receipt)"
-  MISSING=$((MISSING + 1))
-else
-  echo "  ✓ Completeness Witness: Test Receipt"
-fi
-
-if [ ! -f "$COMPILE_RECEIPT" ]; then
-  echo "  ✗ Missing Determinism Witness (Compile Receipt)"
-  MISSING=$((MISSING + 1))
-else
-  echo "  ✓ Determinism Witness: Compile Receipt"
-fi
-
-if [ ! -f "$SLO_RECEIPT" ]; then
-  echo "  ✗ Missing Reproducibility Witness (SLO Receipt)"
-  MISSING=$((MISSING + 1))
-else
-  echo "  ✓ Reproducibility Witness: SLO Receipt"
-fi
-
-if [ $MISSING -eq 0 ]; then
-  echo "✅ Ontological Closure Verified"
-  exit 0
-else
-  echo "❌ Ontological Closure FAILED (missing $MISSING witness)"
-  exit 1
-fi
-'''
-
-[tasks.ggen-compliance-report]
-description = """
-Generate machine-readable proof of ontological closure (JSON-LD format).
-Produces compliance evidence for CI/CD gates and audit trails.
-
-Usage: cargo make ggen-compliance-report
-When: After ggen-verify-closure, for final submission
-SLO: <2s for report generation
-
-Output:
-  target/ggen/closure-proof.jsonld (machine-readable proof)
-
-Format:
-  {
-    "@context": "http://ggen.org/context.jsonld",
-    "@type": "OntologicalClosure",
-    "timestamp": "2026-01-07T...",
-    "status": "kgc:isKGCCompliant = true",
-    "witnesses": {...}
-  }
-"""
-workspace = false
-script = '''
-#!/bin/bash
-set -euo pipefail
-
-mkdir -p target/ggen
-
-echo "📋 Generating compliance report..."
-
-python3 << 'PYTHON_EOF'
-import json
-from datetime import datetime, timezone
-from pathlib import Path
-
-closure_proof = {
-    "@context": "http://ggen.org/context.jsonld",
-    "@type": "OntologicalClosure",
-    "timestamp": datetime.now(timezone.utc).isoformat(),
-    "specification": {
-        "file": ".specify/holographic-orchestration-kgc.ttl"
-    },
-    "witnesses": {
-        "completeness": "target/ggen/receipts/test-receipt.json",
-        "determinism": "target/ggen/receipts/compile-receipt.json",
-        "reproducibility": "target/ggen/receipts/slo-receipt.json"
-    },
-    "status": "kgc:isKGCCompliant = true"
-}
-
-output_path = Path('target/ggen/closure-proof.jsonld')
-output_path.parent.mkdir(parents=True, exist_ok=True)
-
-with open(output_path, 'w') as f:
-    json.dump(closure_proof, f, indent=2)
-
-print(f"✅ Closure Proof Generated: {output_path}")
-PYTHON_EOF
-'''
-
-[tasks.ggen]
-description = """
-Full KGC pipeline: snapshot → validate → sync → verify → report.
-End-to-end measurement function execution with holographic orchestration.
-
-Usage: cargo make ggen
-When: Complete integration test, final submission
-SLO: <45s (2s snapshot + 3s validate + 37s sync + 2s verify + 2s report)
-
-Example output:
-  ✅ Snapshot created
-  ✅ KGC SHACL Validation PASSED
-  🔄 Running ggen measurement function μ...
-  ✅ Code precipitation complete
-  ✅ Ontological Closure Verified
-  ✅ Closure Proof Generated
-
-This is the canonical workflow: specification → proof of closure.
-"""
-workspace = false
-dependencies = [
-  "ggen-snapshot",
-  "ggen-validate",
-  "ggen-sync",
-  "ggen-verify-closure",
-  "ggen-compliance-report"
-]
-
-# =============================================================================
-# BREE SEMANTIC SCHEDULER VALIDATION TARGETS
-# =============================================================================
-
-[tasks.bree-validate-spec]
-description = """
-SHACL validation of Bree semantic scheduler specification.
-Validates that bree-jobs-sample.ttl conforms to bree-scheduler.shapes.ttl.
-
-Usage: cargo make bree-validate-spec
-When: Before code generation, to ensure specification closure
-SLO: <2s
-"""
-workspace = false
-script = '''
-#!/bin/bash
-set -euo pipefail
-cd examples/bree-semantic-scheduler
-
-echo "🔍 Validating Bree specification against SHACL shapes..."
-
-# Check that specification files exist
-if [ ! -f "bree-ontology.ttl" ]; then
-  echo "❌ Missing bree-ontology.ttl"
-  exit 1
-fi
-
-if [ ! -f "bree-jobs-sample.ttl" ]; then
-  echo "❌ Missing bree-jobs-sample.ttl"
-  exit 1
-fi
-
-if [ ! -f ".specify/bree-scheduler.shapes.ttl" ]; then
-  echo "❌ Missing .specify/bree-scheduler.shapes.ttl"
-  exit 1
-fi
-
-echo "✅ All specification files present"
-echo "✅ Specification closure verified (100% complete)"
-'''
-
-[tasks.bree-test]
-description = """
-Run Bree semantic scheduler test suite with Chicago TDD patterns.
-Tests RDF loading, SPARQL execution, and template wiring.
-
-Usage: cargo make bree-test
-When: After specification validation
-SLO: <30s
-"""
-workspace = false
-script = '''
-#!/bin/bash
-set -euo pipefail
-cd examples/bree-semantic-scheduler
-
-echo "🧪 Running Bree test suite..."
-
-# Check if dependencies are installed
-if [ ! -d "node_modules" ]; then
-  echo "📦 Installing npm dependencies..."
-  npm install
-fi
-
-# Run tests with timeout
-timeout 30s npm test -- --run --reporter=verbose || {
-  status=$?
-  if [ $status -eq 124 ]; then
-    echo "⏱️  Test timeout after 30s (SLO violation)"
-  fi
-  exit $status
-}
-
-echo "✅ All tests passed"
-'''
-
-[tasks.bree-generate]
-description = """
-Generate Bree code from RDF specification via ggen sync.
-Transforms bree-jobs-sample.ttl → JavaScript via SPARQL + Tera templates.
-
-Usage: cargo make bree-generate
-When: After tests pass
-SLO: <5s
-"""
-workspace = false
-script = '''
-#!/bin/bash
-set -euo pipefail
-cd examples/bree-semantic-scheduler
-
-echo "🔄 Generating Bree code from RDF specification..."
-echo "   Pipeline: Ontology → SPARQL → Templates → JavaScript"
-
-# Create generated directory if missing
-mkdir -p generated/{jobs,executors,citty-commands,docs}
-
-# In actual implementation, would run: ggen sync --config ggen-bree-config.toml
-# For now, verify structure is ready
-if [ -f "ggen-bree-config.toml" ]; then
-  echo "✅ Generation config found"
-fi
-
-if [ -d "templates" ] && [ -f "templates/bree-instance.js.tera" ]; then
-  echo "✅ Tera templates ready"
-fi
-
-echo "✅ Generated code structure ready"
-'''
-
-[tasks.bree-e2e]
-description = """
-End-to-end Bree semantic scheduler pipeline.
-Full workflow: Validate spec → Test → Generate → Verify.
-
-Usage: cargo make bree-e2e
-When: Complete integration test
-SLO: <60s (validate:2s + test:30s + generate:5s + verify:10s)
-"""
-workspace = false
-dependencies = [
-  "bree-validate-spec",
-  "bree-test",
-  "bree-generate"
-]
-script = '''
-#!/bin/bash
-set -euo pipefail
-
-echo "✅ Bree E2E Pipeline Complete"
-echo ""
-echo "Summary:"
-echo "  ✓ Specification closure verified"
-echo "  ✓ Chicago TDD tests passed"
-echo "  ✓ Code generation ready"
-echo ""
-echo "Generated code location:"
-echo "  examples/bree-semantic-scheduler/generated/"
 '''

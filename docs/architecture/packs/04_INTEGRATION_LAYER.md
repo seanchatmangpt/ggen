@@ -1,27 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Packs Integration Layer](#packs-integration-layer)
-  - [Architecture Overview](#architecture-overview)
-  - [Integration Points](#integration-points)
-    - [1. Marketplace Integration](#1-marketplace-integration)
-      - [Trait Definition](#trait-definition)
-      - [Implementation](#implementation)
-      - [Error Handling Strategy](#error-handling-strategy)
-    - [2. Template Engine Integration](#2-template-engine-integration)
-      - [Trait Definition](#trait-definition-1)
-      - [Implementation](#implementation-1)
-      - [Error Handling](#error-handling)
-    - [3. Graph Integration (SPARQL)](#3-graph-integration-sparql)
-      - [Trait Definition](#trait-definition-2)
-      - [Implementation](#implementation-2)
-    - [4. Dependency Resolution Service](#4-dependency-resolution-service)
-  - [Complete Integration Example](#complete-integration-example)
-    - [Install Pack Workflow](#install-pack-workflow)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Packs Integration Layer
 
 **Version:** 3.2.0

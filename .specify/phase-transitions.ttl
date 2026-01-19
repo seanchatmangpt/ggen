@@ -1,0 +1,810 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix spec: <http://ggen.io/spec/> .
+@prefix folk: <http://ggen.io/folk/> .
+@prefix market: <http://ggen.io/market/> .
+@prefix sm: <http://ggen.io/statemachine/> .
+
+# ============================================================================
+# PHASE TRANSITIONS: Folk Strategy State Machine
+# ============================================================================
+# 8 transitions encoding all meaningful phase progressions and regressions
+# Each transition includes pre-conditions, post-conditions, observables,
+# duration, failure modes, and mappings to folk terminology
+# ============================================================================
+
+market:PhaseTransitions a rdf:Ontology ;
+    rdfs:label "Market Phase Transitions" ;
+    rdfs:comment "RDF encoding of 8 phase transitions with triggers, invariants, observables, and folk mappings" ;
+    sm:transitionCount "8"^^xsd:integer ;
+    sm:includesFailureModes true ;
+    sm:includeFolkMappings true .
+
+# ============================================================================
+# T1: VACUUM → FORMATION
+# ============================================================================
+# Folk sense: "We found customers!"
+# Trigger: First customer willing to engage with product/idea (not just idea)
+
+market:T_Vacuum_Formation a sm:Transition ;
+    rdfs:label "Vacuum to Formation" ;
+    rdfs:comment "Market emerges when first true believer customer validates problem existence" ;
+    sm:transitionId "T1" ;
+    sm:fromState market:VacuumState ;
+    sm:toState market:FormationState ;
+    sm:isForward true ;
+
+    # Pre-conditions (must be true to cross)
+    sm:preCondition
+        "At least 1 customer willing to engage with product (not theoretical interest)" ,
+        "Customer validates problem experience (can articulate pain)" ,
+        "Founder has articulated problem in customer language" ,
+        "First transactional engagement (willingness to use or pay)" ;
+
+    sm:preConditionCodified
+        "customerCount >= 1",
+        "problemValidationScore >= 0.7 (on 0-1 scale: 0=theory, 1=confirmed pain)",
+        "firstTransactionOccurred == true" ;
+
+    # Post-conditions (what changes crossing transition)
+    sm:postCondition
+        "Market is now considered 'real' (problem validated externally)" ,
+        "Founder focus shifts to scaling acquisition of similar customers" ,
+        "Product iteration begins (evidence-driven, not assumption-driven)" ,
+        "Revenue model exploration (willingness to pay assessment)" ;
+
+    # What you observe during T1 transition
+    sm:observable
+        "Founder secures first paying or engaged customer" ,
+        "Customer gives detailed feedback (qualitative)" ,
+        "Founder articulates problem statement in customer words" ,
+        "Evidence: customer testimonial, case study, or reference call" ,
+        "Founder energy spike (problem now tangible, not theoretical)" ,
+        "Product roadmap shifts from 'what if' to 'what customers need'" ;
+
+    # Measurable crossing criteria
+    sm:measurableMetric
+        "Metric: customerCount 0 → 1+ (discrete)"^^xsd:string ,
+        "Metric: problemValidationScore < 0.5 → >= 0.7"^^xsd:string ,
+        "Metric: averageCAC unknown → measurable (even if high)"^^xsd:string ,
+        "Metric: firstRevenueGenerated == true (even if $0, intent matters)"^^xsd:string ;
+
+    # Typical duration of transition (crossing time)
+    sm:transitionDuration "2-4 weeks"^^xsd:string ;
+    sm:durationExplanation "Finding first customer takes time; transition itself is quick once engaged" ;
+
+    # Failure modes (transition may reverse)
+    sm:failureMode
+        "Customer disengages after initial interaction (false positive)" ,
+        "Customer willing to chat but unwilling to transact (not real PMF signal)" ,
+        "Founder misinterprets interest as validation (confirmation bias)" ,
+        "One customer too niche; cannot repeat with second customer" ;
+
+    sm:reversalCondition
+        "After 2-3 customer engagements, none convert to repeat usage" ,
+        "Customer feedback indicates problem is not widespread (too niche)" ,
+        "Founder unable to repeat customer acquisition (was luck, not systematic)" ;
+
+    # Reversal dynamics (going back to Vacuum)
+    sm:reversalDuration "1-2 weeks"^^xsd:string ;
+    sm:reversalObservable
+        "Founder realizes first customer was outlier (unusual need, not trend)" ,
+        "Second and third outreach attempts fail" ,
+        "Founder revisits assumptions: wrong problem or wrong customer" ;
+
+    # Folk terminology mapping (how strategists say it)
+    folk:folkTerm
+        "We found our first customer!",
+        "The problem is real (someone will actually engage)" ,
+        "There's traction (beyond theory)" ,
+        "It's no longer just an idea" ;
+
+    folk:folkNegation
+        "Still looks like vapor (can't repeat customer acquisition)" ,
+        "That customer is weird (not representative)" ,
+        "Interested doesn't mean they'll pay" ;
+
+    # Context & nuance
+    sm:nuance
+        "Crossing T1 is validating problem existence, NOT product-market fit",
+        "First customer is often founder's friend or network (bias alert)",
+        "Repeating T1 twice (getting 2-3 similar customers) increases confidence",
+        "Time from Vacuum to T1 crossing: 3-12 months typical" ;
+
+    # Strategic implications
+    sm:strategicImplication
+        "Now focused on repeating customer acquisition, not building product yet",
+        "Sales channel and messaging can be tested (founder-driven initially)",
+        "Revenue model experiments begin (free, freemium, paid trial)",
+        "Next milestone: 10 customers (Formation maturity signal)" .
+
+# ============================================================================
+# T2: FORMATION → VACUUM
+# ============================================================================
+# Folk sense: "Market doesn't exist" or "Nobody wants this"
+# Trigger: Failure to repeat customer acquisition; discovered problem too niche
+
+market:T_Formation_Vacuum a sm:Transition ;
+    rdfs:label "Formation to Vacuum (Regression)" ;
+    rdfs:comment "Market collapse when problem proves not widespread or customer acquisition cannot scale" ;
+    sm:transitionId "T2" ;
+    sm:fromState market:FormationState ;
+    sm:toState market:VacuumState ;
+    sm:isForward false ;
+    sm:isRegression true ;
+
+    # Pre-conditions (when does reversal happen?)
+    sm:preCondition
+        "Customer acquisition repeats fail (cannot acquire 2nd, 3rd customer systematically)" ,
+        "Customer cohorts show high churn or low LTV" ,
+        "Problem size too niche to sustain business" ,
+        "Founder unable to articulate repeatable go-to-market" ;
+
+    sm:preConditionCodified
+        "newCustomerAcquisitionSuccessRate < 0.3 (for 10+ outreach attempts)",
+        "cohortChurnRate > 0.6 (monthly)" ,
+        "estimatedMarketSize < 0.1 Million (too small)" ,
+        "customerLTV < 3x customerCAC (value proposition too weak)" ;
+
+    # What changes crossing back to Vacuum
+    sm:postCondition
+        "Market declared non-existent or too small" ,
+        "Founder returns to research/exploration (idea back in theory)" ,
+        "Effort redirected to new problem hypothesis" ,
+        "Team may disband; founder pivots or abandons" ;
+
+    # Observable signs of T2 crossing
+    sm:observable
+        "Customer acquisition engine stops (no new customers for 2+ months)" ,
+        "Churn accelerates (engaged customers disappear)" ,
+        "Founder publicly acknowledges 'market too small' or 'wrong problem'" ,
+        "Product development pauses (no customer feedback driving iteration)" ,
+        "Team layoffs (payroll becomes unsustainable without growth)" ,
+        "Shift to consulting or adjacent service (monetizing expertise, not product)" ;
+
+    # Measurable crossing
+    sm:measurableMetric
+        "Metric: customerCount growth stalls (0 new customers / month for 60 days)"^^xsd:string ,
+        "Metric: newCustomerAcquisitionSuccessRate drops below 0.2"^^xsd:string ,
+        "Metric: LTV/CAC ratio < 1 (spending more to acquire than customer lifetime value)"^^xsd:string ;
+
+    # Duration of regression
+    sm:transitionDuration "1-2 months"^^xsd:string ;
+    sm:durationExplanation "Founder usually recognizes failure within 4-8 weeks of stalled acquisition" ;
+
+    # Failure modes (this reversal can itself reverse)
+    sm:failureMode
+        "False negative: founder gives up too early (market exists but CAC strategy wrong)" ,
+        "Survivor bias: customer segment too narrow but valuable (should pivot, not abandon)" ,
+        "Wrong timing: problem exists but market not ready (recession, macro shift)" ;
+
+    # How to avoid T2 regression
+    sm:preventionStrategy
+        "Test CAC repeatability before declaring market dead (run 20-30 outreach experiments)",
+        "Distinguish 'market too small' from 'go-to-market strategy broken'",
+        "Pivot within Formation (new customer segment, new messaging) before regressing" ;
+
+    # Folk terminology mapping
+    folk:folkTerm
+        "Market doesn't exist" ,
+        "Nobody wants this" ,
+        "We need to go back to the drawing board" ,
+        "Turns out it's a hobby, not a business" ,
+        "Lost product-market fit" ;
+
+    folk:folkWarningSign
+        "We can sell to our friends but no one else" ,
+        "Customers love it but won't pay" ,
+        "It's the wrong problem for the market size" ;
+
+    # Strategic implications
+    sm:strategicImplication
+        "Decision point: pivot within Formation (new hypothesis) or return to Vacuum (research mode)" ,
+        "Founder may shift to adjacent market with similar problem (repeat Formation in new space)" ,
+        "Or: return to pure research/exploration (Vacuum mode) with updated problem hypothesis" .
+
+# ============================================================================
+# T3: FORMATION → GROWTH
+# ============================================================================
+# Folk sense: "It took off!" or "We found product-market fit!"
+# Trigger: PMF signals: LTV/CAC > 3, NPS > 30, 20%+ MoM growth, clear customer segment
+
+market:T_Formation_Growth a sm:Transition ;
+    rdfs:label "Formation to Growth" ;
+    rdfs:comment "Market accelerates when product-market fit achieved: LTV/CAC > 3, repeatable growth, clear customer segment" ;
+    sm:transitionId "T3" ;
+    sm:fromState market:FormationState ;
+    sm:toState market:GrowthState ;
+    sm:isForward true ;
+
+    # Pre-conditions (PMF signals)
+    sm:preCondition
+        "LTV/CAC ratio >= 3 (customer value 3x+ acquisition cost)" ,
+        "NPS score > 30 (customers would recommend)" ,
+        "20% month-over-month growth sustained for 2+ months" ,
+        "Clear primary customer segment (80%+ of revenue from 1-2 segments)" ,
+        "Sales cycle and CAC predictable and repeatable" ,
+        "Gross margin sufficient to support growth (>60% typical)" ;
+
+    sm:preConditionCodified
+        "(averageLTV / averageCAC) >= 3",
+        "npsScore > 30",
+        "monthlyGrowthRate >= 0.2 for monthsConsecutive >= 2",
+        "topCustomerSegmentConcentration >= 0.8",
+        "customerAcquisitionPredictability >= 0.85 (repeatability score)",
+        "grossMargin >= 0.6" ;
+
+    # What changes crossing to Growth
+    sm:postCondition
+        "PMF declared; market is 'real' and 'scalable'" ,
+        "Founder shifts from product iteration to growth scaling" ,
+        "Sales and marketing teams hired (moving from founder-driven to org-driven)" ,
+        "Fundraising focus shifts from survival to scaling capital" ,
+        "Product roadmap becomes strategic (quarterly planning, not reactive)" ;
+
+    # Observable signs of T3 crossing
+    sm:observable
+        "Clear customer testimonials and case studies (social proof)" ,
+        "Inbound lead flow starts (customers finding company, not just founder pitch)" ,
+        "Revenue crosses $50k-$100k ARR threshold (demonstrates scalability)" ,
+        "Founder can articulate clear product positioning and target customer" ,
+        "First hire outside co-founder team (sales, marketing, or engineer)" ,
+        "Growth acceleration visible in metrics (MoM growth consistently >20%)" ,
+        "Customer sentiment: 'This is becoming the standard in X'" ;
+
+    # Measurable crossing metrics
+    sm:measurableMetric
+        "Metric: LTV/CAC >= 3"^^xsd:string ,
+        "Metric: NPS > 30"^^xsd:string ,
+        "Metric: MoM growth >= 20% for 2 consecutive months"^^xsd:string ,
+        "Metric: Primary segment revenue > 80% of total"^^xsd:string ,
+        "Metric: ARR >= $50k"^^xsd:string ;
+
+    # Duration of transition (crossing time)
+    sm:transitionDuration "1-3 months"^^xsd:string ;
+    sm:durationExplanation "PMF signals appear simultaneously; crossing is moment of recognition and organizational shift" ;
+
+    # Failure modes (T3 may not complete; regression likely)
+    sm:failureMode
+        "False PMF: metrics look good but driven by early adopter bias (not repeatable at scale)" ,
+        "Velocity illusion: growth rate driven by unsustainable channel (paid spend or referral spike)" ,
+        "Wrong segment: PMF achieved in small segment, not addressable market" ,
+        "Macro headwind: growth driven by temporary market tailwind (disappears with macro shift)" ;
+
+    sm:reversalCondition
+        "After scaling marketing, CAC rises sharply (channel saturation)" ,
+        "Growth rate slows below 20% within 3-6 months of T3 crossing" ,
+        "NPS drops as product scaled (early adopter churn, not scalable cohorts)" ,
+        "Competitor enters with lower-cost or more differentiated offering" ;
+
+    # Reversal dynamics (back to Formation)
+    sm:reversalDuration "2-4 months"^^xsd:string ;
+    sm:reversalObservable
+        "Founder realizes growth was unsustainable (not PMF, but macro luck)" ,
+        "New customer cohorts show poor unit economics" ,
+        "Churn accelerates (early adopter cohorts leaving as product scales)" ,
+        "Founder pivots back to product focus (Lost PMF narrative)" ;
+
+    # Folk terminology mapping
+    folk:folkTerm
+        "It took off!" ,
+        "We found product-market fit!" ,
+        "This is the real thing" ,
+        "Growth is non-stop" ,
+        "Customers are pulling it from our hands" ;
+
+    folk:folkNegation
+        "That growth spike was anomalous" ,
+        "We lost product-market fit" ,
+        "It was too good to be true" ;
+
+    # Strategic implications
+    sm:strategicImplication
+        "Next focus: scaling go-to-market (sales, marketing, partnerships)" ,
+        "Product roadmap becomes strategic (quarterly planning, not reactive feedback loops)" ,
+        "Organizational structure must support growth (reporting lines, roles)" ,
+        "Fundraising transition: moving from seed to Series A (10-50x capital raise typical)" ,
+        "Timeline: 18-36 months from T3 to next inflection (Growth → Commodity crossing)" .
+
+# ============================================================================
+# T4: GROWTH → FORMATION (Lost PMF)
+# ============================================================================
+# Folk sense: "We lost product-market fit" or "Growth stalled"
+# Trigger: CAC rising, LTV declining, churn accelerating, growth slowing below 20%
+
+market:T_Growth_Formation a sm:Transition ;
+    rdfs:label "Growth to Formation (Lost PMF)" ;
+    rdfs:comment "Market contraction when scaling reveals false PMF or erosion of unit economics" ;
+    sm:transitionId "T4" ;
+    sm:fromState market:GrowthState ;
+    sm:toState market:FormationState ;
+    sm:isForward false ;
+    sm:isRegression true ;
+
+    # Pre-conditions
+    sm:preCondition
+        "CAC rising quarter-over-quarter (>20% increase YoY typical)" ,
+        "LTV declining (newer cohorts worth less)" ,
+        "Monthly growth rate < 20% (deceleration)" ,
+        "Churn rising (new cohort retention worse than earlier cohorts)" ,
+        "LTV/CAC ratio fallen below 2.5" ;
+
+    sm:preConditionCodified
+        "cacYoYGrowth > 0.2",
+        "ltvTrend == declining",
+        "monthlyGrowthRate < 0.2",
+        "churnRate > previousCohortChurn by > 0.1",
+        "(averageLTV / averageCAC) < 2.5" ;
+
+    # What changes crossing back to Formation
+    sm:postCondition
+        "Growth narrative halted; PMF re-evaluation begins" ,
+        "Founder returns to product iteration and customer feedback loops" ,
+        "Growth initiatives (sales team, marketing) paused pending product fix" ,
+        "Organizational energy shifts from 'scaling' to 'fixing'" ;
+
+    # Observable signs
+    sm:observable
+        "Founder admits publicly: 'We lost PMF' or 'Growth stalled, reassessing strategy'" ,
+        "Sales team complains: 'CAC too high, customers churning after 3 months'" ,
+        "Product team increases feedback loops with customers (back to reactive iteration)" ,
+        "Marketing budget cuts (ROI no longer justifies spending)" ,
+        "New feature releases focus on retention, not acquisition" ,
+        "Investor update tone shifts from growth to 'consolidating' or 'rightsizing'" ;
+
+    # Measurable crossing
+    sm:measurableMetric
+        "Metric: LTV/CAC drops below 2.5"^^xsd:string ,
+        "Metric: Monthly growth rate falls below 20%"^^xsd:string ,
+        "Metric: CAC increases YoY > 20%"^^xsd:string ;
+
+    # Duration of transition
+    sm:transitionDuration "2-4 months"^^xsd:string ;
+    sm:durationExplanation "Metrics accumulate; founder usually recognizes Lost PMF within one quarterly business review" ;
+
+    # Failure modes (this regression might itself be temporary)
+    sm:failureMode
+        "False negative: metrics declining due to poor execution, not lost PMF" ,
+        "Macro headwind: market downturn temporarily crushing growth (not PMF loss)" ,
+        "Wrong segment: PMF lost in one segment but exists in another" ;
+
+    sm:recoveryStrategy
+        "Identify which cohorts/segments retain PMF (retention curves still good)" ,
+        "Focus marketing on high-LTV segments only (segment-specific growth)" ,
+        "Product iteration to address churn causes in new cohorts" ,
+        "Sales channel experiment: different go-to-market for different segments" ;
+
+    # Folk terminology mapping
+    folk:folkTerm
+        "We lost product-market fit" ,
+        "Growth engine stalled" ,
+        "Early adopter cohorts churning" ,
+        "CAC is killing us" ,
+        "Our numbers looked better before scaling" ;
+
+    folk:folklore
+        "Growth is a feature, not a bug (early adopter attraction noise)" ,
+        "Scaling revealed the cracks" ;
+
+    # Strategic implications
+    sm:strategicImplication
+        "Decision point: Fix PMF (product iteration) or admit market not as big (downsizing)",
+        "May require pivot within Growth (new customer segment, new positioning, new feature)",
+        "Or intentional regression to Formation mode (rebuild PMF, then re-scale)" ,
+        "Timeline: 3-12 months to resolve (re-cross to Growth or confirm regress to Formation)" .
+
+# ============================================================================
+# T5: GROWTH → COMMODITY
+# ============================================================================
+# Folk sense: "Market is mature" or "We're all competing on price now"
+# Trigger: Market growth slows below 20% YoY, competition consolidates, feature parity
+
+market:T_Growth_Commodity a sm:Transition ;
+    rdfs:label "Growth to Commodity" ;
+    rdfs:comment "Market maturation when growth slows, feature parity achieved, competition on price dominates" ;
+    sm:transitionId "T5" ;
+    sm:fromState market:GrowthState ;
+    sm:toState market:CommodityState ;
+    sm:isForward true ;
+
+    # Pre-conditions (maturation signals)
+    sm:preCondition
+        "Market growth slowed to < 20% YoY (vs. 50-300% in Growth)" ,
+        "Feature parity: competitors have similar capabilities (hard to differentiate)" ,
+        "Consolidation phase: 3-4 clear winners with 60-80% market share" ,
+        "CAC rising year-over-year (saturation: each new customer harder/more expensive)" ,
+        "LTV declining: customer switching easier (less lock-in)" ,
+        "Price pressure: competitors commoditizing via price cuts" ;
+
+    sm:preConditionCodified
+        "marketGrowthRateYoY < 0.2",
+        "featureParity == true (competitors have 80%+ of core features)",
+        "topCompetitorsMarketShare > 0.6",
+        "cacYoYGrowth > 0.1 (rising)",
+        "ltvYoYTrend == declining",
+        "priceCompressionRate > 0" ;
+
+    # What changes crossing to Commodity
+    sm:postCondition
+        "Market declared 'mature' (growth playbook no longer works)" ,
+        "Focus shifts from growth to profitability and cost optimization" ,
+        "Competition model changes to price, distribution, bundling" ,
+        "M&A becomes primary exit (consolidation play)" ,
+        "Product innovation slows; engineering becomes maintenance-focused" ;
+
+    # Observable signs
+    sm:observable
+        "Analyst reports: 'Market consolidating' or 'maturity phase'" ,
+        "Pricing pressure: competitors undercutting, industry race to bottom" ,
+        "Customer conversations: 'How much cheaper can you go vs. competitor X?'" ,
+        "Feature development slows (all vendors have similar capabilities)" ,
+        "Sales cycles shorten (low-touch, self-service channels emerging)" ,
+        "Gross margins compress (all players racing toward cost parity)" ,
+        "M&A activity: roll-ups and consolidation" ,
+        "Culture shift: 'optimize' and 'efficiency' language replaces 'grow'" ;
+
+    # Measurable crossing
+    sm:measurableMetric
+        "Metric: Market growth YoY < 20%"^^xsd:string ,
+        "Metric: Feature parity index > 0.8 (vs. competitors)"^^xsd:string ,
+        "Metric: Top 3 competitors control > 60% market share"^^xsd:string ,
+        "Metric: CAC rising > 10% YoY"^^xsd:string ,
+        "Metric: Gross margin < 65% (vs. 75-85% in Growth)"^^xsd:string ;
+
+    # Duration of transition
+    sm:transitionDuration "6-18 months"^^xsd:string ;
+    sm:durationExplanation "Maturation is gradual; crossing marked by recognition and organizational pivot" ;
+
+    # Failure modes (is this transition inevitable?)
+    sm:failureMode
+        "False maturity: market still has room to grow (premature consolidation narrative)" ,
+        "Disruption from new entrant: technology leap-frog revives market (new Growth phase)" ,
+        "Niche escape: one player builds differentiated offering (restarts Growth locally)" ;
+
+    sm:counterStrategy
+        "Vertical integration: escape commodity by bundling with adjacent value" ,
+        "Geographic expansion: treat new regions as separate Growth phases" ,
+        "Platform play: become infrastructure for ecosystem (higher margins)" ,
+        "Acquisition strategy: roll-up competitors to achieve scale and efficiency" ;
+
+    # Folk terminology mapping
+    folk:folkTerm
+        "Market is mature now" ,
+        "We're all competing on price" ,
+        "Feature differentiation is dead" ,
+        "Consolidation phase" ,
+        "It's a commodity" ;
+
+    folk:folklore
+        "First-mover advantage eroded" ,
+        "Winner takes most (or most don't win)" ;
+
+    # Strategic implications
+    sm:strategicImplication
+        "Founder/CEO focus: efficiency, profitability, exit timing" ,
+        "Product strategy: maintenance and platform expansion (not core innovation)" ,
+        "M&A becomes dominant exit (IPO less likely; acquisition by larger player typical)" ,
+        "Timeline: 5-20+ years in Commodity state before disruption or exit" .
+
+# ============================================================================
+# T6: GROWTH → VACUUM (Collapse)
+# ============================================================================
+# Folk sense: "Market disappeared" or "We got disrupted"
+# Trigger: Existential threat: regulatory, technology, or macro collapse
+
+market:T_Growth_Vacuum a sm:Transition ;
+    rdfs:label "Growth to Vacuum (Collapse)" ;
+    rdfs:comment "Market extinction when technology disruption, regulation, or macro shift eliminates customer need" ;
+    sm:transitionId "T6" ;
+    sm:fromState market:GrowthState ;
+    sm:toState market:VacuumState ;
+    sm:isForward false ;
+    sm:isRegression true ;
+    sm:isExistential true ;
+
+    # Pre-conditions (existential threat)
+    sm:preCondition
+        "Disruptive technology or platform renders product obsolete" ,
+        "Regulatory change: market becomes illegal or cost-prohibitive" ,
+        "Macro shift: customer need disappears (e.g., recession, fashion change)" ,
+        "Incumbent disruption: larger player with 10x resources enters and dominates" ;
+
+    sm:preConditionCodified
+        "disruptionSignal == true (new technology/platform emerging)",
+        "regulatoryThreat == true (new law, restriction, ban)",
+        "macroHeadwindSeverity == High (recession, demand collapse)",
+        "incumbentThreat == true (10x resource competitor entering)" ;
+
+    # What changes crossing to Vacuum
+    sm:postCondition
+        "Market ceases to exist (customer need no longer relevant)" ,
+        "Company shutdown or hard pivot to adjacent market" ,
+        "Customer base defects en masse to new solution" ,
+        "Revenue streams dry up rapidly" ;
+
+    # Observable signs (warning signals)
+    sm:observable
+        "Customers switching en masse to new platform/solution (not competitor, but different category)" ,
+        "Regulatory announcement: ban, prohibition, or compliance requirement" ,
+        "Technology announcement: new platform makes existing product irrelevant (e.g., mobile disrupting desktop)" ,
+        "Macro event: recession, war, pandemic eliminating demand" ,
+        "Founder candor: 'Market was destroyed overnight'" ,
+        "Customer feedback: 'No longer relevant to our business'" ;
+
+    # Measurable collapse
+    sm:measurableMetric
+        "Metric: Customer churn > 50% in single month"^^xsd:string ,
+        "Metric: Revenue decline > 30% month-over-month"^^xsd:string ,
+        "Metric: Regulatory action taken (licensing, ban, restriction)"^^xsd:string ;
+
+    # Duration of transition
+    sm:transitionDuration "Immediate to 3 months"^^xsd:string ;
+    sm:durationExplanation "Existential collapse is typically rapid; market can vanish in weeks" ;
+
+    # No recovery path (this is a one-way door)
+    sm:recoveryPath "Extremely rare; may pivot to adjacent market (new Formation) if core IP remains relevant" ;
+
+    # Historic examples
+    sm:historicExample
+        "Blockbuster Video (streaming disruption)" ,
+        "Yellow Pages (smartphone + search disruption)" ,
+        "Kodak film (digital photography + smartphone camera)" ,
+        "CFC refrigerants (ozone layer regulation)" ;
+
+    # Folk terminology mapping
+    folk:folkTerm
+        "Market disappeared" ,
+        "We got disrupted" ,
+        "Technology made us irrelevant overnight" ,
+        "Regulation killed the market" ,
+        "It's over (existential shift)" ;
+
+    folk:folklore
+        "We didn't see it coming" ,
+        "By the time we noticed, it was too late" ;
+
+    # Strategic implications
+    sm:strategicImplication
+        "No recovery possible in original market (must pivot to adjacent opportunity or shut down)" ,
+        "Company death likely (unless IP/team valuable for acquisition)" ,
+        "Lesson: market monitoring for existential threats" ,
+        "Prevention: diversification, scenario planning, platform optionality" .
+
+# ============================================================================
+# T7: COMMODITY → FORMATION (Innovation/Disruption Jump)
+# ============================================================================
+# Folk sense: "We built something new" or "Disruption from within"
+# Trigger: Internal innovation or strategic platform shift creating new market
+
+market:T_Commodity_Formation a sm:Transition ;
+    rdfs:label "Commodity to Formation (Innovation Jump)" ;
+    rdfs:comment "Market restart when incumbent innovates new solution or platform in adjacent space" ;
+    sm:transitionId "T7" ;
+    sm:fromState market:CommodityState ;
+    sm:toState market:FormationState ;
+    sm:isForward true ;
+
+    # Pre-conditions (internal restart)
+    sm:preCondition
+        "Company launches new product in adjacent market (not competing with legacy product)" ,
+        "New product targets different customer segment or use case" ,
+        "New product has better unit economics than legacy (pathway to escape commoditization)" ,
+        "Internal team has autonomy to operate in Formation mode (separate P&L)" ;
+
+    sm:preConditionCodified
+        "newProductTargetSegment != legacyProductTargetSegment",
+        "newProductUnitEconomics.LTV_CAC >= legacyProductUnitEconomics.LTV_CAC",
+        "separateP_L_OrganizationalStructure == true" ;
+
+    # What changes crossing to Formation
+    sm:postCondition
+        "New market opportunity opened (Formation mode restart)" ,
+        "Company now operates in two markets (Commodity legacy + Formation new)" ,
+        "Organizational structure may split (legacy harvesting + new growth)" ,
+        "Capital reallocation: legacy generates cash for new market investment" ;
+
+    # Observable signs
+    sm:observable
+        "New product announcement (adjacent market, different problem)" ,
+        "New product team structure separate from legacy team" ,
+        "First customer engagement in new market (Formation starting fresh)" ,
+        "Company messaging shifts: 'We're disrupting the disrupted'" ,
+        "Investor interest renewed (new growth story)" ,
+        "Customer testimonials emerge for new product (different customer type)" ;
+
+    # Measurable signals
+    sm:measurableMetric
+        "Metric: New product first customer acquired"^^xsd:string ,
+        "Metric: New product problem validation achieved (PMF signals in new market)"^^xsd:string ,
+        "Metric: Revenue contribution from new market > 5% of total (formation signal)"^^xsd:string ;
+
+    # Duration of transition
+    sm:transitionDuration "3-6 months"^^xsd:string ;
+    sm:durationExplanation "New product enters Formation mode; transition is organizational and market restart" ;
+
+    # Failure modes (internal disruption often fails)
+    sm:failureMode
+        "Innovation theater: new product abandonment before Formation completion" ,
+        "Internal conflict: legacy team sabotages new market investment" ,
+        "Wrong adjacent market: new product enters Formation but can't scale" ,
+        "Capital starvation: legacy team starves new market of resources" ;
+
+    sm:successFactor
+        "Separate P&L structure (new market not cannibalized by legacy metrics)" ,
+        "Leadership commitment (separate executive sponsor for new market)" ,
+        "Patient capital: allow 18-24 months for Formation → Growth in new market" ,
+        "Cultural permission: formation teams operate with startup autonomy, not corporate guardrails" ;
+
+    # Folk terminology mapping
+    folk:folkTerm
+        "We're disrupting ourselves" ,
+        "Platform shift: from X to Y" ,
+        "New market opportunity (adjacent to core)" ,
+        "Innovation from within" ,
+        "Escape velocity from commodity trap" ;
+
+    # Strategic implications
+    sm:strategicImplication
+        "Dual operating system: harvest legacy Commodity market, invest in new Formation market" ,
+        "Success rate: ~20-30% (most corporate innovation fails; Innovator's Dilemma)" ,
+        "If new market succeeds: company rejuvenated (Growth phase restart)" ,
+        "If new market fails: company remains commodity player with increased burn" .
+
+# ============================================================================
+# T8: COMMODITY → VACUUM (Market Destruction)
+# ============================================================================
+# Folk sense: "Market evaporated" or "Industry became illegal/irrelevant"
+# Trigger: Existential threat in mature market (rare but possible)
+
+market:T_Commodity_Vacuum a sm:Transition ;
+    rdfs:label "Commodity to Vacuum (Market Destruction)" ;
+    rdfs:comment "Rare existential collapse of mature market; entire industry becomes obsolete" ;
+    sm:transitionId "T8" ;
+    sm:fromState market:CommodityState ;
+    sm:toState market:VacuumState ;
+    sm:isForward false ;
+    sm:isRegression true ;
+    sm:isExistential true ;
+    sm:rarity "Very rare; requires existential threat to entire industry" ;
+
+    # Pre-conditions
+    sm:preCondition
+        "Technology disruption: entire industry obsoleted (e.g., film → digital)" ,
+        "Regulatory extinction: industry becomes illegal (e.g., CFC, tobacco)" ,
+        "Macro collapse: demand permanently eliminated (e.g., horse carriages post-automobile)" ,
+        "Hostile M&A: acquirer consolidates market, converts to internal service" ;
+
+    # What changes crossing to Vacuum
+    sm:postCondition
+        "Industry ceases to exist as marketable product" ,
+        "Companies shut down, acquired for assets, or pivot to adjacent markets" ,
+        "Customer base migrates to new solution category" ;
+
+    # Observable signs
+    sm:observable
+        "Regulatory announcement: industry banned or severely restricted" ,
+        "Disruptive technology announces market-wide disruption plan" ,
+        "Industry analyst report: 'Market will decline 80%+ over 5 years'" ,
+        "Customer migration: entire installed base switching to new solution" ,
+        "Consolidator acquisition: purchasing all major players (industry consolidation into void)" ;
+
+    # Historic examples
+    sm:historicExample
+        "CFC refrigerant industry (Montreal Protocol)" ,
+        "Glass plate photography (digital photography and smartphone cameras)" ,
+        "Standalone navigation GPS (Google Maps on smartphones)" ,
+        "Videoconferencing market pre-pandemic → hyper-commodity post-pandemic (becomes free/included)" ;
+
+    # Duration of transition
+    sm:transitionDuration "3-10 years"^^xsd:string ;
+    sm:durationExplanation "Market destruction is typically gradual (transition phase) unless regulatory bans" ;
+
+    # No recovery (one-way door)
+    sm:recoveryPath "None for original market; adjacent market may emerge (new market invention opportunity)" ;
+
+    # Folk terminology mapping
+    folk:folkTerm
+        "The entire market is gone" ,
+        "Industry evaporated" ,
+        "Made illegal by regulation" ,
+        "Technology rendered it irrelevant" ;
+
+    # Strategic implications
+    sm:strategicImplication
+        "Industry death likely" ,
+        "Exit strategy: acquisition at fire-sale prices typical" ,
+        "Lesson: monitor for existential threats across full lifecycle" ,
+        "Prevention: adjacent market diversification, scenario planning" .
+
+# ============================================================================
+# TRANSITION STATE MACHINE SUMMARY (Graph Model)
+# ============================================================================
+
+market:StateTransitionGraph a rdf:Bag ;
+    rdfs:label "Market Phase State Transition Graph" ;
+    rdfs:comment "Complete directed graph of 8 transitions connecting 4 states" ;
+
+    # Outgoing transitions from each state
+    market:VacuumState_outgoing market:T_Vacuum_Formation ;
+    market:FormationState_outgoing market:T_Formation_Vacuum, market:T_Formation_Growth ;
+    market:GrowthState_outgoing market:T_Growth_Formation, market:T_Growth_Commodity, market:T_Growth_Vacuum ;
+    market:CommodityState_outgoing market:T_Commodity_Formation, market:T_Commodity_Vacuum ;
+
+    # Reachability
+    sm:reachable_from_Vacuum "Formation (direct), Growth (via Formation), Commodity (via Formation+Growth)" ;
+    sm:reachable_from_Formation "Vacuum (direct), Growth (direct), Growth→Commodity (indirect)" ;
+    sm:reachable_from_Growth "Formation (direct), Commodity (direct), Vacuum (direct), Commodity→Formation (indirect)" ;
+    sm:reachable_from_Commodity "Formation (direct), Vacuum (direct), Formation→Growth (indirect)" .
+
+# ============================================================================
+# FOLK TERMINOLOGY GLOSSARY
+# ============================================================================
+# Mapping folk strategy language to state-transition combinations
+
+folk:GlossaryEntry_TookOff a rdf:Resource ;
+    rdfs:label "'It took off'" ;
+    rdfs:comment "Crossing T3: Formation → Growth; PMF achieved and scaling" ;
+    folk:stateTransition market:T_Formation_Growth ;
+    folk:timeframe "Typically occurs 9-24 months post-Formation entry" ;
+    folk:metrics "LTV/CAC >= 3, NPS > 30, 20%+ MoM growth" .
+
+folk:GlossaryEntry_LostPMF a rdf:Resource ;
+    rdfs:label "'Lost product-market fit'" ;
+    rdfs:comment "Crossing T4: Growth → Formation; unit economics deteriorated, growth stalled" ;
+    folk:stateTransition market:T_Growth_Formation ;
+    folk:metrics "CAC rising, LTV declining, growth < 20% MoM, churn accelerating" ;
+    folk:strategy "Return to product iteration, fix PMF, then re-cross to Growth" .
+
+folk:GlossaryEntry_MarketDisappeared a rdf:Resource ;
+    rdfs:label "'Market disappeared'" ;
+    rdfs:comment "Crossing T6: Growth → Vacuum (collapse) or T8: Commodity → Vacuum" ;
+    folk:stateTransition market:T_Growth_Vacuum, market:T_Commodity_Vacuum ;
+    folk:causes "Disruptive technology, regulatory ban, macro collapse, incumbant disruption" ;
+    folk:recovery "Rare; typically industry extinction" .
+
+folk:GlossaryEntry_Disrupted a rdf:Resource ;
+    rdfs:label "'We got disrupted'" ;
+    rdfs:comment "Ambiguous: could be T4 (Lost PMF regression), T5 (Growth → Commodity), or T6 (Growth → Vacuum collapse)" ;
+    folk:possibleTransitions market:T_Growth_Formation, market:T_Growth_Commodity, market:T_Growth_Vacuum ;
+    folk:context "Requires metrics analysis to disambiguate" ;
+    folk:example_T4 "CAC rising, new cohorts underperforming (lost PMF, not true disruption)" ;
+    folk:example_T5 "Market maturing, price competition emerging (normal transition, not disruption)" ;
+    folk:example_T6 "Entire market shifted to new platform/technology (existential disruption)" .
+
+folk:GlossaryEntry_Commodity a rdf:Resource ;
+    rdfs:label "'It's a commodity now'" ;
+    rdfs:comment "Crossing T5: Growth → Commodity; market maturation, feature parity, price competition" ;
+    folk:stateTransition market:T_Growth_Commodity ;
+    folk:metrics "Market growth < 20% YoY, feature parity, CAC rising, LTV declining" ;
+    folk:strategy "Cost optimization, bundling, M&A, or innovation escape (T7)" .
+
+folk:GlossaryEntry_WrongCustomer a rdf:Resource ;
+    rdfs:label "'Wrong customer'" ;
+    rdfs:comment "Crossing T2 (regression): Formation → Vacuum; customer segment too niche or misaligned" ;
+    folk:stateTransition market:T_Formation_Vacuum ;
+    folk:recovery "Pivot to different customer segment (restart Formation) or return to research" ;
+    folk:distinguisher "Customer acquisition failure: cannot repeat with 2nd, 3rd customer" .
+
+folk:GlossaryEntry_FalsePositive a rdf:Resource ;
+    rdfs:label "'False positive' (on T1 crossing)" ;
+    rdfs:comment "Initial customer engagement (T1) not representative; subsequent customers don't engage" ;
+    folk:stateTransition market:T1, market:T_Formation_Vacuum ;
+    folk:risk "First customer often founder's friend (bias); T2 regression follows" ;
+    folk:validation "Repeat T1 with 2-3 independent customers before claiming Formation entered" .
+
+folk:GlossaryEntry_LocalMaximum a rdf:Resource ;
+    rdfs:label "'Local maximum'" ;
+    rdfs:comment "Trapped in Formation: profitable small segment, but market too small to scale" ;
+    folk:stateTransition "Stuck in Formation state" ;
+    folk:trap "Revenue generation inhibits pivot; just profitable enough to survive, not to grow" ;
+    folk:escape "Recognize trap early; pivot to larger customer segment (Formation pivot)" .
+
+folk:GlossaryEntry_DisruptedSelf a rdf:Resource ;
+    rdfs:label "'We disrupted ourselves'" ;
+    rdfs:comment "Crossing T7: Commodity → Formation; internal innovation creates new market" ;
+    folk:stateTransition market:T_Commodity_Formation ;
+    folk:rarity "20-30% success rate (Innovator's Dilemma challenge)" ;
+    folk:requirement "Separate P&L, leadership autonomy, patient capital" ;
+    folk:outcome_success "Commodity company rejuvenates; re-enters Growth phase in new market" ;
+    folk:outcome_failure "New product fails; company remains commoditized" .

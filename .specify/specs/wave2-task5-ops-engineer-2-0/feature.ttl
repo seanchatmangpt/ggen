@@ -1,0 +1,1184 @@
+@prefix spec: <https://ggen.dev/spec#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ops: <https://ggen.dev/wave2/task5/> .
+@prefix : <https://ggen.dev/spec/ops-engineer-2-0#> .
+
+# ============================================================================
+# FEATURE: Ops Engineer 2.0 Training & Pilot Program
+# ============================================================================
+# Gap 7 Execution: Transform 20 ops engineers into a hybrid human-AI
+# operations model leveraging ggen automation for deployment, config,
+# and policy enforcement.
+#
+# Timeline: Week 9-10 (training) → Week 11 (parallel run) → Week 12 (switchover)
+# Success: 3 pilots complete 1 week with >70% satisfaction + 0 escalations
+# ============================================================================
+
+:OpsEngineer2Program a spec:Feature ;
+    rdfs:label "Ops Engineer 2.0 Training & Pilot Program" ;
+    rdfs:comment "Comprehensive change management program to transition 20 ops engineers from traditional operational roles to hybrid human-AI operational model leveraging ggen automation" ;
+    spec:epicNumber 9 ;
+    spec:waveNumber 2 ;
+    spec:taskNumber 5 ;
+    spec:timeline [
+        spec:week "9-10" ; spec:phase "Training" ;
+        spec:week "11" ; spec:phase "Parallel Run" ;
+        spec:week "12" ; spec:phase "Switchover"
+    ] ;
+    spec:deliverables (
+        :Curriculum
+        :ProgramRoadmap
+        :PilotScorecard
+        :TrainingMaterials
+    ) ;
+    spec:successCriteria :SuccessCriteria ;
+    spec:fmea :OpsEngineerFMEA ;
+    spec:philosophy "Make new role believable, not marketing. Address real concerns: job security (role expands, doesn't replace), skill relevance (technical + judgment required), career path (3 leads emerge)" .
+
+# ============================================================================
+# ADDRESSING REAL CONCERNS
+# ============================================================================
+
+:ConcernJobSecurity a spec:Concern ;
+    rdfs:label "Will automation replace me?" ;
+    spec:reality "No. 80% of new role is exception handling (judgment calls ggen can't make)." ;
+    spec:evidence [
+        spec:point "ggen handles routine: deployment configs, policy templating, logging setup" ;
+        spec:point "You handle exceptions: 'config policy violation detected - exception? approved/denied'" ;
+        spec:point "You decide: edge cases, trade-offs, customer situations" ;
+        spec:point "You teach: new engineers, code reviewers, incident commanders"
+    ] ;
+    spec:counterNarrative "Your job grows. You become exception architect, not config typist." .
+
+:ConcernSkillRelevance a spec:Concern ;
+    rdfs:label "Will I become obsolete?" ;
+    spec:reality "Your skills evolve, not disappear. Core ops wisdom stays. Tools change." ;
+    spec:evidence [
+        spec:point "Deep understanding of deployment patterns → Now: exception rule design" ;
+        spec:point "Config domain knowledge → Now: ggen policy interpretation" ;
+        spec:point "Incident judgment → Now: exception handling (same judgment, new context)" ;
+        spec:point "Automation literacy → Career accelerator for next role"
+    ] ;
+    spec:counterNarrative "Every senior ops engineer becomes AI-fluent. That's valuable." .
+
+:ConcernCareerPath a spec:Concern ;
+    rdfs:label "Is there a future?" ;
+    spec:reality "Yes. 3 leads chosen from volunteers. Leads design policy, mentor others." ;
+    spec:evidence [
+        spec:point "Leads design exception taxonomies for entire organization" ;
+        spec:point "Leads do training, mentorship, policy refinement" ;
+        spec:point "Leads shape ggen feedback: 'we need exception category X'" ;
+        spec:point "Leads are first candidates for platform engineering, SRE roles"
+    ] ;
+    spec:counterNarrative "Risk takers get visible roles. Path to next level is clear." .
+
+# ============================================================================
+# USER STORIES
+# ============================================================================
+
+:US1_TrustAutomation a spec:UserStory ;
+    rdfs:label "As an ops engineer, I want to understand what ggen does and doesn't do" ;
+    spec:actor "Ops Engineer" ;
+    spec:iWant "to know the automation boundaries so I can trust it" ;
+    spec:soThat "I feel confident working alongside automation, not replaced by it" ;
+    spec:priority spec:P1 ;
+    spec:acceptanceCriteria (
+        [ spec:criterion "I can explain: ggen does deployment templating, doesn't do incident triage" ]
+        [ spec:criterion "I know the 3 CANNOT scenarios: dynamic decisions, customer-specific logic, judgment calls" ]
+        [ spec:criterion "I've seen ggen output (configs, policies) and understand what I'm responsible for" ]
+        [ spec:criterion "Skepticism reduced: I see the real workload breakdown (80% exceptions, not replaced)" ]
+    ) .
+
+:US2_ExceptionHandling a spec:UserStory ;
+    rdfs:label "As an ops engineer, I want to handle exceptions effectively" ;
+    spec:actor "Ops Engineer" ;
+    spec:iWant "to understand the exception taxonomy and make decisions confidently" ;
+    spec:soThat "I can do 80% of my new job without escalating" ;
+    spec:priority spec:P1 ;
+    spec:acceptanceCriteria (
+        [ spec:criterion "I understand 5+ exception categories: policy violations, config conflicts, customer exemptions, rollback scenarios, etc." ]
+        [ spec:criterion "I've practiced 10+ exception scenarios with mentors" ]
+        [ spec:criterion "I know when to approve, deny, or escalate exceptions" ]
+        [ spec:criterion "I can write plain-English justification for decisions (audit trail)" ]
+    ) .
+
+:US3_SkillEvolution a spec:UserStory ;
+    rdfs:label "As an ops engineer, I want to evolve my skills, not lose them" ;
+    spec:actor "Ops Engineer" ;
+    spec:iWant "to understand how my expertise translates to the new role" ;
+    spec:soThat "I feel my career is advancing, not being automated away" ;
+    spec:priority spec:P1 ;
+    spec:acceptanceCriteria (
+        [ spec:criterion "I see my domain knowledge (deployment, config, patterns) valued in new role" ]
+        [ spec:criterion "I've learned ggen policy language (YAML + logic)" ]
+        [ spec:criterion "I understand where judgment replaces automation" ]
+        [ spec:criterion "I see a path to lead role or next level (SRE, platform)" ]
+    ) .
+
+:US4_PilotSuccess a spec:UserStory ;
+    rdfs:label "As a team lead, I want 3 pilots to succeed" ;
+    spec:actor "Operations Manager" ;
+    spec:iWant "to validate the new role works before rolling out to 20" ;
+    spec:soThat "we can scale with confidence or pivot if needed" ;
+    spec:priority spec:P1 ;
+    spec:acceptanceCriteria (
+        [ spec:criterion "3 volunteers (risk takers) complete 1-week parallel run" ]
+        [ spec:criterion "Pilots handle >70% of their exceptions without escalation" ]
+        [ spec:criterion "Pilots report >70% satisfaction (role feels achievable)" ]
+        [ spec:criterion "Zero escalations from pilot decisions (no rework)" ]
+        [ spec:criterion "Incident resolution time not degraded vs. old role" ]
+    ) .
+
+:US5_ProgramSuccess a spec:UserStory ;
+    rdfs:label "As management, I want confidence the program will work" ;
+    spec:actor "Executive (Wave 2 Sponsor)" ;
+    spec:iWant "clear evidence that 20 ops engineers can transition successfully" ;
+    spec:soThat "we can commit to the new model and resource it properly" ;
+    spec:priority spec:P1 ;
+    spec:acceptanceCriteria (
+        [ spec:criterion "20 engineers trained (40 hours, 2 weeks)" ]
+        [ spec:criterion "3 pilot success metrics met (>70% satisfaction, 0 escalations)" ]
+        [ spec:criterion "No attrition spike (retention baseline ≥95%)" ]
+        [ spec:criterion "Operational SLOs maintained during transition (uptime, incident response)" ]
+        [ spec:criterion "Post-pilot survey shows readiness for full rollout" ]
+    ) .
+
+# ============================================================================
+# CURRICULUM: 5 TRAINING MODULES
+# ============================================================================
+
+:Curriculum a spec:Curriculum ;
+    rdfs:label "Ops Engineer 2.0 Curriculum (40 hours)" ;
+    spec:totalHours 40 ;
+    spec:modules (
+        :Module1_Automation101
+        :Module2_ExceptionHandling
+        :Module3_ProcessArchitecture
+        :Module4_PolicyInterpretation
+        :Module5_Tools
+    ) ;
+    spec:schedule [
+        spec:week "9" ; spec:hours 20 ; spec:focus "Automation 101, Exception Handling basics" ;
+        spec:week "10" ; spec:hours 20 ; spec:focus "Process architecture, Policy interpretation, Tools, review"
+    ] ;
+    spec:deliveryFormat "Blended: video lectures (30%), interactive labs (50%), mentorship (20%)" .
+
+# ============================================================================
+# MODULE 1: AUTOMATION 101 (8 hours, Week 9)
+# ============================================================================
+
+:Module1_Automation101 a spec:TrainingModule ;
+    rdfs:label "Module 1: Automation 101 - ggen Capabilities & Boundaries" ;
+    spec:hours 8 ;
+    spec:week 9 ;
+    spec:learningOutcomes (
+        :LO1_1 :LO1_2 :LO1_3 :LO1_4
+    ) ;
+    spec:sections (
+        :Sec1_1_What :Sec1_2_Boundaries :Sec1_3_Workflow :Sec1_4_Limits
+    ) ;
+    spec:deliverables (
+        [ spec:name "What ggen Does (video 10min)" ]
+        [ spec:name "ggen Demo: Deploy workflow start-to-finish (15min, live)" ]
+        [ spec:name "3 Boundary Scenarios (interactive simulation, 30min)" ]
+        [ spec:name "Checklist: Can ggen do it? Decision tree (one-pager)" ]
+    ) .
+
+:LO1_1 a spec:LearningOutcome ;
+    rdfs:label "Explain ggen's 3-step workflow: Template → Generate → Approve → Deploy" ;
+    spec:verifyBy :Lab1_1_WorkflowRun .
+
+:LO1_2 a spec:LearningOutcome ;
+    rdfs:label "Identify 5 things ggen CANNOT do (incident decision, customer negotiation, etc.)" ;
+    spec:verifyBy :Lab1_2_BoundaryScenarios .
+
+:LO1_3 a spec:LearningOutcome ;
+    rdfs:label "Understand: why ggen can't replace human judgment" ;
+    spec:verifyBy :Lab1_3_JudgmentDiscussion .
+
+:LO1_4 a spec:LearningOutcome ;
+    rdfs:label "Recognize your role: approver, exception handler, policy shaper" ;
+    spec:verifyBy :Reflection1_4_RoleShift .
+
+:Sec1_1_What a spec:Section ;
+    rdfs:label "What ggen Does (3 hours)" ;
+    spec:topics (
+        "ggen architecture: 5-stage pipeline"
+        "Input: RDF specs (.ttl files)"
+        "Output: Deployment configs, Kubernetes manifests, Policy rules"
+        "Real example: Deploy Node microservice with monitoring + policy"
+    ) ;
+    spec:format "2x video lecture (15min each) + hands-on demo (60min)" ;
+    spec:priorKnowledge "None (all explained from scratch)" .
+
+:Sec1_2_Boundaries a spec:Section ;
+    rdfs:label "Boundaries: What ggen CANNOT Do (2 hours)" ;
+    spec:topics (
+        "Scenario 1: Customer calls with special request - who decides? (You)"
+        "Scenario 2: Config violates new policy - who approves exception? (You + audit)"
+        "Scenario 3: Deployment fails mid-flight - who triages? (You + incident commander)"
+        "Scenario 4: Performance regression detected - who investigates? (You)"
+        "Scenario 5: New business requirement conflicts with current policy - who modifies policy? (You + architects)"
+    ) ;
+    spec:format "Interactive scenarios + group discussion (60min) + decision tree worksheet (30min)" .
+
+:Sec1_3_Workflow a spec:Section ;
+    rdfs:label "The Ops Engineer 2.0 Workflow (2 hours)" ;
+    spec:topics (
+        "Step 1: ggen proposes config/policy"
+        "Step 2: You review for exceptions, edge cases"
+        "Step 3: You approve or request changes"
+        "Step 4: ggen renders final artifact"
+        "Step 5: You monitor deployment + handle exceptions"
+    ) ;
+    spec:format "Walkthrough video (30min) + live lab: approve a real deployment config (60min)" .
+
+:Sec1_4_Limits a spec:Section ;
+    rdfs:label "Why This Matters: The Contract Between Human & AI (1 hour)" ;
+    spec:topics (
+        "ggen is fast & consistent, not wise"
+        "You are wise & accountable, not 100% consistent"
+        "The partnership: ggen eliminates grunt work → you focus on judgment"
+        "Your accountability: every exception you approve, you own"
+    ) ;
+    spec:format "Facilitated discussion + reflection exercise (60min)" .
+
+:Lab1_1_WorkflowRun a spec:Lab ;
+    rdfs:label "Lab: Run ggen Workflow End-to-End" ;
+    spec:duration 45 ;
+    spec:task "Deploy a sample microservice using ggen. Review config, approve, monitor." ;
+    spec:successCriteria "You can explain each step + answer 'What would you do if config had violation X?'" .
+
+:Lab1_2_BoundaryScenarios a spec:Lab ;
+    rdfs:label "Lab: Boundary Decision Scenarios" ;
+    spec:duration 30 ;
+    spec:task "5 scenarios: for each, say 'ggen handles this' or 'you handle this'. Explain." ;
+    spec:successCriteria "4/5 correct + reasoning is sound (mentor signs off)" .
+
+:Lab1_3_JudgmentDiscussion a spec:Lab ;
+    rdfs:label "Group Discussion: Where's the Judgment?" ;
+    spec:duration 30 ;
+    spec:task "Small groups discuss: What does ggen get wrong? When does it need you?" ;
+    spec:successCriteria "Group identifies ≥3 scenarios where human judgment matters" .
+
+:Reflection1_4_RoleShift a spec:Lab ;
+    rdfs:label "Reflection: Your Role Shift" ;
+    spec:duration 30 ;
+    spec:task "Written reflection (500 words max): How does this change your job? What excites you? Worries you?" ;
+    spec:successCriteria "Honest reflection. Mentor discusses with you. Concerns surfaced." .
+
+# ============================================================================
+# MODULE 2: EXCEPTION HANDLING (12 hours, Week 9-10)
+# ============================================================================
+# THIS IS 80% OF YOUR NEW JOB
+# ============================================================================
+
+:Module2_ExceptionHandling a spec:TrainingModule ;
+    rdfs:label "Module 2: Exception Handling - The Core of Your New Role (80% of job)" ;
+    spec:hours 12 ;
+    spec:week "9-10" ;
+    spec:emphasis "This is 80% of what you'll do every day" ;
+    spec:learningOutcomes (
+        :LO2_1 :LO2_2 :LO2_3 :LO2_4 :LO2_5
+    ) ;
+    spec:sections (
+        :Sec2_1_Taxonomy :Sec2_2_PolicyViolations :Sec2_3_ConfigConflicts :Sec2_4_CustomerExemptions :Sec2_5_Rollback :Sec2_6_PracticalScenarios
+    ) ;
+    spec:deliverables (
+        [ spec:name "Exception Taxonomy: 7 categories with examples (poster)" ]
+        [ spec:name "Decision Matrix: When to approve/deny/escalate (one-pager)" ]
+        [ spec:name "Lab Workbook: 20 exception scenarios (self-check + mentor review)" ]
+        [ spec:name "Audit Trail Template: How to justify your decisions (form)" ]
+    ) .
+
+:LO2_1 a spec:LearningOutcome ;
+    rdfs:label "Recognize 7 exception categories and when each appears" ;
+    spec:verifyBy :Lab2_1_TaxonomyRecognition .
+
+:LO2_2 a spec:LearningOutcome ;
+    rdfs:label "Decide: approve, deny, or escalate for each exception type" ;
+    spec:verifyBy :Lab2_2_DecisionPractice .
+
+:LO2_3 a spec:LearningOutcome ;
+    rdfs:label "Justify your decisions in writing (for audit trail + learning)" ;
+    spec:verifyBy :Lab2_3_JustificationDrill .
+
+:LO2_4 a spec:LearningOutcome ;
+    rdfs:label "Handle real-world exceptions with mentors observing" ;
+    spec:verifyBy :Lab2_4_LiveExceptionHandling .
+
+:LO2_5 a spec:LearningOutcome ;
+    rdfs:label "Know your escalation path (when to loop in architects, security)" ;
+    spec:verifyBy :Lab2_5_EscalationPaths .
+
+:Sec2_1_Taxonomy a spec:Section ;
+    rdfs:label "Exception Taxonomy: 7 Categories (2 hours)" ;
+    spec:topics (
+        [ spec:category "Policy Violation" ; spec:example "Config violates PCI compliance - approve exception with CTO sign-off?" ; spec:frequency "30% of exceptions" ]
+        [ spec:category "Config Conflict" ; spec:example "Your service needs port 8080, policy says 8081 - use 8080 anyway or follow policy?" ; spec:frequency "25%" ]
+        [ spec:category "Customer Exemption" ; spec:example "Customer X has legacy system incompatible with new policy - grant 6-month exemption?" ; spec:frequency "20%" ]
+        [ spec:category "Rollback Scenario" ; spec:example "Deployment broke production. Rollback policy says 5 minutes. Doing it in 2. OK?" ; spec:frequency "10%" ]
+        [ spec:category "Performance Trade-off" ; spec:example "Stricter logging adds 5% latency. Business wants it anyway. Accept trade-off?" ; spec:frequency "8%" ]
+        [ spec:category "Operational Override" ; spec:example "During incident, disable monitoring temporarily to reduce noise. OK?" ; spec:frequency "5%" ]
+        [ spec:category "New Requirement" ; spec:example "Feature flag system doesn't exist. We need it. Change policy or work around?" ; spec:frequency "2%" ]
+    ) ;
+    spec:format "Video taxonomy walkthrough (30min) + category deep-dive discussions (60min) + reference poster" .
+
+:Sec2_2_PolicyViolations a spec:Section ;
+    rdfs:label "Deep Dive: Policy Violations (2 hours)" ;
+    spec:context "Most common (30% of exceptions). These require judgment + authority chain." ;
+    spec:topics (
+        "Type A: Violation is a risk (e.g., logging disabled). Rarely approved. Escalate to security." ;
+        "Type B: Violation is a trade-off (e.g., 6 months retention instead of 12). You can approve with justification." ;
+        "Type C: Violation is irrelevant to context (e.g., rule written for web, you're in batch). Petition to policy team to refine." ;
+        "Decision tree: Is it Type A, B, or C? Each has different path."
+    ) ;
+    spec:format "Case study review + decision practice (60min) + lab work" .
+
+:Sec2_3_ConfigConflicts a spec:Section ;
+    rdfs:label "Deep Dive: Config Conflicts (2 hours)" ;
+    spec:context "Common (25% of exceptions). Usually resolved by service owner + stakeholders." ;
+    spec:topics (
+        "Who owns the decision? (Service owner, not you alone)" ;
+        "What's the real trade-off? (Port number, or something deeper?)" ;
+        "Can you find a third option? (Different port for same service)" ;
+        "When do you say no? (If it creates new risk)"
+    ) ;
+    spec:format "Conflict resolution workshop + practice rounds" .
+
+:Sec2_4_CustomerExemptions a spec:Section ;
+    rdfs:label "Deep Dive: Customer Exemptions (2 hours)" ;
+    spec:context "Important (20% of exceptions). Requires customer + business understanding." ;
+    spec:topics (
+        "Business asks you to exempt customer X. What do you ask before approving?" ;
+        "How long is the exemption? (Time-bound, not permanent)" ;
+        "What's the plan to remove exemption? (Upgrade path, deadline)" ;
+        "Who approves? (You + customer success + finance, if revenue impact)" ;
+        "Documentation: Why was exemption granted?" (Future audit, knowledge transfer)
+    ) ;
+    spec:format "Exemption request analysis + practice approvals/denials" .
+
+:Sec2_5_Rollback a spec:Section ;
+    rdfs:label "Deep Dive: Rollback & Incident Scenarios (2 hours)" ;
+    spec:context "High-stakes (10% of exceptions). Time pressure. You need confidence." ;
+    spec:topics (
+        "Rollback policy: automated, audited, time-bounded" ;
+        "When do you override rollback policy? (Only incident commander can)" ;
+        "Exception during incident: approve fast, audit later" ;
+        "Post-mortem: what policy failed? Update policy or training?" ;
+        "Your job: rollback decision, incident commander's job: root cause"
+    ) ;
+    spec:format "Incident simulation + decision making under time pressure" .
+
+:Sec2_6_PracticalScenarios a spec:Section ;
+    rdfs:label "20 Practical Scenarios (2 hours)" ;
+    spec:context "Mixed exceptions. Low-stakes. You practice with mentor feedback." ;
+    spec:task "Lab workbook with 20 scenarios. For each: (1) category, (2) decision (approve/deny/escalate), (3) justification, (4) escalation path." ;
+    spec:format "Self-paced lab (60-90min) + mentor review + discussion (30-45min)" .
+
+:Lab2_1_TaxonomyRecognition a spec:Lab ;
+    rdfs:label "Lab: Taxonomy Recognition Drill" ;
+    spec:task "30 random exceptions. Classify each into 7 categories." ;
+    spec:successCriteria "28/30 correct (93%+)" .
+
+:Lab2_2_DecisionPractice a spec:Lab ;
+    rdfs:label "Lab: Decision Practice (Approve/Deny/Escalate)" ;
+    spec:task "15 exceptions (1 per category, varied difficulty). Decide + justify." ;
+    spec:successCriteria "Mentor sign-off: decisions are reasonable + justifications are clear" .
+
+:Lab2_3_JustificationDrill a spec:Lab ;
+    rdfs:label "Lab: Write Audit Trail Justifications" ;
+    spec:task "Write 5 audit entries (one for each category). 100-200 words each. Make decisions defensible." ;
+    spec:successCriteria "Mentor: entries are clear, traceable, would hold up in audit" .
+
+:Lab2_4_LiveExceptionHandling a spec:Lab ;
+    rdfs:label "Live Lab: Handle Real Exceptions (with mentor)" ;
+    spec:task "Shadow/co-handle 5 real exceptions during week 11 parallel run. Mentor watches." ;
+    spec:successCriteria "Mentor: you handled all 5 correctly. You asked right questions." .
+
+:Lab2_5_EscalationPaths a spec:Lab ;
+    rdfs:label "Lab: Know Your Escalation Paths" ;
+    spec:task "Map out: Security violations → ? | Customer exemptions → ? | Config conflicts → ? | etc." ;
+    spec:successCriteria "You know exact names, email, Slack channels. No guessing." .
+
+# ============================================================================
+# MODULE 3: PROCESS ARCHITECTURE (6 hours, Week 10)
+# ============================================================================
+# THIS IS 10% OF YOUR NEW JOB
+# ============================================================================
+
+:Module3_ProcessArchitecture a spec:TrainingModule ;
+    rdfs:label "Module 3: Process Architecture - How Ops Decisions Flow (10% of job)" ;
+    spec:hours 6 ;
+    spec:week 10 ;
+    spec:emphasis "You understand the 'why' behind the process" ;
+    spec:learningOutcomes (
+        :LO3_1 :LO3_2 :LO3_3
+    ) ;
+    spec:deliverables (
+        [ spec:name "Process Architecture Diagram: Exception flow, approval chains (poster)" ]
+        [ spec:name "Runbook: Who approves what (decision tree one-pager)" ]
+    ) .
+
+:LO3_1 a spec:LearningOutcome ;
+    rdfs:label "Understand why the approval chain is designed the way it is" ;
+    spec:verifyBy [ spec:task "Explain: why CTO approves security exceptions, not ops lead?" ] .
+
+:LO3_2 a spec:LearningOutcome ;
+    rdfs:label "Know how your decisions feed back into policy refinement" ;
+    spec:verifyBy [ spec:task "Trace: exception → audit log → monthly policy review → updated policy" ] .
+
+:LO3_3 a spec:LearningOutcome ;
+    rdfs:label "Recognize when process isn't working and how to flag it" ;
+    spec:verifyBy [ spec:task "Lab: 'We got 50 customer exemption requests. Process broken?' - what do you do?" ] .
+
+:Sec3_1_ArchDiagram a spec:Section ;
+    rdfs:label "Process Architecture Walkthrough (3 hours)" ;
+    spec:topics (
+        "Why this approval chain? (Separation of concerns, accountability, audit trail)" ;
+        "Feedback loop: exceptions → policy team → new policy → fewer exceptions" ;
+        "Scale: as volume increases, automate routine approvals, keep judgment-only ones manual" ;
+        "Tools: Slack for routing, database for audit trail, dashboards for metrics"
+    ) ;
+    spec:format "Video walkthrough (60min) + interactive Q&A (60min) + diagram study" .
+
+:Sec3_2_RunbookWhoApprovesWhat a spec:Section ;
+    rdfs:label "Operational Runbook: Who Approves What (3 hours)" ;
+    spec:topics (
+        "Config conflicts: service owner approves" ;
+        "Policy violations: CTO/security approves" ;
+        "Customer exemptions: business/customer success approves" ;
+        "Rollback overrides: incident commander approves" ;
+        "Process improvements: ops lead + policy team approves"
+    ) ;
+    spec:format "Decision tree + runbook one-pager + practice scenarios" .
+
+# ============================================================================
+# MODULE 4: POLICY INTERPRETATION (6 hours, Week 10)
+# ============================================================================
+# THIS IS 10% OF YOUR NEW JOB
+# ============================================================================
+
+:Module4_PolicyInterpretation a spec:TrainingModule ;
+    rdfs:label "Module 4: Policy Interpretation - Reading the Rules (10% of job)" ;
+    spec:hours 6 ;
+    spec:week 10 ;
+    spec:emphasis "You interpret ggen policy rules (YAML + business logic)" ;
+    spec:learningOutcomes (
+        :LO4_1 :LO4_2 :LO4_3
+    ) ;
+    spec:deliverables (
+        [ spec:name "Policy Grammar Guide: How to read policy YAML (reference)" ]
+        [ spec:name "Policy Examples: 5 common policies with annotations (workbook)" ]
+    ) .
+
+:LO4_1 a spec:LearningOutcome ;
+    rdfs:label "Read and understand a policy rule in YAML + English" ;
+    spec:verifyBy :Lab4_1_PolicyReading .
+
+:LO4_2 a spec:LearningOutcome ;
+    rdfs:label "Spot policy conflicts and edge cases" ;
+    spec:verifyBy :Lab4_2_EdgeCaseSpotting .
+
+:LO4_3 a spec:LearningOutcome ;
+    rdfs:label "Propose policy clarifications to policy team" ;
+    spec:verifyBy :Lab4_3_PolicyFeedback .
+
+:Sec4_1_PolicyGrammar a spec:Section ;
+    rdfs:label "Policy Grammar: How to Read Rules (3 hours)" ;
+    spec:topics (
+        "Policy YAML structure: scope, conditions, actions, exceptions" ;
+        "English translation: 'IF scope matches AND conditions true THEN action ELSE exception'" ;
+        "Ambiguity detection: 'What if rule A and rule B both match?'" ;
+        "Version control: policies evolve, old rules sunsetted"
+    ) ;
+    spec:format "Video + annotation walkthrough of 5 real policies" .
+
+:Sec4_2_EdgeCases a spec:Section ;
+    rdfs:label "Policy Edge Cases & Conflicts (2 hours)" ;
+    spec:topics (
+        "Case study: two policies conflict. Which wins?" ;
+        "Case study: policy written for case A, now case B applies. Policy silent." ;
+        "Your job: flag these to policy team. Mentor works with you." ;
+        "Lab: read 10 policy pairs, spot conflicts"
+    ) ;
+    spec:format "Case studies + lab work + discussion" .
+
+:Sec4_3_PolicyFeedback a spec:Section ;
+    rdfs:label "Contributing to Policy Refinement (1 hour)" ;
+    spec:topics (
+        "How do policies get updated?" ;
+        "You see edge cases → you flag them → policy team refines → next version" ;
+        "This is collaborative. You're not alone." ;
+        "Goal: policies get clearer, exceptions decrease"
+    ) ;
+    spec:format "Workshop: how to write good policy feedback" .
+
+:Lab4_1_PolicyReading a spec:Lab ;
+    rdfs:label "Lab: Read 10 Policy Rules" ;
+    spec:task "Read 10 policy rules (YAML). For each: (1) write English translation, (2) spot ambiguities." ;
+    spec:successCriteria "8/10 translations correct + ambiguities reasonable" .
+
+:Lab4_2_EdgeCaseSpotting a spec:Lab ;
+    rdfs:label "Lab: Spot Policy Conflicts" ;
+    spec:task "5 policy pairs. Which rule wins if both match? Explain reasoning." ;
+    spec:successCriteria "4/5 correct + reasoning is sound" .
+
+:Lab4_3_PolicyFeedback a spec:Lab ;
+    rdfs:label "Lab: Write Policy Feedback" ;
+    spec:task "Choose 1 policy rule you think is unclear. Write feedback (200 words): what's unclear? Suggest clarification." ;
+    spec:successCriteria "Feedback is specific + actionable. Policy team can implement it." .
+
+# ============================================================================
+# MODULE 5: TOOLS & SYSTEMS (8 hours, Week 10)
+# ============================================================================
+
+:Module5_Tools a spec:TrainingModule ;
+    rdfs:label "Module 5: Tools & Systems - Your Daily Toolkit" ;
+    spec:hours 8 ;
+    spec:week 10 ;
+    spec:topics (
+        "Slack workflow: exception notifications → decisions → audit trail" ;
+        "Dashboards: exception volume by type, approval rates, escalation reasons" ;
+        "Audit trail system: how to read your decisions 6 months later" ;
+        "Testing environment: how to practice exceptions without prod risk"
+    ) ;
+    spec:learningOutcomes (
+        :LO5_1 :LO5_2 :LO5_3 :LO5_4
+    ) ;
+    spec:deliverables (
+        [ spec:name "Slack Workflow Diagram (poster)" ]
+        [ spec:name "Dashboard Tour Guide (video + walkthrough)" ]
+        [ spec:name "Audit Trail Query Cheat Sheet (reference card)" ]
+        [ spec:name "Testing Environment Quickstart (runbook)" ]
+    ) .
+
+:LO5_1 a spec:LearningOutcome ;
+    rdfs:label "Use Slack workflow to receive, decide, and document exceptions" ;
+    spec:verifyBy :Lab5_1_SlackWorkflow .
+
+:LO5_2 a spec:LearningOutcome ;
+    rdfs:label "Read dashboards to understand exception patterns" ;
+    spec:verifyBy :Lab5_2_DashboardAnalysis .
+
+:LO5_3 a spec:LearningOutcome ;
+    rdfs:label "Query audit trail to justify decisions and learn from past" ;
+    spec:verifyBy :Lab5_3_AuditTrailQueries .
+
+:LO5_4 a spec:LearningOutcome ;
+    rdfs:label "Practice exception handling in test environment" ;
+    spec:verifyBy :Lab5_4_TestingEnvironment .
+
+:Sec5_1_SlackWorkflow a spec:Section ;
+    rdfs:label "Slack Workflow Mechanics (2 hours)" ;
+    spec:topics (
+        "Trigger: ggen detects exception → Slack notification in #ops-exceptions" ;
+        "You: click 'Review' → modal shows exception details" ;
+        "You: decide (approve/deny/escalate) + write justification" ;
+        "System: records decision → updates dashboard → sends confirmation" ;
+        "Escalation: if needed, Slack mentions @cto or @incident-commander"
+    ) ;
+    spec:format "Demo walkthrough (30min) + hands-on practice (60min) + Q&A" .
+
+:Sec5_2_Dashboards a spec:Section ;
+    rdfs:label "Dashboards: Understand Your Work (2 hours)" ;
+    spec:topics (
+        "Dashboard 1: Exception volume by category (trending, anomalies)" ;
+        "Dashboard 2: Your approval patterns (how often do you approve vs. deny?)" ;
+        "Dashboard 3: Escalation reasons (what gets escalated most? Why?)" ;
+        "Dashboard 4: Policy violations (which policies trigger most exceptions?)" ;
+        "Your learning: dashboards help you improve + help policy team refine rules"
+    ) ;
+    spec:format "Live dashboard walkthrough + analysis exercise" .
+
+:Sec5_3_AuditTrail a spec:Section ;
+    rdfs:label "Audit Trail System: Read Your History (2 hours)" ;
+    spec:topics (
+        "Query: 'Show all exceptions I handled in Jan'" ;
+        "Query: 'Show all policy violations from service X'" ;
+        "Query: 'Show decisions where I approved against policy'" ;
+        "Your learning: audit trail helps you learn, helps auditors verify, helps policy team refine"
+    ) ;
+    spec:format "SQL queries (explained in English, not command-line) + practice" .
+
+:Sec5_4_TestEnvironment a spec:Section ;
+    rdfs:label "Testing Environment: Practice Safely (2 hours)" ;
+    spec:topics (
+        "Test env: realistic data, but no prod impact" ;
+        "You practice: process exceptions in test env until confident" ;
+        "Mentor watches: gives feedback, clears you for prod" ;
+        "First week prod run: you're ready"
+    ) ;
+    spec:format "Guided tour of test environment + hands-on practice" .
+
+:Lab5_1_SlackWorkflow a spec:Lab ;
+    rdfs:label "Lab: Slack Workflow End-to-End" ;
+    spec:task "Handle 10 mock exceptions in Slack. Receive notification → decide → justify → watch confirmation." ;
+    spec:successCriteria "All 10 completed. No help needed." .
+
+:Lab5_2_DashboardAnalysis a spec:Lab ;
+    rdfs:label "Lab: Dashboard Analysis" ;
+    spec:task "Review dashboards. Answer: (1) What's trending up? (2) What's unusual? (3) What surprises you?" ;
+    spec:successCriteria "You identify ≥1 interesting trend + can explain it" .
+
+:Lab5_3_AuditTrailQueries a spec:Lab ;
+    rdfs:label "Lab: Audit Trail Queries" ;
+    spec:task "5 queries. For each, write question + run query + interpret results." ;
+    spec:successCriteria "All 5 complete. Results make sense." .
+
+:Lab5_4_TestingEnvironment a spec:Lab ;
+    rdfs:label "Lab: Practice in Testing Environment" ;
+    spec:task "Handle 20 exceptions in test env. Mentor observes first 5, then you're on your own." ;
+    spec:successCriteria "Mentor sign-off: you're ready for production week 11" .
+
+# ============================================================================
+# WEEK-BY-WEEK SCHEDULE
+# ============================================================================
+
+:ProgramRoadmap a spec:ProgramRoadmap ;
+    rdfs:label "4-Week Program Roadmap (Weeks 9-12)" ;
+    spec:weeks (
+        :Week9_Training
+        :Week10_Training
+        :Week11_ParallelRun
+        :Week12_Switchover
+    ) .
+
+:Week9_Training a spec:Week ;
+    spec:weekNumber 9 ;
+    spec:phase "Training (Week 1 of 2, intensive)" ;
+    spec:hours 20 ;
+    spec:modules (
+        :Module1_Automation101
+        :Module2_ExceptionHandling
+    ) ;
+    spec:schedule [
+        spec:day "Mon" ; spec:hours 4 ; spec:content "Module 1: Automation 101 (morning: video + demo, afternoon: labs 1-3)" ;
+        spec:day "Tue" ; spec:hours 4 ; spec:content "Module 1 (finish labs), Module 2 (taxonomy)" ;
+        spec:day "Wed" ; spec:hours 4 ; spec:content "Module 2: Exception Handling (deep dives: policy violations + conflicts)" ;
+        spec:day "Thu" ; spec:hours 4 ; spec:content "Module 2 (deep dives: customer exemptions + rollback)" ;
+        spec:day "Fri" ; spec:hours 4 ; spec:content "Module 2 (20 scenarios + lab review, wrap-up)"
+    ] ;
+    spec:deliverables (
+        [ spec:name "Completed Module 1 labs (4/4 signed off)" ]
+        [ spec:name "Completed Module 2 taxonomy labs (3/3 signed off)" ]
+        [ spec:name "Reflection: Week 9 learnings + concerns" ]
+    ) .
+
+:Week10_Training a spec:Week ;
+    spec:weekNumber 10 ;
+    spec:phase "Training (Week 2 of 2, tools + deep skills)" ;
+    spec:hours 20 ;
+    spec:modules (
+        :Module2_ExceptionHandling
+        :Module3_ProcessArchitecture
+        :Module4_PolicyInterpretation
+        :Module5_Tools
+    ) ;
+    spec:schedule [
+        spec:day "Mon" ; spec:hours 4 ; spec:content "Module 2 (live exception handling with mentor, 5 real exceptions)" ;
+        spec:day "Tue" ; spec:hours 4 ; spec:content "Module 3 (process architecture) + Module 4 start (policy interpretation)" ;
+        spec:day "Wed" ; spec:hours 4 ; spec:content "Module 4 (policy reading + edge case spotting)" ;
+        spec:day "Thu" ; spec:hours 4 ; spec:content "Module 5 (Slack workflow + dashboards + audit trail)" ;
+        spec:day "Fri" ; spec:hours 4 ; spec:content "Module 5 (testing environment practice, 20 mock exceptions, mentor review)"
+    ] ;
+    spec:deliverables (
+        [ spec:name "5 real exceptions handled + mentor sign-off" ]
+        [ spec:name "Module 3 & 4 labs complete" ]
+        [ spec:name "Module 5 testing environment: 20/20 practice exceptions complete" ]
+        [ spec:name "Pilot readiness assessment: 'Ready for prod week 11 parallel run?' Y/N" ]
+    ) .
+
+:Week11_ParallelRun a spec:Week ;
+    spec:weekNumber 11 ;
+    spec:phase "Parallel Run (New Role + Old Role, side-by-side)" ;
+    spec:participants "20 ops engineers (3 are pilot volunteers)" ;
+    spec:schedule [
+        spec:day "Daily" ; spec:context "Each engineer: 50% old role (learn old decisions can't be undone) + 50% new role (handle real exceptions)" ;
+        spec:checkpoint "Daily sync (15min): What exceptions did you handle? Any blockers?" ;
+        spec:checkpoint "Mon/Wed/Fri (1hr): Mentor office hours. Questions, concerns, escalation guidance"
+    ] ;
+    spec:successCriteria (
+        [ spec:metric "All 20 engineers complete all assigned exceptions (100% coverage)" ]
+        [ spec:metric "Pilots (3 volunteers) handle >70% of their exceptions without escalation" ]
+        [ spec:metric "Zero escalations are reworked (pilot decisions are sound)" ]
+        [ spec:metric "Incident response time not degraded (SLO maintained)" ]
+        [ spec:metric "No attrition (retention = 100%)" ]
+    ) ;
+    spec:deliverables (
+        [ spec:name "Daily exception logs (aggregated data)" ]
+        [ spec:name "Pilot week 1 survey (satisfaction, confidence, concerns)" ]
+    ) .
+
+:Week12_Switchover a spec:Week ;
+    spec:weekNumber 12 ;
+    spec:phase "Full Switchover to New Role + 3 Pilot Leads" ;
+    spec:schedule [
+        spec:day "Mon" ; spec:context "All 20 engineers fully on new role (old role deprecated)" ;
+        spec:day "Mon-Fri" ; spec:context "3 pilot leads (selected from volunteers) mentor other 17 engineers" ;
+        spec:checkpoint "Daily sync (15min): How's the transition? Escalations?" ;
+        spec:checkpoint "Fri 2pm: Weekly wrap-up + lessons learned discussion"
+    ] ;
+    spec:successCriteria (
+        [ spec:metric "All 20 engineers operational on new role (0% old role)" ]
+        [ spec:metric "Escalation rate stable or declining (not spiking)" ]
+        [ spec:metric "Pilot satisfaction baseline established (>70% target)" ]
+        [ spec:metric "Operational SLOs maintained (uptime, incident response)" ]
+        [ spec:metric "No attrition spike"  ]
+    ) ;
+    spec:deliverables (
+        [ spec:name "Post-switchover survey (all 20 engineers)" ]
+        [ spec:name "Lessons learned: what worked, what to improve" ]
+        [ spec:name "Pilot lead role description (emerging leaders)" ]
+    ) .
+
+# ============================================================================
+# PILOT SCORECARD: METRICS FOR SUCCESS
+# ============================================================================
+
+:PilotScorecard a spec:PilotScorecard ;
+    rdfs:label "Pilot Success Scorecard (3 volunteers, 1 week week 11)" ;
+    spec:goal "Validate new role is working before scaling to 20" ;
+    spec:pilots 3 ;
+    spec:duration "1 week (week 11 parallel run)" ;
+    spec:metrics (
+        :Metric_ExceptionHandlingRate
+        :Metric_Satisfaction
+        :Metric_Escalations
+        :Metric_IncidentResponse
+        :Metric_Retention
+    ) ;
+    spec:passFailCriteria [
+        spec:pass "ALL 5 metrics pass → scale to all 20" ;
+        spec:fail "ANY metric fails → investigate before scaling" ;
+        spec:conditional "If 3/5 pass + 2/5 close → short pivot + try again"
+    ] .
+
+:Metric_ExceptionHandlingRate a spec:Metric ;
+    rdfs:label "Exception Handling Rate (Self-Sufficiency)" ;
+    spec:target ">70%" ;
+    spec:meaning "Pilots handle >70% of exceptions without escalation" ;
+    spec:measure "Count: exceptions handled solo / total exceptions assigned" ;
+    spec:why "If pilots escalate >30%, new role might be too complex or training is insufficient" ;
+    spec:howToCalculate [
+        spec:numerator "Exceptions pilot approved or denied independently" ;
+        spec:denominator "Total exceptions assigned to pilot in week 11" ;
+        spec:example "Pilot A: assigned 100 exceptions, handled 75 solo, escalated 25. Rate = 75%. PASS."
+    ] ;
+    spec:passFailThreshold ">70% = PASS, <=70% = FAIL" ;
+    spec:corrective_ifFail "Increase mentorship + add extra training on escalation categories" .
+
+:Metric_Satisfaction a spec:Metric ;
+    rdfs:label "Pilot Satisfaction (Role Believability)" ;
+    spec:target ">70%" ;
+    spec:meaning "Pilots report >70% satisfaction: role is achievable, not overwhelming" ;
+    spec:measure "Survey (Likert 1-5): 'This role feels achievable for me' + 'I'm confident in my decisions' + 'I see myself doing this long-term'" ;
+    spec:why "If pilots don't feel confident, full team won't either. Satisfaction = buy-in." ;
+    spec:survey [
+        spec:q1 "This role feels achievable for me (not overwhelming)" ; spec:scale "1-5" ;
+        spec:q2 "I'm confident in my exception decisions" ; spec:scale "1-5" ;
+        spec:q3 "I see myself doing this role long-term" ; spec:scale "1-5" ;
+        spec:q4 "My job is not being replaced (I'm valued)" ; spec:scale "1-5" ;
+        spec:q5 "Training prepared me well" ; spec:scale "1-5"
+    ] ;
+    spec:passFailThreshold "Average >3.5/5 (70%+) = PASS" ;
+    spec:corrective_ifFail "Identify specific concerns (job security, complexity, etc.) and address before scaling" .
+
+:Metric_Escalations a spec:Metric ;
+    rdfs:label "Escalation Quality (Sound Judgment)" ;
+    spec:target "0%" ;
+    spec:meaning "Zero escalations are reworked or overturned (pilot judgment is sound)" ;
+    spec:measure "Count: escalations where manager/lead came back and said 'actually, you should have...'" ;
+    spec:why "If pilot escalations are constantly reworked, that's a sign training is insufficient or process is unclear" ;
+    spec:howToCalculate [
+        spec:numerator "Escalations that required rework or override" ;
+        spec:denominator "Total escalations from pilots" ;
+        spec:example "Pilots escalated 25 exceptions. None were reworked. Rate = 0%. PASS."
+    ] ;
+    spec:passFailThreshold "0 reworks = PASS, >=1 rework = FAIL (investigate which training gap)" ;
+    spec:corrective_ifFail "Mentor pilots on that category + run extra training session" .
+
+:Metric_IncidentResponse a spec:Metric ;
+    rdfs:label "Incident Response Time (Operational SLO)" ;
+    spec:target "No degradation" ;
+    spec:meaning "Incident response time not worse than old role (new role doesn't break ops)" ;
+    spec:measure "Compare: avg incident detection-to-resolution in week 11 vs. historical avg" ;
+    spec:why "If new role slows down incident response, SLO fails and ops team is unhappy" ;
+    spec:slo "Detection to resolution: ≤30min for P1, ≤4hr for P2. Must maintain." ;
+    spec:passFailThreshold "≤5% slower = PASS (acceptable variance), >5% slower = FAIL (new role is too distracting)" ;
+    spec:corrective_ifFail "Pilots need more support during incidents (extra mentors) or exception handling needs streamlining" .
+
+:Metric_Retention a spec:Metric ;
+    rdfs:label "Retention (No Attrition Spike)" ;
+    spec:target "100%" ;
+    spec:meaning "All pilots remain employed (no one quits due to role change)" ;
+    spec:measure "Count: pilots who resign or request transfer" ;
+    spec:why "If role change causes attrition, that's a red flag for full team" ;
+    spec:passFailThreshold "0 attrition = PASS, >=1 resignation = FAIL + investigate" ;
+    spec:corrective_ifFail "Understand resignation reason (role too complex? Fear of replacement? Better offer elsewhere?)" .
+
+# ============================================================================
+# TRAINING MATERIALS OUTLINE
+# ============================================================================
+
+:TrainingMaterials a spec:TrainingMaterials ;
+    rdfs:label "Training Materials Deliverables" ;
+    spec:format "Blended: video lectures, interactive labs, workbooks, reference materials" ;
+    spec:artifacts (
+        :Artifact_Module1_Slides :Artifact_Module1_Labs :Artifact_Module1_Video
+        :Artifact_Module2_Slides :Artifact_Module2_Labs :Artifact_Module2_ExceptionWorkbook
+        :Artifact_Module3_Diagram :Artifact_Module3_Runbook
+        :Artifact_Module4_PolicyGuide :Artifact_Module4_PolicyExamples
+        :Artifact_Module5_SlackGuide :Artifact_Module5_DashboardGuide :Artifact_Module5_AuditCheatsheet :Artifact_Module5_TestEnvQuickstart
+        :Artifact_MentorGuide :Artifact_PilotGuide
+    ) .
+
+:Artifact_Module1_Slides a spec:Artifact ;
+    rdfs:label "Module 1: Automation 101 - Slide Deck" ;
+    spec:format "PowerPoint (15 slides)" ;
+    spec:deliverables (
+        "Slide 1-3: What ggen does (3 core functions)"
+        "Slide 4-8: 5 boundary scenarios (interactive, questions for audience)"
+        "Slide 9-12: Your role in new model"
+        "Slide 13-15: Q&A + key takeaways"
+    ) ;
+    spec:notes "Use visuals, not just text. Include real examples from ggen output." .
+
+:Artifact_Module1_Labs a spec:Artifact ;
+    rdfs:label "Module 1: Labs Workbook" ;
+    spec:format "PDF workbook (20 pages)" ;
+    spec:includes (
+        "Lab 1.1: Workflow Run (step-by-step instructions + screenshots)"
+        "Lab 1.2: Boundary Scenarios (5 scenarios, decision worksheet)"
+        "Lab 1.3: Group Discussion Guide (prompts for facilitator)"
+        "Lab 1.4: Reflection Prompt (write-up template)"
+        "Appendix: ggen architecture diagram, CLI reference"
+    ) .
+
+:Artifact_Module1_Video a spec:Artifact ;
+    rdfs:label "Module 1: Video Lectures" ;
+    spec:format "2x MP4 videos (10-15 min each)" ;
+    spec:content (
+        "Video 1: What ggen does (architecture, 3-step workflow)"
+        "Video 2: Live demo (deploy service end-to-end)"
+    ) ;
+    spec:notes "Closed captions. Publish on internal LMS + YouTube (unlisted)." .
+
+:Artifact_Module2_Slides a spec:Artifact ;
+    rdfs:label "Module 2: Exception Handling - Slide Deck" ;
+    spec:format "PowerPoint (25 slides)" ;
+    spec:content (
+        "Slides 1-5: Exception taxonomy (7 categories)"
+        "Slides 6-15: Deep dive per category (with real-world examples)"
+        "Slides 16-20: Decision framework (approve/deny/escalate)"
+        "Slides 21-25: Audit trail + escalation paths"
+    ) ;
+    spec:notes "Heavy use of case studies. Make decision framework visual." .
+
+:Artifact_Module2_Labs a spec:Artifact ;
+    rdfs:label "Module 2: Exception Handling Labs Workbook" ;
+    spec:format "PDF workbook (50 pages)" ;
+    spec:includes (
+        "Lab 2.1: Taxonomy recognition drill (30 scenarios)"
+        "Lab 2.2: Decision practice (15 exceptions)"
+        "Lab 2.3: Audit trail writing (5 entries to write)"
+        "Lab 2.4: Live handling guide (mentor observation checklist)"
+        "Lab 2.5: Escalation path mapping (fill-in form)"
+        "Appendix: 7 category reference cards, decision tree poster"
+    ) .
+
+:Artifact_Module2_ExceptionWorkbook a spec:Artifact ;
+    rdfs:label "20 Exception Scenarios (Self-Check Workbook)" ;
+    spec:format "PDF workbook (30 pages, perforated)" ;
+    spec:content (
+        "Scenario 1-20: Mixed exceptions, increasing difficulty"
+        "For each: (a) Category?, (b) Decision?, (c) Justification?, (d) Escalation path?"
+        "Answer key (detachable, for mentor review)"
+    ) ;
+    spec:notes "Use real examples from past incidents. Make it feel relevant." .
+
+:Artifact_Module3_Diagram a spec:Artifact ;
+    rdfs:label "Module 3: Process Architecture Diagram" ;
+    spec:format "Poster (11x17) + digital PNG" ;
+    spec:shows (
+        "Exception flow: detected → Slack notification → ops engineer decision → escalation if needed → audit log → policy refinement"
+        "Approval chains: security violations → CTO, customer exemptions → business, etc."
+        "Feedback loop: exceptions → policy team → next policy version"
+    ) ;
+    spec:notes "Make it visual. Hang in ops office." .
+
+:Artifact_Module3_Runbook a spec:Artifact ;
+    rdfs:label "Module 3: Process Architecture Runbook" ;
+    spec:format "One-pager (laminated card)" ;
+    spec:content (
+        "Decision tree: 'I have an exception. Who approves it?'"
+        "Approval matrix: exception type → approval authority"
+        "Escalation contacts: name, email, Slack, hours"
+        "Quick reference: common policies + their keepers"
+    ) ;
+    spec:notes "Keep in pocket. Update quarterly." .
+
+:Artifact_Module4_PolicyGuide a spec:Artifact ;
+    rdfs:label "Module 4: Policy Grammar Guide" ;
+    spec:format "PDF guide (20 pages)" ;
+    spec:content (
+        "Policy YAML structure (annotated examples)"
+        "How to read policy rules (English translation)"
+        "Common patterns (scope matching, action types, exception clauses)"
+        "Edge cases & ambiguities (what policies don't say)"
+        "Appendix: Policy syntax reference"
+    ) ;
+    spec:notes "Make policy YAML accessible to non-programmers. Use analogies." .
+
+:Artifact_Module4_PolicyExamples a spec:Artifact ;
+    rdfs:label "Module 4: 5 Real Policy Examples (Annotated)" ;
+    spec:format "PDF workbook (15 pages)" ;
+    spec:policies (
+        "Policy 1: Logging retention (with annotations + questions)"
+        "Policy 2: Database access control"
+        "Policy 3: Configuration drift detection"
+        "Policy 4: Customer data handling"
+        "Policy 5: Incident response thresholds"
+    ) ;
+    spec:notes "Real policies from your environment. Show what ambiguity looks like." .
+
+:Artifact_Module5_SlackGuide a spec:Artifact ;
+    rdfs:label "Module 5: Slack Workflow Guide" ;
+    spec:format "PDF guide (10 pages) + inline Slack tips" ;
+    spec:content (
+        "Slack workflow walkthrough (screenshots)"
+        "How to receive exception notification in Slack"
+        "How to approve/deny/escalate (modal)"
+        "How to write justification (examples)"
+        "Common mistakes (and how to fix them)"
+    ) ;
+    spec:notes "Screenshots from actual Slack. Include emojis + formatting tips." .
+
+:Artifact_Module5_DashboardGuide a spec:Artifact ;
+    rdfs:label "Module 5: Dashboard Tour (Video + Guide)" ;
+    spec:format "MP4 video (10min) + PDF guide (5 pages)" ;
+    spec:content (
+        "Video: live walkthrough of 4 key dashboards"
+        "Guide: how to read each dashboard, what to look for, how to extract insights"
+        "Queries: 5 useful queries + what they answer"
+    ) ;
+    spec:notes "Dashboards are powerful if you know what to look for. Make that explicit." .
+
+:Artifact_Module5_AuditCheatsheet a spec:Artifact ;
+    rdfs:label "Module 5: Audit Trail Query Cheat Sheet" ;
+    spec:format "One-pager (reference card)" ;
+    spec:queries (
+        "Query: Show all my decisions in month X"
+        "Query: Show policy violations from service Y"
+        "Query: Show approvals I granted against policy"
+        "Query: Show escalations by category"
+        "Query: Show decision patterns (do I approve too much? Too little?)"
+    ) ;
+    spec:notes "SQL hidden (show English + results). Make queries feel powerful + not scary." .
+
+:Artifact_Module5_TestEnvQuickstart a spec:Artifact ;
+    rdfs:label "Module 5: Testing Environment Quickstart" ;
+    spec:format "PDF guide (10 pages) + interactive walkthrough" ;
+    spec:content (
+        "Test env setup (login, access, limitations)"
+        "Mock exceptions: how they differ from prod"
+        "Practice workflow: handle exception in test env"
+        "Mentor handoff: when you're ready for prod"
+        "Troubleshooting: common issues"
+    ) ;
+    spec:notes "Testing env is safe. Make that clear. Encourage practice." .
+
+:Artifact_MentorGuide a spec:Artifact ;
+    rdfs:label "Mentor Guide (for ops leads mentoring 20 engineers)" ;
+    spec:format "PDF guide (30 pages)" ;
+    spec:content (
+        "Week 9: How to run training week 1 (module 1 & 2)"
+        "Week 10: How to run training week 2 (modules 3-5)"
+        "Week 11: How to support parallel run (daily sync, mentorship)"
+        "Week 12: How to onboard 3 leads + support switchover"
+        "Appendix: troubleshooting (engineer struggling with X, what do you do?)"
+    ) ;
+    spec:notes "This is for ops leads + mentors, not participants. Make it actionable." .
+
+:Artifact_PilotGuide a spec:Artifact ;
+    rdfs:label "Pilot Guide (for 3 pilot volunteers)" ;
+    spec:format "PDF guide (20 pages)" ;
+    spec:content (
+        "Your role: you're testing the new model for the whole team"
+        "Week 11: Parallel run (50% old, 50% new)"
+        "Success metrics: what does success look like?"
+        "Mentorship: what to expect, how to get help"
+        "Feedback: what we want from you (survey + discussion)"
+        "Appendix: lead role description (if you're interested)"
+    ) ;
+    spec:notes "Make pilots feel special (they are). Acknowledge the risk they're taking." .
+
+# ============================================================================
+# SUCCESS CRITERIA
+# ============================================================================
+
+:SuccessCriteria a spec:Checklist ;
+    rdfs:label "Program Success Criteria (Wave 2 Exit Gate)" ;
+    spec:category_Training [
+        spec:item1 "20 engineers trained (40 hours, week 9-10) with >85% attendance" ;
+        spec:item2 "All training modules completed + labs signed off by mentors" ;
+        spec:item3 "No engineer reports feeling unprepared (survey >3.5/5 on readiness)" ;
+        spec:item4 "All learning outcomes verified (post-training assessment >80%)"
+    ] ;
+    spec:category_ParallelRun [
+        spec:item1 "3 pilots complete 1-week parallel run (week 11)" ;
+        spec:item2 "Pilots handle >70% of exceptions without escalation" ;
+        spec:item3 "Zero pilot escalations are reworked or overturned" ;
+        spec:item4 "Incident response time not degraded (SLO maintained ≤5% variance)" ;
+        spec:item5 "Pilot satisfaction >70% (survey 3.5+/5)"
+    ] ;
+    spec:category_Switchover [
+        spec:item1 "All 20 engineers fully on new role (week 12)" ;
+        spec:item2 "3 leads identified and mentoring others" ;
+        spec:item3 "Escalation rate stable or declining (not spiking)" ;
+        spec:item4 "Operational SLOs maintained (uptime, incident response)" ;
+        spec:item5 "Retention baseline established (0 attrition)" ;
+        spec:item6 "Post-switchover survey shows readiness (>70% confidence in new model)"
+    ] ;
+    spec:category_Deliverables [
+        spec:item1 "Curriculum spec (feature.ttl) complete + validated" ;
+        spec:item2 "Training materials delivered (slides, labs, videos, guides)" ;
+        spec:item3 "Pilot scorecard complete (5 metrics validated)" ;
+        spec:item4 "Evidence directory populated (training logs, surveys, lessons learned)" ;
+        spec:item5 "Post-program report (what worked, what to improve, next steps)"
+    ] .
+
+# ============================================================================
+# FMEA: FAILURE MODE & EFFECTS ANALYSIS
+# ============================================================================
+
+:OpsEngineerFMEA a spec:FMEA ;
+    rdfs:label "FMEA: Ops Engineer 2.0 Program Risks" ;
+    spec:analysisDate "Week 8 pre-launch" ;
+    spec:failureModes (
+        :FM1_FeelsReplaced :FM2_TooComplex :FM3_OldProcessFaster
+        :FM4_PilotFails :FM5_SkillsObsolete :FM6_CareerPathUnclear
+    ) .
+
+:FM1_FeelsReplaced a spec:FailureMode ;
+    rdfs:label "Engineer feels replaced by automation (job security fear)" ;
+    spec:description "Despite messaging, engineer worries automation will eliminate their role. Engagement drops. Attrition risk." ;
+    spec:severity 9 ;
+    spec:occurrence 6 ;
+    spec:detection 7 ;
+    spec:rpn 378 ;
+    spec:mitigation (
+        [ spec:type "PREVENT" ; spec:control "Module 1: Explicit framing: 'ggen does routine, you do exceptions (80%)'" ; spec:newRpn 189 ]
+        [ spec:type "PREVENT" ; spec:control "Mentor 1-on-1: address fears explicitly, show personal career path forward" ]
+        [ spec:type "DETECT" ; spec:control "Week 10 survey: ask directly 'Do you feel your job is secure?' - red flag if <3/5" ]
+        [ spec:type "REACT" ; spec:control "If survey shows concern, emergency session with manager + career discussion" ]
+    ) .
+
+:FM2_TooComplex a spec:FailureMode ;
+    rdfs:label "New role is too complex (exception handling overwhelming)" ;
+    spec:description "80% exception handling, but engineer struggles to make decisions. Escalations spike. Confidence drops." ;
+    spec:severity 8 ;
+    spec:occurrence 5 ;
+    spec:detection 8 ;
+    spec:rpn 320 ;
+    spec:mitigation (
+        [ spec:type "PREVENT" ; spec:control "Module 2: Extensive practice (20 scenarios, live labs with mentor)" ; spec:newRpn 80 ]
+        [ spec:type "PREVENT" ; spec:control "Start with simpler exceptions in week 11 (ease in gradually)" ]
+        [ spec:type "DETECT" ; spec:control "Week 11 daily sync: if engineer escalating >30%, flag as struggling" ]
+        [ spec:type "REACT" ; spec:control "Increase mentorship (daily check-ins), simplify tasks, extra training session" ]
+    ) .
+
+:FM3_OldProcessFaster a spec:FailureMode ;
+    rdfs:label "Old process is faster (week 11 productivity dip)" ;
+    spec:description "Engineer does old job faster than new job. Tempted to stay with old role. Week 11 parallel run feels inefficient." ;
+    spec:severity 6 ;
+    spec:occurrence 7 ;
+    spec:detection 8 ;
+    spec:rpn 336 ;
+    spec:mitigation (
+        [ spec:type "PREVENT" ; spec:control "Set expectations: week 11 will be slower (learning curve). That's OK." ; spec:newRpn 168 ]
+        [ spec:type "PREVENT" ; spec:control "Module 5: Show dashboards + metrics. New role is measurable, visible." ]
+        [ spec:type "DETECT" ; spec:control "Week 11: track time-to-approval. Plot learning curve." ]
+        [ spec:type "REACT" ; spec:control "If curve isn't improving, mentor coach: what's the blocker?" ]
+    ) .
+
+:FM4_PilotFails a spec:FailureMode ;
+    rdfs:label "3 pilots fail (success metrics not met)" ;
+    spec:description "Pilot week 11: satisfaction <70% OR escalation rate >30% OR rework happens. Pilot failure signals full rollout won't work." ;
+    spec:severity 10 ;
+    spec:occurrence 3 ;
+    spec:detection 10 ;
+    spec:rpn 300 ;
+    spec:mitigation (
+        [ spec:type "PREVENT" ; spec:control "Select pilots carefully: volunteers, risk-takers, open to change" ; spec:newRpn 150 ]
+        [ spec:type "PREVENT" ; spec:control "Week 9-10 training: extra focus on pilots. Mentor with them daily." ]
+        [ spec:type "DETECT" ; spec:control "Week 11 daily metrics: escalation rate, decision quality, satisfaction pulse." ]
+        [ spec:type "REACT" ; spec:control "If pilot struggling mid-week, emergency mentor session. Adjust task difficulty." ]
+        [ spec:type "REACT" ; spec:control "If pilot failure confirmed by Friday: DON'T scale. Pivot: investigate root cause." ]
+    ) .
+
+:FM5_SkillsObsolete a spec:FailureMode ;
+    rdfs:label "Engineer fears skills are becoming obsolete" ;
+    spec:description "Fear that deep ops knowledge (deployment patterns, troubleshooting) won't matter anymore. Career stagnation." ;
+    spec:severity 7 ;
+    spec:occurrence 5 ;
+    spec:detection 6 ;
+    spec:rpn 210 ;
+    spec:mitigation (
+        [ spec:type "PREVENT" ; spec:control "Module 3: Explicit teaching: 'Your domain knowledge IS exception handling'" ; spec:newRpn 105 ]
+        [ spec:type "PREVENT" ; spec:control "Mentor 1-on-1: map engineer's existing skills to new role" ]
+        [ spec:type "DETECT" ; spec:control "Week 10 survey: ask about skill relevance perception" ]
+        [ spec:type "REACT" ; spec:control "If concern detected, career conversation: what does learning look like for YOU?" ]
+    ) .
+
+:FM6_CareerPathUnclear a spec:FailureMode ;
+    rdfs:label "Career path is unclear (3 leads chosen, but what about the other 17?)" ;
+    spec:description "Engineer: 'OK, I'm on new role. Then what? Where does this go?' Lack of visibility to next level causes disengagement." ;
+    spec:severity 6 ;
+    spec:occurrence 5 ;
+    spec:detection 7 ;
+    spec:rpn 210 ;
+    spec:mitigation (
+        [ spec:type "PREVENT" ; spec:control "Create lead role description BEFORE week 9. Transparency: how 3 are chosen." ; spec:newRpn 105 ]
+        [ spec:type "PREVENT" ; spec:control "Mentor 1-on-1: discuss personal growth. SRE paths, platform eng paths, policy architecture paths." ]
+        [ spec:type "DETECT" ; spec:control "Week 10 survey: 'Do you see a future in this role?' Red flag if <3/5" ]
+        [ spec:type "REACT" ; spec:control "If path unclear, manager + HR discussion: what does career growth look like?" ]
+    ) .
+
+# ============================================================================
+# COMPLETION CHECKLIST
+# ============================================================================
+
+:ProgramCompletion a spec:Checklist ;
+    rdfs:label "Program Completion Checklist (Weeks 9-12)" ;
+    spec:week9 (
+        [ spec:task "Curriculum spec (feature.ttl) finalized + approved" ]
+        [ spec:task "Training materials (Module 1 & 2 slides, videos, labs) delivered" ]
+        [ spec:task "20 engineers + 5 mentors ready for training" ]
+        [ spec:task "Testing environment set up + accessible" ]
+        [ spec:task "3 pilots identified + briefed" ]
+    ) ;
+    spec:week10 (
+        [ spec:task "All training modules (1-5) delivered + completed" ]
+        [ spec:task "All engineers complete post-training assessment >80%" ]
+        [ spec:task "All labs signed off by mentors" ]
+        [ spec:task "Week 11 parallel run schedule finalized + communicated" ]
+        [ spec:task "Pilot scorecard metrics dashboard live + ready" ]
+    ) ;
+    spec:week11 (
+        [ spec:task "All 20 engineers in parallel run (50% old + 50% new)" ]
+        [ spec:task "Daily metrics tracked (escalations, satisfaction)" ]
+        [ spec:task "Pilot week 1 survey completed + analyzed" ]
+        [ spec:task "Lessons learned from week 11: what's working? What needs adjustment?" ]
+        [ spec:task "Go/no-go decision on full switchover" ]
+    ) ;
+    spec:week12 (
+        [ spec:task "All 20 engineers fully on new role (old role deprecated)" ]
+        [ spec:task "3 leads identified + mentoring others" ]
+        [ spec:task "Post-switchover survey completed" ]
+        [ spec:task "SLO validation: incident response, uptime maintained" ]
+        [ spec:task "Retention check: 0 attrition" ]
+        [ spec:task "Post-program report: what worked, what to improve" ]
+    ) .

@@ -1,31 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [RDF & SPARQL Integration Guide](#rdf--sparql-integration-guide)
-  - [Oxigraph Triple Store](#oxigraph-triple-store)
-    - [Store Initialization](#store-initialization)
-    - [Triple Structure](#triple-structure)
-    - [Graph Caching & Invalidation](#graph-caching--invalidation)
-  - [SPARQL Query Execution](#sparql-query-execution)
-    - [Query Pattern: SELECT with FILTER](#query-pattern-select-with-filter)
-    - [Pattern: CONSTRUCT (Return RDF triples)](#pattern-construct-return-rdf-triples)
-    - [Pattern: ASK (Boolean query)](#pattern-ask-boolean-query)
-    - [Safe Query Execution](#safe-query-execution)
-  - [Template Integration with RDF](#template-integration-with-rdf)
-    - [RDF Metadata Frontmatter](#rdf-metadata-frontmatter)
-    - [SPARQL Queries in Templates](#sparql-queries-in-templates)
-    - [Tera Template Engine with RDF Context](#tera-template-engine-with-rdf-context)
-  - [Query Performance Optimization](#query-performance-optimization)
-    - [Index Strategy](#index-strategy)
-    - [Batch Operations](#batch-operations)
-  - [Critical Rules](#critical-rules)
-  - [Examples](#examples)
-    - [Marketplace Package Search](#marketplace-package-search)
-    - [Extract Dependency Graph](#extract-dependency-graph)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # RDF & SPARQL Integration Guide
 
 ## Oxigraph Triple Store

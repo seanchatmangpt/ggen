@@ -15,64 +15,54 @@
 //! 5. Handle file injection/merging if needed
 //! 6. Write output file
 //!
-//! ## Constants
+//! ## Examples
 //!
-//! **Kaizen improvement**: Extracted magic numbers to named constants for clarity and maintainability.
-/// Maximum length for sanitized environment variable keys
-const MAX_ENV_KEY_LENGTH: usize = 100;
-
-/// Maximum length for sanitized environment variable values
-const MAX_ENV_VALUE_LENGTH: usize = 10000;
-
-// ## Examples
-//
-// ### Basic Generation
-//
-// ```rust,no_run
-// use ggen_core::generator::{Generator, GenContext};
-// use ggen_core::pipeline::Pipeline;
-// use std::collections::BTreeMap;
-// use std::path::PathBuf;
-//
-// # fn main() -> ggen_utils::error::Result<()> {
-// let pipeline = Pipeline::new()?;
-// let ctx = GenContext::new(
-//     PathBuf::from("template.tmpl"),
-//     PathBuf::from("output")
-// ).with_vars({
-//     let mut vars = BTreeMap::new();
-//     vars.insert("name".to_string(), "MyApp".to_string());
-//     vars
-// });
-//
-// let mut generator = Generator::new(pipeline, ctx);
-// let output_path = generator.generate()?;
-// println!("Generated: {:?}", output_path);
-// # Ok(())
-// # }
-// ```
-//
-// ### Dry Run
-//
-// ```rust,no_run
-// use ggen_core::generator::{Generator, GenContext};
-// use ggen_core::pipeline::Pipeline;
-// use std::path::PathBuf;
-//
-// fn main() -> ggen_utils::error::Result<()> {
-//     let pipeline = Pipeline::new()?;
-//     let ctx = GenContext::new(
-//         PathBuf::from("template.tmpl"),
-//         PathBuf::from("output")
-//     ).dry(true); // Enable dry run mode
-//
-//     let mut generator = Generator::new(pipeline, ctx);
-//     let output_path = generator.generate()?;
-//     // File is not actually written in dry run mode
-//     println!("Generated (dry run): {}", output_path);
-//     Ok(())
-// }
-// ```
+//! ### Basic Generation
+//!
+//! ```rust,no_run
+//! use ggen_core::generator::{Generator, GenContext};
+//! use ggen_core::pipeline::Pipeline;
+//! use std::collections::BTreeMap;
+//! use std::path::PathBuf;
+//!
+//! # fn main() -> ggen_utils::error::Result<()> {
+//! let pipeline = Pipeline::new()?;
+//! let ctx = GenContext::new(
+//!     PathBuf::from("template.tmpl"),
+//!     PathBuf::from("output")
+//! ).with_vars({
+//!     let mut vars = BTreeMap::new();
+//!     vars.insert("name".to_string(), "MyApp".to_string());
+//!     vars
+//! });
+//!
+//! let mut generator = Generator::new(pipeline, ctx);
+//! let output_path = generator.generate()?;
+//! println!("Generated: {:?}", output_path);
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Dry Run
+//!
+//! ```rust,no_run
+//! use ggen_core::generator::{Generator, GenContext};
+//! use ggen_core::pipeline::Pipeline;
+//! use std::path::PathBuf;
+//!
+//! # fn main() -> ggen_utils::error::Result<()> {
+//! let pipeline = Pipeline::new()?;
+//! let ctx = GenContext::new(
+//!     PathBuf::from("template.tmpl"),
+//!     PathBuf::from("output")
+//! ).dry(true); // Enable dry run mode
+//!
+//! let mut generator = Generator::new(pipeline, ctx);
+//! let output_path = generator.generate()?;
+//! // File is not actually written in dry run mode
+//! # Ok(())
+//! # }
+//! ```
 
 use ggen_utils::error::Result;
 use std::collections::BTreeMap;
@@ -331,12 +321,12 @@ impl Generator {
                 let sanitized_key = k
                     .chars()
                     .filter(|c| !c.is_control())
-                    .take(MAX_ENV_KEY_LENGTH)
+                    .take(100)
                     .collect::<String>();
                 let sanitized_value = v
                     .chars()
                     .filter(|c| !c.is_control())
-                    .take(MAX_ENV_VALUE_LENGTH)
+                    .take(10000)
                     .collect::<String>();
                 (sanitized_key, sanitized_value)
             })
@@ -533,7 +523,6 @@ mod tests {
             .contains("output"));
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_generate_simple_template() {
         let (_temp_dir, template_path) = create_test_template(
@@ -601,7 +590,6 @@ to: "output/{{ name | lower }}.rs"
         assert!(!output_path.exists());
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_generate_with_default_output() {
         let (_temp_dir, template_path) = create_test_template(
@@ -631,7 +619,6 @@ to: "output/{{ name | lower }}.rs"
         assert!(content.contains("// Default output content"));
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_generate_with_nested_output_path() {
         let (_temp_dir, template_path) = create_test_template(
@@ -663,7 +650,6 @@ to: "src/{{ module }}/{{ name | lower }}.rs"
         assert!(content.contains("// Nested output content"));
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_generate_invalid_template() {
         let (_temp_dir, template_path) = create_test_template(
@@ -685,7 +671,6 @@ invalid_yaml: [unclosed
         assert!(result.is_err());
     }
 
-    #[allow(clippy::expect_used)]
     #[test]
     fn test_generate_missing_template_file() {
         let temp_dir = TempDir::new().expect("Failed to create temp dir");

@@ -1,31 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Infrastructure Setup Guide](#infrastructure-setup-guide)
-  - [Systems Overview](#systems-overview)
-    - [1. Template Discovery System (build.rs)](#1-template-discovery-system-buildrs)
-    - [2. API Versioning Helpers](#2-api-versioning-helpers)
-    - [3. Pre-Commit Hooks](#3-pre-commit-hooks)
-    - [4. Metrics Collection System](#4-metrics-collection-system)
-    - [5. Chicago TDD Test Templates](#5-chicago-tdd-test-templates)
-  - [CI/CD Integration](#cicd-integration)
-    - [GitHub Actions Workflow](#github-actions-workflow)
-    - [Daily Metrics Collection](#daily-metrics-collection)
-  - [Makefile.toml Additions](#makefiletoml-additions)
-  - [Maintenance](#maintenance)
-    - [Adding New Templates](#adding-new-templates)
-    - [Updating Metrics](#updating-metrics)
-    - [Customizing Pre-Commit Hooks](#customizing-pre-commit-hooks)
-  - [Troubleshooting](#troubleshooting)
-    - ["timeout command not found"](#timeout-command-not-found)
-    - [Build.rs fails to discover templates](#buildrs-fails-to-discover-templates)
-    - [Pre-commit hook not running](#pre-commit-hook-not-running)
-  - [Best Practices](#best-practices)
-  - [Support](#support)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Infrastructure Setup Guide
 
 This document describes the automated infrastructure systems that enable continuous quality improvement.
