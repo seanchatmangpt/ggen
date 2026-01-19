@@ -97,6 +97,6 @@ mod tests {
     #[test]
     fn test_version_is_set() {
         assert!(!VERSION.is_empty());
-        assert_eq!(VERSION, "3.3.0");
+        assert_eq!(VERSION, "0.2.0");
     }
 }
