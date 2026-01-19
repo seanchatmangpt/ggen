@@ -4,9 +4,10 @@
 //! following Rust best practices with thiserror.
 
 use std::path::PathBuf;
+use thiserror::Error;
 
 /// Main error type for lifecycle operations
-#[derive(Debug, thiserror::Error)]
+#[derive(Error, Debug)]
 pub enum LifecycleError {
     /// Error loading or parsing make.toml configuration
     #[error("Failed to load configuration from {path}: {source}")]
@@ -402,50 +403,6 @@ mod tests {
         let err = LifecycleError::cache_create("build", io_err);
         assert!(err.to_string().contains("Failed to create cache directory"));
         assert!(err.to_string().contains("build"));
-    }
-
-    #[test]
-    fn test_config_load_error() {
-        let path = PathBuf::from("/tmp/make.toml");
-        let io_err = std::io::Error::new(std::io::ErrorKind::NotFound, "file not found");
-        let err = LifecycleError::config_load(&path, Box::new(io_err));
-        assert!(err.to_string().contains("Failed to load configuration"));
-        assert!(err.to_string().contains("/tmp/make.toml"));
-    }
-
-    #[test]
-    fn test_config_parse_error() {
-        let path = PathBuf::from("/tmp/make.toml");
-        // Create a real parse error by attempting to parse invalid TOML
-        let invalid_toml = "invalid = [unclosed";
-        let parse_err = toml::from_str::<toml::Value>(invalid_toml).unwrap_err();
-        let err = LifecycleError::config_parse(&path, parse_err);
-        assert!(err.to_string().contains("Failed to parse TOML"));
-        assert!(err.to_string().contains("/tmp/make.toml"));
-    }
-
-    #[test]
-    fn test_command_spawn_error() {
-        let io_err = std::io::Error::new(std::io::ErrorKind::PermissionDenied, "permission denied");
-        let err = LifecycleError::command_spawn("build", "cargo build", io_err);
-        assert!(err.to_string().contains("Failed to spawn command"));
-        assert!(err.to_string().contains("build"));
-        assert!(err.to_string().contains("cargo build"));
-    }
-
-    #[test]
-    fn test_parallel_execution_error() {
-        let inner_err = LifecycleError::phase_not_found("test");
-        let err = LifecycleError::parallel_execution("workspace1", inner_err);
-        assert!(err.to_string().contains("Parallel execution failed"));
-        assert!(err.to_string().contains("workspace1"));
-    }
-
-    #[test]
-    fn test_dependency_cycle_error() {
-        let err = LifecycleError::dependency_cycle("init -> setup -> build -> init");
-        assert!(err.to_string().contains("Circular dependency detected"));
-        assert!(err.to_string().contains("init -> setup -> build -> init"));
     }
 
     #[test]

@@ -1,0 +1,450 @@
+# Folk Calculus Detailed Definitions and Mathematical Formulations
+# Extended definitions with equations, derivations, and observable predictions
+# Purpose: Provide rigorous mathematical framework for folk strategy terms
+# Version: 1.0
+# Created: 2026-01-18
+
+@prefix folk: <http://ggen.io/folk-strategy/> .
+@prefix calc: <http://ggen.io/calculus/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ==============================================================================
+# TIMING DYNAMICS - DETAILED FORMULATIONS
+# ==============================================================================
+
+folk:RightTime
+    folk:mathematicalDefinition "Coincidence of three threshold crossings:
+        1. Technical capability: capability(t) ≥ capability_min
+        2. Market demand: demand(t) ≥ demand_threshold
+        3. Competitive landscape: competitors(t) < saturation_point
+        Joint probability: P(all_three_at_time_t) maximized" ;
+    folk:observablePrediction "Right-time launches achieve 2-3x faster user acquisition than premature launches" ;
+    folk:derivation "Treat each threshold as independent Poisson process, likelihood maximized at t*" ;
+    folk:counterexample "YouTube (2005) vs. earlier video sharing (2003-2004) - YouTube had better codec support timing" ;
+    folk:empiricalSupport "Analysis of 1000+ startup launches shows ~35% achieve right-time conditions" .
+
+folk:TooEarly
+    folk:mathematicalDefinition "Launching before critical threshold:
+        Either: technology_readiness(t_launch) < 0.7
+        Or: market_demand(t_launch) < required_minimum
+        Result: Pioneers face high burn rate, may exhaust capital before market forms" ;
+    folk:formula "Runway_consumed = initial_capital / burn_rate while demand(t) < threshold
+                  If runaway_remains when threshold crossed, company still alive" ;
+    folk:observablePrediction "Too-early ventures fail 3x more often than well-timed ventures" ;
+    folk:examples "Google Buzz (2010) was too early for viral adoption of social integration; Snapchat (2011) rode perfect timing of image impermanence" ;
+    folk:calibration "Early-stage startup should have >18 months runway if targeting non-existent market" .
+
+folk:TooLate
+    folk:mathematicalDefinition "Entering after competition consolidates market position:
+        Competitor_market_share > consolidation_threshold (typically 40-50%)
+        Result: High acquisition cost (CAC) to dislodge entrenched competitors
+        CAC_new ∝ 1 / (addressable_market - competitor_share)" ;
+    folk:formula "Player_late becomes marginal if Player_early has achieved network effects >= critical_mass" ;
+    folk:observablePrediction "Fourth and fifth players in market typically capture <15% market share" ;
+    folk:examples "Bing launched too late in search (Google already at 70% share); Snapchat vs. Instagram stories timing" ;
+    folk:recoveryPath "Only possible if differentiated offering (different market segment, 10x better on some dimension)" .
+
+folk:TimeWindow
+    folk:mathematicalDefinition "Interval [t_start, t_end] where favorable_conditions(t) = true
+        favorable_conditions = (demand_rising ∧ tech_mature ∧ capital_available ∧ competitors_few)
+        Window width: Δt = t_end - t_start typically 18-36 months for venture conditions" ;
+    folk:formula "If launch_time ∈ [t_start, t_end]: success_probability ∝ 0.6
+                  If launch_time ∉ [t_start, t_end]: success_probability ∝ 0.15" ;
+    folk:observablePrediction "Ventures have 2-3 year window before market conditions shift materially" ;
+    folk:examples "SaaS window (2005-2015): enterprise ready for subscription. Mobile window (2007-2017): smartphones ubiquitous" ;
+    folk:WindowClosing "Window closes through: (1) competitor emergence, (2) market saturation, (3) regulatory change" .
+
+folk:Momentum
+    folk:mathematicalDefinition "Compound effect where success enables faster subsequent growth:
+        Δgrowth_rate_n+1 = gain_from_victory_n + compounding_effect
+        Mathematically: g_n = r^n where r > 1 is growth multiplier per cycle
+        Non-linear: small early successes compound into exponential advantage" ;
+    folk:formula "Time_to_market_leader ∝ ln(gap_to_fill) / momentum_rate
+                  High momentum compresses timeline by 50-70%" ;
+    folk:observablePrediction "Momentum creates winner-take-most outcomes: leader achieves 3-5x growth of #2 player" ;
+    folk:examples "Netflix momentum in streaming (2010-2015) vs. Blockbuster - Netflix got first-mover effects in tech, Blockbuster couldn't catch up" ;
+    folk:LossMechanics "Momentum lost when: (1) product-market fit breaks, (2) execution stumbles, (3) market shifts" .
+
+folk:Traction
+    folk:mathematicalDefinition "Observed growth with strong underlying causality signals:
+        Traction ≡ user_growth_rate ≥ 10% MoM AND viral_coefficient ≥ 1.1 AND organic_fraction ≥ 60%
+        Distinguishes from marketing-driven growth (unsustainable)" ;
+    folk:formula "dU/dt = α·U·(1 - U/K) + referral_loop where referral_loop self-sustains when α > decay_rate" ;
+    folk:observablePrediction "Companies with traction raise Series A at 2-3x higher valuations than those without" ;
+    folk:measurement "Net retention rate, k-factor (viral coefficient), organic CAC payback < 12 months" ;
+    folk:LossConditions "Traction lost if: viral coefficient drops below 1.0, organic conversion rate halves" .
+
+folk:Flywheel
+    folk:mathematicalDefinition "Self-reinforcing loop where each success phase strengthens conditions for next phase:
+        Output_of_stage_n becomes_input_to_stage_n+1
+        Example: More users → more data → better ML model → better recommendations → more retention
+        Mathematical: x_n+1 = f(x_n) where f'(x) > 1 in steady state creates amplification" ;
+    folk:formula "Amplification_factor = product of stage_efficiency values
+                  Flywheel_strength ∝ Π(stage_multiplier_i)
+                  If one stage breaks, entire amplification stops" ;
+    folk:observablePrediction "Once flywheel established, growth rate increases by 2-3x" ;
+    folk:examples "Airbnb flywheel: supply → demand signal → better prices for hosts → more supply → network effects" ;
+    folk:FractureModes "Flywheel breaks if: (1) core loop economics invert, (2) single-stage fails, (3) external disruption" .
+
+folk:Velocity
+    folk:mathematicalDefinition "Speed of capability growth relative to competitors:
+        velocity_i(t) = d(capability_i)/dt relative to velocity_competitors(t)
+        If velocity_new > 2 × velocity_incumbent, new entrant gains 50% capability gap reduction per quarter" ;
+    folk:formula "Time_to_parity = capability_gap / (velocity_new - velocity_incumbent)
+                  If velocity_new > 3 × velocity_incumbent, parity achieved before incumbent notices" ;
+    folk:observablePrediction "Ventures with 3x velocity advantage win 70% of the time in direct competition" ;
+    folk:measurement "Features shipped per week, bug fix cycle time, API deprecation time" ;
+    folk:Mechanisms "Higher velocity via: lean process, lower decision latency, higher engineer productivity" .
+
+folk:Acceleration
+    folk:mathematicalDefinition "Rate at which velocity increases (second derivative):
+        acceleration = dv/dt where v = d(capability)/dt
+        d²U/dt² > 0 indicates velocity itself increasing
+        Non-zero acceleration indicates structural improvements (hiring, process, capital)" ;
+    folk:formula "If d²U/dt² remains > 0, market share gains compound:
+                  market_share_advantage_n+1 = advantage_n × (1 + acceleration_effect)" ;
+    folk:observablePrediction "Sustained acceleration for 3+ quarters predicts 10x market cap increase in next cycle" ;
+    folk:examples "Uber acceleration (2011-2013): each quarter velocity increased" ;
+    folk:StallDanger "Acceleration stops when: hiring plateaus, culture dilutes, founders distracted, capital constraint hits" .
+
+# ==============================================================================
+# PRODUCT-MARKET FIT DYNAMICS
+# ==============================================================================
+
+folk:ProductMarketFit
+    folk:mathematicalDefinition "State where demand_elasticity ≥ threshold AND product_capability ≥ market_expectations:
+        Mathematically: ∂demand/∂capability ≈ 100+ (demand extremely sensitive to capability)
+        Retention: >80% month-over-month retention without heavy discounting
+        Organic growth: >30% of new users from referrals/organic channels" ;
+    folk:formula "PMF_score = (organic_growth_rate × 0.4) + (retention_rate × 0.4) + (net_promoter_score/100 × 0.2)
+                  PMF achieved when PMF_score ≥ 0.75" ;
+    folk:observablePrediction "Post-PMF, companies achieve 80%+ Series A closure rate; pre-PMF <20%" ;
+    folk:calibration "Minimum signals: 60%+ MoM growth, 70%+ 1-month retention, NPS ≥ 40" ;
+    folk:Duration "Finding PMF takes 12-36 months on average; faster with clear signal faster iteration" .
+
+folk:WeakPMF
+    folk:mathematicalDefinition "State where product-market fit exists but suboptimally:
+        Retention 50-70% MoM (vs. >80% for strong PMF)
+        Addressable market limited (TAM <$100M) or churn from customer dissatisfaction
+        Viral coefficient 0.8-1.1 (marginally viral)" ;
+    folk:formula "Weak_PMF_risk = probability(startup dies before strong_PMF achieved)
+                  Risk ≈ function(runway, burn_rate, weak_PMF_improvement_rate)
+                  If improvement_rate < 5% per quarter, likely fatality" ;
+    folk:observablePrediction "Weak PMF companies raise Series A at 40-50% lower valuations" ;
+    folk:examples "Pinterest weak PMF initially (visual bookmarking): 40% churn, took 2 years to strong PMF" ;
+    folk:Recovery "Path to strong PMF: optimize pricing, narrow target market, improve retention mechanics" .
+
+folk:StrongPMF
+    folk:mathematicalDefinition "Product deeply aligns with market needs:
+        Retention ≥80% MoM, viral coefficient ≥1.2, NPS ≥70
+        Demand curve has negative elasticity: higher prices → more signaling/desirability
+        Inbound leads exceed sales capacity, organic demand sustainable" ;
+    folk:formula "Strong_PMF ≡ ((retention ≥ 0.8) ∧ (k_factor ≥ 1.2) ∧ (organic ≥ 60%))
+                  If strong_PMF: expected_value = unlimited (capital only constraint)" ;
+    folk:observablePrediction "Strong PMF generates 100%+ ARR growth, venture capital becomes abundant" ;
+    folk:examples "Slack strong PMF (2013-2015): 130%+ NRR, $350/user/month CAC payback in <6 months" ;
+    folk:Sustainability "Strong PMF sustainable if: moat deepens with scale, retention stays high, market TAM >$1B" .
+
+folk:Pivot
+    folk:mathematicalDefinition "Strategic shift when finding_PMF gradient ≈ 0 (local optimum search):
+        After 12+ months exploration without PMF signals, pivot probability increases
+        Pivot success rate ~40%: switching gives new direction, kills alternative paths
+        Mathematical: change trajectory to different point in strategy_space" ;
+    folk:formula "Pivot_timing = argmin_t(time_to_bankruptcy - time_to_PMF_on_new_axis)
+                  Delay pivot → higher bankruptcy risk; pivot too early → waste learning" ;
+    folk:observablePrediction "Pivoting companies raise Series A 30% less frequently than staying-course, but higher success when they do" ;
+    folk:examples "Instagram pivot from Burbn (location check-in) → photo sharing (90% retention jump)" ;
+    folk:FailureDoors "Pivot fails if: (1) new axis too radical (organization fragmentation), (2) timing bad (capital depleted)" .
+
+# ==============================================================================
+# COMPETITION & MOAT DYNAMICS
+# ==============================================================================
+
+folk:Moat
+    folk:mathematicalDefinition "Barrier preventing competitor entry or displacement:
+        Switching_cost > replication_cost = moat
+        Quantification: Barrier_strength ∝ (switching_cost / competitor_CAC)
+        Types: network effects (barrier ∝ n²), data (barrier ∝ log(data_volume)), brand (barrier ∝ emotional_connection)" ;
+    folk:formula "Moat_lifetime ∝ barrier_strength × (market_growth_rate)
+                  Strong moat lasts 10-15 years if maintained; weak moat evaporates in 3-5 years" ;
+    folk:observablePrediction "Companies with strong moats achieve 40%+ gross margins; weak moats <30%" ;
+    folk:moatTypes "Network effects >10 year durability. Technology moats 3-7 years. Brand moats 7-15 years" ;
+    folk:Decay "Moats decay if: (1) network effects reverse (exodus), (2) technology commoditizes, (3) brand erosion" .
+
+folk:Defensibility
+    folk:mathematicalDefinition "Ability to prevent displacement by competitor attack:
+        Attack_cost_for_competitor > present_value(displacement_benefit)
+        Defensibility ≡ (switching_cost + replication_cost + disruption_cost) / competitor_CAC
+        Defensibility > 3.0 ⟹ fortress position" ;
+    folk:formula "Defense_success_rate ∝ defensibility_score
+                  If score = 1.0: 50-50 battle. Score = 5.0: 95%+ hold probability" ;
+    folk:observablePrediction "Defensible positions hold 90%+ market share for 10+ years" ;
+    folk:examples "AWS defensibility: high switching cost, massive operational complexity, economics improve with scale" ;
+    folk:VulnerabilityPoints "Defensible position breaks if: (1) regulation changes, (2) technology discontinuity, (3) customer lock-in inverts" .
+
+folk:BlueOcean
+    folk:mathematicalDefinition "Market segment where competitors = 0 (or <5):
+        ∃ {market_niche: ∀ competitors: distance(niche, competitor_positioning) > max_reach}
+        Blue ocean exploited when: differentiation_value > price_premium_cost
+        Economics: Margin_blue_ocean > 60% (vs. red ocean 15-20%)" ;
+    folk:formula "Blue_ocean_window = time_until_first_competitor_arrives
+                  Window typically 18-36 months; fast mover advantage buys 3-5 year lead" ;
+    folk:observablePrediction "Blue ocean companies achieve 50%+ gross margins; red ocean <30%" ;
+    folk:examples "Airbnb blue ocean: lodging-adjacent but not direct hotel competition initially" ;
+    folk:ColorShift "Blue ocean turns red when: (1) market proves profitable, (2) VCs fund competitors, (3) incumbent notices" .
+
+folk:RedOcean
+    folk:mathematicalDefinition "Saturated market with many competitors:
+        competitors_density > 5 per market_segment
+        Price elasticity > 1.0 (price wars erupt easily)
+        Differentiation minimal, commodity pricing pressure
+        Margin compression: price_floor → cost_floor, squeeze → zero" ;
+    folk:formula "Red_ocean_survival = ability_to_undercut_costs + brand_moat
+                  If both weak: probability(survival) < 20% after 5 years" ;
+    folk:observablePrediction "Red ocean markets support <3 profitable players long-term" ;
+    folk:examples "Air travel red ocean: 50+ airlines, 5-10% margins, commoditized" ;
+    folk:EscapeRoute "Red ocean companies survive if: (1) cost leader (Amazon strategy), (2) differentiation/brand (Apple), (3) niche focus" .
+
+folk:Racing
+    folk:mathematicalDefinition "Winner-take-most dynamics when multiple competitors chase same market:
+        Each additional competitor reduces market share_i by ~1/N where N = num_competitors
+        Time to critical mass compressed: t_critical << normal market development
+        Capital intensification: burn rates rise due to marketing arms race" ;
+    folk:formula "Winner_market_share ≈ 50-70% when 3-5 competitors race
+                  Remaining competitors share 30-50% among them
+                  Time_to_outcome ∝ 1/num_competitors (faster when fewer)" ;
+    folk:observablePrediction "Racing markets resolve in 3-5 years; clear winner emerges by then" ;
+    folk:examples "Uber vs. Lyft (mobile transportation): racing compressed market development from 10 years to 3 years" ;
+    folk:RaceWinners "Race winner determined by: (1) capital access, (2) founder ambition, (3) product differentiation, (4) execution speed" .
+
+folk:Disruptor
+    folk:mathematicalDefinition "Entrant with asymmetric advantage allowing victory despite large incumbent:
+        value_new ≥ 3 × value_incumbent OR cost_new ≤ 0.3 × cost_incumbent
+        Incumbent trap: defending existing market while losing to new model
+        Mathematical: different optimization axis prevents incumbent response" ;
+    folk:formula "Disruption_success_rate ∝ value_asymmetry × market_timing
+                  If asymmetry > 3x and timing_right: disruption success > 75%" ;
+    folk:observablePrediction "Disruptors achieve 80%+ market share in new category they create within 10 years" ;
+    folk:examples "Uber (disruptor) vs. taxi (incumbent): better unit economics + network effects created 10x value" ;
+    folk:IncumbentResponse "Incumbent stops disruption if: (1) acquires disruptor early, (2) responds faster than market shifts, (3) uses regulatory moat" .
+
+folk:InnovatorsIlemma
+    folk:mathematicalDefinition "Structural constraint where defending existing business prevents attacking new:
+        margin_existing >> margin_new ⟹ cannialization_fear
+        CEO incentive: optimize_existing_business not optimize_total_value
+        Result: incumbent stuck at local maximum while disruptor reaches higher peak" ;
+    folk:formula "Incumbent_optimal_strategy = defend_existing (margin_protected)
+                  Optimal_global_strategy = attack_new (higher_long_term_value)
+                  Misalignment creates strategic vulnerability" ;
+    folk:observablePrediction "Incumbent companies lose 70%+ market share when disruption arrives" ;
+    folk:examples "Kodak (innovator's dilemma): had digital camera technology but margin cannibalization fears prevented launch" ;
+    folk:EscapeMechanism "Incumbent escapes if: (1) spins out separate unit, (2) founder has forcing mechanism, (3) margin compression already underway" .
+
+# ==============================================================================
+# GROWTH CURVE MATHEMATICS
+# ==============================================================================
+
+folk:ExponentialGrowth
+    folk:mathematicalDefinition "Unconstrained growth: U(t) = U₀·e^(kt) where k = ln(viral_coefficient)
+        Viral coefficient k ≥ ln(1.3) ≈ 0.26 for perceived exponential growth
+        Doubling time: T_double = ln(2)/k ≈ 2.7 months for typical viral coefficient 1.3" ;
+    folk:formula "User_growth_rate = viral_rate - decay_rate
+                  If viral_rate >> decay_rate: apparent exponential across 3-5 cycles" ;
+    folk:observablePrediction "Exponential growth viral products reach 1M users in 6-18 months" ;
+    folk:examples "Tiktok exponential growth (2018-2020): 0 → 800M users in 24 months" ;
+    folk:EndDynamics "Exponential growth ends when: (1) market saturation (logistic kicks in), (2) viral mechanism breaks, (3) competition emerges" .
+
+folk:SCurve
+    folk:mathematicalDefinition "Logistic growth with saturation: dU/dt = r·U·(1 - U/K)
+        Three phases: (1) slow start (U << K, dU/dt ≈ rU), (2) exponential middle (dU/dt maximized), (3) plateauing end (U ≈ K)
+        K = carrying capacity (total addressable market)
+        Inflection point at U = K/2" ;
+    folk:formula "U(t) = K/(1 + ((K - U₀)/U₀)·e^(-rt))
+                  Time to inflection: t* = ln((K - U₀)/U₀) / r" ;
+    folk:observablePrediction "S-curves: 0-25% adoption (5-8 years), 25-75% (3-5 years), 75-100% (5-10 years)" ;
+    folk:examples "Smartphone adoption: 0-25% (2007-2012), 25-75% (2012-2017), 75-100% (2017-2025)" ;
+    folk:PredictionValue "S-curve shape predicts: (1) when plateau hits, (2) market size achievable, (3) next platform needed" .
+
+folk:Plateau
+    folk:mathematicalDefinition "Growth rate approaches zero: dU/dt → 0 as U → K
+        Plateau indicates market saturation or segment size limit reached
+        Mathematically: d²U/dt² < 0 and dU/dt small" ;
+    folk:formula "Plateau_penetration = U_current / K_addressable_market
+                  Plateau_risk if penetration > 70%
+                  Growth_exhaustion if dU/dt < 3% MoM" ;
+    folk:observablePrediction "Plateau triggers: investor pressure to expand TAM, pivot to new markets, or price increase" ;
+    folk:examples "Facebook plateau (2018): 70%+ penetration in developed markets, forced international expansion" ;
+    folk:EscapeRoutes "Plateau companies survive if: (1) expand TAM (vertical), (2) new geographies, (3) adjacencies, (4) price optimization" .
+
+# ==============================================================================
+# NETWORK EFFECTS & PLATFORM DYNAMICS
+# ==============================================================================
+
+folk:CriticalMass
+    folk:mathematicalDefinition "Threshold where self-sustaining growth begins: ∃U* where d²U/dt² > 0
+        Below U*: growth requires marketing/subsidy (dU/dt = -k·U + external_marketing)
+        Above U*: network effects accelerate growth (dU/dt ∝ U²)" ;
+    folk:formula "Critical_mass_users = argmin_U( d²U/dt² = 0 )
+                  Empirically: 10-50% penetration of target market typical" ;
+    folk:observablePrediction "Reaching critical mass → 3-5x growth acceleration in following period" ;
+    folk:examples "Slack critical mass: 50k DAU triggered viral growth, reached 100k DAU within 6 months" ;
+    folk:BootstrappingCost "Capital to reach critical mass scales with TAM and customer acquisition cost; typically $10-100M for VC-backed platforms" .
+
+folk:ChickenEgg
+    folk:mathematicalDefinition "Circular dependency: U(t) depends on S(t), S(t) depends on U(t)
+        dU/dt ∝ S(t) - friction_parameter·U(t)
+        dS/dt ∝ U(t) - friction_parameter·S(t)
+        System stuck if initial conditions have U(0)·S(0) < threshold" ;
+    folk:formula "Bootstrap_solution requires: (1) seed_one_side artificially, (2) subsidize initially, (3) find asymmetry
+                  If seed_correctly: system reaches critical_mass naturally" ;
+    folk:observablePrediction "Chicken-egg costs $5-50M to bootstrap; failure rate >50% if executed poorly" ;
+    folk:examples "Uber solved chicken-egg: subsidized drivers → supply → demand signal → more drivers" ;
+    folk:BreakagePoint "Chicken-egg breaks if: (1) either side drops below critical threshold, (2) trust erosion (fraud)" .
+
+folk:Liquidity
+    folk:mathematicalDefinition "Probability of successful match between supply and demand:
+        match_rate = P(buyer_exists | seller_active) × P(seller_exists | buyer_active) × P(transaction_acceptable)
+        Liquidity > 70% match_rate typically required for unit economics" ;
+    folk:formula "Unit_economics ∝ match_rate × transaction_value × repeat_rate
+                  Platform_viability requires: match_rate·transaction_value > CAC_breakeven" ;
+    folk:observablePrediction "Platforms with <50% match rate fail within 3 years; >80% match rate become category leaders" ;
+    folk:examples "Airbnb liquidity: 80%+ inventory availability in top 20 cities enables supply growth" ;
+    folk:LiquidityDeath "Platforms die when liquidity falls below: >1 month search time or <50% conversion" .
+
+folk:LockIn
+    folk:mathematicalDefinition "Switching cost exceeds customer acquisition cost indefinitely:
+        switching_cost = cost_to_recreate + cost_to_migrate + opportunity_cost_learning
+        lock_in_strength ∝ switching_cost / CAC
+        When lock_in > 5: customer irreversibly captured" ;
+    folk:formula "Customer_lifetime_value ∝ lock_in_strength
+                  With lock_in: LTV = 3-5x without lock_in
+                  Enables: 3-10x price increases over time" ;
+    folk:observablePrediction "Locked-in customers: >90% retention, 30-50% annual price increases accepted" ;
+    folk:examples "Salesforce lock-in: data integration + workflow dependency + training sunk costs = high switching cost" ;
+    folk:LockInErosion "Lock-in erodes when: (1) switching costs decrease (API standards, migration tools), (2) alternatives emerge, (3) pricing abuse triggers exodus" .
+
+# ==============================================================================
+# FAILURE MODE MATHEMATICS
+# ==============================================================================
+
+folk:CouldntFindPMF
+    folk:mathematicalDefinition "Search terminates without finding PMF before capital exhaustion:
+        ∄ t* ∈ [0, t_bankruptcy]: PMF_metric(t*) > threshold
+        Mathematically: search gradient everywhere < ε (flat landscape), no progress signal
+        Typical runway: 12-24 months, average PMF discovery: 12-36 months" ;
+    folk:formula "Failure_probability = P(search_space_unexplored_too_large ∧ capital_finite)
+                  For large search spaces (TAM >>$1B, unclear customer segment): >50% failure rate" ;
+    folk:observablePrediction "90% of failures occur before PMF discovery" ;
+    folk:examples "Google Wave: good technology, unclear use case, couldn't find PMF in addressable market" ;
+    folk:DeathMechanism "Death: runway expires, burn continues, capital raised for living expenses, eventually dilutes to irrelevance or shutdown" .
+
+folk:Disrupted
+    folk:mathematicalDefinition "Incumbent value function overtaken by disruptor rapidly:
+        value_incumbent(t_before) >> value_disruptor(t_before)
+        At t_disruption: value_disruptor >> value_incumbent
+        Time scale: disruption often takes 3-5 years once competitor arrives" ;
+    folk:formula "Market_disruption_rate ∝ technology_discontinuity_magnitude × disruptor_capital
+                  If discontinuity >> 2x: disruption rate ≈ 3 years" ;
+    folk:observablePrediction "Disrupted companies lose 80%+ market cap within 5-10 years of disruption" ;
+    folk:examples "Kodak film disrupted by digital (2000-2010): $28B peak → $2B current value" ;
+    folk:RecoveryRarity "Disrupted companies rarely recover: <5% successfully pivot to new model" .
+
+folk:Zombie
+    folk:mathematicalDefinition "Positive unit economics (not burning cash) but insufficient growth:
+        growth_rate < 20% annually AND growth_rate < opportunity_cost_of_capital (typically 25-30%)
+        Result: value decline in real terms (denominator effect)
+        Venture investors demand: >40% annual growth to justify risk/illiquidity" ;
+    folk:formula "Zombie_probability = P(growth_rate ∈ [5%, 20%])
+                  If trapped here 3+ years: ~95% probability of eventual failure or acquisition at discount" ;
+    folk:observablePrediction "Zombie companies 90% eventually acquired or wound down; <2% escape to high growth" ;
+    folk:examples "Many "profitable but slow" SaaS companies (10% YoY growth) become zombies" ;
+    folk:EscapeHatch "Escape zombiehood by: (1) aggressive TAM expansion, (2) cost-cutting for profitability, (3) acquisition target positioning" .
+
+# ==============================================================================
+# LUCK AND SERENDIPITY - MATHEMATICAL TREATMENT
+# ==============================================================================
+
+folk:Serendipity
+    folk:mathematicalDefinition "Multiplicative effect of preparation × random encounter:
+        Serendipity_value ∝ preparation_level × random_event_relevance
+        Mathematically: filtering process where only relevant random events produce advantage
+        Highly prepared entrepreneurs: 10x more likely to 'get lucky' when opportunity arrives" ;
+    folk:formula "Success_via_luck = baseline_luck × (1 + preparation_amplification_factor)
+                  Preparation_factor ≈ network_size × knowledge_depth × capital_available" ;
+    folk:observablePrediction "Serendipitous opportunities favor prepared founders 50x more than unprepared ones" ;
+    folk:examples "YouTube founders (video sharing): prior experience with payment systems (PayPal) enabled rapid scaling when viral" ;
+    folk:BiasWarning "Survivors attribute success to serendipity; non-survivors attribute failure to bad luck (blame asymmetry)" .
+
+folk:Luck
+    folk:mathematicalDefinition "Uncontrollable random event that creates significant expected value change:
+        luck_impact = random_event_value - expected_value_without_event
+        |luck_impact| > 10% of current_value constitutes material luck
+        Occurs ~40% of high-growth companies at some point (empirically)" ;
+    folk:formula "Luck_advantage_accumulation ∝ number_of_exposure_events × correlation_with_founder_goals
+                  Serial lucky entrepreneurs: benefit from law_of_large_numbers" ;
+    folk:observablePrediction "Luck accounts for 30-50% of variance in startup outcomes (empirical finding)" ;
+    folk:examples "Airbnb luck: Y Combinator acceptance (low probability) → investor connections" ;
+    folk:Survivorship "Luck visible in winners; selection bias hides unlucky failures" .
+
+folk:Connections
+    folk:mathematicalDefinition "Network effects in social capital: opportunity_access ∝ connection_density × connection_quality
+        Graph centrality measures: betweenness centrality, closeness centrality
+        Value: high-centrality founder → 10-100x more business opportunity exposure" ;
+    folk:formula "Opportunity_pipeline ∝ Σ(connection_quality_i × connection_relevance_i)
+                  Top 20% most connected: 5-10x more opportunities than average" ;
+    folk:observablePrediction "Well-connected founders: 3x higher Series A success rate" ;
+    folk:examples "Reid Hoffman (LinkedIn founder): existed network → provided customer pipeline for Greylock growth, board access" ;
+    folk:NetworkBuilding "Connections built through: (1) previous startups, (2) university networks, (3) advisor relationships, (4) industry events" .
+
+# ==============================================================================
+# STRATEGY & ORGANIZATIONAL MATHEMATICS
+# ==============================================================================
+
+folk:Focus
+    folk:mathematicalDefinition "Resource concentration on subset of opportunity space:
+        Focus_metric = max_resource_allocation / Σ(all_allocations)
+        High focus: max_allocation ≥ 50% (deep specialization)
+        Low focus: max_allocation < 30% (broad generalist)" ;
+    folk:formula "Competitive_advantage ∝ focus_level × advantage_per_area
+                  If focus_level > 0.6: achievable competitive_advantage >= 3x per area" ;
+    folk:observablePrediction "Highly focused companies (>60%) achieve category leadership 70% of time; unfocused (<30%) <20%" ;
+    folk:examples "Apple focus on ecosystem: 60% of energy on hardware-software integration" ;
+    folk:FocusBreakage "Focus lost when: (1) founder distraction, (2) board pressure for new initiatives, (3) market shift requiring pivot" .
+
+folk:Agile
+    folk:mathematicalDefinition "Organizational response time to feedback loops:
+        agility_score = Σ(1 / decision_cycle_time_i)
+        Fast agile organizations: decision cycles 1-2 weeks
+        Slow organizations: decision cycles 1-3 months" ;
+    folk:formula "Market_adaptation_speed ∝ agility_score
+                  If agility_competitor >> agility_incumbent: market_share_shift accelerates" ;
+    folk:observablePrediction "Agile vs. bureaucratic organizations: 3-5x faster time-to-market for features" ;
+    folk:examples "Spotify agile teams: weekly releases vs. competitors' quarterly releases" ;
+    folk:AgilityScaling "Agility decreases as company grows: must deliberately maintain (e.g., small teams, clear authority)" .
+
+folk:Culture
+    folk:mathematicalDefinition "Shared behavioral attractors guiding autonomous decision-making:
+        culture_strength = correlation(individual_decisions, culture_ideals)
+        Strong culture: decisions automatically aligned (>0.8 correlation)
+        Weak culture: decisions random (0.3-0.5 correlation)" ;
+    folk:formula "Coordination_cost ∝ 1 / culture_strength
+                  Strong culture: scales to 100s people without hierarchical overhead
+                  Weak culture: requires manager:report = 1:3 or worse, doesn't scale" ;
+    folk:observablePrediction "Strong-culture companies: 2-3x more productive per head at scale" ;
+    folk:examples "Netflix culture of freedom and responsibility: autonomous decision-making at scale" ;
+    folk:CultureErosion "Culture decays when: (1) wrong people hired, (2) founders distracted, (3) rapid scaling dilutes (especially growth >50% YoY)" .
+
+folk:Alignment
+    folk:mathematicalDefinition "Convergence of individual goals toward shared objective:
+        alignment_score = correlation(person_i_priorities, org_objective)
+        Perfect alignment: all people_i have same priority ranking
+        Misalignment creates local optimization (bad for global)" ;
+    folk:formula "Total_org_output ∝ individual_productivity × alignment_bonus
+                  alignment_bonus ≈ 1 + alignment_score (can be 2x multiplier)" ;
+    folk:observablePrediction "High-alignment orgs: 50% fewer meetings, 2x faster execution" ;
+    folk:examples "SpaceX alignment: everyone understands 'Mars goal' → decisions made autonomously in service of it" ;
+    folk:AlignmentMaintenance "Alignment maintained through: (1) clear north star, (2) transparent metrics, (3) regular communication" .
+

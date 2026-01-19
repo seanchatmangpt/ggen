@@ -1,0 +1,694 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix auth: <http://ggen.io/authority/> .
+
+# =============================================================================
+# SHACL SHAPES: Authority Model Validation
+#
+# These shapes enforce:
+# - Required fields (non-negotiable for legal defensibility)
+# - Datatype constraints (timestamps must be ISO 8601)
+# - Cardinality rules (1:1, 1:N relationships)
+# - Temporal consistency (timestamps in logical order)
+# - Reference integrity (no dangling pointers)
+# - Hash verification (SHA-256 format)
+#
+# Philosophy: "Catch schema violations at write time, not at audit time"
+# =============================================================================
+
+# =============================================================================
+# POLICY SHAPE: Root governance document
+# =============================================================================
+
+auth:PolicyShape a sh:NodeShape ;
+    sh:targetClass auth:Policy ;
+    sh:nodeKind sh:IRI ;
+    sh:message "Invalid Policy" ;
+
+    # Required fields
+    sh:property [
+        sh:path auth:policyId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Policy must have exactly one policyId (non-empty string)" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:currentVersion ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class auth:PolicyVersion ;
+        sh:message "Policy must have exactly one current version (pointer to PolicyVersion)" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:hasVersionHistory ;
+        sh:minCount 1 ;
+        sh:class auth:PolicyVersion ;
+        sh:message "Policy must have at least one version in history" ;
+    ] ;
+
+    # Referential integrity: currentVersion must be in hasVersionHistory
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Policy.currentVersion must be in Policy.hasVersionHistory" ;
+        sh:select """
+            PREFIX auth: <http://ggen.io/authority/>
+            SELECT $this ?current WHERE {
+                $this auth:currentVersion ?current .
+                FILTER NOT EXISTS {
+                    $this auth:hasVersionHistory ?current .
+                }
+            }
+        """ ;
+    ] .
+
+# =============================================================================
+# POLICY VERSION SHAPE: Immutable snapshot
+# =============================================================================
+
+auth:PolicyVersionShape a sh:NodeShape ;
+    sh:targetClass auth:PolicyVersion ;
+    sh:nodeKind sh:IRI ;
+    sh:message "Invalid PolicyVersion" ;
+
+    # Immutable fields - all required
+    sh:property [
+        sh:path auth:versionNumber ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9]+\\.[0-9]+\\.[0-9]+$" ;
+        sh:message "Version must be semantic version (e.g., '1.0.0')" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:policyContent ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Policy must have non-empty content" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:contentHash ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[A-Za-z0-9+/=]{44}$" ;
+        sh:message "Content hash must be base64-encoded SHA-256 (44 chars)" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:createdAt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Policy version must have creation timestamp (ISO 8601)" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:createdBy ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class auth:Actor ;
+        sh:message "Policy version must identify the author" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:appliesTo ;
+        sh:minCount 1 ;
+        sh:class auth:PolicyDomain ;
+        sh:message "Policy must apply to at least one domain" ;
+    ] ;
+
+    # Optional but recommended
+    sh:property [
+        sh:path auth:rationale ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Rationale must be string" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:linkedChangeRequest ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Change request must be a URI" ;
+    ] ;
+
+    # Temporal constraints
+    sh:property [
+        sh:path auth:effectiveFrom ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Effective from must be ISO 8601 timestamp" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:effectiveUntil ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Effective until must be ISO 8601 timestamp" ;
+    ] ;
+
+    # Constraint: effectiveUntil must be >= effectiveFrom (if both present)
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "effectiveUntil must be >= effectiveFrom" ;
+        sh:select """
+            PREFIX auth: <http://ggen.io/authority/>
+            SELECT $this WHERE {
+                $this auth:effectiveFrom ?from ;
+                       auth:effectiveUntil ?until .
+                FILTER (?until < ?from)
+            }
+        """ ;
+    ] ;
+
+    # Constraint: createdAt should be before effectiveFrom (or equal)
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Policy must be created before it takes effect" ;
+        sh:select """
+            PREFIX auth: <http://ggen.io/authority/>
+            SELECT $this WHERE {
+                $this auth:createdAt ?created ;
+                       auth:effectiveFrom ?effective .
+                FILTER (?created > ?effective)
+            }
+        """ ;
+    ] ;
+
+    # Signatures optional but if present, link back to version
+    sh:property [
+        sh:path auth:hasSignature ;
+        sh:class auth:PolicySignature ;
+        sh:message "Signatures must be PolicySignature type" ;
+    ] .
+
+# =============================================================================
+# SIGNATURE SHAPE: Cryptographic proof of approval
+# =============================================================================
+
+auth:PolicySignatureShape a sh:NodeShape ;
+    sh:targetClass auth:PolicySignature ;
+    sh:nodeKind sh:IRI ;
+    sh:message "Invalid PolicySignature" ;
+
+    # Required fields for non-repudiation
+    sh:property [
+        sh:path auth:signedVersion ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class auth:PolicyVersion ;
+        sh:message "Signature must reference the PolicyVersion it approves" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:signedBy ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class auth:Actor ;
+        sh:message "Signature must identify who signed (for non-repudiation)" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:signatureTimestamp ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Signature must have timestamp (ISO 8601)" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:signatureAlgorithm ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "RSA-SHA256" "ECDSA-SHA256" "RSA-SHA512" "ECDSA-SHA512" ) ;
+        sh:message "Signature algorithm must be supported (RSA-SHA256, ECDSA-SHA256, etc.)" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:signatureValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 50 ;
+        sh:message "Signature value must be non-empty base64 (minimum 50 chars)" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:certificateReference ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Certificate reference must be a URI (for verification)" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:signatureStatus ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "VALID" "REVOKED" "EXPIRED" "PENDING_VERIFICATION" ) ;
+        sh:message "Signature status must be one of: VALID, REVOKED, EXPIRED, PENDING_VERIFICATION" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:signingAuthority ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class auth:AuthorityLevel ;
+        sh:message "Signature must reference the authority that permitted it" ;
+    ] ;
+
+    # Temporal constraint: signatureTimestamp must be >= createdAt of version
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Signature timestamp must be >= policy creation time" ;
+        sh:select """
+            PREFIX auth: <http://ggen.io/authority/>
+            SELECT $this WHERE {
+                $this auth:signedVersion ?ver ;
+                       auth:signatureTimestamp ?sigTime .
+                ?ver auth:createdAt ?created .
+                FILTER (?sigTime < ?created)
+            }
+        """ ;
+    ] ;
+
+    # Optional field for multi-approval workflows
+    sh:property [
+        sh:path auth:multiApprovalRound ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Approval round must be positive integer if specified" ;
+    ] .
+
+# =============================================================================
+# AUDIT EVENT SHAPE: Immutable forensics log
+# =============================================================================
+
+auth:AuditEventShape a sh:NodeShape ;
+    sh:targetClass auth:AuditEvent ;
+    sh:nodeKind sh:IRI ;
+    sh:message "Invalid AuditEvent" ;
+
+    # Required fields for forensics
+    sh:property [
+        sh:path auth:eventId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" ;
+        sh:message "Event ID must be UUID format" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:eventTimestamp ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Event timestamp required (ISO 8601)" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:eventActor ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class auth:Actor ;
+        sh:message "Event must identify the actor (who performed action)" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:eventType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in (
+            "POLICY_CREATED"
+            "POLICY_MODIFIED"
+            "POLICY_EXECUTED"
+            "EXECUTION_DENIED"
+            "SIGNATURE_ADDED"
+            "AUTHORITY_GRANTED"
+            "AUTHORITY_REVOKED"
+            "AUTHORITY_EXPIRED"
+        ) ;
+        sh:message "Event type must be one of standard event types" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:targetResource ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Target resource must be a URI" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:eventStatus ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "SUCCESS" "DENIED" "FAILED" ) ;
+        sh:message "Event status must be SUCCESS, DENIED, or FAILED" ;
+    ] ;
+
+    # Reason required for DENIED/FAILED
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "DENIED or FAILED events must have denialReason" ;
+        sh:select """
+            PREFIX auth: <http://ggen.io/authority/>
+            SELECT $this WHERE {
+                $this auth:eventStatus ?status .
+                FILTER (?status IN ("DENIED", "FAILED"))
+                FILTER NOT EXISTS { $this auth:denialReason ?reason . }
+            }
+        """ ;
+    ] ;
+
+    # Optional chain pointer
+    sh:property [
+        sh:path auth:previousEvent ;
+        sh:maxCount 1 ;
+        sh:class auth:AuditEvent ;
+        sh:message "Previous event must be an AuditEvent" ;
+    ] ;
+
+    # Related resources (optional)
+    sh:property [
+        sh:path auth:relatedPolicy ;
+        sh:maxCount 1 ;
+        sh:class auth:Policy ;
+        sh:message "Related policy must be a Policy" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:relatedSignature ;
+        sh:maxCount 1 ;
+        sh:class auth:PolicySignature ;
+        sh:message "Related signature must be a PolicySignature" ;
+    ] ;
+
+    # Optional metadata
+    sh:property [
+        sh:path auth:sourceIpAddress ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^(\\d{1,3}\\.){3}\\d{1,3}$|^[0-9a-f:]+$" ;
+        sh:message "IP address must be IPv4 or IPv6 format" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:userAgent ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "User agent must be string" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:eventReason ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Reason must be string" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:targetResourceBefore ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Before state must be string" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:targetResourceAfter ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "After state must be string" ;
+    ] .
+
+# =============================================================================
+# AUTHORITY LEVEL SHAPE: Role definition with governance rules
+# =============================================================================
+
+auth:AuthorityLevelShape a sh:NodeShape ;
+    sh:targetClass auth:AuthorityLevel ;
+    sh:nodeKind sh:IRI ;
+    sh:message "Invalid AuthorityLevel" ;
+
+    # Required identification
+    sh:property [
+        sh:path auth:authorityId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Authority must have unique ID" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:authorityName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Authority must have descriptive name" ;
+    ] ;
+
+    # Scope constraints
+    sh:property [
+        sh:path auth:canApproveDomains ;
+        sh:minCount 1 ;
+        sh:class auth:PolicyDomain ;
+        sh:message "Authority must specify which domains it can approve" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:approvalRiskLevel ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "CRITICAL" "HIGH" "MEDIUM" "LOW" ) ;
+        sh:message "Risk level must be CRITICAL, HIGH, MEDIUM, or LOW" ;
+    ] ;
+
+    # Multi-signature rules
+    sh:property [
+        sh:path auth:requiresMultipleSignatures ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Must specify if multi-signature required" ;
+    ] ;
+
+    # If multi-sig required, must specify count
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "If requiresMultipleSignatures=true, requiredSignatureCount must be >=2" ;
+        sh:select """
+            PREFIX auth: <http://ggen.io/authority/>
+            SELECT $this WHERE {
+                $this auth:requiresMultipleSignatures true .
+                FILTER NOT EXISTS {
+                    $this auth:requiredSignatureCount ?count .
+                    FILTER (?count >= 2)
+                }
+            }
+        """ ;
+    ] ;
+
+    sh:property [
+        sh:path auth:requiredSignatureCount ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:message "Signature count must be positive integer" ;
+    ] ;
+
+    # Temporal validity
+    sh:property [
+        sh:path auth:authorityValidFrom ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Valid from must be ISO 8601 timestamp" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:authorityValidUntil ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Valid until must be ISO 8601 timestamp" ;
+    ] ;
+
+    # Delegation rules
+    sh:property [
+        sh:path auth:canDelegate ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Delegation flag must be boolean" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:delegatesTo ;
+        sh:maxCount 1 ;
+        sh:class auth:Actor ;
+        sh:message "Delegate must be an Actor" ;
+    ] ;
+
+    # Optional description
+    sh:property [
+        sh:path auth:authorityDescription ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Description must be string" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:canExecuteInDomains ;
+        sh:class auth:PolicyDomain ;
+        sh:message "Execution domains must be PolicyDomain type" ;
+    ] .
+
+# =============================================================================
+# POLICY DOMAIN SHAPE: Governance scope + compliance mapping
+# =============================================================================
+
+auth:PolicyDomainShape a sh:NodeShape ;
+    sh:targetClass auth:PolicyDomain ;
+    sh:nodeKind sh:IRI ;
+    sh:message "Invalid PolicyDomain" ;
+
+    # Required identification
+    sh:property [
+        sh:path auth:domainId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Domain must have unique ID" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:domainName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Domain must have descriptive name" ;
+    ] ;
+
+    # Risk classification
+    sh:property [
+        sh:path auth:riskLevel ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "CRITICAL" "HIGH" "MEDIUM" "LOW" ) ;
+        sh:message "Risk level must be CRITICAL, HIGH, MEDIUM, or LOW" ;
+    ] ;
+
+    # Compliance mapping
+    sh:property [
+        sh:path auth:complianceFrameworks ;
+        sh:datatype xsd:string ;
+        sh:message "Compliance framework must be string" ;
+    ] ;
+
+    # Optional metadata
+    sh:property [
+        sh:path auth:domainDescription ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Description must be string" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:owningTeam ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Owning team must be string" ;
+    ] .
+
+# =============================================================================
+# ACTOR SHAPE: Identity + accountability
+# =============================================================================
+
+auth:ActorShape a sh:NodeShape ;
+    sh:targetClass auth:Actor ;
+    sh:nodeKind sh:IRI ;
+    sh:message "Invalid Actor" ;
+
+    # Required fields
+    sh:property [
+        sh:path auth:actorId ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Actor must have unique ID (LDAP, OAuth, service account)" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:actorType ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:in ( "HUMAN" "SERVICE" "SYSTEM" ) ;
+        sh:message "Actor type must be HUMAN, SERVICE, or SYSTEM" ;
+    ] ;
+
+    sh:property [
+        sh:path auth:actorName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Actor must have display name" ;
+    ] ;
+
+    # Humans and services should have email
+    sh:property [
+        sh:path auth:actorEmail ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[^\\s@]+@[^\\s@]+$" ;
+        sh:message "If email present, must be valid format" ;
+    ] ;
+
+    # Authority assignments
+    sh:property [
+        sh:path auth:hasAuthority ;
+        sh:class auth:AuthorityLevel ;
+        sh:message "Authority must be AuthorityLevel type" ;
+    ] ;
+
+    # Activity status
+    sh:property [
+        sh:path auth:isActive ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+        sh:message "Active flag must be boolean" ;
+    ] ;
+
+    # Cryptographic identity
+    sh:property [
+        sh:path auth:publicKeyFingerprint ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[A-Fa-f0-9]{64}$" ;
+        sh:message "Public key fingerprint must be SHA-256 hex (64 chars)" ;
+    ] .
+
+# =============================================================================
+# END SHAPES
+# =============================================================================
+

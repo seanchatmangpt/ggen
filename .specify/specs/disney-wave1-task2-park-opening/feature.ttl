@@ -1,0 +1,809 @@
+@prefix : <http://ggen.example.org/disney/park-opening#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fibo-fnd: <https://spec.edmcouncil.org/fibo/ontology/FND/> .
+@prefix process: <http://ggen.example.org/process#> .
+@prefix actor: <http://ggen.example.org/actor#> .
+@prefix system: <http://ggen.example.org/system#> .
+
+# ============================================================================
+# PARK OPENING CHECKLIST PROCESS (Gap 1: Killer Workflow)
+# Reverse-Engineered from Typical Theme Park Operations
+# ============================================================================
+
+:ParkOpeningProcess a process:Process ;
+    rdfs:label "Park Opening Checklist" ;
+    rdfs:comment "Complete daily process to verify park safety, staffing, equipment readiness, and systems availability before guest admission" ;
+    process:processNumber "PO-001" ;
+    process:businessOwner "Director of Park Operations" ;
+    process:executiveOwner "Chief Operating Officer (COO)" ;
+    process:startTime "05:30 AM (4 hours before official opening)" ;
+    process:targetEndTime "09:00 AM (1 hour before official opening)" ;
+    process:targetDurationMinutes 210 ;
+    process:criticality process:CriticalityHIGH ;
+    process:failureImpact "Park opening delayed, guest safety risk, revenue loss ($200k+ per hour)" ;
+    process:successPath (
+        :Gate_SecuritySweepInitiated
+        :Gate_StaffingVerified
+        :Gate_EquipmentChecked
+        :Gate_SafetyCertified
+        :Gate_SystemsOnline
+        :Gate_FinalClearance
+    ) ;
+    process:hasMajorPhase :Phase_PreOpening, :Phase_SecuritySafety, :Phase_StaffingReadiness, :Phase_EquipmentSystems, :Phase_GuestReadiness, :Phase_FinalClearance ;
+    process:assumption "Opening occurs daily at 09:00 AM" ;
+    process:assumption "Security sweep requires 90 minutes (gates 5, perimeter patrol, camera check)" ;
+    process:assumption "Staffing verification pulls from Workday within 15 minutes" ;
+    process:assumption "All equipment IDs registered in SAP asset management system" ;
+    process:assumption "Critical incidents surface in Slack #incident-ops within 5 minutes of detection" .
+
+# ============================================================================
+# PROCESS PHASES
+# ============================================================================
+
+:Phase_PreOpening a process:Phase ;
+    rdfs:label "Phase 0: Pre-Opening Preparation (05:30 - 06:00)" ;
+    rdfs:comment "Early arrival staff preparation, tool staging, system handoff from night crew" ;
+    process:sequenceNumber 0 ;
+    process:durationMinutes 30 ;
+    process:hasTask :Task_NightCrewHandoff, :Task_SystemStartupCheck, :Task_ToolStaging .
+
+:Phase_SecuritySafety a process:Phase ;
+    rdfs:label "Phase 1: Security & Perimeter Safety (06:00 - 07:30)" ;
+    rdfs:comment "Physical security sweep of entire park before any staff deployment" ;
+    process:sequenceNumber 1 ;
+    process:durationMinutes 90 ;
+    process:hasTask :Task_GateLockInspection, :Task_PerimeterPatrol, :Task_CameraSystemVerify, :Task_SecurityClearanceDecision .
+
+:Phase_StaffingReadiness a process:Phase ;
+    rdfs:label "Phase 2: Staffing Verification & Station Setup (06:30 - 08:00)" ;
+    rdfs:comment "Verify all required positions filled, confirm arrivals, assign stations (parallel with Phase 1)" ;
+    process:sequenceNumber 1.5 ;
+    process:durationMinutes 90 ;
+    process:parallelWithPhase :Phase_SecuritySafety ;
+    process:hasTask :Task_StaffingListPull, :Task_CalloutDrillInvocation, :Task_BadgeScanVerification, :Task_StaffBriefing, :Task_StaffingClearanceDecision .
+
+:Phase_EquipmentSystems a process:Phase ;
+    rdfs:label "Phase 3: Equipment & System Readiness (07:30 - 08:45)" ;
+    rdfs:comment "Verify all rides, concessions, facilities operational; guest systems online" ;
+    process:sequenceNumber 2 ;
+    process:durationMinutes 75 ;
+    process:dependsOnPhase :Phase_SecuritySafety ;
+    process:hasTask :Task_RideWalkthrough, :Task_RideSystemTests, :Task_ConcessionStationCheck, :Task_RestroomFacilitiesCheck, :Task_ParkingSystemOnline, :Task_TicketingSystemOnline, :Task_MobileAppSyncronize, :Task_EquipmentClearanceDecision .
+
+:Phase_GuestReadiness a process:Phase ;
+    rdfs:label "Phase 4: Guest-Facing Systems (08:30 - 08:55)" ;
+    rdfs:comment "Final check on guest communication systems, wayfinding, accessibility" ;
+    process:sequenceNumber 3 ;
+    process:durationMinutes 25 ;
+    process:dependsOnPhase :Phase_EquipmentSystems ;
+    process:hasTask :Task_GuestSystemsSync, :Task_AccessibilityVerification, :Task_WayfindingSignageCheck .
+
+:Phase_FinalClearance a process:Phase ;
+    rdfs:label "Phase 5: Final Clearance & GO Decision (08:55 - 09:00)" ;
+    rdfs:comment "Executive review and final GO/NO-GO decision" ;
+    process:sequenceNumber 4 ;
+    process:durationMinutes 5 ;
+    process:dependsOnPhase :Phase_GuestReadiness ;
+    process:hasTask :Task_ExecutiveReview, :Task_FinalGoDecision .
+
+# ============================================================================
+# CRITICAL GATES (Sequential Decision Points)
+# ============================================================================
+
+:Gate_SecuritySweepInitiated a process:Gate ;
+    rdfs:label "Gate 1: Security Sweep Initiated" ;
+    rdfs:comment "All physical security sweeps must begin by 06:00 AM" ;
+    process:sequenceNumber 1 ;
+    process:requiredBy :Phase_SecuritySafety ;
+    process:passCondition "Security team physically present, gates secured, patrol begins" ;
+    process:gateKeeper "Director of Security" ;
+    process:failureAction "HOLD: Delay all subsequent phases; escalate to COO" ;
+    process:evidenceRequired "Security log entry, timestamp, personnel sign-off" ;
+    process:integrationPoint system:PhysicalSecurityLogging .
+
+:Gate_StaffingVerified a process:Gate ;
+    rdfs:label "Gate 2: Staffing Verified" ;
+    rdfs:comment "All critical positions filled; minimum coverage confirmed in Workday" ;
+    process:sequenceNumber 2 ;
+    process:requiredBy :Phase_StaffingReadiness ;
+    process:passCondition "100% of critical roles (security, supervisors, ride ops) present and badged" ;
+    process:gateKeeper "Director of Human Resources / Park Ops" ;
+    process:failureAction "ESCALATE: Activate callout drill; if not resolved in 15 min, escalate to COO" ;
+    process:evidenceRequired "Badge scan logs from Workday, shift confirmation, callout audit trail" ;
+    process:integrationPoint system:WorkdayStaffing ;
+    process:integrationPoint system:BadgeScanSystem .
+
+:Gate_EquipmentChecked a process:Gate ;
+    rdfs:label "Gate 3: Equipment Functional" ;
+    rdfs:comment "All major ride systems, concession infrastructure, and facility systems operational" ;
+    process:sequenceNumber 3 ;
+    process:requiredBy :Phase_EquipmentSystems ;
+    process:passCondition "All rides passed walk-through and system tests; no open maintenance tickets in SAP" ;
+    process:gateKeeper "Director of Maintenance" ;
+    process:failureAction "ISOLATE: Mark equipment offline in guest systems; activate mitigation plan" ;
+    process:evidenceRequired "SAP work order closure log, ride system test reports, maintenance sign-off" ;
+    process:integrationPoint system:SAPAssetManagement ;
+    process:integrationPoint system:RideControlSystems .
+
+:Gate_SafetyCertified a process:Gate ;
+    rdfs:label "Gate 4: Safety Certifications Current" ;
+    rdfs:comment "All required safety inspections, certifications, and compliance audits passed" ;
+    process:sequenceNumber 4 ;
+    process:requiredBy :Phase_EquipmentSystems ;
+    process:passCondition "Latest ride inspection ≤30 days old; food safety audit ≤7 days; no critical defects" ;
+    process:gateKeeper "Director of Safety & Compliance" ;
+    process:failureAction "NO-GO: Park cannot open; activate incident response protocol" ;
+    process:evidenceRequired "Inspection certificates in audit trail, certification DB, defect closure tracking" ;
+    process:integrationPoint system:ComplianceAuditTrail ;
+    process:integrationPoint system:SAPAssetManagement .
+
+:Gate_SystemsOnline a process:Gate ;
+    rdfs:label "Gate 5: Guest Systems Online" ;
+    rdfs:comment "All guest-facing systems verified operational and connected" ;
+    process:sequenceNumber 5 ;
+    process:requiredBy :Phase_GuestReadiness ;
+    process:passCondition "Ticketing system live; parking system accepting vehicles; mobile app synced; payment gateways responding" ;
+    process:gateKeeper "Chief Information Officer / IT Operations" ;
+    process:failureAction "DEGRADE: Open park in manual ticketing mode; activate fallback procedures" ;
+    process:evidenceRequired "System health check logs, API response times, transaction test confirmations" ;
+    process:integrationPoint system:TicketingSystem ;
+    process:integrationPoint system:ParkingSystem ;
+    process:integrationPoint system:MobileApp ;
+    process:integrationPoint system:PaymentGateways .
+
+:Gate_FinalClearance a process:Gate ;
+    rdfs:label "Gate 6: Final GO Decision" ;
+    rdfs:comment "Executive review and final decision to open park to guests" ;
+    process:sequenceNumber 6 ;
+    process:requiredBy :Phase_FinalClearance ;
+    process:passCondition "All prior gates passed; no critical incidents; weather assessment safe" ;
+    process:gateKeeper "Vice President of Park Operations / Chief Operating Officer" ;
+    process:failureAction "NO-GO: Park opening delayed; incident command activated; stakeholders notified via Slack #incident-ops" ;
+    process:evidenceRequired "Gate closure summary, weather report, incident log, approval signature, timestamp" ;
+    process:integrationPoint system:SlackIncidentOps ;
+    process:integrationPoint system:CommunicationBroadcast .
+
+# ============================================================================
+# DETAILED TASK DEFINITIONS
+# ============================================================================
+
+:Task_NightCrewHandoff a process:Task ;
+    rdfs:label "Task 0.1: Night Crew Handoff & Report" ;
+    rdfs:comment "Receive shift summary from night team; identify any open issues from prior night" ;
+    process:sequenceNumber 0.1 ;
+    process:actor :Actor_DayShiftSupervisor, :Actor_NightShiftSupervisor ;
+    process:durationMinutes 5 ;
+    process:gatingPhase :Phase_PreOpening ;
+    process:integrationPoint system:SlackIncidentOps ;
+    process:successCriteria "Handoff documented in Slack thread; no critical incidents carried forward" .
+
+:Task_SystemStartupCheck a process:Task ;
+    rdfs:label "Task 0.2: Core System Startup Verification" ;
+    rdfs:comment "Verify all critical backend systems responding (asset DB, ticketing, park control)" ;
+    process:sequenceNumber 0.2 ;
+    process:actor :Actor_ITOperations ;
+    process:durationMinutes 10 ;
+    process:gatingPhase :Phase_PreOpening ;
+    process:integrationPoint system:AssetDatabase ;
+    process:integrationPoint system:TicketingSystem ;
+    process:successCriteria "All systems reporting OK status; no database errors in logs" .
+
+:Task_ToolStaging a process:Task ;
+    rdfs:label "Task 0.3: Physical Tool & Supply Staging" ;
+    rdfs:comment "Stage maintenance tools, cleaning supplies, emergency equipment in accessible locations" ;
+    process:sequenceNumber 0.3 ;
+    process:actor :Actor_MaintenanceSupervisor ;
+    process:durationMinutes 20 ;
+    process:gatingPhase :Phase_PreOpening ;
+    process:successCriteria "All critical tools present and inspected; emergency stations stocked" .
+
+:Task_GateLockInspection a process:Task ;
+    rdfs:label "Task 1.1: Perimeter Gate Lock Inspection" ;
+    rdfs:comment "Physical verification of all park perimeter gates; locks intact, no tampering" ;
+    process:sequenceNumber 1.1 ;
+    process:actor :Actor_SecurityOfficer ;
+    process:durationMinutes 30 ;
+    process:gatingPhase :Phase_SecuritySafety ;
+    process:gatingGate :Gate_SecuritySweepInitiated ;
+    process:successCriteria "All 12 perimeter gates physically inspected; no breaches; security log signed" .
+
+:Task_PerimeterPatrol a process:Task ;
+    rdfs:label "Task 1.2: Perimeter Security Patrol" ;
+    rdfs:comment "Complete walking patrol of entire park perimeter; inspect for debris, intrusions, hazards" ;
+    process:sequenceNumber 1.2 ;
+    process:actor :Actor_SecurityOfficer, :Actor_SecurityOfficer, :Actor_SecurityOfficer ;
+    process:durationMinutes 60 ;
+    process:gatingPhase :Phase_SecuritySafety ;
+    process:gatingGate :Gate_SecuritySweepInitiated ;
+    process:dependsOnTask :Task_GateLockInspection ;
+    process:successCriteria "Full perimeter walked; no security concerns; patrol log completed with timestamp" .
+
+:Task_CameraSystemVerify a process:Task ;
+    rdfs:label "Task 1.3: Security Camera System Verification" ;
+    rdfs:comment "Verify all camera feeds live; recording; no gaps in coverage" ;
+    process:sequenceNumber 1.3 ;
+    process:actor :Actor_SecurityOfficer ;
+    process:durationMinutes 15 ;
+    process:gatingPhase :Phase_SecuritySafety ;
+    process:gatingGate :Gate_SecuritySweepInitiated ;
+    process:integrationPoint system:SecurityCameraLogging ;
+    process:successCriteria "All 47 camera feeds verified live; recordings confirmed; no dead zones" .
+
+:Task_SecurityClearanceDecision a process:Task ;
+    rdfs:label "Task 1.4: Security Clearance Decision" ;
+    rdfs:comment "Director of Security reviews all gate, patrol, camera logs and gates or clears Phase 1" ;
+    process:sequenceNumber 1.4 ;
+    process:actor :Actor_DirectorSecurity ;
+    process:durationMinutes 5 ;
+    process:gatingPhase :Phase_SecuritySafety ;
+    process:gatingGate :Gate_SecuritySweepInitiated ;
+    process:dependsOnTask :Task_GateLockInspection, :Task_PerimeterPatrol, :Task_CameraSystemVerify ;
+    process:decision :Decision_SecurityClear ;
+    process:successCriteria "Security director signs off in log; park area marked as secure" .
+
+:Task_StaffingListPull a process:Task ;
+    rdfs:label "Task 2.1: Pull Today's Staffing List from Workday" ;
+    rdfs:comment "Extract schedule for today; identify critical roles and coverage minimums" ;
+    process:sequenceNumber 2.1 ;
+    process:actor :Actor_HROperations ;
+    process:durationMinutes 3 ;
+    process:gatingPhase :Phase_StaffingReadiness ;
+    process:integrationPoint system:WorkdayStaffing ;
+    process:successCriteria "Schedule pulled; 250+ staff identified; critical roles flagged" .
+
+:Task_CalloutDrillInvocation a process:Task ;
+    rdfs:label "Task 2.2: Callout Drill (If Needed)" ;
+    rdfs:comment "If critical positions unfilled, activate automatic phone call system to on-call staff" ;
+    process:sequenceNumber 2.2 ;
+    process:actor :Actor_HROperations ;
+    process:durationMinutes 15 ;
+    process:gatingPhase :Phase_StaffingReadiness ;
+    process:conditional "IfMissingCriticalStaff" ;
+    process:integrationPoint system:AutomatedCalloutSystem ;
+    process:successCriteria "Callouts made within 5 min of detection; responses tracked; coverage achieved or escalated" .
+
+:Task_BadgeScanVerification a process:Task ;
+    rdfs:label "Task 2.3: Badge Scan Verification (Real-Time)" ;
+    rdfs:comment "Continuous monitoring of badge scan system; confirm all required staff scanned in" ;
+    process:sequenceNumber 2.3 ;
+    process:actor :Actor_SecurityOfficer ;
+    process:durationMinutes 90 ;
+    process:gatingPhase :Phase_StaffingReadiness ;
+    process:continuous "YES" ;
+    process:integrationPoint system:BadgeScanSystem ;
+    process:successCriteria "100% of critical staff (50+ people) scanned in with matching Workday schedule" .
+
+:Task_StaffBriefing a process:Task ;
+    rdfs:label "Task 2.4: Daily Standup & Safety Briefing" ;
+    rdfs:comment "All on-duty shift leads assembled; communicate priorities, alerts, weather, incidents" ;
+    process:sequenceNumber 2.4 ;
+    process:actor :Actor_DayShiftSupervisor, :Actor_RideOpsLead, :Actor_ConcessionLead, :Actor_SecurityLead ;
+    process:durationMinutes 10 ;
+    process:gatingPhase :Phase_StaffingReadiness ;
+    process:integrationPoint system:SlackIncidentOps ;
+    process:successCriteria "All shift leads present; briefing notes logged in Slack; no objections to plan" .
+
+:Task_StaffingClearanceDecision a process:Task ;
+    rdfs:label "Task 2.5: Staffing Clearance Decision" ;
+    rdfs:comment "Director of Ops verifies coverage meets minimums; approves shift" ;
+    process:sequenceNumber 2.5 ;
+    process:actor :Actor_DirectorParkOps ;
+    process:durationMinutes 5 ;
+    process:gatingPhase :Phase_StaffingReadiness ;
+    process:gatingGate :Gate_StaffingVerified ;
+    process:dependsOnTask :Task_StaffingListPull, :Task_BadgeScanVerification, :Task_StaffBriefing ;
+    process:decision :Decision_StaffingClear ;
+    process:successCriteria "Director confirms minimum staffing met; sign-off logged" .
+
+:Task_RideWalkthrough a process:Task ;
+    rdfs:label "Task 3.1: Ride Physical Walkthrough" ;
+    rdfs:comment "Maintenance staff walk all 25 rides; inspect track, seats, restraints, queues" ;
+    process:sequenceNumber 3.1 ;
+    process:actor :Actor_MaintenanceTech, :Actor_MaintenanceTech, :Actor_MaintenanceTech ;
+    process:durationMinutes 45 ;
+    process:gatingPhase :Phase_EquipmentSystems ;
+    process:dependsOnPhase :Phase_SecuritySafety ;
+    process:integrationPoint system:SAPAssetManagement ;
+    process:successCriteria "All 25 rides walked; any damage logged in SAP with photo; structural integrity verified" .
+
+:Task_RideSystemTests a process:Task ;
+    rdfs:label "Task 3.2: Ride Control System Tests" ;
+    rdfs:comment "Run automated test cycles on all rides; verify emergency brake, E-stop, interlock systems" ;
+    process:sequenceNumber 3.2 ;
+    process:actor :Actor_RideOpsLead, :Actor_MaintenanceTech ;
+    process:durationMinutes 30 ;
+    process:gatingPhase :Phase_EquipmentSystems ;
+    process:integrationPoint system:RideControlSystems ;
+    process:successCriteria "All 25 rides run test cycle successfully; emergency systems respond; logs uploaded to SAP" .
+
+:Task_ConcessionStationCheck a process:Task ;
+    rdfs:label "Task 3.3: Concession Station Operational Check" ;
+    rdfs:comment "Verify all 40+ concession points: power, water, ice, POS systems operational" ;
+    process:sequenceNumber 3.3 ;
+    process:actor :Actor_ConcessionLead ;
+    process:durationMinutes 30 ;
+    process:gatingPhase :Phase_EquipmentSystems ;
+    process:integrationPoint system:POSSystem ;
+    process:successCriteria "All concession stations powered on; POS systems synced; no critical outages" .
+
+:Task_RestroomFacilitiesCheck a process:Task ;
+    rdfs:label "Task 3.4: Restroom & Facility Systems Check" ;
+    rdfs:comment "Verify all 50+ restrooms stocked, operational; water, sewage, emergency call systems tested" ;
+    process:sequenceNumber 3.4 ;
+    process:actor :Actor_FacilitiesLead ;
+    process:durationMinutes 30 ;
+    process:gatingPhase :Phase_EquipmentSystems ;
+    process:successCriteria "All restrooms clean, stocked, operational; emergency call system tested" .
+
+:Task_ParkingSystemOnline a process:Task ;
+    rdfs:label "Task 3.5: Parking System Operational" ;
+    rdfs:comment "Verify parking lot entry/exit gates operational, payment systems responding, lot capacity visible" ;
+    process:sequenceNumber 3.5 ;
+    process:actor :Actor_ParkingOperations ;
+    process:durationMinutes 10 ;
+    process:gatingPhase :Phase_EquipmentSystems ;
+    process:integrationPoint system:ParkingSystem ;
+    process:successCriteria "Entry/exit gates accepting vehicles; payment systems processing; capacity display updated" .
+
+:Task_TicketingSystemOnline a process:Task ;
+    rdfs:label "Task 3.6: Ticketing System Online & Ready" ;
+    rdfs:comment "Verify main ticketing system and all ticket booth terminals responding; test transaction" ;
+    process:sequenceNumber 3.6 ;
+    process:actor :Actor_ITOperations ;
+    process:durationMinutes 10 ;
+    process:gatingPhase :Phase_EquipmentSystems ;
+    process:integrationPoint system:TicketingSystem ;
+    process:successCriteria "All 12 ticket booths online; test transaction successful; no transaction lag >2s" .
+
+:Task_MobileAppSyncronize a process:Task ;
+    rdfs:label "Task 3.7: Mobile App Data Synchronization" ;
+    rdfs:comment "Sync ride wait times, capacity, schedules to mobile app; verify push notification system" ;
+    process:sequenceNumber 3.7 ;
+    process:actor :Actor_ITOperations ;
+    process:durationMinutes 10 ;
+    process:gatingPhase :Phase_EquipmentSystems ;
+    process:integrationPoint system:MobileApp ;
+    process:successCriteria "App data synced; wait times updated; push notifications functional" .
+
+:Task_EquipmentClearanceDecision a process:Task ;
+    rdfs:label "Task 3.8: Equipment Clearance Decision" ;
+    rdfs:comment "Director of Maintenance reviews all task logs; gates or clears Phase 3" ;
+    process:sequenceNumber 3.8 ;
+    process:actor :Actor_DirectorMaintenance ;
+    process:durationMinutes 5 ;
+    process:gatingPhase :Phase_EquipmentSystems ;
+    process:gatingGate :Gate_EquipmentChecked, :Gate_SafetyCertified ;
+    process:dependsOnTask :Task_RideWalkthrough, :Task_RideSystemTests, :Task_ConcessionStationCheck, :Task_RestroomFacilitiesCheck ;
+    process:decision :Decision_EquipmentClear ;
+    process:successCriteria "Director reviews SAP logs; signs clearance; timestamp recorded" .
+
+:Task_GuestSystemsSync a process:Task ;
+    rdfs:label "Task 4.1: Guest-Facing Systems Final Sync" ;
+    rdfs:comment "Final check: all guest-facing displays, wayfinding screens, maps, schedules current" ;
+    process:sequenceNumber 4.1 ;
+    process:actor :Actor_ITOperations ;
+    process:durationMinutes 10 ;
+    process:gatingPhase :Phase_GuestReadiness ;
+    process:integrationPoint system:GuestDisplaySystems ;
+    process:successCriteria "All digital signage displays updated; maps current; wait times accurate" .
+
+:Task_AccessibilityVerification a process:Task ;
+    rdfs:label "Task 4.2: Accessibility & ADA Compliance Check" ;
+    rdfs:comment "Verify accessible entrances, elevators, restrooms, and assistance services ready" ;
+    process:sequenceNumber 4.2 ;
+    process:actor :Actor_Accessibility ;
+    process:durationMinutes 10 ;
+    process:gatingPhase :Phase_GuestReadiness ;
+    process:successCriteria "All accessible routes clear; assistance services staffed; no barriers reported" .
+
+:Task_WayfindingSignageCheck a process:Task ;
+    rdfs:label "Task 4.3: Wayfinding Signage & Info Kiosks" ;
+    rdfs:comment "Verify all directional signs, maps, and information kiosks current and undamaged" ;
+    process:sequenceNumber 4.3 ;
+    process:actor :Actor_FacilitiesLead ;
+    process:durationMinutes 5 ;
+    process:gatingPhase :Phase_GuestReadiness ;
+    process:successCriteria "All signage in place; no damage; maps reflecting any closures" .
+
+:Task_ExecutiveReview a process:Task ;
+    rdfs:label "Task 5.1: Executive Review of Gate Summary" ;
+    rdfs:comment "VP Operations / COO reviews all 6 gate closure reports; any blockers identified" ;
+    process:sequenceNumber 5.1 ;
+    process:actor :Actor_VPOperations ;
+    process:durationMinutes 3 ;
+    process:gatingPhase :Phase_FinalClearance ;
+    process:dependsOnGate :Gate_SecuritySweepInitiated, :Gate_StaffingVerified, :Gate_EquipmentChecked, :Gate_SafetyCertified, :Gate_SystemsOnline ;
+    process:successCriteria "VP reviews gate summary; no critical blockers; approval logged" .
+
+:Task_FinalGoDecision a process:Task ;
+    rdfs:label "Task 5.2: Final GO/NO-GO Decision & Broadcast" ;
+    rdfs:comment "VP Operations declares GO; notifies security to disarm barriers; Slack broadcast to all staff" ;
+    process:sequenceNumber 5.2 ;
+    process:actor :Actor_VPOperations ;
+    process:durationMinutes 2 ;
+    process:gatingPhase :Phase_FinalClearance ;
+    process:gatingGate :Gate_FinalClearance ;
+    process:dependsOnTask :Task_ExecutiveReview ;
+    process:integrationPoint system:SlackIncidentOps ;
+    process:integrationPoint system:CommunicationBroadcast ;
+    process:successCriteria "Final decision signed; broadcast sent; park ready for guest admission" .
+
+# ============================================================================
+# DECISION POINTS
+# ============================================================================
+
+:Decision_SecurityClear a process:Decision ;
+    rdfs:label "Security Clear for Phase 1" ;
+    rdfs:comment "Director of Security reviews and makes gate/continue decision" ;
+    process:decisionMaker :Actor_DirectorSecurity ;
+    process:optionPass "PASS: Continue to Phase 2 (Staffing)" ;
+    process:optionFail "FAIL: HOLD and escalate to COO; security concern identified" ;
+    process:escalationPath "COO, Chief of Staff, Security Director conf call" .
+
+:Decision_StaffingClear a process:Decision ;
+    rdfs:label "Staffing Clear for Phase 2" ;
+    rdfs:comment "Director of Ops confirms minimum staffing met" ;
+    process:decisionMaker :Actor_DirectorParkOps ;
+    process:optionPass "PASS: Continue to Phase 3 (Equipment)" ;
+    process:optionFail "FAIL: Escalate if not resolved within 15 min; activate surge staffing contingency" ;
+    process:escalationPath "COO, HR Director, callout system activation" .
+
+:Decision_EquipmentClear a process:Decision ;
+    rdfs:label "Equipment Clear for Phase 3" ;
+    rdfs:comment "Director of Maintenance confirms all systems operational" ;
+    process:decisionMaker :Actor_DirectorMaintenance ;
+    process:optionPass "PASS: Continue to Phase 4 (Guest Systems)" ;
+    process:optionFail "FAIL: Isolate failed equipment; activate guest mitigation plan (e.g., attraction closure)" ;
+    process:escalationPath "VP Operations, Maintenance Director, guest service team" .
+
+# ============================================================================
+# ACTORS & ROLES
+# ============================================================================
+
+:Actor_DayShiftSupervisor a actor:Role ;
+    rdfs:label "Day Shift Supervisor" ;
+    rdfs:comment "Parks operations staff; coordinates teams; signs time sheets" ;
+    actor:department "Park Operations" ;
+    actor:certifications "First Aid, CPR, Park Safety Certification" ;
+    actor:systemAccess system:SlackIncidentOps, system:WorkdayStaffing, system:BadgeScanSystem .
+
+:Actor_SecurityOfficer a actor:Role ;
+    rdfs:label "Security Officer" ;
+    rdfs:comment "Physical security; perimeter patrol; gate inspection" ;
+    actor:department "Security" ;
+    actor:certifications "Security Clearance, Armed/Unarmed Certification" ;
+    actor:systemAccess system:SecurityCameraLogging, system:BadgeScanSystem, system:PhysicalSecurityLogging .
+
+:Actor_DirectorSecurity a actor:Role ;
+    rdfs:label "Director of Security" ;
+    rdfs:comment "Security leadership; gates Phase 1; escalation authority" ;
+    actor:department "Security" ;
+    actor:reportingLine "Chief Operating Officer" ;
+    actor:systemAccess system:SecurityCameraLogging, system:PhysicalSecurityLogging, system:SlackIncidentOps .
+
+:Actor_NightShiftSupervisor a actor:Role ;
+    rdfs:label "Night Shift Supervisor" ;
+    actor:department "Park Operations" .
+
+:Actor_ITOperations a actor:Role ;
+    rdfs:label "IT Operations" ;
+    rdfs:comment "Systems administration; monitoring; troubleshooting" ;
+    actor:department "Information Technology" ;
+    actor:systemAccess system:AssetDatabase, system:TicketingSystem, system:MobileApp, system:ParkingSystem, system:RideControlSystems .
+
+:Actor_MaintenanceSupervisor a actor:Role ;
+    rdfs:label "Maintenance Supervisor" ;
+    actor:department "Maintenance" .
+
+:Actor_MaintenanceTech a actor:Role ;
+    rdfs:label "Maintenance Technician" ;
+    rdfs:comment "Equipment inspection; repair; safety certification" ;
+    actor:department "Maintenance" ;
+    actor:certifications "Ride Safety Certification, Equipment Maintenance License" ;
+    actor:systemAccess system:SAPAssetManagement, system:RideControlSystems .
+
+:Actor_RideOpsLead a actor:Role ;
+    rdfs:label "Ride Operations Lead" ;
+    actor:department "Park Operations" .
+
+:Actor_ConcessionLead a actor:Role ;
+    rdfs:label "Concession Lead" ;
+    actor:department "Food & Beverage" .
+
+:Actor_HROperations a actor:Role ;
+    rdfs:label "HR Operations Coordinator" ;
+    rdfs:comment "Staffing; scheduling; callout management" ;
+    actor:department "Human Resources" ;
+    actor:systemAccess system:WorkdayStaffing, system:AutomatedCalloutSystem, system:BadgeScanSystem .
+
+:Actor_DirectorParkOps a actor:Role ;
+    rdfs:label "Director of Park Operations" ;
+    rdfs:comment "Operational leadership; gates Phase 2; escalation authority" ;
+    actor:department "Park Operations" ;
+    actor:reportingLine "Chief Operating Officer" ;
+    actor:systemAccess system:WorkdayStaffing, system:BadgeScanSystem, system:SlackIncidentOps, system:SAPAssetManagement .
+
+:Actor_DirectorMaintenance a actor:Role ;
+    rdfs:label "Director of Maintenance" ;
+    rdfs:comment "Maintenance leadership; gates Phase 3; SAP authority" ;
+    actor:department "Maintenance" ;
+    actor:reportingLine "Chief Operating Officer" ;
+    actor:systemAccess system:SAPAssetManagement, system:RideControlSystems, system:SlackIncidentOps .
+
+:Actor_FacilitiesLead a actor:Role ;
+    rdfs:label "Facilities Lead" ;
+    actor:department "Facilities" .
+
+:Actor_ParkingOperations a actor:Role ;
+    rdfs:label "Parking Operations" ;
+    actor:department "Parking" .
+
+:Actor_Accessibility a actor:Role ;
+    rdfs:label "Accessibility Coordinator" ;
+    actor:department "Guest Services" .
+
+:Actor_VPOperations a actor:Role ;
+    rdfs:label "Vice President of Park Operations" ;
+    rdfs:comment "Executive leadership; final GO/NO-GO authority" ;
+    actor:department "Park Operations" ;
+    actor:reportingLine "Chief Operating Officer" ;
+    actor:systemAccess system:SlackIncidentOps, system:SAPAssetManagement, system:WorkdayStaffing, system:CommunicationBroadcast .
+
+:Actor_SecurityLead a actor:Role ;
+    rdfs:label "Security Lead" ;
+    actor:department "Security" .
+
+# ============================================================================
+# SYSTEM INTEGRATIONS
+# ============================================================================
+
+system:WorkdayStaffing a process:SystemIntegration ;
+    rdfs:label "Workday HR System" ;
+    rdfs:comment "Staffing schedules, badge assignments, shift verification" ;
+    process:integrationPattern process:ReadOnly ;
+    process:dataFrequency "Real-time" ;
+    process:APIendpoint "https://api.workday.com/v1/schedules/today" ;
+    process:RollbackStrategy "Manual override; accept on-paper verification if API fails" ;
+    process:criticality process:CriticalityHIGH .
+
+system:BadgeScanSystem a process:SystemIntegration ;
+    rdfs:label "Badge Scan System" ;
+    rdfs:comment "Real-time tracking of staff arrival; badge reader integration" ;
+    process:integrationPattern process:ReadWrite ;
+    process:dataFrequency "Real-time (event stream)" ;
+    process:RollbackStrategy "Manual sign-in sheets if system fails" ;
+    process:criticality process:CriticalityHIGH .
+
+system:SlackIncidentOps a process:SystemIntegration ;
+    rdfs:label "Slack #incident-ops Channel" ;
+    rdfs:comment "Communication hub for incidents, decisions, escalations" ;
+    process:integrationPattern process:WriteOnly ;
+    process:dataFrequency "Event-driven" ;
+    process:RollbackStrategy "Phone tree if Slack unavailable" ;
+    process:criticality process:CriticalityHIGH .
+
+system:SAPAssetManagement a process:SystemIntegration ;
+    rdfs:label "SAP Asset Management" ;
+    rdfs:comment "Equipment registry, maintenance history, work orders, certifications" ;
+    process:integrationPattern process:ReadOnly ;
+    process:dataFrequency "Nightly batch + manual updates" ;
+    process:RollbackStrategy "Paper-based equipment log if SAP unavailable" ;
+    process:criticality process:CriticalityHIGH .
+
+system:RideControlSystems a process:SystemIntegration ;
+    rdfs:label "Ride Control Systems (PLC/SCADA)" ;
+    rdfs:comment "Direct connection to ride controllers; emergency stop testing" ;
+    process:integrationPattern process:ReadWrite ;
+    process:dataFrequency "Real-time (event stream)" ;
+    process:RollbackStrategy "Manual ride inspection and E-stop test if comms fail" ;
+    process:criticality process:CriticalityHIGH .
+
+system:PhysicalSecurityLogging a process:SystemIntegration ;
+    rdfs:label "Physical Security Logging System" ;
+    rdfs:comment "Gate logs, access control, perimeter monitoring" ;
+    process:integrationPattern process:WriteOnly ;
+    process:dataFrequency "Real-time" ;
+    process:criticality process:CriticalityHIGH .
+
+system:SecurityCameraLogging a process:SystemIntegration ;
+    rdfs:label "Security Camera Logging System" ;
+    rdfs:comment "Camera feed verification, recording confirmation" ;
+    process:integrationPattern process:ReadOnly ;
+    process:dataFrequency "Real-time (video stream)" ;
+    process:criticality process:CriticalityMedium .
+
+system:TicketingSystem a process:SystemIntegration ;
+    rdfs:label "Ticketing System" ;
+    rdfs:comment "Guest entry; ticket sales; capacity management" ;
+    process:integrationPattern process:ReadWrite ;
+    process:dataFrequency "Real-time" ;
+    process:RollbackStrategy "Manual ticketing if system fails" ;
+    process:criticality process:CriticalityHIGH .
+
+system:ParkingSystem a process:SystemIntegration ;
+    rdfs:label "Parking System" ;
+    rdfs:comment "Lot gates, capacity, payment processing" ;
+    process:integrationPattern process:ReadWrite ;
+    process:dataFrequency "Real-time" ;
+    process:RollbackStrategy "Manual gate operation if system fails" ;
+    process:criticality process:CriticalityMedium .
+
+system:MobileApp a process:SystemIntegration ;
+    rdfs:label "Mobile App Backend" ;
+    rdfs:comment "Guest app; wait times; schedules; notifications" ;
+    process:integrationPattern process:ReadWrite ;
+    process:dataFrequency "15-second polling" ;
+    process:criticality process:CriticalityMedium .
+
+system:POSSystem a process:SystemIntegration ;
+    rdfs:label "Point of Sale System" ;
+    rdfs:comment "Concession transactions; inventory" ;
+    process:integrationPattern process:ReadOnly ;
+    process:dataFrequency "Real-time" ;
+    process:criticality process:CriticalityLow .
+
+system:AutomatedCalloutSystem a process:SystemIntegration ;
+    rdfs:label "Automated Callout System" ;
+    rdfs:comment "Phone calls to on-call staff; response tracking" ;
+    process:integrationPattern process:ReadWrite ;
+    process:dataFrequency "Event-driven" ;
+    process:RollbackStrategy "Manual phone calls if system fails" ;
+    process:criticality process:CriticalityHIGH .
+
+system:AssetDatabase a process:SystemIntegration ;
+    rdfs:label "Asset Database" ;
+    rdfs:comment "Inventory of all park assets; maintenance history" ;
+    process:integrationPattern process:ReadOnly ;
+    process:dataFrequency "Nightly batch" ;
+    process:criticality process:CriticalityMedium .
+
+system:GuestDisplaySystems a process:SystemIntegration ;
+    rdfs:label "Guest Display Systems" ;
+    rdfs:comment "Wayfinding screens, digital signage, wait time displays" ;
+    process:integrationPattern process:ReadWrite ;
+    process:dataFrequency "15-second updates" ;
+    process:criticality process:CriticalityLow .
+
+system:CommunicationBroadcast a process:SystemIntegration ;
+    rdfs:label "Communication Broadcast System" ;
+    rdfs:comment "Park-wide announcements; staff alerts; guest notices" ;
+    process:integrationPattern process:WriteOnly ;
+    process:dataFrequency "Event-driven" ;
+    process:criticality process:CriticalityMedium .
+
+system:ComplianceAuditTrail a process:SystemIntegration ;
+    rdfs:label "Compliance Audit Trail System" ;
+    rdfs:comment "Immutable logs of inspections, certifications, compliance checks" ;
+    process:integrationPattern process:ReadWrite ;
+    process:dataFrequency "Event-driven" ;
+    process:criticality process:CriticalityHIGH ;
+    process:note "FIBO Contract registry integration required for legal holds" .
+
+system:PaymentGateways a process:SystemIntegration ;
+    rdfs:label "Payment Gateway Systems" ;
+    rdfs:comment "Credit card processing; payment verification" ;
+    process:integrationPattern process:ReadOnly ;
+    process:dataFrequency "Real-time" ;
+    process:criticality process:CriticalityMedium .
+
+# ============================================================================
+# SUCCESS CRITERIA & METRICS
+# ============================================================================
+
+:SuccessCriteria a process:SuccessCriteria ;
+    rdfs:label "Park Opening Process Success Criteria" ;
+    process:safetyMetric "Zero guest safety incidents on opening day" ;
+    process:safetyMetric "All ride systems pass functional tests with 100% success rate" ;
+    process:timeMetric "Opening process completes in ≤210 minutes (05:30 AM - 09:00 AM)" ;
+    process:timeMetric "Executive decision (Gate 6) made by 08:55 AM (≥5 min buffer before opening)" ;
+    process:staffingMetric "100% of critical roles (50+) present and badged by 07:00 AM" ;
+    process:systemMetric "All guest-facing systems online and accepting transactions by 08:45 AM" ;
+    process:complianceMetric "All inspection certificates current and logged in audit trail" ;
+    process:complianceMetric "All escalations and decisions documented in Slack #incident-ops" ;
+    process:communityMetric "No guest experience degradation (manual ticketing, ride closures <15% of fleet)" .
+
+# ============================================================================
+# PROCESS METADATA & GOVERNANCE
+# ============================================================================
+
+:ProcessMetadata a process:ProcessMetadata ;
+    rdfs:label "Park Opening Process Metadata" ;
+    process:processOwner :Actor_VPOperations ;
+    process:processOwner :Actor_DirectorParkOps ;
+    process:businessOwner "Director of Park Operations" ;
+    process:executiveOwner "Chief Operating Officer" ;
+    process:version "1.0" ;
+    process:createdDate "2026-01-18"^^xsd:date ;
+    process:lastReviewDate "2026-01-18"^^xsd:date ;
+    process:nextReviewDate "2026-03-30"^^xsd:date ;
+    process:reviewFrequency "Quarterly" ;
+    process:approvalStatus "Draft - Pending Ops Team Validation" ;
+    process:gateApprovals (
+        [ process:gate :Gate_SecuritySweepInitiated ; process:status "Pending" ]
+        [ process:gate :Gate_StaffingVerified ; process:status "Pending" ]
+        [ process:gate :Gate_EquipmentChecked ; process:status "Pending" ]
+        [ process:gate :Gate_SafetyCertified ; process:status "Pending" ]
+        [ process:gate :Gate_SystemsOnline ; process:status "Pending" ]
+        [ process:gate :Gate_FinalClearance ; process:status "Pending" ]
+    ) ;
+    process:assumption "Assumptions documented in-line with tasks" ;
+    process:riskOwner "Chief Operating Officer" .
+
+# ============================================================================
+# KEY ASSUMPTIONS (Replaces Interview Data)
+# ============================================================================
+
+:AssumptionSet a process:AssumptionSet ;
+    rdfs:label "Park Opening Process Assumptions" ;
+    rdfs:comment "Derived from typical theme park operations; to be validated by ops team" ;
+
+    process:assumption "TIMING: Daily opening at 09:00 AM; preparation starts 05:30 AM (4-hour window)" ;
+    process:assumption "STAFFING: 250+ staff required; 50+ in critical roles (security, maintenance, operations)" ;
+    process:assumption "SECURITY: Perimeter includes 12 gates; 47 security cameras; full patrol required" ;
+    process:assumption "EQUIPMENT: 25 rides; 40+ concessions; 50+ restrooms; all must be operational" ;
+    process:assumption "CRITICALITY: Park cannot open without all 6 gates passed (security, staffing, equipment, safety, systems, executive)" ;
+    process:assumption "ESCALATION: Any gate failure escalates to COO within 5 minutes; no independent work-arounds" ;
+    process:assumption "INTEGRATION: Workday, SAP, Slack are system of record for staffing, assets, decisions" ;
+    process:assumption "ROLLBACK: Manual procedures exist for all critical system failures (ticketing, parking, ride control)" ;
+    process:assumption "WEATHER: External weather assessment occurs in Phase 5 (final executive review)" ;
+    process:assumption "COMMUNICATION: All decisions logged in Slack #incident-ops for audit trail and transparency" ;
+    process:assumption "INCIDENT: Any safety incident automatically escalates to incident command; gate 6 triggered" ;
+    process:assumption "FREQUENCY: This process runs once per day, every operating day of the year (365+ days)" .
+
+# ============================================================================
+# RISK ASSESSMENT (FMEA-Style)
+# ============================================================================
+
+:RiskAssessment a process:RiskAssessment ;
+    rdfs:label "Park Opening Process Risk Assessment" ;
+
+    process:riskItem "Security sweep incomplete (perimeter not fully patrolled)" ;
+    process:severity 9 ;
+    process:probability 2 ;
+    process:rpn 18 ;
+    process:mitigation "Use automated gate counts + GPS tracking; require photo evidence of patrol start/end" ;
+    process:mitigationOwner :Actor_DirectorSecurity ;
+
+    process:riskItem "Critical staff no-show; positions not filled despite callouts" ;
+    process:severity 8 ;
+    process:probability 3 ;
+    process:rpn 24 ;
+    process:mitigation "Cross-train backup staff; maintain 20% surge capacity; hire temporary agency staff pre-positioned" ;
+    process:mitigationOwner :Actor_DirectorParkOps ;
+
+    process:riskItem "Ride system test failure; unable to clear equipment in time" ;
+    process:severity 9 ;
+    process:probability 1 ;
+    process:rpn 9 ;
+    process:mitigation "Pre-run ride tests at 22:00 previous night; flag any issues 7+ hours in advance" ;
+    process:mitigationOwner :Actor_DirectorMaintenance ;
+
+    process:riskItem "Ticketing system down at opening time" ;
+    process:severity 7 ;
+    process:probability 2 ;
+    process:rpn 14 ;
+    process:mitigation "Maintain manual ticketing station; hand-written tickets; reconciliation after system recovery" ;
+    process:mitigationOwner :Actor_ITOperations ;
+
+    process:riskItem "Workday API timeout; unable to pull staffing list" ;
+    process:severity 5 ;
+    process:probability 2 ;
+    process:rpn 10 ;
+    process:mitigation "Cache previous day's schedule; phone-based staff confirmation as backup" ;
+    process:mitigationOwner :Actor_HROperations ;
+
+    process:riskItem "Weather event (severe storm, lightning) overnight; forces park closure" ;
+    process:severity 10 ;
+    process:probability 1 ;
+    process:rpn 10 ;
+    process:mitigation "Weather monitoring (NOAA feed); decision made at 06:00 AM; communication plan pre-staged" ;
+    process:mitigationOwner :Actor_VPOperations ;
+
+    process:riskItem "Safety inspection overdue; compliance audit flag prevents opening" ;
+    process:severity 9 ;
+    process:probability 1 ;
+    process:rpn 9 ;
+    process:mitigation "Automated compliance calendar; alerts 14 days before expiration; proactive scheduling" ;
+    process:mitigationOwner :Actor_DirectorMaintenance .

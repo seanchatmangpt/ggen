@@ -165,7 +165,7 @@ impl TaskGraph {
 
         // Check for cycles
         if processed != self.tasks.len() {
-            return Err(GgenAiError::invalid_input(
+            return Err(GgenAiError::orchestration(
                 "Task graph contains cycles - cannot determine execution order"
             ));
         }

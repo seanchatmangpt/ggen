@@ -1,0 +1,753 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix ex: <http://ggen.example.org/disney/adapters#> .
+@prefix wom: <http://ggen.example.org/disney/work-objects#> .
+
+# ==============================================================================
+# Adapter Implementations: 11 Multi-System Integrations
+# ==============================================================================
+# Purpose: Define contracts for 3-5 Wave 2 pilots + roadmap for Wave 3 expansion
+# Status: Wave 2 initial scope (Workday, SAP, Slack); Wave 3 (ServiceNow + 7 more)
+# Created: 2026-01-18
+# ==============================================================================
+
+# ==============================================================================
+# SOURCE SYSTEMS (Master Definitions)
+# ==============================================================================
+
+ex:system-workday a ex:SourceSystem ;
+  ex:systemName "Workday HRIS" ;
+  ex:systemType "HRIS" ;
+  ex:apiAuthentication ex:AuthOAuth2 ;
+  ex:rateLimitPerMinute 600 ;
+  ex:dataRefreshInterval "PT1H" .
+
+ex:system-sap a ex:SourceSystem ;
+  ex:systemName "SAP ERP" ;
+  ex:systemType "ERP" ;
+  ex:apiAuthentication ex:AuthServiceAccount ;
+  ex:rateLimitPerMinute 300 ;
+  ex:dataRefreshInterval "PT2H" .
+
+ex:system-slack a ex:SourceSystem ;
+  ex:systemName "Slack Workspace" ;
+  ex:systemType "Comms" ;
+  ex:apiAuthentication ex:AuthOAuth2 ;
+  ex:rateLimitPerMinute 60 ;
+  ex:dataRefreshInterval "PT5M" .
+
+ex:system-servicenow a ex:SourceSystem ;
+  ex:systemName "ServiceNow ITSM" ;
+  ex:systemType "Ticketing" ;
+  ex:apiAuthentication ex:AuthBasic ;
+  ex:rateLimitPerMinute 1000 ;
+  ex:dataRefreshInterval "PT30M" .
+
+ex:system-ridectl a ex:SourceSystem ;
+  ex:systemName "Ride Control Systems" ;
+  ex:systemType "Operations" ;
+  ex:apiAuthentication ex:AuthServiceAccount ;
+  ex:rateLimitPerMinute 500 ;
+  ex:dataRefreshInterval "PT1M" .
+
+ex:system-badgescan a ex:SourceSystem ;
+  ex:systemName "Badge Scan (Access Control)" ;
+  ex:systemType "Security" ;
+  ex:apiAuthentication ex:AuthServiceAccount ;
+  ex:rateLimitPerMinute 1000 ;
+  ex:dataRefreshInterval "PT5M" .
+
+ex:system-ticketing a ex:SourceSystem ;
+  ex:systemName "Guest Ticketing System" ;
+  ex:systemType "Revenue" ;
+  ex:apiAuthentication ex:AuthApiKey ;
+  ex:rateLimitPerMinute 200 ;
+  ex:dataRefreshInterval "PT10M" .
+
+ex:system-parking a ex:SourceSystem ;
+  ex:systemName "Parking Management System" ;
+  ex:systemType "Operations" ;
+  ex:apiAuthentication ex:AuthServiceAccount ;
+  ex:rateLimitPerMinute 300 ;
+  ex:dataRefreshInterval "PT10M" .
+
+ex:system-pos a ex:SourceSystem ;
+  ex:systemName "Point of Sale (Retail)" ;
+  ex:systemType "Revenue" ;
+  ex:apiAuthentication ex:AuthApiKey ;
+  ex:rateLimitPerMinute 100 ;
+  ex:dataRefreshInterval "PT5M" .
+
+ex:system-compliance a ex:SourceSystem ;
+  ex:systemName "Compliance & Audit DB" ;
+  ex:systemType "Compliance" ;
+  ex:apiAuthentication ex:AuthServiceAccount ;
+  ex:rateLimitPerMinute 200 ;
+  ex:dataRefreshInterval "P1D" .
+
+ex:system-custom a ex:SourceSystem ;
+  ex:systemName "Custom Legacy System" ;
+  ex:systemType "Legacy" ;
+  ex:apiAuthentication ex:AuthBasic ;
+  ex:rateLimitPerMinute 50 ;
+  ex:dataRefreshInterval "PT1H" .
+
+# ==============================================================================
+# ADAPTER 1: Workday Shifts → WOM Shift (WAVE 2 PILOT)
+# ==============================================================================
+
+ex:adapter-workday-shifts a ex:Adapter ;
+  ex:adapterId "workday-shifts" ;
+  ex:adapterVersion "1.0.0" ;
+  ex:sourceSystem ex:system-workday ;
+  ex:targetWorkObjectType wom:Shift ;
+  ex:ingestPattern ex:PatternPull ;
+  ex:readOnly true ;
+  rdfs:comment "Ingest published shifts from Workday HRIS. Maps employee assignments to Shift objects." ;
+  ex:normalizationStrategy ex:norm-workday-shifts ;
+  ex:errorHandling ex:error-policy-workday ;
+  ex:outputIsImmutable true .
+
+ex:norm-workday-shifts a ex:NormalizationStrategy ;
+  ex:hasFieldMapping ex:map-workday-shift-id ;
+  ex:hasFieldMapping ex:map-workday-shift-start ;
+  ex:hasFieldMapping ex:map-workday-shift-end ;
+  ex:hasFieldMapping ex:map-workday-shift-employee ;
+  ex:hasFieldMapping ex:map-workday-shift-location ;
+  ex:hasFieldMapping ex:map-workday-shift-role ;
+  ex:normalizeTimestamp true ;
+  ex:normalizeStatus true ;
+  ex:idempotencyKey "shift_id" ;
+  ex:deduplicationWindow "P7D" .
+
+ex:map-workday-shift-id a ex:FieldMapping ;
+  ex:sourceFieldName "shift_id" ;
+  ex:targetProperty "wom:workObjectId" ;
+  ex:dataType "string" ;
+  ex:transformation "identity" ;
+  ex:mandatory true .
+
+ex:map-workday-shift-start a ex:FieldMapping ;
+  ex:sourceFieldName "start_time" ;
+  ex:targetProperty "wom:shiftStartTime" ;
+  ex:dataType "datetime" ;
+  ex:transformation "parse-datetime" ;
+  ex:mandatory true .
+
+ex:map-workday-shift-end a ex:FieldMapping ;
+  ex:sourceFieldName "end_time" ;
+  ex:targetProperty "wom:shiftEndTime" ;
+  ex:dataType "datetime" ;
+  ex:transformation "parse-datetime" ;
+  ex:mandatory true .
+
+ex:map-workday-shift-employee a ex:FieldMapping ;
+  ex:sourceFieldName "employee_id" ;
+  ex:targetProperty "wom:shiftAssignedTo" ;
+  ex:dataType "reference" ;
+  ex:transformation "lookup-employee" ;
+  ex:mandatory true .
+
+ex:map-workday-shift-location a ex:FieldMapping ;
+  ex:sourceFieldName "location_code" ;
+  ex:targetProperty "wom:shiftLocation" ;
+  ex:dataType "reference" ;
+  ex:transformation "lookup-location" ;
+  ex:mandatory true .
+
+ex:map-workday-shift-role a ex:FieldMapping ;
+  ex:sourceFieldName "job_title" ;
+  ex:targetProperty "wom:shiftRole" ;
+  ex:dataType "reference" ;
+  ex:transformation "lookup-role-canonical" ;
+  ex:mandatory true .
+
+ex:error-policy-workday a ex:ErrorHandlingPolicy ;
+  rdf:type ex:PolicyRetry ;
+  ex:maxRetries 3 ;
+  ex:backoffMultiplier 2.0 ;
+  rdfs:comment "Retry transient errors (rate limit, timeout). Fail fast on auth, invalid transform." .
+
+# ==============================================================================
+# ADAPTER 2: SAP Resources → WOM Resource (WAVE 2 PILOT)
+# ==============================================================================
+
+ex:adapter-sap-resources a ex:Adapter ;
+  ex:adapterId "sap-resources" ;
+  ex:adapterVersion "1.0.0" ;
+  ex:sourceSystem ex:system-sap ;
+  ex:targetWorkObjectType wom:Resource ;
+  ex:ingestPattern ex:PatternPull ;
+  ex:readOnly true ;
+  rdfs:comment "Ingest equipment and asset inventory from SAP. Maps to Resource objects (equipment type, maintenance schedule)." ;
+  ex:normalizationStrategy ex:norm-sap-resources ;
+  ex:errorHandling ex:error-policy-sap ;
+  ex:outputIsImmutable true .
+
+ex:norm-sap-resources a ex:NormalizationStrategy ;
+  ex:hasFieldMapping ex:map-sap-asset-id ;
+  ex:hasFieldMapping ex:map-sap-asset-type ;
+  ex:hasFieldMapping ex:map-sap-asset-location ;
+  ex:hasFieldMapping ex:map-sap-maintenance-date ;
+  ex:hasFieldMapping ex:map-sap-asset-status ;
+  ex:normalizeTimestamp true ;
+  ex:normalizeStatus true ;
+  ex:idempotencyKey "asset_id" ;
+  ex:deduplicationWindow "P30D" .
+
+ex:map-sap-asset-id a ex:FieldMapping ;
+  ex:sourceFieldName "asset_id" ;
+  ex:targetProperty "wom:workObjectId" ;
+  ex:dataType "string" ;
+  ex:transformation "identity" ;
+  ex:mandatory true .
+
+ex:map-sap-asset-type a ex:FieldMapping ;
+  ex:sourceFieldName "asset_class" ;
+  ex:targetProperty "wom:resourceType" ;
+  ex:dataType "string" ;
+  ex:transformation "map-asset-class-to-type" ;
+  ex:mandatory true .
+
+ex:map-sap-asset-location a ex:FieldMapping ;
+  ex:sourceFieldName "location_code" ;
+  ex:targetProperty "wom:resourceLocation" ;
+  ex:dataType "reference" ;
+  ex:transformation "lookup-location" ;
+  ex:mandatory false .
+
+ex:map-sap-maintenance-date a ex:FieldMapping ;
+  ex:sourceFieldName "next_maintenance" ;
+  ex:targetProperty "wom:maintenanceScheduledAt" ;
+  ex:dataType "datetime" ;
+  ex:transformation "parse-datetime" ;
+  ex:mandatory false .
+
+ex:map-sap-asset-status a ex:FieldMapping ;
+  ex:sourceFieldName "status" ;
+  ex:targetProperty "wom:workObjectStatus" ;
+  ex:dataType "string" ;
+  ex:transformation "map-sap-status-to-wom" ;
+  ex:mandatory true .
+
+ex:error-policy-sap a ex:ErrorHandlingPolicy ;
+  rdf:type ex:PolicyDegrade ;
+  rdfs:comment "Degrade on error. Skip failed records, continue. Optional fields can be missing." .
+
+# ==============================================================================
+# ADAPTER 3: Slack Messages → WOM Event (WAVE 2 PILOT)
+# ==============================================================================
+
+ex:adapter-slack-messages a ex:Adapter ;
+  ex:adapterId "slack-messages" ;
+  ex:adapterVersion "1.0.0" ;
+  ex:sourceSystem ex:system-slack ;
+  ex:targetWorkObjectType wom:Event ;
+  ex:ingestPattern ex:PatternStream ;
+  ex:readOnly true ;
+  rdfs:comment "Stream Slack messages (ops alerts, incident reports) to Event audit log. Enables real-time incident detection." ;
+  ex:normalizationStrategy ex:norm-slack-messages ;
+  ex:errorHandling ex:error-policy-slack ;
+  ex:outputIsImmutable true .
+
+ex:norm-slack-messages a ex:NormalizationStrategy ;
+  ex:hasFieldMapping ex:map-slack-msg-id ;
+  ex:hasFieldMapping ex:map-slack-msg-text ;
+  ex:hasFieldMapping ex:map-slack-msg-author ;
+  ex:hasFieldMapping ex:map-slack-msg-timestamp ;
+  ex:normalizeTimestamp true ;
+  ex:normalizeStatus false ;
+  ex:idempotencyKey "slack_message_ts" ;
+  ex:deduplicationWindow "P3D" .
+
+ex:map-slack-msg-id a ex:FieldMapping ;
+  ex:sourceFieldName "ts" ;
+  ex:targetProperty "wom:eventId" ;
+  ex:dataType "string" ;
+  ex:transformation "generate-uuid-from-ts" ;
+  ex:mandatory true .
+
+ex:map-slack-msg-text a ex:FieldMapping ;
+  ex:sourceFieldName "text" ;
+  ex:targetProperty "wom:eventDescription" ;
+  ex:dataType "string" ;
+  ex:transformation "identity" ;
+  ex:mandatory true .
+
+ex:map-slack-msg-author a ex:FieldMapping ;
+  ex:sourceFieldName "user_id" ;
+  ex:targetProperty "wom:eventChangedBy" ;
+  ex:dataType "reference" ;
+  ex:transformation "lookup-employee-slack-id" ;
+  ex:mandatory false .
+
+ex:map-slack-msg-timestamp a ex:FieldMapping ;
+  ex:sourceFieldName "ts" ;
+  ex:targetProperty "wom:eventTimestamp" ;
+  ex:dataType "datetime" ;
+  ex:transformation "parse-slack-timestamp" ;
+  ex:mandatory true .
+
+ex:error-policy-slack a ex:ErrorHandlingPolicy ;
+  rdf:type ex:PolicyDegrade ;
+  rdfs:comment "Degrade on error. Missing optional fields (author) are acceptable. Continue streaming." .
+
+# ==============================================================================
+# ADAPTER 4: ServiceNow Incidents → WOM Incident (WAVE 2+)
+# ==============================================================================
+
+ex:adapter-servicenow-incidents a ex:Adapter ;
+  ex:adapterId "servicenow-incidents" ;
+  ex:adapterVersion "1.0.0" ;
+  ex:sourceSystem ex:system-servicenow ;
+  ex:targetWorkObjectType wom:Incident ;
+  ex:ingestPattern ex:PatternPull ;
+  ex:readOnly true ;
+  rdfs:comment "Ingest open/closed incidents from ServiceNow ITSM. Includes severity, assignment, resolution details." ;
+  ex:normalizationStrategy ex:norm-servicenow-incidents ;
+  ex:errorHandling ex:error-policy-servicenow ;
+  ex:outputIsImmutable true .
+
+ex:norm-servicenow-incidents a ex:NormalizationStrategy ;
+  ex:hasFieldMapping ex:map-snow-incident-id ;
+  ex:hasFieldMapping ex:map-snow-incident-title ;
+  ex:hasFieldMapping ex:map-snow-incident-severity ;
+  ex:hasFieldMapping ex:map-snow-incident-assigned ;
+  ex:hasFieldMapping ex:map-snow-incident-status ;
+  ex:normalizeTimestamp true ;
+  ex:normalizeStatus true ;
+  ex:idempotencyKey "incident_number" ;
+  ex:deduplicationWindow "P90D" .
+
+ex:map-snow-incident-id a ex:FieldMapping ;
+  ex:sourceFieldName "number" ;
+  ex:targetProperty "wom:workObjectId" ;
+  ex:dataType "string" ;
+  ex:transformation "identity" ;
+  ex:mandatory true .
+
+ex:map-snow-incident-title a ex:FieldMapping ;
+  ex:sourceFieldName "short_description" ;
+  ex:targetProperty "wom:incidentTitle" ;
+  ex:dataType "string" ;
+  ex:transformation "identity" ;
+  ex:mandatory true .
+
+ex:map-snow-incident-severity a ex:FieldMapping ;
+  ex:sourceFieldName "urgency" ;
+  ex:targetProperty "wom:incidentSeverity" ;
+  ex:dataType "string" ;
+  ex:transformation "map-servicenow-severity" ;
+  ex:mandatory true .
+
+ex:map-snow-incident-assigned a ex:FieldMapping ;
+  ex:sourceFieldName "assignment_group" ;
+  ex:targetProperty "wom:incidentAssignedTo" ;
+  ex:dataType "reference" ;
+  ex:transformation "lookup-group-canonical" ;
+  ex:mandatory false .
+
+ex:map-snow-incident-status a ex:FieldMapping ;
+  ex:sourceFieldName "state" ;
+  ex:targetProperty "wom:workObjectStatus" ;
+  ex:dataType "string" ;
+  ex:transformation "map-servicenow-state-to-wom" ;
+  ex:mandatory true .
+
+ex:error-policy-servicenow a ex:ErrorHandlingPolicy ;
+  rdf:type ex:PolicyRetry ;
+  ex:maxRetries 3 ;
+  ex:backoffMultiplier 2.0 ;
+  rdfs:comment "Retry transient errors. Critical incidents must not be dropped." .
+
+# ==============================================================================
+# ADAPTER 5: Ride Control → WOM Task (WAVE 3)
+# ==============================================================================
+
+ex:adapter-ridectl-tasks a ex:Adapter ;
+  ex:adapterId "ridectl-tasks" ;
+  ex:adapterVersion "1.0.0" ;
+  ex:sourceSystem ex:system-ridectl ;
+  ex:targetWorkObjectType wom:Task ;
+  ex:ingestPattern ex:PatternStream ;
+  ex:readOnly true ;
+  rdfs:comment "Stream ride maintenance tasks from ride control systems (daily checks, repairs). Maps to Task objects." ;
+  ex:normalizationStrategy ex:norm-ridectl-tasks ;
+  ex:errorHandling ex:error-policy-ridectl ;
+  ex:outputIsImmutable true .
+
+ex:norm-ridectl-tasks a ex:NormalizationStrategy ;
+  ex:hasFieldMapping ex:map-ride-task-id ;
+  ex:hasFieldMapping ex:map-ride-task-type ;
+  ex:hasFieldMapping ex:map-ride-task-ride-name ;
+  ex:normalizeTimestamp true ;
+  ex:normalizeStatus true ;
+  ex:idempotencyKey "task_id" ;
+  ex:deduplicationWindow "P7D" .
+
+ex:map-ride-task-id a ex:FieldMapping ;
+  ex:sourceFieldName "task_id" ;
+  ex:targetProperty "wom:workObjectId" ;
+  ex:dataType "string" ;
+  ex:transformation "identity" ;
+  ex:mandatory true .
+
+ex:map-ride-task-type a ex:FieldMapping ;
+  ex:sourceFieldName "task_type" ;
+  ex:targetProperty "wom:taskTitle" ;
+  ex:dataType "string" ;
+  ex:transformation "identity" ;
+  ex:mandatory true .
+
+ex:map-ride-task-ride-name a ex:FieldMapping ;
+  ex:sourceFieldName "ride_name" ;
+  ex:targetProperty "wom:taskDescription" ;
+  ex:dataType "string" ;
+  ex:transformation "identity" ;
+  ex:mandatory true .
+
+ex:error-policy-ridectl a ex:ErrorHandlingPolicy ;
+  rdf:type ex:PolicyDegrade ;
+  rdfs:comment "Degrade on error. Skip failed records. Safety-critical tasks can be re-pulled on next run." .
+
+# ==============================================================================
+# ADAPTER 6: Badge Scan → WOM Event (WAVE 3)
+# ==============================================================================
+
+ex:adapter-badge-scan a ex:Adapter ;
+  ex:adapterId "badge-scan" ;
+  ex:adapterVersion "1.0.0" ;
+  ex:sourceSystem ex:system-badgescan ;
+  ex:targetWorkObjectType wom:Event ;
+  ex:ingestPattern ex:PatternStream ;
+  ex:readOnly true ;
+  rdfs:comment "Stream badge scan events (access control logs) to Event audit trail. Enables security monitoring." ;
+  ex:normalizationStrategy ex:norm-badge-scan ;
+  ex:errorHandling ex:error-policy-badge ;
+  ex:outputIsImmutable true .
+
+ex:norm-badge-scan a ex:NormalizationStrategy ;
+  ex:hasFieldMapping ex:map-badge-scan-id ;
+  ex:hasFieldMapping ex:map-badge-employee ;
+  ex:hasFieldMapping ex:map-badge-location ;
+  ex:hasFieldMapping ex:map-badge-timestamp ;
+  ex:normalizeTimestamp true ;
+  ex:idempotencyKey "scan_id" ;
+  ex:deduplicationWindow "P1D" .
+
+ex:map-badge-scan-id a ex:FieldMapping ;
+  ex:sourceFieldName "scan_id" ;
+  ex:targetProperty "wom:eventId" ;
+  ex:dataType "string" ;
+  ex:transformation "identity" ;
+  ex:mandatory true .
+
+ex:map-badge-employee a ex:FieldMapping ;
+  ex:sourceFieldName "badge_id" ;
+  ex:targetProperty "wom:eventChangedBy" ;
+  ex:dataType "reference" ;
+  ex:transformation "lookup-employee-badge" ;
+  ex:mandatory true .
+
+ex:map-badge-location a ex:FieldMapping ;
+  ex:sourceFieldName "door_location" ;
+  ex:targetProperty "wom:eventLocation" ;
+  ex:dataType "reference" ;
+  ex:transformation "lookup-location" ;
+  ex:mandatory true .
+
+ex:map-badge-timestamp a ex:FieldMapping ;
+  ex:sourceFieldName "scan_timestamp" ;
+  ex:targetProperty "wom:eventTimestamp" ;
+  ex:dataType "datetime" ;
+  ex:transformation "parse-datetime" ;
+  ex:mandatory true .
+
+ex:error-policy-badge a ex:ErrorHandlingPolicy ;
+  rdf:type ex:PolicyDegrade ;
+  rdfs:comment "Degrade on error. High-volume stream; skip errors and continue." .
+
+# ==============================================================================
+# ADAPTER 7: Guest Ticketing → WOM Event (WAVE 3)
+# ==============================================================================
+
+ex:adapter-ticketing a ex:Adapter ;
+  ex:adapterId "ticketing" ;
+  ex:adapterVersion "1.0.0" ;
+  ex:sourceSystem ex:system-ticketing ;
+  ex:targetWorkObjectType wom:Event ;
+  ex:ingestPattern ex:PatternPull ;
+  ex:readOnly true ;
+  rdfs:comment "Ingest guest ticketing transactions. Enables revenue correlation with operations." ;
+  ex:normalizationStrategy ex:norm-ticketing ;
+  ex:errorHandling ex:error-policy-ticketing ;
+  ex:outputIsImmutable true .
+
+ex:norm-ticketing a ex:NormalizationStrategy ;
+  ex:hasFieldMapping ex:map-ticket-id ;
+  ex:hasFieldMapping ex:map-ticket-quantity ;
+  ex:hasFieldMapping ex:map-ticket-timestamp ;
+  ex:normalizeTimestamp true ;
+  ex:idempotencyKey "transaction_id" ;
+  ex:deduplicationWindow "P7D" .
+
+ex:map-ticket-id a ex:FieldMapping ;
+  ex:sourceFieldName "transaction_id" ;
+  ex:targetProperty "wom:eventId" ;
+  ex:dataType "string" ;
+  ex:transformation "identity" ;
+  ex:mandatory true .
+
+ex:map-ticket-quantity a ex:FieldMapping ;
+  ex:sourceFieldName "tickets_sold" ;
+  ex:targetProperty "wom:eventMetadata" ;
+  ex:dataType "integer" ;
+  ex:transformation "identity" ;
+  ex:mandatory true .
+
+ex:map-ticket-timestamp a ex:FieldMapping ;
+  ex:sourceFieldName "sale_timestamp" ;
+  ex:targetProperty "wom:eventTimestamp" ;
+  ex:dataType "datetime" ;
+  ex:transformation "parse-datetime" ;
+  ex:mandatory true .
+
+ex:error-policy-ticketing a ex:ErrorHandlingPolicy ;
+  rdf:type ex:PolicyDegrade ;
+  rdfs:comment "Degrade on error. Missing optional fields acceptable." .
+
+# ==============================================================================
+# ADAPTER 8: Parking → WOM Resource (WAVE 3)
+# ==============================================================================
+
+ex:adapter-parking a ex:Adapter ;
+  ex:adapterId "parking" ;
+  ex:adapterVersion "1.0.0" ;
+  ex:sourceSystem ex:system-parking ;
+  ex:targetWorkObjectType wom:Resource ;
+  ex:ingestPattern ex:PatternPull ;
+  ex:readOnly true ;
+  rdfs:comment "Ingest parking lot occupancy and space availability. Maps to Resource objects." ;
+  ex:normalizationStrategy ex:norm-parking ;
+  ex:errorHandling ex:error-policy-parking ;
+  ex:outputIsImmutable true .
+
+ex:norm-parking a ex:NormalizationStrategy ;
+  ex:hasFieldMapping ex:map-parking-space-id ;
+  ex:hasFieldMapping ex:map-parking-status ;
+  ex:hasFieldMapping ex:map-parking-location ;
+  ex:normalizeTimestamp true ;
+  ex:normalizeStatus true ;
+  ex:idempotencyKey "space_id" ;
+  ex:deduplicationWindow "P1D" .
+
+ex:map-parking-space-id a ex:FieldMapping ;
+  ex:sourceFieldName "space_id" ;
+  ex:targetProperty "wom:workObjectId" ;
+  ex:dataType "string" ;
+  ex:transformation "identity" ;
+  ex:mandatory true .
+
+ex:map-parking-status a ex:FieldMapping ;
+  ex:sourceFieldName "occupancy_status" ;
+  ex:targetProperty "wom:workObjectStatus" ;
+  ex:dataType "string" ;
+  ex:transformation "map-parking-status-to-wom" ;
+  ex:mandatory true .
+
+ex:map-parking-location a ex:FieldMapping ;
+  ex:sourceFieldName "lot_name" ;
+  ex:targetProperty "wom:resourceLocation" ;
+  ex:dataType "reference" ;
+  ex:transformation "lookup-location" ;
+  ex:mandatory true .
+
+ex:error-policy-parking a ex:ErrorHandlingPolicy ;
+  rdf:type ex:PolicyDegrade ;
+  rdfs:comment "Degrade on error. Parking data is advisory; can be re-pulled." .
+
+# ==============================================================================
+# ADAPTER 9: POS → WOM Event (WAVE 3)
+# ==============================================================================
+
+ex:adapter-pos a ex:Adapter ;
+  ex:adapterId "pos" ;
+  ex:adapterVersion "1.0.0" ;
+  ex:sourceSystem ex:system-pos ;
+  ex:targetWorkObjectType wom:Event ;
+  ex:ingestPattern ex:PatternPull ;
+  ex:readOnly true ;
+  rdfs:comment "Ingest POS transactions (retail sales). Enables revenue correlation with operations." ;
+  ex:normalizationStrategy ex:norm-pos ;
+  ex:errorHandling ex:error-policy-pos ;
+  ex:outputIsImmutable true .
+
+ex:norm-pos a ex:NormalizationStrategy ;
+  ex:hasFieldMapping ex:map-pos-transaction-id ;
+  ex:hasFieldMapping ex:map-pos-amount ;
+  ex:hasFieldMapping ex:map-pos-timestamp ;
+  ex:normalizeTimestamp true ;
+  ex:idempotencyKey "transaction_id" ;
+  ex:deduplicationWindow "P7D" .
+
+ex:map-pos-transaction-id a ex:FieldMapping ;
+  ex:sourceFieldName "transaction_id" ;
+  ex:targetProperty "wom:eventId" ;
+  ex:dataType "string" ;
+  ex:transformation "identity" ;
+  ex:mandatory true .
+
+ex:map-pos-amount a ex:FieldMapping ;
+  ex:sourceFieldName "total_amount" ;
+  ex:targetProperty "wom:eventMetadata" ;
+  ex:dataType "decimal" ;
+  ex:transformation "identity" ;
+  ex:mandatory true .
+
+ex:map-pos-timestamp a ex:FieldMapping ;
+  ex:sourceFieldName "transaction_time" ;
+  ex:targetProperty "wom:eventTimestamp" ;
+  ex:dataType "datetime" ;
+  ex:transformation "parse-datetime" ;
+  ex:mandatory true .
+
+ex:error-policy-pos a ex:ErrorHandlingPolicy ;
+  rdf:type ex:PolicyDegrade ;
+  rdfs:comment "Degrade on error. Retry on transient, skip on persistent." .
+
+# ==============================================================================
+# ADAPTER 10: Compliance Database → WOM Approval (WAVE 3)
+# ==============================================================================
+
+ex:adapter-compliance a ex:Adapter ;
+  ex:adapterId "compliance" ;
+  ex:adapterVersion "1.0.0" ;
+  ex:sourceSystem ex:system-compliance ;
+  ex:targetWorkObjectType wom:Approval ;
+  ex:ingestPattern ex:PatternPull ;
+  ex:readOnly true ;
+  rdfs:comment "Ingest compliance approvals and audit records. Maps to Approval objects with signature validation." ;
+  ex:normalizationStrategy ex:norm-compliance ;
+  ex:errorHandling ex:error-policy-compliance ;
+  ex:outputIsImmutable true .
+
+ex:norm-compliance a ex:NormalizationStrategy ;
+  ex:hasFieldMapping ex:map-compliance-id ;
+  ex:hasFieldMapping ex:map-compliance-type ;
+  ex:hasFieldMapping ex:map-compliance-approver ;
+  ex:hasFieldMapping ex:map-compliance-timestamp ;
+  ex:normalizeTimestamp true ;
+  ex:normalizeStatus true ;
+  ex:idempotencyKey "approval_id" ;
+  ex:deduplicationWindow "P90D" .
+
+ex:map-compliance-id a ex:FieldMapping ;
+  ex:sourceFieldName "approval_id" ;
+  ex:targetProperty "wom:workObjectId" ;
+  ex:dataType "string" ;
+  ex:transformation "identity" ;
+  ex:mandatory true .
+
+ex:map-compliance-type a ex:FieldMapping ;
+  ex:sourceFieldName "approval_type" ;
+  ex:targetProperty "wom:approvalType" ;
+  ex:dataType "string" ;
+  ex:transformation "identity" ;
+  ex:mandatory true .
+
+ex:map-compliance-approver a ex:FieldMapping ;
+  ex:sourceFieldName "approver_id" ;
+  ex:targetProperty "wom:approvalApprovedBy" ;
+  ex:dataType "reference" ;
+  ex:transformation "lookup-employee" ;
+  ex:mandatory true .
+
+ex:map-compliance-timestamp a ex:FieldMapping ;
+  ex:sourceFieldName "approval_timestamp" ;
+  ex:targetProperty "wom:approvalApprovedAt" ;
+  ex:dataType "datetime" ;
+  ex:transformation "parse-datetime" ;
+  ex:mandatory true .
+
+ex:error-policy-compliance a ex:ErrorHandlingPolicy ;
+  rdf:type ex:PolicyFailFast ;
+  rdfs:comment "Fail fast on compliance errors. Audit trail must be perfect; no approximations." .
+
+# ==============================================================================
+# ADAPTER 11: Custom Legacy System (WAVE 3)
+# ==============================================================================
+
+ex:adapter-custom-legacy a ex:Adapter ;
+  ex:adapterId "custom-legacy" ;
+  ex:adapterVersion "1.0.0" ;
+  ex:sourceSystem ex:system-custom ;
+  ex:targetWorkObjectType wom:Task ;
+  ex:ingestPattern ex:PatternPull ;
+  ex:readOnly true ;
+  rdfs:comment "Ingest from custom legacy systems (non-standard APIs, CSV, JDBC). Template adapter for extensibility." ;
+  ex:normalizationStrategy ex:norm-custom-legacy ;
+  ex:errorHandling ex:error-policy-custom ;
+  ex:outputIsImmutable true .
+
+ex:norm-custom-legacy a ex:NormalizationStrategy ;
+  ex:hasFieldMapping ex:map-custom-id ;
+  ex:hasFieldMapping ex:map-custom-title ;
+  ex:hasFieldMapping ex:map-custom-timestamp ;
+  ex:normalizeTimestamp true ;
+  ex:normalizeStatus true ;
+  ex:dropFields "internal_field_1,internal_field_2" ;
+  ex:idempotencyKey "record_id" ;
+  ex:deduplicationWindow "P7D" .
+
+ex:map-custom-id a ex:FieldMapping ;
+  ex:sourceFieldName "id" ;
+  ex:targetProperty "wom:workObjectId" ;
+  ex:dataType "string" ;
+  ex:transformation "identity" ;
+  ex:mandatory true .
+
+ex:map-custom-title a ex:FieldMapping ;
+  ex:sourceFieldName "name" ;
+  ex:targetProperty "wom:taskTitle" ;
+  ex:dataType "string" ;
+  ex:transformation "identity" ;
+  ex:mandatory true .
+
+ex:map-custom-timestamp a ex:FieldMapping ;
+  ex:sourceFieldName "created" ;
+  ex:targetProperty "wom:workObjectCreatedAt" ;
+  ex:dataType "datetime" ;
+  ex:transformation "parse-datetime" ;
+  ex:mandatory false .
+
+ex:error-policy-custom a ex:ErrorHandlingPolicy ;
+  rdf:type ex:PolicyDegrade ;
+  rdfs:comment "Degrade on error. Legacy system data quality is often poor; skip bad records." .
+
+# ==============================================================================
+# WAVE 2 PILOT SCOPE (3 Adapters, Proof of Framework)
+# ==============================================================================
+
+ex:Wave2PilotAdapters a owl:Class ;
+  rdfs:label "Wave 2 Pilot Adapters" ;
+  rdfs:comment "3-5 adapters to prove framework generalizability (target: <500 LOC each)" .
+
+ex:pilot-adapter-1 ex:adapterId "workday-shifts" ;
+  ex:Wave2PilotAdapters .
+
+ex:pilot-adapter-2 ex:adapterId "sap-resources" ;
+  ex:Wave2PilotAdapters .
+
+ex:pilot-adapter-3 ex:adapterId "slack-messages" ;
+  ex:Wave2PilotAdapters .
+
+# ==============================================================================
+# WAVE 3 EXPANSION (8 Adapters, Full Coverage)
+# ==============================================================================
+
+ex:Wave3ExpandedAdapters a owl:Class ;
+  rdfs:label "Wave 3 Expanded Adapters" ;
+  rdfs:comment "8 additional adapters (ServiceNow, Ride Control, Badge, Ticketing, Parking, POS, Compliance, Custom)" .
+

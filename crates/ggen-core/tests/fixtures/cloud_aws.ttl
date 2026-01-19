@@ -1,0 +1,253 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix cloud: <http://example.org/cloud/aws#> .
+
+# ============================================================================
+# Cloud AWS Ontology
+# ============================================================================
+
+<http://example.org/cloud/aws> a owl:Ontology ;
+    rdfs:label "AWS Cloud Ontology" ;
+    rdfs:comment "Ontology for AWS cloud services and resources" ;
+    owl:versionInfo "1.0.0" .
+
+# ============================================================================
+# CORE CLASSES
+# ============================================================================
+
+cloud:CloudService a owl:Class ;
+    rdfs:label "Cloud Service" ;
+    rdfs:comment "AWS cloud service" ;
+    rdfs:subClassOf owl:Thing .
+
+cloud:ComputeService a owl:Class ;
+    rdfs:label "Compute Service" ;
+    rdfs:comment "Compute service (EC2, Lambda, etc)" ;
+    rdfs:subClassOf cloud:CloudService .
+
+cloud:StorageService a owl:Class ;
+    rdfs:label "Storage Service" ;
+    rdfs:comment "Storage service (S3, EBS, etc)" ;
+    rdfs:subClassOf cloud:CloudService .
+
+cloud:DatabaseService a owl:Class ;
+    rdfs:label "Database Service" ;
+    rdfs:comment "Database service (RDS, DynamoDB, etc)" ;
+    rdfs:subClassOf cloud:CloudService .
+
+cloud:SecurityService a owl:Class ;
+    rdfs:label "Security Service" ;
+    rdfs:comment "Security service (IAM, KMS, etc)" ;
+    rdfs:subClassOf cloud:CloudService .
+
+cloud:EC2Instance a owl:Class ;
+    rdfs:label "EC2 Instance" ;
+    rdfs:comment "Elastic Compute Cloud instance" ;
+    rdfs:subClassOf cloud:ComputeService .
+
+cloud:S3Bucket a owl:Class ;
+    rdfs:label "S3 Bucket" ;
+    rdfs:comment "Simple Storage Service bucket" ;
+    rdfs:subClassOf cloud:StorageService .
+
+cloud:RDSDatabase a owl:Class ;
+    rdfs:label "RDS Database" ;
+    rdfs:comment "Relational Database Service instance" ;
+    rdfs:subClassOf cloud:DatabaseService .
+
+cloud:IAMRole a owl:Class ;
+    rdfs:label "IAM Role" ;
+    rdfs:comment "Identity and Access Management role" ;
+    rdfs:subClassOf cloud:SecurityService .
+
+cloud:Region a owl:Class ;
+    rdfs:label "Region" ;
+    rdfs:comment "AWS geographic region" ;
+    rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# OBJECT PROPERTIES
+# ============================================================================
+
+cloud:runsOn a owl:ObjectProperty ;
+    rdfs:label "runs On" ;
+    rdfs:comment "Service runs in this region" ;
+    rdfs:domain cloud:CloudService ;
+    rdfs:range cloud:Region .
+
+cloud:usesSecurity a owl:ObjectProperty ;
+    rdfs:label "uses Security" ;
+    rdfs:comment "Service uses security control" ;
+    rdfs:domain cloud:CloudService ;
+    rdfs:range cloud:SecurityService .
+
+cloud:storesDataIn a owl:ObjectProperty ;
+    rdfs:label "stores Data In" ;
+    rdfs:comment "Service stores data in this storage" ;
+    rdfs:domain cloud:CloudService ;
+    rdfs:range cloud:StorageService .
+
+cloud:assumesRole a owl:ObjectProperty ;
+    rdfs:label "assumes Role" ;
+    rdfs:comment "Service assumes this IAM role" ;
+    rdfs:domain cloud:ComputeService ;
+    rdfs:range cloud:IAMRole .
+
+cloud:accessedBy a owl:ObjectProperty ;
+    rdfs:label "accessed By" ;
+    rdfs:comment "Resource is accessed by this role" ;
+    rdfs:domain cloud:CloudService ;
+    rdfs:range cloud:IAMRole .
+
+# ============================================================================
+# DATATYPE PROPERTIES
+# ============================================================================
+
+cloud:serviceName a owl:DatatypeProperty ;
+    rdfs:label "service Name" ;
+    rdfs:comment "Name of the service" ;
+    rdfs:domain cloud:CloudService ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+cloud:serviceType a owl:DatatypeProperty ;
+    rdfs:label "service Type" ;
+    rdfs:comment "Type of service (compute, storage, database)" ;
+    rdfs:domain cloud:CloudService ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+cloud:instanceId a owl:DatatypeProperty ;
+    rdfs:label "instance ID" ;
+    rdfs:comment "AWS instance identifier" ;
+    rdfs:domain cloud:EC2Instance ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+cloud:instanceType a owl:DatatypeProperty ;
+    rdfs:label "instance Type" ;
+    rdfs:comment "EC2 instance type (t2.micro, m5.large, etc)" ;
+    rdfs:domain cloud:EC2Instance ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+cloud:bucketName a owl:DatatypeProperty ;
+    rdfs:label "bucket Name" ;
+    rdfs:comment "S3 bucket name" ;
+    rdfs:domain cloud:S3Bucket ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+cloud:bucketRegion a owl:DatatypeProperty ;
+    rdfs:label "bucket Region" ;
+    rdfs:comment "AWS region for bucket" ;
+    rdfs:domain cloud:S3Bucket ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+cloud:versioning a owl:DatatypeProperty ;
+    rdfs:label "versioning" ;
+    rdfs:comment "Whether versioning is enabled" ;
+    rdfs:domain cloud:S3Bucket ;
+    rdfs:range xsd:boolean .
+
+cloud:encryption a owl:DatatypeProperty ;
+    rdfs:label "encryption" ;
+    rdfs:comment "Encryption type (none, AES256, aws:kms)" ;
+    rdfs:domain cloud:S3Bucket ;
+    rdfs:range xsd:string .
+
+cloud:databaseEngine a owl:DatatypeProperty ;
+    rdfs:label "database Engine" ;
+    rdfs:comment "Database engine type (mysql, postgres, mariadb)" ;
+    rdfs:domain cloud:RDSDatabase ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+cloud:multiAZ a owl:DatatypeProperty ;
+    rdfs:label "multi AZ" ;
+    rdfs:comment "Whether multi-AZ deployment is enabled" ;
+    rdfs:domain cloud:RDSDatabase ;
+    rdfs:range xsd:boolean ;
+    a owl:FunctionalProperty .
+
+cloud:backupRetention a owl:DatatypeProperty ;
+    rdfs:label "backup Retention" ;
+    rdfs:comment "Backup retention period in days" ;
+    rdfs:domain cloud:RDSDatabase ;
+    rdfs:range xsd:integer .
+
+cloud:roleName a owl:DatatypeProperty ;
+    rdfs:label "role Name" ;
+    rdfs:comment "IAM role name" ;
+    rdfs:domain cloud:IAMRole ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+cloud:trustedService a owl:DatatypeProperty ;
+    rdfs:label "trusted Service" ;
+    rdfs:comment "AWS service that can assume this role" ;
+    rdfs:domain cloud:IAMRole ;
+    rdfs:range xsd:string .
+
+cloud:regionCode a owl:DatatypeProperty ;
+    rdfs:label "region Code" ;
+    rdfs:comment "AWS region code (us-east-1, eu-west-1)" ;
+    rdfs:domain cloud:Region ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+cloud:regionName a owl:DatatypeProperty ;
+    rdfs:label "region Name" ;
+    rdfs:comment "AWS region name" ;
+    rdfs:domain cloud:Region ;
+    rdfs:range xsd:string ;
+    a owl:FunctionalProperty .
+
+cloud:costPerHour a owl:DatatypeProperty ;
+    rdfs:label "cost Per Hour" ;
+    rdfs:comment "Estimated hourly cost in USD" ;
+    rdfs:domain cloud:CloudService ;
+    rdfs:range xsd:decimal .
+
+cloud:maxThroughput a owl:DatatypeProperty ;
+    rdfs:label "max Throughput" ;
+    rdfs:comment "Maximum throughput (Mbps, requests/sec)" ;
+    rdfs:domain cloud:CloudService ;
+    rdfs:range xsd:integer .
+
+# ============================================================================
+# CARDINALITY CONSTRAINTS
+# ============================================================================
+
+cloud:ServiceConstraint1 a owl:Restriction ;
+    owl:onClass cloud:CloudService ;
+    owl:onProperty cloud:runsOn ;
+    owl:minCardinality 1 .
+
+cloud:EC2Constraint1 a owl:Restriction ;
+    owl:onClass cloud:EC2Instance ;
+    owl:onProperty cloud:instanceId ;
+    owl:cardinality 1 .
+
+cloud:S3Constraint1 a owl:Restriction ;
+    owl:onClass cloud:S3Bucket ;
+    owl:onProperty cloud:bucketName ;
+    owl:cardinality 1 .
+
+cloud:RDSConstraint1 a owl:Restriction ;
+    owl:onClass cloud:RDSDatabase ;
+    owl:onProperty cloud:databaseEngine ;
+    owl:cardinality 1 .
+
+cloud:IAMConstraint1 a owl:Restriction ;
+    owl:onClass cloud:IAMRole ;
+    owl:onProperty cloud:roleName ;
+    owl:cardinality 1 .
+
+cloud:RegionConstraint1 a owl:Restriction ;
+    owl:onClass cloud:Region ;
+    owl:onProperty cloud:regionCode ;
+    owl:cardinality 1 .

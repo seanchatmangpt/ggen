@@ -1,22 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Configuration Management Guide](#configuration-management-guide)
-  - [ggen.toml Structure](#ggentoml-structure)
-  - [Project Hierarchy: Workspace → Project → Package](#project-hierarchy-workspace-%E2%86%92-project-%E2%86%92-package)
-    - [Inheritance Rules](#inheritance-rules)
-  - [gpack.toml for Individual Packages](#gpacktoml-for-individual-packages)
-  - [Makefile.toml Lifecycle Tasks](#makefiletoml-lifecycle-tasks)
-  - [Configuration Parsing](#configuration-parsing)
-  - [Environment Variable Overrides](#environment-variable-overrides)
-  - [Configuration Validation](#configuration-validation)
-  - [Configuration Testing](#configuration-testing)
-  - [Critical Rules](#critical-rules)
-  - [Quick Reference](#quick-reference)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Configuration Management Guide
 
 ## ggen.toml Structure

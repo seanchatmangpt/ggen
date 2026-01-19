@@ -1,0 +1,71 @@
+---
+description: Chicago TDD testing methodology
+globs:
+  - "tests/**/*.c"
+  - "**/*_test.rs"
+alwaysApply: false
+---
+
+# Chicago TDD Testing Standards
+
+## Principles
+
+- **Classicist Approach**: State-based tests, not interaction-based
+- **Real Collaborators**: Use real objects, minimize mocks
+- **Verify Outputs**: Test results and invariants, not implementation details
+- **OTEL Validation**: Test results are truth source, not code comments
+
+## Test Structure
+
+```c
+// Test: Descriptive name
+static int test_feature_name(void) {
+    printf("[TEST] Feature Name\n");
+    
+    // Setup
+    // Execute
+    // Verify
+    
+    printf("  ✓ Feature verified\n");
+    return 1;
+}
+```
+
+## Test Organization
+
+- Group related tests in test suites
+- Use helper functions for common setup
+- Verify both success and error paths
+- Test guard constraint violations
+
+## Performance Testing
+
+- Measure hot path operations
+- Exclude routing/dispatch overhead
+- Verify ≤8 ticks compliance
+- Use statistical measures (p50, p95, p99)
+
+## Examples
+
+### BAD: Testing Implementation Details
+```c
+// Tests internal function calls
+assert(function_called == true);
+```
+
+### GOOD: Testing Behavior
+```c
+// Tests actual behavior and results
+knhks_receipt_t rcpt = {0};
+int result = knhks_eval_bool(&ctx, &ir, &rcpt);
+assert(result == 1);
+assert(rcpt.ticks <= 8);
+```
+
+## Best Practices
+
+- Test critical paths first (80/20)
+- Verify error handling
+- Test edge cases
+- Use real data when possible
+- Measure performance accurately

@@ -7,7 +7,7 @@ use super::schema::*;
 use crate::graph::Graph;
 use oxigraph::model::Term;
 use oxigraph::sparql::QueryResults;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 
 /// Extractor for RDF/OWL ontologies using SPARQL queries
 pub struct OntologyExtractor;
@@ -56,8 +56,7 @@ impl OntologyExtractor {
         "#;
 
         let mut classes = Vec::new();
-        // **FMEA Fix**: Use BTreeMap for deterministic iteration order
-        let mut class_map: BTreeMap<String, OntClass> = BTreeMap::new();
+        let mut class_map: HashMap<String, OntClass> = HashMap::new();
 
         let results = graph.query(query).map_err(|e| e.to_string())?;
 
@@ -145,8 +144,7 @@ impl OntologyExtractor {
         "#;
 
         let mut properties = Vec::new();
-        // **FMEA Fix**: Use BTreeSet for deterministic iteration order
-        let class_uris: BTreeSet<_> = classes.iter().map(|c| c.uri.clone()).collect();
+        let class_uris: HashSet<_> = classes.iter().map(|c| c.uri.clone()).collect();
 
         let results = graph.query(query).map_err(|e| e.to_string())?;
 
@@ -312,6 +310,7 @@ impl OntologyExtractor {
             Term::NamedNode(n) => n.as_str().to_string(),
             Term::Literal(l) => l.value().to_string(),
             Term::BlankNode(b) => b.as_str().to_string(),
+            _ => term.to_string(),
         }
     }
 
@@ -476,8 +475,7 @@ impl OntologyExtractor {
     /// Build relationship graph from properties
     fn build_relationships(schema: &OntologySchema) -> Vec<OntRelationship> {
         let mut relationships = Vec::new();
-        // **FMEA Fix**: Use BTreeMap for deterministic iteration order
-        let class_uri_map: BTreeMap<&str, &OntClass> =
+        let class_uri_map: HashMap<&str, &OntClass> =
             schema.classes.iter().map(|c| (c.uri.as_str(), c)).collect();
 
         for prop in &schema.properties {

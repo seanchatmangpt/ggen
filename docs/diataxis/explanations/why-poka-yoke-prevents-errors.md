@@ -1,32 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Explanation: Why Poka-Yoke Prevents Errors](#explanation-why-poka-yoke-prevents-errors)
-  - [The Philosophy](#the-philosophy)
-  - [Historical Context](#historical-context)
-    - [The Toyota Assembly Line Story](#the-toyota-assembly-line-story)
-  - [Rust's Type System as Poka-Yoke](#rusts-type-system-as-poka-yoke)
-    - [Example: Use-After-Free (Impossible in Rust)](#example-use-after-free-impossible-in-rust)
-  - [The 5 Poka-Yoke Patterns in Software](#the-5-poka-yoke-patterns-in-software)
-    - [Pattern 1: Guide Pin (Type Constraints)](#pattern-1-guide-pin-type-constraints)
-    - [Pattern 2: Limit Switch (Bounded Values)](#pattern-2-limit-switch-bounded-values)
-    - [Pattern 3: Fail-Safe (Option/Result Types)](#pattern-3-fail-safe-optionresult-types)
-    - [Pattern 4: Counter (State Machines)](#pattern-4-counter-state-machines)
-    - [Pattern 5: Sequencing (Lifetime Constraints)](#pattern-5-sequencing-lifetime-constraints)
-  - [Comparison: Runtime Checks vs Compile-Time Poka-Yoke](#comparison-runtime-checks-vs-compile-time-poka-yoke)
-  - [When to Use Each Poka-Yoke Pattern](#when-to-use-each-poka-yoke-pattern)
-  - [Real-World Success Stories](#real-world-success-stories)
-    - [ggen Project](#ggen-project)
-    - [Cloudflare Workers Runtime](#cloudflare-workers-runtime)
-  - [Common Misconceptions](#common-misconceptions)
-    - ["Poka-Yoke is Just Input Validation"](#poka-yoke-is-just-input-validation)
-    - ["Types Slow Down Development"](#types-slow-down-development)
-  - [Conclusion](#conclusion)
-  - [Related Resources](#related-resources)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Explanation: Why Poka-Yoke Prevents Errors
 
 **How compile-time mistake-proofing eliminates runtime failures (5 patterns: guide pin, limit switches, fail-safe, counter, sequencing)**

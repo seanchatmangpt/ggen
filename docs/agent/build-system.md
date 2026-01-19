@@ -1,32 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Build System Guide](#build-system-guide)
-  - [cargo make Tasks and Targets](#cargo-make-tasks-and-targets)
-    - [Quick Feedback Loop (Fast Iteration)](#quick-feedback-loop-fast-iteration)
-    - [Full Validation Pipeline](#full-validation-pipeline)
-    - [Timeout SLAs (CRITICAL)](#timeout-slas-critical)
-    - [Performance Profiling](#performance-profiling)
-    - [Security & Quality](#security--quality)
-    - [Development Utilities](#development-utilities)
-  - [Makefile.toml Structure](#makefiletoml-structure)
-  - [Pre-Commit & Pre-Push Hooks](#pre-commit--pre-push-hooks)
-    - [Hook Configuration](#hook-configuration)
-  - [CI/CD Validation Gates](#cicd-validation-gates)
-  - [Andon Signals (Stop-the-Line Quality)](#andon-signals-stop-the-line-quality)
-    - [CRITICAL (RED) Signals - STOP THE LINE](#critical-red-signals---stop-the-line)
-    - [HIGH (YELLOW) Signals - Should Stop](#high-yellow-signals---should-stop)
-    - [Andon Workflow](#andon-workflow)
-  - [SLO Verification](#slo-verification)
-    - [Performance Targets](#performance-targets)
-  - [Workspace Management](#workspace-management)
-  - [Profiling & Debugging](#profiling--debugging)
-  - [Critical Rules](#critical-rules)
-  - [Example Makefile.toml](#example-makefiletoml)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Build System Guide
 
 ## cargo make Tasks and Targets

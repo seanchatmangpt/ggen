@@ -1,36 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [GEMBA WALK - Go to the Actual Place](#gemba-walk---go-to-the-actual-place)
-  - [Phase 2: ggen.toml + clap-noun-verb Integration](#phase-2-ggentoml--clap-noun-verb-integration)
-  - [What is GEMBA?](#what-is-gemba)
-  - [🔍 GEMBA Observation 1: CLI Usage](#-gemba-observation-1-cli-usage)
-    - [Scenario: New User First Experience](#scenario-new-user-first-experience)
-    - [Scenario: Generate Code from Template](#scenario-generate-code-from-template)
-    - [Scenario: Parse ggen.toml Configuration](#scenario-parse-ggentoml-configuration)
-  - [🧪 GEMBA Observation 2: Error Message Quality](#-gemba-observation-2-error-message-quality)
-    - [Scenario: Invalid TOML Syntax](#scenario-invalid-toml-syntax)
-    - [Scenario: Missing Required Field](#scenario-missing-required-field)
-  - [⚡ GEMBA Observation 3: Performance](#-gemba-observation-3-performance)
-    - [Scenario: Generate 100 Files from Templates](#scenario-generate-100-files-from-templates)
-    - [Scenario: Incremental Generation (Update 1 File)](#scenario-incremental-generation-update-1-file)
-  - [📚 GEMBA Observation 4: Test Coverage Reality](#-gemba-observation-4-test-coverage-reality)
-    - [Scenario: Run Full Test Suite](#scenario-run-full-test-suite)
-    - [Scenario: Property-Based Testing (Proptest)](#scenario-property-based-testing-proptest)
-  - [👥 GEMBA Observation 5: Developer Experience](#-gemba-observation-5-developer-experience)
-    - [Scenario: New Developer Onboarding](#scenario-new-developer-onboarding)
-    - [Scenario: Debugging Configuration Issues](#scenario-debugging-configuration-issues)
-  - [📊 GEMBA Summary: Actual vs Expected](#-gemba-summary-actual-vs-expected)
-  - [🎯 Priority Fixes (Based on Gemba)](#-priority-fixes-based-on-gemba)
-    - [P0 (Blocking Issues - Fix Immediately)](#p0-blocking-issues---fix-immediately)
-    - [P1 (User Experience - Fix in Phase 2)](#p1-user-experience---fix-in-phase-2)
-    - [P2 (Quality - Fix in Phase 3)](#p2-quality---fix-in-phase-3)
-  - [Success Metrics (After Fixes)](#success-metrics-after-fixes)
-  - [Lessons from Gemba](#lessons-from-gemba)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # GEMBA WALK - Go to the Actual Place
 ## Phase 2: ggen.toml + clap-noun-verb Integration
 

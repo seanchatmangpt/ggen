@@ -1,0 +1,24 @@
+# Full schema test fixture - demonstrates all GgenConfig features
+# Used for comprehensive integration testing
+
+[project]
+name = "test-full-schema"
+version = "1.0.0"
+output_dir = "generated"
+
+[prefixes]
+ex = "http://example.org/"
+schema = "http://schema.org/"
+ggen = "http://ggen.org/ontology/"
+
+[rdf]
+files = ["tests/fixtures/sample.ttl"]
+inline = [
+  "@prefix ex: <http://example.org/> .",
+  "ex:TestProject a ex:Project ."
+]
+
+[vars]
+project_name = "test-full-schema"
+author = "Test Author"
+year = "2024"

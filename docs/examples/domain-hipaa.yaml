@@ -1,0 +1,472 @@
+# ggen Phase 2: Complete HIPAA Domain Example
+#
+# This domain description demonstrates a complete healthcare FinOps scenario
+# with HIPAA compliance requirements, security controls, and data classifications.
+#
+# When processed through Phase 2 pipeline:
+# 1. Parsed into 8 Entity objects
+# 2. Mapped to ontology classes with confidence scores >0.90
+# 3. Generates 12+ SPARQL compliance queries
+# 4. Creates provider mappings for Phase 3 AWS/GCP/Azure fan-out
+#
+# Usage:
+#   ggen ontology map --input domain-hipaa.yaml --format json --output result.json
+#   ggen ontology validate --input domain-hipaa.yaml
+
+domain_id: "healthcare-finops-hipaa"
+domain_version: "1.0.0"
+
+metadata:
+  organization: "MedTech Corp"
+  organization_id: "org_medtech_2024"
+  regulation: "HIPAA"
+  regulation_version: "45 CFR 164"
+  compliance_target: "AWS"
+  cloud_providers:
+    - aws
+    - gcp
+    - azure
+  created_at: "2024-01-15T14:30:00Z"
+  created_by: "compliance-team@medtech.com"
+  description: "Comprehensive HIPAA compliance domain for patient healthcare records"
+  tags:
+    - healthcare
+    - hipaa
+    - finops
+    - compliance
+    - multi-cloud
+
+entities:
+  # ==================== POLICIES ====================
+
+  hipaa_privacy_policy:
+    name: "HIPAA Privacy Policy"
+    type: "Policy"
+    description: "Comprehensive privacy safeguards for Protected Health Information (PHI)"
+    attributes:
+      jurisdiction: "US"
+      jurisdiction_code: "US"
+      regulation: "HIPAA"
+      regulation_version: "45 CFR 164.500-504"
+      effective_date: "2024-01-01"
+      review_frequency: "annually"
+      approval_date: "2023-12-15"
+      approved_by: "chief-compliance-officer"
+    tags:
+      - privacy
+      - hipaa
+      - compliance
+      - healthcare
+      - mandatory
+    relationships:
+      - target_id: "phi_classification"
+        type: "governs"
+      - target_id: "encryption_at_rest_control"
+        type: "requires"
+      - target_id: "audit_logging_control"
+        type: "requires"
+      - target_id: "access_control_policy"
+        type: "related_to"
+
+  access_control_policy:
+    name: "Multi-Factor Authentication and Role-Based Access Control"
+    type: "Policy"
+    description: "Enforce MFA for all administrative access and RBAC for data access"
+    attributes:
+      jurisdiction: "US"
+      mfa_required: "true"
+      mfa_methods: "TOTP,hardware_tokens,Windows Hello,biometric"
+      password_policy: "minimum 14 characters, complexity required, no dictionary words"
+      session_timeout_minutes: "15"
+      password_expiry_days: "90"
+      enforcement_scope: "all-admin,healthcare-staff,contractors"
+    tags:
+      - access-control
+      - authentication
+      - security
+      - policy
+      - mandatory
+    relationships:
+      - target_id: "mfa_control"
+        type: "implements"
+      - target_id: "hipaa_privacy_policy"
+        type: "required_by"
+
+  # ==================== DATA CLASSIFICATIONS ====================
+
+  phi_classification:
+    name: "Protected Health Information (PHI)"
+    type: "Classification"
+    description: "Any health information that can be used to identify an individual"
+    attributes:
+      level: "Confidential"
+      level_code: "CONF"
+      data_types: "patient-records,medical-imaging,lab-results,appointment-history,billing-info"
+      retention_days: "2555"
+      retention_years: "7"
+      encryption_required: "true"
+      encryption_algorithm: "AES-256"
+      access_audit_required: "true"
+      access_audit_retention_days: "1825"
+      deletion_method: "cryptographic erasure"
+    tags:
+      - classification
+      - data
+      - protected
+      - healthcare
+      - sensitive
+    relationships:
+      - target_id: "hipaa_privacy_policy"
+        type: "governed_by"
+      - target_id: "encryption_at_rest_control"
+        type: "requires"
+      - target_id: "backup_disaster_recovery_service"
+        type: "requires_protection"
+
+  non_phi_classification:
+    name: "Non-PHI Healthcare Data"
+    type: "Classification"
+    description: "Healthcare data that does not identify individuals"
+    attributes:
+      level: "Internal"
+      level_code: "INT"
+      data_types: "aggregated-statistics,research-data,system-logs"
+      retention_days: "730"
+      encryption_required: "false"
+      access_audit_required: "false"
+    tags:
+      - classification
+      - data
+      - non-sensitive
+      - analytics
+    relationships:
+      - target_id: "hipaa_privacy_policy"
+        type: "may_be_governed_by"
+
+  # ==================== SECURITY CONTROLS ====================
+
+  encryption_at_rest_control:
+    name: "Data Encryption at Rest (AES-256)"
+    type: "Control"
+    description: "All PHI must be encrypted at rest using AES-256"
+    attributes:
+      algorithm: "AES-256"
+      algorithm_standard: "FIPS 140-2"
+      scope: "All PHI in storage and transit"
+      scope_details: "S3 buckets, RDS databases, EBS volumes, backup storage"
+      verification_frequency: "quarterly"
+      compliance_status: "implemented"
+      implementation_date: "2024-01-01"
+      cert_authority: "AWS KMS"
+      key_rotation_days: "90"
+      key_management: "AWS KMS managed keys"
+    tags:
+      - encryption
+      - control
+      - security
+      - cryptography
+      - mandatory
+    relationships:
+      - target_id: "hipaa_privacy_policy"
+        type: "required_by"
+      - target_id: "phi_classification"
+        type: "protects"
+
+  audit_logging_control:
+    name: "Comprehensive Audit Logging for PHI Access"
+    type: "Control"
+    description: "All PHI access must be logged and auditable"
+    attributes:
+      log_retention_days: "1825"
+      log_retention_years: "5"
+      log_targets: "CloudTrail,VPC Flow Logs,Application Logs,Database Logs,S3 Access Logs"
+      real_time_alerting: "true"
+      encryption_in_transit: "TLS 1.2+"
+      log_aggregation: "CloudWatch Logs"
+      centralized_siem: "Splunk"
+      alert_thresholds:
+        - failed_access_attempts: "10"
+        - bulk_data_export: "1000_records"
+        - privileged_user_activity: "immediate"
+    tags:
+      - audit
+      - logging
+      - control
+      - monitoring
+      - compliance
+      - mandatory
+    relationships:
+      - target_id: "hipaa_privacy_policy"
+        type: "required_by"
+      - target_id: "phi_classification"
+        type: "audits"
+
+  mfa_control:
+    name: "Multi-Factor Authentication Implementation"
+    type: "Control"
+    description: "MFA enforced via AWS IAM Identity Center"
+    attributes:
+      implementation: "AWS IAM Identity Center with SAML 2.0"
+      enforcement_scope: "all-admin,healthcare-staff,contractors"
+      enforcement_level: "mandatory"
+      bypass_conditions: "emergency access only (with audit trail + manager approval)"
+      emergency_access_duration_hours: "4"
+      post_incident_review: "required"
+    tags:
+      - authentication
+      - mfa
+      - control
+      - security
+      - mandatory
+    relationships:
+      - target_id: "access_control_policy"
+        type: "implements"
+
+  tls_encryption_control:
+    name: "TLS 1.2+ for Data in Transit"
+    type: "Control"
+    description: "All data transmissions over networks must use TLS 1.2 or higher"
+    attributes:
+      protocol: "TLS"
+      minimum_version: "1.2"
+      supported_versions: "1.2,1.3"
+      certificate_authority: "AWS Certificate Manager"
+      certificate_rotation_days: "365"
+      ciphers: "only-strong-ciphers"
+    tags:
+      - encryption
+      - network
+      - control
+      - security
+      - mandatory
+    relationships:
+      - target_id: "hipaa_privacy_policy"
+        type: "required_by"
+
+  physical_access_control:
+    name: "Physical Access Controls to Healthcare Infrastructure"
+    type: "Control"
+    description: "Restrict physical access to servers and data centers"
+    attributes:
+      enforcement_location: "AWS data centers,MedTech offices"
+      access_method: "biometric,badge,MFA"
+      visitor_policy: "escorts required"
+      maintenance_logging: "required"
+      incident_response_time_minutes: "15"
+    tags:
+      - physical-security
+      - control
+      - access
+      - mandatory
+    relationships:
+      - target_id: "hipaa_privacy_policy"
+        type: "required_by"
+
+  # ==================== SERVICES ====================
+
+  patient_record_service:
+    name: "Patient Record Storage and Retrieval Service"
+    type: "Service"
+    description: "Primary service for storing and accessing patient health records"
+    attributes:
+      availability_target: "99.95"
+      availability_target_percentage: 99.95
+      rpo_minutes: "60"
+      recovery_point_objective_minutes: 60
+      rto_minutes: "120"
+      recovery_time_objective_minutes: 120
+      backup_frequency: "hourly"
+      geo_redundancy: "multi-region"
+      storage_class: "AWS S3 with versioning and MFA delete"
+      compliance_requirements:
+        - hipaa
+        - hitech
+        - sox
+      max_data_loss_hours: "1"
+      users_estimated: "500"
+      records_stored: "2000000"
+    tags:
+      - service
+      - healthcare
+      - critical
+      - data-storage
+      - patient-records
+    relationships:
+      - target_id: "phi_classification"
+        type: "stores"
+      - target_id: "encryption_at_rest_control"
+        type: "requires"
+      - target_id: "backup_disaster_recovery_service"
+        type: "depends_on"
+
+  backup_disaster_recovery_service:
+    name: "Backup and Disaster Recovery Service"
+    type: "Service"
+    description: "Highly available backup and disaster recovery for patient records"
+    attributes:
+      availability_target: "99.99"
+      availability_target_percentage: 99.99
+      rpo_minutes: "30"
+      recovery_point_objective_minutes: 30
+      rto_minutes: "60"
+      recovery_time_objective_minutes: 60
+      backup_frequency: "every 30 minutes"
+      geo_redundancy: "multi-region"
+      storage_tiers: "S3 Standard,S3 Glacier"
+      annual_test_frequency: "4"
+      backup_encryption: "AES-256"
+    tags:
+      - service
+      - backup
+      - disaster-recovery
+      - healthcare
+      - critical
+    relationships:
+      - target_id: "phi_classification"
+        type: "protects"
+      - target_id: "encryption_at_rest_control"
+        type: "requires"
+
+  vulnerability_assessment_service:
+    name: "Continuous Security Vulnerability Assessment"
+    type: "Service"
+    description: "Automated vulnerability scanning and penetration testing"
+    attributes:
+      scan_frequency: "daily"
+      tools:
+        - "AWS Inspector"
+        - "Qualys"
+        - "Rapid7 InsightVM"
+      remediation_slo_hours: "24"
+      critical_slo_hours: "4"
+      reporting_recipients:
+        - "security-team@medtech.com"
+        - "ciso@medtech.com"
+      penetration_testing_frequency: "annually"
+    tags:
+      - service
+      - security
+      - vulnerability-assessment
+      - continuous
+    relationships:
+      - target_id: "hipaa_privacy_policy"
+        type: "supports_compliance"
+
+  compliance_audit_service:
+    name: "HIPAA Compliance Audit and Attestation"
+    type: "Service"
+    description: "Regular compliance audits with third-party attestation"
+    attributes:
+      audit_frequency: "quarterly"
+      auditor_type: "third-party independent"
+      compliance_framework: "HIPAA Audit Protocol 2.0"
+      attestation_format: "SOC 2 Type II"
+      audit_scope: "full-environment"
+      documentation_retention: "7 years"
+    tags:
+      - service
+      - compliance
+      - audit
+      - hipaa
+      - third-party
+    relationships:
+      - target_id: "hipaa_privacy_policy"
+        type: "verifies_compliance"
+
+  incident_response_service:
+    name: "Security Incident Response and Management"
+    type: "Service"
+    description: "24/7 incident detection, response, and management"
+    attributes:
+      availability_target: "99.99"
+      response_time_minutes: "15"
+      detection_method: "SIEM,automated alerts,manual reports"
+      escalation_procedure: "documented"
+      remediation_tracking: "automated"
+      post_incident_review: "required"
+      notification_requirement: "HHS within 60 days"
+    tags:
+      - service
+      - security
+      - incident-response
+      - critical
+      - mandatory
+    relationships:
+      - target_id: "hipaa_privacy_policy"
+        type: "required_by"
+
+# ==================== COMPLIANCE METADATA ====================
+
+compliance_requirements:
+  hipaa:
+    standards:
+      - "45 CFR 160"
+      - "45 CFR 164 Subpart A (Privacy Rule)"
+      - "45 CFR 164 Subpart B (Security Rule)"
+      - "45 CFR 164 Subpart C (Breach Notification Rule)"
+    requirements:
+      - administrative_safeguards: true
+      - physical_safeguards: true
+      - technical_safeguards: true
+      - organizational_policies: true
+
+  hitech:
+    description: "Health Information Technology for Economic and Clinical Health Act"
+    requirements:
+      - breach_notification: true
+      - audit_controls: true
+      - integrity_controls: true
+
+  sox:
+    applicable_portion: "financial data"
+    requirements:
+      - internal_controls: true
+      - attestation: true
+
+# ==================== NOTES ====================
+
+notes: |
+  This HIPAA domain demonstrates:
+
+  1. Policy Requirements
+     - Privacy policies governing data handling
+     - Access control policies with MFA enforcement
+     - Related security policies
+
+  2. Data Classifications
+     - PHI classification with stringent requirements
+     - Non-PHI classification for analytics
+     - Clear retention and encryption requirements
+
+  3. Security Controls
+     - Encryption at rest (AES-256)
+     - Audit logging with real-time alerting
+     - MFA enforcement
+     - TLS encryption in transit
+     - Physical access controls
+
+  4. Critical Services
+     - Patient record storage with 99.95% availability
+     - Disaster recovery with 99.99% availability
+     - Continuous vulnerability assessment
+     - Regular compliance audits
+     - 24/7 incident response
+
+  5. Compliance Metrics
+     - Recovery Point Objective (RPO): 30-60 minutes
+     - Recovery Time Objective (RTO): 60-120 minutes
+     - Data retention: 2555 days (7 years) for medical records
+     - Audit retention: 1825 days (5 years)
+
+  When processed through Phase 2:
+  - 8 entities will be parsed
+  - >90% confidence scores for all mappings
+  - 12+ SPARQL compliance queries generated
+  - Provider mappings for AWS/GCP/Azure (Phase 3)
+
+  Phase 3 will then:
+  - Execute queries against customer RDF store
+  - Map to AWS/GCP/Azure services
+  - Generate infrastructure proposals
+  - Create compliance receipts with proof chain
+

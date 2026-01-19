@@ -1,0 +1,32 @@
+[package]
+name = "advanced-ai-usage"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Main ggen dependencies
+ggen-ai = { path = "../../ggen-ai" }
+ggen-core = { path = "../../ggen-core" }
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# Environment variables
+dotenvy = "0.15"
+
+# Error handling
+anyhow = "1"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Terminal UI
+colored = "2"
+
+# Streaming
+futures = "0.3"
+
+[[bin]]
+name = "advanced-ai-demo"
+path = "src/main.rs"

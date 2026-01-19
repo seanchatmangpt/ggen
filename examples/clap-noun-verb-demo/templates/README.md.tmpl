@@ -1,0 +1,57 @@
+# {{ project.name }}
+
+{{ project.description }}
+
+## Installation
+
+```bash
+cargo install {{ project.name }}
+```
+
+## Usage
+
+```bash
+{{ project.name }} --help
+```
+
+## Commands
+
+{% for noun in project.nouns -%}
+### {{ noun.name | capitalize }}
+
+{{ noun.description }}
+
+{% for verb in noun.verbs -%}
+#### `{{ project.name }} {{ noun.name }} {{ verb.name }}`
+
+{{ verb.description }}
+
+**Arguments:**
+{% for arg in verb.arguments -%}
+- `{% if arg.long %}--{{ arg.long }}{% if arg.short %}, -{{ arg.short }}{% endif %}{% else %}{{ arg.value_name }}{% endif %}`: {{ arg.help }}{% if arg.required %} (required){% endif %}{% if arg.default %} (default: `{{ arg.default }}`){% endif %}
+{% endfor %}
+
+**Example:**
+```bash
+{{ project.name }} {{ noun.name }} {{ verb.name }} {% for arg in verb.arguments %}{% if arg.position is defined %}example-{{ arg.name }}{% else %}--{{ arg.long }} value{% endif %} {% endfor %}
+```
+
+{% endfor %}
+{% endfor %}
+
+## Development
+
+```bash
+# Build
+cargo build
+
+# Run tests
+cargo test
+
+# Run
+cargo run -- {{ project.nouns[0].name }} {{ project.nouns[0].verbs[0].name }} --help
+```
+
+## License
+
+{{ project.license }}

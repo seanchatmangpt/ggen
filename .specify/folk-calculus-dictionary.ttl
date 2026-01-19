@@ -1,0 +1,1107 @@
+# Folk Strategy to Calculus Dictionary
+# Complete mapping of 60+ folk strategy terms to mathematical calculus objects
+# Purpose: Encode folk entrepreneurship wisdom as queryable RDF ontology
+# Version: 1.0
+# Created: 2026-01-18
+
+@prefix folk: <http://ggen.io/folk-strategy/> .
+@prefix calc: <http://ggen.io/calculus/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ==============================================================================
+# CORE VOCABULARY
+# ==============================================================================
+
+folk:FolkTerm a owl:Class ;
+    rdfs:label "Folk Strategy Term" ;
+    rdfs:comment "An informal term used in entrepreneurship to describe phenomena" .
+
+folk:CalculusMapping a owl:Class ;
+    rdfs:label "Calculus Mapping" ;
+    rdfs:comment "Links a folk term to one or more calculus objects" .
+
+folk:Attribution a owl:Class ;
+    rdfs:label "Attribution" ;
+    rdfs:comment "What phenomenon class the folk term attributes causality to (luck, skill, art, mystery)" .
+
+folk:ObservableConsequence a owl:Class ;
+    rdfs:label "Observable Consequence" ;
+    rdfs:comment "Measurable empirical outcome predicted by the folk term" .
+
+# Attribution types
+folk:Luck a folk:Attribution ;
+    rdfs:label "Luck" ;
+    rdfs:comment "Attributed to chance or serendipity" .
+
+folk:Skill a folk:Attribution ;
+    rdfs:label "Skill" ;
+    rdfs:comment "Attributed to deliberate human action and capability" .
+
+folk:Art a folk:Attribution ;
+    rdfs:label "Art" ;
+    rdfs:comment "Attributed to intuitive judgment and pattern recognition" .
+
+folk:Mystery a folk:Attribution ;
+    rdfs:label "Mystery" ;
+    rdfs:comment "Attributed to unknown or incompletely understood phenomenon" .
+
+folk:System a folk:Attribution ;
+    rdfs:label "System" ;
+    rdfs:comment "Attributed to emergent behavior of interconnected components" .
+
+# Calculus object types
+calc:Field a owl:Class ;
+    rdfs:label "Scalar Field" ;
+    rdfs:comment "Function f: ℝⁿ → ℝ assigning values across parameter space" .
+
+calc:VectorField a owl:Class ;
+    rdfs:label "Vector Field" ;
+    rdfs:comment "Function F: ℝⁿ → ℝⁿ assigning velocity/direction at each point" .
+
+calc:Derivative a owl:Class ;
+    rdfs:label "Derivative" ;
+    rdfs:comment "Rate of change df/dt or ∇f" .
+
+calc:Integral a owl:Class ;
+    rdfs:label "Integral" ;
+    rdfs:comment "Accumulated quantity ∫f(t)dt" .
+
+calc:Threshold a owl:Class ;
+    rdfs:label "Threshold" ;
+    rdfs:comment "Critical value where system behavior changes qualitatively" .
+
+calc:Attractor a owl:Class ;
+    rdfs:label "Attractor" ;
+    rdfs:comment "Stable equilibrium state system evolves toward" .
+
+calc:Divergence a owl:Class ;
+    rdfs:label "Divergence" ;
+    rdfs:comment "∇·F: rate at which field spreads or concentrates" .
+
+calc:Gradient a owl:Class ;
+    rdfs:label "Gradient" ;
+    rdfs:comment "∇f: direction and magnitude of steepest ascent" .
+
+calc:DynamicalSystem a owl:Class ;
+    rdfs:label "Dynamical System" ;
+    rdfs:comment "System with time-evolving state: dx/dt = f(x,t)" .
+
+calc:StochasticProcess a owl:Class ;
+    rdfs:label "Stochastic Process" ;
+    rdfs:comment "Random process with probabilistic evolution" .
+
+# Properties
+folk:mapsTo a owl:ObjectProperty ;
+    rdfs:domain folk:FolkTerm ;
+    rdfs:range calc:CalculusObject ;
+    rdfs:label "maps to" ;
+    rdfs:comment "Connects folk term to calculus object" .
+
+folk:hasAttribution a owl:ObjectProperty ;
+    rdfs:domain folk:FolkTerm ;
+    rdfs:range folk:Attribution ;
+    rdfs:label "has attribution" ;
+    rdfs:comment "Specifies what causality is attributed to" .
+
+folk:hasObservableConsequence a owl:ObjectProperty ;
+    rdfs:domain folk:FolkTerm ;
+    rdfs:range folk:ObservableConsequence ;
+    rdfs:label "has observable consequence" ;
+    rdfs:comment "Links to measurable empirical outcomes" .
+
+folk:usageExample a owl:DatatypeProperty ;
+    rdfs:domain folk:FolkTerm ;
+    rdfs:range xsd:string ;
+    rdfs:label "usage example" ;
+    rdfs:comment "Typical usage of folk term in entrepreneurship context" .
+
+folk:formula a owl:DatatypeProperty ;
+    rdfs:domain folk:FolkTerm ;
+    rdfs:range xsd:string ;
+    rdfs:label "formula" ;
+    rdfs:comment "Mathematical expression or formula associated with term" .
+
+folk:category a owl:ObjectProperty ;
+    rdfs:domain folk:FolkTerm ;
+    rdfs:range folk:Category ;
+    rdfs:label "category" ;
+    rdfs:comment "Categorical grouping (timing, momentum, etc.)" .
+
+# ==============================================================================
+# TIMING TERMS
+# ==============================================================================
+
+folk:TimingCategory a folk:Category ;
+    rdfs:label "Timing" ;
+    rdfs:comment "Terms related to temporal alignment and window" .
+
+folk:RightTime a folk:FolkTerm ;
+    rdfs:label "Right Time" ;
+    rdfs:comment "Market conditions aligned with product readiness and demand" ;
+    folk:category folk:TimingCategory ;
+    folk:hasAttribution folk:Luck ;
+    folk:usageExample "We shipped at the right time, market was ready for this" ;
+    folk:formula "t_ship ≈ t_market_readiness ∧ t_ship ≈ t_demand_peak" ;
+    folk:mapsTo calc:CoincidenceOfThresholds .
+
+folk:TooEarly a folk:FolkTerm ;
+    rdfs:label "Too Early" ;
+    rdfs:comment "Shipping before market demand or technology maturity" ;
+    folk:category folk:TimingCategory ;
+    folk:hasAttribution folk:Mystery ;
+    folk:usageExample "We were too early. Market didn't exist yet" ;
+    folk:formula "t_ship < max(t_demand_threshold, t_tech_threshold)" ;
+    folk:mapsTo calc:PrecursorsToThreshold .
+
+folk:TooLate a folk:FolkTerm ;
+    rdfs:label "Too Late" ;
+    rdfs:comment "Shipping after competition captures market" ;
+    folk:category folk:TimingCategory ;
+    folk:hasAttribution folk:Skill ;
+    folk:usageExample "By the time we launched, three competitors had 60% market share" ;
+    folk:formula "t_ship > t_competitive_window_close" ;
+    folk:mapsTo calc:PassedThreshold .
+
+folk:TimeWindow a folk:FolkTerm ;
+    rdfs:label "Time Window" ;
+    rdfs:comment "Duration when market conditions favor launch" ;
+    folk:category folk:TimingCategory ;
+    folk:hasAttribution folk:System ;
+    folk:usageExample "We had a narrow window before funding dried up" ;
+    folk:formula "[t_start, t_end] where conditions_favorable(t) for t ∈ [t_start, t_end]" ;
+    folk:mapsTo calc:IntervalOfFavorableConditions .
+
+folk:ConeLanding a folk:FolkTerm ;
+    rdfs:label "Cone Landing" ;
+    rdfs:comment "Final stage of trajectory toward market acceptance" ;
+    folk:category folk:TimingCategory ;
+    folk:hasAttribution folk:Art ;
+    folk:usageExample "We managed a cone landing despite turbulent funding market" ;
+    folk:formula "state(t) → attractor_state as t → ∞ within cone |state - target| < ε" ;
+    folk:mapsTo calc:AttractiveCone .
+
+folk:Momentum a folk:FolkTerm ;
+    rdfs:label "Momentum" ;
+    rdfs:comment "Accumulated velocity and energy in growth trajectory" ;
+    folk:category folk:TimingCategory ;
+    folk:hasAttribution folk:Skill ;
+    folk:usageExample "We had momentum; each win made the next one easier" ;
+    folk:formula "p = m·v where m=market_responsiveness, v=execution_velocity" ;
+    folk:mapsTo calc:FirstDerivativeOfGrowth .
+
+folk:Traction a folk:FolkTerm ;
+    rdfs:label "Traction" ;
+    rdfs:comment "Early adoption signal with positive feedback loop" ;
+    folk:category folk:TimingCategory ;
+    folk:hasAttribution folk:Skill ;
+    folk:usageExample "Traction came when users started referring other users" ;
+    folk:formula "dU/dt = α·U·(1 - U/K) + β·referrals where α,β > 0" ;
+    folk:mapsTo calc:LogisticGrowthWithFeedback .
+
+folk:Flywheel a folk:FolkTerm ;
+    rdfs:label "Flywheel" ;
+    rdfs:comment "Self-reinforcing loop where success enables further success" ;
+    folk:category folk:TimingCategory ;
+    folk:hasAttribution folk:System ;
+    folk:usageExample "Once we built the flywheel, growth became predictable" ;
+    folk:formula "x_{n+1} = f(x_n) where f'(x*) > 1 at equilibrium x*" ;
+    folk:mapsTo calc:UnstableEquilibriumWithPositiveFeedback .
+
+folk:Velocity a folk:FolkTerm ;
+    rdfs:label "Velocity" ;
+    rdfs:comment "Speed of execution and iteration" ;
+    folk:category folk:TimingCategory ;
+    folk:hasAttribution folk:Skill ;
+    folk:usageExample "We won on velocity; shipped 10x faster than incumbents" ;
+    folk:formula "v = Δfeatures/Δtime where Δfeatures = capability_gap reduction" ;
+    folk:mapsTo calc:FirstDerivativeOfCapability .
+
+folk:Acceleration a folk:FolkTerm ;
+    rdfs:label "Acceleration" ;
+    rdfs:comment "Increasing rate of velocity" ;
+    folk:category folk:TimingCategory ;
+    folk:hasAttribution folk:System ;
+    folk:usageExample "Acceleration kicked in when we hired the first engineer" ;
+    folk:formula "a = dv/dt where dv/dt > 0" ;
+    folk:mapsTo calc:SecondDerivativeOfGrowth .
+
+# ==============================================================================
+# PRODUCT-MARKET FIT TERMS
+# ==============================================================================
+
+folk:PMFCategory a folk:Category ;
+    rdfs:label "Product-Market Fit" ;
+    rdfs:comment "Terms describing alignment between product and market demand" .
+
+folk:ProductMarketFit a folk:FolkTerm ;
+    rdfs:label "Product-Market Fit" ;
+    rdfs:comment "State where product satisfies strong market demand" ;
+    folk:category folk:PMFCategory ;
+    folk:hasAttribution folk:Art ;
+    folk:usageExample "We found PMF when retention hit 80% month-over-month" ;
+    folk:formula "demand_elasticity × product_match ≥ threshold ∧ retention_rate > 70%" ;
+    folk:mapsTo calc:JointThresholdCrossing .
+
+folk:Finding a folk:FolkTerm ;
+    rdfs:label "Finding" ;
+    rdfs:comment "Discovery process of product-market fit" ;
+    folk:category folk:PMFCategory ;
+    folk:hasAttribution folk:Art ;
+    folk:usageExample "Finding took 18 months of iteration" ;
+    folk:formula "search_space_explored(t) → (t* where PMF discovered) as t → ∞" ;
+    folk:mapsTo calc:SearchTrajectoryConvergence .
+
+folk:PMFLost a folk:FolkTerm ;
+    rdfs:label "PMF Lost" ;
+    rdfs:comment "Regression from PMF state due to market shift or competitive change" ;
+    folk:category folk:PMFCategory ;
+    folk:hasAttribution folk:Luck ;
+    folk:usageExample "We had PMF until a competitor copied our features" ;
+    folk:formula "PMF_signal(t) drops below threshold as competitor_advantage_erodes" ;
+    folk:mapsTo calc:BoundaryErosion .
+
+folk:WeakPMF a folk:FolkTerm ;
+    rdfs:label "Weak PMF" ;
+    rdfs:comment "Partial fit with retention problems or limited addressable market" ;
+    folk:category folk:PMFCategory ;
+    folk:hasAttribution folk:Art ;
+    folk:usageExample "Weak PMF: good feedback but churn at 40% monthly" ;
+    folk:formula "retention_rate ∈ [50%, 70%) ∨ addressable_market_small" ;
+    folk:mapsTo calc:TransitionRegion .
+
+folk:StrongPMF a folk:FolkTerm ;
+    rdfs:label "Strong PMF" ;
+    rdfs:comment "Deep fit with high retention and organic growth" ;
+    folk:category folk:PMFCategory ;
+    folk:hasAttribution folk:Art ;
+    folk:usageExample "Strong PMF: 90%+ retention, inbound leads exceed sales capacity" ;
+    folk:formula "retention_rate > 80% ∧ viral_coefficient > 1.2 ∧ churn < 5%" ;
+    folk:mapsTo calc:StableAttractor .
+
+folk:Pivot a folk:FolkTerm ;
+    rdfs:label "Pivot" ;
+    rdfs:comment "Strategic shift in product, market, or positioning when PMF not found" ;
+    folk:category folk:PMFCategory ;
+    folk:hasAttribution folk:Skill ;
+    folk:usageExample "We pivoted from B2B to B2C when we saw organic demand signal" ;
+    folk:formula "switch_strategy when gradient(PMF_metric) < ε for duration > threshold" ;
+    folk:mapsTo calc:ManifoldCrossing .
+
+# ==============================================================================
+# COMPETITION TERMS
+# ==============================================================================
+
+folk:CompetitionCategory a folk:Category ;
+    rdfs:label "Competition" ;
+    rdfs:comment "Terms describing competitive landscape and positioning" .
+
+folk:Moat a folk:FolkTerm ;
+    rdfs:label "Moat" ;
+    rdfs:comment "Structural barrier protecting market position from competitors" ;
+    folk:category folk:CompetitionCategory ;
+    folk:hasAttribution folk:System ;
+    folk:usageExample "Network effects created a moat; every new user strengthened it" ;
+    folk:formula "barrier_to_entry = min(switching_cost, replication_cost, disruption_cost)" ;
+    folk:mapsTo calc:NegativeFeedbackPrevention .
+
+folk:Defensibility a folk:FolkTerm ;
+    rdfs:label "Defensibility" ;
+    rdfs:comment "Ability to maintain market position against attack" ;
+    folk:category folk:CompetitionCategory ;
+    folk:hasAttribution folk:Skill ;
+    folk:usageExample "Superior unit economics made the position defensible" ;
+    folk:formula "competitive_attack_cost > expected_profit_from_displacement" ;
+    folk:mapsTo calc:HighBarrierToEntry .
+
+folk:BlueOcean a folk:FolkTerm ;
+    rdfs:label "Blue Ocean" ;
+    rdfs:comment "Uncontested market space with no direct competitors" ;
+    folk:category folk:CompetitionCategory ;
+    folk:hasAttribution folk:Art ;
+    folk:usageExample "Our niche was a blue ocean; no competitors for 2 years" ;
+    folk:formula "∃ market_segment where competitors = ∅" ;
+    folk:mapsTo calc:UnoccupiedFitnessLandscape .
+
+folk:RedOcean a folk:FolkTerm ;
+    rdfs:label "Red Ocean" ;
+    rdfs:comment "Saturated competitive market with price pressure" ;
+    folk:category folk:CompetitionCategory ;
+    folk:hasAttribution folk:System ;
+    folk:usageExample "Red ocean commoditized us; margins compressed to 5%" ;
+    folk:formula "competitors_dense ∧ price_elasticity_high ∧ differentiation_low" ;
+    folk:mapsTo calc:HighlyDampedOscillations .
+
+folk:Racing a folk:FolkTerm ;
+    rdfs:label "Racing" ;
+    rdfs:comment "Compressed timeline when multiple entrants compete for winner-take-most position" ;
+    folk:category folk:CompetitionCategory ;
+    folk:hasAttribution folk:Luck ;
+    folk:usageExample "We were in a race; venture capital flood meant 5 clones emerged" ;
+    folk:formula "Δt_to_critical_mass = O(1) not O(years)" ;
+    folk:mapsTo calc:HighCurvatureTrajectory .
+
+folk:Incumbent a folk:FolkTerm ;
+    rdfs:label "Incumbent" ;
+    rdfs:comment "Established player with distribution, brand, and resources" ;
+    folk:category folk:CompetitionCategory ;
+    folk:hasAttribution folk:System ;
+    folk:usageExample "The incumbent had three thousand salespeople" ;
+    folk:formula "resources ∝ market_share^2 ∧ switching_cost = barrier" ;
+    folk:mapsTo calc:LocalMaximumWithStrongAttraction .
+
+folk:Disruptor a folk:FolkTerm ;
+    rdfs:label "Disruptor" ;
+    rdfs:comment "Entrant challenging incumbent via different value proposition or cost structure" ;
+    folk:category folk:CompetitionCategory ;
+    folk:hasAttribution folk:Skill ;
+    folk:usageExample "We disrupted the market by 10x-ing cost efficiency" ;
+    folk:formula "value_per_dollar_new ≥ 3 × value_per_dollar_incumbent" ;
+    folk:mapsTo calc:HigherFitnessPeakOnNeighboringManifold .
+
+folk:InnovatorsIlemma a folk:FolkTerm ;
+    rdfs:label "Innovator's Dilemma" ;
+    rdfs:comment "Incumbent's inability to respond to disruption due to business model commitment" ;
+    folk:category folk:CompetitionCategory ;
+    folk:hasAttribution folk:System ;
+    folk:usageExample "They couldn't respond because disruption cannibalized their core business" ;
+    folk:formula "margin_defender > margin_disruptor ⟹ incumbent_stuck_at_local_maximum" ;
+    folk:mapsTo calc:AsymmetricPotentialBarrier .
+
+# ==============================================================================
+# GROWTH TERMS
+# ==============================================================================
+
+folk:GrowthCategory a folk:Category ;
+    rdfs:label "Growth" ;
+    rdfs:comment "Terms describing user/revenue growth patterns" .
+
+folk:Viral a folk:FolkTerm ;
+    rdfs:label "Viral" ;
+    rdfs:comment "User acquisition primarily through user referrals creating exponential growth" ;
+    folk:category folk:GrowthCategory ;
+    folk:hasAttribution folk:Art ;
+    folk:usageExample "The product went viral; we didn't spend marketing budget" ;
+    folk:formula "U(t) ∝ e^(k·t) where k = viral_coefficient - 1" ;
+    folk:mapsTo calc:ExponentialGrowth .
+
+folk:Organic a folk:FolkTerm ;
+    rdfs:label "Organic" ;
+    rdfs:comment "User acquisition through word-of-mouth and inbound interest" ;
+    folk:category folk:GrowthCategory ;
+    folk:hasAttribution folk:Skill ;
+    folk:usageExample "Organic growth was slow but sustainable" ;
+    folk:formula "dU/dt = α·satisfaction_score where 0 < α < 1" ;
+    folk:mapsTo calc:SlowlyConvergingIntegral .
+
+folk:HockeyStick a folk:FolkTerm ;
+    rdfs:label "Hockey Stick" ;
+    rdfs:comment "Rapid acceleration from slow linear growth to exponential" ;
+    folk:category folk:GrowthCategory ;
+    folk:hasAttribution folk:Mystery ;
+    folk:usageExample "Nothing happened for a year, then hockey stick growth overnight" ;
+    folk:formula "d²U/dt² = 0 for t < t*, d²U/dt² > 0 for t > t*" ;
+    folk:mapsTo calc:InflectionPoint .
+
+folk:SCurve a folk:FolkTerm ;
+    rdfs:label "S-Curve" ;
+    rdfs:comment "Logistic growth with saturation at market limit" ;
+    folk:category folk:GrowthCategory ;
+    folk:hasAttribution folk:System ;
+    folk:usageExample "Growth followed classic S-curve, plateaued at market size" ;
+    folk:formula "dU/dt = r·U·(1 - U/K)" ;
+    folk:mapsTo calc:LogisticGrowth .
+
+folk:Plateau a folk:FolkTerm ;
+    rdfs:label "Plateau" ;
+    rdfs:comment "Growth rate slows to near-zero as market saturation approaches" ;
+    folk:category folk:GrowthCategory ;
+    folk:hasAttribution folk:System ;
+    folk:usageExample "Growth plateaued at 40% penetration" ;
+    folk:formula "dU/dt → 0 as U → K" ;
+    folk:mapsTo calc:SaturationBehavior .
+
+folk:Ceiling a folk:FolkTerm ;
+    rdfs:label "Ceiling" ;
+    rdfs:comment "Maximum addressable market size" ;
+    folk:category folk:GrowthCategory ;
+    folk:hasAttribution folk:Skill ;
+    folk:usageExample "We hit the ceiling; TAM was only $100M" ;
+    folk:formula "U_max = TAM × market_penetration_achievable" ;
+    folk:mapsTo calc:CarryingCapacity .
+
+# ==============================================================================
+# NETWORK EFFECTS TERMS
+# ==============================================================================
+
+folk:NetworkCategory a folk:Category ;
+    rdfs:label "Network Effects" ;
+    rdfs:comment "Terms describing value creation through connectivity" .
+
+folk:CriticalMass a folk:FolkTerm ;
+    rdfs:label "Critical Mass" ;
+    rdfs:comment "User count threshold where network effects accelerate adoption" ;
+    folk:category folk:NetworkCategory ;
+    folk:hasAttribution folk:Mystery ;
+    folk:usageExample "We hit critical mass at 50k users; growth then became self-sustaining" ;
+    folk:formula "∃ U* where ∂²U/∂t² > 0 for U > U*" ;
+    folk:mapsTo calc:TippingPoint .
+
+folk:ChickenEgg a folk:FolkTerm ;
+    rdfs:label "Chicken-Egg Problem" ;
+    rdfs:comment "Circular dependency where two-sided market needs both sides simultaneously" ;
+    folk:category folk:NetworkCategory ;
+    folk:hasAttribution folk:Art ;
+    folk:usageExample "Chicken-egg was brutal; sellers wouldn't join without buyers" ;
+    folk:formula "∃ circular_dependency ⟹ requires_subsidy_or_unilateral_bootstrapping" ;
+    folk:mapsTo calc:UnstableSaddlePoint .
+
+folk:Liquidity a folk:FolkTerm ;
+    rdfs:label "Liquidity" ;
+    rdfs:comment "Ease of matching between supply and demand in two-sided market" ;
+    folk:category folk:NetworkCategory ;
+    folk:hasAttribution folk:System ;
+    folk:usageExample "Liquidity on the platform determines unit economics" ;
+    folk:formula "match_rate = P(∃ buyer | seller_active) × P(∃ seller | buyer_active)" ;
+    folk:mapsTo calc:CoupledProbabilityInequality .
+
+folk:Platform a folk:FolkTerm ;
+    rdfs:label "Platform" ;
+    rdfs:comment "Ecosystem where value created through interaction between multiple parties" ;
+    folk:category folk:NetworkCategory ;
+    folk:hasAttribution folk:System ;
+    folk:usageExample "We built a platform; third-party developers created value for users" ;
+    folk:formula "value_total = Σ(transaction_value × match_rate)" ;
+    folk:mapsTo calc:MultiPartiteGraph .
+
+folk:Ecosystem a folk:FolkTerm ;
+    rdfs:label "Ecosystem" ;
+    rdfs:comment "Community of complementary products and services creating increasing value" ;
+    folk:category folk:NetworkCategory ;
+    folk:hasAttribution folk:System ;
+    folk:usageExample "Once the ecosystem developed, switching cost became prohibitive" ;
+    folk:formula "barrier = Σ(integration_depth_i) for all complementary_services_i" ;
+    folk:mapsTo calc:ComplementaryAttraction .
+
+folk:LockIn a folk:FolkTerm ;
+    rdfs:label "Lock-In" ;
+    rdfs:comment "High switching cost preventing customer defection" ;
+    folk:category folk:NetworkCategory ;
+    folk:hasAttribution folk:System ;
+    folk:usageExample "Lock-in was network effects: customer's entire network on our platform" ;
+    folk:formula "switching_cost = cost_of_recreating_network + data_migration_loss" ;
+    folk:mapsTo calc:DeepPotentialWell .
+
+# ==============================================================================
+# FAILURE TERMS
+# ==============================================================================
+
+folk:FailureCategory a folk:Category ;
+    rdfs:label "Failure Modes" ;
+    rdfs:comment "Terms describing failure patterns and demise" .
+
+folk:Runway a folk:FolkTerm ;
+    rdfs:label "Runway" ;
+    rdfs:comment "Time until capital exhaustion if burn rate continues" ;
+    folk:category folk:FailureCategory ;
+    folk:hasAttribution folk:System ;
+    folk:usageExample "We had 6 months of runway left" ;
+    folk:formula "runway_months = cash_remaining / monthly_burn_rate" ;
+    folk:mapsTo calc:LinearDecay .
+
+folk:CouldntFindPMF a folk:FolkTerm ;
+    rdfs:label "Couldn't Find PMF" ;
+    rdfs:comment "Failed to achieve product-market fit before capital depletion" ;
+    folk:category folk:FailureCategory ;
+    folk:hasAttribution folk:Mystery ;
+    folk:usageExample "We ran out of time before PMF" ;
+    folk:formula "∄ t* where PMF_signal(t*) > threshold ∧ t* < t_bankruptcy" ;
+    folk:mapsTo calc:UnboundedSearchSpaceWithBoundedResource .
+
+folk:Disrupted a folk:FolkTerm ;
+    rdfs:label "Disrupted" ;
+    rdfs:comment "Overwhelmed by competitive innovation rendering product obsolete" ;
+    folk:category folk:FailureCategory ;
+    folk:hasAttribution folk:Luck ;
+    folk:usageExample "We were disrupted when their AI did what used to take humans" ;
+    folk:formula "product_value_incumbent >> product_value_ours after competitor_breakthrough" ;
+    folk:mapsTo calc:RapidLandscapeShift .
+
+folk:BurningPlatform a folk:FolkTerm ;
+    rdfs:label "Burning Platform" ;
+    rdfs:comment "Crisis forcing urgent action or radical change" ;
+    folk:category folk:FailureCategory ;
+    folk:hasAttribution folk:Skill ;
+    folk:usageExample "The burning platform forced us to rebuild architecture in 3 weeks" ;
+    folk:formula "crisis_urgency > adaptation_cost ⟹ radical_action_possible" ;
+    folk:mapsTo calc:PerturbationPastLocalMaximum .
+
+folk:Zombie a folk:FolkTerm ;
+    rdfs:label "Zombie" ;
+    rdfs:comment "Company with positive unit economics but insufficient growth to justify funding" ;
+    folk:category folk:FailureCategory ;
+    folk:hasAttribution folk:System ;
+    folk:usageExample "We became a zombie: profitable but growth capped at 10% annually" ;
+    folk:formula "unit_economics > 0 ∧ growth_rate < opportunity_cost_of_capital" ;
+    folk:mapsTo calc:LocalEquilibriumWithRespectToOppgCost .
+
+# ==============================================================================
+# LUCK AND SERENDIPITY TERMS
+# ==============================================================================
+
+folk:LuckCategory a folk:Category ;
+    rdfs:label "Luck and Serendipity" ;
+    rdfs:comment "Terms describing fortune and chance encounters" .
+
+folk:Luck a folk:FolkTerm ;
+    rdfs:label "Luck (Event)" ;
+    rdfs:comment "Chance occurrence that creates advantage" ;
+    folk:category folk:LuckCategory ;
+    folk:hasAttribution folk:Luck ;
+    folk:usageExample "Lucky meeting with investor led to Series A" ;
+    folk:formula "random_event_benefit(t) > expected_value_without_event" ;
+    folk:mapsTo calc:UnpredictableJump .
+
+folk:Serendipity a folk:FolkTerm ;
+    rdfs:label "Serendipity" ;
+    rdfs:comment "Happy accident combining preparation with chance" ;
+    folk:category folk:LuckCategory ;
+    folk:hasAttribution folk:System ;
+    folk:usageExample "Serendipity: stumbled on use case while demoing to someone else" ;
+    folk:formula "preparation_level × random_encounter = breakthrough" ;
+    folk:mapsTo calc:FilteredRandomProcess .
+
+folk:Connections a folk:FolkTerm ;
+    rdfs:label "Connections" ;
+    rdfs:comment "Network of relationships providing leverage and opportunity" ;
+    folk:category folk:LuckCategory ;
+    folk:hasAttribution folk:Skill ;
+    folk:usageExample "Connections gave us early beta users we never paid for" ;
+    folk:formula "opportunity_access ∝ connection_network_density × connection_quality" ;
+    folk:mapsTo calc:NetworkCentralityMeasure .
+
+folk:OvernightSuccess a folk:FolkTerm ;
+    rdfs:label "Overnight Success" ;
+    rdfs:comment "Rapid visibility following years of invisible development" ;
+    folk:category folk:LuckCategory ;
+    folk:hasAttribution folk:Mystery ;
+    folk:usageExample "Overnight success after 7 years of work nobody noticed" ;
+    folk:formula "visibility(t) = step_function(t - t*) where t* >> 0" ;
+    folk:mapsTo calc:SharpDynamicsChange .
+
+folk:Unlucky a folk:FolkTerm ;
+    rdfs:label "Unlucky" ;
+    rdfs:comment "Chance misfortune reducing odds of success" ;
+    folk:category folk:LuckCategory ;
+    folk:hasAttribution folk:Luck ;
+    folk:usageExample "Unlucky: launched during 2008 financial crisis" ;
+    folk:formula "random_event_harm(t) < 0 ∧ |harm| > recovery_capacity" ;
+    folk:mapsTo calc:UnpredictablePerturbationAwayFromAttractor .
+
+# ==============================================================================
+# STRATEGY AND EXECUTION TERMS
+# ==============================================================================
+
+folk:StrategyCategory a folk:Category ;
+    rdfs:label "Strategy and Execution" ;
+    rdfs:comment "Terms describing planning, vision, and implementation" .
+
+folk:Vision a folk:FolkTerm ;
+    rdfs:label "Vision" ;
+    rdfs:comment "Articulated future state and purpose guiding decisions" ;
+    folk:category folk:StrategyCategory ;
+    folk:hasAttribution folk:Art ;
+    folk:usageExample "Clear vision unified the team through difficult scaling phase" ;
+    folk:formula "alignment_score(time) = correlation(individual_decisions, shared_vision)" ;
+    folk:mapsTo calc:CouplingToExternalReferenceFrame .
+
+folk:Execution a folk:FolkTerm ;
+    rdfs:label "Execution" ;
+    rdfs:comment "Ability to translate plans into reality faster and better than competitors" ;
+    folk:category folk:StrategyCategory ;
+    folk:hasAttribution folk:Skill ;
+    folk:usageExample "We won on execution; same idea, shipped 6 months earlier" ;
+    folk:formula "plan_to_reality_time_delta = O(time_delta_competitor^2)" ;
+    folk:mapsTo calc:InverseBoundary .
+
+folk:Strategy a folk:FolkTerm ;
+    rdfs:label "Strategy" ;
+    rdfs:comment "Deliberate choices about positioning, offering, and market focus" ;
+    folk:category folk:StrategyCategory ;
+    folk:hasAttribution folk:Art ;
+    folk:usageExample "Strategy was vertical SaaS for accountants, not horizontal" ;
+    folk:formula "expected_value(strategy_1) > expected_value(strategy_2)" ;
+    folk:mapsTo calc:OptimizationLandscape .
+
+folk:Tactics a folk:FolkTerm ;
+    rdfs:label "Tactics" ;
+    rdfs:comment "Specific operational choices implementing broader strategy" ;
+    folk:category folk:StrategyCategory ;
+    folk:hasAttribution folk:Skill ;
+    folk:usageExample "Tactics: free trial converted better than paid freemium" ;
+    folk:formula "Σ(tactic_effectiveness_i) aligned_with strategy_direction" ;
+    folk:mapsTo calc:VectorProjection .
+
+folk:Focus a folk:FolkTerm ;
+    rdfs:label "Focus" ;
+    rdfs:comment "Concentration of resources on specific market or feature set" ;
+    folk:category folk:StrategyCategory ;
+    folk:hasAttribution folk:Skill ;
+    folk:usageExample "Focus won; we did one thing better than anyone else" ;
+    folk:formula "resource_concentration > 0.7 ⟹ competitive_advantage_possible" ;
+    folk:mapsTo calc:DimensionalityReduction .
+
+folk:Distraction a folk:FolkTerm ;
+    rdfs:label "Distraction" ;
+    rdfs:comment "Resource dispersion across multiple priorities weakening focus" ;
+    folk:category folk:StrategyCategory ;
+    folk:hasAttribution folk:Skill ;
+    folk:usageExample "We got distracted building features nobody wanted" ;
+    folk:formula "resource_concentration < 0.3 ⟹ competitive_disadvantage_inevitable" ;
+    folk:mapsTo calc:HighDimensionalityWithLimitedResources .
+
+folk:Pivot a folk:FolkTerm ;
+    rdfs:label "Pivot" ;
+    rdfs:comment "Strategic reorientation of product, market, or business model" ;
+    folk:category folk:StrategyCategory ;
+    folk:hasAttribution folk:Art ;
+    folk:usageExample "Pivot from B2B to B2C saved the company" ;
+    folk:formula "switch_to_new_strategy when gradient(success_metric) ≈ 0" ;
+    folk:mapsTo calc:ManifoldTraversal .
+
+# ==============================================================================
+# ORGANIZATIONAL DYNAMICS TERMS
+# ==============================================================================
+
+folk:OrgCategory a folk:Category ;
+    rdfs:label "Organizational Dynamics" ;
+    rdfs:comment "Terms describing team dynamics and organizational change" .
+
+folk:Agile a folk:FolkTerm ;
+    rdfs:label "Agile" ;
+    rdfs:comment "Organizational ability to change direction rapidly with minimal overhead" ;
+    folk:category folk:OrgCategory ;
+    folk:hasAttribution folk:Skill ;
+    folk:usageExample "Agile organization pivoted in 2 weeks based on market feedback" ;
+    folk:formula "decision_lag_time = O(1) not O(months)" ;
+    folk:mapsTo calc:HighDynamicsSpeedOfResponse .
+
+folk:Bureaucratic a folk:FolkTerm ;
+    rdfs:label "Bureaucratic" ;
+    rdfs:comment "Heavy organizational structure with slow decision-making" ;
+    folk:category folk:OrgCategory ;
+    folk:hasAttribution folk:System ;
+    folk:usageExample "Bureaucratic processes meant 3 months to approve new feature" ;
+    folk:formula "decision_lag_time = O(months) ⟹ missed_market_windows" ;
+    folk:mapsTo calc:HighDampingHighInertia .
+
+folk:Culture a folk:FolkTerm ;
+    rdfs:label "Culture" ;
+    rdfs:comment "Shared values and norms guiding organizational behavior" ;
+    folk:category folk:OrgCategory ;
+    folk:hasAttribution folk:Art ;
+    folk:usageExample "Culture of shipping fast enabled weekly releases" ;
+    folk:formula "Σ(individual_values_aligned_with_culture) ⟹ coherent_behavior" ;
+    folk:mapsTo calc:OrderParameterInPhaseTransition .
+
+folk:Alignment a folk:FolkTerm ;
+    rdfs:label "Alignment" ;
+    rdfs:comment "Shared understanding of goals and strategy across organization" ;
+    folk:category folk:OrgCategory ;
+    folk:hasAttribution folk:Skill ;
+    folk:usageExample "Alignment on north star metric eliminated conflicting local optimizations" ;
+    folk:formula "correlation(individual_priorities, organizational_goals) > 0.8" ;
+    folk:mapsTo calc:AlignedVectorField .
+
+folk:Friction a folk:FolkTerm ;
+    rdfs:label "Friction" ;
+    rdfs:comment "Organizational inefficiency or resistance slowing progress" ;
+    folk:category folk:OrgCategory ;
+    folk:hasAttribution folk:System ;
+    folk:usageExample "Friction between product and engineering slowed launches" ;
+    folk:formula "friction_force = -viscosity × velocity" ;
+    folk:mapsTo calc:DampingInDynamicalSystem .
+
+folk:Silos a folk:FolkTerm ;
+    rdfs:label "Silos" ;
+    rdfs:comment "Fragmented organizational structure reducing information flow" ;
+    folk:category folk:OrgCategory ;
+    folk:hasAttribution folk:System ;
+    folk:usageExample "Silos meant right hand didn't know what left hand was doing" ;
+    folk:formula "information_flow_between_groups ≈ 0 ⟹ suboptimal_global_behavior" ;
+    folk:mapsTo calc:DisconnectedGraphLaplacian .
+
+# ==============================================================================
+# MARKET CONDITION TERMS
+# ==============================================================================
+
+folk:MarketCategory a folk:Category ;
+    rdfs:label "Market Conditions" ;
+    rdfs:comment "Terms describing macroeconomic market state" .
+
+folk:Hot a folk:FolkTerm ;
+    rdfs:label "Hot Market" ;
+    rdfs:comment "High investor interest and capital availability driving startup funding" ;
+    folk:category folk:MarketCategory ;
+    folk:hasAttribution folk:System ;
+    folk:usageExample "Hot market meant we got Series A with minimal traction" ;
+    folk:formula "capital_available >> reasonable_opportunities ⟹ capital_price_deflation" ;
+    folk:mapsTo calc:SupplyDemandDisequilibrium .
+
+folk:Cold a folk:FolkTerm ;
+    rdfs:label "Cold Market" ;
+    rdfs:comment "Limited investor interest and capital scarcity" ;
+    folk:category folk:MarketCategory ;
+    folk:hasAttribution folk:System ;
+    folk:usageExample "Cold market: had to shut down, couldn't raise Series B" ;
+    folk:formula "capital_available << viable_opportunities ⟹ capital_price_inflation" ;
+    folk:mapsTo calc:SupplyDeficit .
+
+folk:Frothy a folk:FolkTerm ;
+    rdfs:label "Frothy" ;
+    rdfs:comment "Speculative bubble with irrational valuations" ;
+    folk:category folk:MarketCategory ;
+    folk:hasAttribution folk:Luck ;
+    folk:usageExample "Frothy market valued us at 10x revenue" ;
+    folk:formula "valuation_multiple > fundamental_valuation_multiple by order_of_magnitude" ;
+    folk:mapsTo calc:BubbleDynamics .
+
+folk:Correction a folk:FolkTerm ;
+    rdfs:label "Correction" ;
+    rdfs:comment "Market reversion to more fundamental valuations after overheating" ;
+    folk:category folk:MarketCategory ;
+    folk:hasAttribution folk:System ;
+    folk:usageExample "Correction wiped out 80% of startup valuations" ;
+    folk:formula "valuation(t) → fundamental_value as t → ∞" ;
+    folk:mapsTo calc:MeanReversion .
+
+folk:Crash a folk:FolkTerm ;
+    rdfs:label "Crash" ;
+    rdfs:comment "Rapid market collapse with severe losses" ;
+    folk:category folk:MarketCategory ;
+    folk:hasAttribution folk:Luck ;
+    folk:usageExample "2008 crash froze all venture capital" ;
+    folk:formula "market_value(t) = step_function() × previous_value" ;
+    folk:mapsTo calc:DiscontinuousJump .
+
+# ==============================================================================
+# DISRUPTION TERMS
+# ==============================================================================
+
+folk:DisruptionCategory a folk:Category ;
+    rdfs:label "Disruption" ;
+    rdfs:comment "Terms describing technological and market disruption" .
+
+folk:Disruptor a folk:FolkTerm ;
+    rdfs:label "Disruptor (Entity)" ;
+    rdfs:comment "Company or technology disrupting existing market" ;
+    folk:category folk:DisruptionCategory ;
+    folk:hasAttribution folk:Skill ;
+    folk:usageExample "The disruptor focused on underserved segment while incumbent optimized core" ;
+    folk:formula "value_new > value_incumbent ∧ cost_new << cost_incumbent" ;
+    folk:mapsTo calc:ParadigmShift .
+
+folk:DisruptiveTechnology a folk:FolkTerm ;
+    rdfs:label "Disruptive Technology" ;
+    rdfs:comment "Technical innovation enabling fundamentally different value proposition" ;
+    folk:category folk:DisruptionCategory ;
+    folk:hasAttribution folk:Art ;
+    folk:usageExample "Cloud enabled SaaS to disrupt enterprise software" ;
+    folk:formula "performance_frontier_new >> performance_frontier_old in key_dimension" ;
+    folk:mapsTo calc:PhaseSpaceExpansion .
+
+folk:BurningPlatformEffect a folk:FolkTerm ;
+    rdfs:label "Burning Platform Effect" ;
+    rdfs:comment "External crisis forcing organization to innovate" ;
+    folk:category folk:DisruptionCategory ;
+    folk:hasAttribution folk:Skill ;
+    folk:usageExample "Burning platform forced us to adopt new tech stack" ;
+    folk:formula "cost_of_change < perceived_cost_of_status_quo" ;
+    folk:mapsTo calc:PotentialBarrierReduction .
+
+# ==============================================================================
+# CALCULUS OBJECTS (Base Classes)
+# ==============================================================================
+
+calc:CalculusObject a owl:Class ;
+    rdfs:label "Calculus Object" ;
+    rdfs:comment "Base class for all mathematical objects" .
+
+calc:CoincidenceOfThresholds a calc:CalculusObject ;
+    rdfs:label "Coincidence of Thresholds" ;
+    rdfs:comment "Point where multiple threshold conditions align" ;
+    folk:formula "∩ᵢ { t: fᵢ(t) ≥ thresholdᵢ }" .
+
+calc:PrecursorsToThreshold a calc:CalculusObject ;
+    rdfs:label "Precursors to Threshold" ;
+    rdfs:comment "States in region before critical threshold crossing" .
+
+calc:PassedThreshold a calc:CalculusObject ;
+    rdfs:label "Passed Threshold" ;
+    rdfs:comment "State after crossing critical threshold" .
+
+calc:IntervalOfFavorableConditions a calc:CalculusObject ;
+    rdfs:label "Interval of Favorable Conditions" ;
+    rdfs:comment "Continuous time interval where conditions support objective" .
+
+calc:AttractiveCone a calc:CalculusObject ;
+    rdfs:label "Attractive Cone" ;
+    rdfs:comment "Region converging toward attractor: |x(t) - x*| < εe^(-λt)" .
+
+calc:FirstDerivativeOfGrowth a calc:CalculusObject ;
+    rdfs:label "First Derivative of Growth" ;
+    rdfs:comment "Rate of growth dU/dt" .
+
+calc:LogisticGrowthWithFeedback a calc:CalculusObject ;
+    rdfs:label "Logistic Growth with Feedback" ;
+    rdfs:comment "dU/dt = r·U·(1 - U/K) with additional feedback term" .
+
+calc:UnstableEquilibriumWithPositiveFeedback a calc:CalculusObject ;
+    rdfs:label "Unstable Equilibrium with Positive Feedback" ;
+    rdfs:comment "Fixed point where perturbations grow: eigenvalue > 0" .
+
+calc:FirstDerivativeOfCapability a calc:CalculusObject ;
+    rdfs:label "First Derivative of Capability" ;
+    rdfs:comment "Rate of capability increase dC/dt" .
+
+calc:SecondDerivativeOfGrowth a calc:CalculusObject ;
+    rdfs:label "Second Derivative of Growth" ;
+    rdfs:comment "Rate of acceleration d²U/dt²" .
+
+calc:JointThresholdCrossing a calc:CalculusObject ;
+    rdfs:label "Joint Threshold Crossing" ;
+    rdfs:comment "Simultaneous crossing of multiple thresholds: (f₁ > t₁) ∧ (f₂ > t₂)" .
+
+calc:SearchTrajectoryConvergence a calc:CalculusObject ;
+    rdfs:label "Search Trajectory Convergence" ;
+    rdfs:comment "Convergence of exploration trajectory to optimum" .
+
+calc:BoundaryErosion a calc:CalculusObject ;
+    rdfs:label "Boundary Erosion" ;
+    rdfs:comment "Degradation of boundary separating regions of stability" .
+
+calc:TransitionRegion a calc:CalculusObject ;
+    rdfs:label "Transition Region" ;
+    rdfs:comment "Phase space region between two stable states" .
+
+calc:StableAttractor a calc:CalculusObject ;
+    rdfs:label "Stable Attractor" ;
+    rdfs:comment "Fixed point where all nearby trajectories converge" .
+
+calc:ManifoldCrossing a calc:CalculusObject ;
+    rdfs:label "Manifold Crossing" ;
+    rdfs:comment "Crossing from one manifold to another in parameter space" .
+
+calc:NegativeFeedbackPrevention a calc:CalculusObject ;
+    rdfs:label "Negative Feedback Prevention" ;
+    rdfs:comment "System resisting external perturbations: dx/dt ∝ -(x - x*)" .
+
+calc:HighBarrierToEntry a calc:CalculusObject ;
+    rdfs:label "High Barrier to Entry" ;
+    rdfs:comment "High potential energy barrier preventing state transitions" .
+
+calc:UnoccupiedFitnessLandscape a calc:CalculusObject ;
+    rdfs:label "Unoccupied Fitness Landscape" ;
+    rdfs:comment "Region of parameter space not locally optimized by competitors" .
+
+calc:HighlyDampedOscillations a calc:CalculusObject ;
+    rdfs:label "Highly Damped Oscillations" ;
+    rdfs:comment "Oscillatory behavior with rapid decay to equilibrium" .
+
+calc:HighCurvatureTrajectory a calc:CalculusObject ;
+    rdfs:label "High Curvature Trajectory" ;
+    rdfs:comment "Path with rapid changes in direction or magnitude" .
+
+calc:LocalMaximumWithStrongAttraction a calc:CalculusObject ;
+    rdfs:label "Local Maximum with Strong Attraction" ;
+    rdfs:comment "Deep potential well: ∇²f >> 0 at critical point" .
+
+calc:HigherFitnessPeakOnNeighboringManifold a calc:CalculusObject ;
+    rdfs:label "Higher Fitness Peak on Neighboring Manifold" ;
+    rdfs:comment "Adjacent region with superior fitness despite steeper initial climb" .
+
+calc:AsymmetricPotentialBarrier a calc:CalculusObject ;
+    rdfs:label "Asymmetric Potential Barrier" ;
+    rdfs:comment "Different barrier heights in forward vs. reverse directions" .
+
+calc:ExponentialGrowth a calc:CalculusObject ;
+    rdfs:label "Exponential Growth" ;
+    rdfs:comment "U(t) = U₀e^(kt) where k > 0" .
+
+calc:SlowlyConvergingIntegral a calc:CalculusObject ;
+    rdfs:label "Slowly Converging Integral" ;
+    rdfs:comment "∫₀^∞ f(t)dt converges slowly, O(1/t)" .
+
+calc:InflectionPoint a calc:CalculusObject ;
+    rdfs:label "Inflection Point" ;
+    rdfs:comment "Point where concavity changes: d²f/dt² = 0" .
+
+calc:LogisticGrowth a calc:CalculusObject ;
+    rdfs:label "Logistic Growth" ;
+    rdfs:comment "dU/dt = rU(1 - U/K)" .
+
+calc:SaturationBehavior a calc:CalculusObject ;
+    rdfs:label "Saturation Behavior" ;
+    rdfs:comment "System approaching carrying capacity: dU/dt → 0" .
+
+calc:CarryingCapacity a calc:CalculusObject ;
+    rdfs:label "Carrying Capacity" ;
+    rdfs:comment "Maximum sustainable state: K = max_equilibrium_value" .
+
+calc:TippingPoint a calc:CalculusObject ;
+    rdfs:label "Tipping Point" ;
+    rdfs:comment "Critical threshold where system behavior changes qualitatively" .
+
+calc:UnstableSaddlePoint a calc:CalculusObject ;
+    rdfs:label "Unstable Saddle Point" ;
+    rdfs:comment "Fixed point with mixed stability: some eigenvalues positive, some negative" .
+
+calc:CoupledProbabilityInequality a calc:CalculusObject ;
+    rdfs:label "Coupled Probability Inequality" ;
+    rdfs:comment "P(A|B) × P(B|A) dependent on system state" .
+
+calc:MultiPartiteGraph a calc:CalculusObject ;
+    rdfs:label "Multi-Partite Graph" ;
+    rdfs:comment "Network with multiple distinct node types and heterogeneous edges" .
+
+calc:ComplementaryAttraction a calc:CalculusObject ;
+    rdfs:label "Complementary Attraction" ;
+    rdfs:comment "Multiple attractions reinforcing each other constructively" .
+
+calc:DeepPotentialWell a calc:CalculusObject ;
+    rdfs:label "Deep Potential Well" ;
+    rdfs:comment "Strong attractive region with high barriers: |∇f| large at boundary" .
+
+calc:LinearDecay a calc:CalculusObject ;
+    rdfs:label "Linear Decay" ;
+    rdfs:comment "dx/dt = -k where k > 0 constant" .
+
+calc:UnboundedSearchSpaceWithBoundedResource a calc:CalculusObject ;
+    rdfs:label "Unbounded Search Space with Bounded Resource" ;
+    rdfs:comment "Search problem with infinite solution space but finite budget" .
+
+calc:RapidLandscapeShift a calc:CalculusObject ;
+    rdfs:label "Rapid Landscape Shift" ;
+    rdfs:comment "Fitness landscape changes faster than population can adapt" .
+
+calc:PerturbationPastLocalMaximum a calc:CalculusObject ;
+    rdfs:label "Perturbation Past Local Maximum" ;
+    rdfs:comment "External shock pushing system beyond local optimum" .
+
+calc:LocalEquilibriumWithRespectToOppgCost a calc:CalculusObject ;
+    rdfs:label "Local Equilibrium with Respect to Opportunity Cost" ;
+    rdfs:comment "Fixed point where local return rate equals opportunity cost" .
+
+calc:UnpredictableJump a calc:CalculusObject ;
+    rdfs:label "Unpredictable Jump" ;
+    rdfs:comment "Sudden state change not following smooth trajectory" .
+
+calc:FilteredRandomProcess a calc:CalculusObject ;
+    rdfs:label "Filtered Random Process" ;
+    rdfs:comment "Random process with selective filtering by skill/position" .
+
+calc:NetworkCentralityMeasure a calc:CalculusObject ;
+    rdfs:label "Network Centrality Measure" ;
+    rdfs:comment "Degree, betweenness, or closeness centrality in graph" .
+
+calc:SharpDynamicsChange a calc:CalculusObject ;
+    rdfs:label "Sharp Dynamics Change" ;
+    rdfs:comment "Sudden qualitative shift in system dynamics" .
+
+calc:UnpredictablePerturbationAwayFromAttractor a calc:CalculusObject ;
+    rdfs:label "Unpredictable Perturbation Away From Attractor" ;
+    rdfs:comment "Random shock pushing trajectory away from stable state" .
+
+calc:CouplingToExternalReferenceFrame a calc:CalculusObject ;
+    rdfs:label "Coupling to External Reference Frame" ;
+    rdfs:comment "System alignment with external coordinate system" .
+
+calc:InverseBoundary a calc:CalculusObject ;
+    rdfs:label "Inverse Boundary" ;
+    rdfs:comment "Inverse relationship across threshold: f(x) ∝ 1/g(x)" .
+
+calc:OptimizationLandscape a calc:CalculusObject ;
+    rdfs:label "Optimization Landscape" ;
+    rdfs:comment "Multi-dimensional landscape of objective function" .
+
+calc:VectorProjection a calc:CalculusObject ;
+    rdfs:label "Vector Projection" ;
+    rdfs:comment "Component of vector along specific direction" .
+
+calc:DimensionalityReduction a calc:CalculusObject ;
+    rdfs:label "Dimensionality Reduction" ;
+    rdfs:comment "Projection from high-dimensional space to lower-dimensional manifold" .
+
+calc:HighDimensionalityWithLimitedResources a calc:CalculusObject ;
+    rdfs:label "High Dimensionality with Limited Resources" ;
+    rdfs:comment "Parameter space much larger than resource capacity" .
+
+calc:ManifoldTraversal a calc:CalculusObject ;
+    rdfs:label "Manifold Traversal" ;
+    rdfs:comment "Movement across different subspaces of parameter space" .
+
+calc:HighDynamicsSpeedOfResponse a calc:CalculusObject ;
+    rdfs:label "High Dynamics Speed of Response" ;
+    rdfs:comment "System with fast characteristic time scale" .
+
+calc:HighDampingHighInertia a calc:CalculusObject ;
+    rdfs:label "High Damping, High Inertia" ;
+    rdfs:comment "System with large friction coefficient and slow response" .
+
+calc:OrderParameterInPhaseTransition a calc:CalculusObject ;
+    rdfs:label "Order Parameter in Phase Transition" ;
+    rdfs:comment "Scalar parameter distinguishing phases: |order_param| sensitive to control parameter" .
+
+calc:AlignedVectorField a calc:CalculusObject ;
+    rdfs:label "Aligned Vector Field" ;
+    rdfs:comment "Vector field where vectors point coherently in same direction" .
+
+calc:DampingInDynamicalSystem a calc:CalculusObject ;
+    rdfs:label "Damping in Dynamical System" ;
+    rdfs:comment "Energy dissipation term in differential equation" .
+
+calc:DisconnectedGraphLaplacian a calc:CalculusObject ;
+    rdfs:label "Disconnected Graph Laplacian" ;
+    rdfs:comment "Laplacian matrix of graph with disconnected components" .
+
+calc:SupplyDemandDisequilibrium a calc:CalculusObject ;
+    rdfs:label "Supply-Demand Disequilibrium" ;
+    rdfs:comment "Supply ≠ Demand creating price pressure" .
+
+calc:SupplyDeficit a calc:CalculusObject ;
+    rdfs:label "Supply Deficit" ;
+    rdfs:comment "Supply < Demand driving price increase" .
+
+calc:BubbleDynamics a calc:CalculusObject ;
+    rdfs:label "Bubble Dynamics" ;
+    rdfs:comment "Positive feedback loop in prices: dP/dt = β(P - fundamental_value) with β > 1" .
+
+calc:MeanReversion a calc:CalculusObject ;
+    rdfs:label "Mean Reversion" ;
+    rdfs:comment "Stochastic process returning to long-term mean: dx/dt = -k(x - μ)" .
+
+calc:DiscontinuousJump a calc:CalculusObject ;
+    rdfs:label "Discontinuous Jump" ;
+    rdfs:comment "State change with discontinuity: lim→ ≠ lim← at transition" .
+
+calc:ParadigmShift a calc:CalculusObject ;
+    rdfs:label "Paradigm Shift" ;
+    rdfs:comment "Fundamental change in assumptions and interpretation" .
+
+calc:PhaseSpaceExpansion a calc:CalculusObject ;
+    rdfs:label "Phase Space Expansion" ;
+    rdfs:comment "Increase in dimensionality or volume of accessible phase space" .
+
+calc:PotentialBarrierReduction a calc:CalculusObject ;
+    rdfs:label "Potential Barrier Reduction" ;
+    rdfs:comment "Decrease in energy barrier separating states" .
+
+# ==============================================================================
+# CATEGORIES
+# ==============================================================================
+
+folk:Category a owl:Class ;
+    rdfs:label "Category" ;
+    rdfs:comment "Grouping of related folk terms" .

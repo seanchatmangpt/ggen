@@ -1,0 +1,437 @@
+[
+  {
+    "concept_id": "C_GRAPH_UNIVERSE_PRIMARY",
+    "category": "universe",
+    "description": "Graph (ontology) is primary; code is a projection",
+    "must_include_any": [
+      "ontology as source of truth",
+      "projection engine",
+      "Σ → code",
+      "graph-driven",
+      "code generated from ontology",
+      "KNHK",
+      "knowledge kernel",
+      "A = μ(O)"
+    ],
+    "boost_if_present": [
+      "ontology-first",
+      "graph primary",
+      "projection model",
+      "doctrine",
+      "ground truth"
+    ],
+    "exclude": [
+      "anti-pattern",
+      "don't use",
+      "deprecated"
+    ],
+    "base_weight": 0.85
+  },
+  {
+    "concept_id": "C_CODE_AS_PROJECTION",
+    "category": "universe",
+    "description": "Code is treated as a derived surface, not authorial input",
+    "must_include_any": [
+      "generated code",
+      "projection",
+      "view",
+      "no direct edits",
+      "do not edit by hand",
+      "derived",
+      "surface"
+    ],
+    "boost_if_present": [
+      "immutable",
+      "read-only",
+      "auto-generated",
+      "from ontology",
+      "projection profile"
+    ],
+    "exclude": [
+      "manual edit",
+      "hand-written"
+    ],
+    "base_weight": 0.8
+  },
+  {
+    "concept_id": "C_RECEIPTS_AND_PROOFS",
+    "category": "universe",
+    "description": "Each action leaves a receipt with timing, evidence, and hash linkage",
+    "must_include_any": [
+      "receipt",
+      "Ed25519",
+      "hash",
+      "proof",
+      "audit trail",
+      "Γ",
+      "attestation",
+      "hash(A) = hash(μ(O))"
+    ],
+    "boost_if_present": [
+      "proof-carrying",
+      "verifiable",
+      "signature",
+      "chain",
+      "merkle"
+    ],
+    "exclude": [
+      "mock",
+      "stub"
+    ],
+    "base_weight": 0.82
+  },
+  {
+    "concept_id": "C_MU_KERNEL_PHYSICS",
+    "category": "kernel",
+    "description": "μ-kernel defines allowed operations and their timing bounds",
+    "must_include_any": [
+      "μ-kernel",
+      "mu-kernel",
+      "ISA",
+      "instruction set",
+      "patterns.rs",
+      "timing bound",
+      "cycle-accurate"
+    ],
+    "boost_if_present": [
+      "CHATMAN_CONSTANT",
+      "<= 8 ticks",
+      "rdtsc",
+      "timing.rs",
+      "operation set"
+    ],
+    "exclude": [
+      "mock",
+      "example-only"
+    ],
+    "base_weight": 0.9
+  },
+  {
+    "concept_id": "C_TIMING_BOUNDS_ENFORCED",
+    "category": "kernel",
+    "description": "Timing constraints are enforced in code, tests, and docs",
+    "must_include_any": [
+      "<= 8 ticks",
+      "Chatman constant",
+      "CHATMAN_CONSTANT",
+      "performance harness",
+      "timing bound",
+      "cycle-accurate"
+    ],
+    "boost_if_present": [
+      "RDTSC",
+      "nanosecond",
+      "sub-microsecond",
+      "hardware timer",
+      "deterministic timing"
+    ],
+    "exclude": [
+      "approximate",
+      "rough"
+    ],
+    "base_weight": 0.88
+  },
+  {
+    "concept_id": "C_KNHK_GRAPH_PRIMARY",
+    "category": "knowledge",
+    "description": "Knowledge graph (KNHK) as ground truth, workflows as projections",
+    "must_include_any": [
+      "KNHK",
+      "Kinetic Knowledge Hypergraph",
+      "ontology is law",
+      "Σ is primary",
+      "projections",
+      "workflow as view",
+      "knowledge hypergraph"
+    ],
+    "boost_if_present": [
+      "kinetic",
+      "hypergraph",
+      "knowledge kernel",
+      "ground truth",
+      "source of truth"
+    ],
+    "exclude": [
+      "deprecated",
+      "legacy"
+    ],
+    "base_weight": 0.85
+  },
+  {
+    "concept_id": "C_DFLSS_FLOW",
+    "category": "knowledge",
+    "description": "Design for Lean Six Sigma as agent-only closed-world optimization flow",
+    "must_include_any": [
+      "DFLSS",
+      "Design for Lean Six Sigma",
+      "DMEDI",
+      "closed-world optimization"
+    ],
+    "boost_if_present": [
+      "agent pipeline",
+      "autonomic",
+      "define-measure-explore-develop-implement",
+      "DFLSS pipeline",
+      "optimization loop"
+    ],
+    "exclude": [
+      "DFSS",
+      "manual"
+    ],
+    "base_weight": 0.75
+  },
+  {
+    "concept_id": "C_AHI_GOVERNANCE",
+    "category": "knowledge",
+    "description": "Autonomic Hyper Intelligence managing ΔΣ + policy from receipts",
+    "must_include_any": [
+      "AHI",
+      "autonomic hyper intelligence",
+      "MAPE-K",
+      "policy adapter",
+      "ΔΣ application logic",
+      "autonomic"
+    ],
+    "boost_if_present": [
+      "monitor-analyze-plan-execute",
+      "knowledge loop",
+      "adaptive policy",
+      "receipt-driven",
+      "ontology proposal"
+    ],
+    "exclude": [
+      "mock",
+      "hypothetical"
+    ],
+    "base_weight": 0.8
+  },
+  {
+    "concept_id": "C_CTT_12_PHASE_VERIFICATION",
+    "category": "verification",
+    "description": "Chicago TDD Tools as multi-phase verification pipeline derived from invariants",
+    "must_include_any": [
+      "Chicago TDD",
+      "Chicago TDD Tools",
+      "12 phases",
+      "CTT",
+      "Contract",
+      "Thermal",
+      "Effects",
+      "State Machine",
+      "Receipt",
+      "Governance"
+    ],
+    "boost_if_present": [
+      "verification pipeline",
+      "A = μ(O)",
+      "12-phase",
+      "phase verification",
+      "enforcement"
+    ],
+    "exclude": [
+      "partial",
+      "incomplete"
+    ],
+    "base_weight": 0.87
+  },
+  {
+    "concept_id": "C_CLNRM_HERMETIC_TESTING",
+    "category": "verification",
+    "description": "clnrm provides hermetic container tests with OpenTelemetry + Weaver",
+    "must_include_any": [
+      "clnrm",
+      "cleanroom",
+      "hermeticity",
+      "hermetic",
+      "Weaver",
+      "OTEL",
+      "OpenTelemetry"
+    ],
+    "boost_if_present": [
+      "live-check",
+      "span graph",
+      "TOML configuration",
+      "no external services",
+      "container test"
+    ],
+    "exclude": [
+      "mock",
+      "integration test"
+    ],
+    "base_weight": 0.83
+  },
+  {
+    "concept_id": "C_CNV_AGENT_CLI",
+    "category": "interface",
+    "description": "clap-noun-verb (CNV) as agent-grade capability surface, not a human CLI",
+    "must_include_any": [
+      "clap-noun-verb",
+      "CNV",
+      "capability contract",
+      "tenant",
+      "agent ID",
+      "resource quotas",
+      "attestation"
+    ],
+    "boost_if_present": [
+      "swarm-native",
+      "streaming session",
+      "stable capability",
+      "trillion-agent",
+      "capability stream"
+    ],
+    "exclude": [
+      "human CLI",
+      "interactive"
+    ],
+    "base_weight": 0.81
+  },
+  {
+    "concept_id": "C_NOMRG_GRAPH_OVERLAY",
+    "category": "interface",
+    "description": "nomrg removes textual merges; only graph overlays with proofs exist",
+    "must_include_any": [
+      "nomrg",
+      "no merge",
+      "no-merge",
+      "graph overlay",
+      "overlay",
+      "conflict-free"
+    ],
+    "boost_if_present": [
+      "CRDT",
+      "replicated graph",
+      "ΔΣ algebra",
+      "overlay algebra",
+      "text-diff free"
+    ],
+    "exclude": [
+      "text merge",
+      "diff-based"
+    ],
+    "base_weight": 0.78
+  },
+  {
+    "concept_id": "C_GGEN_PROJECTION_ENGINE",
+    "category": "interface",
+    "description": "ggen as general projection engine: Σ + Q → code/tests/CLIs/config",
+    "must_include_any": [
+      "ggen",
+      "graph generator",
+      "projection profile",
+      "Σ* binary",
+      "code projection",
+      "test projection"
+    ],
+    "boost_if_present": [
+      "projection engine",
+      "ontology-driven code",
+      "universal generator",
+      "multi-language",
+      "multi-artifact"
+    ],
+    "exclude": [
+      "one-off",
+      "special-purpose"
+    ],
+    "base_weight": 0.85
+  },
+  {
+    "concept_id": "C_UNIVERSE_PROJECTION_AXIOM",
+    "category": "universe",
+    "description": "Core axiom: code is always and only a projection of graph/ontology via μ",
+    "must_include_any": [
+      "A = μ(O)",
+      "projection axiom",
+      "code is derived",
+      "from ontology",
+      "μ maps ontology"
+    ],
+    "boost_if_present": [
+      "immutable",
+      "deterministic",
+      "verifiable",
+      "one-way",
+      "irreversible"
+    ],
+    "exclude": [
+      "bidirectional",
+      "manual sync"
+    ],
+    "base_weight": 0.92
+  },
+  {
+    "concept_id": "C_RECEIPT_CHAIN_VERIFICATION",
+    "category": "verification",
+    "description": "Receipts form an immutable chain proving every action and policy decision",
+    "must_include_any": [
+      "receipt chain",
+      "immutable receipt",
+      "proof chain",
+      "audit trail",
+      "Ed25519"
+    ],
+    "boost_if_present": [
+      "merkle",
+      "hash chain",
+      "signature verification",
+      "provenance",
+      "tamper-proof"
+    ],
+    "exclude": [
+      "mutable",
+      "erasable"
+    ],
+    "base_weight": 0.84
+  },
+  {
+    "concept_id": "C_AGENTS_ONLY_ARCHITECTURE",
+    "category": "universe",
+    "description": "No human roles, no human decision loops; all systems are agent-driven",
+    "must_include_any": [
+      "agent-only",
+      "no humans",
+      "autonomous",
+      "swarm",
+      "agent-driven",
+      "agent system"
+    ],
+    "boost_if_present": [
+      "trillion agents",
+      "distributed agents",
+      "multi-agent",
+      "hive mind",
+      "decentralized"
+    ],
+    "exclude": [
+      "manual",
+      "human approval",
+      "human-in-loop"
+    ],
+    "base_weight": 0.79
+  },
+  {
+    "concept_id": "C_INVARIANT_ENFORCEMENT",
+    "category": "verification",
+    "description": "Invariants (from ontology) enforced by CTT pipeline at runtime and build time",
+    "must_include_any": [
+      "invariant",
+      "enforcement",
+      "CTT",
+      "verified",
+      "constraint"
+    ],
+    "boost_if_present": [
+      "contract",
+      "precondition",
+      "postcondition",
+      "state machine",
+      "property"
+    ],
+    "exclude": [
+      "advisory",
+      "guideline"
+    ],
+    "base_weight": 0.82
+  }
+]

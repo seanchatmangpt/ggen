@@ -1,32 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Cross-Reference Guide](#cross-reference-guide)
-  - [By Learning Path](#by-learning-path)
-    - [Path 1: Complete Beginner](#path-1-complete-beginner)
-    - [Path 2: Building Custom Packs](#path-2-building-custom-packs)
-    - [Path 3: Advanced Customization](#path-3-advanced-customization)
-  - [By Task](#by-task)
-    - [Installing and Using Packs](#installing-and-using-packs)
-    - [Creating Custom Packs](#creating-custom-packs)
-    - [Customizing Generation](#customizing-generation)
-    - [Publishing and Sharing](#publishing-and-sharing)
-    - [Troubleshooting](#troubleshooting)
-  - [By Concept](#by-concept)
-    - [Ontologies](#ontologies)
-    - [Packs](#packs)
-    - [Templates](#templates)
-    - [Composition](#composition)
-  - [Understanding vs Doing](#understanding-vs-doing)
-    - [Want to Understand?](#want-to-understand)
-    - [Want to Do?](#want-to-do)
-  - [Document Relationships Graph](#document-relationships-graph)
-  - [Navigation Tips](#navigation-tips)
-  - [Maintenance](#maintenance)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Cross-Reference Guide
 
 This document maps relationships between documentation sections to help you navigate the Diataxis structure.

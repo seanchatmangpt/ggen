@@ -1,204 +1,325 @@
-# AI Code Generation Example
+# AI-Powered Code Generation Example
 
-A **trait-based code generator** with a mock LLM backend, demonstrating:
-- Abstraction over LLM implementations
-- Deterministic code generation (testable without real APIs)
-- Async/await patterns with trait objects
-- Code metrics calculation
+This example demonstrates advanced AI-powered code generation using ggen's AI capabilities:
 
-## Architecture
+- **Template Generation**: AI creates templates from natural language descriptions
+- **Code Generation**: AI generates Rust code with proper error handling and testing
+- **SPARQL Integration**: AI generates SPARQL queries from domain descriptions
+- **Documentation**: AI generates comprehensive documentation
+- **Validation**: AI validates generated code for quality and correctness
 
-```
-CodeGenerator (Service)
-    ↓
-LanguageModel (Trait)
-    ↓
-MockLlm (Implementation)
-    ↓
-Deterministic Responses
-```
+## Features Demonstrated
+
+### AI Template Generation
+- Natural language to template conversion
+- Variable extraction and type inference
+- Frontmatter generation with proper metadata
+- Template validation and improvement
+
+### AI Code Generation
+- Rust service generation with multiple frameworks
+- Database schema generation
+- API endpoint generation
+- Test case generation
+- Error handling implementation
+
+### AI SPARQL Generation
+- Natural language to SPARQL query conversion
+- Domain model analysis
+- Query optimization suggestions
+- Result interpretation
+
+### AI Documentation Generation
+- API documentation generation
+- Architecture documentation
+- User guides and tutorials
+- Code comments and examples
 
 ## Quick Start
 
-### Run the demo
 ```bash
-cargo make run
+# Generate a complete Rust web service
+ggen ai generate -d "Create a REST API for managing books with CRUD operations, authentication, and search functionality" --validate
+
+# Generate SPARQL queries for domain analysis
+ggen ai sparql -d "Find all entities and their relationships in the domain model" -g data/domain.ttl
+
+# Generate documentation
+ggen ai generate -d "Create comprehensive API documentation with examples and usage guides" --validate
+
+# Generate test cases
+ggen ai generate -d "Generate comprehensive test cases for the book management API" --validate
 ```
 
-Output:
+## Project Structure
+
 ```
-=== AI Code Generation Demo ===
-
-1. Generating Rust code (Simple)...
-Generated X lines of Rust code
-Functions: Y, Complexity: Z.X
-
-2. Generating Python code (Intermediate)...
-...
-
-3. Generating TypeScript code (Advanced)...
-...
-
-4. Refining generated code...
-✅ Demo complete!
+ai-code-generation/
+├── README.md                 # This file
+├── ggen.toml                 # ggen configuration
+├── make.toml                 # Lifecycle configuration
+├── templates/                # AI-generated templates
+│   ├── rust-service.tmpl     # Rust service template
+│   ├── database-schema.tmpl  # Database schema template
+│   ├── api-docs.tmpl         # API documentation template
+│   └── tests.tmpl            # Test cases template
+├── data/                     # Domain models and queries
+│   ├── domain.ttl            # RDF domain model
+│   ├── queries.sparql        # Generated SPARQL queries
+│   └── examples.json         # Example data
+├── generated/                # AI-generated code
+│   ├── services/             # Generated services
+│   ├── schemas/              # Generated schemas
+│   ├── docs/                 # Generated documentation
+│   └── tests/                # Generated tests
+└── examples/                 # Usage examples
+    ├── book-service/         # Book management service
+    ├── user-service/         # User management service
+    └── inventory-service/    # Inventory management service
 ```
 
-### Run tests
+## AI Generation Examples - Marketplace-First Approach
+
+### 1. **Search Marketplace** for existing AI patterns
 ```bash
-cargo make test
-# Output: test result: ok. 14 passed
+# Search for AI and web service packages
+ggen market search "ai service"
+ggen market search "rust web service"
+ggen market search "crud templates"
+ggen market search "database integration"
 ```
 
-## Key Components
-
-### `LanguageModel` Trait
-```rust
-#[async_trait]
-pub trait LanguageModel: Send + Sync {
-    async fn generate(&self, prompt: &str) -> CodeGenResult<String>;
-    async fn refine(&self, code: &str, feedback: &str) -> CodeGenResult<String>;
-}
-```
-
-Enables swapping implementations:
-- `MockLlm`: For testing (deterministic)
-- `RealLlm`: Would call actual LLM API
-
-### `MockLlm` Implementation
-Pre-configured responses for deterministic testing:
-
-```rust
-let llm = MockLlm::new()
-    .with_response("Generate Rust code", "pub fn foo() {}");
-```
-
-### `CodeGenerator` Service
-Orchestrates generation with metrics:
-
-```rust
-let llm = Box::new(MockLlm::new());
-let gen = CodeGenerator::new(llm);
-
-let request = CodeGenRequest {
-    id: Uuid::new_v4(),
-    prompt: "test".to_string(),
-    language: ProgrammingLanguage::Rust,
-    complexity: Complexity::Simple,
-};
-
-let result = gen.generate(request).await?;
-// Returns GeneratedCode with metrics
-```
-
-### Metrics Calculation
-Automatically computes:
-- Lines of code
-- Number of functions
-- Number of comments
-- Complexity score (based on branching and nesting)
-
-## Usage Examples
-
-### Generate code in different languages
-```rust
-// Rust
-CodeGenRequest {
-    language: ProgrammingLanguage::Rust,
-    complexity: Complexity::Simple,
-    ...
-}
-
-// Python
-CodeGenRequest {
-    language: ProgrammingLanguage::Python,
-    complexity: Complexity::Intermediate,
-    ...
-}
-
-// TypeScript
-CodeGenRequest {
-    language: ProgrammingLanguage::TypeScript,
-    complexity: Complexity::Advanced,
-    ...
-}
-```
-
-### Refine generated code
-```rust
-let code = "fn test() {}";
-let refined = generator.refine(code, "add error handling").await?;
-```
-
-## Design Patterns
-
-### 1. Trait-Based Abstraction
-`LanguageModel` trait allows swapping implementations without changing consumer code.
-
-### 2. Deterministic Testing
-`MockLlm` returns consistent responses, enabling reliable unit tests.
-
-### 3. Error Handling
-All operations return `Result<T, CodeGenError>`:
-- No unwrap/expect in production
-- Type-safe error propagation
-
-### 4. Async Trait
-Uses `async_trait` for async trait methods:
-```rust
-#[async_trait]
-pub trait LanguageModel {
-    async fn generate(&self, prompt: &str) -> CodeGenResult<String>;
-}
-```
-
-## Testing
-
-14 comprehensive tests covering:
-- Request and response structures
-- LLM trait implementations
-- Mock LLM responses
-- Code generator functionality
-- Metrics calculation
-- Error cases
-
-Run with:
+### 2. **Install Required Packages**
 ```bash
-cargo make test
+# Install AI and template packages
+ggen market add "ai-service-templates"         # AI-powered service generation
+ggen market add "rust-axum-service"             # Axum web framework
+ggen market add "crud-operations"               # CRUD operation templates
+ggen market add "postgresql-database"           # Database integration
+ggen market add "redis-cache"                   # Caching layer
+ggen market add "openapi-documentation"         # API documentation
 ```
 
-## Quality Metrics
+### 3. **Service Generation** using marketplace templates + AI
+```bash
+# Generate book management service using marketplace template
+ggen template generate ai-service-templates:book-service.tmpl
 
-✅ `cargo build` - Compiles without errors
-✅ `cargo test` - 14/14 tests PASS
-✅ `cargo clippy` - 0 warnings
-✅ No unsafe code
-✅ No unwrap/expect in production
-✅ Result<T, E> throughout
-✅ Comprehensive README
-✅ Deterministic outputs
+# Enhance with AI for custom requirements
+ggen ai generate -d "
+Enhance the generated book service with these additional features:
+- Advanced search with multiple filters
+- Book recommendations based on reading history
+- Integration with external book APIs
+- Real-time inventory tracking
+- Automated restocking alerts
+" --validate --max-iterations 3
+```
 
-## Key Features
+### 2. SPARQL Query Generation
+```bash
+# Generate SPARQL queries for domain analysis
+ggen ai sparql -d "
+Analyze the book domain model and generate queries for:
+- Finding all books by a specific author
+- Listing books in a category with their details
+- Finding books published in a date range
+- Identifying books with low inventory
+- Generating reports on book popularity
+- Finding related books based on categories
+" -g data/domain.ttl -o data/generated-queries.sparql
+```
 
-1. **Trait-Based Design**: Easy to implement real LLM backend
-2. **Mock LLM**: Deterministic testing without API calls
-3. **Metrics**: Automatic code quality analysis
-4. **Multi-Language**: Rust, Python, TypeScript support
-5. **Error Handling**: Type-safe with custom error types
-6. **Async/Await**: Tokio-based async patterns
+### 3. Documentation Generation
+```bash
+# Generate comprehensive documentation
+ggen ai generate -d "
+Create comprehensive documentation for the book management API including:
+- API overview and architecture
+- Endpoint documentation with examples
+- Authentication and authorization
+- Error handling and status codes
+- Rate limiting and usage guidelines
+- Integration examples
+- Troubleshooting guide
+- Performance optimization tips
+" --validate
+```
 
-## Next Steps
+### 4. Test Generation
+```bash
+# Generate comprehensive test suite
+ggen ai generate -d "
+Generate a comprehensive test suite for the book management API including:
+- Unit tests for all service methods
+- Integration tests for API endpoints
+- Database interaction tests
+- Authentication and authorization tests
+- Error handling tests
+- Performance tests
+- Load tests
+- Mock data generation
+" --validate
+```
 
-To use with a real LLM:
-1. Implement `LanguageModel` trait for your LLM
-2. Configure API authentication
-3. Handle rate limiting
-4. Cache responses
+## Configuration
 
-## Files
+### ggen.toml
+```toml
+[ai]
+provider = "ollama"
+model = "qwen2.5-coder"
+temperature = 0.7
+max_tokens = 4000
+timeout = 30
 
-- `src/lib.rs` - Core types, traits, implementations
-- `src/main.rs` - Demo CLI
-- `make.toml` - Lifecycle configuration
-- `README.md` - This file
+[ai.prompts]
+system = "You are an expert Rust developer specializing in web services, databases, and API design. Generate production-ready code with proper error handling, testing, and documentation."
+user_prefix = "Generate a Rust service with the following requirements:"
 
-See `../FINAL_STATUS.md` for overall reimplementation progress.
+[ai.validation]
+enabled = true
+quality_threshold = 0.8
+max_iterations = 3
+
+[templates]
+directory = "templates"
+output_directory = "generated"
+backup_enabled = true
+
+[templates.rust]
+style = "core-team"
+error_handling = "thiserror"
+logging = "tracing"
+async_runtime = "tokio"
+testing = "comprehensive"
+```
+
+## Advanced Features
+
+### Iterative Improvement
+The AI system can iteratively improve generated code based on validation feedback:
+
+```bash
+# Generate with iterative improvement
+ggen ai generate -d "Create a user authentication service" --validate --max-iterations 5
+```
+
+### Quality Validation
+Generated code is automatically validated for:
+- Compilation correctness
+- Test coverage
+- Code quality metrics
+- Security best practices
+- Performance optimization
+
+### Template Customization
+Templates can be customized for specific frameworks and patterns:
+
+```bash
+# Generate with specific framework
+ggen ai generate -d "Create a microservice" --template rust-service.tmpl --vars framework=axum
+```
+
+## Best Practices
+
+### 1. Clear Descriptions
+Provide clear, detailed descriptions for better AI generation:
+- Specify exact requirements
+- Include technical constraints
+- Mention preferred frameworks and patterns
+- Describe expected behavior
+
+### 2. Iterative Refinement
+Use iterative generation to improve quality:
+- Start with basic requirements
+- Add validation feedback
+- Refine based on results
+- Validate final output
+
+### 3. Validation and Testing
+Always validate generated code:
+- Check compilation
+- Run tests
+- Verify functionality
+- Review security implications
+
+### 4. Documentation
+Generate comprehensive documentation:
+- API documentation
+- Usage examples
+- Architecture diagrams
+- Troubleshooting guides
+
+## Key Benefits of Marketplace-First AI Development
+
+### **Intelligent Code Reuse** - Don't reinvent the wheel
+- Marketplace provides proven, production-ready AI patterns
+- AI enhances existing templates rather than generating from scratch
+- Combines human expertise (marketplace) with AI adaptability
+
+### **Quality Assurance** - Production-ready from day one
+- Marketplace templates include proper error handling, security, logging
+- AI enhancements maintain code quality standards
+- Comprehensive validation ensures generated code works
+
+### **Rapid Iteration** - Focus on business logic, not boilerplate
+- 80% of code comes from marketplace templates
+- AI handles the remaining 20% of custom requirements
+- Faster development cycles with higher quality
+
+### **Consistency** - Standardized patterns across projects
+- All AI-generated services follow same architectural patterns
+- Uniform error handling and API design
+- Easier maintenance and team collaboration
+
+## Best Practices for AI + Marketplace Development
+
+### 1. **Start with Marketplace Search**
+```bash
+# Always search first - someone may have already solved your problem
+ggen market search "your specific requirement"
+ggen market categories  # See what's available
+```
+
+### 2. **Use Marketplace Templates as Foundation**
+```bash
+# Install proven patterns
+ggen market add "your-required-package"
+
+# Generate from marketplace template
+ggen template generate package-name:template.tmpl
+
+# Then enhance with AI for custom needs
+ggen ai generate "Add my specific business requirements"
+```
+
+### 3. **Leverage AI for Complex Logic**
+```bash
+# Use AI for:
+# - Complex business rules
+# - Custom algorithms
+# - Integration requirements
+# - Performance optimizations
+
+# Don't use AI for:
+# - Basic CRUD operations (use marketplace)
+# - Standard web frameworks (use marketplace)
+# - Common patterns (use marketplace)
+```
+
+### 4. **Validate Everything**
+```bash
+# Always validate generated code
+ggen lifecycle run test
+ggen graph validate data/domain.ttl
+ggen template validate templates/*.tmpl
+```
+
+### 5. **Contribute Back to Marketplace**
+```bash
+# After successful customization, consider publishing improvements
+ggen market publish "my-enhanced-pattern"
+```
+
+This example demonstrates how to combine ggen's marketplace (human expertise) with AI generation (adaptability) for optimal development speed and quality.

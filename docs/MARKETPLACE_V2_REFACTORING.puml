@@ -1,0 +1,223 @@
+@startuml MARKETPLACE_V2_REFACTORING
+!theme plain
+title ggen Marketplace Consolidation - v1 → v2 with RDF Integration
+
+' Define styling
+skinparam backgroundColor #f8f9fa
+skinparam defaultFontName Courier New
+skinparam defaultFontSize 10
+
+package "CURRENT STATE - Dual Implementation" {
+    package "CLI Layer (ggen-cli)" {
+        component "cmds/marketplace.rs (v1)" as cli_market_v1 {
+            note right
+                Uses: ggen_marketplace v1
+                - search()
+                - install()
+                - list()
+                - publish()
+            end note
+        }
+    }
+
+    package "Domain Layer (ggen-domain)" {
+        component "marketplace/list.rs (v1)" as domain_list_v1 {
+            note right
+                Uses: ggen_marketplace v1
+                - LocalRegistry backend
+                - Lockfile management
+            end note
+        }
+        component "marketplace/publish.rs (v1)" as domain_pub_v1 {
+            note right
+                Uses: ggen_marketplace v1
+                - Package publication
+            end note
+        }
+    }
+
+    package "Marketplace Implementations" {
+        component "ggen-marketplace (v1)" as market_v1 {
+            note right
+                ❌ DEPRECATED
+                - Old search engine
+                - Tantivy-based indexing
+                - Legacy type system
+                - No RDF support
+            end note
+        }
+        component "ggen-marketplace-v2" as market_v2 {
+            note right
+                ✅ NEW STANDARD
+                - RDF/SPARQL ontology
+                - oxigraph backend
+                - Semantic versioning
+                - Security focus
+            end note
+        }
+    }
+
+    cli_market_v1 -.-> market_v1: uses
+    domain_list_v1 -.-> market_v1: uses
+    domain_pub_v1 -.-> market_v1: uses
+}
+
+package "TARGET STATE - v2 Only with RDF" {
+    package "CLI Layer (ggen-cli)" {
+        component "cmds/marketplace.rs (v2)" as cli_market_v2 {
+            note right
+                Uses: ggen_marketplace_v2
+                - RDF-driven search
+                - SPARQL queries
+                - Semantic filtering
+            end note
+        }
+    }
+
+    package "Domain Layer (ggen-domain)" {
+        component "marketplace/list.rs (v2)" as domain_list_v2 {
+            note right
+                Uses: ggen_marketplace_v2
+                - RDF repository
+                - SPARQL operations
+            end note
+        }
+        component "marketplace/publish.rs (v2)" as domain_pub_v2 {
+            note right
+                Uses: ggen_marketplace_v2
+                - RDF graph updates
+                - Ontology validation
+            end note
+        }
+        component "marketplace/ontology.rs (NEW)" as domain_onto {
+            note right
+                ✨ NEW MODULE
+                - MARKETPLACE_ONTOLOGY
+                - Semantic metadata
+                - RDF/SPARQL mapping
+            end note
+        }
+    }
+
+    package "Marketplace v2 Only" {
+        component "ggen-marketplace-v2" as market_v2_target {
+            note right
+                ✅ SINGLE SOURCE OF TRUTH
+                - RDF/SPARQL core
+                - oxigraph store
+                - Security focus (Ed25519, SHA-256)
+                - Semantic versioning
+                - OWL ontologies
+            end note
+        }
+    }
+
+    cli_market_v2 --> market_v2_target: delegates to
+    domain_list_v2 --> market_v2_target: uses
+    domain_pub_v2 --> market_v2_target: uses
+    domain_onto --> market_v2_target: references
+}
+
+package "Migration Steps" {
+    rectangle "1. Analyze v2 API" as step1 {
+        note right
+            - Review marketplace-v2 exports
+            - Identify v2 equivalent operations
+            - Map RDF ontologies
+        end note
+    }
+
+    rectangle "2. Update CLI Commands" as step2 {
+        note right
+            - Replace ggen_marketplace with ggen_marketplace_v2
+            - Update search to use SPARQL
+            - Update filtering to use semantic metadata
+        end note
+    }
+
+    rectangle "3. Update Domain Layer" as step3 {
+        note right
+            - Update list.rs to use v2 RDF operations
+            - Update publish.rs to use v2 graph updates
+            - Create ontology.rs for RDF mappings
+        end note
+    }
+
+    rectangle "4. Create Ontology Module" as step4 {
+        note right
+            - Define RDF semantic mappings
+            - Package metadata as RDF properties
+            - Query patterns for filtering
+        end note
+    }
+
+    rectangle "5. Remove v1 Crate" as step5 {
+        note right
+            - Delete ggen-marketplace directory
+            - Remove from Cargo.toml workspace
+            - Update all tests to v2 only
+        end note
+    }
+
+    rectangle "6. Verify & Test" as step6 {
+        note right
+            - cargo make check (no errors)
+            - cargo make lint (no warnings)
+            - Integration tests pass
+            - RDF queries validated
+        end note
+    }
+
+    step1 --> step2
+    step2 --> step3
+    step3 --> step4
+    step4 --> step5
+    step5 --> step6
+}
+
+package "RDF Integration Points" {
+    rectangle "Search Operations" as rdf_search {
+        note right
+            ✅ SPARQL queries for semantic search
+            - Package metadata as RDF properties
+            - Maturity level as semantic dimension
+            - Dependency relationships as RDF edges
+        end note
+    }
+
+    rectangle "Package Metadata" as rdf_meta {
+        note right
+            ✅ RDF representation
+            - Name, version, author (semantic URIs)
+            - Dependencies (RDF relations)
+            - Quality metrics (OWL properties)
+            - Maturity levels (semantic classification)
+        end note
+    }
+
+    rectangle "Version Management" as rdf_version {
+        note right
+            ✅ Semantic versioning in RDF
+            - Version numbers as RDF values
+            - Backward compatibility as semantic relations
+            - Deprecation as RDF properties
+        end note
+    }
+
+    rdf_search --> rdf_meta
+    rdf_meta --> rdf_version
+}
+
+package "Andon Signals - Migration Control" {
+    rectangle "✅ Compiler Clean" as signal1
+    rectangle "✅ Tests Passing" as signal2
+    rectangle "✅ RDF Queries Valid" as signal3
+    rectangle "✅ v1 References Zero" as signal4
+
+    note bottom
+        All signals must be GREEN before proceeding
+        Stop-the-Line principle: Any RED signal pauses migration
+    end note
+}
+
+@enduml

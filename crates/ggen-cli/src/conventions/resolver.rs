@@ -24,7 +24,7 @@
 //!
 //! ### Resolving Conventions
 //!
-//! ```rust,ignore
+//! ```rust,no_run
 //! use ggen_cli::conventions::resolver::resolve_conventions;
 //! use std::path::Path;
 //!

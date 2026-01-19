@@ -1,0 +1,793 @@
+@prefix ex: <http://ggen.example.org/disney/financial-close#> .
+@prefix wo: <http://ggen.example.org/disney/work-objects#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ==============================================================================
+# Financial Close & Reconciliation Process Ontology
+# ==============================================================================
+# Purpose: Daily settlement, revenue reconciliation, audit trail creation, compliance reporting
+# Audience: Finance controllers, accounting managers, audit teams, Treasury
+# Wave: 3 (Compliance-critical, audit-controlled process)
+# Status: Mapped to Work Object Model types
+# Created: 2026-01-18
+# ==============================================================================
+
+ex:FinancialCloseProcess a owl:Class ;
+  rdfs:label "Financial Close & Reconciliation Process" ;
+  rdfs:comment "End-to-end daily financial close from revenue settlement through audit trail creation, compliance reporting, and bank reconciliation. Integrates POS systems, general ledger, bank feeds, and audit logging." ;
+  rdfs:isDefinedBy ex:FinancialCloseOntology .
+
+ex:DailyFinancialClose a ex:FinancialCloseProcess ;
+  rdfs:label "Daily Financial Close Cycle" ;
+  rdfs:comment "Process for daily settlement, reconciliation, and audit trail." ;
+  ex:executionFrequency "Daily (every 24 hours)" ;
+  ex:targetCompletionTime "90 minutes per cycle (end-of-business settlement)" ;
+  ex:estimatedDuration "PT90M"^^xsd:duration ;
+  ex:dependencies ex:RevenueSettlementApproval, ex:ReconciliationApproval, ex:AuditCompletionApproval ;
+  ex:complianceFramework "SOX (Sarbanes-Oxley), GAAP, Internal Controls Framework, State Gaming/Liquor Regulations" .
+
+# ==============================================================================
+# SHIFTS (Maps to wo:Shift)
+# ==============================================================================
+
+ex:FinancialCloseShift a wo:Shift ;
+  rdfs:label "Financial Close Operations Shift" ;
+  rdfs:comment "End-of-day financial close and reconciliation team." ;
+  ex:role "Finance Controller, Senior Accountant, Accountant, Reconciliation Specialist" ;
+  ex:startTime "2026-01-19T15:00:00"^^xsd:dateTime ;
+  ex:endTime "2026-01-20T02:00:00"^^xsd:dateTime ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "SHIFT-FINANCIAL-CLOSE-001" ;
+  ex:location ex:FinancialOperationsCenter ;
+  ex:staffingRequirement [
+    ex:role "Finance Controller" ;
+    ex:count 1 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "FIN-CONTROLLER-001"
+  ] ;
+  ex:staffingRequirement [
+    ex:role "Senior Accountant" ;
+    ex:count 2 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "SR-ACCT-001"
+  ] ;
+  ex:staffingRequirement [
+    ex:role "Accountant" ;
+    ex:count 2 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "ACCT-CLOSE-001"
+  ] ;
+  ex:staffingRequirement [
+    ex:role "Reconciliation Specialist" ;
+    ex:count 2 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "RECON-SPEC-001"
+  ] .
+
+ex:NightAuditShift a wo:Shift ;
+  rdfs:label "Night Audit Shift" ;
+  rdfs:comment "Overnight audit logging and compliance verification." ;
+  ex:role "Internal Auditor, Compliance Officer, IT Operations" ;
+  ex:startTime "2026-01-19T21:00:00"^^xsd:dateTime ;
+  ex:endTime "2026-01-20T06:00:00"^^xsd:dateTime ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "SHIFT-NIGHT-AUDIT-001" ;
+  ex:location ex:AuditOperationsCenter ;
+  ex:staffingRequirement [
+    ex:role "Internal Auditor" ;
+    ex:count 1 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "INT-AUDITOR-001"
+  ] ;
+  ex:staffingRequirement [
+    ex:role "Compliance Officer" ;
+    ex:count 1 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "COMPLIANCE-OFF-001"
+  ] .
+
+# ==============================================================================
+# TASKS (Maps to wo:Task)
+# ==============================================================================
+
+ex:RevenueDataCollection a wo:Task ;
+  rdfs:label "Revenue Data Collection & Reconciliation" ;
+  rdfs:comment "Collect POS revenue data from all sources; verify completeness; perform initial reconciliation." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-REVENUE-COLLECT-001" ;
+  wo:hasTitle "Collect and Reconcile Daily Revenue Data" ;
+  wo:taskDescription "Download revenue data from POS systems (ticketing, food/beverage, retail, hotel); verify all revenue streams captured; reconcile against pre-close estimates; flag discrepancies." ;
+  wo:taskAssignedTo ex:SeniorAccountantLead ;
+  wo:taskEstimatedDuration "PT20M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:RevenueAC1, ex:RevenueAC2, ex:RevenueAC3 ;
+  ex:executionOrder 1 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:CashAndBankReconciliation ;
+  ex:externalSystemDependency [
+    ex:system "Oracle POS System" ;
+    ex:functionality "Daily revenue by location, channel, payment method" ;
+    ex:requiredBefore "Revenue collection"
+  ] ;
+  ex:externalSystemDependency [
+    ex:system "Hotel PMS" ;
+    ex:functionality "Room revenue, ancillary charges" ;
+    ex:requiredBefore "Revenue aggregation"
+  ] ;
+  ex:regulatoryMapping "GAAP Revenue Recognition, SOX Section 404 (Internal Controls)" .
+
+ex:RevenueAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When collection complete, then all POS channels (ticketing, F&B, retail, hotel) data extracted and loaded into GL staging." ;
+  wo:criterionVerified "false" .
+
+ex:RevenueAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When collection complete, then daily revenue reconciled to previous day's pre-close estimate within ±1% tolerance." ;
+  wo:criterionVerified "false" .
+
+ex:RevenueAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When collection complete, then revenue audit trail created with timestamp, collector identity, system source, and variance explanations." ;
+  wo:criterionVerified "false" .
+
+ex:CashAndBankReconciliation a wo:Task ;
+  rdfs:label "Cash and Bank Account Reconciliation" ;
+  rdfs:comment "Reconcile cash handling, credit card settlements, and bank deposits." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-CASH-RECON-001" ;
+  wo:hasTitle "Reconcile Cash, Credit Cards, and Bank Deposits" ;
+  wo:taskAssignedTo ex:ReconSpecialistLead ;
+  wo:taskEstimatedDuration "PT25M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:CashAC1, ex:CashAC2, ex:CashAC3 ;
+  wo:dependsOn ex:RevenueDataCollection ;
+  ex:executionOrder 2 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:PaymentProcessorSettlement ;
+  ex:externalSystemDependency [
+    ex:system "Bank Feed API (FDX/Open Banking)" ;
+    ex:functionality "Daily bank transactions, deposits, merchant fees" ;
+    ex:requiredBefore "Bank reconciliation"
+  ] ;
+  ex:externalSystemDependency [
+    ex:system "Payment Processor (Adyen/Square)" ;
+    ex:functionality "Daily settlement report, card transaction details, fees" ;
+    ex:requiredBefore "Settlement reconciliation"
+  ] ;
+  ex:regulatoryMapping "Treasury Management Standards, PCI-DSS Compliance Logging" .
+
+ex:CashAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When reconciliation complete, then cash drawer counts reconciled to POS records (100% match on all tills)." ;
+  wo:criterionVerified "false" .
+
+ex:CashAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When reconciliation complete, then credit card settlements matched to payment processor report (zero variance)." ;
+  wo:criterionVerified "false" .
+
+ex:CashAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When reconciliation complete, then bank deposits verified against bank feed; undeposited funds flagged if >$100K." ;
+  wo:criterionVerified "false" .
+
+ex:PaymentProcessorSettlement a wo:Task ;
+  rdfs:label "Payment Processor Settlement" ;
+  rdfs:comment "Process daily settlement with payment processors; verify fees and net proceeds." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-PAYMENT-SETTLE-001" ;
+  wo:hasTitle "Settle Payment Processing Accounts" ;
+  wo:taskAssignedTo ex:TreasurySpecialistLead ;
+  wo:taskEstimatedDuration "PT15M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:SettleAC1, ex:SettleAC2 ;
+  wo:dependsOn ex:CashAndBankReconciliation ;
+  ex:executionOrder 3 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:GeneralLedgerPost ;
+  ex:externalSystemDependency [
+    ex:system "Payment Processor Settlement API" ;
+    ex:functionality "Settlement reports, transaction details, fee schedules" ;
+    ex:requiredBefore "Settlement processing"
+  ] .
+
+ex:SettleAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When settlement complete, then all payment processor accounts settled and fees verified against contract rates." ;
+  wo:criterionVerified "false" .
+
+ex:SettleAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When settlement complete, then settlement confirmation received from all 3 payment processors (Adyen, Square, PayPal)." ;
+  wo:criterionVerified "false" .
+
+ex:GeneralLedgerPost a wo:Task ;
+  rdfs:label "General Ledger Posting" ;
+  rdfs:comment "Post all revenue, receipts, and adjustments to general ledger; verify balance sheet equation." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-GL-POST-001" ;
+  wo:hasTitle "Post Daily Transactions to General Ledger" ;
+  wo:taskAssignedTo ex:SeniorAccountantLead ;
+  wo:taskEstimatedDuration "PT20M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:GLAC1, ex:GLAC2, ex:GLAC3 ;
+  wo:dependsOn ex:PaymentProcessorSettlement ;
+  ex:executionOrder 4 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:FinancialReporting ;
+  ex:externalSystemDependency [
+    ex:system "Oracle General Ledger (GL)" ;
+    ex:functionality "Daily GL posting, account reconciliation, trial balance" ;
+    ex:requiredBefore "GL close"
+  ] ;
+  ex:regulatoryMapping "GAAP GL Standards, SOX GL Control Procedures" .
+
+ex:GLAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When posting complete, then all revenue, receipts, expenses posted to correct GL accounts per chart of accounts." ;
+  wo:criterionVerified "false" .
+
+ex:GLAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When posting complete, then GL trial balance balances (assets = liabilities + equity)." ;
+  wo:criterionVerified "false" .
+
+ex:GLAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When posting complete, then daily GL close log created with posting timestamp, user, and variance explanations." ;
+  wo:criterionVerified "false" .
+
+ex:FinancialReporting a wo:Task ;
+  rdfs:label "Daily Financial Report Generation" ;
+  rdfs:comment "Generate daily income statement, cash flow report, and metrics dashboard." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-FIN-REPORT-001" ;
+  wo:hasTitle "Generate Daily Financial Reports" ;
+  wo:taskAssignedTo ex:AccountantLead ;
+  wo:taskEstimatedDuration "PT10M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:ReportAC1, ex:ReportAC2 ;
+  wo:dependsOn ex:GeneralLedgerPost ;
+  ex:executionOrder 5 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:FinancialReviewApproval ;
+  ex:externalSystemDependency [
+    ex:system "Tableau/Business Objects BI Platform" ;
+    ex:functionality "Daily P&L, cash flow, KPI dashboards" ;
+    ex:requiredBefore "Report generation"
+  ] .
+
+ex:ReportAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When reports generated, then daily income statement, cash flow statement, and variance analysis completed." ;
+  wo:criterionVerified "false" .
+
+ex:ReportAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When reports generated, then reports distributed to CFO, business unit heads, and made available in BI portal." ;
+  wo:criterionVerified "false" .
+
+ex:AuditTrailCreation a wo:Task ;
+  rdfs:label "Audit Trail and Compliance Logging" ;
+  rdfs:comment "Create immutable audit trail of all financial transactions and approvals." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-AUDIT-TRAIL-001" ;
+  wo:hasTitle "Generate Audit Trail and Compliance Log" ;
+  wo:taskAssignedTo ex:ComplianceOfficerLead ;
+  wo:taskEstimatedDuration "PT15M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:AuditAC1, ex:AuditAC2, ex:AuditAC3 ;
+  ex:executionOrder 6 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:AuditCompletionApproval ;
+  ex:externalSystemDependency [
+    ex:system "Audit Logging System (Splunk/ELK)" ;
+    ex:functionality "Immutable transaction logs, compliance event tracking" ;
+    ex:requiredBefore "Trail creation"
+  ] ;
+  ex:regulatoryMapping "SOX Section 404 (Audit Trail Requirements), GAAP Audit Documentation, State Financial Regulations" .
+
+ex:AuditAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When trail created, then all GL postings logged with user ID, timestamp, amount, account, and approval chain." ;
+  wo:criterionVerified "false" .
+
+ex:AuditAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When trail created, then audit log stored in immutable append-only format with cryptographic signing." ;
+  wo:criterionVerified "false" .
+
+ex:AuditAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When trail created, then compliance log includes reconciliation variance explanations and approver sign-off." ;
+  wo:criterionVerified "false" .
+
+ex:MonthEndAccruals a wo:Task ;
+  rdfs:label "Month-End Accruals and Adjustments" ;
+  rdfs:comment "Periodic task: Post accruals, reserve adjustments, and period-end entries." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-MONTH-END-001" ;
+  wo:hasTitle "Process Month-End Accruals and Adjustments" ;
+  wo:taskAssignedTo ex:SeniorAccountantLead ;
+  wo:taskEstimatedDuration "PT240M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:MonthEndAC1 ;
+  ex:executionOrder 7 ;
+  ex:criticalPath "false" ;
+  ex:frequency "Month-end only" ;
+  ex:regulatoryMapping "GAAP Accrual Accounting Standards" .
+
+ex:MonthEndAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When accruals complete, then all month-end entries posted and reconciled; monthly close ready for management review." ;
+  wo:criterionVerified "false" .
+
+# ==============================================================================
+# APPROVALS (Maps to wo:Approval)
+# ==============================================================================
+
+ex:RevenueSettlementApproval a wo:Approval ;
+  rdfs:label "Revenue Settlement Approval" ;
+  rdfs:comment "Finance controller approval of daily revenue reconciliation." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-SETTLEMENT-001" ;
+  wo:hasTitle "Finance Controller Revenue Settlement Approval" ;
+  wo:approvalsRequired 1 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:FinanceControllerRole ;
+  ex:gates [
+    ex:gateName "Revenue Reconciliation Complete" ;
+    ex:dependsOn ex:RevenueDataCollection ;
+    ex:gateStatus "Awaiting"
+  ] ;
+  ex:gates [
+    ex:gateName "Cash and Bank Reconciled" ;
+    ex:dependsOn ex:CashAndBankReconciliation ;
+    ex:gateStatus "Awaiting"
+  ] ;
+  ex:blocksProgression ex:GeneralLedgerPost .
+
+ex:ReconciliationApproval a wo:Approval ;
+  rdfs:label "Reconciliation Completion Approval" ;
+  rdfs:comment "Senior accounting manager approval of all daily reconciliations." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-RECON-001" ;
+  wo:hasTitle "Accounting Manager Reconciliation Approval" ;
+  wo:approvalsRequired 1 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:AccountingManagerRole ;
+  ex:gates [
+    ex:gateName "GL Trial Balance Verified" ;
+    ex:dependsOn ex:GeneralLedgerPost ;
+    ex:gateStatus "Awaiting"
+  ] ;
+  ex:gates [
+    ex:gateName "All Reconciliations Complete" ;
+    ex:requiredEvidence "Zero unreconciled items" ;
+    ex:gateStatus "Awaiting"
+  ] ;
+  ex:blocksProgression ex:FinancialReporting .
+
+ex:AuditCompletionApproval a wo:Approval ;
+  rdfs:label "Audit Trail Completion Approval" ;
+  rdfs:comment "Internal audit and compliance approval of audit trail." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-AUDIT-001" ;
+  wo:hasTitle "Internal Audit Approval" ;
+  wo:approvalsRequired 1 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:InternalAuditorRole ;
+  ex:gates [
+    ex:gateName "Audit Trail Complete" ;
+    ex:dependsOn ex:AuditTrailCreation ;
+    ex:gateStatus "Awaiting"
+  ] ;
+  ex:gates [
+    ex:gateName "Compliance Requirements Satisfied" ;
+    ex:requiredEvidence "SOX audit log, regulatory compliance check" ;
+    ex:gateStatus "Awaiting"
+  ] ;
+  ex:blocksProgression ex:DailyCloseComplete .
+
+# ==============================================================================
+# INCIDENTS (Maps to wo:Incident)
+# ==============================================================================
+
+ex:IncidentTemplate_ReconciliationException a wo:Incident ;
+  rdfs:label "Reconciliation Exception" ;
+  rdfs:comment "Revenue or cash reconciliation fails to balance." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "INC-RECON-EXCEPTION-TEMPLATE" ;
+  ex:isTemplate "true" ;
+  ex:incidentSeverity "High" ;
+  ex:incidentDescription "Daily reconciliation shows unexplained variance exceeding tolerance (>1%). Requires investigation and journal entry adjustment." ;
+  ex:blocksProcesses ex:DailyFinancialClose ;
+  ex:remediationPath [
+    ex:firstStep "Accountant investigates variance and identifies root cause" ;
+    ex:createTask ex:VarianceInvestigationTask ;
+    ex:estimatedDelay "30-120 minutes depending on complexity"
+  ] ;
+  ex:escalationPath [
+    ex:severity "High" ;
+    ex:escalateTo ex:SeniorAccountant
+  ] ;
+  ex:regulatoryMapping "SOX Section 302 (Management Certification), GAAP GL Control Procedures" .
+
+ex:IncidentTemplate_SystemFailure a wo:Incident ;
+  rdfs:label "Financial System Failure" ;
+  rdfs:comment "POS, GL, or bank feed system unavailable during close." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "INC-SYS-FAILURE-TEMPLATE" ;
+  ex:isTemplate "true" ;
+  ex:incidentSeverity "Critical" ;
+  ex:incidentDescription "Critical financial system down during close window. Requires immediate escalation to IT and potential process delay." ;
+  ex:remediationPath [
+    ex:firstStep "Activate disaster recovery; reroute to backup system" ;
+    ex:createTask ex:DisasterRecoveryTask ;
+    ex:estimatedDelay "15-60 minutes system recovery"
+  ] ;
+  ex:escalationPath [
+    ex:severity "Critical" ;
+    ex:escalateTo ex:FinanceController, ex:ITDirector
+  ] ;
+  ex:regulatoryMapping "Business Continuity Requirements, Audit Trail Preservation" .
+
+ex:IncidentTemplate_ComplianceFinding a wo:Incident ;
+  rdfs:label "Compliance or Audit Finding" ;
+  rdfs:comment "Audit trail reveals control failure or compliance gap." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "INC-COMPLIANCE-FINDING-TEMPLATE" ;
+  ex:isTemplate "true" ;
+  ex:incidentSeverity "High" ;
+  ex:incidentDescription "Audit log shows unauthorized transaction, missing approval, or SOX control violation." ;
+  ex:remediationPath [
+    ex:firstStep "Internal audit investigates and documents finding" ;
+    ex:createTask ex:ComplianceRemediationTask ;
+    ex:estimatedDelay "2-5 business days for remediation plan"
+  ] ;
+  ex:escalationPath [
+    ex:severity "High" ;
+    ex:escalateTo ex:InternalAuditor, ex:Compliance Officer, ex:CFO
+  ] ;
+  ex:regulatoryMapping "SOX Section 404 (Internal Controls Reporting), Audit Finding Documentation" .
+
+# ==============================================================================
+# RESOURCES (Maps to wo:Resource)
+# ==============================================================================
+
+ex:FinancialSystems a wo:Resource ;
+  rdfs:label "Financial Systems Infrastructure" ;
+  rdfs:comment "GL, POS, bank feeds, payment processors, audit logging." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "RES-FIN-SYS-001" ;
+  wo:resourceType "Software System" ;
+  ex:requiredItems [
+    ex:item "Oracle General Ledger (GL)" ;
+    ex:quantity 1 ;
+    ex:systemId "ORACLE-GL-PROD"
+  ] ;
+  ex:requiredItems [
+    ex:item "Oracle POS System" ;
+    ex:quantity 1 ;
+    ex:systemId "ORACLE-POS-PROD"
+  ] ;
+  ex:requiredItems [
+    ex:item "Bank Feed Integration (FDX/Open Banking API)" ;
+    ex:quantity 1 ;
+    ex:systemId "BANK-FEED-API-PROD"
+  ] ;
+  ex:requiredItems [
+    ex:item "Payment Processor Integrations (Adyen, Square, PayPal)" ;
+    ex:quantity 3 ;
+    ex:systemId "PAYMENT-PROCESSOR-APIS-PROD"
+  ] ;
+  ex:requiredItems [
+    ex:item "Audit Logging System (Splunk/ELK Stack)" ;
+    ex:quantity 1 ;
+    ex:systemId "AUDIT-LOG-PROD"
+  ] ;
+  ex:requiredItems [
+    ex:item "BI/Analytics Platform (Tableau)" ;
+    ex:quantity 1 ;
+    ex:systemId "TABLEAU-FIN-PROD"
+  ] ;
+  wo:resourceAvailability "Available" ;
+  ex:verificationMethod "System health check every 5 minutes; backup verification hourly" ;
+  ex:uptime "99.99% SLA (maximum 43 seconds downtime/month)" .
+
+ex:AuditInfrastructure a wo:Resource ;
+  rdfs:label "Audit Infrastructure and Logging" ;
+  rdfs:comment "Immutable audit logs, compliance tracking, SOX reporting." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "RES-AUDIT-INFRA-001" ;
+  wo:resourceType "Infrastructure and Software" ;
+  ex:requiredItems [
+    ex:item "Splunk Enterprise (for log aggregation)" ;
+    ex:quantity 1 ;
+    ex:systemId "SPLUNK-PROD"
+  ] ;
+  ex:requiredItems [
+    ex:item "Immutable log storage (WORM - Write Once Read Many)" ;
+    ex:quantity 1 ;
+    ex:systemId "WORM-STORAGE-PROD"
+  ] ;
+  ex:requiredItems [
+    ex:item "Cryptographic signing service" ;
+    ex:quantity 1 ;
+    ex:systemId "CRYPTO-SIGN-PROD"
+  ] ;
+  wo:resourceAvailability "Available" ;
+  ex:verificationMethod "Integrity check on immutable storage daily; cryptographic signature verification" ;
+  ex:complianceMapping "SOX Section 404, GAAP GL Controls" .
+
+# ==============================================================================
+# EVENTS (Maps to wo:Event)
+# ==============================================================================
+
+ex:EventRevenueSettled a wo:Event ;
+  rdfs:label "Daily Revenue Settled" ;
+  rdfs:comment "Signal that daily revenue reconciliation and settlement complete." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "EVT-REVENUE-SETTLED-001" ;
+  wo:eventType "milestone" ;
+  wo:eventMessage "Daily revenue settled and reconciled. Amount: {daily_revenue} vs budget variance {variance_pct}." ;
+  wo:eventSource "Oracle GL" ;
+  ex:eventTrigger ex:RevenueSettlementApproval ;
+  ex:notificationChannel "Slack #finance-operations, treasury@disney.com" .
+
+ex:EventGLPosted a wo:Event ;
+  rdfs:label "GL Posted and Balanced" ;
+  rdfs:comment "Signal that daily GL close complete and trial balance verified." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "EVT-GL-POSTED-001" ;
+  wo:eventType "milestone" ;
+  wo:eventMessage "Daily GL close complete. Trial balance verified." ;
+  wo:eventSource "Oracle GL" ;
+  ex:eventTrigger ex:GeneralLedgerPost ;
+  ex:notificationChannel "Slack #finance-operations" .
+
+ex:EventDailyReportPublished a wo:Event ;
+  rdfs:label "Daily Financial Report Published" ;
+  rdfs:comment "Signal that daily financial reports generated and published." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "EVT-REPORT-PUBLISHED-001" ;
+  wo:eventType "milestone" ;
+  wo:eventMessage "Daily financial reports published. Available in BI portal." ;
+  wo:eventSource "Tableau" ;
+  ex:eventTrigger ex:FinancialReporting ;
+  ex:notificationChannel "Slack #executive-finance, BI portal alert" .
+
+ex:EventReconciliationException a wo:Event ;
+  rdfs:label "Reconciliation Exception Alert" ;
+  rdfs:comment "Alert for reconciliation that fails to balance." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "EVT-RECON-EXCEPTION-001" ;
+  wo:eventType "alert" ;
+  wo:eventSource "Reconciliation Engine" ;
+  ex:eventTrigger [
+    ex:condition "Reconciliation variance >1% or unexplained exception" ;
+    ex:source "GL and POS systems"
+  ] ;
+  ex:notificationChannel "Slack #finance-alerts, PagerDuty finance-on-call" .
+
+ex:EventAuditTrailComplete a wo:Event ;
+  rdfs:label "Audit Trail Complete" ;
+  rdfs:comment "Signal that immutable audit trail created and verified." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "EVT-AUDIT-COMPLETE-001" ;
+  wo:eventType "compliance" ;
+  wo:eventMessage "Daily audit trail complete and cryptographically signed. Immutable log preserved." ;
+  wo:eventSource "Audit Logging System" ;
+  ex:eventTrigger ex:AuditTrailCreation ;
+  ex:notificationChannel "Slack #audit-compliance, internal-audit@disney.com" .
+
+# ==============================================================================
+# PROCESS FLOW & DEPENDENCIES
+# ==============================================================================
+
+ex:FinancialCloseFlow a ex:ProcessFlow ;
+  rdfs:label "Financial Close Critical Path" ;
+  rdfs:comment "From end-of-business through GL post and audit completion." ;
+  ex:phase1_Revenue "RevenueDataCollection (start T+16:00, PT20M)" ;
+  ex:phase2_Cash "CashAndBankReconciliation (PT25M)" ;
+  ex:phase3_Settlement "PaymentProcessorSettlement (PT15M)" ;
+  ex:phase4_GL "GeneralLedgerPost (PT20M)" ;
+  ex:phase5_Reporting "FinancialReporting (PT10M)" ;
+  ex:phase6_Audit "AuditTrailCreation (parallel, PT15M)" ;
+  ex:phase7_Approval "Three approvals (gates close completion)" ;
+  ex:criticalPathDuration "PT105M"^^xsd:duration ;
+  ex:targetCompleteTime "90 minutes (23:45 completion)" ;
+  ex:parallelizationOpportunity "Audit trail creation can run in parallel with GL posting and reporting" ;
+  ex:frequency "Daily (every 24 hours)" ;
+  ex:executionWindow "16:00-23:45 EOD window (US Central Time)" .
+
+# ==============================================================================
+# EXTERNAL SYSTEM MAPPINGS
+# ==============================================================================
+
+ex:OracleGLMapping a ex:SystemMapping ;
+  rdfs:label "Oracle General Ledger Integration" ;
+  rdfs:comment "Daily GL posting, account reconciliation, trial balance." ;
+  ex:maps wo:Task ;
+  ex:dataFlow "Oracle GL ← Daily revenue, cash, expenses → Trial balance verification, monthly close" ;
+  ex:readOnly "false" ;
+  ex:rollbackCapability "true" ;
+  ex:criticalForCompliance "true" ;
+  ex:soxControlled "true" .
+
+ex:OraclePOSMapping a ex:SystemMapping ;
+  rdfs:label "Oracle POS Integration" ;
+  rdfs:comment "Daily revenue data by location, channel, payment method." ;
+  ex:maps wo:Task ;
+  ex:dataFlow "Oracle POS → Revenue by location/channel/method → GL reconciliation" ;
+  ex:readOnly "true" ;
+  ex:rollbackCapability "false" ;
+  ex:latencyTarget "5-minute batch every 15 minutes" .
+
+ex:BankFeedMapping a ex:SystemMapping ;
+  rdfs:label "Bank Feed Integration" ;
+  rdfs:comment "Daily bank transactions and deposits via FDX/Open Banking." ;
+  ex:maps wo:Task ;
+  ex:dataFlow "Bank ← Daily deposits, withdrawals → Bank reconciliation" ;
+  ex:readOnly "true" ;
+  ex:rollbackCapability "false" ;
+  ex:latencyTarget "Real-time or T+1 (same day or next day posting)" .
+
+ex:PaymentProcessorMapping a ex:SystemMapping ;
+  rdfs:label "Payment Processor Integration" ;
+  rdfs:comment "Settlement reports from Adyen, Square, PayPal." ;
+  ex:maps wo:Task ;
+  ex:dataFlow "Payment Processor APIs → Daily settlement reports → GL and cash reconciliation" ;
+  ex:readOnly "true" ;
+  ex:rollbackCapability "false" ;
+  ex:latencyTarget "Daily settlement report by 08:00 next day" ;
+  ex:processorCount 3 .
+
+ex:AuditLoggingMapping a ex:SystemMapping ;
+  rdfs:label "Audit Logging Integration" ;
+  rdfs:comment "Immutable audit trail creation and storage." ;
+  ex:maps wo:Task ;
+  ex:dataFlow "All financial systems → Immutable audit log (WORM storage) → Cryptographic signature" ;
+  ex:readOnly "false" ;
+  ex:rollbackCapability "false" ;
+  ex:criticalForCompliance "true" ;
+  ex:soxControlled "true" ;
+  ex:complianceFramework "SOX Section 404, GAAP GL Controls" .
+
+ex:TableauMapping a ex:SystemMapping ;
+  rdfs:label "Tableau BI Integration" ;
+  rdfs:comment "Daily financial reporting and KPI dashboards." ;
+  ex:maps wo:Task ;
+  ex:dataFlow "Oracle GL → Daily P&L, cash flow, KPI dashboards in Tableau" ;
+  ex:readOnly "true" ;
+  ex:rollbackCapability "false" ;
+  ex:latencyTarget "Real-time (5-minute refresh)" .
+
+ex:SlackMapping a ex:SystemMapping ;
+  rdfs:label "Slack Notifications" ;
+  rdfs:comment "Financial close milestones and alerts." ;
+  ex:maps wo:Event ;
+  ex:channels (
+    "#finance-operations"
+    "#finance-alerts"
+    "#executive-finance"
+    "#audit-compliance"
+  ) ;
+  ex:messageTemplate "Financial Close: {milestone} - {status} at {timestamp}" ;
+  ex:readOnly "true" ;
+  ex:rollbackCapability "false" .
+
+# ==============================================================================
+# SUCCESS METRICS & CYCLE TIME IMPROVEMENTS
+# ==============================================================================
+
+ex:SuccessMetrics a owl:Class ;
+  rdfs:label "Financial Close Success Metrics" ;
+  rdfs:comment "Key performance indicators for process improvement." ;
+  ex:metric_1 "Daily close cycle time (target: 90 minutes end-to-end)" ;
+  ex:metric_2 "Revenue reconciliation accuracy (target: 99.9% first-time balance)" ;
+  ex:metric_3 "Cash and bank reconciliation accuracy (target: 100% match)" ;
+  ex:metric_4 "GL trial balance verification (target: 100% balanced on first close)" ;
+  ex:metric_5 "Reconciliation exception rate (target: <0.5% of days requiring manual adjustment)" ;
+  ex:metric_6 "Audit trail completeness (target: 100% of transactions logged)" ;
+  ex:metric_7 "SOX control compliance (target: 100% pass on audit tests)" ;
+  ex:metric_8 "Financial report delivery (target: 23:59 EOD publication)" .
+
+ex:CycleTimeImprovement a owl:Class ;
+  rdfs:label "Cycle Time Improvements" ;
+  rdfs:comment "Reduction vs manual process baseline." ;
+  ex:currentManualCycleTime "240 minutes (manual reconciliation, spreadsheet matching, paper logs)" ;
+  ex:targetAutomatedCycleTime "90 minutes (automated matching, system GL post, immutable digital audit trail)" ;
+  ex:cycleTimeReduction "62.5% (150 minutes faster per cycle)" ;
+  ex:annualTimeRecovery "365 days × 150 minutes = 91,250 minutes = 1,521 FTE-hours/year" ;
+  ex:fteSavings "At 2,080 hours/FTE: 1,521 / 2,080 = 0.73 FTE annually" ;
+  ex:businessImpact "50% earlier financial visibility + zero reconciliation errors + SOX compliance automated" ;
+  ex:riskReduction "100% audit trail preservation + zero control gaps + regulatory confidence" .
+
+# ==============================================================================
+# METADATA
+# ==============================================================================
+
+ex:FinancialCloseOntology a owl:Ontology ;
+  rdfs:label "Financial Close & Reconciliation Process Ontology" ;
+  rdfs:comment "End-to-end daily financial close from revenue settlement through audit trail creation and compliance reporting." ;
+  owl:versionInfo "1.0" ;
+  dcterms:created "2026-01-18"^^xsd:date ;
+  ex:phase "Wave 3 - Production Scale" ;
+  ex:processCategory "Finance & Compliance" ;
+  ex:taskCount 8 ;
+  ex:approvalGateCount 3 ;
+  ex:externalSystemsIntegrated 6 ;
+  ex:targetProcessTime "PT90M"^^xsd:duration ;
+  ex:cycleFrequency "Daily" ;
+  ex:readyForValidation "true" ;
+  ex:mapsToWorkObjectTypes (
+    wo:Shift
+    wo:Task
+    wo:Incident
+    wo:Approval
+    wo:Resource
+    wo:Event
+  ) ;
+  ex:complianceFramework (
+    "SOX Section 302 (Management Certification)"
+    "SOX Section 404 (Internal Controls Reporting)"
+    "GAAP GL Standards"
+    "State Financial Regulations"
+    "Gaming/Liquor Compliance Requirements"
+  ) ;
+  ex:businessValue "62.5% cycle time reduction + 100% reconciliation accuracy + zero audit gaps" ;
+  ex:expectedROI "200-300% Year 1 (risk mitigation + audit efficiency)" ;
+  ex:riskMitigation "SOX compliance automation + audit trail preservation + control gap elimination" ;
+  ex:regulatoryImportance "CRITICAL - Financial reporting foundation for all external and internal stakeholders" .
+
+# ==============================================================================
+# ROLES
+# ==============================================================================
+
+ex:FinanceControllerRole a ex:ApprovalRole ;
+  rdfs:label "Finance Controller" ;
+  rdfs:comment "Approves daily revenue settlement and GL close." ;
+  ex:systemMapping "AD group: FINANCE_CONTROLLERS" .
+
+ex:AccountingManagerRole a ex:ApprovalRole ;
+  rdfs:label "Accounting Manager" ;
+  rdfs:comment "Approves reconciliation completion." ;
+  ex:systemMapping "AD group: ACCOUNTING_MANAGERS" .
+
+ex:InternalAuditorRole a ex:ApprovalRole ;
+  rdfs:label "Internal Auditor" ;
+  rdfs:comment "Approves audit trail and compliance." ;
+  ex:systemMapping "AD group: INTERNAL_AUDITORS" .
+
+ex:SeniorAccountantLead a ex:Person ;
+  rdfs:label "Senior Accountant" ;
+  ex:workdayId "SR-ACCT-001" .
+
+ex:AccountantLead a ex:Person ;
+  rdfs:label "Accountant" ;
+  ex:workdayId "ACCT-001" .
+
+ex:ReconSpecialistLead a ex:Person ;
+  rdfs:label "Reconciliation Specialist" ;
+  ex:workdayId "RECON-001" .
+
+ex:TreasurySpecialistLead a ex:Person ;
+  rdfs:label "Treasury Specialist" ;
+  ex:workdayId "TREASURY-001" .
+
+ex:ComplianceOfficerLead a ex:Person ;
+  rdfs:label "Compliance Officer" ;
+  ex:workdayId "COMPLIANCE-001" .
+
+ex:FinanceController a ex:Person ;
+  rdfs:label "Finance Controller" ;
+  ex:personRole ex:FinanceControllerRole ;
+  ex:workdayId "FIN-CTRL-001" .
+
+ex:InternalAuditor a ex:Person ;
+  rdfs:label "Internal Auditor" ;
+  ex:personRole ex:InternalAuditorRole ;
+  ex:workdayId "INT-AUDIT-001" .
+
+# ==============================================================================
+# LOCATIONS
+# ==============================================================================
+
+ex:FinancialOperationsCenter a ex:Location ;
+  rdfs:label "Financial Operations Center" ;
+  rdfs:comment "Centralized financial close operations." ;
+  ex:locationCode "FOC-001" ;
+  ex:area "2,500 sq ft" ;
+  ex:workstations 7 ;
+  ex:vaultArea "Secure area for cash handling verification" .
+
+ex:AuditOperationsCenter a ex:Location ;
+  rdfs:label "Audit Operations Center" ;
+  rdfs:comment "Internal audit and compliance operations." ;
+  ex:locationCode "AOC-001" ;
+  ex:area "1,500 sq ft" ;
+  ex:workstations 4 ;
+  ex:dataSecurityLevel "Secure (restricted access)" ;
+  ex:connectivity "Isolated network for audit logging systems" .

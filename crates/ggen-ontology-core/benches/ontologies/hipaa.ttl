@@ -1,0 +1,129 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix hipaa: <http://example.com/ontology/hipaa/> .
+@prefix : <http://example.com/ontology/hipaa/> .
+
+# HIPAA Ontology - Health Insurance Portability and Accountability Act
+:HIPAAPolicy rdf:type owl:Class ;
+  rdfs:label "HIPAA Policy" ;
+  rdfs:comment "Defines regulatory requirements under HIPAA" ;
+  rdfs:subClassOf :RegulatoryPolicy .
+
+:PHIProtection rdf:type owl:Class ;
+  rdfs:label "Protected Health Information Protection" ;
+  rdfs:comment "Controls for protecting PHI data" ;
+  rdfs:subClassOf :DataProtectionPolicy .
+
+:AccessControl rdf:type owl:Class ;
+  rdfs:label "HIPAA Access Control" ;
+  rdfs:comment "Controls who can access PHI" .
+
+:AuditControls rdf:type owl:Class ;
+  rdfs:label "Audit Controls" ;
+  rdfs:comment "HIPAA audit and accountability controls" .
+
+:EncryptionRequirement rdf:type owl:Class ;
+  rdfs:label "Encryption Requirement" ;
+  rdfs:comment "Encryption requirements for PHI transmission" .
+
+:DataIntegrityControls rdf:type owl:Class ;
+  rdfs:label "Data Integrity Controls" ;
+  rdfs:comment "Ensure PHI data integrity" .
+
+:TransmissionSecurity rdf:type owl:Class ;
+  rdfs:label "Transmission Security" ;
+  rdfs:comment "Security for PHI in transit" .
+
+:BreachNotification rdf:type owl:Class ;
+  rdfs:label "Breach Notification Requirements" ;
+  rdfs:comment "HIPAA breach notification obligations" .
+
+# Properties
+:requiresEncryption rdf:type owl:ObjectProperty ;
+  rdfs:label "Requires Encryption" ;
+  rdfs:domain :PHIProtection ;
+  rdfs:range :EncryptionRequirement .
+
+:minimumEncryptionLevel rdf:type owl:DatatypeProperty ;
+  rdfs:label "Minimum Encryption Level" ;
+  rdfs:domain :EncryptionRequirement ;
+  rdfs:range xsd:string .
+
+:accessControlMethod rdf:type owl:ObjectProperty ;
+  rdfs:label "Access Control Method" ;
+  rdfs:domain :HIPAAPolicy ;
+  rdfs:range :AccessControl .
+
+:requiresAuiting rdf:type owl:DatatypeProperty ;
+  rdfs:label "Requires Auditing" ;
+  rdfs:domain :HIPAAPolicy ;
+  rdfs:range xsd:boolean .
+
+:notificationTimeframe rdf:type owl:DatatypeProperty ;
+  rdfs:label "Notification Timeframe" ;
+  rdfs:domain :BreachNotification ;
+  rdfs:range xsd:string .
+
+# Instances
+:HIPAACoveredEntity rdf:type :HIPAAPolicy ;
+  rdfs:label "HIPAA Covered Entity Policy" ;
+  rdfs:comment "Policy for covered entities under HIPAA" ;
+  :requiresEncryption :AES256Encryption ;
+  :requiresAuiting true ;
+  :accessControlMethod :RoleBasedAccessControl .
+
+:AES256Encryption rdf:type :EncryptionRequirement ;
+  rdfs:label "AES-256 Encryption" ;
+  :minimumEncryptionLevel "AES-256" .
+
+:RoleBasedAccessControl rdf:type :AccessControl ;
+  rdfs:label "Role-Based Access Control" ;
+  rdfs:comment "RBAC for PHI access" .
+
+:HIPAABreachNotification rdf:type :BreachNotification ;
+  rdfs:label "HIPAA Breach Notification" ;
+  :notificationTimeframe "60 days" .
+
+# Additional instances for complexity
+:BusinessAssociate rdf:type :HIPAAPolicy ;
+  rdfs:label "HIPAA Business Associate" ;
+  rdfs:comment "Requirements for business associates" .
+
+:SecurityRule rdf:type :HIPAAPolicy ;
+  rdfs:label "HIPAA Security Rule" ;
+  rdfs:comment "Administrative, physical, and technical safeguards" .
+
+:PrivacyRule rdf:type :HIPAAPolicy ;
+  rdfs:label "HIPAA Privacy Rule" ;
+  rdfs:comment "Rights and protections for PHI" .
+
+:TechnicalSafeguards rdf:type :DataIntegrityControls ;
+  rdfs:label "Technical Safeguards" ;
+  rdfs:comment "Technical measures to protect PHI" .
+
+:PhysicalSafeguards rdf:type :DataIntegrityControls ;
+  rdfs:label "Physical Safeguards" ;
+  rdfs:comment "Physical measures to protect PHI" .
+
+:AdministrativeSafeguards rdf:type :DataIntegrityControls ;
+  rdfs:label "Administrative Safeguards" ;
+  rdfs:comment "Administrative procedures to protect PHI" .
+
+# Additional triples for realistic size
+:MFARequirement rdf:type :AccessControl ;
+  rdfs:label "Multi-Factor Authentication Requirement" ;
+  rdfs:comment "MFA required for PHI access" .
+
+:AuditLogRequirement rdf:type :AuditControls ;
+  rdfs:label "Audit Log Requirement" ;
+  rdfs:comment "Maintain detailed audit logs" .
+
+:PHILocationJurisdiction rdf:type :HIPAAPolicy ;
+  rdfs:label "PHI Location Jurisdiction" ;
+  rdfs:comment "Data must stay within US" .
+
+:RetentionPolicy rdf:type :HIPAAPolicy ;
+  rdfs:label "Record Retention Policy" ;
+  rdfs:comment "HIPAA record retention requirements" .

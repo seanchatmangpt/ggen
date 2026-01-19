@@ -264,7 +264,7 @@ impl ProofCarrier {
             (passed as f64 / self.validation_tests.len() as f64) * 0.25
         };
 
-        self.total_risk_score = (weighted_risk - test_pass_rate).clamp(0.0, 100.0);
+        self.total_risk_score = (weighted_risk - test_pass_rate).max(0.0).min(100.0);
         self.total_risk_score
     }
 

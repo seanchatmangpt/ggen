@@ -1,15 +1,10 @@
 [package]
 name = "ggen-cli-validation"
-version = "5.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 license = "MIT"
 description = "IO validation and security for ggen CLI operations"
-repository = "https://github.com/seanchatmangpt/ggen"
-homepage = "https://github.com/seanchatmangpt/ggen"
-readme = "README.md"
-keywords = ["validation", "security", "cli", "io"]
-categories = ["development-tools", "command-line-utilities"]
 
 [dependencies]
 thiserror.workspace = true

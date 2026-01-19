@@ -1,0 +1,651 @@
+@prefix ex: <http://ggen.example.org/disney/supply-chain-procurement#> .
+@prefix wo: <http://ggen.example.org/disney/work-objects#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ==============================================================================
+# Supply Chain & Procurement Process Ontology
+# ==============================================================================
+# Purpose: Vendor management, purchase order lifecycle, inventory fulfillment, supplier performance
+# Audience: Procurement managers, inventory planners, warehouse staff, vendor managers
+# Wave: 3 (Strategic process for cost control and supply reliability)
+# Status: Mapped to Work Object Model types
+# Created: 2026-01-18
+# ==============================================================================
+
+ex:SupplyChainProcurementProcess a owl:Class ;
+  rdfs:label "Supply Chain & Procurement Process" ;
+  rdfs:comment "End-to-end procurement workflow from demand signal through order fulfillment, invoice reconciliation, and vendor performance tracking. Integrates inventory management, purchase orders, and supplier scorecards." ;
+  rdfs:isDefinedBy ex:SupplyChainProcurementOntology .
+
+ex:DailyProcurementCycle a ex:SupplyChainProcurementProcess ;
+  rdfs:label "Daily Procurement Cycle" ;
+  rdfs:comment "Process demand signals into purchase orders, monitor fulfillment, reconcile receipts." ;
+  ex:executionFrequency "Daily" ;
+  ex:targetCompletionTime "45 minutes per cycle" ;
+  ex:estimatedDuration "PT45M"^^xsd:duration ;
+  ex:dependencies ex:DemandAggregation, ex:PurchaseOrderApproval, ex:ReceiptReconciliation .
+
+# ==============================================================================
+# SHIFTS (Maps to wo:Shift)
+# ==============================================================================
+
+ex:ProcurementShift a wo:Shift ;
+  rdfs:label "Procurement Operations Shift" ;
+  rdfs:comment "Daily procurement and inventory management team." ;
+  ex:role "Procurement Manager, Buyer, Inventory Planner, Warehouse Supervisor" ;
+  ex:startTime "2026-01-19T07:00:00"^^xsd:dateTime ;
+  ex:endTime "2026-01-19T16:00:00"^^xsd:dateTime ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "SHIFT-PROCUREMENT-001" ;
+  ex:location ex:ProcurementOperationsCenter ;
+  ex:staffingRequirement [
+    ex:role "Procurement Manager" ;
+    ex:count 1 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "PROCUREMENT-MGR-001"
+  ] ;
+  ex:staffingRequirement [
+    ex:role "Buyer" ;
+    ex:count 2 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "BUYERS-001"
+  ] ;
+  ex:staffingRequirement [
+    ex:role "Inventory Planner" ;
+    ex:count 2 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "INV-PLANNER-001"
+  ] ;
+  ex:staffingRequirement [
+    ex:role "Warehouse Supervisor" ;
+    ex:count 1 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "WAREHOUSE-SUP-001"
+  ] .
+
+ex:WarehouseReceivingShift a wo:Shift ;
+  rdfs:label "Warehouse Receiving Shift" ;
+  rdfs:comment "24/7 receiving and fulfillment operations." ;
+  ex:role "Receiving Associate, Forklift Operator, Quality Inspector" ;
+  ex:startTime "2026-01-19T06:00:00"^^xsd:dateTime ;
+  ex:endTime "2026-01-20T06:00:00"^^xsd:dateTime ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "SHIFT-WAREHOUSE-REC-001" ;
+  ex:location ex:WarehouseFacility ;
+  ex:staffingRequirement [
+    ex:role "Receiving Associate" ;
+    ex:count 3 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "REC-ASSOC-001"
+  ] ;
+  ex:staffingRequirement [
+    ex:role "Forklift Operator" ;
+    ex:count 2 ;
+    ex:source "Workday" ;
+    ex:workdayTeamId "FORKLIFT-OP-001"
+  ] .
+
+# ==============================================================================
+# TASKS (Maps to wo:Task)
+# ==============================================================================
+
+ex:DemandAggregation a wo:Task ;
+  rdfs:label "Demand Aggregation & Forecast" ;
+  rdfs:comment "Consolidate demand signals from all park operations into procurement forecast." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-DEMAND-AGG-001" ;
+  wo:hasTitle "Aggregate Daily Demand and Create Procurement Forecast" ;
+  wo:taskDescription "Collect demand from attractions, food service, retail, maintenance; consolidate into 30-day procurement forecast; flag critical items." ;
+  wo:taskAssignedTo ex:InventoryPlannerLead ;
+  wo:taskEstimatedDuration "PT12M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:DemandAC1, ex:DemandAC2 ;
+  ex:executionOrder 1 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:PurchaseOrderGeneration ;
+  ex:externalSystemDependency [
+    ex:system "SAP Materials Management" ;
+    ex:functionality "Inventory levels, demand forecasts from all departments" ;
+    ex:requiredBefore "Aggregation"
+  ] ;
+  ex:externalSystemDependency [
+    ex:system "Jira Service Management" ;
+    ex:functionality "Maintenance and operations demand tickets" ;
+    ex:requiredBefore "Forecast"
+  ] .
+
+ex:DemandAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When aggregation complete, then all department demand consolidated and missing data flagged." ;
+  wo:criterionVerified "false" .
+
+ex:DemandAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When forecast complete, then 30-day procurement forecast updated in SAP with projected stock-outs identified." ;
+  wo:criterionVerified "false" .
+
+ex:PurchaseOrderGeneration a wo:Task ;
+  rdfs:label "Purchase Order Generation & Vendor Selection" ;
+  rdfs:comment "Generate POs for all demand items; select vendors based on cost, quality, lead time." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-PO-GEN-001" ;
+  wo:hasTitle "Generate Purchase Orders for All Demand Items" ;
+  wo:taskAssignedTo ex:BuyerLead ;
+  wo:taskEstimatedDuration "PT15M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:POAC1, ex:POAC2, ex:POAC3 ;
+  wo:dependsOn ex:DemandAggregation ;
+  ex:executionOrder 2 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:PoCreationReview ;
+  ex:externalSystemDependency [
+    ex:system "Supplier Portal" ;
+    ex:functionality "Vendor pricing, inventory availability, lead times" ;
+    ex:requiredBefore "Vendor selection"
+  ] ;
+  ex:externalSystemDependency [
+    ex:system "SAP Procurement Module" ;
+    ex:functionality "PO template generation, vendor master data" ;
+    ex:requiredBefore "PO creation"
+  ] .
+
+ex:POAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When PO generation complete, then all demand items have corresponding PO entries in SAP." ;
+  wo:criterionVerified "false" .
+
+ex:POAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When POs generated, then vendors selected based on approved supplier list (cost + quality scorecard)." ;
+  wo:criterionVerified "false" .
+
+ex:POAC3 a wo:AcceptanceCriterion ;
+  wo:criterionText "When POs complete, then total procurement spend forecasted and flagged against budget." ;
+  wo:criterionVerified "false" .
+
+ex:PoCreationReview a wo:Task ;
+  rdfs:label "Purchase Order Review & Approval" ;
+  rdfs:comment "Procurement manager reviews POs for compliance and cost." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-PO-REVIEW-001" ;
+  wo:hasTitle "Review and Approve Purchase Orders" ;
+  wo:taskAssignedTo ex:ProcurementManagerLead ;
+  wo:taskEstimatedDuration "PT8M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:ReviewAC1, ex:ReviewAC2 ;
+  wo:dependsOn ex:PurchaseOrderGeneration ;
+  ex:executionOrder 3 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:PurchaseOrderApproval ;
+  ex:externalSystemDependency [
+    ex:system "SAP Approval Workflow" ;
+    ex:functionality "Purchase order routing and approval status" ;
+    ex:requiredBefore "Approval"
+  ] .
+
+ex:ReviewAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When review complete, then all POs meet compliance requirements (correct coding, approved vendors)." ;
+  wo:criterionVerified "false" .
+
+ex:ReviewAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When review complete, then total spend within budget; any overages escalated." ;
+  wo:criterionVerified "false" .
+
+ex:ReceiptReconciliation a wo:Task ;
+  rdfs:label "Receipt & Invoice Reconciliation" ;
+  rdfs:comment "Match received goods with POs and invoices (three-way match); process payment." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-RECEIPT-RECON-001" ;
+  wo:hasTitle "Reconcile Receipts, POs, and Invoices" ;
+  wo:taskAssignedTo ex:ProcurementAnalystLead ;
+  wo:taskEstimatedDuration "PT10M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:ReceiptAC1, ex:ReceiptAC2 ;
+  ex:executionOrder 4 ;
+  ex:criticalPath "true" ;
+  ex:blocksSubsequent ex:PaymentProcessing ;
+  ex:externalSystemDependency [
+    ex:system "Warehouse Management System" ;
+    ex:functionality "Goods receipt confirmation, receiving logs" ;
+    ex:requiredBefore "Reconciliation"
+  ] ;
+  ex:externalSystemDependency [
+    ex:system "Oracle Accounts Payable" ;
+    ex:functionality "Invoice matching, three-way reconciliation" ;
+    ex:requiredBefore "Payment"
+  ] .
+
+ex:ReceiptAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When reconciliation complete, then all received goods matched to PO and invoice (three-way match)." ;
+  wo:criterionVerified "false" .
+
+ex:ReceiptAC2 a wo:AcceptanceCriterion ;
+  wo:criterionText "When reconciliation complete, then any discrepancies (quantity, price, quality) flagged and resolved." ;
+  wo:criterionVerified "false" .
+
+ex:VendorScorecard a wo:Task ;
+  rdfs:label "Vendor Performance Scorecard Update" ;
+  rdfs:comment "Track vendor delivery, quality, and cost performance; update scorecards." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "TASK-VENDOR-SCORE-001" ;
+  wo:hasTitle "Update Vendor Performance Scorecards" ;
+  wo:taskAssignedTo ex:VendorManagerLead ;
+  wo:taskEstimatedDuration "PT5M"^^xsd:duration ;
+  wo:taskAcceptanceCriteria ex:ScoreAC1 ;
+  ex:executionOrder 5 ;
+  ex:criticalPath "false" ;
+  ex:externalSystemDependency [
+    ex:system "Vendor Portal" ;
+    ex:functionality "Delivery tracking, quality metrics, cost data" ;
+    ex:requiredBefore "Scorecard update"
+  ] .
+
+ex:ScoreAC1 a wo:AcceptanceCriterion ;
+  wo:criterionText "When update complete, then vendor scorecards reflect on-time delivery, quality grade, and cost performance." ;
+  wo:criterionVerified "false" .
+
+# ==============================================================================
+# APPROVALS (Maps to wo:Approval)
+# ==============================================================================
+
+ex:PurchaseOrderApproval a wo:Approval ;
+  rdfs:label "Purchase Order Approval" ;
+  rdfs:comment "Procurement manager approval before sending POs to vendors." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-PO-001" ;
+  wo:hasTitle "Procurement Manager PO Approval" ;
+  wo:approvalsRequired 1 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:ProcurementDirectorRole ;
+  ex:gates [
+    ex:gateName "PO Review Complete" ;
+    ex:dependsOn ex:PoCreationReview ;
+    ex:gateStatus "Awaiting"
+  ] ;
+  ex:gates [
+    ex:gateName "Budget Compliance Verified" ;
+    ex:requiredEvidence "Spend within approved budget" ;
+    ex:gateStatus "Awaiting"
+  ] ;
+  ex:blocksProgression ex:VendorNotification .
+
+ex:PaymentApproval a wo:Approval ;
+  rdfs:label "Invoice Payment Approval" ;
+  rdfs:comment "Finance approval for vendor payment after three-way match." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "APPROVAL-PAYMENT-001" ;
+  wo:hasTitle "Finance Invoice Payment Approval" ;
+  wo:approvalsRequired 1 ;
+  wo:approvalsReceived 0 ;
+  wo:approvalRequiredFrom ex:FinanceDirectorRole ;
+  ex:gates [
+    ex:gateName "Three-Way Match Complete" ;
+    ex:dependsOn ex:ReceiptReconciliation ;
+    ex:gateStatus "Awaiting"
+  ] ;
+  ex:gates [
+    ex:gateName "No Quality Issues" ;
+    ex:requiredEvidence "Goods received and accepted" ;
+    ex:gateStatus "Awaiting"
+  ] ;
+  ex:blocksProgression ex:PaymentProcessing .
+
+# ==============================================================================
+# INCIDENTS (Maps to wo:Incident)
+# ==============================================================================
+
+ex:IncidentTemplate_StockOut a wo:Incident ;
+  rdfs:label "Inventory Stock-Out Risk" ;
+  rdfs:comment "Forecast indicates potential stock-out within 14 days." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "INC-STOCKOUT-TEMPLATE" ;
+  ex:isTemplate "true" ;
+  ex:incidentSeverity "High" ;
+  ex:incidentDescription "Demand forecast exceeds available inventory; PO lead time may not cover gap." ;
+  ex:blocksProcesses ex:DailyProcurementCycle ;
+  ex:remediationPath [
+    ex:firstStep "Buyer expedites vendor shipment or sources alternative supplier" ;
+    ex:createTask ex:ExpeditedPOTask ;
+    ex:estimatedDelay "4-48 hours depending on vendor responsiveness"
+  ] ;
+  ex:escalationPath [
+    ex:severity "High" ;
+    ex:escalateTo ex:ProcurementManager
+  ] .
+
+ex:IncidentTemplate_ReceiptDiscrepancy a wo:Incident ;
+  rdfs:label "Receipt Quality or Quantity Discrepancy" ;
+  rdfs:comment "Goods received do not match PO (quantity, quality, or specifications)." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "INC-RECEIPT-DISCREP-TEMPLATE" ;
+  ex:isTemplate "true" ;
+  ex:incidentSeverity "Medium" ;
+  ex:incidentDescription "Goods fail quality check or quantity doesn't match PO; requires resolution with vendor." ;
+  ex:remediationPath [
+    ex:firstStep "Quality inspector documents discrepancy and photos" ;
+    ex:createTask ex:VendorClaimTask ;
+    ex:estimatedDelay "5-10 business days for resolution"
+  ] ;
+  ex:escalationPath [
+    ex:severity "High" ;
+    ex:escalateTo ex:VendorManager
+  ] .
+
+ex:IncidentTemplate_VendorPerformance a wo:Incident ;
+  rdfs:label "Vendor Performance Degradation" ;
+  rdfs:comment "Vendor scorecard shows declining on-time delivery or quality." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "INC-VENDOR-PERF-TEMPLATE" ;
+  ex:isTemplate "true" ;
+  ex:incidentSeverity "Medium" ;
+  ex:incidentDescription "Vendor fails to meet performance targets (on-time delivery <95% or quality grade <A)." ;
+  ex:remediationPath [
+    ex:firstStep "Vendor manager contacts supplier for remediation discussion" ;
+    ex:createTask ex:SupplierImprovementPlanTask ;
+    ex:estimatedDelay "2-4 weeks for improvement plan execution"
+  ] ;
+  ex:escalationPath [
+    ex:severity "Medium" ;
+    ex:escalateTo ex:ProcurementDirector
+  ] .
+
+# ==============================================================================
+# RESOURCES (Maps to wo:Resource)
+# ==============================================================================
+
+ex:ProcurementSystems a wo:Resource ;
+  rdfs:label "Procurement and Inventory Systems" ;
+  rdfs:comment "SAP, supplier portal, warehouse management systems." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "RES-PROCUREMENT-SYS-001" ;
+  wo:resourceType "Software System" ;
+  ex:requiredItems [
+    ex:item "SAP Materials Management Module" ;
+    ex:quantity 1 ;
+    ex:systemId "SAP-MM-PROD"
+  ] ;
+  ex:requiredItems [
+    ex:item "Supplier Portal (Coupa/Ariba)" ;
+    ex:quantity 1 ;
+    ex:systemId "SUPPLIER-PORTAL-PROD"
+  ] ;
+  ex:requiredItems [
+    ex:item "Warehouse Management System" ;
+    ex:quantity 1 ;
+    ex:systemId "WMS-PROD"
+  ] ;
+  ex:requiredItems [
+    ex:item "Oracle Accounts Payable" ;
+    ex:quantity 1 ;
+    ex:systemId "ORACLE-AP-PROD"
+  ] ;
+  wo:resourceAvailability "Available" ;
+  ex:verificationMethod "System health check; database sync verification every 15 minutes" .
+
+ex:WarehouseEquipment a wo:Resource ;
+  rdfs:label "Warehouse Equipment and Infrastructure" ;
+  rdfs:comment "Forklifts, storage racks, loading docks, receiving stations." ;
+  wo:hasStatus wo:StatePending ;
+  wo:hasId "RES-WAREHOUSE-EQUIP-001" ;
+  wo:resourceType "Equipment and Facilities" ;
+  ex:requiredItems [
+    ex:item "Forklift (certified operators)" ;
+    ex:quantity 4 ;
+    ex:systemId "FORKLIFT-001-004"
+  ] ;
+  ex:requiredItems [
+    ex:item "Storage racking (30,000 pallet positions)" ;
+    ex:quantity 1 ;
+    ex:systemId "RACK-SYSTEM-001"
+  ] ;
+  ex:requiredItems [
+    ex:item "Receiving dock (2 bays)" ;
+    ex:quantity 1 ;
+    ex:systemId "DOCK-001-002"
+  ] ;
+  wo:resourceAvailability "Available" ;
+  ex:verificationMethod "Daily equipment maintenance check; capacity verification" .
+
+# ==============================================================================
+# EVENTS (Maps to wo:Event)
+# ==============================================================================
+
+ex:EventDemandForecastComplete a wo:Event ;
+  rdfs:label "Demand Forecast Complete" ;
+  rdfs:comment "Signal that daily demand aggregation finished." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "EVT-DEMAND-FORECAST-001" ;
+  wo:eventType "milestone" ;
+  wo:eventMessage "Daily demand forecast generated. 30-day procurement plan updated." ;
+  wo:eventSource "SAP Materials Management" ;
+  ex:eventTrigger ex:DemandAggregation ;
+  ex:notificationChannel "Slack #procurement-ops" .
+
+ex:EventPOsIssued a wo:Event ;
+  rdfs:label "Purchase Orders Issued to Vendors" ;
+  rdfs:comment "Signal that POs transmitted to all selected vendors." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "EVT-POS-ISSUED-001" ;
+  wo:eventType "milestone" ;
+  wo:eventMessage "Daily POs issued to vendors. Supplier portal updated." ;
+  wo:eventSource "Supplier Portal" ;
+  ex:eventTrigger ex:PurchaseOrderApproval ;
+  ex:notificationChannel "Slack #procurement-team" .
+
+ex:EventStockAlert a wo:Event ;
+  rdfs:label "Stock-Out Risk Alert" ;
+  rdfs:comment "Alert for potential inventory stock-out." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "EVT-STOCKOUT-ALERT-001" ;
+  wo:eventType "alert" ;
+  wo:eventSource "Inventory Forecasting System" ;
+  ex:eventTrigger [
+    ex:condition "Forecasted inventory below safety stock within 14 days" ;
+    ex:source "SAP Materials Management"
+  ] ;
+  ex:notificationChannel "Slack #procurement-alerts, procurement-manager@disney.com" .
+
+ex:EventVendorScorecard a wo:Event ;
+  rdfs:label "Vendor Performance Update" ;
+  rdfs:comment "Vendor performance scorecard updated." ;
+  wo:hasStatus wo:StateUndefined ;
+  wo:hasId "EVT-VENDOR-SCORE-001" ;
+  wo:eventType "report" ;
+  wo:eventMessage "Weekly vendor scorecard updated. Performance trends analyzed." ;
+  wo:eventSource "Vendor Portal" ;
+  ex:eventTrigger ex:VendorScorecard ;
+  ex:notificationChannel "Slack #vendor-management" .
+
+# ==============================================================================
+# PROCESS FLOW & DEPENDENCIES
+# ==============================================================================
+
+ex:ProcurementCycleFlow a ex:ProcessFlow ;
+  rdfs:label "Supply Chain Procurement Critical Path" ;
+  rdfs:comment "Daily procurement cycle from demand through payment." ;
+  ex:phase1_Demand "DemandAggregation (start T+0, PT12M)" ;
+  ex:phase2_POs "PurchaseOrderGeneration (after demand, PT15M)" ;
+  ex:phase3_Review "PoCreationReview (PT8M)" ;
+  ex:phase4_Approval "PurchaseOrderApproval (gates vendor notification)" ;
+  ex:phase4_Parallel "VendorScorecard (parallel, PT5M)" ;
+  ex:phase5_Receipt "ReceiptReconciliation (continuous throughout day)" ;
+  ex:phase6_Payment "PaymentProcessing (daily AP run)" ;
+  ex:criticalPathDuration "PT45M"^^xsd:duration ;
+  ex:targetCompleteTime "45 minutes per daily cycle" ;
+  ex:parallelizationOpportunity "Vendor scorecard and receipt reconciliation can run in parallel during the day" .
+
+# ==============================================================================
+# EXTERNAL SYSTEM MAPPINGS
+# ==============================================================================
+
+ex:SAPMMMapping a ex:SystemMapping ;
+  rdfs:label "SAP Materials Management Integration" ;
+  rdfs:comment "Inventory levels, demand forecasts, PO generation." ;
+  ex:maps wo:Task ;
+  ex:dataFlow "SAP MM → Inventory data, demand signals → PO creation and approval" ;
+  ex:readOnly "false" ;
+  ex:rollbackCapability "true" ;
+  ex:criticalForOperations "true" .
+
+ex:JiraMapping a ex:SystemMapping ;
+  rdfs:label "Jira Service Management Integration" ;
+  rdfs:comment "Maintenance and operations demand tickets." ;
+  ex:maps wo:Task ;
+  ex:dataFlow "Jira SM → Demand tickets from all departments → Procurement forecast" ;
+  ex:readOnly "true" ;
+  ex:rollbackCapability "false" ;
+  ex:latencyTarget "Hourly refresh" .
+
+ex:SupplierPortalMapping a ex:SystemMapping ;
+  rdfs:label "Supplier Portal Integration (Coupa/Ariba)" ;
+  rdfs:comment "Vendor pricing, availability, lead times, and performance data." ;
+  ex:maps wo:Task ;
+  ex:dataFlow "Supplier Portal ↔ PO submission, delivery tracking, invoice submission, performance metrics" ;
+  ex:readOnly "false" ;
+  ex:rollbackCapability "true" ;
+  ex:criticalForOperations "true" .
+
+ex:WMSMapping a ex:SystemMapping ;
+  rdfs:label "Warehouse Management System Integration" ;
+  rdfs:comment "Goods receipt confirmation, receiving logs, inventory positions." ;
+  ex:maps wo:Task ;
+  ex:dataFlow "WMS → Goods receipt events → Receipt reconciliation" ;
+  ex:readOnly "false" ;
+  ex:rollbackCapability "true" ;
+  ex:latencyTarget "Real-time" .
+
+ex:OracleAPMapping a ex:SystemMapping ;
+  rdfs:label "Oracle Accounts Payable Integration" ;
+  rdfs:comment "Invoice matching, payment processing." ;
+  ex:maps wo:Task ;
+  ex:dataFlow "Oracle AP → Invoice receipt, three-way match, payment approval" ;
+  ex:readOnly "false" ;
+  ex:rollbackCapability "true" ;
+  ex:criticalForOperations "true" .
+
+ex:SlackMapping a ex:SystemMapping ;
+  rdfs:label "Slack Notifications" ;
+  rdfs:comment "Procurement alerts and milestone notifications." ;
+  ex:maps wo:Event ;
+  ex:channels (
+    "#procurement-ops"
+    "#procurement-team"
+    "#procurement-alerts"
+    "#vendor-management"
+  ) ;
+  ex:messageTemplate "Procurement Update: {event} - {status} (Action: {action})" ;
+  ex:readOnly "true" ;
+  ex:rollbackCapability "false" .
+
+# ==============================================================================
+# SUCCESS METRICS & CYCLE TIME IMPROVEMENTS
+# ==============================================================================
+
+ex:SuccessMetrics a owl:Class ;
+  rdfs:label "Supply Chain & Procurement Success Metrics" ;
+  rdfs:comment "Key performance indicators for process improvement." ;
+  ex:metric_1 "Daily procurement cycle time (target: 45 minutes)" ;
+  ex:metric_2 "PO creation and approval turnaround (target: <25 minutes)" ;
+  ex:metric_3 "Receipt reconciliation accuracy (target: 99.5% three-way match)" ;
+  ex:metric_4 "Vendor on-time delivery rate (target: ≥97%)" ;
+  ex:metric_5 "Vendor quality grade (target: ≥95% Grade A)" ;
+  ex:metric_6 "Procurement cost savings vs budget (target: ≥3% through optimal sourcing)" ;
+  ex:metric_7 "Inventory stock-out incidents (target: <1 per month)" ;
+  ex:metric_8 "Invoice payment cycle (target: 15 days vs current 30)" .
+
+ex:CycleTimeImprovement a owl:Class ;
+  rdfs:label "Cycle Time Improvements" ;
+  rdfs:comment "Reduction vs manual process baseline." ;
+  ex:currentManualCycleTime "240 minutes (manual demand collection, spreadsheet POs, paper filing)" ;
+  ex:targetAutomatedCycleTime "45 minutes (automated aggregation, system-generated POs, digital matching)" ;
+  ex:cycleTimeReduction "81.3% (195 minutes faster per cycle)" ;
+  ex:annualTimeRecovery "2,925 procurement hours/year" ;
+  ex:businessImpact "50% faster vendor response + 3% procurement savings + zero stock-outs + improved cash flow (15-day payment cycle)" ;
+  ex:workingCapitalImprovement "15-day payment deferral on $2M monthly spend = $1M working capital improvement" .
+
+# ==============================================================================
+# METADATA
+# ==============================================================================
+
+ex:SupplyChainProcurementOntology a owl:Ontology ;
+  rdfs:label "Supply Chain & Procurement Process Ontology" ;
+  rdfs:comment "End-to-end procurement workflow from demand aggregation through vendor payment and performance tracking." ;
+  owl:versionInfo "1.0" ;
+  dcterms:created "2026-01-18"^^xsd:date ;
+  ex:phase "Wave 3 - Production Scale" ;
+  ex:processCategory "Supply Chain & Procurement" ;
+  ex:taskCount 6 ;
+  ex:approvalGateCount 2 ;
+  ex:externalSystemsIntegrated 5 ;
+  ex:targetProcessTime "PT45M"^^xsd:duration ;
+  ex:cycleFrequency "Daily" ;
+  ex:readyForValidation "true" ;
+  ex:mapsToWorkObjectTypes (
+    wo:Shift
+    wo:Task
+    wo:Incident
+    wo:Approval
+    wo:Resource
+    wo:Event
+  ) ;
+  ex:businessValue "81.3% cycle time reduction + 3% cost savings + zero stock-outs + $1M working capital" ;
+  ex:expectedROI "400-600% Year 1" ;
+  ex:annualFTESavings "2,925 hours / 2,080 hours per FTE = 1.4 FTE annually" .
+
+# ==============================================================================
+# ROLES
+# ==============================================================================
+
+ex:ProcurementDirectorRole a ex:ApprovalRole ;
+  rdfs:label "Procurement Director" ;
+  rdfs:comment "Approves purchase orders." ;
+  ex:systemMapping "AD group: PROCUREMENT_DIRECTORS" .
+
+ex:FinanceDirectorRole a ex:ApprovalRole ;
+  rdfs:label "Finance Director" ;
+  rdfs:comment "Approves vendor payments." ;
+  ex:systemMapping "AD group: FINANCE_DIRECTORS" .
+
+ex:InventoryPlannerLead a ex:Person ;
+  rdfs:label "Inventory Planner Lead" ;
+  ex:workdayId "INV-PLAN-001" .
+
+ex:BuyerLead a ex:Person ;
+  rdfs:label "Buyer Lead" ;
+  ex:workdayId "BUYER-001" .
+
+ex:ProcurementManagerLead a ex:Person ;
+  rdfs:label "Procurement Manager" ;
+  ex:personRole ex:ProcurementDirectorRole ;
+  ex:workdayId "PROC-MGR-001" .
+
+ex:ProcurementAnalystLead a ex:Person ;
+  rdfs:label "Procurement Analyst" ;
+  ex:workdayId "PROC-ANALYST-001" .
+
+ex:VendorManagerLead a ex:Person ;
+  rdfs:label "Vendor Manager" ;
+  ex:workdayId "VENDOR-MGR-001" .
+
+ex:ProcurementDirector a ex:Person ;
+  rdfs:label "Procurement Director" ;
+  ex:personRole ex:ProcurementDirectorRole ;
+  ex:workdayId "PROC-DIR-001" .
+
+# ==============================================================================
+# LOCATIONS
+# ==============================================================================
+
+ex:ProcurementOperationsCenter a ex:Location ;
+  rdfs:label "Procurement Operations Center" ;
+  rdfs:comment "Centralized procurement planning and vendor management." ;
+  ex:locationCode "POC-001" ;
+  ex:area "2,500 sq ft" ;
+  ex:workstations 6 ;
+  ex:vendorMeetingRooms 2 .
+
+ex:WarehouseFacility a ex:Location ;
+  rdfs:label "Warehouse & Receiving Facility" ;
+  rdfs:comment "Central warehouse for all park inventory." ;
+  ex:locationCode "WAREHOUSE-001" ;
+  ex:area "50,000 sq ft" ;
+  ex:palletCapacity "30,000" ;
+  ex:receivingDocks 2 ;
+  ex:loadingDocks 2 ;
+  ex:forkliftCount 4 .

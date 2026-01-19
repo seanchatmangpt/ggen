@@ -1,25 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Tutorial: Building Your Own Ontology Pack](#tutorial-building-your-own-ontology-pack)
-  - [Use Case: Company Internal Ontology](#use-case-company-internal-ontology)
-  - [Step 1: Create Pack Structure](#step-1-create-pack-structure)
-  - [Step 2: Define Pack Metadata](#step-2-define-pack-metadata)
-  - [Step 3: Define the Ontology](#step-3-define-the-ontology)
-  - [Step 4: Create TypeScript Template](#step-4-create-typescript-template)
-  - [Step 5: Create Python Template](#step-5-create-python-template)
-  - [Step 6: Test Pack Locally](#step-6-test-pack-locally)
-  - [Step 7: Create Unit Tests](#step-7-create-unit-tests)
-  - [Step 8: Package for Distribution](#step-8-package-for-distribution)
-  - [Step 9: Install and Test Packed Version](#step-9-install-and-test-packed-version)
-  - [What You Learned](#what-you-learned)
-  - [Next Steps](#next-steps)
-  - [Best Practices](#best-practices)
-  - [Troubleshooting](#troubleshooting)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Tutorial: Building Your Own Ontology Pack
 
 **Goal:** Create, test, and package a custom ontology pack.

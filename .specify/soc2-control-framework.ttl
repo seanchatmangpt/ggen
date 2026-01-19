@@ -1,0 +1,720 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix spec: <http://ggen.io/spec/> .
+@prefix soc2: <http://ggen.io/soc2/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# SOC 2 Type II Control Framework
+# Mapping 14 Trust Service Principles to ggen-disney Controls
+# Certification Target: 6 months post Wave 3 start (Month 10 overall)
+
+soc2:framework a spec:ComplianceFramework ;
+    spec:name "SOC 2 Type II Certification Roadmap" ;
+    spec:version "1.0" ;
+    spec:targetProduct "ggen-disney" ;
+    spec:certificationGoal "SOC 2 Type II Certified" ;
+    spec:auditType "Type II (14+ month observation period)" ;
+    spec:estimatedCertificationDate "2026-10-31"^^xsd:date ;
+    spec:estimatedCost 75000 ;
+    spec:currency "USD" ;
+    spec:description "Complete SOC 2 Type II framework for ggen-disney platform covering all 14 trust service principles with control mapping, implementation roadmap, and evidence gathering requirements." ;
+    spec:hasTrustServiceCategory soc2:security, soc2:availability, soc2:processingIntegrity, soc2:confidentiality, soc2:privacy ;
+    spec:hasPhase soc2:phase-assessment, soc2:phase-design, soc2:phase-implementation, soc2:phase-testing, soc2:phase-audit .
+
+# ===== TRUST SERVICE CATEGORIES =====
+
+soc2:security a spec:TrustServiceCategory ;
+    spec:name "Security (CC)" ;
+    spec:description "Common Criteria for all entities using COSO Internal Control Framework" ;
+    spec:principleCount 5 ;
+    spec:hasPrinciple soc2:cc-1-governance, soc2:cc-2-communications, soc2:cc-3-infrastructure, soc2:cc-4-access, soc2:cc-5-monitoring .
+
+soc2:availability a spec:TrustServiceCategory ;
+    spec:name "Availability (A)" ;
+    spec:description "System availability and performance principles" ;
+    spec:principleCount 1 ;
+    spec:hasPrinciple soc2:a-1-availability .
+
+soc2:processingIntegrity a spec:TrustServiceCategory ;
+    spec:name "Processing Integrity (PI)" ;
+    spec:description "Data processing accuracy, completeness, timeliness, and authorization" ;
+    spec:principleCount 3 ;
+    spec:hasPrinciple soc2:pi-1-authorization, soc2:pi-2-monitoring, soc2:pi-3-errors .
+
+soc2:confidentiality a spec:TrustServiceCategory ;
+    spec:name "Confidentiality (C)" ;
+    spec:description "Information confidentiality protection" ;
+    spec:principleCount 2 ;
+    spec:hasPrinciple soc2:c-1-confidentiality, soc2:c-2-disclosure .
+
+soc2:privacy a spec:TrustServiceCategory ;
+    spec:name "Privacy (P)" ;
+    spec:description "Personal information collection, use, retention, and disclosure" ;
+    spec:principleCount 3 ;
+    spec:hasPrinciple soc2:p-1-notice, soc2:p-2-choice, soc2:p-3-access .
+
+# ===== SECURITY PRINCIPLES (CC) =====
+
+soc2:cc-1-governance a spec:TrustServicePrinciple ;
+    spec:number "CC1" ;
+    spec:title "Governance" ;
+    spec:description "The entity demonstrates a commitment to competence and enforces responsibility for the performance of internal control over the system." ;
+    spec:category soc2:security ;
+    spec:criteriaCount 16 ;
+    spec:hasControl soc2:cc1-01-board, soc2:cc1-02-oversight, soc2:cc1-03-authority, soc2:cc1-04-competence, soc2:cc1-05-confidentiality .
+
+soc2:cc-2-communications a spec:TrustServicePrinciple ;
+    spec:number "CC2" ;
+    spec:title "Communications" ;
+    spec:description "The entity internally and externally communicates information about the responsibilities of those charged with governance and of individuals within the entity." ;
+    spec:category soc2:security ;
+    spec:criteriaCount 5 ;
+    spec:hasControl soc2:cc2-01-roles, soc2:cc2-02-external, soc2:cc2-03-information .
+
+soc2:cc-3-infrastructure a spec:TrustServicePrinciple ;
+    spec:number "CC3" ;
+    spec:title "System & Infrastructure" ;
+    spec:description "The entity selects, develops, and deploys infrastructure solutions to support the achievement of objectives." ;
+    spec:category soc2:security ;
+    spec:criteriaCount 10 ;
+    spec:hasControl soc2:cc3-01-classify, soc2:cc3-02-architecture, soc2:cc3-03-monitoring, soc2:cc3-04-operations, soc2:cc3-05-resilience .
+
+soc2:cc-4-access a spec:TrustServicePrinciple ;
+    spec:number "CC4" ;
+    spec:title "Logical & Physical Access" ;
+    spec:description "The entity restricts or appropriately grants logical and physical access to assets and records by considering objectives of the entity and the risks associated with logical and physical access." ;
+    spec:category soc2:security ;
+    spec:criteriaCount 8 ;
+    spec:hasControl soc2:cc4-01-access-control, soc2:cc4-02-authentication, soc2:cc4-03-physical, soc2:cc4-04-audit-trails .
+
+soc2:cc-5-monitoring a spec:TrustServicePrinciple ;
+    spec:number "CC5" ;
+    spec:title "Monitoring & Investigation" ;
+    spec:description "The entity monitors system components and the operation of those components for anomalies that are indicative of malfunction, misuse, or improper operation." ;
+    spec:category soc2:security ;
+    spec:criteriaCount 9 ;
+    spec:hasControl soc2:cc5-01-anomalies, soc2:cc5-02-security-events, soc2:cc5-03-investigation, soc2:cc5-04-response .
+
+# CC1 Governance Controls
+soc2:cc1-01-board a spec:Control ;
+    spec:id "CC1.01" ;
+    spec:title "Board Oversight" ;
+    spec:description "Board/governing body establishes oversight of internal control" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-04-30"^^xsd:date ;
+    spec:requiredEvidence spec:governance-charter, spec:audit-committee-minutes, spec:risk-assessment-records ;
+    spec:estimatedEffort 20 .
+
+soc2:cc1-02-oversight a spec:Control ;
+    spec:id "CC1.02" ;
+    spec:title "Management Oversight" ;
+    spec:description "Management establishes structures, reporting lines, and appropriate authorities" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-03-31"^^xsd:date ;
+    spec:requiredEvidence spec:org-chart, spec:job-descriptions, spec:authority-matrix ;
+    spec:estimatedEffort 16 .
+
+soc2:cc1-03-authority a spec:Control ;
+    spec:id "CC1.03" ;
+    spec:title "Authority Delegation" ;
+    spec:description "Entity assigns responsibility and delegates authority for system controls" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-03-31"^^xsd:date ;
+    spec:requiredEvidence spec:delegation-documentation, spec:approval-workflows ;
+    spec:estimatedEffort 12 .
+
+soc2:cc1-04-competence a spec:Control ;
+    spec:id "CC1.04" ;
+    spec:title "Competence & Training" ;
+    spec:description "Entity obtains/maintains qualified personnel and ensures competence development" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-04-15"^^xsd:date ;
+    spec:requiredEvidence spec:training-records, spec:competency-assessments, spec:hiring-standards ;
+    spec:estimatedEffort 24 .
+
+soc2:cc1-05-confidentiality a spec:Control ;
+    spec:id "CC1.05" ;
+    spec:title "Confidentiality Commitments" ;
+    spec:description "Personnel commit to confidentiality and ethical responsibilities" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-03-15"^^xsd:date ;
+    spec:requiredEvidence spec:nda-agreements, spec:code-of-conduct, spec:training-attestations ;
+    spec:estimatedEffort 8 .
+
+# CC2 Communications Controls
+soc2:cc2-01-roles a spec:Control ;
+    spec:id "CC2.01" ;
+    spec:title "Role Communication" ;
+    spec:description "Communicate responsibility and accountability for internal controls" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-03-20"^^xsd:date ;
+    spec:requiredEvidence spec:policy-documentation, spec:role-descriptions, spec:communication-logs ;
+    spec:estimatedEffort 12 .
+
+soc2:cc2-02-external a spec:Control ;
+    spec:id "CC2.02" ;
+    spec:title "External Communications" ;
+    spec:description "Communicate to external parties regarding responsibility for control" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-04-30"^^xsd:date ;
+    spec:requiredEvidence spec:privacy-policy, spec:security-documentation, spec:compliance-disclosures ;
+    spec:estimatedEffort 16 .
+
+soc2:cc2-03-information a spec:Control ;
+    spec:id "CC2.03" ;
+    spec:title "Information Handling" ;
+    spec:description "Communicate information regarding the achievement of objectives" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-04-30"^^xsd:date ;
+    spec:requiredEvidence spec:incident-logs, spec:status-reports, spec:escalation-procedures ;
+    spec:estimatedEffort 12 .
+
+# CC3 System & Infrastructure Controls
+soc2:cc3-01-classify a spec:Control ;
+    spec:id "CC3.01" ;
+    spec:title "Asset Classification" ;
+    spec:description "Entity obtains or generates information to support objectives" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-03-30"^^xsd:date ;
+    spec:requiredEvidence spec:data-inventory, spec:asset-register, spec:classification-scheme ;
+    spec:estimatedEffort 20 .
+
+soc2:cc3-02-architecture a spec:Control ;
+    spec:id "CC3.02" ;
+    spec:title "System Architecture" ;
+    spec:description "System infrastructure designed to support objectives and processing" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-15"^^xsd:date ;
+    spec:requiredEvidence spec:architecture-diagrams, spec:infrastructure-specs, spec:design-reviews ;
+    spec:estimatedEffort 32 .
+
+soc2:cc3-03-monitoring a spec:Control ;
+    spec:id "CC3.03" ;
+    spec:title "System Monitoring" ;
+    spec:description "Infrastructure monitored for changes affecting control objectives" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-15"^^xsd:date ;
+    spec:requiredEvidence spec:monitoring-logs, spec:alerts-config, spec:change-logs ;
+    spec:estimatedEffort 28 .
+
+soc2:cc3-04-operations a spec:Control ;
+    spec:id "CC3.04" ;
+    spec:title "Operations Management" ;
+    spec:description "System operations and infrastructure maintained per specifications" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-15"^^xsd:date ;
+    spec:requiredEvidence spec:runbooks, spec:operational-procedures, spec:maintenance-logs ;
+    spec:estimatedEffort 24 .
+
+soc2:cc3-05-resilience a spec:Control ;
+    spec:id "CC3.05" ;
+    spec:title "Business Continuity & Resilience" ;
+    spec:description "Resilience built into infrastructure for disaster recovery" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-06-15"^^xsd:date ;
+    spec:requiredEvidence spec:bcdr-plan, spec:recovery-procedures, spec:failover-tests ;
+    spec:estimatedEffort 40 .
+
+# CC4 Access Controls
+soc2:cc4-01-access-control a spec:Control ;
+    spec:id "CC4.01" ;
+    spec:title "Access Control Framework" ;
+    spec:description "Logical and physical access restricted per objectives and risk assessment" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-04-30"^^xsd:date ;
+    spec:requiredEvidence spec:access-matrix, spec:iam-policy, spec:physical-security ;
+    spec:estimatedEffort 24 .
+
+soc2:cc4-02-authentication a spec:Control ;
+    spec:id "CC4.02" ;
+    spec:title "Authentication & Authorization" ;
+    spec:description "Prior to granting access, authentication and authorization validation occurs" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-04-30"^^xsd:date ;
+    spec:requiredEvidence spec:mfa-implementation, spec:password-policy, spec:role-assignments ;
+    spec:estimatedEffort 28 .
+
+soc2:cc4-03-physical a spec:Control ;
+    spec:id "CC4.03" ;
+    spec:title "Physical Security" ;
+    spec:description "Physical access to facilities and assets restricted and monitored" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-03-30"^^xsd:date ;
+    spec:requiredEvidence spec:access-logs, spec:badge-system, spec:cctv-records ;
+    spec:estimatedEffort 12 .
+
+soc2:cc4-04-audit-trails a spec:Control ;
+    spec:id "CC4.04" ;
+    spec:title "Audit Trails & Logging" ;
+    spec:description "Access and changes to system resources logged and auditable" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-15"^^xsd:date ;
+    spec:requiredEvidence spec:audit-logs, spec:log-retention-policy, spec:log-review-procedures ;
+    spec:estimatedEffort 32 .
+
+# CC5 Monitoring & Investigation Controls
+soc2:cc5-01-anomalies a spec:Control ;
+    spec:id "CC5.01" ;
+    spec:title "Anomaly Detection" ;
+    spec:description "System components monitored for anomalies indicative of malfunction" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-15"^^xsd:date ;
+    spec:requiredEvidence spec:monitoring-dashboards, spec:alerting-thresholds, spec:detection-logs ;
+    spec:estimatedEffort 36 .
+
+soc2:cc5-02-security-events a spec:Control ;
+    spec:id "CC5.02" ;
+    spec:title "Security Event Monitoring" ;
+    spec:description "Security events monitored and responded to in accordance with policies" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-15"^^xsd:date ;
+    spec:requiredEvidence spec:siem-logs, spec:incident-reports, spec:response-procedures ;
+    spec:estimatedEffort 40 .
+
+soc2:cc5-03-investigation a spec:Control ;
+    spec:id "CC5.03" ;
+    spec:title "Incident Investigation" ;
+    spec:description "Investigation of anomalies and incidents performed and documented" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-30"^^xsd:date ;
+    spec:requiredEvidence spec:incident-logs, spec:root-cause-analyses, spec:corrective-actions ;
+    spec:estimatedEffort 28 .
+
+soc2:cc5-04-response a spec:Control ;
+    spec:id "CC5.04" ;
+    spec:title "Incident Response" ;
+    spec:description "Response to identified incidents consistent with organizational policies" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-30"^^xsd:date ;
+    spec:requiredEvidence spec:incident-response-plan, spec:escalation-logs, spec:resolution-records ;
+    spec:estimatedEffort 24 .
+
+# ===== AVAILABILITY PRINCIPLE (A) =====
+
+soc2:a-1-availability a spec:TrustServicePrinciple ;
+    spec:number "A1" ;
+    spec:title "System Availability & Performance" ;
+    spec:description "The entity obtains and maintains information system infrastructure to support the objectives of the entity and uses it to achieve those objectives." ;
+    spec:category soc2:availability ;
+    spec:criteriaCount 6 ;
+    spec:hasControl soc2:a1-01-uptime, soc2:a1-02-capacity, soc2:a1-03-performance, soc2:a1-04-scaling .
+
+soc2:a1-01-uptime a spec:Control ;
+    spec:id "A1.01" ;
+    spec:title "System Uptime Target" ;
+    spec:description "System maintains 99.5% uptime SLA with monitoring and alerting" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-15"^^xsd:date ;
+    spec:requiredEvidence spec:uptime-metrics, spec:sla-documentation, spec:monitoring-reports ;
+    spec:estimatedEffort 28 ;
+    spec:sla "99.5% monthly availability" .
+
+soc2:a1-02-capacity a spec:Control ;
+    spec:id "A1.02" ;
+    spec:title "Capacity Planning" ;
+    spec:description "Capacity planned and managed to support forecasted demand" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-15"^^xsd:date ;
+    spec:requiredEvidence spec:capacity-plans, spec:load-tests, spec:scaling-procedures ;
+    spec:estimatedEffort 20 .
+
+soc2:a1-03-performance a spec:Control ;
+    spec:id "A1.03" ;
+    spec:title "Performance Monitoring" ;
+    spec:description "System performance measured and optimized to meet objectives" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-15"^^xsd:date ;
+    spec:requiredEvidence spec:performance-metrics, spec:dashboards, spec:optimization-logs ;
+    spec:estimatedEffort 24 .
+
+soc2:a1-04-scaling a spec:Control ;
+    spec:id "A1.04" ;
+    spec:title "Auto-Scaling" ;
+    spec:description "System scales automatically to meet demand variations" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-31"^^xsd:date ;
+    spec:requiredEvidence spec:scaling-policies, spec:scaling-tests, spec:performance-data ;
+    spec:estimatedEffort 32 .
+
+# ===== PROCESSING INTEGRITY PRINCIPLES (PI) =====
+
+soc2:pi-1-authorization a spec:TrustServicePrinciple ;
+    spec:number "PI1" ;
+    spec:title "Processing Authorization" ;
+    spec:description "System processing transactions are properly authorized, recorded, and executed in accordance with objectives." ;
+    spec:category soc2:processingIntegrity ;
+    spec:criteriaCount 4 ;
+    spec:hasControl soc2:pi1-01-requirements, soc2:pi1-02-authorization, soc2:pi1-03-recording .
+
+soc2:pi-2-monitoring a spec:TrustServicePrinciple ;
+    spec:number "PI2" ;
+    spec:title "System Monitoring & Recording" ;
+    spec:description "System monitoring and recording of processing ensures authorized processing occurs." ;
+    spec:category soc2:processingIntegrity ;
+    spec:criteriaCount 3 ;
+    spec:hasControl soc2:pi2-01-monitoring, soc2:pi2-02-control-execution .
+
+soc2:pi-3-errors a spec:TrustServicePrinciple ;
+    spec:number "PI3" ;
+    spec:title "Error Prevention & Correction" ;
+    spec:description "System processing exceptions and errors prevented or detected and corrected." ;
+    spec:category soc2:processingIntegrity ;
+    spec:criteriaCount 5 ;
+    spec:hasControl soc2:pi3-01-prevention, soc2:pi3-02-detection, soc2:pi3-03-correction .
+
+# PI1 Controls
+soc2:pi1-01-requirements a spec:Control ;
+    spec:id "PI1.01" ;
+    spec:title "Processing Requirements" ;
+    spec:description "System obtains/generates, uses, and communicates information about objectives" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-03-31"^^xsd:date ;
+    spec:requiredEvidence spec:requirements-documentation, spec:processing-specs, spec:data-flow-diagrams ;
+    spec:estimatedEffort 16 .
+
+soc2:pi1-02-authorization a spec:Control ;
+    spec:id "PI1.02" ;
+    spec:title "Processing Authorization" ;
+    spec:description "System generates and maintains detailed audit trails for transactions" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-15"^^xsd:date ;
+    spec:requiredEvidence spec:audit-trails, spec:transaction-logs, spec:authorization-records ;
+    spec:estimatedEffort 24 .
+
+soc2:pi1-03-recording a spec:Control ;
+    spec:id "PI1.03" ;
+    spec:title "Transaction Recording" ;
+    spec:description "Processing transactions recorded completely and in a timely manner" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-15"^^xsd:date ;
+    spec:requiredEvidence spec:transaction-logs, spec:timestamp-verification, spec:completeness-checks ;
+    spec:estimatedEffort 20 .
+
+# PI2 Controls
+soc2:pi2-01-monitoring a spec:Control ;
+    spec:id "PI2.01" ;
+    spec:title "System Monitoring" ;
+    spec:description "System monitoring indicates that processing is complete and accurate" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-15"^^xsd:date ;
+    spec:requiredEvidence spec:monitoring-reports, spec:control-execution-logs, spec:validation-rules ;
+    spec:estimatedEffort 28 .
+
+soc2:pi2-02-control-execution a spec:Control ;
+    spec:id "PI2.02" ;
+    spec:title "Control Execution" ;
+    spec:description "System control activities appropriately execute the control objectives" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-15"^^xsd:date ;
+    spec:requiredEvidence spec:control-procedures, spec:execution-logs, spec:effectiveness-tests ;
+    spec:estimatedEffort 24 .
+
+# PI3 Controls
+soc2:pi3-01-prevention a spec:Control ;
+    spec:id "PI3.01" ;
+    spec:title "Error Prevention" ;
+    spec:description "System prevents/detects and corrects invalid/incomplete processing" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-15"^^xsd:date ;
+    spec:requiredEvidence spec:validation-rules, spec:error-prevention-logs, spec:test-results ;
+    spec:estimatedEffort 24 .
+
+soc2:pi3-02-detection a spec:Control ;
+    spec:id "PI3.02" ;
+    spec:title "Error Detection" ;
+    spec:description "Processing errors detected and reported for investigation" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-15"^^xsd:date ;
+    spec:requiredEvidence spec:error-logs, spec:detection-mechanisms, spec:alert-records ;
+    spec:estimatedEffort 20 .
+
+soc2:pi3-03-correction a spec:Control ;
+    spec:id "PI3.03" ;
+    spec:title "Error Correction" ;
+    spec:description "Processing errors corrected and re-processed as needed" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-30"^^xsd:date ;
+    spec:requiredEvidence spec:correction-logs, spec:reprocessing-records, spec:reconciliation-reports ;
+    spec:estimatedEffort 16 .
+
+# ===== CONFIDENTIALITY PRINCIPLES (C) =====
+
+soc2:c-1-confidentiality a spec:TrustServicePrinciple ;
+    spec:number "C1" ;
+    spec:title "Information Confidentiality" ;
+    spec:description "The entity obtains, generates, uses, and communicates relevant information about objectives." ;
+    spec:category soc2:confidentiality ;
+    spec:criteriaCount 5 ;
+    spec:hasControl soc2:c1-01-encryption, soc2:c1-02-access, soc2:c1-03-retention, soc2:c1-04-disposal .
+
+soc2:c-2-disclosure a spec:TrustServicePrinciple ;
+    spec:number "C2" ;
+    spec:title "Disclosure & Correction" ;
+    spec:description "Entity restricts access to confidential information and corrects disclosure incidents." ;
+    spec:category soc2:confidentiality ;
+    spec:criteriaCount 4 ;
+    spec:hasControl soc2:c2-01-incidents, soc2:c2-02-remediation, soc2:c2-03-legal .
+
+# C1 Controls
+soc2:c1-01-encryption a spec:Control ;
+    spec:id "C1.01" ;
+    spec:title "Encryption at Rest & Transit" ;
+    spec:description "Sensitive data encrypted using industry-standard algorithms" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-15"^^xsd:date ;
+    spec:requiredEvidence spec:encryption-standards, spec:key-management, spec:encryption-test-results ;
+    spec:estimatedEffort 32 ;
+    spec:standard "AES-256 for data at rest, TLS 1.3 for transit" .
+
+soc2:c1-02-access a spec:Control ;
+    spec:id "C1.02" ;
+    spec:title "Access Restrictions" ;
+    spec:description "Access to confidential information restricted per need-to-know principle" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-04-30"^^xsd:date ;
+    spec:requiredEvidence spec:access-matrix, spec:segregation-of-duties, spec:audit-logs ;
+    spec:estimatedEffort 24 .
+
+soc2:c1-03-retention a spec:Control ;
+    spec:id "C1.03" ;
+    spec:title "Data Retention" ;
+    spec:description "Retention periods defined and implemented for all data classes" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-04-15"^^xsd:date ;
+    spec:requiredEvidence spec:retention-policy, spec:retention-rules, spec:audit-trails ;
+    spec:estimatedEffort 16 .
+
+soc2:c1-04-disposal a spec:Control ;
+    spec:id "C1.04" ;
+    spec:title "Secure Disposal" ;
+    spec:description "Confidential information securely disposed per procedures" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-15"^^xsd:date ;
+    spec:requiredEvidence spec:disposal-procedures, spec:destruction-logs, spec:verification-records ;
+    spec:estimatedEffort 12 .
+
+# C2 Controls
+soc2:c2-01-incidents a spec:Control ;
+    spec:id "C2.01" ;
+    spec:title "Incident Tracking" ;
+    spec:description "Confidentiality incidents tracked, investigated, and remediated" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-30"^^xsd:date ;
+    spec:requiredEvidence spec:incident-logs, spec:investigation-reports, spec:remediation-plans ;
+    spec:estimatedEffort 20 .
+
+soc2:c2-02-remediation a spec:Control ;
+    spec:id "C2.02" ;
+    spec:title "Incident Remediation" ;
+    spec:description "Disclosure incidents remediated per incident response plan" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-30"^^xsd:date ;
+    spec:requiredEvidence spec:remediation-actions, spec:effectiveness-testing, spec:follow-up-records ;
+    spec:estimatedEffort 16 .
+
+soc2:c2-03-legal a spec:Control ;
+    spec:id "C2.03" ;
+    spec:title "Legal Obligations" ;
+    spec:description "Disclosure incidents communicated per legal/regulatory requirements" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-30"^^xsd:date ;
+    spec:requiredEvidence spec:disclosure-communications, spec:legal-opinions, spec:notification-logs ;
+    spec:estimatedEffort 12 .
+
+# ===== PRIVACY PRINCIPLES (P) =====
+
+soc2:p-1-notice a spec:TrustServicePrinciple ;
+    spec:number "P1" ;
+    spec:title "Notice & Communication" ;
+    spec:description "Entity provides notice to personal information subjects about collection and use." ;
+    spec:category soc2:privacy ;
+    spec:criteriaCount 3 ;
+    spec:hasControl soc2:p1-01-privacy-policy, soc2:p1-02-transparency, soc2:p1-03-communication .
+
+soc2:p-2-choice a spec:TrustServicePrinciple ;
+    spec:number "P2" ;
+    spec:title "Choice & Consent" ;
+    spec:description "Individual has ability to consent and control personal information usage." ;
+    spec:category soc2:privacy ;
+    spec:criteriaCount 3 ;
+    spec:hasControl soc2:p2-01-choice, soc2:p2-02-consent, soc2:p2-03-withdrawal .
+
+soc2:p-3-access a spec:TrustServicePrinciple ;
+    spec:number "P3" ;
+    spec:title "Access, Correction, Deletion" ;
+    spec:description "Individuals can access, correct, and delete their personal information." ;
+    spec:category soc2:privacy ;
+    spec:criteriaCount 5 ;
+    spec:hasControl soc2:p3-01-access-rights, soc2:p3-02-correction, soc2:p3-03-deletion, soc2:p3-04-requests .
+
+# P1 Controls
+soc2:p1-01-privacy-policy a spec:Control ;
+    spec:id "P1.01" ;
+    spec:title "Privacy Policy" ;
+    spec:description "Clear privacy policy published and communicated to users" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-03-31"^^xsd:date ;
+    spec:requiredEvidence spec:privacy-policy-document, spec:policy-reviews, spec:acknowledgments ;
+    spec:estimatedEffort 12 .
+
+soc2:p1-02-transparency a spec:Control ;
+    spec:id "P1.02" ;
+    spec:title "Data Use Transparency" ;
+    spec:description "Transparent communication about how personal information is used" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-04-15"^^xsd:date ;
+    spec:requiredEvidence spec:use-disclosures, spec:communication-logs, spec:documentation ;
+    spec:estimatedEffort 12 .
+
+soc2:p1-03-communication a spec:Control ;
+    spec:id "P1.03" ;
+    spec:title "Communication Channels" ;
+    spec:description "Multiple communication channels for privacy inquiries and complaints" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-04-15"^^xsd:date ;
+    spec:requiredEvidence spec:contact-information, spec:support-procedures, spec:ticket-logs ;
+    spec:estimatedEffort 8 .
+
+# P2 Controls
+soc2:p2-01-choice a spec:Control ;
+    spec:id "P2.01" ;
+    spec:title "Consent Mechanisms" ;
+    spec:description "Consent obtained for personal information collection and use" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-04-30"^^xsd:date ;
+    spec:requiredEvidence spec:consent-forms, spec:consent-logs, spec:opt-in-records ;
+    spec:estimatedEffort 16 .
+
+soc2:p2-02-consent a spec:Control ;
+    spec:id "P2.02" ;
+    spec:title "Granular Consent" ;
+    spec:description "Granular consent options for different data uses" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-04-30"^^xsd:date ;
+    spec:requiredEvidence spec:consent-preferences, spec:consent-management-system, spec:audit-logs ;
+    spec:estimatedEffort 20 .
+
+soc2:p2-03-withdrawal a spec:Control ;
+    spec:id "P2.03" ;
+    spec:title "Consent Withdrawal" ;
+    spec:description "Users can withdraw consent at any time" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-04-30"^^xsd:date ;
+    spec:requiredEvidence spec:withdrawal-procedures, spec:processing-cessation-logs, spec:confirmations ;
+    spec:estimatedEffort 12 .
+
+# P3 Controls
+soc2:p3-01-access-rights a spec:Control ;
+    spec:id "P3.01" ;
+    spec:title "Right to Access" ;
+    spec:description "Individuals can request and receive copy of personal information" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-15"^^xsd:date ;
+    spec:requiredEvidence spec:subject-access-procedures, spec:request-fulfillment-logs, spec:response-times ;
+    spec:estimatedEffort 20 .
+
+soc2:p3-02-correction a spec:Control ;
+    spec:id "P3.02" ;
+    spec:title "Right to Correction" ;
+    spec:description "Individuals can request correction of inaccurate personal information" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-15"^^xsd:date ;
+    spec:requiredEvidence spec:correction-procedures, spec:correction-logs, spec:verification-records ;
+    spec:estimatedEffort 16 .
+
+soc2:p3-03-deletion a spec:Control ;
+    spec:id "P3.03" ;
+    spec:title "Right to Deletion" ;
+    spec:description "Individuals can request deletion of personal information (right to be forgotten)" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-15"^^xsd:date ;
+    spec:requiredEvidence spec:deletion-procedures, spec:deletion-verification, spec:cascade-deletion-tests ;
+    spec:estimatedEffort 24 .
+
+soc2:p3-04-requests a spec:Control ;
+    spec:id "P3.04" ;
+    spec:title "Request Management" ;
+    spec:description "Subject access/correction/deletion requests tracked and fulfilled" ;
+    spec:implementationStatus spec:Planned ;
+    spec:targetDate "2026-05-30"^^xsd:date ;
+    spec:requiredEvidence spec:request-tracking-system, spec:fulfillment-logs, spec:sla-metrics ;
+    spec:estimatedEffort 20 .
+
+# ===== ROADMAP PHASES =====
+
+soc2:phase-assessment a spec:RoadmapPhase ;
+    spec:name "Assessment & Gap Analysis" ;
+    spec:startDate "2026-02-01"^^xsd:date ;
+    spec:endDate "2026-02-28"^^xsd:date ;
+    spec:duration 28 ;
+    spec:description "Current state assessment, gap identification, remediation planning" ;
+    spec:activities "Document current controls; identify gaps; prioritize remediation; assign owners" ;
+    spec:deliverables soc2:gap-analysis-report, soc2:remediation-plan, soc2:risk-assessment ;
+    spec:estimatedHours 160 .
+
+soc2:phase-design a spec:RoadmapPhase ;
+    spec:name "Control Design & Documentation" ;
+    spec:startDate "2026-03-01"^^xsd:date ;
+    spec:endDate "2026-03-31"^^xsd:date ;
+    spec:duration 31 ;
+    spec:description "Design new controls, document procedures, establish baselines" ;
+    spec:activities "Create control procedures; document evidence sources; train staff; configure systems" ;
+    spec:deliverables soc2:policy-documents, soc2:procedure-manuals, soc2:training-materials ;
+    spec:estimatedHours 240 .
+
+soc2:phase-implementation a spec:RoadmapPhase ;
+    spec:name "Implementation & Deployment" ;
+    spec:startDate "2026-04-01"^^xsd:date ;
+    spec:endDate "2026-05-31"^^xsd:date ;
+    spec:duration 61 ;
+    spec:description "Deploy controls, configure systems, establish evidence gathering" ;
+    spec:activities "Deploy technical controls; establish monitoring; configure SIEM; implement logging" ;
+    spec:deliverables soc2:technical-implementation, soc2:monitoring-setup, soc2:evidence-repository ;
+    spec:estimatedHours 320 .
+
+soc2:phase-testing a spec:RoadmapPhase ;
+    spec:name "Testing & Validation" ;
+    spec:startDate "2026-06-01"^^xsd:date ;
+    spec:endDate "2026-07-31"^^xsd:date ;
+    spec:duration 61 ;
+    spec:description "Test controls, validate evidence gathering, prepare for audit" ;
+    spec:activities "Conduct control testing; validate evidence collection; remediate findings; pre-audit review" ;
+    spec:deliverables soc2:control-test-results, soc2:evidence-summary, soc2:pre-audit-checklist ;
+    spec:estimatedHours 240 .
+
+soc2:phase-audit a spec:RoadmapPhase ;
+    spec:name "External Audit & Certification" ;
+    spec:startDate "2026-08-01"^^xsd:date ;
+    spec:endDate "2026-10-31"^^xsd:date ;
+    spec:duration 92 ;
+    spec:description "External auditor fieldwork, remediation of findings, certification" ;
+    spec:activities "Auditor fieldwork; respond to queries; remediate findings; obtain SOC 2 report" ;
+    spec:deliverables soc2:soc2-report, soc2:auditor-sign-off, soc2:certification ;
+    spec:estimatedHours 120 .
+
+# Auditor Selection Criteria
+soc2:auditor-criteria a spec:AuditorSelection ;
+    spec:name "SOC 2 Auditor Selection Criteria" ;
+    spec:targetAuditorSelection "2026-03-15"^^xsd:date ;
+    spec:criteriaRequirements "Big 4 or equivalent; SaaS experience; Type II experience; available for timeline" ;
+    spec:estimatedAuditorCost 75000 ;
+    spec:typicalFieldworkDuration 90 ;
+    spec:requiredDocumentation "RFP, SOW templates, auditor questionnaires, reference checks" .
+
+spec:Planned a spec:ImplementationStatus ;
+    rdfs:label "Planned" .
+
+spec:InProgress a spec:ImplementationStatus ;
+    rdfs:label "In Progress" .
+
+spec:Complete a spec:ImplementationStatus ;
+    rdfs:label "Complete" .
+
+spec:governance-charter a spec:EvidenceType ;
+    rdfs:label "Governance Charter" .
+
+spec:audit-committee-minutes a spec:EvidenceType ;
+    rdfs:label "Audit Committee Minutes" .
+
+spec:risk-assessment-records a spec:EvidenceType ;
+    rdfs:label "Risk Assessment Records" .

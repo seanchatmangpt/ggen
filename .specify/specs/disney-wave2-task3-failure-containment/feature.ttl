@@ -1,0 +1,281 @@
+@prefix : <http://ggen.example.org/disney/wave2-task3#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix spec: <http://ggen.example.org/spec#> .
+@prefix security: <http://ggen.example.org/security#> .
+@prefix authority: <http://ggen.example.org/authority#> .
+@prefix events: <http://ggen.example.org/events#> .
+
+# ============================================================================
+# WAVE 2, TASK 3: STAGED AUTHORITY + IMMUTABLE EVENT ARCHITECTURE
+# Failure Containment Framework for Incident Recovery & Deterministic Rollback
+# ============================================================================
+
+:FailureContainmentFeature a spec:Feature ;
+    spec:featureNumber "W2-T3" ;
+    spec:title "Staged Authority Framework & Immutable Event Architecture for Failure Containment" ;
+    spec:priority spec:P1 ;
+    spec:description """
+        Design and implement a staged authority framework with 5 levels of human-AI collaboration,
+        combined with an immutable event architecture that enables deterministic rollback,
+        incident recovery, and blast radius containment. This enables safe autonomous operations
+        while preserving human authority at critical decision points.
+    """ ;
+    spec:businessValue """
+        - Zero unplanned cascading failures in Wave 2 through contained failure domains
+        - Deterministic incident recovery via immutable event replay
+        - Human authority preserved at each escalation level (no unexpected autonomous action)
+        - Operational confidence in autonomous systems before production deployment
+    """ ;
+    spec:successCriteria """
+        1. All 5 authority levels implemented with gate verification
+        2. Immutable event log with cryptographic proof-of-sequence
+        3. Blast radius constraints prevent cross-service failures
+        4. 5+ simulated failure scenarios pass recovery tests
+        5. <5 second replay time for incident recovery
+        6. 100% deterministic rollback (same input → same output always)
+    """ ;
+    spec:hasUserStory :us-001, :us-002, :us-003, :us-004, :us-005 ;
+    spec:relatedWaveFeatures "Disney Wave 1 Task 2 (Park Opening)" ;
+    spec:securityClassification "HIGH" ;
+    spec:complianceRequirements "SOC2 Section 5.1 (Change Management), SOC2 Section 5.2 (Incident Response)" .
+
+# ============================================================================
+# USER STORY 1: STAGED AUTHORITY FRAMEWORK
+# ============================================================================
+
+:us-001 a spec:UserStory ;
+    spec:title "Implement 5-Level Staged Authority Framework" ;
+    spec:priority spec:P1 ;
+    spec:asA "security architect" ;
+    spec:iWant "a graduated escalation of human-AI collaboration from read-only to autonomous execution" ;
+    spec:soThat "failures at lower authority levels are caught before reaching production impact" ;
+    spec:description """
+        Design 5 authority levels that preserve human decision-making authority while enabling
+        increasingly autonomous AI operations. Each level must have explicit gates and permission
+        boundaries that prevent accidental escalation.
+
+        - Level 0 (Read-Only): Ingest data, compute recommendations, no decisions
+        - Level 1 (Assist): Recommend actions, human must explicitly approve each one
+        - Level 2 (Recommend): Propose batches of changes, human reviews before execution
+        - Level 3 (Act): Execute changes, human observes and can interrupt
+        - Level 4 (Enforce): Execute changes, human out of loop (rare, production only)
+    """ ;
+    spec:hasAcceptanceCriterion :ac-001-01, :ac-001-02, :ac-001-03, :ac-001-04, :ac-001-05 .
+
+:ac-001-01 a spec:AcceptanceCriterion ;
+    spec:text "Level 0 Read-Only can ingest data and generate recommendations" ;
+    spec:expected "No decisions executed, no state mutations, pure analysis only" ;
+    spec:testMethod "Unit tests verify read-only transaction semantics" ;
+    spec:gate "TransactionReadOnlyGate" .
+
+:ac-001-02 a spec:AcceptanceCriterion ;
+    spec:text "Level 1 Assist requires explicit human approval for each action" ;
+    spec:expected "Every proposed action waits for human confirmation before execution" ;
+    spec:testMethod "Integration test: propose action, verify pending state, verify execution after approval" ;
+    spec:gate "HumanApprovalGate" .
+
+:ac-001-03 a spec:AcceptanceCriterion ;
+    spec:text "Level 2 Recommend batches changes and requires human review of all" ;
+    spec:expected "Batch is atomic: all accepted or all rejected, no partial execution" ;
+    spec:testMethod "Batch transaction test: verify ACID semantics" ;
+    spec:gate "AtomicBatchGate" .
+
+:ac-001-04 a spec:AcceptanceCriterion ;
+    spec:text "Level 3 Act executes changes with human interrupt capability" ;
+    spec:expected "Changes execute but human can stop mid-operation, rolled back cleanly" ;
+    spec:testMethod "Chaos test: interrupt mid-operation, verify rollback completes" ;
+    spec:gate "InterruptibleExecutionGate" .
+
+:ac-001-05 a spec:AcceptanceCriterion ;
+    spec:text "Level 4 Enforce changes execute autonomously (production only)" ;
+    spec:expected "Changes execute immediately, no human intervention possible (reserved for stage 3)" ;
+    spec:testMethod "Audit log verifies no human intervention delays" ;
+    spec:gate "NoHumanInterventionGate" .
+
+# ============================================================================
+# USER STORY 2: IMMUTABLE EVENT ARCHITECTURE
+# ============================================================================
+
+:us-002 a spec:UserStory ;
+    spec:title "Design Immutable Event Log for Deterministic Replay" ;
+    spec:priority spec:P1 ;
+    spec:asA "incident response specialist" ;
+    spec:iWant "to replay incidents deterministically from an event log" ;
+    spec:soThat "I can recover from any failure state and understand root cause" ;
+    spec:description """
+        Implement append-only immutable event log that records all state-changing operations.
+        Each event must be:
+        - Immutable (no edits after creation)
+        - Cryptographically linked (hash chain)
+        - Deterministic (same event sequence → same state always)
+        - Atomic (all or nothing semantics)
+
+        Events must support:
+        1. Forward replay (replay from log to recover to any timestamp)
+        2. Backward rollback (reverse log entries to return to prior state)
+        3. Branch simulation (fork event stream for "what-if" analysis)
+    """ ;
+    spec:hasAcceptanceCriterion :ac-002-01, :ac-002-02, :ac-002-03, :ac-002-04, :ac-002-05 .
+
+:ac-002-01 a spec:AcceptanceCriterion ;
+    spec:text "Events are immutable: no edits after creation" ;
+    spec:expected "Rust type system prevents mutable access to committed events" ;
+    spec:testMethod "Compile-time type check: Event::commit() returns Ref<T> not Mut<T>" ;
+    spec:gate "TypeSystemImmutabilityGate" .
+
+:ac-002-02 a spec:AcceptanceCriterion ;
+    spec:text "Each event is cryptographically linked to previous (hash chain)" ;
+    spec:expected "Tampering with any event breaks chain, detected on validation" ;
+    spec:testMethod "Mutation test: corrupt event, verify hash chain breaks" ;
+    spec:gate "CryptographicLinkageGate" .
+
+:ac-002-03 a spec:AcceptanceCriterion ;
+    spec:text "Forward replay of N events from log produces same state as original" ;
+    spec:expected "Replay time < 100ms per 10k events, 100% state match" ;
+    spec:testMethod "Property test: generate random ops, replay, compare states" ;
+    spec:gate "DeterministicReplayGate" .
+
+:ac-002-04 a spec:AcceptanceCriterion ;
+    spec:text "Backward rollback reverses events in reverse-topological order" ;
+    spec:expected "Rolling back N events returns to state before those N events" ;
+    spec:testMethod "Chaos test: apply N random ops, rollback N, verify state match" ;
+    spec:gate "DeterministicRollbackGate" .
+
+:ac-002-05 a spec:AcceptanceCriterion ;
+    spec:text "Event log supports branch simulation (fork-and-replay)" ;
+    spec:expected "Can fork log, apply hypothetical events, discard without affecting main log" ;
+    spec:testMethod "Integration test: fork log, apply ops, discard, verify main log unchanged" ;
+    spec:gate "BranchSimulationGate" .
+
+# ============================================================================
+# USER STORY 3: BLAST RADIUS CONSTRAINTS
+# ============================================================================
+
+:us-003 a spec:UserStory ;
+    spec:title "Implement Blast Radius Limiting with Service/Region/Percentage Scopes" ;
+    spec:priority spec:P1 ;
+    spec:asA "platform reliability engineer" ;
+    spec:iWant "failures to be scoped and limited in blast radius" ;
+    spec:soThat "one service failure cannot cascade to the entire system" ;
+    spec:description """
+        Implement constraint system that limits failure scope across three orthogonal dimensions:
+
+        1. SERVICE SCOPE: Failures isolated to single service (no cross-service impact)
+        2. REGION SCOPE: Failures limited to single region (no cross-region cascade)
+        3. PERCENTAGE SCOPE: Changes applied to <= N% of affected items (canary by default)
+
+        Blast radius is minimum(service_limit, region_limit, percent_limit).
+        This prevents "one change breaks everything" scenarios.
+    """ ;
+    spec:hasAcceptanceCriterion :ac-003-01, :ac-003-02, :ac-003-03, :ac-003-04 .
+
+:ac-003-01 a spec:AcceptanceCriterion ;
+    spec:text "Service-scoped failures do not propagate to other services" ;
+    spec:expected "Service A failure has zero impact on Service B's state" ;
+    spec:testMethod "Integration test: fail Service A, verify Service B metrics/logs unchanged" ;
+    spec:gate "ServiceIsolationGate" .
+
+:ac-003-02 a spec:AcceptanceCriterion ;
+    spec:text "Region-scoped failures do not propagate to other regions" ;
+    spec:expected "Region US-EAST-1 failure has zero impact on Region US-WEST-2" ;
+    spec:testMethod "Multi-region chaos test: fail one region, verify other regions operational" ;
+    spec:gate "RegionIsolationGate" .
+
+:ac-003-03 a spec:AcceptanceCriterion ;
+    spec:text "Changes apply to <= blast-radius percentage of resources" ;
+    spec:expected "Default blast radius 5%, no single change affects >5% of items" ;
+    spec:testMethod "Deterministic test: apply change, count affected items, verify <= radius" ;
+    spec:gate "PercentageBlastRadiusGate" .
+
+:ac-003-04 a spec:AcceptanceCriterion ;
+    spec:text "Blast radius calculated as minimum across all dimensions" ;
+    spec:expected "If service_limit=10%, region_limit=20%, percent=5%, final=5%" ;
+    spec:testMethod "Unit test: verify MinimumStrategy correctly calculates minimum" ;
+    spec:gate "MultiDimensionalBlastRadiusGate" .
+
+# ============================================================================
+# USER STORY 4: INCIDENT RECOVERY & ROLLBACK
+# ============================================================================
+
+:us-004 a spec:UserStory ;
+    spec:title "Implement Incident Recovery with Automatic Rollback" ;
+    spec:priority spec:P1 ;
+    spec:asA "incident commander" ;
+    spec:iWant "to recover from incidents automatically using event rollback" ;
+    spec:soThat "MTTR (Mean Time To Recovery) is < 2 minutes for any failure" ;
+    spec:description """
+        Implement incident recovery system that:
+        1. Detects anomalies (metric spikes, error rate increases)
+        2. Identifies causal change from event log
+        3. Calculates rollback sequence (reverse topological order of events)
+        4. Executes rollback atomically
+        5. Verifies recovery (metrics return to baseline within tolerance)
+
+        Recovery must be fully deterministic and reversible.
+    """ ;
+    spec:hasAcceptanceCriterion :ac-004-01, :ac-004-02, :ac-004-03, :ac-004-04 .
+
+:ac-004-01 a spec:AcceptanceCriterion ;
+    spec:text "Anomaly detection identifies error rate spikes > 2x baseline" ;
+    spec:expected "Alert fires within 30 seconds of spike detection" ;
+    spec:testMethod "Synthetic spike injection test" ;
+    spec:gate "AnomalyDetectionGate" .
+
+:ac-004-02 a spec:AcceptanceCriterion ;
+    spec:text "Root cause analysis identifies culprit change from event log" ;
+    spec:expected "Correctly identifies which change caused anomaly in 100% of test cases" ;
+    spec:testMethod "Property test: inject anomaly, verify root cause identification" ;
+    spec:gate "RootCauseAnalysisGate" .
+
+:ac-004-03 a spec:AcceptanceCriterion ;
+    spec:text "Rollback executes atomically without intermediate states" ;
+    spec:expected "State transitions directly: (bad state) -> (good state), no intermediate" ;
+    spec:testMethod "Verification test: inspect audit log, verify no intermediate states" ;
+    spec:gate "AtomicRollbackGate" .
+
+:ac-004-04 a spec:AcceptanceCriterion ;
+    spec:text "Recovery verification shows metrics returning to baseline" ;
+    spec:expected "Error rate returns to <0.1% baseline within 10 seconds of rollback" ;
+    spec:testMethod "Integration test: introduce failure, rollback, verify metrics recovery" ;
+    spec:gate "MetricsRecoveryGate" .
+
+# ============================================================================
+# USER STORY 5: OPERATIONAL VERIFICATION & COMPLIANCE
+# ============================================================================
+
+:us-005 a spec:UserStory ;
+    spec:title "Operational Procedures & Compliance Audit Trail" ;
+    spec:priority spec:P2 ;
+    spec:asA "compliance officer" ;
+    spec:iWant "complete audit trail of all authority escalations and rollbacks" ;
+    spec:soThat "we pass SOC2 audits and can defend decisions in incident reviews" ;
+    spec:description """
+        Maintain audit trail of:
+        1. Authority level transitions (who escalated to what level, when, why)
+        2. Approval/rejection decisions (who approved which changes)
+        3. Rollback operations (when, what, by whom, reason)
+        4. Blast radius enforcement (which constraints were active)
+
+        Audit trail must be tamper-evident and queryable.
+    """ ;
+    spec:hasAcceptanceCriterion :ac-005-01, :ac-005-02, :ac-005-03 .
+
+:ac-005-01 a spec:AcceptanceCriterion ;
+    spec:text "Authority escalations are logged with timestamp, actor, level, reason" ;
+    spec:expected "Every level transition creates immutable audit entry" ;
+    spec:testMethod "Query audit log for escalations, verify completeness" ;
+    spec:gate "AuditTrailGate" .
+
+:ac-005-02 a spec:AcceptanceCriterion ;
+    spec:text "Approval decisions are linked to specific events" ;
+    spec:expected "Can query 'who approved change X', get answer with timestamp" ;
+    spec:testMethod "Audit log query test: find approval for specific change" ;
+    spec:gate "DecisionTraceabilityGate" .
+
+:ac-005-03 a spec:AcceptanceCriterion ;
+    spec:text "Rollback operations reference original event sequence" ;
+    spec:expected "Incident review can see exact changes made and exact rollback sequence" ;
+    spec:testMethod "Integration test: verify rollback audit entries link to original ops" ;
+    spec:gate "RollbackTraceabilityGate" .

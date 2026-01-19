@@ -1,30 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
-
-- [Type Mapping Reference](#type-mapping-reference)
-  - [Quick Reference Table](#quick-reference-table)
-  - [Semantic Types (Optional)](#semantic-types-optional)
-    - [Constraints](#constraints)
-    - [Relationships](#relationships)
-  - [Type Mapping Examples](#type-mapping-examples)
-    - [Example 1: Simple Entity](#example-1-simple-entity)
-    - [Example 2: Relationships](#example-2-relationships)
-    - [Example 3: Complex Types](#example-3-complex-types)
-  - [Null/Optional Handling](#nulloptional-handling)
-  - [Collection Types](#collection-types)
-  - [Validation Rules](#validation-rules)
-  - [Custom Type Mappings](#custom-type-mappings)
-  - [Common Patterns](#common-patterns)
-    - [Financial Values](#financial-values)
-    - [Timestamps](#timestamps)
-    - [Identifiers](#identifiers)
-    - [Enumerations](#enumerations)
-  - [Troubleshooting](#troubleshooting)
-  - [See Also](#see-also)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Type Mapping Reference
 
 Complete reference for RDF type mappings to all supported languages.

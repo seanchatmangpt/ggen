@@ -1,0 +1,387 @@
+@prefix : <http://api.example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix api: <http://api.example.org/schema#> .
+
+# ============================================================================
+# Domain Ontology: E-commerce API
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Model Definitions
+# ----------------------------------------------------------------------------
+
+:User a api:Model ;
+    rdfs:label "User" ;
+    api:tableName "users" ;
+    api:routePrefix "/api/v1/users" ;
+    api:description "User account in the system" ;
+    api:hasField :User_id, :User_email, :User_username, :User_password, :User_created_at, :User_is_active ;
+    api:hasRelationship :User_orders ;
+    api:hasRoute :User_listRoute, :User_getRoute, :User_createRoute, :User_updateRoute, :User_deleteRoute .
+
+:Product a api:Model ;
+    rdfs:label "Product" ;
+    api:tableName "products" ;
+    api:routePrefix "/api/v1/products" ;
+    api:description "Product available for purchase" ;
+    api:hasField :Product_id, :Product_name, :Product_description, :Product_price, :Product_stock, :Product_category, :Product_created_at ;
+    api:hasRelationship :Product_orders ;
+    api:hasRoute :Product_listRoute, :Product_getRoute, :Product_createRoute, :Product_updateRoute, :Product_deleteRoute .
+
+:Order a api:Model ;
+    rdfs:label "Order" ;
+    api:tableName "orders" ;
+    api:routePrefix "/api/v1/orders" ;
+    api:description "Customer order" ;
+    api:hasField :Order_id, :Order_user_id, :Order_total, :Order_status, :Order_created_at ;
+    api:hasRelationship :Order_user, :Order_items ;
+    api:hasRoute :Order_listRoute, :Order_getRoute, :Order_createRoute, :Order_updateRoute .
+
+# ----------------------------------------------------------------------------
+# User Fields
+# ----------------------------------------------------------------------------
+
+:User_id a api:Field ;
+    rdfs:label "id" ;
+    api:fieldName "id" ;
+    api:dataType "UUID" ;
+    api:pythonType "str" ;
+    api:isPrimaryKey true ;
+    api:isRequired true ;
+    api:defaultValue "uuid4()" ;
+    api:description "Unique user identifier" .
+
+:User_email a api:Field ;
+    rdfs:label "email" ;
+    api:fieldName "email" ;
+    api:dataType "String" ;
+    api:pythonType "EmailStr" ;
+    api:isRequired true ;
+    api:isUnique true ;
+    api:maxLength 255 ;
+    api:validation "email" ;
+    api:description "User email address" .
+
+:User_username a api:Field ;
+    rdfs:label "username" ;
+    api:fieldName "username" ;
+    api:dataType "String" ;
+    api:pythonType "str" ;
+    api:isRequired true ;
+    api:isUnique true ;
+    api:minLength 3 ;
+    api:maxLength 50 ;
+    api:pattern "^[a-zA-Z0-9_-]+$" ;
+    api:description "User username" .
+
+:User_password a api:Field ;
+    rdfs:label "password" ;
+    api:fieldName "password" ;
+    api:dataType "String" ;
+    api:pythonType "str" ;
+    api:isRequired true ;
+    api:isSecret true ;
+    api:minLength 8 ;
+    api:description "User password (hashed)" .
+
+:User_created_at a api:Field ;
+    rdfs:label "created_at" ;
+    api:fieldName "created_at" ;
+    api:dataType "DateTime" ;
+    api:pythonType "datetime" ;
+    api:isRequired true ;
+    api:defaultValue "datetime.now()" ;
+    api:description "Account creation timestamp" .
+
+:User_is_active a api:Field ;
+    rdfs:label "is_active" ;
+    api:fieldName "is_active" ;
+    api:dataType "Boolean" ;
+    api:pythonType "bool" ;
+    api:isRequired true ;
+    api:defaultValue "True" ;
+    api:description "Whether user account is active" .
+
+# ----------------------------------------------------------------------------
+# Product Fields
+# ----------------------------------------------------------------------------
+
+:Product_id a api:Field ;
+    rdfs:label "id" ;
+    api:fieldName "id" ;
+    api:dataType "UUID" ;
+    api:pythonType "str" ;
+    api:isPrimaryKey true ;
+    api:isRequired true ;
+    api:defaultValue "uuid4()" ;
+    api:description "Unique product identifier" .
+
+:Product_name a api:Field ;
+    rdfs:label "name" ;
+    api:fieldName "name" ;
+    api:dataType "String" ;
+    api:pythonType "str" ;
+    api:isRequired true ;
+    api:minLength 1 ;
+    api:maxLength 200 ;
+    api:description "Product name" .
+
+:Product_description a api:Field ;
+    rdfs:label "description" ;
+    api:fieldName "description" ;
+    api:dataType "Text" ;
+    api:pythonType "str" ;
+    api:isRequired false ;
+    api:maxLength 2000 ;
+    api:description "Product description" .
+
+:Product_price a api:Field ;
+    rdfs:label "price" ;
+    api:fieldName "price" ;
+    api:dataType "Decimal" ;
+    api:pythonType "Decimal" ;
+    api:isRequired true ;
+    api:minValue "0.01" ;
+    api:maxValue "999999.99" ;
+    api:decimalPlaces 2 ;
+    api:description "Product price" .
+
+:Product_stock a api:Field ;
+    rdfs:label "stock" ;
+    api:fieldName "stock" ;
+    api:dataType "Integer" ;
+    api:pythonType "int" ;
+    api:isRequired true ;
+    api:defaultValue "0" ;
+    api:minValue "0" ;
+    api:description "Available stock quantity" .
+
+:Product_category a api:Field ;
+    rdfs:label "category" ;
+    api:fieldName "category" ;
+    api:dataType "String" ;
+    api:pythonType "str" ;
+    api:isRequired true ;
+    api:maxLength 100 ;
+    api:enumValues ("electronics", "clothing", "books", "food", "other") ;
+    api:description "Product category" .
+
+:Product_created_at a api:Field ;
+    rdfs:label "created_at" ;
+    api:fieldName "created_at" ;
+    api:dataType "DateTime" ;
+    api:pythonType "datetime" ;
+    api:isRequired true ;
+    api:defaultValue "datetime.now()" ;
+    api:description "Product creation timestamp" .
+
+# ----------------------------------------------------------------------------
+# Order Fields
+# ----------------------------------------------------------------------------
+
+:Order_id a api:Field ;
+    rdfs:label "id" ;
+    api:fieldName "id" ;
+    api:dataType "UUID" ;
+    api:pythonType "str" ;
+    api:isPrimaryKey true ;
+    api:isRequired true ;
+    api:defaultValue "uuid4()" ;
+    api:description "Unique order identifier" .
+
+:Order_user_id a api:Field ;
+    rdfs:label "user_id" ;
+    api:fieldName "user_id" ;
+    api:dataType "UUID" ;
+    api:pythonType "str" ;
+    api:isRequired true ;
+    api:isForeignKey true ;
+    api:references :User ;
+    api:description "User who placed the order" .
+
+:Order_total a api:Field ;
+    rdfs:label "total" ;
+    api:fieldName "total" ;
+    api:dataType "Decimal" ;
+    api:pythonType "Decimal" ;
+    api:isRequired true ;
+    api:minValue "0.01" ;
+    api:decimalPlaces 2 ;
+    api:description "Order total amount" .
+
+:Order_status a api:Field ;
+    rdfs:label "status" ;
+    api:fieldName "status" ;
+    api:dataType "String" ;
+    api:pythonType "str" ;
+    api:isRequired true ;
+    api:defaultValue "pending" ;
+    api:enumValues ("pending", "processing", "shipped", "delivered", "cancelled") ;
+    api:description "Order status" .
+
+:Order_created_at a api:Field ;
+    rdfs:label "created_at" ;
+    api:fieldName "created_at" ;
+    api:dataType "DateTime" ;
+    api:pythonType "datetime" ;
+    api:isRequired true ;
+    api:defaultValue "datetime.now()" ;
+    api:description "Order creation timestamp" .
+
+# ----------------------------------------------------------------------------
+# Relationships
+# ----------------------------------------------------------------------------
+
+:User_orders a api:Relationship ;
+    rdfs:label "orders" ;
+    api:relationshipName "orders" ;
+    api:relationType "oneToMany" ;
+    api:targetModel :Order ;
+    api:foreignKey "user_id" ;
+    api:description "Orders placed by this user" .
+
+:Order_user a api:Relationship ;
+    rdfs:label "user" ;
+    api:relationshipName "user" ;
+    api:relationType "manyToOne" ;
+    api:targetModel :User ;
+    api:foreignKey "user_id" ;
+    api:description "User who placed this order" .
+
+:Order_items a api:Relationship ;
+    rdfs:label "items" ;
+    api:relationshipName "items" ;
+    api:relationType "manyToMany" ;
+    api:targetModel :Product ;
+    api:joinTable "order_items" ;
+    api:description "Products in this order" .
+
+:Product_orders a api:Relationship ;
+    rdfs:label "orders" ;
+    api:relationshipName "orders" ;
+    api:relationType "manyToMany" ;
+    api:targetModel :Order ;
+    api:joinTable "order_items" ;
+    api:description "Orders containing this product" .
+
+# ----------------------------------------------------------------------------
+# Routes
+# ----------------------------------------------------------------------------
+
+:User_listRoute a api:Route ;
+    api:httpMethod "GET" ;
+    api:path "/" ;
+    api:operationId "list_users" ;
+    api:summary "List all users" ;
+    api:description "Retrieve a paginated list of users" ;
+    api:requiresAuth false ;
+    api:pagination true .
+
+:User_getRoute a api:Route ;
+    api:httpMethod "GET" ;
+    api:path "/{id}" ;
+    api:operationId "get_user" ;
+    api:summary "Get user by ID" ;
+    api:description "Retrieve a single user by their ID" ;
+    api:requiresAuth false .
+
+:User_createRoute a api:Route ;
+    api:httpMethod "POST" ;
+    api:path "/" ;
+    api:operationId "create_user" ;
+    api:summary "Create new user" ;
+    api:description "Create a new user account" ;
+    api:requiresAuth false .
+
+:User_updateRoute a api:Route ;
+    api:httpMethod "PUT" ;
+    api:path "/{id}" ;
+    api:operationId "update_user" ;
+    api:summary "Update user" ;
+    api:description "Update an existing user" ;
+    api:requiresAuth true .
+
+:User_deleteRoute a api:Route ;
+    api:httpMethod "DELETE" ;
+    api:path "/{id}" ;
+    api:operationId "delete_user" ;
+    api:summary "Delete user" ;
+    api:description "Delete a user account" ;
+    api:requiresAuth true .
+
+:Product_listRoute a api:Route ;
+    api:httpMethod "GET" ;
+    api:path "/" ;
+    api:operationId "list_products" ;
+    api:summary "List all products" ;
+    api:description "Retrieve a paginated list of products" ;
+    api:requiresAuth false ;
+    api:pagination true .
+
+:Product_getRoute a api:Route ;
+    api:httpMethod "GET" ;
+    api:path "/{id}" ;
+    api:operationId "get_product" ;
+    api:summary "Get product by ID" ;
+    api:description "Retrieve a single product by its ID" ;
+    api:requiresAuth false .
+
+:Product_createRoute a api:Route ;
+    api:httpMethod "POST" ;
+    api:path "/" ;
+    api:operationId "create_product" ;
+    api:summary "Create new product" ;
+    api:description "Create a new product" ;
+    api:requiresAuth true .
+
+:Product_updateRoute a api:Route ;
+    api:httpMethod "PUT" ;
+    api:path "/{id}" ;
+    api:operationId "update_product" ;
+    api:summary "Update product" ;
+    api:description "Update an existing product" ;
+    api:requiresAuth true .
+
+:Product_deleteRoute a api:Route ;
+    api:httpMethod "DELETE" ;
+    api:path "/{id}" ;
+    api:operationId "delete_product" ;
+    api:summary "Delete product" ;
+    api:description "Delete a product" ;
+    api:requiresAuth true .
+
+:Order_listRoute a api:Route ;
+    api:httpMethod "GET" ;
+    api:path "/" ;
+    api:operationId "list_orders" ;
+    api:summary "List all orders" ;
+    api:description "Retrieve a paginated list of orders" ;
+    api:requiresAuth true ;
+    api:pagination true .
+
+:Order_getRoute a api:Route ;
+    api:httpMethod "GET" ;
+    api:path "/{id}" ;
+    api:operationId "get_order" ;
+    api:summary "Get order by ID" ;
+    api:description "Retrieve a single order by its ID" ;
+    api:requiresAuth true .
+
+:Order_createRoute a api:Route ;
+    api:httpMethod "POST" ;
+    api:path "/" ;
+    api:operationId "create_order" ;
+    api:summary "Create new order" ;
+    api:description "Create a new order" ;
+    api:requiresAuth true .
+
+:Order_updateRoute a api:Route ;
+    api:httpMethod "PUT" ;
+    api:path "/{id}" ;
+    api:operationId "update_order" ;
+    api:summary "Update order" ;
+    api:description "Update order status" ;
+    api:requiresAuth true .
