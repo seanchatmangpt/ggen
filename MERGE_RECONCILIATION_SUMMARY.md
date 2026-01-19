@@ -14,9 +14,9 @@ The reconciliation of `origin/main` into `claude/finops-fabric-erlang-wEXek` has
 git merge origin/main                    # Initiated merge
 # [CONFLICT in Cargo.toml workspace members and workspace dependencies]
 # Resolved conflicts by:
-# 1. Keeping HEAD's ggen-disney crates (marketplace, test-audit, test-opt, api, auth, payments, saas)
-# 2. Adding origin/main's ggen-dod crate
-# 3. Keeping ggen-folk-strategy + KNHK systems (ETL, orchestrator, etc.)
+# 1. Keeping HEAD's extended crates (marketplace, test-audit, test-opt, api, auth, payments, saas)
+# 2. Adding origin/main's domain-driven design crate
+# 3. Keeping folk-strategy quantification + KNHK systems (ETL, orchestrator, etc.)
 git add Cargo.toml
 git commit -m "merge: Reconcile origin/main..."
 git push -u origin claude/finops-fabric-erlang-wEXek
@@ -44,7 +44,7 @@ The merge resulted in a **mixed version workspace**:
 - `ggen-dod` (3.3.0)
 - `ggen-dspy` (3.3.0)
 
-### v5.1.0 Crates (from ggen-disney branch)
+### v5.1.0 Crates (from finops-fabric branch)
 - `ggen-marketplace` (5.1.0)
 - `ggen-test-audit` (5.1.0)
 - `ggen-test-opt` (5.1.0)
@@ -91,7 +91,7 @@ with a previous package which links to `sqlite3` as well
 - Ensure all tests pass at v5.1.0
 
 **Option 2: Standardize to v3.3.0**
-- Revert ggen-disney extended crates to v3.3.0
+- Revert extended crates to v3.3.0
 - Lose separation between base and extended functionality
 - Simpler but removes version flexibility
 
@@ -102,10 +102,10 @@ with a previous package which links to `sqlite3` as well
 
 ### Recommendation
 **Option 1** (v5.1.0 standardization) is cleanest because:
-- Reflects the full ggen-disney architecture
+- Reflects the full FinOps Fabric architecture
 - Folk strategy quantification (v5.1.0 feature) requires unified versioning
 - KNHK systems integration requires consistent base crates
-- Cleaner for market launch (single v5.1.0 version)
+- Cleaner for product launch (single v5.1.0 version)
 
 ---
 
@@ -153,7 +153,7 @@ Recent commits:
 
 - `Cargo.toml` (workspace members, workspace dependencies)
 - `.ggen-receipts/` (generation manifests from previous work)
-- `.specify/` (RDF specifications from ggen-disney)
+- `.specify/` (RDF specifications for FinOps Fabric)
 - `crates/ggen-folk-strategy/` (new crate)
 - KNHK systems crates (new integrations)
 
