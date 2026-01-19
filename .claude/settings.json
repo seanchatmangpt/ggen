@@ -35,6 +35,10 @@
     ]
   },
   "hooks": {
+    "SessionStart": [{"matcher": "", "hooks": [
+      {"type": "command", "command": "./.claude/hooks/session-start.sh", "timeout": 30},
+      {"type": "prompt", "prompt": "Session initialized. ggen v6.0.0. Read CLAUDE.md. Rules: cargo make ONLY, EPIC 9 for non-trivial, receipts not narratives."}
+    ]}],
     "PreToolUse": [
       {
         "matcher": "Bash",
@@ -111,5 +115,55 @@
   "statusLine": {
     "type": "command",
     "command": ".claude/statusline-command.sh"
+    "Stop": [{"matcher": "", "hooks": [{"type": "prompt", "prompt": "Before stop: tests pass? lint clean? uncommitted? receipts?"}]}]
+  },
+  "mcp_servers": {
+    "enabled": false,
+    "servers": {
+      "github": {"command": "mcp-server-github", "env": {"GITHUB_TOKEN": "${GITHUB_TOKEN}"}, "disabled": true},
+      "filesystem": {"command": "mcp-server-filesystem", "args": ["/home/user/ggen"], "disabled": true},
+      "sparql": {"command": "mcp-server-sparql", "args": ["http://localhost:7878/query"], "disabled": true}
+    }
+  },
+  "environment": {
+    "env": {"RUST_BACKTRACE": "1", "RUST_LOG": "info", "CARGO_TERM_COLOR": "always", "RUSTFLAGS": "-D warnings", "GGEN_VERSION": "6.0.0"}
+  },
+  "tools_and_model": {
+    "model": "claude-sonnet-4-5-20250929",
+    "output_style": "structured",
+    "temperature": 0.0,
+    "tool_preferences": {"prefer_parallel_calls": true, "max_parallel_tools": 10}
+  },
+  "epic9": {
+    "enabled": true,
+    "default_agents": 10,
+    "mandatory_phases": ["fan_out", "independent_construction", "collision_detection", "convergence", "refactoring", "closure"],
+    "speedup_target": "2.8x-4.4x"
+  },
+  "slo_targets": {
+    "cargo_make_check": "≤5s",
+    "cargo_make_test": "≤30s",
+    "cargo_make_lint": "≤60s",
+    "first_build": "≤15s",
+    "incremental_build": "≤2s"
+  },
+  "cargo_make_protocol": {
+    "rule": "cargo make [target] ONLY",
+    "prohibited": ["cargo check", "cargo test", "cargo build", "cargo clippy"],
+    "allowed": ["cargo make check", "cargo make test", "cargo make lint", "cargo make pre-commit"]
+  },
+  "andon_signals": {
+    "RED": {"triggers": ["error[E", "FAILED", "panicked"], "action": "STOP immediately"},
+    "YELLOW": {"triggers": ["warning:", "clippy::", "TODO"], "action": "Investigate"},
+    "GREEN": {"triggers": ["test result: ok", "0 violations"], "action": "Continue"}
+  },
+  "project_metadata": {
+    "name": "ggen",
+    "version": "6.0.0",
+    "description": "Ontology-driven code generation: RDF → reproducible code",
+    "rust_version": "1.91.1",
+    "msrv": "1.75+",
+    "workspace_crates": 27,
+    "tech_stack": ["Rust 1.91.1", "Tokio 1.47", "Oxigraph 0.5.1", "Tera 1.20", "genai 0.4", "chicago-tdd-tools 1.4.0"]
   }
 }
