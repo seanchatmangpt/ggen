@@ -1,0 +1,895 @@
+@prefix chatman: <https://chatmangpt.io/ontology/> .
+@prefix legal: <https://chatmangpt.io/ontology/legal/> .
+@prefix it: <https://chatmangpt.io/ontology/it/> .
+@prefix security: <https://chatmangpt.io/ontology/security/> .
+@prefix cloud: <https://chatmangpt.io/ontology/cloud/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# ============================================================================
+# ChatmanGPT Ontology Registry: Industry Standard Integration
+# ============================================================================
+# This ontology defines how ChatmanGPT unifies industry-standard ontologies
+# (Legal, IT, Security, Cloud) and maps them to provider operations
+# (AWS, GCP, Azure).
+#
+# Pattern: Enterprise Ontology (O) references standard ontologies →
+#          ChatmanGPT unification layer → Provider Operations (AWS/GCP/Azure)
+# ============================================================================
+
+# ============================================================================
+# PART 1: LEGAL ONTOLOGY (LKIF-based)
+# ============================================================================
+
+chatman:LegalOntologyProfile a owl:Ontology ;
+  rdfs:label "ChatmanGPT Legal Ontology Profile" ;
+  rdfs:comment "Unified legal framework for compliance, contracts, regulations" ;
+  dcterms:references [
+    rdfs:label "LKIF (Legal Knowledge Interchange Format)" ;
+    dcat:downloadURL "https://www.estrellaproject.org/lkif-core/" ;
+    dcterms:description "W3C standard for legal knowledge representation"
+  ] ;
+  dcterms:references [
+    rdfs:label "NIST Cybersecurity Framework Ontology" ;
+    dcat:downloadURL "https://csrc.nist.gov/publications/fips/fips-200/" ;
+    dcterms:description "FIPS 200 security categories mapped to ontology"
+  ] ;
+  dcterms:references [
+    rdfs:label "ISO/IEC 27001 Ontology" ;
+    dcat:downloadURL "https://www.iso.org/standard/27001" ;
+    dcterms:description "Information security management system requirements"
+  ] .
+
+legal:Policy a owl:Class ;
+  rdfs:label "Legal Policy" ;
+  rdfs:comment "Enforceable rules with legal consequences" ;
+  owl:equivalentClass lkif:Norm ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty legal:hasJurisdiction ;
+    owl:someValuesFrom legal:Jurisdiction
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty legal:hasEffectiveDate ;
+    owl:someValuesFrom xsd:dateTime
+  ] .
+
+legal:Jurisdiction a owl:Class ;
+  rdfs:label "Legal Jurisdiction" ;
+  skos:example "HIPAA (Healthcare)", "SOX (Financial)", "GDPR (EU)" ;
+  owl:oneOf (
+    legal:HIPAA
+    legal:SOX
+    legal:GDPR
+    legal:CCPA
+    legal:PCI_DSS
+    legal:FedRAMP
+    legal:ISO27001
+  ) .
+
+legal:ComplianceRequirement a owl:Class ;
+  rdfs:label "Compliance Requirement" ;
+  rdfs:comment "Measurable compliance obligation" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty legal:auditable ;
+    owl:hasValue true
+  ] .
+
+legal:DataClassification a owl:Class ;
+  rdfs:label "Data Classification Level" ;
+  owl:oneOf (
+    legal:Public
+    legal:Internal
+    legal:Confidential
+    legal:Restricted
+    legal:PII
+    legal:PHI
+    legal:PCI
+  ) .
+
+legal:ContractObligation a owl:Class ;
+  rdfs:label "Contractual Obligation" ;
+  rdfs:comment "Service level agreement, warranty, liability clause" ;
+  rdfs:subClassOf legal:ComplianceRequirement ;
+  owl:equivalentClass lkif:ContractualObligation .
+
+legal:AuditRequirement a owl:Class ;
+  rdfs:label "Audit Requirement" ;
+  rdfs:subClassOf legal:ComplianceRequirement ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty legal:auditFrequency ;
+    owl:someValuesFrom xsd:duration
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty legal:evidenceRequired ;
+    owl:someValuesFrom legal:AuditEvidence
+  ] .
+
+legal:AuditEvidence a owl:Class ;
+  rdfs:label "Audit Evidence" ;
+  rdfs:comment "Cryptographic proof, logs, receipts that demonstrate compliance" ;
+  owl:equivalentClass prov:Entity .
+
+# ============================================================================
+# PART 2: IT/SYSTEMS ONTOLOGY (CODA-based)
+# ============================================================================
+
+chatman:ITOntologyProfile a owl:Ontology ;
+  rdfs:label "ChatmanGPT IT/Systems Ontology Profile" ;
+  rdfs:comment "Unified IT framework for systems, services, configurations" ;
+  dcterms:references [
+    rdfs:label "CODA (Configuration Description Architecture)" ;
+    dcat:downloadURL "https://www.w3.org/2011/http" ;
+    dcterms:description "Configuration management ontology"
+  ] ;
+  dcterms:references [
+    rdfs:label "QUDT (Quantities, Units, Dimensions)" ;
+    dcat:downloadURL "http://qudt.org/" ;
+    dcterms:description "Measurement and unit ontology"
+  ] ;
+  dcterms:references [
+    rdfs:label "FOAF (Friend of a Friend)" ;
+    dcat:downloadURL "http://xmlns.com/foaf/0.1/" ;
+    dcterms:description "People, organizations, identity graph"
+  ] .
+
+it:Service a owl:Class ;
+  rdfs:label "IT Service" ;
+  rdfs:comment "Microservice, API, infrastructure service" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty it:hasOwner ;
+    owl:someValuesFrom it:Team
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty it:hasSLA ;
+    owl:someValuesFrom it:ServiceLevelAgreement
+  ] .
+
+it:ServiceLevelAgreement a owl:Class ;
+  rdfs:label "Service Level Agreement" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty it:availabilityTarget ;
+    owl:hasValue "99.99%" ;
+    qudt:unit "PERCENT"
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty it:responseTimeTarget ;
+    owl:hasValue "500" ;
+    qudt:unit "MILLISECOND"
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty it:errorRateTarget ;
+    owl:hasValue "0.1" ;
+    qudt:unit "PERCENT"
+  ] .
+
+it:Configuration a owl:Class ;
+  rdfs:label "IT Configuration" ;
+  rdfs:comment "System state, deployment configuration, resource allocation" ;
+  owl:equivalentClass coda:Configuration ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty it:version ;
+    owl:someValuesFrom xsd:string
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty it:versionControl ;
+    owl:someValuesFrom it:VCS
+  ] .
+
+it:VCS a owl:Class ;
+  rdfs:label "Version Control System" ;
+  owl:oneOf (it:Git it:SVN it:Mercurial) .
+
+it:Deployment a owl:Class ;
+  rdfs:label "Deployment" ;
+  rdfs:comment "Moving configuration to production" ;
+  owl:equivalentClass prov:Activity ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty it:environment ;
+    owl:someValuesFrom (it:Dev it:Staging it:Production)
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty it:canRollback ;
+    owl:hasValue true
+  ] .
+
+it:Team a owl:Class ;
+  rdfs:label "IT Team" ;
+  owl:equivalentClass foaf:Group ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty foaf:member ;
+    owl:someValuesFrom foaf:Person
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty it:hasSkills ;
+    owl:someValuesFrom it:Skill
+  ] .
+
+it:Skill a owl:Class ;
+  rdfs:label "Team Skill" ;
+  owl:oneOf (
+    it:Kubernetes
+    it:Terraform
+    it:Rust
+    it:Python
+    it:CloudArchitecture
+    it:SecurityEngineering
+    it:DevOps
+  ) .
+
+# ============================================================================
+# PART 3: SECURITY ONTOLOGY (STIX/CVSS-based)
+# ============================================================================
+
+chatman:SecurityOntologyProfile a owl:Ontology ;
+  rdfs:label "ChatmanGPT Security Ontology Profile" ;
+  rdfs:comment "Unified security framework for threats, vulnerabilities, controls" ;
+  dcterms:references [
+    rdfs:label "STIX 2.1 (Structured Threat Information eXpression)" ;
+    dcat:downloadURL "https://oasis-open.github.io/cti-documentation/stix/intro.html" ;
+    dcterms:description "Threat information standardization"
+  ] ;
+  dcterms:references [
+    rdfs:label "CVSS 3.1 (Common Vulnerability Scoring System)" ;
+    dcat:downloadURL "https://www.first.org/cvss/" ;
+    dcterms:description "Vulnerability severity scoring"
+  ] ;
+  dcterms:references [
+    rdfs:label "NIST CSF (Cybersecurity Framework)" ;
+    dcat:downloadURL "https://www.nist.gov/cyberframework" ;
+    dcterms:description "Security management framework"
+  ] .
+
+security:Threat a owl:Class ;
+  rdfs:label "Security Threat" ;
+  owl:equivalentClass stix:Threat ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty security:severity ;
+    owl:someValuesFrom (security:Critical security:High security:Medium security:Low)
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty security:likelihood ;
+    owl:someValuesFrom xsd:float
+  ] .
+
+security:Vulnerability a owl:Class ;
+  rdfs:label "Security Vulnerability" ;
+  owl:equivalentClass stix:Vulnerability ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty security:cveId ;
+    owl:someValuesFrom xsd:string
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty security:cvssScore ;
+    owl:someValuesFrom [
+      a owl:Restriction ;
+      owl:onProperty rdf:value ;
+      owl:minInclusive "0.0" ;
+      owl:maxInclusive "10.0" ;
+      qudt:unit "CVSS_SCORE"
+    ]
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty security:mitigation ;
+    owl:someValuesFrom security:Mitigation
+  ] .
+
+security:Mitigation a owl:Class ;
+  rdfs:label "Security Mitigation" ;
+  rdfs:comment "Control to reduce risk" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty security:mitigates ;
+    owl:someValuesFrom security:Risk
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty security:residualRisk ;
+    owl:someValuesFrom xsd:float
+  ] .
+
+security:Risk a owl:Class ;
+  rdfs:label "Security Risk" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty security:threat ;
+    owl:someValuesFrom security:Threat
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty security:vulnerability ;
+    owl:someValuesFrom security:Vulnerability
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty security:impactIfExploited ;
+    owl:someValuesFrom (
+      security:DataBreach
+      security:ServiceDisruption
+      security:FinancialLoss
+      security:ReputationDamage
+    )
+  ] .
+
+security:AccessControl a owl:Class ;
+  rdfs:label "Access Control Policy" ;
+  rdfs:comment "Authentication, authorization, encryption" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty security:authenticationMethod ;
+    owl:someValuesFrom (
+      security:MFA
+      security:OAuth2
+      security:SAML
+      security:Kerberos
+    )
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty security:encryptionAlgorithm ;
+    owl:someValuesFrom (
+      security:AES256
+      security:RSA4096
+      security:ChaCha20
+    )
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty security:keyManagement ;
+    owl:someValuesFrom security:KeyManagementService
+  ] .
+
+security:Audit a owl:Class ;
+  rdfs:label "Security Audit" ;
+  owl:equivalentClass prov:Activity ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty security:auditsFor ;
+    owl:someValuesFrom security:Compliance
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty security:findings ;
+    owl:someValuesFrom security:Finding
+  ] .
+
+security:Finding a owl:Class ;
+  rdfs:label "Security Finding" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty security:severity ;
+    owl:someValuesFrom (security:Critical security:High security:Medium security:Low)
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty security:remediationDeadline ;
+    owl:someValuesFrom xsd:dateTime
+  ] .
+
+# ============================================================================
+# PART 4: CLOUD ONTOLOGY (TOSCA/CloudML-based)
+# ============================================================================
+
+chatman:CloudOntologyProfile a owl:Ontology ;
+  rdfs:label "ChatmanGPT Cloud Ontology Profile" ;
+  rdfs:comment "Unified cloud framework for infrastructure, services, operations" ;
+  dcterms:references [
+    rdfs:label "TOSCA (Topology and Orchestration Specification for Cloud Applications)" ;
+    dcat:downloadURL "https://www.oasis-open.org/committees/tosca/" ;
+    dcterms:description "Cloud application topology standard"
+  ] ;
+  dcterms:references [
+    rdfs:label "CloudML (Cloud Modeling Language)" ;
+    dcat:downloadURL "https://github.com/jclaudiolam/CloudML" ;
+    dcterms:description "Multi-cloud modeling"
+  ] ;
+  dcterms:references [
+    rdfs:label "OASIS Cloud Computing Ontology" ;
+    dcat:downloadURL "https://www.oasis-open.org/committees/cloud/" ;
+    dcterms:description "Cloud service terminology"
+  ] .
+
+cloud:CloudProvider a owl:Class ;
+  rdfs:label "Cloud Provider" ;
+  owl:oneOf (cloud:AWS cloud:GCP cloud:Azure cloud:Alibaba) ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cloud:region ;
+    owl:someValuesFrom cloud:Region
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cloud:availabilityZone ;
+    owl:someValuesFrom cloud:AvailabilityZone
+  ] .
+
+cloud:Region a owl:Class ;
+  rdfs:label "Cloud Region" ;
+  rdfs:comment "Geographic region for data residency compliance" ;
+  skos:example "us-east-1 (AWS)", "us-central1 (GCP)", "eastus (Azure)" .
+
+cloud:AvailabilityZone a owl:Class ;
+  rdfs:label "Availability Zone" ;
+  rdfs:comment "Isolated infrastructure with independent power/cooling" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cloud:inRegion ;
+    owl:someValuesFrom cloud:Region
+  ] .
+
+cloud:ComputeService a owl:Class ;
+  rdfs:label "Compute Service" ;
+  owl:unionOf (cloud:VirtualMachine cloud:Container cloud:Serverless) ;
+  owl:equivalentClass tosca:Compute ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cloud:cpu ;
+    owl:someValuesFrom [
+      a owl:Restriction ;
+      owl:onProperty rdf:value ;
+      owl:minInclusive "0.5" ;
+      qudt:unit "CPU_CORES"
+    ]
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cloud:memory ;
+    owl:someValuesFrom [
+      a owl:Restriction ;
+      owl:onProperty rdf:value ;
+      qudt:unit "GIGABYTE"
+    ]
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cloud:pricing ;
+    owl:someValuesFrom cloud:PricingModel
+  ] .
+
+cloud:VirtualMachine a owl:Class ;
+  rdfs:label "Virtual Machine" ;
+  skos:example "EC2 (AWS)", "Compute Engine (GCP)", "Virtual Machines (Azure)" ;
+  rdfs:subClassOf cloud:ComputeService .
+
+cloud:Container a owl:Class ;
+  rdfs:label "Container Service" ;
+  skos:example "ECS (AWS)", "GKE (GCP)", "AKS (Azure)" ;
+  rdfs:subClassOf cloud:ComputeService ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cloud:containerOrchestrator ;
+    owl:someValuesFrom (cloud:Kubernetes cloud:Docker cloud:Nomad)
+  ] .
+
+cloud:Serverless a owl:Class ;
+  rdfs:label "Serverless/FaaS Service" ;
+  skos:example "Lambda (AWS)", "Cloud Functions (GCP)", "Functions (Azure)" ;
+  rdfs:subClassOf cloud:ComputeService ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cloud:maxMemory ;
+    owl:someValuesFrom [
+      a owl:Restriction ;
+      owl:onProperty rdf:value ;
+      qudt:unit "GIGABYTE"
+    ]
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cloud:maxTimeout ;
+    owl:someValuesFrom [
+      a owl:Restriction ;
+      owl:onProperty rdf:value ;
+      qudt:unit "SECOND"
+    ]
+  ] .
+
+cloud:Storage a owl:Class ;
+  rdfs:label "Cloud Storage Service" ;
+  owl:unionOf (cloud:ObjectStorage cloud:BlockStorage cloud:FileStorage cloud:Database) ;
+  owl:equivalentClass tosca:BlockStorage ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cloud:encrypted ;
+    owl:hasValue true
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cloud:dataResidency ;
+    owl:someValuesFrom cloud:Region
+  ] .
+
+cloud:ObjectStorage a owl:Class ;
+  rdfs:label "Object Storage" ;
+  skos:example "S3 (AWS)", "Cloud Storage (GCP)", "Blob Storage (Azure)" ;
+  rdfs:subClassOf cloud:Storage .
+
+cloud:Database a owl:Class ;
+  rdfs:label "Database Service" ;
+  skos:example "RDS (AWS)", "Cloud SQL (GCP)", "SQL Database (Azure)" ;
+  rdfs:subClassOf cloud:Storage ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cloud:backupRetention ;
+    owl:someValuesFrom xsd:duration
+  ] .
+
+cloud:Network a owl:Class ;
+  rdfs:label "Network Service" ;
+  owl:unionOf (cloud:VPC cloud:LoadBalancer cloud:CDN cloud:DNS) ;
+  owl:equivalentClass tosca:network:Root ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cloud:cidrBlock ;
+    owl:someValuesFrom xsd:string
+  ] .
+
+cloud:PricingModel a owl:Class ;
+  rdfs:label "Cloud Pricing Model" ;
+  owl:oneOf (cloud:OnDemand cloud:Reserved cloud:Spot cloud:Commitment) ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cloud:costPerUnit ;
+    owl:someValuesFrom xsd:decimal
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cloud:currency ;
+    owl:hasValue "USD"
+  ] .
+
+cloud:Topology a owl:Class ;
+  rdfs:label "Cloud Application Topology" ;
+  owl:equivalentClass tosca:Topology ;
+  rdfs:comment "Multi-tier architecture: compute + storage + network + security" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cloud:hasCompute ;
+    owl:someValuesFrom cloud:ComputeService
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cloud:hasStorage ;
+    owl:someValuesFrom cloud:Storage
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cloud:hasNetwork ;
+    owl:someValuesFrom cloud:Network
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty cloud:hasSecurity ;
+    owl:someValuesFrom security:AccessControl
+  ] .
+
+# ============================================================================
+# PART 5: UNIFIED INTEGRATION LAYER
+# ============================================================================
+
+chatman:UnifiedOntologyIntegration a owl:Ontology ;
+  rdfs:label "ChatmanGPT Unified Ontology Integration" ;
+  rdfs:comment "Maps enterprise ontology to legal, IT, security, cloud domains" .
+
+chatman:EnterpriseDomainMapping a owl:Class ;
+  rdfs:label "Enterprise Domain Mapping" ;
+  rdfs:comment "Links enterprise entities to standardized ontologies" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty chatman:mapsEntityType ;
+    owl:someValuesFrom (legal:Policy it:Service security:AccessControl cloud:ComputeService)
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty chatman:mapsPolicyTo ;
+    owl:someValuesFrom (legal:ComplianceRequirement legal:DataClassification legal:AuditRequirement)
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty chatman:mapsServiceTo ;
+    owl:someValuesFrom (it:ServiceLevelAgreement it:Deployment it:Configuration)
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty chatman:mapsSecurityTo ;
+    owl:someValuesFrom (security:AccessControl security:Vulnerability security:Audit)
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty chatman:mapsCloudTo ;
+    owl:someValuesFrom (cloud:Topology cloud:ComputeService cloud:Storage)
+  ] .
+
+# ============================================================================
+# PART 6: PROVIDER FAN-OUT (AWS, GCP, Azure Mapping)
+# ============================================================================
+
+chatman:ProviderFanOut a owl:Ontology ;
+  rdfs:label "ChatmanGPT Provider Fan-Out Layer" ;
+  rdfs:comment "Maps unified ontologies to provider-specific operations" .
+
+# AWS Bindings
+chatman:AWSBinding a owl:Class ;
+  rdfs:label "AWS Service Binding" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty chatman:mapsCloudComputeToAWS ;
+    owl:someValuesFrom (
+      chatman:EC2
+      chatman:ECS
+      chatman:EKS
+      chatman:Lambda
+      chatman:AppRunner
+    )
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty chatman:mapsCloudStorageToAWS ;
+    owl:someValuesFrom (
+      chatman:S3
+      chatman:EBS
+      chatman:EFS
+      chatman:RDS
+      chatman:DynamoDB
+    )
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty chatman:mapsCloudNetworkToAWS ;
+    owl:someValuesFrom (
+      chatman:VPC
+      chatman:ALB
+      chatman:CloudFront
+      chatman:Route53
+    )
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty chatman:mapsSecurityToAWS ;
+    owl:someValuesFrom (
+      chatman:IAM
+      chatman:KMS
+      chatman:SecurityGroups
+      chatman:WAF
+      chatman:GuardDuty
+    )
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty chatman:mapsComplianceToAWS ;
+    owl:someValuesFrom (
+      chatman:CloudTrail
+      chatman:Config
+      chatman:Artifact
+      chatman:Audit
+    )
+  ] .
+
+# GCP Bindings
+chatman:GCPBinding a owl:Class ;
+  rdfs:label "GCP Service Binding" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty chatman:mapsCloudComputeToGCP ;
+    owl:someValuesFrom (
+      chatman:ComputeEngine
+      chatman:GKE
+      chatman:CloudRun
+      chatman:CloudFunctions
+      chatman:AppEngine
+    )
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty chatman:mapsCloudStorageToGCP ;
+    owl:someValuesFrom (
+      chatman:CloudStorage
+      chatman:PersistentDisk
+      chatman:CloudSQL
+      chatman:Firestore
+      chatman:BigTable
+    )
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty chatman:mapsCloudNetworkToGCP ;
+    owl:someValuesFrom (
+      chatman:VPC_GCP
+      chatman:CloudLoadBalancing
+      chatman:CDN_GCP
+      chatman:CloudDNS
+    )
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty chatman:mapsSecurityToGCP ;
+    owl:someValuesFrom (
+      chatman:IAM_GCP
+      chatman:CloudKMS
+      chatman:CloudArmor
+      chatman:SecurityCommand
+    )
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty chatman:mapsComplianceToGCP ;
+    owl:someValuesFrom (
+      chatman:CloudLogging
+      chatman:Monitoring
+      chatman:SecurityCenter
+    )
+  ] .
+
+# Azure Bindings
+chatman:AzureBinding a owl:Class ;
+  rdfs:label "Azure Service Binding" ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty chatman:mapsCloudComputeToAzure ;
+    owl:someValuesFrom (
+      chatman:VirtualMachines_Azure
+      chatman:AKS_Azure
+      chatman:ContainerInstances
+      chatman:Functions_Azure
+      chatman:AppService
+    )
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty chatman:mapsCloudStorageToAzure ;
+    owl:someValuesFrom (
+      chatman:BlobStorage
+      chatman:ManagedDisks
+      chatman:FileShare
+      chatman:SQLDatabase
+      chatman:CosmosDB
+    )
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty chatman:mapsCloudNetworkToAzure ;
+    owl:someValuesFrom (
+      chatman:VirtualNetwork
+      chatman:LoadBalancer_Azure
+      chatman:FrontDoor
+      chatman:DNS_Azure
+    )
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty chatman:mapsSecurityToAzure ;
+    owl:someValuesFrom (
+      chatman:RBAC
+      chatman:KeyVault
+      chatman:Azure_Firewall
+      chatman:DDoS
+    )
+  ] ;
+  rdfs:subClassOf [
+    a owl:Restriction ;
+    owl:onProperty chatman:mapsComplianceToAzure ;
+    owl:someValuesFrom (
+      chatman:AuditLogs
+      chatman:MonitoringService
+      chatman:SecurityCenter_Azure
+    )
+  ] .
+
+# ============================================================================
+# PART 7: EXAMPLE INTEGRATION PATTERNS
+# ============================================================================
+
+chatman:ExampleIntegrationPattern a chatman:EnterpriseDomainMapping ;
+  rdfs:label "Example: HIPAA-Compliant Application Deployment" ;
+  rdfs:comment "Shows how legal, IT, security, cloud ontologies work together" ;
+
+  # Legal Requirements
+  chatman:legalContext [
+    a legal:Policy ;
+    rdfs:label "HIPAA Privacy Rule" ;
+    legal:dataClassification legal:PHI ;
+    legal:jurisdiction legal:HIPAA ;
+    legal:auditRequirement [
+      a legal:AuditRequirement ;
+      legal:auditFrequency "P1Y" ;
+      legal:evidenceRequired legal:AccessLogs
+    ]
+  ] ;
+
+  # IT Configuration
+  chatman:itContext [
+    a it:Service ;
+    rdfs:label "Patient Records API" ;
+    it:hasSLA [
+      a it:ServiceLevelAgreement ;
+      it:availabilityTarget "99.99%" ;
+      it:responseTimeTarget 500 ;
+      it:errorRateTarget 0.1
+    ] ;
+    it:versionControl it:Git
+  ] ;
+
+  # Security Requirements
+  chatman:securityContext [
+    a security:AccessControl ;
+    rdfs:label "PHI Access Control" ;
+    security:authenticationMethod security:MFA ;
+    security:encryptionAlgorithm security:AES256 ;
+    security:keyManagement [
+      a security:KeyManagementService ;
+      rdfs:label "Centralized Key Management"
+    ]
+  ] ;
+
+  # Cloud Deployment
+  chatman:cloudContext [
+    a cloud:Topology ;
+    rdfs:label "HIPAA-Compliant Deployment" ;
+    cloud:hasCompute [
+      a cloud:Container ;
+      skos:example "ECS with HIPAA compliance"
+    ] ;
+    cloud:hasStorage [
+      a cloud:Database ;
+      cloud:backupRetention "P30D" ;
+      cloud:encrypted true ;
+      cloud:dataResidency cloud:USEast1
+    ] ;
+    cloud:hasSecurity [
+      a security:AccessControl ;
+      security:authenticationMethod security:MFA
+    ]
+  ] ;
+
+  # Provider Binding (AWS Example)
+  chatman:providerContext [
+    a chatman:AWSBinding ;
+    chatman:mapsCloudComputeToAWS chatman:ECS ;
+    chatman:mapsCloudStorageToAWS chatman:RDS ;
+    chatman:mapsSecurityToAWS chatman:KMS ;
+    chatman:mapsComplianceToAWS chatman:CloudTrail
+  ] .
+
+# ============================================================================
+# Summary
+# ============================================================================
+
+chatman:OntologyRegistryScope a rdfs:Resource ;
+  rdfs:label "ChatmanGPT Ontology Registry Scope" ;
+  rdfs:comment "Complete coverage of legal, IT, security, cloud domains" ;
+  rdf:value [
+    "Legal: Policies, compliance, contracts, audit requirements, data classification" ;
+    "IT: Services, SLAs, configurations, deployments, teams, skills" ;
+    "Security: Threats, vulnerabilities, mitigations, access controls, audits" ;
+    "Cloud: Compute, storage, network, pricing, topology" ;
+    "Integration: Maps enterprise ontology to all domains" ;
+    "Providers: AWS, GCP, Azure bindings for each domain" ;
+    "Example: HIPAA-compliant application shows end-to-end integration"
+  ] .
