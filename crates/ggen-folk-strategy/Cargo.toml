@@ -1,6 +1,6 @@
 [package]
 name = "ggen-folk-strategy"
-version = "5.1.0"
+version = "0.2.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Folk strategy quantification: Computes folk terms from measurable inputs via opportunity field dynamics"
 edition = "2021"

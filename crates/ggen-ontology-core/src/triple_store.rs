@@ -5,7 +5,6 @@
 
 use crate::errors::{OntologyError, Result};
 use oxigraph::store::Store;
-use oxigraph::model::{NamedNode, Triple, Subject, Predicate, Object};
 use oxigraph::io::{RdfFormat, RdfParser};
 use std::path::Path;
 use std::io::BufReader;
@@ -79,7 +78,7 @@ impl TripleStore {
             // Try to extract line number from error if available
             let error_msg = e.to_string();
             let line = 0; // Oxigraph doesn't always provide line numbers
-            OntologyError::parse(&path_str, line, error_msg)
+            OntologyError::parse(&path_str, line, &error_msg)
         })?;
 
         Ok(())
@@ -115,7 +114,7 @@ impl TripleStore {
 
         self.store.load_from_reader(RdfParser::from_format(RdfFormat::Turtle), reader).map_err(|e| {
             let error_msg = e.to_string();
-            OntologyError::parse(&path_str, 0, error_msg)
+            OntologyError::parse(&path_str, 0, &error_msg)
         })?;
 
         Ok(())
@@ -135,31 +134,31 @@ impl TripleStore {
     /// # Determinism
     /// Same query on same data produces identical results
     pub fn query_sparql(&self, query: &str) -> Result<String> {
-        let prepared = self.store.prepare_query(query).map_err(|e| {
-            OntologyError::query(format!("Failed to prepare SPARQL query: {}", e))
-        })?;
-
-        // Execute and collect results to JSON for deterministic output
-        let results = prepared.query(&self.store).map_err(|e| {
+        // Execute SPARQL query on the store
+        // Note: Using the Store::query method which is currently the primary API for Oxigraph 0.5.x
+        #[allow(deprecated)]
+        let results = self.store.query(query).map_err(|e| {
             OntologyError::query(format!("Failed to execute SPARQL query: {}", e))
         })?;
 
         // Convert results to JSON for stable serialization
         let json = match results {
-            oxigraph::sparql::QueryResults::Select(bindings) => {
-                let vars: Vec<_> = bindings.variables().map(|v| v.as_str().to_string()).collect();
-                let mut rows = Vec::new();
+            oxigraph::sparql::QueryResults::Solutions(bindings) => {
+                let mut vars = Vec::new();
+                for var in bindings.variables() {
+                    vars.push(var.as_str().to_string());
+                }
 
-                for row in bindings {
-                    let row_result = row.map_err(|e| {
+                let mut rows = Vec::new();
+                for row_result in bindings {
+                    let row = row_result.map_err(|e| {
                         OntologyError::query(format!("Error reading SPARQL results: {}", e))
                     })?;
 
                     let mut row_obj = serde_json::json!({});
-                    for (var, term) in row_result.iter() {
-                        if let Some(term) = term {
-                            row_obj[var.as_str()] = serde_json::json!(term.to_string());
-                        }
+                    for (var, term) in row.iter() {
+                        let var_name = var.as_str();
+                        row_obj[var_name] = serde_json::json!(term.to_string());
                     }
                     rows.push(row_obj);
                 }
@@ -192,7 +191,6 @@ impl TripleStore {
     /// Returns `OntologyError::ParseError` if validation fails
     pub fn validate_turtle<P: AsRef<Path>>(&self, path: P) -> Result<ValidationReport> {
         let path = path.as_ref();
-        let path_str = path.to_string_lossy().to_string();
 
         let file = std::fs::File::open(path).map_err(|e| {
             OntologyError::io(format!("Cannot open file for validation: {}", e))
@@ -233,7 +231,6 @@ impl TripleStore {
     /// Returns `OntologyError::ParseError` if validation fails
     pub fn validate_rdf<P: AsRef<Path>>(&self, path: P) -> Result<ValidationReport> {
         let path = path.as_ref();
-        let path_str = path.to_string_lossy().to_string();
 
         let file = std::fs::File::open(path).map_err(|e| {
             OntologyError::io(format!("Cannot open file for validation: {}", e))
@@ -274,12 +271,6 @@ impl TripleStore {
     }
 }
 
-impl Default for TripleStore {
-    fn default() -> Self {
-        Self::new().expect("Failed to create default TripleStore")
-    }
-}
-
 /// Validation report for RDF/Turtle files
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ValidationReport {
@@ -304,75 +295,93 @@ mod tests {
     }
 
     #[test]
-    fn test_empty_store() {
-        let store = TripleStore::new().unwrap();
-        assert!(store.is_empty().unwrap());
+    fn test_empty_store() -> Result<()> {
+        let store = TripleStore::new()?;
+        assert!(store.is_empty()?);
+        Ok(())
     }
 
     #[test]
-    fn test_triple_count() {
-        let store = TripleStore::new().unwrap();
-        let count = store.triple_count().unwrap();
+    fn test_triple_count() -> Result<()> {
+        let store = TripleStore::new()?;
+        let count = store.triple_count()?;
         assert_eq!(count, 0);
+        Ok(())
     }
 
     #[test]
-    fn test_load_valid_turtle() {
-        let mut file = NamedTempFile::new().unwrap();
+    fn test_load_valid_turtle() -> Result<()> {
+        let mut file = NamedTempFile::new()
+            .map_err(|e| OntologyError::io(format!("Failed to create temp file: {}", e)))?;
         let turtle_content = r#"
 @prefix ex: <http://example.com/> .
 ex:subject ex:predicate ex:object .
 "#;
-        file.write_all(turtle_content.as_bytes()).unwrap();
-        file.flush().unwrap();
+        file.write_all(turtle_content.as_bytes())
+            .map_err(|e| OntologyError::io(format!("Failed to write test file: {}", e)))?;
+        file.flush()
+            .map_err(|e| OntologyError::io(format!("Failed to flush test file: {}", e)))?;
 
-        let store = TripleStore::new().unwrap();
+        let store = TripleStore::new()?;
         let result = store.load_turtle(file.path());
         assert!(result.is_ok());
+        Ok(())
     }
 
     #[test]
-    fn test_load_invalid_turtle() {
-        let mut file = NamedTempFile::new().unwrap();
+    fn test_load_invalid_turtle() -> Result<()> {
+        let mut file = NamedTempFile::new()
+            .map_err(|e| OntologyError::io(format!("Failed to create temp file: {}", e)))?;
         let turtle_content = "this is not valid turtle !!!";
-        file.write_all(turtle_content.as_bytes()).unwrap();
-        file.flush().unwrap();
+        file.write_all(turtle_content.as_bytes())
+            .map_err(|e| OntologyError::io(format!("Failed to write test file: {}", e)))?;
+        file.flush()
+            .map_err(|e| OntologyError::io(format!("Failed to flush test file: {}", e)))?;
 
-        let store = TripleStore::new().unwrap();
+        let store = TripleStore::new()?;
         let result = store.load_turtle(file.path());
         assert!(result.is_err());
+        Ok(())
     }
 
     #[test]
-    fn test_validate_turtle() {
-        let mut file = NamedTempFile::new().unwrap();
+    fn test_validate_turtle() -> Result<()> {
+        let mut file = NamedTempFile::new()
+            .map_err(|e| OntologyError::io(format!("Failed to create temp file: {}", e)))?;
         let turtle_content = r#"
 @prefix ex: <http://example.com/> .
 ex:subject ex:predicate ex:object .
 "#;
-        file.write_all(turtle_content.as_bytes()).unwrap();
-        file.flush().unwrap();
+        file.write_all(turtle_content.as_bytes())
+            .map_err(|e| OntologyError::io(format!("Failed to write test file: {}", e)))?;
+        file.flush()
+            .map_err(|e| OntologyError::io(format!("Failed to flush test file: {}", e)))?;
 
-        let store = TripleStore::new().unwrap();
-        let report = store.validate_turtle(file.path()).unwrap();
+        let store = TripleStore::new()?;
+        let report = store.validate_turtle(file.path())?;
         assert!(report.is_valid);
+        Ok(())
     }
 
     #[test]
-    fn test_sparql_query() {
-        let mut file = NamedTempFile::new().unwrap();
+    fn test_sparql_query() -> Result<()> {
+        let mut file = NamedTempFile::new()
+            .map_err(|e| OntologyError::io(format!("Failed to create temp file: {}", e)))?;
         let turtle_content = r#"
 @prefix ex: <http://example.com/> .
 ex:subject1 ex:predicate ex:object1 .
 ex:subject2 ex:predicate ex:object2 .
 "#;
-        file.write_all(turtle_content.as_bytes()).unwrap();
-        file.flush().unwrap();
+        file.write_all(turtle_content.as_bytes())
+            .map_err(|e| OntologyError::io(format!("Failed to write test file: {}", e)))?;
+        file.flush()
+            .map_err(|e| OntologyError::io(format!("Failed to flush test file: {}", e)))?;
 
-        let store = TripleStore::new().unwrap();
-        store.load_turtle(file.path()).unwrap();
+        let store = TripleStore::new()?;
+        store.load_turtle(file.path())?;
 
         let result = store.query_sparql("SELECT ?s WHERE { ?s ?p ?o }");
         assert!(result.is_ok());
+        Ok(())
     }
 }

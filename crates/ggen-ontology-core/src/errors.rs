@@ -3,7 +3,6 @@
 //! Provides comprehensive error handling with context for RDF/TTL parsing,
 //! validation, SPARQL queries, and entity mapping operations.
 
-use std::fmt;
 use thiserror::Error;
 
 /// Errors that can occur during ontology operations

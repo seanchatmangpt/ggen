@@ -140,69 +140,88 @@ mod tests {
     use super::*;
     use std::io::Write;
     use tempfile::NamedTempFile;
+    use crate::errors::OntologyError;
 
     #[test]
-    fn test_validate_valid_turtle() {
-        let mut file = NamedTempFile::new().unwrap();
+    fn test_validate_valid_turtle() -> Result<()> {
+        let mut file = NamedTempFile::new()
+            .map_err(|e| OntologyError::io(format!("Failed to create temp file: {}", e)))?;
         let content = r#"
 @prefix ex: <http://example.com/> .
 ex:subject ex:predicate ex:object .
 "#;
-        file.write_all(content.as_bytes()).unwrap();
-        file.flush().unwrap();
+        file.write_all(content.as_bytes())
+            .map_err(|e| OntologyError::io(format!("Failed to write test file: {}", e)))?;
+        file.flush()
+            .map_err(|e| OntologyError::io(format!("Failed to flush test file: {}", e)))?;
 
-        let report = validate_turtle(file.path()).unwrap();
+        let report = validate_turtle(file.path())?;
         assert!(report.is_valid);
+        Ok(())
     }
 
     #[test]
-    fn test_validate_invalid_turtle() {
-        let mut file = NamedTempFile::new().unwrap();
+    fn test_validate_invalid_turtle() -> Result<()> {
+        let mut file = NamedTempFile::new()
+            .map_err(|e| OntologyError::io(format!("Failed to create temp file: {}", e)))?;
         let content = "this is not valid turtle !!!";
-        file.write_all(content.as_bytes()).unwrap();
-        file.flush().unwrap();
+        file.write_all(content.as_bytes())
+            .map_err(|e| OntologyError::io(format!("Failed to write test file: {}", e)))?;
+        file.flush()
+            .map_err(|e| OntologyError::io(format!("Failed to flush test file: {}", e)))?;
 
-        let report = validate_turtle(file.path()).unwrap();
+        let report = validate_turtle(file.path())?;
         assert!(!report.is_valid);
         assert!(!report.errors.is_empty());
+        Ok(())
     }
 
     #[test]
-    fn test_validate_valid_sparql_query() {
+    fn test_validate_valid_sparql_query() -> Result<()> {
         let query = "SELECT ?s WHERE { ?s ?p ?o }";
         let result = validate_sparql_query(query);
         assert!(result.is_ok());
+        Ok(())
     }
 
     #[test]
-    fn test_validate_invalid_sparql_query() {
+    fn test_validate_invalid_sparql_query() -> Result<()> {
         let query = "SELECT ? WHERE { invalid syntax }";
         let result = validate_sparql_query(query);
         assert!(result.is_err());
+        Ok(())
     }
 
     #[test]
-    fn test_validate_ontology_ttl() {
-        let mut file = NamedTempFile::new().unwrap();
+    fn test_validate_ontology_ttl() -> Result<()> {
+        let mut file = NamedTempFile::new()
+            .map_err(|e| OntologyError::io(format!("Failed to create temp file: {}", e)))?;
         let content = r#"
 @prefix ex: <http://example.com/> .
 ex:subject ex:predicate ex:object .
 "#;
-        file.write_all(content.as_bytes()).unwrap();
-        file.flush().unwrap();
+        file.write_all(content.as_bytes())
+            .map_err(|e| OntologyError::io(format!("Failed to write test file: {}", e)))?;
+        file.flush()
+            .map_err(|e| OntologyError::io(format!("Failed to flush test file: {}", e)))?;
 
-        let report = validate_ontology(file.path(), "ttl").unwrap();
+        let report = validate_ontology(file.path(), "ttl")?;
         assert!(report.is_valid);
+        Ok(())
     }
 
     #[test]
-    fn test_validate_ontology_unknown_type() {
-        let mut file = NamedTempFile::new().unwrap();
+    fn test_validate_ontology_unknown_type() -> Result<()> {
+        let mut file = NamedTempFile::new()
+            .map_err(|e| OntologyError::io(format!("Failed to create temp file: {}", e)))?;
         let content = "test";
-        file.write_all(content.as_bytes()).unwrap();
-        file.flush().unwrap();
+        file.write_all(content.as_bytes())
+            .map_err(|e| OntologyError::io(format!("Failed to write test file: {}", e)))?;
+        file.flush()
+            .map_err(|e| OntologyError::io(format!("Failed to flush test file: {}", e)))?;
 
         let result = validate_ontology(file.path(), "unknown");
         assert!(result.is_err());
+        Ok(())
     }
 }

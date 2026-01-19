@@ -1,6 +1,6 @@
 [package]
 name = "ggen-ontology-core"
-version = "3.3.0"
+version = "0.2.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Core ontology handling layer with RDF/TTL support, SPARQL querying, and entity mapping"
 edition = "2021"
@@ -45,3 +45,8 @@ sparql = []
 [[test]]
 name = "ontology_integration"
 path = "tests/ontology_integration.rs"
+
+[[bench]]
+name = "ontology_benchmarks"
+path = "benches/ontology_benchmarks.rs"
+harness = false

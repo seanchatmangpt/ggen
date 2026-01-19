@@ -345,70 +345,80 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_match_policy_privacy_determinism() {
-        let result1 = EntityMapper::match_policy("Privacy Policy");
-        let result2 = EntityMapper::match_policy("Privacy Policy");
-        assert_eq!(result1.unwrap(), result2.unwrap());
+    fn test_match_policy_privacy_determinism() -> Result<()> {
+        let result1 = EntityMapper::match_policy("Privacy Policy")?;
+        let result2 = EntityMapper::match_policy("Privacy Policy")?;
+        assert_eq!(result1, result2);
+        Ok(())
     }
 
     #[test]
-    fn test_match_policy_privacy() {
-        let matches = EntityMapper::match_policy("Privacy Policy").unwrap();
+    fn test_match_policy_privacy() -> Result<()> {
+        let matches = EntityMapper::match_policy("Privacy Policy")?;
         assert!(!matches.is_empty());
         assert!(matches[0].score >= 0.85);
+        Ok(())
     }
 
     #[test]
-    fn test_match_policy_security() {
-        let matches = EntityMapper::match_policy("Security Policy").unwrap();
+    fn test_match_policy_security() -> Result<()> {
+        let matches = EntityMapper::match_policy("Security Policy")?;
         assert!(!matches.is_empty());
         assert_eq!(matches[0].class, ":SecurityPolicy");
+        Ok(())
     }
 
     #[test]
-    fn test_match_data_classification_exact() {
-        let matches = EntityMapper::match_data_classification("Public").unwrap();
+    fn test_match_data_classification_exact() -> Result<()> {
+        let matches = EntityMapper::match_data_classification("Public")?;
         assert_eq!(matches[0].score, 1.0);
         assert_eq!(matches[0].class, ":PublicData");
+        Ok(())
     }
 
     #[test]
-    fn test_match_data_classification_determinism() {
-        let result1 = EntityMapper::match_data_classification("Confidential").unwrap();
-        let result2 = EntityMapper::match_data_classification("Confidential").unwrap();
+    fn test_match_data_classification_determinism() -> Result<()> {
+        let result1 = EntityMapper::match_data_classification("Confidential")?;
+        let result2 = EntityMapper::match_data_classification("Confidential")?;
         assert_eq!(result1, result2);
+        Ok(())
     }
 
     #[test]
-    fn test_match_service_level_critical() {
-        let matches = EntityMapper::match_service_level(99.99).unwrap();
+    fn test_match_service_level_critical() -> Result<()> {
+        let matches = EntityMapper::match_service_level(99.99)?;
         assert_eq!(matches[0].class, ":CriticalService");
+        Ok(())
     }
 
     #[test]
-    fn test_match_service_level_sorted() {
-        let matches = EntityMapper::match_service_level(95.0).unwrap();
+    fn test_match_service_level_sorted() -> Result<()> {
+        let matches = EntityMapper::match_service_level(95.0)?;
         for i in 0..matches.len() - 1 {
             assert!(matches[i].score >= matches[i + 1].score);
         }
+        Ok(())
     }
 
     #[test]
-    fn test_match_security_control_mfa() {
-        let matches = EntityMapper::match_security_control("MFA").unwrap();
+    fn test_match_security_control_mfa() -> Result<()> {
+        let matches = EntityMapper::match_security_control("MFA")?;
         assert!(!matches.is_empty());
         assert_eq!(matches[0].class, ":MultiFactorAuthentication");
+        Ok(())
     }
 
     #[test]
-    fn test_match_compute_service_vm() {
-        let matches = EntityMapper::match_compute_service("VM").unwrap();
+    fn test_match_compute_service_vm() -> Result<()> {
+        let matches = EntityMapper::match_compute_service("VM")?;
         assert_eq!(matches[0].class, ":VirtualMachine");
+        Ok(())
     }
 
     #[test]
-    fn test_match_compute_service_kubernetes() {
-        let matches = EntityMapper::match_compute_service("Kubernetes").unwrap();
+    fn test_match_compute_service_kubernetes() -> Result<()> {
+        let matches = EntityMapper::match_compute_service("Kubernetes")?;
         assert_eq!(matches[0].class, ":KubernetesCluster");
+        Ok(())
     }
 }

@@ -254,11 +254,20 @@ Found an error or want to improve the documentation? Contributions are welcome!
 - **[Marketplace Production Guide](MARKETPLACE.md)** - Production deployment guide for the marketplace
 
 ### Release Information
+
+#### Current Release (v0.2.0)
+- **[v0.2.0 Release Notes](releases/v0.2.0/RELEASE-NOTES.md)** - Highlights and key features
+- **[v0.2.0 Installation Guide](releases/v0.2.0/INSTALLATION.md)** - Setup and configuration
+- **[v0.2.0 Changelog](releases/v0.2.0/CHANGELOG.md)** - Detailed technical changes
+- **[v0.2.0 Migration Guide](releases/v0.2.0/MIGRATION-GUIDE.md)** - Upgrade from previous versions
+
+#### Release Archive & Templates
 - **[Release Documentation](releases/)** - Historical release checklists and commands
   - [v2.6.0 Release Checklist](releases/RELEASE_v2.6.0_CHECKLIST.md)
   - [v2.6.0 Release Status](releases/RELEASE_v2.6.0_STATUS.md)
   - [v2.5.1 Release Checklist](releases/RELEASE_v2.5.1_CHECKLIST.md)
   - [v2.0.0 Release Commands](releases/RELEASE_v2.0.0_COMMANDS.md)
+- **[Release Template](../.github/RELEASE_TEMPLATE.md)** - Template for creating future releases
 
 ### Advanced How-to Guides
 - **[Dogfooding Quick Start](how-to-guides/DOGFOODING_QUICKSTART.md)** - Using ggen to fix ggen's own problems
