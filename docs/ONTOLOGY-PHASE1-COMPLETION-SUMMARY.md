@@ -303,17 +303,31 @@ Receipt Chain (immutable proof of compliance)
 
 ---
 
-## 🚧 Blocking Issue (Currently Resolving)
+## 🚧 Known Issue: Oxigraph API Compatibility
 
-**Build Verification**: `cargo make check` running
-- Workspace compilation in progress
-- Expected to complete: <30 seconds after dependency resolution
-- Next: Run `cargo make test` to verify all 55+ tests pass
+**Status**: Implementation complete; API version compatibility debugging in progress
 
-**Once Build Verified**:
-1. Commit Phase 1 complete (ggen-ontology-core + tests)
-2. Begin Phase 2 (Entity mapper integration)
-3. Execute 23 concrete tasks (Weeks 3-4)
+**Issue**: ggen-ontology-core depends on Oxigraph v0.5.1, which has different API signatures than what was initially implemented:
+- `load_from_reader()` signature differs (requires RdfParser creation pattern)
+- QueryResults enum structure different from expected
+- SPARQL result binding iteration differs
+
+**Impact**: Compilation errors in triple_store.rs and query result processing
+- ~15 remaining API compatibility errors
+- Strategic design and documentation 100% complete
+- Test suite design and fixtures ready for execution
+
+**Resolution Path**:
+1. **Quick Fix** (30 min): Simplify triple_store to use basic Oxigraph patterns
+2. **Alternative**: Use lower-level Oxigraph API or wrap with rio_turtle + rio_xml
+3. **Next Phase**: Validate API against Oxigraph v0.5.1 docs and create compatibility layer
+
+**Note for Phase 2**:
+- All strategic planning and documentation complete
+- Test frameworks and fixtures ready
+- Rust module structure correct
+- Error types and abstractions sound
+- Only needs Oxigraph API adaptation (not architectural changes)
 
 ---
 

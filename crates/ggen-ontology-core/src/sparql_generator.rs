@@ -159,7 +159,7 @@ ORDER BY ?provider ?compute"#,
         let mut sorted_filters: Vec<_> = filters.to_vec();
         sorted_filters.sort_by(|a, b| a.0.cmp(&b.0));
 
-        for (var, condition) in sorted_filters {
+        for (_var, condition) in sorted_filters {
             where_clause.push('\n');
             where_clause.push_str(&format!("  FILTER ({})", condition));
         }

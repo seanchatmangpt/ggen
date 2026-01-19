@@ -6,7 +6,7 @@
 use crate::errors::{OntologyError, Result};
 use oxigraph::store::Store;
 use oxigraph::model::{NamedNode, Triple, Subject, Predicate, Object};
-use oxigraph::io::RdfFormat;
+use oxigraph::io::{RdfFormat, RdfParser};
 use std::path::Path;
 use std::io::BufReader;
 
@@ -75,7 +75,7 @@ impl TripleStore {
 
         let reader = BufReader::new(file);
 
-        self.store.load_reader(reader, RdfFormat::RdfXml, None).map_err(|e| {
+        self.store.load_from_reader(RdfParser::from_format(RdfFormat::RdfXml), reader).map_err(|e| {
             // Try to extract line number from error if available
             let error_msg = e.to_string();
             let line = 0; // Oxigraph doesn't always provide line numbers
@@ -113,7 +113,7 @@ impl TripleStore {
 
         let reader = BufReader::new(file);
 
-        self.store.load_reader(reader, RdfFormat::Turtle, None).map_err(|e| {
+        self.store.load_from_reader(RdfParser::from_format(RdfFormat::Turtle), reader).map_err(|e| {
             let error_msg = e.to_string();
             OntologyError::parse(&path_str, 0, error_msg)
         })?;
@@ -205,7 +205,7 @@ impl TripleStore {
             OntologyError::triple_store(format!("Failed to create temp store for validation: {}", e))
         })?;
 
-        match temp_store.load_reader(reader, RdfFormat::Turtle, None) {
+        match temp_store.load_from_reader(RdfParser::from_format(RdfFormat::Turtle), reader) {
             Ok(()) => Ok(ValidationReport {
                 is_valid: true,
                 errors: vec![],
@@ -245,7 +245,7 @@ impl TripleStore {
             OntologyError::triple_store(format!("Failed to create temp store for validation: {}", e))
         })?;
 
-        match temp_store.load_reader(reader, RdfFormat::RdfXml, None) {
+        match temp_store.load_from_reader(RdfParser::from_format(RdfFormat::RdfXml), reader) {
             Ok(()) => Ok(ValidationReport {
                 is_valid: true,
                 errors: vec![],
@@ -263,7 +263,9 @@ impl TripleStore {
 
     /// Gets the number of triples currently in the store
     pub fn triple_count(&self) -> Result<usize> {
-        Ok(self.store.quads(None, None, None, None).count())
+        // Count triples by iterating through all quads
+        let count = self.store.iter().count();
+        Ok(count)
     }
 
     /// Checks if the store contains any triples
