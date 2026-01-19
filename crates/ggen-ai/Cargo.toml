@@ -30,8 +30,8 @@ chrono = { workspace = true }
 # UUID generation
 uuid = { workspace = true }
 
-# Database
-rusqlite = { version = "0.37", features = ["bundled"] }
+# Note: SQLite database access moved to optional feature due to conflicts with sqlx v0.7
+# ggen-ai focuses on LLM integration; database operations belong in domain/api layers
 
 # Configuration and environment
 dotenvy = "0.15"

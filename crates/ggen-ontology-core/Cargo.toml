@@ -1,0 +1,47 @@
+[package]
+name = "ggen-ontology-core"
+version = "3.3.0"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+description = "Core ontology handling layer with RDF/TTL support, SPARQL querying, and entity mapping"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+readme = "README.md"
+keywords = ["rdf", "ontology", "sparql", "ttl", "xml"]
+categories = ["development-tools"]
+
+[lints.clippy]
+multiple_crate_versions = "allow"
+
+[dependencies]
+# Workspace dependencies
+ggen-utils.workspace = true
+tokio.workspace = true
+serde = { workspace = true }
+serde_json.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+log.workspace = true
+tracing.workspace = true
+oxigraph.workspace = true
+
+# RDF/TTL validation
+regex.workspace = true
+
+# Error handling and utilities
+chrono = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3"
+proptest.workspace = true
+chicago-tdd-tools.workspace = true
+insta = "1.43"
+
+[features]
+default = ["oxigraph", "sparql"]
+oxigraph = []
+sparql = []
+
+[[test]]
+name = "ontology_integration"
+path = "tests/ontology_integration.rs"
