@@ -111,7 +111,14 @@ impl<'a> GraphUpdate<'a> {
     /// # Arguments
     ///
     /// * `data` - SPARQL data block (triples without INSERT DATA wrapper)
+    ///
+    /// # Security
+    ///
+    /// This method constructs SPARQL UPDATE queries. For user-provided data,
+    /// prefer using type-safe builders from `ggen_core::rdf::query_builder`.
     pub fn insert(&self, data: &str) -> Result<()> {
+        // Note: This is a convenience method for trusted internal use.
+        // For user-provided data, the query builder should be used instead.
         let update = format!("INSERT DATA {{ {} }}", data);
         self.execute(&update)
     }
@@ -123,7 +130,14 @@ impl<'a> GraphUpdate<'a> {
     /// # Arguments
     ///
     /// * `data` - SPARQL data block (triples without DELETE DATA wrapper)
+    ///
+    /// # Security
+    ///
+    /// This method constructs SPARQL UPDATE queries. For user-provided data,
+    /// prefer using type-safe builders from `ggen_core::rdf::query_builder`.
     pub fn delete(&self, data: &str) -> Result<()> {
+        // Note: This is a convenience method for trusted internal use.
+        // For user-provided data, the query builder should be used instead.
         let update = format!("DELETE DATA {{ {} }}", data);
         self.execute(&update)
     }
@@ -135,7 +149,14 @@ impl<'a> GraphUpdate<'a> {
     /// # Arguments
     ///
     /// * `pattern` - SPARQL WHERE pattern (without DELETE WHERE wrapper)
+    ///
+    /// # Security
+    ///
+    /// This method constructs SPARQL UPDATE queries. For user-provided data,
+    /// prefer using type-safe builders from `ggen_core::rdf::query_builder`.
     pub fn delete_where(&self, pattern: &str) -> Result<()> {
+        // Note: This is a convenience method for trusted internal use.
+        // For user-provided data, the query builder should be used instead.
         let update = format!("DELETE WHERE {{ {} }}", pattern);
         self.execute(&update)
     }

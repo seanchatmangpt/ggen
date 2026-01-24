@@ -186,8 +186,9 @@ pub use packs::{LockedPack, PackLockfile, PackSource};
 pub use pipeline::{Pipeline, PipelineBuilder};
 pub use pqc::{calculate_sha256, calculate_sha256_file, PqcSigner, PqcVerifier};
 pub use rdf::{
-    GgenOntology, TemplateMetadata, TemplateMetadataStore, TemplateRelationship, TemplateVariable,
-    ValidationReport, ValidationResult, Validator, GGEN_NAMESPACE,
+    GgenOntology, Iri, Literal, SparqlQueryBuilder, TemplateMetadata, TemplateMetadataStore,
+    TemplateRelationship, TemplateVariable, ValidationReport, ValidationResult, Validator, Variable,
+    GGEN_NAMESPACE,
 };
 pub use registry::{RegistryClient, RegistryIndex, ResolvedPack, SearchResult};
 pub use resolver::{TemplateResolver, TemplateSearchResult, TemplateSource};

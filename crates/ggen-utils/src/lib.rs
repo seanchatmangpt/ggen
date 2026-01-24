@@ -49,15 +49,19 @@ pub mod cli;
 pub mod enhanced_error;
 pub mod error;
 pub mod logger;
+pub mod path_validator;
 pub mod project_config;
+pub mod safe_path;
 pub mod time;
 pub mod types;
 pub mod user_level;
 pub mod versioning;
 
-pub use project_config::{GgenConfig as UtilsGgenConfig, Project, RdfConfig};
-
 // Re-export error handling utilities
 // Note: bail! and ensure! macros are exported via #[macro_export] in error.rs
 // They are available as ggen_utils::bail! and ggen_utils::ensure!
 pub use error::{Context, Error, Result};
+
+// Re-export SafePath for easy migration from PathBuf
+// Note: For enterprise-grade validation with workspace bounds, use path_validator::PathValidator
+pub use safe_path::SafePath;

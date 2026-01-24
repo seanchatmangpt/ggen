@@ -41,6 +41,9 @@ validator = { version = "0.18", features = ["derive"] }
 
 # Rate limiting (already in workspace)
 moka = { version = "0.12", features = ["future"] }
+redis = { version = "0.27", features = ["tokio-comp", "connection-manager"] }
+bb8 = "0.8"
+bb8-redis = "0.18"
 
 # Futures
 futures = { workspace = true }

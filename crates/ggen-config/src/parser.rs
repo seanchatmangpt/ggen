@@ -3,12 +3,13 @@
 //! This module provides functionality for loading and parsing ggen.toml files.
 
 use crate::{ConfigError, GgenConfig, Result};
+use ggen_utils::SafePath;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 /// Configuration loader and parser
 pub struct ConfigLoader {
-    path: PathBuf,
+    path: SafePath,
 }
 
 impl ConfigLoader {
@@ -20,11 +21,13 @@ impl ConfigLoader {
     ///
     /// # Errors
     ///
-    /// Returns an error if the file doesn't exist
+    /// Returns an error if the file doesn't exist or path validation fails
     pub fn new<P: AsRef<Path>>(path: P) -> Result<Self> {
-        let path = path.as_ref().to_path_buf();
+        let path = SafePath::new_absolute(path.as_ref())
+            .map_err(|e| ConfigError::Validation(format!("Path validation failed: {}", e)))?;
+
         if !path.exists() {
-            return Err(ConfigError::FileNotFound(path));
+            return Err(ConfigError::FileNotFound(path.as_path_buf()));
         }
         Ok(Self { path })
     }
@@ -123,23 +126,28 @@ impl ConfigLoader {
     ///
     /// # Errors
     ///
-    /// Returns an error if no configuration file is found
-    pub fn find_config_file() -> Result<PathBuf> {
-        let mut current = std::env::current_dir().map_err(|e| ConfigError::Io(e))?;
+    /// Returns an error if no configuration file is found or path validation fails
+    pub fn find_config_file() -> Result<SafePath> {
+        let mut current = SafePath::current_dir()
+            .map_err(|e| ConfigError::Validation(format!("Failed to get current directory: {}", e)))?;
 
         loop {
-            let candidate = current.join("ggen.toml");
+            let candidate = current
+                .join("ggen.toml")
+                .map_err(|e| ConfigError::Validation(format!("Path join failed: {}", e)))?;
+
             if candidate.exists() {
                 return Ok(candidate);
             }
 
             // Try parent directory
-            if !current.pop() {
-                // Reached filesystem root
-                return Err(ConfigError::FileNotFound(PathBuf::from(
-                    "ggen.toml (searched all parent directories)",
-                )));
-            }
+            current = current
+                .parent()
+                .map_err(|_| {
+                    ConfigError::FileNotFound(
+                        std::path::PathBuf::from("ggen.toml (searched all parent directories)")
+                    )
+                })?;
         }
     }
 
@@ -168,7 +176,7 @@ impl ConfigLoader {
     /// Get the config file path
     #[must_use]
     pub fn path(&self) -> &Path {
-        &self.path
+        self.path.as_path()
     }
 }
 
