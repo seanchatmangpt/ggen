@@ -168,7 +168,7 @@ This document defines the core domain entities for ggen v5 sync, extracted from 
 **Attributes**:
 - **manifest_version**: Schema version (e.g., "1.0")
 - **sync_mode**: Default sync mode (full, incremental, verify)
-- **output_directory**: Base directory for generated files
+- **output_directory**: *(Removed in v6)* Base directory for generated files - now specified per-generation rule
 - **source_ontology**: Path to primary ontology file
 - **imports**: List of imported ontology files
 - **construct_rules**: List of SPARQL CONSTRUCT queries with execution order

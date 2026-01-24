@@ -356,7 +356,6 @@ fn generate(schema_file: String, preset: String) -> VerbResult<GenerateOutput> {
     Ok(GenerateOutput {
         preset,
         files_generated: output.files.len(),
-        output_directory: output.directory,
     })
 }
 ```
