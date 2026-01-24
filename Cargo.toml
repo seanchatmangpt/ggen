@@ -272,11 +272,9 @@ uuid = { version = "1.18", features = ["v4"] }
 genai = { workspace = true }
 tracing-subscriber = "0.3"
 
-# OpenTelemetry (optional - enabled with --features otel)
-opentelemetry = { workspace = true, optional = true }
-opentelemetry-otlp = { workspace = true, optional = true }
-opentelemetry_sdk = { workspace = true, optional = true }
-tracing-opentelemetry = { workspace = true, optional = true }
+# Note: OpenTelemetry dependencies are optional at the crate level (ggen-core, etc.)
+# The root package doesn't directly use OTEL, so these are not included here.
+# Enable OTEL via: cargo build --features otel (which forwards to ggen-core/otel)
 
 # Example definitions removed - examples now discovered automatically by Cargo
 
