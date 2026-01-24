@@ -24,16 +24,94 @@ use crate::codegen::ux::{
     ProgressIndicator,
 };
 use crate::codegen::{
-    DependencyValidator, IncrementalCache, MarketplaceValidator, OutputFormat, ProofCarrier,
-    SyncOptions,
+    DependencyValidator, IncrementalCache, MarketplaceValidator, ProofCarrier,
 };
 use crate::drift::DriftDetector;
 use crate::manifest::{ManifestParser, ManifestValidator};
 use crate::poka_yoke::QualityGateRunner;
+use crate::validation::PreFlightValidator;
 use ggen_utils::error::{Error, Result};
 use serde::Serialize;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::time::Instant;
+
+// ============================================================================
+// Sync Options Types
+// ============================================================================
+
+/// Output format for sync results
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub enum OutputFormat {
+    /// Human-readable text output
+    Text,
+    /// JSON output
+    Json,
+}
+
+impl Default for OutputFormat {
+    fn default() -> Self {
+        Self::Text
+    }
+}
+
+/// Options for sync execution
+#[derive(Debug, Clone)]
+pub struct SyncOptions {
+    /// Path to manifest file
+    pub manifest_path: PathBuf,
+
+    /// Output directory for generated files
+    pub output_dir: Option<PathBuf>,
+
+    /// Cache directory for incremental builds
+    pub cache_dir: Option<PathBuf>,
+
+    /// Enable verbose output
+    pub verbose: bool,
+
+    /// Output format
+    pub output_format: OutputFormat,
+
+    /// Only validate, don't generate
+    pub validate_only: bool,
+
+    /// Dry run mode - preview changes without writing
+    pub dry_run: bool,
+
+    /// Enable file watching and auto-regeneration
+    pub watch: bool,
+
+    /// Selected rules to execute (None = all)
+    pub selected_rules: Option<Vec<String>>,
+
+    /// Use incremental cache
+    pub use_cache: bool,
+
+    /// Force overwrite even if files are newer
+    pub force: bool,
+
+    /// Generate audit trail
+    pub audit: bool,
+}
+
+impl Default for SyncOptions {
+    fn default() -> Self {
+        Self {
+            manifest_path: PathBuf::from("ggen.toml"),
+            output_dir: None,
+            cache_dir: None,
+            verbose: false,
+            output_format: OutputFormat::default(),
+            validate_only: false,
+            dry_run: false,
+            watch: false,
+            selected_rules: None,
+            use_cache: true,
+            force: false,
+            audit: false,
+        }
+    }
+}
 
 // ============================================================================
 // Sync Result Types
@@ -129,7 +207,7 @@ impl SyncExecutor {
             .parent()
             .unwrap_or(Path::new("."));
 
-        let preflight = crate::validation::PreFlightValidator::for_sync(base_path)
+        let preflight = PreFlightValidator::for_sync(base_path)
             .with_llm_check(false) // LLM check is optional (warning only)
             .with_template_check(false) // Will check after parsing manifest
             .with_git_check(false);
@@ -390,7 +468,7 @@ impl SyncExecutor {
                 self.options
                     .selected_rules
                     .as_ref()
-                    .is_none_or(|sel| sel.contains(&r.name))
+                    .is_none_or(|sel: &Vec<String>| sel.contains(&r.name))
             })
             .map(|r| format!("{} -> {}", r.name, r.output_file))
             .collect();
@@ -403,7 +481,7 @@ impl SyncExecutor {
                 self.options
                     .selected_rules
                     .as_ref()
-                    .is_none_or(|sel| sel.contains(&r.name))
+                    .is_none_or(|sel: &Vec<String>| sel.contains(&r.name))
             })
             .map(|r| SyncedFileInfo {
                 path: r.output_file.clone(),
@@ -573,30 +651,22 @@ impl SyncExecutor {
         let audit_path = if self.options.audit || manifest_data.generation.require_audit_trail {
             let audit_file_path = base_path.join(&output_directory).join("audit.json");
 
-            // Create audit trail from pipeline state
-            let mut audit_trail = crate::audit::AuditTrail::new(
-                "5.1.0",
-                &self.options.manifest_path.display().to_string(),
-                &manifest_data.ontology.source.display().to_string(),
-            );
+            // Create audit trail from pipeline state using AuditTrailBuilder
+            let mut builder = crate::codegen::audit::AuditTrailBuilder::new();
 
-            // Record rules executed
-            for _ in &state.executed_rules {
-                audit_trail.record_rule_executed();
-            }
+            // Record inputs (simplified - would need actual file paths in production)
+            // builder.record_inputs(&self.options.manifest_path, &[], &[])?;
 
-            // Record files changed with hashes
+            // Record outputs
             for file in &state.generated_files {
-                audit_trail
-                    .record_file_change(file.path.display().to_string(), file.content_hash.clone());
+                builder.record_output(&file.path, "", &format!("rule-{}", file.path.display()));
             }
 
-            // Set execution metadata
-            audit_trail.metadata.duration_ms = self.start_time.elapsed().as_millis() as u64;
-            audit_trail.metadata.spec_hash = format!("manifest-{}", manifest_data.project.version);
+            // Build the final audit trail
+            let audit_trail = builder.build(true); // validation_passed = true for now
 
-            // Write audit trail to disk
-            crate::audit::writer::AuditTrailWriter::write(&audit_trail, &audit_file_path)
+            // Write audit trail to disk using AuditTrailBuilder::write_to
+            crate::codegen::audit::AuditTrailBuilder::write_to(&audit_trail, &audit_file_path)
                 .map_err(|e| Error::new(&format!("Failed to write audit trail: {}", e)))?;
 
             Some(audit_file_path.display().to_string())

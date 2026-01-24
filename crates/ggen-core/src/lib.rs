@@ -131,6 +131,7 @@ pub mod graph;
 pub mod inject;
 pub mod lifecycle;
 pub mod lockfile;
+pub mod manifest;
 pub mod merge;
 pub mod parallel_generator;
 // Ontology system - re-enabled after oxigraph API compatibility fixes
@@ -139,6 +140,7 @@ pub mod ontology_pack;
 pub mod packs; // Pack installation system - Phase 1
 pub mod pipeline;
 pub mod poc;
+pub mod poka_yoke;
 pub mod pqc;
 pub mod preprocessor;
 pub mod project_generator;
@@ -147,6 +149,7 @@ pub mod register;
 pub mod registry;
 pub mod resolver;
 pub mod security; // Week 4 Security Hardening
+pub mod signals;
 pub mod snapshot;
 pub mod streaming_generator;
 pub mod telemetry;
@@ -154,6 +157,7 @@ pub mod template;
 pub mod template_cache;
 pub mod templates;
 pub mod tera_env;
+pub mod validation;
 // pub mod tracing; // Temporarily disabled due to missing tracing_subscriber dependency
 pub mod simple_tracing;
 
