@@ -32,7 +32,7 @@
 
 ```bash
 # Clone and navigate
-cd examples/rust-attribution-context
+cd examples/factory-paas
 
 # Generate all code, infrastructure, and documentation from ontology
 ggen sync
