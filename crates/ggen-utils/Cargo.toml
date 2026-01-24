@@ -27,7 +27,7 @@ color-backtrace = "0.7.1"
 chrono = "0.4"
 # Disable ron feature in config to avoid base64 v0.21.7 duplicate
 # (config's ron 0.8 -> base64 0.21.7 conflicts with reqwest -> base64 0.22.1)
-config = { version = "0.15.18", default-features = false, features = [
+config = { workspace = true, default-features = false, features = [
   "toml",
   "json",
   "yaml",
@@ -36,9 +36,6 @@ config = { version = "0.15.18", default-features = false, features = [
   "convert-case",
   "async",
 ] }
-# Use newer ron directly if needed
-ron = "0.11"
-lazy_static = "1.5.0"
 slog = "2.8.2"
 # slog-syslog-jl = "0.13.1"  # Temporarily disabled due to vulnerability
 slog-term = "2.9.2"

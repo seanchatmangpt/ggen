@@ -86,17 +86,17 @@ pub fn parse_merge_markers(content: &str) -> Option<MergeMarkers> {
 ///
 /// Merged content with generated section updated and manual section preserved.
 pub fn merge_sections(generated_code: &str, existing_content: &str) -> Result<String> {
-    let markers = parse_merge_markers(existing_content);
+    let markers = match parse_merge_markers(existing_content) {
+        None => {
+            // First-time generation - wrap in markers
+            return Ok(format!(
+                "<<<<<<< GENERATED\n{}\n=======\n// Add your manual code here\n>>>>>>> MANUAL\n",
+                generated_code
+            ));
+        }
+        Some(m) => m,
+    };
 
-    if markers.is_none() {
-        // First-time generation - wrap in markers
-        return Ok(format!(
-            "<<<<<<< GENERATED\n{}\n=======\n// Add your manual code here\n>>>>>>> MANUAL\n",
-            generated_code
-        ));
-    }
-
-    let markers = markers.unwrap();
     let lines: Vec<&str> = existing_content.lines().collect();
 
     // Validate marker positions

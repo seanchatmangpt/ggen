@@ -39,7 +39,7 @@ smallvec = "1.11"                    # Stack-allocated vectors
 tinyvec = "1.6"                      # Tiny vectors
 indexmap = { version = "2.0", features = ["serde"] }  # Ordered hash maps with serde
 ahash = "0.8"                        # Fast hashing
-dashmap = "5.5"                      # Concurrent hash maps for metrics/events
+dashmap = { workspace = true }       # Concurrent hash maps for metrics/events
 lru = "0.16"                         # LRU cache
 
 # Cryptography & security
@@ -59,14 +59,14 @@ serde_derive = "1.0"
 
 # HTTP/REST (for future API implementation)
 hyper = { version = "1.0", features = ["full"] }
-axum = "0.7"
+axum = { workspace = true }
 http = "1.0"
 tower = "0.4"
 tower-http = { version = "0.5", features = ["cors", "trace"] }
 
 # Configuration
 toml = { workspace = true }
-config = "0.14"
+config = { workspace = true }
 
 # Testing utilities
 proptest = { workspace = true }
