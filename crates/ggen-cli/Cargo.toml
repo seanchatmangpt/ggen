@@ -73,6 +73,9 @@ md5 = "0.8"
 # Marketplace v2 only (RDF-backed semantic marketplace)
 default = []
 
+# Autonomic CLI features (used by clap-noun-verb macros)
+autonomic = []
+
 # Testing features
 live-llm-tests = [] # Opt-in for live LLM integration tests
 
