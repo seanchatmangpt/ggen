@@ -143,7 +143,7 @@ impl ConfigLoader {
             // Try parent directory
             current = current
                 .parent()
-                .map_err(|_| {
+                .map_err(|_e: ggen_utils::error::Error| {
                     ConfigError::FileNotFound(
                         std::path::PathBuf::from("ggen.toml (searched all parent directories)")
                     )
