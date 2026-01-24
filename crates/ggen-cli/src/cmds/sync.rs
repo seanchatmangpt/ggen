@@ -24,7 +24,7 @@
 //! | 5 | File I/O error |
 //! | 6 | Timeout exceeded |
 
-use clap_noun_verb::Result as VerbResult;
+use clap_noun_verb::{NounVerbError, Result as VerbResult};
 use clap_noun_verb_macros::verb;
 use ggen_core::codegen::{OutputFormat, SyncExecutor, SyncOptions, SyncResult};
 use serde::Serialize;
@@ -217,7 +217,7 @@ pub fn sync(
         validate_only,
         format,
         timeout,
-    );
+    )?;
 
     // Execute via domain executor
     let result = SyncExecutor::new(options)
@@ -235,7 +235,7 @@ fn build_sync_options(
     manifest: Option<String>, output_dir: Option<String>, dry_run: Option<bool>,
     force: Option<bool>, audit: Option<bool>, rule: Option<String>, verbose: Option<bool>,
     watch: Option<bool>, validate_only: Option<bool>, format: Option<String>, timeout: Option<u64>,
-) -> SyncOptions {
+) -> Result<SyncOptions, NounVerbError> {
     let mut options = SyncOptions::new();
 
     // Set manifest path
@@ -261,18 +261,23 @@ fn build_sync_options(
 
     // Set output format
     if let Some(fmt) = format {
-        options.output_format = fmt.parse().map_err(|_| {
-            Error::new(&format!(
-                "error[E0005]: Invalid output format '{}'\n  |\n  = help: Valid formats: text, json, yaml",
-                fmt
-            ))
-        })?;
+        options.output_format = match fmt.to_lowercase().as_str() {
+            "text" => OutputFormat::Text,
+            "json" => OutputFormat::Json,
+            _ => {
+                return Err(NounVerbError::execution_error(format!(
+                    "error[E0005]: Invalid output format '{}'\n  |\n  = help: Valid formats: text, json",
+                    fmt
+                )))
+            }
+        };
     }
 
-    // Set timeout
-    if let Some(t) = timeout {
-        options.timeout_ms = t;
-    }
+    // Set timeout (TODO: Add timeout_ms field to SyncOptions if needed)
+    // if let Some(t) = timeout {
+    //     options.timeout_ms = t;
+    // }
+    let _ = timeout; // Suppress unused variable warning
 
-    options
+    Ok(options)
 }

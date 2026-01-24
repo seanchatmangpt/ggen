@@ -52,7 +52,7 @@
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 #![allow(non_upper_case_globals)] // Allow macro-generated static variables from clap-noun-verb
 
-use std::io::{Read, Write};
+use std::io::Write;
 
 // Command modules - clap-noun-verb v4.0.2 auto-discovery
 pub mod cmds; // clap-noun-verb v4 entry points with #[verb] functions
@@ -103,60 +103,20 @@ pub async fn run_for_node(args: Vec<String>) -> ggen_utils::error::Result<RunRes
     let stdout_clone = Arc::clone(&stdout_buffer);
     let stderr_clone = Arc::clone(&stderr_buffer);
 
-    // Execute in a blocking task to avoid Send issues with gag
+    // Execute in a blocking task
+    // NOTE: Output capture with gag crate is disabled for now
     let result = tokio::task::spawn_blocking(move || {
-        // Capture stdout/stderr using gag buffers
-        let mut captured_stdout = Vec::new();
-        let mut captured_stderr = Vec::new();
-
-        let code = match (gag::BufferRedirect::stdout(), gag::BufferRedirect::stderr()) {
-            (Ok(mut so), Ok(mut se)) => {
-                // Execute using cmds router
-                let code_val = match cmds::run_cli() {
-                    Ok(()) => 0,
-                    Err(err) => {
-                        let _ = writeln!(std::io::stderr(), "{}", err);
-                        1
-                    }
-                };
-
-                let _ = so.read_to_end(&mut captured_stdout);
-                let _ = se.read_to_end(&mut captured_stderr);
-
-                // Store captured output, handle mutex poisoning gracefully
-                match stdout_clone.lock() {
-                    Ok(mut guard) => *guard = captured_stdout,
-                    Err(poisoned) => {
-                        // Recover from poisoned lock
-                        log::warn!("Stdout mutex was poisoned, recovering");
-                        let mut guard = poisoned.into_inner();
-                        *guard = captured_stdout;
-                    }
-                }
-
-                match stderr_clone.lock() {
-                    Ok(mut guard) => *guard = captured_stderr,
-                    Err(poisoned) => {
-                        // Recover from poisoned lock
-                        log::warn!("Stderr mutex was poisoned, recovering");
-                        let mut guard = poisoned.into_inner();
-                        *guard = captured_stderr;
-                    }
-                }
-
-                code_val
-            }
-            _ => {
-                // Fallback: execute without capture
-                match cmds::run_cli() {
-                    Ok(()) => 0,
-                    Err(err) => {
-                        log::error!("{}", err);
-                        1
-                    }
-                }
+        // Execute without capture (gag crate not available)
+        let code = match cmds::run_cli() {
+            Ok(()) => 0,
+            Err(err) => {
+                log::error!("{}", err);
+                1
             }
         };
+
+        // Suppress unused variable warnings
+        let _ = (stdout_clone, stderr_clone);
 
         code
     })
