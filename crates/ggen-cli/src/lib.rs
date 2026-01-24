@@ -52,7 +52,7 @@
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 #![allow(non_upper_case_globals)] // Allow macro-generated static variables from clap-noun-verb
 
-use std::io::Write;
+// Note: std::io::Write was used for output capture with gag crate (now disabled)
 
 // Command modules - clap-noun-verb v4.0.2 auto-discovery
 pub mod cmds; // clap-noun-verb v4 entry points with #[verb] functions
