@@ -1,0 +1,21 @@
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX cloud: <https://ggen.io/ontology/cloud#>
+
+SELECT ?resourceName ?resourceType ?provider ?region ?shape ?cpus ?memoryGB ?diskGB ?osImage
+WHERE {
+  # Find all cloud resources
+  ?resource a cloud:ComputeInstance ;
+            cloud:name ?resourceName ;
+            cloud:provider ?provider .
+
+  OPTIONAL { cloud:region ?region }
+  OPTIONAL { ?resource cloud:shape ?shape }
+  OPTIONAL { ?resource cloud:cpus ?cpus }
+  OPTIONAL { ?resource cloud:memoryGB ?memoryGB }
+  OPTIONAL { ?resource cloud:diskGB ?diskGB }
+  OPTIONAL { ?resource cloud:osImage ?osImage }
+
+  BIND("compute_instance" AS ?resourceType)
+}
+ORDER BY ?resourceName

@@ -1,0 +1,14 @@
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ddd:  <https://ggen.io/ontology/ddd#>
+
+SELECT ?contextName ?version ?description
+WHERE {
+  # Find the bounded context
+  ?context a ddd:BoundedContext ;
+           ddd:name ?contextName .
+
+  OPTIONAL { ?context ddd:version ?version }
+  OPTIONAL { ?context rdfs:comment ?description }
+}
+LIMIT 1

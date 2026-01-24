@@ -1,0 +1,108 @@
+# Events - Domain Events
+
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ddd:   <https://ggen.io/ontology/ddd#> .
+@prefix attr:  <https://ggen.io/examples/attribution#> .
+
+# ============================================================================
+# CLICK RECORDED EVENT
+# ============================================================================
+
+attr:ClickRecorded a ddd:Event ;
+  ddd:name "ClickRecorded" ;
+  rdfs:comment "Click event captured" ;
+  ddd:hasField attr:ClickRecorded_click_id ;
+  ddd:hasField attr:ClickRecorded_publisher_id ;
+  ddd:hasField attr:ClickRecorded_offer_id ;
+  ddd:hasField attr:ClickRecorded_timestamp .
+
+attr:ClickRecorded_click_id a ddd:Field ;
+  ddd:name "click_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:ClickRecorded_publisher_id a ddd:Field ;
+  ddd:name "publisher_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:ClickRecorded_offer_id a ddd:Field ;
+  ddd:name "offer_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:ClickRecorded_timestamp a ddd:Field ;
+  ddd:name "timestamp" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+# ============================================================================
+# ATTRIBUTION COMPUTED EVENT
+# ============================================================================
+
+attr:AttributionComputed a ddd:Event ;
+  ddd:name "AttributionComputed" ;
+  rdfs:comment "Attribution calculated" ;
+  ddd:hasField attr:AttributionComputed_click_id ;
+  ddd:hasField attr:AttributionComputed_publisher_id ;
+  ddd:hasField attr:AttributionComputed_amount ;
+  ddd:hasField attr:AttributionComputed_computed_at .
+
+attr:AttributionComputed_click_id a ddd:Field ;
+  ddd:name "click_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:AttributionComputed_publisher_id a ddd:Field ;
+  ddd:name "publisher_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:AttributionComputed_amount a ddd:Field ;
+  ddd:name "amount" ;
+  ddd:type "Decimal" ;
+  ddd:required true .
+
+attr:AttributionComputed_computed_at a ddd:Field ;
+  ddd:name "computed_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+# ============================================================================
+# PAYOUT CALCULATED EVENT
+# ============================================================================
+
+attr:PayoutCalculated a ddd:Event ;
+  ddd:name "PayoutCalculated" ;
+  rdfs:comment "Payout computed" ;
+  ddd:hasField attr:PayoutCalculated_publisher_id ;
+  ddd:hasField attr:PayoutCalculated_amount ;
+  ddd:hasField attr:PayoutCalculated_period_start ;
+  ddd:hasField attr:PayoutCalculated_period_end ;
+  ddd:hasField attr:PayoutCalculated_calculated_at .
+
+attr:PayoutCalculated_publisher_id a ddd:Field ;
+  ddd:name "publisher_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:PayoutCalculated_amount a ddd:Field ;
+  ddd:name "amount" ;
+  ddd:type "Decimal" ;
+  ddd:required true .
+
+attr:PayoutCalculated_period_start a ddd:Field ;
+  ddd:name "period_start" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+attr:PayoutCalculated_period_end a ddd:Field ;
+  ddd:name "period_end" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+attr:PayoutCalculated_calculated_at a ddd:Field ;
+  ddd:name "calculated_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true .

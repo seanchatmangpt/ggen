@@ -1,0 +1,18 @@
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ddd:  <https://ggen.io/ontology/ddd#>
+
+SELECT ?commandName ?aggregateName ?eventName ?httpPath
+WHERE {
+  # Find all commands for integration testing
+  ?command a ddd:Command ;
+           ddd:name ?commandName ;
+           ddd:aggregate ?aggregate ;
+           ddd:emitsEvent ?event .
+
+  ?aggregate ddd:name ?aggregateName .
+  ?event ddd:name ?eventName .
+
+  OPTIONAL { ?command ddd:httpPath ?httpPath }
+}
+ORDER BY ?commandName
