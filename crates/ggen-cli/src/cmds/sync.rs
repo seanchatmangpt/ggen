@@ -236,7 +236,7 @@ fn build_sync_options(
     force: Option<bool>, audit: Option<bool>, rule: Option<String>, verbose: Option<bool>,
     watch: Option<bool>, validate_only: Option<bool>, format: Option<String>, timeout: Option<u64>,
 ) -> SyncOptions {
-    let mut options = SyncOptions::new();
+    let mut options = SyncOptions::default();
 
     // Set manifest path
     options.manifest_path = PathBuf::from(manifest.unwrap_or_else(|| "ggen.toml".to_string()));
@@ -261,17 +261,22 @@ fn build_sync_options(
 
     // Set output format
     if let Some(fmt) = format {
-        options.output_format = fmt.parse().map_err(|_| {
-            Error::new(&format!(
-                "error[E0005]: Invalid output format '{}'\n  |\n  = help: Valid formats: text, json, yaml",
-                fmt
-            ))
-        })?;
+        options.output_format = match fmt.to_lowercase().as_str() {
+            "text" => OutputFormat::Text,
+            "json" => OutputFormat::Json,
+            _ => {
+                // Note: Invalid format will use default (Text)
+                // Could enhance with error handling in future
+                eprintln!("Warning: Invalid output format '{}', using 'text'. Valid formats: text, json", fmt);
+                OutputFormat::Text
+            }
+        };
     }
 
-    // Set timeout
-    if let Some(t) = timeout {
-        options.timeout_ms = t;
+    // Note: timeout parameter is accepted but not yet used by SyncOptions
+    // Will be implemented in future version
+    if timeout.is_some() {
+        eprintln!("Warning: --timeout flag is not yet implemented");
     }
 
     options

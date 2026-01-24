@@ -116,6 +116,7 @@
 
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 
+pub mod audit;
 pub mod cache;
 pub mod cli_generator;
 pub mod codegen;
@@ -131,6 +132,7 @@ pub mod graph;
 pub mod inject;
 pub mod lifecycle;
 pub mod lockfile;
+pub mod manifest;
 pub mod merge;
 pub mod parallel_generator;
 // Ontology system - re-enabled after oxigraph API compatibility fixes
@@ -138,6 +140,7 @@ pub mod ontology;
 pub mod ontology_pack;
 pub mod packs; // Pack installation system - Phase 1
 pub mod pipeline;
+pub mod poka_yoke;
 pub mod poc;
 pub mod pqc;
 pub mod preprocessor;
@@ -147,6 +150,7 @@ pub mod register;
 pub mod registry;
 pub mod resolver;
 pub mod security; // Week 4 Security Hardening
+pub mod signals;
 pub mod snapshot;
 pub mod streaming_generator;
 pub mod telemetry;
@@ -156,6 +160,7 @@ pub mod templates;
 pub mod tera_env;
 // pub mod tracing; // Temporarily disabled due to missing tracing_subscriber dependency
 pub mod simple_tracing;
+pub mod validation;
 
 // Re-export production readiness types from lifecycle module
 pub use lifecycle::{
@@ -186,8 +191,9 @@ pub use packs::{LockedPack, PackLockfile, PackSource};
 pub use pipeline::{Pipeline, PipelineBuilder};
 pub use pqc::{calculate_sha256, calculate_sha256_file, PqcSigner, PqcVerifier};
 pub use rdf::{
-    GgenOntology, TemplateMetadata, TemplateMetadataStore, TemplateRelationship, TemplateVariable,
-    ValidationReport, ValidationResult, Validator, GGEN_NAMESPACE,
+    GgenOntology, Iri, Literal, SparqlQueryBuilder, TemplateMetadata, TemplateMetadataStore,
+    TemplateRelationship, TemplateVariable, ValidationReport, ValidationResult, Validator, Variable,
+    GGEN_NAMESPACE,
 };
 pub use registry::{RegistryClient, RegistryIndex, ResolvedPack, SearchResult};
 pub use resolver::{TemplateResolver, TemplateSearchResult, TemplateSource};

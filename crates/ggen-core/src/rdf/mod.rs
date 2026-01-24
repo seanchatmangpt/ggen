@@ -69,12 +69,14 @@
 //! ```
 
 pub mod query;
+pub mod query_builder;
 pub mod schema;
 pub mod template_metadata;
 mod template_metadata_helper;
 pub mod validation;
 
 pub use query::{CacheStats, QueryCache};
+pub use query_builder::{Iri, Literal, SparqlQueryBuilder, Variable};
 pub use schema::{GgenOntology, GGEN_NAMESPACE};
 pub use template_metadata::{
     TemplateMetadata, TemplateMetadataStore, TemplateRelationship, TemplateVariable,

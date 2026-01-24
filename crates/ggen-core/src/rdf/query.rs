@@ -186,11 +186,28 @@ impl QueryCache {
     /// * `store` - RDF store to index
     /// * `predicates` - Predicates to index
     pub fn build_predicate_index(&self, store: &Store, predicates: &[&str]) -> Result<()> {
+        use crate::rdf::query_builder::{Iri, SparqlQueryBuilder, Variable};
+
         let mut index = self.predicate_index.lock().unwrap();
 
         for predicate in predicates {
-            // Query all triples with this predicate
-            let query = format!("SELECT ?s ?o WHERE {{ ?s <{}> ?o }}", predicate);
+            // Build type-safe query using query builder
+            let predicate_iri = Iri::new(*predicate).map_err(|e| {
+                Error::with_context("Invalid predicate IRI", &e.to_string())
+            })?;
+
+            let query = SparqlQueryBuilder::select()
+                .var(Variable::new("s").map_err(|e| {
+                    Error::with_context("Failed to create variable 's'", &e.to_string())
+                })?)
+                .var(Variable::new("o").map_err(|e| {
+                    Error::with_context("Failed to create variable 'o'", &e.to_string())
+                })?)
+                .where_pattern(format!("?s <{}> ?o", predicate_iri.as_str()))
+                .build()
+                .map_err(|e| {
+                    Error::with_context("Failed to build predicate index query", &e.to_string())
+                })?;
 
             let results = self.execute_query(store, &query)?;
             let parsed: Vec<HashMap<String, String>> =

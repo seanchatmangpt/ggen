@@ -45,4 +45,48 @@ pub enum AuthError {
 
     #[error("Internal server error")]
     InternalError,
+
+    // RBAC errors
+    #[error("Permission denied")]
+    PermissionDenied,
+
+    #[error("Insufficient permissions")]
+    InsufficientPermissions,
+
+    #[error("Role not found: {0}")]
+    RoleNotFound(String),
+
+    #[error("Invalid role assignment")]
+    InvalidRoleAssignment,
+
+    #[error("Resource not found: {0}")]
+    ResourceNotFound(String),
+
+    #[error("Policy evaluation failed: {0}")]
+    PolicyEvaluationFailed(String),
+
+    #[error("Authorization failed: {0}")]
+    AuthorizationFailed(String),
+
+    #[error("Privilege escalation attempt detected")]
+    PrivilegeEscalation,
+
+    #[error("Resource ownership required")]
+    OwnershipRequired,
+
+    #[error("Invalid policy configuration: {0}")]
+    InvalidPolicyConfiguration(String),
+
+    // Week 5: Authentication hardening errors
+    #[error("Account locked until {0}")]
+    AccountLocked(String),
+
+    #[error("Rate limit exceeded")]
+    RateLimitExceeded,
+
+    #[error("Session not found")]
+    SessionNotFound,
+
+    #[error("Session expired")]
+    SessionExpired,
 }

@@ -48,4 +48,8 @@ pub enum ConfigError {
     /// Workspace configuration error
     #[error("Workspace configuration error: {0}")]
     Workspace(String),
+
+    /// Generic error
+    #[error("{0}")]
+    Other(String),
 }

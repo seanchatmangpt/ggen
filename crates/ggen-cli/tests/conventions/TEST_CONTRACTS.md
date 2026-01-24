@@ -30,7 +30,6 @@ trait ConventionResolver {
     fn discover_rdf_files(&self, config: &ConventionConfig) -> Result<Vec<PathBuf>>;
     fn discover_templates(&self, config: &ConventionConfig) -> Result<Vec<PathBuf>>;
     fn discover_queries(&self, config: &ConventionConfig) -> Result<Vec<PathBuf>>;
-    fn resolve_output_directory(&self, config: &ConventionConfig) -> Result<PathBuf>;
     fn load_config_overrides(&self, project_root: &Path) -> Result<Option<ConventionConfig>>;
 }
 ```
@@ -54,25 +53,20 @@ trait ConventionResolver {
    - Find `.sparql` files
    - Ignore non-query files (README.md, etc.)
 
-5. **Output Directory Resolution** (`test_resolve_output_directory_convention`)
-   - Default to `src/` directory
-   - Validate directory exists and is writable
-
-6. **Config Override Loading** (`test_override_conventions_from_dotggen`)
+5. **Config Override Loading** (`test_override_conventions_from_dotggen`)
    - Parse `.ggen` TOML file
    - Override default conventions
    - Support `[conventions]` section with:
      - `rdf_dir`
      - `templates_dir`
      - `queries_dir`
-     - `output_dir`
      - `preset`
 
-7. **Empty Directory Handling** (`test_empty_directories_handled`)
+6. **Empty Directory Handling** (`test_empty_directories_handled`)
    - Return empty vec, not error
    - Don't fail on missing directories
 
-8. **Extension Filtering** (`test_invalid_file_extensions_ignored`)
+7. **Extension Filtering** (`test_invalid_file_extensions_ignored`)
    - Only include valid extensions (.ttl, .hbs, .sparql)
    - Ignore backup files, READMEs, etc.
 

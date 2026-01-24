@@ -51,7 +51,7 @@ Complete reference for ggen project configuration files.
 **File Path Conventions**:
 - All paths in this document are **relative to project root** (where ggen.toml is located)
 - Template paths: `./templates/` by default
-- Output paths: `./generated/` by default
+- Generated files: Placed relative to ggen.toml location (configurable per generation rule)
 - RDF store: `./.ggen/rdf-store/` by default
 
 ## Overview
@@ -77,7 +77,6 @@ temperature = 0.7
 
 [templates]
 directory = "templates"
-output_directory = "generated"
 backup_enabled = true
 
 [rdf]
@@ -189,17 +188,17 @@ Configure template directories and generation behavior.
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
 | `directory` | String | No | "templates" | Template source directory |
-| `output_directory` | String | No | "generated" | Output directory for generated code |
 | `backup_enabled` | Boolean | No | true | Backup existing files before overwrite |
 | `idempotent` | Boolean | No | true | Skip regeneration if output unchanged |
 | `cache_directory` | String | No | ".ggen/cache" | Template cache directory |
+
+**Note**: Output paths are now specified per-generation rule in the manifest, allowing fine-grained control over where each template generates its files. All paths are relative to the ggen.toml location.
 
 **Example**:
 
 ```toml
 [templates]
 directory = "templates"
-output_directory = "src/generated"
 backup_enabled = true
 idempotent = true
 cache_directory = ".ggen/cache"
@@ -213,7 +212,7 @@ project/
 ├── templates/           # Template source
 │   ├── javascript/
 │   └── rust/
-└── src/generated/       # Generated output
+└── src/                 # Generated output (path specified in generation rules)
     ├── models.js
     └── schemas.rs
 ```
@@ -464,7 +463,6 @@ timeout = 90
 # Template configuration
 [templates]
 directory = "templates"
-output_directory = "src/generated"
 backup_enabled = true
 idempotent = true
 
