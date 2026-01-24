@@ -8,6 +8,8 @@
 //! 3. Rate Limiting - DoS prevention with Redis
 //! 4. Input Validation - Malicious input handling
 //! 5. Secrets Protection - Credential leakage prevention
+//! 6. Supply Chain Security - Week 8: Dependency security and typosquatting
+//! 7. E2E Vulnerability Testing - Week 8: Simulated vulnerability scenarios
 //!
 //! All tests follow Chicago TDD principles:
 //! - AAA pattern (Arrange/Act/Assert)
@@ -20,3 +22,5 @@ mod sparql_injection_tests;
 mod rate_limit_integration_tests;
 mod input_validation_tests;
 mod secrets_protection_tests;
+mod supply_chain_tests;
+mod e2e_vulnerability_tests;

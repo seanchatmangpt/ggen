@@ -47,15 +47,17 @@
 //! # }
 //! ```
 
+pub mod checks;
 pub mod error;
+pub mod gate;
+pub mod input; // Week 4: Comprehensive input validation framework
+pub mod input_compiler; // Week 4: Validation rule compiler
+pub mod preflight;
 pub mod shacl;
 pub mod sparql_rules;
+pub mod standard_ontologies;
 pub mod validator;
 pub mod violation;
-pub mod checks;
-pub mod gate;
-pub mod standard_ontologies;
-pub mod preflight;
 
 #[cfg(test)]
 mod tests;
@@ -72,3 +74,12 @@ pub use standard_ontologies::{
     OntologyScreeningConfig, StandardOntology, StandardOntologyValidator,
 };
 pub use preflight::{PreFlightValidator, PreFlightResult};
+
+// Week 4: Re-export comprehensive input validation framework
+pub use input::{
+    AndRule, BlacklistRule, CharsetRule, FormatRule, InputValidationError, LengthRule,
+    NegativeRule, NotRule, OrRule, PathValidatorRule, PatternRule, PositiveRule, PrecisionRule,
+    RangeRule, StringValidator, UrlValidator, ValidationRule as InputValidationRule,
+    WhitelistRule,
+};
+pub use input_compiler::{CompiledValidator, RuleCompiler, RuleDefinition};

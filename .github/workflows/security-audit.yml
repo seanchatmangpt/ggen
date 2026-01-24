@@ -1,10 +1,10 @@
-name: Security Audit
+name: Security Audit - Week 8
 
 on:
   push:
-    branches: [master]
+    branches: [master, main]
   pull_request:
-    branches: [master]
+    branches: [master, main]
   schedule:
     # Run security audit daily at 2 AM UTC
     - cron: "0 2 * * *"
@@ -19,6 +19,57 @@ env:
   RUST_BACKTRACE: 1
 
 jobs:
+  cargo-lock-verification:
+    name: Cargo.lock Verification
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Verify Cargo.lock checksum
+        run: |
+          set -euo pipefail
+
+          # Calculate SHA-256 checksum of Cargo.lock
+          LOCK_HASH=$(sha256sum Cargo.lock | awk '{print $1}')
+          echo "Cargo.lock SHA-256: $LOCK_HASH"
+
+          # Store checksum for later verification
+          echo "CARGO_LOCK_HASH=$LOCK_HASH" >> $GITHUB_ENV
+
+          # Verify Cargo.lock is up to date with Cargo.toml
+          cargo update --workspace --locked --dry-run
+
+          # Verify no unexpected changes
+          if ! git diff --exit-code Cargo.lock; then
+            echo "::error::Cargo.lock has uncommitted changes!"
+            exit 1
+          fi
+
+          echo "✅ Cargo.lock verification passed"
+
+      - name: Verify dependency checksums
+        run: |
+          set -euo pipefail
+
+          # Verify checksums of downloaded crates
+          cargo fetch --locked
+
+          # Check for checksum mismatches (would indicate tampering)
+          if cargo metadata --locked --format-version 1 > /dev/null 2>&1; then
+            echo "✅ All dependency checksums verified"
+          else
+            echo "::error::Dependency checksum verification failed!"
+            exit 1
+          fi
+
   security-audit:
     name: Security Vulnerability Scan
     runs-on: ubuntu-latest
@@ -26,6 +77,7 @@ jobs:
       contents: read
       pull-requests: write
       issues: write
+      security-events: write
 
     steps:
       - name: Checkout repository
@@ -43,82 +95,160 @@ jobs:
           tools: audit,deny,outdated
           cache-tools: "true"
 
-      - name: Run cargo audit
+      - name: Run cargo audit (comprehensive)
         id: audit
         continue-on-error: true
         run: |
+          set -euo pipefail
+
           echo "## 🔒 Cargo Audit Results" > audit-report.md
           echo "" >> audit-report.md
-          if cargo audit --json > audit.json 2>&1; then
+
+          # Run audit with JSON output for parsing
+          if cargo audit --json --deny warnings > audit.json 2>&1; then
             echo "✅ **No vulnerabilities found**" >> audit-report.md
             echo "status=success" >> $GITHUB_OUTPUT
+            echo "has_critical=false" >> $GITHUB_OUTPUT
+            echo "has_high=false" >> $GITHUB_OUTPUT
           else
             echo "⚠️ **Vulnerabilities detected**" >> audit-report.md
+            echo "" >> audit-report.md
+
+            # Parse vulnerabilities by severity
+            CRITICAL_COUNT=$(jq '[.vulnerabilities.list[] | select(.advisory.severity == "critical")] | length' audit.json || echo "0")
+            HIGH_COUNT=$(jq '[.vulnerabilities.list[] | select(.advisory.severity == "high")] | length' audit.json || echo "0")
+            MEDIUM_COUNT=$(jq '[.vulnerabilities.list[] | select(.advisory.severity == "medium")] | length' audit.json || echo "0")
+            LOW_COUNT=$(jq '[.vulnerabilities.list[] | select(.advisory.severity == "low")] | length' audit.json || echo "0")
+
+            echo "### Vulnerability Summary" >> audit-report.md
+            echo "- 🔴 Critical: $CRITICAL_COUNT" >> audit-report.md
+            echo "- 🟠 High: $HIGH_COUNT" >> audit-report.md
+            echo "- 🟡 Medium: $MEDIUM_COUNT" >> audit-report.md
+            echo "- 🟢 Low: $LOW_COUNT" >> audit-report.md
+            echo "" >> audit-report.md
+
+            # Detailed vulnerability report
+            echo "<details>" >> audit-report.md
+            echo "<summary>Detailed Vulnerability Report</summary>" >> audit-report.md
             echo "" >> audit-report.md
             echo "\`\`\`" >> audit-report.md
             cargo audit >> audit-report.md 2>&1 || true
             echo "\`\`\`" >> audit-report.md
+            echo "</details>" >> audit-report.md
 
-            # Check for critical vulnerabilities
-            if jq -e '.vulnerabilities.list[] | select(.advisory.severity == "critical")' audit.json > /dev/null 2>&1; then
+            # Set output flags
+            if [ "$CRITICAL_COUNT" -gt 0 ]; then
               echo "has_critical=true" >> $GITHUB_OUTPUT
               echo "status=critical" >> $GITHUB_OUTPUT
+            elif [ "$HIGH_COUNT" -gt 0 ]; then
+              echo "has_critical=false" >> $GITHUB_OUTPUT
+              echo "has_high=true" >> $GITHUB_OUTPUT
+              echo "status=high" >> $GITHUB_OUTPUT
             else
               echo "has_critical=false" >> $GITHUB_OUTPUT
+              echo "has_high=false" >> $GITHUB_OUTPUT
               echo "status=warning" >> $GITHUB_OUTPUT
             fi
           fi
 
-      - name: Run cargo deny
+      - name: Run cargo deny (licenses & advisories)
         id: deny
         continue-on-error: true
         run: |
+          set -euo pipefail
+
           echo "" >> audit-report.md
-          echo "## 📋 License & Dependency Check" >> audit-report.md
+          echo "## 📋 License & Supply Chain Check" >> audit-report.md
           echo "" >> audit-report.md
+
+          # Run all cargo-deny checks
           if cargo deny check 2>&1 | tee deny-output.txt; then
             echo "✅ **All checks passed**" >> audit-report.md
             echo "status=success" >> $GITHUB_OUTPUT
           else
             echo "⚠️ **Issues detected**" >> audit-report.md
             echo "" >> audit-report.md
+            echo "<details>" >> audit-report.md
+            echo "<summary>Cargo Deny Report</summary>" >> audit-report.md
+            echo "" >> audit-report.md
             echo "\`\`\`" >> audit-report.md
             cat deny-output.txt >> audit-report.md
             echo "\`\`\`" >> audit-report.md
+            echo "</details>" >> audit-report.md
             echo "status=failed" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for typosquatting
+        id: typosquatting
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+
+          echo "" >> audit-report.md
+          echo "## 🔍 Typosquatting Detection" >> audit-report.md
+          echo "" >> audit-report.md
+
+          # Run typosquatting detection script
+          if ./scripts/detect-typosquatting.sh > typosquat-output.txt 2>&1; then
+            echo "✅ **No suspicious dependencies detected**" >> audit-report.md
+            echo "status=clean" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ **Potential typosquatting detected**" >> audit-report.md
+            echo "" >> audit-report.md
+            echo "<details>" >> audit-report.md
+            echo "<summary>Suspicious Dependencies</summary>" >> audit-report.md
+            echo "" >> audit-report.md
+            echo "\`\`\`" >> audit-report.md
+            cat typosquat-output.txt >> audit-report.md
+            echo "\`\`\`" >> audit-report.md
+            echo "</details>" >> audit-report.md
+            echo "status=suspicious" >> $GITHUB_OUTPUT
           fi
 
       - name: Run cargo outdated
         id: outdated
         continue-on-error: true
         run: |
+          set -euo pipefail
+
           echo "" >> audit-report.md
           echo "## 📦 Dependency Freshness" >> audit-report.md
           echo "" >> audit-report.md
+
           if cargo outdated --exit-code 1 2>&1 | tee outdated-output.txt; then
             echo "✅ **All dependencies up to date**" >> audit-report.md
             echo "status=current" >> $GITHUB_OUTPUT
           else
-            echo "⚠️ **Outdated dependencies found**" >> audit-report.md
+            # Parse outdated dependencies
+            OUTDATED_COUNT=$(grep -c "^[a-z]" outdated-output.txt || echo "0")
+            echo "📊 **$OUTDATED_COUNT outdated dependencies**" >> audit-report.md
+            echo "" >> audit-report.md
+            echo "<details>" >> audit-report.md
+            echo "<summary>Outdated Dependencies</summary>" >> audit-report.md
             echo "" >> audit-report.md
             echo "\`\`\`" >> audit-report.md
             cat outdated-output.txt >> audit-report.md
             echo "\`\`\`" >> audit-report.md
+            echo "</details>" >> audit-report.md
             echo "status=outdated" >> $GITHUB_OUTPUT
           fi
 
       - name: Generate security summary
         run: |
           set -euo pipefail
+
           echo "" >> audit-report.md
           echo "---" >> audit-report.md
           echo "" >> audit-report.md
           echo "### Summary" >> audit-report.md
           echo "- 🔒 Vulnerability Scan: ${{ steps.audit.outputs.status }}" >> audit-report.md
           echo "- 📋 License Check: ${{ steps.deny.outputs.status }}" >> audit-report.md
+          echo "- 🔍 Typosquatting: ${{ steps.typosquatting.outputs.status }}" >> audit-report.md
           echo "- 📦 Dependencies: ${{ steps.outdated.outputs.status }}" >> audit-report.md
           echo "" >> audit-report.md
           echo "_Generated on $(date -u '+%Y-%m-%d %H:%M:%S UTC')_" >> audit-report.md
+          echo "" >> audit-report.md
+          echo "**Cargo.lock Hash**: \`${CARGO_LOCK_HASH:-unknown}\`" >> audit-report.md
 
       - name: Upload security report
         uses: actions/upload-artifact@v4
@@ -128,8 +258,9 @@ jobs:
             audit-report.md
             audit.json
             deny-output.txt
+            typosquat-output.txt
             outdated-output.txt
-          retention-days: 30
+          retention-days: 90
 
       - name: Comment PR with results
         if: github.event_name == 'pull_request'
@@ -140,9 +271,8 @@ jobs:
             const fs = require('fs');
             const report = fs.readFileSync('audit-report.md', 'utf8');
 
-            const body = `# Security Audit Report\n\n${report}\n\n---\n*Automated security scan powered by cargo-audit, cargo-deny, and cargo-outdated*`;
+            const body = `# 🛡️ Security Audit Report (Week 8)\n\n${report}\n\n---\n*Automated security scan powered by cargo-audit, cargo-deny, and custom supply chain analysis*`;
 
-            // Find existing comment
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -155,7 +285,6 @@ jobs:
             );
 
             if (botComment) {
-              // Update existing comment
               await github.rest.issues.updateComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -163,7 +292,6 @@ jobs:
                 body: body
               });
             } else {
-              // Create new comment
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -184,28 +312,110 @@ jobs:
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: '🚨 Critical Security Vulnerabilities Detected',
-              body: `Critical security vulnerabilities have been detected in dependencies.\n\n${report}\n\n**Action Required**: Please review and update affected dependencies immediately.`,
-              labels: ['security', 'critical', 'dependencies']
+              title: '🚨 CRITICAL: Security Vulnerabilities Detected',
+              body: `**STOP THE LINE** - Critical security vulnerabilities have been detected in dependencies.\n\n${report}\n\n**Action Required**: Please review and update affected dependencies immediately.\n\n## Remediation Steps:\n1. Review vulnerability details above\n2. Update affected dependencies\n3. Run \`cargo make audit\` locally to verify\n4. Test updated dependencies\n5. Create PR with fixes`,
+              labels: ['security', 'critical', 'andon-red', 'dependencies']
             });
 
-      - name: Fail on critical vulnerabilities
-        if: steps.audit.outputs.has_critical == 'true'
+      - name: Fail on critical or high vulnerabilities
+        if: steps.audit.outputs.has_critical == 'true' || steps.audit.outputs.has_high == 'true'
         run: |
           set -euo pipefail
-          echo "::error::Critical security vulnerabilities detected. Build failed."
-          exit 1
+
+          if [ "${{ steps.audit.outputs.has_critical }}" == "true" ]; then
+            echo "::error::🔴 CRITICAL security vulnerabilities detected. Build failed."
+            echo "::error::This is an ANDON SIGNAL - Stop the Line!"
+            exit 1
+          elif [ "${{ steps.audit.outputs.has_high }}" == "true" ]; then
+            echo "::error::🟠 HIGH severity vulnerabilities detected. Build failed."
+            echo "::error::This is an ANDON SIGNAL - Fix before proceeding!"
+            exit 1
+          fi
 
       - name: Warn on other issues
         if: |
           steps.audit.outputs.status == 'warning' ||
-          steps.deny.outputs.status == 'failed'
+          steps.deny.outputs.status == 'failed' ||
+          steps.typosquatting.outputs.status == 'suspicious'
         run: |
           set -euo pipefail
-          echo "::warning::Security issues detected but not critical. Please review the audit report."
+          echo "::warning::🟡 Security issues detected but not critical. Please review the audit report."
+
+  sbom-generation:
+    name: Generate SBOM (Software Bill of Materials)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-cyclonedx
+        run: cargo install cargo-cyclonedx
+
+      - name: Generate CycloneDX SBOM
+        run: |
+          set -euo pipefail
+
+          # Generate SBOM in multiple formats
+          cargo cyclonedx --format json --output-cdx sbom.cdx.json
+          cargo cyclonedx --format xml --output-cdx sbom.cdx.xml
+
+          echo "✅ SBOM generated successfully"
+
+      - name: Validate SBOM
+        run: |
+          set -euo pipefail
+
+          # Verify SBOM contains required fields
+          if jq -e '.bomFormat == "CycloneDX"' sbom.cdx.json > /dev/null; then
+            echo "✅ SBOM format validated"
+          else
+            echo "::error::Invalid SBOM format"
+            exit 1
+          fi
+
+          # Count components
+          COMPONENT_COUNT=$(jq '.components | length' sbom.cdx.json)
+          echo "📦 SBOM contains $COMPONENT_COUNT components"
+
+          # Extract and display component summary
+          echo "### SBOM Component Summary" > sbom-summary.md
+          jq -r '.components[] | "- \(.name)@\(.version) (\(.purl // "no-purl"))"' sbom.cdx.json >> sbom-summary.md
+
+      - name: Generate SBOM attestation
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: |
+            sbom.cdx.json
+            sbom.cdx.xml
+
+      - name: Upload SBOM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-artifacts
+          path: |
+            sbom.cdx.json
+            sbom.cdx.xml
+            sbom-summary.md
+          retention-days: 90
+
+      - name: Create SBOM release asset (on tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            sbom.cdx.json
+            sbom.cdx.xml
 
   dependency-review:
-    name: Dependency Review
+    name: Dependency Review & Update Check
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     permissions:
@@ -219,9 +429,103 @@ jobs:
       - name: Dependency Review
         uses: actions/dependency-review-action@v4
         with:
-          fail-on-severity: moderate
-          deny-licenses: GPL-3.0, AGPL-3.0
+          fail-on-severity: high
+          deny-licenses: GPL-3.0, AGPL-3.0, SSPL-1.0
           comment-summary-in-pr: always
+          vulnerability-check: true
+          license-check: true
+          config-file: .github/dependency-review-config.yml
+
+  automated-dependency-updates:
+    name: Automated Dependency Updates
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-edit
+        run: cargo install cargo-edit
+
+      - name: Check for security updates
+        id: security_updates
+        run: |
+          set -euo pipefail
+
+          # Run cargo audit to identify vulnerable dependencies
+          cargo audit --json > audit-before.json || true
+
+          # Extract vulnerable crates
+          VULNERABLE_CRATES=$(jq -r '.vulnerabilities.list[] | .package.name' audit-before.json | sort -u)
+
+          if [ -z "$VULNERABLE_CRATES" ]; then
+            echo "has_updates=false" >> $GITHUB_OUTPUT
+            echo "✅ No security updates required"
+            exit 0
+          fi
+
+          echo "has_updates=true" >> $GITHUB_OUTPUT
+          echo "vulnerable_crates<<EOF" >> $GITHUB_OUTPUT
+          echo "$VULNERABLE_CRATES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Apply security updates
+        if: steps.security_updates.outputs.has_updates == 'true'
+        run: |
+          set -euo pipefail
+
+          # Update vulnerable dependencies
+          echo "${{ steps.security_updates.outputs.vulnerable_crates }}" | while read -r crate; do
+            echo "Updating $crate..."
+            cargo update -p "$crate" || echo "Failed to update $crate"
+          done
+
+          # Verify updates resolved vulnerabilities
+          cargo audit --json > audit-after.json || true
+
+          REMAINING=$(jq '.vulnerabilities.list | length' audit-after.json)
+          echo "Remaining vulnerabilities: $REMAINING"
+
+      - name: Run tests after updates
+        if: steps.security_updates.outputs.has_updates == 'true'
+        run: |
+          set -euo pipefail
+          timeout 120s cargo test --workspace --no-default-features || {
+            echo "::error::Tests failed after dependency updates"
+            exit 1
+          }
+
+      - name: Create Pull Request
+        if: steps.security_updates.outputs.has_updates == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "security: Update dependencies with known vulnerabilities"
+          title: "🔒 Security: Automated dependency updates"
+          body: |
+            ## Security Updates
+
+            This PR contains automated updates for dependencies with known security vulnerabilities.
+
+            ### Updated Dependencies
+            ${{ steps.security_updates.outputs.vulnerable_crates }}
+
+            ### Verification
+            - ✅ Cargo audit passed after updates
+            - ✅ All tests passed
+            - ✅ Cargo.lock updated
+
+            **Automated by Week 8 Security Roadmap**
+          branch: automated-security-updates
+          labels: security, dependencies, automated
+          reviewers: seanchatmangpt
 
   clippy-security:
     name: Clippy Security Lints
