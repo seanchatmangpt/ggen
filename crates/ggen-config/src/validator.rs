@@ -136,13 +136,6 @@ impl<'a> ConfigValidator<'a> {
                         .push("Templates directory cannot be empty".to_string());
                 }
             }
-
-            if let Some(out_dir) = &templates.output_directory {
-                if out_dir.is_empty() {
-                    self.errors
-                        .push("Templates output_directory cannot be empty".to_string());
-                }
-            }
         }
     }
 

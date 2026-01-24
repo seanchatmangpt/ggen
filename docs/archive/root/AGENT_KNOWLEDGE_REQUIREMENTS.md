@@ -452,7 +452,6 @@ max_tokens = 4000
 
 [templates]
 directory = "templates"
-output_directory = "generated"
 backup_enabled = true
 
 [templates.rust]

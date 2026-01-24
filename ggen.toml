@@ -28,7 +28,6 @@ timeout = 120
 # Template configuration
 [templates]
 directory = "templates"
-output_directory = "generated"
 backup_enabled = true
 idempotent = true
 

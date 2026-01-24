@@ -27,6 +27,15 @@ sha2 = { workspace = true }
 hex = { workspace = true }
 base64 = { workspace = true }
 rand = "0.8"
+argon2 = "0.5"
+rsa = "0.9"
+zeroize = "1.7"
+
+# RBAC
+bitflags = "2.4"
+
+# Redis for session management
+redis = { version = "0.27", features = ["tokio-comp", "connection-manager"] }
 
 # HTTP & Utilities
 reqwest = { workspace = true }
@@ -40,6 +49,8 @@ ggen-utils = { workspace = true }
 proptest = { workspace = true }
 insta = "1.43"
 mockall = "0.13"
+testcontainers = { workspace = true }
+testcontainers-modules = { workspace = true }
 
 [[test]]
 name = "unit_tests"

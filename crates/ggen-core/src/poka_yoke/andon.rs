@@ -27,7 +27,7 @@
 //! ```
 
 use std::fmt;
-use anyhow::{Result, Error};
+use ggen_utils::error::{Result, Error};
 
 /// Critical error information for RED signal
 #[derive(Clone, Debug)]
@@ -81,7 +81,7 @@ impl AndonSignal {
         match self {
             AndonSignal::Red(error) => {
                 eprint_red_signal(error);
-                Err(Error::msg(format!(
+                Err(Error::new(&format!(
                     "error[{}]: {}",
                     error.code, error.message
                 )))

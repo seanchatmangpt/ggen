@@ -477,7 +477,6 @@ pub async fn execute_generate(
     Ok(GenerateResult {
         language: language.to_string(),
         files_generated,
-        output_directory: output_dir.display().to_string(),
         primary_file,
     })
 }
@@ -485,7 +484,6 @@ pub async fn execute_generate(
 pub struct GenerateResult {
     pub language: String,
     pub files_generated: usize,
-    pub output_directory: String,
     pub primary_file: String,
 }
 
