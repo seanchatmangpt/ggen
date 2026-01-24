@@ -1,0 +1,133 @@
+// GENERATED CODE - DO NOT EDIT
+// Source: auth.ttl via ggen sync
+// Template: auth.rs.tera
+
+use std::collections::HashMap;
+use bcrypt::{hash, verify, DEFAULT_COST};
+
+mod types;
+use types::{User, Session, AuthError};
+
+/// Authentication service managing users and sessions
+pub struct AuthService {
+    users: HashMap<String, User>,
+    sessions: HashMap<String, Session>,
+}
+
+impl AuthService {
+    /// Create a new authentication service
+    pub fn new() -> Self {
+        Self {
+            users: HashMap::new(),
+            sessions: HashMap::new(),
+        }
+    }
+
+    {% for operation in operations %}
+    /// {{ operation.comment }}
+    pub fn {{ operation.label }}(&mut self, {% for input in operation.inputs %}{{ input.name }}: {{ input.type }}{% if not loop.last %}, {% endif %}{% endfor %}) -> Result<{{ operation.output }}, {{ operation.errorType }}> {
+        {% if operation.label == "register" %}
+        // Validate email
+        if !User::validate_email(&email) {
+            return Err(AuthError::InvalidEmail(email));
+        }
+
+        // Check if user already exists
+        if self.users.contains_key(&email) {
+            return Err(AuthError::UserExists(email));
+        }
+
+        // Validate password strength
+        if password.len() < 8 {
+            return Err(AuthError::WeakPassword(
+                "Password must be at least 8 characters".to_string()
+            ));
+        }
+
+        if !password.chars().any(|c| c.is_numeric()) {
+            return Err(AuthError::WeakPassword(
+                "Password must contain at least one number".to_string()
+            ));
+        }
+
+        // Hash password
+        let password_hash = hash(password, DEFAULT_COST)
+            .map_err(|e| AuthError::HashingError(e.to_string()))?;
+
+        // Create user
+        let user = User::new(
+            format!("user_{}", self.users.len() + 1),
+            email.clone(),
+            password_hash,
+        );
+
+        // Store user
+        self.users.insert(email, user.clone());
+
+        Ok(user)
+        {% elif operation.label == "login" %}
+        // Find user
+        let user = self.users
+            .get(&email)
+            .ok_or_else(|| AuthError::UserNotFound(email.clone()))?;
+
+        // Verify password
+        let valid = verify(password, &user.password_hash)
+            .map_err(|e| AuthError::HashingError(e.to_string()))?;
+
+        if !valid {
+            return Err(AuthError::InvalidCredentials);
+        }
+
+        // Create session
+        let session = Session::new(user.id.clone());
+        let token = session.token.clone();
+
+        // Store session
+        self.sessions.insert(token.clone(), session.clone());
+
+        Ok(session)
+        {% elif operation.label == "validate_session" %}
+        // Find session
+        let session = self.sessions
+            .get(token)
+            .ok_or_else(|| AuthError::InvalidSession(token.to_string()))?;
+
+        // Check if session is still valid
+        if !session.is_valid() {
+            return Err(AuthError::InvalidSession(token.to_string()));
+        }
+
+        // Find user
+        let user = self.users
+            .values()
+            .find(|u| u.id == session.user_id)
+            .ok_or_else(|| AuthError::UserNotFound(session.user_id.clone()))?;
+
+        Ok(user)
+        {% elif operation.label == "logout" %}
+        self.sessions
+            .remove(token)
+            .ok_or_else(|| AuthError::InvalidSession(token.to_string()))?;
+
+        Ok(())
+        {% endif %}
+    }
+    {% endfor %}
+
+    /// Get user by email
+    pub fn get_user(&self, email: &str) -> Option<&User> {
+        self.users.get(email)
+    }
+
+    /// Count active sessions
+    pub fn active_sessions(&self) -> usize {
+        self.sessions.values().filter(|s| s.is_valid()).count()
+    }
+}
+
+impl Default for AuthService {
+    fn default() -> Self {
+        Self::new()
+    }
+}
