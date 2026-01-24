@@ -288,6 +288,12 @@ else
 fi
 '''
 
+[tasks.test-security]
+description = "Run security integration tests"
+workspace = false
+command = "bash"
+args = ["-c", "timeout 60s cargo test --test security_tests -- --test-threads=1 && echo '✅ Security tests passed' || (echo '❌ Security tests failed' && exit 1)"]
+
 [tasks.test]
 description = "Run all tests"
 clear = true
