@@ -297,7 +297,6 @@ mod tests {
 
             [templates]
             directory = "templates"
-            output_directory = "generated"
             backup_enabled = true
         "#;
 
