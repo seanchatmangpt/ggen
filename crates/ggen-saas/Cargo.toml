@@ -17,6 +17,7 @@ async-trait = { workspace = true }
 tracing = { workspace = true }
 uuid = { workspace = true }
 chrono = { workspace = true }
+sha2 = { workspace = true }
 
 # Rate limiting and caching
 moka = { version = "0.12", features = ["future"] }
@@ -29,3 +30,5 @@ ggen-core = { workspace = true }
 proptest = { workspace = true }
 insta = "1.43"
 mockall = "0.13"
+testcontainers = { workspace = true }
+testcontainers-modules = { workspace = true }

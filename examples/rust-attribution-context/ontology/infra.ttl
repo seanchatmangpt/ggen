@@ -1,4 +1,4 @@
-# Infrastructure - Deployment Topology
+# Infrastructure - GCP Deployment Topology (Production-Ready)
 
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
@@ -13,90 +13,362 @@
 attr:AttributionServiceABB a togaf:ArchitectureBuildingBlock ;
   togaf:name "Attribution Service" ;
   rdfs:comment "Logical attribution processing component" ;
-  togaf:capability "Process clicks and compute attribution" ;
+  togaf:capability "Process clicks and compute attribution with event sourcing" ;
   togaf:realizedBy attr:AttributionServiceSBB .
 
 attr:AttributionServiceSBB a togaf:SolutionBuildingBlock ;
   togaf:name "attribution-context" ;
-  rdfs:comment "Rust + Axum service implementation" ;
+  rdfs:comment "Rust + Axum service implementation on GCP Cloud Run" ;
   togaf:technology "Rust" ;
   togaf:framework "Axum" ;
-  togaf:runsOn attr:AttributionVM .
+  togaf:platform "GCP Cloud Run" ;
+  togaf:runsOn attr:CloudRunService .
 
 # ============================================================================
-# OCI ALWAYS FREE INFRASTRUCTURE
+# GCP CLOUD RUN INFRASTRUCTURE (Serverless Containers)
 # ============================================================================
 
-attr:AttributionVM a cloud:ComputeInstance ;
+attr:CloudRunService a cloud:CloudRunService ;
   cloud:name "attribution-service" ;
-  cloud:provider "oci" ;
-  cloud:shape "VM.Standard.A1.Flex" ;
-  cloud:cpus "2" ;
-  cloud:memoryGB "12" ;
-  cloud:region "us-phoenix-1" ;
-  cloud:os "ubuntu-22.04" ;
-  cloud:publicIP true ;
-  cloud:port "8080" ;
-  rdfs:comment "OCI Always Free Arm instance" .
-
-attr:EventStoreDB a cloud:ComputeInstance ;
-  cloud:name "event-store" ;
-  cloud:provider "oci" ;
-  cloud:shape "VM.Standard.A1.Flex" ;
-  cloud:cpus "2" ;
-  cloud:memoryGB "12" ;
-  cloud:region "us-phoenix-1" ;
-  cloud:os "ubuntu-22.04" ;
-  cloud:publicIP false ;
-  cloud:port "5432" ;
-  rdfs:comment "PostgreSQL for event sourcing" .
+  cloud:provider "gcp" ;
+  cloud:region "us-central1" ;
+  cloud:serviceName "attribution-service" ;
+  cloud:containerImage "gcr.io/PROJECT_ID/attribution-service:latest" ;
+  cloud:minInstances "1" ;
+  cloud:maxInstances "10" ;
+  cloud:cpu "2" ;
+  cloud:memory "2Gi" ;
+  cloud:timeout "300" ;
+  cloud:concurrency "80" ;
+  cloud:ingress "INGRESS_TRAFFIC_ALL" ;
+  rdfs:comment "Serverless Cloud Run service with auto-scaling" .
 
 # ============================================================================
-# NETWORK TOPOLOGY
+# GCP CLOUD SQL (PostgreSQL for Event Store)
 # ============================================================================
 
-attr:AttributionVCN a cloud:VirtualNetwork ;
-  cloud:name "attribution-vcn" ;
-  cloud:cidr "10.0.0.0/16" ;
-  cloud:region "us-phoenix-1" .
+attr:EventStoreDB a cloud:CloudSQLInstance ;
+  cloud:name "attribution-event-store" ;
+  cloud:provider "gcp" ;
+  cloud:region "us-central1" ;
+  cloud:instanceName "attribution-event-store" ;
+  cloud:databaseVersion "POSTGRES_15" ;
+  cloud:tier "db-custom-2-7680" ;
+  cloud:availabilityType "REGIONAL" ;
+  cloud:diskType "PD_SSD" ;
+  cloud:diskSize "100" ;
+  cloud:backupEnabled true ;
+  cloud:pointInTimeRecovery true ;
+  cloud:privateNetworkOnly true ;
+  cloud:requireSSL true ;
+  rdfs:comment "Highly available PostgreSQL instance for event sourcing" .
+
+attr:EventStoreDatabase a cloud:Database ;
+  cloud:name "event_store" ;
+  cloud:instanceRef attr:EventStoreDB ;
+  cloud:charset "UTF8" ;
+  cloud:collation "en_US.UTF8" ;
+  rdfs:comment "Event store database with CQRS/ES schema" .
+
+# ============================================================================
+# GCP CLOUD STORAGE (Static Content + CDN)
+# ============================================================================
+
+attr:StaticContentBucket a cloud:StorageBucket ;
+  cloud:name "attribution-static-content" ;
+  cloud:provider "gcp" ;
+  cloud:bucketName "attribution-static-content" ;
+  cloud:location "US" ;
+  cloud:storageClass "STANDARD" ;
+  cloud:versioningEnabled true ;
+  cloud:publicRead true ;
+  cloud:cdnEnabled true ;
+  rdfs:comment "Static content bucket with Cloud CDN integration" .
+
+attr:BackupBucket a cloud:StorageBucket ;
+  cloud:name "event-store-backups" ;
+  cloud:provider "gcp" ;
+  cloud:location "US" ;
+  cloud:storageClass "STANDARD" ;
+  cloud:versioningEnabled true ;
+  cloud:publicRead false ;
+  cloud:encryptionEnabled true ;
+  rdfs:comment "Encrypted backup storage for event store" .
+
+# ============================================================================
+# GCP NETWORKING (VPC + Subnets + Cloud Armor)
+# ============================================================================
+
+attr:AttributionVPC a cloud:VirtualNetwork ;
+  cloud:name "attribution-vpc" ;
+  cloud:provider "gcp" ;
+  cloud:networkName "attribution-vpc" ;
+  cloud:region "us-central1" ;
+  cloud:autoCreateSubnets false ;
+  cloud:routingMode "REGIONAL" ;
+  cloud:mtu "1460" ;
+  rdfs:comment "Private VPC network for Cloud Run and Cloud SQL" .
 
 attr:PublicSubnet a cloud:Subnet ;
   cloud:name "public-subnet" ;
   cloud:cidr "10.0.1.0/24" ;
-  cloud:partOf attr:AttributionVCN ;
-  cloud:public true .
+  cloud:region "us-central1" ;
+  cloud:partOf attr:AttributionVPC ;
+  cloud:public true ;
+  cloud:privateGoogleAccess true ;
+  cloud:flowLogsEnabled true ;
+  rdfs:comment "Public subnet for VPC connector" .
 
 attr:PrivateSubnet a cloud:Subnet ;
   cloud:name "private-subnet" ;
   cloud:cidr "10.0.2.0/24" ;
-  cloud:partOf attr:AttributionVCN ;
-  cloud:public false .
+  cloud:region "us-central1" ;
+  cloud:partOf attr:AttributionVPC ;
+  cloud:public false ;
+  cloud:privateGoogleAccess true ;
+  cloud:flowLogsEnabled true ;
+  rdfs:comment "Private subnet for Cloud SQL" .
+
+attr:VPCConnector a cloud:VPCAccessConnector ;
+  cloud:name "attribution-vpc-connector" ;
+  cloud:region "us-central1" ;
+  cloud:network attr:AttributionVPC ;
+  cloud:ipCidrRange "10.8.0.0/28" ;
+  cloud:minInstances "2" ;
+  cloud:maxInstances "3" ;
+  cloud:machineType "e2-micro" ;
+  rdfs:comment "Serverless VPC Access connector for Cloud Run" .
 
 # ============================================================================
-# DEPENDENCIES
+# GCP MONITORING & OBSERVABILITY
 # ============================================================================
 
-attr:AttributionVM cloud:dependsOn attr:EventStoreDB ;
+attr:UptimeCheck a cloud:UptimeCheck ;
+  cloud:name "attribution-service-uptime" ;
+  cloud:service attr:CloudRunService ;
+  cloud:path "/health/ready" ;
+  cloud:timeout "10s" ;
+  cloud:period "60s" ;
+  cloud:protocol "https" ;
+  cloud:regions "USA,EUROPE,ASIA_PACIFIC" ;
+  rdfs:comment "Global uptime monitoring with 3 check regions" .
+
+attr:AvailabilityAlert a cloud:AlertPolicy ;
+  cloud:name "attribution-availability" ;
+  cloud:condition "uptime_check_failed" ;
+  cloud:threshold "1" ;
+  cloud:duration "60s" ;
+  cloud:severity "critical" ;
+  rdfs:comment "Alert on service unavailability" .
+
+attr:ErrorRateAlert a cloud:AlertPolicy ;
+  cloud:name "attribution-error-rate" ;
+  cloud:condition "5xx_error_rate_gt_5_percent" ;
+  cloud:threshold "0.05" ;
+  cloud:duration "300s" ;
+  cloud:severity "high" ;
+  rdfs:comment "Alert on high error rate (>5%)" .
+
+attr:LatencyAlert a cloud:AlertPolicy ;
+  cloud:name "attribution-latency" ;
+  cloud:condition "p95_latency_gt_1000ms" ;
+  cloud:threshold "1000" ;
+  cloud:duration "300s" ;
+  cloud:severity "warning" ;
+  rdfs:comment "Alert on high latency (P95 > 1s)" .
+
+attr:MonitoringDashboard a cloud:Dashboard ;
+  cloud:name "attribution-dashboard" ;
+  cloud:service attr:CloudRunService ;
+  cloud:metrics "request_rate,latency_p50_p95_p99,error_rate,db_connections" ;
+  rdfs:comment "Production monitoring dashboard" .
+
+# ============================================================================
+# GCP IAM & SECURITY
+# ============================================================================
+
+attr:CloudRunServiceAccount a cloud:ServiceAccount ;
+  cloud:name "attribution-service-sa" ;
+  cloud:displayName "Attribution Service Account" ;
+  cloud:roles "cloudsql.client,cloudtrace.agent,monitoring.metricWriter,secretmanager.secretAccessor" ;
+  rdfs:comment "Least privilege service account for Cloud Run" .
+
+attr:CICDServiceAccount a cloud:ServiceAccount ;
+  cloud:name "cicd-deployer" ;
+  cloud:displayName "CI/CD Deployment Service Account" ;
+  cloud:roles "run.admin,storage.admin,artifactregistry.writer,iam.serviceAccountUser" ;
+  rdfs:comment "Service account for automated deployments" .
+
+attr:DBMigratorServiceAccount a cloud:ServiceAccount ;
+  cloud:name "db-migrator" ;
+  cloud:displayName "Database Migration Service Account" ;
+  cloud:roles "cloudsql.client,secretmanager.secretAccessor" ;
+  rdfs:comment "Service account for database schema migrations" .
+
+attr:ArtifactRegistry a cloud:ArtifactRegistry ;
+  cloud:name "attribution-containers" ;
+  cloud:region "us-central1" ;
+  cloud:format "DOCKER" ;
+  cloud:cleanupPolicies "keep_10_versions,delete_untagged_30d" ;
+  rdfs:comment "Container image registry for Cloud Run" .
+
+attr:CloudArmorPolicy a cloud:SecurityPolicy ;
+  cloud:name "attribution-security-policy" ;
+  cloud:rules "rate_limit_100_per_min,block_sql_injection,block_xss,block_lfi" ;
+  cloud:adaptiveProtection true ;
+  cloud:layer7DDoSDefense true ;
+  rdfs:comment "Cloud Armor DDoS and WAF protection" .
+
+attr:BinaryAuthorizationPolicy a cloud:BinaryAuthPolicy ;
+  cloud:name "attribution-binary-auth" ;
+  cloud:evaluationMode "REQUIRE_ATTESTATION" ;
+  cloud:enforcementMode "ENFORCED_BLOCK_AND_AUDIT_LOG" ;
+  rdfs:comment "Container image verification policy" .
+
+# ============================================================================
+# GCP SECRET MANAGEMENT
+# ============================================================================
+
+attr:DBConnectionSecret a cloud:Secret ;
+  cloud:name "db-connection-string" ;
+  cloud:replication "auto" ;
+  cloud:accessors attr:CloudRunServiceAccount, attr:DBMigratorServiceAccount ;
+  rdfs:comment "PostgreSQL connection string with credentials" .
+
+attr:KMSKeyRing a cloud:KMSKeyRing ;
+  cloud:name "event-store-keyring" ;
+  cloud:region "us-central1" ;
+  rdfs:comment "KMS key ring for encryption at rest" .
+
+attr:KMSCryptoKey a cloud:KMSKey ;
+  cloud:name "event-store-backup-key" ;
+  cloud:keyRing attr:KMSKeyRing ;
+  cloud:rotationPeriod "7776000s" ;
+  rdfs:comment "KMS key for backup encryption (90-day rotation)" .
+
+# ============================================================================
+# DEPENDENCIES & DATA FLOW
+# ============================================================================
+
+attr:CloudRunService cloud:dependsOn attr:EventStoreDB ;
   cloud:protocol "postgresql" ;
-  cloud:port "5432" .
-
-attr:AttributionVM cloud:subnet attr:PublicSubnet .
-attr:EventStoreDB cloud:subnet attr:PrivateSubnet .
-
-# ============================================================================
-# SECURITY
-# ============================================================================
-
-attr:HTTPIngress a cloud:SecurityRule ;
-  cloud:name "allow-http" ;
-  cloud:protocol "tcp" ;
-  cloud:port "8080" ;
-  cloud:source "0.0.0.0/0" ;
-  cloud:appliesTo attr:AttributionVM .
-
-attr:PostgreSQLInternal a cloud:SecurityRule ;
-  cloud:name "allow-postgres-internal" ;
-  cloud:protocol "tcp" ;
   cloud:port "5432" ;
-  cloud:source "10.0.0.0/16" ;
-  cloud:appliesTo attr:EventStoreDB .
+  cloud:connectionType "private" .
+
+attr:CloudRunService cloud:dependsOn attr:VPCConnector ;
+  cloud:egress "PRIVATE_RANGES_ONLY" .
+
+attr:CloudRunService cloud:usesSecret attr:DBConnectionSecret .
+
+attr:EventStoreDB cloud:backupTo attr:BackupBucket .
+
+attr:EventStoreDB cloud:encryptedWith attr:KMSCryptoKey .
+
+attr:CloudRunService cloud:protectedBy attr:CloudArmorPolicy .
+
+attr:CloudRunService cloud:monitoredBy attr:UptimeCheck, attr:MonitoringDashboard .
+
+# ============================================================================
+# COST OPTIMIZATION & SCALING
+# ============================================================================
+
+attr:AutoScalingPolicy a cloud:ScalingPolicy ;
+  cloud:name "attribution-autoscaling" ;
+  cloud:minInstances "1" ;
+  cloud:maxInstances "10" ;
+  cloud:cpuUtilization "0.70" ;
+  cloud:requestRate "100" ;
+  rdfs:comment "Auto-scaling based on CPU and request rate" .
+
+attr:CostBudget a cloud:Budget ;
+  cloud:name "attribution-monthly-budget" ;
+  cloud:amount "850" ;
+  cloud:currency "USD" ;
+  cloud:period "monthly" ;
+  cloud:alertThresholds "0.50,0.75,0.90,1.00" ;
+  rdfs:comment "Monthly budget with alerts at 50%, 75%, 90%, 100%" .
+
+# ============================================================================
+# HIGH AVAILABILITY & DISASTER RECOVERY
+# ============================================================================
+
+attr:CloudSQLReplica a cloud:CloudSQLInstance ;
+  cloud:name "attribution-event-store-replica" ;
+  cloud:provider "gcp" ;
+  cloud:region "us-east1" ;
+  cloud:masterInstance attr:EventStoreDB ;
+  cloud:replicationType "read" ;
+  cloud:failoverTarget false ;
+  rdfs:comment "Read replica for analytics and geo-redundancy" .
+
+attr:BackupSchedule a cloud:BackupSchedule ;
+  cloud:name "daily-backup" ;
+  cloud:target attr:EventStoreDB ;
+  cloud:frequency "daily" ;
+  cloud:startTime "03:00" ;
+  cloud:retentionDays "30" ;
+  cloud:pointInTimeRecovery true ;
+  rdfs:comment "Automated daily backups with PITR" .
+
+# ============================================================================
+# DNS & CUSTOM DOMAINS
+# ============================================================================
+
+attr:DNSZone a cloud:DNSZone ;
+  cloud:name "attribution-zone" ;
+  cloud:dnsName "attribution.example.com" ;
+  cloud:dnssecEnabled true ;
+  rdfs:comment "Managed DNS zone with DNSSEC" .
+
+attr:APIDomainRecord a cloud:DNSRecord ;
+  cloud:name "api.attribution.example.com" ;
+  cloud:type "A" ;
+  cloud:ttl "300" ;
+  cloud:zone attr:DNSZone ;
+  cloud:target attr:CloudRunService ;
+  rdfs:comment "A record for API service" .
+
+attr:StaticDomainRecord a cloud:DNSRecord ;
+  cloud:name "static.attribution.example.com" ;
+  cloud:type "A" ;
+  cloud:ttl "300" ;
+  cloud:zone attr:DNSZone ;
+  cloud:target attr:StaticContentBucket ;
+  rdfs:comment "A record for CDN static content" .
+
+# ============================================================================
+# AUDIT & COMPLIANCE
+# ============================================================================
+
+attr:AuditLoggingConfig a cloud:AuditConfig ;
+  cloud:service "allServices" ;
+  cloud:logTypes "ADMIN_READ,DATA_READ,DATA_WRITE" ;
+  rdfs:comment "Comprehensive audit logging for compliance" .
+
+attr:LogSink a cloud:LogSink ;
+  cloud:name "attribution-logs-sink" ;
+  cloud:destination attr:BackupBucket ;
+  cloud:filter "resource.type=cloud_run_revision AND severity>=INFO" ;
+  cloud:retention "365" ;
+  rdfs:comment "Long-term log archival for compliance (1 year)" .
+
+# ============================================================================
+# DEPLOYMENT METADATA
+# ============================================================================
+
+attr:InfrastructureMetadata a cloud:Metadata ;
+  cloud:version "1.0.0" ;
+  cloud:provider "gcp" ;
+  cloud:environment "production" ;
+  cloud:managedBy "terraform" ;
+  cloud:costEstimate "497-850 USD/month" ;
+  cloud:highAvailability true ;
+  cloud:multiRegion true ;
+  cloud:encryptionAtRest true ;
+  cloud:encryptionInTransit true ;
+  cloud:ddosProtection true ;
+  cloud:wafEnabled true ;
+  cloud:autoScaling true ;
+  cloud:containerized true ;
+  cloud:serverless true ;
+  rdfs:comment "Production-ready GCP infrastructure for FactoryPaaS Attribution Service" .

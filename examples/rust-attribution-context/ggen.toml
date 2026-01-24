@@ -32,6 +32,26 @@ format = "turtle"
 path = "ontology/infra.ttl"
 format = "turtle"
 
+[[ontology.sources]]
+path = "ontology/saas.ttl"
+format = "turtle"
+
+[[ontology.sources]]
+path = "ontology/saas_commands.ttl"
+format = "turtle"
+
+[[ontology.sources]]
+path = "ontology/saas_events.ttl"
+format = "turtle"
+
+[[ontology.sources]]
+path = "ontology/saas_aggregates.ttl"
+format = "turtle"
+
+[[ontology.sources]]
+path = "ontology/routing.ttl"
+format = "turtle"
+
 # Generation rules (factory production line)
 
 # ============================================================================
@@ -93,6 +113,52 @@ description = "Generate lib.rs module exports"
 query_file = "queries/modules.sparql"
 template_file = "templates/rust_lib.rs.tera"
 to = "world/src/lib.rs"
+
+[[generation.rules]]
+name = "saas_handlers"
+description = "Generate SaaS revenue handlers"
+query_file = "queries/saas_commands.sparql"
+template_file = "templates/saas_handlers.rs.tera"
+to = "world/src/saas_handlers.rs"
+
+[[generation.rules]]
+name = "saas_webhook_routes"
+description = "Generate SaaS webhook routes"
+query_file = "queries/saas_commands.sparql"
+template_file = "templates/saas_webhook_routes.rs.tera"
+to = "world/src/saas_webhook_routes.rs"
+
+# ============================================================================
+# AFFILIATE ROUTING SYSTEM
+# ============================================================================
+
+[[generation.rules]]
+name = "rust_routing_resolver"
+description = "Generate route resolver with zero-alloc cache"
+query_file = "queries/routing_entities.sparql"
+template_file = "templates/rust_routing_resolver.rs.tera"
+to = "world/src/routing.rs"
+
+[[generation.rules]]
+name = "rust_click_tracker"
+description = "Generate click tracker with cryptographic receipts"
+query_file = "queries/routing_entities.sparql"
+template_file = "templates/rust_click_tracker.rs.tera"
+to = "world/src/click_tracker.rs"
+
+[[generation.rules]]
+name = "rust_routing_handlers"
+description = "Generate HTTP handlers for routing endpoints"
+query_file = "queries/routing.sparql"
+template_file = "templates/rust_routing_handlers.rs.tera"
+to = "world/src/routing_handlers.rs"
+
+[[generation.rules]]
+name = "routing_property_tests"
+description = "Generate property tests for routing invariants"
+query_file = "queries/routing_entities.sparql"
+template_file = "templates/routing_property_tests.rs.tera"
+to = "world/tests/routing_property_tests.rs"
 
 # ============================================================================
 # RUST BUILD CONFIGURATION

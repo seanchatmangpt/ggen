@@ -5,6 +5,7 @@ pub mod limits;
 pub mod billing;
 pub mod errors;
 pub mod tier;
+pub mod factory_paas;
 
 pub use quotas::{QuotaManager, QuotaState};
 pub use limits::{Limits, TierLimits};
