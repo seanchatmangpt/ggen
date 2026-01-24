@@ -113,6 +113,13 @@ impl Default for SyncOptions {
     }
 }
 
+impl SyncOptions {
+    /// Create a new SyncOptions with default values
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+
 // ============================================================================
 // Sync Result Types
 // ============================================================================

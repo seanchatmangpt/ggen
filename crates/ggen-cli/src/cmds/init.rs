@@ -23,7 +23,7 @@
 #![allow(clippy::unused_unit)] // clap-noun-verb macro generates this
 
 use clap_noun_verb_macros::verb;
-use ggen_core::codegen::{FileTransaction, TransactionReceipt};
+use ggen_core::codegen::FileTransaction;
 use serde::Serialize;
 use std::fs;
 use std::path::Path;
@@ -561,7 +561,7 @@ fn perform_init(
 
     // Create FileTransaction for atomic file operations
     let mut tx = FileTransaction::new().map_err(|e| {
-        format!("Failed to initialize file transaction: {}", e)
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to initialize file transaction: {}", e))
     })?;
 
     let mut directories_created = vec![];
@@ -574,7 +574,7 @@ fn perform_init(
         let dir_path = base_path.join(dir);
         let existed = dir_path.exists();
         fs::create_dir_all(&dir_path).map_err(|e| {
-            format!("Failed to create directory {}: {}", dir, e)
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to create directory {}: {}", dir, e))
         })?;
         if !existed {
             directories_created.push(dir.to_string());
@@ -600,38 +600,38 @@ fn perform_init(
     // Create ggen.toml
     let toml_path = base_path.join("ggen.toml");
     tx.write_file(&toml_path, GGEN_TOML).map_err(|e| {
-        format!("Failed to write ggen.toml: {}", e)
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to write ggen.toml: {}", e))
     })?;
 
     // Create schema/domain.ttl
     let schema_path = base_path.join("schema").join("domain.ttl");
     tx.write_file(&schema_path, DOMAIN_TTL).map_err(|e| {
-        format!("Failed to write schema/domain.ttl: {}", e)
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to write schema/domain.ttl: {}", e))
     })?;
 
     // Create Makefile
     let makefile_path = base_path.join("Makefile");
     tx.write_file(&makefile_path, MAKEFILE).map_err(|e| {
-        format!("Failed to write Makefile: {}", e)
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to write Makefile: {}", e))
     })?;
 
     // Create example template (templates/example.txt.tera)
     let template_path = base_path.join("templates").join("example.txt.tera");
     tx.write_file(&template_path, EXAMPLE_TEMPLATE).map_err(|e| {
-        format!("Failed to write templates/example.txt.tera: {}", e)
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to write templates/example.txt.tera: {}", e))
     })?;
 
     // Create scripts/startup.sh
     let startup_sh_path = base_path.join("scripts").join("startup.sh");
     tx.write_file(&startup_sh_path, STARTUP_SH).map_err(|e| {
-        format!("Failed to write scripts/startup.sh: {}", e)
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to write scripts/startup.sh: {}", e))
     })?;
 
     // Create .gitignore (only if it doesn't exist - preserve user's gitignore)
     if !gitignore_exists {
         let gitignore_content = "# ggen outputs\nsrc/generated/\n.ggen/\n";
         tx.write_file(&gitignore_path, gitignore_content).map_err(|e| {
-            format!("Failed to write .gitignore: {}", e)
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to write .gitignore: {}", e))
         })?;
     }
 
@@ -712,7 +712,7 @@ See `ggen.toml` to configure which templates to run and where they output.
 "#;
     if !readme_exists {
         tx.write_file(&readme_path, readme_content).map_err(|e| {
-            format!("Failed to write README.md: {}", e)
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to write README.md: {}", e))
         })?;
     }
 
@@ -724,14 +724,14 @@ See `ggen.toml` to configure which templates to run and where they output.
             &startup_sh_path,
             std::fs::Permissions::from_mode(0o755),
         ).map_err(|e| {
-            format!("Failed to set execute permissions on startup.sh: {}", e)
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to set execute permissions on startup.sh: {}", e))
         })?;
     }
 
     // Commit transaction - this is the point of no return
     // After this, all changes are permanent and rollback is disabled
     let receipt = tx.commit().map_err(|e| {
-        format!("Failed to commit file transaction: {}", e)
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to commit file transaction: {}", e))
     })?;
 
     // Install git hooks after successful file creation
