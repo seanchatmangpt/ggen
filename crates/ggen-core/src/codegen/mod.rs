@@ -37,7 +37,7 @@ pub use concurrent::ConcurrentRuleExecutor;
 pub use dependency_validation::{DependencyCheck, DependencyValidationReport, DependencyValidator};
 pub use execution_lifecycle::{ExecutionLifecycle, PostSyncContext, PreSyncContext};
 pub use execution_proof::{ExecutionProof, ProofCarrier, RuleExecution};
-pub use executor::{SyncExecutor, SyncResult, SyncedFileInfo, ValidationCheck};
+pub use executor::{OutputFormat, SyncExecutor, SyncOptions, SyncResult, SyncedFileInfo, ValidationCheck};
 pub use incremental_cache::{CacheInvalidation, IncrementalCache};
 pub use marketplace_integration::{MarketplaceValidator, PackageValidation, PreFlightReport};
 pub use merge::{merge_sections, parse_merge_markers, MergeMarkers, MergedSections};
