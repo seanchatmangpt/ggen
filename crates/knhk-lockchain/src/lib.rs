@@ -6,6 +6,7 @@
 #![no_std]
 extern crate alloc;
 
+use alloc::boxed::Box;
 use alloc::vec::Vec;
 use alloc::string::String;
 use alloc::collections::BTreeMap;
@@ -191,7 +192,7 @@ impl Lockchain {
 
         // Verify parent chain
         if let Some(parent_hash) = entry.parent_hash {
-            if let Some(parent) = self.entries.iter().find(|e| e.receipt_hash == parent_hash) {
+            if let Some(_parent) = self.entries.iter().find(|e| e.receipt_hash == parent_hash) {
                 // Parent exists - chain is valid
                 return Ok(true);
             }
