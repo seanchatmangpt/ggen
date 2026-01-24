@@ -1,0 +1,233 @@
+# SaaS Entities - Recurring Revenue Model
+
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix ddd:   <https://ggen.io/ontology/ddd#> .
+@prefix attr:  <https://ggen.io/examples/attribution#> .
+
+# ============================================================================
+# SAAS PROGRAM ENTITY
+# ============================================================================
+
+attr:SaasProgram a ddd:Entity ;
+  ddd:name "SaasProgram" ;
+  rdfs:comment "SaaS affiliate program with recurring commission structure" ;
+  ddd:identityField attr:SaasProgram_id ;
+  ddd:hasField attr:SaasProgram_id ;
+  ddd:hasField attr:SaasProgram_name ;
+  ddd:hasField attr:SaasProgram_commission_rate ;
+  ddd:hasField attr:SaasProgram_billing_cycle ;
+  ddd:hasField attr:SaasProgram_api_integration ;
+  ddd:hasField attr:SaasProgram_webhook_secret ;
+  ddd:hasField attr:SaasProgram_active ;
+  ddd:hasField attr:SaasProgram_created_at .
+
+attr:SaasProgram_id a ddd:Field ;
+  ddd:name "id" ;
+  ddd:type "Uuid" ;
+  ddd:required true ;
+  rdfs:comment "Unique program identifier" .
+
+attr:SaasProgram_name a ddd:Field ;
+  ddd:name "name" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "Program display name (e.g., 'Stripe', 'Paddle')" .
+
+attr:SaasProgram_commission_rate a ddd:Field ;
+  ddd:name "commission_rate" ;
+  ddd:type "Decimal" ;
+  ddd:required true ;
+  rdfs:comment "Recurring commission rate (0.0-1.0, e.g., 0.30 for 30%)" .
+
+attr:SaasProgram_billing_cycle a ddd:Field ;
+  ddd:name "billing_cycle" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "Billing frequency (monthly, annual, etc.)" .
+
+attr:SaasProgram_api_integration a ddd:Field ;
+  ddd:name "api_integration" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "Integration type (stripe, paddle, custom)" .
+
+attr:SaasProgram_webhook_secret a ddd:Field ;
+  ddd:name "webhook_secret" ;
+  ddd:type "String" ;
+  ddd:required false ;
+  rdfs:comment "Webhook signature validation secret" .
+
+attr:SaasProgram_active a ddd:Field ;
+  ddd:name "active" ;
+  ddd:type "bool" ;
+  ddd:required true ;
+  ddd:default "true" ;
+  rdfs:comment "Program active status" .
+
+attr:SaasProgram_created_at a ddd:Field ;
+  ddd:name "created_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true ;
+  rdfs:comment "Program creation timestamp" .
+
+# ============================================================================
+# SUBSCRIPTION ENTITY
+# ============================================================================
+
+attr:Subscription a ddd:Entity ;
+  ddd:name "Subscription" ;
+  rdfs:comment "Active SaaS subscription generating recurring commissions" ;
+  ddd:identityField attr:Subscription_id ;
+  ddd:hasField attr:Subscription_id ;
+  ddd:hasField attr:Subscription_program_id ;
+  ddd:hasField attr:Subscription_publisher_id ;
+  ddd:hasField attr:Subscription_customer_id ;
+  ddd:hasField attr:Subscription_plan ;
+  ddd:hasField attr:Subscription_mrr_amount ;
+  ddd:hasField attr:Subscription_currency ;
+  ddd:hasField attr:Subscription_status ;
+  ddd:hasField attr:Subscription_start_date ;
+  ddd:hasField attr:Subscription_next_billing_date ;
+  ddd:hasField attr:Subscription_cancel_date ;
+  ddd:hasField attr:Subscription_lifetime_commission ;
+  ddd:hasField attr:Subscription_created_at .
+
+attr:Subscription_id a ddd:Field ;
+  ddd:name "id" ;
+  ddd:type "Uuid" ;
+  ddd:required true ;
+  rdfs:comment "Unique subscription identifier" .
+
+attr:Subscription_program_id a ddd:Field ;
+  ddd:name "program_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true ;
+  ddd:references attr:SaasProgram ;
+  rdfs:comment "Associated SaaS program" .
+
+attr:Subscription_publisher_id a ddd:Field ;
+  ddd:name "publisher_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true ;
+  ddd:references attr:Publisher ;
+  rdfs:comment "Publisher who referred this subscription" .
+
+attr:Subscription_customer_id a ddd:Field ;
+  ddd:name "customer_id" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "External customer ID from SaaS provider" .
+
+attr:Subscription_plan a ddd:Field ;
+  ddd:name "plan" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "Subscription plan name (e.g., 'pro', 'enterprise')" .
+
+attr:Subscription_mrr_amount a ddd:Field ;
+  ddd:name "mrr_amount" ;
+  ddd:type "Decimal" ;
+  ddd:required true ;
+  rdfs:comment "Monthly Recurring Revenue amount" .
+
+attr:Subscription_currency a ddd:Field ;
+  ddd:name "currency" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  ddd:default "USD" ;
+  rdfs:comment "Subscription currency" .
+
+attr:Subscription_status a ddd:Field ;
+  ddd:name "status" ;
+  ddd:type "String" ;
+  ddd:required true ;
+  rdfs:comment "Subscription status (active, canceled, expired)" .
+
+attr:Subscription_start_date a ddd:Field ;
+  ddd:name "start_date" ;
+  ddd:type "DateTime" ;
+  ddd:required true ;
+  rdfs:comment "Subscription start date" .
+
+attr:Subscription_next_billing_date a ddd:Field ;
+  ddd:name "next_billing_date" ;
+  ddd:type "DateTime" ;
+  ddd:required false ;
+  rdfs:comment "Next billing date for active subscriptions" .
+
+attr:Subscription_cancel_date a ddd:Field ;
+  ddd:name "cancel_date" ;
+  ddd:type "DateTime" ;
+  ddd:required false ;
+  rdfs:comment "Cancellation date if applicable" .
+
+attr:Subscription_lifetime_commission a ddd:Field ;
+  ddd:name "lifetime_commission" ;
+  ddd:type "Decimal" ;
+  ddd:required true ;
+  ddd:default "0.0" ;
+  rdfs:comment "Total commission earned from this subscription" .
+
+attr:Subscription_created_at a ddd:Field ;
+  ddd:name "created_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true ;
+  rdfs:comment "Record creation timestamp" .
+
+# ============================================================================
+# RECURRING COMMISSION VALUE OBJECT
+# ============================================================================
+
+attr:RecurringCommission a ddd:ValueObject ;
+  ddd:name "RecurringCommission" ;
+  rdfs:comment "Individual recurring commission payment" ;
+  ddd:hasField attr:RecurringCommission_id ;
+  ddd:hasField attr:RecurringCommission_subscription_id ;
+  ddd:hasField attr:RecurringCommission_publisher_id ;
+  ddd:hasField attr:RecurringCommission_amount ;
+  ddd:hasField attr:RecurringCommission_period_start ;
+  ddd:hasField attr:RecurringCommission_period_end ;
+  ddd:hasField attr:RecurringCommission_recorded_at .
+
+attr:RecurringCommission_id a ddd:Field ;
+  ddd:name "id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+attr:RecurringCommission_subscription_id a ddd:Field ;
+  ddd:name "subscription_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true ;
+  ddd:references attr:Subscription .
+
+attr:RecurringCommission_publisher_id a ddd:Field ;
+  ddd:name "publisher_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true ;
+  ddd:references attr:Publisher .
+
+attr:RecurringCommission_amount a ddd:Field ;
+  ddd:name "amount" ;
+  ddd:type "Decimal" ;
+  ddd:required true ;
+  rdfs:comment "Commission amount for this period" .
+
+attr:RecurringCommission_period_start a ddd:Field ;
+  ddd:name "period_start" ;
+  ddd:type "DateTime" ;
+  ddd:required true ;
+  rdfs:comment "Billing period start" .
+
+attr:RecurringCommission_period_end a ddd:Field ;
+  ddd:name "period_end" ;
+  ddd:type "DateTime" ;
+  ddd:required true ;
+  rdfs:comment "Billing period end" .
+
+attr:RecurringCommission_recorded_at a ddd:Field ;
+  ddd:name "recorded_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true ;
+  rdfs:comment "When commission was recorded" .

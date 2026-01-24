@@ -1,0 +1,278 @@
+# SPARQL Queries for OpenTelemetry Code Generation
+#
+# These queries extract observability metadata from the domain ontology
+# and generate instrumented code with tracing, metrics, and structured logging.
+
+@prefix otel: <http://ggen.example.org/otel#> .
+@prefix domain: <http://ggen.example.org/domain#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Query 1: Extract all commands that need tracing instrumentation
+#
+# Returns: command name, aggregate name, expected latency SLO
+otel:CommandTracingQuery a otel:SPARQLQuery ;
+    rdfs:label "Command Tracing Query" ;
+    otel:queryText """
+        PREFIX domain: <http://ggen.example.org/domain#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+        SELECT ?commandName ?aggregateName ?latencySlo ?spanKind
+        WHERE {
+            ?command a domain:Command ;
+                     domain:name ?commandName ;
+                     domain:targetAggregate ?aggregate .
+
+            ?aggregate domain:name ?aggregateName .
+
+            OPTIONAL {
+                ?command domain:latencySlo ?latencySlo .
+            }
+
+            OPTIONAL {
+                ?command domain:spanKind ?spanKind .
+            }
+
+            BIND(COALESCE(?spanKind, "command_handler") AS ?spanKind)
+            BIND(COALESCE(?latencySlo, 1000) AS ?latencySlo)
+        }
+        ORDER BY ?commandName
+    """ .
+
+# Query 2: Extract metrics to be tracked
+#
+# Returns: metric name, type (counter/histogram/gauge), description, unit
+otel:MetricsQuery a otel:SPARQLQuery ;
+    rdfs:label "Metrics Query" ;
+    otel:queryText """
+        PREFIX domain: <http://ggen.example.org/domain#>
+        PREFIX otel: <http://ggen.example.org/otel#>
+
+        SELECT ?metricName ?metricType ?description ?unit ?labels
+        WHERE {
+            ?metric a otel:Metric ;
+                    otel:name ?metricName ;
+                    otel:type ?metricType ;
+                    otel:description ?description .
+
+            OPTIONAL {
+                ?metric otel:unit ?unit .
+            }
+
+            OPTIONAL {
+                ?metric otel:labels ?labels .
+            }
+
+            BIND(COALESCE(?unit, "1") AS ?unit)
+        }
+        ORDER BY ?metricName
+    """ .
+
+# Query 3: Extract events that need structured logging
+#
+# Returns: event name, log level, fields to include
+otel:EventLoggingQuery a otel:SPARQLQuery ;
+    rdfs:label "Event Logging Query" ;
+    otel:queryText """
+        PREFIX domain: <http://ggen.example.org/domain#>
+        PREFIX otel: <http://ggen.example.org/otel#>
+
+        SELECT ?eventName ?logLevel ?fields
+        WHERE {
+            ?event a domain:Event ;
+                   domain:name ?eventName .
+
+            OPTIONAL {
+                ?event otel:logLevel ?logLevel .
+            }
+
+            OPTIONAL {
+                ?event otel:logFields ?fields .
+            }
+
+            BIND(COALESCE(?logLevel, "info") AS ?logLevel)
+            BIND(COALESCE(?fields, "default") AS ?fields)
+        }
+        ORDER BY ?eventName
+    """ .
+
+# Query 4: Extract span attributes for commands
+#
+# Returns: command name, attribute key, attribute value expression
+otel:SpanAttributesQuery a otel:SPARQLQuery ;
+    rdfs:label "Span Attributes Query" ;
+    otel:queryText """
+        PREFIX domain: <http://ggen.example.org/domain#>
+        PREFIX otel: <http://ggen.example.org/otel#>
+
+        SELECT ?commandName ?attributeKey ?attributeExpr
+        WHERE {
+            ?command a domain:Command ;
+                     domain:name ?commandName ;
+                     otel:spanAttribute ?attr .
+
+            ?attr otel:key ?attributeKey ;
+                  otel:valueExpression ?attributeExpr .
+        }
+        ORDER BY ?commandName ?attributeKey
+    """ .
+
+# Query 5: Extract receipt correlation requirements
+#
+# Returns: aggregate type, correlation strategy
+otel:ReceiptCorrelationQuery a otel:SPARQLQuery ;
+    rdfs:label "Receipt Correlation Query" ;
+    otel:queryText """
+        PREFIX domain: <http://ggen.example.org/domain#>
+        PREFIX otel: <http://ggen.example.org/otel#>
+
+        SELECT ?aggregateType ?correlationStrategy ?includeTraceId
+        WHERE {
+            ?aggregate a domain:Aggregate ;
+                       domain:name ?aggregateType .
+
+            OPTIONAL {
+                ?aggregate otel:correlationStrategy ?correlationStrategy .
+            }
+
+            OPTIONAL {
+                ?aggregate otel:includeTraceId ?includeTraceId .
+            }
+
+            BIND(COALESCE(?correlationStrategy, "trace_context") AS ?correlationStrategy)
+            BIND(COALESCE(?includeTraceId, true) AS ?includeTraceId)
+        }
+        ORDER BY ?aggregateType
+    """ .
+
+# Query 6: Extract HTTP endpoints for route-level tracing
+#
+# Returns: HTTP method, route path, handler function name
+otel:HttpEndpointsQuery a otel:SPARQLQuery ;
+    rdfs:label "HTTP Endpoints Query" ;
+    otel:queryText """
+        PREFIX domain: <http://ggen.example.org/domain#>
+        PREFIX otel: <http://ggen.example.org/otel#>
+
+        SELECT ?method ?path ?handlerName ?expectedStatus
+        WHERE {
+            ?endpoint a domain:HttpEndpoint ;
+                      domain:method ?method ;
+                      domain:path ?path ;
+                      domain:handler ?handlerName .
+
+            OPTIONAL {
+                ?endpoint domain:expectedStatus ?expectedStatus .
+            }
+
+            BIND(COALESCE(?expectedStatus, 200) AS ?expectedStatus)
+        }
+        ORDER BY ?method ?path
+    """ .
+
+# Query 7: Extract business metrics (affiliate-specific)
+#
+# Returns: business event, metric to record, revenue attribution rule
+otel:BusinessMetricsQuery a otel:SPARQLQuery ;
+    rdfs:label "Business Metrics Query" ;
+    otel:queryText """
+        PREFIX domain: <http://ggen.example.org/domain#>
+        PREFIX otel: <http://ggen.example.org/otel#>
+        PREFIX affiliate: <http://ggen.example.org/affiliate#>
+
+        SELECT ?eventType ?metricName ?revenueRule ?conversionWindow
+        WHERE {
+            ?event a affiliate:AffiliateEvent ;
+                   domain:name ?eventType ;
+                   otel:recordMetric ?metricName .
+
+            OPTIONAL {
+                ?event affiliate:revenueRule ?revenueRule .
+            }
+
+            OPTIONAL {
+                ?event affiliate:conversionWindow ?conversionWindow .
+            }
+
+            BIND(COALESCE(?revenueRule, "last_click") AS ?revenueRule)
+            BIND(COALESCE(?conversionWindow, 2592000) AS ?conversionWindow)
+        }
+        ORDER BY ?eventType
+    """ .
+
+# Example ontology instances for OTEL integration
+
+# Command with tracing metadata
+domain:CreateClickCommand a domain:Command ;
+    domain:name "CreateClick" ;
+    domain:targetAggregate domain:ClickAggregate ;
+    domain:latencySlo 100 ;  # milliseconds
+    domain:spanKind "command_handler" ;
+    otel:spanAttribute [
+        otel:key "affiliate.id" ;
+        otel:valueExpression "command.affiliate_id.to_string()"
+    ] ;
+    otel:spanAttribute [
+        otel:key "click.id" ;
+        otel:valueExpression "command.click_id.to_string()"
+    ] .
+
+# Metric definition
+otel:AffiliateClicksTotal a otel:Metric ;
+    otel:name "affiliate.clicks.total" ;
+    otel:type "counter" ;
+    otel:description "Total affiliate clicks tracked" ;
+    otel:unit "clicks" ;
+    otel:labels "affiliate.id,click.id" .
+
+otel:AffiliateRevenueCents a otel:Metric ;
+    otel:name "affiliate.revenue.cents" ;
+    otel:type "counter" ;
+    otel:description "Revenue attributed to affiliates in cents" ;
+    otel:unit "cents" ;
+    otel:labels "affiliate.id,click.id" .
+
+otel:ConversionLatency a otel:Metric ;
+    otel:name "affiliate.conversion.latency" ;
+    otel:type "histogram" ;
+    otel:description "Time from click to conversion" ;
+    otel:unit "s" ;
+    otel:labels "affiliate.id" .
+
+# Event with logging metadata
+domain:ClickCreatedEvent a domain:Event ;
+    domain:name "ClickCreated" ;
+    otel:logLevel "info" ;
+    otel:logFields "affiliate_id,click_id,timestamp,ip_address,user_agent" .
+
+domain:ConversionTrackedEvent a domain:Event ;
+    domain:name "ConversionTracked" ;
+    otel:logLevel "info" ;
+    otel:logFields "affiliate_id,click_id,order_id,revenue_cents,latency_secs" .
+
+# Aggregate with receipt correlation
+domain:ClickAggregate a domain:Aggregate ;
+    domain:name "Click" ;
+    otel:correlationStrategy "trace_context" ;
+    otel:includeTraceId true .
+
+# HTTP endpoint with route tracing
+domain:CreateClickEndpoint a domain:HttpEndpoint ;
+    domain:method "POST" ;
+    domain:path "/api/clicks" ;
+    domain:handler "handle_create_click" ;
+    domain:expectedStatus 201 .
+
+# Affiliate business event
+domain:ClickEvent a affiliate:AffiliateEvent ;
+    domain:name "ClickTracked" ;
+    otel:recordMetric "affiliate.clicks.total" ;
+    affiliate:revenueRule "last_click" ;
+    affiliate:conversionWindow 2592000 .  # 30 days in seconds
+
+domain:ConversionEvent a affiliate:AffiliateEvent ;
+    domain:name "ConversionTracked" ;
+    otel:recordMetric "affiliate.conversions.total" ;
+    otel:recordMetric "affiliate.revenue.cents" ;
+    affiliate:revenueRule "last_click" ;
+    affiliate:conversionWindow 2592000 .

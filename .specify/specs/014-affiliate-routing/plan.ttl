@@ -1,0 +1,129 @@
+@prefix sk: <http://github.com/github/spec-kit#> .
+@prefix : <http://github.com/github/spec-kit/examples/affiliate-routing#> .
+
+# ============================================================================
+# ARCHITECTURE PLAN: Affiliate Routing System
+# ============================================================================
+
+:plan a sk:Plan ;
+    sk:name "Affiliate Routing Implementation" ;
+    sk:version "1.0.0" ;
+    sk:hasDecision :decision-001, :decision-002, :decision-003, :decision-004, :decision-005 ;
+    sk:hasTask :task-001, :task-002, :task-003, :task-004, :task-005 .
+
+# ============================================================================
+# ARCHITECTURAL DECISIONS
+# ============================================================================
+
+:decision-001 a sk:Decision ;
+    sk:decisionIndex 1 ;
+    sk:title "Zero-allocation route cache with Arc<DashMap>" ;
+    sk:rationale "Arc<DashMap<String, Arc<Route>>> provides lock-free reads, zero clones on cache hits (Arc reference counting), and thread-safe writes" ;
+    sk:alternatives "HashMap with RwLock (slower concurrent reads), BTreeMap (slower lookups), custom lock-free structure (implementation complexity)" ;
+    sk:tradeoffs "DashMap has ~5% overhead vs unsafe lock-free, but provides safety guarantees and battle-tested implementation" .
+
+:decision-002 a sk:Decision ;
+    sk:decisionIndex 2 ;
+    sk:title "Merkle-linked receipt chain for audit trail" ;
+    sk:rationale "Each receipt includes prev_hash linking to previous receipt, forming tamper-evident chain. Verifiable by third parties without central authority" ;
+    sk:alternatives "Central database with signatures (single point of failure), append-only log (requires full scan for verification)" ;
+    sk:tradeoffs "Merkle chain requires sequential writes (contention at high volume), but provides strongest audit guarantees" .
+
+:decision-003 a sk:Decision ;
+    sk:decisionIndex 3 ;
+    sk:title "UUID v7 for time-ordered identifiers" ;
+    sk:rationale "UUID v7 provides chronological ordering (better DB performance), global uniqueness, and 128-bit entropy" ;
+    sk:alternatives "UUID v4 (no ordering), ULID (non-standard), auto-increment (not globally unique)" ;
+    sk:tradeoffs "UUID v7 spec is recent (RFC 9562), but supported by uuid crate 1.11+" .
+
+:decision-004 a sk:Decision ;
+    sk:decisionIndex 4 ;
+    sk:title "SHA-256 for IP hashing (privacy-safe)" ;
+    sk:rationale "SHA-256 provides irreversible hashing for GDPR compliance while allowing duplicate click detection" ;
+    sk:alternatives "Plaintext IP (privacy violation), bcrypt (too slow for hot path), MD5 (collision risk)" ;
+    sk:tradeoffs "SHA-256 is one-way (cannot reverse to IP for debugging), but required for privacy compliance" .
+
+:decision-005 a sk:Decision ;
+    sk:decisionIndex 5 ;
+    sk:title "Axum for HTTP framework with type-safe extractors" ;
+    sk:rationale "Axum provides zero-cost extractors (compile-time validation), excellent ergonomics, and Tokio integration" ;
+    sk:alternatives "Actix-web (slower compile times), Rocket (async support lagging), warp (less ergonomic)" ;
+    sk:tradeoffs "Axum is newer (less mature), but has strong community momentum and type safety guarantees" .
+
+# ============================================================================
+# IMPLEMENTATION TASKS
+# ============================================================================
+
+:task-001 a sk:Task ;
+    sk:taskIndex 1 ;
+    sk:title "Implement RouteResolver with DashMap cache" ;
+    sk:description "Create RouteResolver struct with Arc<DashMap<String, Arc<Route>>>, resolve() method returning Result<Arc<Route>, RouteError>, cache warming from ontology" ;
+    sk:estimatedHours 4 ;
+    sk:assignedTo "rust-coder" ;
+    sk:dependsOn "" .
+
+:task-002 a sk:Task ;
+    sk:taskIndex 2 ;
+    sk:title "Implement ClickReceiptGenerator with Merkle chain" ;
+    sk:description "Create receipt generator with generate() -> Result<ClickReceipt, ReceiptError>, SHA-256 hashing, prev_hash linking, append-only storage" ;
+    sk:estimatedHours 3 ;
+    sk:assignedTo "rust-coder" ;
+    sk:dependsOn :task-001 .
+
+:task-003 a sk:Task ;
+    sk:taskIndex 3 ;
+    sk:title "Implement Axum HTTP handlers for /r/{slug} and /track/click" ;
+    sk:description "Create redirect_handler() extracting slug, resolving route, generating receipt, returning 302. Create track_click_handler() for async tracking pixel" ;
+    sk:estimatedHours 3 ;
+    sk:assignedTo "rust-coder" ;
+    sk:dependsOn :task-002 .
+
+:task-004 a sk:Task ;
+    sk:taskIndex 4 ;
+    sk:title "Add property tests for routing invariants" ;
+    sk:description "Use proptest to verify: deterministic route resolution, URL encoding safety, receipt hash uniqueness, Merkle chain integrity" ;
+    sk:estimatedHours 2 ;
+    sk:assignedTo "test-engineer" ;
+    sk:dependsOn :task-003 .
+
+:task-005 a sk:Task ;
+    sk:taskIndex 5 ;
+    sk:title "Create integration tests with testcontainers" ;
+    sk:description "End-to-end tests: full redirect flow, receipt verification, concurrent load test (1k requests/sec), cache invalidation" ;
+    sk:estimatedHours 3 ;
+    sk:assignedTo "test-engineer" ;
+    sk:dependsOn :task-004 .
+
+# ============================================================================
+# SUCCESS CRITERIA
+# ============================================================================
+
+:success-001 a sk:SuccessCriterion ;
+    sk:criterionIndex 1 ;
+    sk:description "Route resolution <5ms p99 with 10k routes in cache" ;
+    sk:metric "Criterion benchmark: route_resolution_10k_cached" ;
+    sk:threshold "p99 < 5ms, zero allocations after warmup" .
+
+:success-002 a sk:SuccessCriterion ;
+    sk:criterionIndex 2 ;
+    sk:description "Receipt generation <2ms p99 including SHA-256 hashing" ;
+    sk:metric "Criterion benchmark: receipt_generation" ;
+    sk:threshold "p99 < 2ms" .
+
+:success-003 a sk:SuccessCriterion ;
+    sk:criterionIndex 3 ;
+    sk:description "All property tests pass with 10k cases" ;
+    sk:metric "cargo test --test property_tests" ;
+    sk:threshold "100% pass rate, no panics" .
+
+:success-004 a sk:SuccessCriterion ;
+    sk:criterionIndex 4 ;
+    sk:description "Zero unwrap/expect in production code" ;
+    sk:metric "cargo clippy -- -D warnings" ;
+    sk:threshold "Zero clippy warnings, all errors as Result<T,E>" .
+
+:success-005 a sk:SuccessCriterion ;
+    sk:criterionIndex 5 ;
+    sk:description "Integration tests pass with 1k concurrent requests" ;
+    sk:metric "cargo test --test integration_tests" ;
+    sk:threshold "100% pass rate, no race conditions" .

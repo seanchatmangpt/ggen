@@ -6,6 +6,9 @@
 use crate::commands::*;
 use crate::events::*;
 use crate::aggregates::*;
+use crate::otel_tracing::{create_command_span, SpanContext};
+use crate::otel_logs::{log_command_start, log_command_success, log_command_error};
+use std::time::Instant;
 use uuid::Uuid;
 
 pub type Result<T> = std::result::Result<T, HandlerError>;
@@ -25,19 +28,68 @@ pub enum HandlerError {
 {%- set aggregate_name = row["?aggregateName"] -%}
 {%- set event_name = row["?eventName"] -%}
 
-/// Handle {{ command_name }} command
+/// Handle {{ command_name }} command with OpenTelemetry instrumentation
 pub fn handle_{{ command_name | lower }}(
     aggregate: &mut {{ aggregate_name }},
     command: {{ command_name }},
+    span_context: &SpanContext,
 ) -> Result<{{ event_name }}> {
-    // TODO: Business logic validation
-    // This is where domain invariants are enforced
+    let command_id = Uuid::new_v4();
+    let aggregate_id = Uuid::new_v4(); // Get from aggregate
+    let start_time = Instant::now();
 
-    // Emit event
-    Ok({{ event_name }} {
-        // Map command fields to event fields
-        ..Default::default()
-    })
+    // Create instrumented span
+    let span = create_command_span("{{ command_name }}", &command_id, &aggregate_id);
+    let _guard = span.enter();
+
+    // Log command start
+    log_command_start(
+        "{{ command_name }}",
+        &command_id,
+        &aggregate_id,
+        span_context.trace_id,
+        span_context.span_id,
+    );
+
+    // Business logic validation
+    // This is where domain invariants are enforced
+    let result = (|| -> Result<{{ event_name }}> {
+        // TODO: Add validation logic here
+
+        // Emit event
+        Ok({{ event_name }} {
+            // Map command fields to event fields
+            ..Default::default()
+        })
+    })();
+
+    let duration_ms = start_time.elapsed().as_millis() as u64;
+
+    // Log result
+    match &result {
+        Ok(_) => {
+            log_command_success(
+                "{{ command_name }}",
+                &command_id,
+                &aggregate_id,
+                duration_ms,
+                span_context.trace_id,
+                span_context.span_id,
+            );
+        }
+        Err(e) => {
+            log_command_error(
+                "{{ command_name }}",
+                &command_id,
+                &aggregate_id,
+                &e.to_string(),
+                span_context.trace_id,
+                span_context.span_id,
+            );
+        }
+    }
+
+    result
 }
 
 {% endfor %}

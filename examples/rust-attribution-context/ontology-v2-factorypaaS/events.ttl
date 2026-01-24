@@ -1,0 +1,465 @@
+# FactoryPaaS Events - Domain Events
+
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ddd:   <https://ggen.io/ontology/ddd#> .
+@prefix fpaa:  <https://factorypaaS.io/ontology#> .
+
+# ============================================================================
+# SITE CREATED EVENT
+# ============================================================================
+
+fpaa:SiteCreated a ddd:Event ;
+  ddd:name "SiteCreated" ;
+  rdfs:comment "New affiliate site initialized" ;
+  ddd:hasField fpaa:SiteCreated_site_id ;
+  ddd:hasField fpaa:SiteCreated_name ;
+  ddd:hasField fpaa:SiteCreated_domain ;
+  ddd:hasField fpaa:SiteCreated_niche ;
+  ddd:hasField fpaa:SiteCreated_created_at .
+
+fpaa:SiteCreated_site_id a ddd:Field ;
+  ddd:name "site_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:SiteCreated_name a ddd:Field ;
+  ddd:name "name" ;
+  ddd:type "String" ;
+  ddd:required true .
+
+fpaa:SiteCreated_domain a ddd:Field ;
+  ddd:name "domain" ;
+  ddd:type "String" ;
+  ddd:required true .
+
+fpaa:SiteCreated_niche a ddd:Field ;
+  ddd:name "niche" ;
+  ddd:type "String" ;
+  ddd:required true .
+
+fpaa:SiteCreated_created_at a ddd:Field ;
+  ddd:name "created_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+# ============================================================================
+# CONTENT GENERATED EVENT
+# ============================================================================
+
+fpaa:ContentGenerated a ddd:Event ;
+  ddd:name "ContentGenerated" ;
+  rdfs:comment "AI content generation completed" ;
+  ddd:hasField fpaa:ContentGenerated_page_id ;
+  ddd:hasField fpaa:ContentGenerated_site_id ;
+  ddd:hasField fpaa:ContentGenerated_primary_keyword ;
+  ddd:hasField fpaa:ContentGenerated_word_count ;
+  ddd:hasField fpaa:ContentGenerated_quality_score ;
+  ddd:hasField fpaa:ContentGenerated_generated_at .
+
+fpaa:ContentGenerated_page_id a ddd:Field ;
+  ddd:name "page_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:ContentGenerated_site_id a ddd:Field ;
+  ddd:name "site_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:ContentGenerated_primary_keyword a ddd:Field ;
+  ddd:name "primary_keyword" ;
+  ddd:type "String" ;
+  ddd:required true .
+
+fpaa:ContentGenerated_word_count a ddd:Field ;
+  ddd:name "word_count" ;
+  ddd:type "i32" ;
+  ddd:required true .
+
+fpaa:ContentGenerated_quality_score a ddd:Field ;
+  ddd:name "quality_score" ;
+  ddd:type "f64" ;
+  ddd:required false ;
+  rdfs:comment "AI quality assessment (0.0-1.0)" .
+
+fpaa:ContentGenerated_generated_at a ddd:Field ;
+  ddd:name "generated_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+# ============================================================================
+# PAGE PUBLISHED EVENT
+# ============================================================================
+
+fpaa:PagePublished a ddd:Event ;
+  ddd:name "PagePublished" ;
+  rdfs:comment "Page transitioned to published status" ;
+  ddd:hasField fpaa:PagePublished_page_id ;
+  ddd:hasField fpaa:PagePublished_site_id ;
+  ddd:hasField fpaa:PagePublished_slug ;
+  ddd:hasField fpaa:PagePublished_canonical_url ;
+  ddd:hasField fpaa:PagePublished_published_at .
+
+fpaa:PagePublished_page_id a ddd:Field ;
+  ddd:name "page_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:PagePublished_site_id a ddd:Field ;
+  ddd:name "site_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:PagePublished_slug a ddd:Field ;
+  ddd:name "slug" ;
+  ddd:type "String" ;
+  ddd:required true .
+
+fpaa:PagePublished_canonical_url a ddd:Field ;
+  ddd:name "canonical_url" ;
+  ddd:type "String" ;
+  ddd:required true .
+
+fpaa:PagePublished_published_at a ddd:Field ;
+  ddd:name "published_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+# ============================================================================
+# SITE DEPLOYED EVENT
+# ============================================================================
+
+fpaa:SiteDeployed a ddd:Event ;
+  ddd:name "SiteDeployed" ;
+  rdfs:comment "Site successfully deployed to GCP" ;
+  ddd:hasField fpaa:SiteDeployed_site_id ;
+  ddd:hasField fpaa:SiteDeployed_deployment_id ;
+  ddd:hasField fpaa:SiteDeployed_cloud_run_service ;
+  ddd:hasField fpaa:SiteDeployed_cdn_url ;
+  ddd:hasField fpaa:SiteDeployed_deployment_strategy ;
+  ddd:hasField fpaa:SiteDeployed_deployed_at .
+
+fpaa:SiteDeployed_site_id a ddd:Field ;
+  ddd:name "site_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:SiteDeployed_deployment_id a ddd:Field ;
+  ddd:name "deployment_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:SiteDeployed_cloud_run_service a ddd:Field ;
+  ddd:name "cloud_run_service" ;
+  ddd:type "String" ;
+  ddd:required true .
+
+fpaa:SiteDeployed_cdn_url a ddd:Field ;
+  ddd:name "cdn_url" ;
+  ddd:type "String" ;
+  ddd:required false .
+
+fpaa:SiteDeployed_deployment_strategy a ddd:Field ;
+  ddd:name "deployment_strategy" ;
+  ddd:type "String" ;
+  ddd:required true .
+
+fpaa:SiteDeployed_deployed_at a ddd:Field ;
+  ddd:name "deployed_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+# ============================================================================
+# CLICK TRACKED EVENT
+# ============================================================================
+
+fpaa:ClickTracked a ddd:Event ;
+  ddd:name "ClickTracked" ;
+  rdfs:comment "Outbound affiliate click recorded" ;
+  ddd:hasField fpaa:ClickTracked_click_id ;
+  ddd:hasField fpaa:ClickTracked_link_id ;
+  ddd:hasField fpaa:ClickTracked_page_id ;
+  ddd:hasField fpaa:ClickTracked_site_id ;
+  ddd:hasField fpaa:ClickTracked_destination_url ;
+  ddd:hasField fpaa:ClickTracked_user_agent ;
+  ddd:hasField fpaa:ClickTracked_ip_hash ;
+  ddd:hasField fpaa:ClickTracked_referrer ;
+  ddd:hasField fpaa:ClickTracked_timestamp .
+
+fpaa:ClickTracked_click_id a ddd:Field ;
+  ddd:name "click_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:ClickTracked_link_id a ddd:Field ;
+  ddd:name "link_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:ClickTracked_page_id a ddd:Field ;
+  ddd:name "page_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:ClickTracked_site_id a ddd:Field ;
+  ddd:name "site_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:ClickTracked_destination_url a ddd:Field ;
+  ddd:name "destination_url" ;
+  ddd:type "String" ;
+  ddd:required true .
+
+fpaa:ClickTracked_user_agent a ddd:Field ;
+  ddd:name "user_agent" ;
+  ddd:type "String" ;
+  ddd:required false .
+
+fpaa:ClickTracked_ip_hash a ddd:Field ;
+  ddd:name "ip_hash" ;
+  ddd:type "String" ;
+  ddd:required false .
+
+fpaa:ClickTracked_referrer a ddd:Field ;
+  ddd:name "referrer" ;
+  ddd:type "String" ;
+  ddd:required false .
+
+fpaa:ClickTracked_timestamp a ddd:Field ;
+  ddd:name "timestamp" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+# ============================================================================
+# COMMISSION RECORDED EVENT
+# ============================================================================
+
+fpaa:CommissionRecorded a ddd:Event ;
+  ddd:name "CommissionRecorded" ;
+  rdfs:comment "Affiliate commission captured" ;
+  ddd:hasField fpaa:CommissionRecorded_commission_id ;
+  ddd:hasField fpaa:CommissionRecorded_click_id ;
+  ddd:hasField fpaa:CommissionRecorded_site_id ;
+  ddd:hasField fpaa:CommissionRecorded_page_id ;
+  ddd:hasField fpaa:CommissionRecorded_link_id ;
+  ddd:hasField fpaa:CommissionRecorded_amount ;
+  ddd:hasField fpaa:CommissionRecorded_currency ;
+  ddd:hasField fpaa:CommissionRecorded_affiliate_network ;
+  ddd:hasField fpaa:CommissionRecorded_transaction_id ;
+  ddd:hasField fpaa:CommissionRecorded_recorded_at .
+
+fpaa:CommissionRecorded_commission_id a ddd:Field ;
+  ddd:name "commission_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:CommissionRecorded_click_id a ddd:Field ;
+  ddd:name "click_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:CommissionRecorded_site_id a ddd:Field ;
+  ddd:name "site_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:CommissionRecorded_page_id a ddd:Field ;
+  ddd:name "page_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:CommissionRecorded_link_id a ddd:Field ;
+  ddd:name "link_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:CommissionRecorded_amount a ddd:Field ;
+  ddd:name "amount" ;
+  ddd:type "Decimal" ;
+  ddd:required true .
+
+fpaa:CommissionRecorded_currency a ddd:Field ;
+  ddd:name "currency" ;
+  ddd:type "String" ;
+  ddd:required true .
+
+fpaa:CommissionRecorded_affiliate_network a ddd:Field ;
+  ddd:name "affiliate_network" ;
+  ddd:type "String" ;
+  ddd:required true .
+
+fpaa:CommissionRecorded_transaction_id a ddd:Field ;
+  ddd:name "transaction_id" ;
+  ddd:type "String" ;
+  ddd:required false .
+
+fpaa:CommissionRecorded_recorded_at a ddd:Field ;
+  ddd:name "recorded_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+# ============================================================================
+# SAAS SUBSCRIPTION CREATED EVENT
+# ============================================================================
+
+fpaa:SaaSSubscriptionCreated a ddd:Event ;
+  ddd:name "SaaSSubscriptionCreated" ;
+  rdfs:comment "Platform subscription activated" ;
+  ddd:hasField fpaa:SaaSSubscriptionCreated_subscription_id ;
+  ddd:hasField fpaa:SaaSSubscriptionCreated_site_id ;
+  ddd:hasField fpaa:SaaSSubscriptionCreated_plan_tier ;
+  ddd:hasField fpaa:SaaSSubscriptionCreated_billing_interval ;
+  ddd:hasField fpaa:SaaSSubscriptionCreated_amount ;
+  ddd:hasField fpaa:SaaSSubscriptionCreated_created_at ;
+  ddd:hasField fpaa:SaaSSubscriptionCreated_next_billing_date .
+
+fpaa:SaaSSubscriptionCreated_subscription_id a ddd:Field ;
+  ddd:name "subscription_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:SaaSSubscriptionCreated_site_id a ddd:Field ;
+  ddd:name "site_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:SaaSSubscriptionCreated_plan_tier a ddd:Field ;
+  ddd:name "plan_tier" ;
+  ddd:type "String" ;
+  ddd:required true .
+
+fpaa:SaaSSubscriptionCreated_billing_interval a ddd:Field ;
+  ddd:name "billing_interval" ;
+  ddd:type "String" ;
+  ddd:required true .
+
+fpaa:SaaSSubscriptionCreated_amount a ddd:Field ;
+  ddd:name "amount" ;
+  ddd:type "Decimal" ;
+  ddd:required true .
+
+fpaa:SaaSSubscriptionCreated_created_at a ddd:Field ;
+  ddd:name "created_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+fpaa:SaaSSubscriptionCreated_next_billing_date a ddd:Field ;
+  ddd:name "next_billing_date" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+# ============================================================================
+# KEYWORDS OPTIMIZED EVENT
+# ============================================================================
+
+fpaa:KeywordsOptimized a ddd:Event ;
+  ddd:name "KeywordsOptimized" ;
+  rdfs:comment "Keyword research and optimization completed" ;
+  ddd:hasField fpaa:KeywordsOptimized_site_id ;
+  ddd:hasField fpaa:KeywordsOptimized_keywords_found ;
+  ddd:hasField fpaa:KeywordsOptimized_avg_difficulty ;
+  ddd:hasField fpaa:KeywordsOptimized_total_search_volume ;
+  ddd:hasField fpaa:KeywordsOptimized_optimized_at .
+
+fpaa:KeywordsOptimized_site_id a ddd:Field ;
+  ddd:name "site_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:KeywordsOptimized_keywords_found a ddd:Field ;
+  ddd:name "keywords_found" ;
+  ddd:type "i32" ;
+  ddd:required true .
+
+fpaa:KeywordsOptimized_avg_difficulty a ddd:Field ;
+  ddd:name "avg_difficulty" ;
+  ddd:type "f64" ;
+  ddd:required true .
+
+fpaa:KeywordsOptimized_total_search_volume a ddd:Field ;
+  ddd:name "total_search_volume" ;
+  ddd:type "i32" ;
+  ddd:required true .
+
+fpaa:KeywordsOptimized_optimized_at a ddd:Field ;
+  ddd:name "optimized_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+# ============================================================================
+# INTERNAL LINKS BUILT EVENT
+# ============================================================================
+
+fpaa:InternalLinksBuilt a ddd:Event ;
+  ddd:name "InternalLinksBuilt" ;
+  rdfs:comment "Internal linking structure created" ;
+  ddd:hasField fpaa:InternalLinksBuilt_site_id ;
+  ddd:hasField fpaa:InternalLinksBuilt_links_created ;
+  ddd:hasField fpaa:InternalLinksBuilt_avg_relevance_score ;
+  ddd:hasField fpaa:InternalLinksBuilt_built_at .
+
+fpaa:InternalLinksBuilt_site_id a ddd:Field ;
+  ddd:name "site_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:InternalLinksBuilt_links_created a ddd:Field ;
+  ddd:name "links_created" ;
+  ddd:type "i32" ;
+  ddd:required true .
+
+fpaa:InternalLinksBuilt_avg_relevance_score a ddd:Field ;
+  ddd:name "avg_relevance_score" ;
+  ddd:type "f64" ;
+  ddd:required true .
+
+fpaa:InternalLinksBuilt_built_at a ddd:Field ;
+  ddd:name "built_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+# ============================================================================
+# CONTENT SCHEDULED EVENT
+# ============================================================================
+
+fpaa:ContentScheduled a ddd:Event ;
+  ddd:name "ContentScheduled" ;
+  rdfs:comment "Automated content generation scheduled" ;
+  ddd:hasField fpaa:ContentScheduled_schedule_id ;
+  ddd:hasField fpaa:ContentScheduled_site_id ;
+  ddd:hasField fpaa:ContentScheduled_frequency ;
+  ddd:hasField fpaa:ContentScheduled_pages_per_batch ;
+  ddd:hasField fpaa:ContentScheduled_next_run_at ;
+  ddd:hasField fpaa:ContentScheduled_scheduled_at .
+
+fpaa:ContentScheduled_schedule_id a ddd:Field ;
+  ddd:name "schedule_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:ContentScheduled_site_id a ddd:Field ;
+  ddd:name "site_id" ;
+  ddd:type "Uuid" ;
+  ddd:required true .
+
+fpaa:ContentScheduled_frequency a ddd:Field ;
+  ddd:name "frequency" ;
+  ddd:type "String" ;
+  ddd:required true .
+
+fpaa:ContentScheduled_pages_per_batch a ddd:Field ;
+  ddd:name "pages_per_batch" ;
+  ddd:type "i32" ;
+  ddd:required true .
+
+fpaa:ContentScheduled_next_run_at a ddd:Field ;
+  ddd:name "next_run_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true .
+
+fpaa:ContentScheduled_scheduled_at a ddd:Field ;
+  ddd:name "scheduled_at" ;
+  ddd:type "DateTime" ;
+  ddd:required true .

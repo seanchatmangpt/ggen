@@ -34,10 +34,14 @@ pub struct Receipt<T> {
     pub payload_hash: String,
     /// Digital signature (optional)
     pub signature: Option<String>,
+    /// OpenTelemetry trace ID for distributed tracing
+    pub trace_id: Uuid,
+    /// OpenTelemetry span ID
+    pub span_id: Uuid,
 }
 
 impl<T: Serialize> Receipt<T> {
-    /// Create new receipt from event payload
+    /// Create new receipt from event payload with trace context
     pub fn new(
         aggregate_id: Uuid,
         aggregate_type: String,
@@ -45,6 +49,8 @@ impl<T: Serialize> Receipt<T> {
         correlation_id: Uuid,
         causation_id: Uuid,
         payload: T,
+        trace_id: Uuid,
+        span_id: Uuid,
     ) -> Result<Self, Box<dyn std::error::Error>> {
         let payload_json = serde_json::to_string(&payload)?;
         let payload_hash = format!("{:x}", md5::compute(&payload_json));
@@ -60,6 +66,8 @@ impl<T: Serialize> Receipt<T> {
             payload,
             payload_hash,
             signature: None,
+            trace_id,
+            span_id,
         })
     }
 
