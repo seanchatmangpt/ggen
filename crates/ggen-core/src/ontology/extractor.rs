@@ -310,7 +310,6 @@ impl OntologyExtractor {
             Term::NamedNode(n) => n.as_str().to_string(),
             Term::Literal(l) => l.value().to_string(),
             Term::BlankNode(b) => b.as_str().to_string(),
-            _ => term.to_string(),
         }
     }
 

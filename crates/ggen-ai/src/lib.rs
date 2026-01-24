@@ -56,6 +56,7 @@
 pub mod cache;
 pub mod client;
 pub mod config;
+// pub mod dspy; // Temporarily disabled - requires additional dependencies and submodules
 pub mod constants;
 pub mod error;
 pub mod error_utils;
@@ -70,7 +71,7 @@ pub mod types;
 
 // LLM-Construct Pattern modules
 pub mod owl;
-pub mod llm_construct;
+// pub mod llm_construct; // Temporarily disabled - depends on dspy module
 
 // Test helpers for mock clients
 #[cfg(test)]
