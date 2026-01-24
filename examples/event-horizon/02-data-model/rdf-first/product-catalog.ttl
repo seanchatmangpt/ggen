@@ -1,0 +1,254 @@
+# RDF-First Approach: Product Catalog Ontology with SHACL Constraints
+# This is the SINGLE SOURCE OF TRUTH
+# All types, validation, and relationships defined here
+
+@prefix : <http://example.org/catalog#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# ============================================================================
+# OWL ONTOLOGY (Domain Knowledge)
+# ============================================================================
+
+:Product a owl:Class ;
+    rdfs:label "Product" ;
+    rdfs:comment "A product in the catalog" ;
+    :rustType "Product" ;
+    :derive "Debug, Clone, Serialize, Deserialize, PartialEq" .
+
+:ProductVariant a owl:Class ;
+    rdfs:label "ProductVariant" ;
+    rdfs:comment "A variant of a product (e.g., size, color)" ;
+    :rustType "ProductVariant" ;
+    :derive "Debug, Clone, Serialize, Deserialize, PartialEq" .
+
+:Category a owl:Class ;
+    rdfs:label "Category" ;
+    rdfs:comment "A product category with hierarchical support" ;
+    :rustType "Category" ;
+    :derive "Debug, Clone, Serialize, Deserialize, PartialEq" .
+
+:Price a owl:Class ;
+    rdfs:label "Price" ;
+    rdfs:comment "A price with currency support" ;
+    :rustType "Price" ;
+    :derive "Debug, Clone, Serialize, Deserialize, PartialEq" .
+
+:Inventory a owl:Class ;
+    rdfs:label "Inventory" ;
+    rdfs:comment "Inventory tracking for a product" ;
+    :rustType "Inventory" ;
+    :derive "Debug, Clone, Serialize, Deserialize, PartialEq" .
+
+# ============================================================================
+# SHACL CONSTRAINTS (Validation Rules → Compile-Time Types)
+# ============================================================================
+
+:ProductShape a sh:NodeShape ;
+    sh:targetClass :Product ;
+    sh:property [
+        sh:path :hasName ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 100 ;
+        sh:message "Product name must be 1-100 characters"
+    ] ;
+    sh:property [
+        sh:path :hasDescription ;
+        sh:datatype xsd:string ;
+        sh:maxLength 1000 ;
+        sh:message "Description must be ≤1000 characters"
+    ] ;
+    sh:property [
+        sh:path :hasSKU ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[A-Z0-9-]{5,}$" ;
+        sh:message "SKU must be uppercase alphanumeric with dashes, min 5 chars"
+    ] ;
+    sh:property [
+        sh:path :hasBasePrice ;
+        sh:class :Price ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path :belongsToCategory ;
+        sh:class :Category ;
+        sh:minCount 1
+    ] .
+
+:PriceShape a sh:NodeShape ;
+    sh:targetClass :Price ;
+    sh:property [
+        sh:path :hasAmount ;
+        sh:datatype xsd:double ;
+        sh:minInclusive 0.0 ;
+        sh:message "Price amount must be non-negative"
+    ] ;
+    sh:property [
+        sh:path :hasCurrency ;
+        sh:in ( "USD" "EUR" "GBP" "JPY" ) ;
+        sh:message "Currency must be USD, EUR, GBP, or JPY"
+    ] .
+
+:InventoryShape a sh:NodeShape ;
+    sh:targetClass :Inventory ;
+    sh:property [
+        sh:path :hasQuantity ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:message "Quantity must be non-negative"
+    ] ;
+    sh:property [
+        sh:path :hasReserved ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:message "Reserved must be non-negative"
+    ] ;
+    sh:property [
+        sh:path :hasReorderPoint ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0
+    ] ;
+    sh:property [
+        sh:path :hasReorderQuantity ;
+        sh:datatype xsd:integer ;
+        sh:minExclusive 0 ;
+        sh:message "Reorder quantity must be positive"
+    ] ;
+    # Custom constraint: reserved ≤ quantity
+    sh:sparql [
+        sh:select """
+            SELECT $this WHERE {
+                $this :hasQuantity ?qty .
+                $this :hasReserved ?res .
+                FILTER (?res > ?qty)
+            }
+        """ ;
+        sh:message "Reserved cannot exceed quantity"
+    ] .
+
+:CategoryShape a sh:NodeShape ;
+    sh:targetClass :Category ;
+    sh:property [
+        sh:path :hasName ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:maxLength 50
+    ] ;
+    sh:property [
+        sh:path :hasParentCategory ;
+        sh:class :Category ;
+        sh:maxCount 1 ;
+        sh:message "Category can have at most one parent"
+    ] ;
+    # Prevent circular references via SPARQL
+    sh:sparql [
+        sh:select """
+            PREFIX : <http://example.org/catalog#>
+            SELECT $this WHERE {
+                $this :hasParentCategory+ $this .
+            }
+        """ ;
+        sh:message "Circular category reference detected"
+    ] .
+
+:VariantShape a sh:NodeShape ;
+    sh:targetClass :ProductVariant ;
+    sh:property [
+        sh:path :hasName ;
+        sh:minLength 1
+    ] ;
+    sh:property [
+        sh:path :hasPriceModifier ;
+        sh:datatype xsd:double ;
+        sh:minInclusive -10000.0 ;
+        sh:maxInclusive 10000.0 ;
+        sh:message "Price modifier must be between -10000 and 10000"
+    ] .
+
+# ============================================================================
+# RELATIONSHIPS (OWL Object Properties)
+# ============================================================================
+
+:belongsToCategory a owl:ObjectProperty ;
+    rdfs:domain :Product ;
+    rdfs:range :Category ;
+    :rustType "String" ;  # Category ID reference
+    :required true .
+
+:hasParentCategory a owl:ObjectProperty ;
+    rdfs:domain :Category ;
+    rdfs:range :Category ;
+    :rustType "Option<String>" ;  # Optional parent ID
+    :transitive true .  # Transitivity enables ancestry queries
+
+:hasVariant a owl:ObjectProperty ;
+    rdfs:domain :Product ;
+    rdfs:range :ProductVariant ;
+    :rustType "Vec<ProductVariant>" .
+
+# ============================================================================
+# DATA PROPERTIES
+# ============================================================================
+
+:hasName a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    :rustType "String" .
+
+:hasDescription a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    :rustType "String" .
+
+:hasSKU a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    :rustType "String" .
+
+:hasAmount a owl:DatatypeProperty ;
+    rdfs:domain :Price ;
+    rdfs:range xsd:double ;
+    :rustType "f64" .
+
+:hasCurrency a owl:DatatypeProperty ;
+    rdfs:domain :Price ;
+    rdfs:range xsd:string ;
+    :rustType "Currency" ;  # Enum
+
+:hasQuantity a owl:DatatypeProperty ;
+    rdfs:domain :Inventory ;
+    rdfs:range xsd:integer ;
+    :rustType "i32" .
+
+:hasReserved a owl:DatatypeProperty ;
+    rdfs:domain :Inventory ;
+    rdfs:range xsd:integer ;
+    :rustType "i32" .
+
+# ============================================================================
+# KEY BENEFITS OF RDF-FIRST APPROACH
+# ============================================================================
+
+# 1. SHACL constraints → Rust types with compile-time guarantees
+#    - sh:minLength 1 → NonEmptyString newtype wrapper
+#    - sh:minInclusive 0.0 → NonNegative<f64> newtype
+#    - Cannot construct invalid Product at compile time
+
+# 2. OWL relationships → Type-safe references
+#    - :belongsToCategory → Category ID with foreign key semantics
+#    - :hasParentCategory with :transitive → Ancestry queries built-in
+
+# 3. SPARQL constraints → Advanced validation
+#    - Circular reference detection via graph traversal
+#    - Cross-field validation (reserved ≤ quantity)
+
+# 4. Single source of truth
+#    - Change constraint here → types regenerate automatically
+#    - No drift between validation code and types
+
+# 5. Documentation IS specification
+#    - rdfs:comment → Rust doc comments
+#    - SHACL messages → Error messages
+#    - Always accurate, never drifts
