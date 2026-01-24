@@ -1,0 +1,25 @@
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ddd:  <https://ggen.io/ontology/ddd#>
+
+SELECT DISTINCT ?moduleName
+WHERE {
+  {
+    # Entities are modules
+    ?entity a ddd:Entity ;
+            ddd:name ?moduleName .
+  } UNION {
+    # Commands are modules
+    ?command a ddd:Command ;
+             ddd:name ?moduleName .
+  } UNION {
+    # Events are modules
+    ?event a ddd:Event ;
+           ddd:name ?moduleName .
+  } UNION {
+    # Aggregates are modules
+    ?aggregate a ddd:Aggregate ;
+               ddd:name ?moduleName .
+  }
+}
+ORDER BY ?moduleName

@@ -1,0 +1,102 @@
+# Infrastructure - Deployment Topology
+
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix cloud: <https://ggen.io/ontology/cloud#> .
+@prefix togaf: <https://ggen.io/ontology/togaf#> .
+@prefix attr:  <https://ggen.io/examples/attribution#> .
+
+# ============================================================================
+# TOGAF BUILDING BLOCKS
+# ============================================================================
+
+attr:AttributionServiceABB a togaf:ArchitectureBuildingBlock ;
+  togaf:name "Attribution Service" ;
+  rdfs:comment "Logical attribution processing component" ;
+  togaf:capability "Process clicks and compute attribution" ;
+  togaf:realizedBy attr:AttributionServiceSBB .
+
+attr:AttributionServiceSBB a togaf:SolutionBuildingBlock ;
+  togaf:name "attribution-context" ;
+  rdfs:comment "Rust + Axum service implementation" ;
+  togaf:technology "Rust" ;
+  togaf:framework "Axum" ;
+  togaf:runsOn attr:AttributionVM .
+
+# ============================================================================
+# OCI ALWAYS FREE INFRASTRUCTURE
+# ============================================================================
+
+attr:AttributionVM a cloud:ComputeInstance ;
+  cloud:name "attribution-service" ;
+  cloud:provider "oci" ;
+  cloud:shape "VM.Standard.A1.Flex" ;
+  cloud:cpus "2" ;
+  cloud:memoryGB "12" ;
+  cloud:region "us-phoenix-1" ;
+  cloud:os "ubuntu-22.04" ;
+  cloud:publicIP true ;
+  cloud:port "8080" ;
+  rdfs:comment "OCI Always Free Arm instance" .
+
+attr:EventStoreDB a cloud:ComputeInstance ;
+  cloud:name "event-store" ;
+  cloud:provider "oci" ;
+  cloud:shape "VM.Standard.A1.Flex" ;
+  cloud:cpus "2" ;
+  cloud:memoryGB "12" ;
+  cloud:region "us-phoenix-1" ;
+  cloud:os "ubuntu-22.04" ;
+  cloud:publicIP false ;
+  cloud:port "5432" ;
+  rdfs:comment "PostgreSQL for event sourcing" .
+
+# ============================================================================
+# NETWORK TOPOLOGY
+# ============================================================================
+
+attr:AttributionVCN a cloud:VirtualNetwork ;
+  cloud:name "attribution-vcn" ;
+  cloud:cidr "10.0.0.0/16" ;
+  cloud:region "us-phoenix-1" .
+
+attr:PublicSubnet a cloud:Subnet ;
+  cloud:name "public-subnet" ;
+  cloud:cidr "10.0.1.0/24" ;
+  cloud:partOf attr:AttributionVCN ;
+  cloud:public true .
+
+attr:PrivateSubnet a cloud:Subnet ;
+  cloud:name "private-subnet" ;
+  cloud:cidr "10.0.2.0/24" ;
+  cloud:partOf attr:AttributionVCN ;
+  cloud:public false .
+
+# ============================================================================
+# DEPENDENCIES
+# ============================================================================
+
+attr:AttributionVM cloud:dependsOn attr:EventStoreDB ;
+  cloud:protocol "postgresql" ;
+  cloud:port "5432" .
+
+attr:AttributionVM cloud:subnet attr:PublicSubnet .
+attr:EventStoreDB cloud:subnet attr:PrivateSubnet .
+
+# ============================================================================
+# SECURITY
+# ============================================================================
+
+attr:HTTPIngress a cloud:SecurityRule ;
+  cloud:name "allow-http" ;
+  cloud:protocol "tcp" ;
+  cloud:port "8080" ;
+  cloud:source "0.0.0.0/0" ;
+  cloud:appliesTo attr:AttributionVM .
+
+attr:PostgreSQLInternal a cloud:SecurityRule ;
+  cloud:name "allow-postgres-internal" ;
+  cloud:protocol "tcp" ;
+  cloud:port "5432" ;
+  cloud:source "10.0.0.0/16" ;
+  cloud:appliesTo attr:EventStoreDB .

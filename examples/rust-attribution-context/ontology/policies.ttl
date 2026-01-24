@@ -1,0 +1,73 @@
+# Policies - Business Rules
+
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ddd:   <https://ggen.io/ontology/ddd#> .
+@prefix attr:  <https://ggen.io/examples/attribution#> .
+
+# ============================================================================
+# ATTRIBUTION POLICY
+# ============================================================================
+
+attr:AttributionPolicy a ddd:Policy ;
+  ddd:name "AttributionPolicy" ;
+  rdfs:comment "Determines how clicks are attributed to publishers" ;
+  ddd:model "last-click" ;
+  ddd:windowDays "30" ;
+  ddd:rule attr:Rule_AttributionWindow ;
+  ddd:rule attr:Rule_LastClickWins .
+
+attr:Rule_AttributionWindow a ddd:Rule ;
+  ddd:name "AttributionWindow" ;
+  rdfs:comment "Only clicks within 30 days are eligible" ;
+  ddd:expression "click.timestamp >= now() - 30 days" .
+
+attr:Rule_LastClickWins a ddd:Rule ;
+  ddd:name "LastClickWins" ;
+  rdfs:comment "Most recent click gets full credit" ;
+  ddd:expression "MAX(click.timestamp) WHERE click.offer_id = conversion.offer_id" .
+
+# ============================================================================
+# PAYOUT POLICY
+# ============================================================================
+
+attr:PayoutPolicy a ddd:Policy ;
+  ddd:name "PayoutPolicy" ;
+  rdfs:comment "Determines payout calculation rules" ;
+  ddd:rule attr:Rule_MinimumPayout ;
+  ddd:rule attr:Rule_PayoutRounding .
+
+attr:Rule_MinimumPayout a ddd:Rule ;
+  ddd:name "MinimumPayout" ;
+  rdfs:comment "Minimum payout is $10.00" ;
+  ddd:expression "payout.amount >= 10.00" ;
+  ddd:threshold "10.00" ;
+  ddd:currency "USD" .
+
+attr:Rule_PayoutRounding a ddd:Rule ;
+  ddd:name "PayoutRounding" ;
+  rdfs:comment "Round to 2 decimal places" ;
+  ddd:expression "ROUND(payout.amount, 2)" ;
+  ddd:precision "2" .
+
+# ============================================================================
+# FRAUD PREVENTION POLICY
+# ============================================================================
+
+attr:FraudPreventionPolicy a ddd:Policy ;
+  ddd:name "FraudPreventionPolicy" ;
+  rdfs:comment "Detect and prevent fraudulent clicks" ;
+  ddd:rule attr:Rule_ClickRateLimit ;
+  ddd:rule attr:Rule_UniqueIPHash .
+
+attr:Rule_ClickRateLimit a ddd:Rule ;
+  ddd:name "ClickRateLimit" ;
+  rdfs:comment "Max 100 clicks per hour per publisher" ;
+  ddd:expression "COUNT(clicks) <= 100 WHERE publisher_id AND timestamp > now() - 1 hour" ;
+  ddd:limit "100" ;
+  ddd:period "1 hour" .
+
+attr:Rule_UniqueIPHash a ddd:Rule ;
+  ddd:name "UniqueIPHash" ;
+  rdfs:comment "Same IP can only click once per offer per day" ;
+  ddd:expression "COUNT(DISTINCT ip_hash) WHERE offer_id AND timestamp > now() - 1 day <= 1" .

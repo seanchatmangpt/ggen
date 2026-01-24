@@ -1,0 +1,107 @@
+# Attribution Context - DDD Bounded Context
+# Domain: Click/Revenue Attribution System
+
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix ddd:   <https://ggen.io/ontology/ddd#> .
+@prefix attr:  <https://ggen.io/examples/attribution#> .
+@prefix sys:   <https://ggen.io/ontology/system#> .
+
+# ============================================================================
+# BOUNDED CONTEXT
+# ============================================================================
+
+attr:AttributionContext a ddd:BoundedContext ;
+  ddd:name "Attribution" ;
+  rdfs:comment "Click/Revenue Attribution System" ;
+  ddd:version "1.0.0" ;
+  ddd:language "rust" ;
+  ddd:framework "axum" ;
+
+  # Aggregates
+  ddd:hasAggregate attr:ClickAggregate ;
+  ddd:hasAggregate attr:PublisherAggregate ;
+  ddd:hasAggregate attr:OfferAggregate ;
+
+  # Commands
+  ddd:hasCommand attr:RecordClick ;
+  ddd:hasCommand attr:ComputeAttribution ;
+  ddd:hasCommand attr:ProcessPayout ;
+
+  # Events
+  ddd:hasEvent attr:ClickRecorded ;
+  ddd:hasEvent attr:AttributionComputed ;
+  ddd:hasEvent attr:PayoutCalculated ;
+
+  # Policies
+  ddd:hasPolicy attr:AttributionPolicy ;
+  ddd:hasPolicy attr:PayoutPolicy ;
+
+  # Projections
+  ddd:hasProjection attr:ClickProjection ;
+  ddd:hasProjection attr:RevenueProjection .
+
+# ============================================================================
+# UBIQUITOUS LANGUAGE
+# ============================================================================
+
+attr:Publisher a ddd:ConceptDefinition ;
+  rdfs:label "Publisher" ;
+  rdfs:comment "Content creator earning revenue through offers" .
+
+attr:Offer a ddd:ConceptDefinition ;
+  rdfs:label "Offer" ;
+  rdfs:comment "Advertiser offer with payout terms" .
+
+attr:Click a ddd:ConceptDefinition ;
+  rdfs:label "Click" ;
+  rdfs:comment "User interaction event triggering attribution" .
+
+attr:Attribution a ddd:ConceptDefinition ;
+  rdfs:label "Attribution" ;
+  rdfs:comment "Credit assignment to a publisher for a conversion" .
+
+attr:Payout a ddd:ConceptDefinition ;
+  rdfs:label "Payout" ;
+  rdfs:comment "Payment calculated for a publisher" .
+
+# ============================================================================
+# DOMAIN INVARIANTS
+# ============================================================================
+
+attr:Invariant_UniqueClickId a ddd:Invariant ;
+  ddd:name "UniqueClickId" ;
+  rdfs:comment "Click IDs must be globally unique" ;
+  ddd:rule "UNIQUE(click.id)" ;
+  ddd:scope attr:ClickAggregate .
+
+attr:Invariant_PositivePayout a ddd:Invariant ;
+  ddd:name "PositivePayout" ;
+  rdfs:comment "Payouts must be positive or zero" ;
+  ddd:rule "payout.amount >= 0" ;
+  ddd:scope attr:PayoutPolicy .
+
+attr:Invariant_AttributionWindow a ddd:Invariant ;
+  ddd:name "AttributionWindow" ;
+  rdfs:comment "Clicks older than 30 days cannot be attributed" ;
+  ddd:rule "click.timestamp > now() - 30 days" ;
+  ddd:scope attr:AttributionPolicy .
+
+attr:Invariant_TotalAttributedClicks a ddd:Invariant ;
+  ddd:name "TotalAttributedClicks" ;
+  rdfs:comment "Total attributed clicks cannot exceed total clicks" ;
+  ddd:rule "SUM(attributed_clicks) <= SUM(total_clicks)" ;
+  ddd:scope attr:AttributionContext .
+
+# ============================================================================
+# CONTEXT METADATA
+# ============================================================================
+
+attr:AttributionContext
+  sys:servicePort "8080" ;
+  sys:healthPath "/health" ;
+  sys:metricsPath "/metrics" ;
+  sys:receiptsPath "/receipts" ;
+  sys:runtime "tokio" ;
+  sys:persistence "postgresql" .

@@ -1,0 +1,15 @@
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ddd:  <https://ggen.io/ontology/ddd#>
+
+SELECT ?eventName ?fieldName ?fieldType
+WHERE {
+  # Find all events (each event becomes a receipt)
+  ?event a ddd:Event ;
+         ddd:name ?eventName ;
+         ddd:hasField ?field .
+
+  ?field ddd:name ?fieldName ;
+         ddd:type ?fieldType .
+}
+ORDER BY ?eventName ?fieldName
