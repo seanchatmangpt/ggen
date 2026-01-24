@@ -164,20 +164,14 @@ impl ProjectWatcher {
     fn find_affected_templates(&self, _changed: &[PathBuf]) -> Vec<String> {
         // For now, return all templates
         // A more sophisticated implementation would analyze dependencies
-        let conventions = self.resolver.discover().unwrap_or_else(|_| {
-            // Return empty conventions on error
-            ProjectConventions {
-                rdf_files: vec![],
-                rdf_dir: PathBuf::new(),
-                templates: HashMap::new(),
-                templates_dir: PathBuf::new(),
-                queries: HashMap::new(),
-                output_dir: PathBuf::new(),
-                preset: "default".to_string(),
+        match self.resolver.discover() {
+            Ok(conventions) => conventions.templates.keys().cloned().collect(),
+            Err(e) => {
+                log::warn!("Failed to discover conventions for affected templates: {}", e);
+                // Return empty list on error - safer than continuing with stale data
+                Vec::new()
             }
-        });
-
-        conventions.templates.keys().cloned().collect()
+        }
     }
 
     /// Regenerate a specific template

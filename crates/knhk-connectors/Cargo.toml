@@ -14,10 +14,12 @@ hashbrown = { version = "0.15", default-features = false }
 # Kafka connector dependencies
 rdkafka = { version = "0.36", optional = true, default-features = false }
 # Salesforce connector dependencies
-reqwest = { workspace = true, optional = true }
-serde = { workspace = true, optional = true }
-serde_json = { workspace = true, optional = true }
-tokio = { workspace = true, optional = true }
+# Optional dependencies cannot use workspace = true (Cargo limitation)
+# Using explicit versions from workspace
+reqwest = { version = "0.12", features = ["blocking", "json", "rustls-tls"], optional = true }
+serde = { version = "1.0", features = ["derive"], optional = true }
+serde_json = { version = "1.0", optional = true }
+tokio = { version = "1.47", features = ["full"], optional = true }
 tracing = { workspace = true }
 
 [dev-dependencies]

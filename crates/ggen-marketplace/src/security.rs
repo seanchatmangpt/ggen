@@ -198,8 +198,20 @@ impl std::fmt::Display for SignatureReceipt {
         writeln!(f, "Signature Receipt")?;
         writeln!(f, "Package: {}", self.package_identifier)?;
         writeln!(f, "Signed at: {}", self.signed_at)?;
-        writeln!(f, "Public key: {}", &self.public_key[..16])?; // Show first 16 chars
-        writeln!(f, "Data checksum: {}", &self.data_checksum[..16])?;
+        // Safe truncation - show first 16 chars or entire string if shorter
+        let pub_key_preview = if self.public_key.len() > 16 {
+            &self.public_key[..16]
+        } else {
+            &self.public_key
+        };
+        writeln!(f, "Public key: {}", pub_key_preview)?;
+
+        let checksum_preview = if self.data_checksum.len() > 16 {
+            &self.data_checksum[..16]
+        } else {
+            &self.data_checksum
+        };
+        writeln!(f, "Data checksum: {}", checksum_preview)?;
         Ok(())
     }
 }

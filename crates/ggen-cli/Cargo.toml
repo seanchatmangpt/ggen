@@ -49,7 +49,6 @@ ggen-domain.workspace = true
 ggen-marketplace-v2 = { path = "../ggen-marketplace-v2", version = "3.0.0" }
 
 # Crate-specific dependencies
-gag = "0.1"
 clap_complete = "4.5.58"
 clap-noun-verb-macros.workspace = true
 sha2 = "0.10"
@@ -61,7 +60,7 @@ oxigraph = "0.5"
 walkdir = "2.5"
 colored = "3.0"
 indicatif = "0.17"
-genai = "0.4"
+genai = { workspace = true }
 linkme = "0.3"
 notify = "6.1"
 notify-debouncer-full = "0.3"

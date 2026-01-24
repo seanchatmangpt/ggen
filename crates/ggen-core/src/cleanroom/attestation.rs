@@ -305,7 +305,7 @@ impl Attestation {
     }
 
     /// Get reproducibility instructions
-    pub fn reproducibility_instructions(&self) -> String {
+    pub fn reproducibility_instructions(&self) -> Result<String> {
         let mut instructions = String::new();
 
         instructions.push_str("# Reproducibility Instructions\n\n");
@@ -319,9 +319,11 @@ impl Attestation {
         }
 
         instructions.push_str("\n## Configuration\n\n");
-        instructions.push_str(&format!("```json\n{}\n```\n", serde_json::to_string_pretty(&self.surfaces).unwrap()));
+        let surfaces_json = serde_json::to_string_pretty(&self.surfaces)
+            .map_err(|e| Error::new(&format!("Failed to serialize surfaces: {}", e)))?;
+        instructions.push_str(&format!("```json\n{}\n```\n", surfaces_json));
 
-        instructions
+        Ok(instructions)
     }
 }
 
@@ -375,7 +377,7 @@ mod tests {
         let surfaces = DeterministicSurfaces::deterministic(42);
         let attestation = Attestation::new(&surfaces, "Locked");
 
-        let instructions = attestation.reproducibility_instructions();
+        let instructions = attestation.reproducibility_instructions().unwrap();
 
         assert!(instructions.contains("Policy: Locked"));
         assert!(instructions.contains("Determinism Score: 1.00"));
