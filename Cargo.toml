@@ -489,3 +489,9 @@ required-features = []
 name = "ontology_workflows_e2e"
 path = "tests/integration/ontology_workflows_e2e.rs"
 required-features = []
+
+# Security integration tests
+[[test]]
+name = "security_tests"
+path = "tests/security/mod.rs"
+required-features = []

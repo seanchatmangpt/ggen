@@ -114,7 +114,6 @@ max_iterations = 3
 
 [templates]
 directory = "templates"
-output_directory = "generated"
 backup_enabled = true
 idempotent = true
 
@@ -192,9 +191,10 @@ lifecycle_management = true
 ### Templates (`[templates]`)
 
 - `directory` - Template source directory
-- `output_directory` - Output directory for generated files
 - `backup_enabled` - Enable backups before overwriting
 - `idempotent` - Only update if content changed
+
+**Note**: Output paths are now specified per-generation rule in manifests, allowing fine-grained control over where each template generates its files.
 
 ### RDF (`[rdf]`)
 

@@ -48,7 +48,6 @@ secret = { pattern = "(?i)(password|secret|api.?key)", action = "reject" }
 # Template configuration
 [templates]
 directory = "templates"
-output_directory = "generated"
 
 # RDF configuration
 [rdf]

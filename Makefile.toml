@@ -288,6 +288,12 @@ else
 fi
 '''
 
+[tasks.test-security]
+description = "Run security integration tests"
+workspace = false
+command = "bash"
+args = ["-c", "timeout 60s cargo test --test security_tests -- --test-threads=1 && echo '✅ Security tests passed' || (echo '❌ Security tests failed' && exit 1)"]
+
 [tasks.test]
 description = "Run all tests"
 clear = true
@@ -760,10 +766,48 @@ command = "cargo"
 args = ["test", "--test", "bdd", "--", "--nocapture"]
 
 [tasks.audit]
-description = "Security audit"
-command = "cargo"
-args = ["audit"]
+description = "Security audit with comprehensive vulnerability scanning"
 workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+echo "🔒 Security Audit (Week 8)"
+echo "=========================="
+echo ""
+
+# Run cargo audit
+echo "1️⃣ Running cargo audit..."
+if cargo audit --deny warnings; then
+  echo "   ✅ No vulnerabilities found"
+else
+  echo "   ❌ Vulnerabilities detected"
+  exit 1
+fi
+echo ""
+
+# Verify Cargo.lock
+echo "2️⃣ Verifying Cargo.lock integrity..."
+if ./scripts/verify-cargo-lock.sh; then
+  echo "   ✅ Cargo.lock verification passed"
+else
+  echo "   ❌ Cargo.lock verification failed"
+  exit 1
+fi
+echo ""
+
+# Check for typosquatting
+echo "3️⃣ Checking for typosquatting..."
+if ./scripts/detect-typosquatting.sh > /dev/null 2>&1; then
+  echo "   ✅ No suspicious dependencies detected"
+else
+  echo "   ⚠️  Potential typosquatting detected (see report)"
+fi
+echo ""
+
+echo "✅ Security audit complete"
+'''
 
 [tasks.audit-outdated]
 description = "Check for outdated dependencies"
@@ -823,9 +867,25 @@ args = ["deny", "check"]
 workspace = false
 
 [tasks.audit-all]
-description = "Run all dependency audits"
-dependencies = ["audit", "audit-outdated", "audit-deny"]
+description = "Run all dependency audits (Week 8 comprehensive)"
 workspace = false
+dependencies = ["audit", "audit-outdated", "audit-deny", "audit-sbom", "audit-lock"]
+
+[tasks.audit-lock]
+description = "Verify Cargo.lock checksum and integrity"
+workspace = false
+command = "./scripts/verify-cargo-lock.sh"
+
+[tasks.audit-sbom]
+description = "Generate SBOM (Software Bill of Materials)"
+workspace = false
+command = "./scripts/generate-sbom.sh"
+args = [".sbom", "both"]
+
+[tasks.audit-typosquat]
+description = "Detect typosquatting in dependencies"
+workspace = false
+command = "./scripts/detect-typosquatting.sh"
 
 [tasks.format]
 description = "Format code"

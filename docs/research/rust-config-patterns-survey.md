@@ -961,7 +961,6 @@ model = "gpt-4"
 temperature = 0.7
 
 [templates]
-output_directory = "generated"
 ```
 
 ```bash

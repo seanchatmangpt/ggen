@@ -24,7 +24,7 @@ anyhow = "1.0"
 thiserror = "2.0.17"
 backtrace = "0.3.76"
 color-backtrace = "0.7.1"
-chrono = "0.4"
+chrono = { version = "0.4", features = ["serde"] }
 # Disable ron feature in config to avoid base64 v0.21.7 duplicate
 # (config's ron 0.8 -> base64 0.21.7 conflicts with reqwest -> base64 0.22.1)
 config = { workspace = true, default-features = false, features = [
@@ -53,10 +53,17 @@ oxigraph = "0.5"
 colored = "3.0"
 dirs = "6.0"
 regex = "1.10"
+# Secrets management dependencies
+aes-gcm = "0.10"
+pbkdf2 = "0.12"
+sha2 = "0.10"
+reqwest = { version = "0.12", features = ["json"] }
+tokio = { version = "1.47", features = ["full"] }
 
 [dev-dependencies]
 tempfile = "3"
 chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras"] }
+proptest = "1.8"
 
 [[bin]]
 name = "git_hook_pre_commit"
