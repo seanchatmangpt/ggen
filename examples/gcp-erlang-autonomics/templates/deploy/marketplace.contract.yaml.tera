@@ -1,0 +1,197 @@
+---
+# Marketplace Install Contract for {{ module_prefix }}
+# Machine-readable specification for Marketplace integration
+# This is the SLA between SKU and Marketplace platform
+
+product:
+  sku: "{{ sku }}"
+  name: "{{ product_name }}"
+  displayName: "{{ display_name }}"
+  version: "{{ version }}"
+  publisher: "{{ publisher }}"
+
+# HTTP Endpoints
+endpoints:
+  health:
+    path: "/health"
+    method: GET
+    description: "Liveness + readiness probe"
+    response:
+      contentType: "application/json"
+      example: |
+        {
+          "status": "ok",
+          "timestamp": "2026-01-25T12:34:56Z",
+          "components": {
+            "firestore": "ok",
+            "entitlement": "active"
+          }
+        }
+
+  pubsub_push:
+    path: "/pubsub"
+    method: POST
+    description: "Pub/Sub push notification handler"
+    contentType: "application/json"
+    requestBody:
+      envelope: "gcp_pubsub_push_v1"
+      required_attributes:
+        - "{{ tenant_key }}"
+        - "source"
+        - "name"
+      example: |
+        {
+          "message": {
+            "attributes": {
+              "{{ tenant_key }}": "customer-123",
+              "source": "cloud_monitoring",
+              "name": "quota_exceeded"
+            },
+            "data": "base64-encoded-json"
+          }
+        }
+
+  entitlement_webhook:
+    path: "/marketplace"
+    method: POST
+    description: "Marketplace entitlement event handler"
+    contentType: "application/json"
+    requestBody:
+      envelope: "gcp_marketplace_entitlement_v1"
+      required_fields:
+        - "tenant_id"
+        - "action"
+    response:
+      contentType: "application/json"
+      example: |
+        {
+          "result": "entitlement_active",
+          "timestamp": "2026-01-25T12:34:56Z"
+        }
+
+# Data Plane: Signal Ingestion
+data_plane:
+  ingest:
+    sources:
+      - name: "pubsub"
+        envelope: "gcp_pubsub_push"
+        required_attributes:
+          - "{{ tenant_key }}"
+          - "source"
+          - "name"
+        allowed_sources:
+{% for signal_source in signal_sources %}
+          - "{{ signal_source }}"
+{% endfor %}
+
+# Control Plane: Marketplace Event Handling
+control_plane:
+  entitlement_events:
+    - "entitlement_created"
+    - "entitlement_approved"
+    - "entitlement_active"
+    - "entitlement_suspended"
+    - "entitlement_cancelled"
+    - "entitlement_pending_cancellation"
+
+  state_transitions:
+    entitlement_created: "billing_pending"
+    entitlement_approved: "active"
+    entitlement_active: "active"
+    entitlement_suspended: "suspended"
+    entitlement_cancelled: "cancelled"
+
+# Receipt & Audit Trail
+receipts:
+  storage: "firestore"
+  hash_chain: "sha256_merkle"
+  deterministic: true
+
+  required_kinds:
+    - "signal_ingest"
+    - "policy_decision"
+    - "action_attempt"
+    - "action_result"
+    - "revops_transition"
+    - "gcp_request"
+    - "gcp_request_result"
+
+  schema_version: "1.0"
+  verification:
+    tool: "{{ module_prefix }}_receipt_verify_cli"
+    description: "Verify hash-chain integrity for tenant"
+
+# Deployment Contract
+deployment:
+  container:
+    registry: "gcr.io"
+    repository: "PROJECT_ID/{{ module_prefix }}"
+    tag: "$COMMIT_SHA"
+    buildTool: "cloud-build"
+    buildConfig: "cloudbuild.yaml"
+
+  runtime:
+    platform: "cloud-run"
+    port: 8080
+    cpu: "1"
+    memory: "512Mi"
+
+  preflightChecks:
+    - name: "build"
+      description: "Container builds successfully"
+    - name: "boot"
+      description: "/health endpoint responds with 200"
+    - name: "dod"
+      description: "Definition of Done validator passes (token + Firestore write)"
+    - name: "pubsub"
+      description: "Pub/Sub message decode succeeds"
+    - name: "entitlement"
+      description: "Marketplace event FSM transitions correctly"
+    - name: "receipts"
+      description: "Action attempt/result receipts persist"
+    - name: "verify"
+      description: "Receipt verification CLI succeeds"
+
+# SLA & Compliance
+sla:
+  availability: "99.5%"
+  latency_p99: "500ms"
+  pubsub_latency_p99: "100ms"
+  receipt_latency_p99: "50ms"
+
+  compliance:
+    - "SOC2"
+    - "GDPR"
+    - "audit_trail_required"
+
+# Upgrade & Rollback
+lifecycle:
+  installation:
+    description: "Install creates service account + Firestore collection + Cloud Run service"
+    preInstall:
+      - "verify IAM permissions"
+      - "verify Firestore accessibility"
+      - "verify Cloud Run quota"
+    postInstall:
+      - "emit receipt kind=install_complete"
+
+  uninstall:
+    description: "Uninstall removes Cloud Run service + cleans Firestore (old receipts archived)"
+    preUninstall:
+      - "verify no active tenants"
+      - "archive receipts to Cloud Storage"
+    postUninstall:
+      - "delete service account"
+      - "emit receipt kind=uninstall_complete"
+
+# Notes
+notes: |
+  This contract is generated from ggen.toml and templates.
+  It is the source of truth for Marketplace integration.
+
+  To validate runtime behavior against this contract:
+    1. Boot service
+    2. POST /pubsub with sample message
+    3. Verify receipt is stored with correct chain hash
+    4. Run receipt_verify_cli <tenant_id>
+    5. Verify Marketplace entitlement event FSM transitions

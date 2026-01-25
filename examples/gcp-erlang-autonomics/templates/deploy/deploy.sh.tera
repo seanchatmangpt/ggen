@@ -1,0 +1,107 @@
+#!/bin/bash
+set -euo pipefail
+
+# Deploy script for {{ module_prefix }} SKU
+# Handles service account creation, IAM binding, and Cloud Run deployment
+# Usage: ./deploy.sh <project-id> <region> <image-tag>
+
+PROJECT_ID="${1:?Project ID required (e.g., my-gcp-project)}"
+REGION="${2:-us-central1}"
+IMAGE_TAG="${3:-latest}"
+
+MODULE_PREFIX="{{ module_prefix }}"
+SKU="{{ sku }}"
+SA_NAME="${MODULE_PREFIX}-sa"
+SERVICE_NAME="${MODULE_PREFIX}"
+
+echo "🚀 Deploying $MODULE_PREFIX to $PROJECT_ID/$REGION"
+
+# Step 1: Create service account (idempotent)
+echo "📋 Creating service account..."
+gcloud iam service-accounts create "$SA_NAME" \
+  --display-name "Service account for $SKU SKU" \
+  --project "$PROJECT_ID" \
+  2>/dev/null || echo "  (service account already exists)"
+
+# Step 2: Bind IAM roles (from iam.required_roles.yaml)
+echo "🔐 Binding IAM roles..."
+SA_EMAIL="${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
+
+# Base roles
+for role in \
+  roles/datastore.user \
+  roles/logging.logWriter \
+  roles/monitoring.metricReader \
+  roles/iam.serviceAccountUser; do
+  gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+    --member="serviceAccount:$SA_EMAIL" \
+    --role="$role" \
+    --condition=None \
+    2>/dev/null || echo "  ✓ role already bound: $role"
+done
+
+{% if "cloudrun" in action_groups %}
+# Cloud Run actions
+for role in \
+  roles/run.developer \
+  roles/compute.networkViewer; do
+  gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+    --member="serviceAccount:$SA_EMAIL" \
+    --role="$role" \
+    2>/dev/null || echo "  ✓ role already bound: $role"
+done
+{% endif %}
+
+{% if "scheduler" in action_groups %}
+# Cloud Scheduler actions
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+  --member="serviceAccount:$SA_EMAIL" \
+  --role="roles/cloudscheduler.jobRunner" \
+  2>/dev/null || echo "  ✓ role already bound: Cloud Scheduler"
+{% endif %}
+
+{% if "pubsub" in action_groups %}
+# Pub/Sub actions
+for role in \
+  roles/pubsub.editor \
+  roles/pubsub.viewer; do
+  gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+    --member="serviceAccount:$SA_EMAIL" \
+    --role="$role" \
+    2>/dev/null || echo "  ✓ role already bound: $role"
+done
+{% endif %}
+
+# Step 3: Deploy to Cloud Run
+echo "🚀 Deploying to Cloud Run..."
+gcloud run deploy "$SERVICE_NAME" \
+  --image="gcr.io/${PROJECT_ID}/${MODULE_PREFIX}:${IMAGE_TAG}" \
+  --region="$REGION" \
+  --platform=managed \
+  --service-account="$SA_EMAIL" \
+  --allow-unauthenticated \
+  --port=8080 \
+  --memory=512Mi \
+  --cpu=1 \
+  --concurrency=80 \
+  --max-instances=100 \
+  --timeout=30 \
+  --project="$PROJECT_ID" \
+  --set-env-vars="GOOGLE_CLOUD_PROJECT=${PROJECT_ID},SKU_ID=${SKU},MODULE_PREFIX=${MODULE_PREFIX},ERL_MAX_PORTS=65536,ERL_CRASH_DUMP_SECONDS=0"
+
+SERVICE_URL=$(gcloud run services describe "$SERVICE_NAME" \
+  --region="$REGION" \
+  --project="$PROJECT_ID" \
+  --format='value(status.url)')
+
+echo ""
+echo "✅ Deployment complete!"
+echo ""
+echo "Service URL: $SERVICE_URL"
+echo "Health check: curl -s $SERVICE_URL/health | jq ."
+echo ""
+echo "Next steps:"
+echo "  1. Configure Pub/Sub push: gcloud pubsub subscriptions update <sub> --push-endpoint=$SERVICE_URL/pubsub"
+echo "  2. Add Marketplace entitlement webhook: $SERVICE_URL/marketplace"
+echo "  3. Verify receipts: {{ module_prefix }}_receipt_verify_cli <tenant_id>"
+echo ""
