@@ -16,7 +16,7 @@
 //! ## SLO Target
 //! All tests: <30s (cargo make test)
 
-use ggen_ai::codegen::{SHACLConstraint, SHACLParser, map_xsd_to_rust_type};
+use ggen_ai::codegen::{map_xsd_to_rust_type, SHACLConstraint, SHACLParser};
 use ggen_ai::dspy::{FieldConstraints, InputField, OutputField, Signature};
 use oxigraph::store::Store;
 use std::path::Path;
@@ -242,17 +242,19 @@ impl LLMConstructBuilder {
             for solution in solutions {
                 if let Ok(sol) = solution {
                     if let Some(oxigraph::model::Term::NamedNode(prop)) = sol.get("prop") {
-                        let label = if let Some(oxigraph::model::Term::Literal(lit)) = sol.get("label") {
-                            lit.value().to_string()
-                        } else {
-                            extract_local_name(prop.as_str())
-                        };
+                        let label =
+                            if let Some(oxigraph::model::Term::Literal(lit)) = sol.get("label") {
+                                lit.value().to_string()
+                            } else {
+                                extract_local_name(prop.as_str())
+                            };
 
-                        let range = if let Some(oxigraph::model::Term::NamedNode(r)) = sol.get("range") {
-                            r.as_str().to_string()
-                        } else {
-                            "http://www.w3.org/2001/XMLSchema#string".to_string()
-                        };
+                        let range =
+                            if let Some(oxigraph::model::Term::NamedNode(r)) = sol.get("range") {
+                                r.as_str().to_string()
+                            } else {
+                                "http://www.w3.org/2001/XMLSchema#string".to_string()
+                            };
 
                         let is_datatype = range.contains("XMLSchema");
 
@@ -436,13 +438,19 @@ impl LLMConstructBuilder {
     }
 
     /// Create DSPy Signature from field mappings
-    fn create_signature(&self, spec: &LLMConstructSpec, fields: &[DSPyFieldMapping]) -> Result<Signature, String> {
+    fn create_signature(
+        &self, spec: &LLMConstructSpec, fields: &[DSPyFieldMapping],
+    ) -> Result<Signature, String> {
         let mut signature = Signature::new(&spec.name, &spec.intent);
 
         // Add input field (document text for extraction)
         signature = signature.with_input(
-            InputField::new("document_text", "Financial document containing bond information", "String")
-                .required(true),
+            InputField::new(
+                "document_text",
+                "Financial document containing bond information",
+                "String",
+            )
+            .required(true),
         );
 
         // Add output fields from DSPy field mappings
@@ -493,7 +501,10 @@ fn test_full_pipeline_fibo_bond_extractor() {
     // Verify spec file exists
     let spec_path = Path::new(&spec.source_ontology_path);
     if !spec_path.exists() {
-        eprintln!("WARNING: Spec file not found at {}", spec.source_ontology_path);
+        eprintln!(
+            "WARNING: Spec file not found at {}",
+            spec.source_ontology_path
+        );
         eprintln!("Skipping test (file will be created in later implementation)");
         return;
     }
@@ -533,7 +544,10 @@ fn test_full_pipeline_fibo_bond_extractor() {
 
     // Verify Signature creation
     assert_eq!(construct.signature.name, "BondExtractor");
-    assert!(construct.signature.inputs.len() >= 1, "Should have input field");
+    assert!(
+        construct.signature.inputs.len() >= 1,
+        "Should have input field"
+    );
     assert!(
         construct.signature.outputs.len() >= 5,
         "Should have output fields from properties"
@@ -582,7 +596,10 @@ fn test_constraint_preservation_through_pipeline() {
     let construct = result.unwrap();
 
     // Verify basic structure created
-    assert!(!construct.owl_class.properties.is_empty(), "Should extract properties");
+    assert!(
+        !construct.owl_class.properties.is_empty(),
+        "Should extract properties"
+    );
     assert!(
         !construct.generated_shacl.property_shapes.is_empty(),
         "Should generate SHACL shapes"
@@ -624,7 +641,10 @@ fn test_shacl_constraint_mapping_to_dspy() {
 
     let isin_field = &dspy_fields[0];
     assert_eq!(isin_field.name, "isin");
-    assert!(isin_field.constraints.required, "minCount=1 should set required");
+    assert!(
+        isin_field.constraints.required,
+        "minCount=1 should set required"
+    );
     assert_eq!(isin_field.constraints.min_length, Some(12));
     assert_eq!(isin_field.constraints.max_length, Some(12));
     assert_eq!(
@@ -815,7 +835,11 @@ fn test_signature_generation_from_construct() {
     assert!(input.constraints.required);
 
     // Verify output fields preserve constraints
-    let isin_output = signature.outputs.iter().find(|o| o.name() == "isin").unwrap();
+    let isin_output = signature
+        .outputs
+        .iter()
+        .find(|o| o.name() == "isin")
+        .unwrap();
     assert_eq!(isin_output.constraints.min_length, Some(12));
     assert_eq!(isin_output.constraints.max_length, Some(12));
     assert!(isin_output.constraints.pattern.is_some());
@@ -877,10 +901,7 @@ fn test_json_schema_generation_with_constraints() {
     // Verify email field
     let email = &schema["properties"]["email"];
     assert_eq!(email["type"], "string");
-    assert_eq!(
-        email["pattern"],
-        r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-    );
+    assert_eq!(email["pattern"], r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$");
 
     // Verify tags field
     let tags = &schema["properties"]["tags"];
@@ -1151,11 +1172,20 @@ fn test_pipeline_receipt_generation() {
     eprintln!("\n=== LLM-CONSTRUCT PIPELINE RECEIPT ===");
     eprintln!("[✓] Stage 1 - OWL Extraction:");
     eprintln!("    - Loaded class: {}", construct.owl_class.uri);
-    eprintln!("    - Extracted {} properties", construct.owl_class.properties.len());
-    eprintln!("    - Identified {} restrictions", construct.owl_class.restrictions.len());
+    eprintln!(
+        "    - Extracted {} properties",
+        construct.owl_class.properties.len()
+    );
+    eprintln!(
+        "    - Identified {} restrictions",
+        construct.owl_class.restrictions.len()
+    );
 
     eprintln!("[✓] Stage 2 - SHACL Generation:");
-    eprintln!("    - Generated NodeShape: {}", construct.generated_shacl.node_shape_uri);
+    eprintln!(
+        "    - Generated NodeShape: {}",
+        construct.generated_shacl.node_shape_uri
+    );
     eprintln!(
         "    - Generated {} PropertyShapes",
         construct.generated_shacl.property_shapes.len()

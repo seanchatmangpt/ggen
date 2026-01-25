@@ -43,9 +43,8 @@ fn field_map_strategy() -> impl Strategy<Value = HashMap<String, Value>> {
 
 /// Strategy for generating Examples
 fn example_strategy() -> impl Strategy<Value = ggen_ai::dspy::optimizer::Example> {
-    (field_map_strategy(), field_map_strategy()).prop_map(|(inputs, outputs)| {
-        ggen_ai::dspy::optimizer::Example::new(inputs, outputs)
-    })
+    (field_map_strategy(), field_map_strategy())
+        .prop_map(|(inputs, outputs)| ggen_ai::dspy::optimizer::Example::new(inputs, outputs))
 }
 
 // ============================================================================

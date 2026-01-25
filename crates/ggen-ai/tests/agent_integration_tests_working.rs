@@ -22,7 +22,11 @@ use std::collections::HashMap;
 async fn test_dspy_predictor_with_mock_llm() {
     // Arrange: Create signature and predictor
     let signature = Signature::new("QuestionAnswering", "Answer questions accurately")
-        .with_input(InputField::new("question", "The question to answer", "String"))
+        .with_input(InputField::new(
+            "question",
+            "The question to answer",
+            "String",
+        ))
         .with_output(OutputField::new("answer", "The answer", "String"));
 
     let predictor = Predictor::with_model(signature, "mock-model").with_temperature(0.0);
@@ -65,10 +69,7 @@ async fn test_chain_of_thought_predictor() {
         "ChainOfThought should add instructions"
     );
     assert!(
-        sig.instructions
-            .as_ref()
-            .unwrap()
-            .contains("step-by-step"),
+        sig.instructions.as_ref().unwrap().contains("step-by-step"),
         "Should include step-by-step reasoning"
     );
     assert_eq!(sig.inputs.len(), 1);
@@ -84,7 +85,11 @@ fn test_signature_creation_and_validation() {
     // Arrange: Create comprehensive signature
     let sig = Signature::new("CodeReview", "Review code for quality and safety")
         .with_input(InputField::new("code", "Code to review", "String"))
-        .with_input(InputField::new("language", "Programming language", "String"))
+        .with_input(InputField::new(
+            "language",
+            "Programming language",
+            "String",
+        ))
         .with_output(OutputField::new("review", "Review comments", "String"))
         .with_output(OutputField::new("score", "Quality score 0-10", "Integer"))
         .with_instructions("Focus on safety, performance, and idiomatic style");
@@ -174,7 +179,11 @@ fn test_signature_builder_pattern() {
         .with_input(InputField::new("source_format", "Input format", "String"))
         .with_input(InputField::new("target_format", "Output format", "String"))
         .with_output(OutputField::new("output_data", "Transformed data", "JSON"))
-        .with_output(OutputField::new("warnings", "Transformation warnings", "Array"))
+        .with_output(OutputField::new(
+            "warnings",
+            "Transformation warnings",
+            "Array",
+        ))
         .with_instructions("Preserve data integrity during transformation");
 
     // Assert: All fields configured correctly
@@ -218,23 +227,22 @@ async fn test_module_trait_signature_access() {
 #[test]
 fn test_field_metadata() {
     // Arrange: Create field with rich metadata
-    let field = InputField::new(
-        "email",
-        "User's email address for notifications",
-        "String",
-    )
-    .with_constraints(
-        FieldConstraints::new()
-            .required(true)
-            .with_pattern(r"^[\w\.-]+@[\w\.-]+\.\w+$".to_string()),
-    );
+    let field = InputField::new("email", "User's email address for notifications", "String")
+        .with_constraints(
+            FieldConstraints::new()
+                .required(true)
+                .with_pattern(r"^[\w\.-]+@[\w\.-]+\.\w+$".to_string()),
+        );
 
     // Act: Extract metadata
     let metadata = &field.metadata;
 
     // Assert: Metadata is complete
     assert_eq!(metadata.name, "email");
-    assert_eq!(metadata.description, "User's email address for notifications");
+    assert_eq!(
+        metadata.description,
+        "User's email address for notifications"
+    );
     assert_eq!(metadata.field_type, "String");
     assert!(metadata.constraints.required);
     assert!(metadata.constraints.pattern.is_some());
@@ -247,8 +255,11 @@ fn test_field_metadata() {
 #[tokio::test]
 async fn test_module_input_validation() {
     // Arrange: Create predictor with required inputs
-    let signature = Signature::new("Validator", "Validate inputs")
-        .with_input(InputField::new("required_field", "Must be present", "String"));
+    let signature = Signature::new("Validator", "Validate inputs").with_input(InputField::new(
+        "required_field",
+        "Must be present",
+        "String",
+    ));
 
     let predictor = Predictor::with_model(signature, "test-model");
 
@@ -312,8 +323,16 @@ fn test_predictor_temperature_configuration() {
     let pred_normal = Predictor::with_model(sig.clone(), "model").with_temperature(0.7);
 
     // Assert: Temperature is clamped to [0.0, 2.0]
-    assert_eq!(pred_low.temperature(), 0.0, "Negative temp should clamp to 0");
-    assert_eq!(pred_high.temperature(), 2.0, "High temp should clamp to 2.0");
+    assert_eq!(
+        pred_low.temperature(),
+        0.0,
+        "Negative temp should clamp to 0"
+    );
+    assert_eq!(
+        pred_high.temperature(),
+        2.0,
+        "High temp should clamp to 2.0"
+    );
     assert_eq!(pred_normal.temperature(), 0.7, "Normal temp unchanged");
 }
 
@@ -372,7 +391,11 @@ fn test_signature_creation_performance() {
 fn create_test_signature() -> Signature {
     Signature::new("TestSignature", "A test signature for reuse")
         .with_input(InputField::new("test_input", "Test input field", "String"))
-        .with_output(OutputField::new("test_output", "Test output field", "String"))
+        .with_output(OutputField::new(
+            "test_output",
+            "Test output field",
+            "String",
+        ))
 }
 
 #[allow(dead_code)]

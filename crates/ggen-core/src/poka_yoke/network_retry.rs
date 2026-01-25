@@ -131,7 +131,7 @@ impl NetworkRetry {
             let breaker = self
                 .circuit_breaker
                 .lock()
-                .expect("Circuit breaker lock poisoned");
+                .map_err(|_| Error::network_error("Circuit breaker lock poisoned"))?;
             if breaker.is_open() {
                 return Err(Error::network_error(
                     "Circuit breaker open - too many failures",
@@ -147,7 +147,7 @@ impl NetworkRetry {
                 Ok(result) => {
                     self.circuit_breaker
                         .lock()
-                        .expect("Circuit breaker lock poisoned")
+                        .map_err(|_| Error::network_error("Circuit breaker lock poisoned"))?
                         .record_success();
                     return Ok(result);
                 }
@@ -168,7 +168,7 @@ impl NetworkRetry {
                 Err(e) => {
                     self.circuit_breaker
                         .lock()
-                        .expect("Circuit breaker lock poisoned")
+                        .map_err(|_| Error::network_error("Circuit breaker lock poisoned"))?
                         .record_failure();
                     return Err(e);
                 }

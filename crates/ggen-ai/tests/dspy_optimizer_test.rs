@@ -3,9 +3,9 @@
 //! Tests the optimizer API and basic functionality.
 
 use ggen_ai::dspy::{
-    optimizer::{BootstrapFewShot, Example, Demonstration},
     field::{InputField, OutputField},
     module::{Module, ModuleError},
+    optimizer::{BootstrapFewShot, Demonstration, Example},
     signature::Signature,
 };
 use serde_json::{json, Value};
@@ -35,7 +35,9 @@ impl Module for MockPredictor {
         &self.sig
     }
 
-    async fn forward(&self, _inputs: HashMap<String, Value>) -> Result<HashMap<String, Value>, ModuleError> {
+    async fn forward(
+        &self, _inputs: HashMap<String, Value>,
+    ) -> Result<HashMap<String, Value>, ModuleError> {
         let mut count = self.call_count.lock().unwrap();
         let idx = *count % self.responses.len();
         *count += 1;
@@ -47,7 +49,11 @@ impl Module for MockPredictor {
 fn create_qa_signature() -> Signature {
     Signature::new("QA", "Answer questions")
         .with_input(InputField::new("question", "Question to answer", "String"))
-        .with_output(OutputField::new("answer", "Answer to the question", "String"))
+        .with_output(OutputField::new(
+            "answer",
+            "Answer to the question",
+            "String",
+        ))
 }
 
 #[test]
@@ -56,7 +62,10 @@ fn test_example_creation() {
     inputs.insert("question".to_string(), json!("What is Rust?"));
 
     let mut outputs = HashMap::new();
-    outputs.insert("answer".to_string(), json!("A systems programming language"));
+    outputs.insert(
+        "answer".to_string(),
+        json!("A systems programming language"),
+    );
 
     let example = Example::new(inputs, outputs);
 
@@ -90,8 +99,7 @@ async fn test_bootstrap_fewshot_basic() {
         Ok(true) // Accept all
     });
 
-    let optimizer = BootstrapFewShot::new(metric)
-        .with_max_bootstrapped_demos(2);
+    let optimizer = BootstrapFewShot::new(metric).with_max_bootstrapped_demos(2);
 
     // Create training examples
     let mut ex1_inputs = HashMap::new();
@@ -133,8 +141,7 @@ async fn test_bootstrap_with_selective_metric() {
         }
     });
 
-    let optimizer = BootstrapFewShot::new(metric)
-        .with_max_bootstrapped_demos(5);
+    let optimizer = BootstrapFewShot::new(metric).with_max_bootstrapped_demos(5);
 
     // Create training examples
     let mut correct_inputs = HashMap::new();
@@ -142,9 +149,10 @@ async fn test_bootstrap_with_selective_metric() {
     let mut correct_outputs = HashMap::new();
     correct_outputs.insert("answer".to_string(), json!("Correct answer"));
 
-    let trainset = vec![
-        Example::new(correct_inputs.clone(), correct_outputs.clone()),
-    ];
+    let trainset = vec![Example::new(
+        correct_inputs.clone(),
+        correct_outputs.clone(),
+    )];
 
     // Create mock student that returns correct answer
     let sig = create_qa_signature();

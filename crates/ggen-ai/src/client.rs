@@ -277,7 +277,7 @@ impl LlmClient for GenAiClient {
                                 usage: None,
                                 extra: HashMap::new(),
                             }
-                        },
+                        }
                     }
                 }
                 Err(e) => LlmChunk {

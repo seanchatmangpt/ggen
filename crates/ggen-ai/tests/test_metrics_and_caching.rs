@@ -45,7 +45,7 @@ fn test_metrics_sigma_level_three_sigma() {
     let metrics = ProcessMetrics {
         signatures_generated: 10000,
         processing_time_ms: 1000.0,
-        error_count: 27,  // ~0.27% error rate
+        error_count: 27, // ~0.27% error rate
         cache_hits: 0,
         cache_misses: 0,
     };
@@ -182,7 +182,7 @@ fn test_sigma_level_two_sigma() {
     let metrics = ProcessMetrics {
         signatures_generated: 1000,
         processing_time_ms: 500.0,
-        error_count: 45,  // ~4.5% error rate
+        error_count: 45, // ~4.5% error rate
         cache_hits: 0,
         cache_misses: 0,
     };
@@ -211,10 +211,14 @@ fn test_metrics_perfect_quality() {
 fn test_transpiler_check_field_collision() {
     let transpiler = TTLToSignatureTranspiler::new();
 
-    let name1 = transpiler.check_field_collision("test".to_string()).unwrap();
+    let name1 = transpiler
+        .check_field_collision("test".to_string())
+        .unwrap();
     assert_eq!(name1, "test");
 
-    let name2 = transpiler.check_field_collision("test".to_string()).unwrap();
+    let name2 = transpiler
+        .check_field_collision("test".to_string())
+        .unwrap();
     assert_eq!(name2, "test_1");
 }
 

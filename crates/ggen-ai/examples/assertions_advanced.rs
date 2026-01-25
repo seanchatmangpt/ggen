@@ -10,8 +10,9 @@
 
 use ggen_ai::dspy::{
     assertions::{
-        Assertion, AssertableModule, BacktrackExecutor, LengthValidator, NotEmptyValidator,
-        PatternValidator, ContainsValidator, FnValidator, ValidationResult, AnyValidator, BoxedValidator,
+        AnyValidator, AssertableModule, Assertion, BacktrackExecutor, BoxedValidator,
+        ContainsValidator, FnValidator, LengthValidator, NotEmptyValidator, PatternValidator,
+        ValidationResult,
     },
     field::{InputField, OutputField},
     Module, ModuleError, Signature,
@@ -54,8 +55,7 @@ impl Module for CodeGenModule {
     }
 
     async fn forward(
-        &self,
-        inputs: HashMap<String, Value>,
+        &self, inputs: HashMap<String, Value>,
     ) -> Result<HashMap<String, Value>, ModuleError> {
         let mut count = self.attempt_count.lock().unwrap();
         let attempt = *count;
@@ -69,7 +69,10 @@ impl Module for CodeGenModule {
         // Check if retry context is present
         let has_retry_context = inputs.contains_key("__retry_context");
         if has_retry_context {
-            println!("  Attempt {} (with feedback): Improving code...", attempt + 1);
+            println!(
+                "  Attempt {} (with feedback): Improving code...",
+                attempt + 1
+            );
         } else {
             println!("  Attempt {}: Generating code...", attempt + 1);
         }
@@ -103,7 +106,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     ValidationResult::invalid("Output must be a string")
                 }
             },
-            "Has documentation comments"
+            "Has documentation comments",
         );
 
         let assertion = Assertion::assert(doc_validator)
@@ -113,7 +116,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let asserted_module = module.with_assertion(assertion);
 
         let mut inputs = HashMap::new();
-        inputs.insert("task".to_string(), Value::String("Create a hello function".to_string()));
+        inputs.insert(
+            "task".to_string(),
+            Value::String("Create a hello function".to_string()),
+        );
 
         match asserted_module.forward(inputs).await {
             Ok(output) => {
@@ -139,13 +145,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     if code.contains("println!") || code.contains("return") || code.len() > 50 {
                         ValidationResult::valid()
                     } else {
-                        ValidationResult::invalid("Function must have actual implementation (not just empty braces)")
+                        ValidationResult::invalid(
+                            "Function must have actual implementation (not just empty braces)",
+                        )
                     }
                 } else {
                     ValidationResult::invalid("Output must be a string")
                 }
             },
-            "Has implementation"
+            "Has implementation",
         );
 
         let assertion = Assertion::assert(impl_validator)
@@ -155,7 +163,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let asserted_module = module.with_assertion(assertion);
 
         let mut inputs = HashMap::new();
-        inputs.insert("task".to_string(), Value::String("Create a hello function".to_string()));
+        inputs.insert(
+            "task".to_string(),
+            Value::String("Create a hello function".to_string()),
+        );
 
         match asserted_module.forward(inputs).await {
             Ok(output) => {
@@ -190,13 +201,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         if doc_lines >= 3 {
                             ValidationResult::valid()
                         } else {
-                            ValidationResult::invalid(format!("Only {} doc lines, prefer 3+", doc_lines))
+                            ValidationResult::invalid(format!(
+                                "Only {} doc lines, prefer 3+",
+                                doc_lines
+                            ))
                         }
                     } else {
                         ValidationResult::invalid("Output must be a string")
                     }
                 },
-                "Detailed documentation (3+ lines)"
+                "Detailed documentation (3+ lines)",
             ))
             .with_feedback("Consider adding more detailed documentation")
             .max_retries(2),
@@ -205,7 +219,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let asserted_module = module.with_assertions(assertions);
 
         let mut inputs = HashMap::new();
-        inputs.insert("task".to_string(), Value::String("Create a hello function".to_string()));
+        inputs.insert(
+            "task".to_string(),
+            Value::String("Create a hello function".to_string()),
+        );
 
         match asserted_module.forward(inputs).await {
             Ok(output) => {
@@ -236,7 +253,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let mut executor = BacktrackExecutor::new(assertions);
 
         let mut inputs = HashMap::new();
-        inputs.insert("task".to_string(), Value::String("Create a hello function".to_string()));
+        inputs.insert(
+            "task".to_string(),
+            Value::String("Create a hello function".to_string()),
+        );
 
         match executor.execute_with_context(&module, inputs).await {
             Ok(output) => {
@@ -245,7 +265,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 println!("   Generated code:\n{}", code);
                 println!("\n   Warnings: {}", executor.warnings().len());
                 for warning in executor.warnings() {
-                    println!("     - {} (after {} attempts)", warning.feedback, warning.attempts);
+                    println!(
+                        "     - {} (after {} attempts)",
+                        warning.feedback, warning.attempts
+                    );
                 }
             }
             Err(e) => {
@@ -277,7 +300,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         ValidationResult::invalid("Must be string")
                     }
                 },
-                "Has 3+ doc lines"
+                "Has 3+ doc lines",
             )),
         ];
 
@@ -290,7 +313,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let asserted_module = module.with_assertion(assertion);
 
         let mut inputs = HashMap::new();
-        inputs.insert("task".to_string(), Value::String("Create a hello function".to_string()));
+        inputs.insert(
+            "task".to_string(),
+            Value::String("Create a hello function".to_string()),
+        );
 
         match asserted_module.forward(inputs).await {
             Ok(output) => {

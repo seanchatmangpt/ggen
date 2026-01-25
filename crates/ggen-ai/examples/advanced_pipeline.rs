@@ -31,25 +31,15 @@ struct SequentialPipeline {
 
 impl SequentialPipeline {
     fn new() -> Self {
-        let extract_sig = Signature::new(
-            "EntityExtraction",
-            "Extract key entities from text",
-        )
-        .with_input(InputField::new("text", "Input text", "String"))
-        .with_output(OutputField::new(
-            "entities",
-            "List of entities",
-            "String",
-        ))
-        .with_instructions("Extract all named entities (people, places, organizations).");
+        let extract_sig = Signature::new("EntityExtraction", "Extract key entities from text")
+            .with_input(InputField::new("text", "Input text", "String"))
+            .with_output(OutputField::new("entities", "List of entities", "String"))
+            .with_instructions("Extract all named entities (people, places, organizations).");
 
-        let summary_sig = Signature::new(
-            "Summarization",
-            "Summarize extracted entities",
-        )
-        .with_input(InputField::new("entities", "Entities", "String"))
-        .with_output(OutputField::new("summary", "Summary", "String"))
-        .with_instructions("Summarize the entities in 1-2 sentences.");
+        let summary_sig = Signature::new("Summarization", "Summarize extracted entities")
+            .with_input(InputField::new("entities", "Entities", "String"))
+            .with_output(OutputField::new("summary", "Summary", "String"))
+            .with_instructions("Summarize the entities in 1-2 sentences.");
 
         Self {
             extractor: Predictor::new(extract_sig),
@@ -66,8 +56,7 @@ impl Module for SequentialPipeline {
     }
 
     async fn forward(
-        &self,
-        inputs: HashMap<String, Value>,
+        &self, inputs: HashMap<String, Value>,
     ) -> ModuleResult<HashMap<String, Value>> {
         // Step 1: Extract entities
         let entities_result = self.extractor.forward(inputs).await?;
@@ -95,17 +84,15 @@ impl ParallelPipeline {
         let analyzers = perspectives
             .into_iter()
             .map(|(name, instructions)| {
-                let sig = Signature::new(
-                    &format!("{}Analysis", name),
-                    &format!("{} analysis", name),
-                )
-                .with_input(InputField::new("text", "Text to analyze", "String"))
-                .with_output(OutputField::new(
-                    "analysis",
-                    &format!("{} analysis", name),
-                    "String",
-                ))
-                .with_instructions(instructions);
+                let sig =
+                    Signature::new(&format!("{}Analysis", name), &format!("{} analysis", name))
+                        .with_input(InputField::new("text", "Text to analyze", "String"))
+                        .with_output(OutputField::new(
+                            "analysis",
+                            &format!("{} analysis", name),
+                            "String",
+                        ))
+                        .with_instructions(instructions);
 
                 Predictor::new(sig)
             })
@@ -125,8 +112,7 @@ impl Module for ParallelPipeline {
     }
 
     async fn forward(
-        &self,
-        inputs: HashMap<String, Value>,
+        &self, inputs: HashMap<String, Value>,
     ) -> ModuleResult<HashMap<String, Value>> {
         // Run all analyzers in parallel
         let futures: Vec<_> = self
@@ -168,17 +154,14 @@ struct ConditionalPipeline {
 
 impl ConditionalPipeline {
     fn new() -> Self {
-        let classifier_sig = Signature::new(
-            "ComplexityClassifier",
-            "Classify question complexity",
-        )
-        .with_input(InputField::new("question", "Question", "String"))
-        .with_output(OutputField::new(
-            "complexity",
-            "Complexity (simple/complex)",
-            "String",
-        ))
-        .with_instructions("Classify as 'simple' or 'complex'.");
+        let classifier_sig = Signature::new("ComplexityClassifier", "Classify question complexity")
+            .with_input(InputField::new("question", "Question", "String"))
+            .with_output(OutputField::new(
+                "complexity",
+                "Complexity (simple/complex)",
+                "String",
+            ))
+            .with_instructions("Classify as 'simple' or 'complex'.");
 
         let simple_sig = Signature::new("SimpleAnswer", "Answer simple questions")
             .with_input(InputField::new("question", "Question", "String"))
@@ -207,8 +190,7 @@ impl Module for ConditionalPipeline {
     }
 
     async fn forward(
-        &self,
-        inputs: HashMap<String, Value>,
+        &self, inputs: HashMap<String, Value>,
     ) -> ModuleResult<HashMap<String, Value>> {
         // Classify input
         let classification = self.classifier.forward(inputs.clone()).await?;
@@ -239,32 +221,20 @@ struct MultiHopQA {
 
 impl MultiHopQA {
     fn new() -> Self {
-        let decompose_sig = Signature::new(
-            "QuestionDecomposition",
-            "Break down complex questions",
-        )
-        .with_input(InputField::new("question", "Complex question", "String"))
-        .with_output(OutputField::new(
-            "sub_questions",
-            "Simpler sub-questions",
-            "String",
-        ))
-        .with_instructions("Break the question into 2-3 simpler sub-questions.");
+        let decompose_sig = Signature::new("QuestionDecomposition", "Break down complex questions")
+            .with_input(InputField::new("question", "Complex question", "String"))
+            .with_output(OutputField::new(
+                "sub_questions",
+                "Simpler sub-questions",
+                "String",
+            ))
+            .with_instructions("Break the question into 2-3 simpler sub-questions.");
 
-        let answer_sig = Signature::new(
-            "MultiHopAnswer",
-            "Answer based on sub-questions",
-        )
-        .with_input(InputField::new("question", "Original question", "String"))
-        .with_input(InputField::new(
-            "sub_questions",
-            "Sub-questions",
-            "String",
-        ))
-        .with_output(OutputField::new("answer", "Final answer", "String"))
-        .with_instructions(
-            "Answer the original question by considering the sub-questions.",
-        );
+        let answer_sig = Signature::new("MultiHopAnswer", "Answer based on sub-questions")
+            .with_input(InputField::new("question", "Original question", "String"))
+            .with_input(InputField::new("sub_questions", "Sub-questions", "String"))
+            .with_output(OutputField::new("answer", "Final answer", "String"))
+            .with_instructions("Answer the original question by considering the sub-questions.");
 
         Self {
             decomposer: ChainOfThought::new(decompose_sig),
@@ -281,8 +251,7 @@ impl Module for MultiHopQA {
     }
 
     async fn forward(
-        &self,
-        inputs: HashMap<String, Value>,
+        &self, inputs: HashMap<String, Value>,
     ) -> ModuleResult<HashMap<String, Value>> {
         // Decompose question
         let decomposition = self.decomposer.forward(inputs.clone()).await?;
@@ -320,7 +289,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     match sequential.forward(inputs).await {
         Ok(result) => {
             println!("Input: {}", text);
-            println!("Summary: {}\n", result.get("summary").unwrap_or(&json!("N/A")));
+            println!(
+                "Summary: {}\n",
+                result.get("summary").unwrap_or(&json!("N/A"))
+            );
         }
         Err(e) => {
             eprintln!("Error: {}\n", e);
@@ -345,7 +317,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     match parallel.forward(inputs).await {
         Ok(result) => {
             println!("Input: {}", analysis_text);
-            println!("Analyses: {:#}", result.get("analyses").unwrap_or(&json!("N/A")));
+            println!(
+                "Analyses: {:#}",
+                result.get("analyses").unwrap_or(&json!("N/A"))
+            );
             println!();
         }
         Err(e) => {
@@ -374,7 +349,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 if let Some(reasoning) = result.get("reasoning") {
                     println!("Reasoning: {}", reasoning);
                 }
-                println!("Answer: {}\n", result.get("answer").unwrap_or(&json!("N/A")));
+                println!(
+                    "Answer: {}\n",
+                    result.get("answer").unwrap_or(&json!("N/A"))
+                );
             }
             Err(e) => {
                 eprintln!("Error: {}\n", e);
@@ -396,7 +374,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     match multihop.forward(inputs).await {
         Ok(result) => {
             println!("Question: {}", complex_question);
-            println!("Answer: {}\n", result.get("answer").unwrap_or(&json!("N/A")));
+            println!(
+                "Answer: {}\n",
+                result.get("answer").unwrap_or(&json!("N/A"))
+            );
         }
         Err(e) => {
             eprintln!("Error: {}\n", e);

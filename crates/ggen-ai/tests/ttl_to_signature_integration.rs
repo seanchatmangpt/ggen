@@ -3,7 +3,7 @@
 //! Tests the complete workflow of converting TTL files with SHACL shapes
 //! into DSPy Signature specifications.
 
-use ggen_ai::codegen::{TTLToSignatureTranspiler, PropertyShape};
+use ggen_ai::codegen::{PropertyShape, TTLToSignatureTranspiler};
 use oxigraph::store::Store;
 
 /// Test helper to create a minimal TTL with SHACL shapes
@@ -42,7 +42,8 @@ fn create_test_ttl_with_shapes() -> String {
 :Person rdf:type rdfs:Class ;
     rdfs:label "Person" ;
     rdfs:comment "A person entity" .
-    "#.to_string()
+    "#
+    .to_string()
 }
 
 #[test]
@@ -103,8 +104,14 @@ fn test_naming_conversions() {
     assert_eq!(transpiler.snake_case("MyClassName"), "my_class_name");
     assert_eq!(transpiler.snake_case("my-property"), "my_property");
     assert_eq!(transpiler.snake_case("UPPERCASE"), "uppercase");
-    assert_eq!(transpiler.snake_case("CamelCaseProperty"), "camel_case_property");
-    assert_eq!(transpiler.snake_case("already_snake_case"), "already_snake_case");
+    assert_eq!(
+        transpiler.snake_case("CamelCaseProperty"),
+        "camel_case_property"
+    );
+    assert_eq!(
+        transpiler.snake_case("already_snake_case"),
+        "already_snake_case"
+    );
 }
 
 #[test]

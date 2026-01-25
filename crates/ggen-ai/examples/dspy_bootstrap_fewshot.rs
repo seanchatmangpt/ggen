@@ -6,9 +6,9 @@
 //! Run with: cargo run --example dspy_bootstrap_fewshot
 
 use ggen_ai::dspy::{
-    optimizer::{BootstrapFewShot, Example},
     field::{InputField, OutputField},
     module::Module,
+    optimizer::{BootstrapFewShot, Example},
     predictor::Predictor,
     signature::Signature,
 };
@@ -26,7 +26,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Step 1: Define the signature (task interface)
     let signature = Signature::new("QuestionAnswering", "Answer simple math questions")
         .with_input(InputField::new("question", "Math question", "String"))
-        .with_output(OutputField::new("answer", "Answer to the question", "String"))
+        .with_output(OutputField::new(
+            "answer",
+            "Answer to the question",
+            "String",
+        ))
         .with_instructions("Answer the math question accurately.");
 
     println!("Signature: {}", signature.name);
@@ -117,7 +121,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     match optimizer.compile(&student, &trainset).await {
         Ok(optimized) => {
             println!("\n=== Optimization Complete ===");
-            println!("Collected {} demonstrations\n", optimized.demonstration_count());
+            println!(
+                "Collected {} demonstrations\n",
+                optimized.demonstration_count()
+            );
 
             // Step 7: Use the optimized predictor
             println!("Testing optimized predictor...\n");
@@ -133,20 +140,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             // Note: This will fail if GGEN_LLM_MODEL is not set
             match optimized.forward(test_input).await {
                 Ok(output) => {
-                    println!("Answer: {}", output.get("answer")
-                        .and_then(|v| v.as_str())
-                        .unwrap_or("No answer"));
+                    println!(
+                        "Answer: {}",
+                        output
+                            .get("answer")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("No answer")
+                    );
                 }
                 Err(e) => {
                     println!("Error during inference: {}", e);
-                    println!("\nNote: Set GGEN_LLM_MODEL environment variable to test with a real model");
+                    println!(
+                        "\nNote: Set GGEN_LLM_MODEL environment variable to test with a real model"
+                    );
                     println!("Example: export GGEN_LLM_MODEL=gpt-4");
                 }
             }
 
             println!("\n=== Example Complete ===");
-            println!("The optimized predictor includes {} few-shot examples in its prompt",
-                     optimized.demonstration_count());
+            println!(
+                "The optimized predictor includes {} few-shot examples in its prompt",
+                optimized.demonstration_count()
+            );
         }
         Err(e) => {
             eprintln!("Error during optimization: {}", e);

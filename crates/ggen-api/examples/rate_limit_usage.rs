@@ -3,14 +3,8 @@
 //! Demonstrates how to integrate production-ready rate limiting
 //! with per-IP and per-API-key limits, Redis backend, and graceful degradation.
 
-use axum::{
-    extract::State,
-    routing::get,
-    Router,
-};
-use ggen_api::middleware::{
-    rate_limit_middleware, RateLimitConfig, RateLimiter, RateLimitBackend,
-};
+use axum::{extract::State, routing::get, Router};
+use ggen_api::middleware::{rate_limit_middleware, RateLimitBackend, RateLimitConfig, RateLimiter};
 use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::Duration;

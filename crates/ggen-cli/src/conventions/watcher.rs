@@ -166,7 +166,10 @@ impl ProjectWatcher {
         match self.resolver.discover() {
             Ok(conventions) => conventions.templates.keys().cloned().collect(),
             Err(e) => {
-                log::warn!("Failed to discover conventions for affected templates: {}", e);
+                log::warn!(
+                    "Failed to discover conventions for affected templates: {}",
+                    e
+                );
                 // Return empty list on error - safer than continuing with stale data
                 Vec::new()
             }
