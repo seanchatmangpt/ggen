@@ -1,3 +1,58 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TAI 2030: The Autonomic Integrator](#tai-2030-the-autonomic-integrator)
+  - [Government Procurement Playbook — Erlang Autonomics Edition](#government-procurement-playbook--erlang-autonomics-edition)
+  - [Executive Summary](#executive-summary)
+  - [Part 1: The Government Client Map (2030)](#part-1-the-government-client-map-2030)
+    - [1.1 Defense / National Security (DoD, NSA, DISA)](#11-defense--national-security-dod-nsa-disa)
+    - [1.2 NASA / Research Centers / Test Facilities](#12-nasa--research-centers--test-facilities)
+    - [1.3 EPA / Environmental + Public Health](#13-epa--environmental--public-health)
+    - [1.4 Intelligence / Interagency (IC)](#14-intelligence--interagency-ic)
+    - [1.5 DoD Health / VA / Large Civilian Agencies](#15-dod-health--va--large-civilian-agencies)
+  - [Part 2: The 2030 Services Catalog (Old → New Equivalents)](#part-2-the-2030-services-catalog-old-%E2%86%92-new-equivalents)
+  - [Part 3: The Procurement Wedge (How Kudzu Spreads)](#part-3-the-procurement-wedge-how-kudzu-spreads)
+  - [Part 4: Pain-to-Solution Mapping (15 SKUs)](#part-4-pain-to-solution-mapping-15-skus)
+  - [Part 5: Compliance Framework Matrix](#part-5-compliance-framework-matrix)
+  - [Part 6: The 2030 Capabilities Statement (Real Government Language)](#part-6-the-2030-capabilities-statement-real-government-language)
+    - [**CAPABILITIES STATEMENT**](#capabilities-statement)
+    - [**1. EXECUTIVE SUMMARY**](#1-executive-summary)
+    - [**2. RELEVANT EXPERIENCE & PAST PERFORMANCE**](#2-relevant-experience--past-performance)
+    - [**3. KEY DIFFERENTIATORS**](#3-key-differentiators)
+      - [**3.1 Proof Instead of Trust**](#31-proof-instead-of-trust)
+      - [**3.2 Deterministic Behavior**](#32-deterministic-behavior)
+      - [**3.3 Zero Human Escalation**](#33-zero-human-escalation)
+      - [**3.4 Compliance-First Design**](#34-compliance-first-design)
+      - [**3.5 Procurement Velocity**](#35-procurement-velocity)
+    - [**4. TECHNICAL APPROACH**](#4-technical-approach)
+      - [**4.1 Architecture**](#41-architecture)
+      - [**4.2 Technology Stack**](#42-technology-stack)
+      - [**4.3 Deployment**](#43-deployment)
+    - [**5. DELIVERABLES & SLOs**](#5-deliverables--slos)
+    - [**6. GOVERNMENT PROCUREMENT PAIN POINTS ADDRESSED**](#6-government-procurement-pain-points-addressed)
+    - [**7. COMMERCIALIZATION STRATEGY**](#7-commercialization-strategy)
+      - [**7.1 Distribution Channel**](#71-distribution-channel)
+      - [**7.2 Pricing Model**](#72-pricing-model)
+      - [**7.3 Success Metrics**](#73-success-metrics)
+    - [**8. COMPLIANCE & CERTIFICATIONS**](#8-compliance--certifications)
+    - [**9. TEAM & ORGANIZATIONAL CAPABILITY**](#9-team--organizational-capability)
+    - [**10. RISK MITIGATION**](#10-risk-mitigation)
+    - [**11. INVESTMENT REQUIRED**](#11-investment-required)
+    - [**12. FINANCIAL PROJECTIONS (Conservative)**](#12-financial-projections-conservative)
+  - [Part 7: The Evidence Stack (Why Receipts Are Competitive Moat)](#part-7-the-evidence-stack-why-receipts-are-competitive-moat)
+  - [Part 8: The 5 Government Procurement Pain Points (Deep Dive)](#part-8-the-5-government-procurement-pain-points-deep-dive)
+    - [**Problem 1: Operational Burden (Too Many Systems, Too Few Humans)**](#problem-1-operational-burden-too-many-systems-too-few-humans)
+    - [**Problem 2: Compliance Burden (Manual Audit Preparation)**](#problem-2-compliance-burden-manual-audit-preparation)
+    - [**Problem 3: Cost Surprises (Runaway Spend)**](#problem-3-cost-surprises-runaway-spend)
+    - [**Problem 4: Compliance Drift (Permissions Creep)**](#problem-4-compliance-drift-permissions-creep)
+    - [**Problem 5: Incident Recovery (Manual Rollback, Blame)**](#problem-5-incident-recovery-manual-rollback-blame)
+  - [Part 9: Distribution Strategy (Marketplace as Procurement Weapon)](#part-9-distribution-strategy-marketplace-as-procurement-weapon)
+  - [Part 10: The Final Narrative (Why This Wins)](#part-10-the-final-narrative-why-this-wins)
+  - [Summary: TAI 2030 Capabilities Statement](#summary-tai-2030-capabilities-statement)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TAI 2030: The Autonomic Integrator
 ## Government Procurement Playbook — Erlang Autonomics Edition
 

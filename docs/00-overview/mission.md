@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TAI 2030 Mission Statement & Vision](#tai-2030-mission-statement--vision)
+  - [Mission Statement](#mission-statement)
+  - [Vision Statement (2030)](#vision-statement-2030)
+  - [Core Values](#core-values)
+    - [Value 1: Trust Through Proof, Not Assertions](#value-1-trust-through-proof-not-assertions)
+    - [Value 2: Deterministic Over Autonomous](#value-2-deterministic-over-autonomous)
+    - [Value 3: Operational Debt Elimination](#value-3-operational-debt-elimination)
+    - [Value 4: Compliance as Feature, Not Friction](#value-4-compliance-as-feature-not-friction)
+    - [Value 5: Government-First Design](#value-5-government-first-design)
+  - [The 5 Government Procurement Pain Points (TAI 2030 Solves)](#the-5-government-procurement-pain-points-tai-2030-solves)
+    - [Pain Point 1: Operational Burden (Too Many Systems, Too Few Humans)](#pain-point-1-operational-burden-too-many-systems-too-few-humans)
+    - [Pain Point 2: Compliance Burden (Manual Audit Preparation)](#pain-point-2-compliance-burden-manual-audit-preparation)
+    - [Pain Point 3: Cost Surprises (Runaway Spend)](#pain-point-3-cost-surprises-runaway-spend)
+    - [Pain Point 4: Compliance Drift (Permission Creep)](#pain-point-4-compliance-drift-permission-creep)
+    - [Pain Point 5: Incident Recovery (Manual Rollback, Blame Culture)](#pain-point-5-incident-recovery-manual-rollback-blame-culture)
+  - [Market Positioning vs. Competitors](#market-positioning-vs-competitors)
+    - [TAI 2030 vs. Traditional IT Service Providers](#tai-2030-vs-traditional-it-service-providers)
+    - [TAI 2030 vs. Cloud-Native SRE Tools (Datadog, New Relic, PagerDuty)](#tai-2030-vs-cloud-native-sre-tools-datadog-new-relic-pagerduty)
+    - [TAI 2030 vs. Policy-as-Code Tools (HashiCorp, OPA, Kyverno)](#tai-2030-vs-policy-as-code-tools-hashicorp-opa-kyverno)
+  - [3-Year Vision (2026–2029)](#3-year-vision-20262029)
+    - [Year 1 (2026): Market Entry & Proof of Concept](#year-1-2026-market-entry--proof-of-concept)
+    - [Year 2 (2027): Lateral Expansion & Vertical Integration](#year-2-2027-lateral-expansion--vertical-integration)
+    - [Year 3 (2028–2029): Network Effect & Federal Standard](#year-3-20282029-network-effect--federal-standard)
+  - [Success Metrics (All 3 Years)](#success-metrics-all-3-years)
+    - [Customer-Facing Metrics](#customer-facing-metrics)
+    - [Business Metrics](#business-metrics)
+    - [Market Position Metrics](#market-position-metrics)
+  - [Cross-Document References](#cross-document-references)
+  - [Receipt Contract (What This Document Emits)](#receipt-contract-what-this-document-emits)
+  - [Definition of Done (Mission.md)](#definition-of-done-missionmd)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TAI 2030 Mission Statement & Vision
 
 **Version**: 1.0 (Foundational)

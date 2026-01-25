@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [C4 Level 3: Component Architecture - Governor Service Internals](#c4-level-3-component-architecture---governor-service-internals)
+  - [Component Context: Inside the Governor](#component-context-inside-the-governor)
+  - [C4 Diagram 1: Governor Service Components (Ingress Path)](#c4-diagram-1-governor-service-components-ingress-path)
+  - [C4 Diagram 2: Governor Service Components (FSM & Policy Evaluation)](#c4-diagram-2-governor-service-components-fsm--policy-evaluation)
+  - [C4 Diagram 3: Governor Service Components (Intervention & Observability)](#c4-diagram-3-governor-service-components-intervention--observability)
+  - [C4 Diagram 4: Component Interactions (Full Sequence)](#c4-diagram-4-component-interactions-full-sequence)
+  - [Component Interaction Sequence](#component-interaction-sequence)
+  - [Glossary Cross-Reference](#glossary-cross-reference)
+  - [Receipt Contract (Evidence Plane)](#receipt-contract-evidence-plane)
+  - [Performance Characteristics](#performance-characteristics)
+  - [Definition of Done](#definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # C4 Level 3: Component Architecture - Governor Service Internals
 
 **Document Purpose**: Decompose the Governor Service into reusable components: gen_statem FSM, policy evaluators, invariant checkers, action routers, and observability exporters.

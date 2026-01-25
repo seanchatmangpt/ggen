@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [SKU Catalog Structure](#sku-catalog-structure)
+  - [Philosophy](#philosophy)
+  - [Core SKUs (15 Total)](#core-skus-15-total)
+    - [1. ATO Guard Pack](#1-ato-guard-pack)
+    - [2. Permission Drift Guard](#2-permission-drift-guard)
+    - [3. Change Governance Guard](#3-change-governance-guard)
+    - [4. Signal Storm Governor](#4-signal-storm-governor)
+    - [5. Zero-Trust Enforcer](#5-zero-trust-enforcer)
+    - [6. Provenance Ledger](#6-provenance-ledger)
+    - [7. Regression Rollback Guard](#7-regression-rollback-guard)
+    - [8. Environment Baseline Guard](#8-environment-baseline-guard)
+    - [9. Data Integrity Guard](#9-data-integrity-guard)
+    - [10. Budget Spike Guard](#10-budget-spike-guard)
+    - [11. Compliance Monitor](#11-compliance-monitor)
+    - [12. Tenant Isolation Governors](#12-tenant-isolation-governors)
+    - [13. Policy Pack Compiler](#13-policy-pack-compiler)
+    - [14. Receipt Verifier](#14-receipt-verifier)
+    - [15. Audit Readiness Pack](#15-audit-readiness-pack)
+  - [Pricing Matrix](#pricing-matrix)
+    - [Annual Flat-Rate Pricing](#annual-flat-rate-pricing)
+    - [Usage-Based Pricing (Optional)](#usage-based-pricing-optional)
+  - [Product Bundles](#product-bundles)
+    - [Bundle 1: Defense Pack](#bundle-1-defense-pack)
+    - [Bundle 2: Data Pack](#bundle-2-data-pack)
+    - [Bundle 3: Operational Excellence Pack](#bundle-3-operational-excellence-pack)
+    - [Bundle 4: Complete Government Platform](#bundle-4-complete-government-platform)
+  - [Free Tier](#free-tier)
+    - [Audit Readiness Pack — Free for 14 Days](#audit-readiness-pack--free-for-14-days)
+  - [SKU Updateability](#sku-updateability)
+    - [RDF-Driven SKU Generation](#rdf-driven-sku-generation)
+  - [Compliance Control Mapping](#compliance-control-mapping)
+    - [Cross-SKU Control Coverage](#cross-sku-control-coverage)
+  - [Definition of Done](#definition-of-done)
+  - [Receipt Contract](#receipt-contract)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # SKU Catalog Structure
 
 > *15 SKUs, 4 product bundles, unlimited compliance coverage. Every SKU is a receipt.*

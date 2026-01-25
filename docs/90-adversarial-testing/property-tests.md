@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Property-Based Testing](#property-based-testing)
+  - [Overview](#overview)
+  - [Properties](#properties)
+    - [Property 1: Idempotency](#property-1-idempotency)
+    - [Property 2: Determinism](#property-2-determinism)
+    - [Property 3: Bounded Resources](#property-3-bounded-resources)
+    - [Property 4: Safety (State Machine Invariants)](#property-4-safety-state-machine-invariants)
+    - [Property 5: Signature Integrity](#property-5-signature-integrity)
+  - [Property-Based Test Runner](#property-based-test-runner)
+  - [Shrinking Strategy](#shrinking-strategy)
+  - [SLO Targets](#slo-targets)
+  - [Continuous Integration](#continuous-integration)
+  - [Receipt Contract](#receipt-contract)
+  - [Definition of Done](#definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Property-Based Testing
 
 **Version**: 6.0.0 | **Status**: Production-Ready | **Last Updated**: 2026-01-25

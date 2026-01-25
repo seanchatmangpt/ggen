@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Disaster Recovery: Multi-Region Resilience and Receipt Recovery](#disaster-recovery-multi-region-resilience-and-receipt-recovery)
+  - [RTO/RPO Targets](#rtorpo-targets)
+  - [Architecture: Multi-Region Deployment](#architecture-multi-region-deployment)
+    - [Multi-Region Strategy](#multi-region-strategy)
+  - [Backup Strategy](#backup-strategy)
+    - [What Gets Backed Up?](#what-gets-backed-up)
+    - [Backup Procedures](#backup-procedures)
+  - [Recovery Workflows](#recovery-workflows)
+    - [Scenario 1: Single-Region Firestore Failure](#scenario-1-single-region-firestore-failure)
+    - [Scenario 2: Regional GCP Outage](#scenario-2-regional-gcp-outage)
+    - [Scenario 3: Corrupted Receipt Ledger](#scenario-3-corrupted-receipt-ledger)
+    - [Scenario 4: Lost Cloud Run Image](#scenario-4-lost-cloud-run-image)
+  - [Verification & Testing](#verification--testing)
+    - [Receipt Chain Verification](#receipt-chain-verification)
+    - [Backup Restore Test](#backup-restore-test)
+    - [Chaos Engineering Tests](#chaos-engineering-tests)
+  - [Definition of Done (Disaster Recovery)](#definition-of-done-disaster-recovery)
+  - [Operator Runbook: Emergency Failover](#operator-runbook-emergency-failover)
+  - [Glossary References](#glossary-references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Disaster Recovery: Multi-Region Resilience and Receipt Recovery
 
 **Version**: 1.0

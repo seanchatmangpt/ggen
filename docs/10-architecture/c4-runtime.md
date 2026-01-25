@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [C4 Level 4: Runtime Sequences - Signals, State Transitions, and Receipts](#c4-level-4-runtime-sequences---signals-state-transitions-and-receipts)
+  - [Runtime Overview](#runtime-overview)
+  - [Sequence Diagram 1: Normal Execution (Happy Path)](#sequence-diagram-1-normal-execution-happy-path)
+  - [Sequence Diagram 2: Intervention (Warn → Approval → Execute)](#sequence-diagram-2-intervention-warn-%E2%86%92-approval-%E2%86%92-execute)
+  - [Sequence Diagram 3: Storm Handling (Rate Limit Postponement)](#sequence-diagram-3-storm-handling-rate-limit-postponement)
+  - [Sequence Diagram 4: Refusal (Policy Block + Scope Violation)](#sequence-diagram-4-refusal-policy-block--scope-violation)
+  - [Runtime State Diagram (gen_statem FSM)](#runtime-state-diagram-gen_statem-fsm)
+  - [Glossary Cross-Reference](#glossary-cross-reference)
+  - [Receipt Contract (Evidence Plane)](#receipt-contract-evidence-plane)
+  - [Performance Requirements](#performance-requirements)
+  - [Definition of Done](#definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # C4 Level 4: Runtime Sequences - Signals, State Transitions, and Receipts
 
 **Document Purpose**: Define runtime behavior through sequence diagrams showing signal→decision→action→receipt flows, including interventions, storms, and refusals.

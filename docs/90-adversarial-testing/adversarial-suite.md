@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Adversarial Test Suite](#adversarial-test-suite)
+  - [Overview](#overview)
+  - [Test Categories](#test-categories)
+    - [Category 1: Input Validation (5 subcategories)](#category-1-input-validation-5-subcategories)
+      - [1.1: Malformed JSON](#11-malformed-json)
+      - [1.2: Oversized Payloads](#12-oversized-payloads)
+      - [1.3: Invalid Field Types](#13-invalid-field-types)
+      - [1.4: Missing Required Fields](#14-missing-required-fields)
+      - [1.5: Invalid Enum Values](#15-invalid-enum-values)
+    - [Category 2: Protocol Violation (5 subcategories)](#category-2-protocol-violation-5-subcategories)
+      - [2.1: Missing Headers](#21-missing-headers)
+      - [2.2: Invalid HTTP Methods](#22-invalid-http-methods)
+      - [2.3: Invalid Path Parameters](#23-invalid-path-parameters)
+      - [2.4: Signature Attacks](#24-signature-attacks)
+      - [2.5: Content-Type Mismatch](#25-content-type-mismatch)
+    - [Category 3: Authorization Bypass (5 subcategories)](#category-3-authorization-bypass-5-subcategories)
+      - [3.1: Cross-Tenant Access](#31-cross-tenant-access)
+      - [3.2: Entitlement Escalation](#32-entitlement-escalation)
+      - [3.3: Admin Action Without Permission](#33-admin-action-without-permission)
+      - [3.4: Signature Key Confusion](#34-signature-key-confusion)
+      - [3.5: Token/Secret Leakage](#35-tokensecret-leakage)
+    - [Category 4: Quota & Rate Limiting (5 subcategories)](#category-4-quota--rate-limiting-5-subcategories)
+      - [4.1: Burst Traffic](#41-burst-traffic)
+      - [4.2: Sustained High Rate](#42-sustained-high-rate)
+      - [4.3: Quota Exhaustion](#43-quota-exhaustion)
+      - [4.4: Reset Timing](#44-reset-timing)
+      - [4.5: Quota Bypass Prevention](#45-quota-bypass-prevention)
+  - [Response Validation](#response-validation)
+  - [SLO Targets](#slo-targets)
+  - [Continuous Integration](#continuous-integration)
+  - [Receipt Contract](#receipt-contract)
+  - [Definition of Done](#definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Adversarial Test Suite
 
 **Version**: 6.0.0 | **Status**: Production-Ready | **Last Updated**: 2026-01-25

@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Storm Discipline: Toyota Production System Applied to Autonomic Systems](#storm-discipline-toyota-production-system-applied-to-autonomic-systems)
+  - [TPS Principles Applied to Autonomic Operations](#tps-principles-applied-to-autonomic-operations)
+    - [1. Jidoka: Automation with Human Touch (Autonomic Quality)](#1-jidoka-automation-with-human-touch-autonomic-quality)
+      - [Application to ggen Governor:](#application-to-ggen-governor)
+    - [2. Kanban: Pull-Based Flow (Signal Processing)](#2-kanban-pull-based-flow-signal-processing)
+      - [Flow Architecture:](#flow-architecture)
+    - [3. Andon Cord: Stop the Line (System Jidoka)](#3-andon-cord-stop-the-line-system-jidoka)
+      - [Andon Signal Types:](#andon-signal-types)
+      - [Andon Mechanism:](#andon-mechanism)
+    - [4. Kaizen: Continuous Improvement (Policy Hot-Reload)](#4-kaizen-continuous-improvement-policy-hot-reload)
+      - [Kaizen Workflow (Policy Upgrade):](#kaizen-workflow-policy-upgrade)
+    - [5. Heijunka: Load Leveling (Signal Rate Management)](#5-heijunka-load-leveling-signal-rate-management)
+      - [Load Leveling Mechanism:](#load-leveling-mechanism)
+    - [6. Muri/Muda/Mura: Eliminate Waste (TPS 3M Framework)](#6-murimudamura-eliminate-waste-tps-3m-framework)
+      - [Muri (Overburden): Don't Accept Actions Beyond Capacity](#muri-overburden-dont-accept-actions-beyond-capacity)
+      - [Muda (Waste): Don't Emit Partial/Silent Failures](#muda-waste-dont-emit-partialsilent-failures)
+      - [Mura (Unevenness): Level Load and Prevent Bottlenecks](#mura-unevenness-level-load-and-prevent-bottlenecks)
+  - [Storm Discipline: Operating Under Pressure](#storm-discipline-operating-under-pressure)
+    - [Scenario: Signal Storm (100+ signals/minute)](#scenario-signal-storm-100-signalsminute)
+  - [Evidence of TPS Discipline](#evidence-of-tps-discipline)
+    - [Jidoka Evidence](#jidoka-evidence)
+    - [Kanban Evidence](#kanban-evidence)
+    - [Heijunka Evidence](#heijunka-evidence)
+    - [Kaizen Evidence](#kaizen-evidence)
+  - [Definition of Done (Storm Discipline)](#definition-of-done-storm-discipline)
+  - [Glossary References](#glossary-references)
+  - [Further Reading](#further-reading)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Storm Discipline: Toyota Production System Applied to Autonomic Systems
 
 **Version**: 1.0

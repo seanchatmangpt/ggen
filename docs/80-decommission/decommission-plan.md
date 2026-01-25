@@ -1,3 +1,51 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Decommission Plan](#decommission-plan)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Decommission Triggers](#decommission-triggers)
+    - [Trigger Types](#trigger-types)
+    - [Trigger Detection](#trigger-detection)
+  - [Decommission Phases](#decommission-phases)
+    - [Phase Timeline](#phase-timeline)
+    - [Phase 1: NOTICE_PERIOD (Days 1-30)](#phase-1-notice_period-days-1-30)
+    - [Phase 2: SHUTTING_DOWN (Days 31-33)](#phase-2-shutting_down-days-31-33)
+    - [Phase 3: ARCHIVED (Days 34-398, ~365 days)](#phase-3-archived-days-34-398-365-days)
+    - [Phase 4: FORGOTTEN (Day 399+)](#phase-4-forgotten-day-399)
+  - [Entitlement Transition](#entitlement-transition)
+    - [Entitlement State Machine](#entitlement-state-machine)
+    - [Entitlement Record](#entitlement-record)
+  - [Governor Shutdown](#governor-shutdown)
+    - [Shutdown Phases](#shutdown-phases)
+    - [Shutdown FSM (Mermaid)](#shutdown-fsm-mermaid)
+  - [Resource Cleanup](#resource-cleanup)
+    - [Pub/Sub Resources](#pubsub-resources)
+    - [Firestore Resources](#firestore-resources)
+    - [Cloud Run Services (if SKU-specific)](#cloud-run-services-if-sku-specific)
+    - [Cleanup Automation](#cleanup-automation)
+  - [Archive Strategy](#archive-strategy)
+    - [GCS Bucket Configuration](#gcs-bucket-configuration)
+    - [Archive Format](#archive-format)
+    - [Export Verification](#export-verification)
+  - [Timeline](#timeline)
+    - [Overall Decommission Timeline](#overall-decommission-timeline)
+    - [Detailed Day-by-Day (First Week)](#detailed-day-by-day-first-week)
+    - [SLAs](#slas)
+  - [Compliance & Legal Hold](#compliance--legal-hold)
+    - [Legal Hold](#legal-hold)
+    - [GDPR Right to Be Forgotten](#gdpr-right-to-be-forgotten)
+    - [Audit Trail Retention](#audit-trail-retention)
+  - [Audit Trail](#audit-trail)
+    - [Decommission Receipts](#decommission-receipts)
+    - [Chain of Receipts](#chain-of-receipts)
+    - [Compliance Report](#compliance-report)
+  - [Receipt Contract](#receipt-contract)
+  - [Definition of Done](#definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Decommission Plan
 
 **Version**: 6.0.0 | **Status**: Production-Ready | **Last Updated**: 2026-01-25

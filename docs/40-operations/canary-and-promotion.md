@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Canary Deployments and Safe Promotion: Risk-Free Rollouts](#canary-deployments-and-safe-promotion-risk-free-rollouts)
+  - [Canary Deployment Strategy](#canary-deployment-strategy)
+    - [Overview](#overview)
+    - [Traffic Split Configuration](#traffic-split-configuration)
+  - [Canary Monitoring & Metrics](#canary-monitoring--metrics)
+    - [SLI Targets (Service Level Indicators)](#sli-targets-service-level-indicators)
+    - [Metrics Collection](#metrics-collection)
+    - [Automated SLI Checks](#automated-sli-checks)
+  - [Promotion Workflow](#promotion-workflow)
+    - [Manual Promotion (Gated by Automation)](#manual-promotion-gated-by-automation)
+    - [Automatic Rollback Trigger](#automatic-rollback-trigger)
+  - [Rollback Mechanism](#rollback-mechanism)
+    - [Automatic Rollback](#automatic-rollback)
+    - [Manual Rollback (Emergency)](#manual-rollback-emergency)
+  - [Evidence & Receipts](#evidence--receipts)
+    - [Canary Deployment Receipt](#canary-deployment-receipt)
+    - [Promotion Receipt](#promotion-receipt)
+    - [Deployment Complete Receipt](#deployment-complete-receipt)
+  - [Canary Configuration](#canary-configuration)
+    - [Default Configuration (from `.specify/operations.ttl`)](#default-configuration-from-specifyoperationsttl)
+  - [Operator Checklist: Safe Deployment](#operator-checklist-safe-deployment)
+  - [Definition of Done (Canary Deployment)](#definition-of-done-canary-deployment)
+  - [Glossary References](#glossary-references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Canary Deployments and Safe Promotion: Risk-Free Rollouts
 
 **Version**: 1.0

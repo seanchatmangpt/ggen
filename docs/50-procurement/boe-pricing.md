@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Bill of Estimated (BOE) Pricing & Revenue Model](#bill-of-estimated-boe-pricing--revenue-model)
+  - [Executive Summary](#executive-summary)
+  - [Pricing Philosophy: "Government-Grade Compliance = Premium Pricing"](#pricing-philosophy-government-grade-compliance--premium-pricing)
+  - [Revenue by Model (Annual)](#revenue-by-model-annual)
+    - [Subscription License (80% of Revenue — Primary)](#subscription-license-80-of-revenue--primary)
+    - [Professional Services (15% of Revenue — Secondary)](#professional-services-15-of-revenue--secondary)
+    - [Usage-Based Overages (5% of Revenue — Tertiary)](#usage-based-overages-5-of-revenue--tertiary)
+  - [3-Tier Pricing Model](#3-tier-pricing-model)
+    - [Tier 1: STARTER ($100K–$250K annual)](#tier-1-starter-100k250k-annual)
+    - [Tier 2: STANDARD ($250K–$750K annual)](#tier-2-standard-250k750k-annual)
+    - [Tier 3: ENTERPRISE ($750K+ annual)](#tier-3-enterprise-750k-annual)
+  - [Individual SKU Pricing (by Tier)](#individual-sku-pricing-by-tier)
+  - [Bundled Discounts (4 Pre-Built Bundles)](#bundled-discounts-4-pre-built-bundles)
+    - [Bundle 1: "Federal Standard" (FISMA + NIST 800-53)](#bundle-1-federal-standard-fisma--nist-800-53)
+    - [Bundle 2: "FedRAMP Accelerator" (Cloud Services)](#bundle-2-fedramp-accelerator-cloud-services)
+    - [Bundle 3: "Healthcare Compliance" (HIPAA + HITRUST + 21 CFR)](#bundle-3-healthcare-compliance-hipaa--hitrust--21-cfr)
+    - [Bundle 4: "Defense Contractor" (DFARS + CMMC)](#bundle-4-defense-contractor-dfars--cmmc)
+  - [Volume Discounts (Multi-Agency / Multi-Tenant)](#volume-discounts-multi-agency--multi-tenant)
+    - [Volume Discount Ladder](#volume-discount-ladder)
+  - [Cost Model & Margin Targets](#cost-model--margin-targets)
+    - [Cost Breakdown (per $400K deal, Standard Tier)](#cost-breakdown-per-400k-deal-standard-tier)
+    - [Margin Targets (Company-Wide)](#margin-targets-company-wide)
+  - [Proposal Pricing Template (For RFP Responses)](#proposal-pricing-template-for-rfp-responses)
+    - [Example: Federal Agency RFP Response](#example-federal-agency-rfp-response)
+  - [Discount Authority & Approval Limits](#discount-authority--approval-limits)
+  - [Financial Controls & Pricing Compliance](#financial-controls--pricing-compliance)
+    - [Pricing Policy (Mandatory)](#pricing-policy-mandatory)
+    - [Pricing Audit (Quarterly)](#pricing-audit-quarterly)
+  - [Receipt Contract (Compliance Proof)](#receipt-contract-compliance-proof)
+  - [Definition of Done](#definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Bill of Estimated (BOE) Pricing & Revenue Model
 
 **Last Updated**: January 25, 2026 | **Version**: 2.0 | **Owner**: Finance/Sales Operations

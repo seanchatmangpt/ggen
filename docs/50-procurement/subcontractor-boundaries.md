@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Subcontractor Boundaries: Build vs. Buy Strategy & Partner Management](#subcontractor-boundaries-build-vs-buy-strategy--partner-management)
+  - [Executive Summary](#executive-summary)
+  - [Strategic Decision Matrix: Build vs. Buy](#strategic-decision-matrix-build-vs-buy)
+    - [Decision Criteria (5 Factors)](#decision-criteria-5-factors)
+  - [Build vs. Buy Decision Examples](#build-vs-buy-decision-examples)
+    - [Example 1: Real-Time Compliance Monitoring (SKU-03)](#example-1-real-time-compliance-monitoring-sku-03)
+    - [Example 2: Incident Response Training (IR-2 Control Gap)](#example-2-incident-response-training-ir-2-control-gap)
+    - [Example 3: Terraform Modules (SKU-10)](#example-3-terraform-modules-sku-10)
+    - [Example 4: Penetration Testing / Ethical Hacking](#example-4-penetration-testing--ethical-hacking)
+    - [Example 5: AWS Cloud Infrastructure (Hosting)](#example-5-aws-cloud-infrastructure-hosting)
+  - [Partner Types & Engagement Models](#partner-types--engagement-models)
+    - [1. Cloud Providers (Not Subcontractors)](#1-cloud-providers-not-subcontractors)
+    - [2. Systems Integrators (SI) — Subcontractors (50% Max)](#2-systems-integrators-si--subcontractors-50-max)
+    - [3. Managed Service Providers (MSP) — Partners/Subcontractors](#3-managed-service-providers-msp--partnerssubcontractors)
+    - [4. Compliance Auditors (3PAOs, HIPAA Auditors, ISO Auditors) — Partners](#4-compliance-auditors-3paos-hipaa-auditors-iso-auditors--partners)
+    - [5. Technology/Software Partners (OEM, Resale, Integration)](#5-technologysoftware-partners-oem-resale-integration)
+  - [Subcontractor Selection Criteria](#subcontractor-selection-criteria)
+    - [1. Financial Stability](#1-financial-stability)
+    - [2. Security Clearance & Compliance](#2-security-clearance--compliance)
+    - [3. Past Performance](#3-past-performance)
+    - [4. Technical Capability](#4-technical-capability)
+    - [5. Contractual Terms & Risk Tolerance](#5-contractual-terms--risk-tolerance)
+    - [6. Communication & Responsiveness](#6-communication--responsiveness)
+  - [Subcontractor Agreement Template](#subcontractor-agreement-template)
+  - [Subcontracting Limits & Financial Controls](#subcontracting-limits--financial-controls)
+    - [Enforcement Rules](#enforcement-rules)
+    - [Financial Impact Example](#financial-impact-example)
+  - [Examples: Common Subcontracting Scenarios](#examples-common-subcontracting-scenarios)
+    - [Scenario 1: Standard FedRAMP Deal (SI Deployment)](#scenario-1-standard-fedramp-deal-si-deployment)
+    - [Scenario 2: Enterprise Deal with Multiple Subcontractors](#scenario-2-enterprise-deal-with-multiple-subcontractors)
+    - [Scenario 3: Build vs. Partner Mistake (Anti-Pattern)](#scenario-3-build-vs-partner-mistake-anti-pattern)
+  - [Compliance Flow-Down Template](#compliance-flow-down-template)
+  - [Receipt Contract (Compliance Proof)](#receipt-contract-compliance-proof)
+  - [Definition of Done](#definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Subcontractor Boundaries: Build vs. Buy Strategy & Partner Management
 
 **Last Updated**: January 25, 2026 | **Version**: 2.0 | **Owner**: Procurement Lead / Solutions Architect

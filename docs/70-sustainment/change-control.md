@@ -1,3 +1,56 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Change Control Policy](#change-control-policy)
+  - [Table of Contents](#table-of-contents)
+  - [Executive Summary](#executive-summary)
+  - [Change Types & Classification](#change-types--classification)
+    - [By Impact Category](#by-impact-category)
+    - [By Urgency Level](#by-urgency-level)
+  - [Change Control Workflow](#change-control-workflow)
+    - [Step 1: Change Request (PROPOSED State)](#step-1-change-request-proposed-state)
+    - [Step 2: Change Review (PROPOSED → APPROVED)](#step-2-change-review-proposed-%E2%86%92-approved)
+    - [Step 3: Deployment Approval (APPROVED → DEPLOYING)](#step-3-deployment-approval-approved-%E2%86%92-deploying)
+    - [Step 4: Canary Deployment (DEPLOYING State)](#step-4-canary-deployment-deploying-state)
+    - [Step 5: Post-Deployment (DEPLOYED or ROLLED_BACK State)](#step-5-post-deployment-deployed-or-rolled_back-state)
+  - [State Machine (gen_statem)](#state-machine-gen_statem)
+    - [FSM Diagram](#fsm-diagram)
+    - [State Definitions](#state-definitions)
+    - [Transitions](#transitions)
+  - [Change Authority & Approval](#change-authority--approval)
+    - [Authority Mapping](#authority-mapping)
+    - [Approval Requirements](#approval-requirements)
+    - [Signature Requirements](#signature-requirements)
+  - [Approval Criteria](#approval-criteria)
+    - [Compliance Review](#compliance-review)
+    - [Security Review](#security-review)
+    - [Performance Review](#performance-review)
+    - [Rollback Readiness](#rollback-readiness)
+    - [Testing Evidence](#testing-evidence)
+  - [Communication Protocol](#communication-protocol)
+    - [Notification Timeline](#notification-timeline)
+    - [Notification Channels](#notification-channels)
+    - [Message Templates](#message-templates)
+  - [Rollback Procedures](#rollback-procedures)
+    - [Universal Rollback Template](#universal-rollback-template)
+  - [Evidence & Receipts](#evidence--receipts)
+    - [Artifact Retention](#artifact-retention)
+    - [Receipt Contents](#receipt-contents)
+  - [Policy Hot-Reload](#policy-hot-reload)
+    - [Safe vs Unsafe Changes](#safe-vs-unsafe-changes)
+    - [Hot-Reload Workflow](#hot-reload-workflow)
+    - [Configuration Polling](#configuration-polling)
+  - [Canary Deployment](#canary-deployment)
+    - [SLI Monitoring Dashboard](#sli-monitoring-dashboard)
+    - [Automatic Halt Logic](#automatic-halt-logic)
+  - [Change Request Template](#change-request-template)
+  - [Approval Checklist](#approval-checklist)
+  - [Definition of Done](#definition-of-done)
+  - [Receipt Contract](#receipt-contract)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Change Control Policy
 
 **Classification**: Internal | **Version**: 1.0.0 | **For**: ggen v6.0.0 Production Operations

@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Entitlement Contract](#entitlement-contract)
+  - [Philosophy](#philosophy)
+  - [Webhook Structure](#webhook-structure)
+    - [Entitlement Webhook Request](#entitlement-webhook-request)
+    - [Webhook Headers](#webhook-headers)
+  - [Webhook Verification](#webhook-verification)
+    - [HMAC Signature Verification](#hmac-signature-verification)
+    - [Verification Checklist](#verification-checklist)
+  - [Entitlement FSM](#entitlement-fsm)
+    - [State Diagram](#state-diagram)
+    - [State Definitions](#state-definitions)
+  - [Webhook Handlers](#webhook-handlers)
+    - [Handler: ENTITLEMENT_ACTIVE](#handler-entitlement_active)
+    - [Handler: ENTITLEMENT_CANCELLED](#handler-entitlement_cancelled)
+  - [Idempotency](#idempotency)
+    - [Guarantee](#guarantee)
+    - [Implementation](#implementation)
+  - [Failure Modes & Recovery](#failure-modes--recovery)
+    - [Mode: Invalid Signature](#mode-invalid-signature)
+    - [Mode: Unknown SKU](#mode-unknown-sku)
+    - [Mode: Governor Deployment Failure](#mode-governor-deployment-failure)
+    - [Mode: Duplicate Entitlement](#mode-duplicate-entitlement)
+  - [Initialization Sequence](#initialization-sequence)
+    - [1. Deploy Governor gen_statem Process](#1-deploy-governor-gen_statem-process)
+    - [2. Create Tenant Registry Entry](#2-create-tenant-registry-entry)
+    - [3. Allocate Pub/Sub Topic](#3-allocate-pubsub-topic)
+    - [4. Create Firestore Collection](#4-create-firestore-collection)
+    - [5. Emit entitlement_active Receipt](#5-emit-entitlement_active-receipt)
+  - [Definition of Done](#definition-of-done)
+  - [Receipt Contract](#receipt-contract)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Entitlement Contract
 
 > *The webhook protocol that activates SKUs and the FSM that manages their lifecycle.*
