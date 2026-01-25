@@ -1,0 +1,266 @@
+# ggen Configuration: GCP Erlang Autonomics C4 Diagrams
+# Manifest for code generation pipeline with deterministic C4 architecture diagrams
+# Version: 0.1.0
+
+[project]
+name = "gcp-erlang-autonomics"
+version = "0.1.0"
+description = "C4 architecture diagrams + Erlang autonomic governors on GCP infrastructure"
+authors = ["ggen"]
+license = "Apache-2.0"
+
+# Specification layer: RDF ontologies and requirements
+[specs]
+# Directory containing .specify/specs/*.ttl source files (RDF-first)
+directory = ".specify/specs"
+# Primary ontology file defining C4 model, systems, containers, components
+ontology = ".specify/ontologies/c4.ttl"
+# Include additional ontologies for domain models
+include_ontologies = [
+  ".specify/ontologies/erlang-autonomics.ttl",
+  ".specify/ontologies/gcp-infrastructure.ttl",
+  ".specify/ontologies/skus.ttl"
+]
+
+# Generation pipeline: templates and output
+[generation]
+# Template directory (Tera templates: *.tera files)
+templates = "templates"
+# Output directory for generated artifacts
+output = "generated"
+# Watch mode: regenerate on file changes (development only)
+watch = false
+# Force regeneration even if outputs are current (use for schema changes)
+force = false
+# Dry-run mode: preview changes without writing files
+dry_run = false
+
+# Output formats: multiple target languages
+[[generation.targets]]
+name = "c4-level1"
+template = "c4-level1.tera"
+output_file = "generated/c4-level1-context.mmd"
+format = "mermaid"
+description = "C4 Level 1: System context diagram (actors, external systems)"
+
+[[generation.targets]]
+name = "c4-level2"
+template = "c4-level2.tera"
+output_file = "generated/c4-level2-containers.mmd"
+format = "mermaid"
+description = "C4 Level 2: Container diagram (microservices, databases, message queues)"
+
+[[generation.targets]]
+name = "c4-level3"
+template = "c4-level3.tera"
+output_file = "generated/c4-level3-components.mmd"
+format = "mermaid"
+description = "C4 Level 3: Component diagram (Governor FSM, state machine internals)"
+
+[[generation.targets]]
+name = "c4-level4"
+template = "c4-level4.tera"
+output_file = "generated/c4-level4-deployment.mmd"
+format = "mermaid"
+description = "C4 Level 4: Infrastructure deployment (GCP Cloud Run, GKE, Pub/Sub)"
+
+[[generation.targets]]
+name = "sku-catalog"
+template = "sku-catalog.tera"
+output_file = "generated/sku-catalog.md"
+format = "markdown"
+description = "SKU product catalog with signals, actions, and pricing tiers"
+
+[[generation.targets]]
+name = "k8s-deployment"
+template = "deployment-gke.tera"
+output_file = "generated/deployment-gke.yaml"
+format = "yaml"
+description = "Kubernetes manifests for autonomic governors on GKE"
+
+# SPARQL Queries: data extraction from RDF ontology
+[queries]
+# Query for system context diagram (C4 Level 1)
+systems = """
+PREFIX c4: <http://ggen.io/c4#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?actor_label ?system_label ?rel_type ?target_system
+WHERE {
+  ?actor a c4:Actor .
+  ?actor rdfs:label ?actor_label .
+  ?actor c4:interactsWith ?system .
+  ?system rdfs:label ?system_label .
+  OPTIONAL { ?actor c4:relationshipType ?rel_type }
+}
+ORDER BY ?actor_label ?system_label
+"""
+
+# Query for container diagram (C4 Level 2)
+containers = """
+PREFIX c4: <http://ggen.io/c4#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?system_label ?container_label ?container_type ?dataflow_label ?target_container
+WHERE {
+  ?system a c4:System .
+  ?system rdfs:label ?system_label .
+  ?system c4:hasContainer ?container .
+  ?container rdfs:label ?container_label .
+  ?container a ?container_type .
+  OPTIONAL {
+    ?container c4:dataFlowTo ?target .
+    ?container c4:flowLabel ?dataflow_label .
+    ?target rdfs:label ?target_container .
+  }
+}
+ORDER BY ?system_label ?container_label
+"""
+
+# Query for component diagram (C4 Level 3 - FSM components)
+components = """
+PREFIX c4: <http://ggen.io/c4#>
+PREFIX autonomic: <http://ggen.io/autonomic#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?container_label ?component_label ?component_type ?state_from ?state_to ?transition_label
+WHERE {
+  ?container c4:hasComponent ?component .
+  ?container rdfs:label ?container_label .
+  ?component rdfs:label ?component_label .
+  ?component a ?component_type .
+  OPTIONAL {
+    ?component autonomic:hasState ?state .
+    ?state autonomic:transitionTo ?next_state .
+    ?state rdfs:label ?state_from .
+    ?next_state rdfs:label ?state_to .
+    OPTIONAL { ?state autonomic:transitionLabel ?transition_label }
+  }
+}
+ORDER BY ?container_label ?component_label
+"""
+
+# Query for deployment infrastructure (C4 Level 4)
+infrastructure = """
+PREFIX c4: <http://ggen.io/c4#>
+PREFIX gcp: <http://ggen.io/gcp#>
+PREFIX k8s: <http://ggen.io/k8s#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?region ?zone ?service_label ?service_type ?protocol ?port ?scaling_policy
+WHERE {
+  ?region a gcp:Region .
+  ?region rdfs:label ?region_label .
+  ?zone gcp:inRegion ?region .
+  ?service gcp:deployedIn ?zone .
+  ?service rdfs:label ?service_label .
+  ?service a ?service_type .
+  OPTIONAL { ?service gcp:exposesPort ?port }
+  OPTIONAL { ?service gcp:protocol ?protocol }
+  OPTIONAL { ?service k8s:scalingPolicy ?scaling_policy }
+}
+ORDER BY ?region_label ?zone ?service_label
+"""
+
+# Query for SKU catalog
+skus = """
+PREFIX sku: <http://ggen.io/sku#>
+PREFIX autonomic: <http://ggen.io/autonomic#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?sku_name ?sku_tier ?signal_type ?action_type ?max_instances ?cost_per_hour
+WHERE {
+  ?sku a sku:SKU .
+  ?sku rdfs:label ?sku_name .
+  ?sku sku:tier ?sku_tier .
+  ?sku autonomic:triggeredBy ?signal .
+  ?signal a ?signal_type .
+  ?sku autonomic:executes ?action .
+  ?action a ?action_type .
+  OPTIONAL { ?sku sku:maxInstances ?max_instances }
+  OPTIONAL { ?sku sku:costPerHour ?cost_per_hour }
+}
+ORDER BY ?sku_tier ?sku_name
+"""
+
+# Service Level Objectives (SLOs)
+[slo]
+# Generation time SLO (milliseconds)
+generation_time_ms = 5000
+# Diagram rendering time SLO
+diagram_render_ms = 2000
+# Maximum file size for generated diagrams
+max_diagram_size_kb = 512
+# Cache invalidation: regenerate if ontology hash changes
+cache_invalidate_on_schema_change = true
+
+# Determinism & Validation
+[validation]
+# Ensure deterministic outputs: same input always produces same output
+deterministic = true
+# Enable SHACL shape validation on RDF ontology
+shacl_validation = true
+# Validate Mermaid syntax before output
+validate_mermaid = true
+# Validate YAML/Kubernetes manifests
+validate_kubernetes = true
+# Generate cryptographic audit trail (SHA-256 hashes per file)
+audit_trail = true
+
+# Tera Template Engine Configuration
+[template_engine]
+# Escape HTML entities in rendered output
+escape_html = true
+# Strict mode: error on missing variables (no silent failures)
+strict = true
+# Auto-trim whitespace in templates (cleaner output)
+auto_trim_blocks = true
+
+# Mermaid-specific options
+[mermaid]
+# Theme: default, dark, forest, neutral, base
+theme = "default"
+# Diagram direction: LR (left-right), TB (top-bottom), etc.
+direction = "TB"
+# Enable subgraph clustering for containers/components
+enable_clustering = true
+# Render notes/documentation on diagrams
+show_notes = true
+
+# Kubernetes-specific options
+[kubernetes]
+# Namespace for all generated resources
+namespace = "autonomic-system"
+# Image registry for Governor containers
+image_registry = "gcr.io/ggen-project"
+# Image pull policy (Always, IfNotPresent, Never)
+image_pull_policy = "IfNotPresent"
+# Resource limits for Governor pods
+cpu_request = "250m"
+cpu_limit = "500m"
+memory_request = "256Mi"
+memory_limit = "512Mi"
+
+# GCP-specific configuration
+[gcp]
+# Project ID
+project_id = "ggen-autonomics"
+# Default region
+region = "us-central1"
+# Default zones
+zones = ["us-central1-a", "us-central1-b", "us-central1-c"]
+# Cloud Run configuration
+cloud_run_memory = "512Mi"
+cloud_run_cpu = "1"
+# Pub/Sub configuration
+pubsub_ack_deadline = 60
+pubsub_retention_duration = 604800
+
+# Logging & Observability
+[observability]
+# Log level: trace, debug, info, warn, error
+log_level = "info"
+# Enable JSON logging for structured logs
+json_logging = true
+# Include timestamps in logs
+include_timestamps = true

@@ -1,0 +1,55 @@
+[package]
+name = "gcp-erlang-autonomics"
+version = "0.1.0"
+edition = "2021"
+
+[[bench]]
+name = "signal_ingest_bench"
+harness = false
+
+[[bench]]
+name = "governor_decision_bench"
+harness = false
+
+[[bench]]
+name = "actuator_execution_bench"
+harness = false
+
+[[bench]]
+name = "receipt_emission_bench"
+harness = false
+
+[[bench]]
+name = "diagram_generation_bench"
+harness = false
+
+[dependencies]
+tokio = { version = "1.47", features = ["full"] }
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+hex = "0.4"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.0", features = ["v4", "serde"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+async-trait = "0.1"
+
+[dev-dependencies]
+tokio-test = "0.4"
+criterion = { version = "0.5", features = ["html_reports"] }
+proptest = "1.4"
+tempfile = "3.8"
+
+[[example]]
+name = "autonomic_demo"
+path = "examples/autonomic_demo.rs"
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3
+
+[profile.bench]
+inherits = "release"
