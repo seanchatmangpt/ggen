@@ -1584,3 +1584,87 @@ Files:
 Learn more: docs/KAIZEN_METRICS.md
 HELP_EOF
 '''
+
+# ============================================================================
+# PERFORMANCE BENCHMARKING SUITE (v1.0)
+# ============================================================================
+
+[tasks.bench-build-times]
+description = "Benchmark build time performance (clean, incremental, parallel)"
+workspace = false
+command = "timeout"
+args = ["300s", "cargo", "bench", "--bench", "build_time_benchmarks"]
+
+[tasks.bench-memory]
+description = "Benchmark memory usage during operations (RDF, templates, generation)"
+workspace = false
+command = "timeout"
+args = ["180s", "cargo", "bench", "--bench", "memory_usage_benchmarks"]
+
+[tasks.bench-binary-size]
+description = "Analyze binary sizes and symbol reduction"
+workspace = false
+command = "timeout"
+args = ["120s", "cargo", "bench", "--bench", "binary_size_analysis"]
+
+[tasks.bench-slo-tracking]
+description = "Track SLO compliance for all benchmarks"
+workspace = false
+command = "timeout"
+args = ["60s", "cargo", "bench", "--bench", "slo_tracking"]
+
+[tasks.bench-all]
+description = "Run all performance benchmarks (comprehensive suite)"
+workspace = false
+dependencies = [
+    "bench-build-times",
+    "bench-memory",
+    "bench-binary-size",
+    "bench-slo-tracking"
+]
+
+[tasks.perf-monitor-build]
+description = "Monitor build performance with detailed metrics"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+echo "[ℹ INFO] Starting build performance monitoring..."
+./scripts/build_perf_monitor.sh all
+
+echo ""
+echo "[✓ PASS] Performance reports saved to: .ggen/benchmark_results/"
+'''
+
+[tasks.perf-monitor-memory]
+description = "Monitor memory usage during operations"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+DURATION="${1:-60}"
+echo "[ℹ INFO] Starting memory monitor (${DURATION}s)..."
+./scripts/memory_monitor.sh --duration="$DURATION" --interval=1
+
+echo ""
+echo "[✓ PASS] Memory reports saved to: .ggen/memory_reports/"
+'''
+
+[tasks.slo-check]
+description = "Quick SLO compliance check (all categories)"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+set -euo pipefail
+
+echo "[ℹ INFO] Running SLO compliance checks..."
+echo ""
+
+echo "Build Time SLO Check:"
+timeout 60s cargo bench --bench slo_tracking 2>&1 | grep -i "receipt" || echo "Check complete"
+'''

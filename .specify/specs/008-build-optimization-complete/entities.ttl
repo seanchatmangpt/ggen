@@ -1,0 +1,591 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix bo: <https://ggen.dev/build-optimization/> .
+@prefix : <https://ggen.dev/spec/build-optimization-008/entities#> .
+
+# ============================================================================
+# DOMAIN ENTITY DEFINITIONS (Turtle RDF Schema)
+# ============================================================================
+
+# =======================================================================
+# Core Build Optimization Entity
+# =======================================================================
+
+:BuildOptimization a rdfs:Class ;
+    rdfs:label "Build Optimization" ;
+    rdfs:comment "Specification of a single build optimization task with measurable impact" ;
+    rdfs:subClassOf owl:Thing ;
+    owl:equivalentClass [
+        owl:intersectionOf (
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :optimizationName ;
+              owl:minCardinality 1 ]
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :phase ;
+              owl:maxCardinality 1 ]
+        )
+    ] .
+
+:optimizationName a rdf:Property ;
+    rdfs:label "Optimization Name" ;
+    rdfs:comment "Human-readable name of the optimization (e.g., 'Artifact Lock Isolation')" ;
+    rdfs:domain :BuildOptimization ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .
+
+:optimizationDescription a rdf:Property ;
+    rdfs:label "Description" ;
+    rdfs:comment "Detailed explanation of what the optimization does and why it helps" ;
+    rdfs:domain :BuildOptimization ;
+    rdfs:range xsd:string ;
+    owl:minCardinality 1 .
+
+:technicalCategory a rdf:Property ;
+    rdfs:label "Technical Category" ;
+    rdfs:comment "Category of optimization: CARGO_CONFIG, PROFILE, DEPENDENCY, PARALLELIZATION, CACHING, LINKER, INCREMENTAL" ;
+    rdfs:domain :BuildOptimization ;
+    rdfs:range :TechnicalCategory ;
+    owl:cardinality 1 .
+
+:targetBottleneck a rdf:Property ;
+    rdfs:label "Target Bottleneck" ;
+    rdfs:comment "Which bottleneck does this optimization address" ;
+    rdfs:domain :BuildOptimization ;
+    rdfs:range :Bottleneck ;
+    owl:minCardinality 1 .
+
+:phase a rdf:Property ;
+    rdfs:label "Implementation Phase" ;
+    rdfs:comment "Phase in which this optimization is implemented (1-5)" ;
+    rdfs:domain :BuildOptimization ;
+    rdfs:range :Phase ;
+    owl:cardinality 1 .
+
+:expectedImpact a rdf:Property ;
+    rdfs:label "Expected Impact" ;
+    rdfs:comment "Performance improvement expected from this optimization" ;
+    rdfs:domain :BuildOptimization ;
+    rdfs:range :ImpactEstimate ;
+    owl:cardinality 1 .
+
+:maturityLevel a rdf:Property ;
+    rdfs:label "Maturity Level" ;
+    rdfs:comment "CONCEPT, DRAFT, PROTOTYPE, VALIDATED, PRODUCTIONREADY (0-100%)" ;
+    rdfs:domain :BuildOptimization ;
+    rdfs:range xsd:integer ;
+    owl:cardinality 1 .
+
+:estimatedEffort a rdf:Property ;
+    rdfs:label "Estimated Effort" ;
+    rdfs:comment "Hours of development effort required" ;
+    rdfs:domain :BuildOptimization ;
+    rdfs:range xsd:decimal ;
+    owl:cardinality 1 .
+
+:dependencies a rdf:Property ;
+    rdfs:label "Dependencies" ;
+    rdfs:comment "Other optimizations that must complete first" ;
+    rdfs:domain :BuildOptimization ;
+    rdfs:range :BuildOptimization ;
+    owl:minCardinality 0 .
+
+:requiredMSRV a rdf:Property ;
+    rdfs:label "Minimum Supported Rust Version" ;
+    rdfs:comment "Rust version required for this optimization (e.g., '1.70')" ;
+    rdfs:domain :BuildOptimization ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .
+
+:breakingChanges a rdf:Property ;
+    rdfs:label "Breaking Changes" ;
+    rdfs:comment "List of breaking changes introduced by this optimization" ;
+    rdfs:domain :BuildOptimization ;
+    rdfs:range xsd:string ;
+    owl:minCardinality 0 .
+
+:riskLevel a rdf:Property ;
+    rdfs:label "Risk Level" ;
+    rdfs:comment "LOW, MEDIUM, HIGH, CRITICAL" ;
+    rdfs:domain :BuildOptimization ;
+    rdfs:range :RiskLevel ;
+    owl:cardinality 1 .
+
+:affectedCrates a rdf:Property ;
+    rdfs:label "Affected Crates" ;
+    rdfs:comment "List of crates impacted by this optimization" ;
+    rdfs:domain :BuildOptimization ;
+    rdfs:range xsd:string ;
+    owl:minCardinality 0 .
+
+# =======================================================================
+# Build Profile Entity (Cargo.toml Profile Configuration)
+# =======================================================================
+
+:BuildProfile a rdfs:Class ;
+    rdfs:label "Build Profile" ;
+    rdfs:comment "Cargo profile configuration (dev, release, test, custom)" ;
+    rdfs:subClassOf owl:Thing ;
+    owl:equivalentClass [
+        owl:intersectionOf (
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :profileName ;
+              owl:minCardinality 1 ]
+            [ rdf:type owl:Restriction ;
+              owl:onProperty :isActive ;
+              owl:cardinality 1 ]
+        )
+    ] .
+
+:profileName a rdf:Property ;
+    rdfs:label "Profile Name" ;
+    rdfs:comment "Name of the profile (dev, release, bench, check)" ;
+    rdfs:domain :BuildProfile ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .
+
+:optLevel a rdf:Property ;
+    rdfs:label "Optimization Level" ;
+    rdfs:comment "Cargo opt-level: 0, 1, 2, 3, s, z" ;
+    rdfs:domain :BuildProfile ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .
+
+:debugInfo a rdf:Property ;
+    rdfs:label "Debug Info Strategy" ;
+    rdfs:comment "split-debuginfo value: packed, unpacked, off" ;
+    rdfs:domain :BuildProfile ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .
+
+:lto a rdf:Property ;
+    rdfs:label "Link Time Optimization" ;
+    rdfs:comment "LTO strategy: thin, fat, off" ;
+    rdfs:domain :BuildProfile ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .
+
+:codegen a rdf:Property ;
+    rdfs:label "Codegen Units" ;
+    rdfs:comment "Number of codegen units (1-256, lower = slower compile, better optimizations)" ;
+    rdfs:domain :BuildProfile ;
+    rdfs:range xsd:integer ;
+    owl:cardinality 1 .
+
+:incremental a rdf:Property ;
+    rdfs:label "Incremental Compilation" ;
+    rdfs:comment "Enable incremental compilation (true/false)" ;
+    rdfs:domain :BuildProfile ;
+    rdfs:range xsd:boolean ;
+    owl:cardinality 1 .
+
+:stripSymbols a rdf:Property ;
+    rdfs:label "Strip Symbols" ;
+    rdfs:comment "Strip symbols from binary (true/false)" ;
+    rdfs:domain :BuildProfile ;
+    rdfs:range xsd:boolean ;
+    owl:cardinality 1 .
+
+:isActive a rdf:Property ;
+    rdfs:label "Is Active" ;
+    rdfs:comment "Whether this profile is currently in use" ;
+    rdfs:domain :BuildProfile ;
+    rdfs:range xsd:boolean ;
+    owl:cardinality 1 .
+
+:expectedBuildTime a rdf:Property ;
+    rdfs:label "Expected Build Time" ;
+    rdfs:comment "Approximate build time with this profile (seconds)" ;
+    rdfs:domain :BuildProfile ;
+    rdfs:range xsd:decimal ;
+    owl:cardinality 1 .
+
+:expectedBinarySize a rdf:Property ;
+    rdfs:label "Expected Binary Size" ;
+    rdfs:comment "Approximate binary size with this profile (MB)" ;
+    rdfs:domain :BuildProfile ;
+    rdfs:range xsd:decimal ;
+    owl:cardinality 1 .
+
+# =======================================================================
+# Dependency Version Management Entity
+# =======================================================================
+
+:DependencyVersion a rdfs:Class ;
+    rdfs:label "Dependency Version" ;
+    rdfs:comment "Version specification and justification for a crate dependency" ;
+    rdfs:subClassOf owl:Thing .
+
+:crateName a rdf:Property ;
+    rdfs:label "Crate Name" ;
+    rdfs:comment "Name of the dependency crate (e.g., tokio, serde)" ;
+    rdfs:domain :DependencyVersion ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .
+
+:versionConstraint a rdf:Property ;
+    rdfs:label "Version Constraint" ;
+    rdfs:comment "Version specification (e.g., '1.35', '^1.0', '~0.8')" ;
+    rdfs:domain :DependencyVersion ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .
+
+:minimalVersion a rdf:Property ;
+    rdfs:label "Minimal Version" ;
+    rdfs:comment "Minimum required version" ;
+    rdfs:domain :DependencyVersion ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .
+
+:justification a rdf:Property ;
+    rdfs:label "Version Justification" ;
+    rdfs:comment "Why this version is chosen (performance, bug fix, feature)" ;
+    rdfs:domain :DependencyVersion ;
+    rdfs:range xsd:string ;
+    owl:minCardinality 1 .
+
+:compileTimeCost a rdf:Property ;
+    rdfs:label "Compile Time Cost" ;
+    rdfs:comment "Estimated additional compile time from this dependency (seconds)" ;
+    rdfs:domain :DependencyVersion ;
+    rdfs:range xsd:decimal ;
+    owl:cardinality 1 .
+
+:binarySize a rdf:Property ;
+    rdfs:label "Binary Size Impact" ;
+    rdfs:comment "Additional binary size from this dependency (KB)" ;
+    rdfs:domain :DependencyVersion ;
+    rdfs:range xsd:decimal ;
+    owl:cardinality 1 .
+
+:featureGated a rdf:Property ;
+    rdfs:label "Feature Gated" ;
+    rdfs:comment "Is this dependency feature-gated (optional)" ;
+    rdfs:domain :DependencyVersion ;
+    rdfs:range xsd:boolean ;
+    owl:cardinality 1 .
+
+:features a rdf:Property ;
+    rdfs:label "Enabled Features" ;
+    rdfs:comment "List of features to enable from this dependency" ;
+    rdfs:domain :DependencyVersion ;
+    rdfs:range xsd:string ;
+    owl:minCardinality 0 .
+
+# =======================================================================
+# Performance Metric Entity
+# =======================================================================
+
+:PerformanceMetric a rdfs:Class ;
+    rdfs:label "Performance Metric" ;
+    rdfs:comment "Quantifiable performance measurement with baseline and targets" ;
+    rdfs:subClassOf owl:Thing .
+
+:metricName a rdf:Property ;
+    rdfs:label "Metric Name" ;
+    rdfs:comment "Name of the performance metric (e.g., 'First Build Time')" ;
+    rdfs:domain :PerformanceMetric ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .
+
+:baselineValue a rdf:Property ;
+    rdfs:label "Baseline Value" ;
+    rdfs:comment "Current/historical baseline value" ;
+    rdfs:domain :PerformanceMetric ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .
+
+:targetValue a rdf:Property ;
+    rdfs:label "Target Value" ;
+    rdfs:comment "Target value after optimization" ;
+    rdfs:domain :PerformanceMetric ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .
+
+:improvementFactor a rdf:Property ;
+    rdfs:label "Improvement Factor" ;
+    rdfs:comment "Multiplier of improvement (baseline/target)" ;
+    rdfs:domain :PerformanceMetric ;
+    rdfs:range xsd:decimal ;
+    owl:cardinality 1 .
+
+:unit a rdf:Property ;
+    rdfs:label "Unit of Measurement" ;
+    rdfs:comment "Unit for the metric (seconds, MB, percent, etc.)" ;
+    rdfs:domain :PerformanceMetric ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .
+
+:criticality a rdf:Property ;
+    rdfs:label "Criticality Level" ;
+    rdfs:comment "LOW, MEDIUM, HIGH, CRITICAL" ;
+    rdfs:domain :PerformanceMetric ;
+    rdfs:range :CriticalityLevel ;
+    owl:cardinality 1 .
+
+:measurementMethod a rdf:Property ;
+    rdfs:label "Measurement Method" ;
+    rdfs:comment "How this metric is measured" ;
+    rdfs:domain :PerformanceMetric ;
+    rdfs:range xsd:string ;
+    owl:minCardinality 1 .
+
+:alertThreshold a rdf:Property ;
+    rdfs:label "Alert Threshold" ;
+    rdfs:comment "Value at which alerts are triggered" ;
+    rdfs:domain :PerformanceMetric ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .
+
+:sloPercentile a rdf:Property ;
+    rdfs:label "SLO Percentile" ;
+    rdfs:comment "Percentile for SLO evaluation (50, 75, 95, 99)" ;
+    rdfs:domain :PerformanceMetric ;
+    rdfs:range xsd:integer ;
+    owl:cardinality 1 .
+
+# =======================================================================
+# Bottleneck Entity
+# =======================================================================
+
+:Bottleneck a rdfs:Class ;
+    rdfs:label "Performance Bottleneck" ;
+    rdfs:comment "Identified performance constraint in the build system" ;
+    rdfs:subClassOf owl:Thing .
+
+:bottleneckName a rdf:Property ;
+    rdfs:label "Bottleneck Name" ;
+    rdfs:comment "Name of the bottleneck" ;
+    rdfs:domain :Bottleneck ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .
+
+:rootCause a rdf:Property ;
+    rdfs:label "Root Cause" ;
+    rdfs:comment "Underlying reason for the bottleneck" ;
+    rdfs:domain :Bottleneck ;
+    rdfs:range xsd:string ;
+    owl:minCardinality 1 .
+
+:currentImpact a rdf:Property ;
+    rdfs:label "Current Impact" ;
+    rdfs:comment "How much this bottleneck affects build time" ;
+    rdfs:domain :Bottleneck ;
+    rdfs:range xsd:string ;
+    owl:minCardinality 1 .
+
+:improvementPotential a rdf:Property ;
+    rdfs:label "Improvement Potential" ;
+    rdfs:comment "Maximum possible improvement by addressing this bottleneck" ;
+    rdfs:domain :Bottleneck ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .
+
+:affectingPhases a rdf:Property ;
+    rdfs:label "Affecting Phases" ;
+    rdfs:comment "Which build phases are affected" ;
+    rdfs:domain :Bottleneck ;
+    rdfs:range xsd:string ;
+    owl:minCardinality 1 .
+
+# =======================================================================
+# Phase Entity (Implementation Phase)
+# =======================================================================
+
+:Phase a rdfs:Class ;
+    rdfs:label "Implementation Phase" ;
+    rdfs:comment "Sequential or parallel phase of optimization work" ;
+    rdfs:subClassOf owl:Thing .
+
+:phaseName a rdf:Property ;
+    rdfs:label "Phase Name" ;
+    rdfs:comment "Name of the phase" ;
+    rdfs:domain :Phase ;
+    rdfs:range xsd:string ;
+    owl:cardinality 1 .
+
+:phaseNumber a rdf:Property ;
+    rdfs:label "Phase Number" ;
+    rdfs:comment "Sequential phase number (1-5)" ;
+    rdfs:domain :Phase ;
+    rdfs:range xsd:integer ;
+    owl:cardinality 1 .
+
+:startDate a rdf:Property ;
+    rdfs:label "Start Date" ;
+    rdfs:comment "Planned start date (ISO 8601)" ;
+    rdfs:domain :Phase ;
+    rdfs:range xsd:date ;
+    owl:cardinality 1 .
+
+:endDate a rdf:Property ;
+    rdfs:label "End Date" ;
+    rdfs:comment "Planned end date (ISO 8601)" ;
+    rdfs:domain :Phase ;
+    rdfs:range xsd:date ;
+    owl:cardinality 1 .
+
+:durationDays a rdf:Property ;
+    rdfs:label "Duration (Days)" ;
+    rdfs:comment "Planned duration in calendar days" ;
+    rdfs:domain :Phase ;
+    rdfs:range xsd:integer ;
+    owl:cardinality 1 .
+
+:parallelAgents a rdf:Property ;
+    rdfs:label "Parallel Agents" ;
+    rdfs:comment "Number of concurrent agents working in this phase" ;
+    rdfs:domain :Phase ;
+    rdfs:range xsd:integer ;
+    owl:cardinality 1 .
+
+:dependencies a rdf:Property ;
+    rdfs:label "Phase Dependencies" ;
+    rdfs:comment "Phases that must complete before this phase starts" ;
+    rdfs:domain :Phase ;
+    rdfs:range :Phase ;
+    owl:minCardinality 0 .
+
+# =======================================================================
+# Enumerations / Controlled Vocabularies
+# =======================================================================
+
+:TechnicalCategory a rdfs:Class ;
+    rdfs:label "Technical Category" ;
+    rdfs:comment "Category of optimization technique" ;
+    rdfs:subClassOf owl:Thing .
+
+:CARGO_CONFIG a :TechnicalCategory ;
+    rdfs:label "Cargo Configuration" ;
+    rdfs:comment "Optimizations to Cargo.toml profiles and settings" .
+
+:PROFILE a :TechnicalCategory ;
+    rdfs:label "Build Profile" ;
+    rdfs:comment "Compiler profile optimizations (opt-level, LTO, etc.)" .
+
+:DEPENDENCY a :TechnicalCategory ;
+    rdfs:label "Dependency Management" ;
+    rdfs:comment "Dependency selection and feature-gating" .
+
+:PARALLELIZATION a :TechnicalCategory ;
+    rdfs:label "Parallelization" ;
+    rdfs:comment "Parallel build execution and job scheduling" .
+
+:CACHING a :TechnicalCategory ;
+    rdfs:label "Caching" ;
+    rdfs:comment "Build artifact caching and incremental compilation" .
+
+:LINKER a :TechnicalCategory ;
+    rdfs:label "Linker Optimization" ;
+    rdfs:comment "Linker selection and configuration" .
+
+:INCREMENTAL a :TechnicalCategory ;
+    rdfs:label "Incremental Build" ;
+    rdfs:comment "Incremental compilation and rebuild optimization" .
+
+:RiskLevel a rdfs:Class ;
+    rdfs:label "Risk Level" ;
+    rdfs:comment "Risk classification for an optimization" ;
+    rdfs:subClassOf owl:Thing .
+
+:LOW_RISK a :RiskLevel ;
+    rdfs:label "Low Risk" ;
+    rdfs:comment "Well-understood, low probability of negative consequences" .
+
+:MEDIUM_RISK a :RiskLevel ;
+    rdfs:label "Medium Risk" ;
+    rdfs:comment "Moderate complexity, some interaction effects possible" .
+
+:HIGH_RISK a :RiskLevel ;
+    rdfs:label "High Risk" ;
+    rdfs:comment "Complex interactions, breaking changes, significant testing needed" .
+
+:CRITICAL_RISK a :RiskLevel ;
+    rdfs:label "Critical Risk" ;
+    rdfs:comment "Major changes, extensive testing and monitoring required" .
+
+:CriticalityLevel a rdfs:Class ;
+    rdfs:label "Criticality Level" ;
+    rdfs:comment "Criticality of a performance metric to overall success" ;
+    rdfs:subClassOf owl:Thing .
+
+:CRITICAL a :CriticalityLevel ;
+    rdfs:label "Critical" ;
+    rdfs:comment "Must achieve target, blocks release if not met" .
+
+:HIGH a :CriticalityLevel ;
+    rdfs:label "High" ;
+    rdfs:comment "Should achieve target, significant impact" .
+
+:MEDIUM a :CriticalityLevel ;
+    rdfs:label "Medium" ;
+    rdfs:comment "Nice-to-have, secondary impact" .
+
+:LOW a :CriticalityLevel ;
+    rdfs:label "Low" ;
+    rdfs:comment "Informational, minimal impact" .
+
+# =======================================================================
+# Concrete Optimization Instances
+# =======================================================================
+
+:OptimizationArtifactIsolation a :BuildOptimization ;
+    :optimizationName "Artifact Directory Isolation" ;
+    :optimizationDescription "Isolate target/ directories per parallel build task to eliminate lock contention" ;
+    :technicalCategory :PARALLELIZATION ;
+    :phase 2 ;
+    :expectedImpact "40-60% speedup for parallel builds" ;
+    :maturityLevel 75 ;
+    :estimatedEffort 35.0 ;
+    :requiredMSRV "1.70" ;
+    :riskLevel :MEDIUM_RISK ;
+    :affectedCrates "All 30 crates" .
+
+:OptimizationCargoProfiles a :BuildOptimization ;
+    :optimizationName "Optimized Cargo Profiles" ;
+    :optimizationDescription "Configure profiles for speed (dev, check) vs. size (release)" ;
+    :technicalCategory :CARGO_CONFIG ;
+    :phase 2 ;
+    :expectedImpact "25-35% compile time reduction" ;
+    :maturityLevel 90 ;
+    :estimatedEffort 20.0 ;
+    :requiredMSRV "1.70" ;
+    :riskLevel :LOW_RISK ;
+    :affectedCrates "Cargo.toml root" .
+
+:OptimizationDependencyGating a :BuildOptimization ;
+    :optimizationName "Feature-Gate Optional Dependencies" ;
+    :optimizationDescription "Move optional/dev dependencies behind feature flags to reduce compilation" ;
+    :technicalCategory :DEPENDENCY ;
+    :phase 2 ;
+    :expectedImpact "30-45% memory reduction, 15-20% compile time reduction" ;
+    :maturityLevel 70 ;
+    :estimatedEffort 45.0 ;
+    :requiredMSRV "1.70" ;
+    :riskLevel :MEDIUM_RISK ;
+    :affectedCrates "ring, tera, rustls, config, tokio, axum" .
+
+:OptimizationCrateCoupling a :BuildOptimization ;
+    :optimizationName "Reduce Crate Coupling" ;
+    :optimizationDescription "Break dependency cycles and reduce bridge crate dependencies" ;
+    :technicalCategory :DEPENDENCY ;
+    :phase 3 ;
+    :expectedImpact "30-40% incremental build improvement" ;
+    :maturityLevel 65 ;
+    :estimatedEffort 60.0 ;
+    :requiredMSRV "1.70" ;
+    :riskLevel :HIGH_RISK ;
+    :affectedCrates "ggen-utils, ggen-config (bridge crates)" .
+
+:OptimizationCacheLocking a :BuildOptimization ;
+    :optimizationName "Intelligent Cache Locking" ;
+    :optimizationDescription "Implement smart locking strategies for shared build cache" ;
+    :technicalCategory :CACHING ;
+    :phase 3 ;
+    :expectedImpact "25-30% reduction in contention events" ;
+    :maturityLevel 50 ;
+    :estimatedEffort 40.0 ;
+    :requiredMSRV "1.70" ;
+    :riskLevel :MEDIUM_RISK ;
+    :affectedCrates "All 30 crates" .

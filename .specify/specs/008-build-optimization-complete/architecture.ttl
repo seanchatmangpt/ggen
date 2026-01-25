@@ -1,0 +1,735 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix arch: <https://ggen.dev/build-optimization/architecture#> .
+@prefix : <https://ggen.dev/spec/build-optimization-008/architecture#> .
+
+# ============================================================================
+# ARCHITECTURE & DESIGN: Build Optimization v8.0
+# ============================================================================
+
+:BuildOptimizationArchitecture a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Build Optimization Architecture" ;
+    rdfs:comment "Technical relationships, constraints, and design patterns for build optimizations" ;
+    :designPatterns (
+        :Pattern_SharedNothingParallelization
+        :Pattern_FeatureFlagAbstraction
+        :Pattern_GradualOptimization
+        :Pattern_DeterministicSeeding
+    ) ;
+    :constraints (
+        :Constraint_Determinism
+        :Constraint_Backward_Compatibility
+        :Constraint_ZeroUnsafeCoreChanges
+    ) ;
+    :profiles (
+        :Profile_CheckOptimized
+        :Profile_DevOptimized
+        :Profile_ReleaseOptimized
+        :Profile_TestOptimized
+    ) .
+
+# ============================================================================
+# DESIGN PATTERNS
+# ============================================================================
+
+:Pattern_SharedNothingParallelization a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Shared-Nothing Parallelization Pattern" ;
+    rdfs:comment "Isolate build artifacts to prevent lock contention in parallel execution" ;
+    :description "Each parallel build task uses isolated CARGO_TARGET_DIR=/tmp/cargo-target-${RANDOM} to prevent file lock conflicts between concurrent operations" ;
+    :benefits (
+        [ rdfs:label "Zero lock contention (0 'waiting for file lock' messages)" ]
+        [ rdfs:label "4-5x speedup for N parallel builds" ]
+        [ rdfs:label "No serialization bottlenecks" ]
+        [ rdfs:label "Deterministic (no race condition timing)" ]
+    ) ;
+    :implementation (
+        [ rdfs:label "Export CARGO_TARGET_DIR=/tmp/cargo-target-$$ per process" ]
+        [ rdfs:label "Implement cleanup script to remove orphaned /tmp directories" ]
+        [ rdfs:label "Monitor /tmp usage (alert if >80%)" ]
+        [ rdfs:label "Fallback to ./target if /tmp unavailable (slower but safe)" ]
+    ) ;
+    :tradeoffs (
+        [ rdfs:label "Increased disk I/O (multiple target/ directories)" ]
+        [ rdfs:label "Higher /tmp cleanup overhead" ]
+        [ rdfs:label "Requires shell environment to export variables" ]
+    ) ;
+    :suitableFor "Makefile-based parallel task execution, CI/CD pipeline" .
+
+:Pattern_FeatureFlagAbstraction a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Feature-Flag Abstraction Pattern" ;
+    rdfs:comment "Use Cargo feature flags to conditionally compile optional dependencies" ;
+    :description "Move memory-intensive dependencies (ring, tera, rustls) behind feature flags to reduce compile-time and binary-size overhead" ;
+    :benefits (
+        [ rdfs:label "30-50% memory reduction in minimal build" ]
+        [ rdfs:label "15-25% compile time reduction" ]
+        [ rdfs:label "Lower barrier to contribution (less deps to build)" ]
+        [ rdfs:label "Graceful feature degradation" ]
+    ) ;
+    :implementation (
+        [ rdfs:label "Define features in Cargo.toml (e.g., 'full', 'minimal', 'dev')" ]
+        [ rdfs:label "Use #[cfg(feature = \"..\")] to gate dependencies" ]
+        [ rdfs:label "Provide adapter traits for optional features" ]
+        [ rdfs:label "Document feature combinations and compatibility" ]
+    ) ;
+    :tradeoffs (
+        [ rdfs:label "API surface changes (need feature-gated code)" ]
+        [ rdfs:label "Increased testing complexity (N feature combinations)" ]
+        [ rdfs:label "Runtime feature negotiation overhead (minimal)" ]
+    ) ;
+    :suitableFor "Optional dependencies (dev tools, cloud integrations, heavy FFI)" ;
+    :incompatibleWith :Pattern_MonolithicBuild .
+
+:Pattern_GradualOptimization a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Gradual Optimization Pattern" ;
+    rdfs:comment "Phase-based rollout of optimizations with monitoring and rollback" ;
+    :description "Deploy optimizations incrementally (Phase 1 → 2 → 3 → 4 → 5) with measurable SLO targets and automatic rollback on regression" ;
+    :benefits (
+        [ rdfs:label "Risk isolation (catch regressions early)" ]
+        [ rdfs:label "Measurable progress (SLO per phase)" ]
+        [ rdfs:label "Team confidence (gradual adoption)" ]
+        [ rdfs:label "Fast rollback (<5 min) if critical regression" ]
+    ) ;
+    :implementation (
+        [ rdfs:label "Feature flag per optimization (disable independently)" ]
+        [ rdfs:label "SLO alerts trigger automatic rollback" ]
+        [ rdfs:label "Post-release monitoring (first week intensive)" ]
+        [ rdfs:label "Team communication during each phase" ]
+    ) ;
+    :tradeoffs (
+        [ rdfs:label "Longer time to full optimization (10 weeks vs 6 weeks)" ]
+        [ rdfs:label "Phase coordination complexity" ]
+        [ rdfs:label "More documentation/training needed" ]
+    ) ;
+    :suitableFor "Production deployments, high-reliability systems" .
+
+:Pattern_DeterministicSeeding a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Deterministic Seeding Pattern" ;
+    rdfs:comment "Use fixed RNG seeds to ensure reproducible builds" ;
+    :description "Set RNG_SEED=42 for all parallel operations to achieve bit-identical binary output across runs" ;
+    :benefits (
+        [ rdfs:label "100% deterministic builds (SHA-256 identical)" ]
+        [ rdfs:label "Supply chain security (reproducible artifacts)" ]
+        [ rdfs:label "Debugging reproducibility (always same random sequence)" ]
+    ) ;
+    :implementation (
+        [ rdfs:label "Export RNG_SEED=42 in Makefile.toml targets" ]
+        [ rdfs:label "Use seed in parallel job scheduling" ]
+        [ rdfs:label "Document seed value in Cargo.toml comments" ]
+        [ rdfs:label "Verify determinism (10+ builds = identical hash)" ]
+    ) ;
+    :tradeoffs (
+        [ rdfs:label "Fixed seed = predictable scheduling (not optimal)" ]
+        [ rdfs:label "Some workloads perform better with dynamic scheduling" ]
+    ) ;
+    :suitableFor "Security-critical builds, supply chain verification" .
+
+# ============================================================================
+# ARCHITECTURE CONSTRAINTS
+# ============================================================================
+
+:Constraint_Determinism a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Deterministic Output Constraint" ;
+    rdfs:comment "Build system MUST produce identical binaries from identical source" ;
+    :implication "All optimizations must preserve determinism (no timing-dependent ordering)" ;
+    :enforcement (
+        [ rdfs:label "Test requirement: 10 sequential builds must have identical SHA-256" ]
+        [ rdfs:label "Pre-release check: verify determinism before production deployment" ]
+        [ rdfs:label "Monitoring: continuous determinism verification in CI" ]
+    ) ;
+    :riskOfViolation "Supply chain attacks enabled by non-deterministic builds" ;
+    :mitigation "Use fixed RNG seeds, deterministic job scheduling, cryptographic hashing" .
+
+:Constraint_Backward_Compatibility a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Backward Compatibility Constraint" ;
+    rdfs:comment "Optimizations MUST NOT break existing developer workflows" ;
+    :implication "All optimizations must be opt-in or default-enabled without side effects" ;
+    :enforcement (
+        [ rdfs:label "Feature flag per optimization (allow disabling)" ]
+        [ rdfs:label "Clear deprecation path (6-month notice for breaking changes)" ]
+        [ rdfs:label "All existing tests must pass without modification" ]
+    ) ;
+    :riskOfViolation "Developer friction, build breakage, team morale impact" ;
+    :mitigation "Feature flags, gradual rollout, extensive testing" .
+
+:Constraint_ZeroUnsafeCoreChanges a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Zero Unsafe Core Changes" ;
+    rdfs:comment "Build system MUST NOT introduce unsafe code paths" ;
+    :implication "All optimizations must use safe Rust patterns or well-tested external tools" ;
+    :enforcement (
+        [ rdfs:label "Code review requirement for any new unsafe code" ]
+        [ rdfs:label "Clippy enforcement: no -D warnings in unsafe blocks" ]
+        [ rdfs:label "MIRI verification for FFI code paths" ]
+    ) ;
+    :riskOfViolation "Memory safety bugs, undefined behavior, security vulnerabilities" ;
+    :mitigation "Prefer safe abstractions, extensive testing, security audit" .
+
+# ============================================================================
+# CARGO PROFILES ARCHITECTURE
+# ============================================================================
+
+:Profile_CheckOptimized a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "check Profile (Syntax Validation, Ultra-Fast)" ;
+    rdfs:comment "Optimized for cargo check - fastest feedback" ;
+    :profileName "check" ;
+    :purpose "Rapid syntax feedback (<5s)" ;
+    :configuration (
+        [ rdfs:label "opt-level = 0 (no optimization)" ]
+        [ rdfs:label "codegen-units = 256 (maximize parallelism)" ]
+        [ rdfs:label "incremental = true (reuse previous builds)" ]
+        [ rdfs:label "split-debuginfo = 'off' (no debug info)" ]
+        [ rdfs:label "lto = false (no link-time optimization)" ]
+    ) ;
+    :expectedBuildTime "3-5 seconds" ;
+    :expectedMemory "50-100MB" ;
+    :expectedBinarySize "Not compiled" ;
+    :useCase "Developer rapid feedback during active coding" ;
+    :interactionsWith (
+        :Optimization_ArtifactIsolation
+        :Optimization_CargoProfiles
+    ) .
+
+:Profile_DevOptimized a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "dev Profile (Debug Build, Fast Iteration)" ;
+    rdfs:comment "Optimized for debugging with minimal compilation" ;
+    :profileName "dev" ;
+    :purpose "Fast iteration with debug symbols" ;
+    :configuration (
+        [ rdfs:label "opt-level = 0 (no optimization)" ]
+        [ rdfs:label "codegen-units = 256 (maximize parallelism)" ]
+        [ rdfs:label "incremental = true (reuse previous builds)" ]
+        [ rdfs:label "split-debuginfo = 'packed' (compact debug info)" ]
+        [ rdfs:label "strip = false (keep symbols)" ]
+        [ rdfs:label "lto = false (no LTO)" ]
+    ) ;
+    :expectedBuildTime "4-8 seconds" ;
+    :expectedMemory "80-150MB" ;
+    :expectedBinarySize "200-300MB" ;
+    :useCase "Local development, debugging, integration testing" ;
+    :interactionsWith (
+        :Optimization_ArtifactIsolation
+        :Optimization_CargoProfiles
+        :Optimization_DependencyGating
+    ) .
+
+:Profile_TestOptimized a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "test Profile (Minimal Optimization)" ;
+    rdfs:comment "Balanced for test execution (some optimization for runtime speed)" ;
+    :profileName "test" ;
+    :purpose "Fast test execution with minimal compile time" ;
+    :configuration (
+        [ rdfs:label "opt-level = 1 (light optimization)" ]
+        [ rdfs:label "codegen-units = 16 (balance parallelism vs optimization)" ]
+        [ rdfs:label "incremental = true (reuse builds)" ]
+        [ rdfs:label "split-debuginfo = 'packed' (compact debug)" ]
+        [ rdfs:label "lto = 'thin' (lightweight LTO)" ]
+    ) ;
+    :expectedBuildTime "8-12 seconds" ;
+    :expectedMemory "120-200MB" ;
+    :expectedBinarySize "180-250MB" ;
+    :useCase "Test suite execution, integration testing" ;
+    :interactionsWith (
+        :Optimization_ArtifactIsolation
+        :Optimization_CargoProfiles
+        :Optimization_CrateCoupling
+    ) .
+
+:Profile_ReleaseOptimized a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "release Profile (Production Binary)" ;
+    rdfs:comment "Optimized for runtime performance and binary size" ;
+    :profileName "release" ;
+    :purpose "Production binary (runtime performance)" ;
+    :configuration (
+        [ rdfs:label "opt-level = 3 (full optimization)" ]
+        [ rdfs:label "codegen-units = 1 (optimal optimization, slower compile)" ]
+        [ rdfs:label "incremental = false (no incremental for release)" ]
+        [ rdfs:label "split-debuginfo = 'unpacked' (separate debug symbols)" ]
+        [ rdfs:label "lto = 'thin' (lightweight LTO)" ]
+        [ rdfs:label "strip = true (strip symbols from binary)" ]
+    ) ;
+    :expectedBuildTime "15-25 seconds" ;
+    :expectedMemory "200-300MB" ;
+    :expectedBinarySize "30-50MB" ;
+    :useCase "Production deployment, public releases" ;
+    :interactionsWith (
+        :Optimization_CargoProfiles
+        :Optimization_DependencyGating
+    ) .
+
+# ============================================================================
+# FEATURE FLAG INTERACTION MATRIX
+# ============================================================================
+
+:FeatureFlagMatrix a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Feature Flag Interaction Matrix" ;
+    rdfs:comment "Define all valid feature combinations and detect incompatibilities" ;
+    :features (
+        :Feature_Full
+        :Feature_Minimal
+        :Feature_Dev
+        :Feature_ReleaseTools
+        :Feature_OTEL
+    ) ;
+    :compatibilityRules (
+        :Rule_FullIncludesAll
+        :Rule_MinimalDisablesOptional
+        :Rule_DevIncludesTestingTools
+        :Rule_OTELOptional
+    ) ;
+    :testingStrategy "Combinatorial testing: 2^5 = 32 combinations tested" .
+
+:Feature_Full a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "full Feature Flag" ;
+    rdfs:comment "All features enabled for comprehensive functionality" ;
+    :includes (
+        "ring" "tera" "rustls" "tokio" "axum" "tokio-util" "test-utils" "benchmark" "otel"
+    ) ;
+    :binarySize "200-300MB" ;
+    :compileTime "15-25 seconds" ;
+    :memoryUsage "250-300MB" ;
+    :useCase "Development with all tools, documentation building" .
+
+:Feature_Minimal a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "minimal Feature Flag" ;
+    rdfs:comment "Core functionality only, no optional dependencies" ;
+    :includes (
+        "core" "error-handling" "config"
+    ) ;
+    :excludes (
+        "ring" "tera" "rustls" "otel" "benchmark"
+    ) ;
+    :binarySize "20-30MB" ;
+    :compileTime "3-5 seconds" ;
+    :memoryUsage "50-100MB" ;
+    :useCase "Embedded systems, container images, minimal CI checks" .
+
+:Feature_Dev a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "dev Feature Flag" ;
+    rdfs:comment "Development tools but not production cloud integrations" ;
+    :includes (
+        "ring" "tera" "rustls" "tokio" "test-utils" "benchmark"
+    ) ;
+    :excludes (
+        "otel" "kubernetes" "aws-sdk"
+    ) ;
+    :binarySize "100-150MB" ;
+    :compileTime "8-12 seconds" ;
+    :memoryUsage "150-200MB" ;
+    :useCase "Local development, testing, CI checks" .
+
+:Feature_ReleaseTools a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "release-tools Feature Flag" ;
+    rdfs:comment "Production tools optimized for deployment" ;
+    :includes (
+        "ring" "rustls" "tokio" "otel"
+    ) ;
+    :excludes (
+        "tera" "test-utils" "benchmark"
+    ) ;
+    :binarySize "50-80MB" ;
+    :compileTime "10-15 seconds" ;
+    :memoryUsage "150-200MB" ;
+    :useCase "Production deployments with observability" .
+
+:Feature_OTEL a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "otel Feature Flag (Optional)" ;
+    rdfs:comment "OpenTelemetry instrumentation (optional, 200+ deps)" ;
+    :addsDependencies 200 ;
+    :addsCompileTime "5-10 seconds" ;
+    :addsMemory "50-100MB" ;
+    :addsSize "50-100MB" ;
+    :purpose "Production observability and tracing" ;
+    :compatible_with (
+        :Feature_Full
+        :Feature_Dev
+        :Feature_ReleaseTools
+    ) ;
+    :incompatible_with (
+        :Feature_Minimal
+    ) .
+
+# ============================================================================
+# COMPATIBILITY RULES (Feature Interactions)
+# ============================================================================
+
+:Rule_FullIncludesAll a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Full Feature Includes All Dependencies" ;
+    rdfs:comment "full feature = minimal + dev + otel" ;
+    :rule "features = ['full']" ;
+    :includes (
+        "ring" "tera" "rustls" "tokio" "test-utils" "benchmark" "otel"
+    ) ;
+    :compilationTime "15-25 seconds" ;
+    :testingCoverage "100% of code paths" .
+
+:Rule_MinimalDisablesOptional a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Minimal Feature Disables All Optional" ;
+    rdfs:comment "minimal = default features only" ;
+    :rule "default-features = false" ;
+    :excludes (
+        "ring" "tera" "rustls" "test-utils" "benchmark" "otel"
+    ) ;
+    :compilationTime "3-5 seconds" ;
+    :testingCoverage "Core functionality only" .
+
+:Rule_DevIncludesTestingTools a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Dev Feature Includes Testing Tools" ;
+    rdfs:comment "dev = minimal + testing + benchmarking" ;
+    :rule "features = ['dev']" ;
+    :includes (
+        "ring" "tera" "rustls" "tokio" "test-utils" "benchmark"
+    ) ;
+    :compilationTime "8-12 seconds" .
+
+:Rule_OTELOptional a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "OTEL is Always Optional" ;
+    rdfs:comment "otel feature adds 200+ deps, only for production" ;
+    :rule "otel = optional, default = false" ;
+    :implication "OTEL can be added to any feature combination except minimal" ;
+    :reason "Observability overhead only for production deployments" ;
+    :compilationImpact "+5-10 seconds build time when enabled" .
+
+# ============================================================================
+# OPTIMIZATION DEPENDENCIES & ORDERING
+# ============================================================================
+
+:OptimizationDependencies a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Optimization Implementation Dependencies" ;
+    rdfs:comment "Which optimizations depend on other optimizations" ;
+    :dependencyGraph (
+        :Dep_Phase2_Requires_Phase1
+        :Dep_ArtifactIsolation_Parallel_CargoProfiles
+        :Dep_CrateCoupling_Depends_Analysis
+        :Dep_DependencyGating_Independent
+    ) .
+
+:Dep_Phase2_Requires_Phase1 a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Phase 2 Requires Phase 1 Complete" ;
+    :predecessor :Phase1_AnalysisSpecification ;
+    :successor :Phase2_ParallelImplementation ;
+    :reason "Phase 1 provides baseline metrics and architecture design" .
+
+:Dep_ArtifactIsolation_Parallel_CargoProfiles a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Artifact Isolation Can Parallel with Cargo Profiles" ;
+    :optimization1 :Optimization_ArtifactIsolation ;
+    :optimization2 :Optimization_CargoProfiles ;
+    :type "INDEPENDENT" ;
+    :reason "Different Makefile targets, no shared state" ;
+    :interaction "Synergistic: both reduce compile time independently" .
+
+:Dep_CrateCoupling_Depends_Analysis a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Crate Coupling Reduction Depends on Analysis" ;
+    :optimization :Optimization_CrateCoupling ;
+    :prerequisite :Task1_2_BottleneckAnalysis ;
+    :reason "Must understand dependency graph before refactoring" .
+
+:Dep_DependencyGating_Independent a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Dependency Gating is Independent" ;
+    :optimization :Optimization_DependencyGating ;
+    :canParallelWith (
+        :Optimization_CargoProfiles
+        :Optimization_ArtifactIsolation
+        :Optimization_CrateCoupling
+    ) ;
+    :reason "Feature gating isolated to Cargo.toml, no tooling conflicts" .
+
+# ============================================================================
+# CRATE ARCHITECTURE CHANGES
+# ============================================================================
+
+:CrateArchitecture a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Crate Architecture for Build Optimization" ;
+    rdfs:comment "Organization of 30 crates for optimal build parallelization" ;
+    :bridgeCrates (
+        [ rdfs:label "ggen-utils: 8 direct dependents (target: 3)" ]
+        [ rdfs:label "ggen-config: 6 direct dependents (target: 2)" ]
+    ) ;
+    :proposedRefactoring (
+        [ rdfs:label "Extract ggen-traits (shared abstractions) from ggen-utils" ]
+        [ rdfs:label "Move error types to ggen-error crate" ]
+        [ rdfs:label "Create ggen-types for common domain types" ]
+        [ rdfs:label "Isolate FFI bindings in ggen-ffi" ]
+    ) ;
+    :expectedImpact "30-40% incremental build improvement" ;
+    :implementationPhase :Phase2_ParallelImplementation ;
+    :riskLevel "HIGH" ;
+    :testingRequirement "All 30 crates must compile without errors" .
+
+:BridgeCrateAnalysis a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Bridge Crate Dependency Analysis" ;
+    rdfs:comment "Analysis of crates that create bottlenecks" ;
+    :crateAnalysis (
+        [ rdfs:label "ggen-utils: used by [ggen-cli, ggen-core, ggen-domain, ggen-config, ggen-api, ggen-auth, ggen-payments, ggen-saas] = 8 crates" ]
+        [ rdfs:label "ggen-config: used by [ggen-core, ggen-domain, ggen-cli, ggen-api, ggen-saas, ggen-auth] = 6 crates" ]
+        [ rdfs:label "ggen-core: used by [ggen-domain, ggen-cli, ggen-api, ggen-marketplace] = 4 crates (but heavy)" ]
+    ) ;
+    :improvementOpportunity (
+        [ rdfs:label "Extract ggen-error with only std dependency" ]
+        [ rdfs:label "Extract ggen-types with minimal dependencies" ]
+        [ rdfs:label "Reduce ggen-utils from 8 to 3 direct dependents" ]
+    ) ;
+    :expectedResult "Incremental rebuild of ggen-utils now 3x faster" .
+
+# ============================================================================
+# DETERMINISM ARCHITECTURE
+# ============================================================================
+
+:DeterminismArchitecture a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Determinism Architecture" ;
+    rdfs:comment "Design ensuring bit-identical binaries across builds" ;
+    :components (
+        :Component_RNGSeeding
+        :Component_DeterministicScheduling
+        :Component_CryptographicHashing
+        :Component_ReceiptGeneration
+    ) .
+
+:Component_RNGSeeding a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "RNG Seeding Component" ;
+    rdfs:comment "Fixed RNG seed for all random operations" ;
+    :implementation "Export RNG_SEED=42 in all Makefile.toml targets" ;
+    :ensures "Reproducible job scheduling order" ;
+    :verified_by (
+        [ rdfs:label "10 sequential builds (identical SHA-256)" ]
+        [ rdfs:label "10 parallel builds (identical SHA-256)" ]
+    ) .
+
+:Component_DeterministicScheduling a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Deterministic Scheduling Component" ;
+    rdfs:comment "Reproducible job ordering for parallel execution" ;
+    :implementation "Use fixed seed for parallel task scheduling" ;
+    :ensures "Same order on every build" ;
+    :tradeoff "Suboptimal scheduling vs determinism" .
+
+:Component_CryptographicHashing a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Cryptographic Hashing Component" ;
+    rdfs:comment "SHA-256 hashing of build artifacts" ;
+    :implementation (
+        [ rdfs:label "Compute SHA-256 of each generated file" ]
+        [ rdfs:label "Compute SHA-256 of final binary" ]
+        [ rdfs:label "Verify hashes across builds" ]
+    ) ;
+    :ensures "Proof of reproducibility" ;
+    :verified_by "ggen sync --audit true receipts" .
+
+:Component_ReceiptGeneration a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Receipt Generation Component" ;
+    rdfs:comment "Cryptographic proof of build reproducibility" ;
+    :format "JSON with SHA-256 hashes, timestamps, execution ID" ;
+    :contents (
+        [ rdfs:label "Execution ID (unique per build)" ]
+        [ rdfs:label "Manifest hash (SHA-256 of Cargo.toml)" ]
+        [ rdfs:label "Ontology hash (SHA-256 of RDF source)" ]
+        [ rdfs:label "File hashes (SHA-256 per artifact)" ]
+        [ rdfs:label "Execution times (μs precision per phase)" ]
+    ) ;
+    :output ".ggen/receipts/latest.json, .ggen/audit/YYYY-MM-DD.json" ;
+    :useCase "Supply chain security, compliance, debugging" .
+
+# ============================================================================
+# PROFILE INTERACTION CONSTRAINTS
+# ============================================================================
+
+:ProfileInteractions a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Cargo Profile Interaction Constraints" ;
+    rdfs:comment "Rules for profile interactions and combinations" ;
+    :constraints (
+        :Constraint_NoMinimalRelease
+        :Constraint_IncrementalOnlyForDev
+        :Constraint_LTOForRelease
+        :Constraint_CodegenUnitsInverse
+    ) .
+
+:Constraint_NoMinimalRelease a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Minimal Profile Not Used for Release" ;
+    rdfs:comment "Release builds must have opt-level ≥1" ;
+    :rule "release.opt-level ≥ 1" ;
+    :reason "Unoptimized release binaries are too slow for production" ;
+    :enforcement "Cargo will reject release with opt-level=0" .
+
+:Constraint_IncrementalOnlyForDev a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Incremental Compilation for Dev Only" ;
+    rdfs:comment "Incremental compilation disabled for release builds" ;
+    :rule "release.incremental = false" ;
+    :reason "Incremental metadata incompatible with release optimization" ;
+    :enforcement "Makefile.toml disables incremental for release builds" .
+
+:Constraint_LTOForRelease a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "LTO Always Enabled for Release" ;
+    rdfs:comment "Link-time optimization required for production" ;
+    :rule "release.lto = 'thin'" ;
+    :reason "Thin LTO provides 5-10% size reduction and performance gains" ;
+    :enforcement "Default in Cargo.toml [profile.release]" .
+
+:Constraint_CodegenUnitsInverse a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Codegen Units Inversely Related to Optimization" ;
+    rdfs:comment "Higher codegen-units = faster compile, lower optimization" ;
+    :relationship "codegen-units * opt-level = tradeoff balance" ;
+    :examples (
+        [ rdfs:label "dev: codegen-units=256, opt-level=0 → ultra-fast, unoptimized" ]
+        [ rdfs:label "test: codegen-units=16, opt-level=1 → balanced" ]
+        [ rdfs:label "release: codegen-units=1, opt-level=3 → slow compile, optimized" ]
+    ) ;
+    :tuning "Adjust based on CI/CD constraints and target audience" .
+
+# ============================================================================
+# CONCURRENT OPTIMIZATION EXECUTION
+# ============================================================================
+
+:ConcurrentExecution a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Concurrent Optimization Execution Strategy" ;
+    rdfs:comment "How 10 agents coordinate parallel work in Phase 2" ;
+    :parallelAgents 10 ;
+    :workDivision (
+        [ rdfs:label "Agent 1: Cargo profile optimization (4 profiles)" ]
+        [ rdfs:label "Agent 2: Artifact isolation (CARGO_TARGET_DIR setup)" ]
+        [ rdfs:label "Agent 3: Dependency gating (ring feature flag)" ]
+        [ rdfs:label "Agent 4: Dependency gating (tera feature flag)" ]
+        [ rdfs:label "Agent 5: Dependency gating (rustls feature flag)" ]
+        [ rdfs:label "Agent 6: Crate coupling analysis (dependency graph)" ]
+        [ rdfs:label "Agent 7: Crate coupling refactoring (ggen-utils isolation)" ]
+        [ rdfs:label "Agent 8: Crate coupling refactoring (ggen-config isolation)" ]
+        [ rdfs:label "Agent 9: Collision detection monitoring" ]
+        [ rdfs:label "Agent 10: Integration test harness setup" ]
+    ) ;
+    :synchronizationPoints (
+        [ rdfs:label "Day 3: Feature flag architecture agreed upon" ]
+        [ rdfs:label "Day 7: All 5 branches buildable (cargo check passes)" ]
+        [ rdfs:label "Day 14: Merge conflicts resolved, integration testing begins" ]
+        [ rdfs:label "Day 21: All tests pass, Phase 2 complete" ]
+    ) ;
+    :conflictDetectionFrequency "Every 2 hours (automated)" ;
+    :escalationPath "Agent 9 → Agent 10 → System Architect → Manual intervention" .
+
+# ============================================================================
+# MONITORING & OBSERVABILITY ARCHITECTURE
+# ============================================================================
+
+:MonitoringArchitecture a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Monitoring & Observability Architecture" ;
+    rdfs:comment "How build performance is measured and monitored" ;
+    :components (
+        :Monitor_BenchmarkCollection
+        :Monitor_MetricsAggregation
+        :Monitor_DashboardVisualization
+        :Monitor_AlertingRules
+        :Monitor_AuditTrail
+    ) .
+
+:Monitor_BenchmarkCollection a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Benchmark Collection" ;
+    rdfs:comment "Automated collection of build metrics" ;
+    :triggeredBy "Every git commit in CI/CD" ;
+    :collectedMetrics (
+        [ rdfs:label "First build time (clean /target)" ]
+        [ rdfs:label "Incremental build time (single file change)" ]
+        [ rdfs:label "Peak memory usage (valgrind massif)" ]
+        [ rdfs:label "CPU utilization (top/htop average)" ]
+        [ rdfs:label "Wall-clock time per phase (compilation, linking, testing)" ]
+    ) ;
+    :frequency "Per-commit (automated in CI)" ;
+    :retention "90 days of historical data" .
+
+:Monitor_MetricsAggregation a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Metrics Aggregation" ;
+    rdfs:comment "Aggregate metrics for statistical analysis" ;
+    :aggregations (
+        [ rdfs:label "Mean build time (average across 10 builds)" ]
+        [ rdfs:label "Median (50th percentile)" ]
+        [ rdfs:label "95th percentile (detect regressions)" ]
+        [ rdfs:label "99th percentile (worst case SLO)" ]
+    ) ;
+    :statistics (
+        [ rdfs:label "Standard deviation (build time consistency)" ]
+        [ rdfs:label "Coefficient of variation (relative stability)" ]
+    ) ;
+    :frequency "Daily aggregation" .
+
+:Monitor_DashboardVisualization a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Dashboard Visualization" ;
+    rdfs:comment "Grafana dashboard for performance visibility" ;
+    :dashboards (
+        [ rdfs:label "Overview: 4 key metrics (first build, incremental, memory, CPU)" ]
+        [ rdfs:label "Trends: 30-day historical graph of each metric" ]
+        [ rdfs:label "Attribution: Which optimization contributes how much" ]
+        [ rdfs:label "Regression: Alert on anomalies (>2 σ deviation)" ]
+    ) ;
+    :refreshRate "5 minutes" ;
+    :accessControl "Public for team, restricted metrics for security" .
+
+:Monitor_AlertingRules a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Alerting Rules" ;
+    rdfs:comment "Thresholds that trigger alerts" ;
+    :alertRules (
+        [ rdfs:label "Yellow (warning): First build > 20s (33% over SLO)" ]
+        [ rdfs:label "Red (critical): First build > 30s (2x over SLO)" ]
+        [ rdfs:label "Yellow (warning): Incremental > 3s (50% over SLO)" ]
+        [ rdfs:label "Red (critical): Memory > 300MB (1.5x over SLO)" ]
+    ) ;
+    :escalation (
+        [ rdfs:label "Yellow: Slack notification to #build-optimization" ]
+        [ rdfs:label "Red: PagerDuty page to on-call engineer" ]
+    ) ;
+    :responseSLA "Yellow: 1 hour, Red: 15 minutes" .
+
+:Monitor_AuditTrail a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Audit Trail" ;
+    rdfs:comment "Permanent record of builds and optimizations" ;
+    :records (
+        [ rdfs:label "Build execution ID (uuid per build)" ]
+        [ rdfs:label "Timestamps (start, end, per phase)" ]
+        [ rdfs:label "Git commit hash and branch" ]
+        [ rdfs:label "Optimization flags enabled/disabled" ]
+        [ rdfs:label "Performance metrics collected" ]
+        [ rdfs:label "Determinism verification (binary hashes)" ]
+    ) ;
+    :storage ".ggen/audit/YYYY-MM-DD.json (daily), .ggen/receipts/latest.json" ;
+    :retention "1 year" ;
+    :useCase "Compliance, debugging, trend analysis" .

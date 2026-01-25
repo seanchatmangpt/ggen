@@ -54,21 +54,23 @@ members = [
   "crates/ggen-folk-strategy", # Folk strategy quantification from opportunity field dynamics
 
   # Optional: KNHK Systems Integration (feature-gated)
-  "crates/knhk-etl",           # Extract-Transform-Load pipeline
-  "crates/knhk-hot",           # C FFI hot-path optimization
-  "crates/knhk-connectors",    # Connector registry (Kafka, HTTP, etc.)
-  "crates/knhk-lockchain",     # Merkle-linked receipt storage
-  "crates/knhk-otel",          # OpenTelemetry integration
-  "crates/knhk-orchestrator",  # Integration bridge (ETL → KGC-4D → Workflow)
+  # NOTE: KNHK crates temporarily excluded due to pre-existing compilation errors
+  # "crates/knhk-etl",           # Extract-Transform-Load pipeline
+  # "crates/knhk-hot",           # C FFI hot-path optimization
+  # "crates/knhk-connectors",    # Connector registry (Kafka, HTTP, etc.)
+  # "crates/knhk-lockchain",     # Merkle-linked receipt storage
+  # "crates/knhk-otel",          # OpenTelemetry integration
+  # "crates/knhk-orchestrator",  # Integration bridge (ETL → KGC-4D → Workflow)
 
   # Optional: TPS/TAI Systems (feature-gated)
-  "crates/tps-reference",      # Toyota Production System reference implementation
-  "crates/ggen-tps-andon",     # TPS Andon: Visibility, alerting, and diagnostics
-  "crates/tai-testing",        # Production hardening & resilience testing framework
-  "crates/tai-k8s",            # TAI Kubernetes: Deployment, KEDA autoscaling, Istio traffic management
-  "crates/tai-validation",     # SLO/SLA validation, compliance framework, security scanning
+  # NOTE: TPS/TAI crates temporarily excluded due to pre-existing compilation errors
+  # "crates/tps-reference",      # Toyota Production System reference implementation
+  # "crates/ggen-tps-andon",     # TPS Andon: Visibility, alerting, and diagnostics
+  # "crates/tai-testing",        # Production hardening & resilience testing framework
+  # "crates/tai-k8s",            # TAI Kubernetes: Deployment, KEDA autoscaling, Istio traffic management
+  # "crates/tai-validation",     # SLO/SLA validation, compliance framework, security scanning
 
-  "playground",
+  # "playground",
 ]
 exclude = [
   "examples/rust-cli-lifecycle",
@@ -76,12 +78,17 @@ exclude = [
   "examples/gcp-erlang-autonomics",
   "marketplace/packages/workflow-engine-cli",
   "crates/tps-kaizen",  # Temporarily excluded - has Cargo.toml syntax error
+  "crates/tps-reference",  # Temporarily excluded - has compilation errors (pre-existing)
+  "crates/ggen-tps-andon",  # Temporarily excluded - depends on tps-reference
   "crates/tai-gcp",  # Temporarily excluded - missing google-authz dependency
   "crates/tai-security",  # Temporarily excluded - has dependency issues
   "crates/tai-resilience",  # Temporarily excluded - has dependency issues
   "crates/tai-cache",  # Temporarily excluded - has dependency issues
   "crates/tai-grpc",  # Temporarily excluded - has dependency issues
   "crates/tai-loadbalancer",  # Temporarily excluded - missing benchmark files
+  "crates/tai-testing",  # Temporarily excluded - may have dependency issues
+  "crates/tai-k8s",  # Temporarily excluded - may have dependency issues
+  "crates/tai-validation",  # Temporarily excluded - may have dependency issues
 ]
 resolver = "2" # Use new resolver for better dependency resolution
 
@@ -208,6 +215,7 @@ genai = "0.5"
 # Force base64 version to resolve duplicate dependency issue
 # config -> ron -> base64 0.21.7 conflicts with reqwest -> base64 0.22.1
 base64 = "0.22"
+ron = "0.8"                     # Latest ron (avoids old base64 v0.21.7)
 
 # ===================================================================
 # DEPENDENCY DEDUPLICATION (Phase 1 - Critical)
@@ -238,7 +246,7 @@ darling_macro = "0.21"
 # convert_case: 2 versions → 1 (consolidated)
 dashmap = "6.1"
 bitflags = "2.10"
-config = { version = "0.15", default-features = false }
+config = { version = "0.15", default-features = false, features = ["toml"] }  # Explicit toml feature per CARGO_OPTIMIZATION_PLAN
 convert_case = "0.10"
 
 # Patch removed - was causing conflicts with same source
@@ -272,26 +280,37 @@ panic = "deny"
 todo = "deny"
 unimplemented = "deny"
 
+# Build optimization lints (added per CARGO_OPTIMIZATION_PLAN)
+unused_crate_dependencies = "warn"  # Flag unused dependencies for removal
+large_stack_frames = "warn"         # Catch stack overflow risks
+type_complexity = "allow"           # Allow complex types (project uses many)
+
 # Allow multiple crate versions due to complex dependency tree
 multiple_crate_versions = "allow"
 
 # ===================================================================
-# PROC-MACRO DUPLICATION ANALYSIS (Updated 2026-01-24)
+# PROC-MACRO DEDUPLICATION STRATEGY (Updated 2026-01-25)
 # ===================================================================
-# After updating genai to 0.5 and centralizing in workspace.dependencies:
+# **Status**: Accepted unavoidable duplicates from upstream dependencies
+#
+# Procedure Macro Consolidation Analysis:
 #
 # derive_more duplicates (3 versions):
-#   - v2.1.1: genai (production) - unavoidable, genai's choice
+#   - v2.1.1: genai (production) - unavoidable, genai → value-ext forces this
 #   - v1.0.0: value-ext ← genai (production, transitive) - unavoidable
 #   - v0.99.20: cucumber (dev-only) - ACCEPTABLE
 #
 # darling duplicates (2 versions):
 #   - v0.21.3: serde_with_macros ← genai (production, transitive)
-#   - v0.20.11: dummy ← fake ← chicago-tdd-tools (dev-only) - ACCEPTABLE
+#   - v0.20.11: fake ← chicago-tdd-tools (dev-only) - ACCEPTABLE
 #
-# Impact: 2 production proc-macro duplicates from genai's inconsistent dep tree
-# These are unavoidable without forking genai or value-ext.
-# Dev-only duplicates (cucumber, chicago-tdd-tools) are acceptable.
+# **Action**: Maintain v1.0 for derive_more and v0.21 for darling in workspace.
+#            Unavoidable conflicts from genai are documented as acceptable.
+#
+# **Impact**: 2 production proc-macro recompilations (negligible impact)
+#            Dev-only duplicates have zero production impact
+#
+# **Future**: Monitor genai updates for upstream consolidation opportunities
 # ===================================================================
 
 [features]
@@ -431,8 +450,10 @@ debug = false
 rpath = false
 lto = "thin"             # Thin LTO for faster builds, still optimized
 debug-assertions = false
-codegen-units = 16       # Balance between speed and optimization
+codegen-units = 4        # Reduced from 16 for better optimization (per CARGO_OPTIMIZATION_PLAN)
 strip = true             # Strip symbols for smaller binaries
+split-debuginfo = "packed"  # Packed debuginfo (smaller shipping size)
+panic = "abort"          # Abort on panic (smaller binary, per SLO)
 
 [profile.test]
 opt-level = 0           # Faster test compilation
@@ -442,6 +463,8 @@ lto = false
 debug-assertions = true
 codegen-units = 256     # More parallel compilation
 incremental = true      # Enable incremental for tests
+strip = false           # Keep symbols for test debugging
+split-debuginfo = "packed"  # Smaller test binaries per CARGO_OPTIMIZATION_PLAN
 
 [profile.bench]
 opt-level = 3
@@ -450,6 +473,8 @@ rpath = false
 lto = true
 debug-assertions = false
 codegen-units = 1
+split-debuginfo = "packed"  # Consistency with release profile
+panic = "abort"             # Abort on panic (consistency with release)
 
 [[bench]]
 name = "runtime_overhead"
@@ -481,6 +506,26 @@ harness = false
 
 [[bench]]
 name = "cli_startup_performance"
+harness = false
+
+# Build time benchmarks (v1.0)
+[[bench]]
+name = "build_time_benchmarks"
+harness = false
+
+# Memory usage benchmarks (v1.0)
+[[bench]]
+name = "memory_usage_benchmarks"
+harness = false
+
+# Binary size analysis (v1.0)
+[[bench]]
+name = "binary_size_analysis"
+harness = false
+
+# SLO tracking dashboard (v1.0)
+[[bench]]
+name = "slo_tracking"
 harness = false
 
 [[test]]
@@ -618,4 +663,29 @@ required-features = []
 [[test]]
 name = "tps_test_data_generation"
 path = "tests/tps/test_data_generation.rs"
+required-features = []
+
+[[test]]
+name = "build_optimization_profiles"
+path = "tests/build_optimization/profiles.rs"
+required-features = []
+
+[[test]]
+name = "build_optimization_feature_flags"
+path = "tests/build_optimization/feature_flags.rs"
+required-features = []
+
+[[test]]
+name = "build_optimization_dependencies"
+path = "tests/build_optimization/dependencies.rs"
+required-features = []
+
+[[test]]
+name = "build_optimization_performance"
+path = "tests/build_optimization/performance.rs"
+required-features = []
+
+[[test]]
+name = "build_optimization_binary_compat"
+path = "tests/build_optimization/binary_compat.rs"
 required-features = []

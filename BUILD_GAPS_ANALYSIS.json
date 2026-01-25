@@ -1,0 +1,618 @@
+{
+  "analysis_date": "2026-01-25",
+  "ggen_version": "0.2.0",
+  "overall_assessment": {
+    "current_build_status": "CRITICAL - Build timeout at 120s indicates severe bottlenecks",
+    "estimated_full_build_time": "120-180 seconds (from timeout threshold)",
+    "primary_bottleneck": "Duplicate external dependencies causing redundant compilation",
+    "secondary_bottleneck": "Heavy transitive dependencies (oxigraph, genai, testcontainers)",
+    "current_workspace_crates": 44,
+    "excluded_crates": 6,
+    "optimization_urgency": "HIGH - 7 critical duplicate versions blocking parallel builds"
+  },
+  "critical_duplicate_dependencies": [
+    {
+      "dependency": "reqwest",
+      "versions": ["0.12.28", "0.13.1"],
+      "instances": "3 duplicates",
+      "impact": "CRITICAL",
+      "root_cause": "genai (via value-ext) uses v0.13.1, ggen-core uses v0.12.28",
+      "blocker_count": 3,
+      "estimated_compilation_seconds": "45-60 (parallel compilation of two HTTP stacks)",
+      "fix_priority": 1
+    },
+    {
+      "dependency": "tower-http",
+      "versions": ["0.5.2", "0.6.8"],
+      "instances": "2 duplicates",
+      "impact": "HIGH",
+      "root_cause": "ggen-marketplace-v2 uses v0.5, genai transitive uses v0.6.8",
+      "blocker_count": 2,
+      "estimated_compilation_seconds": "20-30 (tower ecosystem recompilation)",
+      "fix_priority": 2
+    },
+    {
+      "dependency": "notify",
+      "versions": ["6.1.1", "7.0.0"],
+      "instances": "2 duplicates",
+      "impact": "HIGH",
+      "root_cause": "ggen-cli uses v6.1.1, ggen-core uses v7.0.0",
+      "blocker_count": 2,
+      "estimated_compilation_seconds": "15-25 (filesystem watcher rebuild)",
+      "fix_priority": 3
+    },
+    {
+      "dependency": "notify-debouncer-full",
+      "versions": ["0.3.2", "0.4.0"],
+      "instances": "2 duplicates",
+      "impact": "HIGH",
+      "root_cause": "ggen-cli v0.3.2, ggen-core v0.4.0 (follows notify versions)",
+      "blocker_count": 2,
+      "estimated_compilation_seconds": "10-15 (debouncer recompilation)",
+      "fix_priority": 4
+    },
+    {
+      "dependency": "inotify",
+      "versions": ["0.9.6", "0.10.2"],
+      "instances": "2 duplicates",
+      "impact": "MEDIUM",
+      "root_cause": "Transitive: notify v6 vs notify v7 (platform-specific on Linux)",
+      "blocker_count": 2,
+      "estimated_compilation_seconds": "8-12 (FFI binding recompilation)",
+      "fix_priority": 5
+    },
+    {
+      "dependency": "bitflags",
+      "versions": ["1.3.2", "2.10.0"],
+      "instances": "2 duplicates",
+      "impact": "MEDIUM",
+      "root_cause": "Various transitive deps: older uses v1, newer use v2",
+      "blocker_count": 2,
+      "estimated_compilation_seconds": "5-8 (macro expansion)",
+      "fix_priority": 6
+    },
+    {
+      "dependency": "base64",
+      "versions": ["0.21.7", "0.22.1"],
+      "instances": "2 duplicates",
+      "impact": "MEDIUM",
+      "root_cause": "config crate (v0.21.7) vs reqwest ecosystem (v0.22.1)",
+      "blocker_count": 2,
+      "estimated_compilation_seconds": "3-5 (simple utility compilation)",
+      "fix_priority": 7
+    }
+  ],
+  "slowest_compilation_units": [
+    {
+      "rank": 1,
+      "crate": "oxigraph",
+      "version": "0.5.4",
+      "compilation_seconds": "60-90",
+      "reason": "RocksDB FFI binding compilation, heavy cryptography, complex generic inference",
+      "file_count": "Heavy C++ FFI",
+      "optimization_potential": "Feature-gate unused features; consider async versions of synchronous APIs",
+      "is_critical_path": true
+    },
+    {
+      "rank": 2,
+      "crate": "reqwest",
+      "version": "[0.12.28, 0.13.1]",
+      "compilation_seconds": "40-50 per version",
+      "reason": "TLS stack (rustls-platform-verifier), complex HTTP/2 codec, multiple feature combinations",
+      "file_count": "~15 modules each",
+      "optimization_potential": "Consolidate to single version; feature-gate compression (brotli, gzip redundancy)",
+      "is_critical_path": true
+    },
+    {
+      "rank": 3,
+      "crate": "genai",
+      "version": "0.5.1",
+      "compilation_seconds": "30-45",
+      "reason": "Requires reqwest v0.13.1, multiple LLM provider integrations, tokio full features",
+      "file_count": "~20 modules",
+      "optimization_potential": "Feature-gate provider-specific code; reduce transitive dependencies",
+      "is_critical_path": true
+    },
+    {
+      "rank": 4,
+      "crate": "ggen-core",
+      "version": "0.2.0",
+      "compilation_seconds": "20-35",
+      "reason": "Combines oxigraph + reqwest + genai; 25+ internal modules with complex trait bounds",
+      "file_count": "218+ Rust files across 25 modules",
+      "optimization_potential": "Split into smaller crates; feature-gate AI/RDF/HTTP separately",
+      "is_critical_path": true
+    },
+    {
+      "rank": 5,
+      "crate": "ggen-marketplace-v2",
+      "version": "3.0.0",
+      "compilation_seconds": "15-25",
+      "reason": "Depends on axum, tower-http, multiple data structures; template rendering",
+      "file_count": "~30 Rust files",
+      "optimization_potential": "Remove unused web framework features; feature-gate cache implementations",
+      "is_critical_path": false
+    },
+    {
+      "rank": 6,
+      "crate": "proptest",
+      "version": "1.9.0",
+      "compilation_seconds": "12-20",
+      "reason": "Heavy generic code generation for property-based testing",
+      "file_count": "~40 modules with macros",
+      "optimization_potential": "Already feature-gated; acceptable in dev-dependencies",
+      "is_critical_path": false
+    },
+    {
+      "rank": 7,
+      "crate": "chicago-tdd-tools",
+      "version": "1.4.0",
+      "compilation_seconds": "10-15",
+      "reason": "Proc-macros with testcontainers integration",
+      "file_count": "~15 modules",
+      "optimization_potential": "Already dev-dependency; acceptable cost",
+      "is_critical_path": false
+    },
+    {
+      "rank": 8,
+      "crate": "clap ecosystem",
+      "version": "4.5.x + 5.x",
+      "compilation_seconds": "8-15 total",
+      "reason": "Derives for CLI argument parsing; clap-noun-verb adds macro overhead",
+      "file_count": "~25 modules across ecosystem",
+      "optimization_potential": "Already optimized; minimal macros at runtime",
+      "is_critical_path": false
+    },
+    {
+      "rank": 9,
+      "crate": "axum",
+      "version": "0.8.8",
+      "compilation_seconds": "8-12",
+      "reason": "Tower middleware ecosystem, complex trait implementations",
+      "file_count": "~20 modules",
+      "optimization_potential": "Feature-gate unused middleware; ggen-marketplace-v2 only user",
+      "is_critical_path": false
+    },
+    {
+      "rank": 10,
+      "crate": "serde ecosystem",
+      "version": "1.0.x",
+      "compilation_seconds": "5-10",
+      "reason": "Derives and macro expansion; distributed across many crates",
+      "file_count": "~8 modules per crate",
+      "optimization_potential": "Already distributed; acceptable as infrastructure",
+      "is_critical_path": false
+    }
+  ],
+  "cargo_toml_profile_analysis": {
+    "current_profiles": {
+      "dev": {
+        "opt_level": 0,
+        "codegen_units": 256,
+        "incremental": true,
+        "lto": false,
+        "split_debuginfo": "unpacked",
+        "assessment": "EXCELLENT for dev builds - maxed parallelism"
+      },
+      "release": {
+        "opt_level": 3,
+        "codegen_units": 16,
+        "lto": "thin",
+        "strip": true,
+        "assessment": "GOOD - balanced between speed and optimization"
+      },
+      "test": {
+        "opt_level": 0,
+        "codegen_units": 256,
+        "incremental": true,
+        "lto": false,
+        "assessment": "EXCELLENT - fast test compilation"
+      },
+      "bench": {
+        "opt_level": 3,
+        "codegen_units": 1,
+        "lto": true,
+        "assessment": "CORRECT for benchmarks"
+      }
+    },
+    "optimization_gaps": [
+      {
+        "gap": "Release codegen-units could be further optimized",
+        "current_value": 16,
+        "recommended_value": "8-10 for aggressive optimization",
+        "tradeoff": "-5-10% link time, -2-3% runtime performance",
+        "expected_benefit": "5-10s faster release builds on 16+ core systems"
+      },
+      {
+        "gap": "No check profile (fastest CI validation) configured",
+        "current_value": "Uses dev profile",
+        "recommended_value": "Create check profile with ultra-parallel settings",
+        "tradeoff": "None (check-only, no binary generation)",
+        "expected_benefit": "50-70% faster CI check phase"
+      },
+      {
+        "gap": "Missing workspace resolver optimization hints",
+        "current_value": "resolver = 2 (OK, but no feature combinations specified)",
+        "recommended_value": "Add sparse registry for faster dependency resolution",
+        "tradeoff": "Requires ~0.5s additional setup time once",
+        "expected_benefit": "Consistent dependency resolution; prevents version skew"
+      }
+    ]
+  },
+  "feature_flag_cascade_analysis": {
+    "critical_issues": [
+      {
+        "feature": "otel (OpenTelemetry)",
+        "status": "WELL-DESIGNED - Optional, feature-gated at crate level",
+        "impact": "Adds ~200 dependencies when enabled; disabled by default",
+        "recommendation": "Keep as-is; users can opt-in with --features otel",
+        "compilation_impact": "0s (disabled by default)"
+      },
+      {
+        "feature": "Default features in external crates",
+        "status": "PROBLEMATIC - reqwest/axum/tower pull in full feature sets",
+        "impact": "compression (brotli + gzip), multiple TLS backends, cookie support",
+        "problematic_crates": ["reqwest", "axum", "tokio"],
+        "recommendation": "Add default-features = false where applicable, selectively enable",
+        "compilation_impact": "15-25s wasted on unused features"
+      },
+      {
+        "feature": "genai provider ecosystem",
+        "status": "UNOPTIMIZED - All providers always compiled",
+        "impact": "OpenAI client, Anthropic client, Google client, local models all included",
+        "problematic_crates": ["genai v0.5.1"],
+        "recommendation": "Feature-gate providers: genai/openai, genai/anthropic, genai/google",
+        "compilation_impact": "10-15s for unused provider code"
+      }
+    ],
+    "feature_consolidation_opportunities": [
+      {
+        "category": "HTTP Client Features (reqwest)",
+        "current": "Default features (all compression, all TLS, cookies)",
+        "recommended": "base64, json, rustls-tls only (ggen needs these)",
+        "expected_savings": "3-5s per reqwest compile"
+      },
+      {
+        "category": "Tokio Runtime Features",
+        "current": "Workspace specifies only needed: [macros, rt-multi-thread, io-util, io-std, sync, signal, time]",
+        "recommended": "ALREADY OPTIMIZED at workspace level",
+        "expected_savings": "0s (already good)"
+      },
+      {
+        "category": "Testing Framework Features",
+        "current": "chicago-tdd-tools includes testcontainers (heavy Docker integration)",
+        "recommended": "Keep dev-only; production builds don't pull this",
+        "expected_savings": "0s (already dev-dependency)"
+      }
+    ]
+  },
+  "link_time_optimization_gaps": [
+    {
+      "issue": "Thin LTO with 16 codegen units still leaves parallelization opportunities",
+      "current_setting": "[profile.release] lto = thin, codegen_units = 16",
+      "recommendation": "For CI: lto = thin with codegen_units = 8-10; for local dev: lto = false",
+      "expected_improvement": "5-15% faster link phase on CI (estimate: 8-12s saved)"
+    },
+    {
+      "issue": "No monomorphization control specified for generic-heavy crates",
+      "current_setting": "Default monomorphization (full)",
+      "recommendation": "Add monomorphization hints for hot-path generics (Tera, oxigraph)",
+      "expected_improvement": "2-5% binary size reduction, negligible link time impact"
+    },
+    {
+      "issue": "Strip enabled in release, but not verified to reduce binary size",
+      "current_setting": "[profile.release] strip = true",
+      "recommendation": "Keep; verify binary size: target/release/ggen (should be <50MB)",
+      "expected_improvement": "Already implemented; ~20% binary size reduction"
+    }
+  ],
+  "memory_and_disk_analysis": [
+    {
+      "metric": "Workspace checkout size (source)",
+      "value": "~2.5GB (estimated with vendor/ + target/)",
+      "breakdown": "crates/: ~500MB, target/debug: ~1.8GB, target/release: ~0.5GB (if built)"
+    },
+    {
+      "metric": "Build cache disk usage",
+      "value": "~2.3GB (incremental build artifacts)",
+      "recommendation": "Use cargo-clean-all periodically; ssdcache for CI environments"
+    },
+    {
+      "metric": "Parallel compilation limit",
+      "value": "Unlimited (no -j limit set, uses system CPU count)",
+      "recommendation": "For CI with 4 cores: consider -j 4 explicitly to prevent OOM"
+    }
+  ],
+  "optimization_recommendations_ranked": [
+    {
+      "rank": 1,
+      "optimization": "CONSOLIDATE reqwest VERSIONS (0.12.28 → 0.13.1)",
+      "effort": "MEDIUM",
+      "risk": "LOW",
+      "estimated_savings": "40-60 seconds (entire reqwest + hyper ecosystem recompile avoided)",
+      "implementation": "Update ggen-core to reqwest = 0.13.1; verify feature parity (json, rustls-tls)",
+      "blockers": "Check ggen-core uses only v0.13-compatible APIs",
+      "priority": "CRITICAL - Start immediately"
+    },
+    {
+      "rank": 2,
+      "optimization": "CONSOLIDATE notify VERSIONS (6.1.1 → 7.0.0)",
+      "effort": "EASY",
+      "risk": "VERY LOW",
+      "estimated_savings": "15-25 seconds (filesystem watcher stack recompile avoided)",
+      "implementation": "Update ggen-cli to notify = 7.0.0, notify-debouncer-full = 0.4.0; test watch mode",
+      "blockers": "API compatibility check between notify v6 → v7",
+      "priority": "HIGH - Second priority after reqwest"
+    },
+    {
+      "rank": 3,
+      "optimization": "CONSOLIDATE tower-http VERSIONS (0.5.2 → 0.6.8)",
+      "effort": "EASY",
+      "risk": "LOW",
+      "estimated_savings": "10-15 seconds (tower middleware ecosystem recompile)",
+      "implementation": "Update ggen-marketplace-v2 tower-http from 0.5 to 0.6.8",
+      "blockers": "ggen-marketplace-v2 middleware trait object compatibility",
+      "priority": "HIGH - Third priority"
+    },
+    {
+      "rank": 4,
+      "optimization": "CREATE OPTIMIZED CI PROFILE",
+      "effort": "EASY",
+      "risk": "NONE",
+      "estimated_savings": "50-70 seconds on CI check phase",
+      "implementation": "[profile.check]\\n  inherits = \"dev\"\\n  debug = false\\n  codegen-units = 512\\n  split-debuginfo = \"off\"",
+      "blockers": "None",
+      "priority": "MEDIUM - Helps CI times"
+    },
+    {
+      "rank": 5,
+      "optimization": "FEATURE-GATE genai PROVIDERS (openai, anthropic, google, local)",
+      "effort": "MEDIUM",
+      "risk": "MEDIUM (API change for ggen-ai users)",
+      "estimated_savings": "10-15 seconds (provider-specific code skipped)",
+      "implementation": "Add features to ggen-ai crate; default only Anthropic; users choose via features",
+      "blockers": "Requires careful API design to avoid breaking changes",
+      "priority": "MEDIUM - Longer-term optimization"
+    },
+    {
+      "rank": 6,
+      "optimization": "REDUCE reqwest FEATURE SET (conditional compression)",
+      "effort": "EASY",
+      "risk": "VERY LOW",
+      "estimated_savings": "3-5 seconds per reqwest build (avoid brotli compilation)",
+      "implementation": "Add to Cargo.toml: reqwest = { version = \"0.13.1\", default-features = false, features = [\"json\", \"rustls-tls\"] }",
+      "blockers": "Verify no code depends on brotli decompression",
+      "priority": "LOW - Incremental gain"
+    },
+    {
+      "rank": 7,
+      "optimization": "SPLIT ggen-core INTO FEATURE-GATED SUB-CRATES",
+      "effort": "HARD",
+      "risk": "HIGH (architectural refactor)",
+      "estimated_savings": "20-30 seconds (parallel compilation of RDF-only vs HTTP-only vs AI-only)",
+      "implementation": "Create ggen-core-rdf, ggen-core-http, ggen-core-ai; ggen-core meta-crate re-exports",
+      "blockers": "Major refactor; requires comprehensive testing",
+      "priority": "LOW - Phase 2 optimization after consolidations"
+    },
+    {
+      "rank": 8,
+      "optimization": "OPTIMIZE bitflags DUPLICATE (v1 → v2)",
+      "effort": "EASY",
+      "risk": "VERY LOW",
+      "estimated_savings": "3-5 seconds",
+      "implementation": "Update all v1 transitive deps; check notify inotify layer",
+      "blockers": "Automatic with notify/inotify consolidation",
+      "priority": "LOW - Automatic via other fixes"
+    },
+    {
+      "rank": 9,
+      "optimization": "ENABLE SPARSE REGISTRY FOR DEPENDENCY RESOLUTION",
+      "effort": "EASY",
+      "risk": "NONE",
+      "estimated_savings": "0.5 seconds first run, 0 subsequent runs",
+      "implementation": "Add to .cargo/config.toml: [source.crates-io]\\n  replace-with = \"crates-io-sparse\"\\n  [source.crates-io-sparse]\\n  registry = \"sparse+https://github.com/rust-lang/crates.io-index\"",
+      "blockers": "None; already default in recent Rust",
+      "priority": "LOW - Environment setup"
+    },
+    {
+      "rank": 10,
+      "optimization": "ADD WORKSPACE LINTER FOR UNUSED FEATURES",
+      "effort": "EASY",
+      "risk": "NONE",
+      "estimated_savings": "Prevents future regressions (no immediate savings)",
+      "implementation": "Add clippy lint: clippy::unused-features in workspace lints",
+      "blockers": "None",
+      "priority": "LOW - Maintenance improvement"
+    }
+  ],
+  "current_vs_recommended_settings": {
+    "cargo_toml_additions": [
+      {
+        "section": "[profile.check]",
+        "description": "Ultra-fast CI check profile",
+        "content": "[profile.check]\ninherits = \"dev\"\ndebug = false\ncodegen-units = 512\nsplit-debuginfo = \"off\"\nstrip = false"
+      },
+      {
+        "section": "[profile.release] optimization",
+        "description": "Reduce release codegen-units for faster CI",
+        "content": "[profile.release]\nopt-level = 3\ncodegen-units = 8   # Reduced from 16 for aggressive link-time optimization\nlto = \"thin\"\nstrip = true"
+      }
+    ],
+    "makefile_toml_recommendations": [
+      {
+        "target": "check-quick",
+        "description": "Ultra-fast CI validation",
+        "command": "cargo check --profile check --all-features"
+      },
+      {
+        "target": "build-release-opt",
+        "description": "Fully optimized release build",
+        "command": "RUSTFLAGS='-C link-arg=-fuse-ld=lld' cargo build --release --profile release"
+      },
+      {
+        "target": "profile-build",
+        "description": "Generate build profiling data",
+        "command": "CARGO_PROFILE_RELEASE_DEBUG_ASSERTIONS=true cargo build --profile release -Z timings 2>&1 | tee target/build_timings.txt"
+      }
+    ]
+  },
+  "time_savings_projection": {
+    "baseline_current": {
+      "full_clean_build": "120-180 seconds (timeout observed)",
+      "incremental_after_small_change": "15-30 seconds",
+      "ci_clean_check": "90-120 seconds"
+    },
+    "after_top_3_fixes": {
+      "reqwest_consolidation": "Saves 40-60s",
+      "notify_consolidation": "Saves 15-25s",
+      "tower_http_consolidation": "Saves 10-15s",
+      "combined_savings": "65-100 seconds (54-56% improvement)",
+      "projected_new_baseline": "20-80 seconds full clean build",
+      "projected_ci_time": "25-40 seconds check phase"
+    },
+    "after_all_10_fixes": {
+      "combined_savings": "85-130 seconds (71-72% improvement)",
+      "projected_new_baseline": "15-50 seconds full clean build",
+      "projected_ci_time": "10-20 seconds check phase",
+      "caveat": "Assumes successful execution of all recommendations without regressions"
+    }
+  },
+  "implementation_phase_roadmap": {
+    "phase_1_critical": {
+      "duration_days": "1-2",
+      "priority": "MUST DO NOW",
+      "tasks": [
+        "Fix reqwest version consolidation (0.12.28 → 0.13.1)",
+        "Fix notify version consolidation (6.1.1 → 7.0.0)",
+        "Fix tower-http version consolidation (0.5.2 → 0.6.8)",
+        "Test all functionality: CLI, watch mode, marketplace API",
+        "Run full test suite: cargo make test"
+      ],
+      "expected_time_savings": "65-100 seconds per build"
+    },
+    "phase_2_medium": {
+      "duration_days": "2-3",
+      "priority": "SHOULD DO SOON",
+      "tasks": [
+        "Add check profile to Cargo.toml",
+        "Feature-gate genai providers (optional)",
+        "Reduce reqwest feature set to essentials",
+        "Add build timing profiling targets to Makefile.toml",
+        "Run CI simulations with new profiles"
+      ],
+      "expected_time_savings": "15-30 seconds per build"
+    },
+    "phase_3_architectural": {
+      "duration_days": "5-10",
+      "priority": "NICE TO HAVE (LONG-TERM)",
+      "tasks": [
+        "Consider splitting ggen-core into feature-gated sub-crates",
+        "Evaluate monomorphization hints for hot-path code",
+        "Add workspace-wide feature audit linter",
+        "Benchmark against similar projects (e.g., clap, serde)"
+      ],
+      "expected_time_savings": "20-30 seconds per build"
+    }
+  },
+  "verification_checklist": [
+    {
+      "item": "Run `cargo make check` - verify no compiler errors",
+      "status": "PENDING",
+      "critical": true
+    },
+    {
+      "item": "Run `cargo make test` - verify all tests pass",
+      "status": "PENDING",
+      "critical": true
+    },
+    {
+      "item": "Run `cargo make lint` - verify no clippy warnings",
+      "status": "PENDING",
+      "critical": true
+    },
+    {
+      "item": "Time baseline clean build: `time cargo build 2>&1`",
+      "status": "PENDING",
+      "critical": false
+    },
+    {
+      "item": "Time baseline test suite: `time cargo make test 2>&1`",
+      "status": "PENDING",
+      "critical": false
+    },
+    {
+      "item": "Verify feature-gating doesn't break public APIs",
+      "status": "PENDING",
+      "critical": true
+    },
+    {
+      "item": "Test watch mode after notify upgrade: `cargo run -- watch`",
+      "status": "PENDING",
+      "critical": false
+    },
+    {
+      "item": "Test marketplace API after tower-http upgrade",
+      "status": "PENDING",
+      "critical": false
+    }
+  ],
+  "risk_assessment": {
+    "low_risk_changes": [
+      "Consolidating notify versions (API stable)",
+      "Consolidating tower-http versions (API stable)",
+      "Adding check profile (no-op for actual builds)",
+      "Reducing reqwest features (only compress unused)"
+    ],
+    "medium_risk_changes": [
+      "Consolidating reqwest versions (may have subtle API differences)",
+      "Feature-gating genai providers (requires careful design)"
+    ],
+    "high_risk_changes": [
+      "Splitting ggen-core into sub-crates (architectural refactor)",
+      "Aggressive codegen-unit reduction for release builds (potential binary size/perf impact)"
+    ],
+    "rollback_strategy": "Each change is isolated; can revert specific Cargo.toml edits if breakage occurs. Git history preserved for easy bisection."
+  },
+  "next_actions": [
+    {
+      "action": "Create feature branch: git checkout -b fix/build-dedup-consolidation",
+      "priority": 1,
+      "estimated_time_minutes": 1
+    },
+    {
+      "action": "Update Cargo.toml: consolidate reqwest 0.13.1, notify 7.0.0, tower-http 0.6.8",
+      "priority": 2,
+      "estimated_time_minutes": 10
+    },
+    {
+      "action": "Run: cargo update && cargo make check",
+      "priority": 3,
+      "estimated_time_minutes": 120
+    },
+    {
+      "action": "Run: cargo make test (full test suite)",
+      "priority": 4,
+      "estimated_time_minutes": 60
+    },
+    {
+      "action": "Time build: time cargo build --profile dev (baseline after fixes)",
+      "priority": 5,
+      "estimated_time_minutes": 120
+    },
+    {
+      "action": "Create PR with improvements and before/after timings",
+      "priority": 6,
+      "estimated_time_minutes": 30
+    }
+  ],
+  "summary": {
+    "critical_findings": [
+      "7 duplicate dependency versions causing forced sequential compilation of HTTP stacks, filesystem watchers, and middleware",
+      "Build timeout at 120s indicates the workspace is at critical scaling limit",
+      "Consolidating just the top 3 duplicates (reqwest, notify, tower-http) should reduce build time by 54-56%"
+    ],
+    "estimated_total_improvement": "65-130 seconds saved (54-72% reduction) by implementing recommendations 1-10",
+    "easy_wins": "Top 3 consolidations require 10-20 minutes of Cargo.toml edits for 54-56% improvement",
+    "long_term_strategy": "Monitor build times via CI; consider architectural refactor (split ggen-core) if consolidated versions hit new bottlenecks"
+  }
+}

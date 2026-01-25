@@ -1,0 +1,476 @@
+@prefix spec: <https://ggen.dev/spec#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix bo: <https://ggen.dev/build-optimization/> .
+@prefix : <https://ggen.dev/spec/build-optimization-008#> .
+
+# ============================================================================
+# FEATURE: Comprehensive Build Optimization Strategy (v8.0)
+# ============================================================================
+
+:BuildOptimizationEpic a spec:Feature ;
+    rdfs:label "Build Optimization: 3-5x Acceleration & Deterministic SLOs" ;
+    rdfs:comment "Systematic approach to reducing build times from 120s to ≤15s first build, ≤2s incremental, with deterministic performance guarantees and comprehensive metrics" ;
+    spec:maturity 85 ;
+    spec:epicNumber 8 ;
+    spec:targetImprovement "3-5x speedup (120s→15s first build, 10s→2s incremental)" ;
+    spec:specification :BuildOptimizationSpec ;
+    spec:successCriteria (
+        [ rdfs:label "First build ≤15 seconds" ; spec:weight 0.30 ]
+        [ rdfs:label "Incremental build ≤2 seconds" ; spec:weight 0.25 ]
+        [ rdfs:label "Workspace check ≤5 seconds" ; spec:weight 0.15 ]
+        [ rdfs:label "RDF processing ≤5s for 1000+ triples" ; spec:weight 0.15 ]
+        [ rdfs:label "Deterministic + reproducible outputs" ; spec:weight 0.15 ]
+    ) ;
+    spec:riskLevel "MEDIUM" ;
+    spec:resourceRequirement "10 parallel agents, 5 phases, 60+ parallel optimizations" .
+
+# ============================================================================
+# CORE BUSINESS DRIVERS
+# ============================================================================
+
+:Driver_DeveloperProductivity a spec:BusinessDriver ;
+    rdfs:label "Developer Productivity" ;
+    rdfs:comment "Fast iteration cycle reduces context switches, improves flow state, enables 10x more experiments per day" ;
+    spec:impact "HIGH" ;
+    spec:roi "2-3x productivity gain with 15s builds vs 120s builds" ;
+    spec:metricUnit "experiments/day" .
+
+:Driver_CICDCost a spec:BusinessDriver ;
+    rdfs:label "CI/CD Cost Reduction" ;
+    rdfs:comment "3-5x faster builds reduce compute hours, cut infrastructure costs by 60-70%" ;
+    spec:impact "HIGH" ;
+    spec:roi "70% reduction in CI/CD infrastructure spend" ;
+    spec:metricUnit "$/month compute cost" .
+
+:Driver_TimeToMarket a spec:BusinessDriver ;
+    rdfs:label "Time-to-Market Acceleration" ;
+    rdfs:comment "Faster feature iteration enables rapid response to market changes" ;
+    spec:impact "MEDIUM" ;
+    spec:roi "4-6 week acceleration on major features" ;
+    spec:metricUnit "weeks/feature" .
+
+:Driver_ReleaseCadence a spec:BusinessDriver ;
+    rdfs:label "Release Cadence Improvement" ;
+    rdfs:comment "Reduce release cycle from weekly to daily with confidence" ;
+    spec:impact "MEDIUM" ;
+    spec:roi "3x faster release cycles" ;
+    spec:metricUnit "releases/week" .
+
+# ============================================================================
+# USER STORIES (5+ Required)
+# ============================================================================
+
+:US1_DeveloperFastIteration a spec:UserStory ;
+    rdfs:label "Developer enables fast iteration with sub-15s builds" ;
+    spec:actor "Software Developer" ;
+    spec:action "Developer runs 'cargo make check' and waits for feedback" ;
+    spec:goal "Receive compilation feedback in <15 seconds, enabling rapid prototyping" ;
+    spec:priority "P1" ;
+    spec:acceptanceScenarios (
+        :US1_Scenario1
+        :US1_Scenario2
+        :US1_Scenario3
+        :US1_Scenario4
+    ) ;
+    spec:estimatedEffort "80 hours" ;
+    spec:businessValue "10x more experiments per day = exponential innovation" .
+
+:US1_Scenario1 a spec:AcceptanceScenario ;
+    rdfs:label "Clean build completes in 15s" ;
+    spec:givenContext "Developer starts work on new ggen feature" ;
+    spec:whenAction "cargo make check executes from clean slate" ;
+    spec:thenResult "Compilation completes in ≤15 seconds, no warnings" ;
+    spec:metrics ( [ spec:metricName "Time"; spec:value 15; spec:unit "seconds" ] ) .
+
+:US1_Scenario2 a spec:AcceptanceScenario ;
+    rdfs:label "Incremental change rebuilds in <2s" ;
+    spec:givenContext "Developer has baseline build complete" ;
+    spec:whenAction "Developer modifies single function in ggen-core, runs cargo make check" ;
+    spec:thenResult "Incremental rebuild completes in <2 seconds" ;
+    spec:metrics ( [ spec:metricName "Incremental Time"; spec:value 2; spec:unit "seconds" ] ) .
+
+:US1_Scenario3 a spec:AcceptanceScenario ;
+    rdfs:label "Parallel compilation saturates all CPU cores" ;
+    spec:givenContext "Developer system has 8+ CPU cores available" ;
+    spec:whenAction "cargo make check runs on multi-core system" ;
+    spec:thenResult "Build utilizes 7+ cores consistently, minimal idle time" ;
+    spec:metrics ( [ spec:metricName "CPU Utilization"; spec:value 87; spec:unit "percent" ] ) .
+
+:US1_Scenario4 a spec:AcceptanceScenario ;
+    rdfs:label "Memory usage stays under 200MB during build" ;
+    spec:givenContext "Developer system has 4GB available RAM" ;
+    spec:whenAction "cargo make check runs to completion" ;
+    spec:thenResult "Peak memory usage stays ≤200MB, no OOM errors" ;
+    spec:metrics ( [ spec:metricName "Peak Memory"; spec:value 200; spec:unit "MB" ] ) .
+
+:US2_CICDOptimization a spec:UserStory ;
+    rdfs:label "CI/CD pipeline reduces test runtime by 3-5x" ;
+    spec:actor "Release Engineer" ;
+    spec:action "Configure optimized Cargo.toml profiles and parallel test execution" ;
+    spec:goal "Reduce total CI runtime from 10 minutes to 2 minutes" ;
+    spec:priority "P1" ;
+    spec:acceptanceScenarios (
+        :US2_Scenario1
+        :US2_Scenario2
+        :US2_Scenario3
+        :US2_Scenario4
+        :US2_Scenario5
+    ) ;
+    spec:estimatedEffort "60 hours" ;
+    spec:businessValue "70% reduction in CI infrastructure cost" .
+
+:US2_Scenario1 a spec:AcceptanceScenario ;
+    rdfs:label "Full test suite completes in 30 seconds" ;
+    spec:givenContext "CI pipeline runs ggen test suite" ;
+    spec:whenAction "cargo make test executes all unit, integration, and BDD tests" ;
+    spec:thenResult "All tests pass in ≤30 seconds (vs 150s baseline)" ;
+    spec:metrics ( [ spec:metricName "Total Test Time"; spec:value 30; spec:unit "seconds" ] ) .
+
+:US2_Scenario2 a spec:AcceptanceScenario ;
+    rdfs:label "Unit tests run in parallel with no races" ;
+    spec:givenContext "Multiple test suites exist across 30 crates" ;
+    spec:whenAction "cargo make test-unit executes with --test-threads=auto" ;
+    spec:thenResult "All unit tests pass deterministically, no flakiness" ;
+    spec:metrics ( [ spec:metricName "Flakiness Rate"; spec:value 0; spec:unit "percent" ] ) .
+
+:US2_Scenario3 a spec:AcceptanceScenario ;
+    rdfs:label "Integration tests use artifact isolation" ;
+    spec:givenContext "10 integration test suites share target/ directory" ;
+    spec:whenAction "cargo make test-integration runs with CARGO_TARGET_DIR isolation" ;
+    spec:thenResult "Zero lock contention, 4x test speedup vs sequential" ;
+    spec:metrics ( [ spec:metricName "Speedup"; spec:value 4; spec:unit "x" ] ) .
+
+:US2_Scenario4 a spec:AcceptanceScenario ;
+    rdfs:label "Linting completes in 1 minute" ;
+    spec:givenContext "cargo clippy checks 30 crates with 1000+ files" ;
+    spec:whenAction "cargo make lint executes with incremental compilation" ;
+    spec:thenResult "All clippy checks pass in ≤60 seconds" ;
+    spec:metrics ( [ spec:metricName "Lint Time"; spec:value 60; spec:unit "seconds" ] ) .
+
+:US2_Scenario5 a spec:AcceptanceScenario ;
+    rdfs:label "Workspace check (syntax validation) completes in 5s" ;
+    spec:givenContext "Workspace includes 30 crates with metadata" ;
+    spec:whenAction "cargo make check executes without compilation" ;
+    spec:thenResult "Fast metadata/syntax check completes in ≤5 seconds" ;
+    spec:metrics ( [ spec:metricName "Check Time"; spec:value 5; spec:unit "seconds" ] ) .
+
+:US3_DeterministicBuilds a spec:UserStory ;
+    rdfs:label "Builds are deterministic and reproducible" ;
+    spec:actor "Quality Assurance Engineer" ;
+    spec:action "Verify same source code produces identical binaries" ;
+    spec:goal "Enable reproducible builds for security auditing and compliance" ;
+    spec:priority "P1" ;
+    spec:acceptanceScenarios (
+        :US3_Scenario1
+        :US3_Scenario2
+        :US3_Scenario3
+    ) ;
+    spec:estimatedEffort "40 hours" ;
+    spec:businessValue "Security compliance + auditable supply chain" .
+
+:US3_Scenario1 a spec:AcceptanceScenario ;
+    rdfs:label "Identical source produces identical binary" ;
+    spec:givenContext "Developer builds ggen binary from source" ;
+    spec:whenAction "Build runs twice with identical environment and seed" ;
+    spec:thenResult "Binary checksums match exactly (SHA-256 identical)" ;
+    spec:metrics ( [ spec:metricName "Binary Match Rate"; spec:value 100; spec:unit "percent" ] ) .
+
+:US3_Scenario2 a spec:AcceptanceScenario ;
+    rdfs:label "Build output is cryptographically signed" ;
+    spec:givenContext "ggen sync generates 50+ artifacts from RDF ontology" ;
+    spec:whenAction "ggen sync --audit true records generation receipt" ;
+    spec:thenResult "Receipt contains SHA-256 hash of each generated file" ;
+    spec:metrics ( [ spec:metricName "Artifacts Signed"; spec:value 100; spec:unit "percent" ] ) .
+
+:US3_Scenario3 a spec:AcceptanceScenario ;
+    rdfs:label "Rebuild produces zero file changes" ;
+    spec:givenContext "Ontology and template files are unchanged" ;
+    spec:whenAction "ggen sync runs multiple times" ;
+    spec:thenResult "File diff is empty (0 bytes changed) on second run" ;
+    spec:metrics ( [ spec:metricName "Stability"; spec:value 0; spec:unit "bytes changed" ] ) .
+
+:US4_IncrementalImprovements a spec:UserStory ;
+    rdfs:label "Incremental changes trigger minimal rebuilds" ;
+    spec:actor "Developer" ;
+    spec:action "Modify source file and trigger rebuild" ;
+    spec:goal "Changes to leaf crates only recompile affected subtrees" ;
+    spec:priority "P1" ;
+    spec:acceptanceScenarios (
+        :US4_Scenario1
+        :US4_Scenario2
+        :US4_Scenario3
+    ) ;
+    spec:estimatedEffort "50 hours" ;
+    spec:businessValue "Faster feedback = 20% productivity increase" .
+
+:US4_Scenario1 a spec:AcceptanceScenario ;
+    rdfs:label "Utility crate change recompiles only dependent crates" ;
+    spec:givenContext "Change made to ggen-utils (used by 8 crates)" ;
+    spec:whenAction "cargo build --lib" ;
+    spec:thenResult "Only ggen-utils + 8 direct dependents recompile (3-5s)" ;
+    spec:metrics ( [ spec:metricName "Recompile Scope"; spec:value 9; spec:unit "crates" ] ) .
+
+:US4_Scenario2 a spec:AcceptanceScenario ;
+    rdfs:label "Leaf crate change recompiles only that crate" ;
+    spec:givenContext "Change to ggen-cli (leaf, not used by others)" ;
+    spec:whenAction "cargo build --bin ggen-cli" ;
+    spec:thenResult "Only ggen-cli recompiles (1-2s)" ;
+    spec:metrics ( [ spec:metricName "Recompile Scope"; spec:value 1; spec:unit "crates" ] ) .
+
+:US4_Scenario3 a spec:AcceptanceScenario ;
+    rdfs:label "Documentation change triggers no rebuild" ;
+    spec:givenContext "Change to comments/doc tests only" ;
+    spec:whenAction "cargo check" ;
+    spec:thenResult "No binary recompilation, only doc parsing (0.5s)" ;
+    spec:metrics ( [ spec:metricName "Recompile Time"; spec:value 0.5; spec:unit "seconds" ] ) .
+
+:US5_PerformanceMonitoring a spec:UserStory ;
+    rdfs:label "Build performance is continuously monitored and alarmed" ;
+    spec:actor "DevOps Engineer" ;
+    spec:action "Set up performance metrics dashboard and alerting" ;
+    spec:goal "Detect performance regressions within 5 minutes of commit" ;
+    spec:priority "P2" ;
+    spec:acceptanceScenarios (
+        :US5_Scenario1
+        :US5_Scenario2
+        :US5_Scenario3
+    ) ;
+    spec:estimatedEffort "35 hours" ;
+    spec:businessValue "Prevent performance regressions from reaching main" .
+
+:US5_Scenario1 a spec:AcceptanceScenario ;
+    rdfs:label "Build time metrics recorded in CI logs" ;
+    spec:givenContext "CI pipeline runs on every commit" ;
+    spec:whenAction "cargo make bench records timing data" ;
+    spec:thenResult "Metrics written to structured log (JSON): build_time_ms, link_time_ms, test_time_ms" ;
+    spec:metrics ( [ spec:metricName "Metric Coverage"; spec:value 100; spec:unit "percent" ] ) .
+
+:US5_Scenario2 a spec:AcceptanceScenario ;
+    rdfs:label "Regression alerts trigger when build exceeds SLO" ;
+    spec:givenContext "First build baseline is 15 seconds" ;
+    spec:whenAction "Build time exceeds 20 seconds (>33% regression)" ;
+    spec:thenResult "GitHub status check fails, PR cannot merge, alert sent to team" ;
+    spec:metrics ( [ spec:metricName "Detection Latency"; spec:value 5; spec:unit "minutes" ] ) .
+
+:US5_Scenario3 a spec:AcceptanceScenario ;
+    rdfs:label "Historical performance trends visible in dashboard" ;
+    spec:givenContext "Metrics collected over 30 days of commits" ;
+    spec:whenAction "DevOps engineer accesses performance dashboard" ;
+    spec:thenResult "Graph shows build time trend, regressions highlighted, performance attribution by phase" ;
+    spec:metrics ( [ spec:metricName "Dashboard Uptime"; spec:value 99.9; spec:unit "percent" ] ) .
+
+# ============================================================================
+# ACCEPTANCE CRITERIA (15+ Required - Distributed across scenarios above)
+# ============================================================================
+
+# Key metrics that span all stories
+:CriteriaBuildSpeed a spec:AcceptanceCriteria ;
+    rdfs:label "Build Performance Targets Met" ;
+    spec:criterion "First build ≤15 seconds (vs 120s baseline)" ;
+    spec:criterion "Incremental build ≤2 seconds (vs 10s baseline)" ;
+    spec:criterion "Workspace check ≤5 seconds" ;
+    spec:criterion "Test suite ≤30 seconds (vs 150s baseline)" ;
+    spec:criterion "Lint/format ≤60 seconds" ;
+    spec:criterion "Memory usage ≤200MB (vs 2GB baseline)" ;
+    spec:criterion "CPU utilization ≥85% during build" ;
+    spec:criterion "Zero lock contention events" ;
+    spec:criterion "RDF processing ≤5 seconds for 1000+ triples" ;
+    spec:criterion "CLI scaffolding ≤3 seconds end-to-end" ;
+    spec:criterion "All SLOs verified by cargo make slo-check" .
+
+:CriteriaDeterminism a spec:AcceptanceCriteria ;
+    rdfs:label "Deterministic Output Guarantees" ;
+    spec:criterion "Identical source → identical binary (SHA-256)" ;
+    spec:criterion "ggen sync produces identical files across runs" ;
+    spec:criterion "No non-deterministic timing in output" ;
+    spec:criterion "RNG seed-based reproducibility (RNG_SEED=42)" ;
+    spec:criterion "Build hashes recorded in audit receipt" .
+
+:CriteriaTooling a spec:AcceptanceCriteria ;
+    rdfs:label "Tooling & Automation" ;
+    spec:criterion "cargo make check passes with zero errors" ;
+    spec:criterion "cargo make test passes with all tests green" ;
+    spec:criterion "cargo make lint passes with zero clippy warnings" ;
+    spec:criterion "cargo make pre-commit gates all enforced" ;
+    spec:criterion "No direct cargo commands used (only cargo make)" ;
+    spec:criterion "All timeouts enforced via Makefile.toml" .
+
+:CriteriaMonitoring a spec:AcceptanceCriteria ;
+    rdfs:label "Monitoring & Alerting" ;
+    spec:criterion "Performance metrics collected in CI" ;
+    spec:criterion "SLO violations trigger alerts within 5 minutes" ;
+    spec:criterion "Historical trend data available via dashboard" ;
+    spec:criterion "Regressions block PR merges" ;
+    spec:criterion "Audit trail recorded for every build" .
+
+# ============================================================================
+# PERFORMANCE METRICS (RDF-Based Specification)
+# ============================================================================
+
+:MetricFirstBuildTime a spec:PerformanceMetric ;
+    rdfs:label "First Build Time (Clean State)" ;
+    spec:baseline [ spec:value 120; spec:unit "seconds" ] ;
+    spec:target [ spec:value 15; spec:unit "seconds" ] ;
+    spec:improvement [ spec:value 8; spec:unit "x" ] ;
+    spec:criticality "CRITICAL" ;
+    spec:sloWindow "99th percentile" ;
+    spec:measurementMethod "cargo make bench with clean /target directory" ;
+    spec:alertThreshold [ spec:value 20; spec:unit "seconds" ] .
+
+:MetricIncrementalBuildTime a spec:PerformanceMetric ;
+    rdfs:label "Incremental Build Time (Single File Change)" ;
+    spec:baseline [ spec:value 10; spec:unit "seconds" ] ;
+    spec:target [ spec:value 2; spec:unit "seconds" ] ;
+    spec:improvement [ spec:value 5; spec:unit "x" ] ;
+    spec:criticality "CRITICAL" ;
+    spec:sloWindow "95th percentile" ;
+    spec:measurementMethod "Touch single source file, cargo build" ;
+    spec:alertThreshold [ spec:value 3; spec:unit "seconds" ] .
+
+:MetricMemoryUsage a spec:PerformanceMetric ;
+    rdfs:label "Peak Memory Usage During Build" ;
+    spec:baseline [ spec:value 2000; spec:unit "MB" ] ;
+    spec:target [ spec:value 200; spec:unit "MB" ] ;
+    spec:improvement [ spec:value 10; spec:unit "x" ] ;
+    spec:criticality "HIGH" ;
+    spec:sloWindow "peak" ;
+    spec:measurementMethod "valgrind --tool=massif during cargo build" ;
+    spec:alertThreshold [ spec:value 300; spec:unit "MB" ] .
+
+:MetricTestTime a spec:PerformanceMetric ;
+    rdfs:label "Full Test Suite Time" ;
+    spec:baseline [ spec:value 150; spec:unit "seconds" ] ;
+    spec:target [ spec:value 30; spec:unit "seconds" ] ;
+    spec:improvement [ spec:value 5; spec:unit "x" ] ;
+    spec:criticality "HIGH" ;
+    spec:sloWindow "mean" ;
+    spec:measurementMethod "cargo make test with all tests" ;
+    spec:alertThreshold [ spec:value 50; spec:unit "seconds" ] .
+
+:MetricCPUUtilization a spec:PerformanceMetric ;
+    rdfs:label "CPU Core Utilization" ;
+    spec:baseline [ spec:value 45; spec:unit "percent" ] ;
+    spec:target [ spec:value 85; spec:unit "percent" ] ;
+    spec:improvement [ spec:value 1.9; spec:unit "x" ] ;
+    spec:criticality "MEDIUM" ;
+    spec:sloWindow "mean" ;
+    spec:measurementMethod "top/htop during cargo build" ;
+    spec:alertThreshold [ spec:value 60; spec:unit "percent" ] .
+
+# ============================================================================
+# OPTIMIZATION PHASES (Cross-Reference with plan.ttl)
+# ============================================================================
+
+:OptimizationPhase1 a spec:OptimizationPhase ;
+    rdfs:label "Phase 1: Analysis & Specification (2 weeks)" ;
+    spec:description "Baseline measurement, bottleneck identification, specification closure" ;
+    spec:dependencies "None" ;
+    spec:parallelAgents 3 ;
+    spec:expectedDeliverables (
+        [ rdfs:label "Baseline performance report (120s first build)" ]
+        [ rdfs:label "Bottleneck analysis (artifact lock, memory, coupling)" ]
+        [ rdfs:label "Architecture design document" ]
+        [ rdfs:label "RDF specification (this file)" ]
+    ) .
+
+:OptimizationPhase2 a spec:OptimizationPhase ;
+    rdfs:label "Phase 2: Parallel Implementation (3 weeks)" ;
+    spec:description "Execute 5+ parallel optimizations with collision detection" ;
+    spec:dependencies :OptimizationPhase1 ;
+    spec:parallelAgents 10 ;
+    spec:expectedDeliverables (
+        [ rdfs:label "Cargo.toml profile optimization" ]
+        [ rdfs:label "Build cache configuration" ]
+        [ rdfs:label "Dependency isolation and feature-gating" ]
+        [ rdfs:label "Artifact directory isolation" ]
+        [ rdfs:label "Workspace structure refactoring" ]
+        [ rdfs:label "Crate decoupling (bridge pattern)" ]
+    ) .
+
+:OptimizationPhase3 a spec:OptimizationPhase ;
+    rdfs:label "Phase 3: Validation & Integration (2 weeks)" ;
+    spec:description "Integration testing, SLO verification, conflict resolution" ;
+    spec:dependencies :OptimizationPhase2 ;
+    spec:parallelAgents 5 ;
+    spec:expectedDeliverables (
+        [ rdfs:label "Integration tests for 10 optimization combinations" ]
+        [ rdfs:label "Performance benchmark report" ]
+        [ rdfs:label "SLO verification (all targets met)" ]
+        [ rdfs:label "Conflict resolution analysis" ]
+    ) .
+
+:OptimizationPhase4 a spec:OptimizationPhase ;
+    rdfs:label "Phase 4: Hardening & Monitoring (2 weeks)" ;
+    spec:description "Add monitoring, alerting, documentation, and failsafes" ;
+    spec:dependencies :OptimizationPhase3 ;
+    spec:parallelAgents 4 ;
+    spec:expectedDeliverables (
+        [ rdfs:label "Performance monitoring dashboard" ]
+        [ rdfs:label "SLO alerting system" ]
+        [ rdfs:label "Build performance documentation" ]
+        [ rdfs:label "Developer runbook for optimization maintenance" ]
+    ) .
+
+:OptimizationPhase5 a spec:OptimizationPhase ;
+    rdfs:label "Phase 5: Release & Adoption (1 week)" ;
+    spec:description "Production release, documentation, team training" ;
+    spec:dependencies :OptimizationPhase4 ;
+    spec:parallelAgents 3 ;
+    spec:expectedDeliverables (
+        [ rdfs:label "Release notes with benchmarks" ]
+        [ rdfs:label "Team training materials" ]
+        [ rdfs:label "Migration guide for legacy builds" ]
+        [ rdfs:label "v8.0.0 public announcement" ]
+    ) .
+
+# ============================================================================
+# RISK MITIGATION
+# ============================================================================
+
+:RiskRegression a spec:Risk ;
+    rdfs:label "Performance regression from unsafe optimizations" ;
+    spec:severity "CRITICAL" ;
+    spec:probability 0.30 ;
+    spec:mitigation "All optimizations wrapped in feature flags, easy to disable" ;
+    spec:contingency "Revert to baseline Cargo.toml in <5 minutes" .
+
+:RiskDeterminism a spec:Risk ;
+    rdfs:label "Loss of deterministic builds from parallelization" ;
+    spec:severity "HIGH" ;
+    spec:probability 0.20 ;
+    spec:mitigation "Use --rng-seed=42 for all parallel operations, verify via cryptographic hashing" ;
+    spec:contingency "Fall back to single-threaded build (slower but deterministic)" .
+
+:RiskConflict a spec:Risk ;
+    rdfs:label "Agent conflict/interference during parallel execution" ;
+    spec:severity "HIGH" ;
+    spec:probability 0.40 ;
+    spec:mitigation "Artifact isolation, shared-nothing architecture, collision detection" ;
+    spec:contingency "Merge conflicting optimizations or parallelize sequentially" .
+
+# ============================================================================
+# SUCCESS METRICS & BUSINESS VALUE
+# ============================================================================
+
+:SuccessMetric_ProductivityGain a spec:SuccessMetric ;
+    rdfs:label "Developer Productivity Increase" ;
+    spec:measure "Experiments per developer per day" ;
+    spec:baseline 5 ;
+    spec:target 50 ;
+    spec:measurement_method "Survey + usage analytics" .
+
+:SuccessMetric_CostReduction a spec:SuccessMetric ;
+    rdfs:label "CI/CD Infrastructure Cost Reduction" ;
+    spec:measure "Monthly compute spend" ;
+    spec:baseline [ spec:value 15000; spec:currency "USD" ] ;
+    spec:target [ spec:value 4500; spec:currency "USD" ] ;
+    spec:measurement_method "Cloud billing data" .
+
+:SuccessMetric_TeamSatisfaction a spec:SuccessMetric ;
+    rdfs:label "Developer Satisfaction (Build Performance)" ;
+    spec:measure "NPS for build system performance" ;
+    spec:baseline 35 ;
+    spec:target 80 ;
+    spec:measurement_method "Post-release survey" .

@@ -1,0 +1,800 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix bo: <https://ggen.dev/build-optimization/> .
+@prefix : <https://ggen.dev/spec/build-optimization-008/plan#> .
+
+# ============================================================================
+# IMPLEMENTATION PLAN: Build Optimization v8.0 (10 Weeks Total)
+# ============================================================================
+
+:BuildOptimizationPlan a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Build Optimization v8.0 Implementation Plan" ;
+    rdfs:comment "10-week plan to achieve 3-5x build acceleration with 10 parallel agents" ;
+    :totalDuration 70 ;
+    :totalEffortHours 480 ;
+    :parallelAgents 10 ;
+    :phases (
+        :Phase1_AnalysisSpecification
+        :Phase2_ParallelImplementation
+        :Phase3_ValidationIntegration
+        :Phase4_HardeningMonitoring
+        :Phase5_ReleaseAdoption
+    ) ;
+    :successCriteria (
+        :Criteria_AllSLOsMet
+        :Criteria_DeterministicBuilds
+        :Criteria_ZeroRegressions
+        :Criteria_ProductionReady
+    ) .
+
+# ============================================================================
+# PHASE 1: Analysis & Specification (Weeks 1-2, 14 Days)
+# ============================================================================
+
+:Phase1_AnalysisSpecification a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Phase 1: Analysis & Specification" ;
+    rdfs:comment "Establish baseline, identify bottlenecks, design architecture" ;
+    :phaseNumber 1 ;
+    :duration [ rdf:value 14 ; rdf:unitCode "DAY" ] ;
+    :startDate "2026-02-01"^^xsd:date ;
+    :endDate "2026-02-14"^^xsd:date ;
+    :parallelTeams 3 ;
+    :expectedTeamSize 6 ;
+    :totalEffortHours 120 ;
+    :dependencies "None" ;
+    :sequentialConstraints (
+        [ rdfs:label "Baseline must complete before Phase 2 starts" ]
+    ) ;
+    :tasks (
+        :Task1_1_BaselineMeasurement
+        :Task1_2_BottleneckAnalysis
+        :Task1_3_ArchitectureDesign
+        :Task1_4_SpecificationClosure
+        :Task1_5_RiskAssessment
+    ) ;
+    :deliverables (
+        [ rdfs:label "Baseline Report: First Build=120s, Incremental=10s, Memory=2GB" ]
+        [ rdfs:label "Bottleneck Analysis: Artifact Locks, Memory, Coupling (3 categories)" ]
+        [ rdfs:label "Architecture Design Document: 5 optimization phases" ]
+        [ rdfs:label "RDF Specification (feature.ttl, entities.ttl, plan.ttl)" ]
+        [ rdfs:label "Risk Assessment with mitigation strategies" ]
+        [ rdfs:label "Team consensus on success criteria and SLOs" ]
+    ) ;
+    :successCriteria (
+        [ rdfs:label "Baseline measurements recorded with 95%+ consistency" ]
+        [ rdfs:label "All 3 bottlenecks identified with root cause analysis" ]
+        [ rdfs:label "Architecture design reviewed by 5+ reviewers" ]
+        [ rdfs:label "Specification closure 100% (all user stories, scenarios documented)" ]
+    ) .
+
+:Task1_1_BaselineMeasurement a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Task 1.1: Baseline Measurement" ;
+    rdfs:comment "Establish quantitative baseline for all SLO metrics" ;
+    :agent "code-analyzer" ;
+    :effort [ rdf:value 25 ; rdf:unitCode "HOUR" ] ;
+    :dependencies "None" ;
+    :steps (
+        [ rdfs:label "Run cargo make bench on clean environment (10 iterations)" ]
+        [ rdfs:label "Record: first build time, incremental time, memory, CPU utilization" ]
+        [ rdfs:label "Document: environment specs (CPU, RAM, disk, OS version)" ]
+        [ rdfs:label "Analyze: variance, distribution (mean, median, p95, p99)" ]
+        [ rdfs:label "Create: baseline report with graphs and confidence intervals" ]
+    ) ;
+    :acceptanceCriteria (
+        [ rdfs:label "Baseline measurements ≥10 iterations with <5% variance" ]
+        [ rdfs:label "Statistical summary: mean, stdev, min, max, p95, p99" ]
+        [ rdfs:label "Environment documentation complete" ]
+    ) .
+
+:Task1_2_BottleneckAnalysis a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Task 1.2: Bottleneck Analysis" ;
+    rdfs:comment "Root cause analysis of top 3 performance bottlenecks" ;
+    :agent "performance-benchmarker" ;
+    :effort [ rdf:value 35 ; rdf:unitCode "HOUR" ] ;
+    :dependencies :Task1_1_BaselineMeasurement ;
+    :steps (
+        [ rdfs:label "Profile cargo build with cargo-flamegraph (per phase)" ]
+        [ rdfs:label "Identify: lock contention (target/ dir), memory peaks, longest crates" ]
+        [ rdfs:label "Analyze: dependency graph depth, bridge crates, common dependencies" ]
+        [ rdfs:label "Model: contribution of each bottleneck to total build time" ]
+        [ rdfs:label "Validate: with 5-why root cause analysis" ]
+    ) ;
+    :acceptanceCriteria (
+        [ rdfs:label "3+ bottlenecks identified with root causes" ]
+        [ rdfs:label "Each bottleneck quantified (% of build time)" ]
+        [ rdfs:label "Improvement potential estimated for each" ]
+        [ rdfs:label "Flamegraph analysis available" ]
+    ) .
+
+:Task1_3_ArchitectureDesign a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Task 1.3: Architecture Design" ;
+    rdfs:comment "Design the 5-phase optimization approach" ;
+    :agent "system-architect" ;
+    :effort [ rdf:value 30 ; rdf:unitCode "HOUR" ] ;
+    :dependencies :Task1_2_BottleneckAnalysis ;
+    :steps (
+        [ rdfs:label "Design: 5 phases (Analysis, Implementation, Validation, Hardening, Release)" ]
+        [ rdfs:label "Map: optimizations to phases with dependencies" ]
+        [ rdfs:label "Plan: parallel agent execution (10 agents max)" ]
+        [ rdfs:label "Identify: collision points and conflict resolution" ]
+        [ rdfs:label "Estimate: effort, duration, resource requirements per phase" ]
+    ) ;
+    :acceptanceCriteria (
+        [ rdfs:label "5 phases defined with clear entry/exit criteria" ]
+        [ rdfs:label "5+ optimizations mapped to phases" ]
+        [ rdfs:label "Parallelization strategy documented (10-agent max)" ]
+        [ rdfs:label "Conflict detection strategy defined" ]
+    ) .
+
+:Task1_4_SpecificationClosure a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Task 1.4: Specification Closure" ;
+    rdfs:comment "Complete RDF specification with 100% coverage" ;
+    :agent "specification" ;
+    :effort [ rdf:value 20 ; rdf:unitCode "HOUR" ] ;
+    :dependencies (
+        :Task1_1_BaselineMeasurement
+        :Task1_2_BottleneckAnalysis
+        :Task1_3_ArchitectureDesign
+    ) ;
+    :steps (
+        [ rdfs:label "Write: feature.ttl with 5+ user stories, 15+ acceptance scenarios" ]
+        [ rdfs:label "Write: entities.ttl with domain model (Optimization, Profile, Metric)" ]
+        [ rdfs:label "Write: plan.ttl with 5 phases, tasks, dependencies, SLOs" ]
+        [ rdfs:label "Validate: SHACL conformance, RDF consistency" ]
+        [ rdfs:label "Verify: 100% specification closure (all requirements documented)" ]
+    ) ;
+    :acceptanceCriteria (
+        [ rdfs:label "All 4 TTL files exist and pass Turtle syntax validation" ]
+        [ rdfs:label "SHACL validation passes with 0 errors" ]
+        [ rdfs:label "100% specification closure (all requirements in RDF)" ]
+        [ rdfs:label "ggen sync can generate artifacts from spec" ]
+    ) .
+
+:Task1_5_RiskAssessment a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Task 1.5: Risk Assessment" ;
+    rdfs:comment "Identify risks and mitigation strategies" ;
+    :agent "code-analyzer" ;
+    :effort [ rdf:value 10 ; rdf:unitCode "HOUR" ] ;
+    :dependencies :Task1_3_ArchitectureDesign ;
+    :steps (
+        [ rdfs:label "Identify: 5+ risks (regression, determinism, conflict, incompatibility)" ]
+        [ rdfs:label "Assess: probability, severity, business impact" ]
+        [ rdfs:label "Develop: mitigation strategies for each risk" ]
+        [ rdfs:label "Create: contingency plans (rollback, workarounds)" ]
+        [ rdfs:label "Define: risk monitoring during Phase 2-4" ]
+    ) ;
+    :acceptanceCriteria (
+        [ rdfs:label "5+ risks documented with severity/probability assessment" ]
+        [ rdfs:label "Mitigation strategy for each risk" ]
+        [ rdfs:label "Risk monitoring plan defined" ]
+    ) .
+
+# ============================================================================
+# PHASE 2: Parallel Implementation (Weeks 3-5, 21 Days)
+# ============================================================================
+
+:Phase2_ParallelImplementation a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Phase 2: Parallel Implementation" ;
+    rdfs:comment "Execute 5+ optimizations in parallel with collision detection" ;
+    :phaseNumber 2 ;
+    :duration [ rdf:value 21 ; rdf:unitCode "DAY" ] ;
+    :startDate "2026-02-15"^^xsd:date ;
+    :endDate "2026-03-07"^^xsd:date ;
+    :parallelTeams 5 ;
+    :expectedTeamSize 10 ;
+    :totalEffortHours 240 ;
+    :dependencies :Phase1_AnalysisSpecification ;
+    :tasks (
+        :Task2_1_CargoProfileOptimization
+        :Task2_2_ArtifactIsolation
+        :Task2_3_DependencyGating
+        :Task2_4_CrateCoupling
+        :Task2_5_CollisionDetection
+    ) ;
+    :deliverables (
+        [ rdfs:label "Optimized Cargo.toml profiles (dev, release, test, check)" ]
+        [ rdfs:label "Artifact isolation implementation (CARGO_TARGET_DIR isolation)" ]
+        [ rdfs:label "Feature-gated optional dependencies (ring, tera, rustls)" ]
+        [ rdfs:label "Crate coupling analysis and refactoring plan" ]
+        [ rdfs:label "Collision detection report (5+ optimizations)" ]
+        [ rdfs:label "Code changes: 100+ files modified, 50+ new features" ]
+    ) ;
+    :collisionDetectionStrategy (
+        [ rdfs:label "Monitor: file locks, shared state, configuration conflicts" ]
+        [ rdfs:label "Frequency: Every 2 hours during parallel execution" ]
+        [ rdfs:label "Resolution: Merge-friendly patterns, feature flags" ]
+    ) ;
+    :successCriteria (
+        [ rdfs:label "All 5 optimizations integrated without blocking each other" ]
+        [ rdfs:label "Collision detection finds and resolves 0 critical conflicts" ]
+        [ rdfs:label "Cargo.toml validates without warnings" ]
+        [ rdfs:label "cargo make check passes on all 5 optimization branches" ]
+    ) .
+
+:Task2_1_CargoProfileOptimization a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Task 2.1: Cargo Profile Optimization" ;
+    rdfs:comment "Optimize Cargo.toml profiles for compile speed and runtime efficiency" ;
+    :agent "coder" ;
+    :effort [ rdf:value 40 ; rdf:unitCode "HOUR" ] ;
+    :dependencies :Phase1_AnalysisSpecification ;
+    :parallelWith (
+        :Task2_2_ArtifactIsolation
+        :Task2_3_DependencyGating
+    ) ;
+    :steps (
+        [ rdfs:label "Create: [profile.dev] with opt-level=0, split-debuginfo=packed" ]
+        [ rdfs:label "Create: [profile.check] with opt-level=0, codegen-units=256" ]
+        [ rdfs:label "Create: [profile.test] with opt-level=1, codegen-units=16" ]
+        [ rdfs:label "Update: [profile.release] with thin-lto, strip=true" ]
+        [ rdfs:label "Benchmark: measure compile time improvement per profile" ]
+    ) ;
+    :acceptanceCriteria (
+        [ rdfs:label "dev profile: <5s cargo build (codegen-units=256)" ]
+        [ rdfs:label "check profile: <5s cargo check (no codegen)" ]
+        [ rdfs:label "test profile: <10s compile time" ]
+        [ rdfs:label "release profile: binary size <50MB, link <5s" ]
+    ) ;
+    :riskMitigation (
+        [ rdfs:label "Profile revert strategy: git checkout Cargo.toml" ]
+    ) .
+
+:Task2_2_ArtifactIsolation a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Task 2.2: Artifact Directory Isolation" ;
+    rdfs:comment "Eliminate lock contention by isolating target/ directories" ;
+    :agent "coder" ;
+    :effort [ rdf:value 35 ; rdf:unitCode "HOUR" ] ;
+    :dependencies :Phase1_AnalysisSpecification ;
+    :parallelWith (
+        :Task2_1_CargoProfileOptimization
+        :Task2_3_DependencyGating
+    ) ;
+    :steps (
+        [ rdfs:label "Implement: CARGO_TARGET_DIR=/tmp/cargo-target-${RANDOM} pattern" ]
+        [ rdfs:label "Update: Makefile.toml to export CARGO_TARGET_DIR per task" ]
+        [ rdfs:label "Create: cleanup script for /tmp/cargo-target-* directories" ]
+        [ rdfs:label "Test: parallel build with 10 simultaneous cargo tasks" ]
+        [ rdfs:label "Verify: zero lock contention, 4x speedup for parallel builds" ]
+    ) ;
+    :acceptanceCriteria (
+        [ rdfs:label "Parallel builds complete without lock wait times" ]
+        [ rdfs:label "No 'waiting for file lock on build directory' messages" ]
+        [ rdfs:label "4-5x speedup for N parallel builds vs sequential" ]
+        [ rdfs:label "Cleanup script prevents /tmp disk exhaustion" ]
+    ) ;
+    :riskMitigation (
+        [ rdfs:label "Fallback: CARGO_TARGET_DIR defaults to ./target if /tmp unavailable" ]
+        [ rdfs:label "Monitoring: Alert if /tmp usage >80%" ]
+    ) .
+
+:Task2_3_DependencyGating a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Task 2.3: Feature-Gate Optional Dependencies" ;
+    rdfs:comment "Move optional dependencies behind feature flags" ;
+    :agent "coder" ;
+    :effort [ rdf:value 50 ; rdf:unitCode "HOUR" ] ;
+    :dependencies :Phase1_AnalysisSpecification ;
+    :parallelWith (
+        :Task2_1_CargoProfileOptimization
+        :Task2_2_ArtifactIsolation
+    ) ;
+    :steps (
+        [ rdfs:label "Analyze: identify memory-intensive deps (ring, tera, rustls, tokio)" ]
+        [ rdfs:label "Create: feature flags for each large dependency" ]
+        [ rdfs:label "Move: dev dependencies to optional with 'dev' feature" ]
+        [ rdfs:label "Update: Cargo.toml with conditional compilation directives" ]
+        [ rdfs:label "Benchmark: measure compile time and memory reduction" ]
+    ) ;
+    :acceptanceCriteria (
+        [ rdfs:label "ring feature-gated (optional, saves 200ms compile)" ]
+        [ rdfs:label "tera feature-gated (optional, saves 300ms compile)" ]
+        [ rdfs:label "rustls feature-gated (optional, saves 150ms compile)" ]
+        [ rdfs:label "Minimal feature set produces <100MB memory during build" ]
+        [ rdfs:label "Full feature set still available with --all-features" ]
+    ) ;
+    :riskMitigation (
+        [ rdfs:label "Revert: remove feature flags if integration issues arise" ]
+        [ rdfs:label "Testing: verify all features work correctly when enabled" ]
+    ) .
+
+:Task2_4_CrateCoupling a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Task 2.4: Reduce Crate Coupling" ;
+    rdfs:comment "Break dependency cycles and reduce bridge crate dependencies" ;
+    :agent "coder" ;
+    :effort [ rdf:value 60 ; rdf:unitCode "HOUR" ] ;
+    :dependencies :Phase1_AnalysisSpecification ;
+    :parallelWith (
+        :Task2_1_CargoProfileOptimization
+        :Task2_2_ArtifactIsolation
+        :Task2_3_DependencyGating
+    ) ;
+    :steps (
+        [ rdfs:label "Analyze: dependency graph (cargo tree), identify bridge crates" ]
+        [ rdfs:label "Identify: cycles (if any) and break via abstraction" ]
+        [ rdfs:label "Refactor: move common traits to separate micro-crate" ]
+        [ rdfs:label "Reduce: ggen-utils transitive dependencies from 8 to 3" ]
+        [ rdfs:label "Verify: incremental build time improvement for each change" ]
+    ) ;
+    :acceptanceCriteria (
+        [ rdfs:label "Dependency cycles eliminated (if any)" ]
+        [ rdfs:label "ggen-utils reduced from 8 to 3 direct dependents" ]
+        [ rdfs:label "New micro-crate (ggen-traits) created for shared abstractions" ]
+        [ rdfs:label "Incremental rebuild of ggen-utils now rebuilds 3 crates (vs 8)" ]
+        [ rdfs:label "30-40% improvement in incremental build time" ]
+    ) ;
+    :riskMitigation (
+        [ rdfs:label "High risk: requires refactoring, potential API breaks" ]
+        [ rdfs:label "Mitigation: Create abstraction layer before moving code" ]
+        [ rdfs:label "Testing: All 30 crates must compile without errors" ]
+    ) .
+
+:Task2_5_CollisionDetection a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Task 2.5: Collision Detection & Resolution" ;
+    rdfs:comment "Detect and resolve conflicts between parallel optimizations" ;
+    :agent "system-architect" ;
+    :effort [ rdf:value 55 ; rdf:unitCode "HOUR" ] ;
+    :dependencies (
+        :Task2_1_CargoProfileOptimization
+        :Task2_2_ArtifactIsolation
+        :Task2_3_DependencyGating
+        :Task2_4_CrateCoupling
+    ) ;
+    :steps (
+        [ rdfs:label "Monitor: 5 parallel branches for structural conflicts" ]
+        [ rdfs:label "Analyze: merge conflicts in Cargo.toml, Makefile.toml" ]
+        [ rdfs:label "Detect: semantic conflicts (feature flag interactions)" ]
+        [ rdfs:label "Resolve: via consensus (feature flags, abstraction layers)" ]
+        [ rdfs:label "Validate: merged code passes all tests and benchmarks" ]
+    ) ;
+    :acceptanceCriteria (
+        [ rdfs:label "0 unresolved merge conflicts" ]
+        [ rdfs:label "0 semantic conflicts (feature interactions tested)" ]
+        [ rdfs:label "All 5 optimizations integrated into single branch" ]
+        [ rdfs:label "cargo make check passes on merged branch" ]
+        [ rdfs:label "Performance gains cumulative (not canceling each other)" ]
+    ) ;
+    :reportingFormat (
+        [ rdfs:label "Conflict Matrix (5x5 grid of optimization pairs)" ]
+        [ rdfs:label "Resolution Strategy (per conflict pair)" ]
+        [ rdfs:label "Test Results (before/after merge)" ]
+    ) .
+
+# ============================================================================
+# PHASE 3: Validation & Integration (Weeks 6-7, 14 Days)
+# ============================================================================
+
+:Phase3_ValidationIntegration a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Phase 3: Validation & Integration" ;
+    rdfs:comment "Test combined optimizations, verify SLOs, resolve conflicts" ;
+    :phaseNumber 3 ;
+    :duration [ rdf:value 14 ; rdf:unitCode "DAY" ] ;
+    :startDate "2026-03-08"^^xsd:date ;
+    :endDate "2026-03-21"^^xsd:date ;
+    :parallelTeams 5 ;
+    :expectedTeamSize 8 ;
+    :totalEffortHours 160 ;
+    :dependencies :Phase2_ParallelImplementation ;
+    :tasks (
+        :Task3_1_IntegrationTesting
+        :Task3_2_SLOVerification
+        :Task3_3_DeterminismValidation
+        :Task3_4_ConflictResolution
+        :Task3_5_PerformanceAnalysis
+    ) ;
+    :deliverables (
+        [ rdfs:label "Integration Test Report: 20+ test scenarios" ]
+        [ rdfs:label "SLO Verification Report: All targets met or exceeded" ]
+        [ rdfs:label "Determinism Validation: Binary hashes match across 10 runs" ]
+        [ rdfs:label "Conflict Resolution Summary: 0 critical conflicts" ]
+        [ rdfs:label "Performance Attribution: Which optimization contributes how much" ]
+    ) ;
+    :successCriteria (
+        [ rdfs:label "All SLOs achieved (15s first build, 2s incremental, 200MB memory)" ]
+        [ rdfs:label "Zero integration test failures" ]
+        [ rdfs:label "Deterministic builds verified (SHA-256 hashes match)" ]
+        [ rdfs:label "3-5x improvement confirmed vs Phase 1 baseline" ]
+    ) .
+
+:Task3_1_IntegrationTesting a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Task 3.1: Integration Testing" ;
+    rdfs:comment "Test all optimization combinations" ;
+    :agent "tester" ;
+    :effort [ rdf:value 35 ; rdf:unitCode "HOUR" ] ;
+    :dependencies :Phase2_ParallelImplementation ;
+    :steps (
+        [ rdfs:label "Create: 20+ integration tests for optimization combinations" ]
+        [ rdfs:label "Test: Cargo profiles + artifact isolation" ]
+        [ rdfs:label "Test: Feature gating + dependency isolation" ]
+        [ rdfs:label "Test: Crate decoupling + parallel builds" ]
+        [ rdfs:label "Run: full integration test suite, verify zero failures" ]
+    ) ;
+    :acceptanceCriteria (
+        [ rdfs:label "20+ integration tests defined and passing" ]
+        [ rdfs:label "All optimization combinations tested" ]
+        [ rdfs:label "No regression in existing tests" ]
+    ) .
+
+:Task3_2_SLOVerification a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Task 3.2: SLO Verification" ;
+    rdfs:comment "Verify all performance SLOs are met" ;
+    :agent "performance-benchmarker" ;
+    :effort [ rdf:value 40 ; rdf:unitCode "HOUR" ] ;
+    :dependencies :Phase2_ParallelImplementation ;
+    :steps (
+        [ rdfs:label "Run: cargo make bench with all optimizations (50 iterations)" ]
+        [ rdfs:label "Measure: first build time, incremental time, memory, CPU" ]
+        [ rdfs:label "Compare: vs Phase 1 baseline, calculate improvement factor" ]
+        [ rdfs:label "Verify: all SLOs met (≤15s first, ≤2s incremental, ≤200MB memory)" ]
+        [ rdfs:label "Document: SLO verification report with graphs and statistics" ]
+    ) ;
+    :acceptanceCriteria (
+        [ rdfs:label "First build time ≤15 seconds (99th percentile)" ]
+        [ rdfs:label "Incremental build time ≤2 seconds (95th percentile)" ]
+        [ rdfs:label "Peak memory ≤200MB (vs 2GB baseline)" ]
+        [ rdfs:label "CPU utilization ≥85% (vs 45% baseline)" ]
+    ) .
+
+:Task3_3_DeterminismValidation a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Task 3.3: Determinism Validation" ;
+    rdfs:comment "Verify builds are deterministic and reproducible" ;
+    :agent "code-analyzer" ;
+    :effort [ rdf:value 30 ; rdf:unitCode "HOUR" ] ;
+    :dependencies :Phase2_ParallelImplementation ;
+    :steps (
+        [ rdfs:label "Build: ggen binary 10 times with identical environment" ]
+        [ rdfs:label "Hash: compute SHA-256 of each binary" ]
+        [ rdfs:label "Compare: verify all 10 binaries have identical hash" ]
+        [ rdfs:label "Test: parallel builds with --rng-seed=42" ]
+        [ rdfs:label "Verify: 100% determinism (10/10 builds identical)" ]
+    ) ;
+    :acceptanceCriteria (
+        [ rdfs:label "10 sequential builds produce identical binary (100% match)" ]
+        [ rdfs:label "10 parallel builds produce identical binary (100% match)" ]
+        [ rdfs:label "RNG-seeded builds produce deterministic output" ]
+    ) .
+
+:Task3_4_ConflictResolution a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Task 3.4: Conflict Detection & Resolution" ;
+    rdfs:comment "Detect and resolve any remaining conflicts" ;
+    :agent "system-architect" ;
+    :effort [ rdf:value 30 ; rdf:unitCode "HOUR" ] ;
+    :dependencies :Phase2_ParallelImplementation ;
+    :steps (
+        [ rdfs:label "Analyze: feature flag interactions (5 features x 5 features)" ]
+        [ rdfs:label "Test: all 25 feature combinations" ]
+        [ rdfs:label "Detect: conflicts (breaking changes, incompatibilities)" ]
+        [ rdfs:label "Resolve: via feature separation or abstraction" ]
+        [ rdfs:label "Verify: zero critical conflicts (all combinations work)" ]
+    ) ;
+    :acceptanceCriteria (
+        [ rdfs:label "All 25 feature combinations tested" ]
+        [ rdfs:label "Zero unresolved conflicts" ]
+        [ rdfs:label "Conflict resolution documented" ]
+    ) .
+
+:Task3_5_PerformanceAnalysis a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Task 3.5: Performance Attribution Analysis" ;
+    rdfs:comment "Measure contribution of each optimization to total speedup" ;
+    :agent "performance-benchmarker" ;
+    :effort [ rdf:value 25 ; rdf:unitCode "HOUR" ] ;
+    :dependencies (
+        :Task3_2_SLOVerification
+        :Task3_4_ConflictResolution
+    ) ;
+    :steps (
+        [ rdfs:label "Baseline: cargo make bench with no optimizations (120s first build)" ]
+        [ rdfs:label "Measure: contribution of each optimization individually" ]
+        [ rdfs:label "Model: combined effect (additive vs multiplicative)" ]
+        [ rdfs:label "Analyze: synergies and conflicts between optimizations" ]
+        [ rdfs:label "Document: performance attribution report" ]
+    ) ;
+    :acceptanceCriteria (
+        [ rdfs:label "Each of 5 optimizations measured individually" ]
+        [ rdfs:label "Combined performance contribution documented" ]
+        [ rdfs:label "Attribution model explains 95%+ of observed speedup" ]
+    ) .
+
+# ============================================================================
+# PHASE 4: Hardening & Monitoring (Weeks 8-9, 14 Days)
+# ============================================================================
+
+:Phase4_HardeningMonitoring a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Phase 4: Hardening & Monitoring" ;
+    rdfs:comment "Add monitoring, alerting, documentation, failsafes" ;
+    :phaseNumber 4 ;
+    :duration [ rdf:value 14 ; rdf:unitCode "DAY" ] ;
+    :startDate "2026-03-22"^^xsd:date ;
+    :endDate "2026-04-04"^^xsd:date ;
+    :parallelTeams 4 ;
+    :expectedTeamSize 6 ;
+    :totalEffortHours 120 ;
+    :dependencies :Phase3_ValidationIntegration ;
+    :tasks (
+        :Task4_1_PerformanceMonitoring
+        :Task4_2_SLOAlerting
+        :Task4_3_Documentation
+        :Task4_4_FailsafeImplementation
+    ) ;
+    :deliverables (
+        [ rdfs:label "Performance Monitoring Dashboard (Prometheus + Grafana)" ]
+        [ rdfs:label "SLO Alerting Rules (PagerDuty integration)" ]
+        [ rdfs:label "Developer Documentation & Runbook" ]
+        [ rdfs:label "Failsafe Implementation (automatic rollback)" ]
+    ) ;
+    :successCriteria (
+        [ rdfs:label "Performance metrics collected in CI (100% coverage)" ]
+        [ rdfs:label "Regressions detected within 5 minutes" ]
+        [ rdfs:label "Alerts route to on-call engineer via PagerDuty" ]
+        [ rdfs:label "Rollback to baseline in <5 minutes if critical regression" ]
+    ) .
+
+:Task4_1_PerformanceMonitoring a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Task 4.1: Performance Monitoring Dashboard" ;
+    rdfs:comment "Set up performance metrics collection and visualization" ;
+    :agent "cicd-engineer" ;
+    :effort [ rdf:value 30 ; rdf:unitCode "HOUR" ] ;
+    :dependencies :Phase3_ValidationIntegration ;
+    :steps (
+        [ rdfs:label "Create: Prometheus scrape targets for build metrics" ]
+        [ rdfs:label "Implement: metrics exporter in Makefile.toml (build time, memory, CPU)" ]
+        [ rdfs:label "Set up: Grafana dashboard with 6+ metrics graphs" ]
+        [ rdfs:label "Configure: Historical data retention (90 days)" ]
+        [ rdfs:label "Test: Metrics flow end-to-end" ]
+    ) ;
+    :acceptanceCriteria (
+        [ rdfs:label "First build time metric: 99th percentile visible" ]
+        [ rdfs:label "Incremental build time metric: visible with trend" ]
+        [ rdfs:label "Memory usage metric: peak memory recorded" ]
+        [ rdfs:label "CPU utilization metric: real-time view" ]
+        [ rdfs:label "Dashboard refreshes every 5 minutes" ]
+    ) .
+
+:Task4_2_SLOAlerting a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Task 4.2: SLO Alerting & Escalation" ;
+    rdfs:comment "Set up alerts for SLO violations" ;
+    :agent "cicd-engineer" ;
+    :effort [ rdf:value 25 ; rdf:unitCode "HOUR" ] ;
+    :dependencies :Task4_1_PerformanceMonitoring ;
+    :steps (
+        [ rdfs:label "Define: alert thresholds for each SLO" ]
+        [ rdfs:label "Implement: Prometheus alerting rules" ]
+        [ rdfs:label "Integrate: PagerDuty for incident escalation" ]
+        [ rdfs:label "Set up: Slack notifications for warnings" ]
+        [ rdfs:label "Test: alert routing and escalation" ]
+    ) ;
+    :acceptanceCriteria (
+        [ rdfs:label "First build time >20s triggers yellow alert (Slack)" ]
+        [ rdfs:label "First build time >30s triggers red alert (PagerDuty page)" ]
+        [ rdfs:label "Incremental time >3s triggers yellow alert" ]
+        [ rdfs:label "Memory usage >300MB triggers yellow alert" ]
+        [ rdfs:label "Alert resolves automatically when metric returns to normal" ]
+    ) .
+
+:Task4_3_Documentation a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Task 4.3: Developer Documentation" ;
+    rdfs:comment "Write comprehensive documentation and runbook" ;
+    :agent "api-docs" ;
+    :effort [ rdf:value 35 ; rdf:unitCode "HOUR" ] ;
+    :dependencies :Phase3_ValidationIntegration ;
+    :steps (
+        [ rdfs:label "Write: BUILD_OPTIMIZATION.md with architecture overview" ]
+        [ rdfs:label "Write: Performance tuning guide (profiles, features, caching)" ]
+        [ rdfs:label "Write: Troubleshooting runbook (regression detection, rollback)" ]
+        [ rdfs:label "Create: Architecture diagrams (5+ figures)" ]
+        [ rdfs:label "Document: Feature flags and their interactions" ]
+    ) ;
+    :acceptanceCriteria (
+        [ rdfs:label "BUILD_OPTIMIZATION.md >2000 words" ]
+        [ rdfs:label "Performance tuning guide with 10+ tips" ]
+        [ rdfs:label "Troubleshooting runbook with procedures" ]
+        [ rdfs:label "5+ architecture diagrams with explanations" ]
+    ) .
+
+:Task4_4_FailsafeImplementation a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Task 4.4: Failsafe & Rollback Implementation" ;
+    rdfs:comment "Implement automatic rollback on critical regression" ;
+    :agent "coder" ;
+    :effort [ rdf:value 30 ; rdf:unitCode "HOUR" ] ;
+    :dependencies :Task4_2_SLOAlerting ;
+    :steps (
+        [ rdfs:label "Create: baseline Cargo.toml snapshot (unoptimized)" ]
+        [ rdfs:label "Implement: feature flag to disable all optimizations" ]
+        [ rdfs:label "Add: pre-commit check to verify build time <20s" ]
+        [ rdfs:label "Implement: automatic rollback on PagerDuty alert" ]
+        [ rdfs:label "Test: rollback procedure in CI/CD environment" ]
+    ) ;
+    :acceptanceCriteria (
+        [ rdfs:label "Rollback feature flag exists and works (disables all optimizations)" ]
+        [ rdfs:label "Pre-commit check prevents regression-causing commits" ]
+        [ rdfs:label "Automatic rollback can be triggered from PagerDuty incident" ]
+        [ rdfs:label "Rollback completes in <5 minutes with zero downtime" ]
+    ) .
+
+# ============================================================================
+# PHASE 5: Release & Adoption (Week 10, 7 Days)
+# ============================================================================
+
+:Phase5_ReleaseAdoption a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Phase 5: Release & Adoption" ;
+    rdfs:comment "Production release, team training, announcement" ;
+    :phaseNumber 5 ;
+    :duration [ rdf:value 7 ; rdf:unitCode "DAY" ] ;
+    :startDate "2026-04-05"^^xsd:date ;
+    :endDate "2026-04-11"^^xsd:date ;
+    :parallelTeams 3 ;
+    :expectedTeamSize 5 ;
+    :totalEffortHours 40 ;
+    :dependencies :Phase4_HardeningMonitoring ;
+    :tasks (
+        :Task5_1_ReleaseNotes
+        :Task5_2_TeamTraining
+        :Task5_3_PublicAnnouncement
+        :Task5_4_PostReleaseMonitoring
+    ) ;
+    :deliverables (
+        [ rdfs:label "Release Notes v8.0.0 (benchmarks, migration guide)" ]
+        [ rdfs:label "Team Training Materials (slides, videos, hands-on labs)" ]
+        [ rdfs:label "Blog post announcing 8x build speedup" ]
+        [ rdfs:label "Post-release monitoring dashboard" ]
+    ) ;
+    :successCriteria (
+        [ rdfs:label "v8.0.0 released to production" ]
+        [ rdfs:label "100% of developers trained on new optimization features" ]
+        [ rdfs:label "Zero critical regressions reported in first week" ]
+    ) .
+
+:Task5_1_ReleaseNotes a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Task 5.1: Release Notes & Migration Guide" ;
+    rdfs:comment "Write comprehensive v8.0.0 release notes" ;
+    :agent "api-docs" ;
+    :effort [ rdf:value 15 ; rdf:unitCode "HOUR" ] ;
+    :dependencies :Phase4_HardeningMonitoring ;
+    :steps (
+        [ rdfs:label "Write: v8.0.0 release notes (benchmarks, changes, features)" ]
+        [ rdfs:label "Include: 3-5x speedup numbers with confidence intervals" ]
+        [ rdfs:label "Document: breaking changes and migration steps" ]
+        [ rdfs:label "Add: troubleshooting section (top 10 issues)" ]
+        [ rdfs:label "Review: 3+ team members before publication" ]
+    ) ;
+    :acceptanceCriteria (
+        [ rdfs:label "Release notes >1500 words" ]
+        [ rdfs:label "Benchmark numbers with exact percentiles" ]
+        [ rdfs:label "Migration guide for legacy builds" ]
+        [ rdfs:label "FAQ section addressing common concerns" ]
+    ) .
+
+:Task5_2_TeamTraining a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Task 5.2: Team Training & Onboarding" ;
+    rdfs:comment "Train developers on new optimization features" ;
+    :agent "backend-dev" ;
+    :effort [ rdf:value 20 ; rdf:unitCode "HOUR" ] ;
+    :dependencies :Phase4_HardeningMonitoring ;
+    :steps (
+        [ rdfs:label "Create: 45-minute training presentation" ]
+        [ rdfs:label "Create: hands-on lab (build optimization profiling)" ]
+        [ rdfs:label "Conduct: 2x live training sessions (Asia + Americas timezones)" ]
+        [ rdfs:label "Record: training video for asynchronous viewing" ]
+        [ rdfs:label "Follow up: survey to verify understanding" ]
+    ) ;
+    :acceptanceCriteria (
+        [ rdfs:label "Training presentation >40 slides" ]
+        [ rdfs:label "Hands-on lab with step-by-step instructions" ]
+        [ rdfs:label "2+ live training sessions conducted" ]
+        [ rdfs:label "Video recording published (15+ views)" ]
+        [ rdfs:label "80%+ survey respondents understand new features" ]
+    ) .
+
+:Task5_3_PublicAnnouncement a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Task 5.3: Public Announcement" ;
+    rdfs:comment "Announce v8.0.0 and build optimization achievements" ;
+    :agent "api-docs" ;
+    :effort [ rdf:value 10 ; rdf:unitCode "HOUR" ] ;
+    :dependencies :Task5_1_ReleaseNotes ;
+    :steps (
+        [ rdfs:label "Write: blog post (800+ words) on build optimization journey" ]
+        [ rdfs:label "Include: before/after benchmarks, technical details, future plans" ]
+        [ rdfs:label "Create: tweet announcing 8x speedup with metrics" ]
+        [ rdfs:label "Submit: post to Rust subreddit and news aggregators" ]
+        [ rdfs:label "Publish: across ggen website, GitHub, and social media" ]
+    ) ;
+    :acceptanceCriteria (
+        [ rdfs:label "Blog post published (800+ words)" ]
+        [ rdfs:label "Social media presence (Twitter, Reddit)" ]
+        [ rdfs:label "100+ page views on announcement" ]
+        [ rdfs:label "5+ comments/engagement on social posts" ]
+    ) .
+
+:Task5_4_PostReleaseMonitoring a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Task 5.4: Post-Release Monitoring (1-Week)" ;
+    rdfs:comment "Monitor adoption and catch issues early" ;
+    :agent "production-validator" ;
+    :effort [ rdf:value 15 ; rdf:unitCode "HOUR" ] ;
+    :dependencies :Phase5_ReleaseAdoption ;
+    :steps (
+        [ rdfs:label "Monitor: performance metrics in production (hourly)" ]
+        [ rdfs:label "Track: error rates, regression reports from users" ]
+        [ rdfs:label "Respond: to critical issues within 4 hours" ]
+        [ rdfs:label "Publish: status updates daily for first week" ]
+        [ rdfs:label "Escalate: to Phase 4 rollback if critical regression detected" ]
+    ) ;
+    :acceptanceCriteria (
+        [ rdfs:label "Zero critical regressions in first week" ]
+        [ rdfs:label "All SLOs maintained in production" ]
+        [ rdfs:label "Response time <4 hours for user-reported issues" ]
+        [ rdfs:label "80%+ user adoption within 2 weeks" ]
+    ) .
+
+# ============================================================================
+# GLOBAL SUCCESS CRITERIA
+# ============================================================================
+
+:Criteria_AllSLOsMet a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "All SLOs Must Be Met" ;
+    rdfs:comment "Performance targets achieved at end of Phase 3" ;
+    :requires (
+        [ rdfs:label "First build ≤15 seconds (vs 120s baseline)" ]
+        [ rdfs:label "Incremental build ≤2 seconds (vs 10s baseline)" ]
+        [ rdfs:label "Memory usage ≤200MB (vs 2GB baseline)" ]
+        [ rdfs:label "CPU utilization ≥85% (vs 45% baseline)" ]
+    ) .
+
+:Criteria_DeterministicBuilds a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Deterministic Builds" ;
+    rdfs:comment "Identical source produces identical binaries" ;
+    :requires (
+        [ rdfs:label "10+ sequential builds all produce same SHA-256 hash" ]
+        [ rdfs:label "10+ parallel builds all produce same SHA-256 hash" ]
+        [ rdfs:label "Reproducible across developer machines (3+ different systems)" ]
+    ) .
+
+:Criteria_ZeroRegressions a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Zero Regressions" ;
+    rdfs:comment "No loss of functionality or correctness" ;
+    :requires (
+        [ rdfs:label "All existing tests pass (0 failures)" ]
+        [ rdfs:label "No performance degradation vs Phase 1 baseline" ]
+        [ rdfs:label "No breaking API changes without deprecation period" ]
+    ) .
+
+:Criteria_ProductionReady a owl:NamedIndividual ;
+    rdf:type owl:Thing ;
+    rdfs:label "Production Ready" ;
+    rdfs:comment "Monitoring, alerting, documentation complete" ;
+    :requires (
+        [ rdfs:label "Performance monitoring dashboard operational" ]
+        [ rdfs:label "SLO alerting with PagerDuty integration" ]
+        [ rdfs:label "Rollback procedure tested and working" ]
+        [ rdfs:label "Developer documentation and training complete" ]
+    ) .
