@@ -1,0 +1,98 @@
+#!/bin/bash
+set -euo pipefail
+
+###############################################################################
+# Adversarial Test Runner for {{ module_prefix }}
+# TPS-grade black-box testing against deployed SKU
+#
+# Usage:
+#   SERVICE_URL=https://service.run.app ./run_adversarial.sh
+#   SERVICE_URL=http://localhost:8080 ./run_adversarial.sh (local testing)
+#
+# Environment variables:
+#   SERVICE_URL          - Base URL of deployed SKU (REQUIRED)
+#   CT_LOGDIR            - Output directory for test logs (default: ./ct_logs)
+#   TENANT_ID            - Test tenant ID (default: tenant_adversarial_ct)
+#   STORM_N              - Number of storm requests (default: 200)
+#   STORM_CONCURRENCY    - Concurrent workers (default: 50)
+###############################################################################
+
+: "${SERVICE_URL:?ERROR: SERVICE_URL environment variable must be set (e.g., https://service.run.app)}"
+
+export CT_LOGDIR="${CT_LOGDIR:-.ct_logs}"
+export TENANT_ID="${TENANT_ID:-tenant_adversarial_ct}"
+export STORM_N="${STORM_N:-200}"
+export STORM_CONCURRENCY="${STORM_CONCURRENCY:-50}"
+
+CT_CONFIG_FILE="${CT_LOGDIR}/ct.config"
+
+echo "================================================================================"
+echo "🚦 Running Adversarial Test Suite (TPS Black-Box)"
+echo "================================================================================"
+echo ""
+echo "Configuration:"
+echo "  MODULE:              {{ module_prefix }}"
+echo "  SKU:                 {{ sku }}"
+echo "  SERVICE_URL:         $SERVICE_URL"
+echo "  TENANT_ID:           $TENANT_ID"
+echo "  STORM_N:             $STORM_N"
+echo "  STORM_CONCURRENCY:   $STORM_CONCURRENCY"
+echo "  LOG_DIR:             $CT_LOGDIR"
+echo ""
+
+# Create log directory
+mkdir -p "$CT_LOGDIR"
+
+# Generate ct.config with environment variable overrides
+cat > "$CT_CONFIG_FILE" <<EOF
+[
+  {autonomics, [
+    {service_url, "$SERVICE_URL"},
+    {tenant_id, <<"$TENANT_ID">>},
+    {timeout_ms, 6000},
+    {storm_n, $STORM_N},
+    {storm_concurrency, $STORM_CONCURRENCY},
+    {max_body_bytes, 1048576}
+  ]}
+].
+EOF
+
+echo "✓ Generated ct.config"
+echo ""
+
+# Run tests
+echo "Running tests..."
+echo ""
+
+rebar3 ct \
+  --suite apps/{{ module_prefix }}/test/{{ module_prefix }}_adversarial_SUITE.erl \
+  --config "$CT_CONFIG_FILE" \
+  --name {{ module_prefix }}_adversarial_ct \
+  --logdir "$CT_LOGDIR"
+
+TEST_RESULT=$?
+
+echo ""
+echo "================================================================================"
+if [ $TEST_RESULT -eq 0 ]; then
+  echo "✅ ALL ADVERSARIAL TESTS PASSED"
+  echo ""
+  echo "Test Coverage:"
+  echo "  ✓ Baseline: health endpoint"
+  echo "  ✓ Pub/Sub: invalid JSON, missing fields, invalid base64, empty values"
+  echo "  ✓ Marketplace: invalid transitions, rapid flips"
+  echo "  ✓ Signals: without entitlement, missing required keys"
+  echo "  ✓ Chaos: concurrent storms ({{ storm_n | default(value=200) }} requests)"
+  echo "  ✓ Replay: identical payload repeated 25x"
+  echo "  ✓ Payload abuse: 2MB oversized"
+  echo ""
+  echo "Logs: $CT_LOGDIR"
+  echo "================================================================================"
+  exit 0
+else
+  echo "❌ ADVERSARIAL TESTS FAILED (exit code: $TEST_RESULT)"
+  echo ""
+  echo "Check logs in: $CT_LOGDIR"
+  echo "================================================================================"
+  exit $TEST_RESULT
+fi
