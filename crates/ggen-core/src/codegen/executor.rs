@@ -182,6 +182,85 @@ pub struct ValidationCheck {
 }
 
 // ============================================================================
+// Sync Options
+// ============================================================================
+
+/// Output format for sync results
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum OutputFormat {
+    /// Human-readable text format
+    Text,
+    /// Machine-readable JSON format
+    Json,
+}
+
+impl Default for OutputFormat {
+    fn default() -> Self {
+        Self::Text
+    }
+}
+
+/// Options for sync command execution
+#[derive(Debug, Clone)]
+pub struct SyncOptions {
+    /// Path to ggen.toml manifest
+    pub manifest_path: PathBuf,
+
+    /// Verbose output
+    pub verbose: bool,
+
+    /// Dry-run mode (no file writes)
+    pub dry_run: bool,
+
+    /// Validate-only mode (pre-flight checks only)
+    pub validate_only: bool,
+
+    /// Force regeneration (ignore cache)
+    pub force: bool,
+
+    /// Generate audit trail
+    pub audit: bool,
+
+    /// Use incremental cache
+    pub use_cache: bool,
+
+    /// Watch mode (continuous regeneration)
+    pub watch: bool,
+
+    /// Output format
+    pub output_format: OutputFormat,
+
+    /// Selected rule names to execute (None = all rules)
+    pub selected_rules: Option<Vec<String>>,
+
+    /// Output directory override (None = use manifest default)
+    pub output_dir: Option<PathBuf>,
+
+    /// Cache directory override (None = use output_dir/.ggen/cache)
+    pub cache_dir: Option<PathBuf>,
+}
+
+impl Default for SyncOptions {
+    fn default() -> Self {
+        Self {
+            manifest_path: PathBuf::from("ggen.toml"),
+            verbose: false,
+            dry_run: false,
+            validate_only: false,
+            force: false,
+            audit: false,
+            use_cache: true,
+            watch: false,
+            output_format: OutputFormat::default(),
+            selected_rules: None,
+            output_dir: None,
+            cache_dir: None,
+        }
+    }
+}
+
+// ============================================================================
 // Sync Executor
 // ============================================================================
 

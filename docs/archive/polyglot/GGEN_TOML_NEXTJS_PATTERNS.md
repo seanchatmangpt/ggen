@@ -272,7 +272,6 @@ model = "claude-3-opus-20240229"
 # Template system configuration
 [templates]
 directory = "templates"
-output_directory = "generated"
 idempotent = true
 
 # RDF/SPARQL configuration

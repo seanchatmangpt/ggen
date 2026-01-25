@@ -195,7 +195,6 @@ description = "E-commerce data models with Zod validation"
 
 [templates]
 directory = "templates"
-output_directory = "src/generated"
 backup_enabled = true
 idempotent = true
 
@@ -217,7 +216,6 @@ enabled = false  # Skip tests in dev
 ```toml
 [templates]
 directory = "templates"
-output_directory = "src/generated"
 backup_enabled = true
 idempotent = true
 
@@ -613,7 +611,6 @@ model = "gpt-3.5-turbo"  # Cost-effective
 
 [templates]
 directory = "templates"
-output_directory = "src/generated"
 
 [rdf]
 base_uri = "https://example.com/"

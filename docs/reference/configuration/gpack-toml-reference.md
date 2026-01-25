@@ -206,7 +206,7 @@ Define template files and their metadata.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `description` | String | Yes | Template purpose |
-| `output` | String | No | Output path (relative to output_directory) |
+| `output` | String | No | Output path (relative to project root) |
 | `required` | Boolean | No | Template is required (default: true) |
 | `variables` | Table | No | Required template variables |
 

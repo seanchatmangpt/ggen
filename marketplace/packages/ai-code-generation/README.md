@@ -184,7 +184,6 @@ max_iterations = 3
 
 [templates]
 directory = "templates"
-output_directory = "generated"
 backup_enabled = true
 
 [templates.rust]

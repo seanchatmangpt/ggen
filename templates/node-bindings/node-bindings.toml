@@ -24,7 +24,6 @@ rdfs = "http://www.w3.org/2000/01/rdf-schema#"
 # Template configuration
 [templates]
 directory = "templates/node-bindings"
-output_directory = "generated/node-bindings"
 
 # Node.js binding configuration
 [bindings]

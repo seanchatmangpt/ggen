@@ -31,7 +31,6 @@ include_examples = true
 
 [templates]
 directory = "templates"
-output_directory = "generated"
 backup_enabled = true
 
 [templates.rust]

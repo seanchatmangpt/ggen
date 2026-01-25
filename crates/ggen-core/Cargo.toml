@@ -59,6 +59,7 @@ tracing-opentelemetry = { workspace = true, optional = true }
 pqcrypto-mldsa = "0.1"  # ML-DSA (maintained replacement for Dilithium)
 pqcrypto-traits = "0.3"
 base64 = "0.22"
+hex = "0.4"
 # LLM integration dependencies
 async-trait = "0.1"
 futures = "0.3"

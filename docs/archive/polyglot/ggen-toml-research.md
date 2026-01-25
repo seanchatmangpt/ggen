@@ -262,7 +262,6 @@ sparql = """
 [templates]
 # Existing feature - enhance with ontology
 directory = "templates"
-output_directory = "generated"
 
 # NEW: Template discovery via ontology
 [templates.discovery]
@@ -711,7 +710,6 @@ requires = { logging = ["std"] }
 ```toml
 [templates]
 directory = "templates"
-output_directory = "generated"
 backup_enabled = true
 
 # NEW: Template discovery from marketplace
