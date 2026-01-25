@@ -1,0 +1,45 @@
+###############################################################################
+# Marketplace Callback Security: HMAC via Google Secret Manager
+# TPS: Control-plane auth even with public /marketplace endpoint
+###############################################################################
+
+resource "google_project_service" "secret_api" {
+  project            = var.project_id
+  service            = "secretmanager.googleapis.com"
+  disable_on_destroy = false
+}
+
+# HMAC secret for verifying Marketplace callbacks
+resource "google_secret_manager_secret" "marketplace_hmac" {
+  project   = var.project_id
+  secret_id = "${var.module_prefix}-marketplace-hmac"
+
+  replication {
+    auto {}
+  }
+
+  depends_on = [google_project_service.secret_api]
+}
+
+# Store HMAC secret version
+resource "google_secret_manager_secret_version" "marketplace_hmac_v1" {
+  secret      = google_secret_manager_secret.marketplace_hmac.id
+  secret_data = var.marketplace_hmac_secret
+}
+
+# Allow Cloud Run runtime service account to read HMAC secret
+resource "google_secret_manager_secret_iam_member" "runtime_read_hmac" {
+  secret_id = google_secret_manager_secret.marketplace_hmac.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${var.runtime_service_account}"
+}
+
+output "hmac_secret_name" {
+  description = "Secret Manager secret name"
+  value       = google_secret_manager_secret.marketplace_hmac.name
+}
+
+output "hmac_secret_ref" {
+  description = "Secret reference for Cloud Run env injection"
+  value       = google_secret_manager_secret.marketplace_hmac.id
+}

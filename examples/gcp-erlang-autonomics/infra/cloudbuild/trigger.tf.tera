@@ -1,0 +1,46 @@
+###############################################################################
+# Cloud Build Trigger: GitHub → Build Image → Deploy Cloud Run
+# TPS: Automated release pipeline with gates
+###############################################################################
+
+resource "google_project_service" "cloudbuild_api" {
+  project            = var.project_id
+  service            = "cloudbuild.googleapis.com"
+  disable_on_destroy = false
+}
+
+resource "google_cloudbuild_trigger" "sku_release" {
+  project = var.project_id
+  name    = "${var.module_prefix}-release-trigger"
+  description = "Release pipeline for {{ sku }}"
+
+  github {
+    owner = var.github_owner
+    name  = var.github_repo
+    push {
+      branch = var.branch_regex
+    }
+  }
+
+  filename = var.cloudbuild_filename
+
+  substitutions = {
+    _SERVICE = var.module_prefix
+    _REGION  = var.region
+    _REPO    = var.artifact_repo_id
+  }
+
+  service_account = var.cloud_build_service_account
+
+  depends_on = [google_project_service.cloudbuild_api]
+}
+
+output "trigger_name" {
+  description = "Cloud Build trigger name"
+  value       = google_cloudbuild_trigger.sku_release.name
+}
+
+output "trigger_id" {
+  description = "Cloud Build trigger ID"
+  value       = google_cloudbuild_trigger.sku_release.id
+}

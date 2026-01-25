@@ -1,0 +1,59 @@
+# Example Terraform variables for Autonomics catalog
+# Rename to terraform.tfvars and customize for your environment
+
+project_id = "my-gcp-project"
+region     = "us-central1"
+env        = "prod"
+
+artifact_repo_id = "autonomics-skus"
+
+# GitHub integration for Cloud Build triggers
+github_owner  = "my-org"
+github_repo   = "my-autonomics-repo"
+github_branch_regex = "^main$"
+
+# Firestore (comment out if already created)
+create_firestore = false
+firestore_location = "nam5"
+
+# Feature flags
+enable_cloud_build_triggers = true
+enable_marketplace_hmac     = true
+
+# Common labels for all resources
+common_labels = {
+  "team"    = "platform"
+  "project" = "autonomics"
+  "managed_by" = "terraform"
+}
+
+# SKU Configurations
+# Each entry creates a complete Cloud Run + Pub/Sub + Firestore setup
+skus = {
+  "cost_guard" = {
+    module_prefix            = "cost_guard"
+    sku_id                   = "gcp.autonomic.cost_guard.v1"
+    image_uri                = "us-central1-docker.pkg.dev/my-gcp-project/autonomics-skus/cost_guard:latest"
+    action_groups            = ["cloudrun"]
+    allow_marketplace_public = true
+    marketplace_hmac_secret  = "abc123def456..." # Generate: openssl rand -hex 32
+  }
+
+  "deploy_rollback_guard" = {
+    module_prefix            = "rollback_guard"
+    sku_id                   = "gcp.autonomic.rollback_guard.v1"
+    image_uri                = "us-central1-docker.pkg.dev/my-gcp-project/autonomics-skus/rollback_guard:latest"
+    action_groups            = ["cloudrun", "scheduler"]
+    allow_marketplace_public = true
+    marketplace_hmac_secret  = "xyz789uvw012..."
+  }
+
+  "backlog_pressure_valve" = {
+    module_prefix            = "pressure_valve"
+    sku_id                   = "gcp.autonomic.backlog_pressure_valve.v1"
+    image_uri                = "us-central1-docker.pkg.dev/my-gcp-project/autonomics-skus/pressure_valve:latest"
+    action_groups            = ["pubsub"]
+    allow_marketplace_public = true
+    marketplace_hmac_secret  = "pqr345stu678..."
+  }
+}
