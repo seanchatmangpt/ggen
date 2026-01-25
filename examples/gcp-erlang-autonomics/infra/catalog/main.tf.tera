@@ -1,0 +1,154 @@
+terraform {
+  required_version = ">= 1.5.0"
+  required_providers {
+    google = {
+      source  = "hashicorp/google"
+      version = ">= 5.30.0"
+    }
+  }
+
+  backend "gcs" {
+    bucket = "{{ terraform_state_bucket }}"
+    prefix = "autonomics/catalog"
+  }
+}
+
+provider "google" {
+  project = var.project_id
+  region  = var.region
+}
+
+###############################################################################
+# Autonomics SKU Catalog Root Module
+# Manages N SKUs with shared infrastructure
+# TPS: One root module, N SKU instances
+###############################################################################
+
+# Cloud Build service account (shared)
+resource "google_service_account" "cloud_build" {
+  project      = var.project_id
+  account_id   = "autonomics-cloud-build"
+  display_name = "Cloud Build for Autonomics SKUs"
+}
+
+# Cloud Build permissions
+resource "google_project_iam_member" "cloud_build_logs" {
+  project = var.project_id
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${google_service_account.cloud_build.email}"
+}
+
+resource "google_project_iam_member" "cloud_build_run_deploy" {
+  project = var.project_id
+  role    = "roles/run.admin"
+  member  = "serviceAccount:${google_service_account.cloud_build.email}"
+}
+
+# Shared Artifact Registry
+module "artifact_registry" {
+  source = "../shared"
+
+  project_id                     = var.project_id
+  region                         = var.region
+  env                            = var.env
+  repo_id                        = var.artifact_repo_id
+  cloud_build_service_account    = google_service_account.cloud_build.email
+  cloud_run_service_account      = "" # Will be set per SKU
+}
+
+# Each SKU is a module instance
+module "skus" {
+  for_each = var.skus
+
+  source = "../modules/gcp_erlang_autonomics_sku"
+
+  project_id    = var.project_id
+  region        = var.region
+
+  module_prefix = each.value.module_prefix
+  sku_id        = each.value.sku_id
+  image_uri     = each.value.image_uri
+
+  action_groups = each.value.action_groups
+
+  create_firestore = var.create_firestore
+  firestore_location = var.firestore_location
+
+  create_artifact_repo = false # Use shared repo
+
+  allow_unauthenticated_marketplace = each.value.allow_marketplace_public
+
+  labels = merge(
+    var.common_labels,
+    {
+      env      = var.env
+      catalog  = "autonomics"
+      sku_name = each.value.module_prefix
+    }
+  )
+}
+
+# Cloud Build triggers (one per SKU or shared)
+module "cloud_build_triggers" {
+  for_each = var.enable_cloud_build_triggers ? var.skus : {}
+
+  source = "../cloudbuild"
+
+  project_id                  = var.project_id
+  region                      = var.region
+  module_prefix               = each.value.module_prefix
+  artifact_repo_id            = var.artifact_repo_id
+  github_owner                = var.github_owner
+  github_repo                 = var.github_repo
+  branch_regex                = var.github_branch_regex
+  cloud_build_service_account = google_service_account.cloud_build.email
+}
+
+# Marketplace security (one HMAC per SKU)
+module "marketplace_security" {
+  for_each = var.enable_marketplace_hmac ? var.skus : {}
+
+  source = "../security"
+
+  project_id                 = var.project_id
+  module_prefix              = each.value.module_prefix
+  runtime_service_account    = module.skus[each.key].runtime_service_account
+  marketplace_hmac_secret    = each.value.marketplace_hmac_secret
+}
+
+###############################################################################
+# Outputs: Catalog-level
+###############################################################################
+
+output "artifact_registry_url" {
+  description = "Shared Artifact Registry URL"
+  value       = module.artifact_registry.repo_url
+}
+
+output "sku_service_urls" {
+  description = "Cloud Run service URLs per SKU"
+  value = {
+    for k, m in module.skus : k => m.service_url
+  }
+}
+
+output "sku_pubsub_topics" {
+  description = "Pub/Sub topic names per SKU"
+  value = {
+    for k, m in module.skus : k => m.topic_name
+  }
+}
+
+output "sku_service_accounts" {
+  description = "Cloud Run runtime service accounts per SKU"
+  value = {
+    for k, m in module.skus : k => m.runtime_service_account
+  }
+}
+
+output "cloud_build_triggers" {
+  description = "Cloud Build trigger IDs per SKU"
+  value = {
+    for k, m in module.cloud_build_triggers : k => m.trigger_id
+  }
+}

@@ -1,0 +1,20 @@
+variable "project_id" {
+  type        = string
+  description = "GCP Project ID"
+}
+
+variable "module_prefix" {
+  type        = string
+  description = "SKU module prefix"
+}
+
+variable "runtime_service_account" {
+  type        = string
+  description = "Cloud Run service account email"
+}
+
+variable "marketplace_hmac_secret" {
+  type        = string
+  sensitive   = true
+  description = "HMAC secret for Marketplace callbacks (hex-encoded)"
+}

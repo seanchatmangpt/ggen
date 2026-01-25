@@ -1,0 +1,33 @@
+variable "project_id" {
+  type        = string
+  description = "GCP Project ID"
+}
+
+variable "region" {
+  type        = string
+  default     = "us-central1"
+  description = "GCP region"
+}
+
+variable "env" {
+  type        = string
+  default     = "prod"
+  description = "Environment (prod/staging/dev)"
+}
+
+variable "repo_id" {
+  type        = string
+  default     = "autonomics-skus"
+  description = "Artifact Registry repository ID"
+}
+
+variable "cloud_build_service_account" {
+  type        = string
+  description = "Cloud Build service account email (for image push)"
+}
+
+variable "cloud_run_service_account" {
+  type        = string
+  description = "Cloud Run service account email (for image pull)"
+  default     = ""
+}

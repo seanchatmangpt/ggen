@@ -1,0 +1,22 @@
+variable "project_id" {
+  type        = string
+  description = "GCP Project ID"
+}
+
+variable "region" {
+  type        = string
+  default     = "us-central1"
+  description = "GCP region for state bucket"
+}
+
+variable "env" {
+  type        = string
+  default     = "prod"
+  description = "Environment (prod/staging/dev)"
+}
+
+variable "state_bucket_suffix" {
+  type        = string
+  default     = "tfstate"
+  description = "Suffix for state bucket name"
+}
