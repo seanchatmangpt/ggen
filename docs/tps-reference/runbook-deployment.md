@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Deployment Runbook for TPS Systems](#deployment-runbook-for-tps-systems)
+  - [Pre-Deployment Checklist (24 hours before)](#pre-deployment-checklist-24-hours-before)
+  - [Deployment Strategy: Canary + Staging + Production](#deployment-strategy-canary--staging--production)
+    - [Phase 1: Canary Deployment (10% of traffic)](#phase-1-canary-deployment-10-of-traffic)
+    - [Phase 2: Staging Deployment (50% of traffic)](#phase-2-staging-deployment-50-of-traffic)
+    - [Phase 3: Production Deployment (100% of traffic)](#phase-3-production-deployment-100-of-traffic)
+  - [Deployment Monitoring](#deployment-monitoring)
+    - [During Deployment](#during-deployment)
+    - [Rollback Procedure](#rollback-procedure)
+  - [Deployment Decision Tree](#deployment-decision-tree)
+  - [Deployment Checklist Template](#deployment-checklist-template)
+    - [Pre-Deployment (24h before)](#pre-deployment-24h-before)
+    - [Canary (10% traffic)](#canary-10-traffic)
+    - [Staging (50% traffic)](#staging-50-traffic)
+    - [Production (100% traffic)](#production-100-traffic)
+    - [Post-Deployment](#post-deployment)
+    - [Lessons Learned](#lessons-learned)
+  - [Emergency Deployment (Hotfix)](#emergency-deployment-hotfix)
+    - [Emergency Deployment Procedure](#emergency-deployment-procedure)
+  - [Database Migrations During Deployment](#database-migrations-during-deployment)
+  - [Safe Defaults for Deployment](#safe-defaults-for-deployment)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Deployment Runbook for TPS Systems
 
 **Version**: 1.0

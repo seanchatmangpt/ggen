@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TPS Frequently Asked Questions (FAQ)](#tps-frequently-asked-questions-faq)
+  - [Design Philosophy Questions](#design-philosophy-questions)
+    - [Q: Why does the system reject work instead of queueing?](#q-why-does-the-system-reject-work-instead-of-queueing)
+    - [Q: Why do we need different worker pools?](#q-why-do-we-need-different-worker-pools)
+    - [Q: What's the difference between circuit breaker and load limiter?](#q-whats-the-difference-between-circuit-breaker-and-load-limiter)
+    - [Q: How do I know if my system is following TPS?](#q-how-do-i-know-if-my-system-is-following-tps)
+    - [Q: Can TPS be used outside manufacturing?](#q-can-tps-be-used-outside-manufacturing)
+  - [Operational Questions](#operational-questions)
+    - [Q: Why is observability so important?](#q-why-is-observability-so-important)
+    - [Q: How do I get alerts for every problem?](#q-how-do-i-get-alerts-for-every-problem)
+    - [Q: Why is SLO violation important?](#q-why-is-slo-violation-important)
+    - [Q: What if my system is doing everything right but still failing?](#q-what-if-my-system-is-doing-everything-right-but-still-failing)
+  - [Troubleshooting Questions](#troubleshooting-questions)
+    - [Q: My circuit breaker keeps opening and closing. Is that bad?](#q-my-circuit-breaker-keeps-opening-and-closing-is-that-bad)
+    - [Q: What should I do when auto-scaling isn't keeping up?](#q-what-should-i-do-when-auto-scaling-isnt-keeping-up)
+    - [Q: Error rate spiked but circuit breaker is still closed. What's happening?](#q-error-rate-spiked-but-circuit-breaker-is-still-closed-whats-happening)
+  - [Advanced Questions](#advanced-questions)
+    - [Q: Should I use circuit breaker or bulkhead pattern?](#q-should-i-use-circuit-breaker-or-bulkhead-pattern)
+    - [Q: How do I tune circuit breaker thresholds?](#q-how-do-i-tune-circuit-breaker-thresholds)
+    - [Q: How do I know if I need to refactor my system?](#q-how-do-i-know-if-i-need-to-refactor-my-system)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TPS Frequently Asked Questions (FAQ)
 
 **Version**: 1.0

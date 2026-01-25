@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Capacity Planning Runbook for TPS Systems](#capacity-planning-runbook-for-tps-systems)
+  - [Capacity Planning Process](#capacity-planning-process)
+    - [Step 1: Gather Historical Data](#step-1-gather-historical-data)
+    - [Step 2: Identify Growth Trends](#step-2-identify-growth-trends)
+    - [Step 3: Project Future Demand](#step-3-project-future-demand)
+    - [Step 4: Right-Size Infrastructure](#step-4-right-size-infrastructure)
+      - [Workers Calculation](#workers-calculation)
+      - [Queue Buffer Calculation](#queue-buffer-calculation)
+      - [Memory Calculation](#memory-calculation)
+      - [CPU Calculation](#cpu-calculation)
+      - [Disk Calculation](#disk-calculation)
+    - [Step 5: Cost Modeling](#step-5-cost-modeling)
+    - [Step 6: Scaling Strategy](#step-6-scaling-strategy)
+    - [Step 7: Capacity Monitoring](#step-7-capacity-monitoring)
+  - [Right-Sizing: Current vs Optimal](#right-sizing-current-vs-optimal)
+    - [Identifying Over-Provisioning](#identifying-over-provisioning)
+    - [Identifying Under-Provisioning](#identifying-under-provisioning)
+  - [Scaling Decision Tree](#scaling-decision-tree)
+  - [Example: Full Capacity Plan](#example-full-capacity-plan)
+    - [Current State (January 2026)](#current-state-january-2026)
+    - [Forecast (One Year)](#forecast-one-year)
+    - [Scaling Plan](#scaling-plan)
+    - [Budget Approval](#budget-approval)
+    - [Monitoring Plan](#monitoring-plan)
+  - [Optimization Strategies](#optimization-strategies)
+    - [Strategy 1: More Efficient Workers](#strategy-1-more-efficient-workers)
+    - [Strategy 2: Queue Optimization](#strategy-2-queue-optimization)
+    - [Strategy 3: Traffic Smoothing](#strategy-3-traffic-smoothing)
+    - [Strategy 4: Regional Distribution](#strategy-4-regional-distribution)
+  - [Cost Optimization Checklist](#cost-optimization-checklist)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Capacity Planning Runbook for TPS Systems
 
 **Version**: 1.0

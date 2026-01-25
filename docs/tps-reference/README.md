@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TPS Reference Documentation](#tps-reference-documentation)
+  - [Overview](#overview)
+  - [Quick Navigation](#quick-navigation)
+    - [Getting Started](#getting-started)
+    - [Key Sections](#key-sections)
+      - [Architecture](#architecture)
+      - [Running the System](#running-the-system)
+      - [The 6 TPS Principles](#the-6-tps-principles)
+      - [Operations & Monitoring](#operations--monitoring)
+      - [Load Testing](#load-testing)
+      - [Integration](#integration)
+      - [Troubleshooting](#troubleshooting)
+  - [Project Structure](#project-structure)
+  - [Quick Reference: Make Commands](#quick-reference-make-commands)
+  - [Quick Reference: API Endpoints](#quick-reference-api-endpoints)
+  - [Technology Stack](#technology-stack)
+  - [Performance Targets](#performance-targets)
+  - [Getting Help](#getting-help)
+  - [Common Tasks](#common-tasks)
+    - [Start the system](#start-the-system)
+    - [Send a test signal](#send-a-test-signal)
+    - [Run load test](#run-load-test)
+    - [View dashboard](#view-dashboard)
+    - [Check logs](#check-logs)
+    - [Stop everything](#stop-everything)
+  - [Documentation Files](#documentation-files)
+  - [Key Concepts](#key-concepts)
+    - [Supervision Tree](#supervision-tree)
+    - [Signal Processing Pipeline](#signal-processing-pipeline)
+    - [Observable System](#observable-system)
+  - [Next Steps](#next-steps)
+  - [Support](#support)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TPS Reference Documentation
 
 ## Overview

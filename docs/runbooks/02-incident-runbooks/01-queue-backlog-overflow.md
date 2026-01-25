@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Runbook 1: Queue Backlog Overflow](#runbook-1-queue-backlog-overflow)
+  - [Quick Reference](#quick-reference)
+  - [Detection Mechanism](#detection-mechanism)
+    - [Automated Alerts](#automated-alerts)
+    - [Dashboard References](#dashboard-references)
+  - [Root Cause Analysis (5 Whys)](#root-cause-analysis-5-whys)
+  - [Incident Timeline (Typical)](#incident-timeline-typical)
+  - [Automated Recovery Sequence](#automated-recovery-sequence)
+  - [Manual Intervention (If Auto-Recovery Fails)](#manual-intervention-if-auto-recovery-fails)
+    - [Step 1: Diagnose Bottleneck](#step-1-diagnose-bottleneck)
+    - [Step 2: Identify Root Cause](#step-2-identify-root-cause)
+    - [Step 3: Apply Manual Mitigation](#step-3-apply-manual-mitigation)
+  - [Verification & Recovery](#verification--recovery)
+  - [Rollback](#rollback)
+  - [Receipt Contract](#receipt-contract)
+    - [Detection Receipt](#detection-receipt)
+    - [Mitigation Applied Receipt](#mitigation-applied-receipt)
+    - [Resolution Receipt](#resolution-receipt)
+  - [Prevention Strategies](#prevention-strategies)
+  - [Training & Acknowledgment](#training--acknowledgment)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Runbook 1: Queue Backlog Overflow
 
 **Severity**: Sev2 (High - Partial Outage)

@@ -1,3 +1,51 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TAI Security: Production-Grade Security Infrastructure](#tai-security-production-grade-security-infrastructure)
+  - [Overview](#overview)
+  - [Architecture](#architecture)
+    - [Five-Layer Security Model](#five-layer-security-model)
+  - [Module Reference](#module-reference)
+    - [1. Vault Client (`vault_client.rs`)](#1-vault-client-vault_clientrs)
+    - [2. Cloud KMS Client (`cloud_kms.rs`)](#2-cloud-kms-client-cloud_kmsrs)
+    - [3. mTLS Manager (`mtls.rs`)](#3-mtls-manager-mtlsrs)
+    - [4. Secret Rotation Manager (`secret_rotation.rs`)](#4-secret-rotation-manager-secret_rotationrs)
+    - [5. Encryption Manager (`encryption.rs`)](#5-encryption-manager-encryptionrs)
+  - [Security Principles](#security-principles)
+    - [1. Defense in Depth](#1-defense-in-depth)
+    - [2. Least Privilege](#2-least-privilege)
+    - [3. Secrets Never in Code](#3-secrets-never-in-code)
+    - [4. Automatic Rotation](#4-automatic-rotation)
+    - [5. Observable](#5-observable)
+  - [Deployment Guide](#deployment-guide)
+    - [1. Initialize Vault](#1-initialize-vault)
+    - [2. Configure Cloud KMS](#2-configure-cloud-kms)
+    - [3. Configure mTLS](#3-configure-mtls)
+    - [4. Application Configuration](#4-application-configuration)
+  - [Best Practices](#best-practices)
+    - [1. Key Management](#1-key-management)
+    - [2. Secret Management](#2-secret-management)
+    - [3. TLS/mTLS](#3-tlsmtls)
+    - [4. Audit Logging](#4-audit-logging)
+    - [5. Incident Response](#5-incident-response)
+  - [Threat Model](#threat-model)
+    - [Addressed Threats](#addressed-threats)
+    - [Assumed Trust Boundaries](#assumed-trust-boundaries)
+  - [Performance Characteristics](#performance-characteristics)
+    - [Latency SLOs](#latency-slos)
+    - [Throughput](#throughput)
+  - [Compliance](#compliance)
+  - [Integration Examples](#integration-examples)
+    - [Database Credentials Rotation](#database-credentials-rotation)
+    - [Encryption at Rest](#encryption-at-rest)
+    - [Service-to-Service Authentication](#service-to-service-authentication)
+  - [Troubleshooting](#troubleshooting)
+    - [Common Issues](#common-issues)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TAI Security: Production-Grade Security Infrastructure
 
 **Version**: 0.1.0

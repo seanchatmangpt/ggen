@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TPS Troubleshooting Decision Trees](#tps-troubleshooting-decision-trees)
+  - [Decision Tree 1: Queue is Growing Indefinitely](#decision-tree-1-queue-is-growing-indefinitely)
+    - [Step 2: Check Processing Rate](#step-2-check-processing-rate)
+    - [Step 3: Compare Incoming vs Processing Rate](#step-3-compare-incoming-vs-processing-rate)
+    - [Step 4: Determine Root Cause](#step-4-determine-root-cause)
+    - [Step 5A: Check Downstream Service](#step-5a-check-downstream-service)
+    - [Step 5B: Check Processing Task Time](#step-5b-check-processing-task-time)
+    - [Step 5C: Check Queue Enqueue Time](#step-5c-check-queue-enqueue-time)
+  - [Decision Tree 2: Circuit Breaker is Open](#decision-tree-2-circuit-breaker-is-open)
+    - [Step 2: Understand Why Circuit Opened](#step-2-understand-why-circuit-opened)
+    - [Remediation: Downstream Service Down](#remediation-downstream-service-down)
+    - [Remediation: Downstream Service Slow](#remediation-downstream-service-slow)
+    - [Remediation: Downstream Service Broken](#remediation-downstream-service-broken)
+  - [Decision Tree 3: Error Rate is High](#decision-tree-3-error-rate-is-high)
+    - [Step 2: Categorize Error Types](#step-2-categorize-error-types)
+  - [Decision Tree 4: No Processing is Happening](#decision-tree-4-no-processing-is-happening)
+    - [Step 2: Check Worker Pods](#step-2-check-worker-pods)
+    - [Step 3: Check Worker Health](#step-3-check-worker-health)
+    - [Step 4: Check Message Queue (Kanban)](#step-4-check-message-queue-kanban)
+    - [Step 5: Force Recovery](#step-5-force-recovery)
+  - [Decision Tree 5: Latency Spike](#decision-tree-5-latency-spike)
+    - [Step 2: Identify Source of Latency](#step-2-identify-source-of-latency)
+    - [If API is Slow](#if-api-is-slow)
+    - [If Queue is Slow](#if-queue-is-slow)
+    - [If Worker Dequeue Wait is High](#if-worker-dequeue-wait-is-high)
+    - [If ProcessWork is Slow](#if-processwork-is-slow)
+    - [If Jidoka.Check is Slow](#if-jidokacheck-is-slow)
+  - [Decision Tree 6: Scaling Issues](#decision-tree-6-scaling-issues)
+    - [Step 2: Identify Remaining Bottleneck](#step-2-identify-remaining-bottleneck)
+    - [If Broker is Bottleneck](#if-broker-is-bottleneck)
+    - [If Downstream is Bottleneck](#if-downstream-is-bottleneck)
+    - [If Database is Bottleneck](#if-database-is-bottleneck)
+  - [Emergency Procedures](#emergency-procedures)
+    - [Complete System Failure (All Pods Down)](#complete-system-failure-all-pods-down)
+    - [Data Loss (Queue Lost)](#data-loss-queue-lost)
+    - [Performance Degradation (Can't Root Cause)](#performance-degradation-cant-root-cause)
+  - [Summary Table: Quick Lookup](#summary-table-quick-lookup)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TPS Troubleshooting Decision Trees
 
 **Version**: 1.0

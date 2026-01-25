@@ -1,3 +1,58 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TAI Pattern Reference Implementation - Complete Guide](#tai-pattern-reference-implementation---complete-guide)
+  - [Table of Contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Philosophy](#philosophy)
+    - [Why TAI?](#why-tai)
+    - [The TAI Equation](#the-tai-equation)
+    - [Core Principles](#core-principles)
+  - [Architecture](#architecture)
+    - [High-Level System Design](#high-level-system-design)
+    - [Component Responsibilities](#component-responsibilities)
+  - [The TAI Pattern](#the-tai-pattern)
+    - [Phase 1: Signal Reception](#phase-1-signal-reception)
+    - [Phase 2: Policy Evaluation](#phase-2-policy-evaluation)
+    - [Phase 3: Action Execution (with Jidoka)](#phase-3-action-execution-with-jidoka)
+    - [Phase 4: Async Processing (Kanban)](#phase-4-async-processing-kanban)
+    - [Phase 5: Response Generation](#phase-5-response-generation)
+  - [TPS Principles Applied](#tps-principles-applied)
+    - [1. Jidoka (Autonomation)](#1-jidoka-autonomation)
+    - [2. Kanban (Pull-Based Queuing)](#2-kanban-pull-based-queuing)
+    - [3. Heijunka (Load Leveling)](#3-heijunka-load-leveling)
+    - [4. Kaizen (Continuous Improvement)](#4-kaizen-continuous-improvement)
+    - [5. Andon (Visual Signals)](#5-andon-visual-signals)
+  - [Reference Systems](#reference-systems)
+    - [System 1: Payment Processing](#system-1-payment-processing)
+    - [System 2: Deployment Orchestration](#system-2-deployment-orchestration)
+  - [Implementation Patterns](#implementation-patterns)
+    - [Pattern 1: Policy as Code](#pattern-1-policy-as-code)
+    - [Pattern 2: Circuit Breaker with Recovery](#pattern-2-circuit-breaker-with-recovery)
+    - [Pattern 3: Metrics Collection](#pattern-3-metrics-collection)
+    - [Pattern 4: Observability with Tracing](#pattern-4-observability-with-tracing)
+  - [Best Practices](#best-practices)
+    - [1. Policy Design](#1-policy-design)
+    - [2. Circuit Breaker Configuration](#2-circuit-breaker-configuration)
+    - [3. Metrics Design](#3-metrics-design)
+    - [4. Testing Strategy](#4-testing-strategy)
+    - [5. Production Deployment](#5-production-deployment)
+  - [Troubleshooting](#troubleshooting)
+    - [Problem 1: Circuit Breaker Stuck Open](#problem-1-circuit-breaker-stuck-open)
+    - [Problem 2: High Fraud False Positives](#problem-2-high-fraud-false-positives)
+    - [Problem 3: Slow Deployments](#problem-3-slow-deployments)
+    - [Problem 4: Metrics Dashboard Empty](#problem-4-metrics-dashboard-empty)
+  - [Advanced Topics](#advanced-topics)
+    - [Advanced Topic 1: Distributed Tracing at Scale](#advanced-topic-1-distributed-tracing-at-scale)
+    - [Advanced Topic 2: Multi-Region Circuit Breakers](#advanced-topic-2-multi-region-circuit-breakers)
+    - [Advanced Topic 3: Policy Composition](#advanced-topic-3-policy-composition)
+    - [Advanced Topic 4: Progressive Rollout with Percentage-Based Traffic](#advanced-topic-4-progressive-rollout-with-percentage-based-traffic)
+  - [Conclusion](#conclusion)
+  - [Additional Resources](#additional-resources)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TAI Pattern Reference Implementation - Complete Guide
 
 **Version**: 1.0.0

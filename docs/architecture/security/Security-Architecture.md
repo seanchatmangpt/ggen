@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TAI Security Architecture](#tai-security-architecture)
+  - [Security Layers](#security-layers)
+  - [Transport Security (TLS 1.3)](#transport-security-tls-13)
+    - [External Connections (Client → API Gateway)](#external-connections-client-%E2%86%92-api-gateway)
+    - [Service-to-Service (mTLS)](#service-to-service-mtls)
+  - [Authentication](#authentication)
+    - [External Users (OAuth2)](#external-users-oauth2)
+    - [Service-to-Service (mTLS)](#service-to-service-mtls-1)
+  - [Authorization (RBAC)](#authorization-rbac)
+    - [Role Definitions](#role-definitions)
+    - [Policy-Based Access Control](#policy-based-access-control)
+  - [Secret Management](#secret-management)
+    - [Vault Integration](#vault-integration)
+    - [Credential Rotation](#credential-rotation)
+  - [Data Encryption](#data-encryption)
+    - [Encryption at Rest](#encryption-at-rest)
+    - [Encryption in Transit](#encryption-in-transit)
+    - [Field-Level Encryption (Sensitive Data)](#field-level-encryption-sensitive-data)
+  - [Audit Logging](#audit-logging)
+  - [Compliance](#compliance)
+    - [GDPR Compliance](#gdpr-compliance)
+    - [SOC 2 Compliance](#soc-2-compliance)
+  - [Security Scanning](#security-scanning)
+    - [Container Image Scanning](#container-image-scanning)
+    - [Code Scanning (SAST)](#code-scanning-sast)
+    - [Dependency Management](#dependency-management)
+  - [Incident Response](#incident-response)
+    - [Security Alerts](#security-alerts)
+    - [Incident Playbook](#incident-playbook)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TAI Security Architecture
 
 Comprehensive security design for TAI system.

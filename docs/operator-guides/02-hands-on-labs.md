@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TPS Hands-On Lab Exercises](#tps-hands-on-lab-exercises)
+  - [Lab Prerequisites](#lab-prerequisites)
+  - [Lab 1: Jidoka (Autonomation with Human Touch)](#lab-1-jidoka-autonomation-with-human-touch)
+    - [1.1: Baseline - Healthy System (5 minutes)](#11-baseline---healthy-system-5-minutes)
+    - [1.2: Inject Failure - Downstream Broken (5 minutes)](#12-inject-failure---downstream-broken-5-minutes)
+    - [1.3: Understand the Metrics (10 minutes)](#13-understand-the-metrics-10-minutes)
+    - [1.4: Recovery - Restore Downstream (5 minutes)](#14-recovery---restore-downstream-5-minutes)
+    - [Lab 1 Summary](#lab-1-summary)
+  - [Lab 2: Kanban (Pull-Based Work)](#lab-2-kanban-pull-based-work)
+    - [2.1: Baseline - Normal Queue (5 minutes)](#21-baseline---normal-queue-5-minutes)
+    - [2.2: Load Test - Fill Queue (10 minutes)](#22-load-test---fill-queue-10-minutes)
+    - [2.3: Queue Limit Test - Exceed Capacity (5 minutes)](#23-queue-limit-test---exceed-capacity-5-minutes)
+    - [2.4: Understand Queue Dynamics (5 minutes)](#24-understand-queue-dynamics-5-minutes)
+    - [Lab 2 Summary](#lab-2-summary)
+  - [Lab 3: Andon (Problem Visibility)](#lab-3-andon-problem-visibility)
+    - [3.1: Baseline - All Metrics Green (5 minutes)](#31-baseline---all-metrics-green-5-minutes)
+    - [3.2: Introduce Problem - Slow Downstream (5 minutes)](#32-introduce-problem---slow-downstream-5-minutes)
+    - [3.3: Alert Setup - Configure Threshold (5 minutes)](#33-alert-setup---configure-threshold-5-minutes)
+    - [3.4: Trace Analysis - Find Root Cause (10 minutes)](#34-trace-analysis---find-root-cause-10-minutes)
+    - [3.5: Restore and Verify (5 minutes)](#35-restore-and-verify-5-minutes)
+    - [Lab 3 Summary](#lab-3-summary)
+  - [Lab 4: Kaizen (Continuous Improvement)](#lab-4-kaizen-continuous-improvement)
+    - [4.1: Baseline Metrics Collection (5 minutes)](#41-baseline-metrics-collection-5-minutes)
+    - [4.2: Identify Bottleneck (5 minutes)](#42-identify-bottleneck-5-minutes)
+    - [4.3: Test Hypothesis - Add More Workers (10 minutes)](#43-test-hypothesis---add-more-workers-10-minutes)
+    - [4.4: Calculate Improvement (5 minutes)](#44-calculate-improvement-5-minutes)
+    - [4.5: Revert and Reflect (5 minutes)](#45-revert-and-reflect-5-minutes)
+    - [Lab 4 Summary](#lab-4-summary)
+  - [Lab 5: Heijunka (Level Loading / Leveled Pull)](#lab-5-heijunka-level-loading--leveled-pull)
+    - [5.1: Baseline - Uneven Load Distribution (5 minutes)](#51-baseline---uneven-load-distribution-5-minutes)
+    - [5.2: Observe Heijunka Rebalancing (10 minutes)](#52-observe-heijunka-rebalancing-10-minutes)
+    - [5.3: Understand Rebalancing Algorithm (10 minutes)](#53-understand-rebalancing-algorithm-10-minutes)
+    - [5.4: Simulate Uneven Work - Long vs Short Tasks (5 minutes)](#54-simulate-uneven-work---long-vs-short-tasks-5-minutes)
+    - [Lab 5 Summary](#lab-5-summary)
+  - [Lab 6: Tracing (Observability through Distributed Tracing)](#lab-6-tracing-observability-through-distributed-tracing)
+    - [6.1: Send Signal and Examine Trace (5 minutes)](#61-send-signal-and-examine-trace-5-minutes)
+    - [6.2: Analyze Trace Structure (10 minutes)](#62-analyze-trace-structure-10-minutes)
+    - [6.3: Find Bottleneck in Trace (10 minutes)](#63-find-bottleneck-in-trace-10-minutes)
+    - [6.4: Trace Correlation - Follow Signal Through System (5 minutes)](#64-trace-correlation---follow-signal-through-system-5-minutes)
+    - [6.5: Use Traces for Debugging (5 minutes)](#65-use-traces-for-debugging-5-minutes)
+    - [Lab 6 Summary](#lab-6-summary)
+  - [All Labs Complete!](#all-labs-complete)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TPS Hands-On Lab Exercises
 
 **Version**: 1.0

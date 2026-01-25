@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Incident Response Runbook for TPS Systems](#incident-response-runbook-for-tps-systems)
+  - [Quick Incident Checklist](#quick-incident-checklist)
+  - [Incident Types](#incident-types)
+    - [Type 1: Service Unavailable (Severity 1 - CRITICAL)](#type-1-service-unavailable-severity-1---critical)
+      - [Diagnosis: Service Unavailable](#diagnosis-service-unavailable)
+      - [Immediate Actions: Service Unavailable](#immediate-actions-service-unavailable)
+      - [Rollback Procedure (if deployment caused outage)](#rollback-procedure-if-deployment-caused-outage)
+      - [Escalation: Service Unavailable](#escalation-service-unavailable)
+    - [Type 2: Performance Degradation (Severity 2 - HIGH)](#type-2-performance-degradation-severity-2---high)
+      - [Diagnosis: Performance Degradation](#diagnosis-performance-degradation)
+      - [Immediate Actions: Performance Degradation](#immediate-actions-performance-degradation)
+      - [Escalation: Performance Degradation](#escalation-performance-degradation)
+    - [Type 3: Data Loss (Severity 1-2 - CRITICAL/HIGH)](#type-3-data-loss-severity-1-2---criticalhigh)
+      - [Diagnosis: Data Loss](#diagnosis-data-loss)
+      - [Immediate Actions: Data Loss](#immediate-actions-data-loss)
+    - [Type 4: Cascading Failure (Severity 1 - CRITICAL)](#type-4-cascading-failure-severity-1---critical)
+      - [Immediate Actions: Cascading Failure](#immediate-actions-cascading-failure)
+  - [Post-Incident Workflow](#post-incident-workflow)
+    - [Incident Classification & Severity](#incident-classification--severity)
+    - [Post-Incident Review (24-72 hours later)](#post-incident-review-24-72-hours-later)
+  - [Communication During Incident](#communication-during-incident)
+    - [Status Updates](#status-updates)
+    - [Post-Incident Communication](#post-incident-communication)
+  - [Incident Metrics](#incident-metrics)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Incident Response Runbook for TPS Systems
 
 **Version**: 1.0

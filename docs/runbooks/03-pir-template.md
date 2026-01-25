@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Post-Incident Review (PIR) Template](#post-incident-review-pir-template)
+  - [PIR Scheduling](#pir-scheduling)
+  - [PIR Template](#pir-template)
+    - [1. Incident Summary](#1-incident-summary)
+    - [2. Timeline of Events](#2-timeline-of-events)
+    - [3. Root Cause Analysis (5 Whys)](#3-root-cause-analysis-5-whys)
+      - [Root Cause &#035;1](#root-cause-1)
+      - [Root Cause &#035;2 (Deeper)](#root-cause-2-deeper)
+      - [Primary Root Cause (Contributing Factors)](#primary-root-cause-contributing-factors)
+    - [4. What Went Well](#4-what-went-well)
+    - [5. What Went Wrong](#5-what-went-wrong)
+    - [6. Action Items (Preventive)](#6-action-items-preventive)
+      - [High Priority (Implement Within 1 Week)](#high-priority-implement-within-1-week)
+      - [Medium Priority (Implement Within 1 Month)](#medium-priority-implement-within-1-month)
+      - [Low Priority (Implement Within 3 Months)](#low-priority-implement-within-3-months)
+    - [7. Metrics & Impact](#7-metrics--impact)
+    - [8. Follow-Up Items](#8-follow-up-items)
+    - [9. Lessons Learned](#9-lessons-learned)
+    - [10. Sign-Off](#10-sign-off)
+  - [PIR Review Cadence](#pir-review-cadence)
+  - [PIR Anti-Patterns (Avoid)](#pir-anti-patterns-avoid)
+  - [PIR Effectiveness Metrics](#pir-effectiveness-metrics)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Post-Incident Review (PIR) Template
 
 **Version**: 2.0

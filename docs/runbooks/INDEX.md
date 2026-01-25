@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Incident Management & Operational Runbooks](#incident-management--operational-runbooks)
+  - [Quick Navigation](#quick-navigation)
+    - [Incident Response](#incident-response)
+    - [Investigation & Learning](#investigation--learning)
+    - [Operations](#operations)
+    - [Automated Response](#automated-response)
+  - [Incident Response Flow](#incident-response-flow)
+  - [Key Metrics](#key-metrics)
+  - [Runbook by Incident Type](#runbook-by-incident-type)
+    - [1. Queue Backlog Overflow (Sev2)](#1-queue-backlog-overflow-sev2)
+    - [2. Circuit Breaker Opened (Sev1/2)](#2-circuit-breaker-opened-sev12)
+    - [3. Latency Spike (Sev2/3)](#3-latency-spike-sev23)
+    - [4. Error Rate Spike (Sev1/2)](#4-error-rate-spike-sev12)
+    - [5. Region Failover (Sev1)](#5-region-failover-sev1)
+  - [On-Call Responsibilities](#on-call-responsibilities)
+  - [Knowledge Base](#knowledge-base)
+  - [Prevention Strategies](#prevention-strategies)
+  - [Definitions](#definitions)
+  - [Quick Reference Commands](#quick-reference-commands)
+  - [Training & Certification](#training--certification)
+  - [Continuous Improvement](#continuous-improvement)
+  - [Support](#support)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Incident Management & Operational Runbooks
 
 **Version**: 2.0

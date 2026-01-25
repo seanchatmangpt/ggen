@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TPS Glossary: Manufacturing Terms in Software Context](#tps-glossary-manufacturing-terms-in-software-context)
+  - [Toyota Production System (TPS) Terms](#toyota-production-system-tps-terms)
+    - [Jidoka (自働化) - Autonomation with Human Touch](#jidoka-%E8%87%AA%E5%83%8D%E5%8C%96---autonomation-with-human-touch)
+    - [Kanban (看板) - Pull-Based Work](#kanban-%E7%9C%8B%E6%9D%BF---pull-based-work)
+    - [Andon (安灯) - Problem Visibility](#andon-%E5%AE%89%E7%81%AF---problem-visibility)
+    - [Kaizen (改善) - Continuous Improvement](#kaizen-%E6%94%B9%E5%96%84---continuous-improvement)
+    - [Heijunka (平準化) - Load Leveling](#heijunka-%E5%B9%B3%E6%BA%96%E5%8C%96---load-leveling)
+    - [Muda (無駄) - Waste](#muda-%E7%84%A1%E9%A7%84---waste)
+    - [Value Stream (バリューストリーム) - Path from Input to Output](#value-stream-%E3%83%90%E3%83%AA%E3%83%A5%E3%83%BC%E3%82%B9%E3%83%88%E3%83%AA%E3%83%BC%E3%83%A0---path-from-input-to-output)
+  - [Software-Specific Terms](#software-specific-terms)
+    - [Circuit Breaker](#circuit-breaker)
+    - [Dead-Letter Queue (DLQ)](#dead-letter-queue-dlq)
+    - [Throughput](#throughput)
+    - [Latency](#latency)
+    - [Queue Depth](#queue-depth)
+    - [Worker Utilization](#worker-utilization)
+    - [Cascade/Cascading Failure](#cascadecascading-failure)
+    - [Auto-Scaling](#auto-scaling)
+    - [Canary Deployment](#canary-deployment)
+    - [SLO (Service Level Objective)](#slo-service-level-objective)
+    - [SLI (Service Level Indicator)](#sli-service-level-indicator)
+    - [RPS (Requests Per Second)](#rps-requests-per-second)
+  - [Monitoring Terms](#monitoring-terms)
+    - [Metric](#metric)
+    - [Trace](#trace)
+    - [Log](#log)
+    - [Alert](#alert)
+  - [Common Acronyms](#common-acronyms)
+  - [Metric Interpretation Quick Reference](#metric-interpretation-quick-reference)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TPS Glossary: Manufacturing Terms in Software Context
 
 **Version**: 1.0

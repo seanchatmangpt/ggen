@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Runbook 4: Error Rate Spike](#runbook-4-error-rate-spike)
+  - [Quick Reference](#quick-reference)
+  - [Detection Mechanism](#detection-mechanism)
+    - [Error Rate Thresholds](#error-rate-thresholds)
+    - [Automated Alerts](#automated-alerts)
+  - [Root Cause Analysis (5 Whys)](#root-cause-analysis-5-whys)
+  - [Incident Timeline (Typical)](#incident-timeline-typical)
+  - [Automated Mitigation Sequence](#automated-mitigation-sequence)
+  - [Manual Investigation](#manual-investigation)
+    - [Step 1: Immediate Diagnostics](#step-1-immediate-diagnostics)
+    - [Step 2: Error Classification](#step-2-error-classification)
+    - [Step 3: Root Cause Determination](#step-3-root-cause-determination)
+  - [Mitigation Actions](#mitigation-actions)
+    - [Option A: Immediate Rollback (Safest)](#option-a-immediate-rollback-safest)
+    - [Option B: Close Circuit Breaker (If Dependency Issue)](#option-b-close-circuit-breaker-if-dependency-issue)
+    - [Option C: Revert Configuration (If Config Issue)](#option-c-revert-configuration-if-config-issue)
+    - [Option D: Enable Rate Limiting (Last Resort)](#option-d-enable-rate-limiting-last-resort)
+  - [Verification & Recovery](#verification--recovery)
+  - [Receipt Contract](#receipt-contract)
+    - [Error Spike Detected Receipt](#error-spike-detected-receipt)
+    - [Mitigation Applied Receipt](#mitigation-applied-receipt)
+    - [Resolution Receipt](#resolution-receipt)
+  - [Prevention Strategies](#prevention-strategies)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Runbook 4: Error Rate Spike
 
 **Severity**: Sev1/Sev2 (depends on magnitude)

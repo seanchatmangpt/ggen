@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [On-Call Schedule Management & Rotation](#on-call-schedule-management--rotation)
+  - [On-Call Rotation](#on-call-rotation)
+    - [Schedule Structure](#schedule-structure)
+  - [Pre-On-Call Preparation](#pre-on-call-preparation)
+    - [Before Your Week Starts](#before-your-week-starts)
+    - [On-Call Preparation Checklist](#on-call-preparation-checklist)
+  - [During On-Call Week](#during-on-call-week)
+    - [Daily Routine](#daily-routine)
+    - [Incident Response](#incident-response)
+    - [Handoff to Secondary](#handoff-to-secondary)
+  - [Post-On-Call Handoff](#post-on-call-handoff)
+    - [Handoff Call (Mandatory)](#handoff-call-mandatory)
+  - [On-Call SLA & Expectations](#on-call-sla--expectations)
+    - [Response SLA](#response-sla)
+    - [Work Restrictions During On-Call](#work-restrictions-during-on-call)
+    - [Rest Days After On-Call](#rest-days-after-on-call)
+  - [On-Call Burnout Prevention](#on-call-burnout-prevention)
+    - [Fair Rotation](#fair-rotation)
+    - [Incident Load Balancing](#incident-load-balancing)
+    - [Compensation](#compensation)
+  - [On-Call Training](#on-call-training)
+    - [Mandatory Training (Before First On-Call)](#mandatory-training-before-first-on-call)
+    - [Annual Refresher](#annual-refresher)
+  - [On-Call Rotations & Fairness](#on-call-rotations--fairness)
+    - [Rotation Schedule (Example)](#rotation-schedule-example)
+    - [Holiday & Time-Off Handling](#holiday--time-off-handling)
+  - [On-Call Performance Metrics](#on-call-performance-metrics)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # On-Call Schedule Management & Rotation
 
 **Version**: 2.0

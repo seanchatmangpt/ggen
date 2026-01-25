@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Automated Mitigation Actions & Self-Healing Strategies](#automated-mitigation-actions--self-healing-strategies)
+  - [Mitigation Strategy Framework](#mitigation-strategy-framework)
+    - [Hierarchy of Responses](#hierarchy-of-responses)
+  - [Pattern 1: Auto-Scaling](#pattern-1-auto-scaling)
+    - [Queue Backlog Overflow](#queue-backlog-overflow)
+    - [CPU/Memory Scaling](#cpumemory-scaling)
+  - [Pattern 2: Circuit Breaker](#pattern-2-circuit-breaker)
+    - [Downstream Service Failure](#downstream-service-failure)
+    - [Graceful Degradation](#graceful-degradation)
+  - [Pattern 3: Throttling / Rate Limiting](#pattern-3-throttling--rate-limiting)
+    - [Backpressure Application](#backpressure-application)
+  - [Pattern 4: Failover](#pattern-4-failover)
+    - [Regional Failover](#regional-failover)
+  - [Pattern 5: Restart / Reset](#pattern-5-restart--reset)
+    - [Pod Restart (Kubernetes)](#pod-restart-kubernetes)
+    - [Service Reset](#service-reset)
+  - [Pattern 6: Feature Flag Disable](#pattern-6-feature-flag-disable)
+    - [Disable Problematic Feature](#disable-problematic-feature)
+  - [Pattern 7: Database Optimization](#pattern-7-database-optimization)
+    - [Query Tuning](#query-tuning)
+  - [Mitigation Receipt Contract](#mitigation-receipt-contract)
+    - [Every Mitigation Generates a Receipt](#every-mitigation-generates-a-receipt)
+  - [Mitigation Effectiveness Tracking](#mitigation-effectiveness-tracking)
+  - [Mitigation Failures & Escalation](#mitigation-failures--escalation)
+  - [Testing Mitigation Strategies](#testing-mitigation-strategies)
+  - [Configuration & Tuning](#configuration--tuning)
+    - [Alert Thresholds](#alert-thresholds)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Automated Mitigation Actions & Self-Healing Strategies
 
 **Version**: 2.0

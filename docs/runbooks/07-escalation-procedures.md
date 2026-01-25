@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Escalation Procedures & On-Call Responsibilities](#escalation-procedures--on-call-responsibilities)
+  - [Escalation Matrix](#escalation-matrix)
+    - [By Severity](#by-severity)
+      - [Sev1: Critical (Full Outage)](#sev1-critical-full-outage)
+      - [Sev2: High (Partial Outage)](#sev2-high-partial-outage)
+      - [Sev3: Medium (Degradation)](#sev3-medium-degradation)
+      - [Sev4: Low (Minor)](#sev4-low-minor)
+  - [Escalation Decision Tree](#escalation-decision-tree)
+  - [On-Call Responsibilities](#on-call-responsibilities)
+    - [Primary On-Call Engineer](#primary-on-call-engineer)
+    - [Secondary On-Call Engineer](#secondary-on-call-engineer)
+    - [Incident Commander (Designated)](#incident-commander-designated)
+    - [Tech Lead (on Escalation)](#tech-lead-on-escalation)
+    - [Manager/VP (on Escalation)](#managervp-on-escalation)
+  - [Escalation Contact Information](#escalation-contact-information)
+    - [On-Call Schedule](#on-call-schedule)
+    - [Emergency Contacts](#emergency-contacts)
+  - [Escalation Communication Template](#escalation-communication-template)
+    - [T+0: Initial Alert](#t0-initial-alert)
+    - [T+5: Status Update (Sev1)](#t5-status-update-sev1)
+    - [T+15: Escalation Notice](#t15-escalation-notice)
+  - [Escalation SLAs](#escalation-slas)
+  - [Troubleshooting Escalation](#troubleshooting-escalation)
+  - [Post-Incident Escalation Review](#post-incident-escalation-review)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Escalation Procedures & On-Call Responsibilities
 
 **Version**: 2.0

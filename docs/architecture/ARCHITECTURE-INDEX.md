@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TAI Architecture Documentation Index](#tai-architecture-documentation-index)
+  - [Architecture Decision Records (ADRs)](#architecture-decision-records-adrs)
+  - [C4 Architecture Diagrams](#c4-architecture-diagrams)
+  - [API Reference](#api-reference)
+  - [Database Schema](#database-schema)
+  - [Deployment Architecture](#deployment-architecture)
+  - [Integration Patterns](#integration-patterns)
+  - [Security Architecture](#security-architecture)
+  - [Key Architectural Principles](#key-architectural-principles)
+    - [1. **Resilience**](#1-resilience)
+    - [2. **Observability**](#2-observability)
+    - [3. **Security**](#3-security)
+    - [4. **Scalability**](#4-scalability)
+    - [5. **Maintainability**](#5-maintainability)
+  - [Technology Stack Summary](#technology-stack-summary)
+  - [Performance SLOs](#performance-slos)
+  - [Maintenance and Operations](#maintenance-and-operations)
+    - [Monitoring](#monitoring)
+    - [Upgrades](#upgrades)
+    - [Backup & Recovery](#backup--recovery)
+  - [Related Documentation](#related-documentation)
+  - [Document Version](#document-version)
+  - [Getting Started](#getting-started)
+  - [Questions & Updates](#questions--updates)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TAI Architecture Documentation Index
 
 Complete reference for TAI system design, decisions, and implementation.

@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Grafana Dashboard Guide](#grafana-dashboard-guide)
+  - [Dashboard 1: TPS Overview (Main Dashboard)](#dashboard-1-tps-overview-main-dashboard)
+    - [Panel 1: System Status (Top-Left)](#panel-1-system-status-top-left)
+    - [Panel 2: Queue Depth (Top-Center)](#panel-2-queue-depth-top-center)
+    - [Panel 3: Circuit Breaker State (Top-Right)](#panel-3-circuit-breaker-state-top-right)
+    - [Panel 4: P99 Latency (Center-Left)](#panel-4-p99-latency-center-left)
+    - [Panel 5: Error Rate (Center-Right)](#panel-5-error-rate-center-right)
+    - [Panel 6: Processing Rate (Bottom-Left)](#panel-6-processing-rate-bottom-left)
+    - [Panel 7: Worker Utilization (Bottom-Center)](#panel-7-worker-utilization-bottom-center)
+    - [Panel 8: Throughput Trend (Bottom-Right)](#panel-8-throughput-trend-bottom-right)
+  - [Dashboard 2: Jidoka (Circuit Breaker)](#dashboard-2-jidoka-circuit-breaker)
+    - [Key Panels](#key-panels)
+  - [Dashboard 3: Kanban (Queue Management)](#dashboard-3-kanban-queue-management)
+    - [Key Panels](#key-panels-1)
+  - [Dashboard 4: Andon (Alerts)](#dashboard-4-andon-alerts)
+    - [Design](#design)
+    - [Panels](#panels)
+  - [Dashboard 5: Kaizen (Performance Analysis)](#dashboard-5-kaizen-performance-analysis)
+    - [Key Panels](#key-panels-2)
+  - [Dashboard 6: Heijunka (Load Balancing)](#dashboard-6-heijunka-load-balancing)
+    - [Key Panels](#key-panels-3)
+  - [Dashboard 7: Tracing (Distributed Tracing Metrics)](#dashboard-7-tracing-distributed-tracing-metrics)
+    - [Key Panels](#key-panels-4)
+  - [Alert Thresholds (Can be Tuned)](#alert-thresholds-can-be-tuned)
+  - [Dashboard Access & Login](#dashboard-access--login)
+  - [Common Dashboard Combinations](#common-dashboard-combinations)
+  - [Dashboard Tips & Tricks](#dashboard-tips--tricks)
+  - [Integration with Alerting](#integration-with-alerting)
+  - [Troubleshooting Dashboard Issues](#troubleshooting-dashboard-issues)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Grafana Dashboard Guide
 
 **Version**: 1.0

@@ -1,3 +1,55 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TPS Kanban: Pull-Based Work Queue System](#tps-kanban-pull-based-work-queue-system)
+  - [Executive Summary](#executive-summary)
+  - [Part 1: Kanban Philosophy](#part-1-kanban-philosophy)
+    - [What Is Kanban?](#what-is-kanban)
+      - [Key Principle: Pull, Not Push](#key-principle-pull-not-push)
+      - [Benefits of Pull-Based Kanban](#benefits-of-pull-based-kanban)
+    - [Kanban in Manufacturing](#kanban-in-manufacturing)
+  - [Part 2: TPS Kanban Architecture](#part-2-tps-kanban-architecture)
+    - [System Overview](#system-overview)
+    - [Core Components](#core-components)
+      - [1. **kanban_queue** - Work Item Storage](#1-kanban_queue---work-item-storage)
+      - [2. **kanban_worker** - Work Processor](#2-kanban_worker---work-processor)
+      - [3. **kanban_scheduler** - Periodic Work](#3-kanban_scheduler---periodic-work)
+      - [4. **kanban_coordinator** - Health & Auto-Scale](#4-kanban_coordinator---health--auto-scale)
+  - [Part 3: Implementation Patterns](#part-3-implementation-patterns)
+    - [Pattern 1: Basic Work Publication](#pattern-1-basic-work-publication)
+    - [Pattern 2: Worker Pull Loop](#pattern-2-worker-pull-loop)
+    - [Pattern 3: Periodic Scheduling](#pattern-3-periodic-scheduling)
+    - [Pattern 4: Circuit Breaker (Jidoka)](#pattern-4-circuit-breaker-jidoka)
+    - [Pattern 5: Dead Letter Queue](#pattern-5-dead-letter-queue)
+  - [Part 4: Operations Guide](#part-4-operations-guide)
+    - [Starting the System](#starting-the-system)
+      - [Local Development (NATS + RabbitMQ)](#local-development-nats--rabbitmq)
+      - [Production Deployment](#production-deployment)
+    - [Monitoring Queue Health](#monitoring-queue-health)
+    - [Auto-Scaling Behavior](#auto-scaling-behavior)
+    - [Graceful Shutdown](#graceful-shutdown)
+    - [Handling Dead Letter Queue](#handling-dead-letter-queue)
+  - [Part 5: Troubleshooting](#part-5-troubleshooting)
+    - [Problem: Queue Depth Growing (Not Draining)](#problem-queue-depth-growing-not-draining)
+    - [Problem: Worker Circuit Breaker Open](#problem-worker-circuit-breaker-open)
+    - [Problem: Messages Lost](#problem-messages-lost)
+    - [Problem: Why Are Workers Idle?](#problem-why-are-workers-idle)
+    - [Problem: Scheduler Not Publishing](#problem-scheduler-not-publishing)
+  - [Part 6: Testing](#part-6-testing)
+    - [Running Test Suite](#running-test-suite)
+    - [Test Coverage](#test-coverage)
+  - [Part 7: Performance Characteristics](#part-7-performance-characteristics)
+    - [Throughput](#throughput)
+    - [Latency](#latency)
+    - [Memory](#memory)
+  - [Part 8: Reference](#part-8-reference)
+    - [Configuration Options](#configuration-options)
+    - [API Reference](#api-reference)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TPS Kanban: Pull-Based Work Queue System
 
 ## Executive Summary

@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Incident Severity Classification Matrix](#incident-severity-classification-matrix)
+  - [Severity Levels (Sev1 - Sev4)](#severity-levels-sev1---sev4)
+    - [Sev1: Critical (Full Outage)](#sev1-critical-full-outage)
+    - [Sev2: High (Partial Outage)](#sev2-high-partial-outage)
+    - [Sev3: Medium (Degradation)](#sev3-medium-degradation)
+    - [Sev4: Low (Minor)](#sev4-low-minor)
+  - [Escalation Decision Tree](#escalation-decision-tree)
+  - [Severity Determination Flowchart](#severity-determination-flowchart)
+  - [Response Times Comparison](#response-times-comparison)
+  - [Severity Adjustment Rules](#severity-adjustment-rules)
+  - [Severity Metrics](#severity-metrics)
+  - [Severity Validation Checklist](#severity-validation-checklist)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Incident Severity Classification Matrix
 
 **Version**: 2.0

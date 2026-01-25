@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TPS Video Tutorial Scripts](#tps-video-tutorial-scripts)
+  - [Video 1: "Deploy TPS System to Production" (8 minutes)](#video-1-deploy-tps-system-to-production-8-minutes)
+    - [Intro (0:00-0:30)](#intro-000-030)
+    - [Part 1: Prerequisites (0:30-1:30)](#part-1-prerequisites-030-130)
+    - [Part 2: Create Namespace (1:30-2:30)](#part-2-create-namespace-130-230)
+    - [Part 3: Create Storage (2:30-3:45)](#part-3-create-storage-230-345)
+    - [Part 4: Deploy TPS System (3:45-6:00)](#part-4-deploy-tps-system-345-600)
+    - [Part 5: Verify Health (6:00-7:00)](#part-5-verify-health-600-700)
+    - [Part 6: Access Dashboards (7:00-7:45)](#part-6-access-dashboards-700-745)
+    - [Outro (7:45-8:00)](#outro-745-800)
+  - [Video 2: "Read and Interpret Dashboards" (8 minutes)](#video-2-read-and-interpret-dashboards-8-minutes)
+    - [Intro (0:00-0:30)](#intro-000-030-1)
+    - [Part 1: Tour the Dashboards (0:30-1:30)](#part-1-tour-the-dashboards-030-130)
+    - [Part 2: TPS Overview Dashboard (1:30-4:00)](#part-2-tps-overview-dashboard-130-400)
+    - [Part 3: Jidoka Dashboard (4:00-5:00)](#part-3-jidoka-dashboard-400-500)
+    - [Part 4: Kanban Dashboard (5:00-6:00)](#part-4-kanban-dashboard-500-600)
+    - [Part 5: Summary (6:00-8:00)](#part-5-summary-600-800)
+  - [Video 3: "Incident Response: Queue Growing" (8 minutes)](#video-3-incident-response-queue-growing-8-minutes)
+    - [Scenario Setup (0:00-0:30)](#scenario-setup-000-030)
+    - [Diagnosis (0:30-3:00)](#diagnosis-030-300)
+    - [Decision (3:00-4:00)](#decision-300-400)
+    - [Action (4:00-7:00)](#action-400-700)
+    - [Verification (7:00-7:30)](#verification-700-730)
+    - [Reflection (7:30-8:00)](#reflection-730-800)
+  - [Video 4: "Incident Response: Circuit Breaker Open" (8 minutes)](#video-4-incident-response-circuit-breaker-open-8-minutes)
+    - [Scenario Setup (0:00-0:30)](#scenario-setup-000-030-1)
+    - [Diagnosis (0:30-3:00)](#diagnosis-030-300-1)
+    - [Investigation (3:00-5:00)](#investigation-300-500)
+    - [Resolution (5:00-7:00)](#resolution-500-700)
+    - [Verification and Remediation (7:00-7:45)](#verification-and-remediation-700-745)
+    - [Conclusion (7:45-8:00)](#conclusion-745-800)
+  - [Video 5: "Performance Tuning: Find and Fix Bottlenecks" (8 minutes)](#video-5-performance-tuning-find-and-fix-bottlenecks-8-minutes)
+    - [Intro (0:00-0:30)](#intro-000-030-2)
+    - [Data Collection (0:30-3:00)](#data-collection-030-300)
+    - [Analysis (3:00-5:00)](#analysis-300-500)
+    - [Fix (5:00-7:00)](#fix-500-700)
+    - [Reflection (7:00-8:00)](#reflection-700-800)
+  - [Scripts Summary](#scripts-summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TPS Video Tutorial Scripts
 
 **Version**: 1.0

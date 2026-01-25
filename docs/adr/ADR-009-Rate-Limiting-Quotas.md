@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ADR-009: Rate Limiting and Quota Implementation](#adr-009-rate-limiting-and-quota-implementation)
+  - [Problem Statement](#problem-statement)
+  - [Decision](#decision)
+  - [Rationale](#rationale)
+    - [Token Bucket Algorithm](#token-bucket-algorithm)
+    - [Redis Backing](#redis-backing)
+  - [Implementation](#implementation)
+    - [API Gateway (Envoy) Rate Limiting](#api-gateway-envoy-rate-limiting)
+    - [Application-Level Rate Limiting (Rust)](#application-level-rate-limiting-rust)
+    - [Quota Configuration](#quota-configuration)
+    - [HTTP Headers for Rate Limiting](#http-headers-for-rate-limiting)
+    - [Monitoring and Alerts](#monitoring-and-alerts)
+    - [Alert Rules](#alert-rules)
+  - [Multi-Tenant Quotas](#multi-tenant-quotas)
+  - [Graceful Degradation](#graceful-degradation)
+  - [Consequences](#consequences)
+    - [Positive](#positive)
+    - [Negative](#negative)
+  - [Cost Impact](#cost-impact)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ADR-009: Rate Limiting and Quota Implementation
 
 **Status:** Accepted

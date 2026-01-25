@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Firestore Database Schema](#firestore-database-schema)
+  - [Collections Overview](#collections-overview)
+  - [Collections Detail](#collections-detail)
+    - [policies Collection](#policies-collection)
+    - [signals Collection](#signals-collection)
+    - [actions Collection](#actions-collection)
+    - [coordination_status Collection](#coordination_status-collection)
+    - [snapshots Collection](#snapshots-collection)
+    - [audit_logs Collection](#audit_logs-collection)
+  - [Entity Relationships](#entity-relationships)
+  - [Storage Estimation](#storage-estimation)
+  - [Query Patterns](#query-patterns)
+    - [Get Policy by ID](#get-policy-by-id)
+    - [List Enabled Policies by Type](#list-enabled-policies-by-type)
+    - [Get Pending Signals](#get-pending-signals)
+    - [Stream Coordination Updates](#stream-coordination-updates)
+  - [Backup and Recovery](#backup-and-recovery)
+  - [Performance Tuning](#performance-tuning)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Firestore Database Schema
 
 Complete Firestore collections structure for TAI system.

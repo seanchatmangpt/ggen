@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TPS Operator Checklists](#tps-operator-checklists)
+  - [Daily Operations Checklist (Every Morning)](#daily-operations-checklist-every-morning)
+    - [System Health (2 minutes)](#system-health-2-minutes)
+    - [Metrics Verification (2 minutes)](#metrics-verification-2-minutes)
+    - [Dashboard Review (3 minutes)](#dashboard-review-3-minutes)
+    - [Alerts Review (2 minutes)](#alerts-review-2-minutes)
+    - [Log Review (1 minute)](#log-review-1-minute)
+    - [Daily Sign-Off](#daily-sign-off)
+  - [Weekly Operations Checklist (Every Monday 10:00 AM)](#weekly-operations-checklist-every-monday-1000-am)
+    - [Performance Trend Analysis (10 minutes)](#performance-trend-analysis-10-minutes)
+    - [Capacity Planning (10 minutes)](#capacity-planning-10-minutes)
+    - [Security & Compliance (5 minutes)](#security--compliance-5-minutes)
+    - [Capacity & Cost Review (5 minutes)](#capacity--cost-review-5-minutes)
+    - [Weekly Sign-Off](#weekly-sign-off)
+  - [Monthly Operations Checklist (First Day of Month)](#monthly-operations-checklist-first-day-of-month)
+    - [Comprehensive System Audit (30 minutes)](#comprehensive-system-audit-30-minutes)
+    - [Performance Audit (20 minutes)](#performance-audit-20-minutes)
+    - [Dependency Updates (15 minutes)](#dependency-updates-15-minutes)
+    - [Documentation Review (10 minutes)](#documentation-review-10-minutes)
+    - [Cost & Capacity Planning (10 minutes)](#cost--capacity-planning-10-minutes)
+    - [Disaster Recovery Audit (10 minutes)](#disaster-recovery-audit-10-minutes)
+    - [Monthly Sign-Off](#monthly-sign-off)
+  - [Ad-Hoc Checklists](#ad-hoc-checklists)
+    - [Incident Response Checklist](#incident-response-checklist)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TPS Operator Checklists
 
 **Version**: 1.0

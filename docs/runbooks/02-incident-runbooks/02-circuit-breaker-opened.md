@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Runbook 2: Circuit Breaker Opened (Downstream Service Failure)](#runbook-2-circuit-breaker-opened-downstream-service-failure)
+  - [Quick Reference](#quick-reference)
+  - [Detection Mechanism](#detection-mechanism)
+    - [Circuit Breaker States](#circuit-breaker-states)
+    - [Automated Alerts](#automated-alerts)
+  - [Circuit Breaker Configuration](#circuit-breaker-configuration)
+    - [Service Circuits](#service-circuits)
+  - [Root Cause Analysis (5 Whys)](#root-cause-analysis-5-whys)
+  - [Incident Timeline (Typical)](#incident-timeline-typical)
+  - [Automated Recovery Sequence](#automated-recovery-sequence)
+  - [Manual Intervention](#manual-intervention)
+    - [Step 1: Acknowledge Alert](#step-1-acknowledge-alert)
+    - [Step 2: Diagnose Service Health](#step-2-diagnose-service-health)
+    - [Step 3: Determine Root Cause](#step-3-determine-root-cause)
+    - [Step 4: Apply Mitigation](#step-4-apply-mitigation)
+  - [Recovery Validation](#recovery-validation)
+  - [Rollback (If Wrong Mitigation Applied)](#rollback-if-wrong-mitigation-applied)
+  - [Receipt Contract](#receipt-contract)
+    - [Circuit Opened Receipt](#circuit-opened-receipt)
+    - [Circuit Half-Open Receipt](#circuit-half-open-receipt)
+    - [Circuit Closed Receipt](#circuit-closed-receipt)
+  - [Prevention Strategies](#prevention-strategies)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Runbook 2: Circuit Breaker Opened (Downstream Service Failure)
 
 **Severity**: Sev1/Sev2 (depends on service criticality)

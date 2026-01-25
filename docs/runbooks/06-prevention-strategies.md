@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Prevention Strategies & Process Improvements from Incident Analysis](#prevention-strategies--process-improvements-from-incident-analysis)
+  - [Prevention Framework](#prevention-framework)
+    - [Root Cause → Prevention Strategy](#root-cause-%E2%86%92-prevention-strategy)
+  - [Prevention Strategies by Incident Type](#prevention-strategies-by-incident-type)
+    - [1. Queue Backlog Overflow Prevention](#1-queue-backlog-overflow-prevention)
+      - [A. Continuous Capacity Planning (In Progress)](#a-continuous-capacity-planning-in-progress)
+      - [B. Faster Monitoring Resolution (Complete)](#b-faster-monitoring-resolution-complete)
+      - [C. Predictive Scaling (Planned)](#c-predictive-scaling-planned)
+    - [2. Circuit Breaker Opened Prevention](#2-circuit-breaker-opened-prevention)
+      - [A. Circuit Breaker Pattern (In Progress)](#a-circuit-breaker-pattern-in-progress)
+      - [B. Timeout Configuration (Complete)](#b-timeout-configuration-complete)
+      - [C. Service Health Monitoring (In Progress)](#c-service-health-monitoring-in-progress)
+    - [3. Latency Spike Prevention](#3-latency-spike-prevention)
+      - [A. Query Performance Monitoring (In Progress)](#a-query-performance-monitoring-in-progress)
+      - [B. Resource Monitoring & Limits (In Progress)](#b-resource-monitoring--limits-in-progress)
+      - [C. Load Testing & Capacity Headroom (Planned)](#c-load-testing--capacity-headroom-planned)
+    - [4. Error Rate Spike Prevention](#4-error-rate-spike-prevention)
+      - [A. Canary Deployments (Planned)](#a-canary-deployments-planned)
+      - [B. Schema Versioning (Planned)](#b-schema-versioning-planned)
+      - [C. Input Validation Enforcement (In Progress)](#c-input-validation-enforcement-in-progress)
+    - [5. Region Failover Prevention](#5-region-failover-prevention)
+      - [A. Multi-Region Active-Active (Planned)](#a-multi-region-active-active-planned)
+      - [B. Regular Failover Drills (In Progress)](#b-regular-failover-drills-in-progress)
+      - [C. Health Check Optimization (Complete)](#c-health-check-optimization-complete)
+  - [Prevention Implementation Roadmap](#prevention-implementation-roadmap)
+    - [Q1 2026 (Jan - Mar)](#q1-2026-jan---mar)
+    - [Q2 2026 (Apr - Jun)](#q2-2026-apr---jun)
+  - [Effectiveness Tracking](#effectiveness-tracking)
+    - [Metrics Dashboard](#metrics-dashboard)
+  - [Verification Procedures](#verification-procedures)
+    - [Chaos Engineering Tests](#chaos-engineering-tests)
+    - [Monitoring & Alerting](#monitoring--alerting)
+  - [Prevention Review Cadence](#prevention-review-cadence)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Prevention Strategies & Process Improvements from Incident Analysis
 
 **Version**: 2.0

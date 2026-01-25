@@ -1,3 +1,58 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TAI Observability: Production-Grade Observability for Rust Applications](#tai-observability-production-grade-observability-for-rust-applications)
+  - [Table of Contents](#table-of-contents)
+  - [Observability Philosophy](#observability-philosophy)
+    - [The Three Pillars of Observability](#the-three-pillars-of-observability)
+  - [Architecture Overview](#architecture-overview)
+  - [Cloud Profiler Integration](#cloud-profiler-integration)
+    - [What is Profiling?](#what-is-profiling)
+    - [CPU Profiling (100 samples/second)](#cpu-profiling-100-samplessecond)
+    - [Profile Comparison (Regression Detection)](#profile-comparison-regression-detection)
+    - [Flame Graph Generation](#flame-graph-generation)
+    - [Production-Safe Profiling (<5% CPU Overhead)](#production-safe-profiling-5-cpu-overhead)
+  - [Cloud Trace Distributed Tracing](#cloud-trace-distributed-tracing)
+    - [Root Span Per Request](#root-span-per-request)
+    - [Span Hierarchy (Parent/Child Relationships)](#span-hierarchy-parentchild-relationships)
+    - [Span Timing (Automatic Latency Measurement)](#span-timing-automatic-latency-measurement)
+    - [Sampling (100% Dev, 1% Prod)](#sampling-100-dev-1-prod)
+    - [Batch Export](#batch-export)
+  - [Cloud Monitoring Metrics](#cloud-monitoring-metrics)
+    - [Custom Metrics](#custom-metrics)
+    - [Metric Types](#metric-types)
+    - [Metric Querying](#metric-querying)
+    - [Alerting Rules](#alerting-rules)
+  - [Continuous Profiling Service](#continuous-profiling-service)
+    - [Automatic Production Profiling](#automatic-production-profiling)
+    - [Event Logging](#event-logging)
+    - [Regression Detection](#regression-detection)
+  - [Regression Detection](#regression-detection-1)
+    - [Automatic Comparison](#automatic-comparison)
+    - [Threshold Configuration](#threshold-configuration)
+    - [Alert Severity Levels](#alert-severity-levels)
+    - [Integration with Continuous Profiling](#integration-with-continuous-profiling)
+  - [Dashboard Design](#dashboard-design)
+    - [Three-Tier Dashboard Hierarchy](#three-tier-dashboard-hierarchy)
+    - [Key Metrics to Monitor](#key-metrics-to-monitor)
+    - [Custom Dashboard Configuration](#custom-dashboard-configuration)
+  - [Cost Optimization](#cost-optimization)
+    - [Sampling Strategy](#sampling-strategy)
+    - [Profile Batching](#profile-batching)
+    - [Retention Policies](#retention-policies)
+  - [Best Practices](#best-practices)
+    - [1. Instrument at Request Boundaries](#1-instrument-at-request-boundaries)
+    - [2. Tag Traces with Business Context](#2-tag-traces-with-business-context)
+    - [3. Use Structured Logging with Trace Context](#3-use-structured-logging-with-trace-context)
+    - [4. Profile Regularly, Not Just on Errors](#4-profile-regularly-not-just-on-errors)
+    - [5. Set SLOs Before Alerting](#5-set-slos-before-alerting)
+    - [6. Use Percentiles, Not Averages](#6-use-percentiles-not-averages)
+    - [7. Correlate Metrics, Traces, Logs](#7-correlate-metrics-traces-logs)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TAI Observability: Production-Grade Observability for Rust Applications
 
 **Version**: 0.1.0 | **Last Updated**: January 2026

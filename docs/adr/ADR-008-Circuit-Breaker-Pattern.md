@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ADR-008: Circuit Breaker Pattern for gRPC Services](#adr-008-circuit-breaker-pattern-for-grpc-services)
+  - [Problem Statement](#problem-statement)
+  - [Decision](#decision)
+  - [Rationale](#rationale)
+    - [Circuit Breaker Benefits](#circuit-breaker-benefits)
+  - [Implementation](#implementation)
+    - [Istio DestinationRule (Infrastructure Layer)](#istio-destinationrule-infrastructure-layer)
+    - [Application-Level Circuit Breaker (Rust)](#application-level-circuit-breaker-rust)
+    - [Health Check Integration](#health-check-integration)
+    - [Metrics and Monitoring](#metrics-and-monitoring)
+    - [Alerting](#alerting)
+  - [Integration with Canary Deployments](#integration-with-canary-deployments)
+  - [Consequences](#consequences)
+    - [Positive](#positive)
+    - [Negative](#negative)
+  - [Configuration by Service](#configuration-by-service)
+  - [Testing Circuit Breaker](#testing-circuit-breaker)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ADR-008: Circuit Breaker Pattern for gRPC Services
 
 **Status:** Accepted

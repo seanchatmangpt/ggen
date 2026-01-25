@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ADR-007: Observability Strategy (CloudTrace, CloudProfiler, OpenTelemetry)](#adr-007-observability-strategy-cloudtrace-cloudprofiler-opentelemetry)
+  - [Problem Statement](#problem-statement)
+  - [Decision](#decision)
+  - [Rationale](#rationale)
+    - [Prometheus Metrics](#prometheus-metrics)
+    - [Jaeger Distributed Tracing](#jaeger-distributed-tracing)
+    - [Cloud Profiler](#cloud-profiler)
+  - [Implementation](#implementation)
+    - [OpenTelemetry Setup (Rust)](#opentelemetry-setup-rust)
+    - [Prometheus Metrics](#prometheus-metrics-1)
+    - [Kubernetes Prometheus Configuration](#kubernetes-prometheus-configuration)
+    - [Jaeger Deployment](#jaeger-deployment)
+    - [Cloud Profiler Integration](#cloud-profiler-integration)
+    - [Observability Instrumentation in Services](#observability-instrumentation-in-services)
+  - [Monitoring Dashboards](#monitoring-dashboards)
+    - [Prometheus + Grafana](#prometheus--grafana)
+    - [Jaeger UI](#jaeger-ui)
+    - [Cloud Profiler](#cloud-profiler-1)
+  - [Log Aggregation](#log-aggregation)
+  - [Alerts Configuration](#alerts-configuration)
+  - [Consequences](#consequences)
+    - [Positive](#positive)
+    - [Negative](#negative)
+  - [Performance Impact](#performance-impact)
+  - [SLOs for Observability](#slos-for-observability)
+  - [Cost Optimization](#cost-optimization)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ADR-007: Observability Strategy (CloudTrace, CloudProfiler, OpenTelemetry)
 
 **Status:** Accepted

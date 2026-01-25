@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TAI Kubernetes Integration Guide](#tai-kubernetes-integration-guide)
+  - [Overview](#overview)
+  - [Architecture](#architecture)
+    - [Deployment Topology](#deployment-topology)
+  - [Components](#components)
+    - [1. Helm Chart (`helm/tai-chart/`)](#1-helm-chart-helmtai-chart)
+    - [2. KEDA Autoscaling](#2-keda-autoscaling)
+      - [CPU and Memory Scaling](#cpu-and-memory-scaling)
+      - [Kafka Topic Lag Scaling](#kafka-topic-lag-scaling)
+      - [Google Cloud Pub/Sub Queue Depth](#google-cloud-pubsub-queue-depth)
+      - [Custom Metrics](#custom-metrics)
+    - [3. Istio Service Mesh](#3-istio-service-mesh)
+    - [4. Network Policies](#4-network-policies)
+    - [5. RBAC (Role-Based Access Control)](#5-rbac-role-based-access-control)
+  - [Deployment Guide](#deployment-guide)
+    - [Prerequisites](#prerequisites)
+    - [Step 1: Prepare Values](#step-1-prepare-values)
+    - [Step 2: Deploy TAI](#step-2-deploy-tai)
+    - [Step 3: Verify Deployment](#step-3-verify-deployment)
+    - [Step 4: Configure Autoscaling (KEDA)](#step-4-configure-autoscaling-keda)
+    - [Step 5: Test Canary Deployment](#step-5-test-canary-deployment)
+  - [Monitoring](#monitoring)
+    - [Prometheus Metrics](#prometheus-metrics)
+    - [Istio Metrics](#istio-metrics)
+    - [KEDA Metrics](#keda-metrics)
+  - [Troubleshooting](#troubleshooting)
+    - [Pods not scaling up](#pods-not-scaling-up)
+    - [Istio traffic not routing](#istio-traffic-not-routing)
+    - [Network policies blocking traffic](#network-policies-blocking-traffic)
+  - [Performance Tuning](#performance-tuning)
+    - [CPU/Memory Limits](#cpumemory-limits)
+    - [Connection Pool](#connection-pool)
+    - [Cooldown Periods](#cooldown-periods)
+  - [Security Best Practices](#security-best-practices)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TAI Kubernetes Integration Guide
 
 ## Overview

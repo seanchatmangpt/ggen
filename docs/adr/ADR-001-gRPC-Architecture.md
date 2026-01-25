@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ADR-001: gRPC vs HTTP API Architecture](#adr-001-grpc-vs-http-api-architecture)
+  - [Problem Statement](#problem-statement)
+  - [Decision](#decision)
+  - [Rationale](#rationale)
+    - [gRPC Benefits (Internal)](#grpc-benefits-internal)
+    - [HTTP/REST Benefits (Public)](#httprest-benefits-public)
+    - [Hybrid Approach Advantages](#hybrid-approach-advantages)
+  - [Implementation](#implementation)
+    - [Service Definitions (tai.proto)](#service-definitions-taiproto)
+    - [HTTP Gateway (REST API)](#http-gateway-rest-api)
+    - [Client Implementation](#client-implementation)
+  - [Trade-offs](#trade-offs)
+  - [Consequences](#consequences)
+    - [Positive](#positive)
+    - [Negative](#negative)
+  - [Migration Path](#migration-path)
+  - [Monitoring and Observability](#monitoring-and-observability)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ADR-001: gRPC vs HTTP API Architecture
 
 **Status:** Accepted

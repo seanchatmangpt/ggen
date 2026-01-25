@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [C4 Level 1: System Context Diagram](#c4-level-1-system-context-diagram)
+  - [Entities and Responsibilities](#entities-and-responsibilities)
+    - [External Users](#external-users)
+    - [TAI System](#tai-system)
+    - [External Systems](#external-systems)
+  - [Key Interactions](#key-interactions)
+  - [Technology Stack](#technology-stack)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # C4 Level 1: System Context Diagram
 
 TAI (Temporal Autonomic Infrastructure) in enterprise context.

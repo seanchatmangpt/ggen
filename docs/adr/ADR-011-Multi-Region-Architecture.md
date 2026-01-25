@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ADR-011: Multi-Region Active-Active Topology](#adr-011-multi-region-active-active-topology)
+  - [Problem Statement](#problem-statement)
+  - [Decision](#decision)
+  - [Rationale](#rationale)
+    - [Active-Active Benefits](#active-active-benefits)
+    - [Alternative: Active-Passive](#alternative-active-passive)
+  - [Architecture](#architecture)
+    - [Multi-Region Kubernetes Clusters](#multi-region-kubernetes-clusters)
+    - [Failover Flow](#failover-flow)
+  - [Firestore Multi-Region Replication](#firestore-multi-region-replication)
+  - [Conflict Resolution](#conflict-resolution)
+  - [DNS and Geolocation Routing](#dns-and-geolocation-routing)
+  - [Disaster Recovery Testing](#disaster-recovery-testing)
+  - [RTO and RPO](#rto-and-rpo)
+  - [Monitoring Multi-Region](#monitoring-multi-region)
+  - [Cost Implications](#cost-implications)
+  - [Data Residency Compliance](#data-residency-compliance)
+  - [Consequences](#consequences)
+    - [Positive](#positive)
+    - [Negative](#negative)
+  - [Migration Path](#migration-path)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ADR-011: Multi-Region Active-Active Topology
 
 **Status:** Accepted

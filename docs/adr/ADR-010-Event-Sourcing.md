@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ADR-010: Event Sourcing for Audit Trail and Event Log](#adr-010-event-sourcing-for-audit-trail-and-event-log)
+  - [Problem Statement](#problem-statement)
+  - [Decision](#decision)
+  - [Rationale](#rationale)
+    - [Event Sourcing Benefits](#event-sourcing-benefits)
+  - [Implementation](#implementation)
+    - [Event Definition](#event-definition)
+    - [Event Store (Cloud Pub/Sub)](#event-store-cloud-pubsub)
+    - [Snapshot Strategy](#snapshot-strategy)
+    - [Event Sourcing in Business Logic](#event-sourcing-in-business-logic)
+    - [Compliance and Retention](#compliance-and-retention)
+  - [Monitoring](#monitoring)
+  - [Consequences](#consequences)
+    - [Positive](#positive)
+    - [Negative](#negative)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ADR-010: Event Sourcing for Audit Trail and Event Log
 
 **Status:** Accepted

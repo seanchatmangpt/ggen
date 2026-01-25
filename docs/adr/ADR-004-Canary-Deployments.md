@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ADR-004: Canary Deployment Strategy with KEDA](#adr-004-canary-deployment-strategy-with-keda)
+  - [Problem Statement](#problem-statement)
+  - [Decision](#decision)
+  - [Rationale](#rationale)
+    - [Canary Benefits](#canary-benefits)
+  - [Architecture](#architecture)
+    - [Traffic Splitting with Istio](#traffic-splitting-with-istio)
+    - [KEDA Event-Driven Scaling](#keda-event-driven-scaling)
+  - [Promotion Criteria](#promotion-criteria)
+    - [Automated Promotion Logic](#automated-promotion-logic)
+    - [Promotion Stages](#promotion-stages)
+  - [Implementation](#implementation)
+    - [Flagger for Automated Canary](#flagger-for-automated-canary)
+    - [Rollback Trigger](#rollback-trigger)
+  - [Monitoring Strategy](#monitoring-strategy)
+    - [Metrics to Compare (Stable vs Canary)](#metrics-to-compare-stable-vs-canary)
+    - [Dashboard Setup](#dashboard-setup)
+  - [Rollback Procedure](#rollback-procedure)
+  - [Testing Before Canary](#testing-before-canary)
+  - [Consequences](#consequences)
+    - [Positive](#positive)
+    - [Negative](#negative)
+  - [Cost Impact](#cost-impact)
+  - [SLOs for Canary Deployments](#slos-for-canary-deployments)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ADR-004: Canary Deployment Strategy with KEDA
 
 **Status:** Accepted
