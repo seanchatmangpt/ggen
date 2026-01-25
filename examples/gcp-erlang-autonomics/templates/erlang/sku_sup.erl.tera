@@ -1,0 +1,51 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_sup).
+-behaviour(supervisor).
+
+-export([start_link/0]).
+-export([init/1]).
+
+start_link() ->
+  supervisor:start_link({local, ?MODULE}, ?MODULE, []).
+
+init([]) ->
+  SupFlags = #{strategy => one_for_one, intensity => 5, period => 10},
+
+  ReceiptLedger = #{
+    id => {{ module_prefix }}_receipt_ledger,
+    start => {{{ module_prefix }}_receipt_ledger, start_link, []},
+    restart => permanent,
+    shutdown => 5000,
+    type => worker,
+    modules => [{{ module_prefix }}_receipt_ledger]
+  },
+
+  TenantRegistry = #{
+    id => {{ module_prefix }}_tenant_registry,
+    start => {{{ module_prefix }}_tenant_registry, start_link, []},
+    restart => permanent,
+    shutdown => 5000,
+    type => worker,
+    modules => [{{ module_prefix }}_tenant_registry]
+  },
+
+  EntitlementFSM = #{
+    id => {{ module_prefix }}_entitlement_statem,
+    start => {{{ module_prefix }}_entitlement_statem, start_link, [#{}]},
+    restart => permanent,
+    shutdown => 5000,
+    type => worker,
+    modules => [{{ module_prefix }}_entitlement_statem]
+  },
+
+  HttpServer = #{
+    id => {{ module_prefix }}_http_server,
+    start => {{{ module_prefix }}_http_server, start_link, []},
+    restart => permanent,
+    shutdown => 5000,
+    type => worker,
+    modules => [{{ module_prefix }}_http_server]
+  },
+
+  {ok, {SupFlags, [ReceiptLedger, TenantRegistry, EntitlementFSM, HttpServer]}}.

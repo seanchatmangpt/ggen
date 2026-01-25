@@ -1,0 +1,41 @@
+{
+  "sku": "{{ sku }}",
+  "product_name": "{{ product_name }}",
+  "version": "{{ version }}",
+  "module_prefix": "{{ module_prefix }}",
+  "generated_at": "{{ generated_at | default(value="") }}",
+  "artifacts": {
+    "erlang_modules": [
+      "{{ module_prefix }}_governor_statem",
+      "{{ module_prefix }}_policy_pack",
+      "{{ module_prefix }}_actuator_adapter",
+      "{{ module_prefix }}_tenant_registry",
+      "{{ module_prefix }}_signal_normalizer",
+      "{{ module_prefix }}_entitlement_statem",
+      "{{ module_prefix }}_receipt_ledger",
+      "{{ module_prefix }}_receipt_hash",
+      "{{ module_prefix }}_http_server",
+      "{{ module_prefix }}_http_router",
+      "{{ module_prefix }}_pubsub_decoder",
+      "{{ module_prefix }}_gcp_actions",
+      "{{ module_prefix }}_gcp_client",
+      "{{ module_prefix }}_sup",
+      "{{ module_prefix }}_app"
+    ],
+    "signals": [
+      {% for sig in signals -%}
+      "{{ sig.name }}"{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ],
+    "actions": [
+      {% for a in actions -%}
+      "{{ a.name }}"{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ],
+    "invariants": [
+      {% for inv in invariants -%}
+      "{{ inv.name }}"{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  }
+}
