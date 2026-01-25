@@ -204,7 +204,10 @@ fn test_sync_basic_execution_with_default_manifest() {
     let sync_result = result.unwrap();
     assert_eq!(sync_result.status, "success");
     assert!(sync_result.duration_ms > 0, "Duration should be positive");
-    assert!(sync_result.files_synced >= 0, "Files synced should be non-negative");
+    assert!(
+        sync_result.files_synced >= 0,
+        "Files synced should be non-negative"
+    );
 }
 
 #[test]
@@ -232,7 +235,11 @@ fn test_sync_with_dry_run_no_files_written() {
     let result = executor.execute();
 
     // Assert: Verify success and no files written
-    assert!(result.is_ok(), "Dry-run should succeed. Error: {:?}", result.err());
+    assert!(
+        result.is_ok(),
+        "Dry-run should succeed. Error: {:?}",
+        result.err()
+    );
 
     let sync_result = result.unwrap();
     assert_eq!(sync_result.status, "success");
@@ -266,7 +273,7 @@ fn test_sync_with_specific_rule_filter() {
         manifest_path,
         output_dir: Some(temp_path.join("output")),
         selected_rules: Some(vec!["structs".to_string()]), // Filter to one rule
-        dry_run: true, // Use dry-run to avoid side effects
+        dry_run: true,                                     // Use dry-run to avoid side effects
         use_cache: false,
         ..SyncOptions::default()
     };
@@ -310,7 +317,11 @@ fn test_sync_with_audit_trail_generation() {
     let result = executor.execute();
 
     // Assert: Verify audit trail generated
-    assert!(result.is_ok(), "Audit sync should succeed. Error: {:?}", result.err());
+    assert!(
+        result.is_ok(),
+        "Audit sync should succeed. Error: {:?}",
+        result.err()
+    );
 
     let sync_result = result.unwrap();
     assert_eq!(sync_result.status, "success");
@@ -522,7 +533,9 @@ fn test_sync_error_missing_manifest() {
 
     let error_msg = result.unwrap_err().to_string();
     assert!(
-        error_msg.contains("Manifest not found") || error_msg.contains("E0001") || error_msg.contains("No such file"),
+        error_msg.contains("Manifest not found")
+            || error_msg.contains("E0001")
+            || error_msg.contains("No such file"),
         "Error should mention manifest not found. Got: {}",
         error_msg
     );
@@ -585,7 +598,10 @@ fn test_sync_error_missing_ontology_file() {
 
     let error_msg = result.unwrap_err().to_string();
     assert!(
-        error_msg.contains("missing.ttl") || error_msg.contains("Ontology") || error_msg.contains("not found") || error_msg.contains("No such file"),
+        error_msg.contains("missing.ttl")
+            || error_msg.contains("Ontology")
+            || error_msg.contains("not found")
+            || error_msg.contains("No such file"),
         "Error should mention missing ontology. Got: {}",
         error_msg
     );
@@ -617,11 +633,17 @@ test:Entity this is not valid turtle syntax
     let result = executor.execute();
 
     // Assert: Should fail with Turtle parsing error
-    assert!(result.is_err(), "Invalid Turtle syntax should result in error");
+    assert!(
+        result.is_err(),
+        "Invalid Turtle syntax should result in error"
+    );
 
     let error_msg = result.unwrap_err().to_string();
     assert!(
-        error_msg.contains("Turtle") || error_msg.contains("RDF") || error_msg.contains("parse") || error_msg.contains("syntax"),
+        error_msg.contains("Turtle")
+            || error_msg.contains("RDF")
+            || error_msg.contains("parse")
+            || error_msg.contains("syntax"),
         "Error should mention Turtle/RDF parsing issue. Got: {}",
         error_msg
     );
@@ -648,7 +670,10 @@ fn test_sync_error_nonexistent_rule_name() {
     let result = executor.execute();
 
     // Assert: Should fail with rule not found error
-    assert!(result.is_err(), "Nonexistent rule name should result in error");
+    assert!(
+        result.is_err(),
+        "Nonexistent rule name should result in error"
+    );
 
     let error_msg = result.unwrap_err().to_string();
     assert!(
@@ -686,11 +711,16 @@ fn test_sync_error_watch_mode_not_implemented() {
     let result = executor.execute();
 
     // Assert: Should fail with not implemented error
-    assert!(result.is_err(), "Watch mode should error as not implemented");
+    assert!(
+        result.is_err(),
+        "Watch mode should error as not implemented"
+    );
 
     let error_msg = result.unwrap_err().to_string();
     assert!(
-        error_msg.contains("not yet implemented") || error_msg.contains("not implemented") || error_msg.contains("watch"),
+        error_msg.contains("not yet implemented")
+            || error_msg.contains("not implemented")
+            || error_msg.contains("watch"),
         "Error should mention watch mode not implemented. Got: {}",
         error_msg
     );
@@ -982,7 +1012,10 @@ fn test_sync_options_default_values() {
     assert_eq!(options.selected_rules, None);
     assert!(!options.verbose, "verbose should default to false");
     assert!(!options.watch, "watch should default to false");
-    assert!(!options.validate_only, "validate_only should default to false");
+    assert!(
+        !options.validate_only,
+        "validate_only should default to false"
+    );
     assert_eq!(options.output_format, OutputFormat::Text);
     assert_eq!(options.timeout_ms, 30000, "timeout should default to 30s");
     assert!(options.use_cache, "cache should be enabled by default");
@@ -994,7 +1027,10 @@ fn test_sync_options_from_manifest() {
     let options = SyncOptions::from_manifest("/custom/path/ggen.toml");
 
     // Assert: Verify manifest path set
-    assert_eq!(options.manifest_path, PathBuf::from("/custom/path/ggen.toml"));
+    assert_eq!(
+        options.manifest_path,
+        PathBuf::from("/custom/path/ggen.toml")
+    );
 
     // Other options should be defaults
     assert!(!options.dry_run);
@@ -1101,7 +1137,10 @@ fn test_sync_e2e_complete_workflow() {
     let final_result = sync_result.unwrap();
     assert_eq!(final_result.status, "success");
     assert!(final_result.duration_ms > 0);
-    assert!(final_result.audit_trail.is_some(), "Audit trail should be generated");
+    assert!(
+        final_result.audit_trail.is_some(),
+        "Audit trail should be generated"
+    );
 }
 
 #[test]

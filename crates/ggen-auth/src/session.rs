@@ -32,7 +32,7 @@ pub struct SessionConfig {
 impl Default for SessionConfig {
     fn default() -> Self {
         Self {
-            ttl_seconds: 86400,           // 24 hours
+            ttl_seconds: 86400,              // 24 hours
             refresh_threshold_seconds: 3600, // Refresh if < 1 hour remaining
         }
     }
@@ -43,13 +43,8 @@ impl Default for SessionConfig {
 pub trait SessionManager: Send + Sync {
     /// Create a new session
     async fn create_session(
-        &self,
-        user_id: &str,
-        email: &str,
-        tier: &str,
-        scopes: Vec<String>,
-        ip_address: Option<String>,
-        user_agent: Option<String>,
+        &self, user_id: &str, email: &str, tier: &str, scopes: Vec<String>,
+        ip_address: Option<String>, user_agent: Option<String>,
     ) -> AuthResult<String>;
 
     /// Get session data
@@ -113,13 +108,8 @@ impl RedisSessionManager {
 #[async_trait]
 impl SessionManager for RedisSessionManager {
     async fn create_session(
-        &self,
-        user_id: &str,
-        email: &str,
-        tier: &str,
-        scopes: Vec<String>,
-        ip_address: Option<String>,
-        user_agent: Option<String>,
+        &self, user_id: &str, email: &str, tier: &str, scopes: Vec<String>,
+        ip_address: Option<String>, user_agent: Option<String>,
     ) -> AuthResult<String> {
         let session_id = Uuid::new_v4().to_string();
         let now = Utc::now().timestamp();
@@ -135,8 +125,8 @@ impl SessionManager for RedisSessionManager {
             user_agent,
         };
 
-        let session_json = serde_json::to_string(&session_data)
-            .map_err(|_| AuthError::InternalError)?;
+        let session_json =
+            serde_json::to_string(&session_data).map_err(|_| AuthError::InternalError)?;
 
         let mut conn = self.conn.as_ref().clone();
 
@@ -154,7 +144,9 @@ impl SessionManager for RedisSessionManager {
         let _: () = conn
             .sadd(Self::user_sessions_key(user_id), &session_id)
             .await
-            .map_err(|e| AuthError::DatabaseError(format!("Failed to track user session: {}", e)))?;
+            .map_err(|e| {
+                AuthError::DatabaseError(format!("Failed to track user session: {}", e))
+            })?;
 
         Ok(session_id)
     }
@@ -176,8 +168,8 @@ impl SessionManager for RedisSessionManager {
         let mut session_data = self.get_session(session_id).await?;
         session_data.last_accessed = Utc::now().timestamp();
 
-        let session_json = serde_json::to_string(&session_data)
-            .map_err(|_| AuthError::InternalError)?;
+        let session_json =
+            serde_json::to_string(&session_data).map_err(|_| AuthError::InternalError)?;
 
         let mut conn = self.conn.as_ref().clone();
 
@@ -210,7 +202,9 @@ impl SessionManager for RedisSessionManager {
         let _: () = conn
             .srem(Self::user_sessions_key(&session_data.user_id), session_id)
             .await
-            .map_err(|e| AuthError::DatabaseError(format!("Failed to remove user session: {}", e)))?;
+            .map_err(|e| {
+                AuthError::DatabaseError(format!("Failed to remove user session: {}", e))
+            })?;
 
         Ok(())
     }
@@ -226,17 +220,18 @@ impl SessionManager for RedisSessionManager {
 
         // Delete all sessions
         for session_id in &session_ids {
-            let _: () = conn
-                .del(Self::session_key(session_id))
-                .await
-                .map_err(|e| AuthError::DatabaseError(format!("Failed to delete session: {}", e)))?;
+            let _: () = conn.del(Self::session_key(session_id)).await.map_err(|e| {
+                AuthError::DatabaseError(format!("Failed to delete session: {}", e))
+            })?;
         }
 
         // Delete user's session set
         let _: () = conn
             .del(Self::user_sessions_key(user_id))
             .await
-            .map_err(|e| AuthError::DatabaseError(format!("Failed to delete user session set: {}", e)))?;
+            .map_err(|e| {
+                AuthError::DatabaseError(format!("Failed to delete user session set: {}", e))
+            })?;
 
         Ok(())
     }
@@ -261,8 +256,8 @@ mod tests {
     // In CI/CD, use testcontainers to spin up Redis automatically
 
     async fn create_test_manager() -> RedisSessionManager {
-        let redis_url = std::env::var("REDIS_URL")
-            .unwrap_or_else(|_| "redis://127.0.0.1:6379".to_string());
+        let redis_url =
+            std::env::var("REDIS_URL").unwrap_or_else(|_| "redis://127.0.0.1:6379".to_string());
 
         RedisSessionManager::with_defaults(&redis_url)
             .await

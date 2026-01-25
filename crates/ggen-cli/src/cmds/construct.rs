@@ -174,8 +174,7 @@ pub struct ValidationResult {
 ///
 #[verb("construct", "create")]
 pub fn create(
-    spec_path: String,
-    output_dir: Option<String>,
+    spec_path: String, output_dir: Option<String>,
 ) -> clap_noun_verb::Result<ConstructCreateOutput> {
     // Validate spec file exists
     let spec_file = Path::new(&spec_path);
@@ -216,7 +215,8 @@ pub fn create(
         });
     }
 
-    let output_directory = output_dir.unwrap_or_else(|| "crates/ggen-ai/src/constructs".to_string());
+    let output_directory =
+        output_dir.unwrap_or_else(|| "crates/ggen-ai/src/constructs".to_string());
 
     // Delegate to implementation
     perform_create(&spec_path, &output_directory)
@@ -267,8 +267,7 @@ pub fn validate(module_name: String) -> clap_noun_verb::Result<ConstructValidate
 /// 5. Generate Rust code using Tera templates
 /// 6. Write to output directory
 fn perform_create(
-    spec_path: &str,
-    output_dir: &str,
+    spec_path: &str, output_dir: &str,
 ) -> clap_noun_verb::Result<ConstructCreateOutput> {
     // TODO: Implementation pending - depends on:
     // - crates/ggen-ai/src/llm_construct/mod.rs (LLMConstructBuilder)

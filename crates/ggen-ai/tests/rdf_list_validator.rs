@@ -33,7 +33,9 @@ fn test_integration_validator_empty_list() {
     let store = Store::new().expect("Failed to create store");
     let validator = RdfListValidator::new();
 
-    let result = validator.validate_list(&store, RDF_NIL).expect("Validation failed");
+    let result = validator
+        .validate_list(&store, RDF_NIL)
+        .expect("Validation failed");
     assert!(result.is_empty(), "Empty list should return empty vector");
 }
 
@@ -59,10 +61,20 @@ fn test_integration_validator_three_elements() {
 
     // Create list: (a b c)
     add_triple_with_literal(&store, "http://example.com/list1", RDF_FIRST, "a");
-    add_triple(&store, "http://example.com/list1", RDF_REST, "http://example.com/list2");
+    add_triple(
+        &store,
+        "http://example.com/list1",
+        RDF_REST,
+        "http://example.com/list2",
+    );
 
     add_triple_with_literal(&store, "http://example.com/list2", RDF_FIRST, "b");
-    add_triple(&store, "http://example.com/list2", RDF_REST, "http://example.com/list3");
+    add_triple(
+        &store,
+        "http://example.com/list2",
+        RDF_REST,
+        "http://example.com/list3",
+    );
 
     add_triple_with_literal(&store, "http://example.com/list3", RDF_FIRST, "c");
     add_triple(&store, "http://example.com/list3", RDF_REST, RDF_NIL);
@@ -83,10 +95,20 @@ fn test_integration_circular_reference_detection() {
 
     // Create cycle: list1 -> list2 -> list1
     add_triple_with_literal(&store, "http://example.com/list1", RDF_FIRST, "x");
-    add_triple(&store, "http://example.com/list1", RDF_REST, "http://example.com/list2");
+    add_triple(
+        &store,
+        "http://example.com/list1",
+        RDF_REST,
+        "http://example.com/list2",
+    );
 
     add_triple_with_literal(&store, "http://example.com/list2", RDF_FIRST, "y");
-    add_triple(&store, "http://example.com/list2", RDF_REST, "http://example.com/list1");
+    add_triple(
+        &store,
+        "http://example.com/list2",
+        RDF_REST,
+        "http://example.com/list1",
+    );
 
     let result = validator.validate_list(&store, "http://example.com/list1");
     assert!(result.is_err(), "Circular reference should be detected");
@@ -107,7 +129,12 @@ fn test_integration_missing_nil_terminator() {
 
     // Create malformed list without nil terminator
     add_triple_with_literal(&store, "http://example.com/list1", RDF_FIRST, "a");
-    add_triple(&store, "http://example.com/list1", RDF_REST, "http://example.com/list2");
+    add_triple(
+        &store,
+        "http://example.com/list1",
+        RDF_REST,
+        "http://example.com/list2",
+    );
 
     add_triple_with_literal(&store, "http://example.com/list2", RDF_FIRST, "b");
     // No rdf:rest property
@@ -166,7 +193,12 @@ fn test_integration_validator_with_uri_values() {
         RDF_FIRST,
         "http://example.com/resource1",
     );
-    add_triple(&store, "http://example.com/list1", RDF_REST, "http://example.com/list2");
+    add_triple(
+        &store,
+        "http://example.com/list1",
+        RDF_REST,
+        "http://example.com/list2",
+    );
 
     add_triple(
         &store,
@@ -191,7 +223,12 @@ fn test_integration_validator_self_loop() {
 
     // Create self-referencing node
     add_triple_with_literal(&store, "http://example.com/list1", RDF_FIRST, "x");
-    add_triple(&store, "http://example.com/list1", RDF_REST, "http://example.com/list1");
+    add_triple(
+        &store,
+        "http://example.com/list1",
+        RDF_REST,
+        "http://example.com/list1",
+    );
 
     let result = validator.validate_list(&store, "http://example.com/list1");
     assert!(result.is_err(), "Self-loop should be detected");
@@ -211,10 +248,20 @@ fn test_integration_validator_unicode_values() {
 
     // Create list with unicode values
     add_triple_with_literal(&store, "http://example.com/list1", RDF_FIRST, "Hello");
-    add_triple(&store, "http://example.com/list1", RDF_REST, "http://example.com/list2");
+    add_triple(
+        &store,
+        "http://example.com/list1",
+        RDF_REST,
+        "http://example.com/list2",
+    );
 
     add_triple_with_literal(&store, "http://example.com/list2", RDF_FIRST, "世界");
-    add_triple(&store, "http://example.com/list2", RDF_REST, "http://example.com/list3");
+    add_triple(
+        &store,
+        "http://example.com/list2",
+        RDF_REST,
+        "http://example.com/list3",
+    );
 
     add_triple_with_literal(&store, "http://example.com/list3", RDF_FIRST, "🌍");
     add_triple(&store, "http://example.com/list3", RDF_REST, RDF_NIL);
@@ -254,7 +301,12 @@ fn test_integration_validator_duplicate_values() {
 
     // Create list with duplicate values
     add_triple_with_literal(&store, "http://example.com/list1", RDF_FIRST, "same");
-    add_triple(&store, "http://example.com/list1", RDF_REST, "http://example.com/list2");
+    add_triple(
+        &store,
+        "http://example.com/list1",
+        RDF_REST,
+        "http://example.com/list2",
+    );
 
     add_triple_with_literal(&store, "http://example.com/list2", RDF_FIRST, "same");
     add_triple(&store, "http://example.com/list2", RDF_REST, RDF_NIL);

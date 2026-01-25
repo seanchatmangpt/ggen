@@ -110,7 +110,9 @@ impl LockoutManager for RedisLockoutManager {
         let attempts: u32 = conn
             .incr(Self::failed_attempts_key(identifier), 1)
             .await
-            .map_err(|e| AuthError::DatabaseError(format!("Failed to increment attempts: {}", e)))?;
+            .map_err(|e| {
+                AuthError::DatabaseError(format!("Failed to increment attempts: {}", e))
+            })?;
 
         // Set expiration on first attempt
         if attempts == 1 {
@@ -120,7 +122,9 @@ impl LockoutManager for RedisLockoutManager {
                     self.config.attempt_window_seconds,
                 )
                 .await
-                .map_err(|e| AuthError::DatabaseError(format!("Failed to set expiration: {}", e)))?;
+                .map_err(|e| {
+                    AuthError::DatabaseError(format!("Failed to set expiration: {}", e))
+                })?;
         }
 
         // Lock account if max attempts reached
@@ -229,8 +233,8 @@ mod tests {
     use super::*;
 
     async fn create_test_manager() -> RedisLockoutManager {
-        let redis_url = std::env::var("REDIS_URL")
-            .unwrap_or_else(|_| "redis://127.0.0.1:6379".to_string());
+        let redis_url =
+            std::env::var("REDIS_URL").unwrap_or_else(|_| "redis://127.0.0.1:6379".to_string());
 
         RedisLockoutManager::with_defaults(&redis_url)
             .await

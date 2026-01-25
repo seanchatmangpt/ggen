@@ -14,7 +14,7 @@
 //! - AAA pattern (Arrange-Act-Assert)
 
 use ggen_api::middleware::rate_limit::{
-    RateLimiter, RateLimitConfig, RateLimitBackend, RateLimitError,
+    RateLimitBackend, RateLimitConfig, RateLimitError, RateLimiter,
 };
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -682,10 +682,7 @@ async fn test_combined_ip_and_api_key_limiting() {
     assert!(limiter.check_limit(combined_key).await.is_err());
 
     // Assert - Different combination is independent
-    assert!(limiter
-        .check_limit("192.168.1.1:key_xyz789")
-        .await
-        .is_ok());
+    assert!(limiter.check_limit("192.168.1.1:key_xyz789").await.is_ok());
 }
 
 #[tokio::test]
@@ -770,10 +767,7 @@ async fn test_rate_limit_error_response_format() {
     let error = limiter.check_limit("client1").await;
 
     // Assert - Error type is correct
-    assert!(matches!(
-        error,
-        Err(RateLimitError::TooManyRequests { .. })
-    ));
+    assert!(matches!(error, Err(RateLimitError::TooManyRequests { .. })));
 }
 
 #[tokio::test]

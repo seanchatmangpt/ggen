@@ -30,14 +30,14 @@ fn test_construct_create_with_non_ttl_file() {
     // Arrange: Create a temporary file with wrong extension
     let temp_dir = assert_fs::TempDir::new().unwrap();
     let spec_file = temp_dir.child("spec.txt");
-    spec_file.write_str("@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .").unwrap();
+    spec_file
+        .write_str("@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .")
+        .unwrap();
 
     let mut cmd = Command::cargo_bin("ggen").unwrap();
 
     // Act: Run construct create with non-TTL file
-    cmd.arg("construct")
-        .arg("create")
-        .arg(spec_file.path());
+    cmd.arg("construct").arg("create").arg(spec_file.path());
 
     // Assert: Should return error about file extension
     cmd.assert()
@@ -53,8 +53,9 @@ fn test_construct_create_with_valid_ttl_file_returns_not_implemented() {
     // Arrange: Create a temporary TTL file
     let temp_dir = assert_fs::TempDir::new().unwrap();
     let spec_file = temp_dir.child("bond.ttl");
-    spec_file.write_str(
-        r#"
+    spec_file
+        .write_str(
+            r#"
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
@@ -64,15 +65,13 @@ fibo:Bond a owl:Class ;
     rdfs:label "Bond" ;
     rdfs:comment "A debt security" .
 "#,
-    )
-    .unwrap();
+        )
+        .unwrap();
 
     let mut cmd = Command::cargo_bin("ggen").unwrap();
 
     // Act: Run construct create with valid TTL file
-    cmd.arg("construct")
-        .arg("create")
-        .arg(spec_file.path());
+    cmd.arg("construct").arg("create").arg(spec_file.path());
 
     // Assert: Should return not_implemented status (implementation pending)
     cmd.assert()
@@ -87,20 +86,19 @@ fn test_construct_create_json_output_structure() {
     // Arrange: Create a temporary TTL file
     let temp_dir = assert_fs::TempDir::new().unwrap();
     let spec_file = temp_dir.child("test.ttl");
-    spec_file.write_str(
-        r#"
+    spec_file
+        .write_str(
+            r#"
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 "#,
-    )
-    .unwrap();
+        )
+        .unwrap();
 
     let mut cmd = Command::cargo_bin("ggen").unwrap();
 
     // Act: Run construct create
-    cmd.arg("construct")
-        .arg("create")
-        .arg(spec_file.path());
+    cmd.arg("construct").arg("create").arg(spec_file.path());
 
     // Assert: Output should be valid JSON with expected fields
     let output = cmd.output().unwrap();
@@ -124,9 +122,7 @@ fn test_construct_validate_returns_not_implemented() {
     let mut cmd = Command::cargo_bin("ggen").unwrap();
 
     // Act: Run construct validate
-    cmd.arg("construct")
-        .arg("validate")
-        .arg("bond_extractor");
+    cmd.arg("construct").arg("validate").arg("bond_extractor");
 
     // Assert: Should return not_implemented status
     cmd.assert()
@@ -140,9 +136,7 @@ fn test_construct_validate_json_output_structure() {
     let mut cmd = Command::cargo_bin("ggen").unwrap();
 
     // Act: Run construct validate
-    cmd.arg("construct")
-        .arg("validate")
-        .arg("test_module");
+    cmd.arg("construct").arg("validate").arg("test_module");
 
     // Assert: Output should be valid JSON with expected fields
     let output = cmd.output().unwrap();
@@ -163,12 +157,13 @@ fn test_construct_create_with_custom_output_dir() {
     // Arrange: Create a temporary TTL file
     let temp_dir = assert_fs::TempDir::new().unwrap();
     let spec_file = temp_dir.child("spec.ttl");
-    spec_file.write_str(
-        r#"
+    spec_file
+        .write_str(
+            r#"
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 "#,
-    )
-    .unwrap();
+        )
+        .unwrap();
 
     let mut cmd = Command::cargo_bin("ggen").unwrap();
 
@@ -195,19 +190,18 @@ fn test_to_snake_case_conversion() {
     // Arrange: Create a TTL file with camelCase name
     let temp_dir = assert_fs::TempDir::new().unwrap();
     let spec_file = temp_dir.child("FIBOBond.ttl");
-    spec_file.write_str(
-        r#"
+    spec_file
+        .write_str(
+            r#"
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 "#,
-    )
-    .unwrap();
+        )
+        .unwrap();
 
     let mut cmd = Command::cargo_bin("ggen").unwrap();
 
     // Act: Run construct create
-    cmd.arg("construct")
-        .arg("create")
-        .arg(spec_file.path());
+    cmd.arg("construct").arg("create").arg(spec_file.path());
 
     // Assert: Should succeed (conversion happens internally)
     cmd.assert().success();

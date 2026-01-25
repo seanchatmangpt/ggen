@@ -2,17 +2,17 @@
 
 mod config;
 mod error;
-mod pinning;
-mod validator;
-mod pool;
 mod hsts;
+mod pinning;
+mod pool;
+mod validator;
 
-pub use config::{TlsConfig, TlsConfigBuilder, CipherSuite};
+pub use config::{CipherSuite, TlsConfig, TlsConfigBuilder};
 pub use error::{TlsError, TlsResult};
+pub use hsts::{HstsMiddleware, HstsPolicy};
 pub use pinning::{CertificatePin, PinningStrategy};
-pub use validator::{CertificateValidator, ValidationPolicy};
 pub use pool::{ConnectionPool, PoolConfig};
-pub use hsts::{HstsPolicy, HstsMiddleware};
+pub use validator::{CertificateValidator, ValidationPolicy};
 
 use std::sync::Arc;
 use tokio_rustls::TlsConnector as RustlsConnector;
@@ -86,7 +86,10 @@ mod tests {
         let connector = TlsConnector::new(config);
 
         // Assert
-        assert!(connector.is_ok(), "TLS connector should be created successfully");
+        assert!(
+            connector.is_ok(),
+            "TLS connector should be created successfully"
+        );
     }
 
     #[test]
@@ -95,13 +98,15 @@ mod tests {
         let config = TlsConfigBuilder::default()
             .build()
             .expect("Failed to build TLS config");
-        let connector = TlsConnector::new(config)
-            .expect("Failed to create connector");
+        let connector = TlsConnector::new(config).expect("Failed to create connector");
 
         // Act
         let retrieved_config = connector.config();
 
         // Assert
-        assert!(!retrieved_config.cipher_suites.is_empty(), "Config should have cipher suites");
+        assert!(
+            !retrieved_config.cipher_suites.is_empty(),
+            "Config should have cipher suites"
+        );
     }
 }

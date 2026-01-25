@@ -102,19 +102,11 @@ impl IntoResponse for DoSProtectionError {
             }
             DoSProtectionError::ServiceDegraded => {
                 debug!("Service degraded, request queued");
-                (
-                    StatusCode::ACCEPTED,
-                    "Request queued due to high load",
-                )
-                    .into_response()
+                (StatusCode::ACCEPTED, "Request queued due to high load").into_response()
             }
             DoSProtectionError::InternalError(msg) => {
                 error!("DoS protection internal error: {}", msg);
-                (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    "Internal server error",
-                )
-                    .into_response()
+                (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error").into_response()
             }
         }
     }
@@ -213,7 +205,8 @@ impl CircuitBreaker {
             }
             CircuitState::Closed => {
                 // Reset window if needed
-                if Instant::now().duration_since(self.window_start) >= config.circuit_breaker_window {
+                if Instant::now().duration_since(self.window_start) >= config.circuit_breaker_window
+                {
                     self.reset_counters();
                 }
             }
@@ -263,7 +256,8 @@ impl CircuitBreaker {
                 }
 
                 // Reset window if needed
-                if Instant::now().duration_since(self.window_start) >= config.circuit_breaker_window {
+                if Instant::now().duration_since(self.window_start) >= config.circuit_breaker_window
+                {
                     self.reset_counters();
                 }
             }
@@ -475,10 +469,8 @@ pub struct DoSProtectionStats {
 
 /// Axum middleware for DoS protection
 pub async fn dos_protection_middleware(
-    State(state): State<Arc<DoSProtectionState>>,
-    ConnectInfo(addr): ConnectInfo<SocketAddr>,
-    request: Request,
-    next: Next,
+    State(state): State<Arc<DoSProtectionState>>, ConnectInfo(addr): ConnectInfo<SocketAddr>,
+    request: Request, next: Next,
 ) -> Result<Response, DoSProtectionError> {
     let ip = addr.ip();
     let endpoint = request.uri().path().to_string();
@@ -570,7 +562,9 @@ mod tests {
         assert_eq!(guards.iter().filter(|g| g.is_ok()).count(), 5);
 
         // Act: Try to exceed total limit
-        let guard6 = state.acquire_connection("192.168.1.6".parse().unwrap()).await;
+        let guard6 = state
+            .acquire_connection("192.168.1.6".parse().unwrap())
+            .await;
 
         // Assert: Should fail
         assert!(matches!(

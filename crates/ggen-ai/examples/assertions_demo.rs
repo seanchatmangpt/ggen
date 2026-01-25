@@ -79,7 +79,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Ok(result) => {
             println!(
                 "✓ Success! Summary: {}",
-                result.get("summary").and_then(|v| v.as_str()).unwrap_or("N/A")
+                result
+                    .get("summary")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("N/A")
             );
             println!("  Attempts: {}", executor.total_attempts());
         }
@@ -113,14 +116,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Ok(result) => {
             println!(
                 "✓ Completed! Summary: {}",
-                result.get("summary").and_then(|v| v.as_str()).unwrap_or("N/A")
+                result
+                    .get("summary")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("N/A")
             );
 
             let warnings = executor.warnings();
             if !warnings.is_empty() {
                 println!("\n⚠ Warnings ({}):", warnings.len());
                 for warning in warnings {
-                    println!("  - {} (after {} attempts)", warning.feedback, warning.attempts);
+                    println!(
+                        "  - {} (after {} attempts)",
+                        warning.feedback, warning.attempts
+                    );
                 }
             } else {
                 println!("  No warnings - all suggestions satisfied!");
@@ -163,7 +172,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Ok(result) => {
             println!(
                 "✓ Valid email extracted: {}",
-                result.get("email").and_then(|v| v.as_str()).unwrap_or("N/A")
+                result
+                    .get("email")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("N/A")
             );
         }
         Err(e) => {
@@ -204,7 +216,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     match executor.execute(&base_predictor, inputs.clone()).await {
         Ok(result) => {
-            let summary = result.get("summary").and_then(|v| v.as_str()).unwrap_or("N/A");
+            let summary = result
+                .get("summary")
+                .and_then(|v| v.as_str())
+                .unwrap_or("N/A");
             let word_count = summary.split_whitespace().count();
             println!("✓ Valid summary ({} words): {}", word_count, summary);
         }
@@ -226,9 +241,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let all_validator = AllValidator::new(all_validators);
 
     let all_assertion = Assertion::assert(all_validator)
-        .with_feedback(
-            "Summary must: (1) not be empty, (2) be 50-200 chars, (3) mention 'memory'",
-        )
+        .with_feedback("Summary must: (1) not be empty, (2) be 50-200 chars, (3) mention 'memory'")
         .max_retries(3);
 
     println!("Testing ALL validator (must pass all checks)...");
@@ -239,7 +252,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Ok(result) => {
             println!(
                 "✓ All checks passed! Summary: {}",
-                result.get("summary").and_then(|v| v.as_str()).unwrap_or("N/A")
+                result
+                    .get("summary")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("N/A")
             );
         }
         Err(e) => {
@@ -268,7 +284,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Ok(result) => {
             println!(
                 "✓ At least one check passed! Summary: {}",
-                result.get("summary").and_then(|v| v.as_str()).unwrap_or("N/A")
+                result
+                    .get("summary")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("N/A")
             );
         }
         Err(e) => {
@@ -291,7 +310,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Ok(result) => {
             println!(
                 "✓ Passed! Summary: {}",
-                result.get("summary").and_then(|v| v.as_str()).unwrap_or("N/A")
+                result
+                    .get("summary")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("N/A")
             );
         }
         Err(e) => {

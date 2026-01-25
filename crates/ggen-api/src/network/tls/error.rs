@@ -76,7 +76,10 @@ mod tests {
         let display = format!("{error}");
 
         // Assert
-        assert!(display.contains("test error"), "Error message should contain the description");
+        assert!(
+            display.contains("test error"),
+            "Error message should contain the description"
+        );
     }
 
     #[test]
@@ -88,6 +91,9 @@ mod tests {
         let tls_error = TlsError::from(io_error);
 
         // Assert
-        assert!(matches!(tls_error, TlsError::Io(_)), "Should convert IO error to TLS error");
+        assert!(
+            matches!(tls_error, TlsError::Io(_)),
+            "Should convert IO error to TLS error"
+        );
     }
 }

@@ -2,8 +2,10 @@
 
 use chrono::{Duration, Utc};
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
+use rsa::pkcs8::{
+    DecodePrivateKey, DecodePublicKey, EncodePrivateKey, EncodePublicKey, LineEnding,
+};
 use rsa::{RsaPrivateKey, RsaPublicKey};
-use rsa::pkcs8::{EncodePrivateKey, EncodePublicKey, DecodePrivateKey, DecodePublicKey, LineEnding};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use uuid::Uuid;
@@ -20,14 +22,14 @@ pub enum TokenType {
 /// JWT token claims with RS256
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Rs256TokenClaims {
-    pub sub: String,        // Subject (user ID)
+    pub sub: String, // Subject (user ID)
     pub email: String,
     pub tier: String,
     pub scopes: Vec<String>,
     pub token_type: String, // "access" or "refresh"
-    pub iat: i64,          // Issued at
-    pub exp: i64,          // Expiration
-    pub jti: String,       // JWT ID (for revocation)
+    pub iat: i64,           // Issued at
+    pub exp: i64,           // Expiration
+    pub jti: String,        // JWT ID (for revocation)
 }
 
 /// Token pair (access + refresh)
@@ -53,9 +55,7 @@ impl Rs256JwtManager {
     /// # Errors
     /// Returns error if keys cannot be parsed
     pub fn new(
-        private_key_pem: &str,
-        public_key_pem: &str,
-        access_token_ttl_secs: i64,
+        private_key_pem: &str, public_key_pem: &str, access_token_ttl_secs: i64,
         refresh_token_ttl_secs: i64,
     ) -> AuthResult<Self> {
         let private_key = EncodingKey::from_rsa_pem(private_key_pem.as_bytes())
@@ -82,8 +82,9 @@ impl Rs256JwtManager {
         let mut rng = OsRng;
         let bits = 4096;
 
-        let private_key = RsaPrivateKey::new(&mut rng, bits)
-            .map_err(|e| AuthError::CryptoError(format!("Failed to generate private key: {}", e)))?;
+        let private_key = RsaPrivateKey::new(&mut rng, bits).map_err(|e| {
+            AuthError::CryptoError(format!("Failed to generate private key: {}", e))
+        })?;
 
         let public_key = RsaPublicKey::from(&private_key);
 
@@ -104,27 +105,13 @@ impl Rs256JwtManager {
     /// # Errors
     /// Returns error if token generation fails
     pub fn generate_token_pair(
-        &self,
-        user_id: &str,
-        email: &str,
-        tier: &str,
-        scopes: Vec<String>,
+        &self, user_id: &str, email: &str, tier: &str, scopes: Vec<String>,
     ) -> AuthResult<TokenPair> {
-        let access_token = self.generate_token(
-            user_id,
-            email,
-            tier,
-            scopes.clone(),
-            TokenType::Access,
-        )?;
+        let access_token =
+            self.generate_token(user_id, email, tier, scopes.clone(), TokenType::Access)?;
 
-        let refresh_token = self.generate_token(
-            user_id,
-            email,
-            tier,
-            scopes,
-            TokenType::Refresh,
-        )?;
+        let refresh_token =
+            self.generate_token(user_id, email, tier, scopes, TokenType::Refresh)?;
 
         Ok(TokenPair {
             access_token,
@@ -139,12 +126,7 @@ impl Rs256JwtManager {
     /// # Errors
     /// Returns error if encoding fails
     fn generate_token(
-        &self,
-        user_id: &str,
-        email: &str,
-        tier: &str,
-        scopes: Vec<String>,
-        token_type: TokenType,
+        &self, user_id: &str, email: &str, tier: &str, scopes: Vec<String>, token_type: TokenType,
     ) -> AuthResult<String> {
         let now = Utc::now();
         let ttl = match token_type {
@@ -269,7 +251,9 @@ mod tests {
         // Arrange
         let manager = create_test_manager();
         let scopes = vec!["read".to_string()];
-        let pair = manager.generate_token_pair("user123", "user@example.com", "free", scopes).unwrap();
+        let pair = manager
+            .generate_token_pair("user123", "user@example.com", "free", scopes)
+            .unwrap();
 
         // Act
         let result = manager.verify_token(&pair.access_token);
@@ -301,7 +285,9 @@ mod tests {
         // Arrange
         let manager = create_test_manager();
         let scopes = vec!["read".to_string(), "write".to_string()];
-        let pair = manager.generate_token_pair("user123", "user@example.com", "enterprise", scopes).unwrap();
+        let pair = manager
+            .generate_token_pair("user123", "user@example.com", "enterprise", scopes)
+            .unwrap();
 
         // Act
         let result = manager.refresh_token_pair(&pair.refresh_token);
@@ -318,7 +304,9 @@ mod tests {
         // Arrange
         let manager = create_test_manager();
         let scopes = vec!["read".to_string()];
-        let pair = manager.generate_token_pair("user123", "user@example.com", "pro", scopes).unwrap();
+        let pair = manager
+            .generate_token_pair("user123", "user@example.com", "pro", scopes)
+            .unwrap();
 
         // Act
         let result = manager.refresh_token_pair(&pair.access_token);
@@ -333,7 +321,9 @@ mod tests {
         // Arrange
         let manager = create_test_manager();
         let scopes = vec!["read".to_string()];
-        let pair = manager.generate_token_pair("user123", "user@example.com", "free", scopes).unwrap();
+        let pair = manager
+            .generate_token_pair("user123", "user@example.com", "free", scopes)
+            .unwrap();
 
         // Act
         let result = manager.decode_unverified(&pair.access_token);

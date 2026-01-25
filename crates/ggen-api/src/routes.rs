@@ -1,14 +1,12 @@
 //! API route definitions
 
 use axum::{
-    routing::{get, post, put, delete},
+    routing::{delete, get, post, put},
     Router,
 };
 
 use crate::{
-    handlers::{
-        auth::*, billing::*, health::*, marketplace::*,
-    },
+    handlers::{auth::*, billing::*, health::*, marketplace::*},
     state::AppState,
 };
 

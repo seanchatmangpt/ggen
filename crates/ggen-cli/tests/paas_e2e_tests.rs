@@ -344,10 +344,7 @@ paas:Environment a rdfs:Class ;
             "Second sync should succeed (idempotent): {:?}",
             result2
         );
-        assert!(
-            target_path.exists(),
-            "Target should exist after both syncs"
-        );
+        assert!(target_path.exists(), "Target should exist after both syncs");
     }
 
     // ============================================================================
@@ -390,8 +387,8 @@ paas:Environment a rdfs:Class ;
         );
 
         // Verify .gitmodules contains the submodule
-        let gitmodules_content = fs::read_to_string(&gitmodules_path)
-            .expect("Failed to read .gitmodules");
+        let gitmodules_content =
+            fs::read_to_string(&gitmodules_path).expect("Failed to read .gitmodules");
         assert!(
             gitmodules_content.contains("ggen-spec-kit"),
             ".gitmodules should reference ggen-spec-kit"

@@ -41,10 +41,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     let strict_config = TlsConfigBuilder::new()
-        .cipher_suites(vec![
-            CipherSuite::ChaCha20Poly1305,
-            CipherSuite::Aes256Gcm,
-        ])
+        .cipher_suites(vec![CipherSuite::ChaCha20Poly1305, CipherSuite::Aes256Gcm])
         .add_certificate_pin(pin)
         .pinning_strategy(PinningStrategy::FailClosed)
         .validation_policy(ValidationPolicy::strict())
@@ -78,19 +75,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Get and return connections
     println!("4. Testing connection pool operations...");
     let handle1 = pool.get_connection("api.example.com").await?;
-    println!("   ✓ Got connection #{} to {}", handle1.id(), handle1.hostname());
+    println!(
+        "   ✓ Got connection #{} to {}",
+        handle1.id(),
+        handle1.hostname()
+    );
 
     let handle2 = pool.get_connection("api.example.com").await?;
-    println!("   ✓ Got connection #{} to {}", handle2.id(), handle2.hostname());
+    println!(
+        "   ✓ Got connection #{} to {}",
+        handle2.id(),
+        handle2.hostname()
+    );
 
     pool.return_connection(handle1).await?;
     println!("   ✓ Returned connection to pool");
 
     let handle3 = pool.get_connection("api.example.com").await?;
-    println!(
-        "   ✓ Got connection #{} (reused from pool)",
-        handle3.id()
-    );
+    println!("   ✓ Got connection #{} (reused from pool)", handle3.id());
 
     let stats = pool.stats().await;
     println!("   - Total connections: {}", stats.total_connections);
