@@ -44,6 +44,10 @@ members = [
   "crates/knhk-lockchain",     # Merkle-linked receipt storage
   "crates/knhk-otel",          # OpenTelemetry integration
   "crates/knhk-orchestrator",  # Integration bridge (ETL → KGC-4D → Workflow)
+  "crates/tps-reference",      # Toyota Production System reference implementation
+  "crates/ggen-tps-andon",     # TPS Andon: Visibility, alerting, and diagnostics
+  "crates/tai-testing",        # Production hardening & resilience testing framework
+  "crates/tai-k8s",            # TAI Kubernetes: Deployment, KEDA autoscaling, Istio traffic management
   "playground",
 ]
 exclude = [
@@ -51,6 +55,14 @@ exclude = [
   "examples/marketplace-demo/generated",
   "examples/gcp-erlang-autonomics",
   "marketplace/packages/workflow-engine-cli",
+  "crates/tps-kaizen",  # Temporarily excluded - has Cargo.toml syntax error
+  "crates/tai-gcp",  # Temporarily excluded - missing google-authz dependency
+  "crates/tai-security",  # Temporarily excluded - has dependency issues
+  "crates/tai-resilience",  # Temporarily excluded - has dependency issues
+  "crates/tai-cache",  # Temporarily excluded - has dependency issues
+  "crates/tai-grpc",  # Temporarily excluded - has dependency issues
+  "crates/tai-gateway",  # Temporarily excluded - has missing bench file
+  "crates/tai-loadbalancer",  # Temporarily excluded - missing benchmark files
 ]
 resolver = "2" # Use new resolver for better dependency resolution
 
@@ -130,6 +142,30 @@ knhk-lockchain = { path = "crates/knhk-lockchain", version = "0.1.0" }
 knhk-otel = { path = "crates/knhk-otel", version = "0.1.0" }
 knhk-orchestrator = { path = "crates/knhk-orchestrator", version = "0.1.0" }
 
+# TPS (Toyota Production System) Andon implementation
+ggen-tps-andon = { path = "crates/ggen-tps-andon", version = "0.1.0" }
+
+# TAI Testing: Production hardening & resilience testing framework
+tai-testing = { path = "crates/tai-testing", version = "0.1.0" }
+
+# TPS (Toyota Production System) Kaizen implementation (continuous improvement)
+tps-kaizen = { path = "crates/tps-kaizen", version = "0.1.0" }
+
+# TAI Cache: Advanced caching with multi-tier strategies
+tai-cache = { path = "crates/tai-cache", version = "0.1.0" }
+
+# TAI gRPC: Service-to-service communication with advanced resilience patterns
+tai-grpc = { path = "crates/tai-grpc", version = "0.1.0" }
+
+# TAI Security: Vault, KMS, mTLS, secret rotation, encryption
+tai-security = { path = "crates/tai-security", version = "0.1.0" }
+
+# TAI Observability: Cloud Profiler, Trace, Monitoring
+tai-observability = { path = "crates/tai-observability", version = "0.1.0" }
+
+# TAI Kubernetes: Deployment, KEDA autoscaling, Istio traffic management
+tai-k8s = { path = "crates/tai-k8s", version = "0.1.0" }
+
 # OpenTelemetry dependencies (make optional at crate level, not workspace level)
 opentelemetry = { version = "0.21" }
 opentelemetry-otlp = { version = "0.14" }
@@ -143,6 +179,7 @@ console = "0.16"
 # Testing libraries
 proptest = "1.8"
 chicago-tdd-tools = "1.4.0"
+fake = "2.9"
 
 # AI integration
 genai = "0.5"
@@ -495,4 +532,35 @@ required-features = []
 [[test]]
 name = "security_tests"
 path = "tests/security/mod.rs"
+required-features = []
+
+# TPS Integration Tests
+[[test]]
+name = "tps_end_to_end_workflow"
+path = "tests/tps/end_to_end_workflow_tests.rs"
+required-features = []
+
+[[test]]
+name = "tps_smoke_tests"
+path = "tests/tps/smoke_tests.rs"
+required-features = []
+
+[[test]]
+name = "tps_regression_tests"
+path = "tests/tps/regression_tests.rs"
+required-features = []
+
+[[test]]
+name = "tps_performance_regression"
+path = "tests/tps/performance_regression_tests.rs"
+required-features = []
+
+[[test]]
+name = "tps_chaos_tests"
+path = "tests/tps/chaos_tests.rs"
+required-features = []
+
+[[test]]
+name = "tps_test_data_generation"
+path = "tests/tps/test_data_generation.rs"
 required-features = []
