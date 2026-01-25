@@ -12,13 +12,22 @@ start_link() ->
 init([]) ->
   SupFlags = #{strategy => one_for_one, intensity => 5, period => 10},
 
-  ReceiptLedger = #{
-    id => {{ module_prefix }}_receipt_ledger,
-    start => {{{ module_prefix }}_receipt_ledger, start_link, []},
+  ReceiptLedgerProc = #{
+    id => {{ module_prefix }}_receipt_ledger_proc,
+    start => {{{ module_prefix }}_receipt_ledger_proc, start_link, []},
     restart => permanent,
     shutdown => 5000,
     type => worker,
-    modules => [{{ module_prefix }}_receipt_ledger]
+    modules => [{{ module_prefix }}_receipt_ledger_proc]
+  },
+
+  TenantDynSup = #{
+    id => {{ module_prefix }}_tenant_dynsup,
+    start => {{{ module_prefix }}_tenant_dynsup, start_link, []},
+    restart => permanent,
+    shutdown => 5000,
+    type => supervisor,
+    modules => [{{ module_prefix }}_tenant_dynsup]
   },
 
   TenantRegistry = #{
@@ -48,4 +57,4 @@ init([]) ->
     modules => [{{ module_prefix }}_http_server]
   },
 
-  {ok, {SupFlags, [ReceiptLedger, TenantRegistry, EntitlementFSM, HttpServer]}}.
+  {ok, {SupFlags, [ReceiptLedgerProc, TenantDynSup, TenantRegistry, EntitlementFSM, HttpServer]}}.

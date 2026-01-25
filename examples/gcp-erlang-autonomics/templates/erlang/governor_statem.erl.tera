@@ -120,11 +120,22 @@ stable({call, From}, {signal, SignalName, Payload}, Data) ->
       {next_state, refusing, Data2, [{reply, From, {refuse, Why2}}]}
   end;
 
+stable(cast, {entitlement, active}, Data) ->
+  %% Entitlement becomes active: trigger internal reconciliation
+  Data1 = Data#governor_data{entitlement = active},
+  _ = emit_receipt(Data1, stable, stable, {entitlement, active}, accept, none, [entitled_required]),
+  {keep_state, Data1, [{next_event, internal, reconcile}]};
+
 stable(cast, {entitlement, NewEnt}, Data) ->
-  %% Entitlement change arrives out-of-band: update state, stay stable
+  %% Other entitlement changes: update state, stay stable
   Data1 = Data#governor_data{entitlement = NewEnt},
   _ = emit_receipt(Data1, stable, stable, {entitlement, NewEnt}, accept, none, [entitled_required]),
   {keep_state, Data1};
+
+stable(internal, reconcile, Data) ->
+  %% Internal reconciliation: baseline recompute or sanity checks
+  _ = emit_receipt(Data, stable, stable, reconcile, accept, none, []),
+  {keep_state, Data};
 
 stable(_Type, _Event, Data) ->
   {keep_state, Data}.

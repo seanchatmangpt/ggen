@@ -1,0 +1,40 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_tenant_dynsup).
+-behaviour(supervisor).
+
+-export([start_link/0, start_tenant/1]).
+-export([init/1]).
+
+%% Dynamic supervisor for tenant-scoped governor FSMs
+%% Enables proper OTP lifecycle management: one FSM process per tenant
+%% with automatic cleanup on termination
+
+start_link() ->
+  supervisor:start_link({local, ?MODULE}, ?MODULE, []).
+
+%% start_tenant(ArgsMap) -> {ok, Pid} | {error, Reason}
+%% Creates a new tenant governor FSM process
+start_tenant(Args) ->
+  supervisor:start_child(?MODULE, [Args]).
+
+init([]) ->
+  SupFlags = #{
+    strategy => simple_one_for_one,  %% No restart on child failure; registry handles it
+    intensity => 10,                  %% Allow up to 10 restarts
+    period => 10                      %% within 10 seconds
+  },
+
+  %% Child spec for tenant-scoped governor FSM
+  %% transient restart: child won't restart if it exits normally
+  %% This allows graceful shutdown (e.g., entitlement revoked)
+  ChildSpec = #{
+    id => {{ module_prefix }}_governor_statem,
+    start => {{{ module_prefix }}_governor_statem, start_link, []},
+    restart => transient,             %% Only restart on abnormal exit
+    shutdown => 5000,                 %% 5 second grace period for shutdown
+    type => worker,
+    modules => [{{ module_prefix }}_governor_statem]
+  },
+
+  {ok, {SupFlags, [ChildSpec]}}.

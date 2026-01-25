@@ -1,18 +1,38 @@
 {% include "_header.erl.tera" %}
 
 -module({{ module_prefix }}_actuator_adapter).
--export([execute/3]).
+-export([execute/3, get_action_group/1]).
 
 -include("{{ module_prefix }}_types.hrl").
 
-%% execute(ActionName, Payload, Data) -> ok
+%% execute(ActionName, Payload, Data) -> ok | {error, Reason}
+%% Route action to service-specific module based on action group
 execute(ActionName, Payload, Data) ->
   Tenant = Data#governor_data.tenant_id,
-  case ActionName of
+  Group = get_action_group(ActionName),
+  case Group of
+    cloudrun ->
+      {{ module_prefix }}_gcp_actions_cloudrun:ActionName(Tenant, Payload);
+    scheduler ->
+      {{ module_prefix }}_gcp_actions_scheduler:ActionName(Tenant, Payload);
+    pubsub ->
+      {{ module_prefix }}_gcp_actions_pubsub:ActionName(Tenant, Payload);
 {% for a in actions %}
     {{ a.name }} ->
+      %% Custom action fallback (template-provided actions)
       {{ module_prefix }}_gcp_actions:{{ a.adapter_fn }}(Tenant, Payload);
 {% endfor %}
     _ ->
       ok
   end.
+
+%% get_action_group(ActionName) -> Group
+%% Classify action by service group for routing
+get_action_group(throttle_concurrency) -> cloudrun;
+get_action_group(rollback_revision) -> cloudrun;
+get_action_group(freeze_rollout) -> cloudrun;
+get_action_group(pause_job) -> scheduler;
+get_action_group(resume_job) -> scheduler;
+get_action_group(pause_subscription) -> pubsub;
+get_action_group(resume_subscription) -> pubsub;
+get_action_group(_ActionName) -> unknown.

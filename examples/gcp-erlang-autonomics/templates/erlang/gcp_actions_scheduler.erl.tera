@@ -1,0 +1,55 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_gcp_actions_scheduler).
+-export([pause_job/2, resume_job/2]).
+
+%% Cloud Scheduler Autonomic Actions
+%% Cost Circuit Breaker integration for background job management
+
+%% pause_job/2
+%% Pause Cloud Scheduler job to reduce resource consumption
+%% Used by Cost Circuit Breaker during billing spike (degrade mode)
+pause_job(TenantId, Payload) ->
+  Job = maps:get(job, Payload, <<"unknown">>),
+  Region = maps:get(region, Payload, <<"us-central1">>),
+
+  Url = sched_url(Region, Job, <<"pause">>),
+
+  _ = {{ module_prefix }}_receipt_ledger:append(TenantId, #{
+    kind => gcp_action,
+    action => pause_job,
+    job => Job,
+    region => Region,
+    decision => attempt
+  }),
+
+  {{ module_prefix }}_gcp_client_auth:request(post, Url, [], #{}, TenantId).
+
+%% resume_job/2
+%% Resume Cloud Scheduler job after intervention
+%% Called when threat has subsided and normal operation resumes
+resume_job(TenantId, Payload) ->
+  Job = maps:get(job, Payload, <<"unknown">>),
+  Region = maps:get(region, Payload, <<"us-central1">>),
+
+  Url = sched_url(Region, Job, <<"resume">>),
+
+  _ = {{ module_prefix }}_receipt_ledger:append(TenantId, #{
+    kind => gcp_action,
+    action => resume_job,
+    job => Job,
+    region => Region,
+    decision => attempt
+  }),
+
+  {{ module_prefix }}_gcp_client_auth:request(post, Url, [], #{}, TenantId).
+
+%% sched_url/3 - Construct Cloud Scheduler API endpoint
+sched_url(Region, Job, Op) ->
+  iolist_to_binary([
+    "https://cloudscheduler.googleapis.com/v1/projects/",
+    "{{ gcp.project_id | default(value="PROJECT") }}",
+    "/locations/", Region,
+    "/jobs/", Job,
+    ":", Op
+  ]).

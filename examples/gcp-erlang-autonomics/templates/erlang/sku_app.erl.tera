@@ -6,7 +6,17 @@
 -export([start/2, stop/1]).
 
 start(_Type, _Args) ->
-  {{ module_prefix }}_sup:start_link().
+  %% TPS: Definition of Done gate (stop-the-line)
+  %% All checks must pass or entire application refuses to start
+  ok = {{ module_prefix }}_dod_validator:check(),
+
+  %% Start the supervisor hierarchy
+  case {{ module_prefix }}_sup:start_link() of
+    {ok, _Pid} = Result ->
+      Result;
+    {error, Reason} ->
+      {error, {supervisor_start_failed, Reason}}
+  end.
 
 stop(_State) ->
   ok.

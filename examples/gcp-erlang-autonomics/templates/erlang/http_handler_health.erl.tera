@@ -1,0 +1,13 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_http_handler_health).
+-export([init/2]).
+
+init(Req0, State) ->
+  Body = jiffy:encode(#{
+    status => <<"ok">>,
+    sku => <<"{{ sku }}">>,
+    version => <<"1.0.0">>
+  }),
+  Req1 = cowboy_req:reply(200, #{<<"content-type">> => <<"application/json">>}, Body, Req0),
+  {ok, Req1, State}.

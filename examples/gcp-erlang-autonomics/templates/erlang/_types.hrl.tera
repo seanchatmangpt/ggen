@@ -28,7 +28,8 @@
   sku :: binary(),
   entitlement :: entitlement_state() = inactive,
   profile :: atom() = standard,
-  last_receipt_hash :: binary() | undefined = undefined
+  last_receipt_hash :: binary() | undefined = undefined,
+  in_flight_action :: action_name() | none = none  %% Event smoothing: track current action
 }).
 
 -endif.

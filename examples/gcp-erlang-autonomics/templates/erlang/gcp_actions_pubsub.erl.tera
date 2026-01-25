@@ -1,0 +1,52 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_gcp_actions_pubsub).
+-export([pause_subscription/2, resume_subscription/2]).
+
+%% Pub/Sub Autonomic Actions
+%% Backlog Pressure Valve integration for message queue management
+
+%% pause_subscription/2
+%% Pause Pub/Sub subscription to prevent further message ingestion
+%% Used by Backlog Pressure Valve in degrade mode (circuit breaker)
+pause_subscription(TenantId, Payload) ->
+  Sub = maps:get(subscription, Payload, <<"unknown">>),
+
+  Url = pubsub_url(Sub, <<"modifyPushConfig">>),
+  Body = #{paused => true},
+
+  _ = {{ module_prefix }}_receipt_ledger:append(TenantId, #{
+    kind => gcp_action,
+    action => pause_subscription,
+    subscription => Sub,
+    decision => attempt
+  }),
+
+  {{ module_prefix }}_gcp_client_auth:request(post, Url, [], Body, TenantId).
+
+%% resume_subscription/2
+%% Resume Pub/Sub subscription to allow message ingestion
+%% Called after backlog has been cleared and system is recovering
+resume_subscription(TenantId, Payload) ->
+  Sub = maps:get(subscription, Payload, <<"unknown">>),
+
+  Url = pubsub_url(Sub, <<"modifyPushConfig">>),
+  Body = #{paused => false},
+
+  _ = {{ module_prefix }}_receipt_ledger:append(TenantId, #{
+    kind => gcp_action,
+    action => resume_subscription,
+    subscription => Sub,
+    decision => attempt
+  }),
+
+  {{ module_prefix }}_gcp_client_auth:request(post, Url, [], Body, TenantId).
+
+%% pubsub_url/2 - Construct Pub/Sub API endpoint
+pubsub_url(Sub, Op) ->
+  iolist_to_binary([
+    "https://pubsub.googleapis.com/v1/projects/",
+    "{{ gcp.project_id | default(value="PROJECT") }}",
+    "/subscriptions/", Sub,
+    ":", Op
+  ]).
