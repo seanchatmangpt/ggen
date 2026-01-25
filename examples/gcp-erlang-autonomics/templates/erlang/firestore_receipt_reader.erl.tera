@@ -1,0 +1,88 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_firestore_receipt_reader).
+-export([list_receipts/1]).
+
+-define(PROJECT_ID, "{{ gcp.project_id }}").
+-define(DB, "(default)").
+
+%% list_receipts(TenantId) -> {ok, [Receipt]} | {error, Reason}
+%% Fetch all receipt documents for a tenant from Firestore
+%% Documents are returned sorted by timestamp (ascending)
+list_receipts(TenantId) ->
+  %% Collection path: tenants/{tenant_id}/receipts
+  Url = build_url(TenantId),
+
+  case {{ module_prefix }}_gcp_http:get(Url, auth_headers(), 6000) of
+    {ok, 200, _H, Body} ->
+      %% Parse Firestore response
+      Map = jiffy:decode(Body, [return_maps]),
+      Docs = maps:get(<<"documents">>, Map, []),
+
+      %% Decode each document into receipt record
+      Receipts = [decode_doc(D) || D <- Docs],
+
+      %% Sort by timestamp ascending (deterministic verification)
+      Sorted = lists:sort(
+        fun(A, B) ->
+          maps:get(ts_ms, A) =< maps:get(ts_ms, B)
+        end,
+        Receipts
+      ),
+      {ok, Sorted};
+
+    {ok, 404, _, _} ->
+      %% Collection does not exist yet (new tenant) - empty is OK
+      {ok, []};
+
+    {ok, Status, _, Resp} ->
+      {error, {firestore_list_status, Status, Resp}};
+
+    {error, Why} ->
+      {error, {firestore_request_failed, Why}}
+  end.
+
+%% build_url(TenantId) -> URL binary
+%% Firestore REST API: GET /v1/projects/{project}/databases/{db}/documents/{collection}
+build_url(TenantId) ->
+  iolist_to_binary([
+    "https://firestore.googleapis.com/v1/projects/",
+    ?PROJECT_ID,
+    "/databases/", ?DB, "/documents/",
+    "tenants/", TenantId, "/receipts",
+    "?pageSize=2000"  %% Pagination limit
+  ]).
+
+%% auth_headers() -> [{Key, Value}]
+%% Add OAuth2 Bearer token for Firestore API
+auth_headers() ->
+  Token = {{ module_prefix }}_metadata_token:access_token(),
+  [
+    {<<"authorization">>, <<"Bearer ", Token/binary>>},
+    {<<"content-type">>, <<"application/json">>}
+  ].
+
+%% decode_doc(FirestoreDoc) -> Receipt
+%% Transform Firestore document into receipt record
+decode_doc(Doc) ->
+  Fields = maps:get(<<"fields">>, Doc, #{}),
+
+  %% Extract timestamp (integer milliseconds)
+  TS = maps:get(<<"ts_ms">>, Fields, #{<<"integerValue">> => <<"0">>}),
+  TSv = binary_to_integer(maps:get(<<"integerValue">>, TS)),
+
+  %% Extract chain hash (base64-encoded SHA-256)
+  Chain = maps:get(<<"chain_hash">>, Fields, #{<<"stringValue">> => <<>>}),
+  ChainB64 = maps:get(<<"stringValue">>, Chain),
+  ChainBin = base64:decode(ChainB64),
+
+  %% Extract receipt JSON (entire receipt payload)
+  RJ = maps:get(<<"receipt_json">>, Fields, #{<<"stringValue">> => <<"{}">>}),
+  RJB = maps:get(<<"stringValue">>, RJ),
+  ReceiptMap = jiffy:decode(RJB, [return_maps]),
+
+  #{
+    ts_ms => TSv,
+    chain_hash_bin => ChainBin,
+    receipt => ReceiptMap
+  }.

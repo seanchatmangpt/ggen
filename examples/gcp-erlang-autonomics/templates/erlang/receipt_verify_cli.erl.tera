@@ -1,0 +1,64 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_receipt_verify_cli).
+-export([main/1]).
+
+%% Receipt verification CLI: verify hash-chain integrity for a tenant
+%% Usage: {{ module_prefix }}_receipt_verify_cli <tenant_id>
+%% Exit codes:
+%%   0 = VERIFIED
+%%   1 = FAILED (chain mismatch or read error)
+%%   2 = USAGE ERROR
+
+main([TenantIdStr]) ->
+  TenantId = list_to_binary(TenantIdStr),
+  case verify(TenantId) of
+    ok ->
+      io:format("✓ VERIFIED tenant=~s~n", [TenantIdStr]),
+      halt(0);
+    {error, Why} ->
+      io:format("✗ FAILED tenant=~s reason=~p~n", [TenantIdStr, Why]),
+      halt(1)
+  end;
+main(_) ->
+  io:format("usage: {{ module_prefix }}_receipt_verify_cli <tenant_id>~n", []),
+  halt(2).
+
+verify(TenantId) ->
+  %% 1) Fetch receipt docs from Firestore (ordered by timestamp)
+  case {{ module_prefix }}_firestore_receipt_reader:list_receipts(TenantId) of
+    {ok, []} ->
+      %% No receipts yet is OK (new tenant)
+      {ok, empty};
+
+    {ok, Receipts} ->
+      %% Verify each receipt hash chains correctly
+      verify_chain(Receipts, <<0:256>>);
+
+    {error, Why} ->
+      {error, {firestore_list_failed, Why}}
+  end.
+
+%% verify_chain(Receipts, PrevHash) -> ok | {error, Reason}
+%% Walk the receipt chain, verify each hash links to the previous
+verify_chain([], _Prev) ->
+  ok;
+verify_chain([R | Rest], Prev) ->
+  ReceiptMap = maps:get(receipt, R),
+  ChainHashBin = maps:get(chain_hash_bin, R),
+
+  %% Recompute the hash for this receipt given previous hash
+  Expected = {{ module_prefix }}_receipt_hash:hash_chain(Prev, ReceiptMap),
+
+  case Expected =:= ChainHashBin of
+    true ->
+      %% Chain link verified, continue with next
+      verify_chain(Rest, ChainHashBin);
+    false ->
+      %% Chain mismatch - FAIL
+      {error, {
+        chain_mismatch,
+        expected, base64:encode(Expected),
+        got, base64:encode(ChainHashBin)
+      }}
+  end.

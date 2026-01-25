@@ -1,0 +1,42 @@
+# Builder
+FROM erlang:27-alpine AS builder
+
+WORKDIR /app
+
+# Deterministic build inputs
+COPY rebar.config rebar.lock ./
+COPY src ./src
+COPY config ./config
+
+# Build release (prod profile, no dev junk)
+RUN rebar3 as prod compile && \
+    rebar3 as prod release
+
+# Runtime
+FROM alpine:3.20
+
+# Minimal runtime dependencies: SSL + CA certs
+RUN apk add --no-cache \
+  libstdc++ \
+  openssl \
+  ca-certificates \
+  ncurses-libs
+
+# Non-root user (TPS: least privilege)
+RUN addgroup -S app && adduser -S app -G app
+USER app
+
+WORKDIR /opt/app
+
+# Copy release artifact
+COPY --from=builder /app/_build/prod/rel/ /opt/app/rel/
+
+# Cloud Run environment
+ENV PORT=8080
+ENV ERL_CRASH_DUMP_SECONDS=0
+ENV ERL_MAX_PORTS=65536
+
+EXPOSE 8080
+
+# Start release in foreground (Cloud Run requirement)
+CMD ["/opt/app/rel/bin/{{ module_prefix }}", "foreground"]
