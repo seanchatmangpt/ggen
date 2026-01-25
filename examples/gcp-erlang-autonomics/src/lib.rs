@@ -61,6 +61,7 @@ pub mod entitlement;
 pub mod governor;
 pub mod actuator;
 pub mod receipt;
+pub mod marketplace;
 
 // Re-exports of common types for ergonomics
 pub use signal_ingest::{SignalIngest, RawEvent, NormalizedSignal, SignalError};
@@ -68,3 +69,15 @@ pub use entitlement::{EntitlementService, Entitlement, EntitlementState, Entitle
 pub use governor::{Governor, GovernorState, GovernorEvent, GovernorError};
 pub use actuator::{Actuator, Action, ActionReceipt, ActuatorError};
 pub use receipt::{Receipt, ReceiptLedger, ReceiptError};
+pub use marketplace::{
+    // Marketplace orchestrator
+    MarketplaceOrchestrator, OrchestratorState, MarketplaceEvent, GovernorType,
+    GovernorResponse, GovernorResponseStatus, MarketplaceOrchestratorError, OrchestratorStats,
+    // Multi-tenant governance
+    MTGovernor, MTGovernorState, MTGovernorEvent, MTGovernorError, TenantMetrics, TenantTier,
+    CascadeIndicator, LoadBalancingStrategy, AuditEvent,
+    // Compliance & Audit governance
+    ComplianceGovernor, ComplianceState, ComplianceEvent, ComplianceError,
+    ComplianceFramework, AuditTrailEntry, AuditResult, Violation,
+    DataResidency, BreachIncident, BreachPhase,
+};
