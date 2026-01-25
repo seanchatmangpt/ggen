@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [gen_statem Production Patterns: Governor Implementation](#gen_statem-production-patterns-governor-implementation)
+  - [Executive Summary](#executive-summary)
+  - [Pattern 1: handle_event Callback Style](#pattern-1-handle_event-callback-style)
+    - [Overview](#overview)
+    - [Basic Structure](#basic-structure)
+  - [Pattern 2: Postponement for Signal Storms](#pattern-2-postponement-for-signal-storms)
+    - [Problem](#problem)
+    - [Solution](#solution)
+    - [Bounded Queue](#bounded-queue)
+  - [Pattern 3: State Timeouts](#pattern-3-state-timeouts)
+    - [Problem](#problem-1)
+    - [Solution](#solution-1)
+    - [Timeout Management](#timeout-management)
+  - [Pattern 4: Side Effects (Actions)](#pattern-4-side-effects-actions)
+    - [Problem](#problem-2)
+    - [Solution](#solution-2)
+    - [Action Return Types](#action-return-types)
+  - [Pattern 5: Supervision](#pattern-5-supervision)
+    - [Problem](#problem-3)
+    - [Solution](#solution-3)
+    - [Process Tree](#process-tree)
+    - [Starting Governor](#starting-governor)
+  - [Pattern 6: Error Recovery](#pattern-6-error-recovery)
+    - [Problem](#problem-4)
+    - [Solution](#solution-4)
+    - [Failure Scenarios](#failure-scenarios)
+  - [Minimal Example: 3-Signal Governor](#minimal-example-3-signal-governor)
+    - [Usage](#usage)
+  - [Definition of Done](#definition-of-done)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # gen_statem Production Patterns: Governor Implementation
 
 **Version**: 1.0.0 (Production-Ready)

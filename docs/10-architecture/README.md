@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Autonomic Reconciliation Engine - C4 Architecture Documentation](#autonomic-reconciliation-engine---c4-architecture-documentation)
+  - [Architecture Levels](#architecture-levels)
+    - [Level 1: C4 Context - System Perspective](#level-1-c4-context---system-perspective)
+    - [Level 2: C4 Containers - Deployment Architecture](#level-2-c4-containers---deployment-architecture)
+    - [Level 3: C4 Components - Governor Service Internals](#level-3-c4-components---governor-service-internals)
+    - [Level 4: C4 Runtime - Behavior & Sequences](#level-4-c4-runtime---behavior--sequences)
+    - [Level 5: Evidence Plane - Immutable Audit Trail](#level-5-evidence-plane---immutable-audit-trail)
+  - [Quick Navigation](#quick-navigation)
+    - [By Role](#by-role)
+    - [By Topic](#by-topic)
+  - [Key Concepts](#key-concepts)
+    - [Government Pain Points (5)](#government-pain-points-5)
+    - [Core Architectural Principles](#core-architectural-principles)
+    - [Government Compliance (TAI 2030)](#government-compliance-tai-2030)
+  - [Glossary Cross-References](#glossary-cross-references)
+  - [File Organization](#file-organization)
+  - [Document Statistics](#document-statistics)
+  - [How to Use This Documentation](#how-to-use-this-documentation)
+    - [For System Design](#for-system-design)
+    - [For Implementation](#for-implementation)
+    - [For Auditing/Compliance](#for-auditingcompliance)
+    - [For Testing/QA](#for-testingqa)
+  - [Definition of Done (Entire Suite)](#definition-of-done-entire-suite)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Autonomic Reconciliation Engine - C4 Architecture Documentation
 
 **Purpose**: Government-buyer-focused C4 architecture diagrams (Levels 1-5) for the autonomic reconciliation engine running on GCP Marketplace.

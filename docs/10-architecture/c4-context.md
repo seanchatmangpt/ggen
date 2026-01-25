@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [C4 Level 1: System Context - Government Autonomic Reconciliation](#c4-level-1-system-context---government-autonomic-reconciliation)
+  - [Executive Context: The Government Buyer Problem](#executive-context-the-government-buyer-problem)
+  - [C4 Diagram: Government Buyer Context](#c4-diagram-government-buyer-context)
+  - [Context Narrative: TAI 2030 Alignment](#context-narrative-tai-2030-alignment)
+    - [Key Government Requirements](#key-government-requirements)
+  - [Data Flow: Signal → Governor → Action → Receipt](#data-flow-signal-%E2%86%92-governor-%E2%86%92-action-%E2%86%92-receipt)
+  - [Government Pain Points & Solutions](#government-pain-points--solutions)
+    - [Pain Point 1: Entitlement Drift](#pain-point-1-entitlement-drift)
+    - [Pain Point 2: Slow Compliance Verification](#pain-point-2-slow-compliance-verification)
+    - [Pain Point 3: Missing Intervention Audit](#pain-point-3-missing-intervention-audit)
+    - [Pain Point 4: Storm Mitigation Opaqueness](#pain-point-4-storm-mitigation-opaqueness)
+    - [Pain Point 5: Regional Compliance Fragmentation](#pain-point-5-regional-compliance-fragmentation)
+  - [Glossary Cross-Reference](#glossary-cross-reference)
+  - [Receipt Contract (Evidence Plane)](#receipt-contract-evidence-plane)
+  - [Definition of Done](#definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # C4 Level 1: System Context - Government Autonomic Reconciliation
 
 **Document Purpose**: Define the government buyer perspective for the Autonomic Reconciliation Engine (ggen-powered governance) within TAI 2030 compliance and GCP Marketplace distribution.

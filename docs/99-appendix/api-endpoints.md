@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [API Endpoints (CANONICAL)](#api-endpoints-canonical)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Authentication](#authentication)
+    - [Webhook Signature Verification (HMAC-SHA256)](#webhook-signature-verification-hmac-sha256)
+    - [Service Account Authentication (GCP Internal)](#service-account-authentication-gcp-internal)
+  - [Endpoints](#endpoints)
+    - [1. Signal Ingestion](#1-signal-ingestion)
+      - [POST /signal/{sku_id}/{tenant_id}](#post-signalsku_idtenant_id)
+    - [2. Entitlement Webhook](#2-entitlement-webhook)
+      - [POST /entitlement/webhook](#post-entitlementwebhook)
+    - [3. Health Check](#3-health-check)
+      - [GET /health](#get-health)
+    - [4. Readiness Probe](#4-readiness-probe)
+      - [GET /readiness](#get-readiness)
+  - [Request/Response Schemas](#requestresponse-schemas)
+    - [Signal Request Schema (OpenAPI 3.1.0)](#signal-request-schema-openapi-310)
+  - [Error Handling](#error-handling)
+    - [Error Receipt Structure](#error-receipt-structure)
+    - [Common Error Codes](#common-error-codes)
+    - [Retry Strategy](#retry-strategy)
+  - [Examples](#examples)
+    - [Example 1: Successful Signal Ingestion](#example-1-successful-signal-ingestion)
+    - [Example 2: Signature Verification Failure](#example-2-signature-verification-failure)
+  - [Receipt Contract](#receipt-contract)
+  - [Definition of Done](#definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # API Endpoints (CANONICAL)
 
 **Version**: 6.0.0 | **Status**: Production-Ready | **Last Updated**: 2026-01-25

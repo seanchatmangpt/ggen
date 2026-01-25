@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Billing Contract](#billing-contract)
+  - [Philosophy](#philosophy)
+  - [Billing Chain](#billing-chain)
+    - [The Flow](#the-flow)
+    - [Archival in GCS + Firestore](#archival-in-gcs--firestore)
+  - [Usage Events](#usage-events)
+    - [Event Types](#event-types)
+      - [1. signal_processed](#1-signal_processed)
+      - [2. action_attempted](#2-action_attempted)
+      - [3. action_completed](#3-action_completed)
+  - [Usage Submission to Marketplace](#usage-submission-to-marketplace)
+    - [Submission Endpoint](#submission-endpoint)
+    - [Submission Rate](#submission-rate)
+    - [Deduplication](#deduplication)
+  - [Usage Metering](#usage-metering)
+    - [Daily Aggregation](#daily-aggregation)
+    - [Monthly Aggregation](#monthly-aggregation)
+  - [Invoice Generation](#invoice-generation)
+    - [Invoice Structure](#invoice-structure)
+    - [Invoice Distribution](#invoice-distribution)
+  - [Fraud Prevention & Anomaly Detection](#fraud-prevention--anomaly-detection)
+    - [Anomaly Quarantine Receipt](#anomaly-quarantine-receipt)
+    - [Detection Heuristics](#detection-heuristics)
+    - [Recovery Workflow](#recovery-workflow)
+  - [Billing Audit Export](#billing-audit-export)
+    - [Daily Export to GCS](#daily-export-to-gcs)
+    - [Daily Summary](#daily-summary)
+    - [Firestore Export](#firestore-export)
+  - [Revenue Safety Guarantees](#revenue-safety-guarantees)
+    - [Guarantee 1: No Unmetered Usage](#guarantee-1-no-unmetered-usage)
+    - [Guarantee 2: No Invoice Disputes](#guarantee-2-no-invoice-disputes)
+    - [Guarantee 3: Fraud Detection](#guarantee-3-fraud-detection)
+    - [Guarantee 4: Dispute Resolution](#guarantee-4-dispute-resolution)
+  - [Billing Reconciliation](#billing-reconciliation)
+    - [Weekly Reconciliation](#weekly-reconciliation)
+    - [Monthly Reconciliation](#monthly-reconciliation)
+  - [Definition of Done](#definition-of-done)
+  - [Receipt Contract](#receipt-contract)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Billing Contract
 
 > *The revenue chain: entitlement → usage → invoice. Every penny has a receipt.*

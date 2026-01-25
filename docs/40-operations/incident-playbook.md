@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Incident Playbook: Autonomic Recovery Workflows](#incident-playbook-autonomic-recovery-workflows)
+  - [Incident Playbook Structure](#incident-playbook-structure)
+  - [Incident 1: Pub/Sub Backlog Growing](#incident-1-pubsub-backlog-growing)
+  - [Incident 2: Action Hanging](#incident-2-action-hanging)
+  - [Incident 3: Firestore Unavailable](#incident-3-firestore-unavailable)
+  - [Incident 4: Signal Storm](#incident-4-signal-storm)
+  - [Incident 5: Permission Denied](#incident-5-permission-denied)
+  - [Incident 6: Policy Violation](#incident-6-policy-violation)
+  - [Incident 7: Quota Exceeded](#incident-7-quota-exceeded)
+  - [Incident Response Decision Tree](#incident-response-decision-tree)
+  - [Receipt Verification](#receipt-verification)
+  - [Definition of Done (Incident Playbook)](#definition-of-done-incident-playbook)
+  - [Glossary References](#glossary-references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Incident Playbook: Autonomic Recovery Workflows
 
 **Version**: 1.0

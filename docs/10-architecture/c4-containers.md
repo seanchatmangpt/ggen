@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [C4 Level 2: Container Architecture - Cloud Run, Pub/Sub, Firestore](#c4-level-2-container-architecture---cloud-run-pubsub-firestore)
+  - [Container Context: Bounded Systems](#container-context-bounded-systems)
+  - [C4 Diagram: Container Architecture](#c4-diagram-container-architecture)
+  - [Container Definitions](#container-definitions)
+    - [1. Ingress Sidecar (Cloud Run)](#1-ingress-sidecar-cloud-run)
+    - [2. Governor Service (Cloud Run)](#2-governor-service-cloud-run)
+    - [3. Evidence Sidecar (Cloud Run sidecar process)](#3-evidence-sidecar-cloud-run-sidecar-process)
+    - [4. Catalog Controller (Cloud Run Job)](#4-catalog-controller-cloud-run-job)
+  - [Data Storage Strategy](#data-storage-strategy)
+    - [Firestore Ledger (Region-Local)](#firestore-ledger-region-local)
+    - [Cloud Pub/Sub Topics](#cloud-pubsub-topics)
+    - [Cloud Storage (Policy Artifacts)](#cloud-storage-policy-artifacts)
+  - [Glossary Cross-Reference](#glossary-cross-reference)
+  - [Receipt Contract (Evidence Plane)](#receipt-contract-evidence-plane)
+  - [Definition of Done](#definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # C4 Level 2: Container Architecture - Cloud Run, Pub/Sub, Firestore
 
 **Document Purpose**: Define the deployment containers and runtime infrastructure for the Autonomic Reconciliation Engine on GCP.

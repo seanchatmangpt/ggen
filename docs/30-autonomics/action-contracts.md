@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Action Contracts: Execution & Verification](#action-contracts-execution--verification)
+  - [Executive Summary](#executive-summary)
+  - [Action Types & Specifications](#action-types--specifications)
+    - [Supported Actions (Cloud + Platform Operations)](#supported-actions-cloud--platform-operations)
+  - [Action Execution Contract](#action-execution-contract)
+    - [Action Object Structure](#action-object-structure)
+    - [Action Lifecycle States](#action-lifecycle-states)
+    - [Execution Flow (Pseudocode)](#execution-flow-pseudocode)
+  - [Action Verification](#action-verification)
+    - [Verification 1: Action Is In Policy](#verification-1-action-is-in-policy)
+    - [Verification 2: Target Is Valid](#verification-2-target-is-valid)
+    - [Verification 3: Signal-Action Relationship](#verification-3-signal-action-relationship)
+  - [Action Authorization (IAM)](#action-authorization-iam)
+    - [Authorization Check](#authorization-check)
+    - [Receipt on Authorization Failure](#receipt-on-authorization-failure)
+  - [Bounds Checking](#bounds-checking)
+    - [Bound 1: Replica Limits (Scale Actions)](#bound-1-replica-limits-scale-actions)
+    - [Bound 2: Quota Check](#bound-2-quota-check)
+    - [Bound 3: Cost Projection](#bound-3-cost-projection)
+  - [Action Submission SLO](#action-submission-slo)
+    - [Submission Timeline](#submission-timeline)
+    - [SLO Bounds](#slo-bounds)
+    - [Submission Code (Non-Blocking)](#submission-code-non-blocking)
+  - [Rollback Contract](#rollback-contract)
+    - [Rollback Trigger](#rollback-trigger)
+    - [Rollback Specification](#rollback-specification)
+    - [Rollback Receipt](#rollback-receipt)
+  - [Bounded Concurrency](#bounded-concurrency)
+    - [Constraint](#constraint)
+    - [Queue Discipline (FIFO)](#queue-discipline-fifo)
+    - [Concurrency Limited Receipt](#concurrency-limited-receipt)
+  - [Failure Modes](#failure-modes)
+    - [Failure 1: Action Verification Failed](#failure-1-action-verification-failed)
+    - [Failure 2: Permission Denied](#failure-2-permission-denied)
+    - [Failure 3: Bounds Exceeded](#failure-3-bounds-exceeded)
+    - [Failure 4: Action HTTP Error](#failure-4-action-http-error)
+    - [Failure 5: Action Timeout](#failure-5-action-timeout)
+    - [Failure 6: Rollback Failure](#failure-6-rollback-failure)
+  - [Idempotency & Replay](#idempotency--replay)
+    - [Idempotency Key](#idempotency-key)
+    - [Idempotent Service Submission](#idempotent-service-submission)
+  - [Definition of Done](#definition-of-done)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Action Contracts: Execution & Verification
 
 **Version**: 1.0.0 (Production-Ready)

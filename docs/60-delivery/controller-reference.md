@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Catalog Controller CLI Reference](#catalog-controller-cli-reference)
+  - [📋 Overview](#-overview)
+  - [🚀 Quick Start](#-quick-start)
+  - [🎛️ CLI Flags (Complete Reference)](#-cli-flags-complete-reference)
+    - [Repository & Branch](#repository--branch)
+    - [GCP Configuration](#gcp-configuration)
+    - [Terraform State & Workspace](#terraform-state--workspace)
+    - [Firestore Configuration](#firestore-configuration)
+    - [Health & Verification](#health--verification)
+    - [Build Triggering & Deployment](#build-triggering--deployment)
+    - [Execution Control](#execution-control)
+    - [Advanced Options](#advanced-options)
+  - [🌍 Environment Variables (Complete List)](#-environment-variables-complete-list)
+  - [🚀 Execution Flow](#-execution-flow)
+  - [📤 Outputs & Logging](#-outputs--logging)
+    - [Cloud Logging (JSON Structured Logs)](#cloud-logging-json-structured-logs)
+    - [Firestore Receipt (Stored in catalog_runs collection)](#firestore-receipt-stored-in-catalog_runs-collection)
+    - [Exit Codes](#exit-codes)
+  - [🩺 Health Check Endpoints](#-health-check-endpoints)
+  - [⚙️ Cloud Run Job Configuration](#-cloud-run-job-configuration)
+    - [Service Account Permissions](#service-account-permissions)
+  - [🔍 Troubleshooting](#-troubleshooting)
+    - [Error: "Permission Denied: Firestore"](#error-permission-denied-firestore)
+    - [Error: "State Lock Held"](#error-state-lock-held)
+    - [Error: "Catalog Repo Not Found"](#error-catalog-repo-not-found)
+    - [Error: "Terraform State Bucket Not Accessible"](#error-terraform-state-bucket-not-accessible)
+    - [Error: "Timeout Exceeded"](#error-timeout-exceeded)
+  - [📊 Troubleshooting Table](#-troubleshooting-table)
+  - [🔐 Security Best Practices](#-security-best-practices)
+    - [1. Use Secret Manager for Credentials](#1-use-secret-manager-for-credentials)
+    - [2. Use Least Privilege IAM](#2-use-least-privilege-iam)
+    - [3. Audit Trail & Receipts](#3-audit-trail--receipts)
+    - [4. Firewall Control](#4-firewall-control)
+  - [📊 Performance Tuning](#-performance-tuning)
+    - [Cloud Run Job Memory/CPU](#cloud-run-job-memorycpu)
+    - [Optimization Tips](#optimization-tips)
+  - [📚 Receipt Contract](#-receipt-contract)
+  - [✅ Definition of Done](#-definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Catalog Controller CLI Reference
 
 **Version**: v6.0.0 (Production-Ready)

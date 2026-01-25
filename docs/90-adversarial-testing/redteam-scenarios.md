@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Red Team Scenarios](#red-team-scenarios)
+  - [Overview](#overview)
+  - [Scenario 1: Signature Verification Bypass](#scenario-1-signature-verification-bypass)
+  - [Scenario 2: Entitlement Escalation](#scenario-2-entitlement-escalation)
+  - [Scenario 3: Permission Elevation](#scenario-3-permission-elevation)
+  - [Scenario 4: Quota Cheating](#scenario-4-quota-cheating)
+  - [Scenario 5: Data Corruption Attack](#scenario-5-data-corruption-attack)
+  - [Scenario 6: Entitlement Forging](#scenario-6-entitlement-forging)
+  - [Scenario 7: Permission Denial Attack (Cascading Failure)](#scenario-7-permission-denial-attack-cascading-failure)
+  - [Scenario 8: Man-in-the-Middle (MITM) Attack](#scenario-8-man-in-the-middle-mitm-attack)
+  - [Red Team Summary](#red-team-summary)
+  - [Incident Classification](#incident-classification)
+  - [Receipt Contract](#receipt-contract)
+  - [Definition of Done](#definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Red Team Scenarios
 
 **Version**: 6.0.0 | **Status**: Production-Ready | **Last Updated**: 2026-01-25

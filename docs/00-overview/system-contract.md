@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [TAI 2030 System Contract](#tai-2030-system-contract)
+  - [Executive Summary](#executive-summary)
+  - [Part 1: System Boundaries](#part-1-system-boundaries)
+    - [What TAI 2030 Controls](#what-tai-2030-controls)
+    - [What TAI 2030 Does NOT Control](#what-tai-2030-does-not-control)
+  - [Part 2: Inputs (What Signals TAI 2030 Accepts)](#part-2-inputs-what-signals-tai-2030-accepts)
+    - [Signal Categories](#signal-categories)
+      - [Category 1: Entitlements (Who Can Act?)](#category-1-entitlements-who-can-act)
+      - [Category 2: Signals (What Should Happen?)](#category-2-signals-what-should-happen)
+      - [Category 3: Policies (What Rules Apply?)](#category-3-policies-what-rules-apply)
+    - [Input Validation Checklist](#input-validation-checklist)
+  - [Part 3: Outputs (What TAI 2030 Does)](#part-3-outputs-what-tai-2030-does)
+    - [Output Category 1: Actions (Autonomic Changes)](#output-category-1-actions-autonomic-changes)
+    - [Output Category 2: Receipts (Proof of Action)](#output-category-2-receipts-proof-of-action)
+    - [Output Category 3: Alerts (Human Notification)](#output-category-3-alerts-human-notification)
+  - [Part 4: Failure Modes (What Can Go Wrong?)](#part-4-failure-modes-what-can-go-wrong)
+    - [Failure Category 1: Input Validation Failures](#failure-category-1-input-validation-failures)
+    - [Failure Category 2: Action Execution Failures](#failure-category-2-action-execution-failures)
+    - [Failure Category 3: System Failures](#failure-category-3-system-failures)
+    - [Failure Mode Strategy: Jidoka (Stop the Line)](#failure-mode-strategy-jidoka-stop-the-line)
+  - [Part 5: Receipts (Detailed Specification)](#part-5-receipts-detailed-specification)
+    - [Receipt Emission Rules](#receipt-emission-rules)
+    - [Receipt Types (Comprehensive List)](#receipt-types-comprehensive-list)
+  - [Part 6: Service Level Objectives (SLOs)](#part-6-service-level-objectives-slos)
+    - [SLO Category 1: Signal Processing](#slo-category-1-signal-processing)
+    - [SLO Category 2: Action Execution](#slo-category-2-action-execution)
+    - [SLO Category 3: Receipt Emission](#slo-category-3-receipt-emission)
+    - [SLO Category 4: Compliance & Audit](#slo-category-4-compliance--audit)
+  - [Part 7: The Core Principle (No Humans After Payment/IAM)](#part-7-the-core-principle-no-humans-after-paymentiam)
+    - [What This Means Operationally](#what-this-means-operationally)
+    - [Human Roles After Payment](#human-roles-after-payment)
+  - [Part 8: Cross-Document References](#part-8-cross-document-references)
+  - [Receipt Contract (What This Document Emits)](#receipt-contract-what-this-document-emits)
+  - [Definition of Done (System-Contract.md)](#definition-of-done-system-contractmd)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # TAI 2030 System Contract
 
 **Version**: 1.0 (Operational Specification)

@@ -1,3 +1,51 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Signal Contracts: Ingestion & Validation](#signal-contracts-ingestion--validation)
+  - [Executive Summary](#executive-summary)
+  - [HTTP Contract: Signal Ingestion](#http-contract-signal-ingestion)
+    - [Endpoint](#endpoint)
+    - [Path Parameters](#path-parameters)
+    - [Headers](#headers)
+    - [Request Body](#request-body)
+    - [Required Fields](#required-fields)
+    - [Optional Fields](#optional-fields)
+    - [Response: 200 OK (Signal Accepted)](#response-200-ok-signal-accepted)
+    - [Response: 400 Bad Request (Signal Rejected - Validation)](#response-400-bad-request-signal-rejected---validation)
+    - [Response: 403 Forbidden (Signal Rejected - Security)](#response-403-forbidden-signal-rejected---security)
+    - [Response: 429 Too Many Requests (Signal Throttled - Storm)](#response-429-too-many-requests-signal-throttled---storm)
+  - [Validation Contract](#validation-contract)
+    - [Pre-Validation Checks (Before Processing)](#pre-validation-checks-before-processing)
+    - [Check 1: Required Fields](#check-1-required-fields)
+    - [Check 2: Field Value Validation](#check-2-field-value-validation)
+    - [Check 3: Timestamp Age Validation](#check-3-timestamp-age-validation)
+  - [Normalization Contract](#normalization-contract)
+    - [Normalization Rules](#normalization-rules)
+      - [1. Source Normalization](#1-source-normalization)
+      - [2. Timestamp Normalization](#2-timestamp-normalization)
+      - [3. Severity Normalization](#3-severity-normalization)
+      - [4. Value Normalization](#4-value-normalization)
+    - [Normalized Signal Output](#normalized-signal-output)
+  - [Signal Storm Detection](#signal-storm-detection)
+    - [Throttling Logic](#throttling-logic)
+    - [Queue Management During Storm](#queue-management-during-storm)
+    - [Storm Recovery](#storm-recovery)
+  - [Examples: GCP Signal Schemas](#examples-gcp-signal-schemas)
+    - [Example 1: GCP Cloud Monitoring Signal](#example-1-gcp-cloud-monitoring-signal)
+    - [Example 2: GCP Cloud Logging Signal](#example-2-gcp-cloud-logging-signal)
+    - [Example 3: GCP Billing Signal](#example-3-gcp-billing-signal)
+  - [Receipt Contract for Signal Ingestion](#receipt-contract-for-signal-ingestion)
+    - [Receipt 1: signal_received](#receipt-1-signal_received)
+    - [Receipt 2: signal_rejected](#receipt-2-signal_rejected)
+    - [Receipt 3: signature_invalid](#receipt-3-signature_invalid)
+    - [Receipt 4: signal_storm_detected](#receipt-4-signal_storm_detected)
+    - [Receipt 5: signal_postponed](#receipt-5-signal_postponed)
+  - [Definition of Done](#definition-of-done)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Signal Contracts: Ingestion & Validation
 
 **Version**: 1.0.0 (Production-Ready)

@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Runbooks: Automated Operations Workflows](#runbooks-automated-operations-workflows)
+  - [Runbook Structure](#runbook-structure)
+  - [Runbook 1: Deploy New SKU](#runbook-1-deploy-new-sku)
+  - [Runbook 2: Upgrade Policy](#runbook-2-upgrade-policy)
+  - [Runbook 3: Scale Governor](#runbook-3-scale-governor)
+  - [Runbook 4: Degrade to Safe Mode](#runbook-4-degrade-to-safe-mode)
+  - [Runbook 5: Recover from Action Failure](#runbook-5-recover-from-action-failure)
+  - [Runbook 6: Entitlement Lifecycle](#runbook-6-entitlement-lifecycle)
+  - [Runbook 7: Customer Cancels](#runbook-7-customer-cancels)
+  - [Receipt Verification](#receipt-verification)
+  - [Definition of Done (Runbook Operations)](#definition-of-done-runbook-operations)
+  - [Glossary References](#glossary-references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Runbooks: Automated Operations Workflows
 
 **Version**: 1.0

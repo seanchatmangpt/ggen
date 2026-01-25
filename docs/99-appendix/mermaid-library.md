@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Mermaid Diagram Library (CANONICAL)](#mermaid-diagram-library-canonical)
+  - [Table of Contents](#table-of-contents)
+  - [Naming Conventions](#naming-conventions)
+    - [IDs (Used in Mermaid Nodes)](#ids-used-in-mermaid-nodes)
+    - [Labels (Displayed in Diagrams)](#labels-displayed-in-diagrams)
+    - [Color Codes (Semantic)](#color-codes-semantic)
+  - [Diagram Types](#diagram-types)
+    - [C4 Model Overview](#c4-model-overview)
+  - [C4 Component Diagrams](#c4-component-diagrams)
+  - [C4 Container Diagrams](#c4-container-diagrams)
+  - [Sequence Diagrams](#sequence-diagrams)
+  - [State Machine Diagrams](#state-machine-diagrams)
+  - [Class Diagrams](#class-diagrams)
+  - [Examples](#examples)
+    - [Example 1: Complete Decommission FSM](#example-1-complete-decommission-fsm)
+    - [Example 2: Adversarial Testing Taxonomy (Block Diagram)](#example-2-adversarial-testing-taxonomy-block-diagram)
+    - [Example 3: Receipt Chain Flow](#example-3-receipt-chain-flow)
+  - [Receipt Contract](#receipt-contract)
+  - [Definition of Done](#definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Mermaid Diagram Library (CANONICAL)
 
 **Version**: 6.0.0 | **Status**: Production-Ready | **Last Updated**: 2026-01-25

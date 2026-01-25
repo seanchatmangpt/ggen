@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Termination Receipts](#termination-receipts)
+  - [Overview](#overview)
+  - [Decommission Receipt Types](#decommission-receipt-types)
+    - [1. decommission_initiated](#1-decommission_initiated)
+    - [2. decommission_notice_sent](#2-decommission_notice_sent)
+    - [3. decommission_shutting_down](#3-decommission_shutting_down)
+    - [4. decommission_export_started](#4-decommission_export_started)
+    - [5. decommission_export_complete](#5-decommission_export_complete)
+    - [6. decommission_resource_cleanup](#6-decommission_resource_cleanup)
+    - [7. decommission_archived](#7-decommission_archived)
+    - [8. decommission_forgotten](#8-decommission_forgotten)
+  - [Receipt Chain Example](#receipt-chain-example)
+  - [Timeline Summary](#timeline-summary)
+  - [Receipt Verification](#receipt-verification)
+  - [Receipt Contract](#receipt-contract)
+  - [Definition of Done](#definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Termination Receipts
 
 **Version**: 6.0.0 | **Status**: Production-Ready | **Last Updated**: 2026-01-25

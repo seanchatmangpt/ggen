@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [NAICS Codes, Compliance Frameworks, & SKU Mapping](#naics-codes-compliance-frameworks--sku-mapping)
+  - [Part 1: NAICS Classification](#part-1-naics-classification)
+    - [Primary NAICS Code: 518210](#primary-naics-code-518210)
+    - [Secondary NAICS Code: 541512](#secondary-naics-code-541512)
+  - [Part 2: Compliance Framework Matrix](#part-2-compliance-framework-matrix)
+    - [FISMA (Federal Information Security Modernization Act)](#fisma-federal-information-security-modernization-act)
+    - [FedRAMP (Federal Risk & Authorization Management Program)](#fedramp-federal-risk--authorization-management-program)
+    - [SOC 2 Type II (Service Organization Control)](#soc-2-type-ii-service-organization-control)
+    - [HIPAA (Health Insurance Portability & Accountability Act)](#hipaa-health-insurance-portability--accountability-act)
+    - [21 CFR Part 11 (FDA Electronic Records)](#21-cfr-part-11-fda-electronic-records)
+    - [NIST SP 800-53 (Security Controls Catalog)](#nist-sp-800-53-security-controls-catalog)
+    - [DFARS (Defense Federal Acquisition Regulation Supplement)](#dfars-defense-federal-acquisition-regulation-supplement)
+  - [Part 3: SKU-to-Compliance Mapping](#part-3-sku-to-compliance-mapping)
+  - [Part 4: Government Procurement Strategy by Agency](#part-4-government-procurement-strategy-by-agency)
+    - [Defense (DoD, DISA)](#defense-dod-disa)
+    - [NASA](#nasa)
+    - [EPA](#epa)
+    - [Intelligence Community (IC)](#intelligence-community-ic)
+    - [DoD Health / VA / Civilian Agencies](#dod-health--va--civilian-agencies)
+  - [Part 5: Compliance Certification Roadmap](#part-5-compliance-certification-roadmap)
+    - [Year 1 (2025–2026): Prototype Hardening](#year-1-20252026-prototype-hardening)
+    - [Year 2 (2026–2027): Provisional Authorizations](#year-2-20262027-provisional-authorizations)
+    - [Year 3 (2027–2028): Full Authorizations](#year-3-20272028-full-authorizations)
+    - [Ongoing: Per-Engagement Certifications](#ongoing-per-engagement-certifications)
+  - [Part 6: Contract Vehicle Options](#part-6-contract-vehicle-options)
+    - [1. GSA Schedule 70 (IT Professional Services)](#1-gsa-schedule-70-it-professional-services)
+    - [2. GCP Marketplace](#2-gcp-marketplace)
+    - [3. Direct Government Contracts (IT Schedule)](#3-direct-government-contracts-it-schedule)
+    - [4. VOSB/WOSB Set-Asides (if eligible)](#4-vosbwosb-set-asides-if-eligible)
+    - [5. Federal Contracts Vehicle (NIH, DOE, etc.)](#5-federal-contracts-vehicle-nih-doe-etc)
+  - [Summary Table: All SKUs + Compliance Coverage](#summary-table-all-skus--compliance-coverage)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # NAICS Codes, Compliance Frameworks, & SKU Mapping
 
 ## Part 1: NAICS Classification

@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [C4 Level 5: Evidence Plane - Separation of Evidence from Control/Data Planes](#c4-level-5-evidence-plane---separation-of-evidence-from-controldata-planes)
+  - [Three-Plane Architecture](#three-plane-architecture)
+  - [Evidence Plane Diagram](#evidence-plane-diagram)
+  - [Evidence Plane Architecture](#evidence-plane-architecture)
+    - [Separation Principle: "No Receipt, No Action"](#separation-principle-no-receipt-no-action)
+  - [Evidence Plane Components](#evidence-plane-components)
+    - [1. Receipt Generator (Evidence Sidecar)](#1-receipt-generator-evidence-sidecar)
+    - [2. Hash-Chain Builder (Merkle-Linked Proof)](#2-hash-chain-builder-merkle-linked-proof)
+    - [3. Signature Generator (Ed25519 Cryptographic Proof)](#3-signature-generator-ed25519-cryptographic-proof)
+    - [4. Firestore Ledger (Region-Local)](#4-firestore-ledger-region-local)
+    - [5. Cloud Logging Mirror (Audit Trail)](#5-cloud-logging-mirror-audit-trail)
+  - [Verification Path (Evidence Extraction & Validation)](#verification-path-evidence-extraction--validation)
+    - [SPARQL Evidence Queries](#sparql-evidence-queries)
+    - [Receipt Verification Algorithm (Auditor)](#receipt-verification-algorithm-auditor)
+  - [Jidoka Enforcement: "No Receipt, No Action"](#jidoka-enforcement-no-receipt-no-action)
+  - [Glossary Cross-Reference](#glossary-cross-reference)
+  - [Receipt Contract (Evidence Plane)](#receipt-contract-evidence-plane)
+  - [Definition of Done](#definition-of-done)
+  - [Key Takeaways: Evidence Plane as Fifth Pillar](#key-takeaways-evidence-plane-as-fifth-pillar)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # C4 Level 5: Evidence Plane - Separation of Evidence from Control/Data Planes
 
 **Document Purpose**: Define the evidence plane as a distinct, immutable ledger separate from the data and control planes. Prove tamper-free execution through hash-chain verification, SPARQL evidence extraction, and cryptographic receipts.

@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Governor Contract: Finite State Machine Constitution](#governor-contract-finite-state-machine-constitution)
+  - [Executive Summary](#executive-summary)
+  - [FSM State Model](#fsm-state-model)
+    - [States](#states)
+    - [State Diagram (Mermaid)](#state-diagram-mermaid)
+  - [Transitions & Triggers](#transitions--triggers)
+  - [Receipt Types & Schema](#receipt-types--schema)
+    - [Receipt Container (All Receipts)](#receipt-container-all-receipts)
+    - [Receipt 1: boot_start](#receipt-1-boot_start)
+    - [Receipt 2: state_transition](#receipt-2-state_transition)
+    - [Receipt 3: signal_received](#receipt-3-signal_received)
+    - [Receipt 4: threshold_exceeded](#receipt-4-threshold_exceeded)
+    - [Receipt 5: action_attempted](#receipt-5-action_attempted)
+    - [Receipt 6: action_succeeded](#receipt-6-action_succeeded)
+    - [Receipt 7: action_failed](#receipt-7-action_failed)
+    - [Receipt 8: permission_denied](#receipt-8-permission_denied)
+    - [Receipt 9: policy_violation](#receipt-9-policy_violation)
+    - [Receipt 10: invariant_violation](#receipt-10-invariant_violation)
+    - [Receipt 11: health_check_failed](#receipt-11-health_check_failed)
+    - [Receipt 12: entitlement_verified](#receipt-12-entitlement_verified)
+  - [System Invariants](#system-invariants)
+    - [Invariant 1: Entitlement Active Required](#invariant-1-entitlement-active-required)
+    - [Invariant 2: Permission Required for Every Action](#invariant-2-permission-required-for-every-action)
+    - [Invariant 3: Quota Not Exceeded](#invariant-3-quota-not-exceeded)
+    - [Invariant 4: Receipt Ledger Available](#invariant-4-receipt-ledger-available)
+    - [Invariant 5: Policy Pack Loaded](#invariant-5-policy-pack-loaded)
+    - [Invariant 6: Signal Storm Prevention](#invariant-6-signal-storm-prevention)
+    - [Invariant 7: Action Concurrency Bounded](#invariant-7-action-concurrency-bounded)
+    - [Invariant 8: Deterministic Behavior](#invariant-8-deterministic-behavior)
+  - [Error Handling & Recovery](#error-handling--recovery)
+    - [Error: Action Fails](#error-action-fails)
+    - [Error: Action Timeout](#error-action-timeout)
+    - [Error: Invariant Fails](#error-invariant-fails)
+  - [Time Bounds (SLOs)](#time-bounds-slos)
+  - [Concurrency Model](#concurrency-model)
+    - [Sequential Processing (No Race Conditions)](#sequential-processing-no-race-conditions)
+    - [Data Structure (Erlang Record)](#data-structure-erlang-record)
+    - [Invariant Check: Concurrency Bounded](#invariant-check-concurrency-bounded)
+  - [Determinism & Reproducibility](#determinism--reproducibility)
+    - [Receipt Hashing](#receipt-hashing)
+    - [Reproducibility Guarantee](#reproducibility-guarantee)
+  - [Definition of Done](#definition-of-done)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Governor Contract: Finite State Machine Constitution
 
 **Version**: 1.0.0 (Production-Ready)

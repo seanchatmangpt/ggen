@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace Listing Template](#marketplace-listing-template)
+  - [Philosophy](#philosophy)
+  - [Template Structure](#template-structure)
+    - [1. SKU Metadata](#1-sku-metadata)
+    - [2. Problem Statement (1 paragraph)](#2-problem-statement-1-paragraph)
+    - [3. TAI 2030 Solution (1 paragraph)](#3-tai-2030-solution-1-paragraph)
+    - [4. Evidence Plane (Proof)](#4-evidence-plane-proof)
+    - [Evidence Types Generated](#evidence-types-generated)
+    - [Example Receipt](#example-receipt)
+  - [Compliance Coverage](#compliance-coverage)
+    - [FedRAMP Baseline Controls](#fedramp-baseline-controls)
+    - [Remediation Guidance](#remediation-guidance)
+    - [Integration Points](#integration-points)
+  - [Pricing Strategy](#pricing-strategy)
+    - [Flat Annual Pricing](#flat-annual-pricing)
+    - [Usage-Based Pricing (Optional)](#usage-based-pricing-optional)
+  - [Free Trial Offer](#free-trial-offer)
+  - [Customer Success Story (Optional)](#customer-success-story-optional)
+  - [Definition of Done](#definition-of-done)
+  - [Receipt Contract](#receipt-contract)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace Listing Template
 
 > *How to write a GCP Marketplace SKU listing that converts compliance officers into customers.*

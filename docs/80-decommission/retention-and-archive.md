@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Retention and Archive Policy](#retention-and-archive-policy)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Data Retention Policy](#data-retention-policy)
+    - [Receipts (7 Years)](#receipts-7-years)
+    - [Logs (2 Years)](#logs-2-years)
+    - [Configs (7 Years)](#configs-7-years)
+    - [Transient Data (7 Days)](#transient-data-7-days)
+  - [Archive Strategy](#archive-strategy)
+    - [Archive Bucket Structure](#archive-bucket-structure)
+    - [Archive Process](#archive-process)
+    - [Archive Verification](#archive-verification)
+  - [Compliance Framework](#compliance-framework)
+    - [NIST SP 800-53 AU-11 (Audit Information Protection)](#nist-sp-800-53-au-11-audit-information-protection)
+    - [SOX (Sarbanes-Oxley) Section 302](#sox-sarbanes-oxley-section-302)
+    - [GDPR Article 17 (Right to Be Forgotten)](#gdpr-article-17-right-to-be-forgotten)
+    - [California Consumer Privacy Act (CCPA)](#california-consumer-privacy-act-ccpa)
+  - [Access Controls](#access-controls)
+    - [Authentication](#authentication)
+    - [Audit Logging](#audit-logging)
+  - [Retrieval Process](#retrieval-process)
+    - [Scenario 1: Customer Requests Their Data (GDPR)](#scenario-1-customer-requests-their-data-gdpr)
+    - [Scenario 2: Regulatory Audit (SOX)](#scenario-2-regulatory-audit-sox)
+    - [Scenario 3: Incident Investigation (Ops)](#scenario-3-incident-investigation-ops)
+  - [Deletion Process](#deletion-process)
+    - [Automatic Deletion (After Retention Expires)](#automatic-deletion-after-retention-expires)
+    - [Manual Deletion (With Approval)](#manual-deletion-with-approval)
+  - [Examples](#examples)
+    - [Example 1: Archive Size Estimation](#example-1-archive-size-estimation)
+    - [Example 2: Retrieval Time Estimate](#example-2-retrieval-time-estimate)
+  - [Receipt Contract](#receipt-contract)
+  - [Definition of Done](#definition-of-done)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Retention and Archive Policy
 
 **Version**: 6.0.0 | **Status**: Production-Ready | **Last Updated**: 2026-01-25

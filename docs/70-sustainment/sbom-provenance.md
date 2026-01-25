@@ -1,3 +1,51 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Software Bill of Materials & Supply Chain Provenance](#software-bill-of-materials--supply-chain-provenance)
+  - [Table of Contents](#table-of-contents)
+  - [Executive Summary](#executive-summary)
+  - [SBOM Definition & Purpose](#sbom-definition--purpose)
+    - [What is SBOM?](#what-is-sbom)
+    - [Why SBOM?](#why-sbom)
+    - [SBOM Benefits](#sbom-benefits)
+  - [SBOM Format & Standard](#sbom-format--standard)
+    - [CycloneDX Standard](#cyclonedx-standard)
+    - [File Format](#file-format)
+    - [Example SBOM Structure (JSON)](#example-sbom-structure-json)
+  - [SBOM Components](#sbom-components)
+    - [Rust Components (Cargo Workspace)](#rust-components-cargo-workspace)
+    - [JavaScript Components (npm Workspace)](#javascript-components-npm-workspace)
+    - [Container Images (Docker)](#container-images-docker)
+    - [Terraform & Infrastructure](#terraform--infrastructure)
+  - [SBOM Generation](#sbom-generation)
+    - [Automated SBOM Generation](#automated-sbom-generation)
+    - [Manual SBOM Generation (for releases)](#manual-sbom-generation-for-releases)
+  - [Provenance Tracking](#provenance-tracking)
+    - [What is Provenance?](#what-is-provenance)
+    - [Provenance for Rust Components](#provenance-for-rust-components)
+    - [Provenance for npm Components](#provenance-for-npm-components)
+    - [Provenance for Docker Images](#provenance-for-docker-images)
+  - [Build Attestation](#build-attestation)
+    - [in-toto Framework](#in-toto-framework)
+    - [in-toto Metadata Example](#in-toto-metadata-example)
+  - [Dependency Scanning](#dependency-scanning)
+    - [CVE Detection (Automated)](#cve-detection-automated)
+    - [Vulnerability Reporting](#vulnerability-reporting)
+  - [License Compliance](#license-compliance)
+    - [Permissive Licenses Only](#permissive-licenses-only)
+    - [License Compliance Check](#license-compliance-check)
+  - [Supply Chain Verification](#supply-chain-verification)
+    - [How Customers Verify Release Integrity](#how-customers-verify-release-integrity)
+    - [Reproducible Build Verification](#reproducible-build-verification)
+  - [SBOM Template](#sbom-template)
+    - [Standard SBOM Structure (JSON)](#standard-sbom-structure-json)
+  - [Provenance Verification Checklist](#provenance-verification-checklist)
+  - [Definition of Done](#definition-of-done)
+  - [Receipt Contract](#receipt-contract)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Software Bill of Materials & Supply Chain Provenance
 
 **Classification**: Internal | **Version**: 1.0.0 | **For**: ggen v6.0.0 Government Compliance
