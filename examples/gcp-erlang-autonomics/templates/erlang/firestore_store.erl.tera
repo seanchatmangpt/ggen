@@ -1,0 +1,96 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_firestore_store).
+-export([get_last_hash/1, put_last_hash/2, append_receipt/3]).
+
+-define(PROJECT_ID, "{{ gcp.project_id }}").
+-define(DB, "(default)").
+
+%% Firestore REST API base URL
+firestore_base() ->
+  iolist_to_binary([
+    "https://firestore.googleapis.com/v1/projects/",
+    ?PROJECT_ID,
+    "/databases/", ?DB, "/documents"
+  ]).
+
+%% auth_headers/0: Add Bearer token to request headers
+auth_headers() ->
+  {ok, Token} = {{ module_prefix }}_metadata_token:access_token(),
+  [
+    {<<"authorization">>, <<"Bearer ", Token/binary>>}
+  ].
+
+%% get_last_hash(TenantId) -> {ok, ChainHash} | {error, Reason}
+%% Retrieve the last chain hash for a tenant (for continuity)
+get_last_hash(TenantId) ->
+  Url = iolist_to_binary([
+    firestore_base(),
+    "/tenants/", TenantId, "/state/receipt"
+  ]),
+  case {{ module_prefix }}_gcp_http:get(Url, auth_headers(), 4000) of
+    {ok, 200, _H, Body} ->
+      Map = jiffy:decode(Body, [return_maps]),
+      Fields = maps:get(<<"fields">>, Map, #{}),
+      case maps:get(<<"last_chain_hash">>, Fields, undefined) of
+        #{<<"stringValue">> := V} ->
+          {ok, base64:decode(V)};
+        _ ->
+          {ok, <<0:256>>}
+      end;
+    {ok, 404, _, _} ->
+      %% First time: initialize with zero hash
+      {ok, <<0:256>>};
+    {error, Why} ->
+      {error, Why};
+    {ok, Status, _, Body} ->
+      {error, {firestore_get_failed, Status, Body}}
+  end.
+
+%% put_last_hash(TenantId, ChainHashBin) -> ok | {error, Reason}
+%% Update the last chain hash for a tenant
+put_last_hash(TenantId, ChainHashBin) ->
+  Url = iolist_to_binary([
+    firestore_base(),
+    "/tenants/", TenantId, "/state/receipt?updateMask.fieldPaths=last_chain_hash"
+  ]),
+  Body = #{
+    fields => #{
+      last_chain_hash => #{stringValue => base64:encode(ChainHashBin)}
+    }
+  },
+  case {{ module_prefix }}_gcp_http:post_json(Url, auth_headers(), Body, 4000) of
+    {ok, Status, _, _} when Status >= 200, Status < 300 ->
+      ok;
+    {error, Why} ->
+      {error, Why};
+    {ok, Status, _, Resp} ->
+      {error, {firestore_put_failed, Status, Resp}}
+  end.
+
+%% append_receipt(TenantId, ReceiptMap, ChainHashBin) -> ok | {error, Reason}
+%% Store receipt under tenants/{tenant}/receipts/{doc}
+append_receipt(TenantId, ReceiptMap, ChainHashBin) ->
+  TS = integer_to_binary(erlang:system_time(millisecond)),
+  DocId = iolist_to_binary([TS, "_", base64:encode(ChainHashBin)]),
+  Url = iolist_to_binary([
+    firestore_base(),
+    "/tenants/", TenantId, "/receipts?documentId=", DocId
+  ]),
+
+  Body = #{
+    fields => #{
+      ts_ms => #{integerValue => TS},
+      chain_hash => #{stringValue => base64:encode(ChainHashBin)},
+      receipt_json => #{stringValue => jiffy:encode(ReceiptMap)}
+    }
+  },
+
+  case {{ module_prefix }}_gcp_http:post_json(Url, auth_headers(), Body, 4000) of
+    {ok, Status, _, _} when Status >= 200, Status < 300 ->
+      ok;
+    {error, Why} ->
+      {error, Why};
+    {ok, Status, _, Resp} ->
+      {error, {firestore_append_failed, Status, Resp}}
+  end.

@@ -1,0 +1,26 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_http_handler_pubsub).
+-export([init/2]).
+
+init(Req0, State) ->
+  {ok, RawBody, Req1} = cowboy_req:read_body(Req0, #{length => 1048576, period => 3000}),
+  case {{ module_prefix }}_pubsub_envelope:decode(RawBody) of
+    {ok, Envelope} ->
+      _ = {{ module_prefix }}_signal_normalizer:handle_pubsub(Envelope),
+      Resp = jiffy:encode(#{accepted => true}),
+      Req2 = cowboy_req:reply(200, #{<<"content-type">> => <<"application/json">>}, Resp, Req1),
+      {ok, Req2, State};
+
+    {error, Why} ->
+      _ = {{ module_prefix }}_receipt_ledger:append(<<"system">>, #{
+        kind => ingest_error,
+        sku => <<"{{ sku }}">>,
+        event => pubsub_decode_failed,
+        decision => refuse,
+        reason => Why
+      }),
+      Resp = jiffy:encode(#{accepted => false, error => atom_to_binary(Why, utf8)}),
+      Req2 = cowboy_req:reply(400, #{<<"content-type">> => <<"application/json">>}, Resp, Req1),
+      {ok, Req2, State}
+  end.

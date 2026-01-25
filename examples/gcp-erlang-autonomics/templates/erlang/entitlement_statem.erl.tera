@@ -6,6 +6,7 @@
 -export([start_link/1, call/2, cast/2]).
 -export([callback_mode/0, init/1, terminate/3, code_change/4]).
 -export([installed/3, billing_pending/3, active/3, suspended/3, cancelled/3, expired/3]).
+-export([translate_marketplace_event/1]).
 
 -include("{{ module_prefix }}_types.hrl").
 
@@ -56,6 +57,30 @@ emit_revops_receipt(Data, FromState, ToState, Event, Decision) ->
     decision => Decision
   }),
   ok.
+
+%% Marketplace event translation: map GCP Marketplace events to internal FSM events
+%% Real GCP event names:
+%%   entitlement_created → install_confirmed (user initiated purchase)
+%%   entitlement_pending_cancellation → cancel (user requested cancellation)
+%%   entitlement_pending → install_confirmed (pending activation)
+%%   entitlement_active → payment_confirmed (activation complete)
+%%   entitlement_cancelled → cancel (cancellation processed)
+%%   entitlement_pending_plan_change → (no action, entitlement stays active)
+%%   entitlement_plan_changed → (update internal state)
+translate_marketplace_event(<<"entitlement_created">>) ->
+  {marketplace, install_confirmed};
+translate_marketplace_event(<<"entitlement_pending">>) ->
+  {marketplace, install_confirmed};
+translate_marketplace_event(<<"entitlement_active">>) ->
+  {marketplace, payment_confirmed};
+translate_marketplace_event(<<"entitlement_cancelled">>) ->
+  {marketplace, cancel};
+translate_marketplace_event(<<"entitlement_pending_cancellation">>) ->
+  {marketplace, cancel};
+translate_marketplace_event(<<"entitlement_plan_changed">>) ->
+  {marketplace, payment_confirmed};
+translate_marketplace_event(_UnknownEvent) ->
+  undefined.
 
 %% ---------------------------
 %% States

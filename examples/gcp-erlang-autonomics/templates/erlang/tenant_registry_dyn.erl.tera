@@ -1,0 +1,113 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_tenant_registry).
+-behaviour(gen_server).
+
+-export([start_link/0]).
+-export([ensure_tenant/2, whereis_tenant/1, route_call/3, route_cast/3]).
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
+
+-include("{{ module_prefix }}_types.hrl").
+
+-record(state, {
+  tenants = #{} :: map(),          %% TenantId => {Pid, MonitorRef}
+  monitors = #{} :: map()          %% MonitorRef => TenantId (reverse index)
+}).
+
+%% Tenant Registry: routes messages to tenant-scoped FSMs
+%% Uses DynamicSupervisor for proper OTP lifecycle
+%% Monitors tenant FSMs for automatic cleanup on death
+
+start_link() ->
+  gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+
+%% ensure_tenant(TenantId, ArgsMap) -> {ok, Pid}
+%% Get or create a tenant FSM; idempotent operation
+ensure_tenant(TenantId, Args) ->
+  gen_server:call(?MODULE, {ensure, TenantId, Args}).
+
+%% whereis_tenant(TenantId) -> {ok, Pid} | {error, not_found}
+whereis_tenant(TenantId) ->
+  gen_server:call(?MODULE, {whereis, TenantId}).
+
+%% route_call(TenantId, Module, Msg) -> Reply | {error, not_found}
+%% Route synchronous call to tenant FSM
+route_call(TenantId, Module, Msg) ->
+  case whereis_tenant(TenantId) of
+    {ok, Pid} -> Module:call(Pid, Msg);
+    {error, _} = E -> E
+  end.
+
+%% route_cast(TenantId, Module, Msg) -> ok | {error, not_found}
+%% Route asynchronous cast to tenant FSM
+route_cast(TenantId, Module, Msg) ->
+  case whereis_tenant(TenantId) of
+    {ok, Pid} -> Module:cast(Pid, Msg), ok;
+    {error, _} = E -> E
+  end.
+
+init([]) ->
+  {ok, #state{}}.
+
+handle_call({ensure, TenantId, Args}, _From, S0) ->
+  case maps:get(TenantId, S0#state.tenants, undefined) of
+    {Pid, _Ref} when is_pid(Pid) ->
+      %% Tenant already exists and FSM is alive
+      {reply, {ok, Pid}, S0};
+
+    undefined ->
+      %% Start new tenant FSM via DynamicSupervisor
+      case {{ module_prefix }}_tenant_dynsup:start_tenant(Args#{{{ tenant_key }} => TenantId}) of
+        {ok, Pid} ->
+          %% Monitor the FSM process for cleanup
+          MonitorRef = erlang:monitor(process, Pid),
+
+          S1 = S0#state{
+            tenants = maps:put(TenantId, {Pid, MonitorRef}, S0#state.tenants),
+            monitors = maps:put(MonitorRef, TenantId, S0#state.monitors)
+          },
+
+          {reply, {ok, Pid}, S1};
+
+        {error, Reason} ->
+          {reply, {error, Reason}, S0}
+      end
+  end;
+
+handle_call({whereis, TenantId}, _From, S0) ->
+  case maps:get(TenantId, S0#state.tenants, undefined) of
+    {Pid, _Ref} when is_pid(Pid) ->
+      {reply, {ok, Pid}, S0};
+    undefined ->
+      {reply, {error, not_found}, S0}
+  end;
+
+handle_call(_Req, _From, S0) ->
+  {reply, {error, unknown_request}, S0}.
+
+handle_cast(_Msg, S) ->
+  {noreply, S}.
+
+%% Handle FSM process death: clean up tenant registry
+handle_info({'DOWN', Ref, process, _Pid, _Reason}, S0) ->
+  case maps:get(Ref, S0#state.monitors, undefined) of
+    TenantId when is_binary(TenantId) ->
+      %% Remove dead tenant from both indices
+      S1 = S0#state{
+        tenants = maps:remove(TenantId, S0#state.tenants),
+        monitors = maps:remove(Ref, S0#state.monitors)
+      },
+      {noreply, S1};
+
+    undefined ->
+      {noreply, S0}
+  end;
+
+handle_info(_Info, S) ->
+  {noreply, S}.
+
+terminate(_Reason, _S) ->
+  ok.
+
+code_change(_OldVsn, S, _Extra) ->
+  {ok, S}.

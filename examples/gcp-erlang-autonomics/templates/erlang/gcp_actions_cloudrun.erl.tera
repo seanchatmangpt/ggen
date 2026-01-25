@@ -1,0 +1,81 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_gcp_actions_cloudrun).
+-export([throttle_concurrency/2, rollback_revision/2, freeze_rollout/2]).
+
+%% Cloud Run Autonomic Actions
+%% Deploy Rollback Guard + Cost Circuit Breaker integrations
+
+%% throttle_concurrency/2
+%% Reduce Cloud Run concurrency to prevent resource exhaustion
+%% Used by Cost Circuit Breaker when billing spike detected
+throttle_concurrency(TenantId, Payload) ->
+  Service = maps:get(service, Payload, <<"unknown">>),
+  Region  = maps:get(region, Payload, <<"us-central1">>),
+  Concurrency = maps:get(concurrency, Payload, 5),
+
+  Url = cloudrun_url(Region, Service, <<"update">>),
+  Body = #{max_instances => Concurrency},
+
+  _ = {{ module_prefix }}_receipt_ledger:append(TenantId, #{
+    kind => gcp_action,
+    action => throttle_concurrency,
+    service => Service,
+    region => Region,
+    concurrency => Concurrency,
+    decision => attempt
+  }),
+
+  {{ module_prefix }}_gcp_client_auth:request(post, Url, [], Body, TenantId).
+
+%% rollback_revision/2
+%% Revert Cloud Run service to previous revision
+%% Used by Deploy Rollback Guard when error rate spikes detected
+rollback_revision(TenantId, Payload) ->
+  Service = maps:get(service, Payload, <<"unknown">>),
+  Region  = maps:get(region, Payload, <<"us-central1">>),
+  Rev     = maps:get(revision, Payload, <<"previous">>),
+
+  Url = cloudrun_url(Region, Service, <<"rollback">>),
+  Body = #{revision => Rev},
+
+  _ = {{ module_prefix }}_receipt_ledger:append(TenantId, #{
+    kind => gcp_action,
+    action => rollback_revision,
+    service => Service,
+    region => Region,
+    revision => Rev,
+    decision => attempt
+  }),
+
+  {{ module_prefix }}_gcp_client_auth:request(post, Url, [], Body, TenantId).
+
+%% freeze_rollout/2
+%% Pause all new deployments to Cloud Run service
+%% Prevents cascading failures during degraded mode
+freeze_rollout(TenantId, Payload) ->
+  Service = maps:get(service, Payload, <<"unknown">>),
+  Region  = maps:get(region, Payload, <<"us-central1">>),
+
+  Url = cloudrun_url(Region, Service, <<"freeze">>),
+  Body = #{freeze_deployments => true},
+
+  _ = {{ module_prefix }}_receipt_ledger:append(TenantId, #{
+    kind => gcp_action,
+    action => freeze_rollout,
+    service => Service,
+    region => Region,
+    decision => attempt
+  }),
+
+  {{ module_prefix }}_gcp_client_auth:request(post, Url, [], Body, TenantId).
+
+%% cloudrun_url/3 - Construct Cloud Run API endpoint
+cloudrun_url(Region, Service, Op) ->
+  iolist_to_binary([
+    "https://cloudrun.googleapis.com/v1/projects/",
+    "{{ gcp.project_id | default(value="PROJECT") }}",
+    "/locations/", Region,
+    "/services/", Service,
+    ":", Op
+  ]).

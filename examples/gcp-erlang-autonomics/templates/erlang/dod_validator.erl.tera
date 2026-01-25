@@ -1,0 +1,62 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_dod_validator).
+-export([check/0]).
+
+%% TPS Definition of Done: Stop-the-line pre-flight checks
+%% Must pass all checks before system is allowed to boot
+%% If any check fails, the entire application startup is rejected (jidoka).
+
+check() ->
+  ok = ensure_env(),
+  ok = ensure_token(),
+  ok = ensure_firestore_receipt(),
+  ok.
+
+%% Ensure GCP_PROJECT environment variable is set
+ensure_env() ->
+  case os:getenv("GOOGLE_CLOUD_PROJECT") of
+    false ->
+      error({dod_failed, missing_env_google_cloud_project});
+    "" ->
+      error({dod_failed, empty_env_google_cloud_project});
+    _ProjectId ->
+      ok
+  end.
+
+%% Ensure we can fetch OAuth2 access token from metadata server
+%% This validates we're running on GCP (Cloud Run, Compute Engine, GKE, etc.)
+ensure_token() ->
+  case {{ module_prefix }}_metadata_token:access_token() of
+    {ok, Token} when is_binary(Token), byte_size(Token) > 0 ->
+      ok;
+    Other ->
+      error({dod_failed, {invalid_access_token, Other}})
+  end.
+
+%% Ensure Firestore is accessible by writing a test receipt
+%% This validates:
+%%   - Metadata token works
+%%   - GCP credentials have Firestore write permission
+%%   - Network routing to Firestore API is working
+ensure_firestore_receipt() ->
+  try
+    {ok, _ChainHash} = {{ module_prefix }}_receipt_ledger:append(<<"dod_check">>, #{
+      kind => dod,
+      sku => <<"{{ sku }}">>,
+      event => firestore_write_check,
+      decision => accept,
+      timestamp => erlang:system_time(millisecond)
+    }),
+    ok
+  catch
+    error:{receipt_persist_failed, Why} ->
+      error({dod_failed, {firestore_unavailable, Why}});
+    error:Why ->
+      error({dod_failed, {receipt_check_crash, Why}});
+    exit:Why ->
+      error({dod_failed, {receipt_check_exit, Why}})
+  end.
+
+%% TPS rule: Stop-the-line on any DoD failure
+%% Don't run partially or in degraded mode. Fail hard and fast.

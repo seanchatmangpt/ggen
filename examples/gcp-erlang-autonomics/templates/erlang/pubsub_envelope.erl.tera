@@ -1,0 +1,35 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_pubsub_envelope).
+-export([decode/1]).
+
+%% decode/1: Decode GCP Pub/Sub push message envelope
+%% Input: Raw HTTP body (JSON)
+%% Output: {ok, #{attributes: ..., payload_bin: ...}} | {error, Reason}
+decode(RawBody) when is_binary(RawBody) ->
+  case safe_json(RawBody) of
+    {ok, Map} ->
+      case maps:get(<<"message">>, Map, undefined) of
+        undefined ->
+          {error, missing_message};
+        Msg ->
+          Attr = maps:get(<<"attributes">>, Msg, #{}),
+          DataB64 = maps:get(<<"data">>, Msg, <<"">>),
+          case catch base64:decode(DataB64) of
+            PayloadBin when is_binary(PayloadBin) ->
+              {ok, #{
+                attributes => Attr,
+                payload_bin => PayloadBin
+              }};
+            _ ->
+              {error, invalid_base64}
+          end
+      end;
+    {error, Why} ->
+      {error, Why}
+  end.
+
+safe_json(Bin) ->
+  try {ok, jiffy:decode(Bin, [return_maps])}
+  catch _:_ -> {error, invalid_json}
+  end.
