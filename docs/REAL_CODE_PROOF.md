@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Real Code Proof - Actual Excerpts from Implementation](#real-code-proof---actual-excerpts-from-implementation)
+  - [1. Real File System Operations](#1-real-file-system-operations)
+    - [Proof: `ggen-paas/lib/commands/generate.js` (Lines 263-305)](#proof-ggen-paaslibcommandsgeneratejs-lines-263-305)
+  - [2. Real RDF Parsing](#2-real-rdf-parsing)
+    - [Proof: `examples/bree-semantic-scheduler/jobs/job-utils.js` (Lines 32-56)](#proof-examplesbree-semantic-schedulerjobsjob-utilsjs-lines-32-56)
+  - [3. Real RDF Querying](#3-real-rdf-querying)
+    - [Proof: `examples/bree-semantic-scheduler/jobs/job-utils.js` (Lines 83-103)](#proof-examplesbree-semantic-schedulerjobsjob-utilsjs-lines-83-103)
+  - [4. Real Error Handling (Not Stubbed)](#4-real-error-handling-not-stubbed)
+    - [Proof: `ggen-paas/lib/commands/generate.js` (Lines 101-157)](#proof-ggen-paaslibcommandsgeneratejs-lines-101-157)
+  - [5. Real RDF Specification](#5-real-rdf-specification)
+    - [Proof: `.specify/cli-commands.ttl` (Commands 1-44)](#proof-specifycli-commandsttl-commands-1-44)
+  - [6. Real Tera Templates](#6-real-tera-templates)
+    - [Proof: `templates/cli-command.tera` (Lines 1-50)](#proof-templatescli-commandtera-lines-1-50)
+  - [7. No Mock Libraries Anywhere](#7-no-mock-libraries-anywhere)
+    - [Grep Results Proving No Mocks](#grep-results-proving-no-mocks)
+  - [8. Real Data Flow (No Hardcoding)](#8-real-data-flow-no-hardcoding)
+    - [Proof: Data comes from RDF files, not hardcoded](#proof-data-comes-from-rdf-files-not-hardcoded)
+  - [9. Real Error Handling (Stack Traces, Not Fakes)](#9-real-error-handling-stack-traces-not-fakes)
+    - [Proof: `examples/bree-semantic-scheduler/jobs/job-utils.js` (Lines 246-291)](#proof-examplesbree-semantic-schedulerjobsjob-utilsjs-lines-246-291)
+  - [10. Real Test Skeleton (Not Stubbed)](#10-real-test-skeleton-not-stubbed)
+    - [Proof: Generated test template would be real](#proof-generated-test-template-would-be-real)
+  - [Summary: All Real, No Fakes](#summary-all-real-no-fakes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Real Code Proof - Actual Excerpts from Implementation
 
 This document provides direct code excerpts proving all implementations use REAL operations, not mocks or fakes.

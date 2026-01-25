@@ -1,3 +1,56 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Production Readiness Evidence Report](#production-readiness-evidence-report)
+  - [Executive Summary](#executive-summary)
+    - [Key Metrics](#key-metrics)
+  - [Test Suite Results](#test-suite-results)
+    - [Test Execution Summary](#test-execution-summary)
+    - [Coverage Analysis](#coverage-analysis)
+  - [Performance Benchmark Results](#performance-benchmark-results)
+    - [SLO Validation](#slo-validation)
+      - [1. RDF Validation Performance](#1-rdf-validation-performance)
+      - [2. Text Cleaning Performance](#2-text-cleaning-performance)
+      - [3. Generation Performance](#3-generation-performance)
+      - [4. Memory Efficiency](#4-memory-efficiency)
+    - [Regression Baselines Established](#regression-baselines-established)
+  - [Security Validation](#security-validation)
+    - [Security Test Results](#security-test-results)
+    - [Dependency Security](#dependency-security)
+  - [CI/CD Pipeline](#cicd-pipeline)
+    - [GitHub Actions Workflow](#github-actions-workflow)
+  - [Functional Validation](#functional-validation)
+    - [End-to-End Workflow Verification](#end-to-end-workflow-verification)
+      - [Test Case: Complete Thesis Generation](#test-case-complete-thesis-generation)
+      - [Test Case: Minimal Thesis Example](#test-case-minimal-thesis-example)
+  - [Enhanced SHACL Validation](#enhanced-shacl-validation)
+    - [New Constraints Added](#new-constraints-added)
+  - [CLI Commands Validated](#cli-commands-validated)
+    - [1. Generate Command](#1-generate-command)
+    - [2. Validate Command](#2-validate-command)
+    - [3. Extract Command](#3-extract-command)
+    - [4. Clean Command](#4-clean-command)
+    - [5. PDF Command](#5-pdf-command)
+    - [6. Version Command](#6-version-command)
+  - [Quality Gates Summary](#quality-gates-summary)
+    - [Code Quality](#code-quality)
+    - [Performance Gates](#performance-gates)
+    - [Functional Gates](#functional-gates)
+  - [Production Deployment Checklist](#production-deployment-checklist)
+    - [Pre-Deployment](#pre-deployment)
+    - [Deployment Requirements](#deployment-requirements)
+    - [Post-Deployment](#post-deployment)
+  - [Known Limitations](#known-limitations)
+  - [Recommendations](#recommendations)
+    - [Immediate (Before Release)](#immediate-before-release)
+    - [Short-Term (Next Sprint)](#short-term-next-sprint)
+    - [Long-Term (Future Versions)](#long-term-future-versions)
+  - [Conclusion](#conclusion)
+    - [Constitutional Equation Verified](#constitutional-equation-verified)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Production Readiness Evidence Report
 
 **System**: Spec-Kit-3T Thesis Generator v2.0.0

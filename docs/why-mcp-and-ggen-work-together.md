@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Explanation: Why MCP and ggen Work Together](#explanation-why-mcp-and-ggen-work-together)
+  - [The Core Problem MCPs Solve](#the-core-problem-mcps-solve)
+  - [The Core Problem ggen Solves](#the-core-problem-ggen-solves)
+  - [Why They Fit Together Perfectly](#why-they-fit-together-perfectly)
+    - [Synergy 1: Standardized Tool Discovery](#synergy-1-standardized-tool-discovery)
+    - [Synergy 2: Standardized Tool Interface](#synergy-2-standardized-tool-interface)
+    - [Synergy 3: Composition Without Brittleness](#synergy-3-composition-without-brittleness)
+    - [Synergy 4: Reduced Integration Complexity](#synergy-4-reduced-integration-complexity)
+  - [Real-World Pattern: AI-Driven Code Generation](#real-world-pattern-ai-driven-code-generation)
+    - [The Agent's Workflow](#the-agents-workflow)
+    - [Why This Works](#why-this-works)
+  - [Comparison to Alternatives](#comparison-to-alternatives)
+    - [Alternative 1: Direct Code Generation (No MCP)](#alternative-1-direct-code-generation-no-mcp)
+    - [Alternative 2: Manual Tool Wrappers (No ggen)](#alternative-2-manual-tool-wrappers-no-ggen)
+    - [Alternative 3: MCP + ggen (Our Pattern)](#alternative-3-mcp--ggen-our-pattern)
+  - [How The Pattern Scales](#how-the-pattern-scales)
+    - [As Your Domain Grows](#as-your-domain-grows)
+  - [The Four Levels of Integration](#the-four-levels-of-integration)
+    - [Level 1: Simple Tool Wrapper](#level-1-simple-tool-wrapper)
+    - [Level 2: Multi-Step Workflow](#level-2-multi-step-workflow)
+    - [Level 3: Agent Learning System](#level-3-agent-learning-system)
+    - [Level 4: Autonomous Agent System](#level-4-autonomous-agent-system)
+  - [Why This Beats Alternatives](#why-this-beats-alternatives)
+    - [vs. Hardcoded Integration](#vs-hardcoded-integration)
+    - [vs. Manual Tool Creation](#vs-manual-tool-creation)
+    - [vs. Raw LLM Code Generation](#vs-raw-llm-code-generation)
+  - [The Key Principle](#the-key-principle)
+  - [When to Use This Pattern](#when-to-use-this-pattern)
+    - [Perfect For:](#perfect-for)
+    - [Not Ideal For:](#not-ideal-for)
+  - [Key Insights](#key-insights)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Explanation: Why MCP and ggen Work Together
 
 **Understanding the synergy between Model Context Protocol and code generation automation**

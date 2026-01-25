@@ -1,0 +1,11 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_gcp_client).
+-export([request/4]).
+
+%% request(Method, Url, Headers, BodyMap) -> {ok, Status, RespMap} | {error, Why}
+request(Method, Url, Headers, Body) ->
+  %% Placeholder transport.
+  %% In production: use hackney/finch + fetch token via metadata server.
+  _ = {Method, Url, Headers, Body},
+  {ok, 200, #{ok => true}}.

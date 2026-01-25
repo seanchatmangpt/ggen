@@ -1,3 +1,52 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGEN-DISNEY MARKET LAUNCH SYNTHESIS](#ggen-disney-market-launch-synthesis)
+  - [10-Agent EPIC 9 Convergence Document](#10-agent-epic-9-convergence-document)
+  - [EXECUTIVE SUMMARY](#executive-summary)
+    - [THE PITCH](#the-pitch)
+  - [CONVERGENCE PROOF (10 Agents Agree)](#convergence-proof-10-agents-agree)
+  - [CRITICAL SUCCESS FACTORS (Non-Negotiable)](#critical-success-factors-non-negotiable)
+  - [GO / NO-GO DECISION FRAMEWORK](#go--no-go-decision-framework)
+    - [PROCEED (All Agents Recommend) IF:](#proceed-all-agents-recommend-if)
+    - [PAUSE IF:](#pause-if)
+    - [PIVOT IF:](#pivot-if)
+  - [FINANCIAL SNAPSHOT](#financial-snapshot)
+  - [COMPETITIVE POSITIONING](#competitive-positioning)
+    - [vs Terraform/Pulumi/CDK (Infrastructure-First Tools)](#vs-terraformpulumicdk-infrastructure-first-tools)
+    - [vs Runway/AWS Cost Management (Finance-First Tools)](#vs-runwayaws-cost-management-finance-first-tools)
+    - [Unique Moats (10-year defensible advantage)](#unique-moats-10-year-defensible-advantage)
+  - [MARKET OPPORTUNITY](#market-opportunity)
+    - [TAM (Total Addressable Market): $50B+](#tam-total-addressable-market-50b)
+    - [SAM (Serviceable Addressable Market): $5.5B](#sam-serviceable-addressable-market-55b)
+    - [SOM (Serviceable Obtainable Market):](#som-serviceable-obtainable-market)
+  - [EXECUTION TIMELINE](#execution-timeline)
+    - [Phase 1 (Weeks 1-8): Foundation](#phase-1-weeks-1-8-foundation)
+    - [Phase 2 (Weeks 9-20): Validation](#phase-2-weeks-9-20-validation)
+    - [Phase 3 (Weeks 21-52): Production Scale](#phase-3-weeks-21-52-production-scale)
+    - [Market Launch (Month 13+)](#market-launch-month-13)
+  - [ORGANIZATIONAL STRUCTURE](#organizational-structure)
+    - [Core Team (30 FTE, Year 1 Ramp)](#core-team-30-fte-year-1-ramp)
+  - [BOARD APPROVAL CHECKLIST](#board-approval-checklist)
+    - [BEFORE KICKOFF (Week 1)](#before-kickoff-week-1)
+    - [EXECUTIVE SIGN-OFF REQUIRED](#executive-sign-off-required)
+  - [POST-APPROVAL (Week 1-2 ACTIONS)](#post-approval-week-1-2-actions)
+  - [SUCCESS METRICS (YEAR 1)](#success-metrics-year-1)
+    - [By Week 8 (Phase 1 Exit):](#by-week-8-phase-1-exit)
+    - [By Month 6 (Q2 Exit):](#by-month-6-q2-exit)
+    - [By Month 12 (Year 1 Exit):](#by-month-12-year-1-exit)
+  - [INVESTOR NARRATIVE](#investor-narrative)
+    - [For VCs (Seed/Series A):](#for-vcs-seedseries-a)
+    - [For Corporates (CIO/COO Buyers):](#for-corporates-ciocoo-buyers)
+    - [For Customers (Pilot Buyers):](#for-customers-pilot-buyers)
+  - [RISKS MITIGATED (Top 10)](#risks-mitigated-top-10)
+  - [NEXT 10 HOURS (BOARD APPROVAL PROCESS)](#next-10-hours-board-approval-process)
+  - [CONCLUSION](#conclusion)
+  - [APPENDIX: 10 AGENT DOCUMENTS (Summary)](#appendix-10-agent-documents-summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGEN-DISNEY MARKET LAUNCH SYNTHESIS
 ## 10-Agent EPIC 9 Convergence Document
 

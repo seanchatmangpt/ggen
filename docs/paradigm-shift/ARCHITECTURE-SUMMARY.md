@@ -1,3 +1,49 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Event Horizon Documentation: Architecture Summary](#event-horizon-documentation-architecture-summary)
+  - [📊 Overview](#-overview)
+  - [🗂️ Directory Structure (Visual Map)](#-directory-structure-visual-map)
+  - [🎯 Priority Matrix (Gaps Addressed)](#-priority-matrix-gaps-addressed)
+    - [P0: Critical (Blocking Adoption) - Week 1](#p0-critical-blocking-adoption---week-1)
+    - [P1: High (Reduces Friction) - Month 1](#p1-high-reduces-friction---month-1)
+    - [P2: Medium (Improves Experience) - Months 2-3](#p2-medium-improves-experience---months-2-3)
+  - [🚦 Navigation Flow by Persona](#-navigation-flow-by-persona)
+    - [👨‍💻 Developer (Zero RDF Knowledge)](#-developer-zero-rdf-knowledge)
+    - [🤔 Skeptic ("Why Should I Care?")](#-skeptic-why-should-i-care)
+    - [👨‍💼 Manager ("How Do I Sell This?")](#-manager-how-do-i-sell-this)
+    - [🏗️ Architect ("How Does This Fit?")](#-architect-how-does-this-fit)
+  - [📋 Document Templates (3 Types)](#-document-templates-3-types)
+    - [Template 1: Fundamentals Document](#template-1-fundamentals-document)
+    - [Template 2: Exercise](#template-2-exercise)
+  - [Common Mistakes](#common-mistakes)
+  - [Solution](#solution)
+  - [📊 Implementation Roadmap](#-implementation-roadmap)
+    - [Phase 1: Critical Foundation (Week 1)](#phase-1-critical-foundation-week-1)
+    - [Phase 2: Learning Scaffolding (Month 1)](#phase-2-learning-scaffolding-month-1)
+    - [Phase 3: Deep Content (Months 2-3)](#phase-3-deep-content-months-2-3)
+    - [Phase 4: Community & Mastery (Months 4-6)](#phase-4-community--mastery-months-4-6)
+  - [🎯 Success Metrics](#-success-metrics)
+    - [Quantitative Targets](#quantitative-targets)
+    - [Qualitative Indicators](#qualitative-indicators)
+  - [🔗 Integration with Existing Docs](#-integration-with-existing-docs)
+    - [Files Requiring Updates](#files-requiring-updates)
+    - [Consolidation Required](#consolidation-required)
+  - [🚨 Risk Mitigation](#-risk-mitigation)
+    - [Critical Risks](#critical-risks)
+  - [📚 Key Documents by Use Case](#-key-documents-by-use-case)
+    - ["I need to understand the paradigm shift" (30 min)](#i-need-to-understand-the-paradigm-shift-30-min)
+    - ["I need to convince my team" (60 min)](#i-need-to-convince-my-team-60-min)
+    - ["I need to learn RDF" (20 hours over 4 weeks)](#i-need-to-learn-rdf-20-hours-over-4-weeks)
+    - ["I need to migrate existing code" (3-6 months)](#i-need-to-migrate-existing-code-3-6-months)
+  - [💡 Quick Start for Documentation Team](#-quick-start-for-documentation-team)
+    - [Immediate Actions (This Week)](#immediate-actions-this-week)
+    - [Tools and Resources](#tools-and-resources)
+  - [📞 Contact and Ownership](#-contact-and-ownership)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Event Horizon Documentation: Architecture Summary
 
 **Quick Reference Guide**

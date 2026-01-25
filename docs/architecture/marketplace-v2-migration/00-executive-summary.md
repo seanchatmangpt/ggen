@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace V2 Migration - Executive Summary](#marketplace-v2-migration---executive-summary)
+  - [Overview](#overview)
+  - [Key Design Principles](#key-design-principles)
+  - [Architecture Diagrams](#architecture-diagrams)
+    - [High-Level Architecture](#high-level-architecture)
+    - [Feature Gate Architecture](#feature-gate-architecture)
+    - [Data Flow Architecture](#data-flow-architecture)
+    - [Migration Phases Timeline](#migration-phases-timeline)
+    - [Error Handling and Fallback Flow](#error-handling-and-fallback-flow)
+  - [Key Technical Decisions](#key-technical-decisions)
+    - [1. Adapter Pattern (Not Direct V2 Replacement)](#1-adapter-pattern-not-direct-v2-replacement)
+    - [2. Feature Gates (Not Runtime-Only Selection)](#2-feature-gates-not-runtime-only-selection)
+    - [3. RDF/SPARQL (Not SQL or NoSQL)](#3-rdfsparql-not-sql-or-nosql)
+    - [4. Ed25519 Signing (Not RSA or Other Algorithms)](#4-ed25519-signing-not-rsa-or-other-algorithms)
+  - [Risk Assessment](#risk-assessment)
+    - [High-Risk Areas](#high-risk-areas)
+    - [Mitigation Strategies](#mitigation-strategies)
+  - [Success Metrics](#success-metrics)
+    - [Pre-Launch Validation](#pre-launch-validation)
+    - [Post-Launch Metrics (Week 1)](#post-launch-metrics-week-1)
+    - [Post-Launch Metrics (Month 1)](#post-launch-metrics-month-1)
+  - [Resource Requirements](#resource-requirements)
+    - [Development Time](#development-time)
+    - [Infrastructure Requirements](#infrastructure-requirements)
+  - [Key Deliverables](#key-deliverables)
+    - [Code Artifacts](#code-artifacts)
+    - [Documentation](#documentation)
+    - [Testing Artifacts](#testing-artifacts)
+  - [Next Steps](#next-steps)
+    - [Immediate (This Week)](#immediate-this-week)
+    - [Short-Term (Week 1)](#short-term-week-1)
+    - [Medium-Term (Weeks 2-4)](#medium-term-weeks-2-4)
+    - [Long-Term (Week 5+)](#long-term-week-5)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace V2 Migration - Executive Summary
 
 ## Overview

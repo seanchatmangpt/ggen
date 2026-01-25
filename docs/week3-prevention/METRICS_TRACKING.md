@@ -1,3 +1,56 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [DfLSS Prevention Metrics Tracking System](#dflss-prevention-metrics-tracking-system)
+  - [Metrics Overview](#metrics-overview)
+  - [1. Defect Metrics](#1-defect-metrics)
+    - [Purpose](#purpose)
+    - [Key Metrics](#key-metrics)
+      - [Defect Density](#defect-density)
+      - [Defect Distribution by Phase](#defect-distribution-by-phase)
+      - [Defect Escape Rate](#defect-escape-rate)
+    - [Data Collection](#data-collection)
+  - [2. Cycle Time Metrics](#2-cycle-time-metrics)
+    - [Purpose](#purpose-1)
+    - [Key Metrics](#key-metrics-1)
+      - [Total Cycle Time](#total-cycle-time)
+      - [Lead Time for Design Review](#lead-time-for-design-review)
+    - [Data Collection](#data-collection-1)
+  - [3. Rework Metrics](#3-rework-metrics)
+    - [Purpose](#purpose-2)
+    - [Key Metrics](#key-metrics-2)
+      - [Rework Percentage](#rework-percentage)
+      - [Andon Signal Frequency](#andon-signal-frequency)
+    - [Data Collection](#data-collection-2)
+  - [4. Quality Metrics](#4-quality-metrics)
+    - [Purpose](#purpose-3)
+    - [Key Metrics](#key-metrics-3)
+      - [Test Pass Rate](#test-pass-rate)
+      - [SLO Compliance Rate](#slo-compliance-rate)
+      - [Code Review Approval Rate](#code-review-approval-rate)
+      - [Design Review Pass Rate](#design-review-pass-rate)
+    - [Data Collection](#data-collection-3)
+  - [5. Team Metrics](#5-team-metrics)
+    - [Purpose](#purpose-4)
+    - [Key Metrics](#key-metrics-4)
+      - [Team Satisfaction Score](#team-satisfaction-score)
+      - [Learning Hours](#learning-hours)
+      - [Kaizen Improvements Implemented](#kaizen-improvements-implemented)
+    - [Data Collection](#data-collection-4)
+  - [Metrics Dashboard Implementation](#metrics-dashboard-implementation)
+    - [Data Model](#data-model)
+    - [Collection Script](#collection-script)
+    - [Dashboard Visualization](#dashboard-visualization)
+  - [Reporting Cadence](#reporting-cadence)
+    - [Daily](#daily)
+    - [Weekly](#weekly)
+    - [Monthly](#monthly)
+    - [Quarterly](#quarterly)
+  - [Success Criteria](#success-criteria)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # DfLSS Prevention Metrics Tracking System
 
 **Version**: 1.0.0

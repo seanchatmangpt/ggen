@@ -1,3 +1,50 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [LLM-Construct Pattern: Complete Tutorial](#llm-construct-pattern-complete-tutorial)
+  - [Table of Contents](#table-of-contents)
+  - [Introduction](#introduction)
+    - [What is the LLM-Construct Pattern?](#what-is-the-llm-construct-pattern)
+    - [Why Use LLM-Construct?](#why-use-llm-construct)
+  - [Prerequisites](#prerequisites)
+    - [Knowledge Requirements](#knowledge-requirements)
+    - [Environment Setup](#environment-setup)
+  - [Step-by-Step Guide](#step-by-step-guide)
+    - [Step 1: Define Your Domain Ontology (OWL/Turtle)](#step-1-define-your-domain-ontology-owlturtle)
+    - [Step 2: Add Constraints Using OWL Restrictions](#step-2-add-constraints-using-owl-restrictions)
+    - [Step 3: Create LLM-Construct Specification](#step-3-create-llm-construct-specification)
+    - [Step 4: Generate Code with `ggen construct create`](#step-4-generate-code-with-ggen-construct-create)
+    - [Step 5: Use Generated Module in Your Application](#step-5-use-generated-module-in-your-application)
+  - [Complete Working Example](#complete-working-example)
+    - [FIBO Bond Extractor Walkthrough](#fibo-bond-extractor-walkthrough)
+      - [1. Define FIBO Bond Ontology](#1-define-fibo-bond-ontology)
+      - [2. Create LLM-Construct Spec](#2-create-llm-construct-spec)
+      - [3. Generate the Module](#3-generate-the-module)
+      - [4. Use in Application](#4-use-in-application)
+      - [5. Run the Demo](#5-run-the-demo)
+  - [Common Patterns](#common-patterns)
+    - [When to Use Operational vs Semantic Constraints](#when-to-use-operational-vs-semantic-constraints)
+    - [Pattern 1: Nested Objects (1-to-1 Relationships)](#pattern-1-nested-objects-1-to-1-relationships)
+    - [Pattern 2: Arrays (1-to-Many Relationships)](#pattern-2-arrays-1-to-many-relationships)
+    - [Pattern 3: Enumerations (Closed Sets)](#pattern-3-enumerations-closed-sets)
+    - [Pattern 4: Optional Fields with Defaults](#pattern-4-optional-fields-with-defaults)
+  - [Troubleshooting](#troubleshooting)
+    - [Common Errors and Solutions](#common-errors-and-solutions)
+      - [Error 1: "OWL Extraction Failed: Class Not Found"](#error-1-owl-extraction-failed-class-not-found)
+      - [Error 2: "SHACL Generation Failed: Unsupported Restriction"](#error-2-shacl-generation-failed-unsupported-restriction)
+      - [Error 3: "Compilation Failed: Constraint Not Found"](#error-3-compilation-failed-constraint-not-found)
+      - [Error 4: "LLM Output Invalid: Constraint Violation"](#error-4-llm-output-invalid-constraint-violation)
+      - [Error 5: "Performance Issue: Generation Takes Too Long"](#error-5-performance-issue-generation-takes-too-long)
+  - [Next Steps](#next-steps)
+    - [Advanced Topics](#advanced-topics)
+    - [Learning Resources](#learning-resources)
+    - [Reference Documentation](#reference-documentation)
+    - [Example Projects](#example-projects)
+    - [Contributing](#contributing)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # LLM-Construct Pattern: Complete Tutorial
 
 **Core Equation**: `LLM-Construct = μ(OWL) → SHACL → DSPy → Constrained Behavior`

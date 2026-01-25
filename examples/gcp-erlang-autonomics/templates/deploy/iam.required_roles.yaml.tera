@@ -1,0 +1,71 @@
+---
+# IAM Configuration for {{ module_prefix }} SKU
+# Generated from action capabilities
+# Principle: Only grant roles required to execute actions in this SKU
+
+serviceAccount:
+  displayName: "{{ module_prefix }} Service Account"
+  description: "Service account for {{ sku }} SKU autonomic system"
+  name: {{ module_prefix }}-sa
+
+# Base roles (required for all SKUs)
+roles:
+  # Firestore: persist receipts and read entitlement state
+  - role: roles/datastore.user
+    reason: "Append-only receipt ledger + entitlement FSM state"
+
+  # Logging: emit structured logs for audit trail
+  - role: roles/logging.logWriter
+    reason: "Cloud Logging for receipt chain and action results"
+
+{% if "cloudrun" in action_groups %}
+  # Cloud Run: deploy/manage revisions (if this SKU includes Cloud Run actions)
+  - role: roles/run.developer
+    reason: "Cloud Run actions: throttle_concurrency, rollback_revision, freeze_rollout"
+
+  - role: roles/compute.networkViewer
+    reason: "View Cloud Run service configuration"
+{% endif %}
+
+{% if "scheduler" in action_groups %}
+  # Cloud Scheduler: pause/resume jobs (if this SKU includes Scheduler actions)
+  - role: roles/cloudscheduler.jobRunner
+    reason: "Cloud Scheduler actions: pause_job, resume_job"
+{% endif %}
+
+{% if "pubsub" in action_groups %}
+  # Pub/Sub: pause/resume subscriptions (if this SKU includes Pub/Sub actions)
+  - role: roles/pubsub.editor
+    reason: "Pub/Sub actions: pause_subscription, resume_subscription"
+
+  - role: roles/pubsub.viewer
+    reason: "Pub/Sub metric queries for backlog monitoring"
+{% endif %}
+
+  # Cloud Monitoring: query metrics for signal normalization
+  - role: roles/monitoring.metricReader
+    reason: "Query Cloud Monitoring metrics for autonomic signal generation"
+
+  # Service Accounts: impersonation (if multi-tenant)
+  - role: roles/iam.serviceAccountUser
+    reason: "Assume SKU service account for GCP API calls"
+
+# Policy Bindings (how service account gets these roles)
+bindings:
+  - members:
+      - serviceAccount: {{ module_prefix }}-sa@PROJECT_ID.iam.gserviceaccount.com
+    roles:
+{% for action_group in action_groups %}
+  # Actions in group: {{ action_group }}
+{% endfor %}
+
+# Notes
+notes: |
+  TPS Rule: This role assignment is deterministically derived from action capabilities
+  in the ggen.toml specification. If action capabilities change, regenerate this file.
+
+  Verification:
+  gcloud projects get-iam-policy PROJECT_ID \
+    --flatten="bindings[].members" \
+    --filter="bindings.members:serviceAccount={{ module_prefix }}-sa@PROJECT_ID.iam.gserviceaccount.com" \
+    --format="table(bindings.role)"

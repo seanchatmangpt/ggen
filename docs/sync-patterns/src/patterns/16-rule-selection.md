@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [16. RULE SELECTION *](#16-rule-selection-)
+  - [Context](#context)
+  - [Connections](#connections)
+  - [Implementation](#implementation)
+    - [Invocation](#invocation)
+    - [Behavior](#behavior)
+    - [SyncOptions](#syncoptions)
+    - [Filtering Logic](#filtering-logic)
+    - [Error Handling](#error-handling)
+  - [Use Cases](#use-cases)
+    - [Template Iteration](#template-iteration)
+    - [Debugging](#debugging)
+    - [Selective Regeneration](#selective-regeneration)
+    - [Performance Profiling](#performance-profiling)
+  - [Combining with Other Flags](#combining-with-other-flags)
+  - [Inference Rules Selection](#inference-rules-selection)
+  - [The Deeper Pattern](#the-deeper-pattern)
+  - [When Rule Selection Is Wrong](#when-rule-selection-is-wrong)
+  - [When This Pattern Breaks](#when-this-pattern-breaks)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 16. RULE SELECTION *
 
 *Sometimes you need a scalpel, not a sledgehammer.*

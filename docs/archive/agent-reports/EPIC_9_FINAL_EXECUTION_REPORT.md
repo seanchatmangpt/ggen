@@ -1,3 +1,51 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [EPIC 9 EXECUTION REPORT: Examples Rewrite Project](#epic-9-execution-report-examples-rewrite-project)
+  - [Executive Summary](#executive-summary)
+  - [EPIC 9 Atomic Cycle Status](#epic-9-atomic-cycle-status)
+    - [Phase 1: FAN-OUT ✅](#phase-1-fan-out-)
+    - [Phase 2: INDEPENDENT CONSTRUCTION ⚠️](#phase-2-independent-construction-)
+    - [Phase 3: COLLISION DETECTION ⏸️](#phase-3-collision-detection-)
+    - [Phase 4: CONVERGENCE ⏸️](#phase-4-convergence-)
+    - [Phase 5: REFACTORING & SYNTHESIS ⏸️](#phase-5-refactoring--synthesis-)
+    - [Phase 6: CLOSURE ⏸️](#phase-6-closure-)
+  - [Detailed Results by Agent](#detailed-results-by-agent)
+    - [Agent 1: Batch 1 Implementation (Foundation Examples)](#agent-1-batch-1-implementation-foundation-examples)
+    - [Agent 2: Batch 2 Implementation (CLI Examples)](#agent-2-batch-2-implementation-cli-examples)
+    - [Agent 3: Batch 3 Implementation (API/Schema Examples)](#agent-3-batch-3-implementation-apischema-examples)
+    - [Agent 4: Batch 4 Implementation (Advanced Examples)](#agent-4-batch-4-implementation-advanced-examples)
+    - [Agent 5: Batch 5a Implementation (Enterprise Examples)](#agent-5-batch-5a-implementation-enterprise-examples)
+    - [Agent 6: Batch 5b Implementation (Utility Examples)](#agent-6-batch-5b-implementation-utility-examples)
+    - [Agent 7: Quality Gates Validation](#agent-7-quality-gates-validation)
+    - [Agent 8: Reproducibility Testing](#agent-8-reproducibility-testing)
+    - [Agent 9: Golden Files & Test Coverage Audit](#agent-9-golden-files--test-coverage-audit)
+    - [Agent 10: Convergence Synthesis](#agent-10-convergence-synthesis)
+  - [Key Metrics](#key-metrics)
+  - [Critical Blockers](#critical-blockers)
+    - [1. Token Output Limits (Agents 2-6) 🔴](#1-token-output-limits-agents-2-6-)
+    - [2. README Completeness (Agent 7) 🟡](#2-readme-completeness-agent-7-)
+    - [3. Test Coverage (Agent 9) 🔴](#3-test-coverage-agent-9-)
+    - [4. Build Dependency (Agent 7) 🟡](#4-build-dependency-agent-7-)
+  - [Andon Signal Status](#andon-signal-status)
+    - [Current: 🟡 YELLOW](#current--yellow)
+  - [Recommendations](#recommendations)
+    - [Immediate Actions (Next 1 Hour)](#immediate-actions-next-1-hour)
+    - [Follow-Up Actions (Next 4 Hours)](#follow-up-actions-next-4-hours)
+    - [Long-Term Actions (24+ Hours)](#long-term-actions-24-hours)
+  - [Lessons Learned](#lessons-learned)
+    - [What Worked ✅](#what-worked-)
+    - [What Needs Improvement ⚠️](#what-needs-improvement-)
+    - [Architectural Insights 🔬](#architectural-insights-)
+  - [Path Forward](#path-forward)
+    - [To Achieve ✅ GREEN Signal (Estimated 12-16 hours)](#to-achieve--green-signal-estimated-12-16-hours)
+    - [Current Progress](#current-progress)
+  - [Files Committed](#files-committed)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # EPIC 9 EXECUTION REPORT: Examples Rewrite Project
 **Project**: ggen Examples Specification-First Rewrite  
 **Initiative**: EPIC 9 Atomic Cycle (Parallel-First Development)  

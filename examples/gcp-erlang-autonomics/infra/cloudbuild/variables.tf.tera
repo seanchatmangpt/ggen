@@ -1,0 +1,48 @@
+variable "project_id" {
+  type        = string
+  description = "GCP Project ID"
+}
+
+variable "region" {
+  type        = string
+  default     = "us-central1"
+  description = "GCP region"
+}
+
+variable "module_prefix" {
+  type        = string
+  description = "SKU module prefix (e.g., cost_guard)"
+}
+
+variable "artifact_repo_id" {
+  type        = string
+  default     = "autonomics-skus"
+  description = "Artifact Registry repository ID"
+}
+
+variable "github_owner" {
+  type        = string
+  description = "GitHub repository owner"
+}
+
+variable "github_repo" {
+  type        = string
+  description = "GitHub repository name"
+}
+
+variable "branch_regex" {
+  type        = string
+  default     = "^main$"
+  description = "Git branch regex to trigger builds"
+}
+
+variable "cloudbuild_filename" {
+  type        = string
+  default     = "infra/cloudbuild/cloudbuild.yaml"
+  description = "Path to cloudbuild.yaml in repository"
+}
+
+variable "cloud_build_service_account" {
+  type        = string
+  description = "Cloud Build service account email"
+}

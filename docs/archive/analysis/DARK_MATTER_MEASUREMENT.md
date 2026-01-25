@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Dark Matter Reduction Measurement Framework](#dark-matter-reduction-measurement-framework)
+  - [The 8020 Bundles & Their Dark Matter Targets](#the-8020-bundles--their-dark-matter-targets)
+    - [1. Sector Observability 8020](#1-sector-observability-8020)
+      - [Before Bundle (8 hours per service)](#before-bundle-8-hours-per-service)
+      - [After Bundle (2.4 hours per service)](#after-bundle-24-hours-per-service)
+      - [ROI Calculation](#roi-calculation)
+      - [Measurement Approach](#measurement-approach)
+    - [2. Sector Rust Microservice 8020](#2-sector-rust-microservice-8020)
+      - [Before Bundle (16 hours per service)](#before-bundle-16-hours-per-service)
+      - [After Bundle (8 hours per service)](#after-bundle-8-hours-per-service)
+      - [ROI Calculation](#roi-calculation-1)
+      - [Measurement Approach](#measurement-approach-1)
+    - [3. Sector Paper Lifecycle 8020](#3-sector-paper-lifecycle-8020)
+      - [Before Bundle (10 hours per submission)](#before-bundle-10-hours-per-submission)
+      - [After Bundle (2 hours per submission)](#after-bundle-2-hours-per-submission)
+      - [ROI Calculation](#roi-calculation-2)
+      - [Measurement Approach](#measurement-approach-2)
+    - [4. Sector Support Hooks 8020](#4-sector-support-hooks-8020)
+      - [Before Bundle (30 min per case)](#before-bundle-30-min-per-case)
+      - [After Bundle (3 min per case)](#after-bundle-3-min-per-case)
+      - [ROI Calculation](#roi-calculation-3)
+      - [Measurement Approach](#measurement-approach-3)
+    - [5. Sector API Gateway 8020](#5-sector-api-gateway-8020)
+      - [Before Bundle (20 hours per gateway)](#before-bundle-20-hours-per-gateway)
+      - [After Bundle (8 hours per gateway)](#after-bundle-8-hours-per-gateway)
+      - [ROI Calculation](#roi-calculation-4)
+      - [Measurement Approach](#measurement-approach-4)
+  - [Aggregate ROI: All 5 Bundles (Year 1)](#aggregate-roi-all-5-bundles-year-1)
+  - [Implementation Timeline](#implementation-timeline)
+    - [Week 1: Establish Baseline](#week-1-establish-baseline)
+    - [Week 2-3: Use Bundle](#week-2-3-use-bundle)
+    - [Week 4: Scale & Iterate](#week-4-scale--iterate)
+    - [Month 2+: Full Adoption](#month-2-full-adoption)
+  - [Success Metrics](#success-metrics)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Dark Matter Reduction Measurement Framework
 
 **Purpose**: Quantify the impact of 8020 bundles on eliminating invisible/continuous work

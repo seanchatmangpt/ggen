@@ -1,3 +1,12 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [The 3T Methodology: A Formal Information-Theoretic Foundation](#the-3t-methodology-a-formal-information-theoretic-foundation)
+  - [Hyperdimensional Calculus of Ontology-Driven Code Generation](#hyperdimensional-calculus-of-ontology-driven-code-generation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # The 3T Methodology: A Formal Information-Theoretic Foundation
 ## Hyperdimensional Calculus of Ontology-Driven Code Generation
 

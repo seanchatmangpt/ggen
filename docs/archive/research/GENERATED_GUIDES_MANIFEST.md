@@ -1,3 +1,12 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Learning Guides](#learning-guides)
+  - [Statistics](#statistics)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Learning Guides
 
 Generated from RDF ontology: documentation.ttl

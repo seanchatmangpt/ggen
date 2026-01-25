@@ -1,0 +1,279 @@
+# Erlang Autonomic C4 Level 2: Containers
+# Defines the major services, datasources, and their interactions
+#
+# Version: 1.0
+# Created: 2026-01-25
+# Updated: 2026-01-25
+
+@prefix c4: <http://ggen.org/c4#> .
+@prefix ea: <http://ggen.org/erlang-autonomic#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# ==============================================================================
+# CONTAINER ARCHITECTURE (C4 Level 2)
+# ==============================================================================
+
+ea:AutonomicGovernorContainers a c4:ContainerArchitecture ;
+    rdfs:label "Autonomic Governor Container Architecture" ;
+    rdfs:comment "Microservice architecture with core services and data sources" ;
+    c4:contains ea:SignalIngestContainer, ea:EntitlementContainer, ea:GovernorEngineContainer,
+                ea:ActuatorContainer, ea:ReceiptLedgerContainer ;
+    c4:dataSources ea:BillingDataSource, ea:MonitoringDataSource, ea:LoggingDataSource,
+                   ea:PubSubDataSource, ea:PolicyPackDataSource ;
+    .
+
+# ==============================================================================
+# CONTAINERS (SERVICES)
+# ==============================================================================
+
+ea:SignalIngestContainer a c4:Container ;
+    rdfs:label "Signal Ingestion Service" ;
+    rdfs:comment "Receives, validates, and routes signals from cloud infrastructure and policy sources" ;
+    c4:technology "Erlang/OTP, Cloud Pub/Sub consumer, Protocol Buffers" ;
+    c4:responsibility "Signal validation, enrichment, routing to processing pipeline" ;
+    c4:replicas "Multiple (load-balanced, auto-scaling)" ;
+
+    c4:receivesFrom ea:GCPPlatform ;
+    c4:sendsTo ea:GovernorEngineContainer, ea:ReceiptLedgerContainer ;
+
+    ea:ingestProtocol "Cloud Pub/Sub push subscriptions" ;
+    ea:signalTypes "Metrics (CPU, memory, disk), Events (scaling, failures), Logs" ;
+    ea:processingRate "10,000+ signals/second per tenant" ;
+    ea:batchSize "100-1000 signals per batch" ;
+    .
+
+ea:EntitlementContainer a c4:Container ;
+    rdfs:label "Entitlement Manager" ;
+    rdfs:comment "Manages tenant quotas, access control, and SKU-based entitlements" ;
+    c4:technology "Erlang/OTP, Redis (cache), PostgreSQL (persistence)" ;
+    c4:responsibility "Quota enforcement, tenant isolation, feature gating, SKU validation" ;
+    c4:replicas "3+ (replicated for HA)" ;
+
+    c4:readFrom ea:TenantDataSource, ea:SkuCatalogDataSource ;
+    c4:writeTo ea:AuditLogDataSource ;
+
+    ea:checkQuota "Rate-limited per tenant per SKU" ;
+    ea:grantAccess "Policy-based access to governor features" ;
+    ea:enforceLimits "Resource limits per tenant (signals/sec, actions/sec, storage)" ;
+    .
+
+ea:GovernorEngineContainer a c4:Container ;
+    rdfs:label "Governor Engine" ;
+    rdfs:comment "Core autonomic decision engine running governance policies and finite state machines" ;
+    c4:technology "Erlang/OTP, gen_statem, Rete algorithm for rule matching" ;
+    c4:responsibility "Policy evaluation, state machine transitions, decision making" ;
+    c4:replicas "Multiple (stateful, tenant-partitioned)" ;
+
+    c4:receivesFrom ea:SignalIngestContainer, ea:EntitlementContainer ;
+    c4:sendsTo ea:ActuatorContainer, ea:ReceiptLedgerContainer ;
+
+    ea:stateModel "5-state FSM: stable, warn, intervene, degrade, refuse" ;
+    ea:policyEngine "RETE-based rule evaluation" ;
+    ea:decisionLatency "<5 seconds signal-to-action" ;
+    ea:invariantChecks "Confirms system invariants before action" ;
+    .
+
+ea:ActuatorContainer a c4:Container ;
+    rdfs:label "Actuator Service" ;
+    rdfs:comment "Executes governance decisions (scaling, rollback, degradation, policy updates)" ;
+    c4:technology "Erlang/OTP, gRPC client, GCP Resource Manager API" ;
+    c4:responsibility "Action execution, GCP API calls, state synchronization" ;
+    c4:replicas "Multiple (rate-limited)" ;
+
+    c4:receivesFrom ea:GovernorEngineContainer ;
+    c4:sendsTo ea:GCPPlatform, ea:ReceiptLedgerContainer ;
+
+    ea:actionTypes "Scale (up/down), Rollback (deployment/config), Degrade (reduce features), Refuse (deny requests)" ;
+    ea:executionRate "100+ actions/second per tenant" ;
+    ea:retryPolicy "Exponential backoff with circuit breaker" ;
+    ea:idempotency "All actions idempotent (safe to retry)" ;
+    .
+
+ea:ReceiptLedgerContainer a c4:Container ;
+    rdfs:label "Receipt Ledger Service" ;
+    rdfs:comment "Generates cryptographic receipts for audit trail and billing evidence" ;
+    c4:technology "Erlang/OTP, SHA-256 hashing, BigQuery append-only storage" ;
+    c4:responsibility "Receipt generation, ledger management, audit trail persistence" ;
+    c4:replicas "3+ (replicated)" ;
+
+    c4:receivesFrom ea:SignalIngestContainer, ea:GovernorEngineContainer, ea:ActuatorContainer ;
+    c4:writeTo ea:BigQueryDataSource, ea:CloudStorageDataSource ;
+
+    ea:receiptFormat "JSON with SHA-256 hash and timestamp" ;
+    ea:immutability "Append-only ledger, no modifications" ;
+    ea:auditScope "All signals processed, all decisions made, all actions taken" ;
+    .
+
+# ==============================================================================
+# DATA SOURCES
+# ==============================================================================
+
+ea:BillingDataSource a c4:DataSource ;
+    rdfs:label "Billing Data Source" ;
+    rdfs:comment "Cloud Billing API data for cost tracking and SKU pricing" ;
+    c4:technology "GCP Cloud Billing API, cached in Redis" ;
+    c4:accessMode "Read-only" ;
+    ea:refreshRate "Hourly" ;
+    .
+
+ea:MonitoringDataSource a c4:DataSource ;
+    rdfs:label "Monitoring Data Source" ;
+    rdfs:comment "Real-time infrastructure metrics (CPU, memory, disk, network)" ;
+    c4:technology "Google Cloud Monitoring API, Pub/Sub stream" ;
+    c4:accessMode "Read (stream)" ;
+    ea:dataRate "1000s of metrics per second" ;
+    .
+
+ea:LoggingDataSource a c4:DataSource ;
+    rdfs:label "Logging Data Source" ;
+    rdfs:comment "Application and infrastructure logs from Cloud Logging" ;
+    c4:technology "Google Cloud Logging API" ;
+    c4:accessMode "Read (stream)" ;
+    ea:retention "30 days" ;
+    .
+
+ea:PubSubDataSource a c4:DataSource ;
+    rdfs:label "Pub/Sub Message Broker" ;
+    rdfs:comment "Event broker for signal ingestion and inter-service communication" ;
+    c4:technology "Google Cloud Pub/Sub" ;
+    c4:accessMode "Read/Write" ;
+    ea:topics "signals-ingress, policy-updates, actions, receipts, audit-events" ;
+    .
+
+ea:PolicyPackDataSource a c4:DataSource ;
+    rdfs:label "Policy Pack Registry" ;
+    rdfs:comment "Governance policies and SKU definitions from marketplace or local store" ;
+    c4:technology "Cloud Storage (Terraform-like configs) + PostgreSQL index" ;
+    c4:accessMode "Read-only (updated via marketplace API)" ;
+    ea:formats "YAML, Terraform HCL, RDF Turtle" ;
+    .
+
+ea:TenantDataSource a c4:DataSource ;
+    rdfs:label "Tenant Registry" ;
+    rdfs:comment "Multi-tenant configuration and metadata" ;
+    c4:technology "PostgreSQL + Redis cache" ;
+    c4:accessMode "Read-only" ;
+    .
+
+ea:SkuCatalogDataSource a c4:DataSource ;
+    rdfs:label "SKU Catalog" ;
+    rdfs:comment "SKU definitions, features, quotas, and pricing" ;
+    c4:technology "PostgreSQL + Redis cache" ;
+    c4:accessMode "Read-only" ;
+    .
+
+ea:AuditLogDataSource a c4:DataSource ;
+    rdfs:label "Audit Log Storage" ;
+    rdfs:comment "All events for compliance auditing" ;
+    c4:technology "BigQuery (structured) + Cloud Storage (JSON lines)" ;
+    c4:accessMode "Write-append only" ;
+    .
+
+ea:BigQueryDataSource a c4:DataSource ;
+    rdfs:label "BigQuery Data Warehouse" ;
+    rdfs:comment "Analytics and receipt storage for billing and auditing" ;
+    c4:technology "BigQuery dataset with tables for receipts, events, metrics" ;
+    c4:accessMode "Write (append), Read (analytics)" ;
+    .
+
+ea:CloudStorageDataSource a c4:DataSource ;
+    rdfs:label "Cloud Storage (GCS)" ;
+    rdfs:comment "Long-term storage for policy configs, audit trails, and archives" ;
+    c4:technology "Google Cloud Storage (versioned buckets)" ;
+    c4:accessMode "Read/Write" ;
+    .
+
+# ==============================================================================
+# CONTAINER-TO-CONTAINER INTERACTIONS
+# ==============================================================================
+
+ea:SignalIngestToGovernor a c4:Interaction ;
+    rdfs:label "Signal Flow" ;
+    rdfs:comment "Signal ingestion service sends processed signals to governor engine" ;
+    c4:from ea:SignalIngestContainer ;
+    c4:to ea:GovernorEngineContainer ;
+    c4:protocol "Erlang message passing (distributed)" ;
+    c4:dataFormat "Protocol Buffers / Erlang tuples" ;
+    ea:latency "<100ms" ;
+    .
+
+ea:GovernorToActuator a c4:Interaction ;
+    rdfs:label "Action Commands" ;
+    rdfs:comment "Governor engine sends action decisions to actuator" ;
+    c4:from ea:GovernorEngineContainer ;
+    c4:to ea:ActuatorContainer ;
+    c4:protocol "Erlang RPC / gRPC" ;
+    c4:dataFormat "Protocol Buffers" ;
+    ea:pattern "Command (fire-and-forget with acknowledgment)" ;
+    .
+
+ea:ActuatorToGCP a c4:Interaction ;
+    rdfs:label "GCP API Calls" ;
+    rdfs:comment "Actuator executes decisions via GCP Resource Manager API" ;
+    c4:from ea:ActuatorContainer ;
+    c4:to ea:GCPPlatform ;
+    c4:protocol "REST (Cloud Resource Manager, Compute Engine, Cloud Run)" ;
+    c4:dataFormat "JSON" ;
+    ea:rateLimit "100 calls/sec per tenant" ;
+    .
+
+ea:GovernorToReceiptLedger a c4:Interaction ;
+    rdfs:label "Receipt Emission" ;
+    rdfs:comment "Governor and actuator send events to receipt ledger" ;
+    c4:from ea:GovernorEngineContainer ;
+    c4:to ea:ReceiptLedgerContainer ;
+    c4:protocol "Erlang message passing or Pub/Sub" ;
+    c4:dataFormat "JSON events" ;
+    ea:asyncPattern "Non-blocking, fire-and-forget" ;
+    .
+
+ea:EntitlementCheck a c4:Interaction ;
+    rdfs:label "Entitlement Verification" ;
+    rdfs:comment "Governor engine verifies tenant quotas before processing" ;
+    c4:from ea:GovernorEngineContainer ;
+    c4:to ea:EntitlementContainer ;
+    c4:protocol "Erlang RPC / gRPC" ;
+    c4:dataFormat "Query: (TenantId, SKU) -> Result: (HasQuota, RemainingLimit)" ;
+    ea:caching "Redis-backed for <1ms response" ;
+    .
+
+# ==============================================================================
+# PROTOCOL SPECIFICATIONS
+# ==============================================================================
+
+ea:PubSubProtocol a c4:Protocol ;
+    rdfs:label "Cloud Pub/Sub Protocol" ;
+    rdfs:comment "Asynchronous pub/sub messaging for signals and events" ;
+    ea:topics "signals-raw, signals-enriched, actions, receipts, audit" ;
+    ea:serialization "Protocol Buffers (signals), JSON (commands)" ;
+    .
+
+ea:RestProtocol a c4:Protocol ;
+    rdfs:label "REST API Protocol" ;
+    rdfs:comment "HTTP/2 REST API for CTO management and monitoring" ;
+    ea:endpoints "/governance/policies, /governance/status, /audit/receipts, /billing/invoices" ;
+    ea:authentication "OAuth2 + JWT" ;
+    .
+
+ea:GrpcProtocol a c4:Protocol ;
+    rdfs:label "gRPC Protocol" ;
+    rdfs:comment "High-performance gRPC for inter-service communication" ;
+    ea:services "GovernorService, ActuatorService, EntitlementService" ;
+    ea:serialization "Protocol Buffers" ;
+    .
+
+# ==============================================================================
+# DEPLOYMENT TOPOLOGY (Preview - Details in Level 4)
+# ==============================================================================
+
+ea:Level2DeploymentPattern a rdf:Bag ;
+    rdf:li "Multiple Cloud Run services (serverless auto-scaling)" ;
+    rdf:li "Regional deployments for low-latency signal processing" ;
+    rdf:li "Multi-region failover for disaster recovery" ;
+    rdf:li "Pub/Sub for async communication (decouples services)" ;
+    rdf:li "BigQuery for analytics and audit trail" ;
+    .
+

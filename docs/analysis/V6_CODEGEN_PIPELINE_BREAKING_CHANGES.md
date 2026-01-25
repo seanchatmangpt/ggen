@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [V6 Code Generation Pipeline - Breaking Changes Analysis](#v6-code-generation-pipeline---breaking-changes-analysis)
+  - [Executive Summary](#executive-summary)
+  - [1. CRITICAL: Type-Level State Machine for Pipeline Stages](#1-critical-type-level-state-machine-for-pipeline-stages)
+    - [Current Implementation (Type-Unsafe)](#current-implementation-type-unsafe)
+    - [Proposed Breaking Change: Type-Level State Machine](#proposed-breaking-change-type-level-state-machine)
+  - [2. CRITICAL: Deterministic Ordering (HashMap → BTreeMap)](#2-critical-deterministic-ordering-hashmap-%E2%86%92-btreemap)
+    - [Non-Deterministic Code Locations](#non-deterministic-code-locations)
+      - [Location 1: `pipeline.rs:369` - SPARQL Results](#location-1-pipeliners369---sparql-results)
+      - [Location 2: `incremental_cache.rs:13` - Rule Hashes](#location-2-incremental_cachers13---rule-hashes)
+      - [Location 3: `execution_proof.rs:30` - Proof Carrier](#location-3-execution_proofrs30---proof-carrier)
+      - [Location 4: `transaction.rs:245` - Backup Tracking](#location-4-transactionrs245---backup-tracking)
+    - [Proposed Breaking Change](#proposed-breaking-change)
+  - [3. CRITICAL: Non-Deterministic Timestamps](#3-critical-non-deterministic-timestamps)
+    - [Current Implementation](#current-implementation)
+    - [Proposed Breaking Change: Deterministic Timestamps](#proposed-breaking-change-deterministic-timestamps)
+  - [4. HIGH: Incremental Cache Type-Safety Issues](#4-high-incremental-cache-type-safety-issues)
+    - [Current Implementation](#current-implementation-1)
+    - [Proposed Breaking Change: Stable Serialization](#proposed-breaking-change-stable-serialization)
+  - [5. HIGH: Race Conditions in Concurrent Execution](#5-high-race-conditions-in-concurrent-execution)
+    - [Current Implementation](#current-implementation-2)
+    - [Proposed Breaking Change: Explicit Dependency Graph](#proposed-breaking-change-explicit-dependency-graph)
+  - [6. MEDIUM: Missing Incremental Cache Eviction](#6-medium-missing-incremental-cache-eviction)
+    - [Current Implementation](#current-implementation-3)
+    - [Proposed Breaking Change: LRU Cache](#proposed-breaking-change-lru-cache)
+  - [7. MEDIUM: Pipeline Stage Missing (μ₄ Canonicalize, μ₅ Receipt)](#7-medium-pipeline-stage-missing-%CE%BC%E2%82%84-canonicalize-%CE%BC%E2%82%85-receipt)
+    - [Current Implementation](#current-implementation-4)
+    - [Proposed Breaking Change: Add μ₄ and μ₅](#proposed-breaking-change-add-%CE%BC%E2%82%84-and-%CE%BC%E2%82%85)
+  - [Migration Path](#migration-path)
+    - [Phase 1: Non-Breaking Additions (Parallel Development)](#phase-1-non-breaking-additions-parallel-development)
+    - [Phase 2: Deprecation Warnings (v6.0.0-rc1)](#phase-2-deprecation-warnings-v600-rc1)
+    - [Phase 3: Breaking Changes (v6.0.0)](#phase-3-breaking-changes-v600)
+    - [Codemod Script](#codemod-script)
+  - [Performance Analysis](#performance-analysis)
+  - [Testing Requirements](#testing-requirements)
+    - [New Tests Required](#new-tests-required)
+  - [Andon Signals (Quality Gates)](#andon-signals-quality-gates)
+  - [Appendix: Affected Files](#appendix-affected-files)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # V6 Code Generation Pipeline - Breaking Changes Analysis
 
 **Analysis Date**: 2026-01-24

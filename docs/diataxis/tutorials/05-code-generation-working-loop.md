@@ -1,3 +1,56 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Tutorial: Code Generation Working Loop](#tutorial-code-generation-working-loop)
+  - [Learning Objectives](#learning-objectives)
+  - [What You'll Learn](#what-youll-learn)
+  - [Part 1: Understanding the Source (RDF Ontology)](#part-1-understanding-the-source-rdf-ontology)
+    - [What is RDF?](#what-is-rdf)
+    - [The Ontology is Your Source of Truth](#the-ontology-is-your-source-of-truth)
+    - [Properties Define Structure](#properties-define-structure)
+    - [Try It Yourself](#try-it-yourself)
+  - [Part 2: Extracting Data (SPARQL Queries)](#part-2-extracting-data-sparql-queries)
+    - [What is SPARQL?](#what-is-sparql)
+    - [Your First SPARQL Query](#your-first-sparql-query)
+    - [What Results Look Like](#what-results-look-like)
+    - [Try It Yourself](#try-it-yourself-1)
+  - [Part 3: Transforming Data (Tera Templates)](#part-3-transforming-data-tera-templates)
+    - [What are Templates?](#what-are-templates)
+    - [Template Structure](#template-structure)
+    - [A Real Example](#a-real-example)
+    - [Template Variables](#template-variables)
+    - [Try It Yourself](#try-it-yourself-2)
+  - [Part 4: The Complete Flow](#part-4-the-complete-flow)
+    - [Step-by-Step Process](#step-by-step-process)
+    - [Concrete Example: User Entity](#concrete-example-user-entity)
+    - [Why This Matters](#why-this-matters)
+  - [Part 5: Modifying the Example](#part-5-modifying-the-example)
+    - [Adding a New Property](#adding-a-new-property)
+    - [Adding a New Entity](#adding-a-new-entity)
+  - [Part 6: Verification & Golden Files](#part-6-verification--golden-files)
+    - [Why Golden Files?](#why-golden-files)
+    - [The Process](#the-process)
+    - [If They Don't Match](#if-they-dont-match)
+  - [Part 7: Understanding Configuration](#part-7-understanding-configuration)
+    - [The 10 Rules](#the-10-rules)
+    - [Why Separate Rules?](#why-separate-rules)
+  - [Common Patterns](#common-patterns)
+    - [SPARQL Pattern: Get All Entities](#sparql-pattern-get-all-entities)
+    - [SPARQL Pattern: Get Entity Properties](#sparql-pattern-get-entity-properties)
+    - [SPARQL Pattern: Optional Data](#sparql-pattern-optional-data)
+    - [Template Pattern: Loop Through Results](#template-pattern-loop-through-results)
+    - [Template Pattern: Conditional Output](#template-pattern-conditional-output)
+    - [Template Pattern: Filters](#template-pattern-filters)
+  - [Troubleshooting](#troubleshooting)
+    - [Issue: SPARQL query returns no results](#issue-sparql-query-returns-no-results)
+    - [Issue: Template rendering failed](#issue-template-rendering-failed)
+    - [Issue: Generated files have wrong structure](#issue-generated-files-have-wrong-structure)
+  - [Next Steps](#next-steps)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Tutorial: Code Generation Working Loop
 
 **Learn how RDF ontologies transform into reproducible code through SPARQL queries and templates**

@@ -1,3 +1,56 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v5.2.0 - Final Metrics Report](#ggen-v520---final-metrics-report)
+  - [Executive Summary](#executive-summary)
+    - [Top-Level Metrics](#top-level-metrics)
+  - [Quality Gates (100% Pass Rate)](#quality-gates-100-pass-rate)
+    - [Compilation](#compilation)
+    - [Unit Tests](#unit-tests)
+    - [Integration Tests](#integration-tests)
+    - [Linting (Clippy)](#linting-clippy)
+    - [Type Safety](#type-safety)
+    - [Memory Safety](#memory-safety)
+    - [Security](#security)
+    - [Documentation](#documentation)
+    - [Git Hooks](#git-hooks)
+    - [SLO Compliance](#slo-compliance)
+  - [Test Coverage Analysis](#test-coverage-analysis)
+    - [Total Test Count: 681+](#total-test-count-681)
+    - [Test Coverage by Feature](#test-coverage-by-feature)
+    - [Test Execution Performance](#test-execution-performance)
+  - [DfLSS Compliance (13/13 Criteria Met)](#dflss-compliance-1313-criteria-met)
+  - [Entropy Metrics (HDOC Framework)](#entropy-metrics-hdoc-framework)
+    - [Entropy Reduction: 98.4%](#entropy-reduction-984)
+    - [Entropy Target Achievement](#entropy-target-achievement)
+    - [Information-Theoretic Completeness](#information-theoretic-completeness)
+  - [Jobs-to-be-Done (JTBD) Coverage](#jobs-to-be-done-jtbd-coverage)
+    - [All 8 Jobs Fully Supported (100%)](#all-8-jobs-fully-supported-100)
+  - [Agent Swarm Performance](#agent-swarm-performance)
+    - [10 Agents Deployed (17/17 Tasks Completed)](#10-agents-deployed-1717-tasks-completed)
+  - [Performance Benchmarks](#performance-benchmarks)
+    - [Build Performance](#build-performance)
+    - [Runtime Performance](#runtime-performance)
+  - [File Statistics](#file-statistics)
+    - [Lines of Code](#lines-of-code)
+    - [New Files (v5.2.0)](#new-files-v520)
+    - [Modified Files (v5.2.0)](#modified-files-v520)
+    - [Total Changes](#total-changes)
+  - [Code Quality Metrics](#code-quality-metrics)
+    - [Complexity](#complexity)
+    - [Test-to-Code Ratio](#test-to-code-ratio)
+    - [Documentation Coverage](#documentation-coverage)
+  - [Risk Assessment](#risk-assessment)
+    - [Known Limitations](#known-limitations)
+    - [Zero High-Risk Issues](#zero-high-risk-issues)
+  - [Deployment Readiness](#deployment-readiness)
+    - [Pre-Deployment Checklist](#pre-deployment-checklist)
+    - [Post-Deployment Checklist](#post-deployment-checklist)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v5.2.0 - Final Metrics Report
 
 **Generated**: 2025-12-21

@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Oxigraph API Migration Guide](#oxigraph-api-migration-guide)
+  - [Executive Summary](#executive-summary)
+  - [🚨 Deprecated APIs](#-deprecated-apis)
+    - [Line 136: `Store::query()` - DEPRECATED](#line-136-storequery---deprecated)
+  - [✅ Modern SparqlEvaluator API](#-modern-sparqlevaluator-api)
+    - [The Correct Pattern (Already Used in `graph/core.rs`)](#the-correct-pattern-already-used-in-graphcorers)
+    - [API Flow Diagram](#api-flow-diagram)
+  - [🔧 Migration Implementation](#-migration-implementation)
+    - [Step 1: Understand Current Usage in `rdf/query.rs`](#step-1-understand-current-usage-in-rdfqueryrs)
+    - [Step 2: Apply the SparqlEvaluator Pattern](#step-2-apply-the-sparqlevaluator-pattern)
+    - [Step 3: Update the `build_predicate_index` Method](#step-3-update-the-build_predicate_index-method)
+  - [🎯 Hyper-Advanced Rust Patterns](#-hyper-advanced-rust-patterns)
+    - [Pattern 1: Zero-Copy Query Execution with Lifetimes](#pattern-1-zero-copy-query-execution-with-lifetimes)
+    - [Pattern 2: Generic Trait-Based SPARQL Interface](#pattern-2-generic-trait-based-sparql-interface)
+    - [Pattern 3: Prepared Query Caching with Arc](#pattern-3-prepared-query-caching-with-arc)
+    - [Pattern 4: Streaming Results for Large Datasets](#pattern-4-streaming-results-for-large-datasets)
+    - [Pattern 5: Type-Safe Result Handling with From Trait](#pattern-5-type-safe-result-handling-with-from-trait)
+  - [📊 Performance Comparison](#-performance-comparison)
+    - [Query Execution Performance](#query-execution-performance)
+    - [With Advanced Patterns](#with-advanced-patterns)
+  - [🧪 Testing Strategy](#-testing-strategy)
+    - [Unit Tests for Migration](#unit-tests-for-migration)
+    - [Integration Tests](#integration-tests)
+  - [🚀 Migration Checklist](#-migration-checklist)
+    - [Immediate Actions (Blocking)](#immediate-actions-blocking)
+    - [Future Enhancements (Non-blocking)](#future-enhancements-non-blocking)
+  - [🔍 Code Locations](#-code-locations)
+    - [Files to Update](#files-to-update)
+    - [Reference Implementations (Already Correct)](#reference-implementations-already-correct)
+  - [📚 References](#-references)
+  - [✅ Summary](#-summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Oxigraph API Migration Guide
 
 ## Executive Summary

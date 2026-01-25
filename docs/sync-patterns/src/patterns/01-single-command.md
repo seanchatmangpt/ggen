@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [1. THE SINGLE COMMAND **](#1-the-single-command-)
+  - [Context](#context)
+  - [Connections](#connections)
+  - [Implementation](#implementation)
+    - [The Flags](#the-flags)
+    - [The Pipeline](#the-pipeline)
+    - [What Replaced](#what-replaced)
+    - [Examples](#examples)
+  - [The Deeper Pattern](#the-deeper-pattern)
+  - [When This Pattern Breaks](#when-this-pattern-breaks)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 1. THE SINGLE COMMAND **
 
 *A narrow gate that opens into a wide garden.*

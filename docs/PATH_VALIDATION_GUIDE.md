@@ -1,3 +1,49 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Path Validation Security Guide](#path-validation-security-guide)
+  - [Overview](#overview)
+  - [Attack Vectors Prevented](#attack-vectors-prevented)
+    - [1. Path Traversal](#1-path-traversal)
+    - [2. Null Byte Injection](#2-null-byte-injection)
+    - [3. Absolute Path Escapes](#3-absolute-path-escapes)
+    - [4. Symlink Attacks](#4-symlink-attacks)
+    - [5. Extension Mismatch](#5-extension-mismatch)
+    - [6. Depth Limit Bypass](#6-depth-limit-bypass)
+  - [Usage Patterns](#usage-patterns)
+    - [Template Loading](#template-loading)
+    - [RDF Ontology Loading](#rdf-ontology-loading)
+    - [Output File Writing](#output-file-writing)
+    - [Batch Validation](#batch-validation)
+  - [Configuration Options](#configuration-options)
+    - [Maximum Depth](#maximum-depth)
+    - [Allowed Extensions](#allowed-extensions)
+    - [Absolute Paths](#absolute-paths)
+    - [Symlink Following](#symlink-following)
+  - [Integration with Existing Code](#integration-with-existing-code)
+    - [Before (Unsafe)](#before-unsafe)
+    - [After (Safe)](#after-safe)
+  - [Testing](#testing)
+  - [Error Handling](#error-handling)
+  - [Performance](#performance)
+  - [Best Practices](#best-practices)
+  - [Migration Guide](#migration-guide)
+    - [Step 1: Identify Unsafe File Operations](#step-1-identify-unsafe-file-operations)
+    - [Step 2: Add PathValidator](#step-2-add-pathvalidator)
+    - [Step 3: Configure Appropriately](#step-3-configure-appropriately)
+    - [Step 4: Update Tests](#step-4-update-tests)
+  - [FAQ](#faq)
+    - [Q: Why not just use `canonicalize()`?](#q-why-not-just-use-canonicalize)
+    - [Q: Does this work on Windows?](#q-does-this-work-on-windows)
+    - [Q: What about performance?](#q-what-about-performance)
+    - [Q: Can I disable specific checks?](#q-can-i-disable-specific-checks)
+    - [Q: How do I validate multiple file types?](#q-how-do-i-validate-multiple-file-types)
+  - [Security Audit Checklist](#security-audit-checklist)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Path Validation Security Guide
 
 ## Overview

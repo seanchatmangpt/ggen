@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen.toml Architecture: Hyper-Advanced Configuration System](#ggentoml-architecture-hyper-advanced-configuration-system)
+  - [Executive Summary](#executive-summary)
+  - [Core Philosophy](#core-philosophy)
+    - [1. Configuration as Knowledge Graph](#1-configuration-as-knowledge-graph)
+    - [2. Progressive Disclosure](#2-progressive-disclosure)
+    - [3. Template-First Design](#3-template-first-design)
+  - [Architecture Layers](#architecture-layers)
+  - [Schema Design](#schema-design)
+    - [Top-Level Sections](#top-level-sections)
+    - [1. Project Section](#1-project-section)
+    - [2. Workspace Section (Mono-repo Support)](#2-workspace-section-mono-repo-support)
+    - [3. Graph Section (Dependency Resolution)](#3-graph-section-dependency-resolution)
+    - [4. Ontology Section (RDF/OWL Integration)](#4-ontology-section-rdfowl-integration)
+    - [5. Templates Section (Composition & Inheritance)](#5-templates-section-composition--inheritance)
+    - [6. Generators Section (Code Generation Pipelines)](#6-generators-section-code-generation-pipelines)
+    - [7. Lifecycle Section (Build Hooks)](#7-lifecycle-section-build-hooks)
+    - [8. Plugins Section (Extensibility)](#8-plugins-section-extensibility)
+    - [9. Profiles Section (Environment Overrides)](#9-profiles-section-environment-overrides)
+  - [Integration with ggen Architecture](#integration-with-ggen-architecture)
+    - [Graph Integration](#graph-integration)
+    - [Template Integration](#template-integration)
+    - [Ontology Integration](#ontology-integration)
+    - [Plugin Integration](#plugin-integration)
+  - [Rust Data Structures](#rust-data-structures)
+  - [Module Structure](#module-structure)
+  - [Key Innovations](#key-innovations)
+    - [1. Graph-Based Dependency Resolution](#1-graph-based-dependency-resolution)
+    - [2. Ontology-Aware Configuration](#2-ontology-aware-configuration)
+    - [3. Template Composition](#3-template-composition)
+    - [4. Plugin System](#4-plugin-system)
+    - [5. Profile System](#5-profile-system)
+  - [Security Considerations](#security-considerations)
+  - [Migration Path](#migration-path)
+    - [From Cargo.toml](#from-cargotoml)
+    - [From package.json](#from-packagejson)
+  - [Performance Optimizations](#performance-optimizations)
+  - [Future Extensions](#future-extensions)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen.toml Architecture: Hyper-Advanced Configuration System
 
 ## Executive Summary

@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [AGENT 4: Financial Model & Pricing for ggen-disney](#agent-4-financial-model--pricing-for-ggen-disney)
+  - [Executive Summary](#executive-summary)
+  - [SaaS Pricing Strategy](#saas-pricing-strategy)
+    - [Tier Architecture](#tier-architecture)
+    - [Tier 2: Builder ($50-100k/month)](#tier-2-builder-50-100kmonth)
+    - [Tier 3: Enterprise ($150-250k/month)](#tier-3-enterprise-150-250kmonth)
+    - [Tier 4: WhiteLabel/Embedded (Custom)](#tier-4-whitelabelembedded-custom)
+  - [Professional Services (Pilot & Implementation)](#professional-services-pilot--implementation)
+  - [3-Year Financial Projection (Base Case)](#3-year-financial-projection-base-case)
+    - [Year 1 (2026)](#year-1-2026)
+    - [Year 2 (2027)](#year-2-2027)
+    - [Year 3 (2028)](#year-3-2028)
+  - [Unit Economics Detail](#unit-economics-detail)
+    - [Customer Acquisition Cost (CAC)](#customer-acquisition-cost-cac)
+    - [Lifetime Value (LTV)](#lifetime-value-ltv)
+    - [Unit Economics Comparison](#unit-economics-comparison)
+  - [Pricing Sensitivity Analysis](#pricing-sensitivity-analysis)
+    - [Price Elasticity (Pro Tier)](#price-elasticity-pro-tier)
+    - [Tier Mix Sensitivity (Year 2)](#tier-mix-sensitivity-year-2)
+  - [Break-Even Analysis](#break-even-analysis)
+    - [Break-Even Point](#break-even-point)
+    - [Sensitivity to Customer Acquisition](#sensitivity-to-customer-acquisition)
+  - [Funding Requirements](#funding-requirements)
+    - [Series A (Recommend $10-15M)](#series-a-recommend-10-15m)
+  - [GTM Pricing Strategy (Launch)](#gtm-pricing-strategy-launch)
+    - [Day 1 Pricing (Pilot Phase)](#day-1-pricing-pilot-phase)
+    - [Year 2 Pricing (Scale Phase)](#year-2-pricing-scale-phase)
+  - [Scenario Analysis (Upside / Downside)](#scenario-analysis-upside--downside)
+    - [Downside Scenario (33rd Percentile)](#downside-scenario-33rd-percentile)
+    - [Base Scenario (50th Percentile) - Used Above](#base-scenario-50th-percentile---used-above)
+    - [Upside Scenario (67th Percentile)](#upside-scenario-67th-percentile)
+  - [Profitability Timeline](#profitability-timeline)
+  - [Key Assumptions (Reality Check)](#key-assumptions-reality-check)
+  - [Next Steps (Finance)](#next-steps-finance)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # AGENT 4: Financial Model & Pricing for ggen-disney
 
 **Status**: COMPLETE

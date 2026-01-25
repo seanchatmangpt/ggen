@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [SPARQL Query Builder Implementation Summary](#sparql-query-builder-implementation-summary)
+  - [Overview](#overview)
+  - [Files Created](#files-created)
+    - [1. `/crates/ggen-core/src/rdf/query_builder.rs` (889 lines)](#1-cratesggen-coresrcrdfquery_builderrs-889-lines)
+    - [2. `/crates/ggen-core/tests/query_builder_tests.rs` (665 lines)](#2-cratesggen-coretestsquery_builder_testsrs-665-lines)
+  - [Files Modified](#files-modified)
+    - [3. `/crates/ggen-core/src/rdf/mod.rs`](#3-cratesggen-coresrcrdfmodrs)
+    - [4. `/crates/ggen-core/src/rdf/query.rs`](#4-cratesggen-coresrcrdfqueryrs)
+    - [5. `/crates/ggen-core/src/graph/update.rs`](#5-cratesggen-coresrcgraphupdaters)
+    - [6. `/crates/ggen-core/src/lib.rs`](#6-cratesggen-coresrclibrs)
+  - [Constitutional Rules Compliance](#constitutional-rules-compliance)
+    - [✅ Poka-Yoke (Error Prevention)](#-poka-yoke-error-prevention)
+    - [✅ Zero-Cost Abstractions](#-zero-cost-abstractions)
+    - [✅ Chicago TDD](#-chicago-tdd)
+    - [✅ Security Properties](#-security-properties)
+  - [Performance Characteristics](#performance-characteristics)
+    - [Zero Runtime Overhead](#zero-runtime-overhead)
+    - [Type-State Compilation](#type-state-compilation)
+  - [API Examples](#api-examples)
+    - [SELECT Query with Filters](#select-query-with-filters)
+    - [CONSTRUCT Query](#construct-query)
+    - [ASK Query](#ask-query)
+    - [DESCRIBE Query](#describe-query)
+  - [Remaining Work](#remaining-work)
+    - [Andon Signal Status](#andon-signal-status)
+    - [Required Validation (Once Build Completes)](#required-validation-once-build-completes)
+    - [Known Issues](#known-issues)
+  - [Security Impact Analysis](#security-impact-analysis)
+    - [Before Implementation](#before-implementation)
+    - [After Implementation](#after-implementation)
+    - [Residual Risk](#residual-risk)
+  - [Conclusion](#conclusion)
+    - [Implementation Status](#implementation-status)
+    - [Constitutional Rules Adherence](#constitutional-rules-adherence)
+    - [Next Steps](#next-steps)
+    - [Success Criteria Met](#success-criteria-met)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # SPARQL Query Builder Implementation Summary
 
 **Date**: 2026-01-24

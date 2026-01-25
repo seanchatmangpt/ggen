@@ -1,3 +1,51 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [AGENT 9: Regulatory & Governance Strategy for ggen-disney](#agent-9-regulatory--governance-strategy-for-ggen-disney)
+  - [Executive Summary](#executive-summary)
+  - [1. Data Governance & Privacy](#1-data-governance--privacy)
+    - [Data Classification](#data-classification)
+    - [Privacy Policy & Terms of Service](#privacy-policy--terms-of-service)
+    - [Data Residency & Localization](#data-residency--localization)
+  - [2. SOC 2 Type II Certification](#2-soc-2-type-ii-certification)
+    - [SOC 2 Scope](#soc-2-scope)
+    - [SOC 2 Timeline](#soc-2-timeline)
+    - [SOC 2 Control Categories](#soc-2-control-categories)
+  - [3. HIPAA Compliance (Healthcare Vertical)](#3-hipaa-compliance-healthcare-vertical)
+    - [HIPAA Applicability](#hipaa-applicability)
+    - [HIPAA Requirements](#hipaa-requirements)
+    - [HIPAA Timeline](#hipaa-timeline)
+  - [4. GDPR Compliance (EU Data)](#4-gdpr-compliance-eu-data)
+    - [GDPR Applicability](#gdpr-applicability)
+    - [GDPR Requirements](#gdpr-requirements)
+    - [GDPR Compliance Timeline](#gdpr-compliance-timeline)
+  - [5. Compliance Certifications Roadmap](#5-compliance-certifications-roadmap)
+    - [Year 1 Target](#year-1-target)
+    - [Year 2+ Extensions](#year-2-extensions)
+  - [6. Compliance by Design (Architecture)](#6-compliance-by-design-architecture)
+    - [Security by Default](#security-by-default)
+    - [Resilience & Disaster Recovery](#resilience--disaster-recovery)
+  - [7. Compliance Governance](#7-compliance-governance)
+    - [Compliance Committee](#compliance-committee)
+    - [Incident Response Playbook](#incident-response-playbook)
+    - [Compliance Training](#compliance-training)
+  - [8. Vendor & Third-Party Risk Management](#8-vendor--third-party-risk-management)
+    - [Vendor Risk Assessment](#vendor-risk-assessment)
+    - [Subprocessor Management](#subprocessor-management)
+  - [9. Regulatory Risks & Mitigation](#9-regulatory-risks--mitigation)
+    - [Risk: GDPR Enforcement (EU Authorities Fines)](#risk-gdpr-enforcement-eu-authorities-fines)
+    - [Risk: HIPAA Breach Notification (Hospital Customer Data Exposed)](#risk-hipaa-breach-notification-hospital-customer-data-exposed)
+    - [Risk: Product Liability (Wrong Decision Automation Causes Harm)](#risk-product-liability-wrong-decision-automation-causes-harm)
+  - [10. Compliance Checklist (Year 1)](#10-compliance-checklist-year-1)
+    - [Month 1-3](#month-1-3)
+    - [Month 4-6](#month-4-6)
+    - [Month 7-9](#month-7-9)
+    - [Month 10-12](#month-10-12)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # AGENT 9: Regulatory & Governance Strategy for ggen-disney
 
 **Status**: COMPLETE

@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [v6 Template System Breaking Changes Analysis](#v6-template-system-breaking-changes-analysis)
+  - [Executive Summary](#executive-summary)
+  - [1. Runtime vs Compile-Time Template Compilation](#1-runtime-vs-compile-time-template-compilation)
+    - [Current State (v5.1.0)](#current-state-v510)
+    - [Recommended v6 Breaking Changes](#recommended-v6-breaking-changes)
+  - [2. Type-Safe Template Context](#2-type-safe-template-context)
+    - [Current State (v5.1.0)](#current-state-v510-1)
+    - [Recommended v6 Breaking Changes](#recommended-v6-breaking-changes-1)
+  - [3. Template Security (Sandbox Violations)](#3-template-security-sandbox-violations)
+    - [Current State (v5.1.0)](#current-state-v510-2)
+      - [3.1 Disabled Autoescape](#31-disabled-autoescape)
+      - [3.2 Unrestricted Filesystem Access](#32-unrestricted-filesystem-access)
+      - [3.3 Shell Hook Execution](#33-shell-hook-execution)
+    - [Recommended v6 Breaking Changes](#recommended-v6-breaking-changes-2)
+  - [4. Template Composition Patterns](#4-template-composition-patterns)
+    - [Current State (v5.1.0)](#current-state-v510-3)
+    - [Recommended v6 Breaking Changes](#recommended-v6-breaking-changes-3)
+  - [5. Error Reporting in Templates](#5-error-reporting-in-templates)
+    - [Current State (v5.1.0)](#current-state-v510-4)
+    - [Recommended v6 Breaking Changes](#recommended-v6-breaking-changes-4)
+  - [6. Summary of Breaking Changes](#6-summary-of-breaking-changes)
+    - [High Priority (v6.0 Release Blockers)](#high-priority-v60-release-blockers)
+    - [Medium Priority (v6.1 Release)](#medium-priority-v61-release)
+    - [Low Priority (v7.0 Future)](#low-priority-v70-future)
+  - [7. Immediate Action Items (v6.0 Checklist)](#7-immediate-action-items-v60-checklist)
+    - [Week 1: Security Hardening](#week-1-security-hardening)
+    - [Week 2: Remove Shell Hooks](#week-2-remove-shell-hooks)
+    - [Week 3: Type-Safe Contexts (Phase 1)](#week-3-type-safe-contexts-phase-1)
+    - [Week 4: Error Reporting](#week-4-error-reporting)
+  - [8. Migration Guide Template](#8-migration-guide-template)
+    - [Automated Migration Tool](#automated-migration-tool)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # v6 Template System Breaking Changes Analysis
 
 **Date**: 2026-01-24

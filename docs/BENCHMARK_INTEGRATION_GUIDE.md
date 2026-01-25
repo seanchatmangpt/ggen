@@ -1,3 +1,49 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Benchmark Integration Guide](#benchmark-integration-guide)
+  - [Overview](#overview)
+  - [Quick Start](#quick-start)
+    - [Run All Thesis Benchmarks](#run-all-thesis-benchmarks)
+    - [Run Specific Benchmark Group](#run-specific-benchmark-group)
+  - [Output Interpretation](#output-interpretation)
+    - [Criterion Output Format](#criterion-output-format)
+    - [Success Criteria](#success-criteria)
+  - [Integration with CI/CD](#integration-with-cicd)
+    - [GitHub Actions Workflow](#github-actions-workflow)
+    - [GitLab CI Configuration](#gitlab-ci-configuration)
+    - [Jenkins Pipeline](#jenkins-pipeline)
+  - [Baseline Management](#baseline-management)
+    - [Save Baseline](#save-baseline)
+    - [Compare Against Baseline](#compare-against-baseline)
+    - [View Comparison Results](#view-comparison-results)
+  - [Local Development Workflow](#local-development-workflow)
+    - [Before Starting Work](#before-starting-work)
+    - [During Development](#during-development)
+    - [Before Submitting PR](#before-submitting-pr)
+  - [Performance Profiling](#performance-profiling)
+    - [Identify Performance Bottlenecks](#identify-performance-bottlenecks)
+    - [Memory Profiling](#memory-profiling)
+  - [Dissertation Integration](#dissertation-integration)
+    - [Success Criteria Validation](#success-criteria-validation)
+  - [Troubleshooting](#troubleshooting)
+    - [Benchmark Fails to Compile](#benchmark-fails-to-compile)
+    - [Performance Regression](#performance-regression)
+    - [Inconsistent Results](#inconsistent-results)
+  - [Reporting](#reporting)
+    - [Generate Report](#generate-report)
+    - [Example Report Format](#example-report-format)
+  - [Adding New Benchmarks](#adding-new-benchmarks)
+    - [Template](#template)
+    - [Documentation Template](#documentation-template)
+  - [Maintenance](#maintenance)
+    - [Monthly Reviews](#monthly-reviews)
+    - [Quarterly Deep Dives](#quarterly-deep-dives)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Benchmark Integration Guide
 
 ## Overview

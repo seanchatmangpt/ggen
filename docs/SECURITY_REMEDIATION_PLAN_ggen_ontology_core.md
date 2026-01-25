@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Security Remediation Plan - ggen-ontology-core](#security-remediation-plan---ggen-ontology-core)
+  - [Fixing Unwrap/Expect Poka-Yoke Violations](#fixing-unwrapexpect-poka-yoke-violations)
+  - [Overview](#overview)
+  - [Affected Files](#affected-files)
+    - [1. entity_mapper.rs (15 violations)](#1-entity_mapperrs-15-violations)
+    - [2. triple_store.rs (23 violations)](#2-triple_storers-23-violations)
+    - [3. validators.rs (15 violations)](#3-validatorsrs-15-violations)
+  - [Implementation Steps](#implementation-steps)
+    - [Step 1: Fix entity_mapper.rs (15 minutes)](#step-1-fix-entity_mapperrs-15-minutes)
+    - [Step 2: Fix triple_store.rs (45 minutes)](#step-2-fix-triple_storers-45-minutes)
+    - [Step 3: Fix validators.rs (30 minutes)](#step-3-fix-validatorsrs-30-minutes)
+  - [Testing & Verification](#testing--verification)
+    - [Test Execution Order](#test-execution-order)
+    - [Verification Checklist](#verification-checklist)
+  - [Risk Mitigation](#risk-mitigation)
+    - [Risk 1: Breaking Existing Tests](#risk-1-breaking-existing-tests)
+    - [Risk 2: Changing Default Behavior](#risk-2-changing-default-behavior)
+    - [Risk 3: Test Coverage Loss](#risk-3-test-coverage-loss)
+  - [Success Criteria](#success-criteria)
+  - [Rollback Plan](#rollback-plan)
+  - [Timeline](#timeline)
+  - [Files to Modify](#files-to-modify)
+  - [Approval Process](#approval-process)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Security Remediation Plan - ggen-ontology-core
 ## Fixing Unwrap/Expect Poka-Yoke Violations
 

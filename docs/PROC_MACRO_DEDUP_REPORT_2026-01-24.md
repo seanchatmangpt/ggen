@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Proc-Macro Dependency Deduplication Report](#proc-macro-dependency-deduplication-report)
+  - [Executive Summary](#executive-summary)
+    - [Key Achievements](#key-achievements)
+  - [Proc-Macro Duplicates Analysis](#proc-macro-duplicates-analysis)
+    - [derive_more (3 versions)](#derive_more-3-versions)
+    - [darling (2 versions)](#darling-2-versions)
+  - [Changes Made](#changes-made)
+    - [1. Workspace Cargo.toml Updates](#1-workspace-cargotoml-updates)
+      - [Added genai to workspace.dependencies](#added-genai-to-workspacedependencies)
+      - [Fixed OpenTelemetry Dependencies](#fixed-opentelemetry-dependencies)
+      - [Added Comprehensive Documentation](#added-comprehensive-documentation)
+    - [2. Crate Updates (genai workspace migration)](#2-crate-updates-genai-workspace-migration)
+    - [3. Dependency Version Updates](#3-dependency-version-updates)
+  - [Recommendations](#recommendations)
+    - [Short-term (Accepted ✅)](#short-term-accepted-)
+    - [Medium-term (If overhead becomes critical 🔵)](#medium-term-if-overhead-becomes-critical-)
+    - [Long-term (Preventive 🔵)](#long-term-preventive-)
+  - [Impact Assessment](#impact-assessment)
+    - [Compilation Time](#compilation-time)
+    - [Binary Size](#binary-size)
+    - [Maintenance](#maintenance)
+    - [Dependency Count](#dependency-count)
+  - [Verification Commands](#verification-commands)
+  - [Files Modified](#files-modified)
+  - [Conclusion](#conclusion)
+    - [Key Takeaways](#key-takeaways)
+    - [Next Steps (Optional)](#next-steps-optional)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Proc-Macro Dependency Deduplication Report
 **Date**: 2026-01-24
 **Workspace**: ggen v0.2.0

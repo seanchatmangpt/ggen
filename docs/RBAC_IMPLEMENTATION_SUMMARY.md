@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [RBAC Implementation Summary - Week 6](#rbac-implementation-summary---week-6)
+  - [Overview](#overview)
+  - [Implementation Status: ✅ COMPLETE](#implementation-status--complete)
+    - [Core Components Implemented](#core-components-implemented)
+      - [1. Permission System (`crates/ggen-auth/src/rbac/permission.rs`)](#1-permission-system-cratesggen-authsrcrbacpermissionrs)
+      - [2. Role Hierarchy (`crates/ggen-auth/src/rbac/role.rs`)](#2-role-hierarchy-cratesggen-authsrcrbacrolers)
+      - [3. Resource Authorization (`crates/ggen-auth/src/rbac/resource.rs`)](#3-resource-authorization-cratesggen-authsrcrbacresourcers)
+      - [4. Policy Engine (`crates/ggen-auth/src/rbac/policy.rs`)](#4-policy-engine-cratesggen-authsrcrbacpolicyrs)
+      - [5. Authorization Context (`crates/ggen-auth/src/rbac/context.rs`)](#5-authorization-context-cratesggen-authsrcrbaccontextrs)
+      - [6. Authorization Function (`crates/ggen-auth/src/rbac/mod.rs`)](#6-authorization-function-cratesggen-authsrcrbacmodrs)
+      - [7. API Middleware (`crates/ggen-api/src/middleware/authz.rs`)](#7-api-middleware-cratesggen-apisrcmiddlewareauthzrs)
+  - [Test Coverage: 65+ Tests](#test-coverage-65-tests)
+    - [Unit Tests (33 tests) - `rbac_unit_tests.rs`](#unit-tests-33-tests---rbac_unit_testsrs)
+    - [Integration Tests (15 tests) - `rbac_integration_tests.rs`](#integration-tests-15-tests---rbac_integration_testsrs)
+    - [Security Tests (20 tests) - `rbac_security_tests.rs`](#security-tests-20-tests---rbac_security_testsrs)
+  - [Security Features](#security-features)
+    - [Privilege Escalation Prevention](#privilege-escalation-prevention)
+    - [Policy Security](#policy-security)
+    - [Attack Prevention](#attack-prevention)
+  - [Architecture Decisions](#architecture-decisions)
+    - [Type-First Design](#type-first-design)
+    - [Zero-Cost Abstractions](#zero-cost-abstractions)
+    - [Chicago TDD Compliance](#chicago-tdd-compliance)
+    - [Result<T, E> Throughout](#resultt-e-throughout)
+  - [Dependencies Added](#dependencies-added)
+  - [API Example Usage](#api-example-usage)
+  - [Middleware Example](#middleware-example)
+  - [Policy Engine Example](#policy-engine-example)
+  - [Known Issues](#known-issues)
+    - [Pre-existing Compilation Errors (Not RBAC-related)](#pre-existing-compilation-errors-not-rbac-related)
+  - [Files Created/Modified](#files-createdmodified)
+    - [Created (8 files)](#created-8-files)
+    - [Modified (5 files)](#modified-5-files)
+  - [Next Steps (Week 7+)](#next-steps-week-7)
+  - [Compliance & Standards](#compliance--standards)
+  - [Performance Characteristics](#performance-characteristics)
+  - [Memory Footprint](#memory-footprint)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # RBAC Implementation Summary - Week 6
 
 ## Overview

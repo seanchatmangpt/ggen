@@ -1,3 +1,16 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How-To: Generate Advanced TypeScript Code](#how-to-generate-advanced-typescript-code)
+  - [Basic Generation](#basic-generation)
+  - [With Validation (Zod)](#with-validation-zod)
+  - [With Utilities](#with-utilities)
+  - [Custom Templates](#custom-templates)
+  - [Comparing Generated Code](#comparing-generated-code)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How-To: Generate Advanced TypeScript Code
 
 ## Basic Generation

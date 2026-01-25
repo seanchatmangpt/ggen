@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Configuration Reference (Complete & Compressed)](#ggen-configuration-reference-complete--compressed)
+  - [Minimal Config](#minimal-config)
+  - [Complete Schema](#complete-schema)
+    - [`[project]`](#project)
+    - [`[generation]`](#generation)
+    - [`[generation.poka_yoke]`](#generationpoka_yoke)
+    - [`[[inference.rules]]` (Array)](#inferencerules-array)
+    - [`[inference]`](#inference)
+    - [`[[generation.rules]]` (Per-Template Rules)](#generationrules-per-template-rules)
+    - [`[marketplace]`](#marketplace)
+    - [`[codeowners]`](#codeowners)
+    - [`[lifecycle]`](#lifecycle)
+    - [`[security]`](#security)
+    - [`[performance]`](#performance)
+  - [Minimal Template Config](#minimal-template-config)
+  - [Environment Variable Expansion](#environment-variable-expansion)
+  - [CLI Overrides](#cli-overrides)
+  - [Real-World Examples](#real-world-examples)
+    - [REST API](#rest-api)
+    - [Multi-Crate Workspace](#multi-crate-workspace)
+    - [Marketplace Package](#marketplace-package)
+  - [Decision Matrix: When to Use What](#decision-matrix-when-to-use-what)
+  - [Schema Validation (SHACL)](#schema-validation-shacl)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Configuration Reference (Complete & Compressed)
 
 > Complete ggen.toml schema on 4 pages. Copy-paste ready.

@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Domain Module API Signatures](#domain-module-api-signatures)
+  - [Marketplace Module API](#marketplace-module-api)
+    - [Public Functions](#public-functions)
+  - [Template Module API](#template-module-api)
+    - [Public Functions](#public-functions-1)
+  - [Project Module API](#project-module-api)
+    - [Public Functions](#public-functions-2)
+  - [Type System Overview](#type-system-overview)
+    - [Naming Conventions](#naming-conventions)
+    - [Derive Traits](#derive-traits)
+    - [Function Return Types](#function-return-types)
+  - [CLI Integration Example](#cli-integration-example)
+  - [Web API Integration Example](#web-api-integration-example)
+  - [Agent Integration Example](#agent-integration-example)
+  - [Testing Examples](#testing-examples)
+    - [Unit Test (Chicago TDD)](#unit-test-chicago-tdd)
+    - [Integration Test](#integration-test)
+  - [Performance Requirements](#performance-requirements)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Domain Module API Signatures
 
 **Date**: 2025-11-20

@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Graph Querying API: Programmatic RDF Access in ggen](#graph-querying-api-programmatic-rdf-access-in-ggen)
+  - [Quick Start](#quick-start)
+  - [Module Overview](#module-overview)
+  - [Core Operations](#core-operations)
+    - [1. Loading Ontologies](#1-loading-ontologies)
+    - [2. Adding Triples Programmatically](#2-adding-triples-programmatically)
+    - [3. SPARQL SELECT (Querying)](#3-sparql-select-querying)
+    - [4. SPARQL CONSTRUCT (Graph Transformation)](#4-sparql-construct-graph-transformation)
+    - [5. SPARQL ASK (Boolean Queries)](#5-sparql-ask-boolean-queries)
+    - [6. Exporting Graphs](#6-exporting-graphs)
+  - [Common Query Patterns](#common-query-patterns)
+    - [Pattern A: Find All Entities of a Type](#pattern-a-find-all-entities-of-a-type)
+    - [Pattern B: Get Entity Properties](#pattern-b-get-entity-properties)
+    - [Pattern C: Traverse Relationships](#pattern-c-traverse-relationships)
+    - [Pattern D: Aggregate Data](#pattern-d-aggregate-data)
+    - [Pattern E: Find Hierarchy](#pattern-e-find-hierarchy)
+  - [Integration Examples](#integration-examples)
+    - [Example 1: Build a CLI Command from Ontology](#example-1-build-a-cli-command-from-ontology)
+    - [Example 2: Validate Ontology Completeness](#example-2-validate-ontology-completeness)
+    - [Example 3: Detect Unused Definitions](#example-3-detect-unused-definitions)
+    - [Example 4: Generate Test Cases from Spec](#example-4-generate-test-cases-from-spec)
+  - [Marketplace: Using the RDF-Backed Search](#marketplace-using-the-rdf-backed-search)
+  - [Advanced: Graph Analysis](#advanced-graph-analysis)
+    - [Detect Circular Dependencies](#detect-circular-dependencies)
+    - [Find Duplicate Patterns](#find-duplicate-patterns)
+  - [Error Handling](#error-handling)
+  - [Performance Tips](#performance-tips)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Graph Querying API: Programmatic RDF Access in ggen
 
 > **The RDF graph is the heart of ggen.** Learn to query, analyze, and manipulate it programmatically.

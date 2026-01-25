@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Reference: Poka-Yoke Patterns](#reference-poka-yoke-patterns)
+  - [What is Poka-Yoke?](#what-is-poka-yoke)
+  - [Five Core Patterns](#five-core-patterns)
+    - [Pattern 1: Guide Pin (Impossible to Insert Wrong)](#pattern-1-guide-pin-impossible-to-insert-wrong)
+    - [Pattern 2: Limit Switches (Constrain the Operation)](#pattern-2-limit-switches-constrain-the-operation)
+    - [Pattern 3: Fail-Safe Default (Safe When Something Fails)](#pattern-3-fail-safe-default-safe-when-something-fails)
+    - [Pattern 4: Counter/Measurement (Verify State)](#pattern-4-countermeasurement-verify-state)
+    - [Pattern 5: Sequencing (Can't Proceed Out of Order)](#pattern-5-sequencing-cant-proceed-out-of-order)
+  - [Pattern Comparison](#pattern-comparison)
+  - [Real-World Examples](#real-world-examples)
+    - [Example 1: User Creation (Combines Patterns)](#example-1-user-creation-combines-patterns)
+    - [Example 2: Database Transaction (Sequencing + Fail-Safe)](#example-2-database-transaction-sequencing--fail-safe)
+  - [How to Choose Patterns](#how-to-choose-patterns)
+    - [For Type Confusion → Guide Pin](#for-type-confusion-%E2%86%92-guide-pin)
+    - [For Out-of-Range Values → Limit Switches](#for-out-of-range-values-%E2%86%92-limit-switches)
+    - [For Ignored Errors → Fail-Safe](#for-ignored-errors-%E2%86%92-fail-safe)
+    - [For Wrong State → Counter](#for-wrong-state-%E2%86%92-counter)
+    - [For Wrong Sequence → Sequencing](#for-wrong-sequence-%E2%86%92-sequencing)
+  - [Combining Patterns](#combining-patterns)
+  - [Key Takeaways](#key-takeaways)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Reference: Poka-Yoke Patterns
 
 **Five compile-time mistake-proofing patterns that eliminate runtime failures**

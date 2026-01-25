@@ -1,3 +1,58 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Agent 2: Systemic Risk Propagation Networks](#agent-2-systemic-risk-propagation-networks)
+  - [SPARQL CONSTRUCT Queries + FIBO Integration](#sparql-construct-queries--fibo-integration)
+  - [Executive Summary](#executive-summary)
+  - [1. CONSTRUCT Patterns for Counterparty Exposure Graphs](#1-construct-patterns-for-counterparty-exposure-graphs)
+    - [Pattern 1: Direct Counterparty Exposure Materialization](#pattern-1-direct-counterparty-exposure-materialization)
+    - [Pattern 2: Transitive Risk Propagation with Decay Function](#pattern-2-transitive-risk-propagation-with-decay-function)
+    - [Pattern 3: Asset Fire Sale Contagion (Overlapping Portfolios)](#pattern-3-asset-fire-sale-contagion-overlapping-portfolios)
+    - [Pattern 4: Liquidity Hoarding Contagion Network](#pattern-4-liquidity-hoarding-contagion-network)
+    - [Pattern 5: Aggregate Systemic Risk Topology (Pre-Computed)](#pattern-5-aggregate-systemic-risk-topology-pre-computed)
+  - [2. Transitive Closure Queries (Runtime)](#2-transitive-closure-queries-runtime)
+    - [Query 1: All Institutions Reachable via Counterparty Chain](#query-1-all-institutions-reachable-via-counterparty-chain)
+    - [Query 2: Critical Contagion Paths (Shortest Path with Maximum Exposure)](#query-2-critical-contagion-paths-shortest-path-with-maximum-exposure)
+  - [3. FIBO Integration Architecture](#3-fibo-integration-architecture)
+    - [FIBO Modules Leveraged](#fibo-modules-leveraged)
+    - [Custom Risk Ontology Extensions](#custom-risk-ontology-extensions)
+  - [4. PhD Thesis Contribution Statement](#4-phd-thesis-contribution-statement)
+    - [Research Question](#research-question)
+    - [Hypothesis](#hypothesis)
+    - [Novel Contributions](#novel-contributions)
+      - [Contribution 1: **Declarative Risk Decay in SPARQL**](#contribution-1-declarative-risk-decay-in-sparql)
+      - [Contribution 2: **Multi-Channel Contagion Ontology**](#contribution-2-multi-channel-contagion-ontology)
+      - [Contribution 3: **Pre-Computed vs. Runtime Trade-Off Analysis**](#contribution-3-pre-computed-vs-runtime-trade-off-analysis)
+      - [Contribution 4: **Formal Verification via SHACL**](#contribution-4-formal-verification-via-shacl)
+  - [5. Performance Considerations](#5-performance-considerations)
+    - [Scalability Benchmarks (Oxigraph + Large Institution Networks)](#scalability-benchmarks-oxigraph--large-institution-networks)
+    - [Optimization Strategies](#optimization-strategies)
+      - [Strategy 1: **Incremental Materialization**](#strategy-1-incremental-materialization)
+      - [Strategy 2: **Parallel CONSTRUCT Execution**](#strategy-2-parallel-construct-execution)
+      - [Strategy 3: **Caching Hot Paths**](#strategy-3-caching-hot-paths)
+  - [6. Validation Against Basel III Stress Scenarios](#6-validation-against-basel-iii-stress-scenarios)
+    - [Test Case: 2023 Banking Crisis (SVB Collapse)](#test-case-2023-banking-crisis-svb-collapse)
+  - [7. Implementation Roadmap](#7-implementation-roadmap)
+    - [Phase 1: Core Materialization (Week 1-2)](#phase-1-core-materialization-week-1-2)
+    - [Phase 2: Regulatory Compliance (Week 3-4)](#phase-2-regulatory-compliance-week-3-4)
+    - [Phase 3: Performance Optimization (Week 5-6)](#phase-3-performance-optimization-week-5-6)
+    - [Phase 4: Production Integration (Week 7-8)](#phase-4-production-integration-week-7-8)
+  - [8. Future Research Directions](#8-future-research-directions)
+    - [Direction 1: **Quantum-Resistant Risk Graphs**](#direction-1-quantum-resistant-risk-graphs)
+    - [Direction 2: **Temporal Knowledge Graphs for Dynamic Risk**](#direction-2-temporal-knowledge-graphs-for-dynamic-risk)
+    - [Direction 3: **ChatGPT Integration for Risk Narratives**](#direction-3-chatgpt-integration-for-risk-narratives)
+    - [Direction 4: **Federated Risk Graphs**](#direction-4-federated-risk-graphs)
+  - [Conclusion](#conclusion)
+  - [References & Sources](#references--sources)
+    - [FIBO Architecture](#fibo-architecture)
+    - [Knowledge Graphs for Systemic Risk](#knowledge-graphs-for-systemic-risk)
+    - [Basel III/IV Counterparty Credit Risk](#basel-iiiiv-counterparty-credit-risk)
+    - [SPARQL Property Paths and Transitive Closure](#sparql-property-paths-and-transitive-closure)
+    - [Ontology Materialization and Financial Networks](#ontology-materialization-and-financial-networks)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Agent 2: Systemic Risk Propagation Networks
 ## SPARQL CONSTRUCT Queries + FIBO Integration
 

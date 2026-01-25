@@ -1,0 +1,30 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_metadata_token).
+-export([access_token/0]).
+
+-define(META_URL, "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token").
+
+%% access_token/0: Fetch OAuth2 access token from GCP metadata server
+%% Used by Cloud Run and Compute Engine instances
+%% Returns: {ok, Token} | {error, Reason}
+access_token() ->
+  Headers = [{<<"Metadata-Flavor">>, <<"Google">>}],
+  case {{ module_prefix }}_gcp_http:get(?META_URL, Headers, 2000) of
+    {ok, 200, _RespHeaders, BodyBin} ->
+      Map = jiffy:decode(BodyBin, [return_maps]),
+      Token = maps:get(<<"access_token">>, Map, error),
+      case Token of
+        error ->
+          error({metadata_token_failed, access_token_missing});
+        T when is_binary(T) ->
+          {ok, T}
+      end;
+    {error, Why} ->
+      error({metadata_token_failed, Why});
+    {ok, Status, _, Body} ->
+      error({metadata_token_failed, {status, Status, Body}})
+  end.
+
+%% TPS rule: if token cannot be fetched, crash (stop-the-line).
+%% Your supervisor restarts the process; you don't run half-alive.

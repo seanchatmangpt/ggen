@@ -1,0 +1,269 @@
+name: CI - Complete Pipeline (Andon Signals)
+
+on:
+  push:
+    branches: [main, develop, 'feature/**']
+  pull_request:
+    branches: [main, develop]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  REGISTRY: artifacts.example.com
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ============================================================================
+  # STAGE 1: Quick Feedback (2-3 minutes)
+  # ============================================================================
+  quick-checks:
+    name: Quick Checks (Compilation & Format)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: rustfmt, clippy
+
+      - name: Cache Rust build artifacts
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-all-crates: true
+
+      - name: Check formatting (Andon Signal)
+        run: timeout 30s cargo fmt -- --check
+        continue-on-error: false
+
+      - name: Clippy linting (Andon Signal)
+        run: timeout 60s cargo clippy --all-targets --all-features -- -D warnings
+        continue-on-error: false
+
+      - name: Compilation check (Andon Signal)
+        run: timeout 30s cargo check --all-features
+        continue-on-error: false
+
+  # ============================================================================
+  # STAGE 2: Unit Tests (Chicago TDD)
+  # ============================================================================
+  unit-tests:
+    name: Unit Tests (Chicago TDD - State-Based)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: quick-checks
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Cache Rust build artifacts
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-all-crates: true
+
+      - name: Run unit tests (Andon Signal)
+        run: |
+          timeout 30s cargo test --lib --all-features -- \
+            --test-threads=1 \
+            --nocapture \
+            2>&1 | tee test-output.txt
+
+      - name: Verify all tests passed (Andon Signal Check)
+        run: |
+          if grep -E "test result: (FAILED|ok)" test-output.txt | grep -q FAILED; then
+            echo "❌ TEST FAILURE DETECTED (Andon Signal - Red)"
+            exit 1
+          fi
+          echo "✅ All unit tests passed (Andon Signal - Green)"
+
+  # ============================================================================
+  # STAGE 3: Integration Tests
+  # ============================================================================
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: quick-checks
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Cache Rust build artifacts
+        uses: Swatinem/rust-cache@v2
+
+      - name: Run integration tests (Andon Signal)
+        run: |
+          timeout 60s cargo test --test '*' --all-features -- \
+            --test-threads=1 \
+            --nocapture \
+            2>&1 | tee integration-output.txt
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/test
+          REDIS_URL: redis://localhost:6379
+
+      - name: Verify integration tests passed (Andon Signal Check)
+        run: |
+          if grep -E "test result: (FAILED|ok)" integration-output.txt | grep -q FAILED; then
+            echo "❌ INTEGRATION TEST FAILURE (Andon Signal - Red)"
+            exit 1
+          fi
+
+  # ============================================================================
+  # STAGE 4: Security Scanning
+  # ============================================================================
+  security-scan:
+    name: Security Scanning (SAST + Dependency)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: quick-checks
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Cache Rust build artifacts
+        uses: Swatinem/rust-cache@v2
+
+      - name: Cargo audit (dependency vulnerabilities)
+        run: |
+          cargo install cargo-audit
+          timeout 30s cargo audit --deny warnings
+
+      - name: Cargo deny (license + source checks)
+        run: |
+          cargo install cargo-deny
+          timeout 30s cargo deny check all
+
+      - name: SAST - Cargo-geiger (unsafe usage)
+        run: |
+          cargo install cargo-geiger
+          timeout 30s cargo geiger --output Json || true
+
+  # ============================================================================
+  # STAGE 5: Documentation & Specs
+  # ============================================================================
+  spec-validation:
+    name: Specification Validation (RDF/TTL)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate TTL syntax
+        run: |
+          if [ -d ".specify" ]; then
+            for ttl_file in $(find .specify -name "*.ttl"); do
+              echo "Validating: $ttl_file"
+              # Basic TTL validation (check for common issues)
+              grep -E "^@(prefix|base)" "$ttl_file" > /dev/null || \
+                echo "Warning: $ttl_file may be missing prefix/base declarations"
+            done
+          fi
+
+      - name: Markdown documentation validation
+        run: |
+          if command -v markdownlint >/dev/null 2>&1; then
+            markdownlint --config .markdownlint.json 'docs/**/*.md' || true
+          fi
+
+  # ============================================================================
+  # STAGE 6: Report & Summary
+  # ============================================================================
+  test-report:
+    name: Generate Test Report
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests]
+    if: always()
+
+    steps:
+      - name: Determine pipeline status
+        run: |
+          echo "## CI Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| ✅ Quick Checks | ${{ needs.quick-checks.result == 'success' && 'PASS' || 'FAIL' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| ✅ Unit Tests | ${{ needs.unit-tests.result == 'success' && 'PASS' || 'FAIL' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| ✅ Integration Tests | ${{ needs.integration-tests.result == 'success' && 'PASS' || 'FAIL' }} |" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================================================
+  # Final Status Check (Andon Signal Enforcement)
+  # ============================================================================
+  andon-signal-check:
+    name: Andon Signal Verification (Stop the Line if Signals Present)
+    runs-on: ubuntu-latest
+    needs: [quick-checks, unit-tests, integration-tests, security-scan]
+    if: always()
+
+    steps:
+      - name: Check for Andon signals (RED)
+        run: |
+          echo "🔴 Andon Signal Check"
+          echo ""
+
+          # Collect all failure signals
+          FAILED_JOBS=""
+          [ "${{ needs.quick-checks.result }}" != "success" ] && FAILED_JOBS="$FAILED_JOBS Quick-Checks"
+          [ "${{ needs.unit-tests.result }}" != "success" ] && FAILED_JOBS="$FAILED_JOBS Unit-Tests"
+          [ "${{ needs.integration-tests.result }}" != "success" ] && FAILED_JOBS="$FAILED_JOBS Integration-Tests"
+          [ "${{ needs.security-scan.result }}" != "success" ] && FAILED_JOBS="$FAILED_JOBS Security-Scan"
+
+          if [ -n "$FAILED_JOBS" ]; then
+            echo "🛑 STOP THE LINE - Andon signals detected:"
+            for job in $FAILED_JOBS; do
+              echo "  ❌ $job"
+            done
+            exit 1
+          else
+            echo "✅ All Andon signals clear - proceeding"
+            exit 0
+          fi

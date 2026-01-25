@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Spec-Kit-3T Thesis Generator v2: Production Edition](#spec-kit-3t-thesis-generator-v2-production-edition)
+  - [Overview](#overview)
+  - [What's New in v2](#whats-new-in-v2)
+    - [1. μ₁: SHACL Validation with Andon Signals](#1-%CE%BC%E2%82%81-shacl-validation-with-andon-signals)
+    - [2. μ₂ + μ₃: SPARQL Extraction + Tera Rendering (Enhanced)](#2-%CE%BC%E2%82%82--%CE%BC%E2%82%83-sparql-extraction--tera-rendering-enhanced)
+    - [3. μ₄: Canonicalization with File Hashing](#3-%CE%BC%E2%82%84-canonicalization-with-file-hashing)
+    - [4. μ₅: Cryptographic Receipts for Provenance](#4-%CE%BC%E2%82%85-cryptographic-receipts-for-provenance)
+    - [5. Incremental Build System](#5-incremental-build-system)
+    - [6. Cargo-Make Style CLI](#6-cargo-make-style-cli)
+    - [7. Andon Signal System](#7-andon-signal-system)
+    - [8. Comprehensive Test Suite](#8-comprehensive-test-suite)
+  - [Architecture Comparison: v1 vs v2](#architecture-comparison-v1-vs-v2)
+  - [Performance Metrics](#performance-metrics)
+    - [Build Performance](#build-performance)
+    - [Quality Metrics](#quality-metrics)
+  - [Usage Examples](#usage-examples)
+    - [Basic Workflow](#basic-workflow)
+    - [Development Workflow](#development-workflow)
+    - [Quality Assurance](#quality-assurance)
+  - [Key Insights](#key-insights)
+    - [1. Validation Prevents Defects at Source](#1-validation-prevents-defects-at-source)
+    - [2. Incremental Builds Enable Rapid Iteration](#2-incremental-builds-enable-rapid-iteration)
+    - [3. Provenance Receipts Ensure Reproducibility](#3-provenance-receipts-ensure-reproducibility)
+    - [4. Andon Signals Improve UX](#4-andon-signals-improve-ux)
+  - [Comparison to ggen and figex](#comparison-to-ggen-and-figex)
+  - [Next Steps for v3](#next-steps-for-v3)
+  - [Lessons Learned](#lessons-learned)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Spec-Kit-3T Thesis Generator v2: Production Edition
 
 ## Overview

@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Deploy ggen v5.0.0 to Docker Hub - Manual Steps](#deploy-ggen-v500-to-docker-hub---manual-steps)
+  - [Prerequisites Check](#prerequisites-check)
+  - [Step 1: Login to Docker Hub](#step-1-login-to-docker-hub)
+  - [Step 2: Build the Docker Image](#step-2-build-the-docker-image)
+  - [Step 3: Verify the Build Works](#step-3-verify-the-build-works)
+  - [Step 4: Push Version 5.0.0 Tag](#step-4-push-version-500-tag)
+  - [Step 5: Push Latest Tag](#step-5-push-latest-tag)
+  - [Step 6: Verify Deployment](#step-6-verify-deployment)
+  - [Step 7: Test from Docker Hub](#step-7-test-from-docker-hub)
+  - [🎉 Success!](#-success)
+  - [Troubleshooting](#troubleshooting)
+    - [If `docker login` hangs:](#if-docker-login-hangs)
+    - [If build fails with "Cannot connect to Docker daemon":](#if-build-fails-with-cannot-connect-to-docker-daemon)
+    - [If push fails with "unauthorized":](#if-push-fails-with-unauthorized)
+    - [If you get "denied: requested access to the resource is denied":](#if-you-get-denied-requested-access-to-the-resource-is-denied)
+  - [Quick Copy-Paste (All Commands)](#quick-copy-paste-all-commands)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Deploy ggen v5.0.0 to Docker Hub - Manual Steps
 
 ## Prerequisites Check

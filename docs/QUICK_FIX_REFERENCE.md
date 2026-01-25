@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Quick Fix Reference - Week 1 Compiler Errors](#quick-fix-reference---week-1-compiler-errors)
+  - [Phase 1: Core Definitions (45 min) → 91 errors resolved](#phase-1-core-definitions-45-min-%E2%86%92-91-errors-resolved)
+    - [1. Observation Struct (18 errors) - 15 min](#1-observation-struct-18-errors---15-min)
+    - [2. DeltaSigmaProposal Struct (30 errors) - 20 min](#2-deltasigmaproposal-struct-30-errors---20-min)
+    - [3. ObservationSource Enum (16 errors) - 10 min](#3-observationsource-enum-16-errors---10-min)
+    - [4. ValidationContext Struct (10 errors) - 15 min](#4-validationcontext-struct-10-errors---15-min)
+    - [5. ValidationEvidence Struct (9 errors) - 15 min](#5-validationevidence-struct-9-errors---15-min)
+    - [6. PatternType Enum (8 errors) - 5 min](#6-patterntype-enum-8-errors---5-min)
+  - [Phase 2: Config Structs (30 min) → 24 errors resolved](#phase-2-config-structs-30-min-%E2%86%92-24-errors-resolved)
+    - [7. ProposerConfig Struct (6 errors) - 10 min](#7-proposerconfig-struct-6-errors---10-min)
+    - [8. ProposedChange Struct (6 errors) - 10 min](#8-proposedchange-struct-6-errors---10-min)
+    - [9. MinerConfig Struct (4 errors) - 10 min](#9-minerconfig-struct-4-errors---10-min)
+    - [10. ConstitutionValidation Struct (4 errors) - 10 min](#10-constitutionvalidation-struct-4-errors---10-min)
+    - [11. PromotionResult Struct (4 errors) - 10 min](#11-promotionresult-struct-4-errors---10-min)
+  - [Phase 3: Implementation (30 min) → 21 errors resolved](#phase-3-implementation-30-min-%E2%86%92-21-errors-resolved)
+    - [12. Validator validate() Methods (9 errors) - 30 min](#12-validator-validate-methods-9-errors---30-min)
+    - [13. Pipeline Field Visibility (12 errors) - 5 min](#13-pipeline-field-visibility-12-errors---5-min)
+  - [Phase 4: Cleanup (20 min) → 25 errors resolved](#phase-4-cleanup-20-min-%E2%86%92-25-errors-resolved)
+    - [14. Type Mismatches (18 errors) - 20 min](#14-type-mismatches-18-errors---20-min)
+    - [15. SigmaOverlay id Field (2 errors) - 5 min](#15-sigmaoverlay-id-field-2-errors---5-min)
+    - [16. Swarm Module Resolution (4 errors) - 10 min](#16-swarm-module-resolution-4-errors---10-min)
+    - [17. Result Type Generics (1 error) - 2 min](#17-result-type-generics-1-error---2-min)
+  - [Final Verification](#final-verification)
+  - [Quick Command Reference](#quick-command-reference)
+  - [Commit Strategy](#commit-strategy)
+  - [Troubleshooting](#troubleshooting)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Quick Fix Reference - Week 1 Compiler Errors
 
 **Use this as a checklist while fixing errors systematically.**

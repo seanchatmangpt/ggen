@@ -1,0 +1,36 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_http_handler_marketplace).
+-export([init/2]).
+
+init(Req0, State) ->
+  {ok, RawBody, Req1} = cowboy_req:read_body(Req0, #{length => 1048576, period => 3000}),
+  case safe_json(RawBody) of
+    {ok, Map} ->
+      TenantId = maps:get(<<"tenant_id">>, Map, <<"unknown">>),
+      Action0  = maps:get(<<"action">>, Map, <<"entitlement_created">>),
+      Action   = {{ module_prefix }}_entitlement_statem:translate_marketplace_event(Action0),
+
+      case Action of
+        undefined ->
+          Resp = jiffy:encode(#{error => <<"unknown_event">>}),
+          Req2 = cowboy_req:reply(400, #{<<"content-type">> => <<"application/json">>}, Resp, Req1),
+          {ok, Req2, State};
+
+        _ ->
+          Reply = gen_statem:call({{ module_prefix }}_entitlement_statem, {marketplace, Action, TenantId}),
+          Resp = jiffy:encode(#{result => Reply}),
+          Req2 = cowboy_req:reply(200, #{<<"content-type">> => <<"application/json">>}, Resp, Req1),
+          {ok, Req2, State}
+      end;
+
+    {error, Why} ->
+      Resp = jiffy:encode(#{error => Why}),
+      Req2 = cowboy_req:reply(400, #{<<"content-type">> => <<"application/json">>}, Resp, Req1),
+      {ok, Req2, State}
+  end.
+
+safe_json(Bin) ->
+  try {ok, jiffy:decode(Bin, [return_maps])}
+  catch _:_ -> {error, <<"invalid_json">>}
+  end.

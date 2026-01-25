@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [DSPy Assertion System - Rust Implementation Plan for ggen](#dspy-assertion-system---rust-implementation-plan-for-ggen)
+  - [Executive Summary](#executive-summary)
+  - [Current State Analysis](#current-state-analysis)
+    - [Existing Infrastructure](#existing-infrastructure)
+    - [Gap Analysis](#gap-analysis)
+  - [Design Overview](#design-overview)
+    - [Architecture Components](#architecture-components)
+    - [Type System](#type-system)
+  - [Implementation Phases](#implementation-phases)
+    - [Phase 1: Core Assertion Infrastructure (Week 1-2)](#phase-1-core-assertion-infrastructure-week-1-2)
+    - [Phase 2: Module Integration & Retry Logic (Week 3-4)](#phase-2-module-integration--retry-logic-week-3-4)
+    - [Phase 3: Optimizer Integration (Week 5-6)](#phase-3-optimizer-integration-week-5-6)
+    - [Phase 4: Telemetry & Observability (Week 7)](#phase-4-telemetry--observability-week-7)
+    - [Phase 5: TTL Specification Support (Week 8-9)](#phase-5-ttl-specification-support-week-8-9)
+    - [Phase 6: Performance & Polish (Week 10)](#phase-6-performance--polish-week-10)
+  - [Integration with Existing Systems](#integration-with-existing-systems)
+    - [1. DSPy Optimizer Integration](#1-dspy-optimizer-integration)
+    - [2. Microframework Agent Integration](#2-microframework-agent-integration)
+    - [3. RDF Specification Integration](#3-rdf-specification-integration)
+  - [Standard Validator Library](#standard-validator-library)
+  - [Testing Strategy](#testing-strategy)
+    - [Unit Tests (Chicago TDD Pattern)](#unit-tests-chicago-tdd-pattern)
+    - [Property Tests](#property-tests)
+    - [Integration Tests](#integration-tests)
+  - [Performance Targets](#performance-targets)
+  - [Risk Mitigation](#risk-mitigation)
+    - [Risk 1: Retry Explosion](#risk-1-retry-explosion)
+    - [Risk 2: Validation Overhead](#risk-2-validation-overhead)
+    - [Risk 3: Prompt Bloat](#risk-3-prompt-bloat)
+    - [Risk 4: Complexity Creep](#risk-4-complexity-creep)
+  - [Success Criteria](#success-criteria)
+    - [Functional Requirements](#functional-requirements)
+    - [Non-Functional Requirements](#non-functional-requirements)
+    - [Performance Requirements](#performance-requirements)
+    - [Quality Requirements](#quality-requirements)
+  - [Next Steps](#next-steps)
+    - [Immediate Actions (Week 1)](#immediate-actions-week-1)
+    - [Weekly Milestones](#weekly-milestones)
+  - [References](#references)
+    - [Documentation](#documentation)
+    - [Existing Code](#existing-code)
+    - [External Resources](#external-resources)
+  - [Approval Checklist](#approval-checklist)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # DSPy Assertion System - Rust Implementation Plan for ggen
 
 **Date:** 2026-01-11

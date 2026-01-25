@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v3 Implementation Roadmap](#ggen-v3-implementation-roadmap)
+  - [Overview](#overview)
+  - [Phase 1: Foundation - Ontology Design (Weeks 1-4)](#phase-1-foundation---ontology-design-weeks-1-4)
+    - [Week 1: Domain Model & Core Types](#week-1-domain-model--core-types)
+    - [Week 3: Projections, Tests, Deployment](#week-3-projections-tests-deployment)
+  - [Phase 2: Template & Projection System (Weeks 5-8)](#phase-2-template--projection-system-weeks-5-8)
+    - [Week 5-6: Core Templates (π_core, π_domain, π_tests)](#week-5-6-core-templates-%CF%80_core-%CF%80_domain-%CF%80_tests)
+    - [Week 8: Documentation & Deployment Templates](#week-8-documentation--deployment-templates)
+    - [Week 11: Testing & Verification](#week-11-testing--verification)
+  - [Post-Release (Q1-Q2 2026)](#post-release-q1-q2-2026)
+    - [v3.0.0-beta (4 weeks after alpha)](#v300-beta-4-weeks-after-alpha)
+    - [v3.0.0 final (8 weeks after alpha)](#v300-final-8-weeks-after-alpha)
+    - [v3.1.0 (3 months after v3.0)](#v310-3-months-after-v30)
+  - [Success Metrics Summary](#success-metrics-summary)
+  - [Risk Register & Mitigation](#risk-register--mitigation)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v3 Implementation Roadmap
 
 **Status**: PLANNING

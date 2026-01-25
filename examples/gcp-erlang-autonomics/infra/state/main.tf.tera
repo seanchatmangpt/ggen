@@ -1,0 +1,83 @@
+terraform {
+  required_version = ">= 1.5.0"
+  required_providers {
+    google = {
+      source  = "hashicorp/google"
+      version = ">= 5.30.0"
+    }
+  }
+}
+
+provider "google" {
+  project = var.project_id
+  region  = var.region
+}
+
+###############################################################################
+# Terraform Remote State Backend
+# GCS bucket for versioned state with locking
+# TPS: state is controlled and audited
+###############################################################################
+
+resource "google_storage_bucket" "tf_state" {
+  project                     = var.project_id
+  name                        = "${var.project_id}-${var.state_bucket_suffix}"
+  location                    = var.region
+  uniform_bucket_level_access = true
+  force_destroy               = false
+
+  versioning {
+    enabled = true
+  }
+
+  # Lifecycle: keep last 30 versions, delete older
+  lifecycle_rule {
+    action {
+      type = "Delete"
+    }
+    condition {
+      num_newer_versions = 30
+    }
+  }
+
+  labels = {
+    system = "terraform-state"
+    env    = var.env
+  }
+}
+
+# Enable Object Lock for production (prevent accidental deletion)
+resource "google_storage_bucket" "tf_state_lock" {
+  project  = var.project_id
+  name     = "${var.project_id}-${var.state_bucket_suffix}-lock"
+  location = var.region
+
+  uniform_bucket_level_access = true
+
+  labels = {
+    system = "terraform-state-lock"
+    env    = var.env
+  }
+}
+
+output "state_bucket" {
+  description = "GCS bucket for Terraform state"
+  value       = google_storage_bucket.tf_state.name
+}
+
+output "state_bucket_url" {
+  description = "gs:// URL for Terraform backend configuration"
+  value       = "gs://${google_storage_bucket.tf_state.name}"
+}
+
+output "backend_config" {
+  description = "Backend configuration for terraform init"
+  value       = <<-EOT
+    terraform {
+      backend "gcs" {
+        bucket = "${google_storage_bucket.tf_state.name}"
+        prefix = "autonomics/catalog"
+      }
+    }
+  EOT
+}

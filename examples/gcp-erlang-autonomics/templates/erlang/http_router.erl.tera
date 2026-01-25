@@ -1,0 +1,33 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_http_router).
+-export([route/1]).
+
+route(#{method := <<"GET">>, path := <<"/health">>}) ->
+  {200, #{status => <<"ok">>, sku => <<"{{ sku }}">>}};
+
+%% Pub/Sub Push: billing / monitoring / pubsub signals
+route(#{method := <<"POST">>, path := <<"/pubsub">>, body := Body}) ->
+  Envelope = {{ module_prefix }}_pubsub_decoder:decode(Body),
+  {{ module_prefix }}_signal_normalizer:handle_pubsub(Envelope),
+  {200, #{accepted => true}};
+
+%% Marketplace entitlement events (admin channel)
+route(#{method := <<"POST">>, path := <<"/marketplace">>, body := Body}) ->
+  %% Body must include: tenant_id, action
+  TenantId = maps:get(tenant_id, Body, <<"unknown">>),
+  Action   = maps:get(action, Body, install_confirmed),
+
+  %% Drive entitlement FSM via call
+  Reply = gen_statem:call({{ module_prefix }}_entitlement_statem, {marketplace, Action}),
+  _ = {{ module_prefix }}_receipt_ledger:append(TenantId, #{
+    kind => marketplace_event,
+    tenant_id => TenantId,
+    sku => <<"{{ sku }}">>,
+    event => Action,
+    decision => accept
+  }),
+  {200, #{result => Reply}};
+
+route(_Req) ->
+  {404, #{error => <<"not_found">>}}.

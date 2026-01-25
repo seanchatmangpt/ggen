@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Explanation: Why Hive Mind Coordinates](#explanation-why-hive-mind-coordinates)
+  - [The Problem: Coordinating Multiple Agents](#the-problem-coordinating-multiple-agents)
+  - [The Byzantine Generals Problem](#the-byzantine-generals-problem)
+  - [The Hive Mind Solution](#the-hive-mind-solution)
+    - [Three-Tier Architecture](#three-tier-architecture)
+    - [Tier 1: The Queen (Strategic Coordination)](#tier-1-the-queen-strategic-coordination)
+    - [Tier 2: Colony Leaders (Tactical Execution)](#tier-2-colony-leaders-tactical-execution)
+    - [Tier 3: Workers (Specialized Tasks)](#tier-3-workers-specialized-tasks)
+  - [Why Byzantine Fault Tolerance Matters](#why-byzantine-fault-tolerance-matters)
+    - [Classical Approach: Hope Nothing Fails](#classical-approach-hope-nothing-fails)
+    - [Hive Mind Approach: Design for Failure](#hive-mind-approach-design-for-failure)
+  - [Consensus Mechanisms](#consensus-mechanisms)
+    - [Simple Consensus (Majority Vote)](#simple-consensus-majority-vote)
+    - [Weighted Consensus (Quality-Based)](#weighted-consensus-quality-based)
+    - [Collision Detection (Overlap-Based)](#collision-detection-overlap-based)
+  - [How Hive Mind Differs from Voting Systems](#how-hive-mind-differs-from-voting-systems)
+    - [Traditional Voting](#traditional-voting)
+    - [Hive Mind](#hive-mind)
+  - [Real-World Application: EPIC 9](#real-world-application-epic-9)
+  - [When to Use Hive Mind Coordination](#when-to-use-hive-mind-coordination)
+    - [Use Hive Mind When:](#use-hive-mind-when)
+    - [Examples:](#examples)
+    - [Don't Use Hive Mind When:](#dont-use-hive-mind-when)
+    - [Examples:](#examples-1)
+  - [Failure Modes & Recovery](#failure-modes--recovery)
+    - [Failure: Worker Dies](#failure-worker-dies)
+    - [Failure: Colony Leader Dies](#failure-colony-leader-dies)
+    - [Failure: Queen Dies](#failure-queen-dies)
+  - [Comparison to Alternatives](#comparison-to-alternatives)
+    - [Approach 1: Single Agent](#approach-1-single-agent)
+    - [Approach 2: Leaderless (Consensus)](#approach-2-leaderless-consensus)
+    - [Approach 3: Hive Mind (Our Choice)](#approach-3-hive-mind-our-choice)
+  - [Key Insights](#key-insights)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Explanation: Why Hive Mind Coordinates
 
 **Understanding Byzantine Fault-Tolerant consensus for multi-agent orchestration**

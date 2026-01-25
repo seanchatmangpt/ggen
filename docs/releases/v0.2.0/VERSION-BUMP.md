@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Version Bump Justification - v0.1.0 to v0.2.0](#version-bump-justification---v010-to-v020)
+  - [Semantic Versioning Framework](#semantic-versioning-framework)
+    - [Version Format: MAJOR.MINOR.PATCH](#version-format-majorminorpatch)
+  - [Rationale for v0.1.0 → v0.2.0](#rationale-for-v010-%E2%86%92-v020)
+    - [Criteria for Minor Version Bump](#criteria-for-minor-version-bump)
+    - [ggen v0.2.0 Meets All Criteria](#ggen-v020-meets-all-criteria)
+      - [1. Significant New Functionality (Phase 1 Complete)](#1-significant-new-functionality-phase-1-complete)
+      - [2. No Breaking Changes to Existing APIs](#2-no-breaking-changes-to-existing-apis)
+      - [3. Production-Ready Quality Metrics](#3-production-ready-quality-metrics)
+  - [Version Bump Decision Matrix](#version-bump-decision-matrix)
+  - [Alternative Bump Scenarios](#alternative-bump-scenarios)
+    - [Scenario 1: Only Bug Fixes (Patch Bump)](#scenario-1-only-bug-fixes-patch-bump)
+    - [Scenario 2: Breaking API Changes (Major Bump)](#scenario-2-breaking-api-changes-major-bump)
+    - [Scenario 3: Stability Release (Same Version)](#scenario-3-stability-release-same-version)
+    - [Scenario 4: Pre-Release Identifier (e.g., v0.2.0-rc1)](#scenario-4-pre-release-identifier-eg-v020-rc1)
+  - [Pre-Release vs Stable Version](#pre-release-vs-stable-version)
+    - [Why v0.2.0 (not v1.0.0)?](#why-v020-not-v100)
+  - [Release Stability Guarantees](#release-stability-guarantees)
+    - [v0.2.0 Provides](#v020-provides)
+    - [v0.2.0 Does NOT Guarantee](#v020-does-not-guarantee)
+  - [Version Numbering Scheme](#version-numbering-scheme)
+    - [0.x.x Timeline](#0xx-timeline)
+    - [Release Support Policy](#release-support-policy)
+  - [Comparison with Industry Standards](#comparison-with-industry-standards)
+    - [Similar Projects' Version Bumps](#similar-projects-version-bumps)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Version Bump Justification - v0.1.0 to v0.2.0
 
 ## Semantic Versioning Framework

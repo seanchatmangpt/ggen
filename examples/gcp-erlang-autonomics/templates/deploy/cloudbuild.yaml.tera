@@ -1,0 +1,93 @@
+steps:
+  # Step 1: Compile and build OTP release
+  - name: "gcr.io/cloud-builders/docker"
+    id: "build-image"
+    args:
+      - "build"
+      - "-t"
+      - "gcr.io/$PROJECT_ID/{{ module_prefix }}:$COMMIT_SHA"
+      - "-t"
+      - "gcr.io/$PROJECT_ID/{{ module_prefix }}:latest"
+      - "-f"
+      - "Containerfile"
+      - "."
+    waitFor: ["-"]
+
+  # Step 2: Smoke test - container boots and /health endpoint responds
+  - name: "gcr.io/cloud-builders/docker"
+    id: "smoke-test"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        set -euo pipefail
+
+        # Start container in background
+        docker run -d --rm --name smoke-{{ module_prefix }} \
+          -e PORT=8080 \
+          -e GOOGLE_CLOUD_PROJECT=$PROJECT_ID \
+          -p 8080:8080 \
+          gcr.io/$PROJECT_ID/{{ module_prefix }}:$COMMIT_SHA
+
+        echo "Waiting for service to boot..."
+
+        # Poll /health endpoint (up to 30 attempts, 1s each)
+        for i in $(seq 1 30); do
+          echo "Attempt $i: checking /health..."
+          if curl -sf --connect-timeout 2 http://localhost:8080/health > /tmp/health_check.json 2>&1; then
+            echo "✓ Service healthy"
+            cat /tmp/health_check.json
+            break
+          fi
+
+          # Check if container is still running
+          if ! docker ps | grep -q smoke-{{ module_prefix }}; then
+            echo "✗ Container crashed during boot"
+            docker logs smoke-{{ module_prefix }} || true
+            exit 1
+          fi
+
+          sleep 1
+        done
+
+        # Final verification
+        if ! curl -sf http://localhost:8080/health > /tmp/final_health.json; then
+          echo "✗ /health endpoint unreachable after boot"
+          exit 1
+        fi
+
+        echo "✓ Smoke test passed"
+        cat /tmp/final_health.json
+
+        # Cleanup
+        docker stop smoke-{{ module_prefix }} || true
+    waitFor: ["build-image"]
+
+  # Step 3: Push to Container Registry
+  - name: "gcr.io/cloud-builders/docker"
+    id: "push-image"
+    args:
+      - "push"
+      - "gcr.io/$PROJECT_ID/{{ module_prefix }}:$COMMIT_SHA"
+    waitFor: ["smoke-test"]
+
+  - name: "gcr.io/cloud-builders/docker"
+    id: "push-latest"
+    args:
+      - "push"
+      - "gcr.io/$PROJECT_ID/{{ module_prefix }}:latest"
+    waitFor: ["smoke-test"]
+
+images:
+  - "gcr.io/$PROJECT_ID/{{ module_prefix }}:$COMMIT_SHA"
+  - "gcr.io/$PROJECT_ID/{{ module_prefix }}:latest"
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: "N1_HIGHCPU_8"
+
+# Timeout: 20 minutes (includes pull time)
+timeout: "1200s"
+
+onFailure:
+  - "CLOUD_LOGGING_ONLY"

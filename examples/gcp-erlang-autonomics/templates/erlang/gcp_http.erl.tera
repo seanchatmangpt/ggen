@@ -1,0 +1,49 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_gcp_http).
+-export([get/3, post_json/4]).
+
+%% get(Url, Headers, TimeoutMs) -> {ok, Status, RespHeaders, Body} | {error, Reason}
+%% Hardened HTTP GET with timeouts (hackney backend)
+get(Url, Headers, TimeoutMs) when is_integer(TimeoutMs), TimeoutMs > 0 ->
+  Opts = [
+    {connect_timeout, TimeoutMs},
+    {recv_timeout, TimeoutMs},
+    {follow_redirect, true}
+  ],
+  case catch hackney:request(get, Url, Headers, <<>>, Opts) of
+    {ok, Status, RespHeaders, Ref} ->
+      {ok, Body} = hackney:body(Ref),
+      {ok, Status, RespHeaders, Body};
+    {error, Reason} ->
+      {error, Reason};
+    {'EXIT', Reason} ->
+      {error, {hackney_crash, Reason}};
+    Other ->
+      {error, {unexpected_response, Other}}
+  end;
+get(_Url, _Headers, TimeoutMs) ->
+  {error, {invalid_timeout, TimeoutMs}}.
+
+%% post_json(Url, Headers, BodyMap, TimeoutMs) -> {ok, Status, RespHeaders, Body} | {error, Reason}
+%% Hardened HTTP POST with JSON body and timeouts (hackney backend)
+post_json(Url, Headers, BodyMap, TimeoutMs) when is_integer(TimeoutMs), TimeoutMs > 0 ->
+  Body = jiffy:encode(BodyMap),
+  H2 = Headers ++ [{<<"content-type">>, <<"application/json">>}],
+  Opts = [
+    {connect_timeout, TimeoutMs},
+    {recv_timeout, TimeoutMs}
+  ],
+  case catch hackney:request(post, Url, H2, Body, Opts) of
+    {ok, Status, RespHeaders, Ref} ->
+      {ok, RespBody} = hackney:body(Ref),
+      {ok, Status, RespHeaders, RespBody};
+    {error, Reason} ->
+      {error, Reason};
+    {'EXIT', Reason} ->
+      {error, {hackney_crash, Reason}};
+    Other ->
+      {error, {unexpected_response, Other}}
+  end;
+post_json(_Url, _Headers, _BodyMap, TimeoutMs) ->
+  {error, {invalid_timeout, TimeoutMs}}.

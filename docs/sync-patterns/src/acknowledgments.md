@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Acknowledgments](#acknowledgments)
+  - [Intellectual Debts](#intellectual-debts)
+    - [Christopher Alexander](#christopher-alexander)
+    - [The Gang of Four](#the-gang-of-four)
+    - [The Portland Pattern Repository](#the-portland-pattern-repository)
+    - [The Semantic Web Community](#the-semantic-web-community)
+    - [The Rust Community](#the-rust-community)
+  - [Project Contributors](#project-contributors)
+    - [Core Team](#core-team)
+    - [Contributors](#contributors)
+  - [Pattern Language Reviewers](#pattern-language-reviewers)
+  - [Institutions](#institutions)
+  - [Personal Acknowledgments](#personal-acknowledgments)
+  - [A Note on AI Assistance](#a-note-on-ai-assistance)
+  - [Dedication](#dedication)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Acknowledgments
 
 > *"In the end, it is the pattern languages which are living and which will create more and more life in the world."*

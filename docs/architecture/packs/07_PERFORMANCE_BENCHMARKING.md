@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pack System: Performance Targets and Benchmarking Strategy](#pack-system-performance-targets-and-benchmarking-strategy)
+  - [Overview](#overview)
+  - [Performance Targets](#performance-targets)
+    - [1. Discovery Operations](#1-discovery-operations)
+    - [2. Management Operations](#2-management-operations)
+    - [3. Generation Operations](#3-generation-operations)
+    - [4. Validation Operations](#4-validation-operations)
+    - [5. Composition Operations](#5-composition-operations)
+    - [6. Benchmarking Operations](#6-benchmarking-operations)
+  - [Throughput Targets](#throughput-targets)
+    - [Pack Operations Per Second](#pack-operations-per-second)
+  - [Resource Utilization Targets](#resource-utilization-targets)
+    - [Memory](#memory)
+    - [Disk I/O](#disk-io)
+    - [CPU](#cpu)
+  - [Benchmarking Methodology](#benchmarking-methodology)
+    - [1. Benchmark Suite Structure](#1-benchmark-suite-structure)
+    - [2. Benchmark Fixtures](#2-benchmark-fixtures)
+    - [3. Criterion.rs Benchmarks](#3-criterionrs-benchmarks)
+    - [4. End-to-End Benchmarks](#4-end-to-end-benchmarks)
+    - [5. Stress Testing](#5-stress-testing)
+  - [Performance Profiling](#performance-profiling)
+    - [1. Flamegraph Generation](#1-flamegraph-generation)
+    - [2. Memory Profiling](#2-memory-profiling)
+    - [3. Tracing and Instrumentation](#3-tracing-and-instrumentation)
+  - [Optimization Strategies](#optimization-strategies)
+    - [1. Caching](#1-caching)
+    - [2. Parallelization](#2-parallelization)
+    - [3. Lazy Loading](#3-lazy-loading)
+    - [4. Incremental Operations](#4-incremental-operations)
+    - [5. Database Indexing](#5-database-indexing)
+  - [Continuous Performance Monitoring](#continuous-performance-monitoring)
+    - [1. CI/CD Integration](#1-cicd-integration)
+    - [2. Performance Regression Detection](#2-performance-regression-detection)
+  - [Performance Dashboard](#performance-dashboard)
+    - [Metrics to Track](#metrics-to-track)
+    - [Dashboard Example](#dashboard-example)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pack System: Performance Targets and Benchmarking Strategy
 
 ## Overview

@@ -1,0 +1,195 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_governor_statem).
+-behaviour(gen_statem).
+
+-export([start_link/1, call/2, cast/2]).
+-export([callback_mode/0, init/1, terminate/3, code_change/4]).
+{% for s in states %}
+-export([{{ s }}/3]).
+{% endfor %}
+
+-include("{{ module_prefix }}_types.hrl").
+
+%% -------------------------------------------------------------------
+%% Public API
+%% -------------------------------------------------------------------
+
+start_link(Args) ->
+  gen_statem:start_link({local, ?MODULE}, ?MODULE, Args, []).
+
+call(PidOrName, Msg) ->
+  gen_statem:call(PidOrName, Msg).
+
+cast(PidOrName, Msg) ->
+  gen_statem:cast(PidOrName, Msg).
+
+callback_mode() -> state_functions.
+
+%% -------------------------------------------------------------------
+%% Init
+%% -------------------------------------------------------------------
+
+init(Args) ->
+  TenantId = maps:get({{ tenant_key }}, Args),
+  Profile  = maps:get(profile, Args, standard),
+  Ent      = maps:get(entitlement, Args, inactive),
+
+  Data = #governor_data{
+    tenant_id = TenantId,
+    sku = <<"{{ sku }}">>,
+    profile = Profile,
+    entitlement = Ent
+  },
+
+  %% Start in boot, immediately tick
+  {ok, boot, Data, {state_timeout, 0, tick}}.
+
+terminate(_Reason, _State, _Data) -> ok.
+code_change(_Vsn, State, Data, _Extra) -> {ok, State, Data}.
+
+%% -------------------------------------------------------------------
+%% Helper predicates
+%% -------------------------------------------------------------------
+
+entitled(#governor_data{entitlement = active}) -> true;
+entitled(_) -> false.
+
+%% Return {ok} | {warn, Reason, Actions} | {refuse, Reason}
+decide(SignalName, Payload, Data) ->
+  Profile = Data#governor_data.profile,
+  {{ module_prefix }}_policy_pack:decide(Profile, SignalName, Payload, Data).
+
+%% Guard: refuse if not entitled
+entitlement_guard(Data, SignalName) ->
+  case entitled(Data) of
+    true -> ok;
+    false -> {refuse, {not_entitled, SignalName}}
+  end.
+
+%% Receipt helper
+emit_receipt(Data, StateFrom, StateTo, Event, Decision, Action, Invariants) ->
+  Receipt = #{
+    kind => transition,
+    tenant_id => Data#governor_data.tenant_id,
+    sku => Data#governor_data.sku,
+    state_from => StateFrom,
+    state_to => StateTo,
+    event => Event,
+    decision => Decision,
+    action => Action,
+    invariants => Invariants
+  },
+  {{ module_prefix }}_receipt_ledger:append(Data#governor_data.tenant_id, Receipt),
+  Data.
+
+%% -------------------------------------------------------------------
+%% State functions
+%% -------------------------------------------------------------------
+
+boot(state_timeout, tick, Data) ->
+  Data1 = emit_receipt(Data, boot, stable, tick, accept, none, [receipt_every_transition]),
+  {next_state, stable, Data1, {state_timeout, 1000, tick}};
+boot(_Type, _Event, Data) ->
+  {keep_state, Data}.
+
+stable(state_timeout, tick, Data) ->
+  {keep_state, Data, {state_timeout, 1000, tick}};
+
+stable({call, From}, {signal, SignalName, Payload}, Data) ->
+  case entitlement_guard(Data, SignalName) of
+    ok ->
+      case decide(SignalName, Payload, Data) of
+        ok ->
+          Data1 = emit_receipt(Data, stable, stable, {signal, SignalName}, accept, none, [receipt_every_transition]),
+          {keep_state, Data1, [{reply, From, ok}]};
+
+        {warn, Reason, Actions} ->
+          Data1 = emit_receipt(Data, stable, warning, {signal, SignalName}, warn, {Reason, Actions}, [receipt_every_transition]),
+          {next_state, warning, Data1, [{reply, From, {warn, Reason}}]};
+
+        {refuse, Why} ->
+          _ = {{ module_prefix }}_receipt_ledger:append(Data, #{kind => refusal, reason => Why}),
+          Data1 = emit_receipt(Data, stable, refusing, {signal, SignalName}, refuse, none, [receipt_every_transition]),
+          {next_state, refusing, Data1, [{reply, From, {refuse, Why}}]}
+      end;
+
+    {refuse, Why2} ->
+      _ = {{ module_prefix }}_receipt_ledger:append(Data, #{kind => refusal, reason => Why2}),
+      Data2 = emit_receipt(Data, stable, refusing, {signal, SignalName}, refuse, none, [entitled_required]),
+      {next_state, refusing, Data2, [{reply, From, {refuse, Why2}}]}
+  end;
+
+stable(cast, {entitlement, active}, Data) ->
+  %% Entitlement becomes active: trigger internal reconciliation
+  Data1 = Data#governor_data{entitlement = active},
+  _ = emit_receipt(Data1, stable, stable, {entitlement, active}, accept, none, [entitled_required]),
+  {keep_state, Data1, [{next_event, internal, reconcile}]};
+
+stable(cast, {entitlement, NewEnt}, Data) ->
+  %% Other entitlement changes: update state, stay stable
+  Data1 = Data#governor_data{entitlement = NewEnt},
+  _ = emit_receipt(Data1, stable, stable, {entitlement, NewEnt}, accept, none, [entitled_required]),
+  {keep_state, Data1};
+
+stable(internal, reconcile, Data) ->
+  %% Internal reconciliation: baseline recompute or sanity checks
+  _ = emit_receipt(Data, stable, stable, reconcile, accept, none, []),
+  {keep_state, Data};
+
+stable(_Type, _Event, Data) ->
+  {keep_state, Data}.
+
+warning({call, From}, {signal, SignalName, Payload}, Data) ->
+  case decide(SignalName, Payload, Data) of
+    {warn, Reason, Actions} ->
+      %% Enter intervening and execute first action
+      Action = hd(Actions),
+      Data1 = emit_receipt(Data, warning, intervening, {signal, SignalName}, intervene, Action, [no_partial_actions]),
+      ok = {{ module_prefix }}_actuator_adapter:execute(Action, Payload, Data),
+      {next_state, intervening, Data1, [{reply, From, {intervening, Action}}]};
+
+    ok ->
+      Data1 = emit_receipt(Data, warning, stable, {signal, SignalName}, accept, none, []),
+      {next_state, stable, Data1, [{reply, From, ok}]};
+
+    {refuse, Why} ->
+      _ = {{ module_prefix }}_receipt_ledger:append(Data, #{kind => refusal, reason => Why}),
+      Data1 = emit_receipt(Data, warning, refusing, {signal, SignalName}, refuse, none, []),
+      {next_state, refusing, Data1, [{reply, From, {refuse, Why}}]}
+  end;
+
+warning(_Type, _Event, Data) ->
+  {keep_state, Data}.
+
+intervening(info, {action_result, ok, ActionName}, Data) ->
+  Data1 = emit_receipt(Data, intervening, stable, {action_result, ok}, recovered, ActionName, []),
+  {next_state, stable, Data1};
+
+intervening(info, {action_result, fail, ActionName, Why}, Data) ->
+  Data1 = emit_receipt(Data, intervening, degraded, {action_result, fail}, degrade, {ActionName, Why}, []),
+  {next_state, degraded, Data1};
+
+intervening(_Type, _Event, Data) ->
+  {keep_state, Data}.
+
+degraded({call, From}, {signal, SignalName, _Payload}, Data) ->
+  %% In degrade mode, refuse risky operations
+  Why = {degraded_mode, SignalName},
+  _ = {{ module_prefix }}_receipt_ledger:append(Data, #{kind => refusal, reason => Why}),
+  Data1 = emit_receipt(Data, degraded, degraded, {signal, SignalName}, refuse, none, []),
+  {keep_state, Data1, [{reply, From, {refuse, Why}}]};
+
+degraded(_Type, _Event, Data) ->
+  {keep_state, Data}.
+
+refusing({call, From}, _Req, Data) ->
+  {keep_state, Data, [{reply, From, {refuse, not_allowed}}]};
+
+refusing(cast, {entitlement, active}, Data) ->
+  Data1 = Data#governor_data{entitlement = active},
+  Data2 = emit_receipt(Data1, refusing, stable, {entitlement, active}, accept, none, []),
+  {next_state, stable, Data2};
+
+refusing(_Type, _Event, Data) ->
+  {keep_state, Data}.

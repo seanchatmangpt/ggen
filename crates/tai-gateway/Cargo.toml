@@ -1,0 +1,86 @@
+[package]
+name = "tai-gateway"
+version = "0.1.0"
+edition = "2021"
+authors = ["ggen contributors"]
+description = "Production-grade API Gateway with request routing, rate limiting, authentication, and observability"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/seanchatmangpt/ggen"
+readme = "README.md"
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true, features = ["full"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+async-trait = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+futures = { workspace = true }
+log = { workspace = true }
+once_cell = { workspace = true }
+
+# HTTP and gRPC frameworks
+axum = { version = "0.7", features = ["macros"] }
+hyper = { version = "1.4", features = ["full"] }
+tower = { version = "0.4", features = ["util"] }
+tower-http = { version = "0.5", features = ["cors", "trace", "timeout"] }
+tonic = { workspace = true }
+tonic-reflection = "0.14"
+prost = "0.12"
+prost-types = "0.12"
+
+# Rate limiting
+governor = "0.6"
+parking_lot = "0.12"
+
+# Metrics and observability
+prometheus = "0.13"
+opentelemetry = { version = "0.22" }
+opentelemetry-jaeger = { version = "0.22" }
+
+# Authentication and security
+jsonwebtoken = "9.2"
+base64 = "0.22"
+sha2 = { workspace = true }
+hex = { workspace = true }
+
+# HTTP client
+reqwest = { workspace = true }
+
+# Circuit breaker and resilience
+exponential-backoff = "1.2"
+
+# Local crates
+ggen-utils = { workspace = true }
+
+[dev-dependencies]
+mockall = "0.13"
+proptest = { workspace = true }
+tempfile = { workspace = true }
+chicago-tdd-tools = { workspace = true }
+criterion = { version = "0.7", features = ["html_reports"] }
+testcontainers = { workspace = true }
+testcontainers-modules = { workspace = true }
+assert_cmd = { workspace = true }
+predicates = { workspace = true }
+
+[lib]
+path = "src/lib.rs"
+
+[[test]]
+name = "gateway_integration_tests"
+path = "tests/integration_tests.rs"
+
+# Benchmarks - commented out as they're not yet implemented
+# [[bench]]
+# name = "gateway_routing_benchmarks"
+# harness = false
+
+# [[bench]]
+# name = "rate_limiting_benchmarks"
+# harness = false

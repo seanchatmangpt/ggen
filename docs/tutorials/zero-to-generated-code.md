@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Zero to Generated Code - Complete Walkthrough](#zero-to-generated-code---complete-walkthrough)
+  - [Prerequisites](#prerequisites)
+  - [Step 1: Generate Your Domain Ontology (2 min)](#step-1-generate-your-domain-ontology-2-min)
+  - [Step 2: Generate Rust Code (2 min)](#step-2-generate-rust-code-2-min)
+  - [Step 3: Generate TypeScript Code (1 min)](#step-3-generate-typescript-code-1-min)
+  - [Step 4: Modify the Ontology (2 min)](#step-4-modify-the-ontology-2-min)
+  - [Step 5: Regenerate Code (1 min)](#step-5-regenerate-code-1-min)
+  - [Step 6: Generate Documentation (1 min)](#step-6-generate-documentation-1-min)
+  - [Step 7: Integrate with Your Project (1 min)](#step-7-integrate-with-your-project-1-min)
+  - [What You've Accomplished](#what-youve-accomplished)
+  - [Advanced: Automate with Hooks](#advanced-automate-with-hooks)
+  - [Next Steps](#next-steps)
+    - [1. Customize Templates](#1-customize-templates)
+    - [2. Understand RDF/SPARQL](#2-understand-rdfsparql)
+    - [3. Advanced Workflows](#3-advanced-workflows)
+    - [4. Production Setup](#4-production-setup)
+  - [Troubleshooting](#troubleshooting)
+    - ["ggen ai generate-ontology" fails](#ggen-ai-generate-ontology-fails)
+    - [Generated code has syntax errors](#generated-code-has-syntax-errors)
+    - [TypeScript types don't match Rust types](#typescript-types-dont-match-rust-types)
+  - [Key Takeaways](#key-takeaways)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Zero to Generated Code - Complete Walkthrough
 
 **Goal:** Generate production-ready Rust code from a domain description in 10 minutes.

@@ -1,3 +1,55 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v0.2.0 Release Documentation Index](#ggen-v020-release-documentation-index)
+  - [Quick Navigation](#quick-navigation)
+    - [For Users Getting Started](#for-users-getting-started)
+    - [For Understanding the Release](#for-understanding-the-release)
+    - [For Project Integration](#for-project-integration)
+  - [Document Overview](#document-overview)
+    - [RELEASE-NOTES-v0.2.0.md](#release-notes-v020md)
+    - [CHANGELOG-v0.2.0.md](#changelog-v020md)
+    - [VERSION-BUMP.md](#version-bumpmd)
+    - [ONTOLOGY-RELEASE-GUIDE.md](#ontology-release-guidemd)
+    - [MARKETPLACE.md](#marketplacemd)
+  - [File Organization](#file-organization)
+  - [Key Information at a Glance](#key-information-at-a-glance)
+    - [Release Summary](#release-summary)
+    - [Quality Metrics](#quality-metrics)
+    - [Installation](#installation)
+    - [Quick Start](#quick-start)
+  - [Reading Guide by Role](#reading-guide-by-role)
+    - [👨‍💼 Project Manager](#-project-manager)
+    - [👨‍💻 Developer (New User)](#-developer-new-user)
+    - [🏗️ Systems Architect](#-systems-architect)
+    - [🔧 DevOps/SRE](#-devopssre)
+    - [📋 Release Manager](#-release-manager)
+    - [🎯 Quality Assurance](#-quality-assurance)
+  - [Frequently Asked Questions](#frequently-asked-questions)
+    - [Q: Is v0.2.0 production-ready?](#q-is-v020-production-ready)
+    - [Q: How do I install ggen-ontology-core?](#q-how-do-i-install-ggen-ontology-core)
+    - [Q: What are the system requirements?](#q-what-are-the-system-requirements)
+    - [Q: Are there breaking changes from v0.1.0?](#q-are-there-breaking-changes-from-v010)
+    - [Q: Which ontologies are included?](#q-which-ontologies-are-included)
+    - [Q: Which cloud platforms are supported?](#q-which-cloud-platforms-are-supported)
+    - [Q: What's the performance?](#q-whats-the-performance)
+    - [Q: How comprehensive is the test coverage?](#q-how-comprehensive-is-the-test-coverage)
+    - [Q: Is there documentation?](#q-is-there-documentation)
+    - [Q: What's the roadmap?](#q-whats-the-roadmap)
+    - [Q: Where can I get help?](#q-where-can-i-get-help)
+  - [Release Timeline](#release-timeline)
+  - [Support & Resources](#support--resources)
+    - [Documentation](#documentation)
+    - [Code Examples](#code-examples)
+    - [Community](#community)
+    - [External Resources](#external-resources)
+  - [Checklist for Getting Started](#checklist-for-getting-started)
+  - [Version Information](#version-information)
+  - [Navigation Summary](#navigation-summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v0.2.0 Release Documentation Index
 
 Complete documentation archive for ggen v0.2.0 (Unified Ontology Layer - Phase 1).

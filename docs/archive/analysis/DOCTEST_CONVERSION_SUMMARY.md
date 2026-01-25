@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Doctest Conversion Summary](#doctest-conversion-summary)
+  - [Overview](#overview)
+  - [Results](#results)
+    - [Conversions Completed](#conversions-completed)
+      - [Session 1 (Previous)](#session-1-previous)
+      - [Session 2 (This Session)](#session-2-this-session)
+    - [Impact Metrics](#impact-metrics)
+    - [Test Results](#test-results)
+  - [Analysis](#analysis)
+    - [Conversion Criteria](#conversion-criteria)
+    - [Categories](#categories)
+  - [Documentation](#documentation)
+    - [Files Created](#files-created)
+    - [Standards Established](#standards-established)
+  - [Recommendations](#recommendations)
+  - [Next Steps](#next-steps)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Doctest Conversion Summary
 
 ## Overview

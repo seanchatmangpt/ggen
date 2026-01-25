@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Error Fix Complete Report - Week 4](#error-fix-complete-report---week-4)
+  - [Executive Summary](#executive-summary)
+    - [Results](#results)
+  - [Detailed Fixes](#detailed-fixes)
+    - [1. test_hive_orchestration - Async Runtime Blocking ✅](#1-test_hive_orchestration---async-runtime-blocking-)
+    - [2 & 3. test_lockfile_to_env_vars + test_lock_file_env_export - Env Var Naming ✅](#2--3-test_lockfile_to_env_vars--test_lock_file_env_export---env-var-naming-)
+    - [4. test_sanitize_path - Windows Path Handling ✅](#4-test_sanitize_path---windows-path-handling-)
+    - [5 & 6. test_sanitize_message_removes_paths + test_sanitize_message_removes_sensitive_data ✅](#5--6-test_sanitize_message_removes_paths--test_sanitize_message_removes_sensitive_data-)
+  - [Test Results](#test-results)
+    - [Before Fixes](#before-fixes)
+    - [After Fixes](#after-fixes)
+  - [Build Verification](#build-verification)
+    - [Workspace Build](#workspace-build)
+    - [Linting Configuration](#linting-configuration)
+  - [Security Improvements](#security-improvements)
+    - [Error Sanitization (Issue &#035;5)](#error-sanitization-issue-5)
+  - [Clippy Status](#clippy-status)
+    - [Core Workspace](#core-workspace)
+    - [Recommendation](#recommendation)
+  - [Files Modified](#files-modified)
+  - [Verification Commands](#verification-commands)
+  - [Compliance](#compliance)
+    - [Poka-Yoke Principles ✅](#poka-yoke-principles-)
+    - [Chicago TDD ✅](#chicago-tdd-)
+    - [80/20 Focus ✅](#8020-focus-)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Error Fix Complete Report - Week 4
 
 **Date**: 2025-11-19

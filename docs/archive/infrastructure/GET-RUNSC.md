@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How to Get runsc for gVisor](#how-to-get-runsc-for-gvisor)
+  - [Method 1: Build from Vendored Source (Recommended)](#method-1-build-from-vendored-source-recommended)
+  - [Method 2: Manual Download](#method-2-manual-download)
+  - [Method 3: Use Homebrew (if available)](#method-3-use-homebrew-if-available)
+  - [Once runsc is installed](#once-runsc-is-installed)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How to Get runsc for gVisor
 
 Since automatic downloads are failing, here are working methods to get runsc:

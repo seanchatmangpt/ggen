@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Code Quality Report - AI-Generated Modules](#code-quality-report---ai-generated-modules)
+  - [Executive Summary](#executive-summary)
+  - [Module-by-Module Review](#module-by-module-review)
+    - [~/ggen/figex-modules (10 modules, 555 lines)](#ggenfigex-modules-10-modules-555-lines)
+    - [~/ggen/figex-gen (23 modules, 267 lines)](#ggenfigex-gen-23-modules-267-lines)
+  - [Code Quality Metrics](#code-quality-metrics)
+    - [Syntax Validity](#syntax-validity)
+    - [Export Patterns](#export-patterns)
+    - [Error Handling](#error-handling)
+    - [Documentation](#documentation)
+    - [Dependencies](#dependencies)
+  - [Performance Analysis](#performance-analysis)
+    - [Generation Speed](#generation-speed)
+    - [Code Density](#code-density)
+    - [Throughput](#throughput)
+  - [Immediate Actions Required](#immediate-actions-required)
+    - [Critical Fixes (Before Production)](#critical-fixes-before-production)
+    - [Quality Improvements (Recommended)](#quality-improvements-recommended)
+    - [Enhancement Opportunities](#enhancement-opportunities)
+  - [Production Readiness Score](#production-readiness-score)
+    - [figex-modules (Large modules)](#figex-modules-large-modules)
+    - [figex-gen (Utilities)](#figex-gen-utilities)
+    - [Combined Score](#combined-score)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Code Quality Report - AI-Generated Modules
 
 **Generated**: 2025-12-20

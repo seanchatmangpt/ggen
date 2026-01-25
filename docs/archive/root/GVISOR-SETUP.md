@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [gVisor Setup Guide for ggen](#gvisor-setup-guide-for-ggen)
+  - [Overview](#overview)
+  - [Prerequisites](#prerequisites)
+  - [Quick Start](#quick-start)
+    - [1. Initialize Submodules](#1-initialize-submodules)
+    - [2. Build runsc from Source](#2-build-runsc-from-source)
+    - [3. Install runsc (Colima)](#3-install-runsc-colima)
+    - [4. Verify Installation](#4-verify-installation)
+  - [Using gVisor with ggen](#using-gvisor-with-ggen)
+    - [Build ggen Image with gVisor Support](#build-ggen-image-with-gvisor-support)
+    - [Run ggen with gVisor](#run-ggen-with-gvisor)
+    - [Build and Test with gVisor](#build-and-test-with-gvisor)
+  - [Docker Compose with gVisor](#docker-compose-with-gvisor)
+  - [Troubleshooting](#troubleshooting)
+    - [runsc not found](#runsc-not-found)
+    - [Build failures](#build-failures)
+    - [Permission issues](#permission-issues)
+  - [Alternative: Using Pre-built runsc](#alternative-using-pre-built-runsc)
+  - [Resources](#resources)
+  - [Project Integration](#project-integration)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # gVisor Setup Guide for ggen
 
 This guide explains how to set up and use gVisor with the ggen project. gVisor provides additional security isolation for containers by implementing a userspace kernel.

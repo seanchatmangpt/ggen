@@ -1,0 +1,8 @@
+terraform {
+  backend "gcs" {
+    # Replace with your actual state bucket
+    # Created via: infra/state/main.tf
+    bucket = "{{ terraform_state_bucket }}"
+    prefix = "autonomics/catalog"
+  }
+}

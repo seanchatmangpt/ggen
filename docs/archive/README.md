@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Documentation Archive](#documentation-archive)
+  - [Organization](#organization)
+  - [What's Here](#whats-here)
+    - [Analysis Documents (`analysis/`)](#analysis-documents-analysis)
+    - [Why Archived?](#why-archived)
+    - [Finding What You Need](#finding-what-you-need)
+  - [Key Documents by Purpose](#key-documents-by-purpose)
+    - [If You Want to Understand...](#if-you-want-to-understand)
+  - [File Listing](#file-listing)
+    - [Phase & Implementation (8 files)](#phase--implementation-8-files)
+    - [Testing & Quality (9 files)](#testing--quality-9-files)
+    - [CI/CD & Infrastructure (4 files)](#cicd--infrastructure-4-files)
+    - [Audits & Reports (5 files)](#audits--reports-5-files)
+    - [System Design (6 files)](#system-design-6-files)
+    - [Doctest & Data (5 files)](#doctest--data-5-files)
+    - [Planning & Process (8 files)](#planning--process-8-files)
+  - [How to Search the Archive](#how-to-search-the-archive)
+    - [Using grep (find mentions of a topic)](#using-grep-find-mentions-of-a-topic)
+    - [Using find (locate specific files)](#using-find-locate-specific-files)
+    - [Search GitHub](#search-github)
+  - [Contributing](#contributing)
+  - [File Cleanup Schedule](#file-cleanup-schedule)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Documentation Archive
 
 This directory contains historical analysis documents, detailed implementation reports, and technical planning documents.

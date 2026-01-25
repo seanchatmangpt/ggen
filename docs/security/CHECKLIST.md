@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Developer Security Checklist (v6.0.0)](#developer-security-checklist-v600)
+  - [Overview](#overview)
+  - [Pre-Development Checklist](#pre-development-checklist)
+  - [Code Development Checklist](#code-development-checklist)
+    - [Input Validation](#input-validation)
+    - [Safe Coding Patterns](#safe-coding-patterns)
+    - [File Operations](#file-operations)
+    - [SPARQL Queries](#sparql-queries)
+    - [Template Rendering](#template-rendering)
+    - [Error Handling](#error-handling)
+    - [Rate Limiting](#rate-limiting)
+    - [Cryptography](#cryptography)
+    - [Dependencies](#dependencies)
+  - [Testing Checklist](#testing-checklist)
+    - [Unit Tests](#unit-tests)
+    - [Integration Tests](#integration-tests)
+    - [Property-Based Tests](#property-based-tests)
+    - [Performance Tests](#performance-tests)
+  - [Pre-Commit Checklist](#pre-commit-checklist)
+  - [Pull Request Checklist](#pull-request-checklist)
+  - [Release Checklist](#release-checklist)
+  - [Deployment Checklist](#deployment-checklist)
+  - [Incident Response Checklist](#incident-response-checklist)
+  - [Security Best Practices Quick Reference](#security-best-practices-quick-reference)
+    - [File Operations](#file-operations-1)
+    - [SPARQL Queries](#sparql-queries-1)
+    - [Error Handling](#error-handling-1)
+    - [Secrets Management](#secrets-management)
+  - [Common Security Mistakes](#common-security-mistakes)
+    - [Mistake 1: Using `.unwrap()` in library code](#mistake-1-using-unwrap-in-library-code)
+    - [Mistake 2: Forgetting to validate user input](#mistake-2-forgetting-to-validate-user-input)
+    - [Mistake 3: Exposing internal errors to users](#mistake-3-exposing-internal-errors-to-users)
+    - [Mistake 4: String concatenation for SPARQL](#mistake-4-string-concatenation-for-sparql)
+    - [Mistake 5: Not enforcing rate limits](#mistake-5-not-enforcing-rate-limits)
+  - [References](#references)
+  - [Certification](#certification)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Developer Security Checklist (v6.0.0)
 
 ## Overview

@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Research Upgrade: Knowledge Geometry Calculus (KGC) Lens](#research-upgrade-knowledge-geometry-calculus-kgc-lens)
+  - [Executive Summary](#executive-summary)
+    - [Before (Mechanical Iteration)](#before-mechanical-iteration)
+    - [After (Holographic Projection)](#after-holographic-projection)
+  - [Part I: The Holographic Trinity](#part-i-the-holographic-trinity)
+    - [1. UNRDF (The Substrate/Film) — The High-Dimensional Hologram](#1-unrdf-the-substratefilm--the-high-dimensional-hologram)
+    - [2. KGC-4D (The Interference Pattern/History) — Temporal Coherence](#2-kgc-4d-the-interference-patternhistory--temporal-coherence)
+    - [3. GGEN (The Coherent Laser/Measurement Function $\mu$) — Precipitation](#3-ggen-the-coherent-lasermeasurement-function-%5Cmu--precipitation)
+  - [Part II: The Chatman Equation and Ontological Closure](#part-ii-the-chatman-equation-and-ontological-closure)
+    - [The Chatman Equation: $A = \mu(O)$](#the-chatman-equation-a--%5Cmuo)
+    - [Ontological Closure: The "Done" State](#ontological-closure-the-done-state)
+  - [Part III: Big Bang 80/20 Through the KGC Lens](#part-iii-big-bang-8020-through-the-kgc-lens)
+    - [The Methodology: Specification Closure Before Code](#the-methodology-specification-closure-before-code)
+    - [The Three Phases](#the-three-phases)
+  - [Part IV: EPIC 9 Through the KGC Lens](#part-iv-epic-9-through-the-kgc-lens)
+    - [Parallel Construction for Specification Confidence](#parallel-construction-for-specification-confidence)
+    - [Why EPIC 9 Works](#why-epic-9-works)
+  - [Part V: Constitutional Rules & Andon Signals](#part-v-constitutional-rules--andon-signals)
+    - [The Andon System: Poka-Yoke for Code](#the-andon-system-poka-yoke-for-code)
+    - [Constitutional Rules Grounded in KGC](#constitutional-rules-grounded-in-kgc)
+  - [Part VI: Receipts and Evidence-Based Verification](#part-vi-receipts-and-evidence-based-verification)
+    - [What is a Receipt?](#what-is-a-receipt)
+    - [SLO Targets (Must All Pass)](#slo-targets-must-all-pass)
+  - [Part VII: Integration with @unrdf Ecosystem](#part-vii-integration-with-unrdf-ecosystem)
+    - [Substrate Layer: @unrdf/core (Oxigraph 0.5.1)](#substrate-layer-unrdfcore-oxigraph-051)
+    - [History Layer: @unrdf/kgc-4d (Knowledge Geometry Calculus)](#history-layer-unrdfkgc-4d-knowledge-geometry-calculus)
+    - [Code Layer: ggen (Measurement Function)](#code-layer-ggen-measurement-function)
+  - [Part VIII: File Organization (Updated)](#part-viii-file-organization-updated)
+  - [Part IX: Key Equations (Thesis Foundation)](#part-ix-key-equations-thesis-foundation)
+    - [1. Shannon Entropy for Specification Complexity](#1-shannon-entropy-for-specification-complexity)
+    - [2. Information Preservation (Fidelity)](#2-information-preservation-fidelity)
+    - [3. Determinism Guarantee](#3-determinism-guarantee)
+    - [4. Hypervector Capacity](#4-hypervector-capacity)
+    - [5. Rate-Distortion Bound](#5-rate-distortion-bound)
+  - [Part X: Research Outputs Updated](#part-x-research-outputs-updated)
+  - [Part XI: Next Steps (Remaining Work)](#part-xi-next-steps-remaining-work)
+    - [Immediate (Phase 1 Complete ✅)](#immediate-phase-1-complete-)
+    - [Phase 2 (In Progress)](#phase-2-in-progress)
+    - [Phase 3 (Future)](#phase-3-future)
+  - [Part XII: Glossary of Key Terms](#part-xii-glossary-of-key-terms)
+  - [Summary: The Paradigm Shift](#summary-the-paradigm-shift)
+    - [From Sequential to Holographic](#from-sequential-to-holographic)
+    - [The Constitution](#the-constitution)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Research Upgrade: Knowledge Geometry Calculus (KGC) Lens
 
 **Date**: 2026-01-07

@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 2 Infrastructure Deliverables - COMPLETED](#week-2-infrastructure-deliverables---completed)
+  - [Overview](#overview)
+  - [Deliverables Status: ✅ ALL COMPLETE](#deliverables-status--all-complete)
+    - [1. Template Discovery System (build.rs) ✅](#1-template-discovery-system-buildrs-)
+    - [2. API Versioning Helpers ✅](#2-api-versioning-helpers-)
+    - [3. CI/CD Gate Scripts ✅](#3-cicd-gate-scripts-)
+    - [4. Metrics Collection System ✅](#4-metrics-collection-system-)
+    - [5. Chicago TDD Test Templates ✅](#5-chicago-tdd-test-templates-)
+  - [Integration Tests ✅](#integration-tests-)
+  - [Andon Signal Validation ✅](#andon-signal-validation-)
+  - [Documentation ✅](#documentation-)
+  - [Next Steps (Week 2-3)](#next-steps-week-2-3)
+  - [Metrics Baseline](#metrics-baseline)
+  - [DfLSS Alignment](#dflss-alignment)
+  - [Success Criteria: ✅ ALL MET](#success-criteria--all-met)
+  - [File Summary](#file-summary)
+  - [Time Investment vs. Value](#time-investment-vs-value)
+  - [Ready for Production ✅](#ready-for-production-)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 2 Infrastructure Deliverables - COMPLETED
 
 ## Overview

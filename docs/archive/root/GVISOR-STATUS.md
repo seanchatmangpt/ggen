@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [gVisor Setup Status](#gvisor-setup-status)
+  - [✅ Completed](#-completed)
+  - [🔄 In Progress](#-in-progress)
+  - [📋 Current Options](#-current-options)
+    - [Option 1: Build runsc from vendored source (uses Docker for build only)](#option-1-build-runsc-from-vendored-source-uses-docker-for-build-only)
+    - [Option 2: Use pre-built runsc (if downloads work)](#option-2-use-pre-built-runsc-if-downloads-work)
+    - [Option 3: Manual runsc installation](#option-3-manual-runsc-installation)
+  - [🚀 Once runsc is installed](#-once-runsc-is-installed)
+  - [Architecture (Runtime - NO DOCKER)](#architecture-runtime---no-docker)
+  - [Next Steps](#next-steps)
+  - [Verification](#verification)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # gVisor Setup Status
 
 ## ✅ Completed

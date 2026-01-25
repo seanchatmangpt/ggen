@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 4: Metrics Tracking & Health Score Validation](#week-4-metrics-tracking--health-score-validation)
+  - [Quick Start](#quick-start)
+    - [Daily Workflow](#daily-workflow)
+    - [First-Time Setup](#first-time-setup)
+  - [What is Week 4?](#what-is-week-4)
+  - [Health Score Targets](#health-score-targets)
+    - [Week 4 Formula](#week-4-formula)
+    - [Target Breakdown](#target-breakdown)
+    - [How to Reach 85%](#how-to-reach-85)
+  - [Daily Reports](#daily-reports)
+    - [Report Location](#report-location)
+    - [Report Contents](#report-contents)
+    - [Example Report Structure](#example-report-structure)
+  - [Interactive Dashboard](#interactive-dashboard)
+    - [Features](#features)
+    - [Dashboard Sections](#dashboard-sections)
+    - [Example Dashboard Output](#example-dashboard-output)
+  - [Metrics Validation](#metrics-validation)
+    - [What Gets Tracked](#what-gets-tracked)
+    - [How to Verify](#how-to-verify)
+  - [Blocker Detection](#blocker-detection)
+    - [Automatic Alerts](#automatic-alerts)
+    - [Manual Review Triggers](#manual-review-triggers)
+  - [Files & Structure](#files--structure)
+    - [Directory Structure](#directory-structure)
+    - [Key Files](#key-files)
+  - [Success Criteria](#success-criteria)
+    - [Daily Success](#daily-success)
+    - [Week 4 Success](#week-4-success)
+  - [Troubleshooting](#troubleshooting)
+    - [Common Issues](#common-issues)
+  - [Next Steps](#next-steps)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 4: Metrics Tracking & Health Score Validation
 
 **Health Score Journey:** 81% → 85% (Days 1-5)

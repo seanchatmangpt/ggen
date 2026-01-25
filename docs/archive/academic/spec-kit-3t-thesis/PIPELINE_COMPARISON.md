@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pipeline Comparison: Thesis Generator vs ggen vs figex](#pipeline-comparison-thesis-generator-vs-ggen-vs-figex)
+  - [📊 Executive Summary](#-executive-summary)
+  - [🏗️ Architecture Comparison](#-architecture-comparison)
+    - [1. Thesis Generator (Python - 80/20 Implementation)](#1-thesis-generator-python---8020-implementation)
+    - [2. ggen (Rust - Production Implementation)](#2-ggen-rust---production-implementation)
+    - [3. figex (TypeScript - AI-Driven Design Extraction)](#3-figex-typescript---ai-driven-design-extraction)
+  - [🔍 Deep Dive Comparisons](#-deep-dive-comparisons)
+    - [A. RDF Handling](#a-rdf-handling)
+    - [B. Template Rendering](#b-template-rendering)
+    - [C. Quality Assurance](#c-quality-assurance)
+    - [D. Determinism & Reproducibility](#d-determinism--reproducibility)
+    - [E. Innovation & Uniqueness](#e-innovation--uniqueness)
+  - [🎯 Recommendations for Thesis Generator v2](#-recommendations-for-thesis-generator-v2)
+    - [From ggen (High Priority):](#from-ggen-high-priority)
+    - [From figex (Medium Priority):](#from-figex-medium-priority)
+    - [Unique Improvements (Low Priority):](#unique-improvements-low-priority)
+  - [📈 Maturity Assessment](#-maturity-assessment)
+  - [🚀 Next Steps for Thesis Generator](#-next-steps-for-thesis-generator)
+  - [💡 Key Insights](#-key-insights)
+    - [What Thesis Generator Got Right:](#what-thesis-generator-got-right)
+    - [What ggen Teaches Us:](#what-ggen-teaches-us)
+    - [What figex Teaches Us:](#what-figex-teaches-us)
+  - [📝 Conclusion](#-conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pipeline Comparison: Thesis Generator vs ggen vs figex
 
 **Analysis Date**: 2025-12-20

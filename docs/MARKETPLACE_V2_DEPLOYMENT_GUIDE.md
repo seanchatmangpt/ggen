@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace V2 Deployment Guide](#marketplace-v2-deployment-guide)
+  - [Table of Contents](#table-of-contents)
+  - [Pre-Deployment Checklist](#pre-deployment-checklist)
+    - [Critical Tasks (Must Complete)](#critical-tasks-must-complete)
+    - [Optional Tasks (Recommended)](#optional-tasks-recommended)
+  - [Deployment Procedures](#deployment-procedures)
+    - [Phase 1: Internal Testing (Week 1)](#phase-1-internal-testing-week-1)
+    - [Phase 2: Opt-In Beta (Week 2-3)](#phase-2-opt-in-beta-week-2-3)
+    - [Phase 3: A/B Testing (Week 4-5)](#phase-3-ab-testing-week-4-5)
+    - [Phase 4: Full Migration (Week 6)](#phase-4-full-migration-week-6)
+    - [Phase 5: Deprecation (Week 8+)](#phase-5-deprecation-week-8)
+  - [Rollback Procedures](#rollback-procedures)
+    - [Emergency Rollback (5 Minutes)](#emergency-rollback-5-minutes)
+    - [Planned Rollback (1 Hour)](#planned-rollback-1-hour)
+    - [Feature Flag Rollback (Instant)](#feature-flag-rollback-instant)
+  - [Monitoring & Validation](#monitoring--validation)
+    - [Key Metrics to Monitor](#key-metrics-to-monitor)
+    - [Prometheus Queries](#prometheus-queries)
+    - [Grafana Dashboard](#grafana-dashboard)
+    - [Alert Rules](#alert-rules)
+  - [Troubleshooting](#troubleshooting)
+    - [Common Issues](#common-issues)
+      - [1. Slow Search Queries](#1-slow-search-queries)
+      - [2. Ed25519 Signature Verification Failures](#2-ed25519-signature-verification-failures)
+      - [3. RDF Store Errors](#3-rdf-store-errors)
+      - [4. High Memory Usage](#4-high-memory-usage)
+  - [Emergency Contacts](#emergency-contacts)
+    - [On-Call Rotation](#on-call-rotation)
+    - [Escalation Path](#escalation-path)
+    - [Communication Channels](#communication-channels)
+  - [Post-Deployment Checklist](#post-deployment-checklist)
+    - [Immediate (Day 1)](#immediate-day-1)
+    - [Short-Term (Week 1)](#short-term-week-1)
+    - [Long-Term (Month 1)](#long-term-month-1)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace V2 Deployment Guide
 
 **Version:** 1.0.0

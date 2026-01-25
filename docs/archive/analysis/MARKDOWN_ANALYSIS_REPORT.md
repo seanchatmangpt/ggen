@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Markdown File Analysis & Categorization Report](#markdown-file-analysis--categorization-report)
+  - [Executive Summary](#executive-summary)
+  - [SECTION 1: CORE TEAM PROCEDURES TO KEEP (37 FILES)](#section-1-core-team-procedures-to-keep-37-files)
+    - [Root-Level Files (9 files)](#root-level-files-9-files)
+    - [Documentation Core (20 files in docs/)](#documentation-core-20-files-in-docs)
+    - [Crate Documentation (7 files)](#crate-documentation-7-files)
+    - [Test Procedures (1 file)](#test-procedures-1-file)
+    - [CONSOLIDATION OPPORTUNITIES](#consolidation-opportunities)
+  - [SECTION 2: FILES TO DELETE (673 FILES, 239,209 LINES)](#section-2-files-to-delete-673-files-239209-lines)
+    - [By Category](#by-category)
+  - [SECTION 3: FILES REQUIRING DECISION (115 FILES, 42,563 LINES)](#section-3-files-requiring-decision-115-files-42563-lines)
+    - [High Priority Review (Likely Keep)](#high-priority-review-likely-keep)
+    - [Medium Priority Review](#medium-priority-review)
+    - [Low Priority Review](#low-priority-review)
+  - [SECTION 4: CONSOLIDATION OPPORTUNITIES](#section-4-consolidation-opportunities)
+    - [Phase 1: Quick Wins (16,432 lines saved)](#phase-1-quick-wins-16432-lines-saved)
+    - [Phase 2: Medium Priority (Archive or Delete)](#phase-2-medium-priority-archive-or-delete)
+    - [Phase 3: Complete Cleanup](#phase-3-complete-cleanup)
+  - [SECTION 5: IMPACT SUMMARY](#section-5-impact-summary)
+    - [Final State After Cleanup](#final-state-after-cleanup)
+    - [Size Savings](#size-savings)
+  - [SECTION 6: RECOMMENDED ACTIONS](#section-6-recommended-actions)
+    - [Priority 1: Quick Wins (1-2 days)](#priority-1-quick-wins-1-2-days)
+    - [Priority 2: Consolidation (1 day)](#priority-2-consolidation-1-day)
+    - [Priority 3: Archive/Delete (2-3 days)](#priority-3-archivedelete-2-3-days)
+  - [APPENDIX: FILES TO KEEP (37)](#appendix-files-to-keep-37)
+  - [KEY FINDINGS](#key-findings)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Markdown File Analysis & Categorization Report
 
 **Analysis Date**: November 17, 2025  

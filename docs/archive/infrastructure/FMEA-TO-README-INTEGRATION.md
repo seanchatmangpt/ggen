@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [FMEA Findings → README Restructuring Integration](#fmea-findings-%E2%86%92-readme-restructuring-integration)
+  - [Critical Failure Modes & README Solutions](#critical-failure-modes--readme-solutions)
+    - [1. Failure: "User Gets Lost in README" (RPN 567 → 150)](#1-failure-user-gets-lost-in-readme-rpn-567-%E2%86%92-150)
+    - [2. Failure: "User Doesn't Understand Workflow" (RPN 504 → 80)](#2-failure-user-doesnt-understand-workflow-rpn-504-%E2%86%92-80)
+    - [3. Failure: "Error Messages Unhelpful" (RPN 432 → 100)](#3-failure-error-messages-unhelpful-rpn-432-%E2%86%92-100)
+    - [❌ Error: "Invalid Turtle syntax on line 5"](#-error-invalid-turtle-syntax-on-line-5)
+    - [Step 3: Validate Your Template (1 min)](#step-3-validate-your-template-1-min)
+    - [Step 4: Use Your Template (1 min)](#step-4-use-your-template-1-min)
+    - [Troubleshooting: Template Errors](#troubleshooting-template-errors)
+    - [Next Steps](#next-steps)
+    - [Step 2: Check ontology matches template](#step-2-check-ontology-matches-template)
+    - [Step 3: Run generated code through rustfmt](#step-3-run-generated-code-through-rustfmt)
+    - [Step 4: Get help](#step-4-get-help)
+    - [Common Turtle mistakes](#common-turtle-mistakes)
+    - [Validate your Turtle](#validate-your-turtle)
+    - [Sync modes:](#sync-modes)
+    - [Best practice](#best-practice)
+    - [Oops, I overwrote my code!](#oops-i-overwrote-my-code)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # FMEA Findings → README Restructuring Integration
 
 **Purpose**: Map FMEA failure modes to specific README changes that prevent them

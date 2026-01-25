@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Mura Inventory - Documentation Inconsistency Analysis](#mura-inventory---documentation-inconsistency-analysis)
+  - [Step 1: Identify Mura (Unevenness)](#step-1-identify-mura-unevenness)
+    - [Documentation Inconsistency](#documentation-inconsistency)
+      - [Metrics Collected](#metrics-collected)
+      - [Inconsistencies Identified](#inconsistencies-identified)
+  - [Step 2: Measure Variability](#step-2-measure-variability)
+    - [Variability Scores](#variability-scores)
+      - [Doctest Format Consistency](#doctest-format-consistency)
+      - [Doctest Coverage Consistency](#doctest-coverage-consistency)
+      - [Doctest Pattern Consistency](#doctest-pattern-consistency)
+      - [Error Documentation Consistency](#error-documentation-consistency)
+      - [Module Documentation Consistency](#module-documentation-consistency)
+    - [Overall Inconsistency Score](#overall-inconsistency-score)
+  - [Step 3: Standardize](#step-3-standardize)
+    - [Standards Definition](#standards-definition)
+      - [Doctest Standards](#doctest-standards)
+      - [Module Documentation Standards](#module-documentation-standards)
+  - [Step 4: Apply Consistently](#step-4-apply-consistently)
+    - [Action Items](#action-items)
+  - [Step 5: Control](#step-5-control)
+    - [Automated Checks Needed](#automated-checks-needed)
+    - [Code Review Checklist](#code-review-checklist)
+    - [Recommended CI Integration](#recommended-ci-integration)
+    - [Metrics Dashboard](#metrics-dashboard)
+    - [Next Steps](#next-steps)
+    - [Progress Update](#progress-update)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Mura Inventory - Documentation Inconsistency Analysis
 
 ## Step 1: Identify Mura (Unevenness)

@@ -1,3 +1,50 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Safe Coding Guidelines (v6.0.0)](#safe-coding-guidelines-v600)
+  - [Overview](#overview)
+  - [Table of Contents](#table-of-contents)
+  - [SafePath Usage Patterns](#safepath-usage-patterns)
+    - [Overview](#overview-1)
+    - [Basic Usage](#basic-usage)
+    - [Restricting to Base Directory](#restricting-to-base-directory)
+    - [Common Patterns](#common-patterns)
+    - [SafePath Security Features](#safepath-security-features)
+  - [SPARQL Query Construction](#sparql-query-construction)
+    - [Overview](#overview-2)
+    - [Basic Usage](#basic-usage-1)
+    - [Escaping User Input](#escaping-user-input)
+    - [Complex Query Example](#complex-query-example)
+    - [SPARQL Injection Prevention](#sparql-injection-prevention)
+  - [Template Security](#template-security)
+    - [Overview](#overview-3)
+    - [Safe Template Patterns](#safe-template-patterns)
+    - [Template Sandboxing](#template-sandboxing)
+    - [Template Recursion Limits](#template-recursion-limits)
+  - [Configuration Validation](#configuration-validation)
+    - [Overview](#overview-4)
+    - [TOML Validation](#toml-validation)
+    - [RDF/TTL Validation](#rdfttl-validation)
+  - [Secrets Management](#secrets-management)
+    - [Overview](#overview-5)
+    - [Best Practices](#best-practices)
+    - [Secret Scrubbing](#secret-scrubbing)
+  - [Error Handling Without Information Leakage](#error-handling-without-information-leakage)
+    - [Overview](#overview-6)
+    - [Error Sanitization](#error-sanitization)
+    - [Custom Error Types](#custom-error-types)
+  - [Input Validation](#input-validation)
+    - [Validation Principles](#validation-principles)
+    - [Validation Patterns](#validation-patterns)
+  - [Secure Defaults](#secure-defaults)
+    - [Configuration Defaults](#configuration-defaults)
+    - [Fail-Safe Defaults](#fail-safe-defaults)
+  - [Security Checklist](#security-checklist)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Safe Coding Guidelines (v6.0.0)
 
 ## Overview

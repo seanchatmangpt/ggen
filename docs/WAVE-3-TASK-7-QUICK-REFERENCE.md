@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Wave 3, Task 7: Quick Reference Sheet](#wave-3-task-7-quick-reference-sheet)
+  - [Specification Files](#specification-files)
+  - [The 11 Adapters (Instant Reference)](#the-11-adapters-instant-reference)
+  - [Core Resilience Patterns](#core-resilience-patterns)
+    - [1. Watermark Checkpointing (All Adapters)](#1-watermark-checkpointing-all-adapters)
+    - [2. Circuit Breaker (All Adapters)](#2-circuit-breaker-all-adapters)
+    - [3. Event Sourcing (POS, Ticketing, SAP Financial)](#3-event-sourcing-pos-ticketing-sap-financial)
+    - [4. Dual MQTT Brokers (RideControl Only)](#4-dual-mqtt-brokers-ridecontrol-only)
+  - [Clean Exit Pattern (All Adapters)](#clean-exit-pattern-all-adapters)
+  - [156 Automated Tests (By Category)](#156-automated-tests-by-category)
+  - [Implementation Timeline (3 Weeks)](#implementation-timeline-3-weeks)
+    - [Week 1: Foundation + 3 Adapters](#week-1-foundation--3-adapters)
+    - [Week 2: Remaining 8 Adapters](#week-2-remaining-8-adapters)
+    - [Week 3: Validation + Hardening](#week-3-validation--hardening)
+  - [Key SLAs & Thresholds](#key-slas--thresholds)
+    - [Adapter Latency (p99)](#adapter-latency-p99)
+    - [Circuit Breaker Thresholds](#circuit-breaker-thresholds)
+    - [Checkpoint Intervals](#checkpoint-intervals)
+  - [Operational Commands (Ready for Implementation)](#operational-commands-ready-for-implementation)
+    - [Health & Status](#health--status)
+    - [Testing](#testing)
+    - [Operational](#operational)
+    - [Disaster Recovery](#disaster-recovery)
+  - [Compliance Coverage](#compliance-coverage)
+  - [Common Issues & Quick Fixes](#common-issues--quick-fixes)
+    - [Issue: Adapter Stuck in OPEN Circuit Breaker](#issue-adapter-stuck-in-open-circuit-breaker)
+    - [Issue: Data Loss Detected (Watermark Gap)](#issue-data-loss-detected-watermark-gap)
+    - [Issue: High Latency (p99 > SLA)](#issue-high-latency-p99--sla)
+  - [Success Criteria Checklist](#success-criteria-checklist)
+    - [Development](#development)
+    - [Validation](#validation)
+    - [Operations](#operations)
+    - [Compliance](#compliance)
+  - [Key Contacts](#key-contacts)
+  - [Documentation Map](#documentation-map)
+  - [Start Here](#start-here)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Wave 3, Task 7: Quick Reference Sheet
 
 **Project**: ggen-disney Park Operations - 11-System Adapter Integration

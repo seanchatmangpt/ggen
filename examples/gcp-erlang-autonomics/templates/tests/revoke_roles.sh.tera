@@ -1,0 +1,27 @@
+#!/bin/bash
+set -euo pipefail
+
+###############################################################################
+# Revoke IAM Role
+# TPS: Explicit role denial for sabotage testing
+#
+# Usage:
+#   PROJECT_ID="my-project" \
+#   SA_EMAIL="sa@project.iam.gserviceaccount.com" \
+#   ROLE="roles/datastore.user" \
+#   ./revoke_roles.sh
+###############################################################################
+
+: "${PROJECT_ID:?ERROR: PROJECT_ID required}"
+: "${SA_EMAIL:?ERROR: SA_EMAIL required}"
+: "${ROLE:?ERROR: ROLE required}"
+
+echo "[revoke] Removing $ROLE from $SA_EMAIL in $PROJECT_ID" >&2
+
+gcloud projects remove-iam-policy-binding "$PROJECT_ID" \
+  --member="serviceAccount:$SA_EMAIL" \
+  --role="$ROLE" \
+  --condition=None \
+  --quiet 2>&1 | grep -v "WARNING" || true
+
+echo "[revoke] ✓ Role revoked" >&2

@@ -1,3 +1,16 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Gap Analysis (Generated from RDF)](#gap-analysis-generated-from-rdf)
+  - [By Priority](#by-priority)
+    - [P0 - CRITICAL](#p0---critical)
+    - [P1 - HIGH](#p1---high)
+    - [P2 - MEDIUM](#p2---medium)
+  - [Statistics](#statistics)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Gap Analysis (Generated from RDF)
 
 Documentation gaps identified and prioritized by SPARQL query.

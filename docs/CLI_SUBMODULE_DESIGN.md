@@ -1,3 +1,55 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Git Submodule CLI Design Patterns for ggen-paas](#git-submodule-cli-design-patterns-for-ggen-paas)
+  - [Executive Summary](#executive-summary)
+  - [1. High-Level Architecture](#1-high-level-architecture)
+    - [1.1 The Three-Layer Model](#11-the-three-layer-model)
+    - [1.2 Submodule Organization](#12-submodule-organization)
+  - [2. Naming Conventions](#2-naming-conventions)
+    - [2.1 Command Structure: `ggen paas <verb> <noun> [options]`](#21-command-structure-ggen-paas-verb-noun-options)
+    - [2.2 Option Conventions](#22-option-conventions)
+    - [2.3 File Paths and Constants](#23-file-paths-and-constants)
+  - [3. Execution Patterns](#3-execution-patterns)
+    - [3.1 Command Invocation Flow](#31-command-invocation-flow)
+    - [3.2 Command Handler Pattern](#32-command-handler-pattern)
+    - [3.3 Exit Codes (Poka-Yoke)](#33-exit-codes-poka-yoke)
+  - [4. RDF-Driven CLI Specification](#4-rdf-driven-cli-specification)
+    - [4.1 The CLI Ontology (`.specify/cli-commands.ttl`)](#41-the-cli-ontology-specifycli-commandsttl)
+    - [4.2 CLI Generation Pipeline](#42-cli-generation-pipeline)
+  - [5. Integration with Host Project](#5-integration-with-host-project)
+    - [5.1 How `ggen` Invokes Submodule CLI](#51-how-ggen-invokes-submodule-cli)
+    - [5.2 Submodule Package Integration](#52-submodule-package-integration)
+  - [6. Command Discovery and Help System](#6-command-discovery-and-help-system)
+    - [6.1 Dynamic Help Generation](#61-dynamic-help-generation)
+    - [6.2 Command-Specific Help](#62-command-specific-help)
+  - [7. Error Handling and Recovery](#7-error-handling-and-recovery)
+    - [7.1 Structured Error Messages](#71-structured-error-messages)
+    - [7.2 Andon Signals (Signal-Based Control)](#72-andon-signals-signal-based-control)
+  - [8. Concrete Usage Examples](#8-concrete-usage-examples)
+    - [8.1 Development Workflow](#81-development-workflow)
+    - [8.2 CI/CD Pipeline Integration](#82-cicd-pipeline-integration)
+    - [8.3 Local Development with Hot Reload](#83-local-development-with-hot-reload)
+  - [9. Implementation Strategy](#9-implementation-strategy)
+    - [9.1 Phase 1: RDF Specification (Week 1)](#91-phase-1-rdf-specification-week-1)
+    - [9.2 Phase 2: Code Generation (Week 2)](#92-phase-2-code-generation-week-2)
+    - [9.3 Phase 3: CLI Dispatcher (Week 3)](#93-phase-3-cli-dispatcher-week-3)
+    - [9.4 Phase 4: Integration & Testing (Week 4)](#94-phase-4-integration--testing-week-4)
+  - [10. Comparison: Manual vs. RDF-Driven](#10-comparison-manual-vs-rdf-driven)
+    - [Without RDF (Traditional Approach)](#without-rdf-traditional-approach)
+    - [With RDF (ggen-paas Approach)](#with-rdf-ggen-paas-approach)
+  - [11. Future Extensions](#11-future-extensions)
+    - [11.1 Plugin System](#111-plugin-system)
+    - [11.2 Interactive Mode](#112-interactive-mode)
+    - [11.3 Remote Command Execution](#113-remote-command-execution)
+  - [12. Architecture Decision Records (ADRs)](#12-architecture-decision-records-adrs)
+    - [ADR-1: RDF-Driven CLI (ACCEPTED)](#adr-1-rdf-driven-cli-accepted)
+  - [Appendix A: File Structure Summary](#appendix-a-file-structure-summary)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Git Submodule CLI Design Patterns for ggen-paas
 
 ## Executive Summary

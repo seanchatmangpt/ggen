@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGen-DSPy Adapter Fixes Receipt](#ggen-dspy-adapter-fixes-receipt)
+  - [Summary of Changes](#summary-of-changes)
+    - [File Modified](#file-modified)
+    - [Issues Fixed](#issues-fixed)
+      - [1. Removed `unwrap()` calls in production code (CRITICAL)](#1-removed-unwrap-calls-in-production-code-critical)
+    - [2. Added Comprehensive Test Suite](#2-added-comprehensive-test-suite)
+    - [3. Verified Rust-Genai Pattern Compliance](#3-verified-rust-genai-pattern-compliance)
+  - [Code Quality Metrics](#code-quality-metrics)
+    - [Compliance Checklist](#compliance-checklist)
+    - [CLAUDE.md Compliance](#claudemd-compliance)
+  - [Blocking Issues (Not Related to Adapters)](#blocking-issues-not-related-to-adapters)
+    - [ggen-ai Compilation Errors](#ggen-ai-compilation-errors)
+  - [Files Modified](#files-modified)
+  - [Files Created](#files-created)
+  - [Next Steps](#next-steps)
+    - [To Verify Adapters Work (once ggen-ai compiles):](#to-verify-adapters-work-once-ggen-ai-compiles)
+    - [Expected Test Results (when ggen-ai is fixed):](#expected-test-results-when-ggen-ai-is-fixed)
+  - [Rust-Genai Pattern Alignment](#rust-genai-pattern-alignment)
+    - [Key Patterns Implemented](#key-patterns-implemented)
+  - [Feature Completeness](#feature-completeness)
+    - [Implemented Features](#implemented-features)
+    - [Missing Features (Future Enhancements)](#missing-features-future-enhancements)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGen-DSPy Adapter Fixes Receipt
 
 **Date**: 2026-01-11

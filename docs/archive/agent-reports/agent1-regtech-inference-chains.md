@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Agent 1: RegTech Regulatory Inference Chains - PhD Innovation Research](#agent-1-regtech-regulatory-inference-chains---phd-innovation-research)
+  - [Executive Summary](#executive-summary)
+  - [1. Novel SPARQL CONSTRUCT Query Patterns](#1-novel-sparql-construct-query-patterns)
+    - [Pattern 1: Cross-Jurisdictional Compliance Derivation via Instrument Classification](#pattern-1-cross-jurisdictional-compliance-derivation-via-instrument-classification)
+    - [Pattern 2: Regulatory Convergence Detection via Semantic Alignment](#pattern-2-regulatory-convergence-detection-via-semantic-alignment)
+    - [Pattern 3: Temporal Regulatory Evolution and Retroactive Compliance](#pattern-3-temporal-regulatory-evolution-and-retroactive-compliance)
+    - [Pattern 4: Polymorphic Instrument Regulation (Same Asset, Multiple Regulatory Personas)](#pattern-4-polymorphic-instrument-regulation-same-asset-multiple-regulatory-personas)
+    - [Pattern 5: Regulatory Cascade Inference (Upstream Requirements → Downstream Obligations)](#pattern-5-regulatory-cascade-inference-upstream-requirements-%E2%86%92-downstream-obligations)
+  - [2. PhD Thesis Contribution Statement](#2-phd-thesis-contribution-statement)
+  - [3. Implementation Recommendations for ggen](#3-implementation-recommendations-for-ggen)
+    - [3.1 Architecture Integration](#31-architecture-integration)
+    - [3.2 Oxigraph Integration for Regulatory Reasoning](#32-oxigraph-integration-for-regulatory-reasoning)
+    - [3.3 Validation via SHACL for Compliance Correctness](#33-validation-via-shacl-for-compliance-correctness)
+    - [3.4 Chicago TDD Tests for Regulatory Inference](#34-chicago-tdd-tests-for-regulatory-inference)
+    - [3.5 Performance Optimization: Incremental Inference with LRU Cache](#35-performance-optimization-incremental-inference-with-lru-cache)
+    - [3.6 EPIC 9 Parallelization Strategy](#36-epic-9-parallelization-strategy)
+  - [4. Research Findings Summary](#4-research-findings-summary)
+    - [Key Insights from Literature](#key-insights-from-literature)
+    - [Novel Contributions vs. Traditional Systems](#novel-contributions-vs-traditional-systems)
+  - [5. References and Sources](#5-references-and-sources)
+    - [Academic Research](#academic-research)
+    - [FIBO and Ontology Standards](#fibo-and-ontology-standards)
+    - [RegTech and AI Research](#regtech-and-ai-research)
+    - [Regulatory Frameworks](#regulatory-frameworks)
+    - [Cross-Jurisdictional Compliance](#cross-jurisdictional-compliance)
+  - [6. Conclusion](#6-conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Agent 1: RegTech Regulatory Inference Chains - PhD Innovation Research
 
 ## Executive Summary

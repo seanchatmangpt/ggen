@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [clap-noun-verb Upgrade Validation Report](#clap-noun-verb-upgrade-validation-report)
+  - [Executive Summary](#executive-summary)
+  - [Test Results (80/20 Coverage)](#test-results-8020-coverage)
+    - [1. Compilation Test (40% of Value) ✅](#1-compilation-test-40-of-value-)
+    - [2. CLI Smoke Tests (40% of Value) ✅](#2-cli-smoke-tests-40-of-value-)
+      - [Root Help Command](#root-help-command)
+      - [Graph Noun Help](#graph-noun-help)
+      - [Template Noun Help](#template-noun-help)
+      - [AI Noun Help](#ai-noun-help)
+    - [3. Integration Tests (20% of Value) ✅](#3-integration-tests-20-of-value-)
+  - [Regression Analysis](#regression-analysis)
+    - [No Regressions Detected ✅](#no-regressions-detected-)
+    - [Known Issue: Exit Code 1 on Help](#known-issue-exit-code-1-on-help)
+  - [Performance Comparison](#performance-comparison)
+    - [Build Performance](#build-performance)
+    - [Test Performance](#test-performance)
+    - [Binary Size](#binary-size)
+  - [Critical Path Validation ✅](#critical-path-validation-)
+  - [Recommendations](#recommendations)
+    - [Immediate Actions: NONE REQUIRED](#immediate-actions-none-required)
+    - [Optional Improvements (Low Priority)](#optional-improvements-low-priority)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # clap-noun-verb Upgrade Validation Report
 
 **Test Date:** 2025-11-18

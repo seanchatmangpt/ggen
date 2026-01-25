@@ -1,3 +1,57 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Marketplace Architecture - Design Summary](#ggen-marketplace-architecture---design-summary)
+  - [Documentation Index](#documentation-index)
+  - [Quick Reference](#quick-reference)
+    - [Core Capabilities](#core-capabilities)
+    - [Maturity Scoring System](#maturity-scoring-system)
+  - [Architecture Overview](#architecture-overview)
+    - [3-Layer Design](#3-layer-design)
+    - [Key Design Patterns](#key-design-patterns)
+  - [Data Models Summary](#data-models-summary)
+    - [PackageMetadata](#packagemetadata)
+    - [MaturityAssessment](#maturityassessment)
+    - [SearchResult](#searchresult)
+  - [Command Reference](#command-reference)
+    - [marketplace search](#marketplace-search)
+    - [marketplace install](#marketplace-install)
+    - [marketplace validate](#marketplace-validate)
+    - [marketplace maturity](#marketplace-maturity)
+    - [marketplace recommend](#marketplace-recommend)
+    - [marketplace dashboard](#marketplace-dashboard)
+  - [Test Data Fixtures](#test-data-fixtures)
+    - [5 Sample Packages](#5-sample-packages)
+  - [Integration Points](#integration-points)
+    - [CLI → Domain Boundary](#cli-%E2%86%92-domain-boundary)
+    - [Domain → Infrastructure Boundary](#domain-%E2%86%92-infrastructure-boundary)
+  - [Quality Attributes](#quality-attributes)
+    - [Performance Targets](#performance-targets)
+    - [Reliability Strategies](#reliability-strategies)
+    - [Security Measures](#security-measures)
+  - [Implementation Roadmap](#implementation-roadmap)
+    - [Phase 1: Core Infrastructure (Current)](#phase-1-core-infrastructure-current)
+    - [Phase 2: Advanced Features](#phase-2-advanced-features)
+    - [Phase 3: Ecosystem Integration](#phase-3-ecosystem-integration)
+  - [File Organization](#file-organization)
+  - [Next Steps for Implementation](#next-steps-for-implementation)
+    - [1. Create Test Fixtures (1-2 hours)](#1-create-test-fixtures-1-2-hours)
+    - [2. Implement Domain Functions (4-6 hours)](#2-implement-domain-functions-4-6-hours)
+    - [3. Write Integration Tests (2-3 hours)](#3-write-integration-tests-2-3-hours)
+    - [4. CLI Integration (1-2 hours)](#4-cli-integration-1-2-hours)
+  - [Success Criteria](#success-criteria)
+  - [Key Takeaways](#key-takeaways)
+    - [What Makes This Architecture Production-Ready?](#what-makes-this-architecture-production-ready)
+    - [What Makes the Maturity System Unique?](#what-makes-the-maturity-system-unique)
+    - [What Sets the CLI Apart?](#what-sets-the-cli-apart)
+  - [Questions or Concerns?](#questions-or-concerns)
+    - [Architecture Questions](#architecture-questions)
+    - [Implementation Questions](#implementation-questions)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Marketplace Architecture - Design Summary
 
 **Date**: 2025-01-16

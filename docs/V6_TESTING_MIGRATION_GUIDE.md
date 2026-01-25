@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [V6 Testing Migration Guide](#v6-testing-migration-guide)
+  - [Overview](#overview)
+  - [Table of Contents](#table-of-contents)
+  - [Quick Start](#quick-start)
+    - [Step 1: Install Dependencies](#step-1-install-dependencies)
+    - [Step 2: Run Analysis](#step-2-run-analysis)
+    - [Step 3: Migrate Incrementally](#step-3-migrate-incrementally)
+  - [Migration Patterns](#migration-patterns)
+    - [Pattern 1: Mock to Real Collaborator](#pattern-1-mock-to-real-collaborator)
+      - [Before (London TDD with Mocks):](#before-london-tdd-with-mocks)
+      - [After (Chicago TDD with Real Collaborators):](#after-chicago-tdd-with-real-collaborators)
+    - [Pattern 2: Add Property-Based Tests](#pattern-2-add-property-based-tests)
+      - [Step 1: Define Strategies](#step-1-define-strategies)
+      - [Step 2: Write Property Tests](#step-2-write-property-tests)
+    - [Pattern 3: Organize Tests by Type](#pattern-3-organize-tests-by-type)
+      - [New Directory Structure:](#new-directory-structure)
+      - [Migration Script:](#migration-script)
+    - [Pattern 4: Centralize Fixtures](#pattern-4-centralize-fixtures)
+      - [Before (Duplicated Fixtures):](#before-duplicated-fixtures)
+      - [After (Centralized Fixtures):](#after-centralized-fixtures)
+      - [Usage:](#usage)
+  - [Property-Based Testing Recipes](#property-based-testing-recipes)
+    - [Recipe 1: Parser Roundtrip](#recipe-1-parser-roundtrip)
+    - [Recipe 2: Constraint Validation](#recipe-2-constraint-validation)
+    - [Recipe 3: Idempotency](#recipe-3-idempotency)
+    - [Recipe 4: Commutativity](#recipe-4-commutativity)
+  - [Verification Steps](#verification-steps)
+    - [Step 1: Run Chicago TDD Linter](#step-1-run-chicago-tdd-linter)
+    - [Step 2: Verify Property Test Coverage](#step-2-verify-property-test-coverage)
+    - [Step 3: Run Full Test Suite](#step-3-run-full-test-suite)
+  - [Common Migration Issues](#common-migration-issues)
+    - [Issue 1: Test Depends on External Service](#issue-1-test-depends-on-external-service)
+    - [Issue 2: Test is Slow](#issue-2-test-is-slow)
+    - [Issue 3: Flaky Test](#issue-3-flaky-test)
+  - [Makefile.toml Additions](#makefiletoml-additions)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # V6 Testing Migration Guide
 
 **Version**: 6.0.0

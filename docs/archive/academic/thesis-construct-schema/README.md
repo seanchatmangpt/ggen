@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [PhD Thesis: SPARQL CONSTRUCT, Schema.org, and ggen.toml](#phd-thesis-sparql-construct-schemaorg-and-ggentoml)
+  - [A Unified Framework for Ontology-Driven Code Generation](#a-unified-framework-for-ontology-driven-code-generation)
+  - [Thesis Structure](#thesis-structure)
+    - [Key Contributions](#key-contributions)
+  - [File Organization](#file-organization)
+  - [How to Generate the Thesis](#how-to-generate-the-thesis)
+    - [Prerequisites](#prerequisites)
+    - [Step 1: Generate LaTeX Files](#step-1-generate-latex-files)
+    - [Step 2: Compile LaTeX to PDF](#step-2-compile-latex-to-pdf)
+    - [Step 3: Verify Determinism](#step-3-verify-determinism)
+  - [Content Highlights](#content-highlights)
+    - [Theoretical Foundations](#theoretical-foundations)
+    - [CONSTRUCT Query Patterns](#construct-query-patterns)
+    - [Schema.org Integration](#schemaorg-integration)
+    - [Case Studies](#case-studies)
+  - [RDF Ontology Structure](#rdf-ontology-structure)
+  - [SPARQL Queries](#sparql-queries)
+  - [Template Rendering](#template-rendering)
+  - [Bibliography](#bibliography)
+  - [Reproducing Results](#reproducing-results)
+  - [Extending the Thesis](#extending-the-thesis)
+    - [Add a New Chapter](#add-a-new-chapter)
+    - [Add a New Theorem](#add-a-new-theorem)
+  - [Technology Stack](#technology-stack)
+  - [Metrics](#metrics)
+  - [Self-Generation Note](#self-generation-note)
+  - [Contact and Citation](#contact-and-citation)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # PhD Thesis: SPARQL CONSTRUCT, Schema.org, and ggen.toml
 
 ## A Unified Framework for Ontology-Driven Code Generation

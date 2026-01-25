@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 3: Prevention Strategy - Design for Lean Six Sigma (DfLSS)](#week-3-prevention-strategy---design-for-lean-six-sigma-dflss)
+  - [1. Compile-Time Guarantees System](#1-compile-time-guarantees-system)
+    - [Problem Statement](#problem-statement)
+    - [Prevention Solution: PhantomData State Machines](#prevention-solution-phantomdata-state-machines)
+      - [Pattern: Registry State Machine](#pattern-registry-state-machine)
+  - [2. Architectural Integration Contracts](#2-architectural-integration-contracts)
+    - [Problem Statement](#problem-statement-1)
+    - [Prevention Solution: Trait-Based Contracts](#prevention-solution-trait-based-contracts)
+      - [Contract: TemplateProvider Trait](#contract-templateprovider-trait)
+      - [Implementation Contract Tests](#implementation-contract-tests)
+  - [3. Error Propagation Strategy](#3-error-propagation-strategy)
+    - [Problem Statement](#problem-statement-2)
+    - [Prevention Solution: Comprehensive Error Taxonomy](#prevention-solution-comprehensive-error-taxonomy)
+      - [Error Hierarchy Design](#error-hierarchy-design)
+      - [Error Context Enhancement](#error-context-enhancement)
+  - [4. DfLSS Design Review Process](#4-dflss-design-review-process)
+    - [Problem Statement](#problem-statement-3)
+    - [Prevention Solution: Design Phase Review Checklist](#prevention-solution-design-phase-review-checklist)
+      - [Design Review Checklist Template](#design-review-checklist-template)
+  - [4. Integration Contracts](#4-integration-contracts)
+    - [Is the integration contract clear?](#is-the-integration-contract-clear)
+    - [Contract Definition](#contract-definition)
+  - [5. Error Visibility](#5-error-visibility)
+    - [Are errors visible and propagated?](#are-errors-visible-and-propagated)
+    - [Error Taxonomy](#error-taxonomy)
+  - [6. Prevention Verification](#6-prevention-verification)
+    - [Can we prevent invalid states?](#can-we-prevent-invalid-states)
+  - [7. Test Coverage](#7-test-coverage)
+    - [Have we tested integration?](#have-we-tested-integration)
+  - [8. DfLSS Principles](#8-dflss-principles)
+    - [Does this follow DfLSS principles?](#does-this-follow-dflss-principles)
+  - [Decision Matrix](#decision-matrix)
+  - [Approval](#approval)
+  - [Implementation Timeline](#implementation-timeline)
+    - [Week 3 Schedule](#week-3-schedule)
+  - [Success Criteria](#success-criteria)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 3: Prevention Strategy - Design for Lean Six Sigma (DfLSS)
 
 **MISSION**: Design systems to prevent waste and defects before they happen (at design phase).

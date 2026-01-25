@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Poka-Yoke Quick Reference Guide](#poka-yoke-quick-reference-guide)
+  - [What is Poka-Yoke?](#what-is-poka-yoke)
+  - [Configuration (ggen.toml)](#configuration-ggentoml)
+    - [Basic Setup](#basic-setup)
+  - [The Pattern: Traits + Implementations](#the-pattern-traits--implementations)
+    - [Generated Code (src/generated/user/suspend.rs)](#generated-code-srcgeneratedusersuspendrs)
+    - [Domain Code (src/domain/user/suspend.rs)](#domain-code-srcdomainusersuspendrs)
+  - [How It Protects You](#how-it-protects-you)
+    - [1. **Directory Separation**](#1-directory-separation)
+    - [2. **Warning Headers**](#2-warning-headers)
+    - [3. **Compiler Enforcement**](#3-compiler-enforcement)
+    - [4. **Path Protection**](#4-path-protection)
+  - [FMEA Validation](#fmea-validation)
+  - [The Only Command: ggen sync](#the-only-command-ggen-sync)
+  - [Real-World Example](#real-world-example)
+    - [Project Structure](#project-structure)
+    - [Workflow](#workflow)
+  - [When Regeneration is Safe](#when-regeneration-is-safe)
+  - [Benefits](#benefits)
+  - [Testing Your Setup](#testing-your-setup)
+  - [Troubleshooting](#troubleshooting)
+    - [Error: "Cannot overwrite protected path"](#error-cannot-overwrite-protected-path)
+    - [Missing domain stubs](#missing-domain-stubs)
+    - [Header not appearing](#header-not-appearing)
+  - [Next Steps](#next-steps)
+  - [Learn More](#learn-more)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Poka-Yoke Quick Reference Guide
 
 A practical guide to using ggen v5.0.2's mistake-proofing controls for safe code generation.

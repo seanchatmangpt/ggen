@@ -1,0 +1,345 @@
+name: Automated Rollback (Health Check & Auto-Revert)
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to rollback'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      release:
+        description: 'Release to rollback to (e.g., v0.2.0)'
+        required: true
+        type: string
+      reason:
+        description: 'Reason for rollback'
+        required: true
+        type: string
+  schedule:
+    - cron: '*/5 * * * *'  # Run health checks every 5 minutes
+
+env:
+  HEALTH_CHECK_TIMEOUT: 300  # 5 minutes
+  HEALTH_CHECK_INTERVAL: 10  # Check every 10 seconds
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  # ============================================================================
+  # STAGE 1: Health Check (Scheduled)
+  # ============================================================================
+  health-check:
+    name: Continuous Health Monitoring
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'schedule'
+
+    outputs:
+      health-status: ${{ steps.health.outputs.status }}
+      failing-services: ${{ steps.health.outputs.failing-services }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Configure kubeconfig (Production)
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG_PROD }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Run health checks
+        id: health
+        run: |
+          echo "Running health checks..."
+          FAILING_SERVICES=""
+          OVERALL_STATUS="healthy"
+
+          # Check deployment readiness
+          echo "## Deployment Health Status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          for deployment in $(kubectl get deployments -n production -o jsonpath='{.items[*].metadata.name}'); do
+            REPLICAS=$(kubectl get deployment $deployment -n production -o jsonpath='{.spec.replicas}')
+            READY=$(kubectl get deployment $deployment -n production -o jsonpath='{.status.readyReplicas}')
+
+            echo "- **$deployment**: $READY/$REPLICAS ready"
+
+            if [ "$READY" != "$REPLICAS" ]; then
+              FAILING_SERVICES="$FAILING_SERVICES $deployment"
+              OVERALL_STATUS="unhealthy"
+            fi
+          done >> $GITHUB_STEP_SUMMARY
+
+          # Check pod status
+          echo "## Pod Health Status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          FAILED_PODS=$(kubectl get pods -n production --field-selector=status.phase=Failed -o jsonpath='{.items[*].metadata.name}')
+          if [ -n "$FAILED_PODS" ]; then
+            echo "⚠️  Failed pods: $FAILED_PODS" >> $GITHUB_STEP_SUMMARY
+            OVERALL_STATUS="unhealthy"
+            FAILING_SERVICES="$FAILING_SERVICES $FAILED_PODS"
+          else
+            echo "✅ All pods running" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Check service endpoints
+          echo "## Endpoint Health" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          for svc in $(kubectl get services -n production -o jsonpath='{.items[*].metadata.name}'); do
+            ENDPOINTS=$(kubectl get endpoints $svc -n production -o jsonpath='{.subsets[*].addresses[*].ip}' | wc -w)
+            echo "- **$svc**: $ENDPOINTS endpoints" >> $GITHUB_STEP_SUMMARY
+          done
+
+          echo "status=$OVERALL_STATUS" >> $GITHUB_OUTPUT
+          echo "failing-services=$FAILING_SERVICES" >> $GITHUB_OUTPUT
+
+      - name: Alert if unhealthy
+        if: steps.health.outputs.status == 'unhealthy'
+        run: |
+          echo "🚨 HEALTH CHECK FAILED - Services unhealthy:"
+          echo "${{ steps.health.outputs.failing-services }}"
+          echo ""
+          echo "Consider triggering automated rollback workflow"
+
+  # ============================================================================
+  # STAGE 2: Trigger auto-rollback on health failure
+  # ============================================================================
+  auto-rollback-on-failure:
+    name: Auto-rollback on Health Failure
+    runs-on: ubuntu-latest
+    needs: health-check
+    if: needs.health-check.outputs.health-status == 'unhealthy'
+
+    steps:
+      - name: Log health failure
+        run: |
+          echo "🚨 Health check detected unhealthy services:"
+          echo "${{ needs.health-check.outputs.failing-services }}"
+
+      - name: Trigger rollback workflow
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'automated-rollback.yml',
+              ref: context.ref,
+              inputs: {
+                environment: 'production',
+                release: 'previous',
+                reason: 'Automatic rollback triggered by health check failure'
+              }
+            });
+
+  # ============================================================================
+  # STAGE 3: Prepare Rollback
+  # ============================================================================
+  prepare-rollback:
+    name: Prepare Rollback
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    timeout-minutes: 10
+
+    outputs:
+      previous-release: ${{ steps.get-previous.outputs.release }}
+      current-release: ${{ steps.get-current.outputs.release }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get current release
+        id: get-current
+        run: |
+          # Get current deployed version
+          CURRENT=$(git describe --tags --abbrev=0 || echo "unknown")
+          echo "release=$CURRENT" >> $GITHUB_OUTPUT
+          echo "Current release: $CURRENT"
+
+      - name: Get target release
+        id: get-previous
+        run: |
+          TARGET="${{ github.event.inputs.release }}"
+
+          # If target is "previous", find it automatically
+          if [ "$TARGET" = "previous" ]; then
+            LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+            TARGET=$(git tag -l --sort=-version:refname | \
+              awk "/$LAST_TAG/ { getline; print }" || echo "unknown")
+          fi
+
+          echo "release=$TARGET" >> $GITHUB_OUTPUT
+          echo "Target release: $TARGET"
+
+      - name: Verify release exists
+        run: |
+          TARGET_RELEASE="${{ steps.get-previous.outputs.release }}"
+          git rev-parse "$TARGET_RELEASE" >/dev/null 2>&1 || \
+            (echo "❌ Release $TARGET_RELEASE not found"; exit 1)
+          echo "✅ Release $TARGET_RELEASE found in git history"
+
+  # ============================================================================
+  # STAGE 4: Execute Rollback
+  # ============================================================================
+  execute-rollback:
+    name: Execute Rollback
+    runs-on: ubuntu-latest
+    needs: prepare-rollback
+    if: github.event_name == 'workflow_dispatch'
+    timeout-minutes: 20
+
+    environment:
+      name: ${{ github.event.inputs.environment }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.prepare-rollback.outputs.previous-release }}
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          ENV_UPPER=$(echo "${{ github.event.inputs.environment }}" | tr '[:lower:]' '[:upper:]')
+          KUBECONFIG_VAR="KUBECONFIG_$ENV_UPPER"
+          echo "${{ secrets[KUBECONFIG_VAR] }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Verify cluster connectivity
+        run: kubectl cluster-info
+
+      - name: Get Helm release info
+        run: |
+          helm repo update
+          helm list -A
+          helm history tai -n production || true
+
+      - name: Rollback Helm release
+        run: |
+          RELEASE="${{ needs.prepare-rollback.outputs.previous-release }}"
+          ENVIRONMENT="${{ github.event.inputs.environment }}"
+
+          echo "Rolling back to release: $RELEASE"
+
+          # Find the Helm release revision to rollback to
+          helm rollback tai \
+            --namespace $ENVIRONMENT \
+            --wait \
+            --timeout 5m \
+            --force || true
+
+      - name: Verify rollback
+        run: |
+          ENVIRONMENT="${{ github.event.inputs.environment }}"
+          echo "Verifying rollback in $ENVIRONMENT..."
+
+          # Check deployment status
+          kubectl rollout status deployment/tai-controller \
+            -n $ENVIRONMENT \
+            --timeout=5m || true
+
+          # Get current versions
+          kubectl get deployment tai-controller -n $ENVIRONMENT -o jsonpath='{.spec.template.spec.containers[0].image}'
+
+      - name: Run health checks post-rollback
+        run: |
+          ENVIRONMENT="${{ github.event.inputs.environment }}"
+          echo "Running post-rollback health checks..."
+
+          # Wait for pods to be ready
+          sleep 10
+
+          # Check deployment readiness
+          for deployment in $(kubectl get deployments -n $ENVIRONMENT -o jsonpath='{.items[*].metadata.name}'); do
+            REPLICAS=$(kubectl get deployment $deployment -n $ENVIRONMENT -o jsonpath='{.spec.replicas}')
+            READY=$(kubectl get deployment $deployment -n $ENVIRONMENT -o jsonpath='{.status.readyReplicas}')
+            echo "- $deployment: $READY/$REPLICAS ready"
+
+            if [ "$READY" != "$REPLICAS" ]; then
+              echo "⚠️  Deployment $deployment not fully ready"
+            fi
+          done
+
+      - name: Create incident record
+        run: |
+          mkdir -p .rollback-history
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          INCIDENT_FILE=".rollback-history/incident-$(date +%s).json"
+
+          cat > "$INCIDENT_FILE" << EOF
+          {
+            "timestamp": "$TIMESTAMP",
+            "environment": "${{ github.event.inputs.environment }}",
+            "from_release": "${{ needs.prepare-rollback.outputs.current-release }}",
+            "to_release": "${{ needs.prepare-rollback.outputs.previous-release }}",
+            "reason": "${{ github.event.inputs.reason }}",
+            "triggered_by": "${{ github.actor }}",
+            "workflow_run": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          }
+          EOF
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$INCIDENT_FILE"
+          git commit -m "incident: Record rollback from ${{ needs.prepare-rollback.outputs.current-release }} to ${{ needs.prepare-rollback.outputs.previous-release }}" || true
+          git push || true
+
+  # ============================================================================
+  # STAGE 5: Post-Rollback Verification
+  # ============================================================================
+  post-rollback-verification:
+    name: Post-Rollback Verification
+    runs-on: ubuntu-latest
+    needs: [prepare-rollback, execute-rollback]
+    if: always()
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          ENV_UPPER=$(echo "${{ github.event.inputs.environment }}" | tr '[:lower:]' '[:upper:]')
+          KUBECONFIG_VAR="KUBECONFIG_$ENV_UPPER"
+          echo "${{ secrets[KUBECONFIG_VAR] }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Check cluster state
+        run: |
+          echo "## Cluster State After Rollback" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Deployments" >> $GITHUB_STEP_SUMMARY
+          kubectl get deployments -n production >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Services" >> $GITHUB_STEP_SUMMARY
+          kubectl get services -n production >> $GITHUB_STEP_SUMMARY
+
+      - name: Rollback summary
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "## Rollback Completed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Environment | ${{ github.event.inputs.environment }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| From Release | ${{ needs.prepare-rollback.outputs.current-release }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| To Release | ${{ needs.prepare-rollback.outputs.previous-release }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Reason | ${{ github.event.inputs.reason }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Status | ${{ job.status }} |" >> $GITHUB_STEP_SUMMARY

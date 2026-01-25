@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Agent 5: Decision Trees & Workflows](#agent-5-decision-trees--workflows)
+  - [Decision Tree 1: Example Type Classification](#decision-tree-1-example-type-classification)
+  - [Decision Tree 2: Scope Preservation Check](#decision-tree-2-scope-preservation-check)
+  - [Decision Tree 3: Validation Gate Failures](#decision-tree-3-validation-gate-failures)
+  - [Decision Tree 4: Example Type → Checklist Mapping](#decision-tree-4-example-type-%E2%86%92-checklist-mapping)
+  - [Checklist Selection Flowchart](#checklist-selection-flowchart)
+  - [Error Recovery Flowchart](#error-recovery-flowchart)
+  - [Time Estimation Guide](#time-estimation-guide)
+    - [Template Complexity Scoring](#template-complexity-scoring)
+    - [Document Generation Time](#document-generation-time)
+    - [Type Duration Ranges](#type-duration-ranges)
+  - [Quality Gate Pass/Fail Matrix](#quality-gate-passfail-matrix)
+  - [When to Escalate vs Continue](#when-to-escalate-vs-continue)
+    - [Continue (Fix It)](#continue-fix-it)
+    - [Escalate (Ask User)](#escalate-ask-user)
+    - [Rollback (Start Over)](#rollback-start-over)
+  - [Pre-Commit Checklist](#pre-commit-checklist)
+  - [Communication Templates](#communication-templates)
+    - [For Gate Failures](#for-gate-failures)
+    - [For Escalation](#for-escalation)
+  - [Metadata Accuracy Checklist](#metadata-accuracy-checklist)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Agent 5: Decision Trees & Workflows
 
 Reference guide for making methodology decisions during example rewrites.

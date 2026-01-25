@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [AGENT 2: Market Positioning for ggen-disney](#agent-2-market-positioning-for-ggen-disney)
+  - [Executive Summary](#executive-summary)
+  - [Core Value Proposition](#core-value-proposition)
+    - [Problem: Tribal Knowledge + Manual Overhead + Compliance Risk](#problem-tribal-knowledge--manual-overhead--compliance-risk)
+    - [Solution: Specification-First Deterministic Orchestration](#solution-specification-first-deterministic-orchestration)
+  - [Why ggen-disney Is Different From Incumbents](#why-ggen-disney-is-different-from-incumbents)
+    - [Competitive Positioning Matrix](#competitive-positioning-matrix)
+    - [Why Each Incumbent Loses](#why-each-incumbent-loses)
+  - [Unique Strengths (Defensible Moats)](#unique-strengths-defensible-moats)
+    - [1. **Determinism Proof** (A = μ(O))](#1-determinism-proof-a--%CE%BCo)
+    - [2. **Folk Strategy Ontology** (Specification-Driven Governance)](#2-folk-strategy-ontology-specification-driven-governance)
+    - [3. **Authority Model** (Cryptographic Governance)](#3-authority-model-cryptographic-governance)
+    - [4. **Role Preservation** (Adoption Enabler)](#4-role-preservation-adoption-enabler)
+    - [5. **Sub-30 Second Rollback** (Operational Confidence)](#5-sub-30-second-rollback-operational-confidence)
+  - [Market Segments (SAM Breakdown)](#market-segments-sam-breakdown)
+    - [Segment 1: **Theme Parks & Resort Operations** (Primary Target)](#segment-1-theme-parks--resort-operations-primary-target)
+    - [Segment 2: **Healthcare Operations** (Strong Secondary)](#segment-2-healthcare-operations-strong-secondary)
+    - [Segment 3: **Financial Services Operations** (Emerging)](#segment-3-financial-services-operations-emerging)
+    - [Segment 4: **Manufacturing & Supply Chain** (Growth)](#segment-4-manufacturing--supply-chain-growth)
+    - [Segment 5: **Higher Education** (Long Tail)](#segment-5-higher-education-long-tail)
+  - [Competitive Advantages Summary](#competitive-advantages-summary)
+  - [Messaging Pillars](#messaging-pillars)
+    - [Pillar 1: **"Specification First, Code Second"**](#pillar-1-specification-first-code-second)
+    - [Pillar 2: **"Prove It Before You Deploy It"**](#pillar-2-prove-it-before-you-deploy-it)
+    - [Pillar 3: **"Your Team Stays in Control"**](#pillar-3-your-team-stays-in-control)
+    - [Pillar 4: **"Compliance Built In, Not Bolted On"**](#pillar-4-compliance-built-in-not-bolted-on)
+    - [Pillar 5: **"Undo in 30 Seconds, Not 30 Hours"**](#pillar-5-undo-in-30-seconds-not-30-hours)
+  - [Elevator Pitch (30 seconds)](#elevator-pitch-30-seconds)
+  - [Launch Strategy](#launch-strategy)
+    - [Phase 1: Disney as Anchor Customer (Months 1-3)](#phase-1-disney-as-anchor-customer-months-1-3)
+    - [Phase 2: Early Adopters (Months 4-9)](#phase-2-early-adopters-months-4-9)
+    - [Phase 3: Market Launch (Months 10-18)](#phase-3-market-launch-months-10-18)
+  - [Pricing Strategy (SaaS)](#pricing-strategy-saas)
+    - [Tier 1: **Explorer** ($0/month)](#tier-1-explorer-0month)
+    - [Tier 2: **Builder** ($50-100k/month)](#tier-2-builder-50-100kmonth)
+    - [Tier 3: **Enterprise** (Custom, $200k+/month)](#tier-3-enterprise-custom-200kmonth)
+  - [Next Steps (Sales & Marketing)](#next-steps-sales--marketing)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # AGENT 2: Market Positioning for ggen-disney
 
 **Status**: COMPLETE

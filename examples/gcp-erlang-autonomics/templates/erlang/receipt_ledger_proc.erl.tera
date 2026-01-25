@@ -1,0 +1,52 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_receipt_ledger_proc).
+-behaviour(gen_server).
+
+-export([start_link/0]).
+-export([append/2]).
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
+
+%% TPS: Receipt ledger as real OTP process, not bare module
+%% Provides jidoka gate: if Firestore is broken, we crash and restart.
+
+start_link() ->
+  gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+
+%% Public API: append(TenantId, ReceiptMap) -> {ok, ChainHash} | {error, Reason}
+append(TenantId, ReceiptMap) ->
+  gen_server:call(?MODULE, {append, TenantId, ReceiptMap}, 10000).
+
+init([]) ->
+  %% Jidoka: verify Firestore connectivity by writing a boot receipt
+  case {{ module_prefix }}_receipt_ledger:append(<<"system">>, #{
+    kind => system,
+    sku => <<"{{ sku }}">>,
+    event => receipt_ledger_proc_started,
+    decision => accept
+  }) of
+    {ok, _ChainHash} ->
+      {ok, #{}};
+    {error, Why} ->
+      %% Stop-the-line: if ledger isn't working, refuse to boot
+      {stop, {receipt_ledger_unavailable, Why}}
+  end.
+
+handle_call({append, TenantId, ReceiptMap}, _From, State) ->
+  Result = {{ module_prefix }}_receipt_ledger:append(TenantId, ReceiptMap),
+  {reply, Result, State};
+
+handle_call(_Req, _From, State) ->
+  {reply, {error, unknown_request}, State}.
+
+handle_cast(_Msg, State) ->
+  {noreply, State}.
+
+handle_info(_Info, State) ->
+  {noreply, State}.
+
+terminate(_Reason, _State) ->
+  ok.
+
+code_change(_OldVsn, State, _Extra) ->
+  {ok, State}.

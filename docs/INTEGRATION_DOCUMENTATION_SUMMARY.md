@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Integration Documentation: Complete Delivery Summary](#integration-documentation-complete-delivery-summary)
+  - [Executive Summary](#executive-summary)
+  - [Deliverables Checklist](#deliverables-checklist)
+    - [✓ Documentation Files (6,400+ words total)](#%E2%9C%93-documentation-files-6400-words-total)
+    - [✓ MCP Server Stub (600+ lines)](#%E2%9C%93-mcp-server-stub-600-lines)
+    - [✓ Integration Examples (800+ lines)](#%E2%9C%93-integration-examples-800-lines)
+    - [✓ API Documentation](#%E2%9C%93-api-documentation)
+    - [✓ Testing Guide](#%E2%9C%93-testing-guide)
+  - [Architecture & Key Concepts](#architecture--key-concepts)
+    - [Core Integration Pattern](#core-integration-pattern)
+    - [Tool Registry Pattern](#tool-registry-pattern)
+    - [Signature System](#signature-system)
+  - [File Organization](#file-organization)
+  - [Key Design Principles](#key-design-principles)
+    - [1. Type Safety First](#1-type-safety-first)
+    - [2. Result-Based Error Handling](#2-result-based-error-handling)
+    - [3. Validation at Boundaries](#3-validation-at-boundaries)
+    - [4. 80/20 Architecture](#4-8020-architecture)
+  - [Phase 3 vs Phase 4](#phase-3-vs-phase-4)
+    - [Phase 3 (Current)](#phase-3-current)
+    - [Phase 4 (Deferred - Ready to Implement)](#phase-4-deferred---ready-to-implement)
+  - [Usage Examples](#usage-examples)
+    - [Example 1: Creating and Using a Tool](#example-1-creating-and-using-a-tool)
+    - [Example 2: Creating an Agent](#example-2-creating-an-agent)
+    - [Example 3: MCP Export (Phase 4 Ready)](#example-3-mcp-export-phase-4-ready)
+  - [Performance Targets (SLOs)](#performance-targets-slos)
+  - [Security Considerations](#security-considerations)
+    - [1. Input Sanitization](#1-input-sanitization)
+    - [2. SPARQL Injection Prevention](#2-sparql-injection-prevention)
+    - [3. Signature Verification (Phase 4)](#3-signature-verification-phase-4)
+  - [Troubleshooting Guide](#troubleshooting-guide)
+  - [Next Steps](#next-steps)
+    - [For Phase 3 Users (Now)](#for-phase-3-users-now)
+    - [For Phase 4 Implementors](#for-phase-4-implementors)
+  - [Quality Metrics](#quality-metrics)
+  - [Files Summary](#files-summary)
+  - [Verification Checklist](#verification-checklist)
+  - [Deliverable Completion](#deliverable-completion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Integration Documentation: Complete Delivery Summary
 
 **Date**: January 9, 2026

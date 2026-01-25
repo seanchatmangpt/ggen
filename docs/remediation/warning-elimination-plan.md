@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Warning Elimination Plan - ggen Project](#warning-elimination-plan---ggen-project)
+  - [Executive Summary](#executive-summary)
+    - [Critical Finding](#critical-finding)
+  - [Warning Categories & Priority](#warning-categories--priority)
+    - [P0 - Critical (Build Breaking) - 26 Issues](#p0---critical-build-breaking---26-issues)
+      - [Category 1: Code Style & Simplification (18 issues)](#category-1-code-style--simplification-18-issues)
+      - [Category 2: API Design (5 issues)](#category-2-api-design-5-issues)
+      - [Category 3: Performance & Refactoring (3 issues)](#category-3-performance--refactoring-3-issues)
+  - [Detailed File-by-File Analysis](#detailed-file-by-file-analysis)
+    - [Top 5 Most Problematic Files](#top-5-most-problematic-files)
+      - [1. `crates/ggen-domain/src/mape_k/analyze.rs` - 7 Issues](#1-cratesggen-domainsrcmape_kanalyzers---7-issues)
+      - [2. `crates/ggen-domain/src/packs/installer.rs` - 5 Issues](#2-cratesggen-domainsrcpacksinstallerrs---5-issues)
+      - [3. `crates/ggen-domain/src/marketplace/production_readiness.rs` - 4 Issues](#3-cratesggen-domainsrcmarketplaceproduction_readinessrs---4-issues)
+      - [4. `crates/ggen-domain/src/mape_k/types.rs` - 3 Issues](#4-cratesggen-domainsrcmape_ktypesrs---3-issues)
+      - [5. `crates/ggen-domain/src/mape_k/execute.rs` - 3 Issues](#5-cratesggen-domainsrcmape_kexecuters---3-issues)
+  - [Remediation Strategy](#remediation-strategy)
+    - [Phase 1: Quick Wins (30 minutes)](#phase-1-quick-wins-30-minutes)
+    - [Phase 2: API Improvements (25 minutes)](#phase-2-api-improvements-25-minutes)
+    - [Phase 3: Refactoring (20 minutes)](#phase-3-refactoring-20-minutes)
+  - [Package Breakdown](#package-breakdown)
+    - [ggen-domain (ALL 26 issues)](#ggen-domain-all-26-issues)
+    - [ggen-core (0 issues)](#ggen-core-0-issues)
+    - [ggen-cli (0 issues)](#ggen-cli-0-issues)
+  - [Risk Assessment](#risk-assessment)
+    - [Build Impact](#build-impact)
+    - [Options](#options)
+  - [Migration Guides](#migration-guides)
+    - [Pattern 1: Collapsing Nested Ifs](#pattern-1-collapsing-nested-ifs)
+    - [Pattern 2: Vec Initialization](#pattern-2-vec-initialization)
+    - [Pattern 3: ToString vs Display](#pattern-3-tostring-vs-display)
+    - [Pattern 4: Default Trait](#pattern-4-default-trait)
+  - [Automated Fixes](#automated-fixes)
+  - [Testing Strategy](#testing-strategy)
+  - [Success Criteria](#success-criteria)
+  - [Timeline](#timeline)
+  - [Next Steps](#next-steps)
+  - [Appendix: Full Warning List](#appendix-full-warning-list)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Warning Elimination Plan - ggen Project
 
 **Generated:** 2025-11-19

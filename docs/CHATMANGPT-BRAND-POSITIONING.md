@@ -1,3 +1,54 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ChatmanGPT: The Integrator-Killer](#chatmangpt-the-integrator-killer)
+  - [Executive Summary](#executive-summary)
+  - [The Old Model vs The New Model](#the-old-model-vs-the-new-model)
+    - [How Integrators Work Today](#how-integrators-work-today)
+    - [How ChatmanGPT Works](#how-chatmangpt-works)
+  - [The Thesis: "Propose-Not-Execute" is Irreversible](#the-thesis-propose-not-execute-is-irreversible)
+  - [Market Opportunity: The $50B+ Integrator Space](#market-opportunity-the-50b-integrator-space)
+    - [Who We're Replacing](#who-were-replacing)
+    - [The Math They Don't Like](#the-math-they-dont-like)
+    - [The Math They Need](#the-math-they-need)
+  - [The Three Competitive Moats](#the-three-competitive-moats)
+    - [1. Determinism Proof (A = μ(O))](#1-determinism-proof-a--%CE%BCo)
+    - [2. Receipt Chain (Cryptographic Provenance)](#2-receipt-chain-cryptographic-provenance)
+    - [3. Role Preservation (Architects, Not Eliminated)](#3-role-preservation-architects-not-eliminated)
+  - [The Business Model](#the-business-model)
+    - [Revenue Streams](#revenue-streams)
+    - [Unit Economics](#unit-economics)
+    - [Path to $50-100M ARR](#path-to-50-100m-arr)
+  - [Go-to-Market Strategy](#go-to-market-strategy)
+    - [Horizontal Positioning](#horizontal-positioning)
+    - [Vertical Examples](#vertical-examples)
+    - [Sales Model](#sales-model)
+  - [Competitive Landscape](#competitive-landscape)
+    - [vs Traditional Integrators (Deloitte, Accenture, etc.)](#vs-traditional-integrators-deloitte-accenture-etc)
+    - [vs iPaaS Platforms (Zapier, Workato, MuleSoft)](#vs-ipaas-platforms-zapier-workato-mulesoft)
+    - [vs Terraform / CloudFormation](#vs-terraform--cloudformation)
+  - [Why Now? (The Timing)](#why-now-the-timing)
+    - [1. AI Changed Cost Economics](#1-ai-changed-cost-economics)
+    - [2. Enterprise Compliance Demand](#2-enterprise-compliance-demand)
+    - [3. Cloud Maturity Plateau](#3-cloud-maturity-plateau)
+    - [4. Supply Chain Discipline](#4-supply-chain-discipline)
+  - [The Investor Narrative](#the-investor-narrative)
+    - [For VCs (Seed/Series A)](#for-vcs-seedseries-a)
+    - [For Integrators (Acquirers)](#for-integrators-acquirers)
+    - [For Enterprises (Direct Buyers)](#for-enterprises-direct-buyers)
+  - [The Roadmap](#the-roadmap)
+    - [Phase 1 (Weeks 1-8): Foundation](#phase-1-weeks-1-8-foundation)
+    - [Phase 2 (Weeks 9-20): Validation](#phase-2-weeks-9-20-validation)
+    - [Phase 3 (Weeks 21-52): Scale](#phase-3-weeks-21-52-scale)
+    - [Market Launch (Month 13+)](#market-launch-month-13)
+  - [Success Metrics](#success-metrics)
+    - [Year 1 Targets](#year-1-targets)
+  - [Why We Win](#why-we-win)
+  - [The Conclusion](#the-conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ChatmanGPT: The Integrator-Killer
 
 **Date**: 2026-01-19

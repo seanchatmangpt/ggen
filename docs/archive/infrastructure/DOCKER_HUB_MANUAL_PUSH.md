@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Docker Hub Manual Push Instructions](#docker-hub-manual-push-instructions)
+  - [Current Status](#current-status)
+  - [Quick Push (3 Commands)](#quick-push-3-commands)
+  - [Detailed Steps](#detailed-steps)
+    - [Step 1: Verify Image Exists Locally](#step-1-verify-image-exists-locally)
+    - [Step 2: Verify Image Works](#step-2-verify-image-works)
+    - [Step 3: Login to Docker Hub](#step-3-login-to-docker-hub)
+    - [Step 4: Push to Docker Hub](#step-4-push-to-docker-hub)
+    - [Step 5: Verify Deployment](#step-5-verify-deployment)
+  - [Troubleshooting](#troubleshooting)
+    - ["repository does not exist or may require authorization"](#repository-does-not-exist-or-may-require-authorization)
+    - ["unauthorized: incorrect username or password"](#unauthorized-incorrect-username-or-password)
+    - ["denied: requested access to the resource is denied"](#denied-requested-access-to-the-resource-is-denied)
+  - [After Successful Push](#after-successful-push)
+    - [Update Documentation](#update-documentation)
+    - [Verify Public Access](#verify-public-access)
+  - [Build Information](#build-information)
+  - [Quick Reference](#quick-reference)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Docker Hub Manual Push Instructions
 
 ## Current Status

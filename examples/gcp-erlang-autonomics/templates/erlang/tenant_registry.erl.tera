@@ -1,0 +1,69 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_tenant_registry).
+-behaviour(gen_server).
+
+-export([start_link/0]).
+-export([ensure_tenant/2, whereis_tenant/1, route_call/3, route_cast/3]).
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
+
+-include("{{ module_prefix }}_types.hrl").
+
+-record(state, {
+  tenants = #{} :: map()  %% TenantId => Pid
+}).
+
+start_link() ->
+  gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+
+%% ensure_tenant(TenantId, ArgsMap) -> {ok, Pid}
+ensure_tenant(TenantId, Args) ->
+  gen_server:call(?MODULE, {ensure, TenantId, Args}).
+
+whereis_tenant(TenantId) ->
+  gen_server:call(?MODULE, {whereis, TenantId}).
+
+route_call(TenantId, Module, Msg) ->
+  case whereis_tenant(TenantId) of
+    {ok, Pid} -> Module:call(Pid, Msg);
+    {error, _} = E -> E
+  end.
+
+route_cast(TenantId, Module, Msg) ->
+  case whereis_tenant(TenantId) of
+    {ok, Pid} -> Module:cast(Pid, Msg), ok;
+    {error, _} = E -> E
+  end.
+
+init([]) ->
+  {ok, #state{}}.
+
+handle_call({ensure, TenantId, Args}, _From, S0) ->
+  case maps:get(TenantId, S0#state.tenants, undefined) of
+    Pid when is_pid(Pid) ->
+      {reply, {ok, Pid}, S0};
+    undefined ->
+      %% Start a governor FSM per tenant.
+      %% Using a simple spawn_link here; swap to a dynamic supervisor later if desired.
+      {ok, Pid} = {{ module_prefix }}_governor_statem:start_link(Args),
+      S1 = S0#state{tenants = maps:put(TenantId, Pid, S0#state.tenants)},
+      {reply, {ok, Pid}, S1}
+  end;
+
+handle_call({whereis, TenantId}, _From, S0) ->
+  case maps:get(TenantId, S0#state.tenants, undefined) of
+    Pid when is_pid(Pid) -> {reply, {ok, Pid}, S0};
+    undefined -> {reply, {error, not_found}, S0}
+  end;
+
+handle_call(_Req, _From, S0) ->
+  {reply, {error, unknown_request}, S0}.
+
+handle_cast(_Msg, S) -> {noreply, S}.
+handle_info({'EXIT', Pid, _Reason}, S0) ->
+  %% If a tenant FSM dies, remove it and allow restart on next ensure.
+  Tenants1 = maps:filter(fun(_K, V) -> V =/= Pid end, S0#state.tenants),
+  {noreply, S0#state{tenants = Tenants1}};
+handle_info(_Info, S) -> {noreply, S}.
+terminate(_Reason, _S) -> ok.
+code_change(_OldVsn, S, _Extra) -> {ok, S}.

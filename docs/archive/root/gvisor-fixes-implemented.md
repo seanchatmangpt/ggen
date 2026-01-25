@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [gVisor Test Loop - Fixes Implemented](#gvisor-test-loop---fixes-implemented)
+  - [Summary](#summary)
+  - [Implemented Fixes](#implemented-fixes)
+    - [1. Pre-flight Validation (Gate 1) ✅](#1-pre-flight-validation-gate-1-)
+    - [2. Build Validation (Gate 2) ✅](#2-build-validation-gate-2-)
+    - [3. Bundle Validation (Gate 3) ✅](#3-bundle-validation-gate-3-)
+    - [4. Deployment Validation (Gate 4) ✅](#4-deployment-validation-gate-4-)
+    - [5. Execution Monitoring (Gate 5) ✅](#5-execution-monitoring-gate-5-)
+    - [6. Result Validation (Gate 6) ✅](#6-result-validation-gate-6-)
+  - [Poka-Yoke Mechanisms](#poka-yoke-mechanisms)
+    - [Type 1: Prevention (Compile-Time)](#type-1-prevention-compile-time)
+    - [Type 2: Detection (Runtime)](#type-2-detection-runtime)
+    - [Type 3: Correction (Auto-Recovery)](#type-3-correction-auto-recovery)
+  - [Risk Reduction Summary](#risk-reduction-summary)
+  - [Usage](#usage)
+  - [Testing](#testing)
+  - [Next Steps](#next-steps)
+  - [Files Modified](#files-modified)
+  - [Files Created](#files-created)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # gVisor Test Loop - Fixes Implemented
 
 ## Summary

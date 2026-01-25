@@ -1,0 +1,36 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_policy_pack).
+-export([decide/4]).
+
+-include("{{ module_prefix }}_types.hrl").
+
+%% decide(Profile, SignalName, Payload, Data) -> ok | {warn, Reason, Actions} | {refuse, Why}
+decide(Profile, SignalName, Payload, _Data) ->
+  case Profile of
+{% for p in policy.profiles %}
+    {{ p.name }} ->
+      decide_{{ p.name }}(SignalName, Payload);
+{% endfor %}
+    _ ->
+      ok
+  end.
+
+{% for p in policy.profiles %}
+decide_{{ p.name }}(SignalName, Payload) ->
+  case SignalName of
+{% for inv in p.interventions %}
+    {{ inv.when }} ->
+      case Payload of
+        #{usd_per_hour := UsdPerHour} when UsdPerHour >= {{ p.thresholds.usd_per_hour }} ->
+          {warn, {{ inv.when }}, [{% for a in inv.do %}{{ a }}{% if not loop.last %}, {% endif %}{% endfor %}]};
+        #{pct_spike := PctSpike} when PctSpike >= {{ p.thresholds.pct_spike }} ->
+          {warn, {{ inv.when }}, [{% for a in inv.do %}{{ a }}{% if not loop.last %}, {% endif %}{% endfor %}]};
+        _ ->
+          ok
+      end;
+{% endfor %}
+    _ ->
+      ok
+  end.
+{% endfor %}

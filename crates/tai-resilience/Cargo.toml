@@ -1,0 +1,52 @@
+[package]
+name = "tai-resilience"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+anyhow = { workspace = true }
+async-trait = { workspace = true }
+futures = { workspace = true }
+futures-util = { workspace = true }
+
+# For state machine and metrics
+strum = { version = "0.26", features = ["derive"] }
+strum_macros = "0.26"
+num_enum = "0.7"
+
+# For HTTP client (Kubernetes API calls)
+reqwest = { version = "0.12", features = ["blocking", "json", "rustls-tls"] }
+
+# For YAML configuration (Istio manifests)
+serde_yaml = { workspace = true }
+
+# Optional: Firestore integration for state persistence
+firebase-rs = { version = "2.2", optional = true }
+
+# Rate limiting for health checks and retries
+governor = "0.7"
+
+# Metrics collection
+prometheus = { version = "0.13", optional = true }
+
+[dev-dependencies]
+tokio-test = "0.4"
+tempfile = { workspace = true }
+mockito = "1.2"
+
+[features]
+default = []
+firestore = ["firebase-rs"]
+prometheus = ["dep:prometheus"]
+full = ["firestore", "prometheus"]
+
+[[test]]
+name = "resilience_integration_tests"
+path = "tests/resilience_integration_tests.rs"

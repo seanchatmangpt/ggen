@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Manual Review Items - PhD Thesis Quality Assurance](#manual-review-items---phd-thesis-quality-assurance)
+  - [Review Process Overview](#review-process-overview)
+    - [Review Phases](#review-phases)
+  - [CRITICAL ITEMS (Must Review Before Integration)](#critical-items-must-review-before-integration)
+    - [1. Chapter Numbering and Cross-References](#1-chapter-numbering-and-cross-references)
+    - [2. Citation Verification](#2-citation-verification)
+    - [3. Mathematical Notation Consistency](#3-mathematical-notation-consistency)
+    - [4. Code Listing Accuracy](#4-code-listing-accuracy)
+    - [5. Integration Points for Missing Chapters](#5-integration-points-for-missing-chapters)
+  - [HIGH PRIORITY ITEMS](#high-priority-items)
+    - [6. Terminology Consistency](#6-terminology-consistency)
+    - [7. Table Formatting](#7-table-formatting)
+    - [8. Section Hierarchy and Nesting](#8-section-hierarchy-and-nesting)
+    - [9. Abstract and Conclusion Alignment](#9-abstract-and-conclusion-alignment)
+    - [10. Front Matter Completeness](#10-front-matter-completeness)
+  - [MEDIUM PRIORITY ITEMS](#medium-priority-items)
+    - [11. Bibliography Expansion Strategy](#11-bibliography-expansion-strategy)
+    - [12. Glossary Creation](#12-glossary-creation)
+    - [13. Code Example Consistency](#13-code-example-consistency)
+    - [14. Figure Opportunities](#14-figure-opportunities)
+    - [15. Proofreading Checklist](#15-proofreading-checklist)
+  - [LOW PRIORITY ITEMS](#low-priority-items)
+    - [16. Index Creation (Optional)](#16-index-creation-optional)
+    - [17. Enhanced Tables](#17-enhanced-tables)
+    - [18. Page Layout and Formatting](#18-page-layout-and-formatting)
+  - [TESTING AND VALIDATION](#testing-and-validation)
+    - [19. LaTeX Compilation Testing](#19-latex-compilation-testing)
+    - [20. Cross-Reference Verification](#20-cross-reference-verification)
+  - [SIGN-OFF CHECKLIST](#sign-off-checklist)
+    - [Before Final Integration](#before-final-integration)
+    - [After Integration](#after-integration)
+    - [Before Submission](#before-submission)
+  - [REVIEW NOTES TEMPLATE](#review-notes-template)
+    - [Issues Found](#issues-found)
+    - [General Comments](#general-comments)
+    - [Recommendations for Author](#recommendations-for-author)
+  - [CONCLUSION](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Manual Review Items - PhD Thesis Quality Assurance
 
 **Document**: Ontology-Driven Code Generation PhD Thesis

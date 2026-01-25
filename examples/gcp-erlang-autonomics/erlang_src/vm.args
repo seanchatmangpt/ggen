@@ -1,0 +1,65 @@
+%% Erlang VM arguments for observability cluster
+
+%% Node name and cookie
+-sname observability@localhost
+-setcookie observability_cluster_secret
+
+%% Network settings
++K true                  %% Enable kernel poll
++A 16                    %% Async thread pool size
++zdbbl 32768             %% Port buffer limit
+
+%% Memory settings
++M e true                %% Enable lock free memory allocators
++M acul 0                %% Allocator carrier utilization limit
++M als a256              %% Allocator list segment size
+
+%% CPU scheduling
++scl false               %% Scheduler compaction level = false
++swct very_short         %% Scheduler wake cleanup threshold
++sws default             %% Scheduler wake up strategy
++scheduler_poll_set_size 4096
+
+%% Performance tuning
++hms off                 %% Hybrid message switch
++hmqd off                %% Hybrid message queue dispatcher
+
+%% Garbage collection (default is generational, fine for most cases)
+%% +zdbbl 200000                     %% Increase atom table size if needed
+%% +e (tuples grow by default)
+
+%% ETS tuning
++EHlimit 262144          %% ETS hash table limit
+
+%% Debugging and monitoring
+-proto_dist inet6_tcp    %% Use IPv6 if available, fall back to IPv4
+-sbt db                  %% Bind threads to logical processors (db = spread)
+
+%% File descriptors
++Q 65536                 %% File descriptor limit
+
+%% Driver and misc settings
++zubds unlimited         %% Number of unfinished drivers
++zfbsdio 0               %% Full sweeps: 0 = skip unless needed
+
+%% SASL error logger
+-sasl sasl_error_logger {file,"log/sasl.log"}
+
+%% Kernel error logger
+-kernel error_logger {file,"log/kernel.log"}
+
+%% Start the Erlang shell only in interactive mode
++W w                     %% Window output to make the terminal compatible
+
+%% Disable cookie checking (for development; enable in production)
+%% -nocookie
+
+%% For distributed setup, comment out -sname and use -name instead:
+%% -name observability@node.example.com
+
+%% For production, enable additional monitoring:
+%% -heart              %% Enable heart beat monitoring
+%% -env HEART_BEAT_TIMEOUT 30
+
+%% Enable long wall clock timestamps
+-s erlang erlang:monotonic_time()

@@ -1,3 +1,56 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [DSPy Optimizer Quick Reference & Comparison](#dspy-optimizer-quick-reference--comparison)
+  - [Quick Decision Matrix](#quick-decision-matrix)
+  - [Optimizer Comparison Table](#optimizer-comparison-table)
+  - [Algorithm Type Classification](#algorithm-type-classification)
+    - [1. Example-Based Optimizers (What to show)](#1-example-based-optimizers-what-to-show)
+    - [2. Instruction-Based Optimizers (How to instruct)](#2-instruction-based-optimizers-how-to-instruct)
+    - [3. Hybrid Optimizers (Both)](#3-hybrid-optimizers-both)
+    - [4. Weight-Based Optimizers (Model parameters)](#4-weight-based-optimizers-model-parameters)
+    - [5. Meta-Optimizers (Combination)](#5-meta-optimizers-combination)
+  - [Performance Rankings (2026)](#performance-rankings-2026)
+    - [Overall Best Performance](#overall-best-performance)
+    - [Sample Efficiency](#sample-efficiency)
+    - [Production Deployment](#production-deployment)
+    - [Cost Efficiency](#cost-efficiency)
+  - [Core Algorithms (Simplified)](#core-algorithms-simplified)
+    - [BootstrapFewShot ✅](#bootstrapfewshot-)
+    - [KNNFewShot 🎯](#knnfewshot-)
+    - [COPRO 🎯](#copro-)
+    - [GEPA 🏆](#gepa-)
+    - [MIPROv2](#miprov2)
+  - [Key Differences vs Our Rust Implementation](#key-differences-vs-our-rust-implementation)
+    - [What We Have ✅](#what-we-have-)
+    - [What We're Missing ❌](#what-were-missing-)
+      - [1. Trace Support](#1-trace-support)
+      - [2. Advanced Optimizers](#2-advanced-optimizers)
+      - [3. Optimization Statistics](#3-optimization-statistics)
+      - [4. Error Budget](#4-error-budget)
+  - [Implementation Priority for Rust](#implementation-priority-for-rust)
+    - [Phase 1: Core Enhancements (Week 1-2) ✅→🎯](#phase-1-core-enhancements-week-1-2-%E2%86%92)
+    - [Phase 2: Instruction Optimization (Week 3-4) 🎯](#phase-2-instruction-optimization-week-3-4-)
+    - [Phase 3: Advanced (Week 5-7) 🏆](#phase-3-advanced-week-5-7-)
+    - [Phase 4: Production (Week 8+)](#phase-4-production-week-8)
+  - [Use Case Recommendations](#use-case-recommendations)
+    - [Customer Support Bot](#customer-support-bot)
+    - [Code Generation](#code-generation)
+    - [Domain-Specific QA](#domain-specific-qa)
+    - [Multi-Turn Dialogue](#multi-turn-dialogue)
+  - [Key Metrics for Evaluation](#key-metrics-for-evaluation)
+    - [Accuracy Metrics](#accuracy-metrics)
+    - [Multi-Criteria Metrics](#multi-criteria-metrics)
+    - [Optimization Metrics](#optimization-metrics)
+  - [Python DSPy vs Rust ggen-ai](#python-dspy-vs-rust-ggen-ai)
+    - [Similarities ✅](#similarities-)
+    - [Differences ❌](#differences-)
+  - [Key Takeaways](#key-takeaways)
+  - [Quick Links](#quick-links)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # DSPy Optimizer Quick Reference & Comparison
 
 **Last Updated**: 2026-01-11

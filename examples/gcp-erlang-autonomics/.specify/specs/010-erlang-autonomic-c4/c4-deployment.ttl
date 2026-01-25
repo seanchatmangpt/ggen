@@ -1,0 +1,451 @@
+# Erlang Autonomic C4 Level 4: Deployment (GCP Infrastructure)
+# Detailed deployment architecture on Google Cloud Platform
+#
+# Version: 1.0
+# Created: 2026-01-25
+# Updated: 2026-01-25
+
+@prefix c4: <http://ggen.org/c4#> .
+@prefix ea: <http://ggen.org/erlang-autonomic#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# ==============================================================================
+# DEPLOYMENT ARCHITECTURE (C4 Level 4)
+# ==============================================================================
+
+ea:GCPDeploymentArchitecture a c4:DeploymentArchitecture ;
+    rdfs:label "GCP Deployment Architecture" ;
+    rdfs:comment "Multi-region Google Cloud Platform deployment with HA/DR" ;
+    c4:regions ea:PrimaryRegion, ea:SecondaryRegion ;
+    c4:infrastructure ea:ComputeLayer, ea:DataLayer, ea:MessagingLayer, ea:StorageLayer ;
+    .
+
+# ==============================================================================
+# COMPUTE LAYER (Erlang Services)
+# ==============================================================================
+
+ea:ComputeLayer a c4:InfrastructureLayer ;
+    rdfs:label "Compute Layer (Erlang Services)" ;
+    rdfs:comment "Serverless compute using Google Cloud Run" ;
+
+    c4:comprises ea:SignalIngestCloudRun, ea:GovernorEngineCloudRun,
+                 ea:ActuatorCloudRun, ea:EntitlementCloudRun, ea:ReceiptLedgerCloudRun ;
+    .
+
+# ===== Cloud Run Services =====
+
+ea:SignalIngestCloudRun a c4:ComputeService ;
+    rdfs:label "Signal Ingestion Service (Cloud Run)" ;
+    c4:platform "Google Cloud Run" ;
+    c4:language "Erlang/OTP" ;
+    c4:containerImage "gcr.io/PROJECT_ID/signal-ingest:latest" ;
+    c4:memorySize 1024 ; # MB
+    c4:cpuCount "2" ;
+    c4:timeout 600 ; # seconds
+    c4:concurrency 100 ;
+    c4:autoScaling "min 3, max 100 instances" ;
+
+    ea:subscriptions "Cloud Pub/Sub: projects/PROJECT_ID/subscriptions/signals-raw" ;
+    ea:publishes "Cloud Pub/Sub: projects/PROJECT_ID/topics/signals-enriched" ;
+    ea:healthCheck "/health" ;
+    ea:metricsExport "OpenTelemetry to Cloud Trace" ;
+    .
+
+ea:GovernorEngineCloudRun a c4:ComputeService ;
+    rdfs:label "Governor Engine Service (Cloud Run)" ;
+    c4:platform "Google Cloud Run" ;
+    c4:language "Erlang/OTP" ;
+    c4:containerImage "gcr.io/PROJECT_ID/governor-engine:latest" ;
+    c4:memorySize 2048 ;
+    c4:cpuCount "4" ;
+    c4:timeout 600 ;
+    c4:concurrency 50 ;
+    c4:autoScaling "min 5, max 50 instances (state partition by tenant)" ;
+
+    ea:stateful true ;
+    ea:stateStore "Cloud Spanner or Firestore (strong consistency)" ;
+    ea:subscriptions "Cloud Pub/Sub: projects/PROJECT_ID/subscriptions/signals-enriched" ;
+    ea:publishes "Cloud Pub/Sub: projects/PROJECT_ID/topics/actions" ;
+    ea:grpcEndpoint "governor-engine.PROJECT_ID.run.app" ;
+    ea:healthCheck "/health" ;
+    .
+
+ea:ActuatorCloudRun a c4:ComputeService ;
+    rdfs:label "Actuator Service (Cloud Run)" ;
+    c4:platform "Google Cloud Run" ;
+    c4:language "Erlang/OTP" ;
+    c4:containerImage "gcr.io/PROJECT_ID/actuator:latest" ;
+    c4:memorySize 1024 ;
+    c4:cpuCount "2" ;
+    c4:timeout 300 ;
+    c4:concurrency 10 ;
+    c4:autoScaling "min 2, max 20 instances (rate-limited)" ;
+
+    ea:rateLimiting "100 GCP API calls/sec per tenant" ;
+    ea:subscriptions "Cloud Pub/Sub: projects/PROJECT_ID/subscriptions/actions" ;
+    ea:publishes "Cloud Pub/Sub: projects/PROJECT_ID/topics/receipts" ;
+    ea:gcpAPIs "Cloud Resource Manager, Compute Engine, Cloud Run, Load Balancer" ;
+    ea:healthCheck "/health" ;
+    .
+
+ea:EntitlementCloudRun a c4:ComputeService ;
+    rdfs:label "Entitlement Manager (Cloud Run)" ;
+    c4:platform "Google Cloud Run" ;
+    c4:language "Erlang/OTP" ;
+    c4:containerImage "gcr.io/PROJECT_ID/entitlement:latest" ;
+    c4:memorySize 512 ;
+    c4:cpuCount "1" ;
+    c4:timeout 60 ;
+    c4:concurrency 200 ;
+    c4:autoScaling "min 3, max 50 instances (stateless, highly cacheable)" ;
+
+    ea:cache "Cloud Memorystore (Redis) for tenant quota cache" ;
+    ea:cacheHitRate "99%+ (sub-millisecond latency)" ;
+    ea:grpcEndpoint "entitlement.PROJECT_ID.run.app" ;
+    ea:healthCheck "/health" ;
+    .
+
+ea:ReceiptLedgerCloudRun a c4:ComputeService ;
+    rdfs:label "Receipt Ledger Service (Cloud Run)" ;
+    c4:platform "Google Cloud Run" ;
+    c4:language "Erlang/OTP" ;
+    c4:containerImage "gcr.io/PROJECT_ID/receipt-ledger:latest" ;
+    c4:memorySize 2048 ;
+    c4:cpuCount "4" ;
+    c4:timeout 300 ;
+    c4:concurrency 50 ;
+    c4:autoScaling "min 3, max 30 instances (append-only write pattern)" ;
+
+    ea:subscriptions "Cloud Pub/Sub: projects/PROJECT_ID/subscriptions/receipts" ;
+    ea:sinks "BigQuery dataset (streaming inserts)" ;
+    ea:sink2 "Cloud Storage (JSON lines archive)" ;
+    ea:indexing "BigQuery table: gcp_erlang_autonomic.receipts" ;
+    ea:healthCheck "/health" ;
+    .
+
+# ==============================================================================
+# MESSAGING LAYER (Event Streaming)
+# ==============================================================================
+
+ea:MessagingLayer a c4:InfrastructureLayer ;
+    rdfs:label "Messaging Layer (Event Streaming)" ;
+    rdfs:comment "Google Cloud Pub/Sub for asynchronous inter-service communication" ;
+
+    c4:comprises ea:SignalsTopic, ea:ActionsTopic, ea:ReceiptsTopic, ea:AuditTopic ;
+    .
+
+ea:SignalsTopic a c4:PubSubTopic ;
+    rdfs:label "Signals Topic" ;
+    c4:topicName "projects/PROJECT_ID/topics/signals-raw" ;
+    c4:schema "Protocol Buffers (signal.proto)" ;
+    c4:retention 604800 ; # 7 days
+    ea:subscriptions (
+        [ ea:name "signals-enriched-sub" ; ea:service ea:SignalIngestCloudRun ]
+        [ ea:name "analytics-sub" ; ea:service "BigQuery subscription" ]
+    ) ;
+    ea:messageRate "10,000+ msgs/sec" ;
+    .
+
+ea:ActionsTopic a c4:PubSubTopic ;
+    rdfs:label "Actions Topic" ;
+    c4:topicName "projects/PROJECT_ID/topics/actions" ;
+    c4:schema "Protocol Buffers (action.proto)" ;
+    c4:retention 86400 ; # 1 day
+    ea:subscriptions (
+        [ ea:name "actuator-sub" ; ea:service ea:ActuatorCloudRun ]
+        [ ea:name "audit-sub" ; ea:service "Audit processor" ]
+    ) ;
+    .
+
+ea:ReceiptsTopic a c4:PubSubTopic ;
+    rdfs:label "Receipts Topic" ;
+    c4:topicName "projects/PROJECT_ID/topics/receipts" ;
+    c4:schema "JSON (receipt structure)" ;
+    c4:retention 2592000 ; # 30 days
+    ea:subscriptions (
+        [ ea:name "ledger-sub" ; ea:service ea:ReceiptLedgerCloudRun ]
+        [ ea:name "audit-sub" ; ea:service "Audit processor" ]
+        [ ea:name "analytics-sub" ; ea:service "BigQuery" ]
+    ) ;
+    ea:messageRate "1,000+ receipts/sec" ;
+    .
+
+ea:AuditTopic a c4:PubSubTopic ;
+    rdfs:label "Audit Events Topic" ;
+    c4:topicName "projects/PROJECT_ID/topics/audit-events" ;
+    c4:schema "JSON" ;
+    c4:retention 7776000 ; # 90 days
+    ea:subscriptions (
+        [ ea:name "audit-log-sub" ; ea:service "Cloud Logging sink" ]
+        [ ea:name "analytics-sub" ; ea:service "BigQuery" ]
+    ) ;
+    .
+
+# ==============================================================================
+# DATA LAYER (Persistence)
+# ==============================================================================
+
+ea:DataLayer a c4:InfrastructureLayer ;
+    rdfs:label "Data Layer (Persistence)" ;
+    rdfs:comment "Managed databases for state, configuration, and master data" ;
+
+    c4:comprises ea:FirestoreDatabase, ea:CloudSpannerDatabase,
+                 ea:CloudMemorystoreRedis, ea:PostgresSQL ;
+    .
+
+ea:FirestoreDatabase a c4:Database ;
+    rdfs:label "Firestore Database" ;
+    c4:type "NoSQL (document-oriented)" ;
+    c4:purpose "Tenant configuration, policy definitions, quotas" ;
+    c4:mode "Native mode (not datastore)" ;
+    c4:region "multi-region (replicated)" ;
+    c4:consistency "Strong eventual consistency" ;
+
+    ea:collections (
+        [ ea:name "tenants" ; ea:document "tenant metadata, SKU entitlements" ]
+        [ ea:name "policies" ; ea:document "governance policies (versioned)" ]
+        [ ea:name "quotas" ; ea:document "per-tenant quota consumption" ]
+        [ ea:name "sku-catalog" ; ea:document "SKU definitions and pricing" ]
+    ) ;
+    c4:indexing "Composite indexes for policy queries" ;
+    c4:backupPolicy "Daily snapshots retained 30 days" ;
+    .
+
+ea:CloudSpannerDatabase a c4:Database ;
+    rdfs:label "Cloud Spanner Database" ;
+    c4:type "Relational (ACID, global)" ;
+    c4:purpose "Governor engine state for strong consistency" ;
+    c4:configuration "Regional configuration, 3-node minimum HA" ;
+    c4:consistency "Strong ACID (linearizable)" ;
+
+    ea:tables (
+        [ ea:name "tenant_state_machines" ; ea:columns "tenant_id, current_state, previous_state, timestamp" ]
+        [ ea:name "state_transitions" ; ea:columns "tenant_id, from_state, to_state, timestamp, signal_id, decision_id" ]
+        [ ea:name "action_log" ; ea:columns "action_id, tenant_id, action_type, parameters, status, timestamp" ]
+    ) ;
+    c4:replication "3-region replication for disaster recovery" ;
+    .
+
+ea:CloudMemorystoreRedis a c4:Cache ;
+    rdfs:label "Cloud Memorystore (Redis)" ;
+    c4:type "In-memory cache" ;
+    c4:purpose "Entitlement quota cache, session cache, metrics aggregation" ;
+    c4:tier "Standard (replicated)" ;
+    c4:capacity "32 GB (configurable)" ;
+    c4:evictionPolicy "allkeys-lru" ;
+
+    ea:keySpaces (
+        [ ea:prefix "tenant:" ; ea:description "Tenant metadata (cached, TTL=1h)" ]
+        [ ea:prefix "quota:" ; ea:description "Quota consumption (cached, TTL=5m, written through)" ]
+        [ ea:prefix "policy:" ; ea:description "Policy cache (cached, TTL=1d)" ]
+    ) ;
+    c4:persistence "RDB snapshots every 15 minutes" ;
+    .
+
+ea:PostgresSQL a c4:Database ;
+    rdfs:label "Cloud SQL (PostgreSQL)" ;
+    c4:type "Relational (ACID)" ;
+    c4:purpose "Analytics, audit logs, historical data" ;
+    c4:configuration "Highly available (cross-region replication)" ;
+
+    ea:schemas (
+        [ ea:name "audit" ; ea:purpose "All audit events, decision logs" ]
+        [ ea:name "analytics" ; ea:purpose "Metrics aggregation, dashboards" ]
+        [ ea:name "billing" ; ea:purpose "Usage records for invoice generation" ]
+    ) ;
+    c4:backup "Continuous backup with PITR (point-in-time recovery) 35 days" ;
+    .
+
+# ==============================================================================
+# STORAGE LAYER (Object Storage & Data Warehouse)
+# ==============================================================================
+
+ea:StorageLayer a c4:InfrastructureLayer ;
+    rdfs:label "Storage Layer (Object Storage & Analytics)" ;
+    rdfs:comment "Long-term storage and data warehouse for audit and analytics" ;
+
+    c4:comprises ea:CloudStorageBucket, ea:BigQueryDataset ;
+    .
+
+ea:CloudStorageBucket a c4:ObjectStorage ;
+    rdfs:label "Cloud Storage Bucket" ;
+    c4:bucketName "gs://autonomic-governance-archive-PROJECT_ID" ;
+    c4:location "us-central1 (multi-region: us, eu, asia)" ;
+    c4:storageClass "Standard (for <90 days), Archive (for >90 days)" ;
+
+    ea:folders (
+        [ ea:path "receipts/" ; ea:purpose "JSON-lines archives of all receipts (append-only)" ]
+        [ ea:path "policies/" ; ea:purpose "Versioned policy configs (backup)" ]
+        [ ea:path "audit-logs/" ; ea:purpose "Complete audit trail (compliance)" ]
+        [ ea:path "backups/" ; ea:purpose "Database backup exports" ]
+    ) ;
+    c4:lifecycle "Delete objects >1 year old, transition to Archive >90 days" ;
+    c4:versioning true ;
+    c4:encryption "Customer-managed encryption keys (Cloud KMS)" ;
+    .
+
+ea:BigQueryDataset a c4:DataWarehouse ;
+    rdfs:label "BigQuery Dataset" ;
+    c4:datasetName "projects/PROJECT_ID/datasets/gcp_erlang_autonomic" ;
+    c4:location "US (multi-region)" ;
+    c4:defaultTableExpiration "Null (permanent)" ;
+
+    ea:tables (
+        [ ea:name "receipts" ; ea:rows "Hundreds of millions (annual)" ;
+          ea:schema "decision_id, tenant_id, timestamp, state_transition, action, receipt_hash" ]
+        [ ea:name "signals_sampled" ; ea:rows "Sampled raw signals (1% retention)" ;
+          ea:schema "tenant_id, signal_type, value, threshold, timestamp" ]
+        [ ea:name "actions_executed" ; ea:rows "All actions (audit)" ;
+          ea:schema "action_id, tenant_id, type, parameters, status, timestamp, gcp_response" ]
+        [ ea:name "tenant_metrics" ; ea:rows "Aggregated metrics (daily)" ;
+          ea:schema "tenant_id, date, signals_processed, actions_taken, cost_incurred" ]
+    ) ;
+    c4:clustering "Clustered by tenant_id for query performance" ;
+    c4:partitioning "Partitioned by timestamp (daily)" ;
+    ea:dashboards "Looker Studio dashboards for analytics and compliance" ;
+    .
+
+# ==============================================================================
+# NETWORKING & SECURITY LAYER
+# ==============================================================================
+
+ea:NetworkingLayer a c4:InfrastructureLayer ;
+    rdfs:label "Networking & Security Layer" ;
+
+    c4:comprises ea:CloudLoadBalancer, ea:VPCNetwork, ea:SecretManager ;
+    .
+
+ea:CloudLoadBalancer a c4:NetworkService ;
+    rdfs:label "Cloud Load Balancer" ;
+    c4:type "Global HTTP(S) Load Balancer + gRPC" ;
+    c4:purpose "Route traffic to Cloud Run services with HA/DR" ;
+
+    ea:frontends (
+        [ ea:name "api.autonomic-gov.io" ; ea:protocol "HTTPS" ; ea:backend "Signal Ingest" ]
+        [ ea:name "governor.autonomic-gov.io" ; ea:protocol "gRPC (HTTP/2)" ; ea:backend "Governor Engine" ]
+        [ ea:name "actuator.autonomic-gov.io" ; ea:protocol "gRPC (HTTP/2)" ; ea:backend "Actuator" ]
+    ) ;
+    c4:healthCheck "TCP port 8080 /health endpoint" ;
+    c4:sessionAffinity "Client IP (for stateful services)" ;
+    .
+
+ea:VPCNetwork a c4:NetworkService ;
+    rdfs:label "VPC Network" ;
+    c4:purpose "Private network for inter-service communication" ;
+    c4:type "Private service connection" ;
+    c4:cidrs "10.0.0.0/8" ;
+
+    ea:subnets (
+        [ ea:name "compute-subnet" ; ea:cidr "10.1.0.0/16" ; ea:region "us-central1" ]
+        [ ea:name "data-subnet" ; ea:cidr "10.2.0.0/16" ; ea:region "us-central1" ]
+    ) ;
+    ea:firewallRules "Allow internal Pub/Sub, deny external direct access" ;
+    .
+
+ea:SecretManager a c4:SecurityService ;
+    rdfs:label "Secret Manager" ;
+    c4:purpose "Store API keys, credentials, encryption keys" ;
+    c4:secrets (
+        [ ea:name "gcp-service-account-key" ; ea:rotation "Annual" ]
+        [ ea:name "database-passwords" ; ea:rotation "Quarterly" ]
+        [ ea:name "jwt-signing-key" ; ea:rotation "Annual" ]
+    ) ;
+    c4:audit "All access logged to Cloud Audit Logs" ;
+    .
+
+# ==============================================================================
+# REGIONAL DEPLOYMENT TOPOLOGY
+# ==============================================================================
+
+ea:PrimaryRegion a c4:Region ;
+    rdfs:label "Primary Region (us-central1)" ;
+    rdfs:comment "Main deployment region with full service replica" ;
+    c4:location "Iowa" ;
+    c4:services ea:SignalIngestCloudRun, ea:GovernorEngineCloudRun,
+                ea:ActuatorCloudRun, ea:EntitlementCloudRun, ea:ReceiptLedgerCloudRun ;
+    .
+
+ea:SecondaryRegion a c4:Region ;
+    rdfs:label "Secondary Region (us-east1)" ;
+    rdfs:comment "Backup region for disaster recovery and failover" ;
+    c4:location "South Carolina" ;
+    c4:services "Read-only replicas of all services" ;
+    c4:failover "Active if primary region becomes unavailable" ;
+    .
+
+# ==============================================================================
+# MONITORING & OBSERVABILITY
+# ==============================================================================
+
+ea:MonitoringLayer a c4:InfrastructureLayer ;
+    rdfs:label "Monitoring & Observability" ;
+
+    c4:comprises ea:CloudMonitoring, ea:CloudLogging, ea:CloudTrace ;
+    .
+
+ea:CloudMonitoring a c4:MonitoringService ;
+    rdfs:label "Cloud Monitoring" ;
+    c4:purpose "Metrics collection, alerting, dashboards" ;
+
+    ea:dashboards (
+        [ ea:name "System Health" ; ea:metrics "CPU, memory, latency per service" ]
+        [ ea:name "Tenant Activity" ; ea:metrics "Signals/sec, actions/sec per tenant" ]
+        [ ea:name "Financial Impact" ; ea:metrics "Cost per decision, cost per tenant" ]
+    ) ;
+    ea:slos "SLO: 99.9% uptime, <5s decision latency p99" ;
+    .
+
+ea:CloudLogging a c4:LoggingService ;
+    rdfs:label "Cloud Logging" ;
+    c4:purpose "Centralized logging for audit and debugging" ;
+
+    ea:logSinks (
+        [ ea:name "audit-logs" ; ea:destination "BigQuery" ]
+        [ ea:name "application-logs" ; ea:destination "Cloud Storage (daily rotation)" ]
+    ) ;
+    c4:retention 90 ; # days
+    .
+
+ea:CloudTrace a c4:TracingService ;
+    rdfs:label "Cloud Trace" ;
+    c4:purpose "Distributed tracing for latency analysis" ;
+
+    ea:traces "Automatic trace collection from Cloud Run" ;
+    ea:sampleRate "10% of requests" ;
+    .
+
+# ==============================================================================
+# INFRASTRUCTURE AS CODE
+# ==============================================================================
+
+ea:IacDefinition a c4:IacDefinition ;
+    rdfs:label "Infrastructure as Code (Terraform)" ;
+    rdfs:comment "All infrastructure defined in Terraform for reproducibility" ;
+
+    ea:modules (
+        "tf-modules/cloud-run-services" ;
+        "tf-modules/pubsub-topics" ;
+        "tf-modules/databases" ;
+        "tf-modules/load-balancer" ;
+        "tf-modules/monitoring-dashboards"
+    ) ;
+    ea:deployment "GitOps: merge to main triggers Terraform apply" ;
+    ea:documentation "docs/terraform/ includes variables, outputs, examples" ;
+    .
+
+# ==============================================================================
+# DEPLOYMENT QUALITIES
+# ==============================================================================
+
+ea:DeploymentQualities a rdf:Bag ;
+    rdf:li "High Availability: Multi-region with automatic failover" ;
+    rdf:li "Disaster Recovery: RTO <5 minutes, RPO <1 minute" ;
+    rdf:li "Scalability: Auto-scale all services based on load" ;
+    rdf:li "Security: VPC isolation, encryption at rest/in-transit, secret management" ;
+    rdf:li "Compliance: Audit trails, deterministic receipts, immutable ledger" ;
+    rdf:li "Cost Efficiency: Serverless (pay-per-use) with quotas" ;
+    .
+

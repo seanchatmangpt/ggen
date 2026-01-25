@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [PhD Thesis Optimization: One-Page Cheat Sheet](#phd-thesis-optimization-one-page-cheat-sheet)
+  - [Critical Gaps (Fix These First!)](#critical-gaps-fix-these-first)
+  - [3-Week Plan](#3-week-plan)
+    - [Week 1: FOUNDATION (60h)](#week-1-foundation-60h)
+    - [Week 2: EXPANSION (70h)](#week-2-expansion-70h)
+    - [Week 3: POLISH (45h)](#week-3-polish-45h)
+  - [Daily Writing Schedule (8h/day)](#daily-writing-schedule-8hday)
+  - [Top 10 Priority Actions](#top-10-priority-actions)
+  - [Success Metrics](#success-metrics)
+  - [Emergency Triage (If Time Runs Short)](#emergency-triage-if-time-runs-short)
+  - [Today's Actions (4.5h)](#todays-actions-45h)
+  - [Quick Wins (High Impact, Low Effort)](#quick-wins-high-impact-low-effort)
+  - [Common Pitfalls to Avoid](#common-pitfalls-to-avoid)
+  - [Motivational Mantras](#motivational-mantras)
+  - [Resources](#resources)
+  - [Checkpoints](#checkpoints)
+  - [Final Reminder](#final-reminder)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # PhD Thesis Optimization: One-Page Cheat Sheet
 
 **Goal:** 7.0/10 → 8.8/10 in 3 weeks (150 hours)

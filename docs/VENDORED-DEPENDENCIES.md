@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Vendored Dependencies](#vendored-dependencies)
+  - [Current Vendored Dependencies](#current-vendored-dependencies)
+    - [1. gVisor (`vendors/gvisor`)](#1-gvisor-vendorsgvisor)
+    - [2. Spec-Kit (`vendors/spec-kit`)](#2-spec-kit-vendorsspec-kit)
+  - [Dependencies NOT Vendored (And Why)](#dependencies-not-vendored-and-why)
+    - [Docker Base Images](#docker-base-images)
+    - [Rust Dependencies (Cargo)](#rust-dependencies-cargo)
+    - [Python Dependencies](#python-dependencies)
+    - [Node.js Dependencies](#nodejs-dependencies)
+    - [Bazel (for gVisor builds)](#bazel-for-gvisor-builds)
+  - [External Downloads in Scripts](#external-downloads-in-scripts)
+  - [Recommendations](#recommendations)
+    - [✅ Already Vendored](#-already-vendored)
+    - [⚠️ Consider Vendoring (If Needed)](#-consider-vendoring-if-needed)
+    - [🔄 Scripts to Update](#-scripts-to-update)
+  - [Updating Vendored Dependencies](#updating-vendored-dependencies)
+    - [Update gVisor Submodule](#update-gvisor-submodule)
+    - [Update Spec-Kit Submodule](#update-spec-kit-submodule)
+    - [Initialize All Submodules](#initialize-all-submodules)
+  - [Build Reproducibility](#build-reproducibility)
+  - [Future Considerations](#future-considerations)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Vendored Dependencies
 
 This document tracks all external dependencies that have been vendored as git submodules to avoid relying on external downloads during builds.

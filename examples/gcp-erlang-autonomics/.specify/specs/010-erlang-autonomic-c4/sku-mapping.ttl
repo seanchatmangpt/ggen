@@ -1,0 +1,428 @@
+# Erlang Autonomic SKU Mapping & Governance Catalog
+# Defines the three core SKUs and their associated signal/action sets
+#
+# Version: 1.0
+# Created: 2026-01-25
+# Updated: 2026-01-25
+
+@prefix c4: <http://ggen.org/c4#> .
+@prefix ea: <http://ggen.org/erlang-autonomic#> .
+@prefix sku: <http://ggen.org/sku#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# ==============================================================================
+# SKU CATALOG (3 Core Governance Policies)
+# ==============================================================================
+
+ea:SkuCatalog a c4:SkuCatalog ;
+    rdfs:label "Autonomic Governor SKU Catalog" ;
+    rdfs:comment "Market-ready governance policy packs, each with distinct signals and actions" ;
+
+    c4:skus ea:CostCircuitBreakerSku, ea:DeployRollbackGuardSku, ea:BacklogPressureValveSku ;
+    .
+
+# ==============================================================================
+# SKU 1: COST CIRCUIT BREAKER
+# ==============================================================================
+
+ea:CostCircuitBreakerSku a sku:Sku ;
+    rdfs:label "Cost Circuit Breaker" ;
+    rdfs:comment "Autonomic cost governance - prevents budget overruns via intelligent resource scaling" ;
+    sku:code "CCB-001" ;
+    sku:version "1.0" ;
+    sku:marketplaceId "cost-circuit-breaker" ;
+
+    # ===== Signals Monitored =====
+    sku:signals ea:CostCCBSignals ;
+
+    # ===== Governor Type =====
+    sku:governorType "Cost Optimizer" ;
+    sku:policyModel "Threshold-based cost gates with escalating mitigation" ;
+    sku:stateModel "5-state FSM" ;
+
+    # ===== Actions Available =====
+    sku:actions ea:CostCCBActions ;
+
+    # ===== Billing & Pricing =====
+    sku:pricingModel "Per tenant: $X/month base + $Y per 1M signals processed" ;
+    sku:basePrice 499 ; # USD
+    sku:signalPrice 0.00001 ; # USD per signal
+    sku:actionPrice 1.00 ; # USD per action
+
+    # ===== Features & Limits =====
+    sku:maxSignalsPerSecond 1000 ;
+    sku:maxActionsPerDay 10000 ;
+    sku:signalRetention 7 ; # days
+    sku:receiptRetention 90 ; # days
+
+    # ===== SLO & Guarantees =====
+    sku:decisionLatency "< 5 seconds (p99)" ;
+    sku:availabilitySlo "99.5% uptime" ;
+    sku:costSavingsGuarantee "Minimum 15% infrastructure cost reduction or partial refund" ;
+    .
+
+ea:CostCCBSignals a rdf:Bag ;
+    rdfs:label "Cost Circuit Breaker Signals" ;
+
+    rdf:li "Daily cost run rate (projected monthly cost)" ;
+    rdf:li "Budget threshold exceeded percentage" ;
+    rdf:li "Per-service cost trends (week-over-week)" ;
+    rdf:li "Idle resource detection (unused instances, storage)" ;
+    rdf:li "Right-sizing recommendations from GCP" ;
+    rdf:li "Price change alerts (GCP SKU price increases)" ;
+    rdf:li "Commitment discount utilization (Reserved Instances)" ;
+    rdf:li "Sustained-use discount qualification" ;
+    .
+
+ea:CostCCBActions a rdf:Bag ;
+    rdfs:label "Cost Circuit Breaker Actions" ;
+
+    rdf:li "Scale down idle resources (graceful, respects min replicas)" ;
+    rdf:li "Recommend (but not execute) commitment purchases" ;
+    rdf:li "Enable cheaper regions (migrate workloads to us-central1 vs us-east1)" ;
+    rdf:li "Degrade non-critical features (batch jobs, analytics)" ;
+    rdf:li "Alert CTO with cost projection and recommended actions" ;
+    rdf:li "Throttle new deployments if cost budget exceeded" ;
+    rdf:li "Auto-terminate resources older than retention policy" ;
+    .
+
+# ===== Policy Pack (Cost Circuit Breaker) =====
+
+ea:CostCCBPolicyPack a sku:PolicyPack ;
+    rdfs:label "Cost Circuit Breaker Policy Pack" ;
+    sku:skuCode "CCB-001" ;
+    sku:format "Erlang tuples + RDF Turtle rules" ;
+    sku:version "1.0" ;
+    sku:released "2026-01-25" ;
+
+    sku:policies (
+        ea:CostCCBPolicy1,
+        ea:CostCCBPolicy2,
+        ea:CostCCBPolicy3,
+        ea:CostCCBPolicy4
+    ) ;
+    .
+
+ea:CostCCBPolicy1 a sku:Policy ;
+    rdfs:label "Policy: Monitor Daily Cost" ;
+    sku:trigger "Daily 00:00 UTC" ;
+    sku:condition "Fetch GCP billing data for current month" ;
+    sku:action "If projected_monthly_cost > budget_limit then transition(warn)" ;
+    sku:rationale "Early warning when spending exceeds budget" ;
+    .
+
+ea:CostCCBPolicy2 a sku:Policy ;
+    rdfs:label "Policy: Detect Runaway Costs" ;
+    sku:trigger "Every 5 minutes (streaming metrics)" ;
+    sku:condition "If cost_trend.slope > $50/hour for 3+ measurements then" ;
+    sku:action "transition(intervene) and scale_down_non_critical_services()" ;
+    sku:rationale "Aggressive scaling to prevent catastrophic cost overruns" ;
+    .
+
+ea:CostCCBPolicy3 a sku:Policy ;
+    rdfs:label "Policy: Right-size Commitments" ;
+    sku:trigger "Weekly (Monday 08:00 UTC)" ;
+    sku:condition "Analyze reserved instance utilization" ;
+    sku:action "If utilization < 50% then recommend_cancel_old_commitments()" ;
+    sku:rationale "Avoid paying for unused commitments" ;
+    .
+
+ea:CostCCBPolicy4 a sku:Policy ;
+    rdfs:label "Policy: Idle Resource Cleanup" ;
+    sku:trigger "Daily 02:00 UTC" ;
+    sku:condition "Find instances with CPU < 5% for 7+ consecutive days" ;
+    sku:action "transition(degrade) and terminate_or_downsize_idle_instances()" ;
+    sku:rationale "Eliminate completely wasted resources" ;
+    .
+
+# ==============================================================================
+# SKU 2: DEPLOY ROLLBACK GUARD
+# ==============================================================================
+
+ea:DeployRollbackGuardSku a sku:Sku ;
+    rdfs:label "Deploy Rollback Guard" ;
+    rdfs:comment "Autonomic deployment health management - auto-rollback bad deployments" ;
+    sku:code "DRG-002" ;
+    sku:version "1.0" ;
+    sku:marketplaceId "deploy-rollback-guard" ;
+
+    # ===== Signals Monitored =====
+    sku:signals ea:DeployRGSignals ;
+
+    # ===== Governor Type =====
+    sku:governorType "Deployment Health Monitor" ;
+    sku:policyModel "Release validation with canary-aware health gating" ;
+    sku:stateModel "5-state FSM" ;
+
+    # ===== Actions Available =====
+    sku:actions ea:DeployRGActions ;
+
+    # ===== Billing & Pricing =====
+    sku:pricingModel "Per tenant: $X/month base + $Y per deployment monitored" ;
+    sku:basePrice 799 ;
+    sku:deploymentPrice 50 ; # USD per deployment
+    sku:actionPrice 0.25 ; # USD per action
+
+    # ===== Features & Limits =====
+    sku:maxDeploymentsPerMonth 500 ;
+    sku:maxHealthChecksPerDeployment 100 ;
+    sku:canarySupport true ;
+
+    # ===== SLO & Guarantees =====
+    sku:rollbackLatency "< 2 minutes (p95)" ;
+    sku:availabilitySlo "99.9% uptime" ;
+    sku:productionIncidentReduction "Reduce production incidents by 40% or refund" ;
+    .
+
+ea:DeployRGSignals a rdf:Bag ;
+    rdfs:label "Deploy Rollback Guard Signals" ;
+
+    rdf:li "Deployment start/end events (from Spanner audit log)" ;
+    rdf:li "Error rate change post-deployment (% increase)" ;
+    rdf:li "Latency regression (p99, p95 response time)" ;
+    rdf:li "Health check failures (% endpoints returning 5xx)" ;
+    rdf:li "Log error spike detection (ERROR/CRITICAL logs)" ;
+    rdf:li "Canary traffic metrics (vs baseline traffic)" ;
+    rdf:li "Rollout progress (% traffic on new version)" ;
+    rdf:li "Rollback completion signal from deployment system" ;
+    .
+
+ea:DeployRGActions a rdf:Bag ;
+    rdfs:label "Deploy Rollback Guard Actions" ;
+
+    rdf:li "Pause rollout (halt new traffic to new version)" ;
+    rdf:li "Trigger immediate rollback to previous version" ;
+    rdf:li "Reduce canary traffic percentage" ;
+    rdf:li "Alert deployment engineer with incident details" ;
+    rdf:li "Create incident ticket (JIRA/PagerDuty integration)" ;
+    rdf:li "Enable verbose logging for root cause analysis" ;
+    rdf:li "Lock further deployments until manual approval" ;
+    .
+
+# ===== Policy Pack (Deploy Rollback Guard) =====
+
+ea:DeployRGPolicyPack a sku:PolicyPack ;
+    rdfs:label "Deploy Rollback Guard Policy Pack" ;
+    sku:skuCode "DRG-002" ;
+    sku:format "Erlang tuples + RDF Turtle rules" ;
+    sku:version "1.0" ;
+    sku:released "2026-01-25" ;
+
+    sku:policies (
+        ea:DeployRGPolicy1,
+        ea:DeployRGPolicy2,
+        ea:DeployRGPolicy3,
+        ea:DeployRGPolicy4
+    ) ;
+    .
+
+ea:DeployRGPolicy1 a sku:Policy ;
+    rdfs:label "Policy: Monitor Canary Health" ;
+    sku:trigger "Every 30 seconds (during rollout)" ;
+    sku:condition "Compare error_rate(canary) vs error_rate(baseline)" ;
+    sku:action "If error_rate_delta > 2.0% for 3+ measurements then transition(warn)" ;
+    sku:rationale "Early detection of bad canary deployment" ;
+    .
+
+ea:DeployRGPolicy2 a sku:Policy ;
+    rdfs:label "Policy: Auto-Rollback on Error Spike" ;
+    sku:trigger "Every 10 seconds (during rollout)" ;
+    sku:condition "If error_rate_delta > 5.0% and latency_p99_delta > 20% then" ;
+    sku:action "transition(intervene) and trigger_rollback() and alert_team()" ;
+    sku:rationale "Automatically rollback clearly broken deployments" ;
+    .
+
+ea:DeployRGPolicy3 a sku:Policy ;
+    rdfs:label "Policy: Monitor Deployment Duration" ;
+    sku:trigger "On deployment completion" ;
+    sku:condition "Total rollout time > expected_window then" ;
+    sku:action "transition(warn) and notify(deployment_took_too_long)" ;
+    sku:rationale "Long deployments indicate potential issues" ;
+    .
+
+ea:DeployRGPolicy4 a sku:Policy ;
+    rdfs:label "Policy: Lock on Repeated Failures" ;
+    sku:trigger "Per deployment" ;
+    sku:condition "If rollback_count >= 3 in 24 hours then" ;
+    sku:action "transition(refuse) and lock_deployments_until_manual_review()" ;
+    sku:rationale "Prevent cascading deployment failures" ;
+    .
+
+# ==============================================================================
+# SKU 3: BACKLOG PRESSURE VALVE
+# ==============================================================================
+
+ea:BacklogPressureValveSku a sku:Sku ;
+    rdfs:label "Backlog Pressure Valve" ;
+    rdfs:comment "Autonomic queue management - prevents queue overload and cascading failures" ;
+    sku:code "BPV-003" ;
+    sku:version "1.0" ;
+    sku:marketplaceId "backlog-pressure-valve" ;
+
+    # ===== Signals Monitored =====
+    sku:signals ea:BacklogPVSignals ;
+
+    # ===== Governor Type =====
+    sku:governorType "Queue Health Regulator" ;
+    sku:policyModel "Load shedding with priority queuing" ;
+    sku:stateModel "5-state FSM" ;
+
+    # ===== Actions Available =====
+    sku:actions ea:BacklogPVActions ;
+
+    # ===== Billing & Pricing =====
+    sku:pricingModel "Per tenant: $X/month base + $Y per 1M queue messages" ;
+    sku:basePrice 399 ;
+    sku:messagePrice 0.00005 ; # USD per message
+    sku:actionPrice 0.10 ; # USD per action
+
+    # ===== Features & Limits =====
+    sku:maxQueueDepth 10000000 ; # 10M messages
+    sku:maxShedRate 50 ; # percent
+    sku:maxPriorities 5 ;
+
+    # ===== SLO & Guarantees =====
+    sku:queueLatency "< 500ms p99 (with load shedding)" ;
+    sku:availabilitySlo "99.5% uptime" ;
+    sku:cascadingFailurePrevention "Prevent downstream cascade with 99.9% confidence" ;
+    .
+
+ea:BacklogPVSignals a rdf:Bag ;
+    rdfs:label "Backlog Pressure Valve Signals" ;
+
+    rdf:li "Queue depth (number of pending messages)" ;
+    rdf:li "Queue growth rate (messages added/sec vs processed/sec)" ;
+    rdf:li "Processing latency (age of oldest message in queue)" ;
+    rdf:li "Consumer health (processing errors, consumer lag)" ;
+    rdf:li "Downstream service health (is downstream available?)" ;
+    rdf:li "CPU/memory pressure on consumer (approaching limits?)" ;
+    rdf:li "Priority distribution (% of priority vs standard messages)" ;
+    .
+
+ea:BacklogPVActions a rdf:Bag ;
+    rdfs:label "Backlog Pressure Valve Actions" ;
+
+    rdf:li "Drop low-priority messages (shedding load)" ;
+    rdf:li "Throttle message producer (reduce ingress rate)" ;
+    rdf:li "Prioritize high-value messages (priority queuing)" ;
+    rdf:li "Scale up consumer replicas (add processing power)" ;
+    rdf:li "Alert operator with queue health metrics" ;
+    rdf:li "Route to dead-letter queue for analysis" ;
+    rdf:li "Trigger circuit breaker (refuse new messages)" ;
+    rdf:li "Gradual recovery (slowly re-accept messages)" ;
+    .
+
+# ===== Policy Pack (Backlog Pressure Valve) =====
+
+ea:BacklogPVPolicyPack a sku:PolicyPack ;
+    rdfs:label "Backlog Pressure Valve Policy Pack" ;
+    sku:skuCode "BPV-003" ;
+    sku:format "Erlang tuples + RDF Turtle rules" ;
+    sku:version "1.0" ;
+    sku:released "2026-01-25" ;
+
+    sku:policies (
+        ea:BacklogPVPolicy1,
+        ea:BacklogPVPolicy2,
+        ea:BacklogPVPolicy3,
+        ea:BacklogPVPolicy4
+    ) ;
+    .
+
+ea:BacklogPVPolicy1 a sku:Policy ;
+    rdfs:label "Policy: Monitor Queue Depth" ;
+    sku:trigger "Every 10 seconds" ;
+    sku:condition "If queue_depth > threshold_warn (e.g., 100k) then" ;
+    sku:action "transition(warn) and increase_monitoring_verbosity()" ;
+    sku:rationale "Early warning of queue buildup" ;
+    .
+
+ea:BacklogPVPolicy2 a sku:Policy ;
+    rdfs:label "Policy: Detect Runaway Queue" ;
+    sku:trigger "Every 5 seconds" ;
+    sku:condition "If queue_growth_rate > 10k msgs/sec for 3+ measurements then" ;
+    sku:action "transition(intervene) and scale_up_consumers()" ;
+    sku:rationale "Queue growing faster than being processed" ;
+    .
+
+ea:BacklogPVPolicy3 a sku:Policy ;
+    rdfs:label "Policy: Load Shedding" ;
+    sku:trigger "Per message (when queue at limit)" ;
+    sku:condition "If queue_depth >= max_queue_depth and message.priority < PRIORITY_HIGH then" ;
+    sku:action "transition(degrade) and shed_low_priority_messages() and alert()" ;
+    sku:rationale "Prevent complete system failure by dropping non-critical work" ;
+    .
+
+ea:BacklogPVPolicy4 a sku:Policy ;
+    rdfs:label "Policy: Circuit Breaker" ;
+    sku:trigger "Per message" ;
+    sku:condition "If queue_depth >= max_queue_depth AND downstream_unhealthy then" ;
+    sku:action "transition(refuse) and return_overloaded(message_producer)" ;
+    sku:rationale "Tell producer to back off; prevent cascading failures" ;
+    .
+
+# ==============================================================================
+# MARKETPLACE DISTRIBUTION
+# ==============================================================================
+
+ea:MarketplaceMetadata a sku:MarketplaceMetadata ;
+    rdfs:label "Marketplace Distribution Metadata" ;
+
+    c4:publisher "ggen.org/autonomic-governance" ;
+    c4:publishDate "2026-01-25" ;
+    c4:supportedPlatforms "GCP (Cloud Run, Pub/Sub, BigQuery)" ;
+    c4:supportedRegions "All GCP regions" ;
+    c4:documentation "https://docs.ggen.org/autonomics/skus" ;
+    c4:supportEmail "support@autonomic-gov.io" ;
+
+    ea:bundleDiscount "Bundle all 3 SKUs: 20% discount" ;
+    ea:trialPeriod "30 days free trial (max 1k signals/SKU)" ;
+    ea:sla "99.5% uptime SLA with incident response <30min" ;
+    .
+
+# ==============================================================================
+# COMPLIANCE & AUDIT
+# ==============================================================================
+
+ea:ComplianceMatrix a sku:ComplianceMatrix ;
+    rdfs:label "Compliance & Audit Requirements" ;
+
+    c4:controls (
+        ea:ControlFinancialAccuracy,
+        ea:ControlAuditTrail,
+        ea:ControlDataRetention,
+        ea:ControlAccessControl
+    ) ;
+    .
+
+ea:ControlFinancialAccuracy a c4:ComplianceControl ;
+    rdfs:label "Financial Accuracy" ;
+    c4:requirement "All cost calculations must be verifiable and auditable" ;
+    c4:evidence "Receipt ledger with cryptographic hash per decision" ;
+    c4:frequency "Continuous" ;
+    .
+
+ea:ControlAuditTrail a c4:ComplianceControl ;
+    rdfs:label "Audit Trail" ;
+    c4:requirement "All decisions must be logged with reason, timestamp, actor" ;
+    c4:evidence "BigQuery audit_log table with immutable receipts" ;
+    c4:frequency "Continuous" ;
+    .
+
+ea:ControlDataRetention a c4:ComplianceControl ;
+    rdfs:label "Data Retention" ;
+    c4:requirement "Audit data retained minimum 7 years for financial records" ;
+    c4:evidence "Cloud Storage archive + BigQuery long-term storage" ;
+    c4:frequency "Verified quarterly" ;
+    .
+
+ea:ControlAccessControl a c4:ComplianceControl ;
+    rdfs:label "Access Control" ;
+    c4:requirement "Only authorized actors can modify policies or override decisions" ;
+    c4:evidence "IAM roles + audit logs of all administrative actions" ;
+    c4:frequency "Verified monthly" ;
+    .
+

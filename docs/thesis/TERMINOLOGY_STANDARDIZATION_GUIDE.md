@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Terminology Standardization Guide](#terminology-standardization-guide)
+  - [PhD Thesis: Ontology-Driven Code Generation](#phd-thesis-ontology-driven-code-generation)
+  - [1. RDF Ontology vs. RDF Specification vs. Semantic Model](#1-rdf-ontology-vs-rdf-specification-vs-semantic-model)
+  - [2. API Contract vs. API Specification vs. API Definition](#2-api-contract-vs-api-specification-vs-api-definition)
+  - [3. Code Generation vs. Artifact Generation vs. Code Synthesis](#3-code-generation-vs-artifact-generation-vs-code-synthesis)
+  - [4. Type Guard vs. Type Predicate vs. Guard Function vs. Runtime Validator](#4-type-guard-vs-type-predicate-vs-guard-function-vs-runtime-validator)
+  - [5. Template Rendering vs. Template Expansion vs. Template Generation](#5-template-rendering-vs-template-expansion-vs-template-generation)
+  - [6. Entity vs. Domain Object vs. Class vs. Resource](#6-entity-vs-domain-object-vs-class-vs-resource)
+  - [7. Specification vs. Specification Document vs. Spec vs. Contract](#7-specification-vs-specification-document-vs-spec-vs-contract)
+  - [8. Deterministic vs. Determinism vs. Reproducible](#8-deterministic-vs-determinism-vs-reproducible)
+  - [9. Schema vs. Ontology vs. Model](#9-schema-vs-ontology-vs-model)
+  - [10. Validation Schema vs. Validator vs. Validation Rules](#10-validation-schema-vs-validator-vs-validation-rules)
+  - [11. Artifact vs. Artifact Type vs. Output vs. Generated Code](#11-artifact-vs-artifact-type-vs-output-vs-generated-code)
+  - [12. SPARQL Query vs. SPARQL Pattern vs. Query Pattern](#12-sparql-query-vs-sparql-pattern-vs-query-pattern)
+  - [13. Triple vs. Statement vs. RDF Statement](#13-triple-vs-statement-vs-rdf-statement)
+  - [14. Configuration vs. Configuration File vs. Config](#14-configuration-vs-configuration-file-vs-config)
+  - [15. Consistency vs. Consistency Constraint vs. Consistency Check](#15-consistency-vs-consistency-constraint-vs-consistency-check)
+  - [Additional Terminology Notes](#additional-terminology-notes)
+    - [W3C Standards Capitalization](#w3c-standards-capitalization)
+    - [Format Specifications](#format-specifications)
+    - [Programming Language Terminology](#programming-language-terminology)
+    - [File and Path References](#file-and-path-references)
+  - [Implementation Checklist](#implementation-checklist)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Terminology Standardization Guide
 ## PhD Thesis: Ontology-Driven Code Generation
 

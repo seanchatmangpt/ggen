@@ -1,0 +1,54 @@
+###############################################################################
+# Shared Artifact Registry Repository
+# One repo for all SKU container images
+# TPS: centralized, versioned, secure image storage
+###############################################################################
+
+resource "google_project_service" "artifact_api" {
+  project            = var.project_id
+  service            = "artifactregistry.googleapis.com"
+  disable_on_destroy = false
+}
+
+resource "google_artifact_registry_repository" "autonomics_repo" {
+  project       = var.project_id
+  location      = var.region
+  repository_id = var.repo_id
+  description   = "Autonomics SKU container images"
+  format        = "DOCKER"
+
+  labels = {
+    system = "autonomics"
+    env    = var.env
+  }
+
+  depends_on = [google_project_service.artifact_api]
+}
+
+# IAM: allow Cloud Build to push images
+resource "google_artifact_registry_repository_iam_member" "cloud_build_writer" {
+  project    = var.project_id
+  location   = var.region
+  repository = google_artifact_registry_repository.autonomics_repo.name
+  role       = "roles/artifactregistry.writer"
+  member     = "serviceAccount:${var.cloud_build_service_account}"
+}
+
+# IAM: allow Cloud Run to pull images
+resource "google_artifact_registry_repository_iam_member" "cloud_run_reader" {
+  project    = var.project_id
+  location   = var.region
+  repository = google_artifact_registry_repository.autonomics_repo.name
+  role       = "roles/artifactregistry.reader"
+  member     = "serviceAccount:${var.cloud_run_service_account}"
+}
+
+output "repo_name" {
+  description = "Artifact Registry repository name"
+  value       = google_artifact_registry_repository.autonomics_repo.name
+}
+
+output "repo_url" {
+  description = "Artifact Registry repository URL"
+  value       = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.autonomics_repo.repository_id}"
+}

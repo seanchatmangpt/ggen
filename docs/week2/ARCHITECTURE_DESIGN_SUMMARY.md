@@ -1,3 +1,55 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Domain Module Architecture - Design Summary](#domain-module-architecture---design-summary)
+  - [Executive Summary](#executive-summary)
+    - [Key Achievements](#key-achievements)
+  - [Architecture Overview](#architecture-overview)
+    - [Module Structure](#module-structure)
+    - [Design Principles Applied](#design-principles-applied)
+  - [Marketplace Module](#marketplace-module)
+    - [Public API (6 Functions)](#public-api-6-functions)
+    - [Key Types](#key-types)
+    - [Error Types](#error-types)
+    - [Module Organization](#module-organization)
+  - [Template Module](#template-module)
+    - [Public API (6 Functions)](#public-api-6-functions-1)
+    - [Key Types](#key-types-1)
+    - [Error Types](#error-types-1)
+    - [Module Organization](#module-organization-1)
+  - [Project Module](#project-module)
+    - [Public API (7 Functions)](#public-api-7-functions)
+    - [Key Types](#key-types-2)
+    - [Error Types](#error-types-2)
+    - [Module Organization](#module-organization-2)
+  - [Cross-Module Design](#cross-module-design)
+    - [Dependency Graph](#dependency-graph)
+    - [Shared Types](#shared-types)
+    - [Error Handling Strategy](#error-handling-strategy)
+  - [Integration Patterns](#integration-patterns)
+    - [CLI Integration](#cli-integration)
+    - [Web API Integration](#web-api-integration)
+    - [Agent Integration](#agent-integration)
+  - [Testing Strategy (Chicago TDD)](#testing-strategy-chicago-tdd)
+    - [Unit Tests](#unit-tests)
+    - [Integration Tests](#integration-tests)
+  - [Performance SLOs](#performance-slos)
+  - [Documentation Deliverables](#documentation-deliverables)
+  - [Implementation Checklist](#implementation-checklist)
+    - [Marketplace Module](#marketplace-module-1)
+    - [Template Module](#template-module-1)
+    - [Project Module](#project-module-1)
+    - [CLI Migration](#cli-migration)
+    - [Validation](#validation)
+  - [Memory Storage](#memory-storage)
+  - [Next Steps](#next-steps)
+  - [Architecture Metrics](#architecture-metrics)
+  - [Design Review Checklist](#design-review-checklist)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Domain Module Architecture - Design Summary
 
 **Date**: 2025-11-20

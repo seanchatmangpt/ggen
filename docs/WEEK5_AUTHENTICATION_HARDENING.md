@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 5: Authentication Hardening Implementation](#week-5-authentication-hardening-implementation)
+  - [Overview](#overview)
+  - [Implementation Summary](#implementation-summary)
+    - [1. RS256 JWT Authentication (`ggen-auth/src/jwt_rs256.rs`)](#1-rs256-jwt-authentication-ggen-authsrcjwt_rs256rs)
+    - [2. Password Hashing (`ggen-auth/src/password.rs`)](#2-password-hashing-ggen-authsrcpasswordrs)
+    - [3. Session Management (`ggen-auth/src/session.rs`)](#3-session-management-ggen-authsrcsessionrs)
+    - [4. Rate Limiting (`ggen-auth/src/rate_limit.rs`)](#4-rate-limiting-ggen-authsrcrate_limitrs)
+    - [5. Account Lockout (`ggen-auth/src/account_lockout.rs`)](#5-account-lockout-ggen-authsrcaccount_lockoutrs)
+    - [6. Enhanced Middleware (`ggen-api/src/middleware/auth_enhanced.rs`)](#6-enhanced-middleware-ggen-apisrcmiddlewareauth_enhancedrs)
+  - [Test Coverage](#test-coverage)
+    - [JWT Tests (`tests/jwt_rs256_tests.rs`)](#jwt-tests-testsjwt_rs256_testsrs)
+    - [Password Tests (`tests/password_tests.rs`)](#password-tests-testspassword_testsrs)
+    - [Security Tests (`tests/security_tests.rs`)](#security-tests-testssecurity_testsrs)
+  - [Security Measures](#security-measures)
+    - [1. Cryptographic Security](#1-cryptographic-security)
+    - [2. Attack Prevention](#2-attack-prevention)
+    - [3. Account Protection](#3-account-protection)
+    - [4. Session Security](#4-session-security)
+  - [Integration Examples](#integration-examples)
+    - [Example 1: User Login with Rate Limiting](#example-1-user-login-with-rate-limiting)
+    - [Example 2: Token Refresh](#example-2-token-refresh)
+    - [Example 3: Protected Endpoint with Middleware](#example-3-protected-endpoint-with-middleware)
+  - [Dependencies Added](#dependencies-added)
+    - [ggen-auth/Cargo.toml](#ggen-authcargotoml)
+    - [ggen-api/Cargo.toml](#ggen-apicargotoml)
+  - [Performance Characteristics](#performance-characteristics)
+  - [SLO Compliance](#slo-compliance)
+  - [Security Audit Checklist](#security-audit-checklist)
+  - [Next Steps (Week 6+)](#next-steps-week-6)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 5: Authentication Hardening Implementation
 
 ## Overview

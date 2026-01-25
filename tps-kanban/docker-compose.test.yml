@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  nats:
+    image: nats:2.10-alpine
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    command: -c /etc/nats/nats.conf
+    volumes:
+      - ./test/nats.conf:/etc/nats/nats.conf:ro
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "4222"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - kanban
+
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - kanban
+
+  tps-kanban-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    depends_on:
+      nats:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      NATS_SERVERS: nats://nats:4222
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+    networks:
+      - kanban
+
+networks:
+  kanban:
+    driver: bridge

@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Quick Fix Guide - Clippy Warnings](#quick-fix-guide---clippy-warnings)
+  - [Immediate Action Required](#immediate-action-required)
+  - [Step-by-Step Remediation](#step-by-step-remediation)
+    - [Step 1: Auto-Fix (15 minutes)](#step-1-auto-fix-15-minutes)
+    - [Step 2: Manual Fixes - High Impact Files (45 minutes)](#step-2-manual-fixes---high-impact-files-45-minutes)
+      - [File 1: `crates/ggen-domain/src/mape_k/analyze.rs` (20 min)](#file-1-cratesggen-domainsrcmape_kanalyzers-20-min)
+      - [File 2: `crates/ggen-domain/src/mape_k/types.rs` (20 min)](#file-2-cratesggen-domainsrcmape_ktypesrs-20-min)
+      - [File 3: `crates/ggen-domain/src/mape_k/execute.rs` (10 min)](#file-3-cratesggen-domainsrcmape_kexecuters-10-min)
+    - [Step 3: Remaining Files (30 minutes)](#step-3-remaining-files-30-minutes)
+      - [`marketplace/production_readiness.rs` (15 min)](#marketplaceproduction_readinessrs-15-min)
+      - [Other Files (15 min)](#other-files-15-min)
+  - [Verification Checklist](#verification-checklist)
+  - [Troubleshooting](#troubleshooting)
+    - [If auto-fix doesn't work:](#if-auto-fix-doesnt-work)
+    - [If tests fail after fixes:](#if-tests-fail-after-fixes)
+    - [If still blocked:](#if-still-blocked)
+  - [Progress Tracking](#progress-tracking)
+  - [Success Criteria](#success-criteria)
+  - [Support Resources](#support-resources)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Quick Fix Guide - Clippy Warnings
 
 **CRITICAL:** Project cannot compile due to `#![deny(warnings)]` in `ggen-domain/src/lib.rs:26`

@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Phase 2: Week-by-Week Task Breakdown](#ggen-phase-2-week-by-week-task-breakdown)
+  - [Week 3 Schedule](#week-3-schedule)
+    - [Day 1-2: EnterpriseDomainMapper Core Implementation](#day-1-2-enterprisedomainmapper-core-implementation)
+    - [Day 3-4: Entity-to-Ontology Mapping Pipeline](#day-3-4-entity-to-ontology-mapping-pipeline)
+    - [Day 5: SPARQL Query Generation & Validation](#day-5-sparql-query-generation--validation)
+  - [Week 4 Schedule](#week-4-schedule)
+    - [Day 1-2: Integration Pipeline & CLI](#day-1-2-integration-pipeline--cli)
+    - [Day 3: Receipt Generator & Documentation](#day-3-receipt-generator--documentation)
+    - [Day 4-5: Testing, Validation & Andon Signals](#day-4-5-testing-validation--andon-signals)
+  - [Success Metrics](#success-metrics)
+  - [Parallel Execution Strategy](#parallel-execution-strategy)
+    - [Week 3 Parallelization](#week-3-parallelization)
+    - [Week 4 Parallelization](#week-4-parallelization)
+  - [Risk Mitigation](#risk-mitigation)
+  - [Daily Stand-up Checkpoints](#daily-stand-up-checkpoints)
+    - [Week 3](#week-3)
+    - [Week 4](#week-4)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Phase 2: Week-by-Week Task Breakdown
 
 **Duration**: Weeks 3-4 (10 business days)

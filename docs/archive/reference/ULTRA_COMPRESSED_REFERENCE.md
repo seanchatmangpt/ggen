@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Ultra-Compressed Reference (100% Dense)](#ggen-ultra-compressed-reference-100-dense)
+  - [SETUP](#setup)
+  - [SPARQL PATTERNS (COPY-PASTE)](#sparql-patterns-copy-paste)
+    - [CONSTRUCT (Materialization)](#construct-materialization)
+  - [ggen.toml (SCHEMA)](#ggentoml-schema)
+  - [CLI](#cli)
+  - [TEMPLATES (Tera)](#templates-tera)
+  - [COMMON PATTERNS](#common-patterns)
+  - [INFERENCE RULES (Template)](#inference-rules-template)
+  - [PYTHON AGENT LOOP (Fast)](#python-agent-loop-fast)
+  - [GIT WORKFLOW](#git-workflow)
+  - [DECISION MATRIX](#decision-matrix)
+  - [PERFORMANCE](#performance)
+  - [ERROR CODES](#error-codes)
+  - [ACRONYMS](#acronyms)
+  - [QUICK LOOKUP](#quick-lookup)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Ultra-Compressed Reference (100% Dense)
 
 ## SETUP

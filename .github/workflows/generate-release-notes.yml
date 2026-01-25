@@ -1,0 +1,179 @@
+name: Generate Release Notes (Auto-Changelog)
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to generate notes for'
+        required: true
+        type: string
+
+jobs:
+  generate-notes:
+    name: Generate Release Notes from Commits
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine release tag
+        id: tag
+        run: |
+          if [ -n "${{ github.event.inputs.tag }}" ]; then
+            TAG="${{ github.event.inputs.tag }}"
+          else
+            TAG="${{ github.event.release.tag_name }}"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Release tag: $TAG"
+
+      - name: Get previous release
+        id: previous
+        run: |
+          # Get all tags sorted by version
+          PREV_TAG=$(git tag -l --sort=-version:refname | \
+            awk "/${{ steps.tag.outputs.tag }}/ { getline; print }" || \
+            git rev-list --max-parents=0 HEAD)
+          echo "previous-tag=$PREV_TAG" >> $GITHUB_OUTPUT
+          echo "Previous tag: $PREV_TAG"
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get commits between tags
+          COMMITS=$(git log ${{ steps.previous.outputs.previous-tag }}..${{ steps.tag.outputs.tag }} --oneline)
+
+          # Parse conventional commits and group by type
+          BREAKING=""
+          FEATURES=""
+          BUGFIXES=""
+          PERF=""
+          CHORES=""
+
+          # Process commits
+          while IFS= read -r line; do
+            if [ -z "$line" ]; then
+              continue
+            fi
+
+            HASH=$(echo "$line" | cut -d' ' -f1)
+            MSG=$(echo "$line" | cut -d' ' -f2-)
+
+            if [[ "$MSG" =~ ^feat(\(.+\))?!: ]]; then
+              BREAKING+="- **BREAKING**: ${MSG#feat*: } ($HASH)"$'\n'
+            elif [[ "$MSG" =~ ^feat(\(.+\))?:[ ] ]]; then
+              FEATURES+="- ${MSG#feat*: } ($HASH)"$'\n'
+            elif [[ "$MSG" =~ ^fix(\(.+\))?:[ ] ]]; then
+              BUGFIXES+="- ${MSG#fix*: } ($HASH)"$'\n'
+            elif [[ "$MSG" =~ ^perf(\(.+\))?:[ ] ]]; then
+              PERF+="- ${MSG#perf*: } ($HASH)"$'\n'
+            elif [[ "$MSG" =~ ^chore(\(.+\))?:[ ] ]]; then
+              CHORES+="- ${MSG#chore*: } ($HASH)"$'\n'
+            fi
+          done <<< "$COMMITS"
+
+          # Build changelog
+          CHANGELOG="## Release ${{ steps.tag.outputs.tag }}"$'\n'
+          CHANGELOG+=$'\n'"Compared to: ${{ steps.previous.outputs.previous-tag }}"$'\n'
+          CHANGELOG+=$'\n'
+
+          if [ -n "$BREAKING" ]; then
+            CHANGELOG+="### 🚨 Breaking Changes"$'\n'
+            CHANGELOG+="$BREAKING"
+            CHANGELOG+=$'\n'
+          fi
+
+          if [ -n "$FEATURES" ]; then
+            CHANGELOG+="### ✨ Features"$'\n'
+            CHANGELOG+="$FEATURES"
+            CHANGELOG+=$'\n'
+          fi
+
+          if [ -n "$BUGFIXES" ]; then
+            CHANGELOG+="### 🐛 Bug Fixes"$'\n'
+            CHANGELOG+="$BUGFIXES"
+            CHANGELOG+=$'\n'
+          fi
+
+          if [ -n "$PERF" ]; then
+            CHANGELOG+="### ⚡ Performance"$'\n'
+            CHANGELOG+="$PERF"
+            CHANGELOG+=$'\n'
+          fi
+
+          if [ -n "$CHORES" ]; then
+            CHANGELOG+="### 🔧 Chores"$'\n'
+            CHANGELOG+="$CHORES"
+            CHANGELOG+=$'\n'
+          fi
+
+          # Get commit count and contributors
+          COMMIT_COUNT=$(echo "$COMMITS" | wc -l)
+          CONTRIBUTORS=$(git log ${{ steps.previous.outputs.previous-tag }}..${{ steps.tag.outputs.tag }} --format='%an' | sort -u | wc -l)
+
+          CHANGELOG+="### 📊 Summary"$'\n'
+          CHANGELOG+="- **Commits**: $COMMIT_COUNT"$'\n'
+          CHANGELOG+="- **Contributors**: $CONTRIBUTORS"$'\n'
+
+          # Write to output file
+          echo "$CHANGELOG" > RELEASE_NOTES.md
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Update release notes
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          body: ${{ steps.changelog.outputs.changelog }}
+          append_body: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit release notes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Create changelog entry
+          DATE=$(date -u +"%Y-%m-%d")
+          {
+            echo "## ${{ steps.tag.outputs.tag }} - $DATE"
+            echo ""
+            cat RELEASE_NOTES.md
+            echo ""
+          } > CHANGELOG.tmp
+
+          if [ -f CHANGELOG.md ]; then
+            tail -n +2 CHANGELOG.md >> CHANGELOG.tmp
+          fi
+
+          mv CHANGELOG.tmp CHANGELOG.md
+
+          git add CHANGELOG.md
+          git commit -m "docs(changelog): Update for ${{ steps.tag.outputs.tag }}" || true
+          git push || true
+
+      - name: Generate summary
+        run: |
+          echo "## Release Notes Generated" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Release**: ${{ steps.tag.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          cat RELEASE_NOTES.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload release notes artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-notes-${{ steps.tag.outputs.tag }}
+          path: RELEASE_NOTES.md
+          retention-days: 90

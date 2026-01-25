@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Benchmark Suite Summary](#ggen-benchmark-suite-summary)
+  - [Overview](#overview)
+  - [New Benchmark Files Created](#new-benchmark-files-created)
+    - [1. **config_loading_benchmarks.rs**](#1-config_loading_benchmarksrs)
+    - [2. **disk_io_benchmarks.rs**](#2-disk_io_benchmarksrs)
+    - [3. **sync_operation_benchmarks.rs**](#3-sync_operation_benchmarksrs)
+    - [4. **error_handling_benchmarks.rs**](#4-error_handling_benchmarksrs)
+    - [5. **concurrent_operations_benchmarks.rs**](#5-concurrent_operations_benchmarksrs)
+    - [6. **stability_benchmarks.rs**](#6-stability_benchmarksrs)
+  - [Benchmark Coverage Matrix](#benchmark-coverage-matrix)
+  - [Running Benchmarks](#running-benchmarks)
+    - [Run All Benchmarks for a Crate](#run-all-benchmarks-for-a-crate)
+    - [Run Specific Benchmark File](#run-specific-benchmark-file)
+    - [Run Specific Benchmark Group](#run-specific-benchmark-group)
+    - [Generate HTML Report](#generate-html-report)
+    - [Baseline Comparison](#baseline-comparison)
+  - [SLO (Service Level Objective) Targets](#slo-service-level-objective-targets)
+  - [Test Infrastructure](#test-infrastructure)
+    - [Dependencies](#dependencies)
+    - [Measurement Strategy](#measurement-strategy)
+  - [Integration with CI/CD](#integration-with-cicd)
+  - [Future Enhancements](#future-enhancements)
+    - [Planned Additions](#planned-additions)
+    - [Optimization Opportunities](#optimization-opportunities)
+  - [How to Interpret Results](#how-to-interpret-results)
+    - [Criterion Output](#criterion-output)
+    - [Performance Analysis](#performance-analysis)
+  - [References](#references)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Benchmark Suite Summary
 
 ## Overview

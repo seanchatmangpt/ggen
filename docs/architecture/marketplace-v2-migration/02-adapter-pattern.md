@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Adapter Pattern Architecture - Marketplace V2 Migration](#adapter-pattern-architecture---marketplace-v2-migration)
+  - [Overview](#overview)
+  - [Unified Interface Design](#unified-interface-design)
+    - [Core Trait: MarketplaceBackend](#core-trait-marketplacebackend)
+  - [V1 Adapter Implementation](#v1-adapter-implementation)
+  - [V2 Adapter Implementation](#v2-adapter-implementation)
+  - [Dual Backend Adapter (A/B Testing)](#dual-backend-adapter-ab-testing)
+  - [CLI Integration](#cli-integration)
+  - [Testing Strategy](#testing-strategy)
+    - [Adapter Tests](#adapter-tests)
+  - [Performance Monitoring](#performance-monitoring)
+  - [Success Criteria](#success-criteria)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Adapter Pattern Architecture - Marketplace V2 Migration
 
 ## Overview

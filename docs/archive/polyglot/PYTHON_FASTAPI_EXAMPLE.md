@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Python FastAPI Backend Generator Example](#python-fastapi-backend-generator-example)
+  - [Overview](#overview)
+  - [Prerequisites](#prerequisites)
+  - [Step 1: Create RDF Ontology](#step-1-create-rdf-ontology)
+  - [Step 2: Configure ggen for Python](#step-2-configure-ggen-for-python)
+  - [Step 3: Create Tera Templates](#step-3-create-tera-templates)
+    - [Pydantic Models Template](#pydantic-models-template)
+    - [FastAPI Routes Template](#fastapi-routes-template)
+    - [SQLAlchemy Models Template](#sqlalchemy-models-template)
+  - [Step 4: Run Generation](#step-4-run-generation)
+  - [Step 5: Create FastAPI Application](#step-5-create-fastapi-application)
+  - [Step 6: Implement Endpoints](#step-6-implement-endpoints)
+  - [Step 7: Test Generated Code](#step-7-test-generated-code)
+  - [Multi-Language Proof](#multi-language-proof)
+  - [Best Practices](#best-practices)
+    - [1. Separate Generated and Manual Code](#1-separate-generated-and-manual-code)
+    - [2. Regenerate When Ontology Changes](#2-regenerate-when-ontology-changes)
+    - [3. Use Type Hints Everywhere](#3-use-type-hints-everywhere)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Python FastAPI Backend Generator Example
 
 > Generate production-grade FastAPI applications from RDF ontologies

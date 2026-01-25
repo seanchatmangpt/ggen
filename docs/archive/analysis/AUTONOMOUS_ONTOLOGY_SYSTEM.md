@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Autonomous Ontology System (Σ)](#autonomous-ontology-system-%CE%A3)
+  - [Overview](#overview)
+  - [Core Architecture: Four Planes](#core-architecture-four-planes)
+    - [1. **Observation Plane (O)**](#1-observation-plane-o)
+    - [2. **Ontology Plane (Σ)**](#2-ontology-plane-%CE%A3)
+    - [3. **Change Plane (ΔΣ + Q)**](#3-change-plane-%CE%94%CE%A3--q)
+    - [4. **Projection/Execution Plane (Π)**](#4-projectionexecution-plane-%CE%A0)
+  - [Key Components](#key-components)
+    - [Meta-Ontology (Σ²)](#meta-ontology-%CE%A3%C2%B2)
+    - [Σ Runtime](#%CE%A3-runtime)
+    - [Pattern Miner](#pattern-miner)
+    - [ΔΣ Proposer](#%CE%94%CE%A3-proposer)
+    - [Multi-Layer Validators](#multi-layer-validators)
+    - [Hard Invariants (Q)](#hard-invariants-q)
+    - [Atomic Snapshot Promotion](#atomic-snapshot-promotion)
+    - [Autonomous Control Loop](#autonomous-control-loop)
+  - [Usage Example](#usage-example)
+  - [Safety Guarantees](#safety-guarantees)
+    - [Type Safety](#type-safety)
+    - [Memory Safety](#memory-safety)
+    - [Correctness Guarantees](#correctness-guarantees)
+    - [Performance](#performance)
+  - [Deployment Checklist](#deployment-checklist)
+  - [Future Enhancements](#future-enhancements)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Autonomous Ontology System (Σ)
 
 ## Overview

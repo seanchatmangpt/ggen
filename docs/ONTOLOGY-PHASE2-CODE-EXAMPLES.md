@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Phase 2 Code Examples: HIPAA Domain to MCP Proposal](#phase-2-code-examples-hipaa-domain-to-mcp-proposal)
+  - [Example 1: Domain YAML Input](#example-1-domain-yaml-input)
+  - [Example 2: Rust Code - Using the Integration Layer](#example-2-rust-code---using-the-integration-layer)
+  - [Example 3: CLI Usage](#example-3-cli-usage)
+  - [Example 4: Expected JSON Output](#example-4-expected-json-output)
+  - [Example 5: Unit Test Examples](#example-5-unit-test-examples)
+  - [Example 6: Chicago TDD Behavior Verification](#example-6-chicago-tdd-behavior-verification)
+  - [Running Examples](#running-examples)
+    - [Execute Rust Example](#execute-rust-example)
+    - [CLI Example](#cli-example)
+    - [Run Tests](#run-tests)
+  - [Success Indicators](#success-indicators)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Phase 2 Code Examples: HIPAA Domain to MCP Proposal
 
 This document provides complete, executable code examples showing the Phase 2 workflow.

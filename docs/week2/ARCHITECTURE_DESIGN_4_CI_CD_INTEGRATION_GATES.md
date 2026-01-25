@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 2 Architecture Design 4: CI/CD Integration Gates](#week-2-architecture-design-4-cicd-integration-gates)
+  - [Executive Summary](#executive-summary)
+  - [Current State Analysis](#current-state-analysis)
+    - [Existing CI Pipeline](#existing-ci-pipeline)
+    - [Current Makefile.toml Tasks](#current-makefiletoml-tasks)
+  - [Proposed Architecture](#proposed-architecture)
+    - [1. Andon Signal Detection Gate](#1-andon-signal-detection-gate)
+    - [2. Performance Regression Gate](#2-performance-regression-gate)
+    - [3. GitHub Actions Integration](#3-github-actions-integration)
+    - [4. Pre-Commit Git Hook](#4-pre-commit-git-hook)
+  - [Rollback Strategy](#rollback-strategy)
+    - [Gate Failure Scenarios](#gate-failure-scenarios)
+  - [Success Criteria](#success-criteria)
+    - [Functional Requirements](#functional-requirements)
+    - [Non-Functional Requirements](#non-functional-requirements)
+    - [Quality Gates](#quality-gates)
+  - [Benefits Analysis](#benefits-analysis)
+    - [Defect Prevention](#defect-prevention)
+    - [Time Savings](#time-savings)
+  - [Effort Estimates](#effort-estimates)
+  - [ADR: CI/CD Integration Gates](#adr-cicd-integration-gates)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 2 Architecture Design 4: CI/CD Integration Gates
 
 **Design Phase:** Reduce Waste - Automated Quality Validation

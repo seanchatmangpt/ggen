@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Phase 2 Implementation Plan Summary](#phase-2-implementation-plan-summary)
+  - [Executive Summary](#executive-summary)
+  - [Deliverables (23 Tasks Over 2 Weeks)](#deliverables-23-tasks-over-2-weeks)
+    - [Week 3: Core Infrastructure (12 Tasks)](#week-3-core-infrastructure-12-tasks)
+      - [Day 1-2: Type System & Domain Parsing (4 Tasks)](#day-1-2-type-system--domain-parsing-4-tasks)
+      - [Day 3-4: Entity-to-Ontology Mapping (4 Tasks)](#day-3-4-entity-to-ontology-mapping-4-tasks)
+      - [Day 5: SPARQL Query Generation (4 Tasks)](#day-5-sparql-query-generation-4-tasks)
+    - [Week 4: Integration & Validation (11 Tasks)](#week-4-integration--validation-11-tasks)
+      - [Day 1-2: Pipeline & CLI (4 Tasks)](#day-1-2-pipeline--cli-4-tasks)
+      - [Day 3: Documentation & Receipts (3 Tasks)](#day-3-documentation--receipts-3-tasks)
+      - [Day 4-5: Testing & Validation (4 Tasks)](#day-4-5-testing--validation-4-tasks)
+  - [File Structure](#file-structure)
+    - [Documentation Created](#documentation-created)
+    - [Code to be Created](#code-to-be-created)
+  - [Architecture Highlights](#architecture-highlights)
+    - [Data Flow Pipeline](#data-flow-pipeline)
+    - [Type System](#type-system)
+    - [Determinism Guarantees](#determinism-guarantees)
+    - [Confidence Scoring](#confidence-scoring)
+  - [Test Coverage Plan](#test-coverage-plan)
+    - [Unit Tests (30 tests)](#unit-tests-30-tests)
+    - [Integration Tests (30 tests)](#integration-tests-30-tests)
+    - [Coverage Target: >85% of Phase 2 code paths](#coverage-target-85-of-phase-2-code-paths)
+  - [Performance SLOs](#performance-slos)
+  - [Andon Signals (Quality Gates)](#andon-signals-quality-gates)
+  - [Success Criteria](#success-criteria)
+  - [Risk Mitigation](#risk-mitigation)
+  - [Transition to Phase 3](#transition-to-phase-3)
+  - [Implementation Notes](#implementation-notes)
+    - [Chicago TDD Required](#chicago-tdd-required)
+    - [Type-First Design](#type-first-design)
+    - [Zero-Cost Abstractions](#zero-cost-abstractions)
+    - [Cargo Make Requirements](#cargo-make-requirements)
+  - [Parallel Execution Strategy](#parallel-execution-strategy)
+    - [Week 3 Parallelization](#week-3-parallelization)
+    - [Week 4 Parallelization](#week-4-parallelization)
+  - [Daily Checkpoints](#daily-checkpoints)
+    - [Week 3](#week-3)
+    - [Week 4](#week-4)
+  - [Supporting Documents](#supporting-documents)
+  - [Getting Started](#getting-started)
+  - [Questions & Clarifications](#questions--clarifications)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Phase 2 Implementation Plan Summary
 
 **Duration**: Weeks 3-4 (10 business days)

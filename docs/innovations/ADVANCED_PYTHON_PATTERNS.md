@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Advanced Python/FastAPI Code Generation Patterns](#advanced-pythonfastapi-code-generation-patterns)
+  - [Overview](#overview)
+  - [Pattern 1: Advanced Async Patterns with Multi-Database Concurrency](#pattern-1-advanced-async-patterns-with-multi-database-concurrency)
+    - [Description](#description)
+    - [External Packages](#external-packages)
+    - [RDF Ontology for Async Config](#rdf-ontology-for-async-config)
+    - [Generated Async Database Manager](#generated-async-database-manager)
+    - [Advanced Caching Decorator](#advanced-caching-decorator)
+  - [Pattern 2: Advanced ORM Features with Relationship Caching](#pattern-2-advanced-orm-features-with-relationship-caching)
+    - [Description](#description-1)
+    - [External Packages](#external-packages-1)
+    - [RDF Ontology for ORM Config](#rdf-ontology-for-orm-config)
+    - [Generated ORM Models](#generated-orm-models)
+    - [Query Optimization with Selectinload](#query-optimization-with-selectinload)
+  - [Pattern 3: Advanced Strawberry GraphQL Integration](#pattern-3-advanced-strawberry-graphql-integration)
+    - [Description](#description-2)
+    - [External Packages](#external-packages-2)
+  - [Pattern 4: Advanced Background Task Processing with Celery](#pattern-4-advanced-background-task-processing-with-celery)
+    - [Description](#description-3)
+    - [External Packages](#external-packages-3)
+    - [RDF Ontology for Tasks](#rdf-ontology-for-tasks)
+    - [Generated Task Definitions](#generated-task-definitions)
+  - [Pattern 5: Advanced WebSocket Support with FastAPI](#pattern-5-advanced-websocket-support-with-fastapi)
+    - [Description](#description-4)
+    - [External Packages](#external-packages-4)
+    - [Generated WebSocket Implementation](#generated-websocket-implementation)
+  - [Tera Template Examples](#tera-template-examples)
+    - [FastAPI Service Template](#fastapi-service-template)
+  - [Best Practices](#best-practices)
+  - [References](#references)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Advanced Python/FastAPI Code Generation Patterns
 
 > Hyper-advanced patterns for async Python web services with multi-database support, ORM optimization, and real-time capabilities

@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Type-First Architecture Design: ggen.toml Configuration System](#type-first-architecture-design-ggentoml-configuration-system)
+  - [Executive Summary](#executive-summary)
+  - [Current State Analysis](#current-state-analysis)
+    - [1. project_config.rs (Minimal Implementation)](#1-project_configrs-minimal-implementation)
+    - [2. lockfile.rs (Pack Tracking - gpacks)](#2-lockfilers-pack-tracking---gpacks)
+    - [3. lock_manager.rs (Ontology Locking)](#3-lock_managerrs-ontology-locking)
+    - [4. ggen-toml-schema.toml (Complete Schema Specification)](#4-ggen-toml-schematoml-complete-schema-specification)
+  - [Type-First Architecture Design](#type-first-architecture-design)
+    - [Core Type System: Configuration Lifecycle State Machine](#core-type-system-configuration-lifecycle-state-machine)
+    - [1. Project Section](#1-project-section)
+    - [2. Workspace Section (Zero-Cost Abstraction)](#2-workspace-section-zero-cost-abstraction)
+    - [3. Graph Section (Graph-Based Dependency Resolution)](#3-graph-section-graph-based-dependency-resolution)
+    - [4. Dependencies Section](#4-dependencies-section)
+    - [5. Ontology Section (RDF/OWL Integration)](#5-ontology-section-rdfowl-integration)
+    - [6. Templates Section (Template Composition & Inheritance)](#6-templates-section-template-composition--inheritance)
+    - [7. Generators Section (Code Generation Pipelines)](#7-generators-section-code-generation-pipelines)
+    - [8. Lifecycle Section (Build Lifecycle & Hooks)](#8-lifecycle-section-build-lifecycle--hooks)
+    - [9. Plugins Section (Plugin System)](#9-plugins-section-plugin-system)
+    - [10. Profiles Section (Environment-Specific Overrides)](#10-profiles-section-environment-specific-overrides)
+  - [Dual Lockfile Integration Strategy](#dual-lockfile-integration-strategy)
+    - [Problem Statement](#problem-statement)
+    - [Integration Design](#integration-design)
+  - [Type-Level Invariants](#type-level-invariants)
+    - [1. Configuration Lifecycle Invariants](#1-configuration-lifecycle-invariants)
+    - [2. Semantic Versioning Invariants](#2-semantic-versioning-invariants)
+    - [3. Dependency Source Invariants](#3-dependency-source-invariants)
+    - [4. Profile Selection Invariants](#4-profile-selection-invariants)
+  - [Const Generic Patterns](#const-generic-patterns)
+    - [1. Compile-Time Strategy Selection](#1-compile-time-strategy-selection)
+    - [2. Compile-Time Validation Limits](#2-compile-time-validation-limits)
+  - [Result<T, E> Error Handling](#resultt-e-error-handling)
+  - [Ownership Semantics & Lifetime Annotations](#ownership-semantics--lifetime-annotations)
+    - [1. Configuration Ownership](#1-configuration-ownership)
+    - [2. Lockfile Borrowing](#2-lockfile-borrowing)
+    - [3. Template Resolution (Zero-Copy Where Possible)](#3-template-resolution-zero-copy-where-possible)
+    - [4. Dependency Candidate Ownership](#4-dependency-candidate-ownership)
+  - [Memory Storage Strategy](#memory-storage-strategy)
+  - [Implementation Priorities (80/20 Rule)](#implementation-priorities-8020-rule)
+    - [Phase 1: Critical 20% (Core Type System)](#phase-1-critical-20-core-type-system)
+    - [Phase 2: High Value 30% (Graph & Templates)](#phase-2-high-value-30-graph--templates)
+    - [Phase 3: Feature Completeness 30% (Workspace, Lifecycle, Profiles)](#phase-3-feature-completeness-30-workspace-lifecycle-profiles)
+    - [Phase 4: Advanced 20% (Generators, Plugins)](#phase-4-advanced-20-generators-plugins)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Type-First Architecture Design: ggen.toml Configuration System
 
 **Architect**: System Architect (Hive Mind)

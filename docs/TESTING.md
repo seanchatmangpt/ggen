@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Testing Guide: Agent Integration Patterns](#testing-guide-agent-integration-patterns)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+    - [Why Chicago TDD?](#why-chicago-tdd)
+  - [Chicago TDD Pattern](#chicago-tdd-pattern)
+    - [AAA Pattern: Arrange-Act-Assert](#aaa-pattern-arrange-act-assert)
+    - [Key Characteristics](#key-characteristics)
+  - [Unit Tests](#unit-tests)
+    - [Testing Signatures](#testing-signatures)
+    - [Testing Constraints](#testing-constraints)
+  - [Integration Tests](#integration-tests)
+    - [Testing Tool Registry](#testing-tool-registry)
+    - [Testing Agent-Tool Interaction](#testing-agent-tool-interaction)
+  - [Mock Agent Creation](#mock-agent-creation)
+    - [Minimal Test Agent](#minimal-test-agent)
+    - [Spy Tool for Verification](#spy-tool-for-verification)
+  - [Performance Testing](#performance-testing)
+    - [Benchmarking Tool Invocation](#benchmarking-tool-invocation)
+    - [SLO Verification](#slo-verification)
+  - [Test Organization](#test-organization)
+    - [File Structure](#file-structure)
+    - [Test Helpers Module](#test-helpers-module)
+  - [Common Patterns](#common-patterns)
+    - [Testing Input Validation Errors](#testing-input-validation-errors)
+    - [Testing Concurrent Invocations](#testing-concurrent-invocations)
+    - [Testing Tool Registry Lifecycle](#testing-tool-registry-lifecycle)
+  - [Running Tests](#running-tests)
+    - [Run all tests](#run-all-tests)
+    - [Run specific test file](#run-specific-test-file)
+    - [Run with output](#run-with-output)
+    - [Run benchmarks](#run-benchmarks)
+  - [Related Documentation](#related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Testing Guide: Agent Integration Patterns
 
 **Chicago TDD & Integration Testing for Agent-Tool Systems**

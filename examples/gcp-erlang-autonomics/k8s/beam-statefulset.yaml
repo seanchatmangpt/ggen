@@ -1,0 +1,500 @@
+---
+# Kubernetes StatefulSet for BEAM Erlang Autonomics Clustering
+# Namespace: autonomic-system
+# Purpose: Distributed Erlang clustering with automatic failover
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: autonomic-system
+  labels:
+    app: erlang-autonomics
+
+---
+# ConfigMap: Erlang VM configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: erlang-autonomics-vm-config
+  namespace: autonomic-system
+data:
+  vm.args: |
+    -name erlang-autonomics@127.0.0.1
+    -setcookie erlang-autonomics-secret
+    -kernel inet_default_connect_options "[{nodelay, true}]"
+    -kernel inet_dist_listen_min 9000
+    -kernel inet_dist_listen_max 9100
+    +K true
+    +A 256
+    +P 2097152
+    +Q 131072
+    +sbt ts
+    +sbwt very_long
+    +swt very_long
+    +co true
+    +ct 10000
+    -heart
+
+---
+# ConfigMap: Application configuration (sys.config)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: erlang-autonomics-sys-config
+  namespace: autonomic-system
+data:
+  sys.config: |
+    [
+      {kernel, [
+        {logger_level, info},
+        {net_ticktime, 60},
+        {inet_dist_listen_min, 9000},
+        {inet_dist_listen_max, 9100}
+      ]},
+      {erlang_autonomics, [
+        {gcp_project_id, "ggen-autonomics"},
+        {pubsub_subscription, "erlang-autonomics-signals"},
+        {pubsub_ack_deadline, 60},
+        {signal_ingest_workers, 3},
+        {governor_batch_size, 100},
+        {receipt_ledger_backend, ets},
+        {metrics_collection_interval_ms, 10000},
+        {clustering_strategy, heartbeat},
+        {clustering_heartbeat_interval_ms, 5000},
+        {clustering_max_nodes, 20},
+        {tls_enabled, true},
+        {debug_mode, false}
+      ]}
+    ]
+
+---
+# ServiceAccount: RBAC for BEAM nodes
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: erlang-autonomics-sa
+  namespace: autonomic-system
+
+---
+# ClusterRole: Permissions for BEAM node discovery and management
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: erlang-autonomics-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "pods/log", "endpoints", "services"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["statefulsets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["batch"]
+  resources: ["jobs"]
+  verbs: ["get", "list", "delete"]
+- apiGroups: ["policy"]
+  resources: ["poddisruptionbudgets"]
+  verbs: ["get", "list", "create", "patch"]
+
+---
+# ClusterRoleBinding: Bind ServiceAccount to Role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: erlang-autonomics-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: erlang-autonomics-role
+subjects:
+- kind: ServiceAccount
+  name: erlang-autonomics-sa
+  namespace: autonomic-system
+
+---
+# Secret: GCP credentials and TLS certificates
+apiVersion: v1
+kind: Secret
+metadata:
+  name: erlang-autonomics-secrets
+  namespace: autonomic-system
+type: Opaque
+stringData:
+  gcp-service-account.json: |
+    {
+      "type": "service_account",
+      "project_id": "ggen-autonomics",
+      "private_key_id": "PLACEHOLDER",
+      "private_key": "PLACEHOLDER",
+      "client_email": "erlang-autonomics@ggen-autonomics.iam.gserviceaccount.com",
+      "client_id": "PLACEHOLDER",
+      "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+      "token_uri": "https://oauth2.googleapis.com/token"
+    }
+  tls.crt: |
+    -----BEGIN CERTIFICATE-----
+    PLACEHOLDER
+    -----END CERTIFICATE-----
+  tls.key: |
+    -----BEGIN RSA PRIVATE KEY-----
+    PLACEHOLDER
+    -----END RSA PRIVATE KEY-----
+
+---
+# Headless Service: For BEAM distribution (Erlang clustering)
+apiVersion: v1
+kind: Service
+metadata:
+  name: erlang-autonomics-headless
+  namespace: autonomic-system
+  labels:
+    app: erlang-autonomics
+    component: beam-cluster
+spec:
+  clusterIP: None
+  selector:
+    app: erlang-autonomics
+    component: beam-cluster
+  ports:
+  - name: epmd
+    port: 4369
+    targetPort: 4369
+    protocol: TCP
+  - name: dist-min
+    port: 9000
+    targetPort: 9000
+    protocol: TCP
+  - name: dist-max
+    port: 9100
+    targetPort: 9100
+    protocol: TCP
+
+---
+# ClusterIP Service: For external HTTP access (Pub/Sub ingress, health)
+apiVersion: v1
+kind: Service
+metadata:
+  name: erlang-autonomics-http
+  namespace: autonomic-system
+  labels:
+    app: erlang-autonomics
+spec:
+  type: ClusterIP
+  selector:
+    app: erlang-autonomics
+    component: beam-cluster
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  - name: health
+    port: 8888
+    targetPort: 8888
+    protocol: TCP
+
+---
+# StatefulSet: BEAM Erlang Autonomics Cluster
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: erlang-autonomics-cluster
+  namespace: autonomic-system
+  labels:
+    app: erlang-autonomics
+    component: beam-cluster
+spec:
+  serviceName: erlang-autonomics-headless
+  replicas: 3
+  selector:
+    matchLabels:
+      app: erlang-autonomics
+      component: beam-cluster
+  template:
+    metadata:
+      labels:
+        app: erlang-autonomics
+        component: beam-cluster
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: erlang-autonomics-sa
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - erlang-autonomics
+              topologyKey: kubernetes.io/hostname
+
+      containers:
+      - name: erlang-autonomics
+        image: gcr.io/ggen-project/erlang-autonomics:1.0.0
+        imagePullPolicy: IfNotPresent
+
+        ports:
+        - name: epmd
+          containerPort: 4369
+          protocol: TCP
+        - name: dist-min
+          containerPort: 9000
+          protocol: TCP
+        - name: dist-max
+          containerPort: 9100
+          protocol: TCP
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        - name: metrics
+          containerPort: 9090
+          protocol: TCP
+
+        env:
+        - name: ERLANG_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: ERLANG_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: ERLANG_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: GCP_PROJECT_ID
+          value: "ggen-autonomics"
+        - name: PUBSUB_SUBSCRIPTION
+          value: "erlang-autonomics-signals"
+        - name: CLUSTERING_ENABLED
+          value: "true"
+        - name: CLUSTERING_STRATEGY
+          value: "heartbeat"
+        - name: METRICS_EXPORT_ENABLED
+          value: "true"
+
+        volumeMounts:
+        - name: vm-config
+          mountPath: /etc/erlang
+          readOnly: true
+        - name: sys-config
+          mountPath: /etc/erlang-autonomics
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/secrets
+          readOnly: true
+        - name: logs
+          mountPath: /var/log/erlang
+        - name: data
+          mountPath: /var/lib/erlang
+
+        resources:
+          requests:
+            cpu: 500m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+
+        livenessProbe:
+          tcpSocket:
+            port: epmd
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 15
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2
+
+        startupProbe:
+          httpGet:
+            path: /health
+            port: http
+          failureThreshold: 30
+          periodSeconds: 10
+
+      volumes:
+      - name: vm-config
+        configMap:
+          name: erlang-autonomics-vm-config
+      - name: sys-config
+        configMap:
+          name: erlang-autonomics-sys-config
+      - name: secrets
+        secret:
+          secretName: erlang-autonomics-secrets
+
+      terminationGracePeriodSeconds: 30
+
+  volumeClaimTemplates:
+  - metadata:
+      name: logs
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: standard
+      resources:
+        requests:
+          storage: 5Gi
+
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: standard
+      resources:
+        requests:
+          storage: 10Gi
+
+---
+# HorizontalPodAutoscaler: Auto-scale BEAM cluster based on CPU/memory
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: erlang-autonomics-hpa
+  namespace: autonomic-system
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: StatefulSet
+    name: erlang-autonomics-cluster
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 30
+
+---
+# PodDisruptionBudget: Ensure minimum availability during voluntary disruptions
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: erlang-autonomics-pdb
+  namespace: autonomic-system
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: erlang-autonomics
+      component: beam-cluster
+
+---
+# NetworkPolicy: Restrict traffic to/from BEAM nodes
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: erlang-autonomics-netpol
+  namespace: autonomic-system
+spec:
+  podSelector:
+    matchLabels:
+      app: erlang-autonomics
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Allow from Pub/Sub ingress (via Cloud Run sidecar)
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: autonomic-system
+    ports:
+    - protocol: TCP
+      port: 8080  # HTTP Pub/Sub ingress
+    - protocol: TCP
+      port: 8888  # Health check
+  # Allow internal BEAM distribution
+  - from:
+    - podSelector:
+        matchLabels:
+          app: erlang-autonomics
+    ports:
+    - protocol: TCP
+      port: 4369  # EPMD
+    - protocol: TCP
+      port: 9000   # Distribution min
+    - protocol: TCP
+      port: 9100   # Distribution max
+  egress:
+  # Allow to other BEAM nodes
+  - to:
+    - podSelector:
+        matchLabels:
+          app: erlang-autonomics
+    ports:
+    - protocol: TCP
+      port: 4369
+    - protocol: TCP
+      port: 9000
+    - protocol: TCP
+      port: 9100
+  # Allow to Kubernetes DNS
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: UDP
+      port: 53
+  # Allow outbound to GCP APIs (Pub/Sub, Cloud Monitoring)
+  - to:
+    - ipBlock:
+        cidr: 0.0.0.0/0
+        except:
+        - 169.254.169.254/32  # Block metadata server
+    ports:
+    - protocol: TCP
+      port: 443  # HTTPS to GCP APIs
+
+---
+# ServiceMonitor: For Prometheus scraping (optional)
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: erlang-autonomics-monitor
+  namespace: autonomic-system
+  labels:
+    app: erlang-autonomics
+spec:
+  selector:
+    matchLabels:
+      app: erlang-autonomics
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics

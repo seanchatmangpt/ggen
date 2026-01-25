@@ -1,0 +1,29 @@
+{% include "_header.erl.tera" %}
+
+-module({{ module_prefix }}_pubsub_decoder).
+-export([decode/1]).
+
+%% decode/1 expects Body already parsed as map OR raw JSON bytes.
+%% For template simplicity: assume it's a map:
+%% #{
+%%   message => #{
+%%     attributes => #{tenant_id => "...", source => "...", name => "..."},
+%%     data => "base64..."
+%%   }
+%% }
+
+decode(Body) when is_map(Body) ->
+  Msg = maps:get(message, Body, #{}),
+  DataB64 = maps:get(data, Msg, <<>>),
+  PayloadBin = base64:decode(DataB64),
+
+  %% In production: JSON decode PayloadBin to map
+  %% Here: pretend payload is already a map in Body.payload
+  Payload = maps:get(payload, Body, #{raw => PayloadBin}),
+
+  %% Put payload into the envelope for normalizer
+  Body#{payload => Payload};
+
+decode(Bin) when is_binary(Bin) ->
+  %% In production: JSON decode binary into map, then decode(map)
+  #{payload => #{raw => Bin}, message => #{attributes => #{tenant_id => <<"unknown">>}}}.

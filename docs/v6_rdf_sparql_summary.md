@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [RDF/SPARQL v6 Breaking Changes - Executive Summary](#rdfsparql-v6-breaking-changes---executive-summary)
+  - [TL;DR](#tldr)
+  - [Key Findings by Category](#key-findings-by-category)
+    - [1. Type-Safe SPARQL Query Construction ⚠️ HIGH PRIORITY](#1-type-safe-sparql-query-construction--high-priority)
+    - [2. Zero-Copy RDF Triple Handling ⚠️ HIGH PRIORITY](#2-zero-copy-rdf-triple-handling--high-priority)
+    - [3. Compile-Time Namespace Management 🔧 MEDIUM PRIORITY](#3-compile-time-namespace-management--medium-priority)
+    - [4. Ergonomic Query Result Iteration 🔧 MEDIUM PRIORITY](#4-ergonomic-query-result-iteration--medium-priority)
+    - [5. Memory-Efficient Graph Traversal ℹ️ LOW PRIORITY](#5-memory-efficient-graph-traversal--low-priority)
+    - [6. Compile-Time SPARQL Validation ⚠️ HIGH PRIORITY](#6-compile-time-sparql-validation--high-priority)
+  - [Quick Wins vs. Long-Term Investments](#quick-wins-vs-long-term-investments)
+    - [Quick Wins (1-2 weeks each)](#quick-wins-1-2-weeks-each)
+    - [Long-Term Investments (3-4 weeks each)](#long-term-investments-3-4-weeks-each)
+  - [Recommended Prioritization](#recommended-prioritization)
+    - [Immediate (Next Sprint)](#immediate-next-sprint)
+    - [Next Quarter (v6.1.0)](#next-quarter-v610)
+    - [Future (v6.2.0)](#future-v620)
+  - [Success Metrics](#success-metrics)
+    - [Performance SLOs](#performance-slos)
+    - [Quality Gates](#quality-gates)
+    - [Adoption Metrics](#adoption-metrics)
+  - [Next Steps](#next-steps)
+  - [Contact & Questions](#contact--questions)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # RDF/SPARQL v6 Breaking Changes - Executive Summary
 
 **Date**: 2026-01-24

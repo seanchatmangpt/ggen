@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Security Audit Summary - ggen-ontology-core](#security-audit-summary---ggen-ontology-core)
+  - [Quick Reference Guide](#quick-reference-guide)
+  - [Key Findings at a Glance](#key-findings-at-a-glance)
+    - [✅ STRENGTHS](#-strengths)
+    - [⚠️ CRITICAL ISSUES](#-critical-issues)
+  - [Security Score Breakdown](#security-score-breakdown)
+  - [OWASP Top 10 Compliance](#owasp-top-10-compliance)
+  - [Critical Fix Required](#critical-fix-required)
+    - [Unwrap/Expect Violation](#unwrapexpect-violation)
+  - [Remediation Checklist](#remediation-checklist)
+  - [Security Testing Summary](#security-testing-summary)
+    - [Created Test Suites: 3](#created-test-suites-3)
+      - [1. SPARQL Injection Tests (9 tests)](#1-sparql-injection-tests-9-tests)
+      - [2. Path Traversal Tests (7 tests)](#2-path-traversal-tests-7-tests)
+      - [3. Input Validation Tests (14 tests)](#3-input-validation-tests-14-tests)
+  - [Dependency Analysis](#dependency-analysis)
+    - [Versions Checked](#versions-checked)
+  - [Code Metrics](#code-metrics)
+  - [Approval Requirements](#approval-requirements)
+    - [Before APPROVED Status:](#before-approved-status)
+    - [After Fixes:](#after-fixes)
+  - [Risk by Category](#risk-by-category)
+  - [Files Created During Audit](#files-created-during-audit)
+  - [Next Steps](#next-steps)
+    - [Immediate (This Sprint)](#immediate-this-sprint)
+    - [Follow-up (Future Maintenance)](#follow-up-future-maintenance)
+  - [Quick Links](#quick-links)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Security Audit Summary - ggen-ontology-core
 ## Quick Reference Guide
 

@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [🚨 ANDON DASHBOARD - Quality Visual Signal System](#-andon-dashboard---quality-visual-signal-system)
+  - [📊 REAL-TIME QUALITY SIGNALS](#-real-time-quality-signals)
+    - [Overall System Health: 🟢 GREEN](#overall-system-health--green)
+  - [🎯 CRITICAL METRICS AT-A-GLANCE](#-critical-metrics-at-a-glance)
+  - [🔴 ANDON STOP SIGNALS (Immediate Action Required)](#-andon-stop-signals-immediate-action-required)
+  - [⚠️  ANDON YELLOW SIGNALS (Attention Needed)](#--andon-yellow-signals-attention-needed)
+    - [1. Security Advisory - Low Severity (2 CVEs)](#1-security-advisory---low-severity-2-cves)
+    - [2. Unmaintained Dependencies (12 warnings)](#2-unmaintained-dependencies-12-warnings)
+  - [📈 QUALITY TREND ANALYSIS](#-quality-trend-analysis)
+    - [Last 7 Builds](#last-7-builds)
+  - [🎯 PHASE 2 QUALITY GATES](#-phase-2-quality-gates)
+    - [✅ PASSED Quality Gates](#-passed-quality-gates)
+    - [🎯 MONITORING Quality Gates](#-monitoring-quality-gates)
+  - [🚀 CONTINUOUS IMPROVEMENT METRICS](#-continuous-improvement-metrics)
+    - [What Gets Better Every Sprint](#what-gets-better-every-sprint)
+    - [Kaizen Targets (Next 2 Weeks)](#kaizen-targets-next-2-weeks)
+  - [🔧 LEAN PERFORMANCE INDICATORS](#-lean-performance-indicators)
+    - [Muda (Waste) Elimination](#muda-waste-elimination)
+    - [Mura (Inconsistency) Tracking](#mura-inconsistency-tracking)
+    - [Muri (Overburden) Detection](#muri-overburden-detection)
+  - [📱 ALERT SYSTEM](#-alert-system)
+    - [Automated Alerts](#automated-alerts)
+  - [🎨 VISUAL INDICATORS LEGEND](#-visual-indicators-legend)
+  - [📋 DAILY STANDUP CHECKLIST](#-daily-standup-checklist)
+  - [🏆 QUALITY ACHIEVEMENTS](#-quality-achievements)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 🚨 ANDON DASHBOARD - Quality Visual Signal System
 
 **Last Updated**: 2025-11-19 07:20 UTC

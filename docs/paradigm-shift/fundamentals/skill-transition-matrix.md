@@ -1,3 +1,58 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Skill Transition Matrix: Traditional → RDF-First Development](#skill-transition-matrix-traditional-%E2%86%92-rdf-first-development)
+  - [Purpose](#purpose)
+  - [Skill Transition Matrix](#skill-transition-matrix)
+    - [1. Query Languages: SQL → SPARQL](#1-query-languages-sql-%E2%86%92-sparql)
+    - [2. Data Formats: JSON/YAML → Turtle (TTL)](#2-data-formats-jsonyaml-%E2%86%92-turtle-ttl)
+    - [3. Type Systems: Static Typing → SHACL Constraints](#3-type-systems-static-typing-%E2%86%92-shacl-constraints)
+    - [4. Architecture: Class Hierarchies → RDF Ontologies](#4-architecture-class-hierarchies-%E2%86%92-rdf-ontologies)
+    - [5. Data Modeling: ER Diagrams → RDF Graphs](#5-data-modeling-er-diagrams-%E2%86%92-rdf-graphs)
+    - [6. Templating: Jinja2/Mustache → Tera (SPARQL-aware)](#6-templating-jinja2mustache-%E2%86%92-tera-sparql-aware)
+    - [7. Testing: Unit Tests → Property-Based Tests](#7-testing-unit-tests-%E2%86%92-property-based-tests)
+    - [8. Error Handling: Exceptions → Result<T, E>](#8-error-handling-exceptions-%E2%86%92-resultt-e)
+    - [9. Reasoning: Imperative Logic → Declarative Inference](#9-reasoning-imperative-logic-%E2%86%92-declarative-inference)
+    - [10. Versioning: Git Commits → Knowledge Graph Evolution](#10-versioning-git-commits-%E2%86%92-knowledge-graph-evolution)
+    - [11. Performance: O(n) Analysis → Graph Complexity](#11-performance-on-analysis-%E2%86%92-graph-complexity)
+    - [12. API Design: REST → Hypermedia (HATEOAS)](#12-api-design-rest-%E2%86%92-hypermedia-hateoas)
+    - [13. Code Generation: String Templates → RDF Projections](#13-code-generation-string-templates-%E2%86%92-rdf-projections)
+    - [14. Debugging: Print Statements → RDF Introspection](#14-debugging-print-statements-%E2%86%92-rdf-introspection)
+    - [15. Documentation: Markdown → RDF Schema + Generated Docs](#15-documentation-markdown-%E2%86%92-rdf-schema--generated-docs)
+    - [16. Collaboration: Code Reviews → Ontology Reviews](#16-collaboration-code-reviews-%E2%86%92-ontology-reviews)
+  - [Learning Paths by Background](#learning-paths-by-background)
+    - [For SQL Developers](#for-sql-developers)
+    - [For OOP Developers (Java/C&#035;)](#for-oop-developers-javac)
+    - [For Frontend Developers (React/Vue)](#for-frontend-developers-reactvue)
+    - [For DevOps Engineers](#for-devops-engineers)
+  - [Self-Assessment Checklist](#self-assessment-checklist)
+    - [RDF Fundamentals](#rdf-fundamentals)
+    - [SPARQL Querying](#sparql-querying)
+    - [SHACL Validation](#shacl-validation)
+    - [Ontology Design](#ontology-design)
+    - [Code Generation (ggen)](#code-generation-ggen)
+    - [Rust Integration](#rust-integration)
+  - [Common Anti-Patterns to Avoid](#common-anti-patterns-to-avoid)
+    - [1. The "JSON in Turtle" Anti-Pattern](#1-the-json-in-turtle-anti-pattern)
+    - [2. The "Database ID" Anti-Pattern](#2-the-database-id-anti-pattern)
+    - [3. The "String Everything" Anti-Pattern](#3-the-string-everything-anti-pattern)
+    - [4. The "Procedural SPARQL" Anti-Pattern](#4-the-procedural-sparql-anti-pattern)
+    - [5. The "Hardcoded Schema" Anti-Pattern](#5-the-hardcoded-schema-anti-pattern)
+  - [Next Steps](#next-steps)
+    - [Immediate Actions (Today)](#immediate-actions-today)
+    - [This Week](#this-week)
+    - [This Month](#this-month)
+    - [This Quarter](#this-quarter)
+  - [Resources by Skill Level](#resources-by-skill-level)
+    - [Beginner](#beginner)
+    - [Intermediate](#intermediate)
+    - [Advanced](#advanced)
+    - [Expert](#expert)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Skill Transition Matrix: Traditional → RDF-First Development
 
 **Version**: 1.0.0

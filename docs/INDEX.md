@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Documentation Index](#ggen-documentation-index)
+  - [🚀 Getting Started](#-getting-started)
+  - [📚 Documentation by Type](#-documentation-by-type)
+    - [Installation & Setup](#installation--setup)
+    - [Core Concepts](#core-concepts)
+    - [Learning Paths](#learning-paths)
+      - [🎓 I want to learn ggen](#-i-want-to-learn-ggen)
+      - [🔍 I need to solve a problem](#-i-need-to-solve-a-problem)
+      - [📖 I need reference information](#-i-need-reference-information)
+      - [💡 I want to understand concepts](#-i-want-to-understand-concepts)
+      - [🏗️ I want working examples](#-i-want-working-examples)
+      - [📋 Need quick command reference?](#-need-quick-command-reference)
+    - [Feature Documentation](#feature-documentation)
+      - [🚦 Poka-Yoke Error-Proofing (Quality Control)](#-poka-yoke-error-proofing-quality-control)
+      - [🤖 ggen-ai (AI-Native Code Generation)](#-ggen-ai-ai-native-code-generation)
+      - [☁️ ggen-paas (Infrastructure-as-Code)](#-ggen-paas-infrastructure-as-code)
+      - [📅 Bree Scheduler (Job Orchestration)](#-bree-scheduler-job-orchestration)
+    - [Philosophy & Principles](#philosophy--principles)
+      - [Constitutional Rules (v6)](#constitutional-rules-v6)
+      - [Project Constitution](#project-constitution)
+    - [Migration & Upgrade](#migration--upgrade)
+      - [v5.1.0 → v6.0.0 Migration](#v510-%E2%86%92-v600-migration)
+    - [API & Reference](#api--reference)
+      - [Core APIs](#core-apis)
+      - [Tools & Utilities](#tools--utilities)
+    - [Examples & Patterns](#examples--patterns)
+      - [Production Examples](#production-examples)
+      - [Common Patterns](#common-patterns)
+    - [Contributing](#contributing)
+    - [Additional Resources](#additional-resources)
+    - [Archive & Historical](#archive--historical)
+  - [Quick Navigation](#quick-navigation)
+    - [By User Type](#by-user-type)
+  - [Key Files Quick Links](#key-files-quick-links)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Documentation Index
 
 Complete documentation for ggen v6 - specification-driven code generation with manufacturing-grade quality control.

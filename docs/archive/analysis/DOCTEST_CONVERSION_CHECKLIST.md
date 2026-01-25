@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Doctest Conversion Checklist](#doctest-conversion-checklist)
+  - [CRITICAL: Always Verify After Conversion](#critical-always-verify-after-conversion)
+  - [Conversion Criteria Checklist](#conversion-criteria-checklist)
+  - [Conversion Steps](#conversion-steps)
+  - [Error Handling Patterns](#error-handling-patterns)
+    - [For Infallible Functions](#for-infallible-functions)
+    - [For Fallible Functions (Simple)](#for-fallible-functions-simple)
+    - [For Fallible Functions (Complex)](#for-fallible-functions-complex)
+  - [Verification Commands](#verification-commands)
+  - [Common Mistakes to Avoid](#common-mistakes-to-avoid)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Doctest Conversion Checklist
 
 ## CRITICAL: Always Verify After Conversion

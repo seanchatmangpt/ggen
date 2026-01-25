@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [AGENT 6: Go-to-Market Strategy for ggen-disney](#agent-6-go-to-market-strategy-for-ggen-disney)
+  - [Executive Summary](#executive-summary)
+  - [Sales Model](#sales-model)
+    - [Direct Enterprise Sales (80% of Year 1 Revenue)](#direct-enterprise-sales-80-of-year-1-revenue)
+    - [Self-Serve / Freemium (10% of Year 1 Revenue)](#self-serve--freemium-10-of-year-1-revenue)
+    - [Partner Channel (10% of Year 1 Revenue)](#partner-channel-10-of-year-1-revenue)
+      - [Partner Type 1: System Integrators (SIs)](#partner-type-1-system-integrators-sis)
+      - [Partner Type 2: Cloud Providers](#partner-type-2-cloud-providers)
+      - [Partner Type 3: ISV / Embed](#partner-type-3-isv--embed)
+  - [Marketing Strategy](#marketing-strategy)
+    - [Pillar 1: Content Marketing (Month 1-6)](#pillar-1-content-marketing-month-1-6)
+    - [Pillar 2: Events (Month 3-12)](#pillar-2-events-month-3-12)
+    - [Pillar 3: PR & Brand (Month 1-6)](#pillar-3-pr--brand-month-1-6)
+    - [Pillar 4: Paid Advertising (Month 6-12)](#pillar-4-paid-advertising-month-6-12)
+  - [Sales Playbook](#sales-playbook)
+    - [Discovery Call Script (15 min)](#discovery-call-script-15-min)
+    - [Qualification Questions (BANT)](#qualification-questions-bant)
+    - [Pain Point Deep Dive](#pain-point-deep-dive)
+    - [Solution Pitch (3 minutes)](#solution-pitch-3-minutes)
+    - [Close (Ask for Next Step)](#close-ask-for-next-step)
+  - [Customer Success & Expansion](#customer-success--expansion)
+    - [Customer Success Model](#customer-success-model)
+    - [Reference Program](#reference-program)
+  - [Pricing & Packaging](#pricing--packaging)
+    - [GTM Pricing (Day 1)](#gtm-pricing-day-1)
+    - [Pricing Adjustments (Year 2+)](#pricing-adjustments-year-2)
+  - [Channel & Partnership GTM](#channel--partnership-gtm)
+    - [Partner Go-to-Market (Month 12+)](#partner-go-to-market-month-12)
+  - [GTM Timeline](#gtm-timeline)
+    - [Phase 1: Pilot & Proof (Months 1-6)](#phase-1-pilot--proof-months-1-6)
+    - [Phase 2: Early Adopter & Growth (Months 7-12)](#phase-2-early-adopter--growth-months-7-12)
+    - [Phase 3: Scale & Channel (Months 13-24)](#phase-3-scale--channel-months-13-24)
+  - [GTM Risks & Mitigations](#gtm-risks--mitigations)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # AGENT 6: Go-to-Market Strategy for ggen-disney
 
 **Status**: COMPLETE

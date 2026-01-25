@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Using gVisor Without Docker](#using-gvisor-without-docker)
+  - [Overview](#overview)
+  - [Architecture](#architecture)
+  - [Prerequisites](#prerequisites)
+  - [Setup Steps](#setup-steps)
+    - [1. Build runsc from Source](#1-build-runsc-from-source)
+    - [2. Install and Configure gVisor with containerd](#2-install-and-configure-gvisor-with-containerd)
+    - [3. Build ggen as OCI Image](#3-build-ggen-as-oci-image)
+    - [4. Run ggen with gVisor](#4-run-ggen-with-gvisor)
+  - [Manual Steps (Alternative)](#manual-steps-alternative)
+    - [macOS with Colima](#macos-with-colima)
+    - [Linux (Native)](#linux-native)
+  - [Comparison: Docker vs containerd + gVisor](#comparison-docker-vs-containerd--gvisor)
+  - [Troubleshooting](#troubleshooting)
+    - [containerd not found](#containerd-not-found)
+    - [runsc not recognized by containerd](#runsc-not-recognized-by-containerd)
+    - [Image import fails](#image-import-fails)
+    - [Permission errors](#permission-errors)
+  - [Benefits of No-Docker Approach](#benefits-of-no-docker-approach)
+  - [Next Steps](#next-steps)
+  - [Resources](#resources)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Using gVisor Without Docker
 
 This guide explains how to build and run ggen using gVisor directly with containerd, **without requiring Docker**.

@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 4: Metrics Tracking & Health Score Validation](#week-4-metrics-tracking--health-score-validation)
+  - [Overview](#overview)
+    - [Key Principles](#key-principles)
+  - [Health Score Calculation](#health-score-calculation)
+  - [Daily Tracking Schedule](#daily-tracking-schedule)
+    - [Day 1: Baseline & Compilation Fix](#day-1-baseline--compilation-fix)
+    - [Day 2: CLI Test Coverage](#day-2-cli-test-coverage)
+    - [Day 3: Utils & Ontology Tests](#day-3-utils--ontology-tests)
+    - [Day 4: Marketplace & Integration Tests](#day-4-marketplace--integration-tests)
+    - [Day 5: Final Validation & Target Achievement](#day-5-final-validation--target-achievement)
+  - [Automated Tracking Tools](#automated-tracking-tools)
+    - [1. Daily Tracker Script](#1-daily-tracker-script)
+    - [2. Week 4 Dashboard](#2-week-4-dashboard)
+    - [3. Coverage by Module Tracker](#3-coverage-by-module-tracker)
+  - [Metrics Validation](#metrics-validation)
+    - [What to Track Daily](#what-to-track-daily)
+  - [Blocker Detection](#blocker-detection)
+    - [Automatic Alerts](#automatic-alerts)
+  - [Success Criteria](#success-criteria)
+    - [Daily Success (Each Day)](#daily-success-each-day)
+    - [Week 4 Success (End of Day 5)](#week-4-success-end-of-day-5)
+  - [Deliverables](#deliverables)
+    - [Daily Deliverables (Days 1-5)](#daily-deliverables-days-1-5)
+    - [Final Deliverables (End of Week 4)](#final-deliverables-end-of-week-4)
+  - [Commands Reference](#commands-reference)
+    - [Daily Workflow](#daily-workflow)
+    - [Validation Commands](#validation-commands)
+  - [Troubleshooting](#troubleshooting)
+    - [Common Issues](#common-issues)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 4: Metrics Tracking & Health Score Validation
 
 **Timeline:** Days 1-5

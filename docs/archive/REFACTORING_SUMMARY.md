@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Benchmark Refactoring Summary: Restoring Academic Integrity](#benchmark-refactoring-summary-restoring-academic-integrity)
+  - [The Problem](#the-problem)
+  - [Discovery Process](#discovery-process)
+    - [Problem &#035;1: Error Handling Numbers Are Impossible](#problem-1-error-handling-numbers-are-impossible)
+    - [Problem &#035;2: Sync Operations Don't Test Real Sync](#problem-2-sync-operations-dont-test-real-sync)
+    - [Problem &#035;3: Concurrent Operations Don't Test Real Marketplace](#problem-3-concurrent-operations-dont-test-real-marketplace)
+    - [Problem &#035;4: Numbers Never Measured](#problem-4-numbers-never-measured)
+  - [The Solution](#the-solution)
+    - [1. Honest Audit (BENCHMARK_AUDIT.md)](#1-honest-audit-benchmark_auditmd)
+    - [2. Honest Dissertation (dissertation_honest.tex)](#2-honest-dissertation-dissertation_honesttex)
+    - [3. Benchmark Disclaimers](#3-benchmark-disclaimers)
+    - [4. Original Dissertation Retracted](#4-original-dissertation-retracted)
+  - [Validity Assessment](#validity-assessment)
+  - [Lessons Learned](#lessons-learned)
+    - [1. Measurement vs Writing Code](#1-measurement-vs-writing-code)
+    - [2. Simulation is Not Reality](#2-simulation-is-not-reality)
+    - [3. Precise Numbers Imply Measurement](#3-precise-numbers-imply-measurement)
+    - [4. Academic Integrity Matters](#4-academic-integrity-matters)
+    - [5. Honest Assessments Enable Progress](#5-honest-assessments-enable-progress)
+  - [Path to Honest Measurements](#path-to-honest-measurements)
+    - [Phase 1: Run Valid Benchmarks](#phase-1-run-valid-benchmarks)
+    - [Phase 2: Refactor Invalid Benchmarks](#phase-2-refactor-invalid-benchmarks)
+    - [Phase 3: Create Honest Documentation](#phase-3-create-honest-documentation)
+    - [Phase 4: Establish Standards](#phase-4-establish-standards)
+  - [Files Changed](#files-changed)
+  - [Commits](#commits)
+  - [What's Next](#whats-next)
+  - [Key Takeaway](#key-takeaway)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Benchmark Refactoring Summary: Restoring Academic Integrity
 
 ## The Problem

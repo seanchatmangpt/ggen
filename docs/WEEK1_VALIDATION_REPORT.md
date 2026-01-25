@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Week 1 Validation Report - Chicago TDD Validation Phase](#week-1-validation-report---chicago-tdd-validation-phase)
+  - [Executive Summary](#executive-summary)
+    - [Overall Status: 🔴 RED - BLOCK WEEK 2](#overall-status--red---block-week-2)
+  - [Phase 1 - Compilation Andon Signal ✅ GREEN](#phase-1---compilation-andon-signal--green)
+    - [Source Code Compilation](#source-code-compilation)
+  - [Phase 2 - Unit Tests Andon Signal 🔴 RED](#phase-2---unit-tests-andon-signal--red)
+    - [Unit Test Compilation](#unit-test-compilation)
+  - [Phase 3 - Integration Tests Andon Signal 🔴 RED (CRITICAL)](#phase-3---integration-tests-andon-signal--red-critical)
+    - [Workspace Test Compilation](#workspace-test-compilation)
+    - [Error Breakdown by Crate:](#error-breakdown-by-crate)
+  - [Phase 4 - Linting Andon Signal 🟢 GREEN](#phase-4---linting-andon-signal--green)
+    - [Clippy Linting](#clippy-linting)
+  - [Phase 5 - Performance SLOs ✅ MEETS TARGETS](#phase-5---performance-slos--meets-targets)
+    - [Build Performance](#build-performance)
+  - [Chicago TDD Validation Analysis](#chicago-tdd-validation-analysis)
+    - [Test Suite Quality Assessment](#test-suite-quality-assessment)
+  - [Week 0 vs. Week 1 Comparison](#week-0-vs-week-1-comparison)
+  - [Andon Signal Dashboard](#andon-signal-dashboard)
+  - [Critical Decision Point](#critical-decision-point)
+    - [Week 2 Proceed/Block Recommendation: **🔴 BLOCK**](#week-2-proceedblock-recommendation--block)
+  - [Recommended Actions Before Week 2](#recommended-actions-before-week-2)
+    - [Immediate (Priority 1 - Before ANY Week 2 work):](#immediate-priority-1---before-any-week-2-work)
+    - [Verification (Priority 2 - After fixes):](#verification-priority-2---after-fixes)
+    - [Documentation (Priority 3 - For continuous improvement):](#documentation-priority-3---for-continuous-improvement)
+  - [Lessons Learned](#lessons-learned)
+  - [Appendix - Detailed Error Logs](#appendix---detailed-error-logs)
+  - [Sign-Off](#sign-off)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Week 1 Validation Report - Chicago TDD Validation Phase
 
 **Execution Date**: 2025-11-20
