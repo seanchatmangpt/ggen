@@ -26,9 +26,12 @@ use std::sync::Arc;
 
 /// Evaluation function
 async fn evaluate(
-    module: &dyn Module,
-    dataset: &[Example],
-    metric: &Arc<dyn Fn(&Example, &HashMap<String, Value>) -> Result<bool, ggen_ai::dspy::ModuleError> + Send + Sync>,
+    module: &dyn Module, dataset: &[Example],
+    metric: &Arc<
+        dyn Fn(&Example, &HashMap<String, Value>) -> Result<bool, ggen_ai::dspy::ModuleError>
+            + Send
+            + Sync,
+    >,
 ) -> Result<f64, Box<dyn std::error::Error>> {
     let mut total = 0.0;
 
@@ -55,11 +58,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "SentimentClassification",
         "Classify text sentiment as positive, negative, or neutral",
     )
-    .with_input(InputField::new(
-        "text",
-        "Text to classify",
-        "String",
-    ))
+    .with_input(InputField::new("text", "Text to classify", "String"))
     .with_output(OutputField::new(
         "sentiment",
         "Sentiment (positive/negative/neutral)",
@@ -77,7 +76,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Example::new(
             {
                 let mut m = HashMap::new();
-                m.insert("text".to_string(), json!("I absolutely love this product! It's amazing!"));
+                m.insert(
+                    "text".to_string(),
+                    json!("I absolutely love this product! It's amazing!"),
+                );
                 m
             },
             {
@@ -89,7 +91,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Example::new(
             {
                 let mut m = HashMap::new();
-                m.insert("text".to_string(), json!("This is the worst experience I've ever had."));
+                m.insert(
+                    "text".to_string(),
+                    json!("This is the worst experience I've ever had."),
+                );
                 m
             },
             {
@@ -101,7 +106,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Example::new(
             {
                 let mut m = HashMap::new();
-                m.insert("text".to_string(), json!("The product is okay, nothing special."));
+                m.insert(
+                    "text".to_string(),
+                    json!("The product is okay, nothing special."),
+                );
                 m
             },
             {
@@ -113,7 +121,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Example::new(
             {
                 let mut m = HashMap::new();
-                m.insert("text".to_string(), json!("Fantastic service, highly recommend!"));
+                m.insert(
+                    "text".to_string(),
+                    json!("Fantastic service, highly recommend!"),
+                );
                 m
             },
             {
@@ -125,7 +136,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Example::new(
             {
                 let mut m = HashMap::new();
-                m.insert("text".to_string(), json!("Terrible quality, waste of money."));
+                m.insert(
+                    "text".to_string(),
+                    json!("Terrible quality, waste of money."),
+                );
                 m
             },
             {
@@ -211,8 +225,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("--- Optimization Phase ---\n");
             println!("Running BootstrapFewShot optimizer...");
 
-            let optimizer = BootstrapFewShot::new(metric.clone())
-                .with_max_bootstrapped_demos(3);
+            let optimizer = BootstrapFewShot::new(metric.clone()).with_max_bootstrapped_demos(3);
 
             match optimizer.compile(&baseline, &trainset).await {
                 Ok(optimized) => {

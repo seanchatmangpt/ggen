@@ -104,8 +104,8 @@ fn test_hash_contains_salt_and_params() {
     // Argon2 hash format: $argon2id$v=19$m=19456,t=2,p=1$salt$hash
     assert!(hash.contains("$argon2id$"));
     assert!(hash.contains("m=19456")); // Memory cost
-    assert!(hash.contains("t=2"));     // Time cost
-    assert!(hash.contains("p=1"));     // Parallelism
+    assert!(hash.contains("t=2")); // Time cost
+    assert!(hash.contains("p=1")); // Parallelism
 }
 
 #[test]

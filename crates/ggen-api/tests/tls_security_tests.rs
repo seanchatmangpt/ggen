@@ -19,8 +19,14 @@ async fn test_reject_empty_cipher_suites() {
     let result = builder.build();
 
     // Assert
-    assert!(result.is_err(), "Empty cipher suite list should be rejected");
-    assert!(matches!(result, Err(TlsError::ConfigError(_))), "Should be config error");
+    assert!(
+        result.is_err(),
+        "Empty cipher suite list should be rejected"
+    );
+    assert!(
+        matches!(result, Err(TlsError::ConfigError(_))),
+        "Should be config error"
+    );
 }
 
 // Test 2: Enforce TLS 1.3 only (no downgrade to TLS 1.2)
@@ -47,9 +53,7 @@ async fn test_cipher_suite_strength() {
     let ciphers = vec![CipherSuite::ChaCha20Poly1305, CipherSuite::Aes256Gcm];
 
     // Act
-    let config = TlsConfigBuilder::new()
-        .cipher_suites(ciphers)
-        .build();
+    let config = TlsConfigBuilder::new().cipher_suites(ciphers).build();
 
     // Assert
     assert!(config.is_ok(), "Strong cipher suites should be accepted");
@@ -78,8 +82,14 @@ async fn test_certificate_pinning_fail_closed() {
     let result = pin.verify(wrong_spki);
 
     // Assert
-    assert!(result.is_err(), "Pinning should fail for mismatched certificate");
-    assert!(matches!(result, Err(TlsError::PinningFailed(_))), "Should be pinning error");
+    assert!(
+        result.is_err(),
+        "Pinning should fail for mismatched certificate"
+    );
+    assert!(
+        matches!(result, Err(TlsError::PinningFailed(_))),
+        "Should be pinning error"
+    );
 }
 
 // Test 5: Certificate pinning with correct hash succeeds
@@ -94,7 +104,10 @@ async fn test_certificate_pinning_success() {
     let result = pin.verify(spki);
 
     // Assert
-    assert!(result.is_ok(), "Pinning should succeed with correct certificate");
+    assert!(
+        result.is_ok(),
+        "Pinning should succeed with correct certificate"
+    );
 }
 
 // Test 6: HSTS preload validation - must have includeSubDomains
@@ -111,8 +124,14 @@ async fn test_hsts_preload_requires_subdomains() {
     let result = policy.validate();
 
     // Assert
-    assert!(result.is_err(), "Preload without includeSubDomains should fail");
-    assert!(matches!(result, Err(TlsError::HstsViolation(_))), "Should be HSTS violation");
+    assert!(
+        result.is_err(),
+        "Preload without includeSubDomains should fail"
+    );
+    assert!(
+        matches!(result, Err(TlsError::HstsViolation(_))),
+        "Should be HSTS violation"
+    );
 }
 
 // Test 7: HSTS preload validation - must have long max-age
@@ -139,12 +158,21 @@ async fn test_strict_validation_policy() {
     let policy = ValidationPolicy::strict();
 
     // Act & Assert
-    assert!(policy.verify_expiration, "Strict policy must verify expiration");
+    assert!(
+        policy.verify_expiration,
+        "Strict policy must verify expiration"
+    );
     assert!(policy.verify_hostname, "Strict policy must verify hostname");
     assert!(policy.require_ocsp, "Strict policy must require OCSP");
     assert!(policy.require_ct, "Strict policy must require CT");
-    assert!(!policy.allow_self_signed, "Strict policy must not allow self-signed");
-    assert_eq!(policy.max_chain_depth, 3, "Strict policy must have limited chain depth");
+    assert!(
+        !policy.allow_self_signed,
+        "Strict policy must not allow self-signed"
+    );
+    assert_eq!(
+        policy.max_chain_depth, 3,
+        "Strict policy must have limited chain depth"
+    );
 }
 
 // Test 9: Certificate chain depth limit enforcement
@@ -166,7 +194,10 @@ async fn test_certificate_chain_depth_limit() {
     let result = connector.validator().validate_chain(&chain_too_long);
 
     // Assert
-    assert!(result.is_err(), "Chain exceeding max depth should be rejected");
+    assert!(
+        result.is_err(),
+        "Chain exceeding max depth should be rejected"
+    );
 }
 
 // Test 10: Reject configuration with conflicting policies
@@ -182,12 +213,13 @@ async fn test_reject_conflicting_policies() {
     };
 
     // Act
-    let config = TlsConfigBuilder::new()
-        .validation_policy(policy)
-        .build();
+    let config = TlsConfigBuilder::new().validation_policy(policy).build();
 
     // Assert
-    assert!(config.is_ok(), "Config should accept policy (validation is at runtime)");
+    assert!(
+        config.is_ok(),
+        "Config should accept policy (validation is at runtime)"
+    );
     // Note: The conflict is logical, not a configuration error
     // In production, additional validation could be added
 }
@@ -206,7 +238,10 @@ async fn test_hostname_validation_rejects_empty() {
 
     // Assert
     assert!(result.is_err(), "Empty hostname should be rejected");
-    assert!(matches!(result, Err(TlsError::InvalidHostname(_))), "Should be hostname error");
+    assert!(
+        matches!(result, Err(TlsError::InvalidHostname(_))),
+        "Should be hostname error"
+    );
 }
 
 // Test 12: Multiple certificate pins for same host
@@ -223,7 +258,10 @@ async fn test_multiple_pins_for_host() {
         .build();
 
     // Assert
-    assert!(config.is_ok(), "Multiple pins for same host should be supported");
+    assert!(
+        config.is_ok(),
+        "Multiple pins for same host should be supported"
+    );
     let config = config.expect("Config should exist");
     assert_eq!(config.certificate_pins.len(), 2, "Should have 2 pins");
 }
@@ -251,10 +289,22 @@ async fn test_cipher_suite_naming() {
     let aes128 = CipherSuite::Aes128Gcm.name();
 
     // Assert
-    assert!(chacha.contains("TLS13"), "Cipher name should indicate TLS 1.3");
-    assert!(chacha.contains("CHACHA20"), "Cipher name should include algorithm");
-    assert!(aes256.contains("AES_256"), "Cipher name should include key size");
-    assert!(aes128.contains("AES_128"), "Cipher name should include key size");
+    assert!(
+        chacha.contains("TLS13"),
+        "Cipher name should indicate TLS 1.3"
+    );
+    assert!(
+        chacha.contains("CHACHA20"),
+        "Cipher name should include algorithm"
+    );
+    assert!(
+        aes256.contains("AES_256"),
+        "Cipher name should include key size"
+    );
+    assert!(
+        aes128.contains("AES_128"),
+        "Cipher name should include key size"
+    );
 }
 
 // Test 15: HSTS header value format is RFC-compliant
@@ -271,9 +321,18 @@ async fn test_hsts_header_format() {
     let header = policy.header_value();
 
     // Assert
-    assert!(header.contains("max-age=31536000"), "Header must include max-age");
-    assert!(header.contains("includeSubDomains"), "Header must include includeSubDomains");
+    assert!(
+        header.contains("max-age=31536000"),
+        "Header must include max-age"
+    );
+    assert!(
+        header.contains("includeSubDomains"),
+        "Header must include includeSubDomains"
+    );
     assert!(header.contains("preload"), "Header must include preload");
     // Verify format: "max-age=...; includeSubDomains; preload"
-    assert!(header.split(';').count() == 3, "Header should have 3 parts separated by semicolons");
+    assert!(
+        header.split(';').count() == 3,
+        "Header should have 3 parts separated by semicolons"
+    );
 }

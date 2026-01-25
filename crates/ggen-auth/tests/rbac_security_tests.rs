@@ -24,7 +24,13 @@ fn test_prevent_guest_escalation_to_admin() {
     let policy_engine = PolicyEngine::new();
 
     // Act - Attempt to delete (admin-level operation)
-    let result = authorize(user_id, &roles, &resource, Permission::Delete, &policy_engine);
+    let result = authorize(
+        user_id,
+        &roles,
+        &resource,
+        Permission::Delete,
+        &policy_engine,
+    );
 
     // Assert - Should be denied
     assert!(result.is_ok());
@@ -46,7 +52,13 @@ fn test_prevent_user_escalation_to_manager() {
     let policy_engine = PolicyEngine::new();
 
     // Act - Attempt to delete other user's data (manager-level operation)
-    let result = authorize(user_id, &roles, &resource, Permission::Delete, &policy_engine);
+    let result = authorize(
+        user_id,
+        &roles,
+        &resource,
+        Permission::Delete,
+        &policy_engine,
+    );
 
     // Assert - Should be denied (user role doesn't have delete permission)
     assert!(result.is_ok());
@@ -115,7 +127,13 @@ fn test_prevent_multiple_role_bypass() {
     let policy_engine = PolicyEngine::new();
 
     // Act - Attempt admin-level operation
-    let result = authorize(user_id, &roles, &resource, Permission::Delete, &policy_engine);
+    let result = authorize(
+        user_id,
+        &roles,
+        &resource,
+        Permission::Delete,
+        &policy_engine,
+    );
 
     // Assert - Should still be denied
     assert!(result.is_ok());
@@ -136,7 +154,13 @@ fn test_prevent_permission_injection_via_empty_roles() {
     let policy_engine = PolicyEngine::new();
 
     // Act - Even with permissive policy, no roles means no permission
-    let result = authorize(user_id, &roles, &resource, Permission::Write, &policy_engine);
+    let result = authorize(
+        user_id,
+        &roles,
+        &resource,
+        Permission::Write,
+        &policy_engine,
+    );
 
     // Assert - Should be denied
     assert!(result.is_ok());

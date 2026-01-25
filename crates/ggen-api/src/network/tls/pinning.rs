@@ -26,7 +26,10 @@ impl CertificatePin {
     /// Create a new certificate pin
     #[must_use]
     pub fn new(hostname: String, spki_hash: Vec<u8>) -> Self {
-        Self { hostname, spki_hash }
+        Self {
+            hostname,
+            spki_hash,
+        }
     }
 
     /// Create a pin from a base64-encoded hash
@@ -119,11 +122,9 @@ impl PinningManager {
                         );
                         Ok(())
                     }
-                    PinningStrategy::FailClosed => {
-                        Err(TlsError::PinningFailed(format!(
-                            "No matching certificate pin for {hostname}"
-                        )))
-                    }
+                    PinningStrategy::FailClosed => Err(TlsError::PinningFailed(format!(
+                        "No matching certificate pin for {hostname}"
+                    ))),
                 }
             } else {
                 Ok(())
@@ -166,7 +167,11 @@ mod base64 {
                 b'+' => 62,
                 b'/' => 63,
                 b'=' => break,
-                _ => return Err(TlsError::CertificateParseError("Invalid base64 character".to_string())),
+                _ => {
+                    return Err(TlsError::CertificateParseError(
+                        "Invalid base64 character".to_string(),
+                    ))
+                }
             };
 
             buffer = (buffer << 6) | u32::from(value);
@@ -212,7 +217,10 @@ mod tests {
         let result = pin.verify(spki);
 
         // Assert
-        assert!(result.is_ok(), "Verification should succeed with matching hash");
+        assert!(
+            result.is_ok(),
+            "Verification should succeed with matching hash"
+        );
     }
 
     #[test]
@@ -226,7 +234,10 @@ mod tests {
         let result = pin.verify(spki);
 
         // Assert
-        assert!(result.is_err(), "Verification should fail with non-matching hash");
+        assert!(
+            result.is_err(),
+            "Verification should fail with non-matching hash"
+        );
         assert!(matches!(result, Err(TlsError::PinningFailed(_))));
     }
 
@@ -240,7 +251,10 @@ mod tests {
         manager.add_pin(pin);
 
         // Assert
-        assert!(manager.has_pins("example.com"), "Manager should have pins for example.com");
+        assert!(
+            manager.has_pins("example.com"),
+            "Manager should have pins for example.com"
+        );
     }
 
     #[test]

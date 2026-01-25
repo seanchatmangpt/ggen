@@ -27,8 +27,7 @@ impl Module for MockQA {
     }
 
     async fn forward(
-        &self,
-        inputs: HashMap<String, serde_json::Value>,
+        &self, inputs: HashMap<String, serde_json::Value>,
     ) -> Result<HashMap<String, serde_json::Value>, ModuleError> {
         // Simple mock: just echo the question as the answer
         let mut outputs = HashMap::new();
@@ -51,7 +50,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Step 1: Create a signature
     let signature = Signature::new("QuestionAnswering", "Answer questions accurately")
-        .with_input(InputField::new("question", "The question to answer", "String"))
+        .with_input(InputField::new(
+            "question",
+            "The question to answer",
+            "String",
+        ))
         .with_output(OutputField::new("answer", "The answer", "String"));
 
     // Step 2: Create evaluation dataset
@@ -61,7 +64,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             [("answer".to_string(), json!("4"))].into(),
         ),
         Example::new(
-            [("question".to_string(), json!("What is the capital of France?"))].into(),
+            [(
+                "question".to_string(),
+                json!("What is the capital of France?"),
+            )]
+            .into(),
             [("answer".to_string(), json!("Paris"))].into(),
         ),
         Example::new(

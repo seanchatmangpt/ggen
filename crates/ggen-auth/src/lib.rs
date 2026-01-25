@@ -1,18 +1,18 @@
 //! Authentication system for ggen: OAuth2, JWT, and API key management
 
+pub mod api_keys;
+pub mod claims;
+pub mod errors;
 pub mod jwt;
 pub mod oauth;
-pub mod api_keys;
-pub mod errors;
-pub mod claims;
 pub mod rbac;
 
 // Week 5: Authentication hardening modules
+pub mod account_lockout;
 pub mod jwt_rs256;
 pub mod password;
-pub mod session;
 pub mod rate_limit;
-pub mod account_lockout;
+pub mod session;
 
 // Legacy JWT (HS256 - deprecated, use RS256 instead)
 pub use jwt::{JwtManager, TokenClaims};
@@ -24,7 +24,7 @@ pub use jwt_rs256::{Rs256JwtManager, Rs256TokenClaims, TokenPair, TokenType};
 pub use oauth::{OAuthConfig, OAuthProvider};
 
 // API Keys
-pub use api_keys::{ApiKeyManager, ApiKeyHash};
+pub use api_keys::{ApiKeyHash, ApiKeyManager};
 
 // Errors
 pub use errors::AuthError;
@@ -43,13 +43,13 @@ pub use rbac::{
 pub use password::{PasswordHasher, PasswordRequirements, SecurePassword};
 
 // Session management
-pub use session::{SessionData, SessionManager, RedisSessionManager, SessionConfig};
+pub use session::{RedisSessionManager, SessionConfig, SessionData, SessionManager};
 
 // Rate limiting
-pub use rate_limit::{RateLimiter, RedisRateLimiter, RateLimitConfig};
+pub use rate_limit::{RateLimitConfig, RateLimiter, RedisRateLimiter};
 
 // Account lockout
-pub use account_lockout::{LockoutManager, RedisLockoutManager, LockoutConfig, LockoutStatus};
+pub use account_lockout::{LockoutConfig, LockoutManager, LockoutStatus, RedisLockoutManager};
 
 /// Result type for auth operations
 pub type AuthResult<T> = Result<T, AuthError>;

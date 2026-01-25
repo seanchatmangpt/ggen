@@ -20,7 +20,10 @@ async fn test_tls_connector_with_default_config() {
     let connector = TlsConnector::new(config);
 
     // Assert
-    assert!(connector.is_ok(), "TLS connector should be created with default config");
+    assert!(
+        connector.is_ok(),
+        "TLS connector should be created with default config"
+    );
 }
 
 // Test 2: TLS connector with custom cipher suites
@@ -36,9 +39,16 @@ async fn test_tls_connector_with_custom_ciphers() {
     let connector = TlsConnector::new(config);
 
     // Assert
-    assert!(connector.is_ok(), "TLS connector should support custom cipher suites");
+    assert!(
+        connector.is_ok(),
+        "TLS connector should support custom cipher suites"
+    );
     let connector = connector.expect("Connector should exist");
-    assert_eq!(connector.config().cipher_suites.len(), 2, "Should have 2 cipher suites");
+    assert_eq!(
+        connector.config().cipher_suites.len(),
+        2,
+        "Should have 2 cipher suites"
+    );
 }
 
 // Test 3: TLS connector with certificate pinning
@@ -56,7 +66,10 @@ async fn test_tls_connector_with_certificate_pinning() {
     let connector = TlsConnector::new(config);
 
     // Assert
-    assert!(connector.is_ok(), "TLS connector should support certificate pinning");
+    assert!(
+        connector.is_ok(),
+        "TLS connector should support certificate pinning"
+    );
     let connector = connector.expect("Connector should exist");
     assert_eq!(connector.pins().len(), 1, "Should have 1 certificate pin");
 }
@@ -74,10 +87,19 @@ async fn test_tls_connector_with_strict_validation() {
     let connector = TlsConnector::new(config);
 
     // Assert
-    assert!(connector.is_ok(), "TLS connector should support strict validation");
+    assert!(
+        connector.is_ok(),
+        "TLS connector should support strict validation"
+    );
     let connector = connector.expect("Connector should exist");
-    assert!(connector.validator().policy().require_ocsp, "Strict policy should require OCSP");
-    assert!(connector.validator().policy().require_ct, "Strict policy should require CT");
+    assert!(
+        connector.validator().policy().require_ocsp,
+        "Strict policy should require OCSP"
+    );
+    assert!(
+        connector.validator().policy().require_ct,
+        "Strict policy should require CT"
+    );
 }
 
 // Test 5: TLS connector with OCSP stapling enabled
@@ -93,9 +115,15 @@ async fn test_tls_connector_with_ocsp_stapling() {
     let connector = TlsConnector::new(config);
 
     // Assert
-    assert!(connector.is_ok(), "TLS connector should support OCSP stapling");
+    assert!(
+        connector.is_ok(),
+        "TLS connector should support OCSP stapling"
+    );
     let connector = connector.expect("Connector should exist");
-    assert!(connector.config().enable_ocsp_stapling, "OCSP stapling should be enabled");
+    assert!(
+        connector.config().enable_ocsp_stapling,
+        "OCSP stapling should be enabled"
+    );
 }
 
 // Test 6: TLS connector with SNI disabled
@@ -111,7 +139,10 @@ async fn test_tls_connector_with_sni_disabled() {
     let connector = TlsConnector::new(config);
 
     // Assert
-    assert!(connector.is_ok(), "TLS connector should support SNI configuration");
+    assert!(
+        connector.is_ok(),
+        "TLS connector should support SNI configuration"
+    );
     let connector = connector.expect("Connector should exist");
     assert!(!connector.config().enable_sni, "SNI should be disabled");
 }
@@ -158,12 +189,20 @@ async fn test_connection_pool_with_limits() {
 async fn test_connection_pool_reuse() {
     // Arrange
     let pool = ConnectionPool::new(PoolConfig::default());
-    let handle1 = pool.get_connection("example.com").await.expect("Failed to get connection");
+    let handle1 = pool
+        .get_connection("example.com")
+        .await
+        .expect("Failed to get connection");
     let id1 = handle1.id();
-    pool.return_connection(handle1).await.expect("Failed to return connection");
+    pool.return_connection(handle1)
+        .await
+        .expect("Failed to return connection");
 
     // Act
-    let handle2 = pool.get_connection("example.com").await.expect("Failed to get connection");
+    let handle2 = pool
+        .get_connection("example.com")
+        .await
+        .expect("Failed to get connection");
 
     // Assert
     assert_eq!(handle2.id(), id1, "Should reuse the same connection");
@@ -179,7 +218,9 @@ async fn test_connection_pool_cleanup() {
     };
     let pool = ConnectionPool::new(config);
     let handle = pool.get_connection("example.com").await.expect("Failed");
-    pool.return_connection(handle).await.expect("Failed to return");
+    pool.return_connection(handle)
+        .await
+        .expect("Failed to return");
 
     // Act
     tokio::time::sleep(Duration::from_millis(10)).await;
@@ -187,7 +228,10 @@ async fn test_connection_pool_cleanup() {
     let stats = pool.stats().await;
 
     // Assert
-    assert_eq!(stats.total_connections, 0, "Expired connections should be cleaned up");
+    assert_eq!(
+        stats.total_connections, 0,
+        "Expired connections should be cleaned up"
+    );
 }
 
 // Test 11: HSTS policy creation and validation
@@ -217,7 +261,10 @@ async fn test_hsts_policy_invalid_preload() {
     let result = policy.validate();
 
     // Assert
-    assert!(result.is_err(), "Invalid preload configuration should fail validation");
+    assert!(
+        result.is_err(),
+        "Invalid preload configuration should fail validation"
+    );
 }
 
 // Test 13: HSTS middleware enforcement
@@ -234,7 +281,10 @@ async fn test_hsts_middleware_enforcement() {
     let should_enforce = middleware.should_enforce_https("example.com").await;
 
     // Assert
-    assert!(should_enforce, "HTTPS should be enforced for registered host");
+    assert!(
+        should_enforce,
+        "HTTPS should be enforced for registered host"
+    );
 }
 
 // Test 14: HSTS middleware subdomain enforcement
@@ -267,11 +317,19 @@ async fn test_hsts_header_parsing() {
     let header = "max-age=31536000; includeSubDomains; preload";
 
     // Act
-    let result = middleware.process_header("example.com".to_string(), header).await;
+    let result = middleware
+        .process_header("example.com".to_string(), header)
+        .await;
 
     // Assert
-    assert!(result.is_ok(), "Valid HSTS header should parse successfully");
-    assert!(middleware.should_enforce_https("example.com").await, "Host should be registered");
+    assert!(
+        result.is_ok(),
+        "Valid HSTS header should parse successfully"
+    );
+    assert!(
+        middleware.should_enforce_https("example.com").await,
+        "Host should be registered"
+    );
 }
 
 // Test 16: Multiple cipher suites configuration
@@ -308,8 +366,14 @@ async fn test_connection_pool_statistics() {
 
     // Assert
     assert_eq!(stats.total_connections, 2, "Should track total connections");
-    assert!(stats.connections_by_host.contains_key("host1.com"), "Should track by host");
-    assert!(stats.connections_by_host.contains_key("host2.com"), "Should track by host");
+    assert!(
+        stats.connections_by_host.contains_key("host1.com"),
+        "Should track by host"
+    );
+    assert!(
+        stats.connections_by_host.contains_key("host2.com"),
+        "Should track by host"
+    );
 }
 
 // Test 18: Validation policy with permissive settings (for testing)
@@ -319,12 +383,13 @@ async fn test_permissive_validation_policy() {
     let policy = ValidationPolicy::permissive();
 
     // Act
-    let config = TlsConfigBuilder::new()
-        .validation_policy(policy)
-        .build();
+    let config = TlsConfigBuilder::new().validation_policy(policy).build();
 
     // Assert
     assert!(config.is_ok(), "Permissive policy should be supported");
     let config = config.expect("Config should exist");
-    assert!(config.validation_policy.allow_self_signed, "Should allow self-signed certs");
+    assert!(
+        config.validation_policy.allow_self_signed,
+        "Should allow self-signed certs"
+    );
 }

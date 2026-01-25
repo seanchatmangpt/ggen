@@ -29,22 +29,23 @@
 //! - Observable state remains consistent
 
 use ggen_ai::codegen::TTLToSignatureTranspiler;
+use oxigraph::io::RdfFormat;
+use oxigraph::store::Store;
 use std::fs;
 use std::path::Path;
-use oxigraph::store::Store;
-use oxigraph::io::RdfFormat;
 
 const FIXTURES_DIR: &str = "crates/ggen-ai/tests/fixtures";
 
 /// Helper function to load a TTL file into an RDF store
 fn load_ttl_fixture(filename: &str) -> oxigraph::store::Store {
     let path = Path::new(FIXTURES_DIR).join(filename);
-    let ttl_content = fs::read_to_string(&path)
-        .expect(&format!("Failed to read fixture file: {:?}", path));
+    let ttl_content =
+        fs::read_to_string(&path).expect(&format!("Failed to read fixture file: {:?}", path));
 
     let store = Store::new().expect("Failed to create RDF store");
     let reader = std::io::Cursor::new(ttl_content);
-    store.load_from_reader(RdfFormat::Turtle, reader)
+    store
+        .load_from_reader(RdfFormat::Turtle, reader)
         .expect(&format!("Failed to load TTL from {}", filename));
 
     store
@@ -74,7 +75,8 @@ fn create_test_store() -> oxigraph::store::Store {
 
     let store = Store::new().expect("Failed to create store");
     let reader = std::io::Cursor::new(ttl);
-    store.load_from_reader(RdfFormat::Turtle, reader)
+    store
+        .load_from_reader(RdfFormat::Turtle, reader)
         .expect("Failed to load TTL");
 
     store
@@ -108,7 +110,10 @@ fn test_sql_style_drop_graph_injection_rejected() {
         Ok(props) => {
             // Safe: Query executed but returned empty or harmless results
             // Empty results indicate injection was safely rejected
-            assert!(props.is_empty(), "Injection attempt should be safely rejected");
+            assert!(
+                props.is_empty(),
+                "Injection attempt should be safely rejected"
+            );
         }
         Err(_) => {
             // Safe: Error was caught and handled gracefully
@@ -182,7 +187,8 @@ fn test_nested_sparql_query_injection_rejected() {
     let transpiler = TTLToSignatureTranspiler::new();
 
     // Nested query injection attempt
-    let malicious_iri = "http://example.com/test> . } ASK { <http://attacker.com/> <http://attacker.com/p>";
+    let malicious_iri =
+        "http://example.com/test> . } ASK { <http://attacker.com/> <http://attacker.com/p>";
 
     // Act: Attempt query with nested injection
     let result = transpiler.find_property_shapes(malicious_iri, &store);
@@ -458,9 +464,18 @@ fn test_error_messages_dont_leak_sensitive_info() {
         // - Database paths
         // - Table names
         // - Internal system details
-        assert!(!err_msg.contains("DROP TABLE"), "Error should not reveal attempted injection");
-        assert!(!err_msg.contains("users"), "Error should not leak table names");
-        assert!(!err_msg.to_lowercase().contains("database"), "Error should not reveal backend type");
+        assert!(
+            !err_msg.contains("DROP TABLE"),
+            "Error should not reveal attempted injection"
+        );
+        assert!(
+            !err_msg.contains("users"),
+            "Error should not leak table names"
+        );
+        assert!(
+            !err_msg.to_lowercase().contains("database"),
+            "Error should not reveal backend type"
+        );
     }
 }
 

@@ -67,25 +67,27 @@ impl TlsConfig {
     /// Returns `TlsError` if configuration is invalid
     pub fn build_rustls_config(&self) -> TlsResult<ClientConfig> {
         let mut config = ClientConfig::builder()
-            .with_cipher_suites(&self.cipher_suites.iter().map(|cs| cs.to_rustls()).collect::<Vec<_>>())
+            .with_cipher_suites(
+                &self
+                    .cipher_suites
+                    .iter()
+                    .map(|cs| cs.to_rustls())
+                    .collect::<Vec<_>>(),
+            )
             .with_safe_default_kx_groups()
             .with_protocol_versions(&[&rustls::version::TLS13])
             .map_err(|e| TlsError::ConfigError(e.to_string()))?
-            .with_root_certificates(
-                self.root_cert_store.clone().unwrap_or_else(|| {
-                    let mut store = RootCertStore::empty();
-                    store.add_trust_anchors(
-                        webpki_roots::TLS_SERVER_ROOTS.iter().map(|ta| {
-                            rustls::OwnedTrustAnchor::from_subject_spki_name_constraints(
-                                ta.subject,
-                                ta.spki,
-                                ta.name_constraints,
-                            )
-                        })
-                    );
-                    store
-                })
-            )
+            .with_root_certificates(self.root_cert_store.clone().unwrap_or_else(|| {
+                let mut store = RootCertStore::empty();
+                store.add_trust_anchors(webpki_roots::TLS_SERVER_ROOTS.iter().map(|ta| {
+                    rustls::OwnedTrustAnchor::from_subject_spki_name_constraints(
+                        ta.subject,
+                        ta.spki,
+                        ta.name_constraints,
+                    )
+                }));
+                store
+            }))
             .with_no_client_auth();
 
         // Disable session resumption for maximum security (can be enabled later for performance)
@@ -118,10 +120,7 @@ impl TlsConfigBuilder {
     #[must_use]
     pub fn new() -> Self {
         Self {
-            cipher_suites: Some(vec![
-                CipherSuite::ChaCha20Poly1305,
-                CipherSuite::Aes256Gcm,
-            ]),
+            cipher_suites: Some(vec![CipherSuite::ChaCha20Poly1305, CipherSuite::Aes256Gcm]),
             certificate_pins: Vec::new(),
             validation_policy: Some(ValidationPolicy::default()),
             enable_ocsp_stapling: true,
@@ -179,12 +178,14 @@ impl TlsConfigBuilder {
     /// # Errors
     /// Returns `TlsError` if configuration is invalid
     pub fn build(self) -> TlsResult<TlsConfig> {
-        let cipher_suites = self.cipher_suites.ok_or_else(|| {
-            TlsError::ConfigError("Cipher suites must be specified".to_string())
-        })?;
+        let cipher_suites = self
+            .cipher_suites
+            .ok_or_else(|| TlsError::ConfigError("Cipher suites must be specified".to_string()))?;
 
         if cipher_suites.is_empty() {
-            return Err(TlsError::ConfigError("At least one cipher suite must be specified".to_string()));
+            return Err(TlsError::ConfigError(
+                "At least one cipher suite must be specified".to_string(),
+            ));
         }
 
         Ok(TlsConfig {
@@ -214,7 +215,10 @@ mod tests {
         let name = cipher.name();
 
         // Assert
-        assert_eq!(rustls_cipher.suite(), rustls::CipherSuite::TLS13_CHACHA20_POLY1305_SHA256);
+        assert_eq!(
+            rustls_cipher.suite(),
+            rustls::CipherSuite::TLS13_CHACHA20_POLY1305_SHA256
+        );
         assert_eq!(name, "TLS13_CHACHA20_POLY1305_SHA256");
     }
 
@@ -226,10 +230,19 @@ mod tests {
         // Assert
         assert!(config.is_ok(), "Default config should build successfully");
         let config = config.expect("Config should be valid");
-        assert!(!config.cipher_suites.is_empty(), "Should have default cipher suites");
-        assert!(config.enable_ocsp_stapling, "OCSP should be enabled by default");
+        assert!(
+            !config.cipher_suites.is_empty(),
+            "Should have default cipher suites"
+        );
+        assert!(
+            config.enable_ocsp_stapling,
+            "OCSP should be enabled by default"
+        );
         assert!(config.enable_sni, "SNI should be enabled by default");
-        assert!(config.disable_compression, "Compression should be disabled by default");
+        assert!(
+            config.disable_compression,
+            "Compression should be disabled by default"
+        );
     }
 
     #[test]
@@ -245,8 +258,16 @@ mod tests {
         // Assert
         assert!(config.is_ok(), "Custom cipher config should build");
         let config = config.expect("Config should be valid");
-        assert_eq!(config.cipher_suites.len(), 1, "Should have one cipher suite");
-        assert_eq!(config.cipher_suites[0], CipherSuite::Aes256Gcm, "Should have custom cipher");
+        assert_eq!(
+            config.cipher_suites.len(),
+            1,
+            "Should have one cipher suite"
+        );
+        assert_eq!(
+            config.cipher_suites[0],
+            CipherSuite::Aes256Gcm,
+            "Should have custom cipher"
+        );
     }
 
     #[test]
@@ -259,7 +280,10 @@ mod tests {
 
         // Assert
         assert!(result.is_err(), "Empty cipher suites should fail");
-        assert!(matches!(result, Err(TlsError::ConfigError(_))), "Should be config error");
+        assert!(
+            matches!(result, Err(TlsError::ConfigError(_))),
+            "Should be config error"
+        );
     }
 
     #[test]
@@ -279,15 +303,10 @@ mod tests {
     #[test]
     fn test_config_with_pins() {
         // Arrange
-        let pin = CertificatePin::new(
-            "example.com".to_string(),
-            vec![0x1, 0x2, 0x3, 0x4],
-        );
+        let pin = CertificatePin::new("example.com".to_string(), vec![0x1, 0x2, 0x3, 0x4]);
 
         // Act
-        let config = TlsConfigBuilder::new()
-            .add_certificate_pin(pin)
-            .build();
+        let config = TlsConfigBuilder::new().add_certificate_pin(pin).build();
 
         // Assert
         assert!(config.is_ok(), "Config with pins should build");
@@ -298,9 +317,7 @@ mod tests {
     #[test]
     fn test_config_sni_disabled() {
         // Arrange & Act
-        let config = TlsConfigBuilder::new()
-            .enable_sni(false)
-            .build();
+        let config = TlsConfigBuilder::new().enable_sni(false).build();
 
         // Assert
         assert!(config.is_ok(), "Config should build");

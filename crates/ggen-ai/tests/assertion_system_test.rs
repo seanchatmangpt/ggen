@@ -10,10 +10,9 @@
 
 use ggen_ai::dspy::{
     assertions::{
-        Assertion, AssertableModule, AssertionLevel, BacktrackExecutor,
-        LengthValidator, NotEmptyValidator, PatternValidator, ContainsValidator,
-        ItemCountValidator, UniqueItemsValidator, AllValidator, AnyValidator,
-        NotValidator, FnValidator, ValidationResult, BoxedValidator,
+        AllValidator, AnyValidator, AssertableModule, Assertion, AssertionLevel, BacktrackExecutor,
+        BoxedValidator, ContainsValidator, FnValidator, ItemCountValidator, LengthValidator,
+        NotEmptyValidator, NotValidator, PatternValidator, UniqueItemsValidator, ValidationResult,
     },
     field::{InputField, OutputField},
     Module, ModuleError, Signature,
@@ -53,14 +52,15 @@ impl Module for TestModule {
     }
 
     async fn forward(
-        &self,
-        _inputs: HashMap<String, Value>,
+        &self, _inputs: HashMap<String, Value>,
     ) -> Result<HashMap<String, Value>, ModuleError> {
         let mut count = self.call_count.lock().unwrap();
         let idx = *count;
         *count += 1;
 
-        let response = self.responses.get(idx)
+        let response = self
+            .responses
+            .get(idx)
             .unwrap_or_else(|| self.responses.last().unwrap());
 
         let mut outputs = HashMap::new();
@@ -86,8 +86,8 @@ async fn test_assertion_success_first_try() {
 #[tokio::test]
 async fn test_assertion_retry_then_success() {
     let module = TestModule::new(vec![
-        "hi".to_string(),         // Too short - retry
-        "hello".to_string(),      // Too short - retry
+        "hi".to_string(),          // Too short - retry
+        "hello".to_string(),       // Too short - retry
         "hello world".to_string(), // Success
     ]);
 
@@ -135,9 +135,9 @@ async fn test_suggestion_warns_but_succeeds() {
 #[tokio::test]
 async fn test_multiple_assertions() {
     let module = TestModule::new(vec![
-        "hi".to_string(),                    // Too short
-        "hello".to_string(),                 // Better, but no exclamation
-        "hello world!".to_string(),          // Success
+        "hi".to_string(),           // Too short
+        "hello".to_string(),        // Better, but no exclamation
+        "hello world!".to_string(), // Success
     ]);
 
     let assertions = vec![
@@ -214,7 +214,7 @@ async fn test_not_validator() {
 #[tokio::test]
 async fn test_fn_validator() {
     let module = TestModule::new(vec![
-        "one two".to_string(),          // 2 words - fail
+        "one two".to_string(),            // 2 words - fail
         "one two three four".to_string(), // 4 words - success
     ]);
 
@@ -230,7 +230,7 @@ async fn test_fn_validator() {
                 ValidationResult::invalid("Must be string")
             }
         },
-        "Word count >= 3"
+        "Word count >= 3",
     );
 
     let assertion = Assertion::assert(validator).max_retries(2);
@@ -248,8 +248,7 @@ async fn test_pattern_validator() {
         "user@example.com".to_string(),
     ]);
 
-    let pattern = PatternValidator::new(r"^[\w\.\-]+@[\w\.\-]+\.\w+$")
-        .expect("Valid regex");
+    let pattern = PatternValidator::new(r"^[\w\.\-]+@[\w\.\-]+\.\w+$").expect("Valid regex");
 
     let assertion = Assertion::assert(pattern)
         .with_feedback("Must be valid email")
@@ -291,8 +290,7 @@ async fn test_assertion_level() {
 
 #[tokio::test]
 async fn test_max_attempts_configuration() {
-    let assertion = Assertion::assert(LengthValidator::min(5))
-        .max_retries(10);
+    let assertion = Assertion::assert(LengthValidator::min(5)).max_retries(10);
 
     assert_eq!(assertion.max_attempts(), 10);
 }
@@ -333,8 +331,7 @@ async fn test_item_count_validator() {
         }
 
         async fn forward(
-            &self,
-            _: HashMap<String, Value>,
+            &self, _: HashMap<String, Value>,
         ) -> Result<HashMap<String, Value>, ModuleError> {
             let mut outputs = HashMap::new();
             outputs.insert("output".to_string(), Value::Array(self.items.clone()));
@@ -347,8 +344,7 @@ async fn test_item_count_validator() {
         items: vec![json!("a"), json!("b"), json!("c")],
     };
 
-    let assertion = Assertion::assert(ItemCountValidator::between(2, 5))
-        .max_retries(2);
+    let assertion = Assertion::assert(ItemCountValidator::between(2, 5)).max_retries(2);
 
     let asserted = module.with_assertion(assertion);
 
@@ -374,8 +370,7 @@ async fn test_unique_items_validator() {
         }
 
         async fn forward(
-            &self,
-            _: HashMap<String, Value>,
+            &self, _: HashMap<String, Value>,
         ) -> Result<HashMap<String, Value>, ModuleError> {
             let mut outputs = HashMap::new();
             outputs.insert("output".to_string(), Value::Array(self.items.clone()));

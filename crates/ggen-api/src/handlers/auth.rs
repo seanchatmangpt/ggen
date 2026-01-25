@@ -1,22 +1,17 @@
 //! Authentication handlers
 
-use axum::{
-    extract::State,
-    http::StatusCode,
-    Json,
-};
+use axum::{extract::State, http::StatusCode, Json};
 use uuid::Uuid;
 
 use crate::{
     error::{ApiError, ApiResult},
-    models::{CreateApiKeyRequest, ApiKeyResponse, LoginRequest, LoginResponse, RegisterRequest},
+    models::{ApiKeyResponse, CreateApiKeyRequest, LoginRequest, LoginResponse, RegisterRequest},
     state::AppState,
 };
 
 /// User registration
 pub async fn register(
-    State(_state): State<AppState>,
-    Json(req): Json<RegisterRequest>,
+    State(_state): State<AppState>, Json(req): Json<RegisterRequest>,
 ) -> ApiResult<(StatusCode, Json<LoginResponse>)> {
     // TODO: Validate request (email format, password requirements, etc.)
     // TODO: Check if user exists
@@ -41,8 +36,7 @@ pub async fn register(
 
 /// User login
 pub async fn login(
-    State(_state): State<AppState>,
-    Json(req): Json<LoginRequest>,
+    State(_state): State<AppState>, Json(req): Json<LoginRequest>,
 ) -> ApiResult<Json<LoginResponse>> {
     // TODO: Validate request (email format, password requirements, etc.)
     // TODO: Look up user by email
@@ -64,8 +58,7 @@ pub async fn login(
 
 /// Create a new API key
 pub async fn create_api_key(
-    State(_state): State<AppState>,
-    Json(req): Json<CreateApiKeyRequest>,
+    State(_state): State<AppState>, Json(req): Json<CreateApiKeyRequest>,
 ) -> ApiResult<(StatusCode, Json<ApiKeyResponse>)> {
     // TODO: Validate request (name format, expiration, etc.)
     // TODO: Generate cryptographically secure API key
@@ -83,17 +76,15 @@ pub async fn create_api_key(
             key: key.clone(),
             name: req.name,
             created_at: chrono::Utc::now(),
-            expires_at: req.expires_in_days.map(|days| {
-                chrono::Utc::now() + chrono::Duration::days(days as i64)
-            }),
+            expires_at: req
+                .expires_in_days
+                .map(|days| chrono::Utc::now() + chrono::Duration::days(days as i64)),
         }),
     ))
 }
 
 /// List API keys (metadata only, not actual keys)
-pub async fn list_api_keys(
-    State(_state): State<AppState>,
-) -> ApiResult<Json<serde_json::Value>> {
+pub async fn list_api_keys(State(_state): State<AppState>) -> ApiResult<Json<serde_json::Value>> {
     // TODO: Get user from auth context
     // TODO: Fetch user's API keys from database (without secret values)
 
@@ -104,8 +95,7 @@ pub async fn list_api_keys(
 
 /// Revoke an API key
 pub async fn revoke_api_key(
-    State(_state): State<AppState>,
-    axum::extract::Path(key_id): axum::extract::Path<String>,
+    State(_state): State<AppState>, axum::extract::Path(key_id): axum::extract::Path<String>,
 ) -> ApiResult<StatusCode> {
     if key_id.is_empty() {
         return Err(ApiError::BadRequest("Key ID required".to_string()));
@@ -121,8 +111,7 @@ pub async fn revoke_api_key(
 
 /// Validate JWT token
 pub async fn validate_token(
-    State(_state): State<AppState>,
-    Json(payload): Json<serde_json::Value>,
+    State(_state): State<AppState>, Json(payload): Json<serde_json::Value>,
 ) -> ApiResult<Json<serde_json::Value>> {
     let token = payload
         .get("token")

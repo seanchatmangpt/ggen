@@ -7,8 +7,8 @@
 
 use ggen_ai::dspy::{
     assertions::{
-        Assertion, AssertableModule, BacktrackExecutor, LengthValidator, NotEmptyValidator,
-        ContainsValidator, AllValidator, BoxedValidator,
+        AllValidator, AssertableModule, Assertion, BacktrackExecutor, BoxedValidator,
+        ContainsValidator, LengthValidator, NotEmptyValidator,
     },
     field::{InputField, OutputField},
     Module, ModuleError, Signature,
@@ -50,8 +50,7 @@ impl Module for QAModule {
     }
 
     async fn forward(
-        &self,
-        inputs: HashMap<String, Value>,
+        &self, inputs: HashMap<String, Value>,
     ) -> Result<HashMap<String, Value>, ModuleError> {
         let mut count = self.attempt_count.lock().unwrap();
         let attempt = *count;
@@ -89,7 +88,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let asserted_module = module.with_assertion(assertion);
 
         let mut inputs = HashMap::new();
-        inputs.insert("question".to_string(), Value::String("What is Rust?".to_string()));
+        inputs.insert(
+            "question".to_string(),
+            Value::String("What is Rust?".to_string()),
+        );
 
         match asserted_module.forward(inputs).await {
             Ok(output) => {
@@ -123,7 +125,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let asserted_module = module.with_assertion(assertion);
 
         let mut inputs = HashMap::new();
-        inputs.insert("question".to_string(), Value::String("Explain Rust ownership".to_string()));
+        inputs.insert(
+            "question".to_string(),
+            Value::String("Explain Rust ownership".to_string()),
+        );
 
         match asserted_module.forward(inputs).await {
             Ok(output) => {
@@ -149,7 +154,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let asserted_module = module.with_assertion(suggestion);
 
         let mut inputs = HashMap::new();
-        inputs.insert("question".to_string(), Value::String("What is Rust?".to_string()));
+        inputs.insert(
+            "question".to_string(),
+            Value::String("What is Rust?".to_string()),
+        );
 
         match asserted_module.forward(inputs).await {
             Ok(output) => {
@@ -180,7 +188,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let mut executor = BacktrackExecutor::new(assertions);
 
         let mut inputs = HashMap::new();
-        inputs.insert("question".to_string(), Value::String("Explain Rust".to_string()));
+        inputs.insert(
+            "question".to_string(),
+            Value::String("Explain Rust".to_string()),
+        );
 
         match executor.execute(&module, inputs).await {
             Ok(output) => {

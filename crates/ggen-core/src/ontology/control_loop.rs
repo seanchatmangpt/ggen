@@ -285,7 +285,7 @@ impl AutonomousControlLoop {
                     let _promotion_result = self
                         .promoter
                         .promote(Arc::new(promoted_snapshot))
-                        .expect("Failed to promote snapshot");
+                        .map_err(|e| format!("Failed to promote snapshot: {}", e))?;
 
                     telemetry.proposals_promoted += 1;
 
@@ -366,12 +366,11 @@ impl AutonomousControlLoop {
     }
 
     /// Get current snapshot
-    #[allow(clippy::expect_used)]
-    pub fn current_snapshot(&self) -> Arc<SigmaSnapshot> {
+    pub fn current_snapshot(&self) -> Result<Arc<SigmaSnapshot>, String> {
         self.promoter
             .get_current()
-            .expect("Failed to get current snapshot - lock poisoned")
-            .snapshot()
+            .map_err(|e| format!("Failed to get current snapshot: {}", e))
+            .map(|guard| guard.snapshot())
     }
 }
 

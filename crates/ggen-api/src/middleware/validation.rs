@@ -125,13 +125,14 @@ where
     type Rejection = ValidationErrorResponse;
 
     async fn from_request(req: Request, state: &S) -> Result<Self, Self::Rejection> {
-        let Json(value) = Json::<T>::from_request(req, state)
-            .await
-            .map_err(|e| ValidationErrorResponse {
-                error: format!("JSON parse error: {}", e),
-                field: None,
-                details: HashMap::new(),
-            })?;
+        let Json(value) =
+            Json::<T>::from_request(req, state)
+                .await
+                .map_err(|e| ValidationErrorResponse {
+                    error: format!("JSON parse error: {}", e),
+                    field: None,
+                    details: HashMap::new(),
+                })?;
 
         value.validate().map_err(ValidationErrorResponse::from)?;
 
@@ -220,10 +221,7 @@ impl ApiValidationRules {
     pub fn repository_url() -> UrlValidator {
         UrlValidator::new()
             .require_https()
-            .with_domains(vec![
-                "github.com".to_string(),
-                "gitlab.com".to_string(),
-            ])
+            .with_domains(vec!["github.com".to_string(), "gitlab.com".to_string()])
     }
 
     /// Template path validator: no traversal, .tmpl extension
@@ -376,9 +374,7 @@ mod tests {
         let validator = ApiValidationRules::repository_url();
 
         // Valid repository URLs
-        assert!(validator
-            .validate("https://github.com/user/repo")
-            .is_ok());
+        assert!(validator.validate("https://github.com/user/repo").is_ok());
         assert!(validator
             .validate("https://gitlab.com/user/project")
             .is_ok());
@@ -445,9 +441,7 @@ mod tests {
         assert!(middleware.validate_field("username", "ab").is_err());
 
         // Unknown field (no validation)
-        assert!(middleware
-            .validate_field("unknown", "anything")
-            .is_ok());
+        assert!(middleware.validate_field("unknown", "anything").is_ok());
     }
 
     #[test]

@@ -31,8 +31,7 @@ impl Module for MockQA {
     }
 
     async fn forward(
-        &self,
-        inputs: HashMap<String, serde_json::Value>,
+        &self, inputs: HashMap<String, serde_json::Value>,
     ) -> Result<HashMap<String, serde_json::Value>, ModuleError> {
         let mut outputs = HashMap::new();
 
@@ -165,8 +164,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n=== Part 4: Composite Metrics ===\n");
 
     let composite_metric = composite(vec![
-        (exact_match_ci("answer"), 0.5),           // 50% weight
-        (substring_match("answer"), 0.3),          // 30% weight
+        (exact_match_ci("answer"), 0.5),             // 50% weight
+        (substring_match("answer"), 0.3),            // 30% weight
         (length_within_range("answer", 1, 50), 0.2), // 20% weight
     ]);
 
@@ -180,7 +179,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let precision = 0.8;
     let recall = 0.9;
     let f1 = f1_score(precision, recall);
-    println!("Precision: {:.2}, Recall: {:.2}, F1: {:.2}", precision, recall, f1);
+    println!(
+        "Precision: {:.2}, Recall: {:.2}, F1: {:.2}",
+        precision, recall, f1
+    );
 
     println!("\n=== Example Complete ===");
     println!("\nMetric Design Principles:");

@@ -6,8 +6,8 @@
 //! Run with: cargo run --example ttl_to_signature_demo --package ggen-ai
 
 use ggen_ai::codegen::TTLToSignatureTranspiler;
-use oxigraph::store::Store;
 use oxigraph::io::RdfFormat;
+use oxigraph::store::Store;
 use std::io::BufReader;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -145,8 +145,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("═══════════════════════════════════════════════════");
     println!("\nSummary:");
     println!("  Total Signatures: {}", signatures.len());
-    println!("  Total Input Fields: {}", signatures.iter().map(|s| s.inputs.len()).sum::<usize>());
-    println!("  Total Output Fields: {}", signatures.iter().map(|s| s.outputs.len()).sum::<usize>());
+    println!(
+        "  Total Input Fields: {}",
+        signatures.iter().map(|s| s.inputs.len()).sum::<usize>()
+    );
+    println!(
+        "  Total Output Fields: {}",
+        signatures.iter().map(|s| s.outputs.len()).sum::<usize>()
+    );
 
     // Demonstrate individual transpiler methods
     println!("\n═══════════════════════════════════════════════════\n");
@@ -185,7 +191,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     ];
     for xsd_type in types {
         let rust_type = transpiler.extract_datatype(xsd_type);
-        println!("  {} → {}", xsd_type.split('#').last().unwrap_or("unknown"), rust_type);
+        println!(
+            "  {} → {}",
+            xsd_type.split('#').last().unwrap_or("unknown"),
+            rust_type
+        );
     }
 
     println!("\n═══════════════════════════════════════════════════");

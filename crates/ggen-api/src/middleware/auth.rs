@@ -19,9 +19,7 @@ pub struct User {
 
 /// Middleware to verify JWT tokens
 pub async fn verify_jwt(
-    State(_state): State<AppState>,
-    mut request: Request,
-    next: Next,
+    State(_state): State<AppState>, mut request: Request, next: Next,
 ) -> Response {
     // TODO: Extract Authorization header
     // TODO: Verify JWT signature
@@ -34,9 +32,7 @@ pub async fn verify_jwt(
 
 /// Middleware to require authentication
 pub async fn require_auth(
-    State(_state): State<AppState>,
-    request: Request,
-    next: Next,
+    State(_state): State<AppState>, request: Request, next: Next,
 ) -> Response {
     // TODO: Check if User is in request extensions
     // TODO: Return 401 if not authenticated
@@ -45,7 +41,9 @@ pub async fn require_auth(
 }
 
 /// Middleware to require specific tier
-pub async fn require_tier(min_tier: &str) -> impl Fn(Request, Next) -> futures::future::BoxFuture<'static, Response> + Clone + use<'_> {
+pub async fn require_tier(
+    min_tier: &str,
+) -> impl Fn(Request, Next) -> futures::future::BoxFuture<'static, Response> + Clone + use<'_> {
     move |request: Request, next: Next| {
         let _tier = min_tier.to_string();
         Box::pin(async move {

@@ -61,9 +61,7 @@ impl EvaluationMetrics {
 
 /// Basic evaluation function
 async fn evaluate(
-    module: &dyn Module,
-    dataset: &[Example],
-    metric: &MetricFn,
+    module: &dyn Module, dataset: &[Example], metric: &MetricFn,
 ) -> Result<f64, Box<dyn std::error::Error>> {
     let mut total = 0.0;
 
@@ -79,9 +77,7 @@ async fn evaluate(
 
 /// Detailed evaluation with metrics
 async fn detailed_evaluate(
-    module: &dyn Module,
-    dataset: &[Example],
-    metric: &MetricFn,
+    module: &dyn Module, dataset: &[Example], metric: &MetricFn,
 ) -> Result<EvaluationMetrics, Box<dyn std::error::Error>> {
     let mut metrics = EvaluationMetrics::default();
 
@@ -120,10 +116,7 @@ fn split_dataset(dataset: &[Example], k: usize) -> Vec<Vec<Example>> {
 
 /// K-fold cross-validation
 async fn cross_validate(
-    signature: Signature,
-    dataset: &[Example],
-    metric: MetricFn,
-    k: usize,
+    signature: Signature, dataset: &[Example], metric: MetricFn, k: usize,
 ) -> Result<f64, Box<dyn std::error::Error>> {
     let folds = split_dataset(dataset, k);
     let mut scores = Vec::new();
@@ -150,8 +143,7 @@ async fn cross_validate(
 
         // Train and evaluate
         let student = Predictor::new(signature.clone());
-        let optimizer = BootstrapFewShot::new(metric.clone())
-            .with_max_bootstrapped_demos(3);
+        let optimizer = BootstrapFewShot::new(metric.clone()).with_max_bootstrapped_demos(3);
 
         let optimized = optimizer.compile(&student, &train_set).await?;
         let score = evaluate(&optimized, val_set, &metric).await?;
@@ -162,10 +154,7 @@ async fn cross_validate(
 
     let avg = scores.iter().sum::<f64>() / scores.len() as f64;
     let std_dev = {
-        let variance = scores
-            .iter()
-            .map(|s| (s - avg).powi(2))
-            .sum::<f64>() / scores.len() as f64;
+        let variance = scores.iter().map(|s| (s - avg).powi(2)).sum::<f64>() / scores.len() as f64;
         variance.sqrt()
     };
 
@@ -185,24 +174,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== Evaluation Patterns Example ===\n");
 
     // Define signature
-    let signature = Signature::new(
-        "MathClassification",
-        "Classify math operations",
-    )
-    .with_input(InputField::new(
-        "expression",
-        "Math expression",
-        "String",
-    ))
-    .with_output(OutputField::new(
-        "operation",
-        "Operation type (addition/subtraction/multiplication/division)",
-        "String",
-    ))
-    .with_instructions(
-        "Identify the primary mathematical operation in the expression. \
+    let signature = Signature::new("MathClassification", "Classify math operations")
+        .with_input(InputField::new("expression", "Math expression", "String"))
+        .with_output(OutputField::new(
+            "operation",
+            "Operation type (addition/subtraction/multiplication/division)",
+            "String",
+        ))
+        .with_instructions(
+            "Identify the primary mathematical operation in the expression. \
          Respond with exactly one word: addition, subtraction, multiplication, or division.",
-    );
+        );
 
     // Create dataset
     let dataset = vec![

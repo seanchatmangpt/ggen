@@ -1,7 +1,7 @@
 //! OAuth2 provider integration
 
-use urlencoding;
 use crate::AuthResult;
+use urlencoding;
 
 /// OAuth provider types
 #[derive(Debug, Clone)]
@@ -24,11 +24,7 @@ pub struct OAuthConfig {
 
 impl OAuthConfig {
     /// Create GitHub OAuth config
-    pub fn github(
-        client_id: String,
-        client_secret: String,
-        redirect_url: String,
-    ) -> Self {
+    pub fn github(client_id: String, client_secret: String, redirect_url: String) -> Self {
         Self {
             provider: OAuthProvider::GitHub,
             client_id,
@@ -41,11 +37,7 @@ impl OAuthConfig {
     }
 
     /// Create Google OAuth config
-    pub fn google(
-        client_id: String,
-        client_secret: String,
-        redirect_url: String,
-    ) -> Self {
+    pub fn google(client_id: String, client_secret: String, redirect_url: String) -> Self {
         Self {
             provider: OAuthProvider::Google,
             client_id,

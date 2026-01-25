@@ -322,9 +322,7 @@ fn test_error_invalid_path_characters() {
 
     // We'll test a deeply nested path that's valid but unusual
     let temp_dir = TempDir::new().unwrap();
-    let deeply_nested = temp_dir
-        .path()
-        .join("a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p");
+    let deeply_nested = temp_dir.path().join("a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p");
     let project_path = deeply_nested.to_str().unwrap();
 
     // Act: Initialize with deeply nested path
@@ -411,7 +409,9 @@ fn test_directory_already_exists_scenario() {
         "schema should not be in created list (already existed)"
     );
     assert!(
-        !output.directories_created.contains(&"templates".to_string()),
+        !output
+            .directories_created
+            .contains(&"templates".to_string()),
         "templates should not be in created list (already existed)"
     );
 

@@ -31,8 +31,7 @@ impl Module for FastMockQA {
     }
 
     async fn forward(
-        &self,
-        inputs: HashMap<String, serde_json::Value>,
+        &self, inputs: HashMap<String, serde_json::Value>,
     ) -> Result<HashMap<String, serde_json::Value>, ModuleError> {
         // Simulate some processing time
         tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
@@ -90,7 +89,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         // Sequential evaluation (1 thread)
         println!("\n1. Sequential Evaluation (1 thread)");
-        let evaluator = Evaluate::new(devset.clone()).with_metric(metric.clone()).with_num_threads(1);
+        let evaluator = Evaluate::new(devset.clone())
+            .with_metric(metric.clone())
+            .with_num_threads(1);
 
         let start = Instant::now();
         let result = evaluator.evaluate(&program, None).await?;
