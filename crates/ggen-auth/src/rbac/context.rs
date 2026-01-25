@@ -84,10 +84,7 @@ pub struct AuthorizationRequest {
 impl AuthorizationRequest {
     /// Create a new authorization request
     pub fn new(
-        user_id: String,
-        resource_type: ResourceType,
-        resource_id: String,
-        action: Permission,
+        user_id: String, resource_type: ResourceType, resource_id: String, action: Permission,
         context: AuthorizationContext,
     ) -> Self {
         Self {

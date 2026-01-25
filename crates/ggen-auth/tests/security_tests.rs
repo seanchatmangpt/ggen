@@ -1,6 +1,6 @@
 //! Security tests for authentication system (Chicago TDD)
 
-use ggen_auth::{Rs256JwtManager, PasswordHasher};
+use ggen_auth::{PasswordHasher, Rs256JwtManager};
 use std::time::{Duration, Instant};
 
 // Test Suite 1: Timing Attack Resistance (5 tests)
@@ -28,7 +28,11 @@ fn test_password_verification_constant_time() {
 
     // Assert - timing should be similar (within 20% variance)
     let ratio = duration_correct.as_nanos() as f64 / duration_incorrect.as_nanos() as f64;
-    assert!(ratio > 0.8 && ratio < 1.2, "Timing variance too high: {}", ratio);
+    assert!(
+        ratio > 0.8 && ratio < 1.2,
+        "Timing variance too high: {}",
+        ratio
+    );
 }
 
 #[test]
@@ -37,7 +41,9 @@ fn test_jwt_verification_timing_consistency() {
     let (private_pem, public_pem) = Rs256JwtManager::generate_key_pair().unwrap();
     let manager = Rs256JwtManager::new(&private_pem, &public_pem, 900, 604800).unwrap();
     let scopes = vec!["read".to_string()];
-    let pair = manager.generate_token_pair("user123", "user@example.com", "pro", scopes).unwrap();
+    let pair = manager
+        .generate_token_pair("user123", "user@example.com", "pro", scopes)
+        .unwrap();
 
     // Act - measure time for valid token
     let start_valid = Instant::now();
@@ -55,7 +61,11 @@ fn test_jwt_verification_timing_consistency() {
 
     // Assert - timing should be similar
     let ratio = duration_valid.as_nanos() as f64 / duration_invalid.as_nanos() as f64;
-    assert!(ratio > 0.5 && ratio < 2.0, "Timing variance too high: {}", ratio);
+    assert!(
+        ratio > 0.5 && ratio < 2.0,
+        "Timing variance too high: {}",
+        ratio
+    );
 }
 
 #[test]
@@ -81,7 +91,11 @@ fn test_hash_verification_same_timing_for_different_wrong_passwords() {
 
     // Assert - timing should be similar
     let ratio = duration1.as_nanos() as f64 / duration2.as_nanos() as f64;
-    assert!(ratio > 0.8 && ratio < 1.2, "Timing variance too high: {}", ratio);
+    assert!(
+        ratio > 0.8 && ratio < 1.2,
+        "Timing variance too high: {}",
+        ratio
+    );
 }
 
 #[test]
@@ -107,7 +121,11 @@ fn test_password_verification_no_early_termination() {
 
     // Assert - timing should be similar (no early termination)
     let ratio = duration1.as_nanos() as f64 / duration2.as_nanos() as f64;
-    assert!(ratio > 0.8 && ratio < 1.2, "Timing variance suggests early termination: {}", ratio);
+    assert!(
+        ratio > 0.8 && ratio < 1.2,
+        "Timing variance suggests early termination: {}",
+        ratio
+    );
 }
 
 #[test]
@@ -118,7 +136,9 @@ fn test_token_verification_consistent_invalid_signature_timing() {
     let manager1 = Rs256JwtManager::new(&private_pem1, &public_pem1, 900, 604800).unwrap();
     let manager2 = Rs256JwtManager::new(&private_pem2, &public_pem2, 900, 604800).unwrap();
     let scopes = vec!["read".to_string()];
-    let pair = manager1.generate_token_pair("user123", "user@example.com", "pro", scopes).unwrap();
+    let pair = manager1
+        .generate_token_pair("user123", "user@example.com", "pro", scopes)
+        .unwrap();
 
     // Act - measure time for invalid signature
     let start = Instant::now();
@@ -128,7 +148,10 @@ fn test_token_verification_consistent_invalid_signature_timing() {
     let duration = start.elapsed();
 
     // Assert - should complete in reasonable time (no excessive computation)
-    assert!(duration < Duration::from_secs(5), "Verification took too long");
+    assert!(
+        duration < Duration::from_secs(5),
+        "Verification took too long"
+    );
 }
 
 // Test Suite 2: Token Replay Protection (4 tests)
@@ -141,8 +164,12 @@ fn test_tokens_have_unique_jti() {
     let scopes = vec!["read".to_string()];
 
     // Act
-    let pair1 = manager.generate_token_pair("user123", "user@example.com", "pro", scopes.clone()).unwrap();
-    let pair2 = manager.generate_token_pair("user123", "user@example.com", "pro", scopes).unwrap();
+    let pair1 = manager
+        .generate_token_pair("user123", "user@example.com", "pro", scopes.clone())
+        .unwrap();
+    let pair2 = manager
+        .generate_token_pair("user123", "user@example.com", "pro", scopes)
+        .unwrap();
     let claims1 = manager.verify_token(&pair1.access_token).unwrap();
     let claims2 = manager.verify_token(&pair2.access_token).unwrap();
 
@@ -156,7 +183,9 @@ fn test_refreshed_tokens_have_new_jti() {
     let (private_pem, public_pem) = Rs256JwtManager::generate_key_pair().unwrap();
     let manager = Rs256JwtManager::new(&private_pem, &public_pem, 900, 604800).unwrap();
     let scopes = vec!["read".to_string()];
-    let pair = manager.generate_token_pair("user123", "user@example.com", "pro", scopes).unwrap();
+    let pair = manager
+        .generate_token_pair("user123", "user@example.com", "pro", scopes)
+        .unwrap();
     let old_claims = manager.verify_token(&pair.access_token).unwrap();
 
     // Act
@@ -175,7 +204,9 @@ fn test_tokens_have_timestamps() {
     let scopes = vec!["read".to_string()];
 
     // Act
-    let pair = manager.generate_token_pair("user123", "user@example.com", "pro", scopes).unwrap();
+    let pair = manager
+        .generate_token_pair("user123", "user@example.com", "pro", scopes)
+        .unwrap();
     let claims = manager.verify_token(&pair.access_token).unwrap();
 
     // Assert - tokens must have iat and exp for replay detection
@@ -191,7 +222,9 @@ fn test_tokens_expire_correctly() {
     let scopes = vec!["read".to_string()];
 
     // Act
-    let pair = manager.generate_token_pair("user123", "user@example.com", "pro", scopes).unwrap();
+    let pair = manager
+        .generate_token_pair("user123", "user@example.com", "pro", scopes)
+        .unwrap();
 
     // Verify immediately (should work)
     let result_before = manager.verify_token(&pair.access_token);
@@ -219,7 +252,11 @@ fn test_password_hashing_is_expensive() {
     let duration = start.elapsed();
 
     // Assert - should take at least 10ms (Argon2 is deliberately slow)
-    assert!(duration > Duration::from_millis(10), "Hashing too fast: {:?}", duration);
+    assert!(
+        duration > Duration::from_millis(10),
+        "Hashing too fast: {:?}",
+        duration
+    );
 }
 
 #[test]
@@ -235,7 +272,11 @@ fn test_password_verification_is_expensive() {
     let duration = start.elapsed();
 
     // Assert - should take at least 10ms
-    assert!(duration > Duration::from_millis(10), "Verification too fast: {:?}", duration);
+    assert!(
+        duration > Duration::from_millis(10),
+        "Verification too fast: {:?}",
+        duration
+    );
 }
 
 #[test]
@@ -264,8 +305,8 @@ fn test_argon2_parameters_are_secure() {
     // Assert - verify Argon2id with secure parameters
     assert!(hash.contains("$argon2id$"));
     assert!(hash.contains("m=19456")); // 19 MiB memory
-    assert!(hash.contains("t=2"));     // 2 iterations
-    assert!(hash.contains("p=1"));     // 1 parallelism
+    assert!(hash.contains("t=2")); // 2 iterations
+    assert!(hash.contains("p=1")); // 1 parallelism
 }
 
 #[test]
@@ -283,7 +324,11 @@ fn test_jwt_signing_is_computationally_expensive() {
     let duration = start.elapsed();
 
     // Assert - RS256 signing should have some computational cost
-    assert!(duration > Duration::from_micros(100), "Signing too fast: {:?}", duration);
+    assert!(
+        duration > Duration::from_micros(100),
+        "Signing too fast: {:?}",
+        duration
+    );
 }
 
 #[test]
@@ -310,7 +355,9 @@ fn test_different_keys_produce_incompatible_tokens() {
     let scopes = vec!["read".to_string()];
 
     // Act
-    let pair = manager1.generate_token_pair("user123", "user@example.com", "pro", scopes).unwrap();
+    let pair = manager1
+        .generate_token_pair("user123", "user@example.com", "pro", scopes)
+        .unwrap();
     let result = manager2.verify_token(&pair.access_token);
 
     // Assert - tokens from different keys should not verify
@@ -323,7 +370,9 @@ fn test_token_tampering_detection() {
     let (private_pem, public_pem) = Rs256JwtManager::generate_key_pair().unwrap();
     let manager = Rs256JwtManager::new(&private_pem, &public_pem, 900, 604800).unwrap();
     let scopes = vec!["read".to_string()];
-    let pair = manager.generate_token_pair("user123", "user@example.com", "pro", scopes).unwrap();
+    let pair = manager
+        .generate_token_pair("user123", "user@example.com", "pro", scopes)
+        .unwrap();
 
     // Act - tamper with token by changing one character
     let mut tampered_token = pair.access_token.chars().collect::<Vec<_>>();
@@ -364,7 +413,9 @@ fn test_rs256_uses_asymmetric_cryptography() {
     // Act
     let manager = Rs256JwtManager::new(&private_pem, &public_pem, 900, 604800).unwrap();
     let scopes = vec!["read".to_string()];
-    let pair = manager.generate_token_pair("user123", "user@example.com", "pro", scopes).unwrap();
+    let pair = manager
+        .generate_token_pair("user123", "user@example.com", "pro", scopes)
+        .unwrap();
 
     // Assert - should be able to verify with public key only
     let verify_only_manager = Rs256JwtManager::new(&private_pem, &public_pem, 900, 604800).unwrap();

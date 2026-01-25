@@ -73,13 +73,13 @@ impl HstsPolicy {
         if self.preload {
             if !self.include_subdomains {
                 return Err(TlsError::HstsViolation(
-                    "HSTS preload requires includeSubDomains".to_string()
+                    "HSTS preload requires includeSubDomains".to_string(),
                 ));
             }
 
             if self.max_age < Duration::from_secs(31_536_000) {
                 return Err(TlsError::HstsViolation(
-                    "HSTS preload requires max-age >= 31536000 (1 year)".to_string()
+                    "HSTS preload requires max-age >= 31536000 (1 year)".to_string(),
                 ));
             }
         }
@@ -191,7 +191,7 @@ impl HstsMiddleware {
                 max_age = Some(
                     age_str
                         .parse::<u64>()
-                        .map_err(|e| TlsError::HstsViolation(format!("Invalid max-age: {e}")))?
+                        .map_err(|e| TlsError::HstsViolation(format!("Invalid max-age: {e}")))?,
                 );
             } else if part.eq_ignore_ascii_case("includeSubDomains") {
                 include_subdomains = true;
@@ -301,7 +301,10 @@ mod tests {
         let result = policy.validate();
 
         // Assert
-        assert!(result.is_err(), "Preload without includeSubDomains should fail");
+        assert!(
+            result.is_err(),
+            "Preload without includeSubDomains should fail"
+        );
     }
 
     #[test]
@@ -329,7 +332,10 @@ mod tests {
         let middleware = HstsMiddleware::new(policy);
 
         // Assert
-        assert_eq!(middleware.default_policy().max_age, Duration::from_secs(31_536_000));
+        assert_eq!(
+            middleware.default_policy().max_age,
+            Duration::from_secs(31_536_000)
+        );
     }
 
     #[tokio::test]
@@ -349,7 +355,8 @@ mod tests {
     async fn test_should_enforce_https() {
         // Arrange
         let middleware = HstsMiddleware::new(HstsPolicy::default());
-        middleware.add_host("example.com".to_string(), HstsPolicy::default())
+        middleware
+            .add_host("example.com".to_string(), HstsPolicy::default())
             .await
             .expect("Failed to add host");
 
@@ -357,7 +364,10 @@ mod tests {
         let should_enforce = middleware.should_enforce_https("example.com").await;
 
         // Assert
-        assert!(should_enforce, "HTTPS should be enforced for registered host");
+        assert!(
+            should_enforce,
+            "HTTPS should be enforced for registered host"
+        );
     }
 
     #[tokio::test]
@@ -369,7 +379,10 @@ mod tests {
         let should_enforce = middleware.should_enforce_https("unknown.com").await;
 
         // Assert
-        assert!(!should_enforce, "HTTPS should not be enforced for unknown host");
+        assert!(
+            !should_enforce,
+            "HTTPS should not be enforced for unknown host"
+        );
     }
 
     #[tokio::test]
@@ -381,7 +394,8 @@ mod tests {
             include_subdomains: true,
             preload: false,
         };
-        middleware.add_host("example.com".to_string(), policy)
+        middleware
+            .add_host("example.com".to_string(), policy)
             .await
             .expect("Failed to add host");
 
@@ -389,7 +403,10 @@ mod tests {
         let should_enforce = middleware.should_enforce_https("www.example.com").await;
 
         // Assert
-        assert!(should_enforce, "HTTPS should be enforced for subdomain when includeSubDomains is set");
+        assert!(
+            should_enforce,
+            "HTTPS should be enforced for subdomain when includeSubDomains is set"
+        );
     }
 
     #[tokio::test]
@@ -427,7 +444,9 @@ mod tests {
         let header = "max-age=31536000; includeSubDomains";
 
         // Act
-        let result = middleware.process_header("example.com".to_string(), header).await;
+        let result = middleware
+            .process_header("example.com".to_string(), header)
+            .await;
 
         // Assert
         assert!(result.is_ok(), "Processing valid header should succeed");

@@ -6,9 +6,7 @@ use chrono::Utc;
 use crate::{error::ApiResult, models::HealthResponse, state::AppState};
 
 /// Health check endpoint
-pub async fn health(
-    State(_state): State<AppState>,
-) -> ApiResult<Json<HealthResponse>> {
+pub async fn health(State(_state): State<AppState>) -> ApiResult<Json<HealthResponse>> {
     Ok(Json(HealthResponse {
         status: "healthy".to_string(),
         timestamp: Utc::now(),
@@ -17,9 +15,7 @@ pub async fn health(
 }
 
 /// Ready check (dependencies up)
-pub async fn ready(
-    State(_state): State<AppState>,
-) -> ApiResult<Json<serde_json::Value>> {
+pub async fn ready(State(_state): State<AppState>) -> ApiResult<Json<serde_json::Value>> {
     // TODO: Check database connectivity
     // TODO: Check Stripe connectivity
     // TODO: Check cache connectivity

@@ -40,8 +40,7 @@ pub async fn get_usage_stats(
 
 /// Record a usage event
 pub async fn record_usage(
-    State(_state): State<AppState>,
-    Json(req): Json<UsageRequest>,
+    State(_state): State<AppState>, Json(req): Json<UsageRequest>,
 ) -> ApiResult<StatusCode> {
     // Validate request
     if req.operation.is_empty() {
@@ -59,8 +58,7 @@ pub async fn record_usage(
 
 /// Get user's invoices
 pub async fn get_invoices(
-    State(_state): State<AppState>,
-    Query(params): Query<std::collections::HashMap<String, String>>,
+    State(_state): State<AppState>, Query(params): Query<std::collections::HashMap<String, String>>,
 ) -> ApiResult<Json<Vec<InvoiceResponse>>> {
     // TODO: Get user from auth context
     // TODO: Fetch invoices from database
@@ -76,8 +74,7 @@ pub async fn get_invoices(
 
 /// Get a specific invoice
 pub async fn get_invoice(
-    State(_state): State<AppState>,
-    Path(invoice_id): Path<String>,
+    State(_state): State<AppState>, Path(invoice_id): Path<String>,
 ) -> ApiResult<Json<InvoiceResponse>> {
     // Validate request
     if invoice_id.is_empty() {
@@ -93,8 +90,7 @@ pub async fn get_invoice(
 
 /// Upgrade or downgrade subscription
 pub async fn change_tier(
-    State(_state): State<AppState>,
-    Json(req): Json<UpgradeRequest>,
+    State(_state): State<AppState>, Json(req): Json<UpgradeRequest>,
 ) -> ApiResult<Json<serde_json::Value>> {
     // Validate request
     let valid_tiers = vec!["free", "pro", "enterprise"];
@@ -121,8 +117,7 @@ pub async fn change_tier(
 
 /// Get billing history
 pub async fn get_billing_history(
-    State(_state): State<AppState>,
-    Query(params): Query<std::collections::HashMap<String, String>>,
+    State(_state): State<AppState>, Query(params): Query<std::collections::HashMap<String, String>>,
 ) -> ApiResult<Json<serde_json::Value>> {
     // TODO: Get user from auth context
     // TODO: Fetch billing events from database
@@ -152,9 +147,7 @@ pub async fn get_subscription(
 }
 
 /// Cancel subscription
-pub async fn cancel_subscription(
-    State(_state): State<AppState>,
-) -> ApiResult<StatusCode> {
+pub async fn cancel_subscription(State(_state): State<AppState>) -> ApiResult<StatusCode> {
     // TODO: Get user from auth context
     // TODO: Mark subscription as cancelling (at period end)
     // TODO: Update Stripe subscription
@@ -178,8 +171,7 @@ pub async fn get_payment_methods(
 
 /// Add a payment method
 pub async fn add_payment_method(
-    State(_state): State<AppState>,
-    Json(payload): Json<serde_json::Value>,
+    State(_state): State<AppState>, Json(payload): Json<serde_json::Value>,
 ) -> ApiResult<(StatusCode, Json<serde_json::Value>)> {
     // TODO: Get user from auth context
     // TODO: Create Stripe SetupIntent
@@ -195,8 +187,7 @@ pub async fn add_payment_method(
 
 /// Remove a payment method
 pub async fn remove_payment_method(
-    State(_state): State<AppState>,
-    Path(method_id): Path<String>,
+    State(_state): State<AppState>, Path(method_id): Path<String>,
 ) -> ApiResult<StatusCode> {
     if method_id.is_empty() {
         return Err(ApiError::BadRequest("Method ID required".to_string()));
@@ -210,9 +201,7 @@ pub async fn remove_payment_method(
 }
 
 /// Get available pricing tiers
-pub async fn get_pricing(
-    State(_state): State<AppState>,
-) -> ApiResult<Json<serde_json::Value>> {
+pub async fn get_pricing(State(_state): State<AppState>) -> ApiResult<Json<serde_json::Value>> {
     Ok(Json(serde_json::json!({
         "tiers": [
             {

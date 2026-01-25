@@ -115,14 +115,18 @@ impl RateLimiter for RedisRateLimiter {
         let attempts: u32 = conn
             .incr(Self::attempts_key(identifier), 1)
             .await
-            .map_err(|e| AuthError::DatabaseError(format!("Failed to increment attempts: {}", e)))?;
+            .map_err(|e| {
+                AuthError::DatabaseError(format!("Failed to increment attempts: {}", e))
+            })?;
 
         // Set expiration on first attempt
         if attempts == 1 {
             let _: () = conn
                 .expire(Self::attempts_key(identifier), self.config.window_seconds)
                 .await
-                .map_err(|e| AuthError::DatabaseError(format!("Failed to set expiration: {}", e)))?;
+                .map_err(|e| {
+                    AuthError::DatabaseError(format!("Failed to set expiration: {}", e))
+                })?;
         }
 
         // Lock out if max attempts reached
@@ -193,8 +197,8 @@ mod tests {
     use super::*;
 
     async fn create_test_limiter() -> RedisRateLimiter {
-        let redis_url = std::env::var("REDIS_URL")
-            .unwrap_or_else(|_| "redis://127.0.0.1:6379".to_string());
+        let redis_url =
+            std::env::var("REDIS_URL").unwrap_or_else(|_| "redis://127.0.0.1:6379".to_string());
 
         RedisRateLimiter::new(&redis_url, RateLimitConfig::login_default())
             .await

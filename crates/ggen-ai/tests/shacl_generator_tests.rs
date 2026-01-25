@@ -123,7 +123,9 @@ fn test_pattern_restriction_maps_to_shacl_pattern() {
         .push(OWLRestriction::DatatypeRestriction {
             property: NamedNode::new("http://example.com/hasISIN").unwrap(),
             base_type: NamedNode::new("http://www.w3.org/2001/XMLSchema#string").unwrap(),
-            facets: vec![DatatypeFacet::Pattern("[A-Z]{2}[A-Z0-9]{9}[0-9]".to_string())],
+            facets: vec![DatatypeFacet::Pattern(
+                "[A-Z]{2}[A-Z0-9]{9}[0-9]".to_string(),
+            )],
         });
 
     // Act: Generate SHACL
@@ -360,9 +362,7 @@ fn test_round_trip_owl_to_shacl_to_parser() {
     let parser = SHACLParser::new(&store);
 
     // Try to extract properties (shape URI needs to match)
-    let properties = parser
-        .extract_properties(&shape.node_shape_uri)
-        .unwrap();
+    let properties = parser.extract_properties(&shape.node_shape_uri).unwrap();
 
     // Assert: Properties can be extracted
     assert!(
@@ -412,7 +412,9 @@ fn test_parser_extracts_pattern_constraints() {
         .push(OWLRestriction::DatatypeRestriction {
             property: NamedNode::new("http://example.com/hasISIN").unwrap(),
             base_type: NamedNode::new("http://www.w3.org/2001/XMLSchema#string").unwrap(),
-            facets: vec![DatatypeFacet::Pattern("[A-Z]{2}[A-Z0-9]{9}[0-9]".to_string())],
+            facets: vec![DatatypeFacet::Pattern(
+                "[A-Z]{2}[A-Z0-9]{9}[0-9]".to_string(),
+            )],
         });
 
     let shape = SHACLGenerator::generate_shape(&owl_class).unwrap();
@@ -438,10 +440,7 @@ fn test_parser_extracts_length_constraints() {
         .push(OWLRestriction::DatatypeRestriction {
             property: NamedNode::new("http://example.com/email").unwrap(),
             base_type: NamedNode::new("http://www.w3.org/2001/XMLSchema#string").unwrap(),
-            facets: vec![
-                DatatypeFacet::MinLength(5),
-                DatatypeFacet::MaxLength(100),
-            ],
+            facets: vec![DatatypeFacet::MinLength(5), DatatypeFacet::MaxLength(100)],
         });
 
     let shape = SHACLGenerator::generate_shape(&owl_class).unwrap();
@@ -562,7 +561,9 @@ fn test_combined_cardinality_and_datatype_restrictions() {
         .push(OWLRestriction::DatatypeRestriction {
             property: NamedNode::new("http://example.com/hasISIN").unwrap(),
             base_type: NamedNode::new("http://www.w3.org/2001/XMLSchema#string").unwrap(),
-            facets: vec![DatatypeFacet::Pattern("[A-Z]{2}[A-Z0-9]{9}[0-9]".to_string())],
+            facets: vec![DatatypeFacet::Pattern(
+                "[A-Z]{2}[A-Z0-9]{9}[0-9]".to_string(),
+            )],
         });
 
     // Act: Generate SHACL

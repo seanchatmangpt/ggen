@@ -52,7 +52,10 @@ async fn test_dummy_lm_query_based() {
     let mut query_map = HashMap::new();
     query_map.insert(
         "Rust".to_string(),
-        HashMap::from([("answer".to_string(), json!("A systems programming language"))]),
+        HashMap::from([(
+            "answer".to_string(),
+            json!("A systems programming language"),
+        )]),
     );
     query_map.insert(
         "Python".to_string(),
@@ -72,7 +75,10 @@ async fn test_dummy_lm_query_based() {
     // Test Python query
     let inputs = HashMap::from([("prompt".to_string(), json!("Tell me about Python"))]);
     let result = dummy.forward(inputs).await.unwrap();
-    assert_eq!(result.get("answer").unwrap(), &json!("A high-level language"));
+    assert_eq!(
+        result.get("answer").unwrap(),
+        &json!("A high-level language")
+    );
 }
 
 #[tokio::test]
@@ -269,7 +275,9 @@ fn test_create_qa_trainset() {
     let trainset = create_qa_trainset();
 
     assert!(trainset.len() >= 5);
-    assert!(trainset.iter().all(|ex| !ex.inputs.is_empty() && !ex.outputs.is_empty()));
+    assert!(trainset
+        .iter()
+        .all(|ex| !ex.inputs.is_empty() && !ex.outputs.is_empty()));
 }
 
 #[test]
@@ -403,7 +411,10 @@ async fn test_dummy_lm_with_selective_metric() {
     let trainset = vec![Example::new(ex1_inputs.clone(), ex1_outputs.clone())];
 
     // DummyLM that returns the correct answer
-    let responses = vec![HashMap::from([("answer".to_string(), json!("Correct answer"))])];
+    let responses = vec![HashMap::from([(
+        "answer".to_string(),
+        json!("Correct answer"),
+    )])];
     let dummy = DummyLM::sequential(responses);
 
     let optimized = optimizer.compile(&dummy, &trainset).await.unwrap();

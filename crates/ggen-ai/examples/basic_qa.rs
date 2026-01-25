@@ -105,11 +105,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "Step-by-step thought process",
         "String",
     ))
-    .with_output(OutputField::new(
-        "answer",
-        "The final answer",
-        "String",
-    ))
+    .with_output(OutputField::new("answer", "The final answer", "String"))
     .with_instructions(
         "Think step-by-step to arrive at the correct answer. \
          Show your reasoning process before providing the final answer.",
